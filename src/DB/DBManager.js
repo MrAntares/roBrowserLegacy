@@ -96,13 +96,22 @@ define(function(require)
 		console.log('Loading DB files...');
 
 		// Loading TXT Tables
-		loadTable( 'data/mp3nametable.txt',               2, function(index, key, val){   (MapTable[key] || (MapTable[key] = {})).mp3                   = val;               }, onLoad());
-		loadTable( 'data/mapnametable.txt',               2, function(index, key, val){   (MapTable[key] || (MapTable[key] = {})).name                  = val;               }, onLoad());
-		loadTable( 'data/msgstringtable.txt',             1, function(index, val){         MsgStringTable[index]                                        = val;               }, onLoad());
-		loadTable( 'data/resnametable.txt',               2, function(index, key, val){    DB.mapalias[key]                                             = val;               }, onLoad());
-		loadTable( 'data/num2cardillustnametable.txt',    2, function(index, key, val){   (ItemTable[key] || (ItemTable[key] = {})).illustResourcesName = val;               }, onLoad());
-		loadTable( 'data/cardprefixnametable.txt',        2, function(index, key, val){   (ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     = val;               }, onLoad());
-		loadTable( 'data/fogparametertable.txt',          5, parseFogEntry,                                                                                                     onLoad());
+		loadTable( 'data/mp3nametable.txt',			2, function(index, key, val){	(MapTable[key] || (MapTable[key] = {})).mp3                   		= val;}, 			onLoad());
+		loadTable( 'data/mapnametable.txt',			2, function(index, key, val){	(MapTable[key] || (MapTable[key] = {})).name                  		= val;}, 			onLoad());
+		loadTable( 'data/msgstringtable.txt',			1, function(index, val){	MsgStringTable[index]                                        		= val;}, 			onLoad());
+		loadTable( 'data/resnametable.txt', 			2, function(index, key, val){	DB.mapalias[key]                                             		= val;}, 			onLoad());
+		
+		loadTable( 'data/num2itemdisplaynametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
+		loadTable( 'data/num2itemresnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
+		loadTable( 'data/num2itemdesctable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
+		loadTable( 'data/idnum2itemdisplaynametable.txt',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName 	= val.replace(/_/g, " ");},	onLoad());
+		loadTable( 'data/idnum2itemresnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
+		loadTable( 'data/idnum2itemdesctable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
+		loadTable( 'data/itemslotcounttable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
+		
+		loadTable( 'data/num2cardillustnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
+		loadTable( 'data/cardprefixnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     		= val;}, 			onLoad());
+		loadTable( 'data/fogparametertable.txt',		5, parseFogEntry,                                                                                                     			onLoad());
 	};
 
 
