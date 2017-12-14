@@ -156,6 +156,14 @@ define(function(require)
 				}
 			}.bind(this), 1);
 		}.bind(this));
+		
+		this.ui.find('.input .username').blur(function(){
+			Events.setTimeout(function(){
+				if (!document.activeElement.tagName.match(/input|select|textarea/i)) {
+					this.ui.find('.input .username').focus();
+				}
+			}.bind(this), 1);
+		}.bind(this));
 
 		// Button change name
 		this.ui.find('.header input').dblclick(function(){
