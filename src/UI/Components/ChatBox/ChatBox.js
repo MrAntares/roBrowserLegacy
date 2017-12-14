@@ -343,9 +343,11 @@ define(function(require)
 
 			// Battle mode system
 			default:
-				if (ChatBox.processBattleMode(event.which)) {
-					event.stopImmediatePropagation();
-					return false;
+				if ((!event.target.tagName.match(/input|select|textarea/i)) || (event.which >= KEYS.F1 && event.which <= KEYS.F24) || KEYS.ALT || KEYS.SHIFT || KEYS.CTRL){
+					if (ChatBox.processBattleMode(event.which)) {
+						event.stopImmediatePropagation();
+						return false;
+					}
 				}
 				return true;
 
