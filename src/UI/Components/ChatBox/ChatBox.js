@@ -297,19 +297,25 @@ define(function(require)
 			(keyId >= KEYS.F1 && keyId <= KEYS.F24)) {
 			return BattleMode.process(keyId);
 		}
-
+		
+		//Fixed and Removed unnecessary check.
+		/*
 		var messageBox = this.ui.find('.input .message');
 		var text       = messageBox.val();
+		
+		var messageBoxUser = this.ui.find('.input .username');
+		var text2       = messageBoxUser.val();
 
 		// Hacky, need to wait the browser to add text in the input
 		// If there is no change, send the shortcut.
 		Events.setTimeout(function(){
 			// Nothing rendered, can process the shortcut
-			if (messageBox.val() === text) {
+			if ((messageBox.val() === text) && (messageBoxUser.val() === text2)) {
 				BattleMode.process(keyId);
 			}
 		}.bind(this), 4);
-
+		*/
+		
 		return false;
 	};
 
