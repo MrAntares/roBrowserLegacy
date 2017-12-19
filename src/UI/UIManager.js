@@ -149,6 +149,19 @@ define(function( require )
 				left: (Renderer.width -280) / 2.0,
 				zIndex: 100
 			});
+			WinError.ui.find('.btns').append(
+				jQuery('<button/>').
+					addClass('btn').
+					data('background', 'btn_ok.bmp').
+					data('hover',      'btn_ok_a.bmp').
+					data('down',       'btn_ok_b.bmp').
+					one('click', function(){
+						overlay.remove();
+						WinError.remove();
+						getModule('Engine/GameEngine').reload();
+					}).
+					each( this.parseHTML )
+			);
 		};
 		WinError.onKeyDown = function OnKeyDown( event )
 		{
