@@ -57,7 +57,11 @@ define(function(require)
 		x:        0,
 		y:        0,
 		reduce:   true,
-		buttons:  true
+		buttons:  true,
+		magnet_top: true,
+		magnet_bottom: false,
+		magnet_left: true,
+		magnet_right: false
 	}, 1.0);
 
 
@@ -121,7 +125,12 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-
+		
+		this.magnet.TOP = _preferences.magnet_top;
+		this.magnet.BOTTOM = _preferences.magnet_bottom;
+		this.magnet.LEFT = _preferences.magnet_left;
+		this.magnet.RIGHT = _preferences.magnet_right;
+		
 		// large/small window
 		this.ui.removeClass('small large');
 		if (_preferences.reduce) {
@@ -149,6 +158,10 @@ define(function(require)
 		_preferences.y       = parseInt(this.ui.css('top'), 10);
 		_preferences.reduce  = this.ui.hasClass('small');
 		_preferences.buttons = this.ui.find('.buttons').is(':visible');
+		_preferences.magnet_top = this.magnet.TOP;
+		_preferences.magnet_bottom = this.magnet.BOTTOM;
+		_preferences.magnet_left = this.magnet.LEFT;
+		_preferences.magnet_right = this.magnet.RIGHT;
 		_preferences.save();
 	};
 
