@@ -388,7 +388,8 @@ define(function( require )
 			function(){
 				UIManager.removeComponents();
 				WinLogin.append();
-			}
+			},
+			true
 		);
 
 		Network.close();

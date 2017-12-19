@@ -149,6 +149,7 @@ define(function( require )
 				left: (Renderer.width -280) / 2.0,
 				zIndex: 100
 			});
+			
 			WinError.ui.find('.btns').append(
 				jQuery('<button/>').
 					addClass('btn').
@@ -235,7 +236,7 @@ define(function( require )
 
 
 		// Just keydown
-		if (!btn_name || keydown) {
+		if (keydown) {
 			WinMSG.onKeyDown = function(event){
 				switch (event.which) {
 					case KEYS.ENTER:
