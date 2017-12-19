@@ -61,9 +61,13 @@ define(function(require)
 	 * @var {Preferences} structure
 	 */
 	var _preferences = Preferences.get('ChatBox', {
-		x:      5,
+		x:      0,
 		y:      Infinity,
-		height: 2
+		height: 2,
+		magnet_top: false,
+		magnet_bottom: true,
+		magnet_left: true,
+		magnet_right: false
 	}, 1.0);
 
 
@@ -118,7 +122,12 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y - this.ui.height()), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-
+		
+		this.magnet.TOP = _preferences.magnet_top;
+		this.magnet.BOTTOM = _preferences.magnet_bottom;
+		this.magnet.LEFT = _preferences.magnet_left;
+		this.magnet.RIGHT = _preferences.magnet_right;
+		
 		this.draggable( this.ui.find('.input') );
 		this.draggable( this.ui.find('.battlemode') );
 		
@@ -287,6 +296,10 @@ define(function(require)
 		_preferences.y      = parseInt(this.ui.css('top'), 10) + this.ui.height();
 		_preferences.x      = parseInt(this.ui.css('left'), 10);
 		_preferences.height = _heightIndex;
+		_preferences.magnet_top = this.magnet.TOP;
+		_preferences.magnet_bottom = this.magnet.BOTTOM;
+		_preferences.magnet_left = this.magnet.LEFT;
+		_preferences.magnet_right = this.magnet.RIGHT;
 		_preferences.save();
 	};
 
@@ -305,15 +318,13 @@ define(function(require)
 			(keyId >= KEYS.F1 && keyId <= KEYS.F24)) {
 			return BattleMode.process(keyId);
 		}
-		
-		//Fixed and Removed unnecessary check.
-		/*
+/*
 		var messageBox = this.ui.find('.input .message');
 		var text       = messageBox.val();
 		
 		var messageBoxUser = this.ui.find('.input .username');
 		var text2       = messageBoxUser.val();
-
+		
 		// Hacky, need to wait the browser to add text in the input
 		// If there is no change, send the shortcut.
 		Events.setTimeout(function(){
@@ -321,9 +332,8 @@ define(function(require)
 			if ((messageBox.val() === text) && (messageBoxUser.val() === text2)) {
 				BattleMode.process(keyId);
 			}
-		}.bind(this), 4);
-		*/
-		
+		}.bind(this), 4);*/
+
 		return false;
 	};
 
@@ -338,7 +348,7 @@ define(function(require)
 	{
 		var messageBox = this.ui.find('.input .message');
 		var nickBox    = this.ui.find('.input .username');
-
+		
 		switch (event.which) {
 
 			// Battle mode system
