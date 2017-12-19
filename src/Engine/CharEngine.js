@@ -132,6 +132,9 @@ define(function( require )
 			Network.sendPacket(ping);
 		});
 
+		Session.Playing = false;
+    		//Session.hasCart = false;
+		
 		UIManager.getComponent('WinLoading').remove();
 
 		// Initialize window
