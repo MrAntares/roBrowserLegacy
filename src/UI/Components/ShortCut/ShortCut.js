@@ -59,6 +59,10 @@ define(function(require)
 		x:        480,
 		y:        0,
 		size:     1,
+		magnet_top: true,
+		magnet_bottom: false,
+		magnet_left: false,
+		magnet_right: false
 	}, 1.0);
 
 
@@ -99,6 +103,10 @@ define(function(require)
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width()),
 			height: 34 * _preferences.size
 		});
+		this.magnet.TOP = _preferences.magnet_top;
+		this.magnet.BOTTOM = _preferences.magnet_bottom;
+		this.magnet.LEFT = _preferences.magnet_left;
+		this.magnet.RIGHT = _preferences.magnet_right;
 	};
 
 
@@ -111,6 +119,10 @@ define(function(require)
 		_preferences.y      = parseInt(this.ui.css('top'), 10);
 		_preferences.x      = parseInt(this.ui.css('left'), 10);
 		_preferences.size   = Math.floor( parseInt(this.ui.css('height'),10) / 34 );
+		_preferences.magnet_top = this.magnet.TOP;
+		_preferences.magnet_bottom = this.magnet.BOTTOM;
+		_preferences.magnet_left = this.magnet.LEFT;
+		_preferences.magnet_right = this.magnet.RIGHT;
 		_preferences.save();
 	};
 
