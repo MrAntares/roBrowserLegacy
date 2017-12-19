@@ -171,10 +171,15 @@ define(function( require )
 	function onMapUnavailable( pkt )
 	{
 		// no map server avaiable
-		UIManager.showMessageBox( DB.getMessage(1811), 'ok', function(){
-			UIManager.getComponent('WinLoading').remove();
-			CharSelect.append();
-		});
+		UIManager.showMessageBox( 
+			DB.getMessage(1811),
+			'ok',
+			function(){
+				UIManager.getComponent('WinLoading').remove();
+				CharSelect.append();
+			},
+			true
+		);
 	}
 
 
