@@ -66,13 +66,17 @@ define(function(require)
 	 * @var {Preferences} structure
 	 */
 	var _preferences = Preferences.get('Inventory', {
-		x:        200,
-		y:        200,
+		x:        0,
+		y:        172,
 		width:    7,
 		height:   4,
 		show:     false,
 		reduce:   false,
-		tab:      Inventory.TAB.USABLE
+		tab:      Inventory.TAB.USABLE,
+		magnet_top: false,
+		magnet_bottom: false,
+		magnet_left: true,
+		magnet_right: false
 	}, 1.0);
 
 
@@ -129,7 +133,12 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-
+		
+		this.magnet.TOP = _preferences.magnet_top;
+		this.magnet.BOTTOM = _preferences.magnet_bottom;
+		this.magnet.LEFT = _preferences.magnet_left;
+		this.magnet.RIGHT = _preferences.magnet_right;
+		
 		_realSize = _preferences.reduce ? 0 : this.ui.height();
 		this.ui.find('.titlebar .mini').trigger('mousedown');
 	};
@@ -151,6 +160,10 @@ define(function(require)
 		_preferences.x      =  parseInt(this.ui.css('left'), 10);
 		_preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
 		_preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
+		_preferences.magnet_top = this.magnet.TOP;
+		_preferences.magnet_bottom = this.magnet.BOTTOM;
+		_preferences.magnet_left = this.magnet.LEFT;
+		_preferences.magnet_right = this.magnet.RIGHT;
 		_preferences.save();
 	};
 
