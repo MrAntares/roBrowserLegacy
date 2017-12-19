@@ -384,7 +384,7 @@ define(function( require )
 
 		UIManager.showMessageBox(
 			DB.getMessage(error).replace('%s', pkt.blockDate),
-			null,
+			'ok',
 			function(){
 				UIManager.removeComponents();
 				WinLogin.append();
