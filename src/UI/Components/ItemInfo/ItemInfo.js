@@ -154,7 +154,11 @@ define(function(require)
 				for (i = 0; i < 4; ++i) {
 					addCard(cardList, (item.slot && item.slot['card' + (i+1)]) || 0, i, slotCount);
 				}
+				if (!item.IsIdentified) {
+					cardList.parent().hide();
+				}
 				break;
+				
 		}
 		resize(ItemInfo.ui.find('.container').height());
 	};
@@ -208,7 +212,7 @@ define(function(require)
 		});
 	}
 	/**
-	* Extend SkillList window size
+	* Extend ItemInfo window size
 	*/
 	function onResize()
 	{
@@ -242,7 +246,7 @@ define(function(require)
 
 
 	/**
-	* Extend Item window size
+	* Extend ItemInfo window size
 	*
 	* @param {number} height
 	*/
