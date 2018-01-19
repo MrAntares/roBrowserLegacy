@@ -88,11 +88,14 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.ROYAL_GUARD2]     = "\xB1\xD7\xB8\xAE\xC6\xF9\xB0\xA1\xB5\xE5";
 	JobNameTable[JobId.RANGER2]          = "\xB7\xB9\xC0\xCE\xC1\xAE\xB4\xC1\xB4\xEB";
 	JobNameTable[JobId.MECHANIC2]        = "\xB8\xB6\xB5\xB5\xB1\xE2\xBE\xEE";
-
-	//SUPERNOVICE2 : 4190,
-	//SUPERNOVICE2_B : 4191,
-	//KAGEROU : 4211,
-	//OBORO : 4212,
+	
+	JobNameTable[JobId.SUPERNOVICE2]     =   "\xBD\xB4\xC6\xDB\xB3\xEB\xBA\xF1\xBD\xBA";
+	JobNameTable[JobId.KAGEROU] 	     =	"kagerou";
+	JobNameTable[JobId.OBORO] 	     =	"oboro";
+	JobNameTable[JobId.FROG_KAGEROU]     =	"frog_kagerou";
+	JobNameTable[JobId.FROG_OBORO] 	     =	"frog_oboro";
+	JobNameTable[JobId.REBELLION] 	     =	"rebellion";
+	JobNameTable[JobId.PECO_REBELLION]   =	"peco_rebellion";
 
 	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
