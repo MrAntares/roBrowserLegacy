@@ -238,5 +238,6 @@ define(function()
 		OBORO:              4212,
 		FROG_KAGEROU:       4213,
 		FROG_OBORO:         4214,
+		REBELLION:	    4215,
 	};
 });
