@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 define(function( require )
 {
@@ -15,10 +15,11 @@ define(function( require )
 	/**
 	 * Load dependencies
 	 */
-	var Sound       = require('Audio/SoundManager');
-	var StatusConst = require('DB/Status/StatusState');
-	var MountTable  = require('DB/Jobs/MountTable');
-	var Session     = require('Engine/SessionStorage');
+	var Sound         = require('Audio/SoundManager');
+	var StatusConst   = require('DB/Status/StatusState');
+	var MountTable    = require('DB/Jobs/MountTable');
+	var AllMountTable = require('DB/Jobs/AllMountTable');
+	var Session       = require('Engine/SessionStorage');
 
 
 	/**
@@ -235,14 +236,14 @@ define(function( require )
 			StatusConst.EffectState.WUGRIDER|
 			StatusConst.EffectState.MADOGEAR
 		);
-
+		
 		if (value & RIDING) {
 			if (this._job in MountTable) {
 				costume = MountTable[this._job];
 			}
 		}
-
-
+		
+		
 		// ------------------------
 		// Costume
 		// ------------------------
@@ -303,7 +304,46 @@ define(function( require )
 		recalculateBlendingColor.call(this);
 	}
 
+	function updateAllRidingState( value )
+	{
+		var costume = 0;
+		// ------------------------
+		// Riding
+		// ------------------------
+		var EFFECT = (
+			StatusConst.EffectState.RIDING  |
+			StatusConst.EffectState.DRAGON1 |
+			StatusConst.EffectState.DRAGON2 |
+			StatusConst.EffectState.DRAGON3 |
+			StatusConst.EffectState.DRAGON4 |
+			StatusConst.EffectState.DRAGON5 |
+			StatusConst.EffectState.WUGRIDER|
+			StatusConst.EffectState.MADOGEAR|
+			StatusConst.EffectState.WEDDING |
+			StatusConst.EffectState.XMAS	|
+			StatusConst.EffectState.SUMMER
+		);
+		
+		if (value && !(this._effectState & EFFECT)) {
+			if (this._job in AllMountTable) {
+				costume = AllMountTable[this._job];
+			}
+		}
+		
 
+		// ------------------------
+		// Apply
+		// ------------------------
+		if (costume !== this.costume) {
+			this.costume = costume;
+			this.job     = this._job;
+		}
+		
+		this._allRidingState = value;
+		recalculateBlendingColor.call(this);
+	}
+	
+	
 	/**
 	 * Hooking, export
 	 */
@@ -328,6 +368,11 @@ define(function( require )
 		Object.defineProperty(this, 'effectState', {
 			get: function(){ return this._effectState; },
 			set: updateEffectState
+		});
+		
+		Object.defineProperty(this, 'allRidingState', {
+			get: function(){ return this._allRidingState; },
+			set: updateAllRidingState
 		});
 	};
 });
