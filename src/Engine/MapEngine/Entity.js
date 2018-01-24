@@ -40,7 +40,6 @@ define(function( require )
 	var BasicInfo     = require('UI/Components/BasicInfo/BasicInfo');
 	var Escape        = require('UI/Components/Escape/Escape');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
-	var AllMountTable = require('DB/Jobs/AllMountTable');
 
 	/**
 	 * Spam an entity on the map
