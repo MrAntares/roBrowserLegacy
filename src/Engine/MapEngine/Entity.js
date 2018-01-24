@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 
 define(function( require )
@@ -40,7 +40,7 @@ define(function( require )
 	var BasicInfo     = require('UI/Components/BasicInfo/BasicInfo');
 	var Escape        = require('UI/Components/Escape/Escape');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
-
+	var AllMountTable = require('DB/Jobs/AllMountTable');
 
 	/**
 	 * Spam an entity on the map
@@ -875,6 +875,12 @@ define(function( require )
 						next:   false
 					}
 				});
+				break;
+				
+			case StatusConst.ALL_RIDING:
+				if (entity === Session.Entity) {
+					entity.allRidingState = pkt.state;
+				}
 				break;
 		}
 

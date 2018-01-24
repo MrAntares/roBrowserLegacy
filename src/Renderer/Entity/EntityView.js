@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 define(function( require )
 {
@@ -13,11 +13,12 @@ define(function( require )
 
 
 	// Load dependencies
-	var Client       = require('Core/Client');
-	var DB           = require('DB/DBManager');
-	var ShadowTable  = require('DB/Monsters/ShadowTable');
-	var MountTable   = require('DB/Jobs/MountTable');
-	var EntityAction = require('./EntityAction');
+	var Client        = require('Core/Client');
+	var DB            = require('DB/DBManager');
+	var ShadowTable   = require('DB/Monsters/ShadowTable');
+	var MountTable    = require('DB/Jobs/MountTable');
+	var AllMountTable = require('DB/Jobs/AllMountTable');
+	var EntityAction  = require('./EntityAction');
 
 
 	/**
@@ -95,6 +96,14 @@ define(function( require )
 		// of the base sprite + effect to have the mount.
 		for (baseJob in MountTable) {
 			if (MountTable[baseJob] === job) {
+				this.costume = job;
+				job          = baseJob;
+				break;
+			}
+		}
+		
+		for (baseJob in AllMountTable) {
+			if (AllMountTable[baseJob] === job) {
 				this.costume = job;
 				job          = baseJob;
 				break;
