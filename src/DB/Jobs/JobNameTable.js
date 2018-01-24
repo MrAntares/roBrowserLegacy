@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 
 define(["./JobConst"], function( JobId )
@@ -89,13 +89,78 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.RANGER2]          = "\xB7\xB9\xC0\xCE\xC1\xAE\xB4\xC1\xB4\xEB";
 	JobNameTable[JobId.MECHANIC2]        = "\xB8\xB6\xB5\xB5\xB1\xE2\xBE\xEE";
 	
-	JobNameTable[JobId.SUPERNOVICE2]     =   "\xBD\xB4\xC6\xDB\xB3\xEB\xBA\xF1\xBD\xBA";
-	JobNameTable[JobId.KAGEROU] 	     =	"kagerou";
-	JobNameTable[JobId.OBORO] 	     =	"oboro";
-	JobNameTable[JobId.FROG_KAGEROU]     =	"frog_kagerou";
-	JobNameTable[JobId.FROG_OBORO] 	     =	"frog_oboro";
-	JobNameTable[JobId.REBELLION] 	     =	"rebellion";
-	JobNameTable[JobId.PECO_REBELLION]   =	"peco_rebellion";
+	JobNameTable[JobId.SUPERNOVICE2]	 = "\xBD\xB4\xC6\xDB\xB3\xEB\xBA\xF1\xBD\xBA";
+	JobNameTable[JobId.KAGEROU] 		 = "kagerou";
+	JobNameTable[JobId.OBORO] 			 = "oboro";
+	JobNameTable[JobId.REBELLION] 		 = "rebellion";
+	
+	//MOUNTS
+	JobNameTable[JobId.PORING_NOVICE]     = "³ëºñ½ºÆ÷¸µ";
+
+	JobNameTable[JobId.SHEEP_ACO]         = "º¹»ç¾ËÆÄÄ«";
+	JobNameTable[JobId.OSTRICH_ARCHER]    = "Å¸Á¶±Ã¼ö";
+	JobNameTable[JobId.FOX_MAGICIAN]      = "¿©¿ì¸¶¹ý»ç";
+	JobNameTable[JobId.PIG_MERCHANT]      = "»óÀÎ¸äµÅÁö";
+	JobNameTable[JobId.PECO_SWORD]        = "ÆäÄÚ°Ë»ç";
+	JobNameTable[JobId.DOG_THIEF]         = "ÄÌº£·Î½ºµµµÏ";
+
+	JobNameTable[JobId.SHEEP_PRIEST]      = "ÇÁ¸®½ºÆ®¾ËÆÄÄ«";
+	JobNameTable[JobId.OSTRICH_HUNTER]    = "Å¸Á¶ÇåÅÍ";
+	JobNameTable[JobId.FOX_WIZ]           = "¿©¿ìÀ§Àúµå";
+	JobNameTable[JobId.PIG_BLACKSMITH]    = "Á¦Ã¶°ø¸äµÅÁö";
+	JobNameTable[JobId.LION_KNIGHT]       = "»çÀÚ±â»ç";
+	JobNameTable[JobId.DOG_ASSASSIN]      = "ÄÌº£·Î½º¾î½ê½Å";
+
+	JobNameTable[JobId.SHEEP_MONK]        = "¸ùÅ©¾ËÆÄÄ«";
+	JobNameTable[JobId.OSTRICH_BARD]      = "Å¸Á¶¹Ùµå";
+	JobNameTable[JobId.OSTRICH_DANCER]    = "Å¸Á¶¹«Èñ";
+	JobNameTable[JobId.FOX_SAGE]          = "¿©¿ì¼¼ÀÌÁö";
+	JobNameTable[JobId.PIG_ALCHE]         = "¿¬±Ý¼ú»ç¸äµÅÁö";
+	JobNameTable[JobId.LION_CRUSADER]     = "»çÀÚÅ©·ç¼¼ÀÌ´õ";
+	JobNameTable[JobId.DOG_ROGUE]         = "ÄÌº£·Î½º·Î±×";
+
+	JobNameTable[JobId.SHEEP_ARCB]        = "¾ÆÅ©ºñ¼ó¾ËÆÄÄ«";
+	JobNameTable[JobId.OSTRICH_RANGER]    = "Å¸Á¶·¹ÀÎÁ®";
+	JobNameTable[JobId.FOX_WARLOCK]       = "¿©¿ì¿ö·Ï";
+	JobNameTable[JobId.PIG_MECHANIC]      = "¹ÌÄÉ´Ð¸äµÅÁö";
+	JobNameTable[JobId.LION_RUNE_KNIGHT]  = "»çÀÚ·é³ªÀÌÆ®";
+	JobNameTable[JobId.DOG_G_CROSS]       = "ÄÌº£·Î½º±æ·ÎÆ¾Å©·Î½º";
+
+	JobNameTable[JobId.SHEEP_SURA]        = "½´¶ó¾ËÆÄÄ«";
+	JobNameTable[JobId.OSTRICH_MINSTREL]  = "Å¸Á¶¹Î½ºÆ®·²";
+	JobNameTable[JobId.OSTRICH_WANDER]    = "Å¸Á¶¿ø´õ·¯";
+	JobNameTable[JobId.FOX_SORCERER]      = "¿©¿ì¼Ò¼­·¯";
+	JobNameTable[JobId.PIG_GENETIC]       = "Á¦³×¸¯¸äµÅÁö";
+	JobNameTable[JobId.LION_ROYAL_GUARD]  = "»çÀÚ·Î¾â°¡µå";
+	JobNameTable[JobId.DOG_CHASER]        = "ÄÌº£·Î½º½¦µµ¿ìÃ¼ÀÌ¼­";
+
+	JobNameTable[JobId.PORING_SUPERNOVICE] = "½´ÆÛ³ëºñ½ºÆ÷¸µ";
+
+	JobNameTable[JobId.FROG_NINJA]        = "³ëºñ½ºÆ÷¸µ";
+	JobNameTable[JobId.PECO_GUNNER]       = "ÆäÄÚ°Ç³Ê";
+	JobNameTable[JobId.PORING_TAEKWON]    = "ÅÂ±Ç¼Ò³âÆ÷¸µ";
+
+	JobNameTable[JobId.PORING_STAR]       = "±Ç¼ºÆ÷¸µ";
+	JobNameTable[JobId.FROG_LINKER]       = "µÎ²¨ºñ¼Ò¿ï¸µÄ¿";
+
+	JobNameTable[JobId.FROG_KAGEROU]      = "frog_kagerou";
+	JobNameTable[JobId.FROG_OBORO]        = "frog_oboro";
+	JobNameTable[JobId.PECO_REBELLION]    = "peco_rebellion";
+
+	JobNameTable[JobId.SHEEP_HPRIEST]     = "ÇÏÀÌÇÁ¸®½ºÆ®¾ËÆÄÄ«";
+	JobNameTable[JobId.OSTRICH_SNIPER]    = "Å¸Á¶½º³ªÀÌÆÛ";
+	JobNameTable[JobId.FOX_HWIZ]          = "¿©¿ìÇÏÀÌÀ§Àúµå";
+	JobNameTable[JobId.PIG_WHITESMITH]    = "È­ÀÌÆ®½º¹Ì½º¸äµÅÁö";
+	JobNameTable[JobId.LION_KNIGHT_H]     = "»çÀÚ·Îµå³ªÀÌÆ®";
+	JobNameTable[JobId.DOG_ASSA_X]        = "ÄÌº£·Î½º¾î½ê½ÅÅ©·Î½º";
+
+	JobNameTable[JobId.SHEEP_CHAMP]       = "Ã¨ÇÇ¿Â¾ËÆÄÄ«";
+	JobNameTable[JobId.OSTRICH_CROWN]     = "Å¸Á¶Å©¶ó¿î";
+	JobNameTable[JobId.OSTRICH_ZIPSI]     = "Å¸Á¶Â¤½Ã";
+	JobNameTable[JobId.FOX_PROF]          = "¿©¿ìÇÁ·ÎÆä¼­";
+	JobNameTable[JobId.PIG_CREATOR]       = "Å©¸®¿¡ÀÌÅÍ¸äµÅÁö";
+	JobNameTable[JobId.LION_CRUSADER_H]   = "»çÀÚÆÈ¶óµò";
+	JobNameTable[JobId.DOG_STALKER]       = "ÄÌº£·Î½º½ºÅäÄ¿";
 
 	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
@@ -148,6 +213,61 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.SURA,             JobId.SURA_H,             JobId.SURA_B);
 	duplicateEntry(JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B);
 	duplicateEntry(JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B);
+	
+	//MOUNTS
+	duplicateEntry(JobId.PORING_NOVICE    ,JobId.PORING_NOVICE_H     ,JobId.PORING_NOVICE_B);
 
+	duplicateEntry(JobId.SHEEP_ACO        ,JobId.SHEEP_ACO_H         ,JobId.SHEEP_ACO_B);
+	duplicateEntry(JobId.OSTRICH_ARCHER   ,JobId.OSTRICH_ARCHER_H    ,JobId.OSTRICH_ARCHER_B);
+	duplicateEntry(JobId.FOX_MAGICIAN     ,JobId.FOX_MAGICIAN_H      ,JobId.FOX_MAGICIAN_B);
+	duplicateEntry(JobId.PIG_MERCHANT     ,JobId.PIG_MERCHANT_H      ,JobId.PIG_MERCHANT_B);
+	duplicateEntry(JobId.PECO_SWORD       ,JobId.PECO_SWORD_H        ,JobId.PECO_SWORD_B);
+	duplicateEntry(JobId.DOG_THIEF        ,JobId.DOG_THIEF_H         ,JobId.DOG_THIEF_B);
+
+	duplicateEntry(JobId.SHEEP_PRIEST     ,JobId.SHEEP_PRIEST_B);
+	duplicateEntry(JobId.OSTRICH_HUNTER   ,JobId.OSTRICH_HUNTER_B);
+	duplicateEntry(JobId.FOX_WIZ          ,JobId.FOX_WIZ_B);
+	duplicateEntry(JobId.PIG_BLACKSMITH   ,JobId.PIG_BLACKSMITH_B);
+	duplicateEntry(JobId.LION_KNIGHT      ,JobId.LION_KNIGHT_B);
+	duplicateEntry(JobId.DOG_ASSASSIN     ,JobId.DOG_ASSASSIN_B);
+
+	duplicateEntry(JobId.SHEEP_MONK       ,JobId.SHEEP_MONK_B);
+	duplicateEntry(JobId.OSTRICH_BARD     ,JobId.OSTRICH_BARD_B);
+	duplicateEntry(JobId.OSTRICH_DANCER   ,JobId.OSTRICH_DANCER_B);
+	duplicateEntry(JobId.FOX_SAGE         ,JobId.FOX_SAGE_B);
+	duplicateEntry(JobId.PIG_ALCHE        ,JobId.PIG_ALCHE_B);
+	duplicateEntry(JobId.LION_CRUSADER    ,JobId.LION_CRUSADER_B);
+	duplicateEntry(JobId.DOG_ROGUE        ,JobId.DOG_ROGUE_B);
+
+	duplicateEntry(JobId.SHEEP_ARCB       ,JobId.SHEEP_ARCB_B);
+	duplicateEntry(JobId.OSTRICH_RANGER   ,JobId.OSTRICH_RANGER_B);
+	duplicateEntry(JobId.FOX_WARLOCK      ,JobId.FOX_WARLOCK_B);
+	duplicateEntry(JobId.PIG_MECHANIC     ,JobId.PIG_MECHANIC_B);
+	duplicateEntry(JobId.LION_RUNE_KNIGHT ,JobId.LION_RUNE_KNIGHT_B);
+	duplicateEntry(JobId.DOG_G_CROSS      ,JobId.DOG_G_CROSS_B);
+
+	duplicateEntry(JobId.SHEEP_SURA       ,JobId.SHEEP_SURA_B);
+	duplicateEntry(JobId.OSTRICH_MINSTREL ,JobId.OSTRICH_MINSTREL_B);
+	duplicateEntry(JobId.OSTRICH_WANDER   ,JobId.OSTRICH_WANDER_B);
+	duplicateEntry(JobId.FOX_SORCERER     ,JobId.FOX_SORCERER_B);
+	duplicateEntry(JobId.PIG_GENETIC      ,JobId.PIG_GENETIC_B);
+	duplicateEntry(JobId.LION_ROYAL_GUARD ,JobId.LION_ROYAL_GUARD_B);
+	duplicateEntry(JobId.DOG_CHASER       ,JobId.DOG_CHASER_B);
+
+	duplicateEntry(JobId.PORING_SUPERNOVICE ,JobId.PORING_SUPERNOVICE_B ,JobId.PORING_SNOVICE2 ,JobId.PORING_SNOVICE2_B);
+
+	duplicateEntry(JobId.FROG_NINJA       ,JobId.FROG_NINJA_B);
+	duplicateEntry(JobId.PECO_GUNNER      ,JobId.PECO_GUNNER_B);
+	duplicateEntry(JobId.PORING_TAEKWON   ,JobId.PORING_TAEKWON_B);
+
+	duplicateEntry(JobId.PORING_STAR      ,JobId.PORING_STAR_B);
+	duplicateEntry(JobId.FROG_LINKER      ,JobId.FROG_LINKER_B);
+
+	duplicateEntry(JobId.PORING_SNOVICE2  ,JobId.PORING_SNOVICE2_B);
+	duplicateEntry(JobId.FROG_KAGEROU     ,JobId.FROG_KAGEROU_B);
+	duplicateEntry(JobId.FROG_OBORO       ,JobId.FROG_OBORO_B);
+	duplicateEntry(JobId.PECO_REBELLION   ,JobId.PECO_REBELLION_B);
+	
+	
 	return JobNameTable;
 });
