@@ -40,6 +40,7 @@ define(function( require )
 	var BasicInfo     = require('UI/Components/BasicInfo/BasicInfo');
 	var Escape        = require('UI/Components/Escape/Escape');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
+	var AllMountTable = require('DB/Jobs/AllMountTable');
 
 	/**
 	 * Spam an entity on the map
@@ -271,29 +272,29 @@ define(function( require )
 							// regular damage (and endure)
 							case 9:
 							case 0:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcEntity.weapon );
 								break;
 
 							// double attack
 							case 8:
 								// Display combo only if entity is mob and the attack don't miss
 								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
-									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, Damage.TYPE.COMBO );
-									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcEntity.weapon, Damage.TYPE.COMBO );
+									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcEntity.weapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 								}
 
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1 );
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2 );
+								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcEntity.weapon );
+								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcEntity.weapon );
 								break;
 
 							// TODO: critical damage
 							case 10:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcEntity.weapon );
 								break;
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, target, Renderer.tick + pkt.attackMT );
+								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcEntity.weapon );
 								break;
 						}
 					}
@@ -623,7 +624,7 @@ define(function( require )
 			if (pkt.SKID === SkillId.AL_HEAL ||
 			    pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
 			    pkt.SKID === SkillId.AB_CHEAL) {
-				Damage.add( pkt.level, dstEntity, Renderer.tick, Damage.TYPE.HEAL );
+				Damage.add( pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL );
 			}
 
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID );
@@ -662,12 +663,16 @@ define(function( require )
 	{
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
+		var srcWeapon;
 
 		if (srcEntity) {
 			pkt.attackMT = Math.min( 450, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
-
+			
+			if(srcEntity.weapon){
+				srcWeapon = srcEntity.weapon;
+			}
 
 			if (srcEntity.objecttype !== Entity.TYPE_MOB) {
 				srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
@@ -702,7 +707,7 @@ define(function( require )
 						var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 
 						EffectManager.spamSkillHit( pkt.SKID, dstEntity.GID, Renderer.tick);
-						Damage.add( pkt.damage / pkt.count, target, Renderer.tick);
+						Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon);
 
 						// Only display combo if the target is not entity and
 						// there are multiple attacks
@@ -711,6 +716,7 @@ define(function( require )
 								pkt.damage / pkt.count * (i+1),
 								target,
 								Renderer.tick, 
+								srcWeapon,
 								Damage.TYPE.COMBO | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
 							);
 						}
