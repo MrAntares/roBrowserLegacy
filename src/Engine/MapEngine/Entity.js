@@ -229,6 +229,7 @@ define(function( require )
 		var srcEntity = EntityManager.get(pkt.GID);
 		var dstEntity = EntityManager.get(pkt.targetGID);
 		var target;
+		var srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
 
 		// Entity out of the screen ?
 		if (!srcEntity) {
@@ -272,29 +273,29 @@ define(function( require )
 							// regular damage (and endure)
 							case 9:
 							case 0:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcEntity.weapon );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								break;
 
 							// double attack
 							case 8:
 								// Display combo only if entity is mob and the attack don't miss
 								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
-									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcEntity.weapon, Damage.TYPE.COMBO );
-									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcEntity.weapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
+									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 								}
 
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcEntity.weapon );
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcEntity.weapon );
+								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcWeapon );
+								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
 								break;
 
 							// TODO: critical damage
 							case 10:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcEntity.weapon );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								break;
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcEntity.weapon );
+								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								break;
 						}
 					}
@@ -670,6 +671,7 @@ define(function( require )
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
 			
+			srcWeapon = 0;
 			if(srcEntity.weapon){
 				srcWeapon = srcEntity.weapon;
 			}
