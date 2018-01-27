@@ -369,9 +369,8 @@ define(function(require)
 	{
 		var type = DB.getWeaponViewID(id);
 
-		// TODO: implement basejob
 		if (type === WeaponType.NONE) {
-			// return '_' + ( basejob ) + '_attack.wav';
+			return WeaponSoundTable[type][Math.floor(Math.random() * 4)];
 		}
 
 		return WeaponSoundTable[type];
