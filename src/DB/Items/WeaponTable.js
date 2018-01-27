@@ -32,7 +32,7 @@ define(["./WeaponType"], function( WeaponType )
 	WeaponName[WeaponType.INSTRUMENT]            = "_\xbe\xc7\xb1\xe2";
 	WeaponName[WeaponType.WHIP]                  = "_\xc3\xa4\xc2\xef";
 	WeaponName[WeaponType.BOOK]                  = "_\xc3\xa5";
-	WeaponName[WeaponType.CATARRH]               = "_\xc4\xab\xc5\xb8\xb8\xa3\x5f\xc4\xab\xc5\xb8\xb8\xa3";
+	WeaponName[WeaponType.KATAR]                 = "_\xc4\xab\xc5\xb8\xb8\xa3\x5f\xc4\xab\xc5\xb8\xb8\xa3";
 	WeaponName[WeaponType.GUN_HANDGUN]           = "_\xb1\xc7\xc3\xd1";
 	WeaponName[WeaponType.GUN_RIFLE]             = "_\xb1\xe2\xb0\xfc\xc3\xd1";
 	WeaponName[WeaponType.GUN_GATLING]           = "_\xb1\xe2\xb0\xfc\xc3\xd1";
