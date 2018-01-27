@@ -422,7 +422,7 @@ define(function(require)
 				id <  1150 ? WeaponType.SWORD        :
 			    id <  1200 ? WeaponType.TWOHANDSWORD :
 			    id <  1250 ? WeaponType.SHORTSWORD   :
-			    id <  1300 ? WeaponType.CATARRH      :
+			    id <  1300 ? WeaponType.KATAR        :
 			    id <  1350 ? WeaponType.AXE          :
 			    id <  1400 ? WeaponType.TWOHANDAXE   :
 			    id <  1450 ? WeaponType.SPEAR        :
