@@ -31,7 +31,7 @@ define(["./WeaponType"], function( WeaponType )
 	WeaponSound[WeaponType.INSTRUMENT]            = "_hit_mace.wav";
 	WeaponSound[WeaponType.WHIP]                  = "_hit_mace.wav";
 	WeaponSound[WeaponType.BOOK]                  = "_hit_mace.wav";
-	WeaponSound[WeaponType.CATARRH]               = "_hit_mace.wav";
+	WeaponSound[WeaponType.KATAR]                 = "_hit_mace.wav";
 	WeaponSound[WeaponType.GUN_HANDGUN]           = "_hit_±ÇÃÑ.wav";
 	WeaponSound[WeaponType.GUN_RIFLE]             = "_hit_¶óÀÌÇÃ.wav";
 	WeaponSound[WeaponType.GUN_GATLING]           = "_hit_°³Æ²¸µÇÑ¹ß.wav";
