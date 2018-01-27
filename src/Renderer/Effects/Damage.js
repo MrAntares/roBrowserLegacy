@@ -241,7 +241,7 @@ define(function( require )
 		obj.width    = canvas.width;
 		obj.height   = canvas.height;
 		
-		if(weapon){
+		if(weapon || weapon === 0){
 			obj.soundFile = DB.getWeaponSound(weapon);
 		}
 		
