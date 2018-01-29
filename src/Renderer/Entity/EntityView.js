@@ -194,7 +194,7 @@ define(function( require )
 			return;
 		}
 
-		this.files.body.pal = DB.getBodyPalPath( this.job, this._bodypalette, this._sex);
+		this.files.body.pal = DB.getBodyPalPath( this._job, this._bodypalette, this._sex);
 	}
 
 
