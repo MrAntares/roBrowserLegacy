@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 
 define(['./StatusConst'], function( SC )
@@ -116,6 +116,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.GRIFFON] = {
+		icon: "\xb6\xf3\xc0\xcc\xb5\xf9.tga",
 		descript: [
 			["Riding Griffon", COLOR_TITLE_TOGGLE]
 		]
@@ -158,6 +159,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.HALLUCINATIONWALK] = {
+		icon: "ÇÒ·ç½Ã³×ÀÌ¼Ç¿öÅ©.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -189,6 +191,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SHIELDSPELL_DEF] = {
+		icon: "lg_shieldspell_¹æ.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -199,6 +202,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.WARMER] = {
+		icon: "¿ö¸Ó.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -252,6 +256,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.GLOOMYDAY] = {
+		icon: "¼öÁÝÀºÇÏ·çÀÇ¿ì¿ï.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -263,6 +268,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SIRCLEOFNATURE] = {
+		icon: "¼øÈ¯ÇÏ´ÂÀÚ¿¬ÀÇ¼Ò¸®.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -273,6 +279,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.DEADLYINFECT] = {
+		icon: "µ¥µé¸®ÀÎÆåÆ®.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -285,6 +292,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SYMPHONY_LOVE] = {
+		icon: "¿¬ÀÎµéÀ»À§ÇÑ½ÉÆ÷´Ï.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -295,6 +303,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.BANDING] = {
+		icon: "lg_banding.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -317,6 +326,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.WUGRIDER] = {
+		icon: "wolfmount.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -350,6 +360,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.NJ_UTSUSEMI] = {
+		icon: "i_maemi.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -361,6 +372,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.POISONINGWEAPON] = {
+		icon: "Æ÷ÀÌÁî´×¿þÆù.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -430,6 +442,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SHIELDSPELL_MDEF] = {
+		icon: "lg_shieldspell_¸¶.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -451,6 +464,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.TAROTCARD] = {
+		icon: "i_Å¸·ÎÄ«µå.tga", //CUSTOM
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -461,6 +475,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.FEARBREEZE] = {
+		icon: "ra_fearbreeze.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -472,6 +487,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.GN_CARTBOOST] = {
+		icon: "icon07.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -482,6 +498,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SHIELDSPELL_REF] = {
+		icon: "lg_shieldspell_¿¬.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -513,6 +530,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MELTDOWN] = {
+		icon: "icon03.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -572,6 +590,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.PARRYING] = {
+		icon: "icon10.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -660,6 +679,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.HOVERING] = {
+		icon: "È£¹ö¸µ.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -680,6 +700,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.WEAPONBLOCKING] = {
+		icon: "¿þÆùºí·ÎÅ·.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -702,6 +723,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MARSHOFABYSS] = {
+		icon: "marshofabyss.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -713,6 +735,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.STEALTHFIELD] = {
+		icon: "½ºÅÚ½ºÇÊµå.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -725,6 +748,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ADRENALINE2] = {
+		icon: "¾Æµå·¹³¯¸°·¯½¬.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -757,6 +781,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.RENOVATIO] = {
+		icon: "·¹³ë¹ÙÆ¼¿À.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -789,6 +814,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.STRUP] = {
+		icon: "i_run.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -911,6 +937,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ASSUMPTIO] = {
+		icon: "icon05.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -979,6 +1006,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MOVHASTE_HORSE] = {
+		icon: "\xb9\xce\xc3\xb8\xbc\xba\xc1\xf5\xb0\xa1.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -988,6 +1016,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.CRESCENTELBOW] = {
+		icon: "±â¸®¿¡¿¤·¹ÀÌ¼Õ.tga", //CUSTOM
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1001,6 +1030,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SONG_OF_MANA] = {
+		icon: "¸¶³ªÀÇ³ë·¡.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1023,6 +1053,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ECHOSONG] = {
+		icon: "¸¶½ºÄ¿·¹ÀÌµå.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1033,6 +1064,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.PRESERVE] = {
+		icon: "i_ÇÁ¸®Àúºê.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1067,6 +1099,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MOVHASTE_POTION] = {
+		icon: "\xb9\xce\xc3\xb8\xbc\xba\xc1\xf5\xb0\xa1.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -1076,6 +1109,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.EDP] = {
+		icon: "i_Ä¡µ¶.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1087,6 +1121,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.JOINTBEAT] = {
+		icon: "°üÀý°ø°Ý.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1110,6 +1145,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.FIGHTINGSPIRIT] = {
+		icon: "rk_eisir.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1131,6 +1167,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SATURDAY_NIGHT_FEVER] = {
+		icon: "»õÅÍµ¥ÀÌ³ªÀÌÆ®ÇÇ¹ö.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -1164,6 +1201,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ARMOR_PROPERTY] = {
+		icon: "Ä³½Ã°©¿Ê¼Ó¼ººÎ¿©.tga", //CUSTOM
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1174,6 +1212,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.TENSIONRELAX] = {
+		icon: "icon08.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1184,12 +1223,13 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.DEATHHURT] = {
+		icon: "»óÃ³¿À¿°µ¶.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
 			["Death Hurt (Contaminated Wound Poison)", COLOR_TITLE_DEBUFF],
 			["%s", COLOR_TIME],
-			["È¸º¹ ½ºÅ³À» ¹ÞÀ» ¶§ È¿°ú ÀúÇÏ"]
+			["Reduces effects of healing skills"]
 		]
 	};
 
@@ -1205,6 +1245,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.LEECHESEND] = {
+		icon: "°Å¸Ó¸®.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1215,6 +1256,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.REPRODUCE] = {
+		icon: "¸®ÇÁ·Îµà½º.tga",
 		descript: [
 			["Reproduce", COLOR_TITLE_BUFF],
 			["Activates when targetted by a skill"], 
@@ -1223,6 +1265,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ACCELERATION] = {
+		icon: "¿¢¼¿·¹ÀÌ¼Ç.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1244,6 +1287,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.FORCEOFVANGUARD] = {
+		icon: "Æ÷½º¿Àºê¹ð°¡µå.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1288,6 +1332,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ADORAMUS] = {
+		icon: "¹ÎÃ¸¼º°¨¼Ò.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1298,6 +1343,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.GENTLETOUCH_ENERGYGAIN] = {
+		icon: "Á¡Ç÷±¸.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1309,6 +1355,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.NEUTRALBARRIER] = {
+		icon: "´ºÆ®·²¹è¸®¾î.tga", //CUSTOM
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1320,6 +1367,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.EARTHSCROLL] = {
+		icon: "±Û·Î¸®¾Æ.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1385,6 +1433,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.GIANTGROWTH] = {
+		icon: "rk_turisuss.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1398,6 +1447,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.STR_SCROLL] = {
+		icon: "str_gogi.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -1407,6 +1457,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.AB_SECRAMENT] = {
+		icon: "¼¼Å©¶ó¸àÆ®.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -1415,7 +1466,7 @@ define(['./StatusConst'], function( SC )
 			["Reduces fixed casting time"]
 		]
 	};
-
+	//BOOKMARK
 	StatusInfo[SC.PARALYSE] = {
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
@@ -2177,6 +2228,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MOVHASTE_INFINITY] = {
+		icon: "\xb9\xce\xc3\xb8\xbc\xba\xc1\xf5\xb0\xa1.tga",
 		descript: [
 			["Increases Movement Speed"]
 		]
@@ -2323,6 +2375,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.PRESTIGE] = {
+		icon: "lg_prestige.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -2844,6 +2897,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ALL_RIDING] = {
+		icon: "\xb6\xf3\xc0\xcc\xb5\xf9.tga",
 		descript: [
 			["Riding", COLOR_TITLE_TOGGLE],
 		]
