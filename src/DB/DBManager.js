@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 
 define(function(require)
@@ -556,8 +556,26 @@ define(function(require)
 		if (item.slot) {
 			switch (item.slot.card1) {
 				case 0x00FF: // FORGE
+					
+					if (item.slot.card2 >= 3840) { 
+						str += 'Very Very Very Strong';
+					} else if (item.slot.card2 >= 2560) { 
+						str += 'Very Very Strong ';
+					} else if (item.slot.card2 >= 1024) { 
+						str += 'Very Strong ';
+					}
+					switch (Math.abs(item.slot.card2 % 10)){
+						case 1: str += 'Ice '; break;
+						case 2: str += 'Earth '; break;
+						case 3: str += 'Fire '; break;
+						case 4: str += 'Wind '; break;
+					}
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
+					var name = 'Unknown\'s ';
+					//Todo: Search name by charID stored in slot3+slot4 
+					//(item.slot.card4<<16) + item.slot.card3;
+					str = name + str;
 					break;
 
 				// Show card prefix
