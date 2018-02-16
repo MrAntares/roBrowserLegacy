@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 define(function(require)
 {
@@ -26,6 +26,9 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./ItemInfo.html');
 	var cssText            = require('text!./ItemInfo.css');
+	
+	var Network       = require('Network/NetworkManager');
+	var PACKET        = require('Network/PacketStructure');
 
 
 	/**
@@ -38,7 +41,11 @@ define(function(require)
 	 * @var {number} ItemInfo unique id
 	 */
 	ItemInfo.uid = -1;
-
+	
+	/**
+	 * Store item owner names by charID
+	 */
+	var NameStore = {};
 
 	/**
 	 * Once append to the DOM
@@ -97,6 +104,8 @@ define(function(require)
 		}.bind(this));
 
 		this.draggable(this.ui.find('.title'));
+		
+		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
 
 
@@ -117,7 +126,42 @@ define(function(require)
 		});
 
 
-		ui.find('.title').text( item.IsIdentified ? it.identifiedDisplayName : it.unidentifiedDisplayName );
+		var customname = '';
+		var hideslots = false;
+		switch (item.slot['card1']) {
+			case 0x00FF: // FORGE
+				if (item.slot['card2'] >= 3840) { 
+					customname += 'Very Very Very Strong';
+				} else if (item.slot['card2'] >= 2560) { 
+					customname += 'Very Very Strong ';
+				} else if (item.slot['card2'] >= 1024) { 
+					customname += 'Very Strong ';
+				}
+				switch (Math.abs(item.slot['card2'] % 10)){
+					case 1: customname += 'Ice '; break;
+					case 2: customname += 'Earth '; break;
+					case 3: customname += 'Fire '; break;
+					case 4: customname += 'Wind '; break;
+				}
+			case 0x00FE: // CREATE
+			case 0xFF00: // PET
+				hideslots = true;
+				
+				var name = 'Unknown\'s ';
+				var GID = (item.slot['card4']<<16) + item.slot['card3'];
+				
+				if (NameStore[GID]){
+					name = NameStore[GID]+'\'s ';
+				} else {
+					getNameByGID(GID);
+				}
+				
+				customname = name + customname;
+				
+				break;
+		}
+		
+		ui.find('.title').text( item.IsIdentified ? customname+it.identifiedDisplayName : it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
 
 		// Add view button (for cards)
@@ -126,14 +170,6 @@ define(function(require)
 		}
 		else {
 			ui.find('.view').hide();
-		}
-
-		// TODO: add item owner name
-		switch (cardList.slot1) {
-			case 0x00FF: // FORGE
-			case 0x00FE: // CREATE
-			case 0xFF00: // PET
-				break;
 		}
 
 		switch (item.type) {
@@ -145,6 +181,10 @@ define(function(require)
 			case ItemType.WEAPON:
 			case ItemType.EQUIP:
 			case ItemType.PETEGG:
+				if (hideslots){
+					cardList.parent().hide();
+					break;
+				}
 				var slotCount = it.slotCount || 0;
 				var i;
 
@@ -273,6 +313,18 @@ define(function(require)
 		description.css({
 			height: containerHeight - 45
 		});
+	}
+	
+	function getNameByGID (GID){
+		var pkt   = new PACKET.CZ.REQNAME_BYGID();
+		pkt.GID   = GID;
+		Network.sendPacket(pkt);
+	}
+	
+	function onUpdateOwnerName (pkt){
+		NameStore[pkt.GID] = pkt.CName
+		var str = ItemInfo.ui.find('.title').text();
+		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', pkt.CName+'\'s '));
 	}
 	
 	/**
