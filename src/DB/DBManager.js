@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault, Antares
+ * @author Vincent Thibault
  */
 
 define(function(require)
@@ -32,7 +32,9 @@ define(function(require)
 	var WeaponTable      = require('./Items/WeaponTable');
 	var WeaponType       = require('./Items/WeaponType');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
-
+	
+	var Network       = require('Network/NetworkManager');
+	var PACKET        = require('Network/PacketStructure');
 
 	/**
 	 * DB NameSpace
@@ -52,7 +54,6 @@ define(function(require)
 	 */
 	var MapTable = {};
 
-
 	/**
 	 * @var {Array} ASCII sex
 	 */
@@ -64,6 +65,10 @@ define(function(require)
 	 */
 	DB.mapalias = {};
 
+	/**
+	 * @var {Array} CharName by GID list
+	 */
+	DB.CNameTable = {};
 
 	/**
 	 * @var {string} interface path
@@ -112,6 +117,8 @@ define(function(require)
 		loadTable( 'data/num2cardillustnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     		= val;}, 			onLoad());
 		loadTable( 'data/fogparametertable.txt',		5, parseFogEntry,                                                                                                     			onLoad());
+		
+		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
 
 
@@ -573,8 +580,14 @@ define(function(require)
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
 					var name = 'Unknown\'s ';
-					//Todo: Search name by charID stored in slot3+slot4 
-					//(item.slot.card4<<16) + item.slot.card3;
+					
+					var GID = (item.slot.card4<<16) + item.slot.card3;
+					if( DB.CNameTable[GID] ){
+						name = DB.CNameTable[GID]+'\'s ';
+					} else {
+						getNameByGID(GID);
+					}
+						
 					str = name + str;
 					break;
 
@@ -679,7 +692,17 @@ define(function(require)
 		return BabyTable.indexOf(jobid) > -1;
 	};
 
-
+	function getNameByGID (GID){
+		var pkt   = new PACKET.CZ.REQNAME_BYGID();
+		pkt.GID   = GID;
+		Network.sendPacket(pkt);
+	}
+	
+	function onUpdateOwnerName (pkt){
+		DB.CNameTable[pkt.GID] = pkt.CName;
+	}
+	
+	
 	/**
 	 * Export
 	 */
