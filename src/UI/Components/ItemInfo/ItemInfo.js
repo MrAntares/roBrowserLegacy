@@ -147,11 +147,11 @@ define(function(require)
 			case 0xFF00: // PET
 				hideslots = true;
 				
-				var name = 'Unknown\'s ';
+				var name = '^FF0000Unknown\'s^000000 ';
 				var GID = (item.slot['card4']<<16) + item.slot['card3'];
 				
 				if (NameStore[GID]){
-					name = NameStore[GID]+'\'s ';
+					name = '^0000FF'+NameStore[GID]+'\'s^000000 ';
 				} else {
 					getNameByGID(GID);
 				}
@@ -161,7 +161,10 @@ define(function(require)
 				break;
 		}
 		
-		ui.find('.title').text( item.IsIdentified ? customname+it.identifiedDisplayName : it.unidentifiedDisplayName );
+		// Damaged status
+		var identifiedDisplayName = item.IsDamaged ? '^FF0000'+customname.replace(/\^[a-fA-F0-9]{6}/gi,'')+it.identifiedDisplayName+'^000000' : customname+it.identifiedDisplayName;
+		
+		ui.find('.title').text( item.IsIdentified ? identifiedDisplayName: it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
 
 		// Add view button (for cards)
@@ -324,7 +327,7 @@ define(function(require)
 	function onUpdateOwnerName (pkt){
 		NameStore[pkt.GID] = pkt.CName
 		var str = ItemInfo.ui.find('.title').text();
-		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', pkt.CName+'\'s '));
+		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
 	}
 	
 	/**
