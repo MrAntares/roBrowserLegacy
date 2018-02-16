@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault, Antares
+ * @author Vincent Thibault
  */
 define(function(require)
 {
@@ -42,10 +42,6 @@ define(function(require)
 	 */
 	ItemInfo.uid = -1;
 	
-	/**
-	 * Store item owner names by charID
-	 */
-	var NameStore = {};
 
 	/**
 	 * Once append to the DOM
@@ -150,8 +146,8 @@ define(function(require)
 				var name = '^FF0000Unknown\'s^000000 ';
 				var GID = (item.slot['card4']<<16) + item.slot['card3'];
 				
-				if (NameStore[GID]){
-					name = '^0000FF'+NameStore[GID]+'\'s^000000 ';
+				if (DB.CNameTable[GID]){
+					name = '^0000FF'+DB.CNameTable[GID]+'\'s^000000 ';
 				} else {
 					getNameByGID(GID);
 				}
@@ -325,7 +321,7 @@ define(function(require)
 	}
 	
 	function onUpdateOwnerName (pkt){
-		NameStore[pkt.GID] = pkt.CName
+		DB.CNameTable[pkt.GID] = pkt.CName
 		var str = ItemInfo.ui.find('.title').text();
 		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
 	}
