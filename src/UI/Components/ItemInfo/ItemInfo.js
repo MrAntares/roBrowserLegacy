@@ -143,22 +143,27 @@ define(function(require)
 			case 0xFF00: // PET
 				hideslots = true;
 				
-				var name = '^FF0000Unknown\'s^000000 ';
+				var name = 'Unknown';
 				var GID = (item.slot['card4']<<16) + item.slot['card3'];
 				
 				if (DB.CNameTable[GID]){
-					name = '^0000FF'+DB.CNameTable[GID]+'\'s^000000 ';
+					name = DB.CNameTable[GID];
 				} else {
 					getNameByGID(GID);
 				}
 				
-				customname = name + customname;
+				
+				if(item.IsDamaged){
+					customname = name+'\'s '+customname;
+				} else {
+					customname = name=='Unknown' ? '^FF0000'+name+'\'s^000000 '+customname : '^0000FF'+name+'\'s^000000 '+customname;
+				}
 				
 				break;
 		}
 		
 		// Damaged status
-		var identifiedDisplayName = item.IsDamaged ? '^FF0000'+customname.replace(/\^[a-fA-F0-9]{6}/gi,'')+it.identifiedDisplayName+'^000000' : customname+it.identifiedDisplayName;
+		var identifiedDisplayName = item.IsDamaged ? '^FF0000'+customname+it.identifiedDisplayName+'^000000' : customname+it.identifiedDisplayName;
 		
 		ui.find('.title').text( item.IsIdentified ? identifiedDisplayName: it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
@@ -318,10 +323,11 @@ define(function(require)
 		var pkt   = new PACKET.CZ.REQNAME_BYGID();
 		pkt.GID   = GID;
 		Network.sendPacket(pkt);
+		DB.CNameTable[pkt.GID] = 'Unknown';
 	}
 	
 	function onUpdateOwnerName (pkt){
-		DB.CNameTable[pkt.GID] = pkt.CName
+		DB.CNameTable[pkt.GID] = pkt.CName;
 		var str = ItemInfo.ui.find('.title').text();
 		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
 	}
