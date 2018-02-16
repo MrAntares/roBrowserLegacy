@@ -559,11 +559,13 @@ define(function(require)
 		if (item.RefiningLevel) {
 			str = '+' + item.RefiningLevel + ' ';
 		}
-
+		
+		//Hide slots for forged weapons
+		var showslots = true;
 		if (item.slot) {
 			switch (item.slot.card1) {
 				case 0x00FF: // FORGE
-					
+					showslots = false;
 					if (item.slot.card2 >= 3840) { 
 						str += 'Very Very Very Strong';
 					} else if (item.slot.card2 >= 2560) { 
@@ -625,7 +627,7 @@ define(function(require)
 
 		str += it.identifiedDisplayName;
 
-		if (it.slotCount) {
+		if (it.slotCount && showslots) {
 			str += ' [' + it.slotCount + ']';
 		}
 
@@ -696,6 +698,7 @@ define(function(require)
 		var pkt   = new PACKET.CZ.REQNAME_BYGID();
 		pkt.GID   = GID;
 		Network.sendPacket(pkt);
+		DB.CNameTable[pkt.GID] = 'Unknown';
 	}
 	
 	function onUpdateOwnerName (pkt){
