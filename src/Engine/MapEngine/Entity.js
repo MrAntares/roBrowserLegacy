@@ -41,7 +41,19 @@ define(function( require )
 	var Escape        = require('UI/Components/Escape/Escape');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
-
+	
+	// Excludes for skill name display
+	var SkillNameDisplayExclude = [
+				SkillId.AS_CLOAKING,
+				SkillId.TF_HIDING,
+				SkillId.GC_CLOAKINGEXCEED,
+				SkillId.ST_CHASEWALK,
+				SkillId.KO_YAMIKUMO,
+				//Overbrand 2 attacks
+				SkillId.LG_OVERBRAND_BRANDISH,
+				SkillId.LG_OVERBRAND_PLUSATK
+			];
+	
 	/**
 	 * Spam an entity on the map
 	 * Generic packet handler
@@ -608,8 +620,8 @@ define(function( require )
 		var srcEntity = EntityManager.get(pkt.srcAID);
 		var dstEntity = EntityManager.get(pkt.targetAID);
 
-		// Only mob to don't display skill name ?
-		if (srcEntity && srcEntity.objecttype !== Entity.TYPE_MOB) {
+		// Don't display skill names for mobs and hiding skills
+		if (srcEntity && srcEntity.objecttype !== Entity.TYPE_MOB && !SkillNameDisplayExclude.includes(pkt.SKID)) {
 			srcEntity.dialog.set(
 				( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 				'white'
@@ -675,8 +687,9 @@ define(function( require )
 			if(srcEntity.weapon){
 				srcWeapon = srcEntity.weapon;
 			}
-
-			if (srcEntity.objecttype !== Entity.TYPE_MOB) {
+			
+			// Don't display skill names for mobs and hiding skills
+			if (srcEntity.objecttype !== Entity.TYPE_MOB && !SkillNameDisplayExclude.includes(pkt.SKID)) {
 				srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
 			}
 
@@ -791,8 +804,8 @@ define(function( require )
 			});
 		}
 
-		// Only mob to don't display skill name ?
-		if (srcEntity.objecttype !== Entity.TYPE_MOB) {
+		// Don't display skill names for mobs and hiding skills
+		if (srcEntity.objecttype !== Entity.TYPE_MOB  && !SkillNameDisplayExclude.includes(pkt.SKID)) {
 			srcEntity.dialog.set(
 				( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 				'white'
