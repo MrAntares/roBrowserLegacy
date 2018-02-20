@@ -124,42 +124,44 @@ define(function(require)
 
 		var customname = '';
 		var hideslots = false;
-		switch (item.slot['card1']) {
-			case 0x00FF: // FORGE
-				if (item.slot['card2'] >= 3840) { 
-					customname += 'Very Very Very Strong';
-				} else if (item.slot['card2'] >= 2560) { 
-					customname += 'Very Very Strong ';
-				} else if (item.slot['card2'] >= 1024) { 
-					customname += 'Very Strong ';
-				}
-				switch (Math.abs(item.slot['card2'] % 10)){
-					case 1: customname += 'Ice '; break;
-					case 2: customname += 'Earth '; break;
-					case 3: customname += 'Fire '; break;
-					case 4: customname += 'Wind '; break;
-				}
-			case 0x00FE: // CREATE
-			case 0xFF00: // PET
-				hideslots = true;
-				
-				var name = 'Unknown';
-				var GID = (item.slot['card4']<<16) + item.slot['card3'];
-				
-				if (DB.CNameTable[GID]){
-					name = DB.CNameTable[GID];
-				} else {
-					getNameByGID(GID);
-				}
-				
-				
-				if(item.IsDamaged){
-					customname = name+'\'s '+customname;
-				} else {
-					customname = name=='Unknown' ? '^FF0000'+name+'\'s^000000 '+customname : '^0000FF'+name+'\'s^000000 '+customname;
-				}
-				
-				break;
+		if(item.slot){
+			switch (item.slot['card1']) {
+				case 0x00FF: // FORGE
+					if (item.slot['card2'] >= 3840) { 
+						customname += 'Very Very Very Strong';
+					} else if (item.slot['card2'] >= 2560) { 
+						customname += 'Very Very Strong ';
+					} else if (item.slot['card2'] >= 1024) { 
+						customname += 'Very Strong ';
+					}
+					switch (Math.abs(item.slot['card2'] % 10)){
+						case 1: customname += 'Ice '; break;
+						case 2: customname += 'Earth '; break;
+						case 3: customname += 'Fire '; break;
+						case 4: customname += 'Wind '; break;
+					}
+				case 0x00FE: // CREATE
+				case 0xFF00: // PET
+					hideslots = true;
+					
+					var name = 'Unknown';
+					var GID = (item.slot['card4']<<16) + item.slot['card3'];
+					
+					if (DB.CNameTable[GID]){
+						name = DB.CNameTable[GID];
+					} else {
+						getNameByGID(GID);
+					}
+					
+					
+					if(item.IsDamaged){
+						customname = name+'\'s '+customname;
+					} else {
+						customname = name=='Unknown' ? '^FF0000'+name+'\'s^000000 '+customname : '^0000FF'+name+'\'s^000000 '+customname;
+					}
+					
+					break;
+			}
 		}
 		
 		// Damaged status
