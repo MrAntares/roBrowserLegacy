@@ -133,7 +133,7 @@ define(function( require )
 		});
 
 		Session.Playing = false;
-    		//Session.hasCart = false;
+    		Session.hasCart = false;
 		
 		UIManager.getComponent('WinLoading').remove();
 
