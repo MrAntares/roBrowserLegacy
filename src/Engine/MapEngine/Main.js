@@ -30,7 +30,7 @@ define(function( require )
 	var WinStats       = require('UI/Components/WinStats/WinStats');
 	var Announce       = require('UI/Components/Announce/Announce');
 	var Equipment      = require('UI/Components/Equipment/Equipment');
-	var ChangeCart          = require('UI/Components/ChangeCart/ChangeCart');	
+	var ChangeCart     = require('UI/Components/ChangeCart/ChangeCart');	
 	var SkillList      = require('UI/Components/SkillList/SkillList');
 	var PartyUI        = require('UI/Components/PartyFriends/PartyFriends');
 
