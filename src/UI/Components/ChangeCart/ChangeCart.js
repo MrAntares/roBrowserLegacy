@@ -79,59 +79,111 @@ define(function(require)
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  1*/)
 		{
-			return
+			return;
 		}
 		
-         var pkt = new PACKET.CZ.REQ_CHANGECART();
-		 pkt.num = 1;
-		 Network.sendPacket(pkt);
+		var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 1;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
 	}
 	
 	function onCart1()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  2*/)
 		{
-			return
+			return;
 		}
-         var pkt = new PACKET.CZ.REQ_CHANGECART();
-		 pkt.num = 2;
-		 Network.sendPacket(pkt);
+		var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 2;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
 	}
 	
 	function onCart2()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  3*/)
 		{
-			return
+			return;
 		}
-         var pkt = new PACKET.CZ.REQ_CHANGECART();
-		 pkt.num = 3;
-		 Network.sendPacket(pkt);
+        var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 3;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
 	}
 	
 	function onCart3()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  4*/)
 		{
-			return
+			return;
 		}
-         var pkt = new PACKET.CZ.REQ_CHANGECART();
-		 pkt.num = 4;
-		 Network.sendPacket(pkt);
+        var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 4;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
 	}
 	
 	function onCart4()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  5*/)
 		{
-			return
+			return;
 		}
-         var pkt = new PACKET.CZ.REQ_CHANGECART();
-		 pkt.num = 5;
-		 Network.sendPacket(pkt);
+        var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 5;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
 	}
-
-
+	
+	function onCart5()
+	{
+		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  6*/)
+		{
+			return;
+		}
+        var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 6;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
+	}
+	
+	function onCart6()
+	{
+		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  7*/)
+		{
+			return;
+		}
+        var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 7;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
+	}
+	
+	function onCart7()
+	{
+		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  8*/)
+		{
+			return;
+		}
+        var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 8;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
+	}
+	
+	function onCart8()
+	{
+		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  9*/)
+		{
+			return;
+		}
+        var pkt = new PACKET.CZ.REQ_CHANGECART();
+		pkt.num = 9;
+		Network.sendPacket(pkt);
+		ChangeCart.ui.hide();
+	}
+	
 	/**
 	 * Append to body
 	 */
@@ -146,7 +198,30 @@ define(function(require)
 		this.ui.find('.cart2').hide();
 		this.ui.find('.cart3').hide();
 		this.ui.find('.cart4').hide();
+		this.ui.find('.cart5').hide();
+		this.ui.find('.cart6').hide();
+		this.ui.find('.cart7').hide();
+		this.ui.find('.cart8').hide();
 		
+		if(Session.Character.level > 131)
+        {
+			this.ui.find('.cart8').show();
+		}
+		
+		if(Session.Character.level > 121)
+        {
+			this.ui.find('.cart7').show();
+		}
+		
+		if(Session.Character.level > 111)
+        {
+			this.ui.find('.cart6').show();
+		}
+		
+		if(Session.Character.level > 100)
+        {
+			this.ui.find('.cart5').show();
+		}
 		
        	if(Session.Character.level > 90)
         {
