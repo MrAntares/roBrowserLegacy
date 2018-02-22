@@ -42,8 +42,8 @@ define(function()
 		guildRight:    0,
 		isGuildMaster: false,
     
-    	Playing: false,
-//    	hasCart: false,
-//    	CartNum: 0
+    	        Playing: false,
+    	        hasCart: false,
+    	        CartNum: 0
 	};
 });
