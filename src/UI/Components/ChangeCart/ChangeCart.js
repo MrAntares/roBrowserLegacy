@@ -66,13 +66,20 @@ define(function(require)
 		this.ui.find('.cart2').click(onCart2);
 		this.ui.find('.cart3').click(onCart3);
 		this.ui.find('.cart4').click(onCart4);
+		this.ui.find('.cart5').click(onCart5);
+		this.ui.find('.cart6').click(onCart6);
+		this.ui.find('.cart7').click(onCart7);
+		this.ui.find('.cart8').click(onCart8);
 		
 		this.ui.find('.cart').hide();
 		this.ui.find('.cart1').hide();
 		this.ui.find('.cart2').hide();
 		this.ui.find('.cart3').hide();
 		this.ui.find('.cart4').hide();
-		
+		this.ui.find('.cart5').hide();
+		this.ui.find('.cart6').hide();
+		this.ui.find('.cart7').hide();
+		this.ui.find('.cart8').hide();
 	};
 	
 	function onCart()
@@ -281,6 +288,31 @@ define(function(require)
 		this.ui.find('.cart2').hide();
 		this.ui.find('.cart3').hide();
 		this.ui.find('.cart4').hide();
+		this.ui.find('.cart5').hide();
+		this.ui.find('.cart6').hide();
+		this.ui.find('.cart7').hide();
+		this.ui.find('.cart8').hide();
+		
+		
+		if(blvl > 131)
+        {
+			this.ui.find('.cart8').show();
+		}
+		
+		if(blvl > 121)
+        {
+			this.ui.find('.cart7').show();
+		}
+		
+		if(blvl > 111)
+        {
+			this.ui.find('.cart6').show();
+		}
+		
+		if(blvl > 100)
+        {
+			this.ui.find('.cart5').show();
+		}
 		
        	if(blvl > 90)
         {
