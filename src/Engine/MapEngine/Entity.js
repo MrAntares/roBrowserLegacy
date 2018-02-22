@@ -877,7 +877,7 @@ define(function( require )
 			case StatusConst.ON_PUSH_CART:
         		//console.log("Entity on PushCart");
 				if (entity === Session.Entity) {
-					Session.hasCart = pkt.state;
+					Session.Entity.hasCart = pkt.state;
 				}
 				break;
 
