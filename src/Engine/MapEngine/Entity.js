@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault, Antares
+ * @author Vincent Thibault
  */
 
 define(function( require )
@@ -875,10 +875,8 @@ define(function( require )
 
 			// Show cart (in future)
 			case StatusConst.ON_PUSH_CART:
-        		//console.log("Entity on PushCart");
-				if (entity === Session.Entity) {
-					Session.Entity.hasCart = pkt.state;
-				}
+        		entity.hasCart = pkt.state;
+				entity.CartNum = pkt.val[0];
 				break;
 
 			// Cast a skill, TODO: add progressbar in shortcut
@@ -899,9 +897,7 @@ define(function( require )
 				break;
 				
 			case StatusConst.ALL_RIDING:
-				if (entity === Session.Entity) {
-					entity.allRidingState = pkt.state;
-				}
+				entity.allRidingState = pkt.state;
 				break;
 		}
 
