@@ -876,7 +876,11 @@ define(function( require )
 			// Show cart (in future)
 			case StatusConst.ON_PUSH_CART:
         		entity.hasCart = pkt.state;
-				entity.CartNum = pkt.val[0];
+				if([0, 23, 4045, 4190, 4191].includes(entity.job)) {
+					entity.CartNum = 99;
+				} else {
+					entity.CartNum = pkt.val[0];
+				}
 				break;
 
 			// Cast a skill, TODO: add progressbar in shortcut
