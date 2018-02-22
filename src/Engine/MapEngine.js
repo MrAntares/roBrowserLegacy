@@ -114,20 +114,19 @@ define(function( require )
 				}
 			});
   
-       		var hbt = new PACKET.CZ.HBT();
-			
+       		        var hbt = new PACKET.CZ.HBT();
 			var is_sec_hbt = Configs.get('sec_HBT', null);
       
 			// Ping
 			var ping = new PACKET.CZ.REQUEST_TIME();
 			var startTick = Date.now();
 			Network.setPing(function(){
-            	if(is_sec_hbt)Network.sendPacket(hbt);   
+            	                if(is_sec_hbt)Network.sendPacket(hbt);   
 				ping.clientTime = Date.now() - startTick;
 				Network.sendPacket(ping);
 			});
         
-        	Session.Playing = true;
+        	        Session.Playing = true;
 		}, true);
 
 		// Do not hook multiple time
