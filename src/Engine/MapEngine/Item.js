@@ -27,7 +27,7 @@ define(function( require )
 	var ItemObtain    = require('UI/Components/ItemObtain/ItemObtain');
 	var ItemSelection = require('UI/Components/ItemSelection/ItemSelection');
 	var Inventory     = require('UI/Components/Inventory/Inventory');
-	var CartItems          = require('UI/Components/CartItems/CartItems');
+	var CartItems     = require('UI/Components/CartItems/CartItems');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
 
 
