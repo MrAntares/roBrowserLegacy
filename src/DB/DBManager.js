@@ -32,7 +32,9 @@ define(function(require)
 	var WeaponTable      = require('./Items/WeaponTable');
 	var WeaponType       = require('./Items/WeaponType');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
-
+	
+	var Network       = require('Network/NetworkManager');
+	var PACKET        = require('Network/PacketStructure');
 
 	/**
 	 * DB NameSpace
@@ -52,7 +54,6 @@ define(function(require)
 	 */
 	var MapTable = {};
 
-
 	/**
 	 * @var {Array} ASCII sex
 	 */
@@ -64,6 +65,10 @@ define(function(require)
 	 */
 	DB.mapalias = {};
 
+	/**
+	 * @var {Array} CharName by GID list
+	 */
+	DB.CNameTable = {};
 
 	/**
 	 * @var {string} interface path
@@ -112,6 +117,8 @@ define(function(require)
 		loadTable( 'data/num2cardillustnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     		= val;}, 			onLoad());
 		loadTable( 'data/fogparametertable.txt',		5, parseFogEntry,                                                                                                     			onLoad());
+		
+		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
 
 
@@ -369,9 +376,8 @@ define(function(require)
 	{
 		var type = DB.getWeaponViewID(id);
 
-		// TODO: implement basejob
 		if (type === WeaponType.NONE) {
-			// return '_' + ( basejob ) + '_attack.wav';
+			return WeaponSoundTable[type][Math.floor(Math.random() * 4)];
 		}
 
 		return WeaponSoundTable[type];
@@ -422,7 +428,7 @@ define(function(require)
 				id <  1150 ? WeaponType.SWORD        :
 			    id <  1200 ? WeaponType.TWOHANDSWORD :
 			    id <  1250 ? WeaponType.SHORTSWORD   :
-			    id <  1300 ? WeaponType.CATARRH      :
+			    id <  1300 ? WeaponType.KATAR        :
 			    id <  1350 ? WeaponType.AXE          :
 			    id <  1400 ? WeaponType.TWOHANDAXE   :
 			    id <  1450 ? WeaponType.SPEAR        :
@@ -553,12 +559,38 @@ define(function(require)
 		if (item.RefiningLevel) {
 			str = '+' + item.RefiningLevel + ' ';
 		}
-
+		
+		//Hide slots for forged weapons
+		var showslots = true;
 		if (item.slot) {
 			switch (item.slot.card1) {
 				case 0x00FF: // FORGE
+					showslots = false;
+					if (item.slot.card2 >= 3840) { 
+						str += 'Very Very Very Strong';
+					} else if (item.slot.card2 >= 2560) { 
+						str += 'Very Very Strong ';
+					} else if (item.slot.card2 >= 1024) { 
+						str += 'Very Strong ';
+					}
+					switch (Math.abs(item.slot.card2 % 10)){
+						case 1: str += 'Ice '; break;
+						case 2: str += 'Earth '; break;
+						case 3: str += 'Fire '; break;
+						case 4: str += 'Wind '; break;
+					}
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
+					var name = 'Unknown\'s ';
+					
+					var GID = (item.slot.card4<<16) + item.slot.card3;
+					if( DB.CNameTable[GID] ){
+						name = DB.CNameTable[GID]+'\'s ';
+					} else {
+						getNameByGID(GID);
+					}
+						
+					str = name + str;
 					break;
 
 				// Show card prefix
@@ -595,7 +627,7 @@ define(function(require)
 
 		str += it.identifiedDisplayName;
 
-		if (it.slotCount) {
+		if (it.slotCount && showslots) {
 			str += ' [' + it.slotCount + ']';
 		}
 
@@ -662,7 +694,18 @@ define(function(require)
 		return BabyTable.indexOf(jobid) > -1;
 	};
 
-
+	function getNameByGID (GID){
+		var pkt   = new PACKET.CZ.REQNAME_BYGID();
+		pkt.GID   = GID;
+		Network.sendPacket(pkt);
+		DB.CNameTable[pkt.GID] = 'Unknown';
+	}
+	
+	function onUpdateOwnerName (pkt){
+		DB.CNameTable[pkt.GID] = pkt.CName;
+	}
+	
+	
 	/**
 	 * Export
 	 */

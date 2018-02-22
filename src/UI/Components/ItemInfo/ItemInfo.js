@@ -22,9 +22,13 @@ define(function(require)
 	var KEYS               = require('Controls/KeyEventHandler');
 	var CardIllustration   = require('UI/Components/CardIllustration/CardIllustration');
 	var UIManager          = require('UI/UIManager');
+	var Mouse              = require('Controls/MouseEventHandler');
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./ItemInfo.html');
 	var cssText            = require('text!./ItemInfo.css');
+	
+	var Network       = require('Network/NetworkManager');
+	var PACKET        = require('Network/PacketStructure');
 
 
 	/**
@@ -37,7 +41,7 @@ define(function(require)
 	 * @var {number} ItemInfo unique id
 	 */
 	ItemInfo.uid = -1;
-
+	
 
 	/**
 	 * Once append to the DOM
@@ -62,6 +66,7 @@ define(function(require)
 		// Seems like "EscapeWindow" is execute first, push it before.
 		var events = jQuery._data( window, 'events').keydown;
 		events.unshift( events.pop() );
+		resize(ItemInfo.ui.find('.container').height());
 	};
 
 
@@ -80,7 +85,7 @@ define(function(require)
 	ItemInfo.init = function init()
 	{
 		this.ui.css({ top: 200, left:200 });
-
+		this.ui.find('.extend').mousedown(onResize);
 		this.ui.find('.close')
 			.mousedown(function(event){
 				event.stopImmediatePropagation();
@@ -95,6 +100,8 @@ define(function(require)
 		}.bind(this));
 
 		this.draggable(this.ui.find('.title'));
+		
+		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
 
 
@@ -115,8 +122,53 @@ define(function(require)
 		});
 
 
-		ui.find('.title').text( item.IsIdentified ? it.identifiedDisplayName : it.unidentifiedDisplayName );
-		ui.find('.description').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
+		var customname = '';
+		var hideslots = false;
+		if(item.slot){
+			switch (item.slot['card1']) {
+				case 0x00FF: // FORGE
+					if (item.slot['card2'] >= 3840) { 
+						customname += 'Very Very Very Strong';
+					} else if (item.slot['card2'] >= 2560) { 
+						customname += 'Very Very Strong ';
+					} else if (item.slot['card2'] >= 1024) { 
+						customname += 'Very Strong ';
+					}
+					switch (Math.abs(item.slot['card2'] % 10)){
+						case 1: customname += 'Ice '; break;
+						case 2: customname += 'Earth '; break;
+						case 3: customname += 'Fire '; break;
+						case 4: customname += 'Wind '; break;
+					}
+				case 0x00FE: // CREATE
+				case 0xFF00: // PET
+					hideslots = true;
+					
+					var name = 'Unknown';
+					var GID = (item.slot['card4']<<16) + item.slot['card3'];
+					
+					if (DB.CNameTable[GID]){
+						name = DB.CNameTable[GID];
+					} else {
+						getNameByGID(GID);
+					}
+					
+					
+					if(item.IsDamaged){
+						customname = name+'\'s '+customname;
+					} else {
+						customname = name=='Unknown' ? '^FF0000'+name+'\'s^000000 '+customname : '^0000FF'+name+'\'s^000000 '+customname;
+					}
+					
+					break;
+			}
+		}
+		
+		// Damaged status
+		var identifiedDisplayName = item.IsDamaged ? '^FF0000'+customname+it.identifiedDisplayName+'^000000' : customname+it.identifiedDisplayName;
+		
+		ui.find('.title').text( item.IsIdentified ? identifiedDisplayName: it.unidentifiedDisplayName );
+		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
 
 		// Add view button (for cards)
 		if (item.type === ItemType.CARD) {
@@ -124,14 +176,6 @@ define(function(require)
 		}
 		else {
 			ui.find('.view').hide();
-		}
-
-		// TODO: add item owner name
-		switch (cardList.slot1) {
-			case 0x00FF: // FORGE
-			case 0x00FE: // CREATE
-			case 0xFF00: // PET
-				break;
 		}
 
 		switch (item.type) {
@@ -143,6 +187,10 @@ define(function(require)
 			case ItemType.WEAPON:
 			case ItemType.EQUIP:
 			case ItemType.PETEGG:
+				if (hideslots){
+					cardList.parent().hide();
+					break;
+				}
 				var slotCount = it.slotCount || 0;
 				var i;
 
@@ -152,8 +200,13 @@ define(function(require)
 				for (i = 0; i < 4; ++i) {
 					addCard(cardList, (item.slot && item.slot['card' + (i+1)]) || 0, i, slotCount);
 				}
+				if (!item.IsIdentified) {
+					cardList.parent().hide();
+				}
 				break;
+				
 		}
+		resize(ItemInfo.ui.find('.container').height());
 	};
 
 
@@ -204,7 +257,82 @@ define(function(require)
 			}
 		});
 	}
+	/**
+	* Extend ItemInfo window size
+	*/
+	function onResize()
+	{
+		var ui      = ItemInfo.ui;
+		var top     = ui.position().top;
+		var left    = ui.position().left;
+		var lastHeight = 0;
+		var _Interval;
 
+		function resizing()
+		{
+			var h = Math.floor((Mouse.screen.y - top));
+			if (h === lastHeight) {
+				return;
+			}
+			resize( h );
+			lastHeight = h;
+		}
+
+		// Start resizing
+		_Interval = setInterval(resizing, 30);
+
+		// Stop resizing on left click
+		jQuery(window).on('mouseup.resize', function(event){
+			if (event.which === 1) {
+				clearInterval(_Interval);
+				jQuery(window).off('mouseup.resize');
+			}
+		});
+	}
+
+
+	/**
+	* Extend ItemInfo window size
+	*
+	* @param {number} height
+	*/
+	function resize( height )
+	{
+		var container = ItemInfo.ui.find('.container');
+		var description = ItemInfo.ui.find('.description');
+		var descriptionInner = ItemInfo.ui.find('.description-inner');
+		var containerHeight = height;
+		var minHeight = 120;
+		var maxHeight = (descriptionInner.height() + 45 > 120) ? descriptionInner.height() + 45 : 120;
+
+		if (containerHeight <= minHeight) {
+			containerHeight = minHeight;
+		}
+
+		if (containerHeight >= maxHeight) {
+			containerHeight = maxHeight;
+		}
+
+		container.css({
+			height: containerHeight
+		});
+		description.css({
+			height: containerHeight - 45
+		});
+	}
+	
+	function getNameByGID (GID){
+		var pkt   = new PACKET.CZ.REQNAME_BYGID();
+		pkt.GID   = GID;
+		Network.sendPacket(pkt);
+		DB.CNameTable[pkt.GID] = 'Unknown';
+	}
+	
+	function onUpdateOwnerName (pkt){
+		DB.CNameTable[pkt.GID] = pkt.CName;
+		var str = ItemInfo.ui.find('.title').text();
+		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
+	}
 	
 	/**
 	 * Create component and export it

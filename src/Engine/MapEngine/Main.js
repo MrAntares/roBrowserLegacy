@@ -550,7 +550,7 @@ define(function( require )
 		switch (pkt.varID) {
 
 			case StatusProperty.HP:
-				Damage.add( pkt.amount, Session.Entity, Renderer.tick, Damage.TYPE.HEAL );
+				Damage.add( pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL );
 
 				Session.Entity.life.hp += pkt.amount;
 				Session.Entity.life.update();
@@ -561,7 +561,7 @@ define(function( require )
 				break;
 
 			case StatusProperty.SP:
-				Damage.add( pkt.amount, Session.Entity, Renderer.tick, Damage.TYPE.HEAL | Damage.TYPE.SP );
+				Damage.add( pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL | Damage.TYPE.SP );
 
 				Session.Entity.life.sp += pkt.amount;
 				Session.Entity.life.update();

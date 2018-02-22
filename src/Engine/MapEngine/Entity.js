@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 
 define(function( require )
@@ -39,8 +39,21 @@ define(function( require )
 	var StatusIcons   = require('UI/Components/StatusIcons/StatusIcons');
 	var BasicInfo     = require('UI/Components/BasicInfo/BasicInfo');
 	var Escape        = require('UI/Components/Escape/Escape');
-
-
+	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
+	var AllMountTable = require('DB/Jobs/AllMountTable');
+	
+	// Excludes for skill name display
+	var SkillNameDisplayExclude = [
+				SkillId.AS_CLOAKING,
+				SkillId.TF_HIDING,
+				SkillId.GC_CLOAKINGEXCEED,
+				SkillId.ST_CHASEWALK,
+				SkillId.KO_YAMIKUMO,
+				//Overbrand 2 attacks
+				SkillId.LG_OVERBRAND_BRANDISH,
+				SkillId.LG_OVERBRAND_PLUSATK
+			];
+	
 	/**
 	 * Spam an entity on the map
 	 * Generic packet handler
@@ -228,6 +241,7 @@ define(function( require )
 		var srcEntity = EntityManager.get(pkt.GID);
 		var dstEntity = EntityManager.get(pkt.targetGID);
 		var target;
+		var srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
 
 		// Entity out of the screen ?
 		if (!srcEntity) {
@@ -271,29 +285,29 @@ define(function( require )
 							// regular damage (and endure)
 							case 9:
 							case 0:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								break;
 
 							// double attack
 							case 8:
 								// Display combo only if entity is mob and the attack don't miss
 								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
-									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, Damage.TYPE.COMBO );
-									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
+									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 								}
 
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1 );
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2 );
+								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcWeapon );
+								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
 								break;
 
 							// TODO: critical damage
 							case 10:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								break;
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, target, Renderer.tick + pkt.attackMT );
+								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								break;
 						}
 					}
@@ -479,6 +493,58 @@ define(function( require )
 
 
 	/**
+	* Shows notification effect for quests and events
+	*
+	* @param {object} pkt - PACKET.ZC.QUEST_NOTIFY_EFFECT
+	*/
+	function onEntityQuestNotifyEffect( pkt ) {
+		var Entity = EntityManager.get(pkt.npcID);
+		var color = 0;
+
+		if (pkt.effect !== 9999) {
+		var emotionId = pkt.effect + 81;
+
+			if (Entity && (pkt.effect in Emotions.indexes)) {
+				Entity.attachments.add({
+					frame: Emotions.indexes[emotionId],
+					file:  'emotion',
+					play:   true,
+					head:   true,
+					repeat: true,
+					depth:  5.0
+				});
+			}
+
+		}
+
+		switch (pkt.color + 1) {
+			case 1:
+				// yellow
+				color = 0xffff00;
+				break;
+			case 2:
+				// orange
+				color = 0xffa500;
+				break;
+			case 3:
+				// green
+				color = 0x00e16a;
+				break;
+			case 4:
+				// purple
+				color = 0x800080;
+				break;
+			case 0:
+			default:
+				return;
+		}
+
+		MiniMap.addNpcMark( pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
+	}
+	
+	
+	
+	/**
 	 * Updating entity direction
 	 *
 	 * @param {object} pkt - PACKET.ZC.CHANGE_DIRECTION
@@ -554,8 +620,8 @@ define(function( require )
 		var srcEntity = EntityManager.get(pkt.srcAID);
 		var dstEntity = EntityManager.get(pkt.targetAID);
 
-		// Only mob to don't display skill name ?
-		if (srcEntity && srcEntity.objecttype !== Entity.TYPE_MOB) {
+		// Don't display skill names for mobs and hiding skills
+		if (srcEntity && srcEntity.objecttype !== Entity.TYPE_MOB && !SkillNameDisplayExclude.includes(pkt.SKID)) {
 			srcEntity.dialog.set(
 				( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 				'white'
@@ -571,7 +637,7 @@ define(function( require )
 			if (pkt.SKID === SkillId.AL_HEAL ||
 			    pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
 			    pkt.SKID === SkillId.AB_CHEAL) {
-				Damage.add( pkt.level, dstEntity, Renderer.tick, Damage.TYPE.HEAL );
+				Damage.add( pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL );
 			}
 
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID );
@@ -610,14 +676,20 @@ define(function( require )
 	{
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
+		var srcWeapon;
 
 		if (srcEntity) {
 			pkt.attackMT = Math.min( 450, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
-
-
-			if (srcEntity.objecttype !== Entity.TYPE_MOB) {
+			
+			srcWeapon = 0;
+			if(srcEntity.weapon){
+				srcWeapon = srcEntity.weapon;
+			}
+			
+			// Don't display skill names for mobs and hiding skills
+			if (srcEntity.objecttype !== Entity.TYPE_MOB && !SkillNameDisplayExclude.includes(pkt.SKID)) {
 				srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
 			}
 
@@ -650,7 +722,7 @@ define(function( require )
 						var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 
 						EffectManager.spamSkillHit( pkt.SKID, dstEntity.GID, Renderer.tick);
-						Damage.add( pkt.damage / pkt.count, target, Renderer.tick);
+						Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon);
 
 						// Only display combo if the target is not entity and
 						// there are multiple attacks
@@ -659,6 +731,7 @@ define(function( require )
 								pkt.damage / pkt.count * (i+1),
 								target,
 								Renderer.tick, 
+								srcWeapon,
 								Damage.TYPE.COMBO | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
 							);
 						}
@@ -731,8 +804,8 @@ define(function( require )
 			});
 		}
 
-		// Only mob to don't display skill name ?
-		if (srcEntity.objecttype !== Entity.TYPE_MOB) {
+		// Don't display skill names for mobs and hiding skills
+		if (srcEntity.objecttype !== Entity.TYPE_MOB  && !SkillNameDisplayExclude.includes(pkt.SKID)) {
 			srcEntity.dialog.set(
 				( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 				'white'
@@ -823,6 +896,12 @@ define(function( require )
 						next:   false
 					}
 				});
+				break;
+				
+			case StatusConst.ALL_RIDING:
+				if (entity === Session.Entity) {
+					entity.allRidingState = pkt.state;
+				}
 				break;
 		}
 
@@ -1025,5 +1104,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.RESURRECTION,                 onEntityResurect);
 		Network.hookPacket( PACKET.ZC.EMOTION,                      onEntityEmotion);
 		Network.hookPacket( PACKET.ZC.NOTIFY_MONSTER_HP,            onEntityLifeUpdate);
+		Network.hookPacket( PACKET.ZC.QUEST_NOTIFY_EFFECT,          onEntityQuestNotifyEffect);
 	};
 });

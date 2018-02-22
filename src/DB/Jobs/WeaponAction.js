@@ -341,6 +341,9 @@ define(['./JobConst', 'DB/Items/WeaponType'], function( JobId, WeaponType )
 	duplicateEntry(JobId.ALCHEMIST,  JobId.ALCHEMIST_B,  JobId.ALCHEMIST_H,  JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B);
 	duplicateEntry(JobId.BARD,       JobId.BARD_B,       JobId.BARD_H,       JobId.MINSTREL,         JobId.MINSTREL_H,         JobId.MINSTREL_B);
 	duplicateEntry(JobId.DANCER,     JobId.DANCER_B,     JobId.DANCER_H,     JobId.WANDERER,         JobId.WANDERER_H,         JobId.WANDERER_B);
+	duplicateEntry(JobId.SUPERNOVICE, JobId.SUPERNOVICE_B, JobId.SUPERNOVICE2, JobId.SUPERNOVICE2_B);
+	duplicateEntry(JobId.NINJA,      JobId.NINJA_B,      JobId.KAGEROU,      JobId.KAGEROU_B,        JobId.OBORO,              JobId.OBORO_B);
+	duplicateEntry(JobId.GUNSLINGER, JobId.GUNSLINGER_B, JobId.REBELLION,     JobId.REBELLION_B);
 
 
 	/**

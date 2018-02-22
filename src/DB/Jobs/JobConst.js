@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, Antares
  */
 
 define(function()
@@ -91,12 +91,9 @@ define(function()
 		STAR:               4047,
 		STAR2:              4048,
 		LINKER:             4049,
-		/*
-		not used yet:
-		Job_Gangsi	4050
-		Job_Death_Knight	4051
-		Job_Dark_Collector	4052
-		*/
+		GANGSI:             4050,
+		DEATHKNIGHT:        4051,
+		COLLECTOR:          4052,
 		RUNE_KNIGHT:        4054,
 		WARLOCK:            4055,
 		RANGER:             4056,
@@ -131,7 +128,7 @@ define(function()
 		RANGER2_H:          4085,
 		MECHANIC2:          4086,
 		MECHANIC2_H:        4087,
-
+		//++++
 		RUNE_KNIGHT_B:      4096,
 		WARLOCK_B:          4097,
 		RANGER_B:           4098,
@@ -149,11 +146,12 @@ define(function()
 		ROYAL_GUARD2_B:     4110,
 		RANGER2_B:          4111,
 		MECHANIC2_B:        4112,
-		// 4113 ?
+		//                  4113,
+	//MOUNTS
 		FROG_NINJA:         4114,
 		PECO_GUNNER:        4115,
 		PECO_SWORD:         4116,
-		// 4117 ?
+		FROG_LINKER:        4117,
 		PIG_WHITESMITH:     4118,
 		PIG_MERCHANT:       4119,
 		PIG_GENETIC:        4120,
@@ -171,7 +169,7 @@ define(function()
 		FOX_SORCERER:       4132,
 		FOX_WARLOCK:        4133,
 		FOX_WIZ:            4134,
-		// 4135 ?
+		FOX_PROF:           4135,
 		FOX_HWIZ:           4136,
 		PIG_ALCHE:          4137,
 		PIG_BLACKSMITH:     4138,
@@ -195,7 +193,7 @@ define(function()
 		SHEEP_PRIEST:       4156,
 		SHEEP_HPRIEST:      4157,
 		PORING_NOVICE_B:    4158,
-		// 4159 ?
+		PECO_SWORD_B:       4159,
 		FOX_MAGICIAN_B:     4160,
 		OSTRICH_ARCHER_B:   4161,
 		SHEEP_ACO_B:        4162,
@@ -220,7 +218,7 @@ define(function()
 		DOG_THIEF_B:        4181,
 		DOG_CHASER_B:       4182,
 		PORING_NOVICE_H:    4183,
-		// 4184 ?
+		PECO_SWORD_H:       4184,
 		FOX_MAGICIAN_H:     4185,
 		OSTRICH_ARCHER_H:   4186,
 		SHEEP_ACO_H:        4187,
@@ -233,10 +231,37 @@ define(function()
 		SHEEP_PRIEST_B:     4194,
 		FOX_WIZ_B:          4195,
 		PIG_BLACKSMITH_B:   4196,
-
+		PIG_MECHANIC:       4197,
+		OSTRICH_RANGER:     4198,
+		LION_KNIGHT:        4199,
+		LION_KNIGHT_H:      4200,
+		LION_ROYAL_GUARD:   4201,
+		LION_RUNE_KNIGHT:   4202,
+		LION_CRUSADER:      4203,
+		LION_CRUSADER_H:    4204,
+		PIG_MECHANIC_B:     4205,
+		OSTRICH_RANGER_B:   4206,
+		LION_KNIGHT_B:      4207,
+		LION_ROYAL_GUARD_B: 4208,
+		LION_RUNE_KNIGHT_B: 4209,
+		LION_CRUSADER_B:    4210,
 		KAGEROU:            4211,
 		OBORO:              4212,
 		FROG_KAGEROU:       4213,
 		FROG_OBORO:         4214,
+		REBELLION:          4215,
+		PECO_REBELLION:     4216,
+		//?                 4217,
+		DO_SUMMONER1:       4218,
+		//?                 4219,
+		DO_SUMMONER_B1:     4220,
+		NINJA_B:            4222,
+		KAGEROU_B:          4223,
+		OBORO_B:            4224,
+		TAEKWON_B:          4225,
+		STAR_B:             4226,
+		LINKER_B:           4227,
+		GUNSLINGER_B:       4228,
+		REBELLION_B:        4229,
 	};
 });

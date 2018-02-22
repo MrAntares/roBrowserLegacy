@@ -19,8 +19,9 @@ define(function( require )
 	var Sprite         = require('Loaders/Sprite');
 	var Renderer       = require('Renderer/Renderer');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var MapPreferences  = require('Preferences/Map');
-
+	var MapPreferences = require('Preferences/Map');
+	var DB             = require('DB/DBManager');
+	var Sound          = require('Audio/SoundManager');
 
 	/**
 	 * Damage Namespace
@@ -127,7 +128,7 @@ define(function( require )
 	 * @param {number} tick
 	 * @param {number} type - Damage|Heal
 	 */
-	Damage.add = function add( damage, entity, tick, type )
+	Damage.add = function add( damage, entity, tick, weapon, type)
 	{
 		// Can not display negative damages.
 		// Need to wait the client to load damage sprite
@@ -150,7 +151,6 @@ define(function( require )
 		var height  = 0;
 		var gl      = Renderer.gl;
 		var texture;
-
 
 		var obj      = new Damage();
 
@@ -240,7 +240,11 @@ define(function( require )
 		obj.texture  = texture;
 		obj.width    = canvas.width;
 		obj.height   = canvas.height;
-
+		
+		if(weapon || weapon === 0){
+			obj.soundFile = DB.getWeaponSound(weapon);
+		}
+		
 		_list.push( obj );
 	};
 
@@ -339,6 +343,10 @@ define(function( require )
 				SpriteRenderer.position[0] = damage.entity.position[0] + perc * 4;
 				SpriteRenderer.position[1] = damage.entity.position[1] - perc * 4;
 				SpriteRenderer.position[2] = damage.entity.position[2] + 2 + Math.sin( -Math.PI/2 + ( Math.PI * (0.5 + perc * 1.5 ) ) ) * 5;
+				if(damage.soundFile){
+					Sound.play(damage.soundFile);
+					delete damage.soundFile;
+				}
 			}
 
 			// Heal
@@ -366,7 +374,7 @@ define(function( require )
 			SpriteRenderer.image.texture = damage.texture;
 			SpriteRenderer.render();
 		}
-
+		
 		SpriteRenderer.unbind( gl );
 	};
 

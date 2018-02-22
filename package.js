@@ -2,7 +2,7 @@
 	"name": "roBrowser",
 	"main": "applications/node-webkit/window.html",
  	"window": {
-		"title": "Ragnarok Online",
+		"title": "rAthena",
 	
 		"width":  1024,
 		"height":  768,

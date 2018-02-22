@@ -1,7 +1,7 @@
 {
 	"version": "0.1",
 	"name": "roBrowser",
-	"description": "Ragnarok Online Custom Client",
+	"description": "rAthena Custom Client",
 	"launch_path": "/applications/window.html",
 	"icons": {
 		"16": "/applications/icon_16.png",
@@ -16,4 +16,4 @@
 	},
 	"orientation": ["landscape"],
 	"type": "privileged"
-}
+} 
