@@ -286,23 +286,40 @@ define(function( require )
 							case 9:
 							case 0:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+								}
 								break;
 
 							// double attack
 							case 8:
 								// Display combo only if entity is mob and the attack don't miss
 								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
-									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
-									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									if(pkt.leftDamage){
+										Damage.add( pkt.damage / 2 ,                dstEntity, Renderer.tick + pkt.attackMT * 1,   srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage ,                    dstEntity, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									} else {
+										Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									}
 								}
 
 								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcWeapon );
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+								if(pkt.leftDamage){
+									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1.5, srcWeapon );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2,   srcWeapon );
+								} else {
+									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+								}
 								break;
 
 							// TODO: critical damage
 							case 10:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+								}
 								break;
 
 							// TODO: lucky miss
