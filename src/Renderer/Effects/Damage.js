@@ -22,7 +22,9 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	var DB             = require('DB/DBManager');
 	var Sound          = require('Audio/SoundManager');
-
+	
+	var CritSound      = "effect/ef_hit2.wav";
+	
 	/**
 	 * Damage Namespace
 	 */
@@ -49,7 +51,9 @@ define(function( require )
 		ENEMY:       1 << 3,
 		COMBO:       1 << 4,
 		COMBO_FINAL: 1 << 5,
-		SP:          1 << 6
+		SP:          1 << 6,
+		CRIT:        1 << 7,
+		LUCKY:       1 << 8
 	};
 
 
@@ -184,6 +188,12 @@ define(function( require )
 			obj.color[2] = 0.15;
 			obj.delay    = 3000;
 		}
+		else if (obj.type & Damage.TYPE.CRIT) {
+			// yellow
+			obj.color[0] = 0.9;
+			obj.color[1] = 0.9;
+			obj.color[2] = 0.15;
+		}
 		else {
 			// white
 			obj.color[0] = 1.0;
@@ -242,7 +252,7 @@ define(function( require )
 		obj.height   = canvas.height;
 		
 		if(weapon || weapon === 0){
-			obj.soundFile = DB.getWeaponSound(weapon);
+			obj.soundFile = (DB.getWeaponHitSound(weapon))[0];
 		}
 		
 		_list.push( obj );
@@ -338,12 +348,15 @@ define(function( require )
 			}
 
 			// Damage
-			else if (damage.type & Damage.TYPE.DAMAGE) {
+			else if ((damage.type & Damage.TYPE.DAMAGE) || (damage.type & Damage.TYPE.CRIT)) {
 				size = ( 1 - perc ) * 4;
 				SpriteRenderer.position[0] = damage.entity.position[0] + perc * 4;
 				SpriteRenderer.position[1] = damage.entity.position[1] - perc * 4;
 				SpriteRenderer.position[2] = damage.entity.position[2] + 2 + Math.sin( -Math.PI/2 + ( Math.PI * (0.5 + perc * 1.5 ) ) ) * 5;
 				if(damage.soundFile){
+					if(damage.type & Damage.TYPE.CRIT){
+						Sound.play(CritSound);
+					}
 					Sound.play(damage.soundFile);
 					delete damage.soundFile;
 				}
@@ -359,6 +372,15 @@ define(function( require )
 
 			// Miss
 			else if (damage.type & Damage.TYPE.MISS) {
+				perc = (( tick - damage.start ) / 800);
+				size = 0.5;
+				SpriteRenderer.position[0] = damage.entity.position[0];
+				SpriteRenderer.position[1] = damage.entity.position[1];
+				SpriteRenderer.position[2] = damage.entity.position[2] + 3.5 + perc * 7;
+			}
+			
+			// Miss
+			else if (damage.type & Damage.TYPE.LUCKY) {
 				perc = (( tick - damage.start ) / 800);
 				size = 0.5;
 				SpriteRenderer.position[0] = damage.entity.position[0];

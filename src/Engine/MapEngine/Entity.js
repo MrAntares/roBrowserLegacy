@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Vincent Thibault, Antares
+ * @author Vincent Thibault
  */
 
 define(function( require )
@@ -256,6 +256,7 @@ define(function( require )
 			case 8:  // double attack
 			case 9:  // endure
 			case 10: // critital
+			case 11: // lucky
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
@@ -286,28 +287,45 @@ define(function( require )
 							case 9:
 							case 0:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+								}
 								break;
 
 							// double attack
 							case 8:
 								// Display combo only if entity is mob and the attack don't miss
 								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
-									Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
-									Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									if(pkt.leftDamage){
+										Damage.add( pkt.damage / 2 ,                dstEntity, Renderer.tick + pkt.attackMT * 1,   srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage ,                    dstEntity, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									} else {
+										Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									}
 								}
 
 								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcWeapon );
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+								if(pkt.leftDamage){
+									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1.5, srcWeapon );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2,   srcWeapon );
+								} else {
+									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+								}
 								break;
 
 							// TODO: critical damage
 							case 10:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.CRIT );
+								}
 								break;
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
 								break;
 						}
 					}
@@ -875,8 +893,11 @@ define(function( require )
 
 			// Show cart (in future)
 			case StatusConst.ON_PUSH_CART:
-				if (entity === Session.Entity) {
-					Session.hasCart = pkt.state;
+        		entity.hasCart = pkt.state;
+				if([0, 23, 4045, 4190, 4191].includes(entity.job)) {
+					entity.CartNum = 99;
+				} else {
+					entity.CartNum = pkt.val[0];
 				}
 				break;
 
@@ -898,9 +919,7 @@ define(function( require )
 				break;
 				
 			case StatusConst.ALL_RIDING:
-				if (entity === Session.Entity) {
-					entity.allRidingState = pkt.state;
-				}
+				entity.allRidingState = pkt.state;
 				break;
 		}
 

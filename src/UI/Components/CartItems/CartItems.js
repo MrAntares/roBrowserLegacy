@@ -1,7 +1,7 @@
 /**
- * UI/Components/Inventory/Inventory.js
+ * UI/Components/CartItems/CartItems.js
  *
- * Chararacter Inventory
+ * Character CartItems Inventory
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
@@ -28,32 +28,23 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
-	var Equipment          = require('UI/Components/Equipment/Equipment');
-	var htmlText           = require('text!./Inventory.html');
-	var cssText            = require('text!./Inventory.css');
+	var Session    			= require('Engine/SessionStorage');
+	var htmlText           = require('text!./CartItems.html');
+	var cssText            = require('text!./CartItems.css');
 	var getModule          = require;
 
 
 	/**
 	 * Create Component
 	 */
-	var Inventory = new UIComponent( 'Inventory', htmlText, cssText );
+	var CartItems = new UIComponent( 'CartItems', htmlText, cssText );
 
-
-	/**
-	 * Tab constant
-	 */
-	Inventory.TAB = {
-		USABLE: 0,
-		EQUIP:  1,
-		ETC:    2
-	};
 
 
 	/**
 	 * Store inventory items
 	 */
-	Inventory.list = [];
+	CartItems.list = [];
 
 
 	/**
@@ -65,33 +56,27 @@ define(function(require)
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('Inventory', {
-		x:        0,
-		y:        172,
+	var _preferences = Preferences.get('CartItems', {
+		x:        200,
+		y:        200,
 		width:    7,
 		height:   4,
 		show:     false,
-		reduce:   false,
-		tab:      Inventory.TAB.USABLE,
-		magnet_top: false,
-		magnet_bottom: false,
-		magnet_left: true,
-		magnet_right: false
+		reduce:   false
 	}, 1.0);
 
 
 	/**
 	 * Initialize UI
 	 */
-	Inventory.init = function Init()
+	CartItems.init = function Init()
 	{
 		// Bind buttons
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
 		this.ui.find('.titlebar .mini').click(onToggleReduction);
-		this.ui.find('.tabs button').mousedown(onSwitchTab);
 		this.ui.find('.footer .extend').mousedown(onResize);
 		this.ui.find('.titlebar .close').click(function(){
-			Inventory.ui.hide();
+			CartItems.ui.hide();
 		});
 
 		// on drop item
@@ -111,21 +96,26 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
-
+	
 
 	/**
 	 * Apply preferences once append to body
 	 */
-	Inventory.onAppend = function OnAppend()
+	CartItems.onAppend = function OnAppend()
 	{
+		if(Session.Entity.hasCart ==  false)
+		{
+			this.ui.hide();
+		}
+		
 		// Apply preferences
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
 
-		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/tab_itm_0'+ (_preferences.tab+1) +'.bmp', function(data){
-			Inventory.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
-		});
+		/*Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/tab_itm_0'+ (_preferences.tab+1) +'.bmp', function(data){
+			CartItems.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
+		});*/
 
 		this.resize( _preferences.width, _preferences.height );
 
@@ -133,12 +123,7 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-		
-		this.magnet.TOP = _preferences.magnet_top;
-		this.magnet.BOTTOM = _preferences.magnet_bottom;
-		this.magnet.LEFT = _preferences.magnet_left;
-		this.magnet.RIGHT = _preferences.magnet_right;
-		
+
 		_realSize = _preferences.reduce ? 0 : this.ui.height();
 		this.ui.find('.titlebar .mini').trigger('mousedown');
 	};
@@ -147,7 +132,7 @@ define(function(require)
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	Inventory.onRemove = function OnRemove()
+	CartItems.onRemove = function OnRemove()
 	{
 		this.ui.find('.container .content').empty();
 		this.list.length = 0;
@@ -160,10 +145,6 @@ define(function(require)
 		_preferences.x      =  parseInt(this.ui.css('left'), 10);
 		_preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
 		_preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
-		_preferences.magnet_top = this.magnet.TOP;
-		_preferences.magnet_bottom = this.magnet.BOTTOM;
-		_preferences.magnet_left = this.magnet.LEFT;
-		_preferences.magnet_right = this.magnet.RIGHT;
 		_preferences.save();
 	};
 
@@ -173,8 +154,15 @@ define(function(require)
 	 *
 	 * @param {object} key
 	 */
-	Inventory.onShortCut = function onShurtCut( key )
+	CartItems.onShortCut = function onShurtCut( key )
 	{
+		console.log("CartItems.onShortCut : "+Session.Entity.hasCart);
+		
+		if(Session.Entity.hasCart ==  false)
+		{
+			return;
+		}
+		
 		switch (key.cmd) {
 			case 'TOGGLE':
 				this.ui.toggle();
@@ -200,7 +188,7 @@ define(function(require)
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	Inventory.resize = function Resize( width, height )
+	CartItems.resize = function Resize( width, height )
 	{
 		width  = Math.min( Math.max(width,  6), 9);
 		height = Math.min( Math.max(height, 2), 6);
@@ -211,7 +199,7 @@ define(function(require)
 		});
 
 		this.ui.css({
-			width:  23 + 16 + 16 + width  * 32,
+			width:  16 + 16 + width  * 32,
 			height: 31 + 19      + height * 32
 		});
 	};
@@ -223,10 +211,10 @@ define(function(require)
 	 * @param {number} id
 	 * @returns {Item}
 	 */
-	Inventory.getItemById = function GetItemById( id )
+	CartItems.getItemById = function GetItemById( id )
 	{
 		var i, count;
-		var list = Inventory.list;
+		var list = CartItems.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -244,10 +232,10 @@ define(function(require)
 	 * @param {number} index
 	 * @returns {Item}
 	 */
-	Inventory.getItemByIndex = function getItemByIndex( index )
+	CartItems.getItemByIndex = function getItemByIndex( index )
 	{
 		var i, count;
-		var list = Inventory.list;
+		var list = CartItems.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -263,7 +251,7 @@ define(function(require)
 	 * Add items to the list
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
-	Inventory.setItems = function SetItems(items)
+	CartItems.setItems = function SetItems(items)
 	{
 		var i, count;
 		
@@ -280,6 +268,15 @@ define(function(require)
 		}
 		
 	};
+	
+
+	CartItems.setCartInfo = function SetCartInfo(curCount, maxCount, curWeight, maxWeight)
+	{
+		this.ui.find('.ncnt').text(curCount);
+		this.ui.find('.mcnt').text(maxCount);
+		this.ui.find('.nwt').text(curWeight);
+		this.ui.find('.mwt').text(maxWeight);
+	};	
 
 
 	/**
@@ -287,7 +284,7 @@ define(function(require)
 	 *
 	 * @param {object} Item
 	 */
-	Inventory.addItem = function AddItem( item )
+	CartItems.addItem = function AddItem( item )
 	{
 		var object = this.getItemByIndex(item.index);
 		//console.log("add");
@@ -295,14 +292,12 @@ define(function(require)
 		if (object) {
 			object.count += item.count;
 			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
-			this.onUpdateItem(object.ITID, object.count);
 			return;
 		}
 
 		object = jQuery.extend({}, item);
 		if (this.addItemSub(object)) {
 			this.list.push(object);
-			this.onUpdateItem(object.ITID, object.count);
 		}
 	};
 
@@ -312,39 +307,14 @@ define(function(require)
 	 *
 	 * @param {object} Item
 	 */
-	Inventory.addItemSub = function AddItemSub( item )
+	CartItems.addItemSub = function AddItemSub( item )
 	{
-		var tab;
-		switch (item.type) {
-			case ItemType.HEALING:
-			case ItemType.USABLE:
-			case ItemType.USABLE_SKILL:
-			case ItemType.USABLE_UNK:
-				tab = Inventory.TAB.USABLE;
-				break;
-
-			case ItemType.WEAPON:
-			case ItemType.EQUIP:
-			case ItemType.PETEGG:
-			case ItemType.PETEQUIP:
-				tab = Inventory.TAB.EQUIP;
-				break;
-
-			default:
-			case ItemType.ETC:
-			case ItemType.CARD:
-			case ItemType.AMMO:
-				tab = Inventory.TAB.ETC;
-				break;
-		}
-
 		// Equip item (if not arrow)
 		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-			Equipment.equip(item);
+			//Equipment.equip(item);
 			return false;
 		}
 
-		if (tab === _preferences.tab) {
 			var it      = DB.getItemInfo( item.ITID );
 			var content = this.ui.find('.container .content');
 
@@ -365,8 +335,6 @@ define(function(require)
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
-		}
-
 		return true;
 	};
 
@@ -377,7 +345,7 @@ define(function(require)
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	Inventory.removeItem = function RemoveItem( index, count )
+	CartItems.removeItem = function RemoveItem( index, count )
 	{
 		var item = this.getItemByIndex(index);
 
@@ -386,20 +354,19 @@ define(function(require)
 		if (!item || count <= 0) {
 			return null;
 		}
+		
 
 		if (item.count) {
 			item.count -= count;
 
 			if (item.count > 0) {
 				this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
-				this.onUpdateItem(item.ITID, item.count);
 				return item;
 			}
 		}
 		
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
@@ -408,7 +375,7 @@ define(function(require)
 
 		return item;
 	};
-
+	
 
 	/**
 	 * Remove item from inventory
@@ -416,7 +383,7 @@ define(function(require)
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	Inventory.updateItem = function UpdateItem( index, count )
+	CartItems.updateItem = function UpdateItem( index, count )
 	{
 		var item = this.getItemByIndex(index);
 
@@ -429,14 +396,12 @@ define(function(require)
 		// Update quantity
 		if (item.count > 0) {
 			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
-			this.onUpdateItem(item.ITID, item.count);
 			return;
 		}
 
 		// no quantity, remove
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
@@ -444,44 +409,6 @@ define(function(require)
 		}
 	};
 
-
-	/**
-	 * Use an item
-	 *
-	 * @param {Item} item
-	 */
-	Inventory.useItem = function UseItem( item )
-	{
-		switch (item.type) {
-
-			// Usable item
-			case ItemType.HEALING:
-			case ItemType.USABLE:
-			case ItemType.USABLE_UNK:
-				Inventory.onUseItem( item.index );
-				break;
-
-			// Use card
-			case ItemType.CARD:
-				Inventory.onUseCard( item.index );
-				break;
-
-			case ItemType.USABLE_SKILL:
-				break;
-
-			// Equip item
-			case ItemType.WEAPON:
-			case ItemType.EQUIP:
-			case ItemType.PETEQUIP:
-			case ItemType.AMMO:
-				if (item.IsIdentified && !item.IsDamaged) {
-					Inventory.onEquipItem( item.index, item.location );
-				}
-				break;
-		}
-
-		return;
-	};
 
 
 	/**
@@ -499,7 +426,7 @@ define(function(require)
 	 */
 	function onResize()
 	{
-		var ui      = Inventory.ui;
+		var ui      = CartItems.ui;
 		var content = ui.find('.container .content');
 		var hide    = ui.find('.hide');
 		var top     = ui.position().top;
@@ -524,7 +451,7 @@ define(function(require)
 				return;
 			}
 
-			Inventory.resize( w, h );
+			CartItems.resize( w, h );
 			lastWidth  = w;
 			lastHeight = h;
 
@@ -550,27 +477,13 @@ define(function(require)
 	}
 
 
-	/**
-	 * Modify tab, filter display entries
-	 */
-	function onSwitchTab()
-	{
-		var idx          = jQuery(this).index();
-		_preferences.tab = parseInt(idx, 10);
-
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0'+ (idx+1) +'.bmp', function(data){
-			Inventory.ui.find('.tabs').css('backgroundImage', 'url(' + data + ')');
-			requestFilter();
-		});
-	}
-
 
 	/**
 	 * Hide/show inventory's content
 	 */
 	function onToggleReduction()
 	{
-		var ui = Inventory.ui;
+		var ui = CartItems.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
@@ -590,13 +503,13 @@ define(function(require)
 	 */
 	function requestFilter()
 	{
-		Inventory.ui.find('.container .content').empty();
+		CartItems.ui.find('.container .content').empty();
 
-		var list = Inventory.list;
+		var list = CartItems.list;
 		var i, count;
 
 		for (i = 0, count = list.length; i < count; ++i) {
-			Inventory.addItemSub( list[i] );
+			CartItems.addItemSub( list[i] );
 		}
 	}
 
@@ -620,49 +533,46 @@ define(function(require)
 		}
 
 		// Just allow item from storage
-		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'CartItems')) {
+		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'Inventory')) {
 			return false;
 		}
 
 		// Have to specify how much
-		if (item.count > 1) 
-		{
+		if (item.count > 1) {
 			InputBox.append();
 			InputBox.setType('number', false, item.count);
-			
-			InputBox.onSubmitRequest = function OnSubmitRequest( count ) 
-			{
+			InputBox.onSubmitRequest = function OnSubmitRequest( count ) {
 				InputBox.remove();
 				
 					switch(data.from)
 					{
 					case 'Storage':
-						getModule('UI/Components/Storage/Storage').reqRemoveItem(
+						getModule('UI/Components/Storage/Storage').reqMoveItemToCart(
 							item.index,
 							parseInt(count, 10 )
 							);
 					break;
 					
-					case 'CartItems':
-						getModule('UI/Components/CartItems/CartItems').reqRemoveItem(
+					case 'Inventory':
+						getModule('UI/Components/Inventory/Inventory').reqMoveItemToCart(
 							item.index,
 							parseInt(count, 10 )
 							);
 					break;					
 				
-					}
+					}					
 			};
 			return false;
 		}
-		
+
 		switch(data.from)
 		{
 			case 'Storage':
-				getModule('UI/Components/Storage/Storage').reqRemoveItem( item.index, 1 );
+				getModule('UI/Components/Storage/Storage').reqMoveItemToCart( item.index, 1 );
 			break;
 					
-			case 'CartItems':
-				getModule('UI/Components/CartItems/CartItems').reqRemoveItem( item.index, 1 );
+			case 'Inventory':
+				getModule('UI/Components/Inventory/Inventory').reqMoveItemToCart( item.index, 1 );
 			break;							
 		}
 
@@ -699,7 +609,7 @@ define(function(require)
 	function onItemOver()
 	{
 		var idx  = parseInt( this.getAttribute('data-index'), 10);
-		var item = Inventory.getItemByIndex(idx);
+		var item = CartItems.getItemByIndex(idx);
 
 		if (!item) {
 			return;
@@ -707,7 +617,7 @@ define(function(require)
 
 		// Get back data
 		var pos     = jQuery(this).position();
-		var overlay = Inventory.ui.find('.overlay');
+		var overlay = CartItems.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -728,7 +638,7 @@ define(function(require)
 	 */
 	function onItemOut()
 	{
-		Inventory.ui.find('.overlay').hide();
+		CartItems.ui.find('.overlay').hide();
 	}
 
 
@@ -738,7 +648,7 @@ define(function(require)
 	function onItemDragStart( event )
 	{
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = Inventory.getItemByIndex(index);
+		var item  = CartItems.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -753,7 +663,7 @@ define(function(require)
 		event.originalEvent.dataTransfer.setData('Text',
 			JSON.stringify( window._OBJ_DRAG_ = {
 				type: 'item',
-				from: 'Inventory',
+				from: 'CartItems',
 				data:  item
 			})
 		);
@@ -780,7 +690,7 @@ define(function(require)
 		event.stopImmediatePropagation();
 
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = Inventory.getItemByIndex(index);
+		var item  = CartItems.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -807,29 +717,22 @@ define(function(require)
 	function onItemUsed( event )
 	{
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = Inventory.getItemByIndex(index);
+		var item  = CartItems.getItemByIndex(index);
 
 		if (item) {
-			Inventory.useItem(item);
+			CartItems.useItem(item);
 			onItemOut();
 		}
 
 		event.stopImmediatePropagation();
 		return false;
 	}
-
-
-	/**
-	 * functions to define
-	 */
-	Inventory.onUseItem    = function OnUseItem(/* index */){};
-	Inventory.onUseCard    = function onUseCard(/* index */){};
-	Inventory.onEquipItem  = function OnEquipItem(/* index, location */){};
-	Inventory.onUpdateItem = function OnUpdateItem(/* index, amount */){};
-
+	
+	
+	CartItems.reqRemoveItem   = function reqRemoveItem(){};
 
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Inventory);
+	return UIManager.addComponent(CartItems);
 });

@@ -3,7 +3,7 @@
  *
  * Target selection screen when using skill
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -248,7 +248,7 @@ define(function(require)
 
 		// Zone skill
 		if (_flag & (SkillTargetSelection.TYPE.PLACE|SkillTargetSelection.TYPE.TRAP)) {
-			SkillTargetSelection.onUseSkillToPos(_skill.SKID, _skill.level, Mouse.world.x, Mouse.world.y);
+			SkillTargetSelection.onUseSkillToPos(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, Mouse.world.x, Mouse.world.y);
 			return false;
 		}
 
@@ -309,7 +309,7 @@ define(function(require)
 		}
 
 		// Cast skill
-		SkillTargetSelection.onUseSkillToId(_skill.SKID, _skill.level, entity.GID);
+		SkillTargetSelection.onUseSkillToId(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entity.GID);
 		return;
 	}
 

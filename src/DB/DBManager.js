@@ -32,6 +32,7 @@ define(function(require)
 	var WeaponTable      = require('./Items/WeaponTable');
 	var WeaponType       = require('./Items/WeaponType');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
+	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
 	
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
@@ -375,12 +376,23 @@ define(function(require)
 	DB.getWeaponSound = function getWeaponSound( id )
 	{
 		var type = DB.getWeaponViewID(id);
+		return WeaponSoundTable[type];
+	};
+	
+	
+	/**
+	 * @return {string} Path to eapon sound
+	 * @param {number} weapon id
+	 */
+	DB.getWeaponHitSound = function getWeaponHitSound( id )
+	{
+		var type = DB.getWeaponViewID(id);
 
 		if (type === WeaponType.NONE) {
-			return WeaponSoundTable[type][Math.floor(Math.random() * 4)];
+			return [WeaponHitSoundTable[type][Math.floor(Math.random() * 4)]];
 		}
 
-		return WeaponSoundTable[type];
+		return WeaponHitSoundTable[type];
 	};
 
 

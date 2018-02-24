@@ -72,7 +72,8 @@ define(function(require)
 	 * @var {jQuery} button that appeared when level up
 	 */
 	var _btnLevelUp;
-
+	
+	var lArrow, rArrow;
 
 	/**
 	 * Initialize UI
@@ -103,6 +104,13 @@ define(function(require)
 			.on('dragend',     '.skill',      onSkillDragEnd);
 
 		this.draggable(this.ui.find('.titlebar'));
+		
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function(data){
+			rArrow = 'url('+data+')';
+		});
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_left.bmp', function(data){
+			lArrow = 'url('+data+')';
+		});
 	};
 
 
@@ -220,7 +228,7 @@ define(function(require)
 						jQuery.escape(sk.SkillName)  +'<br/>' +
 						'<span class="level">' +
 						(
-							sk.bSeperateLv ? 'Lv : <span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span>'
+							sk.bSeperateLv ? '<button class="currentDown"></button>Lv : <span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span><button class="currentUp"></button>'
 							               : 'Lv : <span class="current">'+ skill.level +'</span>'
 						) +
 						'</span>' +
@@ -241,13 +249,19 @@ define(function(require)
 		}
 
 		element.find('.levelupcontainer').append( levelup );
+		
+		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
+		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
+		
+		element.find('.level .currentUp').click( function(){ skillLevelSelectUp(skill);  } );
+		element.find('.level .currentDown').click( function(){ skillLevelSelectDown(skill); } );
 		SkillList.ui.find('.content table').append(element);
 		this.parseHTML.call(levelup);
 
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
 			element.find('.icon img').attr('src', data);
 		});
-
+		
 		_list.push(skill);
 		this.onUpdateSkill( skill.SKID, skill.level);
 	};
@@ -285,6 +299,9 @@ define(function(require)
 		// Update UI
 		element = this.ui.find('.skill.id' + skill.SKID + ':first');
 		element.find('.level .current, .level .max').text(skill.level);
+		if(skill.selectedLevel){
+			element.find('.level .current').text(skill.selectedLevel);
+		}
 		element.find('.spcost').text(skill.spcost);
 
 		element.removeClass('active passive disabled');
@@ -306,7 +323,7 @@ define(function(require)
 	 *
 	 * @param {number} skill id
 	 */
-	SkillList.useSkillID = function useSkillID( id )
+	SkillList.useSkillID = function useSkillID( id, level )
 	{
 		var skill = getSkillById(id);
 
@@ -314,7 +331,7 @@ define(function(require)
 			return;
 		}
 
-		SkillList.useSkill( skill );
+		SkillList.useSkill( skill, level ? level : skill.selectedLevel );
 	};
 
 
@@ -323,13 +340,15 @@ define(function(require)
 	 *
 	 * @param {object} skill
 	 */
-	SkillList.useSkill = function useSkill( skill )
+	SkillList.useSkill = function useSkill( skill, level )
 	{
 		// Self
 		if (skill.type & SkillTargetSelection.TYPE.SELF) {
-			this.onUseSkill( skill.SKID, skill.level);
+			this.onUseSkill( skill.SKID, level ? level : skill.level);
 		}
-
+		
+		skill.useLevel = level;
+		
 		// no elseif intended (see flying kick).
 		if (skill.type & SkillTargetSelection.TYPE.TARGET) {
 			SkillTargetSelection.append();
@@ -583,8 +602,25 @@ define(function(require)
 	{
 		delete window._OBJ_DRAG_;
 	}
-
-
+	
+	function skillLevelSelectUp( skill ){
+		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		if (level < skill.level){
+			skill.selectedLevel = level + 1;
+			var element = SkillList.ui.find('.skill.id' + skill.SKID + ':first');
+			element.find('.level .current').text(skill.selectedLevel);
+		}
+	}
+	
+	function skillLevelSelectDown( skill ){
+		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		if (level > 1){
+			skill.selectedLevel = level - 1;
+			var element = SkillList.ui.find('.skill.id' + skill.SKID + ':first');
+			element.find('.level .current').text(skill.selectedLevel);
+		}
+	}
+	
 	/**
 	 * Abstract function to define
 	 */

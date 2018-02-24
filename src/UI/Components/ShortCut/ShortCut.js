@@ -347,8 +347,9 @@ define(function(require)
 	 * @param {boolean} is a skill ?
 	 * @param {number} ID of the element to remove
 	 * @param {number} row id
+	 * @param {number} amount (optional)
 	 */
-	function removeElement( isSkill, ID, row )
+	function removeElement( isSkill, ID, row, amount )
 	{
 		var i, count;
 
@@ -356,9 +357,11 @@ define(function(require)
 		if (!ID) {
 			return;
 		}
-
+		
+		console.log('issk '+isSkill+' id '+ID+' row '+row+' amount '+amount);
+		
 		for (i = row * 9, count = Math.min(_list.length, row * 9 + 9); i < count; ++i) {
-			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
+			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID && (!isSkill || _list[i].count == amount)) {
 				ShortCut.ui.find('.container:eq(' + i + ')').empty();
 				_list[i].isSkill = 0;
 				_list[i].ID      = 0;
@@ -398,9 +401,9 @@ define(function(require)
 
 		switch (data.from) {
 			case 'SkillList':
-				ShortCut.onChange( index, true, element.SKID, element.level);
-				removeElement( true, element.SKID, row);
-				addElement( index, true, element.SKID, element.level);
+				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
+				addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				break;
 
 			case 'Inventory':
@@ -411,7 +414,7 @@ define(function(require)
 
 			case 'ShortCut':
 				ShortCut.onChange( index, element.isSkill, element.ID, element.count);
-				removeElement( element.isSkill, element.ID, row);
+				removeElement( element.isSkill, element.ID, row, element.isSkill ? element.count : null );
 				addElement( index, element.isSkill, element.ID, element.count);
 				break;
 		}
@@ -523,7 +526,7 @@ define(function(require)
 
 		// Execute skill
 		if (shortcut.isSkill) {
-			SkillWindow.useSkillID(shortcut.ID);
+			SkillWindow.useSkillID(shortcut.ID, shortcut.count);
 		}
 
 		// Use the item
