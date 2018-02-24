@@ -256,6 +256,7 @@ define(function( require )
 			case 8:  // double attack
 			case 9:  // endure
 			case 10: // critital
+			case 11: // lucky
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
@@ -316,15 +317,15 @@ define(function( require )
 
 							// TODO: critical damage
 							case 10:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.CRIT );
 								}
 								break;
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
 								break;
 						}
 					}
