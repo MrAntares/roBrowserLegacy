@@ -450,23 +450,23 @@ define(function( require )
 		}
     
    	
-    	        if(id === SkillId.MC_CHANGECART)
-                {
+    	if(id === SkillId.MC_CHANGECART)
+        {
 			if(Session.Entity.hasCart == true)
 			{
 				getModule('UI/Components/ChangeCart/ChangeCart').onChangeCartSkill();
 			}
-       	        }
+       	}
 		else if(id === SkillId.MC_VENDING)
 		{
 			getModule('UI/Components/Vending/Vending').onVendingSkill();
 			return;
 		}
 		
-                pkt               = new PACKET.CZ.USE_SKILL();
-                pkt.SKID          = id;
-                pkt.selectedLevel = level;
-                pkt.targetID      = targetID || Session.Entity.GID;
+        pkt               = new PACKET.CZ.USE_SKILL();
+        pkt.SKID          = id;
+        pkt.selectedLevel = level;
+        pkt.targetID      = targetID || Session.Entity.GID;
 
 		// In range
 		if (count < 2 || target === entity) {
