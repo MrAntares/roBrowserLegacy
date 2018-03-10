@@ -228,6 +228,7 @@ define( function( require )
 					this.display.name = unit.name;
 					this.display.update(
 						this.objecttype === Entity.TYPE_MOB ? this.display.STYLE.MOB :
+						this.objecttype === Entity.TYPE_DISGUISED ? this.display.STYLE.MOB :
 						this.objecttype === Entity.TYPE_NPC ? this.display.STYLE.NPC :
 						this.display.STYLE.DEFAULT
 					);
