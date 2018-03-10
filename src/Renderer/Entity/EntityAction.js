@@ -114,6 +114,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 
 			// Define action, base on type
 			case Entity.TYPE_PC:
+			case Entity.TYPE_DISGUISED:
 				this.ACTION.IDLE       = 0;
 				this.ACTION.WALK       = 1;
 				this.ACTION.SIT        = 2;
@@ -166,6 +167,8 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 
 			// Homunculus
 			case Entity.TYPE_HOM:
+			case Entity.TYPE_MERC:
+			case Entity.TYPE_ELEM:
 				this.ACTION.IDLE    = 0;
 				this.ACTION.WALK    = 1;
 				this.ACTION.ATTACK  = 2;
