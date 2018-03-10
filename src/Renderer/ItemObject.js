@@ -39,7 +39,7 @@ function(   DB,            EntityManager,            Entity,                Alti
 
 		entity.display.load = entity.display.TYPE.COMPLETE;
 		entity.display.name = DB.getMessage(183).replace('%s', name).replace('%d', count);
-		entity.display.update('#FFEF94');
+		entity.display.update(entity.display.STYLE.ITEM);
 
 		entity.files.body.spr = path + '.spr';
 		entity.files.body.act = path + '.act';
