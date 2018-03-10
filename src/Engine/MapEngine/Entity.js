@@ -476,6 +476,7 @@ define(function( require )
 					entity.display.emblem = image;
 					entity.display.update(
 						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
 						entity.display.STYLE.DEFAULT
 					)
@@ -486,6 +487,7 @@ define(function( require )
 			}
 			entity.display.update(
 				entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+				entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 				entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
 				entity.display.STYLE.DEFAULT
 			);
