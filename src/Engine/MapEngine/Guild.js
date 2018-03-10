@@ -510,9 +510,9 @@ define(function( require )
 					if (entity.GUID === pkt.GDID) {
 						entity.display.emblem = img;
 						entity.display.update(
-							entity.objecttype === entity.constructor.TYPE_MOB ? '#ffc6c6' :
-							entity.objecttype === entity.constructor.TYPE_NPC ? '#94bdf7' :
-							'white'
+							entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
+							entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
+							entity.display.STYLE.DEFAULT
 						);
 					}
 				});
