@@ -227,9 +227,9 @@ define( function( require )
 				case 'name':
 					this.display.name = unit.name;
 					this.display.update(
-						this.objecttype === Entity.TYPE_MOB ? '#ffc6c6' :
-						this.objecttype === Entity.TYPE_NPC ? '#94bdf7' :
-						'white'
+						this.objecttype === Entity.TYPE_MOB ? this.display.STYLE.MOB :
+						this.objecttype === Entity.TYPE_NPC ? this.display.STYLE.NPC :
+						this.display.STYLE.DEFAULT
 					);
 					break;
 
