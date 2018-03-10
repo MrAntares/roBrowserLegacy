@@ -511,6 +511,7 @@ define(function( require )
 						entity.display.emblem = img;
 						entity.display.update(
 							entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
+							entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 							entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
 							entity.display.STYLE.DEFAULT
 						);
