@@ -119,6 +119,13 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			LOADING:  1,
 			COMPLETE: 2
 		};
+		
+		this.STYLE = {
+			DEFAULT: 0,
+			MOB: 1,
+			NPC: 2,
+			ITEM: 3
+		};
 
 		this.load       =  this.TYPE.NONE;
 		this.name       =  '';
@@ -168,26 +175,29 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 	 * Update the display
 	 * @param {string} color
 	 */
-	Display.prototype.update = function update( color )
+	Display.prototype.update = function update( style )
 	{
+		style = style || this.STYLE.DEFAULT;
+		
 		// Setup variables
 		var lines    = new Array(2);
 		var fontSize = 12;
 		var ctx      = this.ctx;
-		var start_x  = (this.emblem ? 26 : 0) + 5;
+		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT) ? 26 : 0) + 5;
 		var width, height;
 
 		// Skip the "#" in the pseudo
 		lines[0] = this.name.split('#')[0];
 		lines[1] = '';
-
+		
+		
 		// Add the party name
-		if (this.party_name.length) {
+		if (this.party_name.length && (style === this.STYLE.DEFAULT)) {
 			lines[0] += ' (' + this.party_name + ')';
 		}
 
 		// Add guild name
-		if (this.guild_name.length) {
+		if (this.guild_name.length && (style === this.STYLE.DEFAULT)) {
 			lines[1]  = this.guild_name;
 
 			// Add guild rank
@@ -195,23 +205,27 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 				lines[1] +=  ' [' + this.guild_rank + ']';
 			}
 		}
-
+		
 		// Setup the canvas
 		ctx.font          = fontSize + 'px Arial';
 		width             = Math.max( ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width ) + start_x + 5;
 		height            = fontSize * 3 * (lines[1].length ? 2 : 1);
 		ctx.canvas.width  = width;
 		ctx.canvas.height = height;
-
-
+		
 		// Draw emblem
-		if (this.emblem) {
+		if (this.emblem  && (style === this.STYLE.DEFAULT)) {
 			ctx.drawImage( this.emblem, 0, 0 );
 		}
-
-
+		
 		// TODO: complete the color list in the Entity display
-		color = color || 'white';
+		var color = 'white';
+		switch (style){
+			case this.STYLE.MOB: color = '#ffc6c6'; break;
+			case this.STYLE.NPC: color = '#94bdf7'; break;
+			case this.STYLE.ITEM: color = '#FFEF94'; break;
+		}
+		
 		ctx.font         = fontSize + 'px Arial';
 		ctx.textBaseline = 'top';
 
