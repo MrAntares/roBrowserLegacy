@@ -129,6 +129,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 
 		this.load       =  this.TYPE.NONE;
 		this.name       =  '';
+		this.fakename	=  '';
 		this.party_name =  '';
 		this.guild_name =  '';
 		this.guild_rank =  '';
@@ -187,7 +188,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		var width, height;
 
 		// Skip the "#" in the pseudo
-		lines[0] = this.name.split('#')[0];
+		lines[0] = this.fakename ? this.fakename.split('#')[0] : this.name.split('#')[0];
 		lines[1] = '';
 		
 		
