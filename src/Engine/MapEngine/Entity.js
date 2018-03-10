@@ -459,7 +459,11 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.AID);
 		if (entity) {
-			entity.display.name = pkt.CName;
+			if(entity.display.name){
+				entity.display.fakename = pkt.CName;
+			} else {
+				entity.display.name = pkt.CName;
+			}
 
 			entity.display.party_name = pkt.PName || '';
 			entity.display.guild_name = pkt.GName || '';
