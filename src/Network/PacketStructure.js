@@ -10608,7 +10608,7 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 		this.hp = fp.readLong();
 		this.maxhp = fp.readLong();
 		this.isBoss = fp.readUChar();
-		this.name = fp.readString(24);
+		//this.name = fp.readString(24);
 	};
 	PACKET.ZC.NOTIFY_MOVEENTRY7.size = -1;
 
