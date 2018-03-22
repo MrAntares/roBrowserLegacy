@@ -15,15 +15,15 @@ define( function( require )
 	/**
 	 * Load dependencies
 	 */
-	var glMatrix       = require('Utils/gl-matrix');
-	var Camera         = require('Renderer/Camera');
-	var Client         = require('Core/Client');
+	var glMatrix	   = require('Utils/gl-matrix');
+	var Camera		 = require('Renderer/Camera');
+	var Client		 = require('Core/Client');
 	var StatusConst = require('DB/Status/StatusState');
-	var Renderer       = require('Renderer/Renderer');
+	var Renderer	   = require('Renderer/Renderer');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Ground         = require('Renderer/Map/Ground');
-	var Altitude       = require('Renderer/Map/Altitude');
-	var Session    = require('Engine/SessionStorage');
+	var Ground		 = require('Renderer/Map/Ground');
+	var Altitude	   = require('Renderer/Map/Altitude');
+	var Session	= require('Engine/SessionStorage');
 
 
 	var _last_body_dir = 0;
@@ -69,8 +69,8 @@ define( function( require )
 	 */
 	var renderGUI = function renderGUIClosure()
 	{
-		var mat4    = glMatrix.mat4;
-		var vec4    = glMatrix.vec4;
+		var mat4	= glMatrix.mat4;
+		var vec4	= glMatrix.vec4;
 		var _matrix = mat4.create();
 		var _vector = vec4.create();
 
@@ -104,11 +104,11 @@ define( function( require )
 			entity.depth = _vector[3];
 
 			// Display UI
-			if (entity.life.display)    entity.life.render( _matrix );
+			if (entity.life.display)	entity.life.render( _matrix );
 			if (entity.display.display) entity.display.render( _matrix );
 			if (entity.dialog.display)  entity.dialog.render( _matrix );
-			if (entity.cast.display)    entity.cast.render( _matrix );
-			if (entity.room.display)    entity.room.render( _matrix );
+			if (entity.cast.display)	entity.cast.render( _matrix );
+			if (entity.room.display)	entity.room.render( _matrix );
 		};
 	}();
 
@@ -124,7 +124,7 @@ define( function( require )
 		var vec4   = glMatrix.vec4;
 		var size   = glMatrix.vec2.create();
 		var vector = vec4.create();
-		var out    = vec4.create();
+		var out	= vec4.create();
 
 		function projectPoint(x, y, matrix) {
 			vector[0] = x;
@@ -151,12 +151,12 @@ define( function( require )
 			size[0] = Renderer.width  * 0.5;
 			size[1] = Renderer.height * 0.5;
 
-			rect    = entity.boundingRect;
+			rect	= entity.boundingRect;
 			minSize = (entity.objecttype === entity.constructor.TYPE_ITEM) ? 30 : 60;
 
 			// No body ? Default picking (sprite 110 for example)
 			if (rect.x1 === Infinity || rect.x2 ===-Infinity ||
-			    rect.y1 ===-Infinity || rect.y2 === Infinity) {
+				rect.y1 ===-Infinity || rect.y2 === Infinity) {
 				rect.x1 = -25;
 				rect.x2 = +25;
 				rect.y1 = +45;
@@ -165,7 +165,7 @@ define( function( require )
 
 			// Swap x1 and x2 if needed
 			if (rect.x1 > rect.x2) {
-				tmp     = rect.x1;
+				tmp	 = rect.x1;
 				rect.x1 = rect.x2;
 				rect.x2 = tmp;
 			}
@@ -208,7 +208,7 @@ define( function( require )
 			SpriteRenderer.zIndex = 1;
 			
 			var animation  = this.animation;
-			var Entity     = this.constructor;
+			var Entity	 = this.constructor;
 			_position[0]   = 0;
 			_position[1]   = 0;
 
@@ -218,9 +218,9 @@ define( function( require )
 			}
 
 			// Avoid look up, render as IDLE all not supported frames
-			var action    = this.action < 0 ? this.ACTION.IDLE : this.action;
+			var action	= this.action < 0 ? this.ACTION.IDLE : this.action;
 			var direction = (Camera.direction + this.direction + 8) % 8;
-			var behind    = direction > 1 && direction < 6;
+			var behind	= direction > 1 && direction < 6;
 
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT) {
@@ -231,41 +231,41 @@ define( function( require )
 				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]);
 
 				renderElement( this, this.files.shadow, 'shadow', _position, false );
-            	
+				
 			}
  
 			SpriteRenderer.position.set(this.position);
-        
+		
  
 			// Shield is behind on some position, seems to be hardcoded by the client
 			if (this.objecttype === Entity.TYPE_PC && this.shield && behind) {
 				renderElement( this, this.files.shield, 'shield', _position, true );
 			}
-        
+		
 
-        	if(direction > 2 && direction < 6)
-            {
+			if(direction > 2 && direction < 6)
+			{
 				renderElement( this, this.files.body, 'body', _position, true );
-            
-             	if(Session.Playing == true && this.hasCart == true)
-                {
-                	var cartidx = this.CartNum;
+			
+			 	if(Session.Playing == true && this.hasCart == true)
+				{
+					var cartidx = [0, 23, 4045, 4190, 4191].includes(this.job)? 0 : this.CartNum;
+					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
+					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);		   
+				}
+			}
+			else
+			{
+			 	if(Session.Playing == true && this.hasCart == true)
+				{
+					var cartidx = [0, 23, 4045, 4190, 4191].includes(this.job)? 0 : this.CartNum;
   					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
-            		renderElement( this, this.files.cart[cartidx], 'cart', _position, false);                
-                }
-            }
-        	else
-            {
-             	if(Session.Playing == true && this.hasCart == true)
-                {
-                	var cartidx = this.CartNum;
-  					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
-            		renderElement( this, this.files.cart[cartidx], 'cart', _position, false);                
-                }				
-            	renderElement( this, this.files.body, 'body', _position, true );
-            }
+					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);   
+				}				
+				renderElement( this, this.files.body, 'body', _position, true );
+			}
 
-        
+		
 
 			if (this.objecttype === Entity.TYPE_PC) {
 				// Draw Head
@@ -318,7 +318,7 @@ define( function( require )
 		{
 			// Nothing to render
 			if (!files.spr || !files.act) 
-            {
+			{
 				return;
 			}
 
@@ -336,14 +336,14 @@ define( function( require )
 
 			// Obtain animations from the action and direction.
 			var action = act.actions[
-				(( entity.action * 8 ) +                         // Action
+				(( entity.action * 8 ) +						 // Action
 				( Camera.direction + entity.direction + 8 ) % 8  // Direction
-				) % act.actions.length ];                        // Avoid overflow on action (ex: if there is just one action)
+				) % act.actions.length ];						// Avoid overflow on action (ex: if there is just one action)
 
 			// Find animation
 			var animation_id = calcAnimation( entity, action, type, Renderer.tick - entity.animation.tick);
-			var animation    = action.animations[animation_id];
-			var layers       = animation.layers;
+			var animation	= action.animations[animation_id];
+			var layers	   = animation.layers;
 
 			// Play sound
 			if (animation.sound > -1) {
@@ -354,55 +354,55 @@ define( function( require )
 			_position[1] = 0;
 
 			if (animation.pos.length && !is_main) 
-            {                      	
+			{					  	
 				_position[0] = position[0] - animation.pos[0].x;
 				_position[1] = position[1] - animation.pos[0].y;
  			}
 			
-            if(type === 'cart' || type === 'cartshadow')
-            {
+			if(type === 'cart' || type === 'cartshadow')
+			{
 				var direction = (Camera.direction + entity.direction + 8) % 8;
-            
-            	switch(direction)
-                {
-                case 0:
+			
+				switch(direction)
+				{
+				case 0:
 					{
 						_position[0] = 0; 
 						_position[1] = -30;
 					}
-                break;
-                case 1:
-                	_position[0] = 30; 
-                	_position[1] = -10;
-                break;
-                case 2:
-                	_position[0] = 40; 
-                	_position[1] = 0;
-                break;
-                case 3:
-                	_position[0] = 30; 
-                	_position[1] = 10;
-                break;
-                case 4:
+				break;
+				case 1:
+					_position[0] = 30; 
+					_position[1] = -10;
+				break;
+				case 2:
+					_position[0] = 40; 
+					_position[1] = 0;
+				break;
+				case 3:
+					_position[0] = 30; 
+					_position[1] = 10;
+				break;
+				case 4:
 					{
 						_position[0] = 0; 
 						_position[1] = 20;
 					}
-                break;
-                case 5:
-                	_position[0] = -30; 
-                	_position[1] = 10;                
-                break;
-                case 6:
-                	_position[0] = -40; 
-                	_position[1] = 0;                
-                break;
-                case 7:
-                 	_position[0] = -30; 
-                	_position[1] = -10;                
-               break;
-               } 
-            }
+				break;
+				case 5:
+					_position[0] = -30; 
+					_position[1] = 10;				
+				break;
+				case 6:
+					_position[0] = -40; 
+					_position[1] = 0;				
+				break;
+				case 7:
+				 	_position[0] = -30; 
+					_position[1] = -10;				
+			   break;
+			   } 
+			}
 			
 
 			// Render all frames
@@ -419,30 +419,30 @@ define( function( require )
 	}();
 
 
-    /**
-     * Get animation delay
-     * TODO: search how works the delay on walk and aspd.
-     *
-     * @param {string} type
-     * @param {string} entity
-     * @param {object} act
-     * @returns {number} delay
-     */
-    function getAnimationDelay(type, entity, act) {
-        if (type === 'body' && entity.action === entity.ACTION.WALK) {
-            return act.delay / 150 * entity.walk.speed;
-        }
+	/**
+	 * Get animation delay
+	 * TODO: search how works the delay on walk and aspd.
+	 *
+	 * @param {string} type
+	 * @param {string} entity
+	 * @param {object} act
+	 * @returns {number} delay
+	 */
+	function getAnimationDelay(type, entity, act) {
+		if (type === 'body' && entity.action === entity.ACTION.WALK) {
+			return act.delay / 150 * entity.walk.speed;
+		}
 
-        // Delay on attack
-        if (entity.action === entity.ACTION.ATTACK  ||
-            entity.action === entity.ACTION.ATTACK1 ||
-            entity.action === entity.ACTION.ATTACK2 ||
-            entity.action === entity.ACTION.ATTACK3) {
-            return entity.attack_speed / act.animations.length;
-        }
+		// Delay on attack
+		if (entity.action === entity.ACTION.ATTACK  ||
+			entity.action === entity.ACTION.ATTACK1 ||
+			entity.action === entity.ACTION.ATTACK2 ||
+			entity.action === entity.ACTION.ATTACK3) {
+			return entity.attack_speed / act.animations.length;
+		}
 
-        return act.delay;
-    }
+		return act.delay;
+	}
 
 
 	/**
@@ -456,18 +456,18 @@ define( function( require )
 		}
 
 		// To avoid look up
-		var ACTION    = entity.ACTION;
-		var action    = entity.action;
+		var ACTION	= entity.ACTION;
+		var action	= entity.action;
 		var animation = entity.animation;
 		var animCount = act.animations.length;
 		var animSize  = animCount;
-		var isIdle    = (action === ACTION.IDLE || action === ACTION.SIT);
-		var delay     = getAnimationDelay(type, entity, act);
+		var isIdle	= (action === ACTION.IDLE || action === ACTION.SIT);
+		var delay	 = getAnimationDelay(type, entity, act);
 		var headDir   = 0;
-		var anim      = 0;
-    
-    	if(type === 'cart' && isIdle)
-        	return 0;
+		var anim	  = 0;
+	
+		if(type === 'cart' && isIdle)
+			return 0;
 
 		// Get rid of doridori
 		if (type === 'body' && entity.objecttype === entity.constructor.TYPE_PC && isIdle) {
@@ -494,8 +494,8 @@ define( function( require )
 
 			anim %= animCount;
 			anim += animCount * headDir; // get rid of doridori
-			anim += animation.frame;     // don't forget the previous frame
-			anim %= animSize;            // avoid overflow
+			anim += animation.frame;	 // don't forget the previous frame
+			anim %= animSize;			// avoid overflow
 
 			return anim;
 		}
@@ -504,7 +504,7 @@ define( function( require )
 		anim = (
 			Math.min(tick / delay | 0, animCount || animCount -1)  // Avoid an error if animation = 0, search for -1 :(
 			+ animCount * headDir // get rid of doridori
-			+ animation.frame     // previous frame
+			+ animation.frame	 // previous frame
 		);
 
 		if (type === 'body' && anim >= animSize - 1) {
@@ -537,8 +537,8 @@ define( function( require )
 		}
 
 		SpriteRenderer.image.palette = null;
-		SpriteRenderer.sprite        = spr.frames[layer.index];
-		SpriteRenderer.palette       = pal.palette;
+		SpriteRenderer.sprite		= spr.frames[layer.index];
+		SpriteRenderer.palette	   = pal.palette;
 
 		var index   = layer.index + 0;
 		var is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
@@ -591,13 +591,13 @@ define( function( require )
 		}
 
 		// Store shader info
-		SpriteRenderer.angle         = layer.angle;
-		SpriteRenderer.size[0]       = width;
-		SpriteRenderer.size[1]       = height;
-		SpriteRenderer.offset[0]     = layer.pos[0] + pos[0];
-		SpriteRenderer.offset[1]     = layer.pos[1] + pos[1];
-		SpriteRenderer.xSize         = this.xSize;
-		SpriteRenderer.ySize         = this.ySize;
+		SpriteRenderer.angle		 = layer.angle;
+		SpriteRenderer.size[0]	   = width;
+		SpriteRenderer.size[1]	   = height;
+		SpriteRenderer.offset[0]	 = layer.pos[0] + pos[0];
+		SpriteRenderer.offset[1]	 = layer.pos[1] + pos[1];
+		SpriteRenderer.xSize		 = this.xSize;
+		SpriteRenderer.ySize		 = this.ySize;
 		SpriteRenderer.image.texture = frame.texture;
 
 		// Draw Sprite
@@ -610,8 +610,8 @@ define( function( require )
 	 */
 	return function Init()
 	{
-		this.render         = render;
-		this.renderLayer    = renderLayer;
+		this.render		 = render;
+		this.renderLayer	= renderLayer;
 		this.renderEntity   = renderEntity;
 	};
 });
