@@ -52,6 +52,9 @@ define(function( require )
 		this.shadow     = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
     
 		this.cart     = [];
+		//Super novice
+		this.cart[0] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.spr', 'data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.act');
+		
 		this.cart[1] = new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹.act');
 		this.cart[2] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹1.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹1.act');
 		this.cart[3] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹2.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹2.act');
@@ -61,8 +64,6 @@ define(function( require )
 		this.cart[7] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹6.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹6.act');
 		this.cart[8] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹7.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹7.act');
 		this.cart[9] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹8.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹8.act');
-		//Super novice
-		this.cart[99] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.spr', 'data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.act');
     
 		this.cart_shadow     = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
 	}
