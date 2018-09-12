@@ -154,9 +154,10 @@ define(function( require )
 	{
 		console.log( '%c[Network] Send: ', 'color:#007070', Packet );
 		var pkt = Packet.build();
-
+		
 		// Encrypt packet
 		if (_socket && _socket.isZone) {
+			//console.log("NENC:", buf2hex(pkt.buffer));
 			PacketCrypt.process(pkt.view);
 		}
 
@@ -169,7 +170,10 @@ define(function( require )
 	 *
 	 * @param {ArrayBuffer} buffer
 	 */
+	 
 	function send( buffer ) {
+		//console.log("SEND:", buf2hex(buffer))
+	
 		if (_socket) {
 			_socket.send( buffer );
 		}
@@ -280,6 +284,7 @@ define(function( require )
 					'[Network] Packet "%c0x%s%c" not register, skipping %d bytes.',
 					'font-weight:bold', id.toString(16), 'font-weight:normal', (fp.length-fp.tell())
 				);
+
 				break;
 			}
 

@@ -97,7 +97,8 @@ define(['Core/Configs'], function( Configs )
 		20140416: [0x04810281,0x42814281,0x42814281],
 		20141016: [0x2DFF467C,0x444B37EE,0x2C1B634F],
 		20141022: [0x290551EA,0x2B952C75,0x2D67669B],
-		20150513: [0x62C86D09,0x75944F17,0x112C133D]
+		20150513: [0x62C86D09,0x75944F17,0x112C133D],
+		20170607: [0x50564ACD,0x79CA4E15,0x405F4894]
 	};
 
 
@@ -182,15 +183,17 @@ define(['Core/Configs'], function( Configs )
 	 */
 	function Process(view)
 	{
-		if (_available) {
-			var cmd = view.getInt16( 0, true);
-
+		if (_available) { 
+			var cmd = view.getInt16(0, true);
+			var _cmd = cmd;
 			// Update key
 			_keys[0] = (imul(_keys[0], _keys[1]) + _keys[2]) & 0xFFFFFFFF;
 
 			// Encrypt header
 			cmd ^= (_keys[0] >> 16) & 0x7FFF;
-
+			console.log(sprintf('NCMD 0x%04x', _cmd));
+			console.log(sprintf('ECMD 0x%04x', cmd));
+			
 			view.setInt16( 0, cmd, true);
 		}
 	}
