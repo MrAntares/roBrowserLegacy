@@ -172,6 +172,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.STORE_EQUIPMENT_ITEMLIST2,  onStorageList );
 		Network.hookPacket( PACKET.ZC.STORE_EQUIPMENT_ITEMLIST3,  onStorageList );
 		Network.hookPacket( PACKET.ZC.STORE_EQUIPMENT_ITEMLIST4,  onStorageList );
+		Network.hookPacket( PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5,  onStorageList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_STOREITEM_COUNTINFO, onStorageInfo );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_STORE,          onStorageItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_STORE2,         onStorageItemAdded );

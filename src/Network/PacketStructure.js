@@ -11015,13 +11015,7 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 				out[i].wItemSpriteNumber = fp.readUShort();		// W
 				
 				//offset 26 (random options)
-				var dummy = fp.readULong();	
-				var dummy = fp.readULong();	
-				var dummy = fp.readULong();	
-				var dummy = fp.readULong();	
-				var dummy = fp.readULong();	
-				var dummy = fp.readULong();	
-				var dummy = fp.readUShort();	
+				var dummy = fp.readString(26);	
 				
 				flag = fp.readUChar();
 				out[i].IsIdentified = flag & 1;
@@ -11162,6 +11156,46 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	};
 	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST4.size = -1;
 
+
+	// 0xa10
+	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST5(fp, end) {
+		this.Name = fp.readString(24);
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / 57 | 0,
+				out = new Array(count);
+			var flag;
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();					// W
+				out[i].ITID = fp.readUShort();					// W
+				out[i].type = fp.readUChar();					// B
+				
+				out[i].location = fp.readULong();				// L
+				out[i].WearState = fp.readULong();				// L
+				out[i].RefiningLevel = fp.readUChar();			// B
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readUShort();			// W
+				out[i].slot.card2 = fp.readUShort();			// W
+				out[i].slot.card3 = fp.readUShort();			// W
+				out[i].slot.card4 = fp.readUShort();			// W
+				out[i].HireExpireDate = fp.readLong();			// L
+				out[i].bindOnEquipType = fp.readUShort();		// W
+				out[i].wItemSpriteNumber = fp.readUShort();		// W
+				
+				//offset 26 (random options)
+				var dummy = fp.readString(26);
+				
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
+
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5.size = -1;
+	
 
 	// 0x997
 	PACKET.ZC.EQUIPWIN_MICROSCOPE_V5 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V5(fp, end) {
