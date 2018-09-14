@@ -993,7 +993,6 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 		return pkt;
 	};
 
-
 	// 0x116
 	PACKET.CZ.USE_SKILL_TOGROUND = function PACKET_CZ_USE_SKILL_TOGROUND() {
 		this.selectedLevel = 0;
@@ -5807,6 +5806,17 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	PACKET.ZC.USE_SKILL.size = 15;
 
 
+	// 0x09cb
+	PACKET.ZC.USE_SKILL2 = function PACKET_ZC_USE_SKILL2(fp, end) {
+		this.SKID = fp.readUShort();
+		this.level = fp.readULong();
+		this.targetAID = fp.readULong();
+		this.srcAID = fp.readULong();
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.USE_SKILL2.size = 17;
+	
+	
 	// 0x11c
 	PACKET.ZC.WARPLIST = function PACKET_ZC_WARPLIST(fp, end) {
 		this.SKID = fp.readUShort();
@@ -6698,6 +6708,18 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	};
 	PACKET.ZC.ACK_REQNAMEALL.size = 102;
 
+
+	// 0x0A30
+	PACKET.ZC.ACK_REQNAMEALL2 = function PACKET_ZC_ACK_REQNAMEALL2(fp, end) {
+		this.AID = fp.readULong();
+		this.CName = fp.readString(24);
+		this.PName = fp.readString(24);
+		this.GName = fp.readString(24);
+		this.RName = fp.readString(24);
+		this.titleid = fp.readULong();
+	};
+	PACKET.ZC.ACK_REQNAMEALL2.size = 106;
+	
 
 	// 0x196
 	PACKET.ZC.MSG_STATE_CHANGE = function PACKET_ZC_MSG_STATE_CHANGE(fp, end) {
@@ -10805,11 +10827,6 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	};
 	PACKET.ZC.MSG_STATE_CHANGE5.size = 28;
 
-
-	// B 1 readUChar
-	// W 2 readShort
-	// L 4 readLong
-			
 	// 0xa0c
 	PACKET.ZC.ITEM_PICKUP_ACK5 = function PACKET_ZC_ITEM_PICKUP_ACK5(fp, end) {
 		this.index = fp.readUShort();

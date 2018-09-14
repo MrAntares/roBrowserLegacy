@@ -13,8 +13,7 @@ define( ['./PacketStructure' ], function( PACKET )
 	'use strict';
 
 	return {
-		0x0A43: PACKET.ZC.SKIP1,
-		
+		0x0a43: PACKET.ZC.SKIP1, // 
 		0x69: PACKET.AC.ACCEPT_LOGIN, // ok
 		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
 		0x6a: PACKET.AC.REFUSE_LOGIN, // ok
@@ -138,6 +137,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x117: PACKET.ZC.NOTIFY_GROUNDSKILL, // ok
 		0x119: PACKET.ZC.STATE_CHANGE, // ok
 		0x11a: PACKET.ZC.USE_SKILL, // partially
+		0x09cb: PACKET.ZC.USE_SKILL2,
 		0x11c: PACKET.ZC.WARPLIST, // ok
 		0x11e: PACKET.ZC.ACK_REMEMBER_WARPPOINT, // ok
 		0x11f: PACKET.ZC.SKILL_ENTRY, // ok
@@ -217,6 +217,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x192: PACKET.ZC.UPDATE_MAPINFO,
 		0x194: PACKET.ZC.ACK_REQNAME_BYGID,
 		0x195: PACKET.ZC.ACK_REQNAMEALL, // ok
+		0x0a30: PACKET.ZC.ACK_REQNAMEALL2, // ok
 		0x196: PACKET.ZC.MSG_STATE_CHANGE, // ok
 		0x199: PACKET.ZC.NOTIFY_MAPPROPERTY,
 		0x19a: PACKET.ZC.NOTIFY_RANKING,
