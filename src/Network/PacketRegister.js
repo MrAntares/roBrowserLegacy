@@ -161,6 +161,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x13b: PACKET.ZC.ACTION_FAILURE, // ok
 		0x13c: PACKET.ZC.EQUIP_ARROW, // ok
 		0x13d: PACKET.ZC.RECOVERY, // ok
+		0xa27: PACKET.ZC.RECOVERY2, // ok
 		0x13e: PACKET.ZC.USESKILL_ACK, // partially
 		0x141: PACKET.ZC.COUPLESTATUS, // ok
 		0x142: PACKET.ZC.OPEN_EDITDLG, // ok

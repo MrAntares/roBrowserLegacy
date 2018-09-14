@@ -6084,6 +6084,14 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	PACKET.ZC.RECOVERY.size = 6;
 
 
+	// 0xa27
+	PACKET.ZC.RECOVERY2 = function PACKET_ZC_RECOVERY2(fp, end) {
+		this.varID = fp.readShort();
+		this.amount = fp.readLong();
+	};
+	PACKET.ZC.RECOVERY2.size = 8;
+	
+
 	// 0x13e
 	PACKET.ZC.USESKILL_ACK = function PACKET_ZC_USESKILL_ACK(fp, end) {
 		this.AID = fp.readULong();
