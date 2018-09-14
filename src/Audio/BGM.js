@@ -85,18 +85,7 @@ function( require,         jQuery,        Client,   Preferences )
 		}
 
 		BGM.isInit = true;
-
-		// Buggy looping for HTM5 Audio...
-		if (typeof BGM.audio.loop === 'boolean') {
-			BGM.audio.loop = true;
-			return;
-		}
-
-		// Work around
-		BGM.audio.addEventListener('ended', function(){
-			BGM.audio.currentTime = 0;
-			BGM.audio.play();
-		}, false);
+		BGM.audio.loop = true;
 	};
 
 
