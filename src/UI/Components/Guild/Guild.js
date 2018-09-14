@@ -461,6 +461,7 @@ define(function(require)
 			view.addClass('online');
 		}
 		
+		/* TODO get char_name by id */
 		var entity = EntityManager.get(member.AID);
 		var cname = '---';
 		
@@ -470,7 +471,8 @@ define(function(require)
 
 		view.attr('data-index', i);
 		view.find('.name .value').text(cname);
-
+		/* *** */
+		
 		if (_positions[member.GPositionID]) {
 			view.find('.position').text(_positions[member.GPositionID].posName);
 		}
