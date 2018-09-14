@@ -6254,6 +6254,30 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	};
 	PACKET.ZC.MEMBERMGR_INFO.size = -1;
 
+	// 0xaa5
+	PACKET.ZC.MEMBERMGR_INFO2 = function PACKET_ZC_MEMBERMGR_INFO2(fp, end) {
+		this.memberInfo = (function() {
+			var i, count=(end-fp.tell())/34|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].AID = fp.readULong();
+				out[i].GID = fp.readULong();
+				out[i].HeadType = fp.readShort();
+				out[i].HeadPalette = fp.readShort();
+				out[i].Sex = fp.readShort();
+				out[i].Job = fp.readShort();
+				out[i].Level = fp.readShort();
+				out[i].MemberExp = fp.readLong();
+				out[i].CurrentState = fp.readLong();
+				out[i].GPositionID = fp.readLong();
+				out[i].Memo = '';
+				out[i].CharName = ''; // todo char_id to char_name
+				out[i].LastLogin = fp.readLong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.MEMBERMGR_INFO2.size = -1;
 
 	// 0x156
 	PACKET.ZC.ACK_REQ_CHANGE_MEMBERS = function PACKET_ZC_ACK_REQ_CHANGE_MEMBERS(fp, end) {
