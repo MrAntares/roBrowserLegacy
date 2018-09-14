@@ -185,7 +185,6 @@ define(function( require )
 
 			Renderer.stop();
 			MapRenderer.free();
-			BGM.play('01.mp3');
 		});
 
 		// Hooking WinList
