@@ -51,6 +51,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_POSITION_TO_GUILDM,     onMemberMove );
 		Network.hookPacket( PACKET.ZC.GUILD_INFO,                    onGuildInfo );
 		Network.hookPacket( PACKET.ZC.GUILD_INFO2,                   onGuildInfo );
+		Network.hookPacket( PACKET.ZC.GUILD_INFO3,                   onGuildInfo );
 		Network.hookPacket( PACKET.ZC.MYGUILD_BASIC_INFO,            onGuildRelation );
 		Network.hookPacket( PACKET.ZC.GUILD_EMBLEM_IMG,              onGuildEmblem );
 		Network.hookPacket( PACKET.ZC.MEMBERMGR_INFO,                onGuildMembers );
