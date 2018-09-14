@@ -6855,6 +6855,18 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	PACKET.ZC.MAKINGARROW_LIST.size = -1;
 
 
+	// 0xa23 TODO
+	PACKET.ZC.ALL_AG_LIST = function PACKET_ZC_ALL_AG_LIST(fp, end) {
+		this.all_ag_list = (function() {
+			var ag = {};
+			ag.len = fp.readShort();
+			ag.data = fp.readBinaryString(ag.len);
+			return ag;
+		})();
+	};
+	PACKET.ZC.ALL_AG_LIST.size = -1;
+
+
 	// 0x1b0
 	PACKET.ZC.NPCSPRITE_CHANGE = function PACKET_ZC_NPCSPRITE_CHANGE(fp, end) {
 		this.GID = fp.readULong();
