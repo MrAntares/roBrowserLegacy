@@ -6919,6 +6919,27 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	};
 	PACKET.ZC.GUILD_INFO2.size = 114;
 
+	
+	// 0xa84
+	PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
+		this.GDID = fp.readLong();
+		this.level = fp.readLong();
+		this.userNum = fp.readLong();
+		this.maxUserNum = fp.readLong();
+		this.userAverageLevel = fp.readLong();
+		this.exp = fp.readLong();
+		this.maxExp = fp.readLong();
+		this.point = fp.readLong();
+		this.honor = fp.readLong();
+		this.virtue = fp.readLong();
+		this.emblemVersion = fp.readLong();
+		this.guildname = fp.readString(24);
+		this.masterName = fp.readString(24);
+		this.manageLand = fp.readBinaryString(16);
+		this.zeny = fp.readLong();
+	};
+	PACKET.ZC.GUILD_INFO3.size = 114;
+	
 
 	// 0x1b8
 	PACKET.ZC.GUILD_ZENY_ACK = function PACKET_ZC_GUILD_ZENY_ACK(fp, end) {
@@ -11200,10 +11221,20 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	// 0x9a0
 	PACKET.HC.CHARLIST_NOTIFY = function PACKET_HC_CHARLIST_NOTIFY(fp, end) {
 		this.TotalCnt = fp.readLong();
+		this.Slots = fp.readLong();
 	};
-	PACKET.HC.CHARLIST_NOTIFY.size = 6;
+	PACKET.HC.CHARLIST_NOTIFY.size = 10;
 
-
+	
+	//0x8b9
+	PACKET.HC.SECOND_PASSWD_LOGIN = function PACKET_HC_SECOND_PASSWD_LOGIN(fp, end) {
+		this.Seed = fp.readLong();
+		this.Aid = fp.readLong();
+		this.State = fp.readShort();
+	};
+	PACKET.HC.SECOND_PASSWD_LOGIN.size = 12;
+	
+	
 	// 0x9ca
 	PACKET.ZC.SKILL_ENTRY5 = function PACKET_ZC_SKILL_ENTRY5(fp, end) {
 		this.AID = fp.readULong();
