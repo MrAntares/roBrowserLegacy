@@ -439,7 +439,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ITEMCOMPOSITION_LIST,   onItemCompositionList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMCOMPOSITION,    onItemCompositionResult );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMREFINING,       onRefineResult);
-		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART,          onCartItemAdded );
-		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,         onCartItemAdded );		
+		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART,       onCartItemAdded );
+		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,      onCartItemAdded );		
 	};
 });

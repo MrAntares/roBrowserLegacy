@@ -19,7 +19,7 @@ define(function( require )
 	 */
 	var jQuery           = require('Utils/jquery');
 	var DB               = require('DB/DBManager');
-	var Configs	     = require('Core/Configs');
+	var Configs	     	 = require('Core/Configs');
 	var SoundManager     = require('Audio/SoundManager');
 	var BGM              = require('Audio/BGM');
 	var Events           = require('Core/Events');
@@ -43,9 +43,9 @@ define(function( require )
 	var BasicInfo        = require('UI/Components/BasicInfo/BasicInfo');
 	var WinStats         = require('UI/Components/WinStats/WinStats');
 	var Inventory        = require('UI/Components/Inventory/Inventory');
-	var CartItems          = require('UI/Components/CartItems/CartItems');
+	var CartItems        = require('UI/Components/CartItems/CartItems');
 	var Vending          = require('UI/Components/Vending/Vending');
-	var ChangeCart          = require('UI/Components/ChangeCart/ChangeCart');
+	var ChangeCart       = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
 	var StatusIcons      = require('UI/Components/StatusIcons/StatusIcons');
