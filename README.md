@@ -29,7 +29,7 @@ If you don't run roBrowser in a Chrome App, you will need a Java plugin installe
 
 ## Contributing
 
-roBrowser is developed by a [team](https://github.com/Antex/roBrowser/roBrowser/graphs/contributors) located around the world. Check out the [documentation](http://www.robrowser.com/getting-started#API) and submit a pull request!
+roBrowser is developed by a [team](https://github.com/Antex/roBrowser/graphs/contributors) located around the world. Check out the [documentation](http://www.robrowser.com/getting-started#API) and submit a pull request!
 
 ## Contact
 
