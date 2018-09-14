@@ -6970,9 +6970,10 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 		this.virtue = fp.readLong();
 		this.emblemVersion = fp.readLong();
 		this.guildname = fp.readString(24);
-		this.manageLand = fp.readString(16); // WTF "Òåððèòîðèÿ íå ç"
+		this.manageLand = fp.readString(16); 
 		this.zeny = fp.readLong();
-		this.masterName = fp.readLong(); this.masterCharId = this.masterName; // TODO char_id to name
+		this.masterAID = fp.readLong();
+		this.masterName = this.masterAID; // TODO char_id to name
 	};
 	PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
 	

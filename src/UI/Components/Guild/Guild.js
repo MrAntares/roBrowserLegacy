@@ -31,7 +31,8 @@ define(function(require)
 	var InputBox       = require('UI/Components/InputBox/InputBox');
 	var htmlText       = require('text!./Guild.html');
 	var cssText        = require('text!./Guild.css');
-
+	var EntityManager = require('Renderer/EntityManager');
+	var Entity        = require('Renderer/Entity/Entity');
 
 	/**
 	 * @var {Preferences} structure
@@ -459,9 +460,16 @@ define(function(require)
 		if (member.CurrentState) {
 			view.addClass('online');
 		}
+		
+		var entity = EntityManager.get(member.AID);
+		var cname = '---';
+		
+		if (entity) {
+			cname = entity.display.name;
+		}
 
 		view.attr('data-index', i);
-		view.find('.name .value').text(member.CharName);
+		view.find('.name .value').text(cname);
 
 		if (_positions[member.GPositionID]) {
 			view.find('.position').text(_positions[member.GPositionID].posName);
