@@ -21,15 +21,15 @@ If you don't run roBrowser in a Chrome App, you will need a Java plugin installe
 ### Quickstart
 
 1.  [Download roBrowser](https://github.com/vthibault/roBrowser/archive/master.zip) and extract it.
-2.  [Convert DB](https://github.com/vthibault/roBrowser/tree/master/tools/converter/) to get custom content to roBrowser.
-3.  [Compile scripts](https://github.com/vthibault/roBrowser/tree/master/tools/build/) to reduce loading time.
-4.  Install the [remote client](https://github.com/vthibault/roBrowser/tree/master/client) and set the parameter *remoteClient* to your server.
+2.  [Convert DB](https://github.com/Antex/roBrowser/tree/master/tools/converter/) to get custom content to roBrowser.
+3.  [Compile scripts](https://github.com/Antex/roBrowser/tree/master/tools/build/) to reduce loading time.
+4.  Install the [remote client](https://github.com/Antex/roBrowser/tree/master/client) and set the parameter *remoteClient* to your server.
 5.  Install the [websocket proxy](https://github.com/herenow/wsProxy/blob/master/README.md) and set the parameter *socketProxy* to your proxy server URL.
-6.  Configure roBrowser - [documentation](http://www.robrowser.com/getting-started#API) and some [examples](https://github.com/vthibault/roBrowser/tree/master/examples).
+6.  Configure roBrowser - [documentation](http://www.robrowser.com/getting-started#API) and some [examples](https://github.com/Antex/roBrowser/tree/master/examples).
 
 ## Contributing
 
-roBrowser is developed by a [team](https://github.com/vthibault/roBrowser/graphs/contributors) located around the world. Check out the [documentation](http://www.robrowser.com/getting-started#API) and submit a pull request!
+roBrowser is developed by a [team](https://github.com/Antex/roBrowser/roBrowser/graphs/contributors) located around the world. Check out the [documentation](http://www.robrowser.com/getting-started#API) and submit a pull request!
 
 ## Contact
 
