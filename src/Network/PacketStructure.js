@@ -7043,6 +7043,25 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	PACKET.ZC.ADD_ITEM_TO_STORE2.size = 22;
 
 
+	// 0xa0a
+	PACKET.ZC.ADD_ITEM_TO_STORE3 = function PACKET_ZC_ADD_ITEM_TO_STORE3(fp, end) {
+		this.index = fp.readShort();
+		this.count = fp.readLong();
+		this.ITID = fp.readUShort();
+		this.type = fp.readUChar();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+		this.randOpts = fp.readString(25);
+	};
+	PACKET.ZC.ADD_ITEM_TO_STORE3.size = 47;
+	
+
 	// 0x1c5
 	PACKET.ZC.ADD_ITEM_TO_CART2 = function PACKET_ZC_ADD_ITEM_TO_CART2(fp, end) {
 		this.index = fp.readShort();
