@@ -8052,10 +8052,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function(Bi
 	};
 	PACKET.HC.REQUEST_CHARACTER_PASSWORD.size = 8;
 
-
+	// 0x9e7
 	PACKET.ZC.MAIL_UNREAD = function PACKET_ZC_MAIL_UNREAD(fp, end) {
-		var id = fp.readChar();
-		console.log('undread mail', id);
+		var count = fp.readChar();
+		console.log('undread mail', count);
 		
 	};
 	PACKET.ZC.MAIL_UNREAD.size = 3;
