@@ -10867,6 +10867,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function(Bi
 	};
 	PACKET.ZC.UNKNOWN1.size = 85;
 
+
 	// 0x983
 	PACKET.ZC.MSG_STATE_CHANGE4 = function PACKET_ZC_MSG_STATE_CHANGE4(fp, end) {
 		this.index = fp.readShort();
@@ -10900,6 +10901,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function(Bi
 		})();
 	};
 	PACKET.ZC.MSG_STATE_CHANGE5.size = 28;
+
 
 	// 0x990
 	PACKET.ZC.ITEM_PICKUP_ACK5 = function PACKET_ZC_ITEM_PICKUP_ACK5(fp, end) {
@@ -11070,20 +11072,20 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function(Bi
 			var flag;
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].index = fp.readShort();					// W
-				out[i].ITID = fp.readUShort();					// W
-				out[i].type = fp.readUChar();					// B
-				out[i].location = fp.readULong();				// L
-				out[i].WearState = fp.readULong();				// L
-				out[i].RefiningLevel = fp.readUChar();			// B
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].RefiningLevel = fp.readUChar();
 				out[i].slot = {};
-				out[i].slot.card1 = fp.readUShort();			// W
-				out[i].slot.card2 = fp.readUShort();			// W
-				out[i].slot.card3 = fp.readUShort();			// W
-				out[i].slot.card4 = fp.readUShort();			// W
-				out[i].HireExpireDate = fp.readLong();			// L
-				out[i].bindOnEquipType = fp.readUShort();		// W
-				out[i].wItemSpriteNumber = fp.readUShort();		// W
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
 				out[i].isOption = fp.readChar();
 				out[i].Options = {};
 				out[i].Options[1] = fp.readStruct(option);
@@ -11230,6 +11232,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function(Bi
 
 	// 0xa10
 	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST5(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param",
+		);
+
 		this.Name = fp.readString(24);
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 57 | 0,
@@ -11237,25 +11245,27 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function(Bi
 			var flag;
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].index = fp.readShort();					// W
-				out[i].ITID = fp.readUShort();					// W
-				out[i].type = fp.readUChar();					// B
-
-				out[i].location = fp.readULong();				// L
-				out[i].WearState = fp.readULong();				// L
-				out[i].RefiningLevel = fp.readUChar();			// B
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].RefiningLevel = fp.readUChar();
 				out[i].slot = {};
-				out[i].slot.card1 = fp.readUShort();			// W
-				out[i].slot.card2 = fp.readUShort();			// W
-				out[i].slot.card3 = fp.readUShort();			// W
-				out[i].slot.card4 = fp.readUShort();			// W
-				out[i].HireExpireDate = fp.readLong();			// L
-				out[i].bindOnEquipType = fp.readUShort();		// W
-				out[i].wItemSpriteNumber = fp.readUShort();		// W
-
-				//offset 26 (random options)
-				var dummy = fp.readString(26);
-
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+				out[i].isOption = fp.readChar();
+				out[i].Options = {};
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
 				flag = fp.readUChar();
 				out[i].IsIdentified = flag & 1;
 				out[i].IsDamaged = flag & 2;
