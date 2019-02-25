@@ -263,5 +263,13 @@ define(function()
 		LINKER_B:           4227,
 		GUNSLINGER_B:       4228,
 		REBELLION_B:        4229,
+		//++
+		STAR2_B:            4238,
+		EMPEROR:            4239,
+		REAPER:             4240,
+		EMPEROR_B:          4241,
+		REAPER_B:           4242,
+		EMPEROR2:           4243,
+		EMPEROR2_B:         4244,
 	};
 });
