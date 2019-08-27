@@ -566,6 +566,9 @@ define( ['./PacketStructure' ], function( PACKET )
 		//0x9d5: npcmarketopenType
 		//0x9d7: npcmarketresultackType
 		0xa00: PACKET.ZC.SHORTCUT_KEY_LIST_V3, // ok
+		0xa0c: PACKET.ZC.ITEM_PICKUP_ACK6, // ok (Thapakorn)
+		0xa0d: PACKET.ZC.EQUIPMENT_ITEMLIST5, // ok (Thapakorn)
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
+		0xa30: PACKET.ZC.ACK_REQNAMEALL2, // not tested yet (Thapakorn)
 	};
 });

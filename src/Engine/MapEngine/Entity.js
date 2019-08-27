@@ -1089,6 +1089,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NPC_CHAT,                     onEntityTalkColor );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME,                  onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL,               onEntityIdentity );
+		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL2,              onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.CHANGE_DIRECTION,             onEntityDirectionChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE,                onEntityViewChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE2,               onEntityViewChange );

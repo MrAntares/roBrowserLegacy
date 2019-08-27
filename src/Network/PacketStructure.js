@@ -9,7 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACKETVER) {
+define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (BinaryWriter, PACKETVER, Struct) {
 	'use strict';
 
 
@@ -11297,6 +11297,86 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	};
 	PACKET.ZC.SHORTCUT_KEY_LIST_V3.size = 269;
 
+	//0xa0c
+	PACKET.ZC.ITEM_PICKUP_ACK6 = function PACKET_ZC_ITEM_PICKUP_ACK6(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param",
+		);
+
+		this.index = fp.readUShort();
+		this.count = fp.readUShort();
+		this.ITID = fp.readUShort();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+		this.location = fp.readLong();
+		this.type = fp.readUChar();
+		this.result = fp.readUChar();
+		this.HireExpireDate = fp.readLong();
+		this.bindOnEquipType = fp.readUShort();
+		this.Options = {};
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
+	};
+	PACKET.ZC.ITEM_PICKUP_ACK6.size = 56;
+
+	//0xa0d
+	PACKET.ZC.EQUIPMENT_ITEMLIST5 = function PACKET_ZC_EQUIPMENT_ITEMLIST5(fp, end) {
+
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param",
+		);
+
+		this.ItemInfo = (function () {
+			var i, count = (end - fp.tell()) / 57 | 0,
+				out = new Array(count);
+			console.log("Count: " + count);
+			var flag;
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+				out[i].isOption = fp.readChar();
+				out[i].Options = {};
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
+			}
+			console.log(out);
+			return out;
+		})();
+	}
+	PACKET.ZC.EQUIPMENT_ITEMLIST5.size = -1
 
 	// 0xa18
 	PACKET.ZC.ACCEPT_ENTER3 = function PACKET_ZC_ACCEPT_ENTER3(fp, end) {
@@ -11309,6 +11389,16 @@ define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACK
 	};
 	PACKET.ZC.ACCEPT_ENTER3.size = 14;
 
+	// 0xa30
+	PACKET.ZC.ACK_REQNAMEALL2 = function PACKET_ZC_ACK_REQNAMEALL2(fp, end) {
+		this.AID = fp.readULong();
+		this.CName = fp.readString(24);
+		this.PName = fp.readString(24);
+		this.GName = fp.readString(24);
+		this.RName = fp.readString(24);
+		this.TitleID = fp.readULong(); //maybe change in future
+	};
+	PACKET.ZC.ACK_REQNAMEALL2.size = 106;
 
 	/**
 	 * Export
