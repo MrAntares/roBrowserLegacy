@@ -4,33 +4,33 @@
 
 
 		/**
-		 * If debug mode is set to true, you will be able to see some trace informations and
-		 * locate more easily errors.
-		 *
-		 * Note: once the bugs are resolved, set it to false else roBrowser will not be
-		 * able to work properly.
-		 */
-		'DEBUG'               =>     false,
+		* Se o modo de depuração estiver definido como true, você poderá ver algumas informações de rastreamento e
+		* localize erros mais facilmente.
+		*
+		* Nota: quando os erros forem resolvidos, defina-os como false, caso contrário o roBrowser não será
+		* capaz de funcionar corretamente.
+		*/
+		'DEBUG'               =>     true,
 
 
 		/**
-		 * Define where is located your full client files
-		 * By default it's on the directory 'resources/' but you can update it if you need
-		 *
-		 * Note: The files required in this directory are DATA.INI and your GRFs files.
-		 *       All others files will not be read.
-		 */
+		* Defina onde estão localizados os arquivos do cliente completo
+		* Por padrão, ele está no diretório 'resources/', mas você pode atualizá-lo se precisar
+		*
+		* Nota: Os arquivos necessários neste diretório são DATA.INI e seus arquivos GRFs.
+		* Todos os outros arquivos não serão lidos.
+		*/
 		'CLIENT_RESPATH'      =>    'resources/',
 
 
 		/**
-		 * Name of the DATA.INI file
-		 * This file is used to know the GRFs the remote client have to load and the right
-		 * order to load them.
+		 * Nome do arquivo DATA.INI
+		 * Este arquivo é usado para conhecer os GRFs que o cliente remoto precisa carregar e o direito
+		 * ordem para carregá-los.
 		 *
-		 * Note: this file name is CASE SENSITIVE and should be located in resources/ folder
+		 * Nota: este nome de arquivo é sensitive e deve estar localizado na pasta 'resources/'
 		 *
-		 * Example of the content of this file:
+		 * Exemplo do conteúdo deste arquivo:
 		 *
 		 *	[Data]
 		 *	0=custom.grf
@@ -41,21 +41,21 @@
 
 
 		/**
-		 * If set to true, files loaded from GRFs will be extracted to the data folder
-		 * It will avoid to load GRFs each time the client request a file and
-		 * save server resources.
-		 *
-		 * Note: it required write access to the data folder.
+		* Se definido como true, os arquivos carregados dos GRFs serão extraídos para a pasta de dados
+		* Isso evitará carregar GRFs sempre que o cliente solicitar um arquivo e
+		* economize recursos do servidor.
+		*
+		* Nota: é necessário acesso de gravação à pasta de dados.
 		 */
 		'CLIENT_AUTOEXTRACT'  =>    false,
 
 
 		/**
-		 * Does we enable post method to get back informations about files stored in GRF ?
-		 * It's used in Grf Viewer to list files of a repertorie or to search files.
-		 *
-		 * If you don't use the Grf Viewer, Model Viewer, Map Viewer and Str Viewer you
-		 * can just disable this feature.
+		* Ativamos o método post para recuperar informações sobre arquivos armazenados no GRF ?
+		* É usado no Grf Viewer para listar arquivos de um repertorie ou para pesquisar arquivos.
+		*
+		* Se você não usar o Grf Viewer, Model Viewer, Map Viewer e Str Viewer,
+		* pode simplesmente desativar esse recurso.
 		 */
 		'CLIENT_ENABLESEARCH' =>    false,
 	);
