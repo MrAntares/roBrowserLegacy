@@ -1,35 +1,43 @@
+Todos os créditos para os proprietários / criadores originais.
+
+[MrAntares](https://github.com/MrAntares)
 This is a fork of roBrowser tailored to my server and expanded with some features.
 
-For info on how to setup the client or anything else, please visit the https://www.robrowser.com/ site.
+Para informações sobre como configurar o cliente ou qualquer outra coisa, visite o site https://www.robrowser.com/ e https://github.com/MrAntares 
 
-All credits to the original owners/creators.
+#### Todos os créditos para os proprietários / criadores originais. 
 
 
 ## Installing
 
 ### Prerequisites
 
-To run roBrowser you will need a browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
+Para executar o roBrowser, você precisará de um navegador que suporte [WebGL] (http://www.chromeexperiments.com/webgl/) e seja compatível com OpenGL ES 2.0. Testamos os seguintes navegadores:
 
 * Chrome
 * FireFox
 * Opera
 * IE11
 
-If you don't run roBrowser in a Chrome App, you will need a Java plugin installed instead.
+Se você não executar o roBrowser em um aplicativo Chrome, precisará de um plug-in Java instalado.
+
+````
+chrome://flags/
+     - WebGL Draft Extensions = true
+````
 
 ### Quickstart
 
-1.  [Download roBrowser](https://github.com/vthibault/roBrowser/archive/master.zip) and extract it.
-2.  [Convert DB](https://github.com/vthibault/roBrowser/tree/master/tools/converter/) to get custom content to roBrowser.
-3.  [Compile scripts](https://github.com/vthibault/roBrowser/tree/master/tools/build/) to reduce loading time.
-4.  Install the [remote client](https://github.com/vthibault/roBrowser/tree/master/client) and set the parameter *remoteClient* to your server.
-5.  Install the [websocket proxy](https://github.com/herenow/wsProxy/blob/master/README.md) and set the parameter *socketProxy* to your proxy server URL.
-6.  Configure roBrowser - [documentation](http://www.robrowser.com/getting-started#API) and some [examples](https://github.com/vthibault/roBrowser/tree/master/examples).
+1.  **roBrowser/archive/master.zip** e extraia-o.
+2.  **roBrowser/tree/master/tools/converter** para obter conteúdo personalizado para o roBrowser.
+3.  **roBrowser/tree/master/tools/build/** para reduzir o tempo de carregamento.
+4.  Instale o **roBrowser/tree/master/client/** e defina o parâmetro *remoteClient* para o seu servidor.
+5.  Instale o **roBrowser/tree/wsProxy/blob/master/README.md** e defina o parâmetro *socketProxy* para o URL do servidor proxy.
+6. Configurar roBrowser - [documentation](http://www.robrowser.com/getting-started#API) and some [examples](https://github.com/vthibault/roBrowser/tree/master/examples).
 
 ## Contributing
 
-roBrowser is developed by a [team](https://github.com/vthibault/roBrowser/graphs/contributors) located around the world. Check out the [documentation](http://www.robrowser.com/getting-started#API) and submit a pull request!
+roBrowser é desenvolvido por um [team](https://github.com/vthibault/roBrowser/graphs/contributors) localizado em todo o mundo. Confira a [documentation](http://www.robrowser.com/getting-started#API) e envie uma solicitação de recebimento!
 
 ## Contact
 

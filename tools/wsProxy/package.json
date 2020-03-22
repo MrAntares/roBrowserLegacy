@@ -1,0 +1,38 @@
+{
+  "name": "wsproxy",
+  "description": "This is a websocket to tcp proxy, written in node.js. It is dynamic and will proxy to various tcp servers.",
+  "version": "1.2.32",
+  "author": "roBrowser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/herenow/wsProxy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/herenow/wsProxy/issues"
+  },
+  "main": "index.js",
+  "bin": {
+    "wsproxy": "./index.js"
+  },
+  "dependencies": {
+    "optimist": "0.6.0",
+    "ws": "^2.3.1"
+  },
+  "devDependencies": {
+    "mocha": "1.18.x"
+  },
+  "scripts": {
+    "test": "mocha",
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=0.6"
+  },
+   "keywords": [
+    "wsproxy",
+    "roproxy",
+    "robrowser",
+    "websocket-proxy",
+    "ws2tcp"
+  ]
+}
