@@ -11400,6 +11400,32 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ACK_REQNAMEALL2.size = 106;
 
+	// 0xac4
+	PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
+		this.AuthCode = fp.readLong();
+		this.AID = fp.readULong();
+		this.userLevel = fp.readULong();
+		this.lastLoginIP = fp.readULong();
+		this.lastLoginTime = fp.readBinaryString(26);
+		this.Sex = fp.readUChar();
+		var dummy = fp.readBinaryString(17);
+		this.ServerList = (function() {
+			var i, count=(end-fp.tell())/160|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].ip = fp.readULong();
+				out[i].port = fp.readUShort();
+				out[i].name = fp.readString(20);
+				out[i].usercount = fp.readUShort();
+				out[i].state = fp.readUShort();
+				out[i].property = fp.readUShort();
+				var dummy = fp.readBinaryString(128);
+			}
+			return out;
+		})();
+	};
+	PACKET.AC.ACCEPT_LOGIN3.size = -1;
+
 	/**
 	 * Export
 	 */
