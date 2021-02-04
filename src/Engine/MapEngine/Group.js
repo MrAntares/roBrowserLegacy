@@ -26,7 +26,7 @@ define(function( require )
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var PartyUI       = require('UI/Components/PartyFriends/PartyFriends');
-
+	var Configs	     = require('Core/Configs');
 
 	/**
 	 * Party namespace
@@ -45,6 +45,8 @@ define(function( require )
 	 */
 	GroupEngine.init = function init()
 	{
+		var packetver    = Configs.get('packetver');
+
 		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM,       onMemberLifeUpdate );
 		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM_R2,    onMemberLifeUpdate );
 		Network.hookPacket( PACKET.ZC.NOTIFY_CHAT_PARTY,         onMemberTalk );
@@ -55,7 +57,11 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PARTY_JOIN_REQ,            onPartyInvitationRequest );
 		Network.hookPacket( PACKET.ZC.PARTY_JOIN_REQ_ACK,        onPartyInvitationAnswer );
 		Network.hookPacket( PACKET.ZC.ACK_REQ_JOIN_GROUP,        onPartyInvitationAnswer );
-		Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
+		if (packetver < 20170502) {
+			Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
+		} else {
+			Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
+		}
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP,       onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP2,      onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.DELETE_MEMBER_FROM_GROUP,  onPartyMemberLeave );
@@ -283,7 +289,7 @@ define(function( require )
 	/**
 	 * Remove a player from the group
 	 *
-	 * @param {oject} pkt - PACKET.ZC.DELETE_MEMBER_FROM_GROUP
+	 * @param {object} pkt - PACKET.ZC.DELETE_MEMBER_FROM_GROUP
 	 */
 	function onPartyMemberLeave( pkt )
 	{

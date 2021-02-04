@@ -515,6 +515,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x857: PACKET.ZC.NOTIFY_NEWENTRY6, // ok
 		0x858: PACKET.ZC.NOTIFY_STANDENTRY6, // ok
 		0x859: PACKET.ZC.EQUIPWIN_MICROSCOPE2,
+		0x8b9: PACKET.HC.SECOND_PASSWD_LOGIN, // ok
 		0x8c7: PACKET.ZC.SKILL_ENTRY3, // ok
 		0x8c8: PACKET.ZC.NOTIFY_ACT3, // ok
 		0x8d0: PACKET.ZC.REQ_WEAR_EQUIP_ACK2, // ok
@@ -570,6 +571,8 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xa0d: PACKET.ZC.EQUIPMENT_ITEMLIST5, // ok (Thapakorn)
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
 		0xa30: PACKET.ZC.ACK_REQNAMEALL2, // not tested yet (Thapakorn)
+		0xa44: PACKET.ZC.GROUP_LIST2, // ok
 		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
+		0xac5: PACKET.HC.NOTIFY_ZONESVR2, // ok
 	};
 });

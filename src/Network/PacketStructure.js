@@ -974,8 +974,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt_buf;
 	};
 
-
-
 	// 0x113
 	PACKET.CZ.USE_SKILL = function PACKET_CZ_USE_SKILL() {
 		this.selectedLevel = 0;
@@ -992,7 +990,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		pkt.view.setUint32(ver[5], this.targetID, true);
 		return pkt;
 	};
-
 
 	// 0x116
 	PACKET.CZ.USE_SKILL_TOGROUND = function PACKET_CZ_USE_SKILL_TOGROUND() {
@@ -10447,6 +10444,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.EQUIPWIN_MICROSCOPE2.size = -1;
 
+	// 0x8b9
+	PACKET.HC.SECOND_PASSWD_LOGIN = function PACKET_HC_SECOND_PASSWD_LOGIN(fp, end) {
+		this.Seed = fp.readLong();
+		this.Aid = fp.readLong();
+		this.State = fp.readShort();
+	};
+	PACKET.HC.SECOND_PASSWD_LOGIN.size = 12;
 
 	// 0x8c7
 	PACKET.ZC.SKILL_ENTRY3 = function PACKET_ZC_SKILL_ENTRY3(fp, end) {
@@ -11400,6 +11404,24 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ACK_REQNAMEALL2.size = 106;
 
+	// 0xa44
+	PACKET.ZC.GROUP_LIST2 = function PACKET_ZC_GROUP_LIST2(fp, end) {
+		this.groupName = fp.readString(24);
+		this.groupInfo = (function() {
+			var i, count=(end-fp.tell())/50|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].AID = fp.readULong();
+				out[i].characterName = fp.readString(28);
+				out[i].mapName = fp.readBinaryString(16);
+				out[i].role = fp.readUChar();
+				out[i].state = fp.readUChar();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.GROUP_LIST2.size = -1;
+
 	// 0xac4
 	PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 		this.AuthCode = fp.readLong();
@@ -11425,6 +11447,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		})();
 	};
 	PACKET.AC.ACCEPT_LOGIN3.size = -1;
+
+	// 0xac5
+	PACKET.HC.NOTIFY_ZONESVR2 = function PACKET_HC_NOTIFY_ZONESVR2(fp, end) {
+		this.GID = fp.readULong();
+		this.mapName = fp.readBinaryString(16);
+		this.addr = {};
+		this.addr.ip = fp.readULong();
+		this.addr.port = fp.readUShort();
+	};
+	PACKET.HC.NOTIFY_ZONESVR2.size = 156;
 
 	/**
 	 * Export
