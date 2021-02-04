@@ -60,7 +60,7 @@ define(function( require )
 		if (packetver < 20170502) {
 			Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
 		} else {
-			Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
+			Network.hookPacket( PACKET.ZC.GROUP_LIST2,               onPartyList );
 		}
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP,       onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP2,      onPartyMemberJoin );

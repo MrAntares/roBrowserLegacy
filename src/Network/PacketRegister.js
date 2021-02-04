@@ -567,11 +567,15 @@ define( ['./PacketStructure' ], function( PACKET )
 		//0x9d5: npcmarketopenType
 		//0x9d7: npcmarketresultackType
 		0xa00: PACKET.ZC.SHORTCUT_KEY_LIST_V3, // ok
+		0xa0a: PACKET.ZC.ADD_ITEM_TO_STORE3, //
 		0xa0c: PACKET.ZC.ITEM_PICKUP_ACK6, // ok (Thapakorn)
 		0xa0d: PACKET.ZC.EQUIPMENT_ITEMLIST5, // ok (Thapakorn)
+		0xa10: PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5, //
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
 		0xa30: PACKET.ZC.ACK_REQNAMEALL2, // not tested yet (Thapakorn)
 		0xa44: PACKET.ZC.GROUP_LIST2, // ok
+		0xa84: PACKET.ZC.GUILD_INFO3, // ok
+		0xaa5: PACKET.ZC.MEMBERMGR_INFO2, //
 		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
 		0xac5: PACKET.HC.NOTIFY_ZONESVR2, // ok
 	};

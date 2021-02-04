@@ -11301,6 +11301,24 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.SHORTCUT_KEY_LIST_V3.size = 269;
 
+	// 0xa0a
+	PACKET.ZC.ADD_ITEM_TO_STORE3 = function PACKET_ZC_ADD_ITEM_TO_STORE3(fp, end) {
+		this.index = fp.readShort();
+		this.count = fp.readLong();
+		this.ITID = fp.readUShort();
+		this.type = fp.readUChar();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+		this.randOpts = fp.readString(25);
+	};
+	PACKET.ZC.ADD_ITEM_TO_STORE3.size = 47;
+
 	//0xa0c
 	PACKET.ZC.ITEM_PICKUP_ACK6 = function PACKET_ZC_ITEM_PICKUP_ACK6(fp, end) {
 		let option = new Struct(
@@ -11382,6 +11400,53 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	}
 	PACKET.ZC.EQUIPMENT_ITEMLIST5.size = -1
 
+	// 0xa10
+	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST5(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param",
+		);
+
+		this.Name = fp.readString(24);
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / 57 | 0,
+				out = new Array(count);
+			var flag;
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+				out[i].isOption = fp.readChar();
+				out[i].Options = {};
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
+
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5.size = -1;
+
 	// 0xa18
 	PACKET.ZC.ACCEPT_ENTER3 = function PACKET_ZC_ACCEPT_ENTER3(fp, end) {
 		this.startTime = fp.readULong();
@@ -11392,6 +11457,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.sex = fp.readUChar();
 	};
 	PACKET.ZC.ACCEPT_ENTER3.size = 14;
+
+	// 0xa27
+	PACKET.ZC.RECOVERY2 = function PACKET_ZC_RECOVERY2(fp, end) {
+		this.varID = fp.readShort();
+		this.amount = fp.readLong();
+	};
+	PACKET.ZC.RECOVERY2.size = 8;
 
 	// 0xa30
 	PACKET.ZC.ACK_REQNAMEALL2 = function PACKET_ZC_ACK_REQNAMEALL2(fp, end) {
@@ -11421,6 +11493,52 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		})();
 	};
 	PACKET.ZC.GROUP_LIST2.size = -1;
+
+	// 0xa84
+	PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
+		this.GDID = fp.readLong();
+		this.level = fp.readLong();
+		this.userNum = fp.readLong();
+		this.maxUserNum = fp.readLong();
+		this.userAverageLevel = fp.readLong();
+		this.exp = fp.readLong();
+		this.maxExp = fp.readLong();
+		this.point = fp.readLong();
+		this.honor = fp.readLong();
+		this.virtue = fp.readLong();
+		this.emblemVersion = fp.readLong();
+		this.guildname = fp.readString(24);
+		this.manageLand = fp.readString(16);
+		this.zeny = fp.readLong();
+		this.masterAID = fp.readLong();
+		this.masterName = this.masterAID; // TODO char_id to name
+	};
+	PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
+
+	// 0xaa5
+	PACKET.ZC.MEMBERMGR_INFO2 = function PACKET_ZC_MEMBERMGR_INFO2(fp, end) {
+		this.memberInfo = (function() {
+			var i, count=(end-fp.tell())/34|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].AID = fp.readULong();
+				out[i].GID = fp.readULong();
+				out[i].HeadType = fp.readShort();
+				out[i].HeadPalette = fp.readShort();
+				out[i].Sex = fp.readShort();
+				out[i].Job = fp.readShort();
+				out[i].Level = fp.readShort();
+				out[i].MemberExp = fp.readLong();
+				out[i].CurrentState = fp.readLong();
+				out[i].GPositionID = fp.readLong();
+				out[i].Memo = '';
+				out[i].CharName = ''; // todo char_id to char_name
+				out[i].LastLogin = fp.readLong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.MEMBERMGR_INFO2.size = -1;
 
 	// 0xac4
 	PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
