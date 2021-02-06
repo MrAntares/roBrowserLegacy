@@ -21,6 +21,7 @@ define(function( require )
 	var Session        = require('Engine/SessionStorage');
 	var Network        = require('Network/NetworkManager');
 	var PACKET         = require('Network/PacketStructure');
+	var PACKETVER	   = require('Network/PacketVerManager');
 	var EntityManager  = require('Renderer/EntityManager');
 	var Renderer       = require('Renderer/Renderer');
 	var Damage         = require('Renderer/Effects/Damage');
@@ -596,7 +597,10 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.CONFIG,                      onConfigUpdate );
 		Network.hookPacket( PACKET.ZC.ACTION_FAILURE,              onActionFailure );
 		Network.hookPacket( PACKET.ZC.MSG,                         onMessage );
-		Network.hookPacket( PACKET.ZC.RECOVERY,                    onRecovery );
-		Network.hookPacket( PACKET.ZC.RECOVERY2,                   onRecovery );
+		if (PACKETVER.value < 20141022) {
+			Network.hookPacket( PACKET.ZC.RECOVERY,                    onRecovery );
+		} else {
+			Network.hookPacket( PACKET.ZC.RECOVERY2,                   onRecovery );
+		}
 	};
 });
