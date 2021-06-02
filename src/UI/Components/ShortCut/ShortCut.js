@@ -291,18 +291,23 @@ define(function(require)
 
 		_list[index].isSkill = isSkill;
 		_list[index].ID      = ID;
-		_list[index].count   = count;
-
+		
 		if (isSkill) {
 			// Do not display if no level.
 			if (!count) {
 				return;
-			}
+			} else {
+				//Only change count if not 0. It won't be displayed anyways, but this prevents selected level reset on skill change.
+				_list[index].count   = count;
 
-			file = SkillInfo[ID].Name;
-			name = SkillInfo[ID].SkillName;
+				file = SkillInfo[ID].Name;
+				name = SkillInfo[ID].SkillName;
+			}
 		}
 		else {
+			//If not skill, always change count.
+			_list[index].count   = count;
+			
 			var item = Inventory.getItemById(ID);
 
 			// Do not display items not in inventory
