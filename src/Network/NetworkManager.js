@@ -200,6 +200,10 @@ define(function( require )
 	 */
 	function hookPacket( packet, callback )
 	{
+		if (!packet) {
+			throw new Error('NetworkManager::HookPacket() - Invalid packet structure "'+ JSON.stringify(packet) +'"');
+		}
+
 		if (!packet.id) {
 			throw new Error('NetworkManager::HookPacket() - Packet not yet register "'+ packet.name +'"');
 		}

@@ -515,6 +515,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x857: PACKET.ZC.NOTIFY_NEWENTRY6, // ok
 		0x858: PACKET.ZC.NOTIFY_STANDENTRY6, // ok
 		0x859: PACKET.ZC.EQUIPWIN_MICROSCOPE2,
+		0x8b9: PACKET.HC.SECOND_PASSWD_LOGIN, // ok
 		0x8c7: PACKET.ZC.SKILL_ENTRY3, // ok
 		0x8c8: PACKET.ZC.NOTIFY_ACT3, // ok
 		0x8d0: PACKET.ZC.REQ_WEAR_EQUIP_ACK2, // ok
@@ -566,9 +567,17 @@ define( ['./PacketStructure' ], function( PACKET )
 		//0x9d5: npcmarketopenType
 		//0x9d7: npcmarketresultackType
 		0xa00: PACKET.ZC.SHORTCUT_KEY_LIST_V3, // ok
+		0xa0a: PACKET.ZC.ADD_ITEM_TO_STORE3, //
 		0xa0c: PACKET.ZC.ITEM_PICKUP_ACK6, // ok (Thapakorn)
 		0xa0d: PACKET.ZC.EQUIPMENT_ITEMLIST5, // ok (Thapakorn)
+		0xa10: PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5, //
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
+		0xa27: PACKET.ZC.RECOVERY2, // ok
 		0xa30: PACKET.ZC.ACK_REQNAMEALL2, // not tested yet (Thapakorn)
+		0xa44: PACKET.ZC.GROUP_LIST2, // ok
+		0xa84: PACKET.ZC.GUILD_INFO3, // ok
+		0xaa5: PACKET.ZC.MEMBERMGR_INFO2, //
+		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
+		0xac5: PACKET.HC.NOTIFY_ZONESVR2, // ok
 	};
 });

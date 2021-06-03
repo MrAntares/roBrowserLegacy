@@ -86,7 +86,11 @@ define(function( require )
 		Network.hookPacket( PACKET.HC.REFUSE_MAKECHAR,               onCreationFail );
 		Network.hookPacket( PACKET.HC.ACCEPT_DELETECHAR,             onDeleteAnswer );
 		Network.hookPacket( PACKET.HC.REFUSE_DELETECHAR,             onDeleteAnswer );
-		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR,                onReceiveMapInfo );
+		if (PACKETVER.value < 20170329) {
+			Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR, onReceiveMapInfo);
+		} else {
+			Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR2,               onReceiveMapInfo );
+		}
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST,   onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
