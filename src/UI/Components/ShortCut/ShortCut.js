@@ -209,7 +209,12 @@ define(function(require)
 
 		for (i = 0, size = _list.length; i < size; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
-				addElement( i, isSkill, ID, count);
+				//If there is already a skill hotkey, then keep it's selected level after update if it's still a valid skill level
+				if (isSkill && _list[i].count && _list[i].count <= count) {
+					addElement( i, isSkill, ID, _list[i].count);
+				} else {
+					addElement( i, isSkill, ID, count);
+				}
 			}
 		}
 	};
@@ -286,18 +291,23 @@ define(function(require)
 
 		_list[index].isSkill = isSkill;
 		_list[index].ID      = ID;
-		_list[index].count   = count;
-
+		
 		if (isSkill) {
 			// Do not display if no level.
 			if (!count) {
 				return;
-			}
+			} else {
+				//Only change count if not 0. It won't be displayed anyways, but this prevents selected level reset on skill change.
+				_list[index].count   = count;
 
-			file = SkillInfo[ID].Name;
-			name = SkillInfo[ID].SkillName;
+				file = SkillInfo[ID].Name;
+				name = SkillInfo[ID].SkillName;
+			}
 		}
 		else {
+			//If not skill, always change count.
+			_list[index].count   = count;
+			
 			var item = Inventory.getItemById(ID);
 
 			// Do not display items not in inventory
