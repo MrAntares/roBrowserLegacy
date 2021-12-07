@@ -419,7 +419,7 @@ define(function( require )
 		RefineWeaponSelection.onIndexSelected = function(index) {
 			if (index >= -1) {
 				var pkt   = new PACKET.CZ.REQ_WEAPONREFINE();
-				pkt.index = index;
+				pkt.Index = index;
 				Network.sendPacket(pkt);
 			}
 		};
