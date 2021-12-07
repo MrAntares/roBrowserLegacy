@@ -16,24 +16,25 @@ define(function( require )
 	/**
 	 * Load dependencies
 	 */
-	var DB                   = require('DB/DBManager');
-	var SkillId              = require('DB/Skills/SkillConst');
-	var PathFinding          = require('Utils/PathFinding');
-	var Session              = require('Engine/SessionStorage');
-	var Network              = require('Network/NetworkManager');
-	var PACKET               = require('Network/PacketStructure');
-	var EntityManager        = require('Renderer/EntityManager');
-	var EffectManager        = require('Renderer/EffectManager');
-	var Altitude             = require('Renderer/Map/Altitude');
-	var ShortCut             = require('UI/Components/ShortCut/ShortCut');
-	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
-	var SkillWindow          = require('UI/Components/SkillList/SkillList');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
+	var DB                    = require('DB/DBManager');
+	var SkillId               = require('DB/Skills/SkillConst');
+	var PathFinding           = require('Utils/PathFinding');
+	var Session               = require('Engine/SessionStorage');
+	var Network               = require('Network/NetworkManager');
+	var PACKET                = require('Network/PacketStructure');
+	var EntityManager         = require('Renderer/EntityManager');
+	var EffectManager         = require('Renderer/EffectManager');
+	var Altitude              = require('Renderer/Map/Altitude');
+	var ShortCut              = require('UI/Components/ShortCut/ShortCut');
+	var ChatBox               = require('UI/Components/ChatBox/ChatBox');
+	var SkillWindow           = require('UI/Components/SkillList/SkillList');
+	var SkillTargetSelection  = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
+	var ItemSelection         = require('UI/Components/ItemSelection/ItemSelection');
 	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
-	var Inventory            = require('UI/Components/Inventory/Inventory');
-	var NpcMenu              = require('UI/Components/NpcMenu/NpcMenu');
-	var getModule          = require;
+	var RefineWeaponSelection = require('UI/Components/RefineWeaponSelection/RefineWeaponSelection');
+	var Inventory             = require('UI/Components/Inventory/Inventory');
+	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
+	var getModule             = require;
 
 
 	/**
@@ -234,7 +235,7 @@ define(function( require )
 		ItemSelection.setList(pkt.ITIDList);
 		ItemSelection.setTitle(DB.getMessage(521));
 		ItemSelection.onIndexSelected = function(index) {
-			if (index >= 0) {
+			if (index >= -1) {
 				var pkt   = new PACKET.CZ.REQ_ITEMIDENTIFY();
 				pkt.index = index;
 				Network.sendPacket(pkt);
@@ -291,7 +292,7 @@ define(function( require )
 		ItemSelection.setList(pkt.SKID, true);
 		ItemSelection.setTitle(DB.getMessage(697));
 		ItemSelection.onIndexSelected = function(index) {
-			if (index >= 0) {
+			if (index >= -1) {
 				var pkt   = new PACKET.CZ.SELECTAUTOSPELL();
 				pkt.SKID  = index;
 				Network.sendPacket(pkt);
@@ -393,9 +394,32 @@ define(function( require )
 		MakeArrowSelection.setList(pkt.arrowList);
 		MakeArrowSelection.setTitle(DB.getMessage(658));
 		MakeArrowSelection.onIndexSelected = function(index) {
-			if (index >= 0) {
+			if (index >= -1) {
 				var pkt   = new PACKET.CZ.REQ_MAKINGARROW();
 				pkt.id = index;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
+	
+	/**
+	 * Get a list of items to refine
+	 *
+	 * @param {object} pkt - PACKET.ZC.NOTIFY_WEAPONITEMLIST
+	 */
+	function onRefineList( pkt )
+	{
+		if (!pkt.itemList.length) {
+			return;
+		}
+
+		RefineWeaponSelection.append();
+		RefineWeaponSelection.setList(pkt.itemList);
+		RefineWeaponSelection.setTitle(DB.getMessage(910));
+		RefineWeaponSelection.onIndexSelected = function(index) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQ_WEAPONREFINE();
+				pkt.index = index;
 				Network.sendPacket(pkt);
 			}
 		};
@@ -593,5 +617,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPINFO,         onTeleportResult );
 		Network.hookPacket( PACKET.ZC.ACK_REMEMBER_WARPPOINT, onMemoResult );
 		Network.hookPacket( PACKET.ZC.MAKINGARROW_LIST,       onMakingarrowList );
+		Network.hookPacket( PACKET.ZC.NOTIFY_WEAPONITEMLIST,  onRefineList );
 	};
 });
