@@ -29,6 +29,7 @@ define(function( require )
 	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
 	var SkillWindow          = require('UI/Components/SkillList/SkillList');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
+	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
 	var MakeItemSelection    = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var Inventory            = require('UI/Components/Inventory/Inventory');
 	var NpcMenu              = require('UI/Components/NpcMenu/NpcMenu');
