@@ -29,7 +29,7 @@ define(function( require )
 	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
 	var SkillWindow          = require('UI/Components/SkillList/SkillList');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
+	var MakeItemSelection    = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var Inventory            = require('UI/Components/Inventory/Inventory');
 	var NpcMenu              = require('UI/Components/NpcMenu/NpcMenu');
 	var getModule          = require;
@@ -375,7 +375,30 @@ define(function( require )
 				break;
 		}
 	}
+	
+	
+	/**
+	 * Get a list of arrows to create
+	 *
+	 * @param {object} pkt - PACKET.ZC.MAKINGARROW_LIST
+	 */
+	function onMakingarrowList( pkt )
+	{
+		if (!pkt.arrowList.length) {
+			return;
+		}
 
+		MakeItemSelection.append();
+		MakeItemSelection.setList(pkt.arrowList);
+		MakeItemSelection.setTitle(DB.getMessage(658));
+		MakeItemSelection.onIndexSelected = function(index) {
+			if (index >= 0) {
+				var pkt   = new PACKET.CZ.REQ_MAKINGARROW();
+				pkt.id = index;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
 
 	/**
 	 * Send back informations from server
@@ -568,5 +591,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.WARPLIST,               onTeleportList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPINFO,         onTeleportResult );
 		Network.hookPacket( PACKET.ZC.ACK_REMEMBER_WARPPOINT, onMemoResult );
+		Network.hookPacket( PACKET.ZC.MAKINGARROW_LIST,       onMakingarrowList );
 	};
 });
