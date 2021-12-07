@@ -30,7 +30,7 @@ define(function( require )
 	var SkillWindow          = require('UI/Components/SkillList/SkillList');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
-	var MakeItemSelection    = require('UI/Components/MakeItemSelection/MakeItemSelection');
+	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
 	var Inventory            = require('UI/Components/Inventory/Inventory');
 	var NpcMenu              = require('UI/Components/NpcMenu/NpcMenu');
 	var getModule          = require;
@@ -389,10 +389,10 @@ define(function( require )
 			return;
 		}
 
-		MakeItemSelection.append();
-		MakeItemSelection.setList(pkt.arrowList);
-		MakeItemSelection.setTitle(DB.getMessage(658));
-		MakeItemSelection.onIndexSelected = function(index) {
+		MakeArrowSelection.append();
+		MakeArrowSelection.setList(pkt.arrowList);
+		MakeArrowSelection.setTitle(DB.getMessage(658));
+		MakeArrowSelection.onIndexSelected = function(index) {
 			if (index >= 0) {
 				var pkt   = new PACKET.CZ.REQ_MAKINGARROW();
 				pkt.id = index;
