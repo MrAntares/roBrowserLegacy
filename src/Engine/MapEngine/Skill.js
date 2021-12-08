@@ -478,7 +478,7 @@ define(function( require )
 		out    = [];
 
 		if (skill) {
-			range = skill.attackRange + 1;
+			range = skill.attackRange; // + 1;
 		}
 		else {
 			range = entity.attack_range;
