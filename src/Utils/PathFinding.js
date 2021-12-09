@@ -259,7 +259,7 @@ define(function()
 			// Range feature
 			if (range > 0) {
 				for (x = 0; x < i; ++x) {
-					if (Math.abs(out[x*2+0]-x1) <= range && Math.abs(out[x*2+1]-y1) <= range) {
+					if (Math.sqrt((Math.abs(out[x*2+0]-x1) * Math.abs(out[x*2+0]-x1)) + (Math.abs(out[x*2+1]-y1) * Math.abs(out[x*2+1]-y1))) <= range) {
 						return x + 1;
 					}
 				}
