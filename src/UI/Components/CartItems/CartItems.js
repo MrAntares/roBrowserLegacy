@@ -274,8 +274,8 @@ define(function(require)
 	{
 		this.ui.find('.ncnt').text(curCount);
 		this.ui.find('.mcnt').text(maxCount);
-		this.ui.find('.nwt').text(curWeight);
-		this.ui.find('.mwt').text(maxWeight);
+		this.ui.find('.nwt').text(curWeight/10);
+		this.ui.find('.mwt').text(maxWeight/10);
 	};	
 
 
