@@ -392,7 +392,8 @@ define(function( require )
 
 		MakeArrowSelection.append();
 		MakeArrowSelection.setList(pkt.arrowList);
-		MakeArrowSelection.setTitle(DB.getMessage(658));
+		//MakeArrowSelection.setTitle(DB.getMessage(658));
+		MakeArrowSelection.setTitle('LIST');
 		MakeArrowSelection.onIndexSelected = function(index) {
 			if (index >= -1) {
 				var pkt   = new PACKET.CZ.REQ_MAKINGARROW();
