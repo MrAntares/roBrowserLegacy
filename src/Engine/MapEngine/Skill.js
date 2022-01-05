@@ -18,6 +18,7 @@ define(function( require )
 	 */
 	var DB                    = require('DB/DBManager');
 	var SkillId               = require('DB/Skills/SkillConst');
+	var SkillInfo             = require('DB/Skills/SkillInfo');
 	var PathFinding           = require('Utils/PathFinding');
 	var Session               = require('Engine/SessionStorage');
 	var Network               = require('Network/NetworkManager');
@@ -475,11 +476,11 @@ define(function( require )
 
 		entity = Session.Entity;
 		target = EntityManager.get(targetID) || entity;
-		skill  = SkillWindow.getSkillById(id);
+		skill  = SkillInfo[id];
 		out    = [];
 
 		if (skill) {
-			range = skill.attackRange; // + 1;
+			range = skill.AttackRange[level] + 1;
 		}
 		else {
 			range = entity.attack_range;
@@ -550,11 +551,11 @@ define(function( require )
 
 		entity = Session.Entity;
 		pos    = entity.position;
-		skill  = SkillWindow.getSkillById(id);
+		skill  = SkillInfo[id];
 		out    = [];
 
 		if (skill) {
-			range = skill.attackRange + 1;
+			range = skill.AttackRange[level] + 1;
 		}
 		else {
 			range = entity.attack_range;
