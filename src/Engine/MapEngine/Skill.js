@@ -480,7 +480,7 @@ define(function( require )
 		out    = [];
 
 		if (skill) {
-			range = skill.AttackRange[level] + 1;
+			range = skill.AttackRange[level-1] + 1;
 		}
 		else {
 			range = entity.attack_range;
@@ -555,7 +555,7 @@ define(function( require )
 		out    = [];
 
 		if (skill) {
-			range = skill.AttackRange[level] + 1;
+			range = skill.AttackRange[level-1] + 1;
 		}
 		else {
 			range = entity.attack_range;
