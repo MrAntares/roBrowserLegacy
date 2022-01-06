@@ -476,11 +476,14 @@ define(function( require )
 
 		entity = Session.Entity;
 		target = EntityManager.get(targetID) || entity;
-		skill  = SkillInfo[id];
+		skill  = SkillWindow.getSkillById(id);
 		out    = [];
-
+		
 		if (skill) {
-			range = skill.AttackRange[level-1] + 1;
+			range = skill.attackRange + 1;
+		}
+		else if (SkillInfo[id]) {
+			range = SkillInfo[id].AttackRange[level-1] + 1;
 		}
 		else {
 			range = entity.attack_range;
@@ -551,11 +554,14 @@ define(function( require )
 
 		entity = Session.Entity;
 		pos    = entity.position;
-		skill  = SkillInfo[id];
+		skill  = SkillWindow.getSkillById(id);
 		out    = [];
-
+		
 		if (skill) {
-			range = skill.AttackRange[level-1] + 1;
+			range = skill.attackRange + 1;
+		}
+		else if (SkillInfo[id]) {
+			range = SkillInfo[id].AttackRange[level-1] + 1;
 		}
 		else {
 			range = entity.attack_range;
