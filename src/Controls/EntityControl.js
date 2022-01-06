@@ -327,7 +327,7 @@ define(function( require )
 				var count = PathFinding.search(
 					main.position[0] | 0, main.position[1] | 0,
 					this.position[0] | 0, this.position[1] | 0,
-					main.attack_range, // + 1,
+					main.attack_range + 1,
 					out
 				);
 
