@@ -227,7 +227,7 @@ define(function()
 	 */
 	function searchLong( x0, y0, x1, y1, range, out, type )
 	{
-		var i, dx, dy, x, y;
+		var i, j, dx, dy, x, y;
 		var types = GAT.cells;
 		var width = GAT.width;
 
@@ -258,9 +258,11 @@ define(function()
 		if (x === x1 && y === y1) {
 			// Range feature
 			if (range > 0) {
-				for (x = 0; x < i; ++x) {
-					if (Math.sqrt((Math.abs(out[x*2+0]-x1) * Math.abs(out[x*2+0]-x1)) + (Math.abs(out[x*2+1]-y1) * Math.abs(out[x*2+1]-y1))) <= range) {
-						return x + 1;
+				for (j = 0; j < i; ++j) {
+					x = out[j*2+0]-x1;
+					y = out[j*2+1]-y1;
+					if (Math.sqrt(x*x + y*y) <= range) {
+						return j + 1;
 					}
 				}
 			}
@@ -273,7 +275,7 @@ define(function()
 			x = x1 - x0;
 			y = y1 - y0;
 			if (Math.sqrt(x*x + y*y) <= range) {
-				return searchLong( x0, y0, x1, y1, 0, out, GAT.type.SNIPABLE );
+				return searchLong( x0, y0, x1, y1, range, out, GAT.type.SNIPABLE );
 			}
 		}
 
