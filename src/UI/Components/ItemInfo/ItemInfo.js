@@ -211,7 +211,7 @@ define(function(require)
 						getNameByGID(GID);
 					}
 					
-					
+					customname = customname + " ";
 					if(item.IsDamaged){
 						customname = name+'\'s '+customname;
 					} else {

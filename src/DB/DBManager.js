@@ -602,7 +602,7 @@ define(function(require)
 						getNameByGID(GID);
 					}
 						
-					str = name + str;
+					str = name + str + " ";
 					break;
 
 				// Show card prefix
