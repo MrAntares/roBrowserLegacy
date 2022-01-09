@@ -177,7 +177,8 @@
 				}
 				break;
 			default:
-				var executeAlte = key.cmd.split("EXECUTE_ALT_")[1];				
+				var executeAlte = key.cmd.split("EXECUTE_ALT_")[1];
+				this.ui.find('.alt input').focus();
 				executeAlt(executeAlte);
 				break;
 		}
@@ -271,8 +272,7 @@
 		 });
 	 }
 
-	 function executeAlt(value){
-		this.ui.find('.alt input').focus();
+	 function executeAlt(value){		
 		var command = _ALT_INIT[`Num_${value}`];
 		
 		// Nothing to submit
