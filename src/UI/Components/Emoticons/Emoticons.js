@@ -22,10 +22,11 @@ define(function(require)
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var Entity         = require('Renderer/Entity/Entity');
 	var UIManager      = require('UI/UIManager');
-	var UIComponent    = require('UI/UIComponent');
+	var UIComponent    = require('UI/UIComponent');	
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var htmlText       = require('text!./Emoticons.html');
 	var cssText        = require('text!./Emoticons.css');
+	
 
 
 	/**
@@ -222,15 +223,17 @@ define(function(require)
 
 	/**
 	 * Select an emoticon
-	 * Display the command shortcut in the ChatBox
+	 * Display the command shortcut in the ShortCuts
 	 */
 	function onSelectEmoticon()
 	{
 		var idx = this.getAttribute('data-index');
 		var cmd = EmoticonsDB.names[idx];
+		var ShortCuts 	= require('UI/Components/ShortCuts/ShortCuts');
 
-		if (cmd && !ChatBox.ui.find('.battlemode').is(':visible')) {
-			ChatBox.ui.find('.input .message').val('/' + cmd).select();
+		if(cmd && ShortCuts.ui.is(':visible')){
+			if(ShortCuts.ui.find('.input_alt_focus').length)
+				ShortCuts.ui.find('.input_alt_focus').val('/' + cmd).select()
 		}
 	}
 

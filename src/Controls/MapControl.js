@@ -20,7 +20,6 @@ define(function( require )
 	var InputBox      = require('UI/Components/InputBox/InputBox');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
-	var ShortCuts     = require('UI/Components/ShortCuts/ShortCuts');
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Mobile        = require('Core/Mobile');
 	var Renderer      = require('Renderer/Renderer');

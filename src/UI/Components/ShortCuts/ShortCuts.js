@@ -18,20 +18,17 @@
 	  * Dependencies
 	  */
 	 var DB                 = require('DB/DBManager');
-	 var ItemType           = require('DB/Items/ItemType');
 	 var jQuery             = require('Utils/jquery');
-	 var Client             = require('Core/Client');
 	 var Preferences        = require('Core/Preferences');
 	 var Renderer           = require('Renderer/Renderer');
 	 var Mouse              = require('Controls/MouseEventHandler');
 	 var UIManager          = require('UI/UIManager');
 	 var UIComponent        = require('UI/UIComponent');
-	 var InputBox           = require('UI/Components/InputBox/InputBox');
-	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	 var Emoticons          = require('UI/Components/Emoticons/Emoticons');
 	 var htmlText           = require('text!./ShortCuts.html');
 	 var cssText            = require('text!./ShortCuts.css');
-	 var getModule          = require;
+	 var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
+	 var getModule    		= require;
  
  
 	 /**
@@ -48,7 +45,23 @@
 		 EQUIP:  1,
 		 ETC:    2
 	 };
- 
+	 
+
+	/**
+	 * @var {Preferences} structure
+	 */
+	var _ALT_INIT = Preferences.get('_ALT_CMD', {
+		Num_1:  '/hide'	,
+		Num_2:  '/?'	,
+		Num_3:  '/ho'	,
+		Num_4:  '/lv'	,
+		Num_5:  '/swt'	,
+		Num_6:  '/ic'	,
+		Num_7:  '/an'	,
+		Num_8:  '/ag'	,
+		Num_9:  '/$'	,
+		Num_0:  '/...'
+	}, 1.0);
  
 	 /**
 	  * Store ShortCuts items
@@ -85,15 +98,24 @@
 	  */
 	 ShortCuts.init = function Init()
 	 {
-
+		
 		this.ui.find('.footer button').mousedown(function(){
 			if( this.className == 'emoticons')
 				Emoticons.onShortCut({cmd: 'TOGGLE'})
 		});
 
 		this.ui.find('.close').click(onClose);
+		this.ui.find('.alt input').mousedown(function(){
+			// this.focus();
+			jQuery(".alt_").removeClass('input_alt_focus');
+			jQuery(this).addClass('input_alt_focus');
 
-		console.log("this.ui.find('.view button')", this.ui.find('.view button'))
+			jQuery(this).select();
+		});
+
+		addValuesAlt(this)
+		loadValuesAlt()
+
 		this.draggable(this.ui.find('.titlebar'));
 	 };
  
@@ -106,7 +128,7 @@
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-
+		
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
@@ -148,9 +170,15 @@
 		switch (key.cmd) {
 			case 'TOGGLE':
 				this.ui.toggle();
+				// Remove input focus
+				jQuery(".alt_").removeClass('input_alt_focus');
 				if (this.ui.is(':visible')) {
 					this.focus();
 				}
+				break;
+			default:
+				var executeAlte = key.cmd.split("EXECUTE_ALT_")[1];				
+				executeAlt(executeAlte);
 				break;
 		}
 	 };
@@ -176,273 +204,6 @@
 			 width:  23 + 16 + 16 + width  * 32,
 			 height: 31 + 19      + height * 32
 		 });
-	 };
- 
- 
-	 /**
-	  * Get item object
-	  *
-	  * @param {number} id
-	  * @returns {Item}
-	  */
-	 ShortCuts.getItemById = function GetItemById( id )
-	 {
-		 var i, count;
-		 var list = ShortCuts.list;
- 
-		 for (i = 0, count = list.length; i < count; ++i) {
-			 if (list[i].ITID === id) {
-				 return list[i];
-			 }
-		 }
- 
-		 return null;
-	 };
- 
- 
-	 /**
-	  * Search in a list for an item by its index
-	  *
-	  * @param {number} index
-	  * @returns {Item}
-	  */
-	 ShortCuts.getItemByIndex = function getItemByIndex( index )
-	 {
-		 var i, count;
-		 var list = ShortCuts.list;
- 
-		 for (i = 0, count = list.length; i < count; ++i) {
-			 if (list[i].index === index) {
-				 return list[i];
-			 }
-		 }
- 
-		 return null;
-	 };
- 
- 
-	 /**
-	  * Add items to the list
-	  * if the item index is exist you should clear it;[skybook888]
-	  */
-	 ShortCuts.setItems = function SetItems(items)
-	 {
-		 var i, count;
-		 
-		 for (i = 0, count = items.length; i < count ; ++i) {
-			 var object= this.getItemByIndex(items[i].index);
-			 if(object){
-				 var item=this.removeItem(object.index,object.count);
-			 }
-			 if(this.addItemSub(items[i])){
-				 this.list.push(items[i]);
-			 }
-			 
-			 
-		 }
-		 
-	 };
- 
- 
-	 /**
-	  * Insert Item to ShortCuts
-	  *
-	  * @param {object} Item
-	  */
-	 ShortCuts.addItem = function AddItem( item )
-	 {
-		 var object = this.getItemByIndex(item.index);
-		 //console.log("add");
- 
-		 if (object) {
-			 object.count += item.count;
-			 this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
-			 this.onUpdateItem(object.ITID, object.count);
-			 return;
-		 }
- 
-		 object = jQuery.extend({}, item);
-		 if (this.addItemSub(object)) {
-			 this.list.push(object);
-			 this.onUpdateItem(object.ITID, object.count);
-		 }
-	 };
- 
- 
-	 /**
-	  * Add item to ShortCuts
-	  *
-	  * @param {object} Item
-	  */
-	 ShortCuts.addItemSub = function AddItemSub( item )
-	 {
-		//  var tab;
-		//  switch (item.type) {
-		// 	 case ItemType.HEALING:
-		// 	 case ItemType.USABLE:
-		// 	 case ItemType.USABLE_SKILL:
-		// 	 case ItemType.USABLE_UNK:
-		// 		 tab = ShortCuts.TAB.USABLE;
-		// 		 break;
- 
-		// 	 case ItemType.WEAPON:
-		// 	 case ItemType.EQUIP:
-		// 	 case ItemType.PETEGG:
-		// 	 case ItemType.PETEQUIP:
-		// 		 tab = ShortCuts.TAB.EQUIP;
-		// 		 break;
- 
-		// 	 default:
-		// 	 case ItemType.ETC:
-		// 	 case ItemType.CARD:
-		// 	 case ItemType.AMMO:
-		// 		 tab = ShortCuts.TAB.ETC;
-		// 		 break;
-		//  }
- 
-		//  // Equip item (if not arrow)
-		//  if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-		// 	 Emoticons.equip(item);
-		// 	 return false;
-		//  }
- 
-		//  if (tab === _preferences.tab) {
-		// 	 var it      = DB.getItemInfo( item.ITID );
-		// 	 var content = this.ui.find('.container .content');
- 
-		// 	 content.append(
-		// 		 '<div class="item" data-index="'+ item.index +'" draggable="true">' +
-		// 			 '<div class="icon"></div>' +
-		// 			 '<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
-		// 		 '</div>'
-		// 	 );
- 
-		// 	 if (content.height() < content[0].scrollHeight) {
-		// 		 this.ui.find('.hide').hide();
-		// 	 }
-		// 	 else {
-		// 		 this.ui.find('.hide').show();
-		// 	 }
- 
-		// 	 Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
-		// 		 content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
-		// 	 });
-		//  }
- 
-		 return true;
-	 };
- 
- 
-	 /**
-	  * Remove item from ShortCuts
-	  *
-	  * @param {number} index in ShortCuts
-	  * @param {number} count
-	  */
-	 ShortCuts.removeItem = function RemoveItem( index, count )
-	 {
-		//  var item = this.getItemByIndex(index);
- 
-		//  // Emulator failed to complete the operation
-		//  // do not remove item from ShortCuts
-		//  if (!item || count <= 0) {
-		// 	 return null;
-		//  }
- 
-		//  if (item.count) {
-		// 	 item.count -= count;
- 
-		// 	 if (item.count > 0) {
-		// 		 this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
-		// 		 this.onUpdateItem(item.ITID, item.count);
-		// 		 return item;
-		// 	 }
-		//  }
-		 
-		//  this.list.splice( this.list.indexOf(item), 1 );
-		//  this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		//  this.onUpdateItem(item.ITID, 0);
- 
-		//  var content = this.ui.find('.container .content');
-		//  if (content.height() === content[0].scrollHeight) {
-		// 	 this.ui.find('.hide').show();
-		//  }
- 
-		 return item;
-	 };
- 
- 
-	 /**
-	  * Remove item from ShortCuts
-	  *
-	  * @param {number} index in ShortCuts
-	  * @param {number} count
-	  */
-	 ShortCuts.updateItem = function UpdateItem( index, count )
-	 {
-		//  var item = this.getItemByIndex(index);
- 
-		//  if (!item) {
-		// 	 return;
-		//  }
- 
-		//  item.count = count;
- 
-		//  // Update quantity
-		//  if (item.count > 0) {
-		// 	 this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
-		// 	 this.onUpdateItem(item.ITID, item.count);
-		// 	 return;
-		//  }
- 
-		//  // no quantity, remove
-		//  this.list.splice( this.list.indexOf(item), 1 );
-		//  this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		//  this.onUpdateItem(item.ITID, 0);
- 
-		//  var content = this.ui.find('.container .content');
-		//  if (content.height() === content[0].scrollHeight) {
-		// 	 this.ui.find('.hide').show();
-		//  }
-	 };
- 
- 
-	 /**
-	  * Use an item
-	  *
-	  * @param {Item} item
-	  */
-	 ShortCuts.useItem = function UseItem( item )
-	 {
-		//  switch (item.type) {
- 
-		// 	 // Usable item
-		// 	 case ItemType.HEALING:
-		// 	 case ItemType.USABLE:
-		// 	 case ItemType.USABLE_UNK:
-		// 		 ShortCuts.onUseItem( item.index );
-		// 		 break;
- 
-		// 	 // Use card
-		// 	 case ItemType.CARD:
-		// 		 ShortCuts.onUseCard( item.index );
-		// 		 break;
- 
-		// 	 case ItemType.USABLE_SKILL:
-		// 		 break;
- 
-		// 	 // Equip item
-		// 	 case ItemType.WEAPON:
-		// 	 case ItemType.EQUIP:
-		// 	 case ItemType.PETEQUIP:
-		// 	 case ItemType.AMMO:
-		// 		 if (item.IsIdentified && !item.IsDamaged) {
-		// 			 ShortCuts.onEquipItem( item.index, item.location );
-		// 		 }
-		// 		 break;
-		//  }
- 
-		 return;
 	 };
  
  
@@ -509,285 +270,39 @@
 			 }
 		 });
 	 }
- 
- 
-	 /**
-	  * Modify tab, filter display entries
-	  */
-	 function onSwitchTab()
-	 {
-		 var idx          = jQuery(this).index();
-		 _preferences.tab = parseInt(idx, 10);
- 
-		 Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0'+ (idx+1) +'.bmp', function(data){
-			 ShortCuts.ui.find('.tabs').css('backgroundImage', 'url(' + data + ')');
-			 requestFilter();
-		 });
+
+	 function executeAlt(value){
+		var command = _ALT_INIT[`Num_${value}`];
+		
+		// Nothing to submit
+		if (command.length < 1 || command == '/hide') {
+			return;
+		}
+
+		// Process commands
+		if( command[0] == '/' ){
+			getModule('Controls/ProcessCommand').call( ChatBox, command.substr(1) );
+			return;
+		}
+
+		ChatBox.onRequestTalk('', command);		
 	 }
- 
- 
-	 /**
-	  * Hide/show ShortCuts's content
-	  */
-	 function onToggleReduction()
-	 {
-		 var ui = ShortCuts.ui;
- 
-		 if (_realSize) {
-			 ui.find('.panel').show();
-			 ui.height(_realSize);
-			 _realSize = 0;
-		 }
-		 else {
-			 _realSize = ui.height();
-			 ui.height(17);
-			 ui.find('.panel').hide();
-		 }
+
+	 function loadValuesAlt(){
+		var length = (Object.keys(_ALT_INIT).length - 3);
+		for (let index = 0; index < length; index++) {
+			var element = _ALT_INIT[`Num_${index}`];
+			jQuery(`#alt_${index}`).val(element);
+		}
 	 }
- 
- 
-	 /**
-	  * Update tab, reset ShortCuts content
-	  */
-	 function requestFilter()
-	 {
-		 ShortCuts.ui.find('.container .content').empty();
- 
-		 var list = ShortCuts.list;
-		 var i, count;
- 
-		 for (i = 0, count = list.length; i < count; ++i) {
-			 ShortCuts.addItemSub( list[i] );
-		 }
+
+	 function addValuesAlt(element){
+		element.ui.find('.alt input').blur(function(){
+			var index = jQuery(this).attr('id').split("alt_")[1]
+			_ALT_INIT[`Num_${index}`] = this.value
+			_ALT_INIT.save();			
+		});
 	 }
- 
- 
-	 /**
-	  * Drop an item from storage to ShortCuts
-	  *
-	  * @param {event}
-	  */
-	 function onDrop( event )
-	 {
-		 var item, data;
-		 event.stopImmediatePropagation();
- 
-		 try {
-			 data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-			 item = data.data;
-		 }
-		 catch(e) {
-			 return false;
-		 }
- 
-		 // Just allow item from storage
-		 if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'CartItems')) {
-			 return false;
-		 }
- 
-		 // Have to specify how much
-		 if (item.count > 1) 
-		 {
-			 InputBox.append();
-			 InputBox.setType('number', false, item.count);
-			 
-			 InputBox.onSubmitRequest = function OnSubmitRequest( count ) 
-			 {
-				 InputBox.remove();
-				 
-					 switch(data.from)
-					 {
-					 case 'Storage':
-						 getModule('UI/Components/Storage/Storage').reqRemoveItem(
-							 item.index,
-							 parseInt(count, 10 )
-							 );
-					 break;
-					 
-					 case 'CartItems':
-						 getModule('UI/Components/CartItems/CartItems').reqRemoveItem(
-							 item.index,
-							 parseInt(count, 10 )
-							 );
-					 break;					
-				 
-					 }
-			 };
-			 return false;
-		 }
-		 
-		 switch(data.from)
-		 {
-			 case 'Storage':
-				 getModule('UI/Components/Storage/Storage').reqRemoveItem( item.index, 1 );
-			 break;
-					 
-			 case 'CartItems':
-				 getModule('UI/Components/CartItems/CartItems').reqRemoveItem( item.index, 1 );
-			 break;							
-		 }
- 
-		 return false;
-	 }
- 
- 
-	 /**
-	  * Block the scroll to move 32px at each move
-	  */
-	 function onScroll( event )
-	 {
-		 var delta;
- 
-		 if (event.originalEvent.wheelDelta) {
-			 delta = event.originalEvent.wheelDelta / 120 ;
-			 if (window.opera) {
-				 delta = -delta;
-			 }
-		 }
-		 else if (event.originalEvent.detail) {
-			 delta = -event.originalEvent.detail;
-		 }
- 
-		 this.scrollTop = Math.floor(this.scrollTop/32) * 32 - (delta * 32);
-		 event.stopImmediatePropagation();
-		 return false;
-	 }
- 
- 
-	 /**
-	  * Show item name when mouse is over
-	  */
-	 function onItemOver()
-	 {
-		 var idx  = parseInt( this.getAttribute('data-index'), 10);
-		 var item = ShortCuts.getItemByIndex(idx);
- 
-		 if (!item) {
-			 return;
-		 }
- 
-		 // Get back data
-		 var pos     = jQuery(this).position();
-		 var overlay = ShortCuts.ui.find('.overlay');
- 
-		 // Display box
-		 overlay.show();
-		 overlay.css({top: pos.top, left:pos.left+35});
-		 overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
- 
-		 if (item.IsIdentified) {
-			 overlay.removeClass('grey');
-		 }
-		 else {
-			 overlay.addClass('grey');
-		 }
-	 }
- 
- 
-	 /**
-	  * Hide the item name
-	  */
-	 function onItemOut()
-	 {
-		 ShortCuts.ui.find('.overlay').hide();
-	 }
- 
- 
-	 /**
-	  * Start dragging an item
-	  */
-	 function onItemDragStart( event )
-	 {
-		 var index = parseInt(this.getAttribute('data-index'), 10);
-		 var item  = ShortCuts.getItemByIndex(index);
- 
-		 if (!item) {
-			 return;
-		 }
- 
-		 // Set image to the drag drop element
-		 var img   = new Image();
-		 var url   = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-		 img.src   = url.replace(/^\"/, '').replace(/\"$/, '');
- 
-		 event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		 event.originalEvent.dataTransfer.setData('Text',
-			 JSON.stringify( window._OBJ_DRAG_ = {
-				 type: 'item',
-				 from: 'ShortCuts',
-				 data:  item
-			 })
-		 );
- 
-		 onItemOut();
-	 }
- 
- 
-	 /**
-	  * Stop dragging an item
-	  *
-	  */
-	 function onItemDragEnd()
-	 {
-		 delete window._OBJ_DRAG_;
-	 }
- 
- 
-	 /**
-	  * Get item info (open description window)
-	  */
-	 function onItemInfo( event )
-	 {
-		 event.stopImmediatePropagation();
- 
-		 var index = parseInt(this.getAttribute('data-index'), 10);
-		 var item  = ShortCuts.getItemByIndex(index);
- 
-		 if (!item) {
-			 return false;
-		 }
- 
-		 // Don't add the same UI twice, remove it
-		 if (ItemInfo.uid === item.ITID) {
-			 ItemInfo.remove();
-			 return false;
-		 }
- 
-		 // Add ui to window
-		 ItemInfo.append();
-		 ItemInfo.uid = item.ITID;
-		 ItemInfo.setItem(item);
- 
-		 return false;
-	 }
- 
- 
-	 /**
-	  * Ask to use an item
-	  */
-	 function onItemUsed( event )
-	 {
-		 var index = parseInt(this.getAttribute('data-index'), 10);
-		 var item  = ShortCuts.getItemByIndex(index);
- 
-		 if (item) {
-			 ShortCuts.useItem(item);
-			 onItemOut();
-		 }
- 
-		 event.stopImmediatePropagation();
-		 return false;
-	 }
- 
- 
-	 /**
-	  * functions to define
-	  */
-	 ShortCuts.onUseItem    = function OnUseItem(/* index */){};
-	 ShortCuts.onUseCard    = function onUseCard(/* index */){};
-	 ShortCuts.onEquipItem  = function OnEquipItem(/* index, location */){};
-	 ShortCuts.onUpdateItem = function OnUpdateItem(/* index, amount */){};
- 
  
 	 /**
 	  * Create component and export it
