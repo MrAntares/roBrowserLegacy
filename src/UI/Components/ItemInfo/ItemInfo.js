@@ -25,10 +25,10 @@ define(function(require)
 	var Mouse              = require('Controls/MouseEventHandler');
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./ItemInfo.html');
-	var cssText            = require('text!./ItemInfo.css');
-	
-	var Network       = require('Network/NetworkManager');
-	var PACKET        = require('Network/PacketStructure');
+	var cssText            = require('text!./ItemInfo.css');	
+	var Network       	   = require('Network/NetworkManager');
+	var PACKET        	   = require('Network/PacketStructure');
+	// DB.getMessage(95)
 
 
 	/**
@@ -41,12 +41,6 @@ define(function(require)
 	 * @var {number} ItemInfo unique id
 	 */
 	ItemInfo.uid = -1;
-
-	/**
-	 * @var {Array} message string
-	 */
-	var MsgStringTable = [];
-
 
 	/**
 	 * Once append to the DOM
@@ -106,62 +100,8 @@ define(function(require)
 
 		this.draggable(this.ui.find('.title'));
 
-		// Callback
-		var index = 0, count = 0;
-		function onLoad(){
-			count++;
-			return function OnLoadClosure(){
-				index++;
-
-				if (ItemInfo.onProgress) {
-					ItemInfo.onProgress(index, count);
-				}
-
-				if (index === count && ItemInfo.onReady) {
-					ItemInfo.onReady();
-				}
-			};
-		}
-
-		loadTable( 'data/msgstringtable.txt',			1, function(index, val){	MsgStringTable[index]                                        		= val;}, 			onLoad());
-
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
-
-	/**
-	 * Load TXT table
-	 *
-	 * @param {string} filename to load
-	 * @param {number} size of each group
-	 * @param {function} callback to call for each group
-	 * @param {function} onEnd to run once the file is loaded
-	 */
-	 function loadTable( filename, size, callback, onEnd )
-	 {
-		 Client.loadFile( filename, function(data) {
-			 console.log('Loading file "'+ filename +'"...');
- 
-			 // Remove commented lines
-			 var content  = ('\n' + data).replace(/\n(\/\/[^\n]+)/g, '');
-			 var elements = content.split('#');
-			 var i, count = elements.length;
-			 var args     = new Array(size+1);
- 
-			 for (i = 0; i < count; i++) {
-				 if (i%size === 0) {
-					 if (i) {
-						 callback.apply( null, args );
-					 }
-					 args[i%size] = i;
-				 }
- 
-				 args[(i%size)+1] = elements[i].replace(/^\s+|\s+$/g, ''); // trim
-			 }
- 
-			 onEnd();
-		 }, onEnd );
-	 }
-
 
 	/**
 	 * Bind component
@@ -186,17 +126,17 @@ define(function(require)
 			switch (item.slot['card1']) {
 				case 0x00FF: // FORGE
 					if (item.slot['card2'] >= 3840) { 
-						customname += MsgStringTable[461]; //'Very Very Very Strong';
+						customname += DB.getMessage(461); //'Very Very Very Strong';
 					} else if (item.slot['card2'] >= 2560) { 
-						customname += MsgStringTable[460]; //Very Very Strong ';
+						customname += DB.getMessage(460); //Very Very Strong ';
 					} else if (item.slot['card2'] >= 1024) { 
-						customname += MsgStringTable[459]; //Very Strong ';
+						customname += DB.getMessage(459); //Very Strong ';
 					}
 					switch (Math.abs(item.slot['card2'] % 10)){
-						case 1: customname += MsgStringTable[452]; break; // 'Ice '
-						case 2: customname += MsgStringTable[454]; break; // 'Earth '
-						case 3: customname += MsgStringTable[451]; break; // 'Fire '
-						case 4: customname += MsgStringTable[453]; break; // 'Wind '
+						case 1: customname += DB.getMessage(452); break; // 'Ice '
+						case 2: customname += DB.getMessage(454); break; // 'Earth '
+						case 3: customname += DB.getMessage(451); break; // 'Fire '
+						case 4: customname += DB.getMessage(453); break; // 'Wind '
 					}
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
