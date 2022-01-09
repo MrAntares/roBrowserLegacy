@@ -272,6 +272,7 @@
 	 }
 
 	 function executeAlt(value){
+		this.ui.find('.alt input').focus();
 		var command = _ALT_INIT[`Num_${value}`];
 		
 		// Nothing to submit
@@ -303,7 +304,8 @@
 			_ALT_INIT.save();			
 		});
 	 }
- 
+	
+
 	 /**
 	  * Create component and export it
 	  */
