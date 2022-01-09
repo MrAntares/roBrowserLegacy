@@ -74,6 +74,7 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ "ALT" + KEYS.J ]   = { component:'PetInformations', cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.L ]   = { component:'Emoticons',       cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.Q ]   = { component:'Equipment',       cmd:'TOGGLE'};
+	defaultKey[ "ALT" + KEYS.M ]   = { component:'ShortCuts',       cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.S ]   = { component:'SkillList',       cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.V ]   = { component:'BasicInfo',       cmd:'EXTEND'};
 	defaultKey[ "ALT" + KEYS.H ]   = { component:'PartyFriends',    cmd:'FRIEND'};
