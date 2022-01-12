@@ -72,7 +72,8 @@ define(function( require )
 	EffectManager.add = function add(effect, uid, persistent)
 	{
 		var name = (effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
-
+		this.remove({name: name}, uid);
+		
 		if (!(name in _list)) {
 			_list[name] = [];
 
@@ -337,11 +338,11 @@ define(function( require )
 				if (effect.func) {
 					if (effect.attachedEntity) {
 						if (entity) {
-							effect.func.call(this, entity, tick);
+							effect.func.call(this, entity, tick, AID);
 						}
 					}
 					else {
-						effect.func.call(this, position, tick);
+						effect.func.call(this, position, tick, AID);
 					}
 				}
 				break;
