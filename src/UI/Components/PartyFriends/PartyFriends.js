@@ -702,6 +702,15 @@ define(function(require)
 		ChatBox.ui.find('.message').select();
 	}
 
+	
+	 /**
+	 * Add nick name to chatbox while clicking on player character sprite
+	 */
+	 PartyFriends.onOpenChat1to1 = function onOpenChat1to1(name)
+	 {
+		ChatBox.ui.find('.username').val(name);
+		ChatBox.ui.find('.message').select();
+	 }
 
 	/**
 	 * Right click on a character
