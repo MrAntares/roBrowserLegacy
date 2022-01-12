@@ -253,8 +253,10 @@ define(function( require )
 		obj.width    = canvas.width;
 		obj.height   = canvas.height;
 		
-		if(weapon || weapon === 0){
-			obj.soundFile = (DB.getWeaponHitSound(weapon))[0];
+		var hitSound = DB.getWeaponHitSound(weapon)[0];
+
+		if((weapon || weapon === 0) && hitSound){
+			obj.soundFile = hitSound;
 		}
 		
 		_list.push( obj );
