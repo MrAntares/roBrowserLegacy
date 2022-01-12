@@ -93,13 +93,14 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MANU_DEF] = {
+		icon: "efst_def.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["¸¶´©Å©ÀÇ ÀÇÁö", COLOR_TITLE_BUFF],
+			["Manuk's Will", COLOR_TITLE_BUFF],
 			["%s", COLOR_TIME],
-			["¸¶´©Å© ÇÊµåÁö¿ª ¸ó½ºÅÍ¿¡°Ô ¹Þ´Â"],
-			["¹°¸®, ¸¶¹ý µ¥¹ÌÁö °¨¼Ò"]
+			["Decrease physical/magical damage"],
+			["from the monsters in Manuk field"]
 		]
 	};
 
@@ -237,6 +238,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.FOOD_CRITICALSUCCESSVALUE] = {
+		icon: "gogi.tga",		   
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -250,6 +252,7 @@ define(['./StatusConst'], function( SC )
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
+			["Warm Wind", COLOR_TITLE_BUFF], 						
 			["%s", COLOR_TIME], 
 			["Enchants Weapon with Ghost Property"]
 		]
@@ -341,9 +344,9 @@ define(['./StatusConst'], function( SC )
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["SP Consumption Potion", COLOR_TITLE_BUFF], 
+			["SP Consumption Reduction Potion", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
-			["Skills using SP have their consumption increased"]
+			["Reduced SP Consumption of skills by 15%"]
 		]
 	};
 
@@ -383,9 +386,11 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.CASH_DEATHPENALTY] = {
+		icon: "death.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
+			["Life Insurance", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
 			["No EXP loss upon death"]
 		]
@@ -645,6 +650,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.CASH_RECEIVEITEM] = {
+		icon: "item.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -655,13 +661,14 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SPL_DEF] = {
+		icon: "efst_def.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["·ç½Ã¿Ã¶óÀÇ ²ÜÂ´", COLOR_TITLE_BUFF], 
+			["Honey Jam", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
-			["½ºÇÃ¶ûµðµå ÇÊµåÁö¿ª ¸ó½ºÅÍ¿¡°Ô ¹Þ´Â"], 
-			["Reduces DEF, MDEF"]
+			["Decrease Physical, Magical damage received"], 
+			["from the monsters in Splendid field"]
 		]
 	};
 
@@ -759,13 +766,14 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MANU_MATK] = {
+		icon: "efst_matk.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["¸¶´©Å©ÀÇ ½Å³ä", COLOR_TITLE_BUFF], 
+			["Manuk's Faith", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
-			["¸¶´©Å© ÇÊµåÁö¿ª ¸ó½ºÅÍ¿¡°Ô"], 
-			["¸¶¹ý°ø°Ý µ¥¹ÌÁö »ó½Â"]
+			["Increase Magical attack against"], 
+			["all monsters in Manuk Field"]
 		]
 	};
 
@@ -881,13 +889,14 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SPL_ATK] = {
+		icon: "efst_atk.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["ÇÉ±ÍÅ§¶óÀÇ ¿­¸ÅÀýÀÓ", COLOR_TITLE_BUFF], 
+			["Pinguicula's Pickled Fruit", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
-			["½ºÇÃ¶ûµðµå ÇÊµåÁö¿ª ¸ó½ºÅÍ¿¡°Ô"], 
-			["¹°¸®°ø°Ý µ¥¹ÌÁö »ó½Â"]
+			["Increase physical ATK against"], 
+			["all monsters in Splendid fields"]
 		]
 	};
 
@@ -921,11 +930,12 @@ define(['./StatusConst'], function( SC )
 		posTimeLimitStr: 2,
 		descript: [
 			["Spear Quicken", COLOR_TITLE_BUFF], 
-			["%s", COLOR_TIME], 
-			["Ã¢ »ç¿ë ½Ã"], 
-			["Increases ASPD"], 
-			["Increases CRIT"], 
-			["Increases Flee"]
+			["%s", COLOR_TIME],  
+						   
+			["Increase ASPD when using Spear"], 
+			["Increase Critical rate"], 
+					   
+			["Increase Flee"]
 		]
 	};
 
@@ -1192,6 +1202,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.CASH_PLUSONLYJOBEXP] = {
+		icon: "job.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -1528,13 +1539,15 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.SPL_MATK] = {
+		icon: "efst_matk.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["Cornelia Anubis' Tears", COLOR_TITLE_BUFF], 
+			["Cornus's Tear", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME],
-			["½ºÇÃ¶ûµðµå ÇÊµåÁö¿ª ¸ó½ºÅÍ¿¡°Ô"], 
-			["Magical attack damage increased"]
+																   
+			["Increase Magical attack against"], 
+			["all monsters in Splendide fields"]
 		]
 	};
 
@@ -2186,13 +2199,14 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.MANU_ATK] = {
+		icon: "efst_atk.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["¸¶´©Å©ÀÇ È£±â", COLOR_TITLE_BUFF], 
+			["Manuk's Golden Chance", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
-			["¸¶´©Å© ÇÊµåÁö¿ª ¸ó½ºÅÍ¿¡°Ô"], 
-			["¹°¸®°ø°Ý µ¥¹ÌÁö »ó½Â"]
+			["Increase physical attack against"], 
+			["all monsters in Manuk fields"]
 		]
 	};
 
@@ -2379,9 +2393,9 @@ define(['./StatusConst'], function( SC )
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["È¯¿µÀÇ ¼úÀÜ", COLOR_TITLE_BUFF], 
+			["Cup of Welcome", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
-			["¿ÏÀü È¸ÇÇ Áõ°¡"]
+			["Increase Perfect Dodge by 20"]
 		]
 	};
 
@@ -2685,8 +2699,8 @@ define(['./StatusConst'], function( SC )
 			["%s", COLOR_TIME], 
 			["Reduces All Stats"], 
 			["Reduces Movement Speed"],
-			["10ÃÊ ´ç ÇÑ ¹ø¾¿ /¾É±â ¹ß»ý"],
-			["Drains SP every 10 seconds"]
+			["Forced to sit down once in every 10 sec"],
+			["Consume certain amount of SP for 10 sec"]
 		]
 	};
 
@@ -2929,6 +2943,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.PLUSATTACKPOWER] = {
+		icon: "plusattackpower.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -2938,6 +2953,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.PLUSMAGICPOWER] = {
+		icon: "plusmagicpower.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -3028,6 +3044,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.REWARD_PLUSONLYJOBEXP] = {
+		icon: "job.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 1,
 		descript: [
@@ -3236,6 +3253,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ATTHASTE_CASH] = {
+		icon: "aspdcash.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -3308,7 +3326,7 @@ define(['./StatusConst'], function( SC )
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
-			["¸í°æÁö¼ö (Ù¥Ìðò­â©)", COLOR_TITLE_BUFF], 
+			["Pure Soul", COLOR_TITLE_BUFF], 
 			["%s", COLOR_TIME], 
 			["Recovers a certain amount of HP"],
 			["Recovers a certain amount of SP"],
@@ -3418,6 +3436,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.ACARAJE] = {
+		icon: "\xb0\xf8\xbc\xd3\xb9\xb0\xbe\xe0.tga",  
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -3440,6 +3459,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.FLOWER_LEAF] = {
+		icon: "flower_leaf.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [
@@ -3470,10 +3490,10 @@ define(['./StatusConst'], function( SC )
 		icon: "darkcrow.tga"
 	};
 
-	StatusInfo[SC.FLOWER_LEAF] = {
-		icon: "flower_leaf.tga"
-	};
-
+							   
+						 
+   
+	
 	StatusInfo[SC.FRIGG_SONG] = {
 		icon: "frigg_song.tga"
 	};
