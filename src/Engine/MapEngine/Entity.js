@@ -355,7 +355,6 @@ define(function( require )
 						switch (pkt.action) {
 
 							// regular damage 
-			  
 							case 0:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								if(pkt.leftDamage){
@@ -809,10 +808,10 @@ define(function( require )
 			}
 			
 			// Don't display skill names for mobs and hiding skills
-			if (srcEntity.objecttype && (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+			if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
                 srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
-            ))
+            )
             {
                 srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
             }
@@ -946,7 +945,8 @@ define(function( require )
         }
 
         // Only mob to don't display skill name ?
-        if (srcEntity.objecttype && srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+		console.log(srcEntity.objecttype);
+        if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
                 srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
         )
