@@ -32,9 +32,11 @@ define(function( require )
 	var SkillTargetSelection  = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var ItemSelection         = require('UI/Components/ItemSelection/ItemSelection');
 	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
+	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var RefineWeaponSelection = require('UI/Components/RefineWeaponSelection/RefineWeaponSelection');
 	var Inventory             = require('UI/Components/Inventory/Inventory');
 	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
+	var SpiritSphere          = require('Renderer/Effects/SpiritSphere');
 	var getModule             = require;
 
 
@@ -206,7 +208,7 @@ define(function( require )
 	 */
 	function onSkillAdded( pkt)
 	{
-		SkillWindow.addSkill( pkt );
+		SkillWindow.addSkill( pkt.data );
 	}
 
 
@@ -405,6 +407,33 @@ define(function( require )
 	}
 	
 	/**
+	 * Get a list of items to create
+	 *
+	 * @param {object} pkt - PACKET.ZC.MAKABLEITEMLIST
+	 */
+	function onMakeitemList( pkt )
+	{
+		if (!pkt.itemList.length) {
+			return;
+		}
+
+		MakeItemSelection.append();
+		MakeItemSelection.setList(pkt.itemList);
+		MakeItemSelection.setTitle(DB.getMessage(425));
+		MakeItemSelection.onIndexSelected = function(index, material_ID) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQMAKINGITEM();
+				pkt.itemList.ITID = index;
+				pkt.itemList.material_ID = {};
+				pkt.itemList.material_ID[0] = material_ID[0] || 0;
+				pkt.itemList.material_ID[1] = material_ID[1] || 0;
+				pkt.itemList.material_ID[2] = material_ID[2] || 0;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
+	
+	/**
 	 * Get a list of items to refine
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_WEAPONITEMLIST
@@ -520,7 +549,7 @@ define(function( require )
         pkt.SKID          = id;
         pkt.selectedLevel = level;
         pkt.targetID      = targetID || Session.Entity.GID;
-
+		
 		// In range
 		if (count < 2 || target === entity) {
 			Network.sendPacket(pkt);
@@ -600,7 +629,16 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
+	function onSpiritSphere(pkt){
+		if (pkt.num === 0){
+			EffectManager.remove(SpiritSphere, pkt.AID)
+		} else {
+			var entity = EntityManager.get(pkt.AID);
+			var spheres = new SpiritSphere(entity, pkt.num);
+			EffectManager.add(spheres, pkt.AID, false);
+		}
+	}
+		
 	/**
 	 * Initialize
 	 */
@@ -608,6 +646,7 @@ define(function( require )
 	{
 		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST,         onSkillList );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE,       onSkillUpdate );
+		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE2,      onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.ADD_SKILL,              onSkillAdded );
 		Network.hookPacket( PACKET.ZC.SHORTCUT_KEY_LIST,      onShortCutList );
 		Network.hookPacket( PACKET.ZC.SHORTCUT_KEY_LIST_V2,   onShortCutList );
@@ -625,6 +664,9 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPINFO,         onTeleportResult );
 		Network.hookPacket( PACKET.ZC.ACK_REMEMBER_WARPPOINT, onMemoResult );
 		Network.hookPacket( PACKET.ZC.MAKINGARROW_LIST,       onMakingarrowList );
+		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_WEAPONITEMLIST,  onRefineList );
+		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
+		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
 	};
 });
