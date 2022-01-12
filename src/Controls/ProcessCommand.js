@@ -210,6 +210,20 @@ define(function( require )
 					return;
 				}
 				break;
+				
+			case 'alchemist':
+                pkt = new PACKET.CZ.ALCHEMIST_RANK();
+				Network.sendPacket(pkt);
+                return;
+            case 'blacksmith':
+            	pkt = new PACKET.CZ.BLACKSMITH_RANK();
+				Network.sendPacket(pkt);
+                return;
+            case 'taekwon':
+                pkt = new PACKET.CZ.TAEKWON_RANK();
+				Network.sendPacket(pkt);
+                return;
+				
 		}
 
 
