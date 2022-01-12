@@ -186,8 +186,6 @@ define(function( require )
         }],
 
         
-		
-				  
         17: [{   // still missing half of sphere with text. 'effect/´ëÆø¹ß',
             type: 'FUNC',
             wav: 'effect/ef_magnumbreak',
@@ -603,7 +601,6 @@ define(function( require )
         }],
 
         80: [{ //spear boomerang hit on target
-		
             //type: 'FUNC',
 			wav:  'effect/ef_fireball',				  
             attachedEntity: true
@@ -619,7 +616,6 @@ define(function( require )
             wav:  'effect/ef_bash',
             attachedEntity: true
         }],
-
 
         83: [{
             type: 'STR',
@@ -803,7 +799,6 @@ define(function( require )
         104: [{
             type: 'STR',
             file: 'maximizepower',
-											 
             min:  'maximize_min',
             attachedEntity: true
         }],
@@ -1497,10 +1492,149 @@ define(function( require )
             wav:  'effect/rog_back stap',
             attachedEntity: true
         }],
+		
+		276: [{ //raging thurst
+            attachedEntity: true
+        }],
 
-        287: [{
+		'277_ground': [{ // Dissonance
             type: 'FUNC',
             attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		278: [{
+            wav:  'effect/ŔÚŔĺ°ˇ',
+            attachedEntity: true
+        }],
+
+		'278_ground': [{ // Lullaby
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('pink', {r: 0xed/255, g: 0x9e/255, b: 0xff/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		279: [{
+            wav:  'effect/±čĽ­ąćµ·',
+            attachedEntity: true
+        }],
+
+		'279_ground': [{ // Mr Kim
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('gold', {r: 0xfc/255, g: 0xc7/255, b: 0xc7/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		280: [{
+            wav:  'effect/żµżřŔÇ ČĄµ·',
+            attachedEntity: true
+        }],
+
+		'280_ground': [{ // Chaos
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('lime', {r: 0x80/255, g: 0xff/255, b: 0xc2/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		281: [{
+            wav:  'effect/ŔüŔĺŔÇ',
+            attachedEntity: true
+        }],
+
+		'281_ground': [{ // Drum on battlefield
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('purple', {r: 0xed/255, g: 0x65/255, b: 0xfc/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		282: [{
+            wav:  'effect/´Ďş§·î°ŐŔÇ ąÝÁö',
+            attachedEntity: true
+        }],
+
+		'282_ground': [{ // Ring nibelun
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('cyan', {r: 0x1c/255, g: 0xec/255, b: 0xff/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		283: [{
+            wav:  'effect/·ÎĹ°',
+            attachedEntity: true
+        }],
+
+		'283_ground': [{ // Loki Veil
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('purple', {r: 0xdc/255, g: 0x65/255, b: 0xfc/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		284: [{
+            wav:  'effect/˝Éż¬ĽÓŔ¸·Î',
+            attachedEntity: true
+        }],
+
+		'284_ground': [{ // Into abyss
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		285: [{
+            wav:  'effect/şŇ»ç˝Ĺ',
+            attachedEntity: true
+        }],
+
+		'285_ground': [{ // Invulnerable Sieg
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('blue', {r: 0x48/255, g: 0x3b/255, b: 0xff/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		286: [{
+            wav:  'effect/´ŢşűĽĽ·ąłŞµĄ',
+            attachedEntity: true
+        }],
+
+        '286_ground': [{ // A whistle
+            type: 'FUNC',
+			attachedEntity: false,
             func: function(pos, tick, AID){
                 var FlatColorTile = require('Renderer/Effects/FlatColorTile');
                 var PinkTile = FlatColorTile('pink', {r: 0xff/255, g: 0xc0/255, b: 0xcb/255, a: 0.6});
@@ -1508,9 +1642,29 @@ define(function( require )
             }
         }],
 
-        288: [{
+		287: [{
+            wav:  'effect/Ľ®ľçŔÇ ľî˝Ř˝Ĺ',
+            attachedEntity: true
+        }],
+
+        '287_ground': [{ // Assassin cross
             type: 'FUNC',
-            attachedEntity: false,
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var PinkTile = FlatColorTile('pink', {r: 0xff/255, g: 0xc0/255, b: 0xcb/255, a: 0.6});
+                this.add(new PinkTile(pos, tick), AID);
+            }
+        }],
+
+		288: [{
+            wav:  'effect/şę¶ó±âŔÇ ˝Ă',
+            attachedEntity: true
+        }],
+
+        '288_ground': [{ // Bragi
+            type: 'FUNC',
+			attachedEntity: false,
             func: function(pos, tick, AID){
                 var FlatColorTile = require('Renderer/Effects/FlatColorTile');
                 var BlueTile = FlatColorTile('blue', {r: 0, g: 0xbf/255, b: 0xff/255, a: 0.6});
@@ -1518,15 +1672,91 @@ define(function( require )
             }
         }],
 
-        289: [{
+		289: [{
+            //wav:  'effect/ŔĚµĐŔÇ »ç°ú',
+			wav:  'effect/À̵ЀǠ»簺',
+            attachedEntity: true
+        }],
+
+        '289_ground': [{ // Apple
             type: 'FUNC',
-            attachedEntity: false,
+			attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var AppleEffects = require('Renderer/Effects/Songs').AppleEffects;
                 AppleEffects.forEach(function(effect){
                     self.add(new effect(pos, tick), AID);
                 });
+            }
+        }],
+
+        '290_ground': [{ // Ugly
+            type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
+        }],
+
+		291: [{
+            wav:  'effect/Čďľó°Ĺ¸˛',
+            attachedEntity: true
+        }],
+
+        '291_ground': [{ // Humming
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('gray', {r: 0xe6/255, g: 0xd1/255, b: 0xd1/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
+        }],
+
+		292: [{
+            wav:  'effect/łŞ¸¦ŔŘÁö¸»ľĆżä',
+            attachedEntity: true
+        }],
+
+        '292_ground': [{ // Dont forget
+            type: 'FUNC',
+			attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('blue', {r: 0x1c/255, g: 0xff/255, b: 0x73/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
+        }],
+
+		293: [{
+            wav:  'effect/ÇŕżîŔÇ',
+			attachedEntity: true
+        }],
+
+        '293_ground': [{ // Fortune kiss /ladyluck
+            type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('red', {r: 0xfc/255, g: 0x6f/255, b: 0x65/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
+        }],
+
+		294: [{
+			wav:  'effect/´ç˝ĹŔ» Ŕ§ÇŃ Ľ­şń˝ş',
+            attachedEntity: true,
+        }],
+
+        '294_ground': [{ // Service
+            type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('salmon', {r: 0xff/255, g: 0x80/255, b: 0xb7/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
             }
         }],
 
@@ -1594,6 +1824,7 @@ define(function( require )
                 this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_blue', tick), AID);
             }
         }],
+
         317: [{
             type: 'FUNC',
             attachedEntity: false,
@@ -1690,6 +1921,21 @@ define(function( require )
             attachedEntity: true
         }],
 
+		370: [{
+            wav:  'effect/°ˇ˝şĆç',
+			attachedEntity: true
+        }],
+
+		'370_ground': [{ // Gospel
+            type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
+        }],
+
 
         371: [{
             type: 'STR',
@@ -1745,6 +1991,17 @@ define(function( require )
             attachedEntity: true
         }],
 
+        394: [{ // Moonlit water mill/sheltering bliss
+            type: 'FUNC',
+			//wav:  'effect/´Ţşű',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('salmon', {r: 0xff/255, g: 0x8a/255, b: 0xbb/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
+        }],
+
         399: [{ //headcrush caster
             wav:  'effect/Çěµĺ Ĺ©·Ż˝¬',
             //same effect on caster like 'Bash' but stripes are yellow + assumptio effect on caster
@@ -1768,6 +2025,16 @@ define(function( require )
             func: function(pos, tick, AID){
                 var SpiderWeb = require('Renderer/Effects/SpiderWeb');
                 this.add(new SpiderWeb(pos, tick), AID);
+            }
+        }],
+
+		'405_ground': [{ //wall of fog
+            type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('gray', {r: 0x60/255, g: 0x60/255, b: 0x60/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
             }
         }],
         
@@ -1855,6 +2122,10 @@ define(function( require )
             attachedEntity: true
         }],
 
+		450: [{ // Dark cross
+            
+        }],
+
         457: [{ //flying kick on target
             wav:  'effect/t_łŻ¶óÂ÷±â',
             attachedEntity: true
@@ -1917,7 +2188,33 @@ define(function( require )
             attachedEntity: true
         }],
 
+		'522_ground': [{ // Gravitation field
+            type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
+        }],
 
+
+/*
+523.	Tarot Card of Fate (The Fool)
+524.	Tarot Card of Fate (The Magician)
+525.	Tarot Card of Fate (The High Priestess)
+526.	Tarot Card of Fate (The Chariot)
+527.	Tarot Card of Fate (Strength)
+528.	Tarot Card of Fate (The Lovers)
+529.	Tarot Card of Fate (The Wheel of Fortune)
+530.	Tarot Card of Fate (The Hanged Man)
+531.	Tarot Card of Fate (Death)
+532.	Tarot Card of Fate (Temperance)
+533.	Tarot Card of Fate (The Devil)
+534.	Tarot Card of Fate (The Tower)
+535.	Tarot Card of Fate (The Star)
+536.	Tarot Card of Fate (The Sun)
+*/
         565: [{
             type: 'STR',
             file: 'moonlight_1',
@@ -2306,11 +2603,15 @@ define(function( require )
         }],
 
 
-        674: [{
-            type: 'SPR',
-            file: 'status-curse',
-            head: true,
-            attachedEntity: true
+		'674_ground': [{ // evil land
+            type: 'FUNC',
+            attachedEntity: false,
+			//file: 'status-curse',
+            func: function(pos, tick, AID){
+                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+                var BlueTile = FlatColorTile('gray', {r: 0x40/255, g: 0x40/255, b: 0x40/255, a: 0.6});
+                this.add(new BlueTile(pos, tick), AID);
+            }
         }],
 
 
