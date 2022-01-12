@@ -102,6 +102,10 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 			'	discard;',
 			'}',
 
+            'if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {',
+            '   discard;',
+            '}',
+			'texture.a = 0.7;',
 			'gl_FragColor = texture;',
 
 			'if (uFogUse) {',
@@ -230,7 +234,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 
 	/**
 	 * Initialize effect
-	 * 
+	 *
 	 * @param {object} webgl context
 	 */
 	Cylinder.init = function init(gl)
