@@ -9,7 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACKETVER) {
+define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (BinaryWriter, PACKETVER, Struct) {
 	'use strict';
 
 
