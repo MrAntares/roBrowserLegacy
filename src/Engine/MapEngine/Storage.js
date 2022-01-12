@@ -50,6 +50,7 @@ define(function( require )
 	 */
 	function onStorageList( pkt )
 	{
+		console.log('onStorageList-STORE',pkt)
 		itemBuffer = itemBuffer.concat( pkt.ItemInfo || pkt.itemInfo );
 	}
 
