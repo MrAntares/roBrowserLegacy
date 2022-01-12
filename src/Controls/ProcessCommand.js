@@ -107,6 +107,17 @@ define(function( require )
 				ControlPreferences.noshift = !ControlPreferences.noshift;
 				ControlPreferences.save();
 				return;
+            		case 'snap':
+				this.addText( DB.getMessage(271 + ControlPreferences.snap), this.TYPE.INFO );
+				ControlPreferences.snap = !ControlPreferences.snap;
+				ControlPreferences.save();
+				return;
+
+            		case 'itemsnap':
+				this.addText( DB.getMessage(276 + ControlPreferences.itemsnap), this.TYPE.INFO );
+				ControlPreferences.itemsnap = !ControlPreferences.itemsnap;
+				ControlPreferences.save();
+				return;
 
 			case 'sit':
 			case 'stand':
