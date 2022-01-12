@@ -117,6 +117,7 @@ define(function(require)
 		
 		loadTable( 'data/num2cardillustnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     		= val;}, 			onLoad());
+        loadTable( 'data/cardpostfixnametable.txt',        2, function(index, key, val){   (ItemTable[key] || (ItemTable[key] = {})).postfixNameTable     = val;               }, onLoad());		
 		loadTable( 'data/fogparametertable.txt',		5, parseFogEntry,                                                                                                     			onLoad());
 		
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
@@ -531,6 +532,7 @@ define(function(require)
 				item.identifiedDisplayName       = TextEncoding.decodeString(item.identifiedDisplayName);
 				item.unidentifiedDisplayName     = TextEncoding.decodeString(item.unidentifiedDisplayName);
 				item.prefixNameTable             = TextEncoding.decodeString(item.prefixNameTable || '');
+				item.postfixNameTable            = TextEncoding.decodeString(item.postfixNameTable);	
 				item._decoded                    = true;
 			}
 
