@@ -260,7 +260,10 @@ define(function( require )
 					}
 				}
 
-				//ContextMenu.addElement( DB.getMessage(360), openPrivateMessageWindow);
+				// Open 1:1Chat
+                		ContextMenu.addElement( DB.getMessage(360), function(){
+                    			getModule('UI/Components/PartyFriends/PartyFriends').onOpenChat1to1(entity.display.name);
+				});
 
 				if (!Friends.isFriend(this.display.name)) {
 					ContextMenu.nextGroup();
