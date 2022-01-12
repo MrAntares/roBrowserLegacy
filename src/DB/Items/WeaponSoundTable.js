@@ -39,15 +39,14 @@ define(["./WeaponType"], function( WeaponType )
 	WeaponSound[WeaponType.GUN_GRANADE]           = [];
 	WeaponSound[WeaponType.SYURIKEN]              = ["attack_sword.wav"];
 	WeaponSound[WeaponType.TWOHANDROD]            = ["attack_rod.wav"];
-	
-	//???????
+	WeaponSound[WeaponType.LAST]                  = ["attack_fist.wav"];
 	WeaponSound[WeaponType.SHORTSWORD_SHORTSWORD] = ["attack_mace.wav"];
 	WeaponSound[WeaponType.SWORD_SWORD]           = ["attack_mace.wav"];
 	WeaponSound[WeaponType.AXE_AXE]               = ["attack_mace.wav"];
 	WeaponSound[WeaponType.SHORTSWORD_SWORD]      = ["attack_mace.wav"];
 	WeaponSound[WeaponType.SHORTSWORD_AXE]        = ["attack_mace.wav"];
 	WeaponSound[WeaponType.SWORD_AXE]             = ["attack_mace.wav"];
-
+	WeaponSound[WeaponType.MAX]                   = ["attack_fist.wav"];
 
 	return WeaponSound;
 });
