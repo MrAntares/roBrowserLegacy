@@ -27,10 +27,120 @@ define(function( require )
 	 */
 	function recalculateBlendingColor()
 	{
-		this.effectColor[0] = this._bodyStateColor[0] * this._healthStateColor[0] * this._effectStateColor[0];
-		this.effectColor[1] = this._bodyStateColor[1] * this._healthStateColor[1] * this._effectStateColor[1];
-		this.effectColor[2] = this._bodyStateColor[2] * this._healthStateColor[2] * this._effectStateColor[2];
-		this.effectColor[3] = this._bodyStateColor[3] * this._healthStateColor[3] * this._effectStateColor[3];
+		this.effectColor[0] = this._bodyStateColor[0] * this._healthStateColor[0] * this._effectStateColor[0] * this._virtueColor[0];
+		this.effectColor[1] = this._bodyStateColor[1] * this._healthStateColor[1] * this._effectStateColor[1] * this._virtueColor[1];
+		this.effectColor[2] = this._bodyStateColor[2] * this._healthStateColor[2] * this._effectStateColor[2] * this._virtueColor[2];
+		this.effectColor[3] = this._bodyStateColor[3] * this._healthStateColor[3] * this._effectStateColor[3] * this._virtueColor[3];
+	}
+
+
+	var _stateToVirtue = {};
+	_stateToVirtue[StatusConst.Status.TWOHANDQUICKEN] = StatusConst.OPT3.QUICKEN;
+	_stateToVirtue[StatusConst.Status.SPEARQUICKEN] = StatusConst.OPT3.QUICKEN;
+	_stateToVirtue[StatusConst.Status.LKCONCENTRATION] = StatusConst.OPT3.QUICKEN;
+	_stateToVirtue[StatusConst.Status.ONEHANDQUICKEN] = StatusConst.OPT3.QUICKEN;
+	_stateToVirtue[StatusConst.Status.EXPLOSIONSPIRITS] = StatusConst.OPT3.EXPLOSIONSPIRITS;
+	_stateToVirtue[StatusConst.Status.STEELBODY] = StatusConst.OPT3.STEELBODY;
+	_stateToVirtue[StatusConst.Status.AURABLADE] = StatusConst.OPT3.AURABLADE;
+	_stateToVirtue[StatusConst.Status.BLADESTOP] = StatusConst.OPT3.BLADESTOP;
+	_stateToVirtue[StatusConst.Status.OVERTHRUST] = StatusConst.OPT3.OVERTHRUST;
+	_stateToVirtue[StatusConst.Status.OVERTHRUSTMAX] = StatusConst.OPT3.OVERTHRUST;
+	_stateToVirtue[StatusConst.Status.SWOO] = StatusConst.OPT3.OVERTHRUST;
+	_stateToVirtue[StatusConst.Status.ENERGYCOAT] = StatusConst.OPT3.ENERGYCOAT;
+	_stateToVirtue[StatusConst.Status.SKE] = StatusConst.OPT3.ENERGYCOAT;
+	_stateToVirtue[StatusConst.Status.BERSERK] = StatusConst.OPT3.BERSERK;
+	_stateToVirtue[StatusConst.Status.MARIONETTE] = StatusConst.OPT3.MARIONETTE;
+	_stateToVirtue[StatusConst.Status.MARIONETTE_MASTER] = StatusConst.OPT3.MARIONETTE;
+	_stateToVirtue[StatusConst.Status.ASSUMPTIO] = StatusConst.OPT3.ASSUMPTIO;
+	_stateToVirtue[StatusConst.Status.ASSUMPTIO2] = StatusConst.OPT3.ASSUMPTIO;
+	_stateToVirtue[StatusConst.Status.SG_WARM] = StatusConst.OPT3.WARM;
+	_stateToVirtue[StatusConst.Status.SG_SUN_WARM] = StatusConst.OPT3.WARM;
+	_stateToVirtue[StatusConst.Status.SG_MOON_WARM] = StatusConst.OPT3.WARM;
+	_stateToVirtue[StatusConst.Status.SG_STAR_WARM] = StatusConst.OPT3.WARM;
+	_stateToVirtue[StatusConst.Status.KAITE] = StatusConst.OPT3.KAITE;
+	_stateToVirtue[StatusConst.Status.NJ_BUNSINJYUTSU] = StatusConst.OPT3.BUNSIN;
+	_stateToVirtue[StatusConst.Status.SOULLINK] = StatusConst.OPT3.SOULLINK;
+	_stateToVirtue[StatusConst.Status.PROPERTYUNDEAD] = StatusConst.OPT3.UNDEAD;
+	_stateToVirtue[StatusConst.Status.DA_CONTRACT] = StatusConst.OPT3.CONTRACT;
+
+	function toggleOpt3(state, enabled){
+		if (state === 0){
+			return;
+		}
+		var value = _stateToVirtue[state];
+		if (value === undefined){
+			console.log('toggleState: unknown state', state);
+			return;
+		}
+		if (enabled){
+			this.virtue = this.virtue | value;
+		} else {
+			this.virtue = this.virtue ^ value;
+		}
+	}
+
+	function updateVirtue(value){
+		// Reset value
+		this._virtueColor[0] = 1.0;
+		this._virtueColor[1] = 1.0;
+		this._virtueColor[2] = 1.0;
+		this._virtueColor[3] = 1.0;
+
+		if (value & StatusConst.OPT3.QUICKEN){
+			this._virtueColor[2] = 0.0;
+		}
+
+		if (value & StatusConst.OPT3.EXPLOSIONSPIRITS){
+            this._virtueColor[0] = 1.0;
+            this._virtueColor[1] = 0.75;
+            this._virtueColor[2] = 0.75;
+		}
+        
+		if (value & StatusConst.OPT3.BLADESTOP){
+			this._virtueColor[0] = 0.25;
+			this._virtueColor[1] = 0.25;
+			this._virtueColor[2] = 0.25;
+		}
+        
+		if ((value & StatusConst.OPT3.ENERGYCOAT) ||
+            (value & StatusConst.OPT3.BUNSIN) ){
+			this._virtueColor[0] = 0.5;
+			this._virtueColor[1] = 0.5;
+			this._virtueColor[2] = 0.85;
+		}
+
+		if (value & StatusConst.OPT3.OVERTHRUST){
+			this._virtueColor[1] = 0.75;
+			this._virtueColor[2] = 0.75;
+		}
+
+        if (value & StatusConst.OPT3.WARM){
+			this._virtueColor[1] = 0.40;
+			this._virtueColor[2] = 0.40;
+		}
+
+        if (value & StatusConst.OPT3.SOULLINK){
+			this._virtueColor[0] = 0.35;
+			this._virtueColor[1] = 0.35;
+			this._virtueColor[2] = 0.90;
+			this._virtueColor[3] = 0.90;
+		}
+
+        if (value & StatusConst.OPT3.UNDEAD){
+			this._virtueColor[0] = 0.70;
+			this._virtueColor[2] = 0.65;
+		}
+
+		if ((value & StatusConst.OPT3.MARIONETTE) ||
+			(value & StatusConst.OPT3.BERSERK) ){
+			this._virtueColor[0] = 1.0;
+			this._virtueColor[1] = 0.3;
+			this._virtueColor[2] = 0.7;
+			this._virtueColor[3] = 0.5;
+		}
+
+		recalculateBlendingColor.call(this);
+		this._virtue = value;
 	}
 
 
@@ -75,6 +185,7 @@ define(function( require )
 				break;
 
 			case StatusConst.BodyState.STONE:
+				Sound.play('_stone_explosion.wav');								   
 				this.animation.play = true;
 				break;
 
@@ -96,6 +207,7 @@ define(function( require )
 				this._bodyStateColor[0] = 0.3;
 				this._bodyStateColor[1] = 0.3;
 				this._bodyStateColor[2] = 0.3;
+				Sound.play('_stonecurse.wav');							  
 				break;
 
 			case StatusConst.BodyState.SLEEP:
@@ -200,6 +312,13 @@ define(function( require )
 			}
 		}
 
+      // Silence
+		if (value & StatusConst.HealthState.SILENCE) {
+			if (!(this._healthState & StatusConst.HealthState.SILENCE)) {
+				Sound.play('_silence.wav');
+                //TODO: animation above head
+			}
+		}
 		this._healthState = value;
 		recalculateBlendingColor.call(this);
 	}
@@ -390,6 +509,7 @@ define(function( require )
 		this._bodyStateColor   = new Float32Array([1, 1, 1, 1]);
 		this._healthStateColor = new Float32Array([1, 1, 1, 1]);
 		this._effectStateColor = new Float32Array([1, 1, 1, 1]);
+		this._virtueColor  = new Float32Array([1, 1, 1, 1]);
 		this.effectColor       = new Float32Array([1, 1, 1, 1]);
 
 
@@ -412,5 +532,13 @@ define(function( require )
 			get: function(){ return this._allRidingState; },
 			set: updateAllRidingState
 		});
+
+		Object.defineProperty(this, 'virtue', {
+			get: function(){ return this._virtue; },
+			set: updateVirtue
+		});
+
+		this.toggleOpt3 = toggleOpt3;
+        this.recalculateBlendingColor = recalculateBlendingColor;
 	};
 });
