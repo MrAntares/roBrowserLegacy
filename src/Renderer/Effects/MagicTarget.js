@@ -88,7 +88,7 @@ define(function( require ) {
 
 		'void main(void) {',
 			'gl_Position    = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);',
-			'gl_Position.z -= 0.01;',
+			'gl_Position.z -= 0.02;',
 
 			'vTextureCoord  = (uRotationMat * vec4( aTextureCoord - 0.5, 1.0, 1.0)).xy + 0.5;',
 		'}'
@@ -114,6 +114,10 @@ define(function( require ) {
 			'if (texture.a == 0.0) {',
 			'	discard;',
 			'}',
+
+            'if (texture.r < 0.1 || texture.g < 0.1 || texture.b < 0.1) {',
+            '   discard;',
+            '}',
 
 			'gl_FragColor = texture;',
 
@@ -197,7 +201,7 @@ define(function( require ) {
 
 	/**
 	 * Initialize effect
-	 * 
+	 *
 	 * @param {object} webgl context
 	 */
 	MagicTarget.init = function init(gl)
