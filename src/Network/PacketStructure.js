@@ -9,7 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (BinaryWriter, PACKETVER, Struct) {
+define(['Utils/BinaryWriter', './PacketVerManager'], function(BinaryWriter, PACKETVER) {
 	'use strict';
 
 
@@ -974,6 +974,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt_buf;
 	};
 
+
+
 	// 0x113
 	PACKET.CZ.USE_SKILL = function PACKET_CZ_USE_SKILL() {
 		this.selectedLevel = 0;
@@ -990,6 +992,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		pkt.view.setUint32(ver[5], this.targetID, true);
 		return pkt;
 	};
+
 
 	// 0x116
 	PACKET.CZ.USE_SKILL_TOGROUND = function PACKET_CZ_USE_SKILL_TOGROUND() {
@@ -1702,16 +1705,17 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0x18e
 	PACKET.CZ.REQMAKINGITEM = function PACKET_CZ_REQMAKINGITEM() {
-		this.info = {};
+		this.itemList = {};
 	};
 	PACKET.CZ.REQMAKINGITEM.prototype.build = function() {
 		var pkt_len = 2 + 2 + 6;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x18e);
-		pkt_buf.writeUShort(this.info.ITID);
-		pkt_buf.writeUShort(this.info.material_ID[0]);
-		pkt_buf.writeUShort(this.info.material_ID[1]);
+		pkt_buf.writeUShort(this.itemList.ITID);
+		pkt_buf.writeUShort(this.itemList.material_ID[0]);
+		pkt_buf.writeUShort(this.itemList.material_ID[1]);
+		pkt_buf.writeUShort(this.itemList.material_ID[2]);
 		return pkt_buf;
 	};
 
@@ -5802,6 +5806,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.maxCount = fp.readShort();
 		this.curWeight = fp.readLong();
 		this.maxWeight = fp.readLong();
+		console.log(this.curWeight+'/'+this.maxWeight);
 	};
 	PACKET.ZC.NOTIFY_CARTITEM_COUNTINFO.size = 14;
 
@@ -6588,18 +6593,23 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0x18d
 	PACKET.ZC.MAKABLEITEMLIST = function PACKET_ZC_MAKABLEITEMLIST(fp, end) {
-		this.info = {};
-		this.info.ITID = fp.readUShort();
-		this.info.material_ID = (function() {
-			var count = 3;
-			var out = new Array(count);
-			for (var i = 0; i < count; ++i) {
-				out[i] = fp.readUShort();
+		this.itemList = (function() {
+								   
+									   
+			var i, count=(end-fp.tell())/8|0, out=new Array(count);
+							  
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].ITID = fp.readShort();
+				out[i].material_ID = {};
+				out[i].material_ID[0] = fp.readShort();
+				out[i].material_ID[1] = fp.readShort();
+				out[i].material_ID[2] = fp.readShort();
 			}
 			return out;
 		})();
 	};
-	PACKET.ZC.MAKABLEITEMLIST.size = 12;
+	PACKET.ZC.MAKABLEITEMLIST.size = -1;
 
 
 	// 0x18f
@@ -10444,13 +10454,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.EQUIPWIN_MICROSCOPE2.size = -1;
 
-	// 0x8b9
-	PACKET.HC.SECOND_PASSWD_LOGIN = function PACKET_HC_SECOND_PASSWD_LOGIN(fp, end) {
-		this.Seed = fp.readLong();
-		this.Aid = fp.readLong();
-		this.State = fp.readShort();
-	};
-	PACKET.HC.SECOND_PASSWD_LOGIN.size = 12;
+		 
+																				  
+							
+						   
+							  
+   
+										 
 
 	// 0x8c7
 	PACKET.ZC.SKILL_ENTRY3 = function PACKET_ZC_SKILL_ENTRY3(fp, end) {
