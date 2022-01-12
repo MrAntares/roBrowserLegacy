@@ -39,6 +39,10 @@ define(function( require )
 	var StatusIcons   = require('UI/Components/StatusIcons/StatusIcons');
 	var BasicInfo     = require('UI/Components/BasicInfo/BasicInfo');
 	var Escape        = require('UI/Components/Escape/Escape');
+	var DB            = require('DB/DBManager');
+	var SpiritSphere  = require('Renderer/Effects/SpiritSphere');
+	var MagicRing     = require('Renderer/Effects/MagicRing');
+	var SkillEffect   = require('DB/Skills/SkillEffect');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	
@@ -83,7 +87,14 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.GID);
 		if (entity) {
-			entity.remove( pkt.type );
+            if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
+                EffectManager.spam(372, pkt.GID);
+            }
+            entity.remove( pkt.type );
+            // XXX this is a hack to make the spirit spheres vanish when a player vanishes
+            // it shouldn't be hardcoded like that, i think a better way to do it
+            // would be to make the spheres an 'attachment'?
+            EffectManager.remove(SpiritSphere, pkt.GID);
 		}
 
 		// Show escape menu
@@ -242,6 +253,7 @@ define(function( require )
 		var dstEntity = EntityManager.get(pkt.targetGID);
 		var target;
 		var srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
+		var srcWeaponLeft = srcEntity.shield ? srcEntity.shield : 0;
 
 		// Entity out of the screen ?
 		if (!srcEntity) {
@@ -251,12 +263,70 @@ define(function( require )
 		switch (pkt.action) {
 
 			// Damage
-			case 0:  // regular
-			case 4:  // absorbed
-			case 8:  // double attack
-			case 9:  // endure
-			case 10: // critital
+            case 0:  // regular [DMG_NORMAL]
+            //case 1: // [DMG_PICKUP_ITEM]
+            //case 2: // [DMG_SIT_DOWN]
+            //case 3: // [DMG_STAND_UP]
+            case 4:  // absorbed [DMG_ENDURE]
+            //case 5: [DMG_SPLASH]
+            //case 5: [DMG_SKILL]
+            //case 7: [DMG_REPEAT]
+            //case 11: [DMG_TOUCH] probably something new.
+            case 8:  // double attack [DMG_MULTI_HIT]
+            case 9:  // endure [DMG_MULTI_HIT_ENDURE]
+            case 10: // critital [DMG_CRITICAL]
 			case 11: // lucky
+				
+				
+				var WSnd = DB.getWeaponSound(srcWeapon);
+				var weaponSound = WSnd[0];
+				var weaponSoundRelease = WSnd[1];
+				
+				var WSndL = DB.getWeaponSound(srcWeaponLeft);
+				var weaponSoundLeft = WSndL[0];
+				var weaponSoundReleaseLeft = WSndL[1];
+				
+				//attack sound
+				if(weaponSound){
+					Events.setTimeout(function(){
+						Sound.play(weaponSound);
+						}, 0 );
+				}
+				//attack release sound for bow and dagger
+				if(weaponSoundRelease){
+					Events.setTimeout(function(){
+						Sound.play(weaponSoundRelease);
+						}, pkt.attackMT * 0.25 );
+				}	
+				
+				//second hit (double attack)
+				if(pkt.count == 2){
+					if(weaponSound){
+						Events.setTimeout(function(){
+							Sound.play(weaponSound);
+							}, pkt.attackMT * 0.5 );
+					}
+					if(weaponSoundRelease){
+						Events.setTimeout(function(){
+							Sound.play(weaponSoundRelease);
+							}, pkt.attackMT * 0.75 );
+					}
+				}
+				//left hand
+				if(pkt.leftDamage){
+					if(weaponSound){
+						Events.setTimeout(function(){
+							Sound.play(weaponSound);
+							}, pkt.attackMT );
+					}
+					if(weaponSoundReleaseLeft){
+						Events.setTimeout(function(){
+							Sound.play(weaponSoundRelease);
+							}, pkt.attackMT * 1.25 );
+					}
+				}
+				
+				
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
@@ -276,19 +346,20 @@ define(function( require )
 								next:   false
 							}
 						});
-					}
+                        
+                    }
 
 					target = pkt.damage ? dstEntity : srcEntity;
 
 					if (target) {
 						switch (pkt.action) {
 
-							// regular damage (and endure)
-							case 9:
+							// regular damage 
+			  
 							case 0:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft );
 								}
 								break;
 
@@ -299,7 +370,7 @@ define(function( require )
 									if(pkt.leftDamage){
 										Damage.add( pkt.damage / 2 ,                dstEntity, Renderer.tick + pkt.attackMT * 1,   srcWeapon, Damage.TYPE.COMBO );
 										Damage.add( pkt.damage ,                    dstEntity, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									} else {
 										Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
 										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
@@ -309,17 +380,25 @@ define(function( require )
 								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcWeapon );
 								if(pkt.leftDamage){
 									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1.5, srcWeapon );
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2,   srcWeapon );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2,   srcWeaponLeft );
 								} else {
 									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
 								}
 								break;
-
+							
+							// endure
+							case 9:
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.ENDURE);
+									if(pkt.leftDamage){
+										Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.ENDURE);
+									}
+									break;
+							
 							// TODO: critical damage
 							case 10:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.CRIT );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft, Damage.TYPE.CRIT );
 								}
 								break;
 
@@ -437,6 +516,7 @@ define(function( require )
 	 */
 	function onEntityTalkColor( pkt )
 	{
+		var entity;		   
 		var color = 'rgb(' + ([
 			( pkt.color & 0x000000ff ),
 			( pkt.color & 0x0000ff00 ) >> 8,
@@ -446,6 +526,10 @@ define(function( require )
 		// Remove "pseudo : |00Dialogue"
 		pkt.msg = pkt.msg.replace(/\: \|\d{2}/, ': ');
 
+		entity = EntityManager.get(pkt.accountID);
+        if (entity) {
+            entity.dialog.set( pkt.msg );
+        }
 		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC, color);
 	}
 
@@ -644,7 +728,11 @@ define(function( require )
 		var dstEntity = EntityManager.get(pkt.targetAID);
 
 		// Don't display skill names for mobs and hiding skills
-		if (srcEntity && srcEntity.objecttype !== Entity.TYPE_MOB && !SkillNameDisplayExclude.includes(pkt.SKID)) {
+		if (srcEntity.objecttype && srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+            srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+            srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
+        )
+        {
 			srcEntity.dialog.set(
 				( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 				'white'
@@ -661,8 +749,13 @@ define(function( require )
 			    pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
 			    pkt.SKID === SkillId.AB_CHEAL) {
 				Damage.add( pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL );
-			}
+                Sound.play('_heal_effect.wav'); // healing on neutral targets got another effect than undeads
+            }
 
+            // Steal Coin zeny
+            if (pkt.SKID === SkillId.RG_STEALCOIN) {
+                ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE );
+            }
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID );
 		}
 	}
@@ -687,6 +780,10 @@ define(function( require )
 	function onSkillDisapear( pkt )
 	{
 		EffectManager.remove( null, pkt.AID );
+		var entity = EntityManager.get(pkt.AID);
+        if (entity) {
+            entity.remove();
+        }
 	}
 
 
@@ -712,9 +809,13 @@ define(function( require )
 			}
 			
 			// Don't display skill names for mobs and hiding skills
-			if (srcEntity.objecttype !== Entity.TYPE_MOB && !SkillNameDisplayExclude.includes(pkt.SKID)) {
-				srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
-			}
+			if (srcEntity.objecttype && (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+                srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
+            ))
+            {
+                srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
+            }
 
 			var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
 
@@ -803,8 +904,10 @@ define(function( require )
 		//     4 = Wind elemental cast aura
 		//     5 = Poison elemental cast aura
 		//     6 = Holy elemental cast aura
-		//     ? = like 0
-		// is disposable:
+		//     7 = Shadow/Dark elemental cast aura
+        //     8 = Ghost elemental cast aura (same as 6?)
+        //     9 = Undead elemental cast aura
+        // is disposable:
 		//     0 = yellow chat text "[src name] will use skill [skill name]."
 		//     1 = no text
 
@@ -816,32 +919,81 @@ define(function( require )
 		}
 
 		if (pkt.delayTime) {
-			Sound.play('effect/ef_beginspell.wav');
-			srcEntity.cast.set( pkt.delayTime );
+            if(pkt.SKID != 62) { // Bowling Bash got cast but original client hide it for unknown reason
+                Sound.play('effect/ef_beginspell.wav');
+                srcEntity.cast.set( pkt.delayTime );
+            }
 
-			srcEntity.setAction({
-				action: srcEntity.ACTION.SKILL,
-				frame:  0,
-				repeat: false,
-				play:   false
-			});
-		}
+            if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
+                srcEntity.setAction({
+                    action: srcEntity.ACTION.SKILL,
+                    frame:  0,
+                    repeat: false,
+                    play:   false
+                });
+            }
+        }
 
-		// Don't display skill names for mobs and hiding skills
-		if (srcEntity.objecttype !== Entity.TYPE_MOB  && !SkillNameDisplayExclude.includes(pkt.SKID)) {
-			srcEntity.dialog.set(
-				( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
-				'white'
-			);
-		}
+        // Hardcoded version of Auto Counter casting bar
+        // It's dont gey any delayTime so we need to handle it diffrent:
+        // if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
+        // if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
+        if(pkt.SKID == 61){
+            srcEntity.cast.set( 1000 );
+            if (srcEntity === Session.Entity) {
+                Session.underAutoCounter = true;
+            }
+        }
+
+        // Only mob to don't display skill name ?
+        if (srcEntity.objecttype && srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+                srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
+        )
+        {
+        if(pkt.SKID != 389) //when Skill name above head is hidden (chase walk)
+            srcEntity.dialog.set(
+                ( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
+                'white'
+            );
+        }
+
+        if(pkt.SKID in SkillEffect) {
+            if (SkillEffect[pkt.SKID].beforeCastEffectId) { //in spells like Bash, Hide, Double Strafe etc. effect goes before cast/animation (on instant)
+                EffectManager.spam(SkillEffect[pkt.SKID].beforeCastEffectId, pkt.AID);
+            }
+        }
 
 		if (dstEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
 
-			if (pkt.delayTime) {
-				EffectManager.add(new LockOnTarget( dstEntity, Renderer.tick, Renderer.tick + pkt.delayTime), srcEntity.GID);
-			}
-		}
+            if (pkt.delayTime) {
+                EffectManager.add(new LockOnTarget( dstEntity, Renderer.tick, Renderer.tick + pkt.delayTime), srcEntity.GID);
+
+                if (pkt.property > 0) { // skip "0" property for now
+                    switch(pkt.property) {
+                    case 1:
+                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_blue', Renderer.tick + pkt.delayTime), srcEntity.GID);
+                        break;
+                    case 3:
+                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_red', Renderer.tick + pkt.delayTime), srcEntity.GID);
+                        break;
+                    case 4:
+                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
+                        break;
+                    case 5:
+                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_jadu', Renderer.tick + pkt.delayTime), srcEntity.GID);
+                        break;
+                    //case 6: 'white_pulse' effect
+                    //case 8: 'yellow_pulse' effect
+                    //case 9: 'black_pulse' effect
+                    case 7:
+                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
+                        break;
+                    }
+                }
+            }
+        }
 		else if (pkt.xPos && pkt.yPos) {
 			srcEntity.lookTo( pkt.xPos, pkt.yPos );
 
@@ -866,8 +1018,17 @@ define(function( require )
 			// Cancel effects
 			EffectManager.remove(LockOnTarget, entity.GID);
 			EffectManager.remove(MagicTarget, entity.GID);
-		}
-	}
+            EffectManager.remove(MagicRing, entity.GID);
+
+            if (entity === Session.Entity) { // Autocounter hardcoded animation (any better place to put this?)
+                if(Session.underAutoCounter) {
+                    if(Session.Entity.life.hp > 0)
+                        EffectManager.spam(131, pkt.AID);
+                    Session.underAutoCounter = false;
+                }
+            }
+        }
+    }
 
 
 	/**
@@ -896,12 +1057,70 @@ define(function( require )
 				}
 				break;
 
-			// Show cart (in future)
+			// Show cart
 			case StatusConst.ON_PUSH_CART:
-        			entity.hasCart = pkt.state;
+                entity.hasCart = pkt.state;
 				entity.CartNum = pkt.val[0];
+                break;
+
+
+            case StatusConst.EXPLOSIONSPIRITS: //state: 1 ON  0 OFF
+            case StatusConst.MARIONETTE_MASTER:
+            case StatusConst.MARIONETTE:
+            case StatusConst.TWOHANDQUICKEN:
+            case StatusConst.ONEHANDQUICKEN:
+            case StatusConst.SPEARQUICKEN:
+            case StatusConst.LKCONCENTRATION:
+            case StatusConst.BERSERK:
+            case StatusConst.ENERGYCOAT:
+            case StatusConst.OVERTHRUST:
+            case StatusConst.OVERTHRUSTMAX:
+            case StatusConst.SWOO:
+            case StatusConst.SKE:
+            case StatusConst.NJ_BUNSINJYUTSU:
+            case StatusConst.STEELBODY:
+            case StatusConst.AURABLADE:
+            case StatusConst.ASSUMPTIO:
+            case StatusConst.ASSUMPTIO2:
+            case StatusConst.SG_WARM:
+            case StatusConst.SG_SUN_WARM:
+            case StatusConst.SG_MOON_WARM:
+            case StatusConst.SG_STAR_WARM:
+            case StatusConst.KAITE:
+            case StatusConst.SOULLINK:
+            case StatusConst.PROPERTYUNDEAD:
+            case StatusConst.DA_CONTRACT:
+            //CG_MOONLIT Moonlit Water Mill
+            //SC_MERC_QUICKEN
+            //SC_SKA
+            //SC_INCATKRATE
+                entity.toggleOpt3(pkt.index, pkt.state)
 				break;
 
+            case StatusConst.RUN: //state: 1 ON  0 OFF
+                //draw footprints on the floor
+                break;
+
+            case StatusConst.TRICKDEAD:
+                if(pkt.state == 1) {
+                    entity.setAction({
+                        action: entity.ACTION.DIE,
+                        frame:  0,
+                        repeat: false,
+                        play:   true,
+                        next:   false
+                    });
+                }
+                if(pkt.state == 0) {
+                    entity.setAction({
+                        action: entity.ACTION.IDLE,
+                        frame:  0,
+                        repeat: false,
+                        play:   true,
+                        next:   false
+                    });
+                }
+                break;
 			// Cast a skill, TODO: add progressbar in shortcut
 			case StatusConst.POSTDELAY:
 				entity.setAction({
@@ -1044,8 +1263,89 @@ define(function( require )
 		}
 	}
 
+    
+    /**
+     * "Blade Stop" / "Root" visual
+     */
+
+    function onBladeStopVisual(srcEntity, dstEntity, state)
+    {
+            srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
+            srcEntity.toggleOpt3(StatusConst.BLADESTOP, state);
+            if(state == 1)
+                srcEntity.setAction({
+                    action: srcEntity.ACTION.READYFIGHT,
+                    frame:  0,
+                    repeat: false,
+                    play:   true,
+                    next:   false
+                });
+            if(state == 0)
+                srcEntity.setAction({
+                    action: srcEntity.ACTION.IDLE,
+                    frame:  0,
+                    repeat: false,
+                    play:   true,
+                    next:   false
+                });
+    }
+  
+     /**
+     * "Blade Stop" / "Root" skill status
+     *
+     * @param {object} pkt - PACKET.ZC.BLADESTOP
+     */
+    function onBladeStopPacket(pkt)
+    {
+        var srcEntity = EntityManager.get(pkt.srcAID);
+        var dstEntity = EntityManager.get(pkt.destAID);
+        if (srcEntity && dstEntity) {
+            onBladeStopVisual(srcEntity, dstEntity, pkt.flag);
+            onBladeStopVisual(dstEntity, srcEntity, pkt.flag);
+        }
+    }
 
 	/**
+	 * Notify experience gained
+	 *
+	 * @param {object} pkt - PACKET_ZC_NOTIFY_EXP
+	 */
+
+	function onNotifyExp( pkt )
+	{
+        if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
+            if(pkt. varID == 1) {
+                ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, '#A442DC');
+            }
+            if(pkt. varID == 2) {
+                ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, '#A442DC');
+            }
+        }
+	}
+
+    /**
+	 * Mark MVP position on map (Convex Mirror item)
+	 * it's show small icon  at minimap when MVP is spawned (but I will use cross, it's more accurate)
+	 * @param {object} pkt - PACKET_ZC_BOSS_INFO
+     *
+     *   probably it's not updated with Tombstone system, but Tombstones are fail...
+	 */
+
+	function onMarkMvp( pkt )
+	{
+        MiniMap.removeNpcMark('mvp'); //hack for mark system (todo: debug this)
+        if(pkt.infoType == 1) {
+            MiniMap.addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
+            /**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
+                ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, '#FFFF63');
+            }*/
+        }
+        if(pkt.infoType == 0) {
+            ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR);
+        }
+	}
+
+    /**
 	 * Initialize
 	 */
 	return function EntityEngine()
@@ -1125,5 +1425,8 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.EMOTION,                      onEntityEmotion);
 		Network.hookPacket( PACKET.ZC.NOTIFY_MONSTER_HP,            onEntityLifeUpdate);
 		Network.hookPacket( PACKET.ZC.QUEST_NOTIFY_EFFECT,          onEntityQuestNotifyEffect);
+        Network.hookPacket( PACKET.ZC.BLADESTOP,                    onBladeStopPacket);
+        Network.hookPacket( PACKET.ZC.NOTIFY_EXP,                   onNotifyExp);
+        Network.hookPacket( PACKET.ZC.BOSS_INFO,                    onMarkMvp);
 	};
 });
