@@ -945,13 +945,25 @@ define(function( require )
         }
 
         // Only mob to don't display skill name ?
-		console.log(srcEntity.objecttype);
-        if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
                 srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
         )
         {
-        if(pkt.SKID != 389) //when Skill name above head is hidden (chase walk)
+		
+		var hidingSkills = [
+								51, //TF_HIDING
+								135, //AS_CLOAKING
+								389, //RG_CHASEWALK
+								2033, //GC_CLOAKINGEXCEED
+								2247, //RA_CAMOUFLAGE
+								2274, //NC_STEALTHFIELD
+								2287, //SC_SHADOWFORM
+								2290, //SC_INVISIBILITY
+								3001 //KO_YAMIKUMO aka Shadow Hiding
+							];
+
+        if(!hidingSkills.includes(pkt.SKID)) //when not a hiding skill
             srcEntity.dialog.set(
                 ( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
                 'white'
