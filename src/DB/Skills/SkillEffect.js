@@ -12,9 +12,7 @@ define(['./SkillConst'], function( SK )
 {
     'use strict';
 
-
     var SkillEffect = {};
-
 
     SkillEffect[SK.SM_PROVOKE] = {
         effectId: 67
@@ -386,17 +384,117 @@ define(['./SkillConst'], function( SK )
         groundEffectId: 404
     };
     
+//Bard, dancer, ensemble
+    SkillEffect[SK.BA_DISSONANCE] = {
+        groundEffectId: '277_ground'
+    }
+
+    SkillEffect[SK.BD_LULLABY] = {
+        effectId: 278,
+		groundEffectId: '278_ground'
+    }
+
+    SkillEffect[SK.BD_RICHMANKIM] = {
+        effectId: 279,
+		groundEffectId: '279_ground'
+    }
+
+    SkillEffect[SK.BD_ETERNALCHAOS] = {
+        effectId: 280,
+		groundEffectId: '280_ground'
+    }
+
+    SkillEffect[SK.BD_DRUMBATTLEFIELD] = {
+        effectId: 281,
+		groundEffectId: '281_ground'
+    }
+
+    SkillEffect[SK.BD_RINGNIBELUNGEN] = {
+        effectId: 282,
+		groundEffectId: '282_ground'
+    }
+
+    SkillEffect[SK.BD_ROKISWEIL] = {
+        effectId: 283,
+		groundEffectId: '283_ground'
+    }
+
+    SkillEffect[SK.BD_INTOABYSS] = {
+        effectId: 284,
+		groundEffectId: '284_ground'
+    }
+
+    SkillEffect[SK.BD_SIEGFRIED] = {
+        effectId: 285,
+		groundEffectId: '285_ground'
+    }
+
+    SkillEffect[SK.BA_WHISTLE] = {
+        effectId: 286,
+		groundEffectId: '286_ground'
+    }
+
     SkillEffect[SK.BA_ASSASSINCROSS] = {
-        groundEffectId: 287
+        effectId: 287,
+		groundEffectId: '287_ground'
     }
 
     SkillEffect[SK.BA_POEMBRAGI] = {
-        groundEffectId: 288
+        effectId: 288,
+		groundEffectId: '288_ground'
     }
 
     SkillEffect[SK.BA_APPLEIDUN] = {
-        groundEffectId: 289
+        effectId: 289,
+		groundEffectId: '289_ground'
     }
+
+    SkillEffect[SK.DC_UGLYDANCE] = {
+        groundEffectId: '290_ground'
+    }
+
+    SkillEffect[SK.DC_HUMMING] = {
+        effectId: 291,
+		groundEffectId: '291_ground'
+    }
+
+    SkillEffect[SK.DC_DONTFORGETME] = {
+        effectId: 292,
+		groundEffectId: '292_ground'
+    }
+
+    SkillEffect[SK.DC_FORTUNEKISS] = {
+        effectId: 293,
+		groundEffectId: '293_ground'
+    }
+
+    SkillEffect[SK.DC_SERVICEFORYOU] = {
+        effectId: 294,
+		groundEffectId: '294_ground'
+    }
+
+    SkillEffect[SK.CG_MOONLIT] = {
+        effectId: 394,
+		groundEffectId: '394_ground'
+    }
+
+	SkillEffect[SK.PA_GOSPEL] = {
+        effectId: 370,
+		groundEffectId: '370_ground'
+    }
+
+	SkillEffect[SK.PF_FOGWALL] = {
+        groundEffectId: '405_ground'
+    }
+
+	SkillEffect[SK.HW_GRAVITATION] = {
+        groundEffectId: '522_ground'
+    }
+
+	SkillEffect[SK.NPC_EVILLAND] = {
+        groundEffectId: '674_ground'
+    }
+
 
     SkillEffect[SK.AL_WARP] = {
         effectId: 35,
