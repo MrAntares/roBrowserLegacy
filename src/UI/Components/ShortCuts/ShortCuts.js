@@ -35,17 +35,6 @@
 	  * Create Component
 	  */
 	 var ShortCuts = new UIComponent( 'ShortCuts', htmlText, cssText );
- 
- 
-	 /**
-	  * Tab constant
-	  */
-	 ShortCuts.TAB = {
-		 USABLE: 0,
-		 EQUIP:  1,
-		 ETC:    2
-	 };
-	 
 
 	/**
 	 * @var {Preferences} structure
@@ -85,7 +74,6 @@
 		 height:   4,
 		 show:     false,
 		 reduce:   false,
-		 tab:      ShortCuts.TAB.USABLE,
 		 magnet_top: false,
 		 magnet_bottom: false,
 		 magnet_left: true,
