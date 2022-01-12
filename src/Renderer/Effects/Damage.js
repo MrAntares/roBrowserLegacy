@@ -24,6 +24,7 @@ define(function( require )
 	var Sound          = require('Audio/SoundManager');
 	
 	var CritSound      = "effect/ef_hit2.wav";
+	var EndureSound    = "player_metal.wav";
 	
 	/**
 	 * Damage Namespace
@@ -53,7 +54,8 @@ define(function( require )
 		COMBO_FINAL: 1 << 5,
 		SP:          1 << 6,
 		CRIT:        1 << 7,
-		LUCKY:       1 << 8
+		LUCKY:       1 << 8,
+		ENDURE:      1 << 9
 	};
 
 
@@ -357,6 +359,11 @@ define(function( require )
 					if(damage.type & Damage.TYPE.CRIT){
 						Sound.play(CritSound);
 					}
+					
+					if(damage.type & Damage.TYPE.ENDURE){
+						Sound.play(EndureSound);
+					}
+					
 					Sound.play(damage.soundFile);
 					delete damage.soundFile;
 				}
