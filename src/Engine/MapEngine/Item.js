@@ -29,6 +29,7 @@ define(function( require )
 	var Inventory     = require('UI/Components/Inventory/Inventory');
 	var CartItems     = require('UI/Components/CartItems/CartItems');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
+	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
 
 
 	/**
@@ -395,6 +396,32 @@ define(function( require )
 		CartItems.addItem(pkt);
 	}	
 	
+	/**
+	 * Get a list of items to create
+	 *
+	 * @param {object} pkt - PACKET.ZC.MAKABLEITEMLIST
+	 */
+	function onMakeitemList( pkt )
+	{
+		if (!pkt.itemList.length) {
+			return;
+		}
+
+		MakeItemSelection.append();
+		MakeItemSelection.setList(pkt.itemList);
+		MakeItemSelection.setTitle(DB.getMessage(425));
+		MakeItemSelection.onIndexSelected = function(index, material_ID) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQMAKINGITEM();
+				pkt.itemList.ITID = index;
+				pkt.itemList.material_ID = {};
+				pkt.itemList.material_ID[0] = material_ID[0] || 0;
+				pkt.itemList.material_ID[1] = material_ID[1] || 0;
+				pkt.itemList.material_ID[2] = material_ID[2] || 0;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
 
 	/**
 	 * Initialize
@@ -439,6 +466,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_ITEMCOMPOSITION,    onItemCompositionResult );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMREFINING,       onRefineResult);
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART,          onCartItemAdded );
-		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,         onCartItemAdded );		
+		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,         onCartItemAdded );
+		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );		
 	};
 });
