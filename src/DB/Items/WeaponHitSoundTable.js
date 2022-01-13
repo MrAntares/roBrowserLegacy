@@ -32,11 +32,11 @@ define(["./WeaponType"], function( WeaponType )
 	WeaponSound[WeaponType.WHIP]                  = ["_hit_mace.wav"];
 	WeaponSound[WeaponType.BOOK]                  = ["_hit_mace.wav"];
 	WeaponSound[WeaponType.KATAR]                 = ["_hit_mace.wav"];
-	WeaponSound[WeaponType.GUN_HANDGUN]           = ["_hit_±ÇÃÑ.wav"];
-	WeaponSound[WeaponType.GUN_RIFLE]             = ["_hit_¶óÀÌÇÃ.wav"];
-	WeaponSound[WeaponType.GUN_GATLING]           = ["_hit_°³Æ²¸µÇÑ¹ß.wav"];
-	WeaponSound[WeaponType.GUN_SHOTGUN]           = ["_hit_¼¦°Ç.wav"];
-	WeaponSound[WeaponType.GUN_GRANADE]           = ["_hit_±×·¹³×ÀÌµå·±ÃÄ.wav"];
+	WeaponSound[WeaponType.GUN_HANDGUN]           = ["\x5f\x68\x69\x74\x5f\xb1\xc7\x3f\x3f\x2e\x77\x61\x76"]; //_hit_±ÇÃÑ.wav
+	WeaponSound[WeaponType.GUN_RIFLE]             = ["\x5f\x68\x69\x74\x5f\xb6\xf3\x3f\x3f\xc7\x3f\x2e\x77\x61\x76"]; //_hit_¶óÀÌÇÃ.wav
+	WeaponSound[WeaponType.GUN_GATLING]           = ["\x5f\x68\x69\x74\x5f\xb0\x3f\x3f\x3f\xb8\xb5\xc7\x3f\x3f\xdf\x2e\x77\x61\x76"]; //_hit_°³Æ²¸µÇÑ¹ß.wav
+	WeaponSound[WeaponType.GUN_SHOTGUN]           = ["\x5f\x68\x69\x74\x5f\x3f\xa6\xb0\xc7\x2e\x77\x61\x76"]; //_hit_¼¦°Ç.wav
+	WeaponSound[WeaponType.GUN_GRANADE]           = ["\x5f\x68\x69\x74\x5f\xb1\xd7\xb7\x3f\x3f\xd7\x3f\x3f\xb5\x3f\xb7\xb1\x3f\xc4\x2e\x77\x61\x76"]; //_hit_±×·¹³×ÀÌµå·±ÃÄ.wav
 	WeaponSound[WeaponType.SYURIKEN]              = ["_hit_mace.wav"];
 	WeaponSound[WeaponType.TWOHANDROD]            = ["_hit_rod.wav"];
 	WeaponSound[WeaponType.LAST]                  = ["_hit_fist4.wav"];
