@@ -34,7 +34,7 @@ define(function( require )
     /// type = SPR
     ///
     /// - file:
-    ///   Sprite file name stored in data/sprite/ÀÌÆÑÆ®/(.*).spr
+    ///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
     ///
     /// - wav:
     ///   audio file stored in data/wav/ folder
@@ -172,7 +172,7 @@ define(function( require )
 
         15: [{ //soul strike caster
             //type: 'FUNC',
-            //file: 'sprite/ÀÌÆÑÆ®/particle1',
+            //file: 'sprite/AIANA®/particle1',
             wav: 'effect/ef_soulstrike',
             attachedEntity: false
         }],
@@ -186,7 +186,7 @@ define(function( require )
         }],
 
         
-        17: [{   // still missing half of sphere with text. 'effect/´ëÆø¹ß',
+        17: [{   // still missing half of sphere with text. 'effect/´ëAo1ß',
             type: 'FUNC',
             wav: 'effect/ef_magnumbreak',
             attachedEntity: false,
@@ -199,7 +199,7 @@ define(function( require )
 
         18: [{
             //type: 'FUNC',
-            //file: 'sprite/ÀÌÆÑÆ®/particle7',
+            //file: 'sprite/AIANA®/particle7',
             wav: 'effect/ef_steal',
             attachedEntity: true
         }],
@@ -210,7 +210,7 @@ define(function( require )
 
         20: [{
             //type: 'FUNC',
-            //file: 'sprite/ÀÌÆÑÆ®/particle3',
+            //file: 'sprite/AIANA®/particle3',
             wav: 'effect/assasin_enchantpoison',
             attachedEntity: false
         }],
@@ -219,7 +219,7 @@ define(function( require )
         21: [{
             //type: 'FUNC',
             wav: 'effect/ef_detoxication',
-            //file: 'sprite/ÀÌÆÑÆ®/particle2',
+            //file: 'sprite/AIANA®/particle2',
             attachedEntity: false
         }],
 
@@ -227,7 +227,7 @@ define(function( require )
         22: [{
             // Sight effect, circling the entity 3.75 times
             type: 'SPR', //type: 'FUNC',
-            file: 'sight',  //file: 'sprite/ÀÌÆÑÆ®/sight',
+            file: 'sight',  //file: 'sprite/AIANA®/sight',
             wav: 'effect/ef_sight',
             attachedEntity: true
         }],
@@ -304,7 +304,7 @@ define(function( require )
 
         32: [{
             //type: 'FUNC',
-            //file: 'effect/Æø¹ß1', // Uses up to Æø¹ß8 , so eight files for an animated explosion
+            //file: 'effect/Ao1ß1', // Uses up to Ao1ß8 , so eight files for an animated explosion
             wav: 'effect/ef_napalmbeat',
             attachedEntity: true
         }],
@@ -344,7 +344,7 @@ define(function( require )
 
         39: [{
             type: 'SPR',
-            file: '¼º¼ö¶ß±â',
+            file: '1o1ö¶ß±â',
             wav:  'effect/ef_aqua',
             head:  true,
             attachedEntity: true
@@ -371,7 +371,7 @@ define(function( require )
 
         42: [{
             type: 'SPR',
-            file: 'Ãàº¹',
+            file: 'Aao1',
             wav: 'effect/ef_blessing',
             attachedEntity: false,
             head: true
@@ -387,7 +387,7 @@ define(function( require )
 
         45: [{ // This one is almost invisible, but there are some small white thingies flying around
             type: 'FUNC',
-            //file: 'sprite/ÀÌÆÑÆ®/particle1',
+            //file: 'sprite/AIANA®/particle1',
             attachedEntity: true
         }],
 
@@ -490,7 +490,7 @@ define(function( require )
 
         62: [{
             //type: 'FUNC',
-            //file: 'sprite/ÀÌÆÑÆ®/sight',
+            //file: 'sprite/AIANA®/sight',
             wav:  'effect/wizard_sightrasher',
             attachedEntity: false
         }],
@@ -1107,7 +1107,7 @@ define(function( require )
         }],
 
         165: [{ //Comodo Fireworks Ball
-            wav:  'effect/ĆřÁ×',
+            wav:  'effect/\xc6\xf8\xc1\xd7', //ĆřÁ×
             attachedEntity: false
         }],
 
@@ -1240,42 +1240,42 @@ define(function( require )
 
         204: [{
             type: 'STR',
-            file: '»¡°£Æ÷¼Ç',
+            file: '\xbb\x21\xb0\x4c\x41\xf7\x31\xc7', //»!°LA÷1Ç
             attachedEntity: true
         }],
 
 
         205: [{
             type: 'STR',
-            file: 'ÁÖÈ«Æ÷¼Ç',
+            file: '\xc1\xd6\x45\xab\x41\xf7\x31\xc7', //ÁÖE«A÷1Ç
             attachedEntity: true
         }],
 
 
         206: [{
             type: 'STR',
-            file: '³ë¶õÆ÷¼Ç',
+            file: '\x33\xeb\xb6\x6f\x41\xf7\x31\xc7', //3ë¶oA÷1Ç
             attachedEntity: true
         }],
 
 
         207: [{
             type: 'STR',
-            file: 'ÇÏ¾áÆ÷¼Ç',
+            file: '\xc7\x49\x33\xe1\x41\xf7\x31\xc7', //ÇI3áA÷1Ç
             attachedEntity: true
         }],
 
 
         208: [{
             type: 'STR',
-            file: 'ÆÄ¶õÆ÷¼Ç',
+            file: '\x41\xc4\xb6\x6f\x41\xf7\x31\xc7', //AÄ¶oA÷1Ç
             attachedEntity: true
         }],
 
 
         209: [{
             type: 'STR',
-            file: 'ÃÊ·ÏÆ÷¼Ç',
+            file: '\x41\x45\xb7\x49\x41\xf7\x31\xc7', //AE·IA÷1Ç
             attachedEntity: true
         }],
 
@@ -1318,21 +1318,21 @@ define(function( require )
 
         218: [{
             type: 'STR',
-            file: 'ÁýÁß',
+            file: '\xc1\xfd\xc1\xdf', //ÁýÁß
             attachedEntity: true
         }],
 
 
         219: [{
             type: 'STR',
-            file: '°¢¼º',
+            file: '\xb0\x63\x31\x6f', //°c1o
             attachedEntity: true
         }],
 
 
         220: [{
             type: 'STR',
-            file: '¹ö¼­Å©',
+            file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
             attachedEntity: true
         }],
 
@@ -1350,7 +1350,7 @@ define(function( require )
 
         235: [{
             type: 'STR',
-            file: 'µð½ºÆç',
+            file: '\xb5\x3f\x31\x6f\x41\xe7', //µ?1oAç
             attachedEntity: true
         }],
 
@@ -1365,7 +1365,7 @@ define(function( require )
 
         244: [{
             type: 'STR',
-            file: '¸ÅÁ÷·Îµå',
+            file: '\xb8\x41\xc1\xf7\xb7\xce\xb5\x61', //¸AÁ÷·Îµa
             wav:  'effect/sage_magic rod',
             attachedEntity: true
         }],
@@ -1438,7 +1438,7 @@ define(function( require )
         }],
 
         261: [{ //fury / critical explosion TODO: combo sounds, super novice fury
-            wav:  'effect/mon_Ćř±â',
+            wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_Ćř±â
             attachedEntity: true
         }],
 
@@ -1453,7 +1453,7 @@ define(function( require )
         269: [{
             type: 'STR',
             file: 'strip_weapon',
-            wav:  'effect/t_º®Æ¨±è',
+            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: true
         }],
 
@@ -1461,7 +1461,7 @@ define(function( require )
         270: [{
             type: 'STR',
             file: 'strip_shield',
-            wav:  'effect/t_º®Æ¨±è',
+            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: true
         }],
 
@@ -1469,7 +1469,7 @@ define(function( require )
         271: [{
             type: 'STR',
             file: 'strip_armor',
-            wav:  'effect/t_º®Æ¨±è',
+            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: true
         }],
 
@@ -1477,14 +1477,14 @@ define(function( require )
         272: [{
             type: 'STR',
             file: 'strip_helm',
-            wav:  'effect/t_º®Æ¨±è',
+            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: true
         }],
 
 
         273: [{
             type: 'STR',
-            file: '¿¬È¯',
+            file: '\x3f\xac\x45\x97', //?¬E—
             attachedEntity: true
         }],
 
@@ -1508,7 +1508,7 @@ define(function( require )
         }],
 
 		278: [{
-            wav:  'effect/ŔÚŔĺ°ˇ',
+            wav:  'effect/\xc0\xda\xc0\xe5\xb0\xa1', //ŔÚŔĺ°ˇ
             attachedEntity: true
         }],
 
@@ -1523,7 +1523,7 @@ define(function( require )
         }],
 
 		279: [{
-            wav:  'effect/±čĽ­ąćµ·',
+            wav:  'effect/\xb1\xe8\xbc\xad\xb9\xe6\xb5\xb7', //±čĽ­ąćµ·
             attachedEntity: true
         }],
 
@@ -1538,7 +1538,7 @@ define(function( require )
         }],
 
 		280: [{
-            wav:  'effect/żµżřŔÇ ČĄµ·',
+            wav:  'effect/\xbf\xb5\xbf\xf8\xc0\xc7\x20\xc8\xa5\xb5\xb7', //żµżřŔÇ ČĄµ·
             attachedEntity: true
         }],
 
@@ -1553,7 +1553,7 @@ define(function( require )
         }],
 
 		281: [{
-            wav:  'effect/ŔüŔĺŔÇ',
+            wav:  'effect/\xc0\xfc\xc0\xe5\xc0\xc7', //ŔüŔĺŔÇ
             attachedEntity: true
         }],
 
@@ -1568,7 +1568,7 @@ define(function( require )
         }],
 
 		282: [{
-            wav:  'effect/´Ďş§·î°ŐŔÇ ąÝÁö',
+            wav:  'effect/\xb4\xcf\xba\xa7\xb7\xee\xb0\xd5\xc0\xc7\x20\xb9\xdd\xc1\xf6', //´Ďş§·î°ŐŔÇ ąÝÁö
             attachedEntity: true
         }],
 
@@ -1583,7 +1583,7 @@ define(function( require )
         }],
 
 		283: [{
-            wav:  'effect/·ÎĹ°',
+            wav:  'effect/\xb7\xce\xc5\xb0', //·ÎĹ°
             attachedEntity: true
         }],
 
@@ -1598,7 +1598,7 @@ define(function( require )
         }],
 
 		284: [{
-            wav:  'effect/˝Éż¬ĽÓŔ¸·Î',
+            wav:  'effect/\xbd\xc9\xbf\xac\xbc\xd3\xc0\xb8\xb7\xce', //˝Éż¬ĽÓŔ¸·Î
             attachedEntity: true
         }],
 
@@ -1613,7 +1613,7 @@ define(function( require )
         }],
 
 		285: [{
-            wav:  'effect/şŇ»ç˝Ĺ',
+            wav:  'effect/\xba\xd2\xbb\xe7\xbd\xc5', //şŇ»ç˝Ĺ
             attachedEntity: true
         }],
 
@@ -1628,7 +1628,7 @@ define(function( require )
         }],
 
 		286: [{
-            wav:  'effect/´ŢşűĽĽ·ąłŞµĄ',
+            wav:  'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5', //´ŢşűĽĽ·ąłŞµĄ
             attachedEntity: true
         }],
 
@@ -1643,7 +1643,7 @@ define(function( require )
         }],
 
 		287: [{
-            wav:  'effect/Ľ®ľçŔÇ ľî˝Ř˝Ĺ',
+            wav:  'effect/\xbc\xae\xbe\xe7\xc0\xc7\x20\xbe\xee\xbd\xd8\xbd\xc5', //Ľ®ľçŔÇ ľî˝Ř˝Ĺ
             attachedEntity: true
         }],
 
@@ -1658,7 +1658,7 @@ define(function( require )
         }],
 
 		288: [{
-            wav:  'effect/şę¶ó±âŔÇ ˝Ă',
+            wav:  'effect/\xba\xea\xb6\xf3\xb1\xe2\xc0\xc7\x20\xbd\xc3', //şę¶ó±âŔÇ ˝Ă
             attachedEntity: true
         }],
 
@@ -1673,8 +1673,7 @@ define(function( require )
         }],
 
 		289: [{
-            //wav:  'effect/ŔĚµĐŔÇ »ç°ú',
-			wav:  'effect/À̵ЀǠ»簺',
+            wav:  'effect/\xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa', //Windows 1250: ŔĚµĐŔÇ »ç°ú		EUC-KR: 이둔의 사과		Hex: \xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa		USE THIS AS REFERENCE FOR ENCODING
             attachedEntity: true
         }],
 
@@ -1701,7 +1700,7 @@ define(function( require )
         }],
 
 		291: [{
-            wav:  'effect/Čďľó°Ĺ¸˛',
+            wav:  'effect/\xc8\xef\xbe\xf3\xb0\xc5\xb8\xb2', //Čďľó°Ĺ¸˛
             attachedEntity: true
         }],
 
@@ -1716,7 +1715,7 @@ define(function( require )
         }],
 
 		292: [{
-            wav:  'effect/łŞ¸¦ŔŘÁö¸»ľĆżä',
+            wav:  'effect/\xb3\xaa\xb8\xa6\xc0\xd8\xc1\xf6\xb8\xbb\xbe\xc6\xbf\xe4', //łŞ¸¦ŔŘÁö¸»ľĆżä
             attachedEntity: true
         }],
 
@@ -1731,7 +1730,7 @@ define(function( require )
         }],
 
 		293: [{
-            wav:  'effect/ÇŕżîŔÇ',
+            wav:  'effect/\xc7\xe0\xbf\xee\xc0\xc7', //ÇŕżîŔÇ
 			attachedEntity: true
         }],
 
@@ -1746,7 +1745,7 @@ define(function( require )
         }],
 
 		294: [{
-			wav:  'effect/´ç˝ĹŔ» Ŕ§ÇŃ Ľ­şń˝ş',
+			wav:  'effect/\xb4\xe7\xbd\xc5\xc0\xbb\x20\xc0\xa7\xc7\xd1\x20\xbc\xad\xba\xf1\xbd\xba', //´ç˝ĹŔ» Ŕ§ÇŃ Ľ­şń˝ş
             attachedEntity: true,
         }],
 
@@ -1762,7 +1761,7 @@ define(function( require )
 
         302: [{
             type: 'SPR',
-            file: 'µ¥¸ó½ºÆ®·¹ÀÌ¼Ç',
+            file: '\xb5\x59\xb8\xf3\x31\x6f\x41\xae\xb7\x31\x41\x49\x31\xc7', //µY¸ó1oA®·1AI1Ç
             attachedEntity: false
         }],
 
@@ -1790,7 +1789,7 @@ define(function( require )
         311: [{ //crazy uproar
             type: 'STR',
             file: 'loud',
-            wav: 'effect/°íĽşąć°ˇ',
+            wav: 'effect/\xb0\xed\xbc\xba\xb9\xe6\xb0\xa1', //°íĽşąć°ˇ
             attachedEntity: true
         }],
 
@@ -1835,17 +1834,17 @@ define(function( require )
         }],
 
         'soulink_caster_effect': [{ // todo
-            wav:  'effect/t_º®Æ¨±è',
+            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: false
         }],
 
         'soulink_target_effect': [{ // todo
-            wav:  'effect/t_żµČĄ',
+            wav:  'effect/\x74\x5f\xbf\xb5\xc8\xa5', //t_żµČĄ
             attachedEntity: true
         }],
 
         'gunslinger_coin': [{ // coin caster
-            wav:  'effect/ÇĂ¸ł',
+            wav:  'effect/\xc7\xc3\xb8\xb3', //ÇĂ¸ł
             attachedEntity: true
         }],
         
@@ -1902,13 +1901,13 @@ define(function( require )
         }],       
         
         367: [{ //aura blade
-            //wav:  'effect/żŔ¶ó şí·ąŔĚµĺ',
+            wav:  'effect/\xbf\xc0\xb6\xf3\x20\xba\xed\xb7\xb9\xc0\xcc\xb5\xe5', //żŔ¶ó şí·ąŔĚµĺ
             attachedEntity: true
             //+ on cast small white-magic aura (double)
         }],
         
         368: [{
-            //wav:  'effect/\xef\x82\xb9\xef\x83\xb6\xef\x82\xbc\xef\x82\xad\xc5\xa9',
+            wav:  'effect/\xef\x82\xb9\xef\x83\xb6\xef\x82\xbc\xef\x82\xad\xc5\xa9',
             attachedEntity: true
             //shake screen
         }],
@@ -1922,7 +1921,7 @@ define(function( require )
         }],
 
 		370: [{
-            wav:  'effect/°ˇ˝şĆç',
+            wav:  'effect/\xb0\xa1\xbd\xba\xc6\xe7', //°ˇ˝şĆç
 			attachedEntity: true
         }],
 
@@ -1961,13 +1960,13 @@ define(function( require )
 
         382: [{
             type: 'SPR',
-            file: 'ÇÑº¹Ãµ»ç',
+            file: '\xc7\x4e\x6f\x31\x41\xb5\xbb\xe7', //ÇNo1Aµ»ç
             head: true,
             attachedEntity: true
         }],
 
         389: [{ //windwalk
-            wav:  'effect/Ŕ©µĺżöĹ©',
+            wav:  'effect/\xc0\xa9\xb5\xe5\xbf\xf6\xc5\xa9', //Ŕ©µĺżöĹ©
             attachedEntity: true
         }],
 
@@ -2003,7 +2002,7 @@ define(function( require )
         }],
 
         399: [{ //headcrush caster
-            wav:  'effect/Çěµĺ Ĺ©·Ż˝¬',
+            wav:  'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çěµĺ Ĺ©·Ż˝¬
             //same effect on caster like 'Bash' but stripes are yellow + assumptio effect on caster
             attachedEntity: true
         }],
@@ -2040,14 +2039,14 @@ define(function( require )
         
         406: [{
             type: 'STR',
-            file: '¼Ò¿ï¹ø',
+            file: '\x31\x4f\x3f\x69\x31\x6f', //1O?i1o
             attachedEntity: true
         }],
 
 
         407: [{
             type: 'STR',
-            file: '»ç¶÷È¿°ú',
+            file: '\xbb\xe7\xb6\xf7\x45\x3f\xb0\xfa', //»ç¶÷E?°ú
             attachedEntity: true
         }],
 
@@ -2106,19 +2105,19 @@ define(function( require )
         }],
 
         426: [{ //taekwon sprint collision effect
-            wav:  'effect/şąČŁ°Ý',
+            wav:  'effect/\xba\xb9\xc8\xa3\xb0\xdd', //şąČŁ°Ý
             attachedEntity: true
         }],
 
         440: [{
             type: 'STR',
             file: 'asum',
-            wav:  'effect/ľĆĽűÇÁĆĽżŔ',
+            wav:  'effect/\xbe\xc6\xbc\xfb\xc7\xc1\xc6\xbc\xbf\xc0', //ľĆĽűÇÁĆĽżŔ
             attachedEntity: true
         }],
 
         445: [{ //high jump caster
-            wav:  'effect/t_Č¸ÇÇ2',
+            wav:  'effect/\x74\x5f\xc8\xb8\xc7\xc7\x32', //t_Č¸ÇÇ2
             attachedEntity: true
         }],
 
@@ -2127,13 +2126,13 @@ define(function( require )
         }],
 
         457: [{ //flying kick on target
-            wav:  'effect/t_łŻ¶óÂ÷±â',
+            wav:  'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', //t_łŻ¶óÂ÷±â
             attachedEntity: true
         }],
 
         491: [{
             type: 'STR',
-            file: 'Âý½Ò¶±',
+            file: '\xc2\xfd\x31\x4f\xb6\xb1', //Âý1O¶±
             attachedEntity: true
         }],
 
@@ -2252,14 +2251,14 @@ define(function( require )
 
         570: [{
             type: 'SPR',
-            file: 'Ä³½½¸µ',
+            file: '\xc4\x33\x31\x31\xb8\xb5', //Ä311¸µ
             attachedEntity: true
         }],
 
 
         571: [{
             type: 'SPR',
-            file: 'ºí·¯µå·¯½ºÆ®',
+            file: '\x6f\xed\xb7\x97\xb5\x61\xb7\x97\x31\x6f\x41\xae', //oí·—µa·—1oA®
             attachedEntity: true
         }],
 
@@ -2423,7 +2422,7 @@ define(function( require )
 
         612: [{
             type: 'SPR',
-            file: 'ÇÕ°Ý_',
+            file: '\xc7\x4f\xb0\xdd\x5f', //ÇO°Ý_
             attachedEntity: true
         },{
             type: 'STR',
@@ -2434,36 +2433,36 @@ define(function( require )
 
         630: [{
             type: 'SPR',
-            file: '±×¸²ÀÚº£±â',
+            file: '\xb1\xd7\xb8\x32\x41\xda\x6f\x4c\xb1\xe2', //±×¸2AÚoL±â
             attachedEntity: true
         }],
 
 
         631: [{ //reverse tatami map unit
             type: 'SPR',
-            file: '´Ù´Ù¹Ì',
-            wav: '´Ů´ŮąĚµÚÁý±â',
+            file: '\xb4\x55\xb4\x55\x31\x49', //´U´U1I
+            wav: '\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2', //´Ů´ŮąĚµÚÁý±â
             attachedEntity: true
         }],
 
 
         632: [{
             type: 'SPR',
-            file: '¾È°³º£±â',
+            file: '\x33\x45\xb0\x33\x6f\x4c\xb1\xe2', //3E°3oL±â
             attachedEntity: true
         }],
 
 
         633: [{
             type: 'SPR',
-            file: 'ÀÏ¼¶',
+            file: '\x41\x49\x31\xb6', //AI1¶
             attachedEntity: true
         }],
 
 
         634: [{
             type: 'SPR',
-            file: 'È­¿°Áø',
+            file: '\x45\xad\x3f\xb0\xc1\x6f', //E­?°Áo
             attachedEntity: false
         }],
 
@@ -2484,63 +2483,63 @@ define(function( require )
 
         637: [{
             type: 'SPR',
-            file: 'µ¥½ºÆä¶óµµ',
+            file: '\xb5\x59\x31\x6f\x41\xe4\xb6\xf3\xb5\xb5', //µY1oAä¶óµµ
             attachedEntity: true
         }],
 
 
         638: [{
             type: 'SPR',
-            file: '¶óÀÌÆ®´×½ºÇÇ¾î',
+            file: '\xb6\xf3\x41\x49\x41\xae\xb4\xd7\x31\x6f\xc7\xc7\x33\xee', //¶óAIA®´×1oÇÇ3î
             attachedEntity: false
         }],
 
 
         639: [{
             type: 'SPR',
-            file: 'ºí¶óÀÎµå½ºÇÇ¾î',
+            file: '\x6f\xed\xb6\xf3\x41\xce\xb5\x61\x31\x6f\xc7\xc7\x33\xee', //oí¶óAÎµa1oÇÇ3î
             attachedEntity: false
         }],
 
 
         640: [{
             type: 'SPR',
-            file: 'Æ÷ÀÌÁð½ºÇÇ¾î',
+            file: '\x41\xf7\x41\x49\xc1\x3f\x31\x6f\xc7\xc7\x33\xee', //A÷AIÁ?1oÇÇ3î
             attachedEntity: false
         }],
 
 
         641: [{
             type: 'SPR',
-            file: 'ÇÁ¸®Â¡½ºÇÇ¾î',
+            file: '\xc7\xc1\xb8\xae\xc2\x21\x31\x6f\xc7\xc7\x33\xee', //ÇÁ¸®Â!1oÇÇ3î
             attachedEntity: false
         }],
 
 
         642: [{
             type: 'SPR',
-            file: 'ÇÃ·¹¾î½ºÇÇ¾î',
+            file: '\xc7\x41\xb7\x31\x33\xee\x31\x6f\xc7\xc7\x33\xee', //ÇA·13î1oÇÇ3î
             attachedEntity: false
         }],
 
 
         643: [{
             type: 'SPR',
-            file: '·¡ÇÇµå»þ¿ö',
+            file: '\xb7\x21\xc7\xc7\xb5\x61\xbb\x3f\x3f\xf6', //·!ÇÇµa»??ö
             attachedEntity: true
         }],
 
 
         644: [{
             type: 'SPR',
-            file: '¸ÅÁöÄÃºÒ¸´',
+            file: '\xb8\x41\xc1\xf6\xc4\x41\x6f\x4f\xb8\xb4', //¸AÁöÄAoO¸´
             attachedEntity: true
         }],
 
 
         645: [{
             type: 'SPR',
-            file: '½ºÇÁ·¹µå',
+            file: '\x31\x6f\xc7\xc1\xb7\x31\xb5\x61', //1oÇÁ·1µa
             attachedEntity: true,
             direction: true,
         }],
@@ -2548,35 +2547,35 @@ define(function( require )
 
         646: [{
             type: 'STR',
-            file: 'Æ®·¢Å·',
+            file: '\x41\xae\xb7\x63\x41\xb7', //A®·cA·
             attachedEntity: true
         }],
 
 
         647: [{
             type: 'SPR',
-            file: 'Æ®·¡Å·',
+            file: '\x41\xae\xb7\x21\x41\xb7', //A®·!A·
             attachedEntity: true
         }],
 
 
         648: [{
             type: 'SPR',
-            file: 'Æ®¸®ÇÃ¾×¼Ç',
+            file: '\x41\xae\xb8\xae\xc7\x41\x33\xd7\x31\xc7', //A®¸®ÇA3×1Ç
             attachedEntity: true
         }],
 
 
         649: [{
             type: 'STR',
-            file: 'ºÒ½º¾ÆÀÌ',
+            file: '\x6f\x4f\x31\x6f\x33\x41\x41\x49', //oO1o3AAI
             attachedEntity: true
         }],
 
 
         666: [{
             type: 'SPR',
-            file: '¾î½ºÄùÀÌÅ©',
+            file: '\x33\xee\x31\x6f\xc4\x75\x41\x49\x41\xa9', //3î1oÄuAIA©
             attachedEntity: true
         }],
 
@@ -2682,7 +2681,7 @@ define(function( require )
 
         722: [{
             type: 'STR',
-            file: 'ÀÌ±×´Ï¼Çºê·¹ÀÌÅ©',
+            file: '\x41\x49\xb1\xd7\xb4\x49\x31\xc7\x6f\x65\xb7\x31\x41\x49\x41\xa9', //AI±×´I1Çoe·1AIA©
             attachedEntity: true
         }],
 
@@ -2759,7 +2758,7 @@ define(function( require )
 
         756: [{
             type: 'STR',
-            file: '¹ö¼­Å©',
+            file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
             attachedEntity: true
         }],
 
