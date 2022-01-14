@@ -1068,6 +1068,22 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.SL_MONK, 1 ]
 		]
 	},
+	SkillInfo[SK.SM_SELFPROVOKE] = {
+		Name: "SM_SELFPROVOKE",
+		SkillName: "Provoke",
+		MaxLv: 1,
+		SpAmount: [ 0 ],
+		bSeperateLv: false,
+		AttackRange: [ 1 ]
+	},
+	SkillInfo[SK.NPC_EMOTION_ON] = {
+		Name: "NPC_EMOTION_ON",
+		SkillName: "Emotion",
+		MaxLv: 10,
+		SpAmount: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+		bSeperateLv: false,
+		AttackRange: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+	},
 	SkillInfo[SK.ST_PRESERVE] = {
 		Name: "ST_PRESERVE",
 		SkillName: "Preserve",
