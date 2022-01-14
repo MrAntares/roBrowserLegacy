@@ -7153,6 +7153,30 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.SR_FALLENEMPIRE, 3 ]
 		]
 	},
+	SkillInfo[SK.LG_OVERBRAND_BRANDISH] = {
+		Name: "LG_OVERBRAND_BRANDISH",
+		SkillName: "Overbrand Brandish",
+		MaxLv: 5,
+		SpAmount: [ 20, 30, 40, 50, 60 ],
+		bSeperateLv: true,
+		AttackRange: [ 1, 1, 1, 1, 1 ],
+		_NeedSkillList: [
+			[ SK.LG_MOONSLASHER, 3 ],
+			[ SK.LG_PINPOINTATTACK, 1 ]
+		]
+	},
+	SkillInfo[SK.LG_OVERBRAND_PLUSATK] = {
+		Name: "LG_OVERBRAND_PLUSATK",
+		SkillName: "Overbrand Plus Attack",
+		MaxLv: 5,
+		SpAmount: [ 20, 30, 40, 50, 60 ],
+		bSeperateLv: true,
+		AttackRange: [ 1, 1, 1, 1, 1 ],
+		_NeedSkillList: [
+			[ SK.LG_MOONSLASHER, 3 ],
+			[ SK.LG_PINPOINTATTACK, 1 ]
+		]
+	},
 	SkillInfo[SK.AM_REST] = {
 		Name: "AM_REST",
 		SkillName: "Rest",
