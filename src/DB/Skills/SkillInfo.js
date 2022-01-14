@@ -8151,6 +8151,59 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.WL_EARTHSTRAIN, 5 ]
 		]
 	},
+	SkillInfo[SK.WL_TETRAVORTEX_FIRE] = {
+		Name: "WL_TETRAVORTEX_FIRE",
+		SkillName: "Tetra Vortex Fire",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},SkillInfo[SK.WL_TETRAVORTEX_WATER] = {
+		Name: "WL_TETRAVORTEX_WATER",
+		SkillName: "Tetra Vortex Water",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},SkillInfo[SK.WL_TETRAVORTEX_WIND] = {
+		Name: "WL_TETRAVORTEX_WIND",
+		SkillName: "Tetra Vortex Wind",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},SkillInfo[SK.WL_TETRAVORTEX_GROUND] = {
+		Name: "WL_TETRAVORTEX_GROUND",
+		SkillName: "Tetra Vortex Ground",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},
 	SkillInfo[SK.SA_FREECAST] = {
 		Name: "SA_FREECAST",
 		SkillName: "Free Cast",
