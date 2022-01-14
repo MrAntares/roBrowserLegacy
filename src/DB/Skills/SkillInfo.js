@@ -9704,6 +9704,38 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 11, 11 ]
 	},
+	SkillInfo[SK.WL_SUMMON_ATK_FIRE] = {
+		Name: "WL_SUMMON_ATK_FIRE",
+		SkillName: "Summon Attack Fire",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
+	},
+	SkillInfo[SK.WL_SUMMON_ATK_WIND] = {
+		Name: "WL_SUMMON_ATK_WIND",
+		SkillName: "Summon Attack Wind",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
+	},
+	SkillInfo[SK.WL_SUMMON_ATK_WATER] = {
+		Name: "WL_SUMMON_ATK_WATER",
+		SkillName: "Summon Attack Water",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
+	},
+	SkillInfo[SK.WL_SUMMON_ATK_GROUND] = {
+		Name: "WL_SUMMON_ATK_GROUND",
+		SkillName: "Summon Attack Earth",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
+	},
 	SkillInfo[SK.WL_SUMMONSTONE] = {
 		Name: "WL_SUMMONSTONE",
 		SkillName: "Summon Stone",
