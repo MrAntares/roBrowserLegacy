@@ -40,7 +40,6 @@ define(function( require )
 	var BasicInfo     = require('UI/Components/BasicInfo/BasicInfo');
 	var Escape        = require('UI/Components/Escape/Escape');
 	var DB            = require('DB/DBManager');
-	var SpiritSphere  = require('Renderer/Effects/SpiritSphere');
 	var MagicRing     = require('Renderer/Effects/MagicRing');
 	var SkillEffect   = require('DB/Skills/SkillEffect');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
@@ -94,7 +93,7 @@ define(function( require )
             // XXX this is a hack to make the spirit spheres vanish when a player vanishes
             // it shouldn't be hardcoded like that, i think a better way to do it
             // would be to make the spheres an 'attachment'?
-            EffectManager.remove(SpiritSphere, pkt.GID);
+            EffectManager.remove(null, pkt.GID);
 		}
 
 		// Show escape menu
