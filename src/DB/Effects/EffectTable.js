@@ -1673,7 +1673,12 @@ define(function( require )
         }],
 
 		289: [{
-            wav:  'effect/\xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa', //Windows 1250: ŔĚµĐŔÇ »ç°ú		EUC-KR: 이둔의 사과		Hex: \xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa		USE THIS AS REFERENCE FOR ENCODING
+            wav:  'effect/\xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa',
+			//ISO-8859-1:	ÀÌµÐÀÇ »ç°ú
+			//Windows 1250: ŔĚµĐŔÇ »ç°ú
+			//EUC-KR: 		이둔의 사과
+			//Hex: 			\xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa
+			//reference for finding encoding
             attachedEntity: true
         }],
 
