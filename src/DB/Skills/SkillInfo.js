@@ -8655,6 +8655,38 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			]
 		}
 	},
+	SkillInfo[SK.WM_REVERBERATION_MELEE] = {
+		Name: "WM_REVERBERATION_MELEE",
+		SkillName: "Reverberation Melee",
+		MaxLv: 5,
+		SpAmount: [ 28, 32, 38, 42, 48 ],
+		bSeperateLv: true,
+		AttackRange: [ 9, 9, 9, 9, 9 ],
+		NeedSkillList: new function(){
+			this[JobId.JT_MINSTREL] = [
+				[ SK.BA_DISSONANCE, 5 ]
+			],
+			this[JobId.JT_WANDERER] = [
+				[ SK.DC_UGLYDANCE, 5 ]
+			]
+		}
+	},
+	SkillInfo[SK.WM_REVERBERATION_MAGIC] = {
+		Name: "WM_REVERBERATION_MAGIC",
+		SkillName: "Reverberation Magic",
+		MaxLv: 5,
+		SpAmount: [ 28, 32, 38, 42, 48 ],
+		bSeperateLv: true,
+		AttackRange: [ 9, 9, 9, 9, 9 ],
+		NeedSkillList: new function(){
+			this[JobId.JT_MINSTREL] = [
+				[ SK.BA_DISSONANCE, 5 ]
+			],
+			this[JobId.JT_WANDERER] = [
+				[ SK.DC_UGLYDANCE, 5 ]
+			]
+		}
+	},
 	SkillInfo[SK.SA_GRAVITY] = {
 		Name: "SA_GRAVITY",
 		SkillName: "Gravity",
