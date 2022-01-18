@@ -490,7 +490,7 @@ define(function( require )
 	{
 		var pkt;
 		var flag_party = text[0] === '%' || KEYS.CTRL;
-		var flag_guild = text[0] === '$' || KEYS.ALT;
+		var flag_guild = text[0] === '$' || (KEYS.ALT && !(KEYS[0] || KEYS[1] || KEYS[2] || KEYS[3] || KEYS[4] || KEYS[5] || KEYS[6] || KEYS[7] || KEYS[8] || KEYS[9]));
 
 		text = text.replace(/^(\$|\%)/, '');
 
@@ -503,6 +503,8 @@ define(function( require )
 			return;
 		}
 
+		console.log(target);
+
 		// Set off/on flags
 		if (flag_party) {
 			target = (target & ~ChatBox.TYPE.PARTY) | (~target & ChatBox.TYPE.PARTY);
@@ -511,7 +513,11 @@ define(function( require )
 		if (flag_guild) {
 			target = (target & ~ChatBox.TYPE.GUILD) | (~target & ChatBox.TYPE.GUILD);
 		}
-
+		
+		console.log((target & ~ChatBox.TYPE.GUILD));
+		console.log((~target & ChatBox.TYPE.GUILD));
+		console.log(target);
+		
 		// Get packet
 		if (target & ChatBox.TYPE.PARTY) {
 			pkt = new PACKET.CZ.REQUEST_CHAT_PARTY();
