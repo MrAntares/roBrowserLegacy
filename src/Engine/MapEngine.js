@@ -503,8 +503,6 @@ define(function( require )
 			return;
 		}
 
-		console.log(target);
-
 		// Set off/on flags
 		if (flag_party) {
 			target = (target & ~ChatBox.TYPE.PARTY) | (~target & ChatBox.TYPE.PARTY);
@@ -513,10 +511,6 @@ define(function( require )
 		if (flag_guild) {
 			target = (target & ~ChatBox.TYPE.GUILD) | (~target & ChatBox.TYPE.GUILD);
 		}
-		
-		console.log((target & ~ChatBox.TYPE.GUILD));
-		console.log((~target & ChatBox.TYPE.GUILD));
-		console.log(target);
 		
 		// Get packet
 		if (target & ChatBox.TYPE.PARTY) {
