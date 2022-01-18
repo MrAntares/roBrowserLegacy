@@ -48,6 +48,7 @@ define(function( require )
 	var ChangeCart          = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
+	var ShortCuts        = require('UI/Components/ShortCuts/ShortCuts');
 	var StatusIcons      = require('UI/Components/StatusIcons/StatusIcons');
 	var ChatRoomCreate   = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
 	var Emoticons        = require('UI/Components/Emoticons/Emoticons');
@@ -179,6 +180,7 @@ define(function( require )
 		Vending.prepare();		
 		ChangeCart.prepare();		
 		Equipment.prepare();
+		ShortCuts.prepare();
 		ShortCut.prepare();
 		ChatRoomCreate.prepare();
 		Emoticons.prepare();
@@ -306,6 +308,7 @@ define(function( require )
 			Vending.append();
 			ChangeCart.append();
 			Equipment.append();
+			ShortCuts.append();
 			StatusIcons.append();
 			ShortCut.append();
 			ChatRoomCreate.append();
