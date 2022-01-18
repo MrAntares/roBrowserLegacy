@@ -274,7 +274,7 @@
 			return;
 		}
 
-		ChatBox.onRequestTalk('', command);		
+		ChatBox.onRequestTalk('', command, ChatBox.sendTo);
 	 }
 
 	 function loadValuesAlt(){
