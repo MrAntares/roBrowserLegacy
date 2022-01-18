@@ -580,18 +580,18 @@ define(function(require)
 			switch (item.slot.card1) {
 				case 0x00FF: // FORGE
 					showslots = false;
-					if (item.slot.card2 >= 3840) { 
-						str += 'Very Very Very Strong';
+					if (item.slot.card2 >= 3840) {
+						str += MsgStringTable[461]; //'Very Very Very Strong';
 					} else if (item.slot.card2 >= 2560) { 
-						str += 'Very Very Strong ';
+						str += MsgStringTable[460]; //Very Very Strong ';
 					} else if (item.slot.card2 >= 1024) { 
-						str += 'Very Strong ';
+						str += MsgStringTable[459]; //Very Strong ';
 					}
 					switch (Math.abs(item.slot.card2 % 10)){
-						case 1: str += 'Ice '; break;
-						case 2: str += 'Earth '; break;
-						case 3: str += 'Fire '; break;
-						case 4: str += 'Wind '; break;
+						case 1: str += MsgStringTable[452]; break; // 'Ice '
+						case 2: str += MsgStringTable[454]; break; // 'Earth '
+						case 3: str += MsgStringTable[451]; break; // 'Fire '
+						case 4: str += MsgStringTable[453]; break; // 'Wind '
 					}
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
@@ -604,7 +604,7 @@ define(function(require)
 						getNameByGID(GID);
 					}
 						
-					str = name + str;
+					str = name + str + " ";
 					break;
 
 				// Show card prefix
@@ -619,7 +619,7 @@ define(function(require)
 							break;
 						}
 
-						name = DB.getItemInfo(item.slot['card'+i]).prefixNameTable;
+						name = DB.getItemInfo(item.slot['card'+i]).prefixNameTable;						
 						if (name) {
 							pos = prefix.indexOf(name);
 							if (pos > -1) {
@@ -641,10 +641,10 @@ define(function(require)
 
 		str += it.identifiedDisplayName;
 
-		if (it.slotCount && showslots) {
+		if (it.slotCount > 0 && showslots) {
 			str += ' [' + it.slotCount + ']';
 		}
-
+	
 		return str;
 	};
 

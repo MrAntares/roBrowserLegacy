@@ -25,10 +25,10 @@ define(function(require)
 	var Mouse              = require('Controls/MouseEventHandler');
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./ItemInfo.html');
-	var cssText            = require('text!./ItemInfo.css');
-	
-	var Network       = require('Network/NetworkManager');
-	var PACKET        = require('Network/PacketStructure');
+	var cssText            = require('text!./ItemInfo.css');	
+	var Network       	   = require('Network/NetworkManager');
+	var PACKET        	   = require('Network/PacketStructure');
+	// DB.getMessage(95)
 
 
 	/**
@@ -41,7 +41,6 @@ define(function(require)
 	 * @var {number} ItemInfo unique id
 	 */
 	ItemInfo.uid = -1;
-	
 
 	/**
 	 * Once append to the DOM
@@ -100,10 +99,9 @@ define(function(require)
 		}.bind(this));
 
 		this.draggable(this.ui.find('.title'));
-		
+
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
-
 
 	/**
 	 * Bind component
@@ -128,17 +126,17 @@ define(function(require)
 			switch (item.slot['card1']) {
 				case 0x00FF: // FORGE
 					if (item.slot['card2'] >= 3840) { 
-						customname += 'Very Very Very Strong';
+						customname += DB.getMessage(461); //'Very Very Very Strong';
 					} else if (item.slot['card2'] >= 2560) { 
-						customname += 'Very Very Strong ';
+						customname += DB.getMessage(460); //Very Very Strong ';
 					} else if (item.slot['card2'] >= 1024) { 
-						customname += 'Very Strong ';
+						customname += DB.getMessage(459); //Very Strong ';
 					}
 					switch (Math.abs(item.slot['card2'] % 10)){
-						case 1: customname += 'Ice '; break;
-						case 2: customname += 'Earth '; break;
-						case 3: customname += 'Fire '; break;
-						case 4: customname += 'Wind '; break;
+						case 1: customname += DB.getMessage(452); break; // 'Ice '
+						case 2: customname += DB.getMessage(454); break; // 'Earth '
+						case 3: customname += DB.getMessage(451); break; // 'Fire '
+						case 4: customname += DB.getMessage(453); break; // 'Wind '
 					}
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
@@ -153,7 +151,7 @@ define(function(require)
 						getNameByGID(GID);
 					}
 					
-					
+					customname = customname + " ";
 					if(item.IsDamaged){
 						customname = name+'\'s '+customname;
 					} else {
@@ -197,10 +195,10 @@ define(function(require)
 				cardList.parent().show();
 				cardList.empty();
 
-				for (i = 0; i < 4; ++i) {
-					addCard(cardList, (item.slot && item.slot['card' + (i+1)]) || 0, i, slotCount);
+				for (i = 0; i < 4; ++i) {					
+					addCard(cardList, (item.slot && item.slot['card' + (i+1)]) || 0, i, slotCount);					
 				}
-				if (!item.IsIdentified) {
+				if (!item.IsIdentified ) {
 					cardList.parent().hide();
 				}
 				break;
@@ -216,9 +214,9 @@ define(function(require)
 	 * @param {object} jquery cart list DOM
 	 * @param {number} item id
 	 * @param {number} index
-	 * @param {number} max slots
+	 * @param {number} slot count
 	 */
-	function addCard( cardList, itemId, index, maxSlots )
+	function addCard( cardList, itemId, index, slotCount )
 	{
 		var file, name = '';
 		var card = DB.getItemInfo(itemId);
@@ -227,11 +225,13 @@ define(function(require)
 			file = 'item/' + card.identifiedResourceName + '.bmp';
 			name = '<div class="name">'+ jQuery.escape(card.identifiedDisplayName) + '</div>';
 		}
-		else if (index < maxSlots) {
+		// TODO: ADD VARIABLE WITH MAXIMUM OF LETTER
+		else if (index < slotCount) {
 			file = 'empty_card_slot.bmp';
 		}
 		else {
-			file = 'disable_card_slot.bmp';
+			// was not supposed to be in /basic_interface ?
+			file = 'coparison_disable_card_slot.bmp';
 		}
 
 		cardList.append(
