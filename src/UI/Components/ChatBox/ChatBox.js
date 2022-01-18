@@ -97,7 +97,7 @@ define(function(require)
 	/**
 	 * @var {number} target message ?
 	 */
-	var _sendTo = ChatBox.TYPE.PUBLIC;
+	ChatBox.sendTo = ChatBox.TYPE.PUBLIC;
 
 
 	/**
@@ -472,7 +472,7 @@ define(function(require)
 			return;
 		}
 
-		this.onRequestTalk( user, text, _sendTo );
+		this.onRequestTalk( user, text, ChatBox.sendTo );
 	};
 
 
@@ -658,7 +658,7 @@ define(function(require)
 				$input.addClass('guild');
 			}
 
-			_sendTo = type;
+			ChatBox.sendTo = type;
 		};
 	}
 
