@@ -142,9 +142,7 @@ define(function( require )
 				}
 
 				return;
-			}
-
-			if (effect.name in _list) {
+			} else {
 				clean( effect.name, uid);
 			}
 		};
