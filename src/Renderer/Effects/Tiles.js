@@ -79,7 +79,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
     });
   }
 
-  var FlatTexture = exports.FlatTexture = (textureFilename, size = 32) => class {
+  var FlatTexture = exports.FlatTexture = (textureFilename, size = 64) => class {
     static get renderBeforeEntities() {
       return true;
     }
