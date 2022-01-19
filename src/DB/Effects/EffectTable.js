@@ -1501,9 +1501,11 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var DissonanceEffects = require('Renderer/Effects/Songs').DissonanceEffects;
+                DissonanceEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1516,9 +1518,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('pink', {r: 0xed/255, g: 0x9e/255, b: 0xff/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var LullabyEffects = require('Renderer/Effects/Songs').LullabyEffects;
+                LullabyEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1531,9 +1535,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('gold', {r: 0xfc/255, g: 0xc7/255, b: 0xc7/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var MrKimEffects = require('Renderer/Effects/Songs').MrKimEffects;
+                MrKimEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1546,9 +1552,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('lime', {r: 0x80/255, g: 0xff/255, b: 0xc2/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var EtChaosEffects = require('Renderer/Effects/Songs').EtChaosEffects;
+                EtChaosEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1561,9 +1569,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('purple', {r: 0xed/255, g: 0x65/255, b: 0xfc/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var DrumEffects = require('Renderer/Effects/Songs').DrumEffects;
+                DrumEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1576,9 +1586,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('cyan', {r: 0x1c/255, g: 0xec/255, b: 0xff/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var NibelungEffects = require('Renderer/Effects/Songs').NibelungEffects;
+                NibelungEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1591,9 +1603,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('purple', {r: 0xdc/255, g: 0x65/255, b: 0xfc/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var LokiEffects = require('Renderer/Effects/Songs').LokiEffects;
+                LokiEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1606,9 +1620,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects;
+                AbyssEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1621,9 +1637,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('blue', {r: 0x48/255, g: 0x3b/255, b: 0xff/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var SiegfiedEffects = require('Renderer/Effects/Songs').SiegfiedEffects;
+                SiegfiedEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1636,9 +1654,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('pink', {r: 0xff/255, g: 0xc0/255, b: 0xcb/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var WhistleEffects = require('Renderer/Effects/Songs').WhistleEffects;
+                WhistleEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1651,9 +1671,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var PinkTile = FlatColorTile('pink', {r: 0xff/255, g: 0xc0/255, b: 0xcb/255, a: 0.6});
-                this.add(new PinkTile(pos, tick), AID);
+                var self = this;
+                var SinEffects = require('Renderer/Effects/Songs').SinEffects;
+                SinEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1666,9 +1688,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('blue', {r: 0, g: 0xbf/255, b: 0xff/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var BragiEffects = require('Renderer/Effects/Songs').BragiEffects();
+                BragiEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1698,9 +1722,11 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var UglyEffects = require('Renderer/Effects/Songs').UglyEffects;
+                UglyEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1713,9 +1739,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('gray', {r: 0xe6/255, g: 0xd1/255, b: 0xd1/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var HummingEffects = require('Renderer/Effects/Songs').HummingEffects;
+                HummingEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1728,9 +1756,11 @@ define(function( require )
             type: 'FUNC',
 			attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('blue', {r: 0x1c/255, g: 0xff/255, b: 0x73/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var ForgetEffects = require('Renderer/Effects/Songs').ForgetEffects;
+                ForgetEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1743,9 +1773,11 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('red', {r: 0xfc/255, g: 0x6f/255, b: 0x65/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var FortuneEffects = require('Renderer/Effects/Songs').FortuneEffects;
+                FortuneEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1758,9 +1790,11 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('salmon', {r: 0xff/255, g: 0x80/255, b: 0xb7/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var ServiceEffects = require('Renderer/Effects/Songs').ServiceEffects;
+                ServiceEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -1934,9 +1968,11 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var GospelEffects = require('Renderer/Effects/Songs').GospelEffects;
+                GospelEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -2036,9 +2072,11 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('gray', {r: 0x60/255, g: 0x60/255, b: 0x60/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var FogEffects = require('Renderer/Effects/Songs').FogEffects;
+                FogEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
         
@@ -2196,9 +2234,11 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('white', {r: 0xff/255, g: 0xff/255, b: 0xff/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+                var self = this;
+                var GravityEffects = require('Renderer/Effects/Songs').GravityEffects;
+                GravityEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
@@ -2612,9 +2652,11 @@ define(function( require )
             attachedEntity: false,
 			//file: 'status-curse',
             func: function(pos, tick, AID){
-                var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-                var BlueTile = FlatColorTile('gray', {r: 0x40/255, g: 0x40/255, b: 0x40/255, a: 0.6});
-                this.add(new BlueTile(pos, tick), AID);
+				var self = this;
+                var EvillandEffects = require('Renderer/Effects/Songs').EvillandEffects;
+                EvillandEffects.forEach(function(effect){
+                    self.add(new effect(pos, tick), AID);
+                });
             }
         }],
 
