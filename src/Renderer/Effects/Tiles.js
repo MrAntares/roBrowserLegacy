@@ -7,7 +7,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
     value: true
   });
   exports.HoveringTexture = exports.FlatTexture = exports.flatTextureFragmentShader = exports.flatTextureVertexShader = undefined;
-  //exports.loadTexture = loadTexture;
+  exports.loadTexture = loadTexture;
 
   var _WebGL2 = _interopRequireDefault(_WebGL);
 
