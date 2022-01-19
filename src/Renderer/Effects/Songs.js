@@ -76,7 +76,7 @@ define(["exports", "Renderer/Effects/Tiles", "Renderer/Effects/FlatColorTile"], 
 		g: 0xff/255,
 		b: 0xff/255,
 		a: 0.05
-	}), (0, _Tiles.HoveringTexture)('data/texture/effect/'+( gems[Math.round(Math.random()*2)] )+'.bmp', 0.3, 1)];
+	}), (0, _Tiles.HoveringTexture)('data/texture/effect/'+( gems[Math.round(Math.random()*2)] )+'.bmp', 0.5, 1)];
   };
 
  const SiegfiedEffects = exports.SiegfiedEffects = [(0, _FlatColorTile2.default)('siegfried', {
@@ -114,7 +114,7 @@ define(["exports", "Renderer/Effects/Tiles", "Renderer/Effects/FlatColorTile"], 
     g: 0xff/255,
     b: 0x00/255,
     a: 0.05
-  }), (0, _Tiles.HoveringTexture)('data/texture/effect/idun_apple.bmp', 0.5, 0.7)];
+  }), (0, _Tiles.HoveringTexture)('data/texture/effect/idun_apple.bmp', 1, 0.7)];
 
   const UglyEffects = exports.UglyEffects = [(0, _FlatColorTile2.default)('ugly', {
     r: 0xff/255,
@@ -142,7 +142,7 @@ define(["exports", "Renderer/Effects/Tiles", "Renderer/Effects/FlatColorTile"], 
     g: 0x6f/255,
     b: 0x65/255,
     a: 0.05
-  }), (0, _Tiles.HoveringTexture)('data/texture/effect/heart_2.bmp', 0.5, 1)];
+  }), (0, _Tiles.HoveringTexture)('data/texture/effect/heart_2.bmp', 0.5, 0.7)];
 
   const ServiceEffects = exports.ServiceEffects = [(0, _FlatColorTile2.default)('service', {
     r: 0xff/255,
