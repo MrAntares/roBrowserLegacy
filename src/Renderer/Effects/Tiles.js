@@ -7,7 +7,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
     value: true
   });
   exports.HoveringTexture = exports.FlatTexture = exports.flatTextureFragmentShader = exports.flatTextureVertexShader = undefined;
-  exports.loadTexture = loadTexture;
+  //exports.loadTexture = loadTexture;
 
   var _WebGL2 = _interopRequireDefault(_WebGL);
 
@@ -32,6 +32,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
         uniform mat4 uProjectionMat;
         uniform vec3 uPosition;
 		uniform float uSize;
+		
 
         void main(void) {
             vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
@@ -45,13 +46,25 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
         varying vec2 vTextureCoord;
         uniform sampler2D uDiffuse;
 		uniform float alpha;
+		
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
+		
         void main(void) {
             vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
-            if (texture.r < 0.3 || texture.g < 0.3 || texture.b < 0.3) {
+            if (texture.r < 0.1 || texture.g < 0.1 || texture.b < 0.1) {
                discard;
             }
             texture.a = alpha;
             gl_FragColor = texture;
+			
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
         }
 `;
 
@@ -142,6 +155,11 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._texture);
       gl.uniform1i(uniform.uDiffuse, 0); // Enable all attributes
+	  
+	  gl.uniform1i(  uniform.uFogUse,   fog.use && fog.exist );
+	  gl.uniform1f(  uniform.uFogNear,  fog.near );
+	  gl.uniform1f(  uniform.uFogFar,   fog.far  );
+	  gl.uniform3fv( uniform.uFogColor, fog.color );
 
       gl.enableVertexAttribArray(attribute.aPosition);
       gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -188,14 +206,14 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
     }
 
     render(gl, tick) {
-      var oddEven = this.ix % 2 === 0 ? Math.PI : 0;
-      var heightMult = Math.sin(oddEven + tick / (540 * Math.PI));
-      var position = [this.position[0], this.position[1], this.position[2] + 0.4 - 0.2 * heightMult];
-      gl.uniform3fv(this.constructor._program.uniform.uPosition, position);
-      gl.uniform1f(this.constructor._program.uniform.uSize, this.effectSize);
-	  gl.uniform1f(this.constructor._program.uniform.alpha, this.alpha);
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
+		var oddEven = this.ix % 2 === 0 ? Math.PI : 0;
+		var heightMult = Math.sin(oddEven + tick / (540 * Math.PI));
+		var position = [this.position[0], this.position[1], this.position[2] + 0.4 - 0.2 * heightMult];
+		gl.uniform3fv(this.constructor._program.uniform.uPosition, position);
+		gl.uniform1f(this.constructor._program.uniform.uSize, this.effectSize);
+		gl.uniform1f(this.constructor._program.uniform.alpha, this.alpha);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
   };
