@@ -31,10 +31,11 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
         uniform mat4 uModelViewMat;
         uniform mat4 uProjectionMat;
         uniform vec3 uPosition;
+		uniform float uSize;
 
         void main(void) {
             vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
-            position      += vec4(aPosition.x, 0.0, aPosition.y, 0.0);
+            position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);
             gl_Position    = uProjectionMat * uModelViewMat * position;
             gl_Position.z -= 0.01;
             vTextureCoord  = aTextureCoord;
@@ -78,7 +79,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
     });
   }
 
-  var FlatTexture = exports.FlatTexture = (textureFilename, size = 64) => class {
+  var FlatTexture = exports.FlatTexture = (textureFilename, size = 32) => class {
     static get renderBeforeEntities() {
       return true;
     }
@@ -170,17 +171,19 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
 
   var _hoveringNum = 0;
 
-  var HoveringTexture = exports.HoveringTexture = textureFilename => class extends FlatTexture(textureFilename) {
+  var HoveringTexture = exports.HoveringTexture = (textureFilename, effectSize = 1) => class extends FlatTexture(textureFilename) {
     constructor() {
       super(...arguments);
       this.ix = ++_hoveringNum;
+      this.effectSize = effectSize;
     }
 
     render(gl, tick) {
       var oddEven = this.ix % 2 === 0 ? Math.PI : 0;
       var heightMult = Math.sin(oddEven + tick / (540 * Math.PI));
-      var position = [this.position[0], this.position[1], 0.4 - 0.2 * heightMult];
+      var position = [this.position[0], this.position[1], this.position[2] + 0.4 - 0.2 * heightMult];
       gl.uniform3fv(this.constructor._program.uniform.uPosition, position);
+      gl.uniform1f(this.constructor._program.uniform.uSize, effectSize);
       gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
