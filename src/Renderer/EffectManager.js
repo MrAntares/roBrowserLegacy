@@ -73,7 +73,7 @@ define(function( require )
 	{
 		var name = (effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
 		this.remove({name: name}, uid);
-		
+
 		if (!(name in _list)) {
 			_list[name] = [];
 
@@ -133,7 +133,7 @@ define(function( require )
 
 		return function remove(effect, uid)
 		{
-			if (!effect) {
+			if (!effect || !(effect.name in _list)) {
 				var i, count;
 				var keys = Object.keys(_list);
 
@@ -263,7 +263,6 @@ define(function( require )
 	{
 		var effects;
 		var i, count;
-
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
@@ -434,7 +433,7 @@ define(function( require )
 	{
 		var skillId, effectId;
 		var skill;
-
+		
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
