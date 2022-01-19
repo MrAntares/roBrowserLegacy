@@ -1621,7 +1621,7 @@ define(function( require )
 			attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
-                var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects;
+                var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects();
                 AbyssEffects.forEach(function(effect){
                     self.add(new effect(pos, tick), AID);
                 });
