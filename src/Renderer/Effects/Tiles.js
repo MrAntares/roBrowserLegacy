@@ -44,12 +44,13 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
   var flatTextureFragmentShader = exports.flatTextureFragmentShader = `
         varying vec2 vTextureCoord;
         uniform sampler2D uDiffuse;
+		uniform float alpha;
         void main(void) {
             vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
             if (texture.r < 0.3 || texture.g < 0.3 || texture.b < 0.3) {
                discard;
             }
-            texture.a = 0.7;
+            texture.a = alpha;
             gl_FragColor = texture;
         }
 `;
@@ -58,7 +59,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
     var _texture = gl.createTexture();
 
     _Client2.default.loadFile(texture.filename, function (buffer) {
-      _Texture2.default.load(buffer, function () {
+      _Texture2.default.load(buffer, function (canvas) {
         var size = texture.size;
         var canvas = document.createElement('canvas');
         canvas.width = canvas.height = size;
@@ -102,6 +103,13 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
         self._texture = texture;
         self.ready = true;
       });
+	  
+		/*_Client2.default.loadFile(textureFilename, function(buffer) {
+			_WebGL2.default.texture( gl, buffer, function(texture) {
+				self._texture = texture;
+				self.ready   = true;
+			});
+		});*/
     }
 
     static free(gl) {
@@ -171,11 +179,12 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
 
   var _hoveringNum = 0;
 
-  var HoveringTexture = exports.HoveringTexture = (textureFilename, effectSize = 1) => class extends FlatTexture(textureFilename) {
+  var HoveringTexture = exports.HoveringTexture = (textureFilename, effectSize = 1, alpha = 1) => class extends FlatTexture(textureFilename) {
     constructor() {
       super(...arguments);
       this.ix = ++_hoveringNum;
       this.effectSize = effectSize;
+	  this.alpha = alpha
     }
 
     render(gl, tick) {
@@ -183,7 +192,8 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
       var heightMult = Math.sin(oddEven + tick / (540 * Math.PI));
       var position = [this.position[0], this.position[1], this.position[2] + 0.4 - 0.2 * heightMult];
       gl.uniform3fv(this.constructor._program.uniform.uPosition, position);
-      gl.uniform1f(this.constructor._program.uniform.uSize, effectSize);
+      gl.uniform1f(this.constructor._program.uniform.uSize, this.effectSize);
+	  gl.uniform1f(this.constructor._program.uniform.alpha, this.alpha);
       gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
