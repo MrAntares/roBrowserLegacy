@@ -874,13 +874,18 @@ define(function( require )
             wav:  'effect/hunter_blitzbeat',
             attachedEntity: true
         }],
+		
+		//116:	Fling Watersphere
         //117: waterball  (caster or hit?)
+		
         119: [{
             wav:  'effect/hunter_detecting',
             attachedEntity: true
         }],
-
-        //121: // sonic blow caster
+		
+		//120:	Cloaking
+        //121: // sonic blow caste
+		//122:	Multi hit effect
 
         123: [{ //grimtooth caster
             wav:  'effect/ef_frostdiver',
@@ -938,7 +943,8 @@ define(function( require )
             wav:  'effect/knight_autocounter',
             attachedEntity: true
         }],
-
+		
+		//132:	Grimtooth Hit
 
         133: [{
             type: 'STR',
@@ -996,6 +1002,7 @@ define(function( require )
             attachedEntity: false
         }],
 
+		//142	Heaven's Drive
 
         143: [{ //sonicblow at target
             type: 'STR',
@@ -1099,18 +1106,31 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//156:	jobchange.str not found error
+		//157:	levelup.str not found error
 
         158: [{
             type: 'STR',
             file: 'joblvup',
             attachedEntity: true
         }],
+		
+		//159:	PvP circle
+		//160:	PvP Party Circle
+		//161:	(Nothing)
+		//162:	Snow
+		//163:	White Sakura Leaves
+		//164:	(Nothing)
 
         165: [{ //Comodo Fireworks Ball
             wav:  'effect/\xc6\xf8\xc1\xd7', //ĆřÁ×
             attachedEntity: false
         }],
-
+		
+		//166:	Energy Coat (Visual Effect)
+		//167:	(Nothing)
+		//168:	(Nothing)
+		
         169: [{
             type: 'STR',
             file: 'energycoat',
@@ -1124,6 +1144,15 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//171:	Venom Dust Map Unit
+		//172:	Change Element (Dark)
+		//173:	Change Element (Fire)
+		//174:	Change Element (Water)
+		//175:	Change Element (Wind)
+		//176:	Change Element (Fire)
+		//177:	Change Element (Earth)
+		//178:	Change Element (Holy)
+		//179:	Change Element (Poison)
 
         181: [{
             type: 'STR',
@@ -1222,6 +1251,7 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//196:	Curse Attack
 
         197: [{
             type: 'STR',
@@ -1229,6 +1259,7 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//198:	(Nothing)
 
         199: [{
             type: 'STR',
@@ -1237,6 +1268,10 @@ define(function( require )
             attachedEntity: false
         }],
 
+		//200:	Normal level 99 Aura (Middle)
+		//201:	Normal level 99 Aura (Bottom)
+		//202:	Lv 99 Aura Bubble
+		//203:	Fury (Visual Effect)
 
         204: [{
             type: 'STR',
@@ -1336,10 +1371,24 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//221:	Intense light beam
+		//222:	Defender (Crusader)
+		//223:	Holy Cast Aura
+		//224:	Wind (Map effect)
+		//225:	Volcano casting effect
+		//226:	Grand Cross Effect
+
         227: [{ //Intimidate / Snatch
             wav:  'effect/rog_intimidate',
             attachedEntity: true
         }],
+
+		//228:	(Nothing)
+		//229:	(Nothing)
+		//230:	(Nothing)
+		//231:	Map Light Pillar Animation 1
+		//232:	Sacrifice (Visual Effect)
+		//233:	Fog
 
         234: [{
             type: 'STR',
@@ -1354,6 +1403,13 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//236:	Deluge Cast Aura
+		//237:	Violent Gale Cast Aura
+		//238:	Magnetic Earth Cast Aura
+		//239:	Volcano (Visual Effect)
+		//240:	Deluge (Visual Effect)
+		//241:	Violent Gale (Visual Effect)
+
         242: [{
             type: 'FUNC',
             attachedEntity: false,
@@ -1362,6 +1418,8 @@ define(function( require )
                 this.add(new LPEffect(pos, tick), AID);
             }
         }],
+
+		//243:	(Invalid)
 
         244: [{
             type: 'STR',
@@ -1385,6 +1443,7 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//247:	Map Light Pillar Animation 2
 
         248: [{
             type: 'STR',
@@ -1401,6 +1460,7 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//250:	Spear Quicken
 
         251: [{
             type: 'STR',
@@ -1408,6 +1468,9 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//252:	Reflect Shield
+		//253:	Absorb Spirit Spheres
+		//254:	Mental Strength (Visual Effect)
 
         255: [{
             type: 'STR',
@@ -1437,10 +1500,20 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//259:	Map Light Pillar Animation 3
+		//260:	Map Light Pillar Animation 4
+
         261: [{ //fury / critical explosion TODO: combo sounds, super novice fury
             wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_Ćř±â
             attachedEntity: true
         }],
+
+		//262:	Raging Quadruple Blow
+		//263:	Raging Quadruple Blow 2
+		//264:	(Nothing)
+		//265:	Throw Spirit Sphere
+		//266:	Raging Quadruple Blow 3
+		//267:	Occult Impaction
 
         268: [{
             type: 'STR',
@@ -1481,12 +1554,13 @@ define(function( require )
             attachedEntity: true
         }],
 
-
         273: [{
             type: 'STR',
             file: '\x3f\xac\x45\x97', //?¬E—
             attachedEntity: true
         }],
+		
+		//274:	Steal Coin Animation
 
         275: [{ //backstab on target hit
             wav:  'effect/rog_back stap',
@@ -1798,6 +1872,14 @@ define(function( require )
             }
         }],
 
+		//295:	Frost Joke
+		//296:	Scream
+		//297:	Fire Works (Visual Effect)
+		//298:	Acid Terror Animnation
+		//299:	(Nothing)
+		//300:	Chemical Protection
+		//301:	Fire Works (Sound Effect)
+
         302: [{
             type: 'SPR',
             file: '\xb5\x59\xb8\xf3\x31\x6f\x41\xae\xb7\x31\x41\x49\x31\xc7', //µY¸ó1oA®·1AI1Ç
@@ -1824,6 +1906,10 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//307:	Forest Light 1
+		//308:	Throw Stone
+		//309:	First Aid
+		//310:	Sprinkle Sand
 
         311: [{ //crazy uproar
             type: 'STR',
@@ -1832,26 +1918,45 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//312:	Heal Effect
+		//313:	Heal Effect 2
+		//314:	Old Map Exit effect (Unused)
 
         315: [{
             type: 'STR',
             file: 'safetywall',
             attachedEntity: false
         }],
-
-        316: [{
-            //type: 'FUNC',
-            wav: 'effect/ef_readyportal',
-            attachedEntity: false
-        }],
-
-        '315_ground': [{
+		
+		'315_ground': [{
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
                 var Cylinder = require('Renderer/Effects/Cylinder');
                 this.add(new Cylinder(pos, 0.7, 0.7, 20, 'magic_violet', tick), AID);
             }
+        }],
+
+        316: [{ //Warp Portal Animation 1
+            //type: 'FUNC',
+            wav: 'effect/ef_readyportal',
+            attachedEntity: false
+        }],
+
+        317: [{ //Warp Portal Animation 2
+            /*type: 'FUNC',
+            attachedEntity: false,
+			textureName: 'magic_blue',
+            func: function(pos, tick, AID){
+                var Cylinder = require('Renderer/Effects/Cylinder');
+                this.add(new Cylinder(pos, 0.6, 0.6, 40, 'magic_blue', tick), AID);
+            }*/
+			type: 'CYLINDER',
+            attachedEntity: false,
+			wav: '',
+			topSize: 0.6,
+			bottomSize: 0.6,
+			height: 40
         }],
 
         'deluge_ground': [{
@@ -1862,16 +1967,7 @@ define(function( require )
                 this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_blue', tick), AID);
             }
         }],
-
-        317: [{
-            type: 'FUNC',
-            attachedEntity: false,
-            func: function(pos, tick, AID){
-                var Cylinder = require('Renderer/Effects/Cylinder');
-                this.add(new Cylinder(pos, 0.6, 0.6, 40, 'magic_blue', tick), AID);
-            }
-        }],
-
+		
         'soulink_caster_effect': [{ // todo
             wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: false
@@ -1920,6 +2016,23 @@ define(function( require )
                 //this.add(new SquareGround(pos, 1.0, 1.0, 3.0, 'magic_green', tick), AID);
             }
         }],
+		
+		//320:	Offensive Heal
+		//321:	Warp NPC
+		//322:	Forest Light 2
+		//323:	Forest Light 3
+		//324:	Forest Light 4
+		//325:	Heal Effect 4
+		//326:	Chase Walk Left Foot
+		//327:	Chse Walk Right Foot
+		//328:	Monk Asura Strike
+		//329:	Triple Strike
+		//330:	Combo Finish
+		//331:	Natural HP Regeneration
+		//332:	Natural SP Regeneration
+		//333:	Autumn Leaves
+		//334:	Blind
+		//335:	Poison
 
         336: [{ //kyrie eleison / parrying    (when target blocked dmg)
             wav:  'effect/kyrie_guard',
@@ -1932,6 +2045,31 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//338:	Super Novice/Taekwon Level Up Angel
+		//339:	Spiral Pierce
+		//340:	(Nothing)
+		//341:	Wedding Warp Portal
+		//342:	Wedding Skill
+		//343:	Another Merry Skill
+		//344:	Character map entry effect
+		//345:	Wings (Animated)
+		//346:	Like Moonlight But Blue
+		//347:	Wedding Ceremony
+		//348:	Like 1000 Blade trepassing
+		//349:	Waterfall (Horizonatal)
+		//350:	Waterfall (Vertical)
+		//351:	Small Waterfall (Horizonatal)
+		//352:	Small Waterfall (Vertical)
+		//353:	Dark Waterfall (Horizonatal)
+		//354:	Dark Waterfall (Vertical)
+		//355:	Dark Small Waterfall (Horizonatal)
+		//356:	Dark Small Waterfall (Vertical)
+		//357:	(Nothing)
+		//358:	Niflheim Ghost
+		//359:	Niflheim Bat Slow
+		//360:	Niflheim Bat Fast
+		//361:	Soul Destroyer
+		//362:	Trancendant Level 99 Aura 1
 
         363: [{
             type: 'SPR',
@@ -1939,6 +2077,10 @@ define(function( require )
             attachedEntity: true
         }],       
         
+		//364:	Valentine Day Heart
+		//365:	Gloria Domini
+		//366:	Martyr's Reckoning
+		
         367: [{ //aura blade
             wav:  'effect/\xbf\xc0\xb6\xf3\x20\xba\xed\xb7\xb9\xc0\xcc\xb5\xe5', //żŔ¶ó şí·ąŔĚµĺ
             attachedEntity: true
@@ -1998,6 +2140,14 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//374:	Basilica
+		//375:	Assumptio (Visual Effect)
+		//376:	Palm Strike
+		//377:	Matyr's Reckoning 2
+		//378:	Soul Drain (1st Part)
+		//379:	Soul Drain (2nd Part)
+		//380:	Magic Crasher
+		//381:	Blue Starburst (Unknown use)
 
         382: [{
             type: 'SPR',
@@ -2005,6 +2155,13 @@ define(function( require )
             head: true,
             attachedEntity: true
         }],
+
+		//383:	Health Conversion
+		//384:	Soul Change (Sound Effect)
+		//385:	Soul Change (Visual Effect)
+		//386:	True Sight
+		//387:	Falcon Assault
+		//388:	Focused Arrow Strike (Sound Effect)
 
         389: [{ //windwalk
             wav:  'effect/\xc0\xa9\xb5\xe5\xbf\xf6\xc5\xa9', //Ŕ©µĺżöĹ©
@@ -2030,7 +2187,9 @@ define(function( require )
             file: 'sword',
             attachedEntity: true
         }],
-
+		
+		//393:	Arrow Vulcan
+		
         394: [{ // Moonlit water mill/sheltering bliss
             type: 'FUNC',
 			//wav:  'effect/´Ţşű',
@@ -2041,6 +2200,11 @@ define(function( require )
                 this.add(new BlueTile(pos, tick), AID);
             }
         }],
+
+		//395:	Marionette Control (Sound Effect)
+		//396:	Marionette Control (Visual Effect)
+		//397:	Trancended 99 Aura (Middle)
+		//398:	Trancended 99 Aura (Bottom)
 
         399: [{ //headcrush caster
             wav:  'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çěµĺ Ĺ©·Ż˝¬
@@ -2059,6 +2223,10 @@ define(function( require )
             attachedEntity: true
         }],
         
+		//401:	Napalm Vulcan Sound
+		//402:	Dangerous Soul Collect
+		//403:	Mind Breaker
+		
         404: [{
             type: 'FUNC',
             attachedEntity: false,
@@ -2093,6 +2261,18 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//408:	Mom, Dad, I love you! (Baby Skill)
+		//409:	Meteor Assault
+		//410:	Rainbow
+		//411:	Leap
+		//412:	Like Throw Spirit Sphere
+		//413:	Axe Kick
+		//414:	Round Kick
+		//415:	Counter Kick
+		//416:	(Nothing)
+		//417:	Flash
+		//418:	Warmth Lightning
+		//419:	Kaite (Visual Effect)
 
         420: [{
             type: 'FUNC',
@@ -2147,10 +2327,27 @@ define(function( require )
             }
         }],
 
+		//424:	Spirit Link (Visual Effect)
+		//425:	Esma Hit (Visual Effect)
+
         426: [{ //taekwon sprint collision effect
             wav:  'effect/\xba\xb9\xc8\xa3\xb0\xdd', //şąČŁ°Ý
             attachedEntity: true
         }],
+
+		//427:	(Nothing)
+		//428:	(Nothing)
+		//429:	Taekwon Kick Hit 1
+		//430:	Taekwon Kick Hit 2
+		//431:	Taekwon Kick Hit 3
+		//432:	Solar, Lunar and Stellar Perception (Visual Effect)
+		//433:	Solar, Lunar and Stellar Opposition (Visual Effect)
+		//434:	Taekwon Kick Hit 4
+		//435:	Whirlwind Kick
+		//436:	White Barrier (Unused)
+		//437:	White barrier 2 (Unused)
+		//438:	Kaite Reflect Animation
+		//439:	Flying Side Kick
 
         440: [{
             type: 'STR',
@@ -2159,19 +2356,70 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//441:	Comfort Skills Cast Aura
+		//442:	Foot Prints caused by Sprint.
+		//443:	(Nothing)
+		//444:	Sprint Stop Animation
+
         445: [{ //high jump caster
             wav:  'effect/\x74\x5f\xc8\xb8\xc7\xc7\x32', //t_Č¸ÇÇ2
             attachedEntity: true
         }],
 
+		//446:	High Jump (Return Down)
+		//447:	Running Left Foot
+		//448:	Running Right Foot
+		//449:	KA-Spell (1st Part)
+
 		450: [{ // Dark cross
             
         }],
+
+		//451:	Dark Strike
+		//452:	Something Like Jupitel Thunder
+		//453:	Paralized
+		//454:	Like Blind
+		//455:	Another Warmth Lightning
+		//456:	Power Up
 
         457: [{ //flying kick on target
             wav:  'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', //t_łŻ¶óÂ÷±â
             attachedEntity: true
         }],
+
+		//458:	Running/Sprint (running into a wall)
+		//459:	Brown tornado that spins sprite (unused)
+		//460:	Green tornado (unused)
+		//461:	Blue tornado (unused)
+		//462:	Kaupe Dodge Effect
+		//463:	Kaupe Dodge Effect
+		//464:	White tornado (unused)
+		//465:	Purple tornado (unused)
+		//466:	Another Round Kick
+		//467:	Warm/Mild Wind (Earth)
+		//468:	Warm/Mild Wind (Wind)
+		//469:	Warm/Mild Wind (Water)
+		//470:	Warm/Mild Wind (Fire)
+		//471:	Warm/Mild Wind (Undead)
+		//472:	Warm/Mild Wind (Shadow)
+		//473:	Warm/Mild Wind (Holy)
+		//474:	(Nothing)
+		//475:	Demon of The Sun Moon And Stars (Level 1)
+		//476:	Demon of The Sun Moon And Stars (Level 2)
+		//477:	Demon of The Sun Moon And Stars (Level 3)
+		//478:	Demon of The Sun Moon And Stars (Level 4)
+		//479:	Demon of The Sun Moon And Stars (Level 5)
+		//480:	Demon of The Sun Moon And Stars (Level 6)
+		//481:	Demon of The Sun Moon And Stars (Level 7)
+		//482:	Demon of The Sun Moon And Stars (Level 8)
+		//483:	Demon of The Sun Moon And Stars (Level 9)
+		//484:	Demon of The Sun Moon And Stars (Level 10)
+		//485:	Mental Strength Lightning but White
+		//486:	Mental Strength Lightning
+		//487:	Demon of The Sun Moon And Stars Ground Effect
+		//488:	Comfort Skills
+		//489:	(Nothing)
+		//490:	(Nothing)
 
         491: [{
             type: 'STR',
@@ -2192,6 +2440,9 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//494:	Throwing Tomahawk
+		//495:	Full Strip Sound
+
         '496_beforecast': [{
             type: 'FUNC',
             attachedEntity: true,
@@ -2200,6 +2451,17 @@ define(function( require )
                 this.add(new MagicRing(entity, 2.45, 0.8, 2.80, 'ring_jadu', tick+10000), entity.GID);
             }
         }],
+
+		//497:	Twilight Alchemy 1
+		//498:	Twilight Alchemy 2
+		//499:	Twilight Alchemy 3
+		//500:	Player Become Blue with Blue Aura
+		//501:	Chase Walk Animation
+		//502:	Player Become Yellow with Yellow Aura
+		//503:	Soul Link Word
+		//504:	(Nothing)
+		//505:	Memorize
+		//506:	(Nothing)
 
         507: [{ //Authoritative Badge
             type: 'STR',
@@ -2222,6 +2484,15 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//510:	Champion Asura Strike
+		//511:	(Nothing)
+		//512:	Chain Crush Combo
+		//513:	Area Cast
+		//514:	Really Big Circle
+		//515:	Einbroch Fog
+		//516:	Airship Cloud
+		//517:	(Nothing)
+		//518:	Cart Termination
 
         519: [{ //speed potion
             type: 'SPR',
@@ -2229,6 +2500,9 @@ define(function( require )
             wav:  'effect/fast',
             attachedEntity: true
         }],
+
+		//520:	Shield Bumerang
+		//521:	Player Become Red with Red Aura
 
 		'522_ground': [{ // Gravitation field
             type: 'FUNC',
@@ -2242,23 +2516,50 @@ define(function( require )
             }
         }],
 
-
-/*
-523.	Tarot Card of Fate (The Fool)
-524.	Tarot Card of Fate (The Magician)
-525.	Tarot Card of Fate (The High Priestess)
-526.	Tarot Card of Fate (The Chariot)
-527.	Tarot Card of Fate (Strength)
-528.	Tarot Card of Fate (The Lovers)
-529.	Tarot Card of Fate (The Wheel of Fortune)
-530.	Tarot Card of Fate (The Hanged Man)
-531.	Tarot Card of Fate (Death)
-532.	Tarot Card of Fate (Temperance)
-533.	Tarot Card of Fate (The Devil)
-534.	Tarot Card of Fate (The Tower)
-535.	Tarot Card of Fate (The Star)
-536.	Tarot Card of Fate (The Sun)
-*/
+		//523:	Tarot Card of Fate (The Fool)
+		//524:	Tarot Card of Fate (The Magician)
+		//525:	Tarot Card of Fate (The High Priestess)
+		//526:	Tarot Card of Fate (The Chariot)
+		//527:	Tarot Card of Fate (Strength)
+		//528:	Tarot Card of Fate (The Lovers)
+		//529:	Tarot Card of Fate (The Wheel of Fortune)
+		//530:	Tarot Card of Fate (The Hanged Man)
+		//531:	Tarot Card of Fate (Death)
+		//532:	Tarot Card of Fate (Temperance)
+		//533:	Tarot Card of Fate (The Devil)
+		//534:	Tarot Card of Fate (The Tower)
+		//535:	Tarot Card of Fate (The Star)
+		//536:	Tarot Card of Fate (The Sun)
+		
+		//537:	Acid Demonstration
+		//538:	Player Become Green with Green Aura
+		//539:	Throw Random Bottle
+		//540:	Instant Small->Normal
+		//541:	(Nothing)
+		//542:	KA-Spell (1st Part)
+		//543:	Kahii
+		//544:	Warmth Red Sprite
+		//545:	Sound And... PUFF Client Crash :P
+		//546:	Kaupe
+		//547:	Estin
+		//548:	Instant Red Sprite
+		//549:	Instant Blue Sprite
+		//550:	Another Effect like Running Hit
+		//551:	Effect Like Estun but with Circle
+		//552:	(Nothing)
+		//553:	Esma
+		//554:	Large White Cloud
+		//555:	Estun
+		//556:	(Nothing)
+		//557:	Juperos Energy Waterfall (Horizontal)
+		//558:	Juperos Energy Waterfall (Vertical)
+		//559:	Juperos Energy Waterfall Fast (Horizontal)
+		//560:	Juperos Energy Waterfall Fast (Vertical)
+		//561:	Juperos Warp
+		//562:	Juperos Warp
+		//563:	Earthquake Effect (Juperos Elevator)
+		//564:	Wedding Cast
+		
         565: [{
             type: 'STR',
             file: 'moonlight_1',
@@ -2307,6 +2608,10 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//572:	Warmth Soul
+		//573:	Twilight Alchemy 1
+		//574:	Twilight Alchemy 2
+		//575:	Twilight Alchemy 3
 
         576: [{
             type: 'SPR',
@@ -2342,6 +2647,8 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//581:	Box Effect (Sunlight)
+		//582:	Another Super Novice/Taekwon Angel
 
         583: [{
             type: 'SPR',
@@ -2392,6 +2699,9 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//590:	Running Stop
+		//591:	(Nothing)
+		//592:	Thanatos Tower Bloody Clouds
 
         593: [{
             type: 'STR',
@@ -2434,6 +2744,10 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//599:	Cast Time Sound and Flashing Animation on Player
+		//600:	Throw Venom Knife
+		//601:	Sight Blaster
+		//602:	Close Confine (Grab Effect)
 
         603: [{
             type: 'STR',
@@ -2450,6 +2764,9 @@ define(function( require )
             stopAtEnd: true
         }],
 
+		//605:	(Nothing)
+		//606:	Pang Voice (Visual Effect)
+		//607:	Wink of Charm (Visual Effect)
 
         608: [{
             type: 'STR',
@@ -2464,6 +2781,8 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//610:	Success
+		//611:	Failed
 
         612: [{
             type: 'SPR',
@@ -2475,6 +2794,23 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//613:	Throw Shuriken
+		//614:	Throw Kunai
+		//615:	Throw Fumma Shuriken
+		//616:	Throw Money
+		//617:	Illusionary Shadow
+		//618:	Crimson Fire Bolossom
+		//619:	Lightning Spear Of Ice
+		//620:	Water Escape Technique
+		//621:	Wind Blade
+		//622:	Lightning Crash
+		//623:	Piercing Shot
+		//624:	Kamaitachi
+		//625:	Madness Canceller
+		//626:	Adjustment
+		//627:	Disarm (Sound Effect)
+		//628:	Dust
+		//629:	(Nothing)
 
         630: [{
             type: 'SPR',
@@ -2617,13 +2953,30 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//650:	Ice Cave Level 4 Circle
+		//651:	Ice Cave Level 4 Big Circle
+		//652:	Like Regeneration Number but Red with a Sound
+		//653:	Like Regeneration Number but Red
+		//654:	Like Regeneration Number but Purple
+		//655:	Mobs Skill (Change Undead Element)
+		//656:	Last animation before Change Undead Element finish
+		//657:	(Nothing)
+		//658:	(Nothing)
+		//659:	(Nothing)
+		//660:	(Nothing)
+		//661:	(Nothing)
+		//662:	(Nothing)
+		//663:	(Nothing)
+		//664:	(Nothing)
+		//665:	Little Blue Ball Falling From the Sky
 
-        666: [{
+        666: [{  //Earthquake
             type: 'SPR',
             file: '\x33\xee\x31\x6f\xc4\x75\x41\x49\x41\xa9', //3î1oÄuAIA©
             attachedEntity: true
         }],
 
+		//667:	(Nothing)
 
         668: [{
             type: 'STR',
@@ -2646,6 +2999,9 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//671:	The Japan Earth Symbol (like 'Seven Wind Lv1', but on the ground)
+		//672:	The Japan Wind Symbol (like 'Seven Wind Lv2', but on the ground)
+		//673:	Map turns Blue (like Soul Link)
 
 		'674_ground': [{ // evil land
             type: 'FUNC',
@@ -2660,13 +3016,35 @@ define(function( require )
             }
         }],
 
+		//675:	Like Parrying/Kyrie Eleison barrier but Yellow with small Cross in every barrier piece
 
         677: [{
             type: 'STR',
             file: 'cwound',
             attachedEntity: true
         }],
-
+		
+		//678:	White 99 Aura Bubbles
+		//679:	Green Aura (Middle)
+		//680:	Green Aura (Bottom)
+		//681:	Dimensional Gorge Map Effect
+		//682:	I Love You Banner
+		//683:	Happy White Day Banner
+		//684:	Happy Valentine Day Banner
+		//685:	Happy Birthday Banner
+		//686:	Merry Christmas Banner
+		//687:	Cast Circle-Like effect 1
+		//688:	Cast Circle-Like effect 2
+		//689:	Endless Tower Map Effect
+		//690:	Burning Flame (Red)
+		//691:	Burning Flame (Green)
+		//692:	Unknown Aura Bubbles (Small ghosts)
+		//693:	Translucent yellow circle
+		//694:	Translucent green circle
+		//695:	Rotating green light
+		//696:	The same of 690 and 691 but Blue/Purple
+		//697:	(Nothing)
+		//698:	(Nothing)
 
         699: [{
             type: 'STR',
@@ -2674,6 +3052,10 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//700:	Big Colored Green Sphere.
+		//701:	Huge Blue Sphere
+		//702:	Little Colored Violet Sphere
+		//703:	Light Infiltration with fall of pownder
 
         704: [{
             type: 'STR',
@@ -2695,6 +3077,7 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//707:	Client Crash :P
 
         708: [{
             type: 'STR',
@@ -2709,6 +3092,13 @@ define(function( require )
             attachedEntity: false
         }],
 
+		//710:	A Sphere like Effect 701 but Green, and a bit more larger
+		//711:	A big violet wall
+		//712:	A Little Flame Sphere
+		//713:	A lot of Very Small and Yellow Sphere
+		//714:	(Nothing)
+		//715:	Little blue Basilica
+		//716:	Same as 715
 
         717: [{
             type: 'STR',
@@ -2718,6 +3108,9 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//718:	Judex (Visual Effect)
+		//719:	Renovatio (light beam)
+		//720:	Yellow version of Soul Breaker
 
         721: [{
             type: 'STR',
@@ -2732,6 +3125,10 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//723:	Hundred Spear (sound effect)
+		//724:	Green version of Detecting
+		//725:	Oratorio (like Detecting)
+		//726:	Frost Misty (blue vapor and bubbles)
 
         727: [{
             type: 'STR',
@@ -2746,6 +3143,8 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//729:	Marsh of Abyss (like Close Confine)
+		//730:	Small, cartoony explosion (part of Soul Expansion)
 
         731: [{
             type: 'STR',
@@ -2753,6 +3152,8 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//732:	Spike from the ground
+		//733:	Fluffy Ball flying by
 
         734: [{
             type: 'STR',
@@ -2760,6 +3161,16 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//735:	(Nothing)
+		//736:	(Nothing)
+		//737:	(Nothing)
+		//738:	(Nothing)
+		//739:	Old Magenta Trap
+		//740:	Old Cobald Trap
+		//741:	Old Maize Trap
+		//742:	Old Verdure Trap
+		//743:	White Ranger Trap
+		//744:	Camouflage
 
         745: [{
             type: 'STR',
@@ -2802,13 +3213,56 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//751:	Releasing summoned warlock spheres
+		//752:	Like Energy Coat, but not as dark
+		//753:	Clearance
+		//754:	Green warp portal (root of Epiclesis)
+		//755:	Oratio (spinning blue symbol)
 
         756: [{
             type: 'STR',
             file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
             attachedEntity: true
         }],
-
+		
+		//757:	Third Class Aura (Middle)
+		//758:	Rolling Cutter - Spin Count 1
+		//759:	Rolling Cutter - Spin Count 2
+		//760:	Rolling Cutter - Spin Count 3
+		//761:	Rolling Cutter - Spin Count 4
+		//762:	Rolling Cutter - Spin Count 5
+		//763:	Rolling Cutter - Spin Count 6
+		//764:	Rolling Cutter - Spin Count 7
+		//765:	Rolling Cutter - Spin Count 8
+		//766:	Rolling Cutter - Spin Count 9
+		//767:	Rolling Cutter - Spin Count 10
+		//768:	Blinking
+		//769:	Cross Ripper Slasher (flying knives)
+		//770:	Strip sound
+		//771:	Poison sound
+		//772:	Poison particles
+		//773:	Expanding purple aura (part of Phantom Menace)
+		//774:	Axe Boomerang
+		//775:	Spinning character sprite
+		//776:	Like Desperado sound effect
+		//777:	Faded light from the ground [S]
+		//778:	Expanding white aura (like Clearance)
+		//779:	Faded light from the ground [S]
+		//780:	Expanding red aura (from Infrared Scan)
+		//781:	Magnetic Field (purple chains)
+		//782:	All-around shield [S]
+		//783:	Yellow shaft of light
+		//784:	White shaft of light
+		//785:	Upward flying wrenches
+		//786:	Symbol with bleeping sound [S]
+		//787:	Flare Launcher (line of fire)
+		//788:	Venom Impress (green skull)
+		//789:	Freezing Status Effect (two ancillas)
+		//790:	Burning Status Effect (flame symbol)
+		//791:	Two ice shots
+		//792:	Upward streaming white particles
+		//793:	Same, but more brief
+		//794:	Infrared Scan (red lasers)
 
         795: [{
             type: 'STR',
@@ -2816,6 +3270,23 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//796:	Spinning blue triangles
+		//797:	Stapo
+		//798:	Red triangles (like Intimidate)
+		//799:	Stasis (expanding blue mist) [S]
+		//800:	Hell Inferno (red lights)
+		//801:	Jack Frost unit (ice spikes)
+		//802:	White Imprison
+		//803:	Recognized Spell
+		//804:	Tetra Vortex [S]
+		//805:	Tetra Vortex cast animation (blinking colors)
+		//806:	Flying by as fast as a rocket
+		//807:	Kidnapping sound
+		//808:	Like Recognized Spell, but one symbol
+		//809:	Shadowy filter [S]
+		//810:	Damp thud sound [S]
+		//811:	Body Painting
+		//812:	Black expanding aura
 
         813: [{
             type: 'STR',
@@ -2857,7 +3328,108 @@ define(function( require )
             file: 'weakness',
             attachedEntity: true
         }],
-
+		
+		//819:	(Nothing)
+		//820:	Strip Accessory
+		//821:	Waterfall
+		//822:	Dimension Door (spinning blue aura)
+		//823:	in-the-manhole effect
+		//824:	Some filter
+		//825:	Dimension Door (aura + blue light)
+		//826:	Expanding black casting anim:
+		//827:	Chaos Panic (spinning brown aura)
+		//828:	Maelstrom (spinning pink aura)
+		//829:	Bloody Lust (spinning red aura)
+		//830:	Blue aura (Arch Bishop cast animation)
+		//831:	Blue cone [S]
+		//832:	Sonic Wave
+		//833:	(Nothing)
+		//834:	Light shooting away circlish
+		//835:	Fastness yellow-reddish
+		//836:	Fastness yellow-pinkish
+		//837:	Casting [S]
+		//838:	Watery aura
+		//839:	[Client Error]
+		//840:	Red cone
+		//841:	Green cone
+		//842:	Yellow cone
+		//843:	White cone
+		//844:	Purple cone
+		//845:	light-bluish turquoise cone
+		//846:	(Nothing)
+		//847:	Gloomy Day (white/red light rays)
+		//848:	Gloomy Day (white/blue light rays)
+		//849:	(Nothing)
+		//850:	(Nothing)
+		//851:	Green mushy-foggy stuff (dull)
+		//852:	Green mushy-foggy stuff (bright)
+		//853:	Bright green flower area
+		//854:	Blue beam of light with notes
+		//855:	(Nothing)
+		//856:	Reverberation (red eighth notes)
+		//857:	Severe Rainstorm (falling red and blue beams)
+		//858:	Deep Sleep Lullaby (two red beams and music notes)
+		//859:	Holograph of text (blue)
+		//860:	Distorted note (blue)
+		//861:	Green aura (from Circle of Life's Melody)
+		//862:	Randomize Spell (holograph of text)
+		//863:	Dominion Impulse (two spears of light)
+		//864:	Gloomy Day (colorful lines)
+		//865:	Blue aura (from Song of Mana)
+		//866:	Dance with a Warg (Wargs)
+		//867:	Yellow aura (from Dance with a Warg)
+		//868:	Song of Mana (Violies)
+		//869:	Strip sound [S]
+		//870:	Ghostly Succubuses of fire
+		//871:	Red aura (from Lerad's Dew)
+		//872:	Lerad's Dew (Minerals)
+		//873:	Stargate-wormhole stuff (bright purple)
+		//874:	Melody of Sink (Ktullanuxes)
+		//875:	Stargate-wormhole stuff (bright turquoise)
+		//876:	Warcry of Beyond (Garms)
+		//877:	Stargate-wormhole stuff (white)
+		//878:	Unlimited Humming Voice (Miyabi Ningyos)
+		//879:	Siren's Voice (heart-like)
+		//880:	Bluish castish cone
+		//881:	Blue aura
+		//882:	Whirl of fireflies (red)
+		//883:	Epiclesis (transparent green tree)
+		//884:	Green beam
+		//885:	Blue light beams
+		//886:	Blue castish cone
+		//887:	Wavy sparks
+		//888:	Earth Shaker (same as 432)
+		//889:	Fast light beams
+		//890:	Rotation
+		//891:	Magic shots [S]
+		//892:	Fastness with hitting sound[S]
+		//893:	Blue-white light passing by
+		//894:	(Nothing)
+		//895:	Big wheel of flat light beams
+		//896:	Still sun shaped lightning aura
+		//897:	Animated sun shaped lightning aura
+		//898:	Animated, curvy sun shaped lightning aura
+		//899:	White/red light shots from below
+		//900:	Animated, slow curvy sun shaped lightning aura
+		//901:	Explosion
+		//902:	Floating bedtable texture
+		//903:	Castish flamey cone
+		//904:	Yellow/pink lights passing by
+		//905:	Expanding circle
+		//906:	Shield Press (falling shield)
+		//907:	Chainy, metalish sound [S]
+		//908:	Prestige (sphere of yellow particles)
+		//909:	Banding (sphere of red particles)
+		//910:	Inspiration (sphere of blue particles)
+		//911:	Green castish animation [S]
+		//912:	Wall of Thorns unit (green fog cloud)
+		//913:	Magic projectiles
+		//914:	(Nothing)
+		//915:	Crazy Weed
+		//916:	Demonic Fire
+		//917:	More angry, demonic flames
+		//918:	Fire Insignia (demonic flames)
+		//919:	Hell's Plant (green snapping plant)
 
         920: [{
             type: 'STR',
@@ -2865,6 +3437,11 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//921:	Vacuum Extreme (whirlwind)
+		//922:	Psychic Wave
+		//923:	Poison Buster
+		//924:	Poisoning animation
+		//925:	Some filter
 
         926: [{
             type: 'STR',
@@ -2872,6 +3449,38 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//927:	Earth Grave (speary roots)
+		//928:	Ice cloud projectiles
+		//929:	Warmer (field of flames)
+		//930:	Varetyr Spear (falling spear)
+		//931:	(Nothing)
+		//932:	Firefly
+		//933:	[Client Crash]
+		//934:	White, castishly expanding cone
+		//935:	Green magic projectile
+		//936:	Red, castishly expanding cone
+		//937:	Yellow, castishly expanding cone
+		//938:	Dark-red, castishly expanding cone
+		//939:	Blue, conish aura
+		//940:	Snow flake
+		//941:	Explosion of red, demonic fire
+		//942:	Expanding, white dome
+		//943:	Green, fluffy projectile
+		//944:	Falling gems
+		//945:	(Nothing)
+		//946:	Floating lights
+		//947:	Blue lightning sphere
+		//948:	Two blue lightning spheres
+		//949:	Flat, spinning diamond
+		//950:	Circling, planetlike spheres
+		//951:	Three lightning spheres
+		//952:	Flat, spinning gem and two lightning spheres
+		//953:	Spinning, planetlike spheres
+		//954:	Two lightblue glowing spheres
+		//955:	Three spinning flame spheres
+		//956:	Flame
+		//957:	Spinning planetlike sphere
+		//958:	Two flames
 
         959: [{
             type: 'STR',
@@ -2886,6 +3495,9 @@ define(function( require )
             attachedEntity: true
         }],
 
+		//961:	Cartoony whirlwind
+		//962:	Rising fire
+		//963:	Dark filter (like Stone Curse)
 
         964: [{
             type: 'STR',
