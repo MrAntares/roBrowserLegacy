@@ -77,28 +77,36 @@ define(function( require ) {
      * @var {string} Fragment Shader
      */
     var _fragmentShader = [
-        'varying vec2 vTextureCoord;',
+        `varying vec2 vTextureCoord;
 
-        'uniform sampler2D uDiffuse;',
+        uniform sampler2D uDiffuse;
+		uniform bool uCoin;
+		float tmp;
 
+        void main(void) {
+            vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
+			
+			if (uCoin) { 
+				tmp = texture.r;
+				texture.r = texture.b;
+				texture.b = tmp;
+			}
+			
+            if (texture.r < 0.3 || texture.g < 0.3 || texture.b < 0.3) {
+               discard;
+            }
+            texture.a = 1.0;
+            gl_FragColor = texture;
 
-        'void main(void) {',
-            'vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );',
-
-            'if (texture.r < 0.3 || texture.g < 0.3 || texture.b < 0.3) {',
-            '   discard;',
-            '}',
-            'texture.a = 1.0;',
-            'gl_FragColor = texture;',
-
-        '}'
+        }`
     ].join('\n');
 
 
-    function SpiritSphere(entity, num)
+    function SpiritSphere(entity, num, isCoin)
     {
         this.position = entity.position;
         this.num = num;
+		this.isCoin = isCoin;
     }
 
 
@@ -210,12 +218,20 @@ define(function( require ) {
     {
 
         gl.uniform3fv( _program.uniform.uPosition,  this.position);
-        gl.uniform1f(  _program.uniform.uSize, 0.15);
-
+        
         gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
-
+		
+		gl.uniform1i( _program.uniform.uCoin,  this.isCoin);
+		
         var _matrix;
         for (var i = 0; i < this.num; i++){
+			if (i>4) {
+				gl.uniform1f(  _program.uniform.uSize, 0.20);
+			} else if (i>9) {
+				gl.uniform1f(  _program.uniform.uSize, 0.25);
+			} else {
+				gl.uniform1f(  _program.uniform.uSize, 0.15);
+			}
             _matrix = _rotationMatrices[i % _rotationMatrices.length];
             gl.uniformMatrix4fv(_program.uniform.uRotationMat, false, _matrix);
             gl.drawArrays( gl.TRIANGLES, 0, 6 );
