@@ -295,6 +295,9 @@ define(function(require)
 		target.spcost      = skill.spcost;
 		target.attackRange = skill.attackRange;
 		target.upgradable  = skill.upgradable;
+		if (Number.isInteger(skill.type)) {
+			target.type    = skill.type;
+		}
 
 		// Update UI
 		element = this.ui.find('.skill.id' + skill.SKID + ':first');
@@ -415,7 +418,7 @@ define(function(require)
 	function getSkillById( id )
 	{
 		var i, count = _list.length;
-
+		
 		for (i = 0; i < count; ++i) {
 			if (_list[i].SKID === id) {
 				return _list[i];
@@ -537,7 +540,7 @@ define(function(require)
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
-
+		
 		skill = getSkillById(parseInt(main.data('index'), 10));
 
 		// Don't add the same UI twice, remove it
