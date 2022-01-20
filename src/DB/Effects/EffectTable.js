@@ -1944,20 +1944,22 @@ define(function( require )
         }],
 
         317: [{ //Warp Portal Animation 2    //EF_PORTAL2    Warp Portal Animation 2
-            /*type: 'FUNC',
-            attachedEntity: false,
-            textureName: 'magic_blue',
-            func: function(pos, tick, AID){
-                var Cylinder = require('Renderer/Effects/Cylinder');
-                this.add(new Cylinder(pos, 0.6, 0.6, 40, 'magic_blue', tick), AID);
-            }*/
             type: 'CYLINDER',
             attachedEntity: false,
             //wav: '',
             topSize: 0.6,
             bottomSize: 0.6,
-            height: 40
-        }],
+            height: 10.0,
+			textureName: 'magic_blue'
+        }/*, { //multiple effects dont't work yet because of the matching AID thal last overwrites the rearlier ones.. /sigh
+			type: 'CYLINDER',
+            attachedEntity: false,
+            //wav: '',
+            topSize: 1.6,
+            bottomSize: 1.6,
+            height: 2.0,
+			textureName: 'magic_blue'
+        }*/],
 
         'deluge_ground': [{
             type: 'FUNC',
