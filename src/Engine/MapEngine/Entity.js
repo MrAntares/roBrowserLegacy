@@ -47,14 +47,30 @@ define(function( require )
 	
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
-				SkillId.AS_CLOAKING,
+				//Hiding skills
 				SkillId.TF_HIDING,
+				SkillId.AS_CLOAKING,
+				SkillId.RG_CHASEWALK,
 				SkillId.GC_CLOAKINGEXCEED,
-				SkillId.ST_CHASEWALK,
+				SkillId.RA_CAMOUFLAGE,
+				SkillId.NC_STEALTHFIELD,
+				SkillId.SC_SHADOWFORM,
+				SkillId.SC_INVISIBILITY,
 				SkillId.KO_YAMIKUMO,
-				//Overbrand 2 attacks
+				
+				//3rd job extra skills
 				SkillId.LG_OVERBRAND_BRANDISH,
-				SkillId.LG_OVERBRAND_PLUSATK
+				SkillId.LG_OVERBRAND_PLUSATK,
+				SkillId.WM_REVERBERATION_MELEE,
+				SkillId.WM_REVERBERATION_MAGIC,
+				SkillId.WL_TETRAVORTEX_FIRE,
+				SkillId.WL_TETRAVORTEX_WATER,
+				SkillId.WL_TETRAVORTEX_WIND,
+				SkillId.WL_TETRAVORTEX_GROUND,
+				SkillId.WL_SUMMON_ATK_FIRE,
+				SkillId.WL_SUMMON_ATK_WIND,
+				SkillId.WL_SUMMON_ATK_WATER,
+				SkillId.WL_SUMMON_ATK_GROUND
 			];
 	
 	/**
@@ -731,10 +747,12 @@ define(function( require )
             srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
         )
         {
-			srcEntity.dialog.set(
-				( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
-				'white'
-			);
+			if(!SkillNameDisplayExclude.includes(pkt.SKID)){
+				srcEntity.dialog.set(
+					( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
+					'white'
+				);
+			}
 		}
 
 		if (dstEntity) {
@@ -807,11 +825,12 @@ define(function( require )
 			}
 			
 			// Don't display skill names for mobs and hiding skills
-			if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+			if (!SkillNameDisplayExclude.includes(pkt.SKID)
+				&&
+				(srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
-            )
-            {
+                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
+			){
                 srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
             }
 
@@ -950,19 +969,7 @@ define(function( require )
         )
         {
 		
-		var hidingSkills = [
-								51, //TF_HIDING
-								135, //AS_CLOAKING
-								389, //RG_CHASEWALK
-								2033, //GC_CLOAKINGEXCEED
-								2247, //RA_CAMOUFLAGE
-								2274, //NC_STEALTHFIELD
-								2287, //SC_SHADOWFORM
-								2290, //SC_INVISIBILITY
-								3001 //KO_YAMIKUMO aka Shadow Hiding
-							];
-
-        if(!hidingSkills.includes(pkt.SKID)) //when not a hiding skill
+        if(!SkillNameDisplayExclude.includes(pkt.SKID))
             srcEntity.dialog.set(
                 ( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
                 'white'
