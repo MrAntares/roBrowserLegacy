@@ -1953,7 +1953,7 @@ define(function( require )
             }*/
             type: 'CYLINDER',
             attachedEntity: false,
-            wav: '',
+            //wav: '',
             topSize: 0.6,
             bottomSize: 0.6,
             height: 40
