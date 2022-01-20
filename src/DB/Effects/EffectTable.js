@@ -59,7 +59,7 @@ define(function( require )
 
     return {
 
-        1: [{
+        1: [{    //EF_HIT2    Bash
             //  Loads 2 tga-images, semi-randomly (alternating pattern but random position) aligns 4 instances of each (=8 in total) in a circle around the object and stretches them away.
             //  Important note: It really is just stretching one end further and further out, one end of the images is tied to the object
             //type: 'FUNC',
@@ -69,21 +69,21 @@ define(function( require )
         }],
 
 
-        2: [{
+        2: [{    //EF_HIT3    Melee Skill Hit
             //type:  'FUNC',
             wav: 'effect/ef_hit3',
             attachedEntity: true
         }],
 
 
-        3: [{
+        3: [{    //EF_HIT4    Melee Skill Hit
             //type:  'FUNC',
             wav: 'effect/ef_hit4',
             attachedEntity: true
         }],
 
 
-        4: [{
+        4: [{    //EF_HIT5    Melee Skill Hit
             //type:  'FUNC',
             //file:  'lens2',
             wav: 'effect/ef_hit5',
@@ -91,7 +91,7 @@ define(function( require )
         }],
 
 
-        5: [{
+        5: [{    //EF_HIT6    Melee Skill Hit
             //type:  'FUNC',
             //file: 'lens2',
             wav: 'effect/ef_hit6',
@@ -99,7 +99,7 @@ define(function( require )
         }],
 
 
-        6: [{ //portal - entering the new map
+        6: [{ //portal - entering the new map    //EF_ENTRY    Being Warped
             //type: 'FUNC',
             //file: 'effect/ring_blue',
             wav: 'effect/ef_portal',
@@ -107,7 +107,7 @@ define(function( require )
         }],
 
 
-        7: [{
+        7: [{    //EF_EXIT    Item Heal effect
             //type: 'FUNC',
             //file: 'effect/alpha_down',
             wav: '_heal_effect',
@@ -115,21 +115,21 @@ define(function( require )
         }],
 
 
-        8: [{
+        8: [{    //EF_WARP    Yellow Ripple Effect
             //type: 'FUNC',
             //file: 'effect/ring_yellow',
             attachedEntity: false
         }],
 
 
-        9: [{
+        9: [{    //EF_ENHANCE    Different Type of Heal
             //type: 'FUNC',
             //file: 'effect/alpha_down',
             attachedEntity: false
         }],
 
 
-        10: [{
+        10: [{    //EF_COIN    Mammonite
             type: 'STR',
             file: 'maemor',
             min:  'memor_min',
@@ -138,7 +138,7 @@ define(function( require )
         }],
 
 
-        11: [{
+        11: [{    //EF_ENDURE    Endure
             //type: 'FUNC',
             //file: 'effect/endure',
           wav:  'effect/ef_endure',
@@ -146,7 +146,7 @@ define(function( require )
         }],
 
 
-        12: [{
+        12: [{    //EF_BEGINSPELL    Yellow cast aura
             //type: 'FUNC',
             //file: 'effect/ring_yellow',
             wav:  'effect/ef_beginspell',
@@ -154,7 +154,7 @@ define(function( require )
         }],
 
 
-        13: [{
+        13: [{    //EF_GLASSWALL    Blue Box
             type: 'STR',
             file: 'effect/safetywall',
             wav:  'effect/ef_glasswall',
@@ -162,7 +162,7 @@ define(function( require )
         }],
 
 
-        14: [{
+        14: [{    //EF_HEALSP    Blue restoring effect
             //type: 'FUNC',
             //file: 'effect/ring_blue',
             wav: '_heal_effect',
@@ -170,7 +170,7 @@ define(function( require )
         }],
 
 
-        15: [{ //soul strike caster
+        15: [{ //soul strike caster    //EF_SOULSTRIKE    Soul Strike
             //type: 'FUNC',
             //file: 'sprite/AIANA®/particle1',
             wav: 'effect/ef_soulstrike',
@@ -178,7 +178,7 @@ define(function( require )
         }],
 
 
-        16: [{ //hide and monster body relocation sound
+        16: [{ //hide and monster body relocation sound    //EF_BASH    Hide
             //type: 'FUNC',
             //file: 'effect/alpha_center',
             wav: 'effect/ef_bash',
@@ -186,7 +186,7 @@ define(function( require )
         }],
 
         
-        17: [{   // still missing half of sphere with text. 'effect/´ëAo1ß',
+        17: [{   // still missing half of sphere with text. 'effect/´ëAo1ß',    //EF_MAGNUMBREAK    Magnum Break
             type: 'FUNC',
             wav: 'effect/ef_magnumbreak',
             attachedEntity: false,
@@ -197,7 +197,7 @@ define(function( require )
         }],
         
 
-        18: [{
+        18: [{    //EF_STEAL    Steal
             //type: 'FUNC',
             //file: 'sprite/AIANA®/particle7',
             wav: 'effect/ef_steal',
@@ -205,10 +205,10 @@ define(function( require )
         }],
 
 
-        // 19: Invalid Effect ID Popup in client
+        // 19: [{}],    //EF_HIDING    Invalid Effect ID Popup in client
 
 
-        20: [{
+        20: [{    //EF_PATTACK    Envenom/Poison
             //type: 'FUNC',
             //file: 'sprite/AIANA®/particle3',
             wav: 'effect/assasin_enchantpoison',
@@ -216,7 +216,7 @@ define(function( require )
         }],
 
 
-        21: [{
+        21: [{    //EF_DETOXICATION    Detoxify
             //type: 'FUNC',
             wav: 'effect/ef_detoxication',
             //file: 'sprite/AIANA®/particle2',
@@ -224,7 +224,7 @@ define(function( require )
         }],
 
 
-        22: [{
+        22: [{    //EF_SIGHT    Sight
             // Sight effect, circling the entity 3.75 times
             type: 'SPR', //type: 'FUNC',
             file: 'sight',  //file: 'sprite/AIANA®/sight',
@@ -233,21 +233,21 @@ define(function( require )
         }],
 
 
-        23: [{
+        23: [{    //EF_STONECURSE    Stone Curse
             type: 'STR',
             file: 'stonecurse',
             attachedEntity: true
         }],
 
 
-        24: [{ //fireball caster effect (on target effect 49:)
+        24: [{ //fireball caster effect (on target effect 49:)    //EF_FIREBALL    Fire Ball
             type: 'FUNC',
             wav: 'effect/ef_fireball',
             attachedEntity: false
         }],
 
 
-        25: [{
+        25: [{    //EF_FIREWALL    Fire Wall
             type: 'STR',
             file: 'firewall%d',
             wav:  'effect/ef_firewall',
@@ -256,7 +256,7 @@ define(function( require )
         }],
 
 
-        26: [{
+        26: [{    //EF_ICEARROW    A sound (a swipe?)
             //type: 'FUNC',
             wav: 'effect/ef_icearrow%d', // Or ef_icearrow2 & ef_icearrow3 . Seems to be random
             rand: [1, 3],
@@ -264,7 +264,7 @@ define(function( require )
         }],
 
 
-        27: [{ //Frost diver caster (ice traveling to target)
+        27: [{ //Frost diver caster (ice traveling to target)    //EF_FROSTDIVER    Frost Diver (Traveling to Target)
             //type: 'FUNC',
             file: 'effect/ice',
             wav: 'effect/ef_frostdiver1',
@@ -272,7 +272,7 @@ define(function( require )
         }],
 
 
-        28: [{ //Frost Diver target hit
+        28: [{ //Frost Diver target hit    //EF_FROSTDIVER2    Frost Diver (Hitting)
             //type: 'FUNC',
             file: 'effect/ice',
             wav: 'effect/ef_frostdiver2',
@@ -280,14 +280,14 @@ define(function( require )
         }],
 
 
-        29: [{
+        29: [{    //EF_LIGHTBOLT    Lightning Bolt
             type: 'STR',
             file: 'lightning',
             attachedEntity: true
         }],
 
 
-        30: [{
+        30: [{    //EF_THUNDERSTORM    Thunder Storm
             type: 'STR',
             file: 'thunderstorm',
             wav:  'effect/magician_thunderstorm',
@@ -295,22 +295,22 @@ define(function( require )
         }],
 
 
-        31: [{
+        31: [{    //EF_FIREARROW    Weird bubbles launching from feet
             //type: 'FUNC',
             wav: 'effect/ef_firearrow1',
             attachedEntity: true
         }],
 
 
-        32: [{
+        32: [{    //EF_NAPALMBEAT    Small clustered explosions
             //type: 'FUNC',
             //file: 'effect/Ao1ß1', // Uses up to Ao1ß8 , so eight files for an animated explosion
             wav: 'effect/ef_napalmbeat',
             attachedEntity: true
         }],
 
-        //33: //ruwach
-        34: [{
+        //33: [{}],    //EF_RUWACH    //ruwach
+        34: [{    //EF_TELEPORTATION    Old Map Exit Animation (unused)
             //type: 'FUNC',
             //file: 'effect/ring_blue',
             wav: 'effect/ef_teleportation',
@@ -318,16 +318,16 @@ define(function( require )
         }],
 
 
-        35: [{ //warp portal casting before unit appear
+        35: [{ //warp portal casting before unit appear    //EF_READYPORTAL    Old Warp Portal (unused)
             //type: 'FUNC',
             //file: 'effect/ring_blue',
             wav: 'effect/ef_readyportal',
             attachedEntity: false
         }],
 
-        //36: //warp portal unit
+        //36: [{}],    //EF_PORTAL    //warp portal unit
 
-        37: [{
+        37: [{    //EF_INCAGILITY    AGI Up
             //type: 'FUNC',
             //file: 'effect/ac_center2',
             wav: 'effect/ef_incagility',
@@ -335,14 +335,14 @@ define(function( require )
         }],
 
 
-        38: [{
+        38: [{    //EF_DECAGILITY    AGI Down
             //type: 'FUNC',
             wav: 'effect/ef_decagility',
             attachedEntity: true
         }],
 
 
-        39: [{
+        39: [{    //EF_AQUA    Aqua Benedicta
             type: 'SPR',
             file: '1o1ö¶ß±â',
             wav:  'effect/ef_aqua',
@@ -351,7 +351,7 @@ define(function( require )
         }],
 
 
-        40: [{
+        40: [{    //EF_SIGNUM    Signum Crucis
             type: 'STR',
             file: 'cross',
             wav:  'effect/ef_signum',
@@ -359,7 +359,7 @@ define(function( require )
         }],
 
 
-        41: [{
+        41: [{    //EF_ANGELUS    Angelus
             type: 'STR',
             file: 'angelus',
             wav:  'effect/ef_angelus',
@@ -369,7 +369,7 @@ define(function( require )
         }],
 
 
-        42: [{
+        42: [{    //EF_BLESSING    Blessing
             type: 'SPR',
             file: 'Aao1',
             wav: 'effect/ef_blessing',
@@ -378,21 +378,21 @@ define(function( require )
         }],
 
 
-        43: [{
+        43: [{    //EF_INCAGIDEX    Dex + Agi Up
             //type: 'FUNC',
             wav: 'effect/ef_incagidex',
             attachedEntity: true
         }],
 
 
-        45: [{ // This one is almost invisible, but there are some small white thingies flying around
+        45: [{ // This one is almost invisible, but there are some small white thingies flying around    //EF_FIREFLY    Faint Little Ball Things.
             type: 'FUNC',
             //file: 'sprite/AIANA®/particle1',
             attachedEntity: true
         }],
 
 
-        47: [{
+        47: [{    //EF_TORCH    Torch
             type: 'SPR',
             file: 'torch_01',
             attachedEntity: false,
@@ -400,7 +400,7 @@ define(function( require )
         }],
 
 
-        49: [{
+        49: [{    //EF_FIREHIT    Firebolt/Wall Hits
             type: 'STR',
             file: 'firehit%d',
             wav:  'effect/ef_firehit',
@@ -408,13 +408,13 @@ define(function( require )
             attachedEntity: true
         }],
 
-        51: [{ // water hit
+        51: [{ // water hit    //EF_COLDHIT    Ice Elemental Hit
             wav:  '_hit_fist%d',
             rand: [3, 4],
             attachedEntity: true
         }],  
 
-        52: [{
+        52: [{    //EF_WINDHIT    Wind Elemental Hit
             type: 'STR',
             file: 'windhit%d',
             wav:  '_hit_fist%d',
@@ -423,7 +423,7 @@ define(function( require )
         }],
 
 
-        53: [{
+        53: [{    //EF_POISONHIT    Puff of Purpulish Smoke?
             type: 'SPR',
             file: 'poisonhit',
             wav:  'effect/ef_poisonattack',
@@ -431,49 +431,49 @@ define(function( require )
         }],
 
 
-        54: [{
+        54: [{    //EF_BEGINSPELL2    Cast Initiation Aura (Water Element)
             //type: 'FUNC',
             wav:  'effect/ef_beginspell',
             attachedEntity: true
         }],
 
 
-        55: [{
+        55: [{    //EF_BEGINSPELL3    Cast Initiation Aura (Fire Element)
             //type: 'FUNC',
             wav:  'effect/ef_beginspell',
             attachedEntity: true
         }],
 
 
-        56: [{
+        56: [{    //EF_BEGINSPELL4    Cast Initiation Aura (Wind Element)
             //type: 'FUNC',
             wav:  'effect/ef_beginspell',
             attachedEntity: true
         }],
 
 
-        57: [{
+        57: [{    //EF_BEGINSPELL5    Cast Initiation Aura (Earth Element)
             //type: 'FUNC',
             wav:  'effect/ef_beginspell',
             attachedEntity: true
         }],
 
 
-        58: [{
+        58: [{    //EF_BEGINSPELL6    Cast Initiation Aura (Holy Element)
             //type: 'FUNC',
             wav:  'effect/ef_beginspell',
             attachedEntity: true
         }],
 
 
-        59: [{
+        59: [{    //EF_BEGINSPELL7    Cast Initiation Aura (Poison Element)
             //type: 'FUNC',
             wav:  'effect/ef_beginspell',
             attachedEntity: true
         }],
 
 
-        60: [{
+        60: [{    //EF_LOCKON    Cast target circle
             type: 'FUNC',
             attachedEntity: true,
             func: function(entity, tick) {
@@ -488,7 +488,7 @@ define(function( require )
         }],
 
 
-        62: [{
+        62: [{    //EF_SIGHTRASHER    Sight Trasher
             //type: 'FUNC',
             //file: 'sprite/AIANA®/sight',
             wav:  'effect/wizard_sightrasher',
@@ -496,14 +496,14 @@ define(function( require )
         }],
 
 
-        64: [{
+        64: [{    //EF_ARROWSHOT    Something Like Puruple/Yellow Light Bullet
             type: 'STR',
             file: 'arrowshot',
             attachedEntity: true
         }],
 
 
-        65: [{
+        65: [{    //EF_INVENOM    Something Like Absorb of Power
             type: 'STR',
             file: 'invenom',
             wav:  'effect/thief_invenom',
@@ -511,7 +511,7 @@ define(function( require )
         }],
 
 
-        66: [{
+        66: [{    //EF_CURE    Cure
             type: 'STR',
             file: 'cure',
             wav:  'effect/acolyte_cure',
@@ -520,7 +520,7 @@ define(function( require )
         }],
 
 
-        67: [{
+        67: [{    //EF_PROVOKE    Provoke
             type: 'STR',
             file: 'provoke',
             wav:  'effect/swordman_provoke',
@@ -528,7 +528,7 @@ define(function( require )
         }],
 
 
-        68: [{
+        68: [{    //EF_MVP    MVP Banner
             type: 'STR',
             file: 'mvp',
             wav:  'effect/st_mvp',
@@ -536,7 +536,7 @@ define(function( require )
         }],
 
 
-        69: [{
+        69: [{    //EF_SKIDTRAP    Skid Trap
             type: 'STR',
             file: 'skidtrap',
             wav:  'effect/hunter_skidtrap', // or hallucinationwalk ?
@@ -544,7 +544,7 @@ define(function( require )
         }],
 
 
-        70: [{
+        70: [{    //EF_BRANDISHSPEAR    Brandish Spear
             type: 'STR',
             file: 'brandish',
             wav: '_enemy_hit_normal1',  //wav:  'effect/knight_brandish_spear', fake
@@ -552,14 +552,14 @@ define(function( require )
         }],
 
 
-        74: [{
+        74: [{    //EF_ICEWALL    Ice Wall
             //type: 'FUNC',
             wav:  'effect/wizard_icewall',
             attachedEntity: false
         }],
 
 
-        75: [{
+        75: [{    //EF_GLORIA    Gloria
             type: 'STR',
             file: 'gloria',
             wav:  'effect/priest_gloria',
@@ -568,7 +568,7 @@ define(function( require )
         }],
 
 
-        76: [{
+        76: [{    //EF_MAGNIFICAT    Magnificat
             type: 'STR',
             file: 'magnificat',
             wav:  'effect/priest_magnificat',
@@ -577,7 +577,7 @@ define(function( require )
         }],
 
 
-        77: [{
+        77: [{    //EF_RESURRECTION    Resurrection
             type: 'STR',
             file: 'resurrection',
             wav:  'effect/priest_resurrection',
@@ -586,7 +586,7 @@ define(function( require )
         }],
 
 
-        78: [{
+        78: [{    //EF_RECOVERY    Status Recovery
             type: 'STR',
             file: 'recovery',
             wav:  'effect/priest_recovery',
@@ -594,30 +594,30 @@ define(function( require )
         }],
 
 
-        79: [{
+        79: [{    //EF_EARTHSPIKE    Earth Spike
             //type: 'FUNC',
             wav:  'effect/wizard_earthspike',
             attachedEntity: false
         }],
 
-        80: [{ //spear boomerang hit on target
+        80: [{ //spear boomerang hit on target    //EF_SPEARBMR    Spear Boomerang
             //type: 'FUNC',
-			wav:  'effect/ef_fireball',				  
+            wav:  'effect/ef_fireball',                  
             attachedEntity: true
         }],
 
-        81: [{ // default skill sound?
+        81: [{ // default skill sound?    //EF_PIERCE    Skill hit
             wav:  'effect/ef_bash',
             attachedEntity: true
         }],
 
-        82: [{ //turn undead caster
+        82: [{ //turn undead caster    //EF_TURNUNDEAD    Turn Undead
             //type: 'FUNC',
             wav:  'effect/ef_bash',
             attachedEntity: true
         }],
 
-        83: [{
+        83: [{    //EF_SANCTUARY    Sanctuary
             type: 'STR',
             file: 'sanctuary',
             wav:  'effect/priest_sanctuary',
@@ -625,7 +625,7 @@ define(function( require )
         }],
 
 
-        84: [{
+        84: [{    //EF_IMPOSITIO    Impositio Manus
             type: 'STR',
             file: 'impositio',
             wav:  'effect/priest_impositio',
@@ -633,7 +633,7 @@ define(function( require )
         }],
 
 
-        85: [{
+        85: [{    //EF_LEXAETERNA    Lex Aeterna
             type: 'STR',
             file: 'lexaeterna',
             wav:  'effect/priest_lexaeterna',
@@ -642,7 +642,7 @@ define(function( require )
         }],
 
 
-        86: [{
+        86: [{    //EF_ASPERSIO    Aspersio
             type: 'STR',
             file: 'aspersio',
             wav:  'effect/priest_aspersio',
@@ -650,7 +650,7 @@ define(function( require )
         }],
 
 
-        87: [{
+        87: [{    //EF_LEXDIVINA    Lex Divina
             type: 'STR',
             file: 'lexdivina',
             wav:  'effect/priest_lexdivina',
@@ -658,7 +658,7 @@ define(function( require )
         }],
 
 
-        88: [{
+        88: [{    //EF_SUFFRAGIUM    Suffragium
             type: 'STR',
             file: 'suffragium',
             wav:  'effect/priest_suffragium',
@@ -667,7 +667,7 @@ define(function( require )
         }],
 
 
-        89: [{
+        89: [{    //EF_STORMGUST    Storm Gust
             type: 'STR',
             file: 'stormgust',
             wav:  'effect/wizard_stormgust',
@@ -676,7 +676,7 @@ define(function( require )
         }],
 
 
-        90: [{
+        90: [{    //EF_LORD    Lord of Vermilion
             type: 'STR',
             file: 'lord',
             wav:  'effect/wizard_fire_ivy',
@@ -684,7 +684,7 @@ define(function( require )
         }],
 
 
-        91: [{
+        91: [{    //EF_BENEDICTIO    B. S. Sacramenti
             type: 'STR',
             file: 'benedictio',
             wav:  'effect/priest_benedictio',
@@ -692,7 +692,7 @@ define(function( require )
         }],
 
 
-        92: [{
+        92: [{    //EF_METEORSTORM    Meteor Storm
             type: 'STR',
             file: 'meteor%d',
             wav:  'effect/wizard_meteor',
@@ -701,7 +701,7 @@ define(function( require )
         }],
 
 
-        93: [{
+        93: [{    //EF_YUFITEL    Jupitel Thunder (Ball)
             type: 'STR',
             //file: 'ufidel',
             //file: 'thunder_ball000%d',
@@ -711,14 +711,14 @@ define(function( require )
         }],
 
 
-        94: [{
+        94: [{    //EF_YUFITELHIT    Jupitel Thunder (Hit)
             type: 'STR',
             file: 'ufidel_pang',
             attachedEntity: true
         }],
 
 
-        95: [{
+        95: [{    //EF_QUAGMIRE    Quagmire
             type: 'STR',
             file: 'quagmire',
             wav:  'effect/wizard_quagmire',
@@ -726,7 +726,7 @@ define(function( require )
         }],
 
 
-        96: [{ //firepillar caster
+        96: [{ //firepillar caster    //EF_FIREPILLAR    Fire Pillar
             type: 'STR',
             file: 'firepillar',
             wav:  'effect/wizard_fire_pillar_a',
@@ -734,7 +734,7 @@ define(function( require )
         }],
 
 
-        97: [{ //firepillar target hit
+        97: [{ //firepillar target hit    //EF_FIREPILLARBOMB    Fire Pillar/Land Mine hit
             type: 'STR',
             file: 'firepillarbomb',
             wav:  'effect/wizard_fire_pillar_b',
@@ -742,7 +742,7 @@ define(function( require )
         }],
 
 
-        98: [{
+        98: [{    //EF_HASTEUP    Adrenaline Rush
             //type: 'FUNC',
             // This one is pretty messy... it somehow consists of two sprites, one is attached to the Entity, one isnt. additionally it consists of two sounds
             // For the sake of simplicity, I propose just using one sprite and one sound - the _a sound is just some "intro" while _b is a real effect
@@ -757,7 +757,7 @@ define(function( require )
         }],
         
 
-        99: [{
+        99: [{    //EF_FLASHER    Flasher Trap
             //type: 'FUNC',
             // Again two sprites... one attached one not. But here the "main" sprite is ment to stay a little longer
             wav:  'effect/hunter_flasher',
@@ -765,13 +765,13 @@ define(function( require )
         }],
 
 
-        100: [{
+        100: [{    //EF_REMOVETRAP    Yellow ball fountain
             //type: 'FUNC',
             wav:  'effect/hunter_removetrap',
             attachedEntity: false
         }],
 
-        101: [{
+        101: [{    //EF_REPAIRWEAPON    Weapon Repair
             type: 'STR',
             file: 'repairweapon',
             wav:  'effect/black_weapon_repear',
@@ -779,7 +779,7 @@ define(function( require )
         }],
 
 
-        102: [{
+        102: [{    //EF_CRASHEARTH    Hammerfall
             type: 'STR',
             file: 'crashearth',
             wav:  'effect/black_hammerfall',
@@ -787,7 +787,7 @@ define(function( require )
         }],
 
 
-        103: [{
+        103: [{    //EF_PERFECTION    Weapon Perfection
             type: 'STR',
             file: 'weaponperfection',
             wav:  'effect/black_weapon_perfection',
@@ -796,16 +796,16 @@ define(function( require )
         }],
 
 
-        104: [{
+        104: [{    //EF_MAXPOWER    Maximize Power
             type: 'STR',
             file: 'maximizepower',
             min:  'maximize_min',
             attachedEntity: true
         }],
 
-        //105: empty
+        //105: [{}],    //EF_BLASTMINE    empty
 
-        106: [{
+        106: [{    //EF_BLASTMINEBOMB    Blast Mine Trap
             type: 'STR',
             file: 'blastmine',
             wav:  'effect/hunter_blastmine', //hun_blastmine
@@ -813,7 +813,7 @@ define(function( require )
         }],
 
 
-        107: [{
+        107: [{    //EF_CLAYMORE    Claymore Trap
             type: 'STR',
             file: 'claymore',
             wav:  'effect/hunter_claymoretrap',
@@ -821,7 +821,7 @@ define(function( require )
         }],
 
 
-        108: [{
+        108: [{    //EF_FREEZING    Freezing Trap
             type: 'STR',
             file: 'freezing',
             wav:  'effect/hunter_freezingtrap',
@@ -829,7 +829,7 @@ define(function( require )
         }],
 
 
-        109: [{
+        109: [{    //EF_BUBBLE    Bailaban Blue bubble Map Effect
             type: 'STR',
             file: 'bubble%d',
             rand: [1, 4],
@@ -837,7 +837,7 @@ define(function( require )
         }],
 
 
-        110: [{
+        110: [{    //EF_GASPUSH    Trap Used by Giearth
             type: 'STR',
             file: 'gaspush',
             wav:  'effect/se_gas_pushhh',
@@ -845,7 +845,7 @@ define(function( require )
         }],
 
 
-        111: [{
+        111: [{    //EF_SPRINGTRAP    Spring Trap
             type: 'STR',
             file: 'spring',
             wav:  'effect/hunter_springtrap',
@@ -853,7 +853,7 @@ define(function( require )
         }],
 
 
-        112: [{ //kyrie caster
+        112: [{ //kyrie caster    //EF_KYRIE    Kyrie Eleison
             type: 'STR',
             file: 'kyrie',
             wav:  'effect/priest_kyrie_eleison_a', //on target its priest_kyrie_eleison_b
@@ -863,36 +863,36 @@ define(function( require )
 
 
 
-        113: [{
+        113: [{    //EF_MAGNUS    Magnus Exorcismus
             type: 'STR',
             file: 'magnus',
             wav:  'effect/priest_magnus',
             attachedEntity: false
         }],
 
-        115: [{ //blitzbeat on target hit
+        115: [{ //blitzbeat on target hit    //EF_BLITZBEAT    Blitz Beat
             wav:  'effect/hunter_blitzbeat',
             attachedEntity: true
         }],
-		
-		//116:	Fling Watersphere
-        //117: waterball  (caster or hit?)
-		
-        119: [{
+        
+        //116: [{}],    //EF_WATERBALL       Fling Watersphere
+        //117: [{}],    //EF_WATERBALL2    waterball  (caster or hit?)
+        
+        119: [{    //EF_DETECTING    Detect
             wav:  'effect/hunter_detecting',
             attachedEntity: true
         }],
-		
-		//120:	Cloaking
-        //121: // sonic blow caste
-		//122:	Multi hit effect
+        
+        //120: [{}],    //EF_CLOAKING       Cloaking
+        //121: [{}],    //EF_SONICBLOW    // sonic blow caste
+        //122: [{}],    //EF_SONICBLOWHIT       Multi hit effect
 
-        123: [{ //grimtooth caster
+        123: [{ //grimtooth caster    //EF_GRIMTOOTH    Grimtooth Cast
             wav:  'effect/ef_frostdiver',
             attachedEntity: true
         }],
 
-        124: [{
+        124: [{    //EF_VENOMDUST    Venom Dust
             type: 'STR',
             file: 'venomdust',
             wav:  'effect/assasin_venomdust',
@@ -900,7 +900,7 @@ define(function( require )
         }],
 
 
-        126: [{
+        126: [{    //EF_POISONREACT    Poison React
             type: 'STR',
             file: 'poisonreact_1st',
             wav:  'effect/assasin_poisonreact',
@@ -908,19 +908,19 @@ define(function( require )
         }],
 
 
-        127: [{
+        127: [{    //EF_POISONREACT2    Small Posion React
             type: 'STR',
             file: 'poisonreact',
             wav:  'effect/assasin_poisonreact',
             attachedEntity: true
         }],
 
-        128: [{
+        128: [{    //EF_OVERTHRUST    Over Thrust
             wav:  'effect/black_overthrust',
             attachedEntity: true
         }],
 
-        129: [{
+        129: [{    //EF_SPLASHER    Venom Splasher Explosion
             type: 'STR',
             file: 'venomsplasher',
             wav:  'effect/assasin_venomsplasher',
@@ -928,7 +928,7 @@ define(function( require )
         }],
 
 
-        130: [{
+        130: [{    //EF_TWOHANDQUICKEN    Two-Hand Quicken
             type: 'STR',
             file: 'twohand',
             wav:  'effect/knight_twohandquicken',
@@ -937,44 +937,44 @@ define(function( require )
         }],
 
 
-        131: [{ //autocounter activate hit
+        131: [{ //autocounter activate hit    //EF_AUTOCOUNTER    Auto-Counter Hit
             type: 'STR',
             file: 'autocounter',
             wav:  'effect/knight_autocounter',
             attachedEntity: true
         }],
-		
-		//132:	Grimtooth Hit
+        
+        //132: [{}],    //EF_GRIMTOOTHATK       Grimtooth Hit
 
-        133: [{
+        133: [{    //EF_FREEZE    Ice Effect (Used by NPCs)
             type: 'STR',
             file: 'freeze',
             attachedEntity: true
         }],
 
 
-        134: [{
+        134: [{    //EF_FREEZED    Ice Effect (Used by NPCs)
             type: 'STR',
             file: 'freezed',
             attachedEntity: true
         }],
 
 
-        135: [{
+        135: [{    //EF_ICECRASH    Ice Effect (Used by NPCs)
             type: 'STR',
             file: 'icecrash',
             attachedEntity: true
         }],
 
 
-        136: [{
+        136: [{    //EF_SLOWPOISON    Slow Poison
             type: 'STR',
             file: 'slowp',
             wav:  'effect/priest_slowpoison',
             attachedEntity: false
         }],
 
-        138: [{
+        138: [{    //EF_FIREPILLARON    Fire pillar
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -983,35 +983,35 @@ define(function( require )
             }
         }],
 
-        139: [{
+        139: [{    //EF_SANDMAN    Sandman Trap
             type: 'STR',
             file: 'sandman',
             wav:  'effect/hunter_sandman',
             attachedEntity: false
         }],
 
-        140: [{
+        140: [{    //EF_REVIVE    Ressurection Aura
             wav:  'effect/priest_resurrection',
             attachedEntity: true
         }],
 
-        141: [{
+        141: [{    //EF_PNEUMA    Pneuma
             type: 'STR',
             file: 'pneuma%d',
             rand: [1, 3],
             attachedEntity: false
         }],
 
-		//142	Heaven's Drive
+        //142    Heaven's Drive
 
-        143: [{ //sonicblow at target
+        143: [{ //sonicblow at target    //EF_SONICBLOW2    Sonic Blow (Part 2/2)
             type: 'STR',
             file: 'sonicblow',
             attachedEntity: true
         }],
 
 
-        144: [{
+        144: [{    //EF_BRANDISH2    Brandish Spear Pre-Hit Effect
             type: 'STR',
             file: 'brandish2',
             wav:  'effect/knight_brandish_spear',
@@ -1019,7 +1019,7 @@ define(function( require )
         }],
 
 
-        145: [{
+        145: [{    //EF_SHOCKWAVE    Shockwave Trap
             type: 'STR',
             file: 'shockwave',
             wav:  'effect/hunter_shockwavetrap',
@@ -1027,21 +1027,21 @@ define(function( require )
         }],
 
 
-        146: [{
+        146: [{    //EF_SHOCKWAVEHIT    Shockwave Trap Hit
             type: 'STR',
             file: 'shockwavehit',
             attachedEntity: true
         }],
 
 
-        147: [{
+        147: [{    //EF_EARTHHIT    Pierce Hit
             type: 'STR',
             file: 'earthhit',
             attachedEntity: true
         }],
 
 
-        148: [{
+        148: [{    //EF_PIERCESELF    Pierce Cast Animation
             type: 'STR',
             file: 'pierce',
             attachedEntity: true
@@ -1049,7 +1049,7 @@ define(function( require )
         }],
 
 
-        149: [{
+        149: [{    //EF_BOWLINGSELF    Bowling Bash
             type: 'STR',
             file: 'bowling',
             wav: '_enemy_hit_normal1',  //'effect/knight_bowling_bash', fake
@@ -1058,7 +1058,7 @@ define(function( require )
         }],
 
 
-        150: [{
+        150: [{    //EF_SPEARSTABSELF    Pierce Cast Animation
             type: 'STR',
             file: 'spearstab',
             wav: '_enemy_hit_normal1',
@@ -1067,7 +1067,7 @@ define(function( require )
         }],
 
 
-        151: [{ //spear boomerang caster
+        151: [{ //spear boomerang caster    //EF_SPEARBMRSELF    Spear Boomerang Cast
             type: 'STR',
             file: 'spearboomerang',
             wav:  'effect/knight_spear_boomerang',
@@ -1076,14 +1076,14 @@ define(function( require )
         }],
 
 
-        152: [{ //turn undead hit on targer
+        152: [{ //turn undead hit on targer    //EF_HOLYHIT    Turn Undead
             type: 'STR',
             file: 'holyhit',
             attachedEntity: true
         }],
 
 
-        153: [{
+        153: [{    //EF_CONCENTRATION    Increase Concentration
             type: 'STR',
             file: 'concentration',
             wav:  'effect/ac_concentration',
@@ -1091,7 +1091,7 @@ define(function( require )
         }],
 
 
-        154: [{
+        154: [{    //EF_REFINEOK    Refine Success
             type: 'STR',
             file: 'bs_refinesuccess',
             wav:  'effect/bs_refinesuccess',
@@ -1099,237 +1099,237 @@ define(function( require )
         }],
 
 
-        155: [{
+        155: [{    //EF_REFINEFAIL    Refine Fail
             type: 'STR',
             file: 'bs_refinefailed',
             wav:  'effect/bs_refinefailed',
             attachedEntity: true
         }],
 
-		//156:	jobchange.str not found error
-		//157:	levelup.str not found error
+        //156: [{}],    //EF_JOBCHANGE       jobchange.str not found error
+        //157: [{}],    //EF_LVUP       levelup.str not found error
 
-        158: [{
+        158: [{    //EF_JOBLVUP    Job Level Up
             type: 'STR',
             file: 'joblvup',
             attachedEntity: true
         }],
-		
-		//159:	PvP circle
-		//160:	PvP Party Circle
-		//161:	(Nothing)
-		//162:	Snow
-		//163:	White Sakura Leaves
-		//164:	(Nothing)
+        
+        //159: [{}],    //EF_TOPRANK       PvP circle
+        //160: [{}],    //EF_PARTY       PvP Party Circle
+        //161: [{}],    //EF_RAIN       (Nothing)
+        //162: [{}],    //EF_SNOW       Snow
+        //163: [{}],    //EF_SAKURA       White Sakura Leaves
+        //164: [{}],    //EF_STATUS_STATE       (Nothing)
 
-        165: [{ //Comodo Fireworks Ball
+        165: [{ //Comodo Fireworks Ball    //EF_BANJJAKII    Comodo Fireworks Ball
             wav:  'effect/\xc6\xf8\xc1\xd7', //ĆřÁ×
             attachedEntity: false
         }],
-		
-		//166:	Energy Coat (Visual Effect)
-		//167:	(Nothing)
-		//168:	(Nothing)
-		
-        169: [{
+        
+        //166: [{}],    //EF_MAKEBLUR       Energy Coat (Visual Effect)
+        //167: [{}],    //EF_TAMINGSUCCESS       (Nothing)
+        //168: [{}],    //EF_TAMINGFAILED       (Nothing)
+        
+        169: [{    //EF_ENERGYCOAT    Energy Coat Animation
             type: 'STR',
             file: 'energycoat',
             attachedEntity: true
         }],
 
 
-        170: [{
+        170: [{    //EF_CARTREVOLUTION    Cart Revolution
             type: 'STR',
             file: 'cartrevolution',
             attachedEntity: true
         }],
 
-		//171:	Venom Dust Map Unit
-		//172:	Change Element (Dark)
-		//173:	Change Element (Fire)
-		//174:	Change Element (Water)
-		//175:	Change Element (Wind)
-		//176:	Change Element (Fire)
-		//177:	Change Element (Earth)
-		//178:	Change Element (Holy)
-		//179:	Change Element (Poison)
+        //171: [{}],    //EF_VENOMDUST2       Venom Dust Map Unit
+        //172: [{}],    //EF_CHANGEDARK       Change Element (Dark)
+        //173: [{}],    //EF_CHANGEFIRE       Change Element (Fire)
+        //174: [{}],    //EF_CHANGECOLD       Change Element (Water)
+        //175: [{}],    //EF_CHANGEWIND       Change Element (Wind)
+        //176: [{}],    //EF_CHANGEFLAME       Change Element (Fire)
+        //177: [{}],    //EF_CHANGEEARTH       Change Element (Earth)
+        //178: [{}],    //EF_CHAINGEHOLY       Change Element (Holy)
+        //179: [{}],    //EF_CHANGEPOISON       Change Element (Poison)
 
-        181: [{
+        181: [{    //EF_MENTALBREAK    Mental Breaker
             type: 'STR',
             file: 'mentalbreak',
             attachedEntity: true
         }],
 
 
-        182: [{
+        182: [{    //EF_MAGICALATTHIT    Magical Hit
             type: 'STR',
             file: 'magical',
             attachedEntity: true
         }],
 
 
-        183: [{
+        183: [{    //EF_SUI_EXPLOSION    Self Destruction
             type: 'STR',
             file: 'sui_explosion',
             attachedEntity: true
         }],
 
 
-        185: [{
+        185: [{    //EF_SUICIDE    (Nothing)
             type: 'STR',
             file: 'suicide',
             attachedEntity: true
         }],
 
 
-        186: [{
+        186: [{    //EF_COMBOATTACK1    Combo Attack 1
             type: 'STR',
             file: 'yunta_1',
             attachedEntity: true
         }],
 
 
-        187: [{
+        187: [{    //EF_COMBOATTACK2    Combo Attack 2
             type: 'STR',
             file: 'yunta_2',
             attachedEntity: true
         }],
 
 
-        188: [{
+        188: [{    //EF_COMBOATTACK3    Combo Attack 3
             type: 'STR',
             file: 'yunta_3',
             attachedEntity: true
         }],
 
 
-        189: [{
+        189: [{    //EF_COMBOATTACK4    Combo Attack 4
             type: 'STR',
             file: 'yunta_4',
             attachedEntity: true
         }],
 
 
-        190: [{
+        190: [{    //EF_COMBOATTACK5    Combo Attack 5
             type: 'STR',
             file: 'yunta_5',
             attachedEntity: true
         }],
 
 
-        191: [{
+        191: [{    //EF_GUIDEDATTACK    Guided Attack
             type: 'STR',
             file: 'homing',
             attachedEntity: true
         }],
 
 
-        192: [{
+        192: [{    //EF_POISONATTACK    Poison Attack
             type: 'STR',
             file: 'poison',
             attachedEntity: true
         }],
 
 
-        193: [{
+        193: [{    //EF_SILENCEATTACK    Silence Attack
             type: 'STR',
             file: 'silence',
             attachedEntity: true
         }],
 
 
-        194: [{
+        194: [{    //EF_STUNATTACK    Stun Attack
             type: 'STR',
             file: 'stun',
             attachedEntity: true
         }],
 
 
-        195: [{
+        195: [{    //EF_PETRIFYATTACK    Petrify Attack
             type: 'STR',
             file: 'stonecurse',
             attachedEntity: true
         }],
 
-		//196:	Curse Attack
+        //196: [{}],    //EF_CURSEATTACK       Curse Attack
 
-        197: [{
+        197: [{    //EF_SLEEPATTACK    Sleep Attack
             type: 'STR',
             file: 'sleep',
             attachedEntity: true
         }],
 
-		//198:	(Nothing)
+        //198: [{}],    //EF_TELEKHIT       (Nothing)
 
-        199: [{
+        199: [{    //EF_PONG    Small Popping Bubble Map Effect
             type: 'STR',
             file: 'pong%d',
             rand: [1, 3],
             attachedEntity: false
         }],
 
-		//200:	Normal level 99 Aura (Middle)
-		//201:	Normal level 99 Aura (Bottom)
-		//202:	Lv 99 Aura Bubble
-		//203:	Fury (Visual Effect)
+        //200: [{}],    //EF_LEVEL99       Normal level 99 Aura (Middle)
+        //201: [{}],    //EF_LEVEL99_2       Normal level 99 Aura (Bottom)
+        //202: [{}],    //EF_LEVEL99_3       Lv 99 Aura Bubble
+        //203: [{}],    //EF_GUMGANG       Fury (Visual Effect)
 
-        204: [{
+        204: [{    //EF_POTION1    Red Herb/Potion
             type: 'STR',
             file: '\xbb\x21\xb0\x4c\x41\xf7\x31\xc7', //»!°LA÷1Ç
             attachedEntity: true
         }],
 
 
-        205: [{
+        205: [{    //EF_POTION2    Orange Potion
             type: 'STR',
             file: '\xc1\xd6\x45\xab\x41\xf7\x31\xc7', //ÁÖE«A÷1Ç
             attachedEntity: true
         }],
 
 
-        206: [{
+        206: [{    //EF_POTION3    Yellow Herb/Potion
             type: 'STR',
             file: '\x33\xeb\xb6\x6f\x41\xf7\x31\xc7', //3ë¶oA÷1Ç
             attachedEntity: true
         }],
 
 
-        207: [{
+        207: [{    //EF_POTION4    White Herb/Potion
             type: 'STR',
             file: '\xc7\x49\x33\xe1\x41\xf7\x31\xc7', //ÇI3áA÷1Ç
             attachedEntity: true
         }],
 
 
-        208: [{
+        208: [{    //EF_POTION5    Blue Herb/Potion
             type: 'STR',
             file: '\x41\xc4\xb6\x6f\x41\xf7\x31\xc7', //AÄ¶oA÷1Ç
             attachedEntity: true
         }],
 
 
-        209: [{
+        209: [{    //EF_POTION6    Green Herb/Potion
             type: 'STR',
             file: '\x41\x45\xb7\x49\x41\xf7\x31\xc7', //AE·IA÷1Ç
             attachedEntity: true
         }],
 
 
-        210: [{
+        210: [{    //EF_POTION7    Yellow Circle Healing Effect
             type: 'STR',
             file: 'fruit',
             attachedEntity: true
         }],
 
 
-        211: [{
+        211: [{    //EF_POTION8    Blue Circle Healing Effect
             type: 'STR',
             file: 'fruit_',
             attachedEntity: true
         }],
 
 
-        212: [{
+        212: [{    //EF_DARKBREATH    Dark Breath
             type: 'SPR',
             file: 'darkbreath',
             head: true,
@@ -1337,80 +1337,80 @@ define(function( require )
         }],
 
 
-        213: [{
+        213: [{    //EF_DEFFENDER    Defender
             type: 'STR',
             file: 'deffender',
             attachedEntity: true
         }],
 
 
-        214: [{
+        214: [{    //EF_KEEPING    Keeping
             type: 'STR',
             file: 'keeping',
             attachedEntity: true
         }],
 
 
-        218: [{
+        218: [{    //EF_POTION_CON    Concentration Potion
             type: 'STR',
             file: '\xc1\xfd\xc1\xdf', //ÁýÁß
             attachedEntity: true
         }],
 
 
-        219: [{
+        219: [{    //EF_POTION_    Awakening Potion
             type: 'STR',
             file: '\xb0\x63\x31\x6f', //°c1o
             attachedEntity: true
         }],
 
 
-        220: [{
+        220: [{    //EF_POTION_BERSERK    Berserk Potion
             type: 'STR',
             file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
             attachedEntity: true
         }],
 
-		//221:	Intense light beam
-		//222:	Defender (Crusader)
-		//223:	Holy Cast Aura
-		//224:	Wind (Map effect)
-		//225:	Volcano casting effect
-		//226:	Grand Cross Effect
+        //221: [{}],    //EF_POTIONPILLAR       Intense light beam
+        //222: [{}],    //EF_DEFENDER       Defender (Crusader)
+        //223: [{}],    //EF_GANBANTEIN       Holy Cast Aura
+        //224: [{}],    //EF_WIND       Wind (Map effect)
+        //225: [{}],    //EF_VOLCANO       Volcano casting effect
+        //226: [{}],    //EF_GRANDCROSS       Grand Cross Effect
 
-        227: [{ //Intimidate / Snatch
+        227: [{ //Intimidate / Snatch    //EF_INTIMIDATE    Snatch
             wav:  'effect/rog_intimidate',
             attachedEntity: true
         }],
 
-		//228:	(Nothing)
-		//229:	(Nothing)
-		//230:	(Nothing)
-		//231:	Map Light Pillar Animation 1
-		//232:	Sacrifice (Visual Effect)
-		//233:	Fog
+        //228: [{}],    //EF_CHOOKGI       (Nothing)
+        //229: [{}],    //EF_CLOUD       (Nothing)
+        //230: [{}],    //EF_CLOUD2       (Nothing)
+        //231: [{}],    //EF_MAPPILLAR       Map Light Pillar Animation 1
+        //232: [{}],    //EF_LINELINK       Sacrifice (Visual Effect)
+        //233: [{}],    //EF_CLOUD3       Fog
 
-        234: [{
+        234: [{    //EF_SPELLBREAKER    Spell Breaker
             type: 'STR',
             file: 'spell',
             attachedEntity: true
         }],
 
 
-        235: [{
+        235: [{    //EF_DISPELL    Dispell
             type: 'STR',
             file: '\xb5\x3f\x31\x6f\x41\xe7', //µ?1oAç
             attachedEntity: true
         }],
 
-		//236:	Deluge Cast Aura
-		//237:	Violent Gale Cast Aura
-		//238:	Magnetic Earth Cast Aura
-		//239:	Volcano (Visual Effect)
-		//240:	Deluge (Visual Effect)
-		//241:	Violent Gale (Visual Effect)
+        //236: [{}],    //EF_DELUGE       Deluge Cast Aura
+        //237: [{}],    //EF_VIOLENTGALE       Violent Gale Cast Aura
+        //238: [{}],    //EF_LANDPROTECTOR       Magnetic Earth Cast Aura
+        //239: [{}],    //EF_BOTTOM_VO       Volcano (Visual Effect)
+        //240: [{}],    //EF_BOTTOM_DE       Deluge (Visual Effect)
+        //241: [{}],    //EF_BOTTOM_VI       Violent Gale (Visual Effect)
 
-        242: [{
+        242: [{    //EF_BOTTOM_LA    Magnetic Earth (Visual Effect)
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -1419,9 +1419,9 @@ define(function( require )
             }
         }],
 
-		//243:	(Invalid)
+        //243: [{}],    //EF_FASTMOVE       (Invalid)
 
-        244: [{
+        244: [{    //EF_MAGICROD    Magic Rod
             type: 'STR',
             file: '\xb8\x41\xc1\xf7\xb7\xce\xb5\x61', //¸AÁ÷·Îµa
             wav:  'effect/sage_magic rod',
@@ -1429,7 +1429,7 @@ define(function( require )
         }],
 
 
-        245: [{
+        245: [{    //EF_HOLYCROSS    Holy Cross
             type: 'STR',
             file: 'holy_cross',
             wav:  'effect/cru_holycross',
@@ -1437,22 +1437,22 @@ define(function( require )
         }],
 
 
-        246: [{
+        246: [{    //EF_SHIELDCHARGE    Shield Charge
             type: 'STR',
             file: 'shield_charge',
             attachedEntity: true
         }],
 
-		//247:	Map Light Pillar Animation 2
+        //247: [{}],    //EF_MAPPILLAR2       Map Light Pillar Animation 2
 
-        248: [{
+        248: [{    //EF_PROVIDENCE    Resistant Souls
             type: 'STR',
             file: 'providence',
             attachedEntity: true
         }],
 
 
-        249: [{
+        249: [{    //EF_SHIELDBOOMERANG    Shield Boomerang
             type: 'STR',
             file: 'twohand',
             wav:  'effect/knight_twohandquicken',
@@ -1460,33 +1460,33 @@ define(function( require )
             attachedEntity: true
         }],
 
-		//250:	Spear Quicken
+        //250: [{}],    //EF_SPEARQUICKEN       Spear Quicken
 
-        251: [{
+        251: [{    //EF_DEVOTION    Devotion
             type: 'STR',
             file: 'devotion',
             attachedEntity: true
         }],
 
-		//252:	Reflect Shield
-		//253:	Absorb Spirit Spheres
-		//254:	Mental Strength (Visual Effect)
+        //252: [{}],    //EF_REFLECTSHIELD       Reflect Shield
+        //253: [{}],    //EF_ABSORBSPIRITS       Absorb Spirit Spheres
+        //254: [{}],    //EF_STEELBODY       Mental Strength (Visual Effect)
 
-        255: [{
+        255: [{    //EF_FLAMELAUNCHER    Elemental Endow (Fire)
             type: 'STR',
             file: 'enc_fire',
             attachedEntity: true
         }],
 
 
-        256: [{
+        256: [{    //EF_FROSTWEAPON    Elemental Endow (Water)
             type: 'STR',
             file: 'enc_ice',
             attachedEntity: true
         }],
 
 
-        257: [{ //endow wind on target
+        257: [{ //endow wind on target    //EF_LIGHTNINGLOADER    Elemental Endow (Wind)
             type: 'STR',
             file: 'enc_wind',
             wav:  'effect/_enemy_hit_wind1',
@@ -1494,28 +1494,28 @@ define(function( require )
         }],
 
 
-        258: [{
+        258: [{    //EF_SEISMICWEAPON    Elemental Endow (Earth)
             type: 'STR',
             file: 'enc_earth',
             attachedEntity: true
         }],
 
-		//259:	Map Light Pillar Animation 3
-		//260:	Map Light Pillar Animation 4
+        //259: [{}],    //EF_MAPPILLAR3       Map Light Pillar Animation 3
+        //260: [{}],    //EF_MAPPILLAR4       Map Light Pillar Animation 4
 
-        261: [{ //fury / critical explosion TODO: combo sounds, super novice fury
+        261: [{ //fury / critical explosion TODO: combo sounds, super novice fury    //EF_GUMGANG2    Fury Cast Animation
             wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_Ćř±â
             attachedEntity: true
         }],
 
-		//262:	Raging Quadruple Blow
-		//263:	Raging Quadruple Blow 2
-		//264:	(Nothing)
-		//265:	Throw Spirit Sphere
-		//266:	Raging Quadruple Blow 3
-		//267:	Occult Impaction
+        //262: [{}],    //EF_TEIHIT1       Raging Quadruple Blow
+        //263: [{}],    //EF_GUMGANG3       Raging Quadruple Blow 2
+        //264: [{}],    //EF_TEIHIT2       (Nothing)
+        //265: [{}],    //EF_TANJI       Throw Spirit Sphere
+        //266: [{}],    //EF_TEIHIT1X       Raging Quadruple Blow 3
+        //267: [{}],    //EF_CHIMTO       Occult Impaction
 
-        268: [{
+        268: [{    //EF_STEALCOIN    Steal Coin
             type: 'STR',
             file: 'steal_coin',
             wav:  'rog_steal coin',
@@ -1523,7 +1523,7 @@ define(function( require )
         }],
 
 
-        269: [{
+        269: [{    //EF_STRIPWEAPON    Divest Weapon
             type: 'STR',
             file: 'strip_weapon',
             wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
@@ -1531,7 +1531,7 @@ define(function( require )
         }],
 
 
-        270: [{
+        270: [{    //EF_STRIPSHIELD    Divest Shield
             type: 'STR',
             file: 'strip_shield',
             wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
@@ -1539,7 +1539,7 @@ define(function( require )
         }],
 
 
-        271: [{
+        271: [{    //EF_STRIPARMOR    Divest Armor
             type: 'STR',
             file: 'strip_armor',
             wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
@@ -1547,31 +1547,31 @@ define(function( require )
         }],
 
 
-        272: [{
+        272: [{    //EF_STRIPHELM    Divest Helm
             type: 'STR',
             file: 'strip_helm',
             wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: true
         }],
 
-        273: [{
+        273: [{    //EF_CHAINCOMBO    Raging Quadruple Blow 4
             type: 'STR',
             file: '\x3f\xac\x45\x97', //?¬E—
             attachedEntity: true
         }],
-		
-		//274:	Steal Coin Animation
+        
+        //274: [{}],    //EF_RG_COIN       Steal Coin Animation
 
-        275: [{ //backstab on target hit
+        275: [{ //backstab on target hit    //EF_BACKSTAP    Back Stab Animation
             wav:  'effect/rog_back stap',
             attachedEntity: true
         }],
-		
-		276: [{ //raging thurst
+        
+        276: [{ //raging thurst    //EF_TEIHIT3    Raging Thrust
             attachedEntity: true
         }],
 
-		'277_ground': [{ // Dissonance
+        '277_ground': [{ // Dissonance
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -1583,14 +1583,14 @@ define(function( require )
             }
         }],
 
-		278: [{
+        278: [{    //EF_BOTTOM_LULLABY    Lullaby Map Unit
             wav:  'effect/\xc0\xda\xc0\xe5\xb0\xa1', //ŔÚŔĺ°ˇ
             attachedEntity: true
         }],
 
-		'278_ground': [{ // Lullaby
+        '278_ground': [{ // Lullaby
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var LullabyEffects = require('Renderer/Effects/Songs').LullabyEffects;
@@ -1600,14 +1600,14 @@ define(function( require )
             }
         }],
 
-		279: [{
+        279: [{    //EF_BOTTOM_RICHMANKIM    Mr Kim a Rich Man Map Unit
             wav:  'effect/\xb1\xe8\xbc\xad\xb9\xe6\xb5\xb7', //±čĽ­ąćµ·
             attachedEntity: true
         }],
 
-		'279_ground': [{ // Mr Kim
+        '279_ground': [{ // Mr Kim
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var MrKimEffects = require('Renderer/Effects/Songs').MrKimEffects;
@@ -1617,14 +1617,14 @@ define(function( require )
             }
         }],
 
-		280: [{
+        280: [{    //EF_BOTTOM_ETERNALCHAOS    Eternal Chaos Map Unit
             wav:  'effect/\xbf\xb5\xbf\xf8\xc0\xc7\x20\xc8\xa5\xb5\xb7', //żµżřŔÇ ČĄµ·
             attachedEntity: true
         }],
 
-		'280_ground': [{ // Chaos
+        '280_ground': [{ // Chaos
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var EtChaosEffects = require('Renderer/Effects/Songs').EtChaosEffects;
@@ -1634,14 +1634,14 @@ define(function( require )
             }
         }],
 
-		281: [{
+        281: [{    //EF_BOTTOM_DRUMBATTLEFIELD    A Drum on the Battlefield Map Unit
             wav:  'effect/\xc0\xfc\xc0\xe5\xc0\xc7', //ŔüŔĺŔÇ
             attachedEntity: true
         }],
 
-		'281_ground': [{ // Drum on battlefield
+        '281_ground': [{ // Drum on battlefield
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var DrumEffects = require('Renderer/Effects/Songs').DrumEffects;
@@ -1651,14 +1651,14 @@ define(function( require )
             }
         }],
 
-		282: [{
+        282: [{    //EF_BOTTOM_RINGNIBELUNGEN    The Ring Of Nibelungen Map Unit
             wav:  'effect/\xb4\xcf\xba\xa7\xb7\xee\xb0\xd5\xc0\xc7\x20\xb9\xdd\xc1\xf6', //´Ďş§·î°ŐŔÇ ąÝÁö
             attachedEntity: true
         }],
 
-		'282_ground': [{ // Ring nibelun
+        '282_ground': [{ // Ring nibelun
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var NibelungEffects = require('Renderer/Effects/Songs').NibelungEffects;
@@ -1668,14 +1668,14 @@ define(function( require )
             }
         }],
 
-		283: [{
+        283: [{    //EF_BOTTOM_ROKISWEIL    Loki's Veil Map Unit
             wav:  'effect/\xb7\xce\xc5\xb0', //·ÎĹ°
             attachedEntity: true
         }],
 
-		'283_ground': [{ // Loki Veil
+        '283_ground': [{ // Loki Veil
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var LokiEffects = require('Renderer/Effects/Songs').LokiEffects;
@@ -1685,14 +1685,14 @@ define(function( require )
             }
         }],
 
-		284: [{
+        284: [{    //EF_BOTTOM_INTOABYSS    Into the Abyss Map Unit
             wav:  'effect/\xbd\xc9\xbf\xac\xbc\xd3\xc0\xb8\xb7\xce', //˝Éż¬ĽÓŔ¸·Î
             attachedEntity: true
         }],
 
-		'284_ground': [{ // Into abyss
+        '284_ground': [{ // Into abyss
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects();
@@ -1702,14 +1702,14 @@ define(function( require )
             }
         }],
 
-		285: [{
+        285: [{    //EF_BOTTOM_SIEGFRIED    Invunerable Siegfriend Map Unit
             wav:  'effect/\xba\xd2\xbb\xe7\xbd\xc5', //şŇ»ç˝Ĺ
             attachedEntity: true
         }],
 
-		'285_ground': [{ // Invulnerable Sieg
+        '285_ground': [{ // Invulnerable Sieg
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var SiegfiedEffects = require('Renderer/Effects/Songs').SiegfiedEffects;
@@ -1719,14 +1719,14 @@ define(function( require )
             }
         }],
 
-		286: [{
+        286: [{    //EF_BOTTOM_WHISTLE    A Wistle Map Unit
             wav:  'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5', //´ŢşűĽĽ·ąłŞµĄ
             attachedEntity: true
         }],
 
         '286_ground': [{ // A whistle
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var WhistleEffects = require('Renderer/Effects/Songs').WhistleEffects;
@@ -1736,14 +1736,14 @@ define(function( require )
             }
         }],
 
-		287: [{
+        287: [{    //EF_BOTTOM_ASSASSINCROSS    Assassin Cross of Sunset Map Unit
             wav:  'effect/\xbc\xae\xbe\xe7\xc0\xc7\x20\xbe\xee\xbd\xd8\xbd\xc5', //Ľ®ľçŔÇ ľî˝Ř˝Ĺ
             attachedEntity: true
         }],
 
         '287_ground': [{ // Assassin cross
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var SinEffects = require('Renderer/Effects/Songs').SinEffects;
@@ -1753,14 +1753,14 @@ define(function( require )
             }
         }],
 
-		288: [{
+        288: [{    //EF_BOTTOM_POEMBRAGI    A Poem of Bragi Map Unit
             wav:  'effect/\xba\xea\xb6\xf3\xb1\xe2\xc0\xc7\x20\xbd\xc3', //şę¶ó±âŔÇ ˝Ă
             attachedEntity: true
         }],
 
         '288_ground': [{ // Bragi
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var BragiEffects = require('Renderer/Effects/Songs').BragiEffects();
@@ -1770,19 +1770,19 @@ define(function( require )
             }
         }],
 
-		289: [{
+        289: [{    //EF_BOTTOM_APPLEIDUN    The Apple Of Idun Map Unit
             wav:  'effect/\xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa',
-			//ISO-8859-1:	ÀÌµÐÀÇ »ç°ú
-			//Windows 1250: ŔĚµĐŔÇ »ç°ú
-			//EUC-KR: 		이둔의 사과
-			//Hex: 			\xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa
-			//reference for finding encoding
+            //ISO-8859-1:    ÀÌµÐÀÇ »ç°ú
+            //Windows 1250: ŔĚµĐŔÇ »ç°ú
+            //EUC-KR:         이둔의 사과
+            //Hex:             \xc0\xcc\xb5\xd0\xc0\xc7\x20\xbb\xe7\xb0\xfa
+            //reference for finding encoding
             attachedEntity: true
         }],
 
         '289_ground': [{ // Apple
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var AppleEffects = require('Renderer/Effects/Songs').AppleEffects;
@@ -1804,14 +1804,14 @@ define(function( require )
             }
         }],
 
-		291: [{
+        291: [{    //EF_BOTTOM_HUMMING    Humming Map Unit
             wav:  'effect/\xc8\xef\xbe\xf3\xb0\xc5\xb8\xb2', //Čďľó°Ĺ¸˛
             attachedEntity: true
         }],
 
         '291_ground': [{ // Humming
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var HummingEffects = require('Renderer/Effects/Songs').HummingEffects;
@@ -1821,14 +1821,14 @@ define(function( require )
             }
         }],
 
-		292: [{
+        292: [{    //EF_BOTTOM_DONTFORGETME    Please don't Forget Me Map Unit
             wav:  'effect/\xb3\xaa\xb8\xa6\xc0\xd8\xc1\xf6\xb8\xbb\xbe\xc6\xbf\xe4', //łŞ¸¦ŔŘÁö¸»ľĆżä
             attachedEntity: true
         }],
 
         '292_ground': [{ // Dont forget
             type: 'FUNC',
-			attachedEntity: false,
+            attachedEntity: false,
             func: function(pos, tick, AID){
                 var self = this;
                 var ForgetEffects = require('Renderer/Effects/Songs').ForgetEffects;
@@ -1838,9 +1838,9 @@ define(function( require )
             }
         }],
 
-		293: [{
+        293: [{    //EF_BOTTOM_FORTUNEKISS    Fortune's Kiss Map Unit
             wav:  'effect/\xc7\xe0\xbf\xee\xc0\xc7', //ÇŕżîŔÇ
-			attachedEntity: true
+            attachedEntity: true
         }],
 
         '293_ground': [{ // Fortune kiss /ladyluck
@@ -1855,8 +1855,8 @@ define(function( require )
             }
         }],
 
-		294: [{
-			wav:  'effect/\xb4\xe7\xbd\xc5\xc0\xbb\x20\xc0\xa7\xc7\xd1\x20\xbc\xad\xba\xf1\xbd\xba', //´ç˝ĹŔ» Ŕ§ÇŃ Ľ­şń˝ş
+        294: [{    //EF_BOTTOM_SERVICEFORYOU    Service For You Map Unit
+            wav:  'effect/\xb4\xe7\xbd\xc5\xc0\xbb\x20\xc0\xa7\xc7\xd1\x20\xbc\xad\xba\xf1\xbd\xba', //´ç˝ĹŔ» Ŕ§ÇŃ Ľ­şń˝ş
             attachedEntity: true,
         }],
 
@@ -1872,26 +1872,26 @@ define(function( require )
             }
         }],
 
-		//295:	Frost Joke
-		//296:	Scream
-		//297:	Fire Works (Visual Effect)
-		//298:	Acid Terror Animnation
-		//299:	(Nothing)
-		//300:	Chemical Protection
-		//301:	Fire Works (Sound Effect)
+        //295: [{}],    //EF_TALK_FROSTJOKE       Frost Joke
+        //296: [{}],    //EF_TALK_SCREAM       Scream
+        //297: [{}],    //EF_POKJUK       Fire Works (Visual Effect)
+        //298: [{}],    //EF_THROWITEM       Acid Terror Animnation
+        //299: [{}],    //EF_THROWITEM2       (Nothing)
+        //300: [{}],    //EF_CHEMICALPROTECTION       Chemical Protection
+        //301: [{}],    //EF_POKJUK_SOUND       Fire Works (Sound Effect)
 
-        302: [{
+        302: [{    //EF_DEMONSTRATION    Bomb
             type: 'SPR',
             file: '\xb5\x59\xb8\xf3\x31\x6f\x41\xae\xb7\x31\x41\x49\x31\xc7', //µY¸ó1oA®·1AI1Ç
             attachedEntity: false
         }],
 
-        304: [{ //teleportation animation
+        304: [{ //teleportation animation    //EF_TELEPORTATION2    Teleportation Animation
             wav: 'effect/ef_teleportation',
             attachedEntity: true
         }],
 
-        305: [{ //potion success
+        305: [{ //potion success    //EF_PHARMACY_OK    Pharmacy Success
             type: 'STR',
             file: 'p_success',
             wav: 'effect/p_success',
@@ -1899,36 +1899,36 @@ define(function( require )
         }],
 
 
-        306: [{ //potion failed
+        306: [{ //potion failed    //EF_PHARMACY_FAIL    Pharmacy Failed
             type: 'STR',
             file: 'p_failed',
             wav: 'effect/p_failed',
             attachedEntity: true
         }],
 
-		//307:	Forest Light 1
-		//308:	Throw Stone
-		//309:	First Aid
-		//310:	Sprinkle Sand
+        //307: [{}],    //EF_FORESTLIGHT       Forest Light 1
+        //308: [{}],    //EF_THROWITEM3       Throw Stone
+        //309: [{}],    //EF_FIRSTAID       First Aid
+        //310: [{}],    //EF_SPRINKLESAND       Sprinkle Sand
 
-        311: [{ //crazy uproar
+        311: [{ //crazy uproar    //EF_LOUD    Crazy Uproar
             type: 'STR',
             file: 'loud',
             wav: 'effect/\xb0\xed\xbc\xba\xb9\xe6\xb0\xa1', //°íĽşąć°ˇ
             attachedEntity: true
         }],
 
-		//312:	Heal Effect
-		//313:	Heal Effect 2
-		//314:	Old Map Exit effect (Unused)
+        //312: [{}],    //EF_HEAL       Heal Effect
+        //313: [{}],    //EF_HEAL2       Heal Effect 2
+        //314: [{}],    //EF_EXIT2       Old Map Exit effect (Unused)
 
-        315: [{
+        315: [{    //EF_GLASSWALL2    Safety Wall
             type: 'STR',
             file: 'safetywall',
             attachedEntity: false
         }],
-		
-		'315_ground': [{
+        
+        '315_ground': [{
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -1937,26 +1937,26 @@ define(function( require )
             }
         }],
 
-        316: [{ //Warp Portal Animation 1
+        316: [{ //Warp Portal Animation 1    //EF_READYPORTAL2    Warp Portal Animation 1
             //type: 'FUNC',
             wav: 'effect/ef_readyportal',
             attachedEntity: false
         }],
 
-        317: [{ //Warp Portal Animation 2
+        317: [{ //Warp Portal Animation 2    //EF_PORTAL2    Warp Portal Animation 2
             /*type: 'FUNC',
             attachedEntity: false,
-			textureName: 'magic_blue',
+            textureName: 'magic_blue',
             func: function(pos, tick, AID){
                 var Cylinder = require('Renderer/Effects/Cylinder');
                 this.add(new Cylinder(pos, 0.6, 0.6, 40, 'magic_blue', tick), AID);
             }*/
-			type: 'CYLINDER',
+            type: 'CYLINDER',
             attachedEntity: false,
-			wav: '',
-			topSize: 0.6,
-			bottomSize: 0.6,
-			height: 40
+            wav: '',
+            topSize: 0.6,
+            bottomSize: 0.6,
+            height: 40
         }],
 
         'deluge_ground': [{
@@ -1967,7 +1967,7 @@ define(function( require )
                 this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_blue', tick), AID);
             }
         }],
-		
+        
         'soulink_caster_effect': [{ // todo
             wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
             attachedEntity: false
@@ -1995,7 +1995,7 @@ define(function( require )
             attachedEntity: true
         }],
 
-        318: [{
+        318: [{    //EF_BOTTOM_MAG    Magnus Exorcisimus Map Unit
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -2006,7 +2006,7 @@ define(function( require )
             }
         }],
 
-        319: [{
+        319: [{    //EF_BOTTOM_SANC    Sanctuary Map Unit
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -2016,84 +2016,84 @@ define(function( require )
                 //this.add(new SquareGround(pos, 1.0, 1.0, 3.0, 'magic_green', tick), AID);
             }
         }],
-		
-		//320:	Offensive Heal
-		//321:	Warp NPC
-		//322:	Forest Light 2
-		//323:	Forest Light 3
-		//324:	Forest Light 4
-		//325:	Heal Effect 4
-		//326:	Chase Walk Left Foot
-		//327:	Chse Walk Right Foot
-		//328:	Monk Asura Strike
-		//329:	Triple Strike
-		//330:	Combo Finish
-		//331:	Natural HP Regeneration
-		//332:	Natural SP Regeneration
-		//333:	Autumn Leaves
-		//334:	Blind
-		//335:	Poison
+        
+        //320: [{}],    //EF_HEAL3       Offensive Heal
+        //321: [{}],    //EF_WARPZONE2       Warp NPC
+        //322: [{}],    //EF_FORESTLIGHT2       Forest Light 2
+        //323: [{}],    //EF_FORESTLIGHT3       Forest Light 3
+        //324: [{}],    //EF_FORESTLIGHT4       Forest Light 4
+        //325: [{}],    //EF_HEAL4       Heal Effect 4
+        //326: [{}],    //EF_FOOT       Chase Walk Left Foot
+        //327: [{}],    //EF_FOOT2       Chse Walk Right Foot
+        //328: [{}],    //EF_BEGINASURA       Monk Asura Strike
+        //329: [{}],    //EF_TRIPLEATTACK       Triple Strike
+        //330: [{}],    //EF_HITLINE       Combo Finish
+        //331: [{}],    //EF_HPTIME       Natural HP Regeneration
+        //332: [{}],    //EF_SPTIME       Natural SP Regeneration
+        //333: [{}],    //EF_MAPLE       Autumn Leaves
+        //334: [{}],    //EF_BLIND       Blind
+        //335: [{}],    //EF_POISON       Poison
 
-        336: [{ //kyrie eleison / parrying    (when target blocked dmg)
+        336: [{ //kyrie eleison / parrying    (when target blocked dmg)    //EF_GUARD    Kyrie Eleison/Parrying Shield
             wav:  'effect/kyrie_guard',
             attachedEntity: true
         }],
 
-        337: [{
+        337: [{    //EF_JOBLVUP50    Class Change
             type: 'STR',
             file: 'joblvup',
             attachedEntity: true
         }],
 
-		//338:	Super Novice/Taekwon Level Up Angel
-		//339:	Spiral Pierce
-		//340:	(Nothing)
-		//341:	Wedding Warp Portal
-		//342:	Wedding Skill
-		//343:	Another Merry Skill
-		//344:	Character map entry effect
-		//345:	Wings (Animated)
-		//346:	Like Moonlight But Blue
-		//347:	Wedding Ceremony
-		//348:	Like 1000 Blade trepassing
-		//349:	Waterfall (Horizonatal)
-		//350:	Waterfall (Vertical)
-		//351:	Small Waterfall (Horizonatal)
-		//352:	Small Waterfall (Vertical)
-		//353:	Dark Waterfall (Horizonatal)
-		//354:	Dark Waterfall (Vertical)
-		//355:	Dark Small Waterfall (Horizonatal)
-		//356:	Dark Small Waterfall (Vertical)
-		//357:	(Nothing)
-		//358:	Niflheim Ghost
-		//359:	Niflheim Bat Slow
-		//360:	Niflheim Bat Fast
-		//361:	Soul Destroyer
-		//362:	Trancendant Level 99 Aura 1
+        //338: [{}],    //EF_ANGEL2       Super Novice/Taekwon Level Up Angel
+        //339: [{}],    //EF_MAGNUM2       Spiral Pierce
+        //340: [{}],    //EF_CALLZONE       (Nothing)
+        //341: [{}],    //EF_PORTAL3       Wedding Warp Portal
+        //342: [{}],    //EF_COUPLECASTING       Wedding Skill
+        //343: [{}],    //EF_HEARTCASTING       Another Merry Skill
+        //344: [{}],    //EF_ENTRY2       Character map entry effect
+        //345: [{}],    //EF_SAINTWING       Wings (Animated)
+        //346: [{}],    //EF_SPHEREWIND       Like Moonlight But Blue
+        //347: [{}],    //EF_COLORPAPER       Wedding Ceremony
+        //348: [{}],    //EF_LIGHTSPHERE       Like 1000 Blade trepassing
+        //349: [{}],    //EF_WATERFALL       Waterfall (Horizonatal)
+        //350: [{}],    //EF_WATERFALL_90       Waterfall (Vertical)
+        //351: [{}],    //EF_WATERFALL_SMALL       Small Waterfall (Horizonatal)
+        //352: [{}],    //EF_WATERFALL_SMALL_90       Small Waterfall (Vertical)
+        //353: [{}],    //EF_WATERFALL_T2       Dark Waterfall (Horizonatal)
+        //354: [{}],    //EF_WATERFALL_T2_90       Dark Waterfall (Vertical)
+        //355: [{}],    //EF_WATERFALL_SMALL_T2       Dark Small Waterfall (Horizonatal)
+        //356: [{}],    //EF_WATERFALL_SMALL_T2_90       Dark Small Waterfall (Vertical)
+        //357: [{}],    //EF_MINI_TETRIS       (Nothing)
+        //358: [{}],    //EF_GHOST       Niflheim Ghost
+        //359: [{}],    //EF_BAT       Niflheim Bat Slow
+        //360: [{}],    //EF_BAT2       Niflheim Bat Fast
+        //361: [{}],    //EF_SOULBREAKER       Soul Destroyer
+        //362: [{}],    //EF_LEVEL99_4       Trancendant Level 99 Aura 1
 
-        363: [{
+        363: [{    //EF_VALLENTINE    Valentine Day Heart With Wings
             type: 'SPR',
             file: 'vallentine',
             attachedEntity: true
         }],       
         
-		//364:	Valentine Day Heart
-		//365:	Gloria Domini
-		//366:	Martyr's Reckoning
-		
-        367: [{ //aura blade
+        //364: [{}],    //EF_VALLENTINE2       Valentine Day Heart
+        //365: [{}],    //EF_PRESSURE       Gloria Domini
+        //366: [{}],    //EF_BASH3D       Martyr's Reckoning
+        
+        367: [{ //aura blade    //EF_AURABLADE    Aura Blade
             wav:  'effect/\xbf\xc0\xb6\xf3\x20\xba\xed\xb7\xb9\xc0\xcc\xb5\xe5', //żŔ¶ó şí·ąŔĚµĺ
             attachedEntity: true
             //+ on cast small white-magic aura (double)
         }],
         
-        368: [{
+        368: [{    //EF_REDBODY    Berserk
             wav:  'effect/\xef\x82\xb9\xef\x83\xb6\xef\x82\xbc\xef\x82\xad\xc5\xa9',
             attachedEntity: true
             //shake screen
         }],
 
-        369: [{
+        369: [{    //EF_LKCONCENTRATION    Concentration
             type: 'STR',
             file: 'twohand',
             wav:  'effect/knight_twohandquicken',
@@ -2101,12 +2101,12 @@ define(function( require )
             attachedEntity: true
         }],
 
-		370: [{
+        370: [{    //EF_BOTTOM_GOSPEL    Gospel Map Unit
             wav:  'effect/\xb0\xa1\xbd\xba\xc6\xe7', //°ˇ˝şĆç
-			attachedEntity: true
+            attachedEntity: true
         }],
 
-		'370_ground': [{ // Gospel
+        '370_ground': [{ // Gospel
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -2119,7 +2119,7 @@ define(function( require )
         }],
 
 
-        371: [{
+        371: [{    //EF_ANGEL    Level Up
             type: 'STR',
             file: 'angel',
             wav:  'levelup',
@@ -2127,72 +2127,72 @@ define(function( require )
         }],
 
 
-        372: [{
+        372: [{    //EF_DEVIL    Death
             type: 'STR',
             file: 'devil',
             attachedEntity: true
         }],
 
 
-        373: [{
+        373: [{    //EF_DRAGONSMOKE    House Smoke
             type: 'SPR',
             file: 'poisonhit',
             attachedEntity: true
         }],
 
-		//374:	Basilica
-		//375:	Assumptio (Visual Effect)
-		//376:	Palm Strike
-		//377:	Matyr's Reckoning 2
-		//378:	Soul Drain (1st Part)
-		//379:	Soul Drain (2nd Part)
-		//380:	Magic Crasher
-		//381:	Blue Starburst (Unknown use)
+        //374: [{}],    //EF_BOTTOM_BASILICA       Basilica
+        //375: [{}],    //EF_ASSUMPTIO       Assumptio (Visual Effect)
+        //376: [{}],    //EF_HITLINE2       Palm Strike
+        //377: [{}],    //EF_BASH3D2       Matyr's Reckoning 2
+        //378: [{}],    //EF_ENERGYDRAIN2       Soul Drain (1st Part)
+        //379: [{}],    //EF_TRANSBLUEBODY       Soul Drain (2nd Part)
+        //380: [{}],    //EF_MAGICCRASHER       Magic Crasher
+        //381: [{}],    //EF_LIGHTSPHERE2       Blue Starburst (Unknown use)
 
-        382: [{
+        382: [{    //EF_LIGHTBLADE    (Nothing)
             type: 'SPR',
             file: '\xc7\x4e\x6f\x31\x41\xb5\xbb\xe7', //ÇNo1Aµ»ç
             head: true,
             attachedEntity: true
         }],
 
-		//383:	Health Conversion
-		//384:	Soul Change (Sound Effect)
-		//385:	Soul Change (Visual Effect)
-		//386:	True Sight
-		//387:	Falcon Assault
-		//388:	Focused Arrow Strike (Sound Effect)
+        //383: [{}],    //EF_ENERGYDRAIN3       Health Conversion
+        //384: [{}],    //EF_LINELINK2       Soul Change (Sound Effect)
+        //385: [{}],    //EF_LINKLIGHT       Soul Change (Visual Effect)
+        //386: [{}],    //EF_TRUESIGHT       True Sight
+        //387: [{}],    //EF_FALCONASSAULT       Falcon Assault
+        //388: [{}],    //EF_TRIPLEATTACK2       Focused Arrow Strike (Sound Effect)
 
-        389: [{ //windwalk
+        389: [{ //windwalk    //EF_PORTAL4    Wind Walk
             wav:  'effect/\xc0\xa9\xb5\xe5\xbf\xf6\xc5\xa9', //Ŕ©µĺżöĹ©
             attachedEntity: true
         }],
 
-        390: [{
+        390: [{    //EF_MELTDOWN    Shattering Strike
             type: 'STR',
             file: 'melt',
             attachedEntity: true
         }],
 
 
-        391: [{
+        391: [{    //EF_CARTBOOST    Cart Boost
             type: 'STR',
             file: 'cart',
             attachedEntity: true
         }],
 
 
-        392: [{
+        392: [{    //EF_REJECTSWORD    Reject Sword
             type: 'STR',
             file: 'sword',
             attachedEntity: true
         }],
-		
-		//393:	Arrow Vulcan
-		
-        394: [{ // Moonlit water mill/sheltering bliss
+        
+        //393: [{}],    //EF_TRIPLEATTACK3       Arrow Vulcan
+        
+        394: [{ // Moonlit water mill/sheltering bliss    //EF_SPHEREWIND2    Sheltering Bliss
             type: 'FUNC',
-			//wav:  'effect/´Ţşű',
+            //wav:  'effect/´Ţşű',
             attachedEntity: false,
             func: function(pos, tick, AID){
                 var FlatColorTile = require('Renderer/Effects/FlatColorTile');
@@ -2201,18 +2201,18 @@ define(function( require )
             }
         }],
 
-		//395:	Marionette Control (Sound Effect)
-		//396:	Marionette Control (Visual Effect)
-		//397:	Trancended 99 Aura (Middle)
-		//398:	Trancended 99 Aura (Bottom)
+        //395: [{}],    //EF_LINELINK3       Marionette Control (Sound Effect)
+        //396: [{}],    //EF_PINKBODY       Marionette Control (Visual Effect)
+        //397: [{}],    //EF_LEVEL99_5       Trancended 99 Aura (Middle)
+        //398: [{}],    //EF_LEVEL99_6       Trancended 99 Aura (Bottom)
 
-        399: [{ //headcrush caster
+        399: [{ //headcrush caster    //EF_BASH3D3    Head Crush
             wav:  'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çěµĺ Ĺ©·Ż˝¬
             //same effect on caster like 'Bash' but stripes are yellow + assumptio effect on caster
             attachedEntity: true
         }],
         
-        400: [{ //joint beat caster
+        400: [{ //joint beat caster    //EF_BASH3D4    Joint Beat
             //sound missing
             //same effect on caster like 'Bash' + assumptio effect on caster
             attachedEntity: true
@@ -2223,11 +2223,11 @@ define(function( require )
             attachedEntity: true
         }],
         
-		//401:	Napalm Vulcan Sound
-		//402:	Dangerous Soul Collect
-		//403:	Mind Breaker
-		
-        404: [{
+        //401: [{}],    //EF_NAPALMVALCAN       Napalm Vulcan Sound
+        //402: [{}],    //EF_PORTAL5       Dangerous Soul Collect
+        //403: [{}],    //EF_MAGICCRASHER2       Mind Breaker
+        
+        404: [{    //EF_BOTTOM_SPIDER    Fiber Lock
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -2236,7 +2236,7 @@ define(function( require )
             }
         }],
 
-		'405_ground': [{ //wall of fog
+        '405_ground': [{ //wall of fog
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -2248,33 +2248,33 @@ define(function( require )
             }
         }],
         
-        406: [{
+        406: [{    //EF_SOULBURN    Soul Burn
             type: 'STR',
             file: '\x31\x4f\x3f\x69\x31\x6f', //1O?i1o
             attachedEntity: true
         }],
 
 
-        407: [{
+        407: [{    //EF_SOULCHANGE    Soul Change
             type: 'STR',
             file: '\xbb\xe7\xb6\xf7\x45\x3f\xb0\xfa', //»ç¶÷E?°ú
             attachedEntity: true
         }],
 
-		//408:	Mom, Dad, I love you! (Baby Skill)
-		//409:	Meteor Assault
-		//410:	Rainbow
-		//411:	Leap
-		//412:	Like Throw Spirit Sphere
-		//413:	Axe Kick
-		//414:	Round Kick
-		//415:	Counter Kick
-		//416:	(Nothing)
-		//417:	Flash
-		//418:	Warmth Lightning
-		//419:	Kaite (Visual Effect)
+        //408: [{}],    //EF_BABY       Mom, Dad, I love you! (Baby Skill)
+        //409: [{}],    //EF_SOULBREAKER2       Meteor Assault
+        //410: [{}],    //EF_RAINBOW       Rainbow
+        //411: [{}],    //EF_PEONG       Leap
+        //412: [{}],    //EF_TANJI2       Like Throw Spirit Sphere
+        //413: [{}],    //EF_PRESSEDBODY       Axe Kick
+        //414: [{}],    //EF_SPINEDBODY       Round Kick
+        //415: [{}],    //EF_KICKEDBODY       Counter Kick
+        //416: [{}],    //EF_AIRTEXTURE       (Nothing)
+        //417: [{}],    //EF_HITBODY       Flash
+        //418: [{}],    //EF_DOUBLEGUMGANG       Warmth Lightning
+        //419: [{}],    //EF_REFLECTBODY       Kaite (Visual Effect)
 
-        420: [{
+        420: [{    //EF_BABYBODY    Eswoo (Small) (Visual Effect)
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectSmallTransition(entity) {
@@ -2291,7 +2291,7 @@ define(function( require )
         }],
 
 
-        421: [{
+        421: [{    //EF_BABYBODY2    Eswoo (Alt. Small) (Visual Effect)
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectSmall(entity) {
@@ -2301,7 +2301,7 @@ define(function( require )
         }],
 
 
-        422: [{
+        422: [{    //EF_GIANTBODY    Eswoo (Normal) (Visual Effect)
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectBigTransition(entity) {
@@ -2318,7 +2318,7 @@ define(function( require )
         }],
 
 
-        423: [{
+        423: [{    //EF_GIANTBODY2    Eswoo (Alt. Normal) (Visual Effect)
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectBig(entity) {
@@ -2327,121 +2327,121 @@ define(function( require )
             }
         }],
 
-		//424:	Spirit Link (Visual Effect)
-		//425:	Esma Hit (Visual Effect)
+        //424: [{}],    //EF_ASURABODY       Spirit Link (Visual Effect)
+        //425: [{}],    //EF_4WAYBODY       Esma Hit (Visual Effect)
 
-        426: [{ //taekwon sprint collision effect
+        426: [{ //taekwon sprint collision effect    //EF_QUAKEBODY    Sprint Collision (Visual Effect)
             wav:  'effect/\xba\xb9\xc8\xa3\xb0\xdd', //şąČŁ°Ý
             attachedEntity: true
         }],
 
-		//427:	(Nothing)
-		//428:	(Nothing)
-		//429:	Taekwon Kick Hit 1
-		//430:	Taekwon Kick Hit 2
-		//431:	Taekwon Kick Hit 3
-		//432:	Solar, Lunar and Stellar Perception (Visual Effect)
-		//433:	Solar, Lunar and Stellar Opposition (Visual Effect)
-		//434:	Taekwon Kick Hit 4
-		//435:	Whirlwind Kick
-		//436:	White Barrier (Unused)
-		//437:	White barrier 2 (Unused)
-		//438:	Kaite Reflect Animation
-		//439:	Flying Side Kick
+        //427: [{}],    //EF_ASURABODY_MONSTER       (Nothing)
+        //428: [{}],    //EF_HITLINE3       (Nothing)
+        //429: [{}],    //EF_HITLINE4       Taekwon Kick Hit 1
+        //430: [{}],    //EF_HITLINE5       Taekwon Kick Hit 2
+        //431: [{}],    //EF_HITLINE6       Taekwon Kick Hit 3
+        //432: [{}],    //EF_ELECTRIC       Solar, Lunar and Stellar Perception (Visual Effect)
+        //433: [{}],    //EF_ELECTRIC2       Solar, Lunar and Stellar Opposition (Visual Effect)
+        //434: [{}],    //EF_HITLINE7       Taekwon Kick Hit 4
+        //435: [{}],    //EF_STORMKICK       Whirlwind Kick
+        //436: [{}],    //EF_HALFSPHERE       White Barrier (Unused)
+        //437: [{}],    //EF_ATTACKENERGY       White barrier 2 (Unused)
+        //438: [{}],    //EF_ATTACKENERGY2       Kaite Reflect Animation
+        //439: [{}],    //EF_CHEMICAL3       Flying Side Kick
 
-        440: [{
+        440: [{    //EF_ASSUMPTIO2    Assumptio (Animation)
             type: 'STR',
             file: 'asum',
             wav:  'effect/\xbe\xc6\xbc\xfb\xc7\xc1\xc6\xbc\xbf\xc0', //ľĆĽűÇÁĆĽżŔ
             attachedEntity: true
         }],
 
-		//441:	Comfort Skills Cast Aura
-		//442:	Foot Prints caused by Sprint.
-		//443:	(Nothing)
-		//444:	Sprint Stop Animation
+        //441: [{}],    //EF_BLUECASTING       Comfort Skills Cast Aura
+        //442: [{}],    //EF_RUN       Foot Prints caused by Sprint.
+        //443: [{}],    //EF_STOPRUN       (Nothing)
+        //444: [{}],    //EF_STOPEFFECT       Sprint Stop Animation
 
-        445: [{ //high jump caster
+        445: [{ //high jump caster    //EF_JUMPBODY    High Jump (Jump)
             wav:  'effect/\x74\x5f\xc8\xb8\xc7\xc7\x32', //t_Č¸ÇÇ2
             attachedEntity: true
         }],
 
-		//446:	High Jump (Return Down)
-		//447:	Running Left Foot
-		//448:	Running Right Foot
-		//449:	KA-Spell (1st Part)
+        //446: [{}],    //EF_LANDBODY       High Jump (Return Down)
+        //447: [{}],    //EF_FOOT3       Running Left Foot
+        //448: [{}],    //EF_FOOT4       Running Right Foot
+        //449: [{}],    //EF_TAE_READY       KA-Spell (1st Part)
 
-		450: [{ // Dark cross
+        450: [{ // Dark cross    //EF_GRANDCROSS2    Darkcross
             
         }],
 
-		//451:	Dark Strike
-		//452:	Something Like Jupitel Thunder
-		//453:	Paralized
-		//454:	Like Blind
-		//455:	Another Warmth Lightning
-		//456:	Power Up
+        //451: [{}],    //EF_SOULSTRIKE2       Dark Strike
+        //452: [{}],    //EF_YUFITEL2       Something Like Jupitel Thunder
+        //453: [{}],    //EF_NPC_STOP       Paralized
+        //454: [{}],    //EF_DARKCASTING       Like Blind
+        //455: [{}],    //EF_GUMGANGNPC       Another Warmth Lightning
+        //456: [{}],    //EF_AGIUP       Power Up
 
-        457: [{ //flying kick on target
+        457: [{ //flying kick on target    //EF_JUMPKICK    Flying Side Kick (2nd Part)
             wav:  'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', //t_łŻ¶óÂ÷±â
             attachedEntity: true
         }],
 
-		//458:	Running/Sprint (running into a wall)
-		//459:	Brown tornado that spins sprite (unused)
-		//460:	Green tornado (unused)
-		//461:	Blue tornado (unused)
-		//462:	Kaupe Dodge Effect
-		//463:	Kaupe Dodge Effect
-		//464:	White tornado (unused)
-		//465:	Purple tornado (unused)
-		//466:	Another Round Kick
-		//467:	Warm/Mild Wind (Earth)
-		//468:	Warm/Mild Wind (Wind)
-		//469:	Warm/Mild Wind (Water)
-		//470:	Warm/Mild Wind (Fire)
-		//471:	Warm/Mild Wind (Undead)
-		//472:	Warm/Mild Wind (Shadow)
-		//473:	Warm/Mild Wind (Holy)
-		//474:	(Nothing)
-		//475:	Demon of The Sun Moon And Stars (Level 1)
-		//476:	Demon of The Sun Moon And Stars (Level 2)
-		//477:	Demon of The Sun Moon And Stars (Level 3)
-		//478:	Demon of The Sun Moon And Stars (Level 4)
-		//479:	Demon of The Sun Moon And Stars (Level 5)
-		//480:	Demon of The Sun Moon And Stars (Level 6)
-		//481:	Demon of The Sun Moon And Stars (Level 7)
-		//482:	Demon of The Sun Moon And Stars (Level 8)
-		//483:	Demon of The Sun Moon And Stars (Level 9)
-		//484:	Demon of The Sun Moon And Stars (Level 10)
-		//485:	Mental Strength Lightning but White
-		//486:	Mental Strength Lightning
-		//487:	Demon of The Sun Moon And Stars Ground Effect
-		//488:	Comfort Skills
-		//489:	(Nothing)
-		//490:	(Nothing)
+        //458: [{}],    //EF_QUAKEBODY2       Running/Sprint (running into a wall)
+        //459: [{}],    //EF_STORMKICK1       Brown tornado that spins sprite (unused)
+        //460: [{}],    //EF_STORMKICK2       Green tornado (unused)
+        //461: [{}],    //EF_STORMKICK3       Blue tornado (unused)
+        //462: [{}],    //EF_STORMKICK4       Kaupe Dodge Effect
+        //463: [{}],    //EF_STORMKICK5       Kaupe Dodge Effect
+        //464: [{}],    //EF_STORMKICK6       White tornado (unused)
+        //465: [{}],    //EF_STORMKICK7       Purple tornado (unused)
+        //466: [{}],    //EF_SPINEDBODY2       Another Round Kick
+        //467: [{}],    //EF_BEGINASURA1       Warm/Mild Wind (Earth)
+        //468: [{}],    //EF_BEGINASURA2       Warm/Mild Wind (Wind)
+        //469: [{}],    //EF_BEGINASURA3       Warm/Mild Wind (Water)
+        //470: [{}],    //EF_BEGINASURA4       Warm/Mild Wind (Fire)
+        //471: [{}],    //EF_BEGINASURA5       Warm/Mild Wind (Undead)
+        //472: [{}],    //EF_BEGINASURA6       Warm/Mild Wind (Shadow)
+        //473: [{}],    //EF_BEGINASURA7       Warm/Mild Wind (Holy)
+        //474: [{}],    //EF_AURABLADE2       (Nothing)
+        //475: [{}],    //EF_DEVIL1       Demon of The Sun Moon And Stars (Level 1)
+        //476: [{}],    //EF_DEVIL2       Demon of The Sun Moon And Stars (Level 2)
+        //477: [{}],    //EF_DEVIL3       Demon of The Sun Moon And Stars (Level 3)
+        //478: [{}],    //EF_DEVIL4       Demon of The Sun Moon And Stars (Level 4)
+        //479: [{}],    //EF_DEVIL5       Demon of The Sun Moon And Stars (Level 5)
+        //480: [{}],    //EF_DEVIL6       Demon of The Sun Moon And Stars (Level 6)
+        //481: [{}],    //EF_DEVIL7       Demon of The Sun Moon And Stars (Level 7)
+        //482: [{}],    //EF_DEVIL8       Demon of The Sun Moon And Stars (Level 8)
+        //483: [{}],    //EF_DEVIL9       Demon of The Sun Moon And Stars (Level 9)
+        //484: [{}],    //EF_DEVIL10       Demon of The Sun Moon And Stars (Level 10)
+        //485: [{}],    //EF_DOUBLEGUMGANG2       Mental Strength Lightning but White
+        //486: [{}],    //EF_DOUBLEGUMGANG3       Mental Strength Lightning
+        //487: [{}],    //EF_BLACKDEVIL       Demon of The Sun Moon And Stars Ground Effect
+        //488: [{}],    //EF_FLOWERCAST       Comfort Skills
+        //489: [{}],    //EF_FLOWERCAST2       (Nothing)
+        //490: [{}],    //EF_FLOWERCAST3       (Nothing)
 
-        491: [{
+        491: [{    //EF_MOCHI    Element Potions
             type: 'STR',
             file: '\xc2\xfd\x31\x4f\xb6\xb1', //Âý1O¶±
             attachedEntity: true
         }],
 
 
-        492: [{
+        492: [{    //EF_LAMADAN    Cooking Foods
             type: 'STR',
             file: 'ramadan',
             attachedEntity: true
         }],
         
-        493: [{ // edp
+        493: [{ // edp    //EF_EDP    Enchant Deadly Poison
             wav:  'effect/assasin_cloaking',
             //blinking
             attachedEntity: true
         }],
 
-		//494:	Throwing Tomahawk
-		//495:	Full Strip Sound
+        //494: [{}],    //EF_SHIELDBOOMERANG2       Throwing Tomahawk
+        //495: [{}],    //EF_RG_COIN2       Full Strip Sound
 
         '496_beforecast': [{
             type: 'FUNC',
@@ -2452,18 +2452,18 @@ define(function( require )
             }
         }],
 
-		//497:	Twilight Alchemy 1
-		//498:	Twilight Alchemy 2
-		//499:	Twilight Alchemy 3
-		//500:	Player Become Blue with Blue Aura
-		//501:	Chase Walk Animation
-		//502:	Player Become Yellow with Yellow Aura
-		//503:	Soul Link Word
-		//504:	(Nothing)
-		//505:	Memorize
-		//506:	(Nothing)
+        //497: [{}],    //EF_SLIM       Twilight Alchemy 1
+        //498: [{}],    //EF_SLIM2       Twilight Alchemy 2
+        //499: [{}],    //EF_SLIM3       Twilight Alchemy 3
+        //500: [{}],    //EF_CHEMICALBODY       Player Become Blue with Blue Aura
+        //501: [{}],    //EF_CASTSPIN       Chase Walk Animation
+        //502: [{}],    //EF_PIERCEBODY       Player Become Yellow with Yellow Aura
+        //503: [{}],    //EF_SOULLINK       Soul Link Word
+        //504: [{}],    //EF_CHOOKGI2       (Nothing)
+        //505: [{}],    //EF_MEMORIZE       Memorize
+        //506: [{}],    //EF_SOULLIGHT       (Nothing)
 
-        507: [{ //Authoritative Badge
+        507: [{ //Authoritative Badge    //EF_MAPAE    Authoritative Badge
             type: 'STR',
             file: 'mapae',
             wav:  'effect/mapae',
@@ -2471,40 +2471,40 @@ define(function( require )
         }],
 
 
-        508: [{
+        508: [{    //EF_ITEMPOKJUK    Fire Cracker
             type: 'STR',
             file: 'itempokjuk',
             attachedEntity: true
         }],
 
 
-        509: [{
+        509: [{    //EF_05VAL    Valentine Day Hearth (Wings)
             type: 'SPR',
             file: '05vallentine',
             attachedEntity: true
         }],
 
-		//510:	Champion Asura Strike
-		//511:	(Nothing)
-		//512:	Chain Crush Combo
-		//513:	Area Cast
-		//514:	Really Big Circle
-		//515:	Einbroch Fog
-		//516:	Airship Cloud
-		//517:	(Nothing)
-		//518:	Cart Termination
+        //510: [{}],    //EF_BEGINASURA11       Champion Asura Strike
+        //511: [{}],    //EF_NIGHT       (Nothing)
+        //512: [{}],    //EF_CHEMICAL2DASH       Chain Crush Combo
+        //513: [{}],    //EF_GROUNDSAMPLE       Area Cast
+        //514: [{}],    //EF_GI_EXPLOSION       Really Big Circle
+        //515: [{}],    //EF_CLOUD4       Einbroch Fog
+        //516: [{}],    //EF_CLOUD5       Airship Cloud
+        //517: [{}],    //EF_BOTTOM_HERMODE       (Nothing)
+        //518: [{}],    //EF_CARTTER       Cart Termination
 
-        519: [{ //speed potion
+        519: [{ //speed potion    //EF_ITEMFAST    Speed Down Potion
             type: 'SPR',
             file: 'fast',
             wav:  'effect/fast',
             attachedEntity: true
         }],
 
-		//520:	Shield Bumerang
-		//521:	Player Become Red with Red Aura
+        //520: [{}],    //EF_SHIELDBOOMERANG3       Shield Bumerang
+        //521: [{}],    //EF_DOUBLECASTBODY       Player Become Red with Red Aura
 
-		'522_ground': [{ // Gravitation field
+        '522_ground': [{ // Gravitation field
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -2516,148 +2516,148 @@ define(function( require )
             }
         }],
 
-		//523:	Tarot Card of Fate (The Fool)
-		//524:	Tarot Card of Fate (The Magician)
-		//525:	Tarot Card of Fate (The High Priestess)
-		//526:	Tarot Card of Fate (The Chariot)
-		//527:	Tarot Card of Fate (Strength)
-		//528:	Tarot Card of Fate (The Lovers)
-		//529:	Tarot Card of Fate (The Wheel of Fortune)
-		//530:	Tarot Card of Fate (The Hanged Man)
-		//531:	Tarot Card of Fate (Death)
-		//532:	Tarot Card of Fate (Temperance)
-		//533:	Tarot Card of Fate (The Devil)
-		//534:	Tarot Card of Fate (The Tower)
-		//535:	Tarot Card of Fate (The Star)
-		//536:	Tarot Card of Fate (The Sun)
-		
-		//537:	Acid Demonstration
-		//538:	Player Become Green with Green Aura
-		//539:	Throw Random Bottle
-		//540:	Instant Small->Normal
-		//541:	(Nothing)
-		//542:	KA-Spell (1st Part)
-		//543:	Kahii
-		//544:	Warmth Red Sprite
-		//545:	Sound And... PUFF Client Crash :P
-		//546:	Kaupe
-		//547:	Estin
-		//548:	Instant Red Sprite
-		//549:	Instant Blue Sprite
-		//550:	Another Effect like Running Hit
-		//551:	Effect Like Estun but with Circle
-		//552:	(Nothing)
-		//553:	Esma
-		//554:	Large White Cloud
-		//555:	Estun
-		//556:	(Nothing)
-		//557:	Juperos Energy Waterfall (Horizontal)
-		//558:	Juperos Energy Waterfall (Vertical)
-		//559:	Juperos Energy Waterfall Fast (Horizontal)
-		//560:	Juperos Energy Waterfall Fast (Vertical)
-		//561:	Juperos Warp
-		//562:	Juperos Warp
-		//563:	Earthquake Effect (Juperos Elevator)
-		//564:	Wedding Cast
-		
-        565: [{
+        //523: [{}],    //EF_TAROTCARD1       Tarot Card of Fate (The Fool)
+        //524: [{}],    //EF_TAROTCARD2       Tarot Card of Fate (The Magician)
+        //525: [{}],    //EF_TAROTCARD3       Tarot Card of Fate (The High Priestess)
+        //526: [{}],    //EF_TAROTCARD4       Tarot Card of Fate (The Chariot)
+        //527: [{}],    //EF_TAROTCARD5       Tarot Card of Fate (Strength)
+        //528: [{}],    //EF_TAROTCARD6       Tarot Card of Fate (The Lovers)
+        //529: [{}],    //EF_TAROTCARD7       Tarot Card of Fate (The Wheel of Fortune)
+        //530: [{}],    //EF_TAROTCARD8       Tarot Card of Fate (The Hanged Man)
+        //531: [{}],    //EF_TAROTCARD9       Tarot Card of Fate (Death)
+        //532: [{}],    //EF_TAROTCARD10       Tarot Card of Fate (Temperance)
+        //533: [{}],    //EF_TAROTCARD11       Tarot Card of Fate (The Devil)
+        //534: [{}],    //EF_TAROTCARD12       Tarot Card of Fate (The Tower)
+        //535: [{}],    //EF_TAROTCARD13       Tarot Card of Fate (The Star)
+        //536: [{}],    //EF_TAROTCARD14       Tarot Card of Fate (The Sun)
+        
+        //537: [{}],    //EF_ACIDDEMON       Acid Demonstration
+        //538: [{}],    //EF_GREENBODY       Player Become Green with Green Aura
+        //539: [{}],    //EF_THROWITEM4       Throw Random Bottle
+        //540: [{}],    //EF_BABYBODY_BACK       Instant Small->Normal
+        //541: [{}],    //EF_THROWITEM5       (Nothing)
+        //542: [{}],    //EF_BLUEBODY       KA-Spell (1st Part)
+        //543: [{}],    //EF_HATED       Kahii
+        //544: [{}],    //EF_REDLIGHTBODY       Warmth Red Sprite
+        //545: [{}],    //EF_RO2YEAR       Sound And... PUFF Client Crash :P
+        //546: [{}],    //EF_SMA_READY       Kaupe
+        //547: [{}],    //EF_STIN       Estin
+        //548: [{}],    //EF_RED_HIT       Instant Red Sprite
+        //549: [{}],    //EF_BLUE_HIT       Instant Blue Sprite
+        //550: [{}],    //EF_QUAKEBODY3       Another Effect like Running Hit
+        //551: [{}],    //EF_SMA       Effect Like Estun but with Circle
+        //552: [{}],    //EF_SMA2       (Nothing)
+        //553: [{}],    //EF_STIN2       Esma
+        //554: [{}],    //EF_HITTEXTURE       Large White Cloud
+        //555: [{}],    //EF_STIN3       Estun
+        //556: [{}],    //EF_SMA3       (Nothing)
+        //557: [{}],    //EF_BLUEFALL       Juperos Energy Waterfall (Horizontal)
+        //558: [{}],    //EF_BLUEFALL_90       Juperos Energy Waterfall (Vertical)
+        //559: [{}],    //EF_FASTBLUEFALL       Juperos Energy Waterfall Fast (Horizontal)
+        //560: [{}],    //EF_FASTBLUEFALL_90       Juperos Energy Waterfall Fast (Vertical)
+        //561: [{}],    //EF_BIG_PORTAL       Juperos Warp
+        //562: [{}],    //EF_BIG_PORTAL2       Juperos Warp
+        //563: [{}],    //EF_SCREEN_QUAKE       Earthquake Effect (Juperos Elevator)
+        //564: [{}],    //EF_HOMUNCASTING       Wedding Cast
+        
+        565: [{    //EF_HFLIMOON1    Filir Moonlight Lvl 1
             type: 'STR',
             file: 'moonlight_1',
             attachedEntity: true
         }],
 
 
-        566: [{
+        566: [{    //EF_HFLIMOON2    Filir Moonlight Lvl 2
             type: 'STR',
             file: 'moonlight_2',
             attachedEntity: true
         }],
 
 
-        567: [{
+        567: [{    //EF_HFLIMOON3    Filir Moonlight Lvl 3
             type: 'STR',
             file: 'moonlight_3',
             attachedEntity: true
         }],
 
 
-        568: [{ //homun?
+        568: [{ //homun?    //EF_HO_UP    Another Job Level Up
             type: 'STR',
             file: 'h_levelup',
             attachedEntity: true
         }],
 
 
-        569: [{
+        569: [{    //EF_HAMIDEFENCE    Amistr Bulwark
             type: 'STR',
             file: 'defense',
             attachedEntity: true
         }],
 
 
-        570: [{
+        570: [{    //EF_HAMICASTLE    Amistr Castling
             type: 'SPR',
             file: '\xc4\x33\x31\x31\xb8\xb5', //Ä311¸µ
             attachedEntity: true
         }],
 
 
-        571: [{
+        571: [{    //EF_HAMIBLOOD    Amistr Bloodlust
             type: 'SPR',
             file: '\x6f\xed\xb7\x97\xb5\x61\xb7\x97\x31\x6f\x41\xae', //oí·—µa·—1oA®
             attachedEntity: true
         }],
 
-		//572:	Warmth Soul
-		//573:	Twilight Alchemy 1
-		//574:	Twilight Alchemy 2
-		//575:	Twilight Alchemy 3
+        //572: [{}],    //EF_HATED2       Warmth Soul
+        //573: [{}],    //EF_TWILIGHT1       Twilight Alchemy 1
+        //574: [{}],    //EF_TWILIGHT2       Twilight Alchemy 2
+        //575: [{}],    //EF_TWILIGHT3       Twilight Alchemy 3
 
-        576: [{
+        576: [{    //EF_ITEM_THUNDER    Box Effect (Thunder)
             type: 'SPR',
             file: 'item_thunder',
             attachedEntity: true
         }],
 
 
-        577: [{
+        577: [{    //EF_ITEM_CLOUD    Box Effect (Cloud)
             type: 'SPR',
             file: 'item_cloud',
             attachedEntity: true
         }],
 
 
-        578: [{
+        578: [{    //EF_ITEM_CURSE    Box Effect (Curse)
             type: 'SPR',
             file: 'item_curse',
             attachedEntity: true
         }],
 
 
-        579: [{
+        579: [{    //EF_ITEM_ZZZ    Box Effect (Sleep)
             type: 'SPR',
             file: 'item_zzz',
             attachedEntity: true
         }],
 
 
-        580: [{
+        580: [{    //EF_ITEM_RAIN    Box Effect (Rain)
             type: 'SPR',
             file: 'item_rain',
             attachedEntity: true
         }],
 
-		//581:	Box Effect (Sunlight)
-		//582:	Another Super Novice/Taekwon Angel
+        //581: [{}],    //EF_ITEM_LIGHT       Box Effect (Sunlight)
+        //582: [{}],    //EF_ANGEL3       Another Super Novice/Taekwon Angel
 
-        583: [{
+        583: [{    //EF_M01    Warmth Hit
             type: 'SPR',
             file: 'm_ef01',
             attachedEntity: true
         }],
 
 
-        584: [{
+        584: [{    //EF_M02    Full Buster
             type: 'SPR',
             file: 'm_ef02',
             attachedEntity: true,
@@ -2665,91 +2665,91 @@ define(function( require )
         }],
 
 
-        585: [{
+        585: [{    //EF_M03    5 Medium Size Explosion
             type: 'SPR',
             file: 'm_ef03',
             attachedEntity: true
         }],
 
 
-        586: [{
+        586: [{    //EF_M04    Somatology Lab Mobs Aura
             type: 'SPR',
             file: 'm_ef04',
             attachedEntity: true
         }],
 
 
-        587: [{
+        587: [{    //EF_M05    Big Purple Flame
             type: 'SPR',
             file: 'm_ef05',
             attachedEntity: true
         }],
 
 
-        588: [{
+        588: [{    //EF_M06    Little Red Flame
             type: 'SPR',
             file: 'm_ef06',
             attachedEntity: true
         }],
 
 
-        589: [{
+        589: [{    //EF_M07    Eswoo
             type: 'SPR',
             file: 'm_ef07',
             attachedEntity: true
         }],
 
-		//590:	Running Stop
-		//591:	(Nothing)
-		//592:	Thanatos Tower Bloody Clouds
+        //590: [{}],    //EF_KAIZEL       Running Stop
+        //591: [{}],    //EF_KAAHI       (Nothing)
+        //592: [{}],    //EF_CLOUD6       Thanatos Tower Bloody Clouds
 
-        593: [{
+        593: [{    //EF_FOOD01    Food Effect (STR)
             type: 'STR',
             file: 'food_str',
             attachedEntity: true
         }],
 
 
-        594: [{
+        594: [{    //EF_FOOD02    Food Effect (INT)
             type: 'STR',
             file: 'food_int',
             attachedEntity: true
         }],
 
 
-        595: [{
+        595: [{    //EF_FOOD03    Food Effect (VIT)
             type: 'STR',
             file: 'food_vit',
             attachedEntity: true
         }],
 
 
-        596: [{
+        596: [{    //EF_FOOD04    Food Effect (AGI)
             type: 'STR',
             file: 'food_agi',
             attachedEntity: true
         }],
 
 
-        597: [{
+        597: [{    //EF_FOOD05    Food Effect (DEX)
             type: 'STR',
             file: 'food_dex',
             attachedEntity: true
         }],
 
 
-        598: [{
+        598: [{    //EF_FOOD06    Food Effect (LUK)
             type: 'STR',
             file: 'food_luk',
             attachedEntity: true
         }],
 
-		//599:	Cast Time Sound and Flashing Animation on Player
-		//600:	Throw Venom Knife
-		//601:	Sight Blaster
-		//602:	Close Confine (Grab Effect)
+        //599: [{}],    //EF_SHRINK       Cast Time Sound and Flashing Animation on Player
+        //600: [{}],    //EF_THROWITEM6       Throw Venom Knife
+        //601: [{}],    //EF_SIGHT2       Sight Blaster
+        //602: [{}],    //EF_QUAKEBODY4       Close Confine (Grab Effect)
 
-        603: [{
+        603: [{    //EF_FIREHIT2    Spinning fire ball (like 50, but smaller)
             type: 'STR',
             file: 'firehit%d',
             rand: [1, 3],
@@ -2757,34 +2757,34 @@ define(function( require )
         }],
 
 
-        604: [{
+        604: [{    //EF_NPC_STOP2    Close Confine (Ground Effect)
             type: 'SPR',
             file: 'cconfine',
             attachedEntity: true,
             stopAtEnd: true
         }],
 
-		//605:	(Nothing)
-		//606:	Pang Voice (Visual Effect)
-		//607:	Wink of Charm (Visual Effect)
+        //605: [{}],    //EF_NPC_STOP2_DEL       (Nothing)
+        //606: [{}],    //EF_FVOICE       Pang Voice (Visual Effect)
+        //607: [{}],    //EF_WINK       Wink of Charm (Visual Effect)
 
-        608: [{
+        608: [{    //EF_COOKING_OK    Cooking Success
             type: 'STR',
             file: 'cook_suc',
             attachedEntity: true
         }],
 
 
-        609: [{
+        609: [{    //EF_COOKING_FAIL    Cooking Failed
             type: 'STR',
             file: 'cook_fail',
             attachedEntity: true
         }],
 
-		//610:	Success
-		//611:	Failed
+        //610: [{}],    //EF_TEMP_OK       Success
+        //611: [{}],    //EF_TEMP_FAIL       Failed
 
-        612: [{
+        612: [{    //EF_HAPGYEOK    Korean Words and /no1 Emoticon
             type: 'SPR',
             file: '\xc7\x4f\xb0\xdd\x5f', //ÇO°Ý_
             attachedEntity: true
@@ -2794,32 +2794,32 @@ define(function( require )
             attachedEntity: true
         }],
 
-		//613:	Throw Shuriken
-		//614:	Throw Kunai
-		//615:	Throw Fumma Shuriken
-		//616:	Throw Money
-		//617:	Illusionary Shadow
-		//618:	Crimson Fire Bolossom
-		//619:	Lightning Spear Of Ice
-		//620:	Water Escape Technique
-		//621:	Wind Blade
-		//622:	Lightning Crash
-		//623:	Piercing Shot
-		//624:	Kamaitachi
-		//625:	Madness Canceller
-		//626:	Adjustment
-		//627:	Disarm (Sound Effect)
-		//628:	Dust
-		//629:	(Nothing)
+        //613: [{}],    //EF_THROWITEM7       Throw Shuriken
+        //614: [{}],    //EF_THROWITEM8       Throw Kunai
+        //615: [{}],    //EF_THROWITEM9       Throw Fumma Shuriken
+        //616: [{}],    //EF_THROWITEM10       Throw Money
+        //617: [{}],    //EF_BUNSINJYUTSU       Illusionary Shadow
+        //618: [{}],    //EF_KOUENKA       Crimson Fire Bolossom
+        //619: [{}],    //EF_HYOUSENSOU       Lightning Spear Of Ice
+        //620: [{}],    //EF_BOTTOM_SUITON       Water Escape Technique
+        //621: [{}],    //EF_STIN4       Wind Blade
+        //622: [{}],    //EF_THUNDERSTORM2       Lightning Crash
+        //623: [{}],    //EF_CHEMICAL4       Piercing Shot
+        //624: [{}],    //EF_STIN5       Kamaitachi
+        //625: [{}],    //EF_MADNESS_BLUE       Madness Canceller
+        //626: [{}],    //EF_MADNESS_RED       Adjustment
+        //627: [{}],    //EF_RG_COIN3       Disarm (Sound Effect)
+        //628: [{}],    //EF_BASH3D5       Dust
+        //629: [{}],    //EF_CHOOKGI3       (Nothing)
 
-        630: [{
+        630: [{    //EF_KIRIKAGE    Shadow Slash
             type: 'SPR',
             file: '\xb1\xd7\xb8\x32\x41\xda\x6f\x4c\xb1\xe2', //±×¸2AÚoL±â
             attachedEntity: true
         }],
 
 
-        631: [{ //reverse tatami map unit
+        631: [{ //reverse tatami map unit    //EF_TATAMI    Reverse Tatami Map Unit
             type: 'SPR',
             file: '\xb4\x55\xb4\x55\x31\x49', //´U´U1I
             wav: '\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2', //´Ů´ŮąĚµÚÁý±â
@@ -2827,98 +2827,98 @@ define(function( require )
         }],
 
 
-        632: [{
+        632: [{    //EF_KASUMIKIRI    Mist Slash
             type: 'SPR',
             file: '\x33\x45\xb0\x33\x6f\x4c\xb1\xe2', //3E°3oL±â
             attachedEntity: true
         }],
 
 
-        633: [{
+        633: [{    //EF_ISSEN    Final Strike
             type: 'SPR',
             file: '\x41\x49\x31\xb6', //AI1¶
             attachedEntity: true
         }],
 
 
-        634: [{
+        634: [{    //EF_KAEN    Crimson Fire Formation
             type: 'SPR',
             file: '\x45\xad\x3f\xb0\xc1\x6f', //E­?°Áo
             attachedEntity: false
         }],
 
 
-        635: [{
+        635: [{    //EF_BAKU    Dragon Fire Formation
             type: 'STR',
             file: 'fire dragon',
             attachedEntity: false
         }],
 
 
-        636: [{
+        636: [{    //EF_HYOUSYOURAKU    Falling Ice Pillar
             type: 'STR',
             file: 'icy',
             attachedEntity: false
         }],
 
 
-        637: [{
+        637: [{    //EF_DESPERADO    Desperado
             type: 'SPR',
             file: '\xb5\x59\x31\x6f\x41\xe4\xb6\xf3\xb5\xb5', //µY1oAä¶óµµ
             attachedEntity: true
         }],
 
 
-        638: [{
+        638: [{    //EF_LIGHTNING_S    Ground Drift Grenade
             type: 'SPR',
             file: '\xb6\xf3\x41\x49\x41\xae\xb4\xd7\x31\x6f\xc7\xc7\x33\xee', //¶óAIA®´×1oÇÇ3î
             attachedEntity: false
         }],
 
 
-        639: [{
+        639: [{    //EF_BLIND_S    Ground Drift Grenade
             type: 'SPR',
             file: '\x6f\xed\xb6\xf3\x41\xce\xb5\x61\x31\x6f\xc7\xc7\x33\xee', //oí¶óAÎµa1oÇÇ3î
             attachedEntity: false
         }],
 
 
-        640: [{
+        640: [{    //EF_POISON_S    Ground Drift Grenade
             type: 'SPR',
             file: '\x41\xf7\x41\x49\xc1\x3f\x31\x6f\xc7\xc7\x33\xee', //A÷AIÁ?1oÇÇ3î
             attachedEntity: false
         }],
 
 
-        641: [{
+        641: [{    //EF_FREEZING_S    Ground Drift Grenade
             type: 'SPR',
             file: '\xc7\xc1\xb8\xae\xc2\x21\x31\x6f\xc7\xc7\x33\xee', //ÇÁ¸®Â!1oÇÇ3î
             attachedEntity: false
         }],
 
 
-        642: [{
+        642: [{    //EF_FLARE_S    Ground Drift Grenade
             type: 'SPR',
             file: '\xc7\x41\xb7\x31\x33\xee\x31\x6f\xc7\xc7\x33\xee', //ÇA·13î1oÇÇ3î
             attachedEntity: false
         }],
 
 
-        643: [{
+        643: [{    //EF_RAPIDSHOWER    Rapid Shower
             type: 'SPR',
             file: '\xb7\x21\xc7\xc7\xb5\x61\xbb\x3f\x3f\xf6', //·!ÇÇµa»??ö
             attachedEntity: true
         }],
 
 
-        644: [{
+        644: [{    //EF_MAGICALBULLET    Magic Bullet
             type: 'SPR',
             file: '\xb8\x41\xc1\xf6\xc4\x41\x6f\x4f\xb8\xb4', //¸AÁöÄAoO¸´
             attachedEntity: true
         }],
 
 
-        645: [{
+        645: [{    //EF_SPREADATTACK    Spread Attack
             type: 'SPR',
             file: '\x31\x6f\xc7\xc1\xb7\x31\xb5\x61', //1oÇÁ·1µa
             attachedEntity: true,
@@ -2926,66 +2926,66 @@ define(function( require )
         }],
 
 
-        646: [{
+        646: [{    //EF_TRACKCASTING    Tracking (Shown While Casting)
             type: 'STR',
             file: '\x41\xae\xb7\x63\x41\xb7', //A®·cA·
             attachedEntity: true
         }],
 
 
-        647: [{
+        647: [{    //EF_TRACKING    Tracking
             type: 'SPR',
             file: '\x41\xae\xb7\x21\x41\xb7', //A®·!A·
             attachedEntity: true
         }],
 
 
-        648: [{
+        648: [{    //EF_TRIPLEACTION    Triple Action
             type: 'SPR',
             file: '\x41\xae\xb8\xae\xc7\x41\x33\xd7\x31\xc7', //A®¸®ÇA3×1Ç
             attachedEntity: true
         }],
 
 
-        649: [{
+        649: [{    //EF_BULLSEYE    Bull's Eye
             type: 'STR',
             file: '\x6f\x4f\x31\x6f\x33\x41\x41\x49', //oO1o3AAI
             attachedEntity: true
         }],
 
-		//650:	Ice Cave Level 4 Circle
-		//651:	Ice Cave Level 4 Big Circle
-		//652:	Like Regeneration Number but Red with a Sound
-		//653:	Like Regeneration Number but Red
-		//654:	Like Regeneration Number but Purple
-		//655:	Mobs Skill (Change Undead Element)
-		//656:	Last animation before Change Undead Element finish
-		//657:	(Nothing)
-		//658:	(Nothing)
-		//659:	(Nothing)
-		//660:	(Nothing)
-		//661:	(Nothing)
-		//662:	(Nothing)
-		//663:	(Nothing)
-		//664:	(Nothing)
-		//665:	Little Blue Ball Falling From the Sky
+        //650: [{}],    //EF_MAP_MAGICZONE       Ice Cave Level 4 Circle
+        //651: [{}],    //EF_MAP_MAGICZONE2       Ice Cave Level 4 Big Circle
+        //652: [{}],    //EF_DAMAGE1       Like Regeneration Number but Red with a Sound
+        //653: [{}],    //EF_DAMAGE1_2       Like Regeneration Number but Red
+        //654: [{}],    //EF_DAMAGE1_3       Like Regeneration Number but Purple
+        //655: [{}],    //EF_UNDEADBODY       Mobs Skill (Change Undead Element)
+        //656: [{}],    //EF_UNDEADBODY_DEL       Last animation before Change Undead Element finish
+        //657: [{}],    //EF_GREEN_NUMBER       (Nothing)
+        //658: [{}],    //EF_BLUE_NUMBER       (Nothing)
+        //659: [{}],    //EF_RED_NUMBER       (Nothing)
+        //660: [{}],    //EF_PURPLE_NUMBER       (Nothing)
+        //661: [{}],    //EF_BLACK_NUMBER       (Nothing)
+        //662: [{}],    //EF_WHITE_NUMBER       (Nothing)
+        //663: [{}],    //EF_YELLOW_NUMBER       (Nothing)
+        //664: [{}],    //EF_PINK_NUMBER       (Nothing)
+        //665: [{}],    //EF_BUBBLE_DROP       Little Blue Ball Falling From the Sky
 
-        666: [{  //Earthquake
+        666: [{  //Earthquake    //EF_NPC_EARTHQUAKE    Earthquake
             type: 'SPR',
             file: '\x33\xee\x31\x6f\xc4\x75\x41\x49\x41\xa9', //3î1oÄuAIA©
             attachedEntity: true
         }],
 
-		//667:	(Nothing)
+        //667: [{}],    //EF_DA_SPACE       (Nothing)
 
-        668: [{
+        668: [{    //EF_DRAGONFEAR    Dragonfear
             type: 'STR',
             file: 'dragon_h',
             attachedEntity: true
         }],
 
 
-        669: [{ //wide bleeding
+        669: [{ //wide bleeding    //EF_BLEEDING    Wide Bleeding
             type: 'STR',
             file: 'wideb',
             wav: 'wideb',
@@ -2993,22 +2993,22 @@ define(function( require )
         }],
 
 
-        670: [{
+        670: [{    //EF_WIDECONFUSE    Dragon fear (Visual Effect)
             type: 'STR',
             file: 'dfear',
             attachedEntity: true
         }],
 
-		//671:	The Japan Earth Symbol (like 'Seven Wind Lv1', but on the ground)
-		//672:	The Japan Wind Symbol (like 'Seven Wind Lv2', but on the ground)
-		//673:	Map turns Blue (like Soul Link)
+        //671: [{}],    //EF_BOTTOM_RUNNER       The Japan Earth Symbol (like 'Seven Wind Lv1', but on the ground)
+        //672: [{}],    //EF_BOTTOM_TRANSFER       The Japan Wind Symbol (like 'Seven Wind Lv2', but on the ground)
+        //673: [{}],    //EF_CRYSTAL_BLUE       Map turns Blue (like Soul Link)
 
-		'674_ground': [{ // evil land
+        '674_ground': [{ // evil land
             type: 'FUNC',
             attachedEntity: false,
-			//file: 'status-curse',
+            //file: 'status-curse',
             func: function(pos, tick, AID){
-				var self = this;
+                var self = this;
                 var EvillandEffects = require('Renderer/Effects/Songs').EvillandEffects;
                 EvillandEffects.forEach(function(effect){
                     self.add(new effect(pos, tick), AID);
@@ -3016,91 +3016,91 @@ define(function( require )
             }
         }],
 
-		//675:	Like Parrying/Kyrie Eleison barrier but Yellow with small Cross in every barrier piece
+        //675: [{}],    //EF_GUARD3       Like Parrying/Kyrie Eleison barrier but Yellow with small Cross in every barrier piece
 
-        677: [{
+        677: [{    //EF_CRITICALWOUND    Critical Wounds/Bleeding Attack
             type: 'STR',
             file: 'cwound',
             attachedEntity: true
         }],
-		
-		//678:	White 99 Aura Bubbles
-		//679:	Green Aura (Middle)
-		//680:	Green Aura (Bottom)
-		//681:	Dimensional Gorge Map Effect
-		//682:	I Love You Banner
-		//683:	Happy White Day Banner
-		//684:	Happy Valentine Day Banner
-		//685:	Happy Birthday Banner
-		//686:	Merry Christmas Banner
-		//687:	Cast Circle-Like effect 1
-		//688:	Cast Circle-Like effect 2
-		//689:	Endless Tower Map Effect
-		//690:	Burning Flame (Red)
-		//691:	Burning Flame (Green)
-		//692:	Unknown Aura Bubbles (Small ghosts)
-		//693:	Translucent yellow circle
-		//694:	Translucent green circle
-		//695:	Rotating green light
-		//696:	The same of 690 and 691 but Blue/Purple
-		//697:	(Nothing)
-		//698:	(Nothing)
+        
+        //678: [{}],    //EF_GREEN99_3       White 99 Aura Bubbles
+        //679: [{}],    //EF_GREEN99_5       Green Aura (Middle)
+        //680: [{}],    //EF_GREEN99_6       Green Aura (Bottom)
+        //681: [{}],    //EF_MAPSPHERE       Dimensional Gorge Map Effect
+        //682: [{}],    //EF_POK_LOVE       I Love You Banner
+        //683: [{}],    //EF_POK_WHITE       Happy White Day Banner
+        //684: [{}],    //EF_POK_VALEN       Happy Valentine Day Banner
+        //685: [{}],    //EF_POK_BIRTH       Happy Birthday Banner
+        //686: [{}],    //EF_POK_CHRISTMAS       Merry Christmas Banner
+        //687: [{}],    //EF_MAP_MAGICZONE3       Cast Circle-Like effect 1
+        //688: [{}],    //EF_MAP_MAGICZONE4       Cast Circle-Like effect 2
+        //689: [{}],    //EF_DUST       Endless Tower Map Effect
+        //690: [{}],    //EF_TORCH_RED       Burning Flame (Red)
+        //691: [{}],    //EF_TORCH_GREEN       Burning Flame (Green)
+        //692: [{}],    //EF_MAP_GHOST       Unknown Aura Bubbles (Small ghosts)
+        //693: [{}],    //EF_GLOW1       Translucent yellow circle
+        //694: [{}],    //EF_GLOW2       Translucent green circle
+        //695: [{}],    //EF_GLOW4       Rotating green light
+        //696: [{}],    //EF_TORCH_PURPLE       The same of 690 and 691 but Blue/Purple
+        //697: [{}],    //EF_CLOUD7       (Nothing)
+        //698: [{}],    //EF_CLOUD8       (Nothing)
 
-        699: [{
+        699: [{    //EF_FLOWERLEAF    Fall of powder from the sky and raise of some leaf
             type: 'STR',
             file: 'flower_leaf',
             attachedEntity: true
         }],
 
-		//700:	Big Colored Green Sphere.
-		//701:	Huge Blue Sphere
-		//702:	Little Colored Violet Sphere
-		//703:	Light Infiltration with fall of pownder
+        //700: [{}],    //EF_MAPSPHERE2       Big Colored Green Sphere.
+        //701: [{}],    //EF_GLOW11       Huge Blue Sphere
+        //702: [{}],    //EF_GLOW12       Little Colored Violet Sphere
+        //703: [{}],    //EF_CIRCLELIGHT       Light Infiltration with fall of pownder
 
-        704: [{
+        704: [{    //EF_ITEM315    Client Error (mobile_ef02.str)
             type: 'STR',
             file: 'mobile_ef02',
             attachedEntity: true
         }],
 
 
-        705: [{
+        705: [{    //EF_ITEM316    Client Error (mobile_ef01.str)
             type: 'STR',
             file: 'mobile_ef01',
             attachedEntity: true
         }],
 
 
-        706: [{
+        706: [{    //EF_ITEM317    Client Error (mobile_ef03.str)
             type: 'STR',
             file: 'mobile_ef03',
             attachedEntity: true
         }],
 
-		//707:	Client Crash :P
+        //707: [{}],    //EF_ITEM318       Client Crash :P
 
-        708: [{
+        708: [{    //EF_STORM_MIN    Storm Gust (same as 89)
             type: 'STR',
             file: 'storm_min',
             attachedEntity: false
         }],
 
 
-        709: [{
+        709: [{    //EF_POK_JAP    A Firework that split in 4 mini fireworks
             type: 'STR',
             file: 'pokjuk_jap',
             attachedEntity: false
         }],
 
-		//710:	A Sphere like Effect 701 but Green, and a bit more larger
-		//711:	A big violet wall
-		//712:	A Little Flame Sphere
-		//713:	A lot of Very Small and Yellow Sphere
-		//714:	(Nothing)
-		//715:	Little blue Basilica
-		//716:	Same as 715
+        //710: [{}],    //EF_MAP_GREENLIGHT       A Sphere like Effect 701 but Green, and a bit more larger
+        //711: [{}],    //EF_MAP_MAGICWALL       A big violet wall
+        //712: [{}],    //EF_MAP_GREENLIGHT2       A Little Flame Sphere
+        //713: [{}],    //EF_YELLOWFLY1       A lot of Very Small and Yellow Sphere
+        //714: [{}],    //EF_YELLOWFLY2       (Nothing)
+        //715: [{}],    //EF_BOTTOM_BLUE       Little blue Basilica
+        //716: [{}],    //EF_BOTTOM_BLUE2       Same as 715
 
-        717: [{
+        717: [{    //EF_WEWISH    Christmas Carol (copy of Angelus)
             type: 'STR',
             file: 'angelus',
             wav:  'effect/ef_angelus',
@@ -3108,482 +3108,482 @@ define(function( require )
             attachedEntity: true
         }],
 
-		//718:	Judex (Visual Effect)
-		//719:	Renovatio (light beam)
-		//720:	Yellow version of Soul Breaker
+        //718: [{}],    //EF_FIREPILLARON2       Judex (Visual Effect)
+        //719: [{}],    //EF_FORESTLIGHT5       Renovatio (light beam)
+        //720: [{}],    //EF_SOULBREAKER3       Yellow version of Soul Breaker
 
-        721: [{
+        721: [{    //EF_ADO_STR    Adoramus (lightning bolt)
             type: 'STR',
             file: 'ado',
             attachedEntity: true
         }],
 
 
-        722: [{
+        722: [{    //EF_IGN_STR    Ignition Break (big explosion)
             type: 'STR',
             file: '\x41\x49\xb1\xd7\xb4\x49\x31\xc7\x6f\x65\xb7\x31\x41\x49\x41\xa9', //AI±×´I1Çoe·1AIA©
             attachedEntity: true
         }],
 
-		//723:	Hundred Spear (sound effect)
-		//724:	Green version of Detecting
-		//725:	Oratorio (like Detecting)
-		//726:	Frost Misty (blue vapor and bubbles)
+        //723: [{}],    //EF_CHIMTO2       Hundred Spear (sound effect)
+        //724: [{}],    //EF_WINDCUTTER       Green version of Detecting
+        //725: [{}],    //EF_DETECT2       Oratorio (like Detecting)
+        //726: [{}],    //EF_FROSTMYSTY       Frost Misty (blue vapor and bubbles)
 
-        727: [{
+        727: [{    //EF_CRIMSON_STR    Crimson Rock
             type: 'STR',
             file: 'crimson_r',
             attachedEntity: true
         }],
 
 
-        728: [{
+        728: [{    //EF_HELL_STR    Small fire (part of Hell Inferno)
             type: 'STR',
             file: 'hell_in',
             attachedEntity: true
         }],
 
-		//729:	Marsh of Abyss (like Close Confine)
-		//730:	Small, cartoony explosion (part of Soul Expansion)
+        //729: [{}],    //EF_SPR_MASH       Marsh of Abyss (like Close Confine)
+        //730: [{}],    //EF_SPR_SOULE       Small, cartoony explosion (part of Soul Expansion)
 
-        731: [{
+        731: [{    //EF_DHOWL_STR    Dragon Howling (blinking, expanding circle)
             type: 'STR',
             file: 'dragon_h',
             attachedEntity: true
         }],
 
-		//732:	Spike from the ground
-		//733:	Fluffy Ball flying by
+        //732: [{}],    //EF_EARTHWALL       Spike from the ground
+        //733: [{}],    //EF_SOULBREAKER4       Fluffy Ball flying by
 
-        734: [{
+        734: [{    //EF_CHAINL_STR    Chain Lightning
             type: 'STR',
             file: 'chainlight',
             attachedEntity: true
         }],
 
-		//735:	(Nothing)
-		//736:	(Nothing)
-		//737:	(Nothing)
-		//738:	(Nothing)
-		//739:	Old Magenta Trap
-		//740:	Old Cobald Trap
-		//741:	Old Maize Trap
-		//742:	Old Verdure Trap
-		//743:	White Ranger Trap
-		//744:	Camouflage
+        //735: [{}],    //EF_CHOOKGI_FIRE       (Nothing)
+        //736: [{}],    //EF_CHOOKGI_WIND       (Nothing)
+        //737: [{}],    //EF_CHOOKGI_WATER       (Nothing)
+        //738: [{}],    //EF_CHOOKGI_GROUND       (Nothing)
+        //739: [{}],    //EF_MAGENTA_TRAP       Old Magenta Trap
+        //740: [{}],    //EF_COBALT_TRAP       Old Cobald Trap
+        //741: [{}],    //EF_MAIZE_TRAP       Old Maize Trap
+        //742: [{}],    //EF_VERDURE_TRAP       Old Verdure Trap
+        //743: [{}],    //EF_NORMAL_TRAP       White Ranger Trap
+        //744: [{}],    //EF_CLOAKING2       Camouflage
 
-        745: [{
+        745: [{    //EF_AIMED_STR    Aimed Bolt (crosshairs)
             type: 'STR',
             file: 'aimed',
             attachedEntity: true
         }],
 
 
-        746: [{
+        746: [{    //EF_ARROWSTORM_STR    Arrow Storm
             type: 'STR',
             file: 'arrowstorm',
             attachedEntity: true
         }],
 
 
-        747: [{
+        747: [{    //EF_LAULAMUS_STR    Falling white feathers
             type: 'STR',
             file: 'laulamus',
             attachedEntity: true
         }],
 
 
-        748: [{
+        748: [{    //EF_LAUAGNUS_STR    Falling blue feathers
             type: 'STR',
             file: 'lauagnus',
             attachedEntity: true
         }],
 
 
-        749: [{
+        749: [{    //EF_MILSHIELD_STR    Millennium Shield
             type: 'STR',
             file: 'mil_shield',
             attachedEntity: true
         }],
 
 
-        750: [{
+        750: [{    //EF_CONCENTRATION2    Detonator (blue sparkles)
             type: 'STR',
             file: 'concentration',
             attachedEntity: true
         }],
 
-		//751:	Releasing summoned warlock spheres
-		//752:	Like Energy Coat, but not as dark
-		//753:	Clearance
-		//754:	Green warp portal (root of Epiclesis)
-		//755:	Oratio (spinning blue symbol)
+        //751: [{}],    //EF_FIREBALL2       Releasing summoned warlock spheres
+        //752: [{}],    //EF_BUNSINJYUTSU2       Like Energy Coat, but not as dark
+        //753: [{}],    //EF_CLEARTIME       Clearance
+        //754: [{}],    //EF_GLASSWALL3       Green warp portal (root of Epiclesis)
+        //755: [{}],    //EF_ORATIO       Oratio (spinning blue symbol)
 
-        756: [{
+        756: [{    //EF_POTION_BERSERK2    Enchant Blade (like Berserk Potion)
             type: 'STR',
             file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
             attachedEntity: true
         }],
-		
-		//757:	Third Class Aura (Middle)
-		//758:	Rolling Cutter - Spin Count 1
-		//759:	Rolling Cutter - Spin Count 2
-		//760:	Rolling Cutter - Spin Count 3
-		//761:	Rolling Cutter - Spin Count 4
-		//762:	Rolling Cutter - Spin Count 5
-		//763:	Rolling Cutter - Spin Count 6
-		//764:	Rolling Cutter - Spin Count 7
-		//765:	Rolling Cutter - Spin Count 8
-		//766:	Rolling Cutter - Spin Count 9
-		//767:	Rolling Cutter - Spin Count 10
-		//768:	Blinking
-		//769:	Cross Ripper Slasher (flying knives)
-		//770:	Strip sound
-		//771:	Poison sound
-		//772:	Poison particles
-		//773:	Expanding purple aura (part of Phantom Menace)
-		//774:	Axe Boomerang
-		//775:	Spinning character sprite
-		//776:	Like Desperado sound effect
-		//777:	Faded light from the ground [S]
-		//778:	Expanding white aura (like Clearance)
-		//779:	Faded light from the ground [S]
-		//780:	Expanding red aura (from Infrared Scan)
-		//781:	Magnetic Field (purple chains)
-		//782:	All-around shield [S]
-		//783:	Yellow shaft of light
-		//784:	White shaft of light
-		//785:	Upward flying wrenches
-		//786:	Symbol with bleeping sound [S]
-		//787:	Flare Launcher (line of fire)
-		//788:	Venom Impress (green skull)
-		//789:	Freezing Status Effect (two ancillas)
-		//790:	Burning Status Effect (flame symbol)
-		//791:	Two ice shots
-		//792:	Upward streaming white particles
-		//793:	Same, but more brief
-		//794:	Infrared Scan (red lasers)
+        
+        //757: [{}],    //EF_CIRCLEPOWER       Third Class Aura (Middle)
+        //758: [{}],    //EF_ROLLING1       Rolling Cutter - Spin Count 1
+        //759: [{}],    //EF_ROLLING2       Rolling Cutter - Spin Count 2
+        //760: [{}],    //EF_ROLLING3       Rolling Cutter - Spin Count 3
+        //761: [{}],    //EF_ROLLING4       Rolling Cutter - Spin Count 4
+        //762: [{}],    //EF_ROLLING5       Rolling Cutter - Spin Count 5
+        //763: [{}],    //EF_ROLLING6       Rolling Cutter - Spin Count 6
+        //764: [{}],    //EF_ROLLING7       Rolling Cutter - Spin Count 7
+        //765: [{}],    //EF_ROLLING8       Rolling Cutter - Spin Count 8
+        //766: [{}],    //EF_ROLLING9       Rolling Cutter - Spin Count 9
+        //767: [{}],    //EF_ROLLING10       Rolling Cutter - Spin Count 10
+        //768: [{}],    //EF_PURPLEBODY       Blinking
+        //769: [{}],    //EF_STIN6       Cross Ripper Slasher (flying knives)
+        //770: [{}],    //EF_RG_COIN4       Strip sound
+        //771: [{}],    //EF_POISONWAV       Poison sound
+        //772: [{}],    //EF_POISONSMOKE       Poison particles
+        //773: [{}],    //EF_GUMGANG4       Expanding purple aura (part of Phantom Menace)
+        //774: [{}],    //EF_SHIELDBOOMERANG4       Axe Boomerang
+        //775: [{}],    //EF_CASTSPIN2       Spinning character sprite
+        //776: [{}],    //EF_VULCANWAV       Like Desperado sound effect
+        //777: [{}],    //EF_AGIUP2       Faded light from the ground [S]
+        //778: [{}],    //EF_DETECT3       Expanding white aura (like Clearance)
+        //779: [{}],    //EF_AGIUP3       Faded light from the ground [S]
+        //780: [{}],    //EF_DETECT4       Expanding red aura (from Infrared Scan)
+        //781: [{}],    //EF_ELECTRIC3       Magnetic Field (purple chains)
+        //782: [{}],    //EF_GUARD4       All-around shield [S]
+        //783: [{}],    //EF_BOTTOM_BARRIER       Yellow shaft of light
+        //784: [{}],    //EF_BOTTOM_STEALTH       White shaft of light
+        //785: [{}],    //EF_REPAIRTIME       Upward flying wrenches
+        //786: [{}],    //EF_NC_ANAL       Symbol with bleeping sound [S]
+        //787: [{}],    //EF_FIRETHROW       Flare Launcher (line of fire)
+        //788: [{}],    //EF_VENOMIMPRESS       Venom Impress (green skull)
+        //789: [{}],    //EF_FROSTMISTY       Freezing Status Effect (two ancillas)
+        //790: [{}],    //EF_BURNING       Burning Status Effect (flame symbol)
+        //791: [{}],    //EF_COLDTHROW       Two ice shots
+        //792: [{}],    //EF_MAKEHALLU       Upward streaming white particles
+        //793: [{}],    //EF_HALLUTIME       Same, but more brief
+        //794: [{}],    //EF_INFRAREDSCAN       Infrared Scan (red lasers)
 
-        795: [{
+        795: [{    //EF_CRASHAXE    Power Swing (axe crash)
             type: 'STR',
             file: 'powerswing',
             attachedEntity: true
         }],
 
-		//796:	Spinning blue triangles
-		//797:	Stapo
-		//798:	Red triangles (like Intimidate)
-		//799:	Stasis (expanding blue mist) [S]
-		//800:	Hell Inferno (red lights)
-		//801:	Jack Frost unit (ice spikes)
-		//802:	White Imprison
-		//803:	Recognized Spell
-		//804:	Tetra Vortex [S]
-		//805:	Tetra Vortex cast animation (blinking colors)
-		//806:	Flying by as fast as a rocket
-		//807:	Kidnapping sound
-		//808:	Like Recognized Spell, but one symbol
-		//809:	Shadowy filter [S]
-		//810:	Damp thud sound [S]
-		//811:	Body Painting
-		//812:	Black expanding aura
+        //796: [{}],    //EF_GTHUNDER       Spinning blue triangles
+        //797: [{}],    //EF_STONERING       Stapo
+        //798: [{}],    //EF_INTIMIDATE2       Red triangles (like Intimidate)
+        //799: [{}],    //EF_STASIS       Stasis (expanding blue mist) [S]
+        //800: [{}],    //EF_REDLINE       Hell Inferno (red lights)
+        //801: [{}],    //EF_FROSTDIVER3       Jack Frost unit (ice spikes)
+        //802: [{}],    //EF_BOTTOM_BASILICA2       White Imprison
+        //803: [{}],    //EF_RECOGNIZED       Recognized Spell
+        //804: [{}],    //EF_TETRA       Tetra Vortex [S]
+        //805: [{}],    //EF_TETRACASTING       Tetra Vortex cast animation (blinking colors)
+        //806: [{}],    //EF_FIREBALL3       Flying by as fast as a rocket
+        //807: [{}],    //EF_INTIMIDATE3       Kidnapping sound
+        //808: [{}],    //EF_RECOGNIZED2       Like Recognized Spell, but one symbol
+        //809: [{}],    //EF_CLOAKING3       Shadowy filter [S]
+        //810: [{}],    //EF_INTIMIDATE4       Damp thud sound [S]
+        //811: [{}],    //EF_STRETCH       Body Painting
+        //812: [{}],    //EF_BLACKBODY       Black expanding aura
 
-        813: [{
+        813: [{    //EF_ENERVATION    Masquerade - Enervation
             type: 'STR',
             file: 'enervation',
             attachedEntity: true
         }],
 
 
-        814: [{
+        814: [{    //EF_ENERVATION2    Masquerade - Groomy
             type: 'STR',
             file: 'groomy',
             attachedEntity: true
         }],
 
 
-        815: [{
+        815: [{    //EF_ENERVATION3    Masquerade - Ignorance
             type: 'STR',
             file: 'ignorance',
             attachedEntity: true
         }],
 
 
-        816: [{
+        816: [{    //EF_ENERVATION4    Masquerade - Laziness
             type: 'STR',
             file: 'laziness',
             attachedEntity: true
         }],
 
 
-        817: [{
+        817: [{    //EF_ENERVATION5    Masquerade - Unlucky
             type: 'STR',
             file: 'unlucky',
             attachedEntity: true
         }],
 
 
-        818: [{
+        818: [{    //EF_ENERVATION6    Masquerade - Weakness
             type: 'STR',
             file: 'weakness',
             attachedEntity: true
         }],
-		
-		//819:	(Nothing)
-		//820:	Strip Accessory
-		//821:	Waterfall
-		//822:	Dimension Door (spinning blue aura)
-		//823:	in-the-manhole effect
-		//824:	Some filter
-		//825:	Dimension Door (aura + blue light)
-		//826:	Expanding black casting anim:
-		//827:	Chaos Panic (spinning brown aura)
-		//828:	Maelstrom (spinning pink aura)
-		//829:	Bloody Lust (spinning red aura)
-		//830:	Blue aura (Arch Bishop cast animation)
-		//831:	Blue cone [S]
-		//832:	Sonic Wave
-		//833:	(Nothing)
-		//834:	Light shooting away circlish
-		//835:	Fastness yellow-reddish
-		//836:	Fastness yellow-pinkish
-		//837:	Casting [S]
-		//838:	Watery aura
-		//839:	[Client Error]
-		//840:	Red cone
-		//841:	Green cone
-		//842:	Yellow cone
-		//843:	White cone
-		//844:	Purple cone
-		//845:	light-bluish turquoise cone
-		//846:	(Nothing)
-		//847:	Gloomy Day (white/red light rays)
-		//848:	Gloomy Day (white/blue light rays)
-		//849:	(Nothing)
-		//850:	(Nothing)
-		//851:	Green mushy-foggy stuff (dull)
-		//852:	Green mushy-foggy stuff (bright)
-		//853:	Bright green flower area
-		//854:	Blue beam of light with notes
-		//855:	(Nothing)
-		//856:	Reverberation (red eighth notes)
-		//857:	Severe Rainstorm (falling red and blue beams)
-		//858:	Deep Sleep Lullaby (two red beams and music notes)
-		//859:	Holograph of text (blue)
-		//860:	Distorted note (blue)
-		//861:	Green aura (from Circle of Life's Melody)
-		//862:	Randomize Spell (holograph of text)
-		//863:	Dominion Impulse (two spears of light)
-		//864:	Gloomy Day (colorful lines)
-		//865:	Blue aura (from Song of Mana)
-		//866:	Dance with a Warg (Wargs)
-		//867:	Yellow aura (from Dance with a Warg)
-		//868:	Song of Mana (Violies)
-		//869:	Strip sound [S]
-		//870:	Ghostly Succubuses of fire
-		//871:	Red aura (from Lerad's Dew)
-		//872:	Lerad's Dew (Minerals)
-		//873:	Stargate-wormhole stuff (bright purple)
-		//874:	Melody of Sink (Ktullanuxes)
-		//875:	Stargate-wormhole stuff (bright turquoise)
-		//876:	Warcry of Beyond (Garms)
-		//877:	Stargate-wormhole stuff (white)
-		//878:	Unlimited Humming Voice (Miyabi Ningyos)
-		//879:	Siren's Voice (heart-like)
-		//880:	Bluish castish cone
-		//881:	Blue aura
-		//882:	Whirl of fireflies (red)
-		//883:	Epiclesis (transparent green tree)
-		//884:	Green beam
-		//885:	Blue light beams
-		//886:	Blue castish cone
-		//887:	Wavy sparks
-		//888:	Earth Shaker (same as 432)
-		//889:	Fast light beams
-		//890:	Rotation
-		//891:	Magic shots [S]
-		//892:	Fastness with hitting sound[S]
-		//893:	Blue-white light passing by
-		//894:	(Nothing)
-		//895:	Big wheel of flat light beams
-		//896:	Still sun shaped lightning aura
-		//897:	Animated sun shaped lightning aura
-		//898:	Animated, curvy sun shaped lightning aura
-		//899:	White/red light shots from below
-		//900:	Animated, slow curvy sun shaped lightning aura
-		//901:	Explosion
-		//902:	Floating bedtable texture
-		//903:	Castish flamey cone
-		//904:	Yellow/pink lights passing by
-		//905:	Expanding circle
-		//906:	Shield Press (falling shield)
-		//907:	Chainy, metalish sound [S]
-		//908:	Prestige (sphere of yellow particles)
-		//909:	Banding (sphere of red particles)
-		//910:	Inspiration (sphere of blue particles)
-		//911:	Green castish animation [S]
-		//912:	Wall of Thorns unit (green fog cloud)
-		//913:	Magic projectiles
-		//914:	(Nothing)
-		//915:	Crazy Weed
-		//916:	Demonic Fire
-		//917:	More angry, demonic flames
-		//918:	Fire Insignia (demonic flames)
-		//919:	Hell's Plant (green snapping plant)
+        
+        //819: [{}],    //EF_LINELINK4       (Nothing)
+        //820: [{}],    //EF_RG_COIN5       Strip Accessory
+        //821: [{}],    //EF_WATERFALL_ANI       Waterfall
+        //822: [{}],    //EF_BOTTOM_MANHOLE       Dimension Door (spinning blue aura)
+        //823: [{}],    //EF_MANHOLE       in-the-manhole effect
+        //824: [{}],    //EF_MAKEFEINT       Some filter
+        //825: [{}],    //EF_FORESTLIGHT6       Dimension Door (aura + blue light)
+        //826: [{}],    //EF_DARKCASTING2       Expanding black casting anim:
+        //827: [{}],    //EF_BOTTOM_ANI       Chaos Panic (spinning brown aura)
+        //828: [{}],    //EF_BOTTOM_MAELSTROM       Maelstrom (spinning pink aura)
+        //829: [{}],    //EF_BOTTOM_BLOODYLUST       Bloody Lust (spinning red aura)
+        //830: [{}],    //EF_BEGINSPELL_N1       Blue aura (Arch Bishop cast animation)
+        //831: [{}],    //EF_BEGINSPELL_N2       Blue cone [S]
+        //832: [{}],    //EF_HEAL_N       Sonic Wave
+        //833: [{}],    //EF_CHOOKGI_N       (Nothing)
+        //834: [{}],    //EF_JOBLVUP50_2       Light shooting away circlish
+        //835: [{}],    //EF_CHEMICAL2DASH2       Fastness yellow-reddish
+        //836: [{}],    //EF_CHEMICAL2DASH3       Fastness yellow-pinkish
+        //837: [{}],    //EF_ROLLINGCAST       Casting [S]
+        //838: [{}],    //EF_WATER_BELOW       Watery aura
+        //839: [{}],    //EF_WATER_FADE       [Client Error]
+        //840: [{}],    //EF_BEGINSPELL_N3       Red cone
+        //841: [{}],    //EF_BEGINSPELL_N4       Green cone
+        //842: [{}],    //EF_BEGINSPELL_N5       Yellow cone
+        //843: [{}],    //EF_BEGINSPELL_N6       White cone
+        //844: [{}],    //EF_BEGINSPELL_N7       Purple cone
+        //845: [{}],    //EF_BEGINSPELL_N8       light-bluish turquoise cone
+        //846: [{}],    //EF_WATER_SMOKE       (Nothing)
+        //847: [{}],    //EF_DANCE1       Gloomy Day (white/red light rays)
+        //848: [{}],    //EF_DANCE2       Gloomy Day (white/blue light rays)
+        //849: [{}],    //EF_LINKPARTICLE       (Nothing)
+        //850: [{}],    //EF_SOULLIGHT2       (Nothing)
+        //851: [{}],    //EF_SPR_PARTICLE       Green mushy-foggy stuff (dull)
+        //852: [{}],    //EF_SPR_PARTICLE2       Green mushy-foggy stuff (bright)
+        //853: [{}],    //EF_SPR_PLANT       Bright green flower area
+        //854: [{}],    //EF_CHEMICAL_V       Blue beam of light with notes
+        //855: [{}],    //EF_SHOOTPARTICLE       (Nothing)
+        //856: [{}],    //EF_BOT_REVERB       Reverberation (red eighth notes)
+        //857: [{}],    //EF_RAIN_PARTICLE       Severe Rainstorm (falling red and blue beams)
+        //858: [{}],    //EF_CHEMICAL_V2       Deep Sleep Lullaby (two red beams and music notes)
+        //859: [{}],    //EF_SECRA       Holograph of text (blue)
+        //860: [{}],    //EF_BOT_REVERB2       Distorted note (blue)
+        //861: [{}],    //EF_CIRCLEPOWER2       Green aura (from Circle of Life's Melody)
+        //862: [{}],    //EF_SECRA2       Randomize Spell (holograph of text)
+        //863: [{}],    //EF_CHEMICAL_V3       Dominion Impulse (two spears of light)
+        //864: [{}],    //EF_ENERVATION7       Gloomy Day (colorful lines)
+        //865: [{}],    //EF_CIRCLEPOWER3       Blue aura (from Song of Mana)
+        //866: [{}],    //EF_SPR_PLANT2       Dance with a Warg (Wargs)
+        //867: [{}],    //EF_CIRCLEPOWER4       Yellow aura (from Dance with a Warg)
+        //868: [{}],    //EF_SPR_PLANT3       Song of Mana (Violies)
+        //869: [{}],    //EF_RG_COIN6       Strip sound [S]
+        //870: [{}],    //EF_SPR_PLANT4       Ghostly Succubuses of fire
+        //871: [{}],    //EF_CIRCLEPOWER5       Red aura (from Lerad's Dew)
+        //872: [{}],    //EF_SPR_PLANT5       Lerad's Dew (Minerals)
+        //873: [{}],    //EF_CIRCLEPOWER6       Stargate-wormhole stuff (bright purple)
+        //874: [{}],    //EF_SPR_PLANT6       Melody of Sink (Ktullanuxes)
+        //875: [{}],    //EF_CIRCLEPOWER7       Stargate-wormhole stuff (bright turquoise)
+        //876: [{}],    //EF_SPR_PLANT7       Warcry of Beyond (Garms)
+        //877: [{}],    //EF_CIRCLEPOWER8       Stargate-wormhole stuff (white)
+        //878: [{}],    //EF_SPR_PLANT8       Unlimited Humming Voice (Miyabi Ningyos)
+        //879: [{}],    //EF_HEARTASURA       Siren's Voice (heart-like)
+        //880: [{}],    //EF_BEGINSPELL_150       Bluish castish cone
+        //881: [{}],    //EF_LEVEL99_150       Blue aura
+        //882: [{}],    //EF_PRIMECHARGE       Whirl of fireflies (red)
+        //883: [{}],    //EF_GLASSWALL4       Epiclesis (transparent green tree)
+        //884: [{}],    //EF_GRADIUS_LASER       Green beam
+        //885: [{}],    //EF_BASH3D6       Blue light beams
+        //886: [{}],    //EF_GUMGANG5       Blue castish cone
+        //887: [{}],    //EF_HITLINE8       Wavy sparks
+        //888: [{}],    //EF_ELECTRIC4       Earth Shaker (same as 432)
+        //889: [{}],    //EF_TEIHIT1T       Fast light beams
+        //890: [{}],    //EF_SPINMOVE       Rotation
+        //891: [{}],    //EF_FIREBALL4       Magic shots [S]
+        //892: [{}],    //EF_TRIPLEATTACK4       Fastness with hitting sound[S]
+        //893: [{}],    //EF_CHEMICAL3S       Blue-white light passing by
+        //894: [{}],    //EF_GROUNDSHAKE       (Nothing)
+        //895: [{}],    //EF_DQ9_CHARGE       Big wheel of flat light beams
+        //896: [{}],    //EF_DQ9_CHARGE2       Still sun shaped lightning aura
+        //897: [{}],    //EF_DQ9_CHARGE3       Animated sun shaped lightning aura
+        //898: [{}],    //EF_DQ9_CHARGE4       Animated, curvy sun shaped lightning aura
+        //899: [{}],    //EF_BLUELINE       White/red light shots from below
+        //900: [{}],    //EF_SELFSCROLL       Animated, slow curvy sun shaped lightning aura
+        //901: [{}],    //EF_SPR_LIGHTPRINT       Explosion
+        //902: [{}],    //EF_PNG_TEST       Floating bedtable texture
+        //903: [{}],    //EF_BEGINSPELL_YB       Castish flamey cone
+        //904: [{}],    //EF_CHEMICAL2DASH4       Yellow/pink lights passing by
+        //905: [{}],    //EF_GROUNDSHAKE2       Expanding circle
+        //906: [{}],    //EF_PRESSURE2       Shield Press (falling shield)
+        //907: [{}],    //EF_RG_COIN7       Chainy, metalish sound [S]
+        //908: [{}],    //EF_PRIMECHARGE2       Prestige (sphere of yellow particles)
+        //909: [{}],    //EF_PRIMECHARGE3       Banding (sphere of red particles)
+        //910: [{}],    //EF_PRIMECHARGE4       Inspiration (sphere of blue particles)
+        //911: [{}],    //EF_GREENCASTING       Green castish animation [S]
+        //912: [{}],    //EF_WALLOFTHORN       Wall of Thorns unit (green fog cloud)
+        //913: [{}],    //EF_FIREBALL5       Magic projectiles
+        //914: [{}],    //EF_THROWITEM11       (Nothing)
+        //915: [{}],    //EF_SPR_PLANT9       Crazy Weed
+        //916: [{}],    //EF_DEMONICFIRE       Demonic Fire
+        //917: [{}],    //EF_DEMONICFIRE2       More angry, demonic flames
+        //918: [{}],    //EF_DEMONICFIRE3       Fire Insignia (demonic flames)
+        //919: [{}],    //EF_HELLSPLANT       Hell's Plant (green snapping plant)
 
-        920: [{
+        920: [{    //EF_FIREWALL2    Fire Walk unit
             type: 'STR',
             file: 'firewall_per',
             attachedEntity: true
         }],
 
-		//921:	Vacuum Extreme (whirlwind)
-		//922:	Psychic Wave
-		//923:	Poison Buster
-		//924:	Poisoning animation
-		//925:	Some filter
+        //921: [{}],    //EF_VACUUM       Vacuum Extreme (whirlwind)
+        //922: [{}],    //EF_SPR_PLANT10       Psychic Wave
+        //923: [{}],    //EF_SPR_LIGHTPRINT2       Poison Buster
+        //924: [{}],    //EF_POISONSMOKE2       Poisoning animation
+        //925: [{}],    //EF_MAKEHALLU2       Some filter
 
-        926: [{
+        926: [{    //EF_SHOCKWAVE2    Electric Walk unit
             type: 'STR',
             file: 'hunter_shockwave_blue',
             attachedEntity: true
         }],
 
-		//927:	Earth Grave (speary roots)
-		//928:	Ice cloud projectiles
-		//929:	Warmer (field of flames)
-		//930:	Varetyr Spear (falling spear)
-		//931:	(Nothing)
-		//932:	Firefly
-		//933:	[Client Crash]
-		//934:	White, castishly expanding cone
-		//935:	Green magic projectile
-		//936:	Red, castishly expanding cone
-		//937:	Yellow, castishly expanding cone
-		//938:	Dark-red, castishly expanding cone
-		//939:	Blue, conish aura
-		//940:	Snow flake
-		//941:	Explosion of red, demonic fire
-		//942:	Expanding, white dome
-		//943:	Green, fluffy projectile
-		//944:	Falling gems
-		//945:	(Nothing)
-		//946:	Floating lights
-		//947:	Blue lightning sphere
-		//948:	Two blue lightning spheres
-		//949:	Flat, spinning diamond
-		//950:	Circling, planetlike spheres
-		//951:	Three lightning spheres
-		//952:	Flat, spinning gem and two lightning spheres
-		//953:	Spinning, planetlike spheres
-		//954:	Two lightblue glowing spheres
-		//955:	Three spinning flame spheres
-		//956:	Flame
-		//957:	Spinning planetlike sphere
-		//958:	Two flames
+        //927: [{}],    //EF_SPR_PLANT11       Earth Grave (speary roots)
+        //928: [{}],    //EF_COLDTHROW2       Ice cloud projectiles
+        //929: [{}],    //EF_DEMONICFIRE4       Warmer (field of flames)
+        //930: [{}],    //EF_PRESSURE3       Varetyr Spear (falling spear)
+        //931: [{}],    //EF_LINKPARTICLE2       (Nothing)
+        //932: [{}],    //EF_SOULLIGHT3       Firefly
+        //933: [{}],    //EF_CHAREFFECT       [Client Crash]
+        //934: [{}],    //EF_GUMGANG6       White, castishly expanding cone
+        //935: [{}],    //EF_FIREBALL6       Green magic projectile
+        //936: [{}],    //EF_GUMGANG7       Red, castishly expanding cone
+        //937: [{}],    //EF_GUMGANG8       Yellow, castishly expanding cone
+        //938: [{}],    //EF_GUMGANG9       Dark-red, castishly expanding cone
+        //939: [{}],    //EF_BOTTOM_DE2       Blue, conish aura
+        //940: [{}],    //EF_COLDSTATUS       Snow flake
+        //941: [{}],    //EF_SPR_LIGHTPRINT3       Explosion of red, demonic fire
+        //942: [{}],    //EF_WATERBALL3       Expanding, white dome
+        //943: [{}],    //EF_HEAL_N2       Green, fluffy projectile
+        //944: [{}],    //EF_RAIN_PARTICLE2       Falling gems
+        //945: [{}],    //EF_CLOUD9       (Nothing)
+        //946: [{}],    //EF_YELLOWFLY3       Floating lights
+        //947: [{}],    //EF_EL_GUST       Blue lightning sphere
+        //948: [{}],    //EF_EL_BLAST       Two blue lightning spheres
+        //949: [{}],    //EF_EL_AQUAPLAY       Flat, spinning diamond
+        //950: [{}],    //EF_EL_UPHEAVAL       Circling, planetlike spheres
+        //951: [{}],    //EF_EL_WILD_STORM       Three lightning spheres
+        //952: [{}],    //EF_EL_CHILLY_AIR       Flat, spinning gem and two lightning spheres
+        //953: [{}],    //EF_EL_CURSED_SOIL       Spinning, planetlike spheres
+        //954: [{}],    //EF_EL_COOLER       Two lightblue glowing spheres
+        //955: [{}],    //EF_EL_TROPIC       Three spinning flame spheres
+        //956: [{}],    //EF_EL_PYROTECHNIC       Flame
+        //957: [{}],    //EF_EL_PETROLOGY       Spinning planetlike sphere
+        //958: [{}],    //EF_EL_HEATER       Two flames
 
-        959: [{
+        959: [{    //EF_POISON_MIST    Purple flame
             type: 'STR',
             file: 'poison_mist',
             attachedEntity: true
         }],
 
 
-        960: [{
+        960: [{    //EF_ERASER_CUTTER    Small yellow explosion
             type: 'STR',
             file: 'eraser_cutter',
             attachedEntity: true
         }],
 
-		//961:	Cartoony whirlwind
-		//962:	Rising fire
-		//963:	Dark filter (like Stone Curse)
+        //961: [{}],    //EF_SILENT_BREEZE       Cartoony whirlwind
+        //962: [{}],    //EF_MAGMA_FLOW       Rising fire
+        //963: [{}],    //EF_GRAYBODY       Dark filter (like Stone Curse)
 
-        964: [{
+        964: [{    //EF_LAVA_SLIDE    Same as 920
             type: 'STR',
             file: 'lava_slide',
             attachedEntity: true
         }],
 
 
-        965: [{
+        965: [{    //EF_SONIC_CLAW    Small white explosion
             type: 'STR',
             file: 'sonic_claw',
             attachedEntity: true
         }],
 
 
-        966: [{
+        966: [{    //EF_TINDER_BREAKER    Bone crack
             type: 'STR',
             file: 'tinder',
             attachedEntity: true
         }],
 
 
-        967: [{
+        967: [{    //EF_MIDNIGHT_FRENZY    Another little explosion
             type: 'STR',
             file: 'mid_frenzy',
             attachedEntity: true
         }],
 
 
-        975: [{
+        975: [{    //EF_VOLCANIC_ASH    
             type: 'STR',
             file: 'vash00',
             attachedEntity: true
         }],
 
 
-        987: [{
+        987: [{    //EF_2011RWC    
             type: 'STR',
             file: 'rwc2011',
             attachedEntity: true
         }],
 
 
-        988: [{
+        988: [{    //EF_2011RWC2    
             type: 'STR',
             file: 'rwc2011_2',
             attachedEntity: true
         }],
 
 
-        1015: [{
+        1015: [{    //EF_RUN_MAKE_OK    
             type: 'STR',
             file: 'rune_success',
             attachedEntity: true
         }],
 
 
-        1016: [{
+        1016: [{    //EF_RUN_MAKE_FAILURE    
             type: 'STR',
             file: 'rune_fail',
             attachedEntity: true
         }],
 
 
-        1017: [{
+        1017: [{    //EF_MIRESULT_MAKE_OK    
             type: 'STR',
             file: 'changematerial_su',
             attachedEntity: true
         }],
 
 
-        1018: [{
+        1018: [{    //EF_MIRESULT_MAKE_FAIL    
             type: 'STR',
             file: 'changematerial_fa',
             attachedEntity: true
         }],
 
 
-        1019: [{
+        1019: [{    //EF_ALL_RAY_OF_PROTECTION    
             type: 'STR',
             file: 'guardian',
             attachedEntity: true
         }],
 
 
-        1020: [{
+        1020: [{    //EF_VENOMFOG    
             type: 'STR',
             file: 'bubble%d_1',
             rand: [1, 4],
@@ -3591,112 +3591,112 @@ define(function( require )
         }],
 
 
-        1021: [{
+        1021: [{    //EF_DUSTSTORM    
             type: 'STR',
             file: 'dust',
             attachedEntity: true
         }],
 
 
-        1029: [{
+        1029: [{    //EF_DANCE_BLADE_ATK    
             type: 'STR',
             file: 'dancingblade',
             attachedEntity: true
         }],
 
 
-        1031: [{
+        1031: [{    //EF_INVINCIBLEOFF2    
             type: 'STR',
             file: 'invincibleoff2',
             attachedEntity: true
         }],
 
 
-        1033: [{
+        1033: [{    //EF_DEATHSUMMON    
             type: 'STR',
             file: 'devil',
             attachedEntity: true
         }],
 
 
-        1040: [{
+        1040: [{    //EF_GC_DARKCROW    
             type: 'STR',
             file: 'gc_darkcrow',
             attachedEntity: true
         }],
 
 
-        1042: [{
+        1042: [{    //EF_ALL_FULL_THROTTLE    
             type: 'STR',
             file: 'all_full_throttle',
             attachedEntity: true
         }],
 
 
-        1043: [{
+        1043: [{    //EF_SR_FLASHCOMBO    
             type: 'STR',
             file: 'sr_flashcombo',
             attachedEntity: true
         }],
 
 
-        1044: [{
+        1044: [{    //EF_RK_LUXANIMA    
             type: 'STR',
             file: 'rk_luxanima',
             attachedEntity: true
         }],
 
 
-        1046: [{
+        1046: [{    //EF_SO_ELEMENTAL_SHIELD    
             type: 'STR',
             file: 'so_elemental_shield',
             attachedEntity: true
         }],
 
 
-        1047: [{
+        1047: [{    //EF_AB_OFFERTORIUM    
             type: 'STR',
             file: 'ab_offertorium',
             attachedEntity: true
         }],
 
 
-        1048: [{
+        1048: [{    //EF_WL_TELEKINESIS_INTENSE    
             type: 'STR',
             file: 'wl_telekinesis_intense',
             attachedEntity: true
         }],
 
 
-        1049: [{
+        1049: [{    //EF_GN_ILLUSIONDOPING    
             type: 'STR',
             file: 'gn_illusiondoping',
             attachedEntity: true
         }],
 
 
-        1050: [{
+        1050: [{    //EF_NC_MAGMA_ERUPTION    
             type: 'STR',
             file: 'nc_magma_eruption',
             attachedEntity: true
         }],
 
 
-        1055: [{
+        1055: [{    //EF_NPC_CHILL    
             type: 'STR',
             file: 'chill',
             attachedEntity: true
         }],
 
 
-        1057: [{
+        1057: [{    //EF_AB_OFFERTORIUM_RING    
             type: 'STR',
             file: 'ab_offertorium_ring',
             attachedEntity: true
         }],
 
 
-        1062: [{
+        1062: [{    //EF_HAMMER_OF_GOD    
             type: 'STR',
             file: 'stormgust',
             attachedEntity: true
@@ -3866,5 +3866,6 @@ define(function( require )
             attachedEntity: true
         }],      
         
+
     };
 });
