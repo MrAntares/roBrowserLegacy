@@ -273,8 +273,8 @@ define(function( require )
 
 		effects = EffectDB[effectId];
 		tick    = tick || Renderer.tick;
-
-		for (i = 0, count = effects.length; i < count; ++i) {
+		
+		for (i = 0, count = effects.length; i < count; i++) {
 			EffectManager.spamEffect(effects[i], AID, position, tick, persistent);
 		}
 	};
