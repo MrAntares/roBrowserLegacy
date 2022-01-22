@@ -16,23 +16,28 @@ define(function( require )
 	/**
 	 * Load dependencies
 	 */
-	var DB                   = require('DB/DBManager');
-	var SkillId              = require('DB/Skills/SkillConst');
-	var PathFinding          = require('Utils/PathFinding');
-	var Session              = require('Engine/SessionStorage');
-	var Network              = require('Network/NetworkManager');
-	var PACKET               = require('Network/PacketStructure');
-	var EntityManager        = require('Renderer/EntityManager');
-	var EffectManager        = require('Renderer/EffectManager');
-	var Altitude             = require('Renderer/Map/Altitude');
-	var ShortCut             = require('UI/Components/ShortCut/ShortCut');
-	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
-	var SkillWindow          = require('UI/Components/SkillList/SkillList');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
-	var Inventory            = require('UI/Components/Inventory/Inventory');
-	var NpcMenu              = require('UI/Components/NpcMenu/NpcMenu');
-	var getModule          = require;
+	var DB                    = require('DB/DBManager');
+	var SkillId               = require('DB/Skills/SkillConst');
+	var SkillInfo             = require('DB/Skills/SkillInfo');
+	var PathFinding           = require('Utils/PathFinding');
+	var Session               = require('Engine/SessionStorage');
+	var Network               = require('Network/NetworkManager');
+	var PACKET                = require('Network/PacketStructure');
+	var EntityManager         = require('Renderer/EntityManager');
+	var EffectManager         = require('Renderer/EffectManager');
+	var Altitude              = require('Renderer/Map/Altitude');
+	var ShortCut              = require('UI/Components/ShortCut/ShortCut');
+	var ChatBox               = require('UI/Components/ChatBox/ChatBox');
+	var SkillWindow           = require('UI/Components/SkillList/SkillList');
+	var SkillTargetSelection  = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
+	var ItemSelection         = require('UI/Components/ItemSelection/ItemSelection');
+	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
+	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
+	var RefineWeaponSelection = require('UI/Components/RefineWeaponSelection/RefineWeaponSelection');
+	var Inventory             = require('UI/Components/Inventory/Inventory');
+	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
+	var SpiritSphere          = require('Renderer/Effects/SpiritSphere');
+	var getModule             = require;
 
 
 	/**
@@ -203,7 +208,7 @@ define(function( require )
 	 */
 	function onSkillAdded( pkt)
 	{
-		SkillWindow.addSkill( pkt );
+		SkillWindow.addSkill( pkt.data );
 	}
 
 
@@ -233,7 +238,7 @@ define(function( require )
 		ItemSelection.setList(pkt.ITIDList);
 		ItemSelection.setTitle(DB.getMessage(521));
 		ItemSelection.onIndexSelected = function(index) {
-			if (index >= 0) {
+			if (index >= -1) {
 				var pkt   = new PACKET.CZ.REQ_ITEMIDENTIFY();
 				pkt.index = index;
 				Network.sendPacket(pkt);
@@ -290,7 +295,7 @@ define(function( require )
 		ItemSelection.setList(pkt.SKID, true);
 		ItemSelection.setTitle(DB.getMessage(697));
 		ItemSelection.onIndexSelected = function(index) {
-			if (index >= 0) {
+			if (index >= -1) {
 				var pkt   = new PACKET.CZ.SELECTAUTOSPELL();
 				pkt.SKID  = index;
 				Network.sendPacket(pkt);
@@ -375,7 +380,81 @@ define(function( require )
 				break;
 		}
 	}
+	
+	
+	/**
+	 * Get a list of arrows to create
+	 *
+	 * @param {object} pkt - PACKET.ZC.MAKINGARROW_LIST
+	 */
+	function onMakingarrowList( pkt )
+	{
+		if (!pkt.arrowList.length) {
+			return;
+		}
 
+		MakeArrowSelection.append();
+		MakeArrowSelection.setList(pkt.arrowList);
+		//MakeArrowSelection.setTitle(DB.getMessage(658));
+		MakeArrowSelection.setTitle('LIST');
+		MakeArrowSelection.onIndexSelected = function(index) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQ_MAKINGARROW();
+				pkt.id = index;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
+	
+	/**
+	 * Get a list of items to create
+	 *
+	 * @param {object} pkt - PACKET.ZC.MAKABLEITEMLIST
+	 */
+	function onMakeitemList( pkt )
+	{
+		if (!pkt.itemList.length) {
+			return;
+		}
+
+		MakeItemSelection.append();
+		MakeItemSelection.setList(pkt.itemList);
+		MakeItemSelection.setTitle(DB.getMessage(425));
+		MakeItemSelection.onIndexSelected = function(index, material_ID) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQMAKINGITEM();
+				pkt.itemList.ITID = index;
+				pkt.itemList.material_ID = {};
+				pkt.itemList.material_ID[0] = material_ID[0] || 0;
+				pkt.itemList.material_ID[1] = material_ID[1] || 0;
+				pkt.itemList.material_ID[2] = material_ID[2] || 0;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
+	
+	/**
+	 * Get a list of items to refine
+	 *
+	 * @param {object} pkt - PACKET.ZC.NOTIFY_WEAPONITEMLIST
+	 */
+	function onRefineList( pkt )
+	{
+		if (!pkt.itemList.length) {
+			return;
+		}
+
+		RefineWeaponSelection.append();
+		RefineWeaponSelection.setList(pkt.itemList);
+		RefineWeaponSelection.setTitle(DB.getMessage(910));
+		RefineWeaponSelection.onIndexSelected = function(index) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQ_WEAPONREFINE();
+				pkt.Index = index;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
 
 	/**
 	 * Send back informations from server
@@ -428,9 +507,12 @@ define(function( require )
 		target = EntityManager.get(targetID) || entity;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
-
+		
 		if (skill) {
 			range = skill.attackRange + 1;
+		}
+		else if (SkillInfo[id]) {
+			range = SkillInfo[id].AttackRange[level-1] + 1;
 		}
 		else {
 			range = entity.attack_range;
@@ -467,7 +549,7 @@ define(function( require )
         pkt.SKID          = id;
         pkt.selectedLevel = level;
         pkt.targetID      = targetID || Session.Entity.GID;
-
+		
 		// In range
 		if (count < 2 || target === entity) {
 			Network.sendPacket(pkt);
@@ -503,9 +585,12 @@ define(function( require )
 		pos    = entity.position;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
-
+		
 		if (skill) {
 			range = skill.attackRange + 1;
+		}
+		else if (SkillInfo[id]) {
+			range = SkillInfo[id].AttackRange[level-1] + 1;
 		}
 		else {
 			range = entity.attack_range;
@@ -544,7 +629,17 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
+	function onSpiritSphere(pkt){
+		if (pkt.num === 0){
+			EffectManager.remove(null, pkt.AID); //SpiritSphere
+		} else {
+			var entity = EntityManager.get(pkt.AID);
+			var isCoin = (entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job) ) //Gunslinger or Rebel
+			var spheres = new SpiritSphere(entity, pkt.num, isCoin);
+			EffectManager.add(spheres, pkt.AID, false);
+		}
+	}
+		
 	/**
 	 * Initialize
 	 */
@@ -552,6 +647,7 @@ define(function( require )
 	{
 		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST,         onSkillList );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE,       onSkillUpdate );
+		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE2,      onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.ADD_SKILL,              onSkillAdded );
 		Network.hookPacket( PACKET.ZC.SHORTCUT_KEY_LIST,      onShortCutList );
 		Network.hookPacket( PACKET.ZC.SHORTCUT_KEY_LIST_V2,   onShortCutList );
@@ -568,5 +664,10 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.WARPLIST,               onTeleportList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPINFO,         onTeleportResult );
 		Network.hookPacket( PACKET.ZC.ACK_REMEMBER_WARPPOINT, onMemoResult );
+		Network.hookPacket( PACKET.ZC.MAKINGARROW_LIST,       onMakingarrowList );
+		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
+		Network.hookPacket( PACKET.ZC.NOTIFY_WEAPONITEMLIST,  onRefineList );
+		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
+		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
 	};
 });

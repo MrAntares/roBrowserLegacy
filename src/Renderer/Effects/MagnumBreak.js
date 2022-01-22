@@ -1,7 +1,7 @@
 /**
- * Renderer/Effects/Cylinder.js
+ * Renderer/Effects/MagnumBreak.js
  *
- * Generate cone and cylinder
+ * Generate cone and MagnumBreak
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
@@ -105,7 +105,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
             'if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {',
             '   discard;',
             '}',
-			'texture.a = 0.7;',
+			'texture.a = 0.65;',
 			'gl_FragColor = texture;',
 
 			'if (uFogUse) {',
@@ -118,11 +118,11 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 
 
 	/**
-	 * Generate a generic cylinder
+	 * Generate a generic MagnumBreak
 	 *
 	 * @returns {Float32Array} buffer array
 	 */
-	function generateCylinder()
+	function generateMagnumBreak()
 	{
 		var i, a, b;
 		var total = 20;
@@ -153,16 +153,16 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 
 
 	/**
-	 * Cylinder constructor
+	 * MagnumBreak constructor
 	 *
 	 * @param {Array} position
-	 * @param {number} top size of the cylinder
-	 * @param {number} bottom size of the cylinder
-	 * @param {number} height of the cylinder
+	 * @param {number} top size of the MagnumBreak
+	 * @param {number} bottom size of the MagnumBreak
+	 * @param {number} height of the MagnumBreak
 	 * @param {string} texture name
 	 * @param {number} game tick
 	 */
-	function Cylinder( position, topSize, bottomSize, height, textureName, tick)
+	function MagnumBreak( position, topSize, bottomSize, height, textureName, tick)
 	{
 		this.position    = position;
 		this.topSize     = topSize;
@@ -170,6 +170,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		this.textureName = textureName;
 		this.height      = height;
 		this.tick        = tick;
+        this.lastmulti   = 0;
+        this.timer       = tick;
 	}
 
 
@@ -178,7 +180,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.prototype.init = function init( gl )
+	MagnumBreak.prototype.init = function init( gl )
 	{
 		var self  = this;
 
@@ -196,7 +198,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.prototype.free = function free( gl )
+	MagnumBreak.prototype.free = function free( gl )
 	{
 		this.ready = false;
 	};
@@ -207,11 +209,20 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} wegl context
 	 */
-	Cylinder.prototype.render = function render( gl, tick )
+	MagnumBreak.prototype.render = function render( gl, tick )
 	{
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
-
+		//var sizeMult = Math.sin(this.timer / (4 * Math.PI)) + 0.5; //var sizeMult = Math.sin(tick / (85 * Math.PI)) + 1.50;
+        var sizeMult = 0.15 + this.timer/10;
+		if(sizeMult < 0.5)
+            sizeMult = 0.5;
+        
+        ++this.timer;
+        if(this.timer == 21) {
+            this.needCleanUp = true;
+        }
+        
 		gl.bindTexture( gl.TEXTURE_2D, this.texture );
 
 		// Enable all attributes
@@ -224,8 +235,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 4*5,  3*4 );
 
 		gl.uniform3fv( uniform.uPosition,   this.position);
-		gl.uniform1f(  uniform.uBottomSize, this.bottomSize);
-		gl.uniform1f(  uniform.uTopSize,    this.topSize);
+		gl.uniform1f(  uniform.uBottomSize, this.bottomSize*sizeMult);
+		gl.uniform1f(  uniform.uTopSize,    this.topSize*sizeMult);
 		gl.uniform1f(  uniform.uHeight,     this.height);
 
 		gl.drawArrays( gl.TRIANGLES, 0, _verticeCount );
@@ -237,9 +248,9 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.init = function init(gl)
+	MagnumBreak.init = function init(gl)
 	{
-		var vertices  = generateCylinder();
+		var vertices  = generateMagnumBreak();
 		_verticeCount = vertices.length / 5;
 
 		_program   = WebGL.createShaderProgram( gl, _vertexShader, _fragmentShader );
@@ -257,7 +268,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.free = function free(gl)
+	MagnumBreak.free = function free(gl)
 	{
 		if (_program) {
 			gl.deleteProgram(_program);
@@ -277,7 +288,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
+	MagnumBreak.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
 	{
 		var uniform   = _program.uniform;
 
@@ -308,7 +319,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.afterRender = function afterRender(gl)
+	MagnumBreak.afterRender = function afterRender(gl)
 	{
 		gl.disableVertexAttribArray( _program.attribute.aPosition );
 		gl.disableVertexAttribArray( _program.attribute.aTextureCoord );
@@ -318,5 +329,5 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	/**
 	 * Export
 	 */
-	return Cylinder;
+	return MagnumBreak;
 });

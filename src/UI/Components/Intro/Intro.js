@@ -228,13 +228,13 @@ define(function(require)
 
 			if (used) {
 				if (used > 1024 * 1024 * 1024) {
-					msg = (used / 1024 / 1024 / 1024).toFixed(2) + ' Go saved';
+					msg = (used / 1024 / 1024 / 1024).toFixed(2) + ' GiB saved';
 				}
 				else if (used > 1024 * 1024) {
-					msg = (used / 1024 / 1024).toFixed(2) + ' Mo saved';
+					msg = (used / 1024 / 1024).toFixed(2) + ' MiB saved';
 				}
 				else {
-					msg = (used / 1024).toFixed(2) + ' Mo saved';
+					msg = (used / 1024).toFixed(2) + ' KiB saved';
 				}
 
 				this.ui.find('.msg').text(msg);

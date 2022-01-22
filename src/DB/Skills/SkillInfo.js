@@ -1068,6 +1068,22 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.SL_MONK, 1 ]
 		]
 	},
+	SkillInfo[SK.SM_SELFPROVOKE] = {
+		Name: "SM_SELFPROVOKE",
+		SkillName: "Provoke",
+		MaxLv: 1,
+		SpAmount: [ 0 ],
+		bSeperateLv: false,
+		AttackRange: [ 1 ]
+	},
+	SkillInfo[SK.NPC_EMOTION_ON] = {
+		Name: "NPC_EMOTION_ON",
+		SkillName: "Emotion",
+		MaxLv: 10,
+		SpAmount: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+		bSeperateLv: false,
+		AttackRange: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+	},
 	SkillInfo[SK.ST_PRESERVE] = {
 		Name: "ST_PRESERVE",
 		SkillName: "Preserve",
@@ -4953,9 +4969,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 5 ]
 	},
-	SkillInfo[SK.HT_SKTRAP] = {
-		Name: "HT_SKTRAP",
-		SkillName: "SK Trap",
+	SkillInfo[SK.HT_SKIDTRAP] = {
+		Name: "HT_SKIDTRAP",
+		SkillName: "Skid Trap",
 		MaxLv: 5,
 		SpAmount: [ 10, 10, 10, 10, 10 ],
 		bSeperateLv: true,
@@ -4977,7 +4993,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 3, 3, 3, 3, 3 ],
 		_NeedSkillList: [
-			[ SK.HT_SKTRAP, 1 ]
+			[ SK.HT_SKIDTRAP, 1 ]
 		]
 	},
 	SkillInfo[SK.HT_SHOCKWAVE] = {
@@ -5010,7 +5026,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 3, 3, 3, 3, 3 ],
 		_NeedSkillList: [
-			[ SK.HT_SKTRAP, 1 ]
+			[ SK.HT_SKIDTRAP, 1 ]
 		]
 	},
 	SkillInfo[SK.HT_FREEZINGTRAP] = {
@@ -6697,9 +6713,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 3, 3, 3, 3, 3 ]
 	},
-	SkillInfo[SK.MA_SKTRAP] = {
-		Name: "MA_SKTRAP",
-		SkillName: "SK Trap",
+	SkillInfo[SK.MA_SKIDTRAP] = {
+		Name: "MA_SKIDTRAP",
+		SkillName: "Skid Trap",
 		MaxLv: 5,
 		SpAmount: [ 10, 10, 10, 10, 10 ],
 		bSeperateLv: false,
@@ -7135,6 +7151,30 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		AttackRange: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 		_NeedSkillList: [
 			[ SK.SR_FALLENEMPIRE, 3 ]
+		]
+	},
+	SkillInfo[SK.LG_OVERBRAND_BRANDISH] = {
+		Name: "LG_OVERBRAND_BRANDISH",
+		SkillName: "Overbrand Brandish",
+		MaxLv: 5,
+		SpAmount: [ 20, 30, 40, 50, 60 ],
+		bSeperateLv: true,
+		AttackRange: [ 1, 1, 1, 1, 1 ],
+		_NeedSkillList: [
+			[ SK.LG_MOONSLASHER, 3 ],
+			[ SK.LG_PINPOINTATTACK, 1 ]
+		]
+	},
+	SkillInfo[SK.LG_OVERBRAND_PLUSATK] = {
+		Name: "LG_OVERBRAND_PLUSATK",
+		SkillName: "Overbrand Plus Attack",
+		MaxLv: 5,
+		SpAmount: [ 20, 30, 40, 50, 60 ],
+		bSeperateLv: true,
+		AttackRange: [ 1, 1, 1, 1, 1 ],
+		_NeedSkillList: [
+			[ SK.LG_MOONSLASHER, 3 ],
+			[ SK.LG_PINPOINTATTACK, 1 ]
 		]
 	},
 	SkillInfo[SK.AM_REST] = {
@@ -8111,6 +8151,59 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.WL_EARTHSTRAIN, 5 ]
 		]
 	},
+	SkillInfo[SK.WL_TETRAVORTEX_FIRE] = {
+		Name: "WL_TETRAVORTEX_FIRE",
+		SkillName: "Tetra Vortex Fire",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},SkillInfo[SK.WL_TETRAVORTEX_WATER] = {
+		Name: "WL_TETRAVORTEX_WATER",
+		SkillName: "Tetra Vortex Water",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},SkillInfo[SK.WL_TETRAVORTEX_WIND] = {
+		Name: "WL_TETRAVORTEX_WIND",
+		SkillName: "Tetra Vortex Wind",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},SkillInfo[SK.WL_TETRAVORTEX_GROUND] = {
+		Name: "WL_TETRAVORTEX_GROUND",
+		SkillName: "Tetra Vortex Ground",
+		MaxLv: 5,
+		SpAmount: [ 120, 150, 180, 210, 240 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ],
+		_NeedSkillList: [
+			[ SK.WL_CHAINLIGHTNING, 5 ],
+			[ SK.WL_HELLINFERNO, 5 ],
+			[ SK.WL_JACKFROST, 5 ],
+			[ SK.WL_EARTHSTRAIN, 5 ]
+		]
+	},
 	SkillInfo[SK.SA_FREECAST] = {
 		Name: "SA_FREECAST",
 		SkillName: "Free Cast",
@@ -8549,6 +8642,38 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 	SkillInfo[SK.WM_REVERBERATION] = {
 		Name: "WM_REVERBERATION",
 		SkillName: "Reverberation",
+		MaxLv: 5,
+		SpAmount: [ 28, 32, 38, 42, 48 ],
+		bSeperateLv: true,
+		AttackRange: [ 9, 9, 9, 9, 9 ],
+		NeedSkillList: new function(){
+			this[JobId.JT_MINSTREL] = [
+				[ SK.BA_DISSONANCE, 5 ]
+			],
+			this[JobId.JT_WANDERER] = [
+				[ SK.DC_UGLYDANCE, 5 ]
+			]
+		}
+	},
+	SkillInfo[SK.WM_REVERBERATION_MELEE] = {
+		Name: "WM_REVERBERATION_MELEE",
+		SkillName: "Reverberation Melee",
+		MaxLv: 5,
+		SpAmount: [ 28, 32, 38, 42, 48 ],
+		bSeperateLv: true,
+		AttackRange: [ 9, 9, 9, 9, 9 ],
+		NeedSkillList: new function(){
+			this[JobId.JT_MINSTREL] = [
+				[ SK.BA_DISSONANCE, 5 ]
+			],
+			this[JobId.JT_WANDERER] = [
+				[ SK.DC_UGLYDANCE, 5 ]
+			]
+		}
+	},
+	SkillInfo[SK.WM_REVERBERATION_MAGIC] = {
+		Name: "WM_REVERBERATION_MAGIC",
+		SkillName: "Reverberation Magic",
 		MaxLv: 5,
 		SpAmount: [ 28, 32, 38, 42, 48 ],
 		bSeperateLv: true,
@@ -9610,6 +9735,38 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount: [ 3, 20 ],
 		bSeperateLv: true,
 		AttackRange: [ 11, 11 ]
+	},
+	SkillInfo[SK.WL_SUMMON_ATK_FIRE] = {
+		Name: "WL_SUMMON_ATK_FIRE",
+		SkillName: "Summon Attack Fire",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
+	},
+	SkillInfo[SK.WL_SUMMON_ATK_WIND] = {
+		Name: "WL_SUMMON_ATK_WIND",
+		SkillName: "Summon Attack Wind",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
+	},
+	SkillInfo[SK.WL_SUMMON_ATK_WATER] = {
+		Name: "WL_SUMMON_ATK_WATER",
+		SkillName: "Summon Attack Water",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
+	},
+	SkillInfo[SK.WL_SUMMON_ATK_GROUND] = {
+		Name: "WL_SUMMON_ATK_GROUND",
+		SkillName: "Summon Attack Earth",
+		MaxLv: 5,
+		SpAmount: [ 1, 1, 1, 1, 1 ],
+		bSeperateLv: true,
+		AttackRange: [ 11, 11, 11, 11, 11 ]
 	},
 	SkillInfo[SK.WL_SUMMONSTONE] = {
 		Name: "WL_SUMMONSTONE",

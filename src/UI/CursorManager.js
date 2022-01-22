@@ -20,6 +20,7 @@ define(function( require )
 	var Graphics      = require('Preferences/Graphics');
 	var Sprite        = require('Loaders/Sprite');
 	var Action        = require('Loaders/Action');
+	var Preferences   = require('Preferences/Controls');
 	var getModule     = require;
 
 
@@ -364,9 +365,7 @@ define(function( require )
 		if (Cursor.magnetism && !Cursor.blockMagnetism) {
 			var entity = EntityManager.getOverEntity();
 
-			if (entity &&
-			    (entity.objecttype === Entity.TYPE_MOB ||
-			     entity.objecttype === Entity.TYPE_ITEM)) {
+			if (entity && ((entity.objecttype === Entity.TYPE_MOB && Preferences.snap === true) || (entity.objecttype === Entity.TYPE_ITEM && Preferences.itemsnap === true))) {
 				x += Math.floor( Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2-entity.boundingRect.x1) / 2));
 				y += Math.floor( Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2-entity.boundingRect.y1) / 2));
 			}

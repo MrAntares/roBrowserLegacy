@@ -73,7 +73,7 @@ define( ['Utils/Texture'], function( Texture )
 
 		// Compile shader
 		shader = gl.createShader(type);
-		gl.shaderSource(shader, 'precision mediump float;' + source);
+		gl.shaderSource(shader, 'precision highp float;' + source);
 		gl.compileShader(shader);
 
 		// Is there an error ?

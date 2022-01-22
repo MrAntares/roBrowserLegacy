@@ -24,6 +24,7 @@ define(function( require )
 	var Sound          = require('Audio/SoundManager');
 	
 	var CritSound      = "effect/ef_hit2.wav";
+	var EndureSound    = "player_metal.wav";
 	
 	/**
 	 * Damage Namespace
@@ -53,7 +54,8 @@ define(function( require )
 		COMBO_FINAL: 1 << 5,
 		SP:          1 << 6,
 		CRIT:        1 << 7,
-		LUCKY:       1 << 8
+		LUCKY:       1 << 8,
+		ENDURE:      1 << 9
 	};
 
 
@@ -251,8 +253,10 @@ define(function( require )
 		obj.width    = canvas.width;
 		obj.height   = canvas.height;
 		
-		if(weapon || weapon === 0){
-			obj.soundFile = (DB.getWeaponHitSound(weapon))[0];
+		var hitSounds = DB.getWeaponHitSound(weapon);
+
+		if((weapon || weapon === 0) && hitSounds){
+			obj.soundFile = hitSounds[0];
 		}
 		
 		_list.push( obj );
@@ -357,6 +361,11 @@ define(function( require )
 					if(damage.type & Damage.TYPE.CRIT){
 						Sound.play(CritSound);
 					}
+					
+					if(damage.type & Damage.TYPE.ENDURE){
+						Sound.play(EndureSound);
+					}
+					
 					Sound.play(damage.soundFile);
 					delete damage.soundFile;
 				}

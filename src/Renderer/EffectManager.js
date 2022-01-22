@@ -72,6 +72,7 @@ define(function( require )
 	EffectManager.add = function add(effect, uid, persistent)
 	{
 		var name = (effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
+		this.remove({name: name}, uid);
 
 		if (!(name in _list)) {
 			_list[name] = [];
@@ -132,7 +133,7 @@ define(function( require )
 
 		return function remove(effect, uid)
 		{
-			if (!effect) {
+			if (!effect || !(effect.name in _list)) {
 				var i, count;
 				var keys = Object.keys(_list);
 
@@ -141,9 +142,7 @@ define(function( require )
 				}
 
 				return;
-			}
-
-			if (effect.name in _list) {
+			} else {
 				clean( effect.name, uid);
 			}
 		};
@@ -262,7 +261,6 @@ define(function( require )
 	{
 		var effects;
 		var i, count;
-
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
@@ -275,8 +273,8 @@ define(function( require )
 
 		effects = EffectDB[effectId];
 		tick    = tick || Renderer.tick;
-
-		for (i = 0, count = effects.length; i < count; ++i) {
+		
+		for (i = 0, count = effects.length; i < count; i++) {
 			EffectManager.spamEffect(effects[i], AID, position, tick, persistent);
 		}
 	};
@@ -337,11 +335,11 @@ define(function( require )
 				if (effect.func) {
 					if (effect.attachedEntity) {
 						if (entity) {
-							effect.func.call(this, entity, tick);
+							effect.func.call(this, entity, tick, AID);
 						}
 					}
 					else {
-						effect.func.call(this, position, tick);
+						effect.func.call(this, position, tick, AID);
 					}
 				}
 				break;
@@ -433,7 +431,7 @@ define(function( require )
 	{
 		var skillId, effectId;
 		var skill;
-
+		
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
