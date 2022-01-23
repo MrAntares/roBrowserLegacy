@@ -264,9 +264,10 @@ define(function(require)
 	/**
 	 * @return {string} path to head sprite/action
 	 * @param {number} id hair style
+	 * @param {number} job job id
 	 * @param {boolean} sex
 	 */
-	DB.getHeadPath = function getHeadPath( id, sex )
+	DB.getHeadPath = function getHeadPath( id, job, sex )
 	{
 		if (job === 4218 || job === 4220) {
 			return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' + SexTable[sex] + '/' + (HairIndexTable[sex + 2][id] || id) + '_' + SexTable[sex];
