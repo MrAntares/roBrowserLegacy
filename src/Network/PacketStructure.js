@@ -11311,6 +11311,135 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.SHORTCUT_KEY_LIST_V3.size = 269;
 
+	// 0xa07
+	PACKET.ZC.ACK_REMOVE_RODEX_ITEM = function PACKET_ZC_ACK_REMOVE_RODEX_ITEM(fp, end) {
+		this.success = fp.readChar();
+		this.index = fp.readUShort();
+		this.amount = fp.readUShort();
+		this.weight_ = fp.readShort();
+	};
+	PACKET.ZC.ACK_REMOVE_RODEX_ITEM.size = 9;
+
+
+	// 0xa08
+	PACKET.CA.LOGIN = function PACKET_CA_LOGIN() {
+		this.receiver = '';
+	};
+	PACKET.CA.LOGIN.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x64);
+		pkt_buf.writeString(this.receiver);
+		return pkt_buf;
+	};
+
+
+	// 0xa09
+	PACKET.ZC.ADD_EXCHANGE_ITEM3 = function PACKET_ZC_ADD_EXCHANGE_ITEM3(fp, end) {
+		this.ITID = fp.readUShort();
+		this.type = fp.readUChar();
+		this.count = fp.readLong();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+
+		this.randomOptions = []
+		for (var i = 0; i < 5; i++) {
+			this.randomOptions[i] = {}
+			this.randomOptions[i].optIndex = fp.readShort();
+			this.randomOptions[i].value = fp.readShort();
+			this.randomOptions[i].param = fp.readChar();
+		}
+	};
+	PACKET.ZC.ADD_EXCHANGE_ITEM3.size = 45;
+
+
+	// 0xa0a
+	PACKET.ZC.ADD_ITEM_TO_STORE3 = function PACKET_ZC_ADD_ITEM_TO_STORE3(fp, end) {
+		this.index = fp.readShort();
+		this.count = fp.readLong();
+		this.ITID = fp.readUShort();
+		this.type = fp.readUChar();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+
+		this.randomOptions = []
+		for (var i = 0; i < 5; i++) {
+			this.randomOptions[i] = {}
+			this.randomOptions[i].optIndex = fp.readShort();
+			this.randomOptions[i].value = fp.readShort();
+			this.randomOptions[i].param = fp.readChar();
+		}
+	};
+	PACKET.ZC.ADD_ITEM_TO_STORE3.size = 47;
+
+
+	// 0xa0b
+	PACKET.ZC.ADD_ITEM_TO_CART3 = function PACKET_ZC_ADD_ITEM_TO_CART3(fp, end) {
+		this.index = fp.readShort();
+		this.count = fp.readLong();
+		this.ITID = fp.readUShort();
+		this.type = fp.readUChar();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+
+		this.randomOptions = []
+		for (var i = 0; i < 5; i++) {
+			this.randomOptions[i] = {}
+			this.randomOptions[i].optIndex = fp.readShort();
+			this.randomOptions[i].value = fp.readShort();
+			this.randomOptions[i].param = fp.readChar();
+		}
+	};
+	PACKET.ZC.ADD_ITEM_TO_CART2.size = 47;
+
+
+	// 0xa0c
+	PACKET.ZC.ITEM_PICKUP_ACK6 = function PACKET_ZC_ITEM_PICKUP_ACK6(fp, end) {
+		this.index = fp.readUShort();
+		this.count = fp.readUShort();
+		this.ITID = fp.readUShort();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+		this.location = fp.readLong();
+		this.type = fp.readUChar();
+		this.result = fp.readUChar();
+		this.HireExpireDate = fp.readLong();
+
+		this.randomOptions = []
+		for (var i = 0; i < 5; i++) {
+			this.randomOptions[i] = {}
+			this.randomOptions[i].optIndex = fp.readShort();
+			this.randomOptions[i].value = fp.readShort();
+			this.randomOptions[i].param = fp.readChar();
+		}
+	};
+	PACKET.ZC.ITEM_PICKUP_ACK6.size = 56;
+
 	// 0xa0a
 	PACKET.ZC.ADD_ITEM_TO_STORE3 = function PACKET_ZC_ADD_ITEM_TO_STORE3(fp, end) {
 		this.index = fp.readShort();
@@ -11363,24 +11492,18 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.ZC.ITEM_PICKUP_ACK6.size = 56;
 
 	//0xa0d
+	// https://github.com/andre9x/roBrowser/commit/d54c33cfbee7a4082609d8ef7d91cf60a475b305
 	PACKET.ZC.EQUIPMENT_ITEMLIST5 = function PACKET_ZC_EQUIPMENT_ITEMLIST5(fp, end) {
-
-		let option = new Struct(
-			"short index",
-			"short value",
-			"char param",
-		);
-
-		this.ItemInfo = (function () {
+		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 57 | 0,
 				out = new Array(count);
-			console.log("Count: " + count);
 			var flag;
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].index = fp.readShort();
 				out[i].ITID = fp.readUShort();
 				out[i].type = fp.readUChar();
+
 				out[i].location = fp.readULong();
 				out[i].WearState = fp.readULong();
 				out[i].RefiningLevel = fp.readUChar();
@@ -11392,23 +11515,23 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].HireExpireDate = fp.readLong();
 				out[i].bindOnEquipType = fp.readUShort();
 				out[i].wItemSpriteNumber = fp.readUShort();
-				out[i].isOption = fp.readChar();
-				out[i].Options = {};
-				out[i].Options[1] = fp.readStruct(option);
-				out[i].Options[2] = fp.readStruct(option);
-				out[i].Options[3] = fp.readStruct(option);
-				out[i].Options[4] = fp.readStruct(option);
-				out[i].Options[5] = fp.readStruct(option);
+				out[i].nRandomOptionCnt = fp.readChar();
+				out[i].option = [];
+				for (var j = 0; j < 5; j++) {
+					out[i].option[j] = {};
+					out[i].option[j].optIndex = fp.readUShort();
+					out[i].option[j].value = fp.readShort();
+					out[i].option[j].param = fp.readChar();
+				}
 				flag = fp.readUChar();
 				out[i].IsIdentified = flag & 1;
 				out[i].IsDamaged = flag & 2;
 				out[i].PlaceETCTab = flag & 4;
 			}
-			console.log(out);
 			return out;
 		})();
-	}
-	PACKET.ZC.EQUIPMENT_ITEMLIST5.size = -1
+	};
+	PACKET.ZC.EQUIPMENT_ITEMLIST5.size = -1;
 
 	// 0xa10
 	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST5(fp, end) {
@@ -11585,6 +11708,62 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.addr.port = fp.readUShort();
 	};
 	PACKET.HC.NOTIFY_ZONESVR2.size = 156;
+
+	// 0xa3b
+	// https://github.com/andre9x/roBrowser/commit/21019f1b6af9153ff86d0f19777e6725d86beec9
+	PACKET.ZC.HAT_EFFECT = function PACKET_ZC_HAT_EFFECT(fp, end) {
+		this.GID = fp.readULong();
+		this.enabled = fp.readChar(); // Always 1
+		this.hatEffectIDs = (function() {
+			var i, count=(end-fp.tell())/2|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = fp.readShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.HAT_EFFECT.size = -1;
+
+	//0xb0a
+	PACKET.ZC.EQUIPMENT_ITEMLIST6 = function PACKET_ZC_EQUIPMENT_ITEMLIST6(fp, end) {
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / 57 | 0,
+				out = new Array(count);
+			var flag;
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+				out[i].nRandomOptionCnt = fp.readChar();
+				out[i].option = [];
+				for (var j = 0; j < 5; j++) {
+					out[i].option[j] = {};
+					out[i].option[j].optIndex = fp.readUShort();
+					out[i].option[j].value = fp.readShort();
+					out[i].option[j].param = fp.readChar();
+				}
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.EQUIPMENT_ITEMLIST6.size = -1;
 
 	/**
 	 * Export
