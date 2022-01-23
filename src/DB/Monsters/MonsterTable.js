@@ -3467,6 +3467,7 @@ define(function()
 		4211: "Kagerou",
 		4212: "Oboro",
 		4215: "Rebellion",
+		4218: "Summoner",
 		6001: "LIF",
 		6002: "AMISTR",
 		6003: "FILIR",

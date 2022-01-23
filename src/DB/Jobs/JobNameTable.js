@@ -147,6 +147,8 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.FROG_OBORO]        = "frog_oboro";
 	JobNameTable[JobId.PECO_REBELLION]    = "peco_rebellion";
 
+	JobNameTable[JobId.DO_SUMMONER1] 	  = "summoner";
+
 	JobNameTable[JobId.SHEEP_HPRIEST]     = "ÇÏÀÌÇÁ¸®½ºÆ®¾ËÆÄÄ«";
 	JobNameTable[JobId.OSTRICH_SNIPER]    = "Å¸Á¶½º³ªÀÌÆÛ";
 	JobNameTable[JobId.FOX_HWIZ]          = "¿©¿ìÇÏÀÌÀ§Àúµå";
@@ -195,6 +197,7 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.ALCHEMIST,        JobId.ALCHEMIST_B);
 	duplicateEntry(JobId.BARD,             JobId.BARD_B);
 	duplicateEntry(JobId.DANCER,           JobId.DANCER_B);
+	duplicateEntry(JobId.DO_SUMMONER1,	   JobId.DO_SUMMONER_B1);
 
 	duplicateEntry(JobId.RUNE_KNIGHT,      JobId.RUNE_KNIGHT_H,      JobId.RUNE_KNIGHT_B);
 	duplicateEntry(JobId.RUNE_KNIGHT2,     JobId.RUNE_KNIGHT2_H,     JobId.RUNE_KNIGHT2_B);

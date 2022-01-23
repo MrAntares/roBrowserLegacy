@@ -1241,6 +1241,7 @@ define(function( require )
         194: [{    //EF_STUNATTACK    Stun Attack
             type: 'STR',
             file: 'stun',
+            wav: 'effect/_stun',
             attachedEntity: true
         }],
 
