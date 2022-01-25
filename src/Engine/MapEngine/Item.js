@@ -410,14 +410,14 @@ define(function( require )
 		MakeItemSelection.append();
 		MakeItemSelection.setList(pkt.itemList);
 		MakeItemSelection.setTitle(DB.getMessage(425));
-		MakeItemSelection.onIndexSelected = function(index, material_ID) {
+		MakeItemSelection.onIndexSelected = function(index, material) {
 			if (index >= -1) {
 				var pkt   = new PACKET.CZ.REQMAKINGITEM();
 				pkt.itemList.ITID = index;
 				pkt.itemList.material_ID = {};
-				pkt.itemList.material_ID[0] = material_ID[0] || 0;
-				pkt.itemList.material_ID[1] = material_ID[1] || 0;
-				pkt.itemList.material_ID[2] = material_ID[2] || 0;
+				pkt.itemList.material_ID[0] = (material[0] && material[0].ITID) ? material[0].ITID : 0;
+				pkt.itemList.material_ID[1] = (material[1] && material[1].ITID) ? material[1].ITID : 0;
+				pkt.itemList.material_ID[2] = (material[2] && material[2].ITID) ? material[2].ITID : 0;
 				Network.sendPacket(pkt);
 			}
 		};
