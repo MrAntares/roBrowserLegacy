@@ -965,13 +965,13 @@ define(function( require )
         }
 		
 		//Frost joke and scream messages
-		if(pkt.SKID === SkillId.BA_FROSTJOKE){
+		if(pkt.SKID === SkillId.BA_FROSTJOKE && srcEntity == Session.Entity){
 			var msg = DB.getRandomJoke();
 			if(msg){
 				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
 				message = true;
 			}
-		} else if(pkt.SKID === SkillId.DC_SCREAM){
+		} else if(pkt.SKID === SkillId.DC_SCREAM && srcEntity == Session.Entity){
 			var msg = DB.getRandomScream();
 			if(msg){
 				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
@@ -983,14 +983,13 @@ define(function( require )
 		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
                 srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
-        )
-        {
-		
-        if(!SkillNameDisplayExclude.includes(pkt.SKID) && !message)
-            srcEntity.dialog.set(
-                ( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
-                'white'
-            );
+        ) {
+			if(!SkillNameDisplayExclude.includes(pkt.SKID) && !message){
+				srcEntity.dialog.set(
+					( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
+					'white'
+				);
+			}
         }
 
         if(pkt.SKID in SkillEffect) {
@@ -1007,24 +1006,24 @@ define(function( require )
 
                 if (pkt.property > 0) { // skip "0" property for now
                     switch(pkt.property) {
-                    case 1:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_blue', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    case 3:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_red', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    case 4:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    case 5:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_jadu', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    //case 6: 'white_pulse' effect
-                    //case 8: 'yellow_pulse' effect
-                    //case 9: 'black_pulse' effect
-                    case 7:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
+						case 1:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_blue', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 3:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_red', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 4:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 5:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_jadu', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						//case 6: 'white_pulse' effect
+						//case 8: 'yellow_pulse' effect
+						//case 9: 'black_pulse' effect
+						case 7:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
                     }
                 }
             }
