@@ -372,7 +372,6 @@ define(function( require )
 	function onExitFail( pkt )
 	{
 		ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR);
-		Console.log( DB.getMessage(502) );
 	}
 
 
@@ -478,7 +477,6 @@ define(function( require )
 				break;
 
 			default:
-				console.log(pkt);
 		}
 	}
 
