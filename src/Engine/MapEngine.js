@@ -532,7 +532,7 @@ define(function( require )
 		
 		//Super Novice Chant
 		if(chatLines > 7 && ([ 23, 4045, 4128, 4172, 4190, 4191, 4192, 4193]).includes(Session.Entity._job)){
-			if(Math.round((BasicInfo.base_exp / BasicInfo.base_exp_next) * 1000.0) % 100 == 0){
+			if(Math.floor((BasicInfo.base_exp / BasicInfo.base_exp_next) * 1000.0) % 100 == 0){
 				if(text == DB.getMessage(790)){
 					snCounter = 1;
 				} else if(snCounter == 1 && text == (DB.getMessage(791) + ' ' + Session.Entity.display.name + ' ' +DB.getMessage(792))){
