@@ -930,7 +930,9 @@ define(function( require )
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
-
+		
+		var message = false;
+		
 		if (!srcEntity) {
 			return;
 		}
@@ -961,7 +963,22 @@ define(function( require )
                 Session.underAutoCounter = true;
             }
         }
-
+		
+		//Frost joke and scream messages
+		if(pkt.SKID === SkillId.BA_FROSTJOKE){
+			var msg = DB.getRandomJoke();
+			if(msg){
+				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				message = true;
+			}
+		} else if(pkt.SKID === SkillId.DC_SCREAM){
+			var msg = DB.getRandomScream();
+			if(msg){
+				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				message = true;
+			}
+		}
+		
         // Only mob to don't display skill name ?
 		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
@@ -969,7 +986,7 @@ define(function( require )
         )
         {
 		
-        if(!SkillNameDisplayExclude.includes(pkt.SKID))
+        if(!SkillNameDisplayExclude.includes(pkt.SKID) && !message)
             srcEntity.dialog.set(
                 ( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
                 'white'
