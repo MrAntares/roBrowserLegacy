@@ -31,6 +31,14 @@ define(function(require)
 	 * Create MakeItemSelection namespace
 	 */
 	var MakeItemSelection = new UIComponent( 'MakeItemSelection', htmlText, cssText );
+	
+	var validMaterials = 	[	
+								1000 //star crumb
+								,997 //great nature
+								,996 //rough wind
+								,995 //mystic frozen
+								,994 //flame heart
+							];
 
 	/**
 	 * Initialize UI
@@ -45,7 +53,7 @@ define(function(require)
 
 		this.list  = this.ui.find('.list:first');
 		this.index = 0;
-		this.material_ID = [];
+		this.material = [];
 
 		this.draggable(this.ui.find('.head'));
 		
@@ -83,7 +91,7 @@ define(function(require)
 		MakeItemSelection.list.empty();
 		this.ui.find('.materials').empty();
 		
-		this.material_ID = [];
+		this.material = [];
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			
@@ -165,7 +173,10 @@ define(function(require)
 	 */
 	MakeItemSelection.selectIndex = function selectIndex()
 	{
-		this.onIndexSelected( this.index, this.material_ID );
+		this.onIndexSelected( this.index, this.material );
+		if(this.index > -1){
+			this.material.forEach(item => Inventory.removeItem(item.index, 1));
+		}
 		this.remove();
 	};
 
@@ -203,11 +214,9 @@ define(function(require)
 	 */
 	MakeItemSelection.addMaterial = function AddMaterial( item )
 	{
-		console.log('addd'+item.ITID+' count'+this.material_ID.length);
-		if( this.material_ID.length < 3 ){
-			
+		if( this.material.length < 3 && validMaterials.includes(item.ITID)){
 			if (this.addItemSub(item)) {
-				this.material_ID.push(item.ITID);
+				this.material.push(item);
 			}
 		}
 	};
