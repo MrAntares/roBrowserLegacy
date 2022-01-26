@@ -44,6 +44,7 @@ define(function( require )
 	var SkillEffect   = require('DB/Skills/SkillEffect');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
+	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -1170,6 +1171,9 @@ define(function( require )
 						next:   false
 					}
 				});
+				if(pkt.RemainMS && entity == Session.Entity){
+					ShortCut.setGlobalSkillDelay(pkt.RemainMS);
+				}
 				break;
 				
 			case StatusConst.ALL_RIDING:
