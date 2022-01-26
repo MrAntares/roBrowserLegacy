@@ -29,7 +29,7 @@ define( ['./PacketStructure'], function( PACKET )
 			[PACKET.CZ.ITEM_THROW,0x00a2,6,2,4],
 			[PACKET.CZ.USE_ITEM,0x00a7,8,2,4],
 			[PACKET.CZ.REQ_WEAR_EQUIP,0x00a9,6,2,4],
-			[PACKET.CZ.REQ_TAKEOFF_EQUIP,0x00ab,4,2], // https://github.com/andre9x/roBrowser/commit/83aa9b987af39848755fe98a95a2afb9dc4269ef
+			[PACKET.CZ.REQ_TAKEOFF_EQUIP,0x00ab,4,2],
 			[PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE,0x00f3,8,2,4],
 			[PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY,0x00f5,8,2,4],
 			[PACKET.CZ.CLOSE_STORE,0x00f7,2,0],
@@ -1310,7 +1310,7 @@ define( ['./PacketStructure'], function( PACKET )
 			[PACKET.CZ.ADD_FRIENDS,0x07E4,26,2],
 			[PACKET.CZ.COMMAND_MER,0x0934,5,2,4],
 			[PACKET.CZ.ACK_STORE_PASSWORD,0x095e,36,0],
-			//[PACKET.CZ.REQ_OPEN_WRITE_RODEX,0x0a08,5],
+			[PACKET.CZ.REQ_OPEN_WRITE_MAIL,0x0a08,5],
 		],
 
 
@@ -1428,7 +1428,6 @@ define( ['./PacketStructure'], function( PACKET )
 		],
 
 		// 2015-04-22aRagexeRE
-		// https://github.com/andre9x/roBrowser/commit/422b717a71a575e38475f01430082d6bd6fcd1f6
 		20150422: [
 			[PACKET.CZ.CHANGE_DIRECTION,0x0202,5,2,4],
 			[PACKET.CZ.ENTER,0x022d,19,2,6,10,14,18],

@@ -11312,20 +11312,20 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.ZC.SHORTCUT_KEY_LIST_V3.size = 269;
 
 	// 0xa07
-	PACKET.ZC.ACK_REMOVE_RODEX_ITEM = function PACKET_ZC_ACK_REMOVE_RODEX_ITEM(fp, end) {
+	PACKET.ZC.ACK_REMOVE_ITEM_MAIL = function ACK_REMOVE_ITEM_MAIL(fp, end) {
 		this.success = fp.readChar();
 		this.index = fp.readUShort();
 		this.amount = fp.readUShort();
 		this.weight_ = fp.readShort();
 	};
-	PACKET.ZC.ACK_REMOVE_RODEX_ITEM.size = 9;
+	PACKET.ZC.ACK_REMOVE_ITEM_MAIL.size = 9;
 
 
 	// 0xa08
-	PACKET.CA.LOGIN = function PACKET_CA_LOGIN() {
+	PACKET.CZ.REQ_OPEN_WRITE_MAIL = function PACKET_CZ_REQ_OPEN_WRITE_MAIL() {
 		this.receiver = '';
 	};
-	PACKET.CA.LOGIN.prototype.build = function() {
+	PACKET.CZ.REQ_OPEN_WRITE_MAIL.prototype.build = function() {
 		var pkt_len = 2 + 24;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
@@ -11492,7 +11492,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.ZC.ITEM_PICKUP_ACK6.size = 56;
 
 	//0xa0d
-	// https://github.com/andre9x/roBrowser/commit/d54c33cfbee7a4082609d8ef7d91cf60a475b305
 	PACKET.ZC.EQUIPMENT_ITEMLIST5 = function PACKET_ZC_EQUIPMENT_ITEMLIST5(fp, end) {
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 57 | 0,
@@ -11710,7 +11709,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.HC.NOTIFY_ZONESVR2.size = 156;
 
 	// 0xa3b
-	// https://github.com/andre9x/roBrowser/commit/21019f1b6af9153ff86d0f19777e6725d86beec9
 	PACKET.ZC.HAT_EFFECT = function PACKET_ZC_HAT_EFFECT(fp, end) {
 		this.GID = fp.readULong();
 		this.enabled = fp.readChar(); // Always 1
