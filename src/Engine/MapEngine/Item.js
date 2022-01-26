@@ -20,7 +20,6 @@ define(function( require )
 	var EquipLocation = require('DB/Items/EquipmentLocation');
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
-	var PACKETVER    = require('Network/PacketVerManager');
 	var ItemObject    = require('Renderer/ItemObject');
 	var Altitude      = require('Renderer/Map/Altitude');
 	var Session       = require('Engine/SessionStorage');
@@ -446,22 +445,12 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.CART_NORMAL_ITEMLIST3,        onCartSetList );
 		Network.hookPacket( PACKET.ZC.CART_EQUIPMENT_ITEMLIST3,        onCartSetList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_CARTITEM_COUNTINFO,        onCartSetInfo );
-
-		// https://github.com/rathena/rathena/blob/8064766f181ce82a6f63785eb91c43d2887b0516/src/map/packets_struct.hpp#L190
-		if (PACKETVER.value >= 20180912) {
-			Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST6,     onInventorySetList );
-		} else if (PACKETVER.value >= 20150226) {
-			Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST5,     onInventorySetList );
-		} else if (PACKETVER.value >= 20120925) {
-			Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST4,     onInventorySetList );
-		} else if (PACKETVER.value >= 20080102) {
-			Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST3,     onInventorySetList );
-		} else if (PACKETVER.value >= 20071002) {
-			Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST2,     onInventorySetList );
-		} else {
-			Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST,     onInventorySetList );
-		}
-
+		Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST,     onInventorySetList );
+		Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST2,    onInventorySetList );
+		Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST3,    onInventorySetList );
+		Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST4,    onInventorySetList );
+		Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST5,    onInventorySetList );
+		Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST6,    onInventorySetList );
 		Network.hookPacket( PACKET.ZC.REQ_TAKEOFF_EQUIP_ACK,  onEquipementTakeOff );
 		Network.hookPacket( PACKET.ZC.REQ_TAKEOFF_EQUIP_ACK2, onEquipementTakeOff );
 		Network.hookPacket( PACKET.ZC.ACK_TAKEOFF_EQUIP_V5,   onEquipementTakeOff );
