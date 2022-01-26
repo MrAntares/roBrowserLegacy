@@ -143,6 +143,7 @@ define(function( require )
 				case SkillId.TF_POISON:
 					error = 207;
 					break;
+					
 			}
 		}
 
@@ -475,6 +476,10 @@ define(function( require )
 
 		Network.sendPacket(pkt);
 	};
+	
+	function onSetSkillDelay( pkt ){
+		ShortCut.setSkillDelay(pkt.SKID, pkt.DelayTM);
+	};
 
 
 	/**
@@ -669,5 +674,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_WEAPONITEMLIST,  onRefineList );
 		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
+		Network.hookPacket( PACKET.ZC.SKILL_POSTDELAY,        onSetSkillDelay );
 	};
 });
