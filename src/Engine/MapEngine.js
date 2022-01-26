@@ -74,7 +74,9 @@ define(function( require )
 	 */
 	var MapEngine = {};
 
-
+	var snCounter = 0;
+	var chatLines = 0;
+	
 	/**
 	 * Connect to Map Server
 	 *
@@ -521,11 +523,31 @@ define(function( require )
 		}
 		else {
 			pkt = new PACKET.CZ.REQUEST_CHAT();
+			chatLines++;
 		}
 
 		// send packet
 		pkt.msg = Session.Entity.display.name + ' : ' + text;
 		Network.sendPacket(pkt);
+		
+		//Super Novice Chant
+		if(chatLines > 7 && ([ 23, 4045, 4128, 4172, 4190, 4191, 4192, 4193]).includes(Session.Entity._job)){
+			if(Math.floor((BasicInfo.base_exp / BasicInfo.base_exp_next) * 1000.0) % 100 == 0){
+				if(text == DB.getMessage(790)){
+					snCounter = 1;
+				} else if(snCounter == 1 && text == (DB.getMessage(791) + ' ' + Session.Entity.display.name + ' ' +DB.getMessage(792))){
+					snCounter = 2;
+				} else if(snCounter == 2 && text == DB.getMessage(793)){
+					snCounter = 3;
+				} else if (snCounter == 3){
+					snCounter = 0;
+					pkt = new PACKET.CZ.CHOPOKGI();
+					Network.sendPacket(pkt);
+				}else {
+					snCounter = 0;
+				}
+			}
+		}
 	}
 
 
