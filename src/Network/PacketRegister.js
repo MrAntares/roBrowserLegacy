@@ -570,6 +570,10 @@ define( ['./PacketStructure' ], function( PACKET )
 		//0x9d5: npcmarketopenType
 		//0x9d7: npcmarketresultackType
 		0xa00: PACKET.ZC.SHORTCUT_KEY_LIST_V3, // ok
+		0xa07: PACKET.ZC.ACK_REMOVE_ITEM_MAIL,
+		0xa08: PACKET.CZ.REQ_OPEN_WRITE_MAIL,
+		0xa09: PACKET.ZC.ADD_EXCHANGE_ITEM3,
+		0xa0b: PACKET.ZC.ADD_ITEM_TO_CART3,
 		0xa0a: PACKET.ZC.ADD_ITEM_TO_STORE3, //
 		0xa0c: PACKET.ZC.ITEM_PICKUP_ACK6, // ok (Thapakorn)
 		0xa0d: PACKET.ZC.EQUIPMENT_ITEMLIST5, // ok (Thapakorn)
@@ -582,5 +586,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xaa5: PACKET.ZC.MEMBERMGR_INFO2, //
 		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
 		0xac5: PACKET.HC.NOTIFY_ZONESVR2, // ok
+		0xa3b: PACKET.ZC.HAT_EFFECT,
+		0xb0a: PACKET.ZC.EQUIPMENT_ITEMLIST6,
 	};
 });
