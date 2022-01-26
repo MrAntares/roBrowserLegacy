@@ -369,7 +369,6 @@ define(function(require)
 			setTimeout(
 				function(){ 
 					ui.find('.delay').css('display', 'none');
-					_list[index].Delay = 0;
 				}
 				, delay
 			);
