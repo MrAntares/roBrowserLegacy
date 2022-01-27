@@ -345,12 +345,6 @@ define(function(require)
 			
 		});
 		
-		Client.loadFile( DB.INTERFACE_PATH + 'item/\xb0\xed\xbe\xe7\xc0\xcc\xb9\xdf\xb8\xd3\xb8\xae\xc7\xc9.bmp', function(url){
-			ui.find('.img').html(
-				'<img class="delay" src="'+url+'" width="24" height="24"></img>'
-			);
-			ui.find('.delay').css('display', 'none');
-		});
 	}
 	
 	/**
@@ -365,7 +359,14 @@ define(function(require)
 		} else {
 			_list[index].Delay = Renderer.tick + delay;
 			var ui = ShortCut.ui.find('.container:eq(' + index + ')');
-			ui.find('.delay').css('display', 'block');
+			
+			Client.loadFile( DB.INTERFACE_PATH + 'item/\xb0\xed\xbe\xe7\xc0\xcc\xb9\xdf\xb8\xd3\xb8\xae\xc7\xc9.bmp', function(url){
+				ui.find('.img').html(
+					'<img class="delay" src="'+url+'" width="24" height="24"></img>'
+				);
+				ui.find('.delay').css('display', 'block');
+			});
+			
 			setTimeout(
 				function(){ 
 					ui.find('.delay').css('display', 'none');
@@ -418,7 +419,6 @@ define(function(require)
 		if (!ID) {
 			return;
 		}
-		
 		
 		for (i = row * 9, count = Math.min(_list.length, row * 9 + 9); i < count; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID && (!isSkill || _list[i].count == amount)) {
