@@ -188,6 +188,12 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 				self.ready   = true;
 			});
 		});
+		
+		if(self.tick){
+			setTimeout(
+				function(){	self.ready = false; }
+				, self.tick);
+		}
 	};
 
 
