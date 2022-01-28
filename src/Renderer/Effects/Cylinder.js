@@ -162,14 +162,26 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 * @param {string} texture name
 	 * @param {number} game tick
 	 */
-	function Cylinder( position, topSize, bottomSize, height, textureName, tick)
+	function Cylinder( position, effect, tick)
 	{
 		this.position    = position;
-		this.topSize     = topSize;
-		this.bottomSize  = bottomSize;
-		this.textureName = textureName;
-		this.height      = height;
+		this.topSize     = effect.topSize;
+		this.bottomSize  = effect.bottomSize;
+		this.textureName = effect.textureName;
+		this.height      = effect.height;
 		this.tick        = tick;
+		
+		this.red		= effect.red;
+		this.green		= effect.green;
+		this.blue		= effect.blue;
+		this.rotate		= effect.rotate;
+		this.alphaMax	= effect.alphaMax;
+		this.animation  = effect.animation;
+		this.blendMode	= effect.blendMode;
+		this.animation	= effect.animation;
+		this.delay		= effect.delay;
+		this.fade		= effect.fade;
+		
 	}
 
 
@@ -190,6 +202,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		});
 		
 		if(self.tick){
+			console.log(self.tick);
 			setTimeout(
 				function(){	self.ready = false; }
 				, self.tick);
