@@ -2431,13 +2431,27 @@ define(function( require )
         }],
 
         138: [{    //EF_FIREPILLARON    Fire pillar
-            type: 'FUNC',
-            attachedEntity: false,
-            func: function(pos, tick, AID){
-                var FPEffect = require('Renderer/Effects/FirePillar');
-                this.add(new FPEffect(pos, tick), AID);
-            }
-        }],
+            type: 'CYLINDER',
+			attachedEntity: false,
+			topSize: 1.0,
+			bottomSize: 0.5,
+			textureName: 'magic_red',
+			height: 7
+		}, {
+			type: 'CYLINDER',
+			attachedEntity: false,
+			topSize: 1.5,
+			bottomSize: 0.7,
+			textureName: 'magic_red',
+			height: 5
+		}, {
+			type: 'CYLINDER',
+			attachedEntity: false,
+			topSize: 2.0,
+			bottomSize: 1.0,
+			textureName: 'magic_red',
+			height: 3
+		}],
 
         139: [{    //EF_SANDMAN    Sandman Trap
             type: 'STR',
@@ -3345,7 +3359,7 @@ define(function( require )
         304: [{ //teleportation animation    //EF_TELEPORTATION2    Teleportation Animation
             alphaMax: 0.5,
             animation: 5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             bottomSize: 0.3,
@@ -4024,7 +4038,7 @@ define(function( require )
             textureName: 'ring_blue',
             topSize: 3.2,
             type: 'CYLINDER'
-        }, {
+        }/*, {
             alphaMax: 1,
             attachedEntity: true,
             blue: 1,
@@ -4046,7 +4060,7 @@ define(function( require )
             sizeRand: 17,
             type: '3D',
             zIndex: 1
-        }],
+        }*/],
         //322: [{}],    //EF_FORESTLIGHT2       Forest Light 2
         //323: [{}],    //EF_FORESTLIGHT3       Forest Light 3
         //324: [{}],    //EF_FORESTLIGHT4       Forest Light 4
