@@ -322,11 +322,6 @@ define(function( require )
 			var _pkt     = new PACKET.CZ.SELECT_WARPPOINT();
 			_pkt.SKID    = skillid;
 			_pkt.mapName = pkt.mapName[index-1] || 'cancel';
-			
-			if(_pkt.mapName != 'cancel'){
-				EffectManager.spam( 304, Session.Entity.GID, Session.Entity.position);
-			}
-			
 			Network.sendPacket(_pkt);
 		};
 
