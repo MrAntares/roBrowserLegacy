@@ -106,11 +106,13 @@ define(function( require )
             if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
                 EffectManager.spam(372, pkt.GID);
             }
-            entity.remove( pkt.type );
-            // XXX this is a hack to make the spirit spheres vanish when a player vanishes
-            // it shouldn't be hardcoded like that, i think a better way to do it
-            // would be to make the spheres an 'attachment'?
-            EffectManager.remove(null, pkt.GID);
+			
+			EffectManager.remove(null, pkt.GID);
+			
+			if([2, 3].includes(pkt.type)){ //exits or teleports
+				EffectManager.spam(304, null, entity.position, 500);
+			}
+			entity.remove( pkt.type );
 		}
 
 		// Show escape menu
@@ -1156,6 +1158,7 @@ define(function( require )
                     });
                 }
                 break;
+				
 			// Cast a skill, TODO: add progressbar in shortcut
 			case StatusConst.POSTDELAY:
 				entity.setAction({
