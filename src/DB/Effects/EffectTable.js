@@ -222,8 +222,70 @@ define(function( require )
         6: [{ //portal - entering the new map    //EF_ENTRY    Being Warped
             //type: 'FUNC',
             //file: 'effect/ring_blue',
-            wav: 'effect/ef_portal',
-            attachedEntity: true
+            alphaMax: 0.5,
+            animation: 5,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 1,
+            bottomSize: 0.3,
+            delay: 1500,
+            fade: false,
+            green: 0.6,
+            height: 35,
+            red: 0.6,
+            rotate: false,
+            textureName: 'ring_blue',
+            topSize: 0.3,
+            type: 'CYLINDER',
+            wav: 'effect/ef_portal'
+        }, {
+            alphaMax: 0.5,
+            animation: 5,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 1,
+            bottomSize: 0.6,
+            delay: 1500,
+            fade: false,
+            green: 0.6,
+            height: 25,
+            red: 0.6,
+            rotate: false,
+            textureName: 'ring_blue',
+            topSize: 0.8,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.5,
+            animation: 5,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 1,
+            bottomSize: 0.8,
+            delay: 1500,
+            fade: false,
+            green: 0.6,
+            height: 13,
+            red: 0.6,
+            rotate: false,
+            textureName: 'ring_blue',
+            topSize: 1,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.5,
+            animation: 5,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 1,
+            bottomSize: 1,
+            delay: 1500,
+            fade: false,
+            green: 0.6,
+            height: 5,
+            red: 0.6,
+            rotate: false,
+            textureName: 'ring_blue',
+            topSize: 1.3,
+            type: 'CYLINDER'
         }],
 
 
@@ -1451,18 +1513,19 @@ define(function( require )
 
 
         42: [{    //EF_BLESSING    Blessing
-            attachedEntity: false,
+            attachedEntity: true,
             delayFrame: 30,
             duplicate: 4,
             file: '\xc3\xe0\xba\xb9',
             frame: 0,
-            repeat: 4,
+            repeat: 0, //4
             time_between_dupli: 100,
             type: 'SPR',
+			head: true,
             yOffset: -120
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1200,
             delayOffset: 300,
             duplicate: 6,
@@ -1483,7 +1546,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1200,
             delayOffset: 400,
             duplicate: 6,
@@ -1502,7 +1565,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 2500,
@@ -3282,7 +3345,7 @@ define(function( require )
         304: [{ //teleportation animation    //EF_TELEPORTATION2    Teleportation Animation
             alphaMax: 0.5,
             animation: 5,
-            attachedEntity: true,
+            attachedEntity: false,
             blendMode: 2,
             blue: 1,
             bottomSize: 0.3,
@@ -3697,7 +3760,7 @@ define(function( require )
         316: [{ //Warp Portal Animation 1    //EF_READYPORTAL2    Warp Portal Animation 1
             alphaMax: 1,
             animation: 4,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             bottomSize: 2.7,
