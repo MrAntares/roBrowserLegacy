@@ -73,8 +73,6 @@ define(function( require )
 	{
 		var name = (effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
 		
-		//this.remove({name: name}, uid);
-
 		if (!(name in _list)) {
 			_list[name] = [];
 
@@ -329,7 +327,7 @@ define(function( require )
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder( position, effect.topSize, effect.bottomSize, effect.height, effect.textureName, tick), AID);
+				EffectManager.add(new Cylinder( position, effect, tick), AID);
 				break;
 
 			case 'FUNC':
@@ -397,7 +395,6 @@ define(function( require )
 			entity.GID        = AID;
 			entity.position   = position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
-			EntityManager.add(entity);
 		}
 
 		else if (!effect.attachedEntity) {
@@ -405,7 +402,6 @@ define(function( require )
 			entity.GID        = -1;
 			entity.position   = position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
-			EntityManager.add(entity);
 		}
 
 
@@ -414,9 +410,16 @@ define(function( require )
 			file:           effect.file,
 			head:         !!effect.head,
 			direction:    !!effect.direction,
-			repeat:         persistent,
+			repeat:         effect.repeat,
+			duplicate:		effect.duplicate,
+			delayFrame:		effect.delayFrame,
+			frame:			effect.frame,
+			time_between_dupli:	effect.time_between_dupli,
+			yOffset:		effect.yOffset,
 			stopAtEnd:      effect.stopAtEnd
 		});
+		
+		EntityManager.add(entity);
 	}
 
 
