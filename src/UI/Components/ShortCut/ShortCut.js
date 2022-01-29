@@ -367,7 +367,11 @@ define(function(require)
 				ui.find('.delay').css('display', 'block');
 			});
 			
-			setTimeout(
+			if(_list[index].Timeout){
+				clearTimeout(_list[index].Timeout);
+			}
+			
+			_list[index].Timeout = setTimeout(
 				function(){ 
 					ui.find('.delay').css('display', 'none');
 				}
