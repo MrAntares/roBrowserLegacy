@@ -1359,7 +1359,7 @@ define(function( require )
             attachedEntity: true,
             blue: 1,
             bottomSize: 0.6,
-            delay: 50000,
+            delay: 25000,
             fade: true,
             green: 0.7,
             height: 15,
@@ -2436,21 +2436,30 @@ define(function( require )
 			topSize: 1.0,
 			bottomSize: 0.5,
 			textureName: 'magic_red',
-			height: 7
+			height: 7,
+			delay: 30000,
+			delayLate: 1000,
+			rotate: true
 		}, {
 			type: 'CYLINDER',
 			attachedEntity: false,
 			topSize: 1.5,
 			bottomSize: 0.7,
 			textureName: 'magic_red',
-			height: 5
+			height: 5,
+			delay: 30000,
+			delayLate: 1000,
+			rotate: true
 		}, {
 			type: 'CYLINDER',
 			attachedEntity: false,
 			topSize: 2.0,
 			bottomSize: 1.0,
 			textureName: 'magic_red',
-			height: 3
+			height: 3,
+			delay: 30000,
+			delayLate: 1000,
+			rotate: true
 		}],
 
         139: [{    //EF_SANDMAN    Sandman Trap
