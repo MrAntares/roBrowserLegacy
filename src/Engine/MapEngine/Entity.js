@@ -97,8 +97,16 @@ define(function( require )
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY6
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
 		){
-			EffectManager.spam(6, entity.GID, entity.position, 200);
+			EffectManager.spam(6, entity.GID, entity.position, false, false);
+		} else if (entity.objecttype === Entity.TYPE_WARP &&
+			(pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY3
+			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY6
+			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY9)
+		){
+			EffectManager.spam(321, entity.GID, entity.position, false, true);
 		}
+		
+		
 		
 	}
 
@@ -119,7 +127,7 @@ define(function( require )
 			EffectManager.remove(null, pkt.GID);
 			
 			if([2, 3].includes(pkt.type)){ //exits or teleports
-				EffectManager.spam(304, null, entity.position, Renderer.tick, false);
+				EffectManager.spam(304, null, entity.position, false, false);
 			}
 			entity.remove( pkt.type );
 		}
