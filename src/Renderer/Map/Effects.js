@@ -37,6 +37,18 @@ function(        glMatrix,            EffectManager)
 		_list.length = 0;
 	}
 
+	/**
+	 * Get effect from list
+	 */
+    function get(GID) {
+        var effect;
+        var count = _list[length];
+        for (var i = 0; i < count; ++i) {
+            effect = _list[i];
+            if (effect[name] == GID) return effect;
+        }
+        return null;
+    }
 
 	/**
 	 * Add effects to scene
@@ -67,6 +79,7 @@ function(        glMatrix,            EffectManager)
 	return {
 		add:    add,
 		free:   free,
+		get:	get,
 		spam:   spam
 	};
 });
