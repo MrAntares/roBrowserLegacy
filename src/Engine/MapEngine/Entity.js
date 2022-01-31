@@ -119,7 +119,7 @@ define(function( require )
 			EffectManager.remove(null, pkt.GID);
 			
 			if([2, 3].includes(pkt.type)){ //exits or teleports
-				EffectManager.spam(304, null, entity.position, 500);
+				EffectManager.spam(304, null, entity.position, Renderer.tick, false);
 			}
 			entity.remove( pkt.type );
 		}
