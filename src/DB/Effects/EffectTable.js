@@ -3820,6 +3820,7 @@ define(function( require )
             textureName: 'ring_blue',
             timeBetweenDupli: 200,
             topSize: 3.9,
+			wav: 'effect/ef_readyportal',
             type: 'CYLINDER'
         }, {
             alphaMax: 0.5,
@@ -3836,6 +3837,7 @@ define(function( require )
             rotate: false,
             textureName: 'ring_blue',
             topSize: 0.6,
+            wav: 'effect/ef_portal',
             type: 'CYLINDER'
         }, {
             alphaMax: 0.5,
