@@ -166,11 +166,9 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 * Cylinder constructor
 	 *
 	 * @param {Array} position
-	 * @param {number} top size of the cylinder
-	 * @param {number} bottom size of the cylinder
-	 * @param {number} height of the cylinder
-	 * @param {string} texture name
-	 * @param {number} game tick
+	 * @param {Object} effect attributes
+	 * @param {number} Start tick
+	 * @param {number} End tick
 	 */
 	function Cylinder(position, effect, startLifeTime, endLifeTime) {
 		
@@ -306,6 +304,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		
 		if (this.blendMode > 0 && this.blendMode < 16) {
 			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
+		} else {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		
 		gl.drawArrays(gl.TRIANGLES, 0, _verticeCount);
