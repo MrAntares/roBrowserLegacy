@@ -10454,6 +10454,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.EQUIPWIN_MICROSCOPE2.size = -1;
 
+	// 0x8b3
+	PACKET.ZC.SHOWSCRIPT = function PACKET_ZC_SHOWSCRIPT(fp, end) {
+		this.GID = fp.readULong();
+		this.msg = fp.readString(end - fp.tell());
+	};
+	PACKET.ZC.SHOWSCRIPT.size = -1;
+
 	// 0x8b9
 	PACKET.HC.SECOND_PASSWD_LOGIN = function PACKET_HC_SECOND_PASSWD_LOGIN(fp, end) {
 		this.Seed = fp.readLong();
