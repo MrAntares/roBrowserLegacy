@@ -547,7 +547,6 @@ define(function( require )
 		else if(id === SkillId.MC_VENDING)
 		{
 			getModule('UI/Components/Vending/Vending').onVendingSkill();
-			return;
 		}
 		
         pkt               = new PACKET.CZ.USE_SKILL();
