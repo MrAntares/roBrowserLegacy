@@ -11409,7 +11409,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			this.randomOptions[i].param = fp.readChar();
 		}
 	};
-	PACKET.ZC.ADD_ITEM_TO_CART2.size = 47;
+	PACKET.ZC.ADD_ITEM_TO_CART3.size = 47;
 
 
 	// 0xa0c
