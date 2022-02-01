@@ -249,13 +249,13 @@ define(function()
 
 			if (x === x1) dx = 0;
 			if (y === y1) dy = 0;
-
+			
 			if ((dx === 0 && dy === 0) || (types[x + y * width] & type) === 0) {
 				break;
 			}
 		}
 
-		if (x === x1 && y === y1) {
+		if (i < MAX_WALKPATH) {
 			// Range feature
 			if (range > 0) {
 				for (j = 0; j < i; ++j) {
@@ -274,7 +274,7 @@ define(function()
 		if (range > 0) {
 			x = x1 - x0;
 			y = y1 - y0;
-			if (Math.sqrt(x*x + y*y) <= range) {
+			if (Math.sqrt(x*x + y*y) <= range && type != GAT.type.SNIPABLE) {
 				return searchLong( x0, y0, x1, y1, range, out, GAT.type.SNIPABLE );
 			}
 		}
