@@ -44,6 +44,7 @@ define(function( require )
 	var SkillEffect   = require('DB/Skills/SkillEffect');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
+	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -90,6 +91,23 @@ define(function( require )
 
 			EntityManager.add(entity);
 		}
+		
+		if(entity.objecttype === Entity.TYPE_PC &&
+			(pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY3
+			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY6
+			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
+		){
+			EffectManager.spam(6, entity.GID, entity.position, false, false);
+		} else if (entity.objecttype === Entity.TYPE_WARP &&
+			(pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY3
+			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY6
+			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY9)
+		){
+			EffectManager.spam(321, entity.GID, entity.position, false, true);
+		}
+		
+		
+		
 	}
 
 
@@ -105,11 +123,13 @@ define(function( require )
             if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
                 EffectManager.spam(372, pkt.GID);
             }
-            entity.remove( pkt.type );
-            // XXX this is a hack to make the spirit spheres vanish when a player vanishes
-            // it shouldn't be hardcoded like that, i think a better way to do it
-            // would be to make the spheres an 'attachment'?
-            EffectManager.remove(null, pkt.GID);
+			
+			EffectManager.remove(null, pkt.GID);
+			
+			if([2, 3].includes(pkt.type)){ //exits or teleports
+				EffectManager.spam(304, null, entity.position, false, false);
+			}
+			entity.remove( pkt.type );
 		}
 
 		// Show escape menu
@@ -742,9 +762,9 @@ define(function( require )
 		var dstEntity = EntityManager.get(pkt.targetAID);
 
 		// Don't display skill names for mobs and hiding skills
-		if (srcEntity.objecttype && srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
+		if (srcEntity && (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
             srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-            srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
+            srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
         )
         {
 			if(!SkillNameDisplayExclude.includes(pkt.SKID)){
@@ -810,10 +830,26 @@ define(function( require )
 	 */
 	function onEntityUseSkillToAttack( pkt )
 	{
+		var SkillAction = {};	//Corresponds to e_damage_type in clif.hpp
+		SkillAction.NORMAL			= 0;	/// damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
+		SkillAction.PICKUP_ITEM			= 1;	/// pick up item
+		SkillAction.SIT_DOWN			= 2;	/// sit down
+		SkillAction.STAND_UP			= 3;	/// stand up
+		SkillAction.ENDURE			= 4;	/// damage (endure)
+		SkillAction.SPLASH			= 5;	/// (splash?)
+		SkillAction.SKILL			= 6;	/// (skill?)
+		SkillAction.REPEAT			= 7;	/// (repeat damage?)
+		SkillAction.MULTI_HIT			= 8;	/// multi-hit damage
+		SkillAction.MULTI_HIT_ENDURE		= 9;	/// multi-hit damage (endure)
+		SkillAction.CRITICAL			= 10;	/// critical hit
+		SkillAction.LUCY_DODGE			= 11;	/// lucky dodge
+		SkillAction.TOUCH			= 12;	/// (touch skill?)
+		
+		
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
 		var srcWeapon;
-
+		
 		if (srcEntity) {
 			pkt.attackMT = Math.min( 450, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
@@ -855,7 +891,7 @@ define(function( require )
 			var target = pkt.damage ? dstEntity : srcEntity;
 			var i;
 
-			if (pkt.damage && target) {
+			if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 
 				var addDamage = function(i) {
 					return function addDamageClosure() {
@@ -930,7 +966,9 @@ define(function( require )
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
-
+		
+		var message = false;
+		
 		if (!srcEntity) {
 			return;
 		}
@@ -961,19 +999,33 @@ define(function( require )
                 Session.underAutoCounter = true;
             }
         }
-
+		
+		//Frost joke and scream messages
+		if(pkt.SKID === SkillId.BA_FROSTJOKE && srcEntity == Session.Entity){
+			var msg = DB.getRandomJoke();
+			if(msg){
+				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				message = true;
+			}
+		} else if(pkt.SKID === SkillId.DC_SCREAM && srcEntity == Session.Entity){
+			var msg = DB.getRandomScream();
+			if(msg){
+				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				message = true;
+			}
+		}
+		
         // Only mob to don't display skill name ?
 		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
                 srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
-        )
-        {
-		
-        if(!SkillNameDisplayExclude.includes(pkt.SKID))
-            srcEntity.dialog.set(
-                ( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
-                'white'
-            );
+        ) {
+			if(!SkillNameDisplayExclude.includes(pkt.SKID) && !message){
+				srcEntity.dialog.set(
+					( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
+					'white'
+				);
+			}
         }
 
         if(pkt.SKID in SkillEffect) {
@@ -990,24 +1042,24 @@ define(function( require )
 
                 if (pkt.property > 0) { // skip "0" property for now
                     switch(pkt.property) {
-                    case 1:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_blue', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    case 3:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_red', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    case 4:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    case 5:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_jadu', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
-                    //case 6: 'white_pulse' effect
-                    //case 8: 'yellow_pulse' effect
-                    //case 9: 'black_pulse' effect
-                    case 7:
-                        EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
-                        break;
+						case 1:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_blue', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 3:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_red', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 4:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 5:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_jadu', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						//case 6: 'white_pulse' effect
+						//case 8: 'yellow_pulse' effect
+						//case 9: 'black_pulse' effect
+						case 7:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
                     }
                 }
             }
@@ -1139,6 +1191,7 @@ define(function( require )
                     });
                 }
                 break;
+				
 			// Cast a skill, TODO: add progressbar in shortcut
 			case StatusConst.POSTDELAY:
 				entity.setAction({
@@ -1154,6 +1207,9 @@ define(function( require )
 						next:   false
 					}
 				});
+				if(pkt.RemainMS && entity == Session.Entity){
+					ShortCut.setGlobalSkillDelay(pkt.RemainMS);
+				}
 				break;
 				
 			case StatusConst.ALL_RIDING:
@@ -1404,6 +1460,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_ACT2,                  onEntityAction );
 		Network.hookPacket( PACKET.ZC.NOTIFY_ACT3,                  onEntityAction );
 		Network.hookPacket( PACKET.ZC.NOTIFY_CHAT,                  onEntityTalk );
+		Network.hookPacket( PACKET.ZC.SHOWSCRIPT,                   onEntityTalk );
 		Network.hookPacket( PACKET.ZC.NPC_CHAT,                     onEntityTalkColor );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME,                  onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL,               onEntityIdentity );

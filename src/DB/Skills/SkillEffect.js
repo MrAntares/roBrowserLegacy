@@ -60,7 +60,7 @@ define(['./SkillConst'], function( SK )
     };
     
     SkillEffect[SK.AL_TELEPORT] = {
-        effectId: 304
+        //effectId: 304 //must not be called on skill cast, but on destination select, which makes this a manual call.
     };
 
     SkillEffect[SK.MG_SAFETYWALL] = {

@@ -209,10 +209,9 @@ define(function(require)
 
 		for (i = 0, size = _list.length; i < size; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
-				//If there is already a skill hotkey, then keep it's selected level after update if it's still a valid skill level
 				if (isSkill && _list[i].count && _list[i].count <= count) {
-					addElement( i, isSkill, ID, _list[i].count);
-				} else {
+					addElement( i, isSkill, ID, _list[i].count);	
+				} else {				
 					addElement( i, isSkill, ID, count);
 				}
 			}
@@ -291,23 +290,19 @@ define(function(require)
 
 		_list[index].isSkill = isSkill;
 		_list[index].ID      = ID;
-		
+
 		if (isSkill) {
 			// Do not display if no level.
 			if (!count) {
 				return;
 			} else {
-				//Only change count if not 0. It won't be displayed anyways, but this prevents selected level reset on skill change.
-				_list[index].count   = count;
-
+				_list[index].count = count;
 				file = SkillInfo[ID].Name;
 				name = SkillInfo[ID].SkillName;
 			}
 		}
 		else {
-			//If not skill, always change count.
-			_list[index].count   = count;
-			
+			_list[index].count = count;
 			var item = Inventory.getItemById(ID);
 
 			// Do not display items not in inventory
@@ -347,9 +342,70 @@ define(function(require)
 			ui.find('.img').css('backgroundImage', 'url('+ url +')');
 			ui.find('.amount').text(count);
 			ui.find('.name').text(name);
+			
+		});
+		
+	}
+	
+	/**
+	 * Displays the cat hand over an icon
+	 *
+	 * @param {number} index of the icon
+	 * @param {number} delay in ms
+	 */
+	function setDelayOnIndex( index , delay ){
+		if(_list[index].Delay && (_list[index].Delay >= Renderer.tick + delay)){
+			//do nothing, the new delay would end sooner.
+		} else {
+			_list[index].Delay = Renderer.tick + delay;
+			var ui = ShortCut.ui.find('.container:eq(' + index + ')');
+			
+			Client.loadFile( DB.INTERFACE_PATH + 'item/\xb0\xed\xbe\xe7\xc0\xcc\xb9\xdf\xb8\xd3\xb8\xae\xc7\xc9.bmp', function(url){
+				ui.find('.img').html(
+					'<img class="delay" src="'+url+'" width="24" height="24"></img>'
+				);
+				ui.find('.delay').css('display', 'block');
+			});
+			
+			if(_list[index].Timeout){
+				clearTimeout(_list[index].Timeout);
+			}
+			
+			_list[index].Timeout = setTimeout(
+				function(){ 
+					ui.find('.delay').css('display', 'none');
+				}
+				, delay
+			);
+		}
+	}
+	
+	/**
+	 * Displays the cat hand over every skill
+	 *
+	 * @param {number} delay in ms
+	 */
+	ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay ( delay ){
+		_list.forEach((element, index) => {
+			if (element.isSkill) {
+				setDelayOnIndex( index, delay);
+			}
 		});
 	}
-
+	
+	/**
+	 * Displays the cat hand over a skingle skill
+	 *
+	 * @param {number} ID of the skill
+	 * @param {number} delay in ms
+	 */
+	ShortCut.setSkillDelay = function setGlobalSkillDelay ( ID, delay ){
+		_list.forEach((element, index) => {
+			if (element.isSkill && element.ID == ID) {
+				setDelayOnIndex( index, delay);
+			}
+		});
+	}
 
 	/**
 	 * Remove an element from shortcut
@@ -367,8 +423,6 @@ define(function(require)
 		if (!ID) {
 			return;
 		}
-		
-		console.log('issk '+isSkill+' id '+ID+' row '+row+' amount '+amount);
 		
 		for (i = row * 9, count = Math.min(_list.length, row * 9 + 9); i < count; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID && (!isSkill || _list[i].count == amount)) {

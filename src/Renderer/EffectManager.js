@@ -72,8 +72,7 @@ define(function( require )
 	EffectManager.add = function add(effect, uid, persistent)
 	{
 		var name = (effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
-		this.remove({name: name}, uid);
-
+		
 		if (!(name in _list)) {
 			_list[name] = [];
 
@@ -260,7 +259,7 @@ define(function( require )
 	EffectManager.spam = function spam( effectId, AID, position, tick, persistent )
 	{
 		var effects;
-		var i, count;
+		var count, duplicate, timeBetweenDupli;
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
@@ -274,9 +273,24 @@ define(function( require )
 		effects = EffectDB[effectId];
 		tick    = tick || Renderer.tick;
 		
+		/*
 		for (i = 0, count = effects.length; i < count; i++) {
 			EffectManager.spamEffect(effects[i], AID, position, tick, persistent);
-		}
+		}*/
+		
+		var duration, offset, cyn = 0;
+		
+		for (var i = 0, count = effects.length; i < count; ++i) {
+			
+            if (effects[i].duplicate == -1) duplicate = 999; //duplicates
+            else duplicate = effects[i].duplicate ? effects[i].duplicate : 1;
+			
+            timeBetweenDupli = !isNaN(effects[i].timeBetweenDupli) ? effects[i].timeBetweenDupli : 200;
+			
+            for (var j = 0; j < duplicate; ++j) {
+				EffectManager.spamEffect(effects[i], AID, cyn, position, offset, tick + timeBetweenDupli * j, persistent, duration);
+			}
+        }
 	};
 
 
@@ -289,7 +303,7 @@ define(function( require )
 	 * @param {number} tick
 	 * @param {boolean} persistent
 	 */
-	EffectManager.spamEffect = function spamEffect( effect, AID, position, tick, persistent )
+	EffectManager.spamEffect = function spamEffect( effect, AID, cyn, position, offset, tick, persistent, duration)
 	{
 		var entity = EntityManager.get(AID);
 		var filename;
@@ -306,6 +320,7 @@ define(function( require )
 		persistent = persistent || effect.repeat || false;
 
 		// Play sound
+		var delayWav = !isNaN(effect.delayWav) ? effect.delayWav : 0;
 		if (effect.wav) {
 			filename = effect.wav;
 		
@@ -315,9 +330,16 @@ define(function( require )
 
 			Events.setTimeout(function(){
 				Sound.play(filename + '.wav');
-			}, tick - Renderer.tick);
+			}, tick + delayWav - Renderer.tick);
 		}
-
+		
+		//Set delays
+		var delay;
+		if (duration) delay = duration;
+		else delay = !isNaN(effect.delay) ? effect.delay : 1000;
+		var delayOffset = !isNaN(effect.delayOffset) ? effect.delayOffset : 0;
+		var delayLate = !isNaN(effect.delayLate) ? effect.delayLate : 0;
+		
 		switch (effect.type) {
 			case 'SPR':
 				spamSprite( effect, AID, position, tick, persistent );
@@ -328,7 +350,8 @@ define(function( require )
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder( position, effect.topSize, effect.bottomSize, effect.height, effect.textureName, tick), AID);
+				//EffectManager.add(new Cylinder( position, effect, tick), AID);
+				EffectManager.add(new Cylinder(position, effect, tick + delayOffset + delayLate, tick + delayOffset + delay), AID);
 				break;
 
 			case 'FUNC':
@@ -396,7 +419,6 @@ define(function( require )
 			entity.GID        = AID;
 			entity.position   = position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
-			EntityManager.add(entity);
 		}
 
 		else if (!effect.attachedEntity) {
@@ -404,7 +426,6 @@ define(function( require )
 			entity.GID        = -1;
 			entity.position   = position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
-			EntityManager.add(entity);
 		}
 
 
@@ -413,9 +434,16 @@ define(function( require )
 			file:           effect.file,
 			head:         !!effect.head,
 			direction:    !!effect.direction,
-			repeat:         persistent,
+			repeat:         effect.repeat,
+			duplicate:		effect.duplicate,
+			delayFrame:		effect.delayFrame,
+			frame:			effect.frame,
+			time_between_dupli:	effect.time_between_dupli,
+			yOffset:		effect.yOffset,
 			stopAtEnd:      effect.stopAtEnd
 		});
+		
+		EntityManager.add(entity);
 	}
 
 
@@ -458,7 +486,8 @@ define(function( require )
 		if (!(effectId in EffectDB)) {
 			return;
 		}
-
+		
+		EffectManager.remove(null, uid);
 		EffectManager.spam( effectId, uid, [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ], Renderer.tick, true);
 	};
 
