@@ -316,12 +316,12 @@ define(function( require )
 			}
 
 			// Parse packet
-			if (!packet.instance) {
+			//if (!packet.instance) {
 				packet.instance = new packet.Struct(fp, offset);
-			}
-			else {
-				packet.Struct.call(packet.instance, fp, offset);
-			}
+			//}
+			//else {
+			//	packet.Struct.call(packet.instance, fp, offset); //this causes packet conflicts where the same type of packets following eachother copy the previous packet's variables with the previous values
+			//}
 
 			console.log( '%c[Network] Recv:', 'color:#900090', packet.instance, packet.callback ? '' : '(no callback)'  );
 
