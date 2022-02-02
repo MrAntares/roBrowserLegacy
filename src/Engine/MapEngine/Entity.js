@@ -830,10 +830,26 @@ define(function( require )
 	 */
 	function onEntityUseSkillToAttack( pkt )
 	{
+		var SkillAction = {};	//Corresponds to e_damage_type in clif.hpp
+		SkillAction.NORMAL			= 0;	/// damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
+		SkillAction.PICKUP_ITEM			= 1;	/// pick up item
+		SkillAction.SIT_DOWN			= 2;	/// sit down
+		SkillAction.STAND_UP			= 3;	/// stand up
+		SkillAction.ENDURE			= 4;	/// damage (endure)
+		SkillAction.SPLASH			= 5;	/// (splash?)
+		SkillAction.SKILL			= 6;	/// (skill?)
+		SkillAction.REPEAT			= 7;	/// (repeat damage?)
+		SkillAction.MULTI_HIT			= 8;	/// multi-hit damage
+		SkillAction.MULTI_HIT_ENDURE		= 9;	/// multi-hit damage (endure)
+		SkillAction.CRITICAL			= 10;	/// critical hit
+		SkillAction.LUCY_DODGE			= 11;	/// lucky dodge
+		SkillAction.TOUCH			= 12;	/// (touch skill?)
+		
+		
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
 		var srcWeapon;
-
+		
 		if (srcEntity) {
 			pkt.attackMT = Math.min( 450, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
@@ -875,7 +891,7 @@ define(function( require )
 			var target = pkt.damage ? dstEntity : srcEntity;
 			var i;
 
-			if (pkt.damage && target) {
+			if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 
 				var addDamage = function(i) {
 					return function addDamageClosure() {
