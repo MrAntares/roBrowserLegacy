@@ -1,7 +1,7 @@
 /**
- * Renderer/Effects/Cylinder.js
+ * Renderer/Effects/PropertyGround.js
  *
- * Generate cone and cylinder
+ * Generate cone and PropertyGround
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
@@ -31,10 +31,14 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	var mat4 = glMatrix.mat4;
 
 
-	/**
-	 * @var {mat4} rotation matrix
-	 */
-	var _matrix = mat4.create();
+	var _rotationMatrices = (function(){
+		var matrices = [];
+		for (var i = 0; i < 16; i++){
+			matrices.push(mat4.create());
+		}
+		return matrices;
+	}());
+
 
 
 	/**
@@ -105,7 +109,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
             'if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {',
             '   discard;',
             '}',
-			'texture.a = 0.7;',
+			'texture.a = 0.42;',
 			'gl_FragColor = texture;',
 
 			'if (uFogUse) {',
@@ -118,11 +122,11 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 
 
 	/**
-	 * Generate a generic cylinder
+	 * Generate a generic PropertyGround
 	 *
 	 * @returns {Float32Array} buffer array
 	 */
-	function generateCylinder()
+	function generatePropertyGround()
 	{
 		var i, a, b;
 		var total = 20;
@@ -153,16 +157,17 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 
 
 	/**
-	 * Cylinder constructor
+	 * PropertyGround constructor
 	 *
 	 * @param {Array} position
-	 * @param {number} top size of the cylinder
-	 * @param {number} bottom size of the cylinder
-	 * @param {number} height of the cylinder
+	 * @param {number} top size of the PropertyGround
+	 * @param {number} bottom size of the PropertyGround
+	 * @param {number} height of the PropertyGround
 	 * @param {string} texture name
 	 * @param {number} game tick
 	 */
-	function Cylinder( position, topSize, bottomSize, height, textureName, tick)
+	var _num = 0;
+	function PropertyGround( position, topSize, bottomSize, height, textureName, tick)
 	{
 		this.position    = position;
 		this.topSize     = topSize;
@@ -170,6 +175,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		this.textureName = textureName;
 		this.height      = height;
 		this.tick        = tick;
+        this.sizeRandomize = 0 + Math.random() * 10;
+        this.ix = (_num++) % _rotationMatrices.length;
 	}
 
 
@@ -178,7 +185,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.prototype.init = function init( gl )
+	PropertyGround.prototype.init = function init( gl )
 	{
 		var self  = this;
 
@@ -196,7 +203,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.prototype.free = function free( gl )
+	PropertyGround.prototype.free = function free( gl )
 	{
 		this.ready = false;
 	};
@@ -207,10 +214,15 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} wegl context
 	 */
-	Cylinder.prototype.render = function render( gl, tick )
+	PropertyGround.prototype.render = function render( gl, tick )
 	{
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
+        var sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
+        if(sizeMult < 0.5)
+            sizeMult = 0.5;
+
+        gl.uniformMatrix4fv( uniform.uRotationMat,   false, _rotationMatrices[this.ix]);
 
 		gl.bindTexture( gl.TEXTURE_2D, this.texture );
 
@@ -224,8 +236,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 4*5,  3*4 );
 
 		gl.uniform3fv( uniform.uPosition,   this.position);
-		gl.uniform1f(  uniform.uBottomSize, this.bottomSize);
-		gl.uniform1f(  uniform.uTopSize,    this.topSize);
+		gl.uniform1f(  uniform.uBottomSize, this.bottomSize*sizeMult);
+		gl.uniform1f(  uniform.uTopSize,    this.topSize*sizeMult);
 		gl.uniform1f(  uniform.uHeight,     this.height);
 
 		gl.drawArrays( gl.TRIANGLES, 0, _verticeCount );
@@ -237,9 +249,9 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.init = function init(gl)
+	PropertyGround.init = function init(gl)
 	{
-		var vertices  = generateCylinder();
+		var vertices  = generatePropertyGround();
 		_verticeCount = vertices.length / 5;
 
 		_program   = WebGL.createShaderProgram( gl, _vertexShader, _fragmentShader );
@@ -257,7 +269,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.free = function free(gl)
+	PropertyGround.free = function free(gl)
 	{
 		if (_program) {
 			gl.deleteProgram(_program);
@@ -277,19 +289,25 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
+	PropertyGround.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
 	{
 		var uniform   = _program.uniform;
 
-		mat4.identity(_matrix);
-		mat4.rotateY( _matrix, _matrix, (tick/4) / 180 * Math.PI);
+		var _matrix, offset;
+		for (var i = 0, _len = _rotationMatrices.length; i < _len; i++){
+			_matrix = _rotationMatrices[i];
+			mat4.identity(_matrix);
+			offset = (i * 2 * Math.PI / _rotationMatrices.length);
+			mat4.rotateY(_matrix, _matrix, offset + (tick/8) / 180 * Math.PI);
+		}
+
 
 		gl.useProgram( _program );
 
 		// Bind matrix
 		gl.uniformMatrix4fv( uniform.uModelViewMat,  false, modelView );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );
-		gl.uniformMatrix4fv( uniform.uRotationMat,   false, _matrix);
+
 
 		// Fog settings
 		gl.uniform1i(  uniform.uFogUse,   fog.use && fog.exist );
@@ -308,7 +326,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.afterRender = function afterRender(gl)
+	PropertyGround.afterRender = function afterRender(gl)
 	{
 		gl.disableVertexAttribArray( _program.attribute.aPosition );
 		gl.disableVertexAttribArray( _program.attribute.aTextureCoord );
@@ -318,5 +336,5 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	/**
 	 * Export
 	 */
-	return Cylinder;
+	return PropertyGround;
 });

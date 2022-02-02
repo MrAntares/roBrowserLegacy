@@ -17,7 +17,9 @@ define( ['Core/Preferences'], function( Preferences )
 	 */
 	return Preferences.get( 'Controls', {
 		noctrl:  true,
-		noshift: true
+		noshift: false,
+        	snap: false,
+        	itemsnap: false
 	}, 1.0 );
 
 });

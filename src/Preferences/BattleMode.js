@@ -74,10 +74,23 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ "ALT" + KEYS.J ]   = { component:'PetInformations', cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.L ]   = { component:'Emoticons',       cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.Q ]   = { component:'Equipment',       cmd:'TOGGLE'};
+	defaultKey[ "ALT" + KEYS.M ]   = { component:'ShortCuts',       cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.S ]   = { component:'SkillList',       cmd:'TOGGLE'};
 	defaultKey[ "ALT" + KEYS.V ]   = { component:'BasicInfo',       cmd:'EXTEND'};
 	defaultKey[ "ALT" + KEYS.H ]   = { component:'PartyFriends',    cmd:'FRIEND'};
 	defaultKey[ "ALT" + KEYS.Z ]   = { component:'PartyFriends',    cmd:'PARTY'};
+
+
+	defaultKey[ "ALT" +  KEYS[1] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_1'};
+	defaultKey[ "ALT" +  KEYS[2] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_2'};
+	defaultKey[ "ALT" +  KEYS[3] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_3'};
+	defaultKey[ "ALT" +  KEYS[4] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_4'};
+	defaultKey[ "ALT" +  KEYS[5] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_5'};
+	defaultKey[ "ALT" +  KEYS[6] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_6'};
+	defaultKey[ "ALT" +  KEYS[7] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_7'};
+	defaultKey[ "ALT" +  KEYS[8] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_8'};
+	defaultKey[ "ALT" +  KEYS[9] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_9'};
+	defaultKey[ "ALT" +  KEYS[0] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_0'};
 
 
 	/**

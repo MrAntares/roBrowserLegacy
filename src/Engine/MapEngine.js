@@ -48,6 +48,7 @@ define(function( require )
 	var ChangeCart          = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
+	var ShortCuts        = require('UI/Components/ShortCuts/ShortCuts');
 	var StatusIcons      = require('UI/Components/StatusIcons/StatusIcons');
 	var ChatRoomCreate   = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
 	var Emoticons        = require('UI/Components/Emoticons/Emoticons');
@@ -180,6 +181,7 @@ define(function( require )
 		Vending.prepare();		
 		ChangeCart.prepare();		
 		Equipment.prepare();
+		ShortCuts.prepare();
 		ShortCut.prepare();
 		ChatRoomCreate.prepare();
 		Emoticons.prepare();
@@ -307,6 +309,7 @@ define(function( require )
 			Vending.append();
 			ChangeCart.append();
 			Equipment.append();
+			ShortCuts.append();
 			StatusIcons.append();
 			ShortCut.append();
 			ChatRoomCreate.append();
@@ -488,7 +491,7 @@ define(function( require )
 	{
 		var pkt;
 		var flag_party = text[0] === '%' || KEYS.CTRL;
-		var flag_guild = text[0] === '$' || KEYS.ALT;
+		var flag_guild = text[0] === '$' || (KEYS.ALT && !(KEYS[0] || KEYS[1] || KEYS[2] || KEYS[3] || KEYS[4] || KEYS[5] || KEYS[6] || KEYS[7] || KEYS[8] || KEYS[9]));
 
 		text = text.replace(/^(\$|\%)/, '');
 
@@ -509,7 +512,7 @@ define(function( require )
 		if (flag_guild) {
 			target = (target & ~ChatBox.TYPE.GUILD) | (~target & ChatBox.TYPE.GUILD);
 		}
-
+		
 		// Get packet
 		if (target & ChatBox.TYPE.PARTY) {
 			pkt = new PACKET.CZ.REQUEST_CHAT_PARTY();

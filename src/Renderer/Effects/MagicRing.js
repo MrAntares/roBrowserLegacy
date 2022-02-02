@@ -1,7 +1,7 @@
 /**
- * Renderer/Effects/Cylinder.js
+ * Renderer/Effects/MagicRing.js
  *
- * Generate cone and cylinder
+ * Generate a Magic Ring under caster
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
@@ -118,11 +118,11 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 
 
 	/**
-	 * Generate a generic cylinder
+	 * Generate a generic MagicRing
 	 *
 	 * @returns {Float32Array} buffer array
 	 */
-	function generateCylinder()
+	function generateMagicRing()
 	{
 		var i, a, b;
 		var total = 20;
@@ -153,23 +153,23 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 
 
 	/**
-	 * Cylinder constructor
+	 * MagicRing constructor
 	 *
 	 * @param {Array} position
-	 * @param {number} top size of the cylinder
-	 * @param {number} bottom size of the cylinder
-	 * @param {number} height of the cylinder
+	 * @param {number} top size of the MagicRing
+	 * @param {number} bottom size of the MagicRing
+	 * @param {number} height of the MagicRing
 	 * @param {string} texture name
 	 * @param {number} game tick
 	 */
-	function Cylinder( position, topSize, bottomSize, height, textureName, tick)
+	function MagicRing( target, topSize, bottomSize, height, textureName, endLifeTime )
 	{
-		this.position    = position;
+		this.target      = target;
 		this.topSize     = topSize;
 		this.bottomSize  = bottomSize;
 		this.textureName = textureName;
 		this.height      = height;
-		this.tick        = tick;
+		this.endLifeTime = endLifeTime;
 	}
 
 
@@ -178,7 +178,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.prototype.init = function init( gl )
+	MagicRing.prototype.init = function init( gl )
 	{
 		var self  = this;
 
@@ -196,7 +196,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.prototype.free = function free( gl )
+	MagicRing.prototype.free = function free( gl )
 	{
 		this.ready = false;
 	};
@@ -207,7 +207,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} wegl context
 	 */
-	Cylinder.prototype.render = function render( gl, tick )
+	MagicRing.prototype.render = function render( gl, tick )
 	{
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
@@ -223,12 +223,16 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		gl.vertexAttribPointer( attribute.aPosition,     3, gl.FLOAT, false, 4*5,  0   );
 		gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 4*5,  3*4 );
 
-		gl.uniform3fv( uniform.uPosition,   this.position);
+		gl.uniform3fv( uniform.uPosition,   this.target.position);
 		gl.uniform1f(  uniform.uBottomSize, this.bottomSize);
 		gl.uniform1f(  uniform.uTopSize,    this.topSize);
 		gl.uniform1f(  uniform.uHeight,     this.height);
 
 		gl.drawArrays( gl.TRIANGLES, 0, _verticeCount );
+        this.needCleanUp = this.endLifeTime < tick;
+        if(!this.target.cast.display){
+            this.needCleanUp = true;
+        }
 	};
 
 
@@ -237,9 +241,9 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.init = function init(gl)
+	MagicRing.init = function init(gl)
 	{
-		var vertices  = generateCylinder();
+		var vertices  = generateMagicRing();
 		_verticeCount = vertices.length / 5;
 
 		_program   = WebGL.createShaderProgram( gl, _vertexShader, _fragmentShader );
@@ -257,7 +261,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.free = function free(gl)
+	MagicRing.free = function free(gl)
 	{
 		if (_program) {
 			gl.deleteProgram(_program);
@@ -277,7 +281,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
+	MagicRing.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
 	{
 		var uniform   = _program.uniform;
 
@@ -308,7 +312,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @param {object} webgl context
 	 */
-	Cylinder.afterRender = function afterRender(gl)
+	MagicRing.afterRender = function afterRender(gl)
 	{
 		gl.disableVertexAttribArray( _program.attribute.aPosition );
 		gl.disableVertexAttribArray( _program.attribute.aTextureCoord );
@@ -318,5 +322,5 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	/**
 	 * Export
 	 */
-	return Cylinder;
+	return MagicRing;
 });

@@ -179,7 +179,7 @@ define(function( require )
 	 *
 	 * @param {string} guild name
 	 */
-	GuildEngine.breakGuild = function createGuild( name )
+	GuildEngine.breakGuild = function breakGuild( name )
 	{
 		var pkt   = new PACKET.CZ.REQ_DISORGANIZE_GUILD();
 		pkt.key   = name;
