@@ -239,23 +239,25 @@ define(function()
 
 		out[0] = x0;
 		out[1] = y0;
+		
+		if(!((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0)){
+			while ((i++) < MAX_WALKPATH) {
+				x         += dx;
+				y         += dy;
 
-		while ((i++) < MAX_WALKPATH) {
-			x         += dx;
-			y         += dy;
+				out[i*2+0] = x;
+				out[i*2+1] = y;
 
-			out[i*2+0] = x;
-			out[i*2+1] = y;
-
-			if (x === x1) dx = 0;
-			if (y === y1) dy = 0;
-			
-			if ((dx === 0 && dy === 0) || (types[x + y * width] & type) === 0) {
-				break;
+				if (x === x1) dx = 0;
+				if (y === y1) dy = 0;
+				
+				if ((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0) {
+					break;
+				}
 			}
 		}
 
-		if (i < MAX_WALKPATH) {
+		if (x === x1 && y === y1) {
 			// Range feature
 			if (range > 0) {
 				for (j = 0; j < i; ++j) {
@@ -266,19 +268,17 @@ define(function()
 					}
 				}
 			}
-
-			return i+1;
+			
+			return i + 1;
 		}
 
 		// Range feature
 		if (range > 0) {
-			x = x1 - x0;
-			y = y1 - y0;
-			if (Math.sqrt(x*x + y*y) <= range && type != GAT.type.SNIPABLE) {
-				return searchLong( x0, y0, x1, y1, range, out, GAT.type.SNIPABLE );
+			if (i < MAX_WALKPATH) {
+				return searchLong( x0, y0, x, y, 0, out, GAT.type.SNIPABLE );
 			}
 		}
-
+		
 		return 0;
 	}
 
