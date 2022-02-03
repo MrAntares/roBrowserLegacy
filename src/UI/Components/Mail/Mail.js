@@ -78,14 +78,12 @@
 	  */
 	 Mail.onAppend = function OnAppend()
 	 {
-		if (!_preferences.show) {
-			this.ui.hide();
-		}
-		
+		// Apply preferences
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
+		
 	 };
  
  
@@ -94,9 +92,7 @@
 	  */
 	 Mail.onRemove = function OnRemove()
 	 {
-		 this.ui.find('.container .content').empty();
 		 this.list.length = 0;
-		 jQuery('.ItemInfo').remove();
  
 		 // Save preferences
 		 _preferences.show   =  this.ui.is(':visible');
@@ -143,11 +139,6 @@
 		 width  = Math.min( Math.max(width,  6), 9);
 		 height = Math.min( Math.max(height, 2), 6);
  
-		 this.ui.find('.container .content').css({
-			 width:  width  * 32 + 13, // 13 = scrollbar
-			 height: height * 32
-		 });
- 
 		 this.ui.css({
 			 width:  23 + 16 + 16 + width  * 32,
 			 height: 31 + 19      + height * 32
@@ -170,8 +161,8 @@
 	 function onResize()
 	 {
 		 var ui      = Mail.ui;
-		 var content = ui.find('.container .content');
-		 var hide    = ui.find('.hide');
+		//  var content = ui.find('.container .content');
+		//  var hide    = ui.find('.hide');
 		 var top     = ui.position().top;
 		 var left    = ui.position().left;
 		 var lastWidth  = 0;
@@ -197,14 +188,9 @@
 			 Mail.resize( w, h );
 			 lastWidth  = w;
 			 lastHeight = h;
- 
-			 //Show or hide scrollbar
-			 if (content.height() === content[0].scrollHeight) {
-				 hide.show();
-			 }
-			 else {
-				 hide.hide();
-			 }
+
+				// hide.hide();
+			 
 		 }
  
 		 // Start resizing

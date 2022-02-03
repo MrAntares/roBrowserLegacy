@@ -1,0 +1,33 @@
+#Mail { width: 250px; height:330px; position:absolute; }
+
+#Mail .titlebar {
+    width: 300px;
+    height: 400px;
+    position: relative;
+    background-repeat: no-repeat;
+    background-color: white;
+    border-radius: 6px;
+}
+#Mail .titlebar .base { 
+    width: 9px;
+    height: 7px;
+    border: none;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+ }
+#Mail .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+ /* chrome bug */ display: inline-block; width: 32px; height:13px; }
+
+#Mail .titlebar .left { margin-left:25px; float:left; }
+#Mail .titlebar .right { float:right; margin-right:3px;}
+#Mail .titlebar .clear { clear:both; }
+
+#Mail .content { height:290px; background-color:white; padding-left:10px; }
+#Mail .content canvas { width:40px; height:40px; display:inline-block; border-radius:5px; border:1px solid transparent; margin:2px; }
+#Mail .content canvas:hover { border:1px solid #cfcfcf; }
+
+#Mail .navigation { text-align:center; background-color:white; border-radius:0px 0px 3px 3px; }
+#Mail .navigation button { border:none; background:none; color:#e6b59c; }
+#Mail .navigation button:hover { color:#ff9c9c;}
+#Mail .navigation button.disabled { visibility:hidden; }
