@@ -618,7 +618,11 @@ define(function( require )
 		pkt.selectedLevel = level;
 		pkt.xPos          = x;
 		pkt.yPos          = y;
-
+		
+		//This is how the client knows the magic ring size for self..
+		Session.Entity.lastSKID = id;
+		Session.Entity.lastSkLvl = level;
+		
 		// In range
 		if (count < 2) {
 			Network.sendPacket(pkt);
