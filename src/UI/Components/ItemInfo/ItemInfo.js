@@ -148,7 +148,7 @@ define(function(require)
 					if (DB.CNameTable[GID]){
 						name = DB.CNameTable[GID];
 					} else {
-						getNameByGID(GID);
+						DB.getNameByGID(GID);
 					}
 					
 					customname = customname + " ";
@@ -158,6 +158,12 @@ define(function(require)
 						customname = name=='Unknown' ? '^FF0000'+name+'\'s^000000 '+customname : '^0000FF'+name+'\'s^000000 '+customname;
 					}
 					
+					break;
+			}
+			switch (item.slot['card4']) {
+				case 0x1: //BELOVED PET
+					hideslots = true;
+					customname = DB.getMessage(756) + ' ' + customname;
 					break;
 			}
 		}
@@ -320,14 +326,7 @@ define(function(require)
 			height: containerHeight - 45
 		});
 	}
-	
-	function getNameByGID (GID){
-		var pkt   = new PACKET.CZ.REQNAME_BYGID();
-		pkt.GID   = GID;
-		Network.sendPacket(pkt);
-		DB.CNameTable[pkt.GID] = 'Unknown';
-	}
-	
+
 	function onUpdateOwnerName (pkt){
 		DB.CNameTable[pkt.GID] = pkt.CName;
 		var str = ItemInfo.ui.find('.title').text();
