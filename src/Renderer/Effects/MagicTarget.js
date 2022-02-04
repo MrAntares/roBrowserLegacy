@@ -149,6 +149,7 @@ define(function( require ) {
 	CastSize[ SkillId.MH_VOLCANIC_ASH ]			= [3];
 	//CastSize[ SkillId.RA_VERDURETRAP ]		= [5]; //trap
 	CastSize[ SkillId.AS_VENOMDUST ]			= [2];
+	CastSize[ SkillId.KO_HUUMARANKA ]			= [7];
 	
 	/**
 	 * @var {string} Vertex Shader
