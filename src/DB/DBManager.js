@@ -614,7 +614,7 @@ define(function(require)
 					if( DB.CNameTable[GID] ){
 						name = DB.CNameTable[GID]+'\'s ';
 					} else {
-						getNameByGID(GID);
+						DB.getNameByGID(GID);
 					}
 						
 					str = name + str + " ";
@@ -648,6 +648,12 @@ define(function(require)
 					for (i = 0; i < j; ++i) {
 						str += list[count[i]-1] + prefix[i] + ' ';
 					}
+			}
+			switch (item.slot.card4) {
+				case 0x1: //BELOVED PET
+					showslots = false;
+					str = DB.getMessage(756) + ' ' + str;
+					break;
 			}
 		}
 
@@ -729,7 +735,7 @@ define(function(require)
 		return ScreamTable[Math.round(Math.random() * (ScreamTable.length - 1))];
 	};
 
-	function getNameByGID (GID){
+	DB.getNameByGID = function getNameByGID (GID){
 		var pkt   = new PACKET.CZ.REQNAME_BYGID();
 		pkt.GID   = GID;
 		Network.sendPacket(pkt);
