@@ -1068,7 +1068,7 @@ define(function( require )
 			srcEntity.lookTo( pkt.xPos, pkt.yPos );
 
 			if (pkt.delayTime) {
-				EffectManager.add(new MagicTarget( pkt.SKID, pkt.xPos, pkt.yPos, Renderer.tick + pkt.delayTime), srcEntity.GID);
+				EffectManager.add(new MagicTarget( pkt.SKID, pkt.xPos, pkt.yPos, Renderer.tick + pkt.delayTime, srcEntity), srcEntity.GID);
 			}
 		}
 	}
