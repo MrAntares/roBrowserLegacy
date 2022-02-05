@@ -616,7 +616,7 @@ define(function(require)
 					} else {
 						DB.getNameByGID(GID);
 					}
-						
+					
 					str = name + str + " ";
 					break;
 
@@ -744,8 +744,15 @@ define(function(require)
 	
 	function onUpdateOwnerName (pkt){
 		DB.CNameTable[pkt.GID] = pkt.CName;
+		
+		//Update other components
+		for (var key in DB.UpdateOwnerName){
+			console.log('UPDATE: ' + key);
+			DB.UpdateOwnerName[key]();
+		}
 	}
 	
+	DB.UpdateOwnerName = {}; 
 	
 	/**
 	 * Export
