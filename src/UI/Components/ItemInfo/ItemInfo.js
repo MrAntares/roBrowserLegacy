@@ -99,8 +99,9 @@ define(function(require)
 		}.bind(this));
 
 		this.draggable(this.ui.find('.title'));
-
-		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
+		
+		//Add to item owner name update queue
+		DB.UpdateOwnerName.ItemInfo = onUpdateOwnerName;
 	};
 
 	/**
@@ -327,11 +328,11 @@ define(function(require)
 		});
 	}
 
-	function onUpdateOwnerName (pkt){
-		DB.CNameTable[pkt.GID] = pkt.CName;
+	function onUpdateOwnerName (){
 		var str = ItemInfo.ui.find('.title').text();
 		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
 	}
+	
 	
 	/**
 	 * Create component and export it
