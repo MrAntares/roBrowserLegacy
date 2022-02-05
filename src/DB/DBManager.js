@@ -747,7 +747,6 @@ define(function(require)
 		
 		//Update other components
 		for (var key in DB.UpdateOwnerName){
-			console.log('UPDATE: ' + key);
 			DB.UpdateOwnerName[key]();
 		}
 	}
