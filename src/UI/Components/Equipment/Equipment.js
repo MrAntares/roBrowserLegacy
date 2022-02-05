@@ -131,7 +131,8 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 		
-		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
+		//Add to item owner name update queue
+		DB.UpdateOwnerName.Equipment = onUpdateOwnerName;
 	};
 
 
@@ -610,12 +611,11 @@ define(function(require)
 		Equipment.ui.find('.overlay').hide();
 	}
 	
-	function onUpdateOwnerName (pkt){
-		DB.CNameTable[pkt.GID] = pkt.CName;
+	function onUpdateOwnerName (){
 		for (var index in _list) {
 			var item = _list[index];
-			if(item.slot && [0x00FE, 0xFF00].includes(item.slot.card1)){
-				Equipment.ui.find('.item[data-index="'+ index +'"] .itemName').text( jQuery.escape(DB.getItemName(_list[index])) );
+			if(item.slot && [0x00FF, 0x00FE, 0xFF00].includes(item.slot.card1)){
+				Equipment.ui.find('.item[data-index="'+ index +'"] .itemName').text( jQuery.escape(DB.getItemName(item)) );
 			}
 		}
 	}
