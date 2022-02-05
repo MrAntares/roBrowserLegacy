@@ -100,8 +100,6 @@ define(function(require)
 
 		this.draggable(this.ui.find('.title'));
 		
-		//Add to item owner name update queue
-		DB.UpdateOwnerName.ItemInfo = onUpdateOwnerName;
 	};
 
 	/**
@@ -150,6 +148,9 @@ define(function(require)
 						name = DB.CNameTable[GID];
 					} else {
 						DB.getNameByGID(GID);
+						
+						//Add to item owner name update queue
+						DB.UpdateOwnerName.ItemInfo = onUpdateOwnerName;
 					}
 					
 					customname = customname + " ";
@@ -331,6 +332,8 @@ define(function(require)
 	function onUpdateOwnerName (){
 		var str = ItemInfo.ui.find('.title').text();
 		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
+		
+		delete DB.UpdateOwnerName.ItemInfo;
 	}
 	
 	
