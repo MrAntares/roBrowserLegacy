@@ -33,6 +33,7 @@ define(function(require)
 	var CartItems          = require('UI/Components/CartItems/CartItems');
 	var htmlText     = require('text!./Vending.html');
 	var cssText      = require('text!./Vending.css');
+	var Renderer           = require('Renderer/Renderer');
 
 
 	/**
@@ -103,6 +104,8 @@ define(function(require)
 		this.ui.find('.btn.cancel').click(function(){
 			Vending.onRemove();
 		});
+		
+		InputWindow.find('.footer .extend').mousedown(onResizeInput);
 
 
 		// Items options
@@ -141,9 +144,15 @@ define(function(require)
 	{
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
-
-		InputWindow.css({  top:  _preferences.inputWindow.y,  left: _preferences.inputWindow.x });
-		OutputWindow.css({ top:  _preferences.outputWindow.y, left: _preferences.outputWindow.x });
+		
+		InputWindow.css({
+			top:  Math.min( Math.max( 0, _preferences.inputWindow.y), Renderer.height - InputWindow.find('.content').height()),
+			left: Math.min( Math.max( 0, _preferences.inputWindow.x), Renderer.width  - InputWindow.find('.content').width())
+		});
+		OutputWindow.css({
+			top:  Math.min( Math.max( 0, _preferences.outputWindow.y), Renderer.height - OutputWindow.find('.content').height()),
+			left: Math.min( Math.max( 0, _preferences.outputWindow.x), Renderer.width  - OutputWindow.find('.content').width())
+		});
 
 		resize( InputWindow.find('.content'),  _preferences.inputWindow.height );
 		resize( OutputWindow.find('.content'), _preferences.outputWindow.height );
@@ -656,6 +665,48 @@ define(function(require)
 			})
 		);
 	}
+	
+	/**
+	 * Extend InputWindow size
+	 */
+	function onResizeInput()
+	{
+		var InputWindow  = Vending.ui.find('.InputWindow');
+		var content = InputWindow.find('.container .content');
+		var top     = InputWindow.position().top;
+		var left    = InputWindow.position().left;
+		var lastHeight = 0;
+		var _Interval;
+
+		function resizing()
+		{
+			var extraY = 31 + 19 - 30;
+
+			var h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
+
+			// Maximum and minimum window size
+			h = Math.min( Math.max(h, 2), 6);
+
+			if (h === lastHeight) {
+				return;
+			}
+
+			resize( content, h );
+			lastHeight = h;
+
+		}
+
+		// Start resizing
+		_Interval = setInterval( resizing, 30);
+
+		// Stop resizing on left click
+		jQuery(window).on('mouseup.resize', function(event){
+			if (event.which === 1) {
+				clearInterval(_Interval);
+				jQuery(window).off('mouseup.resize');
+			}
+		});
+	}
 
 	Vending.onVendingSkill = function onVendingSkill()
 	{
@@ -705,6 +756,7 @@ define(function(require)
 				{
 					this._shopname = shopname;
 					Network.sendPacket(pkt);
+					
 				}
 			};
 		}
