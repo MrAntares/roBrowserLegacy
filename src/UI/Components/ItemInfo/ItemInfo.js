@@ -122,26 +122,32 @@ define(function(require)
 		var customname = '';
 		var hideslots = false;
 		if(item.slot){
+			
+			var very = '';
+			var name = '';
+			var elem = '';
+			
 			switch (item.slot['card1']) {
 				case 0x00FF: // FORGE
 					if (item.slot['card2'] >= 3840) { 
-						customname += DB.getMessage(461); //'Very Very Very Strong';
+						very = DB.getMessage(461); // Very Very Very Strong
 					} else if (item.slot['card2'] >= 2560) { 
-						customname += DB.getMessage(460); //Very Very Strong ';
+						very = DB.getMessage(460); // Very Very Strong
 					} else if (item.slot['card2'] >= 1024) { 
-						customname += DB.getMessage(459); //Very Strong ';
+						very = DB.getMessage(459); // Very Strong
 					}
 					switch (Math.abs(item.slot['card2'] % 10)){
-						case 1: customname += DB.getMessage(452); break; // 'Ice '
-						case 2: customname += DB.getMessage(454); break; // 'Earth '
-						case 3: customname += DB.getMessage(451); break; // 'Fire '
-						case 4: customname += DB.getMessage(453); break; // 'Wind '
+						case 1: elem = DB.getMessage(452); break; // 's Ice
+						case 2: elem = DB.getMessage(454); break; // 's Earth
+						case 3: elem = DB.getMessage(451); break; // 's Fire
+						case 4: elem = DB.getMessage(453); break; // 's Wind
+						default: elem = DB.getMessage(450); break; // 's
 					}
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
 					hideslots = true;
 					
-					var name = 'Unknown';
+					name = 'Unknown';
 					var GID = (item.slot['card4']<<16) + item.slot['card3'];
 					
 					if (DB.CNameTable[GID]){
@@ -153,11 +159,10 @@ define(function(require)
 						DB.UpdateOwnerName.ItemInfo = onUpdateOwnerName;
 					}
 					
-					customname = customname + " ";
 					if(item.IsDamaged){
-						customname = name+'\'s '+customname;
+						customname = very + ' ' + name + elem + ' ';
 					} else {
-						customname = name=='Unknown' ? '^FF0000'+name+'\'s^000000 '+customname : '^0000FF'+name+'\'s^000000 '+customname;
+						customname = name=='Unknown' ? very + ' ' + '^FF0000' + name + '^000000 ' + elem + ' ' : very + ' ' + '^0000FF' + name + '^000000 ' + elem + ' ';
 					}
 					
 					break;
