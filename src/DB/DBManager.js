@@ -623,7 +623,7 @@ define(function(require)
 						DB.getNameByGID(GID);
 					}
 					
-					str += very + ' ' + name + elem;
+					str += very + ' ' + name + elem + ' ';
 					break;
 
 				// Show card prefix
