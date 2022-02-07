@@ -335,15 +335,15 @@ define(function( require )
             wav: 'effect/ef_endure',
             zIndex: 10
         }, {
-            attachedEntity: false,
-            func: function EffectReadyToFight(e) {
-                e['setAction']({
-                    'action': e['ACTION']['READYFIGHT'],
+            attachedEntity: true,
+            func: function EffectReadyToFight(entity) {
+                entity.setAction({
+                    'action': entity.ACTION.READYFIGHT,
                     'frame': 0,
                     'repeat': true,
                     'play': false,
                     'next': {
-                        'action': e['ACTION']['IDLE'],
+                        'action': entity.ACTION.IDLE,
                         'frame': 0,
                         'repeat': false,
                         'play': false,
