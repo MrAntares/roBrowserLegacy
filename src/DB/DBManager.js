@@ -590,34 +590,40 @@ define(function(require)
 		//Hide slots for forged weapons
 		var showslots = true;
 		if (item.slot) {
+			
+			var very = '';
+			var name = '';
+			var elem = '';
+			
 			switch (item.slot.card1) {
 				case 0x00FF: // FORGE
 					showslots = false;
 					if (item.slot.card2 >= 3840) {
-						str += MsgStringTable[461]; //'Very Very Very Strong';
+						very = MsgStringTable[461]; //Very Very Very Strong
 					} else if (item.slot.card2 >= 2560) { 
-						str += MsgStringTable[460]; //Very Very Strong ';
+						very = MsgStringTable[460]; //Very Very Strong
 					} else if (item.slot.card2 >= 1024) { 
-						str += MsgStringTable[459]; //Very Strong ';
+						very = MsgStringTable[459]; //Very Strong
 					}
 					switch (Math.abs(item.slot.card2 % 10)){
-						case 1: str += MsgStringTable[452]; break; // 'Ice '
-						case 2: str += MsgStringTable[454]; break; // 'Earth '
-						case 3: str += MsgStringTable[451]; break; // 'Fire '
-						case 4: str += MsgStringTable[453]; break; // 'Wind '
+						case 1: elem = MsgStringTable[452]; break; // 's Ice
+						case 2: elem = MsgStringTable[454]; break; // 's Earth
+						case 3: elem = MsgStringTable[451]; break; // 's Fire
+						case 4: elem = MsgStringTable[453]; break; // 's Wind
+						default : elem = MsgStringTable[450]; break; // 's
 					}
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
-					var name = 'Unknown\'s ';
+					name = 'Unknown';
 					
 					var GID = (item.slot.card4<<16) + item.slot.card3;
 					if( DB.CNameTable[GID] ){
-						name = DB.CNameTable[GID]+'\'s ';
+						name = DB.CNameTable[GID];
 					} else {
 						DB.getNameByGID(GID);
 					}
 					
-					str = name + str + " ";
+					str += very + ' ' + name + elem;
 					break;
 
 				// Show card prefix
