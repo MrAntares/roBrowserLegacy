@@ -30,14 +30,23 @@
 	function onOpenWindowsMail( pkt )
 	{
         if( pkt.Type ){
-           
+			Mail.remove();
         }else{
 			Mail.append();
-            console.log('open-mail', pkt.Type)
         }
-       
 	}
     
+	/**
+	 * Send mail list
+	 * PACKET.ZC.MAIL_WINDOWS
+	 */
+	Mail.onClosePressed = function onClosePressed()
+	{
+		// var pkt = new PACKET.ZC.MAIL_WINDOWS();
+		// pkt.Type = 1;
+		// Network.sendPacket(pkt);
+		Mail.remove();		
+	};
     
 
     /**

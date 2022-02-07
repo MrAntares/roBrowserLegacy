@@ -65,10 +65,21 @@
  
 	 /**
 	  * Initialize UI
+	  * Create message
+	  * 	Title at most 50 characters
+	  * 	Email body max 198 characters
+	  * Message box
+	  * 	Display sender name is a maximum of 15, plus 3 characters "..."
+	  * 	Display sender name in tooltip sent by sender has a maximum of 23 characters
+	  * 	Display the title of the email sent by the sender has a maximum of 25, plus 3 characters "..."
+	  * 	Display email title in tooltip sent by sender has a maximum of 39 characters
+	  *  	The pagination numbers only appear when there is at least one message in the list, it displays "1/1" when there is only 1
+	  *     The previous and next pagination events only work when there are more than 8 messages (VALIDATE)
+	  *     
 	  */
 	 Mail.init = function Init()
-	 {
-		console.log('init-mail');
+	 {		
+		this.ui.find('.right .close').click(this.onClosePressed.bind(this)).removeClass( "hover" );
 		this.draggable(this.ui.find('.titlebar'));
 	 };
  
@@ -108,25 +119,7 @@
 		 _preferences.save();
 	 };
  
- 
-	 /**
-	  * Process shortcut
-	  *
-	  * @param {object} key
-	  */
-	 Mail.onShortCut = function onShurtCut( key )
-	 {
-		switch (key.cmd) {
-			case 'TOGGLE':
-				this.ui.toggle();
-				// Remove input focus
-				if (this.ui.is(':visible')) {
-					this.focus();
-				}
-				break;
-		}
-	 };
- 
+  
  
 	 /**
 	  * Extend Mail window size
@@ -144,16 +137,6 @@
 			 height: 31 + 19      + height * 32
 		 });
 	 };
- 
- 
-	/**
-	 * Exit window
-	 */
-	function onClose()
-	{
-		Mail.ui.hide();
-	}
- 
  
 	 /**
 	  * Extend Mail window size
@@ -209,6 +192,7 @@
 	 /**
 	 * Callbacks
 	 */
+	Mail.onClosePressed  = function onClosedPressed(){};
 
 	 /**
 	  * Create component and export it
