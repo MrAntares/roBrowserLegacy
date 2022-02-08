@@ -335,15 +335,15 @@ define(function( require )
             wav: 'effect/ef_endure',
             zIndex: 10
         }, {
-            attachedEntity: false,
-            func: function EffectReadyToFight(e) {
-                e['setAction']({
-                    'action': e['ACTION']['READYFIGHT'],
+            attachedEntity: true,
+            func: function EffectReadyToFight(entity) {
+                entity.setAction({
+                    'action': entity.ACTION.READYFIGHT,
                     'frame': 0,
                     'repeat': true,
                     'play': false,
                     'next': {
-                        'action': e['ACTION']['IDLE'],
+                        'action': entity.ACTION.IDLE,
                         'frame': 0,
                         'repeat': false,
                         'play': false,
@@ -395,7 +395,7 @@ define(function( require )
             attachedEntity: false,
             blue: 1,
             delay: 500,
-            duplicate: -1,
+            //duplicate: -1,
             fadeIn: false,
             fadeOut: false,
             file: 'effect/pok3.tga',
@@ -995,7 +995,7 @@ define(function( require )
             type: 'STR'
         }, {
             attachedEntity: false,
-            duplicate: -1,
+            //duplicate: -1,
             file: 'windhit%d',
             rand: [1, 3],
             type: 'STR'
@@ -5956,7 +5956,7 @@ define(function( require )
         }, {
             attachedEntity: false,
             delayLate: 450,
-            duplicate: -1,
+            //duplicate: -1,
             file: 'firehit',
             timeBetweenDupli: 150,
             type: 'STR'
@@ -5967,7 +5967,7 @@ define(function( require )
             blue: 0.1,
             delay: 500,
             delayWav: 500,
-            duplicate: -1,
+            //duplicate: -1,
             fadeIn: false,
             fadeOut: false,
             file: 'effect/icearrow.tga',
@@ -5991,7 +5991,7 @@ define(function( require )
         }, {
             attachedEntity: false,
             delayLate: 300,
-            duplicate: -1,
+            //duplicate: -1,
             file: 'Èå¸°´ÞºûÈ¯»ó2',
             timeBetweenDupli: 150,
             type: 'STR'
@@ -6003,7 +6003,7 @@ define(function( require )
             bottomSize: 3,
             delay: 1000,
             delayLate: 300,
-            duplicate: -1,
+            //duplicate: -1,
             fade: false,
             green: 1,
             height: 0.1,
@@ -6019,7 +6019,7 @@ define(function( require )
             attachedEntity: false,
             blue: 1,
             delay: 500,
-            duplicate: -1,
+            //duplicate: -1,
             fadeIn: false,
             fadeOut: false,
             file: 'effect/icearrow.tga',

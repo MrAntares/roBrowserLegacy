@@ -396,6 +396,18 @@ define(function( require )
 		CartItems.addItem(pkt);
 	}	
 	
+	function onAckAddItemToCart( pkt ){
+		switch (pkt.result) {
+			case 0: 
+				ChatBox.addText( DB.getMessage(220), ChatBox.TYPE.ERROR );
+				break;
+			
+			case 1:
+				ChatBox.addText( DB.getMessage(221), ChatBox.TYPE.ERROR );
+				break;
+		}
+	}
+	
 	/**
 	 * Get a list of items to create
 	 *
@@ -468,6 +480,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_ITEMREFINING,       onRefineResult);
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART,          onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,         onCartItemAdded );
-		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );		
+		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
+		Network.hookPacket( PACKET.ZC.ACK_ADDITEM_TO_CART,        onAckAddItemToCart );
 	};
 });

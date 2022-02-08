@@ -89,6 +89,9 @@ define(function(require)
 			});
 
 		this.draggable();
+		
+		//Add to item owner name update queue
+		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName;
 	};
 
 
@@ -639,6 +642,13 @@ define(function(require)
 		ShortCut.setElement( true, id, level);
 	};
 
+	function onUpdateOwnerName (){
+		for (var index in _list) {
+			if(!(_list[index].isSkill)){
+				ShortCut.setElement( false, _list[index].ID, _list[index].count);
+			}
+		}
+	}
 
 	/**
 	 * Method to define to notify a change.

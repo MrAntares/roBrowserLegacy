@@ -136,7 +136,9 @@ define( function( require )
 	Entity.prototype.isAdmin      = false;
 	Entity.prototype.hasCart      = false;
 	Entity.prototype.CartNum      = 0;
-
+	
+	Entity.prototype.lastSKID     = 0;
+	Entity.prototype.lastSkLvl    = 0;
 
 	/**
 	 * Initialized Entity data

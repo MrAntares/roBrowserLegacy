@@ -24,6 +24,7 @@
 #vending .content .item .unity { position:absolute; top:13px; right:2px; width:10px; }
 
 #vending .footer .total, #vending .footer .totalP, #vending .footer .cashuser { padding-left:10px; padding-top:8px; }
+#vending .footer .extend { position:absolute; right:0px; bottom:1px; width:13px; height:13px; border:none; background-repeat:no-repeat; background-color:transparent; }
 #vending .InputWindow, #vending .OutputWindow  { width:280px; position:absolute; z-index:50; }
 #vending .btn.buy, #vending .btn.sell { position:absolute; top:4px; right:62px; }
 #vending .btn.cancel { position:absolute; top:4px; right:15px;} 

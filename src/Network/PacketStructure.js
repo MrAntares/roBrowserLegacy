@@ -5806,7 +5806,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.maxCount = fp.readShort();
 		this.curWeight = fp.readLong();
 		this.maxWeight = fp.readLong();
-		console.log(this.curWeight+'/'+this.maxWeight);
 	};
 	PACKET.ZC.NOTIFY_CARTITEM_COUNTINFO.size = 14;
 

@@ -125,9 +125,14 @@
 	padding:0;
 }
 
-#chatbox .input .message {
+#chatbox .input .wrapper {
+	position: absolute;
 	left:108px;
-	width:460px;
+	right:32px;
+}
+
+#chatbox .input .message {
+	width: 100%;
 	padding-left:5px;
 }
 #chatbox .input .message.party { color:#840084; }
@@ -139,13 +144,13 @@
 	height:11px;
 	border:none;
 	position:absolute;
-	right:16px;
+	right:13px;
 	top:8px;
 	background-color:transparent;
 }
 
 #chatbox .input .size {
- right:3px; 
+ right:1px; 
 }
 
 #chatbox .battlemode .bmtoggle{

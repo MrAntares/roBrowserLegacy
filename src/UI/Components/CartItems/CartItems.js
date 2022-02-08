@@ -156,8 +156,6 @@ define(function(require)
 	 */
 	CartItems.onShortCut = function onShurtCut( key )
 	{
-		console.log("CartItems.onShortCut : "+Session.Entity.hasCart);
-		
 		if(Session.Entity.hasCart ==  false)
 		{
 			return;
@@ -287,7 +285,6 @@ define(function(require)
 	CartItems.addItem = function AddItem( item )
 	{
 		var object = this.getItemByIndex(item.index);
-		//console.log("add");
 
 		if (object) {
 			object.count += item.count;

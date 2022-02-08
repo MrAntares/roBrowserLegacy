@@ -130,6 +130,9 @@ define(function(require)
 			.on('mouseout',    'button', onEquipmentOut);
 
 		this.draggable(this.ui.find('.titlebar'));
+		
+		//Add to item owner name update queue
+		DB.UpdateOwnerName.Equipment = onUpdateOwnerName;
 	};
 
 
@@ -279,7 +282,7 @@ define(function(require)
 		this.ui.find(getSelectorFromLocation(location)).html(
 			'<div class="item" data-index="'+ item.index +'">' +
 				'<button></button>' +
-				'<span>' + jQuery.escape(DB.getItemName(item)) + '</span>' +
+				'<span class="itemName">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
 			'</div>'
 		);
 
@@ -606,6 +609,15 @@ define(function(require)
 	function onEquipmentOut()
 	{
 		Equipment.ui.find('.overlay').hide();
+	}
+	
+	function onUpdateOwnerName (){
+		for (var index in _list) {
+			var item = _list[index];
+			if(item.slot && [0x00FF, 0x00FE, 0xFF00].includes(item.slot.card1)){
+				Equipment.ui.find('.item[data-index="'+ index +'"] .itemName').text( jQuery.escape(DB.getItemName(item)) );
+			}
+		}
 	}
 
 
