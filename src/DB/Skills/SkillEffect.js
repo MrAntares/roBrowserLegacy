@@ -537,6 +537,10 @@ define(['./SkillConst'], function( SK )
     SkillEffect[SK.ST_PRESERVE] =  {
         beforeCastEffectId: '496_beforecast'
     };
+	
+	SkillEffect[SK.NPC_WIDEFREEZE] = {
+        effectId: 89
+    };
 
     return SkillEffect;
 });
