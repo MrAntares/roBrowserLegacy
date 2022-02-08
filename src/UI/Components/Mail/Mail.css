@@ -48,6 +48,12 @@
     flex: 1;
     text-align: center;
 }
+
+#Mail .pagination {
+    flex: 1;
+    text-align: end;
+}
+
 #Mail .btn_iw{
     height: 371px;
     margin-left: 4px;
@@ -125,13 +131,13 @@
     text-shadow: 1px 1px black;
 }
 
-#Mail .tooltip .text{
+#Mail .tooltip .to{
     margin-left: -32px;
     top: -22px;
 }
 
-#Mail .tooltip .text{
-    margin-left: -32px;
+#Mail .tooltip .title{
+    margin-left: -74px;
     top: -22px;
 }
 
@@ -149,8 +155,12 @@
 
 
 
-#Mail .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
- /* chrome bug */ display: inline-block; width: 32px; height:13px; }
+#Mail .titlebar .text {     /* text-shadow: 1px 1px white; */
+    vertical-align: -2px;
+    white-space: nowrap;
+    display: inline-block;
+    width: 32px;
+    height: 13px;}
 
 #Mail .titlebar .left { margin-left:25px; float:left; }
 #Mail .titlebar .right { float:right; margin-right:3px;}
