@@ -60,6 +60,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.POSITION_INFO,                 onGuildPositions );
 		Network.hookPacket( PACKET.ZC.POSITION_ID_NAME_INFO,         onGuildPositionsName );
 		Network.hookPacket( PACKET.ZC.ACK_CHANGE_GUILD_POSITIONINFO, onGuildPositions );
+		Network.hookPacket( PACKET.ZC.GUILD_SKILLINFO,               onGuildSkillList );
 		Network.hookPacket( PACKET.ZC.GUILD_NOTICE,                  onGuildNotice );
 		Network.hookPacket( PACKET.ZC.ACK_REQ_CHANGE_MEMBERS,        onGuildMemberPositionUpdate );
 		Network.hookPacket( PACKET.ZC.ACK_GUILD_MENUINTERFACE,       onGuildAccess );
@@ -587,6 +588,18 @@ define(function( require )
 	function onGuildMemberPositionUpdate( pkt )
 	{
 		Guild.updateMemberPosition(pkt.AID, pkt.GID, pkt.positionID);
+	}
+
+
+	/**
+	 * List of guild skills
+	 *
+	 * @param {object} pkt - PACKET_ZC_GUILD_SKILLINFO
+	 */
+	function onGuildSkillList( pkt )
+	{
+		Guild.setPoints( pkt.skillPoint );
+		Guild.setSkills( pkt.skillList );
 	}
 
 
