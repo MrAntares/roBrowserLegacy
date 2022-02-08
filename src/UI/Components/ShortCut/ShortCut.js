@@ -30,6 +30,7 @@ define(function(require)
 	var SkillWindow          = require('UI/Components/SkillList/SkillList');
 	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
+	var Guild                 = require('UI/Components/Guild/Guild');
 	var htmlText             = require('text!./ShortCut.html');
 	var cssText              = require('text!./ShortCut.css');
 
@@ -178,7 +179,7 @@ define(function(require)
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].isSkill) {
-				skill = SkillWindow.getSkillById(list[i].ID);
+				skill = (list[i].ID > 10000 && list[i].ID < 10100) ? Guild.getSkillById(list[i].ID) :  SkillWindow.getSkillById(list[i].ID);
 				if (skill && skill.level) {
 					addElement( i, true, list[i].ID, list[i].count || skill.level );
 				}
@@ -472,6 +473,12 @@ define(function(require)
 				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
 				addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				break;
+				
+			case 'Guild':
+				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
+				addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+				break;
 
 			case 'Inventory':
 				ShortCut.onChange( index, false, element.ITID, 0);
@@ -593,7 +600,11 @@ define(function(require)
 
 		// Execute skill
 		if (shortcut.isSkill) {
-			SkillWindow.useSkillID(shortcut.ID, shortcut.count);
+			if(shortcut.ID > 10000 && shortcut.ID < 10100){
+				Guild.useSkillID(shortcut.ID, shortcut.count);
+			} else {
+				SkillWindow.useSkillID(shortcut.ID, shortcut.count);
+			}
 		}
 
 		// Use the item
@@ -638,6 +649,11 @@ define(function(require)
 	 * @param {number} level
 	 */
 	SkillWindow.onUpdateSkill = function( id, level)
+	{
+		ShortCut.setElement( true, id, level);
+	};
+	
+	Guild.onUpdateSkill = function( id, level)
 	{
 		ShortCut.setElement( true, id, level);
 	};
