@@ -16,6 +16,9 @@ define(function(require)
 	 * Dependencies
 	 */
 	var DB             = require('DB/DBManager');
+	var SkillInfo      = require('DB/Skills/SkillInfo');
+	var jQuery         = require('Utils/jquery');
+	var Mouse          = require('Controls/MouseEventHandler');
 	var MonsterTable   = require('DB/Monsters/MonsterTable');
 	var Session        = require('Engine/SessionStorage');
 	var Entity         = require('Renderer/Entity/Entity');
@@ -29,6 +32,8 @@ define(function(require)
 	var ContextMenu    = require('UI/Components/ContextMenu/ContextMenu');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var InputBox       = require('UI/Components/InputBox/InputBox');
+	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
+	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
 	var htmlText       = require('text!./Guild.html');
 	var cssText        = require('text!./Guild.css');
 
@@ -80,6 +85,30 @@ define(function(require)
 	 */
 	var _members = [];
 
+	/**
+	 * @var {Array} Skill List
+	 * { SKID, type, level, spcost, attackRange, skillName, upgradable }
+	 */
+	var _skills = [];
+	
+	/**
+	 * @var {jQuery} level up button reference
+	 */
+	var _btnIncSkill;
+
+
+	/**
+	 * @var {number} skill points
+	 */
+	var _skpoints = 0;
+
+
+	/**
+	 * @var {jQuery} button that appeared when level up
+	 */
+	var _btnLevelUp;
+	
+	var lArrow, rArrow;
 
 	/**
 	 * @var {number} total guild exp
@@ -202,7 +231,27 @@ define(function(require)
 					}); 
 				}
 			});
-
+		// Skills
+		
+		// Get level up button
+		_btnIncSkill = this.ui.find('.btn.levelup').detach().click(onRequestSkillUp);
+		
+		// Get button to open skill when level up
+		_btnLevelUp = jQuery('#lvlup_job').detach();
+		_btnLevelUp.click(function(){
+			_btnLevelUp.detach();
+			Guild.ui.show();
+			Guild.ui.parent().append(Guild.ui);
+		}).mousedown(stopPropagation);
+		
+		// Bind skills
+		this.ui
+			.on('dblclick',    '.skill .icon, .skill .name', onRequestUseSkill)
+			.on('contextmenu', '.skill .icon, .skill .name', onRequestSkillInfo)
+			.on('mousedown',   '.selectable', onSkillFocus)
+			.on('dragstart',   '.skill',      onSkillDragStart)
+			.on('dragend',     '.skill',      onSkillDragEnd);
+		
 
 		// Notice
 		ui.find('.content.notice')
@@ -225,6 +274,13 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.hide();
+		
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function(data){
+			rArrow = 'url('+data+')';
+		});
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_left.bmp', function(data){
+			lArrow = 'url('+data+')';
+		});
 
 		renderTendency(0, 0);
 	};
@@ -265,6 +321,7 @@ define(function(require)
 
 		if (this.ui.is(':visible')) {
 			this.hide();
+			_btnLevelUp.detach();
 		}
 		else {
 			this.show();
@@ -654,6 +711,376 @@ define(function(require)
 	};
 
 
+
+
+	/**
+	 * Add skills to the list
+	 */
+	Guild.setSkills = function setSkills( skills )
+	{
+		var i, count;
+
+		for (i = 0, count = _skills.length; i < count; ++i) {
+			this.onUpdateSkill( _skills[i].SKID, 0);
+		}
+
+		_skills.length = 0;
+		this.ui.find('.content.skills .skill_list table').empty();
+
+		for (i = 0, count = skills.length; i < count; ++i) {
+			this.addSkill( skills[i] );
+		}
+	};
+
+
+	/**
+	 * Insert skill to list
+	 *
+	 * @param {object} skill
+	 */
+	Guild.addSkill = function addSkill( skill )
+	{
+		// Custom skill ?
+		if (!(skill.SKID in SkillInfo)) {
+			return;
+		}
+
+		// Already in list, update it instead of duplicating it
+		if (this.ui.find('.skill.id' + skill.SKID + ':first').length) {
+			this.updateSkill( skill );
+			return;
+		}
+
+		var sk        = SkillInfo[ skill.SKID ];
+		var levelup   = _btnIncSkill.clone(true);
+		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		var element   = jQuery(
+			'<tr class="skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'" draggable="true">' +
+				'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
+				'<td class="levelupcontainer"></td>' +
+				'<td class=selectable>' +
+					'<div class="name">' +
+						jQuery.escape(sk.SkillName)  +'<br/>' +
+						'<span class="level">' +
+						(
+							sk.bSeperateLv ? '<button class="currentDown"></button>Lv : <span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span><button class="currentUp"></button>'
+							               : 'Lv : <span class="current">'+ skill.level +'</span>'
+						) +
+						'</span>' +
+					'</div>' +
+				'</td>' +
+				'<td class="selectable type">' +
+					'<div class="consume">' +
+					(
+						skill.type ? 'Sp : <span class="spcost">' + skill.spcost + '</span>' : 'Passive'
+					) +
+					'</div>' +
+				'</td>' +
+			'</tr>'
+		);
+
+		if (!skill.upgradable || !_skpoints) {
+			levelup.hide();
+		}
+
+		element.find('.levelupcontainer').append( levelup );
+		
+		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
+		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
+		
+		element.find('.level .currentUp').click( function(){ skillLevelSelectUp(skill);  } );
+		element.find('.level .currentDown').click( function(){ skillLevelSelectDown(skill); } );
+		Guild.ui.find('.content.skills .skill_list table').append(element);
+		this.parseHTML.call(levelup);
+
+		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
+			element.find('.icon img').attr('src', data);
+		});
+		
+		_skills.push(skill);
+		this.onUpdateSkill( skill.SKID, skill.level);
+	};
+
+	/**
+	 * Remove skill from list
+	 */
+	Guild.removeSkill = function removeSkill()
+	{
+		// Not implemented by gravity ? server have to send the whole list again ?
+	};
+	
+	
+	/**
+	 * Update skill
+	 *
+	 * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
+	 */
+	Guild.updateSkill = function updateSkill( skill )
+	{
+		var target = getSkillById(skill.SKID);
+		var element;
+
+		if (!target) {
+			return;
+		}
+
+		// Update Memory
+		target.level       = skill.level;
+		target.spcost      = skill.spcost;
+		target.attackRange = skill.attackRange;
+		target.upgradable  = skill.upgradable;
+		if (Number.isInteger(skill.type)) {
+			target.type    = skill.type;
+		}
+
+		// Update UI
+		element = this.ui.find('.skill.id' + skill.SKID + ':first');
+		element.find('.level .current, .level .max').text(skill.level);
+		if(skill.selectedLevel){
+			element.find('.level .current').text(skill.selectedLevel);
+		}
+		element.find('.spcost').text(skill.spcost);
+
+		element.removeClass('active passive disabled');
+		element.addClass(!skill.level ? 'disabled' : skill.type ? 'active' : 'passive');
+
+		if (skill.upgradable && _skpoints) {
+			element.find('.levelup').show();
+		}
+		else {
+			element.find('.levelup').hide();
+		}
+
+		this.onUpdateSkill( skill.SKID, skill.level);
+	};
+	
+	
+	/**
+	 * Use a skill index
+	 *
+	 * @param {number} skill id
+	 */
+	Guild.useSkillID = function useSkillID( id, level )
+	{
+		var skill = getSkillById(id);
+		if (!skill || !skill.level || !skill.type) {
+			return;
+		}
+
+		Guild.useSkill( skill, level ? level : skill.selectedLevel );
+	};
+
+
+	/**
+	 * Use a skill
+	 *
+	 * @param {object} skill
+	 */
+	Guild.useSkill = function useSkill( skill, level )
+	{
+		// Self
+		if (skill.type & SkillTargetSelection.TYPE.SELF) {
+			this.onUseSkill( skill.SKID, level ? level : skill.level);
+		}
+		
+		skill.useLevel = level;
+		
+		// no elseif intended (see flying kick).
+		if (skill.type & SkillTargetSelection.TYPE.TARGET) {
+			SkillTargetSelection.append();
+			SkillTargetSelection.set(skill, skill.type);
+		}
+	};
+
+
+	/**
+	 * Set skill points amount
+	 *
+	 * @param {number} skill points count
+	 */
+	Guild.setPoints = function SetPoints( amount )
+	{
+		var i, count;
+		this.ui.find('.skpoints_count').text(amount);
+
+		// Do not need to update the UI
+		if ((!_skpoints) === (!amount)) {
+			_skpoints = amount;
+			return;
+		}
+
+		_skpoints = amount;
+		count   = _skills.length;
+
+		for (i = 0; i < count; ++i) {
+			if (_skills[i].upgradable && amount) {
+				this.ui.find('.skill.id' + _skills[i].SKID + ' .levelup').show();
+			}
+			else {
+				this.ui.find('.skill.id' + _skills[i].SKID + ' .levelup').hide();
+			}
+		}
+	};
+
+
+	/**
+	 * Add the button when leveling up
+	 */
+	Guild.onLevelUp = function onLevelUp()
+	{
+		_btnLevelUp.appendTo('body');
+	};
+
+
+	/**
+	 * Find a skill by it's id
+	 *
+	 * @param {number} skill id
+	 * @returns {Skill}
+	 */
+	function getSkillById( id )
+	{
+		var i, count = _skills.length;
+		
+		for (i = 0; i < count; ++i) {
+			if (_skills[i].SKID === id) {
+				return _skills[i];
+			}
+		}
+
+		return null;
+	}
+
+
+	/**
+	 * Request to upgrade a skill
+	 */
+	function onRequestSkillUp()
+	{
+		var index = this.parentNode.parentNode.getAttribute('data-index');
+		Guild.onIncreaseSkill(
+			parseInt(index, 10)
+		);
+	}
+
+
+	/**
+	 * Request to use a skill
+	 */
+	function onRequestUseSkill()
+	{
+		var main  = jQuery(this).parent();
+
+		if (!main.hasClass('skill')) {
+			main = main.parent();
+		}
+
+		Guild.useSkillID(parseInt(main.data('index'), 10));
+	}
+
+
+	/**
+	 * Request to get skill info (right click on a skill)
+	 */
+	function onRequestSkillInfo()
+	{
+		var main = jQuery(this).parent();
+		var skill;
+
+		if (!main.hasClass('skill')) {
+			main = main.parent();
+		}
+		
+		skill = getSkillById(parseInt(main.data('index'), 10));
+
+		// Don't add the same UI twice, remove it
+		if (SkillDescription.uid === skill.SKID) {
+			SkillDescription.remove();
+			return;
+		}
+
+		// Add ui to window
+		SkillDescription.append();
+		SkillDescription.setSkill(skill.SKID);
+	}
+
+
+	/**
+	 * Focus a skill in the list (background color changed)
+	 */
+	function onSkillFocus()
+	{
+		var main = jQuery(this).parent();
+
+		if (!main.hasClass('skill')) {
+			main = main.parent();
+		}
+
+		Guild.ui.find('.skill').removeClass('selected');
+		main.addClass('selected');
+	}
+
+
+	/**
+	 * Start to drag a skill (to put it on the hotkey UI ?)
+	 */
+	function onSkillDragStart( event )
+	{
+		var index = parseInt(this.getAttribute('data-index'), 10);
+		var skill = getSkillById(index);
+
+		// Can't drag a passive skill (or disabled)
+		if (!skill || !skill.level || !skill.type) {
+			return stopPropagation(event);
+		}
+
+		var img   = new Image();
+		img.src   = this.firstChild.firstChild.src;
+
+		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
+		event.originalEvent.dataTransfer.setData('Text',
+			JSON.stringify( window._OBJ_DRAG_ = {
+				type: 'skill',
+				from: 'Guild',
+				data:  skill
+			})
+		);
+	}
+
+
+	/**
+	 * Stop the drag drop action, clean up
+	 */
+	function onSkillDragEnd()
+	{
+		delete window._OBJ_DRAG_;
+	}
+	
+	function skillLevelSelectUp( skill ){
+		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		if (level < skill.level){
+			skill.selectedLevel = level + 1;
+			var element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
+			element.find('.level .current').text(skill.selectedLevel);
+		}
+	}
+	
+	function skillLevelSelectDown( skill ){
+		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		if (level > 1){
+			skill.selectedLevel = level - 1;
+			var element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
+			element.find('.level .current').text(skill.selectedLevel);
+		}
+	}
+
+
+
+
+
+
+
+
 	/**
 	 * Set guild notice
 	 *
@@ -966,6 +1393,14 @@ define(function(require)
 	 */
 	Guild.onSendEmblem = function(){}
 
+
+	/**
+	 * Abstract function to define
+	 */
+	Guild.onUseSkill      = function onUseItem(){};
+	Guild.onIncreaseSkill = function onIncreaseSkill() {};
+	Guild.onUpdateSkill   = function onUpdateSkill(){};
+	Guild.getSkillById    = getSkillById;
 
 	/**
 	 * Create componentand export it
