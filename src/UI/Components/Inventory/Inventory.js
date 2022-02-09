@@ -274,6 +274,7 @@ define(function(require)
 			}
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);
+				this.onUpdateItem(items[i].ITID, items[i].count ? items[i].count : 1);
 			}
 			
 			
@@ -290,7 +291,6 @@ define(function(require)
 	Inventory.addItem = function AddItem( item )
 	{
 		var object = this.getItemByIndex(item.index);
-		//console.log("add");
 
 		if (object) {
 			object.count += item.count;
@@ -817,7 +817,6 @@ define(function(require)
 		event.stopImmediatePropagation();
 		return false;
 	}
-
 
 	/**
 	 * functions to define
