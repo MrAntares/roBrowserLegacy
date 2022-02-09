@@ -271,5 +271,35 @@ define(function()
 		REAPER_B:           4242,
 		EMPEROR2:           4243,
 		EMPEROR2_B:         4244,
+		
+		DRAGON_KNIGHT:      4252,
+		MEISTER:            4253,
+		SHADOW_CROSS:       4254,
+		ARCH_MAGE:          4255,
+		CARDINAL:           4256,
+		WINDHAWK:           4257,
+		IMPERIAL_GUARD:     4258,
+		BIOLO:              4259,
+		ABYSS_CHASER:       4260,
+		ELEMENTAL_MASTER:   4261,
+		INQUISITOR:         4262,
+		TROUBADOUR:         4263,
+		TROUVERE:           4264,
+
+		WINDHAWK2:          4278,
+		MEISTER2:           4279,
+		DRAGON_KNIGHT2:     4280,
+		IMPERIAL_GUARD2:    4281,
+
+		SKY_EMPEROR:        4302,
+		SOUL_ASCETIC:       4303,
+		SHINKIRO:           4303,
+		SHIRANUI:           4304,
+		NIGHT_WATCH:        4305,
+		HYPER_NOVICE:       4306,
+		SPIRIT_HANDLER:     4307,
+
+		SKY_EMPEROR2: 	    4316,
+	
 	};
 });
