@@ -338,6 +338,27 @@ define(function( require )
 		this._effectStateColor[2] = 1.0;
 		this._effectStateColor[3] = 1.0;
 		
+		// ------------------------
+		// Riding
+		// ------------------------
+
+
+		var RIDING = (
+			StatusConst.EffectState.RIDING  |
+			StatusConst.EffectState.DRAGON1 |
+			StatusConst.EffectState.DRAGON2 |
+			StatusConst.EffectState.DRAGON3 |
+			StatusConst.EffectState.DRAGON4 |
+			StatusConst.EffectState.DRAGON5 |
+			StatusConst.EffectState.WUGRIDER|
+			StatusConst.EffectState.MADOGEAR
+		);
+
+		if (value & RIDING) {
+			if (this._job in MountTable) {
+				costume = MountTable[this._job];
+			}
+		}
 		
 		// ------------------------
 		// Costume
