@@ -134,7 +134,7 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.LION_ROYAL_GUARD]  = "»çÀÚ·Î¾â°¡µå";
 	JobNameTable[JobId.DOG_CHASER]        = "ÄÌº£·Î½º½¦µµ¿ìÃ¼ÀÌ¼­";
 
-	JobNameTable[JobId.PORING_SUPERNOVICE] = "½´ÆÛ³ëºñ½ºÆ÷¸µ";
+	JobNameTable[JobId.PORING_SNOVICE]    = "½´ÆÛ³ëºñ½ºÆ÷¸µ";
 
 	JobNameTable[JobId.FROG_NINJA]        = "³ëºñ½ºÆ÷¸µ";
 	JobNameTable[JobId.PECO_GUNNER]       = "ÆäÄÚ°Ç³Ê";
