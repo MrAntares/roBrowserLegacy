@@ -55,7 +55,7 @@ define(['./JobConst'], function( JobId )
 	AllMountTable[JobId.ROYAL_GUARD]		= JobId.LION_ROYAL_GUARD;
 	AllMountTable[JobId.SHADOW_CHASER]		= JobId.DOG_CHASER;
 	
-	AllMountTable[JobId.SUPERNOVICE]		= JobId.PORING_SUPERNOVICE;
+	AllMountTable[JobId.SUPERNOVICE]		= JobId.PORING_SNOVICE;
 	
 	AllMountTable[JobId.NINJA]				= JobId.FROG_NINJA;
 	AllMountTable[JobId.GUNSLINGER]			= JobId.PECO_GUNNER;
