@@ -21,6 +21,7 @@ define(function( require )
 	var Events        = require('Core/Events');
 	var Cylinder      = require('Renderer/Effects/Cylinder');
 	var StrEffect     = require('Renderer/Effects/StrEffect');
+	var TwoDEffect    = require('Renderer/Effects/TwoDEffect');
 	var Entity        = require('Renderer/Entity/Entity');
 	var EntityManager = require('Renderer/EntityManager');
 	var Renderer      = require('Renderer/Renderer');
@@ -352,6 +353,10 @@ define(function( require )
 			case 'CYLINDER':
 				//EffectManager.add(new Cylinder( position, effect, tick), AID);
 				EffectManager.add(new Cylinder(position, effect, tick + delayOffset + delayLate, tick + delayOffset + delay), AID);
+				break;
+				
+			case '2D':
+				EffectManager.add(new TwoDEffect(position, effect, tick + delayOffset + delayLate, tick + delayOffset + delay, AID), AID);
 				break;
 
 			case 'FUNC':
