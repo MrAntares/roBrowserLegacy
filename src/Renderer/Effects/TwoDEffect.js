@@ -263,15 +263,15 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
         }
         SpriteRenderer.position[2] = this.position[2] + cuj;
 		
-        var cuJ = this.alphaMax;
+        var alpha = this.alphaMax;
 		
-        if (this.fadeIn && start < duration / 4) cuJ = start * this.alphaMax / (duration / 4);
-        else if (this.fadeOut && start > duration / 2 + duration / 4) cuJ = (duration - start) * this.alphaMax / (duration / 4);
+        if (this.fadeIn && start < duration / 4) alpha = start * this.alphaMax / (duration / 4);
+        else if (this.fadeOut && start > duration / 2 + duration / 4) alpha = (duration - start) * this.alphaMax / (duration / 4);
 		
-        if (cuJ < 0) cuJ = 0;
-        else if (cuJ > 1) cuJ = 1;
+        if (alpha < 0) alpha = 0;
+        else if (alpha > 1) alpha = 1;
 		
-        SpriteRenderer.color[3] = cuJ;
+        SpriteRenderer.color[3] = alpha;
         SpriteRenderer.color[0] = this.red;
         SpriteRenderer.color[1] = this.green;
         SpriteRenderer.color[2] = this.blue;
@@ -320,8 +320,8 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
 		
         if (this.rotate) {
             var cv2 = (this.toAngle - this.angle) / 100;
-            var cv3 = this.angle;
-            var cv4 = steps * cv2 + cv3;
+            var angle = this.angle;
+            var cv4 = steps * cv2 + angle;
             SpriteRenderer.angle = cv4;
         } else SpriteRenderer.angle = this.angle;
 		
