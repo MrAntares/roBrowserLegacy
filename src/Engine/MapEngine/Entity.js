@@ -42,6 +42,7 @@ define(function( require )
 	var DB            = require('DB/DBManager');
 	var MagicRing     = require('Renderer/Effects/MagicRing');
 	var SkillEffect   = require('DB/Skills/SkillEffect');
+	var StrEffect     = require('Renderer/Effects/StrEffect');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
@@ -103,7 +104,7 @@ define(function( require )
 			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY6
 			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY9)
 		){
-			EffectManager.spam(321, entity.GID, entity.position, false, true);
+			EffectManager.spam(321, entity.GID, entity.position, false, true);															   
 		}
 		
 		
@@ -1399,12 +1400,12 @@ define(function( require )
         }
 	}
 
-    /**
+	/**
 	 * Mark MVP position on map (Convex Mirror item)
 	 * it's show small icon  at minimap when MVP is spawned (but I will use cross, it's more accurate)
 	 * @param {object} pkt - PACKET_ZC_BOSS_INFO
-     *
-     *   probably it's not updated with Tombstone system, but Tombstones are fail...
+	 *
+	 *   probably it's not updated with Tombstone system, but Tombstones are fail...
 	 */
 
 	function onMarkMvp( pkt )
@@ -1420,8 +1421,32 @@ define(function( require )
             ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR);
         }
 	}
+	
+	/**
+	* Show MvP reward Effect
+	 *
+	 * @param {object} pkt - PACKET.ZC.MVP
+	 */
+	function onEntityMvpReward( pkt )
+	{
+        var Entity = EntityManager.get(pkt.AID);
+        EffectManager.add(new StrEffect('data/texture/effect/mvp.str', Entity.position, Renderer.tick), pkt.AID);
+        Sound.play('effect/st_mvp.wav');
+	}
 
-    /**
+
+	/**
+	 * Show MvP item message
+	 *
+	 * @param {object} pkt - PACKET.ZC.MVP_GETTING_ITEM
+	 */
+	function onEntityMvpRewardItemMessage( pkt ) {
+        var item = DB.getItemInfo(pkt.ITID);
+        ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE);
+        ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE);
+	}
+
+	/**
 	 * Initialize
 	 */
 	return function EntityEngine()
@@ -1502,8 +1527,10 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.EMOTION,                      onEntityEmotion);
 		Network.hookPacket( PACKET.ZC.NOTIFY_MONSTER_HP,            onEntityLifeUpdate);
 		Network.hookPacket( PACKET.ZC.QUEST_NOTIFY_EFFECT,          onEntityQuestNotifyEffect);
-        Network.hookPacket( PACKET.ZC.BLADESTOP,                    onBladeStopPacket);
-        Network.hookPacket( PACKET.ZC.NOTIFY_EXP,                   onNotifyExp);
-        Network.hookPacket( PACKET.ZC.BOSS_INFO,                    onMarkMvp);
+		Network.hookPacket( PACKET.ZC.BLADESTOP,                    onBladeStopPacket);
+		Network.hookPacket( PACKET.ZC.NOTIFY_EXP,                   onNotifyExp);
+		Network.hookPacket( PACKET.ZC.BOSS_INFO,                    onMarkMvp);
+		Network.hookPacket( PACKET.ZC.MVP,                          onEntityMvpReward);
+		Network.hookPacket( PACKET.ZC.MVP_GETTING_ITEM,             onEntityMvpRewardItemMessage);
 	};
 });
