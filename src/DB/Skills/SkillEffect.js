@@ -71,9 +71,18 @@ define(['./SkillConst'], function( SK )
     SkillEffect[SK.SA_DELUGE] = {
         groundEffectId: 'deluge_ground'
     };
-
+	
+	SkillEffect[SK.MG_SIGHT] = {
+        effectId: 22
+    };
+	
     SkillEffect[SK.MG_STONECURSE] = {
         effectId: 23
+    };
+	
+	SkillEffect[SK.MG_FIREBALL] = {
+        effectId: 24,
+		hitEffectId: 49
     };
 
     SkillEffect[SK.MG_FIREWALL] =  {
@@ -105,6 +114,41 @@ define(['./SkillConst'], function( SK )
         effectId: 30,
         hitEffectId: 52
     };
+	
+	SkillEffect[SK.AL_RUWACH] = {
+        effectId: 33
+    };
+	
+    SkillEffect[SK.AL_WARP] = {
+        effectId: 35,
+        groundEffectId: 317 //portal unit
+    };
+	
+	/*SkillEffect[SK.AL_WARP2] = {
+        groundEffectId: 317
+    };
+	
+    SkillEffect[SK.AL_WARP] = {
+        groundEffectId: 316,
+        groundEffectId2: [344, 317],
+        groundEffectIdTimer2: [2000, 2000]
+    };*/
+
+    SkillEffect[SK.AL_INCAGI] = {
+        effectId: 37
+    };
+
+    SkillEffect[SK.AL_DECAGI] = {
+        effectId: 38
+    };
+
+    SkillEffect[SK.AL_HOLYWATER] = {
+        effectId: 39
+    };
+
+    SkillEffect[SK.AL_BLESSING] = {
+        effectId: 42
+    };
 
     SkillEffect[SK.AL_PNEUMA] = {
         groundEffectId: 141
@@ -121,6 +165,36 @@ define(['./SkillConst'], function( SK )
     SkillEffect[SK.AL_CURE] = {
         effectId: 66
     };
+	
+	SkillEffect[SK.AL_HEAL] = {
+        effectId: 312,
+        hitEffectId: 320
+    };
+	
+    SkillEffect[SK.AB_HIGHNESSHEAL] = {
+        effectId: 325,
+        hitEffectId: 320
+    };
+	
+    SkillEffect[SK.AB_CHEAL] = {
+        effectId: 313
+    };
+
+    SkillEffect[SK.TF_POISON] = {
+        effectId: 20
+    };
+	
+    SkillEffect[SK.TF_DETOXIFY] = {
+        hitEffectId: 21
+    };
+	
+    SkillEffect[SK.TF_STEAL] = {
+        hitEffectId: 18
+    };
+	
+    SkillEffect[SK.TF_HIDING] = {
+        effectId: 16
+    };	
 
     SkillEffect[SK.MC_MAMMONITE] = {
         effectId: 10
@@ -242,6 +316,15 @@ define(['./SkillConst'], function( SK )
         hitEffectId: 152,
         groundEffectId: 318
     };
+	
+    SkillEffect[SK.PR_BENEDICTIO] = {
+        effectId: 91
+    };
+
+    SkillEffect[SK.WZ_FIREPILLAR] = {
+        effectId: 96,
+        groundEffectId: 138
+    }
 
     SkillEffect[SK.WZ_METEOR] = {
         effectId: 92,
@@ -284,6 +367,10 @@ define(['./SkillConst'], function( SK )
         hitEffectId: 170
     };
 
+    SkillEffect[SK.HT_CLAYMORETRAP] = {
+        hitEffectId: 107
+    };
+	
     SkillEffect[SK.HT_SPRINGTRAP] = {
         effectId: 111
     };
@@ -495,40 +582,6 @@ define(['./SkillConst'], function( SK )
         groundEffectId: '674_ground'
     }
 
-
-    SkillEffect[SK.AL_WARP] = {
-        effectId: 35,
-        groundEffectId: 317 //portal unit
-    };
-
-    SkillEffect[SK.AL_INCAGI] = {
-        effectId: 37
-    };
-
-    SkillEffect[SK.AL_DECAGI] = {
-        effectId: 38
-    };
-
-    SkillEffect[SK.AL_HOLYWATER] = {
-        effectId: 39
-    };
-
-    SkillEffect[SK.AL_BLESSING] = {
-        effectId: 42
-    };
-
-    SkillEffect[SK.PR_BENEDICTIO] = {
-        effectId: 91
-    };
-
-    SkillEffect[SK.WZ_FIREPILLAR] = {
-        effectId: 96,
-        groundEffectId: 138
-    }
-
-    SkillEffect[SK.HT_CLAYMORETRAP] = {
-        hitEffectId: 107
-    };
     
     SkillEffect[SK.NPC_CRITICALWOUND] = {
         hitEffectId: 677
