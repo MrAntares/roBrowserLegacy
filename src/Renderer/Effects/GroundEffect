@@ -1,4 +1,4 @@
-define('Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client', 'Renderer/Map/Altitude', 
+define(['Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client', 'Renderer/Map/Altitude'], 
 function (WebGL,        glMatrix,          SkillID,                Client,        Altitude) {
 
     'use strict';
@@ -16,7 +16,7 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
 		uniform mat4 uProjectionMat;
 		uniform mat4 uRotationMat;
 		void main(void) {
-			gl_Position    = uProjectionMat * uModel + ViewMat * vec4( aPosition.x, aPosition.y - 0.5, aPosition.z, 1.0);
+			gl_Position    = uProjectionMat * uModelViewMat * vec4( aPosition.x, aPosition.y - 0.5, aPosition.z, 1.0);
 			gl_Position.z -= 0.01;
 			vTextureCoord  = (uRotationMat * vec4( aTextureCoord - 0.5, 1.0, 1.0)).xy + 0.5;
 		}
@@ -50,7 +50,7 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
 
     function GroundEffect(posX, posY) {
         this.x = posX;
-        this.y = bxL;
+        this.y = posY;
         this.position = new Int16Array([posX, posY, 1]);
         this.size = 5;
     }
@@ -92,7 +92,7 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
         this.color[3] = 0.4;
     };
 	
-    GroundEffect.renderBeforeEntities = false;
+	GroundEffect.renderBeforeEntities = false;
 	
     GroundEffect.free = function free(gl) {
         if (_texture) {
@@ -112,7 +112,7 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
         var uniform = _program.uniform;
         var attribute = _program.attribute;
 		
-        gl.depthMask(false);
+        //gl.depthMask(false);
         mat4.identity(_matrix);
         gl.useProgram(_program);
         gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -131,7 +131,7 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
     };
 	
     GroundEffect.afterRender = function afterRender(gl) {
-        gl.depthMask(false);
+        //gl.depthMask(false);
         gl.disableVertexAttribArray(_program.attribute.aPosition);
         gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
     };
