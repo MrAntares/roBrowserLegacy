@@ -10628,7 +10628,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.hp = fp.readLong();
 		this.maxhp = fp.readLong();
 		this.isBoss = fp.readUChar();
-		//this.name = fp.readString(24);
+		this.name = fp.readString(24);
 	};
 	PACKET.ZC.NOTIFY_MOVEENTRY7.size = -1;
 
@@ -11038,8 +11038,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	// 0x9a0
 	PACKET.HC.CHARLIST_NOTIFY = function PACKET_HC_CHARLIST_NOTIFY(fp, end) {
 		this.TotalCnt = fp.readLong();
+		if (PACKETVER.value >= 20151001) {
+			this.charSlots = fp.readLong();
+		}
 	};
-	PACKET.HC.CHARLIST_NOTIFY.size = 6;
+	PACKET.HC.CHARLIST_NOTIFY.size = (PACKETVER.value >= 20151001 ? 10 : 6);
 
 
 	// 0x9ca
