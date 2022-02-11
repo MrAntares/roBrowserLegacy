@@ -438,9 +438,7 @@ define(function(require)
 		$charinfo.find('.exp').text( info.exp );
 		$charinfo.find('.hp').text( info.hp );
 		$charinfo.find('.sp').text( info.sp );
-
-		//TODO: Check win_select.bmp size to insert it if needed ?
-		//$charinfo.find('.map').text( info.lastMap || '' );
+		$charinfo.find('.map').text( DB.getMapName( info.lastMap.replace('.gat','.rsw') ) );
 		$charinfo.find('.str').text( info.Str );
 		$charinfo.find('.agi').text( info.Agi );
 		$charinfo.find('.vit').text( info.Vit );
