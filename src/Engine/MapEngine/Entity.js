@@ -46,6 +46,8 @@ define(function( require )
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
+    var MapEffects    = require('Renderer/Map/Effects');
+    var GroundEffect  = require('Renderer/Effects/GroundEffect');
 	
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -89,7 +91,20 @@ define(function( require )
 		else {
 			entity = new Entity();
 			entity.set(pkt);
-
+            if(pkt.job == 45){
+                if(MapEffects.get(pkt.GID) == null){
+                    var mapEffect = {
+                        'name': pkt.GID,
+                        'pos': [pkt.PosDir[0], pkt.PosDir[1], Altitude.getCellHeight(pkt.PosDir[0], pkt.PosDir[1])],
+                        'id': 321,
+                        'delay': 800,
+                        'param': [0, 0, 0, 0],
+                        'tick': 0
+                    };
+                    MapEffects.add(mapEffect);
+                    EffectManager.add(new GroundEffect([pkt.PosDir[0], pkt.PosDir[1]]), pkt.GID + 10000);
+                }
+            }
 			EntityManager.add(entity);
 		}
 		
@@ -99,15 +114,7 @@ define(function( require )
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
 		){
 			EffectManager.spam(6, entity.GID, entity.position, false, false);
-		} else if (entity.objecttype === Entity.TYPE_WARP &&
-			(pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY3
-			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY6
-			|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY9)
-		){
-			EffectManager.spam(321, entity.GID, entity.position, false, true);															   
-		}
-		
-		
+		} 
 		
 	}
 
