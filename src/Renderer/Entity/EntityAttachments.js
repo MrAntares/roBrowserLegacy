@@ -43,10 +43,21 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		attachment.frame         = attachment.frame     || 0;
 		attachment.depth         = attachment.depth     || 0.0;
 		attachment.head          = attachment.head      || false;
+		
+		attachment.position = false;
+        if (attachment.yOffset || attachment.xOffset) attachment.position = new Int16Array(2);
+        if (attachment.xOffset) attachment.position[0] = attachment.xOffset;
+        if (attachment.yOffset) attachment.position[1] = attachment.yOffset;
+		
 		attachment.repeat        = attachment.repeat    || false;
+		attachment.repeatCounter = 0;
 		attachment.stopAtEnd     = attachment.stopAtEnd || false;
+		attachment.delay = attachment.delay || false;
 
-		if (attachment.file) {
+		if (attachment.completeFile) {
+            attachment.spr = attachment.completeFile + '.spr';
+            attachment.act = attachment.completeFile + '.act';
+        } else if (attachment.file) {
 			attachment.spr = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.spr';
 			attachment.act = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.act';
 		}
@@ -56,7 +67,28 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			this.list.push(attachment);
 		}.bind(this), null, {to_rgba:true});
 	};
-
+	
+	
+	AttachmentManager.prototype.get = function get(ID) {
+        var i, length = this.list.length;
+        for (i = 0; i < length; ++i) {
+            if (this.list[i].id == ID) return this.list[i];
+        }
+        return null;
+    };
+	
+    AttachmentManager.prototype.removeId = function removeId(ID) {
+        var i, length;
+        var attachments = this.list;
+        length = attachments.length;
+        for (i = 0; i < length; ++i) {
+            if (attachments[i].id === ID) {
+                this.removeIndex(i);
+                i--;
+                length--;
+            }
+        }
+    };
 
 	/**
 	 * Remove an attachment

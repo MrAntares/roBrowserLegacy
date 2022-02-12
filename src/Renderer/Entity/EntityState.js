@@ -331,53 +331,13 @@ define(function( require )
 	 */
 	function updateEffectState( value )
 	{
-		var costume = 0;
-
+		var costume = this.costume; // Preserve riding and other costumes
 
 		this._effectStateColor[0] = 1.0;
 		this._effectStateColor[1] = 1.0;
 		this._effectStateColor[2] = 1.0;
 		this._effectStateColor[3] = 1.0;
-    
-
-		if(value & StatusConst.EffectState.CART1)
-        {
-        	this.hasCart = true;
-        	this.CartNum = 0;
-        }
-		else if(value & StatusConst.EffectState.CART2)
-        {
-        	this.CartNum = 1;
-        	this.hasCart = true;
-        }
-		else if(value & StatusConst.EffectState.CART3)
-        {
-        	this.CartNum = 2;
-       		this.hasCart = true;
-        }
-		else if(value & StatusConst.EffectState.CART4)
-        {
-        	this.CartNum = 3;
-        	this.hasCart = true;
-        }
-		else if(value & StatusConst.EffectState.CART5)
-        {
-        	this.CartNum = 4;
-        	this.hasCart = true;
-        }
-		else if(value & 1928)
-        {
-        	this.CartNum = 5;
-        	this.hasCart = true;
-        }
-    	else
-        {
-         	this.CartNum = 0;
-        	this.hasCart = false;
-        }
-
-    
-    
+		
 		// ------------------------
 		// Riding
 		// ------------------------
@@ -393,13 +353,12 @@ define(function( require )
 			StatusConst.EffectState.WUGRIDER|
 			StatusConst.EffectState.MADOGEAR
 		);
-		
+
 		if (value & RIDING) {
 			if (this._job in MountTable) {
 				costume = MountTable[this._job];
 			}
 		}
-		
 		
 		// ------------------------
 		// Costume
@@ -449,7 +408,6 @@ define(function( require )
 		// ------------------------
 		// Apply
 		// ------------------------
-
 
 		if (costume !== this.costume) {
 			this.costume = costume;

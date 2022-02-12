@@ -74,10 +74,27 @@ define(function(require)
 
 
 	/**
+	 * @var {Array} others towninfo
+	 */
+	var _towninfo = [];
+
+
+    /**
 	 * @var {Image} arrow image
 	 */
 	var _arrow = new Image();
 
+
+	/**
+	 * @var {Image} map information images
+	 */
+	var _toolDealer = new Image();
+	var _weaponDealer = new Image();
+	var _armorDealer = new Image();
+	var _blacksmith = new Image();
+	var _guide = new Image();
+	var _inn = new Image();
+	var _kafra = new Image();
 
 	/**
 	 * @var {Image} minimap image
@@ -117,6 +134,28 @@ define(function(require)
 			_arrow.src = dataURI;
 		});
 
+		Client.loadFile(DB.INTERFACE_PATH + 'information/store.bmp', function (dataURI) {
+			_toolDealer.src = dataURI;
+		});
+		Client.loadFile(DB.INTERFACE_PATH + 'information/weaponshop.bmp', function (dataURI) {
+			_weaponDealer.src = dataURI;
+		});
+		Client.loadFile(DB.INTERFACE_PATH + 'information/armorshops.bmp', function (dataURI) {
+			_armorDealer.src = dataURI;
+		});
+		Client.loadFile(DB.INTERFACE_PATH + 'information/smithy.bmp', function (dataURI) {
+			_blacksmith.src = dataURI;
+		});
+		Client.loadFile(DB.INTERFACE_PATH + 'information/guide.bmp', function (dataURI) {
+			_guide.src = dataURI;
+		});
+		Client.loadFile(DB.INTERFACE_PATH + 'information/inn.bmp', function (dataURI) {
+			_inn.src = dataURI;
+		});
+		Client.loadFile(DB.INTERFACE_PATH + 'information/kafra.bmp', function (dataURI) {
+			_kafra.src = dataURI;
+		});
+
 		// Bind DOM elements
 		this.ui.find('.plus').mousedown(genericUpdateZoom(+1));
 		this.ui.find('.minus').mousedown(genericUpdateZoom(-1));
@@ -145,6 +184,8 @@ define(function(require)
 	{
 		_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
+        _towninfo = DB.getTownInfo(mapname.replace(/\..*/, ''));
+		
 		var path = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapname.replace(/\..*/,'.bmp');
 		path     = path.replace(/\//g, '\\'); // normalize path separator
 		path     = DB.mapalias[path] || path;
@@ -430,6 +471,46 @@ define(function(require)
 					);
 				}
 			}
+			
+			// Render town info icons
+	        if (_towninfo) {
+	            count = _towninfo.length;
+	            for (i = 0; i < count; ++i) {
+	                dot = _towninfo[i];
+
+	                var img;
+	                switch (dot.Type) {
+	                    case 0:
+	                        img = _toolDealer;
+	                        break;
+	                    case 1:
+	                        img = _weaponDealer;
+	                        break;
+	                    case 2:
+	                        img = _armorDealer;
+	                        break;
+	                    case 3:
+	                        img = _blacksmith;
+	                        break;
+	                    case 4:
+	                        img = _guide;
+	                        break;
+	                    case 5:
+	                        img = _inn;
+	                        break;
+	                    case 6:
+	                        img = _kafra;
+	                        break;
+	                }
+
+	                if (img.complete && img.width) {
+	                    _ctx.save();
+	                    _ctx.translate(projectX(dot.X) + (img.width / 2), projectY(dot.Y) + (img.height / 2));
+	                    _ctx.drawImage(img, -img.width, -img.height);
+	                    _ctx.restore();
+	                }
+	            }
+	        }
 
 			// Render attached player arrow
 			if (_arrow.complete && _arrow.width) {
@@ -491,6 +572,7 @@ define(function(require)
 				_ctx.stroke();
 				_ctx.fill();
 			}
+			
 		};
 	})();
 

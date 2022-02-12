@@ -33,6 +33,7 @@ define(function(require)
 	var WeaponType       = require('./Items/WeaponType');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
+	var TownInfo         = require('./TownInfo');
 	
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
@@ -116,13 +117,13 @@ define(function(require)
 		loadTable( 'data/msgstringtable.txt',	'#',		1, function(index, val){	MsgStringTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/resnametable.txt', 	'#',		2, function(index, key, val){	DB.mapalias[key]                                             		= val;}, 			onLoad());
 		
-		loadTable( 'data/num2itemdisplaynametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
-		loadTable( 'data/num2itemresnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
-		loadTable( 'data/num2itemdesctable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
+		loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
+		loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
+		loadTable( 'data/num2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
 		loadTable( 'data/idnum2itemdisplaynametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName 	= val.replace(/_/g, " ");},	onLoad());
-		loadTable( 'data/idnum2itemresnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
-		loadTable( 'data/idnum2itemdesctable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
-		loadTable( 'data/itemslotcounttable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
+		loadTable( 'data/idnum2itemresnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
+		loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
+		loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
 		
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     		= val;}, 			onLoad());
@@ -720,7 +721,14 @@ define(function(require)
 
 		return TextEncoding.decodeString(MapTable[map].name);
 	};
-
+	
+	/**
+	 * Get back town information by mapname
+	 * @param {number} efst id
+	 */
+	DB.getTownInfo = function GetTownInfo(mapname) {
+		return TownInfo[mapname] || null;
+	};
 
 	/**
 	 * Is character id a baby ?

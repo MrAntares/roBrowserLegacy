@@ -2128,7 +2128,7 @@ define(function( require )
             file: 'stormgust',
             wav:  'effect/wizard_stormgust',
             min:  'storm_min',
-            attachedEntity: false
+            attachedEntity: true
         }],
 
 
@@ -5306,7 +5306,8 @@ define(function( require )
         708: [{    //EF_STORM_MIN    Storm Gust (same as 89)
             type: 'STR',
             file: 'storm_min',
-            attachedEntity: false
+            wav:  'effect/wizard_stormgust',
+            attachedEntity: true
         }],
 
 

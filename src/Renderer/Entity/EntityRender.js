@@ -15,15 +15,16 @@ define( function( require )
 	/**
 	 * Load dependencies
 	 */
-	var glMatrix	   = require('Utils/gl-matrix');
-	var Camera		 = require('Renderer/Camera');
-	var Client		 = require('Core/Client');
-	var StatusConst = require('DB/Status/StatusState');
-	var Renderer	   = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Ground		 = require('Renderer/Map/Ground');
-	var Altitude	   = require('Renderer/Map/Altitude');
-	var Session	= require('Engine/SessionStorage');
+	var glMatrix         = require('Utils/gl-matrix');
+	var Camera           = require('Renderer/Camera');
+	var Client           = require('Core/Client');
+	var StatusConst      = require('DB/Status/StatusState');
+	var Renderer         = require('Renderer/Renderer');
+	var SpriteRenderer   = require('Renderer/SpriteRenderer');
+	var Ground           = require('Renderer/Map/Ground');
+	var Altitude         = require('Renderer/Map/Altitude');
+	var Session          = require('Engine/SessionStorage');
+	var JobId            = require('DB/Jobs/JobConst');
 
 
 	var _last_body_dir = 0;
@@ -249,7 +250,13 @@ define( function( require )
 			
 			 	if(Session.Playing == true && this.hasCart == true)
 				{
-					var cartidx = [0, 23, 4045, 4190, 4191].includes(this.job)? 0 : this.CartNum;
+					var cartidx = [
+							JobId.NOVICE,
+							JobId.SUPERNOVICE,
+							JobId.SUPERNOVICE_B,
+							JobId.SUPERNOVICE2,
+							JobId.SUPERNOVICE2_B
+						].includes(this._job)? 0 : this.CartNum;
 					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
 					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);		   
 				}
@@ -258,7 +265,13 @@ define( function( require )
 			{
 			 	if(Session.Playing == true && this.hasCart == true)
 				{
-					var cartidx = [0, 23, 4045, 4190, 4191].includes(this.job)? 0 : this.CartNum;
+					var cartidx = [
+							JobId.NOVICE,
+							JobId.SUPERNOVICE,
+							JobId.SUPERNOVICE_B,
+							JobId.SUPERNOVICE2,
+							JobId.SUPERNOVICE2_B
+						].includes(this._job)? 0 : this.CartNum;
   					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
 					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);   
 				}				

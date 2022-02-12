@@ -30,6 +30,7 @@ define(function( require )
 	var ChatBox               = require('UI/Components/ChatBox/ChatBox');
 	var SkillWindow           = require('UI/Components/SkillList/SkillList');
 	var SkillTargetSelection  = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
+	var Guild                 = require('UI/Components/Guild/Guild');
 	var ItemSelection         = require('UI/Components/ItemSelection/ItemSelection');
 	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
 	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
@@ -487,7 +488,7 @@ define(function( require )
 	 *
 	 * @param {number} skill id
 	 */
-	SkillWindow.onIncreaseSkill = function onIncreaseSkill( SKID )
+	SkillWindow.onIncreaseSkill = Guild.onIncreaseSkill = function onIncreaseSkill( SKID )
 	{
 		var pkt  = new PACKET.CZ.UPGRADE_SKILLLEVEL();
 		pkt.SKID = SKID;
@@ -503,7 +504,7 @@ define(function( require )
 	 * @param {number} level
 	 * @param {optional|number} target game id
 	 */
-	SkillWindow.onUseSkill = SkillTargetSelection.onUseSkillToId  = function onUseSkill( id, level, targetID)
+	SkillWindow.onUseSkill = Guild.onUseSkill = SkillTargetSelection.onUseSkillToId  = function onUseSkill( id, level, targetID)
 	{
 		var entity, skill, target, pkt, out;
 		var count, range;
