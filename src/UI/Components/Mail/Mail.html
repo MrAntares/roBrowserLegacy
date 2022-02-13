@@ -1,7 +1,7 @@
 <div id="Mail">
 	<div class="titlebar" data-background="basic_interface/maillist1_bg.bmp">
 		<div class="left">
-			<span class="text" data-text="1025">Mail List</span>
+			<span class="text" id="title" data-text="1025">Mail List</span>
 		</div>
 		<div class="right">
 			<button class="base close" data-background="basic_interface/close2.bmp" data-hover="basic_interface/close2_a.bmp"></button>
@@ -11,57 +11,96 @@
 			<section class="container flex_block">
 
 				<div class="flex container">
-					<div class="" style=" flex: 1;">
+
+					<div style=" flex: 1;">
 						<div class="flex_block btn_iw">
-							<div class=" inbox" style="background: blue; flex: 1;">1</div>
-							<div class=" write" style="background: green; flex: 1;">2</div>
+							<div class="inbox" id="inbox" style="flex: 1;"></div>
+							<div class="write" id="write" style="flex: 1;"></div>
 						</div>
 					</div>
-					<div class="list_mail flex_block" >
-						<div class="block_mail" >
-							<div class="item_mail flex" style="">
-								<!-- envelop.bmp -->
 
-								<div class="envelop" style="flex: 1;">
-									<div class="btn_envelop" data-background="basic_interface/envelop.bmp"></div>
-								</div>
-								<div class="to_title" style="flex: 3;">
-									<div class="flex">
-										<div class="" style="flex: 3;">
-											<span class="text_add_cursor tooltip name_data"> Nome
-												<span class="tooltiptext to">Nome</samp>
+					
+					<div class="list_mail flex_block" >
+						<!-- list mail -->
+						<div class="block_mail" >
+							<div class="list_item_mail">							
+								<div class="item_mail">
+									<div class="envelop" style="flex: 1;">
+										<div class="btn_envelop" data-background="basic_interface/envelop.bmp"></div>
+									</div>
+									<div class="to_title" style="flex: 3;">
+										<div class="flex">
+											<div  style="flex: 3;">
+												<span class="text_add_cursor tooltip name_data"> Nome
+													<span class="tooltiptext to">Nome</samp>
+												</span>
+											</div>
+											<div   style="flex: 3;">
+												<span class="name_data"> 07 02 22 </samp>
+											</div>
+
+										</div>
+										<div >
+											<span class="text_add_cursor tooltip"> Primeiro teste
+												<span class="tooltiptext title"> Primeiro teste </samp>
 											</span>
 										</div>
-										<div class=""  style="flex: 3;">
-											<span class="name_data"> 07 02 22 </samp>
-										</div>
-
-									</div>
-									<div class="">
-										<span class="text_add_cursor tooltip"> Primeiro teste
-											<span class="tooltiptext title"> Primeiro teste </samp>
-										</span>
 									</div>
 								</div>
+							</div>
+							<div class="flex prev_next">
+								<div class="prev" >
+									<span class="text" data-text="1053">Prev</span>
+								</div>
+								<div class="pagination" >
+									<span class="text" >1/1</span>
+								</div>
+								<div class="next" >
+									<span class="text" data-text="1054">Next</span>
+								</div>
+							</div>
+							
+						</div>
+						<!-- create mail -->
+						<div class="block_create_mail" >
+							<div class="to_create_mail" >
+								<span class="text text_to_title">
+									<span  data-text="1099">To</span> :</span>
+								<div style="flex: 4;">
+									<input class="text_to" type="text" value="" maxlength="50"/>
+								</div>							
+							</div>
 
-							</div>							
+							<div class="title_create_mail" >
+								<span class="text text_title_create_mail">
+									<span  data-text="1100">Title</span> :</span>
+								<div style="flex: 4;">
+									<input class="input_title" type="text" value="" maxlength="50"/>
+								</div>
+								
+							</div>
+
+							<div class="email_body">
+								<textarea class="textarea_mail" maxlength="198"></textarea>
+							</div>
+
+							<div class="block_zeny_item">
+								<button class="add_zeny" id="zeny_amt" data-background="basic_interface/inputzeny.bmp" data-hover="basic_interface/inputzeny_a.bmp"></button>
+								<button class="add_zeny" id="zeny_ok" data-background="basic_interface/setzeny.bmp" data-hover="basic_interface/setzeny_a.bmp"></button>
+								<div class="block_zeny">
+									<input class="input_zeny_amt" type="text" value="" maxlength="9" />
+								</div>
+							</div>
+
+							<div class="block_send_cancel" >
+								<button class="create_mail_send" data-background="basic_interface/send.bmp" data-hover="basic_interface/send_a.bmp"></button>
+								<button class="create_mail_send" id="create_mail_cancel" data-background="basic_interface/cancel2.bmp" data-hover="basic_interface/cancel2_a.bmp"></button>
+							
+							</div>
 						</div>
 					</div>
-				</div>
-				<div class="flex prev_next">
-					<div class="prev" style="">
-						<span class="text" data-text="1053">Prev</span>
-					</div>
-					<div class="pagination" style="">
-						<span class="text" >1/1</span>
-					</div>
-					<div class="next" style="">
-						<span class="text" data-text="1054">Next</span>
-					</div>
-				</div>
-				
+				</div>				
 			</section>
-
 		</div>
 	</div>
 	

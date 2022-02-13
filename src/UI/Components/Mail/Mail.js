@@ -20,6 +20,7 @@
 	 var DB                 = require('DB/DBManager');
 	 var jQuery             = require('Utils/jquery');
 	 var Preferences        = require('Core/Preferences');
+	 var Client             = require('Core/Client');
 	 var Renderer           = require('Renderer/Renderer');
 	 var Mouse              = require('Controls/MouseEventHandler');
 	 var UIManager          = require('UI/UIManager');
@@ -80,6 +81,13 @@
 	 Mail.init = function Init()
 	 {		
 		this.ui.find('.right .close').click(this.onClosePressed.bind(this)).removeClass( "hover" );
+		this.ui.find('#inbox').click(onWindowMailbox);
+		this.ui.find('#create_mail_cancel').click(onWindowMailbox);
+		
+		this.ui.find('#write').click(onWindowCreateMessages);
+		this.ui.find('#zeny_amt').click(onAddZenyInput);
+		this.ui.find('#zeny_ok').click(onValidZenyInput);
+		onWindowMailbox();
 		this.draggable(this.ui.find('.titlebar'));
 	 };
  
@@ -96,8 +104,58 @@
 		});
 		
 	 };
- 
- 
+
+	 /**
+	 * Create messages window size
+	 */
+	function onWindowMailbox()
+	{
+
+		Mail.ui.find('.block_create_mail').hide();
+
+		Mail.ui.find('.prev_next').show();
+		Mail.ui.find('.block_mail').show();
+
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist1_bg.bmp', function(url) {
+			Mail.ui.find('.titlebar').css('backgroundImage', 'url(' + url + ')');
+		}.bind(this));
+
+		Mail.ui.find('#title').text(DB.getMessage(1025));
+	};
+
+
+	 /**
+	 * Create messages window size
+	 */
+	function onWindowCreateMessages()
+	{
+
+		Mail.ui.find('.prev_next').hide();
+		Mail.ui.find('.block_mail').hide();
+
+		Mail.ui.find('.block_create_mail').show();
+
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', function(url) {
+			Mail.ui.find('.titlebar').css('backgroundImage', 'url(' + url + ')');
+		}.bind(this));
+
+		Mail.ui.find('#title').text(DB.getMessage(1026));
+
+		
+	};
+
+	function onAddZenyInput()
+	{
+		Mail.ui.find('#zeny_amt').hide();
+		Mail.ui.find('#zeny_ok').show();
+	}
+	
+	function onValidZenyInput()
+	{
+		Mail.ui.find('#zeny_amt').show();
+		Mail.ui.find('#zeny_ok').hide();
+	}
+
 	 /**
 	  * Remove Mail from window (and so clean up items)
 	  */
