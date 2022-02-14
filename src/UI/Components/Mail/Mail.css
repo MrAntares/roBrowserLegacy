@@ -118,6 +118,7 @@
     height: 21px;
     border: none;
     margin-left: 16%;
+    margin-top: 3%;
 }
 #zeny_ok {
     display: none;
@@ -185,13 +186,16 @@
 
 #Mail .block_zeny_item{
     flex: 1;
-    margin-top: 5%;
+    margin-top: 4%;
     margin-left: 5%;
     display: flex;
 }
 #Mail .block_zeny{
-    margin-top: 3%;
+    margin-top: 4%;
     margin-left: 2%;
+}
+#Mail .block_item{
+    margin-left: 18%;
 }
 #Mail .input_zeny_amt{
     background-color: #00800000;
@@ -199,9 +203,16 @@
     height: 13px;
     width: 61px;
 }
+#Mail .input_add_item{
+    background-color: #00800000;
+    border: none;
+    height: 24px;
+    width: 24px;
+}
+
 #Mail .block_send_cancel{
     flex: 1;
-    margin-top: 6%;
+    margin-top: 5%;
     margin-right: 8%;
     text-align: right;
 }
