@@ -20,7 +20,7 @@
 	var Mail       			 = require('UI/Components/Mail/Mail');
 
     /**
-	 * Server ask to select a monster
+	 * Opens/closes the mail window
 	 *
 	 * @param {object} pkt - PACKET.ZC.MAIL_WINDOWS
 	 */
@@ -35,6 +35,41 @@
 			Mail.append();
         }
 	}
+
+	/**
+	 * Request to reset mail item and/or Zeny
+	 *
+	 * @param {int} type - PACKET.CZ.MAIL_RESET_ITEM
+	 */
+    /// type:
+	///     0 = reset all
+	///     1 = remove item
+	///     2 = remove zeny
+	Mail.offCreatMail = function offCreatMail(type)
+	{
+    	var pkt = new PACKET.CZ.MAIL_RESET_ITEM();
+		pkt.Type = type;
+		Network.sendPacket(pkt);
+	}
+
+	/**
+	 * Request to add an item or Zeny to mail.
+	 * PACKET.CZ.MAIL_ADD_ITEM
+	 * @param {int} index 
+	 * @param {int} count
+	 */
+	Mail.parseMailSetattach = function parseMailSetattach(index, count)
+	{
+		if (count <= 0) {
+			return;
+		}
+
+		var pkt   = new PACKET.CZ.MAIL_ADD_ITEM();
+		pkt.index = index;
+		pkt.count = count;
+		Network.sendPacket( pkt );
+		// Mail.parseMailSetattach(item.index, parseInt(count, 10 ) );
+	}	
     
 	/**
 	 * Send mail list
@@ -45,7 +80,7 @@
 		// var pkt = new PACKET.ZC.MAIL_WINDOWS();
 		// pkt.Type = 1;
 		// Network.sendPacket(pkt);
-		Mail.remove();		
+		Mail.remove();
 	};
     
 

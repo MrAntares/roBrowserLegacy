@@ -76,21 +76,19 @@
 	  * 	Display email title in tooltip sent by sender has a maximum of 39 characters
 	  *  	The pagination numbers only appear when there is at least one message in the list, it displays "1/1" when there is only 1
 	  *     The previous and next pagination events only work when there are more than 8 messages (VALIDATE)
-	  *     
 	  */
 	 Mail.init = function Init()
 	 {		
 		this.ui.find('.right .close').click(this.onClosePressed.bind(this)).removeClass( "hover" );
-		this.ui.find('#inbox').click(onWindowMailbox);
-		this.ui.find('#create_mail_cancel').click(onWindowMailbox);
-		
-		this.ui.find('#write').click(onWindowCreateMessages);
+		this.ui.find('#inbox').click(offCreateMessagesOnWindowMailbox);  // remove all item reset layout
+		this.ui.find('#create_mail_cancel').click(offCreateMessagesOnWindowMailbox); // remove all item reset layout
+		this.ui.find('#write').click(onWindowCreateMessages);  // remove all item reset layout
+		this.ui.find('#input_add_item').focus(addItemToEmail);
 		this.ui.find('#zeny_amt').click(onAddZenyInput);
 		this.ui.find('#zeny_ok').click(onValidZenyInput);
 		onWindowMailbox();
 		this.draggable(this.ui.find('.titlebar'));
 	 };
- 
  
 	 /**
 	  * Apply preferences once append to body
@@ -109,39 +107,46 @@
 	 * Create messages window size
 	 */
 	function onWindowMailbox()
-	{
-
+	{	
+		// Off window create mail
 		Mail.ui.find('.block_create_mail').hide();
-
+		Mail.ui.find('.text_to').val("");
+		Mail.ui.find('.input_title').val("");
+		Mail.ui.find('.textarea_mail').val("");
+		Mail.ui.find('.input_zeny_amt').val("");
+		Mail.ui.find('.input_add_item').val("");
+		
+		// on window list mail
 		Mail.ui.find('.prev_next').show();
-		Mail.ui.find('.block_mail').show();
-
+		Mail.ui.find('.block_mail').show();		
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist1_bg.bmp', function(url) {
 			Mail.ui.find('.titlebar').css('backgroundImage', 'url(' + url + ')');
 		}.bind(this));
-
 		Mail.ui.find('#title').text(DB.getMessage(1025));
+
 	};
 
+	function offCreateMessagesOnWindowMailbox()
+	{
+		onWindowMailbox();
+		Mail.offCreatMail(0); // CZ_MAIL_RESET_ITEM
+	};
 
 	 /**
-	 * Create messages window size
+	 * Open Create messages window size
 	 */
 	function onWindowCreateMessages()
 	{
-
+		// Off window list mail
 		Mail.ui.find('.prev_next').hide();
 		Mail.ui.find('.block_mail').hide();
 
+		// Off window create mail
 		Mail.ui.find('.block_create_mail').show();
-
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', function(url) {
 			Mail.ui.find('.titlebar').css('backgroundImage', 'url(' + url + ')');
 		}.bind(this));
-
 		Mail.ui.find('#title').text(DB.getMessage(1026));
-
-		
 	};
 
 	function onAddZenyInput()
@@ -152,8 +157,38 @@
 	
 	function onValidZenyInput()
 	{
+		// CZ_MAIL_ADD_ITEM
+		// ZC_ACK_MAIL_ADD_ITEM
+
+		// CZ_REQ_ADD_ITEM_TO_MAIL
+		// ZC_ACK_ADD_ITEM_TO_MAIL
+		
 		Mail.ui.find('#zeny_amt').show();
 		Mail.ui.find('#zeny_ok').hide();
+	}
+
+	function addItemToEmail(){
+
+		console.log('input_add_item', Mail.ui.find('#input_add_item').val());
+		
+
+		// Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
+		// 	content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
+		// });
+
+		// var box = this.ui.find('.box.recv');
+
+		// box.append(
+		// 	'<div class="item" data-index="'+ idx +'">' +
+		// 		'<div class="icon"></div>' +
+		// 		'<div class="amount">'+ item.count + '</div>' +
+		// 		'<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
+		// 	'</div>'
+		// );
+
+		// Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
+		// 	box.find('.item[data-index="'+ idx +'"] .icon').css('backgroundImage', 'url('+ data +')');
+		// }.bind(this));
 	}
 
 	 /**
@@ -162,7 +197,6 @@
 	 Mail.onRemove = function OnRemove()
 	 {
 		 this.list.length = 0;
- 
 		 // Save preferences
 		 _preferences.show   =  this.ui.is(':visible');
 		 _preferences.reduce = !!_realSize;
@@ -175,6 +209,7 @@
 		 _preferences.magnet_left = this.magnet.LEFT;
 		 _preferences.magnet_right = this.magnet.RIGHT;
 		 _preferences.save();
+		 Mail.offCreatMail(0);
 	 };
  
   
@@ -229,8 +264,6 @@
 			 Mail.resize( w, h );
 			 lastWidth  = w;
 			 lastHeight = h;
-
-				// hide.hide();
 			 
 		 }
  
@@ -250,7 +283,9 @@
 	 /**
 	 * Callbacks
 	 */
-	Mail.onClosePressed  = function onClosedPressed(){};
+	Mail.onClosePressed  = function onClosePressed(){};
+	Mail.offCreatMail = function offCreatMail(/*type*/){};
+	Mail.parseMailSetattach = function parseMailSetattach(/*index, count*/){};
 
 	 /**
 	  * Create component and export it
