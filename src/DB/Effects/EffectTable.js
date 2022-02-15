@@ -4067,7 +4067,7 @@ define(function( require )
             textureName: 'ring_blue',
             topSize: 3.2,
             type: 'CYLINDER'
-        }/*, {
+        }, {
             alphaMax: 1,
             attachedEntity: true,
             blue: 1,
@@ -4089,7 +4089,7 @@ define(function( require )
             sizeRand: 17,
             type: '3D',
             zIndex: 1
-        }*/],
+        }],
         //322: [{}],    //EF_FORESTLIGHT2       Forest Light 2
         //323: [{}],    //EF_FORESTLIGHT3       Forest Light 3
         //324: [{}],    //EF_FORESTLIGHT4       Forest Light 4
