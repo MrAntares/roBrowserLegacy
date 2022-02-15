@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-//  effectId: hitEffectId: effectIdOnCaster:
+//  effectId: hitEffectId: effectIdOnCaster: beforeCastEffectId:
 define(['./SkillConst'], function( SK )
 {
     'use strict';
@@ -247,7 +247,7 @@ define(['./SkillConst'], function( SK )
     };
 
     SkillEffect[SK.KN_TWOHANDQUICKEN] = {
-        effectId: 249
+        effectId: 130
     };
 
     SkillEffect[SK.KN_AUTOCOUNTER] = {
@@ -376,7 +376,9 @@ define(['./SkillConst'], function( SK )
     };
 
     SkillEffect[SK.AS_SONICBLOW] = {
-        effectId: 143
+		effectIdOnCaster: 121,
+		effectId: 122,
+        hitEffectId: 143
     };
 
     SkillEffect[SK.AS_POISONREACT] = {
@@ -444,7 +446,7 @@ define(['./SkillConst'], function( SK )
     };
 
     SkillEffect[SK.CR_SPEARQUICKEN] = {
-        effectId: 249
+        effectId: 250
     };
 
     SkillEffect[SK.HP_ASSUMPTIO] = {
@@ -594,6 +596,115 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_WIDEFREEZE] = {
         effectId: 89
     };
+	
+	SkillEffect[SK.NJ_TATAMIGAESHI] = {
+        groundEffectId: 631
+    };
+	
+	SkillEffect[SK.GS_GLITTERING] = {
+        effectId: 'gunslinger_coin'
+    };
+	
+	SkillEffect[SK.MO_FINGEROFFENSIVE] = {
+        effectId: 265
+    };
+	
+	SkillEffect[SK.MO_EXPLOSIONSPIRITS] = {
+        effectId: 261
+    };
+	
+	SkillEffect[SK.MO_CHAINCOMBO] = {
+        effectId: 273
+    };
+	
+	SkillEffect[SK.BS_GREED] = {
+        effectId: 'ef_greed_sound'
+    };
+	
+	SkillEffect[SK.HT_BLITZBEAT] = {
+        effectId: 'ef_blitzbeat_sound'
+    };
+	
+	SkillEffect[SK.HW_MAGICCRASHER] = {
+        effectId: 380
+    };
+	
+	SkillEffect[SK.ASC_BREAKER] = {
+        effectId: 361
+    };
+	
+	SkillEffect[SK.CR_SHIELDBOOMERANG] = {
+        effectId: 249
+    };
+	
+	SkillEffect[SK.MI_RUSH_WINDMILL] = {
+        effectId: 'ef_rush_windmill'
+    };
+	
+	SkillEffect[SK.WA_SWING_DANCE] = {
+        effectId: 'ef_swing_dance'
+    };
+	
+	SkillEffect[SK.HW_MAGICPOWER] = {
+        effectId: 'ef_magicpower'
+    };
+	
+	SkillEffect[SK.MA_SHARPSHOOTING] = {
+        effectId: 'ef_sharpshooting'
+    };
+	
+	SkillEffect[SK.WM_POEMOFNETHERWORLD] = {
+        effectId: 'ef_poemofnetherworld'
+    };
+	
+	SkillEffect[SK.WM_RANDOMIZESPELL] = {
+        effectId: 862
+    };
+	
+	SkillEffect[SK.SC_MANHOLE] = {
+        groundEffectId: 822,
+		hitEffectId: 823
+    };
+	
+	SkillEffect[SK.SC_DIMENSIONDOOR] = {
+        groundEffectId: 822
+    };
+	
+	SkillEffect[SK.SC_MAELSTROM] = {
+        groundEffectId: 828
+    };
+	
+	SkillEffect[SK.SC_CHAOSPANIC] = {
+        groundEffectId: 827
+    };
+	
+	SkillEffect[SK.SC_BLOODYLUST] = {
+        groundEffectId: 829
+    };
+	
+	SkillEffect[SK.SC_BODYPAINT] = {
+        effectId: 811
+    };
+	
+	SkillEffect[SK.AB_JUDEX] = {
+        effectId: 718
+    };
+	
+	SkillEffect[SK.AB_ANCILLA] = {
+        effectId: 'ef_ancilla'
+    };
+	
+	SkillEffect[SK.WM_SEVERE_RAINSTORM] = {
+        groundEffectId: 857
+    };
+	
+	SkillEffect[SK.AS_CLOAKING] = {
+        effectId: 120
+    };
+	
+	
+	
+	
 
     return SkillEffect;
 });
