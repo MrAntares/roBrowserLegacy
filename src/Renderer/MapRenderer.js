@@ -369,7 +369,7 @@ define(function( require )
 		normalMat  = Camera.normalMat;
 
 		// Spam map effects
-		//Effects.spam( Session.Entity.position, tick);
+		Effects.spam( Session.Entity.position, tick);
 
 		Ground.render(gl, modelView, projection, normalMat, fog, light );
 		Models.render(gl, modelView, projection, normalMat, fog, light );
