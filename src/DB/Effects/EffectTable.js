@@ -1613,8 +1613,7 @@ define(function( require )
         47: [{    //EF_TORCH    Torch
             type: 'SPR',
             file: 'torch_01',
-            attachedEntity: false,
-            repeat: true
+            attachedEntity: false
         }],
 
 
