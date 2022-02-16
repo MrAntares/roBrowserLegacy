@@ -448,6 +448,7 @@ define(function( require )
 			duplicate:		effect.duplicate,
 			delayFrame:		effect.delayFrame,
 			frame:			effect.frame,
+			opacity:		effect.opacity,
 			time_between_dupli:	effect.time_between_dupli,
 			yOffset:		effect.yOffset,
 			stopAtEnd:      effect.stopAtEnd
