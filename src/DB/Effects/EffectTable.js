@@ -322,7 +322,7 @@ define(function( require )
 
         11: [{    //EF_ENDURE    Endure
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             fadeIn: false,
             fadeOut: false,
@@ -499,8 +499,10 @@ define(function( require )
             size: 100,
             sizeRand: 20,
             type: '3D',
-            wav: 'effect/ef_detoxication', //wav: 'effect/assasin_enchantpoison',
             zIndex: 1
+        }, {
+            attachedEntity: true,
+            wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
         }],
 
 
@@ -522,8 +524,10 @@ define(function( require )
             size: 100,
             sizeRand: 20,
             type: '3D',
-            wav: 'effect/ef_detoxication',
             zIndex: 1
+        }, {
+            attachedEntity: true,
+            wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
         }],
 
 
@@ -1375,7 +1379,7 @@ define(function( require )
 
         37: [{    //EF_INCAGILITY    AGI Up
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             delayLate: 500,
             duplicate: 7,
@@ -1394,7 +1398,7 @@ define(function( require )
             zIndex: 0
         }, {
             alphaMax: 0.75,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             delayOffset: 400,
             duplicate: 3,
@@ -1413,7 +1417,7 @@ define(function( require )
             zIndex: 0
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             duplicate: 10,
             fadeOut: false,
@@ -1431,7 +1435,7 @@ define(function( require )
             zIndex: 0
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             fadeIn: false,
             fadeOut: false,
@@ -1450,7 +1454,7 @@ define(function( require )
 
         38: [{    //EF_DECAGILITY    AGI Down
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             duplicate: 20,
             fadeOut: false,
@@ -1468,7 +1472,7 @@ define(function( require )
             zIndex: 0
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             fadeIn: false,
             fadeOut: false,
@@ -1565,7 +1569,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: true,
+            attachedEntity: false,
             blendMode: 2,
             blue: 1,
             delay: 2500,
@@ -1586,7 +1590,7 @@ define(function( require )
 
         43: [{    //EF_INCAGIDEX    Dex + Agi Up
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             delay: 1000,
             fadeIn: false,
             fadeOut: false,
@@ -3479,7 +3483,7 @@ define(function( require )
         312: [{ //EF_HEAL       Heal Effect
 			alphaMax: 0.2,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 0.95,
@@ -3496,7 +3500,7 @@ define(function( require )
         }, {
             alphaMax: 0.2,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 1,
@@ -3560,7 +3564,7 @@ define(function( require )
         313: [{ //EF_HEAL2       Heal Effect 2
 			alphaMax: 0.3,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 1.1,
@@ -3577,7 +3581,7 @@ define(function( require )
         }, {
             alphaMax: 0.3,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 1,
@@ -3594,7 +3598,7 @@ define(function( require )
         }, {
             alphaMax: 0.3,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 1.1,
@@ -3953,7 +3957,7 @@ define(function( require )
         320: [{  //EF_HEAL3       Offensive Heal
 			alphaMax: 0.2,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             bottomSize: 0.95,
@@ -3970,7 +3974,7 @@ define(function( require )
         }, {
             alphaMax: 0.2,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             bottomSize: 1,
@@ -4095,7 +4099,7 @@ define(function( require )
         325: [{  //EF_HEAL4       Heal Effect 4
 			alphaMax: 0.3,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 1.1,
@@ -4112,7 +4116,7 @@ define(function( require )
         }, {
             alphaMax: 0.3,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 1,
@@ -4129,7 +4133,7 @@ define(function( require )
         }, {
             alphaMax: 0.3,
             animation: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 0.7,
             bottomSize: 1.1,
@@ -4144,7 +4148,7 @@ define(function( require )
             type: 'CYLINDER'
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 1500,
@@ -4168,7 +4172,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 1300,
@@ -4193,7 +4197,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 1100,
