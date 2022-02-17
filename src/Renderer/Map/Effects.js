@@ -40,15 +40,15 @@ function(        glMatrix,            EffectManager)
 	/**
 	 * Get effect from list
 	 */
-    function get(GID) {
-        var effect;
-        var count = _list[length];
-        for (var i = 0; i < count; ++i) {
-            effect = _list[i];
-            if (effect[name] == GID) return effect;
-        }
-        return null;
-    }
+	function get(GID) {
+		var effect;
+		var count = _list.length;
+		for (var i = 0; i < count; ++i) {
+			effect = _list[i];
+			if (effect.name == GID) return effect;
+		}
+		return null;
+	}
 
 	/**
 	 * Add effects to scene
