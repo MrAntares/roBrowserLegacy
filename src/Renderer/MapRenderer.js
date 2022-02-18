@@ -375,6 +375,9 @@ define(function( require )
 
 		Ground.render(gl, modelView, projection, normalMat, fog, light );
 		Models.render(gl, modelView, projection, normalMat, fog, light );
+		
+		// Rendering water
+		Water.render( gl, modelView, projection, fog, light, tick );
 
 		if (Mouse.intersect && Altitude.intersect( modelView, projection, _pos)) {
 			x = _pos[0];
@@ -392,9 +395,6 @@ define(function( require )
 		Sky.render( gl, modelView, projection, fog, tick );
 		EffectManager.render( gl, modelView, projection, fog, tick, true);
 		EntityManager.render( gl, modelView, projection, fog );
-
-		// Rendering water
-		Water.render( gl, modelView, projection, fog, light, tick );
 
 		// Rendering effects
 		Damage.render( gl, modelView, projection, fog, tick );
