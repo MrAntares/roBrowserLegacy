@@ -75,62 +75,72 @@ define( ['Utils/WebGL'], function( WebGL )
 	/**
 	 * @var {string} vertex shader
 	 */
-	var _vertexShader   = [
-		'attribute vec3 aPosition;',
-		'attribute vec2 aTextureCoord;',
+	var _vertexShader   = `
+		attribute vec3 aPosition;
+		attribute vec2 aTextureCoord;
 
-		'varying vec2 vTextureCoord;',
+		varying vec2 vTextureCoord;
 
-		'uniform mat4 uModelViewMat;',
-		'uniform mat4 uProjectionMat;',
+		uniform mat4 uModelViewMat;
+		uniform mat4 uProjectionMat;
 
-		'uniform float uWaveHeight;',
-		'uniform float uWavePitch;',
-		'uniform float uWaterOffset;',
+		uniform float uWaveHeight;
+		uniform float uWavePitch;
+		uniform float uWaterOffset;
 
-		'const float PI = 3.14159265358979323846264;',
+		const float PI = 3.14159265358979323846264;
 
-		'void main(void) {',
-			'float x       = mod( aPosition.x, 2.0);',
-			'float y       = mod( aPosition.z, 2.0);',
-			'float diff    = x < 1.0 ? y < 1.0 ? 1.0 : -1.0 : 0.0;',
-			'float Height  = sin((PI / 180.0) * (uWaterOffset + 0.5 * uWavePitch * (aPosition.x + aPosition.z + diff))) * uWaveHeight;',
+		void main(void) {
+			float x       = mod( aPosition.x, 2.0);
+			float y       = mod( aPosition.z, 2.0);
+			float diff    = x < 1.0 ? y < 1.0 ? 1.0 : -1.0 : 0.0;
+			float Height  = sin((PI / 180.0) * (uWaterOffset + 0.5 * uWavePitch * (aPosition.x + aPosition.z + diff))) * uWaveHeight;
 
-			'gl_Position   = uProjectionMat * uModelViewMat * vec4( aPosition.x, aPosition.y + Height, aPosition.z, 1.0);',
-			'vTextureCoord = aTextureCoord;',
-		'}'
-	].join('\n');
+			gl_Position   = uProjectionMat * uModelViewMat * vec4( aPosition.x, aPosition.y + Height, aPosition.z, 1.0);
+			vTextureCoord = aTextureCoord;
+		}
+	`;
 
 
 	/**
 	 * @var {string} fragment shader
 	 */
-	var _fragmentShader = [
-		'varying vec2 vTextureCoord;',
+	var _fragmentShader = `
+		varying vec2 vTextureCoord;
 
-		'uniform sampler2D uDiffuse;',
+		uniform sampler2D uDiffuse;
 
-		'uniform bool  uFogUse;',
-		'uniform float uFogNear;',
-		'uniform float uFogFar;',
-		'uniform vec3  uFogColor;',
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
 
-		'uniform vec3  uLightAmbient;',
-		'uniform vec3  uLightDiffuse;',
-		'uniform float uLightOpacity;',
+		uniform vec3  uLightAmbient;
+		uniform vec3  uLightDiffuse;
+		uniform float uLightOpacity;
 
-		'uniform float uOpacity;',
+		uniform float uOpacity;
 
-		'void main(void) {',
-			'gl_FragColor = vec4( texture2D( uDiffuse, vTextureCoord).rgb, uOpacity);',
+		void main(void) {
+			
+			vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
+			texture.a = uOpacity;
+			
+			if (texture.a == 0.0) {
+				discard;
+			}
+			
+			texture.a *= uOpacity;
+			
+			gl_FragColor   = texture;
 
-			'if (uFogUse) {',
-				'float depth     = gl_FragCoord.z / gl_FragCoord.w;',
-				'float fogFactor = smoothstep( uFogNear, uFogFar, depth );',
-				'gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );',
-			'}',
-		'}'
-	].join('\n');
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
+		}
+	`;
 
 
 	/**
@@ -233,6 +243,7 @@ define( ['Utils/WebGL'], function( WebGL )
 
 		// Send mesh
 		gl.bindTexture( gl.TEXTURE_2D, _textures[ frame / _animSpeed % 32 | 0 ] );
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.drawArrays(  gl.TRIANGLES,  0, _vertCount );
 	
 		// Is it needed ?
