@@ -52,45 +52,54 @@ function(              Altitude,        Client,         WebGL,         Texture )
 	/**
 	 * @var {string} vertex shader
 	 */
-	var _vertexShader   = [
-		'attribute vec3 aPosition;',
-		'attribute vec2 aTextCoord;',
+	var _vertexShader   = `
+		attribute vec3 aPosition;
+		attribute vec2 aTextCoord;
 
-		'varying vec2 vTextureCoord;',
+		varying vec2 vTextureCoord;
 
-		'uniform mat4 uModelViewMat;',
-		'uniform mat4 uProjectionMat;',
+		uniform mat4 uModelViewMat;
+		uniform mat4 uProjectionMat;
 
-		'void main(void) {',
-		'	gl_Position    = uProjectionMat * uModelViewMat * vec4( aPosition.xyz, 1.0) ;',
-		'	gl_Position.z -= 0.01;',
-		'	vTextureCoord  = aTextCoord;',
-		'}'
-	].join('\n');
+		void main(void) {
+			vec3 position = aPosition;
+			position.y    -= 0.1;
+			
+			gl_Position    = uProjectionMat * uModelViewMat * vec4( position.xyz, 1.0) ;
+			vTextureCoord  = aTextCoord;
+		}
+	`;
 
 
 	/**
 	 * @var {string} fragment shader
 	 */
-	var _fragmentShader = [
-		'varying vec2 vTextureCoord;',
-		'uniform sampler2D uDiffuse;',
+	var _fragmentShader = `
+		varying vec2 vTextureCoord;
+		uniform sampler2D uDiffuse;
 
-		'uniform bool  uFogUse;',
-		'uniform float uFogNear;',
-		'uniform float uFogFar;',
-		'uniform vec3  uFogColor;',
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
 
-		'void main(void) {',
-		'	gl_FragColor = texture2D( uDiffuse, vTextureCoord.st);',
+		void main(void) {
+			
+			vec4 texture = texture2D( uDiffuse, vTextureCoord.st);
+			
+			if (texture.a == 0.0) {
+				discard;
+			}
+			
+			gl_FragColor = texture;
 
-		'	if (uFogUse) {',
-		'		float depth     = gl_FragCoord.z / gl_FragCoord.w;',
-		'		float fogFactor = smoothstep( uFogNear, uFogFar, depth );',
-		'		gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );',
-		'	}',
-		'}'
-	].join('\n');
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
+		}
+	`;
 
 
 	/**

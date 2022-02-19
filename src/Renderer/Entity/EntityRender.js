@@ -224,7 +224,7 @@ define( function( require )
 			var behind	= direction > 1 && direction < 6;
 
 			// Render shadow (shadow isn't render when player is sit or dead).
-			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT) {
+			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45) {
 	
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];

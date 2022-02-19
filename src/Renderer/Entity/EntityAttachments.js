@@ -38,7 +38,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		}
 
 		attachment.startTick     = Renderer.tick;
-		attachment.opacity       = attachment.hasOwnProperty('opacity') ? attachment.opacity : 1.0;
+		attachment.opacity       = !isNaN(attachment.opacity) ? attachment.opacity : 1.0;
 		attachment.direction     = attachment.hasOwnProperty('frame')   ? false : true;
 		attachment.frame         = attachment.frame     || 0;
 		attachment.depth         = attachment.depth     || 0.0;

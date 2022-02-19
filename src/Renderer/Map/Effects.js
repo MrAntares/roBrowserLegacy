@@ -40,15 +40,15 @@ function(        glMatrix,            EffectManager)
 	/**
 	 * Get effect from list
 	 */
-    function get(GID) {
-        var effect;
-        var count = _list[length];
-        for (var i = 0; i < count; ++i) {
-            effect = _list[i];
-            if (effect[name] == GID) return effect;
-        }
-        return null;
-    }
+	function get(GID) {
+		var effect;
+		var count = _list.length;
+		for (var i = 0; i < count; ++i) {
+			effect = _list[i];
+			if (effect.name == GID) return effect;
+		}
+		return null;
+	}
 
 	/**
 	 * Add effects to scene
@@ -66,7 +66,23 @@ function(        glMatrix,            EffectManager)
 			// distance need to be less than 25 cells (seems like it's
 			// how the official client handle it).
 			if (effect.tick < tick && vec3.dist(effect.pos, position) < 25) {
-				EffectManager.spam( effect.id, -1, effect.pos);
+				var EffectDB      = require('DB/Effects/EffectTable');
+				
+				// there should be something done with effect.param[0] ~ effect.param[3] but have no idea what they are. Perhaps rotation?
+				
+				if(effect.id in EffectDB){
+					var mapEff = EffectDB[effect.id];
+					
+					for (var i = 0, count = mapEff.length; i < count; ++i) {
+						//var dupli = mapEff[i].duplicate;  // duplicate handling. Not needed for now.
+						
+						//for (var j = 0; j <= dupli ; ++j) {
+							EffectManager.spamEffect(mapEff[i], effect.name+'-'+i, 0, effect.pos, 0, tick + effect.delay, false, 0);
+						//}
+					}
+					
+				}
+				
 				effect.tick = tick + effect.delay;
 			}
 		}

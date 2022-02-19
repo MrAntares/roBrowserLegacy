@@ -47,7 +47,6 @@ define(function( require )
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
     var MapEffects    = require('Renderer/Map/Effects');
-    var GroundEffect  = require('Renderer/Effects/GroundEffect');
 	
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -102,7 +101,6 @@ define(function( require )
                         'tick': 0
                     };
                     MapEffects.add(mapEffect);
-                    EffectManager.add(new GroundEffect([pkt.PosDir[0], pkt.PosDir[1]]), pkt.GID + 10000);
                 }
             }
 			EntityManager.add(entity);

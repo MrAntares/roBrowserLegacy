@@ -210,7 +210,7 @@ define(function( require )
 		this.water   = data.water;
 		this.sounds  = data.sound;
 		this.effects = data.effect;
-
+		
 		// Calculate light direction
 		this.light.direction = new Float32Array(3);
 		var longitude        = this.light.longitude * Math.PI / 180;
@@ -255,11 +255,13 @@ define(function( require )
 		for (i = 0; i < count; ++i) {
 			// Note: effects objects do not need to be centered in a cell
 			// as we apply +0.5 in the shader, we have to revert it.
-			tmp                     = -this.effects[i].pos[1];
+			tmp                     = -this.effects[i].pos[1] + 1; //WTF????????
 			this.effects[i].pos[0] += data.width - 0.5;
 			this.effects[i].pos[1]  = this.effects[i].pos[2] + data.height - 0.5;
 			this.effects[i].pos[2]  = tmp;
+			
 			this.effects[i].tick    = 0;
+			this.effects[i].delay   = this.effects[i].delay/2; //WTF???????? WHY???
 
 			Effects.add(this.effects[i]);
 		}
@@ -369,7 +371,7 @@ define(function( require )
 		normalMat  = Camera.normalMat;
 
 		// Spam map effects
-		//Effects.spam( Session.Entity.position, tick);
+		Effects.spam( Session.Entity.position, tick);
 
 		Ground.render(gl, modelView, projection, normalMat, fog, light );
 		Models.render(gl, modelView, projection, normalMat, fog, light );
