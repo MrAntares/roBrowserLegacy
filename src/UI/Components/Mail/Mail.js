@@ -23,6 +23,7 @@
 	 var Client             = require('Core/Client');
 	 var Renderer           = require('Renderer/Renderer');
 	 var Mouse              = require('Controls/MouseEventHandler');
+	 var InputBox           = require('UI/Components/InputBox/InputBox');
 	 var UIManager          = require('UI/UIManager');
 	 var UIComponent        = require('UI/UIComponent');
 	 var htmlText           = require('text!./Mail.html');
@@ -82,8 +83,20 @@
 		this.ui.find('.right .close').click(this.onClosePressed.bind(this)).removeClass( "hover" );
 		this.ui.find('#inbox').click(offCreateMessagesOnWindowMailbox);  // remove all item reset layout
 		this.ui.find('#create_mail_cancel').click(offCreateMessagesOnWindowMailbox); // remove all item reset layout
-		this.ui.find('#write').click(onWindowCreateMessages);  // remove all item reset layout
-		this.ui.find('#input_add_item').focus(addItemToEmail);
+		this.ui.find('#write').click(onWindowCreateMessages);  // remove all item reset layouts
+
+		this.ui
+			.find('.container_item')
+			// on drop item
+			.on('dragover', onDragOver)
+			.on('dragleave', onDragLeave)
+			.on('drop', onDrop)
+			// Stop drag drop
+			.mousedown(function(event) {
+				event.stopImmediatePropagation();
+				return false;
+			});
+
 		this.ui.find('#zeny_amt').click(onAddZenyInput);
 		this.ui.find('#zeny_ok').click(onValidZenyInput);
 		onWindowMailbox();
@@ -167,28 +180,101 @@
 		Mail.ui.find('#zeny_ok').hide();
 	}
 
-	function addItemToEmail(){
+	/**
+	 * Drag an item over the equipment, show where to place the item
+	 */
+	function onDragOver( event )
+	{
+		// if (window._OBJ_DRAG_) {
+		// 	var data = window._OBJ_DRAG_;
+		// 	var item, selector, ui;
 
-		console.log('input_add_item', Mail.ui.find('#input_add_item').val());
+		// 	// Just support items for now ?
+		// 	if (data.type === 'item') {
+		// 		item = data.data;
+
+		// 		if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
+		// 		    item.IsIdentified && !item.IsDamaged) {
+		// 			selector = getSelectorFromLocation( 'location' in item ? item.location : item.WearLocation);
+		// 			ui       = Equipment.ui.find(selector);
+
+		// 			Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function(data){
+		// 				ui.css('backgroundImage', 'url('+ data + ')');
+		// 			});
+		// 		}
+		// 	}
+		// }
+
+		if( Mail.ui.find('.block_create_mail').is(":visible") && 
+			Mail.ui.find('.block_mail').is(":hidden") && 
+			Mail.ui.find('.block_mail').is(":hidden") ){
+			event.stopImmediatePropagation();
+		}
+		return false;
+	}
+
+	/**
+	 * Drag out the window
+	 */
+	function onDragLeave( event )
+	{
+		if( Mail.ui.find('.block_create_mail').is(":visible") && 
+			Mail.ui.find('.block_mail').is(":hidden") && 
+			Mail.ui.find('.block_mail').is(":hidden") ){
+			event.stopImmediatePropagation();
+		}
+		return false;
+	}
+
+	/**
+	 * Drop an item in the equipment, equip it if possible
+	 */
+	function onDrop( event )
+	{
+		var item, data;
+		event.stopImmediatePropagation();
+
+		try {
+			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			item = data.data;
+		}
+		catch(e) {
+			return false;
+		}
+
+		// Just allow item from storage
+		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'Inventory')) {
+			return false;
+		}
 		
+		// Have to specify how much
+		if (item.count > 1) {
+			InputBox.append();
+			InputBox.setType('number', false, item.count);
+			InputBox.onSubmitRequest = function OnSubmitRequest( count ) {
+				InputBox.remove();
+				
+				Mail.parseMailSetattach(
+					item.index,
+					parseInt(count, 10 )
+				)
+			};
+			return false;
+		}
 
-		// Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
-		// 	content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
-		// });
+		Mail.parseMailSetattach( item.index, 1 );
 
-		// var box = this.ui.find('.box.recv');
+		console.log('onDrop', item);
+		return false;
+	}
 
-		// box.append(
-		// 	'<div class="item" data-index="'+ idx +'">' +
-		// 		'<div class="icon"></div>' +
-		// 		'<div class="amount">'+ item.count + '</div>' +
-		// 		'<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
-		// 	'</div>'
-		// );
-
-		// Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
-		// 	box.find('.item[data-index="'+ idx +'"] .icon').css('backgroundImage', 'url('+ data +')');
-		// }.bind(this));
+	/**
+	 * Stop an event to propagate
+	 */
+	function stopPropagation( event )
+	{
+		event.stopImmediatePropagation();
+		return false;
 	}
 
 	 /**

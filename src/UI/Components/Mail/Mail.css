@@ -210,14 +210,22 @@
     width: 24px;
 }
 
+#Mail .container_item {
+    float: left;
+    width: 24px;
+    height: 23px;
+    margin-top: 2px;
+    margin-left: 2px;
+    margin-bottom: 6px;
+} 
+#Mail .container_item:hover { background-color:#b5ffb5;}
+
 #Mail .block_send_cancel{
     flex: 1;
-    margin-top: 5%;
+    margin-top: 4%;
     margin-right: 8%;
     text-align: right;
 }
-
-
 
 #Mail .to_title button .overlay { position:absolute; display:none; top:-20px; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black; }
 #Mail .to_title button:hover .overlay { display:block; }
