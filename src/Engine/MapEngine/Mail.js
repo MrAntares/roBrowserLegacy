@@ -137,7 +137,7 @@
     ///     1 = read
 	function mailRefreshinbox( read )
 	{
-        console.log('mailRefreshinbox-read', read, read.MailNumber, read.mailList)
+		Mail.mailList(read);
 	}
 
 
@@ -162,14 +162,13 @@
 	 *
 	 * @param {int} result - PACKET.ZC.MAIL_REQ_SEND
 	 */
-    /// result:
+    /// Result:
     ///     0 = success
     ///     1 = recipinent does not exist
 	function mailSend( result )
 	{
-        console.log('mailSend-result', result);
-		if(result.result){
-			ChatBox.addText( DB.getMessage(103), ChatBox.TYPE.ERROR);
+		if(result.Result){
+			ChatBox.addText( DB.getMessage(1032), ChatBox.TYPE.ERROR);
 		}else{
 			ChatBox.addText( DB.getMessage(1031), ChatBox.TYPE.INFO);
 		}

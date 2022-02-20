@@ -83,13 +83,18 @@
 	  *  	The pagination numbers only appear when there is at least one message in the list, it displays "1/1" when there is only 1
 	  *     The previous and next pagination events only work when there are more than 8 messages (VALIDATE)
 	  */
-	 Mail.init = function Init()
+ 
+	 /**
+	  * Apply preferences once append to body
+	  */
+	 Mail.onAppend = function OnAppend()
 	 {
-		this.ui.find('.right .close').click(this.onClosePressed.bind(this)).removeClass( "hover" );
-		this.ui.find('#inbox').click(offCreateMessagesOnWindowMailbox);  // remove all item reset layout
-		this.ui.find('#write').click(onWindowCreateMessages);  // remove all item reset layouts
-		this.ui.find('#create_mail_cancel').click(offCreateMessagesOnWindowMailbox); // remove all item reset layout
-		this.ui.find('#create_mail_send').click(sendCreateMessagesMail); // send mail
+
+		this.ui.find('.right .close').on('click',this.onClosePressed.bind(this)).removeClass( "hover" );
+		this.ui.find('#inbox').on('click',offCreateMessagesOnWindowMailbox);  // remove all item reset layout
+		this.ui.find('#write').on('click',onWindowCreateMessages);  // remove all item reset layouts
+		this.ui.find('#create_mail_cancel').on('click',offCreateMessagesOnWindowMailbox); // remove all item reset layout
+		this.ui.find('#create_mail_send').on('click',sendCreateMessagesMail); // send mail
 
 		this.ui
 			.find('.container_item')
@@ -103,24 +108,18 @@
 				.on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo);
 
-		this.ui.find('#zeny_amt').click(onAddZenyInput);
-		this.ui.find('#zeny_ok').click(onValidZenyInput);
+		this.ui.find('#zeny_amt').on('click',onAddZenyInput);
+		this.ui.find('#zeny_ok').on('click',onValidZenyInput);
+
 		onWindowMailbox();
-		this.draggable(this.ui.find('.titlebar'));
-	 };
- 
-	 /**
-	  * Apply preferences once append to body
-	  */
-	 Mail.onAppend = function OnAppend()
-	 {
-		this.init();
+
 		// Apply preferences
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-		
+
+		this.draggable(this.ui.find('.titlebar'));		
 	 };
 
 	 
@@ -215,6 +214,60 @@
 		 });
 	 };
 
+
+	/**
+	* Extend Mail window size
+	*
+	* @param {object} read
+	*/
+	Mail.mailList = function mailList( read )
+	{
+		var content = this.ui.find('.list_item_mail');
+		this.ui.find(".item_mail" ).remove();
+		read.mailList.forEach(mailList => {
+			let from_name = mailList.FromName.length > 15 ?  mailList.FromName.substring(0,15)+"..." :  mailList.FromName;
+			let header = mailList.HEADER.length > 23 ?  mailList.HEADER.substring(0,23)+"..." :  mailList.HEADER;
+
+			content.append(
+				`<div class="item_mail">
+					<div class="envelop" style="flex: 1;">
+						<div class="btn_envelop" id="envelop_`+mailList.MailID+`"></div>
+					</div>
+					<div class="to_title" style="flex: 3;">
+						<div class="flex">
+							<div  style="flex: 3;">
+								<span id="from_name_`+mailList.MailID+`" class="text_add_cursor tooltip name_data" > `+ from_name +`
+									<span class="tooltiptext to">`+ mailList.FromName+`</samp>
+								</span>
+							</div>
+							<div   style="flex: 3;">
+								<span class="name_data">`+ formateDeleteTime(mailList.DeleteTime) +` </samp>
+							</div>
+
+						</div>
+						<div >
+							<span class="text_add_cursor tooltip"> `+ header +`
+								<span class="tooltiptext title">`+ mailList.HEADER+` </samp>
+							</span>
+						</div>
+					</div>
+				</div>`
+			);
+			if(!mailList.isOpen){
+				Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function(data){
+					content.find('#envelop_'+mailList.MailID).css('backgroundImage', 'url('+ data +')');
+				});
+			}
+			this.ui.find("#from_name_"+mailList.MailID).on('click', () =>
+				{
+					onWindowCreateMessages();
+					this.ui.find('.text_to').val(this.ui.find("#from_name_"+mailList.MailID +" .to").text());
+				}
+			);
+		});
+		
+	};
+
 	 /**
 	 * Create messages window size
 	 */
@@ -222,8 +275,6 @@
 	{	
 		// List Email
 		Mail.parseMailrefreshinbox();
-		// Reset mail item and/or Zeny
-		removeCreateAllItem();
 
 		// Off window create mail
 		Mail.ui.find('.block_create_mail').hide();
@@ -282,6 +333,9 @@
 
 		// Off window create mail
 		Mail.ui.find('.block_create_mail').show();
+		//Focus textArea
+		Mail.ui.find('.textarea_mail').focus();
+
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', function(url) {
 			Mail.ui.find('.body').css('backgroundImage', 'url(' + url + ')');
 		}.bind(this));
@@ -516,7 +570,7 @@
 	{
 		height = Math.min( Math.max(height, 8), 17);
 
-		Mail.ui.find('.container .content').css('height', height * 32);
+		Mail.ui.find('.body').css('height', height * 32);
 		Mail.ui.css('height', 31 + 19 + height * 32);
 	}
 
@@ -541,6 +595,29 @@
 		}
 
 		return out;
+	}
+
+
+	/**
+	 * Converte DeleteTime 
+	 *
+	 * @param {number}
+	 * @return {string}
+	 */
+	function formateDeleteTime( value )
+	{
+		// convert unix timestamp to milliseconds
+		var ts_ms = value * 1000;
+		// initialize new Date object
+		var date_ob = new Date(ts_ms);
+		// year as 4 digits (YYYY)
+		var year = date_ob.getFullYear();
+		// month as 2 digits (MM)
+		var month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+		// date as 2 digits (DD)
+		var date = ("0" + date_ob.getDate()).slice(-2);
+
+		return month + " " + date + " " + (year+"").substring(2,4);
 	}
 
 	function removeCreateAllItem()

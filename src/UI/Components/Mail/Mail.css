@@ -82,8 +82,8 @@
 }
 
 #Mail .item_mail {
-    width: 269px;
-    height: 52px;
+    width: 268px;
+    height: 51px;
     display: flex;
 }
 
@@ -93,7 +93,7 @@
     background-repeat: no-repeat;
     border: none;
     background-color: transparent;
-    margin-top: 26%;
+    margin-top: 24%;
     margin-left: 18%;
 }
 
@@ -239,6 +239,7 @@
 #Mail .tooltip {
     position: relative;
     display: inline-block;
+    color: #a37162;
 }
 
 #Mail .name_data {
@@ -251,7 +252,7 @@
 #Mail .tooltip .tooltiptext {
     visibility: hidden;
     position: absolute;
-    bottom: 100%;   
+    bottom: 100%;
     white-space: nowrap;
     z-index: 900;
     height: 13px;
@@ -259,16 +260,16 @@
     background: rgba(0,0,0,0.7);
     color: white;
     text-shadow: 1px 1px black;
+    position: absolute;
+    float: left;
+    left: 0px;
+    pointer-events: none;
 }
 
 #Mail .tooltip .to{
-    margin-left: -32px;
-    top: -22px;
 }
 
 #Mail .tooltip .title{
-    margin-left: -74px;
-    top: -22px;
 }
 
 #Mail .tooltip:hover .tooltiptext {
@@ -287,7 +288,7 @@
 #Mail .container_item .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #Mail .container_item .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
 #Mail .container_item .overlay { position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;
-    pointer-events: none;
+    
 }
 #Mail .container_item .overlay.grey { color:#aaa; }
 
