@@ -620,7 +620,7 @@ define(function(require)
 		}
 
 		// Just allow item from storage
-		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'CartItems')) {
+		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'CartItems' && data.from !== 'Mail')) {
 			return false;
 		}
 
@@ -648,6 +648,13 @@ define(function(require)
 							item.index,
 							parseInt(count, 10 )
 							);
+
+					case 'Mail':
+						getModule('UI/Components/Mail/Mail').reqRemoveItem(
+							item.index,
+							parseInt(count, 10 )
+							);
+
 					break;					
 				
 					}
@@ -663,7 +670,11 @@ define(function(require)
 					
 			case 'CartItems':
 				getModule('UI/Components/CartItems/CartItems').reqRemoveItem( item.index, 1 );
-			break;							
+			break;
+
+			case 'Mail':
+				getModule('UI/Components/Mail/Mail').reqRemoveItem( item.index, 1 );
+			break;	
 		}
 
 		return false;
