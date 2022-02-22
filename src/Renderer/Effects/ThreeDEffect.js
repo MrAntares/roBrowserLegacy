@@ -214,8 +214,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                 this.spriteRessource = Client.loadFile('data/sprite/shadow.spr');
                 this.actRessource = Client.loadFile('data/sprite/shadow.act');
             } else if (this.spriteName) {
-                this.spriteRessource = Client.loadFile('data/sprite/ÀÌÆÑÆ®/' + this.spriteName + '.spr');
-                this.actRessource = Client.loadFile('data/sprite/ÀÌÆÑÆ®/' + this.spriteName + '.act');
+                this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
+                this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
             }
         }
 		
