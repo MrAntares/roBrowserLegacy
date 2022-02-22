@@ -95,72 +95,72 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.REBELLION] 		 = "rebellion";
 	
 	//MOUNTS
-	JobNameTable[JobId.PORING_NOVICE]     = "³ëºñ½ºÆ÷¸µ";
+	JobNameTable[JobId.PORING_NOVICE]     = "\xb3\xeb\xba\xf1\xbd\xba\xc6\xf7\xb8\xb5";
 
-	JobNameTable[JobId.SHEEP_ACO]         = "º¹»ç¾ËÆÄÄ«";
-	JobNameTable[JobId.OSTRICH_ARCHER]    = "Å¸Á¶±Ã¼ö";
-	JobNameTable[JobId.FOX_MAGICIAN]      = "¿©¿ì¸¶¹ý»ç";
-	JobNameTable[JobId.PIG_MERCHANT]      = "»óÀÎ¸äµÅÁö";
-	JobNameTable[JobId.PECO_SWORD]        = "ÆäÄÚ°Ë»ç";
-	JobNameTable[JobId.DOG_THIEF]         = "ÄÌº£·Î½ºµµµÏ";
+	JobNameTable[JobId.SHEEP_ACO]         = "\xba\xb9\xbb\xe7\xbe\xcb\xc6\xc4\xc4\xab";
+	JobNameTable[JobId.OSTRICH_ARCHER]    = "\xc5\xb8\xc1\xb6\xb1\xc3\xbc\xf6";
+	JobNameTable[JobId.FOX_MAGICIAN]      = "\xbf\xa9\xbf\xec\xb8\xb6\xb9\xfd\xbb\xe7";
+	JobNameTable[JobId.PIG_MERCHANT]      = "\xbb\xf3\xc0\xce\xb8\xe4\xb5\xc5\xc1\xf6";
+	JobNameTable[JobId.PECO_SWORD]        = "\xc6\xe4\xc4\xda\xb0\xcb\xbb\xe7";
+	JobNameTable[JobId.DOG_THIEF]         = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xb5\xb5\xb5\xcf";
 
-	JobNameTable[JobId.SHEEP_PRIEST]      = "ÇÁ¸®½ºÆ®¾ËÆÄÄ«";
-	JobNameTable[JobId.OSTRICH_HUNTER]    = "Å¸Á¶ÇåÅÍ";
-	JobNameTable[JobId.FOX_WIZ]           = "¿©¿ìÀ§Àúµå";
-	JobNameTable[JobId.PIG_BLACKSMITH]    = "Á¦Ã¶°ø¸äµÅÁö";
-	JobNameTable[JobId.LION_KNIGHT]       = "»çÀÚ±â»ç";
-	JobNameTable[JobId.DOG_ASSASSIN]      = "ÄÌº£·Î½º¾î½ê½Å";
+	JobNameTable[JobId.SHEEP_PRIEST]      = "\xc7\xc1\xb8\xae\xbd\xba\xc6\xae\xbe\xcb\xc6\xc4\xc4\xab";
+	JobNameTable[JobId.OSTRICH_HUNTER]    = "\xc5\xb8\xc1\xb6\xc7\xe5\xc5\xcd";
+	JobNameTable[JobId.FOX_WIZ]           = "\xbf\xa9\xbf\xec\xc0\xa7\xc0\xfa\xb5\xe5";
+	JobNameTable[JobId.PIG_BLACKSMITH]    = "\xc1\xa6\xc3\xb6\xb0\xf8\xb8\xe4\xb5\xc5\xc1\xf6";
+	JobNameTable[JobId.LION_KNIGHT]       = "\xbb\xe7\xc0\xda\xb1\xe2\xbb\xe7";
+	JobNameTable[JobId.DOG_ASSASSIN]      = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xbe\xee\xbd\xea\xbd\xc5";
 
-	JobNameTable[JobId.SHEEP_MONK]        = "¸ùÅ©¾ËÆÄÄ«";
-	JobNameTable[JobId.OSTRICH_BARD]      = "Å¸Á¶¹Ùµå";
-	JobNameTable[JobId.OSTRICH_DANCER]    = "Å¸Á¶¹«Èñ";
-	JobNameTable[JobId.FOX_SAGE]          = "¿©¿ì¼¼ÀÌÁö";
-	JobNameTable[JobId.PIG_ALCHE]         = "¿¬±Ý¼ú»ç¸äµÅÁö";
-	JobNameTable[JobId.LION_CRUSADER]     = "»çÀÚÅ©·ç¼¼ÀÌ´õ";
-	JobNameTable[JobId.DOG_ROGUE]         = "ÄÌº£·Î½º·Î±×";
+	JobNameTable[JobId.SHEEP_MONK]        = "\xb8\xf9\xc5\xa9\xbe\xcb\xc6\xc4\xc4\xab";
+	JobNameTable[JobId.OSTRICH_BARD]      = "\xc5\xb8\xc1\xb6\xb9\xd9\xb5\xe5";
+	JobNameTable[JobId.OSTRICH_DANCER]    = "\xc5\xb8\xc1\xb6\xb9\xab\xc8\xf1";
+	JobNameTable[JobId.FOX_SAGE]          = "\xbf\xa9\xbf\xec\xbc\xbc\xc0\xcc\xc1\xf6";
+	JobNameTable[JobId.PIG_ALCHE]         = "\xbf\xac\xb1\xdd\xbc\xfa\xbb\xe7\xb8\xe4\xb5\xc5\xc1\xf6";
+	JobNameTable[JobId.LION_CRUSADER]     = "\xbb\xe7\xc0\xda\xc5\xa9\xb7\xe7\xbc\xbc\xc0\xcc\xb4\xf5";
+	JobNameTable[JobId.DOG_ROGUE]         = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xb7\xce\xb1\xd7";
 
-	JobNameTable[JobId.SHEEP_ARCB]        = "¾ÆÅ©ºñ¼ó¾ËÆÄÄ«";
-	JobNameTable[JobId.OSTRICH_RANGER]    = "Å¸Á¶·¹ÀÎÁ®";
-	JobNameTable[JobId.FOX_WARLOCK]       = "¿©¿ì¿ö·Ï";
-	JobNameTable[JobId.PIG_MECHANIC]      = "¹ÌÄÉ´Ð¸äµÅÁö";
-	JobNameTable[JobId.LION_RUNE_KNIGHT]  = "»çÀÚ·é³ªÀÌÆ®";
-	JobNameTable[JobId.DOG_G_CROSS]       = "ÄÌº£·Î½º±æ·ÎÆ¾Å©·Î½º";
+	JobNameTable[JobId.SHEEP_ARCB]        = "\xbe\xc6\xc5\xa9\xba\xf1\xbc\xf3\xbe\xcb\xc6\xc4\xc4\xab";
+	JobNameTable[JobId.OSTRICH_RANGER]    = "\xc5\xb8\xc1\xb6\xb7\xb9\xc0\xce\xc1\xae";
+	JobNameTable[JobId.FOX_WARLOCK]       = "\xbf\xa9\xbf\xec\xbf\xf6\xb7\xcf";
+	JobNameTable[JobId.PIG_MECHANIC]      = "\xb9\xcc\xc4\xc9\xb4\xd0\xb8\xe4\xb5\xc5\xc1\xf6";
+	JobNameTable[JobId.LION_RUNE_KNIGHT]  = "\xbb\xe7\xc0\xda\xb7\xe9\xb3\xaa\xc0\xcc\xc6\xae";
+	JobNameTable[JobId.DOG_G_CROSS]       = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xb1\xe6\xb7\xce\xc6\xbe\xc5\xa9\xb7\xce\xbd\xba";
 
-	JobNameTable[JobId.SHEEP_SURA]        = "½´¶ó¾ËÆÄÄ«";
-	JobNameTable[JobId.OSTRICH_MINSTREL]  = "Å¸Á¶¹Î½ºÆ®·²";
-	JobNameTable[JobId.OSTRICH_WANDER]    = "Å¸Á¶¿ø´õ·¯";
-	JobNameTable[JobId.FOX_SORCERER]      = "¿©¿ì¼Ò¼­·¯";
-	JobNameTable[JobId.PIG_GENETIC]       = "Á¦³×¸¯¸äµÅÁö";
-	JobNameTable[JobId.LION_ROYAL_GUARD]  = "»çÀÚ·Î¾â°¡µå";
-	JobNameTable[JobId.DOG_CHASER]        = "ÄÌº£·Î½º½¦µµ¿ìÃ¼ÀÌ¼­";
+	JobNameTable[JobId.SHEEP_SURA]        = "\xbd\xb4\xb6\xf3\xbe\xcb\xc6\xc4\xc4\xab";
+	JobNameTable[JobId.OSTRICH_MINSTREL]  = "\xc5\xb8\xc1\xb6\xb9\xce\xbd\xba\xc6\xae\xb7\xb2";
+	JobNameTable[JobId.OSTRICH_WANDER]    = "\xc5\xb8\xc1\xb6\xbf\xf8\xb4\xf5\xb7\xaf";
+	JobNameTable[JobId.FOX_SORCERER]      = "\xbf\xa9\xbf\xec\xbc\xd2\xbc\xad\xb7\xaf";
+	JobNameTable[JobId.PIG_GENETIC]       = "\xc1\xa6\xb3\xd7\xb8\xaf\xb8\xe4\xb5\xc5\xc1\xf6";
+	JobNameTable[JobId.LION_ROYAL_GUARD]  = "\xbb\xe7\xc0\xda\xb7\xce\xbe\xe2\xb0\xa1\xb5\xe5";
+	JobNameTable[JobId.DOG_CHASER]        = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xbd\xa6\xb5\xb5\xbf\xec\xc3\xbc\xc0\xcc\xbc\xad";
 
-	JobNameTable[JobId.PORING_SNOVICE]    = "½´ÆÛ³ëºñ½ºÆ÷¸µ";
+	JobNameTable[JobId.PORING_SNOVICE]    = "\xbd\xb4\xc6\xdb\xb3\xeb\xba\xf1\xbd\xba\xc6\xf7\xb8\xb5";
 
-	JobNameTable[JobId.FROG_NINJA]        = "³ëºñ½ºÆ÷¸µ";
-	JobNameTable[JobId.PECO_GUNNER]       = "ÆäÄÚ°Ç³Ê";
-	JobNameTable[JobId.PORING_TAEKWON]    = "ÅÂ±Ç¼Ò³âÆ÷¸µ";
+	JobNameTable[JobId.FROG_NINJA]        = "\xb3\xeb\xba\xf1\xbd\xba\xc6\xf7\xb8\xb5";
+	JobNameTable[JobId.PECO_GUNNER]       = "\xc6\xe4\xc4\xda\xb0\xc7\xb3\xca";
+	JobNameTable[JobId.PORING_TAEKWON]    = "\xc5\xc2\xb1\xc7\xbc\xd2\xb3\xe2\xc6\xf7\xb8\xb5";
 
-	JobNameTable[JobId.PORING_STAR]       = "±Ç¼ºÆ÷¸µ";
-	JobNameTable[JobId.FROG_LINKER]       = "µÎ²¨ºñ¼Ò¿ï¸µÄ¿";
+	JobNameTable[JobId.PORING_STAR]       = "\xb1\xc7\xbc\xba\xc6\xf7\xb8\xb5";
+	JobNameTable[JobId.FROG_LINKER]       = "\xb5\xce\xb2\xa8\xba\xf1\xbc\xd2\xbf\xef\xb8\xb5\xc4\xbf";
 
 	JobNameTable[JobId.FROG_KAGEROU]      = "frog_kagerou";
 	JobNameTable[JobId.FROG_OBORO]        = "frog_oboro";
 	JobNameTable[JobId.PECO_REBELLION]    = "peco_rebellion";
 
-	JobNameTable[JobId.SHEEP_HPRIEST]     = "ÇÏÀÌÇÁ¸®½ºÆ®¾ËÆÄÄ«";
-	JobNameTable[JobId.OSTRICH_SNIPER]    = "Å¸Á¶½º³ªÀÌÆÛ";
-	JobNameTable[JobId.FOX_HWIZ]          = "¿©¿ìÇÏÀÌÀ§Àúµå";
-	JobNameTable[JobId.PIG_WHITESMITH]    = "È­ÀÌÆ®½º¹Ì½º¸äµÅÁö";
-	JobNameTable[JobId.LION_KNIGHT_H]     = "»çÀÚ·Îµå³ªÀÌÆ®";
-	JobNameTable[JobId.DOG_ASSA_X]        = "ÄÌº£·Î½º¾î½ê½ÅÅ©·Î½º";
+	JobNameTable[JobId.SHEEP_HPRIEST]     = "\xc7\xcf\xc0\xcc\xc7\xc1\xb8\xae\xbd\xba\xc6\xae\xbe\xcb\xc6\xc4\xc4\xab";
+	JobNameTable[JobId.OSTRICH_SNIPER]    = "\xc5\xb8\xc1\xb6\xbd\xba\xb3\xaa\xc0\xcc\xc6\xdb";
+	JobNameTable[JobId.FOX_HWIZ]          = "\xbf\xa9\xbf\xec\xc7\xcf\xc0\xcc\xc0\xa7\xc0\xfa\xb5\xe5";
+	JobNameTable[JobId.PIG_WHITESMITH]    = "\xc8\xad\xc0\xcc\xc6\xae\xbd\xba\xb9\xcc\xbd\xba\xb8\xe4\xb5\xc5\xc1\xf6";
+	JobNameTable[JobId.LION_KNIGHT_H]     = "\xbb\xe7\xc0\xda\xb7\xce\xb5\xe5\xb3\xaa\xc0\xcc\xc6\xae";
+	JobNameTable[JobId.DOG_ASSA_X]        = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xbe\xee\xbd\xea\xbd\xc5\xc5\xa9\xb7\xce\xbd\xba";
 
-	JobNameTable[JobId.SHEEP_CHAMP]       = "Ã¨ÇÇ¿Â¾ËÆÄÄ«";
-	JobNameTable[JobId.OSTRICH_CROWN]     = "Å¸Á¶Å©¶ó¿î";
-	JobNameTable[JobId.OSTRICH_ZIPSI]     = "Å¸Á¶Â¤½Ã";
-	JobNameTable[JobId.FOX_PROF]          = "¿©¿ìÇÁ·ÎÆä¼­";
-	JobNameTable[JobId.PIG_CREATOR]       = "Å©¸®¿¡ÀÌÅÍ¸äµÅÁö";
-	JobNameTable[JobId.LION_CRUSADER_H]   = "»çÀÚÆÈ¶óµò";
-	JobNameTable[JobId.DOG_STALKER]       = "ÄÌº£·Î½º½ºÅäÄ¿";
+	JobNameTable[JobId.SHEEP_CHAMP]       = "\xc3\xa8\xc7\xc7\xbf\xc2\xbe\xcb\xc6\xc4\xc4\xab";
+	JobNameTable[JobId.OSTRICH_CROWN]     = "\xc5\xb8\xc1\xb6\xc5\xa9\xb6\xf3\xbf\xee";
+	JobNameTable[JobId.OSTRICH_ZIPSI]     = "\xc5\xb8\xc1\xb6\xc2\xa4\xbd\xc3";
+	JobNameTable[JobId.FOX_PROF]          = "\xbf\xa9\xbf\xec\xc7\xc1\xb7\xce\xc6\xe4\xbc\xad";
+	JobNameTable[JobId.PIG_CREATOR]       = "\xc5\xa9\xb8\xae\xbf\xa1\xc0\xcc\xc5\xcd\xb8\xe4\xb5\xc5\xc1\xf6";
+	JobNameTable[JobId.LION_CRUSADER_H]   = "\xbb\xe7\xc0\xda\xc6\xc8\xb6\xf3\xb5\xf2";
+	JobNameTable[JobId.DOG_STALKER]       = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xbd\xba\xc5\xe4\xc4\xbf";
 
 	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
@@ -254,7 +254,7 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.LION_ROYAL_GUARD ,JobId.LION_ROYAL_GUARD_B);
 	duplicateEntry(JobId.DOG_CHASER       ,JobId.DOG_CHASER_B);
 
-	duplicateEntry(JobId.PORING_SUPERNOVICE ,JobId.PORING_SUPERNOVICE_B ,JobId.PORING_SNOVICE2 ,JobId.PORING_SNOVICE2_B);
+	duplicateEntry(JobId.PORING_SNOVICE ,JobId.PORING_SNOVICE_B ,JobId.PORING_SNOVICE2 ,JobId.PORING_SNOVICE2_B);
 
 	duplicateEntry(JobId.FROG_NINJA       ,JobId.FROG_NINJA_B);
 	duplicateEntry(JobId.PECO_GUNNER      ,JobId.PECO_GUNNER_B);
@@ -263,7 +263,6 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.PORING_STAR      ,JobId.PORING_STAR_B);
 	duplicateEntry(JobId.FROG_LINKER      ,JobId.FROG_LINKER_B);
 
-	duplicateEntry(JobId.PORING_SNOVICE2  ,JobId.PORING_SNOVICE2_B);
 	duplicateEntry(JobId.FROG_KAGEROU     ,JobId.FROG_KAGEROU_B);
 	duplicateEntry(JobId.FROG_OBORO       ,JobId.FROG_OBORO_B);
 	duplicateEntry(JobId.PECO_REBELLION   ,JobId.PECO_REBELLION_B);
