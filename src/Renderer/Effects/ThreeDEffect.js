@@ -447,7 +447,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
     };
 	
     ThreeDEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-        //gl.depthMask(false);
+        gl.depthMask(false);
         SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
         SpriteRenderer.shadow = 1;
         SpriteRenderer.angle = 0;
@@ -465,7 +465,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
     };
 	
     ThreeDEffect.afterRender = function afterRender(gl) {
-        //gl.depthMask(false);
+        gl.depthMask(true);
         SpriteRenderer.unbind(gl);
     };
     return ThreeDEffect;
