@@ -185,14 +185,16 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 	
     ThreeDEffect.prototype.init = function init(gl) {
 		var self = this;
-
-		Client.loadFile('data/texture/' + this.textureName, function (buffer) {
-			WebGL.texture(gl, buffer, function (texture) {
-				self.texture = texture;
-				self.ready = true;
+		if (this.textureName) {
+			Client.loadFile('data/texture/' + this.textureName, function (buffer) {
+				WebGL.texture(gl, buffer, function (texture) {
+					self.texture = texture;
+					self.ready = true;
+				});
 			});
-		});
-
+		} else {
+			self.ready = true;
+		}
 	};
 	
 	
