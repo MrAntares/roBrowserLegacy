@@ -365,6 +365,7 @@ define(function(require)
 			var ui = ShortCut.ui.find('.container:eq(' + index + ')');
 			
 			Client.loadFile( DB.INTERFACE_PATH + 'item/\xb0\xed\xbe\xe7\xc0\xcc\xb9\xdf\xb8\xd3\xb8\xae\xc7\xc9.bmp', function(url){
+				ui.find('.img').css('filter', 'grayscale(66%)');
 				ui.find('.img').html(
 					'<img class="delay" src="'+url+'" width="24" height="24"></img>'
 				);
@@ -378,6 +379,7 @@ define(function(require)
 			_list[index].Timeout = setTimeout(
 				function(){ 
 					ui.find('.delay').css('display', 'none');
+					ui.find('.img').css('filter', 'grayscale(0%)');
 				}
 				, delay
 			);
