@@ -287,6 +287,7 @@ define(function(require)
 				this.ui.find('.weight_value').text(val1 / 10 | 0);
 				this.ui.find('.weight_total').text(val2 / 10 | 0);
 				this.ui.find('.weight').css('color',  val1 < (val2/2) ? '' : 'red');
+				this.ui.find('.weight').attr('title', ((val1/val2)*100).toFixed(1) + '%');
 				break;
 
 			case 'hp':
