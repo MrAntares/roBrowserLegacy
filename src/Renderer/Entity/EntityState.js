@@ -331,7 +331,11 @@ define(function( require )
 	 */
 	function updateEffectState( value )
 	{
-		var costume = this.costume; // Preserve riding and other costumes
+		var costume = 0;
+		
+		if (this._allRidingState){ // Preserve riding constume
+			costume = this.costume; 
+		}
 
 		this._effectStateColor[0] = 1.0;
 		this._effectStateColor[1] = 1.0;

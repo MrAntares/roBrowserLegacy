@@ -185,14 +185,16 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 	
     ThreeDEffect.prototype.init = function init(gl) {
 		var self = this;
-
-		Client.loadFile('data/texture/' + this.textureName, function (buffer) {
-			WebGL.texture(gl, buffer, function (texture) {
-				self.texture = texture;
-				self.ready = true;
+		if (this.textureName) {
+			Client.loadFile('data/texture/' + this.textureName, function (buffer) {
+				WebGL.texture(gl, buffer, function (texture) {
+					self.texture = texture;
+					self.ready = true;
+				});
 			});
-		});
-
+		} else {
+			self.ready = true;
+		}
 	};
 	
 	
@@ -212,8 +214,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                 this.spriteRessource = Client.loadFile('data/sprite/shadow.spr');
                 this.actRessource = Client.loadFile('data/sprite/shadow.act');
             } else if (this.spriteName) {
-                this.spriteRessource = Client.loadFile('data/sprite/ÀÌÆÑÆ®/' + this.spriteName + '.spr');
-                this.actRessource = Client.loadFile('data/sprite/ÀÌÆÑÆ®/' + this.spriteName + '.act');
+                this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
+                this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
             }
         }
 		
@@ -445,7 +447,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
     };
 	
     ThreeDEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-        //gl.depthMask(false);
+        gl.depthMask(false);
         SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
         SpriteRenderer.shadow = 1;
         SpriteRenderer.angle = 0;
@@ -463,7 +465,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
     };
 	
     ThreeDEffect.afterRender = function afterRender(gl) {
-        //gl.depthMask(false);
+        gl.depthMask(true);
         SpriteRenderer.unbind(gl);
     };
     return ThreeDEffect;

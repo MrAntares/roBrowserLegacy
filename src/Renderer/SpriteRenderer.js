@@ -64,16 +64,17 @@ function(      WebGL,         glMatrix,      Camera )
 		}
 
 		void main(void) {
-			vTextureCoord = aTextureCoord;
-
+			
 			// Calculate position base on angle and sprite offset/size
 			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
 			position.x   += uSpriteRendererOffset.x;
 			position.y   -= uSpriteRendererOffset.y + 0.5;
-			position.z   += uSpriteRendererZindex * 0.1 + uSpriteRendererDepth;
-
+			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
+			gl_Position.z -= ((uSpriteRendererZindex + uSpriteRendererDepth) * 0.1) / (uCameraLatitude * 50.0);
+			
+			vTextureCoord = aTextureCoord;
 		}
 	`;
 
@@ -82,79 +83,79 @@ function(      WebGL,         glMatrix,      Camera )
 	 * Generic Fragment Shader
 	 * @var {string}
 	 */
-	var _fragmentShader = [
-		"varying vec2 vTextureCoord;",
+	var _fragmentShader = `
+		varying vec2 vTextureCoord;
 
-		"uniform sampler2D uDiffuse;",
-		"uniform sampler2D uPalette;",
+		uniform sampler2D uDiffuse;
+		uniform sampler2D uPalette;
 
-		"uniform bool uUsePal;",
-		"uniform vec4 uSpriteRendererColor;",
+		uniform bool uUsePal;
+		uniform vec4 uSpriteRendererColor;
 
-		"uniform bool  uFogUse;",
-		"uniform float uFogNear;",
-		"uniform float uFogFar;",
-		"uniform vec3  uFogColor;",
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
 
-		"uniform float uShadow;",
-		"uniform vec2 uTextSize;",
+		uniform float uShadow;
+		uniform vec2 uTextSize;
 
 		// With palette we don't have a good result because of the gl.NEAREST, so smooth it.
-		"vec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {",
-			"vec2 TextInterval = 1.0 / uTextSize;",
+		vec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {
+			vec2 TextInterval = 1.0 / uTextSize;
 
-			"float tlLUT = texture2D(indexT, uv ).x;",
-			"float trLUT = texture2D(indexT, uv + vec2(TextInterval.x, 0.0)).x;",
-			"float blLUT = texture2D(indexT, uv + vec2(0.0, TextInterval.y)).x;",
-			"float brLUT = texture2D(indexT, uv + TextInterval).x;",
+			float tlLUT = texture2D(indexT, uv ).x;
+			float trLUT = texture2D(indexT, uv + vec2(TextInterval.x, 0.0)).x;
+			float blLUT = texture2D(indexT, uv + vec2(0.0, TextInterval.y)).x;
+			float brLUT = texture2D(indexT, uv + TextInterval).x;
 
-			"vec4 transparent = vec4( 0.5, 0.5, 0.5, 0.0);",
+			vec4 transparent = vec4( 0.5, 0.5, 0.5, 0.0);
 
-			"vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(tlLUT,1.0)).rgb, 1.0);",
-			"vec4 tr = trLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(trLUT,1.0)).rgb, 1.0);",
-			"vec4 bl = blLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(blLUT,1.0)).rgb, 1.0);",
-			"vec4 br = brLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(brLUT,1.0)).rgb, 1.0);",
+			vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(tlLUT,1.0)).rgb, 1.0);
+			vec4 tr = trLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(trLUT,1.0)).rgb, 1.0);
+			vec4 bl = blLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(blLUT,1.0)).rgb, 1.0);
+			vec4 br = brLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(brLUT,1.0)).rgb, 1.0);
 
-			"vec2 f  = fract( uv.xy * uTextSize );",
-			"vec4 tA = mix( tl, tr, f.x );",
-			"vec4 tB = mix( bl, br, f.x );",
+			vec2 f  = fract( uv.xy * uTextSize );
+			vec4 tA = mix( tl, tr, f.x );
+			vec4 tB = mix( bl, br, f.x );
 
-			"return mix( tA, tB, f.y );",
-		"}",
+			return mix( tA, tB, f.y );
+		}
 
 
-		"void main(void) {",
+		void main(void) {
 
 			// Don't render if it's not shown.
-			"if (uSpriteRendererColor.a == 0.0) {",
-				"discard;",
-			"}",
+			if (uSpriteRendererColor.a == 0.0) {
+				discard;
+			}
 
 			// Calculate texture
-			"vec4 texture;",
-			"if (uUsePal) {",
-				"texture = bilinearSample( vTextureCoord, uDiffuse, uPalette );",
-			"}",
-			"else {",
-				"texture = texture2D( uDiffuse, vTextureCoord.st );",
-			"}",
+			vec4 texture;
+			if (uUsePal) {
+				texture = bilinearSample( vTextureCoord, uDiffuse, uPalette );
+			}
+			else {
+				texture = texture2D( uDiffuse, vTextureCoord.st );
+			}
 
 			// No alpha, skip.
-			"if ( texture.a == 0.0 )",
-				"discard;",
+			if ( texture.a == 0.0 )
+				discard;
 
 			// Apply shadow, apply color
-			"texture.rgb   *= uShadow;",
-			"gl_FragColor   = texture * uSpriteRendererColor;",
+			texture.rgb   *= uShadow;
+			gl_FragColor   = texture * uSpriteRendererColor;
 
 			// Fog feature
-			"if (uFogUse) {",
-				"float depth     = gl_FragCoord.z / gl_FragCoord.w;",
-				"float fogFactor = smoothstep( uFogNear, uFogFar, depth );",
-				"gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );",
-			"}",
-		"}"
-	].join("\n");
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
+		}
+	`;
 
 
 
