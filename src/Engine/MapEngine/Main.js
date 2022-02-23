@@ -573,7 +573,33 @@ define(function( require )
 				break;
 		}
 	}
-
+	
+	
+	function onRank(pkt){
+		var message = '';
+		
+		//Header
+		message += '=========== ';
+		if(pkt instanceof PACKET.ZC.BLACKSMITH_RANK) { message += DB.getMessage(2386); } // "BlackSmith"
+		else if(pkt instanceof PACKET.ZC.ALCHEMIST_RANK) { message += DB.getMessage(2387); } // "Alchemist"
+		else if(pkt instanceof PACKET.ZC.TAEKWON_RANK) { message += DB.getMessage(2388); } // "Taekwon"
+		//else if(pkt instanceof PACKET.ZC.KILLER_RANK) { message += DB.getMessage(2389); } //PK currently unsupported
+		else { message += 'Unknown'; }
+		message += ' ';
+		message += DB.getMessage(2383);  // "Rank"
+		message += ' ===========';
+		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE );
+		
+		//List
+		for(var i = 0; i < 10; ++i){
+			message = '[%rank%] %name% : %point% ' + DB.getMessage(2385); // [x] name : y Points
+			message = message.replace('%rank%', i+1);
+			message = message.replace('%name%', pkt.Name[i]);
+			message = message.replace('%point%', pkt.Point[i]);
+			ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE );
+		}
+		
+	}
 
 	/**
 	 * Initialize
@@ -602,5 +628,10 @@ define(function( require )
 		} else {
 			Network.hookPacket( PACKET.ZC.RECOVERY2,                   onRecovery );
 		}
+		Network.hookPacket( PACKET.ZC.BLACKSMITH_RANK,             onRank );
+		Network.hookPacket( PACKET.ZC.ALCHEMIST_RANK,              onRank );
+		Network.hookPacket( PACKET.ZC.TAEKWON_RANK,                onRank );
+		//Network.hookPacket( PACKET.ZC.KILLER_RANK,                 onRank ); //PK currently unsupported
+		
 	};
 });
