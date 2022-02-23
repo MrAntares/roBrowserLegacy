@@ -38,6 +38,7 @@ define(function( require )
 	var Inventory             = require('UI/Components/Inventory/Inventory');
 	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
 	var SpiritSphere          = require('Renderer/Effects/SpiritSphere');
+	var Announce              = require('UI/Components/Announce/Announce');
 	var getModule             = require;
 
 
@@ -648,6 +649,20 @@ define(function( require )
 			EffectManager.add(spheres, pkt.AID, false);
 		}
 	}
+	
+	function onTaekwonMission(pkt){
+		var total = 100;
+		var message = DB.getMessage(927);
+		var percent = Math.floor((pkt.star / total) * 100);
+		var color = '#F8F8FF'; //GhostWhite
+		
+		message = message.replace('%s', pkt.monsterName);
+		message = message.replace('%d%', percent);
+		
+		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, color );
+		Announce.append();
+		Announce.set(message, color);
+	}
 		
 	/**
 	 * Initialize
@@ -679,5 +694,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SKILL_POSTDELAY,        onSetSkillDelay );
+		Network.hookPacket( PACKET.ZC.STARSKILL,              onTaekwonMission );
 	};
 });
