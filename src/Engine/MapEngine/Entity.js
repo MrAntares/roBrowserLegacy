@@ -46,7 +46,7 @@ define(function( require )
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
-    var MapEffects    = require('Renderer/Map/Effects');
+	var MapEffects    = require('Renderer/Map/Effects');
 	
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -102,6 +102,7 @@ define(function( require )
                     };
                     MapEffects.add(mapEffect);
                 }
+				
             }
 			EntityManager.add(entity);
 		}
@@ -402,6 +403,14 @@ define(function( require )
 									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft );
 								}
 								break;
+								
+							// absorb damage (like tarot card damage)
+							case 4:
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
+								}
+								break;
 
 							// double attack
 							case 8:
@@ -429,10 +438,10 @@ define(function( require )
 							// endure
 							case 9:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.ENDURE);
-									if(pkt.leftDamage){
-										Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.ENDURE);
-									}
-									break;
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.ENDURE);
+								}
+								break;
 							
 							// TODO: critical damage
 							case 10:
