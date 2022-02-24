@@ -807,7 +807,11 @@ define(function( require )
             if (pkt.SKID === SkillId.RG_STEALCOIN) {
                 ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE );
             }
-			EffectManager.spamSkill( pkt.SKID, pkt.targetAID );
+			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
+			
+			if (pkt.result == 1){
+				EffectManager.spamSkillHit( pkt.SKID, dstEntity.GID, Renderer.tick);
+			}
 		}
 	}
 
@@ -953,7 +957,7 @@ define(function( require )
 		}
 
 		if (srcEntity && dstEntity) {
-			EffectManager.spamSkill( pkt.SKID, dstEntity.GID, null, Renderer.tick + pkt.attackMT);
+			EffectManager.spamSkill( pkt.SKID, dstEntity.GID, null, Renderer.tick + pkt.attackMT, pkt.AID);
 		}
 	}
 
