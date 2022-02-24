@@ -465,17 +465,18 @@ define(function( require )
             fadeOut: false,
             file: 'effect/pok1.tga',
             green: 1,
+			poszStart: 1.5,
             posxEndRand: 3.5,
             posyEndRand: 3.5,
             poszEndRand: 3,
-            poszStart: 1.5,
             red: 1,
             sizeEnd: 10,
             sizeStart: 200,
             type: '3D',
-            wav: 'effect/ef_steal',
             zIndex: 10
-        }],
+        }, {
+			wav: 'effect/ef_steal'
+		}],
 
 
         // 19: [{}],    //EF_HIDING    Invalid Effect ID Popup in client
@@ -3018,7 +3019,7 @@ define(function( require )
         268: [{    //EF_STEALCOIN    Steal Coin
             type: 'STR',
             file: 'steal_coin',
-            wav:  'rog_steal coin',
+            wav:  'effect/rog_steal coin',
             attachedEntity: true
         }],
 
