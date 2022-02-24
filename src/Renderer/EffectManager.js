@@ -511,13 +511,17 @@ define(function( require )
 	 * @param {Array} position
 	 * @param {number} tick
 	 */
-	EffectManager.spamSkill = function spamSkill( skillId, AID, position, tick )
+	EffectManager.spamSkill = function spamSkill( skillId, destAID, position, tick, srcAID)
 	{
 		if (!(skillId in SkillEffect)) {
 			return;
 		}
 
-		EffectManager.spam( SkillEffect[skillId].effectId, AID, position, tick);
+		EffectManager.spam( SkillEffect[skillId].effectId, destAID, position, tick);
+		
+		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
+			EffectManager.spam( SkillEffect[skillId].effectIdOnCaster, srcAID, position, tick);
+		}
 	};
 
 
