@@ -4448,7 +4448,9 @@ define(function( require )
             attachedEntity: true
         }],
         
-        //393: [{}],    //EF_TRIPLEATTACK3       Arrow Vulcan
+        393: [{    //EF_TRIPLEATTACK3       Arrow Vulcan
+			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad'
+		}],
         
         394: [{ // Moonlit water mill/sheltering bliss    //EF_SPHEREWIND2    Sheltering Bliss
             type: 'FUNC',
@@ -4522,7 +4524,9 @@ define(function( require )
         }],
 
         //408: [{}],    //EF_BABY       Mom, Dad, I love you! (Baby Skill)
-        //409: [{}],    //EF_SOULBREAKER2       Meteor Assault
+        409: [{    //EF_SOULBREAKER2       Meteor Assault
+			wav: 'effect/\xb8\xde\xc5\xd7\xbf\xc0\x20\xbe\xee\xbd\xe4\xc6\xae'
+		}],
         //410: [{}],    //EF_RAINBOW       Rainbow
         //411: [{}],    //EF_PEONG       Leap
         //412: [{}],    //EF_TANJI2       Like Throw Spirit Sphere
@@ -4791,7 +4795,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot01.tga'
 		}],    //EF_TAROTCARD1       Tarot Card of Fate (The Fool)
@@ -4806,7 +4810,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot02.tga'
 		}],    //EF_TAROTCARD2       Tarot Card of Fate (The Magician)
@@ -4821,7 +4825,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot03.tga'
 		}],    //EF_TAROTCARD3       Tarot Card of Fate (The High Priestess)
@@ -4836,7 +4840,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot04.tga'
 		}],    //EF_TAROTCARD4       Tarot Card of Fate (The Chariot)
@@ -4851,7 +4855,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot05.tga'
 		}],    //EF_TAROTCARD5       Tarot Card of Fate (Strength)
@@ -4866,7 +4870,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot06.tga'
 		}],    //EF_TAROTCARD6       Tarot Card of Fate (The Lovers)
@@ -4881,7 +4885,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot07.tga'
 		}],    //EF_TAROTCARD7       Tarot Card of Fate (The Wheel of Fortune)
@@ -4896,7 +4900,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot08.tga'
 		}],    //EF_TAROTCARD8       Tarot Card of Fate (The Hanged Man)
@@ -4911,7 +4915,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot09.tga'
 		}],    //EF_TAROTCARD9       Tarot Card of Fate (Death)
@@ -4926,7 +4930,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot10.tga'
 		}],    //EF_TAROTCARD10       Tarot Card of Fate (Temperance)
@@ -4941,7 +4945,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot11.tga'
 		}],    //EF_TAROTCARD11       Tarot Card of Fate (The Devil)
@@ -4956,7 +4960,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot12.tga'
 		}],    //EF_TAROTCARD12       Tarot Card of Fate (The Tower)
@@ -4971,7 +4975,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot13.tga'
 		}],    //EF_TAROTCARD13       Tarot Card of Fate (The Star)
@@ -4986,7 +4990,7 @@ define(function( require )
             sizeSmooth: false,
             sizeStart: 100,
             type: '3D',
-            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            wav: 'effect/priest_slowpoison',
             zIndex: 10,
 			file: 'effect/tarot14.tga'
 		}],    //EF_TAROTCARD14       Tarot Card of Fate (The Sun)
