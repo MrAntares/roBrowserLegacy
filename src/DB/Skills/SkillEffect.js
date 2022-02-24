@@ -561,6 +561,10 @@ define(['./SkillConst'], function( SK )
         effectId: 294,
 		groundEffectId: '294_ground'
     }
+	
+	SkillEffect[SK.CG_ARROWVULCAN] = {
+        effectId: 393
+    }
 
     SkillEffect[SK.CG_MOONLIT] = {
         effectId: 394,
@@ -631,6 +635,10 @@ define(['./SkillConst'], function( SK )
 	
 	SkillEffect[SK.ASC_BREAKER] = {
         effectId: 361
+    };
+	
+	SkillEffect[SK.ASC_METEORASSAULT] = {
+        effectId: 409
     };
 	
 	SkillEffect[SK.CR_SHIELDBOOMERANG] = {
