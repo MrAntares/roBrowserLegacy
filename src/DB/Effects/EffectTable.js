@@ -533,7 +533,7 @@ define(function( require )
 
         22: [{    //EF_SIGHT    Sight
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -553,7 +553,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -573,7 +573,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -593,7 +593,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -613,7 +613,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -633,7 +633,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -653,7 +653,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -673,7 +673,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -693,7 +693,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -713,7 +713,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -732,7 +732,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -752,7 +752,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -772,7 +772,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -792,7 +792,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -812,7 +812,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.4,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -832,7 +832,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.4,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -852,7 +852,7 @@ define(function( require )
             zIndex: 2
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -872,7 +872,7 @@ define(function( require )
             zIndex: 3
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -892,7 +892,7 @@ define(function( require )
             zIndex: 4
         }, {
             alphaMax: 0.6,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -912,7 +912,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.6,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1617,7 +1617,7 @@ define(function( require )
         47: [{    //EF_TORCH    Torch
             type: 'SPR',
             file: 'torch_01',
-            attachedEntity: false
+            attachedEntity: true
         }],
 
 
@@ -2365,7 +2365,7 @@ define(function( require )
         124: [{    //EF_VENOMDUST    Venom Dust
             type: 'STR',
             file: 'venomdust',
-            wav:  'effect/assasin_venomdust',
+            wav:  'effect/assasin_poisonreact', //effect/assasin_venomdust'
             attachedEntity: false
         }],
 
@@ -4437,6 +4437,7 @@ define(function( require )
         391: [{    //EF_CARTBOOST    Cart Boost
             type: 'STR',
             file: 'cart',
+			wav: 'effect/ef_incagility',
             attachedEntity: true
         }],
 
@@ -4779,20 +4780,216 @@ define(function( require )
             }
         }],
 
-        //523: [{}],    //EF_TAROTCARD1       Tarot Card of Fate (The Fool)
-        //524: [{}],    //EF_TAROTCARD2       Tarot Card of Fate (The Magician)
-        //525: [{}],    //EF_TAROTCARD3       Tarot Card of Fate (The High Priestess)
-        //526: [{}],    //EF_TAROTCARD4       Tarot Card of Fate (The Chariot)
-        //527: [{}],    //EF_TAROTCARD5       Tarot Card of Fate (Strength)
-        //528: [{}],    //EF_TAROTCARD6       Tarot Card of Fate (The Lovers)
-        //529: [{}],    //EF_TAROTCARD7       Tarot Card of Fate (The Wheel of Fortune)
-        //530: [{}],    //EF_TAROTCARD8       Tarot Card of Fate (The Hanged Man)
-        //531: [{}],    //EF_TAROTCARD9       Tarot Card of Fate (Death)
-        //532: [{}],    //EF_TAROTCARD10       Tarot Card of Fate (Temperance)
-        //533: [{}],    //EF_TAROTCARD11       Tarot Card of Fate (The Devil)
-        //534: [{}],    //EF_TAROTCARD12       Tarot Card of Fate (The Tower)
-        //535: [{}],    //EF_TAROTCARD13       Tarot Card of Fate (The Star)
-        //536: [{}],    //EF_TAROTCARD14       Tarot Card of Fate (The Sun)
+        523: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot01.tga'
+		}],    //EF_TAROTCARD1       Tarot Card of Fate (The Fool)
+        524: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot02.tga'
+		}],    //EF_TAROTCARD2       Tarot Card of Fate (The Magician)
+        525: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot03.tga'
+		}],    //EF_TAROTCARD3       Tarot Card of Fate (The High Priestess)
+        526: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot04.tga'
+		}],    //EF_TAROTCARD4       Tarot Card of Fate (The Chariot)
+        527: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot05.tga'
+		}],    //EF_TAROTCARD5       Tarot Card of Fate (Strength)
+        528: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot06.tga'
+		}],    //EF_TAROTCARD6       Tarot Card of Fate (The Lovers)
+        529: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot07.tga'
+		}],    //EF_TAROTCARD7       Tarot Card of Fate (The Wheel of Fortune)
+        530: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot08.tga'
+		}],    //EF_TAROTCARD8       Tarot Card of Fate (The Hanged Man)
+        531: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot09.tga'
+		}],    //EF_TAROTCARD9       Tarot Card of Fate (Death)
+        532: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot10.tga'
+		}],    //EF_TAROTCARD10       Tarot Card of Fate (Temperance)
+        533: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot11.tga'
+		}],    //EF_TAROTCARD11       Tarot Card of Fate (The Devil)
+        534: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot12.tga'
+		}],    //EF_TAROTCARD12       Tarot Card of Fate (The Tower)
+        535: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot13.tga'
+		}],    //EF_TAROTCARD13       Tarot Card of Fate (The Star)
+        536: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
+            zIndex: 10,
+			file: 'effect/tarot14.tga'
+		}],    //EF_TAROTCARD14       Tarot Card of Fate (The Sun)
         
         //537: [{}],    //EF_ACIDDEMON       Acid Demonstration
         //538: [{}],    //EF_GREENBODY       Player Become Green with Green Aura
