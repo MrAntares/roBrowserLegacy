@@ -148,6 +148,10 @@ define(function( require )
 					
 			}
 		}
+		
+		if(pkt.SKID == SkillId.CG_TAROTCARD){
+			error = 204;
+		}
 
 		else {
 			switch (pkt.cause) {
