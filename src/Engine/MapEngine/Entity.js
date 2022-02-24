@@ -807,6 +807,13 @@ define(function( require )
             if (pkt.SKID === SkillId.RG_STEALCOIN) {
                 ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE );
             }
+			
+			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
+				if(dstEntity.RollCounter){
+					EffectManager.spam(757 + dstEntity.RollCounter, dstEntity.GID, null, null, srcEntity.GID);
+				}
+			}
+			
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 			
 			if (pkt.result == 1){
@@ -1191,6 +1198,14 @@ define(function( require )
             case StatusConst.RUN: //state: 1 ON  0 OFF
                 //draw footprints on the floor
                 break;
+				
+			case StatusConst.ROLLINGCUTTER:
+				if (pkt.state == 1) {
+					entity.RollCounter = pkt.val[0];
+				} else {
+					entity.RollCounter = 0;
+				}
+				break;
 
             case StatusConst.TRICKDEAD:
                 if(pkt.state == 1) {
