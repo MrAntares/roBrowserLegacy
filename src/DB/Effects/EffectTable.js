@@ -5694,16 +5694,146 @@ define(function( require )
         }],
         
         //757: [{}],    //EF_CIRCLEPOWER       Third Class Aura (Middle)
-        //758: [{}],    //EF_ROLLING1       Rolling Cutter - Spin Count 1
-        //759: [{}],    //EF_ROLLING2       Rolling Cutter - Spin Count 2
-        //760: [{}],    //EF_ROLLING3       Rolling Cutter - Spin Count 3
-        //761: [{}],    //EF_ROLLING4       Rolling Cutter - Spin Count 4
-        //762: [{}],    //EF_ROLLING5       Rolling Cutter - Spin Count 5
-        //763: [{}],    //EF_ROLLING6       Rolling Cutter - Spin Count 6
-        //764: [{}],    //EF_ROLLING7       Rolling Cutter - Spin Count 7
-        //765: [{}],    //EF_ROLLING8       Rolling Cutter - Spin Count 8
-        //766: [{}],    //EF_ROLLING9       Rolling Cutter - Spin Count 9
-        //767: [{}],    //EF_ROLLING10       Rolling Cutter - Spin Count 10
+        758: [{    //EF_ROLLING1       Rolling Cutter - Spin Count 1
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd1.tga'
+		}],
+        759: [{    //EF_ROLLING2       Rolling Cutter - Spin Count 2
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd2.tga'
+		}],
+        760: [{    //EF_ROLLING3       Rolling Cutter - Spin Count 3
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd3.tga'
+		}],
+        761: [{    //EF_ROLLING4       Rolling Cutter - Spin Count 4
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd4.tga'
+		}],
+        762: [{    //EF_ROLLING5       Rolling Cutter - Spin Count 5
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd5.tga'
+		}],
+        763: [{    //EF_ROLLING6       Rolling Cutter - Spin Count 6
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd6.tga'
+		}],
+        764: [{    //EF_ROLLING7       Rolling Cutter - Spin Count 7
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd7.tga'
+		}],
+        765: [{    //EF_ROLLING8       Rolling Cutter - Spin Count 8
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd8.tga'
+		}],
+        766: [{    //EF_ROLLING9       Rolling Cutter - Spin Count 9
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd9.tga'
+		}],
+        767: [{    //EF_ROLLING10       Rolling Cutter - Spin Count 10
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd10.tga'
+		}],
         //768: [{}],    //EF_PURPLEBODY       Blinking
         //769: [{}],    //EF_STIN6       Cross Ripper Slasher (flying knives)
         //770: [{}],    //EF_RG_COIN4       Strip sound
