@@ -710,6 +710,13 @@ define(['./SkillConst'], function( SK )
         effectId: 120
     };
 	
+	SkillEffect[SK.SO_FIREWALK] = {
+        groundEffectId: 920
+    };
+	
+	SkillEffect[SK.SO_ELECTRICWALK] = {
+        groundEffectId: 926
+    };	
 	
 	
 	
