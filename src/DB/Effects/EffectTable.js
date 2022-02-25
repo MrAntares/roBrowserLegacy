@@ -6091,7 +6091,9 @@ define(function( require )
         //885: [{}],    //EF_BASH3D6       Blue light beams
         //886: [{}],    //EF_GUMGANG5       Blue castish cone
         //887: [{}],    //EF_HITLINE8       Wavy sparks
-        //888: [{}],    //EF_ELECTRIC4       Earth Shaker (same as 432)
+        888: [{
+			wav: 'effect/sr_earthshaker'
+		}],    //EF_ELECTRIC4       Earth Shaker (same as 432)
         //889: [{}],    //EF_TEIHIT1T       Fast light beams
         //890: [{}],    //EF_SPINMOVE       Rotation
         //891: [{}],    //EF_FIREBALL4       Magic shots [S]
