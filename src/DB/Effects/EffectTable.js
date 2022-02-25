@@ -2321,8 +2321,6 @@ define(function( require )
             attachedEntity: true
         }],
 
-
-
         113: [{    //EF_MAGNUS    Magnus Exorcismus
             type: 'STR',
             file: 'magnus',
@@ -2870,7 +2868,11 @@ define(function( require )
         }],
 
         //221: [{}],    //EF_POTIONPILLAR       Intense light beam
-        //222: [{}],    //EF_DEFENDER       Defender (Crusader)
+        222: [{    //EF_DEFENDER       Defender (Crusader)
+			type: 'STR',
+            file: 'deffender',
+            attachedEntity: true
+		}],
         //223: [{}],    //EF_GANBANTEIN       Holy Cast Aura
         //224: [{}],    //EF_WIND       Wind (Map effect)
         //225: [{}],    //EF_VOLCANO       Volcano casting effect
@@ -2904,9 +2906,30 @@ define(function( require )
         //236: [{}],    //EF_DELUGE       Deluge Cast Aura
         //237: [{}],    //EF_VIOLENTGALE       Violent Gale Cast Aura
         //238: [{}],    //EF_LANDPROTECTOR       Magnetic Earth Cast Aura
-        //239: [{}],    //EF_BOTTOM_VO       Volcano (Visual Effect)
-        //240: [{}],    //EF_BOTTOM_DE       Deluge (Visual Effect)
-        //241: [{}],    //EF_BOTTOM_VI       Violent Gale (Visual Effect)
+        239: [{    //EF_BOTTOM_VO       Volcano (Visual Effect)
+			type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var PropertyGround = require('Renderer/Effects/PropertyGround');
+                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_red', tick), AID);
+            }
+		}],
+        240: [{    //EF_BOTTOM_DE       Deluge (Visual Effect)
+			type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var PropertyGround = require('Renderer/Effects/PropertyGround');
+                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_blue', tick), AID);
+            }
+		}],
+        241: [{    //EF_BOTTOM_VI       Violent Gale (Visual Effect)
+			type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var PropertyGround = require('Renderer/Effects/PropertyGround');
+                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_yellow', tick), AID);
+            }
+		}],
 
         242: [{    //EF_BOTTOM_LA    Magnetic Earth (Visual Effect)
             type: 'FUNC',
@@ -3902,15 +3925,6 @@ define(function( require )
             topSize: 1,
             type: 'CYLINDER'
         }],
-
-        'deluge_ground': [{
-            type: 'FUNC',
-            attachedEntity: false,
-            func: function(pos, tick, AID){
-                var PropertyGround = require('Renderer/Effects/PropertyGround');
-                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_blue', tick), AID);
-            }
-        }],
         
         'soulink_caster_effect': [{ // todo
             wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
@@ -4249,7 +4263,32 @@ define(function( require )
         }],
 
         //338: [{}],    //EF_ANGEL2       Super Novice/Taekwon Level Up Angel
-        //339: [{}],    //EF_MAGNUM2       Spiral Pierce
+        339: [{    //EF_MAGNUM2       Spiral Pierce
+			type: 'FUNC',
+            attachedEntity: true,
+            func: function EffectBodyColor(entity) {
+                entity._virtueColor[0] = 1.0;
+                entity._virtueColor[1] = 1.0;
+                entity._virtueColor[2] = 1.0;
+                entity._virtueColor[3] = 1.0;
+                entity.recalculateBlendingColor();
+
+                entity.animations.add(function(tick){
+                
+                    if (!entity.cast.display) {     //we don't know cast time here so.. let's hack
+                        entity._virtueColor[0] = 1.0;
+                        entity._virtueColor[1] = 1.0;
+                        entity._virtueColor[2] = 1.0;
+                        entity._virtueColor[3] = 1.0;
+                        entity.recalculateBlendingColor();
+                        return true;
+                    }
+                        entity._virtueColor[1] = 0.0 + Math.sin(tick / (6 * Math.PI));
+                        entity._virtueColor[2] = 0.0 + Math.sin(tick / (6 * Math.PI));
+                        entity.recalculateBlendingColor();
+                });
+            }
+		}],
         //340: [{}],    //EF_CALLZONE       (Nothing)
         //341: [{}],    //EF_PORTAL3       Wedding Warp Portal
         //342: [{}],    //EF_COUPLECASTING       Wedding Skill
@@ -6091,9 +6130,9 @@ define(function( require )
         //885: [{}],    //EF_BASH3D6       Blue light beams
         //886: [{}],    //EF_GUMGANG5       Blue castish cone
         //887: [{}],    //EF_HITLINE8       Wavy sparks
-        888: [{
+        888: [{    //EF_ELECTRIC4       Earth Shaker (same as 432)
 			wav: 'effect/sr_earthshaker'
-		}],    //EF_ELECTRIC4       Earth Shaker (same as 432)
+		}],
         //889: [{}],    //EF_TEIHIT1T       Fast light beams
         //890: [{}],    //EF_SPINMOVE       Rotation
         //891: [{}],    //EF_FIREBALL4       Magic shots [S]
@@ -6621,36 +6660,7 @@ define(function( require )
 
             }
         }],
-        
-        
-        'spiral_pierce_color': [{
-            type: 'FUNC',
-            attachedEntity: true,
-            func: function EffectBodyColor(entity) {
-                entity._virtueColor[0] = 1.0;
-                entity._virtueColor[1] = 1.0;
-                entity._virtueColor[2] = 1.0;
-                entity._virtueColor[3] = 1.0;
-                entity.recalculateBlendingColor();
 
-                entity.animations.add(function(tick){
-                
-                    if (!entity.cast.display) {     //we don't know cast time here so.. let's hack
-                        entity._virtueColor[0] = 1.0;
-                        entity._virtueColor[1] = 1.0;
-                        entity._virtueColor[2] = 1.0;
-                        entity._virtueColor[3] = 1.0;
-                        entity.recalculateBlendingColor();
-                        return true;
-                    }
-                        entity._virtueColor[1] = 0.0 + Math.sin(tick / (6 * Math.PI));
-                        entity._virtueColor[2] = 0.0 + Math.sin(tick / (6 * Math.PI));
-                        entity.recalculateBlendingColor();
-                });
-            }
-        }],        
-        
-        
         'magic_ring_red': [{
             type: 'FUNC',
             attachedEntity: false,
@@ -6710,11 +6720,6 @@ define(function( require )
 
 		'ef_greed_sound': [{
             wav: 'effect/ef_entry',
-            attachedEntity: true
-        }],
-		
-		'ef_blitzbeat_sound': [{
-            wav: 'effect/hunter_blitzbeat',
             attachedEntity: true
         }],
         
