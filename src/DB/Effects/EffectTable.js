@@ -1031,7 +1031,7 @@ define(function( require )
 
         33: [{ //EF_RUWACH    //ruwach
 			alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1051,7 +1051,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1071,7 +1071,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1091,7 +1091,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1111,7 +1111,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1131,7 +1131,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1151,7 +1151,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1171,7 +1171,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1190,7 +1190,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1210,7 +1210,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.4,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1230,7 +1230,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1250,7 +1250,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1270,7 +1270,7 @@ define(function( require )
             zIndex: 2
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1290,7 +1290,7 @@ define(function( require )
             zIndex: 3
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1310,7 +1310,7 @@ define(function( require )
             zIndex: 4
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1330,7 +1330,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
