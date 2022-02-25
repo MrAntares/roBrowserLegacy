@@ -2615,7 +2615,7 @@ define(function( require )
         //164: [{}],    //EF_STATUS_STATE       (Nothing)
 
         165: [{ //Comodo Fireworks Ball    //EF_BANJJAKII    Comodo Fireworks Ball
-            wav:  'effect/\xc6\xf8\xc1\xd7', //ĆřÁ×
+            wav:  'effect/\x3f\x3f\xc1\xd7', //ĆřÁ×
             attachedEntity: false
         }],
         
@@ -2767,42 +2767,43 @@ define(function( require )
 
         204: [{    //EF_POTION1    Red Herb/Potion
             type: 'STR',
-            file: '\xbb\x21\xb0\x4c\x41\xf7\x31\xc7', //»!°LA÷1Ç
+            file: '\xbb\xa1\xb0\xa3\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         205: [{    //EF_POTION2    Orange Potion
             type: 'STR',
-            file: '\xc1\xd6\x45\xab\x41\xf7\x31\xc7', //ÁÖE«A÷1Ç
+            file: '\xc1\xd6\xc8\xab\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         206: [{    //EF_POTION3    Yellow Herb/Potion
             type: 'STR',
-            file: '\x33\xeb\xb6\x6f\x41\xf7\x31\xc7', //3ë¶oA÷1Ç
+            file: '\xb3\xeb\xb6\xf5\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         207: [{    //EF_POTION4    White Herb/Potion
             type: 'STR',
-            file: '\xc7\x49\x33\xe1\x41\xf7\x31\xc7', //ÇI3áA÷1Ç
+            file: '\xc7\xcf\xbe\xe1\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         208: [{    //EF_POTION5    Blue Herb/Potion
             type: 'STR',
-            file: '\x41\xc4\xb6\x6f\x41\xf7\x31\xc7', //AÄ¶oA÷1Ç
+            file: '\xc6\xc4\xb6\xf5\xc6\xf7\xbc\xc7',
+			wav: 'effect/\xc8\xed\xb1\xe2',
             attachedEntity: true
         }],
 
 
         209: [{    //EF_POTION6    Green Herb/Potion
             type: 'STR',
-            file: '\x41\x45\xb7\x49\x41\xf7\x31\xc7', //AE·IA÷1Ç
+            file: '\xc3\xca\xb7\xcf\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
@@ -2810,6 +2811,7 @@ define(function( require )
         210: [{    //EF_POTION7    Yellow Circle Healing Effect
             type: 'STR',
             file: 'fruit',
+			wav: '_heal_effect',
             attachedEntity: true
         }],
 
@@ -2817,6 +2819,7 @@ define(function( require )
         211: [{    //EF_POTION8    Blue Circle Healing Effect
             type: 'STR',
             file: 'fruit_',
+			wav: 'effect/\xc8\xed\xb1\xe2',
             attachedEntity: true
         }],
 
@@ -2845,21 +2848,24 @@ define(function( require )
 
         218: [{    //EF_POTION_CON    Concentration Potion
             type: 'STR',
-            file: '\xc1\xfd\xc1\xdf', //ÁýÁß
+            file: '\xc1\xfd\xc1\xdf',
+			wav:  'effect/ac_concentration',
             attachedEntity: true
         }],
 
 
         219: [{    //EF_POTION_    Awakening Potion
             type: 'STR',
-            file: '\xb0\x63\x31\x6f', //°c1o
+            file: '\xb0\xa2\xbc\xba',
+			wav:  'effect/ac_concentration',
             attachedEntity: true
         }],
 
 
         220: [{    //EF_POTION_BERSERK    Berserk Potion
             type: 'STR',
-            file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
+            file: '\xb9\xf6\xbc\xad\xc5\xa9',
+			wav:  'effect/ac_concentration',
             attachedEntity: true
         }],
 
@@ -2891,7 +2897,7 @@ define(function( require )
 
         235: [{    //EF_DISPELL    Dispell
             type: 'STR',
-            file: '\xb5\x3f\x31\x6f\x41\xe7', //µ?1oAç
+            file: '\xb5\xf0\xbd\xba\xc6\xe7',
             attachedEntity: true
         }],
 
@@ -2915,7 +2921,7 @@ define(function( require )
 
         244: [{    //EF_MAGICROD    Magic Rod
             type: 'STR',
-            file: '\xb8\x41\xc1\xf7\xb7\xce\xb5\x61', //¸AÁ÷·Îµa
+            file: '\xb8\xc5\xc1\xf7\xb7\xce\xb5\xe5',
             wav:  'effect/sage_magic rod',
             attachedEntity: true
         }],
@@ -2997,12 +3003,12 @@ define(function( require )
         //260: [{}],    //EF_MAPPILLAR4       Map Light Pillar Animation 4
 
         261: [{ //fury / critical explosion TODO: combo sounds, super novice fury    //EF_GUMGANG2    Fury Cast Animation
-            wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_Ćř±â
+            wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
             attachedEntity: true
         }],
 
         262: [{		//EF_TEIHIT1       Raging Quadruple Blow
-			wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_ż¬ČŻ
+			wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
 		}],    
         
 		//263: [{}],    //EF_GUMGANG3       Raging Quadruple Blow 2
@@ -3027,7 +3033,7 @@ define(function( require )
         269: [{    //EF_STRIPWEAPON    Divest Weapon
             type: 'STR',
             file: 'strip_weapon',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
@@ -3035,7 +3041,7 @@ define(function( require )
         270: [{    //EF_STRIPSHIELD    Divest Shield
             type: 'STR',
             file: 'strip_shield',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
@@ -3043,7 +3049,7 @@ define(function( require )
         271: [{    //EF_STRIPARMOR    Divest Armor
             type: 'STR',
             file: 'strip_armor',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
@@ -3051,13 +3057,13 @@ define(function( require )
         272: [{    //EF_STRIPHELM    Divest Helm
             type: 'STR',
             file: 'strip_helm',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
         273: [{    //EF_CHAINCOMBO    Raging Quadruple Blow 4
             type: 'STR',
-            file: '\x3f\xac\x45\x97', //?¬E—
+            file: '\xbf\xac\xc8\xaf',
             attachedEntity: true
         }],
         
@@ -3383,7 +3389,7 @@ define(function( require )
 
         302: [{    //EF_DEMONSTRATION    Bomb
             type: 'SPR',
-            file: '\xb5\x59\xb8\xf3\x31\x6f\x41\xae\xb7\x31\x41\x49\x31\xc7', //µY¸ó1oA®·1AI1Ç
+            file: '\xb5\xa5\xb8\xf3\xbd\xba\xc6\xae\xb7\xb9\xc0\xcc\xbc\xc7',
             attachedEntity: false
         }],
 
@@ -3477,7 +3483,7 @@ define(function( require )
         311: [{ //crazy uproar    //EF_LOUD    Crazy Uproar
             type: 'STR',
             file: 'loud',
-            wav: 'effect/\xb0\xed\xbc\xba\xb9\xe6\xb0\xa1', //°íĽşąć°ˇ
+            wav: 'effect/\xb0\xed\xbc\xba\xb9\xe6\xb0\xa1',
             attachedEntity: true
         }],
 
@@ -3907,7 +3913,7 @@ define(function( require )
         }],
         
         'soulink_caster_effect': [{ // todo
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: false
         }],
 
@@ -4329,6 +4335,7 @@ define(function( require )
         363: [{    //EF_VALLENTINE    Valentine Day Heart With Wings
             type: 'SPR',
             file: 'vallentine',
+			wav: 'effect/vallentine',
             attachedEntity: true
         }],       
         
@@ -4397,7 +4404,9 @@ define(function( require )
 
         //374: [{}],    //EF_BOTTOM_BASILICA       Basilica
         //375: [{}],    //EF_ASSUMPTIO       Assumptio (Visual Effect)
-        //376: [{}],    //EF_HITLINE2       Palm Strike
+        376: [{    //EF_HITLINE2       Palm Strike
+			wav: 'effect/\xb8\xcd\xc8\xa3\xb0\xe6\xc6\xc4\xbb\xea',
+		}],
         //377: [{}],    //EF_BASH3D2       Matyr's Reckoning 2
         //378: [{}],    //EF_ENERGYDRAIN2       Soul Drain (1st Part)
         //379: [{}],    //EF_TRANSBLUEBODY       Soul Drain (2nd Part)
@@ -4411,13 +4420,15 @@ define(function( require )
 
         382: [{    //EF_LIGHTBLADE    (Nothing)
             type: 'SPR',
-            file: '\xc7\x4e\x6f\x31\x41\xb5\xbb\xe7', //ÇNo1Aµ»ç
+            file: '\xc7\xd1\xba\xb9\xc3\xb5\xbb\xe7',
             head: true,
             attachedEntity: true
         }],
 
         //383: [{}],    //EF_ENERGYDRAIN3       Health Conversion
-        //384: [{}],    //EF_LINELINK2       Soul Change (Sound Effect)
+        384: [{    //EF_LINELINK2       Soul Change (Sound Effect)
+			wav: 'effect/\xbc\xd2\xbf\xef\x20\xc3\xbc\xc0\xce\xc1\xf6'
+		}],
         //385: [{}],    //EF_LINKLIGHT       Soul Change (Visual Effect)
         //386: [{}],    //EF_TRUESIGHT       True Sight
         //387: [{}],    //EF_FALCONASSAULT       Falcon Assault
@@ -4513,14 +4524,14 @@ define(function( require )
         
         406: [{    //EF_SOULBURN    Soul Burn
             type: 'STR',
-            file: '\x31\x4f\x3f\x69\x31\x6f', //1O?i1o
+            file: '\xbc\xd2\xbf\xef\xb9\xf8',
             attachedEntity: true
         }],
 
 
         407: [{    //EF_SOULCHANGE    Soul Change
             type: 'STR',
-            file: '\xbb\xe7\xb6\xf7\x45\x3f\xb0\xfa', //»ç¶÷E?°ú
+            file: '\xbb\xe7\xb6\xf7\xc8\xbf\xb0\xfa',
             attachedEntity: true
         }],
 
@@ -4692,7 +4703,7 @@ define(function( require )
 
         491: [{    //EF_MOCHI    Element Potions
             type: 'STR',
-            file: '\xc2\xfd\x31\x4f\xb6\xb1', //Âý1O¶±
+            file: '\xc2\xfd\xbd\xd2\xb6\xb1',
             attachedEntity: true
         }],
 
@@ -4743,6 +4754,7 @@ define(function( require )
         508: [{    //EF_ITEMPOKJUK    Fire Cracker
             type: 'STR',
             file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
             attachedEntity: true
         }],
 
@@ -5062,14 +5074,14 @@ define(function( require )
 
         570: [{    //EF_HAMICASTLE    Amistr Castling
             type: 'SPR',
-            file: '\xc4\x33\x31\x31\xb8\xb5', //Ä311¸µ
+            file: '\xc4\xb3\xbd\xbd\xb8\xb5',
             attachedEntity: true
         }],
 
 
         571: [{    //EF_HAMIBLOOD    Amistr Bloodlust
             type: 'SPR',
-            file: '\x6f\xed\xb7\x97\xb5\x61\xb7\x97\x31\x6f\x41\xae', //oí·—µa·—1oA®
+            file: '\xba\xed\xb7\xaf\xb5\xe5\xb7\xaf\xbd\xba\xc6\xae',
             attachedEntity: true
         }],
 
@@ -5251,11 +5263,12 @@ define(function( require )
 
         612: [{    //EF_HAPGYEOK    Korean Words and /no1 Emoticon
             type: 'SPR',
-            file: '\xc7\x4f\xb0\xdd\x5f', //ÇO°Ý_
+            file: '\xc7\xd5\xb0\xdd\x5f',
             attachedEntity: true
         },{
             type: 'STR',
             file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
             attachedEntity: true
         }],
 
@@ -5279,36 +5292,36 @@ define(function( require )
 
         630: [{    //EF_KIRIKAGE    Shadow Slash
             type: 'SPR',
-            file: '\xb1\xd7\xb8\x32\x41\xda\x6f\x4c\xb1\xe2', //±×¸2AÚoL±â
+            file: '\xb1\xd7\xb8\xb2\xc0\xda\xba\xa3\xb1\xe2',
             attachedEntity: true
         }],
 
 
         631: [{ //reverse tatami map unit    //EF_TATAMI    Reverse Tatami Map Unit
             type: 'SPR',
-            file: '\xb4\x55\xb4\x55\x31\x49', //´U´U1I
-            wav: '\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2', //´Ů´ŮąĚµÚÁý±â
+            file: '\xb4\xd9\xb4\xd9\xb9\xcc\x20\xb5\xda\xc1\xfd\xb1\xe2',
+            wav: 'effect/\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2',
             attachedEntity: true
         }],
 
 
         632: [{    //EF_KASUMIKIRI    Mist Slash
             type: 'SPR',
-            file: '\x33\x45\xb0\x33\x6f\x4c\xb1\xe2', //3E°3oL±â
+            file: '\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2', //3E°3oL±â
             attachedEntity: true
         }],
 
 
         633: [{    //EF_ISSEN    Final Strike
             type: 'SPR',
-            file: '\x41\x49\x31\xb6', //AI1¶
+            file: '\xc0\xcf\xbc\xb6',
             attachedEntity: true
         }],
 
 
         634: [{    //EF_KAEN    Crimson Fire Formation
             type: 'SPR',
-            file: '\x45\xad\x3f\xb0\xc1\x6f', //E­?°Áo
+            file: '\xc8\xad\xbf\xb0\xc1\xf8',
             attachedEntity: false
         }],
 
@@ -5329,63 +5342,63 @@ define(function( require )
 
         637: [{    //EF_DESPERADO    Desperado
             type: 'SPR',
-            file: '\xb5\x59\x31\x6f\x41\xe4\xb6\xf3\xb5\xb5', //µY1oAä¶óµµ
+            file: '\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
             attachedEntity: true
         }],
 
 
         638: [{    //EF_LIGHTNING_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\xb6\xf3\x41\x49\x41\xae\xb4\xd7\x31\x6f\xc7\xc7\x33\xee', //¶óAIA®´×1oÇÇ3î
+            file: '\xb6\xf3\xc0\xcc\xc6\xae\xb4\xd7\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         639: [{    //EF_BLIND_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\x6f\xed\xb6\xf3\x41\xce\xb5\x61\x31\x6f\xc7\xc7\x33\xee', //oí¶óAÎµa1oÇÇ3î
+            file: '\xba\xed\xb6\xf3\xc0\xce\xb5\xe5\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         640: [{    //EF_POISON_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\x41\xf7\x41\x49\xc1\x3f\x31\x6f\xc7\xc7\x33\xee', //A÷AIÁ?1oÇÇ3î
+            file: '\xc6\xf7\xc0\xcc\xc1\xf0\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         641: [{    //EF_FREEZING_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\xc7\xc1\xb8\xae\xc2\x21\x31\x6f\xc7\xc7\x33\xee', //ÇÁ¸®Â!1oÇÇ3î
+            file: '\xc7\xc1\xb8\xae\xc2\xa1\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         642: [{    //EF_FLARE_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\xc7\x41\xb7\x31\x33\xee\x31\x6f\xc7\xc7\x33\xee', //ÇA·13î1oÇÇ3î
+            file: '\xc7\xc3\xb7\xb9\xbe\xee\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         643: [{    //EF_RAPIDSHOWER    Rapid Shower
             type: 'SPR',
-            file: '\xb7\x21\xc7\xc7\xb5\x61\xbb\x3f\x3f\xf6', //·!ÇÇµa»??ö
+            file: '\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
             attachedEntity: true
         }],
 
 
         644: [{    //EF_MAGICALBULLET    Magic Bullet
             type: 'SPR',
-            file: '\xb8\x41\xc1\xf6\xc4\x41\x6f\x4f\xb8\xb4', //¸AÁöÄAoO¸´
+            file: '\xb8\xc5\xc1\xf6\xc4\xc3\xba\xd2\xb8\xb4',
             attachedEntity: true
         }],
 
 
         645: [{    //EF_SPREADATTACK    Spread Attack
             type: 'SPR',
-            file: '\x31\x6f\xc7\xc1\xb7\x31\xb5\x61', //1oÇÁ·1µa
+            file: '\xbd\xba\xc7\xc1\xb7\xb9\xb5\xe5',
             attachedEntity: true,
             direction: true,
         }],
@@ -5393,28 +5406,28 @@ define(function( require )
 
         646: [{    //EF_TRACKCASTING    Tracking (Shown While Casting)
             type: 'STR',
-            file: '\x41\xae\xb7\x63\x41\xb7', //A®·cA·
+            file: '\xc6\xae\xb7\xa2\xc5\xb7',
             attachedEntity: true
         }],
 
 
         647: [{    //EF_TRACKING    Tracking
             type: 'SPR',
-            file: '\x41\xae\xb7\x21\x41\xb7', //A®·!A·
+            file: '\xc6\xae\xb7\xa1\xc5\xb7',
             attachedEntity: true
         }],
 
 
         648: [{    //EF_TRIPLEACTION    Triple Action
             type: 'SPR',
-            file: '\x41\xae\xb8\xae\xc7\x41\x33\xd7\x31\xc7', //A®¸®ÇA3×1Ç
+            file: '\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         649: [{    //EF_BULLSEYE    Bull's Eye
             type: 'STR',
-            file: '\x6f\x4f\x31\x6f\x33\x41\x41\x49', //oO1o3AAI
+            file: '\xba\xd2\xbd\xba\xbe\xc6\xc0\xcc', //oO1o3AAI
             attachedEntity: true
         }],
 
@@ -5437,7 +5450,8 @@ define(function( require )
 
         666: [{  //Earthquake    //EF_NPC_EARTHQUAKE    Earthquake
             type: 'SPR',
-            file: '\x33\xee\x31\x6f\xc4\x75\x41\x49\x41\xa9', //3î1oÄuAIA©
+            file: '\xbe\xee\xbd\xba\xc4\xf9\xc0\xcc\xc5\xa9',
+			wav: 'effect/earth_quake',
             attachedEntity: true
         }],
 
@@ -5493,11 +5507,56 @@ define(function( require )
         //679: [{}],    //EF_GREEN99_5       Green Aura (Middle)
         //680: [{}],    //EF_GREEN99_6       Green Aura (Bottom)
         //681: [{}],    //EF_MAPSPHERE       Dimensional Gorge Map Effect
-        //682: [{}],    //EF_POK_LOVE       I Love You Banner
-        //683: [{}],    //EF_POK_WHITE       Happy White Day Banner
-        //684: [{}],    //EF_POK_VALEN       Happy Valentine Day Banner
-        //685: [{}],    //EF_POK_BIRTH       Happy Birthday Banner
-        //686: [{}],    //EF_POK_CHRISTMAS       Merry Christmas Banner
+        682: [{    //EF_POK_LOVE       I Love You Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xb7\xaf\xba\xea',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        683: [{        //EF_POK_WHITE       Happy White Day Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xc8\x5f\xc0\xcc\xc6\xae\xb5\xa5\xc0\xcc',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        684: [{    //EF_POK_VALEN       Happy Valentine Day Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xb9\xdf\xb7\xbb\xc5\xb8\xc0\xce',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        685: [{    //EF_POK_BIRTH       Happy Birthday Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xbb\xfd\xc0\xcf',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        686: [{    //EF_POK_CHRISTMAS       Merry Christmas Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xc5\xa9\xb8\xae\xbd\xba\xb8\xb6\xbd\xba',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
         //687: [{}],    //EF_MAP_MAGICZONE3       Cast Circle-Like effect 1
         //688: [{}],    //EF_MAP_MAGICZONE4       Cast Circle-Like effect 2
         //689: [{}],    //EF_DUST       Endless Tower Map Effect
@@ -5589,7 +5648,7 @@ define(function( require )
 
         722: [{    //EF_IGN_STR    Ignition Break (big explosion)
             type: 'STR',
-            file: '\x41\x49\xb1\xd7\xb4\x49\x31\xc7\x6f\x65\xb7\x31\x41\x49\x41\xa9', //AI±×´I1Çoe·1AIA©
+            file: '\xc0\xcc\xb1\xd7\xb4\xcf\xbc\xc7\xba\xea\xb7\xb9\xc0\xcc\xc5\xa9',
             attachedEntity: true
         }],
 
@@ -5689,7 +5748,7 @@ define(function( require )
 
         756: [{    //EF_POTION_BERSERK2    Enchant Blade (like Berserk Potion)
             type: 'STR',
-            file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
+            file: '\xb9\xf6\xbc\xad\xc5\xa9',
             attachedEntity: true
         }],
         
