@@ -2994,7 +2994,9 @@ define(function( require )
 
         //252: [{}],    //EF_REFLECTSHIELD       Reflect Shield
         //253: [{}],    //EF_ABSORBSPIRITS       Absorb Spirit Spheres
-        //254: [{}],    //EF_STEELBODY       Mental Strength (Visual Effect)
+        254: [{    //EF_STEELBODY       Mental Strength (Visual Effect)
+			wav: 'effect/mon_\xb1\xdd\xb0\xad\xba\xd2\xb1\xab'
+		}],
 
         255: [{    //EF_FLAMELAUNCHER    Elemental Endow (Fire)
             type: 'STR',
@@ -3045,7 +3047,9 @@ define(function( require )
 		}],
 		
         //266: [{}],    //EF_TEIHIT1X       Raging Quadruple Blow 3
-        //267: [{}],    //EF_CHIMTO       Occult Impaction
+        267: [{    //EF_CHIMTO       Occult Impaction
+			wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6'
+		}],
 
         268: [{    //EF_STEALCOIN    Steal Coin
             type: 'STR',
@@ -4244,7 +4248,9 @@ define(function( require )
         }],
         //326: [{}],    //EF_FOOT       Chase Walk Left Foot
         //327: [{}],    //EF_FOOT2       Chse Walk Right Foot
-        //328: [{}],    //EF_BEGINASURA       Monk Asura Strike
+        328: [{    //EF_BEGINASURA       Monk Asura Strike
+			wav: 'effect/mon_\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7'
+		}],
         //329: [{}],    //EF_TRIPLEATTACK       Triple Strike
         //330: [{}],    //EF_HITLINE       Combo Finish
         //331: [{}],    //EF_HPTIME       Natural HP Regeneration
@@ -5391,6 +5397,7 @@ define(function( require )
         637: [{    //EF_DESPERADO    Desperado
             type: 'SPR',
             file: '\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
+			wav: 'effect/\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
             attachedEntity: true
         }],
 
@@ -5508,6 +5515,7 @@ define(function( require )
         668: [{    //EF_DRAGONFEAR    Dragonfear
             type: 'STR',
             file: 'dragon_h',
+			wav: 'effect/dragonfear',
             attachedEntity: true
         }],
 
@@ -5710,7 +5718,7 @@ define(function( require )
         //724: [{}],    //EF_WINDCUTTER       Green version of Detecting
         //725: [{}],    //EF_DETECT2       Oratorio (like Detecting)
         726: [{    //EF_FROSTMYSTY       Frost Misty (blue vapor and bubbles)
-			wav: 'effect/wl_frostmisty'
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
 		}],
 
         727: [{    //EF_CRIMSON_STR    Crimson Rock
@@ -6386,7 +6394,9 @@ define(function( require )
         }],
 
         //921: [{}],    //EF_VACUUM       Vacuum Extreme (whirlwind)
-        //922: [{}],    //EF_SPR_PLANT10       Psychic Wave
+        922: [{    //EF_SPR_PLANT10       Psychic Wave
+			wav: 'effect/s\xbb\xe7\xc0\xcc\xc5\xb1\xbf\xfe\xc0\xcc\xba\xea'
+		}],
         //923: [{}],    //EF_SPR_LIGHTPRINT2       Poison Buster
         //924: [{}],    //EF_POISONSMOKE2       Poisoning animation
         //925: [{}],    //EF_MAKEHALLU2       Some filter
@@ -6398,8 +6408,12 @@ define(function( require )
         }],
 
         //927: [{}],    //EF_SPR_PLANT11       Earth Grave (speary roots)
-        //928: [{}],    //EF_COLDTHROW2       Ice cloud projectiles
-        //929: [{}],    //EF_DEMONICFIRE4       Warmer (field of flames)
+        928: [{    //EF_COLDTHROW2       Ice cloud projectiles
+			wav: 'effect/wl_jackfrost'
+		}],
+        929: [{    //EF_DEMONICFIRE4       Warmer (field of flames)
+			wav: 'effect/s\xbf\xf6\xb8\xd3'
+		}],
         //930: [{}],    //EF_PRESSURE3       Varetyr Spear (falling spear)
         //931: [{}],    //EF_LINKPARTICLE2       (Nothing)
         //932: [{}],    //EF_SOULLIGHT3       Firefly
