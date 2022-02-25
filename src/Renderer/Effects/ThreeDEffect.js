@@ -5,6 +5,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
     function randBetween(minimum, maximum) {
         return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
     }
+	
+	var blendMode = {};
 
     function ThreeDEffect(position, offset, effect, startLifeTime, endLifeTime, AID) {
 		this.AID = AID;
@@ -180,6 +182,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         }
         this.startLifeTime = startLifeTime;
         this.endLifeTime = endLifeTime;
+		this.blendMode = effect.blendMode;
     }
 	
 	
@@ -203,6 +206,13 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
     };
 	
     ThreeDEffect.prototype.render = function render(gl, tick) {
+		
+		if (this.blendMode > 0 && this.blendMode < 16) {
+			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
+		} else {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+		
         var start = tick - this.startLifeTime;
         var end = this.endLifeTime - this.startLifeTime;
         var steps = start / end * 100;
@@ -434,10 +444,27 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         } else {
 			SpriteRenderer.render();
 		}
+		
         this.needCleanUp = this.endLifeTime < tick;
     };
 	
     ThreeDEffect.init = function init(gl) {
+		blendMode[1] = gl.ZERO;
+		blendMode[2] = gl.ONE;
+		blendMode[3] = gl.SRC_COLOR;
+		blendMode[4] = gl.ONE_MINUS_SRC_COLOR;
+		blendMode[5] = gl.DST_COLOR;
+		blendMode[6] = gl.ONE_MINUS_DST_COLOR;
+		blendMode[7] = gl.SRC_ALPHA;
+		blendMode[8] = gl.ONE_MINUS_SRC_ALPHA;
+		blendMode[9] = gl.DST_ALPHA;
+		blendMode[10] = gl.ONE_MINUS_DST_ALPHA;
+		blendMode[11] = gl.CONSTANT_COLOR;
+		blendMode[12] = gl.ONE_MINUS_CONSTANT_COLOR;
+		blendMode[13] = gl.CONSTANT_ALPHA;
+		blendMode[14] = gl.ONE_MINUS_CONSTANT_ALPHA;
+		blendMode[15] = gl.SRC_ALPHA_SATURATE;
+		
         this.ready = true;
         this.renderBeforeEntities = false;
     };
@@ -465,6 +492,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
     };
 	
     ThreeDEffect.afterRender = function afterRender(gl) {
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.depthMask(true);
         SpriteRenderer.unbind(gl);
     };
