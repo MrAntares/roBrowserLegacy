@@ -70,10 +70,10 @@ define(function()
 	ItemEffect[555] = { effectId: 210 }; //Traditional Rice Cake
 	ItemEffect[556] = { effectId: 210 }; //Rice Cake Stick
 	ItemEffect[557] = { effectId: 204 }; //Neatly Sliced Rice Cake
-	ItemEffect[558] = { effectId: 204 }; //Chocolate
-	ItemEffect[559] = { effectId: 204 }; //Hand-made Chocolate
-	ItemEffect[560] = { effectId: 204 }; //Handmade White Chocolate
-	ItemEffect[561] = { effectId: 204 }; //White Chocolate
+	ItemEffect[558] = { effectId: 363 }; //Chocolate
+	ItemEffect[559] = { effectId: 363 }; //Hand-made Chocolate
+	ItemEffect[560] = { effectId: 363 }; //Handmade White Chocolate
+	ItemEffect[561] = { effectId: 363 }; //White Chocolate
 	ItemEffect[562] = { effectId: 204 }; //Doublecrust Swiss Fondue
 	ItemEffect[563] = { effectId: 204 }; //Doublecrust Swiss Fondue
 	ItemEffect[564] = { effectId: 204 }; //Rice Ball
@@ -85,7 +85,7 @@ define(function()
 	ItemEffect[570] = { effectId: 204 }; //Lucky Candy
 	ItemEffect[571] = { effectId: 204 }; //Lucky Candy Cane
 	ItemEffect[572] = { effectId: 204 }; //Lucky Cookie
-	ItemEffect[573] = { effectId: 204 }; //Chocolate Drink
+	ItemEffect[573] = { effectId: 363 }; //Chocolate Drink
 	ItemEffect[574] = { effectId: 204 }; //Egg
 	ItemEffect[575] = { effectId: 204 }; //2nd Anniversary Cake
 	ItemEffect[576] = { effectId: 204 }; //Prickly Fruit
@@ -153,7 +153,7 @@ define(function()
 	ItemEffect[11532] = { effectId: 204 }; //Nasi Goreng
 	ItemEffect[11533] = { effectId: 204 }; //Satay
 	ItemEffect[11534] = { effectId: 204 }; //Coconut Juice
-	ItemEffect[11535] = { effectId: 204 }; //Almond Chocolate
+	ItemEffect[11535] = { effectId: 363 }; //Almond Chocolate
 	ItemEffect[11536] = { effectId: 204 }; //Cat Biscuit
 	ItemEffect[11537] = { effectId: 204 }; //Rice Weevil Bug
 	ItemEffect[11538] = { effectId: 204 }; //Fresh Octopus Legs
@@ -191,11 +191,11 @@ define(function()
 	ItemEffect[11580] = { effectId: 204 }; //Candy
 	ItemEffect[11581] = { effectId: 204 }; //Piece of Cake
 	ItemEffect[11582] = { effectId: 204 }; //Well-baked Cookie
-	ItemEffect[11583] = { effectId: 204 }; //Chocolate Drink
-	ItemEffect[11584] = { effectId: 204 }; //White Chocolate
-	ItemEffect[11585] = { effectId: 204 }; //Hand-made Chocolate
-	ItemEffect[11586] = { effectId: 204 }; //Hand-made White Chocolate
-	ItemEffect[11587] = { effectId: 204 }; //Chocolate
+	ItemEffect[11583] = { effectId: 363 }; //Chocolate Drink
+	ItemEffect[11584] = { effectId: 363 }; //White Chocolate
+	ItemEffect[11585] = { effectId: 363 }; //Hand-made Chocolate
+	ItemEffect[11586] = { effectId: 363 }; //Hand-made White Chocolate
+	ItemEffect[11587] = { effectId: 363 }; //Chocolate
 	ItemEffect[11588] = { effectId: 204 }; //Fresh Strawberries
 	ItemEffect[11589] = { effectId: 204 }; //Cold Snow Cone
 	ItemEffect[11590] = { effectId: 204 }; //Skewer No.5
@@ -246,7 +246,7 @@ define(function()
 	ItemEffect[12059] = { effectId: 596 }; //Lutie Cold Noodle
 	ItemEffect[12060] = { effectId: 596 }; //Steamed Bat Wing in Pumpkin
 	ItemEffect[12061] = { effectId: 204 }; //Honey Grape Juice
-	ItemEffect[12062] = { effectId: 204 }; //Chocolate Mousse Cake
+	ItemEffect[12062] = { effectId: 363 }; //Chocolate Mousse Cake
 	ItemEffect[12063] = { effectId: 204 }; //Fruit Mix
 	ItemEffect[12064] = { effectId: 597 }; //Cream Sandwich
 	ItemEffect[12065] = { effectId: 597 }; //Green Salad
@@ -315,7 +315,7 @@ define(function()
 	ItemEffect[12275] = { effectId: 204 }; //Taecheongdan
 	ItemEffect[12292] = { effectId: 204 }; //Unripe Yggdrasilberry
 	ItemEffect[12293] = { effectId: 204 }; //Dried Yggdrasilberry
-	ItemEffect[12322] = { effectId: 204 }; //Chocolate Pie
+	ItemEffect[12322] = { effectId: 363 }; //Chocolate Pie
 	ItemEffect[12331] = { effectId: 204 }; //Ginseng
 	ItemEffect[12332] = { effectId: 204 }; //Fruit Juice
 	ItemEffect[12335] = { effectId: 204 }; //Grilled Delicious Skewer
@@ -370,9 +370,9 @@ define(function()
 	ItemEffect[14580] = { effectId: 204 }; //Fried Scorpion Tails
 	ItemEffect[14672] = { effectId: 204 }; //Steel Fighter Scroll (Lv20)
 	ItemEffect[14673] = { effectId: 204 }; //Steel Fighter Scroll (Lv25)
-	ItemEffect[22555] = { effectId: 204 }; //Gourmet Chocolate
-	ItemEffect[22556] = { effectId: 204 }; //Luxury Chocolate
-	ItemEffect[22557] = { effectId: 204 }; //Masterpieces of Artisan Chocolate
+	ItemEffect[22555] = { effectId: 363 }; //Gourmet Chocolate
+	ItemEffect[22556] = { effectId: 363 }; //Luxury Chocolate
+	ItemEffect[22557] = { effectId: 363 }; //Masterpieces of Artisan Chocolate
 	ItemEffect[22567] = { effectId: 204 }; //Expedition Award Box
 	ItemEffect[22568] = { effectId: 204 }; //Nidhoggur Summon Scroll
 	ItemEffect[22624] = { effectId: 204 }; //Riesen Bretzel
@@ -453,7 +453,20 @@ define(function()
 	ItemEffect[22544] = { effectId: 219 }; //Awakening Potion
 	ItemEffect[22545] = { effectId: 519 }; //Speed Potion
 	ItemEffect[22546] = { effectId: 210 }; //Slow Potion
-
+	
+	//Type2 Firecrackers
+	ItemEffect[12018] = { effectId: 508 }; //Firecracker
+	ItemEffect[12326] = { effectId: 709 }; //Large Firecracker
+	ItemEffect[12788] = { effectId: 612 }; //No100 Firecracker
+	ItemEffect[14546] = { effectId: 682 }; //I Love You Firecracker
+	ItemEffect[14547] = { effectId: 683 }; //Whiteday Firecracker
+	ItemEffect[14548] = { effectId: 684 }; //Valentine's Day Firecracker
+	ItemEffect[14549] = { effectId: 685 }; //Birthday Firecracker
+	ItemEffect[14550] = { effectId: 686 }; //Xmas Firecracker
+	
+	//Others
+	ItemEffect[662] = { effectId: 507 }; //Authoritative Badge
+	ItemEffect[12262] = { effectId: 507 }; //Authoritative Badge
 
     return ItemEffect;
 });
