@@ -465,17 +465,18 @@ define(function( require )
             fadeOut: false,
             file: 'effect/pok1.tga',
             green: 1,
+			poszStart: 1.5,
             posxEndRand: 3.5,
             posyEndRand: 3.5,
             poszEndRand: 3,
-            poszStart: 1.5,
             red: 1,
             sizeEnd: 10,
             sizeStart: 200,
             type: '3D',
-            wav: 'effect/ef_steal',
             zIndex: 10
-        }],
+        }, {
+			wav: 'effect/ef_steal'
+		}],
 
 
         // 19: [{}],    //EF_HIDING    Invalid Effect ID Popup in client
@@ -533,7 +534,7 @@ define(function( require )
 
         22: [{    //EF_SIGHT    Sight
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -553,7 +554,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -573,7 +574,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -593,7 +594,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -613,7 +614,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -633,7 +634,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -653,7 +654,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -673,7 +674,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -693,7 +694,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -713,7 +714,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -732,7 +733,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -752,7 +753,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -772,7 +773,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -792,7 +793,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -812,7 +813,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.4,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -832,7 +833,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.4,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -852,7 +853,7 @@ define(function( require )
             zIndex: 2
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -872,7 +873,7 @@ define(function( require )
             zIndex: 3
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -892,7 +893,7 @@ define(function( require )
             zIndex: 4
         }, {
             alphaMax: 0.6,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -912,7 +913,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.6,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -979,7 +980,7 @@ define(function( require )
         27: [{ //Frost diver caster (ice traveling to target)    //EF_FROSTDIVER    Frost Diver (Traveling to Target)
             //type: 'FUNC',
             file: 'effect/ice',
-            wav: 'effect/ef_frostdiver1',
+            //wav: 'effect/ef_frostdiver1',
             attachedEntity: false
         }],
 
@@ -1030,7 +1031,7 @@ define(function( require )
 
         33: [{ //EF_RUWACH    //ruwach
 			alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1050,7 +1051,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1070,7 +1071,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1090,7 +1091,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1110,7 +1111,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1130,7 +1131,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1150,7 +1151,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1170,7 +1171,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 1,
             blue: 0.5,
             delay: 12200,
@@ -1189,7 +1190,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.3,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1209,7 +1210,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.4,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1229,7 +1230,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.5,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1249,7 +1250,7 @@ define(function( require )
             zIndex: 1
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1269,7 +1270,7 @@ define(function( require )
             zIndex: 2
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1289,7 +1290,7 @@ define(function( require )
             zIndex: 3
         }, {
             alphaMax: 1,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1309,7 +1310,7 @@ define(function( require )
             zIndex: 4
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1329,7 +1330,7 @@ define(function( require )
             zIndex: 5
         }, {
             alphaMax: 0.8,
-            attachedEntity: false,
+            attachedEntity: true,
             blendMode: 2,
             blue: 1,
             delay: 12200,
@@ -1617,7 +1618,7 @@ define(function( require )
         47: [{    //EF_TORCH    Torch
             type: 'SPR',
             file: 'torch_01',
-            attachedEntity: false
+            attachedEntity: true
         }],
 
 
@@ -2262,7 +2263,9 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //105: [{}],    //EF_BLASTMINE    empty
+        105: [{    //EF_BLASTMINE    empty
+			wav: 'effect/hun_anklesnare'
+		}],
 
         106: [{    //EF_BLASTMINEBOMB    Blast Mine Trap
             type: 'STR',
@@ -2320,8 +2323,6 @@ define(function( require )
             attachedEntity: true
         }],
 
-
-
         113: [{    //EF_MAGNUS    Magnus Exorcismus
             type: 'STR',
             file: 'magnus',
@@ -2365,7 +2366,7 @@ define(function( require )
         124: [{    //EF_VENOMDUST    Venom Dust
             type: 'STR',
             file: 'venomdust',
-            wav:  'effect/assasin_venomdust',
+            wav:  'effect/assasin_poisonreact', //effect/assasin_venomdust'
             attachedEntity: false
         }],
 
@@ -2614,7 +2615,7 @@ define(function( require )
         //164: [{}],    //EF_STATUS_STATE       (Nothing)
 
         165: [{ //Comodo Fireworks Ball    //EF_BANJJAKII    Comodo Fireworks Ball
-            wav:  'effect/\xc6\xf8\xc1\xd7', //ĆřÁ×
+            wav:  'effect/\x3f\x3f\xc1\xd7', //ĆřÁ×
             attachedEntity: false
         }],
         
@@ -2766,42 +2767,43 @@ define(function( require )
 
         204: [{    //EF_POTION1    Red Herb/Potion
             type: 'STR',
-            file: '\xbb\x21\xb0\x4c\x41\xf7\x31\xc7', //»!°LA÷1Ç
+            file: '\xbb\xa1\xb0\xa3\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         205: [{    //EF_POTION2    Orange Potion
             type: 'STR',
-            file: '\xc1\xd6\x45\xab\x41\xf7\x31\xc7', //ÁÖE«A÷1Ç
+            file: '\xc1\xd6\xc8\xab\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         206: [{    //EF_POTION3    Yellow Herb/Potion
             type: 'STR',
-            file: '\x33\xeb\xb6\x6f\x41\xf7\x31\xc7', //3ë¶oA÷1Ç
+            file: '\xb3\xeb\xb6\xf5\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         207: [{    //EF_POTION4    White Herb/Potion
             type: 'STR',
-            file: '\xc7\x49\x33\xe1\x41\xf7\x31\xc7', //ÇI3áA÷1Ç
+            file: '\xc7\xcf\xbe\xe1\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         208: [{    //EF_POTION5    Blue Herb/Potion
             type: 'STR',
-            file: '\x41\xc4\xb6\x6f\x41\xf7\x31\xc7', //AÄ¶oA÷1Ç
+            file: '\xc6\xc4\xb6\xf5\xc6\xf7\xbc\xc7',
+			wav: 'effect/\xc8\xed\xb1\xe2',
             attachedEntity: true
         }],
 
 
         209: [{    //EF_POTION6    Green Herb/Potion
             type: 'STR',
-            file: '\x41\x45\xb7\x49\x41\xf7\x31\xc7', //AE·IA÷1Ç
+            file: '\xc3\xca\xb7\xcf\xc6\xf7\xbc\xc7',
             attachedEntity: true
         }],
 
@@ -2809,6 +2811,7 @@ define(function( require )
         210: [{    //EF_POTION7    Yellow Circle Healing Effect
             type: 'STR',
             file: 'fruit',
+			wav: '_heal_effect',
             attachedEntity: true
         }],
 
@@ -2816,6 +2819,7 @@ define(function( require )
         211: [{    //EF_POTION8    Blue Circle Healing Effect
             type: 'STR',
             file: 'fruit_',
+			wav: 'effect/\xc8\xed\xb1\xe2',
             attachedEntity: true
         }],
 
@@ -2844,26 +2848,33 @@ define(function( require )
 
         218: [{    //EF_POTION_CON    Concentration Potion
             type: 'STR',
-            file: '\xc1\xfd\xc1\xdf', //ÁýÁß
+            file: '\xc1\xfd\xc1\xdf',
+			wav:  'effect/ac_concentration',
             attachedEntity: true
         }],
 
 
         219: [{    //EF_POTION_    Awakening Potion
             type: 'STR',
-            file: '\xb0\x63\x31\x6f', //°c1o
+            file: '\xb0\xa2\xbc\xba',
+			wav:  'effect/ac_concentration',
             attachedEntity: true
         }],
 
 
         220: [{    //EF_POTION_BERSERK    Berserk Potion
             type: 'STR',
-            file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
+            file: '\xb9\xf6\xbc\xad\xc5\xa9',
+			wav:  'effect/ac_concentration',
             attachedEntity: true
         }],
 
         //221: [{}],    //EF_POTIONPILLAR       Intense light beam
-        //222: [{}],    //EF_DEFENDER       Defender (Crusader)
+        222: [{    //EF_DEFENDER       Defender (Crusader)
+			type: 'STR',
+            file: 'deffender',
+            attachedEntity: true
+		}],
         //223: [{}],    //EF_GANBANTEIN       Holy Cast Aura
         //224: [{}],    //EF_WIND       Wind (Map effect)
         //225: [{}],    //EF_VOLCANO       Volcano casting effect
@@ -2890,16 +2901,37 @@ define(function( require )
 
         235: [{    //EF_DISPELL    Dispell
             type: 'STR',
-            file: '\xb5\x3f\x31\x6f\x41\xe7', //µ?1oAç
+            file: '\xb5\xf0\xbd\xba\xc6\xe7',
             attachedEntity: true
         }],
 
         //236: [{}],    //EF_DELUGE       Deluge Cast Aura
         //237: [{}],    //EF_VIOLENTGALE       Violent Gale Cast Aura
         //238: [{}],    //EF_LANDPROTECTOR       Magnetic Earth Cast Aura
-        //239: [{}],    //EF_BOTTOM_VO       Volcano (Visual Effect)
-        //240: [{}],    //EF_BOTTOM_DE       Deluge (Visual Effect)
-        //241: [{}],    //EF_BOTTOM_VI       Violent Gale (Visual Effect)
+        239: [{    //EF_BOTTOM_VO       Volcano (Visual Effect)
+			type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var PropertyGround = require('Renderer/Effects/PropertyGround');
+                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_red', tick), AID);
+            }
+		}],
+        240: [{    //EF_BOTTOM_DE       Deluge (Visual Effect)
+			type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var PropertyGround = require('Renderer/Effects/PropertyGround');
+                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_blue', tick), AID);
+            }
+		}],
+        241: [{    //EF_BOTTOM_VI       Violent Gale (Visual Effect)
+			type: 'FUNC',
+            attachedEntity: false,
+            func: function(pos, tick, AID){
+                var PropertyGround = require('Renderer/Effects/PropertyGround');
+                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_yellow', tick), AID);
+            }
+		}],
 
         242: [{    //EF_BOTTOM_LA    Magnetic Earth (Visual Effect)
             type: 'FUNC',
@@ -2914,7 +2946,7 @@ define(function( require )
 
         244: [{    //EF_MAGICROD    Magic Rod
             type: 'STR',
-            file: '\xb8\x41\xc1\xf7\xb7\xce\xb5\x61', //¸AÁ÷·Îµa
+            file: '\xb8\xc5\xc1\xf7\xb7\xce\xb5\xe5',
             wav:  'effect/sage_magic rod',
             attachedEntity: true
         }],
@@ -2962,7 +2994,9 @@ define(function( require )
 
         //252: [{}],    //EF_REFLECTSHIELD       Reflect Shield
         //253: [{}],    //EF_ABSORBSPIRITS       Absorb Spirit Spheres
-        //254: [{}],    //EF_STEELBODY       Mental Strength (Visual Effect)
+        254: [{    //EF_STEELBODY       Mental Strength (Visual Effect)
+			wav: 'effect/mon_\xb1\xdd\xb0\xad\xba\xd2\xb1\xab'
+		}],
 
         255: [{    //EF_FLAMELAUNCHER    Elemental Endow (Fire)
             type: 'STR',
@@ -2996,12 +3030,12 @@ define(function( require )
         //260: [{}],    //EF_MAPPILLAR4       Map Light Pillar Animation 4
 
         261: [{ //fury / critical explosion TODO: combo sounds, super novice fury    //EF_GUMGANG2    Fury Cast Animation
-            wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_Ćř±â
+            wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
             attachedEntity: true
         }],
 
         262: [{		//EF_TEIHIT1       Raging Quadruple Blow
-			wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_ż¬ČŻ
+			wav:  'effect/mon_\xbf\xac\xc8\xaf',
 		}],    
         
 		//263: [{}],    //EF_GUMGANG3       Raging Quadruple Blow 2
@@ -3013,12 +3047,14 @@ define(function( require )
 		}],
 		
         //266: [{}],    //EF_TEIHIT1X       Raging Quadruple Blow 3
-        //267: [{}],    //EF_CHIMTO       Occult Impaction
+        267: [{    //EF_CHIMTO       Occult Impaction
+			wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6'
+		}],
 
         268: [{    //EF_STEALCOIN    Steal Coin
             type: 'STR',
             file: 'steal_coin',
-            wav:  'rog_steal coin',
+            wav:  'effect/rog_steal coin',
             attachedEntity: true
         }],
 
@@ -3026,7 +3062,7 @@ define(function( require )
         269: [{    //EF_STRIPWEAPON    Divest Weapon
             type: 'STR',
             file: 'strip_weapon',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
@@ -3034,7 +3070,7 @@ define(function( require )
         270: [{    //EF_STRIPSHIELD    Divest Shield
             type: 'STR',
             file: 'strip_shield',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
@@ -3042,7 +3078,7 @@ define(function( require )
         271: [{    //EF_STRIPARMOR    Divest Armor
             type: 'STR',
             file: 'strip_armor',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
@@ -3050,13 +3086,13 @@ define(function( require )
         272: [{    //EF_STRIPHELM    Divest Helm
             type: 'STR',
             file: 'strip_helm',
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: true
         }],
 
         273: [{    //EF_CHAINCOMBO    Raging Quadruple Blow 4
             type: 'STR',
-            file: '\x3f\xac\x45\x97', //?¬E—
+            file: '\xbf\xac\xc8\xaf',
             attachedEntity: true
         }],
         
@@ -3382,7 +3418,7 @@ define(function( require )
 
         302: [{    //EF_DEMONSTRATION    Bomb
             type: 'SPR',
-            file: '\xb5\x59\xb8\xf3\x31\x6f\x41\xae\xb7\x31\x41\x49\x31\xc7', //µY¸ó1oA®·1AI1Ç
+            file: '\xb5\xa5\xb8\xf3\xbd\xba\xc6\xae\xb7\xb9\xc0\xcc\xbc\xc7',
             attachedEntity: false
         }],
 
@@ -3476,7 +3512,7 @@ define(function( require )
         311: [{ //crazy uproar    //EF_LOUD    Crazy Uproar
             type: 'STR',
             file: 'loud',
-            wav: 'effect/\xb0\xed\xbc\xba\xb9\xe6\xb0\xa1', //°íĽşąć°ˇ
+            wav: 'effect/\xb0\xed\xbc\xba\xb9\xe6\xb0\xa1',
             attachedEntity: true
         }],
 
@@ -3895,18 +3931,9 @@ define(function( require )
             topSize: 1,
             type: 'CYLINDER'
         }],
-
-        'deluge_ground': [{
-            type: 'FUNC',
-            attachedEntity: false,
-            func: function(pos, tick, AID){
-                var PropertyGround = require('Renderer/Effects/PropertyGround');
-                this.add(new PropertyGround(pos, 3.0, 1.0, 2, 'ring_blue', tick), AID);
-            }
-        }],
         
         'soulink_caster_effect': [{ // todo
-            wav:  'effect/\x74\x5f\x6f\xae\x41\xa8\xb1\x65', //t_o®A¨±e
+            wav:  'effect/\x74\x5f\xba\xae\xc6\xa8\xb1\xe8',
             attachedEntity: false
         }],
 
@@ -4221,7 +4248,9 @@ define(function( require )
         }],
         //326: [{}],    //EF_FOOT       Chase Walk Left Foot
         //327: [{}],    //EF_FOOT2       Chse Walk Right Foot
-        //328: [{}],    //EF_BEGINASURA       Monk Asura Strike
+        328: [{    //EF_BEGINASURA       Monk Asura Strike
+			wav: 'effect/mon_\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7'
+		}],
         //329: [{}],    //EF_TRIPLEATTACK       Triple Strike
         //330: [{}],    //EF_HITLINE       Combo Finish
         //331: [{}],    //EF_HPTIME       Natural HP Regeneration
@@ -4242,7 +4271,32 @@ define(function( require )
         }],
 
         //338: [{}],    //EF_ANGEL2       Super Novice/Taekwon Level Up Angel
-        //339: [{}],    //EF_MAGNUM2       Spiral Pierce
+        339: [{    //EF_MAGNUM2       Spiral Pierce
+			type: 'FUNC',
+            attachedEntity: true,
+            func: function EffectBodyColor(entity) {
+                entity._virtueColor[0] = 1.0;
+                entity._virtueColor[1] = 1.0;
+                entity._virtueColor[2] = 1.0;
+                entity._virtueColor[3] = 1.0;
+                entity.recalculateBlendingColor();
+
+                entity.animations.add(function(tick){
+                
+                    if (!entity.cast.display) {     //we don't know cast time here so.. let's hack
+                        entity._virtueColor[0] = 1.0;
+                        entity._virtueColor[1] = 1.0;
+                        entity._virtueColor[2] = 1.0;
+                        entity._virtueColor[3] = 1.0;
+                        entity.recalculateBlendingColor();
+                        return true;
+                    }
+                        entity._virtueColor[1] = 0.0 + Math.sin(tick / (6 * Math.PI));
+                        entity._virtueColor[2] = 0.0 + Math.sin(tick / (6 * Math.PI));
+                        entity.recalculateBlendingColor();
+                });
+            }
+		}],
         //340: [{}],    //EF_CALLZONE       (Nothing)
         //341: [{}],    //EF_PORTAL3       Wedding Warp Portal
         //342: [{}],    //EF_COUPLECASTING       Wedding Skill
@@ -4328,6 +4382,7 @@ define(function( require )
         363: [{    //EF_VALLENTINE    Valentine Day Heart With Wings
             type: 'SPR',
             file: 'vallentine',
+			wav: 'effect/vallentine',
             attachedEntity: true
         }],       
         
@@ -4396,7 +4451,9 @@ define(function( require )
 
         //374: [{}],    //EF_BOTTOM_BASILICA       Basilica
         //375: [{}],    //EF_ASSUMPTIO       Assumptio (Visual Effect)
-        //376: [{}],    //EF_HITLINE2       Palm Strike
+        376: [{    //EF_HITLINE2       Palm Strike
+			wav: 'effect/\xb8\xcd\xc8\xa3\xb0\xe6\xc6\xc4\xbb\xea',
+		}],
         //377: [{}],    //EF_BASH3D2       Matyr's Reckoning 2
         //378: [{}],    //EF_ENERGYDRAIN2       Soul Drain (1st Part)
         //379: [{}],    //EF_TRANSBLUEBODY       Soul Drain (2nd Part)
@@ -4410,13 +4467,15 @@ define(function( require )
 
         382: [{    //EF_LIGHTBLADE    (Nothing)
             type: 'SPR',
-            file: '\xc7\x4e\x6f\x31\x41\xb5\xbb\xe7', //ÇNo1Aµ»ç
+            file: '\xc7\xd1\xba\xb9\xc3\xb5\xbb\xe7',
             head: true,
             attachedEntity: true
         }],
 
         //383: [{}],    //EF_ENERGYDRAIN3       Health Conversion
-        //384: [{}],    //EF_LINELINK2       Soul Change (Sound Effect)
+        384: [{    //EF_LINELINK2       Soul Change (Sound Effect)
+			wav: 'effect/\xbc\xd2\xbf\xef\x20\xc3\xbc\xc0\xce\xc1\xf6'
+		}],
         //385: [{}],    //EF_LINKLIGHT       Soul Change (Visual Effect)
         //386: [{}],    //EF_TRUESIGHT       True Sight
         //387: [{}],    //EF_FALCONASSAULT       Falcon Assault
@@ -4437,6 +4496,7 @@ define(function( require )
         391: [{    //EF_CARTBOOST    Cart Boost
             type: 'STR',
             file: 'cart',
+			wav: 'effect/ef_incagility',
             attachedEntity: true
         }],
 
@@ -4447,7 +4507,9 @@ define(function( require )
             attachedEntity: true
         }],
         
-        //393: [{}],    //EF_TRIPLEATTACK3       Arrow Vulcan
+        393: [{    //EF_TRIPLEATTACK3       Arrow Vulcan
+			wav: 'effect/\xbe\xd6\xb7\xce\xbf\xec\x20\xb9\xdf\xc4\xad'
+		}],
         
         394: [{ // Moonlit water mill/sheltering bliss    //EF_SPHEREWIND2    Sheltering Bliss
             type: 'FUNC',
@@ -4509,19 +4571,21 @@ define(function( require )
         
         406: [{    //EF_SOULBURN    Soul Burn
             type: 'STR',
-            file: '\x31\x4f\x3f\x69\x31\x6f', //1O?i1o
+            file: '\xbc\xd2\xbf\xef\xb9\xf8',
             attachedEntity: true
         }],
 
 
         407: [{    //EF_SOULCHANGE    Soul Change
             type: 'STR',
-            file: '\xbb\xe7\xb6\xf7\x45\x3f\xb0\xfa', //»ç¶÷E?°ú
+            file: '\xbb\xe7\xb6\xf7\xc8\xbf\xb0\xfa',
             attachedEntity: true
         }],
 
         //408: [{}],    //EF_BABY       Mom, Dad, I love you! (Baby Skill)
-        //409: [{}],    //EF_SOULBREAKER2       Meteor Assault
+        409: [{    //EF_SOULBREAKER2       Meteor Assault
+			wav: 'effect/\xb8\xde\xc5\xd7\xbf\xc0\x20\xbe\xee\xbd\xe4\xc6\xae'
+		}],
         //410: [{}],    //EF_RAINBOW       Rainbow
         //411: [{}],    //EF_PEONG       Leap
         //412: [{}],    //EF_TANJI2       Like Throw Spirit Sphere
@@ -4686,7 +4750,7 @@ define(function( require )
 
         491: [{    //EF_MOCHI    Element Potions
             type: 'STR',
-            file: '\xc2\xfd\x31\x4f\xb6\xb1', //Âý1O¶±
+            file: '\xc2\xfd\xbd\xd2\xb6\xb1',
             attachedEntity: true
         }],
 
@@ -4737,6 +4801,7 @@ define(function( require )
         508: [{    //EF_ITEMPOKJUK    Fire Cracker
             type: 'STR',
             file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
             attachedEntity: true
         }],
 
@@ -4779,20 +4844,216 @@ define(function( require )
             }
         }],
 
-        //523: [{}],    //EF_TAROTCARD1       Tarot Card of Fate (The Fool)
-        //524: [{}],    //EF_TAROTCARD2       Tarot Card of Fate (The Magician)
-        //525: [{}],    //EF_TAROTCARD3       Tarot Card of Fate (The High Priestess)
-        //526: [{}],    //EF_TAROTCARD4       Tarot Card of Fate (The Chariot)
-        //527: [{}],    //EF_TAROTCARD5       Tarot Card of Fate (Strength)
-        //528: [{}],    //EF_TAROTCARD6       Tarot Card of Fate (The Lovers)
-        //529: [{}],    //EF_TAROTCARD7       Tarot Card of Fate (The Wheel of Fortune)
-        //530: [{}],    //EF_TAROTCARD8       Tarot Card of Fate (The Hanged Man)
-        //531: [{}],    //EF_TAROTCARD9       Tarot Card of Fate (Death)
-        //532: [{}],    //EF_TAROTCARD10       Tarot Card of Fate (Temperance)
-        //533: [{}],    //EF_TAROTCARD11       Tarot Card of Fate (The Devil)
-        //534: [{}],    //EF_TAROTCARD12       Tarot Card of Fate (The Tower)
-        //535: [{}],    //EF_TAROTCARD13       Tarot Card of Fate (The Star)
-        //536: [{}],    //EF_TAROTCARD14       Tarot Card of Fate (The Sun)
+        523: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot01.tga'
+		}],    //EF_TAROTCARD1       Tarot Card of Fate (The Fool)
+        524: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot02.tga'
+		}],    //EF_TAROTCARD2       Tarot Card of Fate (The Magician)
+        525: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot03.tga'
+		}],    //EF_TAROTCARD3       Tarot Card of Fate (The High Priestess)
+        526: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot04.tga'
+		}],    //EF_TAROTCARD4       Tarot Card of Fate (The Chariot)
+        527: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot05.tga'
+		}],    //EF_TAROTCARD5       Tarot Card of Fate (Strength)
+        528: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot06.tga'
+		}],    //EF_TAROTCARD6       Tarot Card of Fate (The Lovers)
+        529: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot07.tga'
+		}],    //EF_TAROTCARD7       Tarot Card of Fate (The Wheel of Fortune)
+        530: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot08.tga'
+		}],    //EF_TAROTCARD8       Tarot Card of Fate (The Hanged Man)
+        531: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot09.tga'
+		}],    //EF_TAROTCARD9       Tarot Card of Fate (Death)
+        532: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot10.tga'
+		}],    //EF_TAROTCARD10       Tarot Card of Fate (Temperance)
+        533: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot11.tga'
+		}],    //EF_TAROTCARD11       Tarot Card of Fate (The Devil)
+        534: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot12.tga'
+		}],    //EF_TAROTCARD12       Tarot Card of Fate (The Tower)
+        535: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot13.tga'
+		}],    //EF_TAROTCARD13       Tarot Card of Fate (The Star)
+        536: [{
+			alphaMax: 1,
+            attachedEntity: true,
+            delay: 3000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 70,
+            sizeSmooth: false,
+            sizeStart: 100,
+            type: '3D',
+            wav: 'effect/priest_slowpoison',
+            zIndex: 10,
+			file: 'effect/tarot14.tga'
+		}],    //EF_TAROTCARD14       Tarot Card of Fate (The Sun)
         
         //537: [{}],    //EF_ACIDDEMON       Acid Demonstration
         //538: [{}],    //EF_GREENBODY       Player Become Green with Green Aura
@@ -4826,6 +5087,7 @@ define(function( require )
         565: [{    //EF_HFLIMOON1    Filir Moonlight Lvl 1
             type: 'STR',
             file: 'moonlight_1',
+			wav: 'effect/h_moonlight_1',
             attachedEntity: true
         }],
 
@@ -4833,6 +5095,7 @@ define(function( require )
         566: [{    //EF_HFLIMOON2    Filir Moonlight Lvl 2
             type: 'STR',
             file: 'moonlight_2',
+			wav: 'effect/h_moonlight_2',
             attachedEntity: true
         }],
 
@@ -4840,6 +5103,7 @@ define(function( require )
         567: [{    //EF_HFLIMOON3    Filir Moonlight Lvl 3
             type: 'STR',
             file: 'moonlight_3',
+			wav: 'effect/h_moonlight_3',
             attachedEntity: true
         }],
 
@@ -4860,14 +5124,14 @@ define(function( require )
 
         570: [{    //EF_HAMICASTLE    Amistr Castling
             type: 'SPR',
-            file: '\xc4\x33\x31\x31\xb8\xb5', //Ä311¸µ
+            file: '\xc4\xb3\xbd\xbd\xb8\xb5',
             attachedEntity: true
         }],
 
 
         571: [{    //EF_HAMIBLOOD    Amistr Bloodlust
             type: 'SPR',
-            file: '\x6f\xed\xb7\x97\xb5\x61\xb7\x97\x31\x6f\x41\xae', //oí·—µa·—1oA®
+            file: '\xba\xed\xb7\xaf\xb5\xe5\xb7\xaf\xbd\xba\xc6\xae',
             attachedEntity: true
         }],
 
@@ -5024,6 +5288,7 @@ define(function( require )
             type: 'SPR',
             file: 'cconfine',
             attachedEntity: true,
+			wav: 'effect/ef_hit6',
             stopAtEnd: true
         }],
 
@@ -5049,11 +5314,12 @@ define(function( require )
 
         612: [{    //EF_HAPGYEOK    Korean Words and /no1 Emoticon
             type: 'SPR',
-            file: '\xc7\x4f\xb0\xdd\x5f', //ÇO°Ý_
+            file: '\xc7\xd5\xb0\xdd\x5f',
             attachedEntity: true
         },{
             type: 'STR',
             file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
             attachedEntity: true
         }],
 
@@ -5071,42 +5337,45 @@ define(function( require )
         //624: [{}],    //EF_STIN5       Kamaitachi
         //625: [{}],    //EF_MADNESS_BLUE       Madness Canceller
         //626: [{}],    //EF_MADNESS_RED       Adjustment
-        //627: [{}],    //EF_RG_COIN3       Disarm (Sound Effect)
+        627: [{    //EF_RG_COIN3       Disarm (Sound Effect)
+			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf'
+		}],
         //628: [{}],    //EF_BASH3D5       Dust
         //629: [{}],    //EF_CHOOKGI3       (Nothing)
 
         630: [{    //EF_KIRIKAGE    Shadow Slash
             type: 'SPR',
-            file: '\xb1\xd7\xb8\x32\x41\xda\x6f\x4c\xb1\xe2', //±×¸2AÚoL±â
+            file: '\xb1\xd7\xb8\xb2\xc0\xda\xba\xa3\xb1\xe2',
+			wav: 'effect/\xb1\xd7\xb8\xb2\xc0\xda\xba\xa3\xb1\xe2',
             attachedEntity: true
         }],
 
 
         631: [{ //reverse tatami map unit    //EF_TATAMI    Reverse Tatami Map Unit
             type: 'SPR',
-            file: '\xb4\x55\xb4\x55\x31\x49', //´U´U1I
-            wav: '\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2', //´Ů´ŮąĚµÚÁý±â
+            file: '\xb4\xd9\xb4\xd9\xb9\xcc\x20\xb5\xda\xc1\xfd\xb1\xe2',
+            wav: 'effect/\xb4\xd9\xb4\xd9\xb9\xcc\xb5\xda\xc1\xfd\xb1\xe2',
             attachedEntity: true
         }],
 
 
         632: [{    //EF_KASUMIKIRI    Mist Slash
             type: 'SPR',
-            file: '\x33\x45\xb0\x33\x6f\x4c\xb1\xe2', //3E°3oL±â
+            file: '\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2', //3E°3oL±â
             attachedEntity: true
         }],
 
 
         633: [{    //EF_ISSEN    Final Strike
             type: 'SPR',
-            file: '\x41\x49\x31\xb6', //AI1¶
+            file: '\xc0\xcf\xbc\xb6',
             attachedEntity: true
         }],
 
 
         634: [{    //EF_KAEN    Crimson Fire Formation
             type: 'SPR',
-            file: '\x45\xad\x3f\xb0\xc1\x6f', //E­?°Áo
+            file: '\xc8\xad\xbf\xb0\xc1\xf8',
             attachedEntity: false
         }],
 
@@ -5127,63 +5396,64 @@ define(function( require )
 
         637: [{    //EF_DESPERADO    Desperado
             type: 'SPR',
-            file: '\xb5\x59\x31\x6f\x41\xe4\xb6\xf3\xb5\xb5', //µY1oAä¶óµµ
+            file: '\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
+			wav: 'effect/\xb5\xa5\xbd\xba\xc6\xe4\xb6\xf3\xb5\xb5',
             attachedEntity: true
         }],
 
 
         638: [{    //EF_LIGHTNING_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\xb6\xf3\x41\x49\x41\xae\xb4\xd7\x31\x6f\xc7\xc7\x33\xee', //¶óAIA®´×1oÇÇ3î
+            file: '\xb6\xf3\xc0\xcc\xc6\xae\xb4\xd7\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         639: [{    //EF_BLIND_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\x6f\xed\xb6\xf3\x41\xce\xb5\x61\x31\x6f\xc7\xc7\x33\xee', //oí¶óAÎµa1oÇÇ3î
+            file: '\xba\xed\xb6\xf3\xc0\xce\xb5\xe5\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         640: [{    //EF_POISON_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\x41\xf7\x41\x49\xc1\x3f\x31\x6f\xc7\xc7\x33\xee', //A÷AIÁ?1oÇÇ3î
+            file: '\xc6\xf7\xc0\xcc\xc1\xf0\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         641: [{    //EF_FREEZING_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\xc7\xc1\xb8\xae\xc2\x21\x31\x6f\xc7\xc7\x33\xee', //ÇÁ¸®Â!1oÇÇ3î
+            file: '\xc7\xc1\xb8\xae\xc2\xa1\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         642: [{    //EF_FLARE_S    Ground Drift Grenade
             type: 'SPR',
-            file: '\xc7\x41\xb7\x31\x33\xee\x31\x6f\xc7\xc7\x33\xee', //ÇA·13î1oÇÇ3î
+            file: '\xc7\xc3\xb7\xb9\xbe\xee\xbd\xba\xc7\xc7\xbe\xee',
             attachedEntity: false
         }],
 
 
         643: [{    //EF_RAPIDSHOWER    Rapid Shower
             type: 'SPR',
-            file: '\xb7\x21\xc7\xc7\xb5\x61\xbb\x3f\x3f\xf6', //·!ÇÇµa»??ö
+            file: '\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
             attachedEntity: true
         }],
 
 
         644: [{    //EF_MAGICALBULLET    Magic Bullet
             type: 'SPR',
-            file: '\xb8\x41\xc1\xf6\xc4\x41\x6f\x4f\xb8\xb4', //¸AÁöÄAoO¸´
+            file: '\xb8\xc5\xc1\xf6\xc4\xc3\xba\xd2\xb8\xb4',
             attachedEntity: true
         }],
 
 
         645: [{    //EF_SPREADATTACK    Spread Attack
             type: 'SPR',
-            file: '\x31\x6f\xc7\xc1\xb7\x31\xb5\x61', //1oÇÁ·1µa
+            file: '\xbd\xba\xc7\xc1\xb7\xb9\xb5\xe5',
             attachedEntity: true,
             direction: true,
         }],
@@ -5191,28 +5461,28 @@ define(function( require )
 
         646: [{    //EF_TRACKCASTING    Tracking (Shown While Casting)
             type: 'STR',
-            file: '\x41\xae\xb7\x63\x41\xb7', //A®·cA·
+            file: '\xc6\xae\xb7\xa2\xc5\xb7',
             attachedEntity: true
         }],
 
 
         647: [{    //EF_TRACKING    Tracking
             type: 'SPR',
-            file: '\x41\xae\xb7\x21\x41\xb7', //A®·!A·
+            file: '\xc6\xae\xb7\xa1\xc5\xb7',
             attachedEntity: true
         }],
 
 
         648: [{    //EF_TRIPLEACTION    Triple Action
             type: 'SPR',
-            file: '\x41\xae\xb8\xae\xc7\x41\x33\xd7\x31\xc7', //A®¸®ÇA3×1Ç
+            file: '\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
             attachedEntity: true
         }],
 
 
         649: [{    //EF_BULLSEYE    Bull's Eye
             type: 'STR',
-            file: '\x6f\x4f\x31\x6f\x33\x41\x41\x49', //oO1o3AAI
+            file: '\xba\xd2\xbd\xba\xbe\xc6\xc0\xcc', //oO1o3AAI
             attachedEntity: true
         }],
 
@@ -5235,7 +5505,8 @@ define(function( require )
 
         666: [{  //Earthquake    //EF_NPC_EARTHQUAKE    Earthquake
             type: 'SPR',
-            file: '\x33\xee\x31\x6f\xc4\x75\x41\x49\x41\xa9', //3î1oÄuAIA©
+            file: '\xbe\xee\xbd\xba\xc4\xf9\xc0\xcc\xc5\xa9',
+			wav: 'effect/earth_quake',
             attachedEntity: true
         }],
 
@@ -5244,6 +5515,7 @@ define(function( require )
         668: [{    //EF_DRAGONFEAR    Dragonfear
             type: 'STR',
             file: 'dragon_h',
+			wav: 'effect/dragonfear',
             attachedEntity: true
         }],
 
@@ -5279,7 +5551,10 @@ define(function( require )
             }
         }],
 
-        //675: [{}],    //EF_GUARD3       Like Parrying/Kyrie Eleison barrier but Yellow with small Cross in every barrier piece
+        675: [{    //EF_GUARD3       Like Parrying/Kyrie Eleison barrier but Yellow with small Cross in every barrier piece
+			wav:  'effect/kyrie_guard',
+            attachedEntity: true
+		}],
 
         677: [{    //EF_CRITICALWOUND    Critical Wounds/Bleeding Attack
             type: 'STR',
@@ -5291,11 +5566,56 @@ define(function( require )
         //679: [{}],    //EF_GREEN99_5       Green Aura (Middle)
         //680: [{}],    //EF_GREEN99_6       Green Aura (Bottom)
         //681: [{}],    //EF_MAPSPHERE       Dimensional Gorge Map Effect
-        //682: [{}],    //EF_POK_LOVE       I Love You Banner
-        //683: [{}],    //EF_POK_WHITE       Happy White Day Banner
-        //684: [{}],    //EF_POK_VALEN       Happy Valentine Day Banner
-        //685: [{}],    //EF_POK_BIRTH       Happy Birthday Banner
-        //686: [{}],    //EF_POK_CHRISTMAS       Merry Christmas Banner
+        682: [{    //EF_POK_LOVE       I Love You Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xb7\xaf\xba\xea',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        683: [{        //EF_POK_WHITE       Happy White Day Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xc8\x5f\xc0\xcc\xc6\xae\xb5\xa5\xc0\xcc',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        684: [{    //EF_POK_VALEN       Happy Valentine Day Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xb9\xdf\xb7\xbb\xc5\xb8\xc0\xce',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        685: [{    //EF_POK_BIRTH       Happy Birthday Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xbb\xfd\xc0\xcf',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
+        686: [{    //EF_POK_CHRISTMAS       Merry Christmas Banner
+			type: 'SPR',
+            file: '\xc6\xf8\xc1\xd7\x5f\xc5\xa9\xb8\xae\xbd\xba\xb8\xb6\xbd\xba',
+            attachedEntity: true
+        },{
+			type: 'STR',
+            file: 'itempokjuk',
+			wav: 'effect/itempokjuk',
+            attachedEntity: true
+		}],
         //687: [{}],    //EF_MAP_MAGICZONE3       Cast Circle-Like effect 1
         //688: [{}],    //EF_MAP_MAGICZONE4       Cast Circle-Like effect 2
         //689: [{}],    //EF_DUST       Endless Tower Map Effect
@@ -5376,25 +5696,30 @@ define(function( require )
 			wav:  'effect/ab_judex'
 		}],
 		
-        //719: [{}],    //EF_FORESTLIGHT5       Renovatio (light beam)
+        719: [{    //EF_FORESTLIGHT5       Renovatio (light beam)
+			wav: 'effect/ab_renovation'
+		}],
         //720: [{}],    //EF_SOULBREAKER3       Yellow version of Soul Breaker
 
         721: [{    //EF_ADO_STR    Adoramus (lightning bolt)
             type: 'STR',
             file: 'ado',
+			wav: 'effect/ab_adoramus',
             attachedEntity: true
         }],
 
         722: [{    //EF_IGN_STR    Ignition Break (big explosion)
             type: 'STR',
-            file: '\x41\x49\xb1\xd7\xb4\x49\x31\xc7\x6f\x65\xb7\x31\x41\x49\x41\xa9', //AI±×´I1Çoe·1AIA©
+            file: '\xc0\xcc\xb1\xd7\xb4\xcf\xbc\xc7\xba\xea\xb7\xb9\xc0\xcc\xc5\xa9',
             attachedEntity: true
         }],
 
         //723: [{}],    //EF_CHIMTO2       Hundred Spear (sound effect)
         //724: [{}],    //EF_WINDCUTTER       Green version of Detecting
         //725: [{}],    //EF_DETECT2       Oratorio (like Detecting)
-        //726: [{}],    //EF_FROSTMYSTY       Frost Misty (blue vapor and bubbles)
+        726: [{    //EF_FROSTMYSTY       Frost Misty (blue vapor and bubbles)
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
+		}],
 
         727: [{    //EF_CRIMSON_STR    Crimson Rock
             type: 'STR',
@@ -5487,21 +5812,881 @@ define(function( require )
 
         756: [{    //EF_POTION_BERSERK2    Enchant Blade (like Berserk Potion)
             type: 'STR',
-            file: '\x31\xf6\x31\xad\x41\xa9', //1ö1­A©
+            file: '\xb9\xf6\xbc\xad\xc5\xa9',
             attachedEntity: true
         }],
         
         //757: [{}],    //EF_CIRCLEPOWER       Third Class Aura (Middle)
-        //758: [{}],    //EF_ROLLING1       Rolling Cutter - Spin Count 1
-        //759: [{}],    //EF_ROLLING2       Rolling Cutter - Spin Count 2
-        //760: [{}],    //EF_ROLLING3       Rolling Cutter - Spin Count 3
-        //761: [{}],    //EF_ROLLING4       Rolling Cutter - Spin Count 4
-        //762: [{}],    //EF_ROLLING5       Rolling Cutter - Spin Count 5
-        //763: [{}],    //EF_ROLLING6       Rolling Cutter - Spin Count 6
-        //764: [{}],    //EF_ROLLING7       Rolling Cutter - Spin Count 7
-        //765: [{}],    //EF_ROLLING8       Rolling Cutter - Spin Count 8
-        //766: [{}],    //EF_ROLLING9       Rolling Cutter - Spin Count 9
-        //767: [{}],    //EF_ROLLING10       Rolling Cutter - Spin Count 10
+        758: [{    //EF_ROLLING1       Rolling Cutter - Spin Count 1
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd1.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd1.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd1.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd1.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd1.tga'
+		}],
+		
+        759: [{    //EF_ROLLING2       Rolling Cutter - Spin Count 2
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd2.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd2.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd2.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd2.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd2.tga'
+		}],
+		
+        760: [{    //EF_ROLLING3       Rolling Cutter - Spin Count 3
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd3.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd3.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd3.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd3.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd3.tga'
+		}],
+		
+        761: [{    //EF_ROLLING4       Rolling Cutter - Spin Count 4
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd4.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd4.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd4.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd4.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd4.tga'
+		}],
+		
+        762: [{    //EF_ROLLING5       Rolling Cutter - Spin Count 5
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd5.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd5.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd5.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd5.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd5.tga'
+		}],
+		
+        763: [{    //EF_ROLLING6       Rolling Cutter - Spin Count 6
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd6.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd6.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd6.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd6.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd6.tga'
+		}],
+		
+        764: [{    //EF_ROLLING7       Rolling Cutter - Spin Count 7
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd7.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd7.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd7.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd7.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd7.tga'
+		}],
+		
+        765: [{    //EF_ROLLING8       Rolling Cutter - Spin Count 8
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd8.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd8.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd8.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd8.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd8.tga'
+		}],
+		
+        766: [{    //EF_ROLLING9       Rolling Cutter - Spin Count 9
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd9.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd9.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd9.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd9.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd9.tga'
+		}],
+		
+        767: [{    //EF_ROLLING10       Rolling Cutter - Spin Count 10
+			alphaMax: 1,
+			blendMode: 1,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 200,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd10.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.7,
+			green: 0.7,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 220,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd10.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 240,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd10.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.3,
+			green: 0.3,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 260,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd10.tga'
+		}, {
+			alphaMax: 0.2,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1000,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 4,
+            sizeEnd: 20,
+            sizeSmooth: false,
+            sizeStart: 280,
+            type: '3D',
+            zIndex: 10,
+			file: 'effect/\xc8\xb8\xc0\xfc\xc4\xab\xbf\xee\xc5\xcd10.tga'
+		}],
+		
         //768: [{}],    //EF_PURPLEBODY       Blinking
         //769: [{}],    //EF_STIN6       Cross Ripper Slasher (flying knives)
         //770: [{}],    //EF_RG_COIN4       Strip sound
@@ -5539,12 +6724,20 @@ define(function( require )
         //796: [{}],    //EF_GTHUNDER       Spinning blue triangles
         //797: [{}],    //EF_STONERING       Stapo
         //798: [{}],    //EF_INTIMIDATE2       Red triangles (like Intimidate)
-        //799: [{}],    //EF_STASIS       Stasis (expanding blue mist) [S]
+        799: [{    //EF_STASIS       Stasis (expanding blue mist) [S]
+			wav: 'effect/wl_stasis'
+		}],
         //800: [{}],    //EF_REDLINE       Hell Inferno (red lights)
         //801: [{}],    //EF_FROSTDIVER3       Jack Frost unit (ice spikes)
-        //802: [{}],    //EF_BOTTOM_BASILICA2       White Imprison
-        //803: [{}],    //EF_RECOGNIZED       Recognized Spell
-        //804: [{}],    //EF_TETRA       Tetra Vortex [S]
+        802: [{    //EF_BOTTOM_BASILICA2       White Imprison
+			wav: 'effect/wl_whiteimprison'
+		}],
+        803: [{    //EF_RECOGNIZED       Recognized Spell
+			wav: 'effect/wl_recognizedspell'
+		}],
+        804: [{
+			wav: 'effect/wl_tetravortex'
+		}],    //EF_TETRA       Tetra Vortex [S]
         //805: [{}],    //EF_TETRACASTING       Tetra Vortex cast animation (blinking colors)
         //806: [{}],    //EF_FIREBALL3       Flying by as fast as a rocket
         //807: [{}],    //EF_INTIMIDATE3       Kidnapping sound
@@ -5604,14 +6797,18 @@ define(function( require )
         //820: [{}],    //EF_RG_COIN5       Strip Accessory
         //821: [{}],    //EF_WATERFALL_ANI       Waterfall
         
-		822: [{}],    //EF_BOTTOM_MANHOLE       Dimension Door (spinning blue aura)
+		822: [{
+			wav: 'effect/dimension'
+		}],    //EF_BOTTOM_MANHOLE       Dimension Door (spinning blue aura)
         
 		823: [{    //EF_MANHOLE       in-the-manhole effect
 			wav: 'effect/manhole'
 		}],
        
-	   //824: [{}],    //EF_MAKEFEINT       Some filter
-        //825: [{}],    //EF_FORESTLIGHT6       Dimension Door (aura + blue light)
+	    //824: [{}],    //EF_MAKEFEINT       Some filter
+        825: [{
+			wav: 'effect/dimension'
+		}],    //EF_FORESTLIGHT6       Dimension Door (aura + blue light)
         //826: [{}],    //EF_DARKCASTING2       Expanding black casting anim:
         
 		827: [{    //EF_BOTTOM_ANI       Chaos Panic (spinning brown aura)
@@ -5668,7 +6865,178 @@ define(function( require )
 		//861: [{}],    //EF_CIRCLEPOWER2       Green aura (from Circle of Life's Melody)
         
 		862: [{    //EF_SECRA2       Randomize Spell (holograph of text)
+			attachedEntity: true,
 			wav: 'effect/ab_ancilla'
+		}, {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.55,
+			blue: 0.55,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 850,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		},  {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.6,
+			blue: 0.6,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 800,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		},  {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.65,
+			blue: 0.65,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 750,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		},  {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.7,
+			blue: 0.7,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 700,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		}, {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.75,
+			blue: 0.75,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 650,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		}, {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.8,
+			blue: 0.8,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 600,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		}, {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.85,
+			blue: 0.85,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 550,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		}, {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.9,
+			blue: 0.9,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 500,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		}, {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 0.95,
+			blue: 0.95,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 450,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
+		}, {
+			alphaMax: 0.3,
+            blendMode: 2,
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+            attachedEntity: true,
+            delay: 1500,
+            fadeIn: false,
+            fadeOut: true,
+            posz: 7,
+            sizeEnd: 100,
+            sizeSmooth: true,
+            sizeStart: 400,
+            zIndex: 10,
+            type: '3D',
+			file: 'effect/priest_spell.bmp'
 		}],
 		
         //863: [{}],    //EF_CHEMICAL_V3       Dominion Impulse (two spears of light)
@@ -5700,7 +7068,9 @@ define(function( require )
         //885: [{}],    //EF_BASH3D6       Blue light beams
         //886: [{}],    //EF_GUMGANG5       Blue castish cone
         //887: [{}],    //EF_HITLINE8       Wavy sparks
-        //888: [{}],    //EF_ELECTRIC4       Earth Shaker (same as 432)
+        888: [{    //EF_ELECTRIC4       Earth Shaker (same as 432)
+			wav: 'effect/sr_earthshaker'
+		}],
         //889: [{}],    //EF_TEIHIT1T       Fast light beams
         //890: [{}],    //EF_SPINMOVE       Rotation
         //891: [{}],    //EF_FIREBALL4       Magic shots [S]
@@ -5754,7 +7124,9 @@ define(function( require )
         }],
 
         //921: [{}],    //EF_VACUUM       Vacuum Extreme (whirlwind)
-        //922: [{}],    //EF_SPR_PLANT10       Psychic Wave
+        922: [{    //EF_SPR_PLANT10       Psychic Wave
+			wav: 'effect/s\xbb\xe7\xc0\xcc\xc5\xb1\xbf\xfe\xc0\xcc\xba\xea'
+		}],
         //923: [{}],    //EF_SPR_LIGHTPRINT2       Poison Buster
         //924: [{}],    //EF_POISONSMOKE2       Poisoning animation
         //925: [{}],    //EF_MAKEHALLU2       Some filter
@@ -5766,8 +7138,12 @@ define(function( require )
         }],
 
         //927: [{}],    //EF_SPR_PLANT11       Earth Grave (speary roots)
-        //928: [{}],    //EF_COLDTHROW2       Ice cloud projectiles
-        //929: [{}],    //EF_DEMONICFIRE4       Warmer (field of flames)
+        928: [{    //EF_COLDTHROW2       Ice cloud projectiles
+			wav: 'effect/wl_jackfrost'
+		}],
+        929: [{    //EF_DEMONICFIRE4       Warmer (field of flames)
+			wav: 'effect/s\xbf\xf6\xb8\xd3'
+		}],
         //930: [{}],    //EF_PRESSURE3       Varetyr Spear (falling spear)
         //931: [{}],    //EF_LINKPARTICLE2       (Nothing)
         //932: [{}],    //EF_SOULLIGHT3       Firefly
@@ -5945,6 +7321,7 @@ define(function( require )
         1042: [{    //EF_ALL_FULL_THROTTLE    
             type: 'STR',
             file: 'all_full_throttle',
+			wav: 'effect/all_full_throttle',
             attachedEntity: true
         }],
 
@@ -5952,6 +7329,7 @@ define(function( require )
         1043: [{    //EF_SR_FLASHCOMBO    
             type: 'STR',
             file: 'sr_flashcombo',
+			wav: 'effect/sr_flashcombo',
             attachedEntity: true
         }],
 
@@ -5973,6 +7351,7 @@ define(function( require )
         1047: [{    //EF_AB_OFFERTORIUM    
             type: 'STR',
             file: 'ab_offertorium',
+			wav: 'effect/qb_offertorium',
             attachedEntity: true
         }],
 
@@ -5980,6 +7359,7 @@ define(function( require )
         1048: [{    //EF_WL_TELEKINESIS_INTENSE    
             type: 'STR',
             file: 'wl_telekinesis_intense',
+			wav: 'effect/wl_telekinesis_intense',
             attachedEntity: true
         }],
 
@@ -6228,36 +7608,7 @@ define(function( require )
 
             }
         }],
-        
-        
-        'spiral_pierce_color': [{
-            type: 'FUNC',
-            attachedEntity: true,
-            func: function EffectBodyColor(entity) {
-                entity._virtueColor[0] = 1.0;
-                entity._virtueColor[1] = 1.0;
-                entity._virtueColor[2] = 1.0;
-                entity._virtueColor[3] = 1.0;
-                entity.recalculateBlendingColor();
 
-                entity.animations.add(function(tick){
-                
-                    if (!entity.cast.display) {     //we don't know cast time here so.. let's hack
-                        entity._virtueColor[0] = 1.0;
-                        entity._virtueColor[1] = 1.0;
-                        entity._virtueColor[2] = 1.0;
-                        entity._virtueColor[3] = 1.0;
-                        entity.recalculateBlendingColor();
-                        return true;
-                    }
-                        entity._virtueColor[1] = 0.0 + Math.sin(tick / (6 * Math.PI));
-                        entity._virtueColor[2] = 0.0 + Math.sin(tick / (6 * Math.PI));
-                        entity.recalculateBlendingColor();
-                });
-            }
-        }],        
-        
-        
         'magic_ring_red': [{
             type: 'FUNC',
             attachedEntity: false,
@@ -6319,11 +7670,6 @@ define(function( require )
             wav: 'effect/ef_entry',
             attachedEntity: true
         }],
-		
-		'ef_blitzbeat_sound': [{
-            wav: 'effect/hunter_blitzbeat',
-            attachedEntity: true
-        }],
         
 		'ef_rush_windmill': [{
             wav: 'effect/\xc7\xb3\xc2\xf7\xb8\xa6\xc7\xe2\xc7\xd8\xb5\xb9\xb0\xdd', //ÇłÂ÷¸¦ÇâÇŘµą°Ý
@@ -6360,6 +7706,185 @@ define(function( require )
             attachedEntity: true
         }],
 		
+		'ef_thorntrap': [{
+            wav: 'effect/\xb0\xa1\xbd\xc3\xb3\xaa\xb9\xab\xb5\xa3',
+            attachedEntity: true
+        }],
+		
+		'ef_banishingpoint': [{
+            wav: 'effect/lg_banishingpoint',
+            attachedEntity: true
+        }],
+		
+		'ef_cannonspear': [{
+            wav: 'effect/lg_cannonspear',
+            attachedEntity: true
+        }],
+		
+		'ef_earthdrive': [{
+            wav: 'effect/lg_earthdrive',
+            attachedEntity: true
+        }],
+		
+		'ef_exceedbreak': [{
+            wav: 'effect/lg_exceedbreak',
+            attachedEntity: true
+        }],
+		
+		'ef_hesperuslit': [{
+            wav: 'effect/lg_hesperuslit',
+            attachedEntity: true
+        }],
+		
+		'ef_kings_grace': [{
+            wav: 'effect/lg_kings_grace',
+            attachedEntity: true
+        }],
+		
+		'ef_moonslasher': [{
+            wav: 'effect/lg_moonslasher',
+            attachedEntity: true
+        }],
+		
+		'ef_overbrand': [{
+            wav: 'effect/lg_overbrand',
+            attachedEntity: true
+        }],
+		
+		'ef_piety': [{
+            wav: 'effect/lg_piety',
+            attachedEntity: true
+        }],
+		
+		'ef_pinpointattack': [{
+            wav: 'effect/lg_pinpointattack',
+            attachedEntity: true
+        }],
+		
+		'ef_rageburst': [{
+            wav: 'effect/lg_rageburst',
+            attachedEntity: true
+        }],
+		
+		'ef_rayofgenesis': [{
+            wav: 'effect/lg_rayofgenesis',
+            attachedEntity: true
+        }],
+		
+		'ef_reflectdamage': [{
+            wav: 'effect/lg_reflectdamage',
+            attachedEntity: true
+        }],
+		
+		'ef_shieldspell': [{
+            wav: 'effect/lg_shieldspell',
+            attachedEntity: true
+        }],
+		
+		'ef_trample': [{
+            wav: 'effect/lg_trample',
+            attachedEntity: true
+        }],
+		
+		'ef_crescentelbow': [{
+            wav: 'effect/sr_crescentelbow',
+            attachedEntity: true
+        }],
+		
+		'ef_cursedcircle': [{
+            wav: 'effect/sr_cursedcircle',
+            attachedEntity: true
+        }],
+		
+		'ef_dragoncombo': [{
+            wav: 'effect/sr_dragoncombo',
+            attachedEntity: true
+        }],
+		
+		'ef_fallenempire': [{
+            wav: 'effect/sr_fallenempire',
+            attachedEntity: true
+        }],
+		
+		'ef_gateofhell': [{
+            wav: 'effect/sr_gateofhell',
+            attachedEntity: true
+        }],
+		
+		'ef_howlingoflion': [{
+            wav: 'effect/sr_howlingoflion',
+            attachedEntity: true
+        }],
+		
+		'ef_knucklearrow': [{
+            wav: 'effect/sr_knucklearrow',
+            attachedEntity: true
+        }],
+		
+		'ef_lightningwalk': [{
+            wav: 'effect/sr_lightningwalk',
+            attachedEntity: true
+        }],
+		
+		'ef_powervelocity': [{
+            wav: 'effect/sr_powervelocity',
+            attachedEntity: true
+        }],
+		
+		'ef_raisingdragon': [{
+            wav: 'effect/sr_raisingdragon',
+            attachedEntity: true
+        }],
+		
+		'ef_rampageblaster': [{
+            wav: 'effect/sr_rampageblaster',
+            attachedEntity: true
+        }],
+		
+		'ef_rideinlightning': [{
+            wav: 'effect/sr_rideinlightning',
+            attachedEntity: true
+        }],
+		
+		'ef_skynetblow': [{
+            wav: 'effect/sr_skynetblow',
+            attachedEntity: true
+        }],
+		
+		'ef_tigercannon': [{
+            wav: 'effect/sr_tigercannon',
+            attachedEntity: true
+        }],
+		
+		'ef_windmill': [{
+            wav: 'effect/sr_windmill',
+            attachedEntity: true
+        }],
+		
+		'ef_jackfrost': [{
+            wav: 'effect/wl_jackfrost',
+            attachedEntity: true
+        }],
+		
+		'ef_siennaexecrate': [{
+            wav: 'effect/wl_siennaexecrate',
+            attachedEntity: true
+        }],
+		
+		'ef_frigg_song': [{
+            wav: 'effect/wm_frigg_song',
+            attachedEntity: true
+        }],
+		
+		'ef_duplelight': [{
+            wav: 'effect/ab_duplelight',
+            attachedEntity: true
+        }],
+		
+		'ef_': [{
+            wav: 'effect/',
+            attachedEntity: true
+        }],
 
     };
 });

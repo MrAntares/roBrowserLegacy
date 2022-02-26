@@ -18,6 +18,7 @@ define(function( require )
 	var EffectDB      = require('DB/Effects/EffectTable');
 	var SkillEffect   = require('DB/Skills/SkillEffect');
 	var SkillUnit     = require('DB/Skills/SkillUnit');
+	var ItemEffect    = require('DB/Items/ItemEffect');
 	var Events        = require('Core/Events');
 	var Cylinder      = require('Renderer/Effects/Cylinder');
 	var StrEffect     = require('Renderer/Effects/StrEffect');
@@ -511,13 +512,17 @@ define(function( require )
 	 * @param {Array} position
 	 * @param {number} tick
 	 */
-	EffectManager.spamSkill = function spamSkill( skillId, AID, position, tick )
+	EffectManager.spamSkill = function spamSkill( skillId, destAID, position, tick, srcAID)
 	{
 		if (!(skillId in SkillEffect)) {
 			return;
 		}
 
-		EffectManager.spam( SkillEffect[skillId].effectId, AID, position, tick);
+		EffectManager.spam( SkillEffect[skillId].effectId, destAID, position, tick);
+		
+		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
+			EffectManager.spam( SkillEffect[skillId].effectIdOnCaster, srcAID, position, tick);
+		}
 	};
 
 
@@ -536,6 +541,27 @@ define(function( require )
 
 		if (SkillEffect[skillId].hitEffectId) {
 			EffectManager.spam( SkillEffect[skillId].hitEffectId, AID, null, tick);
+		}
+	};
+	
+	/**
+	 * Spam a item on a target
+	 *
+	 * @param {number} item id
+	 * @param {number} target aid
+	 * @param {Array} position
+	 * @param {number} tick
+	 */
+	EffectManager.spamItem = function spamItem( itemId, destAID, position, tick, srcAID)
+	{
+		if (!(itemId in ItemEffect)) {
+			return;
+		}
+
+		EffectManager.spam( ItemEffect[itemId].effectId, destAID, position, tick);
+		
+		if (ItemEffect[itemId].effectIdOnCaster && srcAID) {
+			EffectManager.spam( ItemEffect[itemId].effectIdOnCaster, srcAID, position, tick);
 		}
 	};
 

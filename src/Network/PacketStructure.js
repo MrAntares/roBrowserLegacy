@@ -7497,7 +7497,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0x20e
 	PACKET.ZC.STARSKILL = function PACKET_ZC_STARSKILL(fp, end) {
-		this.mapName = fp.readBinaryString(24);
+		this.monsterName = fp.readBinaryString(24);
 		this.monsterID = fp.readLong();
 		this.star = fp.readUChar();
 		this.result = fp.readUChar();

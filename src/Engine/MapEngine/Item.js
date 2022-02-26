@@ -30,6 +30,7 @@ define(function( require )
 	var CartItems     = require('UI/Components/CartItems/CartItems');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
 	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
+    var EffectManager = require('Renderer/EffectManager');
 
 
 	/**
@@ -209,6 +210,9 @@ define(function( require )
 			else {
 				// should we show a msg in chatbox ?
 			}
+		}
+		if(pkt.result){
+			EffectManager.spamItem( pkt.id, pkt.AID, null, null, null);
 		}
 	}
 

@@ -46,7 +46,7 @@ define(function( require )
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
-    var MapEffects    = require('Renderer/Map/Effects');
+	var MapEffects    = require('Renderer/Map/Effects');
 	
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -102,6 +102,7 @@ define(function( require )
                     };
                     MapEffects.add(mapEffect);
                 }
+				
             }
 			EntityManager.add(entity);
 		}
@@ -402,6 +403,14 @@ define(function( require )
 									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft );
 								}
 								break;
+								
+							// absorb damage (like tarot card damage)
+							case 4:
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
+								}
+								break;
 
 							// double attack
 							case 8:
@@ -429,10 +438,10 @@ define(function( require )
 							// endure
 							case 9:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.ENDURE);
-									if(pkt.leftDamage){
-										Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.ENDURE);
-									}
-									break;
+								if(pkt.leftDamage){
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.ENDURE);
+								}
+								break;
 							
 							// TODO: critical damage
 							case 10:
@@ -798,7 +807,18 @@ define(function( require )
             if (pkt.SKID === SkillId.RG_STEALCOIN) {
                 ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE );
             }
-			EffectManager.spamSkill( pkt.SKID, pkt.targetAID );
+			
+			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
+				if(dstEntity.RollCounter){
+					EffectManager.spam(757 + dstEntity.RollCounter, dstEntity.GID, null, null, srcEntity.GID);
+				}
+			}
+			
+			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
+			
+			if (pkt.result == 1){
+				EffectManager.spamSkillHit( pkt.SKID, dstEntity.GID, Renderer.tick);
+			}
 		}
 	}
 
@@ -944,7 +964,7 @@ define(function( require )
 		}
 
 		if (srcEntity && dstEntity) {
-			EffectManager.spamSkill( pkt.SKID, dstEntity.GID, null, Renderer.tick + pkt.attackMT);
+			EffectManager.spamSkill( pkt.SKID, dstEntity.GID, null, Renderer.tick + pkt.attackMT, pkt.AID);
 		}
 	}
 
@@ -1178,6 +1198,14 @@ define(function( require )
             case StatusConst.RUN: //state: 1 ON  0 OFF
                 //draw footprints on the floor
                 break;
+				
+			case StatusConst.ROLLINGCUTTER:
+				if (pkt.state == 1) {
+					entity.RollCounter = pkt.val[0];
+				} else {
+					entity.RollCounter = 0;
+				}
+				break;
 
             case StatusConst.TRICKDEAD:
                 if(pkt.state == 1) {
