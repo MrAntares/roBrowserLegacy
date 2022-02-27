@@ -20,7 +20,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17};		//Magnum Break
 	SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	// Mage
-	SkillEffect[SK.MG_SIGHT]                       = {effectId: 22};		//Sight
+	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22};		//Sight
 	SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
 	SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
 	SkillEffect[SK.MG_SOULSTRIKE]                  = {effectId: 15, hitEffectId: 1};		//Soul Strike
@@ -33,7 +33,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MG_LIGHTNINGBOLT]               = {effectId: 29, hitEffectId: 52};		//Lightning Bolt
 	SkillEffect[SK.MG_THUNDERSTORM]                = {effectId: 30, hitEffectId: 52};		//Thunderstorm
 	// Acolyte
-	SkillEffect[SK.AL_RUWACH]                      = {effectId: 33};		//Ruwach
+	SkillEffect[SK.AL_RUWACH]                      = {effectIdOnCaster: 33};		//Ruwach
 	SkillEffect[SK.AL_PNEUMA]                      = {groundEffectId: 141};		//Pneuma
 	SkillEffect[SK.AL_TELEPORT]                    = {/*not here*/};		//Teleport
 	SkillEffect[SK.AL_WARP]                        = {effectId: 35, groundEffectId: 317};		//Warp Portal
@@ -681,10 +681,10 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.RA_ELECTRICSHOCKER]             = {};		//Electric Shocker
 	SkillEffect[SK.RA_CLUSTERBOMB]                 = {};		//Cluster Bomb
 	SkillEffect[SK.RA_WUGMASTERY]                  = {};		//Warg Mastery
-	SkillEffect[SK.RA_WUGRIDER]                    = {};		//Warg Rider
+	SkillEffect[SK.RA_WUGRIDER]                    = {effectId: 'ef_wugrider'};		//Warg Rider
 	SkillEffect[SK.RA_WUGDASH]                     = {};		//Warg Dash
-	SkillEffect[SK.RA_WUGSTRIKE]                   = {};		//Warg Strike
-	SkillEffect[SK.RA_WUGBITE]                     = {};		//Warg Bite
+	SkillEffect[SK.RA_WUGSTRIKE]                   = {effectId: 'ef_wugstrike'};		//Warg Strike
+	SkillEffect[SK.RA_WUGBITE]                     = {effectId: 'ef_wugbite'};		//Warg Bite
 	SkillEffect[SK.RA_SENSITIVEKEEN]               = {};		//Sensitive Keen
 	SkillEffect[SK.RA_CAMOUFLAGE]                  = {effectId: 744};		//Camouflage
 	SkillEffect[SK.RA_MAGENTATRAP]                 = {groundEffectId: 739};		//Magenta Trap
