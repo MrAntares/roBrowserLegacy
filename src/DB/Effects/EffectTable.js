@@ -4248,15 +4248,23 @@ define(function( require )
         }],
         //326: [{}],    //EF_FOOT       Chase Walk Left Foot
         //327: [{}],    //EF_FOOT2       Chse Walk Right Foot
+		
         328: [{    //EF_BEGINASURA       Monk Asura Strike
 			wav: 'effect/mon_\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7'
 		}],
+		
         //329: [{}],    //EF_TRIPLEATTACK       Triple Strike
         //330: [{}],    //EF_HITLINE       Combo Finish
         //331: [{}],    //EF_HPTIME       Natural HP Regeneration
         //332: [{}],    //EF_SPTIME       Natural SP Regeneration
         //333: [{}],    //EF_MAPLE       Autumn Leaves
-        //334: [{}],    //EF_BLIND       Blind
+		
+        334: [{    //EF_BLIND       Blind
+			wav: '_blind'
+			/*file: 'effect/fullb.tga',
+			file: 'effect/white02.bmp',*/
+		}],
+		
         //335: [{}],    //EF_POISON       Poison
 
         336: [{ //kyrie eleison / parrying    (when target blocked dmg)    //EF_GUARD    Kyrie Eleison/Parrying Shield
@@ -5164,6 +5172,7 @@ define(function( require )
         579: [{    //EF_ITEM_ZZZ    Box Effect (Sleep)
             type: 'SPR',
             file: 'item_zzz',
+			wav: '_snore',
             attachedEntity: true
         }],
 
@@ -7878,6 +7887,21 @@ define(function( require )
 		
 		'ef_duplelight': [{
             wav: 'effect/ab_duplelight',
+            attachedEntity: true
+        }],
+		
+		'ef_wugbite': [{
+            wav: 'wug_bite',
+            attachedEntity: true
+        }],
+		
+		'ef_wugstrike': [{
+            wav: 'wug_strike',
+            attachedEntity: true
+        }],
+		
+		'ef_wugrider': [{
+            wav: 'wolf_stand',
             attachedEntity: true
         }],
 		
