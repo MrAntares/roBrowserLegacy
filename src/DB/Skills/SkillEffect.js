@@ -20,7 +20,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17};		//Magnum Break
 	SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	// Mage
-	SkillEffect[SK.MG_SIGHT]                       = {effectId: 22};		//Sight
+	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22};		//Sight
 	SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
 	SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
 	SkillEffect[SK.MG_SOULSTRIKE]                  = {effectId: 15, hitEffectId: 1};		//Soul Strike
@@ -33,7 +33,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MG_LIGHTNINGBOLT]               = {effectId: 29, hitEffectId: 52};		//Lightning Bolt
 	SkillEffect[SK.MG_THUNDERSTORM]                = {effectId: 30, hitEffectId: 52};		//Thunderstorm
 	// Acolyte
-	SkillEffect[SK.AL_RUWACH]                      = {effectId: 33};		//Ruwach
+	SkillEffect[SK.AL_RUWACH]                      = {effectIdOnCaster: 33};		//Ruwach
 	SkillEffect[SK.AL_PNEUMA]                      = {groundEffectId: 141};		//Pneuma
 	SkillEffect[SK.AL_TELEPORT]                    = {/*not here*/};		//Teleport
 	SkillEffect[SK.AL_WARP]                        = {effectId: 35, groundEffectId: 317};		//Warp Portal
@@ -497,10 +497,10 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.GS_SPREADATTACK]                = {effectId: 645};		//Spread Attack
 	SkillEffect[SK.GS_GROUNDDRIFT]                 = {};		//Ground Drift
 	// Ninja
-	SkillEffect[SK.NJ_SYURIKEN]                    = {effectId: 613};		//Throw Shuriken
-	SkillEffect[SK.NJ_KUNAI]                       = {effectId: 614};		//Throw Kunai
-	SkillEffect[SK.NJ_HUUMA]                       = {effectId: 615};		//Throw Huuma Shuriken
-	SkillEffect[SK.NJ_ZENYNAGE]                    = {effectId: 616};		//Throw Zeny
+	SkillEffect[SK.NJ_SYURIKEN]                    = {effectIdOnCaster: 613};		//Throw Shuriken
+	SkillEffect[SK.NJ_KUNAI]                       = {effectIdOnCaster: 614};		//Throw Kunai
+	SkillEffect[SK.NJ_HUUMA]                       = {effectIdOnCaster: 615};		//Throw Huuma Shuriken
+	SkillEffect[SK.NJ_ZENYNAGE]                    = {effectIdOnCaster: 616};		//Throw Zeny
 	SkillEffect[SK.NJ_TATAMIGAESHI]                = {groundEffectId: 631};		//Improvised Defense
 	SkillEffect[SK.NJ_KASUMIKIRI]                  = {effectId: 632};		//Vanishing Slash
 	SkillEffect[SK.NJ_SHADOWJUMP]                  = {};		//Shadow Leap
@@ -510,16 +510,16 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NJ_KOUENKA]                     = {effectId: 618};		//Crimson Fire Petal
 	SkillEffect[SK.NJ_KAENSIN]                     = {groundEffectId: 634};		//Crimson Fire Formation
 	SkillEffect[SK.NJ_BAKUENRYU]                   = {effectId: 635};		//Raging Fire Dragon
-	SkillEffect[SK.NJ_HYOUSENSOU]                  = {effectId: 636};		//Spear of Ice
+	SkillEffect[SK.NJ_HYOUSENSOU]                  = {effectId: 619};		//Spear of Ice
 	SkillEffect[SK.NJ_SUITON]                      = {groundEffectId: 620};		//Hidden Water
-	SkillEffect[SK.NJ_HYOUSYOURAKU]                = {effectId: 619};		//Ice Meteor
+	SkillEffect[SK.NJ_HYOUSYOURAKU]                = {effectId: 636};		//Ice Meteor
 	SkillEffect[SK.NJ_HUUJIN]                      = {effectId: 621};		//Wind Blade
-	SkillEffect[SK.NJ_RAIGEKISAI]                  = {};		//Lightning Strike of Destruction
+	SkillEffect[SK.NJ_RAIGEKISAI]                  = {effectId: 622};		//Lightning Strike of Destruction
 	SkillEffect[SK.NJ_KAMAITACHI]                  = {};		//Kamaitachi
 	SkillEffect[SK.NJ_NEN]                         = {};		//Soul
 	SkillEffect[SK.NJ_ISSEN]                       = {effectId: 633};		//Final Strike
 	// Additional NPC Skills (Episode 11.3)
-	SkillEffect[SK.NPC_EARTHQUAKE]                 = {groundEffectId: 666};		//Earthquake
+	SkillEffect[SK.NPC_EARTHQUAKE]                 = {effectIdOnCaster: 666};		//Earthquake
 	SkillEffect[SK.NPC_FIREBREATH]                 = {};		//Fire Breath
 	SkillEffect[SK.NPC_ICEBREATH]                  = {};		//Ice Breath
 	SkillEffect[SK.NPC_THUNDERBREATH]              = {};		//Thunder Breath
@@ -530,13 +530,13 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_PULSESTRIKE]                = {};		//Pulse Strike
 	SkillEffect[SK.NPC_HELLJUDGEMENT]              = {};		//Hell's Judgement
 	SkillEffect[SK.NPC_WIDESILENCE]                = {};		//Wide Silence
-	SkillEffect[SK.NPC_WIDEFREEZE]                 = {effectId: 89};		//Wide Freeze
-	SkillEffect[SK.NPC_WIDEBLEEDING]               = {effectId: 669};		//Wide Bleeding
+	SkillEffect[SK.NPC_WIDEFREEZE]                 = {effectIdOnCaster: 89};		//Wide Freeze
+	SkillEffect[SK.NPC_WIDEBLEEDING]               = {effectIdOnCaster: 669};		//Wide Bleeding
 	SkillEffect[SK.NPC_WIDESTONE]                  = {};		//Wide Petrify
 	SkillEffect[SK.NPC_WIDECONFUSE]                = {};		//Wide Confusion
 	SkillEffect[SK.NPC_WIDESLEEP]                  = {};		//Wide Sleep
 	SkillEffect[SK.NPC_WIDESIGHT]                  = {};		//Wide Sight
-	SkillEffect[SK.NPC_EVILLAND]                   = {groundEffectId: '674_ground'};		//Evil Land
+	SkillEffect[SK.NPC_EVILLAND]                   = {groundEffectId: 674};		//Evil Land
 	SkillEffect[SK.NPC_MAGICMIRROR]                = {};		//Magic Mirror
 	SkillEffect[SK.NPC_SLOWCAST]                   = {};		//Slow Cast
 	SkillEffect[SK.NPC_CRITICALWOUND]              = {hitEffectId: 677};		//Critical Wounds
@@ -591,8 +591,8 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.RK_DEATHBOUND]                  = {};		//Death Bound
 	SkillEffect[SK.RK_HUNDREDSPEAR]                = {effectId: 723};		//Hundred Spear
 	SkillEffect[SK.RK_WINDCUTTER]                  = {};		//Wind Cutter
-	SkillEffect[SK.RK_IGNITIONBREAK]               = {effectId: 722};		//Ignition Break
-	SkillEffect[SK.RK_DRAGONBREATH]                = {};		//Dragon Breath
+	SkillEffect[SK.RK_IGNITIONBREAK]               = {effectIdOnCaster: 722};		//Ignition Break
+	SkillEffect[SK.RK_DRAGONBREATH]                = {hitEffectId: 587};		//Dragon Breath
 	SkillEffect[SK.RK_DRAGONHOWLING]               = {effectId: 731};		//Dragon Howling
 	SkillEffect[SK.RK_MILLENNIUMSHIELD]            = {effectId: 749};		//Millenium Shield
 	SkillEffect[SK.RK_CRUSHSTRIKE]                 = {};		//Crush Strike
@@ -649,7 +649,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.GC_POISONSMOKE]                 = {effectId: 924};		//Poison Smoke
 	SkillEffect[SK.GC_CLOAKINGEXCEED]              = {};		//Cloaking Exceed
 	SkillEffect[SK.GC_PHANTOMMENACE]               = {};		//Phantom Menace
-	SkillEffect[SK.GC_HALLUCINATIONWALK]           = {};		//Hallucination Walk
+	SkillEffect[SK.GC_HALLUCINATIONWALK]           = {effectId: 'ef_hallucinationwalk'};		//Hallucination Walk
 	SkillEffect[SK.GC_ROLLINGCUTTER]               = {effectId: 775};		//Rolling Cutter
 	SkillEffect[SK.GC_CROSSRIPPERSLASHER]          = {effectId: 769};		//Cross Ripper Slasher
 	// AB Arch Bishop
@@ -681,10 +681,10 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.RA_ELECTRICSHOCKER]             = {};		//Electric Shocker
 	SkillEffect[SK.RA_CLUSTERBOMB]                 = {};		//Cluster Bomb
 	SkillEffect[SK.RA_WUGMASTERY]                  = {};		//Warg Mastery
-	SkillEffect[SK.RA_WUGRIDER]                    = {};		//Warg Rider
+	SkillEffect[SK.RA_WUGRIDER]                    = {effectId: 'ef_wugrider'};		//Warg Rider
 	SkillEffect[SK.RA_WUGDASH]                     = {};		//Warg Dash
-	SkillEffect[SK.RA_WUGSTRIKE]                   = {};		//Warg Strike
-	SkillEffect[SK.RA_WUGBITE]                     = {};		//Warg Bite
+	SkillEffect[SK.RA_WUGSTRIKE]                   = {effectId: 'ef_wugstrike'};		//Warg Strike
+	SkillEffect[SK.RA_WUGBITE]                     = {effectId: 'ef_wugbite'};		//Warg Bite
 	SkillEffect[SK.RA_SENSITIVEKEEN]               = {};		//Sensitive Keen
 	SkillEffect[SK.RA_CAMOUFLAGE]                  = {effectId: 744};		//Camouflage
 	SkillEffect[SK.RA_MAGENTATRAP]                 = {groundEffectId: 739};		//Magenta Trap
@@ -883,7 +883,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.RL_BANISHING_BUSTER]            = {};		//Banishing Buster
 	SkillEffect[SK.RL_B_TRAP]                      = {};		//Bind Trap
 	SkillEffect[SK.RL_FLICKER]                     = {};		//Flicker
-	SkillEffect[SK.RL_S_STORM]                     = {};		//Shatter Storm
+	SkillEffect[SK.RL_S_STORM]                     = {effectId: 'ef_s_storm'};		//Shatter Storm
 	SkillEffect[SK.RL_E_CHAIN]                     = {};		//Eternal Chain
 	SkillEffect[SK.RL_QD_SHOT]                     = {};		//Quick Draw Shot
 	SkillEffect[SK.RL_C_MARKER]                    = {};		//Crimson Marker
@@ -938,7 +938,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK. GC_DARKCROW]                   = {effectId: 1040};		//Dark Claw
 	SkillEffect[SK. RA_UNLIMIT]                    = {};		//Unlimited
 	SkillEffect[SK. GN_ILLUSIONDOPING]             = {effectId: 1049};		//Illusion Doping
-	SkillEffect[SK. RK_DRAGONBREATH_WATER]         = {};		//Dragon Breath - Water
+	SkillEffect[SK. RK_DRAGONBREATH_WATER]         = {hitEffectId: 'ef_dragonbreath_water'};		//Dragon Breath - Water
 	SkillEffect[SK. RK_LUXANIMA]                   = {effectId: 1044};		//Lux Anima
 	SkillEffect[SK. NC_MAGMA_ERUPTION]             = {effectId: 1050};		//Magma Eruption
 	SkillEffect[SK. WM_FRIGG_SONG]                 = {effectId: 'ef_frigg_song'};		//Frigg's Song
