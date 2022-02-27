@@ -592,7 +592,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.RK_HUNDREDSPEAR]                = {effectId: 723};		//Hundred Spear
 	SkillEffect[SK.RK_WINDCUTTER]                  = {};		//Wind Cutter
 	SkillEffect[SK.RK_IGNITIONBREAK]               = {effectId: 722};		//Ignition Break
-	SkillEffect[SK.RK_DRAGONBREATH]                = {};		//Dragon Breath
+	SkillEffect[SK.RK_DRAGONBREATH]                = {hitEffectId: 587};		//Dragon Breath
 	SkillEffect[SK.RK_DRAGONHOWLING]               = {effectId: 731};		//Dragon Howling
 	SkillEffect[SK.RK_MILLENNIUMSHIELD]            = {effectId: 749};		//Millenium Shield
 	SkillEffect[SK.RK_CRUSHSTRIKE]                 = {};		//Crush Strike
@@ -938,7 +938,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK. GC_DARKCROW]                   = {effectId: 1040};		//Dark Claw
 	SkillEffect[SK. RA_UNLIMIT]                    = {};		//Unlimited
 	SkillEffect[SK. GN_ILLUSIONDOPING]             = {effectId: 1049};		//Illusion Doping
-	SkillEffect[SK. RK_DRAGONBREATH_WATER]         = {};		//Dragon Breath - Water
+	SkillEffect[SK. RK_DRAGONBREATH_WATER]         = {hitEffectId: 'ef_dragonbreath_water'};		//Dragon Breath - Water
 	SkillEffect[SK. RK_LUXANIMA]                   = {effectId: 1044};		//Lux Anima
 	SkillEffect[SK. NC_MAGMA_ERUPTION]             = {effectId: 1050};		//Magma Eruption
 	SkillEffect[SK. WM_FRIGG_SONG]                 = {effectId: 'ef_frigg_song'};		//Frigg's Song
