@@ -4382,7 +4382,7 @@ define(function( require )
         //360: [{}],    //EF_BAT2       Niflheim Bat Fast
 		
         361: [{    //EF_SOULBREAKER       Soul Destroyer
-			wav:  'effect/\xb1\xe2\xb0\xf8\xc6\xf7', //±â°řĆ÷
+			wav:  'effect/\xb1\xe2\xb0\xf8\xc6\xf7',
             attachedEntity: true
 		}],
 		
@@ -5595,7 +5595,7 @@ define(function( require )
         //672: [{}],    //EF_BOTTOM_TRANSFER       The Japan Wind Symbol (like 'Seven Wind Lv2', but on the ground)
         //673: [{}],    //EF_CRYSTAL_BLUE       Map turns Blue (like Soul Link)
 
-        '674_ground': [{ // evil land
+        674: [{ // evil land
             type: 'FUNC',
             attachedEntity: false,
             //file: 'status-curse',
@@ -6888,7 +6888,9 @@ define(function( require )
         
 		//830: [{}],    //EF_BEGINSPELL_N1       Blue aura (Arch Bishop cast animation)
         //831: [{}],    //EF_BEGINSPELL_N2       Blue cone [S]
-        //832: [{}],    //EF_HEAL_N       Sonic Wave
+        832: [{    //EF_HEAL_N       Sonic Wave
+			wav:  'effect/\xb1\xe2\xb0\xf8\xc6\xf7'
+		}],
         //833: [{}],    //EF_CHOOKGI_N       (Nothing)
         //834: [{}],    //EF_JOBLVUP50_2       Light shooting away circlish
         //835: [{}],    //EF_CHEMICAL2DASH2       Fastness yellow-reddish
@@ -7377,7 +7379,7 @@ define(function( require )
         1040: [{    //EF_GC_DARKCROW    
             type: 'STR',
             file: 'gc_darkcrow',
-			wav: 'effect/gc_darkcrow',
+			//wav: 'effect/gc_darkcrow',
             attachedEntity: true
         }],
 
