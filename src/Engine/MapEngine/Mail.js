@@ -20,6 +20,7 @@
 	var Network              = require('Network/NetworkManager');
 	var PACKET               = require('Network/PacketStructure');
 	var Mail       			 = require('UI/Components/Mail/Mail');
+	var ReadMail       	     = require('UI/Components/ReadMail/ReadMail');
 
 
 	/**
@@ -99,6 +100,26 @@
 	{
 		Mail.remove();
 	};
+
+
+	/**
+	 * Send mail list
+	 * PACKET.ZC.MAIL_WINDOWS
+	 */
+	Mail.onClosePressedReadMail = function onClosePressedReadMail()
+	{
+		ReadMail.remove();
+	};
+
+	/**
+	 * Send mail list
+	 * PACKET.ZC.MAIL_WINDOWS
+	 */
+	Mail.onClosePressed = function onClosePressed()
+	{
+		Mail.remove();
+	};
+
 
 	/**
 	 * Send from mail to inventory

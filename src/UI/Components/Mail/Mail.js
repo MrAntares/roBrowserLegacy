@@ -27,6 +27,7 @@
 	 var InputBox           = require('UI/Components/InputBox/InputBox');
 	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	 var Inventory			= require('UI/Components/Inventory/Inventory');
+	 var ReadMail			= require('UI/Components/ReadMail/ReadMail');
 	 var UIManager          = require('UI/UIManager');
 	 var UIComponent        = require('UI/UIComponent');
 	 var htmlText           = require('text!./Mail.html');
@@ -246,7 +247,7 @@
 
 						</div>
 						<div >
-							<span class="text_add_cursor tooltip"> `+ header +`
+							<span id="from_header_`+mailList.MailID+`" class="text_add_cursor tooltip"> `+ header +`
 								<span class="tooltiptext title">`+ mailList.HEADER+` </samp>
 							</span>
 						</div>
@@ -262,6 +263,11 @@
 				{
 					onWindowCreateMessages();
 					this.ui.find('.text_to').val(this.ui.find("#from_name_"+mailList.MailID +" .to").text());
+				}
+			);
+			this.ui.find("#from_header_"+mailList.MailID).on('click', () =>
+				{
+					ReadMail.append();
 				}
 			);
 		});
