@@ -2633,6 +2633,7 @@ define(function( require )
         170: [{    //EF_CARTREVOLUTION    Cart Revolution
             type: 'STR',
             file: 'cartrevolution',
+			wav: 'effect/ef_magnumbreak',
             attachedEntity: true
         }],
 
@@ -5333,23 +5334,62 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //613: [{}],    //EF_THROWITEM7       Throw Shuriken
-        //614: [{}],    //EF_THROWITEM8       Throw Kunai
-        //615: [{}],    //EF_THROWITEM9       Throw Fumma Shuriken
-        //616: [{}],    //EF_THROWITEM10       Throw Money
+        613: [{    //EF_THROWITEM7       Throw Shuriken
+			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}],
+		
+        614: [{    //EF_THROWITEM8       Throw Kunai
+			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}],
+		
+        615: [{    //EF_THROWITEM9       Throw Fumma Shuriken
+			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}],
+		
+        616: [{    //EF_THROWITEM10       Throw Money
+			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}],
+		
         //617: [{}],    //EF_BUNSINJYUTSU       Illusionary Shadow
-        //618: [{}],    //EF_KOUENKA       Crimson Fire Bolossom
-        //619: [{}],    //EF_HYOUSENSOU       Lightning Spear Of Ice
+		
+        618: [{    //EF_KOUENKA       Crimson Fire Bolossom
+			type: 'STR',
+			file: 'firehit',
+			wav:  'effect/ef_firearrow%d',
+            rand: [1, 3],
+			attachedEntity: true
+		}],
+		
+        619: [{    //EF_HYOUSENSOU       Lightning Spear Of Ice
+			type: 'STR',
+            file: 'freeze',
+			wav: 'effect/ef_icearrow%d',
+            rand: [1, 3],
+			attachedEntity: true
+		}],
+		
         //620: [{}],    //EF_BOTTOM_SUITON       Water Escape Technique
-        //621: [{}],    //EF_STIN4       Wind Blade
-        //622: [{}],    //EF_THUNDERSTORM2       Lightning Crash
+		
+        621: [{    //EF_STIN4       Wind Blade
+			wav: 'effect/\xc7\xb3\xc0\xce'
+		}],
+		
+        622: [{    //EF_THUNDERSTORM2       Lightning Crash
+			type: 'STR',
+			file: 'setsudan',
+			wav: 'effect/ef_thunderstorm',
+			attachedEntity: true
+		}],
+		
         //623: [{}],    //EF_CHEMICAL4       Piercing Shot
         //624: [{}],    //EF_STIN5       Kamaitachi
         //625: [{}],    //EF_MADNESS_BLUE       Madness Canceller
         //626: [{}],    //EF_MADNESS_RED       Adjustment
+		
         627: [{    //EF_RG_COIN3       Disarm (Sound Effect)
 			wav: 'effect/\xb5\xf0\xbd\xba\xbe\xcf'
 		}],
+		
         //628: [{}],    //EF_BASH3D5       Dust
         //629: [{}],    //EF_CHOOKGI3       (Nothing)
 
@@ -5371,7 +5411,8 @@ define(function( require )
 
         632: [{    //EF_KASUMIKIRI    Mist Slash
             type: 'SPR',
-            file: '\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2', //3E°3oL±â
+            file: '\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2',
+			wav: 'effect/\xbe\xc8\xb0\xb3\xba\xa3\xb1\xe2',
             attachedEntity: true
         }],
 
@@ -5379,6 +5420,7 @@ define(function( require )
         633: [{    //EF_ISSEN    Final Strike
             type: 'SPR',
             file: '\xc0\xcf\xbc\xb6',
+			wav: 'effect/\xc0\xcf\xbc\xb6',
             attachedEntity: true
         }],
 
@@ -5386,13 +5428,16 @@ define(function( require )
         634: [{    //EF_KAEN    Crimson Fire Formation
             type: 'SPR',
             file: '\xc8\xad\xbf\xb0\xc1\xf8',
+			repeat: true,
             attachedEntity: false
-        }],
-
+        }, {
+			wav: 'effect/\xc8\xad\xbf\xb0\xc1\xf8'
+		}],
 
         635: [{    //EF_BAKU    Dragon Fire Formation
             type: 'STR',
             file: 'fire dragon',
+			wav: 'effect/\xc6\xf8\xbf\xb0\xb7\xe6',
             attachedEntity: false
         }],
 
@@ -5400,6 +5445,7 @@ define(function( require )
         636: [{    //EF_HYOUSYOURAKU    Falling Ice Pillar
             type: 'STR',
             file: 'icy',
+			wav: 'effect/\xba\xf9\xc1\xa4\xb6\xf4',
             attachedEntity: false
         }],
 
@@ -5541,6 +5587,7 @@ define(function( require )
         670: [{    //EF_WIDECONFUSE    Dragon fear (Visual Effect)
             type: 'STR',
             file: 'dfear',
+			wav: 'effect/dragonfear',
             attachedEntity: true
         }],
 
@@ -5721,6 +5768,7 @@ define(function( require )
         722: [{    //EF_IGN_STR    Ignition Break (big explosion)
             type: 'STR',
             file: '\xc0\xcc\xb1\xd7\xb4\xcf\xbc\xc7\xba\xea\xb7\xb9\xc0\xcc\xc5\xa9',
+            wav: 'effect/wl_jackfrost',
             attachedEntity: true
         }],
 
@@ -5734,6 +5782,7 @@ define(function( require )
         727: [{    //EF_CRIMSON_STR    Crimson Rock
             type: 'STR',
             file: 'crimson_r',
+			wav: 'effect/crimson_r',
             attachedEntity: true
         }],
 
@@ -5754,12 +5803,15 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //732: [{}],    //EF_EARTHWALL       Spike from the ground
+        732: [{    //EF_EARTHWALL       Spike from the ground
+			wav: 'effect/wizard_earthspike'
+		}],
         //733: [{}],    //EF_SOULBREAKER4       Fluffy Ball flying by
 
         734: [{    //EF_CHAINL_STR    Chain Lightning
             type: 'STR',
             file: 'chainlight',
+			wav: 'effect/chainlight',
             attachedEntity: true
         }],
 
@@ -7325,6 +7377,7 @@ define(function( require )
         1040: [{    //EF_GC_DARKCROW    
             type: 'STR',
             file: 'gc_darkcrow',
+			wav: 'effect/gc_darkcrow',
             attachedEntity: true
         }],
 
@@ -7355,6 +7408,7 @@ define(function( require )
         1046: [{    //EF_SO_ELEMENTAL_SHIELD    
             type: 'STR',
             file: 'so_elemental_shield',
+			wav: 'effect/so_elemental_shield',
             attachedEntity: true
         }],
 
@@ -7362,7 +7416,7 @@ define(function( require )
         1047: [{    //EF_AB_OFFERTORIUM    
             type: 'STR',
             file: 'ab_offertorium',
-			wav: 'effect/qb_offertorium',
+			wav: 'effect/ab_offertorium',
             attachedEntity: true
         }],
 
@@ -7378,6 +7432,7 @@ define(function( require )
         1049: [{    //EF_GN_ILLUSIONDOPING    
             type: 'STR',
             file: 'gn_illusiondoping',
+			wav: 'effect/gn_illusiondoping',
             attachedEntity: true
         }],
 
@@ -7385,6 +7440,7 @@ define(function( require )
         1050: [{    //EF_NC_MAGMA_ERUPTION    
             type: 'STR',
             file: 'nc_magma_eruption',
+			wav: 'effect/nc_magma_eruption',
             attachedEntity: true
         }],
 
@@ -7406,6 +7462,7 @@ define(function( require )
         1062: [{    //EF_HAMMER_OF_GOD    
             type: 'STR',
             file: 'stormgust',
+			wav: 'effect/RL_HAMMER_OF_GOD',
             attachedEntity: true
         }],
         
@@ -7914,12 +7971,22 @@ define(function( require )
             attachedEntity: true
         }],
 		
+		'ef_hallucinationwalk': [{
+            wav: 'effect/hallucinationwalk',
+            attachedEntity: true
+        }],
+		
+		'ef_s_storm': [{
+            type: 'STR',
+            file: 'S_STORM',
+			wav: 'effect/RL_S_STORM',
+            attachedEntity: true
+        }],
+		
 		'ef_': [{
             wav: 'effect/',
             attachedEntity: true
         }],
-		
-
 
     };
 });
