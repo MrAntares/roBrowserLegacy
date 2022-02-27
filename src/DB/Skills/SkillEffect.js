@@ -519,7 +519,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NJ_NEN]                         = {};		//Soul
 	SkillEffect[SK.NJ_ISSEN]                       = {effectId: 633};		//Final Strike
 	// Additional NPC Skills (Episode 11.3)
-	SkillEffect[SK.NPC_EARTHQUAKE]                 = {groundEffectId: 666};		//Earthquake
+	SkillEffect[SK.NPC_EARTHQUAKE]                 = {effectIdOnCaster: 666};		//Earthquake
 	SkillEffect[SK.NPC_FIREBREATH]                 = {};		//Fire Breath
 	SkillEffect[SK.NPC_ICEBREATH]                  = {};		//Ice Breath
 	SkillEffect[SK.NPC_THUNDERBREATH]              = {};		//Thunder Breath
@@ -530,13 +530,13 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_PULSESTRIKE]                = {};		//Pulse Strike
 	SkillEffect[SK.NPC_HELLJUDGEMENT]              = {};		//Hell's Judgement
 	SkillEffect[SK.NPC_WIDESILENCE]                = {};		//Wide Silence
-	SkillEffect[SK.NPC_WIDEFREEZE]                 = {effectId: 89};		//Wide Freeze
-	SkillEffect[SK.NPC_WIDEBLEEDING]               = {effectId: 669};		//Wide Bleeding
+	SkillEffect[SK.NPC_WIDEFREEZE]                 = {effectIdOnCaster: 89};		//Wide Freeze
+	SkillEffect[SK.NPC_WIDEBLEEDING]               = {effectIdOnCaster: 669};		//Wide Bleeding
 	SkillEffect[SK.NPC_WIDESTONE]                  = {};		//Wide Petrify
 	SkillEffect[SK.NPC_WIDECONFUSE]                = {};		//Wide Confusion
 	SkillEffect[SK.NPC_WIDESLEEP]                  = {};		//Wide Sleep
 	SkillEffect[SK.NPC_WIDESIGHT]                  = {};		//Wide Sight
-	SkillEffect[SK.NPC_EVILLAND]                   = {groundEffectId: '674_ground'};		//Evil Land
+	SkillEffect[SK.NPC_EVILLAND]                   = {groundEffectId: 674};		//Evil Land
 	SkillEffect[SK.NPC_MAGICMIRROR]                = {};		//Magic Mirror
 	SkillEffect[SK.NPC_SLOWCAST]                   = {};		//Slow Cast
 	SkillEffect[SK.NPC_CRITICALWOUND]              = {hitEffectId: 677};		//Critical Wounds
