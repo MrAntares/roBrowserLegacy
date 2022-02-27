@@ -5218,6 +5218,7 @@ define(function( require )
         587: [{    //EF_M05    Big Purple Flame
             type: 'SPR',
             file: 'm_ef05',
+			wav: 'dragon_breath',
             attachedEntity: true
         }],
 
@@ -5749,6 +5750,7 @@ define(function( require )
         731: [{    //EF_DHOWL_STR    Dragon Howling (blinking, expanding circle)
             type: 'STR',
             file: 'dragon_h',
+			wav: 'dragon_h',
             attachedEntity: true
         }],
 
@@ -7905,10 +7907,19 @@ define(function( require )
             attachedEntity: true
         }],
 		
+		'ef_dragonbreath_water': [{
+            type: 'SPR',
+            file: 'rk_dragonbreath_water',
+			wav: 'dragon_breath',
+            attachedEntity: true
+        }],
+		
 		'ef_': [{
             wav: 'effect/',
             attachedEntity: true
         }],
+		
+
 
     };
 });
