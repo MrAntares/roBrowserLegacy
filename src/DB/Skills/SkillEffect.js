@@ -591,7 +591,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.RK_DEATHBOUND]                  = {};		//Death Bound
 	SkillEffect[SK.RK_HUNDREDSPEAR]                = {effectId: 723};		//Hundred Spear
 	SkillEffect[SK.RK_WINDCUTTER]                  = {};		//Wind Cutter
-	SkillEffect[SK.RK_IGNITIONBREAK]               = {effectId: 722};		//Ignition Break
+	SkillEffect[SK.RK_IGNITIONBREAK]               = {effectIdOnCaster: 722};		//Ignition Break
 	SkillEffect[SK.RK_DRAGONBREATH]                = {hitEffectId: 587};		//Dragon Breath
 	SkillEffect[SK.RK_DRAGONHOWLING]               = {effectId: 731};		//Dragon Howling
 	SkillEffect[SK.RK_MILLENNIUMSHIELD]            = {effectId: 749};		//Millenium Shield
