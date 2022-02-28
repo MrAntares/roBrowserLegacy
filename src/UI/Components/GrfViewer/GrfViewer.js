@@ -105,6 +105,7 @@ define(function(require)
 			.on('click', '.txt',         onTextClick)
 			.on('click', '.map',         onWorldClick)
 			.on('click', '.3d',          onObjectClick)
+			.on('click', '.gr2',         onGrannyClick)
 			.on('click', '.fx',          onEffectClick)
 			.on('contextmenu', '.icon', function(event){ showContextMenu(this,event); return false; });
 
@@ -488,7 +489,11 @@ define(function(require)
 			case 'mp3':
 				img = 'audio';
 				break;
-
+			
+			case 'gr2':
+				img = 'gr2';
+				break;
+				
 			case 'rsm':
 				img = '3d';
 				break;
@@ -1103,7 +1108,111 @@ define(function(require)
 				});
 		});
 	}
+	
+	
+	
+	/**
+	 * User click on a Granny model, render it using GrannyModelViewer
+	 */
+	var onGrannyClick = function onGrannyClickClosure()
+	{
+		
+		var ready   = false;
+		var element = document.createElement('div');
 
+		var App = new ROBrowser({
+			target:        element,
+			type:          ROBrowser.TYPE.FRAME,
+			application:   ROBrowser.APP.GRANNYMODELVIEWER,
+			development:   Configs.get('development', false),
+			api:           true,
+			width:         500,
+			height:        400,
+			version:       Configs.get('version', '')
+		});
+
+		// Ressource sharing
+		function onMessage(event) {
+			if (typeof event.data !== 'object') {
+				return;
+			}
+
+			switch (event.data.type) {
+				case 'SYNC':
+					ready = true;
+					App.onload();
+					break;
+
+				case 'SET_HOST':
+				case 'CLEAN_GRF':
+					return;
+
+				default:
+					Thread.send( event.data.type, event.data.data, function(){
+						App._APP.postMessage({
+							arguments: Array.prototype.slice.call(arguments, 0),
+							uid:       event.data.uid
+						}, location.origin);
+					});
+			}
+		}
+
+		// Wait for synchronisation with frame
+		function synchronise() {
+			if (!ready) {
+				App._APP.postMessage({ type: 'init' }, location.origin);
+				setTimeout(synchronise, 100);
+			}
+		}
+
+		return function onGrannyClick()
+		{
+			alert('This module is under development.');
+			return;
+			//UNDER DEVELOPMENT!!!
+			
+			var ui    = Viewer.ui;
+			var path  = this.getAttribute('data-path').replace(/\\/g, '/');
+
+			// Show iframe
+			ui.find('#preview .box').css('top', (jQuery(window).height()-400)* 0.5 );
+			element.style.display = 'block';
+
+
+			ui.find('#preview').show();
+
+			// Unload app
+			ui.find('#preview').one('click',function(){
+				ui.find('#preview').hide();
+				element.style.display = 'none';
+				App._APP.postMessage({ type:'stop' }, location.origin);
+				window.removeEventListener('message', onMessage, false);
+			});
+
+			window.addEventListener('message', onMessage, false);
+
+			if (!ready) {
+				// Once app is ready
+				ui.find('#preview .box').append(element);
+
+				App.start();
+				App.onReady = function(){
+					App._APP.frameElement.style.border          = '1px solid grey';
+					App._APP.frameElement.style.backgroundColor = '#45484d';
+					synchronise();
+				};
+				App.onload = function() {
+					App._APP.postMessage({ type:'load', data:path }, location.origin);
+				};
+			}
+			else {
+				App._APP.postMessage({ type:'load', data:path }, location.origin);
+			}
+		};
+	}();
+	
+	
+	
 
 	/**
 	 * Stored component and return it
