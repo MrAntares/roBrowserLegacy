@@ -221,8 +221,8 @@ define(function( require )
 			'<style type="text/css">',
 				'button { cursor: url(' + hover + '), auto; }',
 				'button:active { cursor: url(' + down + '), auto; }',
-				'.text_add_cursor { cursor: url(' + hover + '), auto; }',
-				'.text_add_cursor:active { cursor: url(' + down + '), auto; }',
+				'.event_add_cursor { cursor: url(' + hover + '), auto; }',
+				'.event_add_cursor:active { cursor: url(' + down + '), auto; }',
 			'</style>'
 		].join('\n'));
 	}

@@ -237,7 +237,7 @@
 					<div class="to_title" style="flex: 3;">
 						<div class="flex">
 							<div  style="flex: 3;">
-								<span id="from_name_`+mailList.MailID+`" class="text_add_cursor tooltip name_data" > `+ from_name +`
+								<span id="from_name_`+mailList.MailID+`" class="event_add_cursor tooltip name_data" > `+ from_name +`
 									<span class="tooltiptext to">`+ mailList.FromName+`</samp>
 								</span>
 							</div>
@@ -247,7 +247,7 @@
 
 						</div>
 						<div >
-							<span id="from_header_`+mailList.MailID+`" class="text_add_cursor tooltip"> `+ header +`
+							<span id="from_header_`+mailList.MailID+`" class="event_add_cursor tooltip"> `+ header +`
 								<span class="tooltiptext title">`+ mailList.HEADER+` </samp>
 							</span>
 						</div>
