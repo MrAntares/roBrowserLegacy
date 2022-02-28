@@ -49,7 +49,7 @@
 		GRFVIEWER:    3,
 		MODELVIEWER:  4,
 		STRVIEWER:    5,
-		GRANNYVIEWER: 6  //sound weird O_o
+		GRANNYMODELVIEWER: 6  //sound weird O_o
 	};
 
 
@@ -337,7 +337,7 @@
 				this.application = 'StrViewer';
 				break;
 				
-			case ROBrowser.APP.GRANNYVIEWER:
+			case ROBrowser.APP.GRANNYMODELVIEWER:
 				this.application = 'GrannyModelViewer';
 				break;
 		}
