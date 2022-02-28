@@ -3,7 +3,7 @@
  *
  * Robrowser application entry, starting instance.
  *
- * This file is part of ROBrowser, rAthena in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -44,11 +44,12 @@
 	 * @Enum Robrowser Applications
 	 */
 	ROBrowser.APP = {
-		ONLINE:      1,
-		MAPVIEWER:   2,
-		GRFVIEWER:   3,
-		MODELVIEWER: 4,
-		STRVIEWER:   5
+		ONLINE:       1,
+		MAPVIEWER:    2,
+		GRFVIEWER:    3,
+		MODELVIEWER:  4,
+		STRVIEWER:    5,
+		GRANNYVIEWER: 6  //sound weird O_o
 	};
 
 
@@ -190,7 +191,7 @@
 	 * 
 	 * Only working on Chrome, status: deprecated.
 	 */
-	ROBrowser.prototype.saveFiles = false;
+	ROBrowser.prototype.saveFiles = true;
 
 
 	/**
@@ -334,6 +335,10 @@
 
 			case ROBrowser.APP.STRVIEWER:
 				this.application = 'StrViewer';
+				break;
+				
+			case ROBrowser.APP.GRANNYVIEWER:
+				this.application = 'GrannyModelViewer';
 				break;
 		}
 
