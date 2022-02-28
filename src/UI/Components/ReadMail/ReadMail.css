@@ -22,7 +22,6 @@
     height: 16px;
 }
 
-
 #ReadMail .container {
     width: 298px;
     height: 385px;
@@ -32,100 +31,14 @@
 	display: flex;
 }
 
-#ReadMail .list_item_mail {
-    width: 279px;
-    height: 358px;
+#ReadMail .flex_grid {
+	display: grid;
 }
 
-#ReadMail .flex_block {
-	display: block;
-}
 
-#ReadMail .list_mail {
-    flex: 14;
-}
 
-#ReadMail .prev_next {
-    color: #e4baa8;
-    font-size: 11px;
-}
 
-#ReadMail .prev {
-    flex: 1;
-    text-align: right;
-}
 
-#ReadMail .next {
-    flex: 1;
-    margin-left: 5%;
-}
-
-#ReadMail .pagination {
-    text-align: end;
-}
-
-#ReadMail .btn_iw{
-    height: 371px;
-    margin-left: 4px;
-}
-
-#ReadMail .inbox {
-    height: 16%;
-}
-
-#ReadMail .write {
-    height: 16%;
-}
-
-#ReadMail .block_mail {
-    margin: 2% 1% 0% 2%;
-}
-
-#ReadMail .item_mail {
-    width: 268px;
-    height: 51px;
-    display: flex;
-}
-
-#ReadMail .btn_envelop{
-    width: 16px;
-    height: 11px;
-    background-repeat: no-repeat;
-    border: none;
-    background-color: transparent;
-    margin-top: 24%;
-    margin-left: 18%;
-}
-
-#ReadMail .to_title {
-    width: 100%;
-    height: 52px;
-    background-repeat: repeat-x;
-    background-color: transparent;
-    display: grid;
-    font-size: 12px;
-}
-#ReadMail .to_title button {
-    float: left;
-    border: none;
-    background: none;
-    width: 26px;
-    height: 20px;
-    position: relative;
-    flex: 1;
-}
-
-#ReadMail .block_create_mail {
-    display: block;
-    margin: 2% 1% 0% 2%;
-}
-#ReadMail .add_zeny{
-    width: 51px;
-    height: 21px;
-    border: none;
-    margin-left: 16%;
-    margin-top: 3%;
-}
 #zeny_ok {
     display: none;
     width: 43px !important;
