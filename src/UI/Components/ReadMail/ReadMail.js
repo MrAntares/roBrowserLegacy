@@ -67,9 +67,6 @@
 		 item_add_email: {}
 	 }, 1.0);
 
-	 
-
-
 	/**
 	 * Initialize Component
 	 */
@@ -78,13 +75,6 @@
 		// Bind buttons
 		this.ui.find('.footer .close').click(remove);
 		
-		// Resize, position
-		resizeHeight(_preferences.height);
-		console.log('ReadMail.onAppend',
-		parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10)
-
-			// parseInt(Mail.ui.css('top'), 10), parseInt(this.ui.css('left'), 10)
-		)
 		this.ui.css({
 			top:  Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10) ), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('left'), 10)) + 300, Renderer.width  - this.ui.width())
@@ -92,7 +82,6 @@
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
-
 
 	/**
 	  * Remove Mail from window (and so clean up items)
@@ -113,6 +102,16 @@
 		 _preferences.magnet_right = this.magnet.RIGHT;
 		 _preferences.save();
 	}; 
+
+	ReadMail.openEmail = function openEmail(inforMail)
+	{
+		let textSender = inforMail.FromName;
+		let textTitle =  inforMail.Header;
+		
+		ReadMail.append();
+		this.ui.find('.text_sender').text(textSender);
+		this.ui.find('.text_title').text(textTitle);
+	}
 
 	function remove()
 	{

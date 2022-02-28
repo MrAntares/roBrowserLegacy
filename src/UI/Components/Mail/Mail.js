@@ -44,7 +44,15 @@
 	  * Store Mail items
 	  */
 	 Mail.list = [];
- 
+ 	 /**
+	  * Determine data page size
+	  */
+	 Mail.pageSize = 7;
+	 /**
+	  * know which page is current
+	  */
+	 Mail.page = 0;
+
  
 	 /**
 	  * @var {number} used to remember the window height
@@ -223,55 +231,8 @@
 	*/
 	Mail.mailList = function mailList( read )
 	{
-		var content = this.ui.find('.list_item_mail');
-		this.ui.find(".item_mail" ).remove();
-		read.mailList.forEach(mailList => {
-			let from_name = mailList.FromName.length > 15 ?  mailList.FromName.substring(0,15)+"..." :  mailList.FromName;
-			let header = mailList.HEADER.length > 23 ?  mailList.HEADER.substring(0,23)+"..." :  mailList.HEADER;
-
-			content.append(
-				`<div class="item_mail">
-					<div class="envelop" style="flex: 1;">
-						<div class="btn_envelop" id="envelop_`+mailList.MailID+`"></div>
-					</div>
-					<div class="to_title" style="flex: 3;">
-						<div class="flex">
-							<div  style="flex: 3;">
-								<span id="from_name_`+mailList.MailID+`" class="event_add_cursor tooltip name_data" > `+ from_name +`
-									<span class="tooltiptext to">`+ mailList.FromName+`</samp>
-								</span>
-							</div>
-							<div   style="flex: 3;">
-								<span class="name_data">`+ formateDeleteTime(mailList.DeleteTime) +` </samp>
-							</div>
-
-						</div>
-						<div >
-							<span id="from_header_`+mailList.MailID+`" class="event_add_cursor tooltip"> `+ header +`
-								<span class="tooltiptext title">`+ mailList.HEADER+` </samp>
-							</span>
-						</div>
-					</div>
-				</div>`
-			);
-			if(!mailList.isOpen){
-				Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function(data){
-					content.find('#envelop_'+mailList.MailID).css('backgroundImage', 'url('+ data +')');
-				});
-			}
-			this.ui.find("#from_name_"+mailList.MailID).on('click', () =>
-				{
-					onWindowCreateMessages();
-					this.ui.find('.text_to').val(this.ui.find("#from_name_"+mailList.MailID +" .to").text());
-				}
-			);
-			this.ui.find("#from_header_"+mailList.MailID).on('click', () =>
-				{
-					ReadMail.append();
-				}
-			);
-		});
-		
+		Mail.list = read;
+		createMailList();
 	};
 
 	 /**
@@ -299,6 +260,108 @@
 		Mail.ui.find('#title').text(DB.getMessage(1025));		
 	};
 
+
+	function createMailList()
+	{
+		var content = Mail.ui.find('.list_item_mail');
+		Mail.ui.find(".item_mail" ).remove();
+
+		for (var i = Mail.page * Mail.pageSize; i < Mail.list.mailList.length && i < (Mail.page + 1) *  Mail.pageSize; i++)
+		{
+			
+			let from_name = Mail.list.mailList[i].FromName.length > 15 ?  Mail.list.mailList[i].FromName.substring(0,15)+"..." :  Mail.list.mailList[i].FromName;
+			let header = Mail.list.mailList[i].HEADER.length > 23 ?  Mail.list.mailList[i].HEADER.substring(0,23)+"..." :  Mail.list.mailList[i].HEADER;
+
+			content.append(
+				`<div class="item_mail">
+					<div class="envelop" style="flex: 1;">
+						<div class="btn_envelop" id="envelop_`+Mail.list.mailList[i].MailID+`"></div>
+					</div>
+					<div class="to_title" style="flex: 3;">
+						<div class="flex">
+							<div  style="flex: 3;">
+								<span id="from_name_`+Mail.list.mailList[i].MailID+`" class="event_add_cursor tooltip name_data" > `+ from_name +`
+									<span class="tooltiptext to">`+ Mail.list.mailList[i].FromName+`</samp>
+								</span>
+							</div>
+							<div   style="flex: 3;">
+								<span class="name_data">`+ formateDeleteTime(Mail.list.mailList[i].DeleteTime) +` </samp>
+							</div>
+
+						</div>
+						<div >
+							<span id="from_header_`+Mail.list.mailList[i].MailID+`" data-id="`+Mail.list.mailList[i].MailID+`" class="event_add_cursor tooltip"> `+ header +`
+								<span class="tooltiptext title">`+ Mail.list.mailList[i].HEADER+` </samp>
+							</span>
+						</div>
+					</div>
+				</div>`
+			);
+			if(!Mail.list.mailList[i].isOpen){
+				Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function(data){
+					content.find('#envelop_'+Mail.list.mailList[i].MailID).css('backgroundImage', 'url('+ data +')');
+				});
+			}
+			Mail.ui.find("#from_name_"+Mail.list.mailList[i].MailID).on('click', () =>
+				{
+					onWindowCreateMessages();
+					Mail.ui.find('.text_to').val(Mail.ui.find("#from_name_"+Mail.list.mailList[i].MailID +" .to").text());
+				}
+			);
+			Mail.ui.find("#from_header_"+Mail.list.mailList[i].MailID).on('click', (event) =>
+				{
+					Mail.openMail(jQuery(event.currentTarget).data('id'));
+				}
+			);
+		}
+		// Mail.mailList.forEach(mailList => {
+		// 	let from_name = mailList.FromName.length > 15 ?  mailList.FromName.substring(0,15)+"..." :  mailList.FromName;
+		// 	let header = mailList.HEADER.length > 23 ?  mailList.HEADER.substring(0,23)+"..." :  mailList.HEADER;
+
+		// 	content.append(
+		// 		`<div class="item_mail">
+		// 			<div class="envelop" style="flex: 1;">
+		// 				<div class="btn_envelop" id="envelop_`+mailList.MailID+`"></div>
+		// 			</div>
+		// 			<div class="to_title" style="flex: 3;">
+		// 				<div class="flex">
+		// 					<div  style="flex: 3;">
+		// 						<span id="from_name_`+mailList.MailID+`" class="event_add_cursor tooltip name_data" > `+ from_name +`
+		// 							<span class="tooltiptext to">`+ mailList.FromName+`</samp>
+		// 						</span>
+		// 					</div>
+		// 					<div   style="flex: 3;">
+		// 						<span class="name_data">`+ formateDeleteTime(mailList.DeleteTime) +` </samp>
+		// 					</div>
+
+		// 				</div>
+		// 				<div >
+		// 					<span id="from_header_`+mailList.MailID+`" data-id="`+mailList.MailID+`" class="event_add_cursor tooltip"> `+ header +`
+		// 						<span class="tooltiptext title">`+ mailList.HEADER+` </samp>
+		// 					</span>
+		// 				</div>
+		// 			</div>
+		// 		</div>`
+		// 	);
+		// 	if(!mailList.isOpen){
+		// 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function(data){
+		// 			content.find('#envelop_'+mailList.MailID).css('backgroundImage', 'url('+ data +')');
+		// 		});
+		// 	}
+		// 	Mail.ui.find("#from_name_"+mailList.MailID).on('click', () =>
+		// 		{
+		// 			onWindowCreateMessages();
+		// 			Mail.ui.find('.text_to').val(Mail.ui.find("#from_name_"+mailList.MailID +" .to").text());
+		// 		}
+		// 	);
+		// 	Mail.ui.find("#from_header_"+mailList.MailID).on('click', (event) =>
+		// 		{
+		// 			Mail.openMail(jQuery(event.currentTarget).data('id'));
+		// 		}
+		// 	);
+		// });
+	}
+
 	function offCreateMessagesOnWindowMailbox()
 	{
 		onWindowMailbox();
@@ -322,7 +385,7 @@
 			msg_len:		message.length,
 			msg:			message, 
 		}
-		
+		console.log('send_message mail', send_message);
 		Mail.parseMailSend(send_message);
 	}
 
@@ -676,12 +739,13 @@
 	 /**
 	 * Callbacks
 	 */
-	Mail.onClosePressed  = function onClosePressed(){};
-	Mail.parseMailWinopen = function parseMailWinopen(/*type*/){};
-	Mail.parseMailrefreshinbox = function parseMailrefreshinbox(){};
-	Mail.parseMailSetattach = function parseMailSetattach(/*index, count*/){};
-	Mail.reqRemoveItem   = function reqRemoveItem(/*index, count*/){};
-	Mail.parseMailSend   = function parseMailSend(/*object*/){};
+	Mail.onClosePressed  				= function onClosePressed(){};
+	Mail.parseMailWinopen 				= function parseMailWinopen(/*type*/){};
+	Mail.parseMailrefreshinbox 			= function parseMailrefreshinbox(){};
+	Mail.parseMailSetattach 			= function parseMailSetattach(/*index, count*/){};
+	Mail.reqRemoveItem   				= function reqRemoveItem(/*index, count*/){};
+	Mail.parseMailSend  				= function parseMailSend(/*object*/){};
+	Mail.openMail   					= function openMail(/*MailID*/){};
 
 	 /**
 	  * Create component and export it

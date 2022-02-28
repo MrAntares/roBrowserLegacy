@@ -90,25 +90,18 @@
 	{
 		var pkt   = new PACKET.CZ.MAIL_GET_LIST();
 		Network.sendPacket( pkt );
-	}	
+	}
 
 	/**
-	 * Send mail list
-	 * PACKET.ZC.MAIL_WINDOWS
+	 * Request to open a mail
+	 * PACKET.CZ.MAIL_OPEN
+	 * @param {int} MailID
 	 */
-	Mail.onClosePressed = function onClosePressed()
+	Mail.openMail = function openMail(MailID)
 	{
-		Mail.remove();
-	};
-
-
-	/**
-	 * Send mail list
-	 * PACKET.ZC.MAIL_WINDOWS
-	 */
-	Mail.onClosePressedReadMail = function onClosePressedReadMail()
-	{
-		ReadMail.remove();
+		var pkt   = new PACKET.CZ.MAIL_OPEN();
+		pkt.MailID = MailID;
+		Network.sendPacket( pkt );
 	};
 
 	/**
@@ -119,7 +112,6 @@
 	{
 		Mail.remove();
 	};
-
 
 	/**
 	 * Send from mail to inventory
@@ -129,6 +121,15 @@
 		this.parseMailWinopen(1); // remove item
 		//BUG::does not update inventory, default behavior
 		Mail.removeItem();
+	};
+
+	/**
+	 * Opens a mail
+	 * PACKET.ZC.MAIL_REQ_OPEN
+	 */
+	function mailReqOpen( inforMail )
+	{
+		ReadMail.openEmail(inforMail);
 	};
 
 	/**
@@ -219,6 +220,7 @@
 		Network.hookPacket( PACKET.ZC.ACK_MAIL_ADD_ITEM,      	mailSetattachment);
 		Network.hookPacket( PACKET.ZC.MAIL_REQ_SEND,      		mailSend);
 		Network.hookPacket( PACKET.ZC.MAIL_RECEIVE,      		mailNew);
+		Network.hookPacket( PACKET.ZC.MAIL_REQ_OPEN,      		mailReqOpen);
 
 		
 	};
