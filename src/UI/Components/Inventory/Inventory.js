@@ -108,6 +108,9 @@ define(function(require)
 				.on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
+			
+		this.ui.find('.ncnt').text(0);
+		this.ui.find('.mcnt').text(100);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
@@ -274,6 +277,7 @@ define(function(require)
 			}
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);
+				this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
 				this.onUpdateItem(items[i].ITID, items[i].count ? items[i].count : 1);
 			}
 			
@@ -302,6 +306,7 @@ define(function(require)
 		object = jQuery.extend({}, item);
 		if (this.addItemSub(object)) {
 			this.list.push(object);
+			this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
 			this.onUpdateItem(object.ITID, object.count);
 		}
 	};
@@ -399,6 +404,7 @@ define(function(require)
 		
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');
@@ -436,6 +442,7 @@ define(function(require)
 		// no quantity, remove
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');

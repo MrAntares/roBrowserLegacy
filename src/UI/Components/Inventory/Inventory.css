@@ -25,4 +25,5 @@
 #Inventory .content .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
 
 #Inventory .footer { width:100%; height:27px; background-repeat:repeat-x; background-color:transparent; position:relative; border-right:1px solid #ccc; }
+#Inventory .footer .cnt { position:absolute; left:10px; bottom:6px; font-size:12px; }
 #Inventory .footer button { position:absolute; right:0px; bottom:1px; width:13px; height:13px; border:none; background-repeat:no-repeat; background-color:transparent; }
