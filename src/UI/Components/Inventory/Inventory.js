@@ -109,7 +109,7 @@ define(function(require)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
 			
-		this.ui.find('.ncnt').text(100);
+		this.ui.find('.ncnt').text(0);
 		this.ui.find('.mcnt').text(100);
 
 		this.draggable(this.ui.find('.titlebar'));
