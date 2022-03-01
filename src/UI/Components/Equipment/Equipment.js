@@ -619,7 +619,16 @@ define(function(require)
 			}
 		}
 	}
-
+	
+	Equipment.getNumber = function(){
+		var num = 0;
+		for (var key in _list) {
+			if(_list[key].location && _list[key].location != EquipLocation.AMMO){
+				num++;
+			}
+		}
+		return num;
+	}
 
 	/**
 	 * Method to define
