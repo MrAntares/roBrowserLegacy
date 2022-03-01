@@ -105,6 +105,23 @@
 		this.ui.find('#create_mail_cancel').on('click',offCreateMessagesOnWindowMailbox); // remove all item reset layout
 		this.ui.find('#create_mail_send').on('click',sendCreateMessagesMail); // send mail
 
+		this.ui.find('.next').click(function() {
+			if (Mail.page < Mail.list.mailList.length / Mail.pageSize - 1) {
+				Mail.page++;
+				createMailList();
+				adjustButtons();
+			}
+		});
+		this.ui.find('.prev').click(function() {
+			if (Mail.page > 0) {
+				Mail.page--;
+				createMailList();
+				adjustButtons();
+			}
+		});
+		createMailList();
+		adjustButtons();
+
 		this.ui
 			.find('.container_item')
 			// on drop item
@@ -235,6 +252,24 @@
 		createMailList();
 	};
 
+	/**
+	 * Search in a list for an item by its index
+	 *
+	 * @param {number} index
+	 * @returns {Item}
+	 */
+	Mail.getItemByIndex = function getItemByIndex( index )
+	{
+		var i, count;
+		var list = _preferences.item_add_email;
+
+		if(list.index == index){
+			return list;
+		}
+
+		return null;
+	};
+
 	 /**
 	 * Create messages window size
 	 */
@@ -266,21 +301,23 @@
 		var content = Mail.ui.find('.list_item_mail');
 		Mail.ui.find(".item_mail" ).remove();
 
+		if(Mail.list.length == 0) return;
+
 		for (var i = Mail.page * Mail.pageSize; i < Mail.list.mailList.length && i < (Mail.page + 1) *  Mail.pageSize; i++)
 		{
-			
 			let from_name = Mail.list.mailList[i].FromName.length > 15 ?  Mail.list.mailList[i].FromName.substring(0,15)+"..." :  Mail.list.mailList[i].FromName;
 			let header = Mail.list.mailList[i].HEADER.length > 23 ?  Mail.list.mailList[i].HEADER.substring(0,23)+"..." :  Mail.list.mailList[i].HEADER;
-
+			let mailId = Mail.list.mailList[i].MailID;
+			let isOpen = Mail.list.mailList[i].isOpen;
 			content.append(
 				`<div class="item_mail">
 					<div class="envelop" style="flex: 1;">
-						<div class="btn_envelop" id="envelop_`+Mail.list.mailList[i].MailID+`"></div>
+						<div class="btn_envelop" id="envelop_`+mailId+`"></div>
 					</div>
 					<div class="to_title" style="flex: 3;">
 						<div class="flex">
 							<div  style="flex: 3;">
-								<span id="from_name_`+Mail.list.mailList[i].MailID+`" class="event_add_cursor tooltip name_data" > `+ from_name +`
+								<span id="from_name_`+mailId+`" class="event_add_cursor tooltip name_data" > `+ from_name +`
 									<span class="tooltiptext to">`+ Mail.list.mailList[i].FromName+`</samp>
 								</span>
 							</div>
@@ -290,76 +327,84 @@
 
 						</div>
 						<div >
-							<span id="from_header_`+Mail.list.mailList[i].MailID+`" data-id="`+Mail.list.mailList[i].MailID+`" class="event_add_cursor tooltip"> `+ header +`
+							<span id="from_header_`+mailId+`" data-id="`+mailId+`" class="event_add_cursor tooltip"> `+ header +`
 								<span class="tooltiptext title">`+ Mail.list.mailList[i].HEADER+` </samp>
 							</span>
 						</div>
 					</div>
 				</div>`
 			);
-			if(!Mail.list.mailList[i].isOpen){
+			if(!isOpen){
 				Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function(data){
-					content.find('#envelop_'+Mail.list.mailList[i].MailID).css('backgroundImage', 'url('+ data +')');
+					
+					content.find('#envelop_'+mailId).css('backgroundImage', 'url('+ data +')');
 				});
 			}
-			Mail.ui.find("#from_name_"+Mail.list.mailList[i].MailID).on('click', () =>
+			Mail.ui.find("#from_name_"+mailId).on('click', () =>
 				{
 					onWindowCreateMessages();
-					Mail.ui.find('.text_to').val(Mail.ui.find("#from_name_"+Mail.list.mailList[i].MailID +" .to").text());
+					Mail.ui.find('.text_to').val(Mail.ui.find("#from_name_"+mailId +" .to").text());
 				}
 			);
-			Mail.ui.find("#from_header_"+Mail.list.mailList[i].MailID).on('click', (event) =>
+			Mail.ui.find("#from_header_"+mailId).on('click', (event) =>
 				{
 					Mail.openMail(jQuery(event.currentTarget).data('id'));
 				}
 			);
 		}
-		// Mail.mailList.forEach(mailList => {
-		// 	let from_name = mailList.FromName.length > 15 ?  mailList.FromName.substring(0,15)+"..." :  mailList.FromName;
-		// 	let header = mailList.HEADER.length > 23 ?  mailList.HEADER.substring(0,23)+"..." :  mailList.HEADER;
+		Mail.ui.find('#infor_page').text((Mail.page + 1)+"/"+Math.ceil(Mail.list.mailList.length / Mail.pageSize));
+		adjustButtons();
+	}
 
-		// 	content.append(
-		// 		`<div class="item_mail">
-		// 			<div class="envelop" style="flex: 1;">
-		// 				<div class="btn_envelop" id="envelop_`+mailList.MailID+`"></div>
-		// 			</div>
-		// 			<div class="to_title" style="flex: 3;">
-		// 				<div class="flex">
-		// 					<div  style="flex: 3;">
-		// 						<span id="from_name_`+mailList.MailID+`" class="event_add_cursor tooltip name_data" > `+ from_name +`
-		// 							<span class="tooltiptext to">`+ mailList.FromName+`</samp>
-		// 						</span>
-		// 					</div>
-		// 					<div   style="flex: 3;">
-		// 						<span class="name_data">`+ formateDeleteTime(mailList.DeleteTime) +` </samp>
-		// 					</div>
+	function adjustButtons()
+	{
+		if(Mail.list.length == 0) return;
+		let mailLength = Mail.list.mailList.length;
 
-		// 				</div>
-		// 				<div >
-		// 					<span id="from_header_`+mailList.MailID+`" data-id="`+mailList.MailID+`" class="event_add_cursor tooltip"> `+ header +`
-		// 						<span class="tooltiptext title">`+ mailList.HEADER+` </samp>
-		// 					</span>
-		// 				</div>
-		// 			</div>
-		// 		</div>`
-		// 	);
-		// 	if(!mailList.isOpen){
-		// 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function(data){
-		// 			content.find('#envelop_'+mailList.MailID).css('backgroundImage', 'url('+ data +')');
-		// 		});
-		// 	}
-		// 	Mail.ui.find("#from_name_"+mailList.MailID).on('click', () =>
-		// 		{
-		// 			onWindowCreateMessages();
-		// 			Mail.ui.find('.text_to').val(Mail.ui.find("#from_name_"+mailList.MailID +" .to").text());
-		// 		}
-		// 	);
-		// 	Mail.ui.find("#from_header_"+mailList.MailID).on('click', (event) =>
-		// 		{
-		// 			Mail.openMail(jQuery(event.currentTarget).data('id'));
-		// 		}
-		// 	);
-		// });
+		if( !(Mail.page > mailLength /  Mail.pageSize - 1)){
+			addEventNextAndPrevAdd('next');
+		}else{
+			addEventNextAndPrevRemove('next');
+		}		
+		if(!(Mail.page == 0)){
+			addEventNextAndPrevAdd('prev');
+		}else{
+			addEventNextAndPrevRemove('prev');
+		}
+				
+		Mail.ui.find('.next span').prop('disabled', mailLength <=  Mail.pageSize || Mail.page > mailLength /  Mail.pageSize - 1);
+    	Mail.ui.find('.prev span').prop('disabled', mailLength <=  Mail.pageSize || Mail.page == 0);
+	}
+
+	function addEventNextAndPrevAdd(eventName)
+	{
+		// Get back data
+		console.log('next', Mail.pageSize , Mail.page > Mail.list.mailList.length /  Mail.pageSize - 1);
+		console.log('prev', Mail.pageSize , Mail.page == 0);
+		
+		var overlay = Mail.ui.find('.prev_next .overlay_'+eventName+'');
+
+		var text = Mail.ui.find('.prev_next .'+eventName+' span');
+		text.addClass('event_add_cursor');
+		overlay.text(text.text());
+
+		Mail.ui.find('.'+eventName+' .event_add_cursor' ).mouseover(function() {
+			if(text.hasClass('event_add_cursor')){	
+				overlay.show();
+			}
+		}).mouseout(function() {
+			overlay.hide();
+		});
+	}
+
+	function addEventNextAndPrevRemove(eventName)
+	{
+		// Get back data
+		var overlay = Mail.ui.find('.prev_next .overlay_'+eventName+'');
+		var text = Mail.ui.find('.prev_next .'+eventName+' span');
+		// Display box
+		overlay.hide();
+		text.removeClass('event_add_cursor');
 	}
 
 	function offCreateMessagesOnWindowMailbox()
@@ -524,7 +569,6 @@
 		}
 
 		// Get back data
-		var pos     = jQuery(this).position();
 		var overlay = Mail.ui.find('.container_item .overlay');
 
 		// Display box
@@ -613,24 +657,6 @@
 
 		return false;
 	}
-
-	/**
-	 * Search in a list for an item by its index
-	 *
-	 * @param {number} index
-	 * @returns {Item}
-	 */
-	Mail.getItemByIndex = function getItemByIndex( index )
-	{
-		var i, count;
-		var list = _preferences.item_add_email;
-
-		if(list.index == index){
-			return list;
-		}
-
-		return null;
-	};
 
 	/**
 	 * Extend Mail window size
