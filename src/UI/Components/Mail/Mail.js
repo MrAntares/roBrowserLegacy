@@ -302,6 +302,16 @@
 		return null;
 	};
 
+	/**
+	 * Responder to a mail.
+	 * @param {string} fromName
+	 */
+	Mail.replyNewMail = function replyNewMail( fromName )
+	{
+		onWindowCreateMessages();
+		Mail.ui.find('.text_to').val(fromName);
+	}
+
 	 /**
 	 * Create messages window size
 	 */
@@ -374,8 +384,7 @@
 			}
 			Mail.ui.find("#from_name_"+mailId).on('click', () =>
 				{
-					onWindowCreateMessages();
-					Mail.ui.find('.text_to').val(Mail.ui.find("#from_name_"+mailId +" .to").text());
+					Mail.replyNewMail(Mail.ui.find("#from_name_"+mailId +" .to").text());
 				}
 			);
 			Mail.ui.find("#from_header_"+mailId).on('click', (event) =>
@@ -392,6 +401,7 @@
 		
 		adjustButtons();
 	}
+
 
 	function adjustButtons()
 	{
@@ -801,6 +811,8 @@
 	Mail.reqRemoveItem   				= function reqRemoveItem(/*index, count*/){};
 	Mail.parseMailSend  				= function parseMailSend(/*object*/){};
 	Mail.openMail   					= function openMail(/*MailID*/){};
+	Mail.replyMail   					= function replyMail(/*MailID*/){};
+	
 
 	 /**
 	  * Create component and export it

@@ -75,6 +75,8 @@
 		// Bind buttons
 		this.ui.find('.right .close').click(remove);
 		this.ui.find('#read_mail_del').click(deleteMail);
+		this.ui.find('#read_mail_remail').click(replyMail);
+		this.ui.find('#read_mail_return').click(returnMail);
 		
 		this.ui.css({
 			top:  Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10)), Renderer.height - this.ui.height()),
@@ -115,7 +117,7 @@
 		this.ui.find('.text_title').text(textTitle);
 		this.ui.find('.textarea_mail').val(textMessage);
 		this.ui.find('.btn_return_reply_remove').data( "mailID", inforMail.MailID );
-		
+		addItemSub(inforMail);
 
 // DeleteTime: 0
 // FromName: "teste2"
@@ -131,13 +133,119 @@
 // msg: "corpo 13"
 // msg_len: 8
 // slot: {card1: 0, card2: 0, card3: 0, card4: 0}
+	}
 
+
+	function addItemSub(itemMail)
+	{
+		let item = itemMail;
+		var it      = DB.getItemInfo( item.ITID );
+		var content = ReadMail.ui.find('.container_item');
+		ReadMail.ui.find(".item" ).remove();
+		content.append(
+			'<div class="item" data-index="'+ item.index +'" draggable="true">' +
+				'<div class="icon"></div>' +				
+				'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
+			'</div>'
+		);
+		ReadMail.ui.find('.hide').show();
+		Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
+			content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
+		});
+
+		_preferences.item_add_email = item;
+		_preferences.save();
+
+		ReadMail.ui
+			.find('.container_item')
+				// item
+				.on('mouseover',   '.item', onItemOver)
+				.on('mouseout',    '.item', onItemOut)
+				.on('contextmenu', '.item', onItemInfo);
+
+		
+
+	}
+
+	/**
+	 * Hide the item name
+	 */
+	function onItemOut()
+	{
+		console.log('onItemOut');
+		ReadMail.ui.find('.container_item .overlay').hide();
+	}
+
+	/**
+	 * Show item name when mouse is over
+	 */
+	function onItemOver()
+	{
+		var item = _preferences.item_add_email;
+
+		if (!item) {
+			return;
+		}
+
+		// Get back data
+		var overlay = ReadMail.ui.find('.container_item .overlay');
+
+		// Display box
+		overlay.show();
+		overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+
+		if (item.IsIdentified) {
+			overlay.removeClass('grey');
+		}
+		else {
+			overlay.addClass('grey');
+		}
+	}
+
+	/**
+	 * Get item info (open description window)
+	 */
+	function onItemInfo( event )
+	{
+		console.log('onItemInfo');
+		event.stopImmediatePropagation();
+
+		var item = _preferences.item_add_email;
+		if (!item) {
+			return false;
+		}
+
+		// Don't add the same UI twice, remove it
+		if (ItemInfo.uid === item.ITID) {
+			ItemInfo.remove();
+			return false;
+		}
+
+		// Add ui to window
+		ItemInfo.append();
+		ItemInfo.uid = item.ITID;
+		ItemInfo.setItem(item);
+
+		return false;
+	}
+
+	function replyMail()
+	{
+		let textSender = ReadMail.ui.find('.text_sender').text();
+		getModule('UI/Components/Mail/Mail').replyNewMail(textSender);
 	}
 
 	function deleteMail()
 	{
 		let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
 		getModule('UI/Components/Mail/Mail').deleteMail(mailID);
+	}
+
+	function returnMail()
+	{
+		let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+		let textSender = ReadMail.ui.find('.text_sender').text();
+		getModule('UI/Components/Mail/Mail').returnMail(mailID, textSender);
 	}
 
 	function remove()

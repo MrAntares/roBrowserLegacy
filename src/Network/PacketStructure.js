@@ -2794,7 +2794,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	// 0x247
 	PACKET.CZ.MAIL_ADD_ITEM = function PACKET_CZ_MAIL_ADD_ITEM() {
 		this.index = 0;
-		this.count = 0;
+		this.count = 0; 
 	};
 	PACKET.CZ.MAIL_ADD_ITEM.prototype.build = function() {
 		var pkt_len = 2 + 2 + 4;

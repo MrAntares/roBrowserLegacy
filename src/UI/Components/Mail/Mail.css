@@ -291,8 +291,8 @@
 #Mail .container_item .item { display:block; width:24px; height:24px; position:relative; float:left; }
 #Mail .container_item .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #Mail .container_item .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
-#Mail .container_item .overlay { position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
-#Mail .container_item .overlay.grey { color:#aaa; }
+#Mail .container_item .overlay { pointer-events:none; position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
+#Mail .container_item .overlay.grey { pointer-events:none; color:#aaa; }
 
 #Mail .overlay_prev {
     position: absolute;

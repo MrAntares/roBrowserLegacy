@@ -134,3 +134,22 @@
 #ReadMail .body .left { margin-left:25px; float:left; }
 #ReadMail .body .right { float:right; margin-right:3px;}
 #ReadMail .body .clear { clear:both; }
+
+
+#ReadMail .block_item{
+    margin-left: 81%;
+}
+#ReadMail .container_item {
+    float: left;
+    width: 24px;
+    height: 23px;
+    margin-top: 2px;
+    margin-left: 2px;
+    margin-bottom: 6px;
+}
+#ReadMail .container_item .overlay {  pointer-events:none; position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
+#ReadMail .container_item .overlay.grey {  pointer-events:none; color:#aaa; }
+
+#ReadMail .container_item .item { display:block; width:24px; height:24px; position:relative; float:left; }
+#ReadMail .container_item .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
+#ReadMail .container_item .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }

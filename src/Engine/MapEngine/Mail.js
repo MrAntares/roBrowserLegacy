@@ -46,8 +46,8 @@
 
 	/**
 	 * Request to reset mail item and/or Zeny
-	 *
-	 * @param {int} type - PACKET.CZ.MAIL_RESET_ITEM
+	 * CZ_MAIL_RESET_ITEM
+	 * @param {int} type 
 	 */
     /// type:
 	///     0 = reset all
@@ -78,7 +78,6 @@
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket( pkt );
-		
 	}
 
 	/**
@@ -88,6 +87,20 @@
 	Mail.parseMailrefreshinbox = function parseMailrefreshinbox()
 	{
 		var pkt   = new PACKET.CZ.MAIL_GET_LIST();
+		Network.sendPacket( pkt );
+	}
+
+	/**
+	 * Request to return a mail.
+	 * CZ_REQ_MAIL_RETURN
+	 * @param {int} MailID 
+	 * @param {string} ReceiveName 
+	 */
+	Mail.returnMail = function returnMail(MailID, ReceiveName)
+	{
+		var pkt = new PACKET.CZ.REQ_MAIL_RETURN();
+		pkt.MailID = MailID;
+		pkt.ReceiveName = ReceiveName;
 		Network.sendPacket( pkt );
 	}
 
@@ -226,17 +239,15 @@
 			ChatBox.addText( DB.getMessage(1032), ChatBox.TYPE.ERROR);
 		}else{
 			ChatBox.addText( DB.getMessage(1031), ChatBox.TYPE.INFO);
+			ReadMail.remove();
 		}
 	}
 
 	/**
 	 * Notification about new mail.
-	 *
-	 * @param {object} result - PACKET.ZC.MAIL_RECEIVE
+	 * ZC_MAIL_RECEIVE
+	 * @param {object} result
 	 */
-    /// result:
-    ///     0 = success
-    ///     1 = recipinent does not exist
 	function mailNew( result )
 	{
 		let newMail = {
@@ -253,6 +264,21 @@
 		}
 	}
 
+
+	/**
+	 * Notification about the result of returning a mail
+	 * ZC_ACK_MAIL_RETURN
+	 * @param {object} result
+	 */
+	function mailReturn( result )
+	{
+		if(result.MailID != 0 && result.Result === 0){
+			ChatBox.addText( DB.getMessage(1176), ChatBox.TYPE.INFO_MAIL);
+			ReadMail.remove();
+			Mail.parseMailrefreshinbox();
+		}
+	}
+
     /**
 	 * Initialize
 	 */
@@ -265,6 +291,7 @@
 		Network.hookPacket( PACKET.ZC.MAIL_RECEIVE,      		mailNew);
 		Network.hookPacket( PACKET.ZC.MAIL_REQ_OPEN,      		mailReqOpen);
 		Network.hookPacket( PACKET.ZC.ACK_MAIL_DELETE,      	mailDelete);
+		Network.hookPacket( PACKET.ZC.ACK_MAIL_RETURN,      	mailReturn);		
 	};
 
  });
