@@ -177,7 +177,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_HOLYATTACK]                 = {};		//Holy Attribute Attack
 	SkillEffect[SK.NPC_DARKNESSATTACK]             = {};		//Shadow Attribute Attack
 	SkillEffect[SK.NPC_TELEKINESISATTACK]          = {effectId: 198};		//Ghost Attribute Attack
-	SkillEffect[SK.NPC_MAGICALATTACK]              = {};		//Demon Shock Attack
+	SkillEffect[SK.NPC_MAGICALATTACK]              = {hitEffectId: 182};		//Demon Shock Attack
 	SkillEffect[SK.NPC_METAMORPHOSIS]              = {};		//Metamorphosis
 	SkillEffect[SK.NPC_PROVOCATION]                = {};		//Provocation
 	SkillEffect[SK.NPC_SMOKING]                    = {};		//Smoking
@@ -356,7 +356,7 @@ define(['./SkillConst'], function( SK )
 	// Sniper
 	SkillEffect[SK.SN_SIGHT]                       = {effectId: 386};		//Falcon Eyes
 	SkillEffect[SK.SN_FALCONASSAULT]               = {effectId: 387};		//Falcon Assault
-	SkillEffect[SK.SN_SHARPSHOOTING]               = {effectId: 'ef_sharpshooting'};		//Focused Arrow Strike
+	SkillEffect[SK.SN_SHARPSHOOTING]               = {effectId: 388};		//Focused Arrow Strike
 	SkillEffect[SK.SN_WINDWALK]                    = {effectId: 389};		//Wind Walker
 	// Whitesmith
 	SkillEffect[SK.WS_MELTDOWN]                    = {effectId: 390};		//Shattering Strike
