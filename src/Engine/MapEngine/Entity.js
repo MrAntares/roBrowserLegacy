@@ -1206,7 +1206,34 @@ define(function( require )
 					entity.RollCounter = 0;
 				}
 				break;
-
+			
+			case StatusConst.CAMOUFLAGE:
+				if (pkt.state == 1) {
+					entity.Camouflage = pkt.val[0];
+				} else {
+					entity.Camouflage = 0;
+				}
+				entity.effectState = entity.effectState;
+				break;
+			
+			case StatusConst.STEALTHFIELD:
+				if (pkt.state == 1) {
+					entity.Stealthfield = pkt.val[0];
+				} else {
+					entity.Stealthfield = 0;
+				}
+				entity.effectState = entity.effectState;
+				break;
+				
+			case StatusConst.SHADOWFORM:
+				if (pkt.state == 1) {
+					entity.Shadowform = pkt.val[0];
+				} else {
+					entity.Shadowform = 0;
+				}
+				entity.effectState = entity.effectState;
+				break;
+			
             case StatusConst.TRICKDEAD:
                 if(pkt.state == 1) {
                     entity.setAction({
@@ -1226,6 +1253,14 @@ define(function( require )
                         next:   false
                     });
                 }
+                break;
+				
+			case StatusConst.ILLUSION:
+				if (pkt.state == 1) {
+					entity.isHallucinating = true;
+				} else {
+					entity.isHallucinating = false;
+				}
                 break;
 				
 			// Cast a skill, TODO: add progressbar in shortcut
@@ -1251,6 +1286,8 @@ define(function( require )
 			case StatusConst.ALL_RIDING:
 				entity.allRidingState = pkt.state;
 				break;
+				
+				
 		}
 
 		// Modify icon
