@@ -72,7 +72,7 @@ function(      WebGL,         glMatrix,      Camera )
 			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= ((uSpriteRendererZindex + uSpriteRendererDepth) * 0.1) / (uCameraLatitude * 50.0);
+			gl_Position.z -= (uSpriteRendererZindex * 0.1 + uSpriteRendererDepth) / (uCameraLatitude * 50.0);
 			
 			vTextureCoord = aTextureCoord;
 		}
