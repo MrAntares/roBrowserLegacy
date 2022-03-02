@@ -2815,14 +2815,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.msg = '';
 	};
 	PACKET.CZ.MAIL_SEND.prototype.build = function() {
-		var pkt_len = 2 + 2 + 24 + 40 + 4 + this.msg.length;
+		var pkt_len = 2 + 2 + 24 + 40 + 1 + this.msg.length;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x248);
 		pkt_buf.writeShort(pkt_len);
 		pkt_buf.writeString(this.ReceiveName, 24);
 		pkt_buf.writeString(this.Header, 40);
-		pkt_buf.writeULong(this.msg_len);
+		pkt_buf.writeUChar(this.msg_len);
 		pkt_buf.writeString(this.msg);
 		return pkt_buf;
 	};

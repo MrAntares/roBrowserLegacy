@@ -73,10 +73,11 @@
 	ReadMail.onAppend = function onAppend()
 	{
 		// Bind buttons
-		this.ui.find('.footer .close').click(remove);
+		this.ui.find('.right .close').click(remove);
+		this.ui.find('#read_mail_del').click(deleteMail);
 		
 		this.ui.css({
-			top:  Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10) ), Renderer.height - this.ui.height()),
+			top:  Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10)), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('left'), 10)) + 300, Renderer.width  - this.ui.width())
 		});
 
@@ -107,10 +108,36 @@
 	{
 		let textSender = inforMail.FromName;
 		let textTitle =  inforMail.Header;
+		let textMessage = inforMail.msg === "(no message)" ? "" : inforMail.msg;
 		
 		ReadMail.append();
 		this.ui.find('.text_sender').text(textSender);
 		this.ui.find('.text_title').text(textTitle);
+		this.ui.find('.textarea_mail').val(textMessage);
+		this.ui.find('.btn_return_reply_remove').data( "mailID", inforMail.MailID );
+		
+
+// DeleteTime: 0
+// FromName: "teste2"
+// Header: "titulo 13"
+// ITID: 0
+// IsDamaged: 0
+// IsIdentified: 0
+// MailID: 15
+// Money: 0
+// RefiningLevel: 0
+// Type: 0
+// count: 0
+// msg: "corpo 13"
+// msg_len: 8
+// slot: {card1: 0, card2: 0, card3: 0, card4: 0}
+
+	}
+
+	function deleteMail()
+	{
+		let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+		getModule('UI/Components/Mail/Mail').deleteMail(mailID);
 	}
 
 	function remove()
@@ -130,21 +157,12 @@
 		 _preferences.save();
 	}
 
-	/**
-	 * Extend Mail window size
-	 */
-	function resizeHeight(height)
-	{
-		height = Math.min( Math.max(height, 8), 17);
-
-	}
-
 	 /**
 	  * Extend Mail window size
 	  */
 	 function onResize()
 	 {
-		var ui         = Mail.ui;
+		var ui         = ReadMail.ui;
 		var top        = ui.position().top;
 		var lastHeight = 0;
 		var _Interval;
@@ -180,7 +198,7 @@
 	 /**
 	 * Callbacks
 	 */
-	// Mail.onClosePressedReadMail  = function onClosePressedReadMail(){};
+
 	 /**
 	  * Create component and export it
 	  */

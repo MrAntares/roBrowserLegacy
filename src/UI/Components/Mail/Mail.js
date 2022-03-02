@@ -98,7 +98,6 @@
 	  */
 	 Mail.onAppend = function OnAppend()
 	 {
-
 		this.ui.find('.right .close').on('click',this.onClosePressed.bind(this)).removeClass( "hover" );
 		this.ui.find('#inbox').on('click',offCreateMessagesOnWindowMailbox);  // remove all item reset layout
 		this.ui.find('#write').on('click',onWindowCreateMessages);  // remove all item reset layouts
@@ -120,7 +119,6 @@
 			}
 		});
 		createMailList();
-		adjustButtons();
 
 		this.ui
 			.find('.container_item')
@@ -220,7 +218,6 @@
 		 _preferences.magnet_left = this.magnet.LEFT;
 		 _preferences.magnet_right = this.magnet.RIGHT;
 		 _preferences.save();
-		 removeCreateAllItem();
 	 };  
  
 	 /**
@@ -253,6 +250,42 @@
 	};
 
 	/**
+	* Mail receive
+	*
+	* @param {object} read
+	*/
+	Mail.mailReceiveUpdate = function mailReceiveUpdate( newMail )
+	{
+		if(Mail.list.mailList === undefined) return;		
+		Mail.list.MailNumber = Mail.MailNumber +1;
+		let validIsOpen = 0;
+		Mail.list.mailList = Mail.list.mailList.map((el) =>
+		{
+			let newElement = {};
+
+			if(el.MailID == newMail.MailID){
+				newElement = {
+					DeleteTime: el.DeleteTime,
+					FromName: el.FromName,
+					HEADER: el.HEADER,
+					MailID: el.MailID,
+					isOpen: 1
+				}
+				validIsOpen = 1;
+			}else {
+				newElement = el;
+			}			
+
+			return newElement;
+		});
+		if (!validIsOpen){
+			Mail.list.mailList.push(newMail);
+		}
+		// List Email
+		Mail.parseMailrefreshinbox();
+	};
+
+	/**
 	 * Search in a list for an item by its index
 	 *
 	 * @param {number} index
@@ -260,7 +293,6 @@
 	 */
 	Mail.getItemByIndex = function getItemByIndex( index )
 	{
-		var i, count;
 		var list = _preferences.item_add_email;
 
 		if(list.index == index){
@@ -352,7 +384,12 @@
 				}
 			);
 		}
-		Mail.ui.find('#infor_page').text((Mail.page + 1)+"/"+Math.ceil(Mail.list.mailList.length / Mail.pageSize));
+		if(Mail.list.mailList.length === 0){
+			Mail.ui.find('.prev_next').hide();
+		}else{
+			Mail.ui.find('#infor_page').text((Mail.page + 1)+"/"+Math.ceil(Mail.list.mailList.length / Mail.pageSize));
+		}
+		
 		adjustButtons();
 	}
 
@@ -377,13 +414,8 @@
 	}
 
 	function addEventNextAndPrevAdd(eventName)
-	{
-		// Get back data
-		console.log('next', Mail.pageSize , Mail.page > Mail.list.mailList.length /  Mail.pageSize - 1);
-		console.log('prev', Mail.pageSize , Mail.page == 0);
-		
+	{		
 		var overlay = Mail.ui.find('.prev_next .overlay_'+eventName+'');
-
 		var text = Mail.ui.find('.prev_next .'+eventName+' span');
 		text.addClass('event_add_cursor');
 		overlay.text(text.text());
@@ -430,7 +462,6 @@
 			msg_len:		message.length,
 			msg:			message, 
 		}
-		console.log('send_message mail', send_message);
 		Mail.parseMailSend(send_message);
 	}
 
@@ -555,7 +586,6 @@
 		return false;
 	}
 
-
 	/**
 	 * Show item name when mouse is over
 	 */
@@ -590,7 +620,6 @@
 	{
 		Mail.ui.find('.container_item .overlay').hide();
 	}
-
 
 	/**
 	 * Start dragging an item

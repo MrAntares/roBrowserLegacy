@@ -239,7 +239,11 @@ define( ['./PacketStructure'], function( PACKET )
 		20050425: [
 			[PACKET.CZ.COMMAND_MER,0x022d,5,2,4],
 		],
-		
+
+		// 2005-08-29aSakexe
+		20050425: [
+			[PACKET.CZ.MAIL_SEND,0x0248,-1,2,4,28,68,69],
+		],
 		
 		//2005-05-09aSakexe
 		20050509: [

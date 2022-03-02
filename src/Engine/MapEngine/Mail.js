@@ -40,8 +40,7 @@
 		pkt.ReceiveName 	= mail.ReceiveName;
 		pkt.Header 			= mail.Header;
 		pkt.msg_len			= mail.msg_len;
-		pkt.msg 			= mail.msg;
-
+		pkt.msg 			= mail.msg.replace(/^(\$|\%)/, '');
 		Network.sendPacket(pkt);
 	}
 
@@ -102,6 +101,24 @@
 		var pkt   = new PACKET.CZ.MAIL_OPEN();
 		pkt.MailID = MailID;
 		Network.sendPacket( pkt );
+		let updateMail = {
+			MailID: MailID,
+			isOpen: 1
+		};
+		Mail.mailReceiveUpdate(updateMail);
+	};
+
+
+	/**
+	 * Request to delete a mail.
+	 * PACKET.CZ.MAIL_DELETE
+	 * @param {int} MailID
+	 */
+	Mail.deleteMail = function deleteMail(MailID)
+	{
+		var pkt   = new PACKET.CZ.MAIL_DELETE();
+		pkt.MailID = MailID;
+		Network.sendPacket( pkt );
 	};
 
 	/**
@@ -131,6 +148,23 @@
 	{
 		ReadMail.openEmail(inforMail);
 	};
+	
+	/**
+	 * Notification about the result of deleting a mail.
+	 * @param {int} result - PACKET.ZC.ACK_MAIL_DELETE
+	 */
+    /// Result:
+    ///     0 = success
+    ///     1 = failure
+	function mailDelete( result )
+	{
+		if(!result.Result){
+			// An auction with at least one bidder cannot be canceled.
+			ChatBox.addText( DB.getMessage(1038), ChatBox.TYPE.INFO_MAIL);
+			ReadMail.remove();
+			Mail.parseMailrefreshinbox();
+		}
+	};
 
 	/**
 	 * Opens/closes the mail window
@@ -140,7 +174,7 @@
     /// type:
     ///     0 = open
     ///     1 = close
-	function onOpenWindowsMail( pkt )
+	function openWindowsMail( pkt )
 	{
         if( pkt.Type ){
 			Mail.remove();
@@ -173,7 +207,6 @@
     ///     1 = failure
 	function mailSetattachment( result )
 	{
-        console.log('mailSetattachment-read', result.result)
 		if(!result.result){
 			Mail.addItemSub(result.Index);
 		}
@@ -206,23 +239,32 @@
     ///     1 = recipinent does not exist
 	function mailNew( result )
 	{
-        console.log('mailNew-result', result);
-		ChatBox.addText( DB.getMessage(1101), ChatBox.TYPE.MAIL);
+		let newMail = {
+			DeleteTime: (new Date().getTime()/1000),
+			FromName: result.FromName,
+			HEADER: result.Header,
+			MailID: result.MailID,
+			isOpen: 0
+		};
+
+		if(result.MailID != 0){
+			ChatBox.addText( DB.getMessage(1101), ChatBox.TYPE.MAIL);
+			Mail.mailReceiveUpdate(newMail);
+		}
 	}
 
     /**
 	 * Initialize
 	 */
-	return function MAILEngine()
+	return function MailEngine()
 	{
-		Network.hookPacket( PACKET.ZC.MAIL_WINDOWS,      		onOpenWindowsMail);
+		Network.hookPacket( PACKET.ZC.MAIL_WINDOWS,      		openWindowsMail);
 		Network.hookPacket( PACKET.ZC.MAIL_REQ_GET_LIST,      	mailRefreshinbox);
 		Network.hookPacket( PACKET.ZC.ACK_MAIL_ADD_ITEM,      	mailSetattachment);
 		Network.hookPacket( PACKET.ZC.MAIL_REQ_SEND,      		mailSend);
 		Network.hookPacket( PACKET.ZC.MAIL_RECEIVE,      		mailNew);
 		Network.hookPacket( PACKET.ZC.MAIL_REQ_OPEN,      		mailReqOpen);
-
-		
+		Network.hookPacket( PACKET.ZC.ACK_MAIL_DELETE,      	mailDelete);
 	};
 
  });
