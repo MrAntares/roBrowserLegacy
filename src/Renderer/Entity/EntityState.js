@@ -312,7 +312,7 @@ define(function( require )
 			}
 		}
 
-      // Silence
+		// Silence
 		if (value & StatusConst.HealthState.SILENCE) {
 			if (!(this._healthState & StatusConst.HealthState.SILENCE)) {
 				Sound.play('_silence.wav');
@@ -418,6 +418,7 @@ define(function( require )
 			}
 			else {
 				this._effectStateColor[3] = 0.1;
+				Sound.play('effect/assasin_cloaking.wav');
 			}
 		}
 		
@@ -434,6 +435,7 @@ define(function( require )
 				this._effectStateColor[1] = 0.2;
 				this._effectStateColor[2] = 0.2;
 				this._effectStateColor[3] = 0.2;
+				Sound.play('effect/assasin_cloaking.wav');
 			}
 		}
 
