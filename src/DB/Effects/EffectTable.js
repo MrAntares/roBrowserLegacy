@@ -2511,8 +2511,15 @@ define(function( require )
         }],
 
 
-        145: [{    //EF_SHOCKWAVE    Shockwave Trap
+        /*145: [{    //EF_SHOCKWAVE    Shockwave Trap
             type: 'STR',
+            file: 'shockwave',
+            wav:  'effect/hunter_shockwavetrap',
+            attachedEntity: true
+        }],*/
+		
+		145: [{
+            type: 'SPR',
             file: 'shockwave',
             wav:  'effect/hunter_shockwavetrap',
             attachedEntity: true
@@ -4435,7 +4442,11 @@ define(function( require )
         }],       
         
         //364: [{}],    //EF_VALLENTINE2       Valentine Day Heart
-        //365: [{}],    //EF_PRESSURE       Gloria Domini
+		
+        365: [{    //EF_PRESSURE       Gloria Domini
+			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}],
+		
         //366: [{}],    //EF_BASH3D       Martyr's Reckoning
         
         367: [{ //aura blade    //EF_AURABLADE    Aura Blade
@@ -7243,6 +7254,34 @@ define(function( require )
         //905: [{}],    //EF_GROUNDSHAKE2       Expanding circle
 		
         906: [{    //EF_PRESSURE2       Shield Press (falling shield)
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			rotate: true,
+            angle: 0,
+			toAngle: -630,
+			poszStart: 20,
+			poszEnd: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/shield.bmp',
+			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			delayOffset: 501,
+			fadeOut: true,
+            angle: -630,
+			posz: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/shield.bmp',
+			delayWav: 500,
 			wav: 'effect/lg_shieldpress'
 		}],
 		
@@ -7297,7 +7336,11 @@ define(function( require )
         929: [{    //EF_DEMONICFIRE4       Warmer (field of flames)
 			wav: 'effect/s\xbf\xf6\xb8\xd3'
 		}],
-        //930: [{}],    //EF_PRESSURE3       Varetyr Spear (falling spear)
+		
+        930: [{    //EF_PRESSURE3       Varetyr Spear (falling spear)
+			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}],
+		
         //931: [{}],    //EF_LINKPARTICLE2       (Nothing)
         //932: [{}],    //EF_SOULLIGHT3       Firefly
         //933: [{}],    //EF_CHAREFFECT       [Client Crash]
