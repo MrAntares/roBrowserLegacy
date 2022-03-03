@@ -250,7 +250,7 @@
 		if(result.Result){
 			ChatBox.addText( DB.getMessage(1032), ChatBox.TYPE.ERROR);
 		}else{
-			ChatBox.addText( DB.getMessage(1031), ChatBox.TYPE.INFO);
+			ChatBox.addText( DB.getMessage(1031), ChatBox.TYPE.INFO_MAIL);
 			ReadMail.remove();
 		}
 	}

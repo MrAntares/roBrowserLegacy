@@ -475,6 +475,12 @@
 		let message = Mail.ui.find('.textarea_mail').val();
 		message = message.length > 198 ? message.substring(0,198) : message;
 
+		if(title === "")
+		{
+			ChatBox.addText( DB.getMessage(1106), ChatBox.TYPE.ERROR);
+			return;
+		}
+
 		let send_message = {
 			ReceiveName: 	to, 
 			Header:			title,
