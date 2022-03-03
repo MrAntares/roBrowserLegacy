@@ -239,7 +239,7 @@ define( ['./PacketStructure'], function( PACKET )
 		20050425: [
 			[PACKET.CZ.COMMAND_MER,0x022d,5,2,4],
 		],
-		
+
 		
 		//2005-05-09aSakexe
 		20050509: [
@@ -304,6 +304,7 @@ define( ['./PacketStructure'], function( PACKET )
 			[PACKET.CZ.USE_SKILL_TOGROUND,0x0113,30,9,15,23,28],
 			[PACKET.CZ.ITEM_THROW,0x0116,12,6,10],
 			[PACKET.CZ.REQUEST_ACT,0x0190,21,5,20],
+			[PACKET.CZ.MAIL_ADD_ITEM,0x0247,8,2,4],
 		],
 		
 		

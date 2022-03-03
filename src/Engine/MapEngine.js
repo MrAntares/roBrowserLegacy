@@ -163,6 +163,7 @@ define(function( require )
 		require('./MapEngine/NPC').call();
 		require('./MapEngine/Entity').call();
 		require('./MapEngine/Item').call();
+		require('./MapEngine/Mail').call();
 		require('./MapEngine/PrivateMessage').call();
 		require('./MapEngine/Storage').call();
 		require('./MapEngine/Group').init();

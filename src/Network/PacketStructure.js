@@ -2797,13 +2797,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.count = 0;
 	};
 	PACKET.CZ.MAIL_ADD_ITEM.prototype.build = function() {
-		var pkt_len = 2 + 2 + 4;
-		var pkt_buf = new BinaryWriter(pkt_len);
+		var ver = this.getPacketVersion();
+		var pkt = new BinaryWriter(ver[2]);
 
-		pkt_buf.writeShort(0x247);
-		pkt_buf.writeShort(this.index);
-		pkt_buf.writeLong(this.count);
-		return pkt_buf;
+		pkt.writeShort(ver[1]);
+		pkt.view.setInt16(ver[3], this.index, true);
+		pkt.view.setInt32(ver[4], this.count, true);
+		return pkt;
 	};
 
 
@@ -2815,14 +2815,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.msg = '';
 	};
 	PACKET.CZ.MAIL_SEND.prototype.build = function() {
-		var pkt_len = 2 + 2 + 24 + 40 + 4 + this.msg.length;
+		var pkt_len = 2 + 2 + 24 + 40 + 1 + this.msg.length;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x248);
 		pkt_buf.writeShort(pkt_len);
 		pkt_buf.writeString(this.ReceiveName, 24);
 		pkt_buf.writeString(this.Header, 40);
-		pkt_buf.writeULong(this.msg_len);
+		pkt_buf.writeUChar(this.msg_len);
 		pkt_buf.writeString(this.msg);
 		return pkt_buf;
 	};

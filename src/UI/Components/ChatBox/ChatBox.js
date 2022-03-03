@@ -91,6 +91,7 @@ define(function(require)
 		INFO:     1 << 7,
 		BLUE:     1 << 8, // TODO: find a better name
 		ADMIN:    1 << 9,
+		MAIL:     1 << 10,
 	};
 
 
@@ -512,6 +513,9 @@ define(function(require)
 			}
 			else if (type & ChatBox.TYPE.ADMIN) {
 				color = '#FFFF00';
+			}
+			else if (type & ChatBox.TYPE.MAIL) {
+				color = '#F4D293';
 			}
 			else {
 				color = 'white';
