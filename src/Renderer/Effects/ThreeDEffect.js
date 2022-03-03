@@ -207,6 +207,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 	
     ThreeDEffect.prototype.render = function render(gl, tick) {
 		
+		if( this.startLifeTime > tick ) return; //not yet
+		
 		if (this.blendMode > 0 && this.blendMode < 16) {
 			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
 		} else {
