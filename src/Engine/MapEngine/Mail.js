@@ -37,7 +37,7 @@
 	{
     	var pkt = new PACKET.CZ.MAIL_SEND();
 
-		pkt.ReceiveName 	= mail.ReceiveName.replace(/^(\$|\%)/, '');
+		pkt.ReceiveName 	= mail.ReceiveName.replace(/^(\$|\%)/, '').replace(/\t/g, '').replace(' ', '');
 		pkt.Header 			= mail.Header.replace(/^(\$|\%)/, '');
 		pkt.msg_len			= mail.msg_len;
 		pkt.msg 			= mail.msg.replace(/^(\$|\%)/, '');

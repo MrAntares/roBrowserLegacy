@@ -309,7 +309,7 @@
 	Mail.replyNewMail = function replyNewMail( fromName )
 	{
 		onWindowCreateMessages();
-		Mail.ui.find('.text_to').val(fromName);
+		Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '').replace(' ', ''));
 	}
 
 	 /**
@@ -321,6 +321,7 @@
 		Mail.parseMailrefreshinbox();
 
 		// Off window create mail
+		Mail.ui.find('#create_mail_send').prop('disabled', false);
 		Mail.ui.find('.block_create_mail').hide();
 		Mail.ui.find('.text_to').val("");
 		Mail.ui.find('.input_title').val("");
@@ -461,8 +462,6 @@
 	function sendCreateMessagesMail(event)
 	{
 		event.stopImmediatePropagation();
-
-		console.log('sendCreateMessagesMail',Mail.ui.find('#zeny_ok').is(':visible'));
 		if(Mail.ui.find('#zeny_ok').is(':visible'))
 		{
 			ChatBox.addText( DB.getMessage(1110), ChatBox.TYPE.ERROR);
@@ -482,6 +481,7 @@
 			msg_len:		message.length,
 			msg:			message, 
 		}
+		Mail.ui.find('#create_mail_send').prop('disabled', true);
 		Mail.parseMailSend(send_message);
 	}
 
