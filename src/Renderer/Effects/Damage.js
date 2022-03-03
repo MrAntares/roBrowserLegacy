@@ -102,26 +102,30 @@ define(function( require )
 				_sprite[i]  = sprDamage.getCanvasFromFrame(i);
 			}
 
-			var source = sprMiss.getCanvasFromFrame(0);
-			var canvas = document.createElement('canvas');
-			var ctx    = canvas.getContext('2d');
+			for(var i = 0; i < 5; ++i){  //msg.spr miss crit lucky...
+				
+				var source = sprMiss.getCanvasFromFrame(i);
+				var canvas = document.createElement('canvas');
+				var ctx    = canvas.getContext('2d');
 
-			canvas.width  = WebGL.toPowerOfTwo( source.width );
-			canvas.height = WebGL.toPowerOfTwo( source.height );
-			ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
+				canvas.width  = WebGL.toPowerOfTwo( source.width );
+				canvas.height = WebGL.toPowerOfTwo( source.height );
+				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
+				
+				_sprite[10 + i] = {
+					texture: gl.createTexture(),
+					canvas:  canvas
+				};
 
-			_sprite[10] = {
-				texture: gl.createTexture(),
-				canvas:  canvas
-			};
-
-			gl.bindTexture( gl.TEXTURE_2D, _sprite[10].texture );
-			gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
-			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.generateMipmap( gl.TEXTURE_2D );
+				gl.bindTexture( gl.TEXTURE_2D, _sprite[10 + i].texture );
+				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.generateMipmap( gl.TEXTURE_2D );
+			}
+			
 		});
 	};
 
@@ -177,11 +181,15 @@ define(function( require )
 		}
 		else if (obj.type & Damage.TYPE.HEAL) {
 			// green
+			obj.color[0] = 0.0;
 			obj.color[1] = 1.0;
+			obj.color[2] = 0.0;
 		}
 		else if (obj.type & Damage.TYPE.ENEMY) {
 			// red
 			obj.color[0] = 1.0;
+			obj.color[1] = 0.0;
+			obj.color[2] = 0.0;
 		}
 		else if (obj.type & Damage.TYPE.COMBO) {
 			// yellow
@@ -191,6 +199,10 @@ define(function( require )
 			obj.delay    = 3000;
 		}
 		else if (obj.type & Damage.TYPE.CRIT) {
+			/*texture  = _sprite[13].texture;
+			width    = _sprite[13].canvas.width;
+			height   = _sprite[13].canvas.height;*/
+				
 			// yellow
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
@@ -241,8 +253,8 @@ define(function( require )
 			width += frame.width + PADDING;
 		}
 
-		// Bind texture to GPU.
 		texture = gl.createTexture();
+		
 		gl.bindTexture( gl.TEXTURE_2D, texture );
 		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -400,7 +412,9 @@ define(function( require )
 			SpriteRenderer.size[0] = damage.width  * size;
 			SpriteRenderer.size[1] = damage.height * size;
 			damage.color[3]        = 1.0 - perc;
-
+			
+			SpriteRenderer.depth = i*10;
+			
 			SpriteRenderer.color.set( damage.color );
 			SpriteRenderer.image.texture = damage.texture;
 			SpriteRenderer.render();

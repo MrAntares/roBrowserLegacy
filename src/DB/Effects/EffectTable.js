@@ -2511,8 +2511,15 @@ define(function( require )
         }],
 
 
-        145: [{    //EF_SHOCKWAVE    Shockwave Trap
+        /*145: [{    //EF_SHOCKWAVE    Shockwave Trap
             type: 'STR',
+            file: 'shockwave',
+            wav:  'effect/hunter_shockwavetrap',
+            attachedEntity: true
+        }],*/
+		
+		145: [{
+            type: 'SPR',
             file: 'shockwave',
             wav:  'effect/hunter_shockwavetrap',
             attachedEntity: true
@@ -2764,7 +2771,44 @@ define(function( require )
         //200: [{}],    //EF_LEVEL99       Normal level 99 Aura (Middle)
         //201: [{}],    //EF_LEVEL99_2       Normal level 99 Aura (Bottom)
         //202: [{}],    //EF_LEVEL99_3       Lv 99 Aura Bubble
-        //203: [{}],    //EF_GUMGANG       Fury (Visual Effect)
+		
+        203: [{    //EF_GUMGANG       Fury (Visual Effect)
+			//super1..5.bmp
+			type: '3D',
+			fadeOut: true,
+			delay: 2000,
+			delayLate: 0,
+			file: 'effect/super1.bmp',
+			attachedEntity: true
+		}, {
+			type: '3D',
+			fadeOut: true,
+			delay: 2000,
+			delayLate: 400,
+			file: 'effect/super2.bmp',
+			attachedEntity: true
+		}, {
+			type: '3D',
+			fadeOut: true,
+			delay: 2000,
+			delayLate: 800,
+			file: 'effect/super3.bmp',
+			attachedEntity: true
+		}, {
+			type: '3D',
+			fadeOut: true,
+			delay: 2000,
+			delayLate: 1200,
+			file: 'effect/super4.bmp',
+			attachedEntity: true
+		}, {
+			type: '3D',
+			fadeOut: true,
+			delay: 2000,
+			delayLate: 1600,
+			file: 'effect/super5.bmp',
+			attachedEntity: true
+		}],
 
         204: [{    //EF_POTION1    Red Herb/Potion
             type: 'STR',
@@ -3036,7 +3080,9 @@ define(function( require )
         }],
 
         262: [{		//EF_TEIHIT1       Raging Quadruple Blow
-			wav:  'effect/mon_\xbf\xac\xc8\xaf',
+			type: 'STR',
+			file: '\xbf\xac\xc8\xaf',
+			wav:  'effect/mon_\xbf\xac\xc8\xaf'
 		}],    
         
 		//263: [{}],    //EF_GUMGANG3       Raging Quadruple Blow 2
@@ -3108,7 +3154,7 @@ define(function( require )
             attachedEntity: true
         }],
 
-        '277_ground': [{ // Dissonance
+        '277_ground': [{ // Dissonance //\xb1\xe2\xb7\xf9.tga
             type: 'FUNC',
             attachedEntity: false,
             func: function(pos, tick, AID){
@@ -4396,7 +4442,11 @@ define(function( require )
         }],       
         
         //364: [{}],    //EF_VALLENTINE2       Valentine Day Heart
-        //365: [{}],    //EF_PRESSURE       Gloria Domini
+		
+        365: [{    //EF_PRESSURE       Gloria Domini
+			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}],
+		
         //366: [{}],    //EF_BASH3D       Martyr's Reckoning
         
         367: [{ //aura blade    //EF_AURABLADE    Aura Blade
@@ -4482,13 +4532,28 @@ define(function( require )
         }],
 
         //383: [{}],    //EF_ENERGYDRAIN3       Health Conversion
+		
         384: [{    //EF_LINELINK2       Soul Change (Sound Effect)
-			wav: 'effect/\xbc\xd2\xbf\xef\x20\xc3\xbc\xc0\xce\xc1\xf6'
+			wav: 'effect/\xbc\xd2\xbf\xef\x20\xc3\xbc\xc0\xce\xc1\xf6',
+            attachedEntity: true
 		}],
+		
         //385: [{}],    //EF_LINKLIGHT       Soul Change (Visual Effect)
-        //386: [{}],    //EF_TRUESIGHT       True Sight
-        //387: [{}],    //EF_FALCONASSAULT       Falcon Assault
-        //388: [{}],    //EF_TRIPLEATTACK2       Focused Arrow Strike (Sound Effect)
+		
+        386: [{    //EF_TRUESIGHT       True Sight
+			wav: 'effect/hunter_detecting',
+            attachedEntity: true
+		}],
+		
+        387: [{    //EF_FALCONASSAULT       Falcon Assault
+			wav:  'effect/hunter_blitzbeat',
+            attachedEntity: true
+		}],
+		
+        388: [{    //EF_TRIPLEATTACK2       Focused Arrow Strike (Sound Effect)
+			wav: 'effect/\xbb\xfe\xc7\xc1\xbd\xb4\xc6\xc3',
+            attachedEntity: true
+		}],
 
         389: [{ //windwalk    //EF_PORTAL4    Wind Walk
             wav:  'effect/\xc0\xa9\xb5\xe5\xbf\xf6\xc5\xa9', //Ŕ©µĺżöĹ©
@@ -4713,10 +4778,19 @@ define(function( require )
 
         //451: [{}],    //EF_SOULSTRIKE2       Dark Strike
         //452: [{}],    //EF_YUFITEL2       Something Like Jupitel Thunder
-        //453: [{}],    //EF_NPC_STOP       Paralized
+		
+        453: [{    //EF_NPC_STOP       Paralized
+			type: 'SPR',
+			file: '\xbd\xba\xc5\xe9'
+		}],
+		
         //454: [{}],    //EF_DARKCASTING       Like Blind
         //455: [{}],    //EF_GUMGANGNPC       Another Warmth Lightning
-        //456: [{}],    //EF_AGIUP       Power Up
+		
+        456: [{    //EF_AGIUP       Power Up
+			wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+            attachedEntity: true
+		}],
 
         457: [{ //flying kick on target    //EF_JUMPKICK    Flying Side Kick (2nd Part)
             wav:  'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', //t_łŻ¶óÂ÷±â
@@ -4732,13 +4806,35 @@ define(function( require )
         //464: [{}],    //EF_STORMKICK6       White tornado (unused)
         //465: [{}],    //EF_STORMKICK7       Purple tornado (unused)
         //466: [{}],    //EF_SPINEDBODY2       Another Round Kick
-        //467: [{}],    //EF_BEGINASURA1       Warm/Mild Wind (Earth)
-        //468: [{}],    //EF_BEGINASURA2       Warm/Mild Wind (Wind)
-        //469: [{}],    //EF_BEGINASURA3       Warm/Mild Wind (Water)
-        //470: [{}],    //EF_BEGINASURA4       Warm/Mild Wind (Fire)
-        //471: [{}],    //EF_BEGINASURA5       Warm/Mild Wind (Undead)
-        //472: [{}],    //EF_BEGINASURA6       Warm/Mild Wind (Shadow)
-        //473: [{}],    //EF_BEGINASURA7       Warm/Mild Wind (Holy)
+		
+        467: [{    //EF_BEGINASURA1       Warm/Mild Wind (Earth)
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2'
+		}],
+		
+        468: [{    //EF_BEGINASURA2       Warm/Mild Wind (Wind)
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2'
+		}],
+		
+        469: [{    //EF_BEGINASURA3       Warm/Mild Wind (Water)
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2'
+		}],
+		
+        470: [{    //EF_BEGINASURA4       Warm/Mild Wind (Fire)
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2'
+		}],
+		
+        471: [{    //EF_BEGINASURA5       Warm/Mild Wind (Undead)
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2'
+		}],
+		
+        472: [{    //EF_BEGINASURA6       Warm/Mild Wind (Shadow)
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2'
+		}],
+		
+        473: [{    //EF_BEGINASURA7       Warm/Mild Wind (Holy)
+			wav: 'effect/t_\xb9\xd9\xb6\xf7\xb9\xe6\xc3\xe2'
+		}],
+		
         //474: [{}],    //EF_AURABLADE2       (Nothing)
         //475: [{}],    //EF_DEVIL1       Demon of The Sun Moon And Stars (Level 1)
         //476: [{}],    //EF_DEVIL2       Demon of The Sun Moon And Stars (Level 2)
@@ -5793,7 +5889,10 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //729: [{}],    //EF_SPR_MASH       Marsh of Abyss (like Close Confine)
+        729: [{    //EF_SPR_MASH       Marsh of Abyss (like Close Confine)
+			type: 'SPR',
+			file: 'mashofa'
+		}],
         //730: [{}],    //EF_SPR_SOULE       Small, cartoony explosion (part of Soul Expansion)
 
         731: [{    //EF_DHOWL_STR    Dragon Howling (blinking, expanding circle)
@@ -7155,6 +7254,34 @@ define(function( require )
         //905: [{}],    //EF_GROUNDSHAKE2       Expanding circle
 		
         906: [{    //EF_PRESSURE2       Shield Press (falling shield)
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			rotate: true,
+            angle: 0,
+			toAngle: -630,
+			poszStart: 20,
+			poszEnd: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/shield.bmp',
+			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			delayOffset: 501,
+			fadeOut: true,
+            angle: -630,
+			posz: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/shield.bmp',
+			delayWav: 500,
 			wav: 'effect/lg_shieldpress'
 		}],
 		
@@ -7209,7 +7336,11 @@ define(function( require )
         929: [{    //EF_DEMONICFIRE4       Warmer (field of flames)
 			wav: 'effect/s\xbf\xf6\xb8\xd3'
 		}],
-        //930: [{}],    //EF_PRESSURE3       Varetyr Spear (falling spear)
+		
+        930: [{    //EF_PRESSURE3       Varetyr Spear (falling spear)
+			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}],
+		
         //931: [{}],    //EF_LINKPARTICLE2       (Nothing)
         //932: [{}],    //EF_SOULLIGHT3       Firefly
         //933: [{}],    //EF_CHAREFFECT       [Client Crash]
@@ -7758,11 +7889,6 @@ define(function( require )
 		
 		'ef_magicpower': [{
             wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
-            attachedEntity: true
-        }],
-		
-		'ef_sharpshooting': [{
-            wav: 'effect/\xbb\xfe\xc7\xc1\xbd\xb4\xc6\xc3',
             attachedEntity: true
         }],
 		

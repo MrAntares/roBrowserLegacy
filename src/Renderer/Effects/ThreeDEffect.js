@@ -43,7 +43,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         if (effect.blue) this.blue = effect.blue;
         else this.blue = 1;
         this.position = position;
-        if (effect.posxStart) this.posxStar = effect.posxStart;
+        if (effect.posxStart) this.posxStart = effect.posxStart;
         else this.posxStart = 0;
         if (effect.posxEnd) this.posxEnd = effect.posxEnd;
         else this.posxEnd = 0;
@@ -207,6 +207,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 	
     ThreeDEffect.prototype.render = function render(gl, tick) {
 		
+		if( this.startLifeTime > tick ) return; //not yet
+		
 		if (this.blendMode > 0 && this.blendMode < 16) {
 			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
 		} else {
@@ -366,10 +368,10 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         SpriteRenderer.size[1] = sizeY;
 		
         if (this.rotate) {
-            var ctq = (this.toAngle - this.angle) / 100;
-            var angle = this.angle;
-            var cts = steps * ctq + angle;
-            SpriteRenderer.angle = cts;
+            var angleStep = (this.toAngle - this.angle) / 100;
+            var startAngle = this.angle;
+            var angle = steps * angleStep + startAngle;
+            SpriteRenderer.angle = angle;
         } else SpriteRenderer.angle = this.angle;
 		
         if (this.shadowTexture && 0) {

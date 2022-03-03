@@ -312,7 +312,7 @@ define(function( require )
 			}
 		}
 
-      // Silence
+		// Silence
 		if (value & StatusConst.HealthState.SILENCE) {
 			if (!(this._healthState & StatusConst.HealthState.SILENCE)) {
 				Sound.play('_silence.wav');
@@ -405,6 +405,37 @@ define(function( require )
 			}
 			else {
 				this._effectStateColor[3] = 0.0;
+			}
+		}
+		
+		// Camouflage / Stealth Field (receiver)
+		else if (this.Camouflage || this.Stealthfield){
+			// Maya purple card
+			if (Session.intravision) {
+				this._effectStateColor[0] = 0.0;
+				this._effectStateColor[1] = 0.0;
+				this._effectStateColor[2] = 0.0;
+			}
+			else {
+				this._effectStateColor[3] = 0.1;
+				Sound.play('effect/assasin_cloaking.wav');
+			}
+		}
+		
+		// Shadow form
+		else if (this.Shadowform) {
+			// Maya purple card
+			if (Session.intravision) {
+				this._effectStateColor[0] = 0.0;
+				this._effectStateColor[1] = 0.0;
+				this._effectStateColor[2] = 0.0;
+			}
+			else {
+				this._effectStateColor[0] = 0.2;
+				this._effectStateColor[1] = 0.2;
+				this._effectStateColor[2] = 0.2;
+				this._effectStateColor[3] = 0.2;
+				Sound.play('effect/assasin_cloaking.wav');
 			}
 		}
 
