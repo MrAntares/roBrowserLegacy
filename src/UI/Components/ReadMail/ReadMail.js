@@ -25,6 +25,7 @@
 	 var Renderer           = require('Renderer/Renderer');
 	 var Mouse              = require('Controls/MouseEventHandler');
 	 var InputBox           = require('UI/Components/InputBox/InputBox');
+	 var ChatBox            = require('UI/Components/ChatBox/ChatBox');
 	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	 var UIManager          = require('UI/UIManager');
 	 var UIComponent        = require('UI/UIComponent');
@@ -73,17 +74,20 @@
 	ReadMail.onAppend = function onAppend()
 	{
 		// Bind buttons
-		this.ui.find('.right .close').click(remove);
-		this.ui.find('#read_mail_del').click(deleteMail);
-		this.ui.find('#read_mail_remail').click(replyMail);
-		this.ui.find('#read_mail_return').click(returnMail);
+		ReadMail.ui.find('.right .close').click(function(event){
+			event.stopImmediatePropagation();
+			remove();
+		});
+		ReadMail.ui.find('#read_mail_del').click(deleteMail);
+		ReadMail.ui.find('#read_mail_remail').click(replyMail);
+		ReadMail.ui.find('#read_mail_return').click(returnMail);
 		
-		this.ui.css({
-			top:  Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10)), Renderer.height - this.ui.height()),
-			left: Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('left'), 10)) + 300, Renderer.width  - this.ui.width())
+		ReadMail.ui.css({
+			top:  Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10)), Renderer.height - ReadMail.ui.height()),
+			left: Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('left'), 10)) + 300, Renderer.width  - ReadMail.ui.width())
 		});
 
-		this.draggable(this.ui.find('.titlebar'));
+		ReadMail.draggable(ReadMail.ui.find('.titlebar'));
 	};
 
 	/**
@@ -108,79 +112,109 @@
 
 	ReadMail.openEmail = function openEmail(inforMail)
 	{
+		ReadMail.remove();
+		ReadMail.append();
 		let textSender = inforMail.FromName;
 		let textTitle =  inforMail.Header;
 		let textMessage = inforMail.msg === "(no message)" ? "" : inforMail.msg;
 		
-		ReadMail.append();
+		
 		this.ui.find('.text_sender').text(textSender);
 		this.ui.find('.text_title').text(textTitle);
 		this.ui.find('.textarea_mail').val(textMessage);
 		this.ui.find('.btn_return_reply_remove').data( "mailID", inforMail.MailID );
-		addItemSub(inforMail);
+		console.log('inforMail', inforMail)
 
-// DeleteTime: 0
-// FromName: "teste2"
-// Header: "titulo 13"
-// ITID: 0
-// IsDamaged: 0
-// IsIdentified: 0
-// MailID: 15
-// Money: 0
-// RefiningLevel: 0
-// Type: 0
-// count: 0
-// msg: "corpo 13"
-// msg_len: 8
-// slot: {card1: 0, card2: 0, card3: 0, card4: 0}
+		if(inforMail.ITID != 0 || inforMail.Money != 0) {
+			addItemSub(inforMail);
+		}else{
+			this.resetItemZeny();
+		}
 	}
 
+	ReadMail.resetItemZeny = function resetItemZeny()
+	{
+		_preferences.item_add_email = {};			
+		_preferences.save();			
+		removeValueItemZeny();
+		ReadMail.ui.find(".zeny_item_infor_box" ).remove();
+	}
 
 	function addItemSub(itemMail)
 	{
-		let item = itemMail;
-		var it      = DB.getItemInfo( item.ITID );
-		var content = ReadMail.ui.find('.container_item');
-		ReadMail.ui.find(".item" ).remove();
-		content.append(
-			'<div class="item" data-index="'+ item.index +'" draggable="true">' +
-				'<div class="icon"></div>' +				
-				'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
-			'</div>'
-		);
-		ReadMail.ui.find('.hide').show();
-		Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
-			content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
-		});
+		removeValueItemZeny();
+		var zenyItemContainer = ReadMail.ui.find('.zeny_item_container');
+		if(itemMail.ITID != 0 && itemMail.count > 0){
+			let item = itemMail;
+			var it      = DB.getItemInfo( item.ITID );
+			var content = ReadMail.ui.find('.container_item');			
+			content.append(
+				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
+					'<div class="icon"></div>' +				
+					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
+				'</div>'
+			);
+			ReadMail.ui.find('.hide').show();
+			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
+				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
+			});
 
-		_preferences.item_add_email = item;
+			ReadMail.ui
+				.find('.container_item')
+					// item
+					.on('mouseover',   '.item', onItemOver)
+					.on('mouseout',    '.item', onItemOut)
+					.on('contextmenu', '.item', onItemInfo);
+		}
+
+		if(itemMail.Money > 0){			
+			ReadMail.ui.find('.input_zeny_amt').val(prettifyZeny(itemMail.Money));
+			ReadMail.ui.find('.input_zeny_amt').prop('disabled', true);
+		}
+		
+
+		ReadMail.ui.find(".zeny_item_infor_box" ).remove();				
+		zenyItemContainer.append(
+			'<div class="zeny_item_infor_box"></div>'
+		);
+		ReadMail.ui
+			.find('.zeny_item_infor')
+				.mouseover(function(){
+					ReadMail.ui.find('.zeny_item_infor_box').show();
+				})
+				.mouseout(function(){
+					ReadMail.ui.find('.zeny_item_infor_box').hide();
+				})
+
+		_preferences.item_add_email = itemMail;
 		_preferences.save();
 
-		ReadMail.ui
-			.find('.container_item')
-				// item
-				.on('mouseover',   '.item', onItemOver)
-				.on('mouseout',    '.item', onItemOut)
-				.on('contextmenu', '.item', onItemInfo);
 
-		
+		ReadMail.ui.find(".zeny_item_infor").click(function(event){
+			event.stopImmediatePropagation();
+			if(!validItemMoneyExists()){
+				let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+				getModule('UI/Components/Mail/Mail').parseMailgetattach(mailID);
+			}			
+		});
 
 	}
 
 	/**
 	 * Hide the item name
 	 */
-	function onItemOut()
+	function onItemOut(event)
 	{
-		console.log('onItemOut');
+		event.stopImmediatePropagation();
 		ReadMail.ui.find('.container_item .overlay').hide();
 	}
 
 	/**
 	 * Show item name when mouse is over
 	 */
-	function onItemOver()
+	function onItemOver(event)
 	{
+		event.stopImmediatePropagation();
 		var item = _preferences.item_add_email;
 
 		if (!item) {
@@ -207,7 +241,6 @@
 	 */
 	function onItemInfo( event )
 	{
-		console.log('onItemInfo');
 		event.stopImmediatePropagation();
 
 		var item = _preferences.item_add_email;
@@ -229,20 +262,38 @@
 		return false;
 	}
 
-	function replyMail()
+	function replyMail(event)
 	{
+		event.stopImmediatePropagation();
 		let textSender = ReadMail.ui.find('.text_sender').text();
 		getModule('UI/Components/Mail/Mail').replyNewMail(textSender);
 	}
 
-	function deleteMail()
+	function deleteMail(event)
 	{
-		let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-		getModule('UI/Components/Mail/Mail').deleteMail(mailID);
+		event.stopImmediatePropagation();
+		
+		if(validItemMoneyExists()){
+			let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+			getModule('UI/Components/Mail/Mail').deleteMail(mailID);
+		}else{
+			ChatBox.addText( DB.getMessage(1105), ChatBox.TYPE.ERROR);
+		}
 	}
 
-	function returnMail()
+	function validItemMoneyExists(){
+		let validItem = _preferences.item_add_email.count === 0 && _preferences.item_add_email.ITID === 0;
+		validItem = _preferences.item_add_email.ITID === undefined ? true : validItem;
+
+		let validMoney = _preferences.item_add_email.Money === 0;
+		validMoney = _preferences.item_add_email.Money === undefined ? true : validMoney;
+
+		return validItem && validMoney
+	}
+
+	function returnMail(event)
 	{
+		event.stopImmediatePropagation();
 		let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
 		let textSender = ReadMail.ui.find('.text_sender').text();
 		getModule('UI/Components/Mail/Mail').returnMail(mailID, textSender);
@@ -250,18 +301,18 @@
 
 	function remove()
 	{
-		 this.list.length = 0;
+		 ReadMail.list.length = 0;
 		 // Save preferences
-		 _preferences.show   =  this.ui.is(':visible');
+		 _preferences.show   =  ReadMail.ui.is(':visible');
 		 _preferences.reduce = !!_realSize;
-		 _preferences.y      =  parseInt(this.ui.css('top'), 10);
-		 _preferences.x      =  parseInt(this.ui.css('left'), 10);
-		 _preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
-		 _preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
-		 _preferences.magnet_top = this.magnet.TOP;
-		 _preferences.magnet_bottom = this.magnet.BOTTOM;
-		 _preferences.magnet_left = this.magnet.LEFT;
-		 _preferences.magnet_right = this.magnet.RIGHT;
+		 _preferences.y      =  parseInt(ReadMail.ui.css('top'), 10);
+		 _preferences.x      =  parseInt(ReadMail.ui.css('left'), 10);
+		 _preferences.width  =  Math.floor( (ReadMail.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
+		 _preferences.height =  Math.floor( (ReadMail.ui.height() - (31 + 19 - 30     )) / 32 );
+		 _preferences.magnet_top = ReadMail.magnet.TOP;
+		 _preferences.magnet_bottom = ReadMail.magnet.BOTTOM;
+		 _preferences.magnet_left = ReadMail.magnet.LEFT;
+		 _preferences.magnet_right = ReadMail.magnet.RIGHT;
 		 _preferences.save();
 	}
 
@@ -302,6 +353,34 @@
 			}
 		});
 	 }
+
+	 /**
+	 * Prettify number (15000 -> 15,000)
+	 *
+	 * @param {number}
+	 * @return {string}
+	 */
+	function prettifyZeny( value )
+	{
+		var num = String(value);
+		var i = 0, len = num.length;
+		var out = '';
+
+		while (i < len) {
+			out = num[len-i-1] + out;
+			if ((i+1) % 3 === 0 && i+1 !== len) {
+				out = ',' + out;
+			}
+			++i;
+		}
+
+		return out;
+	}
+
+	function removeValueItemZeny(){
+		ReadMail.ui.find(".item" ).remove();
+		ReadMail.ui.find(".input_zeny_amt" ).val('');
+	}
 	
 	 /**
 	 * Callbacks

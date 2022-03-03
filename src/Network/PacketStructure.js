@@ -2794,16 +2794,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	// 0x247
 	PACKET.CZ.MAIL_ADD_ITEM = function PACKET_CZ_MAIL_ADD_ITEM() {
 		this.index = 0;
-		this.count = 0; 
+		this.count = 0;
 	};
 	PACKET.CZ.MAIL_ADD_ITEM.prototype.build = function() {
-		var pkt_len = 2 + 2 + 4;
-		var pkt_buf = new BinaryWriter(pkt_len);
+		var ver = this.getPacketVersion();
+		var pkt = new BinaryWriter(ver[2]);
 
-		pkt_buf.writeShort(0x247);
-		pkt_buf.writeShort(this.index);
-		pkt_buf.writeLong(this.count);
-		return pkt_buf;
+		pkt.writeShort(ver[1]);
+		pkt.view.setInt16(ver[3], this.index, true);
+		pkt.view.setInt32(ver[4], this.count, true);
+		return pkt;
 	};
 
 

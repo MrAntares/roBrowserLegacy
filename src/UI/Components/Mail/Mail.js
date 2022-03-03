@@ -27,7 +27,7 @@
 	 var InputBox           = require('UI/Components/InputBox/InputBox');
 	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	 var Inventory			= require('UI/Components/Inventory/Inventory');
-	 var ReadMail			= require('UI/Components/ReadMail/ReadMail');
+	 var ChatBox            = require('UI/Components/ChatBox/ChatBox');
 	 var UIManager          = require('UI/UIManager');
 	 var UIComponent        = require('UI/UIComponent');
 	 var htmlText           = require('text!./Mail.html');
@@ -100,7 +100,7 @@
 	 {
 		this.ui.find('.right .close').on('click',this.onClosePressed.bind(this)).removeClass( "hover" );
 		this.ui.find('#inbox').on('click',offCreateMessagesOnWindowMailbox);  // remove all item reset layout
-		this.ui.find('#write').on('click',onWindowCreateMessages);  // remove all item reset layouts
+		this.ui.find('#write').on('click',openWindowCreateMessages);  // remove all item reset layouts
 		this.ui.find('#create_mail_cancel').on('click',offCreateMessagesOnWindowMailbox); // remove all item reset layout
 		this.ui.find('#create_mail_send').on('click',sendCreateMessagesMail); // send mail
 
@@ -449,16 +449,26 @@
 		text.removeClass('event_add_cursor');
 	}
 
-	function offCreateMessagesOnWindowMailbox()
+	function offCreateMessagesOnWindowMailbox(event)
 	{
+		event.stopImmediatePropagation();
 		onWindowMailbox();
 		// Reset mail item and/or Zeny
 		removeCreateAllItem();// CZ_MAIL_RESET_ITEM
 		
 	};
 
-	function sendCreateMessagesMail()
+	function sendCreateMessagesMail(event)
 	{
+		event.stopImmediatePropagation();
+
+		console.log('sendCreateMessagesMail',Mail.ui.find('#zeny_ok').is(':visible'));
+		if(Mail.ui.find('#zeny_ok').is(':visible'))
+		{
+			ChatBox.addText( DB.getMessage(1110), ChatBox.TYPE.ERROR);
+			return;
+		}
+
 		let to = Mail.ui.find('.text_to').val();
 		to = to.length > 50 ? title.substring(0,50) : to;
 		let title = Mail.ui.find('.input_title').val();
@@ -473,6 +483,12 @@
 			msg:			message, 
 		}
 		Mail.parseMailSend(send_message);
+	}
+
+	function openWindowCreateMessages(event)
+	{
+		event.stopImmediatePropagation();
+		onWindowCreateMessages()
 	}
 
 	 /**
@@ -497,8 +513,9 @@
 		Mail.ui.find('#title').text(DB.getMessage(1026));
 	};
 
-	function onAddZenyInput()
+	function onAddZenyInput(event)
 	{
+		event.stopImmediatePropagation();
 		Mail.ui.find('#zeny_amt').hide();
 		Mail.ui.find('#zeny_ok').show();
 		Mail.ui.find('.input_zeny_amt').prop('disabled', false);		
@@ -506,8 +523,9 @@
 		Mail.parseMailWinopen(2); // reset zeny
 	}
 	
-	function onValidZenyInput()
-	{	
+	function onValidZenyInput(event)
+	{
+		event.stopImmediatePropagation();
 		Mail.ui.find('#zeny_amt').show();
 		Mail.ui.find('#zeny_ok').hide();
 		let val_Zeny = Mail.ui.find('.input_zeny_amt').val().split(',').join('');

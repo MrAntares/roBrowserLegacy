@@ -294,6 +294,7 @@ define( ['./PacketStructure'], function( PACKET )
 		//2005-07-18aSakexe
 		20050718: [
 			[PACKET.CZ.USE_SKILL,0x0072,19,5,11,15],
+			//0x007e,110,clif_parse_UseSkillToPosMoreInfo,9,15,23,28,30
 			[PACKET.CZ.USE_SKILL_TOGROUNDMoreInfo,0x007e,110,9,15,23,28,30],
 			[PACKET.CZ.CHANGE_DIRECTION,0x0085,11,6,10],
 			[PACKET.CZ.REQUEST_TIME,0x0089,7,3],
@@ -308,6 +309,9 @@ define( ['./PacketStructure'], function( PACKET )
 			[PACKET.CZ.USE_SKILL_TOGROUND,0x0113,30,9,15,23,28],
 			[PACKET.CZ.ITEM_THROW,0x0116,12,6,10],
 			[PACKET.CZ.REQUEST_ACT,0x0190,21,5,20],
+			[PACKET.CZ.MAIL_ADD_ITEM,0x0247,8,2,4],
+
+			//parseable_packet(0x0247,8,clif_parse_Mail_setattach,2,4);
 		],
 		
 		

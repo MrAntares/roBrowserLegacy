@@ -81,8 +81,20 @@
 	}
 
 	/**
+	 * Request to receive mail's attachment
+	 * CZ_MAIL_GET_ITEM
+	 * @param {int} MailID 
+	 */
+	Mail.parseMailgetattach = function parseMailgetattach(MailID)
+	{
+		var pkt   = new PACKET.CZ.MAIL_GET_ITEM();
+		pkt.MailID = MailID;
+		Network.sendPacket( pkt );
+	}
+
+	/**
 	 * Mail inbox list request.
-	 * PACKET.CZ.MAIL_GET_LIST
+	 * CZ_MAIL_GET_LIST
 	 */
 	Mail.parseMailrefreshinbox = function parseMailrefreshinbox()
 	{
@@ -279,6 +291,18 @@
 		}
 	}
 
+	/**
+	 * Notification about the result of returning a mail
+	 * ZC_MAIL_REQ_GET_ITEM
+	 * @param {int} result
+	 */
+	function mailGetItem( result )
+	{
+		if(!result.Result || result.Result==2){
+			ReadMail.resetItemZeny();
+		}
+	}	
+
     /**
 	 * Initialize
 	 */
@@ -291,7 +315,8 @@
 		Network.hookPacket( PACKET.ZC.MAIL_RECEIVE,      		mailNew);
 		Network.hookPacket( PACKET.ZC.MAIL_REQ_OPEN,      		mailReqOpen);
 		Network.hookPacket( PACKET.ZC.ACK_MAIL_DELETE,      	mailDelete);
-		Network.hookPacket( PACKET.ZC.ACK_MAIL_RETURN,      	mailReturn);		
+		Network.hookPacket( PACKET.ZC.ACK_MAIL_RETURN,      	mailReturn);
+		Network.hookPacket( PACKET.ZC.MAIL_REQ_GET_ITEM,      	mailGetItem);
 	};
 
  });

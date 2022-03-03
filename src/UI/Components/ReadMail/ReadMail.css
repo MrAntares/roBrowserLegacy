@@ -112,11 +112,21 @@
     width: 48%;
     height: 53%;
     top: 9px;
+    left: 120px;
+    position: absolute;
+    flex: 1;
+    margin-left: 5%;
+    display: flex;
+}
+#ReadMail .zeny_item_infor_box{
+    border: 2px solid #f1e2cf;
+    width: 48%;
+    height: 53%;
+    top: 9px;
     left: 130px;
     position: absolute;
-}
-#ReadMail .zeny_item_infor:hover{
-    border: 2px solid #f1e2cf;
+    display: none;
+    pointer-events: none;
 }
 
 #ReadMail .read_mail_btn{
@@ -134,10 +144,8 @@
 #ReadMail .body .left { margin-left:25px; float:left; }
 #ReadMail .body .right { float:right; margin-right:3px;}
 #ReadMail .body .clear { clear:both; }
-
-
 #ReadMail .block_item{
-    margin-left: 81%;
+    margin-left: 30%;
 }
 #ReadMail .container_item {
     float: left;
@@ -153,3 +161,23 @@
 #ReadMail .container_item .item { display:block; width:24px; height:24px; position:relative; float:left; }
 #ReadMail .container_item .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #ReadMail .container_item .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
+
+#ReadMail .block_zeny_item{
+    flex: 1;
+    margin-top: 4%;
+    margin-left: 5%;
+    display: flex;
+}
+
+#ReadMail .input_zeny_amt{
+    background-color: #00800000;
+    border: none;
+    height: 13px;
+    width: 64px;
+    font-size: 12px;
+    margin-top: 21%;
+}
+#Mail .block_zeny{
+    margin-top: 4%;
+    margin-left: 1%;
+}
