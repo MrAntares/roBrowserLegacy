@@ -76,7 +76,7 @@
 		// Bind buttons
 		ReadMail.ui.find('.right .close').click(function(event){
 			event.stopImmediatePropagation();
-			remove();
+			ReadMail.remove();
 		});
 		ReadMail.ui.find('#read_mail_del').click(deleteMail);
 		ReadMail.ui.find('#read_mail_remail').click(replyMail);
