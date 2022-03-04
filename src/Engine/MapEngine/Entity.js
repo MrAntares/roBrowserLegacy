@@ -814,6 +814,12 @@ define(function( require )
 				}
 			}
 			
+			if (pkt.SKID === SkillId.TK_SEVENWIND) {
+				if(pkt.level){
+					EffectManager.spam(466 + pkt.level, dstEntity.GID, null, null, srcEntity.GID);
+				}
+			}
+			
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 			
 			if (pkt.result == 1){
