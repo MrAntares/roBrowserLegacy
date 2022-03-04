@@ -170,7 +170,22 @@ define(function( require )
 		// granny model not supported yet :(
 		// Display a poring instead
 		if (path === null || path.match(/\.gr2$/i)) {
-			path = DB.getBodyPath( 1002, this._sex );
+			
+			if(path.match(/aguardian90_8\.gr2$/i)){
+				path = DB.getBodyPath( 1276, this._sex );
+			} else if(path.match(/empelium90_0\.gr2$/i)){
+				path = DB.getBodyPath( 2080, this._sex );
+			} else if(path.match(/guildflag90_1\.gr2$/i)){
+				path = DB.getBodyPath( 1911, this._sex );
+			} else if(path.match(/kguardian90_7\.gr2$/i)){
+				path = DB.getBodyPath( 2691, this._sex );
+			} else if(path.match(/sguardian90_9\.gr2$/i)){
+				path = DB.getBodyPath( 1163, this._sex );
+			} else if(path.match(/treasurebox_2\.gr2$/i)){
+				path = DB.getBodyPath( 1191, this._sex );
+			} else {
+				path = DB.getBodyPath( 1002, this._sex );
+			}
 		}
 
 		// Loading
