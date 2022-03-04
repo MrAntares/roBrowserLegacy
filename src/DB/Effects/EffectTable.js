@@ -5166,19 +5166,37 @@ define(function( require )
         //540: [{}],    //EF_BABYBODY_BACK       Instant Small->Normal
         //541: [{}],    //EF_THROWITEM5       (Nothing)
         //542: [{}],    //EF_BLUEBODY       KA-Spell (1st Part)
-        //543: [{}],    //EF_HATED       Kahii
+		
+        543: [{    //EF_HATED       Kahii
+			wav: 'effect/t_\xba\xb8\xc1\xb6\xb8\xb6\xb9\xfd'
+		}],
+		
         //544: [{}],    //EF_REDLIGHTBODY       Warmth Red Sprite
         //545: [{}],    //EF_RO2YEAR       Sound And... PUFF Client Crash :P
         //546: [{}],    //EF_SMA_READY       Kaupe
-        //547: [{}],    //EF_STIN       Estin
+		
+        547: [{    //EF_STIN       Estin
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
+		}],
+		
         //548: [{}],    //EF_RED_HIT       Instant Red Sprite
         //549: [{}],    //EF_BLUE_HIT       Instant Blue Sprite
         //550: [{}],    //EF_QUAKEBODY3       Another Effect like Running Hit
         //551: [{}],    //EF_SMA       Effect Like Estun but with Circle
         //552: [{}],    //EF_SMA2       (Nothing)
-        //553: [{}],    //EF_STIN2       Esma
+		
+        553: [{    //EF_STIN2       Esma
+			duplicate: 5,
+			timeBetweenDupli: 200,
+			wav: 'effect/t_\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2'
+		}],
+		
         //554: [{}],    //EF_HITTEXTURE       Large White Cloud
-        //555: [{}],    //EF_STIN3       Estun
+		
+        555: [{    //EF_STIN3       Estun
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
+		}],
+		
         //556: [{}],    //EF_SMA3       (Nothing)
         //557: [{}],    //EF_BLUEFALL       Juperos Energy Waterfall (Horizontal)
         //558: [{}],    //EF_BLUEFALL_90       Juperos Energy Waterfall (Vertical)
@@ -5330,10 +5348,14 @@ define(function( require )
         589: [{    //EF_M07    Eswoo
             type: 'SPR',
             file: 'm_ef07',
+			wav: 'effect/t_\xba\xb8\xc1\xb6\xb8\xb6\xb9\xfd',
             attachedEntity: true
         }],
 
-        //590: [{}],    //EF_KAIZEL       Running Stop
+        590: [{//EF_KAIZEL       Running Stop //Conflicting info, will use it as Kaizel
+            wav:  'effect/priest_resurrection'
+		}],
+		
         //591: [{}],    //EF_KAAHI       (Nothing)
         //592: [{}],    //EF_CLOUD6       Thanatos Tower Bloody Clouds
 
