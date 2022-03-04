@@ -406,7 +406,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.TK_COUNTER]                     = {effectId: 415};		//Counter Kick
 	SkillEffect[SK.TK_DODGE]                       = {};		//Tumbling
 	SkillEffect[SK.TK_JUMPKICK]                    = {effectId: 439, hitEffectId: 457};		//Flying Kick
-	SkillEffect[SK.TK_SEVENWIND]                   = {/* 467 - 473 */};		//Mild Wind
+	SkillEffect[SK.TK_SEVENWIND]                   = {/* 467 - 473 is done by entity */};		//Mild Wind
 	SkillEffect[SK.TK_HIGHJUMP]                    = {groundEffectId: 411, effectIdOnCaster: 445 /*down 446*/};		//Taekwon Jump
 	// Star Gladiator
 	SkillEffect[SK.SG_FEEL]                        = {effectId: 432};		//Feeling the Sun Moon and Stars
@@ -439,7 +439,7 @@ define(['./SkillConst'], function( SK )
 	// Soul Linker
 	SkillEffect[SK.SL_HUNTER]                      = {};		//Spirit of the Hunter
 	SkillEffect[SK.SL_SOULLINKER]                  = {};		//Spirit of the Soul Linker
-	SkillEffect[SK.SL_KAIZEL]                      = {};		//Kaizel
+	SkillEffect[SK.SL_KAIZEL]                      = {effectId: 590};		//Kaizel
 	SkillEffect[SK.SL_KAAHI]                       = {effectId: 543};		//Kaahi
 	SkillEffect[SK.SL_KAUPE]                       = {effectId: 546};		//Kaupe
 	SkillEffect[SK.SL_KAITE]                       = {effectId: 419};		//Kaite
