@@ -279,10 +279,20 @@ define(function(require)
 			}
 		}
 
+
+		function add3Dots(string, limit) {
+			var dots = "...";
+			if (string.length > limit) {
+				string = string.substring(0,limit) + dots;
+			}
+		
+			return string;
+		}
+
 		this.ui.find(getSelectorFromLocation(location)).html(
 			'<div class="item" data-index="'+ item.index +'">' +
 				'<button></button>' +
-				'<span class="itemName">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
+				'<span class="itemName">' + add3Dots(jQuery.escape(DB.getItemName(item)), 19) + '</span>' +
 			'</div>'
 		);
 
