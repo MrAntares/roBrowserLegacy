@@ -132,6 +132,16 @@
 				.on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo);
 
+		
+		// Validate information dragged into text field
+		this.ui.find('input[type=text]')
+				.on('drop', onDropText)
+				.on('dragover', stopPropagation)
+	
+		this.ui.find('textarea')
+				.on('drop', onDropText)
+				.on('dragover', stopPropagation)
+
 		this.ui.find('#zeny_amt').on('click',onAddZenyInput);
 		this.ui.find('#zeny_ok').on('click',onValidZenyInput);
 
@@ -792,6 +802,30 @@
 		// Layout reset zeny / item
 		Mail.clearFieldsItemZeny();
 	}
+
+
+	/**
+	 * Validate the type of information being dropped into the text field
+	 */
+	 function onDropText( event )
+	 {
+		 event.stopImmediatePropagation(); 
+		 var data;
+		 try {
+			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		 }
+		 catch(e) {
+			 return false;
+		 }
+		 
+		 // Valid if the message type
+		 if (data.type == 'item') {
+			 return false;
+		 }
+
+		 jQuery(event.currentTarget).val(data);
+		 return false;
+	 }
 
 	 /**
 	  * Extend Mail window size
