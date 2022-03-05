@@ -211,18 +211,24 @@ define(function( require )
 			return URL.createObjectURL(new Blob([data], {type: 'image/png'}));
 		}
 
-		// Add CSS rule for button
+		// Add default CSS rule with cursor
 		var action = _action.actions[Cursor.ACTION.CLICK];
 		var hover  = generateImage(action.animations[0].layers[0].index);
 		var down   = generateImage(action.animations[1].layers[0].index);
+		var action_text = _action.actions[Cursor.ACTION.DEFAULT];
+		var hover_text  = generateImage(action_text.animations[0].layers[0].index);
 
 		// Append CSS to head
 		jQuery('head').append([
 			'<style type="text/css">',
 				'button { cursor: url(' + hover + '), auto; }',
 				'button:active { cursor: url(' + down + '), auto; }',
+				// add event de click
 				'.event_add_cursor { cursor: url(' + hover + '), auto; }',
 				'.event_add_cursor:active { cursor: url(' + down + '), auto; }',
+				// add default cursor for text field
+				'input[type=text] { cursor: url(' + hover_text + '), auto; }',
+				'textarea { cursor: url(' + hover_text + '), auto; }',
 			'</style>'
 		].join('\n'));
 	}

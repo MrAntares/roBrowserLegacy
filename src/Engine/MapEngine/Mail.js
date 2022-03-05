@@ -20,7 +20,7 @@
 	var Network              = require('Network/NetworkManager');
 	var PACKET               = require('Network/PacketStructure');
 	var Mail       			 = require('UI/Components/Mail/Mail');
-	var ReadMail       	     = require('UI/Components/ReadMail/ReadMail');
+	var ReadMail       	     = require('UI/Components/Mail/ReadMail');
 
 
 	/**

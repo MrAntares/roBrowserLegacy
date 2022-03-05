@@ -166,7 +166,7 @@ define(function(require)
 				}
 			}.bind(this), 1);
 		}.bind(this));
-		
+
 		this.ui.find('.input .username').blur(function(){
 			Events.setTimeout(function(){
 				if (!document.activeElement.tagName.match(/input|select|textarea/i)) {
@@ -174,6 +174,11 @@ define(function(require)
 				}
 			}.bind(this), 1);
 		}.bind(this));
+
+		// Validate information dragged into text field
+		this.ui.find('input[type=text]')
+			.on('drop', onDropText)
+			.on('dragover', stopPropagation)
 
 		// Button change name
 		this.ui.find('.header input').dblclick(function(){
@@ -625,6 +630,39 @@ define(function(require)
 		this.scrollTop = Math.floor(this.scrollTop/14) * 14 - (delta * 14);
 		return false;
 	}
+
+	/**
+	 * Validate the type of information being dropped into the text field
+	 */
+	 function onDropText( event )
+	 {
+		 event.stopImmediatePropagation(); 
+		 var data;
+		 try {
+			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		 }
+		 catch(e) {
+			 return false;
+		 }
+		 
+		 // Valid if the message type
+		 if (data.type == 'item') {
+			 return false;
+		 }
+		 
+		 jQuery(event.currentTarget).val(data);
+		 return true;
+	 }
+
+	/**
+	 * Stop event propagation
+	 */
+	 function stopPropagation( event )
+	 {
+		 event.stopImmediatePropagation();
+		 return false;
+	 }
+ 
 
 
 	/**

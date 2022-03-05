@@ -22,7 +22,6 @@
     height: 16px;
 }
 
-
 #ReadMail .container {
     width: 298px;
     height: 385px;
@@ -32,191 +31,122 @@
 	display: flex;
 }
 
-#ReadMail .list_item_mail {
-    width: 279px;
-    height: 358px;
+#ReadMail .flex_grid {
+	display: grid;
 }
 
-#ReadMail .flex_block {
-	display: block;
+#ReadMail .text_title{
+    color: #a5978c;
+    font-size: 10px;
+    font-weight: 600;
 }
-
-#ReadMail .list_mail {
-    flex: 14;
+#ReadMail .text_sender{
+    color: #d8b091;
+    font-size: 10px;
 }
-
-#ReadMail .prev_next {
-    color: #e4baa8;
-    font-size: 11px;
-}
-
-#ReadMail .prev {
+#ReadMail .title{
     flex: 1;
-    text-align: right;
-}
-
-#ReadMail .next {
-    flex: 1;
-    margin-left: 5%;
-}
-
-#ReadMail .pagination {
-    text-align: end;
-}
-
-#ReadMail .btn_iw{
-    height: 371px;
-    margin-left: 4px;
-}
-
-#ReadMail .inbox {
-    height: 16%;
-}
-
-#ReadMail .write {
-    height: 16%;
-}
-
-#ReadMail .block_mail {
-    margin: 2% 1% 0% 2%;
-}
-
-#ReadMail .item_mail {
-    width: 268px;
-    height: 51px;
     display: flex;
+    align-items: end;
+    justify-content: center;
+    grid-column-start: 1;
+    grid-column-end: span col4-start;
+    grid-row-end: span 2;
+}
+#ReadMail .name_sender{
+    flex: 1;
+    display: flex;
+    align-items: end;
+    justify-content: right;
+    grid-column-start: 1;
+    grid-column-end: span col4-start;
+}
+#ReadMail .name_sender div{
+    margin-right: 5%;
 }
 
-#ReadMail .btn_envelop{
-    width: 16px;
-    height: 11px;
-    background-repeat: no-repeat;
-    border: none;
-    background-color: transparent;
-    margin-top: 24%;
-    margin-left: 18%;
-}
-
-#ReadMail .to_title {
-    width: 100%;
-    height: 52px;
-    background-repeat: repeat-x;
-    background-color: transparent;
-    display: grid;
-    font-size: 12px;
-}
-#ReadMail .to_title button {
-    float: left;
-    border: none;
-    background: none;
-    width: 26px;
-    height: 20px;
-    position: relative;
+#ReadMail .mail_body{
     flex: 1;
 }
 
-#ReadMail .block_create_mail {
-    display: block;
-    margin: 2% 1% 0% 2%;
-}
-#ReadMail .add_zeny{
-    width: 51px;
-    height: 21px;
-    border: none;
-    margin-left: 16%;
-    margin-top: 3%;
-}
-#zeny_ok {
-    display: none;
-    width: 43px !important;
-    margin-left: 19% !important;
-}
-#ReadMail .create_mail_btn{
-    width: 43px;
-    height: 21px;
-    border: none;
-}
-#ReadMail .to_create_mail{
-    flex: 1;
-    margin-top: 8%;
-    margin-left: 7%;
-    display: flex;
-}
-#ReadMail .title_create_mail{
-    flex: 1;
-    margin-top: 6%;
-    margin-left: 7%;
-    display: flex;
-}
-#ReadMail .text_to_title{
-    flex: 1;
-    color: #cd9b77;
-    font-size: 12px;
-    text-align:center;
-}
-#ReadMail .text_to{
-    background-color: #00800000;
-    border: none;
-    height: 14px;
-    padding: initial;
-    width: 105px;
-}
-#ReadMail .text_title_create_mail{
-    flex: 1;
-    color: #cd9b77;
-    font-size: 12px;
-    text-align:center;
-}
-#ReadMail .input_title{
-    background-color: #00800000;
-    border: none;
-    height: 14px;
-    padding: initial;
-    width: 164px;
-}
-#ReadMail .email_body{
-    flex: 1;
-    margin-top: 5%;
-    margin-left: 5%;
-    display: flex;
-}
 #ReadMail .textarea_mail{
     resize: none;
     background-color: #00800000;
     border: none;
-    height: 226px;
+    height: 205px;
     padding: initial;
-    width: 243px;
+    width: 264px;
     overflow: hidden;
+    margin-top: 5%;
+    margin-left: 7%;
+    color: #a37162;
 }
 
-#ReadMail .block_zeny_item{
+#ReadMail .zeny_item{
     flex: 1;
-    margin-top: 4%;
+    grid-column-start: 1;
+    grid-column-end: span col4-start;
+    grid-row-end: span 4;
+    display: flex;
+}
+#ReadMail .btn_return_reply_remove{
+    flex: 1;
+    grid-column-start: 1;
+    grid-column-end: span col4-start;
+    grid-row-end: span 2;
+    display: flex;
+    justify-content: end;
+}
+#ReadMail .container_return_reply_remove{
+    flex: 1;
+    margin-right: 8%;
+    text-align: right;
+    position: absolute;
+}
+
+#ReadMail .zeny_item_container{
+    flex: 1;
+    position: relative;
+}
+#ReadMail .zeny_item_infor{
+    width: 48%;
+    height: 53%;
+    top: 9px;
+    left: 120px;
+    position: absolute;
+    flex: 1;
     margin-left: 5%;
     display: flex;
 }
-#ReadMail .block_zeny{
-    margin-top: 4%;
-    margin-left: 1%;
-}
-#ReadMail .block_item{
-    margin-left: 18%;
-}
-#ReadMail .input_zeny_amt{
-    background-color: #00800000;
-    border: none;
-    height: 13px;
-    width: 64px;
-    font-size: 12px;
-}
-#ReadMail .input_add_item{
-    background-color: #00800000;
-    border: none;
-    height: 24px;
-    width: 24px;
+#ReadMail .zeny_item_infor_box{
+    border: 2px solid #f1e2cf;
+    width: 48%;
+    height: 53%;
+    top: 9px;
+    left: 130px;
+    position: absolute;
+    display: none;
+    pointer-events: none;
 }
 
+#ReadMail .read_mail_btn{
+    width: 43px;
+    height: 21px;
+    border: none;
+}
+#ReadMail .body .text {     /* text-shadow: 1px 1px white; */
+    vertical-align: -2px;
+    white-space: nowrap;
+    display: inline-block;
+    width: 32px;
+    height: 13px;
+}
+#ReadMail .body .left { margin-left:25px; float:left; }
+#ReadMail .body .right { float:right; margin-right:3px;}
+#ReadMail .body .clear { clear:both; }
+#ReadMail .block_item{
+    margin-left: 30%;
+}
 #ReadMail .container_item {
     float: left;
     width: 24px;
@@ -225,81 +155,29 @@
     margin-left: 2px;
     margin-bottom: 6px;
 }
-
-#ReadMail .block_send_cancel{
-    flex: 1;
-    margin-top: 4%;
-    margin-right: 8%;
-    text-align: right;
-}
-
-#ReadMail .to_title button .overlay { position:absolute; display:none; top:-20px; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black; }
-#ReadMail .to_title button:hover .overlay { display:block; }
-
-#ReadMail .tooltip {
-    position: relative;
-    display: inline-block;
-    color: #a37162;
-}
-
-#ReadMail .name_data {
-    color: #cd9b77;
-    margin-top: 15%;
-    position: relative;
-    display: inline-block;
-}
-
-#ReadMail .tooltip .tooltiptext {
-    visibility: hidden;
-    position: absolute;
-    bottom: 100%;
-    white-space: nowrap;
-    z-index: 900;
-    height: 13px;
-    padding: 5px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    text-shadow: 1px 1px black;
-    position: absolute;
-    float: left;
-    left: 0px;
-    pointer-events: none;
-}
-
-#ReadMail .tooltip .to{
-}
-
-#ReadMail .tooltip .title{
-}
-
-#ReadMail .tooltip:hover .tooltiptext {
-    visibility: visible;
-}
-
-#ReadMail .date_mail{
-    background-repeat: repeat-x;
-    background-color: transparent;
-    display: grid;
-    font-size: 10px;
-    align-items: center;
-}
+#ReadMail .container_item .overlay {  pointer-events:none; position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
+#ReadMail .container_item .overlay.grey {  pointer-events:none; color:#aaa; }
 
 #ReadMail .container_item .item { display:block; width:24px; height:24px; position:relative; float:left; }
 #ReadMail .container_item .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #ReadMail .container_item .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
-#ReadMail .container_item .overlay { position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;
-    
+
+#ReadMail .block_zeny_item{
+    flex: 1;
+    margin-top: 4%;
+    margin-left: 5%;
+    display: flex;
 }
-#ReadMail .container_item .overlay.grey { color:#aaa; }
 
-
-#ReadMail .body .text {     /* text-shadow: 1px 1px white; */
-    vertical-align: -2px;
-    white-space: nowrap;
-    display: inline-block;
-    width: 32px;
-    height: 13px;}
-
-#ReadMail .body .left { margin-left:25px; float:left; }
-#ReadMail .body .right { float:right; margin-right:3px;}
-#ReadMail .body .clear { clear:both; }
+#ReadMail .input_zeny_amt{
+    background-color: #00800000;
+    border: none;
+    height: 13px;
+    width: 64px;
+    font-size: 12px;
+    margin-top: 21%;
+}
+#Mail .block_zeny{
+    margin-top: 4%;
+    margin-left: 1%;
+}

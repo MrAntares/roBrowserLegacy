@@ -101,6 +101,10 @@
 			jQuery(this).select();
 		});
 
+		this.ui.find('input[type=text]')
+			.on('drop', onDropText)
+			.on('dragover', stopPropagation);
+
 		addValuesAlt(this)
 		loadValuesAlt()
 
@@ -292,7 +296,39 @@
 			_ALT_INIT.save();			
 		});
 	 }
-	
+
+	 /**
+	 * Validate the type of information being dropped into the text field
+	 */
+	  function onDropText( event )
+	  {
+		  event.stopImmediatePropagation(); 
+		  var data;
+		  try {
+			 data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		  }
+		  catch(e) {
+			  return false;
+		  }
+		  
+		  // Valid if the message type
+		  if (data.type == 'item') {
+			  return false;
+		  }
+ 
+		  jQuery(event.currentTarget).val(data);
+		  return false;
+	  }
+
+		/**
+		 * Stop event propagation
+		*/
+		function stopPropagation( event )
+		{
+			event.stopImmediatePropagation();
+			return false;
+		}
+
 
 	 /**
 	  * Create component and export it
