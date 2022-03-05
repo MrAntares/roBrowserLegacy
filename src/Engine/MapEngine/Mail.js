@@ -171,6 +171,7 @@
 	 */
 	function mailReqOpen( inforMail )
 	{
+		Mail.parseMailrefreshinbox();
 		ReadMail.openEmail(inforMail);
 	};
 	
@@ -249,6 +250,8 @@
 	{
 		if(result.Result){
 			ChatBox.addText( DB.getMessage(1032), ChatBox.TYPE.ERROR);
+			// clear zeny and item field
+			Mail.clearFieldsItemZeny();
 		}else{
 			ChatBox.addText( DB.getMessage(1031), ChatBox.TYPE.INFO_MAIL);
 			ReadMail.remove();
@@ -298,8 +301,9 @@
 	 */
 	function mailGetItem( result )
 	{
-		if(!result.Result || result.Result==2){
+		if( !result.Result || result.Result == 2 ){
 			ReadMail.resetItemZeny();
+			Mail.parseMailrefreshinbox();
 		}
 	}	
 

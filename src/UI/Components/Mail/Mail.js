@@ -312,6 +312,13 @@
 		Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '').replace(' ', ''));
 	}
 
+	Mail.clearFieldsItemZeny = function clearFieldsItemZeny()
+	{
+		this.ui.find(".item" ).remove();
+		this.ui.find(".input_zeny_amt" ).val('');
+		this.ui.find('#create_mail_send').prop('disabled', false);
+	}
+
 	 /**
 	 * Create messages window size
 	 */
@@ -562,6 +569,7 @@
 	 */
 	function onDrop( event )
 	{
+		Mail.parseMailWinopen(1); // remove item
 		var item, data;
 		event.stopImmediatePropagation();
 
@@ -782,8 +790,7 @@
 	{
 		Mail.parseMailWinopen(0);
 		// Layout reset zeny / item
-		Mail.ui.find(".item" ).remove();
-		Mail.ui.find(".input_zeny_amt" ).val('');
+		Mail.clearFieldsItemZeny();
 	}
 
 	 /**
