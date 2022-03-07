@@ -2302,7 +2302,7 @@ define(function( require )
         110: [{    //EF_GASPUSH    Trap Used by Giearth
             type: 'STR',
             file: 'gaspush',
-            wav:  'effect/se_gas_pushhh',
+            //wav:  'se_gas_pushhh', // the anthell map already has the sounds placed, no need to add it to the effect as well
             attachedEntity: false
         }],
 
@@ -4657,9 +4657,123 @@ define(function( require )
         }],
 
         //408: [{}],    //EF_BABY       Mom, Dad, I love you! (Baby Skill)
+		
         409: [{    //EF_SOULBREAKER2       Meteor Assault
 			wav: 'effect/\xb8\xde\xc5\xd7\xbf\xc0\x20\xbe\xee\xbd\xe4\xc6\xae'
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: -1,
+			posxEnd: -5,
+			posyStart: 0,
+			posyEnd: 0,
+			angle: 0
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: -0.7,
+			posxEnd: -3.53,
+			posyStart: -0.7,
+			posyEnd: -3.53,
+			angle: -45
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0,
+			posxEnd: 0,
+			posyStart: -1,
+			posyEnd: -5,
+			angle: -90
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0.7,
+			posxEnd: 3.53,
+			posyStart: -0.7,
+			posyEnd: -3.53,
+			angle: -135
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 1,
+			posxEnd: 5,
+			posyStart: 0,
+			posyEnd: 0,
+			angle: -180
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0.7,
+			posxEnd: 3.53,
+			posyStart: 0.7,
+			posyEnd: 3.53,
+			angle: -225
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0,
+			posxEnd: 0,
+			posyStart: 1,
+			posyEnd: 5,
+			angle: -270
+		}, {
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			delay: 1000,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: -0.7,
+			posxEnd: -3.53,
+			posyStart: 0.7,
+			posyEnd: 3.53,
+			angle: -315
 		}],
+		
         //410: [{}],    //EF_RAINBOW       Rainbow
         //411: [{}],    //EF_PEONG       Leap
         //412: [{}],    //EF_TANJI2       Like Throw Spirit Sphere
