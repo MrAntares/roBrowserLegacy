@@ -388,7 +388,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.PF_FOGWALL]                     = {groundEffectId: '405_ground'};		//Blinding Mist
 	SkillEffect[SK.PF_SPIDERWEB]                   = {groundEffectId: 404};		//Fiber Lock
 	// Assassin Cross
-	SkillEffect[SK.ASC_METEORASSAULT]              = {effectId: 409};		//Meteor Assault
+	SkillEffect[SK.ASC_METEORASSAULT]              = {effectIdOnCaster: 409};		//Meteor Assault
 	SkillEffect[SK.ASC_CDP]                        = {};		//Create Deadly Poison
 	// Marriage Skills for Baby
 	SkillEffect[SK.WE_BABY]                        = {effectId: 408};		//Baby
@@ -527,7 +527,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_DARKNESSBREATH]             = {};		//Darkness Breath
 	SkillEffect[SK.NPC_DRAGONFEAR]                 = {effectId: 668};		//Dragon Fear
 	SkillEffect[SK.NPC_BLEEDING]                   = {};		//Bleeding
-	SkillEffect[SK.NPC_PULSESTRIKE]                = {};		//Pulse Strike
+	SkillEffect[SK.NPC_PULSESTRIKE]                = {effectIdOnCaster: 409};		//Pulse Strike
 	SkillEffect[SK.NPC_HELLJUDGEMENT]              = {};		//Hell's Judgement
 	SkillEffect[SK.NPC_WIDESILENCE]                = {};		//Wide Silence
 	SkillEffect[SK.NPC_WIDEFREEZE]                 = {effectIdOnCaster: 89};		//Wide Freeze
