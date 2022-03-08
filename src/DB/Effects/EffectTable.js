@@ -4467,7 +4467,33 @@ define(function( require )
         //364: [{}],    //EF_VALLENTINE2       Valentine Day Heart
 		
         365: [{    //EF_PRESSURE       Gloria Domini
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			rotate: true,
+            angle: 0,
+			toAngle: -630,
+			poszStart: 20,
+			poszEnd: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/cross_old.bmp',
 			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			delayOffset: 501,
+			fadeOut: true,
+            angle: -630,
+			posz: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/cross_old.bmp'
 		}],
 		
         //366: [{}],    //EF_BASH3D       Martyr's Reckoning
@@ -8114,7 +8140,7 @@ define(function( require )
 			poszEnd: 5,
 			size: 100,
 			zIndex: 1,
-			file: 'effect/cross_old.bmp',
+			file: 'effect/cross1.bmp',
 			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
 		}, {
 			type: '3D',
@@ -8128,7 +8154,7 @@ define(function( require )
 			posz: 5,
 			size: 100,
 			zIndex: 1,
-			file: 'effect/cross_old.bmp'
+			file: 'effect/cross1.bmp'
 		}],
 		
         //931: [{}],    //EF_LINKPARTICLE2       (Nothing)
