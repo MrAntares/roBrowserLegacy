@@ -24,11 +24,19 @@ define(function(require)
 	var UIManager          = require('UI/UIManager');
 	var Mouse              = require('Controls/MouseEventHandler');
 	var UIComponent        = require('UI/UIComponent');
+	var MakeReadBook       = require('UI/Components/MakeReadBook/MakeReadBook');
+
+	var Renderer           = require('Renderer/Renderer');
+	var SpriteRenderer     = require('Renderer/SpriteRenderer');
+	var Sprite             = require('Loaders/Sprite');
+	var Action             = require('Loaders/Action');
+	
+
 	var htmlText           = require('text!./ItemInfo.html');
 	var cssText            = require('text!./ItemInfo.css');	
 	var Network       	   = require('Network/NetworkManager');
 	var PACKET        	   = require('Network/PacketStructure');
-	// DB.getMessage(95)
+	var getModule     = require;
 
 
 	/**
@@ -36,6 +44,25 @@ define(function(require)
 	 */
 	var ItemInfo = new UIComponent( 'ItemInfo', htmlText, cssText );
 
+	/**
+	 * @var {Sprite,Action} objects
+	 */
+	var _sprite, _action;
+
+	/**
+	 * @var {CanvasRenderingContext2D}
+	 */
+	 var _ctx;
+
+	/**
+	 * @var {number} type
+	 */
+	 var _type = 0;
+
+	 /**
+	 * @var {number} start tick
+	 */
+	var _start = 0;
 
 	/**
 	 * @var {number} ItemInfo unique id
@@ -180,15 +207,17 @@ define(function(require)
 		
 		ui.find('.title').text( item.IsIdentified ? identifiedDisplayName: it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
-
+		
 		// Add view button (for cards)
-		if (item.type === ItemType.CARD) {
-			ui.find('.view').show();
-		}
-		else {
-			ui.find('.view').hide();
-		}
+		addEvent(item);
 
+		// if (item.type === ItemType.CARD) {
+		// 	ui.find('.view').show();
+		// }
+		// else {
+		// 	ui.find('.view').hide();
+		// }
+		
 		switch (item.type) {
 			// Not an equipement = no card
 			default:
@@ -341,6 +370,140 @@ define(function(require)
 		delete DB.UpdateOwnerName.ItemInfo;
 	}
 	
+
+	function addEvent(item){
+		var event = ItemInfo.ui.find('.event_view');
+		if(event.length === 0){
+			let validExitElement = 
+				'<div class="event_view">' +
+            		'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'+
+        		'</div>';
+			ItemInfo.ui.find('.collection').after(validExitElement);
+			addEvent(item)
+			return;
+		}
+
+		event.find('.view').hide();
+		event.find('canvas').remove();
+		
+		Renderer.stop(rendering)
+
+		switch (item.type) {
+			case ItemType.CARD:
+				event.find('.view').show();
+				break;
+			case ItemType.ETC:
+				let filenameBook =  `data/book/${item.ITID}.txt`;
+				// ui.find('.view').show();
+				console.log('setItem',filenameBook)
+				Client.loadFile( filenameBook, function(data) {
+					// console.log('setItem-Client.loadFile', data);
+					eventsBooks();
+				});
+				break;
+			default:
+				event.remove();
+				break;
+		}
+	}
+
+	function eventsBooks(){
+		var event = ItemInfo.ui.find('.event_view');
+		Client.getFiles([
+			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr',
+			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'
+			], function (spr, act) {
+
+				try {
+					_sprite = new Sprite( spr );
+					_action = new Action( act );
+				}
+				catch(e) {
+					console.error('Book::init() - ' + e.message );
+					return;
+				}
+				var canvas;
+				canvas  = _sprite.getCanvasFromFrame( 0 );
+				canvas.className = 'book_open event_add_cursor';
+				event.append(canvas);
+				var bookOpen = ItemInfo.ui.find('.book_open');
+				bookOpen.mouseover(function(e) {
+					e.stopImmediatePropagation();
+					ItemInfo.ui.find('.overlay_open').show();
+				}).mouseout(function(e) {
+					e.stopImmediatePropagation();
+					ItemInfo.ui.find('.overlay_open').hide();
+				});
+				bookOpen.click(function(e){
+					console.log('bookOpen', e);
+				}.bind(this));
+				// icon read book
+				event.append( '<canvas width="21" height="15" class="book_read event_add_cursor"/>' );
+				canvas  			 = event.find('.book_read');
+				canvas.width         = 21;
+				canvas.height        = 15;
+				_ctx 				 = canvas[0].getContext('2d');
+
+				var bookRead = ItemInfo.ui.find('.book_read');
+				bookRead.mouseover(function(e) {
+					e.stopImmediatePropagation();
+					ItemInfo.ui.find('.overlay_read').show();
+				}).mouseout(function(e) {
+					e.stopImmediatePropagation();
+					ItemInfo.ui.find('.overlay_read').hide();
+				});
+				bookRead.click(function(){
+					
+				}.bind(this));
+				Renderer.render(rendering);
+
+			}.bind(this)
+		);
+	}
+
+
+	/**
+	 * Rendering animation
+	 */
+	 var rendering = function renderingClosure()
+	 {
+		 var position  = new Uint16Array([0, 0]);
+ 
+		 return function rendering()
+		 {
+			var i, count, max;
+			var action, animation, anim;
+			var Entity = getModule('Renderer/Entity/Entity');
+			
+			var _entity = new Entity();
+			action = _action.actions[_type];
+					max    = action.animations.length;
+					anim   = Renderer.tick - _start;
+					anim   = Math.floor(anim / action.delay);
+
+					// if (anim >= max) {
+					// 	Renderer.stop(rendering);
+					// }
+			
+			animation = action.animations[anim % action.animations.length];
+			
+
+			// Initialize context
+			SpriteRenderer.bind2DContext(_ctx,  10, 25);
+			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+			// _ctx.clearRect(0, 0, 21, 15);
+ 
+			// Render layers
+			// debugger;
+			for (i = 0, count = animation.layers.length; i < count; ++i) {
+				_entity.renderLayer( animation.layers[i], _sprite, _sprite, 1.0, position, false);
+			}
+			// _entity.renderLayer( animation.layers[0], _sprite, _sprite, 1.0, position, false);
+			
+			// Renderer.stop(rendering);
+
+		 };
+	 }();
 	
 	/**
 	 * Create component and export it
