@@ -2632,7 +2632,7 @@ define(function( require )
         //164: [{}],    //EF_STATUS_STATE       (Nothing)
 
         165: [{ //Comodo Fireworks Ball    //EF_BANJJAKII    Comodo Fireworks Ball
-            wav:  'effect/\x3f\x3f\xc1\xd7', //ĆřÁ×
+            wav:  'effect/\xc6\xf8\xc1\xd7',
             attachedEntity: false
         }],
         
