@@ -121,7 +121,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.HT_SPRINGTRAP]                  = {effectId: 111};		//Spring Trap
 	// Assassin
 	SkillEffect[SK.AS_CLOAKING]                    = {effectId: 120};		//Cloaking
-	SkillEffect[SK.AS_SONICBLOW]                   = {effectIdOnCaster: 121, effectId: 122, hitEffectId: 143};		//Sonic Blow
+	SkillEffect[SK.AS_SONICBLOW]                   = {effectIdOnCaster: 121, effectId: 143, hitEffectId: 122};		//Sonic Blow
 	SkillEffect[SK.AS_GRIMTOOTH]                   = {effectId: 123, hitEffectId: 132};		//Grimtooth
 	SkillEffect[SK.AS_ENCHANTPOISON]               = {};		//Enchant Poison
 	SkillEffect[SK.AS_POISONREACT]                 = {effectId: 126, hitEffectId: 127};		//Poison React
@@ -235,7 +235,7 @@ define(['./SkillConst'], function( SK )
 	// Monk
 	SkillEffect[SK.MO_CALLSPIRITS]                 = {};		//Summon Spirit Sphere
 	SkillEffect[SK.MO_ABSORBSPIRITS]               = {effectId: 253};		//Absorb Spirit Sphere
-	SkillEffect[SK.MO_TRIPLEATTACK]                   = {effectId: 329};		//Triple Attack
+	SkillEffect[SK.MO_TRIPLEATTACK]                = {effectId: 329};		//Triple Attack
 	SkillEffect[SK.MO_BODYRELOCATION]              = {};		//Snap
 	SkillEffect[SK.MO_INVESTIGATE]                 = {effectId: 267};		//Occult Impaction
 	SkillEffect[SK.MO_FINGEROFFENSIVE]             = {effectId: 265};		//Throw Spirit Sphere
@@ -520,7 +520,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NJ_ISSEN]                       = {effectId: 633};		//Final Strike
 	// Additional NPC Skills (Episode 11.3)
 	SkillEffect[SK.NPC_EARTHQUAKE]                 = {effectIdOnCaster: 666};		//Earthquake
-	SkillEffect[SK.NPC_FIREBREATH]                 = {};		//Fire Breath
+	SkillEffect[SK.NPC_FIREBREATH]                 = {effectId: 'ef_firebreath'};		//Fire Breath
 	SkillEffect[SK.NPC_ICEBREATH]                  = {};		//Ice Breath
 	SkillEffect[SK.NPC_THUNDERBREATH]              = {};		//Thunder Breath
 	SkillEffect[SK.NPC_ACIDBREATH]                 = {};		//Acid Breath
