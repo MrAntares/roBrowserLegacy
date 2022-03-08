@@ -1618,6 +1618,7 @@ define(function( require )
         47: [{    //EF_TORCH    Torch
             type: 'SPR',
             file: 'torch_01',
+			//delay: 250,
             attachedEntity: true
         }],
 
@@ -2348,9 +2349,16 @@ define(function( require )
 		}],
 		
         121: [{    //EF_SONICBLOW    // sonic blow caste
-			type: 'STR',
-            file: 'sonicblow',
+			type: '3D',
+			blendMode: 2,
+			delay: 400,
+			alphaMax: 1.0,
+			fadeOut: true,
+			sizeStart: 100,
+			sizeEnd: 300,
+            file: 'effect/ring2.bmp', // Original: 'effect/alpha_center.tga',
 			wav:  'effect/ef_stonecurse',
+			zIndex: 10,
             attachedEntity: true
 		}],
 		
@@ -2499,7 +2507,9 @@ define(function( require )
         //142    Heaven's Drive
 
         143: [{ //sonicblow at target    //EF_SONICBLOW2    Sonic Blow (Part 2/2)
-            
+            type: 'STR',
+            file: 'sonicblow',
+            attachedEntity: true
         }],
 
 
@@ -3460,7 +3470,11 @@ define(function( require )
         //297: [{}],    //EF_POKJUK       Fire Works (Visual Effect)
         //298: [{}],    //EF_THROWITEM       Acid Terror Animnation
         //299: [{}],    //EF_THROWITEM2       (Nothing)
-        //300: [{}],    //EF_CHEMICALPROTECTION       Chemical Protection
+		
+        300: [{    //EF_CHEMICALPROTECTION       Chemical Protection
+			wav: 'apocalips_attack'
+		}],
+		
         //301: [{}],    //EF_POKJUK_SOUND       Fire Works (Sound Effect)
 
         302: [{    //EF_DEMONSTRATION    Bomb
@@ -4300,7 +4314,16 @@ define(function( require )
 			wav: 'effect/mon_\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7'
 		}],
 		
-        //329: [{}],    //EF_TRIPLEATTACK       Triple Strike
+        329: [{    //EF_TRIPLEATTACK       Triple Strike
+			wav: 'effect/ef_hit2'
+		}, {
+			wav: 'effect/ef_hit4',
+			delayWav: 200
+		}, {
+			wav: 'effect/ef_hit2',
+			delayWav: 400
+		}],
+		
         //330: [{}],    //EF_HITLINE       Combo Finish
         //331: [{}],    //EF_HPTIME       Natural HP Regeneration
         //332: [{}],    //EF_SPTIME       Natural SP Regeneration
@@ -6323,6 +6346,7 @@ define(function( require )
         643: [{    //EF_RAPIDSHOWER    Rapid Shower
             type: 'SPR',
             file: '\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
+			wav: 'effect/\xb7\xa1\xc7\xc7\xb5\xe5\xbb\xfe\xbf\xf6',
             attachedEntity: true
         }],
 
@@ -6330,6 +6354,7 @@ define(function( require )
         644: [{    //EF_MAGICALBULLET    Magic Bullet
             type: 'SPR',
             file: '\xb8\xc5\xc1\xf6\xc4\xc3\xba\xd2\xb8\xb4',
+			wav: 'effect/\xb8\xc5\xc1\xf6\xc4\xc3\xba\xed\xb8\xb4',
             attachedEntity: true
         }],
 
@@ -6359,6 +6384,7 @@ define(function( require )
         648: [{    //EF_TRIPLEACTION    Triple Action
             type: 'SPR',
             file: '\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
+			wav: 'effect/\xc6\xae\xb8\xae\xc7\xc3\xbe\xd7\xbc\xc7',
             attachedEntity: true
         }],
 
@@ -6406,7 +6432,7 @@ define(function( require )
         669: [{ //wide bleeding    //EF_BLEEDING    Wide Bleeding
             type: 'STR',
             file: 'wideb',
-            wav: 'wideb',
+            wav: 'effect/wideb',
             attachedEntity: true
         }],
 
@@ -6418,8 +6444,14 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //671: [{}],    //EF_BOTTOM_RUNNER       The Japan Earth Symbol (like 'Seven Wind Lv1', but on the ground)
-        //672: [{}],    //EF_BOTTOM_TRANSFER       The Japan Wind Symbol (like 'Seven Wind Lv2', but on the ground)
+        671: [{    //EF_BOTTOM_RUNNER       The Japan Earth Symbol (like 'Seven Wind Lv1', but on the ground)
+			file: 'effect/hanmoon1.tga'
+		}],
+		
+        672: [{    //EF_BOTTOM_TRANSFER       The Japan Wind Symbol (like 'Seven Wind Lv2', but on the ground)
+			file: 'effect/hanmoon2.tga'
+		}],
+		
         //673: [{}],    //EF_CRYSTAL_BLUE       Map turns Blue (like Soul Link)
 
         674: [{ // evil land
@@ -6450,6 +6482,7 @@ define(function( require )
         //679: [{}],    //EF_GREEN99_5       Green Aura (Middle)
         //680: [{}],    //EF_GREEN99_6       Green Aura (Bottom)
         //681: [{}],    //EF_MAPSPHERE       Dimensional Gorge Map Effect
+		
         682: [{    //EF_POK_LOVE       I Love You Banner
 			type: 'SPR',
             file: '\xc6\xf8\xc1\xd7\x5f\xb7\xaf\xba\xea',
@@ -8069,7 +8102,33 @@ define(function( require )
 		}],
 		
         930: [{    //EF_PRESSURE3       Varetyr Spear (falling spear)
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			rotate: true,
+            angle: 0,
+			toAngle: -630,
+			poszStart: 20,
+			poszEnd: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/cross_old.bmp',
 			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            delay: 500,
+			delayOffset: 501,
+			fadeOut: true,
+            angle: -630,
+			posz: 5,
+			size: 100,
+			zIndex: 1,
+			file: 'effect/cross_old.bmp'
 		}],
 		
         //931: [{}],    //EF_LINKPARTICLE2       (Nothing)
@@ -8839,6 +8898,11 @@ define(function( require )
             type: 'STR',
             file: 'S_STORM',
 			wav: 'effect/RL_S_STORM',
+            attachedEntity: true
+        }],
+		
+		'ef_firebreath': [{
+            wav:  'effect/ef_firewall',
             attachedEntity: true
         }],
 		
