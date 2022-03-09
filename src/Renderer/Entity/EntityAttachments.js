@@ -197,7 +197,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			this.entity.effectColor[3]  = attachment.opacity;
 			if(!attachment.position){
 				position[1] = attachment.head ? -100 : 0;
-			} else {
+			} else if(attachment.position){
 				position = attachment.position;
 			}
 			frame                       = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
