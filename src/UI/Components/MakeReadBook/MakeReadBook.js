@@ -26,6 +26,8 @@
 	 var UIComponent        = require('UI/UIComponent');
 	 var htmlText           = require('text!./MakeReadBook.html');
 	 var cssText            = require('text!./MakeReadBook.css');
+	 var Sprite             = require('Loaders/Sprite');
+	 var Client             = require('Core/Client');
 	 var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
 	 var getModule    		= require;
  
@@ -38,17 +40,9 @@
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _ALT_INIT = Preferences.get('_ALT_CMD', {
-		Num_1:  '/hide'	,
-		Num_2:  '/?'	,
-		Num_3:  '/ho'	,
-		Num_4:  '/lv'	,
-		Num_5:  '/swt'	,
-		Num_6:  '/ic'	,
-		Num_7:  '/an'	,
-		Num_8:  '/ag'	,
-		Num_9:  '/$'	,
-		Num_0:  '/...'
+	var _BOOK_INFORMATION	= Preferences.get('_BOOK_INFORMATION', {
+		title:  	''	,
+		contents:   ''	,
 	}, 1.0);
  
 	 /**
@@ -78,7 +72,59 @@
 		 magnet_left: true,
 		 magnet_right: false
 	 }, 1.0);
- 
+	 
+
+	 MakeReadBook.startBook = function startBook(inforBook, item){
+		var it = DB.getItemInfo( item.ITID );
+		console.log('inforBook', inforBook, item, it.identifiedDisplayName)
+		_BOOK_INFORMATION['title'] 	= it.identifiedDisplayName;
+		_BOOK_INFORMATION['contents'] = inforBook;
+		_BOOK_INFORMATION.save();
+	 }
+
+	 MakeReadBook.openBook = function openBook(){
+		MakeReadBook.remove();
+		MakeReadBook.append();
+
+		this.ui.find('#titleBook').text(_BOOK_INFORMATION['title']); 
+		Client.getFiles(
+			[
+				'data/sprite/book/\xc3\xa5\xb4\xdd\xb1\xe2.spr',
+				'data/sprite/book/\xc3\xa5\xb0\xa5\xc7\xc7.spr',
+				'data/sprite/book/\xc3\xa5\xbf\xde\xc2\xca.spr', // previous
+				'data/sprite/book/\xc3\xa5\xbf\xc0\xb8\xa5\xc2\xca.spr', // next
+			],function (spr_close, spr_highlighter, spr_previous, spr_next) {
+				// close
+				var sprite_close = new Sprite( spr_close );
+				var canvas;
+				canvas  = sprite_close.getCanvasFromFrame( 0 );
+				canvas.className = 'clone_book event_add_cursor';
+				MakeReadBook.ui.find('.footer').append(canvas);
+
+				// highlighter
+				var sprite_highlighter = new Sprite( spr_highlighter );
+				var canvas;
+				canvas  = sprite_highlighter.getCanvasFromFrame( 0 );
+				canvas.className = 'highlighter event_add_cursor';
+				MakeReadBook.ui.find('#highlighter').append(canvas);
+
+				// previous
+				var sprite_previous = new Sprite( spr_previous );
+				var canvas;
+				canvas  = sprite_previous.getCanvasFromFrame( 0 );
+				canvas.className = ' event_add_cursor';
+				MakeReadBook.ui.find('#next_previous').append(canvas);
+
+				// next
+				var sprite_next = new Sprite( spr_next );
+				var canvas;
+				canvas  = sprite_next.getCanvasFromFrame( 0 );
+				canvas.className = ' event_add_cursor';
+				MakeReadBook.ui.find('#next_previous').append(canvas);
+
+			})
+		// Ã¥´Ý±â.spr
+	}
  
 	 /**
 	  * Initialize UI
@@ -101,16 +147,17 @@
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
 	 };
- 
+	 
+
+	
  
 	 /**
 	  * Remove MakeReadBook from window (and so clean up items)
 	  */
 	 MakeReadBook.onRemove = function OnRemove()
 	 {
-		 this.ui.find('.container .content').empty();
+	
 		 this.list.length = 0;
-		 jQuery('.ItemInfo').remove();
  
 		 // Save preferences
 		 _preferences.show   =  this.ui.is(':visible');
@@ -137,11 +184,6 @@
 		 width  = Math.min( Math.max(width,  6), 9);
 		 height = Math.min( Math.max(height, 2), 6);
  
-		 this.ui.find('.container .content').css({
-			 width:  width  * 32 + 13, // 13 = scrollbar
-			 height: height * 32
-		 });
- 
 		 this.ui.css({
 			 width:  23 + 16 + 16 + width  * 32,
 			 height: 31 + 19      + height * 32
@@ -164,8 +206,6 @@
 	 function onResize()
 	 {
 		 var ui      = MakeReadBook.ui;
-		 var content = ui.find('.container .content');
-		 var hide    = ui.find('.hide');
 		 var top     = ui.position().top;
 		 var left    = ui.position().left;
 		 var lastWidth  = 0;
@@ -191,14 +231,6 @@
 			 MakeReadBook.resize( w, h );
 			 lastWidth  = w;
 			 lastHeight = h;
- 
-			 //Show or hide scrollbar
-			 if (content.height() === content[0].scrollHeight) {
-				 hide.show();
-			 }
-			 else {
-				 hide.hide();
-			 }
 		 }
  
 		 // Start resizing

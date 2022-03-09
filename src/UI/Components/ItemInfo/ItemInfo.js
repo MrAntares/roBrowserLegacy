@@ -25,13 +25,10 @@ define(function(require)
 	var Mouse              = require('Controls/MouseEventHandler');
 	var UIComponent        = require('UI/UIComponent');
 	var MakeReadBook       = require('UI/Components/MakeReadBook/MakeReadBook');
-
 	var Renderer           = require('Renderer/Renderer');
 	var SpriteRenderer     = require('Renderer/SpriteRenderer');
 	var Sprite             = require('Loaders/Sprite');
 	var Action             = require('Loaders/Action');
-	
-
 	var htmlText           = require('text!./ItemInfo.html');
 	var cssText            = require('text!./ItemInfo.css');	
 	var Network       	   = require('Network/NetworkManager');
@@ -398,6 +395,7 @@ define(function(require)
 				console.log('setItem',filenameBook)
 				Client.loadFile( filenameBook, function(data) {
 					// console.log('setItem-Client.loadFile', data);
+					MakeReadBook.startBook(data, item);
 					eventsBooks();
 				});
 				break;
@@ -436,6 +434,7 @@ define(function(require)
 				});
 				bookOpen.click(function(e){
 					console.log('bookOpen', e);
+					MakeReadBook.openBook();
 				}.bind(this));
 				// icon read book
 				event.append( '<canvas width="21" height="15" class="book_read event_add_cursor"/>' );
