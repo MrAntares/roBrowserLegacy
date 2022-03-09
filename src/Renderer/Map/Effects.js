@@ -23,9 +23,9 @@ function(        glMatrix,            EffectManager)
 	/**
 	 * Add 3D sound to the list
 	 */
-	function add( effect )
+	function add( mapEffect )
 	{
-		_list.push( effect );
+		_list.push( mapEffect );
 	}
 
 
@@ -41,13 +41,28 @@ function(        glMatrix,            EffectManager)
 	 * Get effect from list
 	 */
 	function get(GID) {
-		var effect;
+		var mapEffect;
 		var count = _list.length;
 		for (var i = 0; i < count; ++i) {
-			effect = _list[i];
-			if (effect.name == GID) return effect;
+			mapEffect = _list[i];
+			if (mapEffect.name == GID) return mapEffect;
 		}
 		return null;
+	}
+	
+	/**
+	 * Remove effect from list
+	 */
+	function remove(GID) {
+		var mapEffect;
+		var count = _list.length;
+		for (var i = 0; i < count; ++i) {
+			mapEffect = _list[i];
+			if (mapEffect.name == GID){
+				_list.splice(i, 1);
+				break;
+			}
+		}
 	}
 
 	/**
@@ -57,33 +72,43 @@ function(        glMatrix,            EffectManager)
 	 */
 	function spam( position, tick )
 	{
-		var effect;
+		var mapEffect;
 		var i, count = _list.length;
 
 		for (i = 0; i < count; ++i) {
-			effect = _list[i];
+			mapEffect = _list[i];
 
 			// distance need to be less than 25 cells (seems like it's
 			// how the official client handle it).
-			if (effect.tick < tick && vec3.dist(effect.pos, position) < 25) {
+			if (mapEffect.tick < tick && vec3.dist(mapEffect.pos, position) < 25) {
 				var EffectDB      = require('DB/Effects/EffectTable');
 				
-				// there should be something done with effect.param[0] ~ effect.param[3] but have no idea what they are. Perhaps rotation?
+				// In case of map effects something has to be done with params
+				//mapEffect.param[0] = ?? size?
+				//mapEffect.param[1] = ?? animspeed?
+				//mapEffect.param[2] = ??
+				//mapEffect.param[3] = ??
 				
-				if(effect.id in EffectDB){
-					var mapEff = EffectDB[effect.id];
+				
+				if(mapEffect.id in EffectDB){
+					var effect = EffectDB[mapEffect.id];
 					
-					for (var i = 0, count = mapEff.length; i < count; ++i) {
-						//var dupli = mapEff[i].duplicate;  // duplicate handling. Not needed for now.
+					for (var i = 0, count = effect.length; i < count; ++i) {
+						//var dupli = effect[i].duplicate;  // duplicate handling. Not needed for now.
 						
 						//for (var j = 0; j <= dupli ; ++j) {
-							EffectManager.spamEffect(mapEff[i], effect.name+'-'+i, 0, effect.pos, 0, tick + effect.delay, false, 0);
+							
+							if(mapEffect.param[0]) effect[i].size       = 100 * mapEffect.param[0]; //size
+							if(mapEffect.param[1]) effect[i].delayFrame = 100 / (1+mapEffect.param[1]); // animspeed
+							
+							EffectManager.spamEffect(effect[i], mapEffect.name+'-'+i, 0, mapEffect.pos, 0, tick, false, null);
 						//}
 					}
 					
+					mapEffect.tick = tick + (mapEffect.delay) / (mapEffect.param[1] ? Math.pow(10, mapEffect.param[1]) : 1); // Don't even ask why, I don't know either...
 				}
 				
-				effect.tick = tick + effect.delay;
+				
 			}
 		}
 	}

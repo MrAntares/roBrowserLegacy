@@ -50,7 +50,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
         if (attachment.yOffset) attachment.position[1] = attachment.yOffset;
 		
 		attachment.repeat        = attachment.repeat    || false;
-		attachment.repeatCounter = 0;
+		attachment.duplicate 	 = attachment.duplicate || 0;
 		attachment.stopAtEnd     = attachment.stopAtEnd || false;
 		attachment.delay = attachment.delay || false;
 
@@ -195,7 +195,11 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			}
 
 			this.entity.effectColor[3]  = attachment.opacity;
-			position[1]                 = attachment.head ? -100 : 0;
+			if(!attachment.position){
+				position[1] = attachment.head ? -100 : 0;
+			} else if(attachment.position){
+				position = attachment.position;
+			}
 			frame                       = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
 			frame                      %= act.actions.length;
 			animations                  = act.actions[frame].animations;
@@ -210,6 +214,13 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			// repeat animation
 			else if (attachment.repeat) {
 				layers = animations[ Math.floor((tick - attachment.startTick) / delay) % animations.length].layers;
+			}
+			
+			// repeat duplicate times
+			else if (attachment.duplicate > 0){
+				var index = Math.floor((tick - attachment.startTick) / delay) % animations.length;
+				layers = animations[index].layers;
+				if(index == animations.length - 1) attachment.duplicate--;
 			}
 
 			// stop at end

@@ -21,7 +21,7 @@ body {
 }
 #contextmenu {
 	position:absolute;
-	width:150px;
+	min-width:150px;
 	font-family:Arial;
 	font-size:9pt;
 	padding-top:5px;
@@ -48,10 +48,12 @@ body {
 	padding-top:5px;
 	padding-bottom:5px;
 	padding-left:25px;
+	padding-right:25px;
 	cursor:default;
 }
 #contextmenu div:hover, #contextmenu a:hover {
 	background-color:#efefef;
+	cursor:pointer;
 }
 #contextmenu .disable, #contextmenu a.disable {
 	color: #a1a192;
@@ -59,6 +61,7 @@ body {
 }
 #contextmenu .disable:hover {
 	background-color:white;
+	cursor:default;
 }
 
 

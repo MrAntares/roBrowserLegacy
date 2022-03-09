@@ -195,7 +195,7 @@ define(function(require)
 	{
 		var contextmenu = Viewer.ui.find('#contextmenu');
 		var overlay     = Viewer.ui.find('.overlay');
-
+		var header = contextmenu.find('.header:first');
 		var open = contextmenu.find('.open:first');
 		var save = contextmenu.find('.save:first');
 		var info = contextmenu.find('.info:first');
@@ -216,6 +216,15 @@ define(function(require)
 		save.removeClass('disable').off('mousedown');
 		info.removeClass('disable').off('mousedown');
 		save.off('click');
+
+		//Header
+		header.get(0).innerHTML = 'Path: ' + icon.data('path');
+		header.get(0).style.backgroundColor = null;
+		header.click(function(){ 
+				navigator.clipboard.writeText(icon.data('path'));
+				header.get(0).innerHTML = 'Copied: ' + icon.data('path');
+				header.get(0).style.backgroundColor = '#AAFFAA';
+			});
 
 		// Open
 		if (icon.hasClass('file')) {

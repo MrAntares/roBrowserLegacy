@@ -303,10 +303,11 @@ define(function( require )
 	 * @param {object} effect
 	 * @param {number} AID
 	 * @param {vec3} position
-	 * @param {number} tick
+	 * @param {number} startTick
 	 * @param {boolean} persistent
+	 * @param {number} duration
 	 */
-	EffectManager.spamEffect = function spamEffect( effect, AID, cyn, position, offset, tick, persistent, duration)
+	EffectManager.spamEffect = function spamEffect( effect, AID, cyn, position, offset, startTick, persistent, duration)
 	{
 		var entity = EntityManager.get(AID);
 		var filename;
@@ -333,47 +334,45 @@ define(function( require )
 
 			Events.setTimeout(function(){
 				Sound.play(filename + '.wav');
-			}, tick + delayWav - Renderer.tick);
+			}, startTick + delayWav - Renderer.tick);
 		}
 		
 		//Set delays
-		var delay;
-		if (duration) delay = duration;
-		else delay = !isNaN(effect.delay) ? effect.delay : 1000;
+		if (!duration) duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
+		
 		var delayOffset = !isNaN(effect.delayOffset) ? effect.delayOffset : 0;
 		var delayLate = !isNaN(effect.delayLate) ? effect.delayLate : 0;
 		
 		switch (effect.type) {
 			case 'SPR':
-				spamSprite( effect, AID, position, tick, persistent );
+				spamSprite( effect, AID, position, startTick + delayLate, persistent );
 				break;
 
 			case 'STR':
-				spamSTR( effect, AID, position, tick, persistent );
+				spamSTR( effect, AID, position, startTick + delayLate, persistent );
 				break;
 
 			case 'CYLINDER':
-				//EffectManager.add(new Cylinder( position, effect, tick), AID);
-				EffectManager.add(new Cylinder(position, effect, tick + delayOffset + delayLate, tick + delayOffset + delay), AID);
+				EffectManager.add(new Cylinder(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID);
 				break;
 				
 			case '2D':
-				EffectManager.add(new TwoDEffect(position, effect, tick + delayOffset + delayLate, tick + delayOffset + delay, AID), AID);
+				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID);
 				break;
 			
 			case '3D':
-				EffectManager.add(new ThreeDEffect(position, offset, effect, tick + delayOffset + delayLate, tick + delayOffset + delay, AID), AID);
+				EffectManager.add(new ThreeDEffect(position, offset, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID);
 				break;
 			
 			case 'FUNC':
 				if (effect.func) {
 					if (effect.attachedEntity) {
 						if (entity) {
-							effect.func.call(this, entity, tick, AID);
+							effect.func.call(this, entity, startTick, AID);
 						}
 					}
 					else {
-						effect.func.call(this, position, tick, AID);
+						effect.func.call(this, position, startTick, AID);
 					}
 				}
 				break;
@@ -446,13 +445,12 @@ define(function( require )
 			head:         !!effect.head,
 			direction:    !!effect.direction,
 			repeat:         effect.repeat,
-			duplicate:		effect.duplicate,
-			delayFrame:		effect.delayFrame,
-			frame:			effect.frame,
-			opacity:		effect.alphaMax,
-			time_between_dupli:	effect.time_between_dupli,
+			duplicate:      effect.duplicate,
+			stopAtEnd:      effect.stopAtEnd,
+			xOffset:        effect.xOffset,
 			yOffset:		effect.yOffset,
-			stopAtEnd:      effect.stopAtEnd
+			frame:			effect.frame,
+			delay:		    effect.delayFrame
 		});
 		
 		EntityManager.add(entity);
