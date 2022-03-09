@@ -261,7 +261,6 @@ define(function( require )
 			this.effects[i].pos[2]  = tmp;
 			
 			this.effects[i].tick    = 0;
-			this.effects[i].delay   = this.effects[i].delay/2; //WTF???????? WHY???
 
 			Effects.add(this.effects[i]);
 		}
