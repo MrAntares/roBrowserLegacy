@@ -112,7 +112,7 @@ define(function( require )
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY6
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
 		){
-			EffectManager.spam(6, entity.GID, entity.position, false, false);
+			EffectManager.spam(6, entity.GID, entity.position);
 		} 
 		
 	}
@@ -134,7 +134,7 @@ define(function( require )
 			EffectManager.remove(null, pkt.GID);
 			
 			if([2, 3].includes(pkt.type)){ //exits or teleports
-				EffectManager.spam(304, null, entity.position, false, false);
+				EffectManager.spam(304, null, entity.position);
 			}
 			entity.remove( pkt.type );
 		}
@@ -339,7 +339,7 @@ define(function( require )
 					Events.setTimeout(function(){
 						Sound.play(weaponSoundRelease);
 						}, pkt.attackMT * 0.25 );
-				}	
+				}
 				
 				//second hit (double attack)
 				if(pkt.count == 2){
@@ -356,9 +356,9 @@ define(function( require )
 				}
 				//left hand
 				if(pkt.leftDamage){
-					if(weaponSound){
+					if(weaponSoundLeft){
 						Events.setTimeout(function(){
-							Sound.play(weaponSound);
+							Sound.play(weaponSoundLeft);
 							}, pkt.attackMT );
 					}
 					if(weaponSoundReleaseLeft){
@@ -390,9 +390,15 @@ define(function( require )
 						});
                         
                     }
+					
+					// damage blocking status effect display
+					if(pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0){
+						
+					}
 
 					target = pkt.damage ? dstEntity : srcEntity;
-
+					
+					// damage or miss display
 					if (target) {
 						switch (pkt.action) {
 
@@ -453,7 +459,7 @@ define(function( require )
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
+								Damage.add( 0, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
 								break;
 						}
 					}
@@ -810,20 +816,20 @@ define(function( require )
 			
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if(dstEntity.RollCounter){
-					EffectManager.spam(757 + dstEntity.RollCounter, dstEntity.GID, null, null, srcEntity.GID);
+					EffectManager.spam(757 + dstEntity.RollCounter, dstEntity.GID);
 				}
 			}
 			
 			if (pkt.SKID === SkillId.TK_SEVENWIND) {
 				if(pkt.level){
-					EffectManager.spam(466 + pkt.level, dstEntity.GID, null, null, srcEntity.GID);
+					EffectManager.spam(466 + pkt.level, dstEntity.GID);
 				}
 			}
 			
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 			
 			if (pkt.result == 1){
-				EffectManager.spamSkillHit( pkt.SKID, dstEntity.GID, Renderer.tick);
+				EffectManager.spamSkillHit( pkt.SKID, pkt.targetAID, null, pkt.srcAID);
 			}
 		}
 	}
@@ -836,7 +842,7 @@ define(function( require )
 	 */
 	function onSkillAppear( pkt )
 	{
-		EffectManager.spamSkillZone( pkt.job, pkt.xPos, pkt.yPos, pkt.AID );
+		EffectManager.spamSkillZone( pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID);
 	}
 
 
@@ -930,7 +936,7 @@ define(function( require )
 						var isAlive = dstEntity.action !== dstEntity.ACTION.DIE;
 						var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 
-						EffectManager.spamSkillHit( pkt.SKID, dstEntity.GID, Renderer.tick);
+						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, null, pkt.AID);
 						Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon);
 
 						// Only display combo if the target is not entity and
@@ -970,7 +976,7 @@ define(function( require )
 		}
 
 		if (srcEntity && dstEntity) {
-			EffectManager.spamSkill( pkt.SKID, dstEntity.GID, null, Renderer.tick + pkt.attackMT, pkt.AID);
+			EffectManager.spamSkill( pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
 		}
 	}
 
@@ -1062,7 +1068,7 @@ define(function( require )
 
         if(pkt.SKID in SkillEffect) {
             if (SkillEffect[pkt.SKID].beforeCastEffectId) { //in spells like Bash, Hide, Double Strafe etc. effect goes before cast/animation (on instant)
-                EffectManager.spam(SkillEffect[pkt.SKID].beforeCastEffectId, pkt.AID);
+                EffectManager.spam(SkillEffect[pkt.SKID].beforeCastEffectId, pkt.AID, null, null, false, pkt.targetID, null);
             }
         }
 
