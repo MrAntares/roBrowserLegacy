@@ -28,6 +28,7 @@
 	 var cssText            = require('text!./MakeReadBook.css');
 	 var Sprite             = require('Loaders/Sprite');
 	 var Client             = require('Core/Client');
+	 var TextEncoding       = require('Vendors/text-encoding');
 	 var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
 	 var getModule    		= require;
  
@@ -76,9 +77,27 @@
 
 	 MakeReadBook.startBook = function startBook(inforBook, item){
 		var it = DB.getItemInfo( item.ITID );
-		console.log('inforBook', inforBook, item, it.identifiedDisplayName)
+	
 		_BOOK_INFORMATION['title'] 	= it.identifiedDisplayName;
-		_BOOK_INFORMATION['contents'] = inforBook;
+		let validtext = inforBook.substr(7);// remover color background
+		let limitText = 1184;
+		let intPagination = Math.floor(validtext.length/ 1184);
+		let cout = 0;
+
+		let arrayText = []
+		for (let index = 0; index < (intPagination+1); index++) {
+			let isEmpty = validtext.substr(cout,limitText);
+			if(isEmpty.length === 0)
+				break;
+			
+			arrayText.push(isEmpty)
+
+			cout = limitText + cout;
+		}
+
+		console.log('validtext',  arrayText[arrayText.length-1]);
+
+		_BOOK_INFORMATION['contents'] = inforBook; // 1184 caracteres
 		_BOOK_INFORMATION.save();
 	 }
 
@@ -86,7 +105,16 @@
 		MakeReadBook.remove();
 		MakeReadBook.append();
 
-		this.ui.find('#titleBook').text(_BOOK_INFORMATION['title']); 
+		
+		var textBook = TextEncoding.decodeString(_BOOK_INFORMATION['contents']);
+
+		let addColor = textBook.substr(1, 7);
+		this.ui.find('.panel').css('background-color', '#'+addColor);
+		this.ui.find('.footer').css('background-color', '#'+addColor);
+
+		this.ui.find('#titleBook').text(_BOOK_INFORMATION['title']);
+		this.ui.find('#textBook').text(textBook.substr(7));
+		
 		Client.getFiles(
 			[
 				'data/sprite/book/\xc3\xa5\xb4\xdd\xb1\xe2.spr',
@@ -99,6 +127,7 @@
 				var canvas;
 				canvas  = sprite_close.getCanvasFromFrame( 0 );
 				canvas.className = 'clone_book event_add_cursor';
+				MakeReadBook.ui.find('.footer').find('canvas').remove();
 				MakeReadBook.ui.find('.footer').append(canvas);
 
 				// highlighter
@@ -106,21 +135,48 @@
 				var canvas;
 				canvas  = sprite_highlighter.getCanvasFromFrame( 0 );
 				canvas.className = 'highlighter event_add_cursor';
+				MakeReadBook.ui.find('#highlighter').find('canvas').remove();
 				MakeReadBook.ui.find('#highlighter').append(canvas);
+				var highlighter = MakeReadBook.ui.find('.highlighter');
+				highlighter.mouseover(function(e) {
+					e.stopImmediatePropagation();
+					MakeReadBook.ui.find('.bookmark').show();
+				}).mouseout(function(e) {
+					e.stopImmediatePropagation();
+					MakeReadBook.ui.find('.bookmark').hide();
+				});
 
+				// remove canvas next and previous
+				MakeReadBook.ui.find('#next_previous').find('canvas').remove();
 				// previous
 				var sprite_previous = new Sprite( spr_previous );
 				var canvas;
 				canvas  = sprite_previous.getCanvasFromFrame( 0 );
-				canvas.className = ' event_add_cursor';
+				canvas.className = 'previous_btn event_add_cursor';				
 				MakeReadBook.ui.find('#next_previous').append(canvas);
+				var previous_btn = MakeReadBook.ui.find('.previous_btn');
+				previous_btn.mouseover(function(e) {
+					e.stopImmediatePropagation();
+					MakeReadBook.ui.find('.previous').show();
+				}).mouseout(function(e) {
+					e.stopImmediatePropagation();
+					MakeReadBook.ui.find('.previous').hide();
+				});
 
 				// next
 				var sprite_next = new Sprite( spr_next );
 				var canvas;
 				canvas  = sprite_next.getCanvasFromFrame( 0 );
-				canvas.className = ' event_add_cursor';
+				canvas.className = 'next_btn event_add_cursor';
 				MakeReadBook.ui.find('#next_previous').append(canvas);
+				var next_btn = MakeReadBook.ui.find('.next_btn');
+				next_btn.mouseover(function(e) {
+					e.stopImmediatePropagation();
+					MakeReadBook.ui.find('.next').show();
+				}).mouseout(function(e) {
+					e.stopImmediatePropagation();
+					MakeReadBook.ui.find('.next').hide();
+				});
 
 			})
 		// Ã¥´Ý±â.spr
@@ -158,7 +214,7 @@
 	 {
 	
 		 this.list.length = 0;
- 
+		 
 		 // Save preferences
 		 _preferences.show   =  this.ui.is(':visible');
 		 _preferences.reduce = !!_realSize;

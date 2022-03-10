@@ -368,17 +368,9 @@ define(function(require)
 	}
 	
 
-	function addEvent(item){
+	function addEvent(item){		
 		var event = ItemInfo.ui.find('.event_view');
-		if(event.length === 0){
-			let validExitElement = 
-				'<div class="event_view">' +
-            		'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'+
-        		'</div>';
-			ItemInfo.ui.find('.collection').after(validExitElement);
-			addEvent(item)
-			return;
-		}
+		validateFieldsExist(event) ? '' : addEvent(item);
 
 		event.find('.view').hide();
 		event.find('canvas').remove();
@@ -400,13 +392,15 @@ define(function(require)
 				});
 				break;
 			default:
-				event.remove();
+				event.find('.view').hide();
+				event.find('canvas').remove();
 				break;
 		}
 	}
 
 	function eventsBooks(){
-		var event = ItemInfo.ui.find('.event_view');
+		var event = ItemInfo.ui.find('.event_view');		
+
 		Client.getFiles([
 			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr',
 			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'
@@ -433,7 +427,6 @@ define(function(require)
 					ItemInfo.ui.find('.overlay_open').hide();
 				});
 				bookOpen.click(function(e){
-					console.log('bookOpen', e);
 					MakeReadBook.openBook();
 				}.bind(this));
 				// icon read book
@@ -503,6 +496,36 @@ define(function(require)
 
 		 };
 	 }();
+
+	 function validateFieldsExist(event){
+
+		if(event.length === 0){
+			let validExitElement = 
+				'<div class="event_view">' +
+            		'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'+
+					'<span class="overlay_open" data-text="1294">'+DB.getMessage(1294)+'</span>'+
+					'<span class="overlay_read" data-text="1295">'+DB.getMessage(1295)+'</span>'
+        		'</div>';
+			ItemInfo.ui.find('.collection').after(validExitElement);			
+			return false;
+		}
+
+		if(ItemInfo.ui.find('.overlay_open').length == 0
+			&& ItemInfo.ui.find('.overlay_read').length == 0){
+				event.append(
+					'<span class="overlay_open" data-text="1294">'+DB.getMessage(1294)+'</span>'+
+					'<span class="overlay_read" data-text="1295">'+DB.getMessage(1295)+'</span>'
+				)
+		}
+
+		if(ItemInfo.ui.find('button').length == 0){
+			event.append(
+				'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'
+			)
+		}
+
+		return true;
+	 }
 	
 	/**
 	 * Create component and export it

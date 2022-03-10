@@ -19,5 +19,5 @@
 .ItemInfo .book_open { margin-top: 6px; margin-left: 7px;}
 .ItemInfo .book_read { position: absolute; margin-top: 7px;}
 
-.ItemInfo .overlay_open {position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 7px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
-.ItemInfo .overlay_read {position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 27px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
+.ItemInfo .overlay_open {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 7px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
+.ItemInfo .overlay_read {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 27px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
