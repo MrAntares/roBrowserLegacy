@@ -103,7 +103,7 @@ define(function( require )
 		position[1]  = pkt.yPos;
 		position[2]  = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 
-		EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, null);
+		EffectManager.spamSkill(pkt.SKID, pkt.AID, position);
 	}
 
 

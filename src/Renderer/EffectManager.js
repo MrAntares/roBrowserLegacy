@@ -259,7 +259,7 @@ define(function( require )
 	 * @param {number} tick
 	 * @param {boolean} persistent
 	 */
-	EffectManager.spam = function spam( effectId, AID, position, tick, persistent )
+	EffectManager.spam = function spam( effectId, AID, position, tick, persistent, otherAID, otherPosition )
 	{
 		var effects;
 		var count, duplicate, timeBetweenDupli;
@@ -281,7 +281,7 @@ define(function( require )
 			EffectManager.spamEffect(effects[i], AID, position, tick, persistent);
 		}*/
 		
-		var duration, offset, cyn = 0;
+		var duration = 0;
 		
 		for (var i = 0, count = effects.length; i < count; ++i) {
 			
@@ -291,7 +291,7 @@ define(function( require )
             timeBetweenDupli = !isNaN(effects[i].timeBetweenDupli) ? effects[i].timeBetweenDupli : 200;
 			
             for (var j = 0; j < duplicate; ++j) {
-				EffectManager.spamEffect(effects[i], AID, cyn, position, offset, tick + timeBetweenDupli * j, persistent, duration);
+				EffectManager.spamEffect(effects[i], AID, otherAID, position, otherPosition, tick + timeBetweenDupli * j, persistent, duration);
 			}
         }
 	};
@@ -307,9 +307,10 @@ define(function( require )
 	 * @param {boolean} persistent
 	 * @param {number} duration
 	 */
-	EffectManager.spamEffect = function spamEffect( effect, AID, cyn, position, offset, startTick, persistent, duration)
+	EffectManager.spamEffect = function spamEffect( effect, AID, otherAID, position, otherPosition, startTick, persistent, duration)
 	{
 		var entity = EntityManager.get(AID);
+		var otherEntity = EntityManager.get(otherAID);
 		var filename;
 
 		if (!position) {
@@ -317,6 +318,17 @@ define(function( require )
 				return;
 			}
 			position = entity.position;
+		}
+		
+		if (!otherPosition) {
+			if (otherEntity) {
+				otherPosition = otherEntity.position;
+			} else {
+				otherPosition = [position[0] - 5
+								,position[1] + 5
+								,position[2]];
+			}
+			
 		}
 
 		// Copy instead of get reference
@@ -361,7 +373,10 @@ define(function( require )
 				break;
 			
 			case '3D':
-				EffectManager.add(new ThreeDEffect(position, offset, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID);
+				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID);
+				break;
+				
+			case 'RSM':
 				break;
 			
 			case 'FUNC':
@@ -465,7 +480,7 @@ define(function( require )
 	 * @param {number} position y
 	 * @param {number} skill unique id
 	 */
-	EffectManager.spamSkillZone = function spamUnit( unit_id, xPos, yPos, uid )
+	EffectManager.spamSkillZone = function spamUnit( unit_id, xPos, yPos, uid, creatorUid )
 	{
 		var skillId, effectId;
 		var skill;
@@ -498,7 +513,7 @@ define(function( require )
 		}
 		
 		EffectManager.remove(null, uid);
-		EffectManager.spam( effectId, uid, [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ], Renderer.tick, true);
+		EffectManager.spam( effectId, uid, [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ], Renderer.tick, true, creatorUid);
 	};
 
 
@@ -516,10 +531,10 @@ define(function( require )
 			return;
 		}
 
-		EffectManager.spam( SkillEffect[skillId].effectId, destAID, position, tick);
+		EffectManager.spam( SkillEffect[skillId].effectId, destAID, position, tick, false, srcAID);
 		
 		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
-			EffectManager.spam( SkillEffect[skillId].effectIdOnCaster, srcAID, position, tick);
+			EffectManager.spam( SkillEffect[skillId].effectIdOnCaster, srcAID, position, tick, false, destAID);
 		}
 	};
 
@@ -531,14 +546,14 @@ define(function( require )
 	 * @param {number} target aid
 	 * @param {number} tick
 	 */
-	EffectManager.spamSkillHit = function spamSkillHit( skillId, AID, tick)
+	EffectManager.spamSkillHit = function spamSkillHit( skillId, AID, tick, otherAID)
 	{
 		if (!(skillId in SkillEffect)) {
 			return;
 		}
 
 		if (SkillEffect[skillId].hitEffectId) {
-			EffectManager.spam( SkillEffect[skillId].hitEffectId, AID, null, tick);
+			EffectManager.spam( SkillEffect[skillId].hitEffectId, AID, null, tick, false, otherAID);
 		}
 	};
 	

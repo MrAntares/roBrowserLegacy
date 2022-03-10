@@ -8,7 +8,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 	
 	var blendMode = {};
 
-    function ThreeDEffect(position, offset, effect, startLifeTime, endLifeTime, AID) {
+    function ThreeDEffect(position, otherPosition, effect, startLifeTime, endLifeTime, AID) {
 		this.AID = AID;
         this.textureName = effect.file;
         this.zIndex = effect.zIndex ? effect.zIndex : 0;
@@ -120,14 +120,14 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         this.poszSmooth = effect.poszSmooth ? true : false;
         if (effect.fromSrc) {
             this.posxStart = 0;
-            this.posxEnd = offset[0] - position[0];
+            this.posxEnd = otherPosition[0] - position[0];
             this.posyStart = 0;
-            this.posyEnd = offset[1] - position[1];
+            this.posyEnd = otherPosition[1] - position[1];
         }
         if (effect.toSrc) {
-            this.posxStart = offset[0] - position[0];
+            this.posxStart = otherPosition[0] - position[0];
             this.posxEnd = 0;
-            this.posyStart = offset[1] - position[1];
+            this.posyStart = otherPosition[1] - position[1];
             this.posyEnd = 0;
         }
         if (effect.size) {
@@ -238,11 +238,11 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 		SpriteRenderer.image.texture = this.texture;
         SpriteRenderer.zIndex = this.zIndex;
 		
-        var rotation = 0;
+        var posDelta = 0;
 		
         if (this.rotatePosX > 0) {
-            rotation = this.rotatePosX * Math.cos(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
-            if (this.rotationClockwise) rotation = -1 * rotation;
+            posDelta = this.rotatePosX * Math.cos(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
+            if (this.rotationClockwise) posDelta = -1 * posDelta;
         } else {
             if (this.posxSmooth) {
                 if (this.posxStart != this.posxEnd) {
@@ -251,22 +251,22 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                     var csL = this.posxEnd - this.posxStart;
                     var csM = this.posxStart;
                     var csN = csK * csL + csM;
-                    rotation = csN;
-                } else rotation = this.posxStart;
+                    posDelta = csN;
+                } else posDelta = this.posxStart;
             } else {
                 if (this.posxStart != this.posxEnd) {
                     var csL = (this.posxEnd - this.posxStart) / 100;
                     var csM = this.posxStart;
                     var csN = steps * csL + csM;
-                    rotation = csN;
-                } else rotation = this.posxStart;
+                    posDelta = csN;
+                } else posDelta = this.posxStart;
             }
         }
-        SpriteRenderer.position[0] = this.position[0] + rotation;
-        rotation = 0;
+        SpriteRenderer.position[0] = this.position[0] + posDelta;
+        posDelta = 0;
 		
         if (this.rotatePosY > 0) {
-            rotation = this.rotatePosY * Math.sin(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
+            posDelta = this.rotatePosY * Math.sin(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
         } else {
             if (this.posySmooth) {
                 if (this.posyStart != this.posyEnd) {
@@ -275,19 +275,19 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                     var csL = this.posyEnd - this.posyStart;
                     var csM = this.posyStart;
                     var csN = csK * csL + csM;
-                    rotation = csN;
-                } else rotation = this.posyStart;
+                    posDelta = csN;
+                } else posDelta = this.posyStart;
             } else {
                 if (this.posyStart != this.posyEnd) {
                     var csL = (this.posyEnd - this.posyStart) / 100;
                     var csM = this.posyStart;
                     var csN = steps * csL + csM;
-                    rotation = csN;
-                } else rotation = this.posyStart;
+                    posDelta = csN;
+                } else posDelta = this.posyStart;
             }
         }
-        SpriteRenderer.position[1] = this.position[1] + rotation;
-        rotation = 0;
+        SpriteRenderer.position[1] = this.position[1] + posDelta;
+        posDelta = 0;
 		
         if (this.poszSmooth) {
             if (this.poszStart != this.poszEnd) {
@@ -296,17 +296,17 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                 var csL = this.poszEnd - this.poszStart;
                 var csM = this.poszStart;
                 var csN = csK * csL + csM;
-                rotation = csN;
-            } else rotation = this.poszStart;
+                posDelta = csN;
+            } else posDelta = this.poszStart;
         } else {
             if (this.poszStart != this.poszEnd) {
                 var csL = (this.poszEnd - this.poszStart) / 100;
                 var csM = this.poszStart;
                 var csN = steps * csL + csM;
-                rotation = csN;
-            } else rotation = this.poszStart;
+                posDelta = csN;
+            } else posDelta = this.poszStart;
         }
-        SpriteRenderer.position[2] = this.position[2] + rotation;
+        SpriteRenderer.position[2] = this.position[2] + posDelta;
 		
         if (this.shadowTexture) SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[0]);
         
@@ -406,8 +406,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                     ctE[0] = 0;
                     ctE[1] = 0;
                     if (animations.pos.length) {
-                        ctE[0] = position[0] - animations.pos[0].x;
-                        ctE[1] = position[1] - animations.pos[0].y;
+                        ctE[0] = this.position[0] - animations.pos[0].x;
+                        ctE[1] = this.position[1] - animations.pos[0].y;
                     }
                     renderer.image.texture = this.spriteRessource.frames[layer.index].texture;
                     renderer.image.palette = null;
