@@ -540,7 +540,7 @@ define(function( require )
 
 
 	/**
-	 * Spam skill hit
+	 * Spam skill effect on hit with damage
 	 *
 	 * @param {number} skill id
 	 * @param {number} target aid
@@ -554,6 +554,24 @@ define(function( require )
 
 		if (SkillEffect[skillId].hitEffectId) {
 			EffectManager.spam( SkillEffect[skillId].hitEffectId, AID, null, tick, false, otherAID);
+		}
+	};
+	
+	/**
+	 * Spam skill before the hit lands (regardless of damage)
+	 *
+	 * @param {number} skill id
+	 * @param {number} target aid
+	 * @param {number} tick
+	 */
+	EffectManager.spamSkillBeforeHit = function spamSkillBeforeHit( skillId, AID, tick, otherAID)
+	{
+		if (!(skillId in SkillEffect)) {
+			return;
+		}
+
+		if (SkillEffect[skillId].beforeHitEffectId) {
+			EffectManager.spam( SkillEffect[skillId].beforeHitEffectId, AID, null, tick, false, otherAID);
 		}
 	};
 	
