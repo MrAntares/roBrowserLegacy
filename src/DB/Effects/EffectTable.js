@@ -394,12 +394,12 @@ define(function( require )
             alphaMax: 1,
             attachedEntity: false,
             blue: 1,
-            duration: 500,
+            duration: 200,
             //duplicate: -1,
             fadeIn: false,
             fadeOut: false,
             file: 'effect/pok3.tga',
-            fromSrc: false,
+            toSrc: true,
             green: 1,
             poszEnd: 1,
             poszSmooth: false,
@@ -1617,7 +1617,7 @@ define(function( require )
         47: [{    //EF_TORCH    Torch
             type: 'SPR',
             file: 'torch_01',
-			delay: 250,
+			duration: 250,
             attachedEntity: true
         }],
 
