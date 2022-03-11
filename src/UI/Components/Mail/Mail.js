@@ -303,14 +303,16 @@
 	*/
 	function updatePageMailItems()
 	{
-		Mail.ui.find('.next').click(function() {
+		Mail.ui.find('.next').click(function(e) {
+			e.stopImmediatePropagation();
 			if (Mail.page < Mail.list.mailList.length / Mail.pageSize - 1) {
 				Mail.page++;
 				createMailList();
 				adjustButtons();
 			}
 		});
-		Mail.ui.find('.prev').click(function() {
+		Mail.ui.find('.prev').click(function(e) {
+			e.stopImmediatePropagation();
 			if (Mail.page > 0) {
 				Mail.page--;
 				createMailList();
