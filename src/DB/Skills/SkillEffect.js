@@ -7,7 +7,32 @@
  *
  * @author Vincent Thibault
  */
-//  effectId: hitEffectId: effectIdOnCaster: beforeCastEffectId:
+ 
+/**
+ *
+ *	Possible types
+ *	--------------
+ *
+ *	- effectId: 			Triggers once for every skill use. The packet determines who receives the effect.
+ *							Can be used to create regular effects.
+ *
+ *	- effectIdOnCaster:		Triggers once for every skill use. The caster receives the effect.
+ *							Can be used to create skill use effects on the caster.
+ *
+ *	- groundEffectId: 		Triggers once for every ground skill entity entry. Some skills have multiple entities, like songs, others have only one.
+ *							Can be used to create ground effects.
+ *
+ *	- hitEffectId: 			Triggers on every hit with damage (including every hit of a multi hit skill) on the receiving entity.
+ *							Can be used to create damage effects.
+ *
+ *	- beforeHitEffectId: 	Triggers before every hit (including every hit of a multi hit skill) and after the cast.
+ *							Can be used to create pre-damage effects like flying balls and others.
+ *							Note: Effect duration in EffectTable has to be equal to the damage display delay to make the effect look like it reaches the target right before the damage. Now it is fixed 200ms.
+ *
+ *	- beforeCastEffectId: 	Triggers once right after the skill is released, before the cast ends.
+ *							Can be used to create casting effects.
+ */
+
 define(['./SkillConst'], function( SK )
 {
     'use strict';
@@ -23,11 +48,11 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22};		//Sight
 	SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
 	SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
-	SkillEffect[SK.MG_SOULSTRIKE]                  = {effectId: 15, hitEffectId: 1};		//Soul Strike
+	SkillEffect[SK.MG_SOULSTRIKE]                  = {beforeHitEffectId: 15, hitEffectId: 1};		//Soul Strike
 	SkillEffect[SK.MG_COLDBOLT]                    = {effectId: 'coldbolt', hitEffectId: 51};		//Cold Bolt
 	SkillEffect[SK.MG_FROSTDIVER]                  = {effectId: 27, hitEffectId: 28};		//Frost Diver
 	SkillEffect[SK.MG_STONECURSE]                  = {effectId: 23};		//Stone Curse
-	SkillEffect[SK.MG_FIREBALL]                    = {effectId: 24, hitEffectId: 49};		//Fire Ball
+	SkillEffect[SK.MG_FIREBALL]                    = {beforeHitEffectId: 24, hitEffectId: 49};		//Fire Ball
 	SkillEffect[SK.MG_FIREWALL]                    = {hitEffectId: 49, groundEffectId: 25};		//Fire Wall
 	SkillEffect[SK.MG_FIREBOLT]                    = {effectId: 'firebolt', hitEffectId: 49};		//Fire Bolt
 	SkillEffect[SK.MG_LIGHTNINGBOLT]               = {effectId: 29, hitEffectId: 52};		//Lightning Bolt
@@ -89,7 +114,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WZ_METEOR]                      = {effectId: 92, hitEffectId: 49};		//Meteor Storm
 	SkillEffect[SK.WZ_JUPITEL]                     = {effectId: 93, hitEffectId: 94};		//Jupitel Thunder
 	SkillEffect[SK.WZ_VERMILION]                   = {effectId: 90, hitEffectId: 52};		//Lord of Vermilion
-	SkillEffect[SK.WZ_WATERBALL]                   = {effectId: 116, hitEffectId: 117};		//Water Ball
+	SkillEffect[SK.WZ_WATERBALL]                   = {beforeHitEffectId: 116, hitEffectId: 117};		//Water Ball
 	SkillEffect[SK.WZ_ICEWALL]                     = {groundEffectId: 74};		//Ice Wall
 	SkillEffect[SK.WZ_FROSTNOVA]                   = {};		//Frost Nova
 	SkillEffect[SK.WZ_STORMGUST]                   = {effectId: 89};		//Storm Gust
@@ -222,7 +247,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.AM_REST]                        = {};		//Vaporize
 	SkillEffect[SK.AM_RESURRECTHOMUN]              = {};		//Homunculus Resurrection
 	// Crusader
-	SkillEffect[SK.CR_AUTOGUARD]                   = {};		//Guard
+	SkillEffect[SK.CR_AUTOGUARD]                   = {effectId: 336};		//Guard
 	SkillEffect[SK.CR_SHIELDCHARGE]                = {effectId: 246};		//Smite
 	SkillEffect[SK.CR_SHIELDBOOMERANG]             = {effectId: 249};		//Shield Boomerang
 	SkillEffect[SK.CR_REFLECTSHIELD]               = {effectId: 252};		//Shield Reflect
@@ -327,7 +352,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_RUN]                        = {};		//Run
 	// Lord Knight
 	SkillEffect[SK.LK_AURABLADE]                   = {beforeCastEffectId: 'white_pulse', effectId: 367};		//Aura Blade
-	SkillEffect[SK.LK_PARRYING]                    = {};		//Parrying
+	SkillEffect[SK.LK_PARRYING]                    = {effectId: 336};		//Parrying
 	SkillEffect[SK.LK_CONCENTRATION]               = {effectId: 369};		//Concentration
 	SkillEffect[SK.LK_TENSIONRELAX]                = {};		//Relax
 	SkillEffect[SK.LK_BERSERK]                     = {effectId: 368};		//Frenzy
@@ -339,7 +364,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.HW_MAGICCRASHER]                = {effectId: 380};		//Stave Crasher
 	SkillEffect[SK.HW_MAGICPOWER]                  = {effectId: 'ef_magicpower'};		//Mystical Amplification
 	// Paladin
-	SkillEffect[SK.PA_PRESSURE]                    = {effectId: 365};		//Gloria Domini
+	SkillEffect[SK.PA_PRESSURE]                    = {beforeHitEffectId: 365};		//Gloria Domini
 	SkillEffect[SK.PA_SACRIFICE]                   = {effectId: 366};		// Martyr's Reckoning
 	SkillEffect[SK.PA_GOSPEL]                      = {effectId: 370, groundEffectId: '370_ground'};		//Battle Chant
 	// Champion
@@ -745,7 +770,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.LG_CANNONSPEAR]                 = {effectId: 'ef_cannonspear'};		//Cannon Spear
 	SkillEffect[SK.LG_BANISHINGPOINT]              = {effectId: 'ef_banishingpoint'};		//Banishing Point
 	SkillEffect[SK.LG_TRAMPLE]                     = {effectId: 'ef_trample'};		//Trample
-	SkillEffect[SK.LG_SHIELDPRESS]                 = {effectId: 906};		//Shield Press
+	SkillEffect[SK.LG_SHIELDPRESS]                 = {beforeHitEffectId: 906};		//Shield Press
 	SkillEffect[SK.LG_REFLECTDAMAGE]               = {effectId: 'ef_reflectdamage'};		//Reflect Damage
 	SkillEffect[SK.LG_PINPOINTATTACK]              = {effectId: 'ef_pinpointattack'};		//Pinpoint Attack
 	SkillEffect[SK.LG_FORCEOFVANGUARD]             = {};		//Force of Vanguard
@@ -832,7 +857,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SO_STRIKING]                    = {};		//Striking
 	SkillEffect[SK.SO_WARMER]                      = {effectId: 929};		//Warmer
 	SkillEffect[SK.SO_VACUUM_EXTREME]              = {effectId: 921};		//Vacuum Extreme
-	SkillEffect[SK.SO_VARETYR_SPEAR]               = {effectId: 930};		//Varetyr Spear
+	SkillEffect[SK.SO_VARETYR_SPEAR]               = {beforeHitEffectId: 930};		//Varetyr Spear
 	SkillEffect[SK.SO_ARRULLO]                     = {};		//Arrullo
 	SkillEffect[SK.SO_EL_CONTROL]                  = {};		//Spirit Control
 	SkillEffect[SK.SO_SUMMON_AGNI]                 = {};		//Summon Fire Spirit Agni
