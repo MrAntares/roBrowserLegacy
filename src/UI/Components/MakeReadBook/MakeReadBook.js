@@ -29,9 +29,12 @@
 	 var Sprite             = require('Loaders/Sprite');
 	 var Client             = require('Core/Client');
 	 var TextEncoding       = require('Vendors/text-encoding');
+	 var Announce       	= require('UI/Components/Announce/Announce');
 	 var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
 	 var getModule    		= require;
- 
+	
+
+	var sleepNow = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
  
 	 /**
 	  * Create Component
@@ -42,8 +45,14 @@
 	 * @var {Preferences} structure
 	 */
 	var _BOOK_INFORMATION	= Preferences.get('_BOOK_INFORMATION', {
-		title:  	''	,
-		contents:   ''	,
+		itid:  					0,
+		title:  				'',
+		color: 					'',
+		pagesize:   			0,
+		contents:   			[],
+		bookmark_activated:     false,
+		bookmark_activated_page:0,
+		book_open:				false,
 	}, 1.0);
  
 	 /**
@@ -79,42 +88,58 @@
 		var it = DB.getItemInfo( item.ITID );
 	
 		_BOOK_INFORMATION['title'] 	= it.identifiedDisplayName;
+		let addColor = inforBook.substr(1, 7);
 		let validtext = inforBook.substr(7);// remover color background
-		let limitText = 1184;
-		let intPagination = Math.floor(validtext.length/ 1184);
-		let cout = 0;
 
-		let arrayText = []
-		for (let index = 0; index < (intPagination+1); index++) {
-			let isEmpty = validtext.substr(cout,limitText);
-			if(isEmpty.length === 0)
-				break;
+		let lineValidtext = validtext.split(`\n`);
+		let defoutValue = 15;
+		let coutIndeNewText = 0;
+		let coutNewIndex = 0;
+		let contentsArray = []
+	
+		for (let index = 0; index < lineValidtext.length; index++) {
 			
-			arrayText.push(isEmpty)
+			if((defoutValue + coutNewIndex) > index){
 
-			cout = limitText + cout;
+				let addText = (typeof contentsArray[coutIndeNewText] === 'undefined') ? '\n' : contentsArray[coutIndeNewText]					
+				+ '\n' + lineValidtext[index];
+
+				if(addText.length > 460)
+				{
+					contentsArray[(coutIndeNewText)+1] = (typeof contentsArray[(coutIndeNewText)+1] === 'undefined') ? '\n' + lineValidtext[index]  :  '\n';
+
+					coutNewIndex = defoutValue + coutNewIndex;
+					coutIndeNewText++;
+					continue;
+				}
+
+				contentsArray[coutIndeNewText] = addText;					
+				continue;
+			}
+
+			coutNewIndex = defoutValue + coutNewIndex;
+			coutIndeNewText++;
 		}
-
-		console.log('validtext',  arrayText[arrayText.length-1]);
-
-		_BOOK_INFORMATION['contents'] = inforBook; // 1184 caracteres
+        
+		let validNewBookOpen = _BOOK_INFORMATION['itid'] === item.ITID;
+		_BOOK_INFORMATION['color'] 				= addColor;
+		_BOOK_INFORMATION['contents'] 			= contentsArray;
+		_BOOK_INFORMATION['pagesize'] 			= contentsArray.length; // length
+		_BOOK_INFORMATION['page'] 				= validNewBookOpen ? _BOOK_INFORMATION['page'] : 0; // length
+		_BOOK_INFORMATION['bookmark_activated'] = validNewBookOpen;
+		_BOOK_INFORMATION['itid'] 				= item.ITID;
+		_BOOK_INFORMATION['book_open'] 		    = false;
 		_BOOK_INFORMATION.save();
 	 }
 
 	 MakeReadBook.openBook = function openBook(){
-		MakeReadBook.remove();
 		MakeReadBook.append();
-
 		
-		var textBook = TextEncoding.decodeString(_BOOK_INFORMATION['contents']);
-
-		let addColor = textBook.substr(1, 7);
-		this.ui.find('.panel').css('background-color', '#'+addColor);
-		this.ui.find('.footer').css('background-color', '#'+addColor);
+		this.ui.find('.panel').css('background-color', '#'+_BOOK_INFORMATION['color']);
+		this.ui.find('.footer').css('background-color', '#'+_BOOK_INFORMATION['color']);
 
 		this.ui.find('#titleBook').text(_BOOK_INFORMATION['title']);
-		this.ui.find('#textBook').text(textBook.substr(7));
-		
+
 		Client.getFiles(
 			[
 				'data/sprite/book/\xc3\xa5\xb4\xdd\xb1\xe2.spr',
@@ -129,6 +154,8 @@
 				canvas.className = 'clone_book event_add_cursor';
 				MakeReadBook.ui.find('.footer').find('canvas').remove();
 				MakeReadBook.ui.find('.footer').append(canvas);
+				var cloneBook = MakeReadBook.ui.find('.clone_book');
+				cloneBook.click(onClose);
 
 				// highlighter
 				var sprite_highlighter = new Sprite( spr_highlighter );
@@ -145,6 +172,13 @@
 					e.stopImmediatePropagation();
 					MakeReadBook.ui.find('.bookmark').hide();
 				});
+				highlighter.click(function(e) {
+					e.stopImmediatePropagation();
+					_BOOK_INFORMATION['bookmark_activated'] = true;
+					_BOOK_INFORMATION['bookmark_activated_page'] = _BOOK_INFORMATION['page'];
+					_BOOK_INFORMATION.save();					
+				});
+				
 
 				// remove canvas next and previous
 				MakeReadBook.ui.find('#next_previous').find('canvas').remove();
@@ -178,34 +212,120 @@
 					MakeReadBook.ui.find('.next').hide();
 				});
 
+				// pagination
+				next_btn.click(function(e) {
+					e.stopImmediatePropagation();
+					if (_BOOK_INFORMATION['page'] < _BOOK_INFORMATION['pagesize'] / 1 - 1) {
+						_BOOK_INFORMATION['page']++;
+						page();
+						adjustButtons();
+						_BOOK_INFORMATION.save();
+					}
+				});
+				previous_btn.click(function(e) {
+					e.stopImmediatePropagation();
+					if (_BOOK_INFORMATION['page'] > 0) {
+						_BOOK_INFORMATION['page']--;
+						page();
+						adjustButtons();
+						_BOOK_INFORMATION.save();
+					}
+				});
+				page();
+				adjustButtons();
+
 			})
-		// Ã¥´Ý±â.spr
+	} 
+
+
+	MakeReadBook.highlighter = async function highlighter()
+	{
+		if(_preferences.show)onClose();
+		
+		let index = _BOOK_INFORMATION['bookmark_activated'] ? _BOOK_INFORMATION['bookmark_activated_page'] : 0;
+		let newText = '';
+		for (index; index < _BOOK_INFORMATION['contents'].length; index++) {			
+			newText = newText + `\n` +_BOOK_INFORMATION['contents'][index];
+		}
+	    await repeatedGreetingsLoop(newText);
+	};
+	
+	async function repeatedGreetingsLoop(book_information) {
+		let text1 = book_information.split(`\n`);
+		for (let i = 0; i < text1.length; i++) {
+
+			if(_BOOK_INFORMATION['book_open'])
+				break;
+
+			if(text1[i] === "" && i === 0){
+				getText("   ");
+				continue
+			};
+
+			if(i === 1) {
+				getText(text1[i]);
+				continue;
+			}
+			await sleepNow(5000)
+
+			if(_BOOK_INFORMATION['book_open'])
+				break;
+
+			getText(text1[i]);
+		}
 	}
- 
-	 /**
-	  * Initialize UI
-	  */
-	 MakeReadBook.init = function Init()
-	 {
-		// this.ui.find('.close').click(onClose);
-		this.draggable(this.ui.find('.titlebar'));
-	 };
- 
- 
+
+	function getText(textbook){
+		let text = cleanTextColor(textbook);
+		text = TextEncoding.decodeString(text);
+		ChatBox.addText( text == "" ? '  ' : text , ChatBox.TYPE.ANNOUNCE, '#ffffff' );
+		Announce.append();
+		Announce.set( text == "" ? '  ' : text, '#ffffff');
+	}
+	
+	function cleanTextColor(text)
+	{
+
+		let cout = text.split('^').length;
+		let array = text.split('^');
+		let newMessage = '' 
+
+		for (let index = 0; index < cout; index++) {
+
+			if(index === 0){
+				newMessage = array[index];
+				continue;
+			}
+
+			newMessage = newMessage + array[index].substr(6);
+		}
+
+		if(newMessage.length === 1)
+			return newMessage[0];
+
+		return newMessage;
+	}
+
 	 /**
 	  * Apply preferences once append to body
 	  */
 	 MakeReadBook.onAppend = function OnAppend()
 	 {
+		this.ui.show();
 		
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-	 };
-	 
 
-	
+		_BOOK_INFORMATION['book_open'] = true;
+		_BOOK_INFORMATION.save();
+
+		_preferences.show   =  this.ui.is(':visible');
+		_preferences.save();
+		
+		this.draggable(this.ui.find('.titlebar'));
+	 };
  
 	 /**
 	  * Remove MakeReadBook from window (and so clean up items)
@@ -213,20 +333,27 @@
 	 MakeReadBook.onRemove = function OnRemove()
 	 {
 	
-		 this.list.length = 0;
-		 
-		 // Save preferences
-		 _preferences.show   =  this.ui.is(':visible');
-		 _preferences.reduce = !!_realSize;
-		 _preferences.y      =  parseInt(this.ui.css('top'), 10);
-		 _preferences.x      =  parseInt(this.ui.css('left'), 10);
-		 _preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
-		 _preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
-		 _preferences.magnet_top = this.magnet.TOP;
-		 _preferences.magnet_bottom = this.magnet.BOTTOM;
-		 _preferences.magnet_left = this.magnet.LEFT;
-		 _preferences.magnet_right = this.magnet.RIGHT;
-		 _preferences.save();
+		try {
+			if (_preferences.show) {
+				this.ui.hide();
+			}
+			 // Save preferences
+			 _preferences.show   =  this.ui.is(':visible');
+			 _preferences.reduce = !!_realSize;
+			 _preferences.y      =  parseInt(this.ui.css('top'), 10);
+			 _preferences.x      =  parseInt(this.ui.css('left'), 10);
+			 _preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
+			 _preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
+			 _preferences.magnet_top = this.magnet.TOP;
+			 _preferences.magnet_bottom = this.magnet.BOTTOM;
+			 _preferences.magnet_left = this.magnet.LEFT;
+			 _preferences.magnet_right = this.magnet.RIGHT;
+			 _preferences.save();
+
+		} catch (error) {
+			_preferences.show   =  false;
+			_preferences.save();
+		}
 	 }; 
  
 	 /**
@@ -250,11 +377,35 @@
 	/**
 	 * Exit window
 	 */
-	function onClose()
+	function onClose(e)
 	{
-		MakeReadBook.ui.hide();
+		try {
+			e.stopImmediatePropagation();			
+			
+		} catch (error) {
+		}
+		
+		_BOOK_INFORMATION['book_open'] = false;
+		_BOOK_INFORMATION.save();
+		if (_preferences.show) {
+			MakeReadBook.onRemove();
+		}		
 	}
- 
+
+	function page() {	
+		MakeReadBook.ui.find('#textBook').text('');
+		var textBody = MakeReadBook.ui.find('#textBook');
+
+		for (var i = _BOOK_INFORMATION['page'] * 1 ; i < _BOOK_INFORMATION['pagesize'] && i < (_BOOK_INFORMATION['page'] + 1) *  1 ; i++) {
+			textBody.text(TextEncoding.decodeString(_BOOK_INFORMATION['contents'][i]))			
+		}
+		MakeReadBook.ui.find('#pageBook').text('(' + (_BOOK_INFORMATION['page'] + 1) + '/' + Math.ceil(_BOOK_INFORMATION['pagesize'] / 1 ) + ')' );
+	}
+	
+	function adjustButtons() {
+		MakeReadBook.ui.find('.next_btn').prop('disabled', _BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] > _BOOK_INFORMATION['pagesize'] / 1 - 1);
+		MakeReadBook.ui.find('.previous_btn').prop('disabled', _BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] == 0);
+	}
  
 	 /**
 	  * Extend MakeReadBook window size

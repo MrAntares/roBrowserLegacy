@@ -383,10 +383,7 @@ define(function(require)
 				break;
 			case ItemType.ETC:
 				let filenameBook =  `data/book/${item.ITID}.txt`;
-				// ui.find('.view').show();
-				console.log('setItem',filenameBook)
 				Client.loadFile( filenameBook, function(data) {
-					// console.log('setItem-Client.loadFile', data);
 					MakeReadBook.startBook(data, item);
 					eventsBooks();
 				});
@@ -427,6 +424,7 @@ define(function(require)
 					ItemInfo.ui.find('.overlay_open').hide();
 				});
 				bookOpen.click(function(e){
+					e.stopImmediatePropagation();
 					MakeReadBook.openBook();
 				}.bind(this));
 				// icon read book
@@ -444,8 +442,9 @@ define(function(require)
 					e.stopImmediatePropagation();
 					ItemInfo.ui.find('.overlay_read').hide();
 				});
-				bookRead.click(function(){
-					
+				bookRead.click(function(e){
+					e.stopImmediatePropagation();
+					MakeReadBook.highlighter();
 				}.bind(this));
 				Renderer.render(rendering);
 
