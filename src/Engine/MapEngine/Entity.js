@@ -968,8 +968,15 @@ define(function( require )
 						}
 					};
 				};
+				
+				var addEffectBeforeHit = function(){
+					return function addEffectBeforeHitClosure(){
+						EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, null, pkt.AID);
+					};
+				};
 
 				for (i = 0; i < pkt.count; ++i) {
+					Events.setTimeout( addEffectBeforeHit(), (200 * i));
 					Events.setTimeout( addDamage(i), pkt.attackMT + (200 * i)); //TOFIX: why 200 ?
 				}
 			}
