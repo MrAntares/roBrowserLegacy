@@ -252,6 +252,9 @@ define(function(require)
 			ChatBox.ui.find('.input').toggle();
 			ChatBox.ui.find('.battlemode').toggle();
 		});
+
+		// dialog box size
+		makeResizableDiv()		
 	};
 
 
@@ -703,6 +706,43 @@ define(function(require)
 			ChatBox.sendTo = type;
 		};
 	}
+
+	function makeResizableDiv() {
+		const elementchatbox = document.getElementById('chatbox');
+		const elementcontent = document.querySelector('.content');
+		
+		const resizers = document.querySelectorAll('.draggable')
+		const minimum_size = 20;
+		let original_height = 0;
+		let original_y = 0;
+		let original_mouse_y = 0;
+		for (let i = 0;i < resizers.length; i++) {
+		  const currentResizer = resizers[i];
+		  currentResizer.addEventListener('mousedown', function(e) {
+			e.preventDefault()
+			original_height = parseFloat(getComputedStyle(elementcontent, null).getPropertyValue('height').replace('px', ''));
+			original_y = elementchatbox.getBoundingClientRect().top;
+			original_mouse_y = e.pageY;
+			window.addEventListener('mousemove', resize)
+			window.addEventListener('mouseup', stopResize)
+		  })
+		  
+		  function resize(e) {
+
+			if (currentResizer.classList.contains('draggable')) {
+			  const height = original_height - (e.pageY - original_mouse_y)
+			  if (height > minimum_size) {
+				elementcontent.style.height = height + 'px'
+				elementchatbox.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+			  }
+			}
+		  }
+		  
+		  function stopResize() {
+			window.removeEventListener('mousemove', resize)
+		  }
+		}
+	  }
 
 
 	/**
