@@ -54,14 +54,14 @@
 
 /** Content **/
 #chatbox .body {
-	background:rgba(0,0,0,0.5);
-	border-left:1px solid white;
-	border-right:1px solid white;
-	border-radius:0px 3px 0px 0px;
-	padding:5px;
-	margin-left:3px;
-	margin-right:-2px;
-	max-width: 100%;
+    background: rgba(0,0,0,0.5);
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    border-radius: 0px 3px 0px 0px;
+    padding: 0px 5px 5px 5px;
+    margin-left: 3px;
+    margin-right: -2px;
+    max-width: 100%;
 }
 #chatbox .content {
 	font-size:12px;
@@ -73,6 +73,10 @@
 #chatbox .content a {
 	color:inherit;
 	text-decoration:underline;
+}
+
+#chatbox .draggable {
+	height:10px;
 }
 
 #chatbox .battlemode {

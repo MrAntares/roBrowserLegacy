@@ -32,7 +32,6 @@
 	 var UIComponent        = require('UI/UIComponent');
 	 var htmlText           = require('text!./Mail.html');
 	 var cssText            = require('text!./Mail.css');
-	 var getModule    		= require;
  
  
 	 /**
@@ -77,22 +76,6 @@
 		 item_add_email: {}
 	 }, 2.0);
  
- 
-	 /**
-	  * Initialize UI
-	  * Create message
-	  * 	To at most 50 characters
-	  * 	Title at most 50 characters
-	  * 	Email body max 198 characters
-	  * Message box
-	  * 	Display sender name is a maximum of 15, plus 3 characters "..."
-	  * 	Display sender name in tooltip sent by sender has a maximum of 23 characters
-	  * 	Display the title of the email sent by the sender has a maximum of 25, plus 3 characters "..."
-	  * 	Display email title in tooltip sent by sender has a maximum of 39 characters
-	  *  	The pagination numbers only appear when there is at least one message in the list, it displays "1/1" when there is only 1
-	  *     The previous and next pagination events only work when there are more than 8 messages (VALIDATE)
-	  */
- 
 	 /**
 	  * Apply preferences once append to body
 	  */
@@ -104,21 +87,7 @@
 		this.ui.find('#create_mail_cancel').on('click',offCreateMessagesOnWindowMailbox); // remove all item reset layout
 		this.ui.find('#create_mail_send').on('click',sendCreateMessagesMail); // send mail
 
-		this.ui.find('.next').click(function() {
-			if (Mail.page < Mail.list.mailList.length / Mail.pageSize - 1) {
-				Mail.page++;
-				createMailList();
-				adjustButtons();
-			}
-		});
-		this.ui.find('.prev').click(function() {
-			if (Mail.page > 0) {
-				Mail.page--;
-				createMailList();
-				adjustButtons();
-			}
-		});
-		createMailList();
+		updatePageMailItems();
 
 		this.ui
 			.find('.container_item')
@@ -256,7 +225,7 @@
 	Mail.mailList = function mailList( read )
 	{
 		Mail.list = read;
-		createMailList();
+		updatePageMailItems();
 	};
 
 	/**
@@ -327,6 +296,30 @@
 		this.ui.find(".item" ).remove();
 		this.ui.find(".input_zeny_amt" ).val('');
 		this.ui.find('#create_mail_send').prop('disabled', false);
+	}
+
+	/*
+	* Update item pagination
+	*/
+	function updatePageMailItems()
+	{
+		Mail.ui.find('.next').click(function(e) {
+			e.stopImmediatePropagation();
+			if (Mail.page < Mail.list.mailList.length / Mail.pageSize - 1) {
+				Mail.page++;
+				createMailList();
+				adjustButtons();
+			}
+		});
+		Mail.ui.find('.prev').click(function(e) {
+			e.stopImmediatePropagation();
+			if (Mail.page > 0) {
+				Mail.page--;
+				createMailList();
+				adjustButtons();
+			}
+		});
+		createMailList();
 	}
 
 	 /**
@@ -579,7 +572,7 @@
 	 */
 	function onDrop( event )
 	{
-		Mail.parseMailWinopen(1); // remove item
+		
 		var item, data;
 		event.stopImmediatePropagation();
 
@@ -602,6 +595,7 @@
 			InputBox.setType('number', false, item.count);
 			InputBox.onSubmitRequest = function OnSubmitRequest( count ) {
 				InputBox.remove();
+				Mail.parseMailWinopen(1); // remove item
 
 				if(data.from == 'Inventory')
 				{
@@ -624,9 +618,11 @@
 			return false;
 		}
 
+		
 		if(data.from == 'Inventory'){
 			Inventory.removeItem( item.index, 1 );						
 		}
+		Mail.parseMailWinopen(1); // remove item
 
 		Mail.parseMailSetattach( item.index, 1 );
 		// add itens
