@@ -291,6 +291,35 @@
 		Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '').replace(' ', ''));
 	}
 
+	/**
+	 * Responder to a mail.
+	 * @param {string} fromName
+	 */
+	Mail.replyNewMailFriends = async function replyNewMailFriends( fromName )
+	{
+		
+		Mail.append();
+		sleep(1).then(() => {
+			
+			// Do something after the sleep!
+			onWindowCreateMessages();
+			offWindowListMail();
+			Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '').replace(' ', ''));
+			Mail.ui.find('#inbox').off('click');
+			Mail.ui.find('#inbox')
+				.prop('disabled', false)
+			.on('click', function() {
+				
+			});
+			Mail.ui.find('#create_mail_cancel').off('click');
+			Mail.ui.find('#create_mail_cancel').on('click',this.onClosePressed.bind(this));
+			Mail.ui.find('.block_zeny_item').remove();
+			Mail.ui.find('.block_send_cancel').css('margin-top','19%');
+
+		});
+		
+	}
+
 	Mail.clearFieldsItemZeny = function clearFieldsItemZeny()
 	{
 		this.ui.find(".item" ).remove();
@@ -514,6 +543,19 @@
 	{
 		// Reset mail item and/or Zeny
 		removeCreateAllItem(); // CZ_MAIL_RESET_ITEM
+
+		// Off window list mail
+		offWindowListMail();
+
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', function(url) {
+			Mail.ui.find('.body').css('backgroundImage', 'url(' + url + ')');
+		}.bind(this));
+		Mail.ui.find('#title').text(DB.getMessage(1026));
+	};
+
+
+	function offWindowListMail()
+	{
 		// Off window list mail
 		Mail.ui.find('.prev_next').hide();
 		Mail.ui.find('.block_mail').hide();
@@ -522,12 +564,7 @@
 		Mail.ui.find('.block_create_mail').show();
 		//Focus textArea
 		Mail.ui.find('.textarea_mail').focus();
-
-		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', function(url) {
-			Mail.ui.find('.body').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this));
-		Mail.ui.find('#title').text(DB.getMessage(1026));
-	};
+	}
 
 	function onAddZenyInput(event)
 	{
@@ -860,7 +897,7 @@
 			}
 		});
 	 }
-
+	 
 	
 	 /**
 	 * Callbacks
