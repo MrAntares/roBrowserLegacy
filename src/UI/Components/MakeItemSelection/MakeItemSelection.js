@@ -123,6 +123,7 @@ define(function(require)
  
 		 MakeItemSelection.list.empty();
 		 this.material = list[0]; // add mk type
+		 this.ui.find('.materials').remove();
  
 		 for (i = 1, count = list.length; i < count; ++i) {
 			 
@@ -137,6 +138,15 @@ define(function(require)
 		this.ui.find('.list').css('backgroundColor', '#f7f7f7');
 		this.ui.find('.ok').unbind('click');		
 		this.ui.find('.ok').click( this.selectIndex.bind(this) );
+		
+		this.ui.find('.item').unbind('dblclick');
+		this.ui.find('.item').unbind('mousedown');	
+		this.ui
+			.on('dblclick', '.item', this.selectIndex.bind(this))
+			.on('mousedown', '.item', function(){
+				MakeItemSelection.setIndex( Math.floor(this.getAttribute('data-index')) );
+			});
+		
 		
 	 };
 
