@@ -112,6 +112,46 @@ define(function(require)
 
 
 	/**
+	 * Add elements to the list
+	 *
+	 * @param {Array} list object to display
+	 */
+	 MakeItemSelection.setCookingList = function setCookingList( list )
+	 {
+		 var i, count;
+		 var item, it, file, name;
+ 
+		 MakeItemSelection.list.empty();
+		 this.material = list[0]; // add mk type
+		 this.ui.find('.materials').remove();
+ 
+		 for (i = 1, count = list.length; i < count; ++i) {
+			 
+			 item = list[i];
+			 it   = DB.getItemInfo( item );
+			 file = it.identifiedResourceName;
+			 name = it.identifiedDisplayName;
+ 
+			 addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
+		 }
+		 
+		this.ui.find('.list').css('backgroundColor', '#f7f7f7');
+		this.ui.find('.ok').unbind('click');		
+		this.ui.find('.ok').click( this.selectIndex.bind(this) );
+		
+		this.ui.find('.item').unbind('dblclick');
+		this.ui.find('.item').unbind('mousedown');	
+		this.ui
+			.on('dblclick', '.item', this.selectIndex.bind(this))
+			.on('mousedown', '.item', function(){
+				MakeItemSelection.setIndex( Math.floor(this.getAttribute('data-index')) );
+			});
+		
+		
+	 };
+
+
+	/**
 	 * Add an element to the list
 	 *
 	 * @param {string} image url
@@ -175,7 +215,8 @@ define(function(require)
 	{
 		this.onIndexSelected( this.index, this.material );
 		if(this.index > -1){
-			this.material.forEach(item => Inventory.removeItem(item.index, 1));
+			if(typeof this.material == ! 'number')
+				this.material.forEach(item => Inventory.removeItem(item.index, 1));
 		}
 		this.remove();
 	};
