@@ -112,6 +112,36 @@ define(function(require)
 
 
 	/**
+	 * Add elements to the list
+	 *
+	 * @param {Array} list object to display
+	 */
+	 MakeItemSelection.setCookingList = function setCookingList( list )
+	 {
+		 var i, count;
+		 var item, it, file, name;
+ 
+		 MakeItemSelection.list.empty();
+		 this.material = list[0]; // add mk type
+ 
+		 for (i = 1, count = list.length; i < count; ++i) {
+			 
+			 item = list[i];
+			 it   = DB.getItemInfo( item );
+			 file = it.identifiedResourceName;
+			 name = it.identifiedDisplayName;
+ 
+			 addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
+		 }
+		 
+		this.ui.find('.list').css('backgroundColor', '#f7f7f7');
+		this.ui.find('.ok').unbind('click');		
+		this.ui.find('.ok').click( this.selectIndex.bind(this) );
+		
+	 };
+
+
+	/**
 	 * Add an element to the list
 	 *
 	 * @param {string} image url
@@ -175,7 +205,8 @@ define(function(require)
 	{
 		this.onIndexSelected( this.index, this.material );
 		if(this.index > -1){
-			this.material.forEach(item => Inventory.removeItem(item.index, 1));
+			if(typeof this.material == ! 'number')
+				this.material.forEach(item => Inventory.removeItem(item.index, 1));
 		}
 		this.remove();
 	};

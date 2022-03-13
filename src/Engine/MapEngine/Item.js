@@ -440,6 +440,30 @@ define(function( require )
 	}
 
 	/**
+	 * Get a list of items to create
+	 *
+	 * @param {object} pkt - PACKET.ZC.MAKINGITEM_LIST
+	 */
+	 function onMakeitem_List( pkt )
+	 {
+		 if (!pkt.idList.length) {
+			 return;
+		 }
+		 MakeItemSelection.append();
+		 MakeItemSelection.setCookingList(pkt.idList);
+		 MakeItemSelection.setTitle(DB.getMessage(425));
+		 MakeItemSelection.onIndexSelected = function(index, material) {
+			console.log('onIndexSelected', index, material);
+			 if (index >= -1) {
+				 var pkt   = new PACKET.CZ.REQ_MAKINGITEM();
+				 pkt.mkType = material;
+				 pkt.id = index;
+				 Network.sendPacket(pkt);
+			 }
+		 };
+	 }
+
+	/**
 	 * Initialize
 	 */
 	return function ItemEngine()
@@ -485,6 +509,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART,          onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,         onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
+		Network.hookPacket( PACKET.ZC.MAKINGITEM_LIST,        onMakeitem_List );
 		Network.hookPacket( PACKET.ZC.ACK_ADDITEM_TO_CART,        onAckAddItemToCart );
 	};
 });
