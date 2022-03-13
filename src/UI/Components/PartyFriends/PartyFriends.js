@@ -26,6 +26,7 @@ define(function(require)
 	var UIComponent          = require('UI/UIComponent');
 	var PartyHelper          = require('UI/Components/PartyFriends/PartyHelper');
 	var ContextMenu          = require('UI/Components/ContextMenu/ContextMenu');
+	var Mail 				 = require('UI/Components/Mail/Mail');
 	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
 	var htmlText             = require('text!./PartyFriends.html');
 	var cssText              = require('text!./PartyFriends.css');
@@ -102,7 +103,7 @@ define(function(require)
 		this.ui.find('.leave').mousedown(onRequestLeaveParty);
 		this.ui.find('.resize').mousedown(onResize);
 
-		//this.ui.find('.mail').mousedown();
+		this.ui.find('.mail').mousedown(onOpenMailCreationWindow);
 		this.ui.find('.party.create').mousedown(onOpenPartyCreationWindow);
 		this.ui.find('.party.add').mousedown(onOpenPartyInviteWindow);
 		this.ui.find('.info').mousedown(onOpenPartyOptionWindow);
@@ -820,6 +821,17 @@ define(function(require)
 			return false;
 		}
 	}
+
+	/**
+	 * Request to create a team (open the window)
+	 */
+	 function onOpenMailCreationWindow()
+	 {
+		let recipient = PartyFriends.ui.find('.content .selection').text();
+
+		// redirect tela
+		Mail.replyNewMailFriends(recipient);
+	 }
 
 
 	/**
