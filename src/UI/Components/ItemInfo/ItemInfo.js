@@ -207,13 +207,6 @@ define(function(require)
 		
 		// Add view button (for cards)
 		addEvent(item);
-
-		// if (item.type === ItemType.CARD) {
-		// 	ui.find('.view').show();
-		// }
-		// else {
-		// 	ui.find('.view').hide();
-		// }
 		
 		switch (item.type) {
 			// Not an equipement = no card

@@ -18,3 +18,5 @@
 #MakeItemSelection .btn { position:absolute; bottom:0px; border:0; width:42px; height:20px; bottom:4px; background-color:transparent; }
 #MakeItemSelection .ok { right: 50px; }
 #MakeItemSelection .cancel { right: 5px; }
+
+#MakeItemSelection .select { background-color: rgb(205, 224, 255); }

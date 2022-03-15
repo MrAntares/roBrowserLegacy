@@ -6593,8 +6593,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	// 0x18d
 	PACKET.ZC.MAKABLEITEMLIST = function PACKET_ZC_MAKABLEITEMLIST(fp, end) {
 		this.itemList = (function() {
-								   
-									   
 			var i, count=(end-fp.tell())/8|0, out=new Array(count);
 							  
 			for (i = 0; i < count; ++i) {
