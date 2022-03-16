@@ -58,7 +58,6 @@
          this.draggable(this.ui.find('.head'));
          
          // Click Events
-         this.ui.find('.ok').click( this.advance.bind(this) );
          this.ui.find('.cancel').click(function(){
              this.index = -1;
              this.selectIndex();
@@ -66,7 +65,6 @@
  
          // Bind events
          this.ui
-             .on('dblclick', '.item', this.advance.bind(this))
              .on('mousedown', '.item', function(){
                  MakeItemSelection.setIndex( Math.floor(this.getAttribute('data-index')) );
              });
@@ -90,13 +88,14 @@
      MakeItemSelection.setList = function setList( list )
      {
          var i, count;
-         var item, it, file, name, valid_mat;
+         var item, it, file, name, showMaterials;
  
          MakeItemSelection.list.empty();
+		 this.ui.find('.list').css('backgroundColor', '#f7f7f7');
          this.ui.find('.materials').hide();
 		 this.ui.find('.item').remove();
  
-         valid_mat = true;
+         showMaterials = true;
          
          this.material = [];
  
@@ -107,22 +106,16 @@
              file = it.identifiedResourceName;
              name = it.identifiedDisplayName;
  
-             if(it.processitemlist === '')
-                 valid_mat = false;
+             if(it.processitemlist === ''){
+				 showMaterials = false;
+			 }
  
              addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i].ITID, name);
          }
-         // Rune craft passa direto
          
-         kindEvent(valid_mat);
-         if(valid_mat)
-         {
-             this.setIndex(list[0].ITID);
-         }else{			
-             this.ui.find('.ok').click( this.selectIndex.bind(this) );
-         }
-         
-         
+		 this.setIndex(list[0].ITID);
+		 
+		 bindSelectEvents(showMaterials);
      };
  
  
@@ -133,12 +126,15 @@
       */
       MakeItemSelection.setCookingList = function setCookingList( list )
       {
-          var i, count;
-          var item, it, file, name;
+         var i, count;
+         var item, it, file, name;
   
-          MakeItemSelection.list.empty();
-          this.material = list[0]; // add mk type
-          this.ui.find('.materials').remove();
+         MakeItemSelection.list.empty();
+		 this.ui.find('.list').css('backgroundColor', '#f7f7f7');
+         this.ui.find('.materials').hide();
+		 this.ui.find('.item').remove();
+		 
+		 this.material = list[0]; // add mk type
   
          for (i = 1, count = list.length; i < count; ++i) {
               
@@ -149,9 +145,10 @@
  
              addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
          }
+		 
+		 this.setIndex(list[0].ITID);
           
-         kindEvent(false);
-         this.ui.find('.ok').click( this.selectIndex.bind(this) );
+         bindSelectEvents(false);
       };
  
  
@@ -350,25 +347,23 @@
      }
      
  
-     function kindEvent(existMatal){
-         if(existMatal){
-             MakeItemSelection.ui.find('.list').css('backgroundColor', '#f7f7f7');
-             MakeItemSelection.ui.find('.materials').hide();
+     function bindSelectEvents(showMaterials){
+         if(showMaterials){
+			 
              MakeItemSelection.ui.find('.ok').unbind('click');
              MakeItemSelection.ui.find('.ok').click( MakeItemSelection.advance.bind(MakeItemSelection) );
+			 
+			 MakeItemSelection.ui.off('dblclick', '.item');
+			 MakeItemSelection.ui.on('dblclick', '.item', MakeItemSelection.advance.bind(MakeItemSelection));
+			 
          }else{
-             MakeItemSelection.ui.find('.list').css('backgroundColor', '#f7f7f7');
+			 
              MakeItemSelection.ui.find('.ok').unbind('click');
-             MakeItemSelection.ui.find('.item').unbind('dblclick');
-             MakeItemSelection.ui.find('.item').unbind('mousedown');
-             MakeItemSelection.ui
-                 .on('dblclick', '.item', MakeItemSelection.selectIndex.bind(MakeItemSelection))
-                 .on('mousedown', '.item', function(event){
-                     event.stopImmediatePropagation();
-                     MakeItemSelection.setIndex( Math.floor(MakeItemSelection.ui.find('.item .select').data('index') ) );
-                 });
+			 MakeItemSelection.ui.find('.ok').click( MakeItemSelection.selectIndex.bind(MakeItemSelection) );
+			 
+             MakeItemSelection.ui.off('dblclick', '.item');
+             MakeItemSelection.ui.on('dblclick', '.item', MakeItemSelection.selectIndex.bind(MakeItemSelection));
          }
-         
      }
  
      /**
