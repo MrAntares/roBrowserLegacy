@@ -6187,6 +6187,7 @@ define(function( require )
         608: [{    //EF_COOKING_OK    Cooking Success
             type: 'STR',
             file: 'cook_suc',
+			wav: '_heal_effect',
             attachedEntity: true
         }],
 
@@ -6194,11 +6195,12 @@ define(function( require )
         609: [{    //EF_COOKING_FAIL    Cooking Failed
             type: 'STR',
             file: 'cook_fail',
+			wav: 'caramel_die',
             attachedEntity: true
         }],
 
-        //610: [{}],    //EF_TEMP_OK       Success
-        //611: [{}],    //EF_TEMP_FAIL       Failed
+        //610: [{ file: 'effect/success.bmp' }],    //EF_TEMP_OK       Success
+        //611: [{ file: 'effect/failed.bmp' }],    //EF_TEMP_FAIL       Failed
 
         612: [{    //EF_HAPGYEOK    Korean Words and /no1 Emoticon
             type: 'SPR',
