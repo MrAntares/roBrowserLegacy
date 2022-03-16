@@ -313,8 +313,8 @@
 			});
 			Mail.ui.find('#create_mail_cancel').off('click');
 			Mail.ui.find('#create_mail_cancel').on('click',this.onClosePressed.bind(this));
-			Mail.ui.find('.block_zeny_item').remove();
-			Mail.ui.find('.block_send_cancel').css('margin-top','19%');
+			//Mail.ui.find('.block_zeny_item').remove();
+			//Mail.ui.find('.block_send_cancel').css('margin-top','19%');
 
 		});
 		
