@@ -288,7 +288,7 @@
 	Mail.replyNewMail = function replyNewMail( fromName )
 	{
 		onWindowCreateMessages();
-		Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '').replace(' ', ''));
+		Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, ''));
 	}
 
 	/**
@@ -304,7 +304,7 @@
 			// Do something after the sleep!
 			onWindowCreateMessages();
 			offWindowListMail();
-			Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '').replace(' ', ''));
+			Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, ''));
 			Mail.ui.find('#inbox').off('click');
 			Mail.ui.find('#inbox')
 				.prop('disabled', false)
@@ -508,7 +508,7 @@
 		}
 
 		let to = Mail.ui.find('.text_to').val();
-		to = to.length > 50 ? title.substring(0,50) : to;
+		to = to.length > 50 ? to.substring(0,50) : to;
 		let title = Mail.ui.find('.input_title').val();
 		title = title.length > 50 ? title.substring(0,50) : title;
 		let message = Mail.ui.find('.textarea_mail').val();
