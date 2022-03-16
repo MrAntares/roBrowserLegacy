@@ -444,24 +444,23 @@ define(function( require )
 	 *
 	 * @param {object} pkt - PACKET.ZC.MAKINGITEM_LIST
 	 */
-	 function onMakeitem_List( pkt )
-	 {
-		 if (!pkt.idList.length) {
-			 return;
-		 }
-		 MakeItemSelection.append();
-		 MakeItemSelection.setCookingList(pkt.idList);
-		 MakeItemSelection.setTitle(DB.getMessage(425));
-		 MakeItemSelection.onIndexSelected = function(index, material) {
-			console.log('onIndexSelected', index, material);
-			 if (index >= -1) {
-				 var pkt   = new PACKET.CZ.REQ_MAKINGITEM();
-				 pkt.mkType = material;
-				 pkt.id = index;
-				 Network.sendPacket(pkt);
-			 }
-		 };
-	 }
+	function onMakeitem_List( pkt )
+	{
+		if (!pkt.idList.length) {
+			return;
+		}
+		MakeItemSelection.append();
+		MakeItemSelection.setCookingList(pkt.idList);
+		MakeItemSelection.setTitle(DB.getMessage(425));
+		MakeItemSelection.onIndexSelected = function(index, material) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQ_MAKINGITEM();
+				pkt.mkType = material;
+				pkt.id = index;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
 
 	/**
 	 * Initialize
