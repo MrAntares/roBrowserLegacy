@@ -2925,11 +2925,22 @@ define(function( require )
         }],
 
         //221: [{}],    //EF_POTIONPILLAR       Intense light beam
+		
         222: [{    //EF_DEFENDER       Defender (Crusader)
-			type: 'STR',
-            file: 'deffender',
+			type: 'CYLINDER',
+			alphaMax: 0.6,
+            animation: 1,
+            blendMode: 8,
+            bottomSize: 1.5,
+            topSize: 1.5,
+            duration: 3000,
+            fade: true,
+            height: 10,
+            rotate: true,
+            textureName: 'ring_black',
             attachedEntity: true
 		}],
+		
         //223: [{}],    //EF_GANBANTEIN       Holy Cast Aura
         //224: [{}],    //EF_WIND       Wind (Map effect)
         //225: [{}],    //EF_VOLCANO       Volcano casting effect
@@ -3047,7 +3058,21 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //252: [{}],    //EF_REFLECTSHIELD       Reflect Shield
+        252: [{    //EF_REFLECTSHIELD       Reflect Shield
+			type: 'CYLINDER',
+			alphaMax: 0.6,
+            animation: 1,
+            blendMode: 8,
+            bottomSize: 1.5,
+            topSize: 1.5,
+            duration: 3000,
+            fade: true,
+            height: 10,
+            rotate: true,
+            textureName: 'ring_yellow',
+            attachedEntity: true
+		}],
+		
         //253: [{}],    //EF_ABSORBSPIRITS       Absorb Spirit Spheres
         254: [{    //EF_STEELBODY       Mental Strength (Visual Effect)
 			wav: 'effect/mon_\xb1\xdd\xb0\xad\xba\xd2\xb1\xab'
