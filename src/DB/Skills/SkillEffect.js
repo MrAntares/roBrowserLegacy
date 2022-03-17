@@ -3,8 +3,6 @@
  *
  * List of skills with informations (in progress)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author Vincent Thibault
  */
  
@@ -1053,7 +1051,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MS_MAGNUM]                      = {};		//Magnum_Break
 	SkillEffect[SK.MS_BOWLINGBASH]                 = {};		//Bowling_Bash
 	SkillEffect[SK.MS_PARRYING]                    = {};		//Parry
-	SkillEffect[SK.MS_REFLECTSHIELD]               = {};		//Shield_Reflect
+	SkillEffect[SK.MS_REFLECTSHIELD]               = {effectId: 252};		//Shield_Reflect
 	SkillEffect[SK.MS_BERSERK]                     = {};		//Frenzy
 	SkillEffect[SK.MA_DOUBLE]                      = {};		//Double_Strafe
 	SkillEffect[SK.MA_SHOWER]                      = {};		//Arrow_Shower
