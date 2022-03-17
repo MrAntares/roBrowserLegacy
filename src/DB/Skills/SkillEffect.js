@@ -784,7 +784,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.LG_EARTHDRIVE]                  = {effectId: 'ef_earthdrive'};		//Earth Drive
 	SkillEffect[SK.LG_HESPERUSLIT]                 = {effectId: 'ef_hesperuslit'};		//Hesperus Lit
 	SkillEffect[SK.LG_INSPIRATION]                 = {effectId: 910};		//Inspiration
-	SkillEffect[SK. LG_OVERBRAND_BRANDISH]         = {};		//Overbrand Brandish
+	SkillEffect[SK.LG_OVERBRAND_BRANDISH]          = {};		//Overbrand Brandish
 	SkillEffect[SK.LG_OVERBRAND_PLUSATK]           = {};		//Overbrand Plus Attack
 	// SR Sura
 	SkillEffect[SK.SR_DRAGONCOMBO]                 = {effectId: 'ef_dragoncombo'};		//Dragon Combo
@@ -958,20 +958,20 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.ECLAGE_RECALL]                  = {};		//Return To Eclage
 	// Copied Bard / Dancer Skills
 	// EP 14.3 Part 2 3rd Job Skills
-	SkillEffect[SK. GC_DARKCROW]                   = {effectId: 1040};		//Dark Claw
-	SkillEffect[SK. RA_UNLIMIT]                    = {};		//Unlimited
-	SkillEffect[SK. GN_ILLUSIONDOPING]             = {effectId: 1049};		//Illusion Doping
-	SkillEffect[SK. RK_DRAGONBREATH_WATER]         = {hitEffectId: 'ef_dragonbreath_water'};		//Dragon Breath - Water
-	SkillEffect[SK. RK_LUXANIMA]                   = {effectId: 1044};		//Lux Anima
-	SkillEffect[SK. NC_MAGMA_ERUPTION]             = {effectId: 1050};		//Magma Eruption
-	SkillEffect[SK. WM_FRIGG_SONG]                 = {effectId: 'ef_frigg_song'};		//Frigg's Song
-	SkillEffect[SK. SO_ELEMENTAL_SHIELD]           = {effectId: 1046};		//Elemental Shield
-	SkillEffect[SK. SR_FLASHCOMBO]                 = {effectId: 1043};		//Flash Combo
-	SkillEffect[SK. SC_ESCAPE]                     = {};		//Emergency Escape
-	SkillEffect[SK. AB_OFFERTORIUM]                = {effectId: 1047};		//Offertorium
-	SkillEffect[SK. WL_TELEKINESIS_INTENSE]        = {effectId: 1048};		//Intense Telekinesis
-	SkillEffect[SK. LG_KINGS_GRACE]                = {effectId: 'ef_kings_grace'};		//King's Grace
-	SkillEffect[SK. ALL_FULL_THROTTLE]             = {effectId: 1042};		//Full Throttle
+	SkillEffect[SK.GC_DARKCROW]                    = {effectId: 1040};		//Dark Claw
+	SkillEffect[SK.RA_UNLIMIT]                     = {};		//Unlimited
+	SkillEffect[SK.GN_ILLUSIONDOPING]              = {effectId: 1049};		//Illusion Doping
+	SkillEffect[SK.RK_DRAGONBREATH_WATER]          = {hitEffectId: 'ef_dragonbreath_water'};		//Dragon Breath - Water
+	SkillEffect[SK.RK_LUXANIMA]                    = {effectId: 1044};		//Lux Anima
+	SkillEffect[SK.NC_MAGMA_ERUPTION]              = {effectId: 1050};		//Magma Eruption
+	SkillEffect[SK.WM_FRIGG_SONG]                  = {effectId: 'ef_frigg_song'};		//Frigg's Song
+	SkillEffect[SK.SO_ELEMENTAL_SHIELD]            = {effectId: 1046};		//Elemental Shield
+	SkillEffect[SK.SR_FLASHCOMBO]                  = {effectId: 1043};		//Flash Combo
+	SkillEffect[SK.SC_ESCAPE]                      = {};		//Emergency Escape
+	SkillEffect[SK.AB_OFFERTORIUM]                 = {effectId: 1047};		//Offertorium
+	SkillEffect[SK.WL_TELEKINESIS_INTENSE]         = {effectId: 1048};		//Intense Telekinesis
+	SkillEffect[SK.LG_KINGS_GRACE]                 = {effectId: 'ef_kings_grace'};		//King's Grace
+	SkillEffect[SK.ALL_FULL_THROTTLE]              = {effectId: 1042};		//Full Throttle
 	// Summoner
 	SkillEffect[SK.SU_BITE]                        = {};		//Bite
 	SkillEffect[SK.SU_HIDE]                        = {};		//Hide
