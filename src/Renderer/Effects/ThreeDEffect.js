@@ -60,12 +60,12 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             this.posxEnd = randBetween(-effect.posxRandDiff, effect.posxRandDiff);
         }
         if (effect.posxStartRand) {
-            var posxStartRandMilieu = effect.posxStartRandMilieu ? effect.posxStartRandMilieu : 0;
-            this.posxStart = randBetween(posxStartRandMilieu - effect.posxStartRand, posxStartRandMilieu + effect.posxStartRand);
+            var posxStartRandMiddle = effect.posxStartRandMiddle ? effect.posxStartRandMiddle : 0;
+            this.posxStart = randBetween(posxStartRandMiddle - effect.posxStartRand, posxStartRandMiddle + effect.posxStartRand);
         }
         if (effect.posxEndRand) {
-            var posxEndRandMilieu = effect.posxEndRandMilieu ? effect.posxEndRandMilieu : 0;
-            this.posxEnd = randBetween(posxEndRandMilieu - effect.posxEndRand, posxEndRandMilieu + effect.posxEndRand);
+            var posxEndRandMiddle = effect.posxEndRandMiddle ? effect.posxEndRandMiddle : 0;
+            this.posxEnd = randBetween(posxEndRandMiddle - effect.posxEndRand, posxEndRandMiddle + effect.posxEndRand);
         }
         this.posxSmooth = effect.posxSmooth ? true : false;
         if (effect.posyStart) this.posyStart = effect.posyStart;
@@ -85,12 +85,12 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             this.posyEnd = randBetween(-effect.posyRandDiff, effect.posyRandDiff);
         }
         if (effect.posyStartRand) {
-            var posyStartRandMilieu = effect.posyStartRandMilieu ? effect.posyStartRandMilieu : 0;
-            this.posyStart = randBetween(posyStartRandMilieu - effect.posyStartRand, posyStartRandMilieu + effect.posyStartRand);
+            var posyStartRandMiddle = effect.posyStartRandMiddle ? effect.posyStartRandMiddle : 0;
+            this.posyStart = randBetween(posyStartRandMiddle - effect.posyStartRand, posyStartRandMiddle + effect.posyStartRand);
         }
         if (effect.posyEndRand) {
-            var posyEndRandMilieu = effect.posyEndRandMilieu ? effect.posyEndRandMilieu : 0;
-            this.posyEnd = randBetween(posyEndRandMilieu - effect.posyEndRand, posyEndRandMilieu + effect.posyEndRand);
+            var posyEndRandMiddle = effect.posyEndRandMiddle ? effect.posyEndRandMiddle : 0;
+            this.posyEnd = randBetween(posyEndRandMiddle - effect.posyEndRand, posyEndRandMiddle + effect.posyEndRand);
         }
         this.posySmooth = effect.posySmooth ? true : false;
         if (effect.poszStart) this.poszStart = effect.poszStart;
@@ -110,12 +110,12 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             this.poszEnd = randBetween(-effect.poszRandDiff, effect.poszRandDiff);
         }
         if (effect.poszStartRand) {
-            var poszStartRandMilieu = effect.poszStartRandMilieu ? effect.poszStartRandMilieu : 0;
-            this.poszStart = randBetween(poszStartRandMilieu - effect.poszStartRand, poszStartRandMilieu + effect.poszStartRand);
+            var poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
+            this.poszStart = randBetween(poszStartRandMiddle - effect.poszStartRand, poszStartRandMiddle + effect.poszStartRand);
         }
         if (effect.poszEndRand) {
-            var poszEndRandMilieu = effect.poszEndRandMilieu ? effect.poszEndRandMilieu : 0;
-            this.poszEnd = randBetween(poszEndRandMilieu - effect.poszEndRand, poszEndRandMilieu + effect.poszEndRand);
+            var poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
+            this.poszEnd = randBetween(poszEndRandMiddle - effect.poszEndRand, poszEndRandMiddle + effect.poszEndRand);
         }
         this.poszSmooth = effect.poszSmooth ? true : false;
         if (effect.fromSrc) {
@@ -163,13 +163,13 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             this.sizeEndY = this.sizeStartX;
         }
         if (effect.sizeRandX) {
-            var sizeRandXmilieu = effect.sizeRandXmilieu ? effect.sizeRandXmilieu : 100;
-            this.sizeStartX = randBetween(sizeRandXmilieu - effect.sizeRandX, sizeRandXmilieu + effect.sizeRandX);
+            var sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
+            this.sizeStartX = randBetween(sizeRandXMiddle - effect.sizeRandX, sizeRandXMiddle + effect.sizeRandX);
             this.sizeEndX = this.sizeStartX;
         }
         if (effect.sizeRandY) {
-            var sizeRandYmilieu = effect.sizeRandYmilieu ? effect.sizeRandYmilieu : 100;
-            this.sizeStartY = randBetween(sizeRandYmilieu - effect.sizeRandY, sizeRandYmilieu + effect.sizeRandY);
+            var sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
+            this.sizeStartY = randBetween(sizeRandYMiddle - effect.sizeRandY, sizeRandYMiddle + effect.sizeRandY);
             this.sizeEndY = this.sizeStartY;
         }
         this.sizeSmooth = effect.sizeSmooth ? true : false;
