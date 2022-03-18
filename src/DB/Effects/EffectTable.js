@@ -101,7 +101,7 @@ define(function( require )
     ///     - 4: the radius of the whole cylinder grows to the set topSize and bottomSize values from 0
     ///     - 5: the height of the cylinder grows to the set height value, and then shrinks back to 0
     ///
-    /// - blendmode:
+    /// - blendMode:
     ///   sets the webgl blendFunc target mode of the cylinder
     ///     - 1: ZERO
     ///     - 2: ONE (transparent light effect)
@@ -293,7 +293,7 @@ define(function( require )
     /// - shadowTexture:
     ///   if set to true then enables the shadow
     ///
-    /// - blendmode:
+    /// - blendMode:
     ///   sets the webgl blendFunc target mode of the cylinder
     ///     - 1: ZERO
     ///     - 2: ONE (transparent light effect)
@@ -371,7 +371,7 @@ define(function( require )
             type: '2D'
         }, {
             alphaMax: 1,
-            angle: 90,
+            angle: -90,
             attachedEntity: false,
             duration: 140,
             fadeOut: false,
@@ -1261,7 +1261,6 @@ define(function( require )
             type: 'STR'
         }, {
             attachedEntity: false,
-            //duplicate: -1,
             file: 'windhit%d',
             rand: [1, 3],
             type: 'STR'
@@ -4294,13 +4293,59 @@ define(function( require )
             attachedEntity: true
         }],
         
-        'coldbolt': [{ //coldbolt falling objects
+        'ef_coldbolt': [{ //coldbolt falling objects
+			type: '3D',
+			alphaMax: 1,
+            angle: 112,
+            attachedEntity: false,
+            duration: 500,
+            file: 'effect/icearrow.tga',
+            posxEnd: 0,
+            posxStartRandMiddle: 5,
+			posxStartRand: 1,
+            posyEnd: 0,
+            posyStartRandMiddle: 2,
+			posyStartRand: 1,
+            poszEnd: 0,
+            poszStart: 20,
+            size: 50,
+            zIndex: 1,
             wav:  'effect/ef_icearrow%d',
             rand: [1, 3],
             attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            alphaMax: 0.7,
+            animation: 4,
+            attachedEntity: false,
+            bottomSize: 3,
+            duration: 1000,
+            delayLate: 500,
+            fade: false,
+            height: 0.1,
+            rotate: true,
+            textureName: 'ring_blue',
+            topSize: 5
         }],
         
-        'firebolt': [{ //fireolt falling objects
+        'ef_firebolt': [{ //fireolt falling objects
+            type: '3D',
+			alphaMax: 1,
+			blendMode: 2,
+            angle: 22,
+            attachedEntity: false,
+            duration: 500,
+            file: 'effect/fire_fall_b.bmp',
+            posxEnd: 0,
+            posxStartRandMiddle: 5,
+			posxStartRand: 1,
+            posyEnd: 0,
+            posyStartRandMiddle: 2,
+			posyStartRand: 1,
+            poszEnd: 0,
+            poszStart: 20,
+            size: 50,
+            zIndex: 1,
             wav:  'effect/ef_firearrow%d',
             rand: [1, 3],
             attachedEntity: true
@@ -8851,92 +8896,7 @@ define(function( require )
                 });
             }
         }],
-        2000: [{
-            wav: 'effect/ef_firearrow'
-        }, {
-            attachedEntity: false,
-            delayLate: 450,
-            //duplicate: -1,
-            file: 'firehit',
-            timeBetweenDupli: 150,
-            type: 'STR'
-        }, {
-            alphaMax: 1,
-            angle: 80,
-            attachedEntity: false,
-            blue: 0.1,
-            duration: 500,
-            delayWav: 500,
-            //duplicate: -1,
-            fadeIn: false,
-            fadeOut: false,
-            file: 'effect/icearrow.tga',
-            green: 0.8,
-            posxEnd: 0,
-            posxStart: -2,
-            posyEnd: 0,
-            posyStart: -2,
-            poszEnd: 0,
-            poszStart: 20,
-            red: 1,
-            size: 50,
-            timeBetweenDupli: 150,
-            type: '3D',
-            wav: 'effect/ef_firehit',
-            zIndex: 1
-        }],
-		
-		2001: [{
-            wav: 'effect/ef_icearrow'
-        }, {
-            attachedEntity: false,
-            delayLate: 300,
-            //duplicate: -1,
-            file: 'Èå¸°´ÞºûÈ¯»ó2',
-            timeBetweenDupli: 150,
-            type: 'STR'
-        }, {
-            alphaMax: 0.7,
-            animation: 4,
-            attachedEntity: false,
-            blue: 1,
-            bottomSize: 3,
-            duration: 1000,
-            delayLate: 300,
-            //duplicate: -1,
-            fade: false,
-            green: 1,
-            height: 0.1,
-            red: 1,
-            rotate: true,
-            textureName: 'ring_blue',
-            timeBetweenDupli: 150,
-            topSize: 5,
-            type: 'CYLINDER'
-        }, {
-            alphaMax: 1,
-            angle: 80,
-            attachedEntity: false,
-            blue: 1,
-            duration: 500,
-            //duplicate: -1,
-            fadeIn: false,
-            fadeOut: false,
-            file: 'effect/icearrow.tga',
-            green: 1,
-            posxEnd: 0,
-            posxStart: -2,
-            posyEnd: 0,
-            posyStart: -2,
-            poszEnd: 0,
-            poszStart: 20,
-            red: 1,
-            size: 50,
-            timeBetweenDupli: 150,
-            type: '3D',
-            zIndex: 1
-        }],
-		
+        
 		2002: [{
             attachedEntity: false,
             func: function EffectReadyToFight(e) {
