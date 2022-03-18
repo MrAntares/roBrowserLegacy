@@ -1,0 +1,22 @@
+#ItemListWindowSelection { z-index:100; position:absolute; width:200px; }
+#ItemListWindowSelection .head { position:absolute; width:100%; height:22px; top:0px; left:0px;background-repeat:repeat-x; background-color:white; }
+#ItemListWindowSelection .head .text { position:relative; top:2px; left:5px; white-space:nowrap; }
+#ItemListWindowSelection .bottom { position:relative; height:120px; top:80px; left:0px; }
+
+#ItemListWindowSelection .content { position:absolute; top:22px; left:0px; background-color:white; width:100%; }
+#ItemListWindowSelection .list { background-color:#f7f7f7; height:130px; font-size:12px; overflow-y:auto; margin-left:10px; margin-right:10px; }
+#ItemListWindowSelection .list .item { display:block; height:28px; margin:4px 4px 4px 4px; position:relative; }
+#ItemListWindowSelection .list .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
+#ItemListWindowSelection .list .item .name { font-size:12px; position:absolute; top:7px; left:30px; width:90px; white-space:nowrap;}
+
+#ItemListWindowSelection .materials { position:absolute; bottom:0px; left:10px; background-color:white; width:96px; height:28px; display:none;}
+#ItemListWindowSelection .materials .item { display:block; width:24px; height:24px; margin:4px 4px 4px 4px; position:relative; float:left; }
+#ItemListWindowSelection .materials .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
+
+#ItemListWindowSelection .materials .item .name { font-size:12px; position:absolute; top:7px; left:30px; width:90px; white-space:nowrap;}
+
+#ItemListWindowSelection .btn { position:absolute; bottom:0px; border:0; width:42px; height:20px; bottom:4px; background-color:transparent; }
+#ItemListWindowSelection .ok { right: 50px; }
+#ItemListWindowSelection .cancel { right: 5px; }
+
+#ItemListWindowSelection .select { background-color: rgb(205, 224, 255); }
