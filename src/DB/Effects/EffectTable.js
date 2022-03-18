@@ -4353,7 +4353,7 @@ define(function( require )
         'ef_coldbolt': [{ //coldbolt falling objects
 			type: '3D',
 			alphaMax: 1,
-            angle: 112,
+            angle: 112.5,
             attachedEntity: false,
             duration: 500,
             file: 'effect/icearrow.tga',
@@ -5111,6 +5111,7 @@ define(function( require )
 			posxEnd: -5,
 			posyStart: 0,
 			posyEnd: 0,
+			rotateWithCamera: true,
 			angle: 0
 		}, {
 			type: '3D',
@@ -5125,6 +5126,7 @@ define(function( require )
 			posxEnd: -3.53,
 			posyStart: -0.7,
 			posyEnd: -3.53,
+			rotateWithCamera: true,
 			angle: -45
 		}, {
 			type: '3D',
@@ -5139,6 +5141,7 @@ define(function( require )
 			posxEnd: 0,
 			posyStart: -1,
 			posyEnd: -5,
+			rotateWithCamera: true,
 			angle: -90
 		}, {
 			type: '3D',
@@ -5153,6 +5156,7 @@ define(function( require )
 			posxEnd: 3.53,
 			posyStart: -0.7,
 			posyEnd: -3.53,
+			rotateWithCamera: true,
 			angle: -135
 		}, {
 			type: '3D',
@@ -5167,6 +5171,7 @@ define(function( require )
 			posxEnd: 5,
 			posyStart: 0,
 			posyEnd: 0,
+			rotateWithCamera: true,
 			angle: -180
 		}, {
 			type: '3D',
@@ -5181,6 +5186,7 @@ define(function( require )
 			posxEnd: 3.53,
 			posyStart: 0.7,
 			posyEnd: 3.53,
+			rotateWithCamera: true,
 			angle: -225
 		}, {
 			type: '3D',
@@ -5195,6 +5201,7 @@ define(function( require )
 			posxEnd: 0,
 			posyStart: 1,
 			posyEnd: 5,
+			rotateWithCamera: true,
 			angle: -270
 		}, {
 			type: '3D',
@@ -5209,6 +5216,7 @@ define(function( require )
 			posxEnd: -3.53,
 			posyStart: 0.7,
 			posyEnd: 3.53,
+			rotateWithCamera: true,
 			angle: -315
 		}],
 		
