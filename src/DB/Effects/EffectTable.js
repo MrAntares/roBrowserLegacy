@@ -4,8 +4,6 @@
  * List effects
  * TODO: complete the list, add informations about sound.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author Vincent Thibault
  */
 define(function( require )
@@ -51,11 +49,280 @@ define(function( require )
     /// - direction
     ///   if set to true, the sprite will inherit character's direction
 
+
     /// type = FUNC
     ///
     /// - func:
     ///   callback to use
 
+
+    /// type = CYLINDER
+    ///
+    /// - textureName:
+    ///   name of the targa texture stored in data/texture/effect/(.*).tga
+    ///
+    /// - wav:
+    ///   audio file stored in data/wav/ folder
+    ///
+    /// - attachedEntity:
+    ///   if set to true, the effect will follow the entity attached
+    ///
+    /// - red:
+    /// - green:
+    /// - blue:
+    ///   if all 3 is set to >0, overrides the color of the texture
+    ///
+    /// - semiCircle:
+    ///   produces a semi circle
+    ///
+    /// - topSize:
+    ///   top radius of the circle
+    ///
+    /// - bottomSize:
+    ///   bottom radius of the circle
+    ///
+    /// - height:
+    ///   height of the cylinder
+    ///
+    /// - fade:
+    ///   if set to true the cylinder will fade out at the end of the duration
+    ///
+    /// - rotate:
+    ///   if set to true, the cylinder will rotate
+    ///
+    /// - alphaMax:
+    ///   sets the opacity of the cylinder (0.0 ~ 1.0)
+    ///
+    /// - animation:
+    ///   sets the animation type of the cylinder
+    ///     - 1: the height of the cylinder grows to the set height from 0
+    ///     - 2: top radius of the cylinder grows to the topSize value from 0
+    ///     - 3: the radius of the whole cylinder shrinks to 0
+    ///     - 4: the radius of the whole cylinder grows to the set topSize and bottomSize values from 0
+    ///     - 5: the height of the cylinder grows to the set height value, and then shrinks back to 0
+    ///
+    /// - blendMode:
+    ///   sets the webgl blendFunc target mode of the cylinder
+    ///     - 1: ZERO
+    ///     - 2: ONE (transparent light effect)
+    ///     - 3: SRC_COLOR
+    ///     - 4: ONE_MINUS_SRC_COLOR
+    ///     - 5: DST_COLOR
+    ///     - 6: ONE_MINUS_DST_COLOR
+    ///     - 7: SRC_ALPHA
+    ///     - 8: ONE_MINUS_SRC_ALPHA (default)
+    ///     - 9: DST_ALPHA
+    ///     - 10: ONE_MINUS_DST_ALPHA
+    ///     - 11: CONSTANT_COLOR
+    ///     - 12: ONE_MINUS_CONSTANT_COLOR
+    ///     - 13: CONSTANT_ALPHA
+    ///     - 14: ONE_MINUS_CONSTANT_ALPHA
+    ///     - 15: SRC_ALPHA_SATURATE
+    ///   the webgl blendFunc source mode is always SRC_ALPHA
+
+
+    /// type = 2D
+    ///
+    /// - file:
+    ///   Texture file name stored in data/texture/(.*.bmp|tga)
+    ///
+    /// - wav:
+    ///   audio file stored in data/wav/ folder
+    ///
+    /// - attachedEntity:
+    ///   if set to true, the effect will follow the entity attached
+    ///
+    /// - red:
+    ///   if set to >0, overrides the red color of the texture
+    ///
+    /// - green:
+    ///   if set to >0, overrides the green color of the texture
+    ///
+    /// - blue:
+    ///   if set to >0, overrides the blue color of the texture
+    ///
+    /// - alphaMax:
+    ///   sets the opacity of the texture (0.0 ~ 1.0)
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - fadeOut:
+    ///   if set to true the texture will fade out at the end of the duration
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - posx, posy, posz:
+    ///   sets the relative position of the texture
+    ///
+    /// - posxStart, posyStart, poszStart, posxEnd, posyEnd, poszEnd:
+    ///   sets the relative starting and ending position of the texture
+    ///
+    /// - posxRand, posyRand, poszRand:
+    ///   sets a +- range for a random relative position
+    ///
+    /// - posxRandDiff, posyRandDiff, poszRandDiff:
+    ///   sets a +- range for a random relative starting and ending position. The start and end is 2 different random numbers in the same range.
+    ///
+    /// - posxStartRand, posyStartRand, poszStartRand, posxEndRand, posyEndRand, poszEndRand:
+    ///   sets a +- range for a random relative starting and ending position
+    ///
+    /// - posxSmooth, posySmooth, poszSmooth:
+    ///   smoohtes out the movement on an axis
+    ///
+    /// - size, sizeX, sizeY, sizeStart, sizeEnd, sizeStartX, sizeStartY, sizeEndX, sizeEndY:
+    /// - sizeRand, sizeRandx, sizeEndY:
+    /// - sizeSmooth:
+    ///   works the same way as positions, but effects the size of the texture
+    ///
+    /// - poszStartRandMiddle, poszEndRandMiddle:
+    ///   sets the relative middle position of the random range of the starting and ending Z position
+    ///
+    /// - sizeRandXMiddle, sizeRandYMiddle:
+    ///   sets the middle value for the random range for the size X&Y values
+    ///
+    /// - rotate:  
+    ///   if set to true makes the texture rotate on it's y axis (turn around)
+    ///
+    /// - angle:
+    ///   sets the starting angle of the texture in degrees (eg: 180=upside down)
+    ///
+    /// - toAngle:
+    ///   sets the final angle of the texture in degrees (eg: 180=upside down)
+    ///
+    /// - zIndex:
+    ///   sets the zindex of the texture (closer to the camera or farther)
+    
+
+
+    /// type = 3D
+    ///
+    /// - file:
+    ///   Texture file name stored in data/texture/(.*.bmp|tga)
+    ///
+    /// - spriteName:
+    ///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
+    ///
+    /// - playSprite:
+    ///   if set to true plays the sprite animation
+    ///
+    /// - sprDelay:
+    ///   frame delay for a sprite animation
+    ///
+    /// - wav:
+    ///   audio file stored in data/wav/ folder
+    ///
+    /// - attachedEntity:
+    ///   if set to true, the effect will follow the entity attached
+    ///
+    /// - red:
+    ///   if set to >0, overrides the red color of the texture
+    ///
+    /// - green:
+    ///   if set to >0, overrides the green color of the texture
+    ///
+    /// - blue:
+    ///   if set to >0, overrides the blue color of the texture
+    ///
+    /// - alphaMax:
+    ///   sets the opacity of the texture (0.0 ~ 1.0)
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - fadeOut:
+    ///   if set to true the texture will fade out at the end of the duration
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - posx, posy, posz:
+    ///   sets the relative position of the texture
+    ///
+    /// - posxStart, posyStart, poszStart, posxEnd, posyEnd, poszEnd:
+    ///   sets the relative starting and ending position of the texture
+    ///
+    /// - posxRand, posyRand, poszRand:
+    ///   sets a +- range for a random relative position
+    ///
+    /// - posxRandDiff, posyRandDiff, poszRandDiff:
+    ///   sets a +- range for a random relative starting and ending position. The start and end is 2 different random numbers in the same range.
+    ///
+    /// - posxStartRand, posyStartRand, poszStartRand, posxEndRand, posyEndRand, poszEndRand:
+    ///   sets a +- range for a random relative starting and ending position
+    ///
+    /// - posxSmooth, posySmooth, poszSmooth:
+    ///   smoohtes out the movement on an axis
+    ///
+    /// - size, sizeX, sizeY, sizeStart, sizeEnd, sizeStartX, sizeStartY, sizeEndX, sizeEndY:
+    /// - sizeRand, sizeRandx, sizeEndY:
+    /// - sizeSmooth:
+    ///   works the same way as positions, but effects the size of the texture
+    ///
+    /// - posxStartRandMiddle, posyStartRandMiddle, poszStartRandMiddle, posxEndRandMiddle, posyEndRandMiddle, poszEndRandMiddle:
+    ///   sets the relative middle position of the random range of the starting and ending
+    ///
+    /// - sizeRandXMiddle, sizeRandYMiddle:
+    ///   sets the middle value for the random range for the size X&Y values
+    ///
+    /// - rotate:  
+    ///   if set to true makes the texture rotate on it's y axis (turn around)
+    ///
+    /// - rotatePosX, rotatePosY, rotatePosZ:
+    ///   offsets the rotation axis
+    ///
+    /// - nbOfRotation:
+    ///   sets the number of rotations
+    ///
+    /// - rotateLate:
+    ///   sets a delay before the rotation
+    ///
+    /// - rotationClockwise:
+    ///   if set to true then rotates clockwise
+    ///
+    /// - angle:
+    ///   sets the starting angle of the texture in degrees (eg: 180=upside down)
+    ///
+    /// - toAngle:
+    ///   sets the final angle of the texture in degrees (eg: 180=upside down)
+    ///
+	/// - rotateToTarget:
+    ///   if set to true the upper side of the texture is rotated to face the target
+    ///
+	/// - rotateWithCamera:
+    ///   if set to true the texture rotates if the camera is rotated makig it's sides always face the same coordinate in the 3D environment
+    ///
+    /// - zIndex:
+    ///   sets the zindex of the texture (closer to the camera or farther)
+    ///
+    /// - shadowTexture:
+    ///   if set to true then enables the shadow
+    ///
+    /// - blendMode:
+    ///   sets the webgl blendFunc target mode of the cylinder
+    ///     - 1: ZERO
+    ///     - 2: ONE (transparent light effect)
+    ///     - 3: SRC_COLOR
+    ///     - 4: ONE_MINUS_SRC_COLOR
+    ///     - 5: DST_COLOR
+    ///     - 6: ONE_MINUS_DST_COLOR
+    ///     - 7: SRC_ALPHA
+    ///     - 8: ONE_MINUS_SRC_ALPHA (default)
+    ///     - 9: DST_ALPHA
+    ///     - 10: ONE_MINUS_DST_ALPHA
+    ///     - 11: CONSTANT_COLOR
+    ///     - 12: ONE_MINUS_CONSTANT_COLOR
+    ///     - 13: CONSTANT_ALPHA
+    ///     - 14: ONE_MINUS_CONSTANT_ALPHA
+    ///     - 15: SRC_ALPHA_SATURATE
+    ///   the webgl blendFunc source mode is always SRC_ALPHA
+    ///
+    /// - sparkling
+    ///   if set to true then creates sparks
+    ///
+    /// - sparkNumber
+    ///   sets the number of sparks
 
     return {
 
@@ -110,7 +377,7 @@ define(function( require )
             type: '2D'
         }, {
             alphaMax: 1,
-            angle: 90,
+            angle: -90,
             attachedEntity: false,
             duration: 140,
             fadeOut: false,
@@ -404,7 +671,7 @@ define(function( require )
             poszEnd: 1,
             poszSmooth: false,
             poszStartRand: 5,
-            poszStartRandMilieu: 6,
+            poszStartRandMiddle: 6,
             red: 1,
             size: 50,
             timeBetweenDupli: 150,
@@ -942,19 +1209,70 @@ define(function( require )
 
 
         24: [{ //fireball caster effect (on target effect 49:)    //EF_FIREBALL    Fire Ball
-            alphaMax: 1,
-            attachedEntity: false,
-            blue: 0.8,
+            type: '3D',
+			alphaMax: 1,
+            attachedEntity: true,
             duration: 250,
             fadeIn: false,
             fadeOut: false,
-            file: 'effect/fireparticle.tga',
-            fromSrc: false,
-            green: 0.8,
-            posz: 1,
-            red: 1,
-            size: 50,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
+            wav: 'effect/ef_fireball',
+            zIndex: 1
+        }, {
             type: '3D',
+			alphaMax: 0.7,
+            attachedEntity: true,
+            duration: 250,
+			delayOffset: 40,
+            fadeIn: false,
+            fadeOut: false,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
+            wav: 'effect/ef_fireball',
+            zIndex: 1
+        }, {
+			type: '3D',
+			alphaMax: 0.5,
+            attachedEntity: true,
+            duration: 250,
+			delayOffset: 80,
+            fadeIn: false,
+            fadeOut: false,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
+            wav: 'effect/ef_fireball',
+            zIndex: 1
+        }, {
+            type: '3D',
+			alphaMax: 0.3,
+            attachedEntity: true,
+            duration: 250,
+			delayOffset: 120,
+            fadeIn: false,
+            fadeOut: false,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
             wav: 'effect/ef_fireball',
             zIndex: 1
         }],
@@ -1000,7 +1318,6 @@ define(function( require )
             type: 'STR'
         }, {
             attachedEntity: false,
-            //duplicate: -1,
             file: 'windhit%d',
             rand: [1, 3],
             type: 'STR'
@@ -1389,11 +1706,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 1,
+            poszStartRandMiddle: 1,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1408,11 +1725,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 1,
+            poszStartRandMiddle: 1,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1426,11 +1743,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 1,
+            poszStartRandMiddle: 1,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1463,11 +1780,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 1,
+            poszEndRandMiddle: 1,
             poszStartRand: 1,
-            poszStartRandMilieu: 6,
+            poszStartRandMiddle: 6,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1538,9 +1855,9 @@ define(function( require )
             posxRand: 1.2,
             posyRand: 1,
             poszEndRand: 0.5,
-            poszEndRandMilieu: 1,
+            poszEndRandMiddle: 1,
             poszStartRand: 2,
-            poszStartRandMilieu: 5.5,
+            poszStartRandMiddle: 5.5,
             size: 0.5,
             sparkling: false,
             sparkNumber: 2,
@@ -1559,9 +1876,9 @@ define(function( require )
             posxRand: 1.4,
             posyRand: 1.1,
             poszEndRand: 0.5,
-            poszEndRandMilieu: 1,
+            poszEndRandMiddle: 1,
             poszStartRand: 2,
-            poszStartRandMilieu: 5.5,
+            poszStartRandMiddle: 5.5,
             size: 0.5,
             spriteName: 'particle6',
             timeBetweenDupli: 0,
@@ -3650,7 +3967,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 2,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -3674,7 +3991,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 5,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 9,
             sizeRand: 2,
@@ -3747,7 +4064,7 @@ define(function( require )
             posxRand: 1.2,
             posyRand: 1.2,
             poszEndRand: 1,
-            poszEndRandMilieu: 8,
+            poszEndRandMiddle: 8,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -3772,7 +4089,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 3,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -3798,7 +4115,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 9,
             sizeRand: 2,
@@ -4033,13 +4350,59 @@ define(function( require )
             attachedEntity: true
         }],
         
-        'coldbolt': [{ //coldbolt falling objects
+        'ef_coldbolt': [{ //coldbolt falling objects
+			type: '3D',
+			alphaMax: 1,
+            angle: 112.5,
+            attachedEntity: false,
+            duration: 500,
+            file: 'effect/icearrow.tga',
+            posxEnd: 0,
+            posxStartRandMiddle: 5,
+			posxStartRand: 1,
+            posyEnd: 0,
+            posyStartRandMiddle: 2,
+			posyStartRand: 1,
+            poszEnd: 0,
+            poszStart: 20,
+            size: 50,
+            zIndex: 1,
             wav:  'effect/ef_icearrow%d',
             rand: [1, 3],
             attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            alphaMax: 0.7,
+            animation: 4,
+            attachedEntity: false,
+            bottomSize: 3,
+            duration: 1000,
+            delayLate: 500,
+            fade: false,
+            height: 0.1,
+            rotate: true,
+            textureName: 'ring_blue',
+            topSize: 5
         }],
         
-        'firebolt': [{ //fireolt falling objects
+        'ef_firebolt': [{ //fireolt falling objects
+            type: '3D',
+			alphaMax: 1,
+			blendMode: 2,
+            angle: 22,
+            attachedEntity: false,
+            duration: 500,
+            file: 'effect/fire_fall_b.bmp',
+            posxEnd: 0,
+            posxStartRandMiddle: 5,
+			posxStartRand: 1,
+            posyEnd: 0,
+            posyStartRandMiddle: 2,
+			posyStartRand: 1,
+            poszEnd: 0,
+            poszStart: 20,
+            size: 50,
+            zIndex: 1,
             wav:  'effect/ef_firearrow%d',
             rand: [1, 3],
             attachedEntity: true
@@ -4115,7 +4478,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 3,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -4141,7 +4504,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 9,
             sizeRand: 2,
@@ -4194,11 +4557,11 @@ define(function( require )
             file: 'effect/pok1.tga',
             green: 1,
             posxStartRand: 3,
-            posxStartRandMilieu: 0,
+            posxStartRandMiddle: 0,
             posyStartRand: 3,
-            posyStartRandMilieu: 0,
+            posyStartRandMiddle: 0,
             poszEndRand: 2,
-            poszEndRandMilieu: 2,
+            poszEndRandMiddle: 2,
             poszStart: 0,
             red: 1,
             size: 100,
@@ -4273,7 +4636,7 @@ define(function( require )
             posxRand: 1.2,
             posyRand: 1.2,
             poszEndRand: 1,
-            poszEndRandMilieu: 8,
+            poszEndRandMiddle: 8,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -4298,7 +4661,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 3,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 10,
@@ -4324,7 +4687,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 11,
             sizeRand: 2,
@@ -4748,6 +5111,7 @@ define(function( require )
 			posxEnd: -5,
 			posyStart: 0,
 			posyEnd: 0,
+			rotateWithCamera: true,
 			angle: 0
 		}, {
 			type: '3D',
@@ -4762,6 +5126,7 @@ define(function( require )
 			posxEnd: -3.53,
 			posyStart: -0.7,
 			posyEnd: -3.53,
+			rotateWithCamera: true,
 			angle: -45
 		}, {
 			type: '3D',
@@ -4776,6 +5141,7 @@ define(function( require )
 			posxEnd: 0,
 			posyStart: -1,
 			posyEnd: -5,
+			rotateWithCamera: true,
 			angle: -90
 		}, {
 			type: '3D',
@@ -4790,6 +5156,7 @@ define(function( require )
 			posxEnd: 3.53,
 			posyStart: -0.7,
 			posyEnd: -3.53,
+			rotateWithCamera: true,
 			angle: -135
 		}, {
 			type: '3D',
@@ -4804,6 +5171,7 @@ define(function( require )
 			posxEnd: 5,
 			posyStart: 0,
 			posyEnd: 0,
+			rotateWithCamera: true,
 			angle: -180
 		}, {
 			type: '3D',
@@ -4818,6 +5186,7 @@ define(function( require )
 			posxEnd: 3.53,
 			posyStart: 0.7,
 			posyEnd: 3.53,
+			rotateWithCamera: true,
 			angle: -225
 		}, {
 			type: '3D',
@@ -4832,6 +5201,7 @@ define(function( require )
 			posxEnd: 0,
 			posyStart: 1,
 			posyEnd: 5,
+			rotateWithCamera: true,
 			angle: -270
 		}, {
 			type: '3D',
@@ -4846,6 +5216,7 @@ define(function( require )
 			posxEnd: -3.53,
 			posyStart: 0.7,
 			posyEnd: 3.53,
+			rotateWithCamera: true,
 			angle: -315
 		}],
 		
@@ -6787,7 +7158,78 @@ define(function( require )
         //751: [{}],    //EF_FIREBALL2       Releasing summoned warlock spheres
         //752: [{}],    //EF_BUNSINJYUTSU2       Like Energy Coat, but not as dark
         //753: [{}],    //EF_CLEARTIME       Clearance
-        //754: [{}],    //EF_GLASSWALL3       Green warp portal (root of Epiclesis)
+		
+        754: [{    //EF_GLASSWALL3       Green warp portal (root of Epiclesis)
+			alphaMax: 0.4,
+            animation: 4,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 2.4,
+            duration: 500,
+            duplicate: 150,
+            fadeOut: false,
+            height: 0.1,
+            posZ: 0.1,
+            rotate: true,
+            textureName: 'magic_green',
+            timeBetweenDupli: 200,
+            topSize: 3.9,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.4,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 0.6,
+            duration: 30000,
+            fade: false,
+            height: 7,
+            rotate: false,
+            textureName: 'magic_green',
+            topSize: 0.6,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.4,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 0.8,
+            duration: 30000,
+            fade: false,
+            height: 6,
+            rotate: false,
+            textureName: 'magic_green',
+            topSize: 0.8,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.5,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 1,
+            duration: 30000,
+            fade: false,
+            height: 1,
+            posZ: 2,
+            rotate: false,
+            semiCircle: false,
+            textureName: 'alpha1',
+            topSize: 1,
+            type: 'CYLINDER'
+        }],
+		
         //755: [{}],    //EF_ORATIO       Oratio (spinning blue symbol)
 
         756: [{    //EF_POTION_BERSERK2    Enchant Blade (like Berserk Potion)
@@ -8045,14 +8487,65 @@ define(function( require )
         //880: [{}],    //EF_BEGINSPELL_150       Bluish castish cone
         //881: [{}],    //EF_LEVEL99_150       Blue aura
         //882: [{}],    //EF_PRIMECHARGE       Whirl of fireflies (red)
-        //883: [{}],    //EF_GLASSWALL4       Epiclesis (transparent green tree)
+		
+        883: [{    //EF_GLASSWALL4       Epiclesis (transparent green tree)
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            duration: 30000,
+			red: 0.0001,
+			green: 1.0,
+			blue: 0.0001,
+			size: 400,
+			posz: 7,
+			zIndex: 1,
+			wav: 'effect/ef_readyportal',
+			file: 'effect/ef_epitree.tga'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            duration: 990,
+			duplicate: 15,
+			timeBetweenDupli: 2000,
+			red: 0.0001,
+			green: 1.0,
+			blue: 0.0001,
+			sizeStart: 380,
+			sizeEnd: 420,
+			posz: 7,
+			zIndex: 1,
+			file: 'effect/ef_epitree.tga'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            duration: 990,
+			duplicate: 15,
+			timeBetweenDupli: 2000,
+			delayOffset: 1000,
+			red: 0.0001,
+			green: 1.0,
+			blue: 0.0001,
+			sizeStart: 420,
+			sizeEnd: 380,
+			posz: 7,
+			zIndex: 1,
+			file: 'effect/ef_epitree.tga'
+		}],
+		
         //884: [{}],    //EF_GRADIUS_LASER       Green beam
         //885: [{}],    //EF_BASH3D6       Blue light beams
         //886: [{}],    //EF_GUMGANG5       Blue castish cone
         //887: [{}],    //EF_HITLINE8       Wavy sparks
+		
         888: [{    //EF_ELECTRIC4       Earth Shaker (same as 432)
 			wav: 'effect/sr_earthshaker'
 		}],
+		
         //889: [{}],    //EF_TEIHIT1T       Fast light beams
         //890: [{}],    //EF_SPINMOVE       Rotation
         //891: [{}],    //EF_FIREBALL4       Magic shots [S]
@@ -8468,92 +8961,7 @@ define(function( require )
                 });
             }
         }],
-        2000: [{
-            wav: 'effect/ef_firearrow'
-        }, {
-            attachedEntity: false,
-            delayLate: 450,
-            //duplicate: -1,
-            file: 'firehit',
-            timeBetweenDupli: 150,
-            type: 'STR'
-        }, {
-            alphaMax: 1,
-            angle: 80,
-            attachedEntity: false,
-            blue: 0.1,
-            duration: 500,
-            delayWav: 500,
-            //duplicate: -1,
-            fadeIn: false,
-            fadeOut: false,
-            file: 'effect/icearrow.tga',
-            green: 0.8,
-            posxEnd: 0,
-            posxStart: -2,
-            posyEnd: 0,
-            posyStart: -2,
-            poszEnd: 0,
-            poszStart: 20,
-            red: 1,
-            size: 50,
-            timeBetweenDupli: 150,
-            type: '3D',
-            wav: 'effect/ef_firehit',
-            zIndex: 1
-        }],
-		
-		2001: [{
-            wav: 'effect/ef_icearrow'
-        }, {
-            attachedEntity: false,
-            delayLate: 300,
-            //duplicate: -1,
-            file: 'Èå¸°´ÞºûÈ¯»ó2',
-            timeBetweenDupli: 150,
-            type: 'STR'
-        }, {
-            alphaMax: 0.7,
-            animation: 4,
-            attachedEntity: false,
-            blue: 1,
-            bottomSize: 3,
-            duration: 1000,
-            delayLate: 300,
-            //duplicate: -1,
-            fade: false,
-            green: 1,
-            height: 0.1,
-            red: 1,
-            rotate: true,
-            textureName: 'ring_blue',
-            timeBetweenDupli: 150,
-            topSize: 5,
-            type: 'CYLINDER'
-        }, {
-            alphaMax: 1,
-            angle: 80,
-            attachedEntity: false,
-            blue: 1,
-            duration: 500,
-            //duplicate: -1,
-            fadeIn: false,
-            fadeOut: false,
-            file: 'effect/icearrow.tga',
-            green: 1,
-            posxEnd: 0,
-            posxStart: -2,
-            posyEnd: 0,
-            posyStart: -2,
-            poszEnd: 0,
-            poszStart: 20,
-            red: 1,
-            size: 50,
-            timeBetweenDupli: 150,
-            type: '3D',
-            zIndex: 1
-        }],
-		
+        
 		2002: [{
             attachedEntity: false,
             func: function EffectReadyToFight(e) {
