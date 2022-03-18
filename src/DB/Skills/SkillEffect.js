@@ -813,12 +813,12 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SR_RIDEINLIGHTNING]             = {effectId: 'ef_rideinlightning'};		//Ride In Lightening
 	// WA Wanderer
 	SkillEffect[SK.WA_SWING_DANCE]                 = {effectId: 'ef_swing_dance'};		//Swing Dance
-	SkillEffect[SK.WA_SYMPHONY_OF_LOVER]           = {};		//Symphony of Lovers
-	SkillEffect[SK.WA_MOONLIT_SERENADE]            = {};		//Moonlit Serenade
+	SkillEffect[SK.WA_SYMPHONY_OF_LOVER]           = {effectId: 'ef_symphony_of_lovers'};		//Symphony of Lovers
+	SkillEffect[SK.WA_MOONLIT_SERENADE]            = {effectId: 'ef_moonlit_serenade'};		//Moonlit Serenade
 	// MI Minstrel
 	SkillEffect[SK.MI_RUSH_WINDMILL]               = {effectId: 'ef_rush_windmill'};		//Windmill Rush Attack
-	SkillEffect[SK.MI_ECHOSONG]                    = {};		//Echo Song
-	SkillEffect[SK.MI_HARMONIZE]                   = {};		//Harmonize
+	SkillEffect[SK.MI_ECHOSONG]                    = {effectId: 'ef_echo_song'};		//Echo Song
+	SkillEffect[SK.MI_HARMONIZE]                   = {effectId: 'ef_harmonize'};		//Harmonize
 	// WM Wanderer/Minstrel
 	SkillEffect[SK.WM_METALICSOUND]                = {};		//Metallic Sound
 	SkillEffect[SK.WM_REVERBERATION]               = {groundEffectId: 856};		//Reverberation
@@ -828,15 +828,15 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WM_SEVERE_RAINSTORM]            = {effectId: 857};		//Severe Rainstorm
 	SkillEffect[SK.WM_POEMOFNETHERWORLD]           = {effectId: 'ef_poemofnetherworld'};		//Poem of The Netherworld
 	SkillEffect[SK.WM_VOICEOFSIREN]                = {groundEffectId: 879};		//Voice of Siren
-	SkillEffect[SK.WM_DEADHILLHERE]                = {};		//Valley of Death
+	SkillEffect[SK.WM_DEADHILLHERE]                = {effectId: 'ef_valley_of_death'};		//Valley of Death
 	SkillEffect[SK.WM_LULLABY_DEEPSLEEP]           = {effectId: 858};		//Deep Sleep Lullaby
 	SkillEffect[SK.WM_SIRCLEOFNATURE]              = {effectId: 861};		//Circle of Nature's Sound
 	SkillEffect[SK.WM_RANDOMIZESPELL]              = {effectId: 862};		//Improvised Song
 	SkillEffect[SK.WM_GLOOMYDAY]                   = {effectId: 847 /*848*/};		//Gloomy Day
-	SkillEffect[SK.WM_GREAT_ECHO]                  = {};		//Great Echo
+	SkillEffect[SK.WM_GREAT_ECHO]                  = {effectId: 'ef_great_echo'};		//Great Echo
 	SkillEffect[SK.WM_SONG_OF_MANA]                = {groundEffectId: 868, effectIdOnCaster: 865};		//Song of Mana
 	SkillEffect[SK.WM_DANCE_WITH_WUG]              = {groundEffectId: 866, effectIdOnCaster: 867};		//Dance With A Warg
-	SkillEffect[SK.WM_SOUND_OF_DESTRUCTION]        = {};		//Sound of Destruction
+	SkillEffect[SK.WM_SOUND_OF_DESTRUCTION]        = {effectId: 'ef_sound_of_destruction'};		//Sound of Destruction
 	SkillEffect[SK.WM_SATURDAY_NIGHT_FEVER]        = {groundEffectId: 870, effectIdOnCaster: 871};		//Saturday Night Fever
 	SkillEffect[SK.WM_LERADS_DEW]                  = {groundEffectId: 872, effectIdOnCaster: 871};		//Lerad's Dew
 	SkillEffect[SK.WM_MELODYOFSINK]                = {groundEffectId: 874, effectIdOnCaster: 873};		//Melody of Sink
