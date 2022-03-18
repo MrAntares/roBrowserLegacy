@@ -183,6 +183,15 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         this.startLifeTime = startLifeTime;
         this.endLifeTime = endLifeTime;
 		this.blendMode = effect.blendMode;
+		
+		if(effect.rotateToTarget){
+			var x = this.posxEnd - this.posxStart;
+			var y = this.posyEnd - this.posyStart;
+			this.angle += (90 - (2 * Math.atan( y / ( x + Math.sqrt(x*x + y*y) ) ) * 180 / Math.PI));
+			console.log(this.angle);
+		}
+		
+		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
     }
 	
 	
@@ -367,12 +376,17 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         SpriteRenderer.size[0] = sizeX;
         SpriteRenderer.size[1] = sizeY;
 		
+		var Camera = require('Renderer/Camera');
+		
         if (this.rotate) {
             var angleStep = (this.toAngle - this.angle) / 100;
             var startAngle = this.angle;
             var angle = steps * angleStep + startAngle;
-            SpriteRenderer.angle = angle;
-        } else SpriteRenderer.angle = this.angle;
+            SpriteRenderer.angle = this.rotateWithCamera ? angle + Camera.angle[1] : angle;
+        } else {
+			console.log(Camera.angle[1]);
+			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
+		}
 		
         if (this.shadowTexture && 0) {
             var effectName = require('Renderer/EffectManager').get(1000000);
@@ -387,7 +401,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
         if (this.actRessource) {
             var entity = EntityManager.get(this.AID);
             if (entity) {
-                var actions = this.actRessource.actions[(entity.action * 8 + (require('Renderer/Camera').direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
+                var actions = this.actRessource.actions[(entity.action * 8 + (Camera.direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
                 var animations;
                 var delay = this.sprDelay || actions.delay;
                 if (this.playSprite) animations = actions.animations[Math.floor((tick - this.startLifeTime) / delay) % actions.animations.length];
@@ -434,12 +448,14 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                     renderer.color[1] *= layer.color[1];
                     renderer.color[2] *= layer.color[2];
                     renderer.color[3] *= layer.color[3];
-                    renderer.angle = layer.angle;
+					var originalAngle = renderer.angle;
+                    renderer.angle += layer.angle;
                     renderer.offset[0] = layer.pos[0] + ctE[0];
                     renderer.offset[1] = layer.pos[1] + ctE[1];
                     renderer.size[0] = width;
                     renderer.size[1] = height;
                     renderer.render();
+					renderer.angle = originalAngle;
                     ++i;
                 } while (i < layercount);
             }
