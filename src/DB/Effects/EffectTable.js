@@ -279,13 +279,19 @@ define(function( require )
     ///   sets a delay before the rotation
     ///
     /// - rotationClockwise:
-    ///   if ste to tue then rotates clockwise
+    ///   if set to true then rotates clockwise
     ///
     /// - angle:
     ///   sets the starting angle of the texture in degrees (eg: 180=upside down)
     ///
     /// - toAngle:
     ///   sets the final angle of the texture in degrees (eg: 180=upside down)
+    ///
+	/// - rotateToTarget:
+    ///   if set to true the upper side of the texture is rotated to face the target
+    ///
+	/// - rotateWithCamera:
+    ///   if set to true the texture rotates if the camera is rotated makig it's sides always face the same coordinate in the 3D environment
     ///
     /// - zIndex:
     ///   sets the zindex of the texture (closer to the camera or farther)
@@ -1203,19 +1209,70 @@ define(function( require )
 
 
         24: [{ //fireball caster effect (on target effect 49:)    //EF_FIREBALL    Fire Ball
-            alphaMax: 1,
-            attachedEntity: false,
-            blue: 0.8,
+            type: '3D',
+			alphaMax: 1,
+            attachedEntity: true,
             duration: 250,
             fadeIn: false,
             fadeOut: false,
-            file: 'effect/fireparticle.tga',
-            fromSrc: false,
-            green: 0.8,
-            posz: 1,
-            red: 1,
-            size: 50,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
+            wav: 'effect/ef_fireball',
+            zIndex: 1
+        }, {
             type: '3D',
+			alphaMax: 0.7,
+            attachedEntity: true,
+            duration: 250,
+			delayOffset: 40,
+            fadeIn: false,
+            fadeOut: false,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
+            wav: 'effect/ef_fireball',
+            zIndex: 1
+        }, {
+			type: '3D',
+			alphaMax: 0.5,
+            attachedEntity: true,
+            duration: 250,
+			delayOffset: 80,
+            fadeIn: false,
+            fadeOut: false,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
+            wav: 'effect/ef_fireball',
+            zIndex: 1
+        }, {
+            type: '3D',
+			alphaMax: 0.3,
+            attachedEntity: true,
+            duration: 250,
+			delayOffset: 120,
+            fadeIn: false,
+            fadeOut: false,
+			spriteName: 'fireball',
+			playSprite: true,
+            toSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+            posz: 2,
+            size: 2,
             wav: 'effect/ef_fireball',
             zIndex: 1
         }],
