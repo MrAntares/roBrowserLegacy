@@ -93,13 +93,13 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
         }
 		
         if (effect.poszStartRand) {
-            var poszStartRandMilieu = effect.poszStartRandMilieu ? effect.poszStartRandMilieu : 0;
-            this.poszStart = getRandomIntInclusive(poszStartRandMilieu - effect.poszStartRand, poszStartRandMilieu + effect.poszStartRand);
+            var poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
+            this.poszStart = getRandomIntInclusive(poszStartRandMiddle - effect.poszStartRand, poszStartRandMiddle + effect.poszStartRand);
         }
 		
         if (effect.poszEndRand) {
-            var poszEndRandMilieu = effect.poszEndRandMilieu ? effect.poszEndRandMilieu : 0;
-            this.poszEnd = getRandomIntInclusive(poszEndRandMilieu - effect.poszEndRand, poszEndRandMilieu + effect.poszEndRand);
+            var poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
+            this.poszEnd = getRandomIntInclusive(poszEndRandMiddle - effect.poszEndRand, poszEndRandMiddle + effect.poszEndRand);
         }
 		
         this.poszSmooth = effect.poszSmooth ? false : true;
@@ -144,14 +144,14 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
         }
 		
         if (effect.sizeRandX) {
-            var sizeRandXmilieu = effect.sizeRandXmilieu ? effect.sizeRandXmilieu : 100;
-            this.sizeStartX = getRandomIntInclusive(sizeRandXmilieu - effect.sizeRandX, sizeRandXmilieu + effect.sizeRandX);
+            var sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
+            this.sizeStartX = getRandomIntInclusive(sizeRandXMiddle - effect.sizeRandX, sizeRandXMiddle + effect.sizeRandX);
             this.sizeEndX = this.sizeStartX;
         }
 		
         if (effect.sizeRandY) {
-            var sizeRandYmilieu = effect.sizeRandYmilieu ? effect.sizeRandYmilieu : 100;
-            this.sizeStartY = getRandomIntInclusive(sizeRandYmilieu - effect.sizeRandY, sizeRandYmilieu + effect.sizeRandY);
+            var sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
+            this.sizeStartY = getRandomIntInclusive(sizeRandYMiddle - effect.sizeRandY, sizeRandYMiddle + effect.sizeRandY);
             this.sizeEndY = this.sizeStartY;
         }
 		
