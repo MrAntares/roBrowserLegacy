@@ -47,12 +47,12 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
 	SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
 	SkillEffect[SK.MG_SOULSTRIKE]                  = {beforeHitEffectId: 15, hitEffectId: 1};		//Soul Strike
-	SkillEffect[SK.MG_COLDBOLT]                    = {effectId: 'coldbolt', hitEffectId: 51};		//Cold Bolt
+	SkillEffect[SK.MG_COLDBOLT]                    = {beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51};		//Cold Bolt
 	SkillEffect[SK.MG_FROSTDIVER]                  = {effectId: 27, hitEffectId: 28};		//Frost Diver
 	SkillEffect[SK.MG_STONECURSE]                  = {effectId: 23};		//Stone Curse
 	SkillEffect[SK.MG_FIREBALL]                    = {beforeHitEffectId: 24, hitEffectId: 49};		//Fire Ball
 	SkillEffect[SK.MG_FIREWALL]                    = {hitEffectId: 49, groundEffectId: 25};		//Fire Wall
-	SkillEffect[SK.MG_FIREBOLT]                    = {effectId: 'firebolt', hitEffectId: 49};		//Fire Bolt
+	SkillEffect[SK.MG_FIREBOLT]                    = {beforeHitEffectId: 'ef_firebolt', hitEffectId: 49};		//Fire Bolt
 	SkillEffect[SK.MG_LIGHTNINGBOLT]               = {effectId: 29, hitEffectId: 52};		//Lightning Bolt
 	SkillEffect[SK.MG_THUNDERSTORM]                = {effectId: 30, hitEffectId: 52};		//Thunderstorm
 	// Acolyte
