@@ -439,6 +439,20 @@ define(function( require )
 		};
 	}
 
+
+	/**
+	 * Get a list of items to create
+	 *
+	 * @param {object} pkt - PACKET.ZC.ITEMLISTWIN_OPEN
+	 */
+	function onListWinItem( ptk )
+	{
+		console.log('onListWinItem', ptk.Type)
+		if(! ptk.Type){
+			
+		}
+	}
+
 	/**
 	 * Get a list of items to create
 	 *
@@ -510,5 +524,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
 		Network.hookPacket( PACKET.ZC.MAKINGITEM_LIST,        onMakeitem_List );
 		Network.hookPacket( PACKET.ZC.ACK_ADDITEM_TO_CART,        onAckAddItemToCart );
+		Network.hookPacket( PACKET.ZC.ITEMLISTWIN_OPEN,        onListWinItem );
 	};
 });
