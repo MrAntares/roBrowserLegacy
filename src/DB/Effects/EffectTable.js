@@ -6787,7 +6787,78 @@ define(function( require )
         //751: [{}],    //EF_FIREBALL2       Releasing summoned warlock spheres
         //752: [{}],    //EF_BUNSINJYUTSU2       Like Energy Coat, but not as dark
         //753: [{}],    //EF_CLEARTIME       Clearance
-        //754: [{}],    //EF_GLASSWALL3       Green warp portal (root of Epiclesis)
+		
+        754: [{    //EF_GLASSWALL3       Green warp portal (root of Epiclesis)
+			alphaMax: 0.4,
+            animation: 4,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 2.4,
+            duration: 500,
+            duplicate: 150,
+            fadeOut: false,
+            height: 0.1,
+            posZ: 0.1,
+            rotate: true,
+            textureName: 'magic_green',
+            timeBetweenDupli: 200,
+            topSize: 3.9,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.4,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 0.6,
+            duration: 30000,
+            fade: false,
+            height: 7,
+            rotate: false,
+            textureName: 'magic_green',
+            topSize: 0.6,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.4,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 0.8,
+            duration: 30000,
+            fade: false,
+            height: 6,
+            rotate: false,
+            textureName: 'magic_green',
+            topSize: 0.8,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.5,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.6,
+            green: 1.0,
+            blue: 0.6,
+            bottomSize: 1,
+            duration: 30000,
+            fade: false,
+            height: 1,
+            posZ: 2,
+            rotate: false,
+            semiCircle: false,
+            textureName: 'alpha1',
+            topSize: 1,
+            type: 'CYLINDER'
+        }],
+		
         //755: [{}],    //EF_ORATIO       Oratio (spinning blue symbol)
 
         756: [{    //EF_POTION_BERSERK2    Enchant Blade (like Berserk Potion)
@@ -8045,14 +8116,65 @@ define(function( require )
         //880: [{}],    //EF_BEGINSPELL_150       Bluish castish cone
         //881: [{}],    //EF_LEVEL99_150       Blue aura
         //882: [{}],    //EF_PRIMECHARGE       Whirl of fireflies (red)
-        //883: [{}],    //EF_GLASSWALL4       Epiclesis (transparent green tree)
+		
+        883: [{    //EF_GLASSWALL4       Epiclesis (transparent green tree)
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            duration: 30000,
+			red: 0.0001,
+			green: 1.0,
+			blue: 0.0001,
+			size: 400,
+			posz: 7,
+			zIndex: 1,
+			wav: 'effect/ef_readyportal',
+			file: 'effect/ef_epitree.tga'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            duration: 990,
+			duplicate: 15,
+			timeBetweenDupli: 2000,
+			red: 0.0001,
+			green: 1.0,
+			blue: 0.0001,
+			sizeStart: 380,
+			sizeEnd: 420,
+			posz: 7,
+			zIndex: 1,
+			file: 'effect/ef_epitree.tga'
+		}, {
+			type: '3D',
+			alphaMax: 0.6,
+            attachedEntity: true,
+            blendMode: 2,
+            duration: 990,
+			duplicate: 15,
+			timeBetweenDupli: 2000,
+			delayOffset: 1000,
+			red: 0.0001,
+			green: 1.0,
+			blue: 0.0001,
+			sizeStart: 420,
+			sizeEnd: 380,
+			posz: 7,
+			zIndex: 1,
+			file: 'effect/ef_epitree.tga'
+		}],
+		
         //884: [{}],    //EF_GRADIUS_LASER       Green beam
         //885: [{}],    //EF_BASH3D6       Blue light beams
         //886: [{}],    //EF_GUMGANG5       Blue castish cone
         //887: [{}],    //EF_HITLINE8       Wavy sparks
+		
         888: [{    //EF_ELECTRIC4       Earth Shaker (same as 432)
 			wav: 'effect/sr_earthshaker'
 		}],
+		
         //889: [{}],    //EF_TEIHIT1T       Fast light beams
         //890: [{}],    //EF_SPINMOVE       Rotation
         //891: [{}],    //EF_FIREBALL4       Magic shots [S]
