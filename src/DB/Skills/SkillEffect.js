@@ -375,7 +375,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.PF_SOULBURN]                    = {effectId: 406};		//Soul Siphon
 	// Asassin Cross
 	SkillEffect[SK.ASC_EDP]                        = {effectId: 493};		//Enchant Deadly Poison
-	SkillEffect[SK.ASC_BREAKER]                    = {effectId: 361};		//Soul Destroyer
+	SkillEffect[SK.ASC_BREAKER]                    = {beforeHitEffectId: 361};		//Soul Destroyer
 	// Sniper
 	SkillEffect[SK.SN_SIGHT]                       = {effectId: 386};		//Falcon Eyes
 	SkillEffect[SK.SN_FALCONASSAULT]               = {effectId: 387};		//Falcon Assault

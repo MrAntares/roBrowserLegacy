@@ -4839,6 +4839,20 @@ define(function( require )
         //360: [{}],    //EF_BAT2       Niflheim Bat Fast
 		
         361: [{    //EF_SOULBREAKER       Soul Destroyer
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.4,
+			duration: 500,
+			fadeIn: true,
+			fadeOut: true,
+			zIndex: 10,
+			toSrc: true,
+			rotateWithCamera: true,
+			rotateToTarget: true,
+			angle: 90,
+			posz: 2,
+			sizeStart: 100,
+			sizeEnd: 200,
 			wav:  'effect/\xb1\xe2\xb0\xf8\xc6\xf7',
             attachedEntity: true
 		}],
