@@ -4,8 +4,6 @@
  * List effects
  * TODO: complete the list, add informations about sound.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author Vincent Thibault
  */
 define(function( require )
@@ -51,11 +49,274 @@ define(function( require )
     /// - direction
     ///   if set to true, the sprite will inherit character's direction
 
+
     /// type = FUNC
     ///
     /// - func:
     ///   callback to use
 
+
+    /// type = CYLINDER
+    ///
+    /// - textureName:
+    ///   name of the targa texture stored in data/texture/effect/(.*).tga
+    ///
+    /// - wav:
+    ///   audio file stored in data/wav/ folder
+    ///
+    /// - attachedEntity:
+    ///   if set to true, the effect will follow the entity attached
+    ///
+    /// - red:
+    /// - green:
+    /// - blue:
+    ///   if all 3 is set to >0, overrides the color of the texture
+    ///
+    /// - semiCircle:
+    ///   produces a semi circle
+    ///
+    /// - topSize:
+    ///   top radius of the circle
+    ///
+    /// - bottomSize:
+    ///   bottom radius of the circle
+    ///
+    /// - height:
+    ///   height of the cylinder
+    ///
+    /// - fade:
+    ///   if set to true the cylinder will fade out at the end of the duration
+    ///
+    /// - rotate:
+    ///   if set to true, the cylinder will rotate
+    ///
+    /// - alphaMax:
+    ///   sets the opacity of the cylinder (0.0 ~ 1.0)
+    ///
+    /// - animation:
+    ///   sets the animation type of the cylinder
+    ///     - 1: the height of the cylinder grows to the set height from 0
+    ///     - 2: top radius of the cylinder grows to the topSize value from 0
+    ///     - 3: the radius of the whole cylinder shrinks to 0
+    ///     - 4: the radius of the whole cylinder grows to the set topSize and bottomSize values from 0
+    ///     - 5: the height of the cylinder grows to the set height value, and then shrinks back to 0
+    ///
+    /// - blendmode:
+    ///   sets the webgl blendFunc target mode of the cylinder
+    ///     - 1: ZERO
+    ///     - 2: ONE (transparent light effect)
+    ///     - 3: SRC_COLOR
+    ///     - 4: ONE_MINUS_SRC_COLOR
+    ///     - 5: DST_COLOR
+    ///     - 6: ONE_MINUS_DST_COLOR
+    ///     - 7: SRC_ALPHA
+    ///     - 8: ONE_MINUS_SRC_ALPHA (default)
+    ///     - 9: DST_ALPHA
+    ///     - 10: ONE_MINUS_DST_ALPHA
+    ///     - 11: CONSTANT_COLOR
+    ///     - 12: ONE_MINUS_CONSTANT_COLOR
+    ///     - 13: CONSTANT_ALPHA
+    ///     - 14: ONE_MINUS_CONSTANT_ALPHA
+    ///     - 15: SRC_ALPHA_SATURATE
+    ///   the webgl blendFunc source mode is always SRC_ALPHA
+
+
+    /// type = 2D
+    ///
+    /// - file:
+    ///   Texture file name stored in data/texture/(.*.bmp|tga)
+    ///
+    /// - wav:
+    ///   audio file stored in data/wav/ folder
+    ///
+    /// - attachedEntity:
+    ///   if set to true, the effect will follow the entity attached
+    ///
+    /// - red:
+    ///   if set to >0, overrides the red color of the texture
+    ///
+    /// - green:
+    ///   if set to >0, overrides the green color of the texture
+    ///
+    /// - blue:
+    ///   if set to >0, overrides the blue color of the texture
+    ///
+    /// - alphaMax:
+    ///   sets the opacity of the texture (0.0 ~ 1.0)
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - fadeOut:
+    ///   if set to true the texture will fade out at the end of the duration
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - posx, posy, posz:
+    ///   sets the relative position of the texture
+    ///
+    /// - posxStart, posyStart, poszStart, posxEnd, posyEnd, poszEnd:
+    ///   sets the relative starting and ending position of the texture
+    ///
+    /// - posxRand, posyRand, poszRand:
+    ///   sets a +- range for a random relative position
+    ///
+    /// - posxRandDiff, posyRandDiff, poszRandDiff:
+    ///   sets a +- range for a random relative starting and ending position. The start and end is 2 different random numbers in the same range.
+    ///
+    /// - posxStartRand, posyStartRand, poszStartRand, posxEndRand, posyEndRand, poszEndRand:
+    ///   sets a +- range for a random relative starting and ending position
+    ///
+    /// - posxSmooth, posySmooth, poszSmooth:
+    ///   smoohtes out the movement on an axis
+    ///
+    /// - size, sizeX, sizeY, sizeStart, sizeEnd, sizeStartX, sizeStartY, sizeEndX, sizeEndY:
+    /// - sizeRand, sizeRandx, sizeEndY:
+    /// - sizeSmooth:
+    ///   works the same way as positions, but effects the size of the texture
+    ///
+    /// - poszStartRandMiddle, poszEndRandMiddle:
+    ///   sets the relative middle position of the random range of the starting and ending Z position
+    ///
+    /// - sizeRandXMiddle, sizeRandYMiddle:
+    ///   sets the middle value for the random range for the size X&Y values
+    ///
+    /// - rotate:  
+    ///   if set to true makes the texture rotate on it's y axis (turn around)
+    ///
+    /// - angle:
+    ///   sets the starting angle of the texture in degrees (eg: 180=upside down)
+    ///
+    /// - toAngle:
+    ///   sets the final angle of the texture in degrees (eg: 180=upside down)
+    ///
+    /// - zIndex:
+    ///   sets the zindex of the texture (closer to the camera or farther)
+    
+
+
+    /// type = 3D
+    ///
+    /// - file:
+    ///   Texture file name stored in data/texture/(.*.bmp|tga)
+    ///
+    /// - spriteName:
+    ///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
+    ///
+    /// - playSprite:
+    ///   if set to true plays the sprite animation
+    ///
+    /// - sprDelay:
+    ///   frame delay for a sprite animation
+    ///
+    /// - wav:
+    ///   audio file stored in data/wav/ folder
+    ///
+    /// - attachedEntity:
+    ///   if set to true, the effect will follow the entity attached
+    ///
+    /// - red:
+    ///   if set to >0, overrides the red color of the texture
+    ///
+    /// - green:
+    ///   if set to >0, overrides the green color of the texture
+    ///
+    /// - blue:
+    ///   if set to >0, overrides the blue color of the texture
+    ///
+    /// - alphaMax:
+    ///   sets the opacity of the texture (0.0 ~ 1.0)
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - fadeOut:
+    ///   if set to true the texture will fade out at the end of the duration
+    ///
+    /// - fadeIn:
+    ///   if set to true the texture will fade in at the beginning of the duration
+    ///
+    /// - posx, posy, posz:
+    ///   sets the relative position of the texture
+    ///
+    /// - posxStart, posyStart, poszStart, posxEnd, posyEnd, poszEnd:
+    ///   sets the relative starting and ending position of the texture
+    ///
+    /// - posxRand, posyRand, poszRand:
+    ///   sets a +- range for a random relative position
+    ///
+    /// - posxRandDiff, posyRandDiff, poszRandDiff:
+    ///   sets a +- range for a random relative starting and ending position. The start and end is 2 different random numbers in the same range.
+    ///
+    /// - posxStartRand, posyStartRand, poszStartRand, posxEndRand, posyEndRand, poszEndRand:
+    ///   sets a +- range for a random relative starting and ending position
+    ///
+    /// - posxSmooth, posySmooth, poszSmooth:
+    ///   smoohtes out the movement on an axis
+    ///
+    /// - size, sizeX, sizeY, sizeStart, sizeEnd, sizeStartX, sizeStartY, sizeEndX, sizeEndY:
+    /// - sizeRand, sizeRandx, sizeEndY:
+    /// - sizeSmooth:
+    ///   works the same way as positions, but effects the size of the texture
+    ///
+    /// - posxStartRandMiddle, posyStartRandMiddle, poszStartRandMiddle, posxEndRandMiddle, posyEndRandMiddle, poszEndRandMiddle:
+    ///   sets the relative middle position of the random range of the starting and ending
+    ///
+    /// - sizeRandXMiddle, sizeRandYMiddle:
+    ///   sets the middle value for the random range for the size X&Y values
+    ///
+    /// - rotate:  
+    ///   if set to true makes the texture rotate on it's y axis (turn around)
+    ///
+    /// - rotatePosX, rotatePosY, rotatePosZ:
+    ///   offsets the rotation axis
+    ///
+    /// - nbOfRotation:
+    ///   sets the number of rotations
+    ///
+    /// - rotateLate:
+    ///   sets a delay before the rotation
+    ///
+    /// - rotationClockwise:
+    ///   if ste to tue then rotates clockwise
+    ///
+    /// - angle:
+    ///   sets the starting angle of the texture in degrees (eg: 180=upside down)
+    ///
+    /// - toAngle:
+    ///   sets the final angle of the texture in degrees (eg: 180=upside down)
+    ///
+    /// - zIndex:
+    ///   sets the zindex of the texture (closer to the camera or farther)
+    ///
+    /// - shadowTexture:
+    ///   if set to true then enables the shadow
+    ///
+    /// - blendmode:
+    ///   sets the webgl blendFunc target mode of the cylinder
+    ///     - 1: ZERO
+    ///     - 2: ONE (transparent light effect)
+    ///     - 3: SRC_COLOR
+    ///     - 4: ONE_MINUS_SRC_COLOR
+    ///     - 5: DST_COLOR
+    ///     - 6: ONE_MINUS_DST_COLOR
+    ///     - 7: SRC_ALPHA
+    ///     - 8: ONE_MINUS_SRC_ALPHA (default)
+    ///     - 9: DST_ALPHA
+    ///     - 10: ONE_MINUS_DST_ALPHA
+    ///     - 11: CONSTANT_COLOR
+    ///     - 12: ONE_MINUS_CONSTANT_COLOR
+    ///     - 13: CONSTANT_ALPHA
+    ///     - 14: ONE_MINUS_CONSTANT_ALPHA
+    ///     - 15: SRC_ALPHA_SATURATE
+    ///   the webgl blendFunc source mode is always SRC_ALPHA
+    ///
+    /// - sparkling
+    ///   if set to true then creates sparks
+    ///
+    /// - sparkNumber
+    ///   sets the number of sparks
 
     return {
 
@@ -404,7 +665,7 @@ define(function( require )
             poszEnd: 1,
             poszSmooth: false,
             poszStartRand: 5,
-            poszStartRandMilieu: 6,
+            poszStartRandMiddle: 6,
             red: 1,
             size: 50,
             timeBetweenDupli: 150,
@@ -1389,11 +1650,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 1,
+            poszStartRandMiddle: 1,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1408,11 +1669,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 1,
+            poszStartRandMiddle: 1,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1426,11 +1687,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 1,
+            poszStartRandMiddle: 1,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1463,11 +1724,11 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1,
             poszEndRand: 1,
-            poszEndRandMilieu: 1,
+            poszEndRandMiddle: 1,
             poszStartRand: 1,
-            poszStartRandMilieu: 6,
+            poszStartRandMiddle: 6,
             sizeRandY: 15,
-            sizeRandYmilieu: 45,
+            sizeRandYMiddle: 45,
             sizeX: 2.5,
             type: '3D',
             zIndex: 0
@@ -1538,9 +1799,9 @@ define(function( require )
             posxRand: 1.2,
             posyRand: 1,
             poszEndRand: 0.5,
-            poszEndRandMilieu: 1,
+            poszEndRandMiddle: 1,
             poszStartRand: 2,
-            poszStartRandMilieu: 5.5,
+            poszStartRandMiddle: 5.5,
             size: 0.5,
             sparkling: false,
             sparkNumber: 2,
@@ -1559,9 +1820,9 @@ define(function( require )
             posxRand: 1.4,
             posyRand: 1.1,
             poszEndRand: 0.5,
-            poszEndRandMilieu: 1,
+            poszEndRandMiddle: 1,
             poszStartRand: 2,
-            poszStartRandMilieu: 5.5,
+            poszStartRandMiddle: 5.5,
             size: 0.5,
             spriteName: 'particle6',
             timeBetweenDupli: 0,
@@ -3650,7 +3911,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 2,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -3674,7 +3935,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 5,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 9,
             sizeRand: 2,
@@ -3747,7 +4008,7 @@ define(function( require )
             posxRand: 1.2,
             posyRand: 1.2,
             poszEndRand: 1,
-            poszEndRandMilieu: 8,
+            poszEndRandMiddle: 8,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -3772,7 +4033,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 3,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -3798,7 +4059,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 9,
             sizeRand: 2,
@@ -4115,7 +4376,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 3,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -4141,7 +4402,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 9,
             sizeRand: 2,
@@ -4194,11 +4455,11 @@ define(function( require )
             file: 'effect/pok1.tga',
             green: 1,
             posxStartRand: 3,
-            posxStartRandMilieu: 0,
+            posxStartRandMiddle: 0,
             posyStartRand: 3,
-            posyStartRandMilieu: 0,
+            posyStartRandMiddle: 0,
             poszEndRand: 2,
-            poszEndRandMilieu: 2,
+            poszEndRandMiddle: 2,
             poszStart: 0,
             red: 1,
             size: 100,
@@ -4273,7 +4534,7 @@ define(function( require )
             posxRand: 1.2,
             posyRand: 1.2,
             poszEndRand: 1,
-            poszEndRandMilieu: 8,
+            poszEndRandMiddle: 8,
             poszStart: 0,
             red: 1,
             size: 9,
@@ -4298,7 +4559,7 @@ define(function( require )
             posxRand: 1.5,
             posyRand: 1.5,
             poszEndRand: 3,
-            poszEndRandMilieu: 6,
+            poszEndRandMiddle: 6,
             poszStart: 0,
             red: 1,
             size: 10,
@@ -4324,7 +4585,7 @@ define(function( require )
             posyRand: 1,
             poszEnd: 6,
             poszStartRand: 1,
-            poszStartRandMilieu: 0,
+            poszStartRandMiddle: 0,
             red: 1,
             size: 11,
             sizeRand: 2,
