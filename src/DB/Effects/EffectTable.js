@@ -8247,9 +8247,11 @@ define(function( require )
         
 		//830: [{}],    //EF_BEGINSPELL_N1       Blue aura (Arch Bishop cast animation)
         //831: [{}],    //EF_BEGINSPELL_N2       Blue cone [S]
+		
         832: [{    //EF_HEAL_N       Sonic Wave
 			wav:  'effect/\xb1\xe2\xb0\xf8\xc6\xf7'
 		}],
+		
         //833: [{}],    //EF_CHOOKGI_N       (Nothing)
         //834: [{}],    //EF_JOBLVUP50_2       Light shooting away circlish
         //835: [{}],    //EF_CHEMICAL2DASH2       Fastness yellow-reddish
@@ -8264,8 +8266,12 @@ define(function( require )
         //844: [{}],    //EF_BEGINSPELL_N7       Purple cone
         //845: [{}],    //EF_BEGINSPELL_N8       light-bluish turquoise cone
         //846: [{}],    //EF_WATER_SMOKE       (Nothing)
-        //847: [{}],    //EF_DANCE1       Gloomy Day (white/red light rays)
-        //848: [{}],    //EF_DANCE2       Gloomy Day (white/blue light rays)
+        
+		847: [{    //EF_DANCE1       Gloomy Day (white/red light rays)
+			wav: 'effect/\xbc\xf6\xc1\xdd\xc0\xba\xc7\xcf\xb7\xe7\xc0\xc7\xbf\xec\xbf\xef'
+		}],
+        
+		//848: [{}],    //EF_DANCE2       Gloomy Day (white/blue light rays)
         //849: [{}],    //EF_LINKPARTICLE       (Nothing)
         //850: [{}],    //EF_SOULLIGHT2       (Nothing)
         //851: [{}],    //EF_SPR_PARTICLE       Green mushy-foggy stuff (dull)
@@ -8279,14 +8285,19 @@ define(function( require )
 			wav: 'effect/rainstorm' 
 		}],
 		
-        //858: [{}],    //EF_CHEMICAL_V2       Deep Sleep Lullaby (two red beams and music notes)
-        //859: [{}],    //EF_SECRA       Holograph of text (blue)
+        858: [{    //EF_CHEMICAL_V2       Deep Sleep Lullaby (two red beams and music notes)
+			wav: 'effect/\xbe\xc8\xbd\xc4\xc0\xc7\xc0\xda\xc0\xe5\xb0\xa1'
+		}],
+        
+		//859: [{}],    //EF_SECRA       Holograph of text (blue)
         
 		860: [{     //EF_BOT_REVERB2       Distorted note (blue)
 			wav: 'effect/reverberation' 
 		}],
         
-		//861: [{}],    //EF_CIRCLEPOWER2       Green aura (from Circle of Life's Melody)
+		861: [{    //EF_CIRCLEPOWER2       Green aura (from Circle of Life's Melody)
+			wav: 'effect/\xbc\xf8\xc8\xaf\xc7\xcf\xb4\xc2\xc0\xda\xbf\xac\xc0\xc7\xbc\xd2\xb8\xae'
+		}],
         
 		862: [{    //EF_SECRA2       Randomize Spell (holograph of text)
 			attachedEntity: true,
@@ -8472,18 +8483,45 @@ define(function( require )
 		}],
 		
         //867: [{}],    //EF_CIRCLEPOWER4       Yellow aura (from Dance with a Warg)
-        //868: [{}],    //EF_SPR_PLANT3       Song of Mana (Violies)
+		
+        868: [{    //EF_SPR_PLANT3       Song of Mana (Violies)
+			wav: 'effect/\xb8\xb6\xb3\xaa\xc0\xc7\xb3\xeb\xb7\xa1'
+		}],
+		
         //869: [{}],    //EF_RG_COIN6       Strip sound [S]
-        //870: [{}],    //EF_SPR_PLANT4       Ghostly Succubuses of fire
-        //871: [{}],    //EF_CIRCLEPOWER5       Red aura (from Lerad's Dew)
-        //872: [{}],    //EF_SPR_PLANT5       Lerad's Dew (Minerals)
+        
+		870: [{    //EF_SPR_PLANT4       Ghostly Succubuses of fire
+			wav: 'effect/\xbb\xf5\xc5\xcd\xb5\xa5\xc0\xcc\xb3\xaa\xc0\xcc\xc6\xae\xc7\xc7\xb9\xf6'
+		}],
+        
+		//871: [{}],    //EF_CIRCLEPOWER5       Red aura (from Lerad's Dew)
+		
+        872: [{    //EF_SPR_PLANT5       Lerad's Dew (Minerals)
+			wav: 'effect/\xb7\xb9\xb6\xf3\xb5\xe5\xc0\xc7\xc0\xcc\xbd\xbd'
+		}],
+		
         //873: [{}],    //EF_CIRCLEPOWER6       Stargate-wormhole stuff (bright purple)
-        //874: [{}],    //EF_SPR_PLANT6       Melody of Sink (Ktullanuxes)
+		
+        874: [{    //EF_SPR_PLANT6       Melody of Sink (Ktullanuxes)
+			wav: 'effect/\xb8\xe1\xb7\xce\xb5\xf0\xbf\xc0\xba\xea\xbd\xcc\xc5\xa9' //'effect/\xb3\xaa\xb6\xf4\xc0\xc7\xb3\xeb\xb7\xa1'
+		}],
+		
         //875: [{}],    //EF_CIRCLEPOWER7       Stargate-wormhole stuff (bright turquoise)
-        //876: [{}],    //EF_SPR_PLANT7       Warcry of Beyond (Garms)
+		
+        876: [{    //EF_SPR_PLANT7       Warcry of Beyond (Garms)
+			wav: 'effect/\xba\xf1\xbf\xe6\xb5\xe5\xbf\xc0\xba\xea\xbf\xf6\xc5\xa9\xb6\xf3\xc0\xcc'
+		}],
+		
         //877: [{}],    //EF_CIRCLEPOWER8       Stargate-wormhole stuff (white)
-        //878: [{}],    //EF_SPR_PLANT8       Unlimited Humming Voice (Miyabi Ningyos)
-        //879: [{}],    //EF_HEARTASURA       Siren's Voice (heart-like)
+        
+		878: [{    //EF_SPR_PLANT8       Unlimited Humming Voice (Miyabi Ningyos)
+			wav: 'effect/\xbe\xf0\xb8\xae\xb9\xcc\xc6\xbc\xb5\xe5\xc7\xe3\xb9\xd6\xba\xb8\xc0\xcc\xbd\xba'
+		}],
+        
+		879: [{    //EF_HEARTASURA       Siren's Voice (heart-like)
+			wav: 'effect/\xbc\xbc\xc0\xcc\xb7\xbb\xc0\xc7\xb8\xf1\xbc\xd2\xb8\xae'
+		}],
+		
         //880: [{}],    //EF_BEGINSPELL_150       Bluish castish cone
         //881: [{}],    //EF_LEVEL99_150       Blue aura
         //882: [{}],    //EF_PRIMECHARGE       Whirl of fireflies (red)
@@ -9130,7 +9168,7 @@ define(function( require )
         }],
 		
 		'ef_swing_dance': [{
-            wav: 'effect/\xbd\xba\xc0\xae\xb4\xed\xbd\xba\x2e', //˝şŔ®´í˝ş
+            wav: 'effect/\xbd\xba\xc0\xae\xb4\xed\xbd\xba',
             attachedEntity: true
         }],
 		
@@ -9368,10 +9406,46 @@ define(function( require )
             attachedEntity: true
         }],
 		
+		'ef_moonlit_serenade': [{
+            wav: 'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5',
+            attachedEntity: true
+        }],
+		
+		'ef_sound_of_destruction': [{
+            wav: 'effect/\xbb\xe7\xbf\xee\xb5\xe5\xbf\xc0\xba\xea\xb5\xf0\xbd\xba\xc6\xae\xb7\xb0\xbc\xc7',
+            attachedEntity: true
+        }],
+		
+		'ef_great_echo': [{
+            wav: 'effect/\xb1\xd7\xb7\xb9\xc0\xcc\xc6\xae\xbf\xa1\xc4\xda',
+            attachedEntity: true
+        }],
+		
+		'ef_valley_of_death': [{
+            wav: 'effect/\xbb\xe7\xb8\xc1\xc0\xc7\xb0\xf1\xc2\xa5\xb1\xe2\xbf\xa1\xbc\xad',
+            attachedEntity: true
+        }],
+		
+		'ef_harmonize': [{
+            wav: 'effect/\xc7\xcf\xb8\xf0\xb3\xaa\xc0\xcc\xc1\xee',
+            attachedEntity: true
+        }],
+		
+		'ef_echo_song': [{
+            wav: 'effect/\xb8\xde\xbe\xc6\xb8\xae\xc0\xc7\xb3\xeb\xb7\xa1',
+            attachedEntity: true
+        }],
+		
+		'ef_symphony_of_lovers': [{
+            wav: 'effect/\xbf\xac\xc0\xce\xb5\xe9\xc0\xbb\xc0\xa7\xc7\xd1\xbd\xc9\xc6\xf7\xb4\xcf',
+            attachedEntity: true
+        }],
+		
 		'ef_': [{
             wav: 'effect/',
             attachedEntity: true
         }],
+
 
     };
 });
