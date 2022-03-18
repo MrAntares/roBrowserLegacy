@@ -172,7 +172,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.STORMKICK_ON] = {
-		icon: "i_stomkick.tga",
+		icon: "i_stormkick.tga",
 		descript: [
 			["Whirlwind Kick (Tornado Kick)", COLOR_TITLE_BUFF],
 			["When attacking an enemy"],
