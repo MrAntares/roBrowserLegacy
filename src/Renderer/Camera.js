@@ -276,11 +276,13 @@ define(function( require )
 	 */
 	Camera.setZoom = function SetZoom( delta )
 	{
-		this.zoomFinal += delta * 15;
-		this.zoomFinal  = Math.min( this.zoomFinal, Math.abs(this.altitudeTo-this.altitudeFrom) * this.MAX_ZOOM );
-		this.zoomFinal  = Math.max( this.zoomFinal,  2.0 );
-		
-		this.save();
+		if(delta){
+			this.zoomFinal += delta * 15;
+			this.zoomFinal  = Math.min( this.zoomFinal, Math.abs(this.altitudeTo-this.altitudeFrom) * this.MAX_ZOOM );
+			this.zoomFinal  = Math.max( this.zoomFinal,  2.0 );
+			
+			this.save();
+		}
 	};
 
 
