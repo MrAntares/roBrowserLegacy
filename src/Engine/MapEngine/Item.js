@@ -16,20 +16,22 @@ define(function( require )
 	/**
 	 * Load dependencies
 	 */
-	var DB            = require('DB/DBManager');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Network       = require('Network/NetworkManager');
-	var PACKET        = require('Network/PacketStructure');
-	var ItemObject    = require('Renderer/ItemObject');
-	var Altitude      = require('Renderer/Map/Altitude');
-	var Session       = require('Engine/SessionStorage');
-	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
-	var ItemObtain    = require('UI/Components/ItemObtain/ItemObtain');
-	var ItemSelection = require('UI/Components/ItemSelection/ItemSelection');
-	var Inventory     = require('UI/Components/Inventory/Inventory');
-	var CartItems     = require('UI/Components/CartItems/CartItems');
-	var Equipment     = require('UI/Components/Equipment/Equipment');
-	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
+	var DB           			 = require('DB/DBManager');
+	var EquipLocation			 = require('DB/Items/EquipmentLocation');
+	var Network      			 = require('Network/NetworkManager');
+	var PACKET       			 = require('Network/PacketStructure');
+	var ItemObject   			 = require('Renderer/ItemObject');
+	var Altitude     			 = require('Renderer/Map/Altitude');
+	var Session      			 = require('Engine/SessionStorage');
+	var ChatBox      			 = require('UI/Components/ChatBox/ChatBox');
+	var ItemObtain   			 = require('UI/Components/ItemObtain/ItemObtain');
+	var ItemSelection			 = require('UI/Components/ItemSelection/ItemSelection');
+	var Inventory    			 = require('UI/Components/Inventory/Inventory');
+	var CartItems    			 = require('UI/Components/CartItems/CartItems');
+	var Equipment    			 = require('UI/Components/Equipment/Equipment');
+	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
+	var ItemListWindowSelection  = require('UI/Components/MakeItemSelection/ItemListWindowSelection');
+	
     var EffectManager = require('Renderer/EffectManager');
 
 
@@ -449,7 +451,8 @@ define(function( require )
 	{
 		console.log('onListWinItem', ptk.Type)
 		if(! ptk.Type){
-			
+			ItemListWindowSelection.append();
+			ItemListWindowSelection.setList();
 		}
 	}
 

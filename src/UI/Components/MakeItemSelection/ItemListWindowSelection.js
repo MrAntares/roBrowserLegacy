@@ -68,14 +68,16 @@
                  ItemListWindowSelection.setIndex( Math.floor(this.getAttribute('data-index')) );
              });
              
-         // on drop item
-         this.ui.find('.materials')
-                 .on('drop',     onDrop)
-                 .on('dragover', stopPropagation);
+        //  // on drop item
+        //  this.ui.find('.materials')
+        //          .on('drop',     onDrop)
+        //          .on('dragover', stopPropagation);
  
 		
-		this.ui.find('.item').remove();
-        this.ui.find('.materials').hide();
+		// this.ui.find('.item').remove();
+        // this.ui.find('.materials').hide();
+
+        this.draggable(this.ui.find('.titlebar'));
      };
  
  
@@ -84,71 +86,58 @@
       *
       * @param {Array} list object to display
       */
-     ItemListWindowSelection.setList = function setList( list )
+     ItemListWindowSelection.setList = function setList()
      {
-         var i, count;
-         var item, it, file, name, showMaterials;
+
+
+        console.log(Inventory.list, 'ItemListWindowSelection')
+
+        // var it   = DB.getItemInfo( item.ITID );
+
+        // this.ui.find('.container .content').append(
+        //     '<div class="item" data-index="' + item.index +'" draggable="true">' +
+        //         '<div class="icon"></div>' +
+        //         '<div class="amount">'+ (item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') + '</div>' +
+        //         '<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
+        //     '</div>'
+        // );
+
+        // Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
+        //     this.ui.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
+        // }.bind(this));
+
+        //  var i, count;
+        //  var item, it, file, name, showMaterials;
  
-         ItemListWindowSelection.list.empty();
-		 this.ui.find('.list').css('backgroundColor', '#f7f7f7');
-         this.ui.find('.materials').hide();
-		 this.ui.find('.item').remove();
+        //  ItemListWindowSelection.list.empty();
+		//  this.ui.find('.list').css('backgroundColor', '#f7f7f7');
+        //  this.ui.find('.materials').hide();
+		//  this.ui.find('.item').remove();
  
-         showMaterials = true;
+        //  showMaterials = true;
          
-         this.material = [];
+        //  this.material = [];
  
-         for (i = 0, count = list.length; i < count; ++i) {
+        //  for (i = 0, count = list.length; i < count; ++i) {
              
-             item = list[i];
-             it   = DB.getItemInfo( item.ITID );
-             file = it.identifiedResourceName;
-             name = it.identifiedDisplayName;
+        //      item = list[i];
+        //      it   = DB.getItemInfo( item.ITID );
+        //      file = it.identifiedResourceName;
+        //      name = it.identifiedDisplayName;
  
-             if(it.processitemlist === ''){
-				 showMaterials = false;
-			 }
+        //      if(it.processitemlist === ''){
+		// 		 showMaterials = false;
+		// 	 }
  
-             addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i].ITID, name);
-         }
+        //      addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i].ITID, name);
+        //  }
          
-		 this.setIndex(list[0].ITID);
+		//  this.setIndex(list[0].ITID);
 		 
-		 bindSelectEvents(showMaterials);
+		//  bindSelectEvents(showMaterials);
+
+
      };
- 
- 
-     /**
-      * Add elements to the list
-      *
-      * @param {Array} list object to display
-      */
-      ItemListWindowSelection.setCookingList = function setCookingList( list )
-      {
-         var i, count;
-         var item, it, file, name;
-  
-         ItemListWindowSelection.list.empty();
-		 this.ui.find('.list').css('backgroundColor', '#f7f7f7');
-         this.ui.find('.materials').hide();
-		 this.ui.find('.item').remove();
-		 
-		 this.material = list[0]; // add mk type
-  
-         for (i = 1, count = list.length; i < count; ++i) {
-              
-             item = list[i];
-             it   = DB.getItemInfo( item );
-             file = it.identifiedResourceName;
-             name = it.identifiedDisplayName;
- 
-             addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
-         }
-		 
-		 this.setIndex(list[0].ITID);
-          
-         bindSelectEvents(false);
-      };
  
  
      /**
@@ -345,26 +334,6 @@
          return false;
      }
      
- 
-     function bindSelectEvents(showMaterials){
-         if(showMaterials){
-			 
-             ItemListWindowSelection.ui.find('.ok').unbind('click');
-             ItemListWindowSelection.ui.find('.ok').click( ItemListWindowSelection.advance.bind(ItemListWindowSelection) );
-			 
-			 ItemListWindowSelection.ui.off('dblclick', '.item');
-			 ItemListWindowSelection.ui.on('dblclick', '.item', ItemListWindowSelection.advance.bind(ItemListWindowSelection));
-			 
-         }else{
-			 
-             ItemListWindowSelection.ui.find('.ok').unbind('click');
-			 ItemListWindowSelection.ui.find('.ok').click( ItemListWindowSelection.selectIndex.bind(ItemListWindowSelection) );
-			 
-             ItemListWindowSelection.ui.off('dblclick', '.item');
-             ItemListWindowSelection.ui.on('dblclick', '.item', ItemListWindowSelection.selectIndex.bind(ItemListWindowSelection));
-         }
-     }
- 
      /**
       * Create component based on view file and export it
       */
