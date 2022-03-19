@@ -19,7 +19,7 @@ define(function( require )
 	 */
 	var jQuery           = require('Utils/jquery');
 	var DB               = require('DB/DBManager');
-	var Configs	     = require('Core/Configs');
+	var Configs          = require('Core/Configs');
 	var SoundManager     = require('Audio/SoundManager');
 	var BGM              = require('Audio/BGM');
 	var Events           = require('Core/Events');
@@ -43,9 +43,9 @@ define(function( require )
 	var BasicInfo        = require('UI/Components/BasicInfo/BasicInfo');
 	var WinStats         = require('UI/Components/WinStats/WinStats');
 	var Inventory        = require('UI/Components/Inventory/Inventory');
-	var CartItems          = require('UI/Components/CartItems/CartItems');
+	var CartItems        = require('UI/Components/CartItems/CartItems');
 	var Vending          = require('UI/Components/Vending/Vending');
-	var ChangeCart          = require('UI/Components/ChangeCart/ChangeCart');
+	var ChangeCart       = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
 	var ShortCuts        = require('UI/Components/ShortCuts/ShortCuts');
@@ -55,7 +55,7 @@ define(function( require )
 	var SkillList        = require('UI/Components/SkillList/SkillList');
 	var PartyFriends     = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild            = require('UI/Components/Guild/Guild');
-
+	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
 
 	/**
 	 * @var {string mapname}
@@ -76,7 +76,7 @@ define(function( require )
 
 	var snCounter = 0;
 	var chatLines = 0;
-	
+
 	/**
 	 * Connect to Map Server
 	 *
@@ -116,20 +116,20 @@ define(function( require )
 					Session.Character.GID = fp.readLong();
 				}
 			});
-  
-       		        var hbt = new PACKET.CZ.HBT();
+
+			var hbt = new PACKET.CZ.HBT();
 			var is_sec_hbt = Configs.get('sec_HBT', null);
-      
+
 			// Ping
 			var ping = new PACKET.CZ.REQUEST_TIME();
 			var startTick = Date.now();
 			Network.setPing(function(){
-            	                if(is_sec_hbt)Network.sendPacket(hbt);   
+			if(is_sec_hbt)Network.sendPacket(hbt);
 				ping.clientTime = Date.now() - startTick;
 				Network.sendPacket(ping);
 			});
-        
-        	        Session.Playing = true;
+
+			Session.Playing = true;
 		}, true);
 
 		// Do not hook multiple time
@@ -179,9 +179,9 @@ define(function( require )
 		MiniMap.prepare();
 		Escape.prepare();
 		Inventory.prepare();
-		CartItems.prepare();		
-		Vending.prepare();		
-		ChangeCart.prepare();		
+		CartItems.prepare();
+		Vending.prepare();
+		ChangeCart.prepare();
 		Equipment.prepare();
 		ShortCuts.prepare();
 		ShortCut.prepare();
@@ -193,6 +193,7 @@ define(function( require )
 		BasicInfo.prepare();
 		ChatBox.prepare();
 		Guild.prepare();
+		WorldMap.prepare();
 
 		// Bind UI
 		WinStats.onRequestUpdate        = onRequestStatUpdate;
@@ -217,7 +218,6 @@ define(function( require )
 	function onPong( pkt )
 	{
 		//pkt.time
-   
 	}
 
 
@@ -319,6 +319,7 @@ define(function( require )
 			SkillList.append();
 			PartyFriends.append();
 			Guild.append();
+			WorldMap.append();
 
 			// Map loaded
 			Network.sendPacket(
@@ -514,7 +515,7 @@ define(function( require )
 		if (flag_guild) {
 			target = (target & ~ChatBox.TYPE.GUILD) | (~target & ChatBox.TYPE.GUILD);
 		}
-		
+
 		// Get packet
 		if (target & ChatBox.TYPE.PARTY) {
 			pkt = new PACKET.CZ.REQUEST_CHAT_PARTY();
@@ -530,7 +531,7 @@ define(function( require )
 		// send packet
 		pkt.msg = Session.Entity.display.name + ' : ' + text;
 		Network.sendPacket(pkt);
-		
+
 		//Super Novice Chant
 		if(chatLines > 7 && ([ 23, 4045, 4128, 4172, 4190, 4191, 4192, 4193]).includes(Session.Entity._job)){
 			if(Math.floor((BasicInfo.base_exp / BasicInfo.base_exp_next) * 1000.0) % 100 == 0){

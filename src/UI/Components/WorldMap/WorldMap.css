@@ -1,0 +1,12 @@
+#WorldMap { position:fixed; top:0; left:0; background: black; height: 100%;  width: 100%;}
+
+#WorldMap .titlebar { height:17px; background-color:white; background-repeat:repeat-x; }
+#WorldMap .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
+#WorldMap .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+ /* chrome bug */ display: inline-block; width: 60px; height:13px; }
+
+#WorldMap .titlebar .left { margin-left:3px; float:left; height: 17px; }
+#WorldMap .titlebar .right { float:right; margin-right:3px;}
+#WorldMap .titlebar .clear { clear:both; }
+
+#WorldMap select { height: 17px; }
