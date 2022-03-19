@@ -188,7 +188,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 			var x = this.posxEnd - this.posxStart;
 			var y = this.posyEnd - this.posyStart;
 			this.angle += (90 - (2 * Math.atan( y / ( x + Math.sqrt(x*x + y*y) ) ) * 180 / Math.PI));
-			console.log(this.angle);
 		}
 		
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
@@ -384,7 +383,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             var angle = steps * angleStep + startAngle;
             SpriteRenderer.angle = this.rotateWithCamera ? angle + Camera.angle[1] : angle;
         } else {
-			console.log(Camera.angle[1]);
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 		
