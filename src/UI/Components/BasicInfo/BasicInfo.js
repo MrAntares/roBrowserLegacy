@@ -29,6 +29,7 @@ define(function(require)
 	var PartyFriends       = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild              = require('UI/Components/Guild/Guild');
 	var Escape             = require('UI/Components/Escape/Escape');
+	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var htmlText           = require('text!./BasicInfo.html');
 	var cssText            = require('text!./BasicInfo.css');
 
@@ -106,6 +107,9 @@ define(function(require)
 					break;
 
 				case 'map':
+					WorldMap.toggle();
+					break;
+
 				case 'quest':
 			}
 		});
@@ -125,12 +129,12 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-		
+
 		this.magnet.TOP = _preferences.magnet_top;
 		this.magnet.BOTTOM = _preferences.magnet_bottom;
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
-		
+
 		// large/small window
 		this.ui.removeClass('small large');
 		if (_preferences.reduce) {

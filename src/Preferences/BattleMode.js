@@ -31,7 +31,7 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ KEYS.F7 ]  = { component:'ShortCut',        cmd:'EXECUTE6' };
 	defaultKey[ KEYS.F8 ]  = { component:'ShortCut',        cmd:'EXECUTE7' };
 	defaultKey[ KEYS.F9 ]  = { component:'ShortCut',        cmd:'EXECUTE8' };
-	
+
 	defaultKey[ KEYS[1] ]  = { component:'ShortCut',        cmd:'EXECUTE9' };
 	defaultKey[ KEYS[2] ]  = { component:'ShortCut',        cmd:'EXECUTE10' };
 	defaultKey[ KEYS[3] ]  = { component:'ShortCut',        cmd:'EXECUTE11' };
@@ -41,7 +41,7 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ KEYS[7] ]  = { component:'ShortCut',        cmd:'EXECUTE15' };
 	defaultKey[ KEYS[8] ]  = { component:'ShortCut',        cmd:'EXECUTE16' };
 	defaultKey[ KEYS[9] ]  = { component:'ShortCut',        cmd:'EXECUTE17' };
-	
+
 	defaultKey[ KEYS.Q ]  = { component:'ShortCut',        cmd:'EXECUTE18' };
 	defaultKey[ KEYS.W ]  = { component:'ShortCut',        cmd:'EXECUTE19' };
 	defaultKey[ KEYS.E ]  = { component:'ShortCut',        cmd:'EXECUTE20' };
@@ -51,7 +51,7 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ KEYS.U ]  = { component:'ShortCut',        cmd:'EXECUTE24' };
 	defaultKey[ KEYS.I ]  = { component:'ShortCut',        cmd:'EXECUTE25' };
 	defaultKey[ KEYS.O ]  = { component:'ShortCut',        cmd:'EXECUTE26' };
-	
+
 	defaultKey[ KEYS.A ]  = { component:'ShortCut',        cmd:'EXECUTE27' };
 	defaultKey[ KEYS.S ]  = { component:'ShortCut',        cmd:'EXECUTE28' };
 	defaultKey[ KEYS.D ]  = { component:'ShortCut',        cmd:'EXECUTE29' };
@@ -61,9 +61,9 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ KEYS.J ]  = { component:'ShortCut',        cmd:'EXECUTE33' };
 	defaultKey[ KEYS.K ]  = { component:'ShortCut',        cmd:'EXECUTE34' };
 	defaultKey[ KEYS.L ]  = { component:'ShortCut',        cmd:'EXECUTE35' };
-	
-	
-	
+
+
+
 	defaultKey[ KEYS.F12 ] = { component:'ShortCut',        cmd:'EXTEND'   };
 
 	// UI
@@ -92,6 +92,7 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ "ALT" +  KEYS[9] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_9'};
 	defaultKey[ "ALT" +  KEYS[0] ]   = { component:'ShortCuts',       cmd:'EXECUTE_ALT_0'};
 
+	defaultKey[ "CTRL" +  KEYS['`']]  = { component:'WorldMap',        cmd:'TOGGLE'};
 
 	/**
 	 * Export
