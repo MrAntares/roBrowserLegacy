@@ -74,7 +74,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MC_MAMMONITE]                   = {effectId: 10};		//Mammonite
 	// Archer
 	SkillEffect[SK.AC_CONCENTRATION]               = {effectId: 153};		//Improve Concentration
-	SkillEffect[SK.AC_DOUBLE]                      = {};		//Double Strafe
+	SkillEffect[SK.AC_DOUBLE]                      = {effectId: 'ef_throw_arrow'};		//Double Strafe
 	SkillEffect[SK.AC_SHOWER]                      = {};		//Arrow Shower
 	// Thief
 	SkillEffect[SK.TF_STEAL]                       = {hitEffectId: 18};		//Steal
@@ -379,7 +379,7 @@ define(['./SkillConst'], function( SK )
 	// Sniper
 	SkillEffect[SK.SN_SIGHT]                       = {effectId: 386};		//Falcon Eyes
 	SkillEffect[SK.SN_FALCONASSAULT]               = {effectId: 387};		//Falcon Assault
-	SkillEffect[SK.SN_SHARPSHOOTING]               = {effectId: 388};		//Focused Arrow Strike
+	SkillEffect[SK.SN_SHARPSHOOTING]               = {hitEffectId: 388, effectId: 'ef_throw_arrow', beforeCastEffectId: '496_beforecast'};		//Focused Arrow Strike
 	SkillEffect[SK.SN_WINDWALK]                    = {effectId: 389};		//Wind Walker
 	// Whitesmith
 	SkillEffect[SK.WS_MELTDOWN]                    = {effectId: 390};		//Shattering Strike

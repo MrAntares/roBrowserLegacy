@@ -9460,6 +9460,23 @@ define(function( require )
             attachedEntity: true
         }],
 
-
+        'ef_throw_arrow': [{ // effect to show the thrown arrow (normal attack or skill with a bow)
+            type: '3D',
+            alphaMax: 1,
+            attachedEntity: true,
+            duration: 140,
+            fadeIn: false,
+            fadeOut: false,
+            spriteName: 'skel_archer_arrow',
+            playSprite: true,
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            posz: 1,
+            size: 1,
+            yOffset: 0.50,
+            xOffset: 0.30,
+            zIndex: 1
+        }]
     };
 });
