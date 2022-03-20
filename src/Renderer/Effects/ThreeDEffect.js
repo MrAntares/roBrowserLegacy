@@ -129,6 +129,13 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             this.posxEnd = 0;
             this.posyStart = otherPosition[1] - position[1];
             this.posyEnd = 0;
+
+            if (effect.xOffset !== undefined) {
+                this.posxStart = (otherPosition[0] - position[0]) + effect.xOffset;
+            }
+            if (effect.yOffset !== undefined) {
+                this.posyStart = (otherPosition[1] - position[1]) + effect.yOffset;
+            }
         }
         if (effect.size) {
             this.sizeStartX = effect.size;
@@ -236,6 +243,12 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             } else if (this.spriteName) {
                 this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
                 this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
+
+                // Didn't found the arrow sprite in the spr effects folder [Waken]
+                if (this.spriteName == 'skel_archer_arrow'){
+                    this.spriteRessource = Client.loadFile('data/sprite/npc/' + this.spriteName + '.spr');
+                    this.actRessource = Client.loadFile('data/sprite/npc/' + this.spriteName + '.act');
+                }
             }
         }
 		
