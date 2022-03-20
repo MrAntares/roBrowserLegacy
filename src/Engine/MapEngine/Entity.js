@@ -3,8 +3,6 @@
  *
  * Manage Entity based on received packets from server 
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author Vincent Thibault
  */
 
@@ -130,8 +128,6 @@ define(function( require )
             if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
                 EffectManager.spam(372, pkt.GID);
             }
-			
-			EffectManager.remove(null, pkt.GID);
 			
 			if([2, 3].includes(pkt.type)){ //exits or teleports
 				EffectManager.spam(304, null, entity.position);
@@ -982,7 +978,7 @@ define(function( require )
 			}
 		}
 
-		if (srcEntity && dstEntity) {
+		if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 			EffectManager.spamSkill( pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
 		}
 	}

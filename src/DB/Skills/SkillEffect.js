@@ -366,7 +366,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.PA_SACRIFICE]                   = {effectId: 366};		// Martyr's Reckoning
 	SkillEffect[SK.PA_GOSPEL]                      = {effectId: 370, groundEffectId: '370_ground'};		//Battle Chant
 	// Champion
-	SkillEffect[SK.CH_PALMSTRIKE]                  = {groundEffectId: 376};		//Raging Palm Strike
+	SkillEffect[SK.CH_PALMSTRIKE]                  = {hitEffectId: 376};		//Raging Palm Strike
 	SkillEffect[SK.CH_TIGERFIST]                   = {};		//Glacier Fist
 	SkillEffect[SK.CH_CHAINCRUSH]                  = {effectId: 512};		//Chain Crush Combo
 	// Professor
