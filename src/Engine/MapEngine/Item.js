@@ -451,8 +451,7 @@ define(function( require )
 	{
 		console.log('onListWinItem', ptk.Type)
 		if(! ptk.Type){
-			ItemListWindowSelection.append();
-			ItemListWindowSelection.setList();
+			ItemListWindowSelection.append();			
 		}
 	}
 
