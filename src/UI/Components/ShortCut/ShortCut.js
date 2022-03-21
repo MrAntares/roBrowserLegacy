@@ -28,9 +28,10 @@ define(function(require)
 	var ItemInfo             = require('UI/Components/ItemInfo/ItemInfo');
 	var Inventory            = require('UI/Components/Inventory/Inventory');
 	var SkillWindow          = require('UI/Components/SkillList/SkillList');
+	var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
 	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var Guild                 = require('UI/Components/Guild/Guild');
+	var Guild                = require('UI/Components/Guild/Guild');
 	var htmlText             = require('text!./ShortCut.html');
 	var cssText              = require('text!./ShortCut.css');
 
@@ -90,7 +91,7 @@ define(function(require)
 			});
 
 		this.draggable();
-		
+
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName;
 	};
@@ -179,7 +180,15 @@ define(function(require)
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].isSkill) {
-				skill = (list[i].ID > 10000 && list[i].ID < 10100) ? Guild.getSkillById(list[i].ID) :  SkillWindow.getSkillById(list[i].ID);
+
+				if (list[i].ID > 10000 && list[i].ID < 10100) {
+					skill = Guild.getSkillById(list[i].ID);
+				} else if (list[i].ID > 8000 && list[i].ID < 8044) {
+					skill = SkillListMER.getSkillById(list[i].ID);
+				} else {
+					skill = SkillWindow.getSkillById(list[i].ID);
+				}
+
 				if (skill && skill.level) {
 					addElement( i, true, list[i].ID, list[i].count || skill.level );
 				}
@@ -214,8 +223,8 @@ define(function(require)
 		for (i = 0, size = _list.length; i < size; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
 				if (isSkill && _list[i].count && _list[i].count <= count) {
-					addElement( i, isSkill, ID, _list[i].count);	
-				} else {				
+					addElement( i, isSkill, ID, _list[i].count);
+				} else {
 					addElement( i, isSkill, ID, count);
 				}
 			}
@@ -346,11 +355,11 @@ define(function(require)
 			ui.find('.img').css('backgroundImage', 'url('+ url +')');
 			ui.find('.amount').text(count);
 			ui.find('.name').text(name);
-			
+
 		});
-		
+
 	}
-	
+
 	/**
 	 * Displays the cat hand over an icon
 	 *
@@ -363,7 +372,7 @@ define(function(require)
 		} else {
 			_list[index].Delay = Renderer.tick + delay;
 			var ui = ShortCut.ui.find('.container:eq(' + index + ')');
-			
+
 			Client.loadFile( DB.INTERFACE_PATH + 'item/\xb0\xed\xbe\xe7\xc0\xcc\xb9\xdf\xb8\xd3\xb8\xae\xc7\xc9.bmp', function(url){
 				ui.find('.img').css('filter', 'grayscale(66%)');
 				ui.find('.img').html(
@@ -371,13 +380,13 @@ define(function(require)
 				);
 				ui.find('.delay').css('display', 'block');
 			});
-			
+
 			if(_list[index].Timeout){
 				clearTimeout(_list[index].Timeout);
 			}
-			
+
 			_list[index].Timeout = setTimeout(
-				function(){ 
+				function(){
 					ui.find('.delay').css('display', 'none');
 					ui.find('.img').css('filter', 'grayscale(0%)');
 				}
@@ -385,7 +394,7 @@ define(function(require)
 			);
 		}
 	}
-	
+
 	/**
 	 * Displays the cat hand over every skill
 	 *
@@ -398,7 +407,7 @@ define(function(require)
 			}
 		});
 	}
-	
+
 	/**
 	 * Displays the cat hand over a skingle skill
 	 *
@@ -429,7 +438,7 @@ define(function(require)
 		if (!ID) {
 			return;
 		}
-		
+
 		for (i = row * 9, count = Math.min(_list.length, row * 9 + 9); i < count; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID && (!isSkill || _list[i].count == amount)) {
 				ShortCut.ui.find('.container:eq(' + i + ')').empty();
@@ -470,12 +479,8 @@ define(function(require)
 		}
 
 		switch (data.from) {
+			case 'SkillListMER':
 			case 'SkillList':
-				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
-				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
-				addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
-				break;
-				
 			case 'Guild':
 				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
@@ -604,6 +609,8 @@ define(function(require)
 		if (shortcut.isSkill) {
 			if(shortcut.ID > 10000 && shortcut.ID < 10100){
 				Guild.useSkillID(shortcut.ID, shortcut.count);
+			} else if (shortcut.ID > 8000 && shortcut.ID < 8044) {
+				SkillListMER.useSkillID(shortcut.ID, shortcut.count);
 			} else {
 				SkillWindow.useSkillID(shortcut.ID, shortcut.count);
 			}
@@ -654,8 +661,21 @@ define(function(require)
 	{
 		ShortCut.setElement( true, id, level);
 	};
-	
+
+	/**
+	 * @param id
+	 * @param level
+	 */
 	Guild.onUpdateSkill = function( id, level)
+	{
+		ShortCut.setElement( true, id, level);
+	};
+
+	/**
+	 * @param id
+	 * @param level
+	 */
+	SkillListMER.onUpdateSkill = function( id, level)
 	{
 		ShortCut.setElement( true, id, level);
 	};

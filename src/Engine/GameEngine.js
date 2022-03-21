@@ -34,6 +34,7 @@ define(function( require )
 	var Background  = require('UI/Background');
 	var Intro       = require('UI/Components/Intro/Intro');
 	var WinList     = require('UI/Components/WinList/WinList');
+	var AIDriver    = require('Utils/AIDriver');
 
 
 	/**
@@ -131,6 +132,12 @@ define(function( require )
 			Cursor.init(q.next);
 		});
 
+		// AIDriver
+		q.add(function(){
+			AIDriver.init(DB);
+			q._next();
+		});
+
 		// Initialize Login
 		q.add(function(){
 			reload();
@@ -138,6 +145,7 @@ define(function( require )
 
 
 		Context.checkSupport();
+
 
 		// Execute
 		q.run();

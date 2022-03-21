@@ -27,6 +27,8 @@ define(function( require )
 	var EntityManager = require('Renderer/EntityManager');
 	var Session       = require('Engine/SessionStorage');
 	var Preferences   = require('Preferences/Controls');
+	var KEYS          = require('Controls/KeyEventHandler');
+	var HomunInformations         = require('UI/Components/HomunInformations/HomunInformations');
 
 	require('Controls/ScreenShot');
 
@@ -95,12 +97,13 @@ define(function( require )
 			return;
 		}
 
+		var entityFocus = EntityManager.getFocusEntity();
+		var entityOver  = EntityManager.getOverEntity();
+
 		switch (action) {
 
 			// Left click
 			case 1:
-				var entityFocus = EntityManager.getFocusEntity();
-				var entityOver  = EntityManager.getOverEntity();
 				var stop        = false;
 
 				if (entityFocus && entityFocus != entityOver) {
@@ -131,8 +134,20 @@ define(function( require )
 				_rightClickPosition[0] = Mouse.screen.x;
 				_rightClickPosition[1] = Mouse.screen.y;
 
-				Cursor.setType( Cursor.ACTION.ROTATE );
-				Camera.rotate( true );
+				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
+					Cursor.setType( Cursor.ACTION.ROTATE );
+					Camera.rotate( false );
+
+					HomunInformations.reqMoveTo(Session.homunId);
+
+					if (entityOver) {
+						//todo focus attack
+						HomunInformations.reqAttack(Session.homunId, entityOver.GID);
+					}
+				} else {
+					Cursor.setType( Cursor.ACTION.ROTATE );
+					Camera.rotate( true );
+				}
 				break;
 		}
 	}
@@ -224,7 +239,7 @@ define(function( require )
 		event.stopImmediatePropagation();
 		return false;
 	}
-	
+
 
 
 	/**

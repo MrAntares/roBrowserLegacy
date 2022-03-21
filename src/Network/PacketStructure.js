@@ -2187,7 +2187,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			pkt_buf.writeShort(this.itemlist[i].index);
 			pkt_buf.writeShort(this.itemlist[i].amount);
 			pkt_buf.writeLong(this.itemlist[i].price);
-		}		
+		}
 		return pkt_buf;
 	};*/
 
@@ -3214,17 +3214,17 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.CZ.PC_BUY_CASH_POINT_ITEM.prototype.build = function() {
 		var ver = this.getPacketVersion();
-    
-    	var len = 10 + this.list.length * 4; 
+
+    	var len = 10 + this.list.length * 4;
 		var pkt = new BinaryWriter(len);
-    	pkt.writeShort(ver[1]); // cmd 
+    	pkt.writeShort(ver[1]); // cmd
 		pkt.writeShort(len);
 		pkt.view.setInt32(ver[3], this.kafrapts, true);
 		pkt.view.setInt16(ver[4], this.list.length, true);
 		var pos = ver[4] + 2;
 		var i, count = this.list.length;
-		
-    	for (i = 0; i < count; ++i) 
+
+    	for (i = 0; i < count; ++i)
         {
 			pkt.view.setInt16(pos + 0, this.list[i].count , true);
 			pkt.view.setUint16(pos + 2, this.list[i].ITID , true);
@@ -3891,7 +3891,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			pkt_buf.writeShort(this.MaterialList[i].index);
 			pkt_buf.writeShort(this.MaterialList[i].count);
 		}
-		
+
 		return pkt_buf;
 	};
 
@@ -6593,7 +6593,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.ZC.MAKABLEITEMLIST = function PACKET_ZC_MAKABLEITEMLIST(fp, end) {
 		this.itemList = (function() {
 			var i, count=(end-fp.tell())/8|0, out=new Array(count);
-							  
+
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].ITID = fp.readShort();
@@ -7860,6 +7860,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.ZC.PROPERTY_HOMUN.size = 71;
 
 
+	//0x22f
+	PACKET.ZC.FEED_MER = function PACKET_ZC_FEED_MER(fp, end) {
+		this.cRet = fp.readChar();
+		this.ITID = fp.readUShort();
+	};
+	PACKET.ZC.FEED_MER.size = 5;
+
+
 	// 0x230
 	PACKET.ZC.CHANGESTATE_MER = function PACKET_ZC_CHANGESTATE_MER(fp, end) {
 		this.type = fp.readChar();
@@ -8580,6 +8588,24 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.MER_SKILLINFO_LIST.size = -1;
 
+	// 0x97b
+	// <packet len>.W <exp>.L <death>.L <drop>.L <DETAIL_EXP_INFO>13B
+	// (ZC_PERSONAL_INFOMATION2) <InfoType>.B <Exp>.L <Death>.L <Drop>.L (DETAIL_EXP_INFO)
+	PACKET.ZC.PERSONAL_INFOMATION = function PACKET_ZC_PERSONAL_INFOMATION(fp, end) {
+
+		this.info = (function() {
+			var i, count=(end-fp.tell())/24|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].exp = fp.readLong();
+				out[i].death = fp.readLong();
+				out[i].drop = fp.readLong();
+				out[i].type = fp.readChar(); // ?
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.PERSONAL_INFOMATION.size = -1;
 
 	// 0x29e
 	PACKET.ZC.MER_SKILLINFO_UPDATE = function PACKET_ZC_MER_SKILLINFO_UPDATE(fp, end) {
@@ -10463,7 +10489,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.Aid = fp.readLong();
 		this.State = fp.readShort();
 	};
-	PACKET.HC.SECOND_PASSWD_LOGIN.size = 12;						 
+	PACKET.HC.SECOND_PASSWD_LOGIN.size = 12;
 
 	// 0x8c7
 	PACKET.ZC.SKILL_ENTRY3 = function PACKET_ZC_SKILL_ENTRY3(fp, end) {
@@ -11172,7 +11198,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.NOTIFY_NEWENTRY8.size = -1;
 
-
 	// 0x9df
 	PACKET.ZC.ACK_WHISPER2 = function PACKET_ZC_ACK_WHISPER2(fp, end) {
 		this.result = fp.readUChar();
@@ -11180,6 +11205,36 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ACK_WHISPER2.size = 7;
 
+	// 0x9f7
+	PACKET.ZC.PROPERTY_HOMUN2 = function PACKET_ZC_PROPERTY_HOMUN2(fp, end) {
+
+		this.szName				= fp.readString(24);	// <name>.24B
+		this.bModified 			= fp.readUChar(); 			// <modified>.B
+		this.nLevel 			= fp.readShort(); 			// <level>.W
+		this.nFullness 			= fp.readShort(); 			// <hunger>.W
+		this.nRelationship 		= fp.readShort(); 			// <intimacy>.W
+
+		this.ITID 		= fp.readShort(); 		// <equip id>.W
+
+		this.atk 		= fp.readShort(); 		// <atk>.W
+		this.Matk 		= fp.readShort();		// <matk>.W
+		this.hit 		= fp.readShort();		// <hit>.W
+		this.critical 	= fp.readShort();		// <crit>.W
+		this.def 		= fp.readShort();		// <def>.W
+		this.Mdef 		= fp.readShort();		// <mdef>.W
+		this.flee 		= fp.readShort();		// <flee>.W
+		this.aspd 		= fp.readShort();		// <aspd>.W // todo wrong
+
+		this.hp 		= fp.readLong();		// <hp>.L
+		this.maxHP 		= fp.readLong();		// <max hp>.L
+		this.sp 		= fp.readShort();		// <sp>.W
+		this.maxSP 		= fp.readShort();		// <max sp>.W
+		this.exp 		= fp.readLong(); 		// <exp>.L
+		this.maxEXP 	= fp.readLong();		// <max exp>.L
+		this.SKPoint 	= fp.readShort(); 		// <skill points>.W
+		this.ATKRange 	= fp.readShort();		// <atk range>.W
+	};
+	PACKET.ZC.PROPERTY_HOMUN2.size = 75;
 
 	// 0x9fd
 	PACKET.ZC.NOTIFY_MOVEENTRY9 = function PACKET_ZC_NOTIFY_MOVEENTRY9(fp, end) {

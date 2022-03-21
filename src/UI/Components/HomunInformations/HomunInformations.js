@@ -1,0 +1,305 @@
+/**
+ * UI/Components/HomunInformations/HomunInformations.js
+ *
+ * Display homunculus informations
+ *
+ * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ *
+ * @author IssID
+ */
+define(function (require) {
+    'use strict';
+
+
+    /**
+     * Dependencies
+     */
+    var DB = require('DB/DBManager');
+    var Client = require('Core/Client');
+    var Preferences = require('Core/Preferences');
+    var Renderer = require('Renderer/Renderer');
+    var UIManager = require('UI/UIManager');
+    var UIComponent = require('UI/UIComponent');
+    var SkillListMER = require('UI/Components/SkillListMER/SkillListMER');
+    var htmlText = require('text!./HomunInformations.html');
+    var cssText = require('text!./HomunInformations.css');
+
+
+    /**
+     * Create Component
+     */
+    var HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
+
+
+    /**
+     * @var {Preferences} Window preferences
+     */
+    var _preferences = Preferences.get('HomunInformations', {
+        x: 100,
+        y: 200,
+        show: true,
+    }, 1.0);
+
+
+    /**
+     * Initialize component
+     */
+    HomunInformations.init = function init() {
+        this.draggable(this.ui.find('.content'));
+
+        this.ui.find('.base').mousedown(stopPropagation);
+        this.ui.find('.close').click(onClose);
+        this.ui.find('.modify').click(onChangeName);
+        this.ui.find('.feed').click(onFeed);
+
+        if (!_preferences.show) {
+            this.ui.hide();
+        }
+
+        this.ui.css({
+            top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
+            left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
+        });
+
+        this.ui.find('.skill').mousedown(function (){
+            SkillListMER.toggle()
+        });
+
+    };
+
+
+    /**
+     * feed homunculus
+     */
+    function onFeed() {
+        HomunInformations.reqHomunFeed();
+    }
+
+
+    /**
+     * Once remove from body, save user preferences
+     */
+    HomunInformations.onRemove = function onRemove() {
+        // Save preferences
+        _preferences.show = this.ui.is(':visible');
+        _preferences.y = parseInt(this.ui.css('top'), 10);
+        _preferences.x = parseInt(this.ui.css('left'), 10);
+        _preferences.save();
+    };
+
+
+    /**
+     * Process shortcut
+     *
+     * @param {object} key
+     */
+    HomunInformations.onShortCut = function onShortCut(key) {
+        // Not in body
+        if (!this.ui) {
+            return;
+        }
+
+        switch (key.cmd) {
+            case 'TOGGLE':
+                this.ui.toggle();
+                if (this.ui.is(':visible')) {
+                    this.focus();
+                }
+                if (!this.ui.is(':visible')) {
+                    SkillListMER.ui.hide();
+                }
+                break;
+        }
+    };
+
+
+    /**
+     * Update UI
+     *
+     * @param {object} homunculus info
+     */
+    HomunInformations.setInformations = function setInformations(info) {
+        this.ui.find('.name').val(info.szName);
+        this.ui.find('.level').text(info.nLevel);
+
+        this.ui.find('.stats .atk').text(info.atk);
+        this.ui.find('.stats .Matk').text(info.Matk);
+        this.ui.find('.stats .hit').text(info.hit);
+        this.ui.find('.stats .critical').text(info.critical);
+        this.ui.find('.stats .def').text(info.def);
+        this.ui.find('.stats .Mdef').text(info.Mdef);
+        this.ui.find('.stats .flee').text(info.flee);
+        this.ui.find('.stats .aspd').text(info.aspd);
+
+        this.setHpSpBar('hp', info.hp, info.maxHP);
+        this.setHpSpBar('sp', info.sp, info.maxSP);
+
+        this.setExp(info.exp, info.maxEXP);
+        this.setHunger(info.nFullness);
+        this.setIntimacy(info.nRelationship);
+
+        if (info.bModified < 5) {
+            this.ui.find('.name, .modify').removeClass('disabled').attr('disabled', false);
+        } else {
+            this.ui.find('.name, .modify').addClass('disabled').attr('disabled', true);
+        }
+
+        SkillListMER.setPoints( info.SKPoint );
+    };
+
+
+    /**
+     * Set hp and sp bar (menu)
+     *
+     * @param type
+     * @param val
+     * @param val2
+     */
+    HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
+        var perc = Math.floor(val * 100 / val2);
+        var color = perc < 25 ? 'red' : 'blue';
+        this.ui.find('.' + type + '_value').text(val);
+        this.ui.find('.' + type + '_max_value').text(val2);
+        this.ui.find('.' + type + '_perc').text(perc + '%');
+
+        if (perc <= 0) {
+            this.ui.find('.' + type + '_bar div').css('backgroundImage', 'none');
+        }
+
+        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp', function (url) {
+            this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
+        }.bind(this));
+
+        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp', function (url) {
+            this.ui.find('.' + type + '_bar_middle').css({
+                backgroundImage: 'url(' + url + ')',
+                width: Math.floor(Math.min(perc, 100) * 0.75) + 'px'
+            });
+        }.bind(this));
+
+        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp', function (url) {
+            this.ui.find('.' + type + '_bar_right').css({
+                backgroundImage: 'url(' + url + ')',
+                left: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
+            });
+        }.bind(this));
+
+        this.ui.find('.' + type + '2').text(val + '/' + val2);
+    }
+
+
+    /**
+     * Set intimacy
+     *
+     * @param {number} intimacy
+     */
+    HomunInformations.setIntimacy = function setIntimacy(val) {
+        this.ui.find('.intimacy').text(DB.getMessage(
+            val < 100 ? 672 :
+            val < 250 ? 673 :
+            val < 600 ? 669 :
+            val < 900 ? 674 :
+            675
+        ));
+    };
+
+
+    /**
+     * Set exp value
+     *
+     * @param exp
+     * @param maxEXP
+     */
+    HomunInformations.setExp = function setExp(exp, maxEXP) {
+        var canvasExp = this.ui.find('.block2 canvas.life.title_exp');
+        var ctx = canvasExp.get(0).getContext('2d')
+
+        var width = 60, height = 5;
+        var exp_per = exp / maxEXP;
+
+        // // border
+        // ctx.fillStyle = '#10189c';
+        // ctx.fillRect( 0, 0, width, height );
+
+        // empty
+        ctx.fillStyle = '#424242';
+        ctx.fillRect(1, 1, width - 2, height - 2);
+
+        ctx.fillStyle = '#205cc3';
+        ctx.fillRect(1, 1, Math.round((width - 2) * exp_per), 3);
+
+        this.ui.find('.exp').text(exp + '/' + maxEXP);
+    }
+
+
+    /**
+     * Set hunger value
+     *
+     * @param {number} hunger
+     */
+    HomunInformations.setHunger = function setHunger(val) {
+        var canvasHunger = this.ui.find('.block2 canvas.life.title_hunger');
+        var ctx = canvasHunger.get(0).getContext('2d')
+
+        var width = 60, height = 5;
+        var hunger_per = val / 100;
+
+        // // border
+        // ctx.fillStyle = '#10189c';
+        // ctx.fillRect( 0, 0, width, height );
+
+        // empty
+        ctx.fillStyle = '#424242';
+        ctx.fillRect(1, 1, width - 2, height - 2);
+
+        ctx.fillStyle = (hunger_per < 0.25) ? '#ff1e00' : '#205cc3';
+        ctx.fillRect(1, 1, Math.round((width - 2) * hunger_per), 3);
+
+        this.ui.find('.hunger').text(val + '/' + 100);
+    };
+
+
+    /**
+     * Request to modify homun's name
+     */
+    function onChangeName() {
+        var input = HomunInformations.ui.find('.name');
+        HomunInformations.reqNameEdit(input.val());
+    }
+
+
+    /**
+     * Closing window
+     */
+    function onClose() {
+        HomunInformations.ui.hide();
+        SkillListMER.ui.hide();
+    }
+
+
+    /**
+     * Stop event propagation
+     */
+    function stopPropagation(event) {
+        event.stopImmediatePropagation();
+        return false;
+    }
+
+
+    /**
+     * Functions defined in Engine/MapEngine/Homun.js
+     */
+    HomunInformations.reqHomunFeed = function reqHomunFeed() {};
+    HomunInformations.reqNameEdit = function reqNameEdit() {};
+    HomunInformations.reqAttack = function reqAttack() {};
+    HomunInformations.reqMoveTo = function reqMoveTo() {};
+    HomunInformations.reqMoveToOwner = function reqMoveToOwner() {};
+
+    HomunInformations.reqHomunAction = function reqHomunAction() {};
+
+
+    /**
+     * Create component and export it
+     */
+    return UIManager.addComponent(HomunInformations);
+});

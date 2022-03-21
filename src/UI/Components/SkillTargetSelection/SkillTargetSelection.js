@@ -52,7 +52,8 @@ define(function(require)
 		FRIEND: 16,
 		TRAP:   32,
 		TARGET: 1|2|16|32,
-		PET:    64
+		PET:    64,
+		HOMUN:  128
 	};
 
 
@@ -279,9 +280,12 @@ define(function(require)
 				target = SkillTargetSelection.TYPE.ENEMY | SkillTargetSelection.TYPE.PET;
 				break;
 
-			case Entity.TYPE_PC:
 			case Entity.TYPE_HOM:
 			case Entity.TYPE_MERC:
+				target = SkillTargetSelection.TYPE.HOMUN;
+				break;
+
+			case Entity.TYPE_PC:
 			case Entity.TYPE_ELEM:
 				target = SkillTargetSelection.TYPE.FRIEND;
 				break;
