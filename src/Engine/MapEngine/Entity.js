@@ -324,6 +324,11 @@ define(function( require )
 				var weaponSoundLeft = WSndL[0];
 				var weaponSoundReleaseLeft = WSndL[1];
 				
+				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
+				if (WSnd[0].includes('bow')) {
+					EffectManager.spam('ef_throw_arrow', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position)
+				}
+
 				//attack sound
 				if(weaponSound){
 					Events.setTimeout(function(){
@@ -792,6 +797,22 @@ define(function( require )
 			}
 		}
 
+		var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
+
+		srcEntity.setAction({
+			action: srcEntity.ACTION[action],
+			frame:  0,
+			repeat: false,
+			play:   true,
+			next: {
+				action: srcEntity.ACTION.IDLE,
+				frame:  0,
+				repeat: false,
+				play:   false,
+				next:   false
+			}
+		});
+
 		if (dstEntity) {
 			if (srcEntity && dstEntity !== srcEntity) {
 				srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
@@ -1014,21 +1035,24 @@ define(function( require )
 			return;
 		}
 
-		if (pkt.delayTime) {
-            if(pkt.SKID != 62) { // Bowling Bash got cast but original client hide it for unknown reason
-                Sound.play('effect/ef_beginspell.wav');
-                srcEntity.cast.set( pkt.delayTime );
-            }
+		if(pkt.delayTime) { // Bowling Bash got cast but original client hide it for unknown reason
+			if (pkt.SKID != 62) {
+				Sound.play('effect/ef_beginspell.wav');
+				srcEntity.cast.set( pkt.delayTime );
+			}
 
-            if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
-                srcEntity.setAction({
-                    action: srcEntity.ACTION.SKILL,
-                    frame:  0,
-                    repeat: false,
-                    play:   false
-                });
-            }
-        }
+			if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
+				var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
+		
+				srcEntity.setAction({
+					action: srcEntity.ACTION[action],
+					frame:  0,
+					repeat: false,
+					play: false,
+				});
+			}
+		}
+
 
         // Hardcoded version of Auto Counter casting bar
         // It's dont gey any delayTime so we need to handle it diffrent:
