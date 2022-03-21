@@ -142,6 +142,7 @@
     {
         this.list.push(item);
         var i, count;
+		this.ui.find('.item').remove();
 
         for (i = 0, count = this.list.length; i < count; ++i) {
             this.addItem(this.list[i]);
@@ -432,7 +433,7 @@
      function onDrop( event )
      {
          var item, data;
- 
+
          try {
              data = JSON.parse(
                  event.originalEvent.dataTransfer.getData('Text')
