@@ -3,8 +3,7 @@
  *
  * ItemListWindowSelection windows
  *
- *
- * @author Vincent Thibault
+ * @author Francisco Wallison
  */
  define(function(require)
  {
@@ -85,8 +84,17 @@
         this.draggable(this.ui.find('.titlebar'));
         
         this.setList(Inventory.list);
-        ConvertItems.append();
      };
+
+
+	/**
+	 * Apply preferences once append to body
+	 */
+	ItemListWindowSelection.onAppend = function OnAppend()
+	{
+		this.setList(Inventory.list);
+		ConvertItems.append();
+	}
  
  
      /**
@@ -216,8 +224,6 @@
         }else{            
             this.updateItem(item.index, item.count)
         }
-
-        console.log(this.list, 'addMaterial');
     };
      
     /**
@@ -536,6 +542,8 @@
 		}
 	}
     
+
+	ItemListWindowSelection.onItemListWindowSelected   = function onItemListWindowSelected(){};
      
      /**
       * Create component based on view file and export it

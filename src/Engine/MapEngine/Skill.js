@@ -640,6 +640,16 @@ define(function( require )
 		Announce.append();
 		Announce.set(message, color);
 	}
+
+	function onMessageSkill(pkt){
+	
+		var message = DB.getMessage(pkt.MSGID);
+		var color = '#B8BEEB';
+		var name =  SkillInfo[ pkt.SKID ].SkillName;		
+		message = `[${name}] ${message}`;
+
+		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, color );
+	}
 		
 	/**
 	 * Initialize
@@ -671,5 +681,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SKILL_POSTDELAY,        onSetSkillDelay );
 		Network.hookPacket( PACKET.ZC.STARSKILL,              onTaekwonMission );
+		Network.hookPacket( PACKET.ZC.MSG_SKILL,        	  onMessageSkill );
 	};
 });

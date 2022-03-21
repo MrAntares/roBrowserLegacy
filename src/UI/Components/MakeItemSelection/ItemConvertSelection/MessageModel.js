@@ -3,8 +3,7 @@
  *
  * MessageModel windows
  *
- *
- * @author Vincent Thibault
+ * @author Francisco Wallison
  */
  define(function(require)
  {
@@ -38,20 +37,36 @@
       */
      MessageModel.init = function init()
      {
-         // Show at center.
-         this.ui.css({
-             top:  (Renderer.height- 200)/2,
-             left: (Renderer.width - 200)/2
-         });
+        // Show at center.
+        this.ui.css({
+            top:  (Renderer.height- 200)/2,
+            left: (Renderer.width - 200)/2
+        });
 
+        this.ui.find('.ok').on('click',onSendMaterial); 
+        this.ui.find('.cancel').on('click',onClose);
 
         this.draggable(this.ui.find('.titlebar'));
      };
 
-     
-     /**
-      * Create component based on view file and export it
-      */
-     return UIManager.addComponent(MessageModel);
+
+    function onSendMaterial(event){
+        event.stopImmediatePropagation();
+        getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems')
+            .validItemSend(true);
+
+    }
+
+
+     function onClose(event){
+		event.stopImmediatePropagation();
+		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems')
+            .validItemSend(false);
+	}
+
+    /**
+     * Create component based on view file and export it
+     */
+    return UIManager.addComponent(MessageModel);
  });
  

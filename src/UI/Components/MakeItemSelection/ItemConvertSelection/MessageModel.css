@@ -17,3 +17,16 @@
     border: 1px solid #ccc;
     display: grid;
 }
+
+#ModelMessage .text_message {
+    height: 73px;padding: 11px;
+}
+
+
+/** Buttons **/
+#ModelMessage .btns { position:absolute; bottom:-3px; width:100%; height:28px; }
+#ModelMessage .btn { position: absolute; border:0;   width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; }
+
+#ModelMessage .ok, #ModelMessage .make { right:50px; }
+#ModelMessage .cancel { right:4px; }
+#ModelMessage .delete { left:4px; }

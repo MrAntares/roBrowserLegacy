@@ -3,8 +3,7 @@
  *
  * ConvertItems windows
  *
- *
- * @author Vincent Thibault
+ * @author Francisco Wallison
  */
  define(function(require)
  {
@@ -23,7 +22,6 @@
      var UIManager   = require('UI/UIManager');
      var UIComponent = require('UI/UIComponent');
      var InputBox    = require('UI/Components/InputBox/InputBox');
-     var Inventory   = require('UI/Components/Inventory/Inventory');
 	 var MessageModel= require('UI/Components/MakeItemSelection/ItemConvertSelection/MessageModel');
      var htmlText    = require('text!./ConvertItems.html');
      var cssText     = require('text!./ConvertItems.css');
@@ -64,7 +62,8 @@
  
          this.draggable(this.ui.find('.head'));
          this.ui.find('.footer .extend').mousedown(onResize);
-		 this.ui.find('.trade').on('click',onMessageModel);  // remove all item reset layout
+		 this.ui.find('.trade').on('click',onMessageModel); 
+		 this.ui.find('.cancel').on('click',onClose);
 		 
          resizeHeight(_preferences.height);
          
@@ -83,6 +82,16 @@
 
         this.draggable(this.ui.find('.titlebar'));
      };
+
+
+	/**
+	 * Apply preferences once append to body
+	 */
+	ConvertItems.onAppend = function OnAppend()
+	{
+		this.material = [];
+		this.ui.find('.item').remove();
+	}
  
      ConvertItems.addItem = function addItem( item ){
         var it   = DB.getItemInfo( item.ITID );
@@ -155,10 +164,36 @@
 
 		return null;
 	};
+
+	ConvertItems.validItemSend = function validItemSend(valid_material)
+	{
+		ConvertItems.remove();
+		getModule('UI/Components/MakeItemSelection/ItemListWindowSelection')
+			.remove();
+		MessageModel
+			.remove();			
+
+		let inforMaterialList = {
+			Type: 0,
+			Action: valid_material ? 1 : 0,
+			MaterialList: valid_material ? this.material : [],
+		}
+
+		
+		getModule('UI/Components/MakeItemSelection/ItemListWindowSelection')
+			.onItemListWindowSelected(inforMaterialList);
+	};
+
+	
 	
 	function onMessageModel(event){
 		event.stopImmediatePropagation();
 		MessageModel.append();
+	}
+
+	function onClose(event){
+		event.stopImmediatePropagation();
+		ConvertItems.validItemSend(false);
 	}
 
      /**
@@ -247,8 +282,6 @@
         }else{            
             this.updateItem(item.index, item.count)
         }
-
-        console.log(this.material, 'addMaterial');
      };
 
 
@@ -503,5 +536,5 @@
       * Create component based on view file and export it
       */
      return UIManager.addComponent(ConvertItems);
- });
+});
  

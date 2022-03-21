@@ -441,7 +441,6 @@ define(function( require )
 		};
 	}
 
-
 	/**
 	 * Get a list of items to create
 	 *
@@ -449,10 +448,25 @@ define(function( require )
 	 */
 	function onListWinItem( ptk )
 	{
-		console.log('onListWinItem', ptk.Type)
 		if(! ptk.Type){
 			ItemListWindowSelection.append();			
 		}
+	}
+
+
+	/**
+	 * item lis twin
+	 * @param {object} inforMaterialList 
+	 */
+	ItemListWindowSelection.onItemListWindowSelected = function onItemListWindowSelected( inforMaterialList )
+	{
+		var pkt   = new PACKET.CZ.ITEMLISTWIN_RES();
+
+		pkt.Type = inforMaterialList.Type;
+		pkt.Action = inforMaterialList.Action;
+		pkt.MaterialList = inforMaterialList.MaterialList;
+		
+		Network.sendPacket( pkt );
 	}
 
 	/**
