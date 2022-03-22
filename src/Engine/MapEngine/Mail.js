@@ -3,9 +3,7 @@
  *
  * Manage Mails
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
- * @author Vincent Thibault
+ * @author Francisco Wallison
  */
 
  define(function( require )
