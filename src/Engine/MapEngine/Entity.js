@@ -325,7 +325,7 @@ define(function( require )
 				var weaponSoundReleaseLeft = WSndL[1];
 				
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
-				if (WSnd[0].includes('bow')) {
+				if (weaponSound && weaponSound.includes('bow')) {
 					EffectManager.spam('ef_throw_arrow', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position)
 				}
 
