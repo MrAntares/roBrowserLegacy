@@ -217,6 +217,11 @@ define(function(require)
 			return false;
 		});
 
+		this.ui.find('.draggable').mousedown(function(event){
+			event.stopImmediatePropagation();
+			return false;
+		});
+
 		// Send message to...
 		this.ui.find('.input .filter').click(function(){
 			var pos = jQuery(this).offset();
