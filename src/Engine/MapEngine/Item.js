@@ -16,20 +16,22 @@ define(function( require )
 	/**
 	 * Load dependencies
 	 */
-	var DB            = require('DB/DBManager');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Network       = require('Network/NetworkManager');
-	var PACKET        = require('Network/PacketStructure');
-	var ItemObject    = require('Renderer/ItemObject');
-	var Altitude      = require('Renderer/Map/Altitude');
-	var Session       = require('Engine/SessionStorage');
-	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
-	var ItemObtain    = require('UI/Components/ItemObtain/ItemObtain');
-	var ItemSelection = require('UI/Components/ItemSelection/ItemSelection');
-	var Inventory     = require('UI/Components/Inventory/Inventory');
-	var CartItems     = require('UI/Components/CartItems/CartItems');
-	var Equipment     = require('UI/Components/Equipment/Equipment');
-	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
+	var DB           			 = require('DB/DBManager');
+	var EquipLocation			 = require('DB/Items/EquipmentLocation');
+	var Network      			 = require('Network/NetworkManager');
+	var PACKET       			 = require('Network/PacketStructure');
+	var ItemObject   			 = require('Renderer/ItemObject');
+	var Altitude     			 = require('Renderer/Map/Altitude');
+	var Session      			 = require('Engine/SessionStorage');
+	var ChatBox      			 = require('UI/Components/ChatBox/ChatBox');
+	var ItemObtain   			 = require('UI/Components/ItemObtain/ItemObtain');
+	var ItemSelection			 = require('UI/Components/ItemSelection/ItemSelection');
+	var Inventory    			 = require('UI/Components/Inventory/Inventory');
+	var CartItems    			 = require('UI/Components/CartItems/CartItems');
+	var Equipment    			 = require('UI/Components/Equipment/Equipment');
+	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
+	var ItemListWindowSelection  = require('UI/Components/MakeItemSelection/ItemListWindowSelection');
+	
     var EffectManager = require('Renderer/EffectManager');
 
 
@@ -442,6 +444,34 @@ define(function( require )
 	/**
 	 * Get a list of items to create
 	 *
+	 * @param {object} pkt - PACKET.ZC.ITEMLISTWIN_OPEN
+	 */
+	function onListWinItem( ptk )
+	{
+		if(! ptk.Type){
+			ItemListWindowSelection.append();			
+		}
+	}
+
+
+	/**
+	 * item lis twin
+	 * @param {object} inforMaterialList 
+	 */
+	ItemListWindowSelection.onItemListWindowSelected = function onItemListWindowSelected( inforMaterialList )
+	{
+		var pkt   = new PACKET.CZ.ITEMLISTWIN_RES();
+
+		pkt.Type = inforMaterialList.Type;
+		pkt.Action = inforMaterialList.Action;
+		pkt.MaterialList = inforMaterialList.MaterialList;
+		
+		Network.sendPacket( pkt );
+	}
+
+	/**
+	 * Get a list of items to create
+	 *
 	 * @param {object} pkt - PACKET.ZC.MAKINGITEM_LIST
 	 */
 	function onMakeitem_List( pkt )
@@ -510,5 +540,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
 		Network.hookPacket( PACKET.ZC.MAKINGITEM_LIST,        onMakeitem_List );
 		Network.hookPacket( PACKET.ZC.ACK_ADDITEM_TO_CART,        onAckAddItemToCart );
+		Network.hookPacket( PACKET.ZC.ITEMLISTWIN_OPEN,        onListWinItem );
 	};
 });

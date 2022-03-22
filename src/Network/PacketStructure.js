@@ -3878,22 +3878,21 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.CZ.ITEMLISTWIN_RES.prototype.build = function() {
 		var ver = this.getPacketVersion();
-		var pkt = new BinaryWriter(ver[2]);
+		var pkt_len = 2 + 2 + 4 + 4 + this.MaterialList.length * 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
 
-		pkt.writeShort(ver[1]);
-		pkt.writeShort(2 + 2 + 4 + 4 + 4 * this.MaterialList.length);
-		pkt.view.setInt32(ver[3], this.Type, true);
-		pkt.view.setInt32(ver[4], this.Action, true);
-		var pos = ver[5];
-		var i, count = this.MaterialList.length;
+		pkt_buf.writeShort(ver[1]);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeULong(this.Type);
+		pkt_buf.writeULong(this.Action);
+		var i, count;
 
-		for (i = 0; i < count; ++i) {
-			pkt.view.setUint16(pos + 0, this.MaterialList[i].id, true);
-			pkt.view.setUint16(pos + 2, this.MaterialList[i].count, true);
-			pos += 4;
+		for (i = 0, count = this.MaterialList.length; i < count; ++i) {
+			pkt_buf.writeShort(this.MaterialList[i].index);
+			pkt_buf.writeShort(this.MaterialList[i].count);
 		}
-
-		return pkt;
+		
+		return pkt_buf;
 	};
 
 
