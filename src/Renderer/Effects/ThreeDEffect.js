@@ -117,25 +117,28 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
             var poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
             this.poszEnd = randBetween(poszEndRandMiddle - effect.poszEndRand, poszEndRandMiddle + effect.poszEndRand);
         }
+		
+		this.xOffset = (!isNaN(effect.xOffset)) ? effect.xOffset : 0;
+		this.yOffset = (!isNaN(effect.yOffset)) ? effect.yOffset : 0;
+		this.zOffset = (!isNaN(effect.zOffset)) ? effect.zOffset : 0;
+		
         this.poszSmooth = effect.poszSmooth ? true : false;
         if (effect.fromSrc) {
-            this.posxStart = 0;
-            this.posxEnd = otherPosition[0] - position[0];
-            this.posyStart = 0;
-            this.posyEnd = otherPosition[1] - position[1];
+            this.posxStart = 0 + this.xOffset;
+            this.posxEnd = (otherPosition[0] - position[0]) + this.xOffset;
+            this.posyStart = 0 + this.yOffset;
+            this.posyEnd = (otherPosition[1] - position[1]) + this.yOffset;
+			this.poszStart = 0 + this.zOffset;
+            this.poszEnd = (otherPosition[2] - position[2]) + this.zOffset;
         }
         if (effect.toSrc) {
-            this.posxStart = otherPosition[0] - position[0];
-            this.posxEnd = 0;
-            this.posyStart = otherPosition[1] - position[1];
-            this.posyEnd = 0;
+            this.posxStart = (otherPosition[0] - position[0]) + this.xOffset;
+            this.posxEnd = 0 + this.xOffset;
+            this.posyStart = (otherPosition[1] - position[1]) + this.yOffset;
+            this.posyEnd = 0 + this.yOffset;
+			this.poszStart = (otherPosition[2] - position[2]) + this.zOffset;
+            this.poszEnd = 0 + this.zOffset;
 
-            if (effect.xOffset !== undefined) {
-                this.posxStart = (otherPosition[0] - position[0]) + effect.xOffset;
-            }
-            if (effect.yOffset !== undefined) {
-                this.posyStart = (otherPosition[1] - position[1]) + effect.yOffset;
-            }
         }
         if (effect.size) {
             this.sizeStartX = effect.size;
