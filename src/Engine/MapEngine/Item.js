@@ -512,6 +512,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NORMAL_ITEMLIST3,       onInventorySetList );
 		Network.hookPacket( PACKET.ZC.NORMAL_ITEMLIST4,       onInventorySetList );
 		Network.hookPacket( PACKET.ZC.CART_NORMAL_ITEMLIST3,        onCartSetList );
+		Network.hookPacket( PACKET.ZC.CART_NORMAL_ITEMLIST4,        onCartSetList );
 		Network.hookPacket( PACKET.ZC.CART_EQUIPMENT_ITEMLIST3,        onCartSetList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_CARTITEM_COUNTINFO,        onCartSetInfo );
 		Network.hookPacket( PACKET.ZC.EQUIPMENT_ITEMLIST,     onInventorySetList );

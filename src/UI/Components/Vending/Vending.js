@@ -183,6 +183,12 @@ define(function(require)
 	Vending.onRemove = function onRemove()
 	{
 		
+		var pkt = new PACKET.CZ.REQ_OPENSTORE2();
+		pkt.storeName = '';
+		pkt.result = 0; // canceled vending
+		pkt.storeList = [];
+		submitNetworkPacket(pkt);
+
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
 
@@ -201,7 +207,7 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		
-		this.ui.hide();
+		this.ui.hide();		
 	};
 
 
@@ -755,20 +761,25 @@ define(function(require)
 				if(shopname)
 				{
 					this._shopname = shopname;
-					Network.sendPacket(pkt);
-					
+					submitNetworkPacket(pkt);					
 				}
 			};
 		}
 		else
 		{
 			this._shopname = shopname;
-			Network.sendPacket(pkt);
+			submitNetworkPacket(pkt);
 		}	
 		
 		this.onRemove();
 		 
 	};
+
+
+	function submitNetworkPacket(pkt)
+	{
+		Network.sendPacket(pkt);
+	}
 
 
 	/**
