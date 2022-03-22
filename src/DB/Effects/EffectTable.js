@@ -9454,11 +9454,6 @@ define(function( require )
             wav: 'effect/\xbf\xac\xc0\xce\xb5\xe9\xc0\xbb\xc0\xa7\xc7\xd1\xbd\xc9\xc6\xf7\xb4\xcf',
             attachedEntity: true
         }],
-		
-		'ef_': [{
-            wav: 'effect/',
-            attachedEntity: true
-        }],
 
         'ef_throw_arrow': [{ // effect to show the thrown arrow (normal attack or skill with a bow)
             type: '3D',
@@ -9468,15 +9463,34 @@ define(function( require )
             fadeIn: false,
             fadeOut: false,
             spriteName: 'skel_archer_arrow',
-            playSprite: true,
             toSrc: true,
             rotateToTarget: true,
-            rotateWithCamera: true,
-            posz: 1,
             size: 1,
-            yOffset: 0.50,
-            xOffset: 0.30,
+			zOffset: 1,
             zIndex: 1
-        }]
+        }],
+		
+		'ef_arrow_shower': [{
+			type: '3D',
+            alphaMax: 1,
+            attachedEntity: false,
+            duration: 140,
+            fadeIn: false,
+            fadeOut: false,
+            spriteName: 'skel_archer_arrow',
+            toSrc: true,
+            rotateToTarget: true,
+            size: 1,
+			zOffset: 1,
+            zIndex: 1,
+			duplicate: 10,
+            posxEndRand: 2,
+            posyEndRand: 2
+        }],
+		
+		'ef_': [{
+            wav: 'effect/',
+            attachedEntity: true
+        }],
     };
 });
