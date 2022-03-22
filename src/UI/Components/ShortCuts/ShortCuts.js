@@ -3,10 +3,7 @@
  *
  * Chararacter ShortCuts
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
- * @author Vincent Thibault
- * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888] 
+ * @author Francisco Wallison
  *
  */
  define(function(require)
