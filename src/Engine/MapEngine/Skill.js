@@ -3,8 +3,6 @@
  *
  * Manage skills
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author Vincent Thibault
  */
 
@@ -103,7 +101,7 @@ define(function( require )
 		position[1]  = pkt.yPos;
 		position[2]  = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 
-		EffectManager.spamSkill(pkt.SKID, pkt.AID, position);
+		EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID);
 	}
 
 
