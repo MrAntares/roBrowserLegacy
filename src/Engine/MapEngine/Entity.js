@@ -326,7 +326,7 @@ define(function( require )
 				
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
 				if (weaponSound && weaponSound.includes('bow')) {
-					EffectManager.spam('ef_throw_arrow', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position)
+					EffectManager.spam('ef_throw_arrow', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position);
 				}
 
 				//attack sound
