@@ -124,20 +124,42 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 		
         this.poszSmooth = effect.poszSmooth ? true : false;
         if (effect.fromSrc) {
-            this.posxStart = 0 + this.xOffset;
-            this.posxEnd = (otherPosition[0] - position[0]) + this.xOffset;
-            this.posyStart = 0 + this.yOffset;
-            this.posyEnd = (otherPosition[1] - position[1]) + this.yOffset;
-			this.poszStart = 0 + this.zOffset;
-            this.poszEnd = (otherPosition[2] - position[2]) + this.zOffset;
+			var randStart = [
+					effect.posxStartRand ? randBetween(-effect.posxStartRand, effect.posxStartRand) : 0,
+					effect.posyStartRand ? randBetween(-effect.posyStartRand, effect.posyStartRand) : 0,
+					effect.poszStartRand ? randBetween(-effect.poszStartRand, effect.poszStartRand) : 0
+				];
+			var randEnd = [
+					effect.posxEndRand ? randBetween(-effect.posxEndRand, effect.posxEndRand) : 0,
+					effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
+					effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
+				];
+			
+            this.posxStart = 0 + this.xOffset + randStart[0];
+            this.posxEnd = (otherPosition[0] - position[0]) + this.xOffset + randEnd[0];
+            this.posyStart = 0 + this.yOffset + randStart[1];
+            this.posyEnd = (otherPosition[1] - position[1]) + this.yOffset + randEnd[1];
+			this.poszStart = 0 + this.zOffset + randStart[2];
+            this.poszEnd = (otherPosition[2] - position[2]) + this.zOffset + randEnd[2];
         }
         if (effect.toSrc) {
-            this.posxStart = (otherPosition[0] - position[0]) + this.xOffset;
-            this.posxEnd = 0 + this.xOffset;
-            this.posyStart = (otherPosition[1] - position[1]) + this.yOffset;
-            this.posyEnd = 0 + this.yOffset;
-			this.poszStart = (otherPosition[2] - position[2]) + this.zOffset;
-            this.poszEnd = 0 + this.zOffset;
+			var randStart = [
+					effect.posxStartRand ? randBetween(-effect.posxStartRand, effect.posxStartRand) : 0,
+					effect.posyStartRand ? randBetween(-effect.posyStartRand, effect.posyStartRand) : 0,
+					effect.poszStartRand ? randBetween(-effect.poszStartRand, effect.poszStartRand) : 0
+				];
+			var randEnd = [
+					effect.posxEndRand ? randBetween(-effect.posxEndRand, effect.posxEndRand) : 0,
+					effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
+					effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
+				];
+			
+            this.posxStart = (otherPosition[0] - position[0]) + this.xOffset + randStart[0];
+            this.posxEnd = 0 + this.xOffset + randEnd[0];
+            this.posyStart = (otherPosition[1] - position[1]) + this.yOffset + randStart[1];
+            this.posyEnd = 0 + this.yOffset + randEnd[1];
+			this.poszStart = (otherPosition[2] - position[2]) + this.zOffset + randStart[2];
+            this.poszEnd = 0 + this.zOffset + randEnd[2];
 
         }
         if (effect.size) {
