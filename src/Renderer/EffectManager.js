@@ -573,6 +573,10 @@ define(function( require )
 		if (SkillEffect[skillId].beforeHitEffectId) {
 			EffectManager.spam( SkillEffect[skillId].beforeHitEffectId, AID, null, tick, false, otherAID);
 		}
+		
+		if (SkillEffect[skillId].beforeHitEffectIdOnCaster) {
+			EffectManager.spam( SkillEffect[skillId].beforeHitEffectIdOnCaster, otherAID, null, tick, false, AID);
+		}
 	};
 	
 	/**
