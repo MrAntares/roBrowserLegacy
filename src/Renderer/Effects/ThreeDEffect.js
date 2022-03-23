@@ -195,9 +195,10 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 		this.blendMode = effect.blendMode;
 		
 		if(effect.rotateToTarget){
+			this.rotateToTarget = true;
 			var x = this.posxEnd - this.posxStart;
 			var y = this.posyEnd - this.posyStart;
-			this.angle += (90 - (2 * Math.atan( y / ( x + Math.sqrt(x*x + y*y) ) ) * 180 / Math.PI));
+			this.angle += (90 - (Math.atan2(y, x) * (180 / Math.PI)));
 		}
 		
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
@@ -462,14 +463,12 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
                     renderer.color[1] *= layer.color[1];
                     renderer.color[2] *= layer.color[2];
                     renderer.color[3] *= layer.color[3];
-					var originalAngle = renderer.angle;
-                    renderer.angle += layer.angle;
+                    if (!this.rotateToTarget) renderer.angle = layer.angle;
                     renderer.offset[0] = layer.pos[0] + ctE[0];
                     renderer.offset[1] = layer.pos[1] + ctE[1];
                     renderer.size[0] = width;
                     renderer.size[1] = height;
                     renderer.render();
-					renderer.angle = originalAngle;
                     ++i;
                 } while (i < layercount);
             }
