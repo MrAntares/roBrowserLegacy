@@ -75,7 +75,7 @@ define(['./SkillConst'], function( SK )
 	// Archer
 	SkillEffect[SK.AC_CONCENTRATION]               = {effectId: 153};		//Improve Concentration
 	SkillEffect[SK.AC_DOUBLE]                      = {beforeHitEffectId: 'ef_throw_arrow'};		//Double Strafe
-	SkillEffect[SK.AC_SHOWER]                      = {groundEffectId: 'ef_arrow_shower'};		//Arrow Shower
+	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower'};		//Arrow Shower
 	// Thief
 	SkillEffect[SK.TF_STEAL]                       = {hitEffectId: 18};		//Steal
 	SkillEffect[SK.TF_HIDING]                      = {effectId: 16};		//Hiding
