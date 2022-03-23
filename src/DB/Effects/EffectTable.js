@@ -1220,7 +1220,7 @@ define(function( require )
             toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
-            posz: 2,
+            zOffset: 2,
             size: 2,
             wav: 'effect/ef_fireball',
             zIndex: 1
@@ -1237,7 +1237,7 @@ define(function( require )
             toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
-            posz: 2,
+            zOffset: 2,
             size: 2,
             wav: 'effect/ef_fireball',
             zIndex: 1
@@ -1254,7 +1254,7 @@ define(function( require )
             toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
-            posz: 2,
+            zOffset: 2,
             size: 2,
             wav: 'effect/ef_fireball',
             zIndex: 1
@@ -1271,7 +1271,7 @@ define(function( require )
             toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
-            posz: 2,
+            zOffset: 2,
             size: 2,
             wav: 'effect/ef_fireball',
             zIndex: 1
@@ -9458,6 +9458,7 @@ define(function( require )
         'ef_throw_arrow': [{ // effect to show the thrown arrow (normal attack or skill with a bow)
             type: '3D',
             alphaMax: 1,
+            angle: 180,
             attachedEntity: true,
             duration: 140,
             fadeIn: false,
@@ -9465,14 +9466,16 @@ define(function( require )
             spriteName: 'skel_archer_arrow',
             toSrc: true,
             rotateToTarget: true,
+            rotateWithCamera: true,
             size: 1,
-			zOffset: 1,
+            zOffset: 1,
             zIndex: 1
         }],
 		
 		'ef_arrow_shower': [{
-			type: '3D',
+            type: '3D',
             alphaMax: 1,
+            angle: 180,
             attachedEntity: false,
             duration: 140,
             fadeIn: false,
@@ -9480,10 +9483,11 @@ define(function( require )
             spriteName: 'skel_archer_arrow',
             toSrc: true,
             rotateToTarget: true,
+            rotateWithCamera: true,
             size: 1,
-			zOffset: 1,
+            zOffset: 1,
             zIndex: 1,
-			duplicate: 10,
+            duplicate: 10,
             posxEndRand: 2,
             posyEndRand: 2
         }],
