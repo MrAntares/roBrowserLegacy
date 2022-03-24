@@ -75,12 +75,12 @@ define(['./SkillConst'], function( SK )
 	// Archer
 	SkillEffect[SK.AC_CONCENTRATION]               = {effectId: 153};		//Improve Concentration
 	SkillEffect[SK.AC_DOUBLE]                      = {beforeHitEffectId: 'ef_throw_arrow'};		//Double Strafe
-	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower'};		//Arrow Shower
+	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower', hitEffectId: 1};		//Arrow Shower
 	// Thief
 	SkillEffect[SK.TF_STEAL]                       = {hitEffectId: 18};		//Steal
 	SkillEffect[SK.TF_HIDING]                      = {effectId: 16};		//Hiding
-	SkillEffect[SK.TF_POISON]                      = {effectId: 20};		//Envenom
-	SkillEffect[SK.TF_DETOXIFY]                    = {hitEffectId: 21};		//Detoxify
+	SkillEffect[SK.TF_POISON]                      = {hitEffectId: 20};		//Envenom
+	SkillEffect[SK.TF_DETOXIFY]                    = {effectId: 21};		//Detoxify
 	// All
 	SkillEffect[SK.ALL_RESURRECTION]               = {effectId: 77};		//Resurrection
 	// Knight
