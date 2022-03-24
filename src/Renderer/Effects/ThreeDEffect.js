@@ -1,5 +1,5 @@
-define(['Utils/WebGL', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/EntityManager', 'Renderer/Map/Altitude'], 
-function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
+define(['Utils/WebGL', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/EntityManager', 'Renderer/Map/Altitude', 'Renderer/Camera'], 
+function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
     'use strict';
 
     function randBetween(minimum, maximum) {
@@ -413,8 +413,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude) {
 		
         SpriteRenderer.size[0] = sizeX;
         SpriteRenderer.size[1] = sizeY;
-		
-		var Camera = require('Renderer/Camera');
 		
         if (this.rotate) {
             var angleStep = (this.toAngle - this.angle) / 100;
