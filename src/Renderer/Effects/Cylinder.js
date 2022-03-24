@@ -133,14 +133,16 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 *
 	 * @returns {Float32Array} buffer array
 	 */
-	function generateCylinder() {
+	function generateCylinder(semiCircle) {
 		var i, a, b;
 		var total = 20;
 		var bottom = [];
 		var top    = [];
 		var mesh   = [];
+		
+		var steps = semiCircle ? total/2 : total;
 
-		for (i = 0; i <= total; i++) {
+		for (i = 0; i <= steps; i++) {
 			a = (i + 0.0) / total;
 			b = (i + 0.5) / total;
 
