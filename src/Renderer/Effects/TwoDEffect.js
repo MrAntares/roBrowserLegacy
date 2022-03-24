@@ -1,15 +1,23 @@
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/EntityManager'],
-function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
+define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/EntityManager', 'Renderer/Camera'],
+function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camera) {
 	
     'use strict';
+	
+    function getRandomIntInclusive(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
+    }
 
     function TwoDEffect(position, effect, startLifeTime, endLifeTime, AID) {
         this.AID = AID;
         this.textureName = effect.file;
         this.zIndex = effect.zIndex ? effect.zIndex : 0;
-        this.fadeOut = effect.fadeOut ? false : true;
-        this.fadeIn = effect.fadeIn ? false : true;
+        this.fadeOut = effect.fadeOut ? true : false;
+        this.fadeIn = effect.fadeIn ? true : false;
         this.alphaMax = effect.alphaMax;
+		
+        this.shadowTexture = effect.shadowTexture ? true : false;
 		
         if (this.alphaMax < 0) this.alphaMax = 0;
         else if (this.alphaMax > 1 || isNaN(this.alphaMax)) this.alphaMax = 1;
@@ -46,7 +54,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
             this.posxEnd = getRandomIntInclusive(-effect.posxRandDiff, effect.posxRandDiff);
         }
 		
-        this.posxSmooth = effect.posxSmooth ? false : true;
+        this.posxSmooth = effect.posxSmooth ? true : false;
 		
         if (effect.posyStart) this.posyStart = effect.posyStart;
         else this.posyStart = 0;
@@ -69,7 +77,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
             this.posyEnd = getRandomIntInclusive(-effect.posyRandDiff, effect.posyRandDiff);
         }
 		
-        this.posySmooth = effect.posySmooth ? false : true;
+        this.posySmooth = effect.posySmooth ? true : false;
 		
         if (effect.poszStart) this.poszStart = effect.poszStart;
         else this.poszStart = 0;
@@ -102,7 +110,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
             this.poszEnd = getRandomIntInclusive(poszEndRandMiddle - effect.poszEndRand, poszEndRandMiddle + effect.poszEndRand);
         }
 		
-        this.poszSmooth = effect.poszSmooth ? false : true;
+        this.poszSmooth = effect.poszSmooth ? true : false;
 		
         if (effect.size) {
             this.sizeStartX = effect.size;
@@ -155,13 +163,13 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
             this.sizeEndY = this.sizeStartY;
         }
 		
-        this.sizeSmooth = effect.sizeSmooth ? false : true;
+        this.sizeSmooth = effect.sizeSmooth ? true : false;
         this.angle = effect.angle ? effect.angle : 0;
-        this.rotate = effect.rotate ? false : true;
+        this.rotate = effect.rotate ? true : false;
         this.toAngle = effect.toAngle ? effect.toAngle : 0;
 		
         var entity = EntityManager.get(this.AID);
-        if (entity) {
+        if (entity && this.shadowTexture) {
             entity.attachments.add({
                 'completeFile': 'data/sprite/shadow',
                 'id': this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate,
@@ -203,65 +211,69 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
         SpriteRenderer.image.texture = this.texture;
         SpriteRenderer.zIndex = this.zIndex;
 		
-        var cuj = 0;
+		var cRad = Camera.angle[1] * Math.PI / 180;
+        var currentX = 0;
         if (this.posxSmooth) {
             if (this.posxStart != this.posxEnd) {
-                var cuk = steps * 0.09 + 1;
-                var cul = Math.log10(cuk);
-                var cum = this.posxEnd - this.posxStart;
-                var cun = this.posxStart;
-                var cuo = cul * cum + cun;
-                cuj = cuo;
-            } else cuj = this.posxStart;
+                var step = steps * 0.09 + 1;
+                var smoothStep = Math.log10(step);
+                var distance = this.posxEnd - this.posxStart;
+                var start = this.posxStart;
+                var position = smoothStep * distance + start;
+                currentX = position;
+            } else currentX = this.posxStart;
         } else {
             if (this.posxStart != this.posxEnd) {
-                var cum = (this.posxEnd - this.posxStart) / 100;
-                var cun = this.posxStart;
-                var cuo = steps * cum + cun;
-                cuj = cuo;
-            } else cuj = this.posxStart;
+                var distance = (this.posxEnd - this.posxStart) / 100;
+                var start = this.posxStart;
+                var position = steps * distance + start;
+                currentX = position;
+            } else currentX = this.posxStart;
         }
-        SpriteRenderer.position[0] = this.position[0] + cuj;
 		
-        cuj = 0;
+        var currentY = 0;
         if (this.posySmooth) {
             if (this.posyStart != this.posyEnd) {
-                var cuk = steps * 0.09 + 1;
-                var cul = Math.log10(cuk);
-                var cum = this.posyEnd - this.posyStart;
-                var cun = this.posyStart;
-                var cuo = cul * cum + cun;
-                cuj = cuo;
-            } else cuj = this.posyStart;
+                var step = steps * 0.09 + 1;
+                var smoothStep = Math.log10(step);
+                var distance = this.posyEnd - this.posyStart;
+                var start = this.posyStart;
+                var position = smoothStep * distance + start;
+                currentY = position;
+            } else currentY = this.posyStart;
         } else {
             if (this.posyStart != this.posyEnd) {
-                var cum = (this.posyEnd - this.posyStart) / 100;
-                var cun = this.posyStart;
-                var cuo = steps * cum + cun;
-                cuj = cuo;
-            } else cuj = this.posyStart;
+                var distance = (this.posyEnd - this.posyStart) / 100;
+                var start = this.posyStart;
+                var position = steps * distance + start;
+                currentY = position;
+            } else currentY = this.posyStart;
         }
-        SpriteRenderer.position[1] = this.position[1] + cuj;
 		
-        cuj = 0;
+		//Rotate coordinates with camera for 2D effect
+		SpriteRenderer.position[0] = this.position[0] + (currentX * Math.cos(cRad) - currentY * Math.sin(cRad));
+		SpriteRenderer.position[1] = this.position[1] + (currentY * Math.cos(cRad) + currentX * Math.sin(cRad));
+		
+		
+        var currentZ = 0;
         if (this.poszSmooth) {
             if (this.poszStart != this.poszEnd) {
-                var cuk = steps * 0.09 + 1;
-                var cul = Math.log10(cuk);
-                var cum = this.poszEnd - this.poszStart;
-                var cun = this.poszStart;
-                var cuo = cul * cum + cun;
-                cuj = cuo;
-            } else cuj = this.poszStart;
+                var step = steps * 0.09 + 1;
+                var smoothStep = Math.log10(step);
+                var distance = this.poszEnd - this.poszStart;
+                var start = this.poszStart;
+                var position = smoothStep * distance + start;
+                currentZ = position;
+            } else currentZ = this.poszStart;
         } else {
             if (this.poszStart != this.poszEnd) {
-                var cum = (this.poszEnd - this.poszStart) / 100;
-                var cun = this.poszStart;
-                var cuo = steps * cum + cun;
-                cuj = cuo;
-            } else cuj = this.poszStart;
+                var distance = (this.poszEnd - this.poszStart) / 100;
+                var start = this.poszStart;
+                var position = steps * distance + start;
+                currentZ = position;
+            } else currentZ = this.poszStart;
         }
-        SpriteRenderer.position[2] = this.position[2] + cuj;
+        SpriteRenderer.position[2] = this.position[2] + currentZ;
 		
         var alpha = this.alphaMax;
 		
@@ -276,53 +288,53 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager) {
         SpriteRenderer.color[1] = this.green;
         SpriteRenderer.color[2] = this.blue;
 		
-        var cuK, cuL;
+        var currentX, currentY;
         if (this.sizeSmooth) {
 			
             if (this.sizeEndX != this.sizeStartX) {
-                var cuk = steps * 0.09 + 1;
-                var cul = Math.log10(cuk);
-                var cum = this.sizeEndX - this.sizeStartX;
-                var cun = this.sizeStartX;
-                var cuo = cul * cum + cun;
-                cuK = cuo;
-            } else cuK = this.sizeStartX;
+                var step = steps * 0.09 + 1;
+                var smoothStep = Math.log10(step);
+                var delta = this.sizeEndX - this.sizeStartX;
+                var start = this.sizeStartX;
+                var size = smoothStep * delta + start;
+                currentX = size;
+            } else currentX = this.sizeStartX;
 			
             if (this.sizeEndY != this.sizeStartY) {
-                var cuR = steps * 0.09 + 1;
-                var cuS = Math.log10(cuR);
-                var cuT = this.sizeEndY - this.sizeStartY;
-                var cuU = this.sizeStartY;
-                var cuV = cuS * cuT + cuU;
-                cuL = cuV;
-            } else cuL = this.sizeStartY;
+                var step = steps * 0.09 + 1;
+                var smoothStep = Math.log10(step);
+                var delta = this.sizeEndY - this.sizeStartY;
+                var start = this.sizeStartY;
+                var size = smoothStep * delta + start;
+                currentY = size;
+            } else currentY = this.sizeStartY;
 			
         } else {
 			
             if (this.sizeEndX != this.sizeStartX) {
-                var cum = (this.sizeEndX - this.sizeStartX) / 100;
-                var cun = this.sizeStartX;
-                var cuo = steps * cum + cun;
-                cuK = cuo;
-            } else cuK = this.sizeStartX;
+                var step = (this.sizeEndX - this.sizeStartX) / 100;
+                var start = this.sizeStartX;
+                var size = steps * step + start;
+                currentX = size;
+            } else currentX = this.sizeStartX;
 			
             if (this.sizeEndY != this.sizeStartY) {
-                var cuT = (this.sizeEndY - this.sizeStartY) / 100;
-                var cuU = this.sizeStartY;
-                var cuV = steps * cuT + cuU;
-                cuL = cuV;
-            } else cuL = this.sizeStartY;
+                var step = (this.sizeEndY - this.sizeStartY) / 100;
+                var start = this.sizeStartY;
+                var size = steps * step + start;
+                currentY = size;
+            } else currentY = this.sizeStartY;
 			
         }
 		
-        SpriteRenderer.size[0] = cuK;
-        SpriteRenderer.size[1] = cuL;
+        SpriteRenderer.size[0] = currentX;
+        SpriteRenderer.size[1] = currentY;
 		
         if (this.rotate) {
-            var cv2 = (this.toAngle - this.angle) / 100;
-            var angle = this.angle;
-            var cv4 = steps * cv2 + angle;
-            SpriteRenderer.angle = cv4;
+            var step = (this.toAngle - this.angle) / 100;
+            var startAngle = this.angle;
+            var angle = steps * step + startAngle;
+            SpriteRenderer.angle = angle;
         } else SpriteRenderer.angle = this.angle;
 		
         SpriteRenderer.render();
