@@ -740,36 +740,30 @@ define(function( require )
         }],
 
         
-        17: [{   // still missing half of sphere with text. 'effect/´ëAo1ß',    //EF_MAGNUMBREAK    Magnum Break
+        17: [{   //EF_MAGNUMBREAK    Magnum Break
+            type: 'CYLINDER',
             alphaMax: 0.7,
             animation: 4,
             attachedEntity: false,
-            blue: 1,
             bottomSize: 4,
             duration: 300,
             fade: false,
-            green: 1,
             height: 1,
-            red: 1,
             rotate: true,
-            textureName: 'effect/ring_yellow',
-            topSize: 6,
-            type: 'CYLINDER'
+            textureName: 'ring_yellow',
+            topSize: 6
         }, {
+            type: 'CYLINDER',
             alphaMax: 0.6,
             animation: 4,
             attachedEntity: false,
-            blue: 1,
             bottomSize: 4,
             duration: 300,
             fade: true,
-            green: 1,
             height: 4,
-            red: 1,
             rotate: true,
-            textureName: '\xc2\xb4\xc3\xab\xc3\x86\xc3\xb8\xc2\xb9\xc3\x9f', //´ëÆø¹ß
+            textureName: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
             topSize: 1,
-            type: 'CYLINDER',
             wav: 'effect/ef_magnumbreak'
         }],
         
