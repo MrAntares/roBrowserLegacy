@@ -325,7 +325,11 @@ define(function( require )
     ///   sets the number of sparks
 
     return {
-
+		
+        0: [{    //EF_HIT1    Regular hit
+            wav: 'effect/ef_hit1'
+        }],
+		
         1: [{    //EF_HIT2    Bash
             //  Loads 2 tga-images, semi-randomly (alternating pattern but random position) aligns 4 instances of each (=8 in total) in a circle around the object and stretches them away.
             //  Important note: It really is just stretching one end further and further out, one end of the images is tied to the object
@@ -334,7 +338,7 @@ define(function( require )
             attachedEntity: false,
             duration: 140,
             fadeOut: false,
-            file: 'effect/lens2.tga',
+            file: 'effect/lens1.tga',
             poszEnd: 10,
             poszStart: 3,
             sizeEndX: 1,
@@ -349,7 +353,7 @@ define(function( require )
             attachedEntity: false,
             duration: 140,
             fadeOut: false,
-            file: 'effect/lens1.tga',
+            file: 'effect/lens2.tga',
             posxEnd: 3,
             posxStart: 0.5,
             poszEnd: 7,
@@ -395,7 +399,7 @@ define(function( require )
             attachedEntity: false,
             duration: 140,
             fadeOut: false,
-            file: 'effect/lens2.tga',
+            file: 'effect/lens1.tga',
             posxEnd: 4.5,
             posxStart: 0.7,
             sizeEndX: 1,
@@ -403,6 +407,53 @@ define(function( require )
             sizeStartX: 15,
             sizeStartY: 10,
             type: '2D'
+        }, {
+            alphaMax: 1,
+            angle: -45,
+            attachedEntity: false,
+            duration: 140,
+            fadeOut: false,
+            file: 'effect/lens2.tga',
+            posxEnd: 3,
+            posxStart: 0.5,
+            poszEnd: -7,
+            poszStart: -2,
+            sizeEndX: 1,
+            sizeEndY: 200,
+            sizeStartX: 15,
+            sizeStartY: 10,
+            type: '2D'
+        }, {
+            alphaMax: 1,
+            angle: 45,
+            attachedEntity: false,
+            duration: 140,
+            fadeOut: false,
+            file: 'effect/lens2.tga',
+            posxEnd: -3,
+            posxStart: -0.5,
+            poszEnd: -7,
+            poszStart: -2,
+            sizeEndX: 1,
+            sizeEndY: 200,
+            sizeStartX: 15,
+            sizeStartY: 10,
+            type: '2D'
+        }, {
+            alphaMax: 1,
+            angle: 0,
+            attachedEntity: false,
+            duration: 140,
+            fadeOut: false,
+            file: 'effect/lens1.tga',
+            poszEnd: -10,
+            poszStart: -3,
+            sizeEndX: 1,
+            sizeEndY: 200,
+            sizeStartX: 15,
+            sizeStartY: 10,
+            type: '2D',
+            wav: 'effect/ef_hit2'
         }],
 
 
@@ -726,24 +777,25 @@ define(function( require )
         18: [{    //EF_STEAL    Steal
             alphaMax: 1,
             attachedEntity: false,
-            blue: 0.1,
+            red: 1,
+            green: 1,
+            blue: 0.85,
             duration: 500,
             duplicate: 7,
+            timeBetweenDupli: 0,
             fadeOut: false,
             file: 'effect/pok1.tga',
-            green: 1,
-			poszStart: 1.5,
             posxEndRand: 3.5,
             posyEndRand: 3.5,
-            poszEndRand: 3,
-            red: 1,
+            poszEndRand: 1,
+            poszEndRandMiddle: 3,
             sizeEnd: 10,
             sizeStart: 200,
             type: '3D',
             zIndex: 10
         }, {
-			wav: 'effect/ef_steal'
-		}],
+            wav: 'effect/ef_steal'
+        }],
 
 
         // 19: [{}],    //EF_HIDING    Invalid Effect ID Popup in client
@@ -9472,80 +9524,14 @@ define(function( require )
             zIndex: 1
         }],
 		
-		'ef_arrow_shower': [{
+        'ef_arrow_shower': [{
             type: '3D',
             alphaMax: 1,
             angle: 180,
             attachedEntity: false,
             duration: 140,
-            fadeIn: false,
-            fadeOut: false,
-            spriteName: 'skel_archer_arrow',
-            toSrc: true,
-            rotateToTarget: true,
-            rotateWithCamera: true,
-            size: 1,
-            zOffset: 1,
-            zIndex: 1,
-            posxEndRand: 1.5,
-            posyEndRand: 1.5
-        }, {
-            type: '3D',
-            alphaMax: 1,
-            angle: 180,
-            attachedEntity: false,
-            duration: 140,
-            fadeIn: false,
-            fadeOut: false,
-            spriteName: 'skel_archer_arrow',
-            toSrc: true,
-            rotateToTarget: true,
-            rotateWithCamera: true,
-            size: 1,
-            zOffset: 1,
-            zIndex: 1,
-            posxEndRand: 1.5,
-            posyEndRand: 1.5
-        }, {
-            type: '3D',
-            alphaMax: 1,
-            angle: 180,
-            attachedEntity: false,
-            duration: 140,
-            fadeIn: false,
-            fadeOut: false,
-            spriteName: 'skel_archer_arrow',
-            toSrc: true,
-            rotateToTarget: true,
-            rotateWithCamera: true,
-            size: 1,
-            zOffset: 1,
-            zIndex: 1,
-            posxEndRand: 1.5,
-            posyEndRand: 1.5
-        }, {
-            type: '3D',
-            alphaMax: 1,
-            angle: 180,
-            attachedEntity: false,
-            duration: 140,
-            fadeIn: false,
-            fadeOut: false,
-            spriteName: 'skel_archer_arrow',
-            toSrc: true,
-            rotateToTarget: true,
-            rotateWithCamera: true,
-            size: 1,
-            zOffset: 1,
-            zIndex: 1,
-            posxEndRand: 1.5,
-            posyEndRand: 1.5
-        }, {
-            type: '3D',
-            alphaMax: 1,
-            angle: 180,
-            attachedEntity: false,
-            duration: 140,
+            duplicate: 10,
+            timeBetweenDupli: 0,
             fadeIn: false,
             fadeOut: false,
             spriteName: 'skel_archer_arrow',
