@@ -130,6 +130,9 @@ define(function(require)
 				Vending.focus();
 			});
 
+		
+		
+
 		// Hacky drag drop
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
 		this.draggable.call({ui: OutputWindow }, OutputWindow.find('.titlebar'));
@@ -159,7 +162,7 @@ define(function(require)
 
 		// Seems like "EscapeWindow" is execute first, push it before.
 		//var events = jQuery._data( window, 'events').keydown;
-		//events.unshift( events.pop() );
+		//events.unshift( events.pop() );		
 		
 		this.ui.hide();
 	};
@@ -718,6 +721,7 @@ define(function(require)
 	{
 		//console.log("Vending.onVendingSkill");
 		this.setList(CartItems.list);
+		this.ui.find('.shopname').val('');
 		this.ui.show();
 	};
 
