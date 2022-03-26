@@ -111,8 +111,9 @@ define(function(require)
 		});
 
 		_realSize = _preferences.reduce ? 0 : this.ui.height();
-		
-		this.ui.find('.text.shopname').text("My Shop : "+Vending._shopname);
+		let messageText = DB.getMessage(226);
+		let titleShop = Vending._shopname.length > 25 ? Vending._shopname.substring(0,25)+"..." : Vending._shopname
+		this.ui.find('.text.shopname').text(messageText+" : "+titleShop);
 	};
 
 

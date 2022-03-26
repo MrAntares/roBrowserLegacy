@@ -3,7 +3,6 @@
  *
  * Chararacter Basic information windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -30,10 +29,11 @@ define(function(require)
 	var ItemInfo     = require('UI/Components/ItemInfo/ItemInfo');
 	var InputBox     = require('UI/Components/InputBox/InputBox');
 	var ChatBox      = require('UI/Components/ChatBox/ChatBox');
-	var CartItems          = require('UI/Components/CartItems/CartItems');
+	var CartItems    = require('UI/Components/CartItems/CartItems');
+	var MessageModel = require('UI/Components/Vending/MessageModel/MessageModel');
 	var htmlText     = require('text!./Vending.html');
 	var cssText      = require('text!./Vending.css');
-	var Renderer           = require('Renderer/Renderer');
+	var Renderer     = require('Renderer/Renderer');
 
 
 	/**
@@ -98,10 +98,12 @@ define(function(require)
 
 		// Client do not send packet
 		//ui.find('.btn.cancel').click(this.remove.bind(this));
-		ui.find('.btn.sell').click(function(){
+		ui.find('.btn.sell').click(function(e){
+			e.stopImmediatePropagation();
 			Vending.onSubmit();
 		});
-		this.ui.find('.btn.cancel').click(function(){
+		this.ui.find('.btn.cancel').click(function(e){
+			e.stopImmediatePropagation();
 			Vending.onRemove();
 		});
 		
@@ -129,6 +131,9 @@ define(function(require)
 			.on('mousedown', function(){
 				Vending.focus();
 			});
+
+		
+		
 
 		// Hacky drag drop
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
@@ -159,7 +164,7 @@ define(function(require)
 
 		// Seems like "EscapeWindow" is execute first, push it before.
 		//var events = jQuery._data( window, 'events').keydown;
-		//events.unshift( events.pop() );
+		//events.unshift( events.pop() );		
 		
 		this.ui.hide();
 	};
@@ -188,6 +193,8 @@ define(function(require)
 		pkt.result = 0; // canceled vending
 		pkt.storeList = [];
 		submitNetworkPacket(pkt);
+
+		MessageModel.onRemove();//remove message if show
 
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
@@ -321,6 +328,7 @@ define(function(require)
 		var it      = DB.getItemInfo(item.ITID);
 		var element = content.find('.item[data-index='+ item.index +']:first');
 		var price;
+		var textPrice = DB.getMessage(1721); 
 
 		// 0 as amount ? remove it
 		if (item.count === 0) {
@@ -358,7 +366,7 @@ define(function(require)
 					'<div class="icon"></div>' +
 					'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
 					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
-					'<div class="price">Price: '+ price +'</div>' +
+					'<div class="price">'+textPrice+': '+ price +'</div>' +
 				'</div>'
 			);		
 		}
@@ -718,6 +726,7 @@ define(function(require)
 	{
 		//console.log("Vending.onVendingSkill");
 		this.setList(CartItems.list);
+		this.ui.find('.shopname').val('');
 		this.ui.show();
 	};
 
@@ -739,31 +748,24 @@ define(function(require)
 				ctr++;
 			}
 		}
-		
+
 		if(ctr < 1)
 		{
-			this.onRemove();
+			MessageModel.setInit(2494);
 			return;
-		}		
+		}
 	
         var pkt = new PACKET.CZ.REQ_OPENSTORE2();
 		pkt.storeName = shopname;
 		pkt.result = 1;
 		pkt.storeList = output;
 		
+		console.log('shopname', shopname);
+
 		if(!shopname)
 		{
-			InputBox.append();
-			InputBox.setType('shopname', false, shopname);
-			InputBox.onSubmitRequest = function(shopname) {
-				InputBox.remove();
-				pkt.storeName = shopname;
-				if(shopname)
-				{
-					this._shopname = shopname;
-					submitNetworkPacket(pkt);					
-				}
-			};
+			MessageModel.setInit(225);
+			return;
 		}
 		else
 		{

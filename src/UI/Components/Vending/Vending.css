@@ -7,13 +7,14 @@
 #vending .selectall { vertical-align:2px; width:10px; height:10px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #vending .ask_quantity { padding-top:7px; padding-left:20px;}
 
-#vending .nstore { position:absolute; top:18px; float:left font-size:12px; border:none; padding-left:2px; outline:none;}
-#vending input { position:absolute; left:85px; width:180px; border:none; background-color:#E9E9E9; padding-left:2px; outline:none;}
-#vending input.shopname { top:18px; }
+#vending .nstore { position: absolute;top: 26px;border: none;padding-left: 2px;outline: none; }
+#vending input { position: absolute;left: 55px;width: 214px;border: none;background-color: #E9E9E9;padding-left: 2px;outline: none; }
+#vending input.shopname { top:22px; }
 
 
 #vending .container { padding-left: 16px; border-right:1px solid #ccc; background:white; background-repeat:repeat-y; padding-right:2px; padding-top:5px; padding-bottom:5px; }
 #vending .content { overflow-y:auto; width:100%; height:100%; min-height:65px; background-color:transparent; background-repeat:repeat-y; }
+#vending .content .add_shop { margin-top: 10px; }
 #vending .content .item { display:block; position:relative; height:28px; padding-top:4px; }
 #vending .content .item.selected { background-color:#739cee; }
 
