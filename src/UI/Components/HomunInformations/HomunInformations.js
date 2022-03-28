@@ -3,8 +3,6 @@
  *
  * Display homunculus informations
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author IssID
  */
 define(function (require) {
@@ -194,6 +192,10 @@ define(function (require) {
      * @param {number} intimacy
      */
     HomunInformations.setIntimacy = function setIntimacy(val) {
+        if (!this.ui) {
+            return;
+        }
+        
         this.ui.find('.intimacy').text(DB.getMessage(
             val < 100 ? 672 :
             val < 250 ? 673 :
@@ -211,6 +213,10 @@ define(function (require) {
      * @param maxEXP
      */
     HomunInformations.setExp = function setExp(exp, maxEXP) {
+        if (!this.ui) {
+            return;
+        }
+
         var canvasExp = this.ui.find('.block2 canvas.life.title_exp');
         var ctx = canvasExp.get(0).getContext('2d')
 
@@ -238,6 +244,10 @@ define(function (require) {
      * @param {number} hunger
      */
     HomunInformations.setHunger = function setHunger(val) {
+        if (!this.ui) {
+            return;
+        }
+
         var canvasHunger = this.ui.find('.block2 canvas.life.title_hunger');
         var ctx = canvasHunger.get(0).getContext('2d')
 
