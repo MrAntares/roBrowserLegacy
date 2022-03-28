@@ -25,6 +25,7 @@ define(function( require )
 	var HomunInformations    = require('UI/Components/HomunInformations/HomunInformations');
 	var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
 	var Mouse                = require('Controls/MouseEventHandler');
+	var AIDriver             = require('Utils/AIDriver');
 
 	/**
 	 * Get own homunculus information from server
@@ -81,7 +82,6 @@ define(function( require )
 	 */
 	function onHomunInformationUpdate( pkt )
 	{
-		console.warn(pkt)
 		var entity = EntityManager.get(pkt.GID);
 
 		if (!entity) {
@@ -103,14 +103,9 @@ define(function( require )
 				entity.life.hunger_max = 100;
 				entity.life.update();
 				break;
-
-			case 3: /// 3 = accessory
-				break;
-			case 4: /// 4 = performance
-				break;
-			case 5: /// 5 = accessory
-				break;
 		}
+
+		AIDriver.exec('AI(' + Session.homunId + ')')
 	}
 
 
