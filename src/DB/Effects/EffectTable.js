@@ -201,6 +201,12 @@ define(function( require )
     /// - file:
     ///   Texture file name stored in data/texture/(.*.bmp|tga)
     ///
+    /// - fileList:
+    ///   An array of texture file name stored in data/texture/(.*.bmp|tga)
+    ///
+    /// - frameDelay:
+    ///   For how many ticks (time) one texture is shown when using fileList. Used for "hand animated" effects that are created from multiple textures.
+    ///
     /// - spriteName:
     ///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
     ///
@@ -319,10 +325,10 @@ define(function( require )
     ///   the webgl blendFunc source mode is always SRC_ALPHA
     ///
     /// - sparkling
-    ///   if set to true then creates sparks
+    ///   if set to true then makes the effect blink/sparkle
     ///
     /// - sparkNumber
-    ///   sets the number of sparks
+    ///   sets how often the effect blinks/sparkles
 
     return {
 		
@@ -1905,7 +1911,7 @@ define(function( require )
             poszStartRand: 2,
             poszStartRandMiddle: 5.5,
             size: 0.5,
-            sparkling: false,
+            sparkling: true,
             sparkNumber: 2,
             spriteName: 'particle6',
             timeBetweenDupli: 0,
@@ -4115,7 +4121,7 @@ define(function( require )
             red: 1,
             size: 9,
             sizeRand: 2,
-            sparkling: false,
+            sparkling: true,
             sparkNumber: 2,
             timeBetweenDupli: 10,
             type: '3D',
@@ -4140,7 +4146,7 @@ define(function( require )
             red: 1,
             size: 9,
             sizeRand: 2,
-            sparkling: false,
+            sparkling: true,
             sparkNumber: 2,
             timeBetweenDupli: 10,
             type: '3D',
@@ -4431,23 +4437,34 @@ define(function( require )
             topSize: 5
         }],
         
-        'ef_firebolt': [{ //fireolt falling objects
+        'ef_firebolt': [{ //firebolt falling objects
             type: '3D',
-			alphaMax: 1,
-			blendMode: 2,
-            angle: 22,
+            alphaMax: 1,
+            blendMode: 2,
+            angle: 112.5,
             attachedEntity: false,
             duration: 500,
-            file: 'effect/fire_fall_b.bmp',
+            fileList: [
+                        'effect/\xba\xd2\xc8\xad\xbb\xec1.tga'
+                        ,'effect/\xba\xd2\xc8\xad\xbb\xec2.tga'
+                        ,'effect/\xba\xd2\xc8\xad\xbb\xec3.tga'
+                        ,'effect/\xba\xd2\xc8\xad\xbb\xec4.tga'
+                        ,'effect/\xba\xd2\xc8\xad\xbb\xec5.tga'
+                        ,'effect/\xba\xd2\xc8\xad\xbb\xec6.tga'
+                        //,'effect/\xba\xd2\xc8\xad\xbb\xec7.tga' //Not used officially
+                        //,'effect/\xba\xd2\xc8\xad\xbb\xec8.tga'
+                      ],
+            frameDelay: 30,
             posxEnd: 0,
             posxStartRandMiddle: 5,
-			posxStartRand: 1,
+            posxStartRand: 1,
             posyEnd: 0,
             posyStartRandMiddle: 2,
-			posyStartRand: 1,
+            posyStartRand: 1,
             poszEnd: 0,
             poszStart: 20,
-            size: 50,
+            sizeX: 100,
+            sizeY: 50,
             zIndex: 1,
             wav:  'effect/ef_firearrow%d',
             rand: [1, 3],
@@ -4529,7 +4546,7 @@ define(function( require )
             red: 1,
             size: 9,
             sizeRand: 2,
-            sparkling: false,
+            sparkling: true,
             sparkNumber: 2,
             timeBetweenDupli: 10,
             type: '3D',
@@ -4554,7 +4571,7 @@ define(function( require )
             red: 1,
             size: 9,
             sizeRand: 2,
-            sparkling: false,
+            sparkling: true,
             sparkNumber: 2,
             timeBetweenDupli: 50,
             type: '3D',
@@ -4687,7 +4704,7 @@ define(function( require )
             red: 1,
             size: 9,
             sizeRand: 2,
-            sparkling: false,
+            sparkling: true,
             sparkNumber: 3,
             timeBetweenDupli: 10,
             type: '3D',
@@ -4712,7 +4729,7 @@ define(function( require )
             red: 1,
             size: 10,
             sizeRand: 5,
-            sparkling: false,
+            sparkling: true,
             sparkNumber: 3,
             timeBetweenDupli: 10,
             type: '3D',
@@ -8217,9 +8234,9 @@ define(function( require )
         803: [{    //EF_RECOGNIZED       Recognized Spell
 			wav: 'effect/wl_recognizedspell'
 		}],
-        804: [{
+        804: [{    //EF_TETRA       Tetra Vortex [S]
 			wav: 'effect/wl_tetravortex'
-		}],    //EF_TETRA       Tetra Vortex [S]
+		}],
         //805: [{}],    //EF_TETRACASTING       Tetra Vortex cast animation (blinking colors)
         //806: [{}],    //EF_FIREBALL3       Flying by as fast as a rocket
         //807: [{}],    //EF_INTIMIDATE3       Kidnapping sound
