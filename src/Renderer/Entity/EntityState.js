@@ -3,8 +3,6 @@
  *
  * Manage Entity files (attachments) to load once a view change
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author Vincent Thibault, Antares
  */
 define(function( require )
@@ -398,7 +396,7 @@ define(function( require )
 		// Cloack / Hide
 		else if (value & (StatusConst.EffectState.HIDE|StatusConst.EffectState.CLOAK|StatusConst.EffectState.CHASEWALK)) {
 			// Maya purple card
-			if (Session.intravision) {
+			if (Session.Character.intravision) {
 				this._effectStateColor[0] = 0.0;
 				this._effectStateColor[1] = 0.0;
 				this._effectStateColor[2] = 0.0;
@@ -411,7 +409,7 @@ define(function( require )
 		// Camouflage / Stealth Field (receiver)
 		else if (this.Camouflage || this.Stealthfield){
 			// Maya purple card
-			if (Session.intravision) {
+			if (Session.Character.intravision) {
 				this._effectStateColor[0] = 0.0;
 				this._effectStateColor[1] = 0.0;
 				this._effectStateColor[2] = 0.0;
@@ -425,7 +423,7 @@ define(function( require )
 		// Shadow form
 		else if (this.Shadowform) {
 			// Maya purple card
-			if (Session.intravision) {
+			if (Session.Character.intravision) {
 				this._effectStateColor[0] = 0.0;
 				this._effectStateColor[1] = 0.0;
 				this._effectStateColor[2] = 0.0;
