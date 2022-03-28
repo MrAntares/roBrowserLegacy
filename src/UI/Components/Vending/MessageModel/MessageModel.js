@@ -62,8 +62,8 @@
     {
         if (this.ui == undefined)
             return;
-
-        this.ui.hide();
+      
+        this.ui.hide()
     }
 
     /**
