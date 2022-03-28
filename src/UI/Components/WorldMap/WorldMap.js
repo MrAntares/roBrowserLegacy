@@ -12,14 +12,21 @@ define(function (require) {
     /**
      * Dependencies
      */
-    var DB           = require('DB/DBManager');
-    var Client       = require('Core/Client');
-    var Preferences  = require('Core/Preferences');
-    var Renderer     = require('Renderer/Renderer');
-    var UIManager    = require('UI/UIManager');
-    var UIComponent  = require('UI/UIComponent');
-    var htmlText     = require('text!./WorldMap.html');
-    var cssText      = require('text!./WorldMap.css');
+    var DB = require('DB/DBManager');
+    var Client = require('Core/Client');
+    var Preferences = require('Core/Preferences');
+    var Renderer = require('Renderer/Renderer');
+    var UIManager = require('UI/UIManager');
+    var UIComponent = require('UI/UIComponent');
+    var htmlText = require('text!./WorldMap.html');
+    var cssText = require('text!./WorldMap.css');
+
+    const mapList = {
+        1: {'name': 'Midgard', 'img': 'worldmap.bmp'},
+        2: {'name': 'New World', 'img': 'worldmap_dimension.bmp'},
+        3: {'name': 'Eastern Kingdoms', 'img': 'worldmap_localizing1.bmp'},
+        4: {'name': 'Far Lands', 'img': 'worldmap_localizing2.bmp'},
+    }
 
     /**
      * Create Component
@@ -44,12 +51,23 @@ define(function (require) {
         this.ui.find('.titlebar .base').mousedown(stopPropagation);
         this.ui.find('.titlebar select').change(onSelect);
         this.ui.find('.titlebar .close').click(onClose);
+
+        setMapList();
     };
+
+    function setMapList() {
+        WorldMap.ui.find('#WorldMaps').prepend(function () {
+            var list = '';
+            for (var wmap in mapList) {
+                list += '<option value="' + mapList[wmap].img + '">' + mapList[wmap].name + '</option>'
+            }
+            return list;
+        })
+    }
 
     function onSelect() {
         resize(WorldMap.ui.find('.titlebar select').val());
     }
-
 
     /**
      * Extend WorldMap window size

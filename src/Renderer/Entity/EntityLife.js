@@ -35,6 +35,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.zIndex   = 1;
 		this.entity  = null;
+		this.hunger  = -1;
+		this.hunger_max  = -1;
 	}
 
 
@@ -82,7 +84,14 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		var sp       = this.sp > -1 && this.sp_max > -1;
 		var sp_per   = this.sp / this.sp_max;
 
+		var hunger       = this.hunger > -1 && this.hunger_max > -1;
+		var hunger_per   = this.hunger / this.hunger_max;
+
 		if (sp) {
+			height += 4;
+		}
+
+		if (hunger) {
 			height += 4;
 		}
 
@@ -97,7 +106,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		// empty
 		ctx.fillStyle = '#424242';
 		ctx.fillRect( 1, 1, width-2, height-2 );
-	
+
 		// Display HP
 		if (this.entity.objecttype === Entity.TYPE_MOB) {
 			ctx.fillStyle = ( hp_per < 0.25 ) ? '#FFFF00' : '#FF00E7';
@@ -117,6 +126,13 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			ctx.fillRect( 0, 4, width, 1);
 			ctx.fillStyle = '#1863de';
 			ctx.fillRect( 1, 5, Math.round( (width-2) * sp_per ), 3 );
+		}
+
+		if (hunger){
+			ctx.fillStyle = '#424242';
+			ctx.fillRect( 1, 9, width, 1 );
+			ctx.fillStyle = ( hunger_per < 0.25 ) ? '#FFFF00' : '#FFE7E7';
+			ctx.fillRect( 1, 9, Math.round( (width-2) * hunger_per ), 3 );
 		}
 	};
 

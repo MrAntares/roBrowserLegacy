@@ -29,6 +29,7 @@ define(function( require )
 	var SkillWindow           = require('UI/Components/SkillList/SkillList');
 	var SkillTargetSelection  = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Guild                 = require('UI/Components/Guild/Guild');
+	var SkillListMER          = require('UI/Components/SkillListMER/SkillListMER');
 	var ItemSelection         = require('UI/Components/ItemSelection/ItemSelection');
 	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
 	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
@@ -92,7 +93,7 @@ define(function( require )
 	/**
 	 * Display an effect to the scene
 	 *
-	 * @param {object} pkt - PACKET.ZC.NOTIFY_GROUNDSKILL  
+	 * @param {object} pkt - PACKET.ZC.NOTIFY_GROUNDSKILL
 	 */
 	function onSkillToGround( pkt )
 	{
@@ -143,10 +144,10 @@ define(function( require )
 				case SkillId.TF_POISON:
 					error = 207;
 					break;
-					
+
 			}
 		}
-		
+
 		if(pkt.SKID == SkillId.CG_TAROTCARD){
 			error = 204;
 		}
@@ -385,8 +386,8 @@ define(function( require )
 				break;
 		}
 	}
-	
-	
+
+
 	/**
 	 * Get a list of arrows to create
 	 *
@@ -410,7 +411,7 @@ define(function( require )
 			}
 		};
 	}
-	
+
 	/**
 	 * Get a list of items to refine
 	 *
@@ -453,7 +454,7 @@ define(function( require )
 
 		Network.sendPacket(pkt);
 	};
-	
+
 	function onSetSkillDelay( pkt ){
 		ShortCut.setSkillDelay(pkt.SKID, pkt.DelayTM);
 	};
@@ -464,7 +465,7 @@ define(function( require )
 	 *
 	 * @param {number} skill id
 	 */
-	SkillWindow.onIncreaseSkill = Guild.onIncreaseSkill = function onIncreaseSkill( SKID )
+	SkillWindow.onIncreaseSkill = Guild.onIncreaseSkill = SkillListMER.onIncreaseSkill = function onIncreaseSkill( SKID )
 	{
 		var pkt  = new PACKET.CZ.UPGRADE_SKILLLEVEL();
 		pkt.SKID = SKID;
@@ -489,7 +490,7 @@ define(function( require )
 		target = EntityManager.get(targetID) || entity;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
-		
+
 		if (skill) {
 			range = skill.attackRange + 1;
 		}
@@ -512,8 +513,8 @@ define(function( require )
 		if (!count) {
 			return;
 		}
-    
-   	
+
+
     	if(id === SkillId.MC_CHANGECART)
         {
 			if(Session.Entity.hasCart == true)
@@ -525,12 +526,12 @@ define(function( require )
 		{
 			getModule('UI/Components/Vending/Vending').onVendingSkill();
 		}
-		
+
         pkt               = new PACKET.CZ.USE_SKILL();
         pkt.SKID          = id;
         pkt.selectedLevel = level;
         pkt.targetID      = targetID || Session.Entity.GID;
-		
+
 		// In range
 		if (count < 2 || target === entity) {
 			Network.sendPacket(pkt);
@@ -566,7 +567,7 @@ define(function( require )
 		pos    = entity.position;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
-		
+
 		if (skill) {
 			range = skill.attackRange + 1;
 		}
@@ -595,11 +596,11 @@ define(function( require )
 		pkt.selectedLevel = level;
 		pkt.xPos          = x;
 		pkt.yPos          = y;
-		
+
 		//This is how the client knows the magic ring size for self..
 		Session.Entity.lastSKID = id;
 		Session.Entity.lastSkLvl = level;
-		
+
 		// In range
 		if (count < 2) {
 			Network.sendPacket(pkt);
@@ -624,31 +625,31 @@ define(function( require )
 			EffectManager.add(spheres, pkt.AID, false);
 		}
 	}
-	
+
 	function onTaekwonMission(pkt){
 		var total = 100;
 		var message = DB.getMessage(927);
 		var percent = Math.floor((pkt.star / total) * 100);
 		var color = '#F8F8FF'; //GhostWhite
-		
+
 		message = message.replace('%s', pkt.monsterName);
 		message = message.replace('%d%', percent);
-		
+
 		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, color );
 		Announce.append();
 		Announce.set(message, color);
 	}
 
 	function onMessageSkill(pkt){
-	
+
 		var message = DB.getMessage(pkt.MSGID);
 		var color = '#B8BEEB';
-		var name =  SkillInfo[ pkt.SKID ].SkillName;		
+		var name =  SkillInfo[ pkt.SKID ].SkillName;
 		message = `[${name}] ${message}`;
 
 		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, color );
 	}
-		
+
 	/**
 	 * Initialize
 	 */

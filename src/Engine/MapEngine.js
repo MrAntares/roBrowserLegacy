@@ -56,6 +56,7 @@ define(function( require )
 	var PartyFriends     = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild            = require('UI/Components/Guild/Guild');
 	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
+	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
 
 	/**
 	 * @var {string mapname}
@@ -171,6 +172,7 @@ define(function( require )
 		require('./MapEngine/Skill').call();
 		require('./MapEngine/ChatRoom').call();
 		require('./MapEngine/Pet').call();
+		require('./MapEngine/Homun').call();
 		require('./MapEngine/Store').call();
 		require('./MapEngine/Trade').call();
 		require('./MapEngine/Friends').init();
@@ -194,6 +196,7 @@ define(function( require )
 		ChatBox.prepare();
 		Guild.prepare();
 		WorldMap.prepare();
+		SkillListMER.prepare();
 
 		// Bind UI
 		WinStats.onRequestUpdate        = onRequestStatUpdate;
@@ -252,6 +255,8 @@ define(function( require )
 		Session.isPartyLeader = false;
 		Session.hasGuild      = false;
 		Session.guildRight    =     0;
+
+		Session.homunId       =     0;
 
 		BasicInfo.update('blvl', Session.Character.level );
 		BasicInfo.update('jlvl', Session.Character.joblevel );
@@ -320,6 +325,7 @@ define(function( require )
 			PartyFriends.append();
 			Guild.append();
 			WorldMap.append();
+			SkillListMER.append();
 
 			// Map loaded
 			Network.sendPacket(

@@ -29,6 +29,8 @@ define(function( require )
 	var ChatRoom    = require('UI/Components/ChatRoom/ChatRoom');
 	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
 	var Pet         = require('UI/Components/PetInformations/PetInformations');
+	// todo error use shortcat skill SkillTargetSelection.js
+	// var Homun       = require('UI/Components/HomunInformations/HomunInformations');
 	var Trade       = require('UI/Components/Trade/Trade');
 	var getModule   = require;
 
@@ -129,7 +131,7 @@ define(function( require )
 			this.display.remove();
 		}
 	}
-	
+
 
 	/**
 	 * When clicking on an Entity
@@ -142,6 +144,7 @@ define(function( require )
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PET:
+			case Entity.TYPE_HOM:
 				break;
 
 			case Entity.TYPE_ITEM:
@@ -223,7 +226,7 @@ define(function( require )
 				break;
 
 			case Entity.TYPE_PC:
-				/// TODO: complete it : 
+				/// TODO: complete it :
 				/// - check for admin action (kick, mute, ...)
 
 				ContextMenu.remove();
@@ -261,8 +264,8 @@ define(function( require )
 				}
 
 				// Open 1:1Chat
-                		ContextMenu.addElement( DB.getMessage(360), function(){
-                    			getModule('UI/Components/PartyFriends/PartyFriends').onOpenChat1to1(entity.display.name);
+				ContextMenu.addElement( DB.getMessage(360), function(){
+					getModule('UI/Components/PartyFriends/PartyFriends').onOpenChat1to1(entity.display.name);
 				});
 
 				if (!Friends.isFriend(this.display.name)) {
@@ -284,6 +287,13 @@ define(function( require )
 				break;
 
 			case Entity.TYPE_HOM:
+				// if (Session.homunId === this.GID) {
+				// 	ContextMenu.remove();
+				// 	ContextMenu.append();
+				// 	ContextMenu.addElement( 'View Status', Homun.ui.show.bind(Homun.ui));
+				// 	ContextMenu.addElement( 'Feed', Homun.reqHomunFeed());
+				// 	ContextMenu.addElement( 'Stand By', Homun.reqMoveToOwner(this.GID));
+				// }
 				break;
 		}
 
@@ -416,7 +426,7 @@ define(function( require )
 				pkt.roomID = this.room.id;
 				pkt.passwd = '';
 				Network.sendPacket(pkt);
-				
+
 				/* Prepare the chat room UI */
 				ChatRoom.type  = 1; //public
 				ChatRoom.title = this.room.title;
@@ -435,7 +445,7 @@ define(function( require )
 					InputBox.remove();
 					pkt.passwd = pass;
 					Network.sendPacket(pkt);
-					
+
 					/* Prepare the chat room UI */
 					ChatRoom.type  = 0; //private
 					ChatRoom.title = self.room.title;
