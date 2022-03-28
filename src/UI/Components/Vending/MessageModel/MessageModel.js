@@ -60,7 +60,9 @@
 
     MessageModel.onRemove = function onRemove()
     {
-        this.ui.hide();
+		if(this.ui){
+			this.ui.hide();
+		}
     }
 
     /**
