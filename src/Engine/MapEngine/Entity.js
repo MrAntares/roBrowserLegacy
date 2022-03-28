@@ -1185,7 +1185,7 @@ define(function( require )
 			// Maya purple card
 			case StatusConst.CLAIRVOYANCE:
 				if (entity === Session.Entity) {
-					Session.intravision = pkt.state;
+					Session.Character.intravision = pkt.state;
 					EntityManager.forEach(function(entity){
 						entity.effectState = entity.effectState;
 					});
