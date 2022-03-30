@@ -75,7 +75,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			if(uRotate) {
 				position += vec4(aPosition.x * size, -height, aPosition.y * size, 0.0) * uRotationMat;
 			} else {
-				position  += vec4(aPosition.x * size, 0.0, aPosition.y * size, 0.0);
+				position  += vec4(aPosition.x * size, -height, aPosition.y * size, 0.0);
 			}
 			
 			gl_Position    = uProjectionMat * uModelViewMat * position;
