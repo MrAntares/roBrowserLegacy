@@ -67,13 +67,23 @@ define(function( require )
     /// - attachedEntity:
     ///   if set to true, the effect will follow the entity attached
     ///
-    /// - red:
-    /// - green:
-    /// - blue:
-    ///   if all 3 is set to >0, overrides the color of the texture
+    /// - red, green, blue:
+    ///   overrides the color values of the texture (0.0 ~ 1.0)
     ///
-    /// - semiCircle:
-    ///   produces a semi circle
+    /// - totalCircleSides:
+    ///   number of sides of the base "circle" of the cylinder
+    ///
+    /// - circleSides:
+    ///   number of sides shown out of the totalCircleSides
+    ///
+    /// - rotate:
+    ///   if set to true, the cylinder will continously rotate around it's Y (vertical) axis before any other rotation is applied
+    ///
+    /// - angleX, angleY, angleZ:
+    ///   rotates the cylinder on the X, Y, Z axis by the set amount of degrees (applied after rotate)
+    ///
+    /// - rotateWithCamera
+    ///   if set to true the cylinder rotates with the camera on the final Y (vertical) axis after every other rotation is applied
     ///
     /// - topSize:
     ///   top radius of the circle
@@ -84,12 +94,11 @@ define(function( require )
     /// - height:
     ///   height of the cylinder
     ///
+    /// - posX, posY, posZ:
+    ///   offsets the cylinder's position on it's X, Y, Z axis
+    ///
     /// - fade:
     ///   if set to true the cylinder will fade out at the end of the duration
-    ///
-    /// - rotate:
-    ///   if set to true, the cylinder will rotate
-    ///
     /// - alphaMax:
     ///   sets the opacity of the cylinder (0.0 ~ 1.0)
     ///
@@ -464,14 +473,51 @@ define(function( require )
 
 
         2: [{    //EF_HIT3    Melee Skill Hit
-            //type:  'FUNC',
+            type: 'CYLINDER',
+            textureName: 'lens2',
+            angleX: -90,
+            posZ: 1,
+            rotateWithCamera: true,
+            bottomSize: 0.37,
+            topSize: 1,
+            height: 4,
+            animation: 1,
+            fade: true,
+            duration: 150,
+            alphaMax: 0.8,
+            wav: 'effect/ef_hit3',
+            attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            textureName: 'lens2',
+            angleX: -90,
+            posZ: 1,
+            rotateWithCamera: true,
+            bottomSize: 0.37,
+            topSize: 0.37,
+            height: 4,
+            animation: 1,
+            fade: true,
+            duration: 150,
+            alphaMax: 0.8,
             wav: 'effect/ef_hit3',
             attachedEntity: true
         }],
 
 
         3: [{    //EF_HIT4    Melee Skill Hit
-            //type:  'FUNC',
+            type: 'CYLINDER',
+            textureName: 'lens2',
+            angleX: -90,
+            posZ: 1,
+            rotateWithCamera: true,
+            bottomSize: 0.15,
+            topSize: 1,
+            height: 4,
+            animation: 1,
+            fade: true,
+            duration: 150,
+            alphaMax: 0.8,
             wav: 'effect/ef_hit4',
             attachedEntity: true
         }],
@@ -677,12 +723,11 @@ define(function( require )
             alphaMax: 0.8,
             animation: 4,
             attachedEntity: true,
-            //blendMode: 2,
             bottomSize: 10,
             duration: 1000,
             duplicate: 4,
             fade: true,
-            height: 0.1,
+            height: 0,
             posZ: 0.1,
             textureName: 'ring_yellow',
             timeBetweenDupli: 300,
