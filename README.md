@@ -1,6 +1,6 @@
 This is a fork of roBrowser tailored to my server and expanded with some features.
 
-If you wish to discuss anything related to this project, or you want to join, contact us on Discord: https://discord.gg/eeVyTa9G
+If you wish to discuss anything related to this project, or you want to join, contact us on Discord: https://discord.gg/QEK5Yy6a
 
 For info on how to setup the client or anything else, please visit the https://www.robrowser.com/ site.
 
