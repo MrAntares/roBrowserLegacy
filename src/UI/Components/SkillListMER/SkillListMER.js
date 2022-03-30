@@ -45,7 +45,7 @@ define(function(require)
 		y:        200,
 		width:    8,
 		height:   5,
-		show:     true,
+		show:     false,
 	}, 1.0);
 
 

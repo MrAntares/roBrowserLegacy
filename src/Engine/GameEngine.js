@@ -132,12 +132,6 @@ define(function( require )
 			Cursor.init(q.next);
 		});
 
-		// AIDriver
-		q.add(function(){
-			AIDriver.init(DB);
-			q._next();
-		});
-
 		// Initialize Login
 		q.add(function(){
 			reload();
