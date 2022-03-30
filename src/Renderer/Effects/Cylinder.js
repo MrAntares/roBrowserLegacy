@@ -190,9 +190,9 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.position[1] = position[1];
 		this.position[2] = position[2];
 		
-		if (!isNaN(effect.posX)) this.position[0] += effect.posX;
-		if (!isNaN(effect.posY)) this.position[1] += effect.posY;
-		if (!isNaN(effect.posZ)) this.position[2] += effect.posZ;
+		this.posX = (!isNaN(effect.posX)) ? effect.posX : 0;
+		this.posY = (!isNaN(effect.posY)) ? effect.posY : 0;
+		this.posZ = (!isNaN(effect.posZ)) ? effect.posZ : 0;
 		
 		this.topSize = effect.topSize;
 		this.bottomSize = effect.bottomSize;
@@ -277,7 +277,6 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
 		
-		gl.uniform3fv(uniform.uPosition, this.position);
 		gl.uniform1f(uniform.uBottomSize, this.bottomSize);
 
 		if (this.animation == 1) {
@@ -330,7 +329,9 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		
-		if(this.rotate || this.angleX || this.angleY || this.angleZ){
+		var currentPosition = [this.position[0], this.position[1], this.position[2]];
+		
+		if(this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera){
 			mat4.identity(_matrix);
 			
 			if(this.rotate){ mat4.rotateY(_matrix, _matrix, tick / 4 / 180 * Math.PI); }
@@ -339,11 +340,22 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			if(this.angleY){ mat4.rotateY(_matrix, _matrix, this.angleY / 180 * Math.PI); }
 			if(this.angleZ){ mat4.rotateZ(_matrix, _matrix, this.angleZ / 180 * Math.PI); }
 			
-			if(this.rotateWithCamera){ mat4.rotateY(_matrix, _matrix, Camera.angle[1] / 180 * Math.PI); }
+			if(this.rotateWithCamera){
+				var cRad = Camera.angle[1] * Math.PI / 180;
+				if (this.posX || this.posY){
+					currentPosition[0] += (this.posX * Math.cos(cRad) - this.posY * Math.sin(cRad));
+					currentPosition[1] += (this.posY * Math.cos(cRad) + this.posX * Math.sin(cRad));
+				}
+				mat4.rotateY(_matrix, _matrix, cRad);
+			}
 			
 			gl.uniform1i(uniform.uRotate, true);
 			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix);
 		}
+		
+		currentPosition[2] += this.posZ; 
+		
+		gl.uniform3fv(uniform.uPosition, currentPosition);
 		
 		gl.drawArrays(gl.TRIANGLES, 0, this.verticeCount);
 		
