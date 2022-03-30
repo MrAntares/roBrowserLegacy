@@ -5,8 +5,8 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'],
-function(      WebGL,         Texture,          glMatrix,        Client) {
+define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera'],
+function(      WebGL,         Texture,          glMatrix,        Client,            Camera) {
 
 	'use strict';
 
@@ -179,15 +179,10 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		this.totalCircleSides = (!isNaN(effect.totalCircleSides)) ? effect.totalCircleSides : 20;
 		this.circleSides = (!isNaN(effect.circleSides)) ? effect.circleSides : this.totalCircleSides;
 		
-		var color = new Float32Array(4);
-		color = [1.0, 1.0, 1.0, 1.0];
-		if (effect.red && effect.blue && effect.green) {
-			color[0] = effect.red;
-			color[1] = effect.green;
-			color[2] = effect.blue;
-			color[3] = 1.0;
-		}
-		this.color = color;
+		this.color = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		if(!isNaN(effect.red)) this.color[0] = effect.red;
+		if(!isNaN(effect.green)) this.color[1] = effect.green;
+		if(!isNaN(effect.blue)) this.color[2] = effect.blue;
 		
 		//copy position instead of reference
 		this.position = [];
@@ -195,6 +190,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		this.position[1] = position[1];
 		this.position[2] = position[2];
 		
+		if (!isNaN(effect.posX)) this.position[0] += effect.posX;
+		if (!isNaN(effect.posY)) this.position[1] += effect.posY;
 		if (!isNaN(effect.posZ)) this.position[2] += effect.posZ;
 		
 		this.topSize = effect.topSize;
@@ -208,6 +205,12 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		
 		if (effect.alphaMax > 0) this.alphaMax = effect.alphaMax;
 		else this.alphaMax = 1.0;
+		
+		this.angleX = (!isNaN(effect.angleX)) ? effect.angleX : 0;
+		this.angleY = (!isNaN(effect.angleY)) ? effect.angleY : 0;
+		this.angleZ = (!isNaN(effect.angleZ)) ? effect.angleZ : 0;
+		
+		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
 		
 		this.blendMode = effect.blendMode;
 		this.startLifeTime = startLifeTime;
@@ -311,7 +314,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 			gl.uniform1f(uniform.uHeight, this.height);
 			gl.uniform1f(uniform.uTopSize, this.topSize);
 		}
-		gl.uniform1i(uniform.uRotate, this.rotate);
+		
 		this.color[3] = this.alphaMax;
 		
 		if (this.fade) {
@@ -325,6 +328,21 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
 		} else {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+		
+		if(this.rotate || this.angleX || this.angleY || this.angleZ){
+			mat4.identity(_matrix);
+			
+			if(this.rotate){ mat4.rotateY(_matrix, _matrix, tick / 4 / 180 * Math.PI); }
+			
+			if(this.angleX){ mat4.rotateX(_matrix, _matrix, this.angleX / 180 * Math.PI); }
+			if(this.angleY){ mat4.rotateY(_matrix, _matrix, this.angleY / 180 * Math.PI); }
+			if(this.angleZ){ mat4.rotateZ(_matrix, _matrix, this.angleZ / 180 * Math.PI); }
+			
+			if(this.rotateWithCamera){ mat4.rotateY(_matrix, _matrix, Camera.angle[1] / 180 * Math.PI); }
+			
+			gl.uniform1i(uniform.uRotate, true);
+			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix);
 		}
 		
 		gl.drawArrays(gl.TRIANGLES, 0, this.verticeCount);
@@ -388,14 +406,12 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 */
 	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		var uniform = _program.uniform;
-		mat4.identity(_matrix);
-		mat4.rotateY(_matrix, _matrix, tick / 4 / 180 * Math.PI);
+		
 		gl.useProgram(_program);
 		
 		// Bind matrix
 		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-		gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix);
 		
 		// Fog settings
 		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
