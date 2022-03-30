@@ -1,9 +1,7 @@
 /**
  * Renderer/Effects/Cylinder.js
  *
- * Generate cone and cylinder
- *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * Generate cone/cylinder/circle
  *
  * @author Vincent Thibault
  */
@@ -23,7 +21,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer;
+	Cylinder.buffer;
 
 
 	/**
@@ -41,7 +39,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	/**
 	 * @var {number}
 	 */
-	var _verticeCount = 0;
+	Cylinder.verticeCount = 0;
 
 
 	/**
@@ -126,31 +124,33 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 			}
 		}
 	`;
-
+	
+	/*
+	 * Sets how many sides the base "circle" of the cylinder has.
+	 * @var {number} Base circle side count
+	 */
 
 	/**
 	 * Generate a generic cylinder
 	 *
 	 * @returns {Float32Array} buffer array
 	 */
-	function generateCylinder(semiCircle) {
+	function generateCylinder(totalCircleSides, circleSides) {
 		var i, a, b;
-		var total = 20;
 		var bottom = [];
 		var top    = [];
 		var mesh   = [];
 		
-		var steps = semiCircle ? total/2 : total;
 
-		for (i = 0; i <= steps; i++) {
-			a = (i + 0.0) / total;
-			b = (i + 0.5) / total;
+		for (i = 0; i <= circleSides; i++) {
+			a = (i + 0.0) / totalCircleSides;
+			b = (i + 0.0) / totalCircleSides;
 
 			bottom[i] = [ Math.sin( a * Math.PI * 2 ), Math.cos( a * Math.PI * 2 ), 0, a, 1 ];
 			top[i]    = [ Math.sin( b * Math.PI * 2 ), Math.cos( b * Math.PI * 2 ), 1, b, 0 ];
 		}
 
-		for (i = 0; i <= total; i++) {
+		for (i = 0; i <= circleSides; i++) {
 			mesh.push.apply(mesh, bottom[i+0]);
 			mesh.push.apply(mesh, top[i+0]);
 			mesh.push.apply(mesh, bottom[i+1]);
@@ -176,6 +176,9 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		
 		this.semiCircle = effect.semiCircle ? false : true;
 		
+		this.totalCircleSides = (!isNaN(effect.totalCircleSides)) ? effect.totalCircleSides : 20;
+		this.circleSides = (!isNaN(effect.circleSides)) ? effect.circleSides : this.totalCircleSides;
+		
 		var color = new Float32Array(4);
 		color = [1.0, 1.0, 1.0, 1.0];
 		if (effect.red && effect.blue && effect.green) {
@@ -186,9 +189,13 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		}
 		this.color = color;
 		
-		this.position = position;
+		//copy position instead of reference
+		this.position = [];
+		this.position[0] = position[0];
+		this.position[1] = position[1];
+		this.position[2] = position[2];
 		
-		//if (effect.posZ) this.position[2] = effect.posZ;
+		if (!isNaN(effect.posZ)) this.position[2] += effect.posZ;
 		
 		this.topSize = effect.topSize;
 		this.bottomSize = effect.bottomSize;
@@ -215,6 +222,16 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 */
 	Cylinder.prototype.init = function init( gl )
 	{
+		
+		this.vertices = generateCylinder(this.totalCircleSides, this.circleSides);
+		this.verticeCount = this.vertices.length / 5;
+
+		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		this.buffer = gl.createBuffer();
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+		
 		var self  = this;
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function(buffer) {
 			WebGL.texture( gl, buffer, function(texture) {
@@ -252,7 +269,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
 		
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
@@ -310,7 +327,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 		
-		gl.drawArrays(gl.TRIANGLES, 0, _verticeCount);
+		gl.drawArrays(gl.TRIANGLES, 0, this.verticeCount);
 		
 		this.needCleanUp = this.endLifeTime < tick;
 	};
@@ -339,17 +356,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		blendMode[14] = gl.ONE_MINUS_CONSTANT_ALPHA;
 		blendMode[15] = gl.SRC_ALPHA_SATURATE;
 		
-		var vertices = generateCylinder(this.semiCircle);
-		_verticeCount = vertices.length / 5;
-
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-		_buffer = gl.createBuffer();
-		
 		this.ready = true;
 		this.renderBeforeEntities = false;
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 	};
 
 
@@ -365,8 +373,8 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 			_program = null;
 		}
 
-		if (_buffer) {
-			gl.deleteBuffer(_buffer);
+		if (this.buffer) {
+			gl.deleteBuffer(this.buffer);
 		}
 
 		this.ready = false;
