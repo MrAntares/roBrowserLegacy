@@ -676,7 +676,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.GC_ROLLINGCUTTER]               = {effectId: 775};		//Rolling Cutter
 	SkillEffect[SK.GC_CROSSRIPPERSLASHER]          = {effectId: 769};		//Cross Ripper Slasher
 	// AB Arch Bishop
-	SkillEffect[SK.AB_JUDEX]                       = {effectId: 718};		//Judex
+	SkillEffect[SK.AB_JUDEX]                       = {effectId: 718, hitEffectId: 152};		//Judex
 	SkillEffect[SK.AB_ANCILLA]                     = {effectId: 'ef_ancilla'};		//Ancilla
 	SkillEffect[SK.AB_ADORAMUS]                    = {effectId: 721};		//Adoramus
 	SkillEffect[SK.AB_CLEMENTIA]                   = {};		//Crementia
