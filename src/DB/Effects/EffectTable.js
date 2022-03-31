@@ -5006,6 +5006,57 @@ define(function( require )
         336: [{ //kyrie eleison / parrying    (when target blocked dmg)    //EF_GUARD    Kyrie Eleison/Parrying Shield
             wav:  'effect/kyrie_guard',
             attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            textureName: 'guardk',
+            blendMode: 2,
+            totalCircleSides: 8,
+            circleSides: 5,
+            repeatTextureX: 5,
+            angleY: -67.5,
+            bottomSize: 1.5,
+            topSize: 1,
+            height: 0.7,
+            posZ: 2.14,
+            alphaMax: 0.6,
+            red: 0.91,
+            green: 1.0,
+            blue: 0.90,
+            attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            textureName: 'guardk',
+            blendMode: 2,
+            totalCircleSides: 8,
+            circleSides: 5,
+            repeatTextureX: 5,
+            angleY: -67.5,
+            bottomSize: 1.5,
+            topSize: 1.5,
+            height: 1.14,
+            posZ: 1,
+            alphaMax: 0.6,
+            red: 0.91,
+            green: 1.0,
+            blue: 0.90,
+            attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            textureName: 'guardk',
+            blendMode: 2,
+            totalCircleSides: 8,
+            circleSides: 5,
+            repeatTextureX: 5,
+            angleY: -67.5,
+            bottomSize: 1,
+            topSize: 1.5,
+            height: 0.7,
+            posZ: 0.3,
+            alphaMax: 0.6,
+            red: 0.91,
+            green: 1.0,
+            blue: 0.90,
+            attachedEntity: true
         }],
 
         337: [{    //EF_JOBLVUP50    Class Change
