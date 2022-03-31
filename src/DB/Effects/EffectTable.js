@@ -7378,9 +7378,36 @@ define(function( require )
         }],
 
         718: [{    //EF_FIREPILLARON2       Judex (Visual Effect)
-			wav:  'effect/ab_judex'
-		}],
-		
+            wav:  'effect/ab_judex'
+        }, {
+            type: 'CYLINDER',
+            attachedEntity: false,
+            topSize: 0.5,
+            bottomSize: 0.4,
+            textureName: 'ring_white',
+            height: 3.5,
+            duration: 1000,
+            rotate: true
+        }, {
+            type: 'CYLINDER',
+            attachedEntity: false,
+            topSize: 0.75,
+            bottomSize: 0.45,
+            textureName: 'ring_white',
+            height: 2.5,
+            duration: 1000,
+            rotate: true
+        }, {
+            type: 'CYLINDER',
+            attachedEntity: false,
+            topSize: 1,
+            bottomSize: 0.5,
+            textureName: 'ring_white',
+            height: 1.5,
+            duration: 1000,
+            rotate: true
+        }],
+        
         719: [{    //EF_FORESTLIGHT5       Renovatio (light beam)
 			wav: 'effect/ab_renovation'
 		}],
