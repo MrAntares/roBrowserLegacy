@@ -111,7 +111,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 				discard;
 			}
 			
-			if (texture.r < 0.1 || texture.g < 0.1 || texture.b < 0.1) {
+			if (texture.r < 0.01 && texture.g < 0.01 && texture.b < 0.01) {
                discard;
             }
 			
@@ -135,19 +135,18 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 *
 	 * @returns {Float32Array} buffer array
 	 */
-	function generateCylinder(totalCircleSides, circleSides) {
+	function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
 		var i, a, b;
 		var bottom = [];
 		var top    = [];
 		var mesh   = [];
-		
 
 		for (i = 0; i <= circleSides; i++) {
 			a = (i + 0.0) / totalCircleSides;
 			b = (i + 0.0) / totalCircleSides;
 
-			bottom[i] = [ Math.sin( a * Math.PI * 2 ), Math.cos( a * Math.PI * 2 ), 0, a, 1 ];
-			top[i]    = [ Math.sin( b * Math.PI * 2 ), Math.cos( b * Math.PI * 2 ), 1, b, 0 ];
+			bottom[i] = [ Math.sin( a * Math.PI * 2 ) , Math.cos( a * Math.PI * 2 ), 0, a * (totalCircleSides / circleSides) * repeatTextureX, 1 ];
+			top[i]    = [ Math.sin( b * Math.PI * 2 ) , Math.cos( b * Math.PI * 2 ), 1, b * (totalCircleSides / circleSides) * repeatTextureX, 0 ];
 		}
 
 		for (i = 0; i <= circleSides; i++) {
@@ -210,6 +209,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.angleY = (!isNaN(effect.angleY)) ? effect.angleY : 0;
 		this.angleZ = (!isNaN(effect.angleZ)) ? effect.angleZ : 0;
 		
+		this.repeatTextureX =  (!isNaN(effect.repeatTextureX)) ? effect.repeatTextureX : 1;
+		
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
 		
 		this.blendMode = effect.blendMode;
@@ -226,7 +227,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	Cylinder.prototype.init = function init( gl )
 	{
 		
-		this.vertices = generateCylinder(this.totalCircleSides, this.circleSides);
+		this.vertices = generateCylinder(this.totalCircleSides, this.circleSides, this.repeatTextureX);
 		this.verticeCount = this.vertices.length / 5;
 
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
@@ -268,6 +269,10 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		var attribute = _program.attribute;
 		
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		
+		if(this.repeatTextureX > 1){
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+		}
 		
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
