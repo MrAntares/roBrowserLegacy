@@ -3,8 +3,6 @@
  *
  * Effects Manager
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
- *
  * @author Vincent Thibault
  */
 define(function( require )
@@ -332,7 +330,7 @@ define(function( require )
 		}
 
 		// Copy instead of get reference
-		position   = effect.attachedEntity ? position : [ position[0], position[1], position[2] ];
+		position   = effect.attachedEntity ? [ position[0], position[1], position[2] ] : position;
 		persistent = persistent || effect.repeat || false;
 
 		// Play sound
@@ -348,6 +346,8 @@ define(function( require )
 				Sound.play(filename + '.wav');
 			}, startTick + delayWav - Renderer.tick);
 		}
+		
+		var direction = (effect.attachedEntity && entity) ? entity.direction : 0;
 		
 		//Set delays
 		if (!duration) duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
@@ -365,7 +365,7 @@ define(function( require )
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID);
+				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID);
 				break;
 				
 			case '2D':
