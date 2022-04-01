@@ -171,7 +171,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @param {number} Start tick
 	 * @param {number} End tick
 	 */
-	function Cylinder(position, effect, startLifeTime, endLifeTime) {
+	function Cylinder(position, otherPosition, direction, effect, startLifeTime, endLifeTime) {
 		
 		this.semiCircle = effect.semiCircle ? false : true;
 		
@@ -184,10 +184,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		if(!isNaN(effect.blue)) this.color[2] = effect.blue;
 		
 		//copy position instead of reference
-		this.position = [];
-		this.position[0] = position[0];
-		this.position[1] = position[1];
-		this.position[2] = position[2];
+		this.position = position;
+		this.otherPosition = otherPosition;
 		
 		this.posX = (!isNaN(effect.posX)) ? effect.posX : 0;
 		this.posY = (!isNaN(effect.posY)) ? effect.posY : 0;
@@ -210,6 +208,19 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.angleZ = (!isNaN(effect.angleZ)) ? effect.angleZ : 0;
 		
 		this.repeatTextureX =  (!isNaN(effect.repeatTextureX)) ? effect.repeatTextureX : 1;
+		
+		if(effect.rotateToTarget){
+			this.rotateToTarget = true;
+			var x = this.otherPosition[0] - this.position[0];
+			var y = this.otherPosition[1] - this.position[1];
+			this.angleY += (90 - (Math.atan2(y, x) * (180 / Math.PI)));
+		}
+		
+		if(effect.rotateWithSource){
+			console.log('ASDASDASDASD');
+			this.rotateWithSource = true;
+			this.angleY += 180 + direction * -45;
+		}
 		
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
 		
