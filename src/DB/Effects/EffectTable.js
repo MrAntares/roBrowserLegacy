@@ -85,6 +85,12 @@ define(function( require )
     /// - rotateWithCamera
     ///   if set to true the cylinder rotates with the camera on the final Y (vertical) axis after every other rotation is applied
     ///
+    /// - rotateToTarget
+    ///   if set to true the notrh side of the cylinder is rotated to face the target
+    ///
+    /// - rotateWithSource
+    ///   if set to true the notrh side of the cylinder will be rotated to match the source's direction
+    ///
     /// - topSize:
     ///   top radius of the circle
     ///
@@ -953,10 +959,61 @@ define(function( require )
 
 
         16: [{ //hide and monster body relocation sound    //EF_BASH    Hide
-            attachedEntity: false,
-            file: 'smoke',
-            type: 'SPR',
-            wav: 'effect/ef_bash'
+            type: 'CYLINDER',
+            textureName: 'alpha_down',
+            alphaMax: 0.6,
+            duration: 1000,
+            rotate: true,
+            fade: true,
+            angleX: -90,
+            rotateWithCamera: true,
+            posZ: 1.5,
+            height: 0,
+            bottomSize: 0.1,
+            topSize: 2,
+            animation: 2,
+            wav: 'effect/ef_bash',
+            attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            textureName: 'alpha_center',
+            alphaMax: 0.6,
+            duration: 1000,
+            duplicate: 10,
+            timeBetweenDupli: 0,
+            totalCircleSides: 30,
+            circleSides: 1,
+            rotate: true,
+            fade: true,
+            angleX: -90,
+            angleZRandom: 360,
+            rotateWithCamera: true,
+            posZ: 1.5,
+            height: 0,
+            bottomSize: 0.01,
+            topSize: 2.5,
+            animation: 2,
+            attachedEntity: true
+        }, {
+            type: 'CYLINDER',
+            textureName: 'alpha_center',
+            alphaMax: 0.6,
+            duration: 1000,
+            duplicate: 8,
+            timeBetweenDupli: 0,
+            totalCircleSides: 30,
+            circleSides: 1,
+            rotate: true,
+            fade: true,
+            angleX: -90,
+            angleZRandom: 360,
+            rotateWithCamera: true,
+            posZ: 1.5,
+            height: 0,
+            bottomSize: 0.01,
+            topSize: 4,
+            animation: 2,
+            attachedEntity: true
         }],
 
         
@@ -2189,6 +2246,11 @@ define(function( require )
             zIndex: 10
         }],
 
+        44: [{    //EF_SMOKE    Unhide smoke?
+            attachedEntity: false,
+            file: 'smoke',
+            type: 'SPR'
+        }],
 
         45: [{ // This one is almost invisible, but there are some small white thingies flying around    //EF_FIREFLY    Faint Little Ball Things.
             type: 'FUNC',
