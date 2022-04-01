@@ -330,7 +330,7 @@ define(function( require )
 		}
 
 		// Copy instead of get reference
-		position   = effect.attachedEntity ? [ position[0], position[1], position[2] ] : position;
+		position   = effect.attachedEntity ? position : [ position[0], position[1], position[2] ];
 		persistent = persistent || effect.repeat || false;
 
 		// Play sound
