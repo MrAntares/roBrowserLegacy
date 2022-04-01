@@ -1,4 +1,4 @@
-#ShortCut { position:absolute; overflow:visible; width:280px; background-repeat:repeat-y;}
+#ShortCut { position:absolute; overflow:hidden; width:280px; background-repeat:repeat-y;}
 #ShortCut .close { position:absolute; top:2px; right:2px; border:none; background-color:transparent; width:11px; height:11px; }
 #ShortCut .resize { position:absolute; bottom:1px; right:1px; border:none; background-color:transparent; width:13px; height:13px; }
 
