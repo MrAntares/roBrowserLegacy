@@ -221,12 +221,12 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		}
 		
 		if(effect.rotateWithSource){
-			console.log('ASDASDASDASD');
 			this.rotateWithSource = true;
 			this.angleY += 180 + direction * -45;
 		}
 		
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
+		this.fixedPerspective = effect.fixedPerspective ? true : false;
 		
 		this.blendMode = effect.blendMode;
 		this.startLifeTime = startLifeTime;
@@ -351,7 +351,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		
 		var currentPosition = [this.position[0], this.position[1], this.position[2]];
 		
-		if(this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera){
+		if(this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera || this.fixedPerspective){
 			mat4.identity(_matrix);
 			
 			if(this.rotate){ mat4.rotateY(_matrix, _matrix, tick / 4 / 180 * Math.PI); }
@@ -360,7 +360,11 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			if(this.angleY){ mat4.rotateY(_matrix, _matrix, this.angleY / 180 * Math.PI); }
 			if(this.angleZ){ mat4.rotateZ(_matrix, _matrix, this.angleZ / 180 * Math.PI); }
 			
-			if(this.rotateWithCamera){
+			if(this.rotateWithCamera || this.fixedPerspective){
+				if(this.fixedPerspective){
+					mat4.rotateX(_matrix, _matrix, Camera.angle[0] * Math.PI / 180);
+				}
+				
 				var cRad = Camera.angle[1] * Math.PI / 180;
 				if (this.posX || this.posY){
 					currentPosition[0] += (this.posX * Math.cos(cRad) - this.posY * Math.sin(cRad));
