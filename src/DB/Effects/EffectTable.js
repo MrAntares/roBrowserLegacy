@@ -5013,7 +5013,7 @@ define(function( require )
             totalCircleSides: 8,
             circleSides: 5,
             repeatTextureX: 5,
-            angleY: -67.5,
+            angleY: 112.5,
             bottomSize: 1.5,
             topSize: 1,
             height: 0.7,
@@ -5022,6 +5022,7 @@ define(function( require )
             red: 0.91,
             green: 1.0,
             blue: 0.90,
+            rotateWithSource: true,
             attachedEntity: true
         }, {
             type: 'CYLINDER',
@@ -5030,7 +5031,7 @@ define(function( require )
             totalCircleSides: 8,
             circleSides: 5,
             repeatTextureX: 5,
-            angleY: -67.5,
+            angleY: 112.5,
             bottomSize: 1.5,
             topSize: 1.5,
             height: 1.14,
@@ -5039,6 +5040,7 @@ define(function( require )
             red: 0.91,
             green: 1.0,
             blue: 0.90,
+            rotateWithSource: true,
             attachedEntity: true
         }, {
             type: 'CYLINDER',
@@ -5047,7 +5049,7 @@ define(function( require )
             totalCircleSides: 8,
             circleSides: 5,
             repeatTextureX: 5,
-            angleY: -67.5,
+            angleY: 112.5,
             bottomSize: 1,
             topSize: 1.5,
             height: 0.7,
@@ -5056,6 +5058,7 @@ define(function( require )
             red: 0.91,
             green: 1.0,
             blue: 0.90,
+            rotateWithSource: true,
             attachedEntity: true
         }],
 
