@@ -207,6 +207,10 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.angleY = (!isNaN(effect.angleY)) ? effect.angleY : 0;
 		this.angleZ = (!isNaN(effect.angleZ)) ? effect.angleZ : 0;
 		
+		this.angleX += (!isNaN(effect.angleXRandom)) ?  Math.floor(Math.random()*effect.angleXRandom) : 0;
+		this.angleY += (!isNaN(effect.angleYRandom)) ?  Math.floor(Math.random()*effect.angleYRandom) : 0;
+		this.angleZ += (!isNaN(effect.angleZRandom)) ?  Math.floor(Math.random()*effect.angleZRandom) : 0;
+		
 		this.repeatTextureX =  (!isNaN(effect.repeatTextureX)) ? effect.repeatTextureX : 1;
 		
 		if(effect.rotateToTarget){
