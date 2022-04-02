@@ -136,9 +136,10 @@ define( function( require )
 	Entity.prototype.isAdmin      = false;
 	Entity.prototype.hasCart      = false;
 	Entity.prototype.CartNum      = 0;
-	
+
 	Entity.prototype.lastSKID     = 0;
 	Entity.prototype.lastSkLvl    = 0;
+	Entity.prototype.targetGID    = 0;
 
 	/**
 	 * Initialized Entity data
@@ -217,7 +218,7 @@ define( function( require )
 				case 'actStartTime':
 					this.animation.tick = unit.actStartTime;
 					break;
-	
+
 				case 'speed':
 					this.walk.speed = unit.speed;
 					break;
@@ -310,7 +311,7 @@ define( function( require )
 				this.remove_tick  = +Renderer.tick;
 				this.remove_delay = 1000;
 				break;
-	
+
 			// 1 - died
 			case 1:
 				var is_pc = this.objecttype === Entity.TYPE_PC;
@@ -353,7 +354,7 @@ define( function( require )
 		var x = Math.round(to_x-this.position[0]);
 		var y = Math.round(to_y-this.position[1]);
 		var dir;
-	
+
 		if (x >= 1 ) dir = y >= 1 ? 5 : y === 0 ? 6 : 7;
 		if (x === 0) dir = y >= 1 ? 4 : 0;
 		if (x <=-1 ) dir = y >= 1 ? 3 : y === 0 ? 2 : 1;

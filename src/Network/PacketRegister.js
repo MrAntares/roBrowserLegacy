@@ -570,7 +570,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x9dc: PACKET.ZC.NOTIFY_STANDENTRY8, // ok
 		0x9dd: PACKET.ZC.NOTIFY_NEWENTRY8, // ok
 		0x9df: PACKET.ZC.ACK_WHISPER2,
-		// 0x9e7: PACKET.ZC.MAIL_UNREAD, // rodexicon
+		0x9e7: PACKET.ZC.RODEX_ICON, // rodexicon ?
 		0x9f7: PACKET.ZC.PROPERTY_HOMUN2,
 		// 0x9f8: PACKET.ZC.ALL_QUEST_LIST_V3,
 		0x9fd: PACKET.ZC.NOTIFY_MOVEENTRY9, // ok
@@ -589,7 +589,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		// 0xa0f: PACKET.ZC.CART_EQUIPMENT_ITEMLIST5, // !!!!!!!!!!!!! not work
 		0xa10: PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5, //
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
-		// 0xa23: PACKET.ZC.ALL_AG_LIST,
+		0xa23: PACKET.ZC.ALL_ACH_LIST, // ?
 		// 0xa24: PACKET.ZC.ACH_UPDATE,
 		0xa27: PACKET.ZC.RECOVERY2, // ok
 		0xa30: PACKET.ZC.ACK_REQNAMEALL2, // not tested yet (Thapakorn)
