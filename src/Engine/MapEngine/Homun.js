@@ -25,7 +25,6 @@ define(function( require )
 	var HomunInformations    = require('UI/Components/HomunInformations/HomunInformations');
 	var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
 	var Mouse                = require('Controls/MouseEventHandler');
-	var AIDriver             = require('Utils/AIDriver');
 
 	/**
 	 * Get own homunculus information from server
@@ -104,8 +103,6 @@ define(function( require )
 				entity.life.update();
 				break;
 		}
-
-		AIDriver.exec('AI(' + Session.homunId + ')')
 	}
 
 
@@ -123,6 +120,16 @@ define(function( require )
 		});
 	};
 
+	HomunInformations.reqDeleteHomun = function reqDeleteHomun()
+	{
+		// Are you sure that you want to delete?
+		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function(){
+			var pkt  = new PACKET.CZ.COMMAND_MER();
+			pkt.type = 0x22f;
+			pkt.command = 2;
+			Network.sendPacket(pkt);
+		});
+	};
 
 	/**
 	 * Client request to do a performance
@@ -187,6 +194,7 @@ define(function( require )
 	 */
 	HomunInformations.reqNameEdit   = function reqNameEdit(name)
 	{
+		//msg 2904(2903)
 		var pkt    = new PACKET.CZ.RENAME_MER();
 		pkt.name = name;
 		Network.sendPacket(pkt);

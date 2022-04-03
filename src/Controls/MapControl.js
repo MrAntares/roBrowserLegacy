@@ -29,6 +29,7 @@ define(function( require )
 	var Preferences   = require('Preferences/Controls');
 	var KEYS          = require('Controls/KeyEventHandler');
 	var HomunInformations         = require('UI/Components/HomunInformations/HomunInformations');
+	var AIDriver = require('Utils/AIDriver');
 
 	require('Controls/ScreenShot');
 
@@ -139,9 +140,12 @@ define(function( require )
 					Camera.rotate( false );
 
 					HomunInformations.reqMoveTo(Session.homunId);
+					// AIDriver.exec('Move(' + Session.homunId + ', ' + entityOver.position.x + ', ' + entityOver.position.y + ')');
 
 					if (entityOver) {
 						//todo focus attack
+                        // AIDriver.setmsg(3, entityOver.GID)
+						// AIDriver.exec('Attack('+Session.homunId+', '+entityOver.GID+')');
 						HomunInformations.reqAttack(Session.homunId, entityOver.GID);
 					}
 				} else {

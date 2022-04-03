@@ -34,7 +34,6 @@ define(function( require )
 	var Background  = require('UI/Background');
 	var Intro       = require('UI/Components/Intro/Intro');
 	var WinList     = require('UI/Components/WinList/WinList');
-	var AIDriver    = require('Utils/AIDriver');
 
 
 	/**

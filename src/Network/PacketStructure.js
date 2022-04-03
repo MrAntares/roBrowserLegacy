@@ -11205,6 +11205,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ACK_WHISPER2.size = 7;
 
+	// 0x9e7 todo show Rodex icon
+	PACKET.ZC.RODEX_ICON = function PACKET_ZC_RODEX_ICON(fp, end) {
+		this.show = fp.readUChar();
+	};
+	PACKET.ZC.ACK_WHISPER2.size = 3;
+
 	// 0x9f7
 	PACKET.ZC.PROPERTY_HOMUN2 = function PACKET_ZC_PROPERTY_HOMUN2(fp, end) {
 
@@ -11650,6 +11656,31 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.sex = fp.readUChar();
 	};
 	PACKET.ZC.ACCEPT_ENTER3.size = 14;
+
+	// 0xa23
+	PACKET.ZC.ALL_ACH_LIST = function PACKET_ZC_ALL_ACH_LIST(fp, end) {
+		this.ID 					= fp.readShort();	// <ID>.W
+		this.Length 				= fp.readShort();	// <Length>.W
+		this.ach_count 				= fp.readLong();	// <ach_count>.L
+		this.total_points 			= fp.readLong();	// <total_points>.L
+		this.rank 					= fp.readShort();	// <rank>.W
+		this.current_rank_points 	= fp.readLong();	// <current_rank_points>.L
+		this.next_rank_points 		= fp.readLong(); 	// <next_rank_points>.L
+
+		// todo struct
+		let option = new Struct(
+			"int var1",
+			"short var2",
+			"bool var3",
+			"float var4",
+			'long var5',
+		);
+		// <struct ach_list_info *[]>.P
+		this.ach_list_info = {};
+		this.ach_list_info[1] = fp.readStruct(option);
+		this.ach_list_info[2] = fp.readStruct(option);
+	};
+	PACKET.ZC.ALL_ACH_LIST.size = -1;
 
 	// 0xa27
 	PACKET.ZC.RECOVERY2 = function PACKET_ZC_RECOVERY2(fp, end) {

@@ -12,16 +12,17 @@ define(function (require) {
     /**
      * Dependencies
      */
-    var DB = require('DB/DBManager');
-    var Client = require('Core/Client');
-    var Preferences = require('Core/Preferences');
-    var Renderer = require('Renderer/Renderer');
-    var UIManager = require('UI/UIManager');
-    var UIComponent = require('UI/UIComponent');
-    var SkillListMER = require('UI/Components/SkillListMER/SkillListMER');
-    var htmlText = require('text!./HomunInformations.html');
-    var cssText = require('text!./HomunInformations.css');
-
+    var DB                   = require('DB/DBManager');
+    var Client               = require('Core/Client');
+    var Preferences          = require('Core/Preferences');
+    var Renderer             = require('Renderer/Renderer');
+    var UIManager            = require('UI/UIManager');
+    var UIComponent          = require('UI/UIComponent');
+    var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
+    var htmlText             = require('text!./HomunInformations.html');
+    var cssText              = require('text!./HomunInformations.css');
+    var Session              = require('Engine/SessionStorage');
+    var AIDriver             = require('Utils/AIDriver');
 
     /**
      * Create Component
@@ -49,6 +50,7 @@ define(function (require) {
         this.ui.find('.close').click(onClose);
         this.ui.find('.modify').click(onChangeName);
         this.ui.find('.feed').click(onFeed);
+        this.ui.find('.del').click(onDelete);
 
         if (!_preferences.show) {
             this.ui.hide();
@@ -63,6 +65,10 @@ define(function (require) {
             SkillListMER.toggle()
         });
 
+        // AI LOOP
+        setInterval(function () {
+            AIDriver.exec('AI(' + Session.homunId + ')')
+        }, 100)
     };
 
 
@@ -71,6 +77,14 @@ define(function (require) {
      */
     function onFeed() {
         HomunInformations.reqHomunFeed();
+    }
+
+    /**
+     * delete homunculus
+     */
+    function onDelete() {
+        HomunInformations.reqDeleteHomun();
+        return true;
     }
 
 
@@ -195,7 +209,7 @@ define(function (require) {
         if (!this.ui) {
             return;
         }
-        
+
         this.ui.find('.intimacy').text(DB.getMessage(
             val < 100 ? 672 :
             val < 250 ? 673 :

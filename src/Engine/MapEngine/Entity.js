@@ -1,7 +1,7 @@
 /**
  * Engine/MapEngine/Entity.js
  *
- * Manage Entity based on received packets from server 
+ * Manage Entity based on received packets from server
  *
  * @author Vincent Thibault
  */
@@ -45,7 +45,7 @@ define(function( require )
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	var MapEffects    = require('Renderer/Map/Effects');
-	
+
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
 				//Hiding skills
@@ -58,7 +58,7 @@ define(function( require )
 				SkillId.SC_SHADOWFORM,
 				SkillId.SC_INVISIBILITY,
 				SkillId.KO_YAMIKUMO,
-				
+
 				//3rd job extra skills
 				SkillId.LG_OVERBRAND_BRANDISH,
 				SkillId.LG_OVERBRAND_PLUSATK,
@@ -73,7 +73,7 @@ define(function( require )
 				SkillId.WL_SUMMON_ATK_WATER,
 				SkillId.WL_SUMMON_ATK_GROUND
 			];
-	
+
 	/**
 	 * Spam an entity on the map
 	 * Generic packet handler
@@ -100,19 +100,19 @@ define(function( require )
                     };
                     MapEffects.add(mapEffect);
                 }
-				
+
             }
 			EntityManager.add(entity);
 		}
-		
+
 		if(entity.objecttype === Entity.TYPE_PC &&
 			(pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY3
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY6
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
 		){
 			EffectManager.spam(6, entity.GID, entity.position);
-		} 
-		
+		}
+
 	}
 
 
@@ -128,7 +128,7 @@ define(function( require )
             if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
                 EffectManager.spam(372, pkt.GID);
             }
-			
+
 			if([2, 3].includes(pkt.type)){ //exits or teleports
 				EffectManager.spam(304, null, entity.position);
 			}
@@ -298,6 +298,8 @@ define(function( require )
 			return;
 		}
 
+		srcEntity.targetGID = pkt.targetGID;
+
 		switch (pkt.action) {
 
 			// Damage
@@ -314,16 +316,16 @@ define(function( require )
             case 9:  // endure [DMG_MULTI_HIT_ENDURE]
             case 10: // critital [DMG_CRITICAL]
 			case 11: // lucky
-				
-				
+
+
 				var WSnd = DB.getWeaponSound(srcWeapon);
 				var weaponSound = WSnd[0];
 				var weaponSoundRelease = WSnd[1];
-				
+
 				var WSndL = DB.getWeaponSound(srcWeaponLeft);
 				var weaponSoundLeft = WSndL[0];
 				var weaponSoundReleaseLeft = WSndL[1];
-				
+
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
 				if (weaponSound && weaponSound.includes('bow')) {
 					EffectManager.spam('ef_throw_arrow', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position);
@@ -341,7 +343,7 @@ define(function( require )
 						Sound.play(weaponSoundRelease);
 						}, pkt.attackMT * 0.25 );
 				}
-				
+
 				//second hit (double attack)
 				if(pkt.count == 2){
 					if(weaponSound){
@@ -368,8 +370,8 @@ define(function( require )
 							}, pkt.attackMT * 1.25 );
 					}
 				}
-				
-				
+
+
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
@@ -389,28 +391,28 @@ define(function( require )
 								next:   false
 							}
 						});
-                        
+
                     }
-					
+
 					// damage blocking status effect display
 					if(pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0){
-						
+
 					}
 
 					target = pkt.damage ? dstEntity : srcEntity;
-					
+
 					// damage or miss display
 					if (target) {
 						switch (pkt.action) {
 
-							// regular damage 
+							// regular damage
 							case 0:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								if(pkt.leftDamage){
 									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft );
 								}
 								break;
-								
+
 							// absorb damage (like tarot card damage)
 							case 4:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
@@ -441,7 +443,7 @@ define(function( require )
 									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
 								}
 								break;
-							
+
 							// endure
 							case 9:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.ENDURE);
@@ -449,7 +451,7 @@ define(function( require )
 									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.ENDURE);
 								}
 								break;
-							
+
 							// TODO: critical damage
 							case 10:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
@@ -540,7 +542,7 @@ define(function( require )
 
 		// Remove "pseudo : |00Dialogue
 		pkt.msg = pkt.msg.replace(/\: \|\d{2}/, ': ');
-		
+
 		if (ChatRoom.isOpen) {
 			ChatRoom.message(pkt.msg);
 			return;
@@ -572,7 +574,7 @@ define(function( require )
 	 */
 	function onEntityTalkColor( pkt )
 	{
-		var entity;		   
+		var entity;
 		var color = 'rgb(' + ([
 			( pkt.color & 0x000000ff ),
 			( pkt.color & 0x0000ff00 ) >> 8,
@@ -610,7 +612,7 @@ define(function( require )
 			entity.display.guild_rank = pkt.RName || '';
 
 			entity.display.load = entity.display.TYPE.COMPLETE;
-			
+
 			if (entity.GUID) {
 				Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function(image) {
 					entity.display.emblem = image;
@@ -704,9 +706,9 @@ define(function( require )
 
 		MiniMap.addNpcMark( pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Updating entity direction
 	 *
@@ -830,21 +832,21 @@ define(function( require )
             if (pkt.SKID === SkillId.RG_STEALCOIN) {
                 ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE );
             }
-			
+
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if(dstEntity.RollCounter){
 					EffectManager.spam(757 + dstEntity.RollCounter, dstEntity.GID);
 				}
 			}
-			
+
 			if (pkt.SKID === SkillId.TK_SEVENWIND) {
 				if(pkt.level){
 					EffectManager.spam(466 + pkt.level, dstEntity.GID);
 				}
 			}
-			
+
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
-			
+
 			if (pkt.result == 1){
 				EffectManager.spamSkillHit( pkt.SKID, pkt.targetAID, null, pkt.srcAID);
 			}
@@ -899,22 +901,22 @@ define(function( require )
 		SkillAction.CRITICAL			= 10;	/// critical hit
 		SkillAction.LUCY_DODGE			= 11;	/// lucky dodge
 		SkillAction.TOUCH			= 12;	/// (touch skill?)
-		
-		
+
+
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
 		var srcWeapon;
-		
+
 		if (srcEntity) {
 			pkt.attackMT = Math.min( 450, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
-			
+
 			srcWeapon = 0;
 			if(srcEntity.weapon){
 				srcWeapon = srcEntity.weapon;
 			}
-			
+
 			// Don't display skill names for mobs and hiding skills
 			if (!SkillNameDisplayExclude.includes(pkt.SKID)
 				&&
@@ -962,7 +964,7 @@ define(function( require )
 							Damage.add(
 								pkt.damage / pkt.count * (i+1),
 								target,
-								Renderer.tick, 
+								Renderer.tick,
 								srcWeapon,
 								Damage.TYPE.COMBO | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
 							);
@@ -985,7 +987,7 @@ define(function( require )
 						}
 					};
 				};
-				
+
 				var addEffectBeforeHit = function(){
 					return function addEffectBeforeHitClosure(){
 						EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, null, pkt.AID);
@@ -1028,9 +1030,9 @@ define(function( require )
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
-		
+
 		var message = false;
-		
+
 		if (!srcEntity) {
 			return;
 		}
@@ -1043,7 +1045,7 @@ define(function( require )
 
 			if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
 				var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
-		
+
 				srcEntity.setAction({
 					action: srcEntity.ACTION[action],
 					frame:  0,
@@ -1064,7 +1066,7 @@ define(function( require )
                 Session.underAutoCounter = true;
             }
         }
-		
+
 		//Frost joke and scream messages
 		if(pkt.SKID === SkillId.BA_FROSTJOKE && srcEntity == Session.Entity){
 			var msg = DB.getRandomJoke();
@@ -1079,7 +1081,7 @@ define(function( require )
 				message = true;
 			}
 		}
-		
+
         // Only mob to don't display skill name ?
 		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
@@ -1237,7 +1239,7 @@ define(function( require )
             case StatusConst.RUN: //state: 1 ON  0 OFF
                 //draw footprints on the floor
                 break;
-				
+
 			case StatusConst.ROLLINGCUTTER:
 				if (pkt.state == 1) {
 					entity.RollCounter = pkt.val[0];
@@ -1245,7 +1247,7 @@ define(function( require )
 					entity.RollCounter = 0;
 				}
 				break;
-			
+
 			case StatusConst.CAMOUFLAGE:
 				if (pkt.state == 1) {
 					entity.Camouflage = pkt.val[0];
@@ -1254,7 +1256,7 @@ define(function( require )
 				}
 				entity.effectState = entity.effectState;
 				break;
-			
+
 			case StatusConst.STEALTHFIELD:
 				if (pkt.state == 1) {
 					entity.Stealthfield = pkt.val[0];
@@ -1263,7 +1265,7 @@ define(function( require )
 				}
 				entity.effectState = entity.effectState;
 				break;
-				
+
 			case StatusConst.SHADOWFORM:
 				if (pkt.state == 1) {
 					entity.Shadowform = pkt.val[0];
@@ -1272,7 +1274,7 @@ define(function( require )
 				}
 				entity.effectState = entity.effectState;
 				break;
-			
+
             case StatusConst.TRICKDEAD:
                 if(pkt.state == 1) {
                     entity.setAction({
@@ -1293,7 +1295,7 @@ define(function( require )
                     });
                 }
                 break;
-				
+
 			case StatusConst.ILLUSION:
 				if (pkt.state == 1) {
 					entity.isHallucinating = true;
@@ -1301,7 +1303,7 @@ define(function( require )
 					entity.isHallucinating = false;
 				}
                 break;
-				
+
 			// Cast a skill, TODO: add progressbar in shortcut
 			case StatusConst.POSTDELAY:
 				entity.setAction({
@@ -1321,12 +1323,12 @@ define(function( require )
 					ShortCut.setGlobalSkillDelay(pkt.RemainMS);
 				}
 				break;
-				
+
 			case StatusConst.ALL_RIDING:
 				entity.allRidingState = pkt.state;
 				break;
-				
-				
+
+
 		}
 
 		// Modify icon
@@ -1409,7 +1411,7 @@ define(function( require )
 						title = pkt.title; // no user limit
 						break;
 				}
-					
+
 				entity.room.title = pkt.title;
 				entity.room.limit = pkt.maxcount;
 				entity.room.count = pkt.curcount;
@@ -1449,7 +1451,7 @@ define(function( require )
 		}
 	}
 
-    
+
     /**
      * "Blade Stop" / "Root" visual
      */
@@ -1475,7 +1477,7 @@ define(function( require )
                     next:   false
                 });
     }
-  
+
      /**
      * "Blade Stop" / "Root" skill status
      *
@@ -1530,7 +1532,7 @@ define(function( require )
             ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR);
         }
 	}
-	
+
 	/**
 	* Show MvP reward Effect
 	 *
