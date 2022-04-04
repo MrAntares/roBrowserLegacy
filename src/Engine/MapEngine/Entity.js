@@ -1256,6 +1256,61 @@ define(function( require )
 			case StatusConst.TING:
 				EffectManager.spam( 426, pkt.AID);
                 break;
+				
+			case StatusConst.STORMKICK_ON:
+			case StatusConst.STORMKICK_READY:
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame:  0,
+					repeat: false,
+					play:   false,
+					next:   false
+				});
+                break;
+				
+			case StatusConst.DOWNKICK_ON:
+			case StatusConst.DOWNKICK_READY:
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame:  2,
+					repeat: false,
+					play:   false,
+					next:   false
+				});
+                break;
+				
+			case StatusConst.TURNKICK_ON:
+			case StatusConst.TURNKICK_READY:
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame:  3,
+					repeat: false,
+					play:   false,
+					next:   false
+				});
+                break;
+				
+			case StatusConst.COUNTER_ON:
+			case StatusConst.COUNTER_READY:
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame:  4,
+					repeat: false,
+					play:   false,
+					next:   false
+				});
+                break;
+				
+			case StatusConst.DODGE_ON:
+			case StatusConst.DODGE_READY:
+				entity.setAction({
+					action: entity.ACTION.PICKUP,
+					frame:  1,
+					repeat: false,
+					play:   false,
+					next:   false
+				});
+                break;
 
 			case StatusConst.ROLLINGCUTTER:
 				if (pkt.state == 1) {
