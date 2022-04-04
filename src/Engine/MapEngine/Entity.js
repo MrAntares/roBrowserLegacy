@@ -846,8 +846,6 @@ define(function( require )
 			}
 
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
-			
-			EffectManager.spamEffectToggle(dstEntity.effectState, pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
 			if (pkt.result == 1){
 				EffectManager.spamSkillHit( pkt.SKID, pkt.targetAID, null, pkt.srcAID);
@@ -1205,7 +1203,15 @@ define(function( require )
                 break;
 
 
-            case StatusConst.EXPLOSIONSPIRITS: //state: 1 ON  0 OFF
+            case StatusConst.HIDING:
+				if (pkt.state == 1){
+					EffectManager.spam( 16, pkt.AID);
+				} else {
+					EffectManager.spam( 44, pkt.AID);
+				}
+				break;
+				
+			case StatusConst.EXPLOSIONSPIRITS: //state: 1 ON  0 OFF
             case StatusConst.MARIONETTE_MASTER:
             case StatusConst.MARIONETTE:
             case StatusConst.TWOHANDQUICKEN:
