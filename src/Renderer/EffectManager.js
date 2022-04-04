@@ -600,6 +600,31 @@ define(function( require )
 		}
 	};
 
+	/**
+	 * Spam a skill initiated effect toggle on a target
+	 *
+	 * @param {number} effect state value of target
+	 * @param {number} skill id
+	 * @param {number} target aid
+	 * @param {Array} position
+	 * @param {number} tick
+	 */
+	EffectManager.spamEffectToggle = function spamEffectToggle(effectState, skillId, destAID, position, tick, srcAID)
+	{
+		if (!(skillId in SkillEffect)) {
+			return;
+		}
+		
+		var toggleStateEffect = SkillEffect[skillId].toggleStateEffect;
+		
+		if(toggleStateEffect){
+			if(toggleStateEffect.state & effectState){
+				EffectManager.spam( toggleStateEffect.onEffectId, destAID, position, tick, false, srcAID);
+			} else {
+				EffectManager.spam( toggleStateEffect.offEffectId, destAID, position, tick, false, srcAID);
+			}
+		}
+	};
 
 	/**
 	 * Export
