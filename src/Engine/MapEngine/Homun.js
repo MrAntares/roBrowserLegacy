@@ -234,6 +234,7 @@ define(function( require )
 	 */
 	return function NPCEngine()
 	{
+		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN,         onHomunInformation);
 		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN2,        onHomunInformation);
 		Network.hookPacket( PACKET.ZC.CHANGESTATE_MER,        onHomunInformationUpdate);
 		Network.hookPacket( PACKET.ZC.FEED_MER,               onFeedResult);

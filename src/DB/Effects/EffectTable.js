@@ -972,6 +972,7 @@ define(function( require )
             bottomSize: 0.1,
             topSize: 2,
             animation: 2,
+            zIndex: 1,
             wav: 'effect/ef_bash',
             attachedEntity: true
         }, {
@@ -993,6 +994,7 @@ define(function( require )
             bottomSize: 0.01,
             topSize: 2.5,
             animation: 2,
+            zIndex: 1.1,
             attachedEntity: true
         }, {
             type: 'CYLINDER',
@@ -1013,6 +1015,7 @@ define(function( require )
             bottomSize: 0.01,
             topSize: 4,
             animation: 2,
+            zIndex: 1.2,
             attachedEntity: true
         }],
 
@@ -5717,7 +5720,7 @@ define(function( require )
         440: [{    //EF_ASSUMPTIO2    Assumptio (Animation)
             type: 'STR',
             file: 'asum',
-            wav:  'effect/\xbe\xc6\xbc\xfb\xc7\xc1\xc6\xbc\xbf\xc0', //ľĆĽűÇÁĆĽżŔ
+            wav:  'effect/\xbe\xc6\xbc\xfb\xc7\xc1\xc6\xbc\xbf\xc0',
             attachedEntity: true
         }],
 
@@ -5726,12 +5729,12 @@ define(function( require )
         //443: [{}],    //EF_STOPRUN       (Nothing)
         
 		444: [{    //EF_STOPEFFECT       Sprint Stop Animation
-			wav:  'effect/\x74\x5f\x3f\x3f\xb0\xfa\x3f\x3f\x31', //t_Čż°úŔ˝1
+			wav:  'effect/t_\xc8\xbf\xb0\xfa\xc0\xbd1',
             attachedEntity: true
 		}],
 
         445: [{ //high jump caster    //EF_JUMPBODY    High Jump (Jump)
-            wav:  'effect/\x74\x5f\xc8\xb8\xc7\xc7\x32', //t_Č¸ÇÇ2
+            wav:  'effect/t_\xc8\xb8\xc7\xc72',
             attachedEntity: true
         }],
 
