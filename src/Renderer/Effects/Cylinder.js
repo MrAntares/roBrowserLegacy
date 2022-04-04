@@ -361,23 +361,36 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			if(this.angleZ){ mat4.rotateZ(_matrix, _matrix, this.angleZ / 180 * Math.PI); }
 			
 			if(this.rotateWithCamera || this.fixedPerspective){
+				var magic = this.posY;
+				
 				if(this.fixedPerspective){
-					mat4.rotateX(_matrix, _matrix, Camera.angle[0] * Math.PI / 180);
+					var vcRad = (Camera.angle[0]-180) * Math.PI / 180;
+					if(this.posZ){
+						currentPosition[2] += (this.posZ * Math.cos(vcRad) - this.posY * Math.sin(vcRad));
+						magic 				= (this.posY * Math.sin(vcRad) + this.posZ * Math.sin(vcRad));
+					}
+					mat4.rotateX(_matrix, _matrix, vcRad);
 				}
 				
-				var cRad = Camera.angle[1] * Math.PI / 180;
+				var hcRad = Camera.angle[1] * Math.PI / 180;
 				if (this.posX || this.posY){
-					currentPosition[0] += (this.posX * Math.cos(cRad) - this.posY * Math.sin(cRad));
-					currentPosition[1] += (this.posY * Math.cos(cRad) + this.posX * Math.sin(cRad));
+					currentPosition[0] += (this.posX * Math.cos(hcRad) - magic * Math.sin(hcRad));
+					currentPosition[1] += (magic * Math.cos(hcRad) + this.posX * Math.sin(hcRad));
 				}
-				mat4.rotateY(_matrix, _matrix, cRad);
+				mat4.rotateY(_matrix, _matrix, hcRad);
+			} else {
+				currentPosition[0] += this.posX;
+				currentPosition[1] += this.posY;
+				currentPosition[2] += this.posZ;
 			}
 			
 			gl.uniform1i(uniform.uRotate, true);
 			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix);
+		} else {
+			currentPosition[0] += this.posX;
+			currentPosition[1] += this.posY;
+			currentPosition[2] += this.posZ;
 		}
-		
-		currentPosition[2] += this.posZ; 
 		
 		gl.uniform3fv(uniform.uPosition, currentPosition);
 		
