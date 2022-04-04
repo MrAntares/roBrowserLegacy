@@ -1245,7 +1245,16 @@ define(function( require )
 				break;
 
             case StatusConst.RUN: //state: 1 ON  0 OFF
-                //draw footprints on the floor
+				if (pkt.state == 1){
+					EffectManager.spam( 442, pkt.AID);
+					//todo: draw footprints on the floor
+				} else {
+					EffectManager.spam( 444, pkt.AID);
+				}
+                break;
+				
+			case StatusConst.TING:
+				EffectManager.spam( 426, pkt.AID);
                 break;
 
 			case StatusConst.ROLLINGCUTTER:
