@@ -78,7 +78,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower', hitEffectId: 1};		//Arrow Shower
 	// Thief
 	SkillEffect[SK.TF_STEAL]                       = {hitEffectId: 18};		//Steal
-	SkillEffect[SK.TF_HIDING]                      = {toggleStateEffect: {state: 2, onEffectId: 16, offEffectId: 44}};		//Hiding
+	SkillEffect[SK.TF_HIDING]                      = {/*Handled by state*/};	//Hiding
 	SkillEffect[SK.TF_POISON]                      = {hitEffectId: 20};		//Envenom
 	SkillEffect[SK.TF_DETOXIFY]                    = {effectId: 21};		//Detoxify
 	// All
