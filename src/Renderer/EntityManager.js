@@ -1,9 +1,9 @@
 /**
  * Renderer/EntityManager.js
  *
- * Manage Entity 
+ * Manage Entity
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -35,7 +35,7 @@ define(function( require )
 		}
 
 		var i, count = _list.length;
-	
+
 		for (i = 0; i < count; ++i) {
 			if (_list[i].GID === gid) {
 				return i;
@@ -54,7 +54,7 @@ define(function( require )
 	function forEach( callback )
 	{
 		var i, count = _list.length;
-	
+
 		for (i = 0; i < count; ++i) {
 			if (callback(_list[i]) === false) {
 				return;

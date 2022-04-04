@@ -1,9 +1,9 @@
 /**
  * Engine/MapEngine/Main.js
  *
- * Manage Entity based on received packets from server 
+ * Manage Entity based on received packets from server
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -31,7 +31,7 @@ define(function( require )
 	var WinStats       = require('UI/Components/WinStats/WinStats');
 	var Announce       = require('UI/Components/Announce/Announce');
 	var Equipment      = require('UI/Components/Equipment/Equipment');
-	var ChangeCart     = require('UI/Components/ChangeCart/ChangeCart');	
+	var ChangeCart     = require('UI/Components/ChangeCart/ChangeCart');
 	var SkillList      = require('UI/Components/SkillList/SkillList');
 	var PartyUI        = require('UI/Components/PartyFriends/PartyFriends');
 
@@ -462,7 +462,7 @@ define(function( require )
 		else {
 			color = '#FFFF00';
 		}
-		
+
 		ChatBox.addText( pkt.msg, ChatBox.TYPE.ANNOUNCE, color );
 		Announce.append();
 		Announce.set( pkt.msg, color );
@@ -573,11 +573,11 @@ define(function( require )
 				break;
 		}
 	}
-	
-	
+
+
 	function onRank(pkt){
 		var message = '';
-		
+
 		//Header
 		message += '=========== ';
 		if(pkt instanceof PACKET.ZC.BLACKSMITH_RANK) { message += DB.getMessage(2386); } // "BlackSmith"
@@ -589,7 +589,7 @@ define(function( require )
 		message += DB.getMessage(2383);  // "Rank"
 		message += ' ===========';
 		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE );
-		
+
 		//List
 		for(var i = 0; i < 10; ++i){
 			message = '[%rank%] %name% : %point% ' + DB.getMessage(2385); // [x] name : y Points
@@ -598,7 +598,7 @@ define(function( require )
 			message = message.replace('%point%', pkt.Point[i]);
 			ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE );
 		}
-		
+
 	}
 
 	/**
@@ -632,6 +632,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ALCHEMIST_RANK,              onRank );
 		Network.hookPacket( PACKET.ZC.TAEKWON_RANK,                onRank );
 		//Network.hookPacket( PACKET.ZC.KILLER_RANK,                 onRank ); //PK currently unsupported
-		
+
 	};
 });

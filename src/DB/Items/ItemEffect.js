@@ -3,7 +3,7 @@
  *
  * List of items with informations (in progress)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -13,7 +13,7 @@ define(function()
     'use strict';
 
     var ItemEffect = {};
-	
+
 	//Type 1
 	ItemEffect[501] = { effectId: 204 }; //Red Potion
 	ItemEffect[502] = { effectId: 205 }; //Orange Potion
@@ -388,8 +388,8 @@ define(function()
 	ItemEffect[22775] = { effectId: 204 }; //Eels Skewer
 	ItemEffect[22776] = { effectId: 204 }; //Carp Skewer
 	ItemEffect[22985] = { effectId: 204 }; //Basil
-	
-	
+
+
 	//Type2
 	ItemEffect[645] = { effectId: 218 }; //Concentration Potion
 	ItemEffect[656] = { effectId: 219 }; //Awakening Potion
@@ -461,7 +461,7 @@ define(function()
 	ItemEffect[22544] = { effectId: 219 }; //Awakening Potion
 	ItemEffect[22545] = { effectId: 519 }; //Speed Potion
 	ItemEffect[22546] = { effectId: 210 }; //Slow Potion
-	
+
 	//Type2 Firecrackers
 	ItemEffect[12018] = { effectId: 508 }; //Firecracker
 	ItemEffect[12326] = { effectId: 709 }; //Large Firecracker
@@ -471,7 +471,7 @@ define(function()
 	ItemEffect[14548] = { effectId: 684 }; //Valentine's Day Firecracker
 	ItemEffect[14549] = { effectId: 685 }; //Birthday Firecracker
 	ItemEffect[14550] = { effectId: 686 }; //Xmas Firecracker
-	
+
 	//Others
 	ItemEffect[662] = { effectId: 507 }; //Authoritative Badge
 	ItemEffect[12262] = { effectId: 507 }; //Authoritative Badge

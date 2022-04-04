@@ -4,7 +4,7 @@
  * Loaders for Gravity .str file (effects file)
  * It's basically a .ezv file compiled to binary (except ezv file are version 0x95, str are 0x94).
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */

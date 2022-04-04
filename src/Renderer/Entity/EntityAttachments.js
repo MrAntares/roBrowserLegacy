@@ -3,7 +3,7 @@
  *
  * Helper to manage entity's attachment
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -43,12 +43,12 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		attachment.frame         = attachment.frame     || 0;
 		attachment.depth         = attachment.depth     || 0.0;
 		attachment.head          = attachment.head      || false;
-		
+
 		attachment.position = false;
         if (attachment.yOffset || attachment.xOffset) attachment.position = new Int16Array(2);
         if (attachment.xOffset) attachment.position[0] = attachment.xOffset;
         if (attachment.yOffset) attachment.position[1] = attachment.yOffset;
-		
+
 		attachment.repeat        = attachment.repeat    || false;
 		attachment.duplicate 	 = attachment.duplicate || 0;
 		attachment.stopAtEnd     = attachment.stopAtEnd || false;
@@ -67,8 +67,8 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			this.list.push(attachment);
 		}.bind(this), null, {to_rgba:true});
 	};
-	
-	
+
+
 	AttachmentManager.prototype.get = function get(ID) {
         var i, length = this.list.length;
         for (i = 0; i < length; ++i) {
@@ -76,7 +76,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
         }
         return null;
     };
-	
+
     AttachmentManager.prototype.removeId = function removeId(ID) {
         var i, length;
         var attachments = this.list;
@@ -215,7 +215,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			else if (attachment.repeat) {
 				layers = animations[ Math.floor((tick - attachment.startTick) / delay) % animations.length].layers;
 			}
-			
+
 			// repeat duplicate times
 			else if (attachment.duplicate > 0){
 				var index = Math.floor((tick - attachment.startTick) / delay) % animations.length;

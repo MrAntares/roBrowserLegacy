@@ -3,7 +3,7 @@
  *
  * Rendering sprite in 2D or 3D context
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -119,7 +119,7 @@ define(function( require )
 		gl.clearDepth( 1.0 );
 		gl.enable( gl.DEPTH_TEST );
 		gl.depthFunc( gl.LEQUAL );
-	
+
 		gl.enable( gl.BLEND );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 	};
@@ -173,7 +173,7 @@ define(function( require )
 
 		width  = window.innerWidth  || document.body.offsetWidth;
 		height = window.innerHeight || document.body.offsetHeight;
-	
+
 		Mouse.screen.width  = this.width  = width;
 		Mouse.screen.height = this.height = height;
 

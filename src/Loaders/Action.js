@@ -3,7 +3,7 @@
  *
  * Loaders for Gravity .act file (Action)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -58,7 +58,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			for (i = 0; i < count; ++i) {
 				this.sounds[i] = this.fp.readBinaryString(40);
 			}
-	
+
 			// Delay
 			if (this.version >= 2.2) {
 				for (i = 0, count = this.actions.length; i < count; ++i) {
@@ -80,7 +80,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 		// Unknown bytes...
 		this.fp.seek( 10, SEEK_CUR );
 		actions.length = count;
-	
+
 		for (i = 0; i < count; ++i) {
 			actions[i] = {
 				animations: this.readAnimations(),
@@ -133,7 +133,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 				width:       0,
 				height:      0
 			};
-	
+
 			if (version >= 2.0) {
 				layer.color[0] = fp.readUByte()/255;
 				layer.color[1] = fp.readUByte()/255;
@@ -143,7 +143,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 				layer.scale[1] = version <= 2.3 ? layer.scale[0] : fp.readFloat();
 				layer.angle    = fp.readLong();
 				layer.spr_type = fp.readLong();
-	
+
 				if (version >= 2.5) {
 					layer.width  = fp.readLong();
 					layer.height = fp.readLong();
@@ -157,7 +157,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 		if (version >= 2.3) {
 			count      = fp.readLong();
 			pos.length = count;
-	
+
 			for (i = 0; i < count; ++i) {
 				fp.seek(4, SEEK_CUR); // Unknown
 				pos[i] = { x : fp.readLong(), y: fp.readLong() };

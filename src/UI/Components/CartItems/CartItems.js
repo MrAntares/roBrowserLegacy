@@ -3,10 +3,10 @@
  *
  * Character CartItems Inventory
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
- * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888] 
+ * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
 define(function(require)
@@ -96,7 +96,7 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
-	
+
 
 	/**
 	 * Apply preferences once append to body
@@ -107,7 +107,7 @@ define(function(require)
 		{
 			this.ui.hide();
 		}
-		
+
 		// Apply preferences
 		if (!_preferences.show) {
 			this.ui.hide();
@@ -160,7 +160,7 @@ define(function(require)
 		{
 			return;
 		}
-		
+
 		switch (key.cmd) {
 			case 'TOGGLE':
 				this.ui.toggle();
@@ -252,7 +252,7 @@ define(function(require)
 	CartItems.setItems = function SetItems(items)
 	{
 		var i, count;
-		
+
 		for (i = 0, count = items.length; i < count ; ++i) {
 			var object= this.getItemByIndex(items[i].index);
 			if(object){
@@ -261,12 +261,12 @@ define(function(require)
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);
 			}
-			
-			
+
+
 		}
-		
+
 	};
-	
+
 
 	CartItems.setCartInfo = function SetCartInfo(curCount, maxCount, curWeight, maxWeight)
 	{
@@ -274,7 +274,7 @@ define(function(require)
 		this.ui.find('.mcnt').text(maxCount);
 		this.ui.find('.nwt').text(curWeight/10);
 		this.ui.find('.mwt').text(maxWeight/10);
-	};	
+	};
 
 
 	/**
@@ -351,7 +351,7 @@ define(function(require)
 		if (!item || count <= 0) {
 			return null;
 		}
-		
+
 
 		if (item.count) {
 			item.count -= count;
@@ -361,7 +361,7 @@ define(function(require)
 				return item;
 			}
 		}
-		
+
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
 
@@ -372,7 +372,7 @@ define(function(require)
 
 		return item;
 	};
-	
+
 
 	/**
 	 * Remove item from inventory
@@ -540,7 +540,7 @@ define(function(require)
 			InputBox.setType('number', false, item.count);
 			InputBox.onSubmitRequest = function OnSubmitRequest( count ) {
 				InputBox.remove();
-				
+
 					switch(data.from)
 					{
 					case 'Storage':
@@ -549,15 +549,15 @@ define(function(require)
 							parseInt(count, 10 )
 							);
 					break;
-					
+
 					case 'Inventory':
 						getModule('UI/Components/Inventory/Inventory').reqMoveItemToCart(
 							item.index,
 							parseInt(count, 10 )
 							);
-					break;					
-				
-					}					
+					break;
+
+					}
 			};
 			return false;
 		}
@@ -567,10 +567,10 @@ define(function(require)
 			case 'Storage':
 				getModule('UI/Components/Storage/Storage').reqMoveItemToCart( item.index, 1 );
 			break;
-					
+
 			case 'Inventory':
 				getModule('UI/Components/Inventory/Inventory').reqMoveItemToCart( item.index, 1 );
-			break;							
+			break;
 		}
 
 		return false;
@@ -724,8 +724,8 @@ define(function(require)
 		event.stopImmediatePropagation();
 		return false;
 	}
-	
-	
+
+
 	CartItems.reqRemoveItem   = function reqRemoveItem(){};
 
 	/**

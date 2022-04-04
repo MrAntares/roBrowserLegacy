@@ -3,7 +3,7 @@
  *
  * Rendering Grid Selector
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -120,7 +120,7 @@ function(              Altitude,        Client,         WebGL,         Texture )
 
 				canvas.width  = WebGL.toPowerOfTwo(this.width);
 				canvas.height = WebGL.toPowerOfTwo(this.height);
-				
+
 				ctx.globalAlpha = 0.6;
 				ctx.drawImage( this, 0, 0, canvas.width, canvas.height );
 				ctx.fillStyle = 'rgb( 50, 240, 160)';

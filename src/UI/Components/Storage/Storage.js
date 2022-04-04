@@ -3,7 +3,7 @@
  *
  * Account Storage
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 define(function(require)
 {
@@ -184,7 +184,7 @@ define(function(require)
 	Storage.addItemSub = function addItemSub( item )
 	{
 		var tab;
-		
+
 		switch (item.type) {
 			case Storage.ITEM.HEALING:
 			case Storage.ITEM.USABLE:
@@ -389,7 +389,7 @@ define(function(require)
 			InputBox.setType('number', false, item.count);
 			InputBox.onSubmitRequest = function OnSubmitRequest( count ) {
 				InputBox.remove();
-				
+
 				if(data.from === 'CartItems')
 				{
 					Storage.reqAddItemFromCart(
@@ -417,7 +417,7 @@ define(function(require)
 		{
 			Storage.reqAddItem( item.index, 1 );
 		}
-		
+
 		return false;
 	}
 

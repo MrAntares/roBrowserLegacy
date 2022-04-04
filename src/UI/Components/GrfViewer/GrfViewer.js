@@ -3,7 +3,7 @@
  *
  * Game File Viewer
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -220,7 +220,7 @@ define(function(require)
 		//Header
 		header.get(0).innerHTML = 'Path: ' + icon.data('path');
 		header.get(0).style.backgroundColor = null;
-		header.click(function(){ 
+		header.click(function(){
 				navigator.clipboard.writeText(icon.data('path'));
 				header.get(0).innerHTML = 'Copied: ' + icon.data('path');
 				header.get(0).style.backgroundColor = '#AAFFAA';
@@ -450,7 +450,7 @@ define(function(require)
 			}
 
 			jQuery(html).appendTo('#grfviewer');
-	
+
 			i += j;
 
 			if (i < count) {
@@ -498,11 +498,11 @@ define(function(require)
 			case 'mp3':
 				img = 'audio';
 				break;
-			
+
 			case 'gr2':
 				img = 'gr2';
 				break;
-				
+
 			case 'rsm':
 				img = '3d';
 				break;
@@ -619,7 +619,7 @@ define(function(require)
 					imageData.data[i+2] = palette[i+2];
 					imageData.data[i+3] = 255;
 				}
-	
+
 				ctx.putImageData( imageData, 0, 0 );
 				return canvas.toDataURL();
 
@@ -1117,15 +1117,15 @@ define(function(require)
 				});
 		});
 	}
-	
-	
-	
+
+
+
 	/**
 	 * User click on a Granny model, render it using GrannyModelViewer
 	 */
 	var onGrannyClick = function onGrannyClickClosure()
 	{
-		
+
 		var ready   = false;
 		var element = document.createElement('div');
 
@@ -1179,7 +1179,7 @@ define(function(require)
 			alert('This module is under development.');
 			return;
 			//UNDER DEVELOPMENT!!!
-			
+
 			var ui    = Viewer.ui;
 			var path  = this.getAttribute('data-path').replace(/\\/g, '/');
 
@@ -1219,9 +1219,9 @@ define(function(require)
 			}
 		};
 	}();
-	
-	
-	
+
+
+
 
 	/**
 	 * Stored component and return it

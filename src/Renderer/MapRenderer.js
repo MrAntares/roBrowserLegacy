@@ -3,7 +3,7 @@
  *
  * Rendering sprite in 2D or 3D context
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -210,7 +210,7 @@ define(function( require )
 		this.water   = data.water;
 		this.sounds  = data.sound;
 		this.effects = data.effect;
-		
+
 		// Calculate light direction
 		this.light.direction = new Float32Array(3);
 		var longitude        = this.light.longitude * Math.PI / 180;
@@ -259,7 +259,7 @@ define(function( require )
 			this.effects[i].pos[0] += data.width - 0.5;
 			this.effects[i].pos[1]  = this.effects[i].pos[2] + data.height - 0.5;
 			this.effects[i].pos[2]  = tmp;
-			
+
 			this.effects[i].tick    = 0;
 
 			Effects.add(this.effects[i]);

@@ -4,7 +4,7 @@
  * Client Manager
  * Manage client files, load GRFs, DATA.INI, extract files from GRFs, ...
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -209,7 +209,7 @@ define(function( require )
 	{
 		var count, index;
 		var out;
-	
+
 		function onload( data ) {
 			out[ index++ ] = data;
 
@@ -226,7 +226,7 @@ define(function( require )
 		count  = filenames.length;
 		out    = new Array(count);
 		index  = 0;
-	
+
 		getFile( filenames[index], onload);
 	}
 
@@ -338,7 +338,7 @@ define(function( require )
 
 				Thread.send('LOAD_FILE', _input, callback);
 			}
-	
+
 			return Memory.get( filename, onload, onerror );
 		};
 	}();
@@ -357,7 +357,7 @@ define(function( require )
 
 		function onload( data ) {
 			out[ index++ ] = data;
-	
+
 			if (index === count) {
 				if (callback) {
 					callback.apply( null, out);

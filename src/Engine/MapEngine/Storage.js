@@ -3,7 +3,7 @@
  *
  * Manage Storage sockets
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
 define(function( require )
@@ -46,7 +46,7 @@ define(function( require )
 	/**
 	 * Add items to storage
 	 *
-	 * @param {object} pkt - PACKET.ZC.STORE_EQUIPMENT_ITEMLIST3 
+	 * @param {object} pkt - PACKET.ZC.STORE_EQUIPMENT_ITEMLIST3
 	 */
 	function onStorageList( pkt )
 	{
@@ -115,8 +115,8 @@ define(function( require )
 		pkt.count = count;
 		Network.sendPacket( pkt );
 	};
-	
-	
+
+
 	Storage.reqAddItemFromCart = function reqAddItemFromCart( index, count )
 	{
 		if (count <= 0) {
@@ -127,7 +127,7 @@ define(function( require )
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket( pkt );
-	};	
+	};
 
 
 	/**
@@ -145,7 +145,7 @@ define(function( require )
 		pkt.count = count;
 		Network.sendPacket( pkt );
 	};
-	
+
 	Storage.reqMoveItemToCart = function reqMoveItemToCart( index, count )
 	{
 		if (count <= 0) {
@@ -156,7 +156,7 @@ define(function( require )
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket( pkt );
-	};	
+	};
 
 
 	/**

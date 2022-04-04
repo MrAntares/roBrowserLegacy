@@ -3,7 +3,7 @@
  *
  * MiniMap UI
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -185,7 +185,7 @@ define(function(require)
 		_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
         _towninfo = DB.getTownInfo(mapname.replace(/\..*/, ''));
-		
+
 		var path = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapname.replace(/\..*/,'.bmp');
 		path     = path.replace(/\//g, '\\'); // normalize path separator
 		path     = DB.mapalias[path] || path;
@@ -471,7 +471,7 @@ define(function(require)
 					);
 				}
 			}
-			
+
 			// Render town info icons
 	        if (_towninfo) {
 	            count = _towninfo.length;
@@ -572,7 +572,7 @@ define(function(require)
 				_ctx.stroke();
 				_ctx.fill();
 			}
-			
+
 		};
 	})();
 

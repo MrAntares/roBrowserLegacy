@@ -3,7 +3,7 @@
  *
  * Item Information
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -30,7 +30,7 @@ define(function(require)
 	var Sprite             = require('Loaders/Sprite');
 	var Action             = require('Loaders/Action');
 	var htmlText           = require('text!./ItemInfo.html');
-	var cssText            = require('text!./ItemInfo.css');	
+	var cssText            = require('text!./ItemInfo.css');
 	var Network       	   = require('Network/NetworkManager');
 	var PACKET        	   = require('Network/PacketStructure');
 	var getModule     = require;
@@ -123,7 +123,7 @@ define(function(require)
 		}.bind(this));
 
 		this.draggable(this.ui.find('.title'));
-		
+
 	};
 
 	/**
@@ -146,18 +146,18 @@ define(function(require)
 		var customname = '';
 		var hideslots = false;
 		if(item.slot){
-			
+
 			var very = '';
 			var name = '';
 			var elem = '';
-			
+
 			switch (item.slot['card1']) {
 				case 0x00FF: // FORGE
-					if (item.slot['card2'] >= 3840) { 
+					if (item.slot['card2'] >= 3840) {
 						very = DB.getMessage(461); // Very Very Very Strong
-					} else if (item.slot['card2'] >= 2560) { 
+					} else if (item.slot['card2'] >= 2560) {
 						very = DB.getMessage(460); // Very Very Strong
-					} else if (item.slot['card2'] >= 1024) { 
+					} else if (item.slot['card2'] >= 1024) {
 						very = DB.getMessage(459); // Very Strong
 					}
 					switch (Math.abs(item.slot['card2'] % 10)){
@@ -170,25 +170,25 @@ define(function(require)
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
 					hideslots = true;
-					
+
 					name = 'Unknown';
 					var GID = (item.slot['card4']<<16) + item.slot['card3'];
-					
+
 					if (DB.CNameTable[GID]){
 						name = DB.CNameTable[GID];
 					} else {
 						DB.getNameByGID(GID);
-						
+
 						//Add to item owner name update queue
 						DB.UpdateOwnerName.ItemInfo = onUpdateOwnerName;
 					}
-					
+
 					if(item.IsDamaged){
 						customname = very + ' ' + name + elem + ' ';
 					} else {
 						customname = name=='Unknown' ? very + ' ' + '^FF0000' + name + '^000000 ' + elem + ' ' : very + ' ' + '^0000FF' + name + '^000000 ' + elem + ' ';
 					}
-					
+
 					break;
 			}
 			switch (item.slot['card4']) {
@@ -198,16 +198,16 @@ define(function(require)
 					break;
 			}
 		}
-		
+
 		// Damaged status
 		var identifiedDisplayName = item.IsDamaged ? '^FF0000'+customname+it.identifiedDisplayName+'^000000' : customname+it.identifiedDisplayName;
-		
+
 		ui.find('.title').text( item.IsIdentified ? identifiedDisplayName: it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
-		
+
 		// Add view button (for cards)
 		addEvent(item);
-		
+
 		switch (item.type) {
 			// Not an equipement = no card
 			default:
@@ -227,14 +227,14 @@ define(function(require)
 				cardList.parent().show();
 				cardList.empty();
 
-				for (i = 0; i < 4; ++i) {					
-					addCard(cardList, (item.slot && item.slot['card' + (i+1)]) || 0, i, slotCount);					
+				for (i = 0; i < 4; ++i) {
+					addCard(cardList, (item.slot && item.slot['card' + (i+1)]) || 0, i, slotCount);
 				}
 				if (!item.IsIdentified ) {
 					cardList.parent().hide();
 				}
 				break;
-				
+
 		}
 		resize(ItemInfo.ui.find('.container').height());
 	};
@@ -356,18 +356,18 @@ define(function(require)
 	function onUpdateOwnerName (){
 		var str = ItemInfo.ui.find('.title').text();
 		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
-		
+
 		delete DB.UpdateOwnerName.ItemInfo;
 	}
-	
 
-	function addEvent(item){		
+
+	function addEvent(item){
 		var event = ItemInfo.ui.find('.event_view');
 		validateFieldsExist(event) ? '' : addEvent(item);
 
 		event.find('.view').hide();
 		event.find('canvas').remove();
-		
+
 		Renderer.stop(rendering)
 
 		switch (item.type) {
@@ -389,7 +389,7 @@ define(function(require)
 	}
 
 	function eventsBooks(){
-		var event = ItemInfo.ui.find('.event_view');		
+		var event = ItemInfo.ui.find('.event_view');
 
 		Client.getFiles([
 			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr',
@@ -452,13 +452,13 @@ define(function(require)
 	 var rendering = function renderingClosure()
 	 {
 		 var position  = new Uint16Array([0, 0]);
- 
+
 		 return function rendering()
 		 {
 			var i, count, max;
 			var action, animation, anim;
 			var Entity = getModule('Renderer/Entity/Entity');
-			
+
 			var _entity = new Entity();
 			action = _action.actions[_type];
 					max    = action.animations.length;
@@ -468,22 +468,22 @@ define(function(require)
 					// if (anim >= max) {
 					// 	Renderer.stop(rendering);
 					// }
-			
+
 			animation = action.animations[anim % action.animations.length];
-			
+
 
 			// Initialize context
 			SpriteRenderer.bind2DContext(_ctx,  10, 25);
 			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 			// _ctx.clearRect(0, 0, 21, 15);
- 
+
 			// Render layers
 			// debugger;
 			for (i = 0, count = animation.layers.length; i < count; ++i) {
 				_entity.renderLayer( animation.layers[i], _sprite, _sprite, 1.0, position, false);
 			}
 			// _entity.renderLayer( animation.layers[0], _sprite, _sprite, 1.0, position, false);
-			
+
 			// Renderer.stop(rendering);
 
 		 };
@@ -492,13 +492,13 @@ define(function(require)
 	 function validateFieldsExist(event){
 
 		if(event.length === 0){
-			let validExitElement = 
+			let validExitElement =
 				'<div class="event_view">' +
             		'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'+
 					'<span class="overlay_open" data-text="1294">'+DB.getMessage(1294)+'</span>'+
 					'<span class="overlay_read" data-text="1295">'+DB.getMessage(1295)+'</span>'
         		'</div>';
-			ItemInfo.ui.find('.collection').after(validExitElement);			
+			ItemInfo.ui.find('.collection').after(validExitElement);
 			return false;
 		}
 
@@ -518,7 +518,7 @@ define(function(require)
 
 		return true;
 	 }
-	
+
 	/**
 	 * Create component and export it
 	 */

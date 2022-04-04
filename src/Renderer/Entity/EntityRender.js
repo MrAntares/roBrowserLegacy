@@ -3,7 +3,7 @@
  *
  * Entity class
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -145,7 +145,7 @@ define( function( require )
 		{
 			var minSize, fx, fy;
 			var tmp, rect;
-			
+
 			fx = entity.xSize / 175;
 			fy = entity.ySize / 175;
 
@@ -207,7 +207,7 @@ define( function( require )
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
 			SpriteRenderer.zIndex = 1;
-			
+
 			var animation  = this.animation;
 			var Entity	 = this.constructor;
 			_position[0]   = 0;
@@ -225,29 +225,29 @@ define( function( require )
 
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45) {
-	
+
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
 				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]);
 
 				renderElement( this, this.files.shadow, 'shadow', _position, false );
-				
+
 			}
- 
+
 			SpriteRenderer.position.set(this.position);
-		
- 
+
+
 			// Shield is behind on some position, seems to be hardcoded by the client
 			if (this.objecttype === Entity.TYPE_PC && this.shield && behind) {
 				renderElement( this, this.files.shield, 'shield', _position, true );
 			}
-		
+
 
 			if(direction > 2 && direction < 6)
 			{
 				renderElement( this, this.files.body, 'body', _position, true );
-			
+
 			 	if(Session.Playing == true && this.hasCart == true)
 				{
 					var cartidx = [
@@ -258,7 +258,7 @@ define( function( require )
 							JobId.SUPERNOVICE2_B
 						].includes(this._job)? 0 : this.CartNum;
 					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
-					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);		   
+					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);
 				}
 			}
 			else
@@ -273,12 +273,12 @@ define( function( require )
 							JobId.SUPERNOVICE2_B
 						].includes(this._job)? 0 : this.CartNum;
   					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
-					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);   
-				}				
+					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);
+				}
 				renderElement( this, this.files.body, 'body', _position, true );
 			}
 
-		
+
 
 			if (this.objecttype === Entity.TYPE_PC) {
 				// Draw Head
@@ -330,7 +330,7 @@ define( function( require )
 		return function renderElement( entity, files, type, position, is_main )
 		{
 			// Nothing to render
-			if (!files.spr || !files.act) 
+			if (!files.spr || !files.act)
 			{
 				return;
 			}
@@ -338,7 +338,7 @@ define( function( require )
 			// Get back sprite and act
 			var spr = Client.loadFile(files.spr);
 			var act = Client.loadFile(files.act);
-	
+
 			// Not loaded yet
 			if (!spr || !act) {
 				return;
@@ -366,57 +366,57 @@ define( function( require )
 			_position[0] = 0;
 			_position[1] = 0;
 
-			if (animation.pos.length && !is_main) 
-			{					  	
+			if (animation.pos.length && !is_main)
+			{
 				_position[0] = position[0] - animation.pos[0].x;
 				_position[1] = position[1] - animation.pos[0].y;
  			}
-			
+
 			if(type === 'cart' || type === 'cartshadow')
 			{
 				var direction = (Camera.direction + entity.direction + 8) % 8;
-			
+
 				switch(direction)
 				{
 				case 0:
 					{
-						_position[0] = 0; 
+						_position[0] = 0;
 						_position[1] = -30;
 					}
 				break;
 				case 1:
-					_position[0] = 30; 
+					_position[0] = 30;
 					_position[1] = -10;
 				break;
 				case 2:
-					_position[0] = 40; 
+					_position[0] = 40;
 					_position[1] = 0;
 				break;
 				case 3:
-					_position[0] = 30; 
+					_position[0] = 30;
 					_position[1] = 10;
 				break;
 				case 4:
 					{
-						_position[0] = 0; 
+						_position[0] = 0;
 						_position[1] = 20;
 					}
 				break;
 				case 5:
-					_position[0] = -30; 
-					_position[1] = 10;				
+					_position[0] = -30;
+					_position[1] = 10;
 				break;
 				case 6:
-					_position[0] = -40; 
-					_position[1] = 0;				
+					_position[0] = -40;
+					_position[1] = 0;
 				break;
 				case 7:
-				 	_position[0] = -30; 
-					_position[1] = -10;				
+				 	_position[0] = -30;
+					_position[1] = -10;
 			   break;
-			   } 
+			   }
 			}
-			
+
 
 			// Render all frames
 			for (var i=0, count=layers.length; i<count; ++i) {
@@ -478,7 +478,7 @@ define( function( require )
 		var delay	 = getAnimationDelay(type, entity, act);
 		var headDir   = 0;
 		var anim	  = 0;
-	
+
 		if(type === 'cart' && isIdle)
 			return 0;
 

@@ -6,7 +6,7 @@
  * Manage sounds effects
  * All browsers seems to support .wav file (with HTML5), so don't need a flash callback here
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */

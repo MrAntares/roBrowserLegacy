@@ -3,7 +3,7 @@
  *
  * Chararacter Equipment window
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -113,9 +113,9 @@ define(function(require)
 		this.ui.find('.removeOption').mousedown(onRemoveOption);
 		this.ui.find('.view_status').mousedown(toggleStatus);
 		this.ui.find('.show_equip').mousedown(toggleEquip);
-		
+
 		this.ui.find('.cartitems').click(onCartItems);
-		
+
 
 		// drag, drop items
 		this.ui.on('dragover', onDragOver);
@@ -130,7 +130,7 @@ define(function(require)
 			.on('mouseout',    'button', onEquipmentOut);
 
 		this.draggable(this.ui.find('.titlebar'));
-		
+
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.Equipment = onUpdateOwnerName;
 	};
@@ -285,7 +285,7 @@ define(function(require)
 			if (string.length > limit) {
 				string = string.substring(0,limit) + dots;
 			}
-		
+
 			return string;
 		}
 
@@ -620,7 +620,7 @@ define(function(require)
 	{
 		Equipment.ui.find('.overlay').hide();
 	}
-	
+
 	function onUpdateOwnerName (){
 		for (var index in _list) {
 			var item = _list[index];
@@ -629,7 +629,7 @@ define(function(require)
 			}
 		}
 	}
-	
+
 	Equipment.getNumber = function(){
 		var num = 0;
 		for (var key in _list) {

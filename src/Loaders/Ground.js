@@ -3,7 +3,7 @@
  *
  * Loaders for Gravity .gnd file (Ground)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -32,7 +32,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		}
 	}
 
-	
+
 	/**
 	 * Load file
 	 *
@@ -449,11 +449,11 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 
 				cell_a = surfaces[ x + y * width ];
 				h_a    = cell_a.height;
-	
+
 				// Check tile up
 				if (cell_a.tile_up > -1) {
 					tile = tiles[ cell_a.tile_up ];
-	
+
 					// Check if has texture
 					n = normals[ x + y * width ];
 					lightmap_atlas( tile.light );

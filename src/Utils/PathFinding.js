@@ -6,7 +6,7 @@
  * Trying to find the shortest path between two positions.
  * This file is based on eAthena/rAthena code, optimized for JS : http://svn.code.sf.net/p/rathena/svn/trunk/src/map/path.c
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -170,14 +170,14 @@ define(function()
 				_dist[i]   = dist;
 				_before[i] = before;
 				_cost[i]   = cost;
-	
+
 				if (_flag[i]) {
 					push_heap_path(heap, i);
 				}
 				else {
 					update_heap_path(heap, i);
 				}
-	
+
 				_flag[i]   = 0;
 			}
 
@@ -239,7 +239,7 @@ define(function()
 
 		out[0] = x0;
 		out[1] = y0;
-		
+
 		if(!((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0)){
 			while ((i++) < MAX_WALKPATH) {
 				x         += dx;
@@ -250,7 +250,7 @@ define(function()
 
 				if (x === x1) dx = 0;
 				if (y === y1) dy = 0;
-				
+
 				if ((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0) {
 					break;
 				}
@@ -268,7 +268,7 @@ define(function()
 					}
 				}
 			}
-			
+
 			return i + 1;
 		}
 
@@ -278,7 +278,7 @@ define(function()
 				return searchLong( x0, y0, x, y, 0, out, GAT.type.SNIPABLE );
 			}
 		}
-		
+
 		return 0;
 	}
 

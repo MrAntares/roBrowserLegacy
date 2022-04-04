@@ -3,7 +3,7 @@
  *
  * Rendering casting on ground (rotating plane)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -49,7 +49,7 @@ define(function( require ) {
 	 * @var {object} CastSize for each skill
 	 */
 	var CastSize = {};
-	
+
 	//Traps officially don't display their AoE size when casted on the ground
 	CastSize[ SkillId.CR_SLIMPITCHER ]			= [7];
 	CastSize[ SkillId.SO_ARRULLO ]				= [3,3,5,5,7];
@@ -150,7 +150,7 @@ define(function( require ) {
 	//CastSize[ SkillId.RA_VERDURETRAP ]		= [5]; //trap
 	CastSize[ SkillId.AS_VENOMDUST ]			= [2];
 	CastSize[ SkillId.KO_HUUMARANKA ]			= [7];
-	
+
 	/**
 	 * @var {string} Vertex Shader
 	 */
@@ -220,7 +220,7 @@ define(function( require ) {
 	{
 		this.x           = x;
 		this.y           = y;
-		
+
 		//A hacky way to read the last skill level and ring size. The official client does the same thing, unless they add a packet that tells the skill level directly.
 		if( CastSize[id] ){
 			if( Session.Entity == srcEntity && id == Session.Entity.lastSKID  && Session.Entity.lastSkLvl && CastSize[id].length >= Session.Entity.lastSkLvl ){
@@ -231,7 +231,7 @@ define(function( require ) {
 		} else {
 			this.size = 1;
 		}
-		
+
 		this.endLifeTime = endLifeTime;
 	}
 

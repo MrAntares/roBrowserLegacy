@@ -4,7 +4,7 @@
  * Error screen
  * Don't use components class, if there is an error on this module will never be used...
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */

@@ -3,7 +3,7 @@
  *
  * Item dropped to the ground
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -31,7 +31,7 @@ define(function( require )
 	var Equipment    			 = require('UI/Components/Equipment/Equipment');
 	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var ItemListWindowSelection  = require('UI/Components/MakeItemSelection/ItemListWindowSelection');
-	
+
     var EffectManager = require('Renderer/EffectManager');
 
 
@@ -346,7 +346,7 @@ define(function( require )
 
 		//debugger;
 	}
-	
+
 	/**
 	 * Generic function to add items to cart
 	 *
@@ -356,7 +356,7 @@ define(function( require )
 	{
 		CartItems.setItems( pkt.itemInfo || pkt.ItemInfo );
 	}
-	
+
 	/**
 	 * Generic function to set cart info
 	 *
@@ -365,13 +365,13 @@ define(function( require )
 	function onCartSetInfo( pkt )
 	{
 		CartItems.setCartInfo( pkt.curCount, pkt.maxCount, pkt.curWeight, pkt.maxWeight  );
-	}	
-	
+	}
+
 	function onCartRemoveItem( pkt )
 	{
 		CartItems.removeItem( pkt.index, pkt.count);
 	}
-	
+
 	CartItems.reqRemoveItem = function ReqRemoveItem( index, count )
 	{
 		if (count <= 0) {
@@ -383,7 +383,7 @@ define(function( require )
 		pkt.count = count;
 		Network.sendPacket( pkt );
 	};
-	
+
 	Inventory.reqMoveItemToCart = function reqMoveItemToCart( index, count )
 	{
 		if (count <= 0) {
@@ -395,25 +395,25 @@ define(function( require )
 		pkt.count = count;
 		Network.sendPacket( pkt );
 	};
-	
-	
+
+
 	function onCartItemAdded( pkt )
 	{
 		CartItems.addItem(pkt);
-	}	
-	
+	}
+
 	function onAckAddItemToCart( pkt ){
 		switch (pkt.result) {
-			case 0: 
+			case 0:
 				ChatBox.addText( DB.getMessage(220), ChatBox.TYPE.ERROR );
 				break;
-			
+
 			case 1:
 				ChatBox.addText( DB.getMessage(221), ChatBox.TYPE.ERROR );
 				break;
 		}
 	}
-	
+
 	/**
 	 * Get a list of items to create
 	 *
@@ -449,14 +449,14 @@ define(function( require )
 	function onListWinItem( ptk )
 	{
 		if(! ptk.Type){
-			ItemListWindowSelection.append();			
+			ItemListWindowSelection.append();
 		}
 	}
 
 
 	/**
 	 * item lis twin
-	 * @param {object} inforMaterialList 
+	 * @param {object} inforMaterialList
 	 */
 	ItemListWindowSelection.onItemListWindowSelected = function onItemListWindowSelected( inforMaterialList )
 	{
@@ -465,7 +465,7 @@ define(function( require )
 		pkt.Type = inforMaterialList.Type;
 		pkt.Action = inforMaterialList.Action;
 		pkt.MaterialList = inforMaterialList.MaterialList;
-		
+
 		Network.sendPacket( pkt );
 	}
 
@@ -528,7 +528,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.REQ_WEAR_EQUIP_ACK2,    onItemEquip );
 		Network.hookPacket( PACKET.ZC.ACK_WEAR_EQUIP_V5,      onItemEquip );
 		Network.hookPacket( PACKET.ZC.DELETE_ITEM_FROM_BODY,  onIventoryRemoveItem );
-		Network.hookPacket( PACKET.ZC.DELETE_ITEM_FROM_CART,  onCartRemoveItem );		
+		Network.hookPacket( PACKET.ZC.DELETE_ITEM_FROM_CART,  onCartRemoveItem );
 		Network.hookPacket( PACKET.ZC.USE_ITEM_ACK,           onItemUseAnswer );
 		Network.hookPacket( PACKET.ZC.USE_ITEM_ACK2,          onItemUseAnswer );
 		Network.hookPacket( PACKET.ZC.CONFIG_NOTIFY,          onConfigEquip );

@@ -3,7 +3,7 @@
  *
  * Loaders for Gravity .rsm file (Resource Model)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -55,7 +55,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		this.range  = vec3.create();
 		this.center = vec3.create();
 	};
-	
+
 
 	/**
 	 * Loading RSM file
@@ -71,7 +71,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		// Read header.
 		fp      = new BinaryReader(data);
 		header  = fp.readBinaryString(4);
-	
+
 		if (header !== 'GRSM') {
 			throw new Error('RSM::load() - Incorrect header "' + header + '", must be "GRSM"');
 		}
@@ -131,7 +131,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		else {
 			this.posKeyframes = [];
 		}
-	
+
 
 		// read Volume box
 		count       = fp.readLong();
@@ -178,7 +178,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 
 		this.instances.push(matrix);
 	};
-	
+
 
 	/**
 	 * Calculate model bounding box
@@ -348,10 +348,10 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		this.rotKeyframes = rotKeyframes;
 		this.posKeyframes = posKeyframes;
 	};
-	
 
 
-	
+
+
 	/**
 	 * Calculate node bounding box
 	 *

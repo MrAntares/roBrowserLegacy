@@ -3,7 +3,7 @@
  *
  * Manage skills
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault, Antares
  */
@@ -271,7 +271,7 @@ define(function()
 		REAPER_B:           4242,
 		EMPEROR2:           4243,
 		EMPEROR2_B:         4244,
-		
+
 		DRAGON_KNIGHT:      4252,
 		MEISTER:            4253,
 		SHADOW_CROSS:       4254,
@@ -300,6 +300,6 @@ define(function()
 		SPIRIT_HANDLER:     4307,
 
 		SKY_EMPEROR2: 	    4316,
-	
+
 	};
 });

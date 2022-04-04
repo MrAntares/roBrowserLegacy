@@ -3,7 +3,7 @@
  *
  * Loaders for Gravity .gr2 file (Resource Model with animation for the Granny3D Engine)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  * @author Liam Mitchell
@@ -132,7 +132,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function( Bina
     	BSplineSolverAllowC1Splitting:       0x4,
     	BSplineSolverExtraDOFKnotZero:       0x10,
     	BSplineSolverForceEndpointAlignment: 0x20,
-    	BSplineSolverAllowReduceKeys:        0x40	
+    	BSplineSolverAllowReduceKeys:        0x40
 	};
 
 	GR2.CAMERA_OUTPUT_Z_RANGE = {
@@ -313,7 +313,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function( Bina
 	    S3TCBGRA5551:                  1,
 	    S3TCBGRA8888MappedAlpha:       2,
 	    S3TCBGRA8888InterpolatedAlpha: 3,
-	    OnePastLastS3TCTextureFormat:  4	
+	    OnePastLastS3TCTextureFormat:  4
 	};
 
 	GR2.SKELETON_LOD_TYPE = {
@@ -499,7 +499,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 		this.range  = vec3.create();
 		this.center = vec3.create();
 	};
-	
+
 
 	/**
 	 * Loading GR2 file
@@ -535,12 +535,12 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
     		this.MixedMarshallingFixupArrayOffset = fp.readUInt();
     		this.MixedMarshallingFixupArrayCount = fp.readUInt();
 
-    		this.IsReady = false;			
+    		this.IsReady = false;
 		}
 
 		Section.prototype.decompress = function(fp) {
 			if (this.IsReady) return true;;
-			
+
 			var data = new BinaryReader(fp.buffer,this.DataOffset,this.DataSize);
 			// TODO Create an output buffer the size of ExpandedDataSize for copying uncompressed data into.
 
@@ -563,7 +563,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 				break;
 			}
 
-// After decompression (if necessary), data from a granny_grn_section must be block marshalled, heterogenous objects must be marshalled, and pointers must be fixed up. Block marshalling is accomplished like this: 
+// After decompression (if necessary), data from a granny_grn_section must be block marshalled, heterogenous objects must be marshalled, and pointers must be fixed up. Block marshalling is accomplished like this:
 // 			if (this.FileIsByteReversed) {
 // 				ReverseSection();
 // 			}
@@ -585,7 +585,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 			this.RootObjectTypeDefinition = new Reference(fp);
 			this.RootObject = new Reference(fp);
 		    this.TypeTag = fp.readUInt();
-		    this.ExtraTags = []; 
+		    this.ExtraTags = [];
 		    for (var i = 0; i < GR2.GRNExtraTagCount; i++) { this.ExtraTags.push(fp.readUInt()); }
 		    this.StringDatabaseCRC = fp.readUInt();
 		    this.ReservedUnused = [fp.readUInt(), fp.readUInt(), fp.readUInt()];
@@ -619,7 +619,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 		    //granny_int32 ArrayWidth;
 		    //granny_int32 Extra[3];
 		    //granny_uintaddrx Ignored__Ignored;
-		}		
+		}
 
 		function GrannyVariant(fp) {
     		this.Type = new GrannyDataTypeDefinition(fp);
@@ -680,7 +680,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 		this.ConversionBuffer = null;
 		var SectionArrayAddress = 0x20+this.Header.SectionArrayOffset;
 		var crc = fp.CRC32(SectionArrayAddress);
-		
+
 	    console.log(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
 		fp.seek(SectionArrayAddress);
 		for (var i=0; i< this.Header.SectionArrayCount; i++) {
@@ -697,7 +697,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 // 		void ** Sections;
 // 		bool * Marshalled;
 // 		bool * IsUserMemory;
-// 		void * ConversionBuffer;	
+// 		void * ConversionBuffer;
 		this.version    = fp.readByte() + fp.readByte()/10;
 		this.animLen    = fp.readLong();
 		this.shadeType  = fp.readLong();
@@ -751,7 +751,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 		else {
 			this.posKeyframes = [];
 		}
-	
+
 
 		// read Volume box
 		count       = fp.readLong();
@@ -798,7 +798,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 
 		this.instances.push(matrix);
 	};
-	
+
 
 	/**
 	 * Calculate model bounding box
@@ -968,10 +968,10 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 		this.rotKeyframes = rotKeyframes;
 		this.posKeyframes = posKeyframes;
 	};
-	
 
 
-	
+
+
 	/**
 	 * Calculate node bounding box
 	 *

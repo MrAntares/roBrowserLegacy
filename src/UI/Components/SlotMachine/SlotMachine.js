@@ -4,7 +4,7 @@
  * SlotMachine window
  * Used to catch pet
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -161,7 +161,7 @@ define(function(require)
 		{
 			var i, count, max;
 			var action, animation, anim;
-			
+
 			switch (_type) {
 				case 0: // waiting
 					action = _action.actions[0];

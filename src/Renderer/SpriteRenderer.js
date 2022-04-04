@@ -3,7 +3,7 @@
  *
  * Rendering sprite in 2D or 3D context
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -320,7 +320,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 
 	/**
-	 * @var {Uint16Array} position in 2D canvas 
+	 * @var {Uint16Array} position in 2D canvas
 	 */
 	var _pos = new Int16Array(2);
 
@@ -406,7 +406,7 @@ function(      WebGL,         glMatrix,      Camera )
 		// Link attribute
 		gl.vertexAttribPointer( attribute.aPosition,     2, gl.FLOAT, false,  4*4, 0   );
 		gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false,  4*4, 2*4 );
-	
+
 		// Binding 3D context
 		this.render = RenderCanvas3D;
 		this.xSize  = 5;
@@ -487,7 +487,7 @@ function(      WebGL,         glMatrix,      Camera )
 		if (this.depth !== _depth) {
 			gl.uniform1f( uniform.uSpriteRendererDepth, _depth = this.depth);
 		}
-		
+
 		gl.uniform1f( uniform.uSpriteRendererZindex, this.zIndex++ );
 		// Rotate
 		if (this.angle !== _angle) {

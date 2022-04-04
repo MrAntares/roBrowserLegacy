@@ -3,15 +3,15 @@
  *
  * Manage the battle mode
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
 define(function(require)
 {
 	'use strict';
-	
-	
+
+
 	/**
 	 * Dependencies
 	 */
@@ -34,7 +34,7 @@ define(function(require)
 	 */
 	BattleMode.process = function process( keyId )
 	{
-		
+
 		//NO MODIFIER
 		if(!KEYS.SHIFT && !KEYS.ALT && !KEYS.CTRL){
 			var key = Preferences[keyId];
@@ -47,7 +47,7 @@ define(function(require)
 			}
 			return false;
 		}
-		
+
 		//SHIFT
 		if(KEYS.SHIFT && !KEYS.ALT && !KEYS.CTRL){
 			var key = Preferences[ "SHIFT" + keyId];
@@ -60,7 +60,7 @@ define(function(require)
 			}
 			return false;
 		}
-		
+
 		//ALT
 		if(!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL){
 			var key = Preferences[ "ALT" + keyId];
@@ -73,7 +73,7 @@ define(function(require)
 			}
 			return false;
 		}
-		
+
 		//CTRL
 		if(!KEYS.SHIFT && !KEYS.ALT && KEYS.CTRL){
 			var key = Preferences[ "CTRL" + keyId];

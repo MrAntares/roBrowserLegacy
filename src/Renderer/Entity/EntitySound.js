@@ -3,7 +3,7 @@
  *
  * Manage entity walking action
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -77,7 +77,7 @@ define( ['Audio/SoundManager'], function( SoundManager )
 
 	/**
 	 * Reset sound counter to allow repeating sounds
-	 * 
+	 *
 	 * @param {number} animation index
 	 * @param {number} animation size
 	 */

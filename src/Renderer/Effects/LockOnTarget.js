@@ -3,7 +3,7 @@
  *
  * Rendering casting on ground (rotating plane)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -174,7 +174,7 @@ define(function( require ) {
 
 	/**
 	 * Initialize effect
-	 * 
+	 *
 	 * @param {object} webgl context
 	 */
 	LockOnTarget.init = function init(gl)

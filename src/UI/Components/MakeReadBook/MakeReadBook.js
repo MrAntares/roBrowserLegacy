@@ -3,17 +3,17 @@
  *
  * Chararacter MakeReadBook
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
- * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888] 
+ * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
  define(function(require)
  {
 	 'use strict';
- 
- 
+
+
 	 /**
 	  * Dependencies
 	  */
@@ -32,10 +32,10 @@
 	 var Announce       	= require('UI/Components/Announce/Announce');
 	 var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
 	 var getModule    		= require;
-	
+
 
 	var sleepNow = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
- 
+
 	 /**
 	  * Create Component
 	  */
@@ -54,19 +54,19 @@
 		bookmark_activated_page:0,
 		book_open:				false,
 	}, 1.0);
- 
+
 	 /**
 	  * Store MakeReadBook items
 	  */
 	 MakeReadBook.list = [];
- 
- 
+
+
 	 /**
 	  * @var {number} used to remember the window height
 	  */
 	 var _realSize = 0;
- 
- 
+
+
 	 /**
 	  * @var {Preferences} structure
 	  */
@@ -82,11 +82,11 @@
 		 magnet_left: true,
 		 magnet_right: false
 	 }, 1.0);
-	 
+
 
 	 MakeReadBook.startBook = function startBook(inforBook, item){
 		var it = DB.getItemInfo( item.ITID );
-	
+
 		_BOOK_INFORMATION['title'] 	= it.identifiedDisplayName;
 		let addColor = inforBook.substr(1, 7);
 		let validtext = inforBook.substr(7);// remover color background
@@ -96,12 +96,12 @@
 		let coutIndeNewText = 0;
 		let coutNewIndex = 0;
 		let contentsArray = []
-	
+
 		for (let index = 0; index < lineValidtext.length; index++) {
-			
+
 			if((defoutValue + coutNewIndex) > index){
 
-				let addText = (typeof contentsArray[coutIndeNewText] === 'undefined') ? '\n' : contentsArray[coutIndeNewText]					
+				let addText = (typeof contentsArray[coutIndeNewText] === 'undefined') ? '\n' : contentsArray[coutIndeNewText]
 				+ '\n' + lineValidtext[index];
 
 				if(addText.length > 460)
@@ -113,14 +113,14 @@
 					continue;
 				}
 
-				contentsArray[coutIndeNewText] = addText;					
+				contentsArray[coutIndeNewText] = addText;
 				continue;
 			}
 
 			coutNewIndex = defoutValue + coutNewIndex;
 			coutIndeNewText++;
 		}
-        
+
 		let validNewBookOpen = _BOOK_INFORMATION['itid'] === item.ITID;
 		_BOOK_INFORMATION['color'] 				= addColor;
 		_BOOK_INFORMATION['contents'] 			= contentsArray;
@@ -134,7 +134,7 @@
 
 	 MakeReadBook.openBook = function openBook(){
 		MakeReadBook.append();
-		
+
 		this.ui.find('.panel').css('background-color', '#'+_BOOK_INFORMATION['color']);
 		this.ui.find('.footer').css('background-color', '#'+_BOOK_INFORMATION['color']);
 
@@ -176,9 +176,9 @@
 					e.stopImmediatePropagation();
 					_BOOK_INFORMATION['bookmark_activated'] = true;
 					_BOOK_INFORMATION['bookmark_activated_page'] = _BOOK_INFORMATION['page'];
-					_BOOK_INFORMATION.save();					
+					_BOOK_INFORMATION.save();
 				});
-				
+
 
 				// remove canvas next and previous
 				MakeReadBook.ui.find('#next_previous').find('canvas').remove();
@@ -186,7 +186,7 @@
 				var sprite_previous = new Sprite( spr_previous );
 				var canvas;
 				canvas  = sprite_previous.getCanvasFromFrame( 0 );
-				canvas.className = 'previous_btn event_add_cursor';				
+				canvas.className = 'previous_btn event_add_cursor';
 				MakeReadBook.ui.find('#next_previous').append(canvas);
 				var previous_btn = MakeReadBook.ui.find('.previous_btn');
 				previous_btn.mouseover(function(e) {
@@ -235,21 +235,21 @@
 				adjustButtons();
 
 			})
-	} 
+	}
 
 
 	MakeReadBook.highlighter = async function highlighter()
 	{
 		if(_preferences.show)onClose();
-		
+
 		let index = _BOOK_INFORMATION['bookmark_activated'] ? _BOOK_INFORMATION['bookmark_activated_page'] : 0;
 		let newText = '';
-		for (index; index < _BOOK_INFORMATION['contents'].length; index++) {			
+		for (index; index < _BOOK_INFORMATION['contents'].length; index++) {
 			newText = newText + `\n` +_BOOK_INFORMATION['contents'][index];
 		}
 	    await repeatedGreetingsLoop(newText);
 	};
-	
+
 	async function repeatedGreetingsLoop(book_information) {
 		let text1 = book_information.split(`\n`);
 		for (let i = 0; i < text1.length; i++) {
@@ -282,13 +282,13 @@
 		Announce.append();
 		Announce.set( text == "" ? '  ' : text, '#ffffff');
 	}
-	
+
 	function cleanTextColor(text)
 	{
 
 		let cout = text.split('^').length;
 		let array = text.split('^');
-		let newMessage = '' 
+		let newMessage = ''
 
 		for (let index = 0; index < cout; index++) {
 
@@ -312,7 +312,7 @@
 	 MakeReadBook.onAppend = function OnAppend()
 	 {
 		this.ui.show();
-		
+
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
@@ -323,16 +323,16 @@
 
 		_preferences.show   =  this.ui.is(':visible');
 		_preferences.save();
-		
+
 		this.draggable(this.ui.find('.titlebar'));
 	 };
- 
+
 	 /**
 	  * Remove MakeReadBook from window (and so clean up items)
 	  */
 	 MakeReadBook.onRemove = function OnRemove()
 	 {
-	
+
 		try {
 			if (_preferences.show) {
 				this.ui.hide();
@@ -354,8 +354,8 @@
 			_preferences.show   =  false;
 			_preferences.save();
 		}
-	 }; 
- 
+	 };
+
 	 /**
 	  * Extend MakeReadBook window size
 	  *
@@ -366,47 +366,47 @@
 	 {
 		 width  = Math.min( Math.max(width,  6), 9);
 		 height = Math.min( Math.max(height, 2), 6);
- 
+
 		 this.ui.css({
 			 width:  23 + 16 + 16 + width  * 32,
 			 height: 31 + 19      + height * 32
 		 });
 	 };
- 
- 
+
+
 	/**
 	 * Exit window
 	 */
 	function onClose(e)
 	{
 		try {
-			e.stopImmediatePropagation();			
-			
+			e.stopImmediatePropagation();
+
 		} catch (error) {
 		}
-		
+
 		_BOOK_INFORMATION['book_open'] = false;
 		_BOOK_INFORMATION.save();
 		if (_preferences.show) {
 			MakeReadBook.onRemove();
-		}		
+		}
 	}
 
-	function page() {	
+	function page() {
 		MakeReadBook.ui.find('#textBook').text('');
 		var textBody = MakeReadBook.ui.find('#textBook');
 
 		for (var i = _BOOK_INFORMATION['page'] * 1 ; i < _BOOK_INFORMATION['pagesize'] && i < (_BOOK_INFORMATION['page'] + 1) *  1 ; i++) {
-			textBody.text(TextEncoding.decodeString(_BOOK_INFORMATION['contents'][i]))			
+			textBody.text(TextEncoding.decodeString(_BOOK_INFORMATION['contents'][i]))
 		}
 		MakeReadBook.ui.find('#pageBook').text('(' + (_BOOK_INFORMATION['page'] + 1) + '/' + Math.ceil(_BOOK_INFORMATION['pagesize'] / 1 ) + ')' );
 	}
-	
+
 	function adjustButtons() {
 		MakeReadBook.ui.find('.next_btn').prop('disabled', _BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] > _BOOK_INFORMATION['pagesize'] / 1 - 1);
 		MakeReadBook.ui.find('.previous_btn').prop('disabled', _BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] == 0);
 	}
- 
+
 	 /**
 	  * Extend MakeReadBook window size
 	  */
@@ -418,31 +418,31 @@
 		 var lastWidth  = 0;
 		 var lastHeight = 0;
 		 var _Interval;
- 
+
 		 function resizing()
 		 {
 			 var extraX = 23 + 16 + 16 - 30;
 			 var extraY = 31 + 19 - 30;
- 
+
 			 var w = Math.floor( (Mouse.screen.x - left - extraX) / 32 );
 			 var h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
- 
+
 			 // Maximum and minimum window size
 			 w = Math.min( Math.max(w, 6), 9);
 			 h = Math.min( Math.max(h, 2), 6);
- 
+
 			 if (w === lastWidth && h === lastHeight) {
 				 return;
 			 }
- 
+
 			 MakeReadBook.resize( w, h );
 			 lastWidth  = w;
 			 lastHeight = h;
 		 }
- 
+
 		 // Start resizing
 		 _Interval = setInterval( resizing, 30);
- 
+
 		 // Stop resizing on left click
 		 jQuery(window).on('mouseup.resize', function(event){
 			 if (event.which === 1) {
@@ -458,4 +458,4 @@
 	  */
 	 return UIManager.addComponent(MakeReadBook);
  });
- 
+

@@ -3,7 +3,7 @@
  *
  * Start a hacked map-viewer
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -134,13 +134,13 @@ function(
 				Thread.hook('THREAD_READY', q.next );
 				Thread.init();
 			});
-	
+
 			// Initialize renderer
 			q.add(function(){
 				Renderer.init();
 				q._next();
 			});
-	
+
 			// Start Intro, wait the user to add files
 			q.add(function(){
 				Intro.onFilesSubmit = function( files ) {

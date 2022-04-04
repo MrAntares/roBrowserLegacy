@@ -3,7 +3,7 @@
  *
  * Chararacter Skill Window
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
 + */
@@ -72,7 +72,7 @@ define(function(require)
 	 * @var {jQuery} button that appeared when level up
 	 */
 	var _btnLevelUp;
-	
+
 	var lArrow, rArrow;
 
 	/**
@@ -104,7 +104,7 @@ define(function(require)
 			.on('dragend',     '.skill',      onSkillDragEnd);
 
 		this.draggable(this.ui.find('.titlebar'));
-		
+
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function(data){
 			rArrow = 'url('+data+')';
 		});
@@ -249,10 +249,10 @@ define(function(require)
 		}
 
 		element.find('.levelupcontainer').append( levelup );
-		
+
 		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
 		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
-		
+
 		element.find('.level .currentUp').click( function(){ skillLevelSelectUp(skill);  } );
 		element.find('.level .currentDown').click( function(){ skillLevelSelectDown(skill); } );
 		SkillList.ui.find('.content table').append(element);
@@ -261,7 +261,7 @@ define(function(require)
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
 			element.find('.icon img').attr('src', data);
 		});
-		
+
 		_list.push(skill);
 		this.onUpdateSkill( skill.SKID, skill.level);
 	};
@@ -349,9 +349,9 @@ define(function(require)
 		if (skill.type & SkillTargetSelection.TYPE.SELF) {
 			this.onUseSkill( skill.SKID, level ? level : skill.level);
 		}
-		
+
 		skill.useLevel = level;
-		
+
 		// no elseif intended (see flying kick).
 		if (skill.type & SkillTargetSelection.TYPE.TARGET) {
 			SkillTargetSelection.append();
@@ -418,7 +418,7 @@ define(function(require)
 	function getSkillById( id )
 	{
 		var i, count = _list.length;
-		
+
 		for (i = 0; i < count; ++i) {
 			if (_list[i].SKID === id) {
 				return _list[i];
@@ -540,7 +540,7 @@ define(function(require)
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
-		
+
 		skill = getSkillById(parseInt(main.data('index'), 10));
 
 		// Don't add the same UI twice, remove it
@@ -605,7 +605,7 @@ define(function(require)
 	{
 		delete window._OBJ_DRAG_;
 	}
-	
+
 	function skillLevelSelectUp( skill ){
 		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level){
@@ -614,7 +614,7 @@ define(function(require)
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
-	
+
 	function skillLevelSelectDown( skill ){
 		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1){
@@ -623,7 +623,7 @@ define(function(require)
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
-	
+
 	/**
 	 * Abstract function to define
 	 */

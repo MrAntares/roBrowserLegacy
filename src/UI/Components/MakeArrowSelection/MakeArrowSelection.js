@@ -3,7 +3,7 @@
  *
  * MakeArrowSelection windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -78,12 +78,12 @@ define(function(require)
 		MakeArrowSelection.list.empty();
 
 		for (i = 0, count = list.length; i < count; ++i) {
-			
+
 			item = list[i];
 			it   = DB.getItemInfo( item.index );
 			file = it.identifiedResourceName;
 			name = it.identifiedDisplayName;
-			
+
 
 			addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i].index, name);
 		}

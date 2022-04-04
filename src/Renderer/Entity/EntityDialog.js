@@ -3,7 +3,7 @@
  *
  * Manage Entity Dialog box
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -93,7 +93,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function( glMatr
 					j = result.indexOf(' ',j) + 1;
 				}
 			}
-	
+
 			lines.push( result.substr(0, j|| result.length) );
 			width = Math.max( width, ctx.measureText(lines[ lines.length-1 ]).width );
 			text  = text.substr( lines[ lines.length-1 ].length, text.length );

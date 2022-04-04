@@ -4,7 +4,7 @@
  * Manage Entity Display (pseudo + guild + party)
  * Writing to canvas is very ugly, this file contain some hack to get some best results on Firefox and Chrome.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -119,7 +119,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			LOADING:  1,
 			COMPLETE: 2
 		};
-		
+
 		this.STYLE = {
 			DEFAULT: 0,
 			MOB: 1,
@@ -179,7 +179,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 	Display.prototype.update = function update( style )
 	{
 		style = style || this.STYLE.DEFAULT;
-		
+
 		// Setup variables
 		var lines    = new Array(2);
 		var fontSize = 12;
@@ -190,8 +190,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		// Skip the "#" in the pseudo
 		lines[0] = this.fakename ? this.fakename.split('#')[0] : this.name.split('#')[0];
 		lines[1] = '';
-		
-		
+
+
 		// Add the party name
 		if (this.party_name.length && (style === this.STYLE.DEFAULT)) {
 			lines[0] += ' (' + this.party_name + ')';
@@ -206,19 +206,19 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 				lines[1] +=  ' [' + this.guild_rank + ']';
 			}
 		}
-		
+
 		// Setup the canvas
 		ctx.font          = fontSize + 'px Arial';
 		width             = Math.max( ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width ) + start_x + 5;
 		height            = fontSize * 3 * (lines[1].length ? 2 : 1);
 		ctx.canvas.width  = width;
 		ctx.canvas.height = height;
-		
+
 		// Draw emblem
 		if (this.emblem  && (style === this.STYLE.DEFAULT)) {
 			ctx.drawImage( this.emblem, 0, 0 );
 		}
-		
+
 		// TODO: complete the color list in the Entity display
 		var color = 'white';
 		switch (style){
@@ -226,7 +226,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			case this.STYLE.NPC: color = '#94bdf7'; break;
 			case this.STYLE.ITEM: color = '#FFEF94'; break;
 		}
-		
+
 		ctx.font         = fontSize + 'px Arial';
 		ctx.textBaseline = 'top';
 

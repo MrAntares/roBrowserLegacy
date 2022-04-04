@@ -215,14 +215,14 @@
 	 */
 	function lua_parse_glob(content)
 	{
-		
-		
+
+
 		// Remove comments
 		content = lua_remove_comments(content);
 
 		// Some failed escaped string on lua
 		content = content.replace(/\\\\\\/g, '\\');
-		
+
 		// Remove variable container
 		content = content.replace(/^([^\{]+)\{/, '');
 		// Encode special characters
@@ -239,7 +239,7 @@
 
 		// Convert parameters
 		content = content.replace(/(\s+)(\w+)\s+?=\s+?/g, '$1"$2": ');
-		
+
 
 		// Remove un-needed coma
 		content = content.replace(/,(\s+(\]|\}))/g, '$1').replace(/,(\s+)?$/, '');
@@ -248,7 +248,7 @@
 		content = '{' + content;
 
 		// some functions code
-		content = (content+'\0').replace(/\n\}[^\0]+\0/, ''); 
+		content = (content+'\0').replace(/\n\}[^\0]+\0/, '');
 
 		// Fix curly brace
 		var open  = content.split('{').length;
@@ -256,8 +256,8 @@
 		if (open > close) {
 			content += '}';
 		}
-		
-		
+
+
 		return sandboxEval('(' + content + ')');
 	}
 
@@ -425,7 +425,7 @@
 
 			case 'lua':
 				// easy
-				
+
 				if (info.lua_key) {
 					output = lua_parse_keyval(out[0], out[1], info.lua_key, info.lua_val);
 				}
@@ -463,7 +463,7 @@
 			'/**',
 			'* DB/' + path,
 			'*',
-			'* This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).',
+			'* This file is part of ROBrowser, (http://www.robrowser.com/).',
 			'*',
 			'* @author Vincent Thibault',
 			'* (auto-generated)',
@@ -486,7 +486,7 @@
 		var save   = document.querySelector('.save');
 
 		save.parentNode.className = '';
-		save.parentNode.firstChild.textContent = 'Save this file in DB/' + path; 
+		save.parentNode.firstChild.textContent = 'Save this file in DB/' + path;
 
 		save.href     = window.URL.createObjectURL(blob);
 		save.download = path.replace(/.*\//,'');

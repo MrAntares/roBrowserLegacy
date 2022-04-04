@@ -3,7 +3,7 @@
  *
  * Socket Manager provide by JAVA
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -146,7 +146,7 @@ define([ 'require', 'Utils/jquery'], function( require, jQuery )
 	{
 		var i, count = hex.length >> 1;
 		var data = new Uint8Array( count );
-	
+
 		for (i = 0; i < count; i++) {
 			data[i] = parseInt( hex.substr(i*2,2).replace(/[^a-f0-9]/gi, ''), 16 );
 		}

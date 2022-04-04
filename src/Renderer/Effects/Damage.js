@@ -4,7 +4,7 @@
  * Rendering damage particles
  * TODO: Create a particle class to manage the process
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -22,10 +22,10 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	var DB             = require('DB/DBManager');
 	var Sound          = require('Audio/SoundManager');
-	
+
 	var CritSound      = "effect/ef_hit2.wav";
 	var EndureSound    = "player_metal.wav";
-	
+
 	/**
 	 * Damage Namespace
 	 */
@@ -103,7 +103,7 @@ define(function( require )
 			}
 
 			for(var i = 0; i < 5; ++i){  //msg.spr miss crit lucky...
-				
+
 				var source = sprMiss.getCanvasFromFrame(i);
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
@@ -111,7 +111,7 @@ define(function( require )
 				canvas.width  = WebGL.toPowerOfTwo( source.width );
 				canvas.height = WebGL.toPowerOfTwo( source.height );
 				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
-				
+
 				_sprite[10 + i] = {
 					texture: gl.createTexture(),
 					canvas:  canvas
@@ -125,7 +125,7 @@ define(function( require )
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 				gl.generateMipmap( gl.TEXTURE_2D );
 			}
-			
+
 		});
 	};
 
@@ -202,7 +202,7 @@ define(function( require )
 			/*texture  = _sprite[13].texture;
 			width    = _sprite[13].canvas.width;
 			height   = _sprite[13].canvas.height;*/
-				
+
 			// yellow
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
@@ -254,7 +254,7 @@ define(function( require )
 		}
 
 		texture = gl.createTexture();
-		
+
 		gl.bindTexture( gl.TEXTURE_2D, texture );
 		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -264,13 +264,13 @@ define(function( require )
 		obj.texture  = texture;
 		obj.width    = canvas.width;
 		obj.height   = canvas.height;
-		
+
 		var hitSounds = DB.getWeaponHitSound(weapon);
 
 		if((weapon || weapon === 0) && hitSounds){
 			obj.soundFile = hitSounds[0];
 		}
-		
+
 		_list.push( obj );
 	};
 
@@ -373,11 +373,11 @@ define(function( require )
 					if(damage.type & Damage.TYPE.CRIT){
 						Sound.play(CritSound);
 					}
-					
+
 					if(damage.type & Damage.TYPE.ENDURE){
 						Sound.play(EndureSound);
 					}
-					
+
 					Sound.play(damage.soundFile);
 					delete damage.soundFile;
 				}
@@ -399,7 +399,7 @@ define(function( require )
 				SpriteRenderer.position[1] = damage.entity.position[1];
 				SpriteRenderer.position[2] = damage.entity.position[2] + 3.5 + perc * 7;
 			}
-			
+
 			// Miss
 			else if (damage.type & Damage.TYPE.LUCKY) {
 				perc = (( tick - damage.start ) / 800);
@@ -412,14 +412,14 @@ define(function( require )
 			SpriteRenderer.size[0] = damage.width  * size;
 			SpriteRenderer.size[1] = damage.height * size;
 			damage.color[3]        = 1.0 - perc;
-			
+
 			SpriteRenderer.depth = i*10;
-			
+
 			SpriteRenderer.color.set( damage.color );
 			SpriteRenderer.image.texture = damage.texture;
 			SpriteRenderer.render();
 		}
-		
+
 		SpriteRenderer.unbind( gl );
 	};
 

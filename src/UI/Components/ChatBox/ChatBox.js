@@ -3,7 +3,7 @@
  *
  * ChatBox windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -123,15 +123,15 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y - this.ui.height()), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-		
+
 		this.magnet.TOP = _preferences.magnet_top;
 		this.magnet.BOTTOM = _preferences.magnet_bottom;
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
-		
+
 		this.draggable( this.ui.find('.input') );
 		this.draggable( this.ui.find('.battlemode') );
-		
+
 		// Sorry for this un-documented code (see UIComponent for more informations)
 		this.__mouseStopBlock = this.ui.find('.input');
 
@@ -252,14 +252,14 @@ define(function(require)
 
 		// Scroll feature should block at each line
 		this.ui.find('.content').on('mousewheel DOMMouseScroll', onScroll);
-		
+
 		this.ui.find('.battlemode .bmtoggle').click(function ( event ){
 			ChatBox.ui.find('.input').toggle();
 			ChatBox.ui.find('.battlemode').toggle();
 		});
 
 		// dialog box size
-		makeResizableDiv()		
+		makeResizableDiv()
 	};
 
 
@@ -271,7 +271,7 @@ define(function(require)
 		var matches, i, count;
 
 		matches = this.ui.find('.content').html().match(/(blob:[^"]+)/g);
-		
+
 		if (matches) {
 			for (i = 0, count = matches.length; i < count; ++i) {
 				window.URL.revokeObjectURL(matches[i]);
@@ -335,10 +335,10 @@ define(function(require)
 /*
 		var messageBox = this.ui.find('.input .message');
 		var text       = messageBox.val();
-		
+
 		var messageBoxUser = this.ui.find('.input .username');
 		var text2       = messageBoxUser.val();
-		
+
 		// Hacky, need to wait the browser to add text in the input
 		// If there is no change, send the shortcut.
 		Events.setTimeout(function(){
@@ -362,7 +362,7 @@ define(function(require)
 	{
 		var messageBox = this.ui.find('.input .message');
 		var nickBox    = this.ui.find('.input .username');
-		
+
 		switch (event.which) {
 
 			// Battle mode system
@@ -496,7 +496,7 @@ define(function(require)
 	 * @param {string} text
 	 * @param {number} type
 	 * @param {string} color
-	 * @param {boolean} default false, html or text ? 
+	 * @param {boolean} default false, html or text ?
 	 */
 	ChatBox.addText = function addText( text, type, color, override )
 	{
@@ -542,7 +542,7 @@ define(function(require)
 		);
 
 		// If there is too many line, remove the older one
-		
+
 		var list = $content.find('div');
 		if (list.length > MAX_MSG) {
 			var element, matches;
@@ -644,7 +644,7 @@ define(function(require)
 	 */
 	 function onDropText( event )
 	 {
-		 event.stopImmediatePropagation(); 
+		 event.stopImmediatePropagation();
 		 var data;
 		 try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -652,12 +652,12 @@ define(function(require)
 		 catch(e) {
 			 return false;
 		 }
-		 
+
 		 // Valid if the message type
 		 if (data.type == 'item') {
 			 return false;
 		 }
-		 
+
 		 jQuery(event.currentTarget).val(data);
 		 return true;
 	 }
@@ -670,7 +670,7 @@ define(function(require)
 		 event.stopImmediatePropagation();
 		 return false;
 	 }
- 
+
 
 
 	/**
@@ -715,7 +715,7 @@ define(function(require)
 	function makeResizableDiv() {
 		const elementchatbox = document.getElementById('chatbox');
 		const elementcontent = document.querySelector('.content');
-		
+
 		const resizers = document.querySelectorAll('.draggable')
 		const minimum_size = 20;
 		let original_height = 0;
@@ -731,7 +731,7 @@ define(function(require)
 			window.addEventListener('mousemove', resize)
 			window.addEventListener('mouseup', stopResize)
 		  })
-		  
+
 		  function resize(e) {
 
 			if (currentResizer.classList.contains('draggable')) {
@@ -742,7 +742,7 @@ define(function(require)
 			  }
 			}
 		  }
-		  
+
 		  function stopResize() {
 			window.removeEventListener('mousemove', resize)
 		  }

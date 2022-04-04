@@ -3,15 +3,15 @@
  *
  * ScreenShot Manager
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
 define(function(require)
 {
 	'use strict';
-	
-	
+
+
 	/**
 	 * Dependencies
 	 */
@@ -72,7 +72,7 @@ define(function(require)
 		date     = new Date();
 		timezone = (date.getTimezoneOffset() / 60);
 		date     = date.toLocaleString() + ' (GMT ' + (timezone > 0 ? '-' : '+') + timezone + ')'; //GMT
-		
+
 		context = canvas.getContext('2d');
 
 		// Input the timestamp on screenshot
@@ -105,8 +105,8 @@ define(function(require)
 			ScreenShot.display(canvas, date);
 		});
 	};
-	
-	
+
+
 	/**
 	 * Display the ScreenShot, this method is ment to be replaced by plugins if wanted.
 	 *
@@ -132,7 +132,7 @@ define(function(require)
 
 		ChatBox.addText('Screenshot ' + date + ' can be saved by <a style="color:#F88" download="ScreenShot (' + date.replace('/', '-') + ').png" href="'+ url +'" target="_blank">clicking here</a>.', ChatBox.TYPE.PUBLIC, null, true);
 	};
-	
+
 
 	/**
 	 * Exports

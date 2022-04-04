@@ -4,7 +4,7 @@
  * Class to list all packets versions
  * Based on : https://github.com/HerculesWS/Hercules/blob/master/src/map/packets.h
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */

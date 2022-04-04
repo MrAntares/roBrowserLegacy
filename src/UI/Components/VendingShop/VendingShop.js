@@ -3,10 +3,10 @@
  *
  * Character VendingShop Inventory
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
- * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888] 
+ * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
 define(function(require)
@@ -21,7 +21,7 @@ define(function(require)
 	var ItemType           = require('DB/Items/ItemType');
 	var jQuery             = require('Utils/jquery');
 	var Network          = require('Network/NetworkManager');
-	var PACKET           = require('Network/PacketStructure');	
+	var PACKET           = require('Network/PacketStructure');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
 	var Mouse              = require('Controls/MouseEventHandler');
@@ -53,8 +53,8 @@ define(function(require)
 	 * @var {number} used to remember the window height
 	 */
 	var _realSize = 0;
-	
-	
+
+
 	var _vendcount = 0;
 
 
@@ -96,7 +96,7 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
-	
+
 
 	/**
 	 * Apply preferences once append to body
@@ -122,7 +122,7 @@ define(function(require)
 	 */
 	VendingShop.onRemove = function OnRemove()
 	{
-	
+
 		this.ui.find('.container .content').empty();
 		this.list.length = 0;
 		jQuery('.ItemInfo').remove();
@@ -134,9 +134,9 @@ define(function(require)
 		_preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
 		_preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
 		_preferences.save();
-		
+
 		this.ui.hide();
-		
+
 	};
 
 
@@ -212,7 +212,7 @@ define(function(require)
 	VendingShop.setItems = function setItems(items)
 	{
 		var i, count;
-		
+
 		for (i = 0, count = items.length; i < count ; ++i) {
 			var object= this.getItemByIndex(items[i].index);
 			if(object){
@@ -222,10 +222,10 @@ define(function(require)
 				this.list.push(items[i]);
 			}
 		}
-		
+
 		this.ui.show();
 	};
-	
+
 
 	/**
 	 * Insert Item to inventory
@@ -303,7 +303,7 @@ define(function(require)
 		if (!item || count <= 0) {
 			return null;
 		}
-		
+
 
 		if (item.count) {
 			item.count -= count;
@@ -313,7 +313,7 @@ define(function(require)
 				return item;
 			}
 		}
-		
+
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
 
@@ -323,9 +323,9 @@ define(function(require)
 			if(this.list[i].count > 0)
 			{
 				ctr++;
-			}			
+			}
 		}
-		
+
 		if(ctr == 0)
 		{
 			this.onSubmit();
@@ -338,7 +338,7 @@ define(function(require)
 */
 		return item;
 	};
-	
+
 
 	/**
 	 * Remove item from inventory
@@ -557,7 +557,7 @@ define(function(require)
 		event.stopImmediatePropagation();
 		return false;
 	}
-	
+
 	/**
 	 * Submit data to send items
 	 */
@@ -567,9 +567,9 @@ define(function(require)
 		pkt   = new PACKET.CZ.REQ_CLOSESTORE();
 		Network.sendPacket(pkt);
 		this.onRemove();
-	};	
-	
-	
+	};
+
+
 
 	/**
 	 * Create component and export it

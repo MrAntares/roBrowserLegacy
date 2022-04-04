@@ -3,7 +3,7 @@
  *
  * Chararacter Selection windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -168,7 +168,7 @@ define(function(require)
 			case KEYS.ESCAPE:
 				cancel();
 				break;
-	
+
 			case KEYS.LEFT:
 				moveCursorTo(_index-1);
 				break;

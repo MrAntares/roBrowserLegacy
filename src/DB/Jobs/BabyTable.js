@@ -3,7 +3,7 @@
  *
  * List all babies
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -55,7 +55,7 @@ define(['./JobConst'], function( JobId )
 		JobId.GENETIC_B,
 		JobId.MINSTREL_B,
 		JobId.WANDERER_B,
-		
+
 		JobId.SUPERNOVICE2_B,
 		JobId.NINJA_B,
 		JobId.KAGEROU_B,
@@ -69,7 +69,7 @@ define(['./JobConst'], function( JobId )
 		JobId.EMPEROR_B,
 		JobId.REAPER_B,
 		JobId.EMPEROR2_B,
-		
+
 		JobId.PORING_NOVICE_B,
 		JobId.PECO_SWORD_B,
 		JobId.FOX_MAGICIAN_B,
@@ -105,8 +105,8 @@ define(['./JobConst'], function( JobId )
 		JobId.LION_ROYAL_GUARD_B,
 		JobId.LION_RUNE_KNIGHT_B,
 		JobId.LION_CRUSADER_B,
-		
+
 		JobId.DO_SUMMONER_B1,
-		
+
 	];
 });

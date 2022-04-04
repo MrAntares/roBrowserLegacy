@@ -4,7 +4,7 @@
  * Client Thread
  * Manage the Client Thread to send data to it (let another Thread do the hard job : loading files, ...)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -61,7 +61,7 @@ define(['require', 'Core/Configs'], function( require, Configs )
 		return function Send( type, data, callback )
 		{
 			var uid = 0;
-	
+
 			if (callback) {
 				uid          = ++_uid;
 				_memory[uid] = callback;
