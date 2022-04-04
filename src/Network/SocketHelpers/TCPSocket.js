@@ -7,7 +7,7 @@
  * For now, it's only used by Firefox OS App or in Firefox by settings "dom.mozTCPSocket.enabled" to
  * "true" in about:config
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */

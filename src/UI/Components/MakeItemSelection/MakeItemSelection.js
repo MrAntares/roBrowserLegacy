@@ -3,15 +3,15 @@
  *
  * MakeItemSelection windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
  define(function(require)
  {
      'use strict';
- 
- 
+
+
      /**
       * Dependencies
       */
@@ -25,21 +25,21 @@
      var Inventory   = require('UI/Components/Inventory/Inventory');
      var htmlText    = require('text!./MakeItemSelection.html');
      var cssText     = require('text!./MakeItemSelection.css');
- 
- 
+
+
      /**
       * Create MakeItemSelection namespace
       */
      var MakeItemSelection = new UIComponent( 'MakeItemSelection', htmlText, cssText );
-     
-     var validMaterials = 	[	
+
+     var validMaterials = 	[
                                  1000 //star crumb
                                  ,997 //great nature
                                  ,996 //rough wind
                                  ,995 //mystic frozen
                                  ,994 //flame heart
                              ];
- 
+
      /**
       * Initialize UI
       */
@@ -50,36 +50,36 @@
              top:  (Renderer.height- 200)/2,
              left: (Renderer.width - 200)/2
          });
- 
+
          this.list  = this.ui.find('.list:first');
          this.index = 0;
          this.material = [];
- 
+
          this.draggable(this.ui.find('.head'));
-         
+
          // Click Events
          this.ui.find('.cancel').click(function(){
              this.index = -1;
              this.selectIndex();
          }.bind(this) );
- 
+
          // Bind events
          this.ui
              .on('mousedown', '.item', function(){
                  MakeItemSelection.setIndex( Math.floor(this.getAttribute('data-index')) );
              });
-             
+
          // on drop item
          this.ui.find('.materials')
                  .on('drop',     onDrop)
                  .on('dragover', stopPropagation);
- 
-		
+
+
 		this.ui.find('.item').remove();
         this.ui.find('.materials').hide();
      };
- 
- 
+
+
      /**
       * Add elements to the list
       *
@@ -89,36 +89,36 @@
      {
          var i, count;
          var item, it, file, name, showMaterials;
- 
+
          MakeItemSelection.list.empty();
 		 this.ui.find('.list').css('backgroundColor', '#f7f7f7');
          this.ui.find('.materials').hide();
 		 this.ui.find('.item').remove();
- 
+
          showMaterials = true;
-         
+
          this.material = [];
- 
+
          for (i = 0, count = list.length; i < count; ++i) {
-             
+
              item = list[i];
              it   = DB.getItemInfo( item.ITID );
              file = it.identifiedResourceName;
              name = it.identifiedDisplayName;
- 
+
              if(it.processitemlist === ''){
 				 showMaterials = false;
 			 }
- 
+
              addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i].ITID, name);
          }
-         
+
 		 this.setIndex(list[0].ITID);
-		 
+
 		 bindSelectEvents(showMaterials);
      };
- 
- 
+
+
      /**
       * Add elements to the list
       *
@@ -128,30 +128,30 @@
       {
          var i, count;
          var item, it, file, name;
-  
+
          MakeItemSelection.list.empty();
 		 this.ui.find('.list').css('backgroundColor', '#f7f7f7');
          this.ui.find('.materials').hide();
 		 this.ui.find('.item').remove();
-		 
+
 		 this.material = list[0]; // add mk type
-  
+
          for (i = 1, count = list.length; i < count; ++i) {
-              
+
              item = list[i];
              it   = DB.getItemInfo( item );
              file = it.identifiedResourceName;
              name = it.identifiedDisplayName;
- 
+
              addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
          }
-		 
+
 		 this.setIndex(list[0].ITID);
-          
+
          bindSelectEvents(false);
       };
- 
- 
+
+
      /**
       * Add an element to the list
       *
@@ -167,15 +167,15 @@
                  '<span class="name">' + jQuery.escape(name) + '</span>' +
              '</div>'
          );
- 
+
          Client.loadFile( url, function(data){
              MakeItemSelection.list
                  .find('div[data-index='+ index +'] .icon')
                  .css('backgroundImage', 'url('+ data +')');
          });
      }
-     
-     
+
+
      /**
       * Advances to the next screen of the item creation
       *
@@ -188,11 +188,11 @@
          title = it.identifiedDisplayName + ' ' + DB.getMessage(426);
          metal = it.processitemlist;
          MakeItemSelection.setTitle(title);
-         
+
          this.ui.find('.ok').unbind('click');
          this.ui.find('.ok').click( this.selectIndex.bind(this) );
          this.ui.find('.list').css('backgroundColor', '#ffffff');
- 
+
          // Rune craft passa direto
          this.ui.find('.list')
 			.append(
@@ -202,10 +202,10 @@
 				`</pre>`
 			);
          this.ui.find('.materials').show()
-         
+
      };
- 
- 
+
+
      /**
       * Change selection
       *
@@ -218,8 +218,8 @@
          this.list.find('div[data-index='+ id         +']').addClass('select');
          this.index = id;
      };
- 
- 
+
+
      /**
       * Select a server, callback
       */
@@ -232,9 +232,9 @@
          }
          this.remove();
      };
- 
- 
- 
+
+
+
      /**
       * Free variables once removed from HTML
       */
@@ -242,8 +242,8 @@
      {
          this.index = 0;
      };
- 
- 
+
+
      /**
       * Set new window name
       *
@@ -253,13 +253,13 @@
      {
          this.ui.find('.head .text').text( title );
      };
- 
- 
+
+
      /**
       * Functions to define
       */
      MakeItemSelection.onIndexSelected = function onIndexSelected(){};
- 
+
      /**
       * Insert material to creation
       *
@@ -273,7 +273,7 @@
              }
          }
      };
-     
+
      /**
       * Add item to inventory
       *
@@ -281,32 +281,32 @@
       */
      MakeItemSelection.addItemSub = function AddItemSub( item )
      {
-         
+
          var it      = DB.getItemInfo( item.ITID );
          var content = this.ui.find('.materials');
- 
+
          content.append(
              '<div class="item" data-index="'+ item.index +'" draggable="false">' +
                  '<div class="icon"></div>' +
              '</div>'
          );
- 
+
          if (content.height() < content[0].scrollHeight) {
              this.ui.find('.hide').hide();
          }
          else {
              this.ui.find('.hide').show();
          }
- 
+
          Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
              content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
          });
- 
+
          return true;
      };
-     
-     
- 
+
+
+
      /**
       * Drop an item from storage to inventory
       *
@@ -315,28 +315,28 @@
      function onDrop( event )
      {
          var item, data;
- 
+
          try {
              data = JSON.parse(
                  event.originalEvent.dataTransfer.getData('Text')
              );
          }
          catch(e) {}
- 
+
          event.stopImmediatePropagation();
- 
+
          // Just support items for now ?
          if (!data || data.type !== 'item' || data.from !== 'Inventory') {
              return false;
          }
- 
+
          item = data.data;
- 
+
          MakeItemSelection.addMaterial( item );
          return false;
      }
- 
- 
+
+
      /**
       * Stop event propagation
       */
@@ -345,30 +345,30 @@
          event.stopImmediatePropagation();
          return false;
      }
-     
- 
+
+
      function bindSelectEvents(showMaterials){
          if(showMaterials){
-			 
+
              MakeItemSelection.ui.find('.ok').unbind('click');
              MakeItemSelection.ui.find('.ok').click( MakeItemSelection.advance.bind(MakeItemSelection) );
-			 
+
 			 MakeItemSelection.ui.off('dblclick', '.item');
 			 MakeItemSelection.ui.on('dblclick', '.item', MakeItemSelection.advance.bind(MakeItemSelection));
-			 
+
          }else{
-			 
+
              MakeItemSelection.ui.find('.ok').unbind('click');
 			 MakeItemSelection.ui.find('.ok').click( MakeItemSelection.selectIndex.bind(MakeItemSelection) );
-			 
+
              MakeItemSelection.ui.off('dblclick', '.item');
              MakeItemSelection.ui.on('dblclick', '.item', MakeItemSelection.selectIndex.bind(MakeItemSelection));
          }
      }
- 
+
      /**
       * Create component based on view file and export it
       */
      return UIManager.addComponent(MakeItemSelection);
  });
- 
+

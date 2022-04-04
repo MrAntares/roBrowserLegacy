@@ -3,7 +3,7 @@
  *
  * Manage and load DB files
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -34,7 +34,7 @@ define(function(require)
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
 	var TownInfo         = require('./TownInfo');
-	
+
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
 
@@ -53,7 +53,7 @@ define(function(require)
 	 * @var {Array} message string
 	 */
 	var JokeTable = [];
-	
+
 		/**
 	 * @var {Array} message string
 	 */
@@ -116,7 +116,7 @@ define(function(require)
 		loadTable( 'data/mapnametable.txt',		'#',	2, function(index, key, val){	(MapTable[key] || (MapTable[key] = {})).name                  		= val;}, 			onLoad());
 		loadTable( 'data/msgstringtable.txt',	'#',		1, function(index, val){	MsgStringTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/resnametable.txt', 	'#',		2, function(index, key, val){	DB.mapalias[key]                                             		= val;}, 			onLoad());
-		
+
 		loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
 		loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
 		loadTable( 'data/num2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
@@ -128,12 +128,12 @@ define(function(require)
 
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     		= val;}, 			onLoad());
-        loadTable( 'data/cardpostfixnametable.txt',		'#',	2, function(index, key, val){   (ItemTable[key] || (ItemTable[key] = {})).postfixNameTable     = val;               }, onLoad());		
+        loadTable( 'data/cardpostfixnametable.txt',		'#',	2, function(index, key, val){   (ItemTable[key] || (ItemTable[key] = {})).postfixNameTable     = val;               }, onLoad());
 		loadTable( 'data/fogparametertable.txt',		'#',	5, parseFogEntry,                                                                                                     			onLoad());
-		
+
 		loadTable( 'data/ba_frostjoke.txt',			'\t',	1, function(index, val){	JokeTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/dc_scream.txt',				'\t',	1, function(index, val){	ScreamTable[index]                                        		= val;}, 			onLoad());
-		
+
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
 
@@ -394,8 +394,8 @@ define(function(require)
 		var type = DB.getWeaponViewID(id);
 		return WeaponSoundTable[type];
 	};
-	
-	
+
+
 	/**
 	 * @return {string} Path to eapon sound
 	 * @param {number} weapon id
@@ -589,23 +589,23 @@ define(function(require)
 		if (item.RefiningLevel) {
 			str = '+' + item.RefiningLevel + ' ';
 		}
-		
+
 		//Hide slots for forged weapons
 		var showslots = true;
 		if (item.slot) {
-			
+
 			var very = '';
 			var name = '';
 			var elem = '';
-			
+
 			switch (item.slot.card1) {
 				case 0x00FF: // FORGE
 					showslots = false;
 					if (item.slot.card2 >= 3840) {
 						very = MsgStringTable[461]; //Very Very Very Strong
-					} else if (item.slot.card2 >= 2560) { 
+					} else if (item.slot.card2 >= 2560) {
 						very = MsgStringTable[460]; //Very Very Strong
-					} else if (item.slot.card2 >= 1024) { 
+					} else if (item.slot.card2 >= 1024) {
 						very = MsgStringTable[459]; //Very Strong
 					}
 					switch (Math.abs(item.slot.card2 % 10)){
@@ -618,14 +618,14 @@ define(function(require)
 				case 0x00FE: // CREATE
 				case 0xFF00: // PET
 					name = 'Unknown';
-					
+
 					var GID = (item.slot.card4<<16) + item.slot.card3;
 					if( DB.CNameTable[GID] ){
 						name = DB.CNameTable[GID];
 					} else {
 						DB.getNameByGID(GID);
 					}
-					
+
 					str += very + ' ' + name + elem + ' ';
 					break;
 
@@ -641,7 +641,7 @@ define(function(require)
 							break;
 						}
 
-						name = DB.getItemInfo(item.slot['card'+i]).prefixNameTable;						
+						name = DB.getItemInfo(item.slot['card'+i]).prefixNameTable;
 						if (name) {
 							pos = prefix.indexOf(name);
 							if (pos > -1) {
@@ -672,7 +672,7 @@ define(function(require)
 		if (it.slotCount && showslots) {
 			str += ' [' + it.slotCount + ']';
 		}
-	
+
 		return str;
 	};
 
@@ -723,7 +723,7 @@ define(function(require)
 
 		return TextEncoding.decodeString(MapTable[map].name);
 	};
-	
+
 	/**
 	 * Get back town information by mapname
 	 * @param {number} efst id
@@ -742,11 +742,11 @@ define(function(require)
 	{
 		return BabyTable.indexOf(jobid) > -1;
 	};
-	
+
 	DB.getRandomJoke = function getRandomJoke(){
 		return JokeTable[Math.round(Math.random() * (JokeTable.length - 1))];
 	};
-	
+
 	DB.getRandomScream = function getRandomScream(){
 		return ScreamTable[Math.round(Math.random() * (ScreamTable.length - 1))];
 	};
@@ -757,18 +757,18 @@ define(function(require)
 		Network.sendPacket(pkt);
 		DB.CNameTable[pkt.GID] = 'Unknown';
 	}
-	
+
 	function onUpdateOwnerName (pkt){
 		DB.CNameTable[pkt.GID] = pkt.CName;
-		
+
 		//Update other components
 		for (var key in DB.UpdateOwnerName){
 			DB.UpdateOwnerName[key]();
 		}
 	}
-	
-	DB.UpdateOwnerName = {}; 
-	
+
+	DB.UpdateOwnerName = {};
+
 	/**
 	 * Export
 	 */

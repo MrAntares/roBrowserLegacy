@@ -3,7 +3,7 @@
  *
  * Manage friends
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -195,7 +195,7 @@ define(function( require )
 				FriendEngine.answerFriendRequest( pkt.ReqAID, pkt.ReqGID, result);
 			};
 		}
-		
+
 		UIManager.showPromptBox(
 			// (%s) wishes to be friends with you. Would you like to accept?
 			DB.getMessage(818).replace('%s', pkt.Name),

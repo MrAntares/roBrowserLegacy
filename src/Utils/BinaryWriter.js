@@ -5,7 +5,7 @@
  *
  * Helper to build binary data (write sockets, files, ...)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -25,7 +25,7 @@ define(['Vendors/text-encoding'], function(TextEncoding)
 	DataView.prototype.setPos = function SetPos( offset, value, littleEndian ) {
 		var x = value[0];
 		var y = value[1];
-	
+
 		if (littleEndian) {
 			this.setInt8( offset + 0, x >> 2, true);
 			this.setInt8( offset + 1, ((x % 4) << 6) | (y >> 4), true);
@@ -37,8 +37,8 @@ define(['Vendors/text-encoding'], function(TextEncoding)
 			this.setInt8( offset + 0, (y % 16) << 4, true);
 		}
 	};
-	
-	
+
+
 	/**
 	 * Extend DataView to get setString method
 	 *

@@ -3,7 +3,7 @@
  *
  * Emoticons Interface
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -22,11 +22,11 @@ define(function(require)
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var Entity         = require('Renderer/Entity/Entity');
 	var UIManager      = require('UI/UIManager');
-	var UIComponent    = require('UI/UIComponent');	
+	var UIComponent    = require('UI/UIComponent');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var htmlText       = require('text!./Emoticons.html');
 	var cssText        = require('text!./Emoticons.css');
-	
+
 
 
 	/**

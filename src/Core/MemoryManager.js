@@ -5,7 +5,7 @@
  *
  * Set up a cache context to avoid re-loading/parsing files each time, files are removed automatically if not used
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -190,7 +190,7 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 						gl.deleteTexture( file.texture );
 					}
 					break;
-	
+
 				// If file is a blob, remove it (wav, mp3, lua, lub, txt, ...)
 				default:
 					if (file.match && file.match(/^blob\:/)) {

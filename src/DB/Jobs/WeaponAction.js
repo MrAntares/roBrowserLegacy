@@ -4,7 +4,7 @@
  * Define attack action for each weapon
  * WeaponAction[<job>][<weapon type>]
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -216,7 +216,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function( JobId, WeaponType )
 	};
 
 	WeaponAction[JobId.ALCHEMIST] = new function(){
-		this[ WeaponType.NONE ]         = 0; 
+		this[ WeaponType.NONE ]         = 0;
 		this[ WeaponType.SHORTSWORD ]   = 1;
 		this[ WeaponType.TWOHANDSWORD ] = 2;
 		this[ WeaponType.SWORD ]        = 2;

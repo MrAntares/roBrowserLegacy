@@ -3,6 +3,8 @@
  *
  * Manage homunculus
  *
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
+ *
  * @author IssID
  */
 

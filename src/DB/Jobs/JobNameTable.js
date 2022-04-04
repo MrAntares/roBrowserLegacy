@@ -3,7 +3,7 @@
  *
  * Look up: job id -> ressource name
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault, Antares
  */
@@ -88,12 +88,12 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.ROYAL_GUARD2]     = "\xB1\xD7\xB8\xAE\xC6\xF9\xB0\xA1\xB5\xE5";
 	JobNameTable[JobId.RANGER2]          = "\xB7\xB9\xC0\xCE\xC1\xAE\xB4\xC1\xB4\xEB";
 	JobNameTable[JobId.MECHANIC2]        = "\xB8\xB6\xB5\xB5\xB1\xE2\xBE\xEE";
-	
+
 	JobNameTable[JobId.SUPERNOVICE2]	 = "\xBD\xB4\xC6\xDB\xB3\xEB\xBA\xF1\xBD\xBA";
 	JobNameTable[JobId.KAGEROU] 		 = "kagerou";
 	JobNameTable[JobId.OBORO] 			 = "oboro";
 	JobNameTable[JobId.REBELLION] 		 = "rebellion";
-	
+
 	//MOUNTS
 	JobNameTable[JobId.PORING_NOVICE]     = "\xb3\xeb\xba\xf1\xbd\xba\xc6\xf7\xb8\xb5";
 
@@ -213,7 +213,7 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.SURA,             JobId.SURA_H,             JobId.SURA_B);
 	duplicateEntry(JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B);
 	duplicateEntry(JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B);
-	
+
 	//MOUNTS
 	duplicateEntry(JobId.PORING_NOVICE    ,JobId.PORING_NOVICE_H     ,JobId.PORING_NOVICE_B);
 
@@ -266,7 +266,7 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.FROG_KAGEROU     ,JobId.FROG_KAGEROU_B);
 	duplicateEntry(JobId.FROG_OBORO       ,JobId.FROG_OBORO_B);
 	duplicateEntry(JobId.PECO_REBELLION   ,JobId.PECO_REBELLION_B);
-	
-	
+
+
 	return JobNameTable;
 });

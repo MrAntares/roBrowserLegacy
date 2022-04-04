@@ -3,7 +3,7 @@
  *
  * Chararacter Equipment window
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -60,7 +60,7 @@ define(function(require)
 
 		this.ui.find('.titlebar .close').click(function(){ ChangeCart.ui.hide(); });
 		this.draggable(this.ui.find('.titlebar'));
-		
+
 		this.ui.find('.cart').click(onCart);
 		this.ui.find('.cart1').click(onCart1);
 		this.ui.find('.cart2').click(onCart2);
@@ -70,7 +70,7 @@ define(function(require)
 		this.ui.find('.cart6').click(onCart6);
 		this.ui.find('.cart7').click(onCart7);
 		this.ui.find('.cart8').click(onCart8);
-		
+
 		this.ui.find('.cart').hide();
 		this.ui.find('.cart1').hide();
 		this.ui.find('.cart2').hide();
@@ -81,20 +81,20 @@ define(function(require)
 		this.ui.find('.cart7').hide();
 		this.ui.find('.cart8').hide();
 	};
-	
+
 	function onCart()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  1*/)
 		{
 			return;
 		}
-		
+
 		var pkt = new PACKET.CZ.REQ_CHANGECART();
 		pkt.num = 1;
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart1()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  2*/)
@@ -106,7 +106,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart2()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  3*/)
@@ -118,7 +118,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart3()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  4*/)
@@ -130,7 +130,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart4()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  5*/)
@@ -142,7 +142,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart5()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  6*/)
@@ -154,7 +154,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart6()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  7*/)
@@ -166,7 +166,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart7()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  8*/)
@@ -178,7 +178,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	function onCart8()
 	{
 		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  9*/)
@@ -190,7 +190,7 @@ define(function(require)
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
-	
+
 	/**
 	 * Append to body
 	 */
@@ -199,7 +199,7 @@ define(function(require)
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-		
+
 		this.ui.find('.cart').hide();
 		this.ui.find('.cart1').hide();
 		this.ui.find('.cart2').hide();
@@ -209,42 +209,42 @@ define(function(require)
 		this.ui.find('.cart6').hide();
 		this.ui.find('.cart7').hide();
 		this.ui.find('.cart8').hide();
-		
+
 		if(Session.Character.level > 131)
         {
 			this.ui.find('.cart8').show();
 		}
-		
+
 		if(Session.Character.level > 121)
         {
 			this.ui.find('.cart7').show();
 		}
-		
+
 		if(Session.Character.level > 111)
         {
 			this.ui.find('.cart6').show();
 		}
-		
+
 		if(Session.Character.level > 100)
         {
 			this.ui.find('.cart5').show();
 		}
-		
+
        	if(Session.Character.level > 90)
         {
 			this.ui.find('.cart4').show();
 		}
-		
+
 		if(Session.Character.level > 80)
 		{
 			this.ui.find('.cart3').show();
 		}
-		
+
 		if(Session.Character.level > 65)
 		{
 			this.ui.find('.cart2').show();
 		}
-		
+
 		if(Session.Character.level > 40)
 		{
 			this.ui.find('.cart1').show();
@@ -252,18 +252,18 @@ define(function(require)
 
 		this.ui.find('.cart').show();
 	};
-	
+
 	ChangeCart.onChangeCartSkill = function onChangeCartSkill()
 	{
 		if(Session.Entity.hasCart == false)
 		{
 			return;
 		}
-		
+
 		this.ui.show();
-		
+
 		var msg = "Change Cart!!";
-		
+
 		if (ChatRoom.isOpen) {
 			ChatRoom.message(msg);
 			return;
@@ -272,9 +272,9 @@ define(function(require)
 		ChatBox.addText( msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF );
 		if (Session.Entity) {
 			Session.Entity.dialog.set( msg );
-		}		
+		}
 	};
-	
+
 
 	ChangeCart.onLevelUp = function onLevelUp(blvl)
 	{
@@ -282,7 +282,7 @@ define(function(require)
 		{
 			return;
 		}
-	
+
 		this.ui.find('.cart').hide();
 		this.ui.find('.cart1').hide();
 		this.ui.find('.cart2').hide();
@@ -292,43 +292,43 @@ define(function(require)
 		this.ui.find('.cart6').hide();
 		this.ui.find('.cart7').hide();
 		this.ui.find('.cart8').hide();
-		
-		
+
+
 		if(blvl > 131)
         {
 			this.ui.find('.cart8').show();
 		}
-		
+
 		if(blvl > 121)
         {
 			this.ui.find('.cart7').show();
 		}
-		
+
 		if(blvl > 111)
         {
 			this.ui.find('.cart6').show();
 		}
-		
+
 		if(blvl > 100)
         {
 			this.ui.find('.cart5').show();
 		}
-		
+
        	if(blvl > 90)
         {
 			this.ui.find('.cart4').show();
 		}
-		
+
 		if(blvl > 80)
 		{
 			this.ui.find('.cart3').show();
 		}
-		
+
 		if(blvl > 65)
 		{
 			this.ui.find('.cart2').show();
 		}
-		
+
 		if(blvl > 40)
 		{
 			this.ui.find('.cart1').show();

@@ -3,7 +3,7 @@
  *
  * Command in chatbox handler
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -126,7 +126,7 @@ define(function( require )
 					pkt.action = 3; // stand up
 				}
 				else {
-					pkt.action = 2; // sit down	
+					pkt.action = 2; // sit down
 				}
 				Network.sendPacket(pkt);
 				return;
@@ -146,7 +146,7 @@ define(function( require )
 				pkt.dir     = Session.Entity.direction;
 				Network.sendPacket(pkt);
 				return;
-	
+
 			case 'bingbing':
 				Session.Entity.direction = ( Session.Entity.direction + 7 ) % 8;
 				pkt         = new PACKET.CZ.CHANGE_DIRECTION();
@@ -221,7 +221,7 @@ define(function( require )
 					return;
 				}
 				break;
-				
+
 			case 'alchemist':
                 pkt = new PACKET.CZ.ALCHEMIST_RANK();
 				Network.sendPacket(pkt);
@@ -234,7 +234,7 @@ define(function( require )
                 pkt = new PACKET.CZ.TAEKWON_RANK();
 				Network.sendPacket(pkt);
                 return;
-				
+
 		}
 
 

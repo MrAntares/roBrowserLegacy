@@ -3,7 +3,7 @@
  *
  * Rendering Models
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -169,7 +169,7 @@ define( ['Utils/WebGL'], function( WebGL )
 		var i, count;
 
 		gl.useProgram( _program );
-	
+
 		// Bind matrix
 		gl.uniformMatrix4fv( uniform.uModelViewMat,  false, modelView );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );

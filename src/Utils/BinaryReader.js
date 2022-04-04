@@ -5,7 +5,7 @@
  *
  * Helper to load/parse Binary data (sockets, files)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -197,7 +197,7 @@ define( ['./Struct', 'Vendors/text-encoding'], function( Struct, TextEncoding )
 	{
 		var offset = this.offset + 0;
 		var i, uint8, data = new Uint8Array(len);
-	
+
 		for (i = 0; i < len; ++i) {
 			if (!(uint8 = this.getUint8())) {
 				break;
@@ -222,7 +222,7 @@ define( ['./Struct', 'Vendors/text-encoding'], function( Struct, TextEncoding )
 	{
 		var offset = this.offset + 0, i;
 		var uint8, out = '';
-	
+
 		for (i = 0; i < len; ++i) {
 			if (!(uint8 = this.getUint8())) {
 				break;

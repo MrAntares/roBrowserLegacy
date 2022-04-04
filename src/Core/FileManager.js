@@ -3,7 +3,7 @@
  *
  * Manage and load files
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -33,7 +33,7 @@ define(function( require )
 
 
 	/**
-	 * Where is the remote client located ? 
+	 * Where is the remote client located ?
 	 * @var {string} http
 	 */
 	FileManager.remoteClient = '';
@@ -83,7 +83,7 @@ define(function( require )
 				while ((result = regex.exec(content))) {
 					list[ parseInt(result[1]) ] = result[2];
 				}
-	
+
 				// Remove empty slot from list
 				for (i = 0, count = list.length; i < count; ) {
 					if (list[i] === undefined) {
@@ -143,7 +143,7 @@ define(function( require )
 		try {
 			var grf = new GameFile();
 			grf.load(file);
-	
+
 			this.gameFiles.push(grf);
 
 			if (this.onGameFileLoaded) {

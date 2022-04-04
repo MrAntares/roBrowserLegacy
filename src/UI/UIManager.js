@@ -3,7 +3,7 @@
  *
  * Manage Interface
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -110,7 +110,7 @@ define(function( require )
 				if (x + width > WIDTH && WIDTH > width) {
 					ui.css('left', WIDTH - width);
 				}
-				
+
 				//Magnet
 				if(component.magnet.TOP){
 					//nothing to do
@@ -138,7 +138,7 @@ define(function( require )
 	UIManager.showErrorBox = function showErrorBox( text )
 	{
 		var WinError, overlay;
-	
+
 		// Create popup
 		WinError = this.getComponent('WinPopup').clone('WinError');
 		WinError.init = function Init()
@@ -149,7 +149,7 @@ define(function( require )
 				left: (Renderer.width -280) / 2.0,
 				zIndex: 100
 			});
-			
+
 			WinError.ui.find('.btns').append(
 				jQuery('<button/>').
 					addClass('btn').
@@ -179,7 +179,7 @@ define(function( require )
 		// Add overlay (to block mouseover, click, etc.)
 		overlay = jQuery('<div/>').addClass('win_popup_overlay');
 		overlay.appendTo('body');
-	
+
 		// Push the event to the top, stopImmediatePropagation will block every key down event.
 		WinError.onAppend = function() {
 			var events = jQuery._data( window, 'events').keydown;
@@ -274,7 +274,7 @@ define(function( require )
 	UIManager.showPromptBox = function showPromptBox( text, btn_yes, btn_no, onYes, onNo )
 	{
 		var WinPrompt;
-	
+
 		WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
 		WinPrompt.init = function Init()
 		{

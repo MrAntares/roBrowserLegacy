@@ -4,7 +4,7 @@
  * Decrypt Gravity DES encryption stored in GRF file
  * Converted from https://rathena.svn.sourceforge.net/svnroot/rathena/trunk/src/common/des.c
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -102,7 +102,7 @@ define(function()
 				tmp[(i >> 3) + 4] |= mask[i & 7];
 			}
 		}
-	
+
 		src.set(tmp, index);
 		tmp.set(clean);
 	}
@@ -236,7 +236,7 @@ define(function()
 		var nblocks = len >> 3;
 		var i, j;
 		var digits, cycle;
-	
+
 		// compute number of digits of the entry length
 		digits = entry_len.toString().length;
 

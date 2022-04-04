@@ -3,7 +3,7 @@
  *
  * Generate cone and MagnumBreak
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -217,12 +217,12 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
         var sizeMult = 0.15 + this.timer/10;
 		if(sizeMult < 0.5)
             sizeMult = 0.5;
-        
+
         ++this.timer;
         if(this.timer == 21) {
             this.needCleanUp = true;
         }
-        
+
 		gl.bindTexture( gl.TEXTURE_2D, this.texture );
 
 		// Enable all attributes

@@ -13,7 +13,7 @@
  *
  * fp.readStruct(auth);
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -56,7 +56,7 @@ define(function()
 				default:
 					throw new Error("Struct() - Undefined type '" + type + "'.");
 			}
-	
+
 			func   = "get" + ( unsigned ? "U" + func : func.charAt(0).toUpperCase() + func.substr(1) );
 			total += size * count;
 

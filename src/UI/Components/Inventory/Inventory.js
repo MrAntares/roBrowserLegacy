@@ -3,10 +3,10 @@
  *
  * Chararacter Inventory
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
- * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888] 
+ * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
 define(function(require)
@@ -108,7 +108,7 @@ define(function(require)
 				.on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
-			
+
 		this.ui.find('.ncnt').text(0);
 		this.ui.find('.mcnt').text(100);
 
@@ -136,12 +136,12 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-		
+
 		this.magnet.TOP = _preferences.magnet_top;
 		this.magnet.BOTTOM = _preferences.magnet_bottom;
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
-		
+
 		_realSize = _preferences.reduce ? 0 : this.ui.height();
 		this.ui.find('.titlebar .mini').trigger('mousedown');
 	};
@@ -269,7 +269,7 @@ define(function(require)
 	Inventory.setItems = function SetItems(items)
 	{
 		var i, count;
-		
+
 		for (i = 0, count = items.length; i < count ; ++i) {
 			var object= this.getItemByIndex(items[i].index);
 			if(object){
@@ -280,10 +280,10 @@ define(function(require)
 				this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
 				this.onUpdateItem(items[i].ITID, items[i].count ? items[i].count : 1);
 			}
-			
-			
+
+
 		}
-		
+
 	};
 
 
@@ -401,7 +401,7 @@ define(function(require)
 				return item;
 			}
 		}
-		
+
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
@@ -632,15 +632,15 @@ define(function(require)
 		}
 
 		// Have to specify how much
-		if (item.count > 1) 
+		if (item.count > 1)
 		{
 			InputBox.append();
 			InputBox.setType('number', false, item.count);
-			
-			InputBox.onSubmitRequest = function OnSubmitRequest( count ) 
+
+			InputBox.onSubmitRequest = function OnSubmitRequest( count )
 			{
 				InputBox.remove();
-				
+
 					switch(data.from)
 					{
 					case 'Storage':
@@ -649,7 +649,7 @@ define(function(require)
 							parseInt(count, 10 )
 							);
 					break;
-					
+
 					case 'CartItems':
 						getModule('UI/Components/CartItems/CartItems').reqRemoveItem(
 							item.index,
@@ -662,26 +662,26 @@ define(function(require)
 							parseInt(count, 10 )
 							);
 
-					break;					
-				
+					break;
+
 					}
 			};
 			return false;
 		}
-		
+
 		switch(data.from)
 		{
 			case 'Storage':
 				getModule('UI/Components/Storage/Storage').reqRemoveItem( item.index, 1 );
 			break;
-					
+
 			case 'CartItems':
 				getModule('UI/Components/CartItems/CartItems').reqRemoveItem( item.index, 1 );
 			break;
 
 			case 'Mail':
 				getModule('UI/Components/Mail/Mail').reqRemoveItem( item.index, 1 );
-			break;	
+			break;
 		}
 
 		return false;

@@ -3,7 +3,7 @@
  *
  * RefineWeaponSelection windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -78,12 +78,12 @@ define(function(require)
 		RefineWeaponSelection.list.empty();
 
 		for (i = 0, count = list.length; i < count; ++i) {
-		
+
 			it   = DB.getItemInfo( list[i].ITID );
 			file = it.identifiedResourceName;
 			refine = list[i].RefiningLevel;
 			name = (refine>0) ? '+' + refine + ' ' + it.identifiedDisplayName : it.identifiedDisplayName;
-			
+
 			addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i].index, name);
 		}
 

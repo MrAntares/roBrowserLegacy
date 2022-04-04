@@ -3,7 +3,7 @@
  *
  * Status Icons UI
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -316,7 +316,7 @@ define(function( require )
 			var minutes = (tick / 60) | 0;
 
 			status.time.textContent = (now >= end || end === Infinity) ? '' : (
-				(minutes ? minutes + ' ' + DB.getMessage(1807, 'minute') + ' ' : '') + 
+				(minutes ? minutes + ' ' + DB.getMessage(1807, 'minute') + ' ' : '') +
 				seconds + ' ' + DB.getMessage(1808, 'second')
 			);
 		}

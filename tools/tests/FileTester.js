@@ -4,7 +4,7 @@
  * Client Thread
  * Manage the Client Thread to send data to it (let another Thread do the hard job : loading files, ...)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -117,7 +117,7 @@ define(function( require )
 				if (index < count) {
 					loadNext(index);
 				}
-	
+
 				if (index === count+4) {
 					alert( log.textContent = count + ' '+ ext +' files loaded and compiled, found ' + errors +' errors ( '+ Math.floor((Date.now()-start)/1000) +' seconds)' );
 				}

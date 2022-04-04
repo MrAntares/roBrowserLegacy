@@ -3,7 +3,7 @@
  *
  * Manage npc store (buy/sell items)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -35,11 +35,11 @@ define(function( require )
 		NpcStore.append();
 		NpcStore.setType(NpcStore.Type.CASH_SHOP);
 		NpcStore.setList(pkt.itemList);
-		
+
 		var entity = Session.Entity;
-		NpcStore.ui.find('.cashuser .buyer').text( entity ? entity.display.name : '');		
+		NpcStore.ui.find('.cashuser .buyer').text( entity ? entity.display.name : '');
 		NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
-		
+
 		NpcStore.onSubmit = function(itemList)  // add prompt confirmation first later...
         {
 			var i, count;
@@ -49,20 +49,20 @@ define(function( require )
 			count = itemList.length;
         	pkt.kafrapts = 0;
 
-			for (i = 0; i < count; ++i) 
+			for (i = 0; i < count; ++i)
             {
 				pkt.list.push({
-					count: itemList[i].count,               
+					count: itemList[i].count,
 					ITID:  itemList[i].ITID
 				});
             	//pkt.kafrapts += (itemList[i].discountprice || itemList[i].price) * itemList[i].count;
 			}
-          
+
 			Network.sendPacket(pkt);
 		};
 	}
-	
-	
+
+
 	/**
 	 * Received items list to buy from cash npc
 	 *
@@ -73,7 +73,7 @@ define(function( require )
 		VendingShop.append();
 		VendingShop.setItems(pkt.itemList);
 	}
-	
+
 	function onDeleteVendingItem( pkt )
 	{
 		VendingShop.removeItem(pkt.index,pkt.count);
@@ -129,7 +129,7 @@ define(function( require )
 			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR); break; // deal failed
 		}
 	}
-	
+
 	/**
 	 * Received purchased informations
 	 *
@@ -150,7 +150,7 @@ define(function( require )
 			case 7:  ChatBox.addText( DB.getMessage(1813), ChatBox.TYPE.ERROR); break; // no sale information
 			default: ChatBox.addText( DB.getMessage(1814),   ChatBox.TYPE.ERROR); break; // deal failed
 		}
-	}	
+	}
 
 
 	/**

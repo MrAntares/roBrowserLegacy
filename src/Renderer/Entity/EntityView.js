@@ -3,7 +3,7 @@
  *
  * Manage Entity files (attachments) to load once a view change
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -50,11 +50,11 @@ define(function( require )
 		this.accessory2 = new ViewFiles();
 		this.accessory3 = new ViewFiles();
 		this.shadow     = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
-    
+
 		this.cart     = [];
 		//Super novice
 		this.cart[0] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.spr', 'data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.act');
-		
+
 		this.cart[1] = new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹.act');
 		this.cart[2] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹1.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹1.act');
 		this.cart[3] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹2.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹2.act');
@@ -64,7 +64,7 @@ define(function( require )
 		this.cart[7] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹6.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹6.act');
 		this.cart[8] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹7.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹7.act');
 		this.cart[9] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹8.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹8.act');
-    
+
 		this.cart_shadow     = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
 	}
 
@@ -117,7 +117,7 @@ define(function( require )
 				break;
 			}
 		}
-		
+
 		for (baseJob in AllMountTable) {
 			if (AllMountTable[baseJob] === job) {
 				this.costume = job;
@@ -170,7 +170,7 @@ define(function( require )
 		// granny model not supported yet :(
 		// Display a poring instead
 		if (path === null || path.match(/\.gr2$/i)) {
-			
+
 			if(path.match(/aguardian90_8\.gr2$/i)){
 				path = DB.getBodyPath( 1276, this._sex );
 			} else if(path.match(/empelium90_0\.gr2$/i)){

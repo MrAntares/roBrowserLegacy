@@ -3,7 +3,7 @@
  *
  * GZIP uncompress code, adapted from pdf.js
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -244,16 +244,16 @@ define(function()
 						code2 = (code2 << 1) | (t & 1);
 						t >>= 1;
 					}
-			
+
 					// fill the table entries
 					for (i = code2; i < size; i += skip)
 						codes[i] = (len << 16) | v;
-			
+
 					++code;
 				}
 			}
 		}
-	
+
 		return [codes, maxLen];
 	};
 

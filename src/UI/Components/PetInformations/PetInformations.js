@@ -3,7 +3,7 @@
  *
  * Display pet informations
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -146,7 +146,7 @@ define(function(require)
 
 
 	/**
-	 * Set hunger value 
+	 * Set hunger value
 	 *
 	 * @param {number} hunger
 	 */

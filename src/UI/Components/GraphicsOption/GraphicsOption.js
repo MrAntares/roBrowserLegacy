@@ -3,7 +3,7 @@
  *
  * Manage Graphics details
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -137,7 +137,7 @@ define(function(require)
 		if (isFullScreen) {
 			Context.cancelFullScreen();
 		}
-		
+
 		// Resizing
 		if (Context.Is.POPUP) {
 			var size = GraphicsSettings.screensize.split('x');

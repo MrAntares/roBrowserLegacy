@@ -3,7 +3,7 @@
  *
  * Loaders for Gravity .spr file (Sprite)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -206,12 +206,12 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			if (frame.type !== SPR.TYPE_PAL) {
 				continue;
 			}
-	
+
 			data   = frame.data;
 			width  = frame.width;
 			height = frame.height;
 			out    = new Uint8Array( width * height * 4 );
-	
+
 			// reverse height
 			for ( y=0; y<height; ++y ) {
 				for ( x = 0; x<width; ++x ) {
@@ -326,12 +326,12 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			// If palette.
 			if (frame.type === SPR.TYPE_PAL) {
 				out = new Uint8Array( gl_width * gl_height );
-	
+
 				for (y = 0; y < height; ++y) {
 					for (x = 0; x < width; ++x) {
 						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) ] = data[ y * width + x ];
-						if(this.palette[data[ y * width + x ]*4]==255 
-							&& this.palette[data[ y * width + x ]*4+2]==255 
+						if(this.palette[data[ y * width + x ]*4]==255
+							&& this.palette[data[ y * width + x ]*4+2]==255
 							&&this.palette[data[ y * width + x ]*4+1]==0 )
 							out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) ] = 0;
 					}
@@ -341,7 +341,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			// RGBA Images
 			else {
 				out = new Uint8Array( gl_width * gl_height * 4 );
-	
+
 				for (y = 0; y < height; ++y) {
 					for (x = 0; x < width; ++x) {
 						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4 + 0 ] = data[ ( (height-y-1) * width + x ) * 4 + 3 ];

@@ -3,7 +3,7 @@
  *
  * Chararacter Guild
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author @vthibault, @Javierlog08, @scriptord3
  */
@@ -90,7 +90,7 @@ define(function(require)
 	 * { SKID, type, level, spcost, attackRange, skillName, upgradable }
 	 */
 	var _skills = [];
-	
+
 	/**
 	 * @var {jQuery} level up button reference
 	 */
@@ -107,7 +107,7 @@ define(function(require)
 	 * @var {jQuery} button that appeared when level up
 	 */
 	var _btnLevelUp;
-	
+
 	var lArrow, rArrow;
 
 	/**
@@ -203,7 +203,7 @@ define(function(require)
 				// View Information
 				ContextMenu.addElement( DB.getMessage(129), function(){
 					Guild.onRequestMemberInfo(member.AID);
-				}); 
+				});
 
 				// Leave Guild
 				if (isSelf && !Session.isGuildMaster) {
@@ -215,7 +215,7 @@ define(function(require)
 							InputBox.remove();
 							Guild.onRequestLeave(member.AID, member.GID, reason);
 						};
-					}); 
+					});
 				}
 
 				// Expel
@@ -228,14 +228,14 @@ define(function(require)
 							InputBox.remove();
 							Guild.onRequestMemberExpel(member.AID, member.GID, reason);
 						};
-					}); 
+					});
 				}
 			});
 		// Skills
-		
+
 		// Get level up button
 		_btnIncSkill = this.ui.find('.btn.levelup').detach().click(onRequestSkillUp);
-		
+
 		// Get button to open skill when level up
 		_btnLevelUp = jQuery('#lvlup_job').detach();
 		_btnLevelUp.click(function(){
@@ -243,7 +243,7 @@ define(function(require)
 			Guild.ui.show();
 			Guild.ui.parent().append(Guild.ui);
 		}).mousedown(stopPropagation);
-		
+
 		// Bind skills
 		this.ui
 			.on('dblclick',    '.skill .icon, .skill .name', onRequestUseSkill)
@@ -251,7 +251,7 @@ define(function(require)
 			.on('mousedown',   '.selectable', onSkillFocus)
 			.on('dragstart',   '.skill',      onSkillDragStart)
 			.on('dragend',     '.skill',      onSkillDragEnd);
-		
+
 
 		// Notice
 		ui.find('.content.notice')
@@ -274,7 +274,7 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.hide();
-		
+
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function(data){
 			rArrow = 'url('+data+')';
 		});
@@ -784,10 +784,10 @@ define(function(require)
 		}
 
 		element.find('.levelupcontainer').append( levelup );
-		
+
 		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
 		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
-		
+
 		element.find('.level .currentUp').click( function(){ skillLevelSelectUp(skill);  } );
 		element.find('.level .currentDown').click( function(){ skillLevelSelectDown(skill); } );
 		Guild.ui.find('.content.skills .skill_list table').append(element);
@@ -796,7 +796,7 @@ define(function(require)
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
 			element.find('.icon img').attr('src', data);
 		});
-		
+
 		_skills.push(skill);
 		this.onUpdateSkill( skill.SKID, skill.level);
 	};
@@ -808,8 +808,8 @@ define(function(require)
 	{
 		// Not implemented by gravity ? server have to send the whole list again ?
 	};
-	
-	
+
+
 	/**
 	 * Update skill
 	 *
@@ -853,8 +853,8 @@ define(function(require)
 
 		this.onUpdateSkill( skill.SKID, skill.level);
 	};
-	
-	
+
+
 	/**
 	 * Use a skill index
 	 *
@@ -882,9 +882,9 @@ define(function(require)
 		if (skill.type & SkillTargetSelection.TYPE.SELF) {
 			this.onUseSkill( skill.SKID, level ? level : skill.level);
 		}
-		
+
 		skill.useLevel = level;
-		
+
 		// no elseif intended (see flying kick).
 		if (skill.type & SkillTargetSelection.TYPE.TARGET) {
 			SkillTargetSelection.append();
@@ -941,7 +941,7 @@ define(function(require)
 	function getSkillById( id )
 	{
 		var i, count = _skills.length;
-		
+
 		for (i = 0; i < count; ++i) {
 			if (_skills[i].SKID === id) {
 				return _skills[i];
@@ -990,7 +990,7 @@ define(function(require)
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
-		
+
 		skill = getSkillById(parseInt(main.data('index'), 10));
 
 		// Don't add the same UI twice, remove it
@@ -1055,7 +1055,7 @@ define(function(require)
 	{
 		delete window._OBJ_DRAG_;
 	}
-	
+
 	function skillLevelSelectUp( skill ){
 		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level){
@@ -1064,7 +1064,7 @@ define(function(require)
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
-	
+
 	function skillLevelSelectDown( skill ){
 		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1){
@@ -1211,7 +1211,7 @@ define(function(require)
 	/**
 	 * Display member faces every seconds.
 	 * There is no event to detect if a character finish loading.
-	 * 
+	 *
 	 * @param {number} tick
 	 */
 	var renderMemberFaces = (function renderMemberFacesClosure()

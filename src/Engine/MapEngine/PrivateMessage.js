@@ -1,9 +1,9 @@
 /**
  * Engine/MapEngine/PrivateMessage.js
  *
- * Manage Entity based on received packets from server 
+ * Manage Entity based on received packets from server
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -46,7 +46,7 @@ define(function( require )
 		// Official buggy feature
 		var user = ChatBox.PrivateMessageStorage.nick;
 		var msg  = ChatBox.PrivateMessageStorage.msg;
-		
+
 		if (pkt.result === 0) {
 			if (user && msg) {
 				ChatBox.addText( '[ To '+ user +' ] : ' + msg, ChatBox.TYPE.PRIVATE );
@@ -55,7 +55,7 @@ define(function( require )
 		else {
 			ChatBox.addText( '('+ user +') : ' + DB.getMessage(147 + pkt.result),  ChatBox.TYPE.PRIVATE );
 		}
-	
+
 		ChatBox.PrivateMessageStorage.nick = '';
 		ChatBox.PrivateMessageStorage.msg  = '';
 	}

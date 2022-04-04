@@ -3,7 +3,7 @@
  *
  * Robrowser application entry, starting instance.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -16,7 +16,7 @@
 
 
 	/**
-	 * @Constructor 
+	 * @Constructor
 	 */
 	function ROBrowser( options ){
 		if (typeof options === 'object') {
@@ -68,7 +68,7 @@
 	/**
 	 * @var {mixed} grf listing
 	 *
-	 * a) {Array} of GRFs: 
+	 * a) {Array} of GRFs:
 	 *    [ 'custom.grf', 'palette.grf', 'data.grf' ]
 	 *
 	 * b) {string} DATA.INI filename to load
@@ -185,10 +185,10 @@
 
 	/**
 	 * @var {boolean} should we save files in chrome filesystem ?
-	 * 
+	 *
 	 * If set to true, then we try to save the files loaded from server/grfs on a filesystem to load
 	 * them faster the next time.
-	 * 
+	 *
 	 * Only working on Chrome, status: deprecated.
 	 */
 	ROBrowser.prototype.saveFiles = true;
@@ -336,7 +336,7 @@
 			case ROBrowser.APP.STRVIEWER:
 				this.application = 'StrViewer';
 				break;
-				
+
 			case ROBrowser.APP.GRANNYMODELVIEWER:
 				this.application = 'GrannyModelViewer';
 				break;

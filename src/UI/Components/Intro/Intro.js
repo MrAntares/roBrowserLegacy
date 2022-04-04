@@ -3,7 +3,7 @@
  *
  * Intro Manager
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -141,7 +141,7 @@ define(function(require)
 					Intro.ui.find('.msg').text('');
 				});
 			});
-	
+
 		// Stop propagation in overlay to avoid hiding the page
 		ui.find('.overlay')
 			.on('click', 'input[type="text"], a, button', function( event ){
@@ -155,7 +155,7 @@ define(function(require)
 		if (!Configs.get('_serverEditMode')) {
 			ui.find('.serveredit').hide();
 		}
-		
+
 		// Modify volume
 		ui.find('.bgmvol')
 			.on('change', function(){

@@ -4,7 +4,7 @@
  * Login Engine
  * Manage login server, connexion
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -137,7 +137,7 @@ define(function( require )
 			case 0x14: // SERVICETYPE_UAE
 				charset = 'windows-1256';
 				break;
-			case 0x99: 
+			case 0x99:
 				charset = 'windows-1250'; //EASTERN EUROPEAN
 				break;
 		}

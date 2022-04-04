@@ -3,7 +3,7 @@
  *
  * Manage skills
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -14,7 +14,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 
 
 	var SkillInfo = {};
-	
+
 	SkillInfo[SK.SN_WINDWALK] = {
 		Name: "SN_WINDWALK",
 		SkillName: "Wind Walk",
@@ -8830,7 +8830,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		NeedSkillList: new function() {
 			this[JobId.JT_BARD] = [
 				[ SK.BA_WHISTLE, 10 ]
-			], 
+			],
 			this[JobId.JT_DANCER] = [
 				[ SK.DC_HUMMING, 10 ]
 			]

@@ -3,7 +3,7 @@
  *
  * Character room setup UI
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -30,8 +30,8 @@ define(function(require)
 	 * Create Component
 	 */
 	var ChatRoomCreate = new UIComponent( 'ChatRoomCreate', htmlText, cssText );
-	
-	
+
+
 	/**
 	 * @var {string} chat room title
 	 */
@@ -131,8 +131,8 @@ define(function(require)
 
 		_preferences.show = true;
 	};
-	
-	
+
+
 	/**
 	 * Hide the setup ui
 	 */
@@ -143,7 +143,7 @@ define(function(require)
 
 		_preferences.show = false;
 	};
-	
+
 
 	/**
 	 * Key Listener

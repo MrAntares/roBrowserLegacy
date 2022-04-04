@@ -4,7 +4,7 @@
  * Cache Item into memory
  * Used to manage each object in cache, manage callbacks etc.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */

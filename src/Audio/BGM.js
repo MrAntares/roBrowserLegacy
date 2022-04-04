@@ -6,11 +6,11 @@
  * Class to Manage BGM (RO background music)
  * Add support for Flash if the browser can not read .mp3 files.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
- 
+
 define( ['require', 'Utils/jquery', 'Core/Client', 'Preferences/Audio'],
 function( require,         jQuery,        Client,   Preferences )
 {

@@ -3,7 +3,7 @@
  *
  * Manager to find the server protocol
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -27,7 +27,7 @@ define(['Core/Configs'], function( Configs )
 	function getPacketVersion() {
 		var versions = this.versions;
 		var i, count = versions.length;
-	
+
 		for (i = 0; i < count-1; ++i) {
 			if (_value < versions[i+1][0]) {
 				return versions[i];
@@ -241,7 +241,7 @@ define(['Core/Configs'], function( Configs )
 
 	/**
 	 * Add support for a new packet version
-	 * 
+	 *
 	 * @param {number} date
 	 * @param {number[]} list of offsets
 	 */
@@ -256,7 +256,7 @@ define(['Core/Configs'], function( Configs )
 
 			if (!packet.prototype.versions)
 				packet.prototype.versions = [];
-	
+
 			packet.prototype.versions.push(list[i]);
 			packet.prototype.getPacketVersion = getPacketVersion;
 		}

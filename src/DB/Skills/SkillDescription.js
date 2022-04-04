@@ -3,7 +3,7 @@
  *
  * Skill Description tABLE
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -12861,9 +12861,9 @@ define(["./SkillConst"], function( SKID )
 		"disabled.",
 		"Cannot be removed by ^008800Dispell^777777.^000000",
 		"[Lv 1]: ^777777Duration 10 sec, 6% HP|SP drained/sec^000000",
-		"[Lv 2]: ^777777Duration 15 sec, 4% HP|SP drained/sec^000000", 
-		"[Lv 3]: ^777777Duration 20 sec, 3% HP|SP drained/sec^000000", 
-		"[Lv 4]: ^777777Duration 25 sec, 2% HP|SP drained/sec^000000", 
+		"[Lv 2]: ^777777Duration 15 sec, 4% HP|SP drained/sec^000000",
+		"[Lv 3]: ^777777Duration 20 sec, 3% HP|SP drained/sec^000000",
+		"[Lv 4]: ^777777Duration 25 sec, 2% HP|SP drained/sec^000000",
 		"[Lv 5]: ^777777Duration 30 sec, 1% HP|SP drained/sec^000000"
 	].join("\n");
 
@@ -12928,7 +12928,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Damage 4500 %^000000",
 		"[Lv 5]: ^777777Damage 5000 %^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_R_TRIP] = [
 		"Round Trip",
 		"Max Level: 5",
@@ -12944,7 +12944,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777AoE 11x11^000000",
 		"[Lv 5]: ^777777AoE 13x13^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_RICHS_COIN] = [
 		"Rich's Coin",
 		"Max Level: 1",
@@ -12953,7 +12953,7 @@ define(["./SkillConst"], function( SKID )
 		"Description: ^777777Consume 100 zenies to generate 10 coins at a 50% chance.^000000",
 		"^777777Once this skill is learned, failed Coin Flip casts will no longer remove the coin.^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_MASS_SPIRAL] = [
 		"Mass Spiral",
 		"Max Level: 5",
@@ -12968,7 +12968,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Damage 800% + Additional damage depending on target's def^000000",
 		"[Lv 5]: ^777777Damage 1000% + Additional damage depending on target's def^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_B_TRAP] = [
 		"Bound Trap",
 		"Max Level: 5",
@@ -12986,7 +12986,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Duration 13 seconds^000000",
 		"[Lv 5]: ^777777Duration 14 seconds^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_BANISHING_BUSTER] = [
 		"Banishing Buster",
 		"Max Level: 5",
@@ -13001,7 +13001,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Removes 10 random Buff/ Debuff^000000",
 		"[Lv 5]: ^777777Removes 12 random Buff/ Debuff^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_S_STORM] = [
 		"Shatter Storm",
 		"Max Level: 5",
@@ -13017,7 +13017,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Destroys 4 random equipments^000000",
 		"[Lv 5]: ^777777Destroys 5 random equipments^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_SLUGSHOT] = [
 		"Slug Shot",
 		"Max Level: 5",
@@ -13034,7 +13034,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Hit rate -7 for every 1 cell (after initial 3 cells)^000000",
 		"[Lv 5]: ^777777Hit rate -6 for every 1 cell (after initial 3 cells)^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_AM_BLAST] = [
 		"Anti-Material Blast",
 		"Max Level: 5",
@@ -13049,7 +13049,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Duration 18 seconds / Reduce 40 % neutral resistance^000000",
 		"[Lv 5]: ^777777Duration 20 seconds / Reduce 50 % neutral resistance^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_E_CHAIN] = [
 		"Eternal Chain",
 		"Max Level: 10",
@@ -13069,7 +13069,7 @@ define(["./SkillConst"], function( SKID )
 		"[LV 9]: ^777777Duration 150 seconds^000000",
 		"[LV 10]: ^777777Duration 165 seconds^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_QD_SHOT] = [
 		"Quick Draw Shot",
 		"Max Level: 1",
@@ -13079,7 +13079,7 @@ define(["./SkillConst"], function( SKID )
 		"^777777Caster's DEX determines the number of additional attacks done by this skill.^000000",
 		"^777777If there is a target afflicted with Crimson Marker within 21x21 range of the caster, that target receives additional damage from this skill.^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_C_MARKER] = [
 		"Crimson Marker",
 		"Max Level: 1",
@@ -13089,7 +13089,7 @@ define(["./SkillConst"], function( SKID )
 		"^777777Only a maximum of 3 Crimson Marker can be active at a time.^000000",
 		"^777777Boosts Quick Draw Shot, Dragon Tail and Hammer of God effect. 30 second duration.^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_FIREDANCE] = [
 		"Fire Dance",
 		"Max Level: 5",
@@ -13103,7 +13103,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Damage 400% +  additional damage depending on caster's level^000000",
 		"[Lv 5]: ^777777Damage 500% +  additional damage depending on caster's level^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_FIRE_RAIN] = [
 		"Fire Rain",
 		"Max Level: 5",
@@ -13118,7 +13118,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Damage 2000% + additional damage depending on caster's DEX^000000",
 		"[Lv 5]: ^777777Damage 2000% + additional damage depending on caster's DEX^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_FALLEN_ANGEL] = [
 		"Fallen Angel",
 		"Max Level: 5",
@@ -13128,7 +13128,7 @@ define(["./SkillConst"], function( SKID )
 		"^777777If there is an obstacle between the caster and targeted cell, this skill fails to activate.^000000",
 		"^777777Higher skill level reduces the reuse delay.^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_P_ALTER] = [
 		"Platinum Alter",
 		"Max Level: 5",
@@ -13139,7 +13139,7 @@ define(["./SkillConst"], function( SKID )
 		"^777777Skill level affects the ATK increase. Reduces the damage taken from undead monsters during the skill duration.^000000",
 		"^777777If the caster switches weapon or bullet during the duration, this buff will end.^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_FLICKER] = [
 		"Flicker",
 		"Max Level: 1",
@@ -13147,7 +13147,7 @@ define(["./SkillConst"], function( SKID )
 		"Skill Form: ^339900Special^000000",
 		"Description: ^777777Activates and destroys caster's Howling Mine and Bind Trap on screen.^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_H_MINE] = [
 		"Howling Mine",
 		"Max Level: 5",
@@ -13164,7 +13164,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Damage 1000 % + Explosion Damage 1700%^000000",
 		"[Lv 5]: ^777777Damage 1200 % + Explosion Damage 2000%^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_HAMMER_OF_GOD] = [
 		"Hammer of God",
 		"Max Level: 5",
@@ -13180,7 +13180,7 @@ define(["./SkillConst"], function( SKID )
 		"[Lv 4]: ^777777Damage 4800 % + stun lasts 4 seconds^000000",
 		"[Lv 5]: ^777777Damage 5600 % + stun lasts 5 seconds^000000"
 	].join("\n");
- 
+
 	SkillDescription[SKID.RL_HEAT_BARREL] = [
 		"Heat Barrel",
 		"Max Level: 5",

@@ -4,7 +4,7 @@
  * Char Engine
  * Manage char server, connection, character selection / creation / deletion, etc.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -138,7 +138,7 @@ define(function( require )
 
 		Session.Playing = false;
     		Session.hasCart = false;
-		
+
 		UIManager.getComponent('WinLoading').remove();
 
 		// Initialize window
@@ -178,7 +178,7 @@ define(function( require )
 	function onMapUnavailable( pkt )
 	{
 		// no map server avaiable
-		UIManager.showMessageBox( 
+		UIManager.showMessageBox(
 			DB.getMessage(1811),
 			'ok',
 			function(){
@@ -458,7 +458,7 @@ define(function( require )
 	 * Change slot (http://ragnarok.levelupgames.ph/main/new-loki-server-merge-faq/)
 	 *
 	 * S 08d4 <from>.W <to>.W <unk>.W
-	 * R 08d5 <len>.W <success>.W <unk>.W 
+	 * R 08d5 <len>.W <success>.W <unk>.W
 	 */
 
 	/*

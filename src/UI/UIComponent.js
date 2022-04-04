@@ -3,7 +3,7 @@
  *
  * Manage Component
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -62,7 +62,7 @@ define(function( require )
 		STOP:   1, // don't intersect the scene if mouse over the ui
 		FREEZE: 2  // don't intersect the scene if ui is alive in scene
 	};
-	
+
 
 	/**
 	 * @var {number} mouse behavior
@@ -83,7 +83,7 @@ define(function( require )
 
 
 	/**
-	 * @var {boolean} focus element zIndex ? 
+	 * @var {boolean} focus element zIndex ?
 	 */
 	UIComponent.prototype.needFocus = true;
 
@@ -228,7 +228,7 @@ define(function( require )
 		}
 
 		this.ui.appendTo('body');
-		
+
 		if (this.onKeyDown) {
 			jQuery(window).off('keydown.' + this.name).on('keydown.' + this.name, this.onKeyDown.bind(this));
 		}
@@ -352,9 +352,9 @@ define(function( require )
 	UIComponent.prototype.draggable = function draggable( element )
 	{
 		var container = this.ui;
-		
+
 		var component = this;
-		
+
 		// Global variable
 		if (!element) {
 			element = this.ui;
@@ -396,14 +396,14 @@ define(function( require )
 				var x_      = Mouse.screen.x + x;
 				var y_      = Mouse.screen.y + y;
 				var opacity = parseFloat(container.css('opacity')||1) - 0.02;
-				
+
 				if(component.magnet){
 					component.magnet.TOP = false;
 					component.magnet.BOTTOM = false;
 					component.magnet.LEFT = false;
 					component.magnet.RIGHT = false;
 				}
-				
+
 				// Magnet on border
 				if (Math.abs(x_) < 10) {
 					x_ = 0;
@@ -436,7 +436,7 @@ define(function( require )
 				drag = Events.setTimeout( dragging, 15);
 			}
 		});
-	
+
 		return this;
 	};
 
@@ -479,7 +479,7 @@ define(function( require )
 				$node.mouseout( function(){ this.style.backgroundImage = 'url(' + bg_uri    + ')'; });
 			});
 		}
-	
+
 		// On mouse down
 		if (down) {
 			Client.loadFile( DB.INTERFACE_PATH + down, function(dataURI){
@@ -491,7 +491,7 @@ define(function( require )
 				$node.mouseout( function(){ this.style.backgroundImage = 'url(' + bg_uri + ')'; });
 			}
 		}
-	
+
 		// Preload images ?
 		if (preload) {
 			preloads = preload.split(';');

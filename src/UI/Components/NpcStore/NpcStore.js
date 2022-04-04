@@ -3,7 +3,7 @@
  *
  * Chararacter Basic information windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -56,7 +56,7 @@ define(function(require)
 
 
 	/**
-	 * @var {Preferences} 
+	 * @var {Preferences}
 	 */
 	var _preferences = Preferences.get('NpcStore', {
 		inputWindow: {
@@ -134,7 +134,7 @@ define(function(require)
 		// Hacky drag drop
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
 		this.draggable.call({ui: OutputWindow }, OutputWindow.find('.titlebar'));
-		
+
 	};
 
 

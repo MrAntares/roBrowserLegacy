@@ -3,7 +3,7 @@
  *
  * Rendering water
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -245,7 +245,7 @@ define( ['Utils/WebGL'], function( WebGL )
 		gl.bindTexture( gl.TEXTURE_2D, _textures[ frame / _animSpeed % 32 | 0 ] );
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.drawArrays(  gl.TRIANGLES,  0, _vertCount );
-	
+
 		// Is it needed ?
 		gl.disableVertexAttribArray( attribute.aPosition );
 		gl.disableVertexAttribArray( attribute.aTextureCoord );

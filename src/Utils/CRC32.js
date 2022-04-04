@@ -6,7 +6,7 @@
  *
  * fp.crc32();
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Liam Mitchell
  */

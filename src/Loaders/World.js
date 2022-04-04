@@ -3,7 +3,7 @@
  *
  * Loaders for Gravity .rsw file (Resource World)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -90,12 +90,12 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		var header, version;
 		var i, count;
 		var fp;
-	
+
 		// Read header.
 		fp      = new BinaryReader(data);
 		header  = fp.readBinaryString(4);
 		version = fp.readByte() + fp.readByte()/10;
-	
+
 		if (header != 'GRSW') {
 			throw new Error('RSW::load() - Invalid header "' + header + '", must be "GRSW"');
 		}
@@ -131,7 +131,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 			this.light.latitude  = fp.readLong();
 			this.light.diffuse   = [ fp.readFloat(), fp.readFloat(), fp.readFloat() ];
 			this.light.ambient   = [ fp.readFloat(), fp.readFloat(), fp.readFloat() ];
-	
+
 			if (version >= 1.7) {
 				this.light.opacity = fp.readFloat();
 			}
@@ -215,9 +215,9 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 
 		// skip quadtree (not used)
 	};
-	
-	
-	
+
+
+
 	/**
 	 * Compile RSW file
 	 */

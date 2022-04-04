@@ -3,7 +3,7 @@
  *
  * Display 3D effects
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -49,7 +49,7 @@ function(        glMatrix,            EffectManager)
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Remove effect from list
 	 */
@@ -82,33 +82,33 @@ function(        glMatrix,            EffectManager)
 			// how the official client handle it).
 			if (mapEffect.tick < tick && vec3.dist(mapEffect.pos, position) < 25) {
 				var EffectDB      = require('DB/Effects/EffectTable');
-				
+
 				// In case of map effects something has to be done with params
 				//mapEffect.param[0] = ?? size?
 				//mapEffect.param[1] = ?? animspeed?
 				//mapEffect.param[2] = ??
 				//mapEffect.param[3] = ??
-				
-				
+
+
 				if(mapEffect.id in EffectDB){
 					var effect = EffectDB[mapEffect.id];
-					
+
 					for (var i = 0, count = effect.length; i < count; ++i) {
 						//var dupli = effect[i].duplicate;  // duplicate handling. Not needed for now.
-						
+
 						//for (var j = 0; j <= dupli ; ++j) {
-							
+
 							if(mapEffect.param[0]) effect[i].size       = 100 * mapEffect.param[0]; //size
 							if(mapEffect.param[1]) effect[i].delayFrame = 100 / (1+mapEffect.param[1]); // animspeed
-							
+
 							EffectManager.spamEffect(effect[i], mapEffect.name+'-'+i, 0, mapEffect.pos, 0, tick, false, null);
 						//}
 					}
-					
+
 					mapEffect.tick = tick + (mapEffect.delay) / (mapEffect.param[1] ? Math.pow(10, mapEffect.param[1]) : 1); // Don't even ask why, I don't know either...
 				}
-				
-				
+
+
 			}
 		}
 	}

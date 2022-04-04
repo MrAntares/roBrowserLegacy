@@ -3,7 +3,7 @@
  *
  * Loaders for Gravity .grf file (Game RO File)
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
@@ -58,7 +58,7 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		'unsigned long pack_size',
 		'unsigned long real_size'
 	);
-	
+
 	GRF.struct_entry = new Struct(
 		'unsigned long pack_size',
 		'unsigned long length_aligned',
@@ -111,7 +111,7 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 				file.slice( start, start+len )
 			);
 		};
-	
+
 
 		// Check if file has enought content.
 		if (file.size < GRF.struct_header.size) {
@@ -132,11 +132,11 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		if (header.signature !== 'Master of Magic') {
 			throw new Error('GRF::load() - Incorrect header "' + header.signature + '", must be "Master of Magic".');
 		}
-	
+
 		if (header.version !== 0x200) {
 			throw new Error('GRF::load() - Incorrect version "0x' + parseInt(header.version, 10).toString(16) + '", just support version "0x200"');
 		}
-	
+
 		if (header.file_table_offset + GRF.struct_header.size > file.size || header.file_table_offset < 0) {
 			throw new Error('GRF::load() - Can\'t jump to table list (' + header.file_table_offset + '), file length: ' + file.size);
 		}

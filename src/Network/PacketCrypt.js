@@ -12,7 +12,7 @@
  * - If set to a date (ex: 20120111), roBrowser will use the keys related to this version.
  * - If set to an array (ex: [0x053D5CED,0x3DED6DED,0x6DED6DED]), roBrowser will use the keys specified.
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
