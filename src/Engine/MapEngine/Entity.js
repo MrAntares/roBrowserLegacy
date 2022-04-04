@@ -846,6 +846,8 @@ define(function( require )
 			}
 
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
+			
+			EffectManager.spamEffectToggle(dstEntity.effectState, pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
 			if (pkt.result == 1){
 				EffectManager.spamSkillHit( pkt.SKID, pkt.targetAID, null, pkt.srcAID);
