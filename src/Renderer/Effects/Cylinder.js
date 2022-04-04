@@ -60,6 +60,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		uniform float uBottomSize;
 		uniform float uHeight;
 		
+		uniform float uZindex;
+		
 		void main(void) {
 			float size, height;
 			
@@ -79,6 +81,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			}
 			
 			gl_Position    = uProjectionMat * uModelViewMat * position;
+			gl_Position.z -= uZindex;
+			
 			vTextureCoord  = aTextureCoord;
 		}
 	`;
@@ -228,6 +232,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
 		this.fixedPerspective = effect.fixedPerspective ? true : false;
 		
+		this.zIndex = (!isNaN(effect.zIndex)) ? effect.zIndex : 0;
+		
 		this.blendMode = effect.blendMode;
 		this.startLifeTime = startLifeTime;
 		this.endLifeTime = endLifeTime;
@@ -298,6 +304,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
 		
 		gl.uniform1f(uniform.uBottomSize, this.bottomSize);
+		gl.uniform1f( uniform.uZindex, this.zIndex);
 
 		if (this.animation == 1) {
 			if (duration > 1000) {
