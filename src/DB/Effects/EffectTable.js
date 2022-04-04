@@ -972,6 +972,7 @@ define(function( require )
             bottomSize: 0.1,
             topSize: 2,
             animation: 2,
+            zIndex: 1,
             wav: 'effect/ef_bash',
             attachedEntity: true
         }, {
@@ -993,6 +994,7 @@ define(function( require )
             bottomSize: 0.01,
             topSize: 2.5,
             animation: 2,
+            zIndex: 1.1,
             attachedEntity: true
         }, {
             type: 'CYLINDER',
@@ -1013,6 +1015,7 @@ define(function( require )
             bottomSize: 0.01,
             topSize: 4,
             animation: 2,
+            zIndex: 1.2,
             attachedEntity: true
         }],
 
