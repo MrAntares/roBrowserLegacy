@@ -2249,10 +2249,10 @@ define(function( require )
             zIndex: 10
         }],
 
-        44: [{    //EF_SMOKE    Unhide smoke?
-            attachedEntity: false,
-            file: 'smoke',
-            type: 'SPR'
+        44: [{    //EF_SMOKE    Little fog Smoke (prontera chimneys)
+            type: 'SPR',
+            file: '\xb1\xbc\xb6\xd2\xbf\xac\xb1\xe2',
+            attachedEntity: false
         }],
 
         45: [{ // This one is almost invisible, but there are some small white thingies flying around    //EF_FIREFLY    Faint Little Ball Things.
@@ -3547,6 +3547,15 @@ define(function( require )
             file: 'keeping',
             attachedEntity: true
         }],
+		
+		215: [{    //EF_SUMMONSLAVE
+			type: 'SPR',
+			file: 'smoke',
+			attachedEntity: true
+		}],
+		
+		216: [{}],    //EF_BLOODDRAIN
+		217: [{}],    //EF_ENERGYDRAIN
 
 
         218: [{    //EF_POTION_CON    Concentration Potion
@@ -5761,7 +5770,8 @@ define(function( require )
 		
         453: [{    //EF_NPC_STOP       Paralized
 			type: 'SPR',
-			file: '\xbd\xba\xc5\xe9'
+			file: '\xbd\xba\xc5\xe9',
+			attachedEntity: true
 		}],
 		
         //454: [{}],    //EF_DARKCASTING       Like Blind
