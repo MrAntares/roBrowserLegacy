@@ -398,7 +398,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.CG_MOONLIT]                     = {effectId: 394, groundEffectId: '394_ground'};		//Sheltering Bliss
 	SkillEffect[SK.CG_MARIONETTE]                  = {effectId: 395, hitEffectId: 396};		//Marionette Control
 	// Lord Knight
-	SkillEffect[SK.LK_SPIRALPIERCE]                = {beforeCastEffectId: 339, hitEffectId: 'spear_hit_sound'};		//Spiral Pierce
+	SkillEffect[SK.LK_SPIRALPIERCE]                = {beforeCastEffectId: '339_beforecast', effectId: 339, hitEffectId: 'spear_hit_sound'};		//Spiral Pierce
 	SkillEffect[SK.LK_HEADCRUSH]                   = {beforeCastEffectId: 399, hitEffectId: 'enemy_hit_normal1'};		//Traumatic Blow
 	SkillEffect[SK.LK_JOINTBEAT]                   = {beforeCastEffectId: 400, hitEffectId: 'enemy_hit_normal1'};		//Vital Strike
 	// High Wizard
@@ -475,7 +475,7 @@ define(['./SkillConst'], function( SK )
 	// Other 2nd Skills
 	SkillEffect[SK.SM_SELFPROVOKE]                 = {};		//Provoke Self
 	SkillEffect[SK.NPC_EMOTION_ON]                 = {};		//Emotion ON
-	SkillEffect[SK.ST_PRESERVE]                    = {beforeCastEffectId: '496_beforecast'};		//Preserve
+	SkillEffect[SK.ST_PRESERVE]                    = {beforeCastEffectId: '496_beforecast', effectId: 496};		//Preserve
 	SkillEffect[SK.ST_FULLSTRIP]                   = {effectId: 495};		//Divest All
 	SkillEffect[SK.WS_WEAPONREFINE]                = {};		//Upgrade Weapon
 	SkillEffect[SK.CR_SLIMPITCHER]                 = {};		//Aid Condensed Potion
