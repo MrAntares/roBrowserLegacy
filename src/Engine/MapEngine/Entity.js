@@ -1207,7 +1207,7 @@ define(function( require )
 				if (pkt.state == 1){
 					EffectManager.spam( 16, pkt.AID);
 				} else {
-					EffectManager.spam( 44, pkt.AID);
+					EffectManager.spam( 215, pkt.AID);
 				}
 				break;
 				
