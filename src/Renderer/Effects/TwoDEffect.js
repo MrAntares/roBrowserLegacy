@@ -15,12 +15,10 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         this.zIndex = effect.zIndex ? effect.zIndex : 0;
         this.fadeOut = effect.fadeOut ? true : false;
         this.fadeIn = effect.fadeIn ? true : false;
-        this.alphaMax = effect.alphaMax;
+		
+        this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
 		
         this.shadowTexture = effect.shadowTexture ? true : false;
-		
-        if (this.alphaMax < 0) this.alphaMax = 0;
-        else if (this.alphaMax > 1 || isNaN(this.alphaMax)) this.alphaMax = 1;
 		
         if (effect.red) this.red = effect.red;
         else this.red = 1;
