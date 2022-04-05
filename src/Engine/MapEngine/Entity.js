@@ -1375,6 +1375,18 @@ define(function( require )
 					entity.isHallucinating = false;
 				}
                 break;
+				
+			case StatusConst.STOP:
+				if (pkt.state == 1) {
+					entity.attachments.add({
+						repeat:    true,
+						uid:       'status-stop',
+						file:      '\xbd\xba\xc5\xe9'
+					});
+				} else {
+					entity.attachments.remove('status-stop');
+				}
+                break;
 
 			// Cast a skill, TODO: add progressbar in shortcut
 			case StatusConst.POSTDELAY:
