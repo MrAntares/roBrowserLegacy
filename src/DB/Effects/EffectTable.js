@@ -5134,8 +5134,9 @@ define(function( require )
         }],
 
         //338: [{}],    //EF_ANGEL2       Super Novice/Taekwon Level Up Angel
-        339: [{    //EF_MAGNUM2       Spiral Pierce
-			type: 'FUNC',
+
+        '339_beforecast': [{    //EF_MAGNUM2       Spiral Pierce
+            type: 'FUNC',
             attachedEntity: true,
             func: function EffectBodyColor(entity) {
                 entity._virtueColor[0] = 1.0;
@@ -5159,7 +5160,15 @@ define(function( require )
                         entity.recalculateBlendingColor();
                 });
             }
-		}],
+        }],
+
+        339: [{    //EF_MAGNUM2       Spiral Pierce
+            wav: 'permeter_attack'
+        }, {
+            wav: 'effect/ef_magnumbreak',
+            delayWav: 300
+        }],
+
         //340: [{}],    //EF_CALLZONE       (Nothing)
         //341: [{}],    //EF_PORTAL3       Wedding Warp Portal
         //342: [{}],    //EF_COUPLECASTING       Wedding Skill
@@ -5218,8 +5227,8 @@ define(function( require )
         //346: [{}],    //EF_SPHEREWIND       Like Moonlight But Blue
 		
         347: [{    //EF_COLORPAPER       Wedding Ceremony
-			wav:  'effect/wedding'
-		}],
+            wav:  'effect/wedding'
+        }],
 		
         //348: [{}],    //EF_LIGHTSPHERE       Like 1000 Blade trepassing
         //349: [{}],    //EF_WATERFALL       Waterfall (Horizonatal)
@@ -6449,6 +6458,10 @@ define(function( require )
                 this.add(new MagicRing(entity, 2.45, 0.8, 2.80, 'ring_jadu', tick+10000), entity.GID);
             }
         }],
+		
+		496: [{    //EF_GUARD2      Preserve
+			wav: 'effect/black_maximize_power_sword_bic'
+		}],
 
         //497: [{}],    //EF_SLIM       Twilight Alchemy 1
         //498: [{}],    //EF_SLIM2       Twilight Alchemy 2
@@ -6988,8 +7001,17 @@ define(function( require )
         }],
 
         //605: [{}],    //EF_NPC_STOP2_DEL       (Nothing)
-        //606: [{}],    //EF_FVOICE       Pang Voice (Visual Effect)
-        //607: [{}],    //EF_WINK       Wink of Charm (Visual Effect)
+		
+        606: [{    //EF_FVOICE       Pang Voice (Visual Effect)
+			type: 'SPR',
+			file: 'fvoice',
+			wav: 'amon_ra_die01'
+		}],
+        
+		607: [{    //EF_WINK       Wink of Charm (Visual Effect)
+			type: 'SPR',
+			file: 'wink'
+		}],
 
         608: [{    //EF_COOKING_OK    Cooking Success
             type: 'STR',
