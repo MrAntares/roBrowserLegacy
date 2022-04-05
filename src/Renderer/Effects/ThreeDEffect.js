@@ -37,9 +37,9 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         this.sparkling = effect.sparkling ? true : false;
         if (effect.sparkNumber > 0) this.sparkNumber = effect.sparkNumber;
         else this.sparkNumber = 1;
-        this.alphaMax = effect.alphaMax;
-        if (this.alphaMax < 0) this.alphaMax = 0;
-        else if (this.alphaMax > 1 || isNaN(this.alphaMax)) this.alphaMax = 1;
+        
+        this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
+        
         if (effect.red) this.red = effect.red;
         else this.red = 1;
         if (effect.green) this.green = effect.green;
