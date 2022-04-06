@@ -40,6 +40,7 @@ define(function( require )
 	var DB            = require('DB/DBManager');
 	var MagicRing     = require('Renderer/Effects/MagicRing');
 	var SkillEffect   = require('DB/Skills/SkillEffect');
+	var SkillActionTable   = require('DB/Skills/SkillAction');
 	var StrEffect     = require('Renderer/Effects/StrEffect');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
@@ -799,21 +800,16 @@ define(function( require )
 			}
 		}
 
-		var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
-
-		srcEntity.setAction({
-			action: srcEntity.ACTION[action],
-			frame:  0,
-			repeat: false,
-			play:   true,
-			next: {
-				action: srcEntity.ACTION.IDLE,
-				frame:  0,
-				repeat: false,
-				play:   false,
-				next:   false
+		//Action handling
+		if(pkt.SKID in SkillActionTable){
+			var action = SkillActionTable[pkt.SKID];
+			if(action){
+				srcEntity.setAction(action(srcEntity));
+			} else {
 			}
-		});
+		} else {
+			srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity));
+		}
 
 		if (dstEntity) {
 			if (srcEntity && dstEntity !== srcEntity) {
@@ -927,21 +923,16 @@ define(function( require )
                 srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
             }
 
-			var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
-
-			srcEntity.setAction({
-				action: srcEntity.ACTION[action],
-				frame:  0,
-				repeat: false,
-				play:   true,
-				next: {
-					action: srcEntity.ACTION.READYFIGHT,
-					frame:  0,
-					repeat: true,
-					play:   true,
-					next:   false
+			//Action handling
+			if(pkt.SKID in SkillActionTable){
+				var action = SkillActionTable[pkt.SKID];
+				if(action){
+					srcEntity.setAction(action(srcEntity));
+				} else {
 				}
-			});
+			} else {
+				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity));
+			}
 		}
 
 		if (dstEntity) {
