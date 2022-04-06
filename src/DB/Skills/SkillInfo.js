@@ -3188,7 +3188,6 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount: [ 12, 12, 12, 12, 12, 12, 12, 12, 12, 12 ],
 		bSeperateLv: false,
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
-		ActionType: "ATTACK3",
 		NeedSkillList: new function() {
 			this[JobId.JT_ROGUE] = [
 				[ SK.AC_VULTURE, 10 ]
@@ -3240,7 +3239,6 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		MaxLv: 10,
 		SpAmount: [ 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 ],
 		bSeperateLv: false,
-		ActionType: "ATTACK",
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
 		_NeedSkillList: [
 			[ SK.AC_DOUBLE, 5 ]
@@ -4991,7 +4989,6 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		Name: "HT_ANKLESNARE",
 		SkillName: "Anklesnare",
 		MaxLv: 5,
-		//ActionType: "PICKUP",
 		SpAmount: [ 12, 12, 12, 12, 12 ],
 		bSeperateLv: true,
 		AttackRange: [ 3, 3, 3, 3, 3 ],
@@ -10464,7 +10461,6 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 	SkillInfo[SK.SN_SIGHT] = {
 		Name: "SN_SIGHT",
 		SkillName: "True Sight",
-		ActionType: "ACTION",
 		MaxLv: 10,
 		SpAmount: [ 20, 20, 25, 25, 30, 30, 35, 35, 40, 40 ],
 		bSeperateLv: true,
@@ -10515,7 +10511,6 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		MaxLv: 5,
 		SpAmount: [ 18, 21, 24, 27, 30 ],
 		bSeperateLv: true,
-		ActionType: "ATTACK3",
 		AttackRange: [ 9, 9, 9, 9, 9 ],
 		_NeedSkillList: [
 			[ SK.AC_DOUBLE, 5 ],
