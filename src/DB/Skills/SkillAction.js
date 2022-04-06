@@ -79,6 +79,8 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.LK_SPIRALPIERCE] =
 	SkillAction[SK.LK_HEADCRUSH] =
 	SkillAction[SK.LK_JOINTBEAT] =
+	SkillAction[SK.HW_MAGICPOWER] =
+	SkillAction[SK.PA_SACRIFICE] =
 	SkillAction[SK.ASC_METEORASSAULT] =
 	
 	SkillAction[SK.TK_STORMKICK] =
