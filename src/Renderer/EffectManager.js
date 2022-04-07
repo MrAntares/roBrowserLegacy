@@ -550,7 +550,7 @@ define(function( require )
 	 * @param {number} target aid
 	 * @param {number} tick
 	 */
-	EffectManager.spamSkillHit = function spamSkillHit( skillId, AID, tick, otherAID)
+	EffectManager.spamSkillHit = function spamSkillHit( skillId, destAID, tick, srcAID)
 	{
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -558,7 +558,7 @@ define(function( require )
 
 		if (SkillEffect[skillId].hitEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].hitEffectId) ? SkillEffect[skillId].hitEffectId : [SkillEffect[skillId].hitEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
 		}
 	};
 	
@@ -569,7 +569,7 @@ define(function( require )
 	 * @param {number} target aid
 	 * @param {number} tick
 	 */
-	EffectManager.spamSkillBeforeHit = function spamSkillBeforeHit( skillId, AID, tick, otherAID)
+	EffectManager.spamSkillBeforeHit = function spamSkillBeforeHit( skillId, destAID, tick, srcAID)
 	{
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -577,12 +577,12 @@ define(function( require )
 
 		if (SkillEffect[skillId].beforeHitEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectId) ? SkillEffect[skillId].beforeHitEffectId : [SkillEffect[skillId].beforeHitEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
 		}
 		
 		if (SkillEffect[skillId].beforeHitEffectIdOnCaster) {
 			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectIdOnCaster) ? SkillEffect[skillId].beforeHitEffectIdOnCaster : [SkillEffect[skillId].beforeHitEffectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
 		}
 	};
 	
