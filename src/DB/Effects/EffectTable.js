@@ -6615,7 +6615,16 @@ define(function( require )
         //514: [{}],    //EF_GI_EXPLOSION       Really Big Circle
         //515: [{}],    //EF_CLOUD4       Einbroch Fog
         //516: [{}],    //EF_CLOUD5       Airship Cloud
-        //517: [{}],    //EF_BOTTOM_HERMODE       (Nothing)
+		
+        517: [{    //EF_BOTTOM_HERMODE       (Nothing)
+			
+		}],
+		
+		'517_music': [{
+			wav: 'effect/\xc7\xec\xb8\xa3\xb8\xf0\xb5\xe5\xc0\xc7\x20\xc1\xf6\xc6\xce\xc0\xcc',
+			attachedEntity: true,
+		}],
+		
         //518: [{}],    //EF_CARTTER       Cart Termination
 
         519: [{ //speed potion    //EF_ITEMFAST    Speed Down Potion
