@@ -530,11 +530,15 @@ define(function( require )
 		if (!(skillId in SkillEffect)) {
 			return;
 		}
-
-		EffectManager.spam( SkillEffect[skillId].effectId, destAID, position, tick, false, srcAID);
+		
+		if(SkillEffect[skillId].effectId){
+			var effects = Array.isArray(SkillEffect[skillId].effectId) ? SkillEffect[skillId].effectId : [SkillEffect[skillId].effectId];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
+		}
 		
 		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
-			EffectManager.spam( SkillEffect[skillId].effectIdOnCaster, srcAID, position, tick, false, destAID);
+			var effects = Array.isArray(SkillEffect[skillId].effectIdOnCaster) ? SkillEffect[skillId].effectIdOnCaster : [SkillEffect[skillId].effectIdOnCaster];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
 		}
 	};
 
@@ -553,7 +557,8 @@ define(function( require )
 		}
 
 		if (SkillEffect[skillId].hitEffectId) {
-			EffectManager.spam( SkillEffect[skillId].hitEffectId, AID, null, tick, false, otherAID);
+			var effects = Array.isArray(SkillEffect[skillId].hitEffectId) ? SkillEffect[skillId].hitEffectId : [SkillEffect[skillId].hitEffectId];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
 		}
 	};
 	
@@ -571,11 +576,13 @@ define(function( require )
 		}
 
 		if (SkillEffect[skillId].beforeHitEffectId) {
-			EffectManager.spam( SkillEffect[skillId].beforeHitEffectId, AID, null, tick, false, otherAID);
+			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectId) ? SkillEffect[skillId].beforeHitEffectId : [SkillEffect[skillId].beforeHitEffectId];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
 		}
 		
 		if (SkillEffect[skillId].beforeHitEffectIdOnCaster) {
-			EffectManager.spam( SkillEffect[skillId].beforeHitEffectIdOnCaster, otherAID, null, tick, false, AID);
+			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectIdOnCaster) ? SkillEffect[skillId].beforeHitEffectIdOnCaster : [SkillEffect[skillId].beforeHitEffectIdOnCaster];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
 		}
 	};
 	
@@ -592,11 +599,15 @@ define(function( require )
 		if (!(itemId in ItemEffect)) {
 			return;
 		}
-
-		EffectManager.spam( ItemEffect[itemId].effectId, destAID, position, tick);
+		
+		if(ItemEffect[itemId].effectId){
+			var effects = Array.isArray(ItemEffect[itemId].effectId) ? ItemEffect[itemId].effectId : [ItemEffect[itemId].effectId];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
+		}
 		
 		if (ItemEffect[itemId].effectIdOnCaster && srcAID) {
-			EffectManager.spam( ItemEffect[itemId].effectIdOnCaster, srcAID, position, tick);
+			var effects = Array.isArray(ItemEffect[itemId].effectIdOnCaster) ? ItemEffect[itemId].effectIdOnCaster : [ItemEffect[itemId].effectIdOnCaster];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
 		}
 	};
 
