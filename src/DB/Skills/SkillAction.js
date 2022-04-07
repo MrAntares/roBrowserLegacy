@@ -14,7 +14,7 @@ define(['./SkillConst'], function(SK) {
 	var SkillAction = {};
 	
 	//Default skill action
-	SkillAction['DEFAULT'] = function(entity){
+	SkillAction['DEFAULT'] = function(entity, tick){
 		return {
 			action: entity.ACTION.SKILL,
 			frame:  0,
@@ -32,7 +32,7 @@ define(['./SkillConst'], function(SK) {
 		
 	//Skill action overrides
 	//READYFIRGHT
-	SkillAction[SK.SM_ENDURE] = function(entity){
+	SkillAction[SK.SM_ENDURE] = function(entity, tick){
 		return {
 			action: entity.ACTION.READYFIGHT,
 			frame: 0,
@@ -49,7 +49,7 @@ define(['./SkillConst'], function(SK) {
 	};
 	
 	//IDLE
-	SkillAction[SK.ST_CHASEWALK] = function(entity){
+	SkillAction[SK.ST_CHASEWALK] = function(entity, tick){
 		return {
 			action: entity.ACTION.IDLE,
 			frame: 0,
@@ -151,7 +151,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.SR_FALLENEMPIRE] =
 	SkillAction[SK.SR_TIGERCANNON] =
 	SkillAction[SK.SR_CRESCENTELBOW] =
-	SkillAction[SK.SR_GATEOFHELL] = function(entity){
+	SkillAction[SK.SR_GATEOFHELL] = function(entity, tick){
 		return {
 			action: entity.ACTION.ATTACK,
 			frame:  0,
@@ -181,7 +181,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.ITM_TOMAHAWK] =
 	SkillAction[SK.AS_VENOMKNIFE] =
 	SkillAction[SK.NC_AXEBOOMERANG] =
-	SkillAction[SK.GN_SLINGITEM] = function(entity){
+	SkillAction[SK.GN_SLINGITEM] = function(entity, tick){
 		return {
 			action: entity.ACTION.ATTACK1,
 			frame:  0,
@@ -201,7 +201,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.TF_POISON] =
 	SkillAction[SK.MC_MAMMONITE] =
 	SkillAction[SK.MC_CARTREVOLUTION] =
-	SkillAction[SK.GN_CART_TORNADO] = function(entity){
+	SkillAction[SK.GN_CART_TORNADO] = function(entity, tick){
 		return {
 			action: entity.ACTION.ATTACK2,
 			frame:  0,
@@ -224,7 +224,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.SN_SHARPSHOOTING] =
 	SkillAction[SK.RA_ARROWSTORM] =
 	SkillAction[SK.RA_AIMEDBOLT] =
-	SkillAction[SK.SC_TRIANGLESHOT] = function(entity){
+	SkillAction[SK.SC_TRIANGLESHOT] = function(entity, tick){
 		return {
 			action: entity.ACTION.ATTACK3,
 			frame:  0,
@@ -260,7 +260,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.RA_MAIZETRAP] =
 	SkillAction[SK.RA_VERDURETRAP] =
 	SkillAction[SK.RA_FIRINGTRAP] =
-	SkillAction[SK.RA_ICEBOUNDTRAP] = function(entity){
+	SkillAction[SK.RA_ICEBOUNDTRAP] = function(entity, tick){
 		return {
 			action: entity.ACTION.PICKUP,
 			frame:  0,
@@ -278,7 +278,7 @@ define(['./SkillConst'], function(SK) {
 	
 	//Stay in PICKUP
 	SkillAction[SK.NJ_TATAMIGAESHI] =
-	SkillAction[SK.SR_EARTHSHAKER] = function(entity){
+	SkillAction[SK.SR_EARTHSHAKER] = function(entity, tick){
 		return {
 			action: entity.ACTION.PICKUP,
 			frame:  1,
@@ -290,7 +290,7 @@ define(['./SkillConst'], function(SK) {
 	
 	
 	//ACTION
-	SkillAction[SK.SN_SIGHT] = function(entity){
+	SkillAction[SK.SN_SIGHT] = function(entity, tick){
 		return {
 			action: entity.ACTION.ACTION,
 			frame:  0,
@@ -306,10 +306,27 @@ define(['./SkillConst'], function(SK) {
 		};
 	};
 	
-	
 	//EXTRA
+	//BLADE STOP
+	SkillAction[SK.MO_BLADESTOP] = function(entity, tick){
+		return {
+			action: entity.ACTION.SKILL,
+			frame:  3,
+			repeat: false,
+			play:   false,
+			next: {
+				delay: tick + 3000,
+				action: entity.ACTION.IDLE,
+				frame:  0,
+				repeat: false,
+				play:   false,
+				next:   false
+			}
+		};
+	};
+	
 	//9hit
-	SkillAction[SK.CG_ARROWVULCAN] = function(entity){
+	SkillAction[SK.CG_ARROWVULCAN] = function(entity, tick){
 		return {
 			action: entity.ACTION.ATTACK,
 			frame:  0,
@@ -369,7 +386,7 @@ define(['./SkillConst'], function(SK) {
 	
 	
 	//8hit
-	SkillAction[SK.AS_SONICBLOW] = function(entity){
+	SkillAction[SK.AS_SONICBLOW] = function(entity, tick){
 		return {
 			action: entity.ACTION.ATTACK,
 			frame:  0,
@@ -422,7 +439,7 @@ define(['./SkillConst'], function(SK) {
 	};
 	
 	//7hit
-	SkillAction[SK.GC_CROSSIMPACT] = function(entity){
+	SkillAction[SK.GC_CROSSIMPACT] = function(entity, tick){
 		return {
 			action: entity.ACTION.ATTACK,
 			frame:  0,
