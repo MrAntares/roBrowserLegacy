@@ -2277,6 +2277,20 @@ define(function( require )
             rand: [1, 3],
             attachedEntity: true
         }],
+		
+		50: [{    //EF_FIRESPLASHHIT    Spinning Fire Thing
+			type: '2D',
+			duration: 500,
+			file: 'effect/firering.tga',
+			sizeStart: 10,
+			sizeEnd: 300,
+			angle: 0,
+			toAngle: -360,
+			rotate: true,
+			fadeOut: true,
+			posz: 1,
+			attachedEntity: true
+		}],
 
         51: [{ // water hit    //EF_COLDHIT    Ice Elemental Hit
             wav:  '_hit_fist%d',
@@ -2593,6 +2607,62 @@ define(function( require )
                     tick + 10000
                 ), entity.GID);
             },
+        }],
+
+        61: [{    //EF_WARPZONE    Old Warp Portal (NPC Warp, unused)
+			alphaMax: 0.3,
+            animation: 3,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 1,
+            bottomSize: 2,
+            duration: 2800,
+            fade: false,
+            green: 0.5,
+            height: 1.1,
+            red: 0.5,
+            rotate: true,
+            textureName: 'ring_blue',
+            topSize: 3.3,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.3,
+            animation: 3,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 1,
+            bottomSize: 1.9,
+            duration: 2800,
+            fade: false,
+            green: 0.5,
+            height: 1.1,
+            red: 0.5,
+            rotate: true,
+            textureName: 'ring_blue',
+            topSize: 3.2,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 1,
+            attachedEntity: true,
+            blue: 1,
+            duration: 1000,
+            duplicate: 3,
+            fadeIn: false,
+            fadeOut: false,
+            file: 'effect/pok1.tga',
+            green: 1,
+            posxStartRand: 3,
+            posxStartRandMiddle: 0,
+            posyStartRand: 3,
+            posyStartRandMiddle: 0,
+            poszEndRand: 2,
+            poszEndRandMiddle: 2,
+            poszStart: 0,
+            red: 1,
+            size: 100,
+            sizeRand: 17,
+            type: '3D',
+            zIndex: 1
         }],
 
 
@@ -6477,7 +6547,39 @@ define(function( require )
         //498: [{}],    //EF_SLIM2       Twilight Alchemy 2
         //499: [{}],    //EF_SLIM3       Twilight Alchemy 3
         //500: [{}],    //EF_CHEMICALBODY       Player Become Blue with Blue Aura
-        //501: [{}],    //EF_CASTSPIN       Chase Walk Animation
+		
+        501: [{    //EF_CASTSPIN       Chase Walk Animation
+			type: 'FUNC',
+            attachedEntity: true,
+            func: function(entity, tick) {
+				var Events = require('Core/Events');
+				var duration = 500;
+				var count = 50;
+				var delay = duration/count;
+				
+				for(let i = 0; i < count; i++){
+					var delta = 1;
+					
+					if(i<= 15){
+						delta = 12*(8/360);
+					} else if (i<=30){
+						delta = 18*(8/360);
+					} else if (i<=40){
+						delta = 24*(8/360);
+					} else {
+						delta = 48*(8/360);
+					}
+					
+					Events.setTimeout(
+						function(){
+							entity.direction = Math.floor( entity.direction + delta ) % 8;
+						},
+						delay * i
+					);
+				}
+            }
+		}],
+		
         //502: [{}],    //EF_PIERCEBODY       Player Become Yellow with Yellow Aura
         //503: [{}],    //EF_SOULLINK       Soul Link Word
         //504: [{}],    //EF_CHOOKGI2       (Nothing)
@@ -8586,7 +8688,29 @@ define(function( require )
         //772: [{}],    //EF_POISONSMOKE       Poison particles
         //773: [{}],    //EF_GUMGANG4       Expanding purple aura (part of Phantom Menace)
         //774: [{}],    //EF_SHIELDBOOMERANG4       Axe Boomerang
-        //775: [{}],    //EF_CASTSPIN2       Spinning character sprite
+		
+        775: [{    //EF_CASTSPIN2       Spinning character sprite
+			type: 'FUNC',
+            attachedEntity: true,
+            func: function(entity, tick) {
+				var Events = require('Core/Events');
+				var duration = 500;
+				var count = 8;
+				var delay = duration/count;
+				
+				for(let i = 0; i < count; i++){
+					var delta = 1;
+					
+					Events.setTimeout(
+						function(){
+							entity.direction = Math.floor( entity.direction + delta ) % 8;
+						},
+						delay * i
+					);
+				}
+            }
+		}],
+		
         //776: [{}],    //EF_VULCANWAV       Like Desperado sound effect
         //777: [{}],    //EF_AGIUP2       Faded light from the ground [S]
         //778: [{}],    //EF_DETECT3       Expanding white aura (like Clearance)
@@ -9700,7 +9824,27 @@ define(function( require )
 		'ef_moonslasher': [{
             wav: 'effect/lg_moonslasher',
             attachedEntity: true
-        }],
+        }, {
+			type: 'FUNC',
+            attachedEntity: true,
+            func: function(entity, tick) {
+				var Events = require('Core/Events');
+				var duration = 500;
+				var count = 8;
+				var delay = duration/count;
+				
+				for(let i = 0; i < count; i++){
+					var delta = 1;
+					
+					Events.setTimeout(
+						function(){
+							entity.direction = Math.floor( entity.direction + delta ) % 8;
+						},
+						delay * i
+					);
+				}
+            }
+		}],
 		
 		'ef_overbrand': [{
             wav: 'effect/lg_overbrand',
@@ -9815,7 +9959,27 @@ define(function( require )
 		'ef_windmill': [{
             wav: 'effect/sr_windmill',
             attachedEntity: true
-        }],
+        }, {
+			type: 'FUNC',
+            attachedEntity: true,
+            func: function(entity, tick) {
+				var Events = require('Core/Events');
+				var duration = 500;
+				var count = 8;
+				var delay = duration/count;
+				
+				for(let i = 0; i < count; i++){
+					var delta = 1;
+					
+					Events.setTimeout(
+						function(){
+							entity.direction = Math.floor( entity.direction + delta ) % 8;
+						},
+						delay * i
+					);
+				}
+            }
+		}],
 		
 		'ef_jackfrost': [{
             wav: 'effect/wl_jackfrost',
