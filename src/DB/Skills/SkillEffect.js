@@ -388,7 +388,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WS_CARTBOOST]                   = {effectId: 391};		//Cart Boost
 	SkillEffect[SK.WS_SYSTEMCREATE]                = {};		//Auto Attack System
 	// Stalker
-	SkillEffect[SK.ST_CHASEWALK]                   = {effectId: 501};		//Stealth
+	SkillEffect[SK.ST_CHASEWALK]                   = {beforeCastEffectId: 501};		//Stealth
 	SkillEffect[SK.ST_REJECTSWORD]                 = {effectId: 392};		//Counter Instinct
 	// Creator
 	SkillEffect[SK.CR_ALCHEMY]                     = {};		//Alchemy
