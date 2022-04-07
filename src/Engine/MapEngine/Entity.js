@@ -804,11 +804,11 @@ define(function( require )
 		if(pkt.SKID in SkillActionTable){
 			var action = SkillActionTable[pkt.SKID];
 			if(action){
-				srcEntity.setAction(action(srcEntity));
+				srcEntity.setAction(action(srcEntity, Renderer.tick));
 			} else {
 			}
 		} else {
-			srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity));
+			srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 		}
 
 		if (dstEntity) {
@@ -927,11 +927,11 @@ define(function( require )
 			if(pkt.SKID in SkillActionTable){
 				var action = SkillActionTable[pkt.SKID];
 				if(action){
-					srcEntity.setAction(action(srcEntity));
+					srcEntity.setAction(action(srcEntity, Renderer.tick));
 				} else {
 				}
 			} else {
-				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity));
+				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 			}
 		}
 
