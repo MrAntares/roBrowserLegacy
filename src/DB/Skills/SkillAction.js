@@ -48,6 +48,17 @@ define(['./SkillConst'], function(SK) {
 		};
 	};
 	
+	//IDLE
+	SkillAction[SK.ST_CHASEWALK] = function(entity){
+		return {
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: false,
+			play: false,
+			next: false
+		};
+	};
+	
 	//ATTACK - Normal attack with visible weapon
 	SkillAction[SK.SM_BASH] =
 	SkillAction[SK.SM_MAGNUM] =
@@ -115,6 +126,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.GC_WEAPONCRUSH] =
 	SkillAction[SK.GC_VENOMPRESSURE] =
 	SkillAction[SK.GC_PHANTOMMENACE] =
+	SkillAction[SK.GC_ROLLINGCUTTER] =
 	SkillAction[SK.GC_CROSSRIPPERSLASHER] =
 	SkillAction[SK.NC_PILEBUNKER] =
 	SkillAction[SK.NC_VULCANARM] =
@@ -125,6 +137,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.NC_AXETORNADO] =
 	SkillAction[SK.SC_FATALMENACE] =
 	SkillAction[SK.LG_CANNONSPEAR] =
+	SkillAction[SK.LG_MOONSLASHER] =
 	SkillAction[SK.LG_BANISHINGPOINT] =
 	SkillAction[SK.LG_TRAMPLE] =
 	SkillAction[SK.LG_SHIELDPRESS] =
@@ -187,7 +200,8 @@ define(['./SkillConst'], function(SK) {
 	//ATTACK2 - Normal attack without visible weapon
 	SkillAction[SK.TF_POISON] =
 	SkillAction[SK.MC_MAMMONITE] =
-	SkillAction[SK.MC_CARTREVOLUTION] = function(entity){
+	SkillAction[SK.MC_CARTREVOLUTION] =
+	SkillAction[SK.GN_CART_TORNADO] = function(entity){
 		return {
 			action: entity.ACTION.ATTACK2,
 			frame:  0,
@@ -267,7 +281,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.SR_EARTHSHAKER] = function(entity){
 		return {
 			action: entity.ACTION.PICKUP,
-			frame:  2,
+			frame:  1,
 			repeat: false,
 			play:   false,
 			next:   false
@@ -453,15 +467,6 @@ define(['./SkillConst'], function(SK) {
 			}
 		};
 	};
-	
-	
-	//SPIN
-	/*
-	SkillAction[SK.GC_ROLLINGCUTTER] =
-	SkillAction[SK.LG_MOONSLASHER] =
-	SkillAction[SK.GN_CART_TORNADO] = function(entity){
-	};
-	*/
 	
 		
 	//Prevent default skill action
