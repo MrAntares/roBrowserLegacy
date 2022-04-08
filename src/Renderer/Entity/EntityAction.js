@@ -89,6 +89,8 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 			anim.tick   = Renderer.tick + 0;
 			anim.delay  = 0;
 			anim.frame  = option.frame  || 0;
+			anim.speed  = option.speed  || false;
+			anim.length = option.length || false;
 			anim.repeat = option.repeat || false;
 			anim.play   = typeof option.play !== 'undefined' ? option.play : true;
 			anim.next   = option.next   || false;
