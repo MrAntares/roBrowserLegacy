@@ -479,6 +479,14 @@ define( function( require )
 		var headDir   = 0;
 		var anim	  = 0;
 
+		//overrides
+		if(animation.length){
+			animSize = animation.length;
+		}
+		if(animation.speed){
+			delay = animation.speed;
+		}
+	
 		if(type === 'cart' && isIdle)
 			return 0;
 
@@ -507,8 +515,9 @@ define( function( require )
 
 			anim %= animCount;
 			anim += animCount * headDir; // get rid of doridori
-			anim += animation.frame;	 // don't forget the previous frame
 			anim %= animSize;			// avoid overflow
+			anim += animation.frame;	 // don't forget the previous frame
+			anim %= animCount;			// avoid overflow
 
 			return anim;
 		}
@@ -519,9 +528,11 @@ define( function( require )
 			+ animCount * headDir // get rid of doridori
 			+ animation.frame	 // previous frame
 		);
+		
+		var lastFrame = animation.frame + animSize-1;
 
-		if (type === 'body' && anim >= animSize - 1) {
-			animation.frame = anim = animSize - 1;
+		if (type === 'body' && anim >= lastFrame) {
+			animation.frame = anim = lastFrame;
 			animation.play  = false;
 			if (animation.next) {
 				entity.setAction( animation.next );
