@@ -31,22 +31,7 @@ define(['./SkillConst'], function(SK) {
 	};
 		
 	//Skill action overrides
-	//READYFIRGHT
-	SkillAction[SK.SM_ENDURE] = function(entity, tick){
-		return {
-			action: entity.ACTION.READYFIGHT,
-			frame: 0,
-			repeat: true,
-			play: false,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: false,
-				play: false,
-				next: true
-			}
-		};
-	};
+	
 	
 	//IDLE
 	SkillAction[SK.ST_CHASEWALK] = function(entity, tick){
@@ -173,6 +158,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.AM_DEMONSTRATION] =
 	SkillAction[SK.AM_ACIDTERROR] =
 	SkillAction[SK.AM_POTIONPITCHER] =
+	SkillAction[SK.AM_CANNIBALIZE] =
 	SkillAction[SK.TF_SPRINKLESAND] =
 	SkillAction[SK.TF_THROWSTONE] =
 	SkillAction[SK.NJ_SYURIKEN] =
@@ -180,6 +166,7 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.NJ_ZENYNAGE] =
 	SkillAction[SK.ITM_TOMAHAWK] =
 	SkillAction[SK.AS_VENOMKNIFE] =
+	SkillAction[SK.PA_SHIELDCHAIN] =
 	SkillAction[SK.NC_AXEBOOMERANG] =
 	SkillAction[SK.GN_SLINGITEM] = function(entity, tick){
 		return {
@@ -306,7 +293,58 @@ define(['./SkillConst'], function(SK) {
 		};
 	};
 	
+	//DANCE/PLAY
+	SkillAction[SK.DC_WINKCHARM] =
+	SkillAction[SK.DC_FORTUNEKISS] =
+	SkillAction[SK.DC_UGLYDANCE] =
+	SkillAction[SK.DC_HUMMING] =
+	SkillAction[SK.DC_DONTFORGETME] =
+	SkillAction[SK.DC_SERVICEFORYOU] =
+	SkillAction[SK.BA_APPLEIDUN] =
+	SkillAction[SK.BA_DISSONANCE] =
+	SkillAction[SK.BA_WHISTLE] =
+	SkillAction[SK.BA_ASSASSINCROSS] =
+	SkillAction[SK.BA_POEMBRAGI] =
+	SkillAction[SK.BD_LULLABY] =
+	SkillAction[SK.BD_RICHMANKIM] =
+	SkillAction[SK.BD_ETERNALCHAOS] =
+	SkillAction[SK.BD_DRUMBATTLEFIELD] =
+	SkillAction[SK.BD_SIEGFRIED] =
+	SkillAction[SK.CG_HERMODE] =
+	SkillAction[SK.BD_RINGNIBELUNGEN] =
+	SkillAction[SK.SKID_BD_ROKISWEIL] =
+	SkillAction[SK.BD_INTOABYSS] =
+	SkillAction[SK.CG_MOONLIT] =
+	SkillAction[SK.CG_MARIONETTE] = function(entity, tick){
+		return {
+			action: entity.ACTION.SKILL,
+			frame: 1,
+			length: 3,
+			speed: 250,
+			repeat: true,
+			play: true,
+			next: false
+		};
+	};
+	
 	//EXTRA
+	//ENDURE
+	SkillAction[SK.SM_ENDURE] = function(entity, tick){
+		return {
+			action: entity.ACTION.READYFIGHT,
+			frame: 0,
+			repeat: true,
+			play: false,
+			next: {
+				action: entity.ACTION.IDLE,
+				frame: 0,
+				repeat: false,
+				play: false,
+				next: true
+			}
+		};
+	};
+	
 	//BLADE STOP
 	SkillAction[SK.MO_BLADESTOP] = function(entity, tick){
 		return {
