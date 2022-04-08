@@ -43,7 +43,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17};		//Magnum Break
 	SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	// Mage
-	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22};		//Sight
+	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22, hitEffectId: 1};		//Sight
 	SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
 	SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
 	SkillEffect[SK.MG_SOULSTRIKE]                  = {beforeHitEffectId: 15, hitEffectId: 1};		//Soul Strike
@@ -56,7 +56,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MG_LIGHTNINGBOLT]               = {effectId: 29, hitEffectId: 52};		//Lightning Bolt
 	SkillEffect[SK.MG_THUNDERSTORM]                = {effectId: 30, hitEffectId: 52};		//Thunderstorm
 	// Acolyte
-	SkillEffect[SK.AL_RUWACH]                      = {effectIdOnCaster: 33};		//Ruwach
+	SkillEffect[SK.AL_RUWACH]                      = {effectIdOnCaster: 33, hitEffectId: 1};		//Ruwach
 	SkillEffect[SK.AL_PNEUMA]                      = {groundEffectId: 141};		//Pneuma
 	SkillEffect[SK.AL_TELEPORT]                    = {/*not here*/};		//Teleport
 	SkillEffect[SK.AL_WARP]                        = {effectId: 35, groundEffectId: 317};		//Warp Portal
@@ -74,7 +74,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MC_MAMMONITE]                   = {effectId: 10};		//Mammonite
 	// Archer
 	SkillEffect[SK.AC_CONCENTRATION]               = {effectId: 153};		//Improve Concentration
-	SkillEffect[SK.AC_DOUBLE]                      = {beforeHitEffectId: 'ef_throw_arrow'};		//Double Strafe
+	SkillEffect[SK.AC_DOUBLE]                      = {beforeHitEffectId: 'ef_throw_arrow', hitEffectId: 1};		//Double Strafe
 	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower', hitEffectId: 1};		//Arrow Shower
 	// Thief
 	SkillEffect[SK.TF_STEAL]                       = {hitEffectId: 18};		//Steal
@@ -598,7 +598,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WZ_SIGHTBLASTER]                = {effectId: 601};		//Sight Blaster
 	SkillEffect[SK.SA_CREATECON]                   = {};		//Create Elemental Converter
 	SkillEffect[SK.SA_ELEMENTWATER]                = {effectId: 256};		//Elemental Change Water
-	SkillEffect[SK.HT_PHANTASMIC]                  = {beforeHitEffectId: 'ef_throw_arrow'};		//Phantasmic Arrow
+	SkillEffect[SK.HT_PHANTASMIC]                  = {beforeHitEffectId: 'ef_throw_arrow', hitEffectId: 1};		//Phantasmic Arrow
 	SkillEffect[SK.BA_PANGVOICE]                   = {effectId: 606};		//Pang Voice
 	SkillEffect[SK.DC_WINKCHARM]                   = {effectId: 607};		//Wink of Charm
 	SkillEffect[SK.BS_GREED]                       = {effectId: 'ef_greed_sound'};		//Greed
