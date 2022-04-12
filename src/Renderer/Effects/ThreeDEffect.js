@@ -31,15 +31,18 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         else this.rotatePosZ = 0;
         if (effect.nbOfRotation > 0) this.nbOfRotation = effect.nbOfRotation;
         else this.nbOfRotation = 1;
-        if (effect.rotateLate > 0) this.rotateLate = effect.rotateLate;
-        else this.rotateLate = 0;
+
+        this.rotateLate =  (effect.rotateLate > 0) ? effect.rotateLate : 0;
+        this.rotateLate += (effect.rotateLateDelta) ?  effect.rotateLateDelta * effect.duplicateID : 0;
+
         this.rotationClockwise = effect.rotationClockwise ? true : false;
         this.sparkling = effect.sparkling ? true : false;
         if (effect.sparkNumber > 0) this.sparkNumber = effect.sparkNumber;
         else this.sparkNumber = 1;
         
         this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
-        
+        this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * effect.duplicateID : 0), 1), 0);
+console.log(this.alphaMax);
         if (effect.red) this.red = effect.red;
         else this.red = 1;
         if (effect.green) this.green = effect.green;
@@ -166,12 +169,26 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             this.poszEnd = 0 + this.zOffset + randEnd[2];
 
         }
+
         if (effect.size) {
             this.sizeStartX = effect.size;
             this.sizeStartY = effect.size;
             this.sizeEndX = effect.size;
             this.sizeEndY = effect.size;
+        } else {
+            this.sizeStartX = 1;
+            this.sizeStartY = 1;
+            this.sizeEndX = 1;
+            this.sizeEndY = 1;
         }
+
+        if(effect.sizeDelta){
+            this.sizeStartX += effect.sizeDelta * effect.duplicateID;
+            this.sizeStartY += effect.sizeDelta * effect.duplicateID;
+            this.sizeEndX += effect.sizeDelta * effect.duplicateID;
+            this.sizeEndY += effect.sizeDelta * effect.duplicateID;
+        }
+
         if (effect.sizeStart) {
             this.sizeStartX = effect.sizeStart;
             this.sizeStartY = effect.sizeStart;
