@@ -42,7 +42,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         
         this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
         this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * effect.duplicateID : 0), 1), 0);
-console.log(this.alphaMax);
+
         if (effect.red) this.red = effect.red;
         else this.red = 1;
         if (effect.green) this.green = effect.green;
