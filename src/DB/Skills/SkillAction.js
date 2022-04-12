@@ -60,8 +60,6 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.RG_INTIMIDATE] =
 	SkillAction[SK.CR_SHIELDCHARGE] =
 	SkillAction[SK.CR_HOLYCROSS] =
-	SkillAction[SK.MO_INVESTIGATE] =
-	SkillAction[SK.MO_FINGEROFFENSIVE] =
 	SkillAction[SK.MO_EXTREMITYFIST] =
 	SkillAction[SK.MO_CHAINCOMBO] =
 	SkillAction[SK.MO_COMBOFINISH] =
@@ -293,6 +291,7 @@ define(['./SkillConst'], function(SK) {
 		};
 	};
 	
+	//EXTRA
 	//DANCE/PLAY
 	SkillAction[SK.DC_WINKCHARM] =
 	SkillAction[SK.DC_FORTUNEKISS] =
@@ -327,20 +326,19 @@ define(['./SkillConst'], function(SK) {
 		};
 	};
 	
-	//EXTRA
 	//ENDURE
 	SkillAction[SK.SM_ENDURE] = function(entity, tick){
 		return {
 			action: entity.ACTION.READYFIGHT,
 			frame: 0,
-			repeat: true,
-			play: false,
+			repeat: false,
+			play: true,
 			next: {
 				action: entity.ACTION.IDLE,
 				frame: 0,
-				repeat: false,
-				play: false,
-				next: true
+				repeat: true,
+				play: true,
+				next: false
 			}
 		};
 	};
@@ -360,6 +358,18 @@ define(['./SkillConst'], function(SK) {
 				play:   false,
 				next:   false
 			}
+		};
+	};
+	
+	//KAMEHAMEHA
+	SkillAction[SK.MO_INVESTIGATE] =
+	SkillAction[SK.MO_FINGEROFFENSIVE] = function(entity, tick){
+		return {
+			action: entity.ACTION.SKILL,
+			frame: 4,
+			repeat: false,
+			play: false,
+			next: false
 		};
 	};
 	
