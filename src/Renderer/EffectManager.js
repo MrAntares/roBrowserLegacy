@@ -546,6 +546,24 @@ define(function( require )
 		}
 	};
 
+	/**
+	 * Spam skill effect on success
+	 *
+	 * @param {number} skill id
+	 * @param {number} target aid
+	 * @param {number} tick
+	 */
+	EffectManager.spamSkillSuccess = function spamSkillSuccess( skillId, destAID, tick, srcAID)
+	{
+		if (!(skillId in SkillEffect)) {
+			return;
+		}
+
+		if (SkillEffect[skillId].successEffectId) {
+			var effects = Array.isArray(SkillEffect[skillId].successEffectId) ? SkillEffect[skillId].successEffectId : [SkillEffect[skillId].successEffectId];
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
+		}
+	};
 
 	/**
 	 * Spam skill effect on hit with damage
