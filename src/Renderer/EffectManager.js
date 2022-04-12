@@ -289,6 +289,7 @@ define(function( require )
             timeBetweenDupli = !isNaN(effects[i].timeBetweenDupli) ? effects[i].timeBetweenDupli : 200;
 			
             for (var j = 0; j < duplicate; ++j) {
+				effects[i].duplicateID = j;
 				EffectManager.spamEffect(effects[i], AID, otherAID, position, otherPosition, tick + timeBetweenDupli * j, persistent, duration);
 			}
         }
@@ -352,8 +353,11 @@ define(function( require )
 		//Set delays
 		if (!duration) duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
 		
-		var delayOffset = !isNaN(effect.delayOffset) ? effect.delayOffset : 0;
-		var delayLate = !isNaN(effect.delayLate) ? effect.delayLate : 0;
+		var delayOffsetDelta = !isNaN(effect.delayOffsetDelta) ? effect.delayOffsetDelta * effect.duplicateID : 0;
+		var delayLateDelta = !isNaN(effect.delayLateDelta) ? effect.delayLateDelta * effect.duplicateID : 0;
+		
+		var delayOffset = !isNaN(effect.delayOffset) ? effect.delayOffset + delayOffsetDelta : 0;
+		var delayLate = !isNaN(effect.delayLate) ? effect.delayLate + delayLateDelta : 0;
 		
 		switch (effect.type) {
 			case 'SPR':
