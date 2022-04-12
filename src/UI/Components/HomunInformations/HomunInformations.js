@@ -12,17 +12,17 @@ define(function (require) {
     /**
      * Dependencies
      */
-    var DB                   = require('DB/DBManager');
-    var Client               = require('Core/Client');
-    var Preferences          = require('Core/Preferences');
-    var Renderer             = require('Renderer/Renderer');
-    var UIManager            = require('UI/UIManager');
-    var UIComponent          = require('UI/UIComponent');
-    var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
-    var htmlText             = require('text!./HomunInformations.html');
-    var cssText              = require('text!./HomunInformations.css');
-    var Session              = require('Engine/SessionStorage');
-    var AIDriver             = require('Utils/AIDriver');
+    var DB = require('DB/DBManager');
+    var Client = require('Core/Client');
+    var Preferences = require('Core/Preferences');
+    var Renderer = require('Renderer/Renderer');
+    var UIManager = require('UI/UIManager');
+    var UIComponent = require('UI/UIComponent');
+    var SkillListMER = require('UI/Components/SkillListMER/SkillListMER');
+    var htmlText = require('text!./HomunInformations.html');
+    var cssText = require('text!./HomunInformations.css');
+    var Session = require('Engine/SessionStorage');
+    var AIDriver = require('Core/AIDriver');
 
     /**
      * Create Component
@@ -36,7 +36,7 @@ define(function (require) {
     var _preferences = Preferences.get('HomunInformations', {
         x: 100,
         y: 200,
-        show: true,
+        show: false,
     }, 1.0);
 
 
@@ -61,13 +61,15 @@ define(function (require) {
             left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
         });
 
-        this.ui.find('.skill').mousedown(function (){
+        this.ui.find('.skill').mousedown(function () {
             SkillListMER.toggle()
         });
 
         // AI LOOP
         setInterval(function () {
-            AIDriver.exec('AI(' + Session.homunId + ')')
+            if (Session.homunId) {
+                AIDriver.exec('AI(' + Session.homunId + ')')
+            }
         }, 100)
     };
 
@@ -113,13 +115,22 @@ define(function (require) {
 
         switch (key.cmd) {
             case 'TOGGLE':
-                this.ui.toggle();
-                if (this.ui.is(':visible')) {
-                    this.focus();
-                }
-                if (!this.ui.is(':visible')) {
+                if (Session.homunId) {
+                    this.ui.toggle();
+                    if (this.ui.is(':visible')) {
+                        this.focus();
+                    }
+                    if (!this.ui.is(':visible')) {
+                        SkillListMER.ui.hide();
+                    }
+                } else {
                     SkillListMER.ui.hide();
+                    this.ui.hide();
                 }
+                break;
+            case 'AGGRESSIVE':
+                let agr = localStorage.getItem('AGGRESSIVE') == 0 ? 1 : 0;
+                localStorage.setItem('AGGRESSIVE', agr);
                 break;
         }
     };
@@ -141,7 +152,7 @@ define(function (require) {
         this.ui.find('.stats .def').text(info.def);
         this.ui.find('.stats .Mdef').text(info.Mdef);
         this.ui.find('.stats .flee').text(info.flee);
-        this.ui.find('.stats .aspd').text(info.aspd);
+        this.ui.find('.stats .aspd').text(Math.floor(200 - info.aspd / 10));
 
         this.setHpSpBar('hp', info.hp, info.maxHP);
         this.setHpSpBar('sp', info.sp, info.maxSP);
@@ -156,7 +167,7 @@ define(function (require) {
             this.ui.find('.name, .modify').addClass('disabled').attr('disabled', true);
         }
 
-        SkillListMER.setPoints( info.SKPoint );
+        SkillListMER.setPoints(info.SKPoint);
     };
 
 

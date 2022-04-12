@@ -29,8 +29,6 @@ define(function( require )
 	var ChatRoom    = require('UI/Components/ChatRoom/ChatRoom');
 	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
 	var Pet         = require('UI/Components/PetInformations/PetInformations');
-	// todo error use shortcat skill SkillTargetSelection.js
-	// var Homun       = require('UI/Components/HomunInformations/HomunInformations');
 	var Trade       = require('UI/Components/Trade/Trade');
 	var getModule   = require;
 
@@ -287,13 +285,14 @@ define(function( require )
 				break;
 
 			case Entity.TYPE_HOM:
-				// if (Session.homunId === this.GID) {
-				// 	ContextMenu.remove();
-				// 	ContextMenu.append();
-				// 	ContextMenu.addElement( 'View Status', Homun.ui.show.bind(Homun.ui));
-				// 	ContextMenu.addElement( 'Feed', Homun.reqHomunFeed());
-				// 	ContextMenu.addElement( 'Stand By', Homun.reqMoveToOwner(this.GID));
-				// }
+				if (Session.homunId === this.GID) {
+					ContextMenu.remove();
+					ContextMenu.append();
+					// todo homunculus implement
+					ContextMenu.addElement( 'View Status', () => console.warn('"View Status" not implemented'));
+					ContextMenu.addElement( 'Feed', () => console.warn('"Feed" not implemented'));
+					ContextMenu.addElement( 'Stand By', () => console.warn('"Stand By" not implemented'));
+				}
 				break;
 		}
 

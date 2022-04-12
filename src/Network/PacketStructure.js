@@ -11082,6 +11082,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.SKILL_ENTRY5.size = -1;
 
+	// 0x9cb
+	PACKET.ZC.USE_SKILL2 = function PACKET_ZC_USE_SKILL2(fp, end) {
+		this.SKID = fp.readUShort();
+		this.level = fp.readLong();
+		this.targetAID = fp.readULong();
+		this.srcAID = fp.readULong();
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.USE_SKILL2.size = 17;
 
 	// 0x9db
 	PACKET.ZC.NOTIFY_MOVEENTRY8 = function PACKET_ZC_NOTIFY_MOVEENTRY8(fp, end) {

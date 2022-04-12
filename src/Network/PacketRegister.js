@@ -564,6 +564,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x99d: PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST,  // ok
 		0x9a0: PACKET.HC.CHARLIST_NOTIFY,
 		0x9ca: PACKET.ZC.SKILL_ENTRY5, // ok
+		0x9cb: PACKET.ZC.USE_SKILL2,
 		// 0x9d5: npcmarketopenType
 		// 0x9d7: npcmarketresultackType
 		0x9db: PACKET.ZC.NOTIFY_MOVEENTRY8, // ok

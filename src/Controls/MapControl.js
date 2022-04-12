@@ -28,8 +28,7 @@ define(function( require )
 	var Session       = require('Engine/SessionStorage');
 	var Preferences   = require('Preferences/Controls');
 	var KEYS          = require('Controls/KeyEventHandler');
-	var HomunInformations         = require('UI/Components/HomunInformations/HomunInformations');
-	var AIDriver = require('Utils/AIDriver');
+	var AIDriver      = require('Core/AIDriver');
 
 	require('Controls/ScreenShot');
 
@@ -139,14 +138,10 @@ define(function( require )
 					Cursor.setType( Cursor.ACTION.ROTATE );
 					Camera.rotate( false );
 
-					HomunInformations.reqMoveTo(Session.homunId);
-					// AIDriver.exec('Move(' + Session.homunId + ', ' + entityOver.position.x + ', ' + entityOver.position.y + ')');
+					AIDriver.setmsg(Session.homunId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
 
 					if (entityOver) {
-						//todo focus attack
-                        // AIDriver.setmsg(3, entityOver.GID)
-						// AIDriver.exec('Attack('+Session.homunId+', '+entityOver.GID+')');
-						HomunInformations.reqAttack(Session.homunId, entityOver.GID);
+						AIDriver.setmsg(Session.homunId, '3,'+ entityOver.GID);
 					}
 				} else {
 					Cursor.setType( Cursor.ACTION.ROTATE );

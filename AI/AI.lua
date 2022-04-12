@@ -1,6 +1,6 @@
 
-require "AI\\Const"
-require "AI\\Util"
+require "AI/Const.lua"
+require "AI/Util.lua"
 
 -----------------------------
 -- state
@@ -53,13 +53,13 @@ function	OnMOVE_CMD (x,y)
 	TraceAI ("OnMOVE_CMD")
 
 	if ( x == MyDestX and y == MyDestY and MOTION_MOVE == GetV(V_MOTION,MyID)) then
-		return		-- 현재 이동중인 목적지와 같은 곳이면 처리하지 않는다.
+		return		-- If it is the same as the current destination, it will not be processed.
 	end
 
 	local curX, curY = GetV (V_POSITION,MyID)
-	if (math.abs(x-curX)+math.abs(y-curY) > 15) then		-- 목적지가 일정 거리 이상이면 (서버에서 먼거리는 처리하지 않기 때문에)
-		List.pushleft (ResCmdList,{MOVE_CMD,x,y})			-- 원래 목적지로의 이동을 예약한다.
-		x = math.floor((x+curX)/2)							-- 중간지점으로 먼저 이동한다.
+	if (math.abs(x-curX)+math.abs(y-curY) > 15) then		-- If the destination is more than a certain distance (since the server does not handle the long distance)
+		List.pushleft (ResCmdList,{MOVE_CMD,x,y})			-- Book a transfer to your original destination.
+		x = math.floor((x+curX)/2)							-- Go to the midpoint first.
 		y = math.floor((y+curY)/2)							--
 	end
 
