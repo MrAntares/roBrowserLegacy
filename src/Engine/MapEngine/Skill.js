@@ -317,12 +317,9 @@ define(function( require )
 	 */
 	function onTeleportList( pkt )
 	{
-		// Clone NPC box
-		var WarpList = NpcMenu.clone('WarpList', true);
-
 		// Once selected
-		WarpList.onSelectMenu = function(skillid, index) {
-			WarpList.remove();
+		NpcMenu.onSelectMenu = function(skillid, index) {
+			NpcMenu.remove();
 
 			var _pkt     = new PACKET.CZ.SELECT_WARPPOINT();
 			_pkt.SKID    = skillid;
@@ -330,7 +327,7 @@ define(function( require )
 			Network.sendPacket(_pkt);
 		};
 
-		WarpList.onAppend = function() {
+		NpcMenu.onAppend = function() {
 			var i, count;
 			var mapNames = [];
 
@@ -338,11 +335,11 @@ define(function( require )
 				mapNames[i] = DB.getMapName(pkt.mapName[i], pkt.mapName[i]);
 			}
 
-			WarpList.setMenu(mapNames.join(':') + ':Cancel', pkt.SKID);
-			WarpList.ui.find('.title').text(DB.getMessage(213));
+			NpcMenu.setMenu(mapNames.join(':') + ':Cancel', pkt.SKID);
+			NpcMenu.ui.find('.title').text(DB.getMessage(213));
 		};
 
-		WarpList.append();
+		NpcMenu.append();
 	}
 
 
