@@ -844,7 +844,7 @@ define(function( require )
 			EffectManager.spamSkill( pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
 			if (pkt.result == 1){
-				EffectManager.spamSkillHit( pkt.SKID, pkt.targetAID, null, pkt.srcAID);
+				EffectManager.spamSkillSuccess( pkt.SKID, pkt.targetAID, null, pkt.srcAID);
 			}
 		}
 	}
