@@ -43,7 +43,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17};		//Magnum Break
 	SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	// Mage
-	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22, hitEffectId: 1};		//Sight
+	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22};		//Sight
 	SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
 	SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
 	SkillEffect[SK.MG_SOULSTRIKE]                  = {beforeHitEffectId: 15, hitEffectId: 1};		//Soul Strike
@@ -77,7 +77,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.AC_DOUBLE]                      = {beforeHitEffectId: 'ef_throw_arrow', hitEffectId: 1};		//Double Strafe
 	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower', hitEffectId: 1};		//Arrow Shower
 	// Thief
-	SkillEffect[SK.TF_STEAL]                       = {hitEffectId: 18};		//Steal
+	SkillEffect[SK.TF_STEAL]                       = {successEffectId: 18};		//Steal
 	SkillEffect[SK.TF_HIDING]                      = {/*Handled by state*/};	//Hiding
 	SkillEffect[SK.TF_POISON]                      = {hitEffectId: 20};		//Envenom
 	SkillEffect[SK.TF_DETOXIFY]                    = {effectId: 21};		//Detoxify
@@ -371,7 +371,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.CH_CHAINCRUSH]                  = {effectId: 512};		//Chain Crush Combo
 	// Professor
 	SkillEffect[SK.PF_HPCONVERSION]                = {effectId: 383};		//Indulge
-	SkillEffect[SK.PF_SOULCHANGE]                  = {effectId: 384, hitEffectId: 385};		//Soul Exhale
+	SkillEffect[SK.PF_SOULCHANGE]                  = {effectId: 384, successEffectId: 385};		//Soul Exhale
 	SkillEffect[SK.PF_SOULBURN]                    = {effectId: 406};		//Soul Siphon
 	// Asassin Cross
 	SkillEffect[SK.ASC_EDP]                        = {effectId: 493};		//Enchant Deadly Poison
@@ -468,7 +468,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SL_KAITE]                       = {effectId: 419};		//Kaite
 	SkillEffect[SK.SL_STIN]                        = {effectId: 547};		//Estin
 	SkillEffect[SK.SL_STUN]                        = {effectId: 555};		//Estun
-	SkillEffect[SK.SL_SMA]                         = {effectId: 553, hitEffectId: 425};		//Esma
+	SkillEffect[SK.SL_SMA]                         = {effectId: 553, successEffectId: 425};		//Esma
 	SkillEffect[SK.SL_SWOO]                        = {effectId: 589};		//Eswoo
 	SkillEffect[SK.SL_SKE]                         = {effectId: 427};		//Eske
 	SkillEffect[SK.SL_SKA]                         = {effectId: [254, 261]};		//Eska
@@ -758,7 +758,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SC_UNLUCKY]                     = {effectId: 817};		//Masquerade - Unlucky
 	SkillEffect[SK.SC_WEAKNESS]                    = {effectId: 818};		//Masquerade - Weakness
 	SkillEffect[SK.SC_STRIPACCESSARY]              = {effectId: 820};		//Strip Accessory
-	SkillEffect[SK.SC_MANHOLE]                     = {groundEffectId: 822, hitEffectId: 823};		//Man Hole
+	SkillEffect[SK.SC_MANHOLE]                     = {groundEffectId: 822, successEffectId: 823};		//Man Hole
 	SkillEffect[SK.SC_DIMENSIONDOOR]               = {groundEffectId: 825};		//Dimension Door
 	SkillEffect[SK.SC_CHAOSPANIC]                  = {groundEffectId: 827};		//Chaos Panic
 	SkillEffect[SK.SC_MAELSTROM]                   = {groundEffectId: 828};		//Maelstrom
