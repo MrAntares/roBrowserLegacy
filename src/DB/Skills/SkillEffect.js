@@ -43,7 +43,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17};		//Magnum Break
 	SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	// Mage
-	SkillEffect[SK.MG_SIGHT]                       = {effectIdOnCaster: 22};		//Sight
+	SkillEffect[SK.MG_SIGHT]                       = {successEffectId: 22};		//Sight
 	SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
 	SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
 	SkillEffect[SK.MG_SOULSTRIKE]                  = {beforeHitEffectId: 15, hitEffectId: 1};		//Soul Strike
@@ -56,7 +56,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MG_LIGHTNINGBOLT]               = {effectId: 29, hitEffectId: 52};		//Lightning Bolt
 	SkillEffect[SK.MG_THUNDERSTORM]                = {effectId: 30, hitEffectId: 52};		//Thunderstorm
 	// Acolyte
-	SkillEffect[SK.AL_RUWACH]                      = {effectIdOnCaster: 33, hitEffectId: 1};		//Ruwach
+	SkillEffect[SK.AL_RUWACH]                      = {successEffectId: 33, hitEffectId: 1};		//Ruwach
 	SkillEffect[SK.AL_PNEUMA]                      = {groundEffectId: 141};		//Pneuma
 	SkillEffect[SK.AL_TELEPORT]                    = {/*not here*/};		//Teleport
 	SkillEffect[SK.AL_WARP]                        = {effectId: 35, groundEffectId: 317};		//Warp Portal
