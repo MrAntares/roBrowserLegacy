@@ -488,7 +488,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WS_OVERTHRUSTMAX]               = SkillEffect[SK.BS_OVERTHRUST];		//Maximum Power Thrust
 	SkillEffect[SK.CG_LONGINGFREEDOM]              = {effectId: 500};		//Longing for Freedom
 	SkillEffect[SK.CG_HERMODE]                     = {effectId: '517_music', groundEffectId: 517};		//Wand of Hermode
-	SkillEffect[SK.CG_TAROTCARD]                   = {effectId: 500};		//Tarot Card of Fate
+	SkillEffect[SK.CG_TAROTCARD]                   = {successEffectId: 500};		//Tarot Card of Fate
 	SkillEffect[SK.CR_ACIDDEMONSTRATION]           = {effectId: 537};		//Acid Demonstration
 	SkillEffect[SK.CR_CULTIVATION]                 = {};		//Plant Cultivation
 	SkillEffect[SK.ITEM_ENCHANTARMS]               = {};		//Weapon Enchantment
@@ -599,8 +599,8 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SA_CREATECON]                   = {};		//Create Elemental Converter
 	SkillEffect[SK.SA_ELEMENTWATER]                = {effectId: 256};		//Elemental Change Water
 	SkillEffect[SK.HT_PHANTASMIC]                  = {beforeHitEffectId: 'ef_throw_arrow', hitEffectId: 1};		//Phantasmic Arrow
-	SkillEffect[SK.BA_PANGVOICE]                   = {effectId: 606};		//Pang Voice
-	SkillEffect[SK.DC_WINKCHARM]                   = {effectId: 607};		//Wink of Charm
+	SkillEffect[SK.BA_PANGVOICE]                   = {successEffectId: 606};		//Pang Voice
+	SkillEffect[SK.DC_WINKCHARM]                   = {successEffectId: 607};		//Wink of Charm
 	SkillEffect[SK.BS_GREED]                       = {effectId: 'ef_greed_sound'};		//Greed
 	SkillEffect[SK.PR_REDEMPTIO]                   = {};		//Redemptio
 	SkillEffect[SK.MO_KITRANSLATION]               = {};		//Ki Translation
