@@ -47,7 +47,7 @@ define(['./SkillConst'], function(SK) {
 	//ATTACK - Normal attack with visible weapon
 	SkillAction[SK.SM_BASH] =
 	SkillAction[SK.SM_MAGNUM] =
-	SkillAction[SK.AC_SHOWER] =
+	//SkillAction[SK.AC_SHOWER] =
 	
 	SkillAction[SK.KN_PIERCE] =
 	SkillAction[SK.KN_BRANDISHSPEAR] =
@@ -339,6 +339,24 @@ define(['./SkillConst'], function(SK) {
 				repeat: true,
 				play: true,
 				next: false
+			}
+		};
+	};
+	
+	//ARROW SHOWER
+	SkillAction[SK.AC_SHOWER] = function(entity, tick){
+		return {
+			action: entity.ACTION.ATTACK,
+			frame:  0,
+			repeat: false,
+			speed: 50,
+			play:   true,
+			next: {
+				action: entity.ACTION.READYFIGHT,
+				frame:  0,
+				repeat: true,
+				play:   true,
+				next:   false
 			}
 		};
 	};
