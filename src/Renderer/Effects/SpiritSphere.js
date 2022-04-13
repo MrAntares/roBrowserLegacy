@@ -62,6 +62,8 @@ define(function( require ) {
         uniform mat4 uTextureRotMat;
         uniform mat4 uRotationMat;
 
+        uniform float uCameraLatitude;
+
         uniform vec3 uPosition;
         uniform float uSize;
         uniform float uZIndex;
@@ -75,7 +77,7 @@ define(function( require ) {
             position      += pos2 * uRotationMat;
 
             gl_Position    = uProjectionMat * uModelViewMat * position;
-            gl_Position.z -= uZIndex;
+            gl_Position.z -= uZIndex / uCameraLatitude;
 
             vTextureCoord  = aTextureCoord;
         }`;
@@ -239,6 +241,8 @@ define(function( require ) {
         gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
         
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        
+        gl.uniform1f( uniform.uCameraLatitude, Camera.getLatitude() );
         
         var _matrix;
         for (var i = this.num; i > 0; i--){
