@@ -613,9 +613,9 @@ define(function( require )
 	};
 
 	function onSpiritSphere(pkt){
-		if (pkt.num === 0){
-			EffectManager.remove(null, pkt.AID); //SpiritSphere
-		} else {
+		EffectManager.remove(SpiritSphere, pkt.AID);
+		
+		if (pkt.num > 0){
 			var entity = EntityManager.get(pkt.AID);
 			var isCoin = (entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job) ) //Gunslinger or Rebel
 			var spheres = new SpiritSphere(entity, pkt.num, isCoin);
