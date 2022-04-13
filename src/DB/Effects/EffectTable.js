@@ -2997,7 +2997,7 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //228: [{}],    //EF_CHOOKGI       (Nothing)
+        //228: [{}],    //EF_CHOOKGI       (Nothing) - Used for spirit spheres (other classes)
         //229: [{}],    //EF_CLOUD       (Nothing)
         //230: [{}],    //EF_CLOUD2       (Nothing)
         //231: [{}],    //EF_MAPPILLAR       Map Light Pillar Animation 1
@@ -5901,7 +5901,7 @@ define(function( require )
 		
         //502: [{}],    //EF_PIERCEBODY       Player Become Yellow with Yellow Aura
         //503: [{}],    //EF_SOULLINK       Soul Link Word
-        //504: [{}],    //EF_CHOOKGI2       (Nothing)
+        //504: [{}],    //EF_CHOOKGI2       (Nothing) - Used for spirit spheres (monk classes)
         //505: [{}],    //EF_MEMORIZE       Memorize
         //506: [{}],    //EF_SOULLIGHT       (Nothing)
 
@@ -6539,7 +6539,7 @@ define(function( require )
 		}],
 		
         //628: [{}],    //EF_BASH3D5       Dust
-        //629: [{}],    //EF_CHOOKGI3       (Nothing)
+        //629: [{}],    //EF_CHOOKGI3       (Nothing) - Used for spirit spheres (gunslinger classes)
 
         630: [{    //EF_KIRIKAGE    Shadow Slash
             type: 'SPR',
@@ -7003,10 +7003,10 @@ define(function( require )
             attachedEntity: true
         }],
 
-        //735: [{}],    //EF_CHOOKGI_FIRE       (Nothing)
-        //736: [{}],    //EF_CHOOKGI_WIND       (Nothing)
-        //737: [{}],    //EF_CHOOKGI_WATER       (Nothing)
-        //738: [{}],    //EF_CHOOKGI_GROUND       (Nothing)
+        //735: [{}],    //EF_CHOOKGI_FIRE       (Nothing) - Used for elemental spheres (warlock)
+        //736: [{}],    //EF_CHOOKGI_WIND       (Nothing) - Used for elemental spheres (warlock)
+        //737: [{}],    //EF_CHOOKGI_WATER       (Nothing) - Used for elemental spheres (warlock)
+        //738: [{}],    //EF_CHOOKGI_GROUND       (Nothing) - Used for elemental spheres (warlock)
         //739: [{}],    //EF_MAGENTA_TRAP       Old Magenta Trap
         //740: [{}],    //EF_COBALT_TRAP       Old Cobald Trap
         //741: [{}],    //EF_MAIZE_TRAP       Old Maize Trap
@@ -8176,7 +8176,7 @@ define(function( require )
 			wav:  'effect/\xb1\xe2\xb0\xf8\xc6\xf7'
 		}],
 		
-        //833: [{}],    //EF_CHOOKGI_N       (Nothing)
+        //833: [{}],    //EF_CHOOKGI_N       (Nothing) - Used for spheres (royal guard?)
         //834: [{}],    //EF_JOBLVUP50_2       Light shooting away circlish
         //835: [{}],    //EF_CHEMICAL2DASH2       Fastness yellow-reddish
         //836: [{}],    //EF_CHEMICAL2DASH3       Fastness yellow-pinkish
