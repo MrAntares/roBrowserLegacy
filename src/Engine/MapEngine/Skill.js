@@ -617,9 +617,11 @@ define(function( require )
 		
 		if (pkt.num > 0){
 			var entity = EntityManager.get(pkt.AID);
-			var isCoin = (entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job) ) //Gunslinger or Rebel
-			var spheres = new SpiritSphere(entity, pkt.num, isCoin);
-			EffectManager.add(spheres, pkt.AID, false);
+			if(entity){
+				var isCoin = (entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job) ) //Gunslinger or Rebel
+				var spheres = new SpiritSphere(entity, pkt.num, isCoin);
+				EffectManager.add(spheres, pkt.AID, false);
+			}
 		}
 	}
 
@@ -675,6 +677,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_WEAPONITEMLIST,  onRefineList );
 		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
+		Network.hookPacket( PACKET.ZC.MILLENNIUMSHIELD,       onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SKILL_POSTDELAY,        onSetSkillDelay );
 		Network.hookPacket( PACKET.ZC.STARSKILL,              onTaekwonMission );
 		Network.hookPacket( PACKET.ZC.MSG_SKILL,        	  onMessageSkill );
