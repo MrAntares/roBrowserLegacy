@@ -8,6 +8,7 @@ define(function( require ) {
     var Texture  = require('Utils/Texture');
     var glMatrix = require('Utils/gl-matrix');
     var Client   = require('Core/Client');
+    var Camera   = require('Renderer/Camera');
 
 
     /**
@@ -37,76 +38,78 @@ define(function( require ) {
     var _rotationMatrices = (function(){
         var matrices = [];
         for (var i = 0; i < 5; i++){
-            matrices.push(mat4.create());
+            matrices.push( {
+                posMat: mat4.create(),
+                texMat: mat4.create()
+            } );
         }
         return matrices;
     }());
-
-
-
+    
+    var _textureMatrix = mat4.create();
+    
     /**
      * @var {string} Vertex Shader
      */
-    var _vertexShader   = [
-        'attribute vec2 aPosition;',
-        'attribute vec2 aTextureCoord;',
+    var _vertexShader   = 
+        `attribute vec2 aPosition;
+        attribute vec2 aTextureCoord;
 
-        'varying vec2 vTextureCoord;',
+        varying vec2 vTextureCoord;
 
-        'uniform mat4 uModelViewMat;',
-        'uniform mat4 uProjectionMat;',
-        'uniform mat4 uRotationMat;',
+        uniform mat4 uModelViewMat;
+        uniform mat4 uProjectionMat;
+        uniform mat4 uTextureRotMat;
+        uniform mat4 uRotationMat;
 
-        'uniform vec3 uPosition;',
-        'uniform float uSize;',
+        uniform vec3 uPosition;
+        uniform float uSize;
+        uniform float uZIndex;
 
-        'void main(void) {',
+        void main(void) {
 
-            'vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - 2.0, uPosition.y + 0.5, 1.0);',
-            'position      += vec4(aPosition.x * uSize + 1.0, 0.0, aPosition.y * uSize, 0.0) * uRotationMat;',
+            vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - 2.0, uPosition.y + 0.5, 1.0);
+            
+            vec4 pos2      = vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0) * uTextureRotMat;
+            pos2.x        += 1.0;
+            position      += pos2 * uRotationMat;
 
-            'gl_Position    = uProjectionMat * uModelViewMat * position;',
-            'gl_Position.z -= 0.01;',
+            gl_Position    = uProjectionMat * uModelViewMat * position;
+            gl_Position.z -= uZIndex;
 
-            'vTextureCoord  = aTextureCoord;',
-        '}'
-    ].join('\n');
+            vTextureCoord  = aTextureCoord;
+        }`;
 
 
     /**
      * @var {string} Fragment Shader
      */
-    var _fragmentShader = [
+    var _fragmentShader = 
         `varying vec2 vTextureCoord;
 
+        uniform vec4 uColor;
         uniform sampler2D uDiffuse;
-		uniform bool uCoin;
-		float tmp;
+        float tmp;
 
         void main(void) {
             vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
-			
-			if (uCoin) { 
-				tmp = texture.r;
-				texture.r = texture.b;
-				texture.b = tmp;
-			}
-			
-            if (texture.r < 0.3 || texture.g < 0.3 || texture.b < 0.3) {
+            
+            texture *= uColor;
+            
+            /*if (texture.r < 0.1 && texture.g < 0.1 && texture.b < 0.1) {
                discard;
-            }
-            texture.a = 1.0;
+            }*/
+            
             gl_FragColor = texture;
 
-        }`
-    ].join('\n');
+        }`;
 
 
     function SpiritSphere(entity, num, isCoin)
     {
         this.position = entity.position;
         this.num = num;
-		this.isCoin = isCoin;
+        this.isCoin = isCoin;
     }
 
 
@@ -184,16 +187,27 @@ define(function( require ) {
         var uniform   = _program.uniform;
         var attribute = _program.attribute;
         gl.useProgram( _program );
-
+        
         var _matrix, offset;
         for (var i = 0, _len = _rotationMatrices.length; i < _len; i++){
-            _matrix = _rotationMatrices[i];
-            mat4.identity(_matrix);
+            var vcRad = (Camera.angle[0]-90) * Math.PI / 180;
+            var hcRad = Camera.angle[1] * Math.PI / 180;
             offset = (i * 2 * Math.PI / _rotationMatrices.length);
-            mat4.rotateY(_matrix, _matrix, offset - (tick/64) / 180 * Math.PI);
+            var rotRad = offset - (tick/64) / 180 * Math.PI;
+            
+            //_matrix = _rotationMatrices[i].texMat;
+            //mat4.identity(_matrix);
+            var textureMatrix = mat4.create();
+            mat4.rotateX(_rotationMatrices[i].texMat, textureMatrix, vcRad);
+            mat4.rotateY(_rotationMatrices[i].texMat, _rotationMatrices[i].texMat, hcRad-rotRad);
+            
+            
+            _matrix = _rotationMatrices[i].posMat;
+            mat4.identity(_matrix);
+            mat4.rotateY(_matrix, _matrix, rotRad);
+            
         }
-
-
+        
         // Bind matrix
         gl.uniformMatrix4fv( uniform.uModelViewMat,  false, modelView );
         gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );
@@ -216,25 +230,72 @@ define(function( require ) {
 
     SpiritSphere.prototype.render = function render( gl, tick )
     {
-
-        gl.uniform3fv( _program.uniform.uPosition,  this.position);
+        var uniform = _program.uniform;
+        
+        gl.uniform3fv( uniform.uPosition,  this.position);
         
         gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
-		
-		gl.uniform1i( _program.uniform.uCoin,  this.isCoin);
-		
+        
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        
         var _matrix;
-        for (var i = 0; i < this.num; i++){
-			if (i>4) {
-				gl.uniform1f(  _program.uniform.uSize, 0.20);
-			} else if (i>9) {
-				gl.uniform1f(  _program.uniform.uSize, 0.25);
-			} else {
-				gl.uniform1f(  _program.uniform.uSize, 0.15);
-			}
+        for (var i = this.num; i > 0; i--){
+            
             _matrix = _rotationMatrices[i % _rotationMatrices.length];
-            gl.uniformMatrix4fv(_program.uniform.uRotationMat, false, _matrix);
-            gl.drawArrays( gl.TRIANGLES, 0, 6 );
+            
+            gl.uniformMatrix4fv( uniform.uTextureRotMat, false, _matrix.texMat);
+            gl.uniformMatrix4fv( uniform.uRotationMat, false, _matrix.posMat);
+            
+            if (i>10) {
+                
+                if(this.isCoin){
+                    gl.uniform1f( uniform.uSize, 0.3);
+                    gl.uniform4fv( uniform.uColor,  [1.0, 0.9, 0.4, 0.2] );
+                } else {
+                    gl.uniform1f( uniform.uSize, 0.55);
+                    gl.uniform4fv( uniform.uColor,  [0.0, 0.0, 1.0, 0.2] );
+                }
+                
+                gl.uniform1f( uniform.uZIndex, 0.0);
+                gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                
+            } else if (i>5) {
+                
+                if(this.isCoin){
+                    gl.uniform1f( uniform.uSize, 0.2);
+                    gl.uniform4fv(  uniform.uColor,  [1.0, 0.9, 0.4, 0.4] );
+                } else {
+                    gl.uniform1f( uniform.uSize, 0.35);
+                    gl.uniform4fv(  uniform.uColor,  [0.0, 0.0, 1.0, 0.6] );
+                }
+                
+                gl.uniform1f( uniform.uZIndex, 0.01);
+                gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                
+            } else {
+                
+                if(this.isCoin){
+                    gl.uniform1f( uniform.uSize, 0.1);
+                    gl.uniform4fv(  uniform.uColor,  [1.0, 0.9, 0.4, 0.6] );
+                } else {
+                    gl.uniform1f( uniform.uSize, 0.25);
+                    gl.uniform4fv(  uniform.uColor,  [0.0, 0.0, 1.0, 1.0] );
+                }
+                gl.uniform1f( uniform.uZIndex, 0.02);
+                gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                
+                
+                if(this.isCoin){
+                    gl.uniform1f( uniform.uSize, 0.05);
+                    gl.uniform4fv(  uniform.uColor,  [1.0, 1.0, 0.7, 1.0] );
+                } else {
+                    gl.uniform1f( uniform.uSize, 0.15);
+                    gl.uniform4fv(  uniform.uColor,  [0.8, 0.8, 1.0, 1.0] );
+                }
+                gl.uniform1f( uniform.uZIndex, 0.03);
+                gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                
+            }
         }
 
 
@@ -242,6 +303,7 @@ define(function( require ) {
 
     SpiritSphere.afterRender = function afterRender(gl)
     {
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.disableVertexAttribArray( _program.attribute.aPosition );
         gl.disableVertexAttribArray( _program.attribute.aTextureCoord );
     };
