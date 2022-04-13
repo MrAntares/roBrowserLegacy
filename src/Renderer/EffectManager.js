@@ -72,8 +72,8 @@ define(function( require )
 	 */
 	EffectManager.add = function add(effect, uid, persistent)
 	{
-		var name = (effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
-		
+		var name = (effect.constructor.name || effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
+
 		if (!(name in _list)) {
 			_list[name] = [];
 
