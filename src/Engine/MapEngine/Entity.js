@@ -46,6 +46,7 @@ define(function( require )
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	var MapEffects    = require('Renderer/Map/Effects');
+	var SpiritSphere  = require('Renderer/Effects/SpiritSphere');
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -131,6 +132,7 @@ define(function( require )
             }
 
 			if([2, 3].includes(pkt.type)){ //exits or teleports
+				EffectManager.remove(SpiritSphere, pkt.AID);
 				EffectManager.spam(304, null, entity.position);
 			}
 			entity.remove( pkt.type );
@@ -1035,6 +1037,7 @@ define(function( require )
 			}
 
 			if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
+				
 				var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
 
 				srcEntity.setAction({
