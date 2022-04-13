@@ -322,12 +322,12 @@ define(function( require )
 
 
 				var WSnd = DB.getWeaponSound(srcWeapon);
-				var weaponSound = WSnd[0];
-				var weaponSoundRelease = WSnd[1];
+				var weaponSound = WSnd ? WSnd[0] : false;
+				var weaponSoundRelease = WSnd ? WSnd[1] : false;
 
 				var WSndL = DB.getWeaponSound(srcWeaponLeft);
-				var weaponSoundLeft = WSndL[0];
-				var weaponSoundReleaseLeft = WSndL[1];
+				var weaponSoundLeft = WSndL ? WSndL[0] : false;
+				var weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;
 
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
 				if (weaponSound && weaponSound.includes('bow')) {
