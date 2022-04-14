@@ -3160,24 +3160,35 @@ define(function( require )
             attachedEntity: true
         }],
 
-        262: [{		//EF_TEIHIT1       Raging Quadruple Blow
-			type: 'STR',
-			file: '\xbf\xac\xc8\xaf',
-			wav:  'effect/mon_\xbf\xac\xc8\xaf'
-		}],    
+        262: [{        //EF_TEIHIT1       Raging Quadruple Blow
+            type: 'STR',
+            file: '\xbf\xac\xc8\xaf',
+            wav:  'effect/mon_\xbf\xac\xc8\xaf'
+        }],    
         
-		//263: [{}],    //EF_GUMGANG3       Raging Quadruple Blow 2
+        //263: [{}],    //EF_GUMGANG3       Raging Quadruple Blow 2
         //264: [{}],    //EF_TEIHIT2       (Nothing)
-		
+        
         265: [{    //EF_TANJI       Throw Spirit Sphere
-			wav:  'effect/mon_\xc5\xba\xc1\xf6\xbd\xc5\xc5\xeb', // mon_ĹşÁö˝ĹĹë or g˝şĆ÷ľîŔÍ˝şÇĂ·ÎÁŻ  
+            type: '3D',
+            file: 'effect/blue_ivy.bmp',
+            alphaMax: 1,
+            blendMode: 2,
+            duration: 150,
+            toSrc: true,
+            rotateWithCamera: true,
+            rotateToTarget: true,
+            angle: 90,
+            zOffset: 1,
+            size: 50,
+            wav:  'effect/mon_\xc5\xba\xc1\xf6\xbd\xc5\xc5\xeb',
             attachedEntity: true
-		}],
-		
+        }],
+        
         //266: [{}],    //EF_TEIHIT1X       Raging Quadruple Blow 3
         267: [{    //EF_CHIMTO       Occult Impaction
-			wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6'
-		}],
+            wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6'
+        }],
 
         268: [{    //EF_STEALCOIN    Steal Coin
             type: 'STR',
