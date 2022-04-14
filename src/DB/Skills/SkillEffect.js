@@ -261,7 +261,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MO_TRIPLEATTACK]                = {effectId: 329};		//Triple Attack
 	SkillEffect[SK.MO_BODYRELOCATION]              = {};		//Snap
 	SkillEffect[SK.MO_INVESTIGATE]                 = {effectId: 267};		//Occult Impaction
-	SkillEffect[SK.MO_FINGEROFFENSIVE]             = {effectId: 265};		//Throw Spirit Sphere
+	SkillEffect[SK.MO_FINGEROFFENSIVE]             = {effectId: 265, hitEffectId: 1};		//Throw Spirit Sphere
 	SkillEffect[SK.MO_STEELBODY]                   = {effectId: 254};		//Mental Strength
 	SkillEffect[SK.MO_BLADESTOP]                   = {};		//Root
 	SkillEffect[SK.MO_EXPLOSIONSPIRITS]            = {effectId: 261};		//Fury
