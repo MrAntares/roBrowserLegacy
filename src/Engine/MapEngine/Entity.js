@@ -43,7 +43,6 @@ define(function( require )
 	var SkillActionTable   = require('DB/Skills/SkillAction');
 	var StrEffect     = require('Renderer/Effects/StrEffect');
 	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
-	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	var MapEffects    = require('Renderer/Map/Effects');
 	var SpiritSphere  = require('Renderer/Effects/SpiritSphere');
@@ -90,20 +89,19 @@ define(function( require )
 		else {
 			entity = new Entity();
 			entity.set(pkt);
-            if(pkt.job == 45){
-                if(MapEffects.get(pkt.GID) == null){
-                    var mapEffect = {
-                        'name': pkt.GID,
-                        'pos': [pkt.PosDir[0], pkt.PosDir[1], Altitude.getCellHeight(pkt.PosDir[0], pkt.PosDir[1])],
-                        'id': 321,
-                        'delay': 800,
-                        'param': [0, 0, 0, 0],
-                        'tick': 0
-                    };
-                    MapEffects.add(mapEffect);
-                }
-
-            }
+			if(pkt.job == 45){
+				if(MapEffects.get(pkt.GID) == null){
+					var mapEffect = {
+						'name': pkt.GID,
+						'pos': [pkt.PosDir[0], pkt.PosDir[1], Altitude.getCellHeight(pkt.PosDir[0], pkt.PosDir[1])],
+						'id': 321,
+						'delay': 800,
+						'param': [0, 0, 0, 0],
+						'tick': 0
+					};
+					MapEffects.add(mapEffect);
+				}
+			}
 			EntityManager.add(entity);
 		}
 
@@ -114,7 +112,6 @@ define(function( require )
 		){
 			EffectManager.spam(6, entity.GID, entity.position);
 		}
-
 	}
 
 
@@ -127,9 +124,9 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.GID);
 		if (entity) {
-            if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
-                EffectManager.spam(372, pkt.GID);
-            }
+			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
+				EffectManager.spam(372, pkt.GID);
+			}
 
 			if([2, 3].includes(pkt.type)){ //exits or teleports
 				EffectManager.remove(SpiritSphere, pkt.AID);
@@ -1037,7 +1034,7 @@ define(function( require )
 			}
 
 			if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
-				
+
 				var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
 
 				srcEntity.setAction({
@@ -1204,7 +1201,7 @@ define(function( require )
 					EffectManager.spam( 215, pkt.AID);
 				}
 				break;
-				
+
 			case StatusConst.EXPLOSIONSPIRITS: //state: 1 ON  0 OFF
             case StatusConst.MARIONETTE_MASTER:
             case StatusConst.MARIONETTE:
@@ -1246,11 +1243,11 @@ define(function( require )
 					EffectManager.spam( 444, pkt.AID);
 				}
                 break;
-				
+
 			case StatusConst.TING:
 				EffectManager.spam( 426, pkt.AID);
                 break;
-				
+
 			case StatusConst.STORMKICK_ON:
 			case StatusConst.STORMKICK_READY:
 				entity.setAction({
@@ -1261,7 +1258,7 @@ define(function( require )
 					next:   false
 				});
                 break;
-				
+
 			case StatusConst.DOWNKICK_ON:
 			case StatusConst.DOWNKICK_READY:
 				entity.setAction({
@@ -1272,7 +1269,7 @@ define(function( require )
 					next:   false
 				});
                 break;
-				
+
 			case StatusConst.TURNKICK_ON:
 			case StatusConst.TURNKICK_READY:
 				entity.setAction({
@@ -1283,7 +1280,7 @@ define(function( require )
 					next:   false
 				});
                 break;
-				
+
 			case StatusConst.COUNTER_ON:
 			case StatusConst.COUNTER_READY:
 				entity.setAction({
@@ -1294,7 +1291,7 @@ define(function( require )
 					next:   false
 				});
                 break;
-				
+
 			case StatusConst.DODGE_ON:
 			case StatusConst.DODGE_READY:
 				entity.setAction({
@@ -1369,7 +1366,7 @@ define(function( require )
 					entity.isHallucinating = false;
 				}
                 break;
-				
+
 			case StatusConst.STOP:
 				if (pkt.state == 1) {
 					entity.attachments.add({

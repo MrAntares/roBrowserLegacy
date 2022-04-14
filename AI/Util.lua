@@ -1,5 +1,5 @@
 
-require "AI\\Const"
+require "AI/Const.lua"
 
 --------------------------------------------
 -- List utility

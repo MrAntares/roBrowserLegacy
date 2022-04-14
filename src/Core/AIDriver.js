@@ -1,22 +1,18 @@
-define(['Vendors/lua.vm', 'Renderer/EntityManager', 'Renderer/Renderer'], function (LUA_VM, EntityManager, Renderer) {
+define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'Renderer/Entity/Entity'], function (EntityManager, Renderer, fengari, Entity) {
     'use strict';
 
     var Session = require('Engine/SessionStorage');
     var Network = require('Network/NetworkManager');
     var PACKET = require('Network/PacketStructure');
 
-    // var HomunInformations    = require('UI/Components/HomunInformations/HomunInformations');
-    // var Homun = require('Engine/MapEngine/Homun');
-    // var Entity  = require('Renderer/Entity/Entity');
-
     function AIDriver() {
     }
 
     AIDriver.init = function init() {
         AIDriver.exec(`
-            require "AI\\\\AI"
+            require "AI/AI.lua"
 
-            function TraceAI (string) 
+            function TraceAI (string)
                 return js.global:TraceAI(string)
             end
             function MoveToOwner (id) 
@@ -53,28 +49,21 @@ define(['Vendors/lua.vm', 'Renderer/EntityManager', 'Renderer/Renderer'], functi
                 return js.global:GetTick()
             end
             function GetMsg (id) 
-                --return js.global:GetMsg(id)
-                return {0}
+                res = {}
+                for i,v in ipairs(Split(js.global:GetMsg(id), ",")) do
+                    res[i] = tonumber(v)
+                end
+                return res
             end
             function GetResMsg (id)
-                -- print('GetResMsg')
-                -- print(id)
+                -- print('GetResMsg', id)
                 return {0}
             end
             function SkillObject (id,level,skill,target) 
-                print('SkillObject')
-                print(id)
-                print(level)
-                print(skill)
-                print(target)
+                print('SkillObject', id, level, skill, target)
             end
             function SkillGround (id,level,skill,x,y) 
-                print('SkillGround')
-                print(id)
-                print(level)
-                print(skill)
-                print(x)
-                print(y)
+                print('SkillGround', id, level, skill, x, y)
             end
             function IsMonster (id) 
                 return js.global:IsMonster(id)
@@ -93,15 +82,19 @@ define(['Vendors/lua.vm', 'Renderer/EntityManager', 'Renderer/Renderer'], functi
 
     }
 
-    var msgPull = [];
+    var msg = {};
 
-    AIDriver.setmsg = function setmsg(V_, id) {
-        msgPull.push([V_, id])
+    AIDriver.setmsg = function setmsg(homId, str) {
+        msg[homId] = str;
     }
 
     window.GetMsg = function GetMsg(id) {
-        return 0;
-        // return msgPull.shift() ?? 0;
+        if (id in msg) {
+            let res = msg[id];
+            delete msg[id];
+            return res;
+        }
+        return '';
     }
 
     window.IsMonster = function IsMonster(id) {
@@ -147,11 +140,32 @@ define(['Vendors/lua.vm', 'Renderer/EntityManager', 'Renderer/Renderer'], functi
         Network.sendPacket(pkt);
     }
 
+    window.status = null;
     window.GetActors = function () {
+        AIDriver.exec('js.global.status = MyState')
         var res = [0]
         EntityManager.forEach((item) => {
             res.push(item.GID)
         });
+
+        // aggressive logic
+        if (res.length > 3) {
+            if (localStorage.getItem('AGGRESSIVE') == 1) {
+                res.forEach((item) => {
+                    if (item != 0 && item != Session.AID && item != Session.homunId) {
+                        var entity = EntityManager.get(Number(item))
+                        if (entity?.objecttype === Entity.TYPE_MOB) {
+                            if (status == 0) { //idle = 0
+                                // attak
+                                AIDriver.setmsg(Session.homunId, '3,'+ item);
+                            }
+                        }
+                    }
+                })
+            } else {
+                AIDriver.setmsg(Session.homunId, status);
+            }
+        }
         return res;
     }
 
@@ -224,26 +238,10 @@ define(['Vendors/lua.vm', 'Renderer/EntityManager', 'Renderer/Renderer'], functi
     }
 
     AIDriver.exec = function exec(code) {
-
-        if (!UrlExists('AI/AI.lua') || !UrlExists('AI/Util.lua') || !UrlExists('AI/Const.lua')) {
-            return false;
-        }
-
         try {
-            L.execute(code);
+            fengari.load(code)()
         } catch (e) {
-            console.error('AI_error: ', e.lua_stack);
-        }
-    }
-
-    function UrlExists(url) {
-        try {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            return true;
-        } catch (e) {
-            return false;
+            console.error('AI_error: ', e);
         }
     }
 
