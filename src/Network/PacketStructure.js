@@ -11539,7 +11539,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		let option = new Struct(
 			"short index",
 			"short value",
-			"char param",
+			"char param"
 		);
 
 		this.index = fp.readUShort();
@@ -11613,7 +11613,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		let option = new Struct(
 			"short index",
 			"short value",
-			"char param",
+			"char param"
 		);
 
 		this.Name = fp.readString(24);
@@ -11682,7 +11682,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			"short var2",
 			"bool var3",
 			"float var4",
-			'long var5',
+			'long var5'
 		);
 		// <struct ach_list_info *[]>.P
 		this.ach_list_info = {};
