@@ -4,4 +4,5 @@ applications/settings.js
 client/resources/*
 client/data/*
 client/BGM/*
+AI/*
 .idea/
