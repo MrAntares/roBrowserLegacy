@@ -1,6 +1,6 @@
 
-require "AI/Const.lua"
-require "AI/Util.lua"
+dofile ("./AI/Const.lua")
+dofile ("./AI/Util.lua")
 
 -----------------------------
 -- state
