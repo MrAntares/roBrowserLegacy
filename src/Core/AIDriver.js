@@ -10,7 +10,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
     AIDriver.init = function init() {
         AIDriver.exec(`
-            require "AI/AI.lua"
+            dofile ("./AI/AI.lua")
 
             function TraceAI (string)
                 return js.global:TraceAI(string)
