@@ -476,7 +476,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             }
         }
         
-        if (this.actRessource) {
+        if (this.actRessource && this.spriteRessource) {
             var entity = EntityManager.get(this.AID);
             if (entity) {
                 var actions = this.actRessource.actions[(entity.action * 8 + (Camera.direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
