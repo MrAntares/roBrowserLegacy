@@ -19,6 +19,7 @@ define(function( require ) {
 	var Client   = require('Core/Client');
 	var Altitude = require('Renderer/Map/Altitude');
 	var Session  = require('Engine/SessionStorage');
+	var Camera   = require('Renderer/Camera');
 
 
 	/**
@@ -154,23 +155,25 @@ define(function( require ) {
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader   = [
-		'attribute vec3 aPosition;',
-		'attribute vec2 aTextureCoord;',
+	var _vertexShader   = `
+		attribute vec3 aPosition;
+		attribute vec2 aTextureCoord;
 
-		'varying vec2 vTextureCoord;',
+		varying vec2 vTextureCoord;
+		
+		uniform float uCameraLatitude;
 
-		'uniform mat4 uModelViewMat;',
-		'uniform mat4 uProjectionMat;',
-		'uniform mat4 uRotationMat;',
+		uniform mat4 uModelViewMat;
+		uniform mat4 uProjectionMat;
+		uniform mat4 uRotationMat;
 
-		'void main(void) {',
-			'gl_Position    = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);',
-			'gl_Position.z -= 0.02;',
+		void main(void) {
+			gl_Position    = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);
+			gl_Position.z -= 0.02 / uCameraLatitude;
 
-			'vTextureCoord  = (uRotationMat * vec4( aTextureCoord - 0.5, 1.0, 1.0)).xy + 0.5;',
-		'}'
-	].join('\n');
+			vTextureCoord  = (uRotationMat * vec4( aTextureCoord - 0.5, 1.0, 1.0)).xy + 0.5;
+		}
+	`;
 
 
 	/**
@@ -276,6 +279,8 @@ define(function( require ) {
 		var attribute = _program.attribute;
 
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer );
+		
+		gl.uniform1f( _program.uniform.uCameraLatitude, Camera.getLatitude() );
 
 		gl.vertexAttribPointer( attribute.aPosition,     3, gl.FLOAT, false, 5*4,  0   );
 		gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 5*4,  3*4 );
