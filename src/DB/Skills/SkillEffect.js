@@ -11,24 +11,30 @@
  *	Possible types
  *	--------------
  *
- *	- effectId: 			Triggers once for every skill use. The packet determines who receives the effect.
- *							Can be used to create regular effects.
+ *	- effectId: 				Triggers once for every skill use. The packet determines who receives the effect.
+ *								Can be used to create regular effects.
  *
- *	- effectIdOnCaster:		Triggers once for every skill use. The caster receives the effect.
- *							Can be used to create skill use effects on the caster.
+ *	- effectIdOnCaster:			Triggers once for every skill use. The caster receives the effect.
+ *								Can be used to create skill use effects on the caster.
  *
- *	- groundEffectId: 		Triggers once for every ground skill entity entry. Some skills have multiple entities, like songs, others have only one.
- *							Can be used to create ground effects.
+ *	- groundEffectId: 			Triggers once for every ground skill entity entry. Some skills have multiple entities, like songs, others have only one.
+ *								Can be used to create ground effects.
  *
- *	- hitEffectId: 			Triggers on every hit with damage (including every hit of a multi hit skill) on the receiving entity.
- *							Can be used to create damage effects.
+ *	- hitEffectId: 				Triggers on every hit with damage (including every hit of a multi hit skill) on the receiving entity.
+ *								Can be used to create damage effects.
  *
- *	- beforeHitEffectId: 	Triggers before every hit (including every hit of a multi hit skill) and after the cast.
- *							Can be used to create pre-damage effects like flying balls and others.
- *							Note: Effect duration in EffectTable has to be equal to the damage display delay to make the effect look like it reaches the target right before the damage. Now it is fixed 200ms.
+ *	- beforeHitEffectId: 		Triggers before every hit (including every hit of a multi hit skill) and after the cast.
+ *								Can be used to create pre-damage effects like flying balls and others.
+ *								Note: Effect duration in EffectTable has to be equal to the damage display delay to make the effect look like it reaches the target right before the damage. Now it is fixed 200ms.
  *
- *	- beforeCastEffectId: 	Triggers once right after the skill is released, before the cast ends.
- *							Can be used to create casting effects.
+ *	- beforeCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
+ *								Can be used to create casting effects.
+ *
+ *	- successEffectId: 			Triggers when a skill yealds a "successful" result.
+ *								Can be used for non-damaging skills that has an effect by a chance
+ *
+ *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
+ *								Can be used for non-damaging skills that has an effect by a chance
  */
 
 define(['./SkillConst'], function( SK )
@@ -219,7 +225,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_REBIRTH]                    = {};		//Rebirth
 	SkillEffect[SK.NPC_SUMMONMONSTER]              = {};		//Monster Summons
 	// Rogue
-	SkillEffect[SK.RG_STEALCOIN]                   = {effectId: 268};		//Mug
+	SkillEffect[SK.RG_STEALCOIN]                   = {successEffectId: [268, 274]};		//Mug
 	SkillEffect[SK.RG_BACKSTAP]                    = {hitEffectId: 275};		//Back Stab
 	SkillEffect[SK.RG_RAID]                        = {effectIdOnCaster: 276};		//Sightless Mind
 	SkillEffect[SK.RG_STRIPWEAPON]                 = {effectId: 269};		//Divest Weapon
@@ -257,16 +263,16 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.CR_SPEARQUICKEN]                = {effectId: 250};		//Spear Quicken
 	// Monk
 	SkillEffect[SK.MO_CALLSPIRITS]                 = {};		//Summon Spirit Sphere
-	SkillEffect[SK.MO_ABSORBSPIRITS]               = {effectId: 253};		//Absorb Spirit Sphere
+	SkillEffect[SK.MO_ABSORBSPIRITS]               = {successEffectIdOnCaster: 253};		//Absorb Spirit Sphere
 	SkillEffect[SK.MO_TRIPLEATTACK]                = {effectId: 329};		//Triple Attack
 	SkillEffect[SK.MO_BODYRELOCATION]              = {};		//Snap
 	SkillEffect[SK.MO_INVESTIGATE]                 = {effectId: 267};		//Occult Impaction
 	SkillEffect[SK.MO_FINGEROFFENSIVE]             = {effectId: 265, hitEffectId: 1};		//Throw Spirit Sphere
 	SkillEffect[SK.MO_STEELBODY]                   = {effectId: 254};		//Mental Strength
 	SkillEffect[SK.MO_BLADESTOP]                   = {};		//Root
-	SkillEffect[SK.MO_EXPLOSIONSPIRITS]            = {effectId: 261};		//Fury
+	SkillEffect[SK.MO_EXPLOSIONSPIRITS]            = {effectIdOnCaster: 261};		//Fury
 	SkillEffect[SK.MO_EXTREMITYFIST]               = {effectId: 328 /*champion: 510*/};		//Asura Strike
-	SkillEffect[SK.MO_CHAINCOMBO]                  = {effectId: 262/*, effectId: 263, effectId: 266, effectId: 273*/};		//Raging Quadruple Blow
+	SkillEffect[SK.MO_CHAINCOMBO]                  = {effectId: [262, 273], effectIdOnCaster: 263};		//Raging Quadruple Blow
 	SkillEffect[SK.MO_COMBOFINISH]                 = {effectId: 330};		//Raging Thrust
 	// Sage
 	SkillEffect[SK.SA_CASTCANCEL]                  = {};		//Cast Cancel
@@ -820,7 +826,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MI_ECHOSONG]                    = {effectId: 'ef_echo_song'};		//Echo Song
 	SkillEffect[SK.MI_HARMONIZE]                   = {effectId: 'ef_harmonize'};		//Harmonize
 	// WM Wanderer/Minstrel
-	SkillEffect[SK.WM_METALICSOUND]                = {};		//Metallic Sound
+	SkillEffect[SK.WM_METALICSOUND]                = {effectId: 'ef_metalicsound'};		//Metallic Sound
 	SkillEffect[SK.WM_REVERBERATION]               = {groundEffectId: 856};		//Reverberation
 	SkillEffect[SK.WM_REVERBERATION_MELEE]         = {effectId: 860};		//Reverberation Melee
 	SkillEffect[SK.WM_REVERBERATION_MAGIC]         = {};		//Reverberation Magic
