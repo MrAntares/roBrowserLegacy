@@ -563,6 +563,11 @@ define(function( require )
 			var effects = Array.isArray(SkillEffect[skillId].successEffectId) ? SkillEffect[skillId].successEffectId : [SkillEffect[skillId].successEffectId];
 			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
 		}
+		
+		if (SkillEffect[skillId].successEffectIdOnCaster) {
+			var effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster) ? SkillEffect[skillId].successEffectIdOnCaster : [SkillEffect[skillId].successEffectIdOnCaster];
+			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, null, tick, false, destAID));
+		}
 	};
 
 	/**
