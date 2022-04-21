@@ -1486,7 +1486,7 @@ define(function( require )
             duplicate: 4,
             file: '\xc3\xe0\xba\xb9',
             frame: 0,
-            time_between_dupli: 100,
+            timeBetweenDupli: 100,
 			head: true,
             yOffset: -120
         }, {
@@ -3119,7 +3119,129 @@ define(function( require )
             attachedEntity: true
 		}],
 		
-        //253: [{}],    //EF_ABSORBSPIRITS       Absorb Spirit Spheres
+        253: [{    //EF_ABSORBSPIRITS       Absorb Spirit Spheres
+			alphaMax: 0.3,
+            animation: 1,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.3,
+            green: 0.3,
+            blue: 1,
+            bottomSize: 1.1,
+            duration: 1500,
+            fade: true,
+            height: 15,
+            rotate: true,
+            textureName: 'ring_blue',
+            topSize: 1.1,
+            type: 'CYLINDER',
+            wav: 'effect/\xc8\xed\xb1\xe2'
+        }, {
+            alphaMax: 0.3,
+            animation: 1,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.3,
+            green: 0.3,
+            blue: 1,
+            bottomSize: 1,
+            duration: 1500,
+            fade: true,
+            height: 13,
+            rotate: true,
+            textureName: 'ring_blue',
+            topSize: 1,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.3,
+            animation: 1,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.3,
+            green: 0.3,
+            blue: 1,
+            bottomSize: 1.1,
+            duration: 1500,
+            fade: true,
+            height: 2,
+            rotate: true,
+            textureName: 'ring_blue',
+            topSize: 3,
+            type: 'CYLINDER'
+        }, {
+            alphaMax: 0.8,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.3,
+            green: 0.3,
+            blue: 1,
+            duration: 1500,
+            duplicate: 4,
+            fadeIn: true,
+            fadeOut: true,
+            file: 'effect/pok3.tga',
+            posxRand: 1.2,
+            posyRand: 1.2,
+            poszEndRand: 1,
+            poszEndRandMiddle: 8,
+            poszStart: 0,
+            size: 9,
+            sizeRand: 2,
+            sparkling: true,
+            sparkNumber: 2,
+            timeBetweenDupli: 10,
+            type: '3D',
+            zIndex: 1
+        }, {
+            alphaMax: 0.8,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.3,
+            green: 0.3,
+            blue: 1,
+            duration: 1300,
+            delayOffset: 400,
+            duplicate: 20,
+            fadeIn: true,
+            fadeOut: true,
+            file: 'effect/pok3.tga',
+            posxRand: 1.5,
+            posyRand: 1.5,
+            poszEndRand: 3,
+            poszEndRandMiddle: 6,
+            poszStart: 0,
+            size: 9,
+            sizeRand: 2,
+            sparkling: true,
+            sparkNumber: 2,
+            timeBetweenDupli: 10,
+            type: '3D',
+            zIndex: 1
+        }, {
+            alphaMax: 0.8,
+            attachedEntity: true,
+            blendMode: 2,
+            red: 0.3,
+            green: 0.3,
+            blue: 1,
+            duration: 1100,
+            delayLate: 200,
+            duplicate: 10,
+            fadeIn: true,
+            fadeOut: true,
+            file: 'effect/pok3.tga',
+            posxRand: 1,
+            posyRand: 1,
+            poszEnd: 6,
+            poszStartRand: 1,
+            poszStartRandMiddle: 0,
+            size: 9,
+            sizeRand: 2,
+            timeBetweenDupli: 50,
+            type: '3D',
+            zIndex: 1
+        }],
+		
         254: [{    //EF_STEELBODY       Mental Strength (Visual Effect)
 			wav: 'effect/mon_\xb1\xdd\xb0\xad\xba\xd2\xb1\xab'
 		}],
@@ -3127,6 +3249,7 @@ define(function( require )
         255: [{    //EF_FLAMELAUNCHER    Elemental Endow (Fire)
             type: 'STR',
             file: 'enc_fire',
+			wav: '_enemy_hit_wind1',
             attachedEntity: true
         }],
 
@@ -3134,6 +3257,7 @@ define(function( require )
         256: [{    //EF_FROSTWEAPON    Elemental Endow (Water)
             type: 'STR',
             file: 'enc_ice',
+			wav: '_enemy_hit_wind1',
             attachedEntity: true
         }],
 
@@ -3149,6 +3273,7 @@ define(function( require )
         258: [{    //EF_SEISMICWEAPON    Elemental Endow (Earth)
             type: 'STR',
             file: 'enc_earth',
+			wav: '_enemy_hit_wind1',
             attachedEntity: true
         }],
 
@@ -3156,17 +3281,46 @@ define(function( require )
         //260: [{}],    //EF_MAPPILLAR4       Map Light Pillar Animation 4
 
         261: [{ //fury / critical explosion TODO: combo sounds, super novice fury    //EF_GUMGANG2    Fury Cast Animation
-            wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+            type: 'CYLINDER',
+			alphaMax: 0.5,
+            blendMode: 8,
+            animation: 4,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+            bottomSize: 2,
+            duration: 1500,
+            fade: true,
+            height: 2,
+            rotate: true,
+            textureName: 'ring_yellow',
+            topSize: 5,
             attachedEntity: true
-        }],
+		}, {
+			wav:  'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+            attachedEntity: true
+		}],
 
         262: [{        //EF_TEIHIT1       Raging Quadruple Blow
-            type: 'STR',
-            file: '\xbf\xac\xc8\xaf',
-            wav:  'effect/mon_\xbf\xac\xc8\xaf'
+		
         }],    
         
-        //263: [{}],    //EF_GUMGANG3       Raging Quadruple Blow 2
+        263: [{    //EF_GUMGANG3       Raging Quadruple Blow 2
+			type: 'CYLINDER',
+			alphaMax: 0.3,
+            blendMode: 8,
+            animation: 4,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+            bottomSize: 3,
+            duration: 1000,
+            fade: true,
+            height: 2,
+            rotate: true,
+            textureName: 'ring_yellow',
+            topSize: 6,
+            attachedEntity: true
+		}],
+		
         //264: [{}],    //EF_TEIHIT2       (Nothing)
         
         265: [{    //EF_TANJI       Throw Spirit Sphere
@@ -3185,7 +3339,10 @@ define(function( require )
             attachedEntity: true
         }],
         
-        //266: [{}],    //EF_TEIHIT1X       Raging Quadruple Blow 3
+        266: [{    //EF_TEIHIT1X       Raging Quadruple Blow 3
+			
+		}],
+		
         267: [{    //EF_CHIMTO       Occult Impaction
             wav: 'effect/mon_\xc4\xa7\xc5\xf5\xb0\xe6'
         }],
@@ -3193,7 +3350,6 @@ define(function( require )
         268: [{    //EF_STEALCOIN    Steal Coin
             type: 'STR',
             file: 'steal_coin',
-            wav:  'effect/rog_steal coin',
             attachedEntity: true
         }],
 
@@ -3232,10 +3388,28 @@ define(function( require )
         273: [{    //EF_CHAINCOMBO    Raging Quadruple Blow 4
             type: 'STR',
             file: '\xbf\xac\xc8\xaf',
+            wav:  'effect/mon_\xbf\xac\xc8\xaf',
             attachedEntity: true
         }],
         
-        //274: [{}],    //EF_RG_COIN       Steal Coin Animation
+        274: [{    //EF_RG_COIN       Steal Coin Animation
+			type: '2D',
+			file: 'effect/coin_a.bmp',
+			blendMode: 2,
+			alphaMax: 0.8,
+			duplicate: 30,
+			timeBetweenDupli: 50,
+			duration: 1500,
+			fadeOut: true,
+			posxEndRand: 10,
+			posyEndRand: 10,
+			posz: 2,
+			size: 20,
+			rotateToTarget: true,
+            attachedEntity: true
+		}, {
+            wav:  'effect/rog_steal coin'
+		}],
 
         275: [{ //backstab on target hit    //EF_BACKSTAP    Back Stab Animation
             wav:  'effect/rog_back stap',
@@ -9119,6 +9293,11 @@ define(function( require )
 		
 		'ef_poemofnetherworld': [{
             wav: 'effect/\xb3\xaa\xb6\xf4\xc0\xc7\xb3\xeb\xb7\xa1',
+            attachedEntity: true
+        }],
+		
+		'ef_metalicsound': [{
+            wav: 'effect/metalic',
             attachedEntity: true
         }],
 		
