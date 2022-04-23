@@ -13,19 +13,19 @@
      /**
       * Dependencies
       */
-     var jQuery      = require('Utils/jquery');
-     var DB          = require('DB/DBManager');
-     var Preferences = require('Core/Preferences');
-     var Mouse       = require('Controls/MouseEventHandler');
-     var Client      = require('Core/Client');
-     var Renderer    = require('Renderer/Renderer');
-     var UIManager   = require('UI/UIManager');
-     var UIComponent = require('UI/UIComponent');
-     var InputBox    = require('UI/Components/InputBox/InputBox');
-	 var MessageModel= require('UI/Components/MakeItemSelection/ItemConvertSelection/MessageModel');
-     var htmlText    = require('text!./ConvertItems.html');
-     var cssText     = require('text!./ConvertItems.css');
-     var getModule   = require;
+     var jQuery      		= require('Utils/jquery');
+     var DB          		= require('DB/DBManager');
+     var Preferences 		= require('Core/Preferences');
+     var Mouse       		= require('Controls/MouseEventHandler');
+     var Client      		= require('Core/Client');
+     var Renderer    		= require('Renderer/Renderer');
+     var UIManager   		= require('UI/UIManager');
+     var UIComponent 		= require('UI/UIComponent');
+     var InputBox    		= require('UI/Components/InputBox/InputBox');
+	 var MakeModelMessage 	= require('UI/Components/MakeItemSelection/ItemConvertSelection/MakeModelMessage/MakeModelMessage');
+     var htmlText    		= require('text!./ConvertItems.html');
+     var cssText     		= require('text!./ConvertItems.css');
+     var getModule   		= require;
  
     /**
 	 * @var {Preference} structure to save
@@ -170,7 +170,7 @@
 		ConvertItems.remove();
 		getModule('UI/Components/MakeItemSelection/ItemListWindowSelection')
 			.remove();
-		MessageModel
+		MakeModelMessage
 			.remove();			
 
 		let inforMaterialList = {
@@ -188,7 +188,7 @@
 	
 	function onMessageModel(event){
 		event.stopImmediatePropagation();
-		MessageModel.append();
+		MakeModelMessage.append();
 	}
 
 	function onClose(event){
