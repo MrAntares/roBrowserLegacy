@@ -154,7 +154,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 res.forEach((item) => {
                     if (item != 0 && item != Session.AID && item != Session.homunId) {
                         var entity = EntityManager.get(Number(item))
-                        if (entity?.objecttype === Entity.TYPE_MOB) {
+                        if (entity && entity.objecttype === Entity.TYPE_MOB) {
                             if (status == 0) { //idle = 0
                                 // attak
                                 AIDriver.setmsg(Session.homunId, '3,'+ item);
