@@ -36,6 +36,7 @@ define(function( require )
 	var RefineWeaponSelection = require('UI/Components/RefineWeaponSelection/RefineWeaponSelection');
 	var Inventory             = require('UI/Components/Inventory/Inventory');
 	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
+	var Sense                 = require('UI/Components/Sense/Sense');
 	var SpiritSphere          = require('Renderer/Effects/SpiritSphere');
 	var Announce              = require('UI/Components/Announce/Announce');
 	var getModule             = require;
@@ -648,6 +649,11 @@ define(function( require )
 
 		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, color );
 	}
+	
+	function onSense(pkt){
+		Sense.append();
+		Sense.setWindow(pkt);
+	}
 
 	/**
 	 * Initialize
@@ -681,5 +687,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SKILL_POSTDELAY,        onSetSkillDelay );
 		Network.hookPacket( PACKET.ZC.STARSKILL,              onTaekwonMission );
 		Network.hookPacket( PACKET.ZC.MSG_SKILL,        	  onMessageSkill );
+		Network.hookPacket( PACKET.ZC.MONSTER_INFO,           onSense );
 	};
 });
