@@ -101,7 +101,10 @@ define(function(require)
 		
 		//STATS
 		this.ui.find('#label_name').text( DB.getMessage(407) );
-		this.ui.find('#value_name').text( pkt.job );
+		//this.ui.find('#value_name').text( pkt.job );
+		
+		//Yolo :D (remove to return to boring-ro)
+		this.ui.find('#value_name').html( '<a href="https://ratemyserver.net/mob_db.php?small=1&mob_id=' + pkt.job + '" target="_blank">' +pkt.job+' </a>' );
 		
 		this.ui.find('#label_size').text( DB.getMessage(410) );
 		this.ui.find('#value_size').text( Sizes[pkt.size] );
