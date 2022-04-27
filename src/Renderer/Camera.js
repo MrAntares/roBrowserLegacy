@@ -31,8 +31,8 @@ define(function( require )
 	const C_MIN_ZOOM = 1;
 	const C_MAX_ZOOM = 5;
 	
-	const C_MIN_V_ANGLE_ISOMORPHIC = 190;
-	const C_MAX_V_ANGLE_ISOMORPHIC = 270;
+	const C_MIN_V_ANGLE_ISOMETRIC = 190;
+	const C_MAX_V_ANGLE_ISOMETRIC = 270;
 	
 	const C_THIRDPERSON_TRESHOLD_ZOOM = 1;
 	const C_MIN_V_ANGLE_3RDPERSON = 175;
@@ -113,8 +113,8 @@ define(function( require )
 	 */
 	Camera.MIN_ZOOM = C_MIN_ZOOM;
 	Camera.MAX_ZOOM = C_MAX_ZOOM;
-	Camera.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMORPHIC;
-	Camera.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMORPHIC;
+	Camera.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
+	Camera.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 
 	/**
 	 * @var {number} Camera direction
@@ -135,7 +135,7 @@ define(function( require )
 	Camera.state = -1;
 	
 	Camera.states = {
-		isomorphic: 0,
+		isometric: 0,
 		third_person: 1,
 		first_person: 2
 	};
@@ -354,14 +354,14 @@ define(function( require )
 				this.state = this.states.third_person;
 			}
 		} else {
-			if(this.state != this.states.isomorphic){
+			if(this.state != this.states.isometric){
 				var Renderer    = require('Renderer/Renderer');
-				this.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMORPHIC;
-				this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMORPHIC;
+				this.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
+				this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 				Renderer.vFov = 15;
 				Renderer.resize();
 				this.zoomStepMult = 1;
-				this.state = this.states.isomorphic;
+				this.state = this.states.isometric;
 			}
 		}
 	}
