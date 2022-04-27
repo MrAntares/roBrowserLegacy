@@ -279,7 +279,7 @@ define(function( require )
 
 		// Zoom
 		else if (KEYS.CTRL) {
-			this.zoomFinal -= ( Mouse.screen.y - this.action.y  ) / (this.zoomStep * 10);
+			this.zoomFinal -= ( Mouse.screen.y - this.action.y  ) * (this.zoomStep * this.zoomStepMult / 10);
 			this.zoomFinal  = Math.min( this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM );
 			this.zoomFinal  = Math.max( this.zoomFinal, Math.abs(this.altitudeRange) * this.MIN_ZOOM );
 		}
