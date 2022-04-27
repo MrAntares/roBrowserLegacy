@@ -10,6 +10,9 @@ This guide section help you running robrowser locally.
 
 We assume in guide below http server to run on port `8000`.
 ### Compile files
+This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
+
+For development purposes (modifying the source/testing) skip this section and set in the roBrowser config: `development: true,`. In development mode roBrowser will use the files directly from `src/`.
 - Access `http://localhost:8000/tools/build/index.html` with your browser
   ![](img/start-tools.png)
 - click on "Online", compilation should takes around 10secs, if it run forever there might be an issue.
@@ -18,10 +21,12 @@ We assume in guide below http server to run on port `8000`.
 
 ### Add game assets
 - copy your `.grf` under `client/resources` directory
+- copy your `DATA.INI` (GRF loading order) under `client/resources` directory
 - copy your BGM `.mp3` under `client/BGM` directory
 - copy your data directory under `client/data`directory
+- copy your `clientinfo.xml` (client-server information) under `client/data` directory
 - copy your AI files under `AI` directory
-
+- check the `client/configs.php` if it is configured properly for your use
 
 In all `AI/*.lua` files :
 - Replace all `require "AI\\Const"` with `dofile "./AI/Const.lua"`
@@ -68,6 +73,11 @@ also don't forget to start your server
 - 
 ![](img/start-robrowser.png)
 
+### Sidenotes
+- Disable pincode on the game server. (Not supported yet)
+- Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
+- To check for any errors open developer mode and check the browser console (F12 or CTRL+Shift+I in most browsers). Don't forget to adjust the level filters, if you don't see everything.
+- For client version the older, the better. roBrowser currently runs well with client dates <2016. 2012-04-10 is the most tested version. Newer versions might work as well, but important features/packets might be missing. We try to add all the new features/packets eventually.
 
 ## Troubleshooting
 ### Screen is blank
