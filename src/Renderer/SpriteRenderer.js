@@ -57,7 +57,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
-			mat[1].xyz = vec3( 0.0, 1.0 + 0.5/uCameraLatitude, uCameraLatitude/50.0 );
+			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
 
 			return mat;
@@ -72,7 +72,7 @@ function(      WebGL,         glMatrix,      Camera )
 			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex * 0.1 + uSpriteRendererDepth) / (uCameraLatitude * 50.0);
+			gl_Position.z -= (uSpriteRendererZindex * 0.1 + uSpriteRendererDepth) / (uCameraLatitude * uCameraLatitude + 1.0);
 			
 			vTextureCoord = aTextureCoord;
 		}

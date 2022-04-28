@@ -68,7 +68,11 @@ define(function( require )
 	 * @var {integer} game tick
 	 */
 	Renderer.tick = 0;
-
+	
+	/**
+	 * @var {float} vertical field of view in degrees
+	 */
+	Renderer.vFov = 15.0;
 
 	/**
 	 * @var {function[]} callbacks to execute
@@ -188,7 +192,7 @@ define(function( require )
 
 		this.gl.viewport( 0, 0, width, height );
 
-		mat4.perspective( 15.0, width/height, 1, 1000, Camera.projection );
+		mat4.perspective( this.vFov, width/height, 1, 1000, Camera.projection );
 
 		Background.resize( this.width, this.height );
 
