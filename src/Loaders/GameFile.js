@@ -201,7 +201,7 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 				length_aligned: out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
 				real_size:      out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
 				type:           out[pos++],
-				offset:         out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24
+				offset:         (out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24) >>> 0
 			};
 		}
 
