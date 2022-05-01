@@ -251,10 +251,14 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		}
 
 		// Uncompress
-		out = new Uint8Array(entry.real_size);
-		(new Inflate(data)).getBytes(out);
+		try {
+			out = new Uint8Array(entry.real_size);
+			(new Inflate(data)).getBytes(out);
 
-		callback(out.buffer);
+			callback(out.buffer);
+		} catch(error) {
+			console.error("Failed to decode entry", entry.filename, "due to", error);
+		}
 	};
 
 
