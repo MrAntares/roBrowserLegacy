@@ -105,24 +105,25 @@ define(function( require )
 			// Left click
 			case 1:
 				var stop        = false;
+				if(entityOver != Session.Entity){
+					if (entityFocus && entityFocus != entityOver) {
+						entityFocus.onFocusEnd();
+						EntityManager.setFocusEntity(null);
+					}
 
-				if (entityFocus && entityFocus != entityOver) {
-					entityFocus.onFocusEnd();
-					EntityManager.setFocusEntity(null);
-				}
+					// Entity picking ?
+					if (entityOver) {
+						stop = stop || entityOver.onMouseDown();
+						stop = stop || entityOver.onFocus();
+						EntityManager.setFocusEntity(entityOver);
 
-				// Entity picking ?
-				if (entityOver) {
-					stop = stop || entityOver.onMouseDown();
-					stop = stop || entityOver.onFocus();
-					EntityManager.setFocusEntity(entityOver);
-
-					// Know if propagate to map mousedown
-					if (stop) {
-						return;
+						// Know if propagate to map mousedown
+						if (stop) {
+							return;
+						}
 					}
 				}
-
+				
 				// Start walking
 				if (this.onRequestWalk) {
 					this.onRequestWalk();
