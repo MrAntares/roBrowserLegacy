@@ -14,26 +14,26 @@ define(function(require)
 	/**
 	 * Dependencies
 	 */
-	var jQuery       = require('Utils/jquery');
-	var DB           = require('DB/DBManager');
-	var Network          = require('Network/NetworkManager');
-	var PACKET           = require('Network/PacketStructure');	
-	var ItemType     = require('DB/Items/ItemType');
-	var Client       = require('Core/Client');
-	var Preferences  = require('Core/Preferences');
-	var Session      = require('Engine/SessionStorage');
-	var Mouse        = require('Controls/MouseEventHandler');
-	var KEYS         = require('Controls/KeyEventHandler');
-	var UIManager    = require('UI/UIManager');
-	var UIComponent  = require('UI/UIComponent');
-	var ItemInfo     = require('UI/Components/ItemInfo/ItemInfo');
-	var InputBox     = require('UI/Components/InputBox/InputBox');
-	var ChatBox      = require('UI/Components/ChatBox/ChatBox');
-	var CartItems    = require('UI/Components/CartItems/CartItems');
-	var MessageModel = require('UI/Components/Vending/MessageModel/MessageModel');
-	var htmlText     = require('text!./Vending.html');
-	var cssText      = require('text!./Vending.css');
-	var Renderer     = require('Renderer/Renderer');
+	var jQuery       		= require('Utils/jquery');
+	var DB           		= require('DB/DBManager');
+	var Network          	= require('Network/NetworkManager');
+	var PACKET           	= require('Network/PacketStructure');	
+	var ItemType     		= require('DB/Items/ItemType');
+	var Client       		= require('Core/Client');
+	var Preferences  		= require('Core/Preferences');
+	var Session      		= require('Engine/SessionStorage');
+	var Mouse        		= require('Controls/MouseEventHandler');
+	var KEYS         		= require('Controls/KeyEventHandler');
+	var UIManager    		= require('UI/UIManager');
+	var UIComponent  		= require('UI/UIComponent');
+	var ItemInfo     		= require('UI/Components/ItemInfo/ItemInfo');
+	var InputBox     		= require('UI/Components/InputBox/InputBox');
+	var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
+	var CartItems    		= require('UI/Components/CartItems/CartItems');
+	var VendingModelMessage = require('UI/Components/Vending/VendingModelMessage/VendingModelMessage');
+	var htmlText     		= require('text!./Vending.html');
+	var cssText      		= require('text!./Vending.css');
+	var Renderer     		= require('Renderer/Renderer');
 
 
 	/**
@@ -194,7 +194,7 @@ define(function(require)
 		pkt.storeList = [];
 		submitNetworkPacket(pkt);
 
-		MessageModel.onRemove();//remove message if show
+		VendingModelMessage.onRemove();//remove message if show
 
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
@@ -751,7 +751,7 @@ define(function(require)
 
 		if(ctr < 1)
 		{
-			MessageModel.setInit(2494);
+			VendingModelMessage.setInit(2494);
 			return;
 		}
 	
@@ -764,7 +764,7 @@ define(function(require)
 
 		if(!shopname)
 		{
-			MessageModel.setInit(225);
+			VendingModelMessage.setInit(225);
 			return;
 		}
 		else

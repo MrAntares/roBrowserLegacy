@@ -1,7 +1,7 @@
 /**
- * UI/Components/MakeItemSelection/ItemConvertSelection/MessageModel.js
+ * UI/Components/Vending/VendingModelMessage/VendingModelMessage.js
  *
- * MessageModel windows
+ * VendingModelMessage windows
  *
  * @author Francisco Wallison
  */
@@ -23,19 +23,19 @@
      var UIComponent = require('UI/UIComponent');
      var InputBox    = require('UI/Components/InputBox/InputBox');
      var Inventory   = require('UI/Components/Inventory/Inventory');
-     var htmlText    = require('text!./MessageModel.html');
-     var cssText     = require('text!./MessageModel.css');
+     var htmlText    = require('text!./VendingModelMessage.html');
+     var cssText     = require('text!./VendingModelMessage.css');
      var getModule   = require;
 
      /**
-      * Create MessageModel namespace
+      * Create VendingModelMessage namespace
       */
-     var MessageModel = new UIComponent( 'MessageModel', htmlText, cssText );
+     var VendingModelMessage = new UIComponent( 'VendingModelMessage', htmlText, cssText );
       
      /**
       * Initialize UI
       */
-     MessageModel.init = function init()
+     VendingModelMessage.init = function init()
      {
         // Show at center.
         this.ui.css({
@@ -43,30 +43,32 @@
             left: (Renderer.width - 200)/2
         });
 
-        this.ui.find('.ok').on('click',onSendMaterial); 
-        this.ui.find('.cancel').on('click',onClose);
-
+        this.ui.find('.ok').click(function(e){
+			e.stopImmediatePropagation();
+			VendingModelMessage.onRemove();
+		});
         this.draggable(this.ui.find('.titlebar'));
-     };
+    };
 
-
-    function onSendMaterial(event){
-        event.stopImmediatePropagation();
-        getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems')
-            .validItemSend(true);
-
+    VendingModelMessage.setInit = function setInit(numMessage)
+    {
+        VendingModelMessage.append();
+        VendingModelMessage.ui.show();
+        let messageText = DB.getMessage(numMessage);
+		VendingModelMessage.ui.find('.message').text(messageText);
     }
 
-
-     function onClose(event){
-		event.stopImmediatePropagation();
-		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems')
-            .validItemSend(false);
-	}
+    VendingModelMessage.onRemove = function onRemove()
+    {
+        if (this.ui == undefined)
+            return;
+      
+        this.ui.hide()
+    }
 
     /**
      * Create component based on view file and export it
      */
-    return UIManager.addComponent(MessageModel);
+    return UIManager.addComponent(VendingModelMessage);
  });
  
