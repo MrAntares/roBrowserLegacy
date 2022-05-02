@@ -29,6 +29,8 @@ If you don't run roBrowser in a Chrome App, you will need a Java plugin installe
 5.  Install the [websocket proxy](https://github.com/herenow/wsProxy/blob/master/README.md) and set the parameter *socketProxy* to your proxy server URL.
 6.  Configure roBrowser - [documentation](http://www.robrowser.com/getting-started#API) and some [examples](https://github.com/vthibault/roBrowser/tree/master/examples).
 
+Checkout [getting started guide](https://github.com/MrAntares/Ragna.roBrowser/blob/master/doc/Start.md)
+
 ## Contributing
 
 roBrowser is developed by a [team](https://github.com/vthibault/roBrowser/graphs/contributors) located around the world. Check out the [documentation](http://www.robrowser.com/getting-started#API) and submit a pull request!

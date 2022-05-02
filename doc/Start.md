@@ -17,7 +17,7 @@ For development purposes (modifying the source/testing) skip this section and se
   ![](img/start-tools.png)
 - click on "Online", compilation should takes around 10secs, if it run forever there might be an issue.
 - click on "Thread"
-- place `Online.js`and `ThreadEventHandler.js` files under Ragna.roBrowser `build/`directory
+- place `Online.js`and `ThreadEventHandler.js` files under Ragna.roBrowser `root` directory
 
 ### Add game assets
 - copy your `.grf` under `client/resources` directory
