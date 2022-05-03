@@ -413,7 +413,7 @@ define(function( require )
 			SpriteRenderer.size[1] = damage.height * size;
 			damage.color[3]        = 1.0 - perc;
 
-			SpriteRenderer.depth = i*10;
+			SpriteRenderer.depth = i;
 
 			SpriteRenderer.color.set( damage.color );
 			SpriteRenderer.image.texture = damage.texture;
