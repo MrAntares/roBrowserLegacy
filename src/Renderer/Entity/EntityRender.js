@@ -204,6 +204,8 @@ define( function( require )
 
 		return function renderEntity()
 		{
+			if(this.hideEntity) return;
+			
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
 			SpriteRenderer.zIndex = 1;
