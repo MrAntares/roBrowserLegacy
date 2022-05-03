@@ -18,6 +18,7 @@ define(function( require )
 	var Mouse       = require('Controls/MouseEventHandler');
 	var Events      = require('Core/Events');
 	var Preferences = require('Preferences/Camera');
+	var Session     = require('Engine/SessionStorage');
 	var glMatrix    = require('Utils/gl-matrix');
 	var mat4        = glMatrix.mat4;
 	var mat3        = glMatrix.mat3;
@@ -342,6 +343,9 @@ define(function( require )
 				Renderer.resize();
 				this.zoomStepMult = 0.3;
 				this.state = this.states.first_person;
+				if(Session.Entity){
+					Session.Entity.hideEntity = true;
+				}
 			}
 		} else if (this.enable3RDPerson &&  this.zoomFinal < (Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM)){
 			if(this.state != this.states.third_person){
@@ -352,6 +356,9 @@ define(function( require )
 				Renderer.resize();
 				this.zoomStepMult = 0.3;
 				this.state = this.states.third_person;
+				if(Session.Entity){
+					Session.Entity.hideEntity = false;
+				}
 			}
 		} else {
 			if(this.state != this.states.isometric){
@@ -362,6 +369,9 @@ define(function( require )
 				Renderer.resize();
 				this.zoomStepMult = 1;
 				this.state = this.states.isometric;
+				if(Session.Entity){
+					Session.Entity.hideEntity = false;
+				}
 			}
 		}
 	}
