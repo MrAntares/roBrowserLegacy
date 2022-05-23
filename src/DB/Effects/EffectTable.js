@@ -1226,7 +1226,7 @@ define(function( require )
 
         28: [{ //Frost Diver target hit    //EF_FROSTDIVER2    Frost Diver (Hitting)
             attachedEntity: true,
-            file: 'freeze',
+            file: 'freeze', //effect/ice.tga
             type: 'STR',
             wav: 'effect/ef_frostdiver2'
         }],
@@ -3007,6 +3007,7 @@ define(function( require )
         234: [{    //EF_SPELLBREAKER    Spell Breaker
             type: 'STR',
             file: 'spell',
+            wav: 'effect/sage_spell breake',
             attachedEntity: true
         }],
 
