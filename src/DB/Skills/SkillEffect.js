@@ -45,7 +45,7 @@ define(['./SkillConst'], function( SK )
 
 	// Swordman
 	SkillEffect[SK.SM_BASH]                        = {beforeCastEffectId: 16, hitEffectId: 1};		//Bash
-	SkillEffect[SK.SM_PROVOKE]                     = {effectId: 67};		//Provoke
+	SkillEffect[SK.SM_PROVOKE]                     = {successEffectId: 67};		//Provoke
 	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17};		//Magnum Break
 	SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	// Mage
@@ -276,8 +276,8 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MO_COMBOFINISH]                 = {effectId: 330};		//Raging Thrust
 	// Sage
 	SkillEffect[SK.SA_CASTCANCEL]                  = {};		//Cast Cancel
-	SkillEffect[SK.SA_MAGICROD]                    = {effectId: 244};		//Magic Rod
-	SkillEffect[SK.SA_SPELLBREAKER]                = {effectId: 234};		//Spell Breaker
+	SkillEffect[SK.SA_MAGICROD]                    = {successEffectId: 244};		//Magic Rod
+	SkillEffect[SK.SA_SPELLBREAKER]                = {successEffectId: 234};		//Spell Breaker
 	SkillEffect[SK.SA_AUTOSPELL]                   = {};		//Hindsight
 	SkillEffect[SK.SA_FLAMELAUNCHER]               = {effectId: 255};		//Endow Blaze
 	SkillEffect[SK.SA_FROSTWEAPON]                 = {effectId: 256};		//Endow Tsunami
@@ -287,7 +287,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SA_DELUGE]                      = {effectIdOnCaster: 236, groundEffectId: 240};		//Deluge
 	SkillEffect[SK.SA_VIOLENTGALE]                 = {effectIdOnCaster: 237, groundEffectId: 241};		//Whirlwind
 	SkillEffect[SK.SA_LANDPROTECTOR]               = {effectIdOnCaster:  238, groundEffectId: 242};		//Magnetic Earth
-	SkillEffect[SK.SA_DISPELL]                     = {effectId: 235};		//Dispell
+	SkillEffect[SK.SA_DISPELL]                     = {successEffectId: 235};		//Dispell
 	SkillEffect[SK.SA_ABRACADABRA]                 = {};		//Hocus-pocus
 	SkillEffect[SK.SA_MONOCELL]                    = {};		//Monocell
 	SkillEffect[SK.SA_CLASSCHANGE]                 = {};		//Class Change
