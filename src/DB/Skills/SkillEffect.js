@@ -412,7 +412,7 @@ define(['./SkillConst'], function( SK )
 	// Champion
 	SkillEffect[SK.CH_SOULCOLLECT]                 = {effectId: 402};		//Zen
 	// Professor
-	SkillEffect[SK.PF_MINDBREAKER]                 = {effectId: 403};		//Mind Breaker
+	SkillEffect[SK.PF_MINDBREAKER]                 = {successEffectId: 403};		//Mind Breaker
 	SkillEffect[SK.PF_MEMORIZE]                    = {effectId: 505};		//Foresight
 	SkillEffect[SK.PF_FOGWALL]                     = {groundEffectId: '405_ground'};		//Blinding Mist
 	SkillEffect[SK.PF_SPIDERWEB]                   = {groundEffectId: 404};		//Fiber Lock
