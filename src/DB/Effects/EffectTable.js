@@ -4958,11 +4958,33 @@ define(function( require )
         //378: [{}],    //EF_ENERGYDRAIN2       Soul Drain (1st Part)
         //379: [{}],    //EF_TRANSBLUEBODY       Soul Drain (2nd Part)
         
-		380: [{    //EF_MAGICCRASHER       Magic Crasher
-			wav:  'effect/\xb8\xc5\xc1\xf7\x20\xc5\xa9\xb7\xa1\xbd\xac', //¸ĹÁ÷ Ĺ©·ˇ˝¬
-            attachedEntity: true
-		}],
-		
+        380: [{    //EF_MAGICCRASHER       Magic Crasher
+            type: 'FUNC',
+            attachedEntity: true,
+            func: function EffectBodyColor(entity) {
+                
+                entity.animations.add(function(tick){
+                    if(tick < 1000){
+                        if(tick > 500){
+                            entity._virtueColor[0] = Math.random();
+                            entity._virtueColor[1] = Math.random();
+                            entity._virtueColor[2] = Math.random();
+                            entity._virtueColor[3] = 0.6;
+                            entity.recalculateBlendingColor();
+                        }
+                    } else {
+                        entity._virtueColor[0] = 1;
+                        entity._virtueColor[1] = 1;
+                        entity._virtueColor[2] = 1;
+                        entity._virtueColor[3] = 1;
+                        entity.recalculateBlendingColor();
+                        return true;
+                    }
+                });
+            },
+            wav:  'effect/\xb8\xc5\xc1\xf7\x20\xc5\xa9\xb7\xa1\xbd\xac'
+        }],
+        
         //381: [{}],    //EF_LIGHTSPHERE2       Blue Starburst (Unknown use)
 
         382: [{    //EF_LIGHTBLADE    (Nothing)
@@ -5067,12 +5089,6 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectBodyColor(entity) {
-                var virtueBackup = [];
-                virtueBackup[0] = entity._virtueColor[0];
-                virtueBackup[1] = entity._virtueColor[1];
-                virtueBackup[2] = entity._virtueColor[2];
-                virtueBackup[3] = entity._virtueColor[3];
-
                 entity.animations.add(function(tick){
                     if(tick < 1000){
                         entity._virtueColor[0] = Math.random();
@@ -5080,10 +5096,10 @@ define(function( require )
                         entity._virtueColor[2] = Math.random();
                         entity.recalculateBlendingColor();
                     } else {
-                        entity._virtueColor[0] = virtueBackup[0];
-                        entity._virtueColor[1] = virtueBackup[1];
-                        entity._virtueColor[2] = virtueBackup[2];
-                        entity._virtueColor[3] = virtueBackup[3];
+                        entity._virtueColor[0] = 1;
+                        entity._virtueColor[1] = 1;
+                        entity._virtueColor[2] = 1;
+                        entity._virtueColor[3] = 1;
                         entity.recalculateBlendingColor();
                         return true;
                     }
