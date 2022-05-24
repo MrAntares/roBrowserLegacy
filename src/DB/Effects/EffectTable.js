@@ -5062,7 +5062,35 @@ define(function( require )
         
         //401: [{}],    //EF_NAPALMVALCAN       Napalm Vulcan Sound
         //402: [{}],    //EF_PORTAL5       Dangerous Soul Collect
-        //403: [{}],    //EF_MAGICCRASHER2       Mind Breaker
+        
+        403: [{    //EF_MAGICCRASHER2       Mind Breaker
+            type: 'FUNC',
+            attachedEntity: true,
+            func: function EffectBodyColor(entity) {
+                var virtueBackup = [];
+                virtueBackup[0] = entity._virtueColor[0];
+                virtueBackup[1] = entity._virtueColor[1];
+                virtueBackup[2] = entity._virtueColor[2];
+                virtueBackup[3] = entity._virtueColor[3];
+
+                entity.animations.add(function(tick){
+                    if(tick < 1000){
+                        entity._virtueColor[0] = Math.random();
+                        entity._virtueColor[1] = Math.random();
+                        entity._virtueColor[2] = Math.random();
+                        entity.recalculateBlendingColor();
+                    } else {
+                        entity._virtueColor[0] = virtueBackup[0];
+                        entity._virtueColor[1] = virtueBackup[1];
+                        entity._virtueColor[2] = virtueBackup[2];
+                        entity._virtueColor[3] = virtueBackup[3];
+                        entity.recalculateBlendingColor();
+                        return true;
+                    }
+                });
+            },
+            wav:  'effect/swordman_provoke'
+        }],
         
         404: [{    //EF_BOTTOM_SPIDER    Fiber Lock
             type: 'FUNC',
