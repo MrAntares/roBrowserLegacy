@@ -2668,9 +2668,10 @@ define(function( require )
         //164: [{}],    //EF_STATUS_STATE       (Nothing)
 
         165: [{ //Comodo Fireworks Ball    //EF_BANJJAKII    Comodo Fireworks Ball
-			duration: 10000,
-            wav:  'effect/\xc6\xf8\xc1\xd7',
-            attachedEntity: false
+            type: 'SPR',
+            file: '\xc5\xa9\xb8\xae\xbd\xba\xb8\xb6\xbd\xba',
+            duration: 1000,
+            attachedEntity: true
         }],
         
         //166: [{}],    //EF_MAKEBLUR       Energy Coat (Visual Effect)
