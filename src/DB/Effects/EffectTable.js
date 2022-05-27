@@ -9390,7 +9390,7 @@ define(function( require )
                             entity._virtueColor[0] = 1;
                             entity._virtueColor[1] = 1;
                             entity._virtueColor[2] = 1;
-                            entity._virtueColor[3] = 0.5;
+                            entity._virtueColor[3] = 0.4;
                             entity.recalculateBlendingColor();
                         } else {
                             entity._virtueColor[0] = 1;
@@ -9410,12 +9410,101 @@ define(function( require )
                 });
             }
         }],
-		
-		'ef_swing_dance': [{
+
+        'ef_swing_dance': [{
             wav: 'effect/\xbd\xba\xc0\xae\xb4\xed\xbd\xba',
             attachedEntity: true
+        }, {
+            alphaMax: 1,
+            attachedEntity: true,
+            duration: 1000,
+            delayLate: 500,
+            duplicate: 7,
+            fadeOut: true,
+            file: 'effect/ac_center2.tga',
+            red: 1,
+            green: 0.1,
+            blue: 0.5,
+            posxRand: 1.5,
+            posyRand: 1,
+            poszEndRand: 1,
+            poszEndRandMiddle: 6,
+            poszStartRand: 1,
+            poszStartRandMiddle: 1,
+            sizeRandY: 15,
+            sizeRandYMiddle: 45,
+            sizeX: 2.5,
+            type: '3D',
+            zIndex: 0
+        }, {
+            alphaMax: 0.75,
+            attachedEntity: true,
+            duration: 1000,
+            delayOffset: 400,
+            duplicate: 3,
+            fadeOut: true,
+            file: 'effect/ac_center2.tga',
+            posxRand: 1.5,
+            posyRand: 1,
+            poszEndRand: 1,
+            poszEndRandMiddle: 6,
+            poszStartRand: 1,
+            poszStartRandMiddle: 1,
+            sizeRandY: 15,
+            sizeRandYMiddle: 45,
+            sizeX: 2.5,
+            type: '3D',
+            zIndex: 0
+        }, {
+            alphaMax: 1,
+            attachedEntity: true,
+            duration: 1000,
+            duplicate: 10,
+            fadeOut: true,
+            file: 'effect/ac_center2.tga',
+            posxRand: 1.5,
+            posyRand: 1,
+            poszEndRand: 1,
+            poszEndRandMiddle: 6,
+            poszStartRand: 1,
+            poszStartRandMiddle: 1,
+            sizeRandY: 15,
+            sizeRandYMiddle: 45,
+            sizeX: 2.5,
+            type: '3D',
+            zIndex: 0
+        }, {
+            type: 'FUNC',
+            attachedEntity: true,
+            func: function EffectBodyColor(entity) {
+                
+                entity.animations.add(function(tick){
+                    if(tick < 500){
+                        if(tick%2 == 0){
+                            entity._virtueColor[0] = 1;
+                            entity._virtueColor[1] = 0.1;
+                            entity._virtueColor[2] = 0.5;
+                            entity._virtueColor[3] = 0.4;
+                            entity.recalculateBlendingColor();
+                        } else {
+                            entity._virtueColor[0] = 1;
+                            entity._virtueColor[1] = 1;
+                            entity._virtueColor[2] = 1;
+                            entity._virtueColor[3] = 1;
+                            entity.recalculateBlendingColor();
+                        }
+                    } else {
+                        entity._virtueColor[0] = 1;
+                        entity._virtueColor[1] = 1;
+                        entity._virtueColor[2] = 1;
+                        entity._virtueColor[3] = 1;
+                        entity.recalculateBlendingColor();
+                        return true;
+                    }
+                });
+            }
         }],
-		
+
 		'ef_great_echo': [{
             wav: 'effect/\xbc\xa8\xc5\xcd\xbd\xba\xc5\xe8',
             attachedEntity: true
