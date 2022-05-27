@@ -262,8 +262,7 @@ define(function(require)
 			file = 'empty_card_slot.bmp';
 		}
 		else {
-			// was not supposed to be in /basic_interface ?
-			file = 'coparison_disable_card_slot.bmp';
+			file = 'basic_interface/coparison_disable_card_slot.bmp';
 		}
 
 		cardList.append(
