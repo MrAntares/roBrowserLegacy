@@ -8306,16 +8306,42 @@ define(function( require )
 		}],
         //800: [{}],    //EF_REDLINE       Hell Inferno (red lights)
         //801: [{}],    //EF_FROSTDIVER3       Jack Frost unit (ice spikes)
+		
         802: [{    //EF_BOTTOM_BASILICA2       White Imprison
-			wav: 'effect/wl_whiteimprison'
-		}],
+            wav: 'effect/wl_whiteimprison'
+        }],
+        
         803: [{    //EF_RECOGNIZED       Recognized Spell
-			wav: 'effect/wl_recognizedspell'
-		}],
+            wav: 'effect/wl_recognizedspell'
+        }],
+        
         804: [{    //EF_TETRA       Tetra Vortex [S]
-			wav: 'effect/wl_tetravortex'
-		}],
-        //805: [{}],    //EF_TETRACASTING       Tetra Vortex cast animation (blinking colors)
+            wav: 'effect/wl_tetravortex'
+        }],
+        
+        805: [{    //EF_TETRACASTING       Tetra Vortex cast animation (blinking colors)
+            type: 'FUNC',
+            attachedEntity: true,
+            func: function EffectBodyColor(entity) {
+                entity.animations.add(function(tick){
+                    if (!entity.cast.display) {     //we don't know cast time here so.. let's hack
+                        entity._virtueColor[0] = 1.0;
+                        entity._virtueColor[1] = 1.0;
+                        entity._virtueColor[2] = 1.0;
+                        entity._virtueColor[3] = 1.0;
+                        entity.recalculateBlendingColor();
+                        return true;
+                    }
+                        entity._virtueColor[0] = Math.random();
+                        entity._virtueColor[1] = Math.random();
+                        entity._virtueColor[2] = Math.random();
+                        entity._virtueColor[3] = 0.5 + Math.random()/2;
+                        entity.recalculateBlendingColor();
+                });
+            }
+        }],
+		
+		
         //806: [{}],    //EF_FIREBALL3       Flying by as fast as a rocket
         //807: [{}],    //EF_INTIMIDATE3       Kidnapping sound
         //808: [{}],    //EF_RECOGNIZED2       Like Recognized Spell, but one symbol
