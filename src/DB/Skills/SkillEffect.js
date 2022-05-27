@@ -649,7 +649,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WL_CHAINLIGHTNING]              = {};		//Chain Lightning
 	SkillEffect[SK.WL_CHAINLIGHTNING_ATK]          = {effectId: 734};		//Chain Lightning Attack
 	SkillEffect[SK.WL_EARTHSTRAIN]                 = {groundEffectId: 732};		//Earth Strain
-	SkillEffect[SK.WL_TETRAVORTEX]                 = {effectId: 804, effectIdOnCaster: 805};		//Tetra Vortex
+	SkillEffect[SK.WL_TETRAVORTEX]                 = {effectId: 804, beforeCastEffectId: 805};		//Tetra Vortex
 	SkillEffect[SK.WL_TETRAVORTEX_FIRE]            = {};		//Tetra Vortex Fire
 	SkillEffect[SK.WL_TETRAVORTEX_WATER]           = {};		//Tetra Vortex Water
 	SkillEffect[SK.WL_TETRAVORTEX_WIND]            = {};		//Tetra Vortex Wind
