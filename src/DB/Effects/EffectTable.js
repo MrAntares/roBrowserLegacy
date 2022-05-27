@@ -9317,9 +9317,98 @@ define(function( require )
             attachedEntity: true
         }],
         
-		'ef_rush_windmill': [{
+        'ef_rush_windmill': [{
             wav: 'effect/\xc7\xb3\xc2\xf7\xb8\xa6\xc7\xe2\xc7\xd8\xb5\xb9\xb0\xdd', //ÇłÂ÷¸¦ÇâÇŘµą°Ý
             attachedEntity: true
+        }, {
+            alphaMax: 1,
+            attachedEntity: true,
+            duration: 1000,
+            delayLate: 500,
+            duplicate: 7,
+            fadeOut: true,
+            file: 'effect/ac_center2.tga',
+            red: 0.5,
+            green: 0.01,
+            blue: 0.9,
+            posxRand: 1.5,
+            posyRand: 1,
+            poszEndRand: 1,
+            poszEndRandMiddle: 6,
+            poszStartRand: 1,
+            poszStartRandMiddle: 1,
+            sizeRandY: 15,
+            sizeRandYMiddle: 45,
+            sizeX: 2.5,
+            type: '3D',
+            zIndex: 0
+        }, {
+            alphaMax: 0.75,
+            attachedEntity: true,
+            duration: 1000,
+            delayOffset: 400,
+            duplicate: 3,
+            fadeOut: true,
+            file: 'effect/ac_center2.tga',
+            posxRand: 1.5,
+            posyRand: 1,
+            poszEndRand: 1,
+            poszEndRandMiddle: 6,
+            poszStartRand: 1,
+            poszStartRandMiddle: 1,
+            sizeRandY: 15,
+            sizeRandYMiddle: 45,
+            sizeX: 2.5,
+            type: '3D',
+            zIndex: 0
+        }, {
+            alphaMax: 1,
+            attachedEntity: true,
+            duration: 1000,
+            duplicate: 10,
+            fadeOut: true,
+            file: 'effect/ac_center2.tga',
+            posxRand: 1.5,
+            posyRand: 1,
+            poszEndRand: 1,
+            poszEndRandMiddle: 6,
+            poszStartRand: 1,
+            poszStartRandMiddle: 1,
+            sizeRandY: 15,
+            sizeRandYMiddle: 45,
+            sizeX: 2.5,
+            type: '3D',
+            zIndex: 0
+        }, {
+            type: 'FUNC',
+            attachedEntity: true,
+            func: function EffectBodyColor(entity) {
+                
+                entity.animations.add(function(tick){
+                    if(tick < 500){
+                        if(tick%2 == 0){
+                            entity._virtueColor[0] = 1;
+                            entity._virtueColor[1] = 1;
+                            entity._virtueColor[2] = 1;
+                            entity._virtueColor[3] = 0.5;
+                            entity.recalculateBlendingColor();
+                        } else {
+                            entity._virtueColor[0] = 1;
+                            entity._virtueColor[1] = 1;
+                            entity._virtueColor[2] = 1;
+                            entity._virtueColor[3] = 1;
+                            entity.recalculateBlendingColor();
+                        }
+                    } else {
+                        entity._virtueColor[0] = 1;
+                        entity._virtueColor[1] = 1;
+                        entity._virtueColor[2] = 1;
+                        entity._virtueColor[3] = 1;
+                        entity.recalculateBlendingColor();
+                        return true;
+                    }
+                });
+            }
         }],
 		
 		'ef_swing_dance': [{
