@@ -36,7 +36,7 @@ define( function( require )
 	{
 		this.speed =  150;
 		this.tick  =  0;
-		this.path  =  new Int16Array(32*2);
+		this.path  =  new Int16Array(PathFinding.MAX_WALKPATH * 2);
 		this.pos   =  new Float32Array(3);
 		this.onEnd = null;
 		this.index =  0;
