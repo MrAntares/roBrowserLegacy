@@ -26,7 +26,7 @@ define(function()
 
 
 	const MAX_HEAP     = 150;
-	const MAX_WALKPATH = 33;
+	const MAX_WALKPATH = 32;
 
 
 	// Memory
