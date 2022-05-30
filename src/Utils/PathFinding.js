@@ -25,8 +25,8 @@ define(function()
 	};
 
 
-	var MAX_HEAP     = 150;
-	var MAX_WALKPATH = 32;
+	const MAX_HEAP     = 150;
+	const MAX_WALKPATH = 33;
 
 
 	// Memory
@@ -430,6 +430,8 @@ define(function()
 	return {
 		search:     search,
 		searchLong: searchLong,
-		setGat:     setGat
+		setGat:     setGat,
+		MAX_HEAP:	MAX_HEAP,
+		MAX_WALKPATH: MAX_WALKPATH
 	};
 });
