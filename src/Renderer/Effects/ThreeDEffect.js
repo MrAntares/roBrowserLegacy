@@ -307,12 +307,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             } else if (this.spriteName) {
                 this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
                 this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
-
-                // Didn't found the arrow sprite in the spr effects folder [Waken]
-                if (this.spriteName == 'skel_archer_arrow'){
-                    this.spriteRessource = Client.loadFile('data/sprite/npc/' + this.spriteName + '.spr');
-                    this.actRessource = Client.loadFile('data/sprite/npc/' + this.spriteName + '.act');
-                }
             }
         }
         
