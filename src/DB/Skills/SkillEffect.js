@@ -165,7 +165,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.TF_SPRINKLESAND]                = {effectId: 310};		//Sand Attack
 	SkillEffect[SK.TF_BACKSLIDING]                 = {};		//Back Slide
 	SkillEffect[SK.TF_PICKSTONE]                   = {};		//Find Stone
-	SkillEffect[SK.TF_THROWSTONE]                  = {effectId: 308};		//Stone Fling
+	SkillEffect[SK.TF_THROWSTONE]                  = {beforeHitEffectId: 308};		//Stone Fling
 	SkillEffect[SK.MC_CARTREVOLUTION]              = {beforeCastEffectId: 170, hitEffectId: 170};		//Cart Revolution
 	SkillEffect[SK.MC_CHANGECART]                  = {};		//Change Cart
 	SkillEffect[SK.MC_LOUD]                        = {effectId: 311};		//Crazy Uproar
@@ -239,7 +239,7 @@ define(['./SkillConst'], function( SK )
 	// Alchemist
 	SkillEffect[SK.AM_PHARMACY]                    = {};		//Prepare Potion
 	SkillEffect[SK.AM_DEMONSTRATION]               = {groundEffectId: 302};		//Bomb
-	SkillEffect[SK.AM_ACIDTERROR]                  = {effectId: 298};		//Acid Terror
+	SkillEffect[SK.AM_ACIDTERROR]                  = {beforeHitEffectId: 298};		//Acid Terror
 	SkillEffect[SK.AM_POTIONPITCHER]               = {effectId: 299};		//Aid Potion
 	SkillEffect[SK.AM_CANNIBALIZE]                 = {};		//Summon Flora
 	SkillEffect[SK.AM_SPHEREMINE]                  = {};		//Summon Marine Sphere
@@ -526,10 +526,10 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.GS_SPREADATTACK]                = {effectId: 645};		//Spread Attack
 	SkillEffect[SK.GS_GROUNDDRIFT]                 = {};		//Ground Drift
 	// Ninja
-	SkillEffect[SK.NJ_SYURIKEN]                    = {effectIdOnCaster: 613};		//Throw Shuriken
-	SkillEffect[SK.NJ_KUNAI]                       = {effectIdOnCaster: 614};		//Throw Kunai
-	SkillEffect[SK.NJ_HUUMA]                       = {effectIdOnCaster: 615};		//Throw Huuma Shuriken
-	SkillEffect[SK.NJ_ZENYNAGE]                    = {effectIdOnCaster: 616};		//Throw Zeny
+	SkillEffect[SK.NJ_SYURIKEN]                    = {beforeHitEffectId: 613};		//Throw Shuriken
+	SkillEffect[SK.NJ_KUNAI]                       = {beforeHitEffectId: 614};		//Throw Kunai
+	SkillEffect[SK.NJ_HUUMA]                       = {beforeHitEffectId: 615};		//Throw Huuma Shuriken
+	SkillEffect[SK.NJ_ZENYNAGE]                    = {beforeHitEffectId: 616};		//Throw Zeny
 	SkillEffect[SK.NJ_TATAMIGAESHI]                = {groundEffectId: 631};		//Improvised Defense
 	SkillEffect[SK.NJ_KASUMIKIRI]                  = {effectId: 632};		//Vanishing Slash
 	SkillEffect[SK.NJ_SHADOWJUMP]                  = {};		//Shadow Leap
@@ -599,7 +599,7 @@ define(['./SkillConst'], function( SK )
 	// 2nd Quest Skills
 	SkillEffect[SK.KN_CHARGEATK]                   = {beforeCastEffectId: 'white_pulse', hitEffectId: 'enemy_hit_normal1'};		//Charge Attack
 	SkillEffect[SK.CR_SHRINK]                      = {effectId: 599};		//Shrink
-	SkillEffect[SK.AS_VENOMKNIFE]                  = {effectId: 600};		//Throw Venom Knife
+	SkillEffect[SK.AS_VENOMKNIFE]                  = {beforeHitEffectId: 600};		//Throw Venom Knife
 	SkillEffect[SK.RG_CLOSECONFINE]                = {effectId: 602, groundEffectId: 604};		//Close Confine
 	SkillEffect[SK.WZ_SIGHTBLASTER]                = {effectId: 601};		//Sight Blaster
 	SkillEffect[SK.SA_CREATECON]                   = {};		//Create Elemental Converter
