@@ -9845,7 +9845,7 @@ define(function( require )
             attachedEntity: true
         }],
 
-        'ef_throw_arrow': [{ // effect to show the thrown arrow (normal attack or skill with a bow)
+        'ef_arrow_projectile': [{ // effect to show the arrow projectile (normal attack or skill with arrow projectile)
             type: '3D',
             alphaMax: 1,
             angle: 180,
@@ -9853,7 +9853,7 @@ define(function( require )
             duration: 140,
             fadeIn: true,
             fadeOut: true,
-            spriteName: 'skel_archer_arrow',
+            spriteName: '../npc/skel_archer_arrow', //it is not in the effects folder so use relative path
             toSrc: true,
             rotateToTarget: true,
             rotateWithCamera: true,
@@ -9862,7 +9862,7 @@ define(function( require )
             zIndex: 1
         }],
 		
-        'ef_arrow_shower': [{
+        'ef_arrow_shower_projectile': [{
             type: '3D',
             alphaMax: 1,
             angle: 180,
@@ -9872,7 +9872,7 @@ define(function( require )
             timeBetweenDupli: 0,
             fadeIn: true,
             fadeOut: true,
-            spriteName: 'skel_archer_arrow',
+            spriteName: '../npc/skel_archer_arrow', //it is not in the effects folder so use relative path
             toSrc: true,
             rotateToTarget: true,
             rotateWithCamera: true,
@@ -9882,6 +9882,63 @@ define(function( require )
             posxEndRand: 1.5,
             posyEndRand: 1.5
         }],
+
+        'ef_spear_projectile': [{
+            type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 140,
+            fadeIn: true,
+            fadeOut: true,
+            spriteName: '\xc3\xa2',
+            playSprite: true,
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            size: 1,
+            zOffset: 1,
+            zIndex: 1
+        }],
+
+        'ef_shield_projectile': [{
+            type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 140,
+            fadeIn: true,
+            fadeOut: true,
+            file: 'effect/shield_boomerang.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 1,
+            size: 50,
+            zOffset: 1,
+            zIndex: 1
+        }],
+
+        'ef_tomahawk_projectile': [{
+            type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 140,
+            fadeIn: true,
+            fadeOut: true,
+            file: 'effect/\xc5\xe4\xb8\xb6.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 1,
+            size: 50,
+            zOffset: 1,
+            zIndex: 1
+        }],
+		
 		
 		'ef_': [{
             wav: 'effect/',
