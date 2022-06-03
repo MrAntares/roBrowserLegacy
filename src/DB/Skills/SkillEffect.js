@@ -80,8 +80,8 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MC_MAMMONITE]                   = {effectId: 10};		//Mammonite
 	// Archer
 	SkillEffect[SK.AC_CONCENTRATION]               = {effectId: 153};		//Improve Concentration
-	SkillEffect[SK.AC_DOUBLE]                      = {beforeHitEffectId: 'ef_throw_arrow', hitEffectId: 1};		//Double Strafe
-	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower', hitEffectId: 1};		//Arrow Shower
+	SkillEffect[SK.AC_DOUBLE]                      = {beforeHitEffectId: 'ef_arrow_projectile', hitEffectId: 1};		//Double Strafe
+	SkillEffect[SK.AC_SHOWER]                      = {effectId: 'ef_arrow_shower_projectile', hitEffectId: 1};		//Arrow Shower
 	// Thief
 	SkillEffect[SK.TF_STEAL]                       = {successEffectId: 18};		//Steal
 	SkillEffect[SK.TF_HIDING]                      = {/*Handled by state*/};	//Hiding
@@ -93,7 +93,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.KN_PIERCE]                      = {effectIdOnCaster: 148, hitEffectId: 147};		//Pierce
 	SkillEffect[SK.KN_BRANDISHSPEAR]               = {effectId: 70, effectIdOnCaster: 144};		//Brandish Spear
 	SkillEffect[SK.KN_SPEARSTAB]                   = {effectIdOnCaster: 150};		//Spear Stab
-	SkillEffect[SK.KN_SPEARBOOMERANG]              = {effectIdOnCaster: 151, hitEffectId: 80};		//Spear Boomerang
+	SkillEffect[SK.KN_SPEARBOOMERANG]              = {effectIdOnCaster: 151, beforeHitEffectId: 'ef_spear_projectile', hitEffectId: 80};		//Spear Boomerang
 	SkillEffect[SK.KN_TWOHANDQUICKEN]              = {effectId: 130};		//Twohand Quicken
 	SkillEffect[SK.KN_AUTOCOUNTER]                 = {effectId: 131};		//Counter Attack
 	SkillEffect[SK.KN_BOWLINGBASH]                 = {effectId: 149, hitEffectId: 1};		//Bowling Bash
@@ -161,7 +161,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NV_TRICKDEAD]                   = {};		//Play Dead
 	SkillEffect[SK.SM_AUTOBERSERK]                 = {};		//Auto Berserk
 	SkillEffect[SK.AC_MAKINGARROW]                 = {};		//Arrow Crafting
-	SkillEffect[SK.AC_CHARGEARROW]                 = {beforeHitEffectId: 'ef_throw_arrow'};		//Arrow Repel
+	SkillEffect[SK.AC_CHARGEARROW]                 = {beforeHitEffectId: 'ef_arrow_projectile'};		//Arrow Repel
 	SkillEffect[SK.TF_SPRINKLESAND]                = {effectId: 310};		//Sand Attack
 	SkillEffect[SK.TF_BACKSLIDING]                 = {};		//Back Slide
 	SkillEffect[SK.TF_PICKSTONE]                   = {};		//Find Stone
@@ -253,7 +253,7 @@ define(['./SkillConst'], function( SK )
 	// Crusader
 	SkillEffect[SK.CR_AUTOGUARD]                   = {effectId: 336};		//Guard
 	SkillEffect[SK.CR_SHIELDCHARGE]                = {effectId: 246};		//Smite
-	SkillEffect[SK.CR_SHIELDBOOMERANG]             = {effectId: 249};		//Shield Boomerang
+	SkillEffect[SK.CR_SHIELDBOOMERANG]             = {beforeHitEffectId: 'ef_shield_projectile', effectId: 249};		//Shield Boomerang
 	SkillEffect[SK.CR_REFLECTSHIELD]               = {effectId: 252};		//Shield Reflect
 	SkillEffect[SK.CR_HOLYCROSS]                   = {effectId: 245};		//Holy Cross
 	SkillEffect[SK.CR_GRANDCROSS]                  = {effectId: 226};		//Grand Cross
@@ -314,7 +314,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.BD_INTOABYSS]                   = {effectId: 284, groundEffectId: '284_ground'};		//Power Chord
 	SkillEffect[SK.BD_SIEGFRIED]                   = {effectId: 285, groundEffectId: '285_ground'};		//Acoustic Rhythm
 	// Bard
-	SkillEffect[SK.BA_MUSICALSTRIKE]               = {beforeHitEffectId: 'ef_throw_arrow'};		//Melody Strike
+	SkillEffect[SK.BA_MUSICALSTRIKE]               = {beforeHitEffectId: 'ef_arrow_projectile'};		//Melody Strike
 	SkillEffect[SK.BA_DISSONANCE]                  = {groundEffectId: '277_ground'};		//Unchained Serenade
 	SkillEffect[SK.BA_FROSTJOKER]                  = {/*not here*/};		//Unbarring Octave
 	SkillEffect[SK.BA_WHISTLE]                     = {effectId: 286, groundEffectId: '286_ground'};		//Perfect Tablature
@@ -322,7 +322,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.BA_POEMBRAGI]                   = {effectId: 288, groundEffectId: '288_ground'};		//Magic Strings
 	SkillEffect[SK.BA_APPLEIDUN]                   = {effectId: 289, groundEffectId: '289_ground'};		//Song of Lutie
 	// Dancer
-	SkillEffect[SK.DC_THROWARROW]                  = {beforeHitEffectId: 'ef_throw_arrow'};		//Slinging Arrow
+	SkillEffect[SK.DC_THROWARROW]                  = {beforeHitEffectId: 'ef_arrow_projectile'};		//Slinging Arrow
 	SkillEffect[SK.DC_UGLYDANCE]                   = {groundEffectId: '290_ground'};		//Hip Shaker
 	SkillEffect[SK.DC_SCREAM]                      = {/*not here*/};		//Dazzler
 	SkillEffect[SK.DC_HUMMING]                     = {effectId: 291, groundEffectId: '291_ground'};		//Focus Ballet
@@ -338,7 +338,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WE_FEMALE]                      = {};		//I Look up to You
 	SkillEffect[SK.WE_CALLPARTNER]                 = {};		//I miss You
 	// NPC Skills
-	SkillEffect[SK.ITM_TOMAHAWK]                   = {effectId: 494};		//Throw Tomahawk
+	SkillEffect[SK.ITM_TOMAHAWK]                   = {beforeHitEffectId: 'ef_tomahawk_projectile', effectId: 494};		//Throw Tomahawk
 	SkillEffect[SK.NPC_DARKCROSS]                  = {effectId: 450};		//Cross of Darkness
 	SkillEffect[SK.NPC_GRANDDARKNESS]              = {};		//Grand cross of Darkness
 	SkillEffect[SK.NPC_DARKSTRIKE]                 = {effectId: 451};		//Soul Strike of Darkness
@@ -385,7 +385,7 @@ define(['./SkillConst'], function( SK )
 	// Sniper
 	SkillEffect[SK.SN_SIGHT]                       = {effectId: 386};		//Falcon Eyes
 	SkillEffect[SK.SN_FALCONASSAULT]               = {effectId: 387};		//Falcon Assault
-	SkillEffect[SK.SN_SHARPSHOOTING]               = {hitEffectId: 388, beforeHitEffectId: 'ef_throw_arrow', beforeCastEffectId: '496_beforecast'};		//Focused Arrow Strike
+	SkillEffect[SK.SN_SHARPSHOOTING]               = {hitEffectId: 388, beforeHitEffectId: 'ef_arrow_projectile', beforeCastEffectId: '496_beforecast'};		//Focused Arrow Strike
 	SkillEffect[SK.SN_WINDWALK]                    = {effectId: 389};		//Wind Walker
 	// Whitesmith
 	SkillEffect[SK.WS_MELTDOWN]                    = {effectId: 390};		//Shattering Strike
@@ -400,7 +400,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.CR_ALCHEMY]                     = {};		//Alchemy
 	SkillEffect[SK.CR_SYNTHESISPOTION]             = {};		//Potion Synthesis
 	// Clown & Gypsy
-	SkillEffect[SK.CG_ARROWVULCAN]                 = {effectId: 393, beforeHitEffectId: 'ef_throw_arrow'};		//Vulcan Arrow
+	SkillEffect[SK.CG_ARROWVULCAN]                 = {effectId: 393, beforeHitEffectId: 'ef_arrow_projectile'};		//Vulcan Arrow
 	SkillEffect[SK.CG_MOONLIT]                     = {effectId: 394, groundEffectId: '394_ground'};		//Sheltering Bliss
 	SkillEffect[SK.CG_MARIONETTE]                  = {effectId: 395, hitEffectId: 396};		//Marionette Control
 	// Lord Knight
@@ -486,7 +486,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WS_WEAPONREFINE]                = {};		//Upgrade Weapon
 	SkillEffect[SK.CR_SLIMPITCHER]                 = {};		//Aid Condensed Potion
 	SkillEffect[SK.CR_FULLPROTECTION]              = {effectId: [300, 500]};		//Full Protection
-	SkillEffect[SK.PA_SHIELDCHAIN]                 = {};		//Shield Chain
+	SkillEffect[SK.PA_SHIELDCHAIN]                 = {beforeHitEffectId: 'ef_shield_projectile'};		//Shield Chain
 	SkillEffect[SK.PF_DOUBLECASTING]               = {effectId: 521};		//Double Casting
 	SkillEffect[SK.HW_GANBANTEIN]                  = {effectId: 223, groundEffectId: 224};		//Ganbantein
 	SkillEffect[SK.HW_GRAVITATION]                 = {groundEffectId: '522_ground'};		//Gravitation Field
@@ -604,7 +604,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WZ_SIGHTBLASTER]                = {effectId: 601};		//Sight Blaster
 	SkillEffect[SK.SA_CREATECON]                   = {};		//Create Elemental Converter
 	SkillEffect[SK.SA_ELEMENTWATER]                = {effectId: 256};		//Elemental Change Water
-	SkillEffect[SK.HT_PHANTASMIC]                  = {beforeHitEffectId: 'ef_throw_arrow', hitEffectId: 1};		//Phantasmic Arrow
+	SkillEffect[SK.HT_PHANTASMIC]                  = {beforeHitEffectId: 'ef_arrow_projectile', hitEffectId: 1};		//Phantasmic Arrow
 	SkillEffect[SK.BA_PANGVOICE]                   = {successEffectId: 606};		//Pang Voice
 	SkillEffect[SK.DC_WINKCHARM]                   = {successEffectId: 607};		//Wink of Charm
 	SkillEffect[SK.BS_GREED]                       = {effectId: 'ef_greed_sound'};		//Greed
@@ -705,7 +705,7 @@ define(['./SkillConst'], function( SK )
 	// RA Ranger
 	SkillEffect[SK.RA_ARROWSTORM]                  = {effectId: 746};		//Arrow Storm
 	SkillEffect[SK.RA_FEARBREEZE]                  = {};		//Fear Breeze
-	SkillEffect[SK.RA_AIMEDBOLT]                   = {effectId: 745, beforeHitEffectId: 'ef_throw_arrow'};		//Aimed Bolt
+	SkillEffect[SK.RA_AIMEDBOLT]                   = {effectId: 745, beforeHitEffectId: 'ef_arrow_projectile'};		//Aimed Bolt
 	SkillEffect[SK.RA_DETONATOR]                   = {effectId: 750};		//Detonator
 	SkillEffect[SK.RA_ELECTRICSHOCKER]             = {};		//Electric Shocker
 	SkillEffect[SK.RA_CLUSTERBOMB]                 = {};		//Cluster Bomb
@@ -753,7 +753,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SC_REPRODUCE]                   = {};		//Reproduce
 	SkillEffect[SK.SC_AUTOSHADOWSPELL]             = {};		//Auto Shadow Spell
 	SkillEffect[SK.SC_SHADOWFORM]                  = {};		//Shadow Form
-	SkillEffect[SK.SC_TRIANGLESHOT]                = {beforeHitEffectId: 'ef_throw_arrow'};		//Triangle Shot
+	SkillEffect[SK.SC_TRIANGLESHOT]                = {beforeHitEffectId: 'ef_arrow_projectile'};		//Triangle Shot
 	SkillEffect[SK.SC_BODYPAINT]                   = {effectId: 811};		//Body Painting
 	SkillEffect[SK.SC_INVISIBILITY]                = {};		//Invisibility
 	SkillEffect[SK.SC_DEADLYINFECT]                = {};		//Deadly Infect
