@@ -3726,7 +3726,26 @@ define(function( require )
         //295: [{}],    //EF_TALK_FROSTJOKE       Frost Joke
         //296: [{}],    //EF_TALK_SCREAM       Scream
         //297: [{}],    //EF_POKJUK       Fire Works (Visual Effect)
-        //298: [{}],    //EF_THROWITEM       Acid Terror Animnation
+		
+        298: [{    //EF_THROWITEM       Acid Terror Animnation
+			type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 300,
+            fadeIn: true,
+            fadeOut: true,
+            file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xbf\xb0\xbb\xea\xba\xb4.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 0.5,
+            size: 30,
+            zOffset: 1,
+            zIndex: 1
+		}],
+		
         //299: [{}],    //EF_THROWITEM2       (Nothing)
 		
         300: [{    //EF_CHEMICALPROTECTION       Chemical Protection
@@ -3824,7 +3843,26 @@ define(function( require )
         }],
 
         //307: [{}],    //EF_FORESTLIGHT       Forest Light 1
-        //308: [{}],    //EF_THROWITEM3       Throw Stone
+		
+        308: [{    //EF_THROWITEM3       Throw Stone
+			type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 200,
+            fadeIn: true,
+            fadeOut: true,
+            file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xb5\xb9.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 0.5,
+            size: 20,
+            zOffset: 1,
+            zIndex: 1
+		}],
+		
         //309: [{}],    //EF_FIRSTAID       First Aid
         //310: [{}],    //EF_SPRINKLESAND       Sprinkle Sand
 
@@ -6651,7 +6689,26 @@ define(function( require )
         }],
 
         //599: [{}],    //EF_SHRINK       Cast Time Sound and Flashing Animation on Player
-        //600: [{}],    //EF_THROWITEM6       Throw Venom Knife
+		
+        600: [{    //EF_THROWITEM6       Throw Venom Knife
+			type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 200,
+            fadeIn: true,
+            fadeOut: true,
+            file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xba\xa3\xb3\xd1\xb3\xaa\xc0\xcc\xc7\xc1.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 1,
+            size: 30,
+            zOffset: 1,
+            zIndex: 1
+		}],
+		
         //601: [{}],    //EF_SIGHT2       Sight Blaster
         //602: [{}],    //EF_QUAKEBODY4       Close Confine (Grab Effect)
 
@@ -6715,18 +6772,86 @@ define(function( require )
 
         613: [{    //EF_THROWITEM7       Throw Shuriken
 			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}, {
+			type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 200,
+            fadeIn: true,
+            fadeOut: true,
+            file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xbc\xf6\xb8\xae\xb0\xcb.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 1,
+            size: 30,
+            zOffset: 1,
+            zIndex: 1
 		}],
 		
         614: [{    //EF_THROWITEM8       Throw Kunai
 			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}, {
+			type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 200,
+            fadeIn: true,
+            fadeOut: true,
+            file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xc4\xed\xb3\xaa\xc0\xcc\x5f\xb5\xb6.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 1,
+            size: 30,
+            zOffset: 1,
+            zIndex: 1
 		}],
 		
         615: [{    //EF_THROWITEM9       Throw Fumma Shuriken
 			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}, {
+			type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 200,
+            fadeIn: true,
+            fadeOut: true,
+            file: '\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/item/\xc7\xb3\xb8\xb6\x5f\xb3\xfa\xbf\xec.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 1,
+            size: 30,
+            zOffset: 1,
+            zIndex: 1
 		}],
 		
         616: [{    //EF_THROWITEM10       Throw Money
 			wav: 'effect/\xb4\xd1\xc0\xda\x5f\xb4\xf8\xc1\xf6\xb1\xe2'
+		}, {
+			type: '3D',
+            alphaMax: 1,
+            angle: 180,
+            attachedEntity: true,
+            duration: 200,
+            fadeIn: true,
+            fadeOut: true,
+            file: 'effect/coin_a.bmp',
+            toSrc: true,
+            rotateToTarget: true,
+            rotateWithCamera: true,
+            rotate: true,
+            nbOfRotation: 1,
+            size: 20,
+            zOffset: 1,
+            zIndex: 1
 		}],
 		
         //617: [{}],    //EF_BUNSINJYUTSU       Illusionary Shadow
@@ -9938,7 +10063,6 @@ define(function( require )
             zOffset: 1,
             zIndex: 1
         }],
-		
 		
 		'ef_': [{
             wav: 'effect/',
