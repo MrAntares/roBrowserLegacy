@@ -357,6 +357,9 @@ define(function( require )
     ///
     /// - sparkNumber
     ///   sets how often the effect blinks/sparkles
+    ///
+    /// - repeat
+    ///   if set to true the effect will play repeatedly until removed
 
     return {
 		
@@ -2688,11 +2691,22 @@ define(function( require )
         170: [{    //EF_CARTREVOLUTION    Cart Revolution
             type: 'STR',
             file: 'cartrevolution',
-			wav: 'effect/ef_magnumbreak',
+            wav: 'effect/ef_magnumbreak',
             attachedEntity: true
         }],
 
-        //171: [{}],    //EF_VENOMDUST2       Venom Dust Map Unit
+        171: [{    //EF_VENOMDUST2       Venom Dust Map Unit
+            type: '3D',
+            spriteName: 'particle3',
+            alphaMax: 1,
+            attachedEntity: true,
+            duration: 100,
+            size: 0.8,
+            poszStart: 0,
+            poszEnd: 0.5,
+            repeat: true
+        }],
+
         //172: [{}],    //EF_CHANGEDARK       Change Element (Dark)
         //173: [{}],    //EF_CHANGEFIRE       Change Element (Fire)
         //174: [{}],    //EF_CHANGECOLD       Change Element (Water)
