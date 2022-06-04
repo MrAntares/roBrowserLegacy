@@ -369,15 +369,15 @@ define(function( require )
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID);
+				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID, persistent);
 				break;
 				
 			case '2D':
-				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID);
+				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, perisitent);
 				break;
 			
 			case '3D':
-				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID);
+				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, persistent);
 				break;
 				
 			case 'RSM':
@@ -463,7 +463,7 @@ define(function( require )
 			file:           effect.file,
 			head:         !!effect.head,
 			direction:    !!effect.direction,
-			repeat:         effect.repeat,
+			repeat:         effect.repeat || persistent,
 			duplicate:      effect.duplicate,
 			stopAtEnd:      effect.stopAtEnd,
 			xOffset:        effect.xOffset,
