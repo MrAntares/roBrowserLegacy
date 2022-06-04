@@ -235,6 +235,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         }
         this.startLifeTime = startLifeTime;
         this.endLifeTime = endLifeTime;
+        this.repeat = effect.repeat;
         this.blendMode = effect.blendMode;
         
         if(effect.rotateToTarget){
@@ -472,6 +473,15 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         
         if (this.actRessource && this.spriteRessource) {
             var entity = EntityManager.get(this.AID);
+            if(!entity){
+                var Entity        = require('Renderer/Entity/Entity');
+                entity            = new Entity();
+                entity.GID        = this.AID;
+                entity.position   = this.position;
+                entity.objecttype = entity.constructor.TYPE_EFFECT;
+                entity.hideShadow = true;
+                EntityManager.add(entity);
+            }
             if (entity) {
                 var actions = this.actRessource.actions[(entity.action * 8 + (Camera.direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
                 var animations;
@@ -533,7 +543,13 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             SpriteRenderer.render();
         }
         
-        this.needCleanUp = this.endLifeTime < tick;
+        if(this.repeat && this.endLifeTime < tick){
+            var duration = this.endLifeTime - this.startLifeTime;
+            this.startLifeTime += duration;
+            this.endLifeTime += duration;
+        } else {
+            this.needCleanUp = this.endLifeTime < tick;
+        }
     };
     
     ThreeDEffect.init = function init(gl) {
