@@ -479,12 +479,19 @@ define(function( require )
 	 * @param {number} level
 	 * @param {optional|number} target game id
 	 */
-	SkillWindow.onUseSkill = Guild.onUseSkill = SkillTargetSelection.onUseSkillToId  = function onUseSkill( id, level, targetID)
+	SkillWindow.onUseSkill = Guild.onUseSkill = SkillListMER.onUseSkill = SkillTargetSelection.onUseSkillToId  = function onUseSkill( id, level, targetID)
 	{
 		var entity, skill, target, pkt, out;
 		var count, range;
-
-		entity = Session.Entity;
+		
+		var isHomun = (id > 8000 && id < 8044);
+		
+		if (isHomun){
+			entity = EntityManager.get(Session.homunId);
+		} else {
+			entity = Session.Entity;
+		}
+		
 		target = EntityManager.get(targetID) || entity;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
@@ -540,7 +547,12 @@ define(function( require )
 		Session.moveAction = pkt;
 
 		// Move to position
-		pkt         = new PACKET.CZ.REQUEST_MOVE();
+		if(isHomun){
+			pkt         = new PACKET.CZ.REQUEST_MOVENPC();
+			pkt.GID		= Session.homunId;
+		} else {
+			pkt         = new PACKET.CZ.REQUEST_MOVE();
+		}
 		pkt.dest[0] = out[(count-1)*2 + 0];
 		pkt.dest[1] = out[(count-1)*2 + 1];
 		Network.sendPacket(pkt);
@@ -561,7 +573,14 @@ define(function( require )
 		var pos, entity, pkt, out, skill;
 		var count, range;
 
-		entity = Session.Entity;
+		var isHomun = (id > 8000 && id < 8044);
+		
+		if (isHomun){
+			entity = EntityManager.get(Session.homunId);
+		} else {
+			entity = Session.Entity;
+		}
+		
 		pos    = entity.position;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
@@ -606,8 +625,12 @@ define(function( require )
 		}
 
 		// Save the packet and move to the position
-		Session.moveAction = pkt;
-		pkt                = new PACKET.CZ.REQUEST_MOVE();
+		if(isHomun){
+			pkt         = new PACKET.CZ.REQUEST_MOVENPC();
+			pkt.GID		= Session.homunId;
+		} else {
+			pkt         = new PACKET.CZ.REQUEST_MOVE();
+		}
 		pkt.dest[0]        = out[(count-1)*2 + 0];
 		pkt.dest[1]        = out[(count-1)*2 + 1];
 		Network.sendPacket(pkt);
