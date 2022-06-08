@@ -288,10 +288,15 @@ define(function( require )
 				if (Session.homunId === this.GID) {
 					ContextMenu.remove();
 					ContextMenu.append();
-					// todo homunculus implement
-					ContextMenu.addElement( 'View Status', () => console.warn('"View Status" not implemented'));
-					ContextMenu.addElement( 'Feed', () => console.warn('"Feed" not implemented'));
-					ContextMenu.addElement( 'Stand By', () => console.warn('"Stand By" not implemented'));
+					ContextMenu.addElement( 'View Status', function(){
+						getModule('UI/Components/HomunInformations/HomunInformations').ui.toggle();
+					});
+					ContextMenu.addElement( 'Feed', function(){
+						getModule('UI/Components/HomunInformations/HomunInformations').reqHomunFeed();
+					});
+					ContextMenu.addElement( 'Stand By', function(){
+						getModule('UI/Components/HomunInformations/HomunInformations').toggleAggressive();
+					});
 				}
 				break;
 		}
