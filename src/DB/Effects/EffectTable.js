@@ -8599,7 +8599,22 @@ define(function( require )
         //853: [{}],    //EF_SPR_PLANT       Bright green flower area
         //854: [{}],    //EF_CHEMICAL_V       Blue beam of light with notes
         //855: [{}],    //EF_SHOOTPARTICLE       (Nothing)
-        //856: [{}],    //EF_BOT_REVERB       Reverberation (red eighth notes)
+        
+        856: [{    //EF_BOT_REVERB       Reverberation (red eighth notes)
+            type: '3D',
+            file: 'effect/melody_b.bmp',
+			red: 1,
+			green: 0.6,
+			blue: 0.6,
+            alphaMax: 0.6,
+            attachedEntity: true,
+            duration: 100,
+            size: 50,
+            posz: 0.5,
+            repeat: true
+        }, {
+            wav: 'effect/reverberation'
+        }],
         
 		857: [{    //EF_RAIN_PARTICLE       Severe Rainstorm (falling red and blue beams)
 			wav: 'effect/rainstorm' 
@@ -8611,9 +8626,21 @@ define(function( require )
         
 		//859: [{}],    //EF_SECRA       Holograph of text (blue)
         
-		860: [{     //EF_BOT_REVERB2       Distorted note (blue)
-			wav: 'effect/reverberation' 
-		}],
+        860: [{     //EF_BOT_REVERB2       Distorted note (blue)
+            type: '3D',
+            file: 'effect/melody_a.bmp',
+			red: 0.6,
+			green: 0.6,
+			blue: 1,
+            alphaMax: 0.6,
+            attachedEntity: true,
+            duration: 100,
+            size: 50,
+            posz: 0.5,
+            repeat: true
+        }, {
+            wav: 'effect/\xb3\xaa\xb6\xf4\xc0\xc7\xb3\xeb\xb7\xa1'
+        }],
         
 		861: [{    //EF_CIRCLEPOWER2       Green aura (from Circle of Life's Melody)
 			wav: 'effect/\xbc\xf8\xc8\xaf\xc7\xcf\xb4\xc2\xc0\xda\xbf\xac\xc0\xc7\xbc\xd2\xb8\xae'
@@ -9677,11 +9704,6 @@ define(function( require )
 		
 		'ef_magicpower': [{
             wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
-            attachedEntity: true
-        }],
-		
-		'ef_poemofnetherworld': [{
-            wav: 'effect/\xb3\xaa\xb6\xf4\xc0\xc7\xb3\xeb\xb7\xa1',
             attachedEntity: true
         }],
 		
