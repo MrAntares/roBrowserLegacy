@@ -832,7 +832,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WM_REVERBERATION_MAGIC]         = {};		//Reverberation Magic
 	SkillEffect[SK.WM_DOMINION_IMPULSE]            = {effectId: 863};		//Dominion Impulse
 	SkillEffect[SK.WM_SEVERE_RAINSTORM]            = {effectId: 857};		//Severe Rainstorm
-	SkillEffect[SK.WM_POEMOFNETHERWORLD]           = {effectId: 'ef_poemofnetherworld'};		//Poem of The Netherworld
+	SkillEffect[SK.WM_POEMOFNETHERWORLD]           = {groundEffectId: 860};		//Poem of The Netherworld
 	SkillEffect[SK.WM_VOICEOFSIREN]                = {groundEffectId: 879};		//Voice of Siren
 	SkillEffect[SK.WM_DEADHILLHERE]                = {effectId: 'ef_valley_of_death'};		//Valley of Death
 	SkillEffect[SK.WM_LULLABY_DEEPSLEEP]           = {effectId: 858};		//Deep Sleep Lullaby
