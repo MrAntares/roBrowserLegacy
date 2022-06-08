@@ -2274,8 +2274,13 @@ define(function( require )
         101: [{    //EF_REPAIRWEAPON    Weapon Repair
             type: 'STR',
             file: 'repairweapon',
-            wav:  'effect/black_weapon_repear',
             attachedEntity: true
+        }, {
+            wav:  'effect/black_weapon_repair_a',
+            delayWav: 480
+        }, {
+            wav:  'effect/black_weapon_repair_a',
+            delayWav: 1320
         }],
 
 
