@@ -129,8 +129,7 @@ define(function (require) {
                 }
                 break;
             case 'AGGRESSIVE':
-                let agr = localStorage.getItem('AGGRESSIVE') == 0 ? 1 : 0;
-                localStorage.setItem('AGGRESSIVE', agr);
+                this.toggleAggressive();
                 break;
         }
     };
@@ -292,6 +291,11 @@ define(function (require) {
 
         this.ui.find('.hunger').text(val + '/' + 100);
     };
+	
+	HomunInformations.toggleAggressive = function toggleAggressive(){
+		let agr = localStorage.getItem('AGGRESSIVE') == 0 ? 1 : 0;
+        localStorage.setItem('AGGRESSIVE', agr);
+	};
 
 
     /**
