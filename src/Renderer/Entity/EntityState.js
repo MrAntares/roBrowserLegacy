@@ -18,6 +18,7 @@ define(function( require )
 	var MountTable    = require('DB/Jobs/MountTable');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var Session       = require('Engine/SessionStorage');
+	var Emotions      = require('DB/Emotions');
 
 
 	/**
@@ -288,8 +289,7 @@ define(function( require )
 			this._healthStateColor[0] *= 0.50;
 			this._healthStateColor[1] *= 0.15;
 			this._healthStateColor[2] *= 0.10;
-		}
-		else if (!(value & StatusConst.HealthState.CURSE)) {
+		} else if (!(value & StatusConst.HealthState.CURSE)) {
 			this.attachments.remove('status-curse');
 		}
 
@@ -314,9 +314,20 @@ define(function( require )
 		if (value & StatusConst.HealthState.SILENCE) {
 			if (!(this._healthState & StatusConst.HealthState.SILENCE)) {
 				Sound.play('_silence.wav');
-                //TODO: animation above head
+				this.attachments.add({
+					frame: Emotions.indexes[9],
+					file:  'emotion',
+					uid:    'status-silence',
+					play:   true,
+					head:   true,
+					repeat: true,
+					depth:  5.0
+				});
 			}
+		} else if (!(value & StatusConst.HealthState.SILENCE)) {
+			this.attachments.remove('status-silence');
 		}
+		
 		this._healthState = value;
 		recalculateBlendingColor.call(this);
 	}
