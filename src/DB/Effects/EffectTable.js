@@ -4781,24 +4781,24 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectBodyColor(entity) {
-                entity._virtueColor[0] = 1.0;
-                entity._virtueColor[1] = 1.0;
-                entity._virtueColor[2] = 1.0;
-                entity._virtueColor[3] = 1.0;
+                entity._flashColor[0] = 1.0;
+                entity._flashColor[1] = 1.0;
+                entity._flashColor[2] = 1.0;
+                entity._flashColor[3] = 1.0;
                 entity.recalculateBlendingColor();
 
                 entity.animations.add(function(tick){
                 
                     if (!entity.cast.display) {     //we don't know cast time here so.. let's hack
-                        entity._virtueColor[0] = 1.0;
-                        entity._virtueColor[1] = 1.0;
-                        entity._virtueColor[2] = 1.0;
-                        entity._virtueColor[3] = 1.0;
+                        entity._flashColor[0] = 1.0;
+                        entity._flashColor[1] = 1.0;
+                        entity._flashColor[2] = 1.0;
+                        entity._flashColor[3] = 1.0;
                         entity.recalculateBlendingColor();
                         return true;
                     }
-                        entity._virtueColor[1] = 0.0 + Math.sin(tick / (6 * Math.PI));
-                        entity._virtueColor[2] = 0.0 + Math.sin(tick / (6 * Math.PI));
+                        entity._flashColor[1] = 0.0 + Math.sin(tick / (6 * Math.PI));
+                        entity._flashColor[2] = 0.0 + Math.sin(tick / (6 * Math.PI));
                         entity.recalculateBlendingColor();
                 });
             }
@@ -5024,17 +5024,17 @@ define(function( require )
                 entity.animations.add(function(tick){
                     if(tick < 1000){
                         if(tick > 500){
-                            entity._virtueColor[0] = Math.random();
-                            entity._virtueColor[1] = Math.random();
-                            entity._virtueColor[2] = Math.random();
-                            entity._virtueColor[3] = 0.6;
+                            entity._flashColor[0] = Math.random();
+                            entity._flashColor[1] = Math.random();
+                            entity._flashColor[2] = Math.random();
+                            entity._flashColor[3] = 0.6;
                             entity.recalculateBlendingColor();
                         }
                     } else {
-                        entity._virtueColor[0] = 1;
-                        entity._virtueColor[1] = 1;
-                        entity._virtueColor[2] = 1;
-                        entity._virtueColor[3] = 1;
+                        entity._flashColor[0] = 1;
+                        entity._flashColor[1] = 1;
+                        entity._flashColor[2] = 1;
+                        entity._flashColor[3] = 1;
                         entity.recalculateBlendingColor();
                         return true;
                     }
@@ -5149,15 +5149,15 @@ define(function( require )
             func: function EffectBodyColor(entity) {
                 entity.animations.add(function(tick){
                     if(tick < 1000){
-                        entity._virtueColor[0] = Math.random();
-                        entity._virtueColor[1] = Math.random();
-                        entity._virtueColor[2] = Math.random();
+                        entity._flashColor[0] = Math.random();
+                        entity._flashColor[1] = Math.random();
+                        entity._flashColor[2] = Math.random();
                         entity.recalculateBlendingColor();
                     } else {
-                        entity._virtueColor[0] = 1;
-                        entity._virtueColor[1] = 1;
-                        entity._virtueColor[2] = 1;
-                        entity._virtueColor[3] = 1;
+                        entity._flashColor[0] = 1;
+                        entity._flashColor[1] = 1;
+                        entity._flashColor[2] = 1;
+                        entity._flashColor[3] = 1;
                         entity.recalculateBlendingColor();
                         return true;
                     }
@@ -8469,17 +8469,17 @@ define(function( require )
             func: function EffectBodyColor(entity) {
                 entity.animations.add(function(tick){
                     if (!entity.cast.display) {     //we don't know cast time here so.. let's hack
-                        entity._virtueColor[0] = 1.0;
-                        entity._virtueColor[1] = 1.0;
-                        entity._virtueColor[2] = 1.0;
-                        entity._virtueColor[3] = 1.0;
+                        entity._flashColor[0] = 1.0;
+                        entity._flashColor[1] = 1.0;
+                        entity._flashColor[2] = 1.0;
+                        entity._flashColor[3] = 1.0;
                         entity.recalculateBlendingColor();
                         return true;
                     }
-                        entity._virtueColor[0] = Math.random();
-                        entity._virtueColor[1] = Math.random();
-                        entity._virtueColor[2] = Math.random();
-                        entity._virtueColor[3] = 0.5 + Math.random()/2;
+                        entity._flashColor[0] = Math.random();
+                        entity._flashColor[1] = Math.random();
+                        entity._flashColor[2] = Math.random();
+                        entity._flashColor[3] = 0.5 + Math.random()/2;
                         entity.recalculateBlendingColor();
                 });
             }
@@ -9331,20 +9331,20 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectBodyColor(entity) {
-                entity._virtueColor[0] = 1.0;
-                entity._virtueColor[1] = 0.0;
-                entity._virtueColor[2] = 0.0;
-                entity._virtueColor[3] = 0.0;
+                entity._flashColor[0] = 1.0;
+                entity._flashColor[1] = 0.0;
+                entity._flashColor[2] = 0.0;
+                entity._flashColor[3] = 0.0;
                 entity.recalculateBlendingColor();
 
                 entity.animations.add(function(tick){
-                    entity._virtueColor[3] = 0.0 + tick/100;
+                    entity._flashColor[3] = 0.0 + tick/100;
                     entity.recalculateBlendingColor();
                     if(tick > 300) {
-                        entity._virtueColor[0] = 1.0;
-                        entity._virtueColor[1] = 1.0;
-                        entity._virtueColor[2] = 1.0;
-                        entity._virtueColor[3] = 1.0;
+                        entity._flashColor[0] = 1.0;
+                        entity._flashColor[1] = 1.0;
+                        entity._flashColor[2] = 1.0;
+                        entity._flashColor[3] = 1.0;
                         entity.recalculateBlendingColor();
                         return true;
                     }
@@ -9404,32 +9404,32 @@ define(function( require )
             type: 'FUNC',
             attachedEntity: true,
             func: function EffectBodyColor(entity) {
-                entity._virtueColor[0] = 1.0;
-                entity._virtueColor[1] = 1.0;
-                entity._virtueColor[2] = 1.0;
-                entity._virtueColor[3] = 1.0;
+                entity._flashColor[0] = 1.0;
+                entity._flashColor[1] = 1.0;
+                entity._flashColor[2] = 1.0;
+                entity._flashColor[3] = 1.0;
                 entity.recalculateBlendingColor();
                 var up = true;
 
                 entity.animations.add(function(tick, up){
                     if(up) {
-                        entity._virtueColor[0] = 0.0 + tick/100;
-                        entity._virtueColor[3] = 0.0 + tick/100;
-                        if(entity._virtueColor[0] == 1.0)
+                        entity._flashColor[0] = 0.0 + tick/100;
+                        entity._flashColor[3] = 0.0 + tick/100;
+                        if(entity._flashColor[0] == 1.0)
                             up = false;
                     }
                     else {
-                        entity._virtueColor[0] = 1.0 - tick/100;
-                        entity._virtueColor[3] = 1.0 - tick/100;
-                        if(entity._virtueColor[0] == 0.0)
+                        entity._flashColor[0] = 1.0 - tick/100;
+                        entity._flashColor[3] = 1.0 - tick/100;
+                        if(entity._flashColor[0] == 0.0)
                             up = true;
                     }
                     entity.recalculateBlendingColor();
                     /**if(dummy%5 == 0) {
-                        entity._virtueColor[0] = 1.0;
-                        entity._virtueColor[1] = 1.0;
-                        entity._virtueColor[2] = 1.0;
-                        entity._virtueColor[3] = 1.0;
+                        entity._flashColor[0] = 1.0;
+                        entity._flashColor[1] = 1.0;
+                        entity._flashColor[2] = 1.0;
+                        entity._flashColor[3] = 1.0;
                         entity.recalculateBlendingColor();
                         if(dummy == 1000)
                             return true;
@@ -9584,23 +9584,23 @@ define(function( require )
                 entity.animations.add(function(tick){
                     if(tick < 500){
                         if(tick%2 == 0){
-                            entity._virtueColor[0] = 1;
-                            entity._virtueColor[1] = 1;
-                            entity._virtueColor[2] = 1;
-                            entity._virtueColor[3] = 0.4;
+                            entity._flashColor[0] = 1;
+                            entity._flashColor[1] = 1;
+                            entity._flashColor[2] = 1;
+                            entity._flashColor[3] = 0.4;
                             entity.recalculateBlendingColor();
                         } else {
-                            entity._virtueColor[0] = 1;
-                            entity._virtueColor[1] = 1;
-                            entity._virtueColor[2] = 1;
-                            entity._virtueColor[3] = 1;
+                            entity._flashColor[0] = 1;
+                            entity._flashColor[1] = 1;
+                            entity._flashColor[2] = 1;
+                            entity._flashColor[3] = 1;
                             entity.recalculateBlendingColor();
                         }
                     } else {
-                        entity._virtueColor[0] = 1;
-                        entity._virtueColor[1] = 1;
-                        entity._virtueColor[2] = 1;
-                        entity._virtueColor[3] = 1;
+                        entity._flashColor[0] = 1;
+                        entity._flashColor[1] = 1;
+                        entity._flashColor[2] = 1;
+                        entity._flashColor[3] = 1;
                         entity.recalculateBlendingColor();
                         return true;
                     }
@@ -9678,23 +9678,23 @@ define(function( require )
                 entity.animations.add(function(tick){
                     if(tick < 500){
                         if(tick%2 == 0){
-                            entity._virtueColor[0] = 1;
-                            entity._virtueColor[1] = 0.1;
-                            entity._virtueColor[2] = 0.5;
-                            entity._virtueColor[3] = 0.4;
+                            entity._flashColor[0] = 1;
+                            entity._flashColor[1] = 0.1;
+                            entity._flashColor[2] = 0.5;
+                            entity._flashColor[3] = 0.4;
                             entity.recalculateBlendingColor();
                         } else {
-                            entity._virtueColor[0] = 1;
-                            entity._virtueColor[1] = 1;
-                            entity._virtueColor[2] = 1;
-                            entity._virtueColor[3] = 1;
+                            entity._flashColor[0] = 1;
+                            entity._flashColor[1] = 1;
+                            entity._flashColor[2] = 1;
+                            entity._flashColor[3] = 1;
                             entity.recalculateBlendingColor();
                         }
                     } else {
-                        entity._virtueColor[0] = 1;
-                        entity._virtueColor[1] = 1;
-                        entity._virtueColor[2] = 1;
-                        entity._virtueColor[3] = 1;
+                        entity._flashColor[0] = 1;
+                        entity._flashColor[1] = 1;
+                        entity._flashColor[2] = 1;
+                        entity._flashColor[3] = 1;
                         entity.recalculateBlendingColor();
                         return true;
                     }
