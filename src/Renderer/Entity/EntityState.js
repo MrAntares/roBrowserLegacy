@@ -26,10 +26,10 @@ define(function( require )
 	 */
 	function recalculateBlendingColor()
 	{
-		this.effectColor[0] = this._bodyStateColor[0] * this._healthStateColor[0] * this._effectStateColor[0] * this._virtueColor[0];
-		this.effectColor[1] = this._bodyStateColor[1] * this._healthStateColor[1] * this._effectStateColor[1] * this._virtueColor[1];
-		this.effectColor[2] = this._bodyStateColor[2] * this._healthStateColor[2] * this._effectStateColor[2] * this._virtueColor[2];
-		this.effectColor[3] = this._bodyStateColor[3] * this._healthStateColor[3] * this._effectStateColor[3] * this._virtueColor[3];
+		this.effectColor[0] = this._bodyStateColor[0] * this._healthStateColor[0] * this._effectStateColor[0] * this._virtueColor[0] * this._flashColor[0];
+		this.effectColor[1] = this._bodyStateColor[1] * this._healthStateColor[1] * this._effectStateColor[1] * this._virtueColor[1] * this._flashColor[1];
+		this.effectColor[2] = this._bodyStateColor[2] * this._healthStateColor[2] * this._effectStateColor[2] * this._virtueColor[2] * this._flashColor[2];
+		this.effectColor[3] = this._bodyStateColor[3] * this._healthStateColor[3] * this._effectStateColor[3] * this._virtueColor[3] * this._flashColor[3];
 	}
 
 
@@ -511,7 +511,8 @@ define(function( require )
 		this._bodyStateColor   = new Float32Array([1, 1, 1, 1]);
 		this._healthStateColor = new Float32Array([1, 1, 1, 1]);
 		this._effectStateColor = new Float32Array([1, 1, 1, 1]);
-		this._virtueColor  = new Float32Array([1, 1, 1, 1]);
+		this._virtueColor      = new Float32Array([1, 1, 1, 1]);
+		this._flashColor       = new Float32Array([1, 1, 1, 1]);
 		this.effectColor       = new Float32Array([1, 1, 1, 1]);
 
 
