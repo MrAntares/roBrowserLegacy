@@ -113,6 +113,10 @@ define(function( require )
 		){
 			EffectManager.spam(6, entity.GID, entity.position);
 		}
+		
+		if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
+			HomunInformations.startAI();
+		}
 	}
 
 
