@@ -52,6 +52,7 @@ define(function( require )
 
 		HomunInformations.append();
 		HomunInformations.setInformations( pkt );
+		HomunInformations.startAI();
 
 		SkillListMER.setPoints( pkt.SKPoint );
 	}
