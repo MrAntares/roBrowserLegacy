@@ -186,16 +186,18 @@ function(      Client,          Preferences,              Memory )
 	 */
 	function onSoundEnded()
 	{
-		var pos = _sounds[this.filename].instances.indexOf(this);
+		if(_sounds[this.filename]){
+			var pos = _sounds[this.filename].instances.indexOf(this);
 
-		if (pos !== -1) {
-			_sounds[this.filename].instances.splice( pos, 1);
-			if(_sounds[this.filename].instances.length == 0){
-				delete _sounds[this.filename]; //This can cause some errors, but whatever. Everything for performance!
+			if (pos !== -1) {
+				_sounds[this.filename].instances.splice( pos, 1);
+				if(_sounds[this.filename].instances.length == 0){
+					delete _sounds[this.filename]; //This can cause some errors, but whatever. Everything for performance!
+				}
 			}
+			
+			addSoundToCache(this);
 		}
-		
-		addSoundToCache(this);
 	}
 	
 	/**
