@@ -46,6 +46,7 @@ define(function( require )
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	var MapEffects    = require('Renderer/Map/Effects');
 	var SpiritSphere  = require('Renderer/Effects/SpiritSphere');
+	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -126,6 +127,10 @@ define(function( require )
 		if (entity) {
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
 				EffectManager.spam(372, pkt.GID);
+			}
+
+			if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
+				HomunInformations.stopAI();
 			}
 
 			if([2, 3].includes(pkt.type)){ //exits or teleports
