@@ -29,7 +29,6 @@ define(function (require) {
      */
     var HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
 
-
     /**
      * @var {Preferences} Window preferences
      */
@@ -64,13 +63,6 @@ define(function (require) {
         this.ui.find('.skill').mousedown(function () {
             SkillListMER.toggle()
         });
-
-        // AI LOOP
-        setInterval(function () {
-            if (Session.homunId) {
-                AIDriver.exec('AI(' + Session.homunId + ')')
-            }
-        }, 100)
     };
 
 
@@ -295,6 +287,21 @@ define(function (require) {
 	HomunInformations.toggleAggressive = function toggleAggressive(){
 		let agr = localStorage.getItem('AGGRESSIVE') == 0 ? 1 : 0;
         localStorage.setItem('AGGRESSIVE', agr);
+	};
+	
+	HomunInformations.startAI = function startAI(){
+		this.stopAI();
+		this.AILoop = setInterval(function () {
+            if (Session.homunId) {
+                AIDriver.exec('AI(' + Session.homunId + ')')
+            }
+        }, 100);
+	};
+	
+	HomunInformations.stopAI = function stopAI(){
+		if(this.AILoop){
+			clearInterval(this.AILoop);
+		}
 	};
 
 
