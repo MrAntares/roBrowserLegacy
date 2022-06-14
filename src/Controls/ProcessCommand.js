@@ -234,6 +234,27 @@ define(function( require )
                 pkt = new PACKET.CZ.TAEKWON_RANK();
 				Network.sendPacket(pkt);
                 return;
+				
+			case 'hoai':
+				Session.homCustomAI = !Session.homCustomAI;
+				if(Session.homCustomAI){
+					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
+					this.addText( DB.getMessage(1023), this.TYPE.INFO );
+				} else {
+					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
+					this.addText( DB.getMessage(1024), this.TYPE.INFO );
+				}
+				return;
+			
+			case 'merai':
+				Session.merCustomAI = !Session.merCustomAI;
+				if(Session.merCustomAI){
+					this.addText( DB.getMessage(1273), this.TYPE.INFO );
+				} else {
+					this.addText( DB.getMessage(1274), this.TYPE.INFO );
+				}
+				this.addText( '(Mercenary not supported yet)', this.TYPE.INFO );
+				return;
 
 		}
 
