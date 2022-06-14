@@ -132,13 +132,14 @@ define(function( require )
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
 				EffectManager.spam(372, pkt.GID);
 			}
-
+			
 			if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
 				HomunInformations.stopAI();
 			}
+			
+			EffectManager.remove(SpiritSphere, pkt.GID);
 
 			if([2, 3].includes(pkt.type)){ //exits or teleports
-				EffectManager.remove(SpiritSphere, pkt.AID);
 				EffectManager.spam(304, null, entity.position);
 			}
 			entity.remove( pkt.type );
@@ -1111,8 +1112,14 @@ define(function( require )
 
                 if (pkt.property > 0) { // skip "0" property for now
                     switch(pkt.property) {
+						case 0:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
 						case 1:
 							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_blue', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 2:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'magic_green', Renderer.tick + pkt.delayTime), srcEntity.GID);
 							break;
 						case 3:
 							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_red', Renderer.tick + pkt.delayTime), srcEntity.GID);
@@ -1121,12 +1128,18 @@ define(function( require )
 							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
 							break;
 						case 5:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_jadu', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'magic_violet', Renderer.tick + pkt.delayTime), srcEntity.GID);
 							break;
-						//case 6: 'white_pulse' effect
-						//case 8: 'yellow_pulse' effect
-						//case 9: 'black_pulse' effect
+						case 6:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_white', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
 						case 7:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 8:
+							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_white', Renderer.tick + pkt.delayTime), srcEntity.GID);
+							break;
+						case 9:
 							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
 							break;
                     }
