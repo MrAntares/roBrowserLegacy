@@ -291,6 +291,7 @@ define(function (require) {
 	
 	HomunInformations.startAI = function startAI(){
 		this.stopAI();
+		AIDriver.reset();
 		this.AILoop = setInterval(function () {
             if (Session.homunId) {
                 AIDriver.exec('AI(' + Session.homunId + ')')
@@ -304,7 +305,11 @@ define(function (require) {
 		}
 	};
 
-
+	HomunInformations.resetAI = function resetAI(){
+		this.stopAI();
+		this.startAI();
+	};
+	
     /**
      * Request to modify homun's name
      */
