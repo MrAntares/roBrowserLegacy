@@ -36,6 +36,7 @@ define(function( require )
 		var entity = EntityManager.get(Session.homunId);
 		if (Session.homunId) {
 			if (entity) {
+				entity.attack_range        = pkt.ATKRange;
 				entity.life.hp             = pkt.hp;
 				entity.life.hp_max         = pkt.maxHP;
 				entity.life.sp             = pkt.sp;
