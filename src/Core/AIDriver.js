@@ -9,9 +9,19 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     }
 
     AIDriver.init = function init() {
-        AIDriver.exec(`
-            dofile ("./AI/AI.lua")
-
+		var code = '';
+		
+		if(Session.homCustomAI){
+			code += `
+				dofile ("./AI/USER_AI/AI.lua")
+			`;
+		} else {
+			code += `
+				dofile ("./AI/AI.lua")
+			`;
+		}
+		
+		code +=`
             function TraceAI (string)
                 return js.global:TraceAI(string)
             end
@@ -78,7 +88,8 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 end
                 return result;
             end
-        `)
+        `;
+		AIDriver.exec(code);
 
     }
 
@@ -170,7 +181,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     }
 
     window.GetV = function GetV(V_, id) {
-        var entity = EntityManager.get(Number(id))
+        var entity = EntityManager.get(Number(id));
 
         switch (V_) {
             case 0: // V_OWNER ok
@@ -196,6 +207,9 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
             case 4: // V_ATTACKRANGE ok
                 // Returns the attack range (Not implemented yet; temporarily set as 1 cell)
+                if(entity){
+					return entity.attack_range || 1;
+				}
                 return 1;
 
             case 5: // V_TARGET ok
@@ -206,8 +220,10 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
             case 6: // V_SKILLATTACKRANGE
                 // Returns the skill attack range (Not implemented yet)
-                console.warn("V_SKILLATTACKRANGE ", id, entity)
-                return 0;
+                if(entity){
+					return entity.attack_range || 1;
+				}
+                return 1;
 
             case 7: // V_HOMUNTYPE ok
                 if (entity === null) {
@@ -239,11 +255,16 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
     AIDriver.exec = function exec(code) {
         try {
-            fengari.load(code)()
+			fengari.load(code)();
         } catch (e) {
             console.error('AI_error: ', e);
         }
     }
+	
+	AIDriver.reset = function reset(){
+		
+		this.init();
+	}
 
     AIDriver.init();
 
