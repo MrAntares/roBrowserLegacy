@@ -94,9 +94,9 @@ function(        glMatrix,            EffectManager)
 					var effect = EffectDB[mapEffect.id];
 
 					for (var j = 0; j < effect.length; ++j) {
-						//var dupli = effect[i].duplicate;  // duplicate handling. Not needed for now.
+						//var dupli = effect[j].duplicate;  // duplicate handling. Not needed for now.
 
-						//for (var j = 0; j <= dupli ; ++j) {
+						//for (var k = 0; k <= dupli ; ++k) {
 
 							if(mapEffect.param[0]) effect[j].size       = 100 * mapEffect.param[0]; //size
 							if(mapEffect.param[1]) effect[j].delayFrame = 100 / (1+mapEffect.param[1]); // animspeed
