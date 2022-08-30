@@ -231,6 +231,9 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
     
     
     TwoDEffect.prototype.render = function render(gl, tick) {
+        
+        if( this.startLifeTime > tick ) return; //not yet
+        
         var start = tick - this.startLifeTime;
         var duration = this.endLifeTime - this.startLifeTime;
         var steps = start / duration * 100;
