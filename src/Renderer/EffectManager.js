@@ -289,6 +289,7 @@ define(function( require )
             timeBetweenDupli = !isNaN(effects[i].timeBetweenDupli) ? effects[i].timeBetweenDupli : 200;
 			
             for (var j = 0; j < duplicate; ++j) {
+				effects[i].effectID = effectId;
 				effects[i].duplicateID = j;
 				EffectManager.spamEffect(effects[i], AID, otherAID, position, otherPosition, tick + timeBetweenDupli * j, persistent, duration);
 			}
@@ -460,16 +461,17 @@ define(function( require )
 
 		// Sprite effect
 		entity.attachments.add({
-			file:           effect.file,
-			head:         !!effect.head,
-			direction:    !!effect.direction,
-			repeat:         effect.repeat || persistent,
-			duplicate:      effect.duplicate,
-			stopAtEnd:      effect.stopAtEnd,
-			xOffset:        effect.xOffset,
+			uid:			effect.effectID,
+			file:			effect.file,
+			head:			!!effect.head,
+			direction:		!!effect.direction,
+			repeat:			effect.repeat || persistent,
+			duplicate:		effect.duplicate,
+			stopAtEnd:		effect.stopAtEnd,
+			xOffset:		effect.xOffset,
 			yOffset:		effect.yOffset,
 			frame:			effect.frame,
-			delay:		    effect.delayFrame
+			delay:			effect.delayFrame
 		});
 		
 		EntityManager.add(entity);
