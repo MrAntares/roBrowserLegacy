@@ -338,7 +338,7 @@ define(function( require )
 
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
 				if (weaponSound && weaponSound.includes('bow')) {
-					EffectManager.spam('ef_throw_arrow', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position);
+					EffectManager.spam('ef_arrow_projectile', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position);
 				}
 
 				//attack sound
@@ -1403,6 +1403,15 @@ define(function( require )
 				}
                 break;
 
+			case StatusConst.C_MARKER:
+				if (pkt.state == 1) {
+					EffectManager.spam('ef_c_marker2', pkt.AID);
+				} else {
+					
+				}
+				break;
+			
+			
 			// Cast a skill, TODO: add progressbar in shortcut
 			case StatusConst.POSTDELAY:
 				entity.setAction({
