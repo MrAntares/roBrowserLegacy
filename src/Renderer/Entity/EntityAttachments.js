@@ -68,26 +68,17 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		}.bind(this), null, {to_rgba:true});
 	};
 
-
-	AttachmentManager.prototype.get = function get(ID) {
+	/**
+	 * Get an attachment
+	 *
+	 * @param {mixed} unique id
+	 */
+	AttachmentManager.prototype.get = function get( uid ) {
         var i, length = this.list.length;
         for (i = 0; i < length; ++i) {
-            if (this.list[i].id == ID) return this.list[i];
+            if (this.list[i].uid == uid) return this.list[i];
         }
         return null;
-    };
-
-    AttachmentManager.prototype.removeId = function removeId(ID) {
-        var i, length;
-        var attachments = this.list;
-        length = attachments.length;
-        for (i = 0; i < length; ++i) {
-            if (attachments[i].id === ID) {
-                this.removeIndex(i);
-                i--;
-                length--;
-            }
-        }
     };
 
 	/**
