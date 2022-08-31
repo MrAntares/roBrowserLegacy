@@ -105,7 +105,9 @@ function(        glMatrix,            EffectManager)
 							if(mapEffect.param[2] && effect[j].param2_Func) effect[j].param2_Func(effect[j], mapEffect.param[2]);
 							if(mapEffect.param[3] && effect[j].param3_Func) effect[j].param3_Func(effect[j], mapEffect.param[3]);
 
-							EffectManager.spamEffect(effect[j], mapEffect.name+'-'+j, 0, mapEffect.pos, 0, tick, true, null);
+							effects[j].effectID = mapEffect.id;
+
+							EffectManager.spamEffect(effect[j], mapEffect.name, 0, mapEffect.pos, 0, tick, true, null);
 						//}
 					}
 
@@ -114,13 +116,7 @@ function(        glMatrix,            EffectManager)
 				}
 				
 			} else if (mapEffect.isVisible && vec3.dist(mapEffect.pos, position) >= 25){
-				var EffectDB      = require('DB/Effects/EffectTable');
-				if(mapEffect.id in EffectDB){
-					var effect = EffectDB[mapEffect.id];
-					for (var j = 0; j < effect.length; ++j) {
-						EffectManager.remove(null, mapEffect.name+'-'+j);
-					}
-				}
+				EffectManager.remove(null, mapEffect.name);
 				mapEffect.isVisible = false;
 			}
 			
