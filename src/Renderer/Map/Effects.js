@@ -105,7 +105,7 @@ function(        glMatrix,            EffectManager)
 							if(mapEffect.param[2] && effect[j].param2_Func) effect[j].param2_Func(effect[j], mapEffect.param[2]);
 							if(mapEffect.param[3] && effect[j].param3_Func) effect[j].param3_Func(effect[j], mapEffect.param[3]);
 
-							effects[j].effectID = mapEffect.id;
+							effect[j].effectID = mapEffect.id;
 
 							EffectManager.spamEffect(effect[j], mapEffect.name, 0, mapEffect.pos, 0, tick, true, null);
 						//}
