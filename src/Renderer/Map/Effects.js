@@ -80,7 +80,8 @@ function(        glMatrix,            EffectManager)
 
 			// distance need to be less than 25 cells (seems like it's
 			// how the official client handle it).
-			if (mapEffect.tick < tick && vec3.dist(mapEffect.pos, position) < 25) {
+			if (!mapEffect.isVisible && vec3.dist(mapEffect.pos, position) < 25) {
+			//if (mapEffect.tick < tick && vec3.dist(mapEffect.pos, position) < 25) {
 				var EffectDB      = require('DB/Effects/EffectTable');
 
 				// In case of map effects something has to be done with params
@@ -98,18 +99,31 @@ function(        glMatrix,            EffectManager)
 
 						//for (var k = 0; k <= dupli ; ++k) {
 
-							if(mapEffect.param[0]) effect[j].size       = 100 * mapEffect.param[0]; //size
-							if(mapEffect.param[1]) effect[j].delayFrame = 100 / (1+mapEffect.param[1]); // animspeed
+							//param handling
+							if(mapEffect.param[0] && effect[j].param0_Func) effect[j].param0_Func(effect[j], mapEffect.param[0]);
+							if(mapEffect.param[1] && effect[j].param1_Func) effect[j].param1_Func(effect[j], mapEffect.param[1]);
+							if(mapEffect.param[2] && effect[j].param2_Func) effect[j].param2_Func(effect[j], mapEffect.param[2]);
+							if(mapEffect.param[3] && effect[j].param3_Func) effect[j].param3_Func(effect[j], mapEffect.param[3]);
 
-							EffectManager.spamEffect(effect[j], mapEffect.name+'-'+j, 0, mapEffect.pos, 0, tick, false, null);
+							EffectManager.spamEffect(effect[j], mapEffect.name+'-'+j, 0, mapEffect.pos, 0, tick, true, null);
 						//}
 					}
 
-					mapEffect.tick = tick + (mapEffect.delay) / (mapEffect.param[1] ? Math.pow(10, mapEffect.param[1]) : 1); // Don't even ask why, I don't know either...
+					mapEffect.isVisible = true;
+					//mapEffect.tick = tick + (mapEffect.delay) / (mapEffect.param[1] ? Math.pow(10, mapEffect.param[1]) : 1); // Don't even ask why, I don't know either...
 				}
-
-
+				
+			} else if (mapEffect.isVisible && vec3.dist(mapEffect.pos, position) >= 25){
+				var EffectDB      = require('DB/Effects/EffectTable');
+				if(mapEffect.id in EffectDB){
+					var effect = EffectDB[mapEffect.id];
+					for (var j = 0; j < effect.length; ++j) {
+						EffectManager.remove(null, mapEffect.name+'-'+j);
+					}
+				}
+				mapEffect.isVisible = false;
 			}
+			
 		}
 	}
 
