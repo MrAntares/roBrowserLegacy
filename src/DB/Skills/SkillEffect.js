@@ -475,7 +475,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SL_STIN]                        = {effectId: 547};		//Estin
 	SkillEffect[SK.SL_STUN]                        = {effectId: 555};		//Estun
 	SkillEffect[SK.SL_SMA]                         = {effectId: 553, successEffectId: 425};		//Esma
-	SkillEffect[SK.SL_SWOO]                        = {effectId: 589};		//Eswoo
+	SkillEffect[SK.SL_SWOO]                        = {effectId: 589, successEffectId: 420};		//Eswoo
 	SkillEffect[SK.SL_SKE]                         = {effectId: 427};		//Eske
 	SkillEffect[SK.SL_SKA]                         = {effectId: [254, 261]};		//Eska
 	// Other 2nd Skills
@@ -915,7 +915,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.RL_S_STORM]                     = {effectId: 'ef_s_storm'};		//Shatter Storm
 	SkillEffect[SK.RL_E_CHAIN]                     = {};		//Eternal Chain
 	SkillEffect[SK.RL_QD_SHOT]                     = {};		//Quick Draw Shot
-	SkillEffect[SK.RL_C_MARKER]                    = {};		//Crimson Marker
+	SkillEffect[SK.RL_C_MARKER]                    = {successEffectId: 'ef_c_marker1'};		//Crimson Marker
 	SkillEffect[SK.RL_FIREDANCE]                   = {};		//Fire Dance
 	SkillEffect[SK.RL_H_MINE]                      = {};		//Howling Mine
 	SkillEffect[SK.RL_P_ALTER]                     = {};		//Platinum Alter
