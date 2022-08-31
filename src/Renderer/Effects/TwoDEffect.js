@@ -199,7 +199,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         if (entity && this.shadowTexture) {
             entity.attachments.add({
                 'completeFile': 'data/sprite/shadow',
-                'id': this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate,
+                'uid': this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate,
                 'head': true,
                 'direction': true,
                 'repeat': false,
@@ -383,7 +383,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         var entity = EntityManager.get(this.AID);
         
         if (entity) {
-            if (this.endLifeTime < tick) entity.attachments.removeId(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
+            if (this.endLifeTime < tick) entity.attachments.remove(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
             else {
                 var attachment = entity.attachments.get(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
                 if (attachment) attachment.position = new Int16Array([SpriteRenderer.position[0], SpriteRenderer.position[1]]);
