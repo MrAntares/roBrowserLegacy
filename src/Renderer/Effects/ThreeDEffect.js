@@ -521,8 +521,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
                     var frame = this.spriteRessource.frames[ctF];
                     var width = frame.width;
                     var height = frame.height;
-                    width *= layer.scale[0] * sizeX;
-                    height *= layer.scale[1] * sizeY;
+                    width *= layer.scale[0] / 100 * sizeX;
+                    height *= layer.scale[1] / 100 * sizeY;
                     if (layer.is_mirror) {
                         width = -width;
                     }
@@ -530,7 +530,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
                     renderer.color[1] *= layer.color[1];
                     renderer.color[2] *= layer.color[2];
                     renderer.color[3] *= layer.color[3];
-                    if (!this.rotateToTarget) renderer.angle = layer.angle;
+                    if (!this.rotateToTarget) renderer.angle += layer.angle;
                     renderer.offset[0] = layer.pos[0] + ctE[0];
                     renderer.offset[1] = layer.pos[1] + ctE[1];
                     renderer.size[0] = width;
