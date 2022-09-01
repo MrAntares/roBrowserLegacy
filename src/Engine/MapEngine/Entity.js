@@ -46,6 +46,7 @@ define(function( require )
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	var MapEffects    = require('Renderer/Map/Effects');
 	var SpiritSphere  = require('Renderer/Effects/SpiritSphere');
+	var WarlockSphere  = require('Renderer/Effects/WarlockSphere');
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
 
 	// Excludes for skill name display
@@ -1343,7 +1344,52 @@ define(function( require )
 				}
 				entity.effectState = entity.effectState;
 				break;
-
+			
+			case StatusConst.SUMMON1:
+				if (pkt.state == 1) {
+					entity.Summon1 = pkt.val[0];
+				} else {
+					entity.Summon1 = 0;
+				}
+				updateWarlockSpheres(entity);
+				break;
+			
+			case StatusConst.SUMMON2:
+				if (pkt.state == 1) {
+					entity.Summon2 = pkt.val[0];
+				} else {
+					entity.Summon2 = 0;
+				}
+				updateWarlockSpheres(entity);
+				break;
+			
+			case StatusConst.SUMMON3:
+				if (pkt.state == 1) {
+					entity.Summon3 = pkt.val[0];
+				} else {
+					entity.Summon3 = 0;
+				}
+				updateWarlockSpheres(entity);
+				break;
+			
+			case StatusConst.SUMMON4:
+				if (pkt.state == 1) {
+					entity.Summon4 = pkt.val[0];
+				} else {
+					entity.Summon4 = 0;
+				}
+				updateWarlockSpheres(entity);
+				break;
+			
+			case StatusConst.SUMMON5:
+				if (pkt.state == 1) {
+					entity.Summon5 = pkt.val[0];
+				} else {
+					entity.Summon5 = 0;
+				}
+				updateWarlockSpheres(entity);
+				break;
+			
 			case StatusConst.STEALTHFIELD:
 				if (pkt.state == 1) {
 					entity.Stealthfield = pkt.val[0];
@@ -1442,6 +1488,27 @@ define(function( require )
 		// Modify icon
 		if (entity === Session.Entity) {
 			StatusIcons.update( pkt.index, pkt.state, pkt.RemainMS );
+		}
+	}
+	
+	
+	//Warlock sphere summons update
+	function updateWarlockSpheres(entity){
+		if (entity.Summon1 || entity.Summon2 || entity.Summon3 || entity.Summon4 || entity.Summon5){
+			var spheres = [];
+			if(entity.Summon1) spheres.push(entity.Summon1);
+			if(entity.Summon2) spheres.push(entity.Summon2);
+			if(entity.Summon3) spheres.push(entity.Summon3);
+			if(entity.Summon4) spheres.push(entity.Summon4);
+			if(entity.Summon5) spheres.push(entity.Summon5);
+			
+			var wl_spheres = new WarlockSphere(entity, spheres);
+			EffectManager.add(wl_spheres, entity.GID, false);
+			
+			entity.WarlockSpheres = true;
+		} else if (entity.WarlockSpheres){
+			EffectManager.remove(WarlockSphere, entity.GID);
+			entity.WarlockSpheres = false;
 		}
 	}
 
