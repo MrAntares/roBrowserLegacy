@@ -57,6 +57,7 @@ define(function( require )
 	var Guild            = require('UI/Components/Guild/Guild');
 	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
 	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
+	var PluginManager    = require('Plugins/PluginManager');
 
 	/**
 	 * @var {string mapname}
@@ -326,6 +327,9 @@ define(function( require )
 			Guild.append();
 			WorldMap.append();
 			SkillListMER.append();
+			
+			// Reload plugins
+			PluginManager.init();
 
 			// Map loaded
 			Network.sendPacket(
