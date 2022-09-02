@@ -7,6 +7,22 @@
  *
  * It's a work in progress, and subject to changes.
  *
+ * To add plugins use the "plugins" param to list plugins in the ROBrowser Config. Plugins must be located in the /Plugin/ folder.
+ *
+ * Usage:
+ * 		plugins: {
+ *					<plugin_1_name>: '<plugin_1_path>',
+ *					<plugin_2_name>: '<plugin_2_path>',
+ *					<plugin_3_name>: '<plugin_3_path>',
+ *					...
+ *					<plugin_n_name>: '<plugin_n_path>'
+ *				},
+ *
+ * Example:
+ * 		plugins:		{ KeyboardControl: 'KeyToMove_v1/KeyToMove' },
+ *
+ *
+ *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
@@ -40,20 +56,25 @@ define(function( require )
 	 */
 	Plugins.init = function init( context )
 	{
+		
+		var paths = [];
 		var i, count;
-		var plugins, paths;
 
-		plugins   = Configs.get('plugins', {});
-		this.list = Object.keys(plugins);
-		paths     = new Array(this.list.length);
+		this.list  = Configs.get('plugins', {});
 
-		for (i = 0, count = this.list.length; i < count; ++i) {
-			paths[i] = './' + this.list[i] + '/' + this.list[i];
+		for (const [pluginName, pluginPath] of Object.entries(this.list)) {
+			paths.push('./' + pluginPath);
 		}
-
+		
+		count = paths.length;
+		
 		require(paths, function() {
 			for (i = 0; i < count; ++i) {
-				arguments[i]();
+				if(arguments[i]()) {
+					console.log('[PluginManager] Initialized plugin: ' + paths[i]);
+				} else {
+					console.error('[PluginManager] Failed to intialize plugin: ' + paths[i]);
+				}
 			}
 		});
 	};
