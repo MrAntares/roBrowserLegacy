@@ -34,7 +34,7 @@ define(function( require )
 	
 
 	//---- Now the job ----
-	function processKeyEvent( event ) {console.log('KEYTOMOVE');
+	function processKeyEvent( event ) {
 		if (event.which === MOVE.RIGHT || event.which === MOVE.LEFT || event.which === MOVE.UP || event.which === MOVE.DOWN) {
 			if(Session.Entity){
 				event.stopImmediatePropagation();
