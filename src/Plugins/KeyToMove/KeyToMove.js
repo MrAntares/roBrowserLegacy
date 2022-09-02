@@ -36,6 +36,17 @@ define(function( require )
 	//---- Now the job ----
 	function processKeyEvent( event ) {
 		if (event.which === MOVE.RIGHT || event.which === MOVE.LEFT || event.which === MOVE.UP || event.which === MOVE.DOWN) {
+			
+			// Skip if typing
+			if (document.activeElement.tagName === 'INPUT') {
+				return true;
+			}
+			
+			// Skip if dialog is active //TODO: Expand with more to skip when active
+			if (jQuery('#NpcMenu, #NpcBox').length) {
+				return true;
+			}
+			
 			if(Session.Entity){
 				event.stopImmediatePropagation();
 				// Get direction from keyboard
@@ -62,10 +73,13 @@ define(function( require )
 				
 				return false;
 			}
+			
+			// Skip
 			return true;
 		}
-		return true;
 		
+		// Skip
+		return true;
 	}
 
 	return function Init(){
