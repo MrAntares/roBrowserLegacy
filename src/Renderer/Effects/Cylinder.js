@@ -176,7 +176,6 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @param {number} End tick
 	 */
 	function Cylinder(position, otherPosition, direction, effect, startLifeTime, endLifeTime) {
-		
 		this.semiCircle = effect.semiCircle ? false : true;
 		
 		this.totalCircleSides = (!isNaN(effect.totalCircleSides)) ? effect.totalCircleSides : 20;
@@ -237,6 +236,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.blendMode = effect.blendMode;
 		this.startLifeTime = startLifeTime;
 		this.endLifeTime = endLifeTime;
+		
+		this.repeat = effect.repeat;
 	}
 
 
@@ -403,7 +404,14 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		
 		gl.drawArrays(gl.TRIANGLES, 0, this.verticeCount);
 		
-		this.needCleanUp = this.endLifeTime < tick;
+		if(this.repeat && this.endLifeTime < tick){
+            var duration = this.endLifeTime - this.startLifeTime;
+            this.startLifeTime += duration;
+            this.endLifeTime += duration;
+        } else {
+            this.needCleanUp = this.endLifeTime < tick;
+        }
+		
 	};
 
 
