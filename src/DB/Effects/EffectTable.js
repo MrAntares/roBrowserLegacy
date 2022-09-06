@@ -10,6 +10,24 @@ define(function( require )
 {
 	'use strict';
 
+
+	/// Common parameters
+	///
+	/// - duration:
+	///   specifies the duration of the effect
+	///
+	/// - duplicate:
+	///   the EffectManager duplicates the effect this many times
+	///
+	/// - timeBetweenDupli:
+	///   if the duplicate param is specified, then the EffectManager waits for this long between duplicates
+	///
+	/// - wav:
+	///   audio file stored in data/wav/ folder
+	///
+	/// - attachedEntity:
+	///   if set to true, the effect will follow the entity attached
+
 	/// type = STR
 	///
 	/// - file:
@@ -21,24 +39,12 @@ define(function( require )
 	///
 	/// - rand
 	///   replace the %d in the file name with a rand(val1, val2).
-	///
-	/// - wav:
-	///   audio file stored in data/wav/ folder
-	///
-	/// - attachedEntity:
-	///   if set to true, the effect will follow the entity attached
 
 
 	/// type = SPR
 	///
 	/// - file:
 	///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
-	///
-	/// - wav:
-	///   audio file stored in data/wav/ folder
-	///
-	/// - attachedEntity:
-	///   if set to true, the effect will follow the entity attached
 	///
 	/// - head
 	///   if set to true, the sprite will be at the character's head
@@ -60,12 +66,6 @@ define(function( require )
 	///
 	/// - textureName:
 	///   name of the targa texture stored in data/texture/effect/(.*).tga
-	///
-	/// - wav:
-	///   audio file stored in data/wav/ folder
-	///
-	/// - attachedEntity:
-	///   if set to true, the effect will follow the entity attached
 	///
 	/// - red, green, blue:
 	///   overrides the color values of the texture (0.0 ~ 1.0)
@@ -138,6 +138,9 @@ define(function( require )
 	///	 - 14: ONE_MINUS_CONSTANT_ALPHA
 	///	 - 15: SRC_ALPHA_SATURATE
 	///   the webgl blendFunc source mode is always SRC_ALPHA
+	///
+	/// - repeat
+	///   if set to true the effect will play repeatedly until removed
 
 
 	/// type = 2D
@@ -147,9 +150,6 @@ define(function( require )
 	///
 	/// - wav:
 	///   audio file stored in data/wav/ folder
-	///
-	/// - attachedEntity:
-	///   if set to true, the effect will follow the entity attached
 	///
 	/// - red:
 	///   if set to >0, overrides the red color of the texture
@@ -237,9 +237,6 @@ define(function( require )
 	///
 	/// - wav:
 	///   audio file stored in data/wav/ folder
-	///
-	/// - attachedEntity:
-	///   if set to true, the effect will follow the entity attached
 	///
 	/// - red:
 	///   if set to >0, overrides the red color of the texture
@@ -4525,10 +4522,13 @@ define(function( require )
 			blue: 1,
 			bottomSize: 2,
 			duration: 2800,
+			duplicate: 4,
+			timeBetweenDupli: 700,
 			fade: true,
 			green: 0.5,
 			height: 1.1,
 			red: 0.5,
+			repeat: true,
 			rotate: true,
 			textureName: 'ring_blue',
 			topSize: 3.3,
@@ -4541,10 +4541,13 @@ define(function( require )
 			blue: 1,
 			bottomSize: 1.9,
 			duration: 2800,
+			duplicate: 4,
+			timeBetweenDupli: 700,
 			fade: true,
 			green: 0.5,
 			height: 1.1,
 			red: 0.5,
+			repeat: true,
 			rotate: true,
 			textureName: 'ring_blue',
 			topSize: 3.2,
@@ -4555,6 +4558,7 @@ define(function( require )
 			blue: 1,
 			duration: 1000,
 			duplicate: 3,
+			timeBetweenDupli: 300,
 			fadeIn: true,
 			fadeOut: true,
 			file: 'effect/pok1.tga',
@@ -4567,6 +4571,7 @@ define(function( require )
 			poszEndRandMiddle: 2,
 			poszStart: 0,
 			red: 1,
+			repeat: true,
 			size: 100,
 			sizeRand: 17,
 			type: '3D',
