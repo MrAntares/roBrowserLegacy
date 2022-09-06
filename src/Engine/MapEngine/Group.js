@@ -128,11 +128,18 @@ define(function( require )
 		}
 
 		ChatBox.addText( pseudo + ' ' + DB.getMessage(2059, ' has recieved an invitation to join your party.'), ChatBox.TYPE.BLUE);
-
-		var pkt = new PACKET.CZ.REQ_JOIN_GROUP();
-		pkt.AID = AID;
-		pkt.CharName = pseudo;
-		Network.sendPacket(pkt);
+		
+		if(PACKETVER.value >= 20130529) {
+			var pkt = new PACKET.CZ.PARTY_JOIN_REQ();
+			pkt.characterName = pseudo;
+			Network.sendPacket(pkt);
+		} else {
+			var pkt = new PACKET.CZ.REQ_JOIN_GROUP();
+			pkt.AID = AID;
+			pkt.CharName = pseudo;
+			Network.sendPacket(pkt);
+		}
+		
 	};
 
 
