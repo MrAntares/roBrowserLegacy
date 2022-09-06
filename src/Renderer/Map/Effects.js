@@ -101,6 +101,7 @@ function(        glMatrix,            EffectManager)
 		add:    add,
 		free:   free,
 		get:	get,
+		remove: remove,
 		spam:   spam
 	};
 });
