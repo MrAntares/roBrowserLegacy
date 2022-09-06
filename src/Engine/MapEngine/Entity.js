@@ -130,6 +130,11 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.GID);
 		if (entity) {
+			
+			if(entity._job == 45){
+				MapEffects.remove(pkt.GID);
+			}
+			
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
 				EffectManager.spam(372, pkt.GID);
 			}
