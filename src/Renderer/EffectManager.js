@@ -370,7 +370,7 @@ define(function( require )
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID, persistent);
+				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID/*, persistent*/);
 				break;
 				
 			case '2D':
