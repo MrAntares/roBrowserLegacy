@@ -68,14 +68,16 @@ function initialize() {
 - run `wsproxy -a 127.0.0.1:6900,127.0.0.1:6121,127.0.0.1:5121`
 also don't forget to start your server
 
+Note: Most of the browsers nowadays don't support mixed security, so either use `https` & `wss` everywhere or `http` & `ws`. Some browsers recently started to disable non-secure websocket calls, so `https` & `wss` is highly recommended if you are using roBrowser on a non-local/open server.
 ### Enjoy!
 - Access to `http://localhost:8000/examples/api-online-frame.html` with your browser
 - 
 ![](img/start-robrowser.png)
 
-### Sidenotes
+### Important notes
 - Disable pincode on the game server. (Not supported yet)
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
+- For public servers using `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.
 - To check for any errors open developer mode and check the browser console (F12 or CTRL+Shift+I in most browsers). Don't forget to adjust the level filters, if you don't see everything.
 - For client version the older, the better. roBrowser currently runs well with client dates <2016. 2012-04-10 is the most tested version. Newer versions might work as well, but important features/packets might be missing. We try to add all the new features/packets eventually.
 
@@ -89,3 +91,7 @@ I personally had to disable `metamask` extension.
 ![](img/start-ai-error.png)
 
 You have probably forgotten step about `AI` `require` replacement in `Add game assets` section
+
+### ....(403 not found) ... 403 (Forbidden)
+
+You probably have a server secutiry issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
