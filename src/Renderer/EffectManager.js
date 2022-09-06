@@ -374,11 +374,11 @@ define(function( require )
 				break;
 				
 			case '2D':
-				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, persistent);
+				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID/*, persistent*/);
 				break;
 			
 			case '3D':
-				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, persistent);
+				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID/*, persistent*/);
 				break;
 				
 			case 'RSM':
