@@ -112,6 +112,10 @@ define(function(require)
         ui.find('.slot2').mousedown(genericCanvasDown(1));
         ui.find('.slot3').mousedown(genericCanvasDown(2));
 
+        ui.find('.make1').mousedown(function (e){ genericCanvasDown(0)(e);  create(); });
+        ui.find('.make2').mousedown(function (e){ genericCanvasDown(1)(e);  create(); });
+        ui.find('.make3').mousedown(function (e){ genericCanvasDown(2)(e);  create(); });
+
         ui.find('canvas').
         dblclick(function(){
             if (_slots[_index]) {
