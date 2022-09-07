@@ -104,9 +104,13 @@ define(function( require )
 		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
 		Network.hookPacket( PACKET.HC.SECOND_PASSWD_LOGIN, 			 onPincodeCheckSuccess);
 
-		// change Select Character Window
-		if (PACKETVER.value === 20180530) {
-			charSelectNum = 2;
+		//Select Character Window
+		if((PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727) || PACKETVER.value >= 20100803){
+			charSelectNum = 1; //Old UI with mapname
+		} else if (_value >= 20141016){
+			charSelectNum = 2; //Renewal UI with Sex + Race
+		} else {
+			charSelectNum = 0; //Old UI
 		}
 	}
 
