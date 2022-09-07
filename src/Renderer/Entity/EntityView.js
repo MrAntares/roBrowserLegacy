@@ -53,17 +53,17 @@ define(function( require )
 
 		this.cart     = [];
 		//Super novice
-		this.cart[0] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.spr', 'data/sprite/ÀÌÆÑÆ®/½´³ë¼Õ¼ö·¹.act');
+		this.cart[0] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbd\xb4\xb3\xeb\xbc\xd5\xbc\xf6\xb7\xb9.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbd\xb4\xb3\xeb\xbc\xd5\xbc\xf6\xb7\xb9.act');
 
-		this.cart[1] = new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹.act');
-		this.cart[2] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹1.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹1.act');
-		this.cart[3] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹2.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹2.act');
-		this.cart[4] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹3.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹3.act');
-		this.cart[5] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹4.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹4.act');
-		this.cart[6] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹5.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹5.act');
-		this.cart[7] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹6.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹6.act');
-		this.cart[8] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹7.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹7.act');
-		this.cart[9] = 	new ViewFiles('data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹8.spr', 'data/sprite/ÀÌÆÑÆ®/¼Õ¼ö·¹8.act');
+		this.cart[1] = new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb9.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb9.act');
+		this.cart[2] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb91.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb91.act');
+		this.cart[3] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb92.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb92.act');
+		this.cart[4] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb93.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb93.act');
+		this.cart[5] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb94.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb94.act');
+		this.cart[6] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb95.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb95.act');
+		this.cart[7] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb96.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb96.act');
+		this.cart[8] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb97.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb97.act');
+		this.cart[9] = 	new ViewFiles('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb98.spr', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb98.act');
 
 		this.cart_shadow     = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
 	}
