@@ -1,0 +1,191 @@
+#charselect_v2 { position:absolute; width:576px; height:358px; z-index:100; font-size: 11px; }
+
+/** Box **/
+#charselect_v2 .box_select {
+    position: absolute;
+    width: 134px;
+    height: 144px;
+    top: 30px;
+}
+#charselect_v2 canvas {
+    position: absolute;
+    top: 35px;
+}
+#charselect_v2 .slot1 {
+    left: 57px;
+}
+#charselect_v2 .slot2 {
+    left: 220px;
+}
+#charselect_v2 .slot3 {
+    left: 386px;
+}
+
+#charselect_v2 .make1 {
+    position: absolute;
+    top: 84px;
+    left: 107px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+#charselect_v2 .make2 {
+    position: absolute;
+    top: 84px;
+    left: 270px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+#charselect_v2 .make3 {
+    position: absolute;
+    top: 84px;
+    left: 436px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+
+/** Arrow **/
+#charselect_v2 .arrow {
+    position: absolute;
+    top: 95px;
+    width: 14px;
+    height: 20px;
+    border: 0;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+#charselect_v2 .arrow.left {
+    left: 40px;
+}
+#charselect_v2 .arrow.right {
+    right: 40px;
+}
+
+/** Slot info **/
+#charselect_v2 .slotinfo {
+    position: absolute;
+    top: 180px;
+    right: 40px;
+    height: 20px;
+    display: block;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#charselect_v2 .slotinfo .number {
+    /*color: #58709e;
+    font-weight: bold;*/
+    margin-right: 10px;
+}
+#charselect_v2 .slotinfo .content {
+    color: #555;
+    top: 6px;
+    right: 8px;
+}
+
+/** Page info **/
+#charselect_v2 .pageinfo {
+    position: absolute;
+    top: 180px;
+}
+
+/** Characters infos **/
+#charselect_v2 .charinfo {
+    position: absolute;
+    width: 285px;
+    top: 204px;
+    left: 16px;
+}
+#charselect_v2 .charinfo div {
+    position: absolute;
+    width: 90px;
+    height: 13px;
+    font-size: 12px;
+}
+#charselect_v2 .charinfo .name {
+    left: 95px;
+    top: -4px;
+    white-space: nowrap;
+}
+#charselect_v2 .charinfo .job {
+    left: 95px;
+    top: 12px;
+}
+#charselect_v2 .charinfo .lvl {
+    left: 95px;
+    top: 30px;
+}
+#charselect_v2 .charinfo .exp {
+    left: 95px;
+    top: 47px;
+}
+#charselect_v2 .charinfo .hp {
+    left: 95px;
+    top: 64px;
+}
+#charselect_v2 .charinfo .sp {
+    left: 95px;
+    top: 81px;
+}
+#charselect_v2 .charinfo .map {
+    left: 95px;
+    top: 104px;
+    width: 238px;
+}
+#charselect_v2 .charinfo .str {
+    left: 250px;
+    top: -4px;
+}
+#charselect_v2 .charinfo .agi {
+    left: 250px;
+    top: 12px;
+}
+#charselect_v2 .charinfo .vit {
+    left: 250px;
+    top: 30px;
+}
+#charselect_v2 .charinfo .int {
+    left: 250px;
+    top: 47px;
+}
+#charselect_v2 .charinfo .dex {
+    left: 250px;
+    top: 64px;
+}
+#charselect_v2 .charinfo .luk {
+    left: 250px;
+    top: 81px;
+}
+
+/** Buttons **/
+#charselect_v2 .btns {
+    position: absolute;
+    bottom: 4px;
+    width: 100%;
+    height: 20px;
+}
+#charselect_v2 .btn {
+    position: absolute;
+    border: 0;
+    width: 42px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+#charselect_v2 .ok, #charselect .make {
+    right: 50px;
+}
+#charselect_v2 .cancel {
+    right: 4px;
+}
+#charselect_v2 .delete {
+    left: 4px;
+}
