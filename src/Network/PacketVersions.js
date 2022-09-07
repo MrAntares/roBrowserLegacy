@@ -19,24 +19,170 @@ define( ['./PacketStructure'], function( PACKET )
 		// BASE PACKET VERSION
 		0: [
 			[PACKET.CZ.ENTER,0x0072,19,2,6,10,14,18],
+			//packet(0x007d, 2, clif -> pLoadEndAck, 0);
 			[PACKET.CZ.REQUEST_TIME,0x007e,6,2],
 			[PACKET.CZ.REQUEST_MOVE,0x0085,5,2],
 			[PACKET.CZ.REQUEST_ACT,0x0089,7,2,6],
 			[PACKET.CZ.REQUEST_CHAT,0x008c,-1,2,4],
+			//packet(0x0090,7,clif->pNpcClicked,2);
 			[PACKET.CZ.REQNAME,0x0094,6,2],
+			//packet(0x0096,-1,clif->pWisMessage,2,4,28);
+			//packet(0x0099,-1,clif->pBroadcast,2,4);
 			[PACKET.CZ.CHANGE_DIRECTION,0x009b,5,2,4],
 			[PACKET.CZ.ITEM_PICKUP,0x009f,6,2],
 			[PACKET.CZ.ITEM_THROW,0x00a2,6,2,4],
 			[PACKET.CZ.USE_ITEM,0x00a7,8,2,4],
 			[PACKET.CZ.REQ_WEAR_EQUIP,0x00a9,6,2,4],
+			//packet(0x00ab,4,clif->pUnequipItem,2);
+			//packet(0x00b2,3,clif->pRestart,2);
+			//packet(0x00b8,7,clif->pNpcSelectMenu,2,6);
+			//packet(0x00b9, 6, clif -> pNpcNextClicked, 2);
+			//packet(0x00bb,5,clif->pStatusUp,2,4);
+			//packet(0x00bf,3,clif->pEmotion,2);
+			//packet(0x00c1,2,clif->pHowManyConnections,0);
+			//packet(0x00c5,7,clif->pNpcBuySellSelected,2,6);
+			//packet(0x00c8,-1,clif->pNpcBuyListSend,2,4);
+			//packet(0x00c9,-1,clif->pNpcSellListSend,2,4);
+			//packet(0x00cc,6,clif->pGMKick,2);
+			//packet(0x00ce,2,clif->pGMKickAll,0);
+			//packet(0x00cf,27,clif->pPMIgnore,2,26);
+			//packet(0x00d0,3,clif->pPMIgnoreAll,2);
+			//packet(0x00d3,2,clif->pPMIgnoreList,0);
+			//packet(0x00d5,-1,clif->pCreateChatRoom,2,4,6,7,15);
+			//packet(0x00d9,14,clif->pChatAddMember,2,6);
+			//packet(0x00de,-1,clif->pChatRoomStatusChange,2,4,6,7,15);
+			//packet(0x00e0,30,clif->pChangeChatOwner,2,6);
+			//packet(0x00e2,26,clif->pKickFromChat,2);
+			//packet(0x00e3,2,clif->pChatLeave,0);
+			//packet(0x00e4,6,clif->pTradeRequest,2);
+			//packet(0x00e6,3,clif->pTradeAck,2);
+			//packet(0x00e8,8,clif->pTradeAddItem,2,4);
+			//packet(0x00eb,2,clif->pTradeOk,0);
+			//packet(0x00ed,2,clif->pTradeCancel,0);
+			//packet(0x00ef,2,clif->pTradeCommit,0);
 			[PACKET.CZ.REQ_TAKEOFF_EQUIP,0x00ab,4,2],
 			[PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE,0x00f3,8,2,4],
 			[PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY,0x00f5,8,2,4],
 			[PACKET.CZ.CLOSE_STORE,0x00f7,2,0],
+			//packet(0x00f9,26,clif->pCreateParty,2);
+			//packet(0x00fc,6,clif->pPartyInvite,2);
+			//packet(0x00ff,10,clif->pReplyPartyInvite,2,6);
+			//packet(0x0100,2,clif->pLeaveParty,0);
+			//packet(0x0102,6,clif->pPartyChangeOption,2);
+			//packet(0x0103,30,clif->pRemovePartyMember,2,6);
+			//packet(0x0108,-1,clif->pPartyMessage,2,4);
+			//packet(0x0112,4,clif->pSkillUp,2);
 			[PACKET.CZ.USE_SKILL,0x0113,10,2,4,6],
 			[PACKET.CZ.USE_SKILL_TOGROUND,0x0116,10,2,4,6,8],
+			//packet(0x0118,2,clif->pStopAttack,0);
+			//packet(0x011b, 20, clif -> pUseSkillMap, 2, 4);
+			//packet(0x011d,2,clif->pRequestMemo,0);
+			//packet(0x0126, 8, clif -> pPutItemToCart, 2, 4);
+			//packet(0x0127,8, clif-> pGetItemFromCart, 2, 4);
+			//packet(0x0128, 8, clif -> pMoveFromKafraToCart, 2, 4);
+			//packet(0x0129, 8, clif -> pMoveToKafraFromCart, 2, 4);
+			//packet(0x012a, 2, clif -> pRemoveOption, 0);
+			/*packet(0x012e, 2, clif -> pCloseVending, 0);
+            packet(0x012f,- 1);
+            packet(0x0130, 6, clif -> pVendingListReq, 2);
+            packet(0x0131, 86);
+            packet(0x0132, 6);
+            packet(0x0133, -1);
+            packet(0x0134, -1, clif -> pPurchaseReq, 2, 4, 8);
+            packet(0x0135, 7);
+            packet(0x0136, -1);
+            packet(0x0137, 6);
+            packet(0x0138, 3);
+            packet(0x0139, 16);
+            packet(0x013a, 4);
+            packet(0x013b, 4);
+            packet(0x013c, 4);
+            packet(0x013d, 6);
+            packet(0x013e, 24);
+            packet(0x013f, 26, clif -> pGM_Monster_Item, 2);
+            packet(0x0140, 22, clif -> pMapMove, 2, 18, 20);
+            packet(0x0141, 14);
+            packet(0x0142, 6);
+            packet(0x0143, 10, clif -> pNpcAmountInput, 2, 6);
+            packet(0x0144, 23);
+            packet(0x0145, 19);
+            packet(0x0146, 6, clif -> pNpcCloseClicked, 2);
+            packet(0x0147, 39);
+            packet(0x0148, 8);
+            packet(0x0149, 9, clif -> pGMReqNoChat, 2, 6, 7);
+            packet(0x014a, 6);
+            packet(0x014b, 27);
+            packet(0x014c, -1);
+            packet(0x014d, 2, clif -> pGuildCheckMaster, 0);
+            packet(0x014e, 6);
+            packet(0x014f, 6, clif -> pGuildRequestInfo, 2);
+            packet(0x0150, 110);
+            packet(0x0151, 6, clif -> pGuildRequestEmblem, 2);
+            packet(0x0152, -1);
+            packet(0x0153, -1, clif -> pGuildChangeEmblem, 2, 4);
+            packet(0x0154, -1);
+            packet(0x0155, -1, clif -> pGuildChangeMemberPosition, 2);
+            packet(0x0156, -1);
+            packet(0x0157, 6);
+            packet(0x0158, -1);
+            packet(0x0159, 54, clif -> pGuildLeave, 2, 6, 10, 14);
+            packet(0x015a, 66);
+            packet(0x015b, 54, clif -> pGuildExpulsion, 2, 6, 10, 14);
+            packet(0x015c, 90);
+            packet(0x015d, 42, clif -> pGuildBreak, 2);
+            packet(0x015e, 6);
+            packet(0x015f, 42);
+            packet(0x0160, -1);
+            packet(0x0161, -1, clif -> pGuildChangePositionInfo, 2);
+            packet(0x0162, -1);
+            packet(0x0163, -1);
+            packet(0x0164, -1);
+            packet(0x0165, 30, clif -> pCreateGuild, 6);
+            packet(0x0166, -1);
+            packet(0x0167, 3);
+            packet(0x0168, 14, clif -> pGuildInvite, 2);
+            packet(0x0169, 3);
+            packet(0x016a, 30);
+            packet(0x016b, 10, clif -> pGuildReplyInvite, 2, 6);
+            packet(0x016c, 43);
+            packet(0x016d, 14);
+            packet(0x016e, 186, clif -> pGuildChangeNotice, 2, 6, 66);
+            packet(0x016f, 182);
+            packet(0x0170, 14, clif -> pGuildRequestAlliance, 2);
+            packet(0x0171, 30);
+            packet(0x0172, 10, clif -> pGuildReplyAlliance, 2, 6);
+            packet(0x0173, 3);
+            packet(0x0174, -1);
+            packet(0x0175, 6);
+            packet(0x0176, 106);
+            packet(0x0177, -1);
+            packet(0x0178, 4, clif -> pItemIdentify, 2);
+            packet(0x0179, 5);
+            packet(0x017a, 4, clif -> pUseCard, 2);
+            packet(0x017b, -1);
+            packet(0x017c, 6, clif -> pInsertCard, 2, 4);
+            packet(0x017d, 7);
+            packet(0x017e, -1, clif -> pGuildMessage, 2, 4);
+            packet(0x017f, -1);
+            packet(0x0180, 6, clif -> pGuildOpposition, 2);
+            packet(0x0181, 3);
+            packet(0x0182, 106);
+            packet(0x0183, 10, clif -> pGuildDelAlliance, 2, 6);
+            packet(0x0184, 10);
+            packet(0x0185, 34);
+            //packet(0x0186,-1);
+            packet(0x0187, 6);
+            packet(0x0188, 8);
+            packet(0x0189, 4);
+            packet(0x018a, 4, clif -> pQuitGame, 0);
+            packet(0x018b, 4);
+            packet(0x018c, 29);
+            packet(0x018d, -1);
+            packet(0x018e, 10, clif -> pProduceMix, 2, 4, 6, 8);*/
 			[PACKET.CZ.USE_SKILL_TOGROUNDMoreInfo,0x0190,90,2,4,6,8,10],
 			[PACKET.CZ.REQNAME_BYGID,0x0193,6,2],
+			//packet(0x0197, 4, clif -> pResetChar, 2);
+			//packet(0x0198,8, clif-> pGMChangeMapType, 2, 4, 6);
 			[PACKET.CZ.REQ_ACCOUNTNAME,0x01df,6,2],
 			[PACKET.CZ.REQ_ITEMREPAIR,0x01fd,4,2],
 			[PACKET.CZ.ADD_FRIENDS,0x0202,26,2],
@@ -502,6 +648,7 @@ define( ['./PacketStructure'], function( PACKET )
 
 		//2010-11-24aRagexeRE
 		20101124: [
+			[PACKET.CZ.PC_BUY_CASH_POINT_ITEM,0x0288,-1,4,8],
 			[PACKET.CZ.ENTER,0x0436,19,2,6,10,14,18],
 			[PACKET.CZ.REQUEST_MOVE,0x035f,5,2],
 			[PACKET.CZ.REQUEST_TIME,0x0360,6,2],
