@@ -1218,7 +1218,7 @@ define(function( require )
 			// Show cart
 			case StatusConst.ON_PUSH_CART:
                 entity.hasCart = pkt.state;
-				if(pkt.state && pkt.val){
+				if(pkt.val && (pkt.state || (!pkt.hasOwnProperty('state')) )){
 					entity.CartNum = pkt.val[0];
 				}
                 break;
