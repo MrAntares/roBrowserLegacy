@@ -236,6 +236,10 @@ define(function(require)
 
 		// PC
 		if (id < 6000) {
+			if (id === 4218 || id === 4220) {
+				return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/' + SexTable[sex] + '/' + (ClassTable[id] || ClassTable[0]) + '_' + SexTable[sex];
+			}
+
 			return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' + SexTable[sex] + '/' + ( ClassTable[id] || ClassTable[0] ) + '_' + SexTable[sex];
 		}
 
@@ -275,10 +279,15 @@ define(function(require)
 	/**
 	 * @return {string} path to head sprite/action
 	 * @param {number} id hair style
+	 * @param {number} job job id
 	 * @param {boolean} sex
 	 */
-	DB.getHeadPath = function getHeadPath( id, sex )
+	DB.getHeadPath = function getHeadPath( id, job, sex )
 	{
+		if (job === 4218 || job === 4220) {
+			return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' + SexTable[sex] + '/' + (HairIndexTable[sex + 2][id] || id) + '_' + SexTable[sex];
+		}
+		
 		return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' + SexTable[sex] + '/' + (HairIndexTable[sex][id] || id)+ '_' + SexTable[sex];
 	};
 
@@ -287,10 +296,15 @@ define(function(require)
 	 * @return {string} path to head palette
 	 * @param {number} id hair style
 	 * @param {number} pal id
+	 * @param {number} job job id
 	 * @param {boolean} sex
 	 */
-	DB.getHeadPalPath = function getHeadPalPath( id, pal, sex )
+	DB.getHeadPalPath = function getHeadPalPath( id, pal, job, sex )
 	{
+		if (job === 4218 || job === 4220) {
+			return 'data/palette/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae/\xb8\xd3\xb8\xae' + (HairIndexTable[sex + 2][id] || id) + '_' + SexTable[sex] + '_' + pal + '.pal';
+		}
+
 		return 'data/palette/\xb8\xd3\xb8\xae/\xb8\xd3\xb8\xae' + (HairIndexTable[sex][id] || id) + '_' + SexTable[sex] + '_' + pal + '.pal';
 	};
 
