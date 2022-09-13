@@ -53,7 +53,7 @@ define(function( require )
 				return true;
 			}
 			
-			if(Session.Entity){
+			if(Session.Playing && Session.Entity){
 				event.stopImmediatePropagation();
 				
 				keysDown[event.which] = true;
