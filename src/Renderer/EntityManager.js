@@ -233,10 +233,8 @@ define(function( require )
 		var aDepth = a.depth + (a.GID%100) / 1000;
 		var bDepth = b.depth + (b.GID%100) / 1000;
 
-		if (a.objecttype !== b.objecttype) {
-			aDepth -= Entity.PickingPriority[a.objecttype] * 100;
-			bDepth -= Entity.PickingPriority[b.objecttype] * 100;
-		}
+		aDepth -= Entity.PickingPriority[a.objecttype] * 100;
+		bDepth -= Entity.PickingPriority[b.objecttype] * 100;
 
 		return aDepth - bDepth;
 	}
