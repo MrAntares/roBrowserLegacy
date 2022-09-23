@@ -249,10 +249,11 @@ define(function( require )
 	 * @param {mat4} modelView
 	 * @param {mat4} projection
 	 * @param {object} fog structure
+	 * @param {object} render effect entities? true/false
 	 *
 	 * Infos: RO Game doesn't seems to render ambiant and diffuse on Sprites
 	 */
-	function render( gl, modelView, projection, fog )
+	function render( gl, modelView, projection, fog, renderEffects )
 	{
 		var i, count;
 		var tick = Date.now();
@@ -269,22 +270,23 @@ define(function( require )
 
 		// Rendering
 		for (i = 0, count = _list.length; i < count; ++i) {
-			// Remove from list
-			if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
-				_list[i].clean();
-				_list.splice(i, 1);
-				i--;
-				count--;
-				continue;
-			}
+			if((_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects) || (_list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects)){
+				// Remove from list
+				if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
+					_list[i].clean();
+					_list.splice(i, 1);
+					i--;
+					count--;
+					continue;
+				}
 
-			_list[i].render( modelView, projection);
+				_list[i].render( modelView, projection);				
+			}
 		}
 
 		// Clean program
 		SpriteRenderer.unbind( gl );
 	}
-
 
 	/**
 	 * Intersect Entities
