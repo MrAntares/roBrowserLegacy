@@ -390,7 +390,9 @@ define(function( require )
 		// Display zone effects and entities
 		Sky.render( gl, modelView, projection, fog, tick );
 		EffectManager.render( gl, modelView, projection, fog, tick, true);
-		EntityManager.render( gl, modelView, projection, fog );
+		
+		//Render Entities (no effects)
+		EntityManager.render( gl, modelView, projection, fog, false );
 
 		// Rendering water
 		Water.render( gl, modelView, projection, fog, light, tick );
@@ -398,6 +400,7 @@ define(function( require )
 		// Rendering effects
 		Damage.render( gl, modelView, projection, fog, tick );
 		EffectManager.render( gl, modelView, projection, fog, tick, false);
+		EntityManager.render( gl, modelView, projection, fog, true );
 
 		// Play sounds
 		Sounds.render( Session.Entity.position, tick );
