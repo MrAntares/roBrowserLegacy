@@ -14,26 +14,26 @@ define(function(require)
 	/**
 	 * Dependencies
 	 */
-	var jQuery       		= require('Utils/jquery');
-	var DB           		= require('DB/DBManager');
-	var Network          	= require('Network/NetworkManager');
-	var PACKET           	= require('Network/PacketStructure');	
-	var ItemType     		= require('DB/Items/ItemType');
-	var Client       		= require('Core/Client');
-	var Preferences  		= require('Core/Preferences');
-	var Session      		= require('Engine/SessionStorage');
-	var Mouse        		= require('Controls/MouseEventHandler');
-	var KEYS         		= require('Controls/KeyEventHandler');
-	var UIManager    		= require('UI/UIManager');
-	var UIComponent  		= require('UI/UIComponent');
-	var ItemInfo     		= require('UI/Components/ItemInfo/ItemInfo');
-	var InputBox     		= require('UI/Components/InputBox/InputBox');
-	var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
-	var CartItems    		= require('UI/Components/CartItems/CartItems');
+	var jQuery       = require('Utils/jquery');
+	var DB           = require('DB/DBManager');
+	var Network          = require('Network/NetworkManager');
+	var PACKET           = require('Network/PacketStructure');	
+	var ItemType     = require('DB/Items/ItemType');
+	var Client       = require('Core/Client');
+	var Preferences  = require('Core/Preferences');
+	var Session      = require('Engine/SessionStorage');
+	var Mouse        = require('Controls/MouseEventHandler');
+	var KEYS         = require('Controls/KeyEventHandler');
+	var UIManager    = require('UI/UIManager');
+	var UIComponent  = require('UI/UIComponent');
+	var ItemInfo     = require('UI/Components/ItemInfo/ItemInfo');
+	var InputBox     = require('UI/Components/InputBox/InputBox');
+	var ChatBox      = require('UI/Components/ChatBox/ChatBox');
+	var CartItems    = require('UI/Components/CartItems/CartItems');
 	var VendingModelMessage = require('UI/Components/Vending/VendingModelMessage/VendingModelMessage');
-	var htmlText     		= require('text!./Vending.html');
-	var cssText      		= require('text!./Vending.css');
-	var Renderer     		= require('Renderer/Renderer');
+	var htmlText     = require('text!./Vending.html');
+	var cssText      = require('text!./Vending.css');
+	var Renderer     = require('Renderer/Renderer');
 
 
 	/**
@@ -77,6 +77,7 @@ define(function(require)
 	 * @var {Array} output list
 	 */
 	var _output = [];
+	var _slots = 0;
 
 
 	/**
@@ -406,7 +407,7 @@ define(function(require)
 
 				// Update input ui item amount
 				tmpItem.ITID  = _input[index].ITID;
-				tmpItem.count = _input[index].count - _output[index].count;
+				tmpItem.count = isFinite(_input[index].count) ? _input[index].count - _output[index].count : 0;
 				tmpItem.price = _input[index].price;
 				tmpItem.index = _input[index].index;
 
@@ -421,11 +422,11 @@ define(function(require)
 					return;
 				}
 
-				_output[index].count -= count;
+				_output[index].count = isFinite(_output[index].count) ? _output[index].count - count : 0;
 
 				// Update input ui item amount
 				tmpItem.ITID  = _input[index].ITID;
-				tmpItem.count = _input[index].count + _output[index].count;
+				tmpItem.count = isFinite(_output[index].count) ? _input[index].count + _output[index].count : Infinity;
 				tmpItem.price = _input[index].price;
 				tmpItem.index = _input[index].index;
 
@@ -461,6 +462,11 @@ define(function(require)
 		);
 
 		if (isAdding) {
+			// Don't add more than max Vending capacity
+			if(!(countSlotsUsed() < _slots)){
+				return false;
+			}
+			
 			count = isFinite(_input[index].count) ? _input[index].count : 1;
 		}
 		else {
@@ -487,13 +493,13 @@ define(function(require)
 					_output[index].price = item_price;
 					if(item_price > 0)
 					{
-						transferItem(fromContent, toContent, isAdding, index, isFinite(item.count) ? item.count : 1 );
+						transferItem(fromContent, toContent, isAdding, index, item.count );
 					}
 				};
 			}
 			else
 			{			
-				transferItem(fromContent, toContent, isAdding, index, isFinite(item.count) ? item.count : 1 );
+				transferItem(fromContent, toContent, isAdding, index, item.count);
 			}
 			return false;
 		}
@@ -722,10 +728,11 @@ define(function(require)
 		});
 	}
 
-	Vending.onVendingSkill = function onVendingSkill()
+	Vending.onVendingSkill = function onVendingSkill(pkt)
 	{
-		//console.log("Vending.onVendingSkill");
+		_slots = pkt.itemcount;
 		this.setList(CartItems.list);
+		this.ui.find('.add_shop')[0].style.height = (32 * _slots) + 'px';
 		this.ui.find('.shopname').val('');
 		this.ui.show();
 	};
@@ -759,8 +766,6 @@ define(function(require)
 		pkt.storeName = shopname;
 		pkt.result = 1;
 		pkt.storeList = output;
-		
-		console.log('shopname', shopname);
 
 		if(!shopname)
 		{
@@ -776,6 +781,14 @@ define(function(require)
 		this.onRemove();
 		 
 	};
+	
+	function countSlotsUsed(){
+		var count = 0;
+		_output.forEach((item) => {
+			if(item.count > 0) { count++; }
+		});
+		return count;
+	}
 
 
 	function submitNetworkPacket(pkt)
