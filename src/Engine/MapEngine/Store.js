@@ -21,7 +21,8 @@ define(function( require )
 	var PACKET        = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
 	var NpcStore      = require('UI/Components/NpcStore/NpcStore');
-	var VendingShop = require('UI/Components/VendingShop/VendingShop');
+	var Vending       = require('UI/Components/Vending/Vending');
+	var VendingShop   = require('UI/Components/VendingShop/VendingShop');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 
 
@@ -247,6 +248,14 @@ define(function( require )
 		};
 	}
 
+	/**
+	 * Open vending creation window with X slots
+	 *
+	 * @param {object} pkt - PACKET.ZC.PACKET_ZC_OPENSTORE
+	 */
+	function onOpenVending(pkt){
+		Vending.onVendingSkill(pkt);
+	}
 
 	/**
 	 * Initialize
@@ -254,7 +263,7 @@ define(function( require )
 	return function MainEngine()
 	{
 		Network.hookPacket( PACKET.ZC.PC_CASH_POINT_ITEMLIST,       onBuyCashList );
-		Network.hookPacket( PACKET.ZC.PC_CASH_POINT_UPDATE,       onBuyCashResult );
+		Network.hookPacket( PACKET.ZC.PC_CASH_POINT_UPDATE,         onBuyCashResult );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST,         onBuyList );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_RESULT,           onBuyResult );
 		Network.hookPacket( PACKET.ZC.PC_SELL_ITEMLIST,             onSellList );
@@ -262,7 +271,8 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC,  onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC2, onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_RESULT_FROMMC,    onBuyResult );
-		Network.hookPacket( PACKET.ZC.PC_PURCHASE_MYITEMLIST,    onBuyVendingList );
-		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE,    onDeleteVendingItem );
+		Network.hookPacket( PACKET.ZC.PC_PURCHASE_MYITEMLIST,       onBuyVendingList );
+		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE,      onDeleteVendingItem );
+		Network.hookPacket( PACKET.ZC.OPENSTORE,                    onOpenVending );
 	};
 });
