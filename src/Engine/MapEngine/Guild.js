@@ -84,6 +84,7 @@ define(function( require )
 		// Hook UI
 		Guild.onGuildInfoRequest      = GuildEngine.requestInfo;
 		Guild.onPositionUpdateRequest = GuildEngine.requestPositionUpdate;
+		Guild.onChangeMemberPosRequest = GuildEngine.requestChangeMemberPos;
 		Guild.onNoticeUpdateRequest   = GuildEngine.requestNoticeUpdate;
 		Guild.onRequestLeave          = GuildEngine.requestLeave;
 		Guild.onRequestMemberExpel    = GuildEngine.requestMemberExpel;
@@ -201,7 +202,19 @@ define(function( require )
 
 		Network.sendPacket(pkt);
 	};
+	
+	/**
+	 * Send new player position
+	 *
+	 * @param {Array} positions
+	 */
+	GuildEngine.requestChangeMemberPos = function requestChangeMemberPos( memberInfo )
+	{
+		var pkt = new PACKET.CZ.REQ_CHANGE_MEMBERPOS();
+		pkt.memberInfo = memberInfo;
 
+		Network.sendPacket(pkt);
+	};
 
 	/**
 	 * Send new notice to server
