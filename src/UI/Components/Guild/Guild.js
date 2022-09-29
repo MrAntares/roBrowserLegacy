@@ -375,7 +375,8 @@ define(function(require)
 		general.find('.name .value').text(info.guildname);
 		general.find('.level .value').text(info.level);
 		general.find('.master .value').text(info.masterName);
-		general.find('.members .numMember').text(info.userNum);
+		//general.find('.members .numMember').text(info.userNum); // Why does the server send online number instead of total members?
+		general.find('.members .online').text(info.userNum);
 		general.find('.members .maxMember').text(info.maxUserNum);
 		general.find('.avglevel .value').text(info.userAverageLevel);
 		general.find('.territory .value').text(info.manageLand);
@@ -474,6 +475,7 @@ define(function(require)
 			online    += members[i].CurrentState ? 1 : 0;
 		}
 
+		this.ui.find('.content.info .members .numMember').text(count);
 		this.ui.find('.content.info .members .online').text(online);
 
 		for (i = 0, count = members.length; i < count; ++i) {
@@ -491,8 +493,7 @@ define(function(require)
 	 */
 	Guild.setMember = function setMember( member )
 	{
-		var i, count;
-		var view;
+		var i, count, view;
 
 		// Search for duplicate entry
 		for (i = 0, count = _members.length; i < count; ++i) {
@@ -527,7 +528,7 @@ define(function(require)
 		view.find('.job').text(MonsterTable[member.Job]);
 		view.find('.level').text(member.Level);
 		view.find('.note').text(member.Memo);
-		view.find('.devotion').text((member.MemberExp ? Math.round(_totalExp / member.MemberExp * 100) : 0) + ' %');
+		view.find('.devotion').text((member.MemberExp ? Math.round(member.MemberExp / _totalExp * 100) : 0) + ' %');
 		view.find('.tax').text(member.MemberExp);
 
 		if (!member.entity) {
@@ -540,6 +541,8 @@ define(function(require)
 		member.entity.sex         = member.Sex;
 		member.entity.head        = member.HeadType;
 		member.entity.headpalette = member.HeadPalette;
+		
+		this.ui.find('.content.info .members .numMember').text(_members.length);
 	};
 
 
@@ -551,8 +554,8 @@ define(function(require)
 	 */
 	Guild.updateMemberStatus = function updateMemberStatus( member )
 	{
-		var i, count;
-		var view;
+		var i, count, view;
+		var online = 0;
 
 		// Search for duplicate entry
 		for (i = 0, count = _members.length; i < count; ++i) {
@@ -582,6 +585,12 @@ define(function(require)
 		if ('headPalette' in member) {
 			_members[i].entity.headpalette = member.headPalette;
 		}
+		
+		// Update online count
+		for (i = 0, count = _members.length; i < count; ++i) {
+			online    += _members[i].CurrentState ? 1 : 0;
+		}
+		this.ui.find('.content.info .members .online').text(online);
 
 		ChatBox.addText( DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', view.find('.name .value').text()), ChatBox.TYPE.BLUE);
 	};
@@ -1325,11 +1334,16 @@ define(function(require)
 
 
 	/**
-	 * Ask server to modify users positions
+	 * Ask server to modify positions
 	 * @param {Array} positions
 	 */
 	Guild.onPositionUpdateRequest = function(){};
 
+	/**
+	 * Ask server to modify user's position
+	 * @param {Array} memberInfo
+	 */
+	Guild.onChangeMemberPosRequest = function(){};
 
 	/**
 	 * Ask server to modify notice
