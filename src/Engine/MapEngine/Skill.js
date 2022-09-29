@@ -527,10 +527,6 @@ define(function( require )
 				getModule('UI/Components/ChangeCart/ChangeCart').onChangeCartSkill();
 			}
        	}
-		else if(id === SkillId.MC_VENDING)
-		{
-			getModule('UI/Components/Vending/Vending').onVendingSkill();
-		}
 
         pkt               = new PACKET.CZ.USE_SKILL();
         pkt.SKID          = id;
