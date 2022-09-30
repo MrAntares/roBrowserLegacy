@@ -520,6 +520,7 @@ define(function(require)
 
 		view.attr('data-index', i);
 		view.find('.name .value').text(member.CharName);
+		view.find('.name .value')[0].title = member.CharName;
 
 		if (_positions[member.GPositionID]) {
 			if (Session.isGuildMaster) {
@@ -537,14 +538,17 @@ define(function(require)
 			}
 			else {
 				view.find('.position').text(_positions[member.GPositionID].posName);
+				view.find('.position')[0].title = _positions[member.GPositionID].posName;
 			}
 		}
 
 		view.find('.job').text(MonsterTable[member.Job]);
+		view.find('.job')[0].title = MonsterTable[member.Job];
 		view.find('.level').text(member.Level);
 		view.find('.note').text(member.Memo);
 		view.find('.devotion').text((member.MemberExp ? Math.round(member.MemberExp / _totalExp * 100) : 0) + ' %');
 		view.find('.tax').text(member.MemberExp);
+		view.find('.tax')[0].title = member.MemberExp;
 
 		if (!member.entity) {
 			member.entity = new Entity();
