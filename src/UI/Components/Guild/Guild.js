@@ -522,7 +522,22 @@ define(function(require)
 		view.find('.name .value').text(member.CharName);
 
 		if (_positions[member.GPositionID]) {
-			view.find('.position').text(_positions[member.GPositionID].posName);
+			if (Session.isGuildMaster) {
+				var selectElement = '<select class="changePosition member_' +member.AID+ '_' +member.GID+ '">';
+				_positions.forEach( (position, key) => {
+					selectElement += '<option value="' + position.positionID + '" ' + ( key == member.GPositionID ? 'selected' : '') + '>' + position.posName + '</option>';
+				});
+				selectElement += '</select>';
+				
+				view.find('.position')[0].innerHTML = selectElement;
+				
+				view.find('.member_'+member.AID+'_'+member.GID).change(function(evt){
+						Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
+					});
+			}
+			else {
+				view.find('.position').text(_positions[member.GPositionID].posName);
+			}
 		}
 
 		view.find('.job').text(MonsterTable[member.Job]);
@@ -603,7 +618,7 @@ define(function(require)
 	 * @param {number} GID
 	 * @param {number} position id
 	 */
-	Guild.updateMemberPosition = function updateMemberPosition( AID, GID, positionID)
+	Guild.updateMemberPosition = function updateMemberPosition( AID, GID, positionID, validate)
 	{
 		var i, count;
 
@@ -616,6 +631,10 @@ define(function(require)
 				Guild.setMember(_members[i]);
 				break;
 			}
+		}
+		
+		if(validate){
+			onValidate();
 		}
 	};
 
@@ -1266,6 +1285,17 @@ define(function(require)
 
 		switch (activeTab) {
 			case 'members':
+				var list = [];
+				
+				_members.forEach((member) => {
+					list.push({
+						AID: member.AID,
+						GID: member.GID,
+						positionID: member.GPositionID
+					});
+				});
+				
+				Guild.onChangeMemberPosRequest(list);
 				break;
 
 			case 'positions':
