@@ -1,4 +1,4 @@
-#Guild { position:absolute; top:100px; left:100px; width:400px; height:317px; font-size:12px; }
+#Guild { position:absolute; top:100px; left:100px; width:400px; height:317px; font-size:11px; }
 
 #Guild .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
 #Guild .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
@@ -6,7 +6,7 @@
 #Guild .titlebar .clear { clear:both; }
 
 #Guild .panel { background-color:white; padding-right:2px; }
-#Guild .content { overflow-y:auto; padding:5px; border-top:1px solid #c6c6c6; height:238px; }
+#Guild .content { overflow-y:auto; padding:2px; border-top:1px solid #c6c6c6; height:238px; }
 
 #Guild .tabs { height:23px; background-color:#b5b6b5; white-space:nowrap; }
 #Guild .tabs button.active { background-color: #fff }
@@ -87,29 +87,30 @@
 /*
  * Guild Members
  */
-#Guild .content.members table { border-spacing:0; border-collapse:collapse; font-size:12px; }
+#Guild .content.members table { border-spacing:0; border-collapse:collapse; font-size:11px; }
 #Guild .content.members tbody tr { border-left: 1px solid #c2c2c2; border-right: 1px solid #c2c2c2;}
 #Guild .content.members td { border-bottom: 1px solid #c2c2c2; }
 #Guild .content.members tr.active td { background-color:#739eef!important; }
 #Guild .content.members th { border: 1px solid #c2c2c2; }
 #Guild .content.members td,
-#Guild .content.members th { text-align:left; font-weight:normal; padding-left:5px; height:35px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#Guild .content.members th { text-align:left; font-weight:normal; padding-left:2px; height:35px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #Guild .content.members tr.online td { background-color:#efe; }
 #Guild .content.members tr canvas { display:inline; }
-#Guild .content.members .name { width:85px; }
+#Guild .content.members .name { width:85px; max-width: 85px; text-overflow: ellipsis; overflow: hidden; }
 #Guild .content.members .name canvas { vertical-align:-11px; }
-#Guild .content.members .position { width:70px; }
-#Guild .content.members .job { width:43px; }
+#Guild .content.members .position { width:70px; max-width:70px;  text-overflow: ellipsis; overflow: hidden; }
+#Guild .content.members .position select { width:65px; max-width:65px;  text-overflow: ellipsis; overflow: hidden; }
+#Guild .content.members .job { width:43px; max-width: 43px; text-overflow: ellipsis; overflow: hidden; }
 #Guild .content.members .level { width:30px; }
 #Guild .content.members .note { width:41px; }
 #Guild .content.members .devotion { width:42px; }
-#Guild .content.members .tax { width:63px; }
+#Guild .content.members .tax { width:63px; max-width: 63px; text-overflow: ellipsis; overflow: hidden; }
 
 
 /*
  * Guild Positions
  */
-#Guild .content.positions table { border-spacing:0; border-collapse:collapse; font-size:12px; }
+#Guild .content.positions table { border-spacing:0; border-collapse:collapse; font-size:11px; }
 #Guild .content.positions tr.active { border:none; }
 #Guild .content.positions tr.active td { background-color:#739eef; }
 #Guild .content.positions th,
@@ -154,7 +155,7 @@
 /*
  * Guild History
  */
-#Guild .content.history table { border-spacing:0; border-collapse:collapse; font-size:12px; }
+#Guild .content.history table { border-spacing:0; border-collapse:collapse; font-size:11px; }
 #Guild .content.history th,
 #Guild .content.history td { font-weight:normal; text-align:left; padding:5px 5px 0px 5px; border: 1px solid #c2c2c2; }
 #Guild .content.history .name { width:90px; }
