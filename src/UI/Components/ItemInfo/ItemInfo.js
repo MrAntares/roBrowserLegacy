@@ -145,6 +145,11 @@ define(function(require)
 
 		var customname = '';
 		var hideslots = false;
+		
+		if(item.type == ItemType.WEAPON && item.location == 0){ //Pet Egg
+			hideslots = true;
+		}
+		
 		if(item.slot){
 
 			var very = '';
@@ -216,7 +221,6 @@ define(function(require)
 
 			case ItemType.WEAPON:
 			case ItemType.EQUIP:
-			case ItemType.PETEGG:
 				if (hideslots){
 					cardList.parent().hide();
 					break;
@@ -233,6 +237,10 @@ define(function(require)
 				if (!item.IsIdentified ) {
 					cardList.parent().hide();
 				}
+				break;
+			
+			case ItemType.PETEGG:
+				cardList.parent().hide();
 				break;
 
 		}
@@ -477,7 +485,6 @@ define(function(require)
 			// _ctx.clearRect(0, 0, 21, 15);
 
 			// Render layers
-			// debugger;
 			for (i = 0, count = animation.layers.length; i < count; ++i) {
 				_entity.renderLayer( animation.layers[i], _sprite, _sprite, 1.0, position, false);
 			}
