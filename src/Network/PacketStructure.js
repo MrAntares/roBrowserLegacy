@@ -9803,7 +9803,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 
 	// 0x7f7
-	PACKET.ZC.NOTIFY_MOVEENTRY5 = function PACKET_ZC_NOTIFY_MOVEENTRY7(fp, end) {
+	PACKET.ZC.NOTIFY_MOVEENTRY5 = function PACKET_ZC_NOTIFY_MOVEENTRY5(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.speed = fp.readShort();
@@ -10709,7 +10709,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.hp = fp.readLong();
 		this.maxhp = fp.readLong();
 		this.isBoss = fp.readUChar();
-		this.name = fp.readString(24);
+		this.name = fp.readString(end - fp.tell());
 	};
 	PACKET.ZC.NOTIFY_MOVEENTRY7.size = -1;
 
