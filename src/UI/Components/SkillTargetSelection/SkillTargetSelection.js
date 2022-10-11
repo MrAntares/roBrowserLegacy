@@ -159,6 +159,8 @@ define(function(require)
 		Cursor.blockMagnetism = false;
 		Cursor.freeze         = false;
 		Cursor.setType(Cursor.ACTION.DEFAULT);
+		
+		EntityManager.setReversePriority(false);
 
 		if (_skillName.parentNode) {
 			document.body.removeChild(_skillName);
@@ -189,6 +191,8 @@ define(function(require)
 		if (_flag & (SkillTargetSelection.TYPE.PLACE|SkillTargetSelection.TYPE.TRAP)) {
 			Cursor.blockMagnetism = true;
 		}
+
+		EntityManager.setReversePriority((_flag & SkillTargetSelection.TYPE.FRIEND) > 0);
 
 		// Render skillName
 		var sk = SkillInfo[ skill.SKID ];
