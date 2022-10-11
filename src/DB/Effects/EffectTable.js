@@ -2753,7 +2753,8 @@ define(function( require )
 		183: [{	//EF_SUI_EXPLOSION	Self Destruction
 			type: 'STR',
 			file: 'sui_explosion',
-			attachedEntity: true
+			attachedEntity: true,
+			wav: 'effect/ef_hit2'
 		}],
 
 
