@@ -361,6 +361,17 @@ define(['./SkillConst'], function(SK) {
 		};
 	};
 	
+	//AUTO COUNTER
+	SkillAction[SK.KN_AUTOCOUNTER] = function(entity, tick){
+		return {
+			action: entity.ACTION.ATTACK,
+			frame:  0,
+			repeat: false,
+			play:   false,
+			next: false
+		};
+	};
+	
 	//BLADE STOP
 	SkillAction[SK.MO_BLADESTOP] = function(entity, tick){
 		return {
