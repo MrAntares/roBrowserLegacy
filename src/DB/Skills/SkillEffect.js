@@ -95,7 +95,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.KN_SPEARSTAB]                   = {effectIdOnCaster: 150};		//Spear Stab
 	SkillEffect[SK.KN_SPEARBOOMERANG]              = {effectIdOnCaster: 151, beforeHitEffectId: 'ef_spear_projectile', hitEffectId: 80};		//Spear Boomerang
 	SkillEffect[SK.KN_TWOHANDQUICKEN]              = {effectId: 130};		//Twohand Quicken
-	SkillEffect[SK.KN_AUTOCOUNTER]                 = {effectId: 131};		//Counter Attack
+	SkillEffect[SK.KN_AUTOCOUNTER]                 = {/*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/};		//Counter Attack
 	SkillEffect[SK.KN_BOWLINGBASH]                 = {effectId: 149, hitEffectId: 1};		//Bowling Bash
 	// Priest
 	SkillEffect[SK.PR_IMPOSITIO]                   = {effectId: 84};		//Impositio Manus
