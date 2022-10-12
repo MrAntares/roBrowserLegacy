@@ -35,7 +35,8 @@ define(function(require)
 	/**
 	 * @var {number} max message in the chatbox
 	 */
-	var MAX_MSG = 50;
+	var MAX_MSG = 400;
+	var MAX_LENGTH = 100;
 
 
 	/**
@@ -166,6 +167,8 @@ define(function(require)
 				}
 			}.bind(this), 1);
 		}.bind(this));
+
+		this.ui.find('.input .message')[0].maxLength = MAX_LENGTH;
 
 		this.ui.find('.input .username').blur(function(){
 			Events.setTimeout(function(){
