@@ -443,6 +443,7 @@ define(function( require )
 	function spamSprite( effect, AID, position, tick, persistent)
 	{
 		var entity = EntityManager.get(AID);
+		var isNewEntity = (!entity) ? true : false;
 
 		if (!entity) {
 			entity            = new Entity();
@@ -474,7 +475,9 @@ define(function( require )
 			delay:			effect.delayFrame
 		});
 		
-		EntityManager.add(entity);
+		if(isNewEntity){
+			EntityManager.add(entity);
+		}
 	}
 
 
