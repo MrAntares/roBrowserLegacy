@@ -208,6 +208,8 @@ define(function(require)
 		// Add view button (for cards)
 		addEvent(item);
 
+		var slotCount = it.slotCount || 0;
+
 		switch (item.type) {
 			// Not an equipement = no card
 			default:
@@ -215,13 +217,20 @@ define(function(require)
 				break;
 
 			case ItemType.WEAPON:
+				// TODO::IS IT AN EGG?
+				if (!slotCount) {
+					console.log("ItemType",item, ItemType, it)					
+					cardList.parent().hide();
+					break;
+				}
+				
 			case ItemType.EQUIP:
 			case ItemType.PETEGG:
+				
 				if (hideslots){
 					cardList.parent().hide();
 					break;
 				}
-				var slotCount = it.slotCount || 0;
 				var i;
 
 				cardList.parent().show();
