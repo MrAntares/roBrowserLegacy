@@ -4517,7 +4517,7 @@ define(function( require )
 		}],
 		
 		321: [{  //EF_WARPZONE2	   Warp NPC
-			alphaMax: 0.3,
+			alphaMax: 0.5,
 			animation: 3,
 			attachedEntity: true,
 			blendMode: 2,
@@ -4536,7 +4536,7 @@ define(function( require )
 			topSize: 3.3,
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 0.3,
+			alphaMax: 0.5,
 			animation: 3,
 			attachedEntity: true,
 			blendMode: 2,
@@ -4555,8 +4555,9 @@ define(function( require )
 			topSize: 3.2,
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 1,
+			alphaMax: 0.78,
 			attachedEntity: true,
+			blendMode: 2,
 			blue: 1,
 			duration: 1000,
 			duplicate: 3,
