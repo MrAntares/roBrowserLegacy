@@ -95,7 +95,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.KN_SPEARSTAB]                   = {effectIdOnCaster: 150};		//Spear Stab
 	SkillEffect[SK.KN_SPEARBOOMERANG]              = {effectIdOnCaster: 151, beforeHitEffectId: 'ef_spear_projectile', hitEffectId: 80};		//Spear Boomerang
 	SkillEffect[SK.KN_TWOHANDQUICKEN]              = {effectId: 130};		//Twohand Quicken
-	SkillEffect[SK.KN_AUTOCOUNTER]                 = {effectId: 131};		//Counter Attack
+	SkillEffect[SK.KN_AUTOCOUNTER]                 = {/*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/};		//Counter Attack
 	SkillEffect[SK.KN_BOWLINGBASH]                 = {effectId: 149, hitEffectId: 1};		//Bowling Bash
 	// Priest
 	SkillEffect[SK.PR_IMPOSITIO]                   = {effectId: 84};		//Impositio Manus
@@ -172,7 +172,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.AL_HOLYLIGHT]                   = {effectId: 152};		//Holy Light
 	SkillEffect[SK.MG_ENERGYCOAT]                  = {effectId: 169};		//Energy Coat
 	// NPC Skills
-	SkillEffect[SK.NPC_PIERCINGATT]                = {};		//Piercing Attack
+	SkillEffect[SK.NPC_PIERCINGATT]                = {effectIdOnCaster: 148};		//Piercing Attack
 	SkillEffect[SK.NPC_MENTALBREAKER]              = {effectId: 181};		//Spirit Destruction
 	SkillEffect[SK.NPC_RANGEATTACK]                = {};		//Stand off attack
 	SkillEffect[SK.NPC_ATTRICHANGE]                = {};		//Attribute Change
@@ -184,12 +184,12 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_CHANGEHOLY]                 = {effectId: 178};		//Holy Attribute Change
 	SkillEffect[SK.NPC_CHANGEDARKNESS]             = {effectId: 172};		//Shadow Attribute Change
 	SkillEffect[SK.NPC_CHANGETELEKINESIS]          = {};		//Ghost Attribute Change
-	SkillEffect[SK.NPC_CRITICALSLASH]              = {};		//Defense disregard attack
+	SkillEffect[SK.NPC_CRITICALSLASH]              = {effectIdOnCaster: 16};		//Defense disregard attack
 	SkillEffect[SK.NPC_COMBOATTACK]                = {};		//Multi-stage Attack
 	SkillEffect[SK.NPC_GUIDEDATTACK]               = {effectId: 191};		//Guided Attack
-	SkillEffect[SK.NPC_SELFDESTRUCTION]            = {};		//Suicide bombing
+	SkillEffect[SK.NPC_SELFDESTRUCTION]            = {effectId: 183};		//Suicide bombing
 	SkillEffect[SK.NPC_SPLASHATTACK]               = {};		//Splash attack
-	SkillEffect[SK.NPC_SUICIDE]                    = {};		//Suicide
+	SkillEffect[SK.NPC_SUICIDE]                    = {effectId: 185};		//Suicide
 	SkillEffect[SK.NPC_POISON]                     = {effectId: 192};		//Poison Attack
 	SkillEffect[SK.NPC_BLINDATTACK]                = {};		//Blind Attack
 	SkillEffect[SK.NPC_SILENCEATTACK]              = {effectId: 193};		//Silence Attack

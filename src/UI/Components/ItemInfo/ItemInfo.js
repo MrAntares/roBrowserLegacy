@@ -145,6 +145,11 @@ define(function(require)
 
 		var customname = '';
 		var hideslots = false;
+		
+		if(item.type == ItemType.WEAPON && item.location == 0){ //Pet Egg
+			hideslots = true;
+		}
+		
 		if(item.slot){
 
 			var very = '';
@@ -208,8 +213,6 @@ define(function(require)
 		// Add view button (for cards)
 		addEvent(item);
 
-		var slotCount = it.slotCount || 0;
-
 		switch (item.type) {
 			// Not an equipement = no card
 			default:
@@ -217,20 +220,12 @@ define(function(require)
 				break;
 
 			case ItemType.WEAPON:
-				// TODO::IS IT AN EGG?
-				if (!slotCount) {
-					console.log("ItemType",item, ItemType, it)					
-					cardList.parent().hide();
-					break;
-				}
-				
 			case ItemType.EQUIP:
-			case ItemType.PETEGG:
-				
 				if (hideslots){
 					cardList.parent().hide();
 					break;
 				}
+				var slotCount = it.slotCount || 0;
 				var i;
 
 				cardList.parent().show();
@@ -242,6 +237,10 @@ define(function(require)
 				if (!item.IsIdentified ) {
 					cardList.parent().hide();
 				}
+				break;
+			
+			case ItemType.PETEGG:
+				cardList.parent().hide();
 				break;
 
 		}
@@ -486,7 +485,6 @@ define(function(require)
 			// _ctx.clearRect(0, 0, 21, 15);
 
 			// Render layers
-			// debugger;
 			for (i = 0, count = animation.layers.length; i < count; ++i) {
 				_entity.renderLayer( animation.layers[i], _sprite, _sprite, 1.0, position, false);
 			}
