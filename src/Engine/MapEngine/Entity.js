@@ -1079,7 +1079,7 @@ define(function( require )
         }
 
 		//Frost joke and scream messages
-		if(pkt.SKID === SkillId.BA_FROSTJOKE && srcEntity == Session.Entity){
+		if(pkt.SKID === SkillId.BA_FROSTJOKER && srcEntity == Session.Entity){
 			var msg = DB.getRandomJoke();
 			if(msg){
 				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
