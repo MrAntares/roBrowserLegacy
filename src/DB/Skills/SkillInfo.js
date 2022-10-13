@@ -9091,7 +9091,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 9, 9 ]
 	},
-	SkillInfo[SK.BA_FROSTJOKE] = {
+	SkillInfo[SK.BA_FROSTJOKER] = {
 		Name: "BA_FROSTJOKE",
 		SkillName: "Frost Joke",
 		MaxLv: 5,
