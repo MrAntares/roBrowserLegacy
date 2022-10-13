@@ -443,19 +443,20 @@ define(function( require )
 	function spamSprite( effect, AID, position, tick, persistent)
 	{
 		var entity = EntityManager.get(AID);
+		var isNewEntity = false;
 
 		if (!entity) {
 			entity            = new Entity();
 			entity.GID        = AID;
 			entity.position   = position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
-		}
-
-		else if (!effect.attachedEntity) {
+			isNewEntity = true;
+		} else if (!effect.attachedEntity) {
 			entity            = new Entity();
 			entity.GID        = -1;
 			entity.position   = position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
+			isNewEntity = true;
 		}
 
 
@@ -474,7 +475,9 @@ define(function( require )
 			delay:			effect.delayFrame
 		});
 		
-		EntityManager.add(entity);
+		if(isNewEntity){
+			EntityManager.add(entity);
+		}
 	}
 
 

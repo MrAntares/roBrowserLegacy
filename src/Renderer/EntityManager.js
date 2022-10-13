@@ -239,8 +239,8 @@ define(function( require )
 	 */
 	function sortByPriority( a, b )
 	{
-		var aDepth = a.depth + (a.GID%100) / 1000;
-		var bDepth = b.depth + (b.GID%100) / 1000;
+		var aDepth = a.depth + ((!isNaN(a.GID)) ? a.GID%100 : 0) / 1000;
+		var bDepth = b.depth + ((!isNaN(b.GID)) ? b.GID%100 : 0) / 1000;
 
 		if (_reversePriority) {
 			aDepth += Entity.PickingPriority[a.objecttype] * 100;

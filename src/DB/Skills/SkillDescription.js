@@ -3387,7 +3387,7 @@ define(["./SkillConst"], function( SKID )
 		"duration.^000000"
 	].join("\n");
 
-	SkillDescription[SKID.BA_FROSTJOKE] = [
+	SkillDescription[SKID.BA_FROSTJOKER] = [
 		"Frost Joke",
 		"Max Level: 5",
 		"^CC3399Requirement: Encore 1^000000",

@@ -817,14 +817,15 @@ define(function( require )
 
 		//Action handling
 		if(srcEntity){
-			if(pkt.SKID in SkillActionTable){
-				var action = SkillActionTable[pkt.SKID];
-				if(action){
-					srcEntity.setAction(action(srcEntity, Renderer.tick));
+			if(srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT){
+				if(pkt.SKID in SkillActionTable){
+					var action = SkillActionTable[pkt.SKID];
+					if(action){
+						srcEntity.setAction(action(srcEntity, Renderer.tick));
+					}
 				} else {
+					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 				}
-			} else {
-				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 			}
 		}
 
@@ -941,14 +942,15 @@ define(function( require )
             }
 
 			//Action handling
-			if(pkt.SKID in SkillActionTable){
-				var action = SkillActionTable[pkt.SKID];
-				if(action){
-					srcEntity.setAction(action(srcEntity, Renderer.tick));
+			if(srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT){
+				if(pkt.SKID in SkillActionTable){
+					var action = SkillActionTable[pkt.SKID];
+					if(action){
+						srcEntity.setAction(action(srcEntity, Renderer.tick));
+					}
 				} else {
+					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 				}
-			} else {
-				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 			}
 		}
 
@@ -1077,7 +1079,7 @@ define(function( require )
         }
 
 		//Frost joke and scream messages
-		if(pkt.SKID === SkillId.BA_FROSTJOKE && srcEntity == Session.Entity){
+		if(pkt.SKID === SkillId.BA_FROSTJOKER && srcEntity == Session.Entity){
 			var msg = DB.getRandomJoke();
 			if(msg){
 				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
