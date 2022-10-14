@@ -371,8 +371,43 @@ define(function(require)
 			this.ui.find('.hide').show();
 		}
 	};
+	
+	/**
+	 * Prettify zeny : 1000000 -> 1,000,000
+	 *
+	 * @param {number} zeny
+	 * @param {boolean} use color
+	 * @return {string}
+	 */
+	function prettyZeny( val, useStyle )
+	{
+		
+		var list = val.toString().split('');
+		var i, count = list.length;
+		var str = '';
 
+		for (i = 0; i < count; i++) {
+			str = list[count-i-1] + (i && i%3 ===0 ? ',' : '') + str;
+		}
 
+		if (useStyle) {
+			var style = [
+				'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
+				'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
+				'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
+				'color:#ff0000; text-shadow:1px 0px #ffff00;', // 1,000 - 9,999
+				'color:#ff18ff;',                              // 10,000 - 99,999
+				'color:#0000ff;',                              // 100,000 - 999,999
+				'color:#000000; text-shadow:1px 0px #00ff00;', // 1,000,000 - 9,999,999
+				'color:#ff0000;',                              // 10,000,000 - 99,999,999
+				'color:#000000; text-shadow:1px 0px #cece63;', // 100,000,000 - 999,999,999
+				'color:#ff0000; text-shadow:1px 0px #ff007b;', // 1,000,000,000 - 9,999,999,999
+			];
+			str = '<span style="' + style[count-1] + '">' + str + '</span>';
+		}
+
+		return str;
+	}
 
 	/**
 	 * Stop event propagation
@@ -473,7 +508,7 @@ define(function(require)
 		// Display box
 		overlay.show();
 		overlay.css({top: pos.top, left:pos.left+35});
-		overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+		overlay.text(DB.getItemName(item) + ' ' + prettyZeny(item.price, false) + ' ' + DB.getMessage(2328));
 
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
