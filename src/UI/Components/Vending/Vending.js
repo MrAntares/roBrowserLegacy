@@ -86,6 +86,19 @@ define(function(require)
 	var _type;
 	
 	var _shopname = '';
+	
+	function isItemStackable(item){
+		if(
+			item.type === ItemType.WEAPON ||
+			item.type === ItemType.EQUIP  ||
+			item.type === ItemType.PETEGG ||
+			item.type === ItemType.PETEQUIP
+		){
+			return false;
+		} else {
+			return true;
+		}
+	};
 
 
 	/**
@@ -254,7 +267,7 @@ define(function(require)
 		
 		
 		content        = this.ui.find('.InputWindow .content');
-		
+
 		{		
 				for (i = 0, count = items.length; i < count; ++i) {
 					
@@ -263,9 +276,16 @@ define(function(require)
 						items[i].index = i;
 					}
 					
+					if(isItemStackable(items[i])){
+						items[i].IsStackable = true;
+					} else {
+						items[i].IsStackable = false;
+					}
 					
-					items[i].count        = items[i].count || Infinity;
-					items[i].IsIdentified = true;
+					if(!(items[i].hasOwnProperty('count'))){
+						items[i].count = 1;
+					}
+					
 					out                   = jQuery.extend({}, items[i]);
 					out.count             = 0;
 
@@ -342,12 +362,13 @@ define(function(require)
 		// Already here, update it
 		// Note: just the amount can be updated ?
 		if (element.length) {
-			element.find('.amount').text(isFinite(item.count) ? item.count : '');
+			element.find('.amount').text(item.IsStackable ? item.count : '');
 			return;
 		}
 
-		if(isinput==false)price = prettyZeny(item.price, false);
-		//price = item.price;
+		if(isinput==false){
+			price = prettyZeny(item.price, true);
+		}
 
 		// Create it
 		if(isinput == true)
@@ -355,7 +376,7 @@ define(function(require)
 			content.append(
 				'<div class="item" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
-					'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
+					'<div class="amount">' + (item.IsStackable ? item.count : '') + '</div>' +
 					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
 				'</div>'
 			);		
@@ -365,9 +386,9 @@ define(function(require)
 			content.append(
 				'<div class="item" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
-					'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
+					'<div class="amount">' + (item.IsStackable ? item.count : '') + '</div>' +
 					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
-					'<div class="price">'+textPrice+': '+ price +'</div>' +
+					'<div class="price">'+textPrice+' '+ price +'</div>' +
 				'</div>'
 			);		
 		}
@@ -391,25 +412,23 @@ define(function(require)
 	 */
 	var transferItem = function transferItemQuantityClosure()
 	{
-		var tmpItem = {
-			ITID:   0,
-			count:  0,
-			price:  0,
-			index:  0
-		};
+		var tmpItem = {};
 
 		return function transferItem(fromContent, toContent, isAdding, index, count)
 		{
 			// Add item to the list
 			if (isAdding) {
-
+				
+				if(!_input[index].IsIdentified){
+					VendingModelMessage.setInit(603);
+					return;
+				}
+				
 				_output[index].count = Math.min( _output[index].count + count, _input[index].count);
 
 				// Update input ui item amount
-				tmpItem.ITID  = _input[index].ITID;
-				tmpItem.count = isFinite(_input[index].count) ? _input[index].count - _output[index].count : 0;
-				tmpItem.price = _input[index].price;
-				tmpItem.index = _input[index].index;
+				tmpItem = jQuery.extend({}, _input[index]);
+				tmpItem.count = _input[index].count - _output[index].count;
 
 				addItem( fromContent, tmpItem, true);
 				addItem( toContent, _output[index], false);
@@ -422,13 +441,11 @@ define(function(require)
 					return;
 				}
 
-				_output[index].count = isFinite(_output[index].count) ? _output[index].count - count : 0;
+				_output[index].count = _output[index].count - count;
 
 				// Update input ui item amount
-				tmpItem.ITID  = _input[index].ITID;
-				tmpItem.count = isFinite(_output[index].count) ? _input[index].count + _output[index].count : Infinity;
-				tmpItem.price = _input[index].price;
-				tmpItem.index = _input[index].index;
+				tmpItem = jQuery.extend({}, _input[index]);
+				tmpItem.count = _input[index].count + _output[index].count;
 
 				addItem( fromContent, _output[index], false);
 				addItem( toContent,   tmpItem, true);
@@ -450,16 +467,8 @@ define(function(require)
 	function requestMoveItem( index, fromContent, toContent, isAdding)
 	{
 		var item, count, item_price;
-		var isStackable;
 
 		item        = isAdding ? _input[index] : _output[index];
-		
-		isStackable = (
-			item.type !== ItemType.WEAPON &&
-			item.type !== ItemType.EQUIP  &&
-			item.type !== ItemType.PETEGG &&
-			item.type !== ItemType.PETEQUIP
-		);
 
 		if (isAdding) {
 			// Don't add more than max Vending capacity
@@ -467,21 +476,21 @@ define(function(require)
 				return false;
 			}
 			
-			count = isFinite(_input[index].count) ? _input[index].count : 1;
+			count = _input[index].count;
 		}
 		else {
 			count = _output[index].count;
 		}
 
 		/*// Can't buy more than one same stackable item
-		if ((_type === Vending.Type.BUY || _type === Vending.Type.VENDING_STORE) && !isStackable && isAdding) {
+		if ((_type === Vending.Type.BUY || _type === Vending.Type.VENDING_STORE) && !item.IsStackable && isAdding) {
 			if (toContent.find('.item[data-index="'+ item.index +'"]:first').length) {
 				return false;
 			}
 		}*/
 
 		// Just one item amount
-		if (item.count === 1 || !isStackable/* || (_type === Vending.Type.SELL && _preferences.select_all)*/) {
+		if (item.count === 1 || !item.IsStackable/* || (_type === Vending.Type.SELL && _preferences.select_all)*/) {
 			
 			if(isAdding)
 			{
