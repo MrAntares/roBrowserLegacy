@@ -287,6 +287,16 @@ define(function( require )
 			});
 		}
 	}
+	
+	//Add mobile UI on touch
+	jQuery(window).on('touchstart', addMobileUI);
+	
+	function addMobileUI(){
+		jQuery(window).off('touchstart', addMobileUI);
+
+		var MobileUI = require('UI/Components/MobileUI/MobileUI');
+		MobileUI.append();
+	}
 
 
 	// Touch controls
