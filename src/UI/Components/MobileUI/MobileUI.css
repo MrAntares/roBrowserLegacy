@@ -1,0 +1,32 @@
+#MobileUI .buttons{
+	position: absolute;
+	background: rgba(193,193,193,0.33);
+	border-radius: 4px;
+	border: 1px solid grey;
+	top: 0px;
+	width: 27px;
+	height: 27px;
+	z-index: 1000;
+}
+			
+#MobileUI .disabled { visibility:hidden; }
+
+#MobileUI #toggleUIButton{
+	left: 0px;
+}
+	
+#MobileUI #fullscreenButton{
+	left: 20%;
+}
+
+#MobileUI #f10Button{
+	left: 40%;
+}
+
+#MobileUI #f12Button{
+	left: 60%;
+}
+
+#MobileUI #insButton{
+	left: 80%;
+}
