@@ -57,6 +57,7 @@ define(function( require )
 	var Guild            = require('UI/Components/Guild/Guild');
 	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
 	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
+	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	/**
@@ -327,6 +328,7 @@ define(function( require )
 			Guild.append();
 			WorldMap.append();
 			SkillListMER.append();
+			MobileUI.append();
 			
 			// Reload plugins
 			PluginManager.init();
