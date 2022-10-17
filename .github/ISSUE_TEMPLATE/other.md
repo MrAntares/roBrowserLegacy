@@ -1,6 +1,6 @@
 ---
 name: Other
-about: Let us know and other issue
+about: Let us know any other issue
 title: ''
 labels: Enhancement
 assignees: ''
