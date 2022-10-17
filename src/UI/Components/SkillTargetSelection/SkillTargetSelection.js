@@ -187,6 +187,19 @@ define(function(require)
 		if (!_flag) {
 			return;
 		}
+		
+		if(Session.TouchTargeting){
+			var entityFocus = EntityManager.getFocusEntity();
+			if(entityFocus){
+				if (_flag & (SkillTargetSelection.TYPE.PLACE|SkillTargetSelection.TYPE.TRAP)) {
+					SkillTargetSelection.onUseSkillToPos(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entityFocus.position[0], entityFocus.position[1]);
+				} else {
+					SkillTargetSelection.onUseSkillToId(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entityFocus.GID);
+				}
+				SkillTargetSelection.remove();
+				return;
+			}
+		}
 
 		if (_flag & (SkillTargetSelection.TYPE.PLACE|SkillTargetSelection.TYPE.TRAP)) {
 			Cursor.blockMagnetism = true;
