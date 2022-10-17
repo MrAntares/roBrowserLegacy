@@ -340,36 +340,41 @@ define(function( require )
 					depth:   10.0,
 				});
 
-				var out   = [];
-				var count = PathFinding.search(
-					main.position[0] | 0, main.position[1] | 0,
-					this.position[0] | 0, this.position[1] | 0,
-					main.attack_range + 1,
-					out
-				);
 
-				// Can't attack
-				if (!count) {
-					return true;
-				}
+				if(!Session.TouchTargeting){
+					var out   = [];
+					var count = PathFinding.search(
+						main.position[0] | 0, main.position[1] | 0,
+						this.position[0] | 0, this.position[1] | 0,
+						main.attack_range + 1,
+						out
+					);
 
-				pkt           = new PACKET.CZ.REQUEST_ACT();
-				pkt.action    = 7;
-				pkt.targetGID = this.GID;
+					// Can't attack
+					if (!count) {
+						return true;
+					}
+				
+					pkt           = new PACKET.CZ.REQUEST_ACT();
+					pkt.action    = 7;
+					pkt.targetGID = this.GID;
 
-				// in range send packet
-				if (count < 2) {
+					// in range send packet
+					if (count < 2) {
+						Network.sendPacket(pkt);
+						return true;
+					}
+
+					// Move to entity
+					Session.moveAction = pkt;
+
+					pkt         = new PACKET.CZ.REQUEST_MOVE();
+					pkt.dest[0] = out[(count-1)*2 + 0];
+					pkt.dest[1] = out[(count-1)*2 + 1];
 					Network.sendPacket(pkt);
-					return true;
 				}
 
-				// Move to entity
-				Session.moveAction = pkt;
 
-				pkt         = new PACKET.CZ.REQUEST_MOVE();
-				pkt.dest[0] = out[(count-1)*2 + 0];
-				pkt.dest[1] = out[(count-1)*2 + 1];
-				Network.sendPacket(pkt);
 				return true;
 		}
 
