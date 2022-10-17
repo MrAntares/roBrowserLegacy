@@ -15,8 +15,12 @@ define(function(require)
 	var UIManager		= require('UI/UIManager');
 	var UIComponent		= require('UI/UIComponent');
 	var Preferences		= require('Core/Preferences');
-	var Session         = require('Engine/SessionStorage');
+	var Session			= require('Engine/SessionStorage');
 	var Renderer		= require('Renderer/Renderer');
+	var PACKET			= require('Network/PacketStructure');
+	var EntityManager	= require('Renderer/EntityManager');
+	var Network			= require('Network/NetworkManager');
+	var PathFinding		= require('Utils/PathFinding');
 	var htmlText		= require('text!./MobileUI.html');
 	var cssText			= require('text!./MobileUI.css');
 	
@@ -38,6 +42,8 @@ define(function(require)
 	}, 1.0);
 	
 	var showButtons = false;
+	var autoTargetTimer;
+	const C_AUTOTARGET_DELAY = 500;
 	
 	/**
 	 * Mouse can cross this UI
@@ -48,11 +54,17 @@ define(function(require)
 	 * Initialize UI
 	 */
 	MobileUI.init = function init() {
-		this.ui.find('#toggleUIButton').click(	function(e){ toggleButtons();	stopPropagation(e);});
-		this.ui.find('#fullscreenButton').click(function(e){ toggleFullScreen();	stopPropagation(e);});
-		this.ui.find('#f10Button').click(		function(e){ keyPress(121);			stopPropagation(e);});
-		this.ui.find('#f12Button').click(		function(e){ keyPress(123);			stopPropagation(e);});
-		this.ui.find('#insButton').click(		function(e){ keyPress(45);			stopPropagation(e);});
+		this.ui.find('#toggleUIButton').click(			function(e){ toggleButtons();			stopPropagation(e);});
+		this.ui.find('#fullscreenButton').click(		function(e){ toggleFullScreen();		stopPropagation(e);});
+		this.ui.find('#f10Button').click(				function(e){ keyPress(121);				stopPropagation(e);});
+		this.ui.find('#f12Button').click(				function(e){ keyPress(123);				stopPropagation(e);});
+		this.ui.find('#insButton').click(				function(e){ keyPress(45);				stopPropagation(e);});
+		
+		this.ui.find('#toggleTargetingButton').click(	function(e){ toggleTouchTargeting();	stopPropagation(e);});
+		this.ui.find('#toggleAutoTargetButton').click(	function(e){ toggleAutoTargeting();		stopPropagation(e);});
+		
+		this.ui.find('#attackButton').click(			function(e){ attackTargeted();			stopPropagation(e);});
+		
 	}
 	
 	function toggleFullScreen() {
@@ -75,28 +87,158 @@ define(function(require)
 	function toggleButtons(){
 		if(showButtons){
 			
-			MobileUI.ui.find('#fullscreenButton').addClass('disabled');
+			MobileUI.ui.find('#topBar').addClass('disabled');
+			MobileUI.ui.find('#leftBar').addClass('disabled');
+			MobileUI.ui.find('#rightBar').addClass('disabled');
+			
+			/*MobileUI.ui.find('#fullscreenButton').addClass('disabled');
+			
 			MobileUI.ui.find('#f10Button').addClass('disabled');
 			MobileUI.ui.find('#f12Button').addClass('disabled');
 			MobileUI.ui.find('#insButton').addClass('disabled');
 			
+			MobileUI.ui.find('#toggleTargetingButton').addClass('disabled');
+			MobileUI.ui.find('#toggleAutoTargetButton').addClass('disabled');
+			MobileUI.ui.find('#attackButton').addClass('disabled');*/
+			
+			if(Session.TouchTargeting){
+				toggleTouchTargeting();
+			}
+			
 			showButtons = false;
 		} else {
 			
-			MobileUI.ui.find('#fullscreenButton').removeClass('disabled');
+			MobileUI.ui.find('#topBar').removeClass('disabled');
+			MobileUI.ui.find('#leftBar').removeClass('disabled');
+			MobileUI.ui.find('#rightBar').removeClass('disabled');
+			
+			/*MobileUI.ui.find('#fullscreenButton').removeClass('disabled');
+			
 			MobileUI.ui.find('#f10Button').removeClass('disabled');
 			MobileUI.ui.find('#f12Button').removeClass('disabled');
 			MobileUI.ui.find('#insButton').removeClass('disabled');
 			
+			MobileUI.ui.find('#toggleTargetingButton').removeClass('disabled');
+			MobileUI.ui.find('#toggleAutoTargetButton').removeClass('disabled');
+			MobileUI.ui.find('#attackButton').removeClass('disabled');*/
+			
 			showButtons = true;
 		}
 	}
+
+	function toggleTouchTargeting(){
+		if(Session.TouchTargeting){
+			
+			MobileUI.ui.find('#toggleTargetingButton').removeClass('active');
+			
+			MobileUI.ui.find('#toggleAutoTargetButton').addClass('disabled');
+			MobileUI.ui.find('#attackButton').addClass('disabled');
+			
+			if(Session.AutoTargeting){
+				toggleAutoTargeting();
+			}
+			
+			Session.TouchTargeting = false;
+		} else {
+
+			MobileUI.ui.find('#toggleTargetingButton').addClass('active');
+			
+			MobileUI.ui.find('#toggleAutoTargetButton').removeClass('disabled');
+			MobileUI.ui.find('#attackButton').removeClass('disabled');
+			
+			Session.TouchTargeting = true;
+		}
+	}
+
+	function toggleAutoTargeting(){
+		if(Session.AutoTargeting){
+			MobileUI.ui.find('#toggleAutoTargetButton').removeClass('active');
+			Session.AutoTargeting = false;
+		} else {
+			MobileUI.ui.find('#toggleAutoTargetButton').addClass('active');
+			Session.AutoTargeting = true;
+			autoTarget();
+		}
+	}
 	
+	function attackTargeted(){
+		var main   = Session.Entity;
+		var pkt;
+		
+		var entityFocus = EntityManager.getFocusEntity();
+		
+		if(entityFocus){
+			var out   = [];
+			var count = PathFinding.search(
+				main.position[0] | 0, main.position[1] | 0,
+				entityFocus.position[0] | 0, entityFocus.position[1] | 0,
+				main.attack_range + 1,
+				out
+			);
+
+			// Can't attack
+			if (!count) {
+				return true;
+			}
+			
+			pkt           = new PACKET.CZ.REQUEST_ACT();
+			pkt.action    = 7;
+			pkt.targetGID = entityFocus.GID;
+
+			// in range send packet
+			if (count < 2) {
+				Network.sendPacket(pkt);
+				return true;
+			}
+
+			// Move to entity
+			Session.moveAction = pkt;
+
+			pkt         = new PACKET.CZ.REQUEST_MOVE();
+			pkt.dest[0] = out[(count-1)*2 + 0];
+			pkt.dest[1] = out[(count-1)*2 + 1];
+			Network.sendPacket(pkt);
+		}
+	}
+	
+	function autoTarget(){
+		var Player = Session.Entity;
+		var Entity = Player.constructor;
+		
+		var entityFocus = EntityManager.getFocusEntity();
+		
+		var closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
+		
+		if( closestEntity ){
+			
+			if( entityFocus ){
+				entityFocus.onFocusEnd();
+				EntityManager.setFocusEntity(null);
+			}
+			
+			//closestEntity.onMouseDown();
+			closestEntity.onFocus();
+			EntityManager.setFocusEntity(closestEntity);
+		}
+		
+		if(Session.AutoTargeting){
+			startAutoTarget();
+		}
+	}
+	
+	function startAutoTarget(){
+		autoTargetTimer = window.setTimeout(autoTarget, C_AUTOTARGET_DELAY);
+	}
+	
+	function stopAutoTarget(){
+		window.clearTimeout(autoTargetTimer);
+	}
+
 	function stopPropagation(event){
 		event.stopImmediatePropagation();
 		return false;
 	}
-	
+
 	/**
 	 * Apply preferences once append to body
 	 */
