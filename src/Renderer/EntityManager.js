@@ -18,6 +18,7 @@ define(function( require )
 	var SpriteRenderer = require('./SpriteRenderer');
 	var Mouse          = require('Controls/MouseEventHandler');
 	var KEYS           = require('Controls/KeyEventHandler');
+	var PathFinding	   = require('Utils/PathFinding');
 
 
 	var _list = [];
@@ -335,7 +336,55 @@ define(function( require )
 		return null;
 	}
 
-
+	/**
+	 * Returns the closest entity to the source entity
+	 *
+	 * @param {entity} source entity
+	 * @param {type} entity type to look for
+	 */
+	function getClosestEntity(sourceEntity, type){
+		var closestEntity = false;
+		var distance = Infinity;
+		
+		_list.forEach((entity) => {
+			if( entity.GID !== sourceEntity.GID && entity.objecttype === type && entity.action !== entity.ACTION.DIE && entity.remove_tick === 0 ){
+				var dst = 0;
+				if( closestEntity ){
+					dst = getPathDistance(sourceEntity, entity);
+					console.log(dst + ' - ' + distance);
+					if( dst < distance ){
+						closestEntity = entity;console.log('newer');
+						distance = dst;
+					}
+				} else {
+					dst = getPathDistance(sourceEntity, entity);
+					if( dst ){
+						closestEntity = entity;console.log('FIRST');
+						distance = dst;
+					}
+				}
+			}
+		});
+		
+		return closestEntity;
+	}
+	
+	/**
+	 * Returns the distance between two entities based on path finding
+	 *
+	 * @param {entity} from entity
+	 * @param {entity} to entity
+	 */
+	function getPathDistance(fromEntity, toEntity){
+		var out   = [];
+		var count = PathFinding.searchLong(
+			fromEntity.position[0] | 0, fromEntity.position[1] | 0,
+			toEntity.position[0] | 0, toEntity.position[1] | 0,
+			fromEntity.attack_range + 1,
+			out
+		);
+		return count;
+	}
 
 	var EntityManager = {
 		free:                 free,
@@ -348,6 +397,8 @@ define(function( require )
 		setOverEntity:        setOverEntity,
 		getFocusEntity:       getFocusEntity,
 		setFocusEntity:       setFocusEntity,
+		
+		getClosestEntity:     getClosestEntity,
 
 		render:               render,
 		intersect:            intersect,
