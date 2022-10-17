@@ -14,6 +14,8 @@ define(function()
 	return {
 		
 		isTouchDevice: false,
+		TouchTargeting: false,
+		AutoTargeting: false,
 
 		AuthCode:    0,
 		AID:         0,
