@@ -1,7 +1,21 @@
 <div id="MobileUI">
 	<button id="toggleUIButton" class="buttons">UI</button>
-	<button id="fullscreenButton" class="buttons mobileKeys disabled">[ ]</button>
-	<button id="f10Button" class="buttons mobileKeys disabled">F10</button>
-	<button id="f12Button" class="buttons mobileKeys disabled">F12</button>
-	<button id="insButton" class="buttons mobileKeys disabled">Ins</button>
+	
+	<div id="topBar" class="buttonBar disabled">
+		<button id="fullscreenButton" class="buttons mobileKeys secondary horizontal">[ ]</button>
+	</div>
+	
+	
+	<div id="leftBar" class="buttonBar disabled">
+		<button id="f10Button" class="buttons mobileKeys secondary vertical">F10</button><br/>
+		<button id="f12Button" class="buttons mobileKeys secondary vertical">F12</button><br/>
+		<button id="insButton" class="buttons mobileKeys secondary vertical">Ins</button><br/>
+	</div>
+	
+	
+	<div id="rightBar" class="buttonBar disabled">
+		<button id="toggleTargetingButton" class="buttons mobileKeys secondary vertical">TG</button><br/>
+		<button id="toggleAutoTargetButton" class="buttons mobileKeys vertical secondary disabled">AT</button><br/>
+		<button id="attackButton" class="buttons mobileKeys vertical primary disabled">ATK</button><br/>
+	</div>
 </div>
