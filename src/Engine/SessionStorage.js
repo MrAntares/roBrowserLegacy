@@ -12,6 +12,8 @@ define(function()
 	"use strict";
 
 	return {
+		
+		isTouchDevice: false,
 
 		AuthCode:    0,
 		AID:         0,
