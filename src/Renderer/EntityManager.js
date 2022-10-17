@@ -351,15 +351,14 @@ define(function( require )
 				var dst = 0;
 				if( closestEntity ){
 					dst = getPathDistance(sourceEntity, entity);
-					console.log(dst + ' - ' + distance);
 					if( dst < distance ){
-						closestEntity = entity;console.log('newer');
+						closestEntity = entity;
 						distance = dst;
 					}
 				} else {
 					dst = getPathDistance(sourceEntity, entity);
 					if( dst ){
-						closestEntity = entity;console.log('FIRST');
+						closestEntity = entity;
 						distance = dst;
 					}
 				}
