@@ -107,8 +107,10 @@ define(function( require )
 				var stop        = false;
 				if(entityOver != Session.Entity){
 					if (entityFocus && entityFocus != entityOver) {
-						entityFocus.onFocusEnd();
-						EntityManager.setFocusEntity(null);
+						if(!(Session.TouchTargeting && !entityOver)) {
+							entityFocus.onFocusEnd();
+							EntityManager.setFocusEntity(null);
+						}
 					}
 
 					// Entity picking ?
