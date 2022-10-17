@@ -98,11 +98,12 @@ define(function( require )
 		}
 
 		ItemObtain.append();
-		ItemObtain.set(pkt);
+		ItemObtain.set(pkt);		
+		
+		var getTextItem = DB.getItemName(pkt);
 
-		var it = DB.getItemInfo( pkt.ITID );
 		ChatBox.addText(
-			DB.getMessage(153).replace('%s', pkt.IsIdentified ? it.identifiedDisplayName : it.unidentifiedDisplayName ).replace('%d', pkt.count ),
+			DB.getMessage(153).replace('%s', getTextItem ).replace('%d', pkt.count ),
 			ChatBox.TYPE.BLUE
 		);
 
