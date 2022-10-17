@@ -22,6 +22,7 @@ define(function( require )
 	var Context   = require('Core/Context');
 	var Events    = require('Core/Events');
 	var Camera    = require('Renderer/Camera');
+	var Session   = require('Engine/SessionStorage');
 	var Mouse     = require('Controls/MouseEventHandler');
 	var KEYS      = require('Controls/KeyEventHandler');
 
@@ -289,13 +290,17 @@ define(function( require )
 	}
 	
 	//Add mobile UI on touch
-	jQuery(window).on('touchstart', addMobileUI);
+	jQuery(window).on('touchstart', touchDevice);
 	
-	function addMobileUI(){
-		jQuery(window).off('touchstart', addMobileUI);
+	function touchDevice(){
+		jQuery(window).off('touchstart', touchDevice);
 
-		var MobileUI = require('UI/Components/MobileUI/MobileUI');
-		MobileUI.append();
+		Session.isTouchDevice = true;
+		
+		if(Session.Playing){ //Already playing, don't wait for map change, just show it
+			var MobileUI = require('UI/Components/MobileUI/MobileUI');
+			MobileUI.show();
+		}
 	}
 
 
