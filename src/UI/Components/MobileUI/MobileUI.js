@@ -15,6 +15,7 @@ define(function(require)
 	var UIManager		= require('UI/UIManager');
 	var UIComponent		= require('UI/UIComponent');
 	var Preferences		= require('Core/Preferences');
+	var Session         = require('Engine/SessionStorage');
 	var Renderer		= require('Renderer/Renderer');
 	var htmlText		= require('text!./MobileUI.html');
 	var cssText			= require('text!./MobileUI.css');
@@ -33,7 +34,7 @@ define(function(require)
 		zIndex:   1000,
 		width: Renderer.width,
 		height: Renderer.height,
-		show: true,
+		show: false,
 	}, 1.0);
 	
 	var showButtons = false;
@@ -101,28 +102,33 @@ define(function(require)
 	 */
 	MobileUI.onAppend = function onAppend() {
 		// Apply preferences
-		if (!_preferences.show) {
+		if (Session.isTouchDevice) {
+			this.ui.show();
+		} else {
 			this.ui.hide();
 		}
-		
-		this.ui.show();
 
 		this.ui.css({
 			top: 0,
 			left: 0,
-			zIndex: 1000
+			zIndex: 1000,
+			width: Renderer.width,
+			height: Renderer.height
 		});
 	};
 	
 	MobileUI.onRemove = function onRemove() {
 		// Save preferences
-		_preferences.show = this.ui.is(':visible');
 		_preferences.y = 0;
 		_preferences.x = 0;
 		_preferences.zIndex = 1000;
-		_preferences.width = 0;
-		_preferences.height = 0;
+		_preferences.width = Renderer.width;
+		_preferences.height = Renderer.height;
 		_preferences.save();
+	};
+	
+	MobileUI.show = function show() {
+		this.ui.show();
 	};
 	
 	/**
