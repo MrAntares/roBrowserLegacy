@@ -43,12 +43,7 @@ define(function(require)
 	
 	var showButtons = false;
 	var autoTargetTimer;
-	const C_AUTOTARGET_DELAY = 500;
-	
-	/**
-	 * Mouse can cross this UI
-	 */
-	//MobileUI.mouseMode = UIComponent.MouseMode.CROSS;
+	const C_AUTOTARGET_DELAY = 500; //in ms. Lower values increase targeting frequency, but might cause performance drop when there are many enemies around!
 	
 	/**
 	 * Initialize UI
@@ -67,6 +62,10 @@ define(function(require)
 		
 	}
 	
+	
+	/**
+	 * Toggles full screen display
+	 */
 	function toggleFullScreen() {
 		if (!Context.isFullScreen()) {
 			Context.requestFullScreen();
@@ -75,6 +74,11 @@ define(function(require)
 		}
 	}
 	
+	/**
+	 * Emulates a keypress event
+	 *
+	 * @param {number} keyId
+	 */
 	function keyPress(k) {
 		var roWindow = window;
 		roWindow.document.getElementsByTagName('body')[0].focus();
@@ -84,22 +88,15 @@ define(function(require)
 			}));
 	}
 	
+	/**
+	 * Toggles MobileUI button bars visibility (and thus buttons)
+	 */
 	function toggleButtons(){
 		if(showButtons){
 			
 			MobileUI.ui.find('#topBar').addClass('disabled');
 			MobileUI.ui.find('#leftBar').addClass('disabled');
 			MobileUI.ui.find('#rightBar').addClass('disabled');
-			
-			/*MobileUI.ui.find('#fullscreenButton').addClass('disabled');
-			
-			MobileUI.ui.find('#f10Button').addClass('disabled');
-			MobileUI.ui.find('#f12Button').addClass('disabled');
-			MobileUI.ui.find('#insButton').addClass('disabled');
-			
-			MobileUI.ui.find('#toggleTargetingButton').addClass('disabled');
-			MobileUI.ui.find('#toggleAutoTargetButton').addClass('disabled');
-			MobileUI.ui.find('#attackButton').addClass('disabled');*/
 			
 			if(Session.TouchTargeting){
 				toggleTouchTargeting();
@@ -112,20 +109,13 @@ define(function(require)
 			MobileUI.ui.find('#leftBar').removeClass('disabled');
 			MobileUI.ui.find('#rightBar').removeClass('disabled');
 			
-			/*MobileUI.ui.find('#fullscreenButton').removeClass('disabled');
-			
-			MobileUI.ui.find('#f10Button').removeClass('disabled');
-			MobileUI.ui.find('#f12Button').removeClass('disabled');
-			MobileUI.ui.find('#insButton').removeClass('disabled');
-			
-			MobileUI.ui.find('#toggleTargetingButton').removeClass('disabled');
-			MobileUI.ui.find('#toggleAutoTargetButton').removeClass('disabled');
-			MobileUI.ui.find('#attackButton').removeClass('disabled');*/
-			
 			showButtons = true;
 		}
 	}
 
+	/**
+	 * Toggles touch targeting
+	 */
 	function toggleTouchTargeting(){
 		if(Session.TouchTargeting){
 			
@@ -150,6 +140,9 @@ define(function(require)
 		}
 	}
 
+	/**
+	 * Toggles automatic targeting
+	 */
 	function toggleAutoTargeting(){
 		if(Session.AutoTargeting){
 			MobileUI.ui.find('#toggleAutoTargetButton').removeClass('active');
@@ -161,6 +154,9 @@ define(function(require)
 		}
 	}
 	
+	/**
+	 * Attacks a targeted enemy (if present)
+	 */
 	function attackTargeted(){
 		var main   = Session.Entity;
 		var pkt;
@@ -201,6 +197,9 @@ define(function(require)
 		}
 	}
 	
+	/**
+	 * Automatically targeting the closest enemy
+	 */
 	function autoTarget(){
 		var Player = Session.Entity;
 		var Entity = Player.constructor;
@@ -209,31 +208,46 @@ define(function(require)
 		
 		var closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
 		
-		if( closestEntity ){
+		if( closestEntity){
 			
-			if( entityFocus ){
+			if( entityFocus && closestEntity.GID !== entityFocus.GID ){
 				entityFocus.onFocusEnd();
 				EntityManager.setFocusEntity(null);
+				
+				//closestEntity.onMouseDown();
+				closestEntity.onFocus();
+				EntityManager.setFocusEntity(closestEntity);
+			} else if (!entityFocus){
+				//closestEntity.onMouseDown();
+				closestEntity.onFocus();
+				EntityManager.setFocusEntity(closestEntity);
+			} else {
+				//Same entity, nothing to do
 			}
-			
-			//closestEntity.onMouseDown();
-			closestEntity.onFocus();
-			EntityManager.setFocusEntity(closestEntity);
 		}
 		
-		if(Session.AutoTargeting){
+		if(Session.AutoTargeting && Session.Playing){
 			startAutoTarget();
 		}
 	}
 	
+	/**
+	 * Starting automatic targeting cycle
+	 */
 	function startAutoTarget(){
 		autoTargetTimer = window.setTimeout(autoTarget, C_AUTOTARGET_DELAY);
 	}
 	
+	/**
+	 * Stopping automatic targeting cycle
+	 */
 	function stopAutoTarget(){
 		window.clearTimeout(autoTargetTimer);
 	}
 
+	/**
+	 * Stop event propagation
+	 */
 	function stopPropagation(event){
 		event.stopImmediatePropagation();
 		return false;
@@ -259,6 +273,9 @@ define(function(require)
 		});
 	};
 	
+	/**
+	 * Removes MobileUI
+	 */
 	MobileUI.onRemove = function onRemove() {
 		// Save preferences
 		_preferences.y = 0;
@@ -267,8 +284,15 @@ define(function(require)
 		_preferences.width = Renderer.width;
 		_preferences.height = Renderer.height;
 		_preferences.save();
+		
+		if(Session.AutoTargeting){
+			toggleAutoTargeting();
+		}
 	};
 	
+	/**
+	 * Shows MobileUI
+	 */
 	MobileUI.show = function show() {
 		this.ui.show();
 	};
