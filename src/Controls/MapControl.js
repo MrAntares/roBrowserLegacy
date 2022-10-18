@@ -178,8 +178,8 @@ define(function( require )
 				if (entity) {
 					entity.onMouseUp();
 
-					// Entity lock is only on MOB type
-					if (Preferences.noctrl === false || entity.objecttype !== entity.constructor.TYPE_MOB) {
+					// Entity lock is only on MOB type (except when Touch Targeting is active)
+					if (Preferences.noctrl === false || (entity.objecttype !== entity.constructor.TYPE_MOB && !Session.TouchTargeting )) {
 						EntityManager.setFocusEntity(null);
 						entity.onFocusEnd();
 					}
