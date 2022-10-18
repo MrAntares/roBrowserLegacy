@@ -35,18 +35,21 @@
 #MobileUI .disabled { visibility:hidden; }
 
 #MobileUI #topBar{
-	left: 35%;
+	left: 50%;
 	top: 3px;
+	transform: translate(-50%, 0);
 }
 
 #MobileUI #leftBar{
 	left: 5px;
 	bottom: 35%;
+	transform: translate(0, 50%);
 }
 
 #MobileUI #rightBar{
 	right: 5px;
 	bottom: 35%;
+	transform: translate(0, 50%);
 }
 
 #MobileUI #rightBar .buttons{
