@@ -19,7 +19,7 @@ define(function( require )
 	var Mouse          = require('Controls/MouseEventHandler');
 	var KEYS           = require('Controls/KeyEventHandler');
 	var PathFinding	   = require('Utils/PathFinding');
-
+	var Altitude       = require('Renderer/Map/Altitude');
 
 	var _list = [];
 
@@ -348,10 +348,10 @@ define(function( require )
 		
 		_list.forEach((entity) => {
 			if( entity.GID !== sourceEntity.GID && entity.objecttype === type && entity.action !== entity.ACTION.DIE && entity.remove_tick === 0 ){
-				var dst = 0;
+				var dst = Infinity;
 				if( closestEntity ){
 					dst = getPathDistance(sourceEntity, entity);
-					if( dst < distance ){
+					if( dst && dst < distance ){
 						closestEntity = entity;
 						distance = dst;
 					}
@@ -369,7 +369,7 @@ define(function( require )
 	}
 	
 	/**
-	 * Returns the distance between two entities based on path finding
+	 * Returns the distance between two entities based on direct walkpath
 	 *
 	 * @param {entity} from entity
 	 * @param {entity} to entity
@@ -379,8 +379,9 @@ define(function( require )
 		var count = PathFinding.searchLong(
 			fromEntity.position[0] | 0, fromEntity.position[1] | 0,
 			toEntity.position[0] | 0, toEntity.position[1] | 0,
-			fromEntity.attack_range + 1,
-			out
+			1,
+			out,
+			Altitude.TYPE.WALKABLE
 		);
 		return count;
 	}
