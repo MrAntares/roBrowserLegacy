@@ -324,7 +324,9 @@ define(function( require )
 					if (!Camera.action.active) {
 						Cursor.setType( Cursor.ACTION.DEFAULT );
 					}
-					break;
+					if(!Session.TouchTargeting){
+						break;
+					}
 				}
 			// no break intended.
 
