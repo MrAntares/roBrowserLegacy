@@ -286,6 +286,14 @@ define(function( require )
 			if((_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects) || (_list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects)){
 				// Remove from list
 				if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
+					
+					// Remove focus
+					var entityFocus = getFocusEntity();
+					if( entityFocus && entityFocus.GID === _list[i].GID ){
+						entityFocus.onFocusEnd();
+						setFocusEntity(null);
+					}
+					
 					_list[i].clean();
 					_list.splice(i, 1);
 					i--;
