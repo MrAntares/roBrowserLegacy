@@ -10,7 +10,7 @@ define(function(require)
 {
 	'use strict';
 	
-	
+	var jQuery			= require('Utils/jquery');
 	var Context			= require('Core/Context');
 	var UIManager		= require('UI/UIManager');
 	var UIComponent		= require('UI/UIComponent');
@@ -59,6 +59,12 @@ define(function(require)
 		this.ui.find('#toggleAutoTargetButton').click(	function(e){ toggleAutoTargeting();		stopPropagation(e);});
 		
 		this.ui.find('#attackButton').click(			function(e){ attackTargeted();			stopPropagation(e);});
+		
+		this.ui.find('.buttons')
+			.on('mousedown',	function(e){ jQuery(e.target).addClass('pressed'); })
+			.on('touchstart',	function(e){ jQuery(e.target).addClass('pressed'); })
+			.on('mouseup',		function(e){ jQuery(e.target).removeClass('pressed'); })
+			.on('touchend',		function(e){ jQuery(e.target).removeClass('pressed'); });
 		
 	}
 	
@@ -163,6 +169,11 @@ define(function(require)
 		
 		var entityFocus = EntityManager.getFocusEntity();
 		
+		if(!entityFocus || entityFocus.action === entityFocus.ACTION.DIE){ //If no target, try picking one first
+			autoTarget();
+			entityFocus = EntityManager.getFocusEntity();
+		}
+
 		if(entityFocus){
 			var out   = [];
 			var count = PathFinding.search(
