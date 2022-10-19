@@ -251,8 +251,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		
 		this.vertices = generateCylinder(this.totalCircleSides, this.circleSides, this.repeatTextureX);
 		this.verticeCount = this.vertices.length / 5;
-
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		
 		this.buffer = gl.createBuffer();
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -437,6 +436,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		blendMode[13] = gl.CONSTANT_ALPHA;
 		blendMode[14] = gl.ONE_MINUS_CONSTANT_ALPHA;
 		blendMode[15] = gl.SRC_ALPHA_SATURATE;
+		
+		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		
 		this.ready = true;
 		this.renderBeforeEntities = false;
