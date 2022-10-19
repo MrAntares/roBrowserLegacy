@@ -175,10 +175,9 @@ define(function( require )
 	{
 		if (pkt.result == 1) {
 			var item = Inventory.removeItem( pkt.index, 1 );
-			var it   = DB.getItemInfo( item.ITID );
 			Equipment.equip( item, pkt.wearLocation );
 			ChatBox.addText(
-				it.identifiedDisplayName + ' ' + DB.getMessage(170),
+				DB.getItemName(item) + ' ' + DB.getMessage(170),
 				ChatBox.TYPE.BLUE
 			);
 
