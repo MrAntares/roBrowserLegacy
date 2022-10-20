@@ -5,4 +5,5 @@ client/resources/*
 client/data/*
 client/BGM/*
 AI/*
+src/Plugins/*/
 .idea/
