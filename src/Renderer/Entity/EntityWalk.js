@@ -41,6 +41,7 @@ define( function( require )
 		this.onEnd = null;
 		this.index =  0;
 		this.total =  0;
+		this.target = [];
 	}
 
 
@@ -56,6 +57,10 @@ define( function( require )
 	function walkTo( from_x, from_y, to_x, to_y, range )
 	{
 		var path  = this.walk.path;
+		
+		// Save for later if gets interrupted
+		this.walk.target = [to_x, to_y];
+		
 		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
 
 		this.walk.index =     1 * 2; // skip first index
@@ -150,6 +155,8 @@ define( function( require )
 			play:   true,
 			repeat: true
 		});
+		
+		this.walk.target = [0, 0];
 
 		this.onWalkEnd();
 
