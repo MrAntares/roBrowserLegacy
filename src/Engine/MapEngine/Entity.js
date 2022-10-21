@@ -186,13 +186,9 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.AID);
 		if (entity) {
-
-			if (Math.abs(entity.position[0] - pkt.xPos) > 1.0 ||
-			    Math.abs(entity.position[1] - pkt.yPos) > 1.0) {
-				entity.position[0] = pkt.xPos;
-				entity.position[1] = pkt.yPos;
-				entity.position[2] = Altitude.getCellHeight( pkt.xPos,  pkt.yPos );
-			}
+			/*entity.position[0] = pkt.xPos;
+			entity.position[1] = pkt.yPos;
+			entity.position[2] = Altitude.getCellHeight( pkt.xPos,  pkt.yPos );
 
 			if (entity.action === entity.ACTION.WALK) {
 				entity.setAction({
@@ -201,7 +197,10 @@ define(function( require )
 					repeat: true,
 					play:   true
 				});
-			}
+			}*/
+			
+			//In official client the entity 'surfs' back to the stopped position
+			entity.walkTo( entity.position[0], entity.position[1], pkt.xPos, pkt.yPos);
 		}
 	}
 
@@ -392,22 +391,45 @@ define(function( require )
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
 					if (pkt.damage && pkt.action !== 9 && pkt.action !== 4) {
+						
 						dstEntity.setAction({
-							delay:  Renderer.tick + pkt.attackMT,
-							action: dstEntity.ACTION.HURT,
+							action: dstEntity.ACTION.IDLE,
 							frame:  0,
-							repeat: false,
+							repeat: true,
 							play:   true,
-							next: {
-								delay:  Renderer.tick + pkt.attackMT * 2,
-								action: dstEntity.ACTION.READYFIGHT,
-								frame:  0,
-								repeat: true,
-								play:   true,
-								next:   false
-							}
 						});
-
+						
+						function impendingAttack(){
+							
+							dstEntity.setAction({
+								action: dstEntity.ACTION.HURT,
+								frame:  0,
+								repeat: false,
+								play:   true,
+							});
+							
+							function continueAction(){
+								if(dstEntity.walk.index < dstEntity.walk.total){ // If it was walking before, resume walk
+									dstEntity.walkTo(
+										dstEntity.position[0],
+										dstEntity.position[1],
+										dstEntity.walk.target[0],
+										dstEntity.walk.target[1]
+									);
+								} else {
+									dstEntity.setAction({
+										action: dstEntity.ACTION.READYFIGHT,
+										frame:  0,
+										repeat: true,
+										play:   true,
+									});
+								}
+							}
+							
+							Events.setTimeout( continueAction, pkt.attackedMT);
+						}
+						
+						Events.setTimeout( impendingAttack, pkt.attackMT);
                     }
 
 					// damage blocking status effect display
