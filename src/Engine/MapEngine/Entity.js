@@ -401,32 +401,34 @@ define(function( require )
 						
 						function impendingAttack(){
 							
-							dstEntity.setAction({
-								action: dstEntity.ACTION.HURT,
-								frame:  0,
-								repeat: false,
-								play:   true,
-							});
-							
-							function continueAction(){
-								if(dstEntity.walk.index < dstEntity.walk.total){ // If it was walking before, resume walk
-									dstEntity.walkTo(
-										dstEntity.position[0],
-										dstEntity.position[1],
-										dstEntity.walk.target[0],
-										dstEntity.walk.target[1]
-									);
-								} else {
-									dstEntity.setAction({
-										action: dstEntity.ACTION.READYFIGHT,
-										frame:  0,
-										repeat: true,
-										play:   true,
-									});
+							if(dstEntity.action !== dstEntity.ACTION.DIE){ // Only make it struggle if it can still bleed
+								dstEntity.setAction({
+									action: dstEntity.ACTION.HURT,
+									frame:  0,
+									repeat: false,
+									play:   true,
+								});
+								
+								function continueAction(){
+									if(dstEntity.walk.index < dstEntity.walk.total){ // If it was walking before, resume walk
+										dstEntity.walkTo(
+											dstEntity.position[0],
+											dstEntity.position[1],
+											dstEntity.walk.target[0],
+											dstEntity.walk.target[1]
+										);
+									} else {
+										dstEntity.setAction({
+											action: dstEntity.ACTION.READYFIGHT,
+											frame:  0,
+											repeat: true,
+											play:   true,
+										});
+									}
 								}
+								
+								Events.setTimeout( continueAction, pkt.attackedMT);
 							}
-							
-							Events.setTimeout( continueAction, pkt.attackedMT);
 						}
 						
 						Events.setTimeout( impendingAttack, pkt.attackMT);
