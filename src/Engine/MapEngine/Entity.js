@@ -482,7 +482,7 @@ define(function( require )
 						repeat: false,
 						play:   true,
 						next: {
-							delay:  Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,
+							delay:  Renderer.tick + pkt.attackMT,
 							action: srcEntity.ACTION.READYFIGHT,
 							frame:  0,
 							repeat: true,
