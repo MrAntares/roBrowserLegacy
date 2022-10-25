@@ -76,6 +76,8 @@ define(function( require )
 				SkillId.WL_SUMMON_ATK_WATER,
 				SkillId.WL_SUMMON_ATK_GROUND
 			];
+			
+	const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
 
 	/**
 	 * Spam an entity on the map
@@ -186,7 +188,7 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.AID);
 		if (entity) {
-			/*entity.position[0] = pkt.xPos;
+			entity.position[0] = pkt.xPos;
 			entity.position[1] = pkt.yPos;
 			entity.position[2] = Altitude.getCellHeight( pkt.xPos,  pkt.yPos );
 
@@ -197,10 +199,7 @@ define(function( require )
 					repeat: true,
 					play:   true
 				});
-			}*/
-			
-			//In official client the entity 'surfs' back to the stopped position
-			entity.walkTo( entity.position[0], entity.position[1], pkt.xPos, pkt.yPos);
+			}
 		}
 	}
 
@@ -364,12 +363,12 @@ define(function( require )
 					if(weaponSound){
 						Events.setTimeout(function(){
 							Sound.play(weaponSound);
-							}, pkt.attackMT * 0.5 );
+							}, C_MULTIHIT_DELAY );
 					}
 					if(weaponSoundRelease){
 						Events.setTimeout(function(){
 							Sound.play(weaponSoundRelease);
-							}, pkt.attackMT * 0.75 );
+							}, (pkt.attackMT * 0.25) + C_MULTIHIT_DELAY );
 					}
 				}
 				//left hand
@@ -377,12 +376,12 @@ define(function( require )
 					if(weaponSoundLeft){
 						Events.setTimeout(function(){
 							Sound.play(weaponSoundLeft);
-							}, pkt.attackMT );
+							}, C_MULTIHIT_DELAY * 1.75 );
 					}
 					if(weaponSoundReleaseLeft){
 						Events.setTimeout(function(){
 							Sound.play(weaponSoundRelease);
-							}, pkt.attackMT * 1.25 );
+							}, (pkt.attackMT * 0.25) + (C_MULTIHIT_DELAY * 1.75) );
 					}
 				}
 
@@ -390,49 +389,9 @@ define(function( require )
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
-					if (pkt.damage && pkt.action !== 9 && pkt.action !== 4) {
-						
-						dstEntity.setAction({
-							action: dstEntity.ACTION.IDLE,
-							frame:  0,
-							repeat: true,
-							play:   true,
-						});
-						
-						function impendingAttack(){
-							
-							if(dstEntity.action !== dstEntity.ACTION.DIE){ // Only make it struggle if it can still bleed
-								dstEntity.setAction({
-									action: dstEntity.ACTION.HURT,
-									frame:  0,
-									repeat: false,
-									play:   true,
-								});
-								
-								function continueAction(){
-									if(dstEntity.walk.index < dstEntity.walk.total){ // If it was walking before, resume walk
-										dstEntity.walkTo(
-											dstEntity.position[0],
-											dstEntity.position[1],
-											dstEntity.walk.target[0],
-											dstEntity.walk.target[1]
-										);
-									} else {
-										dstEntity.setAction({
-											action: dstEntity.ACTION.READYFIGHT,
-											frame:  0,
-											repeat: true,
-											play:   true,
-										});
-									}
-								}
-								
-								Events.setTimeout( continueAction, pkt.attackedMT);
-							}
-						}
-						
-						Events.setTimeout( impendingAttack, pkt.attackMT);
-                    }
+					
+					// Will be hit actions
+					onEntityWillBeHitSub( pkt, dstEntity );
 
 					// damage blocking status effect display
 					if(pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0){
@@ -449,7 +408,7 @@ define(function( require )
 							case 0:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft );
 								}
 								break;
 
@@ -457,7 +416,7 @@ define(function( require )
 							case 4:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
 								}
 								break;
 
@@ -466,21 +425,21 @@ define(function( require )
 								// Display combo only if entity is mob and the attack don't miss
 								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
 									if(pkt.leftDamage){
-										Damage.add( pkt.damage / 2 ,                dstEntity, Renderer.tick + pkt.attackMT * 1,   srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,                    dstEntity, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add( pkt.damage / 2 ,                dstEntity, Renderer.tick + pkt.attackMT,                           srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage ,                    dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2),    srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									} else {
-										Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT                   , srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									}
 								}
 
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1, srcWeapon );
+								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT, srcWeapon );
 								if(pkt.leftDamage){
-									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 1.5, srcWeapon );
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2,   srcWeaponLeft );
+									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,        srcWeapon );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft );
 								} else {
-									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT * 2, srcWeapon );
+									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon );
 								}
 								break;
 
@@ -488,7 +447,7 @@ define(function( require )
 							case 9:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.ENDURE);
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft , Damage.TYPE.ENDURE);
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft , Damage.TYPE.ENDURE);
 								}
 								break;
 
@@ -496,7 +455,7 @@ define(function( require )
 							case 10:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeaponLeft, Damage.TYPE.CRIT );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, Damage.TYPE.CRIT );
 								}
 								break;
 
@@ -512,20 +471,40 @@ define(function( require )
 				}
 
 				srcEntity.attack_speed = pkt.attackMT;
-				srcEntity.setAction({
-					action: srcEntity.ACTION.ATTACK,
-					frame:  0,
-					repeat: false,
-					play:   true,
-					next: {
-						delay:  Renderer.tick + pkt.attackMT,
-						action: srcEntity.ACTION.READYFIGHT,
+				
+				
+				if(pkt.leftDamage){
+					srcEntity.setAction({
+						action: srcEntity.ACTION.ATTACK3,
 						frame:  0,
-						repeat: true,
+						repeat: false,
 						play:   true,
-						next:  false
-					}
-				});
+						next: {
+							delay:  Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,
+							action: srcEntity.ACTION.READYFIGHT,
+							frame:  0,
+							repeat: true,
+							play:   true,
+							next:  false
+						}
+					});
+				} else {
+					srcEntity.setAction({
+						action: srcEntity.ACTION.ATTACK,
+						frame:  0,
+						repeat: false,
+						play:   true,
+						next: {
+							delay:  Renderer.tick + pkt.attackMT,
+							action: srcEntity.ACTION.READYFIGHT,
+							frame:  0,
+							repeat: true,
+							play:   true,
+							next:  false
+						}
+					});
+				}
+				
 				break;
 
 			// Pickup item
@@ -980,13 +959,14 @@ define(function( require )
 
 		if (dstEntity) {
 			var target = pkt.damage ? dstEntity : srcEntity;
-			var i;
 
 			if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
+				
+				// Will be hit actions
+				onEntityWillBeHitSub( pkt, dstEntity );
 
 				var addDamage = function(i) {
 					return function addDamageClosure() {
-						var isAlive = dstEntity.action !== dstEntity.ACTION.DIE;
 						var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 
 						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, null, pkt.AID);
@@ -1003,22 +983,6 @@ define(function( require )
 								Damage.TYPE.COMBO | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
 							);
 						}
-
-						if (isAlive) {
-							dstEntity.setAction({
-								action: dstEntity.ACTION.HURT,
-								frame:  0,
-								repeat: false,
-								play:   true,
-								next: {
-									action: dstEntity.ACTION.READYFIGHT,
-									frame:  0,
-									repeat: true,
-									play:   true,
-									next:   false
-								}
-							});
-						}
 					};
 				};
 
@@ -1028,9 +992,9 @@ define(function( require )
 					};
 				};
 
-				for (i = 0; i < pkt.count; ++i) {
-					Events.setTimeout( addEffectBeforeHit(), (200 * i));
-					Events.setTimeout( addDamage(i), pkt.attackMT + (200 * i)); //TOFIX: why 200 ?
+				for (var i = 0; i < pkt.count; ++i) {
+					Events.setTimeout( addEffectBeforeHit(), (C_MULTIHIT_DELAY * i));
+					Events.setTimeout( addDamage(i), pkt.attackMT + (C_MULTIHIT_DELAY * i));
 				}
 			}
 		}
@@ -1761,6 +1725,71 @@ define(function( require )
         var item = DB.getItemInfo(pkt.ITID);
         ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE);
         ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE);
+	}
+	
+	
+	/**
+	 * Entity will be hit, handle getting hit and after actions
+	 *
+	 * @param pkt - packet PACKET.ZC.NOTIFY_ACT or PACKET.ZC.NOTIFY_SKILL
+	 * @param dstEntity - Reveiver entity
+	 */
+	function onEntityWillBeHitSub( pkt, dstEntity ){
+		// only if has damage and do not have endure and damage isn't absorbed (healing) and not lucky
+		if ((pkt.damage || pkt.leftDamage) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
+			
+			var count = pkt.count || 1;
+			
+			if(dstEntity.action !== dstEntity.ACTION.DIE){
+				dstEntity.setAction({ // Stop walking and wait for attack to happen
+					action: dstEntity.ACTION.IDLE,
+					frame:  0,
+					repeat: true,
+					play:   true,
+				});
+			}
+			
+			function impendingAttack(){ // Get hurt when attack happens
+				if(dstEntity.action !== dstEntity.ACTION.DIE){
+					dstEntity.setAction({
+						action: dstEntity.ACTION.HURT,
+						frame:  0,
+						repeat: false,
+						play:   true,
+					});
+				}
+			}
+			
+			function continueAction(){
+				if(dstEntity.action !== dstEntity.ACTION.DIE){
+					if(dstEntity.walk.index < dstEntity.walk.total){ // Was it walking before?
+						dstEntity.setAction({  // Resume walk
+							action: dstEntity.ACTION.WALK,
+							frame:  0,
+							repeat: true,
+							play:   true,
+						});
+					} else {
+						dstEntity.setAction({  // Wiggle-wiggle
+							action: dstEntity.ACTION.READYFIGHT,
+							frame:  0,
+							repeat: true,
+							play:   true,
+						});
+					}
+				}
+			}
+			
+			for(var i = 0; i<count; i++){
+				if( pkt.damage ){
+					Events.setTimeout( impendingAttack, pkt.attackMT + (C_MULTIHIT_DELAY * i) );
+				}
+				if( pkt.leftDamage ){
+					Events.setTimeout( impendingAttack, pkt.attackMT + ((C_MULTIHIT_DELAY*1.75) * i) );
+				}
+			}
+			Events.setTimeout( continueAction,  pkt.attackMT + (C_MULTIHIT_DELAY * (count-1)) + (pkt.leftDamage?(C_MULTIHIT_DELAY*1.75):0) + pkt.attackedMT );
+		}
 	}
 
 	/**
