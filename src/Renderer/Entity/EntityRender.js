@@ -40,10 +40,8 @@ define( function( require )
 		// Process action
 		this.animations.process();
 
-		// Move character if walking
-		if (this.action === this.ACTION.WALK) {
-			this.walkProcess();
-		}
+		// Always process walk. It will decide it for itself if it is walking or not and handles it accordingly.
+		this.walkProcess();
 
 		this.boundingRect.x1 =  Infinity;
 		this.boundingRect.y1 = -Infinity;
