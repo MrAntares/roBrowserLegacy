@@ -36,12 +36,12 @@ define( function( require )
 	{
 		this.speed =  150;
 		this.tick  =  0;
+		this.prevTick = 0;
 		this.path  =  new Int16Array(PathFinding.MAX_WALKPATH * 2);
 		this.pos   =  new Float32Array(3);
 		this.onEnd = null;
 		this.index =  0;
 		this.total =  0;
-		this.target = [];
 	}
 
 
@@ -58,9 +58,6 @@ define( function( require )
 	{
 		var path  = this.walk.path;
 		
-		// Save for later if gets interrupted
-		this.walk.target = [to_x, to_y];
-		
 		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
 
 		this.walk.index =     1 * 2; // skip first index
@@ -75,7 +72,7 @@ define( function( require )
 			}
 
 			this.walk.pos.set(this.position);
-			this.walk.tick = Renderer.tick;
+			this.walk.tick =  this.walk.prevTick = Renderer.tick;
 			this.headDir   = 0;
 
 			if (this.action !== this.ACTION.WALK) {
@@ -104,72 +101,82 @@ define( function( require )
 		var x, y, speed;
 		var TICK = Renderer.tick;
 		var delay = 0;
+		
+		if(this.action === this.ACTION.WALK){
+			
+			if (index < total) {
+				
+				// Calculate new position, base on time and walk speed.
+				while (index < total) {
+					x = path[index+0] - (walk.pos[0]);
+					y = path[index+1] - (walk.pos[1]);
 
-		if (index < total) {
+					// Seems like walking on diagonal is slower ?
+					speed = ( x && y ) ? walk.speed / 0.6 : walk.speed;
 
-			// Calculate new position, base on time and walk speed.
-			while (index < total) {
-				x = path[index+0] - (walk.pos[0]);
-				y = path[index+1] - (walk.pos[1]);
+					// New position :)
+					if (TICK - walk.tick <= speed) {
+						break;
+					}
 
-				// Seems like walking on diagonal is slower ?
-				speed = ( x && y ) ? walk.speed / 0.6 : walk.speed;
+					walk.tick += speed;
+					walk.prevTick = TICK; // Store tick
 
-				// New position :)
-				if (TICK - walk.tick <= speed) {
-					break;
+					walk.pos[0] = path[index+0];
+					walk.pos[1] = path[index+1];
+					index += 2;
 				}
 
-				walk.tick += speed;
-				walk.pos[0] = path[index+0];
-				walk.pos[1] = path[index+1];
-				index += 2;
+				// Calculate and store new position
+				// TODO: check the min() part.
+
+				delay      = Math.min(speed, TICK-walk.tick);
+				walk.index = index;
+
+				// Should not happened, avoid division by 0
+				if (!delay) {
+					delay = 150;
+				}
+
+				pos[0] = walk.pos[0] + x / (speed / delay);
+				pos[1] = walk.pos[1] + y / (speed / delay);
+				pos[2] = Altitude.getCellHeight( pos[0], pos[1] );
+
+				// Update player direction while walking
+				if (index < total) {
+					this.direction = DIRECTION[(x>0?1:x<0?-1:0)+1][(y>0?1:y<0?-1:0)+1];
+					return;
+				}
 			}
 
-			// Calculate and store new position
-			// TODO: check the min() part.
+			// Stop walking
+			this.setAction({
+				action: this.ACTION.IDLE,
+				frame:  0,
+				play:   true,
+				repeat: true
+			});
 
-			delay      = Math.min(speed, TICK-walk.tick);
-			walk.index = index;
+			this.onWalkEnd();
 
-			// Should not happened, avoid division by 0
-			if (!delay) {
-				delay = 150;
+			// Temporary callback
+			if (walk.onEnd) {
+				walk.onEnd();
+				walk.onEnd = null;
 			}
 
-			pos[0] = walk.pos[0] + x / (speed / delay);
-			pos[1] = walk.pos[1] + y / (speed / delay);
+
+			pos[0] = Math.round(pos[0]);
+			pos[1] = Math.round(pos[1]);
 			pos[2] = Altitude.getCellHeight( pos[0], pos[1] );
-
-			// Update player direction while walking
-			if (index < total) {
-				this.direction = DIRECTION[(x>0?1:x<0?-1:0)+1][(y>0?1:y<0?-1:0)+1];
-				return;
+			
+		} else {
+			if (index < total){ // Walking got interrupted by getting attacked or other means
+				this.walk.tick += TICK - this.walk.prevTick; // Offset walking by the time elapsed.
+				this.walk.prevTick = TICK; // Store tick
 			}
+			return;
 		}
-
-		// Stop walking
-		this.setAction({
-			action: this.ACTION.IDLE,
-			frame:  0,
-			play:   true,
-			repeat: true
-		});
-		
-		this.walk.target = [0, 0];
-
-		this.onWalkEnd();
-
-		// Temporary callback
-		if (walk.onEnd) {
-			walk.onEnd();
-			walk.onEnd = null;
-		}
-
-
-		pos[0] = Math.round(pos[0]);
-		pos[1] = Math.round(pos[1]);
-		pos[2] = Altitude.getCellHeight( pos[0], pos[1] );
 	}
 
 
