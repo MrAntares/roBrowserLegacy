@@ -1739,6 +1739,7 @@ define(function( require )
 		if ((pkt.damage || pkt.leftDamage) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
 			
 			var count = pkt.count || 1;
+			var prevAction = dstEntity.action;
 			
 			if(dstEntity.action !== dstEntity.ACTION.DIE){
 				dstEntity.setAction({ // Stop walking and wait for attack to happen
@@ -1760,9 +1761,9 @@ define(function( require )
 				}
 			}
 			
-			function continueAction(){
+			function afterAction(){
 				if(dstEntity.action !== dstEntity.ACTION.DIE){
-					if(dstEntity.walk.index < dstEntity.walk.total){ // Was it walking before?
+					if( prevAction === dstEntity.ACTION.WALK && dstEntity.walk.index < dstEntity.walk.total ){ // Was it walking before?
 						dstEntity.setAction({  // Resume walk
 							action: dstEntity.ACTION.WALK,
 							frame:  0,
@@ -1788,7 +1789,7 @@ define(function( require )
 					Events.setTimeout( impendingAttack, pkt.attackMT + ((C_MULTIHIT_DELAY*1.75) * i) );
 				}
 			}
-			Events.setTimeout( continueAction,  pkt.attackMT + (C_MULTIHIT_DELAY * (count-1)) + (pkt.leftDamage?(C_MULTIHIT_DELAY*1.75):0) + pkt.attackedMT );
+			Events.setTimeout( afterAction,  pkt.attackMT + (C_MULTIHIT_DELAY * (count-1)) + (pkt.leftDamage?(C_MULTIHIT_DELAY*1.75):0) + pkt.attackedMT );
 		}
 	}
 
