@@ -191,6 +191,8 @@ define(function( require )
 			entity.position[0] = pkt.xPos;
 			entity.position[1] = pkt.yPos;
 			entity.position[2] = Altitude.getCellHeight( pkt.xPos,  pkt.yPos );
+			
+			entity.walk.index = entity.walk.total;
 
 			if (entity.action === entity.ACTION.WALK) {
 				entity.setAction({
@@ -1739,7 +1741,6 @@ define(function( require )
 		if ((pkt.damage || pkt.leftDamage) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
 			
 			var count = pkt.count || 1;
-			var prevAction = dstEntity.action;
 			
 			if(dstEntity.action !== dstEntity.ACTION.DIE){
 				dstEntity.setAction({ // Stop walking and wait for attack to happen
@@ -1763,7 +1764,7 @@ define(function( require )
 			
 			function afterAction(){
 				if(dstEntity.action !== dstEntity.ACTION.DIE){
-					if( prevAction === dstEntity.ACTION.WALK && dstEntity.walk.index < dstEntity.walk.total ){ // Was it walking before?
+					if( dstEntity.walk.index < dstEntity.walk.total ){ // Was it walking before?
 						dstEntity.setAction({  // Resume walk
 							action: dstEntity.ACTION.WALK,
 							frame:  0,
