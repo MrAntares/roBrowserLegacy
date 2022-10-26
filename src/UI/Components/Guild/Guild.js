@@ -523,7 +523,7 @@ define(function(require)
 		view.find('.name .value')[0].title = member.CharName;
 
 		if (_positions[member.GPositionID]) {
-			if (Session.isGuildMaster) {
+			if (Session.isGuildMaster && member.AID !== Session.Entity.GID) { // Don't let GM change it's own position. Causes bugs.
 				var selectElement = '<select class="changePosition member_' +member.AID+ '_' +member.GID+ '">';
 				_positions.forEach( (position, key) => {
 					selectElement += '<option value="' + position.positionID + '" ' + ( key == member.GPositionID ? 'selected' : '') + '>' + position.posName + '</option>';
