@@ -927,9 +927,11 @@ define(function( require )
 		var srcWeapon;
 
 		if (srcEntity) {
-			pkt.attackMT = Math.min( 450, pkt.attackMT ); // FIXME: cap value ?
+			pkt.attackMT = Math.min( 9999, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
+			
+			srcEntity.amotionTick = Renderer.tick + pkt.attackMT*2; // Add amotion delay
 
 			srcWeapon = 0;
 			if(srcEntity.weapon){
