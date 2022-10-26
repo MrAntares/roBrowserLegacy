@@ -39,6 +39,7 @@ define(function( require )
 	var Sense                 = require('UI/Components/Sense/Sense');
 	var SpiritSphere          = require('Renderer/Effects/SpiritSphere');
 	var Announce              = require('UI/Components/Announce/Announce');
+	var Renderer              = require('Renderer/Renderer');
 	var getModule             = require;
 
 
@@ -490,6 +491,13 @@ define(function( require )
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
+		}
+		
+		// Client side minimum delay
+		if (entity && entity.amotionTick > Renderer.tick){ // Can't spam skills faster than amotion
+			return;
+		} else {
+			entity.amotionTick = Renderer.tick + entity.attack_speed*2;
 		}
 		
 		target = EntityManager.get(targetID) || entity;
