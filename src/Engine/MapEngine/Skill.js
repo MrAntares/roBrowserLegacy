@@ -496,9 +496,9 @@ define(function( require )
 		// Client side minimum delay
 		if (entity && entity.amotionTick > Renderer.tick){ // Can't spam skills faster than amotion
 			return;
-		} else {
+		} /*else {
 			entity.amotionTick = Renderer.tick + entity.attack_speed*2;
-		}
+		}*/
 		
 		target = EntityManager.get(targetID) || entity;
 		skill  = SkillWindow.getSkillById(id);
