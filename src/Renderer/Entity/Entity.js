@@ -139,6 +139,7 @@ define( function( require )
 
 	Entity.prototype.lastSKID     = 0;
 	Entity.prototype.lastSkLvl    = 0;
+	Entity.prototype.amotionTick    = 0;
 	Entity.prototype.targetGID    = 0;
 
 	/**
