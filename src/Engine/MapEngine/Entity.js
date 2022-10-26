@@ -1764,21 +1764,12 @@ define(function( require )
 			
 			function afterAction(){
 				if(dstEntity.action !== dstEntity.ACTION.DIE){
-					if( dstEntity.walk.index < dstEntity.walk.total ){ // Was it walking before?
-						dstEntity.setAction({  // Resume walk
-							action: dstEntity.ACTION.WALK,
-							frame:  0,
-							repeat: true,
-							play:   true,
-						});
-					} else {
-						dstEntity.setAction({  // Wiggle-wiggle
-							action: dstEntity.ACTION.READYFIGHT,
-							frame:  0,
-							repeat: true,
-							play:   true,
-						});
-					}
+					dstEntity.setAction({  // Wiggle-wiggle
+						action: dstEntity.ACTION.READYFIGHT,
+						frame:  0,
+						repeat: true,
+						play:   true,
+					});
 				}
 			}
 			
