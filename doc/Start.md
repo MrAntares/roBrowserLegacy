@@ -32,6 +32,11 @@ In all `AI/*.lua` files :
 - Replace all `require "AI\\Const"` with `dofile "./AI/Const.lua"`
 - Replace all `require "AI\\Util"` with `dofile "./AI/Util.lua"`
 
+### Plugins
+- copy your custom plugins into `src\Plugins` 
+
+Some examples: https://github.com/MrAntares/Ragna.roBrowser-plugins
+
 ### Configure ROBrowser
 - edit `examples/api-online-frame.html` 
 ```js
@@ -57,6 +62,15 @@ function initialize() {
           }],
           skipServerList:  true,
           skipIntro:       false,
+          
+          /*OPTIONAL/CUSTOM CONFIGS*/
+          plugins:  {
+                        PluginName: 'Plugin_JS_Path_In_PluginsFolder_Without_Extension',
+                        /*Example:*/
+                        KeyToMove: 'KeyToMove/KeyToMove',
+                    },
+          ThirdPersonCamera: true,
+          FirstPersonCamera: true,
       };
       var RO = new ROBrowser(ROConfig);
       RO.start();
