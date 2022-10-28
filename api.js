@@ -361,6 +361,9 @@
 		window.addEventListener('message', OnMessage, false );
 	};
 
+	// Custom camera support
+	ROBrowser.prototype.ThirdPersonCamera = false;
+	ROBrowser.prototype.FirstPersonCamera = false;
 
 	/**
 	 * Spam the window until there is an answer
@@ -386,7 +389,9 @@
 			clientHash:       this.clientHash,
 			plugins:          this.plugins,
 			charBlockSize:    this.charBlockSize,
-			BGMFileExtension: this.BGMFileExtension
+			BGMFileExtension: this.BGMFileExtension,
+			ThirdPersonCamera: this.ThirdPersonCamera,
+			FirstPersonCamera: this.FirstPersonCamera,
 		}, '*');
 	}
 
