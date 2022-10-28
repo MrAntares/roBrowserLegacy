@@ -20,6 +20,7 @@ define(function( require )
 	var Preferences = require('Preferences/Camera');
 	var Session     = require('Engine/SessionStorage');
 	var glMatrix    = require('Utils/gl-matrix');
+	var Configs     = require('Core/Configs');
 	var mat4        = glMatrix.mat4;
 	var mat3        = glMatrix.mat3;
 	var vec2        = glMatrix.vec2;
@@ -179,6 +180,9 @@ define(function( require )
 	 */
 	Camera.init = function Init()
 	{
+		Camera.enable3RDPerson = Configs.get('ThirdPersonCamera', false);
+		Camera.enable1STPerson = Configs.get('FirstPersonCamera', false);
+		
 		this.lastTick  = Date.now();
 
 		this.angle[0]      = this.range % 360.0;//240.0;
