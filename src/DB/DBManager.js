@@ -127,8 +127,8 @@ define(function(require)
 		loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
 
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
-		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixNameTable     		= val;}, 			onLoad());
-        loadTable( 'data/cardpostfixnametable.txt',		'#',	2, function(index, key, val){   (ItemTable[key] || (ItemTable[key] = {})).postfixNameTable     = val;               }, onLoad());
+		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixName     			= val;}, 			onLoad());
+		loadTable( 'data/cardpostfixnametable.txt',		'#',	1, function(index, key){		(ItemTable[key] || (ItemTable[key] = {})).isPostfix    				= true;}, 			onLoad());
 		loadTable( 'data/fogparametertable.txt',		'#',	5, parseFogEntry,                                                                                                     			onLoad());
 
 		loadTable( 'data/ba_frostjoke.txt',			'\t',	1, function(index, val){	JokeTable[index]                                        		= val;}, 			onLoad());
@@ -382,7 +382,7 @@ define(function(require)
 	 * @param {number} job class
 	 * @param {boolean} sex
 	 */
-	DB.getWeaponPath = function getWeaponPath( id, job, sex )
+	DB.getWeaponPath = function getWeaponPath( id, job, sex, leftid = false )
 	{
 		if (id === 0) {
 			return null;
@@ -393,6 +393,19 @@ define(function(require)
 		// ItemID to View Id
 		if ((id in ItemTable) && ('ClassNum' in ItemTable[id])) {
 			id = ItemTable[id].ClassNum;
+		}
+		
+		if (leftid){
+			if ((leftid in ItemTable) && ('ClassNum' in ItemTable[leftid])) {
+				leftid = ItemTable[leftid].ClassNum;
+			}
+			
+			// Create dualhand Id
+			var right = Object.keys(WeaponType).find(key => WeaponType[key] === id);
+			var left  = Object.keys(WeaponType).find(key => WeaponType[key] === leftid); 
+			if(right && left){
+				id = WeaponType[right+'_'+left];
+			}
 		}
 
 		return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' + baseClass + '/' + baseClass + '_' + SexTable[sex] + ( WeaponTable[id] || ('_' + id) ) ;
@@ -560,8 +573,8 @@ define(function(require)
 				item.unidentifiedDescriptionName = (item.unidentifiedDescriptionName && item.unidentifiedDescriptionName instanceof Array) ? TextEncoding.decodeString(item.unidentifiedDescriptionName.join('\n')) : '';
 				item.identifiedDisplayName       = TextEncoding.decodeString(item.identifiedDisplayName);
 				item.unidentifiedDisplayName     = TextEncoding.decodeString(item.unidentifiedDisplayName);
-				item.prefixNameTable             = TextEncoding.decodeString(item.prefixNameTable || '');
-				item.postfixNameTable            = TextEncoding.decodeString(item.postfixNameTable);
+				item.prefixName                  = TextEncoding.decodeString(item.prefixName || '');
+				item.isPostfix                	 = (item.isPostfix || false);
 				item.processitemlist   			 = (item.processitemlist && item.processitemlist instanceof Array) ? TextEncoding.decodeString(item.processitemlist.join('\n')) : '';
 				item._decoded                    = true;
 			}
@@ -595,6 +608,10 @@ define(function(require)
 	{
 		var it = DB.getItemInfo( item.ITID );
 		var str = '';
+		var prefix = '';
+		var postfix = '';
+		var showprefix = false;
+		var showpostfix = false;
 
 		if (!item.IsIdentified) {
 			return it.unidentifiedDisplayName;
@@ -646,31 +663,43 @@ define(function(require)
 				// Show card prefix
 				default:
 					var list  = ['', 'Double ', 'Triple ', 'Quadruple '];
-					var count = [0, 0, 0, 0];
-					var name, prefix = [];
-					var i, j = 0, pos;
+					var cards = {};
+					var cardList = [];
+					var i;
 
 					for (i = 1; i <= 4; ++i) {
-						if (!item.slot['card'+i]) {
+						var card = item.slot['card'+i];
+						
+						if (!card) {
 							break;
 						}
-
-						name = DB.getItemInfo(item.slot['card'+i]).prefixNameTable;
-						if (name) {
-							pos = prefix.indexOf(name);
-							if (pos > -1) {
-								count[pos]++;
-								continue;
-							}
-							prefix[j] = name;
-							count[j]++;
-							j++;
+						
+						//store order
+						if(!(cardList.includes(card))){
+							cardList.push(card);
+						}
+						
+						//store details
+						if(cards[card]){
+							cards[card].count++;
+						} else {
+							cards[card] = {};
+							cards[card].isPostfix = DB.getItemInfo(card).isPostfix;
+							cards[card].prefixName = DB.getItemInfo(card).prefixName;
+							cards[card].count = 0;
 						}
 					}
-
-					for (i = 0; i < j; ++i) {
-						str += list[count[i]-1] + prefix[i] + ' ';
-					}
+					
+					//create prefixes and postfixes in order
+					cardList.forEach( card => {
+						if(cards[card].isPostfix){
+							postfix += ' ' + list[cards[card].count] + cards[card].prefixName;
+							showpostfix = true;
+						} else {
+							prefix  +=       list[cards[card].count] + cards[card].prefixName + ' ';
+							showprefix = true;
+						}
+					});
 			}
 			switch (item.slot.card4) {
 				case 0x1: //BELOVED PET
@@ -680,8 +709,15 @@ define(function(require)
 			}
 		}
 
-
+		if(showprefix){
+			str += prefix;
+		}
+		
 		str += it.identifiedDisplayName;
+		
+		if(showpostfix){
+			str += postfix;
+		}
 
 		if (it.slotCount && showslots) {
 			str += ' [' + it.slotCount + ']';
