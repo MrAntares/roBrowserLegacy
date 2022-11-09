@@ -147,7 +147,9 @@ define(function( require )
 					_enter--;
 
 					if(_enter === 0 && _intersect) {
-						Mouse.intersect = true;
+						if(!Session.FreezeUI){
+							Mouse.intersect = true;
+						}
 						getModule('Renderer/EntityManager').setOverEntity(null);
 					}
 				}
