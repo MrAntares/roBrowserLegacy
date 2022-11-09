@@ -58,7 +58,6 @@ define(function( require )
 	{
 	};
 
-
 	/**
 	 * Remove autofocus on mobile.
 	 * Let the user decide to focus an input/textarea by himself
@@ -200,8 +199,11 @@ define(function( require )
 
 			Mouse.screen.x  = _touches[0].pageX;
 			Mouse.screen.y  = _touches[0].pageY;
-			Mouse.intersect = true;
-			_intersect      = true;
+			
+			if(!Session.FreezeUI){
+				Mouse.intersect = true;
+				_intersect      = true;
+			}
 
 			_timer = Events.setTimeout( delayedClick, 200);
 			return false;
@@ -290,11 +292,9 @@ define(function( require )
 	}
 	
 	//Add mobile UI on touch
-	jQuery(window).on('touchstart', touchDevice);
+	jQuery(window).one('touchstart', touchDevice);
 	
 	function touchDevice(){
-		jQuery(window).off('touchstart', touchDevice);
-
 		Session.isTouchDevice = true;
 		
 		if(Session.Playing){ //Already playing, don't wait for map change, just show it
