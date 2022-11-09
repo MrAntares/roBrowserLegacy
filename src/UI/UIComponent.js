@@ -20,6 +20,7 @@ define(function( require )
 	var Client    = require('Core/Client');
 	var Events    = require('Core/Events');
 	var Mouse     = require('Controls/MouseEventHandler');
+	var Session   = require('Engine/SessionStorage');
 	var getModule = require;
 
 
@@ -206,6 +207,7 @@ define(function( require )
 
 			if (this.mouseMode === UIComponent.MouseMode.FREEZE) {
 				Mouse.intersect = true;
+				Session.FreezeUI = false;
 			}
 		}
 	};
@@ -239,6 +241,7 @@ define(function( require )
 
 		if (this.mouseMode === UIComponent.MouseMode.FREEZE) {
 			Mouse.intersect = false;
+			Session.FreezeUI = true;
 			Cursor.setType( Cursor.ACTION.DEFAULT );
 		}
 
