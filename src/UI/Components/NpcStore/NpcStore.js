@@ -214,17 +214,17 @@ define(function(require)
 	{
 		switch (type) {
 			case NpcStore.Type.BUY:
-				this.ui.find('.WinSell, .WinVendingStore').hide();
+				this.ui.find('.WinSell, .WinVendingStore, .cashuser').hide();
 				this.ui.find('.WinBuy').show();
 				break;
 
 			case NpcStore.Type.SELL:
-				this.ui.find('.WinBuy, .WinVendingStore').hide();
+				this.ui.find('.WinBuy, .WinVendingStore, .cashuser').hide();
 				this.ui.find('.WinSell').show();
 				break;
 
 			case NpcStore.Type.VENDING_STORE:
-				this.ui.find('.WinBuy, .WinSell').hide();
+				this.ui.find('.WinBuy, .WinSell, .cashuser').hide();
 				this.ui.find('.WinVendingStore').show();
 				break;
 		}
@@ -673,7 +673,7 @@ define(function(require)
 	{
 		var input, from, to;
 
-		if (_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) {
+		if ((_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) && !Session.isTouchDevice) {
 			return;
 		}
 
