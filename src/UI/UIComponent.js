@@ -164,14 +164,18 @@ define(function( require )
 				}
 			});
 
+			// Focus the UI on mousedown
+			element.mousedown(this.focus.bind(this));
+		}
+		
+		if (this.mouseMode !== UIComponent.MouseMode.CROSS) {
+			var element = this.__mouseStopBlock || this.ui;
 			// Do not cross
 			element.on('touchstart', function(event){
 				event.stopImmediatePropagation();
 			});
-
-			// Focus the UI on mousedown
-			element.mousedown(this.focus.bind(this));
 		}
+		
 
 		if (this._htmlText) {
 			this.ui.detach();
