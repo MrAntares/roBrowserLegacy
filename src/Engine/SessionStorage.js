@@ -16,6 +16,8 @@ define(function()
 		isTouchDevice: false,
 		TouchTargeting: false,
 		AutoTargeting: false,
+		
+		FreezeUI:    false,
 
 		AuthCode:    0,
 		AID:         0,
