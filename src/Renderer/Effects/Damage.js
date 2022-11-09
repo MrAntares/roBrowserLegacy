@@ -84,13 +84,15 @@ define(function( require )
 
 		Client.getFiles([
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xfd\xc0\xda.spr',
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr'
-		], function( damage, miss ) {
-			var sprDamage, sprMiss;
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/bluemsg.spr'
+		], function( numbers, msg, bluemsg ) {
+			var sprNumbers, sprMsg, sprBlue;
 
 			try {
-				sprDamage = new Sprite(damage);
-				sprMiss   = new Sprite(miss);
+				sprNumbers = new Sprite(numbers);
+				sprMsg   = new Sprite(msg);
+				sprBlue   = new Sprite(bluemsg);
 			}
 			catch(e) {
 				console.error('Damage::init() - ' + e.message );
@@ -99,12 +101,12 @@ define(function( require )
 
 			// Create SpriteSheet
 			for (var i = 0; i < 10; ++i) {
-				_sprite[i]  = sprDamage.getCanvasFromFrame(i);
+				_sprite[i]  = sprNumbers.getCanvasFromFrame(i);
 			}
 
 			for(var i = 0; i < 5; ++i){  //msg.spr miss crit lucky...
 
-				var source = sprMiss.getCanvasFromFrame(i);
+				var source = sprMsg.getCanvasFromFrame(i);
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
 
@@ -118,6 +120,30 @@ define(function( require )
 				};
 
 				gl.bindTexture( gl.TEXTURE_2D, _sprite[10 + i].texture );
+				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.generateMipmap( gl.TEXTURE_2D );
+			}
+			
+			for(var i = 0; i < 5; ++i){  //bluemsg.spr miss crit lucky...
+
+				var source = sprBlue.getCanvasFromFrame(i);
+				var canvas = document.createElement('canvas');
+				var ctx    = canvas.getContext('2d');
+
+				canvas.width  = WebGL.toPowerOfTwo( source.width );
+				canvas.height = WebGL.toPowerOfTwo( source.height );
+				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
+
+				_sprite[15 + i] = {
+					texture: gl.createTexture(),
+					canvas:  canvas
+				};
+
+				gl.bindTexture( gl.TEXTURE_2D, _sprite[15 + i].texture );
 				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -199,10 +225,6 @@ define(function( require )
 			obj.delay    = 3000;
 		}
 		else if (obj.type & Damage.TYPE.CRIT) {
-			/*texture  = _sprite[13].texture;
-			width    = _sprite[13].canvas.width;
-			height   = _sprite[13].canvas.height;*/
-
 			// yellow
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
@@ -232,23 +254,45 @@ define(function( require )
 			width += frame.width + PADDING;
 			height = Math.max( height, frame.height );
 		}
+		
+		var ratio = 1;
+		var cnvHeight = height;
+		var cnvWidth = width;
+		
+		if(obj.type & Damage.TYPE.CRIT){
+			cnvHeight = height << 1;
+			ratio = _sprite[13].canvas.height / cnvHeight;
+			cnvWidth = Math.max(width, (_sprite[13].canvas.width / ratio));
+			
+		}
 
 		// Set canvas size (pow of 2 for webgl).
-		ctx.canvas.width  = WebGL.toPowerOfTwo( width );
-		ctx.canvas.height = WebGL.toPowerOfTwo( height );
+		ctx.canvas.width  = WebGL.toPowerOfTwo( cnvWidth );
+		ctx.canvas.height = WebGL.toPowerOfTwo( cnvHeight );
 
 		// find where to start to get the image at the center
 		start_x = (ctx.canvas.width  - width ) >> 1;
 		start_y = (ctx.canvas.height - height) >> 1;
 
 		// build texture
+		if(obj.type & Damage.TYPE.CRIT){
+			frame  = _sprite[13].canvas;
+			ctx.drawImage(
+				frame,
+				(ctx.canvas.width - (frame.width / ratio)) >> 1,
+				0,
+				_sprite[13].canvas.width / ratio,
+				ctx.canvas.height
+			);
+		}
+		
 		width = 0;
 		for (i = 0, count = numbers.length; i < count; ++i) {
 			frame  = _sprite[ numbers[i] ];
 			ctx.drawImage(
 				frame,
 				start_x + width,
-				start_y + (height - frame.height) >> 1
+				start_y + ((height - frame.height) >> 1)
 			);
 			width += frame.width + PADDING;
 		}
