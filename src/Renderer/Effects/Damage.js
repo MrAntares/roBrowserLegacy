@@ -22,8 +22,8 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	var DB             = require('DB/DBManager');
 	var Sound          = require('Audio/SoundManager');
+	var EffectManager  = require('Renderer/EffectManager');
 
-	var CritSound      = "effect/ef_hit2.wav";
 	var EndureSound    = "player_metal.wav";
 
 	/**
@@ -62,7 +62,17 @@ define(function( require )
 	/**
 	 * @var {string} Sprite of the damage sprite
 	 */
-	var _sprite = new Array(10);
+	var _numbers = new Array(10);
+	var _msgNames = {
+		0: 'miss',
+		1: 'guard',
+		2: 'crit',
+		3: 'critbg',
+		4: 'luckybg',
+		5: 'lucky',
+	}
+	var _msg     = new Array(6);
+	var _msgBlue = new Array(6);
 
 
 	/**
@@ -78,7 +88,7 @@ define(function( require )
 	Damage.init = function init( gl )
 	{
 		// Already loaded
-		if (_sprite[0]) {
+		if (_numbers[0] && _msg.miss && _msgBlue.miss) {
 			return;
 		}
 
@@ -101,10 +111,10 @@ define(function( require )
 
 			// Create SpriteSheet
 			for (var i = 0; i < 10; ++i) {
-				_sprite[i]  = sprNumbers.getCanvasFromFrame(i);
+				_numbers[i]  = sprNumbers.getCanvasFromFrame(i);
 			}
 
-			for(var i = 0; i < 5; ++i){  //msg.spr miss crit lucky...
+			for(var i = 0; i < 6; i++){  //msg.spr miss crit lucky...
 
 				var source = sprMsg.getCanvasFromFrame(i);
 				var canvas = document.createElement('canvas');
@@ -114,12 +124,12 @@ define(function( require )
 				canvas.height = WebGL.toPowerOfTwo( source.height );
 				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
 
-				_sprite[10 + i] = {
+				_msg[_msgNames[i]] = {
 					texture: gl.createTexture(),
 					canvas:  canvas
 				};
 
-				gl.bindTexture( gl.TEXTURE_2D, _sprite[10 + i].texture );
+				gl.bindTexture( gl.TEXTURE_2D, _msg[_msgNames[i]].texture );
 				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -128,7 +138,7 @@ define(function( require )
 				gl.generateMipmap( gl.TEXTURE_2D );
 			}
 			
-			for(var i = 0; i < 5; ++i){  //bluemsg.spr miss crit lucky...
+			for(var i = 0; i < 6; i++){  //bluemsg.spr miss crit lucky...
 
 				var source = sprBlue.getCanvasFromFrame(i);
 				var canvas = document.createElement('canvas');
@@ -138,12 +148,12 @@ define(function( require )
 				canvas.height = WebGL.toPowerOfTwo( source.height );
 				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
 
-				_sprite[15 + i] = {
+				_msgBlue[_msgNames[i]] = {
 					texture: gl.createTexture(),
 					canvas:  canvas
 				};
 
-				gl.bindTexture( gl.TEXTURE_2D, _sprite[15 + i].texture );
+				gl.bindTexture( gl.TEXTURE_2D, _msgBlue[_msgNames[i]].texture );
 				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -168,7 +178,7 @@ define(function( require )
 	{
 		// Can not display negative damages.
 		// Need to wait the client to load damage sprite
-		if (damage < 0 || !_sprite[0]) {
+		if (damage < 0 || !_numbers[0] || !_msg.miss || !_msgBlue.miss) {
 			return;
 		}
 
@@ -195,12 +205,13 @@ define(function( require )
 			obj.type |= Damage.TYPE.ENEMY;
 		}
 
-		obj.color[3] = 1.0;
+		obj.color    = [1.0, 1.0, 1.0, 1.0]; // for sprite renderer
 		obj.delay    = 1500;
 		obj.start    = tick;
 		obj.entity   = entity;
 
 		if (obj.type & Damage.TYPE.SP) {
+			// blue
 			obj.color[0] = 0.13;
 			obj.color[1] = 0.19;
 			obj.color[2] = 0.75;
@@ -229,6 +240,22 @@ define(function( require )
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
 			obj.color[2] = 0.15;
+			
+			// Add CRIT background
+			var bgObj      = new Damage();
+			bgObj.type     = Damage.TYPE.CRIT;
+			bgObj.color    = [1.0, 1.0, 1.0, 1.0];
+			bgObj.delay    = 1500;
+			bgObj.start    = tick;
+			bgObj.entity   = entity;
+			bgObj.texture  = _msg.critbg.texture;
+			bgObj.width    = _msg.critbg.canvas.width/2;
+			bgObj.height   = _msg.critbg.canvas.height/2;
+			bgObj.isDisposable = false;
+			_list.push(bgObj);
+			
+			 // Add bash effect
+			EffectManager.spam(1, entity, entity.position, tick);
 		}
 		else {
 			// white
@@ -240,9 +267,10 @@ define(function( require )
 		// Miss
 		if (!damage) {
 			if (MapPreferences.miss) {
-				obj.texture  = _sprite[10].texture;
-				obj.width    = _sprite[10].canvas.width;
-				obj.height   = _sprite[10].canvas.height;
+				obj.texture  = _msg.miss.texture;
+				obj.width    = _msg.miss.canvas.width;
+				obj.height   = _msg.miss.canvas.height;
+				obj.isDisposable = false;
 				_list.push(obj);
 			}
 			return;
@@ -250,45 +278,23 @@ define(function( require )
 
 		// Calculate canvas width and height
 		for (i = 0, count = numbers.length; i < count; ++i) {
-			frame  = _sprite[ numbers[i] ];
+			frame  = _numbers[ numbers[i] ];
 			width += frame.width + PADDING;
 			height = Math.max( height, frame.height );
 		}
-		
-		var ratio = 1;
-		var cnvHeight = height;
-		var cnvWidth = width;
-		
-		if(obj.type & Damage.TYPE.CRIT){
-			cnvHeight = height << 1;
-			ratio = _sprite[13].canvas.height / cnvHeight;
-			cnvWidth = Math.max(width, (_sprite[13].canvas.width / ratio));
-			
-		}
 
 		// Set canvas size (pow of 2 for webgl).
-		ctx.canvas.width  = WebGL.toPowerOfTwo( cnvWidth );
-		ctx.canvas.height = WebGL.toPowerOfTwo( cnvHeight );
+		ctx.canvas.width  = WebGL.toPowerOfTwo( width );
+		ctx.canvas.height = WebGL.toPowerOfTwo( height );
 
 		// find where to start to get the image at the center
 		start_x = (ctx.canvas.width  - width ) >> 1;
 		start_y = (ctx.canvas.height - height) >> 1;
 
 		// build texture
-		if(obj.type & Damage.TYPE.CRIT){
-			frame  = _sprite[13].canvas;
-			ctx.drawImage(
-				frame,
-				(ctx.canvas.width - (frame.width / ratio)) >> 1,
-				0,
-				_sprite[13].canvas.width / ratio,
-				ctx.canvas.height
-			);
-		}
-		
 		width = 0;
 		for (i = 0, count = numbers.length; i < count; ++i) {
-			frame  = _sprite[ numbers[i] ];
+			frame  = _numbers[ numbers[i] ];
 			ctx.drawImage(
 				frame,
 				start_x + width,
@@ -308,14 +314,16 @@ define(function( require )
 		obj.texture  = texture;
 		obj.width    = canvas.width;
 		obj.height   = canvas.height;
+		obj.isDisposable = true;
 
 		var hitSounds = DB.getWeaponHitSound(weapon);
 
 		if((weapon || weapon === 0) && hitSounds){
 			obj.soundFile = hitSounds[0];
 		}
-
+		
 		_list.push( obj );
+		
 	};
 
 
@@ -329,7 +337,7 @@ define(function( require )
 		var i, count;
 
 		for (i = 0, count = _list.length ; i < count ; ++i) {
-			if (_list[i].texture !== _sprite[10].texture) {
+			if (_list[i].isDisposable) {
 				gl.deleteTexture(_list[i].texture);
 			}
 		}
@@ -381,7 +389,7 @@ define(function( require )
 
 			// Remove it from list, time passed.
 			if (damage.start + damage.delay < tick) {
-				if (damage.texture !== _sprite[10].texture) {
+				if (damage.isDisposable) {
 					gl.deleteTexture( damage.texture );
 				}
 				_list.splice( i, 1 );
@@ -414,10 +422,6 @@ define(function( require )
 				SpriteRenderer.position[1] = damage.entity.position[1] - perc * 4;
 				SpriteRenderer.position[2] = damage.entity.position[2] + 2 + Math.sin( -Math.PI/2 + ( Math.PI * (0.5 + perc * 1.5 ) ) ) * 5;
 				if(damage.soundFile){
-					if(damage.type & Damage.TYPE.CRIT){
-						Sound.play(CritSound);
-					}
-
 					if(damage.type & Damage.TYPE.ENDURE){
 						Sound.play(EndureSound);
 					}
