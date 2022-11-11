@@ -77,6 +77,16 @@ define(function( require )
 				SkillId.WL_SUMMON_ATK_GROUND
 			];
 			
+	// Skills that display blue crit like combo damage
+	var SkillBlueCombo = [
+				SkillId.TK_STORMKICK,
+				SkillId.TK_DOWNKICK,
+				SkillId.TK_TURNKICK,
+				SkillId.TK_COUNTER,
+				SkillId.TK_JUMPKICK,
+				SkillId.SR_RAMPAGEBLASTER,
+			];
+
 	const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
 
 	/**
@@ -921,7 +931,6 @@ define(function( require )
 		SkillAction.LUCY_DODGE			= 11;	/// lucky dodge
 		SkillAction.TOUCH			= 12;	/// (touch skill?)
 
-
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
 		var srcWeapon;
@@ -968,13 +977,22 @@ define(function( require )
 				
 				// Will be hit actions
 				onEntityWillBeHitSub( pkt, dstEntity );
+				
+				var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
+				var isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
+				
 
 				var addDamage = function(i) {
 					return function addDamageClosure() {
-						var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
-
+						
 						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, null, pkt.AID);
-						Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon);
+						
+						if(!isCombo && isBlueCombo){
+							 // Blue 'crit' non-combo EG: Rampage Blaster
+							Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
+						} else {
+							Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon); // Normal
+						}
 
 						// Only display combo if the target is not entity and
 						// there are multiple attacks
@@ -984,7 +1002,7 @@ define(function( require )
 								target,
 								Renderer.tick,
 								srcWeapon,
-								Damage.TYPE.COMBO | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
+								(isBlueCombo?Damage.TYPE.COMBO_B:Damage.TYPE.COMBO) | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
 							);
 						}
 					};
