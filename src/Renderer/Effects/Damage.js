@@ -46,16 +46,17 @@ define(function( require )
 	 * Damage type constant
 	 */
 	Damage.TYPE = {
-		HEAL:        1 << 0,
-		MISS:        1 << 1,
-		DAMAGE:      1 << 2,
-		ENEMY:       1 << 3,
-		COMBO:       1 << 4,
-		COMBO_FINAL: 1 << 5,
-		SP:          1 << 6,
-		CRIT:        1 << 7,
-		LUCKY:       1 << 8,
-		ENDURE:      1 << 9
+		HEAL:          1 << 0,
+		MISS:          1 << 1,
+		DAMAGE:        1 << 2,
+		ENEMY:         1 << 3,
+		COMBO:         1 << 4,
+		COMBO_FINAL:   1 << 5,
+		SP:            1 << 6,
+		CRIT:          1 << 7,
+		LUCKY:         1 << 8,
+		ENDURE:        1 << 9,
+		COMBO_B:       1 << 10
 	};
 
 
@@ -258,6 +259,26 @@ define(function( require )
 			 // Add bash effect
 			EffectManager.spam(1, entity, entity.position, tick);
 		}
+		else if (obj.type & Damage.TYPE.COMBO_B) {
+			// white
+			obj.color[0] = 1.0;
+			obj.color[1] = 1.0;
+			obj.color[2] = 1.0;
+			
+			// Add Blue CRIT background
+			var bgObj      = new Damage();
+			bgObj.type     = obj.type;
+			bgObj.color    = [0.66, 0.66, 0.66, 1.0];
+			bgObj.delay    = 1500;
+			bgObj.start    = tick;
+			bgObj.entity   = entity;
+			bgObj.texture  = _msgBlue.critbg.texture;
+			bgObj.width    = _msgBlue.critbg.canvas.width * 0.6;
+			bgObj.height   = _msgBlue.critbg.canvas.height * 0.6;
+			bgObj.offset   = [0.0, -6.0];
+			bgObj.isDisposable = false;
+			_list.push(bgObj);
+		}
 		else {
 			// white
 			obj.color[0] = 1.0;
@@ -400,7 +421,7 @@ define(function( require )
 			perc = (tick - damage.start) / damage.delay;
 
 			// Combo title
-			if (damage.type & Damage.TYPE.COMBO) {
+			if (damage.type & Damage.TYPE.COMBO || damage.type & Damage.TYPE.COMBO_B) {
 				// TODO: fix it
 				size = Math.min( perc, 0.05 ) * 75;
 
