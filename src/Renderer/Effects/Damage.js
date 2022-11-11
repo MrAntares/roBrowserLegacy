@@ -120,8 +120,8 @@ define(function( require )
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
 
-				canvas.width  = WebGL.toPowerOfTwo( source.width );
-				canvas.height = WebGL.toPowerOfTwo( source.height );
+				canvas.width  = source.width;
+				canvas.height = source.height;
 				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
 
 				_msg[_msgNames[i]] = {
@@ -144,8 +144,8 @@ define(function( require )
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
 
-				canvas.width  = WebGL.toPowerOfTwo( source.width );
-				canvas.height = WebGL.toPowerOfTwo( source.height );
+				canvas.width  = source.width;
+				canvas.height = source.height;
 				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
 
 				_msgBlue[_msgNames[i]] = {
@@ -244,13 +244,14 @@ define(function( require )
 			// Add CRIT background
 			var bgObj      = new Damage();
 			bgObj.type     = Damage.TYPE.CRIT;
-			bgObj.color    = [1.0, 1.0, 1.0, 1.0];
+			bgObj.color    = [0.66, 0.66, 0.66, 1.0];
 			bgObj.delay    = 1500;
 			bgObj.start    = tick;
 			bgObj.entity   = entity;
 			bgObj.texture  = _msg.critbg.texture;
-			bgObj.width    = _msg.critbg.canvas.width/2;
-			bgObj.height   = _msg.critbg.canvas.height/2;
+			bgObj.width    = _msg.critbg.canvas.width * 0.6;
+			bgObj.height   = _msg.critbg.canvas.height * 0.6;
+			bgObj.offset   = [0.0, -6.0];
 			bgObj.isDisposable = false;
 			_list.push(bgObj);
 			
@@ -369,8 +370,6 @@ define(function( require )
 		// Base parameters
 		SpriteRenderer.shadow    = 1.0;
 		SpriteRenderer.angle     = 0;
-		SpriteRenderer.offset[0] = 0;
-		SpriteRenderer.offset[1] = 0;
 		SpriteRenderer.image.palette = null;
 
 		var i, count, perc;
@@ -460,6 +459,14 @@ define(function( require )
 			SpriteRenderer.size[0] = damage.width  * size;
 			SpriteRenderer.size[1] = damage.height * size;
 			damage.color[3]        = 1.0 - perc;
+			
+			if(damage.offset){
+				SpriteRenderer.offset[0] = damage.offset[0];
+				SpriteRenderer.offset[1] = damage.offset[1];
+			} else {
+				SpriteRenderer.offset[0] = 0;
+				SpriteRenderer.offset[1] = 0;
+			}
 
 			SpriteRenderer.depth = i;
 
