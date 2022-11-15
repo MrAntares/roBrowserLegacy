@@ -1,4 +1,4 @@
-importScripts('r.js?' + Date.now());
+importScripts('source-map.js', 'bundle.min.js', 'r.js?' + Date.now());
 
 // Load min.require.js
 var xhr = new XMLHttpRequest();
@@ -34,12 +34,17 @@ function outputApp(appName) {
 	return function outputScript(text) {
 		// Remove importScripts(requirejs), included directly
 		text = text.replace(/importScripts\([^\)]+\)(\,|\;|\n)?/, '');
-		postMessage({
-			type:   'result',
-			app:     appName,
-			content: header + "\n\n" +  requirejslib + "\n\n" + text
-		});
+		minify(text, appName, header);
 	};
+}
+
+async function minify(code, appName, header) {
+	const minified = await Terser.minify(code)
+	postMessage({
+		type:   'result',
+		app:     appName,
+		content: header + "\n\n" +  requirejslib + "\n\n" + minified.code
+	});
 }
 
 // Compiling scripts
