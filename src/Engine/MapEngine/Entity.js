@@ -14,40 +14,41 @@ define(function( require )
 	/**
 	 * Load dependencies
 	 */
-	var SkillId       = require('DB/Skills/SkillConst');
-	var SkillInfo     = require('DB/Skills/SkillInfo');
-	var StatusConst   = require('DB/Status/StatusConst');
-	var Emotions      = require('DB/Emotions');
-	var Events        = require('Core/Events');
-	var Session       = require('Engine/SessionStorage');
-	var Guild         = require('Engine/MapEngine/Guild');
-	var Network       = require('Network/NetworkManager');
-	var PACKET        = require('Network/PacketStructure');
-	var Renderer      = require('Renderer/Renderer');
-	var Altitude      = require('Renderer/Map/Altitude');
-	var EntityManager = require('Renderer/EntityManager');
-	var Entity        = require('Renderer/Entity/Entity');
-	var EffectManager = require('Renderer/EffectManager');
-	var Damage        = require('Renderer/Effects/Damage');
-	var MagicTarget   = require('Renderer/Effects/MagicTarget');
-	var LockOnTarget  = require('Renderer/Effects/LockOnTarget');
-	var Sound         = require('Audio/SoundManager');
-	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
-	var ChatRoom      = require('UI/Components/ChatRoom/ChatRoom');
-	var StatusIcons   = require('UI/Components/StatusIcons/StatusIcons');
-	var BasicInfo     = require('UI/Components/BasicInfo/BasicInfo');
-	var Escape        = require('UI/Components/Escape/Escape');
-	var DB            = require('DB/DBManager');
-	var MagicRing     = require('Renderer/Effects/MagicRing');
-	var SkillEffect   = require('DB/Skills/SkillEffect');
-	var SkillActionTable   = require('DB/Skills/SkillAction');
-	var StrEffect     = require('Renderer/Effects/StrEffect');
-	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
-	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
-	var MapEffects    = require('Renderer/Map/Effects');
-	var SpiritSphere  = require('Renderer/Effects/SpiritSphere');
-	var WarlockSphere  = require('Renderer/Effects/WarlockSphere');
+	var DB                = require('DB/DBManager');
+	var SkillId           = require('DB/Skills/SkillConst');
+	var SkillInfo         = require('DB/Skills/SkillInfo');
+	var StatusConst       = require('DB/Status/StatusConst');
+	var Emotions          = require('DB/Emotions');
+	var SkillEffect       = require('DB/Skills/SkillEffect');
+	var SkillActionTable  = require('DB/Skills/SkillAction');
+	var Sound             = require('Audio/SoundManager');
+	var Events            = require('Core/Events');
+	var Guild             = require('Engine/MapEngine/Guild');
+	var Session           = require('Engine/SessionStorage');
+	var Network           = require('Network/NetworkManager');
+	var PACKET            = require('Network/PacketStructure');
+	var Altitude          = require('Renderer/Map/Altitude');
+	var Renderer          = require('Renderer/Renderer');
+	var EntityManager     = require('Renderer/EntityManager');
+	var Entity            = require('Renderer/Entity/Entity');
+	var EffectManager     = require('Renderer/EffectManager');
+	var Damage            = require('Renderer/Effects/Damage');
+	var MagicTarget       = require('Renderer/Effects/MagicTarget');
+	var LockOnTarget      = require('Renderer/Effects/LockOnTarget');
+	var MagicRing         = require('Renderer/Effects/MagicRing');
+	var StrEffect         = require('Renderer/Effects/StrEffect');
+	var SpiritSphere      = require('Renderer/Effects/SpiritSphere');
+	var WarlockSphere     = require('Renderer/Effects/WarlockSphere');
+	var MapEffects        = require('Renderer/Map/Effects');
+	var BasicInfo         = require('UI/Components/BasicInfo/BasicInfo');
+	var ChatBox           = require('UI/Components/ChatBox/ChatBox');
+	var ChatRoom          = require('UI/Components/ChatRoom/ChatRoom');
+	var Escape            = require('UI/Components/Escape/Escape');
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
+	var Inventory         = require('UI/Components/Inventory/Inventory');
+	var MiniMap           = require('UI/Components/MiniMap/MiniMap');
+	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
+	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -167,6 +168,9 @@ define(function( require )
 		if (pkt.GID === Session.Entity.GID && pkt.type === 1) {
 			Escape.ui.show();
 			Escape.ui.find('.savepoint').show();
+			if(haveSiegfriedItem()){
+				Escape.ui.find('.resurection').show();
+			}
 			Escape.ui.find('.graphics, .sound, .hotkey').hide();
 		}
 	}
@@ -300,7 +304,7 @@ define(function( require )
 		// If it's our main character update Escape ui
 		if (entity === Session.Entity) {
 			Escape.ui.hide();
-			Escape.ui.find('.savepoint').hide();
+			Escape.ui.find('.resurection, .savepoint').hide();
 			Escape.ui.find('.graphics, .sound, .hotkey').show();
 		}
 	}
@@ -1803,6 +1807,21 @@ define(function( require )
 			}
 			Events.setTimeout( afterAction,  pkt.attackMT + (C_MULTIHIT_DELAY * (count-1)) + (pkt.leftDamage?(C_MULTIHIT_DELAY*1.75):0) + pkt.attackedMT );
 		}
+	}
+	
+	
+	/**
+	 * Does player have a Token of Siegfried?
+	 */
+	function haveSiegfriedItem(){
+		var	itemInfo = Inventory.getItemById(7621); 
+
+		if ( Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode )
+			return false ;
+		else if ( itemInfo && itemInfo.count > 0 ) 
+			return true ; 
+		else 
+			return false ;
 	}
 
 	/**
