@@ -1,4 +1,4 @@
-importScripts('source-map.js', 'bundle.min.js', 'r.js?' + Date.now());
+importScripts('source-map.js?' + Date.now(), 'bundle.min.js?' + Date.now(), 'r.js?' + Date.now());
 
 // Load min.require.js
 var xhr = new XMLHttpRequest();
@@ -40,11 +40,19 @@ function outputApp(appName) {
 
 async function minify(code, appName, header) {
 	const minified = await Terser.minify(code)
-	postMessage({
-		type:   'result',
-		app:     appName,
-		content: header + "\n\n" +  requirejslib + "\n\n" + minified.code
-	});
+	
+	if(minified.error){
+		postMessage({
+			type:   'error',
+			message: minified.error
+		})
+	} else {
+		postMessage({
+			type:   'result',
+			app:     appName,
+			content: header + "\n\n" +  requirejslib + "\n\n" + minified.code
+		});
+	}
 }
 
 // Compiling scripts
@@ -67,10 +75,7 @@ function buildApp(appName) {
 		},
 
 		// Minify scripts
-		optimize: 'uglify',
-		uglify: {
-			ascii_only: true
-		},
+		optimize: 'none', // uglify does not support ES6, using Terser in later step instead
 
 		// Logs
 		log: onlog,
