@@ -53,7 +53,7 @@ define(function(require)
 
 		this.ui.find('.sound').click(onToggleSoundUI);
 		this.ui.find('.graphics').click(onToggleGraphicUI);
-		this.ui.find('.resurection').click(function(){ Escape.onResurectionReques(); });
+		this.ui.find('.resurection').click(function(){ Escape.onResurectionRequest(); });
 		this.ui.find('.savepoint').click(function(){ Escape.onReturnSavePointRequest(); });
 		this.ui.find('.charselect').click(function(){ Escape.onCharSelectionRequest(); });
 		this.ui.find('.exit').click(function(){ Escape.onExitRequest(); });
@@ -77,7 +77,7 @@ define(function(require)
 	Escape.onRemove = function onRemove()
 	{
 		this.ui.hide();
-		this.ui.find('.savepoint').hide();
+		this.ui.find('.resurection, .savepoint').hide();
 		this.ui.find('.graphics, .sound, .hotkey').show();
 	};
 
