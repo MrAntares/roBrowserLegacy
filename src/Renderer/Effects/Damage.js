@@ -121,9 +121,9 @@ define(function( require )
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
 
-				canvas.width  = source.width;
-				canvas.height = source.height;
-				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
+				canvas.width  = WebGL.toPowerOfTwo(source.width);
+				canvas.height = WebGL.toPowerOfTwo(source.height);
+				ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
 
 				_msg[_msgNames[i]] = {
 					texture: gl.createTexture(),
@@ -145,9 +145,9 @@ define(function( require )
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
 
-				canvas.width  = source.width;
-				canvas.height = source.height;
-				ctx.drawImage( source, 0, 0, canvas.width, canvas.height );
+				canvas.width  = WebGL.toPowerOfTwo(source.width);
+				canvas.height = WebGL.toPowerOfTwo(source.height);
+				ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
 
 				_msgBlue[_msgNames[i]] = {
 					texture: gl.createTexture(),
