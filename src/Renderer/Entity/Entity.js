@@ -230,6 +230,7 @@ define( function( require )
 
 				case 'name':
 					this.display.name = unit.name;
+					if( this.display.name.length == 0 ){ this.display.load = this.display.TYPE.NONE };
 					this.display.update(
 						this.objecttype === Entity.TYPE_MOB ? this.display.STYLE.MOB :
 						this.objecttype === Entity.TYPE_DISGUISED ? this.display.STYLE.MOB :
