@@ -1,12 +1,21 @@
 # Getting started
 
+## Important notes before starting
+- **In case of any error start by opening developer mode and check the browser `Console` (`F12` or `CTRL+Shift+I` in most browsers). Don't forget to adjust the level filters if you don't see everything. Also worth checking the `Network` tab.**
+- **For public servers using secure web protocols `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.**
+
 ## Local testing
 This guide section help you running robrowser locally.
 ### Prerequisite
+#### RoBrowser
 - install websocket proxy `npm install wsproxy -g`
 - Run http server at root of Ragna.roBrowser directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
 ![](img/start-http-server.png)
 - You own a full client
+#### Game Server
+- Client/packet versions currently supported up to `2015-10-01`. We advise to use versions older than `2014`.
+- Disable pincode on the game server. (Not supported yet)
+- Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
 
 We assume in guide below http server to run on port `8000`.
 ### Compile files
@@ -15,7 +24,7 @@ This step/section is only recommended for a "Live" server. It will only pack all
 For development purposes (modifying the source/testing) skip this section and set in the roBrowser config: `development: true,`. In development mode roBrowser will use the files directly from `src/`.
 - Access `http://localhost:8000/tools/build/index.html` with your browser
   ![](img/start-tools.png)
-- click on "Online", compilation should takes around 10secs, if it run forever there might be an issue.
+- click on "Online", compilation should take around 10~30secs. If it runs longer than 2 minutes there might be an issue.
 - click on "Thread"
 - place `Online.js`and `ThreadEventHandler.js` files under Ragna.roBrowser `root` directory
 
@@ -38,7 +47,7 @@ In all `AI/*.lua` files :
 Some examples: https://github.com/MrAntares/Ragna.roBrowser-plugins
 
 ### Configure ROBrowser
-- edit `examples/api-online-frame.html` 
+- edit `examples/api-online-frame.html`
 ```js
 function initialize() {
       var ROConfig = {
@@ -77,6 +86,7 @@ function initialize() {
   }
   window.addEventListener("load", initialize, false);
 ```
+(Or you can set up your own `index.html` based on the examples)
 
 ### Start websocket proxy
 - run `wsproxy -a 127.0.0.1:6900,127.0.0.1:6121,127.0.0.1:5121`
@@ -88,24 +98,18 @@ Note: Most of the browsers nowadays don't support mixed security, so either use 
 - 
 ![](img/start-robrowser.png)
 
-### Important notes
-- Disable pincode on the game server. (Not supported yet)
-- Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
-- For public servers using `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.
-- To check for any errors open developer mode and check the browser console (F12 or CTRL+Shift+I in most browsers). Don't forget to adjust the level filters, if you don't see everything.
-- For client version the older, the better. roBrowser currently runs well with client dates <2016. 2012-04-10 is the most tested version. Newer versions might work as well, but important features/packets might be missing. We try to add all the new features/packets eventually.
-
 ## Troubleshooting
 ### Screen is blank
 Check that you don't have an extension using [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/message_event), it will conflict with code in `api.html` which listen for message.
 
-I personally had to disable `metamask` extension.
-
 ### AI%5cConst.js(404 not found)
 ![](img/start-ai-error.png)
 
-You have probably forgotten step about `AI` `require` replacement in `Add game assets` section
+You probably forgot the step about `AI` `require` replacement in `Add game assets` section
 
 ### ....(403 not found) ... 403 (Forbidden)
 
 You probably have a server secutiry issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
+
+### Other
+I personally had to disable `metamask` extension.
