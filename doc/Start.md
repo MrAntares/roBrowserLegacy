@@ -16,6 +16,12 @@ This guide section help you running robrowser locally.
 - Client/packet versions currently supported up to `2015-10-01`. We advise to use versions older than `2014`.
 - Disable pincode on the game server. (Not supported yet)
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
+#### Browser
+To run roBrowser you will need an up to date browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
+* Chrome
+* FireFox
+* Opera
+* IE11
 
 We assume in guide below http server to run on port `8000`.
 ### Compile files
