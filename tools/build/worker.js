@@ -39,7 +39,13 @@ function outputApp(appName) {
 }
 
 async function minify(code, appName, header) {
-	const minified = await Terser.minify(code)
+	const options = {
+		output: {
+			ascii_only: true
+		}
+	};
+	
+	const minified = await Terser.minify(code, options);
 	
 	if(minified.error){
 		postMessage({
