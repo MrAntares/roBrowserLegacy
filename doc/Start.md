@@ -9,7 +9,12 @@ This guide section help you running robrowser locally.
 ### Prerequisite
 #### RoBrowser
 - install websocket proxy `npm install wsproxy -g`
-- Run http server at root of Ragna.roBrowser directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
+- Get the source code
+  - Either Get the code via GIT
+    - HTTPS: `https://github.com/MrAntares/Ragna.roBrowser.git`
+    - GitHub CLI: `gh repo clone MrAntares/Ragna.roBrowser`
+  - Or download the [source code](https://github.com/MrAntares/Ragna.roBrowser/archive/refs/heads/master.zip) and unpack it to somwehere on your machine.
+- Run http server at root of Ragna.roBrowser directory, or place Ragna.roBrowser into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
 ![](img/start-http-server.png)
 - You own a full client
 #### Game Server
