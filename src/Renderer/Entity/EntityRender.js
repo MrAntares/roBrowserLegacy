@@ -481,7 +481,7 @@ define( function( require )
 
 		//overrides
 		if(animation.length){
-			animSize = animation.length;
+			animCount = animation.length;
 		}
 		if(animation.speed){
 			delay = animation.speed;
@@ -515,9 +515,8 @@ define( function( require )
 
 			anim %= animCount;
 			anim += animCount * headDir; // get rid of doridori
-			anim %= animSize;			// avoid overflow
 			anim += animation.frame;	 // don't forget the previous frame
-			anim %= animCount;			// avoid overflow
+			anim %= animSize;			// avoid overflow
 
 			return anim;
 		}
