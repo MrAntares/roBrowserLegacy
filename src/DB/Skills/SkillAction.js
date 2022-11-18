@@ -23,8 +23,8 @@ define(['./SkillConst'], function(SK) {
 			next: {
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
@@ -38,8 +38,8 @@ define(['./SkillConst'], function(SK) {
 		return {
 			action: entity.ACTION.IDLE,
 			frame: 0,
-			repeat: false,
-			play: false,
+			repeat: true,
+			play: true,
 			next: false
 		};
 	};
@@ -143,8 +143,8 @@ define(['./SkillConst'], function(SK) {
 			next: {
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
@@ -175,8 +175,8 @@ define(['./SkillConst'], function(SK) {
 			next: {
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
@@ -195,8 +195,8 @@ define(['./SkillConst'], function(SK) {
 			next: {
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
@@ -218,8 +218,8 @@ define(['./SkillConst'], function(SK) {
 			next: {
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
@@ -254,8 +254,8 @@ define(['./SkillConst'], function(SK) {
 			next: {
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
@@ -284,8 +284,8 @@ define(['./SkillConst'], function(SK) {
 			next: {
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
@@ -383,8 +383,8 @@ define(['./SkillConst'], function(SK) {
 				delay: tick + 3000,
 				action: entity.ACTION.IDLE,
 				frame:  0,
-				repeat: false,
-				play:   false,
+				repeat: true,
+				play:   true,
 				next:   false
 			}
 		};
