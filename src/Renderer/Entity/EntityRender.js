@@ -487,17 +487,13 @@ define( function( require )
 			delay = animation.speed;
 		}
 	
-		if(type === 'cart' && isIdle)
+		if(type === 'cart' && isIdle){
 			return 0;
+		}
 
 		// Get rid of doridori
 		if (type === 'body' && entity.objecttype === entity.constructor.TYPE_PC && isIdle) {
 			return entity.headDir;
-		}
-
-		// Don't play, so stop at the current frame.
-		if (animation.play === false) {
-			return Math.min(animation.frame, animSize-1);
 		}
 
 		// If hat/hair, divide to 3 since there is doridori include
@@ -505,6 +501,15 @@ define( function( require )
 		if (type === 'head' && isIdle) {
 			animCount = Math.floor(animCount / 3);
 			headDir   = entity.headDir;
+		}
+		
+		// Don't play, so stop at the current frame.
+		if (animation.play === false) {
+			anim += animCount * headDir; // get rid of doridori
+			anim += animation.frame;	 // set frame
+			anim %= animSize;			// avoid overflow
+
+			return anim;
 		}
 
 		// Repeatable
@@ -522,11 +527,12 @@ define( function( require )
 		}
 
 		// No repeat
-		anim = (
-			Math.min(tick / delay | 0, animCount || animCount -1)  // Avoid an error if animation = 0, search for -1 :(
-			+ animCount * headDir // get rid of doridori
-			+ animation.frame	 // previous frame
-		);
+		anim = Math.min(tick / delay | 0, animCount || animCount -1);  // Avoid an error if animation = 0, search for -1 :(
+		
+		anim %= animCount;
+		anim += animCount * headDir // get rid of doridori
+		anim += animation.frame	 // previous frame
+		anim %= animSize;			// avoid overflow
 		
 		var lastFrame = animation.frame + animSize-1;
 
@@ -538,7 +544,7 @@ define( function( require )
 			}
 		}
 
-		return Math.min( anim, animCount-1 );
+		return Math.min( anim, animSize-1 );
 	}
 
 
