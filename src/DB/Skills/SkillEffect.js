@@ -198,17 +198,17 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_CURSEATTACK]                = {effectId: 196};		//Curse Attack
 	SkillEffect[SK.NPC_SLEEPATTACK]                = {effectId: 197};		//Sleep attack
 	SkillEffect[SK.NPC_RANDOMATTACK]               = {};		//Random Attack
-	SkillEffect[SK.NPC_WATERATTACK]                = {};		//Water Attribute Attack
-	SkillEffect[SK.NPC_GROUNDATTACK]               = {};		//Earth Attribute Attack
-	SkillEffect[SK.NPC_FIREATTACK]                 = {};		//Fire Attribute Attack
-	SkillEffect[SK.NPC_WINDATTACK]                 = {};		//Wind Attribute Attack
-	SkillEffect[SK.NPC_POISONATTACK]               = {};		//Poison Attribute Attack
-	SkillEffect[SK.NPC_HOLYATTACK]                 = {};		//Holy Attribute Attack
+	SkillEffect[SK.NPC_WATERATTACK]                = {hitEffectId: 51};		//Water Attribute Attack
+	SkillEffect[SK.NPC_GROUNDATTACK]               = {hitEffectId: 147};		//Earth Attribute Attack
+	SkillEffect[SK.NPC_FIREATTACK]                 = {hitEffectId: 49};		//Fire Attribute Attack
+	SkillEffect[SK.NPC_WINDATTACK]                 = {hitEffectId: 52};		//Wind Attribute Attack
+	SkillEffect[SK.NPC_POISONATTACK]               = {hitEffectId: 53};		//Poison Attribute Attack
+	SkillEffect[SK.NPC_HOLYATTACK]                 = {hitEffectId: 152};		//Holy Attribute Attack
 	SkillEffect[SK.NPC_DARKNESSATTACK]             = {};		//Shadow Attribute Attack
 	SkillEffect[SK.NPC_TELEKINESISATTACK]          = {effectId: 198};		//Ghost Attribute Attack
 	SkillEffect[SK.NPC_MAGICALATTACK]              = {hitEffectId: 182};		//Demon Shock Attack
 	SkillEffect[SK.NPC_METAMORPHOSIS]              = {};		//Metamorphosis
-	SkillEffect[SK.NPC_PROVOCATION]                = {};		//Provocation
+	SkillEffect[SK.NPC_PROVOCATION]                = {successEffectId: 67};		//Provocation
 	SkillEffect[SK.NPC_SMOKING]                    = {};		//Smoking
 	SkillEffect[SK.NPC_SUMMONSLAVE]                = {};		//Follower Summons
 	SkillEffect[SK.NPC_EMOTION]                    = {};		//Emotion
@@ -342,7 +342,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_DARKCROSS]                  = {effectId: 450};		//Cross of Darkness
 	SkillEffect[SK.NPC_GRANDDARKNESS]              = {};		//Grand cross of Darkness
 	SkillEffect[SK.NPC_DARKSTRIKE]                 = {effectId: 451};		//Soul Strike of Darkness
-	SkillEffect[SK.NPC_DARKTHUNDER]                = {};		//Darkness Jupitel
+	SkillEffect[SK.NPC_DARKTHUNDER]                = {effectId: 93, hitEffectId: 94};		//Darkness Jupitel
 	SkillEffect[SK.NPC_STOP]                       = {effectId: 453};		//Stop
 	SkillEffect[SK.NPC_WEAPONBRAKER]               = {};		//Break weapon
 	SkillEffect[SK.NPC_ARMORBRAKE]                 = {};		//Break armor
@@ -549,9 +549,9 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NJ_ISSEN]                       = {effectId: 633};		//Final Strike
 	// Additional NPC Skills (Episode 11.3)
 	SkillEffect[SK.NPC_EARTHQUAKE]                 = {effectIdOnCaster: 666};		//Earthquake
-	SkillEffect[SK.NPC_FIREBREATH]                 = {effectId: 'ef_firebreath'};		//Fire Breath
+	SkillEffect[SK.NPC_FIREBREATH]                 = {effectId: 'ef_firebreath', hitEffectId: 49};		//Fire Breath
 	SkillEffect[SK.NPC_ICEBREATH]                  = {};		//Ice Breath
-	SkillEffect[SK.NPC_THUNDERBREATH]              = {};		//Thunder Breath
+	SkillEffect[SK.NPC_THUNDERBREATH]              = {hitEffectId: 52};		//Thunder Breath
 	SkillEffect[SK.NPC_ACIDBREATH]                 = {};		//Acid Breath
 	SkillEffect[SK.NPC_DARKNESSBREATH]             = {};		//Darkness Breath
 	SkillEffect[SK.NPC_DRAGONFEAR]                 = {effectId: 668};		//Dragon Fear
