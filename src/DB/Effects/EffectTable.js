@@ -1633,7 +1633,21 @@ define(function( require )
 			wav:  '_hit_fist%d',
 			rand: [3, 4],
 			attachedEntity: true
-		}],  
+		}/*, {
+			type: '2D',
+			alphaMax: 1,
+			angle: 0,
+			angleDelta: 40,
+			attachedEntity: false,
+			duration: 140,
+			duplicates: 9,
+			fadeOut: true,
+			file: 'effect/ice.tga',
+			offsetxEnd: 3,
+			offsetxStart: 0.5,
+			size: 100,
+			timeBetweenDupli: 0
+		}*/],  
 
 		52: [{	//EF_WINDHIT	Wind Elemental Hit
 			type: 'STR',
@@ -2735,6 +2749,8 @@ define(function( require )
 		//177: [{}],	//EF_CHANGEEARTH	   Change Element (Earth)
 		//178: [{}],	//EF_CHAINGEHOLY	   Change Element (Holy)
 		//179: [{}],	//EF_CHANGEPOISON	   Change Element (Poison)
+		
+		//180: [{}],	//EF_HITDARK	   Dark Elemental Hit
 
 		181: [{	//EF_MENTALBREAK	Mental Breaker
 			type: 'STR',
@@ -2756,7 +2772,8 @@ define(function( require )
 			attachedEntity: true,
 			wav: 'effect/ef_hit2'
 		}],
-
+		
+		//184: [{}],	//EF_DARKATTACK	   Dark Elemental Attack
 
 		185: [{	//EF_SUICIDE	(Nothing)
 			type: 'STR',
@@ -2851,9 +2868,94 @@ define(function( require )
 			attachedEntity: false
 		}],
 
-		//200: [{}],	//EF_LEVEL99	   Normal level 99 Aura (Middle)
-		//201: [{}],	//EF_LEVEL99_2	   Normal level 99 Aura (Bottom)
-		//202: [{}],	//EF_LEVEL99_3	   Lv 99 Aura Bubble
+		200: [{	//EF_LEVEL99	   Normal level 99 Aura (Middle)
+			type: 'CYLINDER',
+			textureName: 'ring_blue',
+			duration: 1033,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1,
+			alphaMax: 0.17,
+			angleY: 180,
+			bottomSize: 0.77,
+			topSize: 3.77,
+			height: 1.5,
+			rotate: true,
+			repeat: true,
+			attachedEntity: true,
+		}, {
+			type: 'CYLINDER',
+			textureName: 'ring_blue',
+			duration: 1022,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1,
+			alphaMax: 0.17,
+			angleY: 90,
+			bottomSize: 0.76,
+			topSize: 3.76,
+			height: 1.75,
+			rotate: true,
+			repeat: true,
+			attachedEntity: true,
+		}, {
+			type: 'CYLINDER',
+			textureName: 'ring_blue',
+			duration: 1000,
+			blendMode: 2,
+			red: 0.5,
+			green: 0.5,
+			blue: 1,
+			alphaMax: 0.17,
+			angleY: 0,
+			bottomSize: 0.75,
+			topSize: 3.75,
+			height: 2,
+			rotate: true,
+			repeat: true,
+			attachedEntity: true,
+		} ],
+		
+		201: [{	//EF_LEVEL99_2	   Normal level 99 Aura (Bottom)
+			/*type: 'FUNC',
+			attachedEntity: false,
+			func: function(pos, tick, AID){
+				var GroundEffect = require('Renderer/Effects/GroundEffect');
+				this.add(new GroundEffect(pos[0], pos[1]), AID);
+			}*/
+			//effect\\pikapika2.bmp
+			//Level99_2
+		}],
+		
+		202: [{	//EF_LEVEL99_3	   Lv 99 Aura Bubble
+			alphaMax: 0.78,
+			attachedEntity: true,
+			blendMode: 2,
+			duration: 2000,
+			duplicate: 5,
+			timeBetweenDupli: 400,
+			fadeIn: true,
+			fadeOut: true,
+			file: 'effect/freezing_circle.bmp',
+			posxStartRand: 0.5,
+			posxStartRandMiddle: 0,
+			posyStartRand: 0.5,
+			posyStartRandMiddle: 0,
+			posxEndRand: 4,
+			posxEndRandMiddle: 0,
+			posyEndRand: 4,
+			posyEndRandMiddle: 0,
+			poszEndRand: 1,
+			poszEndRandMiddle: 3,
+			poszStart: 0,
+			repeat: true,
+			size: 10,
+			sizeRand: 1.7,
+			type: '3D',
+			zIndex: 1
+		}],
 		
 		203: [{	//EF_GUMGANG	   Fury (Visual Effect)
 			//super1..5.bmp
@@ -4930,7 +5032,10 @@ define(function( require )
 			attachedEntity: true
 		}],
 		
-		//362: [{}],	//EF_LEVEL99_4	   Trancendant Level 99 Aura 1
+		362: [{	//EF_LEVEL99_4	   Trancendant Level 99 Aura 1
+			//effect\\whitelight.tga
+			//Level99_3(1)
+		}],
 
 		363: [{	//EF_VALLENTINE	Valentine Day Heart With Wings
 			type: 'SPR',
@@ -5145,8 +5250,16 @@ define(function( require )
 
 		//395: [{}],	//EF_LINELINK3	   Marionette Control (Sound Effect)
 		//396: [{}],	//EF_PINKBODY	   Marionette Control (Visual Effect)
-		//397: [{}],	//EF_LEVEL99_5	   Trancended 99 Aura (Middle)
-		//398: [{}],	//EF_LEVEL99_6	   Trancended 99 Aura (Bottom)
+
+		397: [{	//EF_LEVEL99_5	   Trancended 99 Aura (Middle)
+			//effect\\ring_blue.tga
+			//Level99
+		}],
+		
+		398: [{	//EF_LEVEL99_6	   Trancended 99 Aura (Bottom)
+			//effect\\pikapika2.bmp
+			//Level99_2
+		}],
 
 		399: [{ //headcrush caster	//EF_BASH3D3	Head Crush
 			wav:  'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çěµĺ Ĺ©·Ż˝¬
