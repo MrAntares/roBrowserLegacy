@@ -114,15 +114,15 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.PR_MAGNUS]                      = {effectId: 113, hitEffectId: 152, groundEffectId: 318};		//Magnus Exorcismus
 	// Wizard
 	SkillEffect[SK.WZ_FIREPILLAR]                  = {effectId: 96, groundEffectId: 138, hitEffectId: 97};		//Fire Pillar
-	SkillEffect[SK.WZ_SIGHTRASHER]                 = {effectId: 62};		//Sightrasher
+	SkillEffect[SK.WZ_SIGHTRASHER]                 = {effectId: 62, hitEffectId: 49};		//Sightrasher
 	SkillEffect[SK.WZ_METEOR]                      = {effectId: 92, hitEffectId: 49};		//Meteor Storm
 	SkillEffect[SK.WZ_JUPITEL]                     = {effectId: 93, hitEffectId: 94};		//Jupitel Thunder
 	SkillEffect[SK.WZ_VERMILION]                   = {effectId: 90, hitEffectId: 52};		//Lord of Vermilion
 	SkillEffect[SK.WZ_WATERBALL]                   = {beforeHitEffectId: 116, hitEffectId: 117};		//Water Ball
 	SkillEffect[SK.WZ_ICEWALL]                     = {groundEffectId: 74};		//Ice Wall
-	SkillEffect[SK.WZ_FROSTNOVA]                   = {effectIdOnCaster: 28};		//Frost Nova
-	SkillEffect[SK.WZ_STORMGUST]                   = {effectId: 89};		//Storm Gust
-	SkillEffect[SK.WZ_EARTHSPIKE]                  = {};		//Earth Spike
+	SkillEffect[SK.WZ_FROSTNOVA]                   = {effectIdOnCaster: 28, hitEffectId: 51};		//Frost Nova
+	SkillEffect[SK.WZ_STORMGUST]                   = {effectId: 89, hitEffectId: 51};		//Storm Gust
+	SkillEffect[SK.WZ_EARTHSPIKE]                  = {effectId: 79, hitEffectId: 147};		//Earth Spike
 	SkillEffect[SK.WZ_HEAVENDRIVE]                 = {groundEffectId: 142};		//Heaven's Drive
 	SkillEffect[SK.WZ_QUAGMIRE]                    = {groundEffectId: 95};		//Quagmire
 	SkillEffect[SK.WZ_ESTIMATION]                  = {};		//Sense
@@ -204,7 +204,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_WINDATTACK]                 = {hitEffectId: 52};		//Wind Attribute Attack
 	SkillEffect[SK.NPC_POISONATTACK]               = {hitEffectId: 53};		//Poison Attribute Attack
 	SkillEffect[SK.NPC_HOLYATTACK]                 = {hitEffectId: 152};		//Holy Attribute Attack
-	SkillEffect[SK.NPC_DARKNESSATTACK]             = {};		//Shadow Attribute Attack
+	SkillEffect[SK.NPC_DARKNESSATTACK]             = {effectId: 184, hitEffectId: 180};		//Shadow Attribute Attack
 	SkillEffect[SK.NPC_TELEKINESISATTACK]          = {effectId: 198};		//Ghost Attribute Attack
 	SkillEffect[SK.NPC_MAGICALATTACK]              = {hitEffectId: 182};		//Demon Shock Attack
 	SkillEffect[SK.NPC_METAMORPHOSIS]              = {};		//Metamorphosis
