@@ -175,7 +175,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
       gl.disableVertexAttribArray(this._program.attribute.aTextureCoord);
     }
 
-    constructor(pos, startLifeTime) {
+    constructor(pos, startTick) {
       this.position = pos;
     }
 
