@@ -67,10 +67,10 @@ define(function( require )
 	 * Add effect to the render list
 	 *
 	 * @param {function} effect
-	 * @param {mixed} effect unique id
+	 * @param {mixed} effect owner ID
 	 * @param {boolean} persistent
 	 */
-	EffectManager.add = function add(effect, uid, persistent, repeatEnd)
+	EffectManager.add = function add(effect, AID, persistent, repeatEnd)
 	{
 		var name = (effect.constructor.name || effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
 
@@ -90,7 +90,7 @@ define(function( require )
 			effect.init(_gl);
 		}
 
-		effect._uid        = uid;
+		effect._AID        = AID;
 		effect._persistent = !!persistent;
 		effect._repeatEnd = repeatEnd;
 
@@ -102,19 +102,21 @@ define(function( require )
 	 * Remove an effect
 	 *
 	 * @param {effect}
-	 * @param {mixed} effect unique id
+	 * @param {mixed} effect owner ID
 	 */
 	EffectManager.remove = function removeClosure()
 	{
-		function clean(name, uid) {
+		function clean(name, AID, effectID) {
 			var list;
 			var i, count;
+			var effectIdList = Array.isArray(effectID) ? effectID : [effectID];
+			
 
 			list  = _list[name];
 			count = list.length;
 
 			for (i = 0; i < count; ++i) {
-				if (list[i]._uid === uid) {
+				if (list[i]._AID === AID || effectIdList.includes(list[i].effectID)) {
 					if (list[i].free) {
 						list[i].free(_gl);
 					}
@@ -132,19 +134,19 @@ define(function( require )
 			}
 		}
 
-		return function remove(effect, uid)
+		return function remove(effect, AID, effectID)
 		{
 			if (!effect || !(effect.name in _list)) {
 				var i, count;
 				var keys = Object.keys(_list);
 
 				for (i = 0, count = keys.length; i < count; ++i) {
-					clean( keys[i], uid);
+					clean( keys[i], AID, effectID);
 				}
 
 				return;
 			} else {
-				clean( effect.name, uid);
+				clean( effect.name, AID, effectID);
 			}
 		};
 	}();
