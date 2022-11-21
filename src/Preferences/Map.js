@@ -53,7 +53,15 @@ define( ['Core/Preferences'], function( Preferences )
 		 *
 		 * Toggle using "/miss" in the chatbox
 		 */
-		miss: true
+		miss: true,
+
+
+		/**
+		 * Display simplified aura ?
+		 *
+		 * Toggle using "/aura" in the chatbox
+		 */
+		aura: false
 
 
 	}, 1.1 );
