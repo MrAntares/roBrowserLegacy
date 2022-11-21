@@ -140,11 +140,13 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 	 * StrEffect constructor
 	 *
 	 * @param {string} str effect file
+	 * @param {Array} effect position
+	 * @param {string} start tick
 	 */
-	function StrEffect( filename, position, tick )
+	function StrEffect( filename, position, startTick )
 	{
 		this.filename   = filename;
-		this.startTick  = tick;
+		this.startTick  = startTick;
 		this.position   = position;
 
 		// If can't render it, just remove it.
