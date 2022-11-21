@@ -219,7 +219,7 @@ define(function( require ) {
 	 * @param {number} cast size
 	 * @param {number} tick to remove it
 	 */
-	function MagicTarget( id, x, y, endLifeTime, srcEntity)
+	function MagicTarget( id, x, y, endTick, srcEntity)
 	{
 		this.x           = x;
 		this.y           = y;
@@ -235,7 +235,7 @@ define(function( require ) {
 			this.size = 1;
 		}
 
-		this.endLifeTime = endLifeTime;
+		this.endTick = endTick;
 	}
 
 
@@ -286,7 +286,7 @@ define(function( require ) {
 		gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 5*4,  3*4 );
 		gl.drawArrays( gl.TRIANGLES, 0, this.vertCount );
 
-		this.needCleanUp = this.endLifeTime < tick;
+		this.needCleanUp = this.endTick < tick;
 	};
 
 
