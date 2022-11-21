@@ -57,7 +57,7 @@ define(function( require ) {
             }
         });
 
-        function FlatColorTile(pos, startLifeTime){
+        function FlatColorTile(pos, startTick){
             this.position = pos;
         }
 
