@@ -77,6 +77,12 @@ define(function( require )
 				MapPreferences.save();
 				return;
 
+			case 'aura':
+				this.addText( DB.getMessage(711 + MapPreferences.aura), this.TYPE.INFO );
+				MapPreferences.aura = !MapPreferences.aura;
+				MapPreferences.save();
+				return;
+
 			case 'camera':
 				this.addText( DB.getMessage(319 + CameraPreferences.smooth), this.TYPE.INFO );
 				CameraPreferences.smooth = !CameraPreferences.smooth;
