@@ -32,7 +32,7 @@ define(function( require )
 	function Damage()
 	{
 		this.entity   = null;
-		this.start    = 0;
+		this.startTick    = 0;
 		this.type     = 0;
 		this.color    = new Float32Array(4);
 		this.delay    = 1500;
@@ -208,7 +208,7 @@ define(function( require )
 
 		obj.color    = [1.0, 1.0, 1.0, 1.0]; // for sprite renderer
 		obj.delay    = 1500;
-		obj.start    = tick;
+		obj.startTick    = tick;
 		obj.entity   = entity;
 
 		if (obj.type & Damage.TYPE.SP) {
@@ -247,7 +247,7 @@ define(function( require )
 			bgObj.type     = Damage.TYPE.CRIT;
 			bgObj.color    = [0.66, 0.66, 0.66, 1.0];
 			bgObj.delay    = 1500;
-			bgObj.start    = tick;
+			bgObj.startTick    = tick;
 			bgObj.entity   = entity;
 			bgObj.texture  = _msg.critbg.texture;
 			bgObj.width    = _msg.critbg.canvas.width * 0.6;
@@ -270,7 +270,7 @@ define(function( require )
 			bgObj.type     = obj.type;
 			bgObj.color    = [0.66, 0.66, 0.66, 1.0];
 			bgObj.delay    = 1500;
-			bgObj.start    = tick;
+			bgObj.startTick    = tick;
 			bgObj.entity   = entity;
 			bgObj.texture  = _msgBlue.critbg.texture;
 			bgObj.width    = _msgBlue.critbg.canvas.width * 0.6;
@@ -403,12 +403,12 @@ define(function( require )
 			damage = _list[i];
 
 			// Not now.
-			if (damage.start > tick) {
+			if (damage.startTick > tick) {
 				continue;
 			}
 
 			// Remove it from list, time passed.
-			if (damage.start + damage.delay < tick) {
+			if (damage.startTick + damage.delay < tick) {
 				if (damage.isDisposable) {
 					gl.deleteTexture( damage.texture );
 				}
@@ -418,7 +418,7 @@ define(function( require )
 				continue;
 			}
 
-			perc = (tick - damage.start) / damage.delay;
+			perc = (tick - damage.startTick) / damage.delay;
 
 			// Combo title
 			if (damage.type & Damage.TYPE.COMBO || damage.type & Damage.TYPE.COMBO_B) {
@@ -427,7 +427,7 @@ define(function( require )
 
 				// Remove it
 				if (!(damage.type & Damage.TYPE.COMBO_FINAL) && perc > 0.15) {
-					damage.start = 0;
+					damage.startTick = 0;
 				}
 
 				SpriteRenderer.position[0] = damage.entity.position[0];
@@ -461,7 +461,7 @@ define(function( require )
 
 			// Miss
 			else if (damage.type & Damage.TYPE.MISS) {
-				perc = (( tick - damage.start ) / 800);
+				perc = (( tick - damage.startTick ) / 800);
 				size = 0.5;
 				SpriteRenderer.position[0] = damage.entity.position[0];
 				SpriteRenderer.position[1] = damage.entity.position[1];
@@ -470,7 +470,7 @@ define(function( require )
 
 			// Miss
 			else if (damage.type & Damage.TYPE.LUCKY) {
-				perc = (( tick - damage.start ) / 800);
+				perc = (( tick - damage.startTick ) / 800);
 				size = 0.5;
 				SpriteRenderer.position[0] = damage.entity.position[0];
 				SpriteRenderer.position[1] = damage.entity.position[1];
