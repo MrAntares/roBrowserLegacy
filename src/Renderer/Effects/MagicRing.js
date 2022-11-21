@@ -162,14 +162,14 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	 * @param {string} texture name
 	 * @param {number} game tick
 	 */
-	function MagicRing( target, topSize, bottomSize, height, textureName, endLifeTime )
+	function MagicRing( target, topSize, bottomSize, height, textureName, endTick )
 	{
 		this.target      = target;
 		this.topSize     = topSize;
 		this.bottomSize  = bottomSize;
 		this.textureName = textureName;
 		this.height      = height;
-		this.endLifeTime = endLifeTime;
+		this.endTick = endTick;
 	}
 
 
@@ -229,7 +229,7 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 		gl.uniform1f(  uniform.uHeight,     this.height);
 
 		gl.drawArrays( gl.TRIANGLES, 0, _verticeCount );
-        this.needCleanUp = this.endLifeTime < tick;
+        this.needCleanUp = this.endTick < tick;
         if(!this.target.cast.display){
             this.needCleanUp = true;
         }
