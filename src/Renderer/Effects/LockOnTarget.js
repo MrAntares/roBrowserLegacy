@@ -116,11 +116,11 @@ define(function( require ) {
 	 * @param {Entity} target entity
 	 * @param {number} tick to remove it
 	 */
-	function LockOnTarget( target, startLifeTime, endLifeTime )
+	function LockOnTarget( target, startTick, endTick )
 	{
 		this.target        = target;
-		this.startLifeTime = startLifeTime;
-		this.endLifeTime   = endLifeTime;
+		this.startTick = startTick;
+		this.endTick   = endTick;
 	}
 
 
@@ -153,7 +153,7 @@ define(function( require ) {
 	 */
 	LockOnTarget.prototype.render = function render( gl, tick )
 	{
-		var time = tick - this.startLifeTime;
+		var time = tick - this.startTick;
 		var color = 20-(Math.floor(time/20)%20);
 		color /= 20;
 
@@ -168,7 +168,7 @@ define(function( require ) {
 
 		gl.drawArrays( gl.TRIANGLES, 0, 6 );
 
-		this.needCleanUp = this.endLifeTime < tick;
+		this.needCleanUp = this.endTick < tick;
 	};
 
 
