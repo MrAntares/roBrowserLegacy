@@ -8,7 +8,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
     
     var blendMode = {};
 
-    function ThreeDEffect(position, otherPosition, effect, startLifeTime, endLifeTime, AID) {
+    function ThreeDEffect(position, otherPosition, effect, startTick, endTick, AID) {
         this.AID = AID;
         this.textureName = effect.file;
         
@@ -233,8 +233,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             var GroundEffect = require('Renderer/Effects/GroundEffect');
             require('Renderer/EffectManager').add(new GroundEffect(this.posxStart, this.posyStart), 1000000);
         }
-        this.startLifeTime = startLifeTime;
-        this.endLifeTime = endLifeTime;
+        this.startTick = startTick;
+        this.endTick = endTick;
         this.repeat = effect.repeat;
         this.blendMode = effect.blendMode;
         
@@ -287,7 +287,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
     
     ThreeDEffect.prototype.render = function render(gl, tick) {
         
-        if( this.startLifeTime > tick ) return; //not yet
+        if( this.startTick > tick ) return; //not yet
         
         if (this.blendMode > 0 && this.blendMode < 16) {
             gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
@@ -295,8 +295,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         }
         
-        var start = tick - this.startLifeTime;
-        var end = this.endLifeTime - this.startLifeTime;
+        var start = tick - this.startTick;
+        var end = this.endTick - this.startTick;
         var steps = start / end * 100;
         
         if (steps > 100) steps = 100;
@@ -316,7 +316,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         }
         
         if(this.textureList.length > 0){
-            let frame = Math.floor((tick - this.startLifeTime) / this.frameDelay) % this.textureList.length;
+            let frame = Math.floor((tick - this.startTick) / this.frameDelay) % this.textureList.length;
             this.texture = this.textureList[frame];
         }
         
@@ -464,7 +464,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         if (this.shadowTexture && 0) {
             var effectName = require('Renderer/EffectManager').get(1000000);
             if (effectName) {
-                if (this.endLifeTime < tick) require('Renderer/EffectManager').remove(effectName, 1000000);
+                if (this.endTick < tick) require('Renderer/EffectManager').remove(effectName, 1000000);
                 else {
                     effectName.position = new Int16Array([SpriteRenderer.position[0], SpriteRenderer.position[1], Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1])]);
                 }
@@ -486,7 +486,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
                 var actions = this.actRessource.actions[(entity.action * 8 + (Camera.direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
                 var animations;
                 var delay = this.sprDelay || actions.delay;
-                if (this.playSprite) animations = actions.animations[Math.floor((tick - this.startLifeTime) / delay) % actions.animations.length];
+                if (this.playSprite) animations = actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
                 else animations = actions.animations[0];
                 var layers = animations.layers;
                 let i = 0;
@@ -543,12 +543,12 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             SpriteRenderer.render();
         }
         
-        if(this.repeat && this.endLifeTime < tick){
-            var duration = this.endLifeTime - this.startLifeTime;
-            this.startLifeTime += duration;
-            this.endLifeTime += duration;
+        if(this.repeat && this.endTick < tick){
+            var duration = this.endTick - this.startTick;
+            this.startTick += duration;
+            this.endTick += duration;
         } else {
-            this.needCleanUp = this.endLifeTime < tick;
+            this.needCleanUp = this.endTick < tick;
         }
     };
     
