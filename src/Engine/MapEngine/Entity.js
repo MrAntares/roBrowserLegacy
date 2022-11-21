@@ -18,6 +18,7 @@ define(function( require )
 	var SkillId           = require('DB/Skills/SkillConst');
 	var SkillInfo         = require('DB/Skills/SkillInfo');
 	var StatusConst       = require('DB/Status/StatusConst');
+	var StatusState       = require('DB/Status/StatusState');
 	var Emotions          = require('DB/Emotions');
 	var SkillEffect       = require('DB/Skills/SkillEffect');
 	var SkillActionTable  = require('DB/Skills/SkillAction');
@@ -27,6 +28,7 @@ define(function( require )
 	var Session           = require('Engine/SessionStorage');
 	var Network           = require('Network/NetworkManager');
 	var PACKET            = require('Network/PacketStructure');
+	var PACKETVER	      = require('Network/PacketVerManager');
 	var Altitude          = require('Renderer/Map/Altitude');
 	var Renderer          = require('Renderer/Renderer');
 	var EntityManager     = require('Renderer/EntityManager');
@@ -121,11 +123,16 @@ define(function( require )
 		}
 
 		if(entity.objecttype === Entity.TYPE_PC &&
+			!(entity._effectState & StatusState.EffectState.INVISIBLE) &&
 			(pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY3
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY6
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
 		){
-			EffectManager.spam(6, entity.GID, entity.position);
+			if(PACKETVER.value < 20030715){
+				EffectManager.spam(6, entity.GID, entity.position);
+			} else {
+				EffectManager.spam(344, entity.GID, entity.position);
+			}
 		}
 		
 		if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
@@ -158,8 +165,12 @@ define(function( require )
 			
 			EffectManager.remove(SpiritSphere, pkt.GID);
 
-			if([2, 3].includes(pkt.type)){ //exits or teleports
-				EffectManager.spam(304, null, entity.position);
+			if(	[2, 3].includes(pkt.type) && !(entity._effectState & StatusState.EffectState.INVISIBLE)){ //exits or teleports
+				if(PACKETVER.value < 20030715){
+					EffectManager.spam(34, null, entity.position);
+				} else {
+					EffectManager.spam(304, null, entity.position);
+				}
 			}
 			entity.remove( pkt.type );
 		}
