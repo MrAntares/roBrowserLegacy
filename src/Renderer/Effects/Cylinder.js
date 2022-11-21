@@ -175,7 +175,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @param {number} Start tick
 	 * @param {number} End tick
 	 */
-	function Cylinder(position, otherPosition, direction, effect, startLifeTime, endLifeTime) {
+	function Cylinder(position, otherPosition, direction, effect, startTick, endTick) {
 		this.semiCircle = effect.semiCircle ? false : true;
 		
 		this.totalCircleSides = (!isNaN(effect.totalCircleSides)) ? effect.totalCircleSides : 20;
@@ -234,8 +234,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.zIndex = (!isNaN(effect.zIndex)) ? effect.zIndex : 0;
 		
 		this.blendMode = effect.blendMode;
-		this.startLifeTime = startLifeTime;
-		this.endLifeTime = endLifeTime;
+		this.startTick = startTick;
+		this.endTick = endTick;
 		
 		this.repeat = effect.repeat;
 	}
@@ -284,8 +284,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @param {object} wegl context
 	 */
 	Cylinder.prototype.render = function render(gl, tick) {
-		var renderCount = tick - this.startLifeTime;
-		var duration = this.endLifeTime - this.startLifeTime;
+		var renderCount = tick - this.startTick;
+		var duration = this.endTick - this.startTick;
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 		
@@ -403,12 +403,12 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		
 		gl.drawArrays(gl.TRIANGLES, 0, this.verticeCount);
 		
-		if(this.repeat && this.endLifeTime < tick){
-            var duration = this.endLifeTime - this.startLifeTime;
-            this.startLifeTime += duration;
-            this.endLifeTime += duration;
+		if(this.repeat && this.endTick < tick){
+            var duration = this.endTick - this.startTick;
+            this.startTick += duration;
+            this.endTick += duration;
         } else {
-            this.needCleanUp = this.endLifeTime < tick;
+            this.needCleanUp = this.endTick < tick;
         }
 		
 	};
