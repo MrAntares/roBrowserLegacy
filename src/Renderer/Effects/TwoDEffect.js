@@ -2,6 +2,17 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Rende
 function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camera) {
     
     'use strict';
+	
+	/**
+	 * @var {mat4}
+	 */
+	var mat4 = glMatrix.mat4;
+
+
+	/**
+	 * @var {mat4} rotation matrix
+	 */
+	var _matrix = mat4.create();
     
     function getRandomIntInclusive(min, max) {
         min = Math.ceil(min);
@@ -11,7 +22,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 
     var blendMode = {};
     
-    function TwoDEffect(position, effect, startLifeTime, endLifeTime, AID) {
+    function TwoDEffect(position, effect, startTick, endTick, AID) {
         this.AID = AID;
         this.textureName = effect.file;
         this.zIndex = effect.zIndex ? effect.zIndex : 0;
@@ -31,8 +42,10 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         if (effect.blue) this.blue = effect.blue;
         else this.blue = 1;
         
+		// Original position
         this.position = position;
         
+		// PosX
         if (effect.posxStart) this.posxStart = effect.posxStart;
         else this.posxStart = 0;
         
@@ -66,6 +79,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         
         this.posxSmooth = effect.posxSmooth ? true : false;
         
+		// PosY
         if (effect.posyStart) this.posyStart = effect.posyStart;
         else this.posyStart = 0;
         
@@ -99,6 +113,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         
         this.posySmooth = effect.posySmooth ? true : false;
         
+		// PosZ
         if (effect.poszStart) this.poszStart = effect.poszStart;
         else this.poszStart = 0;
         
@@ -132,6 +147,75 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         
         this.poszSmooth = effect.poszSmooth ? true : false;
         
+		// OffsetX
+		if (effect.offsetxStart) this.offsetxStart = effect.offsetxStart;
+        else this.offsetxStart = 0;
+        
+        if (effect.offsetxEnd) this.offsetxEnd = effect.offsetxEnd;
+        else this.offsetxEnd = 0;
+        
+        if (effect.offsetx) {
+            this.offsetxStart = effect.offsetx;
+            this.offsetxEnd = effect.offsetx;
+        }
+        
+        if (effect.offsetxRand) {
+            this.offsetxStart = getRandomIntInclusive(-effect.offsetxRand, effect.offsetxRand);
+            this.offsetxEnd = this.offsetxStart;
+        }
+        
+        if (effect.offsetxRandDiff) {
+            this.offsetxStart = getRandomIntInclusive(-effect.offsetxRandDiff, effect.offsetxRandDiff);
+            this.offsetxEnd = getRandomIntInclusive(-effect.offsetxRandDiff, effect.offsetxRandDiff);
+        }
+        
+        if (effect.offsetxStartRand) {
+            var offsetxStartRandMiddle = effect.offsetxStartRandMiddle ? effect.offsetxStartRandMiddle : 0;
+            this.offsetxStart = getRandomIntInclusive(offsetxStartRandMiddle - effect.offsetxStartRand, offsetxStartRandMiddle + effect.offsetxStartRand);
+        }
+        
+        if (effect.offsetxEndRand) {
+            var offsetxEndRandMiddle = effect.offsetxEndRandMiddle ? effect.offsetxEndRandMiddle : 0;
+            this.offsetxEnd = getRandomIntInclusive(offsetxEndRandMiddle - effect.offsetxEndRand, offsetxEndRandMiddle + effect.offsetxEndRand);
+        }
+        
+        this.offsetxSmooth = effect.offsetxSmooth ? true : false;
+        
+		//OffsetY
+        if (effect.offsetyStart) this.offsetyStart = effect.offsetyStart;
+        else this.offsetyStart = 0;
+        
+        if (effect.offsetyEnd) this.offsetyEnd = effect.offsetyEnd;
+        else this.offsetyEnd = 0;
+        
+        if (effect.offsety) {
+            this.offsetyStart = effect.offsety;
+            this.offsetyEnd = effect.offsety;
+        }
+        
+        if (effect.offsetyRand) {
+            this.offsetyStart = getRandomIntInclusive(-effect.offsetyRand, effect.offsetyRand);
+            this.offsetyEnd = this.offsetyStart;
+        }
+        
+        if (effect.offsetyRandDiff) {
+            this.offsetyStart = getRandomIntInclusive(-effect.offsetyRandDiff, effect.offsetyRandDiff);
+            this.offsetyEnd = getRandomIntInclusive(-effect.offsetyRandDiff, effect.offsetyRandDiff);
+        }
+        
+        if (effect.offsetyStartRand) {
+            var offsetyStartRandMiddle = effect.offsetyStartRandMiddle ? effect.offsetyStartRandMiddle : 0;
+            this.offsetyStart = getRandomIntInclusive(offsetyStartRandMiddle - effect.offsetyStartRand, offsetyStartRandMiddle + effect.offsetyStartRand);
+        }
+        
+        if (effect.offsetyEndRand) {
+            var offsetyEndRandMiddle = effect.offsetyEndRandMiddle ? effect.offsetyEndRandMiddle : 0;
+            this.offsetyEnd = getRandomIntInclusive(offsetyEndRandMiddle - effect.offsetyEndRand, offsetyEndRandMiddle + effect.offsetyEndRand);
+        }
+        
+        this.offsetySmooth = effect.offsetySmooth ? true : false;
+		
+		// Size
         if (effect.size) {
             this.sizeStartX = effect.size;
             this.sizeStartY = effect.size;
@@ -184,9 +268,15 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         }
         
         this.sizeSmooth = effect.sizeSmooth ? true : false;
+		
+		// Angle
         this.angle = effect.angle ? effect.angle : 0;
         this.rotate = effect.rotate ? true : false;
         this.toAngle = effect.toAngle ? effect.toAngle : 0;
+		if(effect.angleDelta){
+			this.angle += effect.angleDelta * effect.duplicateID;
+			this.toAngle += effect.angleDelta * effect.duplicateID;
+		}
         
         if(effect.rotateToTarget){
             this.rotateToTarget = true;
@@ -195,6 +285,8 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
             this.angle += (90 - (Math.atan2(y, x) * (180 / Math.PI)));
         }
         
+		
+		// Other
         var entity = EntityManager.get(this.AID);
         if (entity && this.shadowTexture) {
             entity.attachments.add({
@@ -209,8 +301,8 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         
         this.blendMode = effect.blendMode;
         
-        this.startLifeTime = startLifeTime;
-        this.endLifeTime = endLifeTime;
+        this.startTick = startTick;
+        this.endTick = endTick;
     }
     
     
@@ -232,10 +324,10 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
     
     TwoDEffect.prototype.render = function render(gl, tick) {
         
-        if( this.startLifeTime > tick ) return; //not yet
+        if( this.startTick > tick ) return; //not yet
         
-        var start = tick - this.startLifeTime;
-        var duration = this.endLifeTime - this.startLifeTime;
+        var start = tick - this.startTick;
+        var duration = this.endTick - this.startTick;
         var steps = start / duration * 100;
         
         if (steps > 100) steps = 100;
@@ -250,6 +342,8 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         SpriteRenderer.zIndex = this.zIndex;
         
         var cRad = Camera.angle[1] * Math.PI / 180;
+		
+		// Pos
         var currentX = 0;
         if (this.posxSmooth) {
             if (this.posxStart != this.posxEnd) {
@@ -313,6 +407,49 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         }
         SpriteRenderer.position[2] = this.position[2] + currentZ;
         
+		// Offset
+		var currentOffsetX = 0;
+        if (this.offsetxSmooth) {
+            if (this.offsetxStart != this.offsetxEnd) {
+                var step = steps * 0.09 + 1;
+                var smoothStep = Math.log10(step);
+                var distance = this.offsetxEnd - this.offsetxStart;
+                var start = this.offsetxStart;
+                var offset = smoothStep * distance + start;
+                currentOffsetX = offset;
+            } else currentOffsetX = this.offsetxStart;
+        } else {
+            if (this.offsetxStart != this.offsetxEnd) {
+                var distance = (this.offsetxEnd - this.offsetxStart) / 100;
+                var start = this.offsetxStart;
+                var offset = steps * distance + start;
+                currentOffsetX = offset;
+            } else currentOffsetX = this.offsetxStart;
+        }
+        
+        var currentOffsetY = 0;
+        if (this.offsetySmooth) {
+            if (this.offsetyStart != this.offsetyEnd) {
+                var step = steps * 0.09 + 1;
+                var smoothStep = Math.log10(step);
+                var distance = this.offsetyEnd - this.offsetyStart;
+                var start = this.offsetyStart;
+                var offset = smoothStep * distance + start;
+                currentOffsetY = offset;
+            } else currentOffsetY = this.offsetyStart;
+        } else {
+            if (this.offsetyStart != this.offsetyEnd) {
+                var distance = (this.offsetyEnd - this.offsetyStart) / 100;
+                var start = this.offsetyStart;
+                var offset = steps * distance + start;
+                currentOffsetY = offset;
+            } else currentOffsetY = this.offsetyStart;
+        }
+		
+		SpriteRenderer.offset[0] = currentOffsetX;
+		SpriteRenderer.offset[1] = currentOffsetY;
+		
+		// Color
         var alpha = this.alphaMax;
         
         if (this.fadeIn && start < duration / 4) {
@@ -329,6 +466,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         SpriteRenderer.color[1] = this.green;
         SpriteRenderer.color[2] = this.blue;
         
+		// Size
         var currentXSize, currentYSize;
         if (this.sizeSmooth) {
             
@@ -371,6 +509,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         SpriteRenderer.size[0] = currentXSize;
         SpriteRenderer.size[1] = currentYSize;
         
+		// Angle
         if (this.rotate) {
             var step = (this.toAngle - this.angle) / 100;
             var startAngle = this.angle;
@@ -383,13 +522,13 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
         var entity = EntityManager.get(this.AID);
         
         if (entity) {
-            if (this.endLifeTime < tick) entity.attachments.remove(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
+            if (this.endTick < tick) entity.attachments.remove(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
             else {
                 var attachment = entity.attachments.get(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
                 if (attachment) attachment.position = new Int16Array([SpriteRenderer.position[0], SpriteRenderer.position[1]]);
             }
         }
-        this.needCleanUp = this.endLifeTime < tick;
+        this.needCleanUp = this.endTick < tick;
     };
     
     TwoDEffect.init = function init(gl) {
