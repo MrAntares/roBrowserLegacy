@@ -224,7 +224,6 @@ define(function( require )
 
 					if (list[j].needCleanUp) {
 						if (list[j]._persistent || (list[j]._repeatEnd) > tick) {
-							console.log(list[j]);
 							if(list[j].endTick){
 								list[j].endTick = tick + (list[j].endTick - list[j].startTick);
 							}
@@ -391,11 +390,11 @@ define(function( require )
 				if (effect.func) {
 					if (effect.attachedEntity) {
 						if (entity) {
-							effect.func.call(this, entity, startTick, AID);
+							effect.func.call(this, entity, startTick, AID, repeatEnd);
 						}
 					}
 					else {
-						effect.func.call(this, position, startTick, AID);
+						effect.func.call(this, position, startTick, AID, repeatEnd);
 					}
 				}
 				break;
