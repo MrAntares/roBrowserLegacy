@@ -369,7 +369,7 @@ define(function( require )
 
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
 				if (weaponSound && weaponSound.includes('bow')) {
-					EffectManager.spam('ef_arrow_projectile', dstEntity.GID, null, null, false, srcEntity.GID, srcEntity.position);
+					EffectManager.spam('ef_arrow_projectile', dstEntity.GID, null, null, false, null, srcEntity.GID, srcEntity.position);
 				}
 
 				//attack sound
@@ -1133,7 +1133,7 @@ define(function( require )
 
         if(pkt.SKID in SkillEffect) {
             if (SkillEffect[pkt.SKID].beforeCastEffectId) { //in spells like Bash, Hide, Double Strafe etc. effect goes before cast/animation (on instant)
-                EffectManager.spam(SkillEffect[pkt.SKID].beforeCastEffectId, pkt.AID, null, null, false, pkt.targetID, null);
+                EffectManager.spam(SkillEffect[pkt.SKID].beforeCastEffectId, pkt.AID, null, null, false, null, pkt.targetID, null);
             }
         }
 
