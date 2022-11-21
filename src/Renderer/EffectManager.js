@@ -70,7 +70,7 @@ define(function( require )
 	 * @param {mixed} effect unique id
 	 * @param {boolean} persistent
 	 */
-	EffectManager.add = function add(effect, uid, persistent)
+	EffectManager.add = function add(effect, uid, persistent, repeatEnd)
 	{
 		var name = (effect.constructor.name || effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
 
@@ -92,6 +92,7 @@ define(function( require )
 
 		effect._uid        = uid;
 		effect._persistent = !!persistent;
+		effect._repeatEnd = repeatEnd;
 
 		_list[name].push(effect);
 	};
@@ -220,7 +221,11 @@ define(function( require )
 					}
 
 					if (list[j].needCleanUp) {
-						if (list[j]._persistent) {
+						if (list[j]._persistent || (list[j]._repeatEnd) > tick) {
+							console.log(list[j]);
+							if(list[j].endTick){
+								list[j].endTick = tick + (list[j].endTick - list[j].startTick);
+							}
 							list[j].startTick   = tick;
 							list[j].needCleanUp = false;
 							continue;
@@ -256,8 +261,11 @@ define(function( require )
 	 * @param {Array} position
 	 * @param {number} tick
 	 * @param {boolean} persistent
+	 * @param {repeatEnd} for how long to repeat
+	 * @param {number} target/source (other entity) aid
+	 * @param {Array} target/source (other entity) position
 	 */
-	EffectManager.spam = function spam( effectId, AID, position, tick, persistent, otherAID, otherPosition )
+	EffectManager.spam = function spam( effectId, AID, position, startTick, persistent, repeatEnd, otherAID, otherPosition )
 	{
 		var effects;
 		var count, duplicate, timeBetweenDupli;
@@ -272,14 +280,7 @@ define(function( require )
 		}
 
 		effects = EffectDB[effectId];
-		tick    = tick || Renderer.tick;
-		
-		/*
-		for (i = 0, count = effects.length; i < count; i++) {
-			EffectManager.spamEffect(effects[i], AID, position, tick, persistent);
-		}*/
-		
-		var duration = 0;
+		startTick    = startTick || Renderer.tick;
 		
 		for (var i = 0, count = effects.length; i < count; ++i) {
 			
@@ -291,7 +292,7 @@ define(function( require )
             for (var j = 0; j < duplicate; ++j) {
 				effects[i].effectID = effectId;
 				effects[i].duplicateID = j;
-				EffectManager.spamEffect(effects[i], AID, otherAID, position, otherPosition, tick + timeBetweenDupli * j, persistent, duration);
+				EffectManager.spamEffect(effects[i], AID, otherAID, position, otherPosition, startTick + timeBetweenDupli * j, persistent, repeatEnd);
 			}
         }
 	};
@@ -305,9 +306,9 @@ define(function( require )
 	 * @param {vec3} position
 	 * @param {number} startTick
 	 * @param {boolean} persistent
-	 * @param {number} duration
+	 * @param {number} repeatEnd
 	 */
-	EffectManager.spamEffect = function spamEffect( effect, AID, otherAID, position, otherPosition, startTick, persistent, duration)
+	EffectManager.spamEffect = function spamEffect( effect, AID, otherAID, position, otherPosition, startTick, persistent, repeatEnd)
 	{
 		var entity = EntityManager.get(AID);
 		var otherEntity = EntityManager.get(otherAID);
@@ -352,7 +353,7 @@ define(function( require )
 		var direction = (effect.attachedEntity && entity) ? entity.direction : 0;
 		
 		//Set delays
-		if (!duration) duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
+		var duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
 		
 		var delayOffsetDelta = !isNaN(effect.delayOffsetDelta) ? effect.delayOffsetDelta * effect.duplicateID : 0;
 		var delayLateDelta = !isNaN(effect.delayLateDelta) ? effect.delayLateDelta * effect.duplicateID : 0;
@@ -362,23 +363,23 @@ define(function( require )
 		
 		switch (effect.type) {
 			case 'SPR':
-				spamSprite( effect, AID, position, startTick + delayLate, persistent );
+				spamSprite( effect, AID, position, startTick + delayLate, persistent, repeatEnd );
 				break;
 
 			case 'STR':
-				spamSTR( effect, AID, position, startTick + delayLate, persistent );
+				spamSTR( effect, AID, position, startTick + delayLate, persistent, repeatEnd );
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID/*, persistent*/);
+				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID, persistent, repeatEnd);
 				break;
 				
 			case '2D':
-				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID/*, persistent*/);
+				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, persistent, repeatEnd);
 				break;
 			
 			case '3D':
-				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID/*, persistent*/);
+				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, persistent, repeatEnd);
 				break;
 				
 			case 'RSM':
@@ -409,7 +410,7 @@ define(function( require )
 	 * @param {number} tick
 	 * @param {boolean} persistent
 	 */
-	function spamSTR( effect, AID, position, tick, persistent)
+	function spamSTR( effect, AID, position, tick, persistent, repeatEnd)
 	{
 		var filename;
 
@@ -427,7 +428,7 @@ define(function( require )
 		}
 
 		// Start effect
-		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', position, tick), AID, persistent);
+		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', position, tick), AID, persistent, repeatEnd);
 	}
 
 
@@ -440,7 +441,7 @@ define(function( require )
 	 * @param {number} tick
 	 * @param {boolean} persistent
 	 */
-	function spamSprite( effect, AID, position, tick, persistent)
+	function spamSprite( effect, AID, position, tick, persistent, repeatEnd)
 	{
 		var entity = EntityManager.get(AID);
 		var isNewEntity = false;
@@ -522,7 +523,7 @@ define(function( require )
 		}
 		
 		EffectManager.remove(null, uid);
-		EffectManager.spam( effectId, uid, [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ], Renderer.tick, true, creatorUid);
+		EffectManager.spam( effectId, uid, [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ], Renderer.tick, true, null, creatorUid);
 	};
 
 
@@ -542,12 +543,12 @@ define(function( require )
 		
 		if(SkillEffect[skillId].effectId){
 			var effects = Array.isArray(SkillEffect[skillId].effectId) ? SkillEffect[skillId].effectId : [SkillEffect[skillId].effectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, null, srcAID));
 		}
 		
 		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
 			var effects = Array.isArray(SkillEffect[skillId].effectIdOnCaster) ? SkillEffect[skillId].effectIdOnCaster : [SkillEffect[skillId].effectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, position, tick, false, destAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, position, tick, false, null, destAID));
 		}
 	};
 
@@ -566,12 +567,12 @@ define(function( require )
 
 		if (SkillEffect[skillId].successEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].successEffectId) ? SkillEffect[skillId].successEffectId : [SkillEffect[skillId].successEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, null, srcAID));
 		}
 		
 		if (SkillEffect[skillId].successEffectIdOnCaster) {
 			var effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster) ? SkillEffect[skillId].successEffectIdOnCaster : [SkillEffect[skillId].successEffectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, null, tick, false, destAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, null, tick, false, null, destAID));
 		}
 	};
 
@@ -590,7 +591,7 @@ define(function( require )
 
 		if (SkillEffect[skillId].hitEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].hitEffectId) ? SkillEffect[skillId].hitEffectId : [SkillEffect[skillId].hitEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, null, srcAID));
 		}
 	};
 	
@@ -609,12 +610,12 @@ define(function( require )
 
 		if (SkillEffect[skillId].beforeHitEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectId) ? SkillEffect[skillId].beforeHitEffectId : [SkillEffect[skillId].beforeHitEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, null, srcAID));
 		}
 		
 		if (SkillEffect[skillId].beforeHitEffectIdOnCaster) {
 			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectIdOnCaster) ? SkillEffect[skillId].beforeHitEffectIdOnCaster : [SkillEffect[skillId].beforeHitEffectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, null, tick, false, destAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, null, tick, false, null, destAID));
 		}
 	};
 	
@@ -634,12 +635,12 @@ define(function( require )
 		
 		if(ItemEffect[itemId].effectId){
 			var effects = Array.isArray(ItemEffect[itemId].effectId) ? ItemEffect[itemId].effectId : [ItemEffect[itemId].effectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, srcAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, null, srcAID));
 		}
 		
 		if (ItemEffect[itemId].effectIdOnCaster && srcAID) {
 			var effects = Array.isArray(ItemEffect[itemId].effectIdOnCaster) ? ItemEffect[itemId].effectIdOnCaster : [ItemEffect[itemId].effectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, position, tick, false, destAID));
+			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, position, tick, false, null, destAID));
 		}
 	};
 
