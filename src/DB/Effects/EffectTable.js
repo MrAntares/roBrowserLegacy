@@ -3121,7 +3121,17 @@ define(function( require )
 			attachedEntity: true
 		}],
 
-		//228: [{}],	//EF_CHOOKGI	   (Nothing) - Used for spirit spheres (other classes)
+		228: [{	//EF_CHOOKGI	   (Nothing) - Used for spirit spheres (other classes)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function(EF_Inst_Par, EF_Init_Par){
+				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+				var spiritNum = EF_Init_Par.spiritNum || 0;
+				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, false);
+				this.add(Spheres, EF_Init_Par);
+			}
+		}],
+		
 		//229: [{}],	//EF_CLOUD	   (Nothing)
 		//230: [{}],	//EF_CLOUD2	   (Nothing)
 		//231: [{}],	//EF_MAPPILLAR	   Map Light Pillar Animation 1
@@ -6357,7 +6367,18 @@ define(function( require )
 		
 		//502: [{}],	//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
 		//503: [{}],	//EF_SOULLINK	   Soul Link Word
-		//504: [{}],	//EF_CHOOKGI2	   (Nothing) - Used for spirit spheres (monk classes)
+		
+		504: [{	//EF_CHOOKGI2	   (Nothing) - Used for spirit spheres (monk classes)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function(EF_Inst_Par, EF_Init_Par){
+				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+				var spiritNum = EF_Init_Par.spiritNum || 0;
+				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, false);
+				this.add(Spheres, EF_Init_Par);
+			}
+		}],
+		
 		//505: [{}],	//EF_MEMORIZE	   Memorize
 		//506: [{}],	//EF_SOULLIGHT	   (Nothing)
 
@@ -7099,7 +7120,17 @@ define(function( require )
 		}],
 		
 		//628: [{}],	//EF_BASH3D5	   Dust
-		//629: [{}],	//EF_CHOOKGI3	   (Nothing) - Used for spirit spheres (gunslinger classes)
+		
+		629: [{	//EF_CHOOKGI3	   (Nothing) - Used for spirit spheres (gunslinger classes)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function(EF_Inst_Par, EF_Init_Par){
+				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+				var spiritNum = EF_Init_Par.spiritNum || 0;
+				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, true);
+				this.add(Spheres, EF_Init_Par);
+			}
+		}],
 
 		630: [{	//EF_KIRIKAGE	Shadow Slash
 			type: 'SPR',
@@ -8764,7 +8795,17 @@ define(function( require )
 			wav:  'effect/\xb1\xe2\xb0\xf8\xc6\xf7'
 		}],
 		
-		//833: [{}],	//EF_CHOOKGI_N	   (Nothing) - Used for spheres (royal guard?)
+		833: [{	//EF_CHOOKGI_N	   (Nothing) - Used for spheres (royal guard?)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function(EF_Inst_Par, EF_Init_Par){
+				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+				var spiritNum = EF_Init_Par.spiritNum || 0;
+				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, false);
+				this.add(Spheres, EF_Init_Par);
+			}
+		}],
+		
 		//834: [{}],	//EF_JOBLVUP50_2	   Light shooting away circlish
 		//835: [{}],	//EF_CHEMICAL2DASH2	   Fastness yellow-reddish
 		//836: [{}],	//EF_CHEMICAL2DASH3	   Fastness yellow-pinkish
