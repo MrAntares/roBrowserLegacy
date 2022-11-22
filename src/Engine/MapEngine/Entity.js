@@ -39,7 +39,6 @@ define(function( require )
 	var LockOnTarget      = require('Renderer/Effects/LockOnTarget');
 	var MagicRing         = require('Renderer/Effects/MagicRing');
 	var StrEffect         = require('Renderer/Effects/StrEffect');
-	var SpiritSphere      = require('Renderer/Effects/SpiritSphere');
 	var WarlockSphere     = require('Renderer/Effects/WarlockSphere');
 	var MapEffects        = require('Renderer/Map/Effects');
 	var BasicInfo         = require('UI/Components/BasicInfo/BasicInfo');
@@ -176,7 +175,7 @@ define(function( require )
 			}
 			
 			EffectManager.remove( null, pkt.GID,[ 228, 504, 629, 833 ]); // Spirit spheres
-			EffectManager.remove( null, pkt.GID,[ 735, 736, 737, 738 ]); // Elemental spheres (Warlock)
+			EffectManager.remove( null, pkt.GID,[ 735, 736, 737, 738, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
 
 			if(	[2, 3].includes(pkt.type) && !(entity._effectState & StatusState.EffectState.INVISIBLE)){ //exits or teleports
 				var EF_Init_Par = {
@@ -1622,11 +1621,16 @@ define(function( require )
 			if(entity.Summon5) spheres.push(entity.Summon5);
 			
 			var wl_spheres = new WarlockSphere(entity, spheres);
-			EffectManager.add(wl_spheres, entity.GID, false);
+			var EF_Init_Par = {
+				effectId: 'temporary_warlock_sphere',
+				ownerAID: entity.GID,
+				persistent: false
+			};
+			EffectManager.add(wl_spheres, EF_Init_Par);
 			
 			entity.WarlockSpheres = true;
 		} else if (entity.WarlockSpheres){
-			EffectManager.remove(WarlockSphere, entity.GID);
+			EffectManager.remove( null, entity.GID, 'temporary_warlock_sphere');
 			entity.WarlockSpheres = false;
 		}
 	}
