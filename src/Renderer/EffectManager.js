@@ -70,7 +70,7 @@ define(function( require )
 	 * @param {mixed} effect owner ID
 	 * @param {boolean} persistent
 	 */
-	EffectManager.add = function add(effect, AID, persistent, repeatEnd)
+	EffectManager.add = function add(effect, EF_Init_Par)
 	{
 		var name = (effect.constructor.name || effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
 
@@ -90,9 +90,9 @@ define(function( require )
 			effect.init(_gl);
 		}
 
-		effect._AID        = AID;
-		effect._persistent = !!persistent;
-		effect._repeatEnd = repeatEnd;
+		effect._AID        = EF_Init_Par.ownerAID;
+		effect._persistent = EF_Init_Par.persistent;
+		effect._repeatEnd = EF_Init_Par.repeatEnd;
 
 		_list[name].push(effect);
 	};
@@ -116,7 +116,7 @@ define(function( require )
 			count = list.length;
 
 			for (i = 0; i < count; ++i) {
-				if (list[i]._AID === AID || effectIdList.includes(list[i].effectID)) {
+				if ( ( AID && list[i]._AID === AID ) || ( effectID && effectIdList.includes(list[i].effectID) )) {
 					if (list[i].free) {
 						list[i].free(_gl);
 					}
@@ -257,43 +257,66 @@ define(function( require )
 	/**
 	 * Spam an effect to the scene
 	 *
-	 * @param {number} effect id
-	 * @param {number} owner aid
-	 * @param {Array} position
-	 * @param {number} tick
-	 * @param {boolean} persistent
-	 * @param {repeatEnd} for how long to repeat
-	 * @param {number} target/source (other entity) aid
-	 * @param {Array} target/source (other entity) position
+	 * @param {object} Effect initial parameters {
+	 *     @param effectId {number} effect id
+	 *     @param ownerAID {number} owner actor id
+	 *     @param position {Array} position
+	 *     @param startTick {number} tick
+	 *     @param persistent {boolean} is persistent?
+	 *     @param repeatEnd {repeatEnd} for how long to repeat
+	 *     @param otherAID {number} target/source (other) actor id
+	 *     @param otherPosition {Array} target/source (other) position
+	 * }
 	 */
-	EffectManager.spam = function spam( effectId, AID, position, startTick, persistent, repeatEnd, otherAID, otherPosition )
+	EffectManager.spam = function spam( EF_Init_Par )
 	{
-		var effects;
-		var count, duplicate, timeBetweenDupli;
+		// Empty call
+		if(!EF_Init_Par){
+			return;
+		}
+		
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
 		}
+		
+		// Prepare params
+		EF_Init_Par.effectId       = EF_Init_Par.effectId       || -1;
+		EF_Init_Par.ownerAID       = EF_Init_Par.ownerAID       || null;
+		EF_Init_Par.position       = EF_Init_Par.position       || null;
+		EF_Init_Par.startTick      = EF_Init_Par.startTick      || Renderer.tick;
+		EF_Init_Par.persistent     = EF_Init_Par.persistent     || false;
+		EF_Init_Par.repeatEnd      = EF_Init_Par.repeatEnd      || null;
+		EF_Init_Par.otherAID       = EF_Init_Par.otherAID       || null;
+		EF_Init_Par.otherPosition  = EF_Init_Par.otherPosition  || null;
+		
+		EF_Init_Par.ownerEntity    = EntityManager.get(EF_Init_Par.ownerAID);
+		EF_Init_Par.otherEntity    = EntityManager.get(EF_Init_Par.otherAID);
+		
 
 		// Not found
-		if (!(effectId in EffectDB)) {
+		if (!(EF_Init_Par.effectId in EffectDB)) {
 			return;
 		}
 
-		effects = EffectDB[effectId];
-		startTick    = startTick || Renderer.tick;
+		var effects = EffectDB[EF_Init_Par.effectId];
+		var i, j, count;
 		
-		for (var i = 0, count = effects.length; i < count; ++i) {
+		for (i = 0, count = effects.length; i < count; ++i) {
 			
-            if (effects[i].duplicate == -1) duplicate = 999; //duplicates
-            else duplicate = effects[i].duplicate ? effects[i].duplicate : 1;
+            if (effects[i].duplicate == -1) { effects[i].duplicate = 999; }
+            else { effects[i].duplicate = effects[i].duplicate ? Math.min(effects[i].duplicate, 999) : 1; } 
 			
-            timeBetweenDupli = !isNaN(effects[i].timeBetweenDupli) ? effects[i].timeBetweenDupli : 200;
+            effects[i].timeBetweenDupli = !isNaN(effects[i].timeBetweenDupli) ? effects[i].timeBetweenDupli : 200;
 			
-            for (var j = 0; j < duplicate; ++j) {
-				effects[i].effectID = effectId;
-				effects[i].duplicateID = j;
-				EffectManager.spamEffect(effects[i], AID, otherAID, position, otherPosition, startTick + timeBetweenDupli * j, persistent, repeatEnd);
+            for (j = 0; j < effects[i].duplicate; ++j) {
+				var EF_Inst_Par = {
+					effectID: EF_Init_Par.effectId,
+					duplicateID: j,
+					startTick: EF_Init_Par.startTick + (effects[i].timeBetweenDupli * j)
+				}
+				
+				EffectManager.spamEffect(effects[i], EF_Inst_Par, EF_Init_Par);
 			}
         }
 	};
@@ -303,42 +326,39 @@ define(function( require )
 	 * Spam en effect
 	 *
 	 * @param {object} effect
-	 * @param {number} AID
-	 * @param {vec3} position
-	 * @param {number} startTick
-	 * @param {boolean} persistent
-	 * @param {number} repeatEnd
+	 * @param {object} Effect instance parameters
+	 * @param {object} Effect initial parameters
 	 */
-	EffectManager.spamEffect = function spamEffect( effect, AID, otherAID, position, otherPosition, startTick, persistent, repeatEnd)
+	EffectManager.spamEffect = function spamEffect( effect, EF_Inst_Par, EF_Init_Par)
 	{
-		var entity = EntityManager.get(AID);
-		var otherEntity = EntityManager.get(otherAID);
 		var filename;
+		
+		EF_Inst_Par.position = EF_Init_Par.position;
+		EF_Inst_Par.otherPosition = EF_Init_Par.otherPosition;
 
-		if (!position) {
-			if (!entity) {
+		if (!EF_Inst_Par.position) {
+			if (!EF_Init_Par.ownerEntity) {
 				return;
 			}
-			position = entity.position;
+			EF_Inst_Par.position = EF_Init_Par.ownerEntity.position;
 		}
 		
-		if (!otherPosition) {
-			if (otherEntity) {
-				otherPosition = otherEntity.position;
+		if (!EF_Inst_Par.otherPosition) {
+			if (EF_Init_Par.otherEntity) {
+				EF_Inst_Par.otherPosition = EF_Init_Par.otherEntity.position;
 			} else {
-				otherPosition = [position[0] - 5
-								,position[1] + 5
-								,position[2]];
+				EF_Inst_Par.otherPosition = [EF_Inst_Par.position[0] - 5
+											,EF_Inst_Par.position[1] + 5
+											,EF_Inst_Par.position[2]];
 			}
 			
 		}
 
 		// Copy instead of get reference
-		position   = effect.attachedEntity ? position : [ position[0], position[1], position[2] ];
-		persistent = persistent || effect.repeat || false;
+		EF_Inst_Par.position   = effect.attachedEntity ? EF_Inst_Par.position : [ EF_Inst_Par.position[0], EF_Inst_Par.position[1], EF_Inst_Par.position[2] ];
+		EF_Inst_Par.persistent = EF_Inst_Par.persistent || effect.repeat || false;
 
 		// Play sound
-		var delayWav = !isNaN(effect.delayWav) ? effect.delayWav : 0;
 		if (effect.wav) {
 			filename = effect.wav;
 		
@@ -348,39 +368,43 @@ define(function( require )
 
 			Events.setTimeout(function(){
 				Sound.play(filename + '.wav');
-			}, startTick + delayWav - Renderer.tick);
+			}, EF_Init_Par.startTick + (!isNaN(effect.delayWav) ? effect.delayWav : 0) - Renderer.tick);
 		}
 		
-		var direction = (effect.attachedEntity && entity) ? entity.direction : 0;
+		EF_Inst_Par.direction = (effect.attachedEntity && EF_Init_Par.ownerEntity) ? EF_Init_Par.ownerEntity.direction : 0;
 		
 		//Set delays
-		var duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
+		EF_Inst_Par.duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
 		
-		var delayOffsetDelta = !isNaN(effect.delayOffsetDelta) ? effect.delayOffsetDelta * effect.duplicateID : 0;
-		var delayLateDelta = !isNaN(effect.delayLateDelta) ? effect.delayLateDelta * effect.duplicateID : 0;
+		EF_Inst_Par.delayOffsetDelta = !isNaN(effect.delayOffsetDelta) ? effect.delayOffsetDelta * EF_Inst_Par.duplicateID : 0;
+		EF_Inst_Par.delayLateDelta = !isNaN(effect.delayLateDelta) ? effect.delayLateDelta * EF_Inst_Par.duplicateID : 0;
 		
-		var delayOffset = !isNaN(effect.delayOffset) ? effect.delayOffset + delayOffsetDelta : 0;
-		var delayLate = !isNaN(effect.delayLate) ? effect.delayLate + delayLateDelta : 0;
+		EF_Inst_Par.delayOffset = !isNaN(effect.delayOffset) ? effect.delayOffset + EF_Inst_Par.delayOffsetDelta : 0;
+		EF_Inst_Par.delayLate = !isNaN(effect.delayLate) ? effect.delayLate + EF_Inst_Par.delayLateDelta : 0;
+		
+		//Start and End
+		EF_Inst_Par.startTick = EF_Init_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.delayLate;
+		EF_Inst_Par.endTick = EF_Init_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.duration;
 		
 		switch (effect.type) {
 			case 'SPR':
-				spamSprite( effect, AID, position, startTick + delayLate, persistent, repeatEnd );
+				spamSprite( effect, EF_Inst_Par, EF_Init_Par );
 				break;
 
 			case 'STR':
-				spamSTR( effect, AID, position, startTick + delayLate, persistent, repeatEnd );
+				spamSTR( effect, EF_Inst_Par, EF_Init_Par );
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder(position, otherPosition, direction, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration), AID, persistent, repeatEnd);
+				EffectManager.add(new Cylinder(effect, EF_Inst_Par, EF_Init_Par), EF_Init_Par);
 				break;
 				
 			case '2D':
-				EffectManager.add(new TwoDEffect(position, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, persistent, repeatEnd);
+				EffectManager.add(new TwoDEffect(effect, EF_Inst_Par, EF_Init_Par), EF_Init_Par);
 				break;
 			
 			case '3D':
-				EffectManager.add(new ThreeDEffect(position, otherPosition, effect, startTick + delayOffset + delayLate, startTick + delayOffset + duration, AID), AID, persistent, repeatEnd);
+				EffectManager.add(new ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par), EF_Init_Par);
 				break;
 				
 			case 'RSM':
@@ -389,12 +413,12 @@ define(function( require )
 			case 'FUNC':
 				if (effect.func) {
 					if (effect.attachedEntity) {
-						if (entity) {
-							effect.func.call(this, entity, startTick, AID, repeatEnd);
+						if (EF_Init_Par.ownerEntity) {
+							effect.func.call(this, EF_Inst_Par, EF_Init_Par);
 						}
 					}
 					else {
-						effect.func.call(this, position, startTick, AID, repeatEnd);
+						effect.func.call(this, EF_Inst_Par, EF_Init_Par);
 					}
 				}
 				break;
@@ -406,12 +430,10 @@ define(function( require )
 	 * Spam an effect to the scene
 	 *
 	 * @param {object} effect
-	 * @param {number} owner aid
-	 * @param {Array} position
-	 * @param {number} tick
-	 * @param {boolean} persistent
+	 * @param {object} Effect instance parameters
+	 * @param {object} Effect initial parameters
 	 */
-	function spamSTR( effect, AID, position, tick, persistent, repeatEnd)
+	function spamSTR( effect, EF_Inst_Par, EF_Init_Par)
 	{
 		var filename;
 
@@ -429,7 +451,7 @@ define(function( require )
 		}
 
 		// Start effect
-		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', position, tick), AID, persistent, repeatEnd);
+		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
 	}
 
 
@@ -437,26 +459,24 @@ define(function( require )
 	 * Spam an effect to the scene
 	 *
 	 * @param {object} effect
-	 * @param {number} owner aid
-	 * @param {Array} position
-	 * @param {number} tick
-	 * @param {boolean} persistent
+	 * @param {object} Effect instance parameters
+	 * @param {object} Effect initial parameters
 	 */
-	function spamSprite( effect, AID, position, tick, persistent, repeatEnd)
+	function spamSprite( effect, EF_Inst_Par, EF_Init_Par)
 	{
-		var entity = EntityManager.get(AID);
+		var entity = EF_Init_Par.ownerEntity;
 		var isNewEntity = false;
 
 		if (!entity) {
 			entity            = new Entity();
 			entity.GID        = AID;
-			entity.position   = position;
+			entity.position   = EF_Inst_Par.position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
 			isNewEntity = true;
 		} else if (!effect.attachedEntity) {
 			entity            = new Entity();
 			entity.GID        = -1;
-			entity.position   = position;
+			entity.position   = EF_Inst_Par.position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
 			isNewEntity = true;
 		}
@@ -468,7 +488,7 @@ define(function( require )
 			file:			effect.file,
 			head:			!!effect.head,
 			direction:		!!effect.direction,
-			repeat:			effect.repeat || persistent,
+			repeat:			effect.repeat || EF_Inst_Par.persistent,
 			duplicate:		effect.duplicate,
 			stopAtEnd:		effect.stopAtEnd,
 			xOffset:		effect.xOffset,
@@ -524,7 +544,17 @@ define(function( require )
 		}
 		
 		EffectManager.remove(null, uid);
-		EffectManager.spam( effectId, uid, [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ], Renderer.tick, true, null, creatorUid);
+		
+		var EF_Init_Par = {
+			effectId: effectId,
+			ownerAID: uid,
+			position: [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ],
+			startTick: Renderer.tick,
+			persistent: true,
+			otherAID: creatorUid
+		};
+		
+		EffectManager.spam( EF_Init_Par );
 	};
 
 
@@ -544,12 +574,34 @@ define(function( require )
 		
 		if(SkillEffect[skillId].effectId){
 			var effects = Array.isArray(SkillEffect[skillId].effectId) ? SkillEffect[skillId].effectId : [SkillEffect[skillId].effectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, null, srcAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: destAID,
+					position: position,
+					startTick: tick,
+					otherAID: srcAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 		
 		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
 			var effects = Array.isArray(SkillEffect[skillId].effectIdOnCaster) ? SkillEffect[skillId].effectIdOnCaster : [SkillEffect[skillId].effectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, position, tick, false, null, destAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: srcAID,
+					position: position,
+					startTick: tick,
+					otherAID: destAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 	};
 
@@ -568,12 +620,32 @@ define(function( require )
 
 		if (SkillEffect[skillId].successEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].successEffectId) ? SkillEffect[skillId].successEffectId : [SkillEffect[skillId].successEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, null, srcAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 		
 		if (SkillEffect[skillId].successEffectIdOnCaster) {
 			var effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster) ? SkillEffect[skillId].successEffectIdOnCaster : [SkillEffect[skillId].successEffectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, null, tick, false, null, destAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 	};
 
@@ -592,7 +664,17 @@ define(function( require )
 
 		if (SkillEffect[skillId].hitEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].hitEffectId) ? SkillEffect[skillId].hitEffectId : [SkillEffect[skillId].hitEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, null, srcAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 	};
 	
@@ -611,12 +693,39 @@ define(function( require )
 
 		if (SkillEffect[skillId].beforeHitEffectId) {
 			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectId) ? SkillEffect[skillId].beforeHitEffectId : [SkillEffect[skillId].beforeHitEffectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, null, tick, false, null, srcAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 		
 		if (SkillEffect[skillId].beforeHitEffectIdOnCaster) {
 			var effects = Array.isArray(SkillEffect[skillId].beforeHitEffectIdOnCaster) ? SkillEffect[skillId].beforeHitEffectIdOnCaster : [SkillEffect[skillId].beforeHitEffectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, null, tick, false, null, destAID));
+			
+			var EF_Init_Par = {
+				effectId: effectId,
+				ownerAID: srcAID,
+				startTick: tick,
+				otherAID: destAID
+			};
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 	};
 	
@@ -636,12 +745,34 @@ define(function( require )
 		
 		if(ItemEffect[itemId].effectId){
 			var effects = Array.isArray(ItemEffect[itemId].effectId) ? ItemEffect[itemId].effectId : [ItemEffect[itemId].effectId];
-			effects.forEach(effectId => EffectManager.spam( effectId, destAID, position, tick, false, null, srcAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: destAID,
+					position: position,
+					startTick: tick,
+					otherAID: srcAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 		
 		if (ItemEffect[itemId].effectIdOnCaster && srcAID) {
 			var effects = Array.isArray(ItemEffect[itemId].effectIdOnCaster) ? ItemEffect[itemId].effectIdOnCaster : [ItemEffect[itemId].effectIdOnCaster];
-			effects.forEach(effectId => EffectManager.spam( effectId, srcAID, position, tick, false, null, destAID));
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: srcAID,
+					position: position,
+					startTick: tick,
+					otherAID: destAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
 		}
 	};
 
