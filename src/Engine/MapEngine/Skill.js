@@ -37,7 +37,6 @@ define(function( require )
 	var Inventory             = require('UI/Components/Inventory/Inventory');
 	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
 	var Sense                 = require('UI/Components/Sense/Sense');
-	var SpiritSphere          = require('Renderer/Effects/SpiritSphere');
 	var Announce              = require('UI/Components/Announce/Announce');
 	var Renderer              = require('Renderer/Renderer');
 	var getModule             = require;
@@ -651,14 +650,30 @@ define(function( require )
 	};
 
 	function onSpiritSphere(pkt){
-		EffectManager.remove(SpiritSphere, pkt.AID);
+		EffectManager.remove( null, pkt.AID,[ 228, 504, 629, 833]);
 		
 		if (pkt.num > 0){
 			var entity = EntityManager.get(pkt.AID);
 			if(entity){
-				var isCoin = (entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job) ) //Gunslinger or Rebel
-				var spheres = new SpiritSphere(entity, pkt.num, isCoin);
-				EffectManager.add(spheres, pkt.AID, false);
+				var isMonk = (entity._job && [15, 4016, 4038, 4070, 4077, 4106].includes(entity._job) ) //Monk classes
+				var isGS = (entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job) ) //Gunslinger classes
+				var isRG = (entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job) ) //Royal Guard
+				
+				var EF_Init_Par = {
+					effectId: 228,
+					ownerAID: pkt.AID,
+					spiritNum: pkt.num
+				};
+				
+				if(isMonk){
+					EF_Init_Par.effectId = 504;
+				} else if (isGS){
+					EF_Init_Par.effectId = 629;
+				} else if (isRG){
+					EF_Init_Par.effectId = 833;
+				}
+				
+				EffectManager.spam( EF_Init_Par );
 			}
 		}
 	}
