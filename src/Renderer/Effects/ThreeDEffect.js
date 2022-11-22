@@ -8,7 +8,13 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
     
     var blendMode = {};
 
-    function ThreeDEffect(position, otherPosition, effect, startTick, endTick, AID) {
+    function ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par) {
+		var position = EF_Inst_Par.position;
+		var otherPosition = EF_Inst_Par.otherPosition;
+		var startTick = EF_Inst_Par.startTick;
+		var endTick = EF_Inst_Par.endTick;
+		var AID = EF_Init_Par.ownerAID;
+		
         this.AID = AID;
         this.textureName = effect.file;
         
@@ -33,7 +39,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         else this.nbOfRotation = 1;
 
         this.rotateLate =  (effect.rotateLate > 0) ? effect.rotateLate : 0;
-        this.rotateLate += (effect.rotateLateDelta) ?  effect.rotateLateDelta * effect.duplicateID : 0;
+        this.rotateLate += (effect.rotateLateDelta) ?  effect.rotateLateDelta * EF_Inst_Par.duplicateID : 0;
 
         this.rotationClockwise = effect.rotationClockwise ? true : false;
         this.sparkling = effect.sparkling ? true : false;
@@ -41,7 +47,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         else this.sparkNumber = 1;
         
         this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
-        this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * effect.duplicateID : 0), 1), 0);
+        this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * EF_Inst_Par.duplicateID : 0), 1), 0);
 
         if (effect.red) this.red = effect.red;
         else this.red = 1;
@@ -183,10 +189,10 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         }
 
         if(effect.sizeDelta){
-            this.sizeStartX += effect.sizeDelta * effect.duplicateID;
-            this.sizeStartY += effect.sizeDelta * effect.duplicateID;
-            this.sizeEndX += effect.sizeDelta * effect.duplicateID;
-            this.sizeEndY += effect.sizeDelta * effect.duplicateID;
+            this.sizeStartX += effect.sizeDelta * EF_Inst_Par.duplicateID;
+            this.sizeStartY += effect.sizeDelta * EF_Inst_Par.duplicateID;
+            this.sizeEndX += effect.sizeDelta * EF_Inst_Par.duplicateID;
+            this.sizeEndY += effect.sizeDelta * EF_Inst_Par.duplicateID;
         }
 
         if (effect.sizeStart) {
