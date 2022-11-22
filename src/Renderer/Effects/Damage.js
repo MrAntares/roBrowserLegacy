@@ -256,8 +256,14 @@ define(function( require )
 			bgObj.isDisposable = false;
 			_list.push(bgObj);
 			
-			 // Add bash effect
-			EffectManager.spam(1, entity, entity.position, tick);
+			// Add hit effect
+			var EF_Init_Par = {
+				effectId: 1,
+				ownerAID: entity.GID,
+				position: entity.position,
+				startTick: tick
+			};
+			EffectManager.spam( EF_Init_Par );
 		}
 		else if (obj.type & Damage.TYPE.COMBO_B) {
 			// white
