@@ -175,7 +175,8 @@ define(function( require )
 				HomunInformations.stopAI();
 			}
 			
-			EffectManager.remove(SpiritSphere, pkt.GID);
+			EffectManager.remove( null, pkt.GID,[ 228, 504, 629, 833 ]); // Spirit spheres
+			EffectManager.remove( null, pkt.GID,[ 735, 736, 737, 738 ]); // Elemental spheres (Warlock)
 
 			if(	[2, 3].includes(pkt.type) && !(entity._effectState & StatusState.EffectState.INVISIBLE)){ //exits or teleports
 				var EF_Init_Par = {
