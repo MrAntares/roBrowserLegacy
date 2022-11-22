@@ -128,10 +128,17 @@ define(function( require )
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY6
 			|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
 		){
+			var EF_Init_Par = {
+				ownerAID: entity.GID,
+				position: entity.position
+			};
+			
 			if(PACKETVER.value < 20030715){
-				EffectManager.spam(6, entity.GID, entity.position);
+				EF_Init_Par.effectId = 6;
+				EffectManager.spam( EF_Init_Par );
 			} else {
-				EffectManager.spam(344, entity.GID, entity.position);
+				EF_Init_Par.effectId = 344;
+				EffectManager.spam( EF_Init_Par );
 			}
 		}
 		
@@ -156,7 +163,12 @@ define(function( require )
 			}
 			
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
-				EffectManager.spam(372, pkt.GID);
+				var EF_Init_Par = {
+					effectId: 372,
+					ownerAID: entity.GID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
 			}
 			
 			if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
@@ -166,10 +178,16 @@ define(function( require )
 			EffectManager.remove(SpiritSphere, pkt.GID);
 
 			if(	[2, 3].includes(pkt.type) && !(entity._effectState & StatusState.EffectState.INVISIBLE)){ //exits or teleports
+				var EF_Init_Par = {
+					position: entity.position
+				};
+			
 				if(PACKETVER.value < 20030715){
-					EffectManager.spam(34, null, entity.position);
+					EF_Init_Par.effectId = 34;
+					EffectManager.spam( EF_Init_Par );
 				} else {
-					EffectManager.spam(304, null, entity.position);
+					EF_Init_Par.effectId = 304;
+					EffectManager.spam( EF_Init_Par );
 				}
 			}
 			entity.remove( pkt.type );
@@ -369,7 +387,14 @@ define(function( require )
 
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
 				if (weaponSound && weaponSound.includes('bow')) {
-					EffectManager.spam('ef_arrow_projectile', dstEntity.GID, null, null, false, null, srcEntity.GID, srcEntity.position);
+					var EF_Init_Par = {
+						effectId: 'ef_arrow_projectile',
+						ownerAID: dstEntity.GID,
+						otherAID: srcEntity.GID,
+						otherPosition: srcEntity.position
+					};
+					
+					EffectManager.spam( EF_Init_Par );
 				}
 
 				//attack sound
@@ -478,7 +503,7 @@ define(function( require )
 								}
 								break;
 
-							// TODO: critical damage
+							// critical
 							case 10:
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
 								if(pkt.leftDamage){
@@ -879,13 +904,23 @@ define(function( require )
 
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if(dstEntity.RollCounter){
-					EffectManager.spam(757 + dstEntity.RollCounter, dstEntity.GID);
+					var EF_Init_Par = {
+						effectId: 757 + dstEntity.RollCounter,
+						ownerAID: dstEntity.GID
+					};
+					
+					EffectManager.spam( EF_Init_Par );
 				}
 			}
 
 			if (pkt.SKID === SkillId.TK_SEVENWIND) {
 				if(pkt.level){
-					EffectManager.spam(466 + pkt.level, dstEntity.GID);
+					var EF_Init_Par = {
+						effectId: 466 + pkt.level,
+						ownerAID: dstEntity.GID
+					};
+					
+					EffectManager.spam( EF_Init_Par );
 				}
 			}
 
@@ -1133,58 +1168,85 @@ define(function( require )
 
         if(pkt.SKID in SkillEffect) {
             if (SkillEffect[pkt.SKID].beforeCastEffectId) { //in spells like Bash, Hide, Double Strafe etc. effect goes before cast/animation (on instant)
-                EffectManager.spam(SkillEffect[pkt.SKID].beforeCastEffectId, pkt.AID, null, null, false, null, pkt.targetID, null);
+				var EF_Init_Par = {
+					effectId: SkillEffect[pkt.SKID].beforeCastEffectId,
+					ownerAID: pkt.AID,
+					otherAID: pkt.targetID
+				};	
+			
+                EffectManager.spam( EF_Init_Par );
             }
         }
 
 		if (dstEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
-
             if (pkt.delayTime) {
-                EffectManager.add(new LockOnTarget( dstEntity, Renderer.tick, Renderer.tick + pkt.delayTime), srcEntity.GID);
-
-                if (pkt.property > 0) { // skip "0" property for now
-                    switch(pkt.property) {
-						case 0:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 1:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_blue', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 2:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'magic_green', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 3:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_red', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 4:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_yellow', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 5:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'magic_violet', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 6:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_white', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 7:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 8:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_white', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-						case 9:
-							EffectManager.add(new MagicRing(srcEntity, 2.45, 0.8, 2.80, 'ring_black', Renderer.tick + pkt.delayTime), srcEntity.GID);
-							break;
-                    }
-                }
+				var EF_Init_Par = {
+					effectId: 60,
+					ownerAID: dstEntity.GID,
+					position: dstEntity.position,
+					repeatEnd: Renderer.tick + pkt.delayTime
+				};
+				
+				EffectManager.spam( EF_Init_Par );
             }
-        }
-		else if (pkt.xPos && pkt.yPos) {
+        } else if (pkt.xPos && pkt.yPos) {
 			srcEntity.lookTo( pkt.xPos, pkt.yPos );
-
 			if (pkt.delayTime) {
-				EffectManager.add(new MagicTarget( pkt.SKID, pkt.xPos, pkt.yPos, Renderer.tick + pkt.delayTime, srcEntity), srcEntity.GID);
+				var EF_Init_Par = {
+					effectId: 513,
+					skillId: pkt.SKID,
+					position: [pkt.xPos, pkt.yPos, Altitude.getCellHeight(pkt.yPos, pkt.yPos)],
+					repeatEnd: Renderer.tick + pkt.delayTime,
+					otherAID: srcEntity.GID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
 			}
+		}
+		
+		if(srcEntity && pkt.delayTime){
+			var EF_Init_Par = {
+				effectId: 12, // Default
+				ownerAID: srcEntity.GID,
+				position: srcEntity.position,
+				repeatEnd: Renderer.tick + pkt.delayTime
+			};
+			
+			switch(pkt.property) {
+				case 0:
+					EF_Init_Par.effectId = 12;
+					break;
+				case 1:
+					EF_Init_Par.effectId =  54;
+					break;
+				case 2:
+					EF_Init_Par.effectId = 57;
+					break;
+				case 3:
+					EF_Init_Par.effectId = 55;
+					break;
+				case 4:
+					EF_Init_Par.effectId = 56;
+					break;
+				case 5:
+					EF_Init_Par.effectId = 59;
+					break;
+				case 6:
+					EF_Init_Par.effectId = 58;
+					break;
+				case 7:
+					EF_Init_Par.effectId = 454;
+					break;
+				case 8:
+					EF_Init_Par.effectId = 58;
+					break;
+				case 9:
+					EF_Init_Par.effectId = 454;
+					break;
+			}
+			
+			EffectManager.spam( EF_Init_Par );
 		}
 	}
 
@@ -1201,6 +1263,7 @@ define(function( require )
 			entity.cast.clean();
 
 			// Cancel effects
+			EffectManager.remove(null, entity.GID, [12, 54, 55, 56, 57, 58, 59, 454, 60, 513]);
 			EffectManager.remove(LockOnTarget, entity.GID);
 			EffectManager.remove(MagicTarget, entity.GID);
             EffectManager.remove(MagicRing, entity.GID);
@@ -1208,7 +1271,12 @@ define(function( require )
             if (entity === Session.Entity) { // Autocounter hardcoded animation (any better place to put this?)
                 if(Session.underAutoCounter) {
                     if(Session.Entity.life.hp > 0)
-                        EffectManager.spam(131, pkt.AID);
+						var EF_Init_Par = {
+							effectId: 131,
+							ownerAID: pkt.AID
+						};
+					
+                        EffectManager.spam( EF_Init_Par );
                     Session.underAutoCounter = false;
                 }
             }
@@ -1252,11 +1320,16 @@ define(function( require )
 
 
             case StatusConst.HIDING:
+				var EF_Init_Par = {
+					effectId: 215,
+					ownerAID: pkt.AID
+				};
+			
 				if (pkt.state == 1){
-					EffectManager.spam( 16, pkt.AID);
-				} else {
-					EffectManager.spam( 215, pkt.AID);
+					EF_Init_Par.effectId = 16;
 				}
+				
+				EffectManager.spam( EF_Init_Par );
 				break;
 
 			case StatusConst.EXPLOSIONSPIRITS: //state: 1 ON  0 OFF
@@ -1293,16 +1366,26 @@ define(function( require )
 				break;
 
             case StatusConst.RUN: //state: 1 ON  0 OFF
+				var EF_Init_Par = {
+					effectId: 444,
+					ownerAID: pkt.AID
+				};
+			
 				if (pkt.state == 1){
-					EffectManager.spam( 442, pkt.AID);
+					EF_Init_Par.effectId = 442;
 					//todo: draw footprints on the floor
-				} else {
-					EffectManager.spam( 444, pkt.AID);
 				}
+				
+				EffectManager.spam( EF_Init_Par );
                 break;
 
 			case StatusConst.TING:
-				EffectManager.spam( 426, pkt.AID);
+				var EF_Init_Par = {
+					effectId: 426,
+					ownerAID: pkt.AID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
                 break;
 
 			case StatusConst.STORMKICK_ON:
@@ -1483,9 +1566,12 @@ define(function( require )
 
 			case StatusConst.C_MARKER:
 				if (pkt.state == 1) {
-					EffectManager.spam('ef_c_marker2', pkt.AID);
-				} else {
+					var EF_Init_Par = {
+						effectId: 'ef_c_marker2',
+						ownerAID: pkt.AID
+					};
 					
+					EffectManager.spam( EF_Init_Par );
 				}
 				break;
 			
