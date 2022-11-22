@@ -82,7 +82,15 @@ function(        glMatrix,            EffectManager)
 			// how the official client handle it).
 			if (!mapEffect.isVisible && vec3.dist(mapEffect.pos, position) < 25) {
 				
-				EffectManager.spam( mapEffect.id, mapEffect.name, mapEffect.pos, tick, true);
+				var EF_Init_Par = {
+					effectId: mapEffect.id,
+					ownerAID: mapEffect.name,
+					position: mapEffect.pos,
+					startTick: tick,
+					persistent: true
+				};
+				
+				EffectManager.spam( EF_Init_Par );
 				mapEffect.isVisible = true;
 				
 			} else if (mapEffect.isVisible && vec3.dist(mapEffect.pos, position) >= 25){
