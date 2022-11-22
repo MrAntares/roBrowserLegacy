@@ -76,7 +76,12 @@ define(function( require )
 		];
 
 		if (EnumEffect[pkt.effectID] > -1) {
-			EffectManager.spam(EnumEffect[pkt.effectID], pkt.AID);
+			var EF_Init_Par = {
+				effectId: EnumEffect[pkt.effectID],
+				ownerAID: pkt.AID
+			};
+		
+			EffectManager.spam( EF_Init_Par );
 		}
 	}
 
@@ -88,7 +93,12 @@ define(function( require )
 	 */
 	function onEffect( pkt )
 	{
-		EffectManager.spam(pkt.effectID, pkt.AID);
+		var EF_Init_Par = {
+			effectId: pkt.effectID,
+			ownerAID: pkt.AID
+		};
+		
+		EffectManager.spam( EF_Init_Par );
 	}
 
 
