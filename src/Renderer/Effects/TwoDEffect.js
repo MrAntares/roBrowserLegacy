@@ -22,7 +22,14 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 
     var blendMode = {};
     
-    function TwoDEffect(position, effect, startTick, endTick, AID) {
+    function TwoDEffect(effect, EF_Inst_Par, EF_Init_Par) {
+		var position = EF_Inst_Par.position;
+		var startTick = EF_Inst_Par.startTick;
+		var endTick = EF_Inst_Par.endTick;
+		var AID = EF_Init_Par.ownerAID;
+		
+		
+		
         this.AID = AID;
         this.textureName = effect.file;
         this.zIndex = effect.zIndex ? effect.zIndex : 0;
