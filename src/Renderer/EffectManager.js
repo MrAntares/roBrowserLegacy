@@ -282,6 +282,7 @@ define(function( require )
 		
 		// Prepare params
 		EF_Init_Par.effectId       = EF_Init_Par.effectId       || -1;
+		EF_Init_Par.skillId        = EF_Init_Par.skillId        || null;
 		EF_Init_Par.ownerAID       = EF_Init_Par.ownerAID       || null;
 		EF_Init_Par.position       = EF_Init_Par.position       || null;
 		EF_Init_Par.startTick      = EF_Init_Par.startTick      || Renderer.tick;
