@@ -175,7 +175,14 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @param {number} Start tick
 	 * @param {number} End tick
 	 */
-	function Cylinder(position, otherPosition, direction, effect, startTick, endTick) {
+	function Cylinder(effect, EF_Inst_Par, EF_Init_Par) {
+		var position = EF_Inst_Par.position;
+		var otherPosition = EF_Inst_Par.otherPosition;
+		var direction = EF_Inst_Par.direction;
+		var startTick = EF_Inst_Par.startTick;
+		var endTick = EF_Inst_Par.endTick;
+		
+		
 		this.semiCircle = effect.semiCircle ? false : true;
 		
 		this.totalCircleSides = (!isNaN(effect.totalCircleSides)) ? effect.totalCircleSides : 20;
