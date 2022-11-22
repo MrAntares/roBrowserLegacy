@@ -6389,15 +6389,17 @@ define(function( require )
 		
 		513: [{	//EF_GROUNDSAMPLE	   Area Cast
 			type: 'FUNC',
-			attachedEntity: true,
+			attachedEntity: false,
 			func: function(EF_Inst_Par, EF_Init_Par) {
 				
 				var MagicTarget = require('Renderer/Effects/MagicTarget');
 				
 				this.add(new MagicTarget(
-					EF_Init_Par.ownerEntity,
-					EF_Inst_Par.startTick,
-					EF_Init_Par.repeatEnd
+					EF_Init_Par.skillId,
+					EF_Init_Par.position[0],
+					EF_Init_Par.position[1],
+					EF_Init_Par.repeatEnd,
+					EF_Init_Par.otherEntity
 				), EF_Init_Par);
 			},
 		}],
