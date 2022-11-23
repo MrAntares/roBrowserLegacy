@@ -470,7 +470,7 @@ define(function( require )
 
 		if (!entity) {
 			entity            = new Entity();
-			entity.GID        = AID;
+			entity.GID        = EF_Init_Par.ownerAID;
 			entity.position   = EF_Inst_Par.position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
 			isNewEntity = true;
