@@ -369,7 +369,7 @@ define(function( require )
 
 			Events.setTimeout(function(){
 				Sound.play(filename + '.wav');
-			}, EF_Init_Par.startTick + (!isNaN(effect.delayWav) ? effect.delayWav : 0) - Renderer.tick);
+			}, EF_Inst_Par.startTick + (!isNaN(effect.delayWav) ? effect.delayWav : 0) - Renderer.tick);
 		}
 		
 		EF_Inst_Par.direction = (effect.attachedEntity && EF_Init_Par.ownerEntity) ? EF_Init_Par.ownerEntity.direction : 0;
@@ -384,8 +384,8 @@ define(function( require )
 		EF_Inst_Par.delayLate = !isNaN(effect.delayLate) ? effect.delayLate + EF_Inst_Par.delayLateDelta : 0;
 		
 		//Start and End
-		EF_Inst_Par.startTick = EF_Init_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.delayLate;
-		EF_Inst_Par.endTick = EF_Init_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.duration;
+		EF_Inst_Par.startTick = EF_Inst_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.delayLate;
+		EF_Inst_Par.endTick = EF_Inst_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.duration;
 		
 		switch (effect.type) {
 			case 'SPR':
