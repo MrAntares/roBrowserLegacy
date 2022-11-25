@@ -10836,6 +10836,40 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ITEM_PICKUP_ACK5.size = 31;
 
+	// 0xa37
+	PACKET.ZC.ITEM_PICKUP_ACK7 = function PACKET_ZC_ITEM_PICKUP_ACK7(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
+		this.index = fp.readUShort();
+		this.count = fp.readUShort();
+		this.ITID = fp.readUShort();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readUShort();
+		this.slot.card2 = fp.readUShort();
+		this.slot.card3 = fp.readUShort();
+		this.slot.card4 = fp.readUShort();
+		this.location = fp.readLong();
+		this.type = fp.readUChar();
+		this.result = fp.readUChar();
+		this.HireExpireDate = fp.readLong();
+		this.bindOnEquipType = fp.readUShort();
+		this.Options = {};
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
+		this.favorite = fp.readUChar();
+		this.viewId = fp.readUShort();
+	};
+	PACKET.ZC.ITEM_PICKUP_ACK7.size = 59;
 
 	// 0x991
 	PACKET.ZC.NORMAL_ITEMLIST4 = function PACKET_ZC_NORMAL_ITEMLIST4(fp, end) {
@@ -11749,6 +11783,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ALL_ACH_LIST.size = -1;
 
+	// 0xa24
+	PACKET.ZC.ACH_UPDATE = function PACKET_ZC_ACH_UPDATE(fp, end) {
+		for (var i = 0; i < 64; ++i) {
+			var c = fp.readChar();
+		}
+
+		return false;
+	};
+	PACKET.ZC.ACH_UPDATE.size = 66;
+
 	// 0xa27
 	PACKET.ZC.RECOVERY2 = function PACKET_ZC_RECOVERY2(fp, end) {
 		this.varID = fp.readShort();
@@ -11805,6 +11849,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.masterName = this.masterAID; // TODO char_id to name
 	};
 	PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
+
+	//0xa9b
+	PACKET.ZC.EQUIPMENT_SWITCH_LIST = function PACKET_ZC_EQUIPMENT_SWITCH_LIST(fp, end){
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / 6 | 0, out = new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readUShort();
+				out[i].Position = fp.readLong();
+			}
+			console.log(end);
+			console.log(fp.tell());
+			return out;
+		})();
+	}
+	PACKET.ZC.EQUIPMENT_SWITCH_LIST.size = -1;
 
 	// 0xaa5
 	PACKET.ZC.MEMBERMGR_INFO2 = function PACKET_ZC_MEMBERMGR_INFO2(fp, end) {
