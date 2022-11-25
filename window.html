@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ROBrowser - NW</title>
+        <base href="./" />
+        <style type="text/css">
+            body {
+                overflow: hidden;
+            }
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                background-color: black;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="settings.js"></script>
+        <script src="bootstrap.js"></script>
+
+        <script src="src/Vendors/require.js"></script>
+        <script>
+            require(['src/App/Online']);
+        </script>
+
+        <!--
+	<script>nw.Window.get().evalNWBin(null, 'Online.bin');</script>
+	-->
+    </body>
+</html>
