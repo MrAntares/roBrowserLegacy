@@ -599,13 +599,14 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xa10: PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5, //
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
 		0xa23: PACKET.ZC.ALL_ACH_LIST, // ?
-		// 0xa24: PACKET.ZC.ACH_UPDATE,
+		0xa24: PACKET.ZC.ACH_UPDATE,
 		0xa27: PACKET.ZC.RECOVERY2, // ok
 		0xa30: PACKET.ZC.ACK_REQNAMEALL2, // not tested yet (Thapakorn)
-		// 0xa37: PACKET.ZC.ITEM_PICKUP_ACK7,
+		0xa37: PACKET.ZC.ITEM_PICKUP_ACK7,
 		0xa3b: PACKET.ZC.HAT_EFFECT,
 		0xa44: PACKET.ZC.GROUP_LIST2, // ok
 		0xa84: PACKET.ZC.GUILD_INFO3, // ok
+		0xa9b: PACKET.ZC.EQUIPMENT_SWITCH_LIST, 
 		0xaa5: PACKET.ZC.MEMBERMGR_INFO2, //
 		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
 		0xac5: PACKET.HC.NOTIFY_ZONESVR2, // ok
@@ -615,7 +616,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xacb: PACKET.ZC.LONGPAR_CHANGE2,
 		0xacc: PACKET.ZC.NOTIFY_EXP2,
 		0xadd: PACKET.ZC.ITEM_FALL_ENTRY3,
-		0xadd: PACKET.ZC.WEIGHT_LIMIT, // not implemented yet
+		0xade: PACKET.ZC.WEIGHT_LIMIT, // not implemented yet
 		0xa78: PACKET.ZC.CAMERA_INFO, // not implemented yet
 		0xa9a: PACKET.ZC.EQUIPSWITCH_REMOVE, // not implemented yet
 		// 0xadf: PACKET.ZC.ACK_REQNAME3,

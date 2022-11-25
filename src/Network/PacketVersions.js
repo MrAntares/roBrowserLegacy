@@ -1645,6 +1645,73 @@ define( ['./PacketStructure'], function( PACKET )
 			[PACKET.CZ.SEARCH_STORE_INFO_NEXT_PAGE,0x0917,2,0],
 			[PACKET.CZ.REQ_CLOSE_BUYING_STORE,0x093d,2,0],
 			[PACKET.CZ.PARTY_BOOKING_REQ_REGISTER,0x0918,18,2,4],
+		],
+		20170614: [
+			
+			[PACKET.CZ.ITEM_THROW,0x0367,6,2,4], //packet(0x0367,6,clif_parse_DropItem,2,4);
+			[PACKET.CZ.REQUEST_MOVE,0x0361,5,2], //packet(0x0361,5,clif_parse_WalkToXY,2);
+			[PACKET.CZ.ACK_STORE_PASSWORD,0x0437,36,0], //packet(0x0437,36,clif_parse_StoragePassword,0);
+			[PACKET.CZ.USE_SKILL_TOGROUND,0x0838,10,2,4,6,8], //packet(0x0838,10,clif_parse_UseSkillToPos,2,4,6,8);
+			[PACKET.CZ.REQUEST_ACT,0x083C,7,2,6], //packet(0x083C,7,clif_parse_ActionRequest,2,6);
+			[PACKET.CZ.REQ_CLICK_TO_BUYING_STORE,0x0860,6,2], //packet(0x0860,6,clif_parse_ReqClickBuyingStore,2);
+			[PACKET.CZ.ADD_FRIENDS,0x0867,26,2], //packet(0x0867,26,clif_parse_FriendsListAdd,2);
+			[PACKET.CZ.REQ_CLOSE_BUYING_STORE,0x086B,2,0], //packet(0x086B,2,clif_parse_ReqCloseBuyingStore,0);
+			[PACKET.CZ.SEARCH_STORE_INFO,0x086C,-1,2,4,5,9,13,14,15], //packet(0x086C,-1,clif_parse_SearchStoreInfo,2,4,5,9,13,14,15);
+			[PACKET.CZ.PARTY_BOOKING_REQ_REGISTER,0x0877,18,2,4], //packet(0x0877,18,clif_parse_PartyBookingRegisterReq,2,4);
+			[PACKET.CZ.CHANGE_DIRECTION,0x087E,5,2,4], //packet(0x087E,5,clif_parse_ChangeDir,2,4);
+			[PACKET.CZ.USE_SKILL_TOGROUNDMoreInfo,0x0889,90,2,4,6,8,10], //packet(0x0889,90,clif_parse_UseSkillToPosMoreInfo,2,4,6,8,10);
+			[PACKET.CZ.REQ_JOIN_GROUP,0x0899,26,2], //packet(0x0899,26,clif_parse_PartyInvite2,2);
+			[PACKET.CZ.REQ_TRADE_BUYING_STORE,0x089D,-1,2,4,8,12],
+			[PACKET.CZ.REQ_OPEN_BUYING_STORE,0x08A2,-1,2,4,8,9,89], //packet(0x08A2,-1,clif_parse_ReqOpenBuyingStore,2,4,8,9,89);
+			[PACKET.CZ.ITEM_PICKUP,0x08AD,6,2], //packet(0x08AD,6,clif_parse_TakeItem,2);
+			[PACKET.CZ.REQ_TRADE_BUYING_STORE,0x092F,-1,2,4,8,12], //packet(0x092F,-1,clif_parse_ReqTradeBuyingStore,2,4,8,12);
+			[PACKET.CZ.USE_SKILL,0x091B,10,2,4,6], //packet(0x091B,10,clif_parse_UseSkillToId,2,4,6);
+			//packet(0x0928,2,clif_parse_SearchStoreInfoNextPage,0);
+			[PACKET.CZ.REQNAME,0x0936,6,2], //packet(0x0936,6,clif_parse_GetCharNameRequest,2);
+			[PACKET.CZ.ENTER,0x0944,19,2,6,10,14,18], //packet(0x0944,19,clif_parse_WantToConnection,2,6,10,14,18);
+			[PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE,0x0879,8,2,4],
+			[PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY,0x023B,8,2,4],
+			
+			/*
+			// 2017-06-14bRagexeRE
+			packet(0x0364,5,clif_parse_HomMenu,2,4);
+			//packet(0x0865,4,NULL,0); // CZ_GANGSI_RANK
+			packet(0x0866,6,clif_parse_TickSend,2);
+			packet(0x087D,6,clif_parse_SolveCharName,2);
+			//packet(0x0957,8,NULL,0); // CZ_JOIN_BATTLE_FIELD
+			packet(0x0963,12,clif_parse_SearchStoreInfoListItemClick,2,6,10);
+			*/
+		],
+		20180207: [
+			[PACKET.CZ.USE_SKILL_TOGROUND, 0xaf4, 0xb, 0x2, 0x4, 0x6, 0x8, 0xa]
+		],
+		20180307: [
+			[PACKET.CZ.ADD_FRIENDS, 0x202, 26, 2],
+			[PACKET.CZ.COMMAND_MER, 0x22d, 5, 2, 4],
+			[PACKET.CZ.ACK_STORE_PASSWORD, 0x23b, 36, 0],
+			[PACKET.CZ.REQ_JOIN_GROUP, 0x2c4, 26, 2],
+			[PACKET.CZ.REQUEST_MOVE, 0x35f, 5, 2],
+			[PACKET.CZ.REQUEST_TIME, 0x360, 6, 2],
+			[PACKET.CZ.CHANGE_DIRECTION, 0x361, 5, 2, 4],
+			[PACKET.CZ.ITEM_PICKUP, 0x362, 6, 2],
+			[PACKET.CZ.ITEM_THROW, 0x363, 6, 2, 4],
+			[PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE, 0x364, 8, 2, 4],
+			[PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY, 0x365, 8, 2, 4],
+			[PACKET.CZ.USE_SKILL_TOGROUND, 0x366, 10, 2, 4, 6, 8],
+			[PACKET.CZ.USE_SKILL_TOGROUNDMoreInfo, 0x367, 90, 2, 4, 6, 8, 10],
+			[PACKET.CZ.REQNAME, 0x368, 6, 2],
+			[PACKET.CZ.REQNAME_BYGID, 0x369, 6, 2],
+			[PACKET.CZ.ENTER, 0x436, 19, 2, 6, 10, 14, 18],
+			[PACKET.CZ.REQUEST_ACT, 0x437, 7, 2, 6],
+			[PACKET.CZ.USE_SKILL, 0x438, 10, 2, 4, 6],
+			[PACKET.CZ.ITEMLISTWIN_RES, 0x7e4, -1, 2, 4, 8, 12],
+			[PACKET.CZ.PARTY_BOOKING_REQ_REGISTER, 0x802, 18, 2, 4],
+			[PACKET.CZ.REQ_OPEN_BUYING_STORE, 0x811, -1, 2, 4, 8, 9, 0x59],
+			[PACKET.CZ.REQ_CLOSE_BUYING_STORE, 0x815, 2, 0],
+			[PACKET.CZ.REQ_CLICK_TO_BUYING_STORE, 0x817, 6, 2],
+			[PACKET.CZ.REQ_TRADE_BUYING_STORE, 0x819, -1, 2, 4, 8, 12],
+			[PACKET.CZ.SEARCH_STORE_INFO, 0x835, -1, 2, 4, 5, 9, 13, 14, 15],
+			[PACKET.CZ.SSILIST_ITEM_CLICK, 0x83c, 12, 2, 6, 10]
 		]
 	};
 });
