@@ -609,6 +609,18 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xaa5: PACKET.ZC.MEMBERMGR_INFO2, //
 		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
 		0xac5: PACKET.HC.NOTIFY_ZONESVR2, // ok
+
+		0xab2: PACKET.ZC.NOTIFY_PARTY_DEAD, // not implemented yet
+		0xabd: PACKET.ZC.UPDATE_PARTY_MEMBER, // not implemented yet
+		0xacb: PACKET.ZC.LONGPAR_CHANGE2,
+		0xacc: PACKET.ZC.NOTIFY_EXP2,
+		0xadd: PACKET.ZC.ITEM_FALL_ENTRY3,
+		0xadd: PACKET.ZC.WEIGHT_LIMIT, // not implemented yet
+		0xa78: PACKET.ZC.CAMERA_INFO, // not implemented yet
+		0xa9a: PACKET.ZC.EQUIPSWITCH_REMOVE, // not implemented yet
+		// 0xadf: PACKET.ZC.ACK_REQNAME3,
+		0xae2: PACKET.ZC.UI_OPEN,
+		0xb08: PACKET.ZC.INVENTORY_START,
 		0xb0a: PACKET.ZC.EQUIPMENT_ITEMLIST6,
 	};
 });
