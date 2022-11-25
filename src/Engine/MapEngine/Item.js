@@ -499,6 +499,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ITEM_ENTRY,             onItemExistInGround );
 		Network.hookPacket( PACKET.ZC.ITEM_FALL_ENTRY,        onItemSpamInGround );
 		Network.hookPacket( PACKET.ZC.ITEM_FALL_ENTRY2,       onItemSpamInGround );
+		Network.hookPacket( PACKET.ZC.ITEM_FALL_ENTRY3,       onItemSpamInGround );
 		Network.hookPacket( PACKET.ZC.ITEM_DISAPPEAR,         onItemInGroundVanish);
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK,        onItemPickAnswer );
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK2,       onItemPickAnswer );
