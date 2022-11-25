@@ -1799,14 +1799,19 @@ define(function( require )
 
 	function onNotifyExp( pkt )
 	{
-        if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
-            if(pkt. varID == 1) {
-                ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, '#A442DC');
-            }
-            if(pkt. varID == 2) {
-                ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, '#A442DC');
-            }
-        }
+        if (pkt.expType == 0) {
+			if (pkt.varID == 2) {
+				ChatBox.addText(DB.getMessage(3227).replace('%lld', pkt.amount) + ' ' + DB.getMessage(1615), ChatBox.TYPE.INFO);
+			} else {
+				ChatBox.addText(DB.getMessage(3220).replace('%lld', pkt.amount) + ' ' + DB.getMessage(1615), ChatBox.TYPE.INFO);
+			}
+		} else {
+			if (pkt.varID == 2){
+				ChatBox.addText(DB.getMessage(3227).replace('%lld', pkt.amount) + ' ' + DB.getMessage(1615), ChatBox.TYPE.INFO);
+			} else {
+				ChatBox.addText(DB.getMessage(3220).replace('%lld', pkt.amount) + ' ' + DB.getMessage(1615), ChatBox.TYPE.INFO);
+			}
+		}
 	}
 
 	/**
@@ -2009,6 +2014,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.QUEST_NOTIFY_EFFECT,          onEntityQuestNotifyEffect);
 		Network.hookPacket( PACKET.ZC.BLADESTOP,                    onBladeStopPacket);
 		Network.hookPacket( PACKET.ZC.NOTIFY_EXP,                   onNotifyExp);
+		Network.hookPacket( PACKET.ZC.NOTIFY_EXP2,                  onNotifyExp);
 		Network.hookPacket( PACKET.ZC.BOSS_INFO,                    onMarkMvp);
 		Network.hookPacket( PACKET.ZC.MVP,                          onEntityMvpReward);
 		Network.hookPacket( PACKET.ZC.MVP_GETTING_ITEM,             onEntityMvpRewardItemMessage);
