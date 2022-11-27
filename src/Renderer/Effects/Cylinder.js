@@ -478,6 +478,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 */
 	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		var uniform = _program.uniform;
+		//Disble DepthMask
+		gl.depthMask(false);
 		
 		gl.useProgram(_program);
 		
@@ -503,6 +505,10 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @param {object} webgl context
 	 */
 	Cylinder.afterRender = function afterRender(gl) {
+
+		//Enable DepthMask
+		gl.depthMask(true);
+		
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
