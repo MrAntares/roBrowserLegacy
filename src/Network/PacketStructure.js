@@ -11343,6 +11343,24 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.PROPERTY_HOMUN2.size = 75;
 
+	// 0x9f8
+	PACKET.ZC.ALL_QUEST_LIST_V3 = function PACKET_ZC_ALL_QUEST_LIST_V3(fp, end) {
+		this.questCount = fp.readLong();
+		this.QuestList = (function() {
+			var i, count=(end-fp.tell())/15|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].questID = fp.readULong();
+				out[i].active = fp.readUChar();
+				out[i]._time = fp.readULong();
+				out[i].time = fp.readULong();
+				out[i].count = fp.readShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.ALL_QUEST_LIST_V3.size = -1;
+
 	// 0x9fd
 	PACKET.ZC.NOTIFY_MOVEENTRY9 = function PACKET_ZC_NOTIFY_MOVEENTRY9(fp, end) {
 		this.objecttype = fp.readUChar();
