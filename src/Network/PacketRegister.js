@@ -581,7 +581,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x9df: PACKET.ZC.ACK_WHISPER2,
 		0x9e7: PACKET.ZC.RODEX_ICON, // rodexicon ?
 		0x9f7: PACKET.ZC.PROPERTY_HOMUN2,
-		// 0x9f8: PACKET.ZC.ALL_QUEST_LIST_V3,
+		0x9f8: PACKET.ZC.ALL_QUEST_LIST_V3, // not tested yet
 		0x9fd: PACKET.ZC.NOTIFY_MOVEENTRY9, // ok
 		0x9fe: PACKET.ZC.NOTIFY_STANDENTRY9, // ok
 		0x9ff: PACKET.ZC.NOTIFY_NEWENTRY9, // ok
