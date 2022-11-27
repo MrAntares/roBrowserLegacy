@@ -2,11 +2,6 @@
 // See parameters in http://www.robrowser.com/getting-started#API
 var ROConfig = {
     development: true, // don't need to compile javascript files in chrome app since it's already a package.
-    //remoteClient:  "http://ragnarok.local/client/",
-    //packetver:     20141022,
-    //packetKeys: 		[0x290551EA,0x2B952C75,0x2D67669B],
-
-    //remoteClient:  "http://grf.robrowser.com/",
     grfList: ['data.grf'],
     readDataFolder: false,
     servers: [
