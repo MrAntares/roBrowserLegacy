@@ -65,6 +65,18 @@ define( ['./Struct', 'Vendors/text-encoding'], function( Struct, TextEncoding )
 		this.length = ( end || buffer.byteLength ) - ( start || 0 );
 	}
 
+	if (!DataView.prototype.getUint64) {
+		DataView.prototype.getUint64 = function (offset, flag) {
+			const int1 = this.getUint32(offset, flag);
+			const int2 = this.getUint32(offset + 4, flag);
+			const total = flag ? int1 + 2 ** 32 * int2 : 2 ** 32 * int1 + int2;
+			if (!Number.isSafeInteger(total)) {
+				console.warn(total, ' dépasse MAX_SAFE_INTEGER : perte de précision !');
+			}
+			return total;
+		};
+	}
+
 
 	/**
 	 * Read Int8 from buffer
@@ -144,6 +156,28 @@ define( ['./Struct', 'Vendors/text-encoding'], function( Struct, TextEncoding )
 		var data = this.view.getUint32( this.offset, true );
 		this.offset += 4;
 
+		return data;
+	};
+
+	
+	/**
+	 * Read Uint64 from buffer
+	 * @return Uint64
+	 */
+	BinaryReader.prototype.getUint64 = function getUint64() {
+		var data = this.view.getUint64(this.offset, true);
+		this.offset += 8;
+		return data;
+	};
+	
+
+	/**
+	 * Read BigUint64 from buffer
+	 * @return Uint64
+	 */
+	BinaryReader.prototype.getBigUint64 = function getBigUint64() {
+		var data = this.view.getBigUint64(this.offset, true);
+		this.offset += 8;
 		return data;
 	};
 

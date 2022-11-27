@@ -499,12 +499,14 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ITEM_ENTRY,             onItemExistInGround );
 		Network.hookPacket( PACKET.ZC.ITEM_FALL_ENTRY,        onItemSpamInGround );
 		Network.hookPacket( PACKET.ZC.ITEM_FALL_ENTRY2,       onItemSpamInGround );
+		Network.hookPacket( PACKET.ZC.ITEM_FALL_ENTRY3,       onItemSpamInGround );
 		Network.hookPacket( PACKET.ZC.ITEM_DISAPPEAR,         onItemInGroundVanish);
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK,        onItemPickAnswer );
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK2,       onItemPickAnswer );
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK3,       onItemPickAnswer );
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK5,       onItemPickAnswer );
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK6, 			onItemPickAnswer);
+		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK7, 			onItemPickAnswer);
 		Network.hookPacket( PACKET.ZC.ITEM_THROW_ACK,         onIventoryRemoveItem );
 		Network.hookPacket( PACKET.ZC.NORMAL_ITEMLIST,        onInventorySetList );
 		Network.hookPacket( PACKET.ZC.NORMAL_ITEMLIST2,       onInventorySetList );
