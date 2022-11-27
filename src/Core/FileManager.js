@@ -207,7 +207,7 @@ define(function (require) {
         // Trim the path
         filename = filename.replace(/^\s+|\s+$/g, '');
 
-        if (fs && fs.existsSync(filename) && this.dataPath) {
+        if (fs && fs.existsSync(this.dataPath + filename) && this.dataPath && !filename.match(/bgm/i)) {
             callback(fs.readFileSync(this.dataPath + filename));
             return;
         }
