@@ -26,11 +26,11 @@ define(function()
 	ItemEffect[509] = { effectId: 207 }; //White Herb
 	ItemEffect[510] = { effectId: 208 }; //Blue Herb
 	ItemEffect[511] = { effectId: 209 }; //Green Herb
-	ItemEffect[512] = { effectId: 204 }; //Apple
-	ItemEffect[513] = { effectId: 204 }; //Banana
+	ItemEffect[512] = { effectId: 210 }; //Apple
+	ItemEffect[513] = { effectId: 210 }; //Banana
 	ItemEffect[514] = { effectId: 208 }; //Grape
-	ItemEffect[515] = { effectId: 204 }; //Carrot
-	ItemEffect[516] = { effectId: 204 }; //Potato
+	ItemEffect[515] = { effectId: 210 }; //Carrot
+	ItemEffect[516] = { effectId: 210 }; //Potato
 	ItemEffect[517] = { effectId: 210 }; //Meat
 	ItemEffect[518] = { effectId: 210 }; //Honey
 	ItemEffect[519] = { effectId: 210 }; //Milk

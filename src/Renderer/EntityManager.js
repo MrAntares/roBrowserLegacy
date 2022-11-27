@@ -301,7 +301,13 @@ define(function( require )
 					continue;
 				}
 
-				_list[i].render( modelView, projection);				
+				if(_list[i].objecttype == Entity.TYPE_MOB && _list[i].action == _list[i].ACTION.DIE){
+					gl.depthMask(false);
+					_list[i].render( modelView, projection);
+					gl.depthMask(true);
+				}else{
+					_list[i].render( modelView, projection);
+				}		
 			}
 		}
 
