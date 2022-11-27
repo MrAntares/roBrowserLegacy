@@ -162,6 +162,7 @@ define(function( require )
 				files:     list,
 				grfList:   Configs.get('grfList') || 'DATA.INI',
 				save:    !!Configs.get('saveFiles'),
+				dataPath: Configs.get('readDataFolder') ? ROConfig.dataPath : false,
 				quota:     quota
 			}, Client.onFilesLoaded );
 		});
