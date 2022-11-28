@@ -5998,9 +5998,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0x136
 	PACKET.ZC.PC_PURCHASE_MYITEMLIST = function PACKET_ZC_PC_PURCHASE_MYITEMLIST(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
 		this.AID = fp.readULong();
 		this.itemList = (function() {
-			var i, count=(end-fp.tell())/22|0, out=new Array(count);
+			var i, count=(end-fp.tell())/47|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].price = fp.readLong();
@@ -6016,6 +6022,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].slot.card2 = fp.readUShort();
 				out[i].slot.card3 = fp.readUShort();
 				out[i].slot.card4 = fp.readUShort();
+				out[i].Options = {};
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
 			}
 			return out;
 		})();
