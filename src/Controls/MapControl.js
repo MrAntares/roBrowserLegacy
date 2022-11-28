@@ -91,7 +91,7 @@ define(function( require )
 	{
 		var action = event && event.which || 1;
 
-		Session.moveAction = null;
+		
 
 		if (!Mouse.intersect) {
 			return;
@@ -104,6 +104,7 @@ define(function( require )
 
 			// Left click
 			case 1:
+				Session.moveAction = null;
 				var stop        = false;
 				if(entityOver != Session.Entity){
 					if (entityFocus && entityFocus != entityOver) {
