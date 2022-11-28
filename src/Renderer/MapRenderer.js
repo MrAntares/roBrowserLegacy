@@ -246,7 +246,7 @@ define(function( require )
 			this.sounds[i].pos[2]  = tmp;
 			this.sounds[i].range  *= 0.2;
 			this.sounds[i].tick    =   0;
-
+			this.sounds[i].cycle    =   !this.sounds[i].cycle ? 7:this.sounds[i].cycle;
 			Sounds.add(this.sounds[i]);
 		}
 
