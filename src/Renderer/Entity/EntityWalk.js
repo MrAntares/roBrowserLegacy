@@ -112,7 +112,7 @@ define( function( require )
 					y = path[index+1] - (walk.pos[1]);
 
 					// Seems like walking on diagonal is slower ?
-					speed = ( x && y ) ? walk.speed / 0.6 : walk.speed;
+					speed = ( x && y ) ? walk.speed / 0.7 : walk.speed;
 
 					// New position :)
 					if (TICK - walk.tick <= speed) {
