@@ -11830,6 +11830,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.RECOVERY2.size = 8;
 
+	//0xa28: PACKET.ZC.ACK_OPENSTORE2
+	PACKET.ZC.ACK_OPENSTORE2 = function PACKET_ZC_ACK_OPENSTORE2(fp, end) {
+		this.result = fp.readChar();
+		return false;
+	};
+	PACKET.ZC.ACK_OPENSTORE2.size = 3;
+
 	// 0xa30
 	PACKET.ZC.ACK_REQNAMEALL2 = function PACKET_ZC_ACK_REQNAMEALL2(fp, end) {
 		this.AID = fp.readULong();
