@@ -279,9 +279,9 @@ define(function( require )
 		if (!Preferences.effect) {
 			return;
 		}
-		
+
 		// Prepare params
-		EF_Init_Par.effectId       = EF_Init_Par.effectId       || -1;
+		EF_Init_Par.effectId       = EF_Init_Par.effectId       ?? -1;
 		EF_Init_Par.skillId        = EF_Init_Par.skillId        || null;
 		EF_Init_Par.ownerAID       = EF_Init_Par.ownerAID       || null;
 		EF_Init_Par.position       = EF_Init_Par.position       || null;
@@ -293,7 +293,6 @@ define(function( require )
 		
 		EF_Init_Par.ownerEntity    = EntityManager.get(EF_Init_Par.ownerAID);
 		EF_Init_Par.otherEntity    = EntityManager.get(EF_Init_Par.otherAID);
-		
 
 		// Not found
 		if (!(EF_Init_Par.effectId in EffectDB)) {

@@ -453,6 +453,16 @@ define(function( require )
 
 					// damage or miss display
 					if (target) {
+						if(dstEntity.objecttype === Entity.TYPE_MOB){
+							if(pkt.damage > 0){
+								var EF_Init_Par = {
+									effectId: 0,
+									ownerAID: pkt.targetGID,
+									startTick: Renderer.tick + pkt.attackMT,
+								};
+								EffectManager.spam(EF_Init_Par);
+							}
+						}
 						switch (pkt.action) {
 
 							// regular damage
