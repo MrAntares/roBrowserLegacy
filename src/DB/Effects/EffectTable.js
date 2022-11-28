@@ -361,7 +361,30 @@ define(function( require )
 	return {
 		
 		0: [{	//EF_HIT1	Regular hit
-			wav: 'effect/ef_hit1'
+			type: '3D',
+			duplicate: 4,
+			timeBetweenDupli: 0,
+			file: 'effect/pok3.tga',
+			duration: 300,
+			alphaMax: 0.8,
+			alphaMin: 0.3,
+			fadeIn: true,
+			fadeOut: true,
+			poszStart: 1,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 2,
+			posyEndRand: 2,
+			poszEndRand: 2,
+			zIndex: 1,
+			size: 10,
+			red: 1,
+			green: 1,
+			blue: 1,
+			sizeRand: 20,
+			sizeSmooth: true,
+			attachedEntity: false,
+			sparkling: true,
 		}],
 
 		1: [{	//EF_HIT2	Bash
