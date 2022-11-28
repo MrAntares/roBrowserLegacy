@@ -540,6 +540,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_ITEMREFINING,       onRefineResult);
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART,          onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,         onCartItemAdded );
+		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART3,         onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
 		Network.hookPacket( PACKET.ZC.MAKINGITEM_LIST,        onMakeitem_List );
 		Network.hookPacket( PACKET.ZC.ACK_ADDITEM_TO_CART,        onAckAddItemToCart );
