@@ -23,6 +23,7 @@ define(function( require )
 	var PACKET         = require('Network/PacketStructure');
 	var PACKETVER	   = require('Network/PacketVerManager');
 	var EntityManager  = require('Renderer/EntityManager');
+	var EffectManager  = require('Renderer/EffectManager');
 	var Renderer       = require('Renderer/Renderer');
 	var Damage         = require('Renderer/Effects/Damage');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
@@ -553,6 +554,13 @@ define(function( require )
 			case StatusProperty.HP:
 				Damage.add( pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL );
 
+				var EF_Init_Par = {
+					effectId: 331,
+					ownerAID: Session.Entity.GID,
+				};	
+
+				EffectManager.spam(EF_Init_Par);
+
 				Session.Entity.life.hp += pkt.amount;
 				Session.Entity.life.update();
 
@@ -563,6 +571,12 @@ define(function( require )
 
 			case StatusProperty.SP:
 				Damage.add( pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL | Damage.TYPE.SP );
+				var EF_Init_Par = {
+					effectId: 332,
+					ownerAID: Session.Entity.GID,
+				};	
+
+				EffectManager.spam(EF_Init_Par);
 
 				Session.Entity.life.sp += pkt.amount;
 				Session.Entity.life.update();
