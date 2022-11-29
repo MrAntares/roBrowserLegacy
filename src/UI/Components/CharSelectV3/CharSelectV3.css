@@ -1,104 +1,112 @@
-#charselect { position:absolute; width:995px; height:625px; z-index:100; font-size: 11px; }
+#charselect_v3 {
+    position:relative;
+    width:995px;
+    height:625px;
+    z-index:100;
+    font-size: 11px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    padding-top: 20px;
+    padding-left: 5px;
+}
 
 /** Box **/
-#charselect .box_select { position:absolute; width:157px; height:159px; top:40px; margin-left:-5px; }
-#charselect canvas { position:absolute; }
-#charselect .slot1 {
-    left: 60px;
-    top: 44px;
-}
-#charselect .slot2 {
-    left: 224px;
-    top: 44px;
-}
-#charselect .slot3 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot4 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot5 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot6 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot7 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot8 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot9 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot10 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot11 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot12 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot13 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot14 {
-    left: 386px;
-    top: 44px;
-}
-#charselect .slot15 {
-    left: 386px;
-    top: 44px;
+#charselect_v3 .char_list {
+    width: 800px;
+    height: 625px;
+    float: left;
 }
 
-/** Arrow **/
-#charselect .arrow { position:absolute; top:105px; width:13px; height:13px; border:0; background-color:transparent; background-repeat:no-repeat; }
-#charselect .arrow.left  { left: 40px; }
-#charselect .arrow.right { right:40px; }
+#charselect_v3 .box_select { position:absolute; width:157px; height:159px; top:40px; margin-left:-5px; }
+#charselect_v3 .char_canvas {
+    width: 157px;
+    height: 195px;
+    float: left;
+    position: relative;
+}
+#charselect_v3 .char_canvas .name {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+}
 
 /** Slot info **/
-#charselect .slotinfo { position:absolute; top:195px; right:10px; height:20px; display:block; border:1px solid #c6cee7; border-radius:4px; padding-left:10px; padding-right:10px; }
-#charselect .slotinfo .number { color:#58709e; font-weight:bold; margin-right:10px; }
-#charselect .slotinfo .content { color:#555; top:6px; right:8px; }
+#charselect_v3 .slotinfo { position:absolute; top:195px; right:10px; height:20px; display:block; border:1px solid #c6cee7; border-radius:4px; padding-left:10px; padding-right:10px; }
+#charselect_v3 .slotinfo .number { color:#58709e; font-weight:bold; margin-right:10px; }
+#charselect_v3 .slotinfo .content { color:#555; top:6px; right:8px; }
 
 /** Page info **/
-#charselect .pageinfo { position:absolute; left:275px; top:185px; font-weight: bold; color: #646464; }
-#charselect .pageinfo .current { color: #fe3b7d; }
+#charselect_v3 .pageinfo { position:absolute; left:275px; top:185px; font-weight: bold; color: #646464; }
+#charselect_v3 .pageinfo .current { color: #fe3b7d; }
 
 /** Characters infos **/
-#charselect .charinfo { position:absolute; width:285px; top:204px; left:16px; }
-#charselect .charinfo div { position:absolute; width:90px; height:13px; font-size:12px; }
-#charselect .charinfo .name { left: 52px; top: 2px; white-space:nowrap; }
-#charselect .charinfo .job  { left: 52px; top:18px; }
-#charselect .charinfo .lvl  { left: 52px; top:34px; }
-#charselect .charinfo .exp  { left: 52px; top:50px; }
-#charselect .charinfo .hp   { left: 52px; top:66px; }
-#charselect .charinfo .sp   { left: 52px; top:82px; }
-#charselect .charinfo .map  { left: 52px; top:98px; width:238px; }
-#charselect .charinfo .str  { left:200px; top: 2px; }
-#charselect .charinfo .agi  { left:200px; top:18px; }
-#charselect .charinfo .vit  { left:200px; top:34px; }
-#charselect .charinfo .int  { left:200px; top:50px; }
-#charselect .charinfo .dex  { left:200px; top:66px; }
-#charselect .charinfo .luk  { left:200px; top:82px; }
+#charselect_v3 .charinfo { 
+    height: 625px;
+    width: 185px;
+    float: left;
+    background-repeat: no-repeat;
+    margin-top: 10px;
+    margin-left: 10px;
+    position: relative;
+ }
+#charselect_v3 .charinfo div {
+    position:absolute;
+    width:90px;
+    height:13px;
+}
+#charselect_v3 .charinfo .name { left: 52px; top: 2px; white-space:nowrap; }
+#charselect_v3 .charinfo .job  { left: 60px; top:105px; }
+#charselect_v3 .charinfo .lvl  { left: 60px; top:123px; }
+#charselect_v3 .charinfo .exp  { left: 60px; top:140px; }
+#charselect_v3 .charinfo .hp   { left: 60px; top:157px; }
+#charselect_v3 .charinfo .sp   { left: 60px; top:174px; }
+#charselect_v3 .charinfo .map  { left: 60px; top:89px; width:238px; }
+#charselect_v3 .charinfo .str  { left:  60px; top: 191px; }
+#charselect_v3 .charinfo .agi  { left:  60px; top:208px; }
+#charselect_v3 .charinfo .vit  { left:  60px; top:225px; }
+#charselect_v3 .charinfo .int  { left:  60px; top:242px; }
+#charselect_v3 .charinfo .dex  { left:  60px; top:259px; }
+#charselect_v3 .charinfo .luk  { left:  60px; top:276px; }
 
 /** Buttons **/
-#charselect .btns { position:absolute; bottom:4px; width:100%; height:20px; }
-#charselect .btn { position: absolute; border:0;   width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; }
+#charselect_v3 .btn.delete {
+    position: absolute;
+    border: 0;
+    width: 131px;
+    height: 24px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+ }
+#charselect_v3 .btn.ok {
+    position: absolute;
+    border: 0;
+    width: 165px;
+    height: 110px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    color: white;
+    padding-top: 20px;
+ }
+ #charselect_v3 .btn.ok:hover {
+    text-shadow: #000 1px 1px;
+ }
 
-#charselect .ok, #charselect .make { right:50px; }
-#charselect .cancel { right:4px; }
-#charselect .delete { left:4px; }
+#charselect_v3 .ok, #charselect_v3 .make {
+    right: 15px;
+    top: 380px;
+ }
+#charselect_v3 .cancel {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 17px;
+    height: 18px;
+    border: none;
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+#charselect_v3 .delete { 
+    right: 33px;
+    top: 300px;
+ }
