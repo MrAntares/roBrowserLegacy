@@ -4,6 +4,7 @@ var ROConfig = {
     development: true, // don't need to compile javascript files in chrome app since it's already a package.
     grfList: ['data.grf'],
     readDataFolder: true,
+    rootFolder: "G:\\Private Servers\\Ragnarok\\roBrowser\\ROData\\",
     servers: [
         {
             display: 'Localhost Server',

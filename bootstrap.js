@@ -5,10 +5,15 @@ delete window.require;
 window.requireNode.version = process.versions.node;
 delete process.versions.node;
 
-ROConfig.dataPath = process.execPath.replace('nw.exe', '');
+if(ROConfig.rootFolder){
+    ROConfig.dataPath = ROConfig.rootFolder;
+}else{
+    ROConfig.dataPath = process.execPath.replace('nw.exe', '');
+}
 //ROConfig.dataPath = "/Users/Thapakorn/Downloads/ro/";
 console.log('[Flavors] ' + process.versions['nw-flavor']);
 console.log('[Working Path] ' + ROConfig.dataPath);
+console.log('[NW Path] ' + process.execPath.replace('nw.exe', ''));
 
 //Add Path to GRF List
 if (ROConfig.grfList) {
