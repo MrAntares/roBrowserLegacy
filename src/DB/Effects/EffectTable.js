@@ -4843,64 +4843,65 @@ define(function( require )
 		}],
 		
 		//330: [{}],	//EF_HITLINE	   Combo Finish
-		331:[
-			{
-				type: '3D',
-				duplicate: 12,
-				file: 'effect/pok1.tga',
-				delay: 500,
-				timeBetweenDupli: 10,
-				alphaMax: 0.8,
-				fadeOut: true,
-				fadeIn: true,
-				zIndex: 1,
-				size: 30,
-				sizeRand: 20,
-				red: 0.9,
-				green: 1,
-				blue: 0.9,
-				blendMode: 2,
-				poszStartRand: 1.5,
-				poszStartRandMiddle: 2,
-				poszEndRandMiddle: 5,
-				poszEndRand: 1,
-				sparkling: true,
-				sparkNumberRand: [3,6],
-				posxRand: 0.6,
-				posyRand: 0.6,
-				attachedEntity: true,
-				wav: "_heal_effect"
-			}
-		  ],
-		  332:[
-			{
-				type: '3D',
-				duplicate: 12,
-				file: 'effect/pok1.tga',
-				delay: 500,
-				timeBetweenDupli: 10,
-				alphaMax: 0.8,
-				fadeOut: true,
-				fadeIn: true,
-				zIndex: 1,
-				size: 30,
-				sizeRand: 20,
-				red: 0.9,
-				green: 0.9,
-				blue: 1,
-				blendMode: 2,
-				poszStartRand: 1.5,
-				poszStartRandMiddle: 2,
-				poszEndRandMiddle: 5,
-				poszEndRand: 1,
-				sparkling: true,
-				sparkNumberRand: [3,6],
-				posxRand: 0.6,
-				posyRand: 0.6,
-				attachedEntity: true,
-				wav: "effect/Èí±â"
-			}
-		  ],
+		
+		331:[{	//EF_HPTIME	   Natural HP Regeneration
+			type: '3D',
+			duplicate: 12,
+			file: 'effect/pok1.tga',
+			delay: 500,
+			timeBetweenDupli: 10,
+			alphaMax: 0.8,
+			fadeOut: true,
+			fadeIn: true,
+			zIndex: 1,
+			size: 30,
+			sizeRand: 20,
+			red: 0.9,
+			green: 1,
+			blue: 0.9,
+			blendMode: 2,
+			poszStartRand: 1.5,
+			poszStartRandMiddle: 2,
+			poszEndRandMiddle: 5,
+			poszEndRand: 1,
+			sparkling: true,
+			sparkNumberRand: [3,6],
+			posxRand: 0.6,
+			posyRand: 0.6,
+			attachedEntity: true
+		}, {
+			wav: "_heal_effect"
+		}],
+		
+		332:[{	//EF_SPTIME	   Natural SP Regeneration
+			type: '3D',
+			duplicate: 12,
+			file: 'effect/pok1.tga',
+			delay: 500,
+			timeBetweenDupli: 10,
+			alphaMax: 0.8,
+			fadeOut: true,
+			fadeIn: true,
+			zIndex: 1,
+			size: 30,
+			sizeRand: 20,
+			red: 0.9,
+			green: 0.9,
+			blue: 1,
+			blendMode: 2,
+			poszStartRand: 1.5,
+			poszStartRandMiddle: 2,
+			poszEndRandMiddle: 5,
+			poszEndRand: 1,
+			sparkling: true,
+			sparkNumberRand: [3,6],
+			posxRand: 0.6,
+			posyRand: 0.6,
+			attachedEntity: true
+		}, {
+			wav: "effect/\xc8\xed\xb1\xe2"
+		}],
+		
 		//333: [{}],	//EF_MAPLE	   Autumn Leaves
 		
 		334: [{	//EF_BLIND	   Blind
