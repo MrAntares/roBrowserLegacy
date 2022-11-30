@@ -38,7 +38,7 @@ define(function(require)
 
 
     /**
-     * @var {Preferences} save where the cursor position is
+     * @var {Preferences} save preferences for the last index
      */
     var _preferences = Preferences.get('CharSelectV3', {
         index: 0
@@ -139,7 +139,6 @@ define(function(require)
     CharSelectV3.onAppend = function onAppend()
     {
         _index = _preferences.index;
-        updateCharSlot();
 
         // Update values
         moveCursorTo(_index);
@@ -156,7 +155,6 @@ define(function(require)
     {
         _preferences.index = _index;
         _preferences.save();
-        _list = [];
 
         Renderer.stop();
     };
@@ -291,6 +289,7 @@ define(function(require)
         
         _entitySlots[ character.CharNum ] = new Entity();
         _entitySlots[ character.CharNum ].set( character );
+        _entitySlots[ character.CharNum ].hideShadow = true;
     };
     
 
@@ -372,42 +371,28 @@ define(function(require)
     {
         var ui = CharSelectV3.ui;
         var $charinfo = ui.find('.charinfo');
-        var bg_uri    = null;
-        // Set the last entity to idle
-        var entity = _entitySlots[_index];
+
+        var entity = _slots[_index];
+        var prevIndex = _index;
         if (entity) {
             Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot_normal.bmp", function(dataURI) {
-                bg_uri = dataURI;
-                ui.find('#slot'+ _index).css('backgroundImage', 'url(' + bg_uri + ')');
-            });
-            entity.setAction({
-                action: entity.ACTION.IDLE,
-                frame:  0,
-                play:   true,
-                repeat: true
+                ui.find('#slot'+ prevIndex).css('backgroundImage', 'url(' + dataURI + ')');
             });
         }
-        _index = index > _maxSlots ? _maxSlots : (index < 0 ? 0: index);
 
+        var slotIndex = _index = index > _maxSlots ? _maxSlots : (index < 0 ? 0: index);
+        
         // Not found, just clean up.
-        entity = _entitySlots[_index];
+        entity = _slots[_index];
         if (!entity) {
             $charinfo.find('div').empty();
             ui.find('.delete').hide();
             ui.find('.ok').hide();
             return;
         }
-        Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot_over.bmp", function(dataURI) {
-            bg_uri = dataURI;
-            ui.find('#slot'+ _index).css('backgroundImage', 'url(' + bg_uri + ')');
-        });
 
-        // Animate the character
-        entity.setAction({
-            action: entity.ACTION.READYFIGHT,
-            frame:  0,
-            play:   true,
-            repeat: true
+        Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot_select.bmp", function(dataURI) {
+            ui.find('#slot'+ slotIndex).css('backgroundImage', 'url(' + dataURI + ')');
         });
 
         // Bind new value
@@ -432,20 +417,20 @@ define(function(require)
     function updateCharSlot(){
         for (let i = 0; i < _maxSlots; ++i) {
             jQuery(CharSelectV3.ui.find(".char_canvas")[i]).find('.name').html(_slots[i] !== undefined ? _slots[i].name:"");
-        }
-
-        for (let i = 0; i < _maxSlots; i++) {
             if(_slots[i] === undefined){
-                var bg_uri;
                 const slotNum = i;
+                jQuery(CharSelectV3.ui.find(".job_icon")[slotNum]).css('background-image', '');
                 if(CharSelectV3.ui.find('#slot'+ slotNum)){
                     Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot2_normal.bmp", function(dataURI) {
-                        bg_uri = dataURI;
-                        CharSelectV3.ui.find('#slot'+ slotNum).css('backgroundImage', 'url(' + bg_uri + ')');
+                        CharSelectV3.ui.find('#slot'+ slotNum).css('backgroundImage', 'url(' + dataURI + ')');
                     });
                 }
             }else{
                 CharSelectV3.ui.find('#slot'+ i).css("background-image", "");
+                const slotJobIcon = jQuery(CharSelectV3.ui.find(".job_icon")[i]);
+                Client.loadFile( DB.INTERFACE_PATH + "renewalparty/icon_jobs_"+_slots[i].job+".bmp", function(dataURI) {
+                    slotJobIcon.css('backgroundImage', 'url(' + dataURI + ')');
+                });
             }
         }
     }
@@ -467,7 +452,7 @@ define(function(require)
             _ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);
 
             if (_entitySlots[idx+i]) {
-                SpriteRenderer.bind2DContext(_ctx[i], 83, 157);
+                SpriteRenderer.bind2DContext(_ctx[i], 78, 157);
                 _entitySlots[idx+i].renderEntity();
             }
         }

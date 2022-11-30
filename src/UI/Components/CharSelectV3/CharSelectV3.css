@@ -31,6 +31,14 @@
     text-align: center;
 }
 
+#charselect_v3 .char_canvas .job_icon {
+    position: absolute;
+    top: 15px;
+    right: 12px;
+    width: 25px;
+    height: 25px;
+}
+
 /** Slot info **/
 #charselect_v3 .slotinfo { position:absolute; top:195px; right:10px; height:20px; display:block; border:1px solid #c6cee7; border-radius:4px; padding-left:10px; padding-right:10px; }
 #charselect_v3 .slotinfo .number { color:#58709e; font-weight:bold; margin-right:10px; }
