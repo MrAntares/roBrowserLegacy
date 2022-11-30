@@ -2538,10 +2538,10 @@ define(function( require )
 		138: [{	//EF_FIREPILLARON	Fire pillar
 			type: 'CYLINDER',
 			attachedEntity: false,
-			topSize: 1.0,
-			bottomSize: 0.5,
+			topSize: 2.0,
+			bottomSize: 1.0,
 			textureName: 'magic_red',
-			height: 7,
+			height: 3,
 			duration: 30000,
 			delayLate: 1000,
 			rotate: true
@@ -2558,10 +2558,10 @@ define(function( require )
 		}, {
 			type: 'CYLINDER',
 			attachedEntity: false,
-			topSize: 2.0,
-			bottomSize: 1.0,
+			topSize: 1.0,
+			bottomSize: 0.5,
 			textureName: 'magic_red',
-			height: 3,
+			height: 7,
 			duration: 30000,
 			delayLate: 1000,
 			rotate: true
