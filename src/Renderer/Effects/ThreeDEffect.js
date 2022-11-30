@@ -43,8 +43,15 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
         this.rotationClockwise = effect.rotationClockwise ? true : false;
         this.sparkling = effect.sparkling ? true : false;
-        if (effect.sparkNumber > 0) this.sparkNumber = effect.sparkNumber;
-        else this.sparkNumber = 1;
+        if (effect.sparkNumber > 0){
+            this.sparkNumber = effect.sparkNumber;
+        } else{
+            if(effect.sparkNumberRand){
+                this.sparkNumber = randBetween(effect.sparkNumberRand[0], effect.sparkNumberRand[1]);
+            }else{
+                this.sparkNumber = 1;
+            }    
+        }
         
         this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
         this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * EF_Inst_Par.duplicateID : 0), 1), 0);

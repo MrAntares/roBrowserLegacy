@@ -361,7 +361,30 @@ define(function( require )
 	return {
 		
 		0: [{	//EF_HIT1	Regular hit
-			wav: 'effect/ef_hit1'
+			type: '3D',
+			duplicate: 4,
+			timeBetweenDupli: 0,
+			file: 'effect/pok3.tga',
+			duration: 300,
+			alphaMax: 0.8,
+			alphaMin: 0.3,
+			fadeIn: true,
+			fadeOut: true,
+			poszStart: 1,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 2,
+			posyEndRand: 2,
+			poszEndRand: 2,
+			zIndex: 1,
+			size: 10,
+			red: 1,
+			green: 1,
+			blue: 1,
+			sizeRand: 20,
+			sizeSmooth: true,
+			attachedEntity: false,
+			sparkling: true,
 		}],
 
 		1: [{	//EF_HIT2	Bash
@@ -4820,8 +4843,64 @@ define(function( require )
 		}],
 		
 		//330: [{}],	//EF_HITLINE	   Combo Finish
-		//331: [{}],	//EF_HPTIME	   Natural HP Regeneration
-		//332: [{}],	//EF_SPTIME	   Natural SP Regeneration
+		331:[
+			{
+				type: '3D',
+				duplicate: 12,
+				file: 'effect/pok1.tga',
+				delay: 500,
+				timeBetweenDupli: 10,
+				alphaMax: 0.8,
+				fadeOut: true,
+				fadeIn: true,
+				zIndex: 1,
+				size: 30,
+				sizeRand: 20,
+				red: 0.9,
+				green: 1,
+				blue: 0.9,
+				blendMode: 2,
+				poszStartRand: 1.5,
+				poszStartRandMiddle: 2,
+				poszEndRandMiddle: 5,
+				poszEndRand: 1,
+				sparkling: true,
+				sparkNumberRand: [3,6],
+				posxRand: 0.6,
+				posyRand: 0.6,
+				attachedEntity: true,
+				wav: "_heal_effect"
+			}
+		  ],
+		  332:[
+			{
+				type: '3D',
+				duplicate: 12,
+				file: 'effect/pok1.tga',
+				delay: 500,
+				timeBetweenDupli: 10,
+				alphaMax: 0.8,
+				fadeOut: true,
+				fadeIn: true,
+				zIndex: 1,
+				size: 30,
+				sizeRand: 20,
+				red: 0.9,
+				green: 0.9,
+				blue: 1,
+				blendMode: 2,
+				poszStartRand: 1.5,
+				poszStartRandMiddle: 2,
+				poszEndRandMiddle: 5,
+				poszEndRand: 1,
+				sparkling: true,
+				sparkNumberRand: [3,6],
+				posxRand: 0.6,
+				posyRand: 0.6,
+				attachedEntity: true,
+				wav: "effect/Èí±â"
+			}
+		  ],
 		//333: [{}],	//EF_MAPLE	   Autumn Leaves
 		
 		334: [{	//EF_BLIND	   Blind

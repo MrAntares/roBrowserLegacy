@@ -375,8 +375,7 @@ define(function( require )
             case 9:  // endure [DMG_MULTI_HIT_ENDURE]
             case 10: // critital [DMG_CRITICAL]
 			case 11: // lucky
-
-
+			case 13: // multi-hit critical
 				var WSnd = DB.getWeaponSound(srcWeapon);
 				var weaponSound = WSnd ? WSnd[0] : false;
 				var weaponSoundRelease = WSnd ? WSnd[1] : false;
@@ -454,6 +453,16 @@ define(function( require )
 
 					// damage or miss display
 					if (target) {
+						if(dstEntity.objecttype === Entity.TYPE_MOB){
+							if(pkt.damage > 0){
+								var EF_Init_Par = {
+									effectId: 0,
+									ownerAID: pkt.targetGID,
+									startTick: Renderer.tick + pkt.attackMT,
+								};
+								EffectManager.spam(EF_Init_Par);
+							}
+						}
 						switch (pkt.action) {
 
 							// regular damage
@@ -514,6 +523,29 @@ define(function( require )
 							// TODO: lucky miss
 							case 11:
 								Damage.add( 0, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
+								break;
+							// TODO: double critical damage
+							case 13:
+								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
+									if(pkt.leftDamage){
+										Damage.add( Math.floor(pkt.damage  / 2) ,                dstEntity, Renderer.tick + pkt.attackMT * 1,   srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( Math.floor(pkt.damage  / 2) ,                    dstEntity, Renderer.tick + pkt.attackMT * 1.3, srcWeapon, Damage.TYPE.COMBO);
+										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									} else {
+										Damage.add( Math.floor(pkt.damage  / 2), dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
+										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+									}
+								}
+								if(pkt.leftDamage){
+									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.CRIT );
+									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1.3, srcWeapon, Damage.TYPE.CRIT );
+
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.CRIT );
+									//Damage.add( pkt.leftDamage / 2, target, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.CRIT );
+								} else {
+									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
+									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.CRIT );
+								}
 								break;
 						}
 					}
@@ -1981,6 +2013,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE,                onEntityViewChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE2,               onEntityViewChange );
 		Network.hookPacket( PACKET.ZC.USE_SKILL,                    onEntityUseSkill );
+		Network.hookPacket( PACKET.ZC.USE_SKILL2,                   onEntityUseSkill );
 		Network.hookPacket( PACKET.ZC.NOTIFY_SKILL,                 onEntityUseSkillToAttack );
 		Network.hookPacket( PACKET.ZC.NOTIFY_SKILL2,                onEntityUseSkillToAttack );
 		Network.hookPacket( PACKET.ZC.NOTIFY_SKILL_POSITION,        onEntityUseSkillToAttack );
