@@ -571,6 +571,10 @@ define(function( require )
 		if (!(skillId in SkillEffect)) {
 			return;
 		}
+
+		if(!SkillEffect[skillId]){
+			return;
+		}
 		
 		if(SkillEffect[skillId].effectId){
 			var effects = Array.isArray(SkillEffect[skillId].effectId) ? SkillEffect[skillId].effectId : [SkillEffect[skillId].effectId];
