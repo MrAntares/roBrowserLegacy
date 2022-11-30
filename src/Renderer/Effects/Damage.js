@@ -81,6 +81,10 @@ define(function( require )
 	 */
 	var _list = [];
 
+	/**
+	 * @var previus combo time
+	 */
+	 var prevCombo = [];
 
 	/**
 	 * Convert sprite to image Data
@@ -373,6 +377,7 @@ define(function( require )
 		_list.length = 0;
 	};
 
+	
 
 	/**
 	 * Rendering damages on maps
@@ -428,8 +433,15 @@ define(function( require )
 
 			// Combo title
 			if (damage.type & Damage.TYPE.COMBO || damage.type & Damage.TYPE.COMBO_B) {
+
+				//Combo title need to remove if new one come up
+				if(damage.startTick < prevCombo[damage.entity.GID]){
+					continue;
+				}
+				prevCombo[damage.entity.GID] = damage.startTick;
+
 				// TODO: fix it
-				size = Math.min( perc, 0.05 ) * 75;
+				size = Math.min( perc, 0.05 ) * 70;
 
 				// Remove it
 				if (!(damage.type & Damage.TYPE.COMBO_FINAL) && perc > 0.15) {
@@ -438,7 +450,7 @@ define(function( require )
 
 				SpriteRenderer.position[0] = damage.entity.position[0];
 				SpriteRenderer.position[1] = damage.entity.position[1];
-				SpriteRenderer.position[2] = damage.entity.position[2] + 5 + perc;
+				SpriteRenderer.position[2] = damage.entity.position[2] + 8 + perc * 3;
 			}
 
 			// Damage
