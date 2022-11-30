@@ -51,7 +51,7 @@ define(function( require )
 	/**
 	 * @var {number} Select Character UI
 	 */
-	var charSelectNum = 2;
+	var charSelectNum = 0;
 
 	/*
 	 * Connect to char server
@@ -96,21 +96,22 @@ define(function( require )
 		Network.hookPacket( PACKET.HC.REFUSE_DELETECHAR,             onDeleteAnswer );
 		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR, 				 onReceiveMapInfo);
 		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR2,               onReceiveMapInfo );
-		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted );
+		// Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST,   onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
 		Network.hookPacket( PACKET.HC.SECOND_PASSWD_LOGIN, 			 onPincodeCheckSuccess);
 
 		//Select Character Window
-		if((PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727) || PACKETVER.value >= 20100803){
-			charSelectNum = 1; //Old UI with mapname
-		} else if (_value >= 20141016){
+		if(PACKETVER.value >= 20180307){
+			charSelectNum = 3; //Renewal UI with Sex + Race
+		} else if (PACKETVER.value >= 20141016){
 			charSelectNum = 2; //Renewal UI with Sex + Race
+		} else if((PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727)) {
+			charSelectNum = 1; //Old UI with mapname
 		} else {
 			charSelectNum = 0; //Old UI
 		}
 	}
-
 
 	/**
 	 * Reload Char-Select
@@ -152,7 +153,7 @@ define(function( require )
 		});
 
 		Session.Playing = false;
-    		Session.hasCart = false;
+    	Session.hasCart = false;
 
 		UIManager.getComponent('WinLoading').remove();
 
