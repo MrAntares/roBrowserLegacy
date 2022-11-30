@@ -527,7 +527,7 @@ define(function( require )
 
 		skillId = SkillUnit[unit_id];
 
-		if (!(skillId in SkillEffect)) {
+		if(!SkillEffect[skillId]){
 			return;
 		}
 
@@ -568,9 +568,6 @@ define(function( require )
 	 */
 	EffectManager.spamSkill = function spamSkill( skillId, destAID, position, tick, srcAID)
 	{
-		if (!(skillId in SkillEffect)) {
-			return;
-		}
 
 		if(!SkillEffect[skillId]){
 			return;
@@ -618,7 +615,7 @@ define(function( require )
 	 */
 	EffectManager.spamSkillSuccess = function spamSkillSuccess( skillId, destAID, tick, srcAID)
 	{
-		if (!(skillId in SkillEffect)) {
+		if(!SkillEffect[skillId]){
 			return;
 		}
 
@@ -662,7 +659,7 @@ define(function( require )
 	 */
 	EffectManager.spamSkillHit = function spamSkillHit( skillId, destAID, tick, srcAID)
 	{
-		if (!(skillId in SkillEffect)) {
+		if(!SkillEffect[skillId]){
 			return;
 		}
 
@@ -691,7 +688,7 @@ define(function( require )
 	 */
 	EffectManager.spamSkillBeforeHit = function spamSkillBeforeHit( skillId, destAID, tick, srcAID)
 	{
-		if (!(skillId in SkillEffect)) {
+		if(!SkillEffect[skillId]){
 			return;
 		}
 
