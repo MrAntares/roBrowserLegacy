@@ -1199,6 +1199,7 @@ define(function( require )
         }
 
         if(pkt.SKID in SkillEffect) {
+			if(SkillEffect[pkt.SKID])
             if (SkillEffect[pkt.SKID].beforeCastEffectId) { //in spells like Bash, Hide, Double Strafe etc. effect goes before cast/animation (on instant)
 				var EF_Init_Par = {
 					effectId: SkillEffect[pkt.SKID].beforeCastEffectId,
