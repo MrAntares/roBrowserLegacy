@@ -60,8 +60,6 @@ function(      Client,          Preferences,              Memory )
 	SoundManager.play = function play( filename, vol ) {
 		var volume;
 		
-		this.volume = Preferences.Sound.volume;
-		
 		// Sound volume * Global volume
 		if (vol) {
 			volume = vol * this.volume;
