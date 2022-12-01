@@ -1,10 +1,8 @@
 {
-	"name": "roBrowserNW",
+	"name": "robrowser-nw",
 	"main": "window.html",
 	"version": "0.0.1",
-	"single-instance": false,
 	"window": {
-		"title": "Ragnarok Online",
 		"width": 1024,
 		"height": 768,
 		"min_width": 1024,
@@ -13,8 +11,7 @@
 		"max_height": 1440,
 		"fullscreen": false,
 		"frame": true,
-		"icon": "applications/icon_128.png",
-		"toolbar": true
+		"icon": "applications/icon_128.png"
 	},
-	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker"
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling"
 }
