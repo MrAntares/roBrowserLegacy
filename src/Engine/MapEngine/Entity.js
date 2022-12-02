@@ -50,6 +50,7 @@ define(function( require )
 	var MiniMap           = require('UI/Components/MiniMap/MiniMap');
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
+	var glMatrix 	  	  = require('Utils/gl-matrix');
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -1141,7 +1142,9 @@ define(function( require )
 
 		if(pkt.delayTime) { // Bowling Bash got cast but original client hide it for unknown reason
 			if (pkt.SKID != 62) {
-				Sound.play('effect/ef_beginspell.wav');
+				//Calculate sound volume from distance
+				var dist = Math.floor(glMatrix.vec2.dist(srcEntity.position, Session.Entity.position));
+				Sound.play('effect/ef_beginspell.wav', Math.max(((1-Math.abs((dist - 1) * (1 - 0.01) / (25 - 1) + 0.01))), 0.1 ));
 				srcEntity.cast.set( pkt.delayTime );
 			}
 
@@ -1878,6 +1881,7 @@ define(function( require )
 	{
         var Entity = EntityManager.get(pkt.AID);
         EffectManager.add(new StrEffect('data/texture/effect/mvp.str', Entity.position, Renderer.tick), pkt.AID);
+		//TODO: calculate sound distance
         Sound.play('effect/st_mvp.wav');
 	}
 
