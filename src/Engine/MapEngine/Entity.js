@@ -463,60 +463,50 @@ define(function( require )
 								EffectManager.spam(EF_Init_Par);
 							}
 						}
+						
+						var type = null;
 						switch (pkt.action) {
 
-							// regular damage
-							case 0:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
+							// Single damage
+							case 10: // critical
+								type = Damage.TYPE.CRIT;
+							case 0: // regular damage
+							case 4: // regular damage (endure)
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, type );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
 								}
 								break;
 
-							// absorb damage (like tarot card damage)
-							case 4:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
-								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
-								}
-								break;
-
-							// double attack
-							case 8:
+							// Combo
+							case 13: //multi-hit critical
+								type = Damage.TYPE.CRIT;
+							case 8: // multi-hit damage
+							case 9: // multi-hit damage (endure)
+							
 								// Display combo only if entity is mob and the attack don't miss
-								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
+								if ( dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0 ) {
+									if( pkt.damage > 1 ){ // Can't divide 1 damage
+										Damage.add(	pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon,	Damage.TYPE.COMBO );
+									}
 									if(pkt.leftDamage){
-										Damage.add( pkt.damage / 2 ,                dstEntity, Renderer.tick + pkt.attackMT,                           srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,                    dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2),    srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add(	pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, Damage.TYPE.COMBO );
+										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									} else {
-										Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT                   , srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add( pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									}
 								}
-
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								
+								var div = 1;
+								if( pkt.damage > 1 ){ // Can't divide 1 damage
+									div = 2;
+									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT, srcWeapon, type );
+								}
 								if(pkt.leftDamage){
-									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,        srcWeapon );
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft );
+									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
 								} else {
-									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon );
-								}
-								break;
-
-							// endure
-							case 9:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.ENDURE);
-								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft , Damage.TYPE.ENDURE);
-								}
-								break;
-
-							// critical
-							case 10:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
-								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, Damage.TYPE.CRIT );
+									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, type );
 								}
 								break;
 
@@ -524,29 +514,7 @@ define(function( require )
 							case 11:
 								Damage.add( 0, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
 								break;
-							// TODO: double critical damage
-							case 13:
-								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
-									if(pkt.leftDamage){
-										Damage.add( Math.floor(pkt.damage  / 2) ,                dstEntity, Renderer.tick + pkt.attackMT * 1,   srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( Math.floor(pkt.damage  / 2) ,                    dstEntity, Renderer.tick + pkt.attackMT * 1.3, srcWeapon, Damage.TYPE.COMBO);
-										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
-									} else {
-										Damage.add( Math.floor(pkt.damage  / 2), dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
-									}
-								}
-								if(pkt.leftDamage){
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.CRIT );
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1.3, srcWeapon, Damage.TYPE.CRIT );
-
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.CRIT );
-									//Damage.add( pkt.leftDamage / 2, target, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.CRIT );
-								} else {
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.CRIT );
-								}
-								break;
+							
 						}
 					}
 
@@ -999,19 +967,21 @@ define(function( require )
 	function onEntityUseSkillToAttack( pkt )
 	{
 		var SkillAction = {};	//Corresponds to e_damage_type in clif.hpp
-		SkillAction.NORMAL			= 0;	/// damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
+		SkillAction.NORMAL				= 0;	/// damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
 		SkillAction.PICKUP_ITEM			= 1;	/// pick up item
 		SkillAction.SIT_DOWN			= 2;	/// sit down
 		SkillAction.STAND_UP			= 3;	/// stand up
-		SkillAction.ENDURE			= 4;	/// damage (endure)
-		SkillAction.SPLASH			= 5;	/// (splash?)
-		SkillAction.SKILL			= 6;	/// (skill?)
-		SkillAction.REPEAT			= 7;	/// (repeat damage?)
+		SkillAction.ENDURE				= 4;	/// damage (endure)
+		SkillAction.SPLASH				= 5;	/// (splash?)
+		SkillAction.SKILL				= 6;	/// (skill?)
+		SkillAction.REPEAT				= 7;	/// (repeat damage?)
 		SkillAction.MULTI_HIT			= 8;	/// multi-hit damage
-		SkillAction.MULTI_HIT_ENDURE		= 9;	/// multi-hit damage (endure)
+		SkillAction.MULTI_HIT_ENDURE	= 9;	/// multi-hit damage (endure)
 		SkillAction.CRITICAL			= 10;	/// critical hit
 		SkillAction.LUCY_DODGE			= 11;	/// lucky dodge
-		SkillAction.TOUCH			= 12;	/// (touch skill?)
+		SkillAction.TOUCH				= 12;	/// (touch skill?)
+		SkillAction.MULTI_HIT_CRITICAL	= 13;	/// multi-hit critical
+		
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
@@ -1895,7 +1865,7 @@ define(function( require )
 	 * @param dstEntity - Reveiver entity
 	 */
 	function onEntityWillBeHitSub( pkt, dstEntity ){
-		// only if has damage and do not have endure and damage isn't absorbed (healing) and not lucky
+		// only if has damage and type is not endure and not lucky
 		if ((pkt.damage || pkt.leftDamage) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
 			
 			var count = pkt.count || 1;
