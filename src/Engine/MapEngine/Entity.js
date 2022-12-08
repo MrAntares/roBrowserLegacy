@@ -22,6 +22,7 @@ define(function( require )
 	var Emotions          = require('DB/Emotions');
 	var SkillEffect       = require('DB/Skills/SkillEffect');
 	var SkillActionTable  = require('DB/Skills/SkillAction');
+	var EffectConst       = require('DB/Effects/EffectConst');
 	var Sound             = require('Audio/SoundManager');
 	var Events            = require('Core/Events');
 	var Guild             = require('Engine/MapEngine/Guild');
@@ -133,10 +134,10 @@ define(function( require )
 			};
 			
 			if(PACKETVER.value < 20030715){
-				EF_Init_Par.effectId = 6;
+				EF_Init_Par.effectId = EffectConst.EF_ENTRY;
 				EffectManager.spam( EF_Init_Par );
 			} else {
-				EF_Init_Par.effectId = 344;
+				EF_Init_Par.effectId = EffectConst.EF_ENTRY2;
 				EffectManager.spam( EF_Init_Par );
 			}
 		}
@@ -163,7 +164,7 @@ define(function( require )
 			
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
 				var EF_Init_Par = {
-					effectId: 372,
+					effectId: EffectConst.EF_DEVIL,
 					ownerAID: entity.GID
 				};
 				
@@ -174,8 +175,8 @@ define(function( require )
 				HomunInformations.stopAI();
 			}
 			
-			EffectManager.remove( null, pkt.GID,[ 228, 504, 629, 833 ]); // Spirit spheres
-			EffectManager.remove( null, pkt.GID,[ 735, 736, 737, 738, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
+			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI, EffectConst.EF_CHOOKGI2, EffectConst.EF_CHOOKGI3, EffectConst.EF_CHOOKGI_N ]); // Spirit spheres
+			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI_FIRE, EffectConst.EF_CHOOKGI_WIND, EffectConst.EF_CHOOKGI_WATER, EffectConst.EF_CHOOKGI_GROUND, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
 
 			if(	[2, 3].includes(pkt.type) && !(entity._effectState & StatusState.EffectState.INVISIBLE)){ //exits or teleports
 				var EF_Init_Par = {
@@ -183,10 +184,10 @@ define(function( require )
 				};
 			
 				if(PACKETVER.value < 20030715){
-					EF_Init_Par.effectId = 34;
+					EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION;
 					EffectManager.spam( EF_Init_Par );
 				} else {
-					EF_Init_Par.effectId = 304;
+					EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION2;
 					EffectManager.spam( EF_Init_Par );
 				}
 			}
@@ -456,7 +457,7 @@ define(function( require )
 						if(dstEntity.objecttype === Entity.TYPE_MOB){
 							if(pkt.damage > 0){
 								var EF_Init_Par = {
-									effectId: 0,
+									effectId: EffectConst.EF_HIT1,
 									ownerAID: pkt.targetGID,
 									startTick: Renderer.tick + pkt.attackMT,
 								};
@@ -905,7 +906,7 @@ define(function( require )
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if(dstEntity.RollCounter){
 					var EF_Init_Par = {
-						effectId: 757 + dstEntity.RollCounter,
+						effectId: EffectConst.EF_ROLLING1 + dstEntity.RollCounter-1,
 						ownerAID: dstEntity.GID
 					};
 					
@@ -916,7 +917,7 @@ define(function( require )
 			if (pkt.SKID === SkillId.TK_SEVENWIND) {
 				if(pkt.level){
 					var EF_Init_Par = {
-						effectId: 466 + pkt.level,
+						effectId: EffectConst.EF_BEGINASURA1 + pkt.level-1,
 						ownerAID: dstEntity.GID
 					};
 					
@@ -1181,7 +1182,7 @@ define(function( require )
 			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
             if (pkt.delayTime) {
 				var EF_Init_Par = {
-					effectId: 60,
+					effectId: EffectConst.EF_LOCKON,
 					ownerAID: dstEntity.GID,
 					position: dstEntity.position,
 					repeatEnd: Renderer.tick + pkt.delayTime
@@ -1193,7 +1194,7 @@ define(function( require )
 			srcEntity.lookTo( pkt.xPos, pkt.yPos );
 			if (pkt.delayTime) {
 				var EF_Init_Par = {
-					effectId: 513,
+					effectId: EffectConst.EF_GROUNDSAMPLE,
 					skillId: pkt.SKID,
 					position: [pkt.xPos, pkt.yPos, Altitude.getCellHeight(pkt.yPos, pkt.yPos)],
 					repeatEnd: Renderer.tick + pkt.delayTime,
@@ -1210,7 +1211,7 @@ define(function( require )
 		// Cast aura
 		if(srcEntity && pkt.delayTime && !hideCastAura){
 			var EF_Init_Par = {
-				effectId: 12, // Default
+				effectId: EffectConst.EF_BEGINSPELL, // Default
 				ownerAID: srcEntity.GID,
 				position: srcEntity.position,
 				repeatEnd: Renderer.tick + pkt.delayTime
@@ -1218,34 +1219,34 @@ define(function( require )
 			
 			switch(pkt.property) {
 				case 0:
-					EF_Init_Par.effectId = 12;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL;
 					break;
 				case 1:
-					EF_Init_Par.effectId =  54;
+					EF_Init_Par.effectId =  EffectConst.EF_BEGINSPELL2;
 					break;
 				case 2:
-					EF_Init_Par.effectId = 57;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL5;
 					break;
 				case 3:
-					EF_Init_Par.effectId = 55;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL3;
 					break;
 				case 4:
-					EF_Init_Par.effectId = 56;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL4;
 					break;
 				case 5:
-					EF_Init_Par.effectId = 59;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL7;
 					break;
 				case 6:
-					EF_Init_Par.effectId = 58;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL6;
 					break;
 				case 7:
-					EF_Init_Par.effectId = 454;
+					EF_Init_Par.effectId = EffectConst.EF_DARKCASTING;
 					break;
 				case 8:
-					EF_Init_Par.effectId = 58;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL6;
 					break;
 				case 9:
-					EF_Init_Par.effectId = 454;
+					EF_Init_Par.effectId = EffectConst.EF_DARKCASTING;
 					break;
 			}
 			
@@ -1275,7 +1276,7 @@ define(function( require )
                 if(Session.underAutoCounter) {
                     if(Session.Entity.life.hp > 0)
 						var EF_Init_Par = {
-							effectId: 131,
+							effectId: EffectConst.EF_AUTOCOUNTER,
 							ownerAID: pkt.AID
 						};
 					
@@ -1324,12 +1325,12 @@ define(function( require )
 
             case StatusConst.HIDING:
 				var EF_Init_Par = {
-					effectId: 215,
+					effectId: EffectConst.EF_SUMMONSLAVE,
 					ownerAID: pkt.AID
 				};
 			
 				if (pkt.state == 1){
-					EF_Init_Par.effectId = 16;
+					EF_Init_Par.effectId = EffectConst.EF_BASH;
 				}
 				
 				EffectManager.spam( EF_Init_Par );
@@ -1370,12 +1371,12 @@ define(function( require )
 
             case StatusConst.RUN: //state: 1 ON  0 OFF
 				var EF_Init_Par = {
-					effectId: 444,
+					effectId: EffectConst.EF_STOPEFFECT,
 					ownerAID: pkt.AID
 				};
 			
 				if (pkt.state == 1){
-					EF_Init_Par.effectId = 442;
+					EF_Init_Par.effectId = EffectConst.EF_RUN;
 					//todo: draw footprints on the floor
 				}
 				
@@ -1384,7 +1385,7 @@ define(function( require )
 
 			case StatusConst.TING:
 				var EF_Init_Par = {
-					effectId: 426,
+					effectId: EffectConst.EF_QUAKEBODY,
 					ownerAID: pkt.AID
 				};
 				
