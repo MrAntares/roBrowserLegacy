@@ -37,7 +37,7 @@
  *								Can be used for non-damaging skills that has an effect by a chance
  *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
- *	- hideCastCircle:			When set to true hides the elemental magic circle when casting.
+ *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *
  */
 
@@ -95,12 +95,12 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.ALL_RESURRECTION]               = {effectId: [77, 140]};		//Resurrection
 	// Knight
 	SkillEffect[SK.KN_PIERCE]                      = {effectIdOnCaster: 148, hitEffectId: 147};		//Pierce
-	SkillEffect[SK.KN_BRANDISHSPEAR]               = {hideCastBar: true, hideCastCircle: true, effectId: 70, effectIdOnCaster: 144};		//Brandish Spear
+	SkillEffect[SK.KN_BRANDISHSPEAR]               = {hideCastBar: true, hideCastAura: true, effectId: 70, effectIdOnCaster: 144};		//Brandish Spear
 	SkillEffect[SK.KN_SPEARSTAB]                   = {effectIdOnCaster: 150};		//Spear Stab
 	SkillEffect[SK.KN_SPEARBOOMERANG]              = {effectIdOnCaster: 151, beforeHitEffectId: 'ef_spear_projectile', hitEffectId: 80};		//Spear Boomerang
 	SkillEffect[SK.KN_TWOHANDQUICKEN]              = {effectId: 130};		//Twohand Quicken
-	SkillEffect[SK.KN_AUTOCOUNTER]                 = {hideCastCircle: true, /*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/};		//Counter Attack
-	SkillEffect[SK.KN_BOWLINGBASH]                 = {hideCastBar: true, hideCastCircle: true, effectIdOnCaster: 149, hitEffectId: 1};		//Bowling Bash
+	SkillEffect[SK.KN_AUTOCOUNTER]                 = {hideCastAura: true, /*effectId: 131    NOT USED HERE, but hardcoded in onEntityCastCancel!*/};		//Counter Attack
+	SkillEffect[SK.KN_BOWLINGBASH]                 = {hideCastBar: true, hideCastAura: true, effectIdOnCaster: 149, hitEffectId: 1};		//Bowling Bash
 	// Priest
 	SkillEffect[SK.PR_IMPOSITIO]                   = {effectId: 84};		//Impositio Manus
 	SkillEffect[SK.PR_SUFFRAGIUM]                  = {effectId: 88};		//Suffragium
@@ -165,10 +165,10 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NV_TRICKDEAD]                   = {};		//Play Dead
 	SkillEffect[SK.SM_AUTOBERSERK]                 = {};		//Auto Berserk
 	SkillEffect[SK.AC_MAKINGARROW]                 = {};		//Arrow Crafting
-	SkillEffect[SK.AC_CHARGEARROW]                 = {hideCastCircle: true, beforeHitEffectId: 'ef_arrow_projectile'};		//Arrow Repel
+	SkillEffect[SK.AC_CHARGEARROW]                 = {hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile'};		//Arrow Repel
 	SkillEffect[SK.TF_SPRINKLESAND]                = {effectId: 310};		//Sand Attack
 	SkillEffect[SK.TF_BACKSLIDING]                 = {};		//Back Slide
-	SkillEffect[SK.TF_PICKSTONE]                   = {hideCastCircle: true, };		//Find Stone
+	SkillEffect[SK.TF_PICKSTONE]                   = {hideCastAura: true, };		//Find Stone
 	SkillEffect[SK.TF_THROWSTONE]                  = {beforeHitEffectId: 308};		//Stone Fling
 	SkillEffect[SK.MC_CARTREVOLUTION]              = {beginCastEffectId: 170, hitEffectId: 170};		//Cart Revolution
 	SkillEffect[SK.MC_CHANGECART]                  = {};		//Change Cart
@@ -318,7 +318,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.BD_INTOABYSS]                   = {effectId: 284, groundEffectId: '284_ground'};		//Power Chord
 	SkillEffect[SK.BD_SIEGFRIED]                   = {effectId: 285, groundEffectId: '285_ground'};		//Acoustic Rhythm
 	// Bard
-	SkillEffect[SK.BA_MUSICALSTRIKE]               = {hideCastCircle: true, beforeHitEffectId: 'ef_arrow_projectile'};		//Melody Strike
+	SkillEffect[SK.BA_MUSICALSTRIKE]               = {hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile'};		//Melody Strike
 	SkillEffect[SK.BA_DISSONANCE]                  = {groundEffectId: '277_ground'};		//Unchained Serenade
 	SkillEffect[SK.BA_FROSTJOKER]                  = {/*not here*/};		//Unbarring Octave
 	SkillEffect[SK.BA_WHISTLE]                     = {effectId: 286, groundEffectId: '286_ground'};		//Perfect Tablature
@@ -326,7 +326,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.BA_POEMBRAGI]                   = {effectId: 288, groundEffectId: '288_ground'};		//Magic Strings
 	SkillEffect[SK.BA_APPLEIDUN]                   = {effectId: 289, groundEffectId: '289_ground'};		//Song of Lutie
 	// Dancer
-	SkillEffect[SK.DC_THROWARROW]                  = {hideCastCircle: true, beforeHitEffectId: 'ef_arrow_projectile'};		//Slinging Arrow
+	SkillEffect[SK.DC_THROWARROW]                  = {hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile'};		//Slinging Arrow
 	SkillEffect[SK.DC_UGLYDANCE]                   = {groundEffectId: '290_ground'};		//Hip Shaker
 	SkillEffect[SK.DC_SCREAM]                      = {/*not here*/};		//Dazzler
 	SkillEffect[SK.DC_HUMMING]                     = {effectId: 291, groundEffectId: '291_ground'};		//Focus Ballet
@@ -370,7 +370,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.HP_BASILICA]                    = {groundEffectId: 374};		//Basilica
 	// High Wizard
 	SkillEffect[SK.HW_MAGICCRASHER]                = {effectId: 380};		//Stave Crasher
-	SkillEffect[SK.HW_MAGICPOWER]                  = {hideCastCircle: true, beginCastEffectId: 16, effectId: 'ef_magicpower'};		//Mystical Amplification
+	SkillEffect[SK.HW_MAGICPOWER]                  = {hideCastAura: true, beginCastEffectId: 16, effectId: 'ef_magicpower'};		//Mystical Amplification
 	// Paladin
 	SkillEffect[SK.PA_PRESSURE]                    = {beforeHitEffectId: 365};		//Gloria Domini
 	SkillEffect[SK.PA_SACRIFICE]                   = {effectId: 366};		// Martyr's Reckoning
@@ -388,7 +388,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.ASC_BREAKER]                    = {beforeHitEffectId: 361};		//Soul Destroyer
 	// Sniper
 	SkillEffect[SK.SN_SIGHT]                       = {effectId: 386};		//Falcon Eyes
-	SkillEffect[SK.SN_FALCONASSAULT]               = {hideCastCircle: true, effectId: 387};		//Falcon Assault
+	SkillEffect[SK.SN_FALCONASSAULT]               = {hideCastAura: true, effectId: 387};		//Falcon Assault
 	SkillEffect[SK.SN_SHARPSHOOTING]               = {hitEffectId: 388, beforeHitEffectId: 'ef_arrow_projectile', beginCastEffectId: '496_beforecast'};		//Focused Arrow Strike
 	SkillEffect[SK.SN_WINDWALK]                    = {effectId: 389};		//Wind Walker
 	// Whitesmith
@@ -408,7 +408,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.CG_MOONLIT]                     = {effectId: 394, groundEffectId: '394_ground'};		//Sheltering Bliss
 	SkillEffect[SK.CG_MARIONETTE]                  = {effectId: 395, hitEffectId: 396};		//Marionette Control
 	// Lord Knight
-	SkillEffect[SK.LK_SPIRALPIERCE]                = {hideCastCircle: true, beginCastEffectId: '339_beforecast', effectId: 339, hitEffectId: 'spear_hit_sound'};		//Spiral Pierce
+	SkillEffect[SK.LK_SPIRALPIERCE]                = {hideCastAura: true, beginCastEffectId: '339_beforecast', effectId: 339, hitEffectId: 'spear_hit_sound'};		//Spiral Pierce
 	SkillEffect[SK.LK_HEADCRUSH]                   = {beginCastEffectId: 399, hitEffectId: 'enemy_hit_normal1'};		//Traumatic Blow
 	SkillEffect[SK.LK_JOINTBEAT]                   = {beginCastEffectId: 400, hitEffectId: 'enemy_hit_normal1'};		//Vital Strike
 	// High Wizard
@@ -421,7 +421,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.PF_FOGWALL]                     = {groundEffectId: '405_ground'};		//Blinding Mist
 	SkillEffect[SK.PF_SPIDERWEB]                   = {groundEffectId: 404};		//Fiber Lock
 	// Assassin Cross
-	SkillEffect[SK.ASC_METEORASSAULT]              = {hideCastCircle: true, effectIdOnCaster: 409};		//Meteor Assault
+	SkillEffect[SK.ASC_METEORASSAULT]              = {hideCastAura: true, effectIdOnCaster: 409};		//Meteor Assault
 	SkillEffect[SK.ASC_CDP]                        = {};		//Create Deadly Poison
 	// Marriage Skills for Baby
 	SkillEffect[SK.WE_BABY]                        = {effectId: 408};		//Baby
@@ -440,7 +440,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.TK_DODGE]                       = {};		//Tumbling
 	SkillEffect[SK.TK_JUMPKICK]                    = {effectId: 439, hitEffectId: 457};		//Flying Kick
 	SkillEffect[SK.TK_SEVENWIND]                   = {/* 467 - 473 is done by entity */};		//Mild Wind
-	SkillEffect[SK.TK_HIGHJUMP]                    = {hideCastCircle: true, groundEffectId: 411, effectIdOnCaster: 445 /*down 446*/};		//Taekwon Jump
+	SkillEffect[SK.TK_HIGHJUMP]                    = {hideCastAura: true, groundEffectId: 411, effectIdOnCaster: 445 /*down 446*/};		//Taekwon Jump
 	// Star Gladiator
 	SkillEffect[SK.SG_FEEL]                        = {effectId: 432};		//Feeling the Sun Moon and Stars
 	SkillEffect[SK.SG_SUN_WARM]                    = {effectId: 488};		//Warmth of the Sun
