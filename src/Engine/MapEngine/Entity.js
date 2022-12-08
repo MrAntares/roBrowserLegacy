@@ -1102,16 +1102,22 @@ define(function( require )
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
-
+		
 		var message = false;
 
 		if (!srcEntity) {
 			return;
 		}
+		
+		var hideCastBar = false;
+		var hideCastCircle = false;
 
-		if(pkt.delayTime) { // Bowling Bash got cast but original client hide it for unknown reason
-			if (pkt.SKID != 62) {
-				Sound.play('effect/ef_beginspell.wav');
+		if(pkt.delayTime) {
+			
+			// Check if cast bar needs to be hidden
+			hideCastBar = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastBar);
+		
+			if ( !hideCastBar ) {
 				srcEntity.cast.set( pkt.delayTime );
 			}
 
@@ -1133,7 +1139,7 @@ define(function( require )
         // It's dont gey any delayTime so we need to handle it diffrent:
         // if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
         // if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
-        if(pkt.SKID == 61){
+        if(pkt.SKID == SkillId.KN_AUTOCOUNTER){
             srcEntity.cast.set( 1000 );
             if (srcEntity === Session.Entity) {
                 Session.underAutoCounter = true;
@@ -1168,17 +1174,8 @@ define(function( require )
 			}
         }
 
-        if(pkt.SKID in SkillEffect) {
-            if (SkillEffect[pkt.SKID].beforeCastEffectId) { //in spells like Bash, Hide, Double Strafe etc. effect goes before cast/animation (on instant)
-				var EF_Init_Par = {
-					effectId: SkillEffect[pkt.SKID].beforeCastEffectId,
-					ownerAID: pkt.AID,
-					otherAID: pkt.targetID
-				};	
-			
-                EffectManager.spam( EF_Init_Par );
-            }
-        }
+		//Spells like Bash, Hide, Double Strafe etc. has special casting effect
+		EffectManager.spamSkillCast( pkt.SKID, pkt.AID, null, pkt.targetID);
 
 		if (dstEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
@@ -1207,7 +1204,10 @@ define(function( require )
 			}
 		}
 		
-		if(srcEntity && pkt.delayTime){
+		// Check if cast circle needs to be hidden
+		hideCastCircle = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastCircle);
+		
+		if(srcEntity && pkt.delayTime && !hideCastCircle){
 			var EF_Init_Par = {
 				effectId: 12, // Default
 				ownerAID: srcEntity.GID,
