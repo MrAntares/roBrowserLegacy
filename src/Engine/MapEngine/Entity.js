@@ -1110,7 +1110,7 @@ define(function( require )
 		}
 		
 		var hideCastBar = false;
-		var hideCastCircle = false;
+		var hideCastAura = false;
 
 		if(pkt.delayTime) {
 			
@@ -1204,10 +1204,11 @@ define(function( require )
 			}
 		}
 		
-		// Check if cast circle needs to be hidden
-		hideCastCircle = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastCircle);
+		// Check if cast aura needs to be hidden
+		hideCastAura = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastAura);
 		
-		if(srcEntity && pkt.delayTime && !hideCastCircle){
+		// Cast aura
+		if(srcEntity && pkt.delayTime && !hideCastAura){
 			var EF_Init_Par = {
 				effectId: 12, // Default
 				ownerAID: srcEntity.GID,
