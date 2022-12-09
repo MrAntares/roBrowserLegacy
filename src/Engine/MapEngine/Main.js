@@ -18,6 +18,7 @@ define(function( require )
 	 */
 	var DB             = require('DB/DBManager');
 	var StatusProperty = require('DB/Status/StatusProperty');
+	var EffectConst       = require('DB/Effects/EffectConst');
 	var Session        = require('Engine/SessionStorage');
 	var Network        = require('Network/NetworkManager');
 	var PACKET         = require('Network/PacketStructure');
@@ -555,7 +556,7 @@ define(function( require )
 				Damage.add( pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL );
 
 				var EF_Init_Par = {
-					effectId: 331,
+					effectId: EffectConst.EF_HPTIME,
 					ownerAID: Session.Entity.GID,
 				};	
 
@@ -572,7 +573,7 @@ define(function( require )
 			case StatusProperty.SP:
 				Damage.add( pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL | Damage.TYPE.SP );
 				var EF_Init_Par = {
-					effectId: 332,
+					effectId: EffectConst.EF_SPTIME,
 					ownerAID: Session.Entity.GID,
 				};	
 

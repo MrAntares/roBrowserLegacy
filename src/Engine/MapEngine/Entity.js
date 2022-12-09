@@ -22,6 +22,7 @@ define(function( require )
 	var Emotions          = require('DB/Emotions');
 	var SkillEffect       = require('DB/Skills/SkillEffect');
 	var SkillActionTable  = require('DB/Skills/SkillAction');
+	var EffectConst       = require('DB/Effects/EffectConst');
 	var Sound             = require('Audio/SoundManager');
 	var Events            = require('Core/Events');
 	var Guild             = require('Engine/MapEngine/Guild');
@@ -134,10 +135,10 @@ define(function( require )
 			};
 			
 			if(PACKETVER.value < 20030715){
-				EF_Init_Par.effectId = 6;
+				EF_Init_Par.effectId = EffectConst.EF_ENTRY;
 				EffectManager.spam( EF_Init_Par );
 			} else {
-				EF_Init_Par.effectId = 344;
+				EF_Init_Par.effectId = EffectConst.EF_ENTRY2;
 				EffectManager.spam( EF_Init_Par );
 			}
 		}
@@ -164,7 +165,7 @@ define(function( require )
 			
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
 				var EF_Init_Par = {
-					effectId: 372,
+					effectId: EffectConst.EF_DEVIL,
 					ownerAID: entity.GID
 				};
 				
@@ -175,8 +176,8 @@ define(function( require )
 				HomunInformations.stopAI();
 			}
 			
-			EffectManager.remove( null, pkt.GID,[ 228, 504, 629, 833 ]); // Spirit spheres
-			EffectManager.remove( null, pkt.GID,[ 735, 736, 737, 738, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
+			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI, EffectConst.EF_CHOOKGI2, EffectConst.EF_CHOOKGI3, EffectConst.EF_CHOOKGI_N ]); // Spirit spheres
+			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI_FIRE, EffectConst.EF_CHOOKGI_WIND, EffectConst.EF_CHOOKGI_WATER, EffectConst.EF_CHOOKGI_GROUND, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
 
 			if(	[2, 3].includes(pkt.type) && !(entity._effectState & StatusState.EffectState.INVISIBLE)){ //exits or teleports
 				var EF_Init_Par = {
@@ -184,10 +185,10 @@ define(function( require )
 				};
 			
 				if(PACKETVER.value < 20030715){
-					EF_Init_Par.effectId = 34;
+					EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION;
 					EffectManager.spam( EF_Init_Par );
 				} else {
-					EF_Init_Par.effectId = 304;
+					EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION2;
 					EffectManager.spam( EF_Init_Par );
 				}
 			}
@@ -457,67 +458,57 @@ define(function( require )
 						if(dstEntity.objecttype === Entity.TYPE_MOB){
 							if(pkt.damage > 0){
 								var EF_Init_Par = {
-									effectId: 0,
+									effectId: EffectConst.EF_HIT1,
 									ownerAID: pkt.targetGID,
 									startTick: Renderer.tick + pkt.attackMT,
 								};
 								EffectManager.spam(EF_Init_Par);
 							}
 						}
+						
+						var type = null;
 						switch (pkt.action) {
 
-							// regular damage
-							case 0:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon );
+							// Single damage
+							case 10: // critical
+								type = Damage.TYPE.CRIT;
+							case 0: // regular damage
+							case 4: // regular damage (endure)
+								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, type );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
 								}
 								break;
 
-							// absorb damage (like tarot card damage)
-							case 4:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
-								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft , Damage.TYPE.DAMAGE | Damage.TYPE.ENEMY);
-								}
-								break;
-
-							// double attack
-							case 8:
+							// Combo
+							case 13: //multi-hit critical
+								type = Damage.TYPE.CRIT;
+							case 8: // multi-hit damage
+							case 9: // multi-hit damage (endure)
+							
 								// Display combo only if entity is mob and the attack don't miss
-								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
+								if ( dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0 ) {
+									if( pkt.damage > 1 ){ // Can't divide 1 damage
+										Damage.add(	pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon,	Damage.TYPE.COMBO );
+									}
 									if(pkt.leftDamage){
-										Damage.add( pkt.damage / 2 ,                dstEntity, Renderer.tick + pkt.attackMT,                           srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,                    dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2),    srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add(	pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, Damage.TYPE.COMBO );
+										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									} else {
-										Damage.add( pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT                   , srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add( pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									}
 								}
-
-								Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT, srcWeapon );
+								
+								var div = 1;
+								if( pkt.damage > 1 ){ // Can't divide 1 damage
+									div = 2;
+									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT, srcWeapon, type );
+								}
 								if(pkt.leftDamage){
-									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,        srcWeapon );
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft );
+									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
 								} else {
-									Damage.add( pkt.damage / 2, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon );
-								}
-								break;
-
-							// endure
-							case 9:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon , Damage.TYPE.ENDURE);
-								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft , Damage.TYPE.ENDURE);
-								}
-								break;
-
-							// critical
-							case 10:
-								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
-								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, Damage.TYPE.CRIT );
+									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, type );
 								}
 								break;
 
@@ -525,29 +516,7 @@ define(function( require )
 							case 11:
 								Damage.add( 0, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
 								break;
-							// TODO: double critical damage
-							case 13:
-								if (dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0) {
-									if(pkt.leftDamage){
-										Damage.add( Math.floor(pkt.damage  / 2) ,                dstEntity, Renderer.tick + pkt.attackMT * 1,   srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( Math.floor(pkt.damage  / 2) ,                    dstEntity, Renderer.tick + pkt.attackMT * 1.3, srcWeapon, Damage.TYPE.COMBO);
-										Damage.add( pkt.damage + pkt.leftDamage,    dstEntity, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
-									} else {
-										Damage.add( Math.floor(pkt.damage  / 2), dstEntity, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.COMBO );
-										Damage.add( pkt.damage ,    dstEntity, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
-									}
-								}
-								if(pkt.leftDamage){
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1, srcWeapon, Damage.TYPE.CRIT );
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1.3, srcWeapon, Damage.TYPE.CRIT );
-
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT * 2, srcWeapon, Damage.TYPE.CRIT );
-									//Damage.add( pkt.leftDamage / 2, target, Renderer.tick + pkt.attackMT * 2,   srcWeapon, Damage.TYPE.CRIT );
-								} else {
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.CRIT );
-									Damage.add( Math.floor(pkt.damage  / 2), target, Renderer.tick + pkt.attackMT * 1.5, srcWeapon, Damage.TYPE.CRIT );
-								}
-								break;
+							
 						}
 					}
 
@@ -938,7 +907,7 @@ define(function( require )
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if(dstEntity.RollCounter){
 					var EF_Init_Par = {
-						effectId: 757 + dstEntity.RollCounter,
+						effectId: EffectConst.EF_ROLLING1 + dstEntity.RollCounter-1,
 						ownerAID: dstEntity.GID
 					};
 					
@@ -949,7 +918,7 @@ define(function( require )
 			if (pkt.SKID === SkillId.TK_SEVENWIND) {
 				if(pkt.level){
 					var EF_Init_Par = {
-						effectId: 466 + pkt.level,
+						effectId: EffectConst.EF_BEGINASURA1 + pkt.level-1,
 						ownerAID: dstEntity.GID
 					};
 					
@@ -1000,19 +969,21 @@ define(function( require )
 	function onEntityUseSkillToAttack( pkt )
 	{
 		var SkillAction = {};	//Corresponds to e_damage_type in clif.hpp
-		SkillAction.NORMAL			= 0;	/// damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
+		SkillAction.NORMAL				= 0;	/// damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
 		SkillAction.PICKUP_ITEM			= 1;	/// pick up item
 		SkillAction.SIT_DOWN			= 2;	/// sit down
 		SkillAction.STAND_UP			= 3;	/// stand up
-		SkillAction.ENDURE			= 4;	/// damage (endure)
-		SkillAction.SPLASH			= 5;	/// (splash?)
-		SkillAction.SKILL			= 6;	/// (skill?)
-		SkillAction.REPEAT			= 7;	/// (repeat damage?)
+		SkillAction.ENDURE				= 4;	/// damage (endure)
+		SkillAction.SPLASH				= 5;	/// (splash?)
+		SkillAction.SKILL				= 6;	/// (skill?)
+		SkillAction.REPEAT				= 7;	/// (repeat damage?)
 		SkillAction.MULTI_HIT			= 8;	/// multi-hit damage
-		SkillAction.MULTI_HIT_ENDURE		= 9;	/// multi-hit damage (endure)
+		SkillAction.MULTI_HIT_ENDURE	= 9;	/// multi-hit damage (endure)
 		SkillAction.CRITICAL			= 10;	/// critical hit
 		SkillAction.LUCY_DODGE			= 11;	/// lucky dodge
-		SkillAction.TOUCH			= 12;	/// (touch skill?)
+		SkillAction.TOUCH				= 12;	/// (touch skill?)
+		SkillAction.MULTI_HIT_CRITICAL	= 13;	/// multi-hit critical
+		
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
@@ -1133,18 +1104,22 @@ define(function( require )
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
-
+		
 		var message = false;
 
 		if (!srcEntity) {
 			return;
 		}
+		
+		var hideCastBar = false;
+		var hideCastAura = false;
 
-		if(pkt.delayTime) { // Bowling Bash got cast but original client hide it for unknown reason
-			if (pkt.SKID != 62) {
-				//Calculate sound volume from distance
-				var dist = Math.floor(glMatrix.vec2.dist(srcEntity.position, Session.Entity.position));
-				Sound.play('effect/ef_beginspell.wav', Math.max(((1-Math.abs((dist - 1) * (1 - 0.01) / (25 - 1) + 0.01))), 0.1 ));
+		if(pkt.delayTime) {
+			
+			// Check if cast bar needs to be hidden
+			hideCastBar = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastBar);
+		
+			if ( !hideCastBar ) {
 				srcEntity.cast.set( pkt.delayTime );
 			}
 
@@ -1166,7 +1141,7 @@ define(function( require )
         // It's dont gey any delayTime so we need to handle it diffrent:
         // if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
         // if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
-        if(pkt.SKID == 61){
+        if(pkt.SKID == SkillId.KN_AUTOCOUNTER){
             srcEntity.cast.set( 1000 );
             if (srcEntity === Session.Entity) {
                 Session.underAutoCounter = true;
@@ -1201,24 +1176,14 @@ define(function( require )
 			}
         }
 
-        if(pkt.SKID in SkillEffect) {
-			if(SkillEffect[pkt.SKID])
-            if (SkillEffect[pkt.SKID].beforeCastEffectId) { //in spells like Bash, Hide, Double Strafe etc. effect goes before cast/animation (on instant)
-				var EF_Init_Par = {
-					effectId: SkillEffect[pkt.SKID].beforeCastEffectId,
-					ownerAID: pkt.AID,
-					otherAID: pkt.targetID
-				};	
-			
-                EffectManager.spam( EF_Init_Par );
-            }
-        }
+		//Spells like Bash, Hide, Double Strafe etc. has special casting effect
+		EffectManager.spamSkillCast( pkt.SKID, pkt.AID, null, pkt.targetID);
 
 		if (dstEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
             if (pkt.delayTime) {
 				var EF_Init_Par = {
-					effectId: 60,
+					effectId: EffectConst.EF_LOCKON,
 					ownerAID: dstEntity.GID,
 					position: dstEntity.position,
 					repeatEnd: Renderer.tick + pkt.delayTime
@@ -1230,7 +1195,7 @@ define(function( require )
 			srcEntity.lookTo( pkt.xPos, pkt.yPos );
 			if (pkt.delayTime) {
 				var EF_Init_Par = {
-					effectId: 513,
+					effectId: EffectConst.EF_GROUNDSAMPLE,
 					skillId: pkt.SKID,
 					position: [pkt.xPos, pkt.yPos, Altitude.getCellHeight(pkt.yPos, pkt.yPos)],
 					repeatEnd: Renderer.tick + pkt.delayTime,
@@ -1241,9 +1206,13 @@ define(function( require )
 			}
 		}
 		
-		if(srcEntity && pkt.delayTime){
+		// Check if cast aura needs to be hidden
+		hideCastAura = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastAura);
+		
+		// Cast aura
+		if(srcEntity && pkt.delayTime && !hideCastAura){
 			var EF_Init_Par = {
-				effectId: 12, // Default
+				effectId: EffectConst.EF_BEGINSPELL, // Default
 				ownerAID: srcEntity.GID,
 				position: srcEntity.position,
 				repeatEnd: Renderer.tick + pkt.delayTime
@@ -1251,34 +1220,34 @@ define(function( require )
 			
 			switch(pkt.property) {
 				case 0:
-					EF_Init_Par.effectId = 12;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL;
 					break;
 				case 1:
-					EF_Init_Par.effectId =  54;
+					EF_Init_Par.effectId =  EffectConst.EF_BEGINSPELL2;
 					break;
 				case 2:
-					EF_Init_Par.effectId = 57;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL5;
 					break;
 				case 3:
-					EF_Init_Par.effectId = 55;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL3;
 					break;
 				case 4:
-					EF_Init_Par.effectId = 56;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL4;
 					break;
 				case 5:
-					EF_Init_Par.effectId = 59;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL7;
 					break;
 				case 6:
-					EF_Init_Par.effectId = 58;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL6;
 					break;
 				case 7:
-					EF_Init_Par.effectId = 454;
+					EF_Init_Par.effectId = EffectConst.EF_DARKCASTING;
 					break;
 				case 8:
-					EF_Init_Par.effectId = 58;
+					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL6;
 					break;
 				case 9:
-					EF_Init_Par.effectId = 454;
+					EF_Init_Par.effectId = EffectConst.EF_DARKCASTING;
 					break;
 			}
 			
@@ -1308,7 +1277,7 @@ define(function( require )
                 if(Session.underAutoCounter) {
                     if(Session.Entity.life.hp > 0)
 						var EF_Init_Par = {
-							effectId: 131,
+							effectId: EffectConst.EF_AUTOCOUNTER,
 							ownerAID: pkt.AID
 						};
 					
@@ -1357,12 +1326,12 @@ define(function( require )
 
             case StatusConst.HIDING:
 				var EF_Init_Par = {
-					effectId: 215,
+					effectId: EffectConst.EF_SUMMONSLAVE,
 					ownerAID: pkt.AID
 				};
 			
 				if (pkt.state == 1){
-					EF_Init_Par.effectId = 16;
+					EF_Init_Par.effectId = EffectConst.EF_BASH;
 				}
 				
 				EffectManager.spam( EF_Init_Par );
@@ -1403,12 +1372,12 @@ define(function( require )
 
             case StatusConst.RUN: //state: 1 ON  0 OFF
 				var EF_Init_Par = {
-					effectId: 444,
+					effectId: EffectConst.EF_STOPEFFECT,
 					ownerAID: pkt.AID
 				};
 			
 				if (pkt.state == 1){
-					EF_Init_Par.effectId = 442;
+					EF_Init_Par.effectId = EffectConst.EF_RUN;
 					//todo: draw footprints on the floor
 				}
 				
@@ -1417,7 +1386,7 @@ define(function( require )
 
 			case StatusConst.TING:
 				var EF_Init_Par = {
-					effectId: 426,
+					effectId: EffectConst.EF_QUAKEBODY,
 					ownerAID: pkt.AID
 				};
 				
@@ -1905,7 +1874,7 @@ define(function( require )
 	 * @param dstEntity - Reveiver entity
 	 */
 	function onEntityWillBeHitSub( pkt, dstEntity ){
-		// only if has damage and do not have endure and damage isn't absorbed (healing) and not lucky
+		// only if has damage and type is not endure and not lucky
 		if ((pkt.damage || pkt.leftDamage) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
 			
 			var count = pkt.count || 1;

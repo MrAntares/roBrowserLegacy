@@ -569,7 +569,8 @@
 		Mail.ui.find('#zeny_amt').hide();
 		Mail.ui.find('#zeny_ok').show();
 		Mail.ui.find('.input_zeny_amt').prop('disabled', false);		
-		Mail.ui.find('.input_zeny_amt').focus().select();
+		Mail.ui.find('.input_zeny_amt').focus();
+		Mail.ui.find('.input_zeny_amt').select();
 		Mail.parseMailWinopen(2); // reset zeny
 	}
 	

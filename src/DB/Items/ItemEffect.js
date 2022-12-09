@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-//  effectId: hitEffectId: effectIdOnCaster: beforeCastEffectId:
+//  effectId: hitEffectId: effectIdOnCaster: beginCastEffectId:
 define(function()
 {
     'use strict';

@@ -735,6 +735,35 @@ define(function( require )
 	};
 	
 	/**
+	 * Spam skill cast effect
+	 *
+	 * @param {number} skill id
+	 * @param {number} target aid
+	 * @param {number} tick
+	 */
+	EffectManager.spamSkillCast = function spamSkillCast( skillId, destAID, tick, srcAID)
+	{
+		if (!(skillId in SkillEffect)) {
+			return;
+		}
+
+		if (SkillEffect[skillId].beginCastEffectId) {
+			var effects = Array.isArray(SkillEffect[skillId].beginCastEffectId) ? SkillEffect[skillId].beginCastEffectId : [SkillEffect[skillId].beginCastEffectId];
+			
+			effects.forEach(effectId => {
+				var EF_Init_Par = {
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				};
+				
+				EffectManager.spam( EF_Init_Par );
+			});
+		}
+	};
+	
+	/**
 	 * Spam a item on a target
 	 *
 	 * @param {number} item id
