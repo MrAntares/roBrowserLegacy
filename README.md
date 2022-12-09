@@ -1,4 +1,5 @@
-This is a fork of roBrowser tailored to my server and expanded with some features.
+## ROBrowser Legacy
+This is a continuation of roBrowser expanded with some features. This repo is not directly forked from the original repository due to safety concerns, but it is roBrowser.
 
 If you wish to discuss anything related to this project, or you want to join, contact us on Discord: https://discord.gg/8JdHwM4Kqm
 
