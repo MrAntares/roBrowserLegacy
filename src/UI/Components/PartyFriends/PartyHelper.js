@@ -88,7 +88,7 @@ define(function(require)
 		var base = UIManager.getComponent('PartyFriends').ui;
 
 		this.ui.find('.setup, .create, .invite').hide();
-		this.ui.find('.name').val('').focus().select();
+		this.ui.find('.name').val('');
 
 		this.ui.css({
 			top:  base.css('top'),

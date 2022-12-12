@@ -17,6 +17,7 @@ define(function( require )
 	var DB                    = require('DB/DBManager');
 	var SkillId               = require('DB/Skills/SkillConst');
 	var SkillInfo             = require('DB/Skills/SkillInfo');
+	var EffectConst           = require('DB/Effects/EffectConst');
 	var PathFinding           = require('Utils/PathFinding');
 	var Session               = require('Engine/SessionStorage');
 	var Network               = require('Network/NetworkManager');
@@ -61,17 +62,16 @@ define(function( require )
 	function onSpecialEffect( pkt )
 	{
 		var EnumEffect = [
-			371,
-			158,
-			155,
-			154,
-			-1,   // game over
-			305,
-			306,
-			// TODO: find level up effect
-			371,
-			158,
-			371
+			EffectConst.EF_ANGEL,
+			EffectConst.EF_JOBLVUP,
+			EffectConst.EF_REFINEFAIL,
+			EffectConst.EF_REFINEOK,
+			EffectConst.NONE,   // game over
+			EffectConst.EF_PHARMACY_OK,
+			EffectConst.EF_PHARMACY_FAIL,
+			EffectConst.EF_ANGEL2,
+			EffectConst.EF_JOBLVUP2,
+			EffectConst.EF_ANGEL3
 		];
 
 		if (EnumEffect[pkt.effectID] > -1) {
@@ -660,17 +660,17 @@ define(function( require )
 				var isRG = (entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job) ) //Royal Guard
 				
 				var EF_Init_Par = {
-					effectId: 228,
+					effectId: EffectConst.EF_CHOOKGI,
 					ownerAID: pkt.AID,
 					spiritNum: pkt.num
 				};
 				
 				if(isMonk){
-					EF_Init_Par.effectId = 504;
+					EF_Init_Par.effectId = EffectConst.EF_CHOOKGI2;
 				} else if (isGS){
-					EF_Init_Par.effectId = 629;
+					EF_Init_Par.effectId = EffectConst.EF_CHOOKGI3;
 				} else if (isRG){
-					EF_Init_Par.effectId = 833;
+					EF_Init_Par.effectId = EffectConst.EF_CHOOKGI_N;
 				}
 				
 				EffectManager.spam( EF_Init_Par );
