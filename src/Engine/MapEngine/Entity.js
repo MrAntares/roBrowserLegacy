@@ -526,10 +526,15 @@ define(function( require )
 
 				srcEntity.attack_speed = pkt.attackMT;
 				
+				let atkSpeed = 0;
+				if(srcEntity.objecttype === Entity.TYPE_PC){
+					atkSpeed = srcEntity.attack_speed / 4;
+				}
 				
 				if(pkt.leftDamage){
 					srcEntity.setAction({
 						action: srcEntity.ACTION.ATTACK3,
+						speed: atkSpeed,
 						frame:  0,
 						repeat: false,
 						play:   true,
@@ -545,6 +550,7 @@ define(function( require )
 				} else {
 					srcEntity.setAction({
 						action: srcEntity.ACTION.ATTACK,
+						speed: atkSpeed,
 						frame:  0,
 						repeat: false,
 						play:   true,
