@@ -450,7 +450,7 @@ define(function( require )
 
 				SpriteRenderer.position[0] = damage.entity.position[0];
 				SpriteRenderer.position[1] = damage.entity.position[1];
-				SpriteRenderer.position[2] = damage.entity.position[2] + 8 + perc * 3;
+				SpriteRenderer.position[2] = damage.entity.position[2] + 5 + perc;
 			}
 
 			// Damage
