@@ -595,7 +595,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.CASH_ASSUMPTIO]                 = SkillEffect[SK.HP_ASSUMPTIO];		//Party Assumptio
 	SkillEffect[SK.ALL_PARTYFLEE]                  = {};		//Party Flee
 	SkillEffect[SK.ALL_REVERSEORCISH]              = {};		//Reverse Orcish
-	SkillEffect[SK.ALL_WEWISH]                     = {};		//Christmas Carol
+	SkillEffect[SK.ALL_WEWISH]                     = {effectId: 717};		//Christmas Carol
 	// New NPC Wide Status AoE Skills And Others
 	SkillEffect[SK.NPC_VENOMFOG]                   = {effectId: 1020};		//Venom Fog
 	SkillEffect[SK.NPC_MAXPAIN]                    = {};		//Max Pain
