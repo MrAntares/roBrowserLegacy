@@ -292,6 +292,34 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
             this.angle += (90 - (Math.atan2(y, x) * (180 / Math.PI)));
         }
         
+        if(effect.angleRand){
+            this.angle = getRandomIntInclusive(effect.angleRand[0], effect.angleRand[1]);
+        }
+
+        if(effect.circlePattern){
+            const dist = getRandomIntInclusive(effect.circleOuterSizeRand[0], effect.circleOuterSizeRand[1]);
+            this.posxEnd = Math.sin(this.angle * ((Math.PI * 2) / 360)) * dist;
+            this.posyEnd = Math.cos(this.angle * ((Math.PI * 2) / 360)) * dist;
+            this.posxStart = Math.sin(this.angle * ((Math.PI * 2) / 360)) * effect.circleInnerSize;
+            this.posyStart = Math.cos(this.angle * ((Math.PI * 2) / 360)) * effect.circleInnerSize;
+        }
+
+        if(effect.sizeRandStartX){
+            this.sizeStartX = getRandomIntInclusive(effect.sizeRandStartX[0], effect.sizeRandStartX[1]);
+        }
+        if(effect.sizeRandStartY){
+            this.sizeStartY = getRandomIntInclusive(effect.sizeRandStartY[0], effect.sizeRandStartY[1]);
+        }
+        if(effect.sizeRandEndY){
+            this.sizeEndY = getRandomIntInclusive(effect.sizeRandEndY[0], effect.sizeRandEndY[1]);
+        }
+        if(effect.sizeRandEndX){
+            this.sizeEndX = getRandomIntInclusive(effect.sizeRandEndX[0], effect.sizeRandEndX[1]);
+        }
+        if(effect.durationRand){
+            effect.duration = getRandomIntInclusive(effect.durationRand[0], effect.durationRand[1]);
+        }
+        
 		
 		// Other
         var entity = EntityManager.get(this.AID);
