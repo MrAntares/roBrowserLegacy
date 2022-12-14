@@ -130,6 +130,7 @@ define(function(require)
 		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixName     			= val;}, 			onLoad());
 		loadTable( 'data/cardpostfixnametable.txt',		'#',	1, function(index, key){		(ItemTable[key] || (ItemTable[key] = {})).isPostfix    				= true;}, 			onLoad());
 		loadTable( 'data/fogparametertable.txt',		'#',	5, parseFogEntry,                                                                                                     			onLoad());
+		loadTable( 'data/indoorrswtable.txt',		'#',	1, parseIndoorEntry,                                                                                                     			onLoad());
 
 		loadTable( 'data/ba_frostjoke.txt',			'\t',	1, function(index, val){	JokeTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/dc_scream.txt',				'\t',	1, function(index, val){	ScreamTable[index]                                        		= val;}, 			onLoad());
@@ -200,6 +201,18 @@ define(function(require)
 			factor: parseFloat(factor)
 		};
 	}
+
+	/**
+     * Indoor entry parser
+     *
+     * @param {number} index
+     * @param {mixed} key
+     */
+    function parseIndoorEntry(index, key) {
+        var key = key.replace('.gat', '.rsw');
+        var map = MapTable[key] || (MapTable[key] = {});
+        map.indoor = true;
+    }
 
 	/**
 	 * @return {string} path to body sprite/action
@@ -816,6 +829,26 @@ define(function(require)
 			DB.UpdateOwnerName[key]();
 		}
 	}
+
+	/**
+	 * Indoor checking
+	 *
+	 * @param {string} map name
+	 * @return {boolean} is indoor?
+	 */
+	DB.isIndoor = function isIndoor(mapname) {
+        if (mapname === undefined) return -1;
+        let map;
+        if (mapname.substring(mapname.length - 4, mapname.length) == '.gat') {
+            map = mapname.replace('.gat', '.rsw');
+        } else {
+            map = mapname;
+        }
+        if (MapTable[map] === undefined) {
+            return false;
+        }
+        return MapTable[map].indoor || false;
+    };
 
 	DB.UpdateOwnerName = {};
 
