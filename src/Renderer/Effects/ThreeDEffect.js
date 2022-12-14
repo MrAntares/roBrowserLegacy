@@ -324,7 +324,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
                     this.spriteRessource = Client.loadFile(this.spriteName + '.spr');
                     this.actRessource = Client.loadFile(this.spriteName + '.act');
                 }else{
-                    console.log('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
                     this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
                     this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
                 }
