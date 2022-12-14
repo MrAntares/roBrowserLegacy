@@ -284,8 +284,8 @@ define(function(require)
 
 				this.ui.find('.'+ type).show();
 				this.ui.find('.'+ type +' div').css('width', Math.min( 100, Math.floor(val1 * 100 / val2) ) + '%');
-				this.ui.find('.'+ type).attr('title', ((val1/val2)*100).toFixed(1) + '%');
-				this.ui.find('.'+ type +'_value').text( Math.min( 100, (Math.floor(val1 * 1000 / val2) * 0.1).toFixed(1)) + '%');
+				this.ui.find('.'+ type).attr('title', ((val1/val2)*100).toFixed(2) + '%');
+				this.ui.find('.'+ type +'_value').text( Math.min( 100, (Math.floor(val1 * 1000 / val2) * 0.1).toFixed(2)) + '%');
 				break;
 
 			case 'weight':
