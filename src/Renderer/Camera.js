@@ -239,9 +239,9 @@ define(function( require )
 			this.angleFinal[0] = 230;
 			this.angleFinal[1] = -40;
 		} else {
-			Camera.zoomFinal = Preferences.zoom;
-			Camera.angleFinal[0] = Preferences.height;
-			Camera.angleFinal[1] = Preferences.rotation;
+			this.zoomFinal = Preferences.zoom;
+			this.angleFinal[0] = Preferences.height;
+			this.angleFinal[1] = Preferences.rotation;
 		}
 
 		
