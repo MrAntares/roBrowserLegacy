@@ -235,9 +235,13 @@ define(function( require )
 		this.currentMap = getModule('Renderer/MapRenderer').currentMap;
 
 		if (DB.isIndoor(this.currentMap)) {
-			Camera.setZoom(1);
+			this.zoomFinal = 110;
 			this.angleFinal[0] = 230;
 			this.angleFinal[1] = -40;
+		} else {
+			Camera.zoomFinal = Preferences.zoom;
+			Camera.angleFinal[0] = Preferences.height;
+			Camera.angleFinal[1] = Preferences.rotation;
 		}
 
 		
@@ -253,9 +257,13 @@ define(function( require )
 		var _pending = false;
 
 		function save() {
-			_pending         = false;
-			Preferences.zoom = Camera.zoomFinal;
-			Preferences.save();
+			if (!DB.isIndoor(Camera.currentMap)) {
+				_pending         = false;
+				Preferences.zoom = Camera.zoomFinal;
+				Preferences.height = Camera.angleFinal[0];
+				Preferences.rotation = Camera.angleFinal[1];
+				Preferences.save();
+			}
 		}
 
 		return function saving() {
