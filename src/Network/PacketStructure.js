@@ -11921,8 +11921,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].index = fp.readUShort();
 				out[i].Position = fp.readLong();
 			}
-			console.log(end);
-			console.log(fp.tell());
 			return out;
 		})();
 	}
