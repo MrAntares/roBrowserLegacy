@@ -239,12 +239,11 @@ define(function( require )
 			this.angleFinal[0] = 230;
 			this.angleFinal[1] = -40;
 		} else {
-			this.zoomFinal = Preferences.zoom;
-			this.angleFinal[0] = Preferences.height;
-			this.angleFinal[1] = Preferences.rotation;
+			this.zoomFinal = Preferences.zoom || 125;
+			this.angleFinal[0] = Preferences.height || this.angleFinal[0];
+			this.angleFinal[1] = Preferences.rotation || this.angleFinal[1];
 		}
 
-		
 		//this.updateState();
 	};
 
