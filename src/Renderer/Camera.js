@@ -240,8 +240,6 @@ define(function( require )
 			this.angleFinal[1] = -40;
 		} else {
 			this.zoomFinal = Preferences.zoom || 125;
-			this.angleFinal[0] = Preferences.height || this.angleFinal[0];
-			this.angleFinal[1] = Preferences.rotation || this.angleFinal[1];
 		}
 
 		//this.updateState();
@@ -259,8 +257,6 @@ define(function( require )
 			_pending         = false;
 			if (!DB.isIndoor(Camera.currentMap)) {
 				Preferences.zoom = Camera.zoomFinal;
-				Preferences.height = Camera.angleFinal[0];
-				Preferences.rotation = Camera.angleFinal[1];
 			}else{
 				Preferences.indoorZoom = Camera.zoomFinal;
 			}
