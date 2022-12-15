@@ -33,6 +33,7 @@ define(function(require)
 	var WeaponType       = require('./Items/WeaponType');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
+	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo         = require('./TownInfo');
 
 	var Network       = require('Network/NetworkManager');
@@ -423,6 +424,35 @@ define(function(require)
 
 		return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' + baseClass + '/' + baseClass + '_' + SexTable[sex] + ( WeaponTable[id] || ('_' + id) ) ;
 	};
+
+	/**
+     * @return {string} Path to weapon trail
+     * @param {number} id weapon
+     * @param {number} job class
+     * @param {boolean} sex
+     */
+    DB.getWeaponTrail = function getWeaponTrail(id, job, sex) {
+        if (id === 0) {
+            return null;
+        }
+
+        const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
+
+        // ItemID to View Id
+        if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
+            id = ItemTable[id].ClassNum;
+        }
+
+        return (
+            'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
+            baseClass +
+            '/' +
+            baseClass +
+            '_' +
+            SexTable[sex] +
+            WeaponTrailTable[id]
+        );
+    };
 
 
 	/**
