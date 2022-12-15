@@ -302,6 +302,7 @@ define( function( require )
 				// Draw Others elements
 				if (this.weapon > 0) {
 					renderElement( this, this.files.weapon, 'weapon', _position, true );
+					renderElement( this, this.files.weapon_trail, 'weapon_trail', _position, true );
 				}
 
 				if (this.shield > 0 && !behind) {

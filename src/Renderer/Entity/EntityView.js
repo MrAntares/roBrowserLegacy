@@ -45,6 +45,7 @@ define(function( require )
 		this.body       = new ViewFiles();
 		this.head       = new ViewFiles();
 		this.weapon     = new ViewFiles();
+		this.weapon_trail     = new ViewFiles();
 		this.shield     = new ViewFiles();
 		this.accessory  = new ViewFiles();
 		this.accessory2 = new ViewFiles();
@@ -334,6 +335,16 @@ define(function( require )
 					// Load weapon sound
 					if (type === 'weapon') {
 						_this.attackFile = DB.getWeaponSound( _val );
+
+						//Load weapon trail effect
+						const trail_file = DB.getWeaponTrail(_val, _this.job, _this._sex);
+						if(trail_file){
+							Client.loadFile(trail_file + '.act');
+							Client.loadFile(trail_file + '.spr', function(){
+								_this.files['weapon_trail'].spr = trail_file + '.spr';
+								_this.files['weapon_trail'].act = trail_file + '.act';
+							});
+						}
 					}
 				},
 
