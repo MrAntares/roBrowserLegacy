@@ -154,14 +154,13 @@ define(['./JobConst', 'DB/Items/WeaponType'], function( JobId, WeaponType )
 	WeaponAction[JobId.ASSASSIN] = new function(){
 		this[ WeaponType.NONE ]                  = 0;
 		this[ WeaponType.SWORD ]                 = 1;
-		this[ WeaponType.AXE ]                 	 = 1;
 		this[ WeaponType.SHORTSWORD ]            = 1;
-		this[ WeaponType.SHORTSWORD_SHORTSWORD ] = 2;
-		this[ WeaponType.SWORD_SWORD ]           = 2;
-		this[ WeaponType.AXE_AXE ]               = 2;
-		this[ WeaponType.SHORTSWORD_SWORD ]      = 2;
-		this[ WeaponType.SHORTSWORD_AXE ]        = 2;
-		this[ WeaponType.SWORD_AXE ]             = 2;
+		this[ WeaponType.SHORTSWORD_SHORTSWORD ] = 1;
+		this[ WeaponType.SWORD_SWORD ]           = 1;
+		this[ WeaponType.AXE_AXE ]               = 1;
+		this[ WeaponType.SHORTSWORD_SWORD ]      = 1;
+		this[ WeaponType.SHORTSWORD_AXE ]        = 1;
+		this[ WeaponType.SWORD_AXE ]             = 1;
 		this[ WeaponType.KATAR ]                 = 2;
 	};
 

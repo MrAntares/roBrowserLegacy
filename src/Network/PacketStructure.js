@@ -7116,8 +7116,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.ZC.SPRITE_CHANGE2 = function PACKET_ZC_SPRITE_CHANGE2(fp, end) {
 		this.GID = fp.readULong();
 		this.type = fp.readUChar();
-		this.value = fp.readUShort();
-		this.value2 = fp.readUShort();
+		this.value = fp.readULong();
 	};
 	PACKET.ZC.SPRITE_CHANGE2.size = 11;
 
@@ -11391,8 +11390,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.effectState = fp.readLong();
 		this.job = fp.readShort();
 		this.head = fp.readShort();
-		this.weapon = fp.readShort();
-		this.shield = fp.readShort();
+		this.weapon = fp.readLong();
 		this.accessory = fp.readShort();
 		this.moveStartTime = fp.readULong();
 		this.accessory2 = fp.readShort();
@@ -11432,8 +11430,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.effectState = fp.readLong();
 		this.job = fp.readShort();
 		this.head = fp.readShort();
-		this.weapon = fp.readShort();
-		this.shield = fp.readShort();
+		this.weapon = fp.readLong();
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -11472,8 +11469,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.effectState = fp.readLong();
 		this.job = fp.readShort();
 		this.head = fp.readShort();
-		this.weapon = fp.readShort();
-		this.shield = fp.readShort();
+		this.weapon = fp.readLong();
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();

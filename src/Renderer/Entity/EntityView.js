@@ -319,7 +319,7 @@ define(function( require )
 
 				// Load weapon sound
 				if (type === 'weapon') {
-					// this.sound.attackFile = DB.getWeaponSound( val );
+					this.sound.attackFile = DB.getWeaponSound( val );
 				}
 
 				return;
@@ -334,7 +334,7 @@ define(function( require )
 
 					// Load weapon sound
 					if (type === 'weapon') {
-						// _this.attackFile = DB.getWeaponSound( _val );
+						_this.attackFile = DB.getWeaponSound( _val );
 
 						//Load weapon trail effect
 						const trail_file = DB.getWeaponTrail(_val, _this.job, _this._sex);
