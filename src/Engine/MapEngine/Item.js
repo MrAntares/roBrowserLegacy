@@ -160,8 +160,8 @@ define(function( require )
 			if (pkt.wearLocation & EquipLocation.HEAD_TOP)    Session.Entity.accessory2 = 0;
 			if (pkt.wearLocation & EquipLocation.HEAD_MID)    Session.Entity.accessory3 = 0;
 			if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) Session.Entity.accessory  = 0;
-			if (pkt.wearLocation & EquipLocation.WEAPON)      Session.Entity.weapon     = 0;
-			if (pkt.wearLocation & EquipLocation.SHIELD)      Session.Entity.shield     = 0;
+			// if (pkt.wearLocation & EquipLocation.WEAPON)      Session.Entity.weapon     = 0;
+			// if (pkt.wearLocation & EquipLocation.SHIELD)      Session.Entity.shield     = 0;
 		}
 	}
 
