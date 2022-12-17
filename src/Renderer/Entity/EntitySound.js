@@ -39,6 +39,10 @@ define( ['Audio/SoundManager'], function( SoundManager )
 			return;
 		}
 
+		if (this.entity.objecttype === this.entity.constructor.TYPE_PC) {
+			return;
+		}
+	
 		// Do not replay the sound if there is no updates
 		if (this._lastActionId    === action &&
 			this._lastAnimationId === animation &&
