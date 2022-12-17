@@ -387,10 +387,6 @@ define(function( require )
 				var WSnd = DB.getWeaponSound(srcWeapon);
 				var weaponSound = WSnd ? WSnd[0] : false;
 				var weaponSoundRelease = WSnd ? WSnd[1] : false;
-
-				var WSndL = DB.getWeaponSound(srcWeaponLeft);
-				var weaponSoundLeft = WSndL ? WSndL[0] : false;
-				var weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;
 				if(pkt.attackMT > MAX_ATTACKMT){
 					pkt.attackMT = MAX_ATTACKMT;
 				}
@@ -441,34 +437,6 @@ define(function( require )
 						}, delayTime * 2 );
 				}
 
-				//second hit (double attack)
-				if(pkt.count == 2){
-					if(weaponSound){
-						Events.setTimeout(function(){
-							Sound.play(weaponSound);
-							}, C_MULTIHIT_DELAY );
-					}
-					if(weaponSoundRelease){
-						Events.setTimeout(function(){
-							Sound.play(weaponSoundRelease);
-							}, (pkt.attackMT * 0.25) + C_MULTIHIT_DELAY );
-					}
-				}
-				//left hand
-				if(pkt.leftDamage){
-					if(weaponSoundLeft){
-						Events.setTimeout(function(){
-							Sound.play(weaponSoundLeft);
-							}, C_MULTIHIT_DELAY * 1.75 );
-					}
-					if(weaponSoundReleaseLeft){
-						Events.setTimeout(function(){
-							Sound.play(weaponSoundRelease);
-							}, (pkt.attackMT * 0.25) + (C_MULTIHIT_DELAY * 1.75) );
-					}
-				}
-
-
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
@@ -506,7 +474,7 @@ define(function( require )
 							case 4: // regular damage (endure)
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, type );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeapon, type );
 								}
 								break;
 
@@ -523,7 +491,7 @@ define(function( require )
 									}
 									if(pkt.leftDamage){
 										Damage.add(	pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, Damage.TYPE.COMBO );
-										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									} else {
 										Damage.add( pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									}
@@ -536,7 +504,7 @@ define(function( require )
 								}
 								if(pkt.leftDamage){
 									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, type );
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeapon, type );
 								} else {
 									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, type );
 								}
@@ -544,7 +512,15 @@ define(function( require )
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
+								dstEntity.attachments.add({
+									frame: 3,
+									file:  'msg',
+									uid:    'lucky',
+									play:   true,
+									head:   true,
+									repeat: false,
+									forceLoad: true,
+								});
 								break;
 							
 						}
