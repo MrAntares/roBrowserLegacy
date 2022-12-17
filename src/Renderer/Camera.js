@@ -26,6 +26,8 @@ define(function( require )
 	var vec2        = glMatrix.vec2;
 	var vec3        = glMatrix.vec3;
 	var _position   = vec3.create();
+	var DB 			= require('DB/DBManager');
+	var getModule = require;
 	
 	/**
 	 * @var {number} camera min-max constants
@@ -130,6 +132,32 @@ define(function( require )
 	Camera.range        =  230; //240;
 	Camera.zoomStep     =  15;
 	Camera.zoomStepMult =  1;
+
+	
+	/**
+	 * @var {number} current map
+	 */
+	Camera.currentMap 			= '';
+
+	// Indoor Params
+  	Camera.indoorRotationFrom 	= -60;
+  	Camera.indoorRotationTo 	= -25;
+	Camera.indoorRange 			= 240;
+	
+	/**
+	 * @var {number} camera zoom indoor
+	 */
+	Camera.MAX_ZOOM_INDOOR 				= 2.5;
+
+	/**
+	 * @var {number} min camera altitude indoor
+	 */
+	Camera.MIN_ALTITUDE_INDOOR 		= 220;
+	
+	/**
+	 * @var {number} max camera altitude indoor
+	 */
+  	Camera.MAX_ALTITUDE_INDOOR 		= 240;
 	
 	Camera.enable3RDPerson = false;
 	Camera.enable1STPerson = false;
@@ -203,7 +231,17 @@ define(function( require )
 		} else {
 			this.MIN_ZOOM = C_MIN_ZOOM;
 		}
-		
+
+		this.currentMap = getModule('Renderer/MapRenderer').currentMap;
+
+		if (DB.isIndoor(this.currentMap)) {
+			this.zoomFinal = Preferences.indoorZoom || 125;
+			this.angleFinal[0] = 230;
+			this.angleFinal[1] = -40;
+		} else {
+			this.zoomFinal = Preferences.zoom || 125;
+		}
+
 		//this.updateState();
 	};
 
@@ -217,7 +255,11 @@ define(function( require )
 
 		function save() {
 			_pending         = false;
-			Preferences.zoom = Camera.zoomFinal;
+			if (!DB.isIndoor(Camera.currentMap)) {
+				Preferences.zoom = Camera.zoomFinal;
+			}else{
+				Preferences.indoorZoom = Camera.zoomFinal;
+			}
 			Preferences.save();
 		}
 
@@ -252,13 +294,21 @@ define(function( require )
 		    Math.abs(action.y-Mouse.screen.y) < 10) { // to fast the camera...
 
 			if (KEYS.SHIFT) {
-				this.angleFinal[0] = +this.range;
+				if (DB.isIndoor(this.currentMap)){
+					this.angleFinal[0] = +this.indoorRange;
+				} else {
+					this.angleFinal[0] = +this.range;
+				}
 			}
 			if (KEYS.CTRL) {
 				this.zoomFinal = 0.0;
 			}
 			else {
-				this.angleFinal[1] = 0;
+				if (DB.isIndoor(this.currentMap)){
+					this.angleFinal[1] = this.indoorRotationTo;
+				} else {
+					this.angleFinal[1] = 0;
+				}
 			}
 		}
 
@@ -278,14 +328,24 @@ define(function( require )
 		// Rotate Z
 		if (KEYS.SHIFT) {
 			this.angleFinal[0] += ( Mouse.screen.y - this.action.y ) / Mouse.screen.height * 300;
-			this.angleFinal[0]  = Math.max( this.angleFinal[0], this.MIN_V_ANGLE );
-			this.angleFinal[0]  = Math.min( this.angleFinal[0], this.MAX_V_ANGLE );
+			if (DB.isIndoor(this.currentMap)) {
+				this.angleFinal[0] = Math.max(this.angleFinal[0], this.MIN_ALTITUDE_INDOOR);
+				this.angleFinal[0] = Math.min(this.angleFinal[0], this.MAX_ALTITUDE_INDOOR);
+			}else{
+				this.angleFinal[0]  = Math.max( this.angleFinal[0], this.MIN_V_ANGLE );
+				this.angleFinal[0]  = Math.min( this.angleFinal[0], this.MAX_V_ANGLE );
+			}
+
 		}
 
 		// Zoom
 		else if (KEYS.CTRL) {
 			this.zoomFinal -= ( Mouse.screen.y - this.action.y  ) * (this.zoomStep * this.zoomStepMult / 10);
-			this.zoomFinal  = Math.min( this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM );
+			if (DB.isIndoor(this.currentMap)){
+				this.zoomFinal = Math.min( this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM_INDOOR );
+			}else{
+				this.zoomFinal  = Math.min( this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM );
+			}
 			this.zoomFinal  = Math.max( this.zoomFinal, Math.abs(this.altitudeRange) * this.MIN_ZOOM );
 		}
 
@@ -303,8 +363,13 @@ define(function( require )
 				this.angleFinal[1] += 360;
 			}
 
-			this.angleFinal[1] = Math.max( this.angleFinal[1], this.rotationFrom );
-			this.angleFinal[1] = Math.min( this.angleFinal[1], this.rotationTo );
+			if (DB.isIndoor(this.currentMap)) {
+				this.angleFinal[1] = Math.max( this.angleFinal[1], this.indoorRotationFrom );
+				this.angleFinal[1] = Math.min( this.angleFinal[1], this.indoorRotationTo );
+			}else{
+				this.angleFinal[1] = Math.max( this.angleFinal[1], this.rotationFrom );
+				this.angleFinal[1] = Math.min( this.angleFinal[1], this.rotationTo );
+			}
 			
 			if(this.state == this.states.first_person || this.state == this.states.third_person){
 				this.angleFinal[0] += ( Mouse.screen.y - this.action.y ) / Mouse.screen.height * 300;
@@ -330,7 +395,12 @@ define(function( require )
 	{
 		if(delta){
 			this.zoomFinal += delta * this.zoomStep * this.zoomStepMult;
-			this.zoomFinal  = Math.min( this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM );
+			if (DB.isIndoor(this.currentMap)) {
+				this.zoomFinal = Math.min( this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM_INDOOR );
+			}else{
+				this.zoomFinal  = Math.min( this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM );
+			}
+
 			this.zoomFinal  = Math.max( this.zoomFinal, Math.abs(this.altitudeRange) * this.MIN_ZOOM );
 			this.updateState();
 			this.save();

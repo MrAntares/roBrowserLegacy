@@ -62,6 +62,7 @@ define(function( require )
 		}
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP,       onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP2,      onPartyMemberJoin );
+		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP3,      onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.DELETE_MEMBER_FROM_GROUP,  onPartyMemberLeave );
 		Network.hookPacket( PACKET.ZC.ACK_MAKE_GROUP,            onPartyCreate );
 
@@ -129,7 +130,7 @@ define(function( require )
 
 		ChatBox.addText( pseudo + ' ' + DB.getMessage(2059, ' has recieved an invitation to join your party.'), ChatBox.TYPE.BLUE);
 		
-		if(PACKETVER.value >= 20130529) {
+		if(PACKETVER.value >= 20130529 && PACKETVER.value < 20180307) {
 			var pkt = new PACKET.CZ.PARTY_JOIN_REQ();
 			pkt.characterName = pseudo;
 			Network.sendPacket(pkt);

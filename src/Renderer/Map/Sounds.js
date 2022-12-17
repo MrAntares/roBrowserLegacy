@@ -52,7 +52,7 @@ function(        glMatrix,         SoundManager )
 			sound = _list[i];
 
 			// TODO: check for sound.height
-			if (sound.tick < tick && vec3.dist(sound.pos, position) <= sound.range + sound.height) {
+			if (sound.tick < tick && vec3.dist(sound.pos, position) <= (Math.floor(sound.range/2) + Math.floor(sound.height/2))) {
 				SoundManager.play( sound.file, sound.vol );
 				sound.tick = tick + sound.cycle * 1000;
 			}
