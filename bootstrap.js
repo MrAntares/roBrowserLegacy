@@ -25,7 +25,7 @@ if (ROConfig.grfList) {
 var fs = requireNode('fs');
 var path = requireNode('path');
 
-async function walk(dir, done) {
+async function recursive(dir, done) {
     var results = [];
 
     await fs.readdir(dir, function (err, list) {
@@ -37,7 +37,7 @@ async function walk(dir, done) {
             file = path.resolve(dir, file);
             fs.stat(file, function (err, stat) {
                 if (stat && stat.isDirectory()) {
-                    walk(file, function (err, res) {
+                    recursive(file, function (err, res) {
                         results = results.concat(res);
                         next();
                     });
@@ -50,7 +50,7 @@ async function walk(dir, done) {
     });
 }
 
-walk(ROConfig.dataPath + 'BGM\\', function (err, results) {
+recursive(ROConfig.dataPath + 'BGM\\', function (err, results) {
     if (err) throw err;
     let files = [];
 
@@ -63,7 +63,7 @@ walk(ROConfig.dataPath + 'BGM\\', function (err, results) {
         );
     }
 
-    walk(ROConfig.dataPath + 'System\\', function (err, results2) {
+    recursive(ROConfig.dataPath + 'System\\', function (err, results2) {
         if (err) throw err;
         for (let i = 0; i < results2.length; i++) {
             files.push(
