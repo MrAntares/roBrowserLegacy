@@ -21,3 +21,10 @@
 
 .ItemInfo .overlay_open {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 7px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
 .ItemInfo .overlay_read {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 27px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
+
+.ItemInfo .optionlist { border-radius:5px; background:white; padding:2px; margin-top:3px; }
+.ItemInfo .optionlist .border { border:1px solid #c1c6c2; padding-top:2px; padding-left:5px; border-radius:5px; }
+.ItemInfo .optionlist .item { position: relative; display:inline-block; }
+.ItemInfo .optionlist .item .icon { width:24px; height:24px; }
+.ItemInfo .optionlist .item .name { position:absolute; top:-20px; left:-20px; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black; }
+.ItemInfo .optionlist .item:hover .name { display:block; }
