@@ -210,7 +210,6 @@ define(function(require)
 			//Clear all option list
 			optionContainer.html('');
 			//Loop to Show Options
-			console.log(item.Options);
 			for (let i = 1; i <= 5; i++) {
 				if(item.Options[i].index > 0 && RandomOption[item.Options[i].index]){
 					let optionList = 	'<div class="optionlist">' +
