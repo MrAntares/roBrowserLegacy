@@ -1,5 +1,5 @@
 ## RONW.js
-RONW.js is forked from roBrowser which is from @MrAntares repo but we focus on putting it in NW.js to make it run on standalone as the original did.
+RONW.js is forked from roBrowser which is from [@MrAntares repo](https://github.com/MrAntares/Ragna.roBrowser) but we focus on putting it in NW.js to make it run on standalone as the original did.
 
 ## How to run it?
 * You have to download the released 
@@ -9,6 +9,10 @@ RONW.js is forked from roBrowser which is from @MrAntares repo but we focus on p
 
 ## Why did we choose NW.js?
 The benefit of using NW.js is you can compile the source code to v8 Snapshot. That means you can protect your source code. You don't need to run the web server for this version because it will read directly from the Grf files, which means the speed of loading.
+
+## RONW.js Discord
+* [RONW.js Discord](https://discord.gg/CE2HEhPamT)
+
 
 
 ## ROBrowser Legacy
