@@ -6027,7 +6027,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].slot.card4 = fp.readUShort();
 				
 				if (PACKETVER.value >= 20150226) {
-					out[i].Options = {};
+					out[i].Options = [];
 					out[i].Options[1] = fp.readStruct(option);
 					out[i].Options[2] = fp.readStruct(option);
 					out[i].Options[3] = fp.readStruct(option);
@@ -11489,6 +11489,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0xa09
 	PACKET.ZC.ADD_EXCHANGE_ITEM3 = function PACKET_ZC_ADD_EXCHANGE_ITEM3(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
 		this.ITID = fp.readUShort();
 		this.type = fp.readUChar();
 		this.count = fp.readLong();
@@ -11501,19 +11507,24 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.slot.card3 = fp.readUShort();
 		this.slot.card4 = fp.readUShort();
 
-		this.randomOptions = []
-		for (var i = 0; i < 5; i++) {
-			this.randomOptions[i] = {}
-			this.randomOptions[i].optIndex = fp.readShort();
-			this.randomOptions[i].value = fp.readShort();
-			this.randomOptions[i].param = fp.readChar();
-		}
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
 	};
 	PACKET.ZC.ADD_EXCHANGE_ITEM3.size = 45;
 
 
 	// 0xa0a
 	PACKET.ZC.ADD_ITEM_TO_STORE3 = function PACKET_ZC_ADD_ITEM_TO_STORE3(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
 		this.index = fp.readShort();
 		this.count = fp.readLong();
 		this.ITID = fp.readUShort();
@@ -11527,19 +11538,24 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.slot.card3 = fp.readUShort();
 		this.slot.card4 = fp.readUShort();
 
-		this.randomOptions = []
-		for (var i = 0; i < 5; i++) {
-			this.randomOptions[i] = {}
-			this.randomOptions[i].optIndex = fp.readShort();
-			this.randomOptions[i].value = fp.readShort();
-			this.randomOptions[i].param = fp.readChar();
-		}
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
 	};
 	PACKET.ZC.ADD_ITEM_TO_STORE3.size = 47;
 
 
 	// 0xa0b
 	PACKET.ZC.ADD_ITEM_TO_CART3 = function PACKET_ZC_ADD_ITEM_TO_CART3(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
 		this.index = fp.readShort();
 		this.count = fp.readLong();
 		this.ITID = fp.readUShort();
@@ -11553,19 +11569,23 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.slot.card3 = fp.readUShort();
 		this.slot.card4 = fp.readUShort();
 
-		this.randomOptions = []
-		for (var i = 0; i < 5; i++) {
-			this.randomOptions[i] = {}
-			this.randomOptions[i].optIndex = fp.readShort();
-			this.randomOptions[i].value = fp.readShort();
-			this.randomOptions[i].param = fp.readChar();
-		}
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
 	};
 	PACKET.ZC.ADD_ITEM_TO_CART3.size = 47;
 
 
 	// 0xa0c
 	PACKET.ZC.ITEM_PICKUP_ACK6 = function PACKET_ZC_ITEM_PICKUP_ACK6(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
 		this.index = fp.readUShort();
 		this.count = fp.readUShort();
 		this.ITID = fp.readUShort();
@@ -11582,18 +11602,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.result = fp.readUChar();
 		this.HireExpireDate = fp.readLong();
 
-		this.randomOptions = []
-		for (var i = 0; i < 5; i++) {
-			this.randomOptions[i] = {}
-			this.randomOptions[i].optIndex = fp.readShort();
-			this.randomOptions[i].value = fp.readShort();
-			this.randomOptions[i].param = fp.readChar();
-		}
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
 	};
 	PACKET.ZC.ITEM_PICKUP_ACK6.size = 56;
 
 	// 0xa0a
 	PACKET.ZC.ADD_ITEM_TO_STORE3 = function PACKET_ZC_ADD_ITEM_TO_STORE3(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
 		this.index = fp.readShort();
 		this.count = fp.readLong();
 		this.ITID = fp.readUShort();
@@ -11606,7 +11630,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.slot.card2 = fp.readUShort();
 		this.slot.card3 = fp.readUShort();
 		this.slot.card4 = fp.readUShort();
-		this.randOpts = fp.readString(25);
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
 	};
 	PACKET.ZC.ADD_ITEM_TO_STORE3.size = 47;
 
@@ -11634,7 +11663,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.result = fp.readUChar();
 		this.HireExpireDate = fp.readLong();
 		this.bindOnEquipType = fp.readUShort();
-		this.Options = {};
+		this.Options = [];
 		this.Options[1] = fp.readStruct(option);
 		this.Options[2] = fp.readStruct(option);
 		this.Options[3] = fp.readStruct(option);
@@ -11645,6 +11674,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	//0xa0d
 	PACKET.ZC.EQUIPMENT_ITEMLIST5 = function PACKET_ZC_EQUIPMENT_ITEMLIST5(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 57 | 0,
 				out = new Array(count);
@@ -11667,13 +11701,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].bindOnEquipType = fp.readUShort();
 				out[i].wItemSpriteNumber = fp.readUShort();
 				out[i].nRandomOptionCnt = fp.readChar();
-				out[i].option = [];
-				for (var j = 0; j < 5; j++) {
-					out[i].option[j] = {};
-					out[i].option[j].optIndex = fp.readUShort();
-					out[i].option[j].value = fp.readShort();
-					out[i].option[j].param = fp.readChar();
-				}
+				out[i].Options = [];
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
 				flag = fp.readUChar();
 				out[i].IsIdentified = flag & 1;
 				out[i].IsDamaged = flag & 2;
@@ -11909,6 +11942,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	//0xb0a
 	PACKET.ZC.EQUIPMENT_ITEMLIST6 = function PACKET_ZC_EQUIPMENT_ITEMLIST6(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 57 | 0,
 				out = new Array(count);
@@ -11931,13 +11970,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].bindOnEquipType = fp.readUShort();
 				out[i].wItemSpriteNumber = fp.readUShort();
 				out[i].nRandomOptionCnt = fp.readChar();
-				out[i].option = [];
-				for (var j = 0; j < 5; j++) {
-					out[i].option[j] = {};
-					out[i].option[j].optIndex = fp.readUShort();
-					out[i].option[j].value = fp.readShort();
-					out[i].option[j].param = fp.readChar();
-				}
+				out[i].Options = [];
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
 				flag = fp.readUChar();
 				out[i].IsIdentified = flag & 1;
 				out[i].IsDamaged = flag & 2;
