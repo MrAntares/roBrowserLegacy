@@ -82,6 +82,9 @@ define(function( require )
 				var pkt   = new PACKET.CZ.SELECT_PETEGG();
 				pkt.index = index;
 				Network.sendPacket(pkt);
+
+				//Remove Egg from inventory
+				Inventory.hideEgg(index);
 			}
 		};
 	}
@@ -255,6 +258,8 @@ define(function( require )
 		Network.sendPacket(pkt);
 
 		PetInformations.remove();
+		//Show Egg from inventory
+		Inventory.showEgg();
 	};
 
 

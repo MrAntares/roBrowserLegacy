@@ -262,6 +262,69 @@ define(function(require)
 		return null;
 	};
 
+	/**
+	 * show item in inventory
+	 *
+	 * @param {number} index
+	 * @returns {Item}
+	 */
+	Inventory.setShowItem = function setShowItem( index, isShow )
+	{
+		var i, count;
+		var list = Inventory.list;
+
+		for (i = 0, count = list.length; i < count; ++i) {
+			if (list[i].index === index) {
+				if(isShow){
+					console.log("unhide item:", list[i].index);
+					this.ui.find('.item[data-index="'+ list[i].index +'"]').show();
+				}else{
+					console.log("hide item:", list[i].index);
+					this.ui.find('.item[data-index="'+ list[i].index +'"]').hide();
+				}
+			}
+		}
+
+		return null;
+	};
+
+	/**
+	 * Show pet egg in inventory (for client version < 20180704)
+	 *
+	 */
+	Inventory.showEgg = function showEgg()
+	{
+		var i, count;
+		var list = Inventory.list;
+
+		for (i = 0, count = list.length; i < count; ++i) {
+			if (list[i].IsDamaged === 2) {
+				list[i].IsDamaged = 0;
+				this.setShowItem(list[i].index, true)
+				return;
+			}
+		}
+		return;
+	};
+	/**
+	 * Hide pet egg from inventory (for client version < 20180704)
+	 *
+	 */
+	Inventory.hideEgg = function hideEgg(index)
+	{
+		var i, count;
+		var list = Inventory.list;
+
+		for (i = 0, count = list.length; i < count; ++i) {
+			if (list[i].index === index) {
+				list[i].IsDamaged = 2;
+				this.setShowItem(list[i].index, false)
+				return;
+			}
+		}
+		return;
+	};
+
 
 	/**
 	 * Add items to the list
@@ -380,6 +443,12 @@ define(function(require)
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
+
+			//Pet Egg
+			if (item.IsDamaged == 2) {
+				itemObj.hide();
+				this.hideEgg(item.index);
+			}
 		}
 
 		return true;
