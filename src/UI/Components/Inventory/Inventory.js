@@ -96,7 +96,7 @@ define(function(require)
 
 		// on drop item
 		this.ui
-			.on('drop',     onDrop)
+			// .on('drop',     onDrop)
 			.on('dragover', stopPropagation)
 
 		// Items event
@@ -113,6 +113,7 @@ define(function(require)
 		this.ui.find('.mcnt').text(100);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable({drop: onDrop}).droppable({accept: '.item-inventory,.item-cart,.item-storage'});
 	};
 
 
@@ -261,6 +262,69 @@ define(function(require)
 		return null;
 	};
 
+	/**
+	 * show item in inventory
+	 *
+	 * @param {number} index
+	 * @returns {Item}
+	 */
+	Inventory.setShowItem = function setShowItem( index, isShow )
+	{
+		var i, count;
+		var list = Inventory.list;
+
+		for (i = 0, count = list.length; i < count; ++i) {
+			if (list[i].index === index) {
+				if(isShow){
+					console.log("unhide item:", list[i].index);
+					this.ui.find('.item[data-index="'+ list[i].index +'"]').show();
+				}else{
+					console.log("hide item:", list[i].index);
+					this.ui.find('.item[data-index="'+ list[i].index +'"]').hide();
+				}
+			}
+		}
+
+		return null;
+	};
+
+	/**
+	 * Show pet egg in inventory (for client version < 20180704)
+	 *
+	 */
+	Inventory.showEgg = function showEgg()
+	{
+		var i, count;
+		var list = Inventory.list;
+
+		for (i = 0, count = list.length; i < count; ++i) {
+			if (list[i].IsDamaged === 2) {
+				list[i].IsDamaged = 0;
+				this.setShowItem(list[i].index, true)
+				return;
+			}
+		}
+		return;
+	};
+	/**
+	 * Hide pet egg from inventory (for client version < 20180704)
+	 *
+	 */
+	Inventory.hideEgg = function hideEgg(index)
+	{
+		var i, count;
+		var list = Inventory.list;
+
+		for (i = 0, count = list.length; i < count; ++i) {
+			if (list[i].index === index) {
+				list[i].IsDamaged = 2;
+				this.setShowItem(list[i].index, false)
+				return;
+			}
+		}
+		return;
+	};
+
 
 	/**
 	 * Add items to the list
@@ -353,12 +417,21 @@ define(function(require)
 			var it      = DB.getItemInfo( item.ITID );
 			var content = this.ui.find('.container .content');
 
-			content.append(
-				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
-					'<div class="icon"></div>' +
-					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
-				'</div>'
-			);
+			var itemObj = jQuery('<div class="item-inventory item" data-index="'+ item.index +'" draggable="true">' +
+				'<div class="icon"></div>' +
+				'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
+			'</div>');
+
+			itemObj.draggable({
+				refreshPositions: true,
+				helper: "clone", // create "copy" with original properties, but not a true clone
+				zIndex: 2500,
+				appendTo: "body",
+				containment: 'body',
+				cursorAt: { right: 10, bottom: 10 },
+			});
+
+			content.append(itemObj);
 
 			if (content.height() < content[0].scrollHeight) {
 				this.ui.find('.hide').hide();
@@ -370,6 +443,12 @@ define(function(require)
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
+
+			//Pet Egg
+			if (item.IsDamaged == 2) {
+				itemObj.hide();
+				this.hideEgg(item.index);
+			}
 		}
 
 		return true;
@@ -619,7 +698,8 @@ define(function(require)
 		event.stopImmediatePropagation();
 
 		try {
-			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			// data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			data = window._OBJ_DRAG_;
 			item = data.data;
 		}
 		catch(e) {
@@ -762,19 +842,11 @@ define(function(require)
 			return;
 		}
 
-		// Set image to the drag drop element
-		var img   = new Image();
-		var url   = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-		img.src   = url.replace(/^\"/, '').replace(/\"$/, '');
-
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Inventory',
-				data:  item
-			})
-		);
+		window._OBJ_DRAG_ = {
+			type: 'item',
+			from: 'Inventory',
+			data:  item
+		};
 
 		onItemOut();
 	}

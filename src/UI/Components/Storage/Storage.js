@@ -3,7 +3,7 @@
  *
  * Account Storage
  *
- * This file is part of ROBrowser, (http://www.robrowser.com/).
+ * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  */
 define(function(require)
 {
@@ -106,7 +106,7 @@ define(function(require)
 
 		// drag, drop items
 		this.ui
-			.on('drop',     onDrop)
+			//.on('drop',     onDrop)
 			.on('dragover', stopPropagation)
 
 			.find('.container .content')
@@ -118,6 +118,7 @@ define(function(require)
 				.on('contextmenu', '.item',      onItemInfo);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable({drop: onDrop}).droppable();
 	};
 
 
@@ -225,12 +226,24 @@ define(function(require)
 			var it   = DB.getItemInfo( item.ITID );
 
 			this.ui.find('.container .content').append(
-				'<div class="item" data-index="' + item.index +'" draggable="true">' +
+				'<div class="item-storage item" data-index="' + item.index +'" draggable="true">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">'+ (item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') + '</div>' +
 					'<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
 				'</div>'
 			);
+
+			this.ui.find('.item').draggable({
+				helper: "clone", // create "copy" with original properties, but not a true clone
+				zIndex: 2500,
+				appendTo: "body",
+				cursorAt: {
+					left: 12, 
+					top: 12
+				}
+			});
+
+
 
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				this.ui.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
@@ -368,9 +381,12 @@ define(function(require)
 		var item, data;
 
 		try {
+			/*
 			data = JSON.parse(
 				event.originalEvent.dataTransfer.getData('Text')
 			);
+			*/
+			data = window._OBJ_DRAG_;
 		}
 		catch(e) {}
 
@@ -531,6 +547,7 @@ define(function(require)
 			return;
 		}
 
+		/*
 		// Set image to the drag drop element
 		var img = new Image();
 		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
@@ -545,6 +562,12 @@ define(function(require)
 				data: _list[i]
 			})
 		);
+		*/
+		window._OBJ_DRAG_ = {
+			type: 'item',
+			from: 'Storage',
+			data: _list[i]
+		};
 
 		onItemOut();
 	}

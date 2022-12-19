@@ -130,6 +130,10 @@ define(function(require)
 			.on('mouseout',    'button', onEquipmentOut);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable({ drop: onDrop }).droppable({
+			over: onDragOver,
+			out: onDragLeave,
+		  });
 
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.Equipment = onUpdateOwnerName;
@@ -523,12 +527,7 @@ define(function(require)
 	{
 		var item, data;
 
-		try {
-			data = JSON.parse(
-				event.originalEvent.dataTransfer.getData('Text')
-			);
-		}
-		catch(e) {}
+		data = window._OBJ_DRAG_;
 
 		// Just support items for now ?
 		if (data && data.type === 'item') {

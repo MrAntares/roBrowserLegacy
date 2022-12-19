@@ -28,6 +28,8 @@ define(function( require )
 	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
 	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
 	var PetInformations      = require('UI/Components/PetInformations/PetInformations');
+	var Inventory			= require('UI/Components/Inventory/Inventory');
+	var Emotions           = require('DB/Emotions');
 
 
 	/**
@@ -82,6 +84,9 @@ define(function( require )
 				var pkt   = new PACKET.CZ.SELECT_PETEGG();
 				pkt.index = index;
 				Network.sendPacket(pkt);
+
+				//Remove Egg from inventory
+				Inventory.hideEgg(index);
 			}
 		};
 	}
@@ -100,6 +105,8 @@ define(function( require )
 		if (Session.petId) {
 			var entity = EntityManager.get(Session.petId);
 			if (entity) {
+				entity.display.name = pkt.szName;
+				entity.life.intimacy = pkt.nRelationship;
 				entity.life.hp     = pkt.nFullness;
 				entity.life.hp_max = 100;
 				entity.life.update();
@@ -115,15 +122,58 @@ define(function( require )
 	 */
 	function onFeedResult( pkt )
 	{
+		var entity = EntityManager.get(Session.petId);
+
 		// Fail to feed
 		if (!pkt.cRet) {
 			ChatBox.addText( DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR);
 			return;
 		}
 
-		// success, what to do ? Action feed ? or is it sent by server ?
+		let actionIndex = 33;
+		if(entity.life.hp >= 100){
+			if(entity.life.intimacy >= 900){
+				actionIndex = 20;
+			}else{
+				actionIndex = 32;
+			}
+		}else if(entity.life.hp > 90){
+			if(entity.life.intimacy >= 900){
+				actionIndex = 15;
+			}else{
+				actionIndex = 20;
+			}
+		}else if(entity.life.hp > 25){
+			if(entity.life.intimacy >= 900){
+				actionIndex = 15;
+			}else{
+				actionIndex = 33;
+			}
+		}
+
+		entity.attachments.add({
+			frame: Emotions.indexes[actionIndex],
+			file:  'emotion',
+			play:   true,
+			head:   true,
+			repeat: false,
+			depth:  5.0
+		});
+
+		//Pet Start talking when intimacy above 900
+		talk("Thanks!");
 	}
 
+
+	/**
+	 * Pet talk (don't know where to put this) (MrUnzO) 
+	 *
+	 */
+	function talk( msg ){
+		var entity = EntityManager.get(Session.petId);
+		ChatBox.addText(entity.display.name + " : " +msg, ChatBox.TYPE.PUBLIC);
+		entity.dialog.set( msg );
+	}
 
 	/**
 	 * Update pet information
@@ -146,6 +196,7 @@ define(function( require )
 
 			case 1:
 				PetInformations.setIntimacy(pkt.data);
+				entity.life.intimacy     = pkt.data;
 				break;
 
 			case 2:
@@ -255,6 +306,8 @@ define(function( require )
 		Network.sendPacket(pkt);
 
 		PetInformations.remove();
+		//Show Egg from inventory
+		Inventory.showEgg();
 	};
 
 

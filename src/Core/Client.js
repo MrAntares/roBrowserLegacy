@@ -63,7 +63,7 @@ define(function( require )
 		}
 
 		// Save full client
-		savingFiles( files );
+		savingFiles( ROConfig.fileList );
 	}
 
 
@@ -138,7 +138,7 @@ define(function( require )
 			for (i = 0, count = files.length; i < count; ++i) {
 				list.push({
 					file: files[i],
-					path: files[i].fullPath || files[i].relativePath || files[i].webkitRelativePath || files[i].name
+					path: files[i].fullPath || files[i].relativePath || files[i].webkitRelativePath || (files[i].path ? (files[i].path+files[i].name) : files[i].name) 
 				});
 			}
 		}
@@ -162,6 +162,7 @@ define(function( require )
 				files:     list,
 				grfList:   Configs.get('grfList') || 'DATA.INI',
 				save:    !!Configs.get('saveFiles'),
+				dataPath: Configs.get('readDataFolder') ? ROConfig.dataPath : false,
 				quota:     quota
 			}, Client.onFilesLoaded );
 		});
