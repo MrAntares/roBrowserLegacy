@@ -27,8 +27,8 @@ require({
     baseUrl: './src/',
     paths: {
         text:   'Vendors/text.require',
-		jquery: 'Vendors/jquery-3.4.1',
-		jqueryui: 'Vendors/jquery-ui.min',
+		jquery: 'Vendors/jquery-3.6.2',
+		jqueryui: 'Vendors/jquery-ui',
 		jqueryuitopdrop: 'Vendors/jquery.top-droppable'
     },
 }, ['Engine/GameEngine', 'Core/Context', 'Plugins/PluginManager'], function (
