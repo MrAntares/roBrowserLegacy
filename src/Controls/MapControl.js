@@ -296,6 +296,11 @@ define(function( require )
 			return false;
 		}
 
+		//Check mouse screen position, if mouse is out of the screen item should not be dropped
+		if(Mouse.screen.x > window.innerWidth || Mouse.screen.x < 0 || Mouse.screen.y > window.innerHeight || Mouse.screen.y < 0){
+			return false;
+		}
+
 		item = data.data;
 
 		// Have to specify how much
