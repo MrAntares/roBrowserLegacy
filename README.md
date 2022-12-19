@@ -1,3 +1,9 @@
+## RONW.js
+RONW.js is forked from roBrowser but we focus on putting it in NW.js to make it run on standalone as the original did.
+
+## How to use it?
+You just download the release and copy the data.grf, rdata.grf, BGM,AI,System folders to the root of RONW.js and start RONW.exe 
+
 ## ROBrowser Legacy
 This is a continuation of roBrowser expanded with some features. This repo is not directly forked from the original repository due to safety concerns, but it is roBrowser.
 
