@@ -30,6 +30,7 @@ define(function( require )
 	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
 	var Pet         = require('UI/Components/PetInformations/PetInformations');
 	var Trade       = require('UI/Components/Trade/Trade');
+	var Altitude 	= require('Renderer/Map/Altitude');
 	var getModule   = require;
 
 
@@ -182,9 +183,24 @@ define(function( require )
 				return true;
 
 			case Entity.TYPE_WARP:
+				var i = 1, out = [], j, x, y;
+				PathFinding.search(
+					Session.Entity.position[0] | 0, Session.Entity.position[1] | 0,
+					this.position[0] | 0, this.position[1] | 0,
+					i,
+					out
+				);
+				for (j = out.length; j > 1; j -= 2) {
+					x = out[j - 2];
+					y = out[j - 1];
+					if (Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE) {
+						break
+					}
+				}	
+
 				pkt         = new PACKET.CZ.REQUEST_MOVE();
-				pkt.dest[0] = this.position[0];
-				pkt.dest[1] = this.position[1];
+				pkt.dest[0] = x;
+				pkt.dest[1] = y;
 				Network.sendPacket(pkt);
 				return true;
 		}
