@@ -20,6 +20,7 @@ define(function( require )
 	var InputBox      = require('UI/Components/InputBox/InputBox');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
+	var Inventory     = require('UI/Components/Inventory/Inventory');
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Mobile        = require('Core/Mobile');
 	var Renderer      = require('Renderer/Renderer');
@@ -72,11 +73,13 @@ define(function( require )
 		Mobile.onTouchStart = onMouseDown.bind(this);
 		Mobile.onTouchEnd   = onMouseUp.bind(this);
 
+		jQuery( Renderer.canvas ).topDroppable({drop: onDrop.bind(this)}).droppable();
+
 		// Attach events
 		jQuery( Renderer.canvas )
 			.on('mousewheel DOMMouseScroll', onMouseWheel)
-			.on('dragover',                  onDragOver )
-			.on('drop',                      onDrop.bind(this));
+			.on('dragover',                  onDragOver );
+			// .on('drop',                      onDrop.bind(this));
 
 		jQuery(window)
 			.on('mousedown.map',   onMouseDown.bind(this))
@@ -253,9 +256,7 @@ define(function( require )
 		var item, data;
 
 		try {
-			data = JSON.parse(
-				event.originalEvent.dataTransfer.getData('Text')
-			);
+			data = window._OBJ_DRAG_;
 		}
 		catch(e) {}
 
@@ -281,6 +282,15 @@ define(function( require )
 		if (Equipment.ui.is(':visible')) {
 			ChatBox.addText(
 				DB.getMessage(189),
+				ChatBox.TYPE.ERROR
+			);
+			return false;
+		}
+
+		//check if inventory is close player can'it drop item.
+		if (!Inventory.ui.is(':visible')) {
+			ChatBox.addText(
+				DB.getMessage(690),
 				ChatBox.TYPE.ERROR
 			);
 			return false;

@@ -1921,6 +1921,7 @@ define(function( require )
 	{
         var Entity = EntityManager.get(pkt.AID);
         EffectManager.add(new StrEffect('data/texture/effect/mvp.str', Entity.position, Renderer.tick), pkt.AID);
+		//TODO: calculate sound distance
         Sound.play('effect/st_mvp.wav');
 	}
 

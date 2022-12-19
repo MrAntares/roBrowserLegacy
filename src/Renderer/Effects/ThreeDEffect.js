@@ -27,6 +27,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         this.shadowTexture = effect.shadowTexture ? true : false;
         this.spriteName = effect.spriteName;
         this.spriteRessource = null;
+        this.fullPath = effect.fullPath;
         this.playSprite = effect.playSprite ? true : false;
         this.sprDelay = effect.sprDelay ? effect.sprDelay : 0;
         if (effect.rotatePosX > 0) this.rotatePosX = effect.rotatePosX;
@@ -319,8 +320,13 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
                 this.spriteRessource = Client.loadFile('data/sprite/shadow.spr');
                 this.actRessource = Client.loadFile('data/sprite/shadow.act');
             } else if (this.spriteName) {
-                this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
-                this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
+                if(this.fullPath){
+                    this.spriteRessource = Client.loadFile(this.spriteName + '.spr');
+                    this.actRessource = Client.loadFile(this.spriteName + '.act');
+                }else{
+                    this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
+                    this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
+                }
             }
         }
         

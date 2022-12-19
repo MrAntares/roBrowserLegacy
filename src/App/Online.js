@@ -10,37 +10,40 @@
 
 // Errors Handler (hack)
 require.onError = function (err) {
-	'use strict';
+    'use strict';
 
-	if (require.defined('UI/Components/Error/Error')) {
-		require('UI/Components/Error/Error').addTrace(err);
-		return;
-	}
+    if (require.defined('UI/Components/Error/Error')) {
+        require('UI/Components/Error/Error').addTrace(err);
+        return;
+    }
 
-	require(['UI/Components/Error/Error'], function( Errors ){
-		Errors.addTrace(err);
-	});
+    require(['UI/Components/Error/Error'], function (Errors) {
+        Errors.addTrace(err);
+    });
 };
 
-require( {
-	urlArgs: ROConfig.version,
-	baseUrl: './src/',
-	paths: {
-		text:   'Vendors/text.require',
-		jquery: 'Vendors/jquery-1.9.1'
-	}
-},
-	['Engine/GameEngine', 'Core/Context', 'Plugins/PluginManager'],
-	function(GameEngine,        Context,           Plugins) {
-		'use strict';
+require({
+    urlArgs: 'bust=' + ROConfig.version,
+    baseUrl: './src/',
+    paths: {
+        text:   'Vendors/text.require',
+		jquery: 'Vendors/jquery-3.4.1',
+		jqueryui: 'Vendors/jquery-ui.min',
+		jqueryuitopdrop: 'Vendors/jquery.top-droppable'
+    },
+}, ['Engine/GameEngine', 'Core/Context', 'Plugins/PluginManager'], function (
+    GameEngine,
+    Context,
+    Plugins
+) {
+    'use strict';
 
-		Plugins.init();
-		GameEngine.init();
+    Plugins.init();
+    GameEngine.init();
 
-		if (!Context.Is.APP) {
-			window.onbeforeunload = function() {
-				return 'Are you sure to exit roBrowser ?';
-			};
-		}
-	}
-);
+    if (!Context.Is.APP) {
+        window.onbeforeunload = function () {
+            return 'Are you sure to exit roBrowser ?';
+        };
+    }
+});
