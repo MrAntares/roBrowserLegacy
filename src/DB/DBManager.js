@@ -36,6 +36,7 @@ define(function(require)
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo         = require('./TownInfo');
+	var XmlParse		 = require('Vendors/xmlparse');
 
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
@@ -88,6 +89,12 @@ define(function(require)
 	 */
 	DB.INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
 
+	/**
+	 * @var Pet Talk
+	 * struct { string name; string mp3; object fog }
+	 */
+	var PetTalkTable = {};
+
 
 	/**
 	 * Initialize DB
@@ -137,6 +144,9 @@ define(function(require)
 		loadTable( 'data/ba_frostjoke.txt',			'\t',	1, function(index, val){	JokeTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/dc_scream.txt',				'\t',	1, function(index, val){	ScreamTable[index]                                        		= val;}, 			onLoad());
 
+		loadPetTalkTable( 'data/pettalktable.xml', onLoad());
+
+
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
 
@@ -174,6 +184,30 @@ define(function(require)
 
 			onEnd();
 		}, onEnd );
+	}
+
+
+	/* Load PetTalkTable.xml
+	*
+	* @param {string} filename to load
+	* @param {function} onEnd to run once the file is loaded
+	*/
+	function loadPetTalkTable(filename, onEnd){
+		Client.loadFile( filename,
+            function (xml) {
+				
+				console.log('Loading file "'+ filename +'"...');
+
+				xml = xml.replace(/^.*<\?xml/, '<?xml');
+				var parser = new DOMParser();
+				var parsedXML = parser.parseFromString(xml, 'application/xml');
+				var json = XmlParse.xml2json(parsedXML);
+				console.log(json);
+
+				onEnd();
+            },
+            onEnd
+        );
 	}
 
 
