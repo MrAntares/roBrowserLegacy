@@ -186,7 +186,7 @@ define(function( require )
 				pkt.dest[0] = this.position[0];
 				pkt.dest[1] = this.position[1];
 				Network.sendPacket(pkt);
-				break;
+				return true;
 		}
 
 		return false;
