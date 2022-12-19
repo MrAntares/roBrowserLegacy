@@ -301,13 +301,13 @@ define(function( require )
 				}
 			}
 			if (KEYS.CTRL) {
-				this.zoomFinal = 0.0;
+				this.zoomFinal = 125.0;
 			}
 			else {
 				if (DB.isIndoor(this.currentMap)){
 					this.angleFinal[1] = this.indoorRotationTo;
 				} else {
-					this.angleFinal[1] = 0;
+					this.angleFinal[1] = 0.0;
 				}
 			}
 		}
