@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-define( ['jquery', 'DB/DBManager'], function( jQuery, DB )
+define( ['jquery', 'DB/DBManager', 'jqueryui', 'jqueryuitopdrop'], function( jQuery, DB )
 {
 	'use strict';
 
@@ -18,37 +18,41 @@ define( ['jquery', 'DB/DBManager'], function( jQuery, DB )
 	 *
 	 * @param {string} value
 	 */
+	
 	jQuery.fn.text = function( text ) {
-		return jQuery.access( this, function( value ) {
+		if (text === undefined) {
+			return jQuery.text( this );
+		}
 
-			if (value === undefined) {
-				return jQuery.text( this );
-			}
+		var reg, txt, result;
 
-			var reg, txt, result;
+		// Escape, secure entry
+		text = String(text);
+		txt   = jQuery.escape(text);
 
-			// Escape, secure entry
-			value = String(value);
-			txt   = jQuery.escape(value);
+		// Msg color ^000000
+		reg = /\^([a-fA-F0-9]{6})/ ;
+		while ((result = reg.exec(txt))) {
+			txt = txt.replace( result[0], '<span style="color:#' + result[1] + '">') + '</span>';
+		}
 
-			// Msg color ^000000
-			reg = /\^([a-fA-F0-9]{6})/ ;
-			while ((result = reg.exec(txt))) {
-				txt = txt.replace( result[0], '<span style="color:#' + result[1] + '">') + '</span>';
-			}
+		// Hiding hack ^nItemID^502
+		reg = /\^nItemID\^(\d+)/g;
+		while ((result = reg.exec(txt))) {
+			txt = txt.replace( result[0], DB.getItemInfo(result[1]).identifiedDisplayName );
+		}
 
-			// Hiding hack ^nItemID^502
-			reg = /\^nItemID\^(\d+)/g;
-			while ((result = reg.exec(txt))) {
-				txt = txt.replace( result[0], DB.getItemInfo(result[1]).identifiedDisplayName );
-			}
 
-			// Line feed feature
-			txt = txt.replace(/\n/g, '<br/>');
+		reg = /\<url\>(.*?)\<info\>(.*?)\<\/info\>\<\/url\>/ig;
+		while (result = reg.exec(txt)) {
+				txt = txt.replace(result[0], '<a target=\'_blank\' href=\'$2\'>$1</a>');
+		}
+				
 
-			return jQuery(this).html( txt );
+		// Line feed feature
+		txt = txt.replace(/\n/g, '<br/>');
 
-		}, null, text, arguments.length );
+		return jQuery(this).html( txt );
 	};
 
 

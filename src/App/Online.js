@@ -26,8 +26,10 @@ require({
     urlArgs: 'bust=' + ROConfig.version,
     baseUrl: './src/',
     paths: {
-        text: 'Vendors/text.require',
-        jquery: 'Vendors/jquery-1.9.1',
+        text:   'Vendors/text.require',
+		jquery: 'Vendors/jquery-3.4.1',
+		jqueryui: 'Vendors/jquery-ui.min',
+		jqueryuitopdrop: 'Vendors/jquery.top-droppable'
     },
 }, ['Engine/GameEngine', 'Core/Context', 'Plugins/PluginManager'], function (
     GameEngine,

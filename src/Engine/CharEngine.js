@@ -34,6 +34,7 @@ define(function( require )
 	var CharCreate = require('UI/Components/CharCreate/CharCreate');
 	var PincodeWindow = require('UI/Components/PincodeWindow/PincodeWindow');
 	var InputBox   = require('UI/Components/InputBox/InputBox');
+	var Renderer   = require('Renderer/Renderer');
 	var getModule  = require;
 
 
@@ -71,6 +72,10 @@ define(function( require )
 				UIManager.showErrorBox( DB.getMessage(1) );
 				return;
 			}
+
+			//for topDropable
+			//maybe fix in future
+			jQuery( Renderer.canvas ).css('z-index', 0);
 
 			// Success, try to connect
 			var pkt        = new PACKET.CH.ENTER();

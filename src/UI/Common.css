@@ -20,3 +20,12 @@ body {
 button {
 	padding: 0;
 }
+
+
+/* Draggable */
+.item.ui-draggable-dragging { display:block; width:24px; height:24px; margin:4px 4px 4px 4px; position:relative; float:left;transform: scale(1.2); }
+.item.ui-draggable-dragging .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
+.item.ui-draggable-dragging .amount {display: none;}
+.item.ui-draggable-dragging .name {display: none;}
+.item.ui-draggable-dragging .price {display: none;}
+.item.ui-draggable-dragging .unity {display: none;}
