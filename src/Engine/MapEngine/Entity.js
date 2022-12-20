@@ -355,6 +355,7 @@ define(function( require )
 		var dstEntity = EntityManager.get(pkt.targetGID);
 		var target;
 		var srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
+		var srcWeaponLeft = srcEntity.shield ? srcEntity.shield : 0;
 
 
 		srcEntity.targetGID = pkt.targetGID;
