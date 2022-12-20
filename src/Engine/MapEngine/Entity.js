@@ -128,6 +128,74 @@ define(function( require )
 			}
 			EntityManager.add(entity);
 		}
+		
+		//check dual weapon
+		if(entity.objecttype === Entity.TYPE_PC){
+			if(
+				entity.job == JobId.ASSASSIN ||
+				entity.job == JobId.ASSASSIN_H ||
+				entity.job == JobId.ASSASSIN_B ||
+				entity.job == JobId.GUILLOTINE_CROSS ||
+				entity.job == JobId.GUILLOTINE_CROSS_H ||
+				entity.job == JobId.GUILLOTINE_CROSS_B
+			){
+				// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
+				// so we have to swap it. maybe have a better solution.
+				if(!pkt.weapon && pkt.shield && !DB.isShield(pkt.shield)){
+					pkt.weapon = pkt.shield;
+					pkt.shield = 0;
+				}
+				
+				if(!DB.isShield(pkt.shield) && pkt.weapon){
+					let _weapon = DB.getWeaponViewID(pkt.weapon);
+					let _shield = DB.getWeaponViewID(pkt.shield);
+					
+					if(_weapon === WeaponType.KATAR){
+						_shield = _weapon;
+					}
+
+					if(_weapon < WeaponType.MAX && _weapon >= WeaponType.SHORTSWORD_SHORTSWORD){
+						_shield = 0;
+					}
+					const viewId = _weapon+_shield;
+					switch(viewId){
+						case 2:
+							entity.weapon = WeaponType.SHORTSWORD_SHORTSWORD;
+							break;
+						case 3:
+							entity.weapon = WeaponType.SHORTSWORD_SWORD;
+							break;
+						case 4:
+							entity.weapon = WeaponType.SWORD_SWORD;
+							break;
+						case 7:
+							entity.weapon = WeaponType.SHORTSWORD_AXE;
+							break;
+						case 8:
+							entity.weapon = WeaponType.SWORD_AXE;
+							break;
+						case 12:
+							entity.weapon = WeaponType.AXE_AXE;
+							break;
+						default:
+							entity.weapon = viewId;
+							break;
+					}
+					entity.shield = 0;
+				}else{
+					if(DB.getWeaponViewID(pkt.weapon) == WeaponType.KATAR){
+						entity.weapon = pkt.weapon;
+						entity.shield = pkt.weapon;
+					}else{
+						entity.weapon = pkt.weapon;
+						entity.shield = pkt.shield;
+					}
+				}
+			}else{
+				entity.weapon = pkt.weapon;
+				entity.shield = pkt.shield;
+			}
+		}
 
 		if(entity.objecttype === Entity.TYPE_PC &&
 			!(entity._effectState & StatusState.EffectState.INVISIBLE) &&
