@@ -394,9 +394,9 @@ define(function( require )
 				
 				let animSpeed = 0;
 				let soundTime = 0;
+				let delayTime = pkt.attackMT;
 				
 				if (srcEntity.objecttype === Entity.TYPE_PC) {
-					let delayTime = pkt.attackMT;
 					const factorOfmotionSpeed = pkt.attackMT / AVG_ATTACK_SPEED;
 					const isDualWeapon = DB.isDualWeapon(srcEntity._job, srcEntity._sex, srcEntity.weapon);
 					let m_attackMotion = DB.getPCAttackMotion(srcEntity._job, srcEntity._sex, srcEntity.weapon, isDualWeapon);
