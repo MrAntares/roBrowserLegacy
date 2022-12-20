@@ -355,15 +355,14 @@ define(function( require )
 	function onEntityAction( pkt )
 	{
 		var srcEntity = EntityManager.get(pkt.GID);
-		var dstEntity = EntityManager.get(pkt.targetGID);
-		var target;
-		var srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
-		var srcWeaponLeft = srcEntity.shield ? srcEntity.shield : 0;
-
 		// Entity out of the screen ?
 		if (!srcEntity) {
 			return;
 		}
+		var dstEntity = EntityManager.get(pkt.targetGID);
+		var target;
+		var srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
+
 
 		srcEntity.targetGID = pkt.targetGID;
 
