@@ -180,12 +180,15 @@ define(function( require )
 					pkt.type = 1; // 1 for NPC in Aegis
 					Network.sendPacket(pkt);
 
-					// Updare look
+					// Update look
 					Session.Entity.lookTo( this.position[0], this.position[1] );
 					pkt = new PACKET.CZ.CHANGE_DIRECTION();
 					pkt.headDir = Session.Entity.headDir;
 					pkt.dir     = Session.Entity.direction;
 					Network.sendPacket(pkt);
+
+					//Update Cursor
+					Cursor.setType( Cursor.ACTION.DEFAULT );
 				}
 				return true;
 
