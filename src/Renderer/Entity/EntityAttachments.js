@@ -53,7 +53,6 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		attachment.duplicate 	 = attachment.duplicate || 0;
 		attachment.stopAtEnd     = attachment.stopAtEnd || false;
 		attachment.delay = attachment.delay || false;
-		attachment.forceLoad 	= attachment.forceLoad || false;
 
 		if (attachment.completeFile) {
             attachment.spr = attachment.completeFile + '.spr';
@@ -66,7 +65,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		// Start rendering once sprite is loaded
 		Client.loadFile(attachment.spr, function onLoad() {
 			this.list.push(attachment);
-		}.bind(this), null, {to_rgba:true, forceLoad: attachment.forceLoad});
+		}.bind(this), null, {to_rgba:true});
 	};
 
 	/**

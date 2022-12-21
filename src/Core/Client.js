@@ -333,7 +333,7 @@ define(function( require )
 
 		return function loadFile( filename, onload, onerror, args = {} )
 		{
-			if (!Memory.exist(filename) || !!args.forceLoad) {
+			if (!Memory.exist(filename)) {
 				_input.filename = filename;
 				_input.args     = args || null;
 
