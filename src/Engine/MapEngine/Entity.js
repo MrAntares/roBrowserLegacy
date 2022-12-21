@@ -520,7 +520,6 @@ define(function( require )
 									play:   true,
 									head:   true,
 									repeat: false,
-									forceLoad: true,
 								});
 								break;
 							
