@@ -30,6 +30,7 @@ define(function( require )
 	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
 	var Pet         = require('UI/Components/PetInformations/PetInformations');
 	var Trade       = require('UI/Components/Trade/Trade');
+	var NpcBox 		= require('UI/Components/NpcBox/NpcBox');
 	var Altitude 	= require('Renderer/Map/Altitude');
 	var getModule   = require;
 
@@ -75,7 +76,10 @@ define(function( require )
 				break;
 
 			case Entity.TYPE_NPC:
-				Cursor.setType( Cursor.ACTION.TALK, true );
+				//check if already talk to NPC
+				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
+					Cursor.setType( Cursor.ACTION.TALK, true );
+				}
 				break;
 
 			case Entity.TYPE_WARP:
@@ -169,17 +173,23 @@ define(function( require )
 				return true;
 
 			case Entity.TYPE_NPC:
-				pkt      = new PACKET.CZ.CONTACTNPC();
-				pkt.NAID = this.GID;
-				pkt.type = 1; // 1 for NPC in Aegis
-				Network.sendPacket(pkt);
+				//check if already talk to NPC
+				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
+					pkt      = new PACKET.CZ.CONTACTNPC();
+					pkt.NAID = this.GID;
+					pkt.type = 1; // 1 for NPC in Aegis
+					Network.sendPacket(pkt);
 
-				// Updare look
-				Session.Entity.lookTo( this.position[0], this.position[1] );
-				pkt = new PACKET.CZ.CHANGE_DIRECTION();
-				pkt.headDir = Session.Entity.headDir;
-				pkt.dir     = Session.Entity.direction;
-				Network.sendPacket(pkt);
+					// Update look
+					Session.Entity.lookTo( this.position[0], this.position[1] );
+					pkt = new PACKET.CZ.CHANGE_DIRECTION();
+					pkt.headDir = Session.Entity.headDir;
+					pkt.dir     = Session.Entity.direction;
+					Network.sendPacket(pkt);
+
+					//Update Cursor
+					Cursor.setType( Cursor.ACTION.DEFAULT );
+				}
 				return true;
 
 			case Entity.TYPE_WARP:
