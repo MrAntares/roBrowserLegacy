@@ -118,9 +118,9 @@ define(function(require)
 
 
 		// drag, drop items
-		this.ui.on('dragover', onDragOver);
-		this.ui.on('dragleave', onDragLeave);
-		this.ui.on('drop', onDrop);
+		// this.ui.on('dragover', onDragOver);
+		// this.ui.on('dragleave', onDragLeave);
+		// this.ui.on('drop', onDrop);
 
 		// Bind items
 		this.ui.find('.content')
@@ -130,10 +130,14 @@ define(function(require)
 			.on('mouseout',    'button', onEquipmentOut);
 
 		this.draggable(this.ui.find('.titlebar'));
-		this.ui.topDroppable({ drop: onDrop }).droppable({
+		this.ui.topDroppable({
+			drop: onDrop,
+		}).droppable({
 			over: onDragOver,
 			out: onDragLeave,
-		  });
+			deactivate: onDragLeave,
+			tolerance: "pointer"
+		});
 
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.Equipment = onUpdateOwnerName;
