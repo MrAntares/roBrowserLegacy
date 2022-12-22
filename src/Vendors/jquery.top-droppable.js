@@ -28,21 +28,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 
-(function( factory ) {
-	if ( typeof define === "function" && define.amd ) {
-
-		// AMD. Register as an anonymous module.
-		define([ "jquery" ], factory );
-	} else {
-
-		// Browser globals
-		factory( jQuery );
-	}
-}(function($){
+(function($){
 	
 	var hoveringOverElements = new Array();
 	var topElement;
-	var i = 1;
+	var i = 0;
 	
 	$.getCurrentHoveredElements = function(){return getCurrentHoveredElements();}; 
 	$.getTopElement = function(){return topElement};
@@ -61,24 +51,25 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 			
 			return this.each(function() {
-				$(this).on( "dropover", function( event, ui ) {
-					hoveringOverElements.push(i);
-					$(this).attr('top-droppable-id', i);
-					i++;
-					topElement = determineTopElement(); 
-					//console.log("topElement: ", topElement);
-				});
-				$(this).on( "dropout", function( event, ui ) {
-					//console.log("dropout: ");
-					var position = hoveringOverElements.indexOf(parseInt($(this).attr('top-droppable-id')));
-					hoveringOverElements.splice(position, 1);
-					topElement = determineTopElement();	
-				});
+    			$(this).on( "dropover", function( event, ui ) {
+    				if($(this).css("z-index") == 'auto'){
+    					// alert("ERROR: please add a specific z-index to your topDroppable Elements!");
+    					return;
+    				}
+    			    hoveringOverElements.push(i);
+    			    $(this).attr('top-droppable-id', i);
+    			    i++;
+			        topElement = determineTopElement(); 
+			    });
+			    $(this).on( "dropout", function( event, ui ) {
+			    	var position = hoveringOverElements.indexOf(parseInt($(this).attr('top-droppable-id')));
+			 		hoveringOverElements.splice(position, 1);
+		     		topElement = determineTopElement();	
+			    });
 				$(this).on( "drop", function( event, ui ) {
-					hoveringOverElements = new Array();
-					
+			 		hoveringOverElements = new Array();
 					if($(this).attr('top-droppable-id') == $(topElement).attr('top-droppable-id')){
-						i = 1;
+						i = 0;
 						topElement = null;
 						settings.drop.call(this, event, ui );
 					}
@@ -113,4 +104,4 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	 	return elements; 
 	}
 		
-}));
+})(jQuery);
