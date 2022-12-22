@@ -226,6 +226,14 @@ define( ['Utils/jquery'], function( jQuery )
 		KEYS.ALT   = !! event.altKey;
 	});
 
+	/**
+	 * Reset keys state when window got focused
+	 */
+	jQuery(window).on('focus', function( event ) {
+		KEYS.SHIFT = false;
+		KEYS.CTRL  = false;
+		KEYS.ALT   = false;
+	});
 
 	/**
 	 * Export
