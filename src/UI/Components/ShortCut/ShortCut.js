@@ -78,7 +78,7 @@ define(function(require)
 
 		this.ui
 			// Dropping to the shortcut
-			.on('drop',     '.container', onDrop)
+			// .on('drop',     '.container', onDrop)
 			.on('dragover', '.container', stopPropagation)
 
 			// Icons
@@ -91,6 +91,7 @@ define(function(require)
 			});
 
 		this.draggable();
+		this.ui.find('.container').topDroppable({drop: onDrop}).droppable({tolerance: "pointer"});
 
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName;
@@ -345,7 +346,7 @@ define(function(require)
 
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + file + '.bmp', function(url){
 			ui.html(
-				'<div draggable="true" class="icon">' +
+				'<div class="icon'+ ((!isSkill) ? ' item':'') + '">' +
 					'<div class="img"></div>' +
 					'<div class="amount"></div>' +
 					'<span class="name"></span>' +
@@ -355,6 +356,13 @@ define(function(require)
 			ui.find('.img').css('backgroundImage', 'url('+ url +')');
 			ui.find('.amount').text(count);
 			ui.find('.name').text(name);
+			ui.find('.icon').draggable({
+				helper: "clone", // create "copy" with original properties, but not a true clone
+				zIndex: 2500,
+				appendTo: "body",
+				containment: 'body',
+				cursorAt: { right: 10, bottom: 10 },
+			});
 
 		});
 
@@ -466,13 +474,14 @@ define(function(require)
 		event.stopImmediatePropagation();
 
 		try {
-			data    = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			// data    = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			data    = data = window._OBJ_DRAG_;
 			element = data.data;
 		}
 		catch(e) {
 			return false;
 		}
-
+		console.log(data);
 		// Do not process others things than item and skill
 		if (data.type !== 'item' && data.type !== 'skill') {
 			return false;
@@ -525,18 +534,22 @@ define(function(require)
 		index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		this.classList.add('hide');
 
-		// Extract image from css to get it when dragging the element
-		img     = new Image();
-		img.src = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const isSkill = _list[index].isSkill;
+		const ID = _list[index].ID;
+		const count = _list[index].count;
 
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type: _list[index].isSkill ? 'skill' : 'item',
-				from: 'ShortCut',
-				data: _list[index]
-			})
-		);
+		window._OBJ_DRAG_ = {
+			index: index,
+			row: Math.floor( index / 9 ),
+			type: _list[index].isSkill ? 'skill' : 'item',
+			from: 'ShortCut',
+			data: {
+				isSkill: isSkill,
+				ID: ID,
+				count: count,
+			}
+		}
+
 	}
 
 
