@@ -113,7 +113,7 @@ define(function(require)
 		this.ui.find('.mcnt').text(100);
 
 		this.draggable(this.ui.find('.titlebar'));
-		this.ui.topDroppable({drop: onDrop}).droppable({accept: '.item-inventory,.item-cart,.item-storage'});
+		this.ui.topDroppable({drop: onDrop}).droppable({accept: '.item-inventory, .item-cart, .item-storage', tolerance: "pointer"});
 	};
 
 
