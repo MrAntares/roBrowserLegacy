@@ -513,7 +513,14 @@ define(function( require )
 
 							// TODO: lucky miss
 							case 11:
-								Damage.add( 0, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon, Damage.TYPE.LUCKY );
+								dstEntity.attachments.add({
+									frame: 3,
+									file:  'msg',
+									uid:    'lucky',
+									play:   true,
+									head:   true,
+									repeat: false,
+								});
 								break;
 							
 						}

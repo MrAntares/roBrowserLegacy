@@ -23,6 +23,7 @@ define(function( require )
 	var DB             = require('DB/DBManager');
 	var Sound          = require('Audio/SoundManager');
 	var EffectManager  = require('Renderer/EffectManager');
+	var MemoryManager = require('Core/MemoryManager');
 
 	var EndureSound    = "player_metal.wav";
 
@@ -99,6 +100,9 @@ define(function( require )
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/bluemsg.spr'
 		], function( numbers, msg, bluemsg ) {
 			var sprNumbers, sprMsg, sprBlue;
+
+			// Load it properly later using webgl
+			MemoryManager.remove(null, 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr');
 
 			try {
 				sprNumbers = new Sprite(numbers);

@@ -330,7 +330,7 @@ define(function( require )
 			Memory.set( input.filename, data, error);
 		}
 
-		return function loadFile( filename, onload, onerror, args )
+		return function loadFile( filename, onload, onerror, args = {} )
 		{
 			if (!Memory.exist(filename)) {
 				_input.filename = filename;
