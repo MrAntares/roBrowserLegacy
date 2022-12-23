@@ -27,7 +27,7 @@ require({
     baseUrl: './src/',
     paths: {
         text:   'Vendors/text.require',
-		jquery: 'Vendors/jquery-3.6.2',
+		jquery: 'Vendors/jquery-3.5.1',
 		jqueryui: 'Vendors/jquery-ui',
 		jqueryuitopdrop: 'Vendors/jquery.top-droppable'
     },
