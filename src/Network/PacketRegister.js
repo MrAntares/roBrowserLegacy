@@ -595,7 +595,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xa0a: PACKET.ZC.ADD_ITEM_TO_STORE3, //
 		0xa0c: PACKET.ZC.ITEM_PICKUP_ACK6, // ok (Thapakorn)
 		0xa0d: PACKET.ZC.EQUIPMENT_ITEMLIST5, // ok (Thapakorn)
-		// 0xa0f: PACKET.ZC.CART_EQUIPMENT_ITEMLIST5, // !!!!!!!!!!!!! not work
+		0xa0f: PACKET.ZC.CART_EQUIPMENT_ITEMLIST5, // !!!!!!!!!!!!! not work
 		0xa10: PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5, //
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
 		0xa23: PACKET.ZC.ALL_ACH_LIST, // ?
