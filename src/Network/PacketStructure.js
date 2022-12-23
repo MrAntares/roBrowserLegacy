@@ -11781,7 +11781,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			"char param"
 		);
 		this.ItemInfo = (function() {
-			var i, count = (end - fp.tell()) / 31 | 0,
+			var i, count = (end - fp.tell()) / 57 | 0,
 				out = new Array(count);
 			var flag;
 			for (i = 0; i < count; ++i) {
