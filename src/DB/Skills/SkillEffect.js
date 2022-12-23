@@ -355,7 +355,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.NPC_UNDEADATTACK]               = {};		//Undead Element Attack
 	SkillEffect[SK.NPC_CHANGEUNDEAD]               = {};		//Undead Attribute Change
 	SkillEffect[SK.NPC_POWERUP]                    = {effectId: 456};		//Power Up
-	SkillEffect[SK.NPC_AGIUP]                      = SkillEffect[SK.AL_AGIUP];		//Agility UP
+	SkillEffect[SK.NPC_AGIUP]                      = SkillEffect[SK.AL_INCAGI];		//Agility UP
 	SkillEffect[SK.NPC_CALLSLAVE]                  = {};		//Recall Slaves
 	SkillEffect[SK.NPC_RUN]                        = {};		//Run
 	// Lord Knight
@@ -1018,7 +1018,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WE_CHEERUP]                     = {};		//Cheer Up
 	// Homunculus S
 	SkillEffect[SK.HLIF_HEAL]                      = SkillEffect[SK.AL_HEAL];		//Healing Touch
-	SkillEffect[SK.HLIF_AVOID]                     = SkillEffect[SK.AL_AGIUP];		//Avoid
+	SkillEffect[SK.HLIF_AVOID]                     = SkillEffect[SK.AL_INCAGI];		//Avoid
 	SkillEffect[SK.HLIF_CHANGE]                    = {effectId: 505};		//Change
 	SkillEffect[SK.HAMI_CASTLE]                    = {effectId: 570};		//Castling
 	SkillEffect[SK.HAMI_DEFENCE]                   = {effectId: 569};		//Defense
