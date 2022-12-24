@@ -13,5 +13,5 @@
 		"frame": true,
 		"icon": "applications/icon_128.png"
 	},
-	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --disable-raf-throttling --user-data-dir=save --disable-raf-throttling"
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling"
 }
