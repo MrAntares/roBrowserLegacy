@@ -21,6 +21,7 @@ define(function( require )
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
 	var Inventory     = require('UI/Components/Inventory/Inventory');
+	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Mobile        = require('Core/Mobile');
 	var Renderer      = require('Renderer/Renderer');
@@ -73,7 +74,7 @@ define(function( require )
 		Mobile.onTouchStart = onMouseDown.bind(this);
 		Mobile.onTouchEnd   = onMouseUp.bind(this);
 
-		jQuery( Renderer.canvas ).topDroppable({drop: onDrop.bind(this)}).droppable();
+		jQuery( Renderer.canvas ).topDroppable({drop: onDrop.bind(this)}).droppable({tolerance: "pointer"});
 
 		// Attach events
 		jQuery( Renderer.canvas )
@@ -274,12 +275,12 @@ define(function( require )
 		}
 
 		// Just support items ?
-		if (data.type !== 'item' || data.from !== 'Inventory') {
+		if ((data.from !== 'Inventory' && data.type === 'item') || (data.from !== 'ShortCut' && data.type == 'skill')) {
 			return false;
 		}
 
 		// Can't drop an item on map if Equipment window is open
-		if (Equipment.ui.is(':visible')) {
+		if (Equipment.ui.is(':visible') &&  data.type === 'item') {
 			ChatBox.addText(
 				DB.getMessage(189),
 				ChatBox.TYPE.ERROR
@@ -288,7 +289,7 @@ define(function( require )
 		}
 
 		//check if inventory is close player can'it drop item.
-		if (!Inventory.ui.is(':visible')) {
+		if (!Inventory.ui.is(':visible') &&  data.type === 'item') {
 			ChatBox.addText(
 				DB.getMessage(690),
 				ChatBox.TYPE.ERROR
@@ -303,22 +304,31 @@ define(function( require )
 
 		item = data.data;
 
-		// Have to specify how much
-		if (item.count > 1) {
-			InputBox.append();
-			InputBox.setType('number', false, item.count);
-			InputBox.onSubmitRequest = function onSubmitRequest( count ) {
-				InputBox.remove();
-				MapControl.onRequestDropItem(
-					item.index,
-					parseInt(count, 10 )
-				);
-			};
-		}
+		switch(data.type) {
+			case 'item':
+				// Have to specify how much
+				if (item.count > 1) {
+					InputBox.append();
+					InputBox.setType('number', false, item.count);
+					InputBox.onSubmitRequest = function onSubmitRequest( count ) {
+						InputBox.remove();
+						MapControl.onRequestDropItem(
+							item.index,
+							parseInt(count, 10 )
+						);
+					};
+				}
 
-		// Only one, don't have to specify
-		else {
-			MapControl.onRequestDropItem( item.index, 1 );
+				// Only one, don't have to specify
+				else {
+					MapControl.onRequestDropItem( item.index, 1 );
+				}
+				break;
+
+			case 'skill':
+				ShortCut.dropOnGround(data.index, data.row);
+				break;
+
 		}
 
 		return false;

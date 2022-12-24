@@ -77,21 +77,22 @@ define(function(require)
 		this.ui.find('.close').mousedown(stopPropagation).click(onClose);
 
 		this.ui
-			// Dropping to the shortcut
-			// .on('drop',     '.container', onDrop)
-			.on('dragover', '.container', stopPropagation)
-
-			// Icons
-			.on('dragstart',   '.icon', onDragStart)
-			.on('dragend',     '.icon', onDragEnd)
-			.on('dblclick',    '.icon', onUseShortCut)
-			.on('contextmenu', '.icon', onElementInfo)
-			.on('mousedown',   '.icon', function(event){
-				event.stopImmediatePropagation();
-			});
-
+		// Dropping to the shortcut
+		// .on('drop',     '.container', onDrop)
+		.on('dragover', '.container', stopPropagation)
+		
+		// Icons
+		.on('dragstart',   '.icon', onDragStart)
+		// .on('dragend',     '.icon', onDragEnd)
+		.on('dblclick',    '.icon', onUseShortCut)
+		.on('contextmenu', '.icon', onElementInfo)
+		.on('mousedown',   '.icon', function(event){
+			event.stopImmediatePropagation();
+		});
+		
 		this.draggable();
-		this.ui.find('.container').topDroppable({drop: onDrop}).droppable({tolerance: "pointer"});
+		this.ui.find('.container').topDroppable({drop: onDrop, dragstop: onDragEnd}).droppable({tolerance: "pointer"});
+
 
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName;
@@ -260,6 +261,8 @@ define(function(require)
 			// Maximum and minimum window size
 			h = Math.min( Math.max(h, 1), _rowCount);
 
+			
+
 			if (h === lastHeight) {
 				return;
 			}
@@ -278,6 +281,15 @@ define(function(require)
 			if (event.which === 1) {
 				clearInterval(_Interval);
 				jQuery(window).off('mouseup.resize');
+
+				//hide row
+				for (let index = 1; index <= 4; index++) {
+					if(index <= lastHeight){
+						ui.find("#row-" + index).show();
+					}else{
+						ui.find("#row-" + index).hide();
+					}
+				}
 			}
 		});
 
@@ -346,7 +358,7 @@ define(function(require)
 
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + file + '.bmp', function(url){
 			ui.html(
-				'<div class="icon'+ ((!isSkill) ? ' item':'') + '">' +
+				'<div class="icon-shortcut icon" draggable="true">' +
 					'<div class="img"></div>' +
 					'<div class="amount"></div>' +
 					'<span class="name"></span>' +
@@ -356,6 +368,7 @@ define(function(require)
 			ui.find('.img').css('backgroundImage', 'url('+ url +')');
 			ui.find('.amount').text(count);
 			ui.find('.name').text(name);
+
 			ui.find('.icon').draggable({
 				helper: "clone", // create "copy" with original properties, but not a true clone
 				zIndex: 2500,
@@ -481,7 +494,6 @@ define(function(require)
 		catch(e) {
 			return false;
 		}
-		console.log(data);
 		// Do not process others things than item and skill
 		if (data.type !== 'item' && data.type !== 'skill') {
 			return false;
@@ -710,6 +722,29 @@ define(function(require)
 	 * @param {number} count
 	 */
 	ShortCut.onChange = function OnConfigUpdate(/*index, isSkill, ID, count*/){};
+
+
+	/**
+	 * Drop on ground will remove it from shortcut
+	 *
+	 * @param {number} index
+	 * @param {number} row
+	 */
+	ShortCut.dropOnGround = function dropOnGround(index, row){
+		const element = _list[index];
+		ShortCut.onChange( index, element.isSkill, element.ID, element.count);
+		removeElement( element.isSkill, element.ID, row, element.isSkill ? element.count : null);
+		addElement( index, element.isSkill, element.ID, element.count);
+	}
+
+	/**
+	 * Set child z-index
+	 */
+	ShortCut.onChangeZIndex = function onChangeZIndex()
+	{
+		const parentZIndex = parseInt(this.ui.css('z-index'));
+		this.ui.find('.container').css('zIndex', parentZIndex + 1);
+	}
 
 
 	/**

@@ -36,3 +36,5 @@
 #SkillList .footer .extend { position:absolute; right:0px; bottom:1px; width:13px; height:13px; border:none; background-repeat:no-repeat; background-color:transparent; }
 
 #lvlup_job { z-index:51; position:absolute; right:0px; bottom:0px; width:43px; height:43px; border:none; background-color:transparent; background-repeat:no-repeat; }
+
+.skill.ui-draggable-dragging .levelupcontainer,.skill.ui-draggable-dragging .selectable,.skill.ui-draggable-dragging .selectable.type  { display: none;}

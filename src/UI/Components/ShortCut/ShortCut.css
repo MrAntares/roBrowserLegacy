@@ -1,8 +1,8 @@
 #ShortCut { position:absolute; overflow:hidden; width:280px; background-repeat:repeat-y;}
-#ShortCut .close { position:absolute; top:2px; right:2px; border:none; background-color:transparent; width:11px; height:11px; }
-#ShortCut .resize { position:absolute; bottom:1px; right:1px; border:none; background-color:transparent; width:13px; height:13px; }
+#ShortCut .close { position:absolute; top:2px; right:2px; border:none; background-color:transparent; width:11px; height:11px; z-index: 1; }
+#ShortCut .resize { position:absolute; bottom:1px; right:1px; border:none; background-color:transparent; width:13px; height:13px; z-index: 1; }
 
-#ShortCut .row { position:relative; }
+#ShortCut .row { position:relative; height: 34px; }
 #ShortCut .row .container { float:left; width:24px; height:23px; margin-top:5px; margin-left:5px; margin-bottom:6px; }
 #ShortCut .row .container:hover, #ShortCut .row .ui-droppable-hover { background-color:#b5ffb5;}
 #ShortCut .row .index { float:left; position:relative; top:13px; left:5px; }

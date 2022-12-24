@@ -81,7 +81,7 @@ define(function(require)
 
 		// on drop item
 		this.ui
-			.on('drop',     onDrop)
+			// .on('drop',     onDrop)
 			.on('dragover', stopPropagation)
 
 		// Items event
@@ -90,11 +90,12 @@ define(function(require)
 				.on('mouseover',   '.item', onItemOver)
 				.on('mouseout',    '.item', onItemOut)
 				.on('dragstart',   '.item', onItemDragStart)
-				.on('dragend',     '.item', onItemDragEnd)
+				// .on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable({drop: onDrop, dragstop: onItemDragEnd}).droppable({accept:".item-inventory,.item-storage"});
 	};
 
 
@@ -315,12 +316,23 @@ define(function(require)
 			var it      = DB.getItemInfo( item.ITID );
 			var content = this.ui.find('.container .content');
 
-			content.append(
-				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
+			var itemObj = jQuery(
+				'<div class="item-cart item" data-index="'+ item.index +'" draggable="true">' +
 					'<div class="icon"></div>' +
 					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
 				'</div>'
 			);
+
+			itemObj.draggable({
+				refreshPositions: true,
+				helper: "clone", // create "copy" with original properties, but not a true clone
+				zIndex: 2500,
+				appendTo: "body",
+				containment: 'body',
+				cursorAt: { right: 10, bottom: 10 },
+			});
+
+			content.append(itemObj);
 
 			if (content.height() < content[0].scrollHeight) {
 				this.ui.find('.hide').hide();
@@ -522,7 +534,8 @@ define(function(require)
 		event.stopImmediatePropagation();
 
 		try {
-			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			// data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			data = window._OBJ_DRAG_;
 			item = data.data;
 		}
 		catch(e) {
@@ -651,19 +664,11 @@ define(function(require)
 			return;
 		}
 
-		// Set image to the drag drop element
-		var img   = new Image();
-		var url   = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-		img.src   = url.replace(/^\"/, '').replace(/\"$/, '');
-
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'CartItems',
-				data:  item
-			})
-		);
+		window._OBJ_DRAG_ = {
+			type: 'item',
+			from: 'CartItems',
+			data:  item
+		};
 
 		onItemOut();
 	}

@@ -220,7 +220,7 @@ define(function(require)
 		var levelup   = _btnIncSkill.clone(true);
 		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		var element   = jQuery(
-			'<tr class="skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'" draggable="true">' +
+			'<tr class="skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'">' +
 				'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 				'<td class="levelupcontainer"></td>' +
 				'<td class=selectable>' +
@@ -243,6 +243,18 @@ define(function(require)
 				'</td>' +
 			'</tr>'
 		);
+
+		if(className == 'active'){
+			element.draggable({
+				helper: "clone",
+				zIndex: 2500,
+				appendTo: "body",
+				cursorAt: {
+					left: 12, 
+					top: 12
+				}
+			});
+		}
 
 		if (!skill.upgradable || !_points) {
 			levelup.hide();
@@ -584,17 +596,11 @@ define(function(require)
 			return stopPropagation(event);
 		}
 
-		var img   = new Image();
-		img.src   = this.firstChild.firstChild.src;
-
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'SkillList',
-				data:  skill
-			})
-		);
+		window._OBJ_DRAG_ = {
+			type: 'skill',
+			from: 'SkillList',
+			data:  skill
+		};
 	}
 
 
