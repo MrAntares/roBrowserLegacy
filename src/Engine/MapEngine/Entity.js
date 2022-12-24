@@ -493,14 +493,14 @@ define(function( require )
 				//attack sound
 				if(weaponSound){
 					Events.setTimeout(function(){
-						Sound.play(weaponSound);
+						Sound.playPosition(weaponSound, srcEntity.position);
 					}, soundTime * 2 );
 				}
 
 				//attack release sound for bow and dagger
 				if(weaponSoundRelease){
 					Events.setTimeout(function(){
-						Sound.play(weaponSoundRelease);
+						Sound.playPosition(weaponSoundRelease, srcEntity.position);
 						}, delayTime * 2 );
 				}
 
@@ -1033,7 +1033,7 @@ define(function( require )
 			    pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
 			    pkt.SKID === SkillId.AB_CHEAL) {
 				Damage.add( pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL );
-                Sound.play('_heal_effect.wav'); // healing on neutral targets got another effect than undeads
+                Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
             }
 
             // Steal Coin zeny
@@ -1987,8 +1987,7 @@ define(function( require )
 	{
         var Entity = EntityManager.get(pkt.AID);
         EffectManager.add(new StrEffect('data/texture/effect/mvp.str', Entity.position, Renderer.tick), pkt.AID);
-		//TODO: calculate sound distance
-        Sound.play('effect/st_mvp.wav');
+        Sound.playPosition('effect/st_mvp.wav', Entity.position);
 	}
 
 

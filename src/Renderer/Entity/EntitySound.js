@@ -32,7 +32,7 @@ define( ['Audio/SoundManager'], function( SoundManager )
 	 * @param {number} action id
 	 * @param {number} animation id
 	 */
-	Sound.prototype.play = function play( fileName, action, animation, volume )
+	Sound.prototype.play = function play( fileName, action, animation )
 	{
 		// Pet does not produce sound
 		if (this.entity.objecttype === this.entity.constructor.TYPE_PET) {
@@ -63,7 +63,7 @@ define( ['Audio/SoundManager'], function( SoundManager )
 			fileName = this.attackFile;
 		}
 
-		SoundManager.play(fileName, volume);
+		SoundManager.playPosition(fileName, this.entity.position);
 	};
 
 

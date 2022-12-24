@@ -361,9 +361,7 @@ define( function( require )
 
 			// Play sound
 			if (animation.sound > -1) {
-				//Calculate sound volume from distance
-				var dist = Math.floor(glMatrix.vec2.dist(entity.position, Session.Entity.position));
-				entity.sound.play( act.sounds[animation.sound], entity.action, animation_id, Math.max(((1-Math.abs((dist - 1) * (1 - 0.01) / (25 - 1) + 0.01))), 0.1 ) );
+				entity.sound.play( act.sounds[animation.sound], entity.action, animation_id );
 			}
 
 			_position[0] = 0;

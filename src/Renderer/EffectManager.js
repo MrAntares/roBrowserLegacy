@@ -370,8 +370,7 @@ define(function( require )
 
 			Events.setTimeout(function(){
 				//calculate the sound volume from distance
-				var dist = Math.floor(glMatrix.vec2.dist(EF_Inst_Par.position, Session.Entity.position));
-				Sound.play(filename + '.wav', Math.max(((1-Math.abs((dist - 1) * (1 - 0.01) / (25 - 1) + 0.01))), 0.1 ));
+				Sound.playPosition(filename + '.wav', EF_Inst_Par.position);
 			}, EF_Inst_Par.startTick + (!isNaN(effect.delayWav) ? effect.delayWav : 0) - Renderer.tick);
 		}
 		

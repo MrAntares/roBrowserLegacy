@@ -169,7 +169,7 @@ define(function( require )
 				break;
 
 			case StatusConst.BodyState.FREEZE:
-				Sound.play('_frozen_explosion.wav');
+				Sound.playPosition('_frozen_explosion.wav', this.position);
 				this.attachments.add({
 					frame:     1,
 					uid:       'status-freeze',
@@ -184,7 +184,7 @@ define(function( require )
 				break;
 
 			case StatusConst.BodyState.STONE:
-				Sound.play('_stone_explosion.wav');								   
+				Sound.playPosition('_stone_explosion.wav', this.position);								   
 				this.animation.play = true;
 				break;
 
@@ -206,7 +206,7 @@ define(function( require )
 				this._bodyStateColor[0] = 0.3;
 				this._bodyStateColor[1] = 0.3;
 				this._bodyStateColor[2] = 0.3;
-				Sound.play('_stonecurse.wav');							  
+				Sound.playPosition('_stonecurse.wav', this.position);							  
 				break;
 
 			case StatusConst.BodyState.SLEEP:
@@ -239,7 +239,7 @@ define(function( require )
 				break;
 
 			case StatusConst.BodyState.STUN:
-				Sound.play('_stun.wav');
+				Sound.playPosition('_stun.wav', this.position);
 				this.attachments.add({
 					repeat:    true,
 					frame:     0,
@@ -276,7 +276,7 @@ define(function( require )
 
 			// Do not attach multiple times.
 			if (!(this._healthState & StatusConst.HealthState.CURSE)) {
-				Sound.play('_curse.wav');
+				Sound.playPosition('_curse.wav', this.position);
 				this.attachments.add({
 					repeat:    true,
 					uid:       'status-curse',
@@ -296,7 +296,7 @@ define(function( require )
 		// Poison
 		if (value & StatusConst.HealthState.POISON) {
 			if (!(this._healthState & StatusConst.HealthState.POISON)) {
-				Sound.play('_poison.wav');
+				Sound.playPosition('_poison.wav', this.position);
 			}
 			this._healthStateColor[0] *= 0.9;
 			this._healthStateColor[1] *= 0.4;
@@ -306,14 +306,14 @@ define(function( require )
 		// Blind
 		if (value & StatusConst.HealthState.BLIND) {
 			if (!(this._healthState & StatusConst.HealthState.BLIND)) {
-				Sound.play('_blind.wav');
+				Sound.playPosition('_blind.wav', this.position);
 			}
 		}
 
 		// Silence
 		if (value & StatusConst.HealthState.SILENCE) {
 			if (!(this._healthState & StatusConst.HealthState.SILENCE)) {
-				Sound.play('_silence.wav');
+				Sound.playPosition('_silence.wav', this.position);
 				this.attachments.add({
 					frame: Emotions.indexes[9],
 					file:  'emotion',
@@ -427,7 +427,7 @@ define(function( require )
 			}
 			else {
 				this._effectStateColor[3] = 0.1;
-				Sound.play('effect/assasin_cloaking.wav');
+				Sound.play('effect/assasin_cloaking.wav', this.position);
 			}
 		}
 		
@@ -444,7 +444,7 @@ define(function( require )
 				this._effectStateColor[1] = 0.2;
 				this._effectStateColor[2] = 0.2;
 				this._effectStateColor[3] = 0.2;
-				Sound.play('effect/assasin_cloaking.wav');
+				Sound.play('effect/assasin_cloaking.wav', this.position);
 			}
 		}
 

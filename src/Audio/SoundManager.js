@@ -11,8 +11,8 @@
  * @author Vincent Thibault
  */
 
-define( ['Core/Client', 'Preferences/Audio', 'Core/MemoryManager'],
-function(      Client,          Preferences,              Memory )
+define( ['Core/Client', 'Preferences/Audio', 'Core/MemoryManager', 'Utils/gl-matrix'],
+function(      Client,          Preferences,              Memory, glMatrix )
 {
 	'use strict';
 	
@@ -21,6 +21,8 @@ function(      Client,          Preferences,              Memory )
 	const C_MAX_MEDIA_PLAYERS = 800; //Browsers are limited to 1000 media players max (in Chrome). Let's not go all the way.
 	const C_SAME_SOUND_DELAY = 100 //ms
 	const C_CACHE_CLEANUP_TIME = 30000; //ms
+
+	var Session          = require('Engine/SessionStorage');
 
 
 	/**
@@ -116,6 +118,19 @@ function(      Client,          Preferences,              Memory )
 			_sounds[filename].lastTick = Date.now();
 		});
 	};
+
+	/**
+	 * Play a wav sound with calculated position for volume
+	 *
+	 * @param {string} filename
+	 * @param {optional|number} vol (volume)
+	 */
+	SoundManager.playPosition = function playPosition(filename, srcPosition)
+	{
+		const dist = Math.floor(glMatrix.vec2.dist(srcPosition, Session.Entity.position));
+		const vol = Math.max(((1-Math.abs((dist - 1) * (1 - 0.01) / (25 - 1) + 0.01))), 0.1 );
+		SoundManager.play(filename, vol);
+	}
 
 
 	/**
