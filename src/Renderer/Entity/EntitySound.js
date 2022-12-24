@@ -59,7 +59,7 @@ define( ['Audio/SoundManager'], function( SoundManager )
 			fileName = this.attackFile;
 		}
 
-		SoundManager.play(fileName);
+		SoundManager.playPosition(fileName, this.entity.position);
 	};
 
 

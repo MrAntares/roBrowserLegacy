@@ -367,7 +367,8 @@ define(function( require )
 			}
 
 			Events.setTimeout(function(){
-				Sound.play(filename + '.wav');
+				//calculate the sound volume from distance
+				Sound.playPosition(filename + '.wav', EF_Inst_Par.position);
 			}, EF_Inst_Par.startTick + (!isNaN(effect.delayWav) ? effect.delayWav : 0) - Renderer.tick);
 		}
 		
