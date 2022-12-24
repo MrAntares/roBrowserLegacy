@@ -105,7 +105,7 @@ define(function(require)
 				.on('mouseover',   '.item', onItemOver)
 				.on('mouseout',    '.item', onItemOut)
 				.on('dragstart',   '.item', onItemDragStart)
-				.on('dragend',     '.item', onItemDragEnd)
+				// .on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
 
@@ -113,7 +113,7 @@ define(function(require)
 		this.ui.find('.mcnt').text(100);
 
 		this.draggable(this.ui.find('.titlebar'));
-		this.ui.topDroppable({drop: onDrop}).droppable({accept: '.item-inventory, .item-cart, .item-storage', tolerance: "pointer"});
+		this.ui.topDroppable({drop: onDrop, dragstop: onItemDragEnd}).droppable({accept: '.item-inventory, .item-cart, .item-storage', tolerance: "pointer"});
 	};
 
 

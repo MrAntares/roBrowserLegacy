@@ -27,11 +27,21 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+(function( factory ) {
+	if ( typeof define === "function" && define.amd ) {
 
-(function($){
+		// AMD. Register as an anonymous module.
+		define([ "jquery" ], factory );
+	} else {
+
+		// Browser globals
+		factory( jQuery );
+	}
+}(function($){
 	
 	var hoveringOverElements = new Array();
 	var topElement;
+	// var parentElement;
 	var i = 0;
 	
 	$.getCurrentHoveredElements = function(){return getCurrentHoveredElements();}; 
@@ -44,16 +54,30 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  			
  			var defaults = {
  
-		 	drop: function() {},
+				drop: function() {},
+				dragstart: function() {},
+				dragstop: function() {},
 		 
 		    };
 		    var settings = $.extend(defaults, settings);
 		
 			
 			return this.each(function() {
+				$(this).hideShow(function(e, visibility){
+					// console.log(this);
+					// console.log("Element is "+visibility);
+				});
+
+				$(this).on('dragstart', function(event, ui){
+					// parentElement = $(this);
+					settings.dragstart.call(this, event, ui );
+				});
+				$(this).on('dragstop', function(event, ui){
+					settings.dragstop.call(this, event, ui );
+				});
     			$(this).on( "dropover", function( event, ui ) {
     				if($(this).css("z-index") == 'auto'){
-    					// alert("ERROR: please add a specific z-index to your topDroppable Elements!");
+    					console.log("ERROR: please add a specific z-index to your topDroppable Elements!");
     					return;
     				}
     			    hoveringOverElements.push(i);
@@ -104,4 +128,4 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	 	return elements; 
 	}
 		
-})(jQuery);
+}));

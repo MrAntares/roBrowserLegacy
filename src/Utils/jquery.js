@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-define( ['jquery', 'DB/DBManager', 'jqueryui', 'jqueryuitopdrop'], function( jQuery, DB )
+define( ['jquery', 'DB/DBManager', 'jqueryui', 'jqueryuitopdrop'], function( jQuery, DB, jQueryUI, topDrop  )
 {
 	'use strict';
 
@@ -71,6 +71,53 @@ define( ['jquery', 'DB/DBManager', 'jqueryui', 'jqueryuitopdrop'], function( jQu
 		};
 	})();
 
+
+	/*
+	* hideShow jQuery plugin
+	* This plugin detects for visibility change on dom for attached elements.
+	* Author : Pratik Soni
+	* pratiksoni916@gmail.com
+	*/
+	jQuery.fn.extend({
+		hideShow : function(callback) {
+			this.checkForVisiblilityChange(callback);
+			return this;
+		},
+
+		checkForVisiblilityChange : function(callback) {
+
+			if(!(this.length >>>0 ))
+				return undefined;
+
+			var elem,i=0;
+
+			while ( ( elem = this[ i++ ] ) ) {
+				var curValue = jQuery(elem).is(":visible");
+
+				(elem.lastVisibility === undefined) && (elem.lastVisibility = curValue);
+
+				(curValue !== elem.lastVisibility) && (
+
+					elem.lastVisibility = curValue,
+
+					(typeof callback === "function") && (
+						callback.apply(this, [new jQuery.Event('visibilityChanged'), curValue ? "shown" : "hidden"])
+					),
+					(function(elem, curValue){
+						setTimeout(function(){
+							jQuery(elem).trigger('visibilityChanged',[curValue ? "shown" : "hidden"])
+						},10)
+					})(elem, curValue)
+				)
+			}
+
+			(function(that, a){
+				setTimeout(function(){
+					that.checkForVisiblilityChange.apply(that,a);
+				},10)
+			})(this, arguments)
+		}
+	})
 
 	/**
 	 * Export
