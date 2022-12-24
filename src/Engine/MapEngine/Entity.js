@@ -902,7 +902,7 @@ define(function( require )
 			    pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
 			    pkt.SKID === SkillId.AB_CHEAL) {
 				Damage.add( pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL );
-                Sound.play('_heal_effect.wav'); // healing on neutral targets got another effect than undeads
+                Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
             }
 
             // Steal Coin zeny
@@ -1851,7 +1851,7 @@ define(function( require )
 	{
         var Entity = EntityManager.get(pkt.AID);
         EffectManager.add(new StrEffect('data/texture/effect/mvp.str', Entity.position, Renderer.tick), pkt.AID);
-        Sound.play('effect/st_mvp.wav');
+        Sound.playPosition('effect/st_mvp.wav', Entity.position);
 	}
 
 

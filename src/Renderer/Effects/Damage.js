@@ -453,10 +453,10 @@ define(function( require )
 				SpriteRenderer.position[2] = damage.entity.position[2] + 2 + Math.sin( -Math.PI/2 + ( Math.PI * (0.5 + perc * 1.5 ) ) ) * 5;
 				if(damage.soundFile){
 					if(damage.type & Damage.TYPE.ENDURE){
-						Sound.play(EndureSound);
+						Sound.playPosition(EndureSound, damage.entity.position);
 					}
 
-					Sound.play(damage.soundFile);
+					Sound.playPosition(damage.soundFile, damage.entity.position);
 					delete damage.soundFile;
 				}
 			}
