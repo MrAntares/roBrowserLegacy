@@ -67,11 +67,6 @@ define(function(require)
 
 		var ui = this.ui;
 
-		ui.css({
-			top:  (Renderer.height - 120) / 1.5,
-			left: (Renderer.width  - 280) / 2.0
-		});
-
 		this.draggable();
 
 		// Save Elements
