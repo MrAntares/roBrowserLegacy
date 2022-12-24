@@ -328,6 +328,11 @@ define(function( require )
 			return;
 		}
 
+		// if dragging just ignore
+		if(window._OBJ_DRAG_){
+			return;
+		}
+
 		_list.sort(sortByPriority);
 
 		var x = Mouse.screen.x;
