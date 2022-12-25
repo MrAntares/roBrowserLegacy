@@ -220,7 +220,7 @@ define(function(require)
 		var levelup   = _btnIncSkill.clone(true);
 		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		var element   = jQuery(
-			'<tr class="skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'">' +
+			'<tr class="icon-skill skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'">' +
 				'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 				'<td class="levelupcontainer"></td>' +
 				'<td class=selectable>' +

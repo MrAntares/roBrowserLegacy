@@ -91,7 +91,7 @@ define(function(require)
 		});
 		
 		this.draggable();
-		this.ui.find('.container').topDroppable({drop: onDrop, dragstop: onDragEnd}).droppable({tolerance: "pointer"});
+		this.ui.find('.container').topDroppable({drop: onDrop, dragstop: onDragEnd}).droppable({accept: '.item-inventory, .icon-shortcut, .icon-skill', tolerance: "pointer"});
 
 
 		//Add to item owner name update queue
@@ -520,7 +520,9 @@ define(function(require)
 				addElement( index, element.isSkill, element.ID, element.count);
 				break;
 		}
-
+		//don't know why onDragEnd event is not fire.
+		delete window._OBJ_DRAG_;
+		this.classList.remove('hide');
 		return false;
 	}
 
