@@ -112,7 +112,7 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
         var uniform = _program.uniform;
         var attribute = _program.attribute;
 		
-        //gl.depthMask(false);
+        gl.depthMask(false);
         mat4.identity(_matrix);
         gl.useProgram(_program);
         gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -131,9 +131,10 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
     };
 	
     GroundEffect.afterRender = function afterRender(gl) {
-        //gl.depthMask(false);
+        gl.depthMask(true);
         gl.disableVertexAttribArray(_program.attribute.aPosition);
         gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     };
 	
     return GroundEffect;
