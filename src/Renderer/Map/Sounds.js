@@ -51,10 +51,8 @@ function(        glMatrix,         SoundManager )
 		for (i = 0; i < count; ++i) {
 			sound = _list[i];
 			var dist = Math.floor(vec2.dist(sound.pos, position));
-			// TODO: check for sound.height
 			if (sound.tick < tick && dist <= sound.range) {
-				//lerp - (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
-				SoundManager.play( sound.file, Math.max(((1-Math.abs((dist - 1) * (1 - 0.01) / (sound.range - 1) + 0.01))*sound.vol), 0.05 ));
+				SoundManager.playPosition( sound.file, sound.pos);
 				sound.tick = tick + sound.cycle * 1000;
 			}
 		}
