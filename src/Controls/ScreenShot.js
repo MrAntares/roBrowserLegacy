@@ -52,9 +52,9 @@ define(function(require)
 			return; //UI not loaded yet, cant display screenshot
 		}
 
-		html2canvas( [document.body], {
-			onrendered: this.process
-		});
+		html2canvas(document.body).then(function(canvas) {
+			this.process(canvas);
+		}.bind(this));
 	};
 
 
@@ -85,22 +85,17 @@ define(function(require)
 		context.font = 'bold 16px Arial';
 		context.fillText(date, x, y);
 		context.strokeText(date, x, y);
-
-		context.fill();
-		context.stroke();
-
+		
 		// Get and draw src_logo to canvas
 		Client.loadFile( 'data/texture/scr_logo.bmp', function(url) {
 			var img = new Image();
 			img.src = url;
-
-			x = canvas.width  - img.width - 20;
-			y = canvas.height - img.height - 5;
-
-			context.drawImage(img, x, y);
-
-			ScreenShot.display(canvas, date);
-
+			img.onload = function() {
+				x = canvas.width  - img.width - 20;
+				y = canvas.height - img.height - 5;
+				context.drawImage(img, x, y);
+				ScreenShot.display(canvas, date);
+			};
 		}, function(){
 			ScreenShot.display(canvas, date);
 		});
