@@ -20,7 +20,19 @@
 
 #Inventory .content .item, .item.ui-draggable-dragging { display:block; width:24px; height:24px; margin:4px 4px 4px 4px; position:relative; float:left; }
 #Inventory .content .item .icon, .item.ui-draggable-dragging .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
-#Inventory .overlay { position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
+#Inventory .overlay {
+    position: absolute;
+    display: none;
+    white-space: nowrap;
+    z-index: 900;
+    height: 15px;
+    line-height: 15px;
+    border-radius: 3px;
+    padding: 4px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    text-shadow: 1px 1px black;
+}
 #Inventory .overlay.grey { color:#aaa; }
 #Inventory .content .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
 
