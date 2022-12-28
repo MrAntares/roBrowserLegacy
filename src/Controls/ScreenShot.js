@@ -16,6 +16,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var Client        = require('Core/Client');
+	var Context        = require('Core/Context');
 	var jQuery        = require('Utils/jquery');
 	var html2canvas   = require('Utils/html2canvas');
 	var KEYS          = require('Controls/KeyEventHandler');
@@ -124,6 +125,28 @@ define(function(require)
 			data[i] = binary.charCodeAt(i);
 		}
 
+		if (Context.Is.NW) {
+			try {
+				date = date.replace(/[:]+/g,"-");
+				let fs = requireNode('fs');
+				let screenShotPath = Context.Is.NW.RODataPath + 'ScreenShots/';
+				screenShotPath = screenShotPath.replace(/\\/g,"/");
+				if (!fs.existsSync(screenShotPath)){
+					fs.mkdirSync(screenShotPath);
+				}
+				fs.writeFile(screenShotPath + 'Screenshot ' + date + ".png", data, (err) => {
+					if(err){
+						ChatBox.addText('Error! Screenshot ' + date + ' can not be saved.', ChatBox.TYPE.ERROR, null, true);
+					}else{
+						
+						ChatBox.addText('Screenshot has been saved to <span style="color:#00FF00">' + (screenShotPath + 'ScreenShot ' + date + ".png") + '</span>.', ChatBox.TYPE.PUBLIC, null, true);
+					}
+				});
+			}catch(e){
+				console.error(e);
+			}
+			return;
+		}
 		// We create a local image with the buffer
 		url = window.URL.createObjectURL(new Blob([data], {type: 'image/png'}));
 
