@@ -4,7 +4,7 @@ var ROConfig = {
     development: true, // don't need to compile javascript files in chrome app since it's already a package.
     grfList: ['data.grf','rdata.grf'],
     readDataFolder: true,
-    rootFolder: "G:\\Private Servers\\Ragnarok\\roBrowser\\ROData\\",
+    rootFolder: "G:\\Private Servers\\Ragnarok\\roBrowser\\ROData2018\\",
     servers: [
         {
             display: 'Localhost Server',
@@ -13,7 +13,7 @@ var ROConfig = {
             port: 6900,
             version: 55,
             langtype: 5,
-            packetver: 20180620,
+            packetver: 20180704,
             //packetKeys:  [0x5ED10A48,0x667F4301,0x2E5D761F],
             // socketProxy: 'wss://127.0.0.1:5999/',
             //adminList:   [2000000]
