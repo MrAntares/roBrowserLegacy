@@ -155,6 +155,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 
 			// NPC action
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_WALKNPC:
 				this.ACTION.IDLE   = 0;
 				// For those NPC that move with unitwalk scriptcommand
 				this.ACTION.WALK   = 1;

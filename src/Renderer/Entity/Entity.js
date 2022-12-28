@@ -73,6 +73,7 @@ define( function( require )
 	Entity.TYPE_MERC      =  9;
 	Entity.TYPE_ELEM      = 10;
 	Entity.TYPE_ITEM      = 11;
+	Entity.TYPE_WALKNPC   = 12;
 
 
 	/**
@@ -82,6 +83,7 @@ define( function( require )
 	Entity.PickingPriority[Entity.TYPE_MOB]       =  3;
 	Entity.PickingPriority[Entity.TYPE_ITEM]      =  2;
 	Entity.PickingPriority[Entity.TYPE_NPC]       =  1;
+	Entity.PickingPriority[Entity.TYPE_WALKNPC]       =  1;
 	Entity.PickingPriority[Entity.TYPE_UNKNOWN]   =  0;
 	Entity.PickingPriority[Entity.TYPE_WARP]      =  0;
 	Entity.PickingPriority[Entity.TYPE_PC]        =  0;
@@ -235,6 +237,7 @@ define( function( require )
 						this.objecttype === Entity.TYPE_MOB ? this.display.STYLE.MOB :
 						this.objecttype === Entity.TYPE_DISGUISED ? this.display.STYLE.MOB :
 						this.objecttype === Entity.TYPE_NPC ? this.display.STYLE.NPC :
+						this.objecttype === Entity.TYPE_WALKNPC ? this.display.STYLE.NPC :
 						this.display.STYLE.DEFAULT
 					);
 					break;

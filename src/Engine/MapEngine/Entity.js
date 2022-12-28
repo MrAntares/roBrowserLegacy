@@ -758,6 +758,7 @@ define(function( require )
 			entity.display.party_name = pkt.PName || '';
 			entity.display.guild_name = pkt.GName || '';
 			entity.display.guild_rank = pkt.RName || '';
+			entity.display.title_name = pkt.TitleName || '';
 
 			entity.display.load = entity.display.TYPE.COMPLETE;
 
@@ -768,6 +769,7 @@ define(function( require )
 						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+						entity.objecttype === Entity.TYPE_WALKNPC ? entity.display.STYLE.NPC :
 						entity.display.STYLE.DEFAULT
 					)
 				});
@@ -779,6 +781,7 @@ define(function( require )
 				entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
 				entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 				entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+				entity.objecttype === Entity.TYPE_WALKNPC ? entity.display.STYLE.NPC :
 				entity.display.STYLE.DEFAULT
 			);
 
@@ -2119,6 +2122,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME,                  onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL,               onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL2,              onEntityIdentity );
+		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL3,              onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.CHANGE_DIRECTION,             onEntityDirectionChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE,                onEntityViewChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE2,               onEntityViewChange );

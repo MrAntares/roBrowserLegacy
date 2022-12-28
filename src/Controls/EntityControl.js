@@ -76,6 +76,7 @@ define(function( require )
 				break;
 
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_WALKNPC:
 				//check if already talk to NPC
 				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
 					Cursor.setType( Cursor.ACTION.TALK, true );
@@ -173,6 +174,7 @@ define(function( require )
 				return true;
 
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_WALKNPC:
 				//check if already talk to NPC
 				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
 					pkt      = new PACKET.CZ.CONTACTNPC();
