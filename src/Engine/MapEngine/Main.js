@@ -651,6 +651,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.CONFIG,                      onConfigUpdate );
 		Network.hookPacket( PACKET.ZC.ACTION_FAILURE,              onActionFailure );
 		Network.hookPacket( PACKET.ZC.MSG,                         onMessage );
+		Network.hookPacket( PACKET.ZC.MSG_VALUE,                         onMessageValue );
 		if (PACKETVER.value < 20141022) {
 			Network.hookPacket( PACKET.ZC.RECOVERY,                    onRecovery );
 		} else {
