@@ -22,7 +22,8 @@ define(function()
 	Context.Is = {
 		APP:   !!(window.chrome && window.chrome.app && window.chrome.app.window),
 		POPUP: !!(window.opener),
-		FRAME:    window.top !== window.self
+		FRAME:    window.top !== window.self,
+		NW:	((nw) ? nw:false)
 	};
 
 
