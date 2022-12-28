@@ -2722,6 +2722,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt;
 	};
 
+	// 0x09D4
+	PACKET.CZ.NPC_SHOP_CLOSED = function PACKET_CZ_NPC_SHOP_CLOSED() {};
+	PACKET.CZ.NPC_SHOP_CLOSED.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x09D4);
+		return pkt_buf;
+	};
+
 
 	// 0x23f
 	PACKET.CZ.MAIL_GET_LIST = function PACKET_CZ_MAIL_GET_LIST() {};

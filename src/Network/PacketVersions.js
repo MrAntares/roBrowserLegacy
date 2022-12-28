@@ -1409,6 +1409,7 @@ define(['./PacketStructure'], function (PACKET) {
             [PACKET.CZ.ADD_FRIENDS, 0x023b, 26, 2],
             [PACKET.CZ.COMMAND_MER, 0x0361, 5, 2, 4],
             [PACKET.CZ.ACK_STORE_PASSWORD, 0x08a4, 36, 0],
+            [PACKET.CZ.NPC_SHOP_CLOSED, 0x09D4, 2, 0],
         ],
 
         // 2013-12-30aRagexe

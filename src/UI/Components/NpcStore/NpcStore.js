@@ -31,6 +31,9 @@ define(function(require)
 	var Inventory    = require('UI/Components/Inventory/Inventory');
 	var htmlText     = require('text!./NpcStore.html');
 	var cssText      = require('text!./NpcStore.css');
+	var PACKETVER    = require('Network/PacketVerManager');
+	var PACKET       = require('Network/PacketStructure');
+	var Network      = require('Network/NetworkManager');
 
 
 	/**
@@ -185,6 +188,10 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
+		if(PACKETVER.value >= 20131223){
+			let pkt = new PACKET.CZ.NPC_SHOP_CLOSED();
+			Network.sendPacket(pkt);
+		}
 	};
 
 
