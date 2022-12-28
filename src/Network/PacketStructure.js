@@ -12160,14 +12160,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.EQUIPSWITCH_REMOVE.size = 10;
 
-	// //0xadf
-	// PACKET.ZC.ACK_REQNAME3 = function PACKET_ZC_ACK_REQNAME3(fp, end) {
-	// 	this.AID = fp.readULong();
-	// 	this.GID = fp.readULong();
-	// 	this.CName = fp.readString(24);
-	// 	this.TName = fp.readString(24);
-	// };
-	// PACKET.ZC.ACK_REQNAME3.size = 58;
+	//0xadf
+	PACKET.ZC.ACK_REQNAMEALL3 = function PACKET_ZC_ACK_REQNAMEALL3(fp, end) {
+		this.AID = fp.readULong();
+		this.GroupID = fp.readULong();
+		this.CName = fp.readString(24);
+		this.TitleName = fp.readString(24);
+	};
+	PACKET.ZC.ACK_REQNAMEALL3.size = 58;
 
 	//0xAE2
 	PACKET.ZC.UI_OPEN = function PACKET_ZC_UI_OPEN(fp, end) {

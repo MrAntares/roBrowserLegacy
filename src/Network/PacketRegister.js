@@ -621,7 +621,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xade: PACKET.ZC.WEIGHT_LIMIT, // not implemented yet
 		0xa78: PACKET.ZC.CAMERA_INFO, // not implemented yet
 		0xa9a: PACKET.ZC.EQUIPSWITCH_REMOVE, // not implemented yet
-		// 0xadf: PACKET.ZC.ACK_REQNAME3,
+		0xadf: PACKET.ZC.ACK_REQNAMEALL3,
 		0xae2: PACKET.ZC.UI_OPEN,
 		0xb08: PACKET.ZC.INVENTORY_START,
 		0xb0a: PACKET.ZC.EQUIPMENT_ITEMLIST6,
