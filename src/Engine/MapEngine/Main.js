@@ -545,6 +545,15 @@ define(function( require )
 		ChatBox.addText( DB.getMessage(pkt.msg), ChatBox.TYPE.PUBLIC );
 	}
 
+	/**
+	 * Server message using msgstringtable
+	 *
+	 * @param {object} pkt - PACKET_ZC_MSG_VALUE
+	 */
+	function onMessageValue( pkt )
+	{
+		ChatBox.addText( DB.getMessage(pkt.msg).replace('%d', pkt.value), ChatBox.TYPE.ERROR );
+	}
 
 	/**
 	 * Recovery of a status
