@@ -71,7 +71,7 @@ define(function(require)
 
 		// Create a date to add to canvas
 		var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-    	var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -5);
+    	var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 		localISOTime = localISOTime.replace('T', ' ');
 		timezone = (new Date().getTimezoneOffset() / 60);
 		date     = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
