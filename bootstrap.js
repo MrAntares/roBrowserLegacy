@@ -15,6 +15,8 @@ console.log('[Flavors] ' + process.versions['nw-flavor']);
 console.log('[Working Path] ' + ROConfig.dataPath);
 console.log('[NW Path] ' + process.execPath.replace('nw.exe', ''));
 
+nw.RODataPath = ROConfig.dataPath;
+
 //Add Path to GRF List
 if (ROConfig.grfList) {
     for (let i = 0; i < ROConfig.grfList.length; i++) {
