@@ -118,7 +118,7 @@ define(function()
 		}
 
 		element = document.createElement('canvas');
-		try { gl = element.getContext('webgl'); } catch(e){}
+		try { gl = element.getContext('webgl2'); } catch(e){}
 		try { gl = gl || element.getContext('experimental-webgl'); } catch(e){}
 
 		if (!gl) {

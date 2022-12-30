@@ -26,7 +26,7 @@ define( ['Utils/Texture'], function( Texture )
 	function getContext( canvas, parameters )
 	{
 		var gl = null;
-		var args = ['webgl', 'experimental-webgl'];
+		var args = ['webgl2', 'webgl'];
 		var i, count = args.length;
 
 		// Default options
