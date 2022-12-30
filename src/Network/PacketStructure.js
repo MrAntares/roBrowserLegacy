@@ -12017,6 +12017,86 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	}
 	PACKET.ZC.EQUIPMENT_SWITCH_LIST.size = -1;
 
+	//0x0aa0
+	PACKET.ZC.OPEN_REFINING_UI = function PACKET_ZC_OPEN_REFINING_UI(fp, end) {};
+	PACKET.ZC.OPEN_REFINING_UI.size = 2;
+
+	//0x0aa1
+	PACKET.CZ.REFINING_SELECT_ITEM = function PACKET_CZ_REFINING_SELECT_ITEM(fp, end) {
+		this.index = 0;
+	};
+	PACKET.CZ.REFINING_SELECT_ITEM.prototype.build = function() {
+		var pkt_len = 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x0aa1);
+		pkt_buf.writeShort(this.index);
+		return pkt_buf;
+	};
+	
+	//0x0aa2
+	PACKET.ZC.REFINING_MATERIAL_LIST = function PACKET_ZC_REFINING_MATERIAL_LIST(fp, end) {
+		this.itemIndex = fp.readShort();
+		this.bBlessing = fp.readChar();
+		this.materialList = (function() {
+			var i, count=(end-fp.tell())/15|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				if(PACKETVER.value >= 20180704){
+					out[i].itemId = fp.readULong();
+				}else{
+					out[i].itemId = fp.readUShort();
+				}
+				
+				out[i].chance = fp.readChar();
+				out[i].zeny = fp.readULong();
+			}
+			return out;
+		})();
+		
+	};
+	PACKET.ZC.REFINING_MATERIAL_LIST.size = -1;
+
+	//0x0aa3
+	PACKET.CZ.REQ_REFINING = function PACKET_CZ_REQ_REFINING(fp, end) {
+		this.index = 0;
+		this.material_id = 0;
+		this.catalyst = 0;
+	};
+	PACKET.CZ.REQ_REFINING.prototype.build = function() {
+		var pkt_len = 7;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x0aa3);
+		pkt_buf.writeShort(this.index);
+		pkt_buf.writeShort(this.material_id);
+		pkt_buf.writeChar(this.catalyst);
+		return pkt_buf;
+	};
+
+	//0x0aa4
+	PACKET.CZ.CLOSE_REFINING_UI = function PACKET_CZ_CLOSE_REFINING_UI() {};
+	PACKET.CZ.CLOSE_REFINING_UI.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x0aa4);
+		return pkt_buf;
+	};
+
+	//0x0ada
+	PACKET.ZC.BROADCAST_ITEMREFINING_RESULT = function PACKET_ZC_BROADCAST_ITEMREFINING_RESULT(fp, end) {
+		if(PACKETVER.value >= 20180704){
+			this.itemId = fp.readULong();
+		}else{
+			this.itemId = fp.readUShort();
+		}
+		this.refine_level = fp.readByte();
+		this.status = fp.readByte();
+		this.name = fp.readString(24);
+	};
+	PACKET.ZC.BROADCAST_ITEMREFINING_RESULT.size = (PACKETVER.value >= 20180704) ? 32 : 30;
+
 	// 0xaa5
 	PACKET.ZC.MEMBERMGR_INFO2 = function PACKET_ZC_MEMBERMGR_INFO2(fp, end) {
 		this.memberInfo = (function() {

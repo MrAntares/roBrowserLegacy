@@ -1711,6 +1711,12 @@ define(['./PacketStructure'], function (PACKET) {
             // packet(0x0a2e,6); //TITLE
         ],
 
+        20161012: [
+            [PACKET.CZ.REFINING_SELECT_ITEM, 0x0aa1, 2, 0], //0x0aa1 //int16 packetType; int16 index;
+            [PACKET.CZ.REQ_REFINING, 0x0aa3, 2, 0], //0x0aa3
+            [PACKET.CZ.CLOSE_REFINING_UI, 0x0aa4, 2, 0], //0x0aa4
+        ],
+
         20170607: [
             [PACKET.CZ.ENTER, 0x0871, 19, 2, 6, 10, 14, 18],
             [PACKET.CZ.ITEM_PICKUP, 0x0897, 6, 2],
