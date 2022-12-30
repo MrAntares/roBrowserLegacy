@@ -22,6 +22,7 @@ define(function( require )
 	var Equipment     = require('UI/Components/Equipment/Equipment');
 	var Inventory     = require('UI/Components/Inventory/Inventory');
 	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
+	var SkillTargetSelection      = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Mobile        = require('Core/Mobile');
 	var Renderer      = require('Renderer/Renderer');
@@ -220,6 +221,14 @@ define(function( require )
 	 */
 	function onMouseWheel( event )
 	{
+		if(Mouse.state === Mouse.MOUSE_STATE.USESKILL){
+			if(event.originalEvent.wheelDelta > 0){
+				SkillTargetSelection.setSkillLevelDelta(1);
+			}else{
+				SkillTargetSelection.setSkillLevelDelta(-1);
+			}
+			return;
+		}
 		// Zooming on the scene
 		// Cross browser delta
 		var delta;
