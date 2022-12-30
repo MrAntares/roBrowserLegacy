@@ -7,6 +7,33 @@ RONW.js is forked from roBrowser which is from [@MrAntares repo](https://github.
 * edit the settings.js
 * start RONW.exe
 
+## Example of settings.js
+```
+var ROConfig = {
+    development: true,
+    grfList: ['data.grf','rdata.grf'],
+    readDataFolder: true,
+    rootFolder: "path\\to\\your\\folder\\that\\contained\\data.grf\\and\\data\\folder",
+    servers: [
+        {
+            display: 'Localhost Server',
+            desc: "roBrowser's demo server",
+            address: '127.0.0.1',
+            port: 6900,
+            version: 55,
+            langtype: 5,
+            packetver: 20180704,
+        },
+    ],
+    saveFiles: false,
+    skipIntro: true,
+    skipServerList: true,
+    version: 1.272,
+    plugins: {},
+};
+```
+
+
 ## Why did we choose NW.js?
 The benefit of using NW.js is you can compile the source code to v8 Snapshot. That means you can protect your source code. You don't need to run the web server for this version because it will read directly from the Grf files, which means the speed of loading.
 
