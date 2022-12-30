@@ -36,6 +36,7 @@ define(function( require )
 	var ChangeCart     = require('UI/Components/ChangeCart/ChangeCart');
 	var SkillList      = require('UI/Components/SkillList/SkillList');
 	var PartyUI        = require('UI/Components/PartyFriends/PartyFriends');
+	var PetMessageConst    = require('DB/Pets/PetMessageConst');
 
 
 	/**
@@ -241,6 +242,33 @@ define(function( require )
 						PartyUI.updateMemberLife(Session.AID, Session.Entity.life.canvas, Session.Entity.life.hp, Session.Entity.life.hp_max);
 					}
 				}
+				//Danger
+				if(Session.Entity.life.hp <= (25/100*Session.Entity.life.hp_max)){
+					//Pet Talk
+					if(Session.pet.friendly > 900 && (Session.pet.lastTalk || 0) + 10000 < Date.now()){
+						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
+						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DANGER, hunger);
+
+						var pkt    = new PACKET.CZ.PET_ACT();
+						pkt.data = talk;
+						Network.sendPacket(pkt);
+						Session.pet.lastTalk = Date.now();
+					}
+				}
+				//Died
+				if(Session.Entity.life.hp <= 1){
+					//Pet Talk
+					if(Session.pet.friendly > 900 ){
+						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
+						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DEAD, hunger);
+
+						var pkt    = new PACKET.CZ.PET_ACT();
+						pkt.data = talk;
+						Network.sendPacket(pkt);
+						Session.pet.lastTalk = Date.now();
+					}
+				
+				}
 				break;
 
 			case StatusProperty.MAXHP:
@@ -282,6 +310,17 @@ define(function( require )
 				BasicInfo.update('blvl', amount);
 				Equipment.onLevelUp();
 				ChangeCart.onLevelUp(amount);
+
+				//Pet Talk
+				if(Session.pet.friendly > 900){
+					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
+					const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_LEVELUP, hunger);
+
+					var pkt    = new PACKET.CZ.PET_ACT();
+					pkt.data = talk;
+					Network.sendPacket(pkt);
+					Session.pet.lastTalk = Date.now();
+				}
 				break;
 
 			case StatusProperty.SKPOINT:

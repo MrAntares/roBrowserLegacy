@@ -38,6 +38,7 @@ define(function()
 		zeny:        0,
 
 		petId:       0,
+		pet:		{},
 
 		hasParty:      false,
 		isPartyLeader: false,

@@ -28,6 +28,9 @@ define(function( require )
 	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
 	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
 	var PetInformations      = require('UI/Components/PetInformations/PetInformations');
+	var Inventory			= require('UI/Components/Inventory/Inventory');
+	var Emotions           	= require('DB/Emotions');
+	var PetMessageConst		= require('DB/Pets/PetMessageConst');
 
 
 	/**
@@ -100,6 +103,16 @@ define(function( require )
 		if (Session.petId) {
 			var entity = EntityManager.get(Session.petId);
 			if (entity) {
+				const oldHungry = Session.pet.hungry || pkt.nFullness;
+				Session.pet.job = pkt.job;
+				Session.pet.clevel = pkt.nLevel;
+				Session.pet.name = pkt.szName;
+				Session.pet.friendly = pkt.nRelationship;
+				Session.pet.oldHungry = oldHungry;
+				Session.pet.hungry = pkt.nFullness;
+
+				entity.display.name = pkt.szName;
+				entity.life.intimacy = pkt.nRelationship;
 				entity.life.hp     = pkt.nFullness;
 				entity.life.hp_max = 100;
 				entity.life.update();
@@ -119,11 +132,36 @@ define(function( require )
 		if (!pkt.cRet) {
 			ChatBox.addText( DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR);
 			return;
+		}else{
+			const friendly = DB.getPetFriendlyState(Session.pet.friendly);
+			const hunger = DB.getPetHungryState(Session.pet.oldHungry);
+			const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_FEEDING, hunger, Session.Sex);
+			const emotion = DB.getPetEmotion(hunger, friendly, PetMessageConst.PM_FEEDING);
+
+			if(emotion > 0){
+				var pkt    = new PACKET.CZ.PET_ACT();
+				pkt.data = emotion + '2'; // don't know what is the last digit but it needed. @MrUnzO
+				Network.sendPacket(pkt);
+			}
+			if(Session.pet.friendly > 900){
+				var pkt    = new PACKET.CZ.PET_ACT();
+				pkt.data = talk;
+				Network.sendPacket(pkt);
+			}
 		}
 
-		// success, what to do ? Action feed ? or is it sent by server ?
 	}
 
+
+	/**
+	 * Pet talk (don't know where to put this) (MrUnzO) 
+	 *
+	 */
+	function petTalk( GID, msg ){
+		var entity = EntityManager.get(GID);
+		ChatBox.addText(entity.display.name + " : " +msg, ChatBox.TYPE.PUBLIC);
+		entity.dialog.set( msg );
+	}
 
 	/**
 	 * Update pet information
@@ -140,12 +178,17 @@ define(function( require )
 		}
 
 		switch (pkt.type) {
-			case 0: // know what our pet is
+			case 0: // know what our pet is //PET_PRE_INIT
 				Session.petId = pkt.GID; // should we delete it later ?
+				Session.pet.GID =  pkt.GID;
+				if(entity){
+					Session.pet.job = entity._job;
+				}
 				break;
 
-			case 1:
+			case 1: //
 				PetInformations.setIntimacy(pkt.data);
+				Session.pet.friendly     = pkt.data;
 				break;
 
 			case 2:
@@ -153,6 +196,13 @@ define(function( require )
 				entity.life.hp     = pkt.data;
 				entity.life.hp_max = 100;
 				entity.life.update();
+				
+				const oldHungry = Session.pet.hungry;
+				Session.pet.oldHungry = oldHungry;
+				Session.pet.hungry = pkt.data;
+
+				
+
 				break;
 
 			case 3: /// 3 = accessory ID
@@ -203,19 +253,21 @@ define(function( require )
 		if (!entity) {
 			return;
 		}
-
-		switch (pkt.data) {
-			case 0:  // feeding
-			case 1:  // hunting
-			case 2:  // danger
-			case 3:  // dead
-			case 4:  // stand (normal)
-			case 5:  // special performance
-			case 6:  // level up
-			case 7:  // performance 1
-			case 8:  // performance 2
-			case 9:  // performance 3
-			case 10: // log-in greeting (connect)
+		if(pkt.data < 5000){
+			const emotionId = parseInt(pkt.data / 10);
+			entity.attachments.add({
+				frame: Emotions.indexes[emotionId],
+				file:  'emotion',
+				play:   true,
+				head:   true,
+				repeat: false,
+				depth:  5.0
+			});
+		}else{
+			const text = DB.getPetTalk(pkt.data);
+			if(text){
+				petTalk(pkt.GID, text)
+			}
 		}
 	}
 
