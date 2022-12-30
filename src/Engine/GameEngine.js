@@ -154,10 +154,6 @@ define(function( require )
 		BGM.setAvailableExtensions( Configs.get('BGMFileExtension', ['mp3']) );
 		BGM.play('01.mp3');
 
-		//for topDropable
-		//maybe fix in future
-		jQuery( Renderer.canvas ).css('z-index', 0);
-
 		UIManager.removeComponents();
 		Network.close();
 
