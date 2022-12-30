@@ -207,8 +207,13 @@ define(function (require) {
         // Trim the path
         filename = filename.replace(/^\s+|\s+$/g, '');
 
+        // Search on data path first
         if (fs && fs.existsSync(this.dataPath + filename) && this.dataPath && !filename.match(/bgm/i)) {
-            callback(fs.readFileSync(this.dataPath + filename));
+            // callback(fs.readFileSync(this.dataPath + filename));
+            fs.readFile(this.dataPath + filename, function (err, nb) {
+                var ab = nb.buffer;
+                callback(new Uint8Array(ab).buffer);
+              });
             return;
         }
 
