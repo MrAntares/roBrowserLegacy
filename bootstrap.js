@@ -82,5 +82,8 @@ recursive(ROConfig.dataPath + 'BGM\\', function (err, results) {
             files[i].fullPath = files[i].name;
         }
         ROConfig.fileList = files;
+
+        
+        require(['src/App/Online']);
     });
 });
