@@ -8,3 +8,4 @@ AI/*
 src/Plugins/*/
 .idea/
 save
+.eslintrc.js
