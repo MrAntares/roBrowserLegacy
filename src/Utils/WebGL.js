@@ -37,6 +37,7 @@ define( ['Utils/Texture'], function( Texture )
 				stencil:            false,
 				antialias:          false,
 				premultipliedAlpha: false,
+				preserveDrawingBuffer: true,
 			};
 		}
 
