@@ -52,9 +52,9 @@ define(function(require)
 			return; //UI not loaded yet, cant display screenshot
 		}
 
-		html2canvas(document.body).then(function(canvas) {
-			this.process(canvas);
-		}.bind(this));
+		html2canvas( [document.body], {
+			onrendered: this.process
+		});
 	};
 
 
