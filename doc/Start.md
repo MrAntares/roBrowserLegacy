@@ -123,7 +123,7 @@ You probably forgot the step about `AI` `require` replacement in `Add game asset
 
 ### ....(403 not found) ... 403 (Forbidden)
 
-You probably have a server secutiry issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
+You probably have a server security issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
 
 ### Other
 I personally had to disable `metamask` extension.
