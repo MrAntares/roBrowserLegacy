@@ -33,10 +33,10 @@ define(function( require )
 	 * @var {number} camera min-max constants
 	 */
 	const C_MIN_ZOOM = 1;
-	const C_MAX_ZOOM = 5;
+	const C_MAX_ZOOM = 3;
 	
-	const C_MIN_V_ANGLE_ISOMETRIC = 190;
-	const C_MAX_V_ANGLE_ISOMETRIC = 270;
+	const C_MIN_V_ANGLE_ISOMETRIC = 210;
+	const C_MAX_V_ANGLE_ISOMETRIC = 230;
 	
 	const C_THIRDPERSON_TRESHOLD_ZOOM = 1;
 	const C_MIN_V_ANGLE_3RDPERSON = 175;
