@@ -23,7 +23,7 @@ define(function()
 		APP:   !!(window.chrome && window.chrome.app && window.chrome.app.window),
 		POPUP: !!(window.opener),
 		FRAME:    window.top !== window.self,
-		NW:	((nw) ? nw:false)
+		NW:	(typeof nw !== 'undefined') ? nw : false
 	};
 
 
