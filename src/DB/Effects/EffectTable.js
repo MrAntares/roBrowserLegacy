@@ -2121,10 +2121,54 @@ define(function( require )
 
 
 		74: [{	//EF_ICEWALL	Ice Wall
-			//type: 'FUNC',
-			wav:  'effect/wizard_icewall',
-			attachedEntity: false
-		}],
+				type: 'QuadHorn',
+				textureFile: 'effect/ice.tga',
+				attachedEntity: false,
+				height: [2.5, 3.0],
+				offsetX: [0.25, 0.75],
+				offsetY: [0.25, 0.75],
+				offsetZ: -0.1,
+				bottomSize: [0.3, 0.5],
+				blendMode: 8,
+				rotateY: [1, 360],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				repeat: true
+			},
+			{
+				type: 'QuadHorn',
+				textureFile: 'effect/ice.tga',
+				attachedEntity: false,
+				height: [2.0, 2.5],
+				offsetX: [0.25, 0.75],
+				offsetY: [0.25, 0.75],
+				offsetZ: -0.1,
+				bottomSize: [0.3, 0.5],
+				blendMode: 8,
+				rotateY: [1, 360],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				repeat: true
+			},
+			{
+				type: 'QuadHorn',
+				textureFile: 'effect/ice.tga',
+				attachedEntity: false,
+				height: [2.2, 2.6],
+				offsetX: [0.25, 0.75],
+				offsetY: [0.25, 0.75],
+				offsetZ: -0.1,
+				bottomSize: [0.3, 0.5],
+				blendMode: 8,
+				rotateY: [1, 360],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				repeat: true
+			},
+			{
+				wav:  'effect/wizard_icewall',
+			}
+		],
 
 
 		75: [{	//EF_GLORIA	Gloria
@@ -2162,8 +2206,88 @@ define(function( require )
 		}],
 
 
-		79: [{	//EF_EARTHSPIKE	Earth Spike
-			//type: 'FUNC',
+		79: [
+		{ //Main Spike
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			height: [0.75, 1.2],
+			offsetX: [0.4, 0.6],
+			offsetY: [0.4, 0.6],
+			offsetZ: -0.1,
+			bottomSize: [0.3, 0.45],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-8.0, 8.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 1,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.0],
+			offsetY: [0.5, 0.5],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 1,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.5],
+			offsetY: [0.5, 1.0],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 1,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			height: [0.2, 0.4],
+			offsetX: [1.0, 1.2],
+			offsetY: [0.5, 0.8],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 1,
+			animationOut: true
+		},
+		{
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			height: [0.2, 0.4],
+			offsetX: [0.5, 0.7],
+			offsetY: [0.0, -0.2],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 1,
+			animationOut: true
+		},
+		{	//EF_EARTHSPIKE	Earth Spike
 			wav:  'effect/wizard_earthspike',
 			attachedEntity: false
 		}],
@@ -2617,7 +2741,86 @@ define(function( require )
 			attachedEntity: false
 		}],
 
-		//142	Heaven's Drive
+		142: [
+			{ //Main Spike
+				type: 'QuadHorn',
+				textureFile: 'effect/stone.bmp',
+				attachedEntity: false,
+				height: [0.8, 1.0],
+				offsetX: [0.4, 0.6],
+				offsetY: [0.4, 0.6],
+				bottomSize: [0.3, 0.35],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-5.0, 5.0],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				animationOut: true
+			},
+			{
+				type: 'QuadHorn',
+				textureFile: 'effect/stone.bmp',
+				attachedEntity: false,
+				height: [0.2, 0.4],
+				offsetX: [0.8, 1.0],
+				offsetY: [0.1, 0.2],
+				bottomSize: [0.1, 0.2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15.0, 15.0],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				animationOut: true
+			},
+			{
+				type: 'QuadHorn',
+				textureFile: 'effect/stone.bmp',
+				attachedEntity: false,
+				height: [0.2, 0.4],
+				offsetX: [0.1, 0.2],
+				offsetY: [0.8, 1.0],
+				bottomSize: [0.1, 0.2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15.0, 15.0],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				animationOut: true
+			},
+			{
+				type: 'QuadHorn',
+				textureFile: 'effect/stone.bmp',
+				attachedEntity: false,
+				height: [0.2, 0.4],
+				offsetX: [0.1, 0.2],
+				offsetY: [0.1, 0.2],
+				bottomSize: [0.1, 0.2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15.0, 15.0],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				animationOut: true
+			},
+			{
+				type: 'QuadHorn',
+				textureFile: 'effect/stone.bmp',
+				attachedEntity: false,
+				height: [0.2, 0.4],
+				offsetX: [0.8, 1.0],
+				offsetY: [0.8, 1.0],
+				bottomSize: [0.1, 0.2],
+				blendMode: 1,
+				rotateY: [1, 360],
+				rotateZ: [-15.0, 15.0],
+				color: [1.0, 1.0, 1.0, 1.0],
+				animation: 1,
+				animationOut: true
+			},
+			{	//EF_EARTHSPIKE	Earth Spike
+				wav:  'effect/wizard_earthspike',
+				attachedEntity: false
+			}],
 
 		143: [{ //sonicblow at target	//EF_SONICBLOW2	Sonic Blow (Part 2/2)
 			type: 'STR',
