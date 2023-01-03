@@ -18,6 +18,9 @@ This guide section help you running robrowser locally.
 ![](img/start-http-server.png)
 - You own a full client
 #### Game Server
+- You need a game server that is compatible with the original game. There are many implementations/versions/forks that are compatible, you can use any of them, but we suggest using one of the following two, because we test using these emulators:
+  - [rAthena](https://github.com/rathena/rathena)
+  - [Hercules](https://github.com/HerculesWS/Hercules/)
 - Client/packet versions currently supported up to `2015-10-01`. We advise to use versions older than `2014`.
 - Disable pincode on the game server. (Not supported yet)
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
