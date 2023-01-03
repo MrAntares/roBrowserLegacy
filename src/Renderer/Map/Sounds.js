@@ -16,7 +16,7 @@ function(        glMatrix,         SoundManager )
 	/**
 	 * Sound renderer namespace
 	 */
-	var vec3   = glMatrix.vec3;
+	var vec2   = glMatrix.vec2;
 	var _list  = [];
 
 
@@ -41,7 +41,7 @@ function(        glMatrix,         SoundManager )
 	/**
 	 * Rendering sounds
 	 *
-	 * @param {vec3} position
+	 * @param {vec2} position
 	 */
 	function render( position, tick )
 	{
