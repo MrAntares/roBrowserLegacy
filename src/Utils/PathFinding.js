@@ -425,12 +425,17 @@ define(function()
 		return pathLen+1;
 	}
 
+	function updateGat(x, y, type){
+		GAT.cells[x + y * GAT.width] = type;
+	}
+
 
 	// Exports
 	return {
 		search:     search,
 		searchLong: searchLong,
 		setGat:     setGat,
+		updateGat:  updateGat,
 		MAX_HEAP:	MAX_HEAP,
 		MAX_WALKPATH: MAX_WALKPATH
 	};
