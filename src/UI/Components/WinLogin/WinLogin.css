@@ -1,4 +1,4 @@
-#win_login { position:absolute; width:280px; height:120px; z-index:1; }
+#win_login { position:absolute; width:280px; height:120px; z-index:1; top: 60%; left: 50%; margin: 0 0 0 -140px; }
 #win_login input { position:absolute; left:91px; height:18px; width:127px; border:none; background-color:transparent; padding-left:2px; outline:none;}
 #win_login input.user { top:29px; }
 #win_login input.pass { top:61px; }
