@@ -116,7 +116,7 @@ define(function( require )
 			count = list.length;
 
 			for (i = 0; i < count; ++i) {
-				if ( ( AID && list[i]._AID === AID ) || ( effectID && effectIdList.includes(list[i].effectID) )) {
+				if ( ( !AID || ( AID && list[i]._AID === AID )) && ( !effectID || ( effectID && effectIdList.includes(list[i].effectID) )) ) {
 					if (list[i].free) {
 						list[i].free(_gl);
 					}
