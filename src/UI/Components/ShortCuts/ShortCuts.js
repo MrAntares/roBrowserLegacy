@@ -106,6 +106,7 @@
 		loadValuesAlt()
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable().droppable();
 	 };
  
  

@@ -83,6 +83,7 @@ define(function(require)
 		}.bind(this));
 
 		this.draggable();
+		this.ui.topDroppable().droppable();
 	};
 
 

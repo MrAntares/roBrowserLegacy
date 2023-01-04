@@ -33,6 +33,7 @@ define(function(require)
 	WinPrompt.init = function init()
 	{
 		this.ui.draggable();
+		this.ui.topDroppable().droppable();
 	};
 
 

@@ -43,6 +43,7 @@ define(function(require)
 				case 'luk': WinStats.onRequestUpdate( 18, 1 ); break;
 			}
 		});
+		this.ui.topDroppable().droppable();
 	};
 
 

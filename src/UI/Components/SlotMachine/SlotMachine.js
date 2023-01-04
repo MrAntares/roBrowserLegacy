@@ -111,6 +111,8 @@ define(function(require)
 				return false;
 			}
 		});
+
+		this.ui.topDroppable().droppable();
 	};
 
 

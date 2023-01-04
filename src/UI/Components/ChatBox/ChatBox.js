@@ -132,6 +132,7 @@ define(function(require)
 
 		this.draggable( this.ui.find('.input') );
 		this.draggable( this.ui.find('.battlemode') );
+		this.ui.topDroppable().droppable();
 
 		// Sorry for this un-documented code (see UIComponent for more informations)
 		this.__mouseStopBlock = this.ui.find('.input');

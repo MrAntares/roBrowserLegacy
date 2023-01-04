@@ -64,6 +64,7 @@ define(function(require)
 		});
 
 		this.draggable();
+		this.ui.topDroppable().droppable();
 	};
 
 

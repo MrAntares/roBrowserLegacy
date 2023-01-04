@@ -85,6 +85,7 @@
 		});
 
 		ReadMail.draggable(ReadMail.ui.find('.titlebar'));
+		ReadMail.ui.topDroppable().droppable();
 	};
 
 	/**

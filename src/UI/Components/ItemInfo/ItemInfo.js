@@ -124,6 +124,7 @@ define(function(require)
 		}.bind(this));
 
 		this.draggable(this.ui.find('.title'));
+		this.ui.topDroppable().droppable();
 
 	};
 

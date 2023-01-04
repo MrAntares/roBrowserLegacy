@@ -41,6 +41,7 @@ define(function(require)
 			left:(Renderer.width -this.ui.width())  * 0.5
 		});
 		this.draggable();
+		this.ui.topDroppable().droppable();
 
 		this.ui.find('.node').mousedown(function(event){
 			event.stopImmediatePropagation();

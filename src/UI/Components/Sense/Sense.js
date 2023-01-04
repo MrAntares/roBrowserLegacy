@@ -52,6 +52,7 @@ define(function(require)
 			.click(this.remove.bind(this));
 		
 		this.draggable(this.ui.find('.header'));
+		this.ui.topDroppable().droppable();
 		
 		Elements = [
 			DB.getMessage(414), // 0 = Neutral

@@ -56,6 +56,7 @@ define(function(require)
 		});
 
 		this.draggable();
+		this.ui.topDroppable().droppable();
 
 		var self = this;
 		this.ui.find('.content')

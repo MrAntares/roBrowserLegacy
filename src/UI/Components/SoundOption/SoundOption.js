@@ -55,6 +55,7 @@ define(function(require)
 		this.ui.find('.bgm_state').change(onToggleBGM);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable().droppable();
 	};
 
 

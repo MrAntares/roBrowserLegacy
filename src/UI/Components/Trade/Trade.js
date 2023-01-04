@@ -70,7 +70,7 @@ define(function(require)
 
 		this.ui
 			.on('mousedown', '.disabled', stopPropagation)
-			.on('drop',     onDrop)
+			// .on('drop',     onDrop)
 			.on('dragover', stopPropagation);
 
 		this.ui.find('.zeny.send').mousedown(function(){
@@ -83,6 +83,7 @@ define(function(require)
 			.on('contextmenu', '.item', onItemInfo);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable({drop: onDrop}).droppable();
 	};
 
 
@@ -315,9 +316,7 @@ define(function(require)
 		var item, data;
 
 		try {
-			data = JSON.parse(
-				event.originalEvent.dataTransfer.getData('Text')
-			);
+			data = window._OBJ_DRAG_;
 		}
 		catch(e) {}
 

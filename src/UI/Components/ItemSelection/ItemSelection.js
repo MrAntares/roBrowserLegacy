@@ -48,6 +48,7 @@ define(function(require)
 		this.index = 0;
 
 		this.draggable(this.ui.find('.head'));
+		this.ui.topDroppable().droppable();
 
 		// Click Events
 		this.ui.find('.ok').click( this.selectIndex.bind(this) );

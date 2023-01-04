@@ -60,6 +60,7 @@ define(function(require)
 
 		this.ui.find('.titlebar .close').click(function(){ ChangeCart.ui.hide(); });
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable().droppable();
 
 		this.ui.find('.cart').click(onCart);
 		this.ui.find('.cart1').click(onCart1);

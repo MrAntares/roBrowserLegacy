@@ -37,6 +37,7 @@ define(function(require)
 	InputBox.init = function Init()
 	{
 		this.draggable();
+		this.ui.topDroppable().droppable();
 		this.ui.css({ top: (Renderer.height-120)/1.5-49, left: (Renderer.width -280)/2+1 });
 		this.ui.find('button').click(validate.bind(this));
 		this.ui.find('input').mousedown(function(event) {

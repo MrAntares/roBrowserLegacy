@@ -104,6 +104,7 @@ define(function(require)
 			.on('dragend',     '.skill',      onSkillDragEnd);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable().droppable();
 
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function(data){
 			rArrow = 'url('+data+')';

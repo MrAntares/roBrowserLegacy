@@ -36,6 +36,7 @@ define(function(require)
 	{
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.draggable();
+		this.ui.topDroppable().droppable();
 	};
 
 

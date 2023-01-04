@@ -381,11 +381,6 @@ define(function(require)
 		var item, data;
 
 		try {
-			/*
-			data = JSON.parse(
-				event.originalEvent.dataTransfer.getData('Text')
-			);
-			*/
 			data = window._OBJ_DRAG_;
 		}
 		catch(e) {}

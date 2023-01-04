@@ -120,6 +120,7 @@ define(function(require)
 		this.ui.find('.next').click(movePage(+1));
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable().droppable();
 	};
 
 

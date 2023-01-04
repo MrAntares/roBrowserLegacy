@@ -137,7 +137,7 @@ define(function(require)
 
 		// Drop items
 		ui.find('.InputWindow, .OutputWindow')
-			.on('drop', onDrop)
+			// .on('drop', onDrop)
 			.on('dragover', function(event) {
 				event.stopImmediatePropagation();
 				return false;
@@ -152,7 +152,7 @@ define(function(require)
 		// Hacky drag drop
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
 		this.draggable.call({ui: OutputWindow }, OutputWindow.find('.titlebar'));
-		
+		this.ui.find('.InputWindow, .OutputWindow').topDroppable({drop: onDrop}).droppable();
 	};
 
 
@@ -393,6 +393,17 @@ define(function(require)
 			);		
 		}
 
+		content.find('.item[data-index='+ item.index +']:first').draggable({
+			helper: "clone", // create "copy" with original properties, but not a true clone
+			zIndex: 2500,
+			appendTo: "body",
+			containment: "body",
+			cursorAt: {
+				left: 12, 
+				top: 12
+			}
+		});
+
 
 		// Add the icon once loaded
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function(data){
@@ -466,6 +477,7 @@ define(function(require)
 	 */
 	function requestMoveItem( index, fromContent, toContent, isAdding)
 	{
+		console.log(isAdding);
 		var item, count, item_price;
 
 		item        = isAdding ? _input[index] : _output[index];
@@ -550,19 +562,32 @@ define(function(require)
 	 */
 	function onDrop( event )
 	{
-		var data;
+		var data, thisClass;
 
 		event.stopImmediatePropagation();
 
 		try {
-			data  = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			data = window._OBJ_DRAG_;
 		}
 		catch(e) {
 			return false;
 		}
 
+		if((data && typeof data.container === 'undefined')){
+			return false;
+		}
+
+		if(data.container.includes('InputWindow')){
+			data.container = 'InputWindow';
+		}
+		if(data.container.includes('OutputWindow')){
+			data.container = 'OutputWindow';
+		}
+
+		thisClass = this.className.includes('OutputWindow') ? 'OutputWindow' : 'InputWindow';
+
 		// Just allow item from store
-		if (data.type !== 'item' || data.from !== 'Vending' || data.container === this.className) {
+		if (data.type !== 'item' || data.from !== 'Vending' || data.container === thisClass) {
 			return false;
 		}
 
@@ -570,7 +595,7 @@ define(function(require)
 			data.index,
 			jQuery('.' + data.container + ' .content'),
 			jQuery(this).find('.content'),
-			this.className === 'OutputWindow'
+			thisClass === 'OutputWindow'
 		);
 
 		return false;
@@ -673,26 +698,20 @@ define(function(require)
 	 */
 	function onDragStart( event )
 	{
-		var container, img, url;
+		var container;
 		var InputWindow, OutputWindow;
 
 		InputWindow  = Vending.ui.find('.InputWindow:first').get(0);
 		OutputWindow = Vending.ui.find('.OutputWindow:first').get(0);
 
 		container = (jQuery.contains(InputWindow, this) ? InputWindow : OutputWindow).className;
-		img       = new Image();
-		url       = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
-		img.src   = url;
 
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type:      'item',
-				from:      'Vending',
-				container: container,
-				index:     this.getAttribute('data-index')
-			})
-		);
+		window._OBJ_DRAG_ = {
+			type:      'item',
+			from:      'Vending',
+			container: container,
+			index:     this.getAttribute('data-index')
+		}
 	}
 	
 	/**

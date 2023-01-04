@@ -41,6 +41,7 @@ define(function(require)
 			left: (Renderer.width - 280)/2
 		});
 		this.draggable();
+		this.ui.topDroppable().droppable();
 
 		this.ui_list = this.ui.find('.list:first');
 		this.list    = null;

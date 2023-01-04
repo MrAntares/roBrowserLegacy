@@ -44,6 +44,7 @@ define(function (require) {
      */
     HomunInformations.init = function init() {
         this.draggable(this.ui.find('.content'));
+        this.ui.topDroppable().droppable();
 
         this.ui.find('.base').mousedown(stopPropagation);
         this.ui.find('.close').click(onClose);

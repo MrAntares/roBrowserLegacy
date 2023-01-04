@@ -113,6 +113,7 @@ define(function(require)
 			.on('mousedown',   '.name', onSelectionChange);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable().droppable();
 	};
 
 

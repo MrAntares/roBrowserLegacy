@@ -159,6 +159,7 @@ define(function(require)
 		// Bind DOM elements
 		this.ui.find('.plus').mousedown(genericUpdateZoom(+1));
 		this.ui.find('.minus').mousedown(genericUpdateZoom(-1));
+		this.ui.topDroppable().droppable();
 	};
 
 

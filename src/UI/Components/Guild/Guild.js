@@ -273,6 +273,7 @@ define(function(require)
 		ui.find('.footer .btn_ok').click(onValidate);
 
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.topDroppable().droppable();
 		this.ui.hide();
 
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function(data){
