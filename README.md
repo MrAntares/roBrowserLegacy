@@ -5,7 +5,7 @@ If you wish to discuss anything related to this project, or you want to join, co
 
 For info on how to setup the client read the contents of our [Getting Started doc](https://github.com/MrAntares/roBrowserLegacy/blob/master/doc/Start.md). For the original branche's docs please visit the https://www.robrowser.com/ site.
 
-All credits to the original owners/creators.
+All credits to the original owners/creators and the new ones.
 
 ## Guide
 Checkout the [getting started guide](https://github.com/MrAntares/roBrowserLegacy/blob/master/doc/Start.md)
