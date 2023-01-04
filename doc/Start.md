@@ -18,6 +18,9 @@ This guide section help you running robrowser locally.
 ![](img/start-http-server.png)
 - You own a full client
 #### Game Server
+- You need a game server that is compatible with the original game. There are many implementations/versions/forks that are compatible, you can use any of them, but we suggest using one of the following two, because we test using these emulators:
+  - [rAthena](https://github.com/rathena/rathena)
+  - [Hercules](https://github.com/HerculesWS/Hercules/)
 - Client/packet versions currently supported up to `2015-10-01`. We advise to use versions older than `2014`.
 - Disable pincode on the game server. (Not supported yet)
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
@@ -120,7 +123,7 @@ You probably forgot the step about `AI` `require` replacement in `Add game asset
 
 ### ....(403 not found) ... 403 (Forbidden)
 
-You probably have a server secutiry issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
+You probably have a server security issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
 
 ### Other
 I personally had to disable `metamask` extension.
