@@ -482,21 +482,21 @@ define(function(require)
 			case 'SkillListMER':
 			case 'SkillList':
 			case 'Guild':
-				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
 				addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				break;
 
 			case 'Inventory':
-				ShortCut.onChange( index, false, element.ITID, 0);
 				removeElement( false, element.ITID, row);
 				addElement( index, false, element.ITID, 0);
+				ShortCut.onChange( index, false, element.ITID, 0);
 				break;
 
 			case 'ShortCut':
-				ShortCut.onChange( index, element.isSkill, element.ID, element.count);
 				removeElement( element.isSkill, element.ID, row, element.isSkill ? element.count : null );
 				addElement( index, element.isSkill, element.ID, element.count);
+				ShortCut.onChange( index, element.isSkill, element.ID, element.count);
 				break;
 		}
 
