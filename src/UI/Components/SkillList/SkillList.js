@@ -99,9 +99,7 @@ define(function(require)
 		this.ui
 			.on('dblclick',    '.skill .icon, .skill .name', onRequestUseSkill)
 			.on('contextmenu', '.skill .icon, .skill .name', onRequestSkillInfo)
-			.on('mousedown',   '.selectable', onSkillFocus)
-			.on('dragstart',   '.skill',      onSkillDragStart)
-			.on('dragend',     '.skill',      onSkillDragEnd);
+			.on('mousedown',   '.selectable', onSkillFocus);
 
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.topDroppable().droppable();
@@ -221,7 +219,7 @@ define(function(require)
 		var levelup   = _btnIncSkill.clone(true);
 		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		var element   = jQuery(
-			'<tr class="icon-skill skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'">' +
+			'<tr class="icon-skill skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'" draggable="true">' +
 				'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 				'<td class="levelupcontainer"></td>' +
 				'<td class=selectable>' +
@@ -245,17 +243,17 @@ define(function(require)
 			'</tr>'
 		);
 
-		if(className == 'active'){
-			element.draggable({
-				helper: "clone",
-				zIndex: 2500,
-				appendTo: "body",
-				cursorAt: {
-					left: 12, 
-					top: 12
-				}
-			});
-		}
+		element.draggable({
+			helper: "clone",
+			zIndex: 2500,
+			appendTo: "body",
+			start: onSkillDragStart,
+			stop: onSkillDragEnd,
+			cursorAt: {
+				left: 12, 
+				top: 12
+			}
+		});
 
 		if (!skill.upgradable || !_points) {
 			levelup.hide();

@@ -248,9 +248,7 @@ define(function(require)
 		this.ui
 			.on('dblclick',    '.skill .icon, .skill .name', onRequestUseSkill)
 			.on('contextmenu', '.skill .icon, .skill .name', onRequestSkillInfo)
-			.on('mousedown',   '.selectable', onSkillFocus)
-			.on('dragstart',   '.skill',      onSkillDragStart)
-			.on('dragend',     '.skill',      onSkillDragEnd);
+			.on('mousedown',   '.selectable', onSkillFocus);
 
 
 		// Notice
@@ -812,6 +810,18 @@ define(function(require)
 			'</tr>'
 		);
 
+		element.draggable({
+			helper: "clone",
+			zIndex: 2500,
+			appendTo: "body",
+			start: onSkillDragStart,
+			stop: onSkillDragEnd,
+			cursorAt: {
+				left: 12, 
+				top: 12
+			}
+		});
+
 		if (!skill.upgradable || !_skpoints) {
 			levelup.hide();
 		}
@@ -1067,17 +1077,11 @@ define(function(require)
 			return stopPropagation(event);
 		}
 
-		var img   = new Image();
-		img.src   = this.firstChild.firstChild.src;
-
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'Guild',
-				data:  skill
-			})
-		);
+		window._OBJ_DRAG_ = {
+			type: 'skill',
+			from: 'Guild',
+			data:  skill
+		}
 	}
 
 

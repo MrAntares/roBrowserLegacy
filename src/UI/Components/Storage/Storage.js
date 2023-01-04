@@ -113,8 +113,6 @@ define(function(require)
 				.on('mousewheel DOMMouseScroll', onScroll)
 				.on('mouseover',   '.item',      onItemOver)
 				.on('mouseout',    '.item',      onItemOut)
-				.on('dragstart',   '.item',      onItemDragStart)
-				.on('dragend',     '.item',      onItemDragEnd)
 				.on('contextmenu', '.item',      onItemInfo);
 
 		this.draggable(this.ui.find('.titlebar'));
@@ -237,6 +235,8 @@ define(function(require)
 				helper: "clone", // create "copy" with original properties, but not a true clone
 				zIndex: 2500,
 				appendTo: "body",
+				start: onItemDragStart,
+				stop: onItemDragEnd,
 				cursorAt: {
 					left: 12, 
 					top: 12

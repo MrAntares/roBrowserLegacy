@@ -96,7 +96,6 @@ define(function(require)
 
 		// on drop item
 		this.ui
-			// .on('drop',     onDrop)
 			.on('dragover', stopPropagation)
 
 		// Items event
@@ -104,7 +103,7 @@ define(function(require)
 				.on('mousewheel DOMMouseScroll', onScroll)
 				.on('mouseover',   '.item', onItemOver)
 				.on('mouseout',    '.item', onItemOut)
-				.on('dragstart',   '.item', onItemDragStart)
+				// .on('dragstart',   '.item', onItemDragStart)
 				// .on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
@@ -113,7 +112,7 @@ define(function(require)
 		this.ui.find('.mcnt').text(100);
 
 		this.draggable(this.ui.find('.titlebar'));
-		this.ui.topDroppable({drop: onDrop, dragstop: onItemDragEnd}).droppable({accept: '.item-inventory, .item-cart, .item-storage', tolerance: "pointer"});
+		this.ui.topDroppable({drop: onDrop}).droppable({accept: '.item-inventory, .item-cart, .item-storage', tolerance: "pointer"});
 	};
 
 
@@ -428,6 +427,8 @@ define(function(require)
 				zIndex: 2500,
 				appendTo: "body",
 				containment: 'body',
+				start: onItemDragStart,
+				stop: onItemDragEnd,
 				cursorAt: { right: 10, bottom: 10 },
 			});
 

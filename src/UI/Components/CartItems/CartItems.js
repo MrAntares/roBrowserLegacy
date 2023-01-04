@@ -89,8 +89,6 @@ define(function(require)
 				.on('mousewheel DOMMouseScroll', onScroll)
 				.on('mouseover',   '.item', onItemOver)
 				.on('mouseout',    '.item', onItemOut)
-				.on('dragstart',   '.item', onItemDragStart)
-				// .on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
 
@@ -329,6 +327,8 @@ define(function(require)
 				zIndex: 2500,
 				appendTo: "body",
 				containment: 'body',
+				start: onItemDragStart,
+				stop: onItemDragEnd,
 				cursorAt: { right: 10, bottom: 10 },
 			});
 

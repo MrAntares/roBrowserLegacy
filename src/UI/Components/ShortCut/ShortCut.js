@@ -78,12 +78,9 @@ define(function(require)
 
 		this.ui
 		// Dropping to the shortcut
-		// .on('drop',     '.container', onDrop)
 		.on('dragover', '.container', stopPropagation)
 		
 		// Icons
-		.on('dragstart',   '.icon', onDragStart)
-		// .on('dragend',     '.icon', onDragEnd)
 		.on('dblclick',    '.icon', onUseShortCut)
 		.on('contextmenu', '.icon', onElementInfo)
 		.on('mousedown',   '.icon', function(event){
@@ -374,6 +371,8 @@ define(function(require)
 				zIndex: 2500,
 				appendTo: "body",
 				containment: 'body',
+				start: onDragStart,
+				stop: onDragEnd,
 				cursorAt: { right: 10, bottom: 10 },
 			});
 
@@ -520,9 +519,6 @@ define(function(require)
 				addElement( index, element.isSkill, element.ID, element.count);
 				break;
 		}
-		//don't know why onDragEnd event is not fire.
-		delete window._OBJ_DRAG_;
-		this.classList.remove('hide');
 		return false;
 	}
 

@@ -129,15 +129,10 @@ define(function(require)
 			.on('mousewheel DOMMouseScroll', onScroll)
 			.on('contextmenu',      '.icon', onItemInfo)
 			.on('dblclick',         '.item', onItemSelected)
-			.on('mousedown',        '.item', onItemFocus)
-			.on('dragstart',        '.item', onDragStart)
-			.on('dragend',          '.item', function(){
-				delete window._OBJ_DRAG_;
-			});
+			.on('mousedown',        '.item', onItemFocus);
 
 		// Drop items
 		ui.find('.InputWindow, .OutputWindow')
-			// .on('drop', onDrop)
 			.on('dragover', function(event) {
 				event.stopImmediatePropagation();
 				return false;
@@ -398,6 +393,10 @@ define(function(require)
 			zIndex: 2500,
 			appendTo: "body",
 			containment: "body",
+			start: onDragStart,
+			stop: function(){
+				delete window._OBJ_DRAG_;
+			},
 			cursorAt: {
 				left: 12, 
 				top: 12
