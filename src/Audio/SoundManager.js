@@ -11,8 +11,8 @@
  * @author Vincent Thibault
  */
 
-define( ['Core/Client', 'Preferences/Audio', 'Core/MemoryManager', 'Utils/gl-matrix'],
-function(      Client,          Preferences,              Memory, glMatrix )
+define( ['Core/Client', 'Preferences/Audio', 'Core/MemoryManager', 'Utils/gl-matrix', 'Engine/SessionStorage'],
+function(      Client,          Preferences,              Memory,          glMatrix,                 Session)
 {
 	'use strict';
 	
@@ -21,8 +21,6 @@ function(      Client,          Preferences,              Memory, glMatrix )
 	const C_MAX_MEDIA_PLAYERS = 800; //Browsers are limited to 1000 media players max (in Chrome). Let's not go all the way.
 	const C_SAME_SOUND_DELAY = 100 //ms
 	const C_CACHE_CLEANUP_TIME = 30000; //ms
-
-	var Session          = require('Engine/SessionStorage');
 
 
 	/**
