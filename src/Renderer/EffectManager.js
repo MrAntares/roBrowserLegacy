@@ -119,15 +119,14 @@ define(function( require )
 		
 		effect._Params = Params;
 
-		_list[name].push(effect);
-		
 		if( (Params.Inst.persistent || Params.Inst.repeatEnd) && Params.Inst.duration > 0 ){ // Repeating but the effect itself is not infinite
 			if( (!Params.Inst.repeatEnd) || (Params.Inst.repeatEnd > Params.Inst.endTick + Params.Inst.repeatDelay) ) {
 				
 				// Re-spam effect if needed to repeat
 				var EF_Inst_Par = {
 					effectID: Params.Inst.effectID,
-					duplicateID: Params.Inst.duplicateID
+					duplicateID: Params.Inst.duplicateID,
+					noDelay: true // Offsets and delays are no longer used
 				}
 				
 				var RepeatParams = {
@@ -142,9 +141,11 @@ define(function( require )
 				}
 				
 				// Set timeout so always adds 1 more effect repeat instead of spamming in infinite loop
-				Events.setTimeout(repeatEffect, Params.Inst.duration + Params.Inst.repeatDelay);
+				effect._Next = Events.setTimeout(repeatEffect, Params.Inst.duration + Params.Inst.repeatDelay);
 			}
 		}
+		
+		_list[name].push(effect);
 	};
 
 
@@ -169,6 +170,9 @@ define(function( require )
 				if ( ( !AID || ( AID && list[i]._Params.Init.ownerAID === AID )) && ( !effectID || ( effectID && effectIdList.includes(list[i].effectID) )) ) {
 					if (list[i].free) {
 						list[i].free(_gl);
+					}
+					if (list[i]._Next){
+						Events.clearTimeout(list[i]._Next);
 					}
 					list.splice(i, 1);
 					i--;
@@ -422,8 +426,8 @@ define(function( require )
 		Params.Inst.delayLate = !isNaN(Params.effect.delayLate) ? Params.effect.delayLate + Params.Inst.delayLateDelta : 0;
 		
 		//Start and End
-		Params.Inst.startTick = Params.Inst.startTick + Params.Inst.delayOffset + Params.Inst.delayLate;
-		Params.Inst.endTick = Params.Inst.duration > 0 ? Params.Inst.startTick + Params.Inst.delayOffset + Params.Inst.duration : -1;
+		Params.Inst.startTick = Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : 0);
+		Params.Inst.endTick = Params.Inst.duration > 0 ? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration : -1;
 		
 		switch (Params.effect.type) {
 			case 'SPR':
