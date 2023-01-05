@@ -36,6 +36,12 @@ define(function(require)
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo         = require('./TownInfo');
 
+	//Pet
+	var PetEmotionTable 	= require('./Pets/PetEmotionTable')
+	var PetHungryState 		= require('./Pets/PetHungryState')
+	var PetFriendlyState 	= require('./Pets/PetFriendlyState')
+	var PetMessageConst 	= require('./Pets/PetMessageConst')
+
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
 
@@ -87,6 +93,11 @@ define(function(require)
 	 */
 	DB.INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
 
+	/**
+	 * @var Pet Talk
+	 * json object
+	 */
+	var PetTalkTable = {};
 
 	/**
 	 * Initialize DB
@@ -136,6 +147,9 @@ define(function(require)
 		loadTable( 'data/ba_frostjoke.txt',			'\t',	1, function(index, val){	JokeTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/dc_scream.txt',				'\t',	1, function(index, val){	ScreamTable[index]                                        		= val;}, 			onLoad());
 
+		loadXMLFile( 'data/pettalktable.xml', function(json){PetTalkTable = json["monster_talk_table"];}, onLoad());
+
+
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
 	};
 
@@ -173,6 +187,29 @@ define(function(require)
 
 			onEnd();
 		}, onEnd );
+	}
+
+
+	/* LoadXML to json object
+	*
+	* @param {string} filename to load
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author MrUnzO
+	*/
+	function loadXMLFile(filename, callback, onEnd){
+		Client.loadFile( filename,
+            async function (xml) {
+				console.log('Loading file "'+ filename +'"...');
+				xml = xml.replace(/^.*<\?xml/, '<?xml');
+				var parser = new DOMParser();
+				var parsedXML = parser.parseFromString(xml, 'application/xml');
+				var json = XmlParse.xml2json(parsedXML);
+				callback.call( null, json);
+				onEnd();
+            },
+            onEnd
+        );
 	}
 
 
@@ -851,6 +888,205 @@ define(function(require)
 		DB.CNameTable[pkt.GID] = 'Unknown';
 	}
 
+	/**
+	 * Get Pet talk message
+	 *
+	 * @param {integer} message data combined with mob id, hungryState, actionState
+	 * @return {string} pet telk sentence 
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.getPetTalk = function getPetTalk (data){
+		
+		// Structure:
+		// Examaple: 1013010
+		// 1013  |      01     |     0
+		// mobID | hungryState | actionState
+		const mobId = parseInt(data.toString().substring(0, 4)) || 1001;
+		const hungryState = parseInt(data.toString().substring(4, 6)) || 0;
+		const actionState = parseInt(data.toString().substring(6, 7)) || 0;
+
+		if(hungryState >= Object.keys(PetHungryState).length || actionState >= Object.keys(PetMessageConst).length){
+			return false;
+		}
+
+		let mobName, hungryText, actionText;
+		if(mobId && mobId >= 1000 && mobId < 4000){
+			mobName = ( MonsterTable[mobId] || MonsterTable[1001] ).toLowerCase();
+		}
+		if(hungryState !== null && hungryState !== undefined){
+			hungryText = DB.getPetHungryText(parseInt(hungryState));
+		}
+		
+		if(actionState !== null && actionState !== undefined){
+			actionText = DB.getPetActText(parseInt(actionState));
+		}
+
+		if(!mobName || !hungryText || !actionText){
+			return false;
+		}
+
+		if(PetTalkTable && PetTalkTable[mobName] && PetTalkTable[mobName][hungryText] && PetTalkTable[mobName][hungryText][actionText]){
+			let rnd = 0;
+			if(PetTalkTable[mobName][hungryText][actionText] instanceof Array){
+				rnd = parseInt((Math.random() * 100) % PetTalkTable[mobName][hungryText][actionText].length);
+				return TextEncoding.decodeString(PetTalkTable[mobName][hungryText][actionText][rnd]);
+			}
+			return TextEncoding.decodeString(PetTalkTable[mobName][hungryText][actionText]);
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Get Pet Hungry state
+	 *
+	 * @param {integer} hunger
+	 * @return {integer} hunger state
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.getPetHungryState = function getPetHungryState (hunger)
+	{	
+		if(!hunger){
+			return 0;
+		}
+		if (hunger > 90 && hunger <= 100)
+			return PetHungryState.PET_FULL;
+		else if (hunger > 75 && hunger <= 90)
+			return PetHungryState.PET_ENOUGH;		
+		else if (hunger > 25 && hunger <= 75)
+			return PetHungryState.PET_SATISFIED;
+		else if (hunger > 10 && hunger <= 25)
+			return PetHungryState.PET_HUNGRY;
+		else if (hunger >= 0 && hunger <= 10)
+			return PetHungryState.PET_HUNGER;
+		return 0;
+	}
+
+	/**
+	 * Get Pet Friendly state
+	 *
+	 * @param {integer} friendly
+	 * @return {integer} friendly state
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.getPetFriendlyState = function getPetFriendlyState(friendly)
+	{
+		if(!friendly){
+			return 0;
+		}
+		if (friendly > 900 && friendly <= 1000)
+			return PetFriendlyState.PET_FAMILIAR;
+		else if (friendly > 750 && friendly <= 900)
+			return PetFriendlyState.PET_FRIENDLY;		
+		else if (friendly > 250 && friendly <= 750)
+			return PetFriendlyState.PET_NORMAL;
+		else if (friendly > 100 && friendly <= 250)
+			return PetFriendlyState.PET_AWKWARD;
+		else if (friendly >= 0 && friendly <= 100)
+			return PetFriendlyState.PET_ASHAMED;
+		return 0;
+	}
+
+	/**
+	 * Get Pet Action text
+	 *
+	 * @param {integer} action
+	 * @return {string} action string
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.getPetActText = function getPetActText(action)
+	{
+		switch(action) {
+			case	PetMessageConst.PM_FEEDING:
+				return "feeding";
+			case	PetMessageConst.PM_HUNTING:
+				return "hunting";
+			case	PetMessageConst.PM_DANGER:
+				return "danger";
+			case	PetMessageConst.PM_DEAD:
+				return "dead";
+			case	PetMessageConst.PM_NORMAL:
+				return "stand";
+			case	PetMessageConst.PM_CONNENCT:
+				return "connect";
+			case	PetMessageConst.PM_LEVELUP:
+				return "levelup";
+			case	PetMessageConst.PM_PERFORMANCE1:
+				return "perfor_1";
+			case	PetMessageConst.PM_PERFORMANCE2:
+				return "perfor_2";
+			case	PetMessageConst.PM_PERFORMANCE3:
+				return "perfor_3";
+			case	PetMessageConst.PM_PERFORMANCE_S:
+				return "perfor_s";
+		}
+	
+		return "stand";
+	}
+
+	/**
+	 * Get Pet Hungry state text
+	 *
+	 * @param {integer} hungry state
+	 * @return {String} hungry state text
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.getPetHungryText = function getPetHungryText(state)
+	{
+		switch(state) {
+			case	PetHungryState.PET_HUNGER:
+						return "hungry";
+			case	PetHungryState.PET_HUNGRY:
+						return "bit_hungry";
+			case	PetHungryState.PET_SATISFIED:
+						return "noting";
+			case	PetHungryState.PET_ENOUGH:
+						return "full";
+			case	PetHungryState.PET_FULL:
+						return "so_full";
+		}
+		return "hungry";
+		
+	}
+
+	/**
+	 * Get Pet Emotion ID
+	 *
+	 * @param {integer} hungry state
+	 * @param {integer} friendly state
+	 * @param {integer} action
+	 * @return {integer} emotion id
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.getPetEmotion = function getPetEmotion(hunger, friendly, act)
+	{
+		if(PetEmotionTable[hunger][friendly][act])
+			return PetEmotionTable[hunger][friendly][act];
+
+		return false;
+	}
+
+	/**
+	 * Get Pet talk number message (for send to server to distribute)
+	 *
+	 * @param {integer} job (mob id)
+	 * @param {integer} action
+	 * @param {integer} hungry state
+	 * @return {integer} message data
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.getPetTalkNumber = function getPetTalkNumber(job, act, hungry)
+	{
+		return parseInt(((job).toString() + (("0" + hungry).slice (-2)) + act.toString()));
+	}
+
 	function onUpdateOwnerName (pkt){
 		DB.CNameTable[pkt.GID] = pkt.CName;
 
@@ -865,6 +1101,8 @@ define(function(require)
 	 *
 	 * @param {string} map name
 	 * @return {boolean} is indoor?
+	 * 
+	 * @author MrUnzO
 	 */
 	DB.isIndoor = function isIndoor(mapname) {
         if (mapname === undefined) return -1;
