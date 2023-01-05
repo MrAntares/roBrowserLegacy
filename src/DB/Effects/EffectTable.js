@@ -2571,8 +2571,8 @@ define(function( require )
 			bottomSize: 1.0,
 			textureName: 'magic_red',
 			height: 3,
-			duration: 30000,
-			delayLate: 1000,
+			duration: 5000,
+			delayOffset: 1000,
 			rotate: true
 		}, {
 			type: 'CYLINDER',
@@ -2581,8 +2581,8 @@ define(function( require )
 			bottomSize: 0.7,
 			textureName: 'magic_red',
 			height: 5,
-			duration: 30000,
-			delayLate: 1000,
+			duration: 5000,
+			delayOffset: 1000,
 			rotate: true
 		}, {
 			type: 'CYLINDER',
@@ -2591,8 +2591,8 @@ define(function( require )
 			bottomSize: 0.5,
 			textureName: 'magic_red',
 			height: 7,
-			duration: 30000,
-			delayLate: 1000,
+			duration: 5000,
+			delayOffset: 1000,
 			rotate: true
 		}],
 
@@ -3614,7 +3614,7 @@ define(function( require )
 				var self = this;
 				var DissonanceEffects = require('Renderer/Effects/Songs').DissonanceEffects;
 				DissonanceEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3631,7 +3631,7 @@ define(function( require )
 				var self = this;
 				var LullabyEffects = require('Renderer/Effects/Songs').LullabyEffects;
 				LullabyEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3648,7 +3648,7 @@ define(function( require )
 				var self = this;
 				var MrKimEffects = require('Renderer/Effects/Songs').MrKimEffects;
 				MrKimEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3665,7 +3665,7 @@ define(function( require )
 				var self = this;
 				var EtChaosEffects = require('Renderer/Effects/Songs').EtChaosEffects;
 				EtChaosEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3682,7 +3682,7 @@ define(function( require )
 				var self = this;
 				var DrumEffects = require('Renderer/Effects/Songs').DrumEffects;
 				DrumEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3699,7 +3699,7 @@ define(function( require )
 				var self = this;
 				var NibelungEffects = require('Renderer/Effects/Songs').NibelungEffects;
 				NibelungEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3716,7 +3716,7 @@ define(function( require )
 				var self = this;
 				var LokiEffects = require('Renderer/Effects/Songs').LokiEffects;
 				LokiEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3733,7 +3733,7 @@ define(function( require )
 				var self = this;
 				var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects();
 				AbyssEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3750,7 +3750,7 @@ define(function( require )
 				var self = this;
 				var SiegfiedEffects = require('Renderer/Effects/Songs').SiegfiedEffects;
 				SiegfiedEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3767,7 +3767,7 @@ define(function( require )
 				var self = this;
 				var WhistleEffects = require('Renderer/Effects/Songs').WhistleEffects;
 				WhistleEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3784,7 +3784,7 @@ define(function( require )
 				var self = this;
 				var SinEffects = require('Renderer/Effects/Songs').SinEffects;
 				SinEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3801,7 +3801,7 @@ define(function( require )
 				var self = this;
 				var BragiEffects = require('Renderer/Effects/Songs').BragiEffects();
 				BragiEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3823,7 +3823,7 @@ define(function( require )
 				var self = this;
 				var AppleEffects = require('Renderer/Effects/Songs').AppleEffects;
 				AppleEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3835,7 +3835,7 @@ define(function( require )
 				var self = this;
 				var UglyEffects = require('Renderer/Effects/Songs').UglyEffects;
 				UglyEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3852,7 +3852,7 @@ define(function( require )
 				var self = this;
 				var HummingEffects = require('Renderer/Effects/Songs').HummingEffects;
 				HummingEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3869,7 +3869,7 @@ define(function( require )
 				var self = this;
 				var ForgetEffects = require('Renderer/Effects/Songs').ForgetEffects;
 				ForgetEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3886,7 +3886,7 @@ define(function( require )
 				var self = this;
 				var FortuneEffects = require('Renderer/Effects/Songs').FortuneEffects;
 				FortuneEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -3903,7 +3903,7 @@ define(function( require )
 				var self = this;
 				var ServiceEffects = require('Renderer/Effects/Songs').ServiceEffects;
 				ServiceEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -5233,7 +5233,7 @@ define(function( require )
 				var self = this;
 				var GospelEffects = require('Renderer/Effects/Songs').GospelEffects;
 				GospelEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -5444,7 +5444,7 @@ define(function( require )
 				var self = this;
 				var FogEffects = require('Renderer/Effects/Songs').FogEffects;
 				FogEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -6564,7 +6564,7 @@ define(function( require )
 				var self = this;
 				var GravityEffects = require('Renderer/Effects/Songs').GravityEffects;
 				GravityEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
@@ -7458,7 +7458,7 @@ define(function( require )
 				var self = this;
 				var EvillandEffects = require('Renderer/Effects/Songs').EvillandEffects;
 				EvillandEffects.forEach(function(effect){
-					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
 			}
 		}],
