@@ -868,7 +868,7 @@ define(function( require )
 			animation: 2,
 			attachedEntity: true,
 			bottomSize: 1,
-			duration: 1000,
+			//duration: 1000,
 			fade: true,
 			height: 4,
 			rotate: false,
@@ -1712,7 +1712,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.5,
 			height: 30,
@@ -1728,7 +1728,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.5,
 			height: 1,
@@ -1744,7 +1744,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.5,
 			height: 3,
@@ -1764,7 +1764,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.4,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.4,
 			height: 30,
@@ -1780,7 +1780,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.4,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.4,
 			height: 2,
@@ -1796,7 +1796,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.4,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.4,
 			height: 3,
@@ -1816,7 +1816,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.6,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 30,
@@ -1832,7 +1832,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.6,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 2,
@@ -1848,7 +1848,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.6,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 3,
@@ -1868,7 +1868,7 @@ define(function( require )
 			blendMode: 0,
 			blue: 1,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 30,
@@ -1884,7 +1884,7 @@ define(function( require )
 			blendMode: 0,
 			blue: 1,
 			bottomSize: 1.1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 3,
@@ -1900,7 +1900,7 @@ define(function( require )
 			blendMode: 0,
 			blue: 1,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 3,
@@ -1920,7 +1920,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 4,
@@ -1940,7 +1940,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.8,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.8,
 			height: 30,
@@ -1956,7 +1956,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.8,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.8,
 			height: 3,
@@ -1972,7 +1972,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 0.8,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 0.8,
 			height: 3,
@@ -1988,13 +1988,13 @@ define(function( require )
 		60: [{	//EF_LOCKON	Cast target circle
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par) {
+			func: function( Params ) {
 				var LockOnTarget = require('Renderer/Effects/LockOnTarget');
 				this.add(new LockOnTarget(
-					EF_Init_Par.ownerEntity,
-					EF_Inst_Par.startTick,
-					EF_Init_Par.repeatEnd
-				), EF_Init_Par);
+					Params.Init.ownerEntity,
+					Params.Inst.startTick,
+					Params.Inst.endTick
+				), Params);
 			},
 		}],
 
@@ -3176,11 +3176,11 @@ define(function( require )
 		228: [{	//EF_CHOOKGI	   (Nothing) - Used for spirit spheres (other classes)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
-				var spiritNum = EF_Init_Par.spiritNum || 0;
-				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, false);
-				this.add(Spheres, EF_Init_Par);
+				var spiritNum = Params.Init.spiritNum || 0;
+				var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
+				this.add(Spheres, Params);
 			}
 		}],
 		
@@ -3210,34 +3210,34 @@ define(function( require )
 		239: [{	//EF_BOTTOM_VO	   Volcano (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var PropertyGround = require('Renderer/Effects/PropertyGround');
-				this.add(new PropertyGround(EF_Inst_Par.position, 3.0, 1.0, 2, 'ring_red', EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_red', Params.Inst.startTick), Params);
 			}
 		}],
 		240: [{	//EF_BOTTOM_DE	   Deluge (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var PropertyGround = require('Renderer/Effects/PropertyGround');
-				this.add(new PropertyGround(EF_Inst_Par.position, 3.0, 1.0, 2, 'ring_blue', EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_blue', Params.Inst.startTick), Params);
 			}
 		}],
 		241: [{	//EF_BOTTOM_VI	   Violent Gale (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var PropertyGround = require('Renderer/Effects/PropertyGround');
-				this.add(new PropertyGround(EF_Inst_Par.position, 3.0, 1.0, 2, 'ring_yellow', EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_yellow', Params.Inst.startTick), Params);
 			}
 		}],
 
 		242: [{	//EF_BOTTOM_LA	Magnetic Earth (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var LPEffect = require('Renderer/Effects/LPEffect');
-				this.add(new LPEffect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new LPEffect(Params.Inst.position, Params.Inst.startTick), Params);
 			}
 		}],
 
@@ -3610,11 +3610,11 @@ define(function( require )
 		'277_ground': [{ // Dissonance //\xb1\xe2\xb7\xf9.tga
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var DissonanceEffects = require('Renderer/Effects/Songs').DissonanceEffects;
 				DissonanceEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3627,11 +3627,11 @@ define(function( require )
 		'278_ground': [{ // Lullaby
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var LullabyEffects = require('Renderer/Effects/Songs').LullabyEffects;
 				LullabyEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3644,11 +3644,11 @@ define(function( require )
 		'279_ground': [{ // Mr Kim
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var MrKimEffects = require('Renderer/Effects/Songs').MrKimEffects;
 				MrKimEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3661,11 +3661,11 @@ define(function( require )
 		'280_ground': [{ // Chaos
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var EtChaosEffects = require('Renderer/Effects/Songs').EtChaosEffects;
 				EtChaosEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3678,11 +3678,11 @@ define(function( require )
 		'281_ground': [{ // Drum on battlefield
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var DrumEffects = require('Renderer/Effects/Songs').DrumEffects;
 				DrumEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3695,11 +3695,11 @@ define(function( require )
 		'282_ground': [{ // Ring nibelun
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var NibelungEffects = require('Renderer/Effects/Songs').NibelungEffects;
 				NibelungEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3712,11 +3712,11 @@ define(function( require )
 		'283_ground': [{ // Loki Veil
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var LokiEffects = require('Renderer/Effects/Songs').LokiEffects;
 				LokiEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3729,11 +3729,11 @@ define(function( require )
 		'284_ground': [{ // Into abyss
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects();
 				AbyssEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3746,11 +3746,11 @@ define(function( require )
 		'285_ground': [{ // Invulnerable Sieg
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var SiegfiedEffects = require('Renderer/Effects/Songs').SiegfiedEffects;
 				SiegfiedEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3763,11 +3763,11 @@ define(function( require )
 		'286_ground': [{ // A whistle
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var WhistleEffects = require('Renderer/Effects/Songs').WhistleEffects;
 				WhistleEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3780,11 +3780,11 @@ define(function( require )
 		'287_ground': [{ // Assassin cross
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var SinEffects = require('Renderer/Effects/Songs').SinEffects;
 				SinEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3797,11 +3797,11 @@ define(function( require )
 		'288_ground': [{ // Bragi
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var BragiEffects = require('Renderer/Effects/Songs').BragiEffects();
 				BragiEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3819,11 +3819,11 @@ define(function( require )
 		'289_ground': [{ // Apple
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var AppleEffects = require('Renderer/Effects/Songs').AppleEffects;
 				AppleEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3831,11 +3831,11 @@ define(function( require )
 		'290_ground': [{ // Ugly
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var UglyEffects = require('Renderer/Effects/Songs').UglyEffects;
 				UglyEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3848,11 +3848,11 @@ define(function( require )
 		'291_ground': [{ // Humming
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var HummingEffects = require('Renderer/Effects/Songs').HummingEffects;
 				HummingEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3865,11 +3865,11 @@ define(function( require )
 		'292_ground': [{ // Dont forget
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var ForgetEffects = require('Renderer/Effects/Songs').ForgetEffects;
 				ForgetEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3882,11 +3882,11 @@ define(function( require )
 		'293_ground': [{ // Fortune kiss /ladyluck
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var FortuneEffects = require('Renderer/Effects/Songs').FortuneEffects;
 				FortuneEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -3899,11 +3899,11 @@ define(function( require )
 		'294_ground': [{ // Service
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var ServiceEffects = require('Renderer/Effects/Songs').ServiceEffects;
 				ServiceEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -4373,9 +4373,9 @@ define(function( require )
 		'315_ground': [{
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var Cylinder = require('Renderer/Effects/Cylinder');
-				this.add(new Cylinder(EF_Inst_Par.position, 0.7, 0.7, 20, 'magic_violet', EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new Cylinder(Params.Inst.position, 0.7, 0.7, 20, 'magic_violet', Params.Inst.startTick), Params);
 			}
 		}],
 
@@ -4561,10 +4561,10 @@ define(function( require )
 		318: [{	//EF_BOTTOM_MAG	Magnus Exorcisimus Map Unit
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var FlatColorTile = require('Renderer/Effects/FlatColorTile');
 				var WhiteTile = FlatColorTile('white', {r: 1, g: 1, b: 1, a: 0.8});
-				this.add(new WhiteTile(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new WhiteTile(Params.Inst.position, Params.Inst.startTick), Params);
 				//this.add(new SquareGround(pos, 1.0, 1.0, 3.0, 'magic_green', tick), AID);
 			}
 		}],
@@ -4572,10 +4572,10 @@ define(function( require )
 		319: [{	//EF_BOTTOM_SANC	Sanctuary Map Unit
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var FlatColorTile = require('Renderer/Effects/FlatColorTile');
 				var WhiteTile = FlatColorTile('white', {r: 1, g: 1, b: 1, a: 0.8});
-				this.add(new WhiteTile(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new WhiteTile(Params.Inst.position, Params.Inst.startTick), Params);
 				//this.add(new SquareGround(pos, 1.0, 1.0, 3.0, 'magic_green', tick), AID);
 			}
 		}],
@@ -4665,19 +4665,10 @@ define(function( require )
 			zIndex: 1
 		}],
 		
-		321: [
-		{
-			type: 'FUNC',
-			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
-				var GroundEffect = require('Renderer/Effects/GroundEffect');
-				this.add(new GroundEffect(EF_Inst_Par.position[0], EF_Inst_Par.position[1]), EF_Init_Par);
-			}
-		},
-		{  //EF_WARPZONE2	   Warp NPC
-			alphaMax: 0.3,
+		321: [{  //EF_WARPZONE2	   Warp NPC
+			alphaMax: 0.4,
 			animation: 3,
-			attachedEntity: false,
+			attachedEntity: true,
 			blendMode: 2,
 			bottomSize: 2,
 			duration: 4000,
@@ -4694,9 +4685,9 @@ define(function( require )
 			topSize: 3.3,
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 0.3,
+			alphaMax: 0.4,
 			animation: 3,
-			attachedEntity: false,
+			attachedEntity: true,
 			blendMode: 2,
 			bottomSize: 1.9,
 			duration: 4000,
@@ -4714,7 +4705,7 @@ define(function( require )
 			type: 'CYLINDER'
 		}, {
 			alphaMax: 1.0,
-			attachedEntity: false,
+			attachedEntity: true,
 			blendMode: 2,
 			duration: 1000,
 			duplicate: 5,
@@ -5020,8 +5011,8 @@ define(function( require )
 		'339_beforecast': [{	//EF_MAGNUM2	   Spiral Pierce
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBodyColor(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBodyColor( Params ) {
+				var entity = Params.Init.ownerEntity;
 				entity._flashColor[0] = 1.0;
 				entity._flashColor[1] = 1.0;
 				entity._flashColor[2] = 1.0;
@@ -5238,11 +5229,11 @@ define(function( require )
 		'370_ground': [{ // Gospel
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var GospelEffects = require('Renderer/Effects/Songs').GospelEffects;
 				GospelEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -5281,8 +5272,8 @@ define(function( require )
 		380: [{	//EF_MAGICCRASHER	   Magic Crasher
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBodyColor(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBodyColor( Params ) {
+				var entity = Params.Init.ownerEntity;
 				entity.animations.add(function(tick){
 					if(tick < 1000){
 						if(tick > 500){
@@ -5373,10 +5364,10 @@ define(function( require )
 			type: 'FUNC',
 			wav:  'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var FlatColorTile = require('Renderer/Effects/FlatColorTile');
 				var BlueTile = FlatColorTile('salmon', {r: 0xff/255, g: 0x8a/255, b: 0xbb/255, a: 0.6});
-				this.add(new BlueTile(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new BlueTile(Params.Inst.position, Params.Inst.startTick), Params);
 			}
 		}],
 
@@ -5416,8 +5407,8 @@ define(function( require )
 		403: [{	//EF_MAGICCRASHER2	   Mind Breaker
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBodyColor(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBodyColor( Params ) {
+				var entity = Params.Init.ownerEntity;
 				entity.animations.add(function(tick){
 					if(tick < 1000){
 						entity._flashColor[0] = Math.random();
@@ -5440,20 +5431,20 @@ define(function( require )
 		404: [{	//EF_BOTTOM_SPIDER	Fiber Lock
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var SpiderWeb = require('Renderer/Effects/SpiderWeb');
-				this.add(new SpiderWeb(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+				this.add(new SpiderWeb(Params.Inst.position, Params.Inst.startTick), Params);
 			}
 		}],
 
 		'405_ground': [{ //wall of fog
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var FogEffects = require('Renderer/Effects/Songs').FogEffects;
 				FogEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -5611,8 +5602,8 @@ define(function( require )
 		420: [{	//EF_BABYBODY	Eswoo (Small) (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectSmallTransition(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectSmallTransition( Params ) {
+				var entity = Params.Init.ownerEntity;
 				var xSize = entity.xSize;
 				var ySize = entity.ySize;
 
@@ -5629,8 +5620,8 @@ define(function( require )
 		421: [{	//EF_BABYBODY2	Eswoo (Alt. Small) (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectSmall(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectSmall( Params ) {
+				var entity = Params.Init.ownerEntity;
 				entity.xSize = 2.5;
 				entity.ySize = 2.5;
 			}
@@ -5640,8 +5631,8 @@ define(function( require )
 		422: [{	//EF_GIANTBODY	Eswoo (Normal) (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBigTransition(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBigTransition( Params ) {
+				var entity = Params.Init.ownerEntity;
 				var xSize = entity.xSize;
 				var ySize = entity.ySize;
 
@@ -5658,8 +5649,8 @@ define(function( require )
 		423: [{	//EF_GIANTBODY2	Eswoo (Alt. Normal) (Visual Effect)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBig(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBig( Params ) {
+				var entity = Params.Init.ownerEntity;
 				entity.xSize = 7.5;
 				entity.ySize = 7.5;
 			}
@@ -5733,7 +5724,7 @@ define(function( require )
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 1,
-			duration: 900,
+			//duration: 900,
 			fade: true,
 			green: 1,
 			height: 4,
@@ -6433,10 +6424,10 @@ define(function( require )
 		'496_beforecast': [{
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function( Params ) {
+				var entity = Params.Init.ownerEntity;
 				var MagicRing = require('Renderer/Effects/MagicRing');
-				this.add(new MagicRing(entity, 2.45, 0.8, 2.80, 'ring_jadu', EF_Inst_Par.startTick+10000), EF_Init_Par);
+				this.add(new MagicRing(entity, 2.45, 0.8, 2.80, 'ring_jadu', Params.Inst.startTick+10000), Params);
 			}
 		}],
 		
@@ -6452,8 +6443,8 @@ define(function( require )
 		501: [{	//EF_CASTSPIN	   Chase Walk Animation
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function( Params ) {
+				var entity = Params.Init.ownerEntity;
 				var Events = require('Core/Events');
 				var duration = 500;
 				var count = 50;
@@ -6488,11 +6479,11 @@ define(function( require )
 		504: [{	//EF_CHOOKGI2	   (Nothing) - Used for spirit spheres (monk classes)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
-				var spiritNum = EF_Init_Par.spiritNum || 0;
-				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, false);
-				this.add(Spheres, EF_Init_Par);
+				var spiritNum = Params.Init.spiritNum || 0;
+				var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
+				this.add(Spheres, Params);
 			}
 		}],
 		
@@ -6528,17 +6519,16 @@ define(function( require )
 		513: [{	//EF_GROUNDSAMPLE	   Area Cast
 			type: 'FUNC',
 			attachedEntity: false,
-			func: function(EF_Inst_Par, EF_Init_Par) {
-				
+			func: function( Params ) {
 				var MagicTarget = require('Renderer/Effects/MagicTarget');
 				
 				this.add(new MagicTarget(
-					EF_Init_Par.skillId,
-					EF_Init_Par.position[0],
-					EF_Init_Par.position[1],
-					EF_Init_Par.repeatEnd,
-					EF_Init_Par.otherEntity
-				), EF_Init_Par);
+					Params.Init.skillId,
+					Params.Init.position[0],
+					Params.Init.position[1],
+					Params.Inst.endTick,
+					Params.Init.otherEntity
+				), Params);
 			},
 		}],
 		
@@ -6570,11 +6560,11 @@ define(function( require )
 		'522_ground': [{ // Gravitation field
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var GravityEffects = require('Renderer/Effects/Songs').GravityEffects;
 				GravityEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -7241,11 +7231,11 @@ define(function( require )
 		629: [{	//EF_CHOOKGI3	   (Nothing) - Used for spirit spheres (gunslinger classes)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
-				var spiritNum = EF_Init_Par.spiritNum || 0;
-				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, true);
-				this.add(Spheres, EF_Init_Par);
+				var spiritNum = Params.Init.spiritNum || 0;
+				var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, true);
+				this.add(Spheres, Params);
 			}
 		}],
 
@@ -7464,11 +7454,11 @@ define(function( require )
 			type: 'FUNC',
 			attachedEntity: false,
 			//file: 'status-curse',
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var self = this;
 				var EvillandEffects = require('Renderer/Effects/Songs').EvillandEffects;
 				EvillandEffects.forEach(function(effect){
-					self.add(new effect(EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params.Init);
 				});
 			}
 		}],
@@ -8730,8 +8720,8 @@ define(function( require )
 		775: [{	//EF_CASTSPIN2	   Spinning character sprite
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function( Params ) {
+				var entity = Params.Init.ownerEntity;
 				var Events = require('Core/Events');
 				var duration = 500;
 				var count = 8;
@@ -8800,8 +8790,8 @@ define(function( require )
 		805: [{	//EF_TETRACASTING	   Tetra Vortex cast animation (blinking colors)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBodyColor(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBodyColor( Params ) {
+				var entity = Params.Init.ownerEntity;
 				entity.animations.add(function(tick){
 					if (!entity.cast.display) {	 //we don't know cast time here so.. let's hack
 						entity._flashColor[0] = 1.0;
@@ -8915,11 +8905,11 @@ define(function( require )
 		833: [{	//EF_CHOOKGI_N	   (Nothing) - Used for spheres (royal guard?)
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par){
+			func: function( Params ){
 				var SpiritSphere = require('Renderer/Effects/SpiritSphere');
-				var spiritNum = EF_Init_Par.spiritNum || 0;
-				var Spheres = new SpiritSphere(EF_Init_Par.ownerEntity, spiritNum, false);
-				this.add(Spheres, EF_Init_Par);
+				var spiritNum = Params.Init.spiritNum || 0;
+				var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
+				this.add(Spheres, Params);
 			}
 		}],
 		
@@ -9675,8 +9665,8 @@ define(function( require )
 		1111: [{
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBodyColor(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBodyColor( Params ) {
+				var entity = Params.Init.ownerEntity;
 				entity._flashColor[0] = 1.0;
 				entity._flashColor[1] = 0.0;
 				entity._flashColor[2] = 0.0;
@@ -9701,7 +9691,7 @@ define(function( require )
 		'maximize_power_sounds': [{
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function MaximizePowerSounds(EF_Inst_Par, EF_Init_Par) {
+			func: function MaximizePowerSounds( Params ) {
 				var Events = require('Core/Events');
 				var Soundd = require('Audio/SoundManager');
 				Events.setTimeout(function(){ Soundd.play('effect/black_maximize_power_circle.wav'); }, 1 );
@@ -9812,8 +9802,8 @@ define(function( require )
 		}, {
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBodyColor(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par,ownerEntity;
+			func: function EffectBodyColor( Params ) {
+				var entity = Params.Init,ownerEntity;
 				
 				entity.animations.add(function(tick){
 					if(tick < 500){
@@ -9907,8 +9897,8 @@ define(function( require )
 		}, {
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function EffectBodyColor(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function EffectBodyColor( Params ) {
+				var entity = Params.Init.ownerEntity;
 				
 				entity.animations.add(function(tick){
 					if(tick < 500){
@@ -9998,8 +9988,8 @@ define(function( require )
 		}, {
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function( Params ) {
+				var entity = Params.Init.ownerEntity;
 				var Events = require('Core/Events');
 				var duration = 500;
 				var count = 8;
@@ -10134,8 +10124,8 @@ define(function( require )
 		}, {
 			type: 'FUNC',
 			attachedEntity: true,
-			func: function(EF_Inst_Par, EF_Init_Par) {
-				var entity = EF_Init_Par.ownerEntity;
+			func: function( Params ) {
+				var entity = Params.Init.ownerEntity;
 				var Events = require('Core/Events');
 				var duration = 500;
 				var count = 8;
@@ -10375,6 +10365,26 @@ define(function( require )
 			sizeStart: 100,
 			sizeEnd: 50,
 			attachedEntity: true
+		}],
+		
+		'temporary_warlock_sphere': [{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				
+				var entity = Params.Init.ownerEntity;
+				var spheres = [];
+				if(entity.Summon1) spheres.push(entity.Summon1);
+				if(entity.Summon2) spheres.push(entity.Summon2);
+				if(entity.Summon3) spheres.push(entity.Summon3);
+				if(entity.Summon4) spheres.push(entity.Summon4);
+				if(entity.Summon5) spheres.push(entity.Summon5);
+				
+				var WarlockSphere = require('Renderer/Effects/WarlockSphere');
+				var wl_spheres = new WarlockSphere(entity, spheres);
+				
+				this.add(wl_spheres, Params);
+			},
 		}],
 		
 		'ef_': [{

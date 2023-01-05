@@ -61,16 +61,43 @@ define(function( require )
 	{
 		_gl = gl;
 	};
-
+	
+	
+	/**
+	 * Create a new EF_Init_Par object and attach existing call params
+	 */
+	function PrepareInit( callParams ){
+		var Params = {};
+		
+		Params.effectId       = -1;
+		Params.skillId        = null;
+		Params.ownerAID       = null;
+		Params.position       = null;
+		Params.startTick      = null;
+		Params.duration       = 1000;
+		Params.persistent     = false;
+		Params.repeatEnd      = null;
+		Params.repeatDelay    = 0;
+		Params.otherAID       = null;
+		Params.otherPosition  = null;
+		
+		Params = Object.assign(Params, callParams);
+		
+		if ( !Params.startTick ) { Params.startTick = Renderer.tick; }
+		
+		Params.ownerEntity    = EntityManager.get(Params.ownerAID);
+		Params.otherEntity    = EntityManager.get(Params.otherAID);
+		
+		return Params;
+	}
 
 	/**
 	 * Add effect to the render list
 	 *
-	 * @param {function} effect
-	 * @param {mixed} effect owner ID
-	 * @param {boolean} persistent
+	 * @param {function} effect renderer function
+	 * @param {object} effect parameter object
 	 */
-	EffectManager.add = function add(effect, EF_Init_Par)
+	EffectManager.add = function add(effect, Params)
 	{
 		var name = (effect.constructor.name || effect.constructor._uid || (effect.constructor._uid = (_uniqueId++)));
 
@@ -89,12 +116,35 @@ define(function( require )
 		if (effect.init) {
 			effect.init(_gl);
 		}
-
-		effect._AID        = EF_Init_Par.ownerAID;
-		effect._persistent = EF_Init_Par.persistent;
-		effect._repeatEnd = EF_Init_Par.repeatEnd;
+		
+		effect._Params = Params;
 
 		_list[name].push(effect);
+		
+		if( (Params.Inst.persistent || Params.Inst.repeatEnd) && Params.Inst.duration > 0 ){ // Repeating but the effect itself is not infinite
+			if( (!Params.Inst.repeatEnd) || (Params.Inst.repeatEnd > Params.Inst.endTick + Params.Inst.repeatDelay) ) {
+				
+				// Re-spam effect if needed to repeat
+				var EF_Inst_Par = {
+					effectID: Params.Inst.effectID,
+					duplicateID: Params.Inst.duplicateID
+				}
+				
+				var RepeatParams = {
+					effect: Params.effect,
+					Inst: EF_Inst_Par,
+					Init: Params.Init
+				}
+				
+				function repeatEffect(){
+					RepeatParams.Inst.startTick = Renderer.tick;
+					EffectManager.spamEffect( RepeatParams );
+				}
+				
+				// Set timeout so always adds 1 more effect repeat instead of spamming in infinite loop
+				Events.setTimeout(repeatEffect, Params.Inst.duration + Params.Inst.repeatDelay);
+			}
+		}
 	};
 
 
@@ -116,7 +166,7 @@ define(function( require )
 			count = list.length;
 
 			for (i = 0; i < count; ++i) {
-				if ( ( !AID || ( AID && list[i]._AID === AID )) && ( !effectID || ( effectID && effectIdList.includes(list[i].effectID) )) ) {
+				if ( ( !AID || ( AID && list[i]._Params.Init.ownerAID === AID )) && ( !effectID || ( effectID && effectIdList.includes(list[i].effectID) )) ) {
 					if (list[i].free) {
 						list[i].free(_gl);
 					}
@@ -223,15 +273,6 @@ define(function( require )
 					}
 
 					if (list[j].needCleanUp) {
-						if (list[j]._persistent || (list[j]._repeatEnd) > tick) {
-							if(list[j].endTick){
-								list[j].endTick = tick + (list[j].endTick - list[j].startTick);
-							}
-							list[j].startTick   = tick;
-							list[j].needCleanUp = false;
-							continue;
-						}
-
 						if (list[j].free) {
 							list[j].free(gl);
 						}
@@ -281,18 +322,7 @@ define(function( require )
 		}
 
 		// Prepare params
-		EF_Init_Par.effectId       = EF_Init_Par.effectId;
-		EF_Init_Par.skillId        = EF_Init_Par.skillId        || null;
-		EF_Init_Par.ownerAID       = EF_Init_Par.ownerAID       || null;
-		EF_Init_Par.position       = EF_Init_Par.position       || null;
-		EF_Init_Par.startTick      = EF_Init_Par.startTick      || Renderer.tick;
-		EF_Init_Par.persistent     = EF_Init_Par.persistent     || false;
-		EF_Init_Par.repeatEnd      = EF_Init_Par.repeatEnd      || null;
-		EF_Init_Par.otherAID       = EF_Init_Par.otherAID       || null;
-		EF_Init_Par.otherPosition  = EF_Init_Par.otherPosition  || null;
-		
-		EF_Init_Par.ownerEntity    = EntityManager.get(EF_Init_Par.ownerAID);
-		EF_Init_Par.otherEntity    = EntityManager.get(EF_Init_Par.otherAID);
+		EF_Init_Par = PrepareInit(EF_Init_Par);
 
 		// Not found
 		if (!(EF_Init_Par.effectId in EffectDB)) {
@@ -316,110 +346,118 @@ define(function( require )
 					startTick: EF_Init_Par.startTick + (effects[i].timeBetweenDupli * j)
 				}
 				
-				EffectManager.spamEffect(effects[i], EF_Inst_Par, EF_Init_Par);
+				var Params = {
+					effect: effects[i],
+					Inst: EF_Inst_Par,
+					Init: EF_Init_Par
+				}
+				
+				EffectManager.spamEffect( Params );
 			}
         }
 	};
 
 
 	/**
-	 * Spam en effect
+	 * Spam an effect
 	 *
-	 * @param {object} effect
-	 * @param {object} Effect instance parameters
-	 * @param {object} Effect initial parameters
+	 * @param {object} effect params
 	 */
-	EffectManager.spamEffect = function spamEffect( effect, EF_Inst_Par, EF_Init_Par)
+	EffectManager.spamEffect = function spamEffect( Params )
 	{
 		var filename;
 		
-		EF_Inst_Par.position = EF_Init_Par.position;
-		EF_Inst_Par.otherPosition = EF_Init_Par.otherPosition;
+		Params.Inst.position = Params.Init.position;
+		Params.Inst.otherPosition = Params.Init.otherPosition;
 
-		if (!EF_Inst_Par.position) {
-			if (!EF_Init_Par.ownerEntity) {
+		if (!Params.Inst.position) {
+			if (!Params.Init.ownerEntity) {
 				return;
 			}
-			EF_Inst_Par.position = EF_Init_Par.ownerEntity.position;
+			Params.Inst.position = Params.Init.ownerEntity.position;
 		}
 		
-		if (!EF_Inst_Par.otherPosition) {
-			if (EF_Init_Par.otherEntity) {
-				EF_Inst_Par.otherPosition = EF_Init_Par.otherEntity.position;
+		if (!Params.Inst.otherPosition) {
+			if (Params.Init.otherEntity) {
+				Params.Inst.otherPosition = Params.Init.otherEntity.position;
 			} else {
-				EF_Inst_Par.otherPosition = [EF_Inst_Par.position[0] - 5
-											,EF_Inst_Par.position[1] + 5
-											,EF_Inst_Par.position[2]];
+				Params.Inst.otherPosition = [Params.Inst.position[0] - 5
+											,Params.Inst.position[1] + 5
+											,Params.Inst.position[2]];
 			}
 			
 		}
 
 		// Copy instead of get reference
-		EF_Inst_Par.position   = effect.attachedEntity ? EF_Inst_Par.position : [ EF_Inst_Par.position[0], EF_Inst_Par.position[1], EF_Inst_Par.position[2] ];
-		EF_Inst_Par.persistent = EF_Inst_Par.persistent || effect.repeat || false;
+		Params.Inst.position   = Params.effect.attachedEntity ? Params.Inst.position : [ Params.Inst.position[0], Params.Inst.position[1], Params.Inst.position[2] ];
+		
+		// Repeat
+		Params.Inst.persistent = Params.Init.persistent || Params.effect.repeat || false;
+		Params.Inst.repeatEnd  = Params.Init.repeatEnd ? Params.Init.repeatEnd : Params.effect.repeatEnd || 0; // Main has priority
+		Params.Inst.repeatDelay  = Params.effect.repeatDelay ? Params.effect.repeatDelay: Params.Init.repeatDelay; // Instance has priority
 
 		// Play sound
-		if (effect.wav) {
-			filename = effect.wav;
+		if (Params.effect.wav) {
+			filename = Params.effect.wav;
 		
-			if (effect.rand) {
-				filename = filename.replace('%d', Math.round(effect.rand[0] + (effect.rand[1]-effect.rand[0]) * Math.random()));
+			if (Params.effect.rand) {
+				filename = filename.replace('%d', Math.round(Params.effect.rand[0] + (Params.effect.rand[1]-Params.effect.rand[0]) * Math.random()));
 			}
 
 			Events.setTimeout(function(){
 				//calculate the sound volume from distance
-				Sound.playPosition(filename + '.wav', EF_Inst_Par.position);
-			}, EF_Inst_Par.startTick + (!isNaN(effect.delayWav) ? effect.delayWav : 0) - Renderer.tick);
+				Sound.playPosition(filename + '.wav', Params.Inst.position);
+			}, Params.Inst.startTick + (!isNaN(Params.effect.delayWav) ? Params.effect.delayWav : 0) - Renderer.tick);
 		}
 		
-		EF_Inst_Par.direction = (effect.attachedEntity && EF_Init_Par.ownerEntity) ? EF_Init_Par.ownerEntity.direction : 0;
+		Params.Inst.direction = (Params.effect.attachedEntity && Params.Init.ownerEntity) ? Params.Init.ownerEntity.direction : 0;
 		
 		//Set delays
-		EF_Inst_Par.duration = !isNaN(effect.duration) ? effect.duration : 1000; // used to be delay !isNaN(effect.delay) ? effect.delay : 1000;
+		Params.Inst.duration = !isNaN(Params.effect.duration) ? Params.effect.duration : Params.Init.duration;
 		
-		EF_Inst_Par.delayOffsetDelta = !isNaN(effect.delayOffsetDelta) ? effect.delayOffsetDelta * EF_Inst_Par.duplicateID : 0;
-		EF_Inst_Par.delayLateDelta = !isNaN(effect.delayLateDelta) ? effect.delayLateDelta * EF_Inst_Par.duplicateID : 0;
+		Params.Inst.delayOffsetDelta = !isNaN(Params.effect.delayOffsetDelta) ? Params.effect.delayOffsetDelta * Params.Inst.duplicateID : 0;
+		Params.Inst.delayLateDelta = !isNaN(Params.effect.delayLateDelta) ? Params.effect.delayLateDelta * Params.Inst.duplicateID : 0;
 		
-		EF_Inst_Par.delayOffset = !isNaN(effect.delayOffset) ? effect.delayOffset + EF_Inst_Par.delayOffsetDelta : 0;
-		EF_Inst_Par.delayLate = !isNaN(effect.delayLate) ? effect.delayLate + EF_Inst_Par.delayLateDelta : 0;
+		Params.Inst.delayOffset = !isNaN(Params.effect.delayOffset) ? Params.effect.delayOffset + Params.Inst.delayOffsetDelta : 0;
+		Params.Inst.delayLate = !isNaN(Params.effect.delayLate) ? Params.effect.delayLate + Params.Inst.delayLateDelta : 0;
 		
 		//Start and End
-		EF_Inst_Par.startTick = EF_Inst_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.delayLate;
-		EF_Inst_Par.endTick = EF_Inst_Par.startTick + EF_Inst_Par.delayOffset + EF_Inst_Par.duration;
+		Params.Inst.startTick = Params.Inst.startTick + Params.Inst.delayOffset + Params.Inst.delayLate;
+		Params.Inst.endTick = Params.Inst.duration > 0 ? Params.Inst.startTick + Params.Inst.delayOffset + Params.Inst.duration : -1;
 		
-		switch (effect.type) {
+		switch (Params.effect.type) {
 			case 'SPR':
-				spamSprite( effect, EF_Inst_Par, EF_Init_Par );
+				spamSprite( Params );
 				break;
 
 			case 'STR':
-				spamSTR( effect, EF_Inst_Par, EF_Init_Par );
+				spamSTR( Params );
 				break;
 
 			case 'CYLINDER':
-				EffectManager.add(new Cylinder(effect, EF_Inst_Par, EF_Init_Par), EF_Init_Par);
+				EffectManager.add(new Cylinder(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 				
 			case '2D':
-				EffectManager.add(new TwoDEffect(effect, EF_Inst_Par, EF_Init_Par), EF_Init_Par);
+				EffectManager.add(new TwoDEffect(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 			
 			case '3D':
-				EffectManager.add(new ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par), EF_Init_Par);
+				EffectManager.add(new ThreeDEffect(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 				
 			case 'RSM':
 				break;
 			
 			case 'FUNC':
-				if (effect.func) {
-					if (effect.attachedEntity) {
-						if (EF_Init_Par.ownerEntity) {
-							effect.func.call(this, EF_Inst_Par, EF_Init_Par);
+				if (Params.effect.func) {
+					if (Params.effect.attachedEntity) {
+						if (Params.Init.ownerEntity) {
+							Params.effect.func.call(this, Params);
 						}
 					}
 					else {
-						effect.func.call(this, EF_Inst_Par, EF_Init_Par);
+						Params.effect.func.call(this, Params);
 					}
 				}
 				break;
@@ -430,54 +468,50 @@ define(function( require )
 	/**
 	 * Spam an effect to the scene
 	 *
-	 * @param {object} effect
-	 * @param {object} Effect instance parameters
-	 * @param {object} Effect initial parameters
+	 * @param {object} effect params
 	 */
-	function spamSTR( effect, EF_Inst_Par, EF_Init_Par)
+	function spamSTR( Params )
 	{
 		var filename;
 
 		// Get STR file
-		if (Preferences.mineffect && effect.min) {
-			filename = effect.min;
+		if (Preferences.mineffect && Params.effect.min) {
+			filename = Params.effect.min;
 		}
 		else {
-			filename = effect.file;
+			filename = Params.effect.file;
 		}
 
 		// Randomize STR file name
-		if (effect.rand) {
-			filename = filename.replace('%d', Math.round(effect.rand[0] + (effect.rand[1]-effect.rand[0]) * Math.random()) );
+		if (Params.effect.rand) {
+			filename = filename.replace('%d', Math.round(Params.effect.rand[0] + (Params.effect.rand[1]-Params.effect.rand[0]) * Math.random()) );
 		}
 
 		// Start effect
-		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', EF_Inst_Par.position, EF_Inst_Par.startTick), EF_Init_Par);
+		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', Params.Inst.position, Params.Inst.startTick), Params);
 	}
 
 
 	/**
 	 * Spam an effect to the scene
 	 *
-	 * @param {object} effect
-	 * @param {object} Effect instance parameters
-	 * @param {object} Effect initial parameters
+	 * @param {object} effect prams
 	 */
-	function spamSprite( effect, EF_Inst_Par, EF_Init_Par)
+	function spamSprite( Params )
 	{
-		var entity = EF_Init_Par.ownerEntity;
+		var entity = Params.Init.ownerEntity;
 		var isNewEntity = false;
 
 		if (!entity) {
 			entity            = new Entity();
-			entity.GID        = EF_Init_Par.ownerAID;
-			entity.position   = EF_Inst_Par.position;
+			entity.GID        = Params.Init.ownerAID;
+			entity.position   = Params.Inst.position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
 			isNewEntity = true;
-		} else if (!effect.attachedEntity) {
+		} else if (!Params.effect.attachedEntity) {
 			entity            = new Entity();
 			entity.GID        = -1;
-			entity.position   = EF_Inst_Par.position;
+			entity.position   = Params.Inst.position;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
 			isNewEntity = true;
 		}
@@ -485,17 +519,17 @@ define(function( require )
 
 		// Sprite effect
 		entity.attachments.add({
-			uid:			effect.effectID,
-			file:			effect.file,
-			head:			!!effect.head,
-			direction:		!!effect.direction,
-			repeat:			effect.repeat || EF_Inst_Par.persistent,
-			duplicate:		effect.duplicate,
-			stopAtEnd:		effect.stopAtEnd,
-			xOffset:		effect.xOffset,
-			yOffset:		effect.yOffset,
-			frame:			effect.frame,
-			delay:			effect.delayFrame
+			uid:			Params.effect.effectID,
+			file:			Params.effect.file,
+			head:			!!Params.effect.head,
+			direction:		!!Params.effect.direction,
+			repeat:			Params.effect.repeat || Params.Inst.persistent,
+			duplicate:		Params.effect.duplicate,
+			stopAtEnd:		Params.effect.stopAtEnd,
+			xOffset:		Params.effect.xOffset,
+			yOffset:		Params.effect.yOffset,
+			frame:			Params.effect.frame,
+			delay:			Params.effect.delayFrame
 		});
 		
 		if(isNewEntity){
@@ -552,6 +586,7 @@ define(function( require )
 			position: [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ],
 			startTick: Renderer.tick,
 			persistent: true,
+			duration: -1, // Infinite by default but the effect param can have a duration that overrides this
 			otherAID: creatorUid
 		};
 		
