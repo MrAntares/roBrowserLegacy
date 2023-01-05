@@ -223,6 +223,9 @@ define(function( require )
 				if (list[j].free) {
 					list[j].free(gl);
 				}
+				if (list[j]._Next){
+					Events.clearTimeout(list[j]._Next);
+				}
 			}
 
 			if (constructor.free) {
