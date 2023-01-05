@@ -248,7 +248,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
         }
         this.startTick = startTick;
         this.endTick = endTick;
-        this.repeat = effect.repeat;
+		
         this.blendMode = effect.blendMode;
         
         if(effect.rotateToTarget){
@@ -556,13 +556,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
             SpriteRenderer.render();
         }
         
-        if(this.repeat && this.endTick < tick){
-            var duration = this.endTick - this.startTick;
-            this.startTick += duration;
-            this.endTick += duration;
-        } else {
-            this.needCleanUp = this.endTick < tick;
-        }
+        this.needCleanUp = this.endTick < tick;
     };
     
     ThreeDEffect.init = function init(gl) {
