@@ -141,7 +141,7 @@ define(function( require )
 				}
 				
 				// Set timeout so always adds 1 more effect repeat instead of spamming in infinite loop
-				effect._Next = Events.setTimeout(repeatEffect, Params.Inst.duration + Params.Inst.repeatDelay);
+				effect._Next = Events.setTimeout(repeatEffect, Params.Inst.endTick - Renderer.tick + Params.Inst.repeatDelay);
 			}
 		}
 		
