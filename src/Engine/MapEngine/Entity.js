@@ -51,9 +51,6 @@ define(function( require )
 	var MiniMap           = require('UI/Components/MiniMap/MiniMap');
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
-	var glMatrix 	  	  = require('Utils/gl-matrix');
-	var JobId 		  = require('DB/Jobs/JobConst');
-	var WeaponType    = require('DB/Items/WeaponType');
 	var PetMessageConst    = require('DB/Pets/PetMessageConst');
 
 	// Excludes for skill name display
