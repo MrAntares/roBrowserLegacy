@@ -35,6 +35,7 @@ define(function(require)
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo         = require('./TownInfo');
+	var XmlParse		 = require('Vendors/xmlparse');
 
 	//Pet
 	var PetEmotionTable 	= require('./Pets/PetEmotionTable')
