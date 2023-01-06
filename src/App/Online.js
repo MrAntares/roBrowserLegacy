@@ -28,8 +28,6 @@ require({
     paths: {
         text:   'Vendors/text.require',
 		jquery: 'Vendors/jquery-3.5.1',
-		jqueryui: 'Vendors/jquery-ui',
-		jqueryuitopdrop: 'Vendors/jquery.top-droppable'
     },
 }, ['Engine/GameEngine', 'Core/Context', 'Plugins/PluginManager'], function (
     GameEngine,
