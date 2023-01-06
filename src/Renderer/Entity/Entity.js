@@ -80,19 +80,30 @@ define( function( require )
 	 * Priority in picking
 	 */
 	Entity.PickingPriority = {};
-	Entity.PickingPriority[Entity.TYPE_MOB]       =  3;
-	Entity.PickingPriority[Entity.TYPE_ITEM]      =  2;
-	Entity.PickingPriority[Entity.TYPE_NPC]       =  1;
-	Entity.PickingPriority[Entity.TYPE_WALKNPC]       =  1;
-	Entity.PickingPriority[Entity.TYPE_UNKNOWN]   =  0;
-	Entity.PickingPriority[Entity.TYPE_WARP]      =  0;
-	Entity.PickingPriority[Entity.TYPE_PC]        =  0;
-	Entity.PickingPriority[Entity.TYPE_DISGUISED] =  0;
-	Entity.PickingPriority[Entity.TYPE_PET]       =  0;
-	Entity.PickingPriority[Entity.TYPE_HOM]       =  0;
-	Entity.PickingPriority[Entity.TYPE_MERC]      =  0;
-	Entity.PickingPriority[Entity.TYPE_ELEM]      =  0;
-	Entity.PickingPriority[Entity.TYPE_EFFECT]    = -1;
+	Entity.PickingPriority[Entity.TYPE_MOB]=		3;
+	Entity.PickingPriority[Entity.TYPE_ITEM]=		2;
+	Entity.PickingPriority[Entity.TYPE_NPC]=		1;
+	Entity.PickingPriority[Entity.TYPE_UNKNOWN]=	0;
+	Entity.PickingPriority[Entity.TYPE_WARP]=		0;
+	Entity.PickingPriority[Entity.TYPE_PC]=			0;
+	Entity.PickingPriority[Entity.TYPE_DISGUISED]=	0;
+	Entity.PickingPriority[Entity.TYPE_PET]=		0;
+	Entity.PickingPriority[Entity.TYPE_HOM]=		0;
+	Entity.PickingPriority[Entity.TYPE_MERC]=		0;
+	Entity.PickingPriority[Entity.TYPE_ELEM]=		0;
+	Entity.PickingPriority[Entity.TYPE_EFFECT]=		-1;
+	
+	
+	/**
+	 * Vanish Type
+	 */
+	Entity.VT = {
+		OUTOFSIGHT:	0,
+		DEAD:		1,
+		EXIT:		2,
+		TELEPORT:	3,
+		TRICKDEAD:	4
+	};
 
 
 	/**
@@ -307,15 +318,14 @@ define( function( require )
 	{
 		switch (type) {
 
-			// 0 - moved out of sight
-			case 0:
+			case Entity.VT.OUTOFSIGHT:
+				this.GID += Math.random(); // Aviod conflict if entity re-appears. Official sets it to -1
 				this.clean();
 				this.remove_tick  = +Renderer.tick;
 				this.remove_delay = 1000;
 				break;
 
-			// 1 - died
-			case 1:
+			case Entity.VT.DEAD:
 				var is_pc = this.objecttype === Entity.TYPE_PC;
 				this.setAction({
 					action: this.ACTION.DIE,
@@ -332,10 +342,10 @@ define( function( require )
 				}
 				break;
 
-			// TODO: add effects.
-			//case 2:  // 2 - logged out
-			//case 3:  // 3 - teleported
-			//case 4:  // trick dead ?
+			// Effects are added in onEntityVanish
+			//case Entity.VT.EXIT: break;
+			//case Entity.VT.TELEPORT: break;
+			//case Entity.VT.TRICKDEAD: break;
 			default: // No other way ?
 				this.clean();
 				this.remove_tick  = Renderer.tick;
