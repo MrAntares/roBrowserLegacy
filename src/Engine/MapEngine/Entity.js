@@ -176,20 +176,31 @@ define(function( require )
 			
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI, EffectConst.EF_CHOOKGI2, EffectConst.EF_CHOOKGI3, EffectConst.EF_CHOOKGI_N ]); // Spirit spheres
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI_FIRE, EffectConst.EF_CHOOKGI_WIND, EffectConst.EF_CHOOKGI_WATER, EffectConst.EF_CHOOKGI_GROUND, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
-
-			if(	[2, 3].includes(pkt.type) && !(entity._effectState & StatusState.EffectState.INVISIBLE)){ //exits or teleports
-				var EF_Init_Par = {
-					position: entity.position
-				};
 			
-				if(PACKETVER.value < 20030715){
-					EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION;
-					EffectManager.spam( EF_Init_Par );
-				} else {
-					EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION2;
-					EffectManager.spam( EF_Init_Par );
-				}
+			switch(pkt.type){
+				//case Entity.VT.OUTOFSIGHT: break;
+				//case Entity.VT.DEAD: break;
+				
+				case Entity.VT.EXIT: 
+				case Entity.VT.TELEPORT:
+					if( !(entity._effectState & StatusState.EffectState.INVISIBLE) ){
+						var EF_Init_Par = {
+							position: entity.position
+						};
+					
+						if(PACKETVER.value < 20030715){
+							EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION;
+							EffectManager.spam( EF_Init_Par );
+						} else {
+							EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION2;
+							EffectManager.spam( EF_Init_Par );
+						}
+					}
+					break;
+					
+				//case: Entity.VT.TRICKDEAD: break;
 			}
+			
 			entity.remove( pkt.type );
 		}
 
