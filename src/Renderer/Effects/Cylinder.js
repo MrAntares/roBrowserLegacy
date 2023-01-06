@@ -410,13 +410,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		
 		gl.drawArrays(gl.TRIANGLES, 0, this.verticeCount);
 		
-		if(this.repeat && this.endTick < tick){
-            var duration = this.endTick - this.startTick;
-            this.startTick += duration;
-            this.endTick += duration;
-        } else {
-            this.needCleanUp = this.endTick < tick;
-        }
+		this.needCleanUp = this.endTick < tick;
 		
 	};
 

@@ -40,7 +40,6 @@ define(function( require )
 	var LockOnTarget      = require('Renderer/Effects/LockOnTarget');
 	var MagicRing         = require('Renderer/Effects/MagicRing');
 	var StrEffect         = require('Renderer/Effects/StrEffect');
-	var WarlockSphere     = require('Renderer/Effects/WarlockSphere');
 	var MapEffects        = require('Renderer/Map/Effects');
 	var BasicInfo         = require('UI/Components/BasicInfo/BasicInfo');
 	var ChatBox           = require('UI/Components/ChatBox/ChatBox');
@@ -1355,7 +1354,7 @@ define(function( require )
 					effectId: EffectConst.EF_LOCKON,
 					ownerAID: dstEntity.GID,
 					position: dstEntity.position,
-					repeatEnd: Renderer.tick + pkt.delayTime
+					duration: pkt.delayTime
 				};
 				
 				EffectManager.spam( EF_Init_Par );
@@ -1367,7 +1366,7 @@ define(function( require )
 					effectId: EffectConst.EF_GROUNDSAMPLE,
 					skillId: pkt.SKID,
 					position: [pkt.xPos, pkt.yPos, Altitude.getCellHeight(pkt.yPos, pkt.yPos)],
-					repeatEnd: Renderer.tick + pkt.delayTime,
+					duration: pkt.delayTime,
 					otherAID: srcEntity.GID
 				};
 				
@@ -1384,7 +1383,7 @@ define(function( require )
 				effectId: EffectConst.EF_BEGINSPELL, // Default
 				ownerAID: srcEntity.GID,
 				position: srcEntity.position,
-				repeatEnd: Renderer.tick + pkt.delayTime
+				duration: pkt.delayTime
 			};
 			
 			switch(pkt.property) {
@@ -1787,20 +1786,13 @@ define(function( require )
 	//Warlock sphere summons update
 	function updateWarlockSpheres(entity){
 		if (entity.Summon1 || entity.Summon2 || entity.Summon3 || entity.Summon4 || entity.Summon5){
-			var spheres = [];
-			if(entity.Summon1) spheres.push(entity.Summon1);
-			if(entity.Summon2) spheres.push(entity.Summon2);
-			if(entity.Summon3) spheres.push(entity.Summon3);
-			if(entity.Summon4) spheres.push(entity.Summon4);
-			if(entity.Summon5) spheres.push(entity.Summon5);
-			
-			var wl_spheres = new WarlockSphere(entity, spheres);
 			var EF_Init_Par = {
 				effectId: 'temporary_warlock_sphere',
 				ownerAID: entity.GID,
 				persistent: false
 			};
-			EffectManager.add(wl_spheres, EF_Init_Par);
+			
+			EffectManager.spam( EF_Init_Par );
 			
 			entity.WarlockSpheres = true;
 		} else if (entity.WarlockSpheres){
@@ -2017,9 +2009,11 @@ define(function( require )
 	 */
 	function onEntityMvpReward( pkt )
 	{
-        var Entity = EntityManager.get(pkt.AID);
-        EffectManager.add(new StrEffect('data/texture/effect/mvp.str', Entity.position, Renderer.tick), pkt.AID);
-        Sound.playPosition('effect/st_mvp.wav', Entity.position);
+		var EF_Init_Par = {
+			effectId: EffectConst.EF_MVP,
+			ownerAID: pkt.AID
+		};
+		EffectManager.spam( EF_Init_Par );
 	}
 
 

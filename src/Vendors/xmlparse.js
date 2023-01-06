@@ -1,3 +1,14 @@
+/**
+ * Vendors/xmlparse.js
+ *
+ * Xml parser, I borrow this code from Stefan Goessner at https://goessner.net/download/prj/jsonxml/ all credit to him. - MrUnzO
+ *
+ * This file is part of ROBrowser (http://www.robrowser.com/).
+ *
+ * @author Stefan Goessner/2006
+ */
+
+
 define(function () {
     'use strict';
 
