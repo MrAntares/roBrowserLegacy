@@ -5,7 +5,7 @@
 - **For public servers using secure web protocols `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.**
 
 ## Local testing
-This guide section help you running robrowser locally.
+This guide section will help you running robrowser locally.
 ### Prerequisite
 #### RoBrowser
 - install websocket proxy `npm install wsproxy -g`
