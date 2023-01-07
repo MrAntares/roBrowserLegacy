@@ -107,16 +107,16 @@ define(function( require )
 			entity = new Entity();
 			entity.set(pkt);
 			if(pkt.job == 45){
-				if(MapEffects.get(pkt.GID) == null){
-					var mapEffect = {
-						'name': pkt.GID,
-						'pos': [pkt.PosDir[0], pkt.PosDir[1], Altitude.getCellHeight(pkt.PosDir[0], pkt.PosDir[1])],
-						'id': 321,
-						'delay': 800,
-						'param': [0, 0, 0, 0],
-						'tick': 0
-					};
-					MapEffects.add(mapEffect);
+				var EF_Init_Par = {
+					position: entity.position
+				};
+				
+				if(PACKETVER.value < 20030715){
+					EF_Init_Par.effectId = EffectConst.EF_WARPZONE;
+					EffectManager.spam( EF_Init_Par );
+				} else {
+					EF_Init_Par.effectId = EffectConst.EF_WARPZONE2;
+					EffectManager.spam( EF_Init_Par );
 				}
 			}
 			EntityManager.add(entity);
@@ -158,10 +158,6 @@ define(function( require )
 		var entity = EntityManager.get(pkt.GID);
 		if (entity) {
 			
-			if(entity._job == 45){
-				MapEffects.remove(pkt.GID);
-			}
-			
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_DEVIL,
@@ -179,7 +175,9 @@ define(function( require )
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI_FIRE, EffectConst.EF_CHOOKGI_WIND, EffectConst.EF_CHOOKGI_WATER, EffectConst.EF_CHOOKGI_GROUND, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
 			
 			switch(pkt.type){
-				//case Entity.VT.OUTOFSIGHT: break;
+				case Entity.VT.OUTOFSIGHT: 
+					EffectManager.remove( null, pkt.GID, null);
+					break;
 				//case Entity.VT.DEAD: break;
 				
 				case Entity.VT.EXIT: 
