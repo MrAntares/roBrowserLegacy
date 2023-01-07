@@ -30,9 +30,10 @@ To run roBrowser you will need an up to date browser that supports [WebGL](http:
 * FireFox _(Desktop & Mobile)_
 * Safari _(Desktop & Mobile)_
 * Edge
+
 Others will probably work as well especially if Chromium based, but there might be slight differences.
 
-We assume in guide below http server to run on port `8000`.
+__We assume in the guide below http server to run on port `8000`.__
 ### Compile files
 This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
 
