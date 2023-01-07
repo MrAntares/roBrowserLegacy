@@ -46,6 +46,10 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @var {string} Vertex Shader
 	 */
 	var _vertexShader   = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
+
 		attribute vec3 aPosition;
 		attribute vec2 aTextureCoord;
 		
@@ -92,10 +96,14 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	 * @var {string} Fragment Shader
 	 */
 	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : frag
+
+		precision highp float;
+
 		varying vec2 vTextureCoord;
-		
+
 		uniform sampler2D uDiffuse;
-		
 		uniform vec4 uSpriteRendererColor;
 		
 		uniform bool  uFogUse;
@@ -109,7 +117,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 				discard; 
 			}
 			
-			vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
+		 vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
 			
 			if (texture.a == 0.0) {
 				discard;
@@ -122,8 +130,8 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			gl_FragColor   = texture * uSpriteRendererColor;
 			
 			if (uFogUse) {
-				float depth = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+			 float depth = gl_FragCoord.z / gl_FragCoord.w;
+			 float fogFactor = smoothstep( uFogNear, uFogFar, depth );
 				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
 			}
 		}

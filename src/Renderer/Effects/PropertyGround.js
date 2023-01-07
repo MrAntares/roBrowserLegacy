@@ -50,76 +50,82 @@ function(      WebGL,         Texture,          glMatrix,        Client) {
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader   = [
-		'attribute vec3 aPosition;',
-		'attribute vec2 aTextureCoord;',
+	var _vertexShader   = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
 
-		'varying vec2 vTextureCoord;',
+		attribute vec3 aPosition;
+		attribute vec2 aTextureCoord;
 
-		'uniform mat4 uModelViewMat;',
-		'uniform mat4 uProjectionMat;',
-		'uniform mat4 uRotationMat;',
+		varying vec2 vTextureCoord;
 
-		'uniform vec3 uPosition;',
-		'uniform float uTopSize;',
-		'uniform float uBottomSize;',
-		'uniform float uHeight;',
+		uniform mat4 uModelViewMat;
+		uniform mat4 uProjectionMat;
+		uniform mat4 uRotationMat;
 
-		'void main(void) {',
-			'float size, height;',
+		uniform vec3 uPosition;
+		uniform float uTopSize;
+		uniform float uBottomSize;
+		uniform float uHeight;
 
-			'if (aPosition.z == 1.0) {',
-				'size   = uTopSize;',
-				'height = uHeight;',
-			'}',
-			'else {',
-				'size   = uBottomSize;',
-				'height = 0.0;',
-			'}',
+		void main(void) {
+			float size, height;
 
-			'vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - height, uPosition.y + 0.5, 1.0);',
-			'position      += vec4(aPosition.x * size, 0.0, aPosition.y * size, 0.0) * uRotationMat;',
+			if (aPosition.z == 1.0) {
+				size   = uTopSize;
+				height = uHeight;
+			}
+			else {
+				size   = uBottomSize;
+				height = 0.0;
+			}
 
-			'gl_Position    = uProjectionMat * uModelViewMat * position;',
-			'vTextureCoord  = aTextureCoord;',
-		'}'
-	].join('\n');
+			vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - height, uPosition.y + 0.5, 1.0);
+			position      += vec4(aPosition.x * size, 0.0, aPosition.y * size, 0.0) * uRotationMat;
 
-
+			gl_Position    = uProjectionMat * uModelViewMat * position;
+			vTextureCoord  = aTextureCoord;
+		}
+	`;
+		
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = [
-		'varying vec2 vTextureCoord;',
+	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : frag
+		precision highp float;
 
-		'uniform sampler2D uDiffuse;',
+		varying vec2 vTextureCoord;
 
-		'uniform bool  uFogUse;',
-		'uniform float uFogNear;',
-		'uniform float uFogFar;',
-		'uniform vec3  uFogColor;',
+		uniform sampler2D uDiffuse;
 
-		'void main(void) {',
-			'vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );',
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
 
-			'if (texture.a == 0.0) {',
-			'	discard;',
-			'}',
+		void main(void) {
+			vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
 
-            'if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {',
-            '   discard;',
-            '}',
-			'texture.a = 0.42;',
-			'gl_FragColor = texture;',
+			if (texture.a == 0.0) {
+				discard;
+			}
 
-			'if (uFogUse) {',
-				'float depth     = gl_FragCoord.z / gl_FragCoord.w;',
-				'float fogFactor = smoothstep( uFogNear, uFogFar, depth );',
-				'gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );',
-			'}',
-		'}'
-	].join('\n');
+            if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {
+               discard;
+            }
+			texture.a = 0.42;
+			gl_FragColor = texture;
 
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
+		}
+	`;
 
 	/**
 	 * Generate a generic PropertyGround

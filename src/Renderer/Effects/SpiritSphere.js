@@ -51,8 +51,12 @@ define(function( require ) {
     /**
      * @var {string} Vertex Shader
      */
-    var _vertexShader   = 
-        `attribute vec2 aPosition;
+    var _vertexShader   = `
+        #version 100
+        #pragma vscode_glsllint_stage : vert
+        precision highp float;
+
+        attribute vec2 aPosition;
         attribute vec2 aTextureCoord;
 
         varying vec2 vTextureCoord;
@@ -86,8 +90,12 @@ define(function( require ) {
     /**
      * @var {string} Fragment Shader
      */
-    var _fragmentShader = 
-        `varying vec2 vTextureCoord;
+    var _fragmentShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : frag
+        precision highp float;    
+
+        varying vec2 vTextureCoord;
 
         uniform vec4 uColor;
         uniform sampler2D uDiffuse;

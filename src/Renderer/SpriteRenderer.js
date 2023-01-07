@@ -24,6 +24,10 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _vertexShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
+	
 		attribute vec2 aPosition;
 		attribute vec2 aTextureCoord;
 	
@@ -85,6 +89,10 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : frag
+		precision highp float;
+
 		varying vec2 vTextureCoord;
 
 		uniform sampler2D uDiffuse;
