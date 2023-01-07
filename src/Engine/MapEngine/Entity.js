@@ -50,6 +50,7 @@ define(function( require )
 	var MiniMap           = require('UI/Components/MiniMap/MiniMap');
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
+	var PetMessageConst   = require('DB/Pets/PetMessageConst');
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -575,6 +576,20 @@ define(function( require )
 					});
 				}
 				
+				// Talk sometime
+				if(srcEntity.GID === Session.Entity.GID && (Session.pet.friendly > 900 && (Session.pet.lastTalk || 0) + 10000 < Date.now())){
+					const talkRate = parseInt((Math.random() * 10));
+					if(talkRate < 3){
+						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
+						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
+
+						var pkt    = new PACKET.CZ.PET_ACT();
+						pkt.data = talk;
+						Network.sendPacket(pkt);
+						Session.pet.lastTalk = Date.now();
+					}
+				}
+				
 				break;
 
 			// Pickup item
@@ -1037,6 +1052,21 @@ define(function( require )
 				} else {
 					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 				}
+				
+				//Pet Talk
+				if(srcEntity.GID === Session.Entity.GID && (Session.pet.friendly > 900 && (Session.pet.lastTalk || 0) + 10000 < Date.now())){
+					const talkRate = parseInt((Math.random() * 10));
+					if(talkRate < 3){
+						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
+						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
+
+						var pkt    = new PACKET.CZ.PET_ACT();
+						pkt.data = talk;
+						Network.sendPacket(pkt);
+						Session.pet.lastTalk = Date.now();
+					}
+				}
+				
 			}
 		}
 
