@@ -71,7 +71,7 @@ define( ['Utils/WebGL'], function( WebGL )
 	 */
 	var _fragmentShader = `
 		#version 100
-		#pragma vscode_glsllint_stage : vert
+		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
 		varying vec2 vTextureCoord;
