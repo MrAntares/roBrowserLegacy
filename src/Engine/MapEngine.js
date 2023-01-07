@@ -327,10 +327,6 @@ define(function (require) {
 
             // Map loaded
             Network.sendPacket(new PACKET.CZ.NOTIFY_ACTORINIT());
-
-            //for topDropable
-            //maybe fix in future
-            jQuery(Renderer.canvas).css('z-index', 1);
         };
 
         MapRenderer.setMap(pkt.mapName);

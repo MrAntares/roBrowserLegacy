@@ -73,10 +73,6 @@ define(function( require )
 				return;
 			}
 
-			//for topDropable
-			//maybe fix in future
-			jQuery( Renderer.canvas ).css('z-index', 0);
-
 			// Success, try to connect
 			var pkt        = new PACKET.CH.ENTER();
 			pkt.AID        = Session.AID;
