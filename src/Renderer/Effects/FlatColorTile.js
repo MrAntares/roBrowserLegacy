@@ -5,37 +5,44 @@ define(function( require ) {
     var WebGL    = require('Utils/WebGL');
 
 
-     function _vertexShader() {
-        return [
-            'attribute vec2 aPosition;',
+    var _vertexShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : vert
+        precision highp float;
 
+        varying vec4 fragColor;
 
-            'uniform mat4 uModelViewMat;',
-            'uniform mat4 uProjectionMat;',
+        attribute vec2 aPosition;
 
-            'uniform vec3 uPosition;',
-            'uniform float uSize;',
+        uniform vec4 uColor;
 
-            'void main(void) {',
-                'vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);',
-                'position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);',
+        uniform mat4 uModelViewMat;
+        uniform mat4 uProjectionMat;
 
-                'gl_Position    = uProjectionMat * uModelViewMat * position;',
-                'gl_Position.z -= 0.01;',
+        uniform vec3 uPosition;
+        uniform float uSize;
 
-            '}'
-        ].join('\n');
-    }
+        void main(void) {
+            vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
+            position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);
 
-    function _fragmentShader(spec){
-        var colors = [spec.r, spec.g, spec.b, spec.a].join(',');
+            gl_Position    = uProjectionMat * uModelViewMat * position;
+            gl_Position.z -= 0.01;
+            fragColor = uColor;
+        }
+    `;
 
-        return [
-            'void main(void) {',
-                'gl_FragColor = vec4(' + colors +  ');',
-            '}'
-        ].join('\n');
-    }
+    var _fragmentShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : vert
+        precision highp float;
+
+        varying vec4 fragColor;
+
+        void main(void) {
+                gl_FragColor = fragColor;
+        }
+    `;
 
     var _cache = {};
 
@@ -76,6 +83,7 @@ define(function( require ) {
         FlatColorTile.prototype.render = function render( gl, tick ){
             gl.uniform3fv( _program.uniform.uPosition,  this.position);
             gl.uniform1f(  _program.uniform.uSize, 0.5);
+            gl.uniform4fv( _program.uniform.uColor,  [spec.r, spec.g, spec.b, spec.a]);
 
             gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
             gl.drawArrays( gl.TRIANGLES, 0, 6 );
@@ -83,7 +91,7 @@ define(function( require ) {
         };
 
         FlatColorTile.init = function init(gl){
-            _program = WebGL.createShaderProgram( gl, _vertexShader(), _fragmentShader(spec) );
+            _program = WebGL.createShaderProgram( gl, _vertexShader, _fragmentShader);
             _buffer  = gl.createBuffer();
 
             gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
@@ -138,7 +146,6 @@ define(function( require ) {
         FlatColorTile.afterRender = function afterRender(gl)
         {
             gl.disableVertexAttribArray( _program.attribute.aPosition );
-			gl.disableVertexAttribArray( _program.attribute.aTextureCoord );
         };
 
         return FlatColorTile;

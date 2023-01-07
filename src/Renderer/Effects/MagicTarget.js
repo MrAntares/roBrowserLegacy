@@ -156,6 +156,10 @@ define(function( require ) {
 	 * @var {string} Vertex Shader
 	 */
 	var _vertexShader   = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
+		
 		attribute vec3 aPosition;
 		attribute vec2 aTextureCoord;
 
@@ -179,37 +183,40 @@ define(function( require ) {
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = [
-		'varying vec2 vTextureCoord;',
+	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : frag
+		precision highp float;
 
-		'uniform sampler2D uDiffuse;',
+		varying vec2 vTextureCoord;
 
-		'uniform bool  uFogUse;',
-		'uniform float uFogNear;',
-		'uniform float uFogFar;',
-		'uniform vec3  uFogColor;',
+		uniform sampler2D uDiffuse;
 
-		'void main(void) {',
-			'vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );',
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
 
-			'if (texture.a == 0.0) {',
-			'	discard;',
-			'}',
+		void main(void) {
+			vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
 
-            'if (texture.r < 0.1 || texture.g < 0.1 || texture.b < 0.1) {',
-            '   discard;',
-            '}',
+			if (texture.a == 0.0) {
+				discard;
+			}
 
-			'gl_FragColor = texture;',
+            if (texture.r < 0.1 || texture.g < 0.1 || texture.b < 0.1) {
+               discard;
+            }
 
-			'if (uFogUse) {',
-				'float depth     = gl_FragCoord.z / gl_FragCoord.w;',
-				'float fogFactor = smoothstep( uFogNear, uFogFar, depth );',
-				'gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );',
-			'}',
-		'}'
-	].join('\n');
+			gl_FragColor = texture;
 
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
+		}
+	`;
 
 	/**
 	 * MagicTarget constructor

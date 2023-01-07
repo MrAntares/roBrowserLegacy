@@ -52,63 +52,69 @@ define(function( require ) {
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader   = [
-		'attribute vec2 aPosition;',
-		'attribute vec2 aTextureCoord;',
+	var _vertexShader   = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
 
-		'varying vec2 vTextureCoord;',
+		attribute vec2 aPosition;
+		attribute vec2 aTextureCoord;
 
-		'uniform mat4 uModelViewMat;',
-		'uniform mat4 uProjectionMat;',
-		'uniform mat4 uRotationMat;',
+		varying vec2 vTextureCoord;
 
-		'uniform vec3 uPosition;',
-		'uniform float uSize;',
+		uniform mat4 uModelViewMat;
+		uniform mat4 uProjectionMat;
+		uniform mat4 uRotationMat;
 
-		'void main(void) {',
-			'vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);',
-			'position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0) * uRotationMat;',
+		uniform vec3 uPosition;
+		uniform float uSize;
 
-			'gl_Position    = uProjectionMat * uModelViewMat * position;',
-			'gl_Position.z -= 0.02;',
+		void main(void) {
+			vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
+			position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0) * uRotationMat;
 
-			'vTextureCoord  = aTextureCoord;',
-		'}'
-	].join('\n');
+			gl_Position    = uProjectionMat * uModelViewMat * position;
+			gl_Position.z -= 0.02;
 
+			vTextureCoord  = aTextureCoord;
+		}
+	`;
 
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = [
-		'varying vec2 vTextureCoord;',
+	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : frag
+		precision highp float;
 
-		'uniform sampler2D uDiffuse;',
-		'uniform float uColor;',
+		varying vec2 vTextureCoord;
 
-		'uniform bool  uFogUse;',
-		'uniform float uFogNear;',
-		'uniform float uFogFar;',
-		'uniform vec3  uFogColor;',
+		uniform sampler2D uDiffuse;
+		uniform float uColor;
 
-		'void main(void) {',
-			'vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );',
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
 
-			'if (texture.a == 0.0) {',
-			'	discard;',
-			'}',
+		void main(void) {
+			vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
 
-			'gl_FragColor     = texture;',
-			'gl_FragColor.gb *= uColor;',
+			if (texture.a == 0.0) {
+				discard;
+			}
 
-			'if (uFogUse) {',
-				'float depth     = gl_FragCoord.z / gl_FragCoord.w;',
-				'float fogFactor = smoothstep( uFogNear, uFogFar, depth );',
-				'gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );',
-			'}',
-		'}'
-	].join('\n');
+			gl_FragColor     = texture;
+			gl_FragColor.gb *= uColor;
 
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
+		}
+	`;
 
 	/**
 	 * LockOnTarget constructor
