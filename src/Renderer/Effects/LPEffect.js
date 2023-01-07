@@ -14,6 +14,10 @@ define(["exports", "Utils/WebGL", "Renderer/Effects/Tiles"], function (exports, 
   }
 
   var _LPVertexShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : vert
+        precision highp float;
+
         attribute vec2 aPosition;
         attribute vec2 aTextureCoord;
         varying vec2 vTextureCoord;
@@ -30,6 +34,10 @@ define(["exports", "Utils/WebGL", "Renderer/Effects/Tiles"], function (exports, 
         }
 `;
   var _LPFragmentShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : frag
+        precision highp float;
+
         varying vec2 vTextureCoord;
         uniform sampler2D uDiffuse;
         void main(void) {

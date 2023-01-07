@@ -16,13 +16,20 @@ define(["exports", "Utils/WebGL", "Renderer/Effects/Tiles"], function (exports, 
   }
 
   var _SpiderWebVertexShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : vert
+        precision highp float;
+
         attribute vec2 aPosition;
         attribute vec2 aTextureCoord;
+
         varying vec2 vTextureCoord;
+
         uniform mat4 uModelViewMat;
         uniform mat4 uProjectionMat;
         uniform vec3 uPosition;
         uniform float uSize;
+
         void main(void) {
             vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
             position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);
@@ -32,8 +39,14 @@ define(["exports", "Utils/WebGL", "Renderer/Effects/Tiles"], function (exports, 
         }
 `;
   var _SpiderWebFragmentShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : frag
+        precision highp float;
+
         varying vec2 vTextureCoord;
+
         uniform sampler2D uDiffuse;
+
         void main(void) {
             vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
             if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {

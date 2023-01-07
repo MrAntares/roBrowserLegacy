@@ -53,6 +53,10 @@ function(              Altitude,        Client,         WebGL,         Texture )
 	 * @var {string} vertex shader
 	 */
 	var _vertexShader   = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
+
 		attribute vec3 aPosition;
 		attribute vec2 aTextCoord;
 
@@ -75,6 +79,10 @@ function(              Altitude,        Client,         WebGL,         Texture )
 	 * @var {string} fragment shader
 	 */
 	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : frag
+		precision highp float;
+
 		varying vec2 vTextureCoord;
 		uniform sampler2D uDiffuse;
 

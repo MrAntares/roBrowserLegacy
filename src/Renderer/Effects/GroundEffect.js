@@ -9,6 +9,10 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
     var _matrix = mat4.create();
 	
     var _vertexShader = `
+        #version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
+
 		attribute vec3 aPosition;
 		attribute vec2 aTextureCoord;
 		varying vec2 vTextureCoord;
@@ -23,6 +27,10 @@ function (WebGL,        glMatrix,          SkillID,                Client,      
 	`;
 	
     var _fragmentShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : frag
+        precision highp float;
+        
 		varying vec2 vTextureCoord;
 		uniform sampler2D uDiffuse;
 		uniform vec4 uSpriteRendererColor;

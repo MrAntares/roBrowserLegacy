@@ -33,77 +33,83 @@ define( ['Utils/WebGL'], function( WebGL )
 	/**
 	 * @var {string} vertex shader
 	 */
-	var _vertexShader   = [
-		'attribute vec3 aPosition;',
-		'attribute vec3 aVertexNormal;',
-		'attribute vec2 aTextureCoord;',
-		'attribute float aAlpha;',
+	var _vertexShader   = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
 
-		'varying vec2 vTextureCoord;',
-		'varying float vLightWeighting;',
-		'varying float vAlpha;',
+		attribute vec3 aPosition;
+		attribute vec3 aVertexNormal;
+		attribute vec2 aTextureCoord;
+		attribute float aAlpha;
 
-		'uniform mat4 uModelViewMat;',
-		'uniform mat4 uProjectionMat;',
+		varying vec2 vTextureCoord;
+		varying float vLightWeighting;
+		varying float vAlpha;
 
-		'uniform vec3 uLightDirection;',
-		'uniform mat3 uNormalMat;',
+		uniform mat4 uModelViewMat;
+		uniform mat4 uProjectionMat;
 
-		'void main(void) {',
-			'gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);',
+		uniform vec3 uLightDirection;
+		uniform mat3 uNormalMat;
 
-			'vTextureCoord   = aTextureCoord;',
-			'vAlpha          = aAlpha;',
+		void main(void) {
+			gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);
 
-			'vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);',
-			'vec3 dirVector   = normalize(lDirection.xyz);',
-			'float dotProduct = dot( uNormalMat * aVertexNormal, dirVector );',
-			'vLightWeighting  = max( dotProduct, 0.5 );',
-		'}'
-	].join('\n');
+			vTextureCoord   = aTextureCoord;
+			vAlpha          = aAlpha;
 
-
+			vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);
+			vec3 dirVector   = normalize(lDirection.xyz);
+			float dotProduct = dot( uNormalMat * aVertexNormal, dirVector );
+			vLightWeighting  = max( dotProduct, 0.5 );
+		}
+	`;
+		
 	/**
 	 * @var {string} fragment shader
 	 */
-	var _fragmentShader = [
-		'varying vec2 vTextureCoord;',
-		'varying float vLightWeighting;',
-		'varying float vAlpha;',
+	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
 
-		'uniform sampler2D uDiffuse;',
+		varying vec2 vTextureCoord;
+		varying float vLightWeighting;
+		varying float vAlpha;
 
-		'uniform bool  uFogUse;',
-		'uniform float uFogNear;',
-		'uniform float uFogFar;',
-		'uniform vec3  uFogColor;',
+		uniform sampler2D uDiffuse;
 
-		'uniform vec3  uLightAmbient;',
-		'uniform vec3  uLightDiffuse;',
-		'uniform float uLightOpacity;',
+		uniform bool  uFogUse;
+		uniform float uFogNear;
+		uniform float uFogFar;
+		uniform vec3  uFogColor;
 
-		'void main(void) {',
-			'vec4 texture  = texture2D( uDiffuse,  vTextureCoord.st );',
+		uniform vec3  uLightAmbient;
+		uniform vec3  uLightDiffuse;
+		uniform float uLightOpacity;
 
-			'if (texture.a == 0.0) {',
-				'discard;',
-			'}',
+		void main(void) {
+			vec4 texture  = texture2D( uDiffuse,  vTextureCoord.st );
 
-			'vec3 Ambient    = uLightAmbient * uLightOpacity;',
-			'vec3 Diffuse    = uLightDiffuse * vLightWeighting;',
-			'vec4 LightColor = vec4( Ambient + Diffuse, 1.0);',
+			if (texture.a == 0.0) {
+				discard;
+			}
 
-			'gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0);',
-			'gl_FragColor.a *= vAlpha;',
+			vec3 Ambient    = uLightAmbient * uLightOpacity;
+			vec3 Diffuse    = uLightDiffuse * vLightWeighting;
+			vec4 LightColor = vec4( Ambient + Diffuse, 1.0);
 
-			'if (uFogUse) {',
-				'float depth     = gl_FragCoord.z / gl_FragCoord.w;',
-				'float fogFactor = smoothstep( uFogNear, uFogFar, depth );',
-				'gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );',
-			'}',
-		'}'
-	].join('\n');
+			gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0);
+			gl_FragColor.a *= vAlpha;
 
+			if (uFogUse) {
+				float depth     = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
+				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+			}
+		}
+	`;
 
 	/**
 	 * Initialize models

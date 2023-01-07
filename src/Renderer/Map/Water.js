@@ -76,6 +76,10 @@ define( ['Utils/WebGL'], function( WebGL )
 	 * @var {string} vertex shader
 	 */
 	var _vertexShader   = `
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		precision highp float;
+
 		attribute vec3 aPosition;
 		attribute vec2 aTextureCoord;
 
@@ -106,6 +110,10 @@ define( ['Utils/WebGL'], function( WebGL )
 	 * @var {string} fragment shader
 	 */
 	var _fragmentShader = `
+		#version 100
+		#pragma vscode_glsllint_stage : frag
+		precision highp float;
+		
 		varying vec2 vTextureCoord;
 
 		uniform sampler2D uDiffuse;
