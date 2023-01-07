@@ -26,10 +26,11 @@ This guide section help you running robrowser locally.
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
 #### Browser
 To run roBrowser you will need an up to date browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
-* Chrome
-* FireFox
-* Opera
-* IE11
+* Chrome _(Desktop & Mobile)_
+* FireFox _(Desktop & Mobile)_
+* Safari _(Desktop & Mobile)_
+* Edge
+Others will probably work as well especially if Chromium based, but there might be slight differences.
 
 We assume in guide below http server to run on port `8000`.
 ### Compile files
