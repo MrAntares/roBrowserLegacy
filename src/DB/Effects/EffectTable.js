@@ -2124,7 +2124,7 @@ define(function( require )
 				type: 'QuadHorn',
 				textureFile: 'effect/ice.tga',
 				attachedEntity: false,
-				height: [2.5, 3.0],
+				height: [2.8, 3.3],
 				offsetX: [0.25, 0.75],
 				offsetY: [0.25, 0.75],
 				offsetZ: -0.1,
@@ -2133,13 +2133,13 @@ define(function( require )
 				rotateY: [1, 360],
 				color: [1.0, 1.0, 1.0, 1.0],
 				animation: 1,
-				repeat: true
+				animationSpeed: 150,
 			},
 			{
 				type: 'QuadHorn',
 				textureFile: 'effect/ice.tga',
 				attachedEntity: false,
-				height: [2.0, 2.5],
+				height: [2.3, 2.8],
 				offsetX: [0.25, 0.75],
 				offsetY: [0.25, 0.75],
 				offsetZ: -0.1,
@@ -2148,13 +2148,13 @@ define(function( require )
 				rotateY: [1, 360],
 				color: [1.0, 1.0, 1.0, 1.0],
 				animation: 1,
-				repeat: true
+				animationSpeed: 150,
 			},
 			{
 				type: 'QuadHorn',
 				textureFile: 'effect/ice.tga',
 				attachedEntity: false,
-				height: [2.2, 2.6],
+				height: [2.5, 2.9],
 				offsetX: [0.25, 0.75],
 				offsetY: [0.25, 0.75],
 				offsetZ: -0.1,
@@ -2163,7 +2163,7 @@ define(function( require )
 				rotateY: [1, 360],
 				color: [1.0, 1.0, 1.0, 1.0],
 				animation: 1,
-				repeat: true
+				animationSpeed: 150,
 			},
 			{
 				wav:  'effect/wizard_icewall',
@@ -2221,7 +2221,6 @@ define(function( require )
 			rotateZ: [-8.0, 8.0],
 			color: [1.0, 1.0, 1.0, 1.0],
 			animation: 1,
-			animationOut: true
 		},
 		{
 			type: 'QuadHorn',
@@ -2237,7 +2236,6 @@ define(function( require )
 			rotateZ: [-15.0, 15.0],
 			color: [1.0, 1.0, 1.0, 1.0],
 			animation: 1,
-			animationOut: true
 		},
 		{
 			type: 'QuadHorn',
@@ -2253,7 +2251,6 @@ define(function( require )
 			rotateZ: [-15.0, 15.0],
 			color: [1.0, 1.0, 1.0, 1.0],
 			animation: 1,
-			animationOut: true
 		},
 		{
 			type: 'QuadHorn',
@@ -2269,7 +2266,6 @@ define(function( require )
 			rotateZ: [-15.0, 15.0],
 			color: [1.0, 1.0, 1.0, 1.0],
 			animation: 1,
-			animationOut: true
 		},
 		{
 			type: 'QuadHorn',
@@ -2285,7 +2281,6 @@ define(function( require )
 			rotateZ: [-15.0, 15.0],
 			color: [1.0, 1.0, 1.0, 1.0],
 			animation: 1,
-			animationOut: true
 		},
 		{	//EF_EARTHSPIKE	Earth Spike
 			wav:  'effect/wizard_earthspike',

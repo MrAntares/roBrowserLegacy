@@ -21,6 +21,10 @@ function (WebGL,        glMatrix,         Client,           Texture) {
     var blendMode = {};
 	
     var _vertexShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : vert
+        precision highp float;
+
 		attribute vec3 aPosition;
 		attribute vec2 aTextureCoord;
 		varying vec2 vTextureCoord;
@@ -46,6 +50,10 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 	`;
 	
     var _fragmentShader = `
+        #version 100
+        #pragma vscode_glsllint_stage : frag
+        precision highp float;
+
 		varying vec2 vTextureCoord;
         uniform vec4 uColor;
 		uniform sampler2D uDiffuse;
@@ -128,10 +136,13 @@ function (WebGL,        glMatrix,         Client,           Texture) {
         this.bottomSize = ((effect.bottomSize && effect.bottomSize instanceof Array) ? randBetween(effect.bottomSize[0], effect.bottomSize[1]) : effect.bottomSize) || 0.0;
         this.color      = effect.color || [1.0, 1.0, 1.0, 1.0];
         this.animation  = effect.animation || 0;
+        this.animationSpeed  = effect.animationSpeed || 100;
         this.animationOut  = effect.animationOut || false;
         this.textureFile = effect.textureFile;
         this.startTick  = startTick;
 		this.endTick    = endTick;
+
+        console.log(this);
     }
 	
     QuadHorn.prototype.init = function init(gl) {
@@ -162,7 +173,7 @@ function (WebGL,        glMatrix,         Client,           Texture) {
     QuadHorn.prototype.render = function render(gl, tick) {
         var uniform = _program.uniform;
         var attribute = _program.attribute;
-        var start = tick - this.startTick;
+        var deltaTick = tick - this.startTick;
         var end = this.endTick - this.startTick;
         
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -179,25 +190,30 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 		}
 
         if(this.animation === 1){
-            let thisHeight = 0;
-            if (end > 100) {
-                if (start <= 100){
-                    thisHeight = start / 100 * this.height;
-                }else{
-                    thisHeight = this.height;
-                }
-            } else{
-                thisHeight = start / end * this.height;
+            //Grow up
+            const lerpHeight = deltaTick / this.animationSpeed * this.height;
+            if(lerpHeight > this.height){
+                gl.uniform1f(   uniform.uHeight,       this.height);
+            }else{
+                gl.uniform1f(   uniform.uHeight,       lerpHeight);
             }
-            if(thisHeight > this.height){
-                thisHeight = this.height;
+            gl.uniform1f(   uniform.uOffsetZ, this.offsetZ);
+        }else if(this.animation === 2){
+            //Move up - not finish
+            const lerpZOffset = -((deltaTick / this.animationSpeed)) * (this.offsetZ - this.height);
+            console.log("lerpZOffset", lerpZOffset);
+            console.log("deltaTick", deltaTick);
+            if(lerpZOffset > this.offsetZ){
+                gl.uniform1f(   uniform.uOffsetZ, this.offsetZ);
+            }else{
+                gl.uniform1f(   uniform.uOffsetZ, lerpZOffset);
             }
-            gl.uniform1f(   uniform.uHeight,       thisHeight);
+            gl.uniform1f(   uniform.uHeight,       this.height);
         }else{
             gl.uniform1f(   uniform.uHeight,       this.height);
         }
 
-        if(this.animationOut && start > end){
+        if(this.animationOut && deltaTick > end){
             //Animation out
             this.needCleanUp = this.endTick < tick;
         }
@@ -213,8 +229,8 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 		gl.uniform1f(   uniform.uBottomSize, this.bottomSize);
 		gl.uniform1f(   uniform.uOffsetX, this.offsetX);
 		gl.uniform1f(   uniform.uOffsetY, this.offsetY);
-		gl.uniform1f(   uniform.uOffsetZ, this.offsetZ);
-		gl.uniform4fv(   uniform.uColor, this.color);
+		
+		gl.uniform4fv(  uniform.uColor, this.color);
 
         mat4.identity(this._yRotationMatrix);
         mat4.rotate(this._yRotationMatrix, this._yRotationMatrix, (this.rotateY * Math.PI / 180), [0, 1, 0]);
@@ -226,14 +242,6 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 
         gl.drawArrays(gl.TRIANGLES, 0, 12);
 
-        // if(this.repeat && this.endTick < tick){
-        //     var duration = this.endTick - this.startTick;
-        //     this.startTick += duration;
-        //     this.endTick += duration;
-        // } else if(!this.animationOut) {
-        //     this.needCleanUp = this.endTick < tick;
-        // }
-        
     };
 	
     QuadHorn.init = function init(gl) {
