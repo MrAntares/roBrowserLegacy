@@ -5,7 +5,7 @@
 - **For public servers using secure web protocols `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.**
 
 ## Local testing
-This guide section help you running robrowser locally.
+This guide section will help you running robrowser locally.
 ### Prerequisite
 #### RoBrowser
 - install websocket proxy `npm install wsproxy -g`
@@ -26,12 +26,14 @@ This guide section help you running robrowser locally.
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
 #### Browser
 To run roBrowser you will need an up to date browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
-* Chrome
-* FireFox
-* Opera
-* IE11
+* Chrome _(Desktop & Mobile)_
+* FireFox _(Desktop & Mobile)_
+* Safari _(Desktop & Mobile)_
+* Edge
 
-We assume in guide below http server to run on port `8000`.
+Others will probably work as well especially if Chromium based, but there might be slight differences.
+
+__We assume in the guide below http server to run on port `8000`.__
 ### Compile files
 This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
 
@@ -65,42 +67,51 @@ Some examples: https://github.com/MrAntares/roBrowserLegacy-plugins
 ```js
 function initialize() {
       var ROConfig = {
-          target:        document.getElementById("robrowser"),
-          type:          ROBrowser.TYPE.FRAME,
-          application:   ROBrowser.APP.ONLINE,
-          width:          800,
-          height:         600,
-          development:    false,
-          servers: [{
-              display:     "Demo Server",
-              desc:        "roBrowser's demo server",
-              address:     "127.0.0.1",
-              port:        6900,
-              version:     25,
-              langtype:    12,
-              packetver:   20191223,
-              packetKeys:  false,
-              socketProxy: "ws://127.0.0.1:5999/",
-              adminList:   [2000000]
-          }],
-          skipServerList:  true,
-          skipIntro:       false,
+          type:          ROBrowser.TYPE.FRAME,  // Possible: .FRAME (instert into current document), .POPUP (open new window)
+          target:        document.getElementById("robrowser"),  // When using TYPE.FRAME this is the id of the target iframe in the current document
+          application:   ROBrowser.APP.ONLINE,  // Possible: .ONLINE (game), .MAPVIEWER, .GRFVIEWER, .MODELVIEWER, .STRVIEWER, .GRANNYMODELVIEWER (not implemented)
+          width:          800,    // Only affects TYPE.POPUP
+          height:         600,    // Only affects TYPE.POPUP
+          development:    false,  // When false needs a compiled Online.js in the root (faster load). When true, the client will directly use the javascript files from src/ (slower load, for debugging/development only)
           
-          /*OPTIONAL/CUSTOM CONFIGS*/
+          servers: [{  // Game server info. You must configure this! You can have multiple servers like: servers: [{..}, {..}, {..}],
+              display:     "Demo Server",  // Display name, can be anything
+              desc:        "roBrowser's demo server",  // Description, can be anything
+              address:     "127.0.0.1",   // Must match your game server's
+              port:        6900,          // Must match your game server's
+              version:     25,            // Must match your game server's
+              langtype:    12,            // Must match your game server's
+              packetver:   20191223,      // Must match your game server's
+              packetKeys:  false,         // Packet encryption keys ( not implemented?? )
+              socketProxy: "ws://127.0.0.1:5999/",  // The websocket proxy's address you set up previously for robrowser (wsproxy)
+              adminList:   [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
+          }],
+          
+          skipServerList:  true,   // Skip server selection?
+          skipIntro:       false,  // Skip intor page?
+          
+       /* OPTIONAL/CUSTOM CONFIGS */
+       /* Add/Remove the below as you wish */
+          
+          /* Plugins */
           plugins:  {
-                        PluginName: 'Plugin_JS_Path_In_PluginsFolder_Without_Extension',
-                        /*Example:*/
-                        KeyToMove: 'KeyToMove/KeyToMove',
+                        /* Syntax */
+                        // PluginName: 'Plugin_JS_Path_In_PluginsFolder_Without_Extension',
+                        /* Example: */
+                        // KeyToMove: 'KeyToMove/KeyToMove',
                     },
-          ThirdPersonCamera: true,
-          FirstPersonCamera: true,
+          
+          /* Custom, "for fun" camera modes */
+          ThirdPersonCamera: false,  // When true you can zoom in more and rotate camera around player more freely with mouse
+          FirstPersonCamera: false,  // When true you can look from the player's head, like an FPS game and rotate camera without limit
       };
       var RO = new ROBrowser(ROConfig);
       RO.start();
   }
-  window.addEventListener("load", initialize, false);
+  
+  window.addEventListener("load", initialize, false);  // When the webpage loads this will start roBrowser
 ```
-(Or you can set up your own `index.html` based on the examples)
+You can set up your own `index.html` / integrate roBrowser into your website as well based on the .examples/ and this example above.
 
 ### Start websocket proxy
 - run `wsproxy -a 127.0.0.1:6900,127.0.0.1:6121,127.0.0.1:5121`
