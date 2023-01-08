@@ -119,7 +119,7 @@ define(function()
 
 		element = document.createElement('canvas');
 		try { gl = element.getContext('webgl2'); } catch(e){}
-		try { gl = gl || element.getContext('experimental-webgl'); } catch(e){}
+		try { gl = gl || element.getContext('webgl'); } catch(e){}
 
 		if (!gl) {
 			throw 'Your web browser OR your Graphics Card OR Drivers need to be updated, it does not support 3D graphics.\nFor more informations check <a href="http://get.webgl.org/" target="_blank">get.webgl.org</a>';
