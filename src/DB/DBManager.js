@@ -33,6 +33,7 @@ define(function(require)
 	var WeaponType       = require('./Items/WeaponType');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
+	var JobHitSoundTable = require('./Jobs/JobHitSoundTable');
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo         = require('./TownInfo');
 	var XmlParse		 = require('Vendors/xmlparse');
@@ -517,6 +518,19 @@ define(function(require)
 		}
 
 		return WeaponHitSoundTable[type];
+	};
+
+	/**
+	 * @return {string} Path to eapon sound [MrUnzO]
+	 * @param {number} weapon id
+	 */
+	DB.getJobHitSound = function getJobHitSound( job_id )
+	{
+		if(!job_id){
+			return JobHitSoundTable[0];
+		}
+
+		return JobHitSoundTable[job_id] || JobHitSoundTable[0];
 	};
 
 

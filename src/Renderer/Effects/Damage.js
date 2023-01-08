@@ -24,6 +24,7 @@ define(function( require )
 	var Sound          = require('Audio/SoundManager');
 	var EffectManager  = require('Renderer/EffectManager');
 	var MemoryManager = require('Core/MemoryManager');
+	var Entity            = require('Renderer/Entity/Entity');
 
 	var EndureSound    = "player_metal.wav";
 
@@ -348,9 +349,14 @@ define(function( require )
 		obj.height   = canvas.height;
 		obj.isDisposable = true;
 
-		var hitSounds = DB.getWeaponHitSound(weapon);
+		var hitSounds;
+		if(entity.objecttype === Entity.TYPE_PC){
+			hitSounds = DB.getJobHitSound(entity._job);
+		}else{
+			hitSounds = DB.getWeaponHitSound(weapon);
+		}
 
-		if((weapon || weapon === 0) && hitSounds){
+		if(hitSounds){
 			obj.soundFile = hitSounds[0];
 		}
 		
