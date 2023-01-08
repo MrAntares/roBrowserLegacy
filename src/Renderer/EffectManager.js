@@ -488,7 +488,7 @@ define(function( require )
 				break;
 
 			case 'QuadHorn':
-				EffectManager.add(new QuadHorn(effect, EF_Inst_Par, EF_Init_Par), EF_Init_Par);
+				EffectManager.add(new QuadHorn(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 			
 			case 'FUNC':
