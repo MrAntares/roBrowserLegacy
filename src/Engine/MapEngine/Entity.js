@@ -477,15 +477,15 @@ define(function( require )
 					const factorOfmotionSpeed = pkt.attackMT / AVG_ATTACK_SPEED;
 					const isDualWeapon = DB.isDualWeapon(srcEntity._job, srcEntity._sex, srcEntity.weapon);
 					let m_attackMotion = DB.getPCAttackMotion(srcEntity._job, srcEntity._sex, srcEntity.weapon, isDualWeapon);
-					let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action);
-					m_motionSpeed *= factorOfmotionSpeed;
+					let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action); [MrUnzO]
 					if (m_motionSpeed < 1) m_motionSpeed = 1;
+					m_motionSpeed *= factorOfmotionSpeed;
 
 					soundTime = delayTime = m_attackMotion * m_motionSpeed * 24.0;
 
 					// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
 					if (DB.getWeaponType(srcEntity.weapon) == WeaponType.BOW) {
-						delayTime = (m_attackMotion+(8/m_motionSpeed)) * m_motionSpeed * 24.0;
+						delayTime = (m_attackMotion + (8/m_motionSpeed)) * m_motionSpeed * 24.0;
 						pkt.attackMT += delayTime;
 						var EF_Init_Par = {
 							effectId: 'ef_arrow_projectile',
@@ -495,7 +495,6 @@ define(function( require )
 							otherPosition: srcEntity.position
 						};
 						EffectManager.spam( EF_Init_Par );
-						soundTime = 0;
 					}
 					animSpeed = pkt.attackMT / m_attackMotion;
 				}
@@ -612,13 +611,13 @@ define(function( require )
 					// KAGEROU, OBORO does not use ATTCK3 for left
 					const useATTACK = (srcEntity.job == JobId.KAGEROU || srcEntity.job == JobId.KAGEROU_B || srcEntity.job == JobId.OBORO || srcEntity.job == JobId.OBORO_B);
 					srcEntity.setAction({
-						action: useATTACK ?  srcEntity.ACTION.ATTACK : srcEntity.ACTION.ATTACK3,
+						action: useATTACK ? srcEntity.ACTION.ATTACK : srcEntity.ACTION.ATTACK3,
 						speed: animSpeed,
 						frame:  0,
 						repeat: false,
 						play:   true,
 						next: {
-							delay:  Renderer.tick + pkt.attackMT,
+							delay:  Renderer.tick + pkt.attackMT + delayTime,
 							action: srcEntity.ACTION.READYFIGHT,
 							frame:  0,
 							repeat: true,
@@ -634,7 +633,7 @@ define(function( require )
 						repeat: false,
 						play:   true,
 						next: {
-							delay:  Renderer.tick + pkt.attackMT,
+							delay:  Renderer.tick + pkt.attackMT + delayTime,
 							action: srcEntity.ACTION.READYFIGHT,
 							frame:  0,
 							repeat: true,
