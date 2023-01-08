@@ -1,5 +1,5 @@
 #charselect_v3 {
-    position:relative;
+    position:absolute;
     width:995px;
     height:625px;
     z-index:100;
@@ -8,6 +8,9 @@
     border-radius: 5px;
     padding-top: 20px;
     padding-left: 5px;
+    top: 50% !important;
+    left: 50% !important;
+    margin: -322px 0 0 -500px !important;
 }
 
 /** Box **/
