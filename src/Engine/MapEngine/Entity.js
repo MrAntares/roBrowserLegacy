@@ -115,6 +115,7 @@ define(function( require )
 			entity.set(pkt);
 			if(pkt.job == 45){
 				var EF_Init_Par = {
+					ownerAID: entity.GID,
 					position: entity.position
 				};
 				
