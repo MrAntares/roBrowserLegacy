@@ -4664,10 +4664,21 @@ define(function( require )
 			zIndex: 1
 		}],
 		
-		321: [{  //EF_WARPZONE2	   Warp NPC
-			alphaMax: 0.4,
+		321: [
+			// {  //EF_WARPZONE2	   Warp NPC
+			// 	type: 'FUNC',
+			// 	attachedEntity: false,
+			// 	func: function(Params){
+			// 		var GroundEffect = require('Renderer/Effects/GroundEffect');
+			// 		Params.Inst.persistent = true;
+			// 		Params.Inst.startTick = require('Renderer/Renderer').tick;
+			// 		this.add(new GroundEffect(Params.Inst.position[0], Params.Inst.position[1]), Params);
+			// 	}
+			// },
+		{
+			alphaMax: 0.3,
 			animation: 3,
-			attachedEntity: true,
+			attachedEntity: false,
 			blendMode: 2,
 			bottomSize: 2,
 			duration: 4000,
@@ -4684,9 +4695,9 @@ define(function( require )
 			topSize: 3.3,
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 0.4,
+			alphaMax: 0.3,
 			animation: 3,
-			attachedEntity: true,
+			attachedEntity: false,
 			blendMode: 2,
 			bottomSize: 1.9,
 			duration: 4000,
@@ -4704,7 +4715,7 @@ define(function( require )
 			type: 'CYLINDER'
 		}, {
 			alphaMax: 1.0,
-			attachedEntity: true,
+			attachedEntity: false,
 			blendMode: 2,
 			duration: 1000,
 			duplicate: 5,
