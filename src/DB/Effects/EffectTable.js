@@ -1228,9 +1228,10 @@ define(function( require )
 		25: [{	//EF_FIREWALL	Fire Wall
 			type: 'STR',
 			file: 'firewall%d',
-			wav:  'effect/ef_firewall',
 			rand: [1, 2],
 			attachedEntity: false
+		}, {
+			wav:  'effect/ef_firewall'
 		}],
 
 
@@ -2287,8 +2288,9 @@ define(function( require )
 		95: [{	//EF_QUAGMIRE	Quagmire
 			type: 'STR',
 			file: 'quagmire',
-			wav:  'effect/wizard_quagmire',
 			attachedEntity: false
+		}, {
+			wav:  'effect/wizard_quagmire'
 		}],
 
 

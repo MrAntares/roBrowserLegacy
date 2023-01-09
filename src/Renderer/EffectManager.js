@@ -76,7 +76,7 @@ define(function( require )
 		Params.ownerAID       = null;
 		Params.position       = null;
 		Params.startTick      = null;
-		Params.duration       = 1000;
+		Params.duration       = null;
 		Params.persistent     = false;
 		Params.repeatEnd      = null;
 		Params.repeatDelay    = 0;
@@ -120,32 +120,6 @@ define(function( require )
 		}
 		
 		effect._Params = Params;
-
-		if( (Params.Inst.persistent || Params.Inst.repeatEnd) && Params.Inst.duration > 0 ){ // Repeating but the effect itself is not infinite
-			if( (!Params.Inst.repeatEnd) || (Params.Inst.repeatEnd > Params.Inst.endTick + Params.Inst.repeatDelay) ) {
-				
-				// Re-spam effect if needed to repeat
-				var EF_Inst_Par = {
-					effectID: Params.Inst.effectID,
-					duplicateID: Params.Inst.duplicateID,
-					noDelay: true // Offsets and delays are no longer used
-				}
-				
-				var RepeatParams = {
-					effect: Params.effect,
-					Inst: EF_Inst_Par,
-					Init: Params.Init
-				}
-				
-				function repeatEffect(){
-					RepeatParams.Inst.startTick = Renderer.tick;
-					EffectManager.spamEffect( RepeatParams );
-				}
-				
-				// Set timeout so always adds 1 more effect repeat instead of spamming in infinite loop
-				effect._Next = Events.setTimeout(repeatEffect, Params.Inst.endTick - Renderer.tick + Params.Inst.repeatDelay);
-			}
-		}
 		
 		_list[name].push(effect);
 	};
@@ -172,9 +146,6 @@ define(function( require )
 				if ( ( !AID || ( AID && list[i]._Params.Init.ownerAID === AID )) && ( !effectID || ( effectID && effectIdList.includes(list[i].effectID) )) ) {
 					if (list[i].free) {
 						list[i].free(_gl);
-					}
-					if (list[i]._Next){
-						Events.clearTimeout(list[i]._Next);
 					}
 					list.splice(i, 1);
 					i--;
@@ -224,9 +195,6 @@ define(function( require )
 			for (j = 0, size = list.length; j < size; ++j) {
 				if (list[j].free) {
 					list[j].free(gl);
-				}
-				if (list[j]._Next){
-					Events.clearTimeout(list[j]._Next);
 				}
 			}
 
@@ -280,6 +248,10 @@ define(function( require )
 					if (list[j].ready) {
 						list[j].render(gl, tick);
 					}
+					
+					// Try repeating the effect.
+					// This will increase the list size if successful
+					size += repeatEffect(list[j]);
 
 					if (list[j].needCleanUp) {
 						if (list[j].free) {
@@ -302,6 +274,60 @@ define(function( require )
 			}
 		}
 	};
+	
+	
+	/**
+	 * Repeat an existing effect if needed
+	 *
+	 * @param {object} effect
+	 */
+	function repeatEffect(effect){
+		var Params = effect._Params;
+		
+		if( (Params.Inst.persistent || Params.Inst.repeatEnd) && !(effect._AlreadyRepeated) ){
+			
+			var restartTick = false;
+			
+			if ( Params.Inst.duration && Params.Inst.duration > 0 && ( Renderer.tick > Params.Inst.endTick + Params.Inst.repeatDelay) ) { // Has predefined duration and time to repeat (negative delay)
+			
+				
+				if( (!Params.Inst.repeatEnd) || (Params.Inst.repeatEnd > Params.Inst.endTick + Params.Inst.repeatDelay) ) { // Repeat period not ended
+					restartTick = Params.Inst.endTick + Params.Inst.repeatDelay; // Reference original timing to avoid timing going crazy
+				}
+				
+			} else if ( effect.needCleanUp ) { // Finished rendering and need to set a repeat (0 or positive delay)
+			
+				if( (!Params.Inst.repeatEnd) || (Params.Inst.repeatEnd > Renderer.tick + Params.Inst.repeatDelay) ) { // Repeat period not ended
+					restartTick = Renderer.tick + Params.Inst.repeatDelay;
+				}
+				
+			};
+			
+			if( restartTick ) {
+				
+				// Re-spam effect if needed to repeat
+				var EF_Inst_Par = {
+					effectID: Params.Inst.effectID,
+					duplicateID: Params.Inst.duplicateID,
+					startTick: restartTick,
+					noDelay: true // Offsets and delays are no longer used
+				}
+				
+				var RepeatParams = {
+					effect: Params.effect,
+					Inst: EF_Inst_Par,
+					Init: Params.Init
+				}
+				
+				EffectManager.spamEffect( RepeatParams );
+				effect._AlreadyRepeated = true;
+				return 1;
+			}
+			
+		}
+		
+		return 0;
+	}
 
 
 	/**
@@ -401,7 +427,12 @@ define(function( require )
 		Params.Inst.position   = Params.effect.attachedEntity ? Params.Inst.position : [ Params.Inst.position[0], Params.Inst.position[1], Params.Inst.position[2] ];
 		
 		// Repeat
-		Params.Inst.persistent = Params.Init.persistent || Params.effect.repeat || false;
+		Params.Inst.persistent = Params.Init.persistent || false;
+		
+		if (typeof Params.effect.repeat !== 'undefined' && Params.effect.repeat !== null) {
+			Params.Inst.persistent = Params.effect.repeat; // Effect conf overrides. We can selecively enable/disable repeat on parts using this.
+		}
+		
 		Params.Inst.repeatEnd  = Params.Init.repeatEnd ? Params.Init.repeatEnd : Params.effect.repeatEnd || 0; // Main has priority
 		Params.Inst.repeatDelay  = Params.effect.repeatDelay ? Params.effect.repeatDelay: Params.Init.repeatDelay; // Instance has priority
 
