@@ -10,11 +10,6 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 
     'use strict';
 
-    function randBetween(minimum, maximum) {
-        return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
-    }
-	
-    var _texture;
     var _program;
     var mat4 = glMatrix.mat4;
     
@@ -81,7 +76,6 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 		}
 	`;
 
-    //vertices
     const vertices = [
         0.0,  1.0,  0.0,
         -1.0, -1.0,  1.0,
@@ -118,31 +112,29 @@ function (WebGL,        glMatrix,         Client,           Texture) {
         0.5,    1,
       ];
 
-    function QuadHorn(effect, EF_Inst_Par, EF_Init_Par) {
-        var startTick = EF_Inst_Par.startTick;
-		var endTick = EF_Inst_Par.endTick;
+    const rand = (min, max) => parseFloat(Math.min(min + Math.random() * (max - min), max).toFixed(3));
 
+    function QuadHorn(effect, EF_Inst_Par, EF_Init_Par) {
         this._zRotationMatrix = mat4.create();
         this._yRotationMatrix = mat4.create();
 
         this.position   = EF_Inst_Par.position;
         this.blendMode  = effect.blendMode || 1;
-        this.height     = ((effect.height && effect.height instanceof Array) ? randBetween(effect.height[0], effect.height[1]) : effect.height) || 0.0;
-        this.rotateY    = ((effect.rotateY && effect.rotateY instanceof Array) ? randBetween(effect.rotateY[0], effect.rotateY[1]) : effect.rotateY) || 0.0;
-        this.rotateZ    = ((effect.rotateZ && effect.rotateZ instanceof Array) ? randBetween(effect.rotateZ[0], effect.rotateZ[1]) : effect.rotateZ) || 0.0;
-        this.offsetX    = ((effect.offsetX && effect.offsetX instanceof Array) ? randBetween(effect.offsetX[0], effect.offsetX[1]) : effect.offsetX) || 0.5;
-        this.offsetY    = ((effect.offsetY && effect.offsetY instanceof Array) ? randBetween(effect.offsetY[0], effect.offsetY[1]) : effect.offsetY) || 0.5;
-        this.offsetZ    = ((effect.offsetZ && effect.offsetZ instanceof Array) ? randBetween(effect.offsetZ[0], effect.offsetZ[1]) : effect.offsetZ) || 0.5;
-        this.bottomSize = ((effect.bottomSize && effect.bottomSize instanceof Array) ? randBetween(effect.bottomSize[0], effect.bottomSize[1]) : effect.bottomSize) || 0.0;
+        this.height     = ((effect.height && effect.height instanceof Array) ? rand(effect.height[0], effect.height[1]) : effect.height) || 0.0;
+        this.rotateY    = ((effect.rotateY && effect.rotateY instanceof Array) ? rand(effect.rotateY[0], effect.rotateY[1]) : effect.rotateY) || 0.0;
+        this.rotateZ    = ((effect.rotateZ && effect.rotateZ instanceof Array) ? rand(effect.rotateZ[0], effect.rotateZ[1]) : effect.rotateZ) || 0.0;
+        this.offsetX    = ((effect.offsetX && effect.offsetX instanceof Array) ? rand(effect.offsetX[0], effect.offsetX[1]) : effect.offsetX) || 0.5;
+        this.offsetY    = ((effect.offsetY && effect.offsetY instanceof Array) ? rand(effect.offsetY[0], effect.offsetY[1]) : effect.offsetY) || 0.5;
+        this.offsetZ    = ((effect.offsetZ && effect.offsetZ instanceof Array) ? rand(effect.offsetZ[0], effect.offsetZ[1]) : effect.offsetZ) || 0.5;
+        this.bottomSize = ((effect.bottomSize && effect.bottomSize instanceof Array) ? rand(effect.bottomSize[0], effect.bottomSize[1]) : effect.bottomSize) || 0.0;
         this.color      = effect.color || [1.0, 1.0, 1.0, 1.0];
         this.animation  = effect.animation || 0;
         this.animationSpeed  = effect.animationSpeed || 100;
         this.animationOut  = effect.animationOut || false;
         this.textureFile = effect.textureFile;
-        this.startTick  = startTick;
-		this.endTick    = endTick;
-
-        console.log(this);
+        this.startTick  = EF_Inst_Par.startTick;
+		this.endTick    = EF_Inst_Par.endTick;
+        this._endAnimation = effect.animation > 0 ? false : true;
     }
 	
     QuadHorn.prototype.init = function init(gl) {
@@ -162,7 +154,6 @@ function (WebGL,        glMatrix,         Client,           Texture) {
                 self.ready = true;
             });
         });
-        
     };
 	
     QuadHorn.prototype.free = function free(gl) {
@@ -173,11 +164,11 @@ function (WebGL,        glMatrix,         Client,           Texture) {
     QuadHorn.prototype.render = function render(gl, tick) {
         var uniform = _program.uniform;
         var attribute = _program.attribute;
-        var deltaTick = tick - this.startTick;
-        var end = this.endTick - this.startTick;
+        var deltaStart = (tick - this.startTick) / 1000.0;
+        var deltaEnd = (tick - this.endTick) / 1000.0;
         
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 
         gl.enableVertexAttribArray(attribute.aPosition);
         gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -189,34 +180,55 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-        if(this.animation === 1){
+        if(this.animation === 1 && !this._endAnimation){
             //Grow up
-            const lerpHeight = deltaTick / this.animationSpeed * this.height;
+            const lerpHeight = deltaStart / (this.animationSpeed / 1000);
             if(lerpHeight > this.height){
+                this._endAnimation = true;
                 gl.uniform1f(   uniform.uHeight,       this.height);
             }else{
                 gl.uniform1f(   uniform.uHeight,       lerpHeight);
             }
             gl.uniform1f(   uniform.uOffsetZ, this.offsetZ);
-        }else if(this.animation === 2){
-            //Move up - not finish
-            const lerpZOffset = -((deltaTick / this.animationSpeed)) * (this.offsetZ - this.height);
+        }else if(this.animation === 2 && !this._endAnimation){
+            //Move up
+            const lerpZOffset = deltaStart / (this.animationSpeed / 1000);
             console.log("lerpZOffset", lerpZOffset);
-            console.log("deltaTick", deltaTick);
             if(lerpZOffset > this.offsetZ){
+                this._endAnimation = true;
+                gl.uniform1f(   uniform.uOffsetZ, this.offsetZ);
+            }else{
+                gl.uniform1f(   uniform.uOffsetZ, lerpZOffset);
+            }
+            gl.uniform1f(   uniform.uHeight,       this.height);
+        }else if(this.animation === 3 && !this._endAnimation){
+            //Move up and over the ground a bit to make it feel more attack power
+            const lerpZOffset = deltaStart / (this.animationSpeed / 1000);
+            if(lerpZOffset > (this.height / 2)){
+                this._endAnimation = true;
                 gl.uniform1f(   uniform.uOffsetZ, this.offsetZ);
             }else{
                 gl.uniform1f(   uniform.uOffsetZ, lerpZOffset);
             }
             gl.uniform1f(   uniform.uHeight,       this.height);
         }else{
-            gl.uniform1f(   uniform.uHeight,       this.height);
+            gl.uniform1f(   uniform.uHeight,        this.height);
+            gl.uniform1f(   uniform.uOffsetZ,       this.offsetZ);
         }
 
-        if(this.animationOut && deltaTick > end){
-            //Animation out
-            this.needCleanUp = this.endTick < tick;
+        if(this.endTick > 0 && this.endTick < tick){
+            if(this.animationOut && this._endAnimation){
+                const lerpZOffset = -(deltaEnd / (this.animationSpeed / 1000) * this.height);
+                if(lerpZOffset < -(this.height + this.offsetZ)){
+                    this.needCleanUp = this.endTick < tick;
+                }
+                gl.uniform1f(   uniform.uOffsetZ, lerpZOffset);
+            }else{
+                this.needCleanUp = this.endTick < tick;
+            }
         }
+        
+
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 0, 0);
@@ -240,7 +252,10 @@ function (WebGL,        glMatrix,         Client,           Texture) {
         mat4.rotate(this._zRotationMatrix, this._zRotationMatrix, ((180 + this.rotateZ) * Math.PI / 180), [0, 0, 1]);
         gl.uniformMatrix4fv(uniform.uZRotationMat, false, this._zRotationMatrix);
 
+        
         gl.drawArrays(gl.TRIANGLES, 0, 12);
+
+        
 
     };
 	
@@ -263,10 +278,9 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 		blendMode[14] = gl.ONE_MINUS_CONSTANT_ALPHA;
 		blendMode[15] = gl.SRC_ALPHA_SATURATE;
 
-        QuadHorn.ready = true;
+        this.ready = true;
+		this.renderBeforeEntities = false;
     };
-	
-	QuadHorn.renderBeforeEntities = false;
 	
     QuadHorn.free = function free(gl) {
 		
