@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault, Antares
+ * @author Vincent Thibault, Antares, MrUnzO
  */
 
 define(["./JobConst"], function( JobId )
@@ -78,11 +78,11 @@ define(["./JobConst"], function( JobId )
 
 	JobHitSoundTable[JobId.ROYAL_GUARD]      = ["player_metal.wav"];
 	JobHitSoundTable[JobId.SORCERER]         = ["player_clothes.wav"];
-	JobHitSoundTable[JobId.MINSTREL]         = [""];
-	JobHitSoundTable[JobId.WANDERER]         = [""];
-	JobHitSoundTable[JobId.SURA]             = [""];
-	JobHitSoundTable[JobId.GENETIC]          = [""];
-	JobHitSoundTable[JobId.SHADOW_CHASER]    = [""];
+	JobHitSoundTable[JobId.MINSTREL]         = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.WANDERER]         = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.SURA]             = ["player_metal.wav"];
+	JobHitSoundTable[JobId.GENETIC]          = ["player_clothes.wav"];
+	JobHitSoundTable[JobId.SHADOW_CHASER]    = ["player_wooden_male.wav"];
 
 	JobHitSoundTable[JobId.RUNE_KNIGHT2]     = ["player_metal.wav"];
 	JobHitSoundTable[JobId.ROYAL_GUARD2]     = ["player_metal.wav"];
@@ -90,9 +90,9 @@ define(["./JobConst"], function( JobId )
 	JobHitSoundTable[JobId.MECHANIC2]        = ["player_clothes.wav"];
 
 	JobHitSoundTable[JobId.SUPERNOVICE2]	 = ["player_clothes.wav"];
-	JobHitSoundTable[JobId.KAGEROU] 		 = [""];
-	JobHitSoundTable[JobId.OBORO] 			 = [""];
-	JobHitSoundTable[JobId.REBELLION] 		 = [""];
+	JobHitSoundTable[JobId.KAGEROU] 		 = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.OBORO] 			 = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.REBELLION] 		 = ["player_clothes.wav"];
 
 	//MOUNTS
 	JobHitSoundTable[JobId.PORING_NOVICE]     = ["player_clothes.wav"];
@@ -126,13 +126,13 @@ define(["./JobConst"], function( JobId )
 	JobHitSoundTable[JobId.LION_RUNE_KNIGHT]  = ["player_metal.wav"];
 	JobHitSoundTable[JobId.DOG_G_CROSS]       = ["player_wooden_male.wav"];
 
-	JobHitSoundTable[JobId.SHEEP_SURA]        = [""];
-	JobHitSoundTable[JobId.OSTRICH_MINSTREL]  = [""];
-	JobHitSoundTable[JobId.OSTRICH_WANDER]    = [""];
+	JobHitSoundTable[JobId.SHEEP_SURA]        = ["player_metal.wav"];
+	JobHitSoundTable[JobId.OSTRICH_MINSTREL]  = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.OSTRICH_WANDER]    = ["player_wooden_male.wav"];
 	JobHitSoundTable[JobId.FOX_SORCERER]      = ["player_clothes.wav"];
-	JobHitSoundTable[JobId.PIG_GENETIC]       = [""];
+	JobHitSoundTable[JobId.PIG_GENETIC]       = ["player_clothes.wav"];
 	JobHitSoundTable[JobId.LION_ROYAL_GUARD]  = ["player_metal.wav"];
-	JobHitSoundTable[JobId.DOG_CHASER]        = [""];
+	JobHitSoundTable[JobId.DOG_CHASER]        = ["player_wooden_male.wav"];
 
 	JobHitSoundTable[JobId.PORING_SNOVICE]    = ["player_clothes.wav"];
 
@@ -143,11 +143,11 @@ define(["./JobConst"], function( JobId )
 	JobHitSoundTable[JobId.PORING_STAR]       = ["player_metal.wav"];
 	JobHitSoundTable[JobId.FROG_LINKER]       = ["player_clothes.wav"];
 
-	JobHitSoundTable[JobId.FROG_KAGEROU]      = [""];
-	JobHitSoundTable[JobId.FROG_OBORO]        = [""];
-	JobHitSoundTable[JobId.PECO_REBELLION]    = [""];
+	JobHitSoundTable[JobId.FROG_KAGEROU]      = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.FROG_OBORO]        = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.PECO_REBELLION]    = ["player_clothes.wav"];
 	
-	JobHitSoundTable[JobId.DO_SUMMONER1] 	  = [""];
+	JobHitSoundTable[JobId.DO_SUMMONER1] 	  = ["player_clothes.wav"];
 
 	JobHitSoundTable[JobId.SHEEP_HPRIEST]     = ["player_clothes.wav"];
 	JobHitSoundTable[JobId.OSTRICH_SNIPER]    = ["player_wooden_male.wav"];
@@ -157,8 +157,8 @@ define(["./JobConst"], function( JobId )
 	JobHitSoundTable[JobId.DOG_ASSA_X]        = ["player_wooden_male.wav"];
 
 	JobHitSoundTable[JobId.SHEEP_CHAMP]       = ["player_metal.wav"];
-	JobHitSoundTable[JobId.OSTRICH_CROWN]     = [""];
-	JobHitSoundTable[JobId.OSTRICH_ZIPSI]     = [""];
+	JobHitSoundTable[JobId.OSTRICH_CROWN]     = ["player_clothes.wav"];//TODO: correct this.
+	JobHitSoundTable[JobId.OSTRICH_ZIPSI]     = ["player_clothes.wav"];//TODO: correct this.
 	JobHitSoundTable[JobId.FOX_PROF]          = ["player_clothes.wav"];
 	JobHitSoundTable[JobId.PIG_CREATOR]       = ["player_clothes.wav"];
 	JobHitSoundTable[JobId.LION_CRUSADER_H]   = ["player_metal.wav"];
