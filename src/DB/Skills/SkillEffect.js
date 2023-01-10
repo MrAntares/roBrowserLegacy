@@ -127,7 +127,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.WZ_FROSTNOVA]                   = {effectIdOnCaster: 28, hitEffectId: 51};		//Frost Nova
 	SkillEffect[SK.WZ_STORMGUST]                   = {effectId: 89, hitEffectId: 51};		//Storm Gust
 	SkillEffect[SK.WZ_EARTHSPIKE]                  = {effectId: 79, hitEffectId: 147};		//Earth Spike
-	SkillEffect[SK.WZ_HEAVENDRIVE]                 = {groundEffectId: 142};		//Heaven's Drive
+	SkillEffect[SK.WZ_HEAVENDRIVE]                 = {groundEffectId: 142,hitEffectId: 147};		//Heaven's Drive
 	SkillEffect[SK.WZ_QUAGMIRE]                    = {groundEffectId: 95};		//Quagmire
 	SkillEffect[SK.WZ_ESTIMATION]                  = {};		//Sense
 	// Blacksmith

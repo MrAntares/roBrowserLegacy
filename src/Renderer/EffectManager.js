@@ -28,7 +28,7 @@ define(function( require )
 	var Altitude      = require('Renderer/Map/Altitude');
 	var Sound         = require('Audio/SoundManager');
 	var Preferences   = require('Preferences/Map');
-
+	var QuadHorn 	  = require('Renderer/Effects/QuadHorn');
 
 	/**
 	 * @var {object} saved webgl context
@@ -485,6 +485,10 @@ define(function( require )
 				break;
 				
 			case 'RSM':
+				break;
+
+			case 'QuadHorn':
+				EffectManager.add(new QuadHorn(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 			
 			case 'FUNC':

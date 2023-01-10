@@ -27,6 +27,7 @@ define(function( require )
 	var EffectManager  = require('Renderer/EffectManager');
 	var Renderer       = require('Renderer/Renderer');
 	var Damage         = require('Renderer/Effects/Damage');
+	var Altitude       = require('Renderer/Map/Altitude');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom       = require('UI/Components/ChatRoom/ChatRoom');
 	var BasicInfo      = require('UI/Components/BasicInfo/BasicInfo');
@@ -655,6 +656,10 @@ define(function( require )
 
 	}
 
+	function onUpdateMapInfo(pkt){
+		Altitude.setCellType(pkt.xPos, pkt.yPos, pkt.type);
+	}
+
 	/**
 	 * Initialize
 	 */
@@ -686,6 +691,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ALCHEMIST_RANK,              onRank );
 		Network.hookPacket( PACKET.ZC.TAEKWON_RANK,                onRank );
 		//Network.hookPacket( PACKET.ZC.KILLER_RANK,                 onRank ); //PK currently unsupported
+		Network.hookPacket( PACKET.ZC.UPDATE_MAPINFO,              onUpdateMapInfo );
 
 	};
 });

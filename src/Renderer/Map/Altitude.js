@@ -167,6 +167,26 @@ function(       glMatrix,          PathFinding,            Mouse )
 		return - (x1 + ( x2 - x1 ) * y);
 	};
 
+	/**
+	 * Taken from *athena at src/map/map.c
+	 * I don't know if it's a good source but it's a good idea to match this references for now
+	 */
+	const TYPE_TABLE = {
+		0: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,                  // walkable ground
+		1: Altitude.TYPE.NONE,                                          // non-walkable ground
+		2: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,                  // ???
+		3: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE | Altitude.TYPE.WATER, // walkable water
+		4: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,                  // ???
+		5: Altitude.TYPE.SNIPABLE,                                      // gat (snipable)
+		6: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE                   // ???
+	};
+
+
+	Altitude.setCellType = function setCellType(x, y, type){
+		_types[ x + y * Altitude.width ] = TYPE_TABLE[type];
+		PathFinding.updateGat(x, y, TYPE_TABLE[type]);
+	}
+
 
 	/**
 	 * Intersect cell
