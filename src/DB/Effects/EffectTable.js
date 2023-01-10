@@ -4320,7 +4320,7 @@ define(function( require )
 			file: 'safetywall',
 			type: 'STR'
 		}, {
-			alphaMax: 0.4,
+			alphaMax: 0.6,
 			animation: 0,
 			attachedEntity: true,
 			blendMode: 2,
@@ -4331,12 +4331,11 @@ define(function( require )
 			green: 0.1,
 			height: 7,
 			red: 0.5,
-			rotate: true,
 			textureName: 'alpha_down',
 			topSize: 0.6,
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 0.4,
+			alphaMax: 0.6,
 			animation: 0,
 			attachedEntity: true,
 			blendMode: 2,
@@ -4348,12 +4347,11 @@ define(function( require )
 			green: 0.1,
 			height: 6,
 			red: 0.5,
-			rotate: true,
 			textureName: 'alpha_down',
 			topSize: 0.65,
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 0.4,
+			alphaMax: 0.05,
 			animation: 0,
 			attachedEntity: true,
 			blendMode: 2,
@@ -4363,10 +4361,11 @@ define(function( require )
 			delayOffset: 100,
 			fade: true,
 			green: 0.1,
-			height: 7,
+			height: 9,
 			red: 0.5,
 			rotate: true,
-			textureName: 'alpha_down',
+			rotateSpeed: 10000,
+			textureName: 'magic_violet',
 			topSize: 0.7,
 			type: 'CYLINDER'
 		}],

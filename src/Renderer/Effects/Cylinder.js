@@ -217,6 +217,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		this.animation = effect.animation;
 		this.fade = effect.fade;
 		this.rotate = effect.rotate;
+		this.rotateSpeed = effect.rotateSpeed;
 		
 		if (effect.alphaMax > 0) this.alphaMax = effect.alphaMax;
 		else this.alphaMax = 1.0;
@@ -376,7 +377,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 		if(this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera || this.fixedPerspective){
 			mat4.identity(_matrix);
 			
-			if(this.rotate){ mat4.rotateY(_matrix, _matrix, tick / 4 / 180 * Math.PI); }
+			if(this.rotate){ mat4.rotateY(_matrix, _matrix, tick / (this.rotateSpeed / 1000) / 180 * Math.PI); }
 			
 			if(this.angleX){ mat4.rotateX(_matrix, _matrix, this.angleX / 180 * Math.PI); }
 			if(this.angleY){ mat4.rotateY(_matrix, _matrix, this.angleY / 180 * Math.PI); }
