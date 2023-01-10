@@ -357,7 +357,9 @@ define(function( require )
 		if(entity.objecttype === Entity.TYPE_PC){
 			hitSounds = DB.getJobHitSound(entity._job);
 		}else{
-			hitSounds = DB.getWeaponHitSound(weapon);
+			if((weapon || weapon === 0)){
+				hitSounds = DB.getWeaponHitSound(weapon);
+			}
 		}
 
 		if(hitSounds){
