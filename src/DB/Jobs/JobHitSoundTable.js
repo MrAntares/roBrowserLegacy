@@ -157,8 +157,8 @@ define(["./JobConst"], function( JobId )
 	JobHitSoundTable[JobId.DOG_ASSA_X]        = ["player_wooden_male.wav"];
 
 	JobHitSoundTable[JobId.SHEEP_CHAMP]       = ["player_metal.wav"];
-	JobHitSoundTable[JobId.OSTRICH_CROWN]     = ["player_clothes.wav"];//TODO: correct this.
-	JobHitSoundTable[JobId.OSTRICH_ZIPSI]     = ["player_clothes.wav"];//TODO: correct this.
+	JobHitSoundTable[JobId.OSTRICH_CROWN]     = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.OSTRICH_ZIPSI]     = ["player_wooden_male.wav"];
 	JobHitSoundTable[JobId.FOX_PROF]          = ["player_clothes.wav"];
 	JobHitSoundTable[JobId.PIG_CREATOR]       = ["player_clothes.wav"];
 	JobHitSoundTable[JobId.LION_CRUSADER_H]   = ["player_metal.wav"];
