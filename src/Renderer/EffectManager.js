@@ -329,6 +329,54 @@ define(function( require )
 
 
 	/**
+	 * Stops an effect's repeat
+	 *
+	 * @param {effect}
+	 * @param {mixed} effect owner ID
+	 * @param {mixed} effect ID
+	 */
+	EffectManager.endRepeat = function endRepeatClosure()
+	{
+		function cleanRepeat(name, AID, effectID) {
+			var list;
+			var i, count;
+			var effectIdList = Array.isArray(effectID) ? effectID : [effectID];
+			
+
+			list  = _list[name];
+			count = list.length;
+
+			for (i = 0; i < count; ++i) {
+				if ( ( !AID || ( AID && list[i]._Params.Init.ownerAID === AID )) && ( !effectID || ( effectID && effectIdList.includes(list[i].effectID) )) ) {
+					if (list[i]._Params.Inst.persistent) {
+						list[i]._Params.Inst.persistent = false;
+					}
+					
+					if (list[i]._Params.Inst.repeatEnd) {
+						list[i]._Params.Inst.repeatEnd = false;
+					}
+				}
+			}
+		}
+
+		return function endRepeat(effect, AID, effectID)
+		{
+			if (!effect || !(effect.name in _list)) {
+				var i, count;
+				var keys = Object.keys(_list);
+
+				for (i = 0, count = keys.length; i < count; ++i) {
+					cleanRepeat( keys[i], AID, effectID);
+				}
+
+				return;
+			} else {
+				cleanRepeat( effect.name, AID, effectID);
+			}
+		};
+	}();
+
+	/**
 	 * Spam an effect to the scene
 	 *
 	 * @param {object} Effect initial parameters {
