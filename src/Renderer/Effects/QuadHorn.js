@@ -97,19 +97,19 @@ function (WebGL,        glMatrix,         Client,           Texture) {
     var texCoords = [
         0,      0,
         1,      0,
-        0.5,    1,
+        1,      1,
 
         0,      0,
-        1,      0,
-        0.5,    1,
+        1,      1,
+        0,      1,
 
-        0,      0,
         1,      0,
-        0.5,    1,
+        1,      1,
+        0,      1,
 
-        0,      0,
         1,      0,
-        0.5,    1,
+        0,      1,
+        0,      0,
       ];
 
     const rand = (min, max) => parseFloat(Math.min(min + Math.random() * (max - min), max).toFixed(3));
@@ -166,9 +166,8 @@ function (WebGL,        glMatrix,         Client,           Texture) {
         var attribute = _program.attribute;
         var deltaStart = (tick - this.startTick) / 1000.0;
         var deltaEnd = (tick - this.endTick) / 1000.0;
-        
+
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 
         gl.enableVertexAttribArray(attribute.aPosition);
         gl.enableVertexAttribArray(attribute.aTextureCoord);
@@ -193,7 +192,6 @@ function (WebGL,        glMatrix,         Client,           Texture) {
         }else if(this.animation === 2 && !this._endAnimation){
             //Move up
             const lerpZOffset = deltaStart / (this.animationSpeed / 1000);
-            console.log("lerpZOffset", lerpZOffset);
             if(lerpZOffset > this.offsetZ){
                 this._endAnimation = true;
                 gl.uniform1f(   uniform.uOffsetZ, this.offsetZ);
@@ -227,14 +225,14 @@ function (WebGL,        glMatrix,         Client,           Texture) {
                 this.needCleanUp = this.endTick < tick;
             }
         }
-        
-
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 0, 0);
-
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        
         gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoordBuffer);
         gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         gl.uniform3fv(  uniform.uPosition,    this.position);
 		
@@ -252,11 +250,8 @@ function (WebGL,        glMatrix,         Client,           Texture) {
         mat4.rotate(this._zRotationMatrix, this._zRotationMatrix, ((180 + this.rotateZ) * Math.PI / 180), [0, 0, 1]);
         gl.uniformMatrix4fv(uniform.uZRotationMat, false, this._zRotationMatrix);
 
-        
         gl.drawArrays(gl.TRIANGLES, 0, 12);
-
-        
-
+        gl.flush();
     };
 	
     QuadHorn.init = function init(gl) {
@@ -279,7 +274,7 @@ function (WebGL,        glMatrix,         Client,           Texture) {
 		blendMode[15] = gl.SRC_ALPHA_SATURATE;
 
         this.ready = true;
-		this.renderBeforeEntities = false;
+		this.renderBeforeEntities = true;
     };
 	
     QuadHorn.free = function free(gl) {
