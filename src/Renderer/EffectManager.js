@@ -668,6 +668,24 @@ define(function( require )
 			return;
 		}
 		
+		// Add entity for clickables
+		var entity = EntityManager.get(uid);
+		var isNewEntity = false;
+
+		if (!entity) {
+			entity            = new Entity();
+			entity.GID        = uid;
+			entity.position   = [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ];
+			entity.hideShadow = true;
+			entity.objecttype = entity.constructor.TYPE_EFFECT;
+			isNewEntity = true;
+		}
+		
+		if(isNewEntity){
+			EntityManager.add(entity);
+		}
+		
+		// Add effect
 		EffectManager.remove(null, uid);
 		
 		var EF_Init_Par = {
