@@ -983,7 +983,7 @@ define(function( require )
 	 */
 	function onSkillDisapear( pkt )
 	{
-		EffectManager.endRepeat( null, pkt.AID );
+		EffectManager.remove( null, pkt.AID );
 		var entity = EntityManager.get(pkt.AID);
         if (entity) {
             entity.remove();
