@@ -412,6 +412,7 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 			currentPosition[0] += this.posX;
 			currentPosition[1] += this.posY;
 			currentPosition[2] += this.posZ;
+			gl.uniform1i(uniform.uRotate, false);
 		}
 		
 		gl.uniform3fv(uniform.uPosition, currentPosition);
