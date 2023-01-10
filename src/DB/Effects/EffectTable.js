@@ -2222,7 +2222,7 @@ define(function( require )
 			rotateZ: [-8.0, 8.0],
 			color: [1.0, 1.0, 1.0, 1.0],
 			animation: 3,
-			animationSpeed: 200,
+			animationSpeed: 120,
 			animationOut: true,
 		},
 		{
