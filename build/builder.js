@@ -4,7 +4,7 @@ const Terser = require('terser');
 const startTime = Date.now();
 const args = getArgs();
 
-function build() {
+(function build() {
     if ((args && args['O']) || !args) {
         compile("Online", args['M']);
     }
@@ -12,7 +12,7 @@ function build() {
     if ((args && args['T']) || !args) {
         compile("ThreadEventHandler", args['M']);
     }
-}
+})();
 
 function compile(appName, isMinify) {
     console.log(appName + ".js", "- Compiling...", "[ Minify:", isMinify ? "true" : "false", "]");
@@ -105,5 +105,3 @@ function getArgs() {
         });
     return (Object.keys(args).length === 0) ? false : args;
 }
-
-build();
