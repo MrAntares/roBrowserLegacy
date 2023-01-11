@@ -10,3 +10,4 @@ src/Plugins/*/
 save
 .eslintrc.js
 settings.js
+*.log
