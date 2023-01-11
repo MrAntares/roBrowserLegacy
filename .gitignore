@@ -11,3 +11,5 @@ save
 .eslintrc.js
 settings.js
 *.log
+package-lock.json
+node_modules
