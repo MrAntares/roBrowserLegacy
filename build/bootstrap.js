@@ -10,7 +10,7 @@ if(ROConfig.rootFolder){
 }else{
     ROConfig.dataPath = process.execPath.replace('nw.exe', '');
 }
-//ROConfig.dataPath = "/Users/Thapakorn/Downloads/ro/";
+
 console.log('[Flavors] ' + process.versions['nw-flavor']);
 console.log('[Working Path] ' + ROConfig.dataPath);
 console.log('[NW Path] ' + process.execPath.replace('nw.exe', ''));
@@ -26,6 +26,10 @@ if (ROConfig.grfList) {
 
 var fs = requireNode('fs');
 var path = requireNode('path');
+
+if(ROConfig.development){
+    nw.Window.get().showDevTools();
+}
 
 async function recursive(dir, done) {
     var results = [];
@@ -52,6 +56,8 @@ async function recursive(dir, done) {
     });
 }
 
+
+//TODO: need to rewrite this idiot nested function.
 recursive(ROConfig.dataPath + 'BGM\\', function (err, results) {
     if (err) throw err;
     let files = [];
@@ -82,8 +88,10 @@ recursive(ROConfig.dataPath + 'BGM\\', function (err, results) {
             files[i].fullPath = files[i].name;
         }
         ROConfig.fileList = files;
-
-        
-        require(['src/App/Online']);
+        if(ROConfig.development){
+            require(['src/App/Online']);
+        }else{
+            require(['Online']);
+        }
     });
 });
