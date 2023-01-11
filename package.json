@@ -1,7 +1,7 @@
 {
-	"name": "robrowser-nw",
-	"main": "window.html",
-	"version": "0.0.1",
+	"name": "ronw",
+	"main": "main.html",
+	"version": "0.1.0",
 	"window": {
 		"width": 1024,
 		"height": 768,
@@ -11,7 +11,18 @@
 		"max_height": 1440,
 		"fullscreen": false,
 		"frame": true,
-		"icon": "applications/icon_128.png"
+		"icon": "static/icon_128.png"
 	},
-	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling"
+	"scripts": {
+		"dev": "nw .",
+		"prod": "nw ./dist/",
+		"build": "node ./build/builder.js"
+	},
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
+	"author": "MrUnzO (kwon.unzo@gmail.com)",
+	"license": "GNU GPL V3",
+	"dependencies": {
+		"requirejs": "^2.3.6",
+		"terser": "^5.16.1"
+	}
 }
