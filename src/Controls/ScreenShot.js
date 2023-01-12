@@ -128,8 +128,8 @@ define(function(require)
 		if (Context.Is.NW) {
 			try {
 				date = date.replace(/[:]+/g,"-");
-				let fs = requireNode('fs');
-				let screenShotPath = Context.Is.NW.RODataPath + 'ScreenShots/';
+				const fs = requireNode('fs');
+				let screenShotPath = Config.get('dataPath') + 'ScreenShots/';
 				screenShotPath = screenShotPath.replace(/\\/g,"/");
 				if (!fs.existsSync(screenShotPath)){
 					fs.mkdirSync(screenShotPath);
