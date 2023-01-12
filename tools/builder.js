@@ -3,22 +3,30 @@ const requirejs = require('requirejs');
 const Terser = require('terser');
 const startTime = Date.now();
 const args = getArgs();
-
+console.log(args);
 (function build() {
-    if ((args && args['O'])) {
+    if ((args && args['O']) || args['all']) {
         compile("Online", args['M']);
     }
 
-    if ((args && args['T'])) {
+    if ((args && args['T']) || args['all']) {
         compile("ThreadEventHandler", args['M']);
     }
 
-    if ((args && args['H'])) {
+    if ((args && args['H']) || args['all']) {
         createHTML();
     }
     
-    if ((args && args['S'])) {
+    if ((args && args['S']) || args['all']) {
         createSetting();
+    }
+    
+    if ((args && args['N']) || args['all']) {
+        createNW();
+    }
+    
+    if ((args && args['J']) || args['all']) {
+        createJSON();
     }
 })();
 
@@ -94,6 +102,7 @@ function compile(appName, isMinify) {
 }
 
 function createHTML(){
+    const start = Date.now();
     const body = `
         <!DOCTYPE html>
         <html>
@@ -102,16 +111,18 @@ function createHTML(){
             </head>
             <body>
                 <script src="settings.js"></script>
-                <script src="bootstrap.js"></script>
+                <script src="NW.js"></script>
+                <script src="Online.js"></script>
             </body>
         </html>
     `;
     fs.writeFile('./dist/main.html', body, { encoding: "utf8" }, function () {
-        console.log("main.html has been created in", (Date.now() - startTime), "ms.");
+        console.log("main.html has been created in", (Date.now() - start), "ms.");
     });
 }
 
 function createSetting(){
+    const start = Date.now();
     const body = `
         // Your custom settings
         var ROConfig = {
@@ -130,30 +141,50 @@ function createSetting(){
             ],
             skipIntro: true,
             skipServerList: true,
-            version: 0.1.0,
+            version: '0.1.0',
             plugins: {},
         };
     `;
     fs.writeFile('./dist/settings.js', body, { encoding: "utf8" }, function () {
-        console.log("settings.js has been created in", (Date.now() - startTime), "ms.");
+        console.log("settings.js has been created in", (Date.now() - start), "ms.");
     });
 }
 
-function createBootstrap(){
+function createNW(){
+    const start = Date.now();
+    const body = fs.readFileSync('./src/App/NW.js', {encoding:'utf8', flag:'r'});
+    
+    fs.writeFile('./dist/NW.js', body, { encoding: "utf8" }, function () {
+        console.log("NW.js has been created in", (Date.now() - start), "ms.");
+    });
+}
+
+function createJSON(){
+    var start = Date.now();
     const body = `
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <title>ROBrowser - NW</title>
-            </head>
-            <body>
-                <script src="settings.js"></script>
-                <script src="bootstrap.js"></script>
-            </body>
-        </html>
+    {
+        "name": "ronwjs",
+        "main": "main.html",
+        "version": "0.1.0",
+        "window": {
+            "width": 1024,
+            "height": 768,
+            "min_width": 1024,
+            "max_width": 2560,
+            "min_height": 768,
+            "max_height": 1440,
+            "fullscreen": false,
+            "frame": true,
+            "icon": "static/icon_128.png"
+        },
+        "chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
+        "author": "MrUnzO (kwon.unzo@gmail.com)",
+        "license": "GNU GPL V3"
+    }
+    
     `;
-    fs.writeFile('./dist/settings.js', body, { encoding: "utf8" }, function () {
-        console.log("settings.js has been created in", (Date.now() - startTime), "ms.");
+    fs.writeFile('./dist/package.json', body, { encoding: "utf8" }, function () {
+        console.log("package.json has been created in", (Date.now() - start), "ms.");
     });
 }
 
