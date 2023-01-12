@@ -2368,9 +2368,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			pkt.view.setUint16(pos + 2, this.TargetItemInfo.ITID, true);
 			pkt.view.setUint8(pos + 4, this.TargetItemInfo.RefiningLevel, true);
 			pkt.view.setUint16(pos + 5, this.TargetItemInfo.slot.card1, true);
-			pkt.view.setUint16(pos + 7, this.TargetItemInfo.slot.card1, true);
-			pkt.view.setUint16(pos + 9, this.TargetItemInfo.slot.card1, true);
-			pkt.view.setUint16(pos + 11, this.TargetItemInfo.slot.card1, true);
+			pkt.view.setUint16(pos + 7, this.TargetItemInfo.slot.card2, true);
+			pkt.view.setUint16(pos + 9, this.TargetItemInfo.slot.card3, true);
+			pkt.view.setUint16(pos + 11, this.TargetItemInfo.slot.card4, true);
 		}
 
 		return pkt;
