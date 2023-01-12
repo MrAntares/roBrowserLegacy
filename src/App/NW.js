@@ -27,10 +27,6 @@ if (ROConfig.grfList) {
 var fs = requireNode('fs');
 var path = requireNode('path');
 
-if(ROConfig.development){
-    nw.Window.get().showDevTools();
-}
-
 async function recursive(dir, done) {
     var results = [];
 
@@ -88,10 +84,5 @@ recursive(ROConfig.dataPath + 'BGM\\', function (err, results) {
             files[i].fullPath = files[i].name;
         }
         ROConfig.fileList = files;
-        if(ROConfig.development){
-            require(['src/App/Online']);
-        }else{
-            require(['Online']);
-        }
     });
 });
