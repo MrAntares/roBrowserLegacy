@@ -93,6 +93,9 @@ function initialize() {
        /* OPTIONAL/CUSTOM CONFIGS */
        /* Add/Remove the below as you wish */
           
+          //clientHash:    '113e195e6c051bb1cfb12a644bb084c5', // Set fixed client hash value here (less secure, for development only)
+          calculateHash:   false,  // When true, the client will calculate it's own (Online.js's) hash and send that value (slower, more secure, only when development is false)
+          
           /* Plugins */
           plugins:  {
                         /* Syntax */
