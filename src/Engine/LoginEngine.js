@@ -31,6 +31,7 @@ define(function( require )
 	var WinList      = require('UI/Components/WinList/WinList');
 	var WinPopup     = require('UI/Components/WinPopup/WinPopup');
 	var WinLogin     = require('UI/Components/WinLogin/WinLogin');
+	var MD5          = require('Vendors/spark-md5.min');
 	var getModule    = require;
 
 
@@ -241,34 +242,57 @@ define(function( require )
 			}
 
 			var pkt;
-			var hash = Configs.get('clientHash');
+			var hash = false;
+			
+			// Get client hash
+			if ( Configs.get('calculateHash') && Configs.get('development') ){
+				// Calucalte hash from Online.js (slower, more "secure")
+				var url = "Online.js";
 
-			// Client hash config
-			if (hash) {
-				// Convert hexadecimal hash to binary
-				if (/^[a-f0-9]+$/i.test(hash)) {
-					var str = '';
-					var i, count = hash.length;
+				var jsonFile = new XMLHttpRequest();
+				jsonFile.open("GET",url,true);
+				jsonFile.send();
 
-					for (i = 0; i < count; i += 2) {
-						str += String.fromCharCode(parseInt(hash.substr(i,2),16));
+				jsonFile.onreadystatechange = function() {
+					if (jsonFile.readyState== 4 && jsonFile.status == 200) {
+						hash = MD5.hash(jsonFile.responseText);
+						sendLogin();
+					}
+				}
+			} else {
+				// Just use the predefined value (faster, less "secure")
+				hash = Configs.get('clientHash');
+				sendLogin();
+			}
+			
+
+			function sendLogin(){
+				if (hash) {
+					// Convert hexadecimal hash to binary
+					if (/^[a-f0-9]+$/i.test(hash)) {
+						var str = '';
+						var i, count = hash.length;
+
+						for (i = 0; i < count; i += 2) {
+							str += String.fromCharCode(parseInt(hash.substr(i,2),16));
+						}
+
+						hash = str;
 					}
 
-					hash = str;
+					pkt           = new PACKET.CA.EXE_HASHCHECK();
+					pkt.HashValue = hash;
+					Network.sendPacket(pkt);
 				}
 
-				pkt           = new PACKET.CA.EXE_HASHCHECK();
-				pkt.HashValue = hash;
+				// Try to connect
+				pkt            = new PACKET.CA.LOGIN();
+				pkt.ID         = username;
+				pkt.Passwd     = password;
+				pkt.Version    = parseInt(_server.version, 10);
+				pkt.clienttype = parseInt(_server.langtype, 10);
 				Network.sendPacket(pkt);
 			}
-
-			// Try to connect
-			pkt            = new PACKET.CA.LOGIN();
-			pkt.ID         = username;
-			pkt.Passwd     = password;
-			pkt.Version    = parseInt(_server.version, 10);
-			pkt.clienttype = parseInt(_server.langtype, 10);
-			Network.sendPacket(pkt);
 		});
 	}
 
