@@ -91,9 +91,6 @@ requirejs(
                         FileSystem.bind('onready', function () {
                             FileManager.clean();
                             FileManager.init(msg.data.grfList, msg.data.dataPath);
-                            if(msg.data.dataPath){
-                                sendLog('Data path loading at "' + msg.data.dataPath + '"');
-                            }
 
 
                         postMessage({
