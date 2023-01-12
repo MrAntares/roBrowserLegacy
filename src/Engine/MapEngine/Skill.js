@@ -442,6 +442,29 @@ define(function( require )
 			}
 		};
 	}
+	
+	/**
+	 * Get a list of items to repair
+	 *
+	 * @param {object} pkt - PACKET.ZC.REPAIRITEMLIST
+	 */
+	function onRepairList( pkt )
+	{
+		if (!pkt.itemList.length) {
+			return;
+		}
+
+		RefineWeaponSelection.append();
+		RefineWeaponSelection.setList(pkt.itemList);
+		RefineWeaponSelection.setTitle(DB.getMessage(812));
+		RefineWeaponSelection.onIndexSelected = function(index) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.REQ_ITEMREPAIR();
+				pkt.TargetItemInfo = RefineWeaponSelection.getItemByIndex(index);
+				Network.sendPacket(pkt);
+			}
+		};
+	}
 
 	/**
 	 * Send back informations from server
@@ -733,6 +756,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_REMEMBER_WARPPOINT, onMemoResult );
 		Network.hookPacket( PACKET.ZC.MAKINGARROW_LIST,       onMakingarrowList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_WEAPONITEMLIST,  onRefineList );
+		Network.hookPacket( PACKET.ZC.REPAIRITEMLIST,         onRepairList);
 		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.MILLENNIUMSHIELD,       onSpiritSphere );

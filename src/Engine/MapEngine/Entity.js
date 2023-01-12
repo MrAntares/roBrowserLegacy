@@ -1023,6 +1023,21 @@ define(function( require )
 			case 11: break; // robe, not supported yet
 		}
 	}
+	
+	/**
+	 * Update NPC's visual look
+	 *
+	 * @param {object} pkt - PACKET.ZC.NPCSPRITE_CHANGE
+	 */
+	function onNPCViewChange( pkt )
+	{
+		var entity = EntityManager.get(pkt.GID);
+
+		// Type is fixed 1 and no other values. No need to do anything with it
+		if (entity) {
+			entity.job = pkt.value;
+		}
+	}
 
 
 	/**
@@ -2172,6 +2187,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.CHANGE_DIRECTION,             onEntityDirectionChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE,                onEntityViewChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE2,               onEntityViewChange );
+		Network.hookPacket( PACKET.ZC.NPCSPRITE_CHANGE,             onNPCViewChange );
 		Network.hookPacket( PACKET.ZC.USE_SKILL,                    onEntityUseSkill );
 		Network.hookPacket( PACKET.ZC.USE_SKILL2,                   onEntityUseSkill );
 		Network.hookPacket( PACKET.ZC.NOTIFY_SKILL,                 onEntityUseSkillToAttack );
