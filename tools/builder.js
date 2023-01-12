@@ -1,8 +1,11 @@
 const fs = require('fs');
 const requirejs = require('requirejs');
 const Terser = require('terser');
+const package = require('../package.json');
 const startTime = Date.now();
 const args = getArgs();
+
+const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 
 (function build() {
     const dist = './dist/';
@@ -26,7 +29,7 @@ const args = getArgs();
     }
     
     if ((args && args['A']) || args['all']) {
-        copyAI();
+        copyFolder('./AI', './dist/AI');
     }
     
     if ((args && args['M']) || args['all']) {
@@ -36,6 +39,8 @@ const args = getArgs();
     if ((args && args['J']) || args['all']) {
         createJSON();
     }
+
+    copyFolder('./static', './dist/static');
 })();
 
 function compile(appName, isMinify) {
@@ -115,11 +120,10 @@ function createHTML(){
         <!DOCTYPE html>
         <html>
             <head>
-                <title>ROBrowser - NW</title>
+                <title>RONW [${package.version} - ${buildDate}]</title>
             </head>
             <body>
                 <script src="main.js"></script>
-                <script src="Online.js"></script>
             </body>
         </html>
     `;
@@ -128,11 +132,8 @@ function createHTML(){
     });
 }
 
-function copyAI(){
-    const   start = Date.now(),
-            src = 'AI',
-            dest = './dist/AI';
-
+function copyFolder(src, dest){
+    const   start = Date.now();
     fs.cp(src, dest, {recursive: true}, function(err){
         if (err) throw err;
         console.log("AI folder and files has been created in", (Date.now() - start), "ms.");
@@ -191,7 +192,7 @@ function createJSON(){
     {
         "name": "ronwjs",
         "main": "main.html",
-        "version": "0.1.0",
+        "version": "${package.version}",
         "window": {
             "width": 1024,
             "height": 768,

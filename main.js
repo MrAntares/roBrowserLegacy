@@ -1,3 +1,14 @@
+console.log('RONW Version:', require('./package.json').version);
+// Add support for node.js + requirejs
+window.gui = require('nw.gui');
+window.requireNode = window.require;
+delete window.require;
+window.requireNode.version = process.versions.node;
+delete process.versions.node;
+
+var fs = requireNode('fs');
+var path = requireNode('path');
+
 const ROConfig = {
     development: true, // don't need to compile javascript files in chrome app since it's already a package.
     grfList: ['data.grf','rdata.grf'],
@@ -22,10 +33,9 @@ const ROConfig = {
     plugins: {},
 };
 
-var fs = require('fs');
-var path = require('path');
+window.ROConfig = ROConfig;
 
-(function () {
+(async function () {
     ROConfig.grfList = ROConfig.grfList || null;
     ROConfig.charBlockSize = ROConfig.charBlockSize || 0;
     ROConfig.clientHash = ROConfig.clientHash || null;
@@ -42,15 +52,15 @@ var path = require('path');
     ROConfig.ThirdPersonCamera = false;
     ROConfig.FirstPersonCamera = false;
 
-    console.log('[Flavors] ' + process.versions['nw-flavor']);
-    console.log('[Working Path] ' + ROConfig.dataPath);
-    console.log('[NW Path] ' + process.execPath.replace('nw.exe', ''));
-
     if (ROConfig.rootFolder) {
         ROConfig.dataPath = ROConfig.rootFolder;
     } else {
         ROConfig.dataPath = process.execPath.replace('nw.exe', '');
     }
+
+    console.log('[Flavors] ' + process.versions['nw-flavor']);
+    console.log('[Working Path] ' + ROConfig.dataPath);
+    console.log('[NW Path] ' + process.execPath.replace('nw.exe', ''));
 
     //Add Path to GRF List
     if (ROConfig.grfList) {
@@ -69,61 +79,52 @@ var path = require('path');
         console.log("Closing app.")
         nw.App.closeAllWindows();
     }
-
-    const files = [];
-    ['System', 'BGM'].forEach(function (folder, index) {
-        recursive(ROConfig.dataPath + folder + '\\', function (err, results) {
-            if (err) throw err;
-
-            console.log('[' + folder + '] Crawling...');
-
-            for (let i = 0; i < results.length; i++) {
-                files.push(
-                    new File(
-                        results[i],
-                        results[i].replace(ROConfig.dataPath, '').replace('\\', '/')
-                    )
-                );
-            }
-        });
-    });
-
-    for (let i = 0; i < files.length; i++) {
-        files[i].fullPath = files[i].name;
+    
+    ROConfig.fileList = [];
+    const folderList = ['System', 'BGM'];
+    const promises = folderList.map(async function(folder){
+        console.log('[' + folder + '] Crawling...');
+        const results = getAllFiles(ROConfig.dataPath + folder + '\\');
+        for (let i = 0; i < results.length; i++) {
+            ROConfig.fileList.push(
+                new File(
+                    results[i],
+                    results[i].replace(ROConfig.dataPath, '').replace('\\', '/')
+                )
+            );
+            ROConfig.fileList[ROConfig.fileList.length - 1].fullPath = ROConfig.fileList[ROConfig.fileList.length - 1].name;
+        }
+    })
+    await Promise.all(promises)
+    console.log("Finish crawling folders.");
+    console.log("Files added:", ROConfig.fileList.length);
+    //Inject the script after we load all files into the fileList.
+    if(ROConfig.development){
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'src/Vendors/require.js';
+        script.setAttribute("data-main",'src/App/Online');
+        document.getElementsByTagName('body')[0].appendChild(script);
+    }else{
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'Online.js';
+        document.getElementsByTagName('body')[0].appendChild(script);
     }
-    ROConfig.fileList = files;
-    window.ROConfig = ROConfig;
-
 })();
 
-function recursive(dir, done) {
-    var results = [];
-
-    fs.readdir(dir, function (err, list) {
-        if (err) return done(err);
-        var i = 0;
-        (function next() {
-            var file = list[i++];
-            if (!file) return done(null, results);
-            file = path.resolve(dir, file);
-            fs.stat(file, function (err, stat) {
-                if (stat && stat.isDirectory()) {
-                    recursive(file, function (err, res) {
-                        results = results.concat(res);
-                        next();
-                    });
-                } else {
-                    results.push(file);
-                    next();
-                }
-            });
-        })();
-    });
+function getAllFiles(dirPath, arrayOfFiles) {
+    files = fs.readdirSync(dirPath)
+  
+    arrayOfFiles = arrayOfFiles || []
+  
+    files.forEach(function(file) {
+      if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+        arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+      } else {
+        arrayOfFiles.push(path.join(dirPath, "/", file))
+      }
+    })
+  
+    return arrayOfFiles
 }
-
-// Add support for node.js + requirejs
-window.gui = require('nw.gui');
-window.requireNode = window.require;
-delete window.require;
-window.requireNode.version = process.versions.node;
-delete process.versions.node;
