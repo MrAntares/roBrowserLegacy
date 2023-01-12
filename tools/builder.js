@@ -5,12 +5,20 @@ const startTime = Date.now();
 const args = getArgs();
 
 (function build() {
-    if ((args && args['O']) || !args) {
+    if ((args && args['O'])) {
         compile("Online", args['M']);
     }
 
-    if ((args && args['T']) || !args) {
+    if ((args && args['T'])) {
         compile("ThreadEventHandler", args['M']);
+    }
+
+    if ((args && args['H'])) {
+        createHTML();
+    }
+    
+    if ((args && args['S'])) {
+        createSetting();
     }
 })();
 
@@ -82,6 +90,70 @@ function compile(appName, isMinify) {
     requirejs.optimize(config, function (buildResponse) {
     }, function (err) {
         console.error(err);
+    });
+}
+
+function createHTML(){
+    const body = `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>ROBrowser - NW</title>
+            </head>
+            <body>
+                <script src="settings.js"></script>
+                <script src="bootstrap.js"></script>
+            </body>
+        </html>
+    `;
+    fs.writeFile('./dist/main.html', body, { encoding: "utf8" }, function () {
+        console.log("main.html has been created in", (Date.now() - startTime), "ms.");
+    });
+}
+
+function createSetting(){
+    const body = `
+        // Your custom settings
+        var ROConfig = {
+            development: false,
+            grfList: ['data.grf'],
+            servers: [
+                {
+                    display: 'Localhost Server',
+                    desc: "Demo server",
+                    address: '127.0.0.1',
+                    port: 6900,
+                    version: 55,
+                    langtype: 5,
+                    packetver: 20180704,
+                },
+            ],
+            skipIntro: true,
+            skipServerList: true,
+            version: 0.1.0,
+            plugins: {},
+        };
+    `;
+    fs.writeFile('./dist/settings.js', body, { encoding: "utf8" }, function () {
+        console.log("settings.js has been created in", (Date.now() - startTime), "ms.");
+    });
+}
+
+function createBootstrap(){
+    const body = `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>ROBrowser - NW</title>
+            </head>
+            <body>
+                <script src="settings.js"></script>
+                <script src="bootstrap.js"></script>
+            </body>
+        </html>
+    `;
+    fs.writeFile('./dist/settings.js', body, { encoding: "utf8" }, function () {
+        console.log("settings.js has been created in", (Date.now() - startTime), "ms.");
     });
 }
 
