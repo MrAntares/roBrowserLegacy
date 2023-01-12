@@ -76,8 +76,12 @@ define(function(require)
 		var item, it, file, name, refine;
 
 		RefineWeaponSelection.list.empty();
+		RefineWeaponSelection.ItemList = [];
 
 		for (i = 0, count = list.length; i < count; ++i) {
+			
+			// Save list
+			RefineWeaponSelection.ItemList[i] = list[i];
 
 			it   = DB.getItemInfo( list[i].ITID );
 			file = it.identifiedResourceName;
@@ -136,8 +140,19 @@ define(function(require)
 		this.onIndexSelected( this.index );
 		this.remove();
 	};
-
-
+	
+	/**
+	 * Select a server, callback
+	 */
+	RefineWeaponSelection.getItemByIndex = function getItemByIndex(index){
+		var list = RefineWeaponSelection.ItemList;
+		
+		for (var i = 0; i < list.length; i++){
+			if( RefineWeaponSelection.ItemList[i].index == index ){
+				return RefineWeaponSelection.ItemList[i];
+			}
+		}
+	}
 
 	/**
 	 * Free variables once removed from HTML
