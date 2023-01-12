@@ -118,7 +118,11 @@
 	 * @var {string} client hash to send to server
 	 */
 	ROBrowser.prototype.clientHash = null;
-
+	
+	/**
+	 * @var {string} calculate client hash
+	 */
+	ROBrowser.prototype.calculateHash = false;
 
 	/**
 	 * @var {constant} application name (see: ROBrowser.APP.* )
@@ -387,6 +391,7 @@
 			autoLogin:        this.autoLogin,
 			version:          this.version,
 			clientHash:       this.clientHash,
+			calculateHash:    this.calculateHash,
 			plugins:          this.plugins,
 			charBlockSize:    this.charBlockSize,
 			BGMFileExtension: this.BGMFileExtension,
