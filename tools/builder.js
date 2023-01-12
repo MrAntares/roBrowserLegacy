@@ -3,26 +3,34 @@ const requirejs = require('requirejs');
 const Terser = require('terser');
 const startTime = Date.now();
 const args = getArgs();
-console.log(args);
+
 (function build() {
+    const dist = './dist/';
+    //delete all files in dist
+    fs.rmSync(dist, { recursive: true });
+
+    if (!fs.existsSync(dist)){
+        fs.mkdirSync(dist);
+    }
+
     if ((args && args['O']) || args['all']) {
-        compile("Online", args['M']);
+        compile("Online", args['m']);
     }
 
     if ((args && args['T']) || args['all']) {
-        compile("ThreadEventHandler", args['M']);
+        compile("ThreadEventHandler", args['m']);
     }
 
     if ((args && args['H']) || args['all']) {
         createHTML();
     }
     
-    if ((args && args['S']) || args['all']) {
-        createSetting();
+    if ((args && args['A']) || args['all']) {
+        copyAI();
     }
     
-    if ((args && args['N']) || args['all']) {
-        createNW();
+    if ((args && args['M']) || args['all']) {
+        createMain();
     }
     
     if ((args && args['J']) || args['all']) {
@@ -110,8 +118,7 @@ function createHTML(){
                 <title>ROBrowser - NW</title>
             </head>
             <body>
-                <script src="settings.js"></script>
-                <script src="NW.js"></script>
+                <script src="main.js"></script>
                 <script src="Online.js"></script>
             </body>
         </html>
@@ -121,41 +128,60 @@ function createHTML(){
     });
 }
 
-function createSetting(){
-    const start = Date.now();
-    const body = `
-        // Your custom settings
-        var ROConfig = {
-            development: false,
-            grfList: ['data.grf'],
-            servers: [
-                {
-                    display: 'Localhost Server',
-                    desc: "Demo server",
-                    address: '127.0.0.1',
-                    port: 6900,
-                    version: 55,
-                    langtype: 5,
-                    packetver: 20180704,
-                },
-            ],
-            skipIntro: true,
-            skipServerList: true,
-            version: '0.1.0',
-            plugins: {},
-        };
-    `;
-    fs.writeFile('./dist/settings.js', body, { encoding: "utf8" }, function () {
-        console.log("settings.js has been created in", (Date.now() - start), "ms.");
+function copyAI(){
+    const   start = Date.now(),
+            src = 'AI',
+            dest = './dist/AI';
+
+    fs.cp(src, dest, {recursive: true}, function(err){
+        if (err) throw err;
+        console.log("AI folder and files has been created in", (Date.now() - start), "ms.");
     });
 }
 
-function createNW(){
+// function createSetting(){
+//     const start = Date.now();
+//     const body = `
+//         // Your custom settings
+//         var ROConfig = {
+//             //always set to false for compiled version.
+//             development: false,
+//             grfList: ['data.grf'],
+//             // if you want to read data folder. (still have some bugs with this.)
+//             readDataFolder: false,
+//             //if you need the read the specific directory you can provide the path in this variable. (need have \\ at the end)
+//             //Otherwise the client will read the current directory that nw.exe is running
+//             //In case you put all dist files along with the nw.exe files, client will read from that folder, so, you just put grf files, System, AI and BGM folder in that folder to make client read the file.
+//             // rootFolder: "C:\\Path\\To\\Root\\Folder\\Contain\\GRF_file\\",
+//             servers: [
+//                 {
+//                     display: 'Localhost Server',
+//                     desc: "Demo server",
+//                     address: '127.0.0.1',
+//                     port: 6900,
+//                     version: 55,
+//                     langtype: 5,
+//                     packetver: 20180704,
+//                 },
+//             ],
+//             skipIntro: true,
+//             skipServerList: true,
+//             version: '0.1.0',
+//             plugins: {},
+//         };
+//     `;
+//     fs.writeFile('./dist/settings.js', body, { encoding: "utf8" }, function () {
+//         console.log("settings.js has been created in", (Date.now() - start), "ms.");
+//     });
+// }
+
+function createMain(){
     const start = Date.now();
-    const body = fs.readFileSync('./src/App/NW.js', {encoding:'utf8', flag:'r'});
-    
-    fs.writeFile('./dist/NW.js', body, { encoding: "utf8" }, function () {
-        console.log("NW.js has been created in", (Date.now() - start), "ms.");
+    let body = fs.readFileSync('./main.js', {encoding:'utf8', flag:'r'});
+    // 
+    body = body.replace(/development:(.*)/gm, '');
+    fs.writeFile('./dist/main.js', body, { encoding: "utf8" }, function () {
+        console.log("Main.js has been created in", (Date.now() - start), "ms.");
     });
 }
 

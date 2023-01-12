@@ -23,7 +23,7 @@ require.onError = function (err) {
 };
 
 require({
-    urlArgs: 'bust=' + ROConfig.version,
+    // urlArgs: 'bust=' + ROConfig.version,
     baseUrl: './src/',
     paths: {
         text:   'Vendors/text.require',
