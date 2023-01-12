@@ -16,7 +16,7 @@
 	"scripts": {
 		"dev": "nw .",
 		"prod": "nw ./dist/",
-		"build": "node ./build/builder.js"
+		"build": "node ./tools/builder.js"
 	},
 	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
 	"author": "MrUnzO (kwon.unzo@gmail.com)",
