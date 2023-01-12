@@ -82,12 +82,18 @@ define(function(require)
 
 
 	/**
+	 * @var {CanvasElement} container for skill level
+	 */
+	var _skill_level;
+
+	/**
 	 * Initialize component
 	 */
 	SkillTargetSelection.init = function init()
 	{
 		_skillName   = document.createElement('canvas');
 		_description = document.createElement('canvas');
+		_skill_level = document.createElement('canvas');
 
 		_skillName.style.position       = 'absolute';
 		_skillName.style.top            = '45px';
@@ -100,6 +106,17 @@ define(function(require)
 		_description.style.zIndex       = 100;
 		_description.style.borderRadius = '3px';
 		_description.style.border       = '1px solid #555';
+
+		_skill_level.style.position     = 'absolute';
+		_skill_level.style.left       	=  0;
+		_skill_level.style.top       	=  0;
+		_skill_level.style.zIndex       = 100;
+
+		jQuery(window).mousemove(function(event)
+		{
+			_skill_level.style.left = (event.pageX + 20) + 'px';
+			_skill_level.style.top = (event.pageY - 18) + 'px';
+		});
 
 		render( DB.getMessage(234), _description);
 
@@ -121,6 +138,10 @@ define(function(require)
 
 		if (!_description.parentNode) {
 			document.body.appendChild(_description);
+		}
+
+		if (!_skill_level.parentNode) {
+			document.body.appendChild(_skill_level);
 		}
 
 		// Execute onKeyDown BEFORE the one executed by Escape window
@@ -169,6 +190,12 @@ define(function(require)
 		if (_description.parentNode) {
 			document.body.removeChild(_description);
 		}
+
+		if (_skill_level.parentNode) {
+			document.body.removeChild(_skill_level);
+		}
+
+		Mouse.state = Mouse.MOUSE_STATE.NORMAL;
 	};
 
 
@@ -205,15 +232,38 @@ define(function(require)
 			Cursor.blockMagnetism = true;
 		}
 
+		Mouse.state = Mouse.MOUSE_STATE.USESKILL;
+
 		EntityManager.setReversePriority((_flag & SkillTargetSelection.TYPE.FRIEND) > 0);
 
 		// Render skillName
 		var sk = SkillInfo[ skill.SKID ];
-		render(description || sk.SkillName, _skillName);
+		render((description || sk.SkillName), _skillName);
+		renderLevel(_skill.useLevel ? _skill.useLevel : _skill.level , _skill_level);
 
 		Cursor.setType( Cursor.ACTION.TARGET);
 		Cursor.freeze = true;
 	};
+
+
+	SkillTargetSelection.setSkillLevelDelta = function setSkillLevelDelta(delta) {
+		var sk = SkillInfo[ _skill.SKID ];
+		if(!sk.bSeperateLv){
+			return;
+		}
+		if(!_skill.useLevel){
+			_skill.useLevel = _skill.level;
+		}
+		_skill.useLevel +=  delta;
+		if(_skill.useLevel < 1){
+			_skill.useLevel = 1;
+		}
+		if(_skill.useLevel > _skill.level){
+			_skill.useLevel = _skill.level;
+		}
+		
+		renderLevel(_skill.useLevel, _skill_level);
+	}
 
 
 	/**
@@ -243,6 +293,29 @@ define(function(require)
 		ctx.fillText( text, 7, 16);
 
 		canvas.style.left = ((Renderer.width - canvas.width) >> 1) + 'px';
+	}
+
+	
+	/**
+	 * Render text into the canvas
+	 *
+	 * @param {string} text to render
+	 * @param {CanvasElement} canvas node
+	 */
+	function renderLevel(text, canvas)
+	{
+		var fontSize = 24;
+		var ctx      = canvas.getContext('2d');
+
+		canvas.width  = 35;
+		canvas.height = 35;
+
+		ctx.font      = fontSize + 'px Arial';
+		ctx.strokeStyle = '#333333';
+		ctx.lineWidth = 3;
+		ctx.strokeText(text, 0, 30);
+		ctx.fillStyle = 'white';
+		ctx.fillText( text, 0, 30);
 	}
 
 

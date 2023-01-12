@@ -46,6 +46,18 @@ define(['Utils/jquery'], function( jQuery )
 	Mouse.intersect = false;
 
 
+	Mouse.MOUSE_STATE = {
+		NORMAL: 0,
+		DRAGGING: 1,
+		USESKILL: 2,
+	}
+
+	/**
+	 * @var {integer} Mouse state
+	 */
+	Mouse.state = 0;
+
+
 	/**
 	 * Track mouse move event
 	 */
