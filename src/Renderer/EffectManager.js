@@ -105,7 +105,7 @@ define(function( require )
 			_list[name] = [];
 
 			if (effect.constructor.init) {
-				effect.constructor.init(_gl);
+				effect.constructor.needInit = true;
 			}
 
 			if (!effect.constructor.renderBeforeEntities) {
@@ -114,7 +114,7 @@ define(function( require )
 		}
 
 		if (effect.init) {
-			effect.init(_gl);
+			effect.needInit = true;
 		}
 		
 		effect._Params = Params;
@@ -235,15 +235,25 @@ define(function( require )
 			constructor = list[0].constructor;
 
 			// Will be render after/before.
-			if (constructor.renderBeforeEntities !== renderBeforeEntities) {
+			if ( constructor.renderBeforeEntities !== renderBeforeEntities ) {
 				continue;
 			}
+			
+			if ( !(constructor.ready) && constructor.needInit ){
+				constructor.init(gl);
+				constructor.needInit = false;
+			}
 
-			if (constructor.ready) {
+			if ( constructor.ready ) {
 				constructor.beforeRender(gl, modelView, projection, fog, tick);
 
 				for (j = 0, size = list.length; j < size; ++j) {
-					if (list[j].ready) {
+					if( !(list[j].ready) && list[j].needInit ){
+						list[j].init(gl);
+						list[j].needInit = false;
+					}
+					
+					if ( list[j].ready ) {
 						list[j].render(gl, tick);
 					}
 					
