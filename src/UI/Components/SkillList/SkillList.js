@@ -244,7 +244,9 @@ define(function(require)
 		);
 
 		element.draggable({
+			refreshPositions: true,
 			helper: "clone",
+			cursor: false,
 			zIndex: 2500,
 			appendTo: "body",
 			containment: "window",

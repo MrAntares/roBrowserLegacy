@@ -367,7 +367,9 @@ define(function(require)
 			ui.find('.name').text(name);
 
 			ui.find('.icon').draggable({
-				helper: "clone", // create "copy" with original properties, but not a true clone
+				refreshPositions: true,
+				helper: "clone",
+				cursor: false,
 				zIndex: 2500,
 				appendTo: "body",
 				containment: "window",

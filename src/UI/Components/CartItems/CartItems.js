@@ -323,7 +323,8 @@ define(function(require)
 
 			itemObj.draggable({
 				refreshPositions: true,
-				helper: "clone", // create "copy" with original properties, but not a true clone
+				helper: "clone",
+				cursor: false,
 				zIndex: 2500,
 				appendTo: "body",
 				containment: "window",
