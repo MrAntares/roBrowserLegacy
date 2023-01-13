@@ -1,14 +1,4 @@
-console.log('RONW Version:', require('./package.json').version);
-// Add support for node.js + requirejs
-window.gui = require('nw.gui');
-window.requireNode = window.require;
-delete window.require;
-window.requireNode.version = process.versions.node;
-delete process.versions.node;
-
-var fs = requireNode('fs');
-var path = requireNode('path');
-
+/*************************** Config ***************************/
 const ROConfig = {
     development: true, // don't need to compile javascript files in chrome app since it's already a package.
     grfList: ['data.grf','rdata.grf'],
@@ -26,17 +16,17 @@ const ROConfig = {
             packetKeys: true
         },
     ],
-    saveFiles: false,
-    skipIntro: false,
-    skipServerList: true,
-    version: 1.272,
-    //charCreateVer:   1,
+    version: require('./package.json').version,
     plugins: {},
 };
+/**************************************************************/
+/**************************************************************/
 
-window.ROConfig = ROConfig;
+const fs = require('fs');
+const path = require('path');
 
 (async function () {
+    window.ROConfig = ROConfig;
     ROConfig.grfList = ROConfig.grfList || null;
     ROConfig.charBlockSize = ROConfig.charBlockSize || 0;
     ROConfig.clientHash = ROConfig.clientHash || null;
@@ -56,12 +46,13 @@ window.ROConfig = ROConfig;
     if (ROConfig.rootFolder) {
         ROConfig.dataPath = ROConfig.rootFolder;
     } else {
-        ROConfig.dataPath = process.execPath.replace('nw.exe', '');
+        ROConfig.dataPath = path.dirname(process.execPath) + '/';
     }
-
+    
+    console.log('RONW Version:', require('./package.json').version);
     console.log('[Flavors] ' + process.versions['nw-flavor']);
     console.log('[Working Path] ' + ROConfig.dataPath);
-    console.log('[NW Path] ' + process.execPath.replace('nw.exe', ''));
+    console.log('[NW Path] ' + path.dirname(process.execPath) + '/');
 
     //Add Path to GRF List
     if (ROConfig.grfList) {
@@ -129,3 +120,11 @@ function getAllFiles(dirPath, arrayOfFiles) {
   
     return arrayOfFiles
 }
+
+
+// Add support for node.js + requirejs
+window.gui = require('nw.gui');
+window.requireNode = window.require;
+delete window.require;
+window.requireNode.version = process.versions.node;
+delete process.versions.node;

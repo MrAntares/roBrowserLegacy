@@ -10,7 +10,13 @@ const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 (function build() {
     const dist = './dist/';
     //delete all files in dist
-    fs.rmSync(dist, { recursive: true });
+    fs.rmSync('./dist/AI', { recursive: true, force: true });
+    fs.rmSync('./dist/static', { recursive: true, force: true });
+    fs.rmSync('./dist/main.html', { recursive: true, force: true });
+    fs.rmSync('./dist/main.js', { recursive: true, force: true });
+    fs.rmSync('./dist/Online.js', { recursive: true, force: true });
+    fs.rmSync('./dist/ThreadEventHandler.js', { recursive: true, force: true });
+    fs.rmSync('./dist/package.json', { recursive: true, force: true });
 
     if (!fs.existsSync(dist)){
         fs.mkdirSync(dist);
@@ -145,6 +151,13 @@ function createMain(){
     let body = fs.readFileSync('./main.js', {encoding:'utf8', flag:'r'});
     // 
     body = body.replace(/development:(.*)/gm, '');
+    body = body.replace(/readDataFolder(.*)/, '');
+    body = body.replace(/rootFolder(.*)/, '//rootFolder: \'\', //Edit this line if you need to read the data from specific folder.');
+    body = `// Check if player try to use this on sdk version
+if(process.versions['nw-flavor'] === 'sdk'){
+    alert('Oops! Don\\'t do that.');
+    nw.App.closeAllWindows();
+}\n` + body;
     fs.writeFile('./dist/main.js', body, { encoding: "utf8" }, function () {
         console.log("Main.js has been created in", (Date.now() - start), "ms.");
     });
@@ -170,10 +183,10 @@ function createJSON(){
         },
         "build": {
             "nwVersion": "${package.devDependencies.nw.replace('-sdk', '')}",
-            "nwFlavors": "normal",
+            "nwFlavor": "normal",
             "output": "../release/",
             "win": {
-                "productName": "Ragexe",
+                "productName": "RONW",
                 "companyName": "RONW",
                 "icon": "static/icon.ico"
             }

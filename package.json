@@ -17,15 +17,13 @@
 		"dev": "nw .",
 		"prod": "nw ./dist/",
 		"build": "node ./tools/builder.js",
-		"release": "build --concurrent --tasks win-x86 --mirror https://dl.nwjs.io/ ./dist"
+		"release": "build --concurrent --tasks win-x86,win-x64 --mirror https://dl.nwjs.io/ ./dist"
 	},
 	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
 	"author": "MrUnzO (kwon.unzo@gmail.com)",
 	"license": "GNU GPL V3",
-	"dependencies": {
-		"requirejs": "^2.3.6"
-	},
 	"devDependencies": {
+		"requirejs": "^2.3.6",
 		"nw": "0.71.1-sdk",
 		"nwjs-builder-phoenix": "^1.15.0",
 		"terser": "^5.16.1"
