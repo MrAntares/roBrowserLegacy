@@ -3,9 +3,9 @@ RONW is forked from [roBrowserLegacy](https://github.com/MrAntares/Ragna.roBrows
 
 ## How to run it?
 * You have to download the release.
-* Copy the data.grf, rdata.grf, BGM,AI,System folders to the root of RONW
+* Copy the data.grf,rdata.grf,BGM,System folders to the root of RONW
 * edit the main.js
-* start Ragexe.exe
+* start RONW.exe
 
 ## Why did we choose NW.js?
 The benefit of using NW.js is you can compile the source code to v8 Snapshot. That means you can protect your source code. You don't need to run the web server for this version because it will read directly from the Grf files, which means the speed of loading.
