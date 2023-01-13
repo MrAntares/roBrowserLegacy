@@ -91,7 +91,7 @@ function compile(appName, isMinify) {
             let fileName = "./dist/" + appName + '.js';
 
             if (isMinify) {
-                console.log(appName + ".js - Minifing...");
+                console.log(appName + ".js - Minifying...");
                 const options = {
                     output: {
                         ascii_only: true
