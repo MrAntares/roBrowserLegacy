@@ -13,7 +13,7 @@ const ROConfig = {
     development: true, // don't need to compile javascript files in chrome app since it's already a package.
     grfList: ['data.grf','rdata.grf'],
     readDataFolder: true,
-    rootFolder: "G:\\Private Servers\\Ragnarok\\roBrowser\\ROData2018\\",
+    rootFolder: "G:/Private Servers/Ragnarok/roBrowser/ROData2018/",
     servers: [
         {
             display: 'Localhost Server',
@@ -23,6 +23,7 @@ const ROConfig = {
             version: 55,
             langtype: 5,
             packetver: 20180704,
+            packetKeys: true
         },
     ],
     saveFiles: false,
@@ -84,12 +85,12 @@ window.ROConfig = ROConfig;
     const folderList = ['System', 'BGM'];
     const promises = folderList.map(async function(folder){
         console.log('[' + folder + '] Crawling...');
-        const results = getAllFiles(ROConfig.dataPath + folder + '\\');
+        const results = getAllFiles(ROConfig.dataPath + folder + '/');
         for (let i = 0; i < results.length; i++) {
             ROConfig.fileList.push(
                 new File(
                     results[i],
-                    results[i].replace(ROConfig.dataPath, '').replace('\\', '/')
+                    results[i].slice(ROConfig.dataPath.length).replace('\\', '/')
                 )
             );
             ROConfig.fileList[ROConfig.fileList.length - 1].fullPath = ROConfig.fileList[ROConfig.fileList.length - 1].name;
