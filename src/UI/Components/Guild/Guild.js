@@ -814,6 +814,8 @@ define(function(require)
 			helper: "clone",
 			zIndex: 2500,
 			appendTo: "body",
+			containment: "window",
+			scroll: false,
 			start: onSkillDragStart,
 			stop: onSkillDragEnd,
 			cursorAt: {

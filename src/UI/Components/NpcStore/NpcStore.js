@@ -431,7 +431,8 @@ define(function(require)
 			helper: "clone", // create "copy" with original properties, but not a true clone
 			zIndex: 2500,
 			appendTo: "body",
-			containment: "body",
+			containment: "window",
+			scroll: false,
 			start: onDragStart,
 			stop: function(){
 				delete window._OBJ_DRAG_;
