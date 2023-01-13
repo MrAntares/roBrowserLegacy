@@ -96,7 +96,7 @@ window.ROConfig = ROConfig;
             ROConfig.fileList[ROConfig.fileList.length - 1].fullPath = ROConfig.fileList[ROConfig.fileList.length - 1].name;
         }
     })
-    await Promise.all(promises)
+    await Promise.all(promises);
     console.log("Finish crawling folders.");
     console.log("Files added:", ROConfig.fileList.length);
     //Inject the script after we load all files into the fileList.

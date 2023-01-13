@@ -99,7 +99,7 @@ function compile(appName, isMinify) {
                 };
                 source = await Terser.minify(source, options);
                 source = source.code;
-                fileName = "./dist/" + appName + '.min.js';
+                // fileName = "./dist/" + appName + '.min.js';
             }
 
             fs.writeFile(fileName, header + source, { encoding: "utf8" }, function () {
@@ -140,42 +140,6 @@ function copyFolder(src, dest){
     });
 }
 
-// function createSetting(){
-//     const start = Date.now();
-//     const body = `
-//         // Your custom settings
-//         var ROConfig = {
-//             //always set to false for compiled version.
-//             development: false,
-//             grfList: ['data.grf'],
-//             // if you want to read data folder. (still have some bugs with this.)
-//             readDataFolder: false,
-//             //if you need the read the specific directory you can provide the path in this variable. (need have \\ at the end)
-//             //Otherwise the client will read the current directory that nw.exe is running
-//             //In case you put all dist files along with the nw.exe files, client will read from that folder, so, you just put grf files, System, AI and BGM folder in that folder to make client read the file.
-//             // rootFolder: "C:\\Path\\To\\Root\\Folder\\Contain\\GRF_file\\",
-//             servers: [
-//                 {
-//                     display: 'Localhost Server',
-//                     desc: "Demo server",
-//                     address: '127.0.0.1',
-//                     port: 6900,
-//                     version: 55,
-//                     langtype: 5,
-//                     packetver: 20180704,
-//                 },
-//             ],
-//             skipIntro: true,
-//             skipServerList: true,
-//             version: '0.1.0',
-//             plugins: {},
-//         };
-//     `;
-//     fs.writeFile('./dist/settings.js', body, { encoding: "utf8" }, function () {
-//         console.log("settings.js has been created in", (Date.now() - start), "ms.");
-//     });
-// }
-
 function createMain(){
     const start = Date.now();
     let body = fs.readFileSync('./main.js', {encoding:'utf8', flag:'r'});
@@ -190,8 +154,8 @@ function createJSON(){
     var start = Date.now();
     const body = `
     {
-        "name": "ronwjs",
-        "main": "main.html",
+        "name": "${package.name}",
+        "main": "${package.main}",
         "version": "${package.version}",
         "window": {
             "width": 1024,
@@ -203,6 +167,16 @@ function createJSON(){
             "fullscreen": false,
             "frame": true,
             "icon": "static/icon_128.png"
+        },
+        "build": {
+            "nwVersion": "${package.devDependencies.nw.replace('-sdk', '')}",
+            "nwFlavors": "normal",
+            "output": "../release/",
+            "win": {
+                "productName": "Ragexe",
+                "companyName": "RONW",
+                "icon": "static/icon.ico"
+            }
         },
         "chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
         "author": "MrUnzO (kwon.unzo@gmail.com)",
