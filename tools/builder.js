@@ -16,27 +16,27 @@ const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         fs.mkdirSync(dist);
     }
 
-    if ((args && args['O']) || args['all']) {
+    if ((args && args['O']) || args['all'] || Object.keys(args).length === 0) {
         compile("Online", args['m']);
     }
 
-    if ((args && args['T']) || args['all']) {
+    if ((args && args['T']) || args['all'] || Object.keys(args).length === 0) {
         compile("ThreadEventHandler", args['m']);
     }
 
-    if ((args && args['H']) || args['all']) {
+    if ((args && args['H']) || args['all'] || Object.keys(args).length === 0) {
         createHTML();
     }
     
-    if ((args && args['A']) || args['all']) {
+    if ((args && args['A']) || args['all'] || Object.keys(args).length === 0) {
         copyFolder('./AI', './dist/AI');
     }
     
-    if ((args && args['M']) || args['all']) {
+    if ((args && args['M']) || args['all'] || Object.keys(args).length === 0) {
         createMain();
     }
     
-    if ((args && args['J']) || args['all']) {
+    if ((args && args['J']) || args['all'] || Object.keys(args).length === 0) {
         createJSON();
     }
 
