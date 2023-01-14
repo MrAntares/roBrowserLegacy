@@ -136,8 +136,6 @@ define(function( require )
 	Renderer.show = function show(){
 		if (!this.canvas.parentNode) {
 			document.body.appendChild(this.canvas);
-			//Bring it to the front
-			jQuery( Renderer.canvas ).css('z-index', 1);
 		}
 	};
 
@@ -262,9 +260,6 @@ define(function( require )
 	 */
 	Renderer.stop = function stop( fn )
 	{
-		//Put Render canvas to the back
-		jQuery( Renderer.canvas ).css('z-index', 0);
-
 		// No callback specified, remove all
 		if (!arguments.length) {
 			this.renderCallbacks.length = 0;
