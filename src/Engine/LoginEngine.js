@@ -245,20 +245,32 @@ define(function( require )
 			var hash = false;
 			
 			// Get client hash
-			if ( Configs.get('calculateHash') && Configs.get('development') ){
-				// Calucalte hash from Online.js (slower, more "secure")
-				var url = "Online.js";
+			if ( Configs.get('calculateHash') && !Configs.get('development') ){
+				// Calucalte hash from files (slower, more "secure")
+				var files = Configs.get('hashFiles');
+				var fileStatus = 0;
+				var fileContents = [];
+				
+				for (var i=0; i<files.length; i++ ){
+					var jsonFile = new XMLHttpRequest();
+					jsonFile.open("GET",files[i],true);
+					jsonFile.send();
 
-				var jsonFile = new XMLHttpRequest();
-				jsonFile.open("GET",url,true);
-				jsonFile.send();
-
-				jsonFile.onreadystatechange = function() {
-					if (jsonFile.readyState== 4 && jsonFile.status == 200) {
-						hash = MD5.hash(jsonFile.responseText);
-						sendLogin();
+					jsonFile.onreadystatechange = function() {
+						if (jsonFile.readyState== 4 && jsonFile.status == 200) {
+							fileContents[i] = jsonFile.responseText;
+							fileStatus++;
+						}
+						
+						if(fileStatus == files.length){
+							var contentString = fileContents.join("\r\n"); // Join strings with carrige return & newline
+							hash = MD5.hash(contentString); // Just hash the whole array
+							sendLogin();
+						}
 					}
 				}
+
+				
 			} else {
 				// Just use the predefined value (faster, less "secure")
 				hash = Configs.get('clientHash');
