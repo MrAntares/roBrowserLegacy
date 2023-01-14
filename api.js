@@ -123,6 +123,12 @@
 	 * @var {string} calculate client hash
 	 */
 	ROBrowser.prototype.calculateHash = false;
+	
+	/**
+	 * @var {string} files to hash for hash calculation
+	 */
+	ROBrowser.prototype.hashFiles = [];
+	
 
 	/**
 	 * @var {constant} application name (see: ROBrowser.APP.* )
@@ -392,6 +398,7 @@
 			version:          this.version,
 			clientHash:       this.clientHash,
 			calculateHash:    this.calculateHash,
+			hashFiles:        this.hashFiles,
 			plugins:          this.plugins,
 			charBlockSize:    this.charBlockSize,
 			BGMFileExtension: this.BGMFileExtension,
