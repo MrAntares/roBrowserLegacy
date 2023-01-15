@@ -60,9 +60,11 @@ define(function( require )
 		} else {
 			Network.hookPacket( PACKET.ZC.GROUP_LIST2,               onPartyList );
 		}
+		Network.hookPacket( PACKET.ZC.GROUP_LIST3,               onPartyList );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP,       onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP2,      onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP3,      onPartyMemberJoin );
+		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP4,      onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.DELETE_MEMBER_FROM_GROUP,  onPartyMemberLeave );
 		Network.hookPacket( PACKET.ZC.ACK_MAKE_GROUP,            onPartyCreate );
 

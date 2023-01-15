@@ -12266,6 +12266,45 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.UI_OPEN.size = 7;
 
+	// 0xae4
+	PACKET.ZC.ADD_MEMBER_TO_GROUP4 = function PACKET_ZC_ADD_MEMBER_TO_GROUP4(fp, end) {
+		this.AID = fp.readULong();
+		this.GID = fp.readULong();
+		this.Role = fp.readULong();
+		this.job = fp.readShort();
+		this.level = fp.readShort();
+		this.xPos = fp.readShort();
+		this.yPos = fp.readShort();
+		this.state = fp.readUChar();
+		this.groupName = fp.readString(24);
+		this.characterName = fp.readString(24);
+		this.mapName = fp.readBinaryString(16);
+		this.ItemPickupRule = fp.readUChar();
+		this.ItemDivisionRule = fp.readUChar();
+	};
+	PACKET.ZC.ADD_MEMBER_TO_GROUP4.size = 89;
+
+	//0xae5
+	PACKET.ZC.GROUP_LIST3 = function PACKET_ZC_GROUP_LIST3(fp, end) {
+		this.groupName = fp.readString(24);
+		this.groupInfo = (function() {
+			var i, count=(end-fp.tell())/50|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].AID = fp.readULong();
+				out[i].GID = fp.readULong();
+				out[i].characterName = fp.readString(24);
+				out[i].mapName = fp.readBinaryString(16);
+				out[i].role = fp.readUChar();
+				out[i].state = fp.readUChar();
+				out[i].job = fp.readShort();
+				out[i].level = fp.readShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.GROUP_LIST3.size = -1;
+
 	//0xb08
 	PACKET.ZC.INVENTORY_START = function PACKET_ZC_INVENTORY_START(fp, end) {
 		this.name = fp.readString(24);
