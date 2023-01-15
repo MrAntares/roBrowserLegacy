@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-define( ['jquery', 'DB/DBManager', 'Vendors/jquery-ui', 'Vendors/jquery.top-droppable'], function( jQuery, DB, jQueryUI, topDrop  )
+define( ['jquery', 'DB/DBManager', 'Vendors/jquery-ui-drag-n-drop', 'Vendors/jquery.top-droppable'], function( jQuery, DB, jQueryUI, topDrop  )
 {
 	'use strict';
 
