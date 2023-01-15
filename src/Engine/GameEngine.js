@@ -188,6 +188,10 @@ define(function( require )
 			Renderer.stop();
 			MapRenderer.free();
 			BGM.play('01.mp3');
+
+			//for topDropable
+			//maybe fix in future
+			jQuery( Renderer.canvas ).css('z-index', 0);
 		});
 
 		// Hooking WinList
