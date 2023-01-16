@@ -329,6 +329,8 @@ define(function(require)
 				itemObj.css('backgroundImage', 'url("' + CartItems.itemBg + '")');
 				itemObj.addClass('damaged');
 			}
+
+			itemObj.find('.item-cart').draggable({
 				refreshPositions: true,
 				helper: "clone",
 				cursor: false,

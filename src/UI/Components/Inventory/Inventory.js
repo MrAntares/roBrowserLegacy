@@ -280,10 +280,10 @@ define(function(require)
 			if (list[i].index === index) {
 				if(isShow){
 					console.log("unhide item:", list[i].index);
-					this.ui.find('.item[data-index="'+ list[i].index +'"]').show();
+					this.ui.find('.item[data-index="'+ list[i].index +'"]').parent('.item-container').show();
 				}else{
 					console.log("hide item:", list[i].index);
-					this.ui.find('.item[data-index="'+ list[i].index +'"]').hide();
+					this.ui.find('.item[data-index="'+ list[i].index +'"]').parent('.item-container').hide();
 				}
 			}
 		}
@@ -430,7 +430,7 @@ define(function(require)
 				itemObj.addClass('damaged');
 			}
 
-			itemObj.draggable({
+			itemObj.find('.item-inventory').draggable({
 				refreshPositions: true,
 				helper: "clone",
 				cursor: false,

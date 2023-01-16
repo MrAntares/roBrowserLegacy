@@ -241,6 +241,8 @@ define(function(require)
 				itemObj.css('backgroundImage', 'url("' + Storage.itemBg + '")');
 				itemObj.addClass('damaged');
 			}
+
+			itemObj.find('.item-storage').draggable({
 				refreshPositions: true,
 				helper: "clone",
 				cursor: false,
