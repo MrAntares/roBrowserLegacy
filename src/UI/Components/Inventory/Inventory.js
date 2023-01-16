@@ -301,7 +301,7 @@ define(function(require)
 		var list = Inventory.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
-			if (list[i].IsDamaged === 2) {
+			if (list[i].IsDamaged === 2 && list[i].ITID > 9000) { /* Pet Egg */
 				list[i].IsDamaged = 0;
 				this.setShowItem(list[i].index, true)
 				return;
@@ -319,7 +319,7 @@ define(function(require)
 		var list = Inventory.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
-			if (list[i].index === index) {
+			if (list[i].index === index && list[i].ITID > 9000) {
 				list[i].IsDamaged = 2;
 				this.setShowItem(list[i].index, false)
 				return;
@@ -457,7 +457,7 @@ define(function(require)
 			});
 
 			//Pet Egg
-			if (item.IsDamaged == 2) {
+			if (item.IsDamaged === 2 && item.ITID > 9000) {
 				itemObj.hide();
 				this.hideEgg(item.index);
 			}
