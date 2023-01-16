@@ -11355,6 +11355,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ACK_WHISPER2.size = 7;
 
+	// 0x09e5 TODO: Implement the message and delete item from the shop window
+	PACKET.ZC.DELETEITEM_FROM_MCSTORE2 = function PACKET_ZC_DELETEITEM_FROM_MCSTORE2(fp, end) { 
+		this.index = fp.readShort();
+		this.count = fp.readShort();
+		this.GID = fp.readULong();
+		this.date = fp.readULong();
+		this.zeny = fp.readULong();
+	};
+	PACKET.ZC.DELETEITEM_FROM_MCSTORE2.size = 18;
+
 	// 0x9e7 todo show Rodex icon
 	PACKET.ZC.RODEX_ICON = function PACKET_ZC_RODEX_ICON(fp, end) {
 		this.show = fp.readUChar();
