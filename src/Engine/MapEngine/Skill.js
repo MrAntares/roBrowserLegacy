@@ -459,8 +459,13 @@ define(function( require )
 		RefineWeaponSelection.setTitle(DB.getMessage(812));
 		RefineWeaponSelection.onIndexSelected = function(index) {
 			if (index >= -1) {
+				const item = RefineWeaponSelection.getItemByIndex(index);
+				
 				var pkt   = new PACKET.CZ.REQ_ITEMREPAIR();
-				pkt.TargetItemInfo = RefineWeaponSelection.getItemByIndex(index);
+				pkt.index = index;
+				pkt.itemId = item.ITID;
+				pkt.RefiningLevel = item.RefiningLevel;
+				pkt.slots = item.slot;
 				Network.sendPacket(pkt);
 			}
 		};

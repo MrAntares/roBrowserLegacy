@@ -2354,23 +2354,43 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0x1fd
 	PACKET.CZ.REQ_ITEMREPAIR = function PACKET_CZ_REQ_ITEMREPAIR() {
-		this.TargetItemInfo = {};
+		this.index = 0;
+		this.itemId = 0;
+		this.RefiningLevel = 0;
+		this.slots = {
+			card1: 0,
+			card2: 0,
+			card3: 0,
+			card4: 0,
+		};
 	};
 	PACKET.CZ.REQ_ITEMREPAIR.prototype.build = function() {
 		var ver = this.getPacketVersion();
 		var pkt = new BinaryWriter(ver[2]);
-		var pos = ver[3];
 
 		pkt.writeShort(ver[1]);
-		pkt.view.setInt16(pos + 0, this.TargetItemInfo.index, true);
+		pkt.writeShort(this.index);
 
 		if (ver[2] === 15) {
-			pkt.view.setUint16(pos + 2, this.TargetItemInfo.ITID, true);
-			pkt.view.setUint8(pos + 4, this.TargetItemInfo.RefiningLevel, true);
-			pkt.view.setUint16(pos + 5, this.TargetItemInfo.slot.card1, true);
-			pkt.view.setUint16(pos + 7, this.TargetItemInfo.slot.card2, true);
-			pkt.view.setUint16(pos + 9, this.TargetItemInfo.slot.card3, true);
-			pkt.view.setUint16(pos + 11, this.TargetItemInfo.slot.card4, true);
+			if(PACKETVER.value >= 20181121){
+				pkt.writeULong(this.itemId);
+			}else{
+				pkt.writeUShort(this.itemId);
+			}
+
+			pkt.writeUByte(this.RefiningLevel);
+
+			if(PACKETVER.value >= 20181121){
+				pkt.writeLong(this.slots.card1);
+				pkt.writeLong(this.slots.card2);
+				pkt.writeLong(this.slots.card3);
+				pkt.writeLong(this.slots.card4);
+			}else{
+				pkt.writeShort(this.slots.card1);
+				pkt.writeShort(this.slots.card2);
+				pkt.writeShort(this.slots.card3);
+				pkt.writeShort(this.slots.card4);
+			}
 		}
 
 		return pkt;
