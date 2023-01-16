@@ -73,9 +73,9 @@ function(       jQuery,         Texture,      DB,               Client )
 								'::-webkit-scrollbar-track-piece:vertical {background-repeat:repeat-y;}',
 								'::-webkit-scrollbar-thumb:vertical{border-color: transparent;border-width: 4px 0;min-height: 6px;}',
 
-								'::-webkit-scrollbar-button:vertical:increment { background-image: url('+ down +');}',
-								'::-webkit-scrollbar-button:vertical:decrement { background-image: url('+ up + ');}',
-								'::-webkit-scrollbar-track-piece:vertical { background-image: url('+ mid +');}',
+								'::-webkit-scrollbar-button:vertical:increment { background-image: url('+ down +'); background-color: white;}',
+								'::-webkit-scrollbar-button:vertical:decrement { background-image: url('+ up + '); background-color: white;}',
+								'::-webkit-scrollbar-track-piece:vertical { background-image: url('+ mid +'); background-color: white;}',
 								'::-webkit-scrollbar-thumb:vertical{ -webkit-border-image: url('+ base.toDataURL() +') 4 0 4 0;}'
 							].join('\n'));
 
