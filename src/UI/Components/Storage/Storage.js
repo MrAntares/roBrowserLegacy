@@ -117,6 +117,10 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.topDroppable({drop: onDrop}).droppable();
+
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/itemwin_mid.bmp', function(data){
+			Storage.itemBg = data;
+		});
 	};
 
 
@@ -184,6 +188,8 @@ define(function(require)
 	{
 		var tab;
 
+		var content = this.ui.find('.container .content');
+
 		switch (item.type) {
 			case Storage.ITEM.HEALING:
 			case Storage.ITEM.USABLE:
@@ -223,15 +229,18 @@ define(function(require)
 		if (tab === _preferences.tab) {
 			var it   = DB.getItemInfo( item.ITID );
 
-			this.ui.find('.container .content').append(
-				'<div class="item-storage item" data-index="' + item.index +'" draggable="true">' +
+			var itemObj = jQuery(
+				'<div class="item-container"><div class="item-storage item" data-index="' + item.index +'" draggable="true">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">'+ (item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') + '</div>' +
 					'<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
-				'</div>'
+				'</div></div>'
 			);
 
-			this.ui.find('.item').draggable({
+			if(item.IsDamaged){
+				itemObj.css('backgroundImage', 'url("' + Storage.itemBg + '")');
+				itemObj.addClass('damaged');
+			}
 				refreshPositions: true,
 				helper: "clone",
 				cursor: false,
@@ -246,7 +255,7 @@ define(function(require)
 				}
 			});
 
-
+			content.append(itemObj);
 
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				this.ui.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
@@ -284,7 +293,7 @@ define(function(require)
 		// Remove item
 		item = _list[i];
 		_list.splice( i, 1 );
-		this.ui.find('.item[data-index="'+ index +'"]').remove();
+		this.ui.find('.item[data-index="'+ index +'"]').parent('.item-container').remove();
 
 		return item;
 	};

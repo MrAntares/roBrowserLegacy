@@ -94,6 +94,10 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.topDroppable({drop: onDrop, dragstop: onItemDragEnd}).droppable({accept:".item-inventory,.item-storage"});
+
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/itemwin_mid.bmp', function(data){
+			CartItems.itemBg = data;
+		});
 	};
 
 
@@ -315,13 +319,16 @@ define(function(require)
 			var content = this.ui.find('.container .content');
 
 			var itemObj = jQuery(
-				'<div class="item-cart item" data-index="'+ item.index +'" draggable="true">' +
+				'<div class="item-container"><div class="item-cart item" data-index="'+ item.index +'" draggable="true">' +
 					'<div class="icon"></div>' +
 					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
-				'</div>'
+				'</div></div>'
 			);
 
-			itemObj.draggable({
+			if(item.IsDamaged){
+				itemObj.css('backgroundImage', 'url("' + CartItems.itemBg + '")');
+				itemObj.addClass('damaged');
+			}
 				refreshPositions: true,
 				helper: "clone",
 				cursor: false,
@@ -377,7 +384,7 @@ define(function(require)
 		}
 
 		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.ui.find('.item[data-index="'+ item.index +'"]').parent('.item-container').remove();
 
 		var content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
@@ -412,7 +419,7 @@ define(function(require)
 
 		// no quantity, remove
 		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.ui.find('.item[data-index="'+ item.index +'"]').parent('.item-container').remove();
 
 		var content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {

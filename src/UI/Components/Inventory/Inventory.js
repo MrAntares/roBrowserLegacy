@@ -113,6 +113,10 @@ define(function(require)
 
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.topDroppable({drop: onDrop}).droppable({accept: '.item-inventory, .item-cart, .item-storage', tolerance: "pointer"});
+
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/itemwin_mid.bmp', function(data){
+			Inventory.itemBg = data;
+		});
 	};
 
 
@@ -416,10 +420,15 @@ define(function(require)
 			var it      = DB.getItemInfo( item.ITID );
 			var content = this.ui.find('.container .content');
 
-			var itemObj = jQuery('<div class="item-inventory item" data-index="'+ item.index +'" draggable="true">' +
+			var itemObj = jQuery('<div class="item-container"><div class="item-inventory item" data-index="'+ item.index +'" draggable="true">' +
 				'<div class="icon"></div>' +
 				'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
-			'</div>');
+			'</div></div>');
+
+			if(item.IsDamaged){
+				itemObj.css('backgroundImage', 'url("' + Inventory.itemBg + '")');
+				itemObj.addClass('damaged');
+			}
 
 			itemObj.draggable({
 				refreshPositions: true,
@@ -485,7 +494,7 @@ define(function(require)
 		}
 
 		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.ui.find('.item[data-index="'+ item.index +'"]').parent('.item-container').remove();
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
@@ -523,7 +532,7 @@ define(function(require)
 
 		// no quantity, remove
 		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.ui.find('.item[data-index="'+ item.index +'"]').parent('.item-container').remove();
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
