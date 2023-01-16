@@ -232,9 +232,13 @@ define(function(require)
 		}
 
 		// Damaged status
-		var identifiedDisplayName = item.IsDamaged ? '^FF0000'+customname+it.identifiedDisplayName+'^000000' : customname+it.identifiedDisplayName;
+		if(item.IsDamaged){
+			ui.find('.title').addClass('damaged');
+		}else{
+			ui.find('.title').removeClass('damaged');
+		}
 
-		ui.find('.title').text( item.IsIdentified ? identifiedDisplayName: it.unidentifiedDisplayName );
+		ui.find('.title').text( item.IsIdentified ? (customname + it.identifiedDisplayName) : it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
 
 		// Add view button (for cards)
