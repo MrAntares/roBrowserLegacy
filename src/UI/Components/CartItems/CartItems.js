@@ -197,7 +197,7 @@ define(function(require)
 		});
 
 		this.ui.css({
-			width:  16 + 16 + width  * 32,
+			width:  16 + 39 + width  * 32,
 			height: 31 + 19      + height * 32
 		});
 	};
