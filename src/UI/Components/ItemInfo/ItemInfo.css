@@ -28,3 +28,7 @@
 .ItemInfo .optionlist .item .icon { width:24px; height:24px; }
 .ItemInfo .optionlist .item .name { position:absolute; top:-20px; left:-20px; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black; }
 .ItemInfo .optionlist .item:hover .name { display:block; }
+
+.ItemInfo .title.damaged {
+    text-shadow: red 1px 1px 0px;
+}
