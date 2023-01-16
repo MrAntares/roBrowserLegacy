@@ -93,7 +93,7 @@ define(function(require)
 				.on('dblclick',    '.item', onItemUsed);
 
 		this.draggable(this.ui.find('.titlebar'));
-		this.ui.topDroppable({drop: onDrop, dragstop: onItemDragEnd}).droppable({accept:".item-inventory,.item-storage"});
+		this.ui.topDroppable({drop: onDrop, dragstop: onItemDragEnd}).droppable({accept:".item-inventory,.item-storage, .item-cart", tolerance: "pointer"});
 
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/itemwin_mid.bmp', function(data){
 			CartItems.itemBg = data;
