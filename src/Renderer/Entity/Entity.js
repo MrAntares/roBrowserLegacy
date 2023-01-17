@@ -291,6 +291,9 @@ define( function( require )
 		// Remove
 		this.remove_tick  = 0;
 		this.remove_delay = 0;
+		
+		// Aviod conflict if entity re-appears. Official sets it to -1
+		this.GID += Math.random();
 	};
 
 
@@ -317,7 +320,6 @@ define( function( require )
 		switch (type) {
 
 			case Entity.VT.OUTOFSIGHT:
-				this.GID += Math.random(); // Aviod conflict if entity re-appears. Official sets it to -1
 				this.clean();
 				this.remove_tick  = +Renderer.tick;
 				this.remove_delay = 1000;
