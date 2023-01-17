@@ -1096,41 +1096,37 @@ define(function( require )
 				var isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
 				
 
-				var addDamage = function(i) {
-					return function addDamageClosure() {
-						
-						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, null, pkt.AID);
-						
-						if(!isCombo && isBlueCombo){
-							 // Blue 'crit' non-combo EG: Rampage Blaster
-							Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
-						} else {
-							Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon); // Normal
-						}
+				var addDamage = function(i, startTick) {
+					
+					EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
+					
+					if(!isCombo && isBlueCombo){
+						 // Blue 'crit' non-combo EG: Rampage Blaster
+						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
+					} else {
+						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon); // Normal
+					}
 
-						// Only display combo if the target is not entity and
-						// there are multiple attacks
-						if (isCombo) {
-							Damage.add(
-								pkt.damage / pkt.count * (i+1),
-								target,
-								Renderer.tick,
-								srcWeapon,
-								(isBlueCombo?Damage.TYPE.COMBO_B:Damage.TYPE.COMBO) | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
-							);
-						}
-					};
+					// Only display combo if the target is not entity and
+					// there are multiple attacks
+					if (isCombo) {
+						Damage.add(
+							pkt.damage / pkt.count * (i+1),
+							target,
+							startTick,
+							srcWeapon,
+							(isBlueCombo?Damage.TYPE.COMBO_B:Damage.TYPE.COMBO) | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
+						);
+					}
 				};
 
-				var addEffectBeforeHit = function(){
-					return function addEffectBeforeHitClosure(){
-						EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, null, pkt.AID);
-					};
+				var addEffectBeforeHit = function(startTick){
+					EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
 				};
 
 				for (var i = 0; i < pkt.count; ++i) {
-					Events.setTimeout( addEffectBeforeHit(), (C_MULTIHIT_DELAY * i));
-					Events.setTimeout( addDamage(i), pkt.attackMT + (C_MULTIHIT_DELAY * i));
+					addEffectBeforeHit( Renderer.tick + (C_MULTIHIT_DELAY * i));
+					addDamage(i, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY * i));
 				}
 			}
 		}
