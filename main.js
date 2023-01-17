@@ -16,7 +16,7 @@ const ROConfig = {
             packetKeys: true
         },
     ],
-    version: require('./package.json').version,
+    version: require('package.json').version,
     plugins: {},
 };
 /**************************************************************/
@@ -49,7 +49,7 @@ const path = require('path');
         ROConfig.dataPath = path.dirname(process.execPath) + '/';
     }
     
-    console.log('RONW Version:', require('./package.json').version);
+    console.log('RONW Version:', require('package.json').version);
     console.log('[Flavors] ' + process.versions['nw-flavor']);
     console.log('[Working Path] ' + ROConfig.dataPath);
     console.log('[NW Path] ' + path.dirname(process.execPath) + '/');
