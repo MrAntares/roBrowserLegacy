@@ -346,14 +346,14 @@ define(function(require)
 	function addItem( content, item , isinput)
 	{
 		var it      = DB.getItemInfo(item.ITID);
-		var element = content.find('.item[data-index='+ item.index +']:first').parent('.item-container');
+		var element = content.find('.item[data-index='+ item.index +']:first');
 		var price;
 		var textPrice = DB.getMessage(1721); 
 
 		// 0 as amount ? remove it
 		if (item.count === 0) {
 			if (element.length) {
-				element.remove();
+				element.parent('.item-container').remove();
 			}
 			return;
 		}
