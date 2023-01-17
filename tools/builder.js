@@ -108,9 +108,8 @@ function compile(appName, isMinify) {
                 // fileName = "./dist/" + appName + '.min.js';
             }
 
-            fs.writeFile(fileName, header + source, { encoding: "utf8" }, function () {
-                console.log(appName + ".js has been created in", (Date.now() - startTime), "ms.");
-            });
+            fs.writeFileSync(fileName, header + source, { encoding: "utf8" });
+            console.log(appName + ".js has been created in", (Date.now() - startTime), "ms.");
         }
     };
 
@@ -133,17 +132,14 @@ function createHTML(){
             </body>
         </html>
     `;
-    fs.writeFile('./dist/main.html', body, { encoding: "utf8" }, function () {
-        console.log("main.html has been created in", (Date.now() - start), "ms.");
-    });
+    fs.writeFileSync('./dist/main.html', body, { encoding: "utf8" });
+    console.log("main.html has been created in", (Date.now() - start), "ms.");
 }
 
 function copyFolder(src, dest){
     const   start = Date.now();
-    fs.cp(src, dest, {recursive: true}, function(err){
-        if (err) throw err;
-        console.log("AI folder and files has been created in", (Date.now() - start), "ms.");
-    });
+    fs.cpSync(src, dest, {recursive: true});
+    console.log(src.replace('./', '') + " folder and files has been created in", (Date.now() - start), "ms.");
 }
 
 function createMain(){
@@ -158,9 +154,8 @@ if(process.versions['nw-flavor'] === 'sdk'){
     alert('Oops! Don\\'t do that.');
     nw.App.closeAllWindows();
 }\n` + body;
-    fs.writeFile('./dist/main.js', body, { encoding: "utf8" }, function () {
-        console.log("Main.js has been created in", (Date.now() - start), "ms.");
-    });
+    fs.writeFileSync('./dist/main.js', body, { encoding: "utf8" });
+    console.log("Main.js has been created in", (Date.now() - start), "ms.");
 }
 
 function createJSON(){
@@ -197,9 +192,8 @@ function createJSON(){
     }
     
     `;
-    fs.writeFile('./dist/package.json', body, { encoding: "utf8" }, function () {
-        console.log("package.json has been created in", (Date.now() - start), "ms.");
-    });
+    fs.writeFileSync('./dist/package.json', body, { encoding: "utf8" });
+    console.log("package.json has been created in", (Date.now() - start), "ms.");
 }
 
 function getArgs() {
