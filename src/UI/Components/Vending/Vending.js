@@ -152,7 +152,10 @@ define(function(require)
 		// Hacky drag drop
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
 		this.draggable.call({ui: OutputWindow }, OutputWindow.find('.titlebar'));
-		
+
+		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/itemwin_mid.bmp', function(data){
+			Vending.itemBg = data;
+		});
 	};
 
 
@@ -347,7 +350,7 @@ define(function(require)
 	function addItem( content, item , isinput)
 	{
 		var it      = DB.getItemInfo(item.ITID);
-		var element = content.find('.item[data-index='+ item.index +']:first');
+		var element = content.find('.item[data-index='+ item.index +']:first').parent('.item-container');
 		var price;
 		var textPrice = DB.getMessage(1721); 
 
@@ -373,26 +376,32 @@ define(function(require)
 		// Create it
 		if(isinput == true)
 		{
-			content.append(
-				'<div class="item" draggable="true" data-index="'+ item.index +'">' +
+			var itemObj = jQuery(
+				'<div class="item-container"><div class="item" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">' + (item.IsStackable ? item.count : '') + '</div>' +
 					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
-				'</div>'
+				'</div></div>'
 			);		
 		}
 		else
 		{
-			content.append(
-				'<div class="item" draggable="true" data-index="'+ item.index +'">' +
+			var itemObj = jQuery(
+				'<div class="item-container"><div class="item" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">' + (item.IsStackable ? item.count : '') + '</div>' +
 					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
 					'<div class="price">'+textPrice+' '+ price +'</div>' +
-				'</div>'
-			);		
+				'</div></div>'
+			);
 		}
 
+		if(item.IsDamaged){
+			itemObj.css('backgroundImage', 'url("' + Vending.itemBg + '")');
+			itemObj.addClass('damaged');
+		}
+
+		content.append(itemObj);
 
 		// Add the icon once loaded
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function(data){
@@ -582,10 +591,11 @@ define(function(require)
 	 */
 	function onItemInfo(event)
 	{
+		event.stopImmediatePropagation();
+		
 		var index = parseInt( this.parentNode.getAttribute('data-index'), 10);
 		var item  = _input[index];
 
-		event.stopImmediatePropagation();
 
 		if (!item) {
 			return false;
