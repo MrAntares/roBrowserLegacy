@@ -397,7 +397,7 @@ define(function(require)
 			itemObj.addClass('damaged');
 		}
 
-		content.find('.item[data-index='+ item.index +']:first').draggable({
+		itemObj.find('.item[data-index='+ item.index +']:first').draggable({
 			refreshPositions: true,
 			helper: "clone",
 			cursor: false,
