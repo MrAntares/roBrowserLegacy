@@ -77,6 +77,7 @@ define(function( require )
 
 	function onDeleteVendingItem( pkt )
 	{
+		//TODO: add msg id: 231
 		VendingShop.removeItem(pkt.index,pkt.count);
 	}
 
@@ -273,6 +274,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_RESULT_FROMMC,    onBuyResult );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_MYITEMLIST,       onBuyVendingList );
 		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE,      onDeleteVendingItem );
+		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE2,      onDeleteVendingItem );
 		Network.hookPacket( PACKET.ZC.OPENSTORE,                    onOpenVending );
 	};
 });

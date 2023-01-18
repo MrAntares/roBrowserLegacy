@@ -9985,29 +9985,73 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.DEFINE_CHECK.size = 8;
 
-
 	// 0x800
 	PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC2 = function PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC2(fp, end) {
 		this.AID = fp.readULong();
 		this.UniqueID = fp.readULong();
 		this.itemList = (function() {
-			var i, count = (end - fp.tell()) / 22 | 0,
+			var i, count = 0,
 				out = new Array(count);
+
+			if(PACKETVER.value >= 20200723){
+				count = (end - fp.tell()) / (22 + 8 + 25 + 6 + 2 + 1); //Item options 25 bytes, (location viewSprite), itemId use Long now, grade
+			}else if(PACKETVER.value >= 20181121){
+				count = (end - fp.tell()) / (22 + 8 + 25 + 6 + 2); //Item options 25 bytes, (location viewSprite), itemId use Long now
+			}else if(PACKETVER.value >= 20160921){
+				count = (end - fp.tell()) / (22 + 25 + 6); //Item options 25 bytes, (location viewSprite)
+			}else if(PACKETVER.value >= 20150226){
+				count = (end - fp.tell()) / (22 + 25); //Item options 25 bytes
+			}else{
+				count = (end - fp.tell()) / 22;
+			}
+
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].price = fp.readLong();
 				out[i].count = fp.readShort();
 				out[i].index = fp.readShort();
 				out[i].type = fp.readUChar();
-				out[i].ITID = fp.readUShort();
+				if(PACKETVER.value >= 20181121){
+					out[i].ITID = fp.readULong();
+				}else{
+					out[i].ITID = fp.readUShort();
+				}
 				out[i].IsIdentified = fp.readUChar();
 				out[i].IsDamaged = fp.readUChar();
 				out[i].RefiningLevel = fp.readUChar();
 				out[i].slot = {};
-				out[i].slot.card1 = fp.readUShort();
-				out[i].slot.card2 = fp.readUShort();
-				out[i].slot.card3 = fp.readUShort();
-				out[i].slot.card4 = fp.readUShort();
+				if(PACKETVER.value >= 20181121){
+					out[i].slot.card1 = fp.readULong();
+					out[i].slot.card2 = fp.readULong();
+					out[i].slot.card3 = fp.readULong();
+					out[i].slot.card4 = fp.readULong();
+				}else{
+					out[i].slot.card1 = fp.readUShort();
+					out[i].slot.card2 = fp.readUShort();
+					out[i].slot.card3 = fp.readUShort();
+					out[i].slot.card4 = fp.readUShort();
+				}
+				if(PACKETVER.value >= 20150226){
+					let option = new Struct(
+						"short index",
+						"short value",
+						"char param"
+					);
+					out[i].Options = [];
+					out[i].Options[1] = fp.readStruct(option);
+					out[i].Options[2] = fp.readStruct(option);
+					out[i].Options[3] = fp.readStruct(option);
+					out[i].Options[4] = fp.readStruct(option);
+					out[i].Options[5] = fp.readStruct(option);
+				}
+				if(PACKETVER.value >= 20160921){
+					out[i].location = fp.readULong();
+					out[i].viewSprite = fp.readUShort();
+				}
+				if(PACKETVER.value >= 20200723){
+					out[i].grade = fp.readUChar();
+				}
+
 			}
 			return out;
 		})();
@@ -11309,6 +11353,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.unknown = fp.readULong(); // AID ?
 	};
 	PACKET.ZC.ACK_WHISPER2.size = 7;
+
+	// 0x09e5 TODO: Implement the message and delete item from the shop window
+	PACKET.ZC.DELETEITEM_FROM_MCSTORE2 = function PACKET_ZC_DELETEITEM_FROM_MCSTORE2(fp, end) { 
+		this.index = fp.readShort();
+		this.count = fp.readShort();
+		this.GID = fp.readULong();
+		this.date = fp.readULong();
+		this.zeny = fp.readULong();
+	};
+	PACKET.ZC.DELETEITEM_FROM_MCSTORE2.size = 18;
 
 	// 0x9e7 todo show Rodex icon
 	PACKET.ZC.RODEX_ICON = function PACKET_ZC_RODEX_ICON(fp, end) {
