@@ -842,9 +842,13 @@ define(function( require )
 
 		switch (pkt.type) {
 			case 0:
-				entity.job = pkt.value;
-				if (entity === Session.Entity) {
-					BasicInfo.update('job', pkt.value);
+				if(entity.objecttype === Entity.TYPE_EFFECT){
+					EffectManager.spamSkillZone(pkt.value, entity.position[0], entity.position[1], pkt.GID, entity.creatorGID);
+				} else {
+					entity.job = pkt.value;
+					if (entity === Session.Entity) {
+						BasicInfo.update('job', pkt.value);
+					}
 				}
 				break;
 
