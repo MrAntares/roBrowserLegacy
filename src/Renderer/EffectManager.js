@@ -660,19 +660,7 @@ define(function( require )
 			return;
 		}
 
-		skillId = SkillUnit[unit_id];
-
-		if (!(skillId in SkillEffect)) {
-			return;
-		}
-
-		skill = SkillEffect[skillId];
-
-		if (!skill.groundEffectId) {
-			return;
-		}
-
-		effectId = skill.groundEffectId;
+		effectId = SkillUnit[unit_id];
 
 		if (!(effectId in EffectDB)) {
 			return;
@@ -688,6 +676,7 @@ define(function( require )
 			entity.position   = [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ];
 			entity.hideShadow = true;
 			entity.objecttype = entity.constructor.TYPE_EFFECT;
+			entity.creatorGID = creatorUid;
 			isNewEntity = true;
 		}
 		
