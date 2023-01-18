@@ -47,7 +47,7 @@ define( ['Core/Preferences', 'Controls/KeyEventHandler'], function( Preferences,
 	defaultKey[ KEYS.E ]  = { component:'ShortCut',        cmd:'EXECUTE20' };
 	defaultKey[ KEYS.R ]  = { component:'ShortCut',        cmd:'EXECUTE21' };
 	defaultKey[ KEYS.T ]  = { component:'ShortCut',        cmd:'EXECUTE22' };
-	defaultKey[ KEYS.Z ]  = { component:'ShortCut',        cmd:'EXECUTE23' };
+	defaultKey[ KEYS.Y ]  = { component:'ShortCut',        cmd:'EXECUTE23' };
 	defaultKey[ KEYS.U ]  = { component:'ShortCut',        cmd:'EXECUTE24' };
 	defaultKey[ KEYS.I ]  = { component:'ShortCut',        cmd:'EXECUTE25' };
 	defaultKey[ KEYS.O ]  = { component:'ShortCut',        cmd:'EXECUTE26' };
