@@ -99,6 +99,11 @@ define(function( require )
 	 * @var {vec3}
 	 */
 	Camera.position = vec3.create();
+	
+	/**
+	 * @var {vec3}
+	 */
+	Camera.posOffset = vec3.create();
 
 
 	/**
@@ -179,6 +184,15 @@ define(function( require )
 		x:      0,
 		y:      0
 	};
+	
+	Camera.quake = {
+		active:	false,
+		startTick:	0,
+		duration:	0,
+		xQuake:		0,
+		yQuake:		0,
+		zQuake:		0
+	}
 
 
 	/**
@@ -200,6 +214,60 @@ define(function( require )
 	Camera.getLatitude = function GetLatitude()
 	{
 		return this.angle[0] - 180.0;
+	};
+	
+	/**
+	 * Set screen quake
+	 *
+	 * @param {number} Start tick
+	 * @param {number} Duration
+	 * @param {number} X axis amount
+	 * @param {number} Y axis amount
+	 * @param {number} Z axis amount
+	 */
+	Camera.setQuake = function SetQuake( start, duration, xAmt, yAmt, zAmt )
+	{
+		this.quake.startTick = start;
+		this.quake.duration = duration;
+		this.quake.xQuake = xAmt;
+		this.quake.yQuake = yAmt;
+		this.quake.zQuake = zAmt;
+		this.quake.active = true;
+	};
+	
+	/**
+	 * Set screen quake
+	 *
+	 * @param {number} Start tick
+	 * @param {number} Duration
+	 * @param {number} X axis amount
+	 * @param {number} Y axis amount
+	 * @param {number} Z axis amount
+	 */
+	Camera.processQuake = function processQuake( tick )
+	{
+		if(!this.quake.active){
+			return -1;
+		} else {
+			if(this.quake.startTick > tick){ // Not yet
+				return -1;
+			} else {
+				if(this.quake.startTick + this.quake.duration > tick){
+					this.posOffset[0] = ((Math.random()*2)-1) * this.quake.xQuake;
+					this.posOffset[1] = ((Math.random()*2)-1) * this.quake.yQuake;
+					this.posOffset[2] = ((Math.random()*2)-1) * this.quake.zQuake;
+					return 1;
+				} else {
+					//Finished
+					this.posOffset[0] = 0;
+					this.posOffset[1] = 0;
+					this.posOffset[2] = 0;
+					this.quake.active = false;
+					return 0;
+				}
+			}
+		}
+		
 	};
 
 
@@ -504,11 +572,14 @@ define(function( require )
 		mat4.translateZ( matrix, (this.altitudeFrom - this.zoom) / 2);
 		mat4.rotateX( matrix, matrix, this.angle[0] / 180 * Math.PI );
 		mat4.rotateY( matrix, matrix, this.angle[1] / 180 * Math.PI );
-
+		
+		// Screen quake
+		this.processQuake( tick );
+		
 		// Center of the cell and inversed Y-Z axis
-		_position[0] = this.position[0] - 0.5;
-		_position[1] = this.position[2] + zOffset;
-		_position[2] = this.position[1] - 0.5;
+		_position[0] = this.position[0] - 0.5 + this.posOffset[0];
+		_position[1] = this.position[2] + zOffset + this.posOffset[2];
+		_position[2] = this.position[1] - 0.5 + this.posOffset[1];
 		mat4.translate( matrix, matrix, _position );
 
 		mat4.toInverseMat3(matrix, this.normalMat);
