@@ -253,9 +253,11 @@ define(function( require )
 				return -1;
 			} else {
 				if(this.quake.startTick + this.quake.duration > tick){
-					this.posOffset[0] = ((Math.random()*2)-1) * this.quake.xQuake;
-					this.posOffset[1] = ((Math.random()*2)-1) * this.quake.yQuake;
-					this.posOffset[2] = ((Math.random()*2)-1) * this.quake.zQuake;
+					var step = (tick - this.quake.startTick) / this.quake.duration;
+					var amplitude = Math.sin(step * Math.PI);
+					this.posOffset[0] = ((Math.random()*2)-1) * this.quake.xQuake * amplitude;
+					this.posOffset[1] = ((Math.random()*2)-1) * this.quake.yQuake * amplitude;
+					this.posOffset[2] = ((Math.random()*2)-1) * this.quake.zQuake * amplitude;
 					return 1;
 				} else {
 					//Finished
