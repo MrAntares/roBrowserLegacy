@@ -7054,7 +7054,19 @@ define(function( require )
 		//560: [{}],	//EF_FASTBLUEFALL_90	   Juperos Energy Waterfall Fast (Vertical)
 		//561: [{}],	//EF_BIG_PORTAL	   Juperos Warp
 		//562: [{}],	//EF_BIG_PORTAL2	   Juperos Warp
-		//563: [{}],	//EF_SCREEN_QUAKE	   Earthquake Effect (Juperos Elevator)
+		
+		563: [{	//EF_SCREEN_QUAKE	   Earthquake Effect (Juperos Elevator)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				var duration = 200;
+				var amt = [1,1,1];
+				Camera.setQuake( start, duration, amt[0], amt[1], amt[2] );
+			}
+		}],
+		
 		//564: [{}],	//EF_HOMUNCASTING	   Wedding Cast
 		
 		565: [{	//EF_HFLIMOON1	Filir Moonlight Lvl 1
