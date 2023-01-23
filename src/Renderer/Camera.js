@@ -259,8 +259,8 @@ define(function( require )
 				if(this.quake.startTick + this.quake.duration > tick){
 					var step = (tick - this.quake.startTick) / this.quake.duration;
 					
-					this.quakePos[0] += (((Math.random()*5)-2.5)/10 + this.quake.sideQuake) * Math.cos(this.angle[1]) * C_QUAKE_MULT;
-					this.quakePos[1] += (((Math.random()*5)-2.5)/10 + this.quake.sideQuake) * -Math.sin(this.angle[1]) * C_QUAKE_MULT;
+					this.quakePos[0] += (((Math.random()*5)-2.5)/10 + this.quake.sideQuake) * Math.cos(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
+					this.quakePos[1] += (((Math.random()*5)-2.5)/10 + this.quake.sideQuake) * -Math.sin(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
 					this.quake.sideQuake *= -1;
 					
 					this.quakeZoom += (((Math.random()*5)-2.5)/10 + this.quake.zoomQuake) * C_QUAKE_MULT;
