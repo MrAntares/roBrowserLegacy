@@ -101,13 +101,6 @@ define(function( require )
 	 * @var {vec3}
 	 */
 	Camera.position = vec3.create();
-	
-	/**
-	 * @var {vec3}
-	 */
-	Camera.quakePos = vec3.create();
-	Camera.quakeAngle = vec2.create();
-	Camera.quakeZoom = 0;
 
 
 	/**
@@ -189,14 +182,7 @@ define(function( require )
 		y:      0
 	};
 	
-	Camera.quake = {
-		active:	false,
-		startTick:	0,
-		duration:	0,
-		xQuake:		0,
-		yQuake:		0,
-		zQuake:		0
-	}
+	Camera.quakes = [];
 
 
 	/**
@@ -231,12 +217,15 @@ define(function( require )
 	 */
 	Camera.setQuake = function SetQuake( start, duration, xAmt, yAmt, zAmt )
 	{
-		this.quake.startTick = start;
-		this.quake.duration = duration || 650;
-		this.quake.sideQuake = xAmt || 1.0;
-		this.quake.latitudeQuake = yAmt || 0.2;
-		this.quake.zoomQuake = zAmt || 0.24;
-		this.quake.active = true;
+		var quake = {};
+		quake.startTick = start;
+		quake.duration = duration || 650;
+		quake.sideQuake = xAmt || 1.0;
+		quake.latitudeQuake = yAmt || 0.2;
+		quake.zoomQuake = zAmt || 0.24;
+		quake.active = true;
+		
+		this.quakes.push( quake );
 	};
 	
 	/**
@@ -250,37 +239,27 @@ define(function( require )
 	 */
 	Camera.processQuake = function processQuake( tick )
 	{
-		if(!this.quake.active){
-			return -1;
-		} else {
-			if(this.quake.startTick > tick){ // Not yet
-				this.quakePos = [0,0,0];
-				this.quakeAngle = [0,0];
-				this.quakeZoom = 0;
-				return -1;
-			} else {
-				if(this.quake.startTick + this.quake.duration > tick){
-					var step = (tick - this.quake.startTick) / this.quake.duration;
-					
-					this.quakePos[0] += (((Math.random()*5)-2.5)/10 + this.quake.sideQuake) * Math.cos(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
-					this.quakePos[1] += (((Math.random()*5)-2.5)/10 + this.quake.sideQuake) * -Math.sin(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
-					this.quake.sideQuake *= -1;
-					
-					this.quakeZoom += (((Math.random()*5)-2.5)/10 + this.quake.zoomQuake) * C_QUAKE_MULT;
-					this.quake.zoomQuake *= -1;
-					
-					this.quakeAngle[0] += (((Math.random()*5)-2.5)/15 + this.quake.latitudeQuake) * C_QUAKE_MULT;
-					this.quake.latitudeQuake *= -1
-					
-					return 1;
-				} else {
-					//Finished
-					this.quakePos = [0,0,0];
-					this.quakeAngle = [0,0];
-					this.quakeZoom = 0;
-					this.quake.active = false;
-					return 0;
+		for(var i=0; i<this.quakes.length; i++){
+			if(this.quakes[i].active){
+				if(this.quakes[i].startTick <= tick){
+					if(this.quakes[i].startTick + this.quakes[i].duration > tick){
+						var step = (tick - this.quakes[i].startTick) / this.quakes[i].duration;
+						
+						this.position[0] += (((Math.random()*5)-2.5)/10 + this.quakes[i].sideQuake) * Math.cos(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
+						this.position[1] += (((Math.random()*5)-2.5)/10 + this.quakes[i].sideQuake) * -Math.sin(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
+						this.quakes[i].sideQuake *= -1;
+						
+						this.zoom += (((Math.random()*5)-2.5)/10 + this.quakes[i].zoomQuake) * C_QUAKE_MULT;
+						this.quakes[i].zoomQuake *= -1;
+						
+						this.angle[0] += (((Math.random()*5)-2.5)/15 + this.quakes[i].latitudeQuake) * C_QUAKE_MULT;
+						this.quakes[i].latitudeQuake *= -1
+					} else {
+						this.quakes[i].active = false;
+					}
 				}
+			} else {
+				this.quakes.splice(i, 1);
 			}
 		}
 		
@@ -588,14 +567,14 @@ define(function( require )
 		// Calculate new modelView mat
 		var matrix = this.modelView;
 		mat4.identity( matrix );
-		mat4.translateZ( matrix, (this.altitudeFrom - this.zoom + this.quakeZoom) / 2);
-		mat4.rotateX( matrix, matrix, (this.angle[0] + this.quakeAngle[0]) / 180 * Math.PI );
-		mat4.rotateY( matrix, matrix, (this.angle[1] + this.quakeAngle[1]) / 180 * Math.PI );
+		mat4.translateZ( matrix, (this.altitudeFrom - this.zoom) / 2);
+		mat4.rotateX( matrix, matrix, this.angle[0] / 180 * Math.PI );
+		mat4.rotateY( matrix, matrix, this.angle[1] / 180 * Math.PI );
 		
 		// Center of the cell and inversed Y-Z axis
-		_position[0] = this.position[0] - 0.5 + this.quakePos[0];
-		_position[1] = this.position[2] + zOffset + this.quakePos[2];
-		_position[2] = this.position[1] - 0.5 + this.quakePos[1];
+		_position[0] = this.position[0] - 0.5;
+		_position[1] = this.position[2] + zOffset;
+		_position[2] = this.position[1] - 0.5;
 		mat4.translate( matrix, matrix, _position );
 
 		mat4.toInverseMat3(matrix, this.normalMat);
