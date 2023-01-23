@@ -254,6 +254,9 @@ define(function( require )
 			return -1;
 		} else {
 			if(this.quake.startTick > tick){ // Not yet
+				this.quakePos = [0,0,0];
+				this.quakeAngle = [0,0];
+				this.quakeZoom = 0;
 				return -1;
 			} else {
 				if(this.quake.startTick + this.quake.duration > tick){
@@ -272,15 +275,9 @@ define(function( require )
 					return 1;
 				} else {
 					//Finished
-					this.quakePos[0] = 0;
-					this.quakePos[1] = 0;
-					this.quakePos[2] = 0;
-					
-					this.quakeAngle[0] = 0;
-					this.quakeAngle[1] = 0;
-					
+					this.quakePos = [0,0,0];
+					this.quakeAngle = [0,0];
 					this.quakeZoom = 0;
-					
 					this.quake.active = false;
 					return 0;
 				}
