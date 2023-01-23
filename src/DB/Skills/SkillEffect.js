@@ -50,7 +50,7 @@ define(['./SkillConst'], function( SK )
 	// Swordman
 	SkillEffect[SK.SM_BASH]                        = {beginCastEffectId: 16, hitEffectId: 1};		//Bash
 	SkillEffect[SK.SM_PROVOKE]                     = {successEffectId: 67};		//Provoke
-	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17};		//Magnum Break
+	SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17, effectId: 'quake_magnum'};		//Magnum Break
 	SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	// Mage
 	SkillEffect[SK.MG_SIGHT]                       = {successEffectId: 22};		//Sight
@@ -140,7 +140,7 @@ define(['./SkillConst'], function( SK )
 	// Hunter
 	SkillEffect[SK.HT_SKIDTRAP]                    = {effectId: 69};		//Skid Trap
 	SkillEffect[SK.HT_LANDMINE]                    = {};		//Land Mine
-	SkillEffect[SK.HT_ANKLESNARE]                  = {};		//Ankle Snare
+	SkillEffect[SK.HT_ANKLESNARE]                  = {groundEffectId: 'ef_anklesnare'};		//Ankle Snare
 	SkillEffect[SK.HT_SHOCKWAVE]                   = {effectId: 145, hitEffectId: 146};		//Shockwave Trap
 	SkillEffect[SK.HT_SANDMAN]                     = {hitEffectId: 139};		//Sandman
 	SkillEffect[SK.HT_FLASHER]                     = {hitEffectId: 99};		//Flasher
@@ -272,12 +272,12 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.MO_BODYRELOCATION]              = {};		//Snap
 	SkillEffect[SK.MO_INVESTIGATE]                 = {effectId: 267};		//Occult Impaction
 	SkillEffect[SK.MO_FINGEROFFENSIVE]             = {effectId: 265, hitEffectId: 1};		//Throw Spirit Sphere
-	SkillEffect[SK.MO_STEELBODY]                   = {effectId: 254};		//Mental Strength
+	SkillEffect[SK.MO_STEELBODY]                   = {effectId: [254, 'quake']};		//Mental Strength
 	SkillEffect[SK.MO_BLADESTOP]                   = {};		//Root
-	SkillEffect[SK.MO_EXPLOSIONSPIRITS]            = {effectIdOnCaster: 261};		//Fury
-	SkillEffect[SK.MO_EXTREMITYFIST]               = {effectId: 328 /*champion: 510*/};		//Asura Strike
+	SkillEffect[SK.MO_EXPLOSIONSPIRITS]            = {effectIdOnCaster: [261, 'quake']};		//Fury
+	SkillEffect[SK.MO_EXTREMITYFIST]               = {effectId: [328, 'quake'] /*champion: 510*/};		//Asura Strike
 	SkillEffect[SK.MO_CHAINCOMBO]                  = {effectId: [262, 273], effectIdOnCaster: 263};		//Raging Quadruple Blow
-	SkillEffect[SK.MO_COMBOFINISH]                 = {effectId: 330};		//Raging Thrust
+	SkillEffect[SK.MO_COMBOFINISH]                 = {effectId: [330, 'quake']};		//Raging Thrust
 	// Sage
 	SkillEffect[SK.SA_CASTCANCEL]                  = {};		//Cast Cancel
 	SkillEffect[SK.SA_MAGICROD]                    = {successEffectId: 244};		//Magic Rod
@@ -363,8 +363,8 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.LK_PARRYING]                    = {effectId: 336};		//Parrying
 	SkillEffect[SK.LK_CONCENTRATION]               = {effectId: 369};		//Concentration
 	SkillEffect[SK.LK_TENSIONRELAX]                = {};		//Relax
-	SkillEffect[SK.LK_BERSERK]                     = {effectId: 368};		//Frenzy
-	SkillEffect[SK.LK_FURY]                        = {effectId: 368};		//Fury
+	SkillEffect[SK.LK_BERSERK]                     = {effectId: [368, 'quake']};		//Frenzy
+	SkillEffect[SK.LK_FURY]                        = {effectId: [368, 'quake']};		//Fury
 	// High Priest
 	SkillEffect[SK.HP_ASSUMPTIO]                   = {effectId: 440};		//Assumptio
 	SkillEffect[SK.HP_BASILICA]                    = {groundEffectId: 374};		//Basilica
@@ -376,8 +376,8 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.PA_SACRIFICE]                   = {effectId: 366};		// Martyr's Reckoning
 	SkillEffect[SK.PA_GOSPEL]                      = {effectId: 370, groundEffectId: '370_ground'};		//Battle Chant
 	// Champion
-	SkillEffect[SK.CH_PALMSTRIKE]                  = {hitEffectId: 376};		//Raging Palm Strike
-	SkillEffect[SK.CH_TIGERFIST]                   = {};		//Glacier Fist
+	SkillEffect[SK.CH_PALMSTRIKE]                  = {hitEffectId: [376, 'quake']};		//Raging Palm Strike
+	SkillEffect[SK.CH_TIGERFIST]                   = {effectIdOnCaster: 263, effectId: [377, 'quake']};		//Glacier Fist
 	SkillEffect[SK.CH_CHAINCRUSH]                  = {effectId: 512};		//Chain Crush Combo
 	// Professor
 	SkillEffect[SK.PF_HPCONVERSION]                = {effectId: 383};		//Indulge
@@ -450,7 +450,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SG_MOON_COMFORT]                = {effectId: 441};		//Comfort of the Moon
 	SkillEffect[SK.SG_STAR_COMFORT]                = {effectId: 441};		//Comfort of the Stars
 	SkillEffect[SK.SG_HATE]                        = {/*475 - 484*/ groundEffectId: 487};		//Hatred of the Sun Moon and Stars
-	SkillEffect[SK.SG_FUSION]                      = {effectId: 433};		//Union of the Sun Moon and Stars
+	SkillEffect[SK.SG_FUSION]                      = {effectId: [433, 'quake']};		//Union of the Sun Moon and Stars
 	// Alchemist
 	SkillEffect[SK.AM_BERSERKPITCHER]              = {beforeHitEffectId: 541, effectId: 220};		//Aid Berserk Potion
 	// Soul Linker
@@ -481,7 +481,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.SL_SMA]                         = {effectId: 553, successEffectId: 425};		//Esma
 	SkillEffect[SK.SL_SWOO]                        = {effectId: 589, successEffectId: 420};		//Eswoo
 	SkillEffect[SK.SL_SKE]                         = {effectId: 427};		//Eske
-	SkillEffect[SK.SL_SKA]                         = {effectId: [254, 261]};		//Eska
+	SkillEffect[SK.SL_SKA]                         = {effectId: [254, 261, 'quake']};		//Eska
 	// Other 2nd Skills
 	SkillEffect[SK.SM_SELFPROVOKE]                 = {};		//Provoke Self
 	SkillEffect[SK.NPC_EMOTION_ON]                 = {};		//Emotion ON
