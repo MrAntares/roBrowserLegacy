@@ -2206,8 +2206,8 @@ define(function( require )
 		}],
 
 
-		79: [
-		{ //Main Spike
+		79: [{	//EF_EARTHSPIKE	Earth Spike
+		//Main Spike
 			type: 'QuadHorn',
 			textureFile: 'effect/stone.bmp',
 			attachedEntity: false,
@@ -2224,8 +2224,7 @@ define(function( require )
 			animation: 3,
 			animationSpeed: 120,
 			animationOut: true,
-		},
-		{
+		}, {
 			type: 'QuadHorn',
 			textureFile: 'effect/stone.bmp',
 			attachedEntity: false,
@@ -2242,8 +2241,7 @@ define(function( require )
 			animation: 2,
 			animationSpeed: 100,
 			animationOut: true,
-		},
-		{
+		}, {
 			type: 'QuadHorn',
 			textureFile: 'effect/stone.bmp',
 			attachedEntity: false,
@@ -2260,8 +2258,7 @@ define(function( require )
 			animation: 2,
 			animationSpeed: 100,
 			animationOut: true,
-		},
-		{
+		}, {
 			type: 'QuadHorn',
 			textureFile: 'effect/stone.bmp',
 			attachedEntity: false,
@@ -2278,8 +2275,7 @@ define(function( require )
 			animation: 2,
 			animationSpeed: 100,
 			animationOut: true,
-		},
-		{
+		}, {
 			type: 'QuadHorn',
 			textureFile: 'effect/stone.bmp',
 			attachedEntity: false,
@@ -2296,10 +2292,18 @@ define(function( require )
 			animation: 2,
 			animationSpeed: 100,
 			animationOut: true,
-		},
-		{	//EF_EARTHSPIKE	Earth Spike
+		}, {
 			wav:  'effect/wizard_earthspike',
 			attachedEntity: false
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				var duration = 200;
+				Camera.setQuake( start, duration);
+			}
 		}],
 
 		80: [{ //spear boomerang hit on target	//EF_SPEARBMR	Spear Boomerang
@@ -2400,6 +2404,14 @@ define(function( require )
 			wav:  'effect/wizard_meteor',
 			rand: [1, 4],
 			attachedEntity: true
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 600;
+				Camera.setQuake( start );
+			}
 		}],
 
 
@@ -2492,6 +2504,14 @@ define(function( require )
 			file: 'crashearth',
 			wav:  'effect/black_hammerfall',
 			attachedEntity: false
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 350;
+				Camera.setQuake( start );
+			}
 		}],
 
 
@@ -2751,101 +2771,105 @@ define(function( require )
 			attachedEntity: false
 		}],
 
-		142: [ //WZ_HEAVENDRIVE
-			{ //Main Spike
-				type: 'QuadHorn',
-				textureFile: 'effect/stone.bmp',
-				attachedEntity: false,
-				duration: 1000,
-				height: [0.75, 1.2],
-				offsetX: [0.4, 0.6],
-				offsetY: [0.4, 0.6],
-				offsetZ: -0.1,
-				bottomSize: [0.3, 0.45],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-8.0, 8.0],
-				color: [1.0, 1.0, 1.0, 1.0],
-				animation: 3,
-				animationSpeed: 250,
-				animationOut: true,
-			},
-			{
-				type: 'QuadHorn',
-				textureFile: 'effect/stone.bmp',
-				attachedEntity: false,
-				duration: 1000,
-				height: [0.2, 0.4],
-				offsetX: [0.0, 0.0],
-				offsetY: [0.5, 0.5],
-				offsetZ: -0.1,
-				bottomSize: [0.1, 0.2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15.0, 15.0],
-				color: [1.0, 1.0, 1.0, 1.0],
-				animation: 3,
-				animationSpeed: 250,
-				animationOut: true,
-			},
-			{
-				type: 'QuadHorn',
-				textureFile: 'effect/stone.bmp',
-				attachedEntity: false,
-				duration: 1000,
-				height: [0.2, 0.4],
-				offsetX: [0.0, 0.5],
-				offsetY: [0.5, 1.0],
-				offsetZ: -0.1,
-				bottomSize: [0.1, 0.2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15.0, 15.0],
-				color: [1.0, 1.0, 1.0, 1.0],
-				animation: 3,
-				animationSpeed: 250,
-				animationOut: true,
-			},
-			{
-				type: 'QuadHorn',
-				textureFile: 'effect/stone.bmp',
-				attachedEntity: false,
-				duration: 1000,
-				height: [0.2, 0.4],
-				offsetX: [1.0, 1.2],
-				offsetY: [0.5, 0.8],
-				offsetZ: -0.1,
-				bottomSize: [0.1, 0.2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15.0, 15.0],
-				color: [1.0, 1.0, 1.0, 1.0],
-				animation: 3,
-				animationSpeed: 250,
-				animationOut: true,
-			},
-			{
-				type: 'QuadHorn',
-				textureFile: 'effect/stone.bmp',
-				attachedEntity: false,
-				duration: 1000,
-				height: [0.2, 0.4],
-				offsetX: [0.5, 0.7],
-				offsetY: [0.0, -0.2],
-				offsetZ: -0.1,
-				bottomSize: [0.1, 0.2],
-				blendMode: 1,
-				rotateY: [1, 360],
-				rotateZ: [-15.0, 15.0],
-				color: [1.0, 1.0, 1.0, 1.0],
-				animation: 3,
-				animationSpeed: 250,
-				animationOut: true,
-			},
-			{	//EF_EARTHSPIKE	Earth Spike
-				wav:  'effect/wizard_earthspike',
-				attachedEntity: false
-			}],
+		142: [{ //WZ_HEAVENDRIVE
+		//Main Spike
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			duration: 1000,
+			height: [0.75, 1.2],
+			offsetX: [0.4, 0.6],
+			offsetY: [0.4, 0.6],
+			offsetZ: -0.1,
+			bottomSize: [0.3, 0.45],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-8.0, 8.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 250,
+			animationOut: true,
+		}, {
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			duration: 1000,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.0],
+			offsetY: [0.5, 0.5],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 250,
+			animationOut: true,
+		}, {
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			duration: 1000,
+			height: [0.2, 0.4],
+			offsetX: [0.0, 0.5],
+			offsetY: [0.5, 1.0],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 250,
+			animationOut: true,
+		}, {
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			duration: 1000,
+			height: [0.2, 0.4],
+			offsetX: [1.0, 1.2],
+			offsetY: [0.5, 0.8],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 250,
+			animationOut: true,
+		}, {
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			duration: 1000,
+			height: [0.2, 0.4],
+			offsetX: [0.5, 0.7],
+			offsetY: [0.0, -0.2],
+			offsetZ: -0.1,
+			bottomSize: [0.1, 0.2],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-15.0, 15.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 250,
+			animationOut: true,
+		}, {
+			wav:  'effect/wizard_earthspike',
+			attachedEntity: false
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				var duration = 200;
+				Camera.setQuake( start, duration );
+			}
+		}],
 
 		143: [{ //sonicblow at target	//EF_SONICBLOW2	Sonic Blow (Part 2/2)
 			type: 'STR',
@@ -3039,6 +3063,15 @@ define(function( require )
 			file: 'sui_explosion',
 			attachedEntity: true,
 			wav: 'effect/ef_hit2'
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				var duration = 200;
+				Camera.setQuake( start, duration );
+			}
 		}],
 		
 		//184: [{}],	//EF_DARKATTACK	   Dark Elemental Attack
@@ -3374,6 +3407,15 @@ define(function( require )
 			file: '\xb9\xf6\xbc\xad\xc5\xa9',
 			wav:  'effect/ac_concentration',
 			attachedEntity: true
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 200;
+				var duration = 200;
+				Camera.setQuake( start, duration );
+			}
 		}],
 
 		//221: [{}],	//EF_POTIONPILLAR	   Intense light beam
@@ -4173,6 +4215,16 @@ define(function( require )
 			type: 'SPR',
 			file: '\xb5\xa5\xb8\xf3\xbd\xba\xc6\xae\xb7\xb9\xc0\xcc\xbc\xc7',
 			attachedEntity: false
+		}],
+		
+		303: [{ //EF_CHEMICAL2
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 132;
+				Camera.setQuake( start );
+			}
 		}],
 
 		304: [{ //teleportation animation	//EF_TELEPORTATION2	Teleportation Animation
@@ -5427,6 +5479,14 @@ define(function( require )
 			size: 100,
 			zIndex: 1,
 			file: 'effect/cross_old.bmp'
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 500;
+				Camera.setQuake( start );
+			}
 		}],
 		
 		//366: [{}],	//EF_BASH3D	   Martyr's Reckoning
@@ -5524,6 +5584,14 @@ define(function( require )
 				});
 			},
 			wav:  'effect/\xb8\xc5\xc1\xf7\x20\xc5\xa9\xb7\xa1\xbd\xac'
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 300;
+				Camera.setQuake( start );
+			}
 		}],
 		
 		//381: [{}],	//EF_LIGHTSPHERE2	   Blue Starburst (Unknown use)
@@ -5552,6 +5620,14 @@ define(function( require )
 		387: [{	//EF_FALCONASSAULT	   Falcon Assault
 			wav:  'effect/hunter_blitzbeat',
 			attachedEntity: true
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 300;
+				Camera.setQuake( start );
+			}
 		}],
 		
 		388: [{	//EF_TRIPLEATTACK2	   Focused Arrow Strike (Sound Effect)
@@ -6744,7 +6820,16 @@ define(function( require )
 
 		//510: [{}],	//EF_BEGINASURA11	   Champion Asura Strike
 		//511: [{}],	//EF_NIGHT	   (Nothing)
-		//512: [{}],	//EF_CHEMICAL2DASH	   Chain Crush Combo
+		
+		512: [{	//EF_CHEMICAL2DASH	   Chain Crush Combo
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 132;
+				Camera.setQuake( start );
+			}
+		}],
 		
 		513: [{	//EF_GROUNDSAMPLE	   Area Cast
 			type: 'FUNC',
@@ -6796,6 +6881,15 @@ define(function( require )
 				GravityEffects.forEach(function(effect){
 					self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 				});
+			}
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				var duration = 200;
+				Camera.setQuake( start, duration );
 			}
 		}],
 
@@ -7010,7 +7104,16 @@ define(function( require )
 			file: 'effect/tarot14.tga'
 		}],	//EF_TAROTCARD14	   Tarot Card of Fate (The Sun)
 		
-		//537: [{}],	//EF_ACIDDEMON	   Acid Demonstration
+		537: [{	//EF_ACIDDEMON	   Acid Demonstration
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick + 200;
+				Camera.setQuake( start );
+			}
+		}],
+		
 		//538: [{}],	//EF_GREENBODY	   Player Become Green with Green Aura
 		//539: [{}],	//EF_THROWITEM4	   Throw Random Bottle
 		//540: [{}],	//EF_BABYBODY_BACK	   Instant Small->Normal
@@ -7062,8 +7165,7 @@ define(function( require )
 				var Camera = require('Renderer/Camera');
 				var start = Params.Inst.startTick;
 				var duration = 200;
-				var amt = [1,1,1];
-				Camera.setQuake( start, duration, amt[0], amt[1], amt[2] );
+				Camera.setQuake( start, duration );
 			}
 		}],
 		
@@ -7655,6 +7757,16 @@ define(function( require )
 			file: '\xbe\xee\xbd\xba\xc4\xf9\xc0\xcc\xc5\xa9',
 			wav: 'effect/earth_quake',
 			attachedEntity: true
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			duplicate: 3,
+			timeBetweenDupli: 35,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				Camera.setQuake( start );
+			}
 		}],
 
 		//667: [{}],	//EF_DA_SPACE	   (Nothing)
@@ -7664,6 +7776,14 @@ define(function( require )
 			file: 'dragon_h',
 			wav: 'effect/dragonfear',
 			attachedEntity: true
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				Camera.setQuake( start );
+			}
 		}],
 
 
@@ -10627,6 +10747,27 @@ define(function( require )
 				
 				this.add(wl_spheres, Params);
 			},
+		}],
+		
+		'quake': [{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				Camera.setQuake( start);
+			}
+		}],
+		
+		'quake_magnum': [{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				var duration = 50;
+				Camera.setQuake( start, duration);
+			}
 		}],
 		
 		'ef_': [{
