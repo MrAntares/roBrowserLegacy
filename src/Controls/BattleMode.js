@@ -36,55 +36,26 @@ define(function(require)
 	{
 
 		//NO MODIFIER
-		if(!KEYS.SHIFT && !KEYS.ALT && !KEYS.CTRL){
-			var key = Preferences[keyId];
-			if (key){
-				var component = UIManager.getComponent(key.component);
-				if (component.onShortCut) {
-					component.onShortCut(key);
-				}
-				return true;
-			}
-			return false;
-		}
-
+		var keyName = keyId;
+		
 		//SHIFT
 		if(KEYS.SHIFT && !KEYS.ALT && !KEYS.CTRL){
-			var key = Preferences[ "SHIFT" + keyId];
-			if (key){
-				var component = UIManager.getComponent(key.component);
-				if (component.onShortCut) {
-					component.onShortCut(key);
-				}
-				return true;
-			}
-			return false;
+			keyName = "SHIFT" + keyName;
 		}
-
-		//ALT
 		if(!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL){
-			var key = Preferences[ "ALT" + keyId];
-			if (key){
-				var component = UIManager.getComponent(key.component);
-				if (component.onShortCut) {
-					component.onShortCut(key);
-				}
-				return true;
-			}
-			return false;
+			keyName = "ALT" + keyName;
 		}
-
-		//CTRL
 		if(!KEYS.SHIFT && !KEYS.ALT && KEYS.CTRL){
-			var key = Preferences[ "CTRL" + keyId];
-			if (key){
-				var component = UIManager.getComponent(key.component);
-				if (component.onShortCut) {
-					component.onShortCut(key);
-				}
-				return true;
+			keyName = "CTRL" + keyName;
+		}
+		
+		var key = Preferences[keyId];
+		if (key){
+			var component = UIManager.getComponent(key.component);
+			if (component.onShortCut) {
+				component.onShortCut(key);
 			}
-			return false;
+			return true;
 		}
 		return false;
 	};
