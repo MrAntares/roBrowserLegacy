@@ -35,10 +35,8 @@ define(function(require)
 	BattleMode.process = function process( keyId )
 	{
 
-		//NO MODIFIER
 		var keyName = keyId;
 		
-		//SHIFT
 		if(KEYS.SHIFT && !KEYS.ALT && !KEYS.CTRL){
 			keyName = "SHIFT" + keyName;
 		}
