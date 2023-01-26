@@ -582,9 +582,9 @@ define(function( require )
 						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
 
-						var pkt    = new PACKET.CZ.PET_ACT();
-						pkt.data = talk;
-						Network.sendPacket(pkt);
+						var talkPkt    = new PACKET.CZ.PET_ACT();
+						talkPkt.data = talk;
+						Network.sendPacket(talkPkt);
 						Session.pet.lastTalk = Date.now();
 					}
 				}
@@ -1073,14 +1073,14 @@ define(function( require )
 				
 				//Pet Talk
 				if(srcEntity.GID === Session.Entity.GID && (Session.pet.friendly > 900 && (Session.pet.lastTalk || 0) + 10000 < Date.now())){
-					const talkRate = parseInt((Math.random() * 10));
+					var talkRate = parseInt((Math.random() * 10));
 					if(talkRate < 3){
-						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
-						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
+						var hunger = DB.getPetHungryState(Session.pet.oldHungry);
+						var talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
 
-						var pkt    = new PACKET.CZ.PET_ACT();
-						pkt.data = talk;
-						Network.sendPacket(pkt);
+						var talkPkt    = new PACKET.CZ.PET_ACT();
+						talkPkt.data = talk;
+						Network.sendPacket(talkPkt);
 						Session.pet.lastTalk = Date.now();
 					}
 				}
