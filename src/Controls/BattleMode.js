@@ -16,15 +16,42 @@ define(function(require)
 	 * Dependencies
 	 */
 	var KEYS        = require('Controls/KeyEventHandler');
-	var Preferences = require('Preferences/BattleMode');
+	var Preferences = require('Preferences/ShortCutControls');
 	var UIManager   = require('UI/UIManager');
-
 
 	/**
 	 * Create Namespace
 	 */
 	var BattleMode  = {};
-
+	
+	var KeyTable = getKeyTable();
+	
+	/**
+	 * Update key table if setting changes
+	 */
+	BattleMode.reload = function(){
+		KeyTable = getKeyTable();
+	}
+	
+	BattleMode.getKeyName = function( keyId ){
+		var keyName = keyId;
+		
+		if(KEYS.SHIFT){
+			keyName = "SHIFT-" + keyName;
+		}
+		if(KEYS.ALT){
+			keyName = "ALT-" + keyName;
+		}
+		if(KEYS.CTRL){
+			keyName = "CTRL-" + keyName;
+		}
+		
+		return keyName;
+	}
+	
+	BattleMode.match = function( keyId ){
+		return KeyTable[BattleMode.getKeyName(keyId)];
+	}
 
 	/**
 	 * BattleMode processing
@@ -35,19 +62,9 @@ define(function(require)
 	BattleMode.process = function process( keyId )
 	{
 
-		var keyName = keyId;
+		var keyName = BattleMode.getKeyName( keyId );
 		
-		if(KEYS.SHIFT && !KEYS.ALT && !KEYS.CTRL){
-			keyName = "SHIFT" + keyName;
-		}
-		if(!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL){
-			keyName = "ALT" + keyName;
-		}
-		if(!KEYS.SHIFT && !KEYS.ALT && KEYS.CTRL){
-			keyName = "CTRL" + keyName;
-		}
-		
-		var key = Preferences[keyId];
+		var key = KeyTable[keyName];
 		if (key){
 			var component = UIManager.getComponent(key.component);
 			if (component.onShortCut) {
@@ -71,11 +88,11 @@ define(function(require)
 		var keys, shortcut;
 		var i, count;
 
-		keys  = Object.keys(Preferences);
+		keys  = Object.keys(KeyTable);
 		count = keys.length;
 
 		for (i = 0; i < count; ++i) {
-			shortcut = Preferences[keys[i]];
+			shortcut = KeyTable[keys[i]];
 
 			if (shortcut.component === component && shortcut.cmd === cmd) {
 				var str = [];
@@ -104,6 +121,53 @@ define(function(require)
 		return 'None';
 	};
 
+
+	/**
+	 *	Translates the shortcut table into directly indexable format for event processing
+	 */
+	function getKeyTable(){
+		var keySettings = {};
+		
+		var ShortCuts = Preferences.ShortCuts;
+		
+		if(ShortCuts){
+			Object.keys(ShortCuts).forEach(SC => {
+				
+				// Get initial settings
+				var key =	ShortCuts[SC].init.key;
+				var shift =	ShortCuts[SC].init.shift;
+				var alt =	ShortCuts[SC].init.alt;
+				var ctrl =	ShortCuts[SC].init.ctrl;
+				
+				// Get custom settings
+				if(ShortCuts[SC].cust){
+					key =	ShortCuts[SC].cust.key;
+					shift =	ShortCuts[SC].cust.shift;
+					alt =	ShortCuts[SC].cust.alt;
+					ctrl =	ShortCuts[SC].cust.ctrl;
+				}
+				
+				// Only add if key is defined
+				if(key){
+					var keyName = key;
+					
+					if(shift){
+						keyName = "SHIFT-" + keyName;
+					}
+					if(alt){
+						keyName = "ALT-" + keyName;
+					}
+					if(ctrl){
+						keyName = "CTRL-" + keyName;
+					}
+					
+					keySettings[keyName] = { component: ShortCuts[SC].component, cmd: ShortCuts[SC].cmd };
+				}
+				
+			});
+		}
+		return keySettings;
+	}
 
 	/**
 	 * Exports
