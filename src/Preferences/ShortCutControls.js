@@ -67,11 +67,11 @@ define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	
 	ShortCuts.SkillBarSize =	{	init:{key: KEYS.F12,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXTEND'				};
 			
 	//Custom		
-	ShortCuts.M_UI =			{	init:{key: KEYS[9],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'SHOW'					};
+	/*ShortCuts.M_UI =			{	init:{key: KEYS[9],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'SHOW'					};
 	ShortCuts.M_Toggle =		{	init:{key: KEYS[8],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'TOGGLE'				};
 	ShortCuts.M_Targeting =		{	init:{key: KEYS[2],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'TG'					};
 	ShortCuts.M_AutoTarget =	{	init:{key: KEYS[3],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'AT'					};
-	ShortCuts.M_Attack =		{	init:{key: KEYS[1],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'ATK'					};
+	ShortCuts.M_Attack =		{	init:{key: KEYS[1],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'ATK'					};*/
 	
 	var ShortCutControls = { ShortCuts: ShortCuts };
 	
