@@ -285,6 +285,34 @@ define(function(require)
 	};
 	
 	/**
+	 * Process shortcut
+	 *
+	 * @param {object} key
+	 */
+	MobileUI.onShortCut = function onShortCut( key )
+	{
+		switch (key.cmd) {
+			case 'SHOW':
+				Session.isTouchDevice = true; // Fake it to make it :D
+				this.show();
+				break;
+			case 'TOGGLE':
+				toggleButtons();
+				break;
+			case 'TG':
+				toggleTouchTargeting();
+				break;
+			case 'AT':	
+				toggleAutoTargeting();
+				break;
+			case 'ATK':	
+				attackTargeted();
+				break;
+				
+		}
+	};
+	
+	/**
 	 * Removes MobileUI
 	 */
 	MobileUI.onRemove = function onRemove() {
