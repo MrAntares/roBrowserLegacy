@@ -21,6 +21,7 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var SoundOption        = require('UI/Components/SoundOption/SoundOption');
 	var GraphicsOption     = require('UI/Components/GraphicsOption/GraphicsOption');
+	var ShortCutOption     = require('UI/Components/ShortCutOption/ShortCutOption');
 	var htmlText           = require('text!./Escape.html');
 	var cssText            = require('text!./Escape.css');
 
@@ -56,6 +57,7 @@ define(function(require)
 		this.ui.find('.resurection').click(function(){ Escape.onResurectionRequest(); });
 		this.ui.find('.savepoint').click(function(){ Escape.onReturnSavePointRequest(); });
 		this.ui.find('.charselect').click(function(){ Escape.onCharSelectionRequest(); });
+		this.ui.find('.hotkey').click(onToggleShortcutUI);
 		this.ui.find('.exit').click(function(){ Escape.onExitRequest(); });
 		this.ui.find('.cancel').click(function(){ Escape.ui.hide(); });
 	};
@@ -129,6 +131,19 @@ define(function(require)
 		}
 		else {
 			GraphicsOption.remove();
+		}
+	}
+	
+	/**
+	 * Click on Shortcut button, toggle the UI
+	 */
+	function onToggleShortcutUI()
+	{
+		if (!ShortCutOption.ui || !ShortCutOption.ui[0].parentNode) {
+			ShortCutOption.append();
+		}
+		else {
+			ShortCutOption.remove();
 		}
 	}
 
