@@ -52,7 +52,7 @@ define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	
 	ShortCuts.Guild =			{	init:{key: KEYS.G,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Guild',				cmd:'TOGGLE'				};
 	ShortCuts.PetInfo =			{	init:{key: KEYS.J,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'PetInformations',	cmd:'TOGGLE'				};
 	ShortCuts.Emotions =		{	init:{key: KEYS.L,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Emoticons',			cmd:'TOGGLE'				};
-	ShortCuts.WorldMap =		{	init:{key: KEYS.[0],	alt: true,	ctrl: false,	shift: false},	cust: false,	component:'WorldMap',			cmd:'TOGGLE'				};
+	ShortCuts.WorldMap =		{	init:{key: KEYS[0],	alt: true,	ctrl: false,	shift: false},	cust: false,	component:'WorldMap',			cmd:'TOGGLE'				};
 	ShortCuts.Equipment =		{	init:{key: KEYS.Q,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Equipment',			cmd:'TOGGLE'				};
 	ShortCuts.ShortCuts =		{	init:{key: KEYS.M,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'ShortCuts',			cmd:'TOGGLE'				};
 	ShortCuts.SkillList =		{	init:{key: KEYS.S,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'SkillList',			cmd:'TOGGLE'				};
