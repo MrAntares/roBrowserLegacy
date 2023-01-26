@@ -58,19 +58,33 @@ define(function( require )
 	{
 		
 		var paths = [];
+		var params = [];
 		var i, count;
 
 		this.list  = Configs.get('plugins', {});
 
-		for (const [pluginName, pluginPath] of Object.entries(this.list)) {
-			paths.push('./' + pluginPath);
+		for (const [pluginName, value] of Object.entries(this.list)) {
+			if (typeof value === 'string' || value instanceof String){ // Only Path is provided as string
+				paths.push('./' + value);
+				params.push(null);
+			} else if (typeof value === 'object' && value !== null) { // Path and parameters are provided as well
+				if(value.path){
+					paths.push('./' + value.path);
+					
+					if(value.pars){
+						params.push(value.pars);
+					} else {
+						params.push(null);
+					}
+				}
+			}
 		}
 		
 		count = paths.length;
 		
 		require(paths, function() {
 			for (i = 0; i < count; ++i) {
-				if(arguments[i]()) {
+				if(arguments[i](params[i])) {
 					console.log('[PluginManager] Initialized plugin: ' + paths[i]);
 				} else {
 					console.error('[PluginManager] Failed to intialize plugin: ' + paths[i]);
