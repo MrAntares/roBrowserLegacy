@@ -43,15 +43,9 @@ define(function (require) {
 	ShortCutOption.init = function () {
 		this.ui.find(".close").on("click", function(){ ShortCutOption.remove(); });
 		this.ui.find(".tabs").on("click", "button", function () {
-			if (0 == $(this).data("index")) {
-				if (ShortCutOption.ui.find(".border").hasClass("ui")) {
-					ShortCutOption.ui.find(".border").removeClass("ui").addClass("ShortCut");
-				}
-			} else {
-				if (ShortCutOption.ui.find(".border").hasClass("ShortCut")) {
-					ShortCutOption.ui.find(".border").removeClass("ShortCut").addClass("ui");
-				}
-			}
+			var tab = $(this).data("index");
+			ShortCutOption.ui.find(".selectedtab").removeClass("selectedtab");
+			ShortCutOption.ui.find("."+tab).addClass("selectedtab");
 		});
 		this.ui.find("td").on("click", function () {
 			if ($(this).hasClass("customize")) {
