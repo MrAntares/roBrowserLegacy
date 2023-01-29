@@ -25,6 +25,8 @@
 	 var htmlText           = require('text!./ShortCuts.html');
 	 var cssText            = require('text!./ShortCuts.css');
 	 var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
+	 var Network            = require('Network/NetworkManager');
+	 var PACKET             = require('Network/PacketStructure');
 	 var getModule    		= require;
  
  
@@ -36,7 +38,7 @@
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _ALT_INIT = Preferences.get('_ALT_CMD', {
+	var _MACRO_INIT = Preferences.get('_MACRO_CMD', {
 		Num_1:  '/hide'	,
 		Num_2:  '/?'	,
 		Num_3:  '/ho'	,
@@ -48,6 +50,19 @@
 		Num_9:  '/$'	,
 		Num_0:  '/...'
 	}, 1.0);
+	
+	// Fixed, can't change them
+	var _FLAG_INIT = {
+		Num_1:  13, //ET_FLAG
+		Num_2:  35, //ET_INDONESIA_FLAG
+		Num_3:  48, // ET_PH_FLAG
+		Num_4:  49, //ET_MY_FLAG
+		Num_5:  50, //ET_SI_FLAG
+		Num_6:  51, //ET_BR_FLAG
+		Num_7:  64, //ET_INDIA_FLAG
+		Num_8:  66, //ET_FLAG8
+		Num_9:  67 //ET_FLAG9
+	};
  
 	 /**
 	  * Store ShortCuts items
@@ -90,10 +105,10 @@
 		});
 
 		this.ui.find('.close').click(onClose);
-		this.ui.find('.alt input').mousedown(function(){
+		this.ui.find('.macro input').mousedown(function(){
 			// this.focus();
-			jQuery(".alt_").removeClass('input_alt_focus');
-			jQuery(this).addClass('input_alt_focus');
+			jQuery(".macro_").removeClass('input_macro_focus');
+			jQuery(this).addClass('input_macro_focus');
 
 			jQuery(this).select();
 		});
@@ -160,15 +175,70 @@
 			case 'TOGGLE':
 				this.ui.toggle();
 				// Remove input focus
-				jQuery(".alt_").removeClass('input_alt_focus');
+				jQuery(".macro_").removeClass('input_macro_focus');
 				if (this.ui.is(':visible')) {
 					this.focus();
 				}
 				break;
-			default:
-				var executeAlte = key.cmd.split("EXECUTE_ALT_")[1];
-				this.ui.find('.alt input').focus();
-				executeAlt(executeAlte);
+			// Macros
+			case 'EXECUTE_MACRO_1':
+				executeCmd(1);
+				break;
+			case 'EXECUTE_MACRO_2':
+				executeCmd(2);
+				break;
+			case 'EXECUTE_MACRO_3':
+				executeCmd(3);
+				break;
+			case 'EXECUTE_MACRO_4':
+				executeCmd(4);
+				break;
+			case 'EXECUTE_MACRO_5':
+				executeCmd(5);
+				break;
+			case 'EXECUTE_MACRO_6':
+				executeCmd(6);
+				break;
+			case 'EXECUTE_MACRO_7':
+				executeCmd(7);
+				break;
+			case 'EXECUTE_MACRO_8':
+				executeCmd(8);
+				break;
+			case 'EXECUTE_MACRO_9':
+				executeCmd(9);
+				break;
+			case 'EXECUTE_MACRO_0':
+				executeCmd(0);
+				break;
+				
+			// Flags
+			case 'EXECUTE_FLAG_1':
+				executeFlag(1);
+				break;
+			case 'EXECUTE_FLAG_2':
+				executeFlag(2);
+				break;
+			case 'EXECUTE_FLAG_3':
+				executeFlag(3);
+				break;
+			case 'EXECUTE_FLAG_4':
+				executeFlag(4);
+				break;
+			case 'EXECUTE_FLAG_5':
+				executeFlag(5);
+				break;
+			case 'EXECUTE_FLAG_6':
+				executeFlag(6);
+				break;
+			case 'EXECUTE_FLAG_7':
+				executeFlag(7);
+				break;
+			case 'EXECUTE_FLAG_8':
+				executeFlag(8);
+				break;
+			case 'EXECUTE_FLAG_9':
+				executeFlag(9);
 				break;
 		}
 	 };
@@ -261,8 +331,8 @@
 		 });
 	 }
 
-	 function executeAlt(value){		
-		var command = _ALT_INIT[`Num_${value}`];
+	 function executeCmd(value){		
+		var command = _MACRO_INIT[`Num_${value}`];
 		
 		// Nothing to submit
 		if (command.length < 1 || command == '/hide') {
@@ -277,20 +347,35 @@
 
 		ChatBox.onRequestTalk('', command, ChatBox.sendTo);
 	 }
+	 
+	 function executeFlag(value){		
+		var command = _FLAG_INIT[`Num_${value}`];
+		
+		// Nothing to submit
+		if (command.length < 1) {
+			return;
+		}
+
+		var pkt = 
+		pkt = new PACKET.CZ.REQ_EMOTION();
+		pkt.type = command;
+		Network.sendPacket(pkt);
+		return;
+	 }
 
 	 function loadValuesAlt(){
-		var length = (Object.keys(_ALT_INIT).length - 3);
+		var length = (Object.keys(_MACRO_INIT).length - 3);
 		for (let index = 0; index < length; index++) {
-			var element = _ALT_INIT[`Num_${index}`];
-			jQuery(`#alt_${index}`).val(element);
+			var element = _MACRO_INIT[`Num_${index}`];
+			jQuery(`#macro_${index}`).val(element);
 		}
 	 }
 
 	 function addValuesAlt(element){
-		element.ui.find('.alt input').blur(function(){
-			var index = jQuery(this).attr('id').split("alt_")[1]
-			_ALT_INIT[`Num_${index}`] = this.value
-			_ALT_INIT.save();			
+		element.ui.find('.macro input').blur(function(){
+			var index = jQuery(this).attr('id').split("macro_")[1]
+			_MACRO_INIT[`Num_${index}`] = this.value
+			_MACRO_INIT.save();			
 		});
 	 }
 
