@@ -79,18 +79,33 @@ define( function( require )
 	 * Priority in picking
 	 */
 	Entity.PickingPriority = {};
-	Entity.PickingPriority[Entity.TYPE_MOB]=		3;
-	Entity.PickingPriority[Entity.TYPE_ITEM]=		2;
-	Entity.PickingPriority[Entity.TYPE_NPC]=		1;
-	Entity.PickingPriority[Entity.TYPE_UNKNOWN]=	0;
-	Entity.PickingPriority[Entity.TYPE_WARP]=		0;
-	Entity.PickingPriority[Entity.TYPE_PC]=			0;
-	Entity.PickingPriority[Entity.TYPE_DISGUISED]=	0;
-	Entity.PickingPriority[Entity.TYPE_PET]=		0;
-	Entity.PickingPriority[Entity.TYPE_HOM]=		0;
-	Entity.PickingPriority[Entity.TYPE_MERC]=		0;
-	Entity.PickingPriority[Entity.TYPE_ELEM]=		0;
-	Entity.PickingPriority[Entity.TYPE_EFFECT]=		-1;
+	Entity.PickingPriority.Normal = {};
+	Entity.PickingPriority.Normal[Entity.TYPE_MOB]=			3;
+	Entity.PickingPriority.Normal[Entity.TYPE_ITEM]=		2;
+	Entity.PickingPriority.Normal[Entity.TYPE_NPC]=			1;
+	Entity.PickingPriority.Normal[Entity.TYPE_UNKNOWN]=		0;
+	Entity.PickingPriority.Normal[Entity.TYPE_WARP]=		0;
+	Entity.PickingPriority.Normal[Entity.TYPE_PC]=			0;
+	Entity.PickingPriority.Normal[Entity.TYPE_DISGUISED]=	0;
+	Entity.PickingPriority.Normal[Entity.TYPE_PET]=			0;
+	Entity.PickingPriority.Normal[Entity.TYPE_HOM]=			0;
+	Entity.PickingPriority.Normal[Entity.TYPE_MERC]=		0;
+	Entity.PickingPriority.Normal[Entity.TYPE_ELEM]=		0;
+	Entity.PickingPriority.Normal[Entity.TYPE_EFFECT]=		-1;
+	
+	Entity.PickingPriority.Support = {};
+	Entity.PickingPriority.Support[Entity.TYPE_PC]=			3;
+	Entity.PickingPriority.Support[Entity.TYPE_DISGUISED]=	3;
+	Entity.PickingPriority.Support[Entity.TYPE_HOM]=		3;
+	Entity.PickingPriority.Support[Entity.TYPE_MERC]=		3;
+	Entity.PickingPriority.Support[Entity.TYPE_ELEM]=		3;
+	Entity.PickingPriority.Support[Entity.TYPE_MOB]=		2;
+	Entity.PickingPriority.Support[Entity.TYPE_PET]=		1;
+	Entity.PickingPriority.Support[Entity.TYPE_ITEM]=		0;
+	Entity.PickingPriority.Support[Entity.TYPE_NPC]=		0;
+	Entity.PickingPriority.Support[Entity.TYPE_UNKNOWN]=	0;
+	Entity.PickingPriority.Support[Entity.TYPE_WARP]=		0;
+	Entity.PickingPriority.Support[Entity.TYPE_EFFECT]=		-1;
 	
 	
 	/**

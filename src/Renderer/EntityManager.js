@@ -222,14 +222,14 @@ define(function( require )
 		return bDepth - aDepth;
 	}
 
-	var _reversePriority = false;
+	var _supportPriority = false;
 	
 	/**
 	 * Set reverse priority for entity sorting (for supportive skills)
 	 * @param {boolean} true/false
 	 */
-	function setReversePriority(v){
-		_reversePriority = v;
+	function setSupportPicking(v){
+		_supportPriority = v;
 	}
 	
 	/**
@@ -243,12 +243,12 @@ define(function( require )
 		var aDepth = a.depth + ((!isNaN(a.GID)) ? a.GID%100 : 0) / 1000;
 		var bDepth = b.depth + ((!isNaN(b.GID)) ? b.GID%100 : 0) / 1000;
 
-		if (_reversePriority) {
-			aDepth += Entity.PickingPriority[a.objecttype] * 100;
-			bDepth += Entity.PickingPriority[b.objecttype] * 100;
+		if (_supportPriority) {
+			aDepth -= Entity.PickingPriority.Support[a.objecttype] * 100;
+			bDepth -= Entity.PickingPriority.Support[b.objecttype] * 100;
 		} else {
-			aDepth -= Entity.PickingPriority[a.objecttype] * 100;
-			bDepth -= Entity.PickingPriority[b.objecttype] * 100;
+			aDepth -= Entity.PickingPriority.Normal[a.objecttype] * 100;
+			bDepth -= Entity.PickingPriority.Normal[b.objecttype] * 100;
 		}
 
 		return aDepth - bDepth;
@@ -410,7 +410,7 @@ define(function( require )
 
 		render:               render,
 		intersect:            intersect,
-		setReversePriority:   setReversePriority,
+		setSupportPicking:    setSupportPicking,
 	};
 
 

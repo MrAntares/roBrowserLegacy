@@ -181,7 +181,7 @@ define(function(require)
 		Cursor.freeze         = false;
 		Cursor.setType(Cursor.ACTION.DEFAULT);
 		
-		EntityManager.setReversePriority(false);
+		EntityManager.setSupportPicking(false);
 
 		if (_skillName.parentNode) {
 			document.body.removeChild(_skillName);
@@ -234,7 +234,7 @@ define(function(require)
 
 		Mouse.state = Mouse.MOUSE_STATE.USESKILL;
 
-		EntityManager.setReversePriority((_flag & SkillTargetSelection.TYPE.FRIEND) > 0);
+		EntityManager.setSupportPicking((_flag & SkillTargetSelection.TYPE.FRIEND) > 0);
 
 		// Render skillName
 		var sk = SkillInfo[ skill.SKID ];
