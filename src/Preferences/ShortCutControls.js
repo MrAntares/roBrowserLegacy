@@ -37,15 +37,15 @@ define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	
 	ShortCuts.F3_7 =			{	init:{key: KEYS.U,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE24'				};
 	ShortCuts.F3_8 =			{	init:{key: KEYS.I,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE25'				};
 	ShortCuts.F3_9 =			{	init:{key: KEYS.O,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE26'				};
-	ShortCuts.F4_1 =			{	init:{key: KEYS.P,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE27'				};
-	ShortCuts.F4_2 =			{	init:{key: KEYS.A,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE28'				};
-	ShortCuts.F4_3 =			{	init:{key: KEYS.S,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE29'				};
-	ShortCuts.F4_4 =			{	init:{key: KEYS.D,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE30'				};
-	ShortCuts.F4_5 =			{	init:{key: KEYS.F,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE31'				};
-	ShortCuts.F4_6 =			{	init:{key: KEYS.G,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE32'				};
-	ShortCuts.F4_7 =			{	init:{key: KEYS.H,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE33'				};
-	ShortCuts.F4_8 =			{	init:{key: KEYS.J,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE34'				};
-	ShortCuts.F4_9 =			{	init:{key: KEYS.K,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE35'				};
+	ShortCuts.F4_1 =			{	init:{key: KEYS.A,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE27'				};
+	ShortCuts.F4_2 =			{	init:{key: KEYS.S,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE28'				};
+	ShortCuts.F4_3 =			{	init:{key: KEYS.D,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE29'				};
+	ShortCuts.F4_4 =			{	init:{key: KEYS.F,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE30'				};
+	ShortCuts.F4_5 =			{	init:{key: KEYS.G,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE31'				};
+	ShortCuts.F4_6 =			{	init:{key: KEYS.H,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE32'				};
+	ShortCuts.F4_7 =			{	init:{key: KEYS.J,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE33'				};
+	ShortCuts.F4_8 =			{	init:{key: KEYS.K,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE34'				};
+	ShortCuts.F4_9 =			{	init:{key: KEYS.L,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE35'				};
 	ShortCuts.ChatRoom =		{	init:{key: KEYS.C,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'ChatRoomCreate',		cmd:'TOGGLE'				};
 	ShortCuts.Inventory =		{	init:{key: KEYS.E,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Inventory',			cmd:'TOGGLE'				};
 	ShortCuts.PushCart =		{	init:{key: KEYS.W,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'CartItems',			cmd:'TOGGLE'				};
@@ -98,5 +98,5 @@ define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	
 	
 	var ShortCutControls = { ShortCuts: ShortCuts };
 	
-	return Preferences.get("ShortCutControls",	ShortCutControls, 1.1);
+	return Preferences.get("ShortCutControls",	ShortCutControls, 1.2);
 });
