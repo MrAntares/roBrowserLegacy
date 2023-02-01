@@ -58,6 +58,7 @@ define(function( require )
 	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
 	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
+	var CashShop	         = require('UI/Components/CashShop/CashShop');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	/**
@@ -177,6 +178,7 @@ define(function( require )
 		require('./MapEngine/Homun').call();
 		require('./MapEngine/Store').call();
 		require('./MapEngine/Trade').call();
+		require('./MapEngine/CashShop').call();
 		require('./MapEngine/Friends').init();
 
 		// Prepare UI
@@ -198,6 +200,7 @@ define(function( require )
 		ChatBox.prepare();
 		Guild.prepare();
 		WorldMap.prepare();
+		CashShop.prepare();
 		SkillListMER.prepare();
 
 		// Bind UI
@@ -329,6 +332,7 @@ define(function( require )
 			WorldMap.append();
 			SkillListMER.append();
 			MobileUI.append();
+			CashShop.append();
 			
 			// Reload plugins
 			PluginManager.init();

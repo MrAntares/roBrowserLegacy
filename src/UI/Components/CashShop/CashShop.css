@@ -1,0 +1,530 @@
+#CashShop { 
+    position:absolute; 
+    top:100px; 
+    left:100px; 
+    font-size:12px; 
+    border-radius:0px 0px 4px 4px;
+    width: 800px;
+    height: 530px;
+    background: #fff;
+}
+#CashShop table { border-spacing:0px; display:inline-block; }
+
+#CashShop .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
+#CashShop .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
+#CashShop .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+ /* chrome bug */ display: inline-block; width: 32px; height:13px; }
+
+#CashShop .titlebar .left { margin-left:3px; float:left; }
+#CashShop .titlebar .right { float:right; margin-right:3px;}
+#CashShop .titlebar .clear { clear:both; }
+
+#CashShop .tabs { border-left:1px solid #ccc; width:50px; background-repeat:no-repeat; background-color:white; vertical-align:top; background-position: -1px 0px; }
+#CashShop .tabs button { width:20px; height:27px; border:none; background-color:transparent; display:block; }
+
+#CashShop .container { padding-left: 16px; border-right:1px solid #ccc; background:white; border-left: 1px solid #d8d8d8;}
+#CashShop .ff_bugfix { position:relative; width: 100%; height: 100%; }
+#CashShop .hide { height:100%; width:16px; position:absolute; top:0px; right:0px; background-color:white;}
+#CashShop .content { overflow:auto; width:100%; height:100%; min-height:65px; background-color:transparent; background-repeat:repeat; }
+
+#CashShop .content .item { display:block; width:24px; height:24px; margin:4px 4px 4px 4px; position:relative; float:left; }
+#CashShop .content .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
+#CashShop .overlay {
+    position: absolute;
+    display: none;
+    white-space: nowrap;
+    z-index: 900;
+    height: 15px;
+    line-height: 15px;
+    border-radius: 3px;
+    padding: 4px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    text-shadow: 1px 1px black;
+}
+#CashShop .overlay.grey { color:#aaa; }
+#CashShop .content .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
+
+#CashShop .footer { width:100%; height:27px; background-repeat:repeat-x; background-color:transparent; position:relative; border-right:1px solid #ccc; }
+#CashShop .footer .cnt { position:absolute; left:10px; bottom:6px; font-size:12px; }
+#CashShop .footer button { position:absolute; right:0px; bottom:1px; width:13px; height:13px; border:none; background-repeat:no-repeat; background-color:transparent; }
+#CashShop div.panel {
+    height: 513px;
+    overflow: hidden;
+    border-radius: 0px 0px 4px 4px;
+}
+#CashShop div.content-panel {
+    height: 513px;
+}
+#CashShop div.container-menu {
+    height: 513px;
+}
+#CashShop div.container-menu {
+    width: 120px;
+    border-right: 1px solid #b3ccd5;
+    float: left;
+}
+#CashShop .container-menu div.menu {
+    padding: 7px 7px;
+    font-weight: bold;
+    color: #656565;
+    position: relative;
+}
+#CashShop .container-menu div.menu.active {
+    border-bottom: 1px solid #b3ccd5;
+    border-top: 1px solid #b3ccd5;
+    background: #eaeaea;
+    margin-right: -2px;
+    padding-left: 12px !important;
+}
+#CashShop .container-body {
+    float: left;
+    width: 490px;
+    height: inherit;
+    background: #eaeaea;
+    border-top: 1px solid #b3ccd5;
+}
+#CashShop .inner-body {
+    width: 100%;
+    height: 418px;
+    border-bottom: 1px solid #c4c4c4;
+}
+#CashShop .inner-footer {
+    width: 100%;
+    height: 31px;
+    background: #fff;    
+}
+#CashShop .inner-footer ul {
+    list-style: none;
+    padding-left: 0px;
+    display: inline-flex;
+    margin-top: 8px;
+}
+#CashShop .inner-footer ul li {
+    margin-right: 16px;
+    font-size: 10px;
+}
+#CashShop .container-body .inner-body .items {
+    width: 100%;
+    float: left;
+    margin-top: 10px;
+    height: 363px;
+}
+#CashShop .container-body .inner-body .items .item {
+    width: 156px;
+    height: 115px;
+    background: #fff;
+    display: inline-block;
+    border-radius: 4px;
+    margin-left: 4px;
+    border: 1px solid #b3ccd5;
+    margin-bottom: 2px;
+    box-shadow: 6px 6px 5px -1px rgb(170 170 170 / 75%);
+    -webkit-box-shadow: 6px 6px 5px -1px rgb(170 170 170 / 75%);
+    -moz-box-shadow: 6px 6px 5px -1px rgba(170,170,170,0.75);
+}
+#CashShop .container-cart{
+    float: left;
+    height: inherit;
+    width: 188px;
+    border-left: 1px solid #b3ccd5;
+}
+#CashShop .container-cart-header{
+    padding: 12px 14px;
+    height: 41px;
+    background-image: url(http://localhost/roBrowserLegacy/src/UI/assets/bg-cart-right.png);
+}
+#CashShop .container-charging-view {
+    text-align: right;
+    display: inline-flex;
+    width: 100%;
+}
+#CashShop .view-cash-point {
+    width: 90px;
+    padding: 3px 6px;
+    background: #4d4d4d;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px 0px 0px 4px;
+    font-size: 10px;
+    line-height: 19px;
+}
+#CashShop .view-cash-point-2 {
+    background: #ffffff;
+    border: 1px solid #4d4d4d;
+    border-radius: 0px 4px 4px 0px;
+    font-size: 10px;
+    padding: 4px;
+}
+#CashShop .cart-header-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 5px;
+}
+#CashShop .icon-gold-coin {
+    width: 12px;
+    height: 12px;
+    float: right;
+    margin-top: 3px;
+    margin-left: 4px;
+    background-image: url(http://localhost/roBrowserLegacy/src/UI/assets/gold-coin.png);
+    background-size: cover;
+}
+#CashShop ul.items {
+    list-style: none;
+    list-style-type: none;
+    padding: 0px;
+    margin-bottom: 4px;
+}
+#CashShop ul.items .item {
+    width: 169px;
+    height: 62px;
+    background: #d4d4d4;
+    margin-left: 10px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    position: relative;
+}
+#CashShop ul.items .inner-item-dt {
+    width: 162px;
+    height: 56px;
+    margin-left: 3px;
+    margin-top: 3px;
+    float: left;
+    background: #fff;
+    border-radius: 4px;
+}
+#CashShop .inner-item-dt .item-dt-img {
+    float: left;
+    width: 54px;
+    height: inherit;
+    background-size: 71%;
+    background-repeat: no-repeat;
+    background-position: 10px 0px;
+}
+#CashShop .container-cart .container-cart-body{
+    height: 326px;
+}
+#CashShop .inner-item-dt .item-dt-desc {
+    float: right;
+    width: 103px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+#CashShop .inner-item-dt .item-dt-desc .item-desc-top {
+    color: #4c7ba6;
+}
+#CashShop #items .item-desc-price {
+    width: 81px;
+    height: 17px;
+    background: #4c7ba6;
+    margin-top: 4px;
+    border-radius: 4px;
+    box-shadow: inset 1px 1px 3px #1c1c1c;
+    -webkit-box-shadow: inset 1px 1px 3px #1c1c1c;
+    -moz-box-shadow: inset 1px 1px 3px #1c1c1c;
+}
+#CashShop .item-desc-price span {
+    color: #fff;
+    font-size: 10px;
+    line-height: 18px;
+    margin-left: 6px;
+}
+#CashShop .item-desc-price .icon-gold-coin {
+    margin-top: 2px;
+    margin-right: 3px;
+}
+#CashShop .container-cart-footer {
+    width: 169px;
+    margin-left: 10px;
+    background: #cfdfef;
+    border-radius: 4px;
+    height: 108px;
+}
+#CashShop .container-cart-footer .item-desc-price {
+    width: 100%;
+    color: #fff;
+    height: 17px;
+    background: #4c7ba6;
+    margin-top: 4px;
+    border-radius: 4px 4px 0px 0px;
+    box-shadow: inset 1px 1px 3px #1c1c1c;
+    -webkit-box-shadow: inset 1px 1px 3px #1c1c1c;
+    -moz-box-shadow: inset 1px 1px 3px #1c1c1c;
+    font-weight: bold;
+    line-height: 20px;
+}
+#CashShop .container-cart-footer .item-desc-price span {
+    padding-left: 6px;
+}
+#CashShop .container-cart-footer .item-desc-price .icon-gold-coin {
+    margin-right: 4px;
+}
+#CashShop #cart-list .item-desc-price {
+    width: 50px;
+    height: 17px;
+    background: #4c7ba6;
+    margin-top: 4px;
+    border-radius: 4px;
+    box-shadow: inset 1px 1px 3px #1c1c1c;
+    -webkit-box-shadow: inset 1px 1px 3px #1c1c1c;
+    -moz-box-shadow: inset 1px 1px 3px #1c1c1c;
+    float: left;
+}
+#CashShop #cart-list .item-counter{
+    width: 39px;
+    height: 17px;
+    float: left;
+    margin-top: 4px;
+    margin-right: 1px;
+    background-size: 329%;
+    background-repeat: no-repeat;
+    background-position: -36px -19px;
+    position: relative;
+}
+#CashShop #cart-list .item-counter .item-cnt,
+#CashShop #cart-list .item-counter .item-cnt-up,
+#CashShop #cart-list .item-counter .item-cnt-down{
+    position: absolute;
+    width: 7px;
+    height: 7px;
+}
+#CashShop #cart-list .item-counter .item-cnt-down{
+    bottom: 1px;
+    right: 1px;
+    width: 10px;
+    background-color: transparent;
+    border: 0px;
+}
+#CashShop #cart-list .item-counter .item-cnt-up{
+    top: 0px;
+    right: 1px;
+    width: 10px;
+    background-color: transparent;
+    border: 0px;
+}
+#CashShop #cart-list .item-counter .item-cnt{
+    top: 3px;
+    left: 12px;
+    font-size: 9px;
+    color: #6e6d6d;
+}
+#CashShop .container-cart-footer > table {
+    width: 100%;
+    padding: 4px 10px;
+    font-size: 11px;
+}
+#CashShop .container-cart-footer > table tr td.txt {
+    width: 60%;
+    text-align: left;
+}
+#CashShop .container-cart-footer > table tr td.value {
+    width: 40%;
+    text-align: right;
+}
+#CashShop .container-cart-footer .cart-footer-action {
+    padding: 0px 10px
+}
+#CashShop .container-cart-footer .cart-footer-action > button {
+    width: 100%;
+    border-radius: 0px 0px 4px 4px;
+    border: 1px solid #9b9b9b;
+    line-height: 23px;
+    font-weight: bold;
+}
+#CashShop .container-body #items .item-left-img{
+    width: 66px;
+    height: 90px;
+    background-size: cover;
+}
+#CashShop .container-body #items .item-right-desc{
+    float: right;
+    margin-right: 8px;
+    margin-top: 17px;
+}
+#CashShop .container-body #items .top-con,
+#CashShop .container-body #items .lower-con{
+    float: left;
+    width: 100%;
+}
+#CashShop .container-body #items .item .item-left-img{
+    float: left;
+}
+#CashShop .container-body #items .top-con{
+    background: #cbdcea;
+    text-align: center;
+    padding-top: 5px;
+    font-weight: bold;
+    font-size: 11px;
+    color: #566e81;
+    padding-bottom: 5px;
+}
+#CashShop .purchase-btn-container button{
+    width: 100%;
+    margin-top: 9px;
+    font-size: 11px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    background: rgb(225,255,255); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(225,255,255,1) 0%, rgba(225,255,255,1) 7%, rgba(225,255,255,1) 12%, rgba(253,255,255,1) 12%, rgba(230,248,253,1) 30%, rgba(200,238,251,1) 54%, rgba(190,228,248,1) 75%, rgba(177,216,245,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(225,255,255,1) 0%,rgba(225,255,255,1) 7%,rgba(225,255,255,1) 12%,rgba(253,255,255,1) 12%,rgba(230,248,253,1) 30%,rgba(200,238,251,1) 54%,rgba(190,228,248,1) 75%,rgba(177,216,245,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(225,255,255,1) 0%,rgba(225,255,255,1) 7%,rgba(225,255,255,1) 12%,rgba(253,255,255,1) 12%,rgba(230,248,253,1) 30%,rgba(200,238,251,1) 54%,rgba(190,228,248,1) 75%,rgba(177,216,245,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e1ffff', endColorstr='#b1d8f5',GradientType=0 );
+    border: 1px solid #bcbcbc;
+}
+#CashShop .purchase-btn-container button:hover{
+    background: rgb(161,219,255); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(161,219,255,1) 0%, rgba(203,235,255,1) 53%, rgba(240,249,255,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(161,219,255,1) 0%,rgba(203,235,255,1) 53%,rgba(240,249,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(161,219,255,1) 0%,rgba(203,235,255,1) 53%,rgba(240,249,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a1dbff', endColorstr='#f0f9ff',GradientType=0 ); /* IE6-9 */
+
+}
+#CashShop .purchase-btn-container button:target{
+    font-size:10px;
+}
+#CashShop .purchase-btn-container button:active{
+    font-size:10px;
+}
+#CashShop #main-menu .menu .menu-icon{
+    width: 17px;
+    height: 17px;
+    background-size: 189%;
+    background-position: -7px -1px;
+    background-repeat: no-repeat;
+    float: left;
+    overflow: hidden;
+    border-radius: 50px;
+    margin-right: 4px;
+}
+#CashShop .container-banner{
+    width: 100%;
+    height: 65px;
+    float: left;
+    background-size: cover;
+    background-position: 0px -22px;
+}
+#CashShop .container-merge{
+    float: left;
+    width: 611px;
+}
+#CashShop .item-searcher{
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}
+#CashShop .item-searcher input[type="text"]{
+    border: 1px solid #b6b6b6;
+    border-radius: 5px 0px 0px 5px;
+    width: 300px;
+    line-height: 18px;
+    font-size: 11px;
+    padding-left: 9px;
+}
+#CashShop .item-searcher button{
+    border: 0px;
+    line-height: 17px;
+    width: 67px;
+    height: 22px;
+    background-size: cover;
+    margin-left: -3px;
+    vertical-align: middle;
+    margin-top: -2px;
+}
+#CashShop .item-paginations ul{
+    float: left;
+    display: inline-flex;
+    list-style: none;
+    background: #fff;
+    width: 111px;
+    padding: 4px;
+    border-radius: 4px;
+    margin-left: 37%;
+    box-shadow: 6px 6px 5px -1px rgba(170,170,170,0.75);
+    -webkit-box-shadow: 6px 6px 5px -1px rgba(170,170,170,0.75);
+    -moz-box-shadow: 6px 6px 5px -1px rgba(170,170,170,0.75);
+    margin-top: 5px;
+}
+#CashShop .item-paginations ul li.page button,
+#CashShop .item-paginations ul li.page div {
+    width: 18px;
+    height: 14px;
+    margin-right: 7px;
+    background-size: contain;
+    background-position: 0px 0px;
+    border: 0;
+}
+#CashShop .item-paginations ul li.page.go-prev button,
+#CashShop .item-paginations ul li.page.go-next button{
+    width: 13px !important;
+}
+#CashShop .cashshopimg{
+    position: absolute;
+    bottom: 0px;
+}
+#CashShop .cashshopimg {
+    position: absolute;
+    bottom: 0px;
+}
+#CashShop .cashshopimg div {
+    width: 118px;
+    height: 175px;
+    background-size: cover;
+}
+#CashShop .cashpoint_footer{
+    font-weight: bold;
+    color: #2b8e2b;
+}
+#CashShop #cart-list .items .no-items{
+    text-align: center;
+}
+#CashShop div#main-menu .menu > button {
+    position: absolute;
+    width: 116px;
+    height: 23px;
+    top: 3px;
+    left: 1px;
+    background: transparent;
+    border: 0px;
+}
+#CashShop .container-body .items .no-list-item{
+    text-align: center;
+    margin-top: 26%;
+}
+#minimap .cashshopIcon{
+    width: 43px;
+    height: 45px;
+    position: absolute;
+    top: 1%;
+    left: -27%;
+    background-repeat: no-repeat;
+    z-index: 999;
+    background-position: -1px -1px;
+}
+#CashShop #main-menu .menu.search-result .menu-icon{
+    background-size: 57px !important;
+    background-position: -17px 0px !important;
+}
+#CashShop .container-menu div.menu:hover{
+    padding-left: 12px !important;
+}
+#CashShop #cart-list .items .item .delete-item{
+    position: absolute;
+    right: 1px;
+    width: 16px;
+    height: 16px;
+    background: #d4d4d4;
+    border-radius: 50px;
+    top: 0px;
+    text-align: center;
+}
+#CashShop #cart-list .items .item .delete-item button{
+    width: 15px;
+    border-radius: 50px;
+    border: 0px;
+    background: #d4d4d4;
+    font-weight: bold;
+    color: #e04c4c;
+}

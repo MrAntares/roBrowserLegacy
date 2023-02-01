@@ -1,0 +1,97 @@
+<div id="CashShop">
+	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+		<div class="left">
+			<button class="base" data-background="basic_interface/sys_base_off.bmp" data-hover="basic_interface/sys_base_on.bmp"></button>
+			<span class="text">ROBrowser Cash Shop</span>
+		</div>
+		<div class="right">
+			<button class="base mini" data-background="basic_interface/sys_mini_off.bmp" data-hover="basic_interface/sys_mini_on.bmp"></button>
+			<button class="base close" data-background="basic_interface/sys_close_off.bmp" data-hover="basic_interface/sys_close_on.bmp"></button>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div class="overlay"></div>
+	<div class="panel" style="position: relative;">
+		<div class="content-panel">
+			<div class="container-merge">
+				<div class="container-banner"></div>
+				<div id="main-menu" class="container-menu">
+				</div>
+				<div class="container-body">
+					<div class="item-searcher">
+						<input class="inp-search" placeholder="Search Cash Shop Item" type="text" />
+						<button class="btnSearch"></button>
+					</div>
+					<div class="inner-body">
+						<div id="items" class="items">
+						</div>
+						<div class="item-paginations">
+							<ul>
+								<li class="page go-first" data-index="1">
+									<button class="pagi-handler" data-background="cashshop/bt_arrowL2_off.bmp"></button>
+								</li>
+								<li class="page go-prev" data-index="2">
+									<button class="pagi-handler" data-background="cashshop/bt_arrowL_off.bmp"></button>
+								</li>
+								<li class="page page-no">
+									<div class="pagi-handler"><span class="pagi-changepage">1</span>/<span class="pagi-countpage"></span></div>
+								</li>
+								<li class="page go-next" data-index="3">
+									<button class="pagi-handler" data-background="cashshop/bt_arrowR_on.bmp"></button>
+								</li>
+								<li class="page go-last" data-index="4">
+									<button class="pagi-handler" data-background="cashshop/bt_arrowR2_on.bmp"></button>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container-cart">
+				<div class="inner-cart-right">
+					<div class="container-cart-header">
+						<div class="cart-header-title">Buy List</div>
+						<div class="container-charging-view">
+							<div id="cashpoint" class="view-cash-point"><span>0</span> <div class="icon-gold-coin"></div></div>
+							<div class="view-cash-point-2">
+								<span>Charging</span>
+							</div>
+						</div>
+					</div>
+					<div class="container-cart-body">
+						<div id="cart-list" class="cart-list">
+							<ul class="items">
+							</ul>
+						</div>
+					</div>
+					<div class="container-cart-footer">
+						<table>
+							<tr>
+								<td class="txt">Free Points</td>
+								<td class="value">0</td>
+							</tr>
+							<tr>
+								<td class="txt">Use Free Points</td>
+								<td class="value">0</td>
+							</tr>
+							<tr>
+								<td class="txt">Cash Point</td>
+								<td class="value cashpoint_footer">0</td>
+							</tr>
+						</table>
+						<div class="cart-footer-action">
+							<div class="item-desc-price">
+								<div class="icon-gold-coin"></div>
+								<span>0</span>
+							</div>
+							<button id="purchase-btn">Purchase</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cashshopimg">
+			<div data-background="illust/kafra_05.bmp"></div>
+		</div>
+	</div>
+</div>

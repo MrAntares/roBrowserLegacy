@@ -3246,7 +3246,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
     	for (i = 0; i < count; ++i)
         {
-			pkt.view.setInt16(pos + 0, this.list[i].count , true);
+			pkt.view.setInt16(pos + 0, this.list[i].amount , true);
 			pkt.view.setUint16(pos + 2, this.list[i].ITID , true);
 			pos += 4;
 		}
@@ -4214,6 +4214,104 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt;
 	};
 
+	//0xb6e
+	PACKET.ZC.SE_CASHSHOP_OPEN = function PACKET_ZC_SE_CASHSHOP_OPEN(fp, end) {
+        this.cashPoints = fp.readULong();
+        this.kafraPoints = fp.readULong();
+    };
+    PACKET.ZC.SE_CASHSHOP_OPEN.size = 10;
+
+	//0x0a2b
+	PACKET.ZC.SE_CASHSHOP_OPEN2 = function PACKET_ZC_SE_CASHSHOP_OPEN2(fp, end) {
+        this.cashPoints = fp.readUShort();
+        this.kafraPoints = fp.readUShort();
+		this.tab = fp.readUShort();
+    };
+    PACKET.ZC.SE_CASHSHOP_OPEN2.size = 14;
+
+	//0x0845
+	PACKET.ZC.SE_CASHSHOP_OPEN3 = function PACKET_ZC_SE_CASHSHOP_OPEN3(fp, end) {
+        this.cashPoints = fp.readULong();
+        this.kafraPoints = fp.readULong();
+    };
+    PACKET.ZC.SE_CASHSHOP_OPEN3.size = 10;
+
+	//0x08ca
+	PACKET.ZC.ACK_SCHEDULER_CASHITEM = function PACKET_ZC_ACK_SCHEDULER_CASHITEM(fp, end) {
+        this.count = fp.readUShort();
+        this.tabNum = fp.readUShort();
+        this.items = (function() {
+            var out = [];
+			var cnt = (end - fp.tell()) / 6;
+            for (var i = 0; i < cnt; ++i) {
+                out[i] = {};
+                out[i].itemId = fp.readUShort();
+                out[i].price = fp.readULong();
+            }
+            return out;
+        })();
+    };
+    PACKET.ZC.ACK_SCHEDULER_CASHITEM.size = -1;
+
+	//0x08c0
+	PACKET.ZC.ACK_SE_CASH_ITEM_LIST2 = function PACKET_ZC_ACK_SE_CASH_ITEM_LIST2(fp, end) {
+        this.len = fp.readULong();
+        this.openIdentity = fp.readULong();
+		this.itemcount = fp.readUShort();
+    };
+    PACKET.ZC.ACK_SE_CASH_ITEM_LIST2.size = 8;
+
+	//0x846
+	PACKET.CZ.REQ_SE_CASH_TAB_CODE = function PACKET_CZ_REQ_SE_CASH_TAB_CODE() {
+		this.tabid = 0;
+	};
+    PACKET.CZ.REQ_SE_CASH_TAB_CODE.prototype.build = function() {
+        var pkt_buf = new BinaryWriter(4);
+
+        pkt_buf.writeShort(0x846);
+		pkt_buf.setUint16(2, this.tabid, true);
+        return pkt_buf;
+    };
+
+	//0x0844
+	PACKET.CZ.SE_CASHSHOP_OPEN1 = function PACKET_CZ_SE_CASHSHOP_OPEN1() {};
+    PACKET.CZ.SE_CASHSHOP_OPEN1.prototype.build = function() {
+		var ver = this.getPacketVersion();
+        var pkt_buf = new BinaryWriter(ver[2]);
+
+        pkt_buf.writeShort(0x0844);
+        return pkt_buf;
+    };
+
+	//0x0b6d
+	PACKET.CZ.SE_CASHSHOP_OPEN2 = function PACKET_CZ_SE_CASHSHOP_OPEN2() {
+        this.tab = 0;
+    };
+    PACKET.CZ.SE_CASHSHOP_OPEN2.prototype.build = function() {
+        var pkt_buf = new BinaryWriter(6);
+
+        pkt_buf.writeShort(0xb6d);
+        pkt_buf.writeULong(this.tab);
+        return pkt_buf;
+    };
+
+	//0x08c9
+	PACKET.CZ.PC_CASH_POINT_ITEMLIST = function PACKET_CZ_PC_CASH_POINT_ITEMLIST() {};
+    PACKET.CZ.PC_CASH_POINT_ITEMLIST.prototype.build = function() {
+        var pkt_buf = new BinaryWriter(2);
+
+        pkt_buf.writeShort(0x08c9);
+        return pkt_buf;
+    };
+
+	//0x084a
+	PACKET.CZ.CASH_SHOP_CLOSE = function PACKET_CZ_CASH_SHOP_CLOSE() {};
+    PACKET.CZ.CASH_SHOP_CLOSE.prototype.build = function() {
+        var pkt_buf = new BinaryWriter(2);
+
+        pkt_buf.writeShort(0x84a);
+        return pkt_buf;
+    };
 
 	// 0x822
 	PACKET.CA.OTP_AUTH_REQ = function PACKET_CA_OTP_AUTH_REQ() {
@@ -4227,6 +4325,40 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		pkt_buf.writeString(this.OTPCode, 7);
 		return pkt_buf;
 	};
+
+	//0848 <packet len>.W <count>.W <packet len>.W <kafra points>.L <count>.W { <amount>.W <name id>.W <tab>.W }.6B*count 
+	PACKET.CZ.SE_PC_BUY_CASHITEM_LIST = function PACKET_CZ_SE_PC_BUY_CASHITEM_LIST() {
+		this.kafraPoints = 0;
+		this.item_list = [];
+    };
+    PACKET.CZ.SE_PC_BUY_CASHITEM_LIST.prototype.build = function() {
+		var pkt_len = 2 + 2 + 2 + 4 + this.item_list.length * 10;
+        var pkt = new BinaryWriter(pkt_len);
+		var i, count;
+
+		pkt.writeShort(0X848);
+		pkt.writeShort(pkt_len);
+		pkt.writeUShort(this.item_list.length);
+		pkt.writeULong(this.kafraPoints);
+
+		for (i = 0, count = this.item_list.length; i < count; ++i) {
+			pkt.writeULong(this.item_list[i].itemId);
+			pkt.writeULong(this.item_list[i].amount);
+			pkt.writeShort(this.item_list[i].tab);
+		}
+
+		return pkt;
+    };
+
+	//0x0849
+	PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT = function PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT(fp, end) {
+		this.kafraPoints = fp.readUShort();
+		this.itemId = fp.readShort();
+		this.result = fp.readShort();
+		this.cashPoints = fp.readUShort();
+		
+    };
+    PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT.size = 16;
 
 
 	// 0x825a
@@ -8430,7 +8562,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.CashPoint = fp.readULong();
 		this.Error = fp.readShort();
 	};
-	PACKET.ZC.PC_CASH_POINT_UPDATE.size = 8;
+	PACKET.ZC.PC_CASH_POINT_UPDATE.size = 12;
 
 
 	// 0x28a
