@@ -90,6 +90,8 @@ function initialize() {
           skipServerList:  true,   // Skip server selection?
           skipIntro:       false,  // Skip intor page?
           
+          enableCashShop:  false,  // Enable Cash Shop UI?
+          
        /* OPTIONAL/CUSTOM CONFIGS */
        /* Add/Remove the below as you wish */
           
