@@ -178,8 +178,11 @@ define(function( require )
 		require('./MapEngine/Homun').call();
 		require('./MapEngine/Store').call();
 		require('./MapEngine/Trade').call();
-		require('./MapEngine/CashShop').call();
 		require('./MapEngine/Friends').init();
+		
+		if(Configs.get('enableCashShop')){
+			require('./MapEngine/CashShop').call();
+		}
 
 		// Prepare UI
 		MiniMap.prepare();
@@ -200,8 +203,12 @@ define(function( require )
 		ChatBox.prepare();
 		Guild.prepare();
 		WorldMap.prepare();
-		CashShop.prepare();
 		SkillListMER.prepare();
+		
+		if(Configs.get('enableCashShop')){
+			CashShop.prepare();
+		}
+		
 
 		// Bind UI
 		WinStats.onRequestUpdate        = onRequestStatUpdate;
@@ -332,7 +339,10 @@ define(function( require )
 			WorldMap.append();
 			SkillListMER.append();
 			MobileUI.append();
-			CashShop.append();
+			
+			if(Configs.get('enableCashShop')){
+				CashShop.append();
+			}
 			
 			// Reload plugins
 			PluginManager.init();
