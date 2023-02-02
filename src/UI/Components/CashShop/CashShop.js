@@ -340,7 +340,9 @@ define(function(require)
 			let menuName = '';
 			let iconName = '';
 			var html = '';
-			var content = this.ui.find('#main-menu');
+			var shopElem = this.ui;
+			var content = shopElem.find('#main-menu');
+			var carContainer = shopElem.find('.container-cart');
 			switch(menu){
 				case 'CASHSHOP_TAB_NEW':
 					menuName = 'Newest';
@@ -397,6 +399,14 @@ define(function(require)
 		var contentItemSearcher = this.ui.find('.item-searcher');
 		Client.loadFile(DB.INTERFACE_PATH + `cashshop/btn_searchbar_normal.bmp`, function(data){
 			contentItemSearcher.find('button').css('backgroundImage', 'url('+ data +')');
+		});
+
+		Client.loadFile(DB.INTERFACE_PATH + CashShop.cashShopBanner, function(data){
+			carContainer.find('.container-cart-header').css('backgroundImage', 'url('+ data +')');
+		});
+
+		Client.loadFile(DB.INTERFACE_PATH + 'item/dalcom_coin.bmp', function(data){
+			shopElem.find('.icon-gold-coin').css('backgroundImage', 'url('+ data +')');
 		});
 
 		if(CashShop.cartItem.length === 0){

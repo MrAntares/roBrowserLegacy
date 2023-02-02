@@ -132,7 +132,8 @@
 #CashShop .container-cart-header{
     padding: 12px 14px;
     height: 41px;
-    background-image: url(http://localhost/roBrowserLegacy/src/UI/assets/bg-cart-right.png);
+    background-position: -133px -279px;
+    background-repeat: no-repeat;
 }
 #CashShop .container-charging-view {
     text-align: right;
@@ -168,7 +169,6 @@
     float: right;
     margin-top: 3px;
     margin-left: 4px;
-    background-image: url(http://localhost/roBrowserLegacy/src/UI/assets/gold-coin.png);
     background-size: cover;
 }
 #CashShop ul.items {
