@@ -1173,7 +1173,15 @@ define(function( require )
 		
 		var hideCastBar = false;
 		var hideCastAura = false;
-
+		var isPlay = true;
+		var next = {
+			action: srcEntity.ACTION.READYFIGHT,
+			frame:  0,
+			repeat: true,
+			play:   true,
+			next:   false
+		}
+		
 		if(pkt.delayTime) {
 			
 			// Check if cast bar needs to be hidden
@@ -1182,20 +1190,24 @@ define(function( require )
 			if ( !hideCastBar ) {
 				srcEntity.cast.set( pkt.delayTime );
 			}
+			isPlay = false;
+			next = false;
+		}
+		
+		if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
 
-			if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
+			var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
 
-				var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
-
-				srcEntity.setAction({
-					action: srcEntity.ACTION[action],
-					frame:  0,
-					repeat: false,
-					play: false,
-				});
-			}
+			srcEntity.setAction({
+				action: srcEntity.ACTION[action],
+				frame:  0,
+				repeat: false,
+				play: isPlay,
+				next: next,
+			});
 		}
 
+		Session.Entity.lastSKID = pkt.SKID;
 
         // Hardcoded version of Auto Counter casting bar
         // It's dont gey any delayTime so we need to handle it diffrent:

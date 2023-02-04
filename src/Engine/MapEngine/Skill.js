@@ -17,8 +17,10 @@ define(function( require )
 	var DB                    = require('DB/DBManager');
 	var SkillId               = require('DB/Skills/SkillConst');
 	var SkillInfo             = require('DB/Skills/SkillInfo');
+	var SkillActionTable  	  = require('DB/Skills/SkillAction');
 	var EffectConst           = require('DB/Effects/EffectConst');
 	var PathFinding           = require('Utils/PathFinding');
+	var Entity            	  = require('Renderer/Entity/Entity');
 	var Session               = require('Engine/SessionStorage');
 	var Network               = require('Network/NetworkManager');
 	var PACKET                = require('Network/PacketStructure');
@@ -132,7 +134,8 @@ define(function( require )
 		}
 
 		var error = 0;
-
+		var entity = Session.Entity;
+		var srcEntity = EntityManager.get(entity.GID);
 		if (pkt.NUM) {
 			switch (pkt.SKID) {
 
@@ -175,12 +178,14 @@ define(function( require )
 				case 8:  error = 247; break;
 				case 9:  error = 580; break;
 				case 10: error = 285; break;
+				case 13: error = 1398; break;
 				case 83: error = 661; break;
 			}
 		}
 
 		if (error) {
 			ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR );
+			srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 		}
 	}
 
