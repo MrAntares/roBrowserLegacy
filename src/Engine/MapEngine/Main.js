@@ -24,6 +24,7 @@ define(function( require )
 	var PACKET         = require('Network/PacketStructure');
 	var PACKETVER	   = require('Network/PacketVerManager');
 	var EntityManager  = require('Renderer/EntityManager');
+	var SkillActionTable  = require('DB/Skills/SkillAction');
 	var EffectManager  = require('Renderer/EffectManager');
 	var Renderer       = require('Renderer/Renderer');
 	var Damage         = require('Renderer/Effects/Damage');
@@ -551,6 +552,10 @@ define(function( require )
 	 */
 	function onActionFailure( pkt )
 	{
+		var entity = Session.Entity;
+		var srcEntity = EntityManager.get(entity.GID);
+		var skillid =  entity.lastSKID;
+
 		switch (pkt.errorCode) {
 			case 0: // Please equip the proper amnution first
 				ChatBox.addText( DB.getMessage(242), ChatBox.TYPE.ERROR );
@@ -569,6 +574,7 @@ define(function( require )
 				ChatBox.addText( DB.getMessage(245), ChatBox.TYPE.BLUE );
 				break;
 		}
+		srcEntity.setAction(SkillActionTable[skillid](srcEntity, Renderer.tick));
 	}
 
 
@@ -692,6 +698,5 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.TAEKWON_RANK,                onRank );
 		//Network.hookPacket( PACKET.ZC.KILLER_RANK,                 onRank ); //PK currently unsupported
 		Network.hookPacket( PACKET.ZC.UPDATE_MAPINFO,              onUpdateMapInfo );
-
 	};
 });
