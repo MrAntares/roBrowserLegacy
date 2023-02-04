@@ -616,7 +616,7 @@ define(function( require )
 	 */
 	SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	{
-		var pos, entity, pkt, out, skill, srcEntity;
+		var pos, entity, pkt, out, skill;
 		var count, range;
 
 		var isHomun = (id > 8000 && id < 8044);
@@ -625,7 +625,6 @@ define(function( require )
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
-			srcEntity = EntityManager.get(entity.GID);
 		}
 		
 		pos    = entity.position;
