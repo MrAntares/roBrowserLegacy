@@ -384,7 +384,7 @@ define(function( require )
 	 */
 	function getPathDistance(fromEntity, toEntity){
 		var out   = [];
-		var count = PathFinding.searchLong(
+		var count = PathFinding.search(
 			fromEntity.position[0] | 0, fromEntity.position[1] | 0,
 			toEntity.position[0] | 0, toEntity.position[1] | 0,
 			1,
