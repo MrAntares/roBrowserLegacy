@@ -428,7 +428,7 @@ define(function()
 		for (pathLen = 0, i = currentNode; pathLen < 100 && i !== calc_index(x0, y0); i=_before[i], pathLen++);
 		
 		finalLen = 0;
-		skip = true;
+		skip = range > 0;
 		for (i = currentNode, j = pathLen-1; j >=0; i = _before[i], j--) {
 			
 			if(skip){
