@@ -215,7 +215,7 @@ define(function()
 
 
 	/**
-	 * Find the direct patch between two points
+	 * Check the direct path between two points and find if there is a cell that is in range
 	 *
 	 * @param {number} x0
 	 * @param {number} y0
@@ -223,63 +223,73 @@ define(function()
 	 * @param {number} y1
 	 * @param {Array} out
 	 * @param {number} range
-	 * @param {type} type - see Altitude.TYPE.* consts
 	 */
-	function searchLong( x0, y0, x1, y1, range, out, type )
+	function searchLong( x0, y0, x1, y1, range, out )
 	{
-		var i, j, dx, dy, x, y;
-		var types = GAT.cells;
-		var width = GAT.width;
-
-		dx   = ((dx = x1-x0)) ? ((dx<0) ? -1 : 1) : 0;
-		dy   = ((dy = y1-y0)) ? ((dy<0) ? -1 : 1) : 0;
+		var i, j, dx, dy, x, y, rx, ry;
+		var result = {
+			success: false,
+			inRange: false,
+			targetCell: [x0, y0],
+			pathLength: 0
+		};
+		
+		rx = x1-x0;
+		ry = y1-y0;
+		
+		dx   = rx ? ((rx<0) ? -1 : 1) : 0;
+		dy   = ry ? ((ry<0) ? -1 : 1) : 0;
 		x    = x0;
 		y    = y0;
-		i    = 0;
-
+		
 		out[0] = x0;
 		out[1] = y0;
-
-		if(!((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0)){
-			while ((i++) < MAX_WALKPATH) {
-				x         += dx;
-				y         += dy;
-
-				out[i*2+0] = x;
-				out[i*2+1] = y;
-
-				if (x === x1) dx = 0;
-				if (y === y1) dy = 0;
-
-				if ((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0) {
-					break;
-				}
-			}
+		
+		length = 0;
+		
+		if (Math.sqrt(rx*rx + ry*ry) <= range){
+			// Already in range
+			result.success = true;
+			result.inRange = true;
+			return result; 
 		}
-
-		if (x === x1 && y === y1) {
-			// Range feature
-			if (range > 0) {
-				for (j = 0; j < i; ++j) {
-					x = out[j*2+0]-x1;
-					y = out[j*2+1]-y1;
-					if (Math.sqrt(x*x + y*y) <= range) {
-						return j + 1;
-					}
-				}
+		
+		i = 1;
+		while (i <= MAX_WALKPATH) {
+			x      += dx;
+			y      += dy;
+			result.pathLength = i;
+			
+			if(GAT.cells[x + (y * GAT.width)] === GAT.type.NONE){
+				// No direct path
+				result.success = false;
+				break;
+			}
+			
+			out[i*2 + 0] = x;
+			out[i*2 + 1] = y;
+			
+			rx = x1-x;
+			ry = y1-y;
+			if (Math.sqrt(rx*rx + ry*ry) <= range){
+				// There is a path to a cell that is in range
+				result.success = true;	
+				result.inRange = false;
+				result.targetCell = [x, y];
+				break; 
 			}
 
-			return i + 1;
-		}
+			if (x === x1) dx = 0;
+			if (y === y1) dy = 0;
 
-		// Range feature
-		if (range > 0) {
-			if (i < MAX_WALKPATH) {
-				return searchLong( x0, y0, x, y, 0, out, GAT.type.SNIPABLE );
+			if (dx === 0 && dy === 0) {
+				break;
 			}
+			
+			i++;
 		}
-
-		return 0;
+		return result;
+		
 	}
 
 
@@ -304,10 +314,15 @@ define(function()
 		var TYPE   = GAT.type;
 
 		// Direct search
-		i = searchLong( x0, y0, x1, y1, range, out, TYPE.WALKABLE );
-
-		if (i) {
-			return i;
+		var result = searchLong( x0, y0, x1, y1, range, out );
+		if (result.success) {
+			if (result.inRange) {
+				return 1;
+			} else if (result.pathLength) {
+				// Update target cell
+				x1 = result.targetCell[0];
+				y1 = result.targetCell[1];
+			}
 		}
 
 		// Clean variables (avoid garbage collection problem)
