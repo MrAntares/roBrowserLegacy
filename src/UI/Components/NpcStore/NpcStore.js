@@ -22,8 +22,9 @@ define(function(require)
 	var Preferences  = require('Core/Preferences');
 	var Session      = require('Engine/SessionStorage');
 	var Mouse        = require('Controls/MouseEventHandler');
-	var Network       = require('Network/NetworkManager');
-	var PACKET        = require('Network/PacketStructure');
+	var PACKETVER    = require('Network/PacketVerManager');
+	var Network      = require('Network/NetworkManager');
+	var PACKET       = require('Network/PacketStructure');
 	var KEYS         = require('Controls/KeyEventHandler');
 	var UIManager    = require('UI/UIManager');
 	var UIComponent  = require('UI/UIComponent');
@@ -102,11 +103,15 @@ define(function(require)
 		var InputWindow  = ui.find('.InputWindow');
 		var OutputWindow = ui.find('.OutputWindow');
 
-		ui.find('.btn.cancel').click(function(){
-			NpcStore.remove();
-			var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
-			Network.sendPacket(pkt);
-		});
+		if (PACKETVER.value >= 20131223) {
+			ui.find('.btn.cancel').click(function(){
+				NpcStore.remove();
+				var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
+				Network.sendPacket(pkt);
+			});
+		} else {
+			ui.find('.btn.cancel').click(this.remove.bind(this));
+		}
 
 		// Client do not send packet
 		ui.find('.btn.buy, .btn.sell').click(this.submit.bind(this));
@@ -206,8 +211,10 @@ define(function(require)
 			this.remove();
 			event.stopImmediatePropagation();
 
-			var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
-			Network.sendPacket(pkt);
+			if (PACKETVER.value >= 20131223) { 
+				var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
+				Network.sendPacket(pkt);
+			}
 
 			return false;
 		}
