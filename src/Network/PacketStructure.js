@@ -1755,6 +1755,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt;
 	};
 
+	// 0x9d4
+	PACKET.CZ.NPC_TRADE_QUIT = function PACKET_CZ_NPC_TRADE_QUIT() {};
+	PACKET.CZ.NPC_TRADE_QUIT.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9d4);
+		return pkt_buf;
+	};
 
 	// 0x197
 	PACKET.CZ.RESET = function PACKET_CZ_RESET() {
