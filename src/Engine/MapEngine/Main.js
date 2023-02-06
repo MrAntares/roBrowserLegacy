@@ -554,7 +554,6 @@ define(function( require )
 	{
 		var entity = Session.Entity;
 		var srcEntity = EntityManager.get(entity.GID);
-		var skillid =  entity.lastSKID;
 
 		switch (pkt.errorCode) {
 			case 0: // Please equip the proper amnution first
@@ -574,7 +573,17 @@ define(function( require )
 				ChatBox.addText( DB.getMessage(245), ChatBox.TYPE.BLUE );
 				break;
 		}
-		srcEntity.setAction(SkillActionTable[skillid](srcEntity, Renderer.tick));
+		
+		if(srcEntity){
+			var action = {
+				action: srcEntity.ACTION.READYFIGHT,
+				frame:  0,
+				repeat: true,
+				play:   true,
+				next:   false
+			}
+			srcEntity.setAction(action);
+		}
 	}
 
 
