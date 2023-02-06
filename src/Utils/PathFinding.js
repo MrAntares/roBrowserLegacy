@@ -215,7 +215,7 @@ define(function()
 
 
 	/**
-	 * Find the direct patch between two points
+	 * Check the direct path between two points and find if there is a cell that is in range
 	 *
 	 * @param {number} x0
 	 * @param {number} y0
@@ -223,63 +223,75 @@ define(function()
 	 * @param {number} y1
 	 * @param {Array} out
 	 * @param {number} range
-	 * @param {type} type - see Altitude.TYPE.* consts
 	 */
-	function searchLong( x0, y0, x1, y1, range, out, type )
+	function searchLong( x0, y0, x1, y1, range, out )
 	{
-		var i, j, dx, dy, x, y;
-		var types = GAT.cells;
-		var width = GAT.width;
-
-		dx   = ((dx = x1-x0)) ? ((dx<0) ? -1 : 1) : 0;
-		dy   = ((dy = y1-y0)) ? ((dy<0) ? -1 : 1) : 0;
+		var i, dx, dy, x, y, rx, ry;
+		var result = {
+			success: false,
+			inRange: false,
+			targetCell: [x0, y0],
+			pathLength: 0
+		};
+		
+		rx = x1-x0;
+		ry = y1-y0;
+		
+		dx   = rx ? ((rx<0) ? -1 : 1) : 0;
+		dy   = ry ? ((ry<0) ? -1 : 1) : 0;
 		x    = x0;
 		y    = y0;
-		i    = 0;
-
+		
 		out[0] = x0;
 		out[1] = y0;
-
-		if(!((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0)){
-			while ((i++) < MAX_WALKPATH) {
-				x         += dx;
-				y         += dy;
-
-				out[i*2+0] = x;
-				out[i*2+1] = y;
-
-				if (x === x1) dx = 0;
-				if (y === y1) dy = 0;
-
-				if ((dx === 0 && dy === 0) || (types[(x+dx) + (y+dy) * width] & type) === 0) {
-					break;
-				}
-			}
+		
+		if (Math.sqrt(rx*rx + ry*ry) <= range){
+			// Already in range
+			result.success = true;
+			result.inRange = true;
+			// Don't return yet must check for walls
 		}
-
-		if (x === x1 && y === y1) {
-			// Range feature
-			if (range > 0) {
-				for (j = 0; j < i; ++j) {
-					x = out[j*2+0]-x1;
-					y = out[j*2+1]-y1;
-					if (Math.sqrt(x*x + y*y) <= range) {
-						return j + 1;
-					}
-				}
+		
+		i = 1;
+		while (i <= MAX_WALKPATH) {
+			x      += dx;
+			y      += dy;
+			
+			if(GAT.cells[x + (y * GAT.width)] === GAT.type.NONE){
+				// No direct path
+				result.success = false;
+				break;
+			}
+			
+			if(!result.success){
+				// Only save path when not found a valid target cell already
+				out[i*2 + 0] = x;
+				out[i*2 + 1] = y;
+				result.pathLength = i;
+			}
+			
+			rx = x1-x;
+			ry = y1-y;
+			
+			if (Math.sqrt(rx*rx + ry*ry) <= range && !result.success){
+				// There is a path to a cell that is in range
+				result.success = true;	
+				result.inRange = false;
+				result.targetCell = [x, y];
+				// Must continue checking if there is a wall
 			}
 
-			return i + 1;
-		}
+			if (x === x1) dx = 0;
+			if (y === y1) dy = 0;
 
-		// Range feature
-		if (range > 0) {
-			if (i < MAX_WALKPATH) {
-				return searchLong( x0, y0, x, y, 0, out, GAT.type.SNIPABLE );
+			if (dx === 0 && dy === 0) {
+				break;
 			}
+			
+			i++;
 		}
-
-		return 0;
+		return result;
+		
 	}
 
 
@@ -295,7 +307,7 @@ define(function()
 	{
 		var heap;
 		var x, y, i, j, currentNode, sizeX, sizeY;
-		var error, dirFlag, pathLen, dist, cost;
+		var error, dirFlag, pathLen, dist, cost, finalLen, skip;
 
 		// Import world
 		var width  = GAT.width;
@@ -304,10 +316,9 @@ define(function()
 		var TYPE   = GAT.type;
 
 		// Direct search
-		i = searchLong( x0, y0, x1, y1, range, out, TYPE.WALKABLE );
-
-		if (i) {
-			return i;
+		var result = searchLong( x0, y0, x1, y1, range, out );
+		if (result.success) {
+			return (result.pathLength + 1);
 		}
 
 		// Clean variables (avoid garbage collection problem)
@@ -357,7 +368,6 @@ define(function()
 			y     = _y[currentNode];
 			dist  = _dist[currentNode] + 10;
 			cost  = _cost[currentNode];
-
 
 			// Finished
 			if (x === x1 && y === y1) {
@@ -416,13 +426,33 @@ define(function()
 
 		// Reorganize Path
 		for (pathLen = 0, i = currentNode; pathLen < 100 && i !== calc_index(x0, y0); i=_before[i], pathLen++);
-
-
+		
+		finalLen = 0;
+		skip = range > 0;
 		for (i = currentNode, j = pathLen-1; j >=0; i = _before[i], j--) {
+			
+			if(skip){
+				// Check direct path when previous cell was skipped
+				var cellResult = searchLong( _x[i], _y[i], x1, y1, range, [] );
+				if (!(cellResult.success && cellResult.inRange)){
+					skip = false
+				}
+			}
+			
+			if(skip && j<pathLen-1){
+				// In direct range, remove prev cell from path, not needed
+				out[(j+2)*2+0] = 0;
+				out[(j+2)*2+1] = 0;
+				finalLen--;
+			}
+			
+			// Add current cell to path
 			out[(j+1)*2+0] = _x[i];
 			out[(j+1)*2+1] = _y[i];
+			finalLen++;
 		}
-		return pathLen+1;
+		
+		return finalLen+1;
 	}
 
 	function updateGat(x, y, type){

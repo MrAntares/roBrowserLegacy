@@ -181,7 +181,6 @@ define(function(require)
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-		console.log('ONAPPEND');
 		this.resize( _preferences.width, _preferences.height );
 
 		this.ui.css({

@@ -556,7 +556,7 @@ define(function( require )
 			range = entity.attack_range;
 		}
 
-		count = PathFinding.searchLong(
+		count = PathFinding.search(
 			entity.position[0] | 0, entity.position[1] | 0,
 			target.position[0] | 0, target.position[1] | 0,
 			range,
@@ -641,7 +641,7 @@ define(function( require )
 			range = entity.attack_range;
 		}
 
-		count = PathFinding.searchLong(
+		count = PathFinding.search(
 			pos[0] | 0, pos[1] | 0,
 			x      | 0, y      | 0,
 			range,

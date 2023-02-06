@@ -229,6 +229,10 @@
 	 */
 	ROBrowser.prototype.autoLogin = [];
 
+	/**
+	 * @var {boolean} Enable Cash Shop UI
+	 */
+	ROBrowser.prototype.enableCashShop = false;
 
 	/**
 	 * @var {mixed} set a version to avoid browser cache problem so
@@ -395,6 +399,7 @@
 			skipServerList:   this.skipServerList,
 			skipIntro:        this.skipIntro,
 			autoLogin:        this.autoLogin,
+			enableCashShop:   this.enableCashShop,
 			version:          this.version,
 			clientHash:       this.clientHash,
 			calculateHash:    this.calculateHash,
