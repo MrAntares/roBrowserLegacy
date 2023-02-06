@@ -22,6 +22,8 @@ define(function(require)
 	var Preferences  = require('Core/Preferences');
 	var Session      = require('Engine/SessionStorage');
 	var Mouse        = require('Controls/MouseEventHandler');
+	var Network       = require('Network/NetworkManager');
+	var PACKET        = require('Network/PacketStructure');
 	var KEYS         = require('Controls/KeyEventHandler');
 	var UIManager    = require('UI/UIManager');
 	var UIComponent  = require('UI/UIComponent');
@@ -100,8 +102,13 @@ define(function(require)
 		var InputWindow  = ui.find('.InputWindow');
 		var OutputWindow = ui.find('.OutputWindow');
 
+		ui.find('.btn.cancel').click(function(){
+			NpcStore.remove();
+			var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
+			Network.sendPacket(pkt);
+		});
+
 		// Client do not send packet
-		ui.find('.btn.cancel').click(this.remove.bind(this));
 		ui.find('.btn.buy, .btn.sell').click(this.submit.bind(this));
 		ui.find('.selectall').mousedown(onToggleSelectAmount);
 
@@ -198,6 +205,10 @@ define(function(require)
 		if (event.which === KEYS.ESCAPE) {
 			this.remove();
 			event.stopImmediatePropagation();
+
+			var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
+			Network.sendPacket(pkt);
+
 			return false;
 		}
 
