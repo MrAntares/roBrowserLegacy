@@ -263,6 +263,12 @@ define(function()
 				break;
 			}
 			
+			if(!result.success && GAT.cells[x + (y * GAT.width)] === GAT.type.SNIPABLE){
+				// No direct walkable path to an inrange cell
+				result.success = false;
+				break;
+			}
+			
 			if(!result.success){
 				// Only save path when not found a valid target cell already
 				out[i*2 + 0] = x;
