@@ -30,11 +30,22 @@ function outputApp(appName) {
 		' * @author Vincent Thibault and the community',
 		' */',
 	].join("\n");
+	
+	// Crappy way to switch it
+	var doMinify = false;
 
 	return function outputScript(text) {
 		// Remove importScripts(requirejs), included directly
 		text = text.replace(/importScripts\([^\)]+\)(\,|\;|\n)?/, '');
-		minify(text, appName, header);
+		if(doMinify){
+			minify(text, appName, header);
+		} else {
+			postMessage({
+				type:   'result',
+				app:     appName,
+				content: header + "\n\n" +  requirejslib + "\n\n" + text
+			});
+		}
 	};
 }
 
