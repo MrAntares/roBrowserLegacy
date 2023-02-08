@@ -4,8 +4,7 @@
 	"version": "1.0.0",
 	"scripts": {
 		"serve-dist": "live-server ./dist/Web",
-		"build": "node ./tools/builder-web.js",
-		"serve": "live-server --watch=src"
+		"build": "node ./tools/builder-web.js"
 	},
 	"author": "Vincent Thibault",
 	"license": "GNU GPL V3",
