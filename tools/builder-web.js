@@ -12,7 +12,6 @@ const platform = "Web";
     
     //delete all files in dist
     fs.rmSync(dist + platform +'/AI', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/static', { recursive: true, force: true });
     fs.rmSync(dist + platform +'/index.html', { recursive: true, force: true });
     fs.rmSync(dist + platform +'/Online.js', { recursive: true, force: true });
     fs.rmSync(dist + platform +'/ThreadEventHandler.js', { recursive: true, force: true });
@@ -39,8 +38,6 @@ const platform = "Web";
     if ((args && args['A']) || args['all'] || Object.keys(args).length === 0) {
         copyFolder('./AI', dist + platform + '/AI');
     }
-
-    copyFolder('./static', dist + platform + '/static');
 })();
 
 function compile(appName, isMinify) {
@@ -56,7 +53,7 @@ function compile(appName, isMinify) {
 
         case "Online":
             appPath = "App/Online";
-            startFile = [/* "build/settings.js", "build/bootstrap.js", */ "src/Vendors/require.js"];
+            startFile = ["src/Vendors/require.js"];
             break;
 
         default:
@@ -68,7 +65,7 @@ function compile(appName, isMinify) {
         baseUrl: 'src',
         paths: {
             text: 'Vendors/text.require',
-            jquery: 'Vendors/jquery-3.5.1',
+            jquery: 'Vendors/jquery-1.9.1',
         },
         useStrict: true,
         optimize: "none",
@@ -79,7 +76,7 @@ function compile(appName, isMinify) {
         out: async (source) => {
             const header = [
                 '/*',
-                ' * Build with RONW Builder [MrUnzO]',
+                ' * Build with RONW Builder [MrUnzO] (https://github.com/MrUnzO/RONW)',
                 ' * ',
                 ' * This file is part of ROBrowser, (http://www.robrowser.com/).',
                 ' * @author Vincent Thibault and the community',
@@ -119,7 +116,7 @@ function createHTML(){
         <!DOCTYPE html>
         <html>
             <head>
-                <title>RONW - Browser [${package.version} - ${buildDate}]</title>
+                <title>roBrowser [${package.version} - ${buildDate}]</title>
             </head>
             <body>
                 <script>
