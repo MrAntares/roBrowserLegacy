@@ -122,7 +122,7 @@ function createHTML(){
                 <script>
                     window.addEventListener("load", (event) => {
                         window.ROConfig = {
-                            development: true, // don't need to compile javascript files in chrome app since it's already a package.
+                            development: false, // don't need to compile javascript files in chrome app since it's already a package.
                             remoteClient:  "http://roclient.localhost/",
                             servers: [
                                 {
