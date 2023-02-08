@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RONW - Browser (Development)</title>
+    </head>
+    <body>
+        <script>
+            window.addEventListener("load", (event) => {
+                window.ROConfig = {
+                    development: true, // don't need to compile javascript files in chrome app since it's already a package.
+                    remoteClient:  "http://roclient.localhost/",
+                    servers: [
+                        {
+                            display: 'Localhost Server',
+                            desc: "roBrowser's demo server",
+                            address: '127.0.0.1',
+                            port: 6900,
+                            version: 55,
+                            langtype: 5,
+                            packetver: 20180704,
+                            socketProxy: "ws://127.0.0.1:5999/",
+                            packetKeys: true
+                        },
+                    ],
+                    skipServerList:  true,
+                    skipIntro:       false,
+                    plugins: {},
+                };
+
+                script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = 'src/Vendors/require.js';
+                script.setAttribute("data-main",'src/App/Online');
+                document.getElementsByTagName('body')[0].appendChild(script);
+            });
+        </script>
+    </body>
+</html>
