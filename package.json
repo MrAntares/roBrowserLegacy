@@ -3,7 +3,7 @@
 	"main": "index.html",
 	"version": "1.0.0",
 	"scripts": {
-		"serve-dist": "live-server ./dist/Web",
+		"serve": "live-server ./dist/Web",
 		"build": "node ./tools/builder-web.js"
 	},
 	"author": "Vincent Thibault",
