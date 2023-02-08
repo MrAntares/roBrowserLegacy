@@ -1,0 +1,39 @@
+{
+	"name": "ronw",
+	"main": "main.html",
+	"version": "0.1.3",
+	"window": {
+		"width": 1024,
+		"height": 768,
+		"min_width": 1024,
+		"max_width": 2560,
+		"min_height": 768,
+		"max_height": 1440,
+		"fullscreen": false,
+		"frame": true,
+		"icon": "static/icon_128.png"
+	},
+	"scripts": {
+		"dev": "nw .",
+		"prod": "nw ./dist/NW",
+		"prod-web": "live-server ./dist/Web",
+		"build": "node ./tools/builder.js",
+		"build-web": "node ./tools/builder-web.js",
+		"release": "build --concurrent --tasks win-x86,win-x64 --mirror https://dl.nwjs.io/ ./dist",
+		"serve": "live-server --watch=src"
+	},
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
+	"author": "MrUnzO (kwon.unzo@gmail.com)",
+	"license": "GNU GPL V3",
+	"devDependencies": {
+		"eslint": "8.32.0",
+		"eslint-config-prettier": "8.6.0",
+		"eslint-plugin-prettier": "4.2.1",
+		"live-server": "^1.2.2",
+		"nw": "0.71.1-sdk",
+		"nwjs-builder-phoenix": "^1.15.0",
+		"prettier": "2.8.3",
+		"requirejs": "^2.3.6",
+		"terser": "^5.16.1"
+	}
+}
