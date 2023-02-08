@@ -1,0 +1,16 @@
+{
+	"name": "robrowser",
+	"main": "index.html",
+	"version": "1.0.0",
+	"scripts": {
+		"serve": "live-server ./dist/Web",
+		"build": "node ./tools/builder-web.js"
+	},
+	"author": "Vincent Thibault",
+	"license": "GNU GPL V3",
+	"devDependencies": {
+		"live-server": "^1.2.2",
+		"requirejs": "^2.3.6",
+		"terser": "^5.16.1"
+	}
+}
