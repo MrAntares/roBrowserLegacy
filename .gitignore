@@ -8,3 +8,5 @@ AI/*
 src/Plugins/*/
 .idea/
 node_modules
+dist
+package-lock.json
