@@ -3526,7 +3526,7 @@ define(function( require )
 		245: [{	//EF_HOLYCROSS	Holy Cross
 			type: 'STR',
 			file: 'holy_cross',
-			wav:  'effect/cru_holycross',
+			wav:  'effect/cru_holy cross',
 			attachedEntity: true
 		}],
 
