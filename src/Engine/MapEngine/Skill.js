@@ -185,7 +185,7 @@ define(function( require )
 
 		if (error) {
 			ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR );
-			srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+			srcEntity.setAction(SkillActionTable['DEFAULT']( srcEntity, Renderer.tick ));
 		}
 	}
 
@@ -535,12 +535,10 @@ define(function( require )
 			entity = Session.Entity;
 		}
 		
-		// Client side minimum delay
-		if (entity && entity.amotionTick > Renderer.tick){ // Can't spam skills faster than amotion
-			return;
-		} /*else {
-			entity.amotionTick = Renderer.tick + entity.attack_speed*2;
-		}*/
+		// Client side state check
+		if( !([ entity.ACTION.WALK, entity.ACTION.IDLE, entity.ACTION.HURT, entity.ACTION.READYFIGHT ].includes( entity.action )) ){
+			return;	// Unable to skill in this state
+		}
 		
 		target = EntityManager.get(targetID) || entity;
 		skill  = SkillWindow.getSkillById(id);
