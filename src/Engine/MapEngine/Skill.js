@@ -536,7 +536,7 @@ define(function( require )
 		}
 		
 		// Client side state check
-		if( !([ entity.ACTION.WALK, entity.ACTION.IDLE, entity.ACTION.HURT, entity.ACTION.READYFIGHT ].includes( entity.action )) ){
+		if( !([ entity.ACTION.WALK, entity.ACTION.IDLE, entity.ACTION.HURT, entity.ACTION.READYFIGHT ].includes( entity.action )) && !entity.isTrickDead ){
 			return;	// Unable to skill in this state
 		}
 		
