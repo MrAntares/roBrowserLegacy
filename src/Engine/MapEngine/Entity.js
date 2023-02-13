@@ -1042,8 +1042,6 @@ define(function( require )
 			pkt.attackMT = Math.min( 9999, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
-			
-			srcEntity.amotionTick = Renderer.tick + pkt.attackMT*2; // Add amotion delay
 
 			srcWeapon = 0;
 			if(srcEntity.weapon){
@@ -1609,6 +1607,7 @@ define(function( require )
                         play:   true,
                         next:   false
                     });
+					entity.isTrickDead = true;
                 }
                 if(pkt.state == 0) {
                     entity.setAction({
@@ -1618,6 +1617,7 @@ define(function( require )
                         play:   true,
                         next:   false
                     });
+					entity.isTrickDead = false;
                 }
                 break;
 
