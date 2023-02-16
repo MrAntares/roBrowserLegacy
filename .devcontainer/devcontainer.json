@@ -1,0 +1,34 @@
+{
+	"name": "robrowser-legacy development environment",
+
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	"runArgs": ["--init"],
+
+	"mounts": [ "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind" ],
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postStartCommand": "doctl auth init --access-token $DO_TOKEN && doctl kubernetes cluster kubeconfig save e15266d8-76a6-4aa1-9529-5df961097936",
+
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "devuser",
+
+	"overrideCommand": false,
+
+	"containerEnv": {
+		"DO_TOKEN": "${localEnv:DEVCONTAINER_DO_TOKEN}"
+	},
+
+	"remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" }
+}
