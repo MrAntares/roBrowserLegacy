@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:experimental
+# DOCKER_BUILDKIT=1 docker build --ssh default -t registry.digitalocean.com/titanro-docr/robrowserlegacy . && docker image push registry.digitalocean.com/titanro-docr/robrowserlegacy
+
+FROM php:8-apache
+
+RUN apt-get update -y && apt-get install -y libpng-dev
+RUN docker-php-ext-install pdo pdo_mysql mysqli gd
+RUN a2enmod rewrite
+
+COPY ./AI /var/www/html/AI
+COPY ./applications /var/www/html/applications
+COPY ./client /var/www/html/client
+COPY ./doc /var/www/html/doc
+COPY ./examples /var/www/html/examples
+COPY ./src /var/www/html/src
+COPY ./tools /var/www/html/tools
+COPY ./api.html ./api.js ./LICENSE ./manifest.json ./manifest.webapp ./package.js ./package.json ./README.md /var/www/html/
+
+RUN chown -R www-data:www-data /var/www
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
