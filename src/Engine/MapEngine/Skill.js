@@ -535,9 +535,9 @@ define(function( require )
 			entity = Session.Entity;
 		}
 		
-		// Client side state check
-		if( !([ entity.ACTION.WALK, entity.ACTION.IDLE, entity.ACTION.HURT, entity.ACTION.READYFIGHT, entity.ACTION.SKILL ].includes( entity.action )) && !entity.isTrickDead ){
-			return;	// Unable to skill in this state
+		// Client side minimum delay
+		if (entity && entity.amotionTick > Renderer.tick){ // Can't spam skills faster than amotion
+			return;
 		}
 		
 		target = EntityManager.get(targetID) || entity;
@@ -623,6 +623,11 @@ define(function( require )
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
+		}
+		
+		// Client side minimum delay
+		if (entity && entity.amotionTick > Renderer.tick){ // Can't spam skills faster than amotion
+			return;
 		}
 		
 		pos    = entity.position;
