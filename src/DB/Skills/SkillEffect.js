@@ -154,7 +154,7 @@ define(['./SkillConst'], function( SK )
 	SkillEffect[SK.HT_SPRINGTRAP]                  = {effectId: 111};		//Spring Trap
 	// Assassin
 	SkillEffect[SK.AS_CLOAKING]                    = {effectId: 120};		//Cloaking
-	SkillEffect[SK.AS_SONICBLOW]                   = {effectIdOnCaster: 121, effectId: 143};		//Sonic Blow
+	SkillEffect[SK.AS_SONICBLOW]                   = {effectIdOnCaster: 121, effectId: 143, hitEffectId: 122};		//Sonic Blow
 	SkillEffect[SK.AS_GRIMTOOTH]                   = {effectId: 123, hitEffectId: 132};		//Grimtooth
 	SkillEffect[SK.AS_ENCHANTPOISON]               = {effectId: 20};		//Enchant Poison
 	SkillEffect[SK.AS_POISONREACT]                 = {effectId: 126, hitEffectId: 127};		//Poison React
