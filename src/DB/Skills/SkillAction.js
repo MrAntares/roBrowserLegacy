@@ -449,7 +449,13 @@ define(['./SkillConst'], function(SK) {
 											frame:  0,
 											repeat: false,
 											play:   true,
-											next:   false
+											next: {
+												action: entity.ACTION.READYFIGHT,
+												frame:  0,
+												repeat: true,
+												play:   true,
+												next:   false
+											}
 										}
 									}
 								}
@@ -504,7 +510,13 @@ define(['./SkillConst'], function(SK) {
 										frame:  0,
 										repeat: false,
 										play:   true,
-										next:   false
+										next: {
+											action: entity.ACTION.READYFIGHT,
+											frame:  0,
+											repeat: true,
+											play:   true,
+											next:   false
+										}
 									}
 								}
 							}
@@ -552,7 +564,13 @@ define(['./SkillConst'], function(SK) {
 									frame:  0,
 									repeat: false,
 									play:   true,
-									next:   false
+									next: {
+										action: entity.ACTION.READYFIGHT,
+										frame:  0,
+										repeat: true,
+										play:   true,
+										next:   false
+									}
 								}
 							}
 						}
