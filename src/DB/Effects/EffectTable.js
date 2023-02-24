@@ -2630,7 +2630,22 @@ define(function( require )
 		}],
 		
 		122: [{	//EF_SONICBLOWHIT	   Multi hit effect
-			wav:  'effect/assasin_sonicblow'
+			//wav:  'effect/assasin_sonicblow' // old
+			
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var entity = Params.Init.ownerEntity;
+				var Renderer = require('Renderer/Renderer');
+				var delay = Params.Inst.startTick - Renderer.tick;
+				
+				entity.animations.add(function(tick){
+					if (tick >= delay){
+						entity.direction = (entity.direction + 2) % 8; // Spinning around
+						return true;
+					}
+				});
+			}
 		}],
 
 		123: [{ //grimtooth caster	//EF_GRIMTOOTH	Grimtooth Cast
