@@ -665,7 +665,7 @@ define(function(require)
 	 */
 	function onRequestRemoveSelection()
 	{
-		if (_index < 0 || _preferences.lock || !_party[_index]) {
+		if (_index < 0 || _preferences.lock || (_preferences.friend && !_friends[_index]) || (!_preferences.friend && !_party[_index])) {
 			return;
 		}
 
