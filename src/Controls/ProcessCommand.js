@@ -24,6 +24,7 @@ define(function( require )
 	var AudioPreferences   = require('Preferences/Audio');
 	var MapPreferences     = require('Preferences/Map');
 	var CameraPreferences  = require('Preferences/Camera');
+	var Renderer           = require('Renderer/Renderer');
 	var getModule          = require;
 
 
@@ -143,6 +144,25 @@ define(function( require )
 				pkt.headDir = Session.Entity.headDir;
 				pkt.dir     = Session.Entity.direction;
 				Network.sendPacket(pkt);
+				
+				// Doridori recovery bonus
+				if(Session.Entity.action === Session.Entity.ACTION.SIT){
+					if(!Session.Entity.doriTime){
+						Session.Entity.doriTime = [0,0,0,0,0];
+					}
+					
+					Session.Entity.doriTime.shift();
+					Session.Entity.doriTime.push(Renderer.tick);
+					
+					var doriStart = Session.Entity.doriTime[0];
+					var doriEnd = Session.Entity.doriTime[4];
+					
+					if(doriEnd-doriStart > 1500 && doriEnd-doriStart < 3000){
+						var doripkt = new PACKET.CZ.DORIDORI();
+						Network.sendPacket(doripkt);
+						Session.Entity.doriTime = [0,0,0,0,0];
+					}
+				}
 				return;
 
 			case 'bangbang':
