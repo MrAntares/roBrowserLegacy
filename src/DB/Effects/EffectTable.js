@@ -4345,7 +4345,18 @@ define(function( require )
 			zIndex: 1
 		}],
 		
-		//309: [{}],	//EF_FIRSTAID	   First Aid
+		309: [{	//EF_FIRSTAID	   First Aid
+			type: '2D',
+			alphaMax: 0.2,
+			blendMode: 2,
+			file: 'effect/pikapika2.bmp',
+			fadeOut: true,
+			duration: 1000,
+			size: 100,
+			posz: 2,
+			wav: '_heal_effect'
+		}],
+		
 		//310: [{}],	//EF_SPRINKLESAND	   Sprinkle Sand
 
 		311: [{ //crazy uproar	//EF_LOUD	Crazy Uproar
