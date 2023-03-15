@@ -52,6 +52,7 @@ For development purposes (modifying the source/testing) skip this section and se
 - copy your `clientinfo.xml` (client-server information) under `client/data` directory
 - copy your AI files under `AI` directory
 - check the `client/configs.php` if it is configured properly for your use
+- check the `client/.htaccess` file if the ErrorDocument option points to the `client/index.php` via the correct url. If you don't run roBrowser from the www root and you use remote client then you need to adjust this url (see examples in the file)
 
 In all `AI/*.lua` files :
 - Replace all `require "AI\\Const"` with `dofile "./AI/Const.lua"`
