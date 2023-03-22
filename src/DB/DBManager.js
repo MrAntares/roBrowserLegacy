@@ -19,6 +19,7 @@ define(function(require)
 	var Client           = require('Core/Client');
 	var TextEncoding     = require('Vendors/text-encoding');
 	var ClassTable       = require('./Jobs/JobNameTable');
+	var PaletteTable     = require('./Jobs/PalNameTable');
 	var WeaponAction     = require('./Jobs/WeaponAction');
 	var WeaponJobTable   = require('./Jobs/WeaponJobTable');
 	var BabyTable        = require('./Jobs/BabyTable');
@@ -321,11 +322,11 @@ define(function(require)
 	 */
 	DB.getBodyPalPath = function getBodyPalettePath( id, pal, sex )
 	{
-		if (id === 0 || !(id in ClassTable)) {
+		if (id === 0 || !(id in PaletteTable)) {
 			return null;
 		}
 
-		return 'data/palette/\xb8\xf6/' + ClassTable[id] + '_' + SexTable[sex] + '_' + pal + '.pal';
+		return 'data/palette/\xb8\xf6/' + PaletteTable[id] + '_' + SexTable[sex] + '_' + pal + '.pal';
 	};
 
 
