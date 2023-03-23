@@ -8,13 +8,10 @@ RUN docker-php-ext-install pdo pdo_mysql mysqli gd
 RUN a2enmod rewrite
 
 COPY ./AI /var/www/html/AI
-COPY ./applications /var/www/html/applications
 COPY ./client /var/www/html/client
-COPY ./doc /var/www/html/doc
-COPY ./examples /var/www/html/examples
 COPY ./src /var/www/html/src
 COPY ./tools /var/www/html/tools
-COPY ./api.html ./api.js ./LICENSE ./manifest.json ./manifest.webapp ./package.js ./package.json ./README.md /var/www/html/
+COPY ./index.html ./api.html ./api.js ./manifest.json ./manifest.webapp ./package.js ./package.json /var/www/html/
 
 RUN chown -R www-data:www-data /var/www
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
