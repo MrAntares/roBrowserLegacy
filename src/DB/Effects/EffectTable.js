@@ -4867,15 +4867,39 @@ define(function( require )
 		}],
 
 		318: [{	//EF_BOTTOM_MAG	Magnus Exorcisimus Map Unit
-			type: 'FUNC',
-			attachedEntity: false,
-			func: function( Params ){
-				var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-				var WhiteTile = FlatColorTile('white', {r: 1, g: 1, b: 1, a: 0.8});
-				this.add(new WhiteTile(Params.Inst.position, Params.Inst.startTick), Params);
-				//this.add(new SquareGround(pos, 1.0, 1.0, 3.0, 'magic_green', tick), AID);
-			}
-		}],
+			alphaMax: 0.2,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            totalCircleSides: 4,
+            circleSides: 4,
+            bottomSize: 0.7,
+            duration: 50000,
+            fade: false,
+            height: 5,
+            rotate: false,
+            textureName: 'ring_red',
+            topSize: 0.7,
+            type: 'CYLINDER',
+            angleY: 45,
+        }, {
+            alphaMax: 0.1,
+            animation: 1,
+            attachedEntity: true,
+            blendMode: 2,
+            totalCircleSides: 4,
+            circleSides: 4,
+            bottomSize: 0.7,
+            duration: 2000,
+            fade: true,
+            height: 5,
+            rotate: false,
+            textureName: 'ring_red',
+            topSize: 0.7,
+            type: 'CYLINDER',
+            angleY: 45,
+            repeat: true,
+        }],
 
 		319: [{	//EF_BOTTOM_SANC	Sanctuary Map Unit
 			alphaMax: 0.3,
