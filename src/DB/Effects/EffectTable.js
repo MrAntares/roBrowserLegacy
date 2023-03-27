@@ -4878,15 +4878,45 @@ define(function( require )
 		}],
 
 		319: [{	//EF_BOTTOM_SANC	Sanctuary Map Unit
-			type: 'FUNC',
-			attachedEntity: false,
-			func: function( Params ){
-				var FlatColorTile = require('Renderer/Effects/FlatColorTile');
-				var WhiteTile = FlatColorTile('white', {r: 1, g: 1, b: 1, a: 0.8});
-				this.add(new WhiteTile(Params.Inst.position, Params.Inst.startTick), Params);
-				//this.add(new SquareGround(pos, 1.0, 1.0, 3.0, 'magic_green', tick), AID);
-			}
-		}],
+			alphaMax: 0.3,
+            animation: 0,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 0.5,
+            totalCircleSides: 4,
+            circleSides: 4,
+            bottomSize: 0.7,
+            duration: 50000,
+            fade: false,
+            green: 0.9,
+            height: 2,
+            red: 0.5,
+            rotate: false,
+            textureName: 'magic_green',
+            topSize: 0.7,
+            type: 'CYLINDER',
+            angleY: 45,
+        }, {
+            alphaMax: 0.1,
+            animation: 1,
+            attachedEntity: true,
+            blendMode: 2,
+            blue: 0.5,
+            totalCircleSides: 4,
+            circleSides: 4,
+            bottomSize: 0.7,
+            duration: 2000,
+            fade: true,
+            green: 0.9,
+            height: 2,
+            red: 0.5,
+            rotate: false,
+            textureName: 'magic_green',
+            topSize: 0.7,
+            type: 'CYLINDER',
+            angleY: 45,
+            repeat: true,
+        }],
 		
 		320: [{  //EF_HEAL3	   Offensive Heal
 			alphaMax: 0.2,
