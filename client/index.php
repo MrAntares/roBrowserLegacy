@@ -94,6 +94,7 @@
 		case 'gif':  header('Content-type:image/gif');                break;
 		case 'xml':  header('Content-type:application/xml');          break;
 		case 'txt':  header('Content-type:text/plain');               break;
+		case 'lua':  header('Content-type:text/plain');               break;
 		case 'mp3':  header('Content-type:audio/mp3');                break;
 		default:     header('Content-type:application/octet-stream'); break;
 	}
@@ -104,7 +105,7 @@
 	}
 
 	// GZIP some files
-	if (in_array($ext, array('txt', 'xml', 'rsw', 'rsm', 'gnd', 'gat', 'spr', 'act', 'pal'))) {
+	if (in_array($ext, array('txt', 'xml', 'lua', 'rsw', 'rsm', 'gnd', 'gat', 'spr', 'act', 'pal'))) {
 		ob_start("ob_gzhandler");
 	}
 
