@@ -842,7 +842,7 @@ define(function( require )
 
 		switch (pkt.type) {
 			case 0:
-				if(entity.objecttype === Entity.TYPE_EFFECT){
+				if(entity.objecttype === Entity.TYPE_EFFECT || entity.objecttype === Entity.TYPE_UNIT || entity.objecttype === Entity.TYPE_TRAP){
 					EffectManager.spamSkillZone(pkt.value, entity.position[0], entity.position[1], pkt.GID, entity.creatorGID);
 				} else {
 					entity.job = pkt.value;
