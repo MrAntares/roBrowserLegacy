@@ -11338,6 +11338,36 @@ define(function( require )
 			}
 		}],
 		
+		'ef_oldtrap_default': [{
+			type: 'SPR',
+			file: '\xb1\xe2\xba\xbb\xc6\xae\xb7\xa6',
+			attachedEntity: true,
+		}],
+		
+		'ef_oldtrap_yellow': [{
+			type: 'SPR',
+			file: '\xb4\xe3\xc8\xb2\xbb\xf6\xc6\xae\xb7\xa6',
+			attachedEntity: true,
+		}],
+		
+		'ef_oldtrap_blue': [{
+			type: 'SPR',
+			file: '\xbe\xcf\xc3\xbb\xbb\xf6\xc6\xae\xb7\xa6',
+			attachedEntity: true,
+		}],
+		
+		'ef_oldtrap_red': [{
+			type: 'SPR',
+			file: '\xc0\xda\xc8\xab\xbb\xf6\xc6\xae\xb7\xa6',
+			attachedEntity: true,
+		}],
+		
+		'ef_oldtrap_green': [{
+			type: 'SPR',
+			file: '\xc3\xbb\xb7\xcf\xbb\xf6\xc6\xae\xb7\xa6',
+			attachedEntity: true,
+		}],
+		
 		'ef_': [{
 			wav: 'effect/',
 			attachedEntity: true
