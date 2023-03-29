@@ -16,6 +16,7 @@ define(function( require )
 	var EffectDB      = require('DB/Effects/EffectTable');
 	var SkillEffect   = require('DB/Skills/SkillEffect');
 	var SkillUnit     = require('DB/Skills/SkillUnit');
+	var SU            = require('DB/Skills/SkillUnitConst');
 	var ItemEffect    = require('DB/Items/ItemEffect');
 	var Events        = require('Core/Events');
 	var Cylinder      = require('Renderer/Effects/Cylinder');
@@ -651,6 +652,35 @@ define(function( require )
 		var skillId, effectId;
 		var skill;
 		
+		// TODO: Move these somewhere else, maybe a DB file
+		var targetableUnits = [
+			SU.UNT_ICEWALL,
+			SU.UNT_REVERBERATION,
+		];
+		
+		var traps = [
+			SU.UNT_TRAP,
+			SU.UNT_BLASTMINE,
+			SU.UNT_SKIDTRAP,
+			SU.UNT_ANKLESNARE,
+			SU.UNT_LANDMINE,
+			SU.UNT_SHOCKWAVE,
+			SU.UNT_SANDMAN,
+			SU.UNT_FLASHER,
+			SU.UNT_FREEZINGTRAP,
+			SU.UNT_CLAYMORETRAP,
+			SU.UNT_TALKIEBOX,
+			SU.UNT_MAGENTATRAP,
+			SU.UNT_COBALTTRAP,
+			SU.UNT_MAIZETRAP,
+			SU.UNT_VERDURETRAP,
+			SU.UNT_FIRINGTRAP,
+			SU.UNT_ICEBOUNDTRAP,
+			SU.UNT_ELECTRICSHOCKE,
+			SU.UNT_CLUSTERBOMB,
+			SU.UNT_ICEMINE
+		];
+		
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
@@ -675,7 +705,7 @@ define(function( require )
 			entity.GID        = uid;
 			entity.position   = [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ];
 			entity.hideShadow = true;
-			entity.objecttype = entity.constructor.TYPE_EFFECT;
+			entity.objecttype = traps.includes(unit_id) ? entity.constructor.TYPE_TRAP : ( targetableUnits.includes(unit_id) ? entity.constructor.TYPE_UNIT : entity.constructor.TYPE_EFFECT );
 			entity.creatorGID = creatorUid;
 			isNewEntity = true;
 		}

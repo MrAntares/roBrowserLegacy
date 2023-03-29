@@ -61,8 +61,11 @@ define( function( require )
 	/**
 	 * Constantes
 	 */
-	Entity.TYPE_EFFECT    = -3;
-	Entity.TYPE_UNKNOWN   = -2;
+	
+	Entity.TYPE_EFFECT    = -5;
+	Entity.TYPE_UNKNOWN   = -4;
+	Entity.TYPE_UNIT      = -3;
+	Entity.TYPE_TRAP      = -2;
 	Entity.TYPE_WARP      = -1;
 	Entity.TYPE_PC        =  0;
 	Entity.TYPE_DISGUISED =  1;
@@ -91,6 +94,8 @@ define( function( require )
 	Entity.PickingPriority.Normal[Entity.TYPE_HOM]=			0;
 	Entity.PickingPriority.Normal[Entity.TYPE_MERC]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_ELEM]=		0;
+	Entity.PickingPriority.Normal[Entity.TYPE_UNIT]=		0;
+	Entity.PickingPriority.Normal[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_EFFECT]=		-1;
 	
 	Entity.PickingPriority.Support = {};
@@ -105,6 +110,8 @@ define( function( require )
 	Entity.PickingPriority.Support[Entity.TYPE_NPC]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_UNKNOWN]=	0;
 	Entity.PickingPriority.Support[Entity.TYPE_WARP]=		0;
+	Entity.PickingPriority.Support[Entity.TYPE_UNIT]=		0;
+	Entity.PickingPriority.Support[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_EFFECT]=		-1;
 	
 	

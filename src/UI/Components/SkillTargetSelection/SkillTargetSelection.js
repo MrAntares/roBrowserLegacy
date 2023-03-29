@@ -218,7 +218,7 @@ define(function(require)
 		if(Session.TouchTargeting){
 			var entityFocus = EntityManager.getFocusEntity();
 			if(entityFocus){
-				if (_flag & (SkillTargetSelection.TYPE.PLACE|SkillTargetSelection.TYPE.TRAP)) {
+				if (_flag & (SkillTargetSelection.TYPE.PLACE)) {
 					SkillTargetSelection.onUseSkillToPos(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entityFocus.position[0], entityFocus.position[1]);
 				} else {
 					SkillTargetSelection.onUseSkillToId(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entityFocus.GID);
@@ -228,7 +228,7 @@ define(function(require)
 			}
 		}
 
-		if (_flag & (SkillTargetSelection.TYPE.PLACE|SkillTargetSelection.TYPE.TRAP)) {
+		if (_flag & (SkillTargetSelection.TYPE.PLACE)) {
 			Cursor.blockMagnetism = true;
 		}
 
@@ -338,7 +338,7 @@ define(function(require)
 		event.stopImmediatePropagation();
 
 		// Zone skill
-		if (_flag & (SkillTargetSelection.TYPE.PLACE|SkillTargetSelection.TYPE.TRAP)) {
+		if (_flag & (SkillTargetSelection.TYPE.PLACE)) {
 			SkillTargetSelection.onUseSkillToPos(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, Mouse.world.x, Mouse.world.y);
 			return false;
 		}
@@ -347,6 +347,11 @@ define(function(require)
 		var entity = EntityManager.getOverEntity();
 
 		if (!entity) {
+			return false;
+		}
+		
+		// Trap check
+		if ( entity.objecttype === Entity.TYPE_TRAP && !(_flag & (SkillTargetSelection.TYPE.TRAP)) ) {
 			return false;
 		}
 
@@ -367,6 +372,8 @@ define(function(require)
 		// Get target type
 		switch (entity.objecttype) {
 			case Entity.TYPE_MOB:
+			case Entity.TYPE_UNIT:
+			case Entity.TYPE_TRAP:
 				target = SkillTargetSelection.TYPE.ENEMY | SkillTargetSelection.TYPE.PET;
 				break;
 

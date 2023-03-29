@@ -712,6 +712,8 @@ define(function( require )
 
 		EntityManager.forEach(function(entity){
 			if (entity.objecttype != entity.constructor.TYPE_EFFECT &&
+				entity.objecttype != entity.constructor.TYPE_UNIT &&
+				entity.objecttype != entity.constructor.TYPE_TRAP &&
 				Math.round(entity.position[0]) === x &&
 				Math.round(entity.position[1]) === y) {
 				free = false;
