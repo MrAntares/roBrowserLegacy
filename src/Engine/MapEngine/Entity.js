@@ -23,6 +23,7 @@ define(function( require )
 	var SkillEffect       = require('DB/Skills/SkillEffect');
 	var SkillActionTable  = require('DB/Skills/SkillAction');
 	var EffectConst       = require('DB/Effects/EffectConst');
+	var PetMessageConst   = require('DB/Pets/PetMessageConst');
 	var Sound             = require('Audio/SoundManager');
 	var Events            = require('Core/Events');
 	var Guild             = require('Engine/MapEngine/Guild');
@@ -30,6 +31,7 @@ define(function( require )
 	var Network           = require('Network/NetworkManager');
 	var PACKET            = require('Network/PacketStructure');
 	var PACKETVER	      = require('Network/PacketVerManager');
+	var MapPreferences    = require('Preferences/Map');
 	var Altitude          = require('Renderer/Map/Altitude');
 	var Renderer          = require('Renderer/Renderer');
 	var EntityManager     = require('Renderer/EntityManager');
@@ -50,7 +52,6 @@ define(function( require )
 	var MiniMap           = require('UI/Components/MiniMap/MiniMap');
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
-	var PetMessageConst   = require('DB/Pets/PetMessageConst');
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -146,6 +147,8 @@ define(function( require )
 		if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
 			HomunInformations.startAI();
 		}
+		
+		processAura( entity );
 	}
 
 
@@ -1685,6 +1688,8 @@ define(function( require )
 		if (entity === Session.Entity) {
 			StatusIcons.update( pkt.index, pkt.state, pkt.RemainMS );
 		}
+		
+		processAura( entity );
 	}
 	
 	
@@ -1723,6 +1728,8 @@ define(function( require )
 		entity.healthState = pkt.healthState;
 		entity.effectState = pkt.effectState;
 		entity.isPKModeON  = pkt.isPKModeON;
+		
+		processAura( entity );
 	}
 
 
@@ -1966,6 +1973,31 @@ define(function( require )
 				if( pkt.leftDamage ){
 					Events.setTimeout( impendingAttack, pkt.attackMT + ((C_MULTIHIT_DELAY*1.75) * i) );
 				}
+			}
+		}
+	}
+	
+	function processAura( entity ){
+		//TODO: fix this thing and add rebirth & 3rd class aura
+		if( Session.Playing && entity.clevel >= 99 ){
+			
+			var invisibleState = (	(entity._effectState & (StatusState.EffectState.INVISIBLE|StatusState.EffectState.HIDE|StatusState.EffectState.CLOAK|StatusState.EffectState.CHASEWALK)) 
+									|| !!entity.Shadowform 
+									|| !!entity.Camouflage 
+									|| !!entity.Stealthfield );
+			
+			if ( MapPreferences.aura && !invisibleState ) {
+				if( !entity.auraVisible ){ // must be inside check 
+					EffectManager.spam( { ownerAID: entity.GID, position: entity.position, effectId: EffectConst.EF_LEVEL99 } );
+					EffectManager.spam( { ownerAID: entity.GID, position: entity.position, effectId: EffectConst.EF_LEVEL99_2 } );
+					EffectManager.spam( { ownerAID: entity.GID, position: entity.position, effectId: EffectConst.EF_LEVEL99_3 } );
+					entity.auraVisible = true;
+				}
+			} else if ( entity.auraVisible ) {
+				EffectManager.remove( null, entity.GID, EffectConst.EF_LEVEL99 );
+				EffectManager.remove( null, entity.GID, EffectConst.EF_LEVEL99_2 );
+				EffectManager.remove( null, entity.GID, EffectConst.EF_LEVEL99_3 );
+				entity.auraVisible = false;
 			}
 		}
 	}
