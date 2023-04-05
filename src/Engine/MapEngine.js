@@ -269,6 +269,8 @@ define(function( require )
 		Session.guildRight    =     0;
 
 		Session.homunId       =     0;
+		
+		Session.Entity.clevel = Session.Character.level;
 
 		BasicInfo.update('blvl', Session.Character.level );
 		BasicInfo.update('jlvl', Session.Character.joblevel );
