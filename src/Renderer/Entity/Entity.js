@@ -393,9 +393,58 @@ define( function( require )
 		if (x === 0) dir = y >= 1 ? 4 : 0;
 		if (x <=-1 ) dir = y >= 1 ? 3 : y === 0 ? 2 : 1;
 
-		this.direction = dir;
+		var prevDirection = this.direction;
+		if (prevDirection === dir) {
+			// turn head straight
+			this.headDir = 0;
+		} else {
+			switch (((prevDirection-dir+8)%8)-4) {
+				// turn head left
+				case -3:
+					if (this.headDir === 2) {
+						this.direction = dir;
+						this.headDir = 0;
+						break;
+					}
+				case -2:	
+				case -1:
+					this.direction = (dir+9)%8;
+					this.headDir = 2;
+					break;
 
-		// Todo:update head direction
+				// turn head right
+				case  3:
+					if (this.headDir === 1) {
+						this.direction = dir;
+						this.headDir = 0;
+						break;
+					}
+				case  2:
+				case  1:
+					this.direction = (dir+7)%8;
+					this.headDir = 1;
+					break;
+
+				case  0:
+					switch(this.headDir) {
+						case 2:
+							this.direction = (dir+9)%8;
+							break;
+						case 1:
+							this.direction = (dir+7)%8;
+							break;
+
+						default:
+							this.direction = dir;
+							this.headDir = 0;
+					}
+					break;
+				
+				// turn
+				default:
+					this.direction = dir;
+			}
+		}
 	};
 
 
