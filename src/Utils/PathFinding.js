@@ -257,6 +257,11 @@ define(function()
 			x      += dx;
 			y      += dy;
 			
+			if(result.success && x === x1 && y === y1){
+				// Last cell can be in wall if alredy has path to inrange.. Like mobs on/in walls that can be attacked in some maps
+				break;
+			}
+			
 			if(GAT.cells[x + (y * GAT.width)] === GAT.type.NONE){
 				// No direct path
 				result.success = false;
