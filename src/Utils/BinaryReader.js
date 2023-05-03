@@ -333,13 +333,14 @@ define( ['./Struct', 'Vendors/text-encoding'], function( Struct, TextEncoding )
 	BinaryReader.prototype.getPos2  =
 	BinaryReader.prototype.readPos2 = function getPos2()
 	{
-		var a, b, c, d, e;
+		var a, b, c, d, e, f;
 
 		a = this.getInt8();
 		b = this.getInt8();
 		c = this.getInt8();
 		d = this.getInt8();
 		e = this.getInt8();
+		f = this.getInt8(); // Unused but must read
 
 		return [
 			( (a & 0xFF) << 2 ) | ( (b & 0xC0) >> 6 ), // x1
