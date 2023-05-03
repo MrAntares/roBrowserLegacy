@@ -340,13 +340,15 @@ define( ['./Struct', 'Vendors/text-encoding'], function( Struct, TextEncoding )
 		c = this.getInt8();
 		d = this.getInt8();
 		e = this.getInt8();
-		f = this.getInt8(); // Unused but must read
+		f = this.getInt8();
 
 		return [
 			( (a & 0xFF) << 2 ) | ( (b & 0xC0) >> 6 ), // x1
 			( (b & 0x3F) << 4 ) | ( (c & 0xF0) >> 4 ), // y1
 			( (d & 0xFC) >> 2 ) | ( (c & 0x0F) << 6 ), // x2
-			( (d & 0x03) << 8 ) | ( (e & 0xFF)      )  // y2
+			( (d & 0x03) << 8 ) | ( (e & 0xFF)      ), // y2
+			( (f & 0xF0) >> 4                       ), // xcellpos aka subx0
+			( (f & 0xF)                             )  // ycellpos aka suby0
 		];
 	};
 
