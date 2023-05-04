@@ -109,6 +109,7 @@ define(function( require )
 	///
 	/// - fade:
 	///   if set to true the cylinder will fade out at the end of the duration
+	///
 	/// - alphaMax:
 	///   sets the opacity of the cylinder (0.0 ~ 1.0)
 	///
@@ -5795,6 +5796,8 @@ define(function( require )
 			type: 'CYLINDER',
 			textureName: 'guardk',
 			blendMode: 2,
+			duration: 600,
+			fade: true,
 			totalCircleSides: 8,
 			circleSides: 5,
 			repeatTextureX: 5,
@@ -5813,6 +5816,8 @@ define(function( require )
 			type: 'CYLINDER',
 			textureName: 'guardk',
 			blendMode: 2,
+			duration: 600,
+			fade: true,
 			totalCircleSides: 8,
 			circleSides: 5,
 			repeatTextureX: 5,
@@ -5831,6 +5836,8 @@ define(function( require )
 			type: 'CYLINDER',
 			textureName: 'guardk',
 			blendMode: 2,
+			duration: 600,
+			fade: true,
 			totalCircleSides: 8,
 			circleSides: 5,
 			repeatTextureX: 5,
