@@ -277,7 +277,7 @@ define( function( require )
 					this.position[0] = unit.MoveData[0];
 					this.position[1] = unit.MoveData[1];
 					this.position[2] = Altitude.getCellHeight(  unit.MoveData[0],  unit.MoveData[1] );
-					this.walkTo.apply( this, unit.MoveData );
+					this.walkTo.apply( this, [unit.MoveData[0], unit.MoveData[1], unit.MoveData[2], unit.MoveData[3]] );
 					break;
 
 				default:
