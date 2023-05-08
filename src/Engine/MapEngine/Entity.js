@@ -1943,8 +1943,8 @@ define(function( require )
 	 * @param dstEntity - Reveiver entity
 	 */
 	function onEntityWillBeHitSub( pkt, dstEntity ){
-		// only if has damage and type is not endure and not lucky
-		if ((pkt.damage || pkt.leftDamage) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
+		// only if has damage > 0 and type is not endure and not lucky
+		if ((pkt.damage > 0 || pkt.leftDamage > 0) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
 			
 			var count = pkt.count || 1;
 			
