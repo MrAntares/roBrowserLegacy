@@ -94,7 +94,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 
 		void main(void) {
 			gl_FragColor = texture2D( uDiffuse, vTextureCoord.st ) * uSpriteColor;
-			if ( gl_FragColor.a == 0.0 ) {
+			if ( gl_FragColor.a == 0.0 || (gl_FragColor.r == 0.0 && gl_FragColor.g == 0.0 && gl_FragColor.b == 0.0) ) {
 				discard;
 			}
 
