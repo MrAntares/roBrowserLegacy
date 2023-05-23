@@ -1093,7 +1093,7 @@ define(function( require )
 		if (dstEntity) {
 			var target = pkt.damage ? dstEntity : srcEntity;
 
-			if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
+			if (target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 				
 				// Will be hit actions
 				onEntityWillBeHitSub( pkt, dstEntity );
@@ -1101,21 +1101,21 @@ define(function( require )
 				var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 				var isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
 				
-
 				var addDamage = function(i, startTick) {
 					
-					EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
+					if(pkt.damage){ // Only if hits
+						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
+					}
 					
-					if(!isCombo && isBlueCombo){
-						 // Blue 'crit' non-combo EG: Rampage Blaster
+					if(!isCombo && isBlueCombo && pkt.damage){ // Blue 'crit' non-combo EG: Rampage Blaster that hits
 						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
 					} else {
 						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon); // Normal
 					}
 
 					// Only display combo if the target is not entity and
-					// there are multiple attacks
-					if (isCombo) {
+					// there are multiple attacks and actually hits
+					if (isCombo && pkt.damage) {
 						Damage.add(
 							pkt.damage / pkt.count * (i+1),
 							target,
@@ -1126,12 +1126,8 @@ define(function( require )
 					}
 				};
 
-				var addEffectBeforeHit = function(startTick){
-					EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
-				};
-
 				for (var i = 0; i < pkt.count; ++i) {
-					addEffectBeforeHit( Renderer.tick + (C_MULTIHIT_DELAY * i));
+					EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, Renderer.tick + (C_MULTIHIT_DELAY * i), pkt.AID);
 					addDamage(i, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY * i));
 				}
 			}
