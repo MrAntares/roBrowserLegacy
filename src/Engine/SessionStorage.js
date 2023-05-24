@@ -52,6 +52,9 @@ define(function()
 		CartNum: 0,
 		
 		homCustomAI: false,
-		merCustomAI: false
+		merCustomAI: false,
+		
+		autoFollow:       false,
+		autoFollowTarget: null,
 	};
 });
