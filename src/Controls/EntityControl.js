@@ -353,7 +353,7 @@ define(function( require )
 					if (!Camera.action.active) {
 						Cursor.setType( Cursor.ACTION.DEFAULT );
 					}
-					if(!Session.TouchTargeting){
+					if(!Session.TouchTargeting && !Session.autoFollow){
 						break;
 					}
 				}
@@ -373,7 +373,7 @@ define(function( require )
 				});
 
 
-				if(!Session.TouchTargeting){
+				if(!Session.TouchTargeting && !Session.autoFollow){
 					var out   = [];
 					var count = PathFinding.search(
 						main.position[0] | 0, main.position[1] | 0,
@@ -497,7 +497,6 @@ define(function( require )
 				return;
 		}
 	}
-
 
 	/**
 	 * Export
