@@ -21,6 +21,8 @@ define(function(require)
 	var EntityManager	= require('Renderer/EntityManager');
 	var Network			= require('Network/NetworkManager');
 	var PathFinding		= require('Utils/PathFinding');
+	var Altitude 	    = require('Renderer/Map/Altitude');
+	var Events          = require('Core/Events');
 	var htmlText		= require('text!./MobileUI.html');
 	var cssText			= require('text!./MobileUI.css');
 	
@@ -56,6 +58,7 @@ define(function(require)
 		this.ui.find('#insButton').click(				function(e){ keyPress(45);				stopPropagation(e);});
 		
 		this.ui.find('#toggleTargetingButton').click(	function(e){ toggleTouchTargeting();	stopPropagation(e);});
+		this.ui.find('#toggleAutoFollowButton').click(	function(e){ toggleAutoFollow();		stopPropagation(e);});
 		this.ui.find('#toggleAutoTargetButton').click(	function(e){ toggleAutoTargeting();		stopPropagation(e);});
 		
 		this.ui.find('#attackButton').click(			function(e){ attackTargeted();			stopPropagation(e);});
@@ -127,6 +130,7 @@ define(function(require)
 			
 			MobileUI.ui.find('#toggleTargetingButton').removeClass('active');
 			
+			MobileUI.ui.find('#toggleAutoFollowButton').addClass('disabled');
 			MobileUI.ui.find('#toggleAutoTargetButton').addClass('disabled');
 			MobileUI.ui.find('#attackButton').addClass('disabled');
 			
@@ -139,6 +143,7 @@ define(function(require)
 
 			MobileUI.ui.find('#toggleTargetingButton').addClass('active');
 			
+			MobileUI.ui.find('#toggleAutoFollowButton').removeClass('disabled');
 			MobileUI.ui.find('#toggleAutoTargetButton').removeClass('disabled');
 			MobileUI.ui.find('#attackButton').removeClass('disabled');
 			
@@ -157,6 +162,24 @@ define(function(require)
 			MobileUI.ui.find('#toggleAutoTargetButton').addClass('active');
 			Session.AutoTargeting = true;
 			autoTarget();
+		}
+	}
+	
+	/**
+	 * Toggles auto follow
+	 */
+	function toggleAutoFollow(){
+		if(Session.autoFollow){
+			MobileUI.ui.find('#toggleAutoFollowButton').removeClass('active');
+			Session.autoFollow = false;
+		} else {
+			var entityFocus = EntityManager.getFocusEntity();
+			if(entityFocus){
+				MobileUI.ui.find('#toggleAutoFollowButton').addClass('active');
+				Session.autoFollow = true;
+				Session.autoFollowTarget = entityFocus;
+				onAutoFollow();
+			}
 		}
 	}
 	
@@ -262,6 +285,96 @@ define(function(require)
 	function stopPropagation(event){
 		event.stopImmediatePropagation();
 		return false;
+	}
+		
+	/**
+	 * Auto follow logic
+	 */
+	function onAutoFollow(){
+		if(Session.autoFollow){
+			var player = Session.Entity;
+			var target = Session.autoFollowTarget;
+			
+			var dx = Math.abs(player.position[0] - target.position[0]);
+			var dy = Math.abs(player.position[1] - target.position[1]);
+			
+			// Use square based range check instead of Pythagorean because of diagonals
+			if( dx>1 || dy>1 ){
+				var dest = [0,0];
+				
+				// If there is valid cell send move packet
+				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
+					var pkt = new PACKET.CZ.REQUEST_MOVE();
+					pkt.dest = dest;
+					Network.sendPacket(pkt);
+				}
+			}
+			
+			Events.setTimeout( onAutoFollow, 500);
+		} else {
+			MobileUI.ui.find('#toggleAutoFollowButton').removeClass('active');
+		}
+	}
+
+	/**
+	 * Search free cells around a position
+	 *
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {number} range
+	 * @param {array} out
+	 */
+	function checkFreeCell(x, y, range, out)
+	{
+		var _x, _y, r;
+		var d_x = Session.Entity.position[0] < x ? -1 : 1;
+		var d_y = Session.Entity.position[1] < y ? -1 : 1;
+
+		// Search possible positions
+		for (r = 0; r <= range; ++r) {
+			for (_x = -r; _x <= r; ++_x) {
+				for (_y = -r; _y <= r; ++_y) {
+					if (isFreeCell(x + _x * d_x, y + _y * d_y)) {
+						out[0] = x + _x * d_x;
+						out[1] = y + _y * d_y;
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Does a cell is free (walkable, and no entity on)
+	 *
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {returns} is free
+	 */
+	function isFreeCell(x, y)
+	{
+		if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) {
+			return false;
+		}
+
+		var free = true;
+
+		EntityManager.forEach(function(entity){
+			if (entity.objecttype != entity.constructor.TYPE_EFFECT &&
+				entity.objecttype != entity.constructor.TYPE_UNIT &&
+				entity.objecttype != entity.constructor.TYPE_TRAP &&
+				Math.round(entity.position[0]) === x &&
+				Math.round(entity.position[1]) === y) {
+				free = false;
+				return false;
+			}
+
+			return true;
+		});
+
+		return free;
 	}
 
 	/**
