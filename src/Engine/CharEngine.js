@@ -458,8 +458,10 @@ define(function( require )
 			pkt.Dex  = Dex;
 			pkt.Luk  = Luk;
 		}
-		else {
+		else if (PACKETVER.value < 20151001) {
 			pkt = new PACKET.CH.MAKE_CHAR2();
+		} else {
+			pkt = new PACKET.CH.MAKE_CHAR3();
 		}
 
 		pkt.name    = name;

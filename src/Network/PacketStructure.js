@@ -4652,6 +4652,32 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt_buf;
 	};
 
+	// 0xa39
+	PACKET.CH.MAKE_CHAR3 = function PACKET_CH_MAKE_CHAR3() {
+		this.name = '';
+		this.CharNum = 0;
+		this.headPal = 0;
+		this.head = 0;
+		this.job = 0;
+		this.Sex = 0;
+
+
+	};
+	PACKET.CH.MAKE_CHAR3.prototype.build = function() {
+		var pkt_len = 2 + 24 + 1 + 2 + 2 + 2 + 2 + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x970);
+		pkt_buf.writeString(this.name, 24);
+		pkt_buf.writeUChar(this.CharNum);
+		pkt_buf.writeShort(this.headPal);
+		pkt_buf.writeShort(this.head);
+		pkt_buf.writeShort(this.job);
+		offset += 2;
+		pkt_buf.writeUChar(this.Sex) // TODO: Sex
+		return pkt_buf;
+	};
+
 
 	// 0x69
 	PACKET.AC.ACCEPT_LOGIN = function PACKET_AC_ACCEPT_LOGIN(fp, end) {
