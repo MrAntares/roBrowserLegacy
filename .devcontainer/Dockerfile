@@ -35,6 +35,7 @@ RUN echo "#!/bin/sh\n\
     exec \"\$@\"" > /usr/local/share/docker-init.sh \
     && chmod +x /usr/local/share/docker-init.sh
 RUN curl -sL https://github.com/digitalocean/doctl/releases/download/v1.63.1/doctl-1.63.1-linux-amd64.tar.gz | tar -xzv && mv doctl /usr/local/bin
+RUN curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
 
 USER $USERNAME
 ENV HOME /home/$USERNAME
@@ -43,7 +44,6 @@ WORKDIR $HOME
 RUN curl -qsL https://github.com/mozilla/sops/releases/download/v3.7.3/sops-v3.7.3.linux -o ~/sops && chmod +x ~/sops
 RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
 ENV XDG_CONFIG_HOME $HOME/.config
-RUN curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | bash
 
 # VS Code overrides ENTRYPOINT and CMD when executing `docker run` by default.
 # Setting the ENTRYPOINT to docker-init.sh will configure non-root access to
