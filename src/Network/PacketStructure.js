@@ -4667,7 +4667,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		var pkt_len = 2 + 24 + 1 + 2 + 2 + 2 + 2 + 1;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
-		pkt_buf.writeShort(0x970);
+		pkt_buf.writeShort(0xa39);
 		pkt_buf.writeString(this.name, 24);
 		pkt_buf.writeUChar(this.CharNum);
 		pkt_buf.writeShort(this.headPal);
