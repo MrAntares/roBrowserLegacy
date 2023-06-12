@@ -22,7 +22,7 @@ define( ['Core/Preferences'], function( Preferences )
 		 *
 		 * Toggle by using "/fog" in the chatbox
 		 */
-		fog: true,
+		fog: false,
 
 		/**
 		 * Display lightmap ?
