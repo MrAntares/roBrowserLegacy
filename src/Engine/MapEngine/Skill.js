@@ -672,8 +672,11 @@ define(function( require )
 			Network.sendPacket(pkt);
 			return;
 		}
+		
+		// Save the packet
+		Session.moveAction = pkt;
 
-		// Save the packet and move to the position
+		// Move to the position
 		if(isHomun){
 			pkt         = new PACKET.CZ.REQUEST_MOVENPC();
 			pkt.GID		= Session.homunId;
