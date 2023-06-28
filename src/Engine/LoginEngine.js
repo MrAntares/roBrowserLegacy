@@ -77,6 +77,7 @@ define(function( require )
 		
 		// Renewal switch
 		Session.isRenewal = Configs.get('renewal', false);
+		console.log( "%c[LOGIN] Game Mode: ", "color:#007000", (Session.isRenewal ? 'RENEWAL' : 'PRE-RENEWAL') );
 
 		/// Special thanks to curiosity, siriuswhite and ai4rei. See:
 		/// - http://hercules.ws/wiki/Clientinfo.xml
