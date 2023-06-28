@@ -83,7 +83,7 @@ function initialize() {
               version:     25,            // Must match your game server's
               langtype:    12,            // Must match your game server's
               packetver:   20191223,      // Must match your game server's
-              renewal:     true,          // Must match your game server's type (true/false)
+              renewal:     true,          // Must match your game server's type (true/false). When using clientinfo.xml you can add the <renewal>true</renewal> custom tag.
               packetKeys:  false,         // Packet encryption keys ( not implemented?? )
               socketProxy: "ws://127.0.0.1:5999/",  // The websocket proxy's address you set up previously for robrowser (wsproxy)
               adminList:   [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
