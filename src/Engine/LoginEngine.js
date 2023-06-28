@@ -74,6 +74,9 @@ define(function( require )
 		Configs.setServer(server);
 		UIManager.removeComponents();
 		Session.LangType = 'langtype' in server ? parseInt(server.langtype, 10) : 1; // default to SERVICETYPE_AMERICA
+		
+		// Renewal switch
+		Session.isRenewal = Configs.get('renewal', false);
 
 		/// Special thanks to curiosity, siriuswhite and ai4rei. See:
 		/// - http://hercules.ws/wiki/Clientinfo.xml
