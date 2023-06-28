@@ -16,6 +16,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var UIComponent        = require('UI/UIComponent');
+	var Session            = require('Engine/SessionStorage');
 	var htmlText           = require('text!./WinStats.html');
 	var cssText            = require('text!./WinStats.css');
 
@@ -108,8 +109,12 @@ define(function(require)
 				this.ui.find('.' + type).text( Math.floor(200-val/10) );
 				break;
 
-			case 'atak2':
 			case 'matak2':
+				if(!Session.isRenewal){
+					this.ui.find('.' + type).text('~ '+val);
+					break;
+				}
+			case 'atak2':
 			case 'def2':
 			case 'mdef2':
 			case 'flee2':
