@@ -14,6 +14,7 @@ define(function()
 	return {
 		
 		isTouchDevice: false,
+		isRenewal: false,
 		TouchTargeting: false,
 		AutoTargeting: false,
 		
