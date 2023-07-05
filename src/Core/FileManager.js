@@ -268,24 +268,26 @@ define(function( require )
 	 */
 	FileManager.getHTTP = function GetHTTP( filename, callback )
 	{
-		// Use http request here (ajax)
-		if (!this.remoteClient) {
-			callback(null);
-			return;
-		}
 
 		filename = filename.replace( /\\/g, '/');
 		var url  = filename.replace(/[^//]+/g, function(a){return encodeURIComponent(a);});
 
+		// Use http request here (ajax)
+		if (!this.remoteClient) {
+			url = '/client/' + url;
+		} else {
+			url = this.remoteClient + url;
+		}
+
 		// Don't load mp3 sounds to avoid blocking the queue
 		// They can be load by the HTML5 Audio / Flash directly.
 		if (filename.match(/\.(mp3|wav)$/)) {
-			callback(this.remoteClient + filename);
+			callback(url);
 			return;
 		}
 
 		var xhr = new XMLHttpRequest();
-		xhr.open('GET', this.remoteClient + url, true);
+		xhr.open('GET', url, true);
 		xhr.responseType = 'arraybuffer';
 		xhr.onload = function(){
 			if (xhr.status == 200) {
