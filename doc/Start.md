@@ -8,13 +8,13 @@
 This guide section will help you running robrowser locally.
 ### Prerequisite
 #### RoBrowser
-- install websocket proxy `npm install wsproxy -g`
+- Install websocket proxy `npm install wsproxy -g`
 - Get the source code
   - Either Get the code via GIT
     - HTTPS: `https://github.com/MrAntares/roBrowserLegacy.git`
     - GitHub CLI: `gh repo clone MrAntares/roBrowserLegacy`
   - Or download the [source code](https://github.com/MrAntares/roBrowserLegacy/archive/refs/heads/master.zip) and unpack it to somwehere on your machine.
-- Run http server at root of roBrowserLegacy directory, or place roBrowserLegacy into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
+- Get a web server that supports PHP and .htaccess. Run http server at the root of the roBrowserLegacy directory, or place roBrowserLegacy into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
 ![](img/start-http-server.png)
 - You own a full client
 #### Game Server
