@@ -15,6 +15,7 @@ define(function(require)
 	/**
 	 * Dependencies
 	 */
+	var FPS              = require('UI/Components/FPS/FPS');
 	var Configs          = require('Core/Configs');
 	var Context          = require('Core/Context');
 	var Preferences      = require('Core/Preferences');
@@ -54,6 +55,7 @@ define(function(require)
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.ui.find('.details').change(onUpdateQualityDetails);
 		this.ui.find('.cursor').change(onToggleGameCursor);
+		this.ui.find('.fps').change(onToggleGameFps);
 		this.ui.find('.screensize').change(onUpdateScreenSize);
 
 		this.draggable(this.ui.find('.titlebar'));
@@ -74,6 +76,7 @@ define(function(require)
 		this.ui.find('.details').val(GraphicsSettings.quality);
 		this.ui.find('.screensize').val(GraphicsSettings.screensize);
 		this.ui.find('.cursor').attr('checked', GraphicsSettings.cursor);
+		this.ui.find('.fps').attr('checked', GraphicsSettings.fps);
 	};
 
 
@@ -115,6 +118,15 @@ define(function(require)
 		}
 	}
 
+	/**
+	 * Toggle game fps
+	 */
+	function onToggleGameFps()
+	{
+		GraphicsSettings.fps = !!this.checked;
+		GraphicsSettings.save();
+		FPS.toggle(GraphicsSettings.fps);
+	}
 
 	/**
 	 * Resizing window size

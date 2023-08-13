@@ -53,12 +53,13 @@ define(function( require )
 	var ChatRoomCreate   = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
 	var Emoticons        = require('UI/Components/Emoticons/Emoticons');
 	var SkillList        = require('UI/Components/SkillList/SkillList');
+	var FPS              = require('UI/Components/FPS/FPS');
 	var PartyFriends     = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild            = require('UI/Components/Guild/Guild');
 	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
 	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
-	var CashShop	         = require('UI/Components/CashShop/CashShop');
+	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	/**
@@ -197,6 +198,7 @@ define(function( require )
 		ChatRoomCreate.prepare();
 		Emoticons.prepare();
 		SkillList.prepare();
+		FPS.prepare();
 		PartyFriends.prepare();
 		StatusIcons.prepare();
 		BasicInfo.prepare();
@@ -336,6 +338,7 @@ define(function( require )
 			ChatRoomCreate.append();
 			Emoticons.append();
 			SkillList.append();
+			FPS.append();
 			PartyFriends.append();
 			Guild.append();
 			WorldMap.append();
