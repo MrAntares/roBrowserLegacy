@@ -272,6 +272,8 @@ define(function(require)
 				break;
 
 			case 'job':
+				Session.Character.job = val1;
+
 				this.ui.find('.job_value').text(MonsterTable[val1]);
 				break;
 
