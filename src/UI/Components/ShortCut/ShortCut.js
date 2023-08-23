@@ -527,7 +527,7 @@ define(function(require)
 
 		// Extract image from css to get it when dragging the element
 		img     = new Image();
-		img.src = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		img.src = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
 
 		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
 		event.originalEvent.dataTransfer.setData('Text',
