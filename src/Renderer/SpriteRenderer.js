@@ -163,6 +163,11 @@ function(      WebGL,         glMatrix,      Camera )
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
 				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
 			}
+
+			// Workaround for sprites border issue [Waken]
+			float edgeFactor = smoothstep(0.15, 0.99, gl_FragColor.a);
+			gl_FragColor.rgb *= edgeFactor;
+
 		}
 	`;
 
