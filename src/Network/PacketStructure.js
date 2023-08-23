@@ -11998,7 +11998,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.total_points 			= fp.readLong();	// <total_points>.L
 		this.rank 					= fp.readShort();	// <rank>.W
 		this.current_rank_points 	= fp.readLong();	// <current_rank_points>.L
-		this.next_rank_points 		= fp.readLong(); 	// <next_rank_points>.L
+		this.next_rank_points 		= fp.readBinaryString(); 	// <next_rank_points>.L // todo fix readLong to readBinaryString
 
 		// todo struct
 		let option = new Struct(
