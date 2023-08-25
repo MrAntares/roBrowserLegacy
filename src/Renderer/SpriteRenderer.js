@@ -57,12 +57,12 @@ function(      WebGL,         glMatrix,      Camera )
 			// Matrix translation
 			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
 			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
+			mat[3].z += mat[0].z * x + mat[1].z * y + mat[2].z * z;
 			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
 
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
-			mat[1].xyz = vec3( 0.0, 1.0 + 0.5 * floor(min(uCameraZoom, 1.0)) / max(uCameraLatitude, 15.0), (uCameraLatitude / 50.0) );
+			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
 
 			return mat;
@@ -77,7 +77,7 @@ function(      WebGL,         glMatrix,      Camera )
 			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
+			gl_Position.z -= (uSpriteRendererZindex * 2.50 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
 			
 			vTextureCoord = aTextureCoord;
 		}
@@ -157,12 +157,20 @@ function(      WebGL,         glMatrix,      Camera )
 			texture.rgb   *= uShadow;
 			gl_FragColor   = texture * uSpriteRendererColor;
 
+			// Similar to Official RO, only applied when not transparent [Waken]
+			if (uSpriteRendererColor.a >= 0.8) {
+				float edgeFactor = smoothstep(0.20, 0.90, gl_FragColor.a);
+				gl_FragColor.rgb *= edgeFactor;
+			}
+
 			// Fog feature
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
 				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
 			}
+			
+		
 		}
 	`;
 
@@ -231,6 +239,7 @@ function(      WebGL,         glMatrix,      Camera )
 		size:    new Float32Array(2)
 	};
 
+	SpriteRenderer.removing = false;
 
 	/**
 	 * @var {object} sprite imageData (for 2D context)
@@ -389,6 +398,9 @@ function(      WebGL,         glMatrix,      Camera )
 		var attribute = _program.attribute;
 		var uniform   = _program.uniform;
 
+		// is going to be removed
+		//console.log("SpriteRenderer.bind3DContext =>", this)
+
 		gl.useProgram( _program );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false,  projection );
 		gl.uniformMatrix4fv( uniform.uModelViewMat,  false,  modelView );
@@ -516,6 +528,7 @@ function(      WebGL,         glMatrix,      Camera )
 		_size[0]   = this.size[0]   / 175.0 * this.xSize;
 		_size[1]   = this.size[1]   / 175.0 * this.ySize;
 
+		console.log(this.color)
 		gl.uniform4fv( uniform.uSpriteRendererColor,  this.color );
 		gl.uniform2fv( uniform.uSpriteRendererSize,   _size );
 		gl.uniform2fv( uniform.uSpriteRendererOffset, _offset );
