@@ -157,17 +157,20 @@ function(      WebGL,         glMatrix,      Camera )
 			texture.rgb   *= uShadow;
 			gl_FragColor   = texture * uSpriteRendererColor;
 
+			// Similar to Official RO, only applied when not transparent [Waken]
+			if (uSpriteRendererColor.a >= 0.8) {
+				float edgeFactor = smoothstep(0.20, 0.90, gl_FragColor.a);
+				gl_FragColor.rgb *= edgeFactor;
+			}
+
 			// Fog feature
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
 				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
 			}
-
-			// Workaround for sprites border issue [Waken]
-			float edgeFactor = smoothstep(0.15, 0.99, gl_FragColor.a);
-			gl_FragColor.rgb *= edgeFactor;
-
+			
+		
 		}
 	`;
 
@@ -236,6 +239,7 @@ function(      WebGL,         glMatrix,      Camera )
 		size:    new Float32Array(2)
 	};
 
+	SpriteRenderer.removing = false;
 
 	/**
 	 * @var {object} sprite imageData (for 2D context)
@@ -394,6 +398,9 @@ function(      WebGL,         glMatrix,      Camera )
 		var attribute = _program.attribute;
 		var uniform   = _program.uniform;
 
+		// is going to be removed
+		//console.log("SpriteRenderer.bind3DContext =>", this)
+
 		gl.useProgram( _program );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false,  projection );
 		gl.uniformMatrix4fv( uniform.uModelViewMat,  false,  modelView );
@@ -521,6 +528,7 @@ function(      WebGL,         glMatrix,      Camera )
 		_size[0]   = this.size[0]   / 175.0 * this.xSize;
 		_size[1]   = this.size[1]   / 175.0 * this.ySize;
 
+		console.log(this.color)
 		gl.uniform4fv( uniform.uSpriteRendererColor,  this.color );
 		gl.uniform2fv( uniform.uSpriteRendererSize,   _size );
 		gl.uniform2fv( uniform.uSpriteRendererOffset, _offset );
