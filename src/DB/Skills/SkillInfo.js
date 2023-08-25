@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault
  */
-
 define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 {
 	"use strict";
@@ -154,12 +153,12 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD_H] = [
+			this[JobId.BARD_H] = [
 				[ SK.AC_DOUBLE, 5 ],
 				[ SK.AC_SHOWER, 5 ],
 				[ SK.BA_MUSICALSTRIKE, 1 ]
 			],
-			this[JobId.JT_DANCER_H] = [
+			this[JobId.DANCER_H] = [
 				[ SK.AC_DOUBLE, 5 ],
 				[ SK.AC_SHOWER, 5 ],
 				[ SK.DC_THROWARROW, 1 ]
@@ -174,11 +173,11 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD_H] = [
+			this[JobId.BARD_H] = [
 				[ SK.AC_CONCENTRATION, 5 ],
 				[ SK.BA_MUSICALLESSON, 7 ]
 			],
-			this[JobId.JT_DANCER_H] = [
+			this[JobId.DANCER_H] = [
 				[ SK.AC_CONCENTRATION, 5 ],
 				[ SK.DC_DANCINGLESSON, 7 ]
 			]
@@ -192,11 +191,11 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 7 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD_H] = [
+			this[JobId.BARD_H] = [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.BA_MUSICALLESSON, 5 ]
 			],
-			this[JobId.JT_DANCER_H] = [
+			this[JobId.DANCER_H] = [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.DC_DANCINGLESSON, 5 ]
 			]
@@ -770,7 +769,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function() {
-			this[JobId.JT_CRUSADER] = [
+			this[JobId.CRUSADER] = [
 				[ SK.CR_TRUST, 10 ],
 				[ SK.AL_DEMONBANE, 5 ]
 			] }
@@ -1244,12 +1243,12 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD_H] = [
+			this[JobId.BARD_H] = [
 				[ SK.CG_MARIONETTE, 1 ],
 				[ SK.BA_DISSONANCE, 3 ],
 				[ SK.BA_MUSICALLESSON, 10 ]
 			],
-			this[JobId.JT_DANCER_H] = [
+			this[JobId.DANCER_H] = [
 				[ SK.CG_MARIONETTE, 1 ],
 				[ SK.DC_UGLYDANCE, 3 ],
 				[ SK.DC_DANCINGLESSON, 10 ]
@@ -1264,11 +1263,11 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD_H] = [
+			this[JobId.BARD_H] = [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.BA_MUSICALLESSON, 10 ]
 			],
-			this[JobId.JT_DANCER_H] = [
+			this[JobId.DANCER_H] = [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.DC_DANCINGLESSON, 10 ]
 			]
@@ -1282,11 +1281,11 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD_H] = [
+			this[JobId.BARD_H] = [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.BA_DISSONANCE, 3 ]
 			],
-			this[JobId.JT_DANCER_H] = [
+			this[JobId.DANCER_H] = [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.DC_UGLYDANCE, 3 ]
 			]
@@ -2141,7 +2140,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.AL_HEAL, 2 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_CRUSADER] = [
+			this[JobId.CRUSADER] = [
 				[ SK.CR_TRUST, 5 ]
 			] }
 	},
@@ -3168,7 +3167,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.AC_OWL, 3 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_ROGUE] = [] }
+			this[JobId.ROGUE] = [] }
 	},
 	SkillInfo[SK.AC_CONCENTRATION] = {
 		Name: "AC_CONCENTRATION",
@@ -3189,7 +3188,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function() {
-			this[JobId.JT_ROGUE] = [
+			this[JobId.ROGUE] = [
 				[ SK.AC_VULTURE, 10 ]
 			] }
 	},
@@ -3491,7 +3490,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.KN_AUTOCOUNTER, 5 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_SUPERNOVICE2] = [
+			this[JobId.SUPERNOVICE2] = [
 				[ SK.KN_AUTOCOUNTER, 5 ]
 			] }
 	},
@@ -4169,7 +4168,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.PR_MAGNIFICAT, 3 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_SUPERNOVICE2] = [
+			this[JobId.SUPERNOVICE2] = [
 				[ SK.PR_SANCTUARY, 7 ]
 			] }
 	},
@@ -4214,12 +4213,12 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_MINSTREL] = [
+			this[JobId.MINSTREL] = [
 				[ SK.MI_HARMONIZE, 1 ],
 				[ SK.MI_RUSH_WINDMILL, 1 ],
 				[ SK.MI_ECHOSONG, 1 ]
 			],
-			this[JobId.JT_WANDERER] = [
+			this[JobId.WANDERER] = [
 				[ SK.WA_SWING_DANCE, 1 ],
 				[ SK.WA_SYMPHONY_OF_LOVER, 1 ],
 				[ SK.WA_MOONLIT_SERENADE, 1 ]
@@ -4565,7 +4564,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.MG_STONECURSE, 1 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_SAGE] = [
+			this[JobId.SAGE] = [
 				[ SK.SA_SEISMICWEAPON, 1 ]
 			] }
 	},
@@ -4580,7 +4579,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.WZ_EARTHSPIKE, 3 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_SAGE] = [
+			this[JobId.SAGE] = [
 				[ SK.WZ_EARTHSPIKE, 1 ]
 			] }
 	},
@@ -5076,7 +5075,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.HT_LANDMINE, 1 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_ROGUE] = [
+			this[JobId.ROGUE] = [
 				[ SK.AC_DOUBLE, 5 ]
 			] }
 	},
@@ -6202,7 +6201,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.MG_SOULSTRIKE, 5 ]
 		],
 		NeedSkillList: new function() {
-			this[JobId.JT_PRIEST] = [
+			this[JobId.PRIEST] = [
 				[ SK.PR_SANCTUARY, 3 ],
 				[ SK.PR_ASPERSIO, 4 ]
 			] }
@@ -8042,12 +8041,12 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_MINSTREL] = [
+			this[JobId.MINSTREL] = [
 				[ SK.MI_HARMONIZE, 1 ],
 				[ SK.MI_RUSH_WINDMILL, 1 ],
 				[ SK.MI_ECHOSONG, 1 ]
 			],
-			this[JobId.JT_WANDERER] = [
+			this[JobId.WANDERER] = [
 				[ SK.WA_SWING_DANCE, 1 ],
 				[ SK.WA_SYMPHONY_OF_LOVER, 1 ],
 				[ SK.WA_MOONLIT_SERENADE, 1 ]
@@ -8070,12 +8069,12 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_MINSTREL] = [
+			this[JobId.MINSTREL] = [
 				[ SK.MI_HARMONIZE, 1 ],
 				[ SK.MI_RUSH_WINDMILL, 1 ],
 				[ SK.MI_ECHOSONG, 1 ]
 			],
-			this[JobId.JT_WANDERER] = [
+			this[JobId.WANDERER] = [
 				[ SK.WA_SWING_DANCE, 1 ],
 				[ SK.WA_SYMPHONY_OF_LOVER, 1 ],
 				[ SK.WA_MOONLIT_SERENADE, 1 ]
@@ -8604,10 +8603,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_MINSTREL] = [
+			this[JobId.MINSTREL] = [
 				[ SK.BA_MUSICALSTRIKE, 5 ]
 			],
-			this[JobId.JT_WANDERER] = [
+			this[JobId.WANDERER] = [
 				[ SK.DC_THROWARROW, 5 ]
 			]
 		}
@@ -8647,10 +8646,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_MINSTREL] = [
+			this[JobId.MINSTREL] = [
 				[ SK.BA_DISSONANCE, 5 ]
 			],
-			this[JobId.JT_WANDERER] = [
+			this[JobId.WANDERER] = [
 				[ SK.DC_UGLYDANCE, 5 ]
 			]
 		}
@@ -8663,10 +8662,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_MINSTREL] = [
+			this[JobId.MINSTREL] = [
 				[ SK.BA_DISSONANCE, 5 ]
 			],
-			this[JobId.JT_WANDERER] = [
+			this[JobId.WANDERER] = [
 				[ SK.DC_UGLYDANCE, 5 ]
 			]
 		}
@@ -8679,10 +8678,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_MINSTREL] = [
+			this[JobId.MINSTREL] = [
 				[ SK.BA_DISSONANCE, 5 ]
 			],
-			this[JobId.JT_WANDERER] = [
+			this[JobId.WANDERER] = [
 				[ SK.DC_UGLYDANCE, 5 ]
 			]
 		}
@@ -8825,10 +8824,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 1 ],
 		NeedSkillList: new function() {
-			this[JobId.JT_BARD] = [
+			this[JobId.BARD] = [
 				[ SK.BA_WHISTLE, 10 ]
 			],
-			this[JobId.JT_DANCER] = [
+			this[JobId.DANCER] = [
 				[ SK.DC_HUMMING, 10 ]
 			]
 		}
@@ -8897,10 +8896,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD] = [
+			this[JobId.BARD] = [
 				[ SK.BA_APPLEIDUN, 10 ]
 			],
-			this[JobId.JT_DANCER] = [
+			this[JobId.DANCER] = [
 				[ SK.DC_SERVICEFORYOU, 10 ]
 			]
 		}
@@ -8947,10 +8946,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 1 ],
 		NeedSkillList: new function(){
-			this[JobId.JT_BARD] = [
+			this[JobId.BARD] = [
 				[ SK.BA_ASSASSINCROSS, 10 ]
 			],
-			this[JobId.JT_DANCER] = [
+			this[JobId.DANCER] = [
 				[ SK.DC_DONTFORGETME, 10 ]
 			]
 		}
@@ -8993,10 +8992,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function() {
-			this[JobId.JT_BARD] = [
+			this[JobId.BARD] = [
 				[ SK.BA_POEMBRAGI, 10 ]
 			],
-			this[JobId.JT_DANCER] = [
+			this[JobId.DANCER] = [
 				[ SK.DC_FORTUNEKISS, 10 ]
 			]
 		}
@@ -9844,7 +9843,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv: false,
 		AttackRange: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 		NeedSkillList: new function() {
-			this[JobId.JT_CRUSADER] = [
+			this[JobId.CRUSADER] = [
 				[ SK.AL_CURE, 1 ]
 			] }
 	},
