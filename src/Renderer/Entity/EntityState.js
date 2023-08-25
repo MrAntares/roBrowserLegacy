@@ -78,6 +78,17 @@ define(function( require )
 		}
 	}
 
+	function getOpt3(state){
+		if (state === 0){
+			return false;
+		}
+		var value = _stateToVirtue[state];
+		if (value === undefined){
+			console.log('toggleState: unknown state', state);
+			return false;
+		}
+		return (this.virtue & value) !== 0;
+	}
 	function updateVirtue(value){
 		// Reset value
 		this._virtueColor[0] = 1.0;
@@ -130,10 +141,16 @@ define(function( require )
 			this._virtueColor[2] = 0.65;
 		}
 
-		if ((value & StatusConst.OPT3.MARIONETTE) ||
-			(value & StatusConst.OPT3.BERSERK) ){
-			this._virtueColor[0] = 1.0;
-			this._virtueColor[1] = 0.3;
+		if (value & StatusConst.OPT3.MARIONETTE){
+			this._virtueColor[0] = 2.0;
+			this._virtueColor[1] = 0.50;
+			this._virtueColor[2] = 0.85;
+			this._virtueColor[3] = 0.5;
+		}
+
+		if (value & StatusConst.OPT3.BERSERK) {
+			this._virtueColor[0] = 2.0;
+			this._virtueColor[1] = 0.7;
 			this._virtueColor[2] = 0.7;
 			this._virtueColor[3] = 0.5;
 		}
@@ -542,6 +559,7 @@ define(function( require )
 		});
 
 		this.toggleOpt3 = toggleOpt3;
+		this.getOpt3 = getOpt3;
         this.recalculateBlendingColor = recalculateBlendingColor;
 	};
 });

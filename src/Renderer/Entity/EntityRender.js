@@ -330,6 +330,8 @@ define( function( require )
 
 		return function renderElement( entity, files, type, position, is_main )
 		{
+			var isEffectSprite = false;
+			
 			// Nothing to render
 			if (!files.spr || !files.act)
 			{
@@ -418,10 +420,15 @@ define( function( require )
 			   }
 			}
 
+			// Check if berserk and enable alpha
+			if (entity.getOpt3(StatusConst.Status.BERSERK)) {
+				isEffectSprite = true;
+			}
+
 
 			// Render all frames
 			for (var i=0, count=layers.length; i<count; ++i) {
-				entity.renderLayer( layers[i], spr, pal, files.size, _position, type === 'body' );
+				entity.renderLayer( layers[i], spr, pal, files.size, _position, type === 'body', isEffectSprite);
 			}
 
 			// Save reference
@@ -559,7 +566,7 @@ define( function( require )
 	 * @param {Array} pos [x,y] where to render the sprite
 	 * @param {bool} is main body
 	 */
-	function renderLayer( layer, spr, pal, size, pos, isbody )
+	function renderLayer( layer, spr, pal, size, pos, isbody, isEffectSprite )
 	{
 		// If there is nothing to render
 		if (layer.index < 0) {
@@ -618,6 +625,7 @@ define( function( require )
 		// apply disapear
 		if (this.remove_tick) {
 			SpriteRenderer.color[3] *= 1 - ( Renderer.tick - this.remove_tick  ) / this.remove_delay;
+			console.log(SpriteRenderer.color[3] *= 1 - ( Renderer.tick - this.remove_tick  ) / this.remove_delay)
 		}
 
 		// Store shader info
@@ -631,7 +639,7 @@ define( function( require )
 		SpriteRenderer.image.texture = frame.texture;
 
 		// Draw Sprite
-		SpriteRenderer.render();
+		SpriteRenderer.render(isEffectSprite);
 	}
 
 
