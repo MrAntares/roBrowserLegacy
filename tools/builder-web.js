@@ -1,5 +1,5 @@
 const fs = require('fs');
-const requirejs = require('requirejs');
+const requirejs = require('./build/r');
 const Terser = require('terser');
 const package = require('../package.json');
 const startTime = Date.now();

@@ -1,5 +1,6 @@
+#!/usr/bin/env node
 /**
- * @license r.js 2.3.6 Copyright jQuery Foundation and other contributors.
+ * @license r.js 2.3.6 Wed, 03 Mar 2021 13:08:56 GMT Copyright jQuery Foundation and other contributors.
  * Released under MIT license, http://github.com/requirejs/r.js/LICENSE
  */
 
@@ -19,7 +20,7 @@ var requirejs, require, define, xpcUtil;
 (function (console, args, readFileFunc) {
     var fileName, env, fs, vm, path, exec, rhinoContext, dir, nodeRequire,
         nodeDefine, exists, reqMain, loadedOptimizedLib, existsForNode, Cc, Ci,
-        version = '2.3.6',
+        version = '2.3.6 Wed, 03 Mar 2021 13:08:56 GMT',
         jsSuffixRegExp = /\.js$/,
         commandOption = '',
         useLibLoaded = {},
@@ -4470,6 +4471,30 @@ define('logger', ['env!env/print'], function (print) {
 //so that the build does not attempt to inline some env modules,
 //like Node's fs and path.
 
+/*
+	This build is based off Esprima master branch (latest commit: Jan 17, 2021):
+		https://github.com/jquery/esprima/commit/70c015998b5beb3b1f8c2277cd9288ad6917f378
+
+	...including also the following PRs (unmerged as of Mar 03, 2021; but passing Esprima checks)
+
+		"Support for ES2019 optional catch binding"
+			https://github.com/jquery/esprima/pull/2050
+			https://github.com/ljqx/esprima/tree/optional-catch-binding
+
+		"Support for ES2020 Optional chaining"
+			https://github.com/jquery/esprima/pull/2048
+			https://github.com/ljqx/esprima/tree/optional-chaining
+			
+	This should also support the following newer syntaxes 
+		(which are in eprima:master; but awaiting the next Esprima release):
+
+		* Nullish coalescing operator (??)
+				https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
+
+		* for await...of
+				https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of
+
+*/
 (function webpackUniversalModuleDefinition(root, factory) {
 /* istanbul ignore next */
 	if(typeof define === 'function' && define.amd)
@@ -4619,8 +4644,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.parseScript = parseScript;
 	function tokenize(code, options, delegate) {
 	    var tokenizer = new tokenizer_1.Tokenizer(code, options);
-	    var tokens;
-	    tokens = [];
+			var tokens = [];
 	    try {
 	        while (true) {
 	            var token = tokenizer.getNextToken();
@@ -4645,7 +4669,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var syntax_1 = __webpack_require__(2);
 	exports.Syntax = syntax_1.Syntax;
 	// Sync with *.json manifests.
-	exports.version = '4.0.1';
+	exports.version = '4.0.0-dev';
 
 
 /***/ },
@@ -4655,7 +4679,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var syntax_1 = __webpack_require__(2);
-	var CommentHandler = (function () {
+	var CommentHandler = /** @class */ (function () {
 	    function CommentHandler() {
 	        this.attach = false;
 	        this.comments = [];
@@ -4685,20 +4709,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var trailingComments = [];
 	        if (this.trailing.length > 0) {
 	            for (var i = this.trailing.length - 1; i >= 0; --i) {
-	                var entry_1 = this.trailing[i];
-	                if (entry_1.start >= metadata.end.offset) {
-	                    trailingComments.unshift(entry_1.comment);
+									var entry = this.trailing[i];
+									if (entry.start >= metadata.end.offset) {
+											trailingComments.unshift(entry.comment);
 	                }
 	            }
 	            this.trailing.length = 0;
 	            return trailingComments;
 	        }
-	        var entry = this.stack[this.stack.length - 1];
-	        if (entry && entry.node.trailingComments) {
-	            var firstComment = entry.node.trailingComments[0];
+					var last = this.stack[this.stack.length - 1];
+					if (last && last.node.trailingComments) {
+							var firstComment = last.node.trailingComments[0];
 	            if (firstComment && firstComment.range[0] >= metadata.end.offset) {
-	                trailingComments = entry.node.trailingComments;
-	                delete entry.node.trailingComments;
+									trailingComments = last.node.trailingComments;
+									delete last.node.trailingComments;
 	            }
 	        }
 	        return trailingComments;
@@ -4821,6 +4845,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    BreakStatement: 'BreakStatement',
 	    CallExpression: 'CallExpression',
 	    CatchClause: 'CatchClause',
+			ChainExpression: 'ChainExpression',
 	    ClassBody: 'ClassBody',
 	    ClassDeclaration: 'ClassDeclaration',
 	    ClassExpression: 'ClassExpression',
@@ -4841,6 +4866,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    FunctionExpression: 'FunctionExpression',
 	    Identifier: 'Identifier',
 	    IfStatement: 'IfStatement',
+			Import: 'Import',
 	    ImportDeclaration: 'ImportDeclaration',
 	    ImportDefaultSpecifier: 'ImportDefaultSpecifier',
 	    ImportNamespaceSpecifier: 'ImportNamespaceSpecifier',
@@ -4886,9 +4912,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 /* istanbul ignore next */
 	var __extends = (this && this.__extends) || (function () {
-	    var extendStatics = Object.setPrototypeOf ||
+			var extendStatics = function (d, b) {
+					extendStatics = Object.setPrototypeOf ||
 	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
 	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+					return extendStatics(d, b);
+			};
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -4929,7 +4958,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return qualifiedName;
 	}
-	var JSXParser = (function (_super) {
+	var JSXParser = /** @class */ (function (_super) {
 	    __extends(JSXParser, _super);
 	    function JSXParser(code, options, delegate) {
 	        return _super.call(this, code, options, delegate) || this;
@@ -5300,9 +5329,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.expectJSX('<');
 	        if (this.matchJSX('/')) {
 	            this.expectJSX('/');
-	            var name_3 = this.parseJSXElementName();
+							var elementName = this.parseJSXElementName();
 	            this.expectJSX('>');
-	            return this.finalize(node, new JSXNode.JSXClosingElement(name_3));
+							return this.finalize(node, new JSXNode.JSXClosingElement(elementName));
 	        }
 	        var name = this.parseJSXElementName();
 	        var attributes = this.parseJSXAttributes();
@@ -5431,13 +5460,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", { value: true });
 	// See also tools/generate-unicode-regex.js.
 	var Regex = {
-	    // Unicode v8.0.0 NonAsciiIdentifierStart:
-	    NonAsciiIdentifierStart: /[\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0-\u08B4\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C60\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D5F-\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2118-\u211D\u2124\u2126\u2128\u212A-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309B-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FD5\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7AD\uA7B0-\uA7B7\uA7F7-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA8FD\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uA9E0-\uA9E4\uA9E6-\uA9EF\uA9FA-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB65\uAB70-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD40-\uDD74\uDE80-\uDE9C\uDEA0-\uDED0\uDF00-\uDF1F\uDF30-\uDF4A\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC60-\uDC76\uDC80-\uDC9E\uDCE0-\uDCF2\uDCF4\uDCF5\uDD00-\uDD15\uDD20-\uDD39\uDD80-\uDDB7\uDDBE\uDDBF\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE33\uDE60-\uDE7C\uDE80-\uDE9C\uDEC0-\uDEC7\uDEC9-\uDEE4\uDF00-\uDF35\uDF40-\uDF55\uDF60-\uDF72\uDF80-\uDF91]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2]|\uD804[\uDC03-\uDC37\uDC83-\uDCAF\uDCD0-\uDCE8\uDD03-\uDD26\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDDA\uDDDC\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE80-\uDEAA\uDF00-\uDF19]|\uD806[\uDCA0-\uDCDF\uDCFF\uDEC0-\uDEF8]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDF00-\uDF44\uDF50\uDF93-\uDF9F]|\uD82C[\uDC00\uDC01]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB]|\uD83A[\uDC00-\uDCC4]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD869[\uDC00-\uDED6\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1]|\uD87E[\uDC00-\uDE1D]/,
-	    // Unicode v8.0.0 NonAsciiIdentifierPart:
-	    NonAsciiIdentifierPart: /[\xAA\xB5\xB7\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0300-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u0483-\u0487\u048A-\u052F\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u05D0-\u05EA\u05F0-\u05F2\u0610-\u061A\u0620-\u0669\u066E-\u06D3\u06D5-\u06DC\u06DF-\u06E8\u06EA-\u06FC\u06FF\u0710-\u074A\u074D-\u07B1\u07C0-\u07F5\u07FA\u0800-\u082D\u0840-\u085B\u08A0-\u08B4\u08E3-\u0963\u0966-\u096F\u0971-\u0983\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BC-\u09C4\u09C7\u09C8\u09CB-\u09CE\u09D7\u09DC\u09DD\u09DF-\u09E3\u09E6-\u09F1\u0A01-\u0A03\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABC-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0AF9\u0B01-\u0B03\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3C-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B56\u0B57\u0B5C\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71\u0B82\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD0\u0BD7\u0BE6-\u0BEF\u0C00-\u0C03\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C58-\u0C5A\u0C60-\u0C63\u0C66-\u0C6F\u0C81-\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBC-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1\u0CF2\u0D01-\u0D03\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D-\u0D44\u0D46-\u0D48\u0D4A-\u0D4E\u0D57\u0D5F-\u0D63\u0D66-\u0D6F\u0D7A-\u0D7F\u0D82\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DE6-\u0DEF\u0DF2\u0DF3\u0E01-\u0E3A\u0E40-\u0E4E\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB9\u0EBB-\u0EBD\u0EC0-\u0EC4\u0EC6\u0EC8-\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F18\u0F19\u0F20-\u0F29\u0F35\u0F37\u0F39\u0F3E-\u0F47\u0F49-\u0F6C\u0F71-\u0F84\u0F86-\u0F97\u0F99-\u0FBC\u0FC6\u1000-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u135D-\u135F\u1369-\u1371\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772\u1773\u1780-\u17D3\u17D7\u17DC\u17DD\u17E0-\u17E9\u180B-\u180D\u1810-\u1819\u1820-\u1877\u1880-\u18AA\u18B0-\u18F5\u1900-\u191E\u1920-\u192B\u1930-\u193B\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A1B\u1A20-\u1A5E\u1A60-\u1A7C\u1A7F-\u1A89\u1A90-\u1A99\u1AA7\u1AB0-\u1ABD\u1B00-\u1B4B\u1B50-\u1B59\u1B6B-\u1B73\u1B80-\u1BF3\u1C00-\u1C37\u1C40-\u1C49\u1C4D-\u1C7D\u1CD0-\u1CD2\u1CD4-\u1CF6\u1CF8\u1CF9\u1D00-\u1DF5\u1DFC-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u200C\u200D\u203F\u2040\u2054\u2071\u207F\u2090-\u209C\u20D0-\u20DC\u20E1\u20E5-\u20F0\u2102\u2107\u210A-\u2113\u2115\u2118-\u211D\u2124\u2126\u2128\u212A-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D7F-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u3005-\u3007\u3021-\u302F\u3031-\u3035\u3038-\u303C\u3041-\u3096\u3099-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FD5\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66F\uA674-\uA67D\uA67F-\uA6F1\uA717-\uA71F\uA722-\uA788\uA78B-\uA7AD\uA7B0-\uA7B7\uA7F7-\uA827\uA840-\uA873\uA880-\uA8C4\uA8D0-\uA8D9\uA8E0-\uA8F7\uA8FB\uA8FD\uA900-\uA92D\uA930-\uA953\uA960-\uA97C\uA980-\uA9C0\uA9CF-\uA9D9\uA9E0-\uA9FE\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A-\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF6\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB65\uAB70-\uABEA\uABEC\uABED\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE00-\uFE0F\uFE20-\uFE2F\uFE33\uFE34\uFE4D-\uFE4F\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF3F\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD40-\uDD74\uDDFD\uDE80-\uDE9C\uDEA0-\uDED0\uDEE0\uDF00-\uDF1F\uDF30-\uDF4A\uDF50-\uDF7A\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC60-\uDC76\uDC80-\uDC9E\uDCE0-\uDCF2\uDCF4\uDCF5\uDD00-\uDD15\uDD20-\uDD39\uDD80-\uDDB7\uDDBE\uDDBF\uDE00-\uDE03\uDE05\uDE06\uDE0C-\uDE13\uDE15-\uDE17\uDE19-\uDE33\uDE38-\uDE3A\uDE3F\uDE60-\uDE7C\uDE80-\uDE9C\uDEC0-\uDEC7\uDEC9-\uDEE6\uDF00-\uDF35\uDF40-\uDF55\uDF60-\uDF72\uDF80-\uDF91]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2]|\uD804[\uDC00-\uDC46\uDC66-\uDC6F\uDC7F-\uDCBA\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD00-\uDD34\uDD36-\uDD3F\uDD50-\uDD73\uDD76\uDD80-\uDDC4\uDDCA-\uDDCC\uDDD0-\uDDDA\uDDDC\uDE00-\uDE11\uDE13-\uDE37\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEEA\uDEF0-\uDEF9\uDF00-\uDF03\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3C-\uDF44\uDF47\uDF48\uDF4B-\uDF4D\uDF50\uDF57\uDF5D-\uDF63\uDF66-\uDF6C\uDF70-\uDF74]|\uD805[\uDC80-\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDB5\uDDB8-\uDDC0\uDDD8-\uDDDD\uDE00-\uDE40\uDE44\uDE50-\uDE59\uDE80-\uDEB7\uDEC0-\uDEC9\uDF00-\uDF19\uDF1D-\uDF2B\uDF30-\uDF39]|\uD806[\uDCA0-\uDCE9\uDCFF\uDEC0-\uDEF8]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDEF0-\uDEF4\uDF00-\uDF36\uDF40-\uDF43\uDF50-\uDF59\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDF00-\uDF44\uDF50-\uDF7E\uDF8F-\uDF9F]|\uD82C[\uDC00\uDC01]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99\uDC9D\uDC9E]|\uD834[\uDD65-\uDD69\uDD6D-\uDD72\uDD7B-\uDD82\uDD85-\uDD8B\uDDAA-\uDDAD\uDE42-\uDE44]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD836[\uDE00-\uDE36\uDE3B-\uDE6C\uDE75\uDE84\uDE9B-\uDE9F\uDEA1-\uDEAF]|\uD83A[\uDC00-\uDCC4\uDCD0-\uDCD6]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD869[\uDC00-\uDED6\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1]|\uD87E[\uDC00-\uDE1D]|\uDB40[\uDD00-\uDDEF]/
+			// Unicode v12.1.0 NonAsciiIdentifierStart:
+			NonAsciiIdentifierStart: /[\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05D0-\u05EA\u05EF-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08BD\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C60\u0C61\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D5F-\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1878\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2118-\u211D\u2124\u2126\u2128\u212A-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309B-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FEF\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7BF\uA7C2-\uA7C6\uA7F7-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA8FD\uA8FE\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uA9E0-\uA9E4\uA9E6-\uA9EF\uA9FA-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB67\uAB70-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD40-\uDD74\uDE80-\uDE9C\uDEA0-\uDED0\uDF00-\uDF1F\uDF2D-\uDF4A\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC60-\uDC76\uDC80-\uDC9E\uDCE0-\uDCF2\uDCF4\uDCF5\uDD00-\uDD15\uDD20-\uDD39\uDD80-\uDDB7\uDDBE\uDDBF\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE60-\uDE7C\uDE80-\uDE9C\uDEC0-\uDEC7\uDEC9-\uDEE4\uDF00-\uDF35\uDF40-\uDF55\uDF60-\uDF72\uDF80-\uDF91]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDD00-\uDD23\uDF00-\uDF1C\uDF27\uDF30-\uDF45\uDFE0-\uDFF6]|\uD804[\uDC03-\uDC37\uDC83-\uDCAF\uDCD0-\uDCE8\uDD03-\uDD26\uDD44\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDDA\uDDDC\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC5F\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE80-\uDEAA\uDEB8\uDF00-\uDF1A]|\uD806[\uDC00-\uDC2B\uDCA0-\uDCDF\uDCFF\uDDA0-\uDDA7\uDDAA-\uDDD0\uDDE1\uDDE3\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE89\uDE9D\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD89\uDD98\uDEE0-\uDEF2]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE7F\uDF00-\uDF4A\uDF50\uDF93-\uDF9F\uDFE0\uDFE1\uDFE3]|\uD821[\uDC00-\uDFF7]|\uD822[\uDC00-\uDEF2]|\uD82C[\uDC00-\uDD1E\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB]|\uD838[\uDD00-\uDD2C\uDD37-\uDD3D\uDD4E\uDEC0-\uDEEB]|\uD83A[\uDC00-\uDCC4\uDD00-\uDD43\uDD4B]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD869[\uDC00-\uDED6\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]/,
+			// Unicode v12.1.0 NonAsciiIdentifierPart:
+			// eslint-disable-next-line no-misleading-character-class
+			NonAsciiIdentifierPart: /[\xAA\xB5\xB7\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0300-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u0483-\u0487\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u05D0-\u05EA\u05EF-\u05F2\u0610-\u061A\u0620-\u0669\u066E-\u06D3\u06D5-\u06DC\u06DF-\u06E8\u06EA-\u06FC\u06FF\u0710-\u074A\u074D-\u07B1\u07C0-\u07F5\u07FA\u07FD\u0800-\u082D\u0840-\u085B\u0860-\u086A\u08A0-\u08B4\u08B6-\u08BD\u08D3-\u08E1\u08E3-\u0963\u0966-\u096F\u0971-\u0983\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BC-\u09C4\u09C7\u09C8\u09CB-\u09CE\u09D7\u09DC\u09DD\u09DF-\u09E3\u09E6-\u09F1\u09FC\u09FE\u0A01-\u0A03\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABC-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0AF9-\u0AFF\u0B01-\u0B03\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3C-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B56\u0B57\u0B5C\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71\u0B82\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD0\u0BD7\u0BE6-\u0BEF\u0C00-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C58-\u0C5A\u0C60-\u0C63\u0C66-\u0C6F\u0C80-\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBC-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1\u0CF2\u0D00-\u0D03\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D44\u0D46-\u0D48\u0D4A-\u0D4E\u0D54-\u0D57\u0D5F-\u0D63\u0D66-\u0D6F\u0D7A-\u0D7F\u0D82\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DE6-\u0DEF\u0DF2\u0DF3\u0E01-\u0E3A\u0E40-\u0E4E\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EBD\u0EC0-\u0EC4\u0EC6\u0EC8-\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F18\u0F19\u0F20-\u0F29\u0F35\u0F37\u0F39\u0F3E-\u0F47\u0F49-\u0F6C\u0F71-\u0F84\u0F86-\u0F97\u0F99-\u0FBC\u0FC6\u1000-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u135D-\u135F\u1369-\u1371\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772\u1773\u1780-\u17D3\u17D7\u17DC\u17DD\u17E0-\u17E9\u180B-\u180D\u1810-\u1819\u1820-\u1878\u1880-\u18AA\u18B0-\u18F5\u1900-\u191E\u1920-\u192B\u1930-\u193B\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A1B\u1A20-\u1A5E\u1A60-\u1A7C\u1A7F-\u1A89\u1A90-\u1A99\u1AA7\u1AB0-\u1ABD\u1B00-\u1B4B\u1B50-\u1B59\u1B6B-\u1B73\u1B80-\u1BF3\u1C00-\u1C37\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CD0-\u1CD2\u1CD4-\u1CFA\u1D00-\u1DF9\u1DFB-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u200C\u200D\u203F\u2040\u2054\u2071\u207F\u2090-\u209C\u20D0-\u20DC\u20E1\u20E5-\u20F0\u2102\u2107\u210A-\u2113\u2115\u2118-\u211D\u2124\u2126\u2128\u212A-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2188\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D7F-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u3005-\u3007\u3021-\u302F\u3031-\u3035\u3038-\u303C\u3041-\u3096\u3099-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FEF\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66F\uA674-\uA67D\uA67F-\uA6F1\uA717-\uA71F\uA722-\uA788\uA78B-\uA7BF\uA7C2-\uA7C6\uA7F7-\uA827\uA840-\uA873\uA880-\uA8C5\uA8D0-\uA8D9\uA8E0-\uA8F7\uA8FB\uA8FD-\uA92D\uA930-\uA953\uA960-\uA97C\uA980-\uA9C0\uA9CF-\uA9D9\uA9E0-\uA9FE\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A-\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF6\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB67\uAB70-\uABEA\uABEC\uABED\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE00-\uFE0F\uFE20-\uFE2F\uFE33\uFE34\uFE4D-\uFE4F\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF3F\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD40-\uDD74\uDDFD\uDE80-\uDE9C\uDEA0-\uDED0\uDEE0\uDF00-\uDF1F\uDF2D-\uDF4A\uDF50-\uDF7A\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC60-\uDC76\uDC80-\uDC9E\uDCE0-\uDCF2\uDCF4\uDCF5\uDD00-\uDD15\uDD20-\uDD39\uDD80-\uDDB7\uDDBE\uDDBF\uDE00-\uDE03\uDE05\uDE06\uDE0C-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE38-\uDE3A\uDE3F\uDE60-\uDE7C\uDE80-\uDE9C\uDEC0-\uDEC7\uDEC9-\uDEE6\uDF00-\uDF35\uDF40-\uDF55\uDF60-\uDF72\uDF80-\uDF91]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDD00-\uDD27\uDD30-\uDD39\uDF00-\uDF1C\uDF27\uDF30-\uDF50\uDFE0-\uDFF6]|\uD804[\uDC00-\uDC46\uDC66-\uDC6F\uDC7F-\uDCBA\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD00-\uDD34\uDD36-\uDD3F\uDD44-\uDD46\uDD50-\uDD73\uDD76\uDD80-\uDDC4\uDDC9-\uDDCC\uDDD0-\uDDDA\uDDDC\uDE00-\uDE11\uDE13-\uDE37\uDE3E\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEEA\uDEF0-\uDEF9\uDF00-\uDF03\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3B-\uDF44\uDF47\uDF48\uDF4B-\uDF4D\uDF50\uDF57\uDF5D-\uDF63\uDF66-\uDF6C\uDF70-\uDF74]|\uD805[\uDC00-\uDC4A\uDC50-\uDC59\uDC5E\uDC5F\uDC80-\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDB5\uDDB8-\uDDC0\uDDD8-\uDDDD\uDE00-\uDE40\uDE44\uDE50-\uDE59\uDE80-\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF1D-\uDF2B\uDF30-\uDF39]|\uD806[\uDC00-\uDC3A\uDCA0-\uDCE9\uDCFF\uDDA0-\uDDA7\uDDAA-\uDDD7\uDDDA-\uDDE1\uDDE3\uDDE4\uDE00-\uDE3E\uDE47\uDE50-\uDE99\uDE9D\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC36\uDC38-\uDC40\uDC50-\uDC59\uDC72-\uDC8F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD47\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD8E\uDD90\uDD91\uDD93-\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF6]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDEF0-\uDEF4\uDF00-\uDF36\uDF40-\uDF43\uDF50-\uDF59\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE7F\uDF00-\uDF4A\uDF4F-\uDF87\uDF8F-\uDF9F\uDFE0\uDFE1\uDFE3]|\uD821[\uDC00-\uDFF7]|\uD822[\uDC00-\uDEF2]|\uD82C[\uDC00-\uDD1E\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99\uDC9D\uDC9E]|\uD834[\uDD65-\uDD69\uDD6D-\uDD72\uDD7B-\uDD82\uDD85-\uDD8B\uDDAA-\uDDAD\uDE42-\uDE44]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD836[\uDE00-\uDE36\uDE3B-\uDE6C\uDE75\uDE84\uDE9B-\uDE9F\uDEA1-\uDEAF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDD00-\uDD2C\uDD30-\uDD3D\uDD40-\uDD49\uDD4E\uDEC0-\uDEF9]|\uD83A[\uDC00-\uDCC4\uDCD0-\uDCD6\uDD00-\uDD4B\uDD50-\uDD59]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD869[\uDC00-\uDED6\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uDB40[\uDD00-\uDDEF]/
 	};
 	exports.Character = {
-	    /* tslint:disable:no-bitwise */
 	    fromCodePoint: function (cp) {
 	        return (cp < 0x10000) ? String.fromCharCode(cp) :
 	            String.fromCharCode(0xD800 + ((cp - 0x10000) >> 10)) +
@@ -5454,27 +5483,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    // https://tc39.github.io/ecma262/#sec-names-and-keywords
 	    isIdentifierStart: function (cp) {
-	        return (cp === 0x24) || (cp === 0x5F) ||
-	            (cp >= 0x41 && cp <= 0x5A) ||
-	            (cp >= 0x61 && cp <= 0x7A) ||
-	            (cp === 0x5C) ||
+					return (cp === 0x24) || (cp === 0x5F) || // $ (dollar) and _ (underscore)
+							(cp >= 0x41 && cp <= 0x5A) || // A..Z
+							(cp >= 0x61 && cp <= 0x7A) || // a..z
+							(cp === 0x5C) || // \ (backslash)
 	            ((cp >= 0x80) && Regex.NonAsciiIdentifierStart.test(exports.Character.fromCodePoint(cp)));
 	    },
 	    isIdentifierPart: function (cp) {
-	        return (cp === 0x24) || (cp === 0x5F) ||
-	            (cp >= 0x41 && cp <= 0x5A) ||
-	            (cp >= 0x61 && cp <= 0x7A) ||
-	            (cp >= 0x30 && cp <= 0x39) ||
-	            (cp === 0x5C) ||
+					return (cp === 0x24) || (cp === 0x5F) || // $ (dollar) and _ (underscore)
+							(cp >= 0x41 && cp <= 0x5A) || // A..Z
+							(cp >= 0x61 && cp <= 0x7A) || // a..z
+							(cp >= 0x30 && cp <= 0x39) || // 0..9
+							(cp === 0x5C) || // \ (backslash)
 	            ((cp >= 0x80) && Regex.NonAsciiIdentifierPart.test(exports.Character.fromCodePoint(cp)));
 	    },
 	    // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
 	    isDecimalDigit: function (cp) {
 	        return (cp >= 0x30 && cp <= 0x39); // 0..9
 	    },
+			isDecimalDigitChar: function (ch) {
+					return ch.length === 1 && exports.Character.isDecimalDigit(ch.charCodeAt(0));
+			},
 	    isHexDigit: function (cp) {
-	        return (cp >= 0x30 && cp <= 0x39) ||
-	            (cp >= 0x41 && cp <= 0x46) ||
+					return (cp >= 0x30 && cp <= 0x39) || // 0..9
+							(cp >= 0x41 && cp <= 0x46) || // A..F
 	            (cp >= 0x61 && cp <= 0x66); // a..f
 	    },
 	    isOctalDigit: function (cp) {
@@ -5490,8 +5522,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var jsx_syntax_1 = __webpack_require__(6);
-	/* tslint:disable:max-classes-per-file */
-	var JSXClosingElement = (function () {
+	var JSXClosingElement = /** @class */ (function () {
 	    function JSXClosingElement(name) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXClosingElement;
 	        this.name = name;
@@ -5499,7 +5530,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXClosingElement;
 	}());
 	exports.JSXClosingElement = JSXClosingElement;
-	var JSXElement = (function () {
+	var JSXElement = /** @class */ (function () {
 	    function JSXElement(openingElement, children, closingElement) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXElement;
 	        this.openingElement = openingElement;
@@ -5509,14 +5540,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXElement;
 	}());
 	exports.JSXElement = JSXElement;
-	var JSXEmptyExpression = (function () {
+	var JSXEmptyExpression = /** @class */ (function () {
 	    function JSXEmptyExpression() {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXEmptyExpression;
 	    }
 	    return JSXEmptyExpression;
 	}());
 	exports.JSXEmptyExpression = JSXEmptyExpression;
-	var JSXExpressionContainer = (function () {
+	var JSXExpressionContainer = /** @class */ (function () {
 	    function JSXExpressionContainer(expression) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXExpressionContainer;
 	        this.expression = expression;
@@ -5524,7 +5555,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXExpressionContainer;
 	}());
 	exports.JSXExpressionContainer = JSXExpressionContainer;
-	var JSXIdentifier = (function () {
+	var JSXIdentifier = /** @class */ (function () {
 	    function JSXIdentifier(name) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXIdentifier;
 	        this.name = name;
@@ -5532,7 +5563,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXIdentifier;
 	}());
 	exports.JSXIdentifier = JSXIdentifier;
-	var JSXMemberExpression = (function () {
+	var JSXMemberExpression = /** @class */ (function () {
 	    function JSXMemberExpression(object, property) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXMemberExpression;
 	        this.object = object;
@@ -5541,7 +5572,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXMemberExpression;
 	}());
 	exports.JSXMemberExpression = JSXMemberExpression;
-	var JSXAttribute = (function () {
+	var JSXAttribute = /** @class */ (function () {
 	    function JSXAttribute(name, value) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXAttribute;
 	        this.name = name;
@@ -5550,7 +5581,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXAttribute;
 	}());
 	exports.JSXAttribute = JSXAttribute;
-	var JSXNamespacedName = (function () {
+	var JSXNamespacedName = /** @class */ (function () {
 	    function JSXNamespacedName(namespace, name) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXNamespacedName;
 	        this.namespace = namespace;
@@ -5559,7 +5590,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXNamespacedName;
 	}());
 	exports.JSXNamespacedName = JSXNamespacedName;
-	var JSXOpeningElement = (function () {
+	var JSXOpeningElement = /** @class */ (function () {
 	    function JSXOpeningElement(name, selfClosing, attributes) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXOpeningElement;
 	        this.name = name;
@@ -5569,7 +5600,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXOpeningElement;
 	}());
 	exports.JSXOpeningElement = JSXOpeningElement;
-	var JSXSpreadAttribute = (function () {
+	var JSXSpreadAttribute = /** @class */ (function () {
 	    function JSXSpreadAttribute(argument) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXSpreadAttribute;
 	        this.argument = argument;
@@ -5577,7 +5608,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return JSXSpreadAttribute;
 	}());
 	exports.JSXSpreadAttribute = JSXSpreadAttribute;
-	var JSXText = (function () {
+	var JSXText = /** @class */ (function () {
 	    function JSXText(value, raw) {
 	        this.type = jsx_syntax_1.JSXSyntax.JSXText;
 	        this.value = value;
@@ -5616,8 +5647,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var syntax_1 = __webpack_require__(2);
-	/* tslint:disable:max-classes-per-file */
-	var ArrayExpression = (function () {
+	var ArrayExpression = /** @class */ (function () {
 	    function ArrayExpression(elements) {
 	        this.type = syntax_1.Syntax.ArrayExpression;
 	        this.elements = elements;
@@ -5625,7 +5655,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ArrayExpression;
 	}());
 	exports.ArrayExpression = ArrayExpression;
-	var ArrayPattern = (function () {
+	var ArrayPattern = /** @class */ (function () {
 	    function ArrayPattern(elements) {
 	        this.type = syntax_1.Syntax.ArrayPattern;
 	        this.elements = elements;
@@ -5633,7 +5663,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ArrayPattern;
 	}());
 	exports.ArrayPattern = ArrayPattern;
-	var ArrowFunctionExpression = (function () {
+	var ArrowFunctionExpression = /** @class */ (function () {
 	    function ArrowFunctionExpression(params, body, expression) {
 	        this.type = syntax_1.Syntax.ArrowFunctionExpression;
 	        this.id = null;
@@ -5646,7 +5676,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ArrowFunctionExpression;
 	}());
 	exports.ArrowFunctionExpression = ArrowFunctionExpression;
-	var AssignmentExpression = (function () {
+	var AssignmentExpression = /** @class */ (function () {
 	    function AssignmentExpression(operator, left, right) {
 	        this.type = syntax_1.Syntax.AssignmentExpression;
 	        this.operator = operator;
@@ -5656,7 +5686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return AssignmentExpression;
 	}());
 	exports.AssignmentExpression = AssignmentExpression;
-	var AssignmentPattern = (function () {
+	var AssignmentPattern = /** @class */ (function () {
 	    function AssignmentPattern(left, right) {
 	        this.type = syntax_1.Syntax.AssignmentPattern;
 	        this.left = left;
@@ -5665,7 +5695,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return AssignmentPattern;
 	}());
 	exports.AssignmentPattern = AssignmentPattern;
-	var AsyncArrowFunctionExpression = (function () {
+	var AsyncArrowFunctionExpression = /** @class */ (function () {
 	    function AsyncArrowFunctionExpression(params, body, expression) {
 	        this.type = syntax_1.Syntax.ArrowFunctionExpression;
 	        this.id = null;
@@ -5678,7 +5708,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return AsyncArrowFunctionExpression;
 	}());
 	exports.AsyncArrowFunctionExpression = AsyncArrowFunctionExpression;
-	var AsyncFunctionDeclaration = (function () {
+	var AsyncFunctionDeclaration = /** @class */ (function () {
 	    function AsyncFunctionDeclaration(id, params, body) {
 	        this.type = syntax_1.Syntax.FunctionDeclaration;
 	        this.id = id;
@@ -5691,7 +5721,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return AsyncFunctionDeclaration;
 	}());
 	exports.AsyncFunctionDeclaration = AsyncFunctionDeclaration;
-	var AsyncFunctionExpression = (function () {
+	var AsyncFunctionExpression = /** @class */ (function () {
 	    function AsyncFunctionExpression(id, params, body) {
 	        this.type = syntax_1.Syntax.FunctionExpression;
 	        this.id = id;
@@ -5704,7 +5734,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return AsyncFunctionExpression;
 	}());
 	exports.AsyncFunctionExpression = AsyncFunctionExpression;
-	var AwaitExpression = (function () {
+	var AwaitExpression = /** @class */ (function () {
 	    function AwaitExpression(argument) {
 	        this.type = syntax_1.Syntax.AwaitExpression;
 	        this.argument = argument;
@@ -5712,9 +5742,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return AwaitExpression;
 	}());
 	exports.AwaitExpression = AwaitExpression;
-	var BinaryExpression = (function () {
+	var BinaryExpression = /** @class */ (function () {
 	    function BinaryExpression(operator, left, right) {
-	        var logical = (operator === '||' || operator === '&&');
+					var logical = (operator === '||' || operator === '&&' || operator === '??');
 	        this.type = logical ? syntax_1.Syntax.LogicalExpression : syntax_1.Syntax.BinaryExpression;
 	        this.operator = operator;
 	        this.left = left;
@@ -5723,7 +5753,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return BinaryExpression;
 	}());
 	exports.BinaryExpression = BinaryExpression;
-	var BlockStatement = (function () {
+	var BlockStatement = /** @class */ (function () {
 	    function BlockStatement(body) {
 	        this.type = syntax_1.Syntax.BlockStatement;
 	        this.body = body;
@@ -5731,7 +5761,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return BlockStatement;
 	}());
 	exports.BlockStatement = BlockStatement;
-	var BreakStatement = (function () {
+	var BreakStatement = /** @class */ (function () {
 	    function BreakStatement(label) {
 	        this.type = syntax_1.Syntax.BreakStatement;
 	        this.label = label;
@@ -5739,16 +5769,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return BreakStatement;
 	}());
 	exports.BreakStatement = BreakStatement;
-	var CallExpression = (function () {
-	    function CallExpression(callee, args) {
+	var CallExpression = /** @class */ (function () {
+			function CallExpression(callee, args, optional) {
 	        this.type = syntax_1.Syntax.CallExpression;
 	        this.callee = callee;
 	        this.arguments = args;
+					this.optional = optional;
 	    }
 	    return CallExpression;
 	}());
 	exports.CallExpression = CallExpression;
-	var CatchClause = (function () {
+	var CatchClause = /** @class */ (function () {
 	    function CatchClause(param, body) {
 	        this.type = syntax_1.Syntax.CatchClause;
 	        this.param = param;
@@ -5757,7 +5788,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return CatchClause;
 	}());
 	exports.CatchClause = CatchClause;
-	var ClassBody = (function () {
+	var ChainExpression = /** @class */ (function () {
+			function ChainExpression(expression) {
+					this.type = syntax_1.Syntax.ChainExpression;
+					this.expression = expression;
+			}
+			return ChainExpression;
+	}());
+	exports.ChainExpression = ChainExpression;
+	var ClassBody = /** @class */ (function () {
 	    function ClassBody(body) {
 	        this.type = syntax_1.Syntax.ClassBody;
 	        this.body = body;
@@ -5765,7 +5804,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ClassBody;
 	}());
 	exports.ClassBody = ClassBody;
-	var ClassDeclaration = (function () {
+	var ClassDeclaration = /** @class */ (function () {
 	    function ClassDeclaration(id, superClass, body) {
 	        this.type = syntax_1.Syntax.ClassDeclaration;
 	        this.id = id;
@@ -5775,7 +5814,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ClassDeclaration;
 	}());
 	exports.ClassDeclaration = ClassDeclaration;
-	var ClassExpression = (function () {
+	var ClassExpression = /** @class */ (function () {
 	    function ClassExpression(id, superClass, body) {
 	        this.type = syntax_1.Syntax.ClassExpression;
 	        this.id = id;
@@ -5785,17 +5824,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ClassExpression;
 	}());
 	exports.ClassExpression = ClassExpression;
-	var ComputedMemberExpression = (function () {
-	    function ComputedMemberExpression(object, property) {
+	var ComputedMemberExpression = /** @class */ (function () {
+			function ComputedMemberExpression(object, property, optional) {
 	        this.type = syntax_1.Syntax.MemberExpression;
 	        this.computed = true;
 	        this.object = object;
 	        this.property = property;
+					this.optional = optional;
 	    }
 	    return ComputedMemberExpression;
 	}());
 	exports.ComputedMemberExpression = ComputedMemberExpression;
-	var ConditionalExpression = (function () {
+	var ConditionalExpression = /** @class */ (function () {
 	    function ConditionalExpression(test, consequent, alternate) {
 	        this.type = syntax_1.Syntax.ConditionalExpression;
 	        this.test = test;
@@ -5805,7 +5845,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ConditionalExpression;
 	}());
 	exports.ConditionalExpression = ConditionalExpression;
-	var ContinueStatement = (function () {
+	var ContinueStatement = /** @class */ (function () {
 	    function ContinueStatement(label) {
 	        this.type = syntax_1.Syntax.ContinueStatement;
 	        this.label = label;
@@ -5813,14 +5853,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ContinueStatement;
 	}());
 	exports.ContinueStatement = ContinueStatement;
-	var DebuggerStatement = (function () {
+	var DebuggerStatement = /** @class */ (function () {
 	    function DebuggerStatement() {
 	        this.type = syntax_1.Syntax.DebuggerStatement;
 	    }
 	    return DebuggerStatement;
 	}());
 	exports.DebuggerStatement = DebuggerStatement;
-	var Directive = (function () {
+	var Directive = /** @class */ (function () {
 	    function Directive(expression, directive) {
 	        this.type = syntax_1.Syntax.ExpressionStatement;
 	        this.expression = expression;
@@ -5829,7 +5869,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Directive;
 	}());
 	exports.Directive = Directive;
-	var DoWhileStatement = (function () {
+	var DoWhileStatement = /** @class */ (function () {
 	    function DoWhileStatement(body, test) {
 	        this.type = syntax_1.Syntax.DoWhileStatement;
 	        this.body = body;
@@ -5838,14 +5878,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return DoWhileStatement;
 	}());
 	exports.DoWhileStatement = DoWhileStatement;
-	var EmptyStatement = (function () {
+	var EmptyStatement = /** @class */ (function () {
 	    function EmptyStatement() {
 	        this.type = syntax_1.Syntax.EmptyStatement;
 	    }
 	    return EmptyStatement;
 	}());
 	exports.EmptyStatement = EmptyStatement;
-	var ExportAllDeclaration = (function () {
+	var ExportAllDeclaration = /** @class */ (function () {
 	    function ExportAllDeclaration(source) {
 	        this.type = syntax_1.Syntax.ExportAllDeclaration;
 	        this.source = source;
@@ -5853,7 +5893,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ExportAllDeclaration;
 	}());
 	exports.ExportAllDeclaration = ExportAllDeclaration;
-	var ExportDefaultDeclaration = (function () {
+	var ExportDefaultDeclaration = /** @class */ (function () {
 	    function ExportDefaultDeclaration(declaration) {
 	        this.type = syntax_1.Syntax.ExportDefaultDeclaration;
 	        this.declaration = declaration;
@@ -5861,7 +5901,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ExportDefaultDeclaration;
 	}());
 	exports.ExportDefaultDeclaration = ExportDefaultDeclaration;
-	var ExportNamedDeclaration = (function () {
+	var ExportNamedDeclaration = /** @class */ (function () {
 	    function ExportNamedDeclaration(declaration, specifiers, source) {
 	        this.type = syntax_1.Syntax.ExportNamedDeclaration;
 	        this.declaration = declaration;
@@ -5871,7 +5911,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ExportNamedDeclaration;
 	}());
 	exports.ExportNamedDeclaration = ExportNamedDeclaration;
-	var ExportSpecifier = (function () {
+	var ExportSpecifier = /** @class */ (function () {
 	    function ExportSpecifier(local, exported) {
 	        this.type = syntax_1.Syntax.ExportSpecifier;
 	        this.exported = exported;
@@ -5880,7 +5920,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ExportSpecifier;
 	}());
 	exports.ExportSpecifier = ExportSpecifier;
-	var ExpressionStatement = (function () {
+	var ExpressionStatement = /** @class */ (function () {
 	    function ExpressionStatement(expression) {
 	        this.type = syntax_1.Syntax.ExpressionStatement;
 	        this.expression = expression;
@@ -5888,7 +5928,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ExpressionStatement;
 	}());
 	exports.ExpressionStatement = ExpressionStatement;
-	var ForInStatement = (function () {
+	var ForInStatement = /** @class */ (function () {
 	    function ForInStatement(left, right, body) {
 	        this.type = syntax_1.Syntax.ForInStatement;
 	        this.left = left;
@@ -5899,9 +5939,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ForInStatement;
 	}());
 	exports.ForInStatement = ForInStatement;
-	var ForOfStatement = (function () {
-	    function ForOfStatement(left, right, body) {
+	var ForOfStatement = /** @class */ (function () {
+			function ForOfStatement(left, right, body, _await) {
 	        this.type = syntax_1.Syntax.ForOfStatement;
+					this.await = _await;
 	        this.left = left;
 	        this.right = right;
 	        this.body = body;
@@ -5909,7 +5950,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ForOfStatement;
 	}());
 	exports.ForOfStatement = ForOfStatement;
-	var ForStatement = (function () {
+	var ForStatement = /** @class */ (function () {
 	    function ForStatement(init, test, update, body) {
 	        this.type = syntax_1.Syntax.ForStatement;
 	        this.init = init;
@@ -5920,7 +5961,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ForStatement;
 	}());
 	exports.ForStatement = ForStatement;
-	var FunctionDeclaration = (function () {
+	var FunctionDeclaration = /** @class */ (function () {
 	    function FunctionDeclaration(id, params, body, generator) {
 	        this.type = syntax_1.Syntax.FunctionDeclaration;
 	        this.id = id;
@@ -5933,7 +5974,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return FunctionDeclaration;
 	}());
 	exports.FunctionDeclaration = FunctionDeclaration;
-	var FunctionExpression = (function () {
+	var FunctionExpression = /** @class */ (function () {
 	    function FunctionExpression(id, params, body, generator) {
 	        this.type = syntax_1.Syntax.FunctionExpression;
 	        this.id = id;
@@ -5946,7 +5987,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return FunctionExpression;
 	}());
 	exports.FunctionExpression = FunctionExpression;
-	var Identifier = (function () {
+	var Identifier = /** @class */ (function () {
 	    function Identifier(name) {
 	        this.type = syntax_1.Syntax.Identifier;
 	        this.name = name;
@@ -5954,7 +5995,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Identifier;
 	}());
 	exports.Identifier = Identifier;
-	var IfStatement = (function () {
+	var IfStatement = /** @class */ (function () {
 	    function IfStatement(test, consequent, alternate) {
 	        this.type = syntax_1.Syntax.IfStatement;
 	        this.test = test;
@@ -5964,7 +6005,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return IfStatement;
 	}());
 	exports.IfStatement = IfStatement;
-	var ImportDeclaration = (function () {
+	var Import = /** @class */ (function () {
+			function Import() {
+					this.type = syntax_1.Syntax.Import;
+			}
+			return Import;
+	}());
+	exports.Import = Import;
+	var ImportDeclaration = /** @class */ (function () {
 	    function ImportDeclaration(specifiers, source) {
 	        this.type = syntax_1.Syntax.ImportDeclaration;
 	        this.specifiers = specifiers;
@@ -5973,7 +6021,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ImportDeclaration;
 	}());
 	exports.ImportDeclaration = ImportDeclaration;
-	var ImportDefaultSpecifier = (function () {
+	var ImportDefaultSpecifier = /** @class */ (function () {
 	    function ImportDefaultSpecifier(local) {
 	        this.type = syntax_1.Syntax.ImportDefaultSpecifier;
 	        this.local = local;
@@ -5981,7 +6029,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ImportDefaultSpecifier;
 	}());
 	exports.ImportDefaultSpecifier = ImportDefaultSpecifier;
-	var ImportNamespaceSpecifier = (function () {
+	var ImportNamespaceSpecifier = /** @class */ (function () {
 	    function ImportNamespaceSpecifier(local) {
 	        this.type = syntax_1.Syntax.ImportNamespaceSpecifier;
 	        this.local = local;
@@ -5989,7 +6037,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ImportNamespaceSpecifier;
 	}());
 	exports.ImportNamespaceSpecifier = ImportNamespaceSpecifier;
-	var ImportSpecifier = (function () {
+	var ImportSpecifier = /** @class */ (function () {
 	    function ImportSpecifier(local, imported) {
 	        this.type = syntax_1.Syntax.ImportSpecifier;
 	        this.local = local;
@@ -5998,7 +6046,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ImportSpecifier;
 	}());
 	exports.ImportSpecifier = ImportSpecifier;
-	var LabeledStatement = (function () {
+	var LabeledStatement = /** @class */ (function () {
 	    function LabeledStatement(label, body) {
 	        this.type = syntax_1.Syntax.LabeledStatement;
 	        this.label = label;
@@ -6007,7 +6055,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return LabeledStatement;
 	}());
 	exports.LabeledStatement = LabeledStatement;
-	var Literal = (function () {
+	var Literal = /** @class */ (function () {
 	    function Literal(value, raw) {
 	        this.type = syntax_1.Syntax.Literal;
 	        this.value = value;
@@ -6016,7 +6064,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Literal;
 	}());
 	exports.Literal = Literal;
-	var MetaProperty = (function () {
+	var MetaProperty = /** @class */ (function () {
 	    function MetaProperty(meta, property) {
 	        this.type = syntax_1.Syntax.MetaProperty;
 	        this.meta = meta;
@@ -6025,7 +6073,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return MetaProperty;
 	}());
 	exports.MetaProperty = MetaProperty;
-	var MethodDefinition = (function () {
+	var MethodDefinition = /** @class */ (function () {
 	    function MethodDefinition(key, computed, value, kind, isStatic) {
 	        this.type = syntax_1.Syntax.MethodDefinition;
 	        this.key = key;
@@ -6037,7 +6085,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return MethodDefinition;
 	}());
 	exports.MethodDefinition = MethodDefinition;
-	var Module = (function () {
+	var Module = /** @class */ (function () {
 	    function Module(body) {
 	        this.type = syntax_1.Syntax.Program;
 	        this.body = body;
@@ -6046,7 +6094,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Module;
 	}());
 	exports.Module = Module;
-	var NewExpression = (function () {
+	var NewExpression = /** @class */ (function () {
 	    function NewExpression(callee, args) {
 	        this.type = syntax_1.Syntax.NewExpression;
 	        this.callee = callee;
@@ -6055,7 +6103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return NewExpression;
 	}());
 	exports.NewExpression = NewExpression;
-	var ObjectExpression = (function () {
+	var ObjectExpression = /** @class */ (function () {
 	    function ObjectExpression(properties) {
 	        this.type = syntax_1.Syntax.ObjectExpression;
 	        this.properties = properties;
@@ -6063,7 +6111,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ObjectExpression;
 	}());
 	exports.ObjectExpression = ObjectExpression;
-	var ObjectPattern = (function () {
+	var ObjectPattern = /** @class */ (function () {
 	    function ObjectPattern(properties) {
 	        this.type = syntax_1.Syntax.ObjectPattern;
 	        this.properties = properties;
@@ -6071,7 +6119,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ObjectPattern;
 	}());
 	exports.ObjectPattern = ObjectPattern;
-	var Property = (function () {
+	var Property = /** @class */ (function () {
 	    function Property(kind, key, computed, value, method, shorthand) {
 	        this.type = syntax_1.Syntax.Property;
 	        this.key = key;
@@ -6084,7 +6132,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Property;
 	}());
 	exports.Property = Property;
-	var RegexLiteral = (function () {
+	var RegexLiteral = /** @class */ (function () {
 	    function RegexLiteral(value, raw, pattern, flags) {
 	        this.type = syntax_1.Syntax.Literal;
 	        this.value = value;
@@ -6094,7 +6142,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return RegexLiteral;
 	}());
 	exports.RegexLiteral = RegexLiteral;
-	var RestElement = (function () {
+	var RestElement = /** @class */ (function () {
 	    function RestElement(argument) {
 	        this.type = syntax_1.Syntax.RestElement;
 	        this.argument = argument;
@@ -6102,7 +6150,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return RestElement;
 	}());
 	exports.RestElement = RestElement;
-	var ReturnStatement = (function () {
+	var ReturnStatement = /** @class */ (function () {
 	    function ReturnStatement(argument) {
 	        this.type = syntax_1.Syntax.ReturnStatement;
 	        this.argument = argument;
@@ -6110,7 +6158,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ReturnStatement;
 	}());
 	exports.ReturnStatement = ReturnStatement;
-	var Script = (function () {
+	var Script = /** @class */ (function () {
 	    function Script(body) {
 	        this.type = syntax_1.Syntax.Program;
 	        this.body = body;
@@ -6119,7 +6167,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Script;
 	}());
 	exports.Script = Script;
-	var SequenceExpression = (function () {
+	var SequenceExpression = /** @class */ (function () {
 	    function SequenceExpression(expressions) {
 	        this.type = syntax_1.Syntax.SequenceExpression;
 	        this.expressions = expressions;
@@ -6127,7 +6175,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return SequenceExpression;
 	}());
 	exports.SequenceExpression = SequenceExpression;
-	var SpreadElement = (function () {
+	var SpreadElement = /** @class */ (function () {
 	    function SpreadElement(argument) {
 	        this.type = syntax_1.Syntax.SpreadElement;
 	        this.argument = argument;
@@ -6135,24 +6183,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return SpreadElement;
 	}());
 	exports.SpreadElement = SpreadElement;
-	var StaticMemberExpression = (function () {
-	    function StaticMemberExpression(object, property) {
+	var StaticMemberExpression = /** @class */ (function () {
+			function StaticMemberExpression(object, property, optional) {
 	        this.type = syntax_1.Syntax.MemberExpression;
 	        this.computed = false;
 	        this.object = object;
 	        this.property = property;
+					this.optional = optional;
 	    }
 	    return StaticMemberExpression;
 	}());
 	exports.StaticMemberExpression = StaticMemberExpression;
-	var Super = (function () {
+	var Super = /** @class */ (function () {
 	    function Super() {
 	        this.type = syntax_1.Syntax.Super;
 	    }
 	    return Super;
 	}());
 	exports.Super = Super;
-	var SwitchCase = (function () {
+	var SwitchCase = /** @class */ (function () {
 	    function SwitchCase(test, consequent) {
 	        this.type = syntax_1.Syntax.SwitchCase;
 	        this.test = test;
@@ -6161,7 +6210,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return SwitchCase;
 	}());
 	exports.SwitchCase = SwitchCase;
-	var SwitchStatement = (function () {
+	var SwitchStatement = /** @class */ (function () {
 	    function SwitchStatement(discriminant, cases) {
 	        this.type = syntax_1.Syntax.SwitchStatement;
 	        this.discriminant = discriminant;
@@ -6170,7 +6219,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return SwitchStatement;
 	}());
 	exports.SwitchStatement = SwitchStatement;
-	var TaggedTemplateExpression = (function () {
+	var TaggedTemplateExpression = /** @class */ (function () {
 	    function TaggedTemplateExpression(tag, quasi) {
 	        this.type = syntax_1.Syntax.TaggedTemplateExpression;
 	        this.tag = tag;
@@ -6179,7 +6228,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return TaggedTemplateExpression;
 	}());
 	exports.TaggedTemplateExpression = TaggedTemplateExpression;
-	var TemplateElement = (function () {
+	var TemplateElement = /** @class */ (function () {
 	    function TemplateElement(value, tail) {
 	        this.type = syntax_1.Syntax.TemplateElement;
 	        this.value = value;
@@ -6188,7 +6237,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return TemplateElement;
 	}());
 	exports.TemplateElement = TemplateElement;
-	var TemplateLiteral = (function () {
+	var TemplateLiteral = /** @class */ (function () {
 	    function TemplateLiteral(quasis, expressions) {
 	        this.type = syntax_1.Syntax.TemplateLiteral;
 	        this.quasis = quasis;
@@ -6197,14 +6246,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return TemplateLiteral;
 	}());
 	exports.TemplateLiteral = TemplateLiteral;
-	var ThisExpression = (function () {
+	var ThisExpression = /** @class */ (function () {
 	    function ThisExpression() {
 	        this.type = syntax_1.Syntax.ThisExpression;
 	    }
 	    return ThisExpression;
 	}());
 	exports.ThisExpression = ThisExpression;
-	var ThrowStatement = (function () {
+	var ThrowStatement = /** @class */ (function () {
 	    function ThrowStatement(argument) {
 	        this.type = syntax_1.Syntax.ThrowStatement;
 	        this.argument = argument;
@@ -6212,7 +6261,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ThrowStatement;
 	}());
 	exports.ThrowStatement = ThrowStatement;
-	var TryStatement = (function () {
+	var TryStatement = /** @class */ (function () {
 	    function TryStatement(block, handler, finalizer) {
 	        this.type = syntax_1.Syntax.TryStatement;
 	        this.block = block;
@@ -6222,7 +6271,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return TryStatement;
 	}());
 	exports.TryStatement = TryStatement;
-	var UnaryExpression = (function () {
+	var UnaryExpression = /** @class */ (function () {
 	    function UnaryExpression(operator, argument) {
 	        this.type = syntax_1.Syntax.UnaryExpression;
 	        this.operator = operator;
@@ -6232,7 +6281,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return UnaryExpression;
 	}());
 	exports.UnaryExpression = UnaryExpression;
-	var UpdateExpression = (function () {
+	var UpdateExpression = /** @class */ (function () {
 	    function UpdateExpression(operator, argument, prefix) {
 	        this.type = syntax_1.Syntax.UpdateExpression;
 	        this.operator = operator;
@@ -6242,7 +6291,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return UpdateExpression;
 	}());
 	exports.UpdateExpression = UpdateExpression;
-	var VariableDeclaration = (function () {
+	var VariableDeclaration = /** @class */ (function () {
 	    function VariableDeclaration(declarations, kind) {
 	        this.type = syntax_1.Syntax.VariableDeclaration;
 	        this.declarations = declarations;
@@ -6251,7 +6300,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return VariableDeclaration;
 	}());
 	exports.VariableDeclaration = VariableDeclaration;
-	var VariableDeclarator = (function () {
+	var VariableDeclarator = /** @class */ (function () {
 	    function VariableDeclarator(id, init) {
 	        this.type = syntax_1.Syntax.VariableDeclarator;
 	        this.id = id;
@@ -6260,7 +6309,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return VariableDeclarator;
 	}());
 	exports.VariableDeclarator = VariableDeclarator;
-	var WhileStatement = (function () {
+	var WhileStatement = /** @class */ (function () {
 	    function WhileStatement(test, body) {
 	        this.type = syntax_1.Syntax.WhileStatement;
 	        this.test = test;
@@ -6269,7 +6318,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return WhileStatement;
 	}());
 	exports.WhileStatement = WhileStatement;
-	var WithStatement = (function () {
+	var WithStatement = /** @class */ (function () {
 	    function WithStatement(object, body) {
 	        this.type = syntax_1.Syntax.WithStatement;
 	        this.object = object;
@@ -6278,7 +6327,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return WithStatement;
 	}());
 	exports.WithStatement = WithStatement;
-	var YieldExpression = (function () {
+	var YieldExpression = /** @class */ (function () {
 	    function YieldExpression(argument, delegate) {
 	        this.type = syntax_1.Syntax.YieldExpression;
 	        this.argument = argument;
@@ -6303,7 +6352,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var syntax_1 = __webpack_require__(2);
 	var token_1 = __webpack_require__(13);
 	var ArrowParameterPlaceHolder = 'ArrowParameterPlaceHolder';
-	var Parser = (function () {
+	/* eslint-disable @typescript-eslint/unbound-method */
+	var Parser = /** @class */ (function () {
 	    function Parser(code, options, delegate) {
 	        if (options === void 0) { options = {}; }
 	        this.config = {
@@ -6328,27 +6378,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	            ',': 0,
 	            '=': 0,
 	            ']': 0,
-	            '||': 1,
-	            '&&': 2,
-	            '|': 3,
-	            '^': 4,
-	            '&': 5,
-	            '==': 6,
-	            '!=': 6,
-	            '===': 6,
-	            '!==': 6,
-	            '<': 7,
-	            '>': 7,
-	            '<=': 7,
-	            '>=': 7,
-	            '<<': 8,
-	            '>>': 8,
-	            '>>>': 8,
-	            '+': 9,
-	            '-': 9,
-	            '*': 11,
-	            '/': 11,
-	            '%': 11
+							'??': 5,
+							'||': 6,
+							'&&': 7,
+							'|': 8,
+							'^': 9,
+							'&': 10,
+							'==': 11,
+							'!=': 11,
+							'===': 11,
+							'!==': 11,
+							'<': 12,
+							'>': 12,
+							'<=': 12,
+							'>=': 12,
+							'<<': 13,
+							'>>': 13,
+							'>>>': 13,
+							'+': 14,
+							'-': 14,
+							'*': 15,
+							'/': 15,
+							'%': 15
 	        };
 	        this.lookahead = {
 	            type: 2 /* EOF */,
@@ -6397,7 +6448,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        for (var _i = 1; _i < arguments.length; _i++) {
 	            values[_i - 1] = arguments[_i];
 	        }
-	        var args = Array.prototype.slice.call(arguments, 1);
+					var args = values.slice();
 	        var msg = messageFormat.replace(/%(\d)/g, function (whole, idx) {
 	            assert_1.assert(idx < args.length, 'Message reference must be in range');
 	            return args[idx];
@@ -6412,7 +6463,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        for (var _i = 1; _i < arguments.length; _i++) {
 	            values[_i - 1] = arguments[_i];
 	        }
-	        var args = Array.prototype.slice.call(arguments, 1);
+					var args = values.slice();
 	        var msg = messageFormat.replace(/%(\d)/g, function (whole, idx) {
 	            assert_1.assert(idx < args.length, 'Message reference must be in range');
 	            return args[idx];
@@ -6478,8 +6529,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (comments.length > 0 && this.delegate) {
 	                for (var i = 0; i < comments.length; ++i) {
 	                    var e = comments[i];
-	                    var node = void 0;
-	                    node = {
+											var node = {
 	                        type: e.multiLine ? 'BlockComment' : 'LineComment',
 	                        value: this.scanner.source.slice(e.slice[0], e.slice[1])
 	                    };
@@ -6811,7 +6861,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                expr = this.finalize(node, new Node.Literal(null, raw));
 	                break;
 	            case 10 /* Template */:
-	                expr = this.parseTemplateLiteral();
+									expr = this.parseTemplateLiteral({ isTagged: false });
 	                break;
 	            case 7 /* Punctuator */:
 	                switch (this.lookahead.value) {
@@ -6858,6 +6908,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    else if (this.matchKeyword('class')) {
 	                        expr = this.parseClassExpression();
 	                    }
+											else if (this.matchImportCall()) {
+													expr = this.parseImportCall();
+											}
 	                    else {
 	                        expr = this.throwUnexpectedToken(this.nextToken());
 	                    }
@@ -7071,7 +7124,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var properties = [];
 	        var hasProto = { value: false };
 	        while (!this.match('}')) {
-	            properties.push(this.parseObjectProperty(hasProto));
+							properties.push(this.match('...') ? this.parseSpreadElement() : this.parseObjectProperty(hasProto));
 	            if (!this.match('}')) {
 	                this.expectCommaSeparator();
 	            }
@@ -7079,34 +7132,54 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.expect('}');
 	        return this.finalize(node, new Node.ObjectExpression(properties));
 	    };
+			// https://tc39.es/proposal-template-literal-revision/#sec-static-semantics-template-early-errors
+			Parser.prototype.throwTemplateLiteralEarlyErrors = function (token) {
+					switch (token.notEscapeSequenceHead) {
+							case 'u':
+									return this.throwUnexpectedToken(token, messages_1.Messages.InvalidUnicodeEscapeSequence);
+							case 'x':
+									return this.throwUnexpectedToken(token, messages_1.Messages.InvalidHexEscapeSequence);
+							case '8':
+							case '9':
+									return this.throwUnexpectedToken(token, messages_1.Messages.TemplateEscape89);
+							default: // For 0-7
+									return this.throwUnexpectedToken(token, messages_1.Messages.TemplateOctalLiteral);
+					}
+			};
 	    // https://tc39.github.io/ecma262/#sec-template-literals
-	    Parser.prototype.parseTemplateHead = function () {
+			Parser.prototype.parseTemplateHead = function (options) {
 	        assert_1.assert(this.lookahead.head, 'Template literal must start with a template head');
 	        var node = this.createNode();
 	        var token = this.nextToken();
+					if (!options.isTagged && token.notEscapeSequenceHead !== null) {
+							this.throwTemplateLiteralEarlyErrors(token);
+					}
 	        var raw = token.value;
 	        var cooked = token.cooked;
 	        return this.finalize(node, new Node.TemplateElement({ raw: raw, cooked: cooked }, token.tail));
 	    };
-	    Parser.prototype.parseTemplateElement = function () {
+			Parser.prototype.parseTemplateElement = function (options) {
 	        if (this.lookahead.type !== 10 /* Template */) {
 	            this.throwUnexpectedToken();
 	        }
 	        var node = this.createNode();
 	        var token = this.nextToken();
+					if (!options.isTagged && token.notEscapeSequenceHead !== null) {
+							this.throwTemplateLiteralEarlyErrors(token);
+					}
 	        var raw = token.value;
 	        var cooked = token.cooked;
 	        return this.finalize(node, new Node.TemplateElement({ raw: raw, cooked: cooked }, token.tail));
 	    };
-	    Parser.prototype.parseTemplateLiteral = function () {
+			Parser.prototype.parseTemplateLiteral = function (options) {
 	        var node = this.createNode();
 	        var expressions = [];
 	        var quasis = [];
-	        var quasi = this.parseTemplateHead();
+					var quasi = this.parseTemplateHead(options);
 	        quasis.push(quasi);
 	        while (!quasi.tail) {
 	            expressions.push(this.parseExpression());
-	            quasi = this.parseTemplateElement();
+							quasi = this.parseTemplateElement(options);
 	            quasis.push(quasi);
 	        }
 	        return this.finalize(node, new Node.TemplateLiteral(quasis, expressions));
@@ -7134,7 +7207,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            case syntax_1.Syntax.ObjectExpression:
 	                expr.type = syntax_1.Syntax.ObjectPattern;
 	                for (var i = 0; i < expr.properties.length; i++) {
-	                    this.reinterpretExpressionAsPattern(expr.properties[i].value);
+											var property = expr.properties[i];
+											this.reinterpretExpressionAsPattern(property.type === syntax_1.Syntax.SpreadElement ? property : property.value);
 	                }
 	                break;
 	            case syntax_1.Syntax.AssignmentExpression:
@@ -7319,6 +7393,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.throwUnexpectedToken(this.lookahead);
 	            }
 	        }
+					else if (this.matchKeyword('import')) {
+							this.throwUnexpectedToken(this.lookahead);
+					}
 	        else {
 	            var callee = this.isolateCoverGrammar(this.parseLeftHandSideExpression);
 	            var args = this.match('(') ? this.parseArguments() : [];
@@ -7353,6 +7430,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.expect(')');
 	        return args;
 	    };
+			Parser.prototype.matchImportCall = function () {
+					var match = this.matchKeyword('import');
+					if (match) {
+							var state = this.scanner.saveState();
+							this.scanner.scanComments();
+							var next = this.scanner.lex();
+							this.scanner.restoreState(state);
+							match = (next.type === 7 /* Punctuator */) && (next.value === '(');
+					}
+					return match;
+			};
+			Parser.prototype.parseImportCall = function () {
+					var node = this.createNode();
+					this.expectKeyword('import');
+					return this.finalize(node, new Node.Import());
+			};
 	    Parser.prototype.parseLeftHandSideExpressionAllowCall = function () {
 	        var startToken = this.lookahead;
 	        var maybeAsync = this.matchContextualKeyword('async');
@@ -7370,20 +7463,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	        else {
 	            expr = this.inheritCoverGrammar(this.matchKeyword('new') ? this.parseNewExpression : this.parsePrimaryExpression);
 	        }
+					var hasOptional = false;
 	        while (true) {
-	            if (this.match('.')) {
-	                this.context.isBindingElement = false;
-	                this.context.isAssignmentTarget = true;
-	                this.expect('.');
-	                var property = this.parseIdentifierName();
-	                expr = this.finalize(this.startNode(startToken), new Node.StaticMemberExpression(expr, property));
+							var optional = false;
+							if (this.match('?.')) {
+									optional = true;
+									hasOptional = true;
+									this.expect('?.');
 	            }
-	            else if (this.match('(')) {
+							if (this.match('(')) {
 	                var asyncArrow = maybeAsync && (startToken.lineNumber === this.lookahead.lineNumber);
 	                this.context.isBindingElement = false;
 	                this.context.isAssignmentTarget = false;
 	                var args = asyncArrow ? this.parseAsyncArguments() : this.parseArguments();
-	                expr = this.finalize(this.startNode(startToken), new Node.CallExpression(expr, args));
+									if (expr.type === syntax_1.Syntax.Import && args.length !== 1) {
+											this.tolerateError(messages_1.Messages.BadImportCallArity);
+									}
+									expr = this.finalize(this.startNode(startToken), new Node.CallExpression(expr, args, optional));
 	                if (asyncArrow && this.match('=>')) {
 	                    for (var i = 0; i < args.length; ++i) {
 	                        this.reinterpretExpressionAsPattern(args[i]);
@@ -7397,21 +7493,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            else if (this.match('[')) {
 	                this.context.isBindingElement = false;
-	                this.context.isAssignmentTarget = true;
+									this.context.isAssignmentTarget = !optional;
 	                this.expect('[');
 	                var property = this.isolateCoverGrammar(this.parseExpression);
 	                this.expect(']');
-	                expr = this.finalize(this.startNode(startToken), new Node.ComputedMemberExpression(expr, property));
+									expr = this.finalize(this.startNode(startToken), new Node.ComputedMemberExpression(expr, property, optional));
 	            }
 	            else if (this.lookahead.type === 10 /* Template */ && this.lookahead.head) {
-	                var quasi = this.parseTemplateLiteral();
+									// Optional template literal is not included in the spec.
+									// https://github.com/tc39/proposal-optional-chaining/issues/54
+									if (optional) {
+											this.throwUnexpectedToken(this.lookahead);
+									}
+									if (hasOptional) {
+											this.throwError(messages_1.Messages.InvalidTaggedTemplateOnOptionalChain);
+									}
+									var quasi = this.parseTemplateLiteral({ isTagged: true });
 	                expr = this.finalize(this.startNode(startToken), new Node.TaggedTemplateExpression(expr, quasi));
 	            }
+							else if (this.match('.') || optional) {
+									this.context.isBindingElement = false;
+									this.context.isAssignmentTarget = !optional;
+									if (!optional) {
+											this.expect('.');
+									}
+									var property = this.parseIdentifierName();
+									expr = this.finalize(this.startNode(startToken), new Node.StaticMemberExpression(expr, property, optional));
+							}
 	            else {
 	                break;
 	            }
 	        }
 	        this.context.allowIn = previousAllowIn;
+					if (hasOptional) {
+							return new Node.ChainExpression(expr);
+					}
 	        return expr;
 	    };
 	    Parser.prototype.parseSuper = function () {
@@ -7427,30 +7543,50 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var node = this.startNode(this.lookahead);
 	        var expr = (this.matchKeyword('super') && this.context.inFunctionBody) ? this.parseSuper() :
 	            this.inheritCoverGrammar(this.matchKeyword('new') ? this.parseNewExpression : this.parsePrimaryExpression);
+					var hasOptional = false;
 	        while (true) {
+							var optional = false;
+							if (this.match('?.')) {
+									optional = true;
+									hasOptional = true;
+									this.expect('?.');
+							}
 	            if (this.match('[')) {
 	                this.context.isBindingElement = false;
-	                this.context.isAssignmentTarget = true;
+									this.context.isAssignmentTarget = !optional;
 	                this.expect('[');
 	                var property = this.isolateCoverGrammar(this.parseExpression);
 	                this.expect(']');
-	                expr = this.finalize(node, new Node.ComputedMemberExpression(expr, property));
+									expr = this.finalize(node, new Node.ComputedMemberExpression(expr, property, optional));
+							}
+							else if (this.lookahead.type === 10 /* Template */ && this.lookahead.head) {
+									// Optional template literal is not included in the spec.
+									// https://github.com/tc39/proposal-optional-chaining/issues/54
+									if (optional) {
+											this.throwUnexpectedToken(this.lookahead);
+									}
+									if (hasOptional) {
+											this.throwError(messages_1.Messages.InvalidTaggedTemplateOnOptionalChain);
 	            }
-	            else if (this.match('.')) {
+									var quasi = this.parseTemplateLiteral({ isTagged: true });
+									expr = this.finalize(node, new Node.TaggedTemplateExpression(expr, quasi));
+							}
+							else if (this.match('.') || optional) {
 	                this.context.isBindingElement = false;
-	                this.context.isAssignmentTarget = true;
+									this.context.isAssignmentTarget = !optional;
+									if (!optional) {
 	                this.expect('.');
-	                var property = this.parseIdentifierName();
-	                expr = this.finalize(node, new Node.StaticMemberExpression(expr, property));
 	            }
-	            else if (this.lookahead.type === 10 /* Template */ && this.lookahead.head) {
-	                var quasi = this.parseTemplateLiteral();
-	                expr = this.finalize(node, new Node.TaggedTemplateExpression(expr, quasi));
+									var property = this.parseIdentifierName();
+									expr = this.finalize(node, new Node.StaticMemberExpression(expr, property, optional));
 	            }
 	            else {
 	                break;
 	            }
 	        }
+					if (hasOptional) {
+							return new Node.ChainExpression(expr);
+					}
 	        return expr;
 	    };
 	    // https://tc39.github.io/ecma262/#sec-update-expressions
@@ -7549,7 +7685,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            precedence = this.operatorPrecedence[op] || 0;
 	        }
 	        else if (token.type === 4 /* Keyword */) {
-	            precedence = (op === 'instanceof' || (this.context.allowIn && op === 'in')) ? 7 : 0;
+							precedence = (op === 'instanceof' || (this.context.allowIn && op === 'in')) ? 12 : 0;
 	        }
 	        else {
 	            precedence = 0;
@@ -7559,9 +7695,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Parser.prototype.parseBinaryExpression = function () {
 	        var startToken = this.lookahead;
 	        var expr = this.inheritCoverGrammar(this.parseExponentiationExpression);
+					var allowAndOr = true;
+					var allowNullishCoalescing = true;
+					var updateNullishCoalescingRestrictions = function (token) {
+							if (token.value === '&&' || token.value === '||') {
+									allowNullishCoalescing = false;
+							}
+							if (token.value === '??') {
+									allowAndOr = false;
+							}
+					};
 	        var token = this.lookahead;
 	        var prec = this.binaryPrecedence(token);
 	        if (prec > 0) {
+							updateNullishCoalescingRestrictions(token);
 	            this.nextToken();
 	            this.context.isAssignmentTarget = false;
 	            this.context.isBindingElement = false;
@@ -7575,6 +7722,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (prec <= 0) {
 	                    break;
 	                }
+									if ((!allowAndOr && (this.lookahead.value === '&&' || this.lookahead.value === '||')) ||
+											(!allowNullishCoalescing && this.lookahead.value === '??')) {
+											this.throwUnexpectedToken(this.lookahead);
+									}
+									updateNullishCoalescingRestrictions(this.lookahead);
 	                // Reduce: make a binary expression from the three topmost entries.
 	                while ((stack.length > 2) && (prec <= precedences[precedences.length - 1])) {
 	                    right = stack.pop();
@@ -7582,7 +7734,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    precedences.pop();
 	                    left = stack.pop();
 	                    markers.pop();
-	                    var node = this.startNode(markers[markers.length - 1]);
+											var marker = markers[markers.length - 1];
+											var node = this.startNode(marker, marker.lineStart);
 	                    stack.push(this.finalize(node, new Node.BinaryExpression(operator, left, right)));
 	                }
 	                // Shift.
@@ -7646,7 +7799,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                break;
 	            case syntax_1.Syntax.ObjectPattern:
 	                for (var i = 0; i < param.properties.length; i++) {
-	                    this.checkPatternParam(options, param.properties[i].value);
+											var property = param.properties[i];
+											this.checkPatternParam(options, (property.type === syntax_1.Syntax.RestElement) ? property : property.value);
 	                }
 	                break;
 	            default:
@@ -7656,7 +7810,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Parser.prototype.reinterpretAsCoverFormalsList = function (expr) {
 	        var params = [expr];
-	        var options;
+					var options = {
+							simple: true,
+							paramSet: {}
+					};
 	        var asyncArrow = false;
 	        switch (expr.type) {
 	            case syntax_1.Syntax.Identifier:
@@ -7668,10 +7825,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            default:
 	                return null;
 	        }
-	        options = {
-	            simple: true,
-	            paramSet: {}
-	        };
 	        for (var i = 0; i < params.length; ++i) {
 	            var param = params[i];
 	            if (param.type === syntax_1.Syntax.AssignmentPattern) {
@@ -7839,10 +7992,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    statement = this.parseExportDeclaration();
 	                    break;
 	                case 'import':
+											if (this.matchImportCall()) {
+													statement = this.parseExpressionStatement();
+											}
+											else {
 	                    if (!this.context.isModule) {
 	                        this.tolerateUnexpectedToken(this.lookahead, messages_1.Messages.IllegalImportDeclaration);
 	                    }
 	                    statement = this.parseImportDeclaration();
+											}
 	                    break;
 	                case 'const':
 	                    statement = this.parseLexicalDeclaration({ inFor: false });
@@ -8002,12 +8160,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this.finalize(node, new Node.Property('init', key, computed, value, method, shorthand));
 	    };
+			Parser.prototype.parseRestProperty = function (params, kind) {
+					var node = this.createNode();
+					this.expect('...');
+					var arg = this.parsePattern(params);
+					if (this.match('=')) {
+							this.throwError(messages_1.Messages.DefaultRestProperty);
+					}
+					if (!this.match('}')) {
+							this.throwError(messages_1.Messages.PropertyAfterRestProperty);
+					}
+					return this.finalize(node, new Node.RestElement(arg));
+			};
 	    Parser.prototype.parseObjectPattern = function (params, kind) {
 	        var node = this.createNode();
 	        var properties = [];
 	        this.expect('{');
 	        while (!this.match('}')) {
-	            properties.push(this.parsePropertyPattern(params, kind));
+							properties.push(this.match('...') ? this.parseRestProperty(params, kind) : this.parsePropertyPattern(params, kind));
 	            if (!this.match('}')) {
 	                this.expect(',');
 	            }
@@ -8199,8 +8369,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var update = null;
 	        var forIn = true;
 	        var left, right;
+					var _await = false;
 	        var node = this.createNode();
 	        this.expectKeyword('for');
+					if (this.matchContextualKeyword('await')) {
+							if (!this.context.await) {
+									this.tolerateUnexpectedToken(this.lookahead);
+							}
+							_await = true;
+							this.nextToken();
+					}
 	        this.expect('(');
 	        if (this.match(';')) {
 	            this.nextToken();
@@ -8213,7 +8391,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.context.allowIn = false;
 	                var declarations = this.parseVariableDeclarationList({ inFor: true });
 	                this.context.allowIn = previousAllowIn;
-	                if (declarations.length === 1 && this.matchKeyword('in')) {
+									if (!_await && declarations.length === 1 && this.matchKeyword('in')) {
 	                    var decl = declarations[0];
 	                    if (decl.init && (decl.id.type === syntax_1.Syntax.ArrayPattern || decl.id.type === syntax_1.Syntax.ObjectPattern || this.context.strict)) {
 	                        this.tolerateError(messages_1.Messages.ForInOfLoopInitializer, 'for-in');
@@ -8275,6 +8453,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            else {
 	                var initStartToken = this.lookahead;
+									var previousIsBindingElement = this.context.isBindingElement;
+									var previousIsAssignmentTarget = this.context.isAssignmentTarget;
+									var previousFirstCoverInitializedNameError = this.context.firstCoverInitializedNameError;
 	                var previousAllowIn = this.context.allowIn;
 	                this.context.allowIn = false;
 	                init = this.inheritCoverGrammar(this.parseAssignmentExpression);
@@ -8301,6 +8482,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    forIn = false;
 	                }
 	                else {
+											// The `init` node was not parsed isolated, but we would have wanted it to.
+											this.context.isBindingElement = previousIsBindingElement;
+											this.context.isAssignmentTarget = previousIsAssignmentTarget;
+											this.context.firstCoverInitializedNameError = previousFirstCoverInitializedNameError;
 	                    if (this.match(',')) {
 	                        var initSeq = [init];
 	                        while (this.match(',')) {
@@ -8315,11 +8500,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        if (typeof left === 'undefined') {
 	            if (!this.match(';')) {
-	                test = this.parseExpression();
+									test = this.isolateCoverGrammar(this.parseExpression);
 	            }
 	            this.expect(';');
 	            if (!this.match(')')) {
-	                update = this.parseExpression();
+									update = this.isolateCoverGrammar(this.parseExpression);
 	            }
 	        }
 	        var body;
@@ -8337,7 +8522,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return (typeof left === 'undefined') ?
 	            this.finalize(node, new Node.ForStatement(init, test, update, body)) :
 	            forIn ? this.finalize(node, new Node.ForInStatement(left, right, body)) :
-	                this.finalize(node, new Node.ForOfStatement(left, right, body));
+									this.finalize(node, new Node.ForOfStatement(left, right, body, _await));
 	    };
 	    // https://tc39.github.io/ecma262/#sec-continue-statement
 	    Parser.prototype.parseContinueStatement = function () {
@@ -8518,12 +8703,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Parser.prototype.parseCatchClause = function () {
 	        var node = this.createNode();
 	        this.expectKeyword('catch');
+					var param = null;
+					if (this.match('(')) {
 	        this.expect('(');
 	        if (this.match(')')) {
 	            this.throwUnexpectedToken(this.lookahead);
 	        }
 	        var params = [];
-	        var param = this.parsePattern(params);
+							param = this.parsePattern(params);
 	        var paramMap = {};
 	        for (var i = 0; i < params.length; i++) {
 	            var key = '$' + params[i].value;
@@ -8538,6 +8725,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	        this.expect(')');
+					}
 	        var body = this.parseBlock();
 	        return this.finalize(node, new Node.CatchClause(param, body));
 	    };
@@ -8729,8 +8917,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        options.params.push(param);
 	    };
 	    Parser.prototype.parseFormalParameters = function (firstRestricted) {
-	        var options;
-	        options = {
+					var options = {
 	            simple: true,
 	            params: [],
 	            firstRestricted: firstRestricted
@@ -9065,6 +9252,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (punctuator !== ':' && punctuator !== '(' && punctuator !== '*') {
 	                    isAsync = true;
 	                    token = this.lookahead;
+											computed = this.match('[');
 	                    key = this.parseObjectPropertyKey();
 	                    if (token.type === 3 /* Identifier */ && token.value === 'constructor') {
 	                        this.tolerateUnexpectedToken(token, messages_1.Messages.ConstructorIsAsync);
@@ -9462,9 +9650,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	"use strict";
-	/* tslint:disable:max-classes-per-file */
 	Object.defineProperty(exports, "__esModule", { value: true });
-	var ErrorHandler = (function () {
+	var ErrorHandler = /** @class */ (function () {
 	    function ErrorHandler() {
 	        this.errors = [];
 	        this.tolerant = false;
@@ -9528,6 +9715,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", { value: true });
 	// Error messages should be identical to V8.
 	exports.Messages = {
+			BadImportCallArity: 'Unexpected token',
 	    BadGetterArity: 'Getter must not have any formal parameters',
 	    BadSetterArity: 'Setter must have exactly one formal parameter',
 	    BadSetterRestParameter: 'Setter function argument must not be a rest parameter',
@@ -9535,6 +9723,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ConstructorSpecialMethod: 'Class constructor may not be an accessor',
 	    DeclarationMissingInitializer: 'Missing initializer in %0 declaration',
 	    DefaultRestParameter: 'Unexpected token =',
+			DefaultRestProperty: 'Unexpected token =',
 	    DuplicateBinding: 'Duplicate binding %0',
 	    DuplicateConstructor: 'A class may only have one constructor',
 	    DuplicateProtoProperty: 'Duplicate __proto__ fields are not allowed in object literals',
@@ -9553,6 +9742,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InvalidLHSInForLoop: 'Invalid left-hand side in for-loop',
 	    InvalidModuleSpecifier: 'Unexpected token',
 	    InvalidRegExp: 'Invalid regular expression',
+			InvalidTaggedTemplateOnOptionalChain: 'Invalid tagged template on optional chain',
+			InvalidUnicodeEscapeSequence: 'Invalid Unicode escape sequence',
 	    LetInLexicalBinding: 'let is disallowed as a lexically bound name',
 	    MissingFromClause: 'Unexpected token',
 	    MultipleDefaultsInSwitch: 'More than one default clause in switch statement',
@@ -9560,6 +9751,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    NoAsAfterImportNamespace: 'Unexpected token',
 	    NoCatchOrFinally: 'Missing catch or finally after try',
 	    ParameterAfterRestParameter: 'Rest parameter must be last formal parameter',
+			PropertyAfterRestProperty: 'Unexpected token',
 	    Redeclaration: '%0 \'%1\' has already been declared',
 	    StaticPrototype: 'Classes may not have static property named prototype',
 	    StrictCatchVariable: 'Catch variable may not be eval or arguments in strict mode',
@@ -9576,6 +9768,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    StrictReservedWord: 'Use of future reserved word in strict mode',
 	    StrictVarName: 'Variable name may not be eval or arguments in strict mode',
 	    TemplateOctalLiteral: 'Octal literals are not allowed in template strings.',
+			TemplateEscape89: '\\8 and \\9 are not allowed in template strings.',
 	    UnexpectedEOS: 'Unexpected end of input',
 	    UnexpectedIdentifier: 'Unexpected identifier',
 	    UnexpectedNumber: 'Unexpected number',
@@ -9604,7 +9797,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function octalValue(ch) {
 	    return '01234567'.indexOf(ch);
 	}
-	var Scanner = (function () {
+	var Scanner = /** @class */ (function () {
 	    function Scanner(code, handler) {
 	        this.source = code;
 	        this.errorHandler = handler;
@@ -9620,13 +9813,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return {
 	            index: this.index,
 	            lineNumber: this.lineNumber,
-	            lineStart: this.lineStart
+							lineStart: this.lineStart,
+							curlyStack: this.curlyStack.slice()
 	        };
 	    };
 	    Scanner.prototype.restoreState = function (state) {
 	        this.index = state.index;
 	        this.lineNumber = state.lineNumber;
 	        this.lineStart = state.lineStart;
+					this.curlyStack = state.curlyStack;
 	    };
 	    Scanner.prototype.eof = function () {
 	        return this.index >= this.length;
@@ -9780,7 +9975,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.lineStart = this.index;
 	                start = true;
 	            }
-	            else if (ch === 0x2F) {
+							else if (ch === 0x2F) { // U+002F is '/'
 	                ch = this.source.charCodeAt(this.index + 1);
 	                if (ch === 0x2F) {
 	                    this.index += 2;
@@ -9790,7 +9985,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                    start = true;
 	                }
-	                else if (ch === 0x2A) {
+									else if (ch === 0x2A) { // U+002A is '*'
 	                    this.index += 2;
 	                    var comment = this.skipMultiLineComment();
 	                    if (this.trackComment) {
@@ -9801,7 +9996,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    break;
 	                }
 	            }
-	            else if (start && ch === 0x2D) {
+							else if (start && ch === 0x2D) { // U+002D is '-'
 	                // U+003E is '>'
 	                if ((this.source.charCodeAt(this.index + 1) === 0x2D) && (this.source.charCodeAt(this.index + 2) === 0x3E)) {
 	                    // '-->' is a single-line comment
@@ -9815,7 +10010,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    break;
 	                }
 	            }
-	            else if (ch === 0x3C && !this.isModule) {
+							else if (ch === 0x3C && !this.isModule) { // U+003C is '<'
 	                if (this.source.slice(this.index + 1, this.index + 4) === '!--') {
 	                    this.index += 4; // `<!--`
 	                    var comment = this.skipSingleLineComment(4);
@@ -9916,12 +10111,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return String.fromCharCode(code);
 	    };
-	    Scanner.prototype.scanUnicodeCodePointEscape = function () {
+			Scanner.prototype.tryToScanUnicodeCodePointEscape = function () {
 	        var ch = this.source[this.index];
 	        var code = 0;
 	        // At least, one hex digit is required.
 	        if (ch === '}') {
-	            this.throwUnexpectedToken();
+							return null;
 	        }
 	        while (!this.eof()) {
 	            ch = this.source[this.index++];
@@ -9931,10 +10126,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            code = code * 16 + hexValue(ch);
 	        }
 	        if (code > 0x10FFFF || ch !== '}') {
-	            this.throwUnexpectedToken();
+							return null;
 	        }
 	        return character_1.Character.fromCodePoint(code);
 	    };
+			Scanner.prototype.scanUnicodeCodePointEscape = function () {
+					var result = this.tryToScanUnicodeCodePointEscape();
+					if (result === null) {
+							return this.throwUnexpectedToken();
+					}
+					return result;
+			};
 	    Scanner.prototype.getIdentifier = function () {
 	        var start = this.index++;
 	        while (!this.eof()) {
@@ -10092,13 +10294,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	                ++this.index;
 	                this.curlyStack.pop();
 	                break;
+							case '?':
+									++this.index;
+									if (this.source[this.index] === '?') {
+											++this.index;
+											str = '??';
+									}
+									if (this.source[this.index] === '.' && !/^\d$/.test(this.source[this.index + 1])) {
+											// "?." in "foo?.3:0" should not be treated as optional chaining.
+											// See https://github.com/tc39/proposal-optional-chaining#notes
+											++this.index;
+											str = '?.';
+									}
+									break;
 	            case ')':
 	            case ';':
 	            case ',':
 	            case '[':
 	            case ']':
 	            case ':':
-	            case '?':
 	            case '~':
 	                ++this.index;
 	                break;
@@ -10118,11 +10332,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    else {
 	                        // 2-character punctuators.
 	                        str = str.substr(0, 2);
-	                        if (str === '&&' || str === '||' || str === '==' || str === '!=' ||
+													if (str === '&&' || str === '||' || str === '??' ||
+															str === '==' || str === '!=' ||
 	                            str === '+=' || str === '-=' || str === '*=' || str === '/=' ||
-	                            str === '++' || str === '--' || str === '<<' || str === '>>' ||
+															str === '++' || str === '--' ||
+															str === '<<' || str === '>>' ||
 	                            str === '&=' || str === '|=' || str === '^=' || str === '%=' ||
-	                            str === '<=' || str === '>=' || str === '=>' || str === '**') {
+															str === '<=' || str === '>=' || str === '=>' ||
+															str === '**') {
 	                            this.index += 2;
 	                        }
 	                        else {
@@ -10341,11 +10558,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                str += this.scanUnicodeCodePointEscape();
 	                            }
 	                            else {
-	                                var unescaped_1 = this.scanHexEscape(ch);
-	                                if (unescaped_1 === null) {
+																	var unescapedChar = this.scanHexEscape(ch);
+																	if (unescapedChar === null) {
 	                                    this.throwUnexpectedToken();
 	                                }
-	                                str += unescaped_1;
+																	str += unescapedChar;
 	                            }
 	                            break;
 	                        case 'x':
@@ -10426,6 +10643,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var start = this.index;
 	        var head = (this.source[start] === '`');
 	        var tail = false;
+					var notEscapeSequenceHead = null;
 	        var rawOffset = 2;
 	        ++this.index;
 	        while (!this.eof()) {
@@ -10445,6 +10663,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                cooked += ch;
 	            }
+							else if (notEscapeSequenceHead !== null) {
+									continue;
+							}
 	            else if (ch === '\\') {
 	                ch = this.source[this.index++];
 	                if (!character_1.Character.isLineTerminator(ch.charCodeAt(0))) {
@@ -10461,26 +10682,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        case 'u':
 	                            if (this.source[this.index] === '{') {
 	                                ++this.index;
-	                                cooked += this.scanUnicodeCodePointEscape();
+																	var unicodeCodePointEscape = this.tryToScanUnicodeCodePointEscape();
+																	if (unicodeCodePointEscape === null) {
+																			notEscapeSequenceHead = 'u';
 	                            }
 	                            else {
-	                                var restore = this.index;
-	                                var unescaped_2 = this.scanHexEscape(ch);
-	                                if (unescaped_2 !== null) {
-	                                    cooked += unescaped_2;
+																			cooked += unicodeCodePointEscape;
+																	}
 	                                }
 	                                else {
-	                                    this.index = restore;
-	                                    cooked += ch;
+																	var unescapedChar = this.scanHexEscape(ch);
+																	if (unescapedChar === null) {
+																			notEscapeSequenceHead = 'u';
+																	}
+																	else {
+																			cooked += unescapedChar;
 	                                }
 	                            }
 	                            break;
 	                        case 'x':
 	                            var unescaped = this.scanHexEscape(ch);
 	                            if (unescaped === null) {
-	                                this.throwUnexpectedToken(messages_1.Messages.InvalidHexEscapeSequence);
+																	notEscapeSequenceHead = 'x';
 	                            }
+															else {
 	                            cooked += unescaped;
+															}
 	                            break;
 	                        case 'b':
 	                            cooked += '\b';
@@ -10494,14 +10721,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        default:
 	                            if (ch === '0') {
 	                                if (character_1.Character.isDecimalDigit(this.source.charCodeAt(this.index))) {
-	                                    // Illegal: \01 \02 and so on
-	                                    this.throwUnexpectedToken(messages_1.Messages.TemplateOctalLiteral);
+																			// NotEscapeSequence: \01 \02 and so on
+																			notEscapeSequenceHead = '0';
 	                                }
+																	else {
 	                                cooked += '\0';
 	                            }
-	                            else if (character_1.Character.isOctalDigit(ch.charCodeAt(0))) {
-	                                // Illegal: \1 \2
-	                                this.throwUnexpectedToken(messages_1.Messages.TemplateOctalLiteral);
+															}
+															else if (character_1.Character.isDecimalDigitChar(ch)) {
+																	// NotEscapeSequence: \1 \2
+																	notEscapeSequenceHead = ch;
 	                            }
 	                            else {
 	                                cooked += ch;
@@ -10538,9 +10767,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return {
 	            type: 10 /* Template */,
 	            value: this.source.slice(start + 1, this.index - rawOffset),
-	            cooked: cooked,
+							cooked: notEscapeSequenceHead === null ? cooked : null,
 	            head: head,
 	            tail: tail,
+							notEscapeSequenceHead: notEscapeSequenceHead,
 	            lineNumber: this.lineNumber,
 	            lineStart: this.lineStart,
 	            start: start,
@@ -10549,6 +10779,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // https://tc39.github.io/ecma262/#sec-literals-regular-expression-literals
 	    Scanner.prototype.testRegExp = function (pattern, flags) {
+					var _this = this;
 	        // The BMP character to use as a replacement for astral symbols when
 	        // translating an ES6 "u"-flagged pattern to an ES5-compatible
 	        // approximation.
@@ -10557,19 +10788,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // pattern that would not be detected by this substitution.
 	        var astralSubstitute = '\uFFFF';
 	        var tmp = pattern;
-	        var self = this;
 	        if (flags.indexOf('u') >= 0) {
 	            tmp = tmp
+									// Replace every Unicode escape sequence with the equivalent
+									// BMP character or a constant ASCII code point in the case of
+									// astral symbols. (See the above note on `astralSubstitute`
+									// for more information.)
 	                .replace(/\\u\{([0-9a-fA-F]+)\}|\\u([a-fA-F0-9]{4})/g, function ($0, $1, $2) {
 	                var codePoint = parseInt($1 || $2, 16);
 	                if (codePoint > 0x10FFFF) {
-	                    self.throwUnexpectedToken(messages_1.Messages.InvalidRegExp);
+											_this.throwUnexpectedToken(messages_1.Messages.InvalidRegExp);
 	                }
 	                if (codePoint <= 0xFFFF) {
 	                    return String.fromCharCode(codePoint);
 	                }
 	                return astralSubstitute;
 	            })
+									// Replace each paired surrogate with a single ASCII symbol to
+									// avoid throwing on regular expressions that are only valid in
+									// combination with the "u" flag.
 	                .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, astralSubstitute);
 	        }
 	        // First, detect invalid regular expressions.
@@ -11031,7 +11268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var error_handler_1 = __webpack_require__(10);
 	var scanner_1 = __webpack_require__(12);
 	var token_1 = __webpack_require__(13);
-	var Reader = (function () {
+	var Reader = /** @class */ (function () {
 	    function Reader() {
 	        this.values = [];
 	        this.curly = this.paren = -1;
@@ -11045,7 +11282,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            '&=', '|=', '^=', ',',
 	            // binary/unary operators
 	            '+', '-', '*', '**', '/', '%', '++', '--', '<<', '>>', '>>>', '&',
-	            '|', '^', '!', '~', '&&', '||', '?', ':', '===', '==', '>=',
+							'|', '^', '!', '~', '&&', '||', '??', '?', ':', '===', '==', '>=',
 	            '<=', '<', '>', '!=', '!=='].indexOf(t) >= 0;
 	    };
 	    // Determine if forward slash (/) is an operator or part of a regular expression
@@ -11065,7 +11302,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            case '}':
 	                // Dividing a function by anything makes little sense,
 	                // but we have to check for that.
-	                regex = false;
+									regex = true;
 	                if (this.values[this.curly - 3] === 'function') {
 	                    // Anonymous function, e.g. function(){} /42
 	                    var check = this.values[this.curly - 4];
@@ -11098,7 +11335,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return Reader;
 	}());
-	var Tokenizer = (function () {
+	var Tokenizer = /** @class */ (function () {
 	    function Tokenizer(code, config) {
 	        this.errorHandler = new error_handler_1.ErrorHandler();
 	        this.errorHandler.tolerant = config ? (typeof config.tolerant === 'boolean' && config.tolerant) : false;
@@ -11143,8 +11380,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        end: {}
 	                    };
 	                }
-	                var startRegex = (this.scanner.source[this.scanner.index] === '/') && this.reader.isRegexStart();
-	                var token = startRegex ? this.scanner.scanRegExp() : this.scanner.lex();
+									var maybeRegex = (this.scanner.source[this.scanner.index] === '/') && this.reader.isRegexStart();
+									var token = void 0;
+									if (maybeRegex) {
+											var state = this.scanner.saveState();
+											try {
+													token = this.scanner.scanRegExp();
+											}
+											catch (e) {
+													this.scanner.restoreState(state);
+													token = this.scanner.lex();
+											}
+									}
+									else {
+											token = this.scanner.lex();
+									}
 	                this.reader.push(token);
 	                var entry = {
 	                    type: token_1.TokenName[token.type],
