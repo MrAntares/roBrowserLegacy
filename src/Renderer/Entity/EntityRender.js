@@ -330,7 +330,7 @@ define( function( require )
 
 		return function renderElement( entity, files, type, position, is_main )
 		{
-			var isEffectSprite = false;
+			var isBlendModeOne = false;
 			
 			// Nothing to render
 			if (!files.spr || !files.act)
@@ -420,18 +420,17 @@ define( function( require )
 			   }
 			}
 
-			// Check if berserk and enable alpha
+			// Check if special body effect and enable the correct blend mode
 			if (type !== 'shadow' &&
 				entity.getOpt3(StatusConst.Status.BERSERK) ||
 				entity.getOpt3(StatusConst.Status.MARIONETTE)
 			) {
-				isEffectSprite = true;
+				isBlendModeOne = true;
 			}
-
 
 			// Render all frames
 			for (var i=0, count=layers.length; i<count; ++i) {
-				entity.renderLayer( layers[i], spr, pal, files.size, _position, type, isEffectSprite);
+				entity.renderLayer( layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 			}
 
 			// Save reference
@@ -568,9 +567,9 @@ define( function( require )
 	 * @param {float}  sprite size
 	 * @param {Array} pos [x,y] where to render the sprite
 	 * @param {string} type
-	 * @param {boolean} isEffectSprite
+	 * @param {boolean} isBlendModeOne
 	 */
-	function renderLayer( layer, spr, pal, size, pos, type, isEffectSprite )
+	function renderLayer( layer, spr, pal, size, pos, type, isBlendModeOne )
 	{
 		// If there is nothing to render
 		if (layer.index < 0) {
@@ -649,7 +648,7 @@ define( function( require )
 		SpriteRenderer.image.texture = frame.texture;
 
 		// Draw Sprite
-		SpriteRenderer.render(isEffectSprite);
+		SpriteRenderer.render(isBlendModeOne);
 	}
 
 

@@ -469,7 +469,7 @@ function(      WebGL,         glMatrix,      Camera )
 	/**
 	 * Render in 3D mode
 	 */
-	function RenderCanvas3D(isEffectSprite)
+	function RenderCanvas3D(isBlendModeOne)
 	{
 		// Nothing to render ?
 		if (!this.image.texture || !this.color[3]) {
@@ -483,11 +483,9 @@ function(      WebGL,         glMatrix,      Camera )
 		var gl      = _gl;
 		var use_pal = this.image.palette !== null;
 
-				
-		if (isEffectSprite) {
+		if (isBlendModeOne) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-		} else {
-			gl.enable(gl.BLEND);
+		} else if (isBlendModeOne === false) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 
