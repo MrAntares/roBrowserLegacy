@@ -487,9 +487,9 @@ function(      WebGL,         glMatrix,      Camera )
 		if (isEffectSprite) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 		} else {
+			gl.enable(gl.BLEND);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
-		gl.enable(gl.BLEND);
 
 		if (this.shadow !== _shadow) {
 			gl.uniform1f( uniform.uShadow, _shadow = this.shadow);
