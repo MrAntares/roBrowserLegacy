@@ -136,23 +136,23 @@ define(function( require )
 			this._virtueColor[3] = 0.90;
 		}
 
-        if (value & StatusConst.OPT3.UNDEAD){
+    if (value & StatusConst.OPT3.UNDEAD){
 			this._virtueColor[0] = 0.70;
 			this._virtueColor[2] = 0.65;
 		}
 
 		if (value & StatusConst.OPT3.MARIONETTE){
-			this._virtueColor[0] = 2.0;
-			this._virtueColor[1] = 0.50;
-			this._virtueColor[2] = 0.85;
+			this._virtueColor[0] = 1.0;
+			this._virtueColor[1] = 0.34;
+			this._virtueColor[2] = 0.71;
 			this._virtueColor[3] = 0.5;
 		}
 
 		if (value & StatusConst.OPT3.BERSERK) {
-			this._virtueColor[0] = 2.0;
-			this._virtueColor[1] = 0.7;
-			this._virtueColor[2] = 0.7;
-			this._virtueColor[3] = 0.5;
+			this._virtueColor[0] = 1.0;
+			this._virtueColor[1] = 0.4;
+			this._virtueColor[2] = 0.4;
+			this._virtueColor[3] = 1.0;
 		}
 
 		recalculateBlendingColor.call(this);
