@@ -34,7 +34,19 @@ To run roBrowser you will need an up to date browser that supports [WebGL](http:
 Others will probably work as well especially if Chromium based, but there might be slight differences.
 
 __We assume in the guide below http server to run on port `8000`.__
-### Compile files
+
+### Compile files using NPM
+This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
+- Access the RobrowserLagacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
+- Use build command to generate the files `npm run build`
+- Files will be generated at `dist/Web` folder
+
+For development purposes (modifying the source/testing) set in the roBrowser config: `development: true,`.
+- Access the RobrowserLagacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
+- Use build command to generate the files `npm run serve`
+- Files will be loaded from  at `src/` folder
+
+### Compile files using browser
 This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
 
 For development purposes (modifying the source/testing) skip this section and set in the roBrowser config: `development: true,`. In development mode roBrowser will use the files directly from `src/`.
