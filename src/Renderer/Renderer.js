@@ -19,6 +19,7 @@ define(function( require )
 	var jQuery        = require('Utils/jquery');
 	var glMatrix      = require('Utils/gl-matrix');
 	var Configs       = require('Core/Configs');
+	var GraphicsSettings = require('Preferences/Graphics');
 	var Events        = require('Core/Events');
 	var Background    = require('UI/Background');
 	var Cursor        = require('UI/CursorManager');
@@ -65,7 +66,19 @@ define(function( require )
 
 
 	/**
-	 * @var {integer} game tick
+	 * @var {long} unique identifier of the current render callback (can be used for cancelAnimationFrame/clearInterval)
+	 */
+	Renderer.updateId = 0;
+
+
+	/**
+	 * @var {integer} frame rate limit
+	 */
+	Renderer.frameLimit = GraphicsSettings.fpslimit;
+
+
+	/**
+	 * @var {double} game tick
 	 */
 	Renderer.tick = 0;
 	
@@ -90,7 +103,22 @@ define(function( require )
 		window.oRequestAnimationFrame       ||
 		window.msRequestAnimationFrame      ||
 		function(callback){
-			window.setTimeout( callback, 1000/60 );
+			return window.setTimeout( callback, 1000/60 );
+		}
+	;
+
+
+	/**
+	 * Shime for cancelAnimationFrame
+	 */
+	var _cancelAnimationFrame =
+		window.cancelAnimationFrame        ||
+		window.webkitCancelAnimationFrame  ||
+		window.mozCancelAnimationFrame     ||
+		window.oCancelAnimationFrame       ||
+		window.msCancelAnimationFrame      ||
+		function(updateId){
+			window.clearTimeout( updateId );
 		}
 	;
 
@@ -220,14 +248,29 @@ define(function( require )
 	/**
 	 * Rendering scene
 	 */
-	Renderer._render = function render()
+	Renderer._render = function render( timeDelta )
 	{
-		_requestAnimationFrame( this._render.bind(this), this.canvas );
+		if( this.frameLimit > 0 ) {
+			if( typeof( timeDelta ) !== 'undefined' ) {
+				_cancelAnimationFrame( this.updateId );
+			}
+
+			if( ( timeDelta - this.tick ) > ( 1000 / this.frameLimit ) ) return;
+		}
+		else {
+			if( typeof( timeDelta ) === 'undefined' ) {
+				clearInterval( this.updateId );
+			}
+
+			this.updateId = _requestAnimationFrame( this._render.bind(this), this.canvas );
+		}
+
+		// TODO: clamp this so we don't accumulate a huge delta if we're set inactive for a while
+		this.tick = timeDelta || performance.now();
 
 		// Execute events
 		Events.process( this.tick );
 
-		this.tick = Date.now();
 		var i, count;
 
 		for (i = 0, count = this.renderCallbacks.length; i < count; ++i) {
@@ -249,7 +292,12 @@ define(function( require )
 
 		if (!this.rendering) {
 			this.rendering = true;
-			this._render();
+			if( this.frameLimit > 0 ) {
+				this.updateId = setInterval( this._render.bind(this), 1000 / this.frameLimit );
+			}
+			else {
+				this._render();
+			}
 		}
 	};
 

@@ -55,8 +55,9 @@ define(function(require)
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.ui.find('.details').change(onUpdateQualityDetails);
 		this.ui.find('.cursor').change(onToggleGameCursor);
-		this.ui.find('.fps').change(onToggleGameFps);
 		this.ui.find('.screensize').change(onUpdateScreenSize);
+		this.ui.find('.fpslimit').change(onUpdateFPSLimit);
+		this.ui.find('.fps').change(onToggleFPSDisplay);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
@@ -76,7 +77,8 @@ define(function(require)
 		this.ui.find('.details').val(GraphicsSettings.quality);
 		this.ui.find('.screensize').val(GraphicsSettings.screensize);
 		this.ui.find('.cursor').attr('checked', GraphicsSettings.cursor);
-		this.ui.find('.fps').attr('checked', GraphicsSettings.fps);
+		this.ui.find('.fpslimit').val(GraphicsSettings.fpslimit);
+		this.ui.find('.fps').attr('checked', FPS.ui.is(':visible'));
 	};
 
 
@@ -119,13 +121,28 @@ define(function(require)
 	}
 
 	/**
-	 * Toggle game fps
+	 * Update the fps limit
 	 */
-	function onToggleGameFps()
+	function onUpdateFPSLimit()
 	{
-		GraphicsSettings.fps = !!this.checked;
+		GraphicsSettings.fpslimit = parseInt( this.value, 10 );
 		GraphicsSettings.save();
-		FPS.toggle(GraphicsSettings.fps);
+
+		if( Renderer.frameLimit > 0 ) {
+			clearInterval( Renderer.updateId );
+		}
+
+		Renderer.frameLimit = GraphicsSettings.fpslimit;
+		Renderer.rendering = false;
+		Renderer.render( null );
+	}
+
+	/**
+	 * Toggle the fps display
+	 */
+	function onToggleFPSDisplay()
+	{
+		FPS.toggle(!!this.checked);
 	}
 
 	/**
