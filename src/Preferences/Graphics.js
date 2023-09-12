@@ -32,8 +32,13 @@ define( ['Core/Preferences'], function( Preferences )
 		/**
 		 * Do we show official game cursor ?
 		 */
-		cursor:      true
+		cursor:      true,
 
+
+		/**
+		 * Game FPS Limit
+		 */
+		fpslimit:    60
 	}, 1.1 );
 
 });

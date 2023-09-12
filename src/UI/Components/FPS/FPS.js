@@ -15,6 +15,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var Preferences      = require('Core/Preferences');
+	var Renderer         = require('Renderer/Renderer');
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
 	var htmlText         = require('text!./FPS.html');
@@ -67,21 +68,34 @@ define(function(require)
 			left: _preferences.x,
 		});
 
-		var fps = document.getElementById("fpsCounter");
-		var startTime = Date.now();
+		var fps = this.ui.find('#fpsCounter');
+		var startTime = 0;
 		var frame = 0;
 
-		function tick() {
-			var time = Date.now();
+		function tick( timeDelta ) {
 			frame++;
-			if (time - startTime > 1000) {
-				fps.innerHTML = (frame / ((time - startTime) / 1000)).toFixed(1);
-				startTime = time;
+			if (timeDelta - startTime >= 1000) {
+				var value = (frame / ((timeDelta - startTime) / 1000)).toFixed(1);
+				fps.text( value );
+				
+				var frameLimit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
+				this.ui.css('color', value >= frameLimit - ( ( 10 / frameLimit ) * 100 ) ? 'green' : value >= 15 ? 'orange' : 'red' );
+				startTime = timeDelta;
 				frame = 0;
 			}
-			window.requestAnimationFrame(tick);
 		}
-		tick();
+		Renderer.render( tick.bind(this) );
+	};
+
+	/**
+	 * Once remove, save preferences
+	 */
+	FPS.onRemove = function onRemove()
+	{
+		_preferences.x       = parseInt(this.ui.css('left'), 10);
+		_preferences.y       = parseInt(this.ui.css('top'), 10);
+		_preferences.show    = this.ui.is(':visible');
+		_preferences.save();
 	};
 
 
@@ -90,7 +104,9 @@ define(function(require)
 	 */
 	FPS.toggle = function toggle(isVisible)
 	{
-		_preferences.show = isVisible;
+		_preferences.x       = parseInt(this.ui.css('left'), 10);
+		_preferences.y       = parseInt(this.ui.css('top'), 10);
+		_preferences.show    = isVisible;
 		_preferences.save();
 
 		this.ui.toggle();
