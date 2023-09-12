@@ -169,8 +169,6 @@ function(      WebGL,         glMatrix,      Camera )
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
 				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
 			}
-			
-		
 		}
 	`;
 
@@ -239,7 +237,6 @@ function(      WebGL,         glMatrix,      Camera )
 		size:    new Float32Array(2)
 	};
 
-	SpriteRenderer.removing = false;
 
 	/**
 	 * @var {object} sprite imageData (for 2D context)
@@ -398,9 +395,6 @@ function(      WebGL,         glMatrix,      Camera )
 		var attribute = _program.attribute;
 		var uniform   = _program.uniform;
 
-		// is going to be removed
-		//console.log("SpriteRenderer.bind3DContext =>", this)
-
 		gl.useProgram( _program );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false,  projection );
 		gl.uniformMatrix4fv( uniform.uModelViewMat,  false,  modelView );
@@ -475,7 +469,7 @@ function(      WebGL,         glMatrix,      Camera )
 	/**
 	 * Render in 3D mode
 	 */
-	function RenderCanvas3D()
+	function RenderCanvas3D(isBlendModeOne)
 	{
 		// Nothing to render ?
 		if (!this.image.texture || !this.color[3]) {
@@ -488,6 +482,12 @@ function(      WebGL,         glMatrix,      Camera )
 		var uniform = _program.uniform;
 		var gl      = _gl;
 		var use_pal = this.image.palette !== null;
+
+		if (isBlendModeOne) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		} else if (isBlendModeOne === false) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
 
 		if (this.shadow !== _shadow) {
 			gl.uniform1f( uniform.uShadow, _shadow = this.shadow);
@@ -528,7 +528,6 @@ function(      WebGL,         glMatrix,      Camera )
 		_size[0]   = this.size[0]   / 175.0 * this.xSize;
 		_size[1]   = this.size[1]   / 175.0 * this.ySize;
 
-		console.log(this.color)
 		gl.uniform4fv( uniform.uSpriteRendererColor,  this.color );
 		gl.uniform2fv( uniform.uSpriteRendererSize,   _size );
 		gl.uniform2fv( uniform.uSpriteRendererOffset, _offset );
