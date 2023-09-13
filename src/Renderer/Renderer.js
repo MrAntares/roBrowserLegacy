@@ -78,7 +78,7 @@ define(function( require )
 
 
 	/**
-	 * @var {double} game tick
+	 * @var {integer} game tick
 	 */
 	Renderer.tick = 0;
 	
@@ -250,12 +250,14 @@ define(function( require )
 	 */
 	Renderer._render = function render( timeDelta )
 	{
+		var newTick = Date.now();
+
 		if( this.frameLimit > 0 ) {
 			if( typeof( timeDelta ) !== 'undefined' ) {
 				_cancelAnimationFrame( this.updateId );
 			}
 
-			if( ( timeDelta - this.tick ) > ( 1000 / this.frameLimit ) ) return;
+			if( ( 100 / ( newTick - this.tick ) ) > ( 1000 / this.frameLimit ) ) return;
 		}
 		else {
 			if( typeof( timeDelta ) === 'undefined' ) {
@@ -266,7 +268,7 @@ define(function( require )
 		}
 
 		// TODO: clamp this so we don't accumulate a huge delta if we're set inactive for a while
-		this.tick = timeDelta || performance.now();
+		this.tick = newTick;
 
 		// Execute events
 		Events.process( this.tick );
