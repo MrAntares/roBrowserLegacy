@@ -499,6 +499,34 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 			[SK.NJ_BUNSINJYUTSU]: 30,
 			[SK.NJ_ISSEN]: 31
 		},
+		SkillTreeView[JobId.NOVICE_H] = {
+			list: 1,
+			beforeJob: JobId.NOVICE,
+		},
+		SkillTreeView[JobId.SWORDMAN_H] = {
+			list: 1,
+			beforeJob: JobId.SWORDMAN,
+		},
+		SkillTreeView[JobId.MAGICIAN_H] = {
+			list: 1,
+			beforeJob: JobId.MAGICIAN,
+		},
+		SkillTreeView[JobId.ARCHER_H] = {
+			list: 1,
+			beforeJob: JobId.ARCHER,
+		},
+		SkillTreeView[JobId.ACOLYTE_H] = {
+			list: 1,
+			beforeJob: JobId.ACOLYTE,
+		},
+		SkillTreeView[JobId.MERCHANT_H] = {
+			list: 1,
+			beforeJob: JobId.MERCHANT,
+		},
+		SkillTreeView[JobId.THIEF_H] = {
+			list: 1,
+			beforeJob: JobId.THIEF,
+		},
 		SkillTreeView[JobId.PRIEST_H] = {
 			list: 2,
 			beforeJob: JobId.PRIEST,
