@@ -11,6 +11,6 @@
 	"devDependencies": {
 		"live-server": "^1.2.2",
 		"requirejs": "^2.3.6",
-		"terser": "^5.16.1"
+		"terser": "^5.19.4"
 	}
 }
