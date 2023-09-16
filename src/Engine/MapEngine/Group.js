@@ -19,8 +19,8 @@ define(function( require )
 	var DB            = require('DB/DBManager');
 	var Session       = require('Engine/SessionStorage');
 	var Network       = require('Network/NetworkManager');
-	var PACKET        = require('Network/PacketStructure');
 	var PACKETVER  	  = require('Network/PacketVerManager');
+	var PACKET        = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
 	var MapRenderer   = require('Renderer/MapRenderer');
 	var UIManager     = require('UI/UIManager');
@@ -55,15 +55,16 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PARTY_JOIN_REQ,            onPartyInvitationRequest );
 		Network.hookPacket( PACKET.ZC.PARTY_JOIN_REQ_ACK,        onPartyInvitationAnswer );
 		Network.hookPacket( PACKET.ZC.ACK_REQ_JOIN_GROUP,        onPartyInvitationAnswer );
-		if (PACKETVER.value < 20170502) {
-			Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
-		} else {
-			Network.hookPacket( PACKET.ZC.GROUP_LIST2,               onPartyList );
-		}
+		Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
+		Network.hookPacket( PACKET.ZC.GROUP_LIST2,               onPartyList );
+		Network.hookPacket( PACKET.ZC.GROUP_LIST3,               onPartyList );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP,       onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP2,      onPartyMemberJoin );
+		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP3,      onPartyMemberJoin );
+		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP4,      onPartyMemberJoin );
 		Network.hookPacket( PACKET.ZC.DELETE_MEMBER_FROM_GROUP,  onPartyMemberLeave );
 		Network.hookPacket( PACKET.ZC.ACK_MAKE_GROUP,            onPartyCreate );
+		Network.hookPacket( PACKET.ZC.GROUP_ISALIVE,             onPartyIsAlive );
 
 		PartyUI.onExpelMember          = GroupEngine.onRequestExpel;
 		PartyUI.onRequestChangeLeader  = GroupEngine.onRequestChangeLeader;
@@ -249,7 +250,15 @@ define(function( require )
 		}
 	}
 
-
+	/**
+	 * Get answer from party creation
+	 *
+	 * @param {object} pkt - PACKET.ZC.GROUP_ISALIVE
+	 */
+	function onPartyIsAlive( pkt )
+	{
+		// TODO: save is pkt.isDead, in new Party UI this show dead icon
+	}
 	/**
 	 * Get list of party members
 	 *

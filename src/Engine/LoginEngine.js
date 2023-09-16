@@ -24,8 +24,8 @@ define(function( require )
 	var Session      = require('Engine/SessionStorage');
 	var CharEngine   = require('Engine/CharEngine');
 	var Network      = require('Network/NetworkManager');
-	var PACKET       = require('Network/PacketStructure');
 	var PACKETVER    = require('Network/PacketVerManager');
+	var PACKET       = require('Network/PacketStructure');
 	var Renderer     = require('Renderer/Renderer');
 	var UIManager    = require('UI/UIManager');
 	var WinList      = require('UI/Components/WinList/WinList');

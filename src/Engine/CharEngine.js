@@ -23,8 +23,8 @@ define(function( require )
 	var Session    = require('Engine/SessionStorage');
 	var MapEngine  = require('Engine/MapEngine');
 	var Network    = require('Network/NetworkManager');
-	var PACKET     = require('Network/PacketStructure');
 	var PACKETVER  = require('Network/PacketVerManager');
+	var PACKET     = require('Network/PacketStructure');
 	var UIManager  = require('UI/UIManager');
 	var Background = require('UI/Background');
 	var CharSelect = require('UI/Components/CharSelect/CharSelect');
@@ -94,23 +94,20 @@ define(function( require )
 		Network.hookPacket( PACKET.HC.REFUSE_MAKECHAR,               onCreationFail );
 		Network.hookPacket( PACKET.HC.ACCEPT_DELETECHAR,             onDeleteAnswer );
 		Network.hookPacket( PACKET.HC.REFUSE_DELETECHAR,             onDeleteAnswer );
-		if (PACKETVER.value < 20170329) {
-			Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR, onReceiveMapInfo);
-		} else {
-			Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR2,               onReceiveMapInfo );
-		}
+		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR,                onReceiveMapInfo);
+		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR2,               onReceiveMapInfo );
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST,   onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
 		Network.hookPacket( PACKET.HC.SECOND_PASSWD_LOGIN, 			 onPincodeCheckSuccess);
 
 		//Select Character Window
-		if((PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727) || PACKETVER.value >= 20100803){
-			charSelectNum = 1; //Old UI with mapname
-		} else if (_value >= 20141016){
-			charSelectNum = 2; //Renewal UI with Sex + Race
+		if (PACKETVER.value >= 20141016) {
+			charSelectNum = 2; //Renewal UI with Sex + Race - V3 Not implemented Yet
+		} else if (PACKETVER.value >= 20100720){
+			charSelectNum = 2; //Old UI with mapname
 		} else {
-			charSelectNum = 0; //Old UI
+			charSelectNum = 1; //Old UI
 		}
 	}
 

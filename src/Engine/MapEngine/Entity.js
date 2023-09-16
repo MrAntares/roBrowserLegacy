@@ -29,8 +29,8 @@ define(function( require )
 	var Guild             = require('Engine/MapEngine/Guild');
 	var Session           = require('Engine/SessionStorage');
 	var Network           = require('Network/NetworkManager');
-	var PACKET            = require('Network/PacketStructure');
 	var PACKETVER	      = require('Network/PacketVerManager');
+	var PACKET            = require('Network/PacketStructure');
 	var MapPreferences    = require('Preferences/Map');
 	var Altitude          = require('Renderer/Map/Altitude');
 	var Renderer          = require('Renderer/Renderer');
@@ -851,6 +851,7 @@ define(function( require )
 					entity.job = pkt.value;
 					if (entity === Session.Entity) {
 						BasicInfo.update('job', pkt.value);
+						Session.Character.job = pkt.value;
 					}
 				}
 				break;
@@ -2059,6 +2060,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME,                  onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL,               onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL2,              onEntityIdentity );
+		Network.hookPacket( PACKET.ZC.ACK_REQNAMEALL3,              onEntityIdentity );
 		Network.hookPacket( PACKET.ZC.CHANGE_DIRECTION,             onEntityDirectionChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE,                onEntityViewChange );
 		Network.hookPacket( PACKET.ZC.SPRITE_CHANGE2,               onEntityViewChange );
@@ -2098,6 +2100,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.QUEST_NOTIFY_EFFECT,          onEntityQuestNotifyEffect);
 		Network.hookPacket( PACKET.ZC.BLADESTOP,                    onBladeStopPacket);
 		Network.hookPacket( PACKET.ZC.NOTIFY_EXP,                   onNotifyExp);
+		Network.hookPacket( PACKET.ZC.NOTIFY_EXP2,                  onNotifyExp);
 		Network.hookPacket( PACKET.ZC.BOSS_INFO,                    onMarkMvp);
 		Network.hookPacket( PACKET.ZC.MVP,                          onEntityMvpReward);
 		Network.hookPacket( PACKET.ZC.MVP_GETTING_ITEM,             onEntityMvpRewardItemMessage);

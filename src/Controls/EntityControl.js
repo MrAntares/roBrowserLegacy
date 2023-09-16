@@ -22,7 +22,8 @@ define(function( require )
 	var Camera      = require('Renderer/Camera');
 	var Session     = require('Engine/SessionStorage');
 	var Friends     = require('Engine/MapEngine/Friends');
-	var PACKET      = require('Network/PacketStructure');
+	var PACKETVER   = require('Network/PacketVerManager');
+	var PACKET      = require('Network/PacketStructure');	
 	var Network     = require('Network/NetworkManager');
 	var Cursor      = require('UI/CursorManager');
 	var InputBox    = require('UI/Components/InputBox/InputBox');
@@ -100,7 +101,12 @@ define(function( require )
 			case this.display.TYPE.NONE:
 				this.display.load = this.display.TYPE.LOADING;
 
-				var pkt = new PACKET.CZ.REQNAME();
+				var pkt;
+				if(PACKETVER.value >= 20180307) {
+					pkt = new PACKET.CZ.REQNAME2();
+				} else {
+					pkt = new PACKET.CZ.REQNAME();
+				}
 				pkt.AID = this.GID;
 				Network.sendPacket(pkt);
 				break;
@@ -155,15 +161,22 @@ define(function( require )
 
 			case Entity.TYPE_ITEM:
 				Cursor.setType( Cursor.ACTION.PICK, true, 2 );
-
-				pkt       = new PACKET.CZ.ITEM_PICKUP();
+				if(PACKETVER.value >= 20180307) {
+					pkt       = new PACKET.CZ.ITEM_PICKUP2();
+				} else {
+					pkt       = new PACKET.CZ.ITEM_PICKUP();
+				}
 				pkt.ITAID = this.GID;
 
 				// Too far, walking to it
 				if (vec2.distance(Session.Entity.position, this.position) > 2) {
 					Session.moveAction = pkt;
 
-					pkt         = new PACKET.CZ.REQUEST_MOVE();
+					if(PACKETVER.value >= 20180307) {
+						pkt         = new PACKET.CZ.REQUEST_MOVE2();
+					} else {
+						pkt         = new PACKET.CZ.REQUEST_MOVE();
+					}
 					pkt.dest[0] = Mouse.world.x;
 					pkt.dest[1] = Mouse.world.y;
 					Network.sendPacket(pkt);
@@ -185,7 +198,11 @@ define(function( require )
 
 					// Update look
 					Session.Entity.lookTo( this.position[0], this.position[1] );
-					pkt = new PACKET.CZ.CHANGE_DIRECTION();
+					if(PACKETVER.value >= 20180307) {
+						pkt = new PACKET.CZ.CHANGE_DIRECTION2();
+					} else {
+						pkt = new PACKET.CZ.CHANGE_DIRECTION();
+					}
 					pkt.headDir = Session.Entity.headDir;
 					pkt.dir     = Session.Entity.direction;
 					Network.sendPacket(pkt);
@@ -211,7 +228,11 @@ define(function( require )
 					}
 				}	
 
-				pkt         = new PACKET.CZ.REQUEST_MOVE();
+				if(PACKETVER.value >= 20180307) {
+					pkt         = new PACKET.CZ.REQUEST_MOVE2();
+				} else {
+					pkt         = new PACKET.CZ.REQUEST_MOVE();
+				}
 				pkt.dest[0] = x;
 				pkt.dest[1] = y;
 				Network.sendPacket(pkt);
@@ -387,7 +408,11 @@ define(function( require )
 						return true;
 					}
 				
-					pkt           = new PACKET.CZ.REQUEST_ACT();
+					if(PACKETVER.value >= 20180307) {
+						pkt        = new PACKET.CZ.REQUEST_ACT2();
+					} else {
+						pkt        = new PACKET.CZ.REQUEST_ACT();
+					}
 					pkt.action    = 7;
 					pkt.targetGID = this.GID;
 
@@ -400,7 +425,11 @@ define(function( require )
 					// Move to entity
 					Session.moveAction = pkt;
 
-					pkt         = new PACKET.CZ.REQUEST_MOVE();
+					if(PACKETVER.value >= 20180307) {
+						pkt         = new PACKET.CZ.REQUEST_MOVE2();
+					} else {
+						pkt         = new PACKET.CZ.REQUEST_MOVE();
+					}
 					pkt.dest[0] = out[(count-1)*2 + 0];
 					pkt.dest[1] = out[(count-1)*2 + 1];
 					Network.sendPacket(pkt);

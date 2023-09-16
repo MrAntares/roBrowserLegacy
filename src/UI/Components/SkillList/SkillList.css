@@ -37,9 +37,6 @@
 
 #lvlup_job { z-index:51; position:absolute; right:0px; bottom:0px; width:43px; height:43px; border:none; background-color:transparent; background-repeat:no-repeat; }
 
-/* hidden 3 jobs */
-#SkillList label[for="tab-3"] { display: none; }
-
 #SkillList .tab-content { overflow-y:auto; padding:5px; border-top:1px solid #c6c6c6; width:calc(100% - 12px); height:370px; }
 
 /* skill tree with tabs */

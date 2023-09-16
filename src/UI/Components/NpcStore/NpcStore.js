@@ -22,8 +22,8 @@ define(function(require)
 	var Preferences  = require('Core/Preferences');
 	var Session      = require('Engine/SessionStorage');
 	var Mouse        = require('Controls/MouseEventHandler');
-	var PACKETVER    = require('Network/PacketVerManager');
 	var Network      = require('Network/NetworkManager');
+	var PACKETVER    = require('Network/PacketVerManager');
 	var PACKET       = require('Network/PacketStructure');
 	var KEYS         = require('Controls/KeyEventHandler');
 	var UIManager    = require('UI/UIManager');

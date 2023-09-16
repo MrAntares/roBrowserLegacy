@@ -152,7 +152,37 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable )
 	PalNameTable[JobId.DOG_STALKER]      = JobNameTable[JobId.ROGUE_H];	// Stalker
 	
 	//PalNameTable[JobId.CART_DO_SUMMONER] 	 = "\xb0\xed\xbe\xe7\xc0\xcc\xc4\xab\xc6\xae";	// "cat cart"
-	
+
+	// 4th
+	PalNameTable[JobId.DRAGON_KNIGHT]    = JobNameTable[JobId.DRAGON_KNIGHT];
+	PalNameTable[JobId.MEISTER]          = JobNameTable[JobId.MEISTER];
+	PalNameTable[JobId.SHADOW_CROSS]     = JobNameTable[JobId.SHADOW_CROSS];
+	PalNameTable[JobId.ARCH_MAGE]        = JobNameTable[JobId.ARCH_MAGE];
+	PalNameTable[JobId.CARDINAL]         = JobNameTable[JobId.CARDINAL];
+	PalNameTable[JobId.WINDHAWK]         = JobNameTable[JobId.WINDHAWK];
+	PalNameTable[JobId.IMPERIAL_GUARD]   = JobNameTable[JobId.IMPERIAL_GUARD];
+	PalNameTable[JobId.BIOLO]            = JobNameTable[JobId.BIOLO];
+	PalNameTable[JobId.ABYSS_CHASER]     = JobNameTable[JobId.ABYSS_CHASER];
+	PalNameTable[JobId.ELEMENTAL_MASTER] = JobNameTable[JobId.ELEMENTAL_MASTER];
+	PalNameTable[JobId.INQUISITOR]       = JobNameTable[JobId.INQUISITOR];
+	PalNameTable[JobId.TROUBADOUR]       = JobNameTable[JobId.TROUBADOUR];
+	PalNameTable[JobId.TROUVERE]         = JobNameTable[JobId.TROUVERE];
+
+	PalNameTable[JobId.WINDHAWK2]        = JobNameTable[JobId.WINDHAWK2];
+	PalNameTable[JobId.MEISTER2]         = JobNameTable[JobId.MEISTER2];
+	PalNameTable[JobId.DRAGON_KNIGHT2]   = JobNameTable[JobId.DRAGON_KNIGHT2];
+	PalNameTable[JobId.IMPERIAL_GUARD2]  = JobNameTable[JobId.IMPERIAL_GUARD2];
+
+	PalNameTable[JobId.SKY_EMPEROR]      = JobNameTable[JobId.SKY_EMPEROR];
+	PalNameTable[JobId.SOUL_ASCETIC]     = JobNameTable[JobId.SOUL_ASCETIC];
+	PalNameTable[JobId.SHINKIRO]         = JobNameTable[JobId.SHINKIRO];
+	PalNameTable[JobId.SHIRANUI]         = JobNameTable[JobId.SHIRANUI];
+	PalNameTable[JobId.NIGHT_WATCH]      = JobNameTable[JobId.NIGHT_WATCH];
+	PalNameTable[JobId.HYPER_NOVICE]     = JobNameTable[JobId.HYPER_NOVICE];
+	PalNameTable[JobId.SPIRIT_HANDLER]   = JobNameTable[JobId.SPIRIT_HANDLER];
+
+	PalNameTable[JobId.SKY_EMPEROR2]     = JobNameTable[JobId.SKY_EMPEROR2];
+
 	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
 		var i, count = arguments.length;

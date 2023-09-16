@@ -17,6 +17,7 @@ define(function(require)
 	var Preferences		= require('Core/Preferences');
 	var Session			= require('Engine/SessionStorage');
 	var Renderer		= require('Renderer/Renderer');
+	var PACKETVER     = require('Network/PacketVerManager');
 	var PACKET			= require('Network/PacketStructure');
 	var EntityManager	= require('Renderer/EntityManager');
 	var Network			= require('Network/NetworkManager');
@@ -210,8 +211,12 @@ define(function(require)
 			if (!count) {
 				return true;
 			}
-			
-			pkt           = new PACKET.CZ.REQUEST_ACT();
+
+			if(PACKETVER.value >= 20180307) {
+				pkt        = new PACKET.CZ.REQUEST_ACT2();
+			} else {
+				pkt        = new PACKET.CZ.REQUEST_ACT();
+			}
 			pkt.action    = 7;
 			pkt.targetGID = entityFocus.GID;
 
@@ -224,7 +229,11 @@ define(function(require)
 			// Move to entity
 			Session.moveAction = pkt;
 
-			pkt         = new PACKET.CZ.REQUEST_MOVE();
+			if(PACKETVER.value >= 20180307) {
+				pkt         = new PACKET.CZ.REQUEST_MOVE2();
+			} else {
+				pkt         = new PACKET.CZ.REQUEST_MOVE();
+			}
 			pkt.dest[0] = out[(count-1)*2 + 0];
 			pkt.dest[1] = out[(count-1)*2 + 1];
 			Network.sendPacket(pkt);
@@ -304,7 +313,12 @@ define(function(require)
 				
 				// If there is valid cell send move packet
 				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
-					var pkt = new PACKET.CZ.REQUEST_MOVE();
+					var pkt;
+					if(PACKETVER.value >= 20180307) {
+						pkt         = new PACKET.CZ.REQUEST_MOVE2();
+					} else {
+						pkt         = new PACKET.CZ.REQUEST_MOVE();
+					}
 					pkt.dest = dest;
 					Network.sendPacket(pkt);
 				}

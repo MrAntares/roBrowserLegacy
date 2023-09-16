@@ -898,7 +898,12 @@ define(function(require)
 	};
 
 	DB.getNameByGID = function getNameByGID (GID){
-		var pkt   = new PACKET.CZ.REQNAME_BYGID();
+		var pkt;
+		if(PACKETVER.value >= 20180307) {
+			pkt = new PACKET.CZ.REQNAME_BYGID2();
+		} else {
+			pkt = new PACKET.CZ.REQNAME_BYGID();
+		}
 		pkt.GID   = GID;
 		Network.sendPacket(pkt);
 		DB.CNameTable[pkt.GID] = 'Unknown';
