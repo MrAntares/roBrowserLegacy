@@ -13,7 +13,12 @@ const platform = "Web";
     //delete all files in dist
     fs.rmSync(dist + platform +'/AI', { recursive: true, force: true });
     fs.rmSync(dist + platform +'/index.html', { recursive: true, force: true });
+    fs.rmSync(dist + platform +'/GrannyModelViewer.js', { recursive: true, force: true });
+    fs.rmSync(dist + platform +'/GrfViewer.js', { recursive: true, force: true });
+    fs.rmSync(dist + platform +'/MapViewer.js', { recursive: true, force: true });
+    fs.rmSync(dist + platform +'/ModelViewer.js', { recursive: true, force: true });
     fs.rmSync(dist + platform +'/Online.js', { recursive: true, force: true });
+    fs.rmSync(dist + platform +'/StrViewer.js', { recursive: true, force: true });
     fs.rmSync(dist + platform +'/ThreadEventHandler.js', { recursive: true, force: true });
 
     if (!fs.existsSync(dist)){
@@ -23,8 +28,28 @@ const platform = "Web";
         fs.mkdirSync(dist + platform);
     }
 
+    if ((args && (args['G'])) || args['all'] || Object.keys(args).length === 0) {
+        compile("GrannyModelViewer", args['m']);
+    }
+
+    if ((args && (args['D'])) || args['all'] || Object.keys(args).length === 0) {
+        compile("GrfViewer", args['m']);
+    }
+
+    if ((args && (args['V'])) || args['all'] || Object.keys(args).length === 0) {
+        compile("MapViewer", args['m']);
+    }
+
+    if ((args && (args['M'])) || args['all'] || Object.keys(args).length === 0) {
+        compile("ModelViewer", args['m']);
+    }
+
     if ((args && args['O']) || args['all'] || Object.keys(args).length === 0) {
         compile("Online", args['m']);
+    }
+
+    if ((args && args['S']) || args['all'] || Object.keys(args).length === 0) {
+        compile("StrViewer", args['m']);
     }
 
     if ((args && args['T']) || args['all'] || Object.keys(args).length === 0) {
@@ -51,8 +76,34 @@ function compile(appName, isMinify) {
             startFile = ["src/Vendors/require.js"];
             break;
 
+        case "GrannyModelViewer":
+            appPath = "App/GrannyModelViewer";
+            startFile = ["src/Vendors/require.js"];
+            break;
+
+        case "GrfViewer":
+            appPath = "App/GrfViewer";
+            startFile = ["src/Vendors/require.js"];
+            break;
+
+        case "MapViewer":
+            appPath = "App/MapViewer";
+            startFile = ["src/Vendors/require.js"];
+            break;
+            break;
+
+        case "ModelViewer":
+            appPath = "App/ModelViewer";
+            startFile = ["src/Vendors/require.js"];
+            break;
+
         case "Online":
             appPath = "App/Online";
+            startFile = ["src/Vendors/require.js"];
+            break;
+
+        case "StrViewer":
+            appPath = "App/StrViewer";
             startFile = ["src/Vendors/require.js"];
             break;
 
