@@ -248,18 +248,21 @@ define(function(require)
 				}
 
 				var sk = SkillInfo[skid];
+				if(sk?.MaxLv) {
+					skillDependencyTree[skid] = {
+						'dependency': [],
+						'position': pos,
+						'list': list,
+						'MaxLv': sk.MaxLv
+					};
 
-				skillDependencyTree[skid] = {
-					'dependency': [],
-					'position': pos,
-					'list': list,
-					'MaxLv': sk.MaxLv
-				};
-
-				if (sk?.['_NeedSkillList'] !== undefined) {
-					sk['_NeedSkillList'].forEach(function (item) {
-						skillDependencyTree[skid]['dependency'][item[0]] = item[1];
-					})
+					if (sk?.['_NeedSkillList'] !== undefined) {
+						sk['_NeedSkillList'].forEach(function (item) {
+							skillDependencyTree[skid]['dependency'][item[0]] = item[1];
+						})
+					}
+				} else {
+					console.log("Something wrong with this skill: %d", skid);
 				}
 			});
 		});
@@ -311,7 +314,7 @@ define(function(require)
 		rememberChoice.forEach(function (item, skId) {
 			if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
 				var sk = skillDependencyTree[skId];
-				var skillbox = SkillList.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
+				var skillbox = SkillList.ui.find('#positionSkills' + skId + ' .s' + sk.position);
 				if (skillbox.find('.current').text() != sk.MaxLv ) {
 					totalCounter += rememberChoice[skId]['count'];
 					skillbox.children().removeClass('disabled');
@@ -659,14 +662,14 @@ define(function(require)
 	SkillList.useSkill = function useSkill( skill, level )
 	{
 		// Self
-		if (skill.type && SkillTargetSelection.TYPE.SELF) {
+		if (skill.type & SkillTargetSelection.TYPE.SELF) {
 			this.onUseSkill( skill.SKID, level ? level : skill.level);
 		}
 
 		skill.useLevel = level;
 
 		// no elseif intended (see flying kick).
-		if (skill.type && SkillTargetSelection.TYPE.TARGET) {
+		if (skill.type & SkillTargetSelection.TYPE.TARGET) {
 			SkillTargetSelection.append();
 			SkillTargetSelection.set(skill, skill.type);
 		}

@@ -102,6 +102,13 @@ define(['Core/Configs'], function( Configs )
 			blockSize += 4; // job_exp
 		}
 
+		if (_value >= 20201007) {
+			blockSize += 4; // hp
+			blockSize += 4; // maxhp
+			blockSize += 6; // sp
+			blockSize += 6; // maxsp
+		}
+
 		return blockSize;
 	}
 
@@ -130,7 +137,7 @@ define(['Core/Configs'], function( Configs )
 		if (!blockSize || length % blockSize) {
 			console.error('CHARACTER_INFO size error!! blockSize : "'+ blockSize +'", list length: ' + length + ', auto-detect...');
 
-			var knownSize = [106, 108, 112, 116, 124, 128, 132, 136, 140, 144, 145, 147, 155];
+			var knownSize = [106, 108, 112, 116, 124, 128, 132, 136, 140, 144, 145, 147, 155, 175];
 			var matches = [];
 
 			for (i = 0, count = knownSize.length; i < count; ++i) {
@@ -152,12 +159,12 @@ define(['Core/Configs'], function( Configs )
 			out[i] = {};
 			out[i].GID = fp.readULong();
 			out[i].exp = fp.readLong();
-			if (_value >= 20170830) {
+			if (_value >= 20170830 || blockSize >= 155) {
 				fp.readLong();
 			}
 			out[i].money = fp.readLong();
 			out[i].jobexp = fp.readLong();
-			if (_value >= 20170830) {
+			if (_value >= 20170830 || blockSize >= 155) {
 				fp.readLong();
 			}
 			out[i].joblevel = fp.readLong();
@@ -173,11 +180,24 @@ define(['Core/Configs'], function( Configs )
 				out[i].maxhp = fp.readShort();
 			} else {
 				out[i].hp = fp.readLong();
+				if (_value >= 20201007 || blockSize >= 175) {
+					fp.readLong();
+				}
 				out[i].maxhp = fp.readLong();
+				if (_value >= 20201007 || blockSize >= 175) {
+					fp.readLong();
+				}
 			}
 
-			out[i].sp = fp.readShort();
-			out[i].maxsp = fp.readShort();
+			if(_value < 20201007 || blockSize < 175) {
+				out[i].sp = fp.readShort();
+				out[i].maxsp = fp.readShort();
+			} else {
+				out[i].sp = fp.readLong();
+				fp.readLong();
+				out[i].maxsp = fp.readLong();
+				fp.readLong();
+			}
 			out[i].speed = fp.readShort();
 			out[i].job = fp.readShort();
 			out[i].head = fp.readShort();
@@ -265,7 +285,7 @@ define(['Core/Configs'], function( Configs )
 			packet   = param[0];
 			param[0] = date;
 
-			if (!packet.prototype.versions)
+			if (!packet?.prototype?.versions)
 				packet.prototype.versions = [];
 
 			packet.prototype.versions.push(list[i]);
@@ -281,7 +301,8 @@ define(['Core/Configs'], function( Configs )
 
 		// Get Back data
 		get value() {
-			return _value;
+			return (_value > 0 ? _value : ROConfig.servers[0].packetver);
+			//return _value;
 		},
 
 		set value(v) {

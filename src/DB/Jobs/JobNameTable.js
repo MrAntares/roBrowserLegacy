@@ -94,6 +94,36 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.OBORO] 			 = "oboro";
 	JobNameTable[JobId.REBELLION] 		 = "rebellion";
 
+	// 4th
+	JobNameTable[JobId.DRAGON_KNIGHT] = "dragon_knight";
+	JobNameTable[JobId.MEISTER] = "meister";
+	JobNameTable[JobId.SHADOW_CROSS] = "shadow_cross";
+	JobNameTable[JobId.ARCH_MAGE] = "arch_mage";
+	JobNameTable[JobId.CARDINAL] = "cardinal";
+	JobNameTable[JobId.WINDHAWK] = "windhawk";
+	JobNameTable[JobId.IMPERIAL_GUARD] = "imperial_guard";
+	JobNameTable[JobId.BIOLO] = "biolo";
+	JobNameTable[JobId.ABYSS_CHASER] = "abyss_chaser";
+	JobNameTable[JobId.ELEMENTAL_MASTER] = "elemetal_master";
+	JobNameTable[JobId.INQUISITOR] = "inquisitor";
+	JobNameTable[JobId.TROUBADOUR] = "troubadour";
+	JobNameTable[JobId.TROUVERE] = "trouvere";
+
+	JobNameTable[JobId.WINDHAWK2] = "wolf_windhawk";
+	JobNameTable[JobId.MEISTER2] = "meister_madogear2";
+	JobNameTable[JobId.DRAGON_KNIGHT2] = "dragon_knight_chicken";
+	JobNameTable[JobId.IMPERIAL_GUARD2] = "imperial_guard_chicken";
+
+	JobNameTable[JobId.SKY_EMPEROR] = "sky_emperor";
+	JobNameTable[JobId.SOUL_ASCETIC] = "soul_ascetic";
+	JobNameTable[JobId.SHINKIRO] = "shinkiro";
+	JobNameTable[JobId.SHIRANUI] = "shiranui";
+	JobNameTable[JobId.NIGHT_WATCH] = "night_watch";
+	JobNameTable[JobId.HYPER_NOVICE] = "hyper_novice";
+	JobNameTable[JobId.SPIRIT_HANDLER] = "spirit_handler";
+
+	JobNameTable[JobId.SKY_EMPEROR2] = "sky_emperor2";
+
 	//MOUNTS
 	JobNameTable[JobId.PORING_NOVICE]     = "\xb3\xeb\xba\xf1\xbd\xba\xc6\xf7\xb8\xb5";
 
@@ -163,6 +193,9 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.PIG_CREATOR]       = "\xc5\xa9\xb8\xae\xbf\xa1\xc0\xcc\xc5\xcd\xb8\xe4\xb5\xc5\xc1\xf6";
 	JobNameTable[JobId.LION_CRUSADER_H]   = "\xbb\xe7\xc0\xda\xc6\xc8\xb6\xf3\xb5\xf2";
 	JobNameTable[JobId.DOG_STALKER]       = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xbd\xba\xc5\xe4\xc4\xbf";
+
+
+
 
 	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];

@@ -164,6 +164,28 @@ define(["./JobConst"], function( JobId )
 	JobHitSoundTable[JobId.LION_CRUSADER_H]   = ["player_metal.wav"];
 	JobHitSoundTable[JobId.DOG_STALKER]       = ["player_wooden_male.wav"];
 
+	// 4th
+	JobHitSoundTable[JobId.DRAGON_KNIGHT]      = ["player_metal.wav"];
+	JobHitSoundTable[JobId.ARCH_MAGE]          = ["player_clothes.wav"];
+	JobHitSoundTable[JobId.WINDHAWK]           = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.CARDINAL]           = ["player_clothes.wav"];
+	JobHitSoundTable[JobId.MEISTER]            = ["player_clothes.wav"];
+	JobHitSoundTable[JobId.SHADOW_CROSS]       = ["player_wooden_male.wav"];
+
+	JobHitSoundTable[JobId.IMPERIAL_GUARD]      = ["player_metal.wav"];
+	JobHitSoundTable[JobId.ELEMENTAL_MASTER]    = ["player_clothes.wav"];
+	JobHitSoundTable[JobId.TROUBADOUR]          = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.TROUVERE]            = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.INQUISITOR]          = ["player_metal.wav"];
+	JobHitSoundTable[JobId.BIOLO]               = ["player_clothes.wav"];
+	JobHitSoundTable[JobId.ABYSS_CHASER]        = ["player_wooden_male.wav"];
+
+	JobHitSoundTable[JobId.DRAGON_KNIGHT2]      = ["player_metal.wav"];
+	JobHitSoundTable[JobId.IMPERIAL_GUARD2]     = ["player_metal.wav"];
+	JobHitSoundTable[JobId.WINDHAWK2]           = ["player_wooden_male.wav"];
+	JobHitSoundTable[JobId.MEISTER2]            = ["player_clothes.wav"];
+
+
 	function duplicateEntry(origin) {
 		var value = JobHitSoundTable[origin];
 		var i, count = arguments.length;

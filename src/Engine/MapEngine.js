@@ -25,6 +25,7 @@ define(function( require )
 	var Events           = require('Core/Events');
 	var Session          = require('Engine/SessionStorage');
 	var Network          = require('Network/NetworkManager');
+	var PACKETVER        = require('Network/PacketVerManager');
 	var PACKET           = require('Network/PacketStructure');
 	var Renderer         = require('Renderer/Renderer');
 	var Camera           = require('Renderer/Camera');
@@ -106,7 +107,12 @@ define(function( require )
 			}
 
 			// Success, try to login.
-			var pkt        = new PACKET.CZ.ENTER();
+			var pkt;
+			if(PACKETVER.value >= 20180307) {
+				pkt        = new PACKET.CZ.ENTER2();
+			} else {
+				pkt        = new PACKET.CZ.ENTER();
+			}
 			pkt.AID        = Session.AID;
 			pkt.GID        = Session.GID;
 			pkt.AuthCode   = Session.AuthCode;
@@ -126,7 +132,12 @@ define(function( require )
 			var is_sec_hbt = Configs.get('sec_HBT', null);
 
 			// Ping
-			var ping = new PACKET.CZ.REQUEST_TIME();
+			var ping;
+			if(PACKETVER.value >= 20180307) {
+				ping = new PACKET.CZ.REQUEST_TIME2();
+			} else {
+				ping = new PACKET.CZ.REQUEST_TIME();
+			}
 			var startTick = Date.now();
 			Network.setPing(function(){
 			if(is_sec_hbt)Network.sendPacket(hbt);
@@ -303,7 +314,12 @@ define(function( require )
 			// TODO: find a better place to put it
 			jQuery(window).on('keydown.map', function( event ){
 				if (event.which === KEYS.INSERT) {
-					var pkt = new PACKET.CZ.REQUEST_ACT();
+					var pkt;
+					if(PACKETVER.value >= 20180307) {
+						pkt        = new PACKET.CZ.REQUEST_ACT2();
+					} else {
+						pkt        = new PACKET.CZ.REQUEST_ACT();
+					}
 					pkt.action = Session.Entity.action === Session.Entity.ACTION.SIT ? 3 : 2;
 					Network.sendPacket(pkt);
 					event.stopImmediatePropagation();
@@ -617,7 +633,12 @@ define(function( require )
 		if (Session.Entity.action === Session.Entity.ACTION.SIT || KEYS.SHIFT) {
 			Session.Entity.lookTo( Mouse.world.x, Mouse.world.y );
 
-			var pkt     = new PACKET.CZ.CHANGE_DIRECTION();
+			var pkt;
+			if(PACKETVER.value >= 20180307) {
+				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
+			} else {
+				pkt = new PACKET.CZ.CHANGE_DIRECTION();
+			}
 			pkt.headDir = Session.Entity.headDir;
 			pkt.dir     = Session.Entity.direction;
 			Network.sendPacket(pkt);
@@ -653,8 +674,12 @@ define(function( require )
 		                    Math.round(Session.Entity.position[1]) === Mouse.world.y);
 
 		if (isWalkable && !isCurrentPos) {
-			var pkt = new PACKET.CZ.REQUEST_MOVE();
-
+			var pkt;
+			if(PACKETVER.value >= 20180307) {
+				pkt         = new PACKET.CZ.REQUEST_MOVE2();
+			} else {
+				pkt         = new PACKET.CZ.REQUEST_MOVE();
+			}
 			if (!checkFreeCell(Mouse.world.x, Mouse.world.y, 1, pkt.dest)) {
 				pkt.dest[0] = Mouse.world.x;
 				pkt.dest[1] = Mouse.world.y;
@@ -778,7 +803,11 @@ define(function( require )
 	function onDropItem( index, count )
 	{
 		if (count) {
-			var pkt   = new PACKET.CZ.ITEM_THROW();
+			if(PACKETVER.value >= 20180307) {
+				var pkt   = new PACKET.CZ.ITEM_THROW2();
+			} else {
+				var pkt   = new PACKET.CZ.ITEM_THROW();
+			}
 			pkt.Index = index;
 			pkt.count = count;
 			Network.sendPacket(pkt);
@@ -793,7 +822,12 @@ define(function( require )
 	 */
 	function onUseItem( index )
 	{
-		var pkt   = new PACKET.CZ.USE_ITEM();
+		var pkt;
+		if(PACKETVER.value >= 20180307) { // not sure - this date is when the shuffle packets stoped
+			pkt = new PACKET.CZ.USE_ITEM2();
+		} else {
+			pkt = new PACKET.CZ.USE_ITEM();
+		}
 		pkt.index = index;
 		pkt.AID   = Session.Entity.GID;
 		Network.sendPacket(pkt);
