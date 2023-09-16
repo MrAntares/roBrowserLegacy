@@ -1,2 +1,37 @@
 # Auto detect text files and perform LF normalization
-* text=auto
+*					text=auto
+
+# Source code
+*.bash				text eol=lf
+*.bat				text eol=crlf
+*.cmd				text eol=crlf
+*.css				text diff=css
+*.html				text diff=html
+*.php				text diff=php
+*.ps1				text eol=crlf
+*.scss				text diff=css
+*.sh				text eol=lf
+
+# Documentation
+*.md				text diff=markdown
+
+# Configs
+*.lock				text -diff
+package.json		text eol=lf
+package-lock.json	text eol=lf -diff
+
+# Graphics
+*.bmp				binary
+*.gif				binary
+*.png				binary
+
+# Audio
+*.mp3				binary
+*.wav				binary
+
+# Prevents massive diffs from built files
+node_modules/*		binary
+dist/*				binary
+
+# RO files
+*.grf				binary

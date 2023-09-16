@@ -1,0 +1,24 @@
+{
+	"version": "2.0.0",
+	"tasks":
+	[
+		{
+			"type": "npm",
+			"group": "build",
+			"label": "npm: build",
+			"detail": "node ./tools/builder-web.js",
+
+			"script": "build",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"group": "build",
+			"label": "npm: build (minified)",
+			"detail": "node ./tools/builder-web.js -- -m",
+
+			"script": "build -- -m",
+			"problemMatcher": []
+		}
+	]
+}
