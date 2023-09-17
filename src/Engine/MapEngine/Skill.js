@@ -220,6 +220,7 @@ define(function( require )
 	 */
 	function onShortCutList( pkt )
 	{
+		if(pkt.tab && pkt.tab > 0) return; // not available yet
 		ShortCut.setList( pkt.ShortCutKey );
 	}
 
