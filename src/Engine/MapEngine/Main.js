@@ -473,6 +473,90 @@ define(function( require )
 				SkillList.onLevelUp();
 				break;
 
+			case StatusProperty.VAR_SP_POW:
+				BasicInfo.update('pow', amount);
+				break;
+
+			case StatusProperty.VAR_SP_STA:
+				BasicInfo.update('sta', amount);
+				break;
+
+			case StatusProperty.VAR_SP_WIS:
+				BasicInfo.update('wis', amount);
+				break;
+
+			case StatusProperty.VAR_SP_SPL:
+				BasicInfo.update('spl', amount);
+				break;
+
+			case StatusProperty.VAR_SP_CON:
+				BasicInfo.update('con', amount);
+				break;
+
+			case StatusProperty.VAR_SP_CRT:
+				BasicInfo.update('crt', amount);
+				break;
+
+			case StatusProperty.VAR_SP_PATK:
+				BasicInfo.update('patk', amount);
+				break;
+
+			case StatusProperty.VAR_SP_SMATK:
+				BasicInfo.update('smatk', amount);
+				break;
+
+			case StatusProperty.VAR_SP_RES:
+				BasicInfo.update('res', amount);
+				break;
+
+			case StatusProperty.VAR_SP_MRES:
+				BasicInfo.update('mres', amount);
+				break;
+
+			case StatusProperty.VAR_SP_HPLUS:
+				BasicInfo.update('hplus', amount);
+				break;
+
+			case StatusProperty.VAR_SP_CRATE:
+				BasicInfo.update('crate', amount);
+				break;
+
+			case StatusProperty.VAR_SP_TRAITPOINT:
+				BasicInfo.update('trait_point', amount);
+				break;
+
+			case StatusProperty.VAR_SP_AP:
+				BasicInfo.update('ap', amount);
+				break;
+
+			case StatusProperty.VAR_SP_MAXAP:
+				BasicInfo.update('max_ap', amount);
+				break;
+
+			case StatusProperty.VAR_SP_UPOW:
+				BasicInfo.update('upow', amount);
+				break;
+
+			case StatusProperty.VAR_SP_USTA:
+				BasicInfo.update('usta', amount);
+				break;
+
+			case StatusProperty.VAR_SP_UWIS:
+				BasicInfo.update('uwis', amount);
+				break;
+
+			case StatusProperty.VAR_SP_USPL:
+				BasicInfo.update('uspl', amount);
+				break;
+
+			case StatusProperty.VAR_SP_UCON:
+				BasicInfo.update('ucon', amount);
+				break;
+
+			case StatusProperty.VAR_SP_UCRT:
+				BasicInfo.update('ucrt', amount);
+				break;
+
 			default:
 				console.log( 'Main::onParameterChange() - Unsupported type', pkt);
 		}

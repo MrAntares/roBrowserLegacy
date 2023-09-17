@@ -188,6 +188,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_STORE,          onStorageItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_STORE2,         onStorageItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_STORE3,         onStorageItemAdded );
+		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_STORE4,         onStorageItemAdded );
 		Network.hookPacket( PACKET.ZC.CLOSE_STORE,                onStorageClose );
 		Network.hookPacket( PACKET.ZC.DELETE_ITEM_FROM_STORE,     onStorageItemRemoved );
 	};
