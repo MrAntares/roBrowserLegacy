@@ -701,7 +701,11 @@ define(function( require )
 			pkt         = new PACKET.CZ.REQUEST_MOVENPC();
 			pkt.GID		= Session.homunId;
 		} else {
-			pkt         = new PACKET.CZ.REQUEST_MOVE();
+			if(PACKETVER.value >= 20180307) {
+				pkt         = new PACKET.CZ.REQUEST_MOVE2();
+			} else {
+				pkt         = new PACKET.CZ.REQUEST_MOVE();
+			}
 		}
 		pkt.dest[0]        = out[(count-1)*2 + 0];
 		pkt.dest[1]        = out[(count-1)*2 + 1];
