@@ -12569,7 +12569,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT.size = 4;
 
-	// 0xb18 - ZC_EXTEND_BODYITEM_SIZE
+	// 0xb1b
+	// this means that player is allowed to do actions
+	PACKET.ZC.NOTIFY_ACTORINIT2 = function PACKET_ZC_NOTIFY_ACTORINIT2(fp, end) {
+    };
+    PACKET.ZC.NOTIFY_ACTORINIT2.size = 2;
+
+	// 0xb18
 	PACKET.ZC.EXTEND_BODYITEM_SIZE = function PACKET_ZC_EXTEND_BODYITEM_SIZE(fp, end) {
         this.type = fp.readUShort();        
     };
