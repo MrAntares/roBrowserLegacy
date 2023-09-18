@@ -611,7 +611,7 @@ define(function(require)
 		}
 		this.ui.find('.content.info .members .online').text(online);
 
-		ChatBox.addText( DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', view.find('.name .value').text()), ChatBox.TYPE.BLUE);
+		ChatBox.addText( DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', view.find('.name .value').text()), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 	};
 
 
