@@ -12760,13 +12760,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.ITID = fp.readULong();
 		this.IsIdentified = fp.readUChar();
 		this.IsDamaged = fp.readUChar();
-		this.RefiningLevel = fp.readUChar();
 		this.slot = {};
 		this.slot.card1 = fp.readULong();
 		this.slot.card2 = fp.readULong();
 		this.slot.card3 = fp.readULong();
 		this.slot.card4 = fp.readULong();
 		this.location = fp.readUShort();
+		this.itemType = fp.readUChar();
 		this.RefiningLevel = fp.readUChar();
 		this.grade = fp.readUChar();
 	};
@@ -12777,6 +12777,25 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.charInfo = PACKETVER.parseCharInfo(fp, end);
 	};
 	PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2.size = -1;
+
+	// 0xb77
+	PACKET.ZC.PC_PURCHASE_ITEMLIST2 = function PACKET_ZC_PC_PURCHASE_ITEMLIST2(fp, end) {
+		this.itemList = (function() {
+			let item_size = 19;
+			var i, count=(end-fp.tell())/item_size|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].ITID = fp.readULong();
+				out[i].price = fp.readLong();
+				out[i].discountprice = fp.readLong();
+				out[i].type = fp.readUChar();
+				out[i].viewSprite = fp.readUShort();
+				out[i].location = fp.readULong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
 	
 	//0xb8d
 	PACKET.ZC.REPUTE_INFO = function PACKET_ZC_REPUTE_INFO(fp, end) {
