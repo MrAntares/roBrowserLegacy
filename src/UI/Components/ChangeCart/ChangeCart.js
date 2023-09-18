@@ -269,7 +269,7 @@ define(function(require)
 			return;
 		}
 
-		ChatBox.addText( msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF );
+		ChatBox.addText( msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_LOG );
 		if (Session.Entity) {
 			Session.Entity.dialog.set( msg );
 		}
