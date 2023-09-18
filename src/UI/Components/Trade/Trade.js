@@ -224,13 +224,13 @@ define(function(require)
 	{
 		// You cannot overlap items on a window
 		if (index in _tmpCount) {
-			ChatBox.addText( DB.getMessage(51), ChatBox.TYPE.ERROR);
+			ChatBox.addText( DB.getMessage(51), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
 		// You cannot trade more than 10 types of items per trade.
 		if (_send.length >= 10) {
-			ChatBox.addText( DB.getMessage(297), ChatBox.TYPE.ERROR);
+			ChatBox.addText( DB.getMessage(297), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
