@@ -40,6 +40,7 @@ define(function( require )
 	var Background       = require('UI/Background');
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
+	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
 	var MiniMap          = require('UI/Components/MiniMap/MiniMap');
 	var BasicInfo        = require('UI/Components/BasicInfo/BasicInfo');
 	var WinStats         = require('UI/Components/WinStats/WinStats');
@@ -214,6 +215,7 @@ define(function( require )
 		StatusIcons.prepare();
 		BasicInfo.prepare();
 		ChatBox.prepare();
+		ChatBoxSettings.prepare();
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
@@ -341,6 +343,7 @@ define(function( require )
 			MiniMap.append();
 			MiniMap.setMap( MapRenderer.currentMap );
 			ChatBox.append();
+			ChatBoxSettings.append();
 			BasicInfo.append();
 			Escape.append();
 			Inventory.append();
