@@ -68,7 +68,7 @@ define(function( require )
 	{
 		// Fail to feed
 		if (!pkt.cRet) {
-			ChatBox.addText( DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR);
+			ChatBox.addText( DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
