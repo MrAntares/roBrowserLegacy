@@ -265,7 +265,7 @@ define(function(require)
 						CashShop.cartItemLen = 0;
 						CashShop.checkCartItemLen = 0;
 						UIManager.showMessageBox( 'Successfully done buying items from cash shop!', 'ok');
-						ChatBox.addText( 'Successfully done buying items from cash shop!', ChatBox.TYPE.INFO);
+						ChatBox.addText( 'Successfully done buying items from cash shop!', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 						CashShop.ui.find('#cashpoint span').html(res.cashPoints);
 						CashShop.ui.find('.cashpoint_footer').html(res.cashPoints);
 						onResetCartListCashShop();
@@ -274,18 +274,18 @@ define(function(require)
 				case 2:
 					//insuficient cashpoint or kafra points
 					UIManager.showMessageBox( 'Insuficient cash points or kafra points!', 'ok');
-					ChatBox.addText( 'Insuficient cash points or kafra points!', ChatBox.TYPE.ERROR);
+					ChatBox.addText( 'Insuficient cash points or kafra points!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 
 				case 4:
 					//overweight limit
 					UIManager.showMessageBox( `You are over you're weight limit!`, 'ok');
-					ChatBox.addText( 'You are over youre weight limit!', ChatBox.TYPE.ERROR);
+					ChatBox.addText( 'You are over youre weight limit!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 
 				default:
 					UIManager.showMessageBox( 'Something went wrong while using cashshop!', 'ok');
-					ChatBox.addText( 'Something went wrong while using cashshop!', ChatBox.TYPE.ERROR);
+					ChatBox.addText( 'Something went wrong while using cashshop!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 			}
 			CashShop.ui.find('#purchase-btn').prop('disabled', false);
@@ -657,13 +657,13 @@ define(function(require)
 
 		if(itemCart.amount >= 99 && counter === 'up'){
 			UIManager.showMessageBox( 'Max Quantity 99!', 'ok');
-			ChatBox.addText( 'Max Quantity 99!', ChatBox.TYPE.ERROR);
+			ChatBox.addText( 'Max Quantity 99!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
 		if(itemCart.amount <= 1 && counter === 'down'){
 			UIManager.showMessageBox( 'Minimum Quantity 1!', 'ok');
-			ChatBox.addText( 'Minimum Quantity 1!', ChatBox.TYPE.ERROR);
+			ChatBox.addText( 'Minimum Quantity 1!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 		
@@ -722,7 +722,7 @@ define(function(require)
 
 		if(item.amount >= 99){
 			UIManager.showMessageBox( 'Max Quantity 99!', 'ok');
-			ChatBox.addText( 'Max Quantity 99!', ChatBox.TYPE.ERROR);
+			ChatBox.addText( 'Max Quantity 99!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
@@ -788,7 +788,7 @@ define(function(require)
 				Network.sendPacket(pkt);
 			} else {
 				UIManager.showMessageBox( 'No item in cart!', 'ok');
-				ChatBox.addText( 'No item in cart!', ChatBox.TYPE.INFO);
+				ChatBox.addText( 'No item in cart!', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 				CashShop.ui.find('#purchase-btn').prop('disabled', false);
 			}
 		}, function(){
