@@ -423,7 +423,7 @@ define(function( require )
 	 */
 	function onExitFail( pkt )
 	{
-		ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR);
+		ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 	}
 
 
@@ -492,7 +492,7 @@ define(function( require )
 	{
 		if (!pkt.type) {
 			// Have to wait 10sec
-			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR );
+			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 		}
 		else {
 			StatusIcons.clean();
@@ -525,7 +525,7 @@ define(function( require )
 
 			case 1:
 				// Have to wait 10 sec
-				ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 				break;
 
 			default:
