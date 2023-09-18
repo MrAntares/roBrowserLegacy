@@ -22,6 +22,7 @@ define(function(require)
 	var Events             = require('Core/Events');
 	var Preferences        = require('Core/Preferences');
 	var KEYS               = require('Controls/KeyEventHandler');
+	var Mouse         	   = require('Controls/MouseEventHandler');
 	var BattleMode         = require('Controls/BattleMode');
 	var History            = require('./History');
 	var UIManager          = require('UI/UIManager');
@@ -30,6 +31,7 @@ define(function(require)
 	var htmlText           = require('text!./ChatBox.html');
 	var cssText            = require('text!./ChatBox.css');
 	var ProcessCommand     = require('Controls/ProcessCommand');
+	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
 
 
 	/**
@@ -37,6 +39,7 @@ define(function(require)
 	 */
 	var MAX_MSG = 400;
 	var MAX_LENGTH = 100;
+	var MAGIC_NUMBER = 3*14;
 
 
 	/**
@@ -94,7 +97,32 @@ define(function(require)
 		ADMIN:    1 << 9,
 		MAIL:     1 << 10,
 	};
-
+	
+	ChatBox.FILTER = {
+		PUBLIC_LOG:		0,
+		PUBLIC_CHAT:	1,
+		WHISPER:		2,
+		PARTY:			3,
+		GUILD:			4,
+		ITEM:			5,
+		EQUIP:			6,
+		STATUS:			7,
+		PARTY_ITEM:		8,
+		PARTY_STATUS:	9,
+		SKILL_FAIL:		10,
+		PARTY_SETUP:	11,
+		EQUIP_DAMAGE:	12,
+		WOE:			13,
+		PARTY_SEARCH:	14,
+		BATTLE:			15,
+		PARTY_BATTLE:	16,
+		EXP:			17,
+		PARTY_EXP:		18,
+		QUEST:			19,
+		BATTLEFIELD:	20,
+		CLAN:			21,
+		//CALL:			22, // Display Call messages
+	};
 
 	/**
 	 * @var {number} target message ?
@@ -111,6 +139,11 @@ define(function(require)
 		msg:  ''
 	};
 
+	ChatBox.lastTabID = 0;
+	ChatBox.tabCount = 0;
+	ChatBox.activeTab = 0;
+	
+	ChatBox.tabs = [];
 
 	/**
 	 * Initialize UI
@@ -119,6 +152,13 @@ define(function(require)
 	{
 		_heightIndex = _preferences.height - 1;
 		ChatBox.updateHeight();
+
+		this.ui.mouseover(function(){
+			Mouse.intersect = false;
+		})
+		.mouseout(function() {
+			Mouse.intersect = true;
+		});
 
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y - this.ui.height()), Renderer.height - this.ui.height()),
@@ -261,6 +301,65 @@ define(function(require)
 			ChatBox.ui.find('.battlemode').toggle();
 		});
 
+		this.ui.find('.chat-function .battleopt2').click(function( event ){
+			if(ChatBox.tabCount <= 5){
+				ChatBox.addNewTab();
+				ChatBox.onAppend();
+			}
+		});
+
+		this.ui.on('click', 'table.header tr td.tab', function( event ){
+			event.stopImmediatePropagation();
+			var currentElem = event.currentTarget;
+			if(ChatBox.activeTab !== currentElem.dataset.tab - 1){
+				ChatBox.switchTab(currentElem.dataset.tab);
+			}
+		});
+
+		this.ui.find('.chat-function .wndminib').click(function(){
+			if(ChatBox.tabCount > 1){
+				ChatBox.removeTab();
+			}
+		});
+
+		this.ui.find('.chat-function .chatmode').click(function(){
+			ChatBox.toggleChat();
+		});
+
+		this.ui.find('.chat-function .battleopt').click(function(){
+			ChatBox.toggleChatBattleOption();
+		});
+		
+		// Init settings window as well
+		ChatBoxSettings.append();
+
+		// default tabs
+		var firstTab = ChatBox.addNewTab(DB.getMessage(1291), [
+			ChatBox.FILTER.PUBLIC_LOG,
+			ChatBox.FILTER.PUBLIC_CHAT,
+			ChatBox.FILTER.WHISPER,
+			ChatBox.FILTER.PARTY,
+			ChatBox.FILTER.GUILD,
+			ChatBox.FILTER.ITEM,
+			ChatBox.FILTER.EQUIP,
+			ChatBox.FILTER.STATUS,
+			ChatBox.FILTER.PARTY_ITEM,
+			ChatBox.FILTER.PARTY_STATUS,
+			ChatBox.FILTER.SKILL_FAIL,
+			ChatBox.FILTER.PARTY_SETUP,
+			ChatBox.FILTER.EQUIP_DAMAGE,
+			ChatBox.FILTER.WOE,
+			ChatBox.FILTER.PARTY_SEARCH,
+			ChatBox.FILTER.QUEST,
+			ChatBox.FILTER.BATTLEFIELD,
+			ChatBox.FILTER.CLAN
+		]); // Public Log
+			
+		ChatBox.addNewTab(DB.getMessage(1292)); // Battle Log
+		
+		// switch to first
+		ChatBox.switchTab(firstTab);
+
 		// dialog box size
 		makeResizableDiv()
 	};
@@ -289,6 +388,122 @@ define(function(require)
 		_historyNickName.clear();
 	};
 
+	ChatBox.toggleChatBattleOption = function toggleChatBattleOption(){
+		var tabName = this.ui.find('.header tr td div.on input').val();
+		ChatBoxSettings.toggle();
+		ChatBoxSettings.updateTab(this.activeTab, tabName);
+	}
+
+	ChatBox.removeTab = function removeTab() {
+		this.ui.find('table.header tr td.tab[data-tab="'+ this.activeTab +'"]').remove();
+		this.ui.find('.body .content[data-content="'+ this.activeTab +'"]').remove();
+		
+		var tabName= '';
+		var _elem = this.ui.find('table.header tr td.tab');
+ 		_elem = this.ui.find('table.header tr td.tab')[_elem.length - 1];
+
+		delete ChatBoxSettings.tabOption[this.activeTab];
+		delete this.tabs[this.activeTab];
+		this.tabCount--;
+		
+		ChatBox.switchTab(_elem.dataset.tab);
+
+		tabName = this.ui.find('.header tr td div.on input').val();
+		ChatBoxSettings.updateTab(this.activeTab, tabName);
+	}
+
+	ChatBox.addNewTab = function addNewTab(name, settings){
+		
+		// Default settings
+		if(!name){
+			name = 'New Tab';
+		}
+		if(!settings){
+			settings = [
+				ChatBox.FILTER.PUBLIC_LOG,
+				ChatBox.FILTER.PUBLIC_CHAT,
+				ChatBox.FILTER.WHISPER,
+				ChatBox.FILTER.PARTY,
+				ChatBox.FILTER.GUILD,
+				ChatBox.FILTER.ITEM,
+				ChatBox.FILTER.EQUIP,
+				ChatBox.FILTER.STATUS,
+				ChatBox.FILTER.PARTY_ITEM,
+				ChatBox.FILTER.PARTY_STATUS,
+				ChatBox.FILTER.SKILL_FAIL,
+				ChatBox.FILTER.PARTY_SETUP,
+				ChatBox.FILTER.EQUIP_DAMAGE,
+				ChatBox.FILTER.WOE,
+				ChatBox.FILTER.PARTY_SEARCH,
+				ChatBox.FILTER.BATTLE,
+				ChatBox.FILTER.PARTY_BATTLE,
+				ChatBox.FILTER.EXP,
+				ChatBox.FILTER.PARTY_EXP,
+				ChatBox.FILTER.QUEST,
+				ChatBox.FILTER.BATTLEFIELD,
+				ChatBox.FILTER.CLAN
+			];
+		}
+		
+		var tabName = name;
+		var tabID = ++this.lastTabID;
+		
+		var tab = {};
+		tab.id = tabID;
+		tab.name = tabName;
+		
+		// Store prev height
+		//var height = this.ui.find('.contentwrapper').height();
+		
+		// Remove current active state
+		this.ui.find('table.header tr td.tab div')
+			.removeClass('on');
+		this.ui.find('.body .content')
+			.removeClass('active');
+		
+		// Add new elements as active
+		this.ui.find('table.header tr .opttab').before(`
+			<td class="tab" data-tab="${tabID}">
+				<div class="on">
+					<input type="text" value="${tabName}"/>
+				</div>
+			</td>
+		`);
+		
+		this.ui.find('.body .contentwrapper').append(
+			`<div class="content active" data-content="${tabID}"></div>`
+		);
+
+		ChatBoxSettings.tabOption[tabID] = settings;
+		
+		this.tabs[tabID] = tab;
+		this.activeTab = tabID;
+		
+		this.tabCount++;
+		
+		ChatBoxSettings.updateTab(this.activeTab, tabName);
+		
+		return tabID;
+	}
+
+	ChatBox.switchTab = function switchTab(tabID){
+		var tabName = '';
+		
+		this.ui.find('table.header tr td.tab div')
+			.removeClass('on');
+		this.ui.find('.body .content')
+			.removeClass('active');
+		
+		this.activeTab = tabID;
+
+		this.ui.find('table.header tr td.tab[data-tab="'+ this.activeTab +'"] div')
+			.addClass('on');
+		this.ui.find('.body .content[data-content="'+ this.activeTab +'"]')
+			.addClass('active');
+		
+		tabName = this.ui.find('.header tr td div.on input').val();
+		ChatBoxSettings.updateTab(this.activeTab, tabName);
+	}
 
 	/**
 	 * Once append to HTML
@@ -298,7 +513,7 @@ define(function(require)
 		// Focus the input
 		this.ui.find('.input .message').focus();
 
-		var content = this.ui.find('.content')[0];
+		var content = this.ui.find('.content.active');
 		content.scrollTop = content.scrollHeight;
 	};
 
@@ -308,7 +523,10 @@ define(function(require)
 	 */
 	ChatBox.onRemove = function OnRemove()
 	{
-		this.ui.find('.content').off('scroll');
+		this.ui.find('.content.active').off('scroll');
+		
+		this.lastTabID = 0;
+		this.activeTab = 0;
 
 		_preferences.y      = parseInt(this.ui.css('top'), 10) + this.ui.height();
 		_preferences.x      = parseInt(this.ui.css('left'), 10);
@@ -365,7 +583,9 @@ define(function(require)
 	{
 		var messageBox = this.ui.find('.input .message');
 		var nickBox    = this.ui.find('.input .username');
-
+		this.ui.find('.header tr td div.on input').on('keyup', function(){
+			ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
+		});
 		switch (event.which) {
 
 			// Battle mode system
@@ -446,6 +666,22 @@ define(function(require)
 		return false;
 	};
 
+	ChatBox.toggleChat = function toggleChat(){
+		var messageBox = this.ui.find('.input .message');
+
+		if (document.activeElement.tagName === 'INPUT' &&
+		    document.activeElement !== messageBox[0]) {
+			return true;
+		}
+
+		if (jQuery('#NpcMenu, #NpcBox').length) {
+			return true;
+		}
+
+		messageBox.focus();
+		this.submit();
+	}
+
 
 	/**
 	 * Process ChatBox message
@@ -458,15 +694,21 @@ define(function(require)
 
 		var user = $user.val();
 		var text = $text.val();
+		var isChatOn = false;
 
 		// Battle mode
 		if (!text.length) {
 			input.toggle();
 			this.ui.find('.battlemode').toggle();
-
 			if (input.is(':visible')) {
+				isChatOn = true;
 				$text.focus();
 			}
+			var chatmode = isChatOn ? 'on' : 'off';
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/chatmode_'+chatmode+'.bmp', function( data ){
+				ChatBox.ui.find('.chat-function .chatmode').css('backgroundImage', 'url('+ data +')');
+			});
+			
 			return;
 		}
 
@@ -497,75 +739,89 @@ define(function(require)
 	 * Add text to chatbox
 	 *
 	 * @param {string} text
-	 * @param {number} type
+	 * @param {number} colorType
 	 * @param {string} color
 	 * @param {boolean} default false, html or text ?
+	 * @param {number} filterType
 	 */
-	ChatBox.addText = function addText( text, type, color, override )
+	ChatBox.addText = function addText( text, colorType, color, override, filterType )
 	{
-		var $content = this.ui.find('.content');
-
-		if (!color) {
-			if ((type & ChatBox.TYPE.PUBLIC) && (type & ChatBox.TYPE.SELF)) {
-				color = '#00FF00';
-			}
-			else if (type & ChatBox.TYPE.PARTY) {
-				color = ( type & ChatBox.TYPE.SELF ) ? 'rgb(200, 200, 100)' : 'rgb(230,215,200)';
-			}
-			else if (type & ChatBox.TYPE.GUILD) {
-				color = 'rgb(180, 255, 180)';
-			}
-			else if (type & ChatBox.TYPE.PRIVATE) {
-				color = '#FFFF00';
-			}
-			else if (type & ChatBox.TYPE.ERROR) {
-				color = '#FF0000';
-			}
-			else if (type & ChatBox.TYPE.INFO) {
-				color = '#FFFF63';
-			}
-			else if (type & ChatBox.TYPE.BLUE) {
-				color = '#00FFFF';
-			}
-			else if (type & ChatBox.TYPE.ADMIN) {
-				color = '#FFFF00';
-			}
-			else if (type & ChatBox.TYPE.MAIL) {
-				color = '#F4D293';
-			}
-			else {
-				color = 'white';
-			}
+		// Backward compatibility for older calls without filter
+		if(isNaN(filterType)){
+			filterType = ChatBox.FILTER.PUBLIC_LOG;
 		}
+		
+		this.tabs.forEach((tab, TabNum) => {
+			var content = this.ui.find('.content[data-content="'+ TabNum +'"]');
+			var chatTabOption = ChatBoxSettings.tabOption[TabNum];
 
-		$content.append(
-			jQuery('<div/>').
-				css('color', color)
-				[ !override ? 'text' : 'html' ](text)
-		);
+			if(!chatTabOption.includes(filterType)){
+				return;
+			}
 
-		// If there is too many line, remove the older one
-
-		var list = $content.find('div');
-		if (list.length > MAX_MSG) {
-			var element, matches;
-			var i, count;
-
-			//Check if theres any blob url object to be released from buffer (Check Controls/ScreenShot.js)
-			element = list.eq(0);
-			matches = element.html().match(/(blob:[^"]+)/g);
-
-			if (matches) {
-				for (i = 0, count = matches.length; i < count; ++i) {
-					window.URL.revokeObjectURL(matches[i]);
+			if (!color) {
+				if ((colorType & ChatBox.TYPE.PUBLIC) && (colorType & ChatBox.TYPE.SELF)) {
+					color = '#00FF00';
+				}
+				else if (colorType & ChatBox.TYPE.PARTY) {
+					color = ( colorType & ChatBox.TYPE.SELF ) ? 'rgb(200, 200, 100)' : 'rgb(230,215,200)';
+				}
+				else if (colorType & ChatBox.TYPE.GUILD) {
+					color = 'rgb(180, 255, 180)';
+				}
+				else if (colorType & ChatBox.TYPE.PRIVATE) {
+					color = '#FFFF00';
+				}
+				else if (colorType & ChatBox.TYPE.ERROR) {
+					color = '#FF0000';
+				}
+				else if (colorType & ChatBox.TYPE.INFO) {
+					color = '#FFFF63';
+				}
+				else if (colorType & ChatBox.TYPE.BLUE) {
+					color = '#00FFFF';
+				}
+				else if (colorType & ChatBox.TYPE.ADMIN) {
+					color = '#FFFF00';
+				}
+				else if (colorType & ChatBox.TYPE.MAIL) {
+					color = '#F4D293';
+				}
+				else {
+					color = 'white';
 				}
 			}
 
-			element.remove();
-		}
+			content.append(
+				jQuery('<div/>').
+					css('color', color)
+					[ !override ? 'text' : 'html' ](text)
+			);
 
-		// Always put the scroll at the bottom
-		$content[0].scrollTop = $content[0].scrollHeight;
+
+			// If there is too many line, remove the older one
+
+			var list = this.ui.find('.content');
+			if (list.length > MAX_MSG) {
+				var element, matches;
+				var i, count;
+
+				//Check if theres any blob url object to be released from buffer (Check Controls/ScreenShot.js)
+				element = list.eq(0);
+				matches = element.html().match(/(blob:[^"]+)/g);
+
+				if (matches) {
+					for (i = 0, count = matches.length; i < count; ++i) {
+						window.URL.revokeObjectURL(matches[i]);
+					}
+				}
+
+				element.remove();
+			}
+
+			// Always put the scroll at the bottom
+			content[0].scrollTop = content[0].scrollHeight;
+		});
 	};
 
 
@@ -574,10 +830,10 @@ define(function(require)
 	 */
 	ChatBox.updateHeight = function changeHeight( AlwaysVisible )
 	{
-		var HeightList = [ 0, 0, 3*14, 6*14, 9*14, 12*14, 15*14 ];
+		var HeightList = [ 0, 0, MAGIC_NUMBER, MAGIC_NUMBER*2, MAGIC_NUMBER*3, MAGIC_NUMBER*4, MAGIC_NUMBER*5 ];
 		_heightIndex   = (_heightIndex + 1) % HeightList.length;
 
-		var $content   = this.ui.find('.content');
+		var $content   = this.ui.find('.contentwrapper');
 		var height     = HeightList[ _heightIndex ];
 		var top        = parseInt( this.ui.css('top'), 10);
 
@@ -716,39 +972,39 @@ define(function(require)
 	}
 
 	function makeResizableDiv() {
-		const elementchatbox = document.getElementById('chatbox');
-		const elementcontent = document.querySelector('.content');
-
 		const resizers = document.querySelectorAll('.draggable')
-		const minimum_size = 20;
 		let original_height = 0;
 		let original_y = 0;
 		let original_mouse_y = 0;
 		for (let i = 0;i < resizers.length; i++) {
-		  const currentResizer = resizers[i];
-		  currentResizer.addEventListener('mousedown', function(e) {
-			e.preventDefault()
-			original_height = parseFloat(getComputedStyle(elementcontent, null).getPropertyValue('height').replace('px', ''));
-			original_y = elementchatbox.getBoundingClientRect().top;
-			original_mouse_y = e.pageY;
-			window.addEventListener('mousemove', resize)
-			window.addEventListener('mouseup', stopResize)
-		  })
+			const currentResizer = resizers[i];
+			
+			currentResizer.addEventListener('mousedown', function(e) {
+				e.preventDefault();
+				original_height = ChatBox.ui.find('.contentwrapper').height();
+				original_y = parseInt( ChatBox.ui.css('top'), 10) + original_height;
+				original_mouse_y = e.pageY;
+				window.addEventListener('mousemove', resize);
+				window.addEventListener('mouseup', stopResize);
+			})
 
-		  function resize(e) {
-
-			if (currentResizer.classList.contains('draggable')) {
-			  const height = original_height - (e.pageY - original_mouse_y)
-			  if (height > minimum_size) {
-				elementcontent.style.height = height + 'px'
-				elementchatbox.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
-			  }
+			function resize(e) {
+				if (currentResizer.classList.contains('draggable')) {
+					const height = fixHeight(original_height - (e.pageY - original_mouse_y));
+					if (height > MAGIC_NUMBER) {
+						ChatBox.ui.css('top', original_y - height);
+						ChatBox.ui.find('.contentwrapper').height(height);
+					}
+				}
 			}
-		  }
+		  
+			function fixHeight(height){
+				return  Math.floor(height/MAGIC_NUMBER)*MAGIC_NUMBER;
+			}
 
-		  function stopResize() {
-			window.removeEventListener('mousemove', resize)
-		  }
+			function stopResize() {
+				window.removeEventListener('mousemove', resize);
+			}
 		}
 	  }
 
