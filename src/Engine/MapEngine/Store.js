@@ -121,14 +121,14 @@ define(function( require )
 		NpcStore.remove();
 
 		switch (pkt.result) {
-			case 0:  ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE);  break; // success
-			case 1:  ChatBox.addText( DB.getMessage(55),   ChatBox.TYPE.ERROR); break; // zeny
-			case 2:  ChatBox.addText( DB.getMessage(56),   ChatBox.TYPE.ERROR); break; // overweight
-			case 4:  ChatBox.addText( DB.getMessage(230),  ChatBox.TYPE.ERROR); break; // out of stock
-			case 5:  ChatBox.addText( DB.getMessage(281),  ChatBox.TYPE.ERROR); break; // trade
+			case 0:  ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);  break; // success
+			case 1:  ChatBox.addText( DB.getMessage(55),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // zeny
+			case 2:  ChatBox.addText( DB.getMessage(56),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // overweight
+			case 4:  ChatBox.addText( DB.getMessage(230),  ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // out of stock
+			case 5:  ChatBox.addText( DB.getMessage(281),  ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // trade
 			// case 6: 6 = Because the store information was incorrect the item was not purchased.
-			case 7:  ChatBox.addText( DB.getMessage(1797), ChatBox.TYPE.ERROR); break; // no sale information
-			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR); break; // deal failed
+			case 7:  ChatBox.addText( DB.getMessage(1797), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // no sale information
+			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
 		}
 	}
 
@@ -143,14 +143,14 @@ define(function( require )
 		NpcStore.remove();
 
 		switch (pkt.Error) {
-			case 0:  ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE);  break; // success
-			case 1:  ChatBox.addText( DB.getMessage(1227),   ChatBox.TYPE.ERROR); break; // zeny
-			case 2:  ChatBox.addText( DB.getMessage(1228),   ChatBox.TYPE.ERROR); break; // overweight
-			case 4:  ChatBox.addText( DB.getMessage(1229),  ChatBox.TYPE.ERROR); break; // out of stock
-			case 5:  ChatBox.addText( DB.getMessage(1230),  ChatBox.TYPE.ERROR); break; // trade
-			case 6:   ChatBox.addText( DB.getMessage(1254),  ChatBox.TYPE.ERROR); break;
-			case 7:  ChatBox.addText( DB.getMessage(1813), ChatBox.TYPE.ERROR); break; // no sale information
-			default: ChatBox.addText( DB.getMessage(1814),   ChatBox.TYPE.ERROR); break; // deal failed
+			case 0:  ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);  break; // success
+			case 1:  ChatBox.addText( DB.getMessage(1227),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // zeny
+			case 2:  ChatBox.addText( DB.getMessage(1228),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // overweight
+			case 4:  ChatBox.addText( DB.getMessage(1229),  ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // out of stock
+			case 5:  ChatBox.addText( DB.getMessage(1230),  ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // trade
+			case 6:   ChatBox.addText( DB.getMessage(1254),  ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break;
+			case 7:  ChatBox.addText( DB.getMessage(1813), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // no sale information
+			default: ChatBox.addText( DB.getMessage(1814),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
 		}
 	}
 
@@ -195,12 +195,12 @@ define(function( require )
 
 		// success
 		if (pkt.result === 0) {
-			ChatBox.addText( DB.getMessage(54), ChatBox.TYPE.BLUE);
+			ChatBox.addText( DB.getMessage(54), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 		}
 
 		// Fail
 		else {
-			ChatBox.addText( DB.getMessage(57), ChatBox.TYPE.ERROR);
+			ChatBox.addText( DB.getMessage(57), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		}
 	}
 
