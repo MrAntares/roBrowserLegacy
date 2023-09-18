@@ -316,7 +316,8 @@ define(function( require )
 		if (Equipment.ui.is(':visible')) {
 			ChatBox.addText(
 				DB.getMessage(189),
-				ChatBox.TYPE.ERROR
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.ITEM
 			);
 			return false;
 		}
