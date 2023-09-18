@@ -408,6 +408,13 @@ define(function(require)
 	 */
 	function getSkillPosition(JobId) {
 		var positions = [];
+
+		//TODO: DB.isBaby( JobId ) translation check?
+		if( !( JobId in SkillTreeView ) ) {
+			console.error( 'Unimplemented JobId ' + JobId + ' in SkillTree!' );
+			return positions;
+		}
+		
 		positions[SkillTreeView[JobId]['list']] = SkillTreeView[JobId];
 
 		if (SkillTreeView[JobId]['beforeJob'] !== null) {
