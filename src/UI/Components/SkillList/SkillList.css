@@ -10,9 +10,19 @@
 #SkillList .titlebar .right { float:right; margin-right:3px;}
 #SkillList .titlebar .clear { clear:both; }
 
-#SkillList .content { overflow-y:auto; padding:5px; border-top:1px solid #c6c6c6; width:270px; height:200px; }
+#SkillList .content { position: relative; padding:5px; border-top:1px solid #c6c6c6; width:270px; height:200px; }
 #SkillList .content table { border:none; border-spacing:0px; padding-top:5px; }
 #SkillList .content td, #SkillList .content .name { padding:0px; }
+
+/* Mini Tab*/
+#SkillList .tabs-mini {position: relative;}
+#SkillList .tabs-mini::before, .tabs-mini::after { content: ""; display: table; }
+#SkillList .tabs-mini::after { clear: both; }
+#SkillList .tab-switch-mini { display: none; }
+#SkillList .tab-label-mini { writing-mode: vertical-lr; text-orientation: upright; left: -23px; width: 18px; position: relative; margin: -3px 0; border: 1px solid #c1c6c2; background: #fff; border-radius: 5px 0 0 5px; cursor: pointer; }
+#SkillList .tab-content-mini { overflow-y:auto; width:100%; height:100%; position: absolute; z-index: 1; left: 0; top: 0; right:0; bottom:0; opacity: 0; }
+#SkillList .tab-switch-mini:checked + .tab-label-mini { width: 20px; left: -25px; z-index: 1; }
+#SkillList .tab-switch-mini:checked + label + .tab-content-mini { z-index: 2; opacity: 1; }
 
 #SkillList .levelup { border:0; width:24px; height:24px; padding:0; background-repeat:no-repeat; background-color:transparent; }
 #SkillList td.type { vertical-align:bottom; }
