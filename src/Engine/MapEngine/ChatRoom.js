@@ -114,17 +114,17 @@ define(function( require )
 				ChatRoom.owner   = Session.Entity.display.name;
 				ChatRoom.append();
 
-				ChatBox.addText( DB.getMessage(64), ChatBox.TYPE.BLUE );
+				ChatBox.addText( DB.getMessage(64), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG );
 				break;
 
 			// Room limit exceeded
 			case 1:
-				ChatBox.addText( DB.getMessage(65), ChatBox.TYPE.ERROR );
+				ChatBox.addText( DB.getMessage(65), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 				break;
 
 			// Same room already exists
 			case 2:
-				ChatBox.addText( DB.getMessage(66), ChatBox.TYPE.ERROR );
+				ChatBox.addText( DB.getMessage(66), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 				break;
 		}
 	}
@@ -157,7 +157,7 @@ define(function( require )
 			case 7: error = 434; break;
 		}
 
-		ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR );
+		ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 
 	}
 

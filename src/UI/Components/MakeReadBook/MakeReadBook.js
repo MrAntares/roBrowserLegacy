@@ -278,7 +278,7 @@
 	function getText(textbook){
 		let text = cleanTextColor(textbook);
 		text = TextEncoding.decodeString(text);
-		ChatBox.addText( text == "" ? '  ' : text , ChatBox.TYPE.ANNOUNCE, '#ffffff' );
+		ChatBox.addText( text == "" ? '  ' : text , ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG, '#ffffff' );
 		Announce.append();
 		Announce.set( text == "" ? '  ' : text, '#ffffff');
 	}

@@ -272,7 +272,7 @@
 			let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
 			getModule('UI/Components/Mail/Mail').deleteMail(mailID);
 		}else{
-			ChatBox.addText( DB.getMessage(1105), ChatBox.TYPE.ERROR);
+			ChatBox.addText( DB.getMessage(1105), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		}
 	}
 

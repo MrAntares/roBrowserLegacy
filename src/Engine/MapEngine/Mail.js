@@ -184,7 +184,7 @@
 	{
 		if(!result.Result){
 			// An auction with at least one bidder cannot be canceled.
-			ChatBox.addText( DB.getMessage(1038), ChatBox.TYPE.INFO_MAIL);
+			ChatBox.addText( DB.getMessage(1038), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			ReadMail.remove();
 			Mail.parseMailrefreshinbox();
 		}
@@ -247,11 +247,11 @@
 	function mailSend( result )
 	{
 		if(result.Result){
-			ChatBox.addText( DB.getMessage(1032), ChatBox.TYPE.ERROR);
+			ChatBox.addText( DB.getMessage(1032), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			// clear zeny and item field
 			Mail.clearFieldsItemZeny();
 		}else{
-			ChatBox.addText( DB.getMessage(1031), ChatBox.TYPE.INFO_MAIL);
+			ChatBox.addText( DB.getMessage(1031), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			ReadMail.remove();
 		}
 	}
@@ -272,7 +272,7 @@
 		};
 
 		if(result.MailID != 0){
-			ChatBox.addText( DB.getMessage(1101), ChatBox.TYPE.MAIL);
+			ChatBox.addText( DB.getMessage(1101), ChatBox.TYPE.MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			Mail.mailReceiveUpdate(newMail);
 		}
 	}
@@ -286,7 +286,7 @@
 	function mailReturn( result )
 	{
 		if(result.MailID != 0 && result.Result === 0){
-			ChatBox.addText( DB.getMessage(1176), ChatBox.TYPE.INFO_MAIL);
+			ChatBox.addText( DB.getMessage(1176), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			ReadMail.remove();
 			Mail.parseMailrefreshinbox();
 		}

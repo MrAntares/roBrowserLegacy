@@ -40,6 +40,7 @@ define(function( require )
 	var Background       = require('UI/Background');
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
+	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
 	var MiniMap          = require('UI/Components/MiniMap/MiniMap');
 	var BasicInfo        = require('UI/Components/BasicInfo/BasicInfo');
 	var WinStats         = require('UI/Components/WinStats/WinStats');
@@ -214,6 +215,7 @@ define(function( require )
 		StatusIcons.prepare();
 		BasicInfo.prepare();
 		ChatBox.prepare();
+		ChatBoxSettings.prepare();
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
@@ -341,6 +343,7 @@ define(function( require )
 			MiniMap.append();
 			MiniMap.setMap( MapRenderer.currentMap );
 			ChatBox.append();
+			ChatBoxSettings.append();
 			BasicInfo.append();
 			Escape.append();
 			Inventory.append();
@@ -420,7 +423,7 @@ define(function( require )
 	 */
 	function onExitFail( pkt )
 	{
-		ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR);
+		ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 	}
 
 
@@ -489,7 +492,7 @@ define(function( require )
 	{
 		if (!pkt.type) {
 			// Have to wait 10sec
-			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR );
+			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 		}
 		else {
 			StatusIcons.clean();
@@ -522,7 +525,7 @@ define(function( require )
 
 			case 1:
 				// Have to wait 10 sec
-				ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 				break;
 
 			default:

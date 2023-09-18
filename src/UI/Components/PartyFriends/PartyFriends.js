@@ -278,11 +278,11 @@ define(function(require)
 
 		if (state) {
 			node.css('backgroundImage', '');
-			ChatBox.addText( DB.getMessage(1042).replace('%s', _friends[index].Name), ChatBox.TYPE.BLUE);
+			ChatBox.addText( DB.getMessage(1042).replace('%s', _friends[index].Name), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
-		ChatBox.addText( DB.getMessage(1041).replace('%s', _friends[index].Name), ChatBox.TYPE.BLUE);
+		ChatBox.addText( DB.getMessage(1041).replace('%s', _friends[index].Name), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function(url){
 			node.css('backgroundImage', 'url(' + url + ')');
 		});
@@ -466,7 +466,7 @@ define(function(require)
 			this.ui.find('.party.create').show();
 			this.ui.find('.party.leave, .party.add').hide();
 
-			ChatBox.addText( DB.getMessage(84), ChatBox.TYPE.BLUE);
+			ChatBox.addText( DB.getMessage(84), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
 			return;
 		}
 

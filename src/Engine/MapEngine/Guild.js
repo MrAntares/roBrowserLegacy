@@ -397,7 +397,7 @@ define(function( require )
 	 */
 	function onMemberTalk( pkt )
 	{
-		ChatBox.addText( pkt.msg, ChatBox.TYPE.GUILD );
+		ChatBox.addText( pkt.msg, ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD );
 	}
 
 
@@ -623,8 +623,8 @@ define(function( require )
 	 */
 	function onGuildNotice( pkt )
 	{
-		ChatBox.addText('[ '+ pkt.subject +' ]', ChatBox.TYPE.GUILD, '#FFFF63');
-		ChatBox.addText('[ '+ pkt.notice +' ]', ChatBox.TYPE.GUILD, '#FFFF63');
+		ChatBox.addText('[ '+ pkt.subject +' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
+		ChatBox.addText('[ '+ pkt.notice +' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
 
 		Guild.setNotice( pkt.subject, pkt.notice );
 	}
@@ -651,20 +651,20 @@ define(function( require )
 		switch (pkt.result) {
 			case 0: // Success
 				Session.hasGuild = true;
-				ChatBox.addText( DB.getMessage(374), ChatBox.TYPE.BLUE);
+				ChatBox.addText( DB.getMessage(374), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 				Guild.show();
 				break;
 
 			case 1: // You are already in a Guild.#
-				ChatBox.addText( DB.getMessage(375), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(375), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 2: // That Guild Name already exists.
-				ChatBox.addText( DB.getMessage(376), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(376), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 3: // You need the neccessary item to create a Guild.
-				ChatBox.addText( DB.getMessage(405), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(405), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 		}
 	}
@@ -681,15 +681,15 @@ define(function( require )
 			case 0: // success
 				Guild.hide();
 				Session.hasGuild = false;
-				ChatBox.addText( DB.getMessage(400), ChatBox.TYPE.BLUE);
+				ChatBox.addText( DB.getMessage(400), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 				break;
 
 			case 1: // invalid guild name
-				ChatBox.addText( DB.getMessage(401), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(401), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 2: // still members on the guild
-				ChatBox.addText( DB.getMessage(402), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(402), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 		}
 	}
@@ -727,19 +727,19 @@ define(function( require )
 	{
 		switch (pkt.answer) {
 			case 0: // Already in guild.
-				ChatBox.addText( DB.getMessage(378), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(378), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 1: // Offer rejected.
-				ChatBox.addText( DB.getMessage(379), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(379), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 2: // Offer accepted.
-				ChatBox.addText( DB.getMessage(380), ChatBox.TYPE.BLUE);
+				ChatBox.addText( DB.getMessage(380), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 				break;
 
 			case 3: // Guild full.
-				ChatBox.addText( DB.getMessage(381), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(381), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 		}
 	}
@@ -765,8 +765,8 @@ define(function( require )
 	{
 		// %s has been expelled from our guild.
 		// Expulsion Reason: %s
-		ChatBox.addText(DB.getMessage(370).replace('%s', pkt.charName), ChatBox.TYPE.GUILD, '#FFFF00');
-		ChatBox.addText(DB.getMessage(371).replace('%s', pkt.reasonDesc), ChatBox.TYPE.GUILD, '#FFFF00');
+		ChatBox.addText(DB.getMessage(370).replace('%s', pkt.charName), ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF00');
+		ChatBox.addText(DB.getMessage(371).replace('%s', pkt.reasonDesc), ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF00');
 
 		// Seems like the server doesn't send other informations
 		// to remove the UI
@@ -789,8 +789,8 @@ define(function( require )
 	{
 		// %s has withdrawn from the guild
 		// Secession Reason: %s
-		ChatBox.addText(DB.getMessage(364).replace('%s', pkt.charName), ChatBox.TYPE.GUILD, '#FFFF00');
-		ChatBox.addText(DB.getMessage(365).replace('%s', pkt.reasonDesc), ChatBox.TYPE.GUILD, '#FFFF00');
+		ChatBox.addText(DB.getMessage(364).replace('%s', pkt.charName), ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF00');
+		ChatBox.addText(DB.getMessage(365).replace('%s', pkt.reasonDesc), ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF00');
 
 		// Seems like the server doesn't send other informations
 		// to remove the UI
@@ -859,27 +859,27 @@ define(function( require )
 	{
 		switch (pkt.answer) {
 			case 0: // Already allied.
-				ChatBox.addText(DB.getMessage(394), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(394), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 1: // You rejected the offer.
-				ChatBox.addText(DB.getMessage(395), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(395), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 2: // You accepted the offer.
-				ChatBox.addText(DB.getMessage(396), ChatBox.TYPE.BLUE);
+				ChatBox.addText(DB.getMessage(396), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 				break;
 
 			case 3: // They have too any alliances.
-				ChatBox.addText(DB.getMessage(397), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(397), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 4: // You have too many alliances.
-				ChatBox.addText(DB.getMessage(398), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(398), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 5: // Alliances are disabled.
-				ChatBox.addText(DB.getMessage(1717), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(1717), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 		}
 	}
@@ -894,19 +894,19 @@ define(function( require )
 	{
 		switch (pkt.result) {
 			case 0: // Antagonist has been set.
-				ChatBox.addText(DB.getMessage(495), ChatBox.TYPE.BLUE);
+				ChatBox.addText(DB.getMessage(495), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 				break;
 
 			case 1: // Guild has too many Antagonists.
-				ChatBox.addText(DB.getMessage(496), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(496), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 2: // Already set as an Antagonist.
-				ChatBox.addText(DB.getMessage(497), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(497), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 
 			case 3: // Antagonists are disabled.
-				ChatBox.addText(DB.getMessage(1718), ChatBox.TYPE.ERROR);
+				ChatBox.addText(DB.getMessage(1718), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
 		}
 	}

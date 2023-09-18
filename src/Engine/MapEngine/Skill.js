@@ -185,7 +185,7 @@ define(function( require )
 		}
 
 		if (error) {
-			ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR );
+			ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL );
 			srcEntity.setAction(SkillActionTable['DEFAULT']( srcEntity, Renderer.tick ));
 		}
 	}
@@ -285,7 +285,7 @@ define(function( require )
 
 		switch (pkt.result) {
 			case 0: // success
-				ChatBox.addText( DB.getMessage(491), ChatBox.TYPE.BLUE);
+				ChatBox.addText( DB.getMessage(491), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 				// Remove old item
 				var item = Inventory.removeItem(pkt.index, 1);
@@ -298,7 +298,7 @@ define(function( require )
 				break;
 
 			case 1: // Fail
-				ChatBox.addText( DB.getMessage(492), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(492), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM);
 				break;
 		}
 	}
@@ -370,11 +370,11 @@ define(function( require )
 	{
 		switch (pkt.type) {
 			case 0: //Unable to Teleport in this area
-				ChatBox.addText( DB.getMessage(500), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(500), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 				break;
 
 			case 1: //Saved point cannot be memorized.
-				ChatBox.addText( DB.getMessage(501), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(501), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 				break;
 		}
 	}
@@ -389,15 +389,15 @@ define(function( require )
 	{
 		switch (pkt.errorCode) {
 			case 0: // Saved location as a Memo Point for Warp skill.
-				ChatBox.addText( DB.getMessage(217), ChatBox.TYPE.BLUE);
+				ChatBox.addText( DB.getMessage(217), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 
 			case 1: // Skill Level is not high enough.
-				ChatBox.addText( DB.getMessage(214), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(214), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 				break;
 
 			case 2: // You haven't learned Warp.
-				ChatBox.addText( DB.getMessage(216), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(216), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 				break;
 		}
 	}
@@ -751,7 +751,7 @@ define(function( require )
 		message = message.replace('%s', pkt.monsterName);
 		message = message.replace('%d%', percent);
 
-		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, color );
+		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG, color );
 		Announce.append();
 		Announce.set(message, color);
 	}
@@ -763,7 +763,7 @@ define(function( require )
 		var name =  SkillInfo[ pkt.SKID ].SkillName;
 		message = `[${name}] ${message}`;
 
-		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, color );
+		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG, color );
 	}
 	
 	function onSense(pkt){

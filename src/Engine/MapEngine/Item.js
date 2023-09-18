@@ -94,7 +94,7 @@ define(function( require )
 	{
 		// Fail
 		if (pkt.result !== 0) {
-			ChatBox.addText( DB.getMessage(53), ChatBox.TYPE.ERROR );
+			ChatBox.addText( DB.getMessage(53), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM );
 			return;
 		}
 
@@ -105,7 +105,8 @@ define(function( require )
 
 		ChatBox.addText(
 			DB.getMessage(153).replace('%s', getTextItem ).replace('%d', pkt.count ),
-			ChatBox.TYPE.BLUE
+			ChatBox.TYPE.BLUE,
+			ChatBox.FILTER.ITEM
 		);
 
 		Inventory.addItem(pkt);
@@ -150,7 +151,8 @@ define(function( require )
 				var it = DB.getItemInfo( item.ITID );
 				ChatBox.addText(
 					it.identifiedDisplayName + ' ' + DB.getMessage(171),
-					ChatBox.TYPE.ERROR
+					ChatBox.TYPE.ERROR,
+					ChatBox.FILTER.ITEM
 				);
 
 				if (!(pkt.wearLocation & EquipLocation.AMMO)) {
@@ -179,7 +181,8 @@ define(function( require )
 			Equipment.equip( item, pkt.wearLocation );
 			ChatBox.addText(
 				DB.getItemName(item) + ' ' + DB.getMessage(170),
-				ChatBox.TYPE.BLUE
+				ChatBox.TYPE.BLUE,
+				ChatBox.FILTER.ITEM
 			);
 
 			// Display
@@ -194,7 +197,8 @@ define(function( require )
 		else {
 			ChatBox.addText(
 				DB.getMessage(372),
-				ChatBox.TYPE.ERROR
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.ITEM
 			);
 		}
 	}
@@ -230,7 +234,8 @@ define(function( require )
 		Equipment.setEquipConfig( pkt.bOpenEquipmentWin );
 		ChatBox.addText(
 			DB.getMessage(1358 + (pkt.bOpenEquipmentWin ? 1 : 0) ),
-			ChatBox.TYPE.INFO
+			ChatBox.TYPE.INFO,
+			ChatBox.FILTER.ITEM
 		);
 	}
 
@@ -405,11 +410,11 @@ define(function( require )
 	function onAckAddItemToCart( pkt ){
 		switch (pkt.result) {
 			case 0:
-				ChatBox.addText( DB.getMessage(220), ChatBox.TYPE.ERROR );
+				ChatBox.addText( DB.getMessage(220), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM );
 				break;
 
 			case 1:
-				ChatBox.addText( DB.getMessage(221), ChatBox.TYPE.ERROR );
+				ChatBox.addText( DB.getMessage(221), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM );
 				break;
 		}
 	}

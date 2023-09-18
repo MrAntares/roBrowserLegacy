@@ -127,7 +127,7 @@ define(function(require)
 		// We create a local image with the buffer
 		url = window.URL.createObjectURL(new Blob([data], {type: 'image/png'}));
 
-		ChatBox.addText('Screenshot ' + date + ' can be saved by <a style="color:#F88" download="ScreenShot (' + date.replace('/', '-') + ').png" href="'+ url +'" target="_blank">clicking here</a>.', ChatBox.TYPE.PUBLIC, null, true);
+		ChatBox.addText('Screenshot ' + date + ' can be saved by <a style="color:#F88" download="ScreenShot (' + date.replace('/', '-') + ').png" href="'+ url +'" target="_blank">clicking here</a>.', ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, null, true);
 	};
 
 

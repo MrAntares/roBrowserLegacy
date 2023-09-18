@@ -69,7 +69,7 @@ define(function( require )
 			return;
 		}
 
-		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF );
+		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_CHAT );
 		if (Session.Entity) {
 			Session.Entity.dialog.set( pkt.msg );
 		}
@@ -591,7 +591,7 @@ define(function( require )
 			color = '#FFFF00';
 		}
 
-		ChatBox.addText( pkt.msg, ChatBox.TYPE.ANNOUNCE, color );
+		ChatBox.addText( pkt.msg, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_CHAT, color );
 		Announce.append();
 		Announce.set( pkt.msg, color );
 	}
@@ -603,7 +603,7 @@ define(function( require )
 	 */
 	function onPlayerCountAnswer( pkt )
 	{
-		ChatBox.addText( DB.getMessage(178).replace('%d', pkt.count), ChatBox.TYPE.INFO );
+		ChatBox.addText( DB.getMessage(178).replace('%d', pkt.count), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG );
 	}
 
 
@@ -621,7 +621,8 @@ define(function( require )
 				Equipment.setEquipConfig( pkt.Value );
 				ChatBox.addText(
 					DB.getMessage(1358 + (pkt.Value ? 1 : 0) ),
-					ChatBox.TYPE.INFO
+					ChatBox.TYPE.INFO,
+					ChatBox.FILTER.PUBLIC_LOG
 				);
 				break;
 
@@ -642,20 +643,20 @@ define(function( require )
 
 		switch (pkt.errorCode) {
 			case 0: // Please equip the proper amnution first
-				ChatBox.addText( DB.getMessage(242), ChatBox.TYPE.ERROR );
+				ChatBox.addText( DB.getMessage(242), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM );
 				break;
 
 			case 1:  // You can't Attack or use Skills because your Weight Limit has been exceeded.
-				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR );
+				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM );
 				break;
 
 			case 2: // You can't use Skills because Weight Limit has been exceeded.
-				ChatBox.addText( DB.getMessage(244), ChatBox.TYPE.ERROR );
+				ChatBox.addText( DB.getMessage(244), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM );
 				break;
 
 			case 3: // Ammunition has been equipped.
 				// TODO: check the class - assassin: 1040 | gunslinger: 1175 | default: 245
-				ChatBox.addText( DB.getMessage(245), ChatBox.TYPE.BLUE );
+				ChatBox.addText( DB.getMessage(245), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
 				break;
 		}
 		
@@ -679,7 +680,7 @@ define(function( require )
 	 */
 	function onMessage( pkt )
 	{
-		ChatBox.addText( DB.getMessage(pkt.msg), ChatBox.TYPE.PUBLIC );
+		ChatBox.addText( DB.getMessage(pkt.msg), ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG );
 	}
 
 
@@ -743,7 +744,7 @@ define(function( require )
 		message += ' ';
 		message += DB.getMessage(2383);  // "Rank"
 		message += ' ===========';
-		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE );
+		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG );
 
 		//List
 		for(var i = 0; i < 10; ++i){
@@ -751,7 +752,7 @@ define(function( require )
 			message = message.replace('%rank%', i+1);
 			message = message.replace('%name%', pkt.Name[i]);
 			message = message.replace('%point%', pkt.Point[i]);
-			ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE );
+			ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG );
 		}
 
 	}

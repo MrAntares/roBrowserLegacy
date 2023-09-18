@@ -130,7 +130,7 @@ define(function( require )
 	{
 		// Fail to feed
 		if (!pkt.cRet) {
-			ChatBox.addText( DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR);
+			ChatBox.addText( DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}else{
 			const friendly = DB.getPetFriendlyState(Session.pet.friendly);
@@ -159,7 +159,7 @@ define(function( require )
 	 */
 	function petTalk( GID, msg ){
 		var entity = EntityManager.get(GID);
-		ChatBox.addText(entity.display.name + " : " +msg, ChatBox.TYPE.PUBLIC);
+		ChatBox.addText(entity.display.name + " : " +msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT);
 		entity.dialog.set( msg );
 	}
 

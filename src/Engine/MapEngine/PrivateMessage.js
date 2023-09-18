@@ -31,7 +31,7 @@ define(function( require )
 	function onPrivateMessage( pkt )
 	{
 		var prefix = Friends.isFriend(pkt.sender) ? DB.getMessage(102) : 'From';
-		ChatBox.addText('[ '+ prefix +' '+ pkt.sender +' ] : ' + pkt.msg.replace(/\|\d{2}/, ''), ChatBox.TYPE.PRIVATE );
+		ChatBox.addText('[ '+ prefix +' '+ pkt.sender +' ] : ' + pkt.msg.replace(/\|\d{2}/, ''), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER );
 		ChatBox.saveNickName(pkt.sender);
 	}
 
@@ -49,11 +49,11 @@ define(function( require )
 
 		if (pkt.result === 0) {
 			if (user && msg) {
-				ChatBox.addText( '[ To '+ user +' ] : ' + msg, ChatBox.TYPE.PRIVATE );
+				ChatBox.addText( '[ To '+ user +' ] : ' + msg, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER );
 			}
 		}
 		else {
-			ChatBox.addText( '('+ user +') : ' + DB.getMessage(147 + pkt.result),  ChatBox.TYPE.PRIVATE );
+			ChatBox.addText( '('+ user +') : ' + DB.getMessage(147 + pkt.result),  ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER );
 		}
 
 		ChatBox.PrivateMessageStorage.nick = '';
