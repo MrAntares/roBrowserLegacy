@@ -669,7 +669,7 @@ define(function( require )
 			}
 		}
 
-		ChatBox.addText( pkt.msg, type );
+		ChatBox.addText( pkt.msg, type, ChatBox.FILTER.PUBLIC_CHAT );
 	}
 
 
@@ -694,7 +694,7 @@ define(function( require )
         if (entity) {
             entity.dialog.set( pkt.msg );
         }
-		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC, color);
+		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT, color);
 	}
 
 
@@ -954,7 +954,7 @@ define(function( require )
 
             // Steal Coin zeny
             if (pkt.SKID === SkillId.RG_STEALCOIN) {
-                ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE );
+                ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
             }
 
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
@@ -1876,10 +1876,10 @@ define(function( require )
 	{
         if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
             if(pkt. varID == 1) {
-                ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, '#A442DC');
+                ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
             }
             if(pkt. varID == 2) {
-                ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, '#A442DC');
+                ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
             }
         }
 	}
@@ -1898,11 +1898,11 @@ define(function( require )
         if(pkt.infoType == 1) {
             MiniMap.addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
             /**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
-                ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, '#FFFF63');
+                ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
             }*/
         }
         if(pkt.infoType == 0) {
-            ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR);
+            ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
         }
 	}
 
@@ -1928,8 +1928,8 @@ define(function( require )
 	 */
 	function onEntityMvpRewardItemMessage( pkt ) {
         var item = DB.getItemInfo(pkt.ITID);
-        ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE);
-        ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE);
+        ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
+        ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 	}
 	
 	
