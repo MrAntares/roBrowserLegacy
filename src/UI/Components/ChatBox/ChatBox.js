@@ -239,7 +239,7 @@ define(function(require)
 			var ui = ContextMenu.ui.find('.menu');
 
 			if (!count) {
-				ChatBox.addText( DB.getMessage(192), ChatBox.TYPE.ERROR);
+				ChatBox.addText( DB.getMessage(192), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				return;
 			}
 
