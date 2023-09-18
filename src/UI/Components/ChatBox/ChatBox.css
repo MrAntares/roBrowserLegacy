@@ -42,7 +42,7 @@
 	border:1px solid white;
 	border-bottom:none;
 	border-right:none;
-	height:16px;
+	height: 18px;
 }
 
 #chatbox .header .options {
@@ -63,12 +63,19 @@
     margin-right: -2px;
     max-width: 100%;
 }
+#chatbox .contentwrapper{
+	height:42px;
+}
 #chatbox .content {
 	font-size:12px;
 	text-shadow:1px 1px 0px black;
-	height:42px;
+	height:100%;
 	overflow-y:auto;
 	line-height:14px;
+	display: none;
+}
+#chatbox .content.active {
+	display: block;
 }
 #chatbox .content a {
 	color:inherit;
@@ -159,4 +166,43 @@
 
 #chatbox .battlemode .bmtoggle{
 	height: 100%;
+}
+#chatbox .chat-function{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+#chatbox .chat-function button{
+    background-size: auto;
+    border: 0;
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+#chatbox .chat-function .chatmode{
+	width: 15px;
+    height: 9px;
+}
+#chatbox .chat-function .battleopt{
+    width: 10px;
+    height: 10px;
+    background-size: cover;
+}
+#chatbox .chat-function .stickfucn{
+    width: 14px;
+    height: 10px;
+    background-size: cover;
+}
+#chatbox .chat-function .battleopt2{
+    width: 9px;
+    height: 9px;
+    background-size: cover;
+}
+#chatbox .chat-function .wndminib{
+	width: 9px;
+    height: 9px;
+    background-size: cover;
+}
+#chatbox .chat-function .lockdragwnd{
+    width: 15px;
+    height: 10px;
 }
