@@ -266,6 +266,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PC_CASH_POINT_ITEMLIST,       onBuyCashList );
 		Network.hookPacket( PACKET.ZC.PC_CASH_POINT_UPDATE,         onBuyCashResult );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST,         onBuyList );
+		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST2,         onBuyList );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_RESULT,           onBuyResult );
 		Network.hookPacket( PACKET.ZC.PC_SELL_ITEMLIST,             onSellList );
 		Network.hookPacket( PACKET.ZC.PC_SELL_RESULT,               onSellResult );

@@ -799,6 +799,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.MAKINGARROW_LIST,       onMakingarrowList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_WEAPONITEMLIST,  onRefineList );
 		Network.hookPacket( PACKET.ZC.REPAIRITEMLIST,         onRepairList);
+		Network.hookPacket( PACKET.ZC.REPAIRITEMLIST2,        onRepairList);
 		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.MILLENNIUMSHIELD,       onSpiritSphere );

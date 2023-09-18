@@ -218,6 +218,27 @@ define(function()
 		SP_SELF:                          0xcb,
 		COSTUME_BODY:                     0xcc,
 		RESET_COSTUMES:                   0xcd,
-		ROBE:                             0xce
+		ROBE:                             0xce,
+		VAR_SP_POW:                       0xdb,
+		VAR_SP_STA:                       0xdc,
+		VAR_SP_WIS:                       0xdd,
+		VAR_SP_SPL:                       0xde,
+		VAR_SP_CON:                       0xdf,
+		VAR_SP_CRT:                       0xe0,
+		VAR_SP_PATK:                      0xe1,
+		VAR_SP_SMATK:                     0xe2,
+		VAR_SP_RES:                       0xe3,
+		VAR_SP_MRES:                      0xe4,
+		VAR_SP_HPLUS:                     0xe5,
+		VAR_SP_CRATE:                     0xe6,
+		VAR_SP_TRAITPOINT:                0xe7,
+		VAR_SP_AP:                        0xe8,
+		VAR_SP_MAXAP:                     0xe9,
+		VAR_SP_UPOW:                      0xf7,
+		VAR_SP_USTA:                      0xf8,
+		VAR_SP_UWIS:                      0xf9,
+		VAR_SP_USPL:                      0xfa,
+		VAR_SP_UCON:                      0xfb,
+		VAR_SP_UCRT:                      0xfc
 	};
 });

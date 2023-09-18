@@ -574,6 +574,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK5,       onItemPickAnswer );
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK6, 			onItemPickAnswer);
 		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK7, 			onItemPickAnswer);
+		Network.hookPacket( PACKET.ZC.ITEM_PICKUP_ACK8, 			onItemPickAnswer);
 		Network.hookPacket( PACKET.ZC.ITEM_THROW_ACK,         onIventoryRemoveItem );
 		Network.hookPacket( PACKET.ZC.NORMAL_ITEMLIST,        onInventorySetList );
 		Network.hookPacket( PACKET.ZC.NORMAL_ITEMLIST2,       onInventorySetList );
@@ -607,6 +608,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART,          onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART2,         onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART3,         onCartItemAdded );
+		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_CART4,         onCartItemAdded );
 		Network.hookPacket( PACKET.ZC.MAKABLEITEMLIST,        onMakeitemList );
 		Network.hookPacket( PACKET.ZC.MAKINGITEM_LIST,        onMakeitem_List );
 		Network.hookPacket( PACKET.ZC.ACK_ADDITEM_TO_CART,        onAckAddItemToCart );
@@ -615,5 +617,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.RECOVER_PENALTY_OVERWEIGHT,        onRecoverPenaltyOverweight );
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL,       onItemListNormal );
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP,        onItemListEquip );
+		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2,        onItemListEquip );
 	};
 });
