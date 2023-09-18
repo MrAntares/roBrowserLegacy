@@ -314,12 +314,12 @@ define(function( require )
 
 			case 2:
 				// Cannot leave a party in this map
-				ChatBox.addText( DB.getMessage(1872), ChatBox.TYPE.ERROR_SETUP);
+				ChatBox.addText( DB.getMessage(1872), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				return;
 
 			case 3:
 				// Cannot withdraw/break the party in this map
-				ChatBox.addText( DB.getMessage(1873), ChatBox.TYPE.ERROR_SETUP);
+				ChatBox.addText( DB.getMessage(1873), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				return;
 		}
 
