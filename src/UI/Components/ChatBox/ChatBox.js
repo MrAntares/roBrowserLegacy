@@ -744,7 +744,7 @@ define(function(require)
 	 * @param {boolean} default false, html or text ?
 	 * @param {number} filterType
 	 */
-	ChatBox.addText = function addText( text, colorType, color, override, filterType )
+	ChatBox.addText = function addText( text, colorType, filterType, color, override )
 	{
 		// Backward compatibility for older calls without filter
 		if(isNaN(filterType)){
