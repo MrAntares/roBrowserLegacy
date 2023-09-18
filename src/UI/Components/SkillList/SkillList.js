@@ -298,13 +298,12 @@ define(function(require)
 			var element = '<div class="counterSkill">' + count + '</div>';
 			skillPosition.forEach(function (items, list) {
 				if (items[skillId] !== undefined) {
-					if (!_preferences.mini)
+					if (!_preferences.mini) {
 						var skillbox = SkillList.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
-					else
-						var skillbox = SkillList.ui.find('.content .skill.id' + items[skillId]);
-					if (skillbox.children().hasClass('disabled') || showAll) {
-						skillbox.addClass('needleSkill');
-						if (count !== null) skillbox.append(element);
+						if (skillbox.children().hasClass('disabled') || showAll) {
+							skillbox.addClass('needleSkill');
+							if (count !== null) skillbox.append(element);
+						}
 					}
 				}
 			});
@@ -336,7 +335,7 @@ define(function(require)
 		rememberChoice.forEach(function (item, skId) {
 			if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
 				var sk = skillDependencyTree[skId];
-				var skillbox = SkillList.ui.find('#positionSkills' + skId + ' .s' + sk.position);
+				var skillbox = SkillList.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
 				if (skillbox.find('.current').text() != sk.MaxLv ) {
 					totalCounter += rememberChoice[skId]['count'];
 					skillbox.children().removeClass('disabled');
@@ -847,8 +846,11 @@ define(function(require)
 			height = Math.min( Math.max(height, 4), 10);
 			SkillList.ui.find('.extend').show();
 			SkillList.ui.find('.content').show();
-			var i = parseInt(SkillList.ui.find('.tab-switch:checked').attr('id').split('-')[1]);
-			SkillList.ui.find('#tab-'+i+'-mini').prop('checked', true);
+			const id = SkillList.ui.find('.tab-switch:checked').attr('id');
+			if (id) {
+				var i = parseInt(id.split('-')[1]);
+				SkillList.ui.find('#tab-'+i+'-mini').prop('checked', true);
+			}
 			SkillList.ui.find('.contentbig').hide();
 			SkillList.ui.find('.footer .btn').hide();
 			SkillList.ui.find('.content, .tab-content-mini').css({
@@ -860,8 +862,11 @@ define(function(require)
 			height = 12;
 			SkillList.ui.find('.extend').hide();
 			SkillList.ui.find('.content').hide();
-			var i = parseInt(SkillList.ui.find('.tab-switch-mini:checked').attr('id').split('-')[1]);
-			SkillList.ui.find('#tab-'+i).prop('checked', true);
+			const id = SkillList.ui.find('.tab-switch-mini:checked').attr('id');
+			if (id) {
+				var i = parseInt(id.split('-')[1]);
+				SkillList.ui.find('#tab-'+i).prop('checked', true);
+			}
 			SkillList.ui.find('.contentbig').show();
 			SkillList.ui.find('.footer .btn').show();
 			SkillList.ui.find('.contentbig').css({
@@ -951,16 +956,15 @@ define(function(require)
 	function onResetChoice()
 	{
 		rememberChoice.forEach(function (count, skillId) {
-			if (!_preferences.mini)
+			if (!_preferences.mini) {
 				var skillbox = SkillList.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
-			else
-				var skillbox = SkillList.ui.find('.content' + skillDependencyTree[skillId]);
-			if (!hasSkills?.[skillId]?.level) {
-				skillbox.children().addClass('disabled');
+				if (!hasSkills?.[skillId]?.level) {
+					skillbox.children().addClass('disabled');
+				}
+				skillbox.find('.selectable').show();
+				skillbox.find('.current').empty().append(hasSkills?.[skillId]?.level ?? 0)
+				skillbox.find('.max').empty().append(hasSkills?.[skillId]?.level ?? 0)
 			}
-			skillbox.find('.selectable').show();
-			skillbox.find('.current').empty().append(hasSkills?.[skillId]?.level ?? 0)
-			skillbox.find('.max').empty().append(hasSkills?.[skillId]?.level ?? 0)
 
 		});
 		totalCounter = 0;
