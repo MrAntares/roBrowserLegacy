@@ -167,6 +167,7 @@ function createHTML(){
         <!DOCTYPE html>
         <html>
             <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
                 <title>roBrowser [${package.version} - ${buildDate}]</title>
             </head>
             <body>
