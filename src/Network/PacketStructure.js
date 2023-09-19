@@ -534,7 +534,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			pkt_len = 2 + 2 + this.itemList.length * 6;
 		} else {
 			pkt_len = 2 + 2 + this.itemList.length * 4;
-		} 
+		}
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xc8);
@@ -3790,7 +3790,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		pkt.view.setUint32(ver[3], this.GID, true);
 		return pkt;
 	};
-	
+
 	// 0x436
 	PACKET.CZ.ENTER2 = function PACKET_CZ_ENTER2() {
 		this.AID = 0;
@@ -4479,7 +4479,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt_buf;
 	};
 
-	//0848 <packet len>.W <count>.W <packet len>.W <kafra points>.L <count>.W { <amount>.W <name id>.W <tab>.W }.6B*count 
+	//0848 <packet len>.W <count>.W <packet len>.W <kafra points>.L <count>.W { <amount>.W <name id>.W <tab>.W }.6B*count
 	PACKET.CZ.SE_PC_BUY_CASHITEM_LIST = function PACKET_CZ_SE_PC_BUY_CASHITEM_LIST() {
 		this.kafraPoints = 0;
 		this.item_list = [];
@@ -4509,7 +4509,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.itemId = fp.readShort();
 		this.result = fp.readShort();
 		this.cashPoints = fp.readUShort();
-		
+
     };
     PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT.size = 16;
 
@@ -6311,7 +6311,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.itemList = (function() {
 			var len = 22;
 			if (PACKETVER.value >= 20150226) len = 47;
-			
+
 			var i, count=(end-fp.tell())/len|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
@@ -6328,7 +6328,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].slot.card2 = fp.readUShort();
 				out[i].slot.card3 = fp.readUShort();
 				out[i].slot.card4 = fp.readUShort();
-				
+
 				if (PACKETVER.value >= 20150226) {
 					out[i].Options = [];
 					out[i].Options[1] = fp.readStruct(option);
@@ -6485,8 +6485,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 			var i, count=(end-fp.tell())/32|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].GDID = fp.readLong();
 				out[i].relation = fp.readLong();
+				out[i].GDID = fp.readLong();
 				out[i].guildName = fp.readString(24);
 			}
 			return out;
@@ -11650,7 +11650,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	PACKET.ZC.ACK_WHISPER2.size = 7;
 
 	// 0x09e5 TODO: Implement the message and delete item from the shop window
-	PACKET.ZC.DELETEITEM_FROM_MCSTORE2 = function PACKET_ZC_DELETEITEM_FROM_MCSTORE2(fp, end) { 
+	PACKET.ZC.DELETEITEM_FROM_MCSTORE2 = function PACKET_ZC_DELETEITEM_FROM_MCSTORE2(fp, end) {
 		this.index = fp.readShort();
 		this.count = fp.readShort();
 		this.GID = fp.readULong();
@@ -12469,7 +12469,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	//0xb09
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL = function PACKET_ZC_SPLIT_SEND_ITEMLIST_NORMAL(fp, end) {
 		this.invType = fp.readUChar();
-		
+
 		let item_size = (PACKETVER.value >= 20181121 ? 34 : 24);
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / item_size | 0,
@@ -12559,7 +12559,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0xb18
 	PACKET.ZC.EXTEND_BODYITEM_SIZE = function PACKET_ZC_EXTEND_BODYITEM_SIZE(fp, end) {
-        this.type = fp.readUShort();        
+        this.type = fp.readUShort();
     };
     PACKET.ZC.EXTEND_BODYITEM_SIZE.size = 4;
 
@@ -12811,7 +12811,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		})();
 	};
 	PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
-	
+
 	//0xb8d
 	PACKET.ZC.REPUTE_INFO = function PACKET_ZC_REPUTE_INFO(fp, end) {
 		this.success = fp.readUChar();
