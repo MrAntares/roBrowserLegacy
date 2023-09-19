@@ -232,6 +232,24 @@ define(function(require)
 			SkillList.prepareSkillTree(items, list)
 		});
 
+		// Hide tabs 2 - 4 if no skills in them
+		for (var i = 2; i <= 4; i++) {
+			var length = SkillList.ui.find('#minitab'+i+' tr').length;
+			var length2 = SkillList.ui.find('#positionSkills'+i+' .skill').length;
+
+			if (length > 0) {
+				SkillList.ui.find('#tabminil'+i).show();
+			} else {
+				SkillList.ui.find('#tabminil'+i).hide();
+			}
+
+			if (length2 > 0) {
+				SkillList.ui.find('#tabl'+i).show();
+			} else {
+				SkillList.ui.find('#tabl'+i).hide();
+			}
+		}
+
 		onResetChoice();
 	};
 
@@ -264,6 +282,7 @@ define(function(require)
 				} else {
 					console.log("Something wrong with this skill: %d", skid);
 				}
+				
 			});
 		});
 	}
@@ -279,10 +298,12 @@ define(function(require)
 			var element = '<div class="counterSkill">' + count + '</div>';
 			skillPosition.forEach(function (items, list) {
 				if (items[skillId] !== undefined) {
-					var skillbox = SkillList.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
-					if (skillbox.children().hasClass('disabled') || showAll) {
-						skillbox.addClass('needleSkill');
-						if (count !== null) skillbox.append(element);
+					if (!_preferences.mini) {
+						var skillbox = SkillList.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
+						if (skillbox.children().hasClass('disabled') || showAll) {
+							skillbox.addClass('needleSkill');
+							if (count !== null) skillbox.append(element);
+						}
 					}
 				}
 			});
@@ -314,7 +335,7 @@ define(function(require)
 		rememberChoice.forEach(function (item, skId) {
 			if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
 				var sk = skillDependencyTree[skId];
-				var skillbox = SkillList.ui.find('#positionSkills' + skId + ' .s' + sk.position);
+				var skillbox = SkillList.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
 				if (skillbox.find('.current').text() != sk.MaxLv ) {
 					totalCounter += rememberChoice[skId]['count'];
 					skillbox.children().removeClass('disabled');
@@ -392,7 +413,7 @@ define(function(require)
 			console.error( 'Unimplemented JobId ' + JobId + ' in SkillTree!' );
 			return positions;
 		}
-
+		
 		positions[SkillTreeView[JobId]['list']] = SkillTreeView[JobId];
 
 		if (SkillTreeView[JobId]['beforeJob'] !== null) {
@@ -426,7 +447,6 @@ define(function(require)
 		this.addSkillBig(skill);
 		this.addSkillMini(skill);
 	}
-
 
 	/**
 	 * Create disabled skills preview
@@ -524,6 +544,13 @@ define(function(require)
 			}
 		});
 
+		if (!SkillList.ui.find('.contentbig .skill.id' + skill.SKID).length) {
+			var pos = SkillList.ui.find('#etcBIG5 .skill').length;
+			var box = SkillList.ui.find('#etcBIG5 .s'+pos);
+			
+			box.append(element);
+		}
+
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
 			element.find('.icon img').attr('src', data);
 		});
@@ -571,7 +598,22 @@ define(function(require)
 
 		element.find('.level .currentUp').click( function(){ skillLevelSelectUp(skill);  } );
 		element.find('.level .currentDown').click( function(){ skillLevelSelectDown(skill); } );
-		SkillList.ui.find('.content table').append(element);
+		
+		skillPosition.forEach(function (items, list) {
+			if (items[skill.SKID] !== undefined) {
+				var box = SkillList.ui.find('#minitab' + list);
+				
+				box.append(element);
+			}
+		});
+
+		if (!SkillList.ui.find('.content .skill.id' + skill.SKID).length) {
+
+			var box = SkillList.ui.find('#minitab5');
+			
+			box.append(element);
+		}
+
 		this.parseHTML.call(levelup);
 
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
@@ -804,9 +846,14 @@ define(function(require)
 			height = Math.min( Math.max(height, 4), 10);
 			SkillList.ui.find('.extend').show();
 			SkillList.ui.find('.content').show();
+			const id = SkillList.ui.find('.tab-switch:checked').attr('id');
+			if (id) {
+				var i = parseInt(id.split('-')[1]);
+				SkillList.ui.find('#tab-'+i+'-mini').prop('checked', true);
+			}
 			SkillList.ui.find('.contentbig').hide();
 			SkillList.ui.find('.footer .btn').hide();
-			SkillList.ui.find('.content').css({
+			SkillList.ui.find('.content, .tab-content-mini').css({
 				width:  width  * 32,
 				height: height * 32
 			});
@@ -815,6 +862,11 @@ define(function(require)
 			height = 12;
 			SkillList.ui.find('.extend').hide();
 			SkillList.ui.find('.content').hide();
+			const id = SkillList.ui.find('.tab-switch-mini:checked').attr('id');
+			if (id) {
+				var i = parseInt(id.split('-')[1]);
+				SkillList.ui.find('#tab-'+i).prop('checked', true);
+			}
 			SkillList.ui.find('.contentbig').show();
 			SkillList.ui.find('.footer .btn').show();
 			SkillList.ui.find('.contentbig').css({
@@ -904,13 +956,15 @@ define(function(require)
 	function onResetChoice()
 	{
 		rememberChoice.forEach(function (count, skillId) {
-			var skillbox = SkillList.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
-			if (!hasSkills?.[skillId]?.level) {
-				skillbox.children().addClass('disabled');
+			if (!_preferences.mini) {
+				var skillbox = SkillList.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
+				if (!hasSkills?.[skillId]?.level) {
+					skillbox.children().addClass('disabled');
+				}
+				skillbox.find('.selectable').show();
+				skillbox.find('.current').empty().append(hasSkills?.[skillId]?.level ?? 0)
+				skillbox.find('.max').empty().append(hasSkills?.[skillId]?.level ?? 0)
 			}
-			skillbox.find('.selectable').show();
-			skillbox.find('.current').empty().append(hasSkills?.[skillId]?.level ?? 0)
-			skillbox.find('.max').empty().append(hasSkills?.[skillId]?.level ?? 0)
 
 		});
 		totalCounter = 0;
@@ -967,7 +1021,7 @@ define(function(require)
 		}
 
 		// Add ui to window
-		if (_preferences.mini || _preferences.skillInfo) {
+		if (_preferences.skillInfo) {
 			SkillDescription.append();
 			SkillDescription.setSkill(skillID);
 		}
