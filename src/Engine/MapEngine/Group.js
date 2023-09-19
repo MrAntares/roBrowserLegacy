@@ -296,6 +296,7 @@ define(function( require )
 			pkt.life = entity.life;
 		}
 
+		PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 		PartyUI.addPartyMember(pkt);
 	}
 
@@ -395,9 +396,13 @@ define(function( require )
 	{
 		PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 
-		ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(292) + '  : ' + DB.getMessage(287 + pkt.expOption ), ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_SETUP );
-		ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(293) + '  : ' + DB.getMessage(289 + pkt.ItemPickupRule), ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_SETUP );
-		ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(738) + '  : ' + DB.getMessage(287 + pkt.ItemDivisionRule), ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_SETUP );
+		ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(292) + '  : ' + DB.getMessage(287 + pkt.expOption ), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
+
+		// Some packets don't have ItemPickupRule and ItemDivisionRule so we need to check if they exist
+		if (pkt.ItemPickupRule !== undefined)
+			ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(293) + '  : ' + DB.getMessage(289 + pkt.ItemPickupRule), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
+		if (pkt.ItemDivisionRule !== undefined)
+			ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(738) + '  : ' + DB.getMessage(287 + pkt.ItemDivisionRule), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
 	}
 
 

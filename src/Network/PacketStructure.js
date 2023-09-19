@@ -8752,6 +8752,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.MSG.size = 4;
 
+	
+	// 0x9cd
+	PACKET.ZC.MSG_COLOR = function PACKET_ZC_MSG_COLOR(fp, end) {
+		this.msg = fp.readUShort();
+		this.color = fp.readUShort();
+	};
+	PACKET.ZC.MSG_COLOR.size = 8;
 
 	// 0x293
 	PACKET.ZC.BOSS_INFO = function PACKET_ZC_BOSS_INFO(fp, end) {
@@ -12208,6 +12215,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		})();
 	};
 	PACKET.ZC.GROUP_LIST2.size = -1;
+
+	//0xae2
+	PACKET.ZC.UI_OPEN = function PACKET_ZC_UI_OPEN(fp, end) {
+		this.ui_type = fp.readByte();
+		this.data = fp.readULong();
+	};
+
+	PACKET.ZC.UI_OPEN.size = 7;
 
 	// 0xa84
 	PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {

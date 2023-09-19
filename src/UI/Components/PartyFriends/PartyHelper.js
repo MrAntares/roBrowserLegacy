@@ -147,7 +147,7 @@ define(function(require)
 	{
 		function swap(off) {
 			var on, tmp;
-			on = off.parentNode.getElementsByClassName('on')[0];
+			on = off.parentNode.querySelector('.on');
 
 			on.className  = 'off';
 			off.className = 'on';
@@ -162,8 +162,12 @@ define(function(require)
 		var element;
 
 		for (i = 0; i < count; ++i) {
-			element = this.ui.find('.' + list[i]).find('.off');
-			if (options[list[i]] == element.data('index')) {
+			if (options[list[i]] === undefined)
+				continue;
+
+			element = this.ui.find('.' + list[i]).find('.off')[0];
+
+			if (options[list[i]] == element.dataset.value) {
 				swap(element);
 			}
 		}
