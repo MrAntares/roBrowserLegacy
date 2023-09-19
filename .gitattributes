@@ -1,3 +1,7 @@
+# Macros for LFS
+[attr]lfs filter=lfs diff=lfs merge=lfs -text
+[attr]lfslock lockable
+
 # Auto detect text files and perform LF normalization
 *					text=auto
 
@@ -24,14 +28,33 @@ package-lock.json	text eol=lf -diff
 *.bmp				binary
 *.gif				binary
 *.png				binary
+*.tga				binary
+
+# Video
+*.bik				binary
 
 # Audio
 *.mp3				binary
 *.wav				binary
 
-# Prevents massive diffs from built files
+# RO files
+*.act				binary
+*.ebm				binary
+*.ezv				binary
+*.gat				binary
+*.gnd				binary
+*.gr2				binary
+*.grf				binary
+*.gpf				binary
+*.pal				binary
+*.rgz				binary
+*.rsm				binary
+*.rsw				binary
+*.spr				binary
+*.str				binary
+
+*.lub				binary
+
+# intermediate and build files
 node_modules/*		binary
 dist/*				binary
-
-# RO files
-*.grf				binary
