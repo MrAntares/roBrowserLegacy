@@ -108,6 +108,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 		uniform float uShadow;
 		uniform vec2 uTextSize;
+		uniform bool uIsRGBA;
 
 		// With palette we don't have a good result because of the gl.NEAREST, so smooth it.
 		vec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {
@@ -157,8 +158,8 @@ function(      WebGL,         glMatrix,      Camera )
 			texture.rgb   *= uShadow;
 			gl_FragColor   = texture * uSpriteRendererColor;
 
-			// Similar to Official RO, only applied when not transparent [Waken]
-			if (uSpriteRendererColor.a >= 0.8) {
+			// Similar to Official RO, only applied when not transppparent [Waken]
+			if (uSpriteRendererColor.a >= 0.8 && !uIsRGBA) {
 				float edgeFactor = smoothstep(0.20, 0.90, gl_FragColor.a);
 				gl_FragColor.rgb *= edgeFactor;
 			}
@@ -531,6 +532,7 @@ function(      WebGL,         glMatrix,      Camera )
 		gl.uniform4fv( uniform.uSpriteRendererColor,  this.color );
 		gl.uniform2fv( uniform.uSpriteRendererSize,   _size );
 		gl.uniform2fv( uniform.uSpriteRendererOffset, _offset );
+		gl.uniform1i( uniform.uIsRGBA, this.sprite.type)
 
 		// Avoid binding the new texture 150 times if it's the same.
 		if (_groupId !== _lastGroupId || _texture !== this.image.texture) {
