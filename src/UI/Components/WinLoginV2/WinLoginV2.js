@@ -67,7 +67,7 @@ define(function(require)
 
 		var ui = this.ui;
 
-		this.draggable();
+		this.draggable(this.ui.find('.win_login'));
 
 		// Save Elements
 		_inputUsername = ui.find('.user').mousedown(function(event){ this.focus(); this.value = ''; event.stopImmediatePropagation(); return false; });
@@ -75,6 +75,7 @@ define(function(require)
 		_buttonSave    = ui.find('.save').mousedown(toggleSaveButton);
 
 		// Connect / Exit
+
 		ui.find('.connect').click(connect);
 		ui.find('.exit').click(exit);
 	};
