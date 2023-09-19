@@ -19,6 +19,7 @@ define(function( require )
 	var Sound              = require('Audio/SoundManager');
 	var Session            = require('Engine/SessionStorage');
 	var PACKET             = require('Network/PacketStructure');
+	var PACKETVER          = require('Network/PacketVerManager');
 	var Network            = require('Network/NetworkManager');
 	var ControlPreferences = require('Preferences/Controls');
 	var AudioPreferences   = require('Preferences/Audio');
@@ -165,19 +166,19 @@ define(function( require )
 				pkt.headDir = Session.Entity.headDir;
 				pkt.dir     = Session.Entity.direction;
 				Network.sendPacket(pkt);
-				
+
 				// Doridori recovery bonus
 				if(Session.Entity.action === Session.Entity.ACTION.SIT){
 					if(!Session.Entity.doriTime){
 						Session.Entity.doriTime = [0,0,0,0,0];
 					}
-					
+
 					Session.Entity.doriTime.shift();
 					Session.Entity.doriTime.push(Renderer.tick);
-					
+
 					var doriStart = Session.Entity.doriTime[0];
 					var doriEnd = Session.Entity.doriTime[4];
-					
+
 					if(doriEnd-doriStart > 1500 && doriEnd-doriStart < 3000){
 						var doripkt = new PACKET.CZ.DORIDORI();
 						Network.sendPacket(doripkt);
@@ -289,7 +290,7 @@ define(function( require )
                 pkt = new PACKET.CZ.TAEKWON_RANK();
 				Network.sendPacket(pkt);
                 return;
-				
+
 			case 'hoai':
 				Session.homCustomAI = !Session.homCustomAI;
 				if(Session.homCustomAI){
@@ -300,7 +301,7 @@ define(function( require )
 					this.addText( DB.getMessage(1024), this.TYPE.INFO );
 				}
 				return;
-			
+
 			case 'merai':
 				Session.merCustomAI = !Session.merCustomAI;
 				if(Session.merCustomAI){
