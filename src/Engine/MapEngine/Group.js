@@ -398,7 +398,7 @@ define(function( require )
 
 		ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(292) + '  : ' + DB.getMessage(287 + pkt.expOption ), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
 
-		// In newer clients, ItemPickupRule and ItemDivisionRule are sent in a different packet
+		// Some packets don't have ItemPickupRule and ItemDivisionRule so we need to check if they exist
 		if (pkt.ItemPickupRule !== undefined)
 			ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(293) + '  : ' + DB.getMessage(289 + pkt.ItemPickupRule), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
 		if (pkt.ItemDivisionRule !== undefined)
