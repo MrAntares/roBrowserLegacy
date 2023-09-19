@@ -39,6 +39,7 @@ define(function( require )
 	var SkillList      = require('UI/Components/SkillList/SkillList');
 	var PartyUI        = require('UI/Components/PartyFriends/PartyFriends');
 	var PetMessageConst    = require('DB/Pets/PetMessageConst');
+	var uint32ToRGB    = require('Utils/colors');
 
 
 	/**
@@ -676,11 +677,15 @@ define(function( require )
 	/**
 	 * Server message using msgstringtable
 	 *
-	 * @param {object} pkt - PACKET_ZC_MSG
+	 * @param {object} pkt - PACKET_ZC_MSG & PACKET_ZC_MSG_COLOR
 	 */
 	function onMessage( pkt )
 	{
-		ChatBox.addText( DB.getMessage(pkt.msg), ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG );
+		if (pkt.color) {
+			ChatBox.addText( DB.getMessage(pkt.msg), ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, uint32ToRGB(pkt.color) );
+		} else {
+			ChatBox.addText( DB.getMessage(pkt.msg), ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG );
+		}
 	}
 
 
@@ -784,6 +789,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.CONFIG,                      onConfigUpdate );
 		Network.hookPacket( PACKET.ZC.ACTION_FAILURE,              onActionFailure );
 		Network.hookPacket( PACKET.ZC.MSG,                         onMessage );
+		Network.hookPacket( PACKET.ZC.MSG_COLOR,                   onMessage );
 		if (PACKETVER.value < 20141022) {
 			Network.hookPacket( PACKET.ZC.RECOVERY,                    onRecovery );
 		} else {

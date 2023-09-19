@@ -518,6 +518,10 @@ define(function( require )
 	 */
 	function onRecoverPenaltyOverweight(pkt) {
 		// TODO add it as status check
+		// show percent to status, still a wip
+		if (Session.Entity) {
+			Session.Entity.overWeightPercent = pkt.percentage;
+		}
 	}
 
 	/**
