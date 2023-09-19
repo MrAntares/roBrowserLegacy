@@ -47,6 +47,7 @@ define(function(require)
 
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
+	var PACKETVER     = require('Network/PacketVerManager');
 
 	/**
 	 * DB NameSpace
