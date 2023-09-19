@@ -30,8 +30,13 @@ define(function( require )
 	var UIManager    = require('UI/UIManager');
 	var WinList      = require('UI/Components/WinList/WinList');
 	var WinPopup     = require('UI/Components/WinPopup/WinPopup');
-	var WinLogin     = require('UI/Components/WinLogin/WinLogin');
 	var MD5          = require('Vendors/spark-md5.min');
+	var WinLogin;
+	if(PACKETVER.value >= 20181114) {
+		WinLogin = require('UI/Components/WinLoginV2/WinLoginV2');
+	} else {
+		WinLogin = require('UI/Components/WinLogin/WinLogin');
+	}
 	var getModule    = require;
 
 
