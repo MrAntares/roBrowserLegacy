@@ -15,9 +15,9 @@
 			"type": "npm",
 			"group": "build",
 			"label": "npm: build (minified)",
-			"detail": "node ./tools/builder-web.js -- -m",
+			"detail": "node ./tools/builder-web.js -- --all -m",
 
-			"script": "build -- -m",
+			"script": "build -- --all -m",
 			"problemMatcher": []
 		}
 	]

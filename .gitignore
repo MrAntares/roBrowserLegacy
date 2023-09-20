@@ -1,14 +1,21 @@
-AI/*
-applications/settings.js
-client/BGM/*
-client/data/*
-client/resources/*
-dist/
-node_modules/
-src/Plugins/*/
-api.html
-index.html
-package-lock.json
+/AI/*
+/applications/settings.js
+/client/BGM/*
+/client/data/*
+/client/resources/*
+/dist/
+/node_modules/
+/src/Plugins/*/
+/api.html
+/index.html
+/package-lock.json
+/GrannyModelViewer.js
+/GrfViewer.js
+/MapViewer.js
+/ModelViewer.js
+/Online.js
+/StrViewer.js
+/ThreadEventHandler.js
 
 # IDE files
 .idea/
