@@ -84,6 +84,19 @@ define(function( require )
 				MapPreferences.save();
 				return;
 
+			case 'showname':
+				this.addText( DB.getMessage(722 + MapPreferences.showname), this.TYPE.INFO );
+				MapPreferences.showname = !MapPreferences.showname;
+				MapPreferences.save();
+
+				var EntityManager = getModule('Renderer/EntityManager');
+
+				// update all display names
+				EntityManager.forEach(function(entity){
+					entity.display.refresh(entity);
+				});
+				return;
+
 			case 'camera':
 				this.addText( DB.getMessage(319 + CameraPreferences.smooth), this.TYPE.INFO );
 				CameraPreferences.smooth = !CameraPreferences.smooth;

@@ -12,6 +12,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 {
 	'use strict';
 
+	var MapPreferences     = require('Preferences/Map');
 
 	/**
 	 * Global methods
@@ -186,6 +187,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		var ctx      = this.ctx;
 		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT) ? 26 : 0) + 5;
 		var width, height;
+		var paddingTop = 5;
 
 		// Skip the "#" in the pseudo
 		lines[0] = this.fakename ? this.fakename.split('#')[0] : this.name.split('#')[0];
@@ -208,9 +210,11 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		}
 
 		// Setup the canvas
-		ctx.font          = fontSize + 'px Arial';
+		var fontBold = MapPreferences.showname ? 'bold ' : '';
+		ctx.font         = fontBold + fontSize + 'px Arial';
+
 		width             = Math.max( ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width ) + start_x + 5;
-		height            = fontSize * 3 * (lines[1].length ? 2 : 1);
+		height            = fontSize * 3 * (lines[1].length ? 2 : 1) + paddingTop;
 		ctx.canvas.width  = width;
 		ctx.canvas.height = height;
 
@@ -227,39 +231,55 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			case this.STYLE.ITEM: color = '#FFEF94'; break;
 		}
 
-		ctx.font         = fontSize + 'px Arial';
+
+		var fontBold = MapPreferences.showname ? 'bold ' : '';
+		ctx.font         = fontBold + fontSize + 'px Arial';
 		ctx.textBaseline = 'top';
 
 		// Shadow renderer
 		if (!_isUglyShadow) {
-			multiShadow(ctx, lines[0], start_x, 0,  0, -1, 0);
-			multiShadow(ctx, lines[0], start_x, 0,  0,  1, 0);
-			multiShadow(ctx, lines[0], start_x, 0, -1,  0, 0);
-			multiShadow(ctx, lines[0], start_x, 0,  1,  0, 0);
-			multiShadow(ctx, lines[1], start_x, fontSize * 1.2,  0, -1, 0);
-			multiShadow(ctx, lines[1], start_x, fontSize * 1.2,  0,  1, 0);
-			multiShadow(ctx, lines[1], start_x, fontSize * 1.2, -1,  0, 0);
-			multiShadow(ctx, lines[1], start_x, fontSize * 1.2,  1,  0, 0);
+			multiShadow(ctx, lines[0], start_x, paddingTop,  0, -1, 0);
+			multiShadow(ctx, lines[0], start_x, paddingTop,  0,  1, 0);
+			multiShadow(ctx, lines[0], start_x, paddingTop, -1,  0, 0);
+			multiShadow(ctx, lines[0], start_x, paddingTop,  1,  0, 0);
+			multiShadow(ctx, lines[1], start_x, fontSize * 1.2 + paddingTop,  0, -1, 0);
+			multiShadow(ctx, lines[1], start_x, fontSize * 1.2 + paddingTop,  0,  1, 0);
+			multiShadow(ctx, lines[1], start_x, fontSize * 1.2 + paddingTop, -1,  0, 0);
+			multiShadow(ctx, lines[1], start_x, fontSize * 1.2 + paddingTop,  1,  0, 0);
 			ctx.fillStyle   = color;
 			ctx.strokeStyle = 'black';
-			ctx.strokeText(lines[0], start_x, 0);
-			ctx.fillText(  lines[0], start_x, 0);
-			ctx.strokeText(lines[1], start_x, fontSize * 1.2);
-			ctx.fillText(  lines[1], start_x, fontSize * 1.2);
+			ctx.strokeText(lines[0], start_x, 0 + paddingTop);
+			ctx.fillText(  lines[0], start_x, paddingTop );
+			ctx.strokeText(lines[1], start_x, fontSize * 1.2 + paddingTop);
+			ctx.fillText(  lines[1], start_x, fontSize * 1.2 + paddingTop);
+
 		}
 
 		// fillText renderer
 		else {
 			ctx.translate(0.5, 0.5);
 			ctx.fillStyle    = 'black';
-			ctx.outlineText( lines[0], start_x, 0 );
-			ctx.outlineText( lines[1], start_x, fontSize * 1.2 );
+			ctx.outlineText( lines[0], start_x, paddingTop );
+			ctx.outlineText( lines[1], start_x, fontSize * 1.2 + paddingTop );
 			ctx.fillStyle    = color;
-			ctx.fillText( lines[0], start_x, 0 );
-			ctx.fillText( lines[1], start_x, fontSize * 1.2 );
+			ctx.fillText(  lines[0], start_x, paddingTop );
+			ctx.fillText(  lines[1], start_x, fontSize * 1.2 + paddingTop);
 		}
 	};
 
+	/**
+	 * Refreshes the display (when player uses /showname)
+	 */
+	Display.prototype.refresh = function refresh( entity )
+	{
+		this.update(
+			entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
+			entity.objecttype === entity.constructor.TYPE_ITEM ? entity.display.STYLE.ITEM :
+			entity.display.STYLE.DEFAULT
+		)
+	}
 
 	/**
 	 * Rendering GUI
@@ -287,7 +307,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
-		canvas.style.top  = ((_pos[1] + 15 ) | 0) + 'px';
+		canvas.style.top  = ((_pos[1] + 13 ) | 0) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to body

@@ -61,8 +61,14 @@ define( ['Core/Preferences'], function( Preferences )
 		 *
 		 * Toggle using "/aura" in the chatbox
 		 */
-		aura: false
+		aura: false,
 
+		/**
+		 * Display different font style ?
+		 *
+		 * Toggle using "/showname" changes font styles.
+		 */
+		showname: true
 
 	}, 1.1 );
 });
