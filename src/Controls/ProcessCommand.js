@@ -84,6 +84,22 @@ define(function( require )
 				MapPreferences.save();
 				return;
 
+			case 'showname':
+				this.addText( DB.getMessage(722 + MapPreferences.showname), this.TYPE.INFO );
+				MapPreferences.showname = !MapPreferences.showname;
+				MapPreferences.save();
+				// update all display names
+				var EntityManager = getModule('Renderer/EntityManager');
+				EntityManager.forEach(function(entity){
+					entity.display.update(
+						entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
+						entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+						entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
+						entity.display.STYLE.DEFAULT
+					);
+				});
+				return;
+
 			case 'camera':
 				this.addText( DB.getMessage(319 + CameraPreferences.smooth), this.TYPE.INFO );
 				CameraPreferences.smooth = !CameraPreferences.smooth;

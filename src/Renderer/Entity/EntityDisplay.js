@@ -12,6 +12,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 {
 	'use strict';
 
+	var MapPreferences     = require('Preferences/Map');
 
 	/**
 	 * Global methods
@@ -228,7 +229,10 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			case this.STYLE.ITEM: color = '#FFEF94'; break;
 		}
 
-		ctx.font         = fontSize + 'px Arial';
+
+		var fontBold = MapPreferences.showname ? 'bold ' : '';
+
+		ctx.font         = fontBold + fontSize + 'px Arial';
 		ctx.textBaseline = 'top';
 
 		// Shadow renderer
