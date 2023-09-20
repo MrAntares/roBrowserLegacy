@@ -88,15 +88,12 @@ define(function( require )
 				this.addText( DB.getMessage(722 + MapPreferences.showname), this.TYPE.INFO );
 				MapPreferences.showname = !MapPreferences.showname;
 				MapPreferences.save();
-				// update all display names
+
 				var EntityManager = getModule('Renderer/EntityManager');
+
+				// update all display names
 				EntityManager.forEach(function(entity){
-					entity.display.update(
-						entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
-						entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
-						entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
-						entity.display.STYLE.DEFAULT
-					);
+					entity.display.refresh(entity);
 				});
 				return;
 

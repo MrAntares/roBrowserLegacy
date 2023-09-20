@@ -210,7 +210,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		}
 
 		// Setup the canvas
-		ctx.font          = fontSize + 'px Arial';
+		var fontBold = MapPreferences.showname ? 'bold ' : '';
+		ctx.font         = fontBold + fontSize + 'px Arial';
+
 		width             = Math.max( ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width ) + start_x + 5;
 		height            = fontSize * 3 * (lines[1].length ? 2 : 1) + paddingTop;
 		ctx.canvas.width  = width;
@@ -231,7 +233,6 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 
 
 		var fontBold = MapPreferences.showname ? 'bold ' : '';
-
 		ctx.font         = fontBold + fontSize + 'px Arial';
 		ctx.textBaseline = 'top';
 
@@ -266,6 +267,19 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		}
 	};
 
+	/**
+	 * Refreshes the display (when player uses /showname)
+	 */
+	Display.prototype.refresh = function refresh( entity )
+	{
+		this.update(
+			entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
+			entity.objecttype === entity.constructor.TYPE_ITEM ? entity.display.STYLE.ITEM :
+			entity.display.STYLE.DEFAULT
+		)
+	}
 
 	/**
 	 * Rendering GUI

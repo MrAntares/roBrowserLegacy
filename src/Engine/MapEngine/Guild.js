@@ -525,12 +525,7 @@ define(function( require )
 				EntityManager.forEach(function(entity){
 					if (entity.GUID === pkt.GDID) {
 						entity.display.emblem = img;
-						entity.display.update(
-							entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
-							entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
-							entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
-							entity.display.STYLE.DEFAULT
-						);
+						entity.display.refresh(entity);
 					}
 				});
 			}

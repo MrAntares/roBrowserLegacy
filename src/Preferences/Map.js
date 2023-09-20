@@ -68,7 +68,7 @@ define( ['Core/Preferences'], function( Preferences )
 		 *
 		 * Toggle using "/showname" changes font styles.
 		 */
-		showname: false
+		showname: true
 
 	}, 1.1 );
 });
