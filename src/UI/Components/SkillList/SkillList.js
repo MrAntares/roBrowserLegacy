@@ -336,8 +336,15 @@ define(function(require)
 			if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
 				var sk = skillDependencyTree[skId];
 				var skillbox = SkillList.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
-				if (skillbox.find('.current').text() != sk.MaxLv ) {
-					totalCounter += rememberChoice[skId]['count'];
+				if ((skillbox.find('.current').text() != sk.MaxLv ) &&
+					(skillbox.find('.current').text() != item.count))	// Add check because not all dependencies are equals to max level
+				{
+					var level = skillbox.find('.current').text();
+					var diff = 0;
+					if (item.count > level) {	// Should find difference between the count and current selected level
+						diff = item.count - level;
+					}
+					totalCounter += diff;
 					skillbox.children().removeClass('disabled');
 					skillbox.find('.level').show();
 					skillbox.find('.current').empty().append(rememberChoice[skId]['count'])
@@ -524,6 +531,10 @@ define(function(require)
 			'</div>'
 		);
 
+		if (!skill.upgradable || !_points) {
+			levelup.hide();
+		}
+		
 		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
 		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
 
