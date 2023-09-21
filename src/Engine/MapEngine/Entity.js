@@ -883,6 +883,8 @@ define(function( require )
 			case 10: break; // UNKNOWN²
 			case 11: break; // robe, not supported yet
 		}
+
+		processAura( entity );
 	}
 
 	/**

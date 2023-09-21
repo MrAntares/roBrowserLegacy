@@ -314,6 +314,9 @@ define( function( require )
 		this.remove_tick  = 0;
 		this.remove_delay = 0;
 
+		// For Engine/MapEngine/Entity to create aura effects
+		this.auraVisible = false;
+
 		// Aviod conflict if entity re-appears. Official sets it to -1
 		this.GID += Math.random();
 	};
