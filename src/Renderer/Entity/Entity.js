@@ -61,7 +61,7 @@ define( function( require )
 	/**
 	 * Constantes
 	 */
-	
+
 	Entity.TYPE_EFFECT    = -5;
 	Entity.TYPE_UNKNOWN   = -4;
 	Entity.TYPE_UNIT      = -3;
@@ -97,7 +97,7 @@ define( function( require )
 	Entity.PickingPriority.Normal[Entity.TYPE_UNIT]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_EFFECT]=		-1;
-	
+
 	Entity.PickingPriority.Support = {};
 	Entity.PickingPriority.Support[Entity.TYPE_PC]=			3;
 	Entity.PickingPriority.Support[Entity.TYPE_DISGUISED]=	3;
@@ -113,8 +113,8 @@ define( function( require )
 	Entity.PickingPriority.Support[Entity.TYPE_UNIT]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_EFFECT]=		-1;
-	
-	
+
+
 	/**
 	 * Vanish Type
 	 */
@@ -313,7 +313,7 @@ define( function( require )
 		// Remove
 		this.remove_tick  = 0;
 		this.remove_delay = 0;
-		
+
 		// Aviod conflict if entity re-appears. Official sets it to -1
 		this.GID += Math.random();
 	};
@@ -406,7 +406,7 @@ define( function( require )
 						this.headDir = 0;
 						break;
 					}
-				case -2:	
+				case -2:
 				case -1:
 					this.direction = (dir+9)%8;
 					this.headDir = 2;
@@ -439,7 +439,7 @@ define( function( require )
 							this.headDir = 0;
 					}
 					break;
-				
+
 				// turn
 				default:
 					this.direction = dir;
