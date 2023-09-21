@@ -180,26 +180,22 @@ define(function( require )
 
 			switch(pkt.type){
 				//case Entity.VT.DEAD: break;
+				//case: Entity.VT.TRICKDEAD: break;
 
 				case Entity.VT.EXIT:
 				case Entity.VT.TELEPORT:
 					if( !(entity._effectState & StatusState.EffectState.INVISIBLE) ){
-						var EF_Init_Par = {
-							position: entity.position
-						};
+						var EF_Init_Par = { position: entity.position };
 
 						if(PACKETVER.value < 20030715){
 							EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION;
-							EffectManager.spam( EF_Init_Par );
 						} else {
 							EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION2;
-							EffectManager.spam( EF_Init_Par );
 						}
+						EffectManager.spam( EF_Init_Par );
 					}
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
-
-				//case: Entity.VT.TRICKDEAD: break;
 			}
 
 			entity.remove( pkt.type );
