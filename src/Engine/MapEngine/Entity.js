@@ -179,9 +179,6 @@ define(function( require )
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI_FIRE, EffectConst.EF_CHOOKGI_WIND, EffectConst.EF_CHOOKGI_WATER, EffectConst.EF_CHOOKGI_GROUND, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
 
 			switch(pkt.type){
-				case Entity.VT.OUTOFSIGHT:
-					EffectManager.remove( null, pkt.GID, null);
-					break;
 				//case Entity.VT.DEAD: break;
 
 				case Entity.VT.EXIT:
@@ -199,7 +196,8 @@ define(function( require )
 							EffectManager.spam( EF_Init_Par );
 						}
 					}
-					break;
+				case Entity.VT.OUTOFSIGHT:
+					EffectManager.remove( null, pkt.GID, null);
 
 				//case: Entity.VT.TRICKDEAD: break;
 			}
