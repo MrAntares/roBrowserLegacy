@@ -31,7 +31,14 @@ define(function( require )
 	var Altitude       = require('Renderer/Map/Altitude');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom       = require('UI/Components/ChatRoom/ChatRoom');
-	var BasicInfo      = require('UI/Components/BasicInfo/BasicInfo');
+	var BasicInfo;
+	if(PACKETVER.value >= 20180124) {
+		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
+	} else if(PACKETVER.value >= 20160101) {
+		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
+	}   else {
+		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	}
 	var WinStats       = require('UI/Components/WinStats/WinStats');
 	var Announce       = require('UI/Components/Announce/Announce');
 	var Equipment      = require('UI/Components/Equipment/Equipment');
