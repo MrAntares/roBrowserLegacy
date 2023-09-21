@@ -185,6 +185,7 @@ define(function( require )
 				case Entity.VT.EXIT:
 				case Entity.VT.TELEPORT:
 					if( !(entity._effectState & StatusState.EffectState.INVISIBLE) ){
+
 						var EF_Init_Par = { position: entity.position };
 
 						if(PACKETVER.value < 20030715){
@@ -194,6 +195,7 @@ define(function( require )
 						}
 						EffectManager.spam( EF_Init_Par );
 					}
+
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
 			}
@@ -877,6 +879,8 @@ define(function( require )
 			case 10: break; // UNKNOWN²
 			case 11: break; // robe, not supported yet
 		}
+
+		processAura( entity );
 	}
 
 	/**
