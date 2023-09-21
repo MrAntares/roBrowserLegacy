@@ -43,7 +43,14 @@ define(function( require )
 	var MagicRing         = require('Renderer/Effects/MagicRing');
 	var StrEffect         = require('Renderer/Effects/StrEffect');
 	var MapEffects        = require('Renderer/Map/Effects');
-	var BasicInfo         = require('UI/Components/BasicInfo/BasicInfo');
+	var BasicInfo;
+	if(PACKETVER.value >= 20180124) {
+		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
+	} else if(PACKETVER.value >= 20160101) {
+		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
+	}   else {
+		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	}
 	var ChatBox           = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom          = require('UI/Components/ChatRoom/ChatRoom');
 	var Escape            = require('UI/Components/Escape/Escape');
