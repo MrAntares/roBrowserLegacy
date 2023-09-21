@@ -36,7 +36,9 @@ define(function( require )
 	 */
 	function onStorageInfo( pkt )
 	{
-		Storage.append();
+		if(!(Storage.__loaded && Storage.__active)) { 
+			Storage.append();
+		}
 		Storage.setItemInfo( pkt.curCount, pkt.maxCount );
 		Storage.setItems( itemBuffer );
 
