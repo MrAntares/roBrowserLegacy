@@ -19,10 +19,16 @@ define(function(require)
 	var Client             = require('Core/Client');
 	var jQuery             = require('Utils/jquery');
 	var Network            = require('Network/NetworkManager');
+	var PACKETVER        = require('Network/PacketVerManager');
 	var PACKET             = require('Network/PacketStructure');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ChatBox      	   = require('UI/Components/ChatBox/ChatBox');
-	var Minimap      	   = require('UI/Components/MiniMap/MiniMap');
+	var MiniMap;
+	if(PACKETVER.value >= 20180124) {
+		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
+	} else {
+		MiniMap          = require('UI/Components/MiniMap/MiniMap');
+	}
 	var Renderer           = require('Renderer/Renderer');
 	var Preferences        = require('Core/Preferences');
 	var UIManager          = require('UI/UIManager');

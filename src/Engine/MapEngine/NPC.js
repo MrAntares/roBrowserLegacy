@@ -23,14 +23,19 @@ define(function( require )
 	var Client        = require('Core/Client');
 	var Session       = require('Engine/SessionStorage');
 	var Network       = require('Network/NetworkManager');
+	var PACKETVER        = require('Network/PacketVerManager');
 	var PACKET        = require('Network/PacketStructure');
 	var Renderer      = require('Renderer/Renderer');
 	var NpcBox        = require('UI/Components/NpcBox/NpcBox');
 	var InputBox      = require('UI/Components/InputBox/InputBox');
 	var NpcMenu       = require('UI/Components/NpcMenu/NpcMenu');
 	var WinPopup      = require('UI/Components/WinPopup/WinPopup');
-	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
-
+	var MiniMap;
+	if(PACKETVER.value >= 20180124) {
+		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
+	} else {
+		MiniMap          = require('UI/Components/MiniMap/MiniMap');
+	}
 
 	/**
 	 * NPC write a message

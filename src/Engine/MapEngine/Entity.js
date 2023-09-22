@@ -56,7 +56,12 @@ define(function( require )
 	var Escape            = require('UI/Components/Escape/Escape');
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
 	var Inventory         = require('UI/Components/Inventory/Inventory');
-	var MiniMap           = require('UI/Components/MiniMap/MiniMap');
+	var MiniMap;
+	if(PACKETVER.value >= 20180124) {
+		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
+	} else {
+		MiniMap          = require('UI/Components/MiniMap/MiniMap');
+	}
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
 

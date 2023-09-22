@@ -22,10 +22,16 @@ define(function( require )
 	var BinaryWriter  = require('Utils/BinaryWriter');
 	var Session       = require('Engine/SessionStorage');
 	var Network       = require('Network/NetworkManager');
+	var PACKETVER        = require('Network/PacketVerManager');
 	var PACKET        = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
-	var MiniMap       = require('UI/Components/MiniMap/MiniMap');
+	var MiniMap;
+	if(PACKETVER.value >= 20180124) {
+		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
+	} else {
+		MiniMap          = require('UI/Components/MiniMap/MiniMap');
+	}
 	var Guild         = require('UI/Components/Guild/Guild');
 	var UIManager     = require('UI/UIManager');
 
