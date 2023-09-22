@@ -41,7 +41,13 @@ define(function( require )
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
-	var MiniMap          = require('UI/Components/MiniMap/MiniMap');
+
+	var MiniMap;
+	if(PACKETVER.value >= 20180124) {
+		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
+	} else {
+		MiniMap          = require('UI/Components/MiniMap/MiniMap');
+	}
 
 	var BasicInfo;
 	if(PACKETVER.value >= 20180124) {
