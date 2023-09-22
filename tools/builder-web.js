@@ -28,29 +28,10 @@ const platform = "Web";
         fs.mkdirSync(dist + platform);
     }
 
-    if ((args && (args['G'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("GrannyModelViewer", args['m']);
-    }
-
-    if ((args && (args['D'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("GrfViewer", args['m']);
-    }
-
-    if ((args && (args['V'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("MapViewer", args['m']);
-    }
-
-    if ((args && (args['M'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("ModelViewer", args['m']);
-    }
-
     if ((args && args['O']) || args['all'] || Object.keys(args).length === 0) {
         compile("Online", args['m']);
     }
 
-    if ((args && args['S']) || args['all'] || Object.keys(args).length === 0) {
-        compile("StrViewer", args['m']);
-    }
 
     if ((args && args['T']) || args['all'] || Object.keys(args).length === 0) {
         compile("ThreadEventHandler", args['m']);
@@ -59,10 +40,7 @@ const platform = "Web";
     if ((args && args['H']) || args['all'] || Object.keys(args).length === 0) {
         createHTML();
     }
-    
-    if ((args && args['A']) || args['all'] || Object.keys(args).length === 0) {
-        copyFolder('./AI', dist + platform + '/AI');
-    }
+
 })();
 
 function compile(appName, isMinify) {
@@ -175,7 +153,7 @@ function createHTML(){
                     window.addEventListener("load", (event) => {
                         window.ROConfig = {
                             development: false, // don't need to compile javascript files in chrome app since it's already a package.
-                            remoteClient:  "http://roclient.localhost/",
+                            remoteClient:  "http://roclient.localhost:8080/",
                             servers: [
                                 {
                                     display: 'Localhost Server',
@@ -184,9 +162,9 @@ function createHTML(){
                                     port: 6900,
                                     version: 55,
                                     langtype: 5,
-                                    packetver: 20180704,
+                                    packetver: 20211103,
                                     socketProxy: "ws://127.0.0.1:5999/",
-                                    packetKeys: true
+                                    packetKeys: false
                                 },
                             ],
                             skipServerList:  true,
