@@ -504,6 +504,7 @@ define(function( require )
 			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 		}
 		else {
+			BasicInfo.remove();
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
@@ -524,6 +525,7 @@ define(function( require )
 		switch (pkt.result) {
 			// Disconnect
 			case 0:
+				BasicInfo.remove();
 				StatusIcons.clean();
 				ChatBox.clean();
 				ShortCut.clean();
