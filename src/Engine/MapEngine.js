@@ -41,8 +41,23 @@ define(function( require )
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
-	var MiniMap          = require('UI/Components/MiniMap/MiniMap');
-	var BasicInfo        = require('UI/Components/BasicInfo/BasicInfo');
+
+	var MiniMap;
+	if(PACKETVER.value >= 20180124) {
+		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
+	} else {
+		MiniMap          = require('UI/Components/MiniMap/MiniMap');
+	}
+
+	var BasicInfo;
+	if(PACKETVER.value >= 20180124) {
+		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
+	} else if(PACKETVER.value >= 20160101) {
+		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
+	}   else {
+		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	}
+
 	var WinStats         = require('UI/Components/WinStats/WinStats');
 	var Inventory        = require('UI/Components/Inventory/Inventory');
 	var CartItems        = require('UI/Components/CartItems/CartItems');
@@ -495,6 +510,7 @@ define(function( require )
 			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 		}
 		else {
+			BasicInfo.remove();
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
@@ -515,6 +531,7 @@ define(function( require )
 		switch (pkt.result) {
 			// Disconnect
 			case 0:
+				BasicInfo.remove();
 				StatusIcons.clean();
 				ChatBox.clean();
 				ShortCut.clean();
