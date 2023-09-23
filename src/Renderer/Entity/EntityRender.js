@@ -203,7 +203,7 @@ define( function( require )
 		return function renderEntity()
 		{
 			if(this.hideEntity) return;
-			
+
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
 			SpriteRenderer.zIndex = 1;
@@ -331,7 +331,7 @@ define( function( require )
 		return function renderElement( entity, files, type, position, is_main )
 		{
 			var isBlendModeOne = false;
-			
+
 			// Nothing to render
 			if (!files.spr || !files.act)
 			{
@@ -496,7 +496,7 @@ define( function( require )
 		if(animation.speed){
 			delay = animation.speed;
 		}
-	
+
 		if(type === 'cart' && isIdle){
 			return 0;
 		}
@@ -512,7 +512,7 @@ define( function( require )
 			animCount = Math.floor(animCount / 3);
 			headDir   = entity.headDir;
 		}
-		
+
 		// Don't play, so stop at the current frame.
 		if (animation.play === false) {
 			anim += animCount * headDir; // get rid of doridori
@@ -538,12 +538,12 @@ define( function( require )
 
 		// No repeat
 		anim = Math.min(tick / delay | 0, animCount || animCount -1);  // Avoid an error if animation = 0, search for -1 :(
-		
+
 		anim %= animCount;
 		anim += animCount * headDir // get rid of doridori
 		anim += animation.frame	 // previous frame
 		anim %= animSize;			// avoid overflow
-		
+
 		var lastFrame = animation.frame + animSize-1;
 
 		if (type === 'body' && anim >= lastFrame) {
