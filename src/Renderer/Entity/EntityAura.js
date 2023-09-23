@@ -12,6 +12,12 @@ function(EffectManager, EffectConst)
 {
 	'use strict';
 
+	var effects = [
+		EffectConst.EF_LEVEL99,
+		EffectConst.EF_LEVEL99_2,
+		EffectConst.EF_LEVEL99_3
+	];
+
 	/**
 	 * Aura class
 	 *
@@ -30,9 +36,14 @@ function(EffectManager, EffectConst)
 	 */
 	Aura.prototype.show = function show()
 	{
-		if(this.entity.clevel >= 99 && !this.isShown) {
-			var effects = this.getEffects();
-			effects.forEach(function(effect) { EffectManager.spam(effect); });
+		if( this.entity.clevel >= 99 && !this.isShown ) {
+			for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
+				EffectManager.spam({
+					ownerAID: this.entity.GID,
+					position: this.entity.position,
+					effectId: effects[effectIndex]
+				});
+			  }
 			this.isShown = true;
 		}
 	};
@@ -42,36 +53,11 @@ function(EffectManager, EffectConst)
 	 */
 	Aura.prototype.hide = function hide()
 	{
-		if(this.isShown) {
-			EffectManager.remove( null, this.entity.GID, [EffectConst.EF_LEVEL99, EffectConst.EF_LEVEL99_2, EffectConst.EF_LEVEL99_3] );
+		if( this.isShown ) {
+			EffectManager.remove( null, this.entity.GID, effects );
 			this.isShown = false;
 		}
 	};
-
-	/**
-	 * Get effects to display as aura
-	 */
-	Aura.prototype.getEffects = function getEffects()
-	{
-		return [
-			{
-				ownerAID: this.entity.GID,
-				position: this.entity.position,
-				effectId: EffectConst.EF_LEVEL99
-			},
-			{
-				ownerAID: this.entity.GID,
-				position: this.entity.position,
-				effectId: EffectConst.EF_LEVEL99_2
-			},
-			{
-				ownerAID: this.entity.GID,
-				position: this.entity.position,
-				effectId: EffectConst.EF_LEVEL99_3
-			}
-		];
-
-	}
 
 	/**
 	 * Export
