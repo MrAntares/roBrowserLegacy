@@ -45,6 +45,7 @@ define( function( require )
 		require('./EntityState').call(this);
 		require('./EntityAttachments').call(this);
 		require('./EntityAnimations').call(this);
+		require('./EntityAura').call(this);
 
 		this.boundingRect = { x1:0, y1:0, x2:0, y2:0 };
 		this.matrix       = mat4.create();
@@ -309,13 +310,11 @@ define( function( require )
 		this.room.clean();
 		this.attachments.remove('lockon');
 		this.animations.free();
+		this.aura.hide();
 
 		// Remove
 		this.remove_tick  = 0;
 		this.remove_delay = 0;
-
-		// For Engine/MapEngine/Entity to create aura effects
-		this.auraVisible = false;
 
 		// Aviod conflict if entity re-appears. Official sets it to -1
 		this.GID += Math.random();

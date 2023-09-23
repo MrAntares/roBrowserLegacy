@@ -1,11 +1,11 @@
-define(['Utils/WebGL', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/EntityManager', 'Renderer/Map/Altitude', 'Renderer/Camera'], 
-function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
+define(['Utils/WebGL', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/Map/Altitude', 'Renderer/Camera'],
+function (WebGL, Client, SpriteRenderer, Altitude, Camera) {
 	'use strict';
 
 	function randBetween(minimum, maximum) {
 		return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 	}
-	
+
 	var blendMode = {};
 
 	function ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par) {
@@ -14,16 +14,16 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		var startTick = EF_Inst_Par.startTick;
 		var endTick = EF_Inst_Par.endTick;
 		var AID = EF_Init_Par.ownerAID;
-		
+
 		this.AID = AID;
 		this.ownerEntity = EF_Init_Par.ownerEntity;
 		this.otherEntity = EF_Init_Par.otherEntity;
-		
+
 		this.textureName = effect.file;
-		
+
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [] ;
 		this.frameDelay = (!isNaN(effect.frameDelay)) ? effect.frameDelay : 10 ;
-		
+
 		this.zIndex = effect.zIndex ? effect.zIndex : 0;
 		this.fadeOut = effect.fadeOut ? true : false;
 		this.fadeIn = effect.fadeIn ? true : false;
@@ -53,9 +53,9 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				this.sparkNumber = randBetween(effect.sparkNumberRand[0], effect.sparkNumberRand[1]);
 			}else{
 				this.sparkNumber = 1;
-			}	
+			}
 		}
-		
+
 		this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
 		this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * EF_Inst_Par.duplicateID : 0), 1), 0);
 
@@ -140,11 +140,11 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			var poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
 			this.poszEnd = randBetween(poszEndRandMiddle - effect.poszEndRand, poszEndRandMiddle + effect.poszEndRand);
 		}
-		
+
 		this.xOffset = (!isNaN(effect.xOffset)) ? effect.xOffset : 0;
 		this.yOffset = (!isNaN(effect.yOffset)) ? effect.yOffset : 0;
 		this.zOffset = (!isNaN(effect.zOffset)) ? effect.zOffset : 0;
-		
+
 		this.poszSmooth = effect.poszSmooth ? true : false;
 		if (effect.fromSrc) {
 			var randStart = [
@@ -157,7 +157,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
 					effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
 				];
-			
+
 			this.posxStart = 0 + this.xOffset + randStart[0];
 			this.posxEnd = (otherPosition[0] - position[0]) + this.xOffset + randEnd[0];
 			this.posyStart = 0 + this.yOffset + randStart[1];
@@ -176,7 +176,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
 					effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
 				];
-			
+
 			this.posxStart = (otherPosition[0] - position[0]) + this.xOffset + randStart[0];
 			this.posxEnd = 0 + this.xOffset + randEnd[0];
 			this.posyStart = (otherPosition[1] - position[1]) + this.yOffset + randStart[1];
@@ -251,33 +251,33 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		}
 		this.startTick = startTick;
 		this.endTick = endTick;
-		
+
 		this.blendMode = effect.blendMode;
-		
+
 		if(effect.rotateToTarget){
 			this.rotateToTarget = true;
 			var x = this.posxEnd - this.posxStart;
 			var y = this.posyEnd - this.posyStart;
 			this.angle += (90 - (Math.atan2(y, x) * (180 / Math.PI)));
 		}
-		
+
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
 	}
-	
-	
+
+
 	ThreeDEffect.prototype.init = function init(gl) {
 		this.loadedTextures = 0;
 		this.textureList = [];
 		var self = this;
 		if(this.textureNameList.length > 0){
 			var textureCount = this.textureNameList.length;
-			
+
 			for (let i=0; i<textureCount; i++){
 				Client.loadFile('data/texture/' + this.textureNameList[i], function (buffer) {
 					WebGL.texture(gl, buffer, function (texture) {
 						self.textureList[i] = texture;
 						self.loadedTextures++;
-						
+
 						if(self.loadedTextures == textureCount){
 							self.ready = true;
 						}
@@ -295,28 +295,28 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			self.ready = true;
 		}
 	};
-	
-	
+
+
 	ThreeDEffect.prototype.free = function free(gl) {
 		this.ready = false;
 	};
-	
+
 	ThreeDEffect.prototype.render = function render(gl, tick) {
-		
+
 		if( this.startTick > tick ) return; //not yet
-		
+
 		if (this.blendMode > 0 && this.blendMode < 16) {
 			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
 		} else {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
-		
+
 		var start = tick - this.startTick;
 		var end = this.endTick - this.startTick;
 		var steps = start / end * 100;
-		
+
 		if (steps > 100) steps = 100;
-		
+
 		if (!this.spriteRessource) {
 			if (this.shadowTexture) {
 				this.spriteRessource = Client.loadFile('data/sprite/shadow.spr');
@@ -326,21 +326,21 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
 			}
 		}
-		
+
 		if (this.spriteRessource) {
 			this.texture = this.spriteRessource.frames[0].texture;
 		}
-		
+
 		if(this.textureList.length > 0){
 			let frame = Math.floor((tick - this.startTick) / this.frameDelay) % this.textureList.length;
 			this.texture = this.textureList[frame];
 		}
-		
+
 		SpriteRenderer.image.texture = this.texture;
 		SpriteRenderer.zIndex = this.zIndex;
-		
+
 		var posDelta = 0;
-		
+
 		if (this.rotatePosX > 0) {
 			posDelta = this.rotatePosX * Math.cos(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
 			if (this.rotationClockwise) posDelta = -1 * posDelta;
@@ -365,7 +365,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		}
 		SpriteRenderer.position[0] = this.position[0] + posDelta;
 		posDelta = 0;
-		
+
 		if (this.rotatePosY > 0) {
 			posDelta = this.rotatePosY * Math.sin(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
 		} else {
@@ -389,7 +389,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		}
 		SpriteRenderer.position[1] = this.position[1] + posDelta;
 		posDelta = 0;
-		
+
 		if (this.poszSmooth) {
 			if (this.poszStart != this.poszEnd) {
 				var csJ = steps * 0.09 + 1;
@@ -408,11 +408,11 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			} else posDelta = this.poszStart;
 		}
 		SpriteRenderer.position[2] = this.position[2] + posDelta;
-		
+
 		if (this.shadowTexture) SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[0]);
-		
+
 		var alpha = this.alphaMax;
-		
+
 		if (this.fadeIn && start < end / 4) {
 			alpha = start * this.alphaMax / (end / 4);
 		} else if (this.fadeOut && start > end / 2 + end / 4) {
@@ -420,19 +420,19 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		} else if (this.sparkling) {
 			alpha = this.alphaMax * ((Math.cos(steps * 11 * this.sparkNumber * Math.PI / 180) + 1) / 2);
 		}
-		
+
 		if (alpha < 0) {
 			alpha = 0.0;
 		} else if (alpha > 1) {
 			alpha = 1.0;
 		}
-		
+
 		SpriteRenderer.color[3] = alpha;
 		SpriteRenderer.color[0] = this.red;
 		SpriteRenderer.color[1] = this.green;
 		SpriteRenderer.color[2] = this.blue;
 		var sizeX, sizeY;
-		
+
 		if (this.sizeSmooth) {
 			if (this.sizeEndX != this.sizeStartX) {
 				var csJ = steps * 0.09 + 1;
@@ -464,10 +464,10 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				sizeY = ctj;
 			} else sizeY = this.sizeStartY;
 		}
-		
+
 		SpriteRenderer.size[0] = sizeX;
 		SpriteRenderer.size[1] = sizeY;
-		
+
 		if (this.rotate) {
 			var angleStep = (this.toAngle - this.angle) / 100;
 			var startAngle = this.angle;
@@ -476,7 +476,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		} else {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
-		
+
 		if (this.shadowTexture && 0) {
 			var effectName = require('Renderer/EffectManager').get(1000000);
 			if (effectName) {
@@ -486,7 +486,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				}
 			}
 		}
-		
+
 		if (this.actRessource && this.spriteRessource) {
 			var entity = this.ownerEntity;
 			if(!entity){
@@ -496,7 +496,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				entity.position   = this.position;
 				entity.objecttype = entity.constructor.TYPE_EFFECT;
 				entity.hideShadow = true;
-				EntityManager.add(entity);
+				require('Renderer/EntityManager').add(entity);
 				this.ownerEntity = entity;
 			}
 			if (entity) {
@@ -510,10 +510,10 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				let layercount = layers.length;
 				do {
 					let renderer;
-					
+
 					if (i == 0) renderer = SpriteRenderer;
 					else renderer = Object.assign({}, SpriteRenderer);
-					
+
 					var layer = layers[i];
 					var ctE = new Int16Array(2);
 					ctE[0] = 0;
@@ -559,10 +559,10 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		} else {
 			SpriteRenderer.render();
 		}
-		
+
 		this.needCleanUp = this.endTick < tick;
 	};
-	
+
 	ThreeDEffect.init = function init(gl) {
 		blendMode[1] = gl.ZERO;
 		blendMode[2] = gl.ONE;
@@ -579,15 +579,15 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		blendMode[13] = gl.CONSTANT_ALPHA;
 		blendMode[14] = gl.ONE_MINUS_CONSTANT_ALPHA;
 		blendMode[15] = gl.SRC_ALPHA_SATURATE;
-		
+
 		this.ready = true;
 		this.renderBeforeEntities = false;
 	};
-	
+
 	ThreeDEffect.free = function free(gl) {
 		this.ready = false;
 	};
-	
+
 	ThreeDEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		gl.depthMask(false);
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
@@ -605,7 +605,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		SpriteRenderer.depth = 0;
 		SpriteRenderer.zIndex = 0;
 	};
-	
+
 	ThreeDEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.depthMask(true);
