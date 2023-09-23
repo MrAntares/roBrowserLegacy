@@ -7,8 +7,8 @@
  *
  * @author Gulfaraz Rahman
  */
-define(['Renderer/EffectManager', 'DB/Effects/EffectConst'],
-function(EffectManager, EffectConst)
+define(['Renderer/EffectManager', 'DB/Effects/EffectConst', 'Preferences/Map'],
+function(EffectManager, EffectConst, MapPreferences)
 {
 	'use strict';
 
@@ -34,9 +34,9 @@ function(EffectManager, EffectConst)
 	/**
 	 * Show aura
 	 */
-	Aura.prototype.show = function show()
+	Aura.prototype.render = function render()
 	{
-		if( this.entity.clevel >= 99 && !this.isShown ) {
+		if( MapPreferences.aura > 0 && this.entity.clevel >= 99 && !this.isShown ) {
 			for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
 				EffectManager.spam({
 					ownerAID: this.entity.GID,
@@ -51,7 +51,7 @@ function(EffectManager, EffectConst)
 	/**
 	 * Hide aura
 	 */
-	Aura.prototype.hide = function hide()
+	Aura.prototype.clean = function clean()
 	{
 		if( this.isShown ) {
 			EffectManager.remove( null, this.entity.GID, effects );

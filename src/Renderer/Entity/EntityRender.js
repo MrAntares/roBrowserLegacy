@@ -40,6 +40,9 @@ define( function( require )
 		// Process action
 		this.animations.process();
 
+		// clean aura
+		this.aura.clean();
+
 		// Always process walk. It will decide it for itself if it is walking or not and handles it accordingly.
 		this.walkProcess();
 
@@ -52,9 +55,6 @@ define( function( require )
 		if (this.effectColor[3]) {
 			this.renderEntity();
 			this.attachments.render(Renderer.tick);
-		} else {
-			// hide aura if entity is not rendered
-			this.aura.hide();
 		}
 
 		// Update character UI (life, dialog, etc.)
@@ -205,10 +205,7 @@ define( function( require )
 
 		return function renderEntity()
 		{
-			if(this.hideEntity) {
-				this.aura.hide(); // hide aura if entity is not rendered
-				return;
-			}
+			if(this.hideEntity) return;
 
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
@@ -316,13 +313,10 @@ define( function( require )
 				}
 			}
 
-			if(action === this.ACTION.DIE)
+			if(action !== this.ACTION.DIE)
 			{
-				// hide aura if entity appears dead
-				this.aura.hide();
-			} else {
-				// show aura if entity appears alive
-				this.aura.show();
+				// render aura if entity appears alive
+				this.aura.render();
 			}
 		};
 	}();

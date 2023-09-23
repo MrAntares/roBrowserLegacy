@@ -80,8 +80,24 @@ define(function( require )
 				return;
 
 			case 'aura':
-				this.addText( DB.getMessage(711 + MapPreferences.aura), this.TYPE.INFO );
-				MapPreferences.aura = !MapPreferences.aura;
+				var isSimplified = MapPreferences.aura > 1;
+				this.addText( DB.getMessage(711 + isSimplified), this.TYPE.INFO );
+				MapPreferences.aura = isSimplified ? 1 : 2;
+				MapPreferences.save();
+				return;
+
+			case 'aura2':
+				this.addText(
+					DB.getMessage(
+						2994 + MapPreferences.aura,
+						(
+							MapPreferences.aura
+							? 'Aura effect is OFF' : 'Aura effect is ON'
+						) // default text if not in DB msgstringtable
+					),
+					this.TYPE.INFO
+				);
+				MapPreferences.aura = MapPreferences.aura ? 0 : 1;
 				MapPreferences.save();
 				return;
 

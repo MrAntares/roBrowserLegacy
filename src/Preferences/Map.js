@@ -57,11 +57,11 @@ define( ['Core/Preferences'], function( Preferences )
 
 
 		/**
-		 * Display simplified aura ?
+		 * Display simplified aura or disable entirely
 		 *
-		 * Toggle using "/aura" in the chatbox
+		 * Toggle using "/aura" or "/aura2" in the chatbox
 		 */
-		aura: false,
+		aura: 1,
 
 		/**
 		 * Display different font style ?
