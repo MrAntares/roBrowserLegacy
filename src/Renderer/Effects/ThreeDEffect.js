@@ -1,5 +1,5 @@
-define(['Utils/WebGL', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/EntityManager', 'Renderer/Map/Altitude', 'Renderer/Camera'],
-function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
+define(['Utils/WebGL', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/Map/Altitude', 'Renderer/Camera'],
+function (WebGL, Client, SpriteRenderer, Altitude, Camera) {
 	'use strict';
 
 	function randBetween(minimum, maximum) {
@@ -496,7 +496,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				entity.position   = this.position;
 				entity.objecttype = entity.constructor.TYPE_EFFECT;
 				entity.hideShadow = true;
-				EntityManager.add(entity);
+				require('Renderer/EntityManager').add(entity);
 				this.ownerEntity = entity;
 			}
 			if (entity) {

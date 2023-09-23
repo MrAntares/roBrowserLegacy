@@ -147,8 +147,6 @@ define(function( require )
 		if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
 			HomunInformations.startAI();
 		}
-
-		processAura( entity );
 	}
 
 
@@ -879,8 +877,6 @@ define(function( require )
 			case 10: break; // UNKNOWN²
 			case 11: break; // robe, not supported yet
 		}
-
-		processAura( entity );
 	}
 
 	/**
@@ -1683,8 +1679,6 @@ define(function( require )
 		if (entity === Session.Entity) {
 			StatusIcons.update( pkt.index, pkt.state, pkt.RemainMS );
 		}
-
-		processAura( entity );
 	}
 
 
@@ -1723,8 +1717,6 @@ define(function( require )
 		entity.healthState = pkt.healthState;
 		entity.effectState = pkt.effectState;
 		entity.isPKModeON  = pkt.isPKModeON;
-
-		processAura( entity );
 	}
 
 
@@ -1971,32 +1963,6 @@ define(function( require )
 			}
 		}
 	}
-
-	function processAura( entity ){
-		//TODO: fix this thing and add rebirth & 3rd class aura
-		if( Session.Playing && entity.clevel >= 99 ){
-
-			var invisibleState = (	(entity._effectState & (StatusState.EffectState.INVISIBLE|StatusState.EffectState.HIDE|StatusState.EffectState.CLOAK|StatusState.EffectState.CHASEWALK))
-									|| !!entity.Shadowform
-									|| !!entity.Camouflage
-									|| !!entity.Stealthfield );
-
-			if ( MapPreferences.aura && !invisibleState ) {
-				if( !entity.auraVisible ){ // must be inside check
-					EffectManager.spam( { ownerAID: entity.GID, position: entity.position, effectId: EffectConst.EF_LEVEL99 } );
-					EffectManager.spam( { ownerAID: entity.GID, position: entity.position, effectId: EffectConst.EF_LEVEL99_2 } );
-					EffectManager.spam( { ownerAID: entity.GID, position: entity.position, effectId: EffectConst.EF_LEVEL99_3 } );
-					entity.auraVisible = true;
-				}
-			} else if ( entity.auraVisible ) {
-				EffectManager.remove( null, entity.GID, EffectConst.EF_LEVEL99 );
-				EffectManager.remove( null, entity.GID, EffectConst.EF_LEVEL99_2 );
-				EffectManager.remove( null, entity.GID, EffectConst.EF_LEVEL99_3 );
-				entity.auraVisible = false;
-			}
-		}
-	}
-
 
 	/**
 	 * Does player have a Token of Siegfried?
