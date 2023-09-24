@@ -207,7 +207,7 @@ define(function( require )
 		require('./MapEngine/Store').call();
 		require('./MapEngine/Trade').call();
 		require('./MapEngine/Friends').init();
-		
+
 		if(Configs.get('enableCashShop')){
 			require('./MapEngine/CashShop').call();
 		}
@@ -234,11 +234,11 @@ define(function( require )
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
-		
+
 		if(Configs.get('enableCashShop')){
 			CashShop.prepare();
 		}
-		
+
 
 		// Bind UI
 		WinStats.onRequestUpdate        = onRequestStatUpdate;
@@ -299,7 +299,7 @@ define(function( require )
 		Session.guildRight    =     0;
 
 		Session.homunId       =     0;
-		
+
 		Session.Entity.clevel = Session.Character.level;
 
 		BasicInfo.update('blvl', Session.Character.level );
@@ -349,6 +349,7 @@ define(function( require )
 				GID: Session.Character.GID
 			});
 			EntityManager.add( Session.Entity );
+			Session.Entity.aura.free(); // free aura so it loads in new map
 
 			// Initialize camera
 			Camera.setTarget( Session.Entity );
@@ -378,11 +379,11 @@ define(function( require )
 			WorldMap.append();
 			SkillListMER.append();
 			MobileUI.append();
-			
+
 			if(Configs.get('enableCashShop')){
 				CashShop.append();
 			}
-			
+
 			// Reload plugins
 			PluginManager.init();
 

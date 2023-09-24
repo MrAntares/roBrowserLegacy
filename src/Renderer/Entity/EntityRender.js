@@ -40,9 +40,6 @@ define( function( require )
 		// Process action
 		this.animations.process();
 
-		// clean aura
-		this.aura.clean();
-
 		// Always process walk. It will decide it for itself if it is walking or not and handles it accordingly.
 		this.walkProcess();
 
@@ -311,12 +308,6 @@ define( function( require )
 				if (this.shield > 0 && !behind) {
 					renderElement( this, this.files.shield, 'shield', _position, true );
 				}
-			}
-
-			if(action !== this.ACTION.DIE)
-			{
-				// render aura if entity appears alive
-				this.aura.render();
 			}
 		};
 	}();

@@ -277,7 +277,7 @@ define(function( require )
 						Network.sendPacket(pkt);
 						Session.pet.lastTalk = Date.now();
 					}
-				
+
 				}
 				break;
 
@@ -318,6 +318,8 @@ define(function( require )
 
 			case StatusProperty.CLEVEL:
 				Session.Entity.clevel = amount;
+				// load aura on levelup
+				Session.Entity.aura.load( EffectManager );
 				BasicInfo.update('blvl', amount);
 				Equipment.onLevelUp();
 				ChangeCart.onLevelUp(amount);
@@ -667,7 +669,7 @@ define(function( require )
 				ChatBox.addText( DB.getMessage(245), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
 				break;
 		}
-		
+
 		if(srcEntity){
 			var action = {
 				action: srcEntity.ACTION.READYFIGHT,
@@ -711,7 +713,7 @@ define(function( require )
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_HPTIME,
 					ownerAID: Session.Entity.GID,
-				};	
+				};
 
 				EffectManager.spam(EF_Init_Par);
 
@@ -728,7 +730,7 @@ define(function( require )
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_SPTIME,
 					ownerAID: Session.Entity.GID,
-				};	
+				};
 
 				EffectManager.spam(EF_Init_Par);
 

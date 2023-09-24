@@ -310,7 +310,7 @@ define( function( require )
 		this.room.clean();
 		this.attachments.remove('lockon');
 		this.animations.free();
-		this.aura.clean();
+		this.aura.free();
 
 		// Remove
 		this.remove_tick  = 0;

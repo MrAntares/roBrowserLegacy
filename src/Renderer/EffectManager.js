@@ -86,10 +86,8 @@ define(function( require )
 
 		if ( !Params.startTick ) { Params.startTick = Renderer.tick; }
 
-		if( EntityManager ) {
-			Params.ownerEntity    = EntityManager.get(Params.ownerAID);
-			Params.otherEntity    = EntityManager.get(Params.otherAID);
-		}
+		Params.ownerEntity    = EntityManager.get(Params.ownerAID);
+		Params.otherEntity    = EntityManager.get(Params.otherAID);
 
 		return Params;
 	}

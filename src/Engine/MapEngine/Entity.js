@@ -31,7 +31,6 @@ define(function( require )
 	var Network           = require('Network/NetworkManager');
 	var PACKETVER	      = require('Network/PacketVerManager');
 	var PACKET            = require('Network/PacketStructure');
-	var MapPreferences    = require('Preferences/Map');
 	var Altitude          = require('Renderer/Map/Altitude');
 	var Renderer          = require('Renderer/Renderer');
 	var EntityManager     = require('Renderer/EntityManager');
@@ -41,8 +40,6 @@ define(function( require )
 	var MagicTarget       = require('Renderer/Effects/MagicTarget');
 	var LockOnTarget      = require('Renderer/Effects/LockOnTarget');
 	var MagicRing         = require('Renderer/Effects/MagicRing');
-	var StrEffect         = require('Renderer/Effects/StrEffect');
-	var MapEffects        = require('Renderer/Map/Effects');
 	var BasicInfo;
 	if(PACKETVER.value >= 20180124) {
 		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
@@ -159,6 +156,9 @@ define(function( require )
 		if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
 			HomunInformations.startAI();
 		}
+
+		// load others aura
+		entity.aura.load( EffectManager );
 	}
 
 
@@ -188,10 +188,7 @@ define(function( require )
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI, EffectConst.EF_CHOOKGI2, EffectConst.EF_CHOOKGI3, EffectConst.EF_CHOOKGI_N ]); // Spirit spheres
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI_FIRE, EffectConst.EF_CHOOKGI_WIND, EffectConst.EF_CHOOKGI_WATER, EffectConst.EF_CHOOKGI_GROUND, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
 
-			switch(pkt.type){
-				//case Entity.VT.DEAD: break;
-				//case: Entity.VT.TRICKDEAD: break;
-
+			switch( pkt.type ) {
 				case Entity.VT.EXIT:
 				case Entity.VT.TELEPORT:
 					if( !(entity._effectState & StatusState.EffectState.INVISIBLE) ){
@@ -205,6 +202,10 @@ define(function( require )
 						}
 						EffectManager.spam( EF_Init_Par );
 					}
+
+				case Entity.VT.DEAD:
+					// free aura on death
+					entity.aura.free();
 
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
@@ -349,6 +350,9 @@ define(function( require )
 			repeat: true,
 			play:   true
 		});
+
+		// restore aura on resurrection
+		entity.aura.load( EffectManager );
 
 		// If it's our main character update Escape ui
 		if (entity === Session.Entity) {
@@ -889,6 +893,9 @@ define(function( require )
 			case 10: break; // UNKNOWN²
 			case 11: break; // robe, not supported yet
 		}
+
+		// load self aura
+		entity.aura.load( EffectManager );
 	}
 
 	/**
@@ -1614,7 +1621,6 @@ define(function( require )
                         play:   true,
                         next:   false
                     });
-					entity.isTrickDead = true;
                 }
                 if(pkt.state == 0) {
                     entity.setAction({
@@ -1624,7 +1630,6 @@ define(function( require )
                         play:   true,
                         next:   false
                     });
-					entity.isTrickDead = false;
                 }
                 break;
 
@@ -1691,6 +1696,9 @@ define(function( require )
 		if (entity === Session.Entity) {
 			StatusIcons.update( pkt.index, pkt.state, pkt.RemainMS );
 		}
+
+		// for changes in entity state (tickdead) or effectState (STEALTHFIELD)
+		entity.aura.load( EffectManager );
 	}
 
 
@@ -1729,6 +1737,9 @@ define(function( require )
 		entity.healthState = pkt.healthState;
 		entity.effectState = pkt.effectState;
 		entity.isPKModeON  = pkt.isPKModeON;
+
+		// for changes in effectState (HIDING, CLOAK)
+		entity.aura.load( EffectManager );
 	}
 
 
