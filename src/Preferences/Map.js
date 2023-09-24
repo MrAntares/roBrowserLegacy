@@ -57,7 +57,7 @@ define( ['Core/Preferences'], function( Preferences )
 
 
 		/**
-		 * Display simplified aura or disable entirely
+		 * Display aura (2) or simplified aura (1) or disable entirely (0)
 		 *
 		 * Toggle using "/aura" or "/aura2" in the chatbox
 		 */

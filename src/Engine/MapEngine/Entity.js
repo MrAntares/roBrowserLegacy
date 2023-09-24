@@ -386,18 +386,18 @@ define(function( require )
 		switch (pkt.action) {
 
 			// Damage
-            case 0:  // regular [DMG_NORMAL]
-            //case 1: // [DMG_PICKUP_ITEM]
-            //case 2: // [DMG_SIT_DOWN]
-            //case 3: // [DMG_STAND_UP]
-            case 4:  // absorbed [DMG_ENDURE]
-            //case 5: [DMG_SPLASH]
-            //case 5: [DMG_SKILL]
-            //case 7: [DMG_REPEAT]
-            //case 11: [DMG_TOUCH] probably something new.
-            case 8:  // double attack [DMG_MULTI_HIT]
-            case 9:  // endure [DMG_MULTI_HIT_ENDURE]
-            case 10: // critital [DMG_CRITICAL]
+			case 0:  // regular [DMG_NORMAL]
+			//case 1: // [DMG_PICKUP_ITEM]
+			//case 2: // [DMG_SIT_DOWN]
+			//case 3: // [DMG_STAND_UP]
+			case 4:  // absorbed [DMG_ENDURE]
+			//case 5: [DMG_SPLASH]
+			//case 5: [DMG_SKILL]
+			//case 7: [DMG_REPEAT]
+			//case 11: [DMG_TOUCH] probably something new.
+			case 8:  // double attack [DMG_MULTI_HIT]
+			case 9:  // endure [DMG_MULTI_HIT_ENDURE]
+			case 10: // critital [DMG_CRITICAL]
 			case 11: // lucky
 			case 13: // multi-hit critical
 				var WSnd = DB.getWeaponSound(srcWeapon);
@@ -701,9 +701,9 @@ define(function( require )
 		pkt.msg = pkt.msg.replace(/\: \|\d{2}/, ': ');
 
 		entity = EntityManager.get(pkt.accountID);
-        if (entity) {
-            entity.dialog.set( pkt.msg );
-        }
+		if (entity) {
+			entity.dialog.set( pkt.msg );
+		}
 		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT, color);
 	}
 
@@ -926,10 +926,10 @@ define(function( require )
 
 		// Don't display skill names for mobs and hiding skills
 		if (srcEntity && (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
-            srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-            srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
-        )
-        {
+			srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+			srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
+		)
+		{
 			if(!SkillNameDisplayExclude.includes(pkt.SKID)){
 				srcEntity.dialog.set(
 					( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
@@ -959,16 +959,16 @@ define(function( require )
 
 			// In healing skill, the level parameter stored the healed value
 			if (pkt.SKID === SkillId.AL_HEAL ||
-			    pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
-			    pkt.SKID === SkillId.AB_CHEAL) {
+				pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
+				pkt.SKID === SkillId.AB_CHEAL) {
 				Damage.add( pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL );
-                Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
-            }
+				Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
+			}
 
-            // Steal Coin zeny
-            if (pkt.SKID === SkillId.RG_STEALCOIN) {
-                ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
-            }
+			// Steal Coin zeny
+			if (pkt.SKID === SkillId.RG_STEALCOIN) {
+				ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
+			}
 
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if(dstEntity.RollCounter){
@@ -1021,9 +1021,9 @@ define(function( require )
 	{
 		EffectManager.remove( null, pkt.AID );
 		var entity = EntityManager.get(pkt.AID);
-        if (entity) {
-            entity.remove();
-        }
+		if (entity) {
+			entity.remove();
+		}
 	}
 
 
@@ -1070,11 +1070,11 @@ define(function( require )
 			if (!SkillNameDisplayExclude.includes(pkt.SKID)
 				&&
 				(srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
-                srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
+				srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+				srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
 			){
-                srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
-            }
+				srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
+			}
 
 			//Action handling
 			if(srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT){
@@ -1168,9 +1168,9 @@ define(function( require )
 		//     5 = Poison elemental cast aura
 		//     6 = Holy elemental cast aura
 		//     7 = Shadow/Dark elemental cast aura
-        //     8 = Ghost elemental cast aura (same as 6?)
-        //     9 = Undead elemental cast aura
-        // is disposable:
+		//     8 = Ghost elemental cast aura (same as 6?)
+		//     9 = Undead elemental cast aura
+		// is disposable:
 		//     0 = yellow chat text "[src name] will use skill [skill name]."
 		//     1 = no text
 
@@ -1221,16 +1221,16 @@ define(function( require )
 
 		Session.Entity.lastSKID = pkt.SKID;
 
-        // Hardcoded version of Auto Counter casting bar
-        // It's dont gey any delayTime so we need to handle it diffrent:
-        // if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
-        // if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
-        if(pkt.SKID == SkillId.KN_AUTOCOUNTER){
-            srcEntity.cast.set( 1000 );
-            if (srcEntity === Session.Entity) {
-                Session.underAutoCounter = true;
-            }
-        }
+		// Hardcoded version of Auto Counter casting bar
+		// It's dont gey any delayTime so we need to handle it diffrent:
+		// if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
+		// if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
+		if(pkt.SKID == SkillId.KN_AUTOCOUNTER){
+			srcEntity.cast.set( 1000 );
+			if (srcEntity === Session.Entity) {
+				Session.underAutoCounter = true;
+			}
+		}
 
 		//Frost joke and scream messages
 		if(pkt.SKID === SkillId.BA_FROSTJOKER && srcEntity == Session.Entity){
@@ -1247,25 +1247,25 @@ define(function( require )
 			}
 		}
 
-        // Only mob to don't display skill name ?
+		// Only mob to don't display skill name ?
 		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
-                srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
-        ) {
+				srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+				srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
+		) {
 			if(!SkillNameDisplayExclude.includes(pkt.SKID) && !message){
 				srcEntity.dialog.set(
 					( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 					'white'
 				);
 			}
-        }
+		}
 
 		//Spells like Bash, Hide, Double Strafe etc. has special casting effect
 		EffectManager.spamSkillCast( pkt.SKID, pkt.AID, null, pkt.targetID);
 
 		if (dstEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
-            if (pkt.delayTime) {
+			if (pkt.delayTime) {
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_LOCKON,
 					ownerAID: dstEntity.GID,
@@ -1274,8 +1274,8 @@ define(function( require )
 				};
 
 				EffectManager.spam( EF_Init_Par );
-            }
-        } else if (pkt.xPos && pkt.yPos) {
+			}
+		} else if (pkt.xPos && pkt.yPos) {
 			srcEntity.lookTo( pkt.xPos, pkt.yPos );
 			if (pkt.delayTime) {
 				var EF_Init_Par = {
@@ -1355,22 +1355,22 @@ define(function( require )
 			EffectManager.remove(null, entity.GID, [12, 54, 55, 56, 57, 58, 59, 454, 60, 513]);
 			EffectManager.remove(LockOnTarget, entity.GID);
 			EffectManager.remove(MagicTarget, entity.GID);
-            EffectManager.remove(MagicRing, entity.GID);
+			EffectManager.remove(MagicRing, entity.GID);
 
-            if (entity === Session.Entity) { // Autocounter hardcoded animation (any better place to put this?)
-                if(Session.underAutoCounter) {
-                    if(Session.Entity.life.hp > 0)
+			if (entity === Session.Entity) { // Autocounter hardcoded animation (any better place to put this?)
+				if(Session.underAutoCounter) {
+					if(Session.Entity.life.hp > 0)
 						var EF_Init_Par = {
 							effectId: EffectConst.EF_AUTOCOUNTER,
 							ownerAID: pkt.AID
 						};
 
-                        EffectManager.spam( EF_Init_Par );
-                    Session.underAutoCounter = false;
-                }
-            }
-        }
-    }
+						EffectManager.spam( EF_Init_Par );
+					Session.underAutoCounter = false;
+				}
+			}
+		}
+	}
 
 
 	/**
@@ -1401,14 +1401,14 @@ define(function( require )
 
 			// Show cart
 			case StatusConst.ON_PUSH_CART:
-                entity.hasCart = pkt.state || (!pkt.hasOwnProperty('state'));
+				entity.hasCart = pkt.state || (!pkt.hasOwnProperty('state'));
 				if(pkt.val && (pkt.state || (!pkt.hasOwnProperty('state')) )){
 					entity.CartNum = pkt.val[0];
 				}
-                break;
+				break;
 
 
-            case StatusConst.HIDING:
+			case StatusConst.HIDING:
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_SUMMONSLAVE,
 					ownerAID: pkt.AID
@@ -1422,39 +1422,39 @@ define(function( require )
 				break;
 
 			case StatusConst.EXPLOSIONSPIRITS: //state: 1 ON  0 OFF
-            case StatusConst.MARIONETTE_MASTER:
-            case StatusConst.MARIONETTE:
-            case StatusConst.TWOHANDQUICKEN:
-            case StatusConst.ONEHANDQUICKEN:
-            case StatusConst.SPEARQUICKEN:
-            case StatusConst.LKCONCENTRATION:
-            case StatusConst.BERSERK:
-            case StatusConst.ENERGYCOAT:
-            case StatusConst.OVERTHRUST:
-            case StatusConst.OVERTHRUSTMAX:
-            case StatusConst.SWOO:
-            case StatusConst.SKE:
-            case StatusConst.NJ_BUNSINJYUTSU:
-            case StatusConst.STEELBODY:
-            case StatusConst.AURABLADE:
-            case StatusConst.ASSUMPTIO:
-            case StatusConst.ASSUMPTIO2:
-            case StatusConst.SG_WARM:
-            case StatusConst.SG_SUN_WARM:
-            case StatusConst.SG_MOON_WARM:
-            case StatusConst.SG_STAR_WARM:
-            case StatusConst.KAITE:
-            case StatusConst.SOULLINK:
-            case StatusConst.PROPERTYUNDEAD:
-            case StatusConst.DA_CONTRACT:
-            //CG_MOONLIT Moonlit Water Mill
-            //SC_MERC_QUICKEN
-            //SC_SKA
-            //SC_INCATKRATE
-                entity.toggleOpt3(pkt.index, pkt.state)
+			case StatusConst.MARIONETTE_MASTER:
+			case StatusConst.MARIONETTE:
+			case StatusConst.TWOHANDQUICKEN:
+			case StatusConst.ONEHANDQUICKEN:
+			case StatusConst.SPEARQUICKEN:
+			case StatusConst.LKCONCENTRATION:
+			case StatusConst.BERSERK:
+			case StatusConst.ENERGYCOAT:
+			case StatusConst.OVERTHRUST:
+			case StatusConst.OVERTHRUSTMAX:
+			case StatusConst.SWOO:
+			case StatusConst.SKE:
+			case StatusConst.NJ_BUNSINJYUTSU:
+			case StatusConst.STEELBODY:
+			case StatusConst.AURABLADE:
+			case StatusConst.ASSUMPTIO:
+			case StatusConst.ASSUMPTIO2:
+			case StatusConst.SG_WARM:
+			case StatusConst.SG_SUN_WARM:
+			case StatusConst.SG_MOON_WARM:
+			case StatusConst.SG_STAR_WARM:
+			case StatusConst.KAITE:
+			case StatusConst.SOULLINK:
+			case StatusConst.PROPERTYUNDEAD:
+			case StatusConst.DA_CONTRACT:
+			//CG_MOONLIT Moonlit Water Mill
+			//SC_MERC_QUICKEN
+			//SC_SKA
+			//SC_INCATKRATE
+				entity.toggleOpt3(pkt.index, pkt.state)
 				break;
 
-            case StatusConst.RUN: //state: 1 ON  0 OFF
+			case StatusConst.RUN: //state: 1 ON  0 OFF
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_STOPEFFECT,
 					ownerAID: pkt.AID
@@ -1466,7 +1466,7 @@ define(function( require )
 				}
 
 				EffectManager.spam( EF_Init_Par );
-                break;
+				break;
 
 			case StatusConst.TING:
 				var EF_Init_Par = {
@@ -1475,7 +1475,7 @@ define(function( require )
 				};
 
 				EffectManager.spam( EF_Init_Par );
-                break;
+				break;
 
 			case StatusConst.STORMKICK_ON:
 			case StatusConst.STORMKICK_READY:
@@ -1486,7 +1486,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-                break;
+				break;
 
 			case StatusConst.DOWNKICK_ON:
 			case StatusConst.DOWNKICK_READY:
@@ -1497,7 +1497,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-                break;
+				break;
 
 			case StatusConst.TURNKICK_ON:
 			case StatusConst.TURNKICK_READY:
@@ -1508,7 +1508,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-                break;
+				break;
 
 			case StatusConst.COUNTER_ON:
 			case StatusConst.COUNTER_READY:
@@ -1519,7 +1519,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-                break;
+				break;
 
 			case StatusConst.DODGE_ON:
 			case StatusConst.DODGE_READY:
@@ -1530,7 +1530,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-                break;
+				break;
 
 			case StatusConst.ROLLINGCUTTER:
 				if (pkt.state == 1) {
@@ -1612,26 +1612,26 @@ define(function( require )
 				entity.effectState = entity.effectState;
 				break;
 
-            case StatusConst.TRICKDEAD:
-                if(pkt.state == 1) {
-                    entity.setAction({
-                        action: entity.ACTION.DIE,
-                        frame:  0,
-                        repeat: false,
-                        play:   true,
-                        next:   false
-                    });
-                }
-                if(pkt.state == 0) {
-                    entity.setAction({
-                        action: entity.ACTION.IDLE,
-                        frame:  0,
-                        repeat: false,
-                        play:   true,
-                        next:   false
-                    });
-                }
-                break;
+			case StatusConst.TRICKDEAD:
+				if(pkt.state == 1) {
+					entity.setAction({
+						action: entity.ACTION.DIE,
+						frame:  0,
+						repeat: false,
+						play:   true,
+						next:   false
+					});
+				}
+				if(pkt.state == 0) {
+					entity.setAction({
+						action: entity.ACTION.IDLE,
+						frame:  0,
+						repeat: false,
+						play:   true,
+						next:   false
+					});
+				}
+				break;
 
 			case StatusConst.ILLUSION:
 				if (pkt.state == 1) {
@@ -1639,7 +1639,7 @@ define(function( require )
 				} else {
 					entity.isHallucinating = false;
 				}
-                break;
+				break;
 
 			case StatusConst.STOP:
 				if (pkt.state == 1) {
@@ -1651,7 +1651,7 @@ define(function( require )
 				} else {
 					entity.attachments.remove('status-stop');
 				}
-                break;
+				break;
 
 			case StatusConst.C_MARKER:
 				if (pkt.state == 1) {
@@ -1838,46 +1838,46 @@ define(function( require )
 	}
 
 
-    /**
-     * "Blade Stop" / "Root" visual
-     */
+	/**
+	 * "Blade Stop" / "Root" visual
+	 */
 
-    function onBladeStopVisual(srcEntity, dstEntity, state)
-    {
-            srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
-            srcEntity.toggleOpt3(StatusConst.BLADESTOP, state);
-            if(state == 1)
-                srcEntity.setAction({
-                    action: srcEntity.ACTION.READYFIGHT,
-                    frame:  0,
-                    repeat: false,
-                    play:   true,
-                    next:   false
-                });
-            if(state == 0)
-                srcEntity.setAction({
-                    action: srcEntity.ACTION.IDLE,
-                    frame:  0,
-                    repeat: false,
-                    play:   true,
-                    next:   false
-                });
-    }
+	function onBladeStopVisual(srcEntity, dstEntity, state)
+	{
+			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
+			srcEntity.toggleOpt3(StatusConst.BLADESTOP, state);
+			if(state == 1)
+				srcEntity.setAction({
+					action: srcEntity.ACTION.READYFIGHT,
+					frame:  0,
+					repeat: false,
+					play:   true,
+					next:   false
+				});
+			if(state == 0)
+				srcEntity.setAction({
+					action: srcEntity.ACTION.IDLE,
+					frame:  0,
+					repeat: false,
+					play:   true,
+					next:   false
+				});
+	}
 
-     /**
-     * "Blade Stop" / "Root" skill status
-     *
-     * @param {object} pkt - PACKET.ZC.BLADESTOP
-     */
-    function onBladeStopPacket(pkt)
-    {
-        var srcEntity = EntityManager.get(pkt.srcAID);
-        var dstEntity = EntityManager.get(pkt.destAID);
-        if (srcEntity && dstEntity) {
-            onBladeStopVisual(srcEntity, dstEntity, pkt.flag);
-            onBladeStopVisual(dstEntity, srcEntity, pkt.flag);
-        }
-    }
+	 /**
+	 * "Blade Stop" / "Root" skill status
+	 *
+	 * @param {object} pkt - PACKET.ZC.BLADESTOP
+	 */
+	function onBladeStopPacket(pkt)
+	{
+		var srcEntity = EntityManager.get(pkt.srcAID);
+		var dstEntity = EntityManager.get(pkt.destAID);
+		if (srcEntity && dstEntity) {
+			onBladeStopVisual(srcEntity, dstEntity, pkt.flag);
+			onBladeStopVisual(dstEntity, srcEntity, pkt.flag);
+		}
+	}
 
 	/**
 	 * Notify experience gained
@@ -1887,14 +1887,14 @@ define(function( require )
 
 	function onNotifyExp( pkt )
 	{
-        if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
-            if(pkt. varID == 1) {
-                ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
-            }
-            if(pkt. varID == 2) {
-                ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
-            }
-        }
+		if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
+			if(pkt. varID == 1) {
+				ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
+			}
+			if(pkt. varID == 2) {
+				ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
+			}
+		}
 	}
 
 	/**
@@ -1907,16 +1907,16 @@ define(function( require )
 
 	function onMarkMvp( pkt )
 	{
-        MiniMap.removeNpcMark('mvp'); //hack for mark system (todo: debug this)
-        if(pkt.infoType == 1) {
-            MiniMap.addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
-            /**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
-                ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
-            }*/
-        }
-        if(pkt.infoType == 0) {
-            ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-        }
+		MiniMap.removeNpcMark('mvp'); //hack for mark system (todo: debug this)
+		if(pkt.infoType == 1) {
+			MiniMap.addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
+			/**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
+				ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
+			}*/
+		}
+		if(pkt.infoType == 0) {
+			ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+		}
 	}
 
 	/**
@@ -1940,9 +1940,9 @@ define(function( require )
 	 * @param {object} pkt - PACKET.ZC.MVP_GETTING_ITEM
 	 */
 	function onEntityMvpRewardItemMessage( pkt ) {
-        var item = DB.getItemInfo(pkt.ITID);
-        ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
-        ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
+		var item = DB.getItemInfo(pkt.ITID);
+		ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
+		ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 	}
 
 
