@@ -880,6 +880,9 @@ define(function( require )
 				else {
 					entity.weapon = pkt.value;
 				}
+
+				// load self aura
+				entity.aura.load( EffectManager );
 				break;
 
 			case 3: entity.accessory   = pkt.value; break;
@@ -892,9 +895,6 @@ define(function( require )
 			case 10: break; // UNKNOWN²
 			case 11: break; // robe, not supported yet
 		}
-
-		// load self aura
-		entity.aura.load( EffectManager );
 	}
 
 	/**
