@@ -536,6 +536,11 @@ define(function( require )
 		);
 	}
 
+	function isDead()
+	{
+		return this.action === this.ACTION.DIE;
+	}
+
 
 	/**
 	 * Hooking, export
@@ -549,6 +554,7 @@ define(function( require )
 		this._flashColor       = new Float32Array([1, 1, 1, 1]);
 		this.effectColor       = new Float32Array([1, 1, 1, 1]);
 		this.isVisible         = isVisible.bind(this);
+		this.isDead            = isDead.bind(this);
 
 
 		Object.defineProperty(this, 'bodyState', {
