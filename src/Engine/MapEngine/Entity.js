@@ -205,6 +205,12 @@ define(function( require )
 
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
+
+				case Entity.VT.DEAD:
+					// remove aura on non-PC death
+					if (entity.objecttype !== Entity.TYPE_PC) {
+						entity.aura.remove( EffectManager );
+					}
 			}
 
 			entity.remove( pkt.type );
