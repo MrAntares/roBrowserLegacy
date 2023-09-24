@@ -52,9 +52,6 @@ define( function( require )
 		if (this.effectColor[3]) {
 			this.renderEntity();
 			this.attachments.render(Renderer.tick);
-		} else {
-			// hide aura if entity is not rendered
-			this.aura.hide();
 		}
 
 		// Update character UI (life, dialog, etc.)
@@ -205,10 +202,7 @@ define( function( require )
 
 		return function renderEntity()
 		{
-			if(this.hideEntity) {
-				this.aura.hide(); // hide aura if entity is not rendered
-				return;
-			}
+			if(this.hideEntity) return;
 
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
@@ -314,15 +308,6 @@ define( function( require )
 				if (this.shield > 0 && !behind) {
 					renderElement( this, this.files.shield, 'shield', _position, true );
 				}
-			}
-
-			if(action === this.ACTION.DIE)
-			{
-				// hide aura if entity appears dead
-				this.aura.hide();
-			} else {
-				// show aura if entity appears alive
-				this.aura.show();
 			}
 		};
 	}();

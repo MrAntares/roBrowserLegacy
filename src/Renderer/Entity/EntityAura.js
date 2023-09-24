@@ -7,14 +7,18 @@
  *
  * @author Gulfaraz Rahman
  */
-define(['Renderer/EffectManager', 'DB/Effects/EffectConst'],
-function(EffectManager, EffectConst)
+define(['DB/Effects/EffectConst', 'Preferences/Map'],
+function(EffectConst, MapPreferences)
 {
 	'use strict';
 
-	var effects = [
+	var normalEffects = [
 		EffectConst.EF_LEVEL99,
 		EffectConst.EF_LEVEL99_2,
+		EffectConst.EF_LEVEL99_3
+	];
+
+	var simpleEffects = [
 		EffectConst.EF_LEVEL99_3
 	];
 
@@ -26,37 +30,59 @@ function(EffectManager, EffectConst)
 	 */
 	function Aura( entity )
 	{
-		this.isShown = false;
-		this.entity = entity;
+		this.isLoaded = false; // to avoid duplicate aura effects
+		this.entity = entity; // reference to attached entity
 	}
-
 
 	/**
 	 * Show aura
 	 */
-	Aura.prototype.show = function show()
+	Aura.prototype.load = function load( effectManager )
 	{
-		if( this.entity.clevel >= 99 && !this.isShown ) {
-			for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
-				EffectManager.spam({
-					ownerAID: this.entity.GID,
-					position: this.entity.position,
-					effectId: effects[effectIndex]
-				});
-			  }
-			this.isShown = true;
+		// check if qualifies for aura and /aura2 preference
+		if( MapPreferences.aura > 0 && this.entity.clevel >= 99) {
+			// check if entity is visible and not dead
+			if(this.entity.isVisible() && !this.entity.isDead()) {
+				// aura is already loaded
+				if(!this.isLoaded) {
+					// select effects based on /aura preference
+					var effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
+					// add aura effects
+					for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
+						effectManager.spam( {
+							ownerAID: this.entity.GID,
+							position: this.entity.position,
+							effectId: effects[effectIndex]
+						} );
+					  }
+					  // set flag to avoid duplicate aura effects
+					  this.isLoaded = true;
+				}
+			} else {
+				// remove aura if entity is invisible
+				this.remove( effectManager );
+			}
 		}
 	};
 
 	/**
 	 * Hide aura
 	 */
-	Aura.prototype.hide = function hide()
+	Aura.prototype.remove = function remove( effectManager )
 	{
-		if( this.isShown ) {
-			EffectManager.remove( null, this.entity.GID, effects );
-			this.isShown = false;
-		}
+		// remove aura effects
+		effectManager.remove( null, this.entity.GID, normalEffects );
+		// free aura - needs to be separate to avoid circular dependency
+		this.free();
+	};
+
+	/**
+	 * Hide aura
+	 */
+	Aura.prototype.free = function free()
+	{
+		// reset flag to allow aura to be loaded
+		this.isLoaded = false;
 	};
 
 	/**
