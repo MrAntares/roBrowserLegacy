@@ -41,8 +41,8 @@ function(EffectConst, MapPreferences)
 	{
 		// check if qualifies for aura and /aura2 preference
 		if( MapPreferences.aura > 0 && this.entity.clevel >= 99) {
-			// check if entity is visible and not dead
-			if(this.entity.isVisible() && !this.entity.isDead()) {
+			// check if entity is visible
+			if(this.entity.isVisible()) {
 				// aura is already loaded
 				if(!this.isLoaded) {
 					// select effects based on /aura preference

@@ -203,10 +203,6 @@ define(function( require )
 						EffectManager.spam( EF_Init_Par );
 					}
 
-				case Entity.VT.DEAD:
-					// free aura on death
-					entity.aura.free();
-
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
 			}
@@ -350,9 +346,6 @@ define(function( require )
 			repeat: true,
 			play:   true
 		});
-
-		// restore aura on resurrection
-		entity.aura.load( EffectManager );
 
 		// If it's our main character update Escape ui
 		if (entity === Session.Entity) {
@@ -1696,9 +1689,6 @@ define(function( require )
 		if (entity === Session.Entity) {
 			StatusIcons.update( pkt.index, pkt.state, pkt.RemainMS );
 		}
-
-		// for changes in entity state (tickdead) or effectState (STEALTHFIELD)
-		entity.aura.load( EffectManager );
 	}
 
 
