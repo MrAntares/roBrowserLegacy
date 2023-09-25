@@ -203,12 +203,14 @@ define(function( require )
 						EffectManager.spam( EF_Init_Par );
 					}
 
-				case Entity.VT.DEAD:
-					// free aura on death
-					entity.aura.free();
-
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
+
+				case Entity.VT.DEAD:
+					// remove aura on non-PC death
+					if (entity.objecttype !== Entity.TYPE_PC) {
+						entity.aura.remove( EffectManager );
+					}
 			}
 
 			entity.remove( pkt.type );
@@ -350,9 +352,6 @@ define(function( require )
 			repeat: true,
 			play:   true
 		});
-
-		// restore aura on resurrection
-		entity.aura.load( EffectManager );
 
 		// If it's our main character update Escape ui
 		if (entity === Session.Entity) {
@@ -881,6 +880,9 @@ define(function( require )
 				else {
 					entity.weapon = pkt.value;
 				}
+
+				// load self aura
+				entity.aura.load( EffectManager );
 				break;
 
 			case 3: entity.accessory   = pkt.value; break;
@@ -893,9 +895,6 @@ define(function( require )
 			case 10: break; // UNKNOWN²
 			case 11: break; // robe, not supported yet
 		}
-
-		// load self aura
-		entity.aura.load( EffectManager );
 	}
 
 	/**
@@ -1696,9 +1695,6 @@ define(function( require )
 		if (entity === Session.Entity) {
 			StatusIcons.update( pkt.index, pkt.state, pkt.RemainMS );
 		}
-
-		// for changes in entity state (tickdead) or effectState (STEALTHFIELD)
-		entity.aura.load( EffectManager );
 	}
 
 
