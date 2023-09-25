@@ -31,7 +31,12 @@ define(function( require )
 	var CharSelect2 = require('UI/Components/CharSelect2/CharSelect2');
 	var CharSelectV2 = require('UI/Components/CharSelectV2/CharSelectV2');
 	var CharSelectV3 = require('UI/Components/CharSelectV3/CharSelectV3');
-	var CharCreate = require('UI/Components/CharCreate/CharCreate');
+	var CharCreate;
+	if (PACKETVER.value >= 20180124) {
+		CharCreate = require('UI/Components/CharCreatev2/CharCreatev2');
+	} else {
+		CharCreate = require('UI/Components/CharCreate/CharCreate');
+	}
 	var PincodeWindow = require('UI/Components/PincodeWindow/PincodeWindow');
 	var InputBox   = require('UI/Components/InputBox/InputBox');
 	var getModule  = require;
@@ -91,23 +96,29 @@ define(function( require )
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION,        onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.REFUSE_ENTER,                  onConnectionRefused );
 		Network.hookPacket( PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION,     onCreationSuccess );
+		Network.hookPacket( PACKET.HC.ACCEPT_MAKECHAR,    			 onCreationSuccess );
 		Network.hookPacket( PACKET.HC.REFUSE_MAKECHAR,               onCreationFail );
 		Network.hookPacket( PACKET.HC.ACCEPT_DELETECHAR,             onDeleteAnswer );
+		Network.hookPacket( PACKET.HC.DELETE_CHAR3,					 onDeleteAnswer );
 		Network.hookPacket( PACKET.HC.REFUSE_DELETECHAR,             onDeleteAnswer );
 		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR,                onReceiveMapInfo);
 		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR2,               onReceiveMapInfo );
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST,   onConnectionAccepted );
+		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2,  onConnectionAccepted );
 		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
 		Network.hookPacket( PACKET.HC.SECOND_PASSWD_LOGIN, 			 onPincodeCheckSuccess);
+		Network.hookPacket( PACKET.HC.DELETE_CHAR3_RESERVED,		 onRequestCharDel);
 
 		//Select Character Window
-		if (PACKETVER.value >= 20141016) {
-			charSelectNum = 2; //Renewal UI with Sex + Race - V3 Not implemented Yet
-		} else if (PACKETVER.value >= 20100720){
-			charSelectNum = 2; //Old UI with mapname
+		if (PACKETVER.value >= 20180124) {
+			charSelectNum = 3; //Renewal UI with Sex + Race + Stylist
+		} else if (PACKETVER.value >= 20141016) {
+			charSelectNum = 2; //Renewal UI with Sex + Race (Not yet implemented)
+		} else if (PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727) {
+			charSelectNum = 1; //Old UI with mapname
 		} else {
-			charSelectNum = 1; //Old UI
+			charSelectNum = 0; //Old UI
 		}
 	}
 
@@ -183,6 +194,8 @@ define(function( require )
 				CharSelectV3.onConnectRequest = onConnectRequest;
 				CharSelectV3.onCreateRequest = onCreateRequest;
 				CharSelectV3.onDeleteRequest = onDeleteRequest;
+				CharSelectV3.onDeleteReqDelay = onDeleteReqDelay;
+				CharSelectV3.onCancelDeleteRequest = onCancelDeleteRequest;
 				CharSelectV3.append();
 				CharSelectV3.setInfo(pkt);
 				break;
@@ -249,7 +262,46 @@ define(function( require )
 			true
 		);
 	}
+	  
+	/**
+	 * Char Delete Request Result
+	 */
+	function onRequestCharDel (pkt) {
+		
+		if (!pkt)
+			return;
 
+		// Just pass the packet info
+		CharSelectV3.reqdeleteAnswer(pkt);
+	}
+
+	/**
+	 * Char Delete Request Cancel
+	 */
+	function onCancelDeleteRequest ( charID ) {
+		
+		if (charID === 0)
+			return;
+		
+		var pkt = new PACKET.CH.DELETE_CHAR3_CANCEL();
+		pkt.GID = charID;
+		Network.sendPacket(pkt);
+	}
+
+	/**
+	 * User want to delete a character with delay
+	 *
+	 * @param {number} charID - Character ID
+	 */
+	function onDeleteReqDelay ( charID )
+	{
+		if (!charID)
+		return;
+		
+		var pkt = new PACKET.CH.DELETE_CHAR3_RESERVED();
+		pkt.GID = charID;
+		Network.sendPacket(pkt);
+	}
 
 	/**
 	 * User want to delete a character
@@ -268,10 +320,17 @@ define(function( require )
 
 		// Delete the character
 		function deleteCharacter() {
-			var pkt = new PACKET.CH.DELETE_CHAR();
-			pkt.GID = charID;
-			pkt.key = _email;
-			Network.sendPacket(pkt);
+			if (PACKETVER.value > 20100803) {
+				var pkt = new PACKET.CH.DELETE_CHAR3();
+				pkt.GID = charID;
+				pkt.Birth = _email.substring(2);	// Server only needs the 6 digits
+				Network.sendPacket(pkt);
+			} else {
+				var pkt = new PACKET.CH.DELETE_CHAR();
+				pkt.GID = charID;
+				pkt.key = _email;
+				Network.sendPacket(pkt);
+			}
 		}
 
 		// Cancel the prompt
@@ -286,9 +345,14 @@ define(function( require )
 		// Ask the mail
 		function onOk(){
 			InputBox.append();
-			InputBox.setType('mail', true);
-			InputBox.ui.css('zIndex',101);
+			if (PACKETVER.value > 20100803) {
+				InputBox.setType('date', true);
+			} else {
+				InputBox.setType('mail', true);
+			}
 			InputBox.onSubmitRequest = onSubmit;
+			_ui_box.ui.css('zIndex', 50); // ui same zIndex bg
+			_overlay.css('zIndex', 51); // overlay same zIndex input
 			_ui_box.append(); // don't remove message box
 		}
 
@@ -301,28 +365,35 @@ define(function( require )
 			_email = email;
 			InputBox.remove();
 			_ui_box.remove();
+			
+			if (PACKETVER.value < 20180124) {	// Not sure which date should we not use this loading delete anymore
+				// Stop rendering...
+				_ui_box = UIManager.showMessageBox( DB.getMessage(296).replace('%d',10), 'cancel', function(){
+					_render = false;
+					onCancel();
+				});
 
-			// Stop rendering...
-			_ui_box = UIManager.showMessageBox( DB.getMessage(296).replace('%d',10), 'cancel', function(){
-				_render = false;
-				onCancel();
-			});
+				// Build canvas
+				_canvas = document.createElement('canvas');
+				_ctx    = _canvas.getContext('2d');
+				_width  = _canvas.width  = 240;
+				_height = _canvas.height = 15;
+				_canvas.style.marginTop  = '10px';
+				_canvas.style.marginLeft = '20px';
+				_ui_box.ui.append(_canvas);
 
-			// Build canvas
-			_canvas = document.createElement('canvas');
-			_ctx    = _canvas.getContext('2d');
-			_width  = _canvas.width  = 240;
-			_height = _canvas.height = 15;
-			_canvas.style.marginTop  = '10px';
-			_canvas.style.marginLeft = '20px';
-			_ui_box.ui.append(_canvas);
+				// Parameter
+				_time_end = Date.now() + 10000;
+				_render  = true;
 
-			// Parameter
-			_time_end = Date.now() + 10000;
-			_render  = true;
-
-			// Start the timing
-			render();
+				// Start the timing
+				render();
+			} else {	// No waiting time
+				_ui_box.remove();
+				_overlay.detach();
+				deleteCharacter();
+				return;
+			}
 		}
 
 		// Rendering
@@ -362,10 +433,15 @@ define(function( require )
 	 * Answer from server to delete character
 	 *
 	 * @param {object} PACKET.HC.REFUSE_DELETECHAR or PACKET.HC.ACCEPT_DELETECHAR
+	 * @param {object} PACKET.HC.DELETE_CHAR3 <GID> <Result>
 	 */
 	function onDeleteAnswer(pkt)
 	{
-		var result = typeof( pkt.ErrorCode ) === 'undefined' ? -1 : pkt.ErrorCode;
+		if (PACKETVER.value <= 20100803) { // Email deletion result
+			var result = typeof( pkt.ErrorCode ) === 'undefined' ? -1 : pkt.ErrorCode;
+		} else { // Birthday deletion result
+			var result = typeof( pkt.Result ) === 'undefined' ? -1 : pkt.Result;
+		}
 		switch (charSelectNum) {
 			case 1:
 				CharSelect2.deleteAnswer(result);
@@ -440,8 +516,10 @@ define(function( require )
 	 * @param {number} Luk - luck stat
 	 * @param {number} hair - hair style
 	 * @param {number} color - hair color
+	 * @param {number} job - job
+	 * @param {number} sex - sex
 	 */
-	function onCharCreationRequest( name, Str, Agi, Vit, Int, Dex, Luk, hair, color )
+	function onCharCreationRequest( name, Str, Agi, Vit, Int, Dex, Luk, hair, color, job, sex )
 	{
 		var pkt;
 
@@ -455,15 +533,19 @@ define(function( require )
 			pkt.Dex  = Dex;
 			pkt.Luk  = Luk;
 		}
-		else {
+		else if ( ( PACKET.value >= 20120307 ) && ( PACKET.value < 20151001 ) ) {
 			pkt = new PACKET.CH.MAKE_CHAR2();
+		}
+		else {
+			pkt = new PACKET.CH.MAKE_CHAR3();
 		}
 
 		pkt.name    = name;
 		pkt.head    = hair;
 		pkt.headPal = color;
 		pkt.CharNum = _creationSlot;
-
+		pkt.Job = job;
+		pkt.Sex = sex;
 		Network.sendPacket(pkt);
 	}
 
@@ -472,6 +554,7 @@ define(function( require )
 	 * Success to create a character
 	 *
 	 * @param {object} pkt - PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION
+	 * @param {object} pkt - PACKET.HC.ACCEPT_MAKECHAR
 	 */
 	function onCreationSuccess( pkt )
 	{
