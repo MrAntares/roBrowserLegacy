@@ -173,11 +173,11 @@ define(function(require)
 			CashShop.onResetCartListCashShop();
 		}
 		
-		Minimap.ui.append('<button class="cashshopIcon"></button>');
-		Minimap.ui.on('click', '.cashshopIcon', onClickIcon);
+		MiniMap.ui.append('<button class="cashshopIcon"></button>');
+		MiniMap.ui.on('click', '.cashshopIcon', onClickIcon);
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/nc_cashshop.bmp', function(data){
-			Minimap.ui.find('.cashshopIcon').css('backgroundImage', 'url('+ data +')');
+			MiniMap.ui.find('.cashshopIcon').css('backgroundImage', 'url('+ data +')');
 		});
 	};
 	
