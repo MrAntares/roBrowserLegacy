@@ -546,9 +546,6 @@ define(function( require )
 		pkt.CharNum = _creationSlot;
 		pkt.Job = job;
 		pkt.Sex = sex;
-		console.log('Job:%d Sex:%d', job, sex);
-		// Log the packet content
-		console.log('Packet content:', pkt);
 		Network.sendPacket(pkt);
 	}
 
