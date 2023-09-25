@@ -158,20 +158,17 @@ define(function(require)
 			_kafra.src = dataURI;
 		});
 
+		
+		// Bind DOM elements
+		this.ui.find('.plus').mousedown(genericUpdateZoom(+1));
+		this.ui.find('.minus').mousedown(genericUpdateZoom(-1));
+
 		// Bind DOM elements
 		this.ui.find('.info_container button').mousedown(function(){
 			switch (this.className) {
 				case 'object':
 					_preferences.townInfoShow = !_preferences.townInfoShow;
 					_preferences.save();
-					break;
-
-				case 'plus':
-					genericUpdateZoom(+1);
-					break;
-
-				case 'minus':
-					genericUpdateZoom(-1);
 					break;
 
 				case 'mini':
