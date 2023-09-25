@@ -12812,6 +12812,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
 
+	// 0xb6f
+	PACKET.HC.ACCEPT_MAKECHAR = function PACKET_HC_ACCEPT_MAKECHAR(fp, end) {
+		this.charinfo = PACKETVER.parseCharInfo(fp, end)[0];
+	};
+	PACKET.HC.ACCEPT_MAKECHAR.size = 0;
+
 	//0xb8d
 	PACKET.ZC.REPUTE_INFO = function PACKET_ZC_REPUTE_INFO(fp, end) {
 		this.success = fp.readUChar();
