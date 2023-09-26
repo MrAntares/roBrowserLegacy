@@ -124,6 +124,7 @@ function initialize() {
           /* Custom, "for fun" camera modes */
           ThirdPersonCamera: false,  // When true you can zoom in more and rotate camera around player more freely with mouse
           FirstPersonCamera: false,  // When true you can look from the player's head, like an FPS game and rotate camera without limit
+          CameraMaxZoomOut: 5,  // How far can you zoom out the camera, default:5. Note: Extreme values can break camera and/or mouse.
       };
       var RO = new ROBrowser(ROConfig);
       RO.start();
