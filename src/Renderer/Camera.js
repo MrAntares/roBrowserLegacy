@@ -273,6 +273,7 @@ define(function( require )
 	{
 		Camera.enable3RDPerson = Configs.get('ThirdPersonCamera', false);
 		Camera.enable1STPerson = Configs.get('FirstPersonCamera', false);
+		Camera.MAX_ZOOM = Configs.get('CameraMaxZoomOut', C_MAX_ZOOM);
 		
 		this.lastTick  = Date.now();
 

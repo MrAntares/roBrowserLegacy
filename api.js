@@ -378,6 +378,7 @@
 	// Custom camera support
 	ROBrowser.prototype.ThirdPersonCamera = false;
 	ROBrowser.prototype.FirstPersonCamera = false;
+	ROBrowser.prototype.CameraMaxZoomOut = 0;
 
 	/**
 	 * Spam the window until there is an answer
@@ -409,6 +410,7 @@
 			BGMFileExtension: this.BGMFileExtension,
 			ThirdPersonCamera: this.ThirdPersonCamera,
 			FirstPersonCamera: this.FirstPersonCamera,
+			CameraMaxZoomOut: this.CameraMaxZoomOut,
 		}, '*');
 	}
 
