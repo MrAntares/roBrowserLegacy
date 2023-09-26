@@ -56,8 +56,8 @@ For development purposes (modifying the source/testing) skip this section and se
 - click on "Thread"
 - place `Online.js`and `ThreadEventHandler.js` files under roBrowserLegacy `root` directory
 
-### Add game assets
-- copy your `.grf` under `client/resources` directory
+### Add game assets ([additional info](https://github.com/MrAntares/roBrowserLegacy/blob/master/client/readme.md))
+- copy your `.grf` under `client/resources` directory (only 0x200 version is supported)
 - copy your `DATA.INI` (GRF loading order) under `client/resources` directory
 - copy your BGM `.mp3` under `client/BGM` directory
 - copy your data directory under `client/data`directory
