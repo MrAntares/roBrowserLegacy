@@ -12180,6 +12180,33 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.ITEM_PICKUP_ACK7.size = (PACKETVER.value >= 20181121 ? 69 : 59);
 
+	// 0xa39
+	PACKET.CH.MAKE_CHAR3 = function PACKET_CH_MAKE_CHAR3() {
+		this.name = '';
+		this.CharNum = 0;
+		this.headPal = 0;
+		this.head = 0;
+		this.Job = 0;
+		this.Sex = 0;
+	};
+	PACKET.CH.MAKE_CHAR3.prototype.build = function() {
+		var pkt_len = 2 + 24 + 1 + 2 + 2 + 2 + 2 + 1; // Total 36 bytes
+		var pkt_buf = new BinaryWriter(pkt_len);
+		
+		pkt_buf.writeShort(0xa39);
+		pkt_buf.writeString(this.name, 24);
+		pkt_buf.writeUChar(this.CharNum);
+		pkt_buf.writeShort(this.headPal);
+		pkt_buf.writeShort(this.head);
+		pkt_buf.writeShort(this.Job);
+		// "Unknown" occupies 2 bytes with a value of 0
+		pkt_buf.writeUChar(0);
+		pkt_buf.writeUChar(0);
+		pkt_buf.writeUChar(this.Sex);
+		
+		return pkt_buf;
+	};
+
 	// 0xa43
 	PACKET.ZC.ADD_MEMBER_TO_GROUP3 = function PACKET_ZC_ADD_MEMBER_TO_GROUP3(fp, end) {
 		this.AID = fp.readULong();
