@@ -191,7 +191,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 		list: 2,
 		beforeJob: JobId.ARCHER,
 		[SK.HT_BEASTBANE]: 0,
-		[SK.HT_SKTRAP]: 2,
+		[SK.HT_SKIDTRAP]: 2,
 		[SK.HT_LANDMINE]: 4,
 		[SK.HT_POWER]: 6,
 		[SK.HT_FALCON]: 7,
@@ -573,6 +573,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 		[SK.CG_MOONLIT]: 30,
 		[SK.CG_MARIONETTE]: 31,
 		[SK.CG_HERMODE]: 32,
+		[SK.CG_LONGINGFREEDOM]: 38,
 		[SK.CG_SPECIALSINGER]: 38,
 		[SK.CG_TAROTCARD]: 39
 	},
@@ -714,15 +715,16 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 		[SK.WM_SEVERE_RAINSTORM]: 0,
 		[SK.WM_REVERBERATION]: 1,
 		[SK.WM_LESSON]: 3,
-		[SK.WM_METALICSOUND]: 8,
+		[SK.WM_DOMINION_IMPULSE]: 8,
 		[SK.WM_SIRCLEOFNATURE]: 9,
 		[SK.WM_LULLABY_DEEPSLEEP]: 10,
 		[SK.WM_POEMOFNETHERWORLD]: 11,
 		[SK.WM_FRIGG_SONG]: 12,
-		[SK.WM_GREAT_ECHO]: 15,
+		[SK.WM_METALICSOUND]: 15,
 		[SK.WM_DEADHILLHERE]: 16,
 		[SK.WM_VOICEOFSIREN]: 18,
 		[SK.WM_RANDOMIZESPELL]: 19,
+		[SK.WM_GREAT_ECHO]: 22,
 		[SK.MI_HARMONIZE]: 23,
 		[SK.MI_RUSH_WINDMILL]: 24,
 		[SK.MI_ECHOSONG]: 25,
@@ -813,6 +815,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 		[SK.CG_MOONLIT]: 30,
 		[SK.CG_MARIONETTE]: 31,
 		[SK.CG_HERMODE]: 32,
+		[SK.CG_LONGINGFREEDOM]: 38,
 		[SK.CG_SPECIALSINGER]: 38,
 		[SK.CG_TAROTCARD]: 39
 	},
@@ -1013,15 +1016,16 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 		[SK.WM_SEVERE_RAINSTORM]: 0,
 		[SK.WM_REVERBERATION]: 1,
 		[SK.WM_LESSON]: 3,
-		[SK.WM_METALICSOUND]: 8,
+		[SK.WM_DOMINION_IMPULSE]: 8,
 		[SK.WM_SIRCLEOFNATURE]: 9,
 		[SK.WM_LULLABY_DEEPSLEEP]: 10,
 		[SK.WM_POEMOFNETHERWORLD]: 11,
 		[SK.WM_FRIGG_SONG]: 12,
-		[SK.WM_GREAT_ECHO]: 15,
+		[SK.WM_METALICSOUND]: 15,
 		[SK.WM_DEADHILLHERE]: 16,
 		[SK.WM_VOICEOFSIREN]: 18,
 		[SK.WM_RANDOMIZESPELL]: 19,
+		[SK.WM_GREAT_ECHO]: 22,
 		[SK.WA_SWING_DANCE]: 23,
 		[SK.WA_SYMPHONY_OF_LOVER]: 24,
 		[SK.WA_MOONLIT_SERENADE]: 25,
@@ -1077,7 +1081,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 		[SK.WZ_JUPITEL]: 30,
 		[SK.WZ_EARTHSPIKE]: 31,
 		[SK.WZ_SIGHTRASHER]: 32,
-		[SK.HT_SKTRAP]: 33,
+		[SK.HT_SKIDTRAP]: 33,
 		[SK.AM_AXEMASTERY]: 34,
 		[SK.WZ_ICEWALL]: 36,
 		[SK.WZ_VERMILION]: 37,
@@ -1772,6 +1776,5 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 	duplicateEntry(JobId.DRAGON_KNIGHT   ,JobId.DRAGON_KNIGHT2);
 	duplicateEntry(JobId.IMPERIAL_GUARD  ,JobId.IMPERIAL_GUARD2);
 	duplicateEntry(JobId.SKY_EMPEROR     ,JobId.SKY_EMPEROR2);
-
 	return SkillTreeView;
 })
