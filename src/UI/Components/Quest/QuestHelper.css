@@ -1,0 +1,138 @@
+#QuestInfo {
+    position: absolute;
+    width: 342px;
+    height: 412px;
+}
+
+#QuestInfo .titlebar {
+    width: 342px;
+    height: 412px;
+}
+
+#QuestInfo .titlebar .quest-info-top-panel {
+    float: left;
+    width: 342px;
+    height: 16px;
+}
+
+#QuestInfo .titlebar .quest-info-top-panel .quest-info-top-panel-title {
+    width: 342px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel {
+    float: left;
+    width: 342px;
+    height: 370px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-title-panel {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    width: 342px;
+    height: 45px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-title-panel .quest-info-title-panel-text {
+    width: 342px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-description-panel {
+    width: 342px;
+    height: 110px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-description-panel .quest-info-description-panel-title {
+    display: table;
+    width: 342px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-description-panel .quest-info-description-panel-text {
+    width: 342px;
+    margin: 10px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-monster-panel {
+    border-top: lightblue dashed 1px;
+    width: 342px;
+    height: 110px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-monster-panel .quest-info-monster-panel-title {
+    width: 342px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-monster-panel .quest-info-monster-panel-text {
+    width: 342px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel {
+    border-top: lightblue dashed 1px;
+    width: 342px;
+    height: 100px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .uest-info-reward-panel-title {
+    width: 342px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .uest-info-reward-panel-text {
+    width: 342px;
+}
+
+
+#QuestInfo .titlebar .quest-info-bottom-panel {
+    float: left;
+    width: 342px;
+    height: 25px;
+}
+
+#QuestInfo .titlebar .quest-info-bottom-panel .quest-info-bottom-text {
+    width: 52px;
+    height: 25px;
+    float: left;
+}
+
+#QuestInfo .titlebar .quest-info-bottom-panel .quest-info-bottom-text .quest-info-bottom-btn {
+    margin-top: 5px;
+    border: 0;
+    width: 42px;
+    height: 20px;
+    bottom: 4px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+.quest-ui-img-poring {
+    width: 10px;
+    height: 9px;
+    float: left;
+    margin: 5px;
+}
+
+.quest-ui-title-span {
+    float: left;
+    margin: 5px;
+    font-size: 0.65rem;
+}
+
+.quest-ui-text-span {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.quest-info-reward-ul {
+    list-style: none;
+}
+
+.quest-info-bottom-deadline-info-text {
+    color: red;
+    font-weight: bold;
+    display: table;
+}
+
+.quest-info-bottom-deadline-info {
+    width: 290px;
+    height: 25px;
+    float: left;
+}

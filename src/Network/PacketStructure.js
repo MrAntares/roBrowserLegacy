@@ -8752,7 +8752,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.MSG.size = 4;
 
-	
+
 	// 0x9cd
 	PACKET.ZC.MSG_COLOR = function PACKET_ZC_MSG_COLOR(fp, end) {
 		this.msg = fp.readUShort();
@@ -9051,6 +9051,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i] = {};
 				out[i].questID = fp.readULong();
 				out[i].active = fp.readUChar();
+				out[i].count = 0; // workaround
 			}
 			return out;
 		})();
@@ -9060,30 +9061,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 
 	// 0x2b2
 	PACKET.ZC.ALL_QUEST_MISSION = function PACKET_ZC_ALL_QUEST_MISSION(fp, end) {
-		this.count = fp.readLong();
-		this.QuestMissionList = (function() {
+		this.questCount = fp.readLong();
+		this.QuestList = (function() {
 			var i, count=(end-fp.tell())/104|0, out=new Array(count);
-
-			// [100] Moved here, should not make functions in a loop --majid
-			function huntF() {
-				var i, count = 3,
-					out = new Array(count);
-				for (i = 0; i < count; ++i) {
-					out[i] = {};
-					out[i].mobGID = fp.readULong();
-					out[i].huntCount = fp.readShort();
-					out[i].mobName = fp.readString(24);
-				}
-				return out;
-			}
-
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].questID = fp.readULong();
 				out[i].quest_svrTime = fp.readLong();
 				out[i].quest_endTime = fp.readLong();
 				out[i].count = fp.readShort();
-				out[i].hunt = huntF(); // [note: 100]
+				out[i].hunt = new Array(out[i].count);
+				for (let j = 0; j < out[i].count; j++) {
+					out[i].hunt[j] = {};
+					out[i].hunt[j].mobGID = fp.readULong();
+					out[i].hunt[j].huntCount = fp.readShort();
+					out[i].hunt[j].mobName = fp.readString(24);
+				}
 			}
 			return out;
 		})();
@@ -9107,7 +9100,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 				out[i].mobName = fp.readString(24);
 			}
 			return out;
-		})(3);
+		})(this.count);
 	};
 	PACKET.ZC.ADD_QUEST.size = 107;
 
@@ -9118,24 +9111,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.DEL_QUEST.size = 6;
 
-
 	// 0x2b5
 	PACKET.ZC.UPDATE_MISSION_HUNT = function PACKET_ZC_UPDATE_MISSION_HUNT(fp, end) {
-		this.count = fp.readShort();
-		this.MobHuntList = (function() {
+		this.questCount = fp.readShort();
+		this.hunt = (function() {
 			var i, count=(end-fp.tell())/12|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].questID = fp.readULong();
 				out[i].mobGID = fp.readULong();
 				out[i].maxCount = fp.readShort();
-				out[i].count = fp.readShort();
+				out[i].huntCount = fp.readShort();
 			}
 			return out;
 		})();
 	};
 	PACKET.ZC.UPDATE_MISSION_HUNT.size = -1;
-
 
 	// 0x2b7
 	PACKET.ZC.ACTIVE_QUEST = function PACKET_ZC_ACTIVE_QUEST(fp, end) {
@@ -9143,7 +9134,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.active = fp.readUChar();
 	};
 	PACKET.ZC.ACTIVE_QUEST.size = 7;
-
 
 	// 0x2b8
 	PACKET.ZC.ITEM_PICKUP_PARTY = function PACKET_ZC_ITEM_PICKUP_PARTY(fp, end) {
@@ -10992,6 +10982,23 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.FASTMOVE.size = 10;
 
+	// 0x8fe
+	PACKET.ZC.UPDATE_MISSION_HUNT2 = function PACKET_ZC_UPDATE_MISSION_HUNT2(fp, end) {
+		this.questCount = (end-fp.tell())/12|0; // workaround
+		this.hunt = (function(questCount) {
+			var i, count=questCount, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].huntID = fp.readULong();
+				out[i].mobGID = fp.readULong();
+				out[i].maxCount = fp.readShort();
+				out[i].huntCount = fp.readShort();
+			}
+			return out;
+		})(this.questCount);
+	};
+	PACKET.ZC.UPDATE_MISSION_HUNT2.size = -1;
+
 
 	// 0x8ff
 	PACKET.ZC.MSG_STATE_CHANGE3 = function PACKET_ZC_MSG_STATE_CHANGE3(fp, end) {
@@ -11142,21 +11149,29 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	// 0x97a
 	PACKET.ZC.ALL_QUEST_LIST_V2 = function PACKET_ZC_ALL_QUEST_LIST_V2(fp, end) {
 		this.questCount = fp.readLong();
-		this.QuestList = (function() {
-			var i, count=(end-fp.tell())/15|0, out=new Array(count);
+		this.QuestList = (function(questCount) {
+			var i, count=questCount, out=new Array(questCount);
+
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].questID = fp.readULong();
 				out[i].active = fp.readUChar();
-				out[i]._time = fp.readULong();
-				out[i].time = fp.readULong();
+				out[i].quest_svrTime = fp.readULong();
+				out[i].quest_endTime = fp.readULong();
 				out[i].count = fp.readShort();
+				out[i].hunt = new Array(out[i].count);
+				for (let j = 0; j < out[i].count; j++) {
+					out[i].hunt[j] = {};
+					out[i].hunt[j].mobGID = fp.readULong();
+					out[i].hunt[j].huntCount = fp.readShort();
+					out[i].hunt[j].maxCount = fp.readShort();
+					out[i].hunt[j].mobName = fp.readString(24);
+				}
 			}
 			return out;
-		})();
+		})(this.questCount);
 	};
 	PACKET.ZC.ALL_QUEST_LIST_V2.size = -1;
-
 
 	// 0x983
 	PACKET.ZC.MSG_STATE_CHANGE4 = function PACKET_ZC_MSG_STATE_CHANGE4(fp, end) {
@@ -11695,6 +11710,77 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.ATKRange 	= fp.readShort();		// <atk range>.W
 	};
 	PACKET.ZC.PROPERTY_HOMUN2.size = 75;
+
+	// 0x9f8
+	PACKET.ZC.ALL_QUEST_LIST_V3 = function PACKET_ZC_ALL_QUEST_LIST_V3(fp, end) {
+		this.questCount = fp.readLong();
+		this.QuestList = (function(questCount) {
+			var i, count=questCount, out=new Array(questCount);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].questID = fp.readULong();
+				out[i].active = fp.readUChar();
+				out[i].quest_svrTime = fp.readULong();
+				out[i].quest_endTime = fp.readULong();
+				out[i].count = fp.readShort();
+				out[i].hunt = new Array(out[i].count);
+				for (let j = 0; j < out[i].count; j++) {
+					out[i].hunt[j] = {};
+					out[i].hunt[j].huntID = fp.readULong();
+					out[i].hunt[j].mobType = fp.readULong();
+					out[i].hunt[j].mobGID = fp.readULong();
+					out[i].hunt[j].lvlMin = fp.readShort();
+					out[i].hunt[j].lvlMax = fp.readShort();
+					out[i].hunt[j].huntCount = fp.readShort();
+					out[i].hunt[j].maxCount = fp.readShort();
+					out[i].hunt[j].mobName = fp.readString(24);
+				}
+			}
+			return out;
+		})(this.questCount);
+	};
+	PACKET.ZC.ALL_QUEST_LIST_V3.size = -1;
+
+	// 0x9f9
+	PACKET.ZC.ADD_QUEST2 = function PACKET_ZC_ADD_QUEST2(fp, end) {
+		this.questID = fp.readULong();
+		this.active = fp.readUChar();
+		this.quest_svrTime = fp.readLong();
+		this.quest_endTime = fp.readLong();
+		this.count = fp.readShort();
+		this.hunt = (function(count) {
+			var i, out = new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].huntID = fp.readULong();
+				out[i].mobType = fp.readULong();
+				out[i].mobGID = fp.readULong();
+				out[i].lvlMin = fp.readShort();
+				out[i].lvlMax = fp.readShort();
+				out[i].huntCount = fp.readShort();
+				out[i].mobName = fp.readString(24);
+			}
+			return out;
+		})(this.count);
+	};
+	PACKET.ZC.ADD_QUEST2.size = 143;
+
+	// 0x9fa
+	PACKET.ZC.UPDATE_MISSION_HUNT3 = function PACKET_ZC_UPDATE_MISSION_HUNT3(fp, end) {
+		this.questCount = fp.readShort();
+		this.hunt = (function() {
+			var i, count=(end-fp.tell())/12|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].questID = fp.readULong();
+				out[i].huntID = fp.readULong();
+				out[i].maxCount = fp.readShort();
+				out[i].huntCount = fp.readShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.UPDATE_MISSION_HUNT3.size = -1;
 
 	// 0x9fd
 	PACKET.ZC.NOTIFY_MOVEENTRY9 = function PACKET_ZC_NOTIFY_MOVEENTRY9(fp, end) {
@@ -12486,6 +12572,55 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		return pkt;
 	};
 
+	// 0xafe
+	PACKET.ZC.UPDATE_MISSION_HUNT4 = function PACKET_ZC_UPDATE_MISSION_HUNT4(fp, end) {
+		this.questCount = fp.readShort();
+		this.hunt = (function() {
+			var i, count=(end-fp.tell())/16|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].questID = fp.readULong();
+				out[i].huntID = fp.readULong();
+				out[i].huntIDCount = fp.readULong();
+				out[i].maxCount = fp.readShort();
+				out[i].huntCount = fp.readShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.UPDATE_MISSION_HUNT4.size = -1;
+
+	// 0xaff
+	PACKET.ZC.ALL_QUEST_LIST_V4 = function PACKET_ZC_ALL_QUEST_LIST_V4(fp, end) {
+		this.questCount = fp.readLong();
+		this.QuestList = (function(questCount) {
+			var i, count=questCount, out=new Array(questCount);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].questID = fp.readULong();
+				out[i].active = fp.readUChar();
+				out[i].quest_svrTime = fp.readULong();
+				out[i].quest_endTime = fp.readULong();
+				out[i].count = fp.readShort();
+				out[i].hunt = new Array(out[i].count);
+				for (let j = 0; j < out[i].count; j++) {
+					out[i].hunt[j] = {};
+					out[i].hunt[j].huntID = fp.readULong();
+					out[i].hunt[j].huntIDCount = fp.readULong();
+					out[i].hunt[j].mobType = fp.readULong();
+					out[i].hunt[j].mobGID = fp.readULong();
+					out[i].hunt[j].lvlMin = fp.readShort();
+					out[i].hunt[j].lvlMax = fp.readShort();
+					out[i].hunt[j].huntCount = fp.readShort();
+					out[i].hunt[j].maxCount = fp.readShort();
+					out[i].hunt[j].mobName = fp.readString(24);
+				}
+			}
+			return out;
+		})(this.questCount);
+	};
+	PACKET.ZC.ALL_QUEST_LIST_V4.size = -1;
+
 	//0xb08
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_SET = function PACKET_SPLIT_SEND_ITEMLIST_SET(fp, end) {
 		this.invType = fp.readUChar();
@@ -12577,6 +12712,31 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 		this.flag = fp.readUChar();
 	};
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT.size = 4;
+
+	// 0xb0c
+	PACKET.ZC.ADD_QUEST3 = function PACKET_ZC_ADD_QUEST3(fp, end) {
+		this.questID = fp.readULong();
+		this.active = fp.readUChar();
+		this.quest_svrTime = fp.readLong();
+		this.quest_endTime = fp.readLong();
+		this.count = fp.readShort();
+		this.hunt = (function(count) {
+			var i, out = new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].huntID = fp.readULong();
+				out[i].huntIDCount = fp.readULong();
+				out[i].mobType = fp.readULong();
+				out[i].mobGID = fp.readULong();
+				out[i].lvlMin = fp.readShort();
+				out[i].lvlMax = fp.readShort();
+				out[i].huntCount = fp.readShort();
+				out[i].mobName = fp.readString(24);
+			}
+			return out;
+		})(this.count);
+	};
+	PACKET.ZC.ADD_QUEST3.size = 155;
 
 	// 0xb1b
 	// this means that player is allowed to do actions

@@ -77,6 +77,8 @@ define(function( require )
 	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
+	var Quest            = require('UI/Components/Quest/Quest');
+	var QuestWindow            = require('UI/Components/Quest/QuestWindow');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	/**
@@ -207,7 +209,8 @@ define(function( require )
 		require('./MapEngine/Store').call();
 		require('./MapEngine/Trade').call();
 		require('./MapEngine/Friends').init();
-
+		require('./MapEngine/Quest').call();
+		
 		if(Configs.get('enableCashShop')){
 			require('./MapEngine/CashShop').call();
 		}
@@ -234,7 +237,9 @@ define(function( require )
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
-
+		Quest.prepare();
+		QuestWindow.prepare();
+		
 		if(Configs.get('enableCashShop')){
 			CashShop.prepare();
 		}
@@ -379,7 +384,9 @@ define(function( require )
 			WorldMap.append();
 			SkillListMER.append();
 			MobileUI.append();
-
+			Quest.append();
+			QuestWindow.append();
+			
 			if(Configs.get('enableCashShop')){
 				CashShop.append();
 			}
