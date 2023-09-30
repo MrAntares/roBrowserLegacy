@@ -5110,9 +5110,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  false,
 		AttackRange: [ 5 ]
 	},
-	SkillInfo[SK.HT_SKTRAP] = {
-		Name: "HT_SKTRAP",
-		SkillName: "SK Trap",
+	SkillInfo[SK.HT_SKIDTRAP] = {
+		Name: "HT_SKIDTRAP",
+		SkillName: "Skid Trap",
 		MaxLv:  5,
 		SpAmount:  [ 10, 10, 10, 10, 10 ],
 		bSeperateLv:  true,
@@ -5134,7 +5134,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  true,
 		AttackRange: [ 3, 3, 3, 3, 3 ],
 		_NeedSkillList: [
-			[ SK.HT_SKTRAP, 1 ]
+			[ SK.HT_SKIDTRAP, 1 ]
 		]
 	},
 	SkillInfo[SK.HT_SHOCKWAVE] = {
@@ -5167,7 +5167,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  true,
 		AttackRange: [ 3, 3, 3, 3, 3 ],
 		_NeedSkillList: [
-			[ SK.HT_SKTRAP, 1 ]
+			[ SK.HT_SKIDTRAP, 1 ]
 		]
 	},
 	SkillInfo[SK.HT_FREEZINGTRAP] = {
@@ -6859,9 +6859,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  false,
 		AttackRange: [ 3, 3, 3, 3, 3 ]
 	},
-	SkillInfo[SK.MA_SKTRAP] = {
-		Name: "MA_SKTRAP",
-		SkillName: "SK Trap",
+	SkillInfo[SK.MA_SKIDTRAP] = {
+		Name: "MA_SKIDTRAP",
+		SkillName: "Skid Trap",
 		MaxLv:  5,
 		SpAmount:  [ 10, 10, 10, 10, 10 ],
 		bSeperateLv:  false,
