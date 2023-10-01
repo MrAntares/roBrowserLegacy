@@ -78,7 +78,7 @@ define(function( require )
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Quest            = require('UI/Components/Quest/Quest');
-	var QuestWindow            = require('UI/Components/Quest/QuestWindow');
+	var QuestWindow      = require('UI/Components/Quest/QuestWindow');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	/**
@@ -239,7 +239,7 @@ define(function( require )
 		SkillListMER.prepare();
 		Quest.prepare();
 		QuestWindow.prepare();
-		
+
 		if(Configs.get('enableCashShop')){
 			CashShop.prepare();
 		}
@@ -386,7 +386,7 @@ define(function( require )
 			MobileUI.append();
 			Quest.append();
 			QuestWindow.append();
-			
+
 			if(Configs.get('enableCashShop')){
 				CashShop.append();
 			}

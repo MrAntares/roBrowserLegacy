@@ -41,6 +41,8 @@
     float: left;
     width: 341px;
     height: 420px;
+    display: block;
+    overflow: auto;
 }
 
 #Quest .quest-right-panel .quest-list {
