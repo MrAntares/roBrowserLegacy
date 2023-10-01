@@ -15,6 +15,7 @@ define(function (require) {
 	 * Dependencies
 	 */
 	var DB = require('DB/DBManager');
+	var Client = require('Core/Client');
 	var Preferences = require('Core/Preferences');
 	var Renderer = require('Renderer/Renderer');
 	var UIManager = require('UI/UIManager');
@@ -76,9 +77,19 @@ define(function (require) {
 		if (quest.reward_exp_job > 0)
 			QuestHelper.ui.find('.quest-info-reward-li-job').html(quest.reward_exp_job);
 
-		/*npc_spr: quest_info.NpcSpr || null,
-		reward_item_list: quest_info.RewardItemList || [],
-		*/
+		for (let i = 0; i < quest.reward_item_list.length; i++) {
+			let it = DB.getItemInfo(quest.reward_item_list[i].ItemID);
+			let item_li = '<li class="quest-reward-item-li"><div class="quest-reward-item" data-index="' + quest.reward_item_list[i].ItemID + '">' + '<div class="quest-icon"></div></div><div class="quest-reward-item-info"><span class="quest-reward-item-name">' + it.identifiedDisplayName + '</span><br><span>' + quest.reward_item_list[i].ItemNum + '</span></div></li>';
+			QuestHelper.ui.find('.quest-info-reward-li-item-list').append(item_li);
+			Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/img_questiocn.bmp', function (data) {
+				QuestHelper.ui.find('.quest-reward-item[data-index="' + quest.reward_item_list[i].ItemID + '"]').css('backgroundImage', 'url(' + data + ')');
+			});
+			Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (data) {
+				QuestHelper.ui.find('.quest-reward-item[data-index="' + quest.reward_item_list[i].ItemID + '"] .quest-icon').css('backgroundImage', 'url(' + data + ')');
+			});
+		}
+
+		// TODO: quest.npc_spr
 
 		if (quest.end_time) {
 			var d = new Date(0);

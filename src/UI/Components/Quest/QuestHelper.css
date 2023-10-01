@@ -23,6 +23,8 @@
     float: left;
     width: 342px;
     height: 370px;
+    display: block;
+    overflow: auto;
 }
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-title-panel {
@@ -57,7 +59,7 @@
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-monster-panel {
     border-top: lightblue dashed 1px;
     width: 342px;
-    height: 110px;
+    height: 90px;
 }
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-monster-panel .quest-info-monster-panel-title {
@@ -153,4 +155,30 @@
 
 .quest-info-reward-li-job {
     margin-left: 26px;
+}
+
+.quest-reward-item {
+    width: 38px;
+    height: 38px;
+    float: left;
+}
+
+.quest-icon {
+    width: 24px;
+    height: 24px;
+    margin: 7px;
+}
+
+.quest-reward-item-li {
+    margin-bottom: 5px;
+    display: table;
+}
+
+.quest-reward-item-name {
+    color: rgb(0, 0, 150);
+}
+
+.quest-reward-item-info {
+    float: left;
+    margin-left: 5px;
 }
