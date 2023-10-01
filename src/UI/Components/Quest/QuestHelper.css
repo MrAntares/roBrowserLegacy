@@ -72,11 +72,19 @@
     height: 100px;
 }
 
-#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .uest-info-reward-panel-title {
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .npc-sprite {
+    position: absolute;
+    top:0px;
+    right: 0px;
+    width: 200px;
+    height: 200px;
+}
+
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .quest-info-reward-panel-title {
     width: 342px;
 }
 
-#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .uest-info-reward-panel-text {
+#QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .quest-info-reward-panel-text {
     width: 342px;
 }
 
@@ -135,4 +143,12 @@
     width: 290px;
     height: 25px;
     float: left;
+}
+
+.quest-info-reward-li-base {
+    margin-left: 30px;
+}
+
+.quest-info-reward-li-job {
+    margin-left: 26px;
 }

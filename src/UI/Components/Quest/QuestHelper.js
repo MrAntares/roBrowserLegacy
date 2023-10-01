@@ -71,6 +71,15 @@ define(function (require) {
 			list += '<li>' + quest.hunt_list[huntID].mobName + ' ( ' + quest.hunt_list[huntID].huntCount + ' / ' + quest.hunt_list[huntID].maxCount + ' )</li>';
 		}
 		QuestHelper.ui.find('.quest-info-monster-panel-text .quest-ui-text-span').html('<ul class="quest-ui-monster-list">' + list + '<ul>');
+		if (quest.reward_exp_base > 0)
+			QuestHelper.ui.find('.quest-info-reward-li-base').html(quest.reward_exp_base);
+		if (quest.reward_exp_job > 0)
+			QuestHelper.ui.find('.quest-info-reward-li-job').html(quest.reward_exp_job);
+
+		/*npc_spr: quest_info.NpcSpr || null,
+		reward_item_list: quest_info.RewardItemList || [],
+		*/
+
 		if (quest.end_time) {
 			var d = new Date(0);
 			d.setUTCSeconds(quest.end_time);
@@ -83,6 +92,8 @@ define(function (require) {
 		QuestHelper.ui.find('.quest-info-title-panel-text').html("");
 		QuestHelper.ui.find('.quest-info-description-panel-text .quest-ui-text-span').html("");
 		QuestHelper.ui.find('.quest-info-monster-panel-text .quest-ui-text-span').html('<ul class="quest-ui-monster-list"><ul>');
+		QuestHelper.ui.find('.quest-info-reward-li-base').html("");
+		QuestHelper.ui.find('.quest-info-reward-li-job').html("");
 		QuestHelper.ui.find('.quest-info-bottom-deadline-info-text').html("");
 	}
 

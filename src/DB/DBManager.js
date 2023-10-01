@@ -1151,7 +1151,7 @@ define(function(require)
 	 * @author alisonrag
 	 */
 	DB.getQuestInfo = function getQuestInfo(questID) {
-		return QuestInfo[questID] || {"IconName": "", "Title": "Unknown Quest", "NpcNavi": "prontera", "NpcPosX": 0, "NpcPosY": 0, "NpcSpr": null, "Summary": "Uknown Quest", "Description": "Uknown Quest"};
+		return QuestInfo[questID] || { "Title": "Unknown Quest", "Description": "Uknown Quest", "Summary": "Uknown Quest", "IconName": "", "NpcSpr": null, "NpcNavi": null, "NpcPosX": null, "NpcPosY": null, "RewardItemList": null, "RewardEXP": 0, "RewardJEXP": 0 };
 	};
 
 	/**
