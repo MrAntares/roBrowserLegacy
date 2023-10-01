@@ -176,18 +176,18 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 ],
 		bSeperateLv:  true,
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
-		NeedSkillList: [
-			[JobId.BARD_H] = [
+		NeedSkillList: {
+			[JobId.BARD_H]: [
 				[ SK.AC_DOUBLE, 5 ],
 				[ SK.AC_SHOWER, 5 ],
 				[ SK.BA_MUSICALSTRIKE, 1 ]
 			],
-			[JobId.DANCER_H] = [
+			[JobId.DANCER_H]: [
 				[ SK.AC_DOUBLE, 5 ],
 				[ SK.AC_SHOWER, 5 ],
 				[ SK.DC_THROWARROW, 1 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.CG_MOONLIT] = {
 		Name: "CG_MOONLIT",
@@ -196,16 +196,16 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 30, 40, 50, 60, 70 ],
 		bSeperateLv:  true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [
-			[JobId.BARD_H] = [
+		NeedSkillList: {
+			[JobId.BARD_H]: [
 				[ SK.AC_CONCENTRATION, 5 ],
 				[ SK.BA_MUSICALLESSON, 7 ]
 			],
-			[JobId.DANCER_H] = [
+			[JobId.DANCER_H]: [
 				[ SK.AC_CONCENTRATION, 5 ],
 				[ SK.DC_DANCINGLESSON, 7 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.CG_MARIONETTE] = {
 		Name: "CG_MARIONETTE",
@@ -214,16 +214,16 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 100 ],
 		bSeperateLv:  false,
 		AttackRange: [ 7 ],
-		NeedSkillList: [
-			[JobId.BARD_H] = [
+		NeedSkillList: {
+			[JobId.BARD_H]: [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.BA_MUSICALLESSON, 5 ]
 			],
-			[JobId.DANCER_H] = [
+			[JobId.DANCER_H]: [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.DC_DANCINGLESSON, 5 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.LK_SPIRALPIERCE] = {
 		Name: "LK_SPIRALPIERCE",
@@ -792,10 +792,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 13, 16, 19, 22, 25, 28, 31, 34, 37, 40 ],
 		bSeperateLv:  true,
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
-		NeedSkillList: [ [JobId.CRUSADER] = [
+		NeedSkillList: { [JobId.CRUSADER]: [
 				[ SK.CR_TRUST, 10 ],
 				[ SK.AL_DEMONBANE, 5 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.SL_STAR] = {
 		Name: "SL_STAR",
@@ -1249,18 +1249,18 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 15, 15, 15, 15, 15 ],
 		bSeperateLv:  false,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [
-			[JobId.BARD_H] = [
+		NeedSkillList: {
+			[JobId.BARD_H]: [
 				[ SK.CG_MARIONETTE, 1 ],
 				[ SK.BA_DISSONANCE, 3 ],
 				[ SK.BA_MUSICALLESSON, 10 ]
 			],
-			[JobId.DANCER_H] = [
+			[JobId.DANCER_H]: [
 				[ SK.CG_MARIONETTE, 1 ],
 				[ SK.DC_UGLYDANCE, 3 ],
 				[ SK.DC_DANCINGLESSON, 10 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.CG_HERMODE] = {
 		Name: "CG_HERMODE",
@@ -1269,16 +1269,16 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 20, 30, 40, 50, 60 ],
 		bSeperateLv:  false,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [
-			[JobId.BARD_H] = [
+		NeedSkillList: {
+			[JobId.BARD_H]: [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.BA_MUSICALLESSON, 10 ]
 			],
-			[JobId.DANCER_H] = [
+			[JobId.DANCER_H]: [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.DC_DANCINGLESSON, 10 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.CG_TAROTCARD] = {
 		Name: "CG_TAROTCARD",
@@ -1287,16 +1287,16 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 40, 40, 40, 40, 40 ],
 		bSeperateLv:  false,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
-		NeedSkillList: [
-			[JobId.BARD_H] = [
+		NeedSkillList: {
+			[JobId.BARD_H]: [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.BA_DISSONANCE, 3 ]
 			],
-			[JobId.DANCER_H] = [
+			[JobId.DANCER_H]: [
 				[ SK.AC_CONCENTRATION, 10 ],
 				[ SK.DC_UGLYDANCE, 3 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.CR_ACIDDEMONSTRATION] = {
 		Name: "CR_ACIDDEMONSTRATION",
@@ -2143,9 +2143,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		_NeedSkillList: [
 			[ SK.AL_HEAL, 2 ]
 		],
-		NeedSkillList: [ [JobId.CRUSADER] = [
+		NeedSkillList: { [JobId.CRUSADER]: [
 				[ SK.CR_TRUST, 5 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.MB_MUNAKBALL] = {
 		Name: "MB_MUNAKBALL",
@@ -3304,7 +3304,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		_NeedSkillList: [
 			[ SK.AC_OWL, 3 ]
 		],
-		NeedSkillList: [ [JobId.ROGUE] = [] ]
+		NeedSkillList: { [JobId.ROGUE]: [] }
 	},
 	SkillInfo[SK.AC_CONCENTRATION] = {
 		Name: "AC_CONCENTRATION",
@@ -3324,9 +3324,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 12, 12, 12, 12, 12, 12, 12, 12, 12, 12 ],
 		bSeperateLv:  false,
 		AttackRange: [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 ],
-		NeedSkillList: [ [JobId.ROGUE] = [
+		NeedSkillList: { [JobId.ROGUE]: [
 				[ SK.AC_VULTURE, 10 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.HLIF_HEAL] = {
 		Name: "HLIF_HEAL",
@@ -3625,9 +3625,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.KN_TWOHANDQUICKEN, 10 ],
 			[ SK.KN_AUTOCOUNTER, 5 ]
 		],
-		NeedSkillList: [ [JobId.SUPERNOVICE2] = [
+		NeedSkillList: { [JobId.SUPERNOVICE2]: [
 				[ SK.KN_AUTOCOUNTER, 5 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.KN_CHARGEATK] = {
 		Name: "KN_CHARGEATK",
@@ -4312,9 +4312,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.PR_KYRIE, 4 ],
 			[ SK.PR_MAGNIFICAT, 3 ]
 		],
-		NeedSkillList: [ [JobId.SUPERNOVICE2] = [
+		NeedSkillList: { [JobId.SUPERNOVICE2]: [
 				[ SK.PR_SANCTUARY, 7 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.WM_POEMOFNETHERWORLD] = {
 		Name: "WM_POEMOFNETHERWORLD",
@@ -4356,18 +4356,18 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 80, 90, 100, 110, 120 ],
 		bSeperateLv:  true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [
-			[JobId.MINSTREL] = [
+		NeedSkillList: {
+			[JobId.MINSTREL]: [
 				[ SK.MI_HARMONIZE, 1 ],
 				[ SK.MI_RUSH_WINDMILL, 1 ],
 				[ SK.MI_ECHOSONG, 1 ]
 			],
-			[JobId.WANDERER] = [
+			[JobId.WANDERER]: [
 				[ SK.WA_SWING_DANCE, 1 ],
 				[ SK.WA_SYMPHONY_OF_LOVER, 1 ],
 				[ SK.WA_MOONLIT_SERENADE, 1 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.SO_FIREWALK] = {
 		Name: "SO_FIREWALK",
@@ -4707,9 +4707,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		_NeedSkillList: [
 			[ SK.MG_STONECURSE, 1 ]
 		],
-		NeedSkillList: [ [JobId.SAGE] = [
+		NeedSkillList: { [JobId.SAGE]: [
 				[ SK.SA_SEISMICWEAPON, 1 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.WZ_HEAVENDRIVE] = {
 		Name: "WZ_HEAVENDRIVE",
@@ -4721,9 +4721,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		_NeedSkillList: [
 			[ SK.WZ_EARTHSPIKE, 3 ]
 		],
-		NeedSkillList: [ [JobId.SAGE] = [
+		NeedSkillList: { [JobId.SAGE]: [
 				[ SK.WZ_EARTHSPIKE, 1 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.WZ_QUAGMIRE] = {
 		Name: "WZ_QUAGMIRE",
@@ -5110,9 +5110,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  false,
 		AttackRange: [ 5 ]
 	},
-	SkillInfo[SK.HT_SKTRAP] = {
-		Name: "HT_SKTRAP",
-		SkillName: "SK Trap",
+	SkillInfo[SK.HT_SKIDTRAP] = {
+		Name: "HT_SKIDTRAP",
+		SkillName: "Skid Trap",
 		MaxLv:  5,
 		SpAmount:  [ 10, 10, 10, 10, 10 ],
 		bSeperateLv:  true,
@@ -5134,7 +5134,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  true,
 		AttackRange: [ 3, 3, 3, 3, 3 ],
 		_NeedSkillList: [
-			[ SK.HT_SKTRAP, 1 ]
+			[ SK.HT_SKIDTRAP, 1 ]
 		]
 	},
 	SkillInfo[SK.HT_SHOCKWAVE] = {
@@ -5167,7 +5167,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  true,
 		AttackRange: [ 3, 3, 3, 3, 3 ],
 		_NeedSkillList: [
-			[ SK.HT_SKTRAP, 1 ]
+			[ SK.HT_SKIDTRAP, 1 ]
 		]
 	},
 	SkillInfo[SK.HT_FREEZINGTRAP] = {
@@ -5216,9 +5216,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		_NeedSkillList: [
 			[ SK.HT_LANDMINE, 1 ]
 		],
-		NeedSkillList: [ [JobId.ROGUE] = [
+		NeedSkillList: { [JobId.ROGUE]: [
 				[ SK.AC_DOUBLE, 5 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.HT_TALKIEBOX] = {
 		Name: "HT_TALKIEBOX",
@@ -6348,10 +6348,10 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 			[ SK.MG_NAPALMBEAT, 7 ],
 			[ SK.MG_SOULSTRIKE, 5 ]
 		],
-		NeedSkillList: [ [JobId.PRIEST] = [
+		NeedSkillList: { [JobId.PRIEST]: [
 				[ SK.PR_SANCTUARY, 3 ],
 				[ SK.PR_ASPERSIO, 4 ]
-		 ] ]
+		] }
 	},
 	SkillInfo[SK.MS_MAGNUM] = {
 		Name: "MS_MAGNUM",
@@ -6859,9 +6859,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		bSeperateLv:  false,
 		AttackRange: [ 3, 3, 3, 3, 3 ]
 	},
-	SkillInfo[SK.MA_SKTRAP] = {
-		Name: "MA_SKTRAP",
-		SkillName: "SK Trap",
+	SkillInfo[SK.MA_SKIDTRAP] = {
+		Name: "MA_SKIDTRAP",
+		SkillName: "Skid Trap",
 		MaxLv:  5,
 		SpAmount:  [ 10, 10, 10, 10, 10 ],
 		bSeperateLv:  false,
@@ -8155,18 +8155,18 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 120, 140, 160, 180, 200 ],
 		bSeperateLv:  true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [
-			[JobId.MINSTREL] = [
+		NeedSkillList: {
+			[JobId.MINSTREL]: [
 				[ SK.MI_HARMONIZE, 1 ],
 				[ SK.MI_RUSH_WINDMILL, 1 ],
 				[ SK.MI_ECHOSONG, 1 ]
 			],
-			[JobId.WANDERER] = [
+			[JobId.WANDERER]: [
 				[ SK.WA_SWING_DANCE, 1 ],
 				[ SK.WA_SYMPHONY_OF_LOVER, 1 ],
 				[ SK.WA_MOONLIT_SERENADE, 1 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.SA_ADVANCEDBOOK] = {
 		Name: "SA_ADVANCEDBOOK",
@@ -8183,18 +8183,18 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 120, 140, 160, 180, 200 ],
 		bSeperateLv:  true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [
-			[JobId.MINSTREL] = [
+		NeedSkillList: {
+			[JobId.MINSTREL]: [
 				[ SK.MI_HARMONIZE, 1 ],
 				[ SK.MI_RUSH_WINDMILL, 1 ],
 				[ SK.MI_ECHOSONG, 1 ]
 			],
-			[JobId.WANDERER] = [
+			[JobId.WANDERER]: [
 				[ SK.WA_SWING_DANCE, 1 ],
 				[ SK.WA_SYMPHONY_OF_LOVER, 1 ],
 				[ SK.WA_MOONLIT_SERENADE, 1 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.SA_CASTCANCEL] = {
 		Name: "SA_CASTCANCEL",
@@ -8664,14 +8664,14 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 80, 90, 100, 110, 120 ],
 		bSeperateLv:  true,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
-		NeedSkillList: [
-			[JobId.MINSTREL] = [
+		NeedSkillList: {
+			[JobId.MINSTREL]: [
 				[ SK.BA_MUSICALSTRIKE, 5 ]
 			],
-			[JobId.WANDERER] = [
+			[JobId.WANDERER]: [
 				[ SK.DC_THROWARROW, 5 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.SA_TAMINGMONSTER] = {
 		Name: "SA_TAMINGMONSTER",
@@ -8707,14 +8707,14 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 56, 62, 68, 74, 80 ],
 		bSeperateLv:  true,
 		AttackRange: [ 9, 9, 9, 9, 9 ],
-		NeedSkillList: [
-			[JobId.MINSTREL] = [
+		NeedSkillList: {
+			[JobId.MINSTREL]: [
 				[ SK.BA_DISSONANCE, 5 ]
 			],
-			[JobId.WANDERER] = [
+			[JobId.WANDERER]: [
 				[ SK.DC_UGLYDANCE, 5 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.SA_GRAVITY] = {
 		Name: "SA_GRAVITY",
@@ -8855,11 +8855,11 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 40 ],
 		bSeperateLv:  false,
 		AttackRange: [ 1 ],
-		NeedSkillList: [ [JobId.BARD] = [
+		NeedSkillList: { [JobId.BARD]: [
 				[ SK.BA_WHISTLE, 10 ]
-			], [JobId.DANCER] = [
+			], [JobId.DANCER]: [
 				[ SK.DC_HUMMING, 10 ]
-		 	] ]
+		] }
 	},
 	SkillInfo[SK.SO_PSYCHIC_WAVE] = {
 		Name: "SO_PSYCHIC_WAVE",
@@ -8924,14 +8924,14 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 50, 54, 58, 62, 66 ],
 		bSeperateLv:  true,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [
-			[JobId.BARD] = [
+		NeedSkillList: {
+			[JobId.BARD]: [
 				[ SK.BA_APPLEIDUN, 10 ]
 			],
-			[JobId.DANCER] = [
+			[JobId.DANCER]: [
 				[ SK.DC_SERVICEFORYOU, 10 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.SR_CURSEDCIRCLE] = {
 		Name: "SR_CURSEDCIRCLE",
@@ -8973,14 +8973,14 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 180 ],
 		bSeperateLv:  false,
 		AttackRange: [ 1 ],
-		NeedSkillList: [
-			[JobId.BARD] = [
+		NeedSkillList: {
+			[JobId.BARD]: [
 				[ SK.BA_ASSASSINCROSS, 10 ]
 			],
-			[JobId.DANCER] = [
+			[JobId.DANCER]: [
 				[ SK.DC_DONTFORGETME, 10 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.SR_RAMPAGEBLASTER] = {
 		Name: "SR_RAMPAGEBLASTER",
@@ -9019,11 +9019,11 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 40, 44, 48, 52, 56 ],
 		bSeperateLv:  false,
 		AttackRange: [ 1, 1, 1, 1, 1 ],
-		NeedSkillList: [ [JobId.BARD] = [
+		NeedSkillList: { [JobId.BARD]: [
 				[ SK.BA_POEMBRAGI, 10 ]
-			], [JobId.DANCER] = [
+			], [JobId.DANCER]: [
 				[ SK.DC_FORTUNEKISS, 10 ]
-			] ]
+		] }
 	},
 	SkillInfo[SK.GD_RESTORE] = {
 		Name: "GD_RESTORE",
@@ -9835,9 +9835,9 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
 		bSeperateLv:  false,
 		AttackRange: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-		NeedSkillList: [ [JobId.CRUSADER] = [
+		NeedSkillList: { [JobId.CRUSADER]: [
 				[ SK.AL_CURE, 1 ]
-		 	] ]
+		] }
 	},
 	SkillInfo[SK.WL_MARSHOFABYSS] = {
 		Name: "WL_MARSHOFABYSS",
@@ -12148,18 +12148,18 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function( SK, JobId )
 		SpAmount:  [ 1 ],
 		bSeperateLv:  false,
 		AttackRange: [ 1 ],
-		NeedSkillList: [
-			[JobId.BARD_H] = [
+		NeedSkillList: {
+			[JobId.BARD_H]: [
 				[ SK.CG_MARIONETTE, 1 ],
 				[ SK.BA_DISSONANCE, 3 ],
 				[ SK.BA_MUSICALLESSON, 10 ]
 			],
-			[JobId.DANCER_H] = [
+			[JobId.DANCER_H]: [
 				[ SK.CG_MARIONETTE, 1 ],
 				[ SK.DC_UGLYDANCE, 3 ],
 				[ SK.DC_DANCINGLESSON, 10 ]
 			]
-		]
+		}
 	},
 	SkillInfo[SK.BA_POEMBRAGI2] = {
 		Name: "BA_POEMBRAGI2",
