@@ -104,6 +104,10 @@ define(function (require) {
 			Quest.ui.find('.toggle-quest-image').css('backgroundImage', 'url(' + data + ')');
 		}.bind(this));
 
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/bg_quest1.bmp', function (data) {
+			Quest.ui.find('.titlebar').css('backgroundImage', 'url(' + data + ')');
+		}.bind(this));
+
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
