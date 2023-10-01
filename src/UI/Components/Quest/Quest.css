@@ -82,6 +82,8 @@
 
 #Quest .quest-right-panel .quest-list .quest-item .quest-item-title .quest-item-title-text {
     margin: 5px;
+    font-weight: bold;
+    color: rgb(0, 0, 145);
 }
 
 #Quest .quest-right-panel .quest-list .quest-item .quest-item-toggle {

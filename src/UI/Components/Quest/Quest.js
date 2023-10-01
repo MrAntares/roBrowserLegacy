@@ -231,8 +231,6 @@ define(function (require) {
 	Quest.removeQuest = function removeQuest(questID) {
 		delete _questList[questID];
 		refreshQuestUI();
-		QuestWindow.ClearQuestList();
-		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
 
@@ -245,8 +243,6 @@ define(function (require) {
 	Quest.toggleQuestActive = function toggleQuestActive(questID, active) {
 		_questList[questID].active = active;
 		refreshQuestUI();
-		QuestWindow.ClearQuestList();
-		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
 
@@ -282,14 +278,15 @@ define(function (require) {
 		let show_id = "sid" + quest.questID;
 		let title = (quest.title.length > 30) ? quest.title.substr(0, 30) + '...' : quest.title;
 		let summary = (quest.summary.length > 30) ? quest.summary.substr(0, 30) + '...' : quest.summary;
-		let bt_check = (_questNotShowList.includes(quest.questiD)) ? "bt_check_off" : "bt_check_on";
+		let bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? "bt_check_off" : "bt_check_on";
+
 		let epoch_seconds = new Date() / 1000;
 		if (quest.end_time > 0 && quest.end_time > epoch_seconds) {
 			ul_id = "#cooldown-quest-list"
 			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><div class="quest-item-toggle-image"><span class="quest-item-toggle-image-text">Toggle</span></div></div></li>';
 		} else if (quest.active == 1) {
 			ul_id = "#active-quest-list";
-			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <button id="' + show_id + '" class="quest-item-display-image" data-background="renew_questui/' + bt_check + '.bmp"> <span class="quest-item-display-image-text"></span> </button></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><button id="' + toggle_id + '" class="quest-item-toggle-image" data-background="renew_questui/bt_lock_open.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
+			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <button id="' + show_id + '" class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </button></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><button id="' + toggle_id + '" class="quest-item-toggle-image" data-background="renew_questui/bt_lock_open.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
 		} else {
 			ul_id = "#inactive-quest-list";
 			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><button id="' + toggle_id + '" class="quest-item-toggle-image" data-background="renew_questui/bt_lock.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
@@ -314,9 +311,12 @@ define(function (require) {
 				each(this.parseHTML)
 		);
 
-		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
 		this.ui.find('#' + toggle_id).on('click', onClickQuestToggle);
 		this.ui.find('#' + show_id).on('click', onClickQuestDisplay);
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + bt_check + '.bmp', function (data) {
+			Quest.ui.find('#' + show_id).css('backgroundImage', 'url(' + data + ')');
+		}.bind(this));
+		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
 	};
 
 
@@ -416,10 +416,9 @@ define(function (require) {
 
 	function refreshQuestUI() {
 		Quest.ClearQuestList();
-		QuestHelper.clearQuestDesc();
-		for (let questID in _questList) {
-			Quest.addQuestToUI(_questList[questID]);
-		}
+		Quest.setQuestList(_questList);
+		QuestWindow.ClearQuestList();
+		QuestWindow.setQuestList(_questList, _questNotShowList);
 	}
 
 

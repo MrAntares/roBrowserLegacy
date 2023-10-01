@@ -35,6 +35,8 @@
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-title-panel .quest-info-title-panel-text {
     width: 342px;
+    font-weight: bold;
+    color: rgb(0, 0, 145);
 }
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-description-panel {
