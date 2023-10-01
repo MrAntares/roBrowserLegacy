@@ -75,13 +75,22 @@ define(function (require) {
 		let $already_show = 0;
 		for (let questID in quests) {
 			if (!questNotShowList.includes(quests[questID].questID)) {
-				if (quests[questID].active == 1 && $already_show < 4) {
-					QuestWindow.addQuestToUI(quests[questID]);
-					$already_show++;
+				if (!isInCooldown(quests[questID])) {
+					if (quests[questID].active == 1 && $already_show < 4) {
+						QuestWindow.addQuestToUI(quests[questID]);
+						$already_show++;
+					}
 				}
 			}
 		}
 	};
+
+	function isInCooldown(quest) {
+		if(quest.end_time == 0) return false;
+		let epoch_seconds = new Date() / 1000;
+		if(quest.end_time > epoch_seconds) return true;
+		return false;
+	}
 
 	QuestWindow.ClearQuestList = function ClearQuestList() {
 		QuestWindow.ui.find('.quest-window-ul').html('');

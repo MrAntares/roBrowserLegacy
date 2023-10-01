@@ -283,8 +283,8 @@ define(function (require) {
 		let title = (quest.title.length > 30) ? quest.title.substr(0, 30) + '...' : quest.title;
 		let summary = (quest.summary.length > 30) ? quest.summary.substr(0, 30) + '...' : quest.summary;
 		let bt_check = (_questNotShowList.includes(quest.questiD)) ? "bt_check_off" : "bt_check_on";
-
-		if (quest.start_time > 0 && quest.end_time > 0) {
+		let epoch_seconds = new Date() / 1000;
+		if (quest.end_time > 0 && quest.end_time > epoch_seconds) {
 			ul_id = "#cooldown-quest-list"
 			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><div class="quest-item-toggle-image"><span class="quest-item-toggle-image-text">Toggle</span></div></div></li>';
 		} else if (quest.active == 1) {
