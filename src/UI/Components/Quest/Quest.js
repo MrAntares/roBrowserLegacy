@@ -299,6 +299,7 @@ define(function (require) {
 				data('hover', 'renew_questui/bg_questlist_check.bmp').
 				data('down', 'renew_questui/bg_questlist_press.bmp').
 				on('click', function (e) {
+					if (e.target.tagName.toLowerCase() == "button") return;
 					let element = jQuery(e.currentTarget);
 					if (element.attr('class') == "quest-item") {
 						QuestHelper.setQuestInfo(quest);
