@@ -28,7 +28,7 @@ define(function(require)
 	var SkillList          = require('UI/Components/SkillList/SkillList');
 	var PartyFriends       = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild              = require('UI/Components/Guild/Guild');
-	var Bank 			   = require('UI/Components/Bank/Bank');
+	var Bank               = require('UI/Components/Bank/Bank');
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var htmlText           = require('text!./BasicInfoV4.html');
