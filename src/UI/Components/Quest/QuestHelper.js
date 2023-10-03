@@ -106,6 +106,7 @@ define(function (require) {
 		QuestHelper.ui.find('.quest-info-reward-li-base').html("");
 		QuestHelper.ui.find('.quest-info-reward-li-job').html("");
 		QuestHelper.ui.find('.quest-info-bottom-deadline-info-text').html("");
+		QuestHelper.ui.find('.quest-info-reward-li-item-list').html("");
 	}
 
 	/**

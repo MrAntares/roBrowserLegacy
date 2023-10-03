@@ -530,6 +530,7 @@ define(function( require )
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
+			Quest.clean();
 			PartyFriends.clean();
 			MapRenderer.free();
 			Renderer.stop();
@@ -551,6 +552,7 @@ define(function( require )
 				StatusIcons.clean();
 				ChatBox.clean();
 				ShortCut.clean();
+				Quest.clean();
 				PartyFriends.clean();
 				Renderer.stop();
 				onExitSuccess();

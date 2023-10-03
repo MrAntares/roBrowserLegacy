@@ -80,7 +80,6 @@ define(function (require) {
 		});
 
 		this.ui.find('.close').click(onClose);
-		//this.ui.on('click', '.left-content .questlist .node', onClickQuestInList);
 		this.ui.on('click', '.quest-menu-item', onClickMenu);
 		this.ui.on('click', '.close-quest-container-btn', onClickClose);
 		this.draggable(this.ui.find('.titlebar'));
@@ -118,9 +117,15 @@ define(function (require) {
 	 * Clean up UI
 	 */
 	Quest.clean = function clean() {
-		_active_menu = 'active';
+		_active_menu = '';
 		_questList = {};
-		Quest.ui.hide();
+		Quest.ui.find('#active-quest-list').show();
+		Quest.ui.find('#inactive-quest-list').hide();
+		Quest.ui.find('#feature-quest-list').hide();
+		Quest.ui.find('#cooldown-quest-list').hide();
+		Quest.ClearQuestList();
+		QuestHelper.clearQuestDesc();
+		QuestWindow.ClearQuestList();
 		onClose();
 	};
 
@@ -306,6 +311,7 @@ define(function (require) {
 					if (e.target.tagName.toLowerCase() == "button") return;
 					let element = jQuery(e.currentTarget);
 					if (element.attr('class') == "quest-item") {
+						QuestHelper.clearQuestDesc();
 						QuestHelper.setQuestInfo(quest);
 						QuestHelper.prepare();
 						QuestHelper.append();
