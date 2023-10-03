@@ -106,6 +106,7 @@ function initialize() {
           skipIntro:       false,  // Skip intro page?
           
           enableCashShop:  false,  // Enable Cash Shop UI?
+          enableBank:      false,  // Enable Bank UI? (Requires PACKETVER 20130724 above)
           
        /* OPTIONAL/CUSTOM CONFIGS */
        /* Add/Remove the below as you wish */
