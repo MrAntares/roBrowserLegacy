@@ -13,6 +13,7 @@
     float: left;
     width: 381px;
     height: 18px;
+    display: flex;
 }
 
 #Quest .quest-top-panel .quest-top-panel-text {
@@ -78,6 +79,7 @@
     float: left;
     width: 254px;
     height: 21px;
+    display: flex;
 }
 
 #Quest .quest-right-panel .quest-list .quest-item .quest-item-title .quest-item-title-text {
@@ -125,6 +127,7 @@
     float: left;
     width: 254px;
     height: 21px;
+    display: flex;
 }
 
 #Quest .quest-right-panel .quest-list .quest-item .quest-item-summary .quest-item-summary-text {
@@ -155,10 +158,11 @@
     width: 280px;
     height: 25px;
     float: left;
+    display: flex;
 }
 
 #Quest .quest-bottom-panel .toggle-quest-text span {
-    margin-top: 5px;
+    margin: 4px;
 }
 
 #Quest .quest-bottom-panel .close-quest-container {

@@ -13,10 +13,13 @@
     float: left;
     width: 342px;
     height: 16px;
+    display: flex;
 }
 
 #QuestInfo .titlebar .quest-info-top-panel .quest-info-top-panel-title {
     width: 342px;
+    margin-left: 15px;
+    margin-top: 2px;
 }
 
 #QuestInfo .titlebar .quest-info-mid-panel {
@@ -64,6 +67,7 @@
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-monster-panel .quest-info-monster-panel-title {
     width: 342px;
+    display: table;
 }
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-monster-panel .quest-info-monster-panel-text {
@@ -86,6 +90,7 @@
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .quest-info-reward-panel-title {
     width: 342px;
+    display: table;
 }
 
 #QuestInfo .titlebar .quest-info-mid-panel .quest-info-reward-panel .quest-info-reward-panel-text {
@@ -129,7 +134,6 @@
 }
 
 .quest-ui-text-span {
-    margin-left: 20px;
     margin-top: 10px;
 }
 
@@ -141,12 +145,14 @@
     color: red;
     font-weight: bold;
     display: table;
+    margin: 5px;
 }
 
 .quest-info-bottom-deadline-info {
     width: 290px;
     height: 25px;
     float: left;
+    display: flex;
 }
 
 .quest-info-reward-li-base {
@@ -181,4 +187,9 @@
 .quest-reward-item-info {
     float: left;
     margin-left: 5px;
+}
+
+.quest-ui-monster-list {
+    list-style: none;
+    padding-left: 20px;
 }

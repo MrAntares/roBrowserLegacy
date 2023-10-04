@@ -24,10 +24,13 @@
 #QuestWindow .quest-window-ul .quest-window-li .quest-window-li-summary {
     color: white;
 }
+
 #QuestWindow .quest-window-ul .quest-window-li .quest-window-li-monster {
+    font-size: 0.65rem; 
     color: white;
 }
 
-.quest-window-li-monster {
-    font-size: 0.65rem; 
+#QuestWindow .quest-window-ul .quest-window-li .quest-window-li-monster ul {
+    list-style: none;
+    padding-left: 20px;
 }
