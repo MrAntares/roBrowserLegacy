@@ -222,6 +222,7 @@ define(function(require)
 		_list.length = 0;
 		this.ui.find('.content table').empty();
 		this.ui.find('.skillCol').empty();
+		this.ui.find('.extraRow').remove();
 
 		for (i = 0, count = skills.length; i < count; ++i) {
 			this.addSkill( skills[i] );
@@ -416,6 +417,7 @@ define(function(require)
 		var positions = [];
 
 		//TODO: DB.isBaby( JobId ) translation check?
+		
 		if( !( JobId in SkillTreeView ) ) {
 			console.error( 'Unimplemented JobId ' + JobId + ' in SkillTree!' );
 			return positions;
@@ -544,6 +546,33 @@ define(function(require)
 		skillPosition.forEach(function (items, list) {
 			if (items[skill.SKID] !== undefined) {
 				var box = SkillList.ui.find('#positionSkills' + list + ' .s'+items[skill.SKID]);
+				
+				if(items[skill.SKID] > 41 && box.length==0){ // Row is not added yet
+					var startPos = items[skill.SKID] - (items[skill.SKID]%7); // Row start pos
+					var rowId = Math.floor(items[skill.SKID]/7);
+					var newRow = jQuery(
+						'<div class="skillRow extraRow" data-order="'+rowId+'">'+
+						'	<div class="skillCol s'+startPos+'"></div><div class="skillCol s'+(startPos+1)+'"></div><div class="skillCol s'+(startPos+2)+'"></div>'+
+						'	<div class="skillCol s'+(startPos+3)+'"></div><div class="skillCol s'+(startPos+4)+'"></div><div class="skillCol s'+(startPos+5)+'"></div>'+
+						'	<div class="skillCol s'+(startPos+6)+'"></div>'+
+						'</div>'
+					);
+					
+					// Find correct position for new row
+					var rows = SkillList.ui.find('#positionSkills' + list +' .skillRow');
+					var beforeRow = rows.first();
+					var rowCnt = rows.length;
+					var i = 1;
+					while(i<rowCnt && (rows.eq(i).attr('data-order')*1) < rowId){
+						beforeRow = rows.eq(i);
+						i++;
+					}
+					
+					beforeRow.after(newRow);
+					
+					box = SkillList.ui.find('#positionSkills' + list + ' .s'+items[skill.SKID]);
+				}
+				
 				if (!box.is(':empty')) {
 					box.empty();
 				}
@@ -557,6 +586,21 @@ define(function(require)
 
 		if (!SkillList.ui.find('.contentbig .skill.id' + skill.SKID).length) {
 			var pos = SkillList.ui.find('#etcBIG5 .skill').length;
+			
+			if (pos > 41 && ((pos-41)%7 == 1)){ // Check position to add row
+				if (SkillList.ui.find('#etcBIG5 .s'+pos).length==0){ // Check if row is not already added
+					var rowId = Math.floor(pos/7);
+					var newRow = jQuery(
+						'<div class="skillRow extraRow" data-order="'+rowId+'">'+
+						'	<div class="skillCol s'+pos+'"></div><div class="skillCol s'+(pos+1)+'"></div><div class="skillCol s'+(pos+2)+'"></div>'+
+						'	<div class="skillCol s'+(pos+3)+'"></div><div class="skillCol s'+(pos+4)+'"></div><div class="skillCol s'+(pos+5)+'"></div>'+
+						'	<div class="skillCol s'+(pos+6)+'"></div>'+
+						'</div>'
+					);
+					SkillList.ui.find('#etcBIG5').append(newRow);
+				}
+			}
+			
 			var box = SkillList.ui.find('#etcBIG5 .s'+pos);
 			
 			box.append(element);
@@ -623,6 +667,7 @@ define(function(require)
 			var box = SkillList.ui.find('#minitab5');
 			
 			box.append(element);
+			
 		}
 
 		this.parseHTML.call(levelup);

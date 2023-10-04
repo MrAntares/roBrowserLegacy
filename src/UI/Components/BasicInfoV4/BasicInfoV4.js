@@ -28,6 +28,7 @@ define(function(require)
 	var SkillList          = require('UI/Components/SkillList/SkillList');
 	var PartyFriends       = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild              = require('UI/Components/Guild/Guild');
+	var Bank               = require('UI/Components/Bank/Bank');
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var Quest              = require('UI/Components/Quest/Quest');
@@ -112,6 +113,10 @@ define(function(require)
 					break;
 				case 'map':
 					WorldMap.toggle();
+					break;
+
+				case 'bank':
+					Bank.toggle();
 					break;
 
 				case 'quest':

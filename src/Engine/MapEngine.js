@@ -77,6 +77,7 @@ define(function( require )
 	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
+	var Bank             = require('UI/Components/Bank/Bank');
 	if(PACKETVER.value >= 20180307) {
 		var Quest            = require('UI/Components/Quest/Quest');
 		var QuestWindow      = require('UI/Components/Quest/QuestWindow');
@@ -219,6 +220,10 @@ define(function( require )
 			require('./MapEngine/CashShop').call();
 		}
 
+		if(Configs.get('enableBank')) {
+			require('./MapEngine/Bank').init();
+		}
+
 		// Prepare UI
 		MiniMap.prepare();
 		Escape.prepare();
@@ -250,6 +255,9 @@ define(function( require )
 			CashShop.prepare();
 		}
 
+		if(Configs.get('enableBank')) {
+			Bank.prepare();
+		}
 
 		// Bind UI
 		WinStats.onRequestUpdate        = onRequestStatUpdate;

@@ -235,6 +235,11 @@
 	ROBrowser.prototype.enableCashShop = false;
 
 	/**
+	 * @var {boolean} Enable Bank UI
+	 */
+	ROBrowser.prototype.enableBank = false;
+
+	/**
 	 * @var {mixed} set a version to avoid browser cache problem so
 	 * your users wil get the latest version running instead of a
 	 * cached one.

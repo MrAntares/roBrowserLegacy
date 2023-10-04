@@ -11517,6 +11517,116 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.HC.CHARLIST_NOTIFY.size = (PACKETVER.value >= 20151001 ? 10 : 6);
 
+	// 0x9a6
+	PACKET.ZC.BANKING_CHECK = function PACKET_ZC_BANKING_CHECK(fp, end) {
+		this.money = fp.readLong();
+		this.reason = fp.readShort();
+	};
+	PACKET.ZC.BANKING_CHECK.size = 12;
+
+	// 0x9a7
+	PACKET.CZ.REQ_BANKING_DEPOSIT = function PACKET_CZ_REQ_BANKING_DEPOSIT() {
+		this.AID = 0;
+		this.money = 0;
+	};
+	PACKET.CZ.REQ_BANKING_DEPOSIT.prototype.build = function() {
+		var pkt_len = 2 + 4 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9A7);
+		pkt_buf.writeLong(this.AID);
+		pkt_buf.writeLong(this.money);
+
+		return pkt_buf;
+	}
+
+	// 0x9a8
+	PACKET.ZC.ACK_BANKING_DEPOSIT = function PACKET_ZC_ACK_BANKING_DEPOSIT(fp, end) {
+		this.reason = fp.readShort();
+		this.money = fp.readLong();
+		this.money2 = fp.readLong();
+		this.zeny = fp.readLong();
+	};
+	PACKET.ZC.ACK_BANKING_DEPOSIT.size = 16;
+
+	// 0x9a9
+	PACKET.CZ.REQ_BANKING_WITHDRAW = function PACKET_CZ_REQ_BANKING_WITHDRAW() {
+		this.AID = 0;
+		this.money = 0;
+	};
+	PACKET.CZ.REQ_BANKING_WITHDRAW.prototype.build = function() {
+		var pkt_len = 2 + 4 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9A9);
+		pkt_buf.writeLong(this.AID);
+		pkt_buf.writeLong(this.money);
+
+		return pkt_buf;
+	}
+
+	// 0x9aa
+	PACKET.ZC.ACK_BANKING_WITHDRAW = function PACKET_ZC_ACK_BANKING_WITHDRAW(fp, end) {
+		this.reason = fp.readShort();
+		this.money = fp.readLong();
+		this.money2 = fp.readLong();
+		this.zeny = fp.readLong();
+	};
+	PACKET.ZC.ACK_BANKING_WITHDRAW.size = 16;
+
+	// 0x9ab
+	PACKET.CZ.REQ_BANKING_CHECK = function PACKET_CZ_REQ_BANKING_CHECK() {
+		this.AID = 0;
+	};
+	PACKET.CZ.REQ_BANKING_CHECK.prototype.build = function() {
+		var pkt_len = 6;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+    	pkt_buf.writeShort(0x9AB);
+   		pkt_buf.writeULong(this.AID); // Write the aid
+
+    	return pkt_buf;
+	}
+
+	// 0x9b6
+	PACKET.CZ.REQ_BANK_OPEN = function PACKET_CZ_REQ_BANK_OPEN() {
+		this.AID = 0;
+	};
+	PACKET.CZ.REQ_BANK_OPEN.prototype.build = function() {
+		var pkt_len = 6;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+    	pkt_buf.writeShort(0x9b6);
+   		pkt_buf.writeULong(this.AID); // Write the aid
+
+    	return pkt_buf;
+	}
+
+	// 0x9b7
+	PACKET.ZC.ACK_OPEN_BANKING = function PACKET_ZC_ACK_OPEN_BANKING(fp, end) {
+		this.unknown = fp.readUShort();
+	};
+	PACKET.ZC.ACK_OPEN_BANKING.size = 4;
+
+	// 0x9b8
+	PACKET.CZ.REQ_BANK_CLOSE = function PACKET_CZ_REQ_BANK_CLOSE() {
+		this.AID = 0;
+	};
+	PACKET.CZ.REQ_BANK_CLOSE.prototype.build = function() {
+		var pkt_len = 6;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+    	pkt_buf.writeShort(0x9B8);
+   		pkt_buf.writeULong(this.AID); // Write the aid
+
+    	return pkt_buf;
+	}
+
+	// 0x9b9
+	PACKET.ZC.ACK_CLOSE_BANKING = function PACKET_ZC_ACK_CLOSE_BANKING(fp, end) {
+		this.unknown = fp.readUShort();
+	}
+	PACKET.ZC.ACK_CLOSE_BANKING.size = 4;
 
 	// 0x9ca
 	PACKET.ZC.SKILL_ENTRY5 = function PACKET_ZC_SKILL_ENTRY5(fp, end) {
