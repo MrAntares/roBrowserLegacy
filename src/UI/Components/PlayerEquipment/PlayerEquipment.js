@@ -27,7 +27,7 @@ define(function(require)
 	/**
 	 * Create Component
 	 */
-	var PlayerEquipment = Equipment.clone('PlayerEquipment');
+	var PlayerEquipment = Equipment.clone('PlayerEquipment', true);
 
 	/**
 	 * Create component and export it
