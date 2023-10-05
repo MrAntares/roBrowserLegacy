@@ -279,7 +279,11 @@ define(function( require )
 
 				ContextMenu.remove();
 				ContextMenu.append();
-				//ContextMenu.addElement( DB.getMessage(1362), checkPlayerEquipment);
+				
+				// Check equipment
+				ContextMenu.addElement( DB.getMessage(1360).replace('%s', this.display.name), function(){
+					getModule('UI/Components/Equipment/Equipment').onCheckPlayerEquipment(entity.GID);
+				});
 
 				// Trade option
 				ContextMenu.addElement( DB.getMessage(87).replace('%s', this.display.name), function(){
