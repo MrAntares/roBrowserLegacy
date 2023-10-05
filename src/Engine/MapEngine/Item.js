@@ -260,6 +260,7 @@ define(function( require )
 	function onShowPlayerEquipment( pkt ){
 		//console.log(PlayerEquipment);
 		//PlayerEquipment.append();
+		//PlayerEquipment.show();
 		//PlayerEquipment.set();
 	}
 
@@ -516,10 +517,10 @@ define(function( require )
 		MakeItemSelection.append();
 		MakeItemSelection.setCookingList(pkt.idList);
 		MakeItemSelection.setTitle(DB.getMessage(425));
-		MakeItemSelection.onIndexSelected = function(index, material) {
+		MakeItemSelection.onIndexSelected = function(index, material, mkType) {
 			if (index >= -1) {
 				var pkt   = new PACKET.CZ.REQ_MAKINGITEM();
-				pkt.mkType = material;
+				pkt.mkType = mkType;
 				pkt.id = index;
 				Network.sendPacket(pkt);
 			}
