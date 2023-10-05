@@ -32,9 +32,12 @@
       */
      var MakeItemSelection = new UIComponent( 'MakeItemSelection', htmlText, cssText );
 
-     var validMaterials = 	[
+     var validMultipleMaterials = 	[
                                  1000 //star crumb
-                                 ,997 //great nature
+                             ];
+							 
+	 var validSingleMaterials = 	[
+                                 997 //great nature
                                  ,996 //rough wind
                                  ,995 //mystic frozen
                                  ,994 //flame heart
@@ -53,6 +56,7 @@
 
          this.list  = this.ui.find('.list:first');
          this.index = 0;
+		 this.mkType = 0;
          this.material = [];
 
          this.draggable(this.ui.find('.head'));
@@ -96,7 +100,7 @@
 		 this.ui.find('.item').remove();
 
          showMaterials = true;
-
+         this.mkType = 0;
          this.material = [];
 
          for (i = 0, count = list.length; i < count; ++i) {
@@ -134,7 +138,7 @@
          this.ui.find('.materials').hide();
 		 this.ui.find('.item').remove();
 
-		 this.material = list[0]; // add mk type
+		 this.mkType = list[0]; // add mk type
 
          for (i = 1, count = list.length; i < count; ++i) {
 
@@ -225,10 +229,9 @@
       */
      MakeItemSelection.selectIndex = function selectIndex()
      {
-         this.onIndexSelected( this.index, this.material );
-         if(this.index > -1){
-             if(typeof this.material == ! 'number')
-                 this.material.forEach(item => Inventory.removeItem(item.index, 1));
+         this.onIndexSelected( this.index, this.material, this.mkType );
+         if(this.index == -1){
+             this.material.forEach(item => Inventory.addItem(item));
          }
          this.remove();
      };
@@ -265,10 +268,20 @@
       *
       * @param {object} Item
       */
-     MakeItemSelection.addMaterial = function AddMaterial( item )
+     MakeItemSelection.addMaterial = function AddMaterial( item, from )
      {
-         if( this.material.length < 3 && validMaterials.includes(item.ITID)){
+		 var singleMatUsed = false;
+		 this.material.forEach(item => { if(validSingleMaterials.includes(item.ITID)){ singleMatUsed = true; } });
+		 
+		 console.log([this.material,singleMatUsed])
+         if( this.material.length < 3 && (validMultipleMaterials.includes(item.ITID) || (validSingleMaterials.includes(item.ITID) && !singleMatUsed) )){
              if (this.addItemSub(item)) {
+				 switch(from)
+				{
+					case 'Inventory':
+						Inventory.removeItem( item.index, 1 );
+					break;
+				}
                  this.material.push(item);
              }
          }
@@ -331,8 +344,9 @@
          }
 
          item = data.data;
+		 item.count = 1;
 
-         MakeItemSelection.addMaterial( item );
+         MakeItemSelection.addMaterial( item, data.from );
          return false;
      }
 
