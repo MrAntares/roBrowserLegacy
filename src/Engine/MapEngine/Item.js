@@ -29,6 +29,7 @@ define(function( require )
 	var Inventory    			 = require('UI/Components/Inventory/Inventory');
 	var CartItems    			 = require('UI/Components/CartItems/CartItems');
 	var Equipment    			 = require('UI/Components/Equipment/Equipment');
+	var PlayerEquipment    		 = require('UI/Components/PlayerEquipment/PlayerEquipment');
 	var Storage                  = require('UI/Components/Storage/Storage');
 	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var ItemListWindowSelection  = require('UI/Components/MakeItemSelection/ItemListWindowSelection');
@@ -237,6 +238,29 @@ define(function( require )
 			ChatBox.TYPE.INFO,
 			ChatBox.FILTER.ITEM
 		);
+	}
+	
+	/**
+	 * View other player's equipment - CZ_EQUIPWIN_MICROSCOPE
+	 *
+	 * @param {number} account id
+	 */
+	Equipment.onCheckPlayerEquipment = function onCheckPlayerEquipment( AID )
+	{
+		var pkt = new PACKET.CZ.EQUIPWIN_MICROSCOPE();
+		pkt.AID = AID;
+		Network.sendPacket(pkt);
+	}
+	
+	/**
+	 * Show other player's equipment
+	 *
+	 * @param {object} pkt - ZC_EQUIPWIN_MICROSCOPE
+	 */
+	function onShowPlayerEquipment( pkt ){
+		//console.log(PlayerEquipment);
+		//PlayerEquipment.append();
+		//PlayerEquipment.set();
 	}
 
 
@@ -627,5 +651,10 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL,       onItemListNormal );
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP,        onItemListEquip );
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2,        onItemListEquip );
+		
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE,        onShowPlayerEquipment );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE2,       onShowPlayerEquipment );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V5,     onShowPlayerEquipment );
+		
 	};
 });
