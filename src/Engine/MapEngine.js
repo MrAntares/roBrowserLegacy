@@ -78,6 +78,10 @@ define(function( require )
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
+	if(PACKETVER.value >= 20180307) {
+		var Quest            = require('UI/Components/Quest/Quest');
+		var QuestWindow      = require('UI/Components/Quest/QuestWindow');
+	}
 	var PluginManager    = require('Plugins/PluginManager');
 
 	/**
@@ -208,7 +212,10 @@ define(function( require )
 		require('./MapEngine/Store').call();
 		require('./MapEngine/Trade').call();
 		require('./MapEngine/Friends').init();
-
+		if(PACKETVER.value >= 20180307) {
+			require('./MapEngine/Quest').call();
+		}
+		
 		if(Configs.get('enableCashShop')){
 			require('./MapEngine/CashShop').call();
 		}
@@ -239,6 +246,10 @@ define(function( require )
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
+		if(PACKETVER.value >= 20180307) {
+			Quest.prepare();
+			QuestWindow.prepare();
+		}
 
 		if(Configs.get('enableCashShop')){
 			CashShop.prepare();
@@ -387,6 +398,10 @@ define(function( require )
 			WorldMap.append();
 			SkillListMER.append();
 			MobileUI.append();
+			if(PACKETVER.value >= 20180307) {
+				Quest.append();
+				QuestWindow.append();
+			}
 
 			if(Configs.get('enableCashShop')){
 				CashShop.append();
@@ -523,6 +538,7 @@ define(function( require )
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
+			Quest.clean();
 			PartyFriends.clean();
 			MapRenderer.free();
 			Renderer.stop();
@@ -544,6 +560,7 @@ define(function( require )
 				StatusIcons.clean();
 				ChatBox.clean();
 				ShortCut.clean();
+				Quest.clean();
 				PartyFriends.clean();
 				Renderer.stop();
 				onExitSuccess();

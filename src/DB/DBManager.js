@@ -38,6 +38,7 @@ define(function(require)
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo         = require('./TownInfo');
 	var XmlParse		 = require('Vendors/xmlparse');
+	var QuestInfo        = require('./QuestTable');
 
 	//Pet
 	var PetEmotionTable 	= require('./Pets/PetEmotionTable')
@@ -1141,6 +1142,17 @@ define(function(require)
     };
 
 	DB.UpdateOwnerName = {};
+
+	/**
+	 * Get Quest Info by ID
+	 *
+	 * @param {integer} questID (quest id)
+	 * 
+	 * @author alisonrag
+	 */
+	DB.getQuestInfo = function getQuestInfo(questID) {
+		return QuestInfo[questID] || { "Title": "Unknown Quest", "Description": "Uknown Quest", "Summary": "Uknown Quest", "IconName": "", "NpcSpr": null, "NpcNavi": null, "NpcPosX": null, "NpcPosY": null, "RewardItemList": null, "RewardEXP": 0, "RewardJEXP": 0 };
+	};
 
 	/**
 	 * Export
