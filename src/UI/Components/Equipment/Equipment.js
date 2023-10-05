@@ -18,8 +18,8 @@ define(function(require)
 	var DB                 = require('DB/DBManager');
 	var StatusConst        = require('DB/Status/StatusState');
 	var EquipLocation      = require('DB/Items/EquipmentLocation');
-	var Network          = require('Network/NetworkManager');
-	var PACKET           = require('Network/PacketStructure');
+	var Network            = require('Network/NetworkManager');
+	var PACKET             = require('Network/PacketStructure');
 	var ItemType           = require('DB/Items/ItemType');
 	var jQuery             = require('Utils/jquery');
 	var Client             = require('Core/Client');
@@ -386,7 +386,7 @@ define(function(require)
 		};
 
 		// Current removable options
-		var OptionFlag =
+		var HasAttachmentState =
 			StatusConst.EffectState.FALCON   |
 			StatusConst.EffectState.RIDING   |
 			StatusConst.EffectState.DRAGON1  |
@@ -400,8 +400,15 @@ define(function(require)
 			StatusConst.EffectState.CART3    |
 			StatusConst.EffectState.CART4    |
 			StatusConst.EffectState.CART5;
+			
+		var HasCartState = 
+			StatusConst.EffectState.CART1    |
+			StatusConst.EffectState.CART2    |
+			StatusConst.EffectState.CART3    |
+			StatusConst.EffectState.CART4    |
+			StatusConst.EffectState.CART5;
 
-		return function rencerCharacter()
+		return function renderCharacter()
 		{
 			var character = Session.Entity;
 			var direction = character.direction;
@@ -414,13 +421,18 @@ define(function(require)
 				_lastState = character.effectState;
 				_hasCart   = character.hasCart;
 
-				if (_lastState & OptionFlag || _hasCart) {
-					Equipment.ui.find('.cartitems').show();
+				if (_lastState & HasAttachmentState) {
 					Equipment.ui.find('.removeOption').show();
 				}
 				else {
-					Equipment.ui.find('.cartitems').hide();
 					Equipment.ui.find('.removeOption').hide();
+				}
+				
+				if (_lastState & HasCartState && _hasCart) {
+					Equipment.ui.find('.cartitems').show();
+				}
+				else {
+					Equipment.ui.find('.cartitems').hide();
 				}
 			}
 
