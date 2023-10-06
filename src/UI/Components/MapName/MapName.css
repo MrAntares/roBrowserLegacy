@@ -1,0 +1,28 @@
+#MapName { position:absolute; height:190px; width:500px; }
+#MapName .container .mapbg {
+    height: 190px;
+    width: 500px;
+    position: relative;
+}
+
+#MapName .mapsubtitle {
+    height: 30px;
+    width: 500px;
+    position: relative;
+    color: white;
+    font-weight: bolder;
+    text-align: center;
+    top: 70px;
+    font-size: 16px;
+}
+
+#MapName .maptitle {
+    height: 80px;
+    width: 500px;
+    text-align: center;
+    font-size: 36px;
+    position: relative;
+    top: 70px;
+    color: white;
+    font-weight: bolder;
+}
