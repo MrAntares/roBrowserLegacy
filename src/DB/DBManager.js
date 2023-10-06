@@ -46,6 +46,9 @@ define(function(require)
 	var PetFriendlyState 	= require('./Pets/PetFriendlyState')
 	var PetMessageConst 	= require('./Pets/PetMessageConst')
 
+	//MapName
+	var MapInfo       = require('./Map/MapTable')
+
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
 	var PACKETVER     = require('Network/PacketVerManager');
@@ -878,6 +881,14 @@ define(function(require)
 	 */
 	DB.getTownInfo = function GetTownInfo(mapname) {
 		return TownInfo[mapname] || null;
+	};
+
+	/**
+	 * Get back map information by mapname
+	 * @param {number} efst id
+	 */
+	DB.getMapInfo = function GetMapInfo(mapname) {
+		return MapInfo[mapname] || null;
 	};
 
 	/**

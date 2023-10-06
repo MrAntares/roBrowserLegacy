@@ -78,6 +78,7 @@ define(function( require )
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
+	var MapName          = require('UI/Components/MapName/MapName');
 	if(PACKETVER.value >= 20180307) {
 		var Quest            = require('UI/Components/Quest/Quest');
 		var QuestWindow      = require('UI/Components/Quest/QuestWindow');
@@ -246,6 +247,7 @@ define(function( require )
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
+		MapName.prepare();
 		if(PACKETVER.value >= 20180307) {
 			Quest.prepare();
 			QuestWindow.prepare();
@@ -377,6 +379,8 @@ define(function( require )
 			// Add Game UI
 			MiniMap.append();
 			MiniMap.setMap( MapRenderer.currentMap );
+			MapName.setMap( MapRenderer.currentMap );
+			MapName.append();
 			ChatBox.append();
 			ChatBoxSettings.append();
 			BasicInfo.append();
