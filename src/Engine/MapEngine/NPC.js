@@ -359,6 +359,8 @@ define(function( require )
 	 */
 	function onProgressBarStop()
 	{
+		var pkt = new PACKET.CZ.PROGRESS();
+		Network.sendPacket(pkt);
 		Session.Entity.cast.remove();
 	}
 
