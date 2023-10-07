@@ -233,11 +233,16 @@
 	 * @var {boolean} Enable Cash Shop UI
 	 */
 	ROBrowser.prototype.enableCashShop = false;
-
+	
 	/**
 	 * @var {boolean} Enable Bank UI
 	 */
 	ROBrowser.prototype.enableBank = false;
+
+	/**
+	 * @var {boolean} Enable Map Name Banner
+	 */
+	ROBrowser.prototype.enableMapName = false;
 
 	/**
 	 * @var {mixed} set a version to avoid browser cache problem so
@@ -406,6 +411,8 @@
 			skipIntro:        this.skipIntro,
 			autoLogin:        this.autoLogin,
 			enableCashShop:   this.enableCashShop,
+			enableBank:       this.enableBank,
+			enableMapName:    this.enableMapName,
 			version:          this.version,
 			clientHash:       this.clientHash,
 			calculateHash:    this.calculateHash,
