@@ -542,7 +542,9 @@ define(function( require )
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
-			Quest.clean();
+			if(PACKETVER.value >= 20180307) {
+				Quest.clean();
+			}
 			PartyFriends.clean();
 			MapRenderer.free();
 			Renderer.stop();
