@@ -14,7 +14,7 @@ This guide section will help you running robrowser locally.
     - HTTPS: `https://github.com/MrAntares/roBrowserLegacy.git`
     - GitHub CLI: `gh repo clone MrAntares/roBrowserLegacy`
   - Or download the [source code](https://github.com/MrAntares/roBrowserLegacy/archive/refs/heads/master.zip) and unpack it to somwehere on your machine.
-- Get a web server that supports PHP and .htaccess. Run http server at the root of the roBrowserLegacy directory, or place roBrowserLegacy into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
+- Get a web server that supports `PHP` and `.htaccess`. Run http server at the root of the roBrowserLegacy directory, or place roBrowserLegacy into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
 ![](img/start-http-server.png)
 - You own a full client
 #### Game Server
@@ -37,12 +37,12 @@ __We assume in the guide below http server to run on port `8000`.__
 
 ### Compile files using NPM
 This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
-- Access the RobrowserLagacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
+- Access the roBrowserLegacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
 - Use build command to generate the files `npm run build`
 - Files will be generated at `dist/Web` folder
 
 For development purposes (modifying the source/testing) set in the roBrowser config: `development: true,`.
-- Access the RobrowserLagacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
+- Access the roBrowserLegacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
 - Use build command to generate the files `npm run serve`
 - Files will be loaded from  at `src/` folder
 
