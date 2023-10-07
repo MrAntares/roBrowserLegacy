@@ -47,7 +47,7 @@ define(function(require)
 	 */
 	MapName.onAppend = function onAppend()
 	{
-		if (_mapinfo.notifyEnter) {
+		if (_mapinfo && _mapinfo.notifyEnter) {
 			// Apply preferences
 			this.ui.css({
 				top:  '90px',	// Below announce
@@ -74,26 +74,27 @@ define(function(require)
 		/*
 		console.log('bg:%s, subtitle:%s, title:%s', _mapinfo.backgroundBmp, _mapinfo.signName.subTitle, _mapinfo.signName.mainTitle );
 		*/
-
-		if ( _mapinfo.backgroundBmp )
+		if ( _mapinfo && _mapinfo.backgroundBmp ) {
 			Client.loadFile( DB.INTERFACE_PATH + "display_mapname/"+_mapinfo.backgroundBmp+".png", function(dataURI) {
 				MapName.ui.find('.mapbg').css('backgroundImage', 'url(' + dataURI + ')');
 			});
-		else
+		} else {
 			MapName.ui.find('.mapbg').css('backgroundImage', 'none');
-
+		}
+		
 		var mapsubtitle = MapName.ui.find('.mapsubtitle');
-		if( _mapinfo.signName && _mapinfo.signName.subTitle )
+		if( _mapinfo && _mapinfo.signName && _mapinfo.signName.subTitle ) {
 			mapsubtitle.text(_mapinfo.signName.subTitle);
-		else
+		} else {
 			mapsubtitle.empty();
-
+		}
+		
 		var maptitle = MapName.ui.find('.maptitle');
-		if( _mapinfo.signName && _mapinfo.signName.mainTitle )
+		if( _mapinfo && _mapinfo.signName && _mapinfo.signName.mainTitle ) {
 			maptitle.text(_mapinfo.signName.mainTitle);
-		else
+		} else {
 			maptitle.empty();
-
+		}
 	};
 
 	/**
