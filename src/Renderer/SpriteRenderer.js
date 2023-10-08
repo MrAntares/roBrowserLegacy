@@ -53,18 +53,19 @@ function(      WebGL,         glMatrix,      Camera )
 			float x =  pos.x + 0.5;
 			float y = -pos.z;
 			float z =  pos.y + 0.5;
+			float NEARPLANE = 1.0;
 
 			// Matrix translation
 			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
 			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-			mat[3].z += mat[0].z * x + mat[1].z * y + mat[2].z * z;
+			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
 			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
-
+			
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
 			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
-
+			
 			return mat;
 		}
 
@@ -77,7 +78,7 @@ function(      WebGL,         glMatrix,      Camera )
 			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex * 2.50 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
+			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
 			
 			vTextureCoord = aTextureCoord;
 		}
@@ -119,7 +120,7 @@ function(      WebGL,         glMatrix,      Camera )
 			float blLUT = texture2D(indexT, uv + vec2(0.0, TextInterval.y)).x;
 			float brLUT = texture2D(indexT, uv + TextInterval).x;
 
-			vec4 transparent = vec4( 0.5, 0.5, 0.5, 0.0);
+			vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);
 
 			vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(tlLUT,1.0)).rgb, 1.0);
 			vec4 tr = trLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(trLUT,1.0)).rgb, 1.0);
@@ -157,12 +158,6 @@ function(      WebGL,         glMatrix,      Camera )
 			// Apply shadow, apply color
 			texture.rgb   *= uShadow;
 			gl_FragColor   = texture * uSpriteRendererColor;
-
-			// Similar to Official RO, only applied when not transppparent [Waken]
-			if (uSpriteRendererColor.a >= 0.8 && !uIsRGBA) {
-				float edgeFactor = smoothstep(0.20, 0.90, gl_FragColor.a);
-				gl_FragColor.rgb *= edgeFactor;
-			}
 
 			// Fog feature
 			if (uFogUse) {
