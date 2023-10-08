@@ -31,19 +31,29 @@ define(function( require )
 	var Altitude       = require('Renderer/Map/Altitude');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom       = require('UI/Components/ChatRoom/ChatRoom');
+	var UIVersionManager      = require('UI/UIVersionManager');
+
 	var BasicInfo;
-	if(PACKETVER.value >= 20180124) {
-		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
-	} else if(PACKETVER.value >= 20160101) {
+	if (UIVersionManager.getBasicInfoVersion() === 0) {
+		BasicInfo = require('UI/Components/BasicInfoV0/BasicInfoV0');
+	} else if (UIVersionManager.getBasicInfoVersion() === 3) {
 		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
-	}   else {
+	} else if (UIVersionManager.getBasicInfoVersion() === 4) {
+		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
+	} else {
 		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
 	}
+	var SkillList;
+	if (UIVersionManager.getSkillListVersion() === 0) {
+		SkillList = require('UI/Components/SkillListV0/SkillListV0');
+	} else {
+		SkillList = require('UI/Components/SkillList/SkillList');
+	}
+
 	var WinStats       = require('UI/Components/WinStats/WinStats');
 	var Announce       = require('UI/Components/Announce/Announce');
 	var Equipment      = require('UI/Components/Equipment/Equipment');
 	var ChangeCart     = require('UI/Components/ChangeCart/ChangeCart');
-	var SkillList      = require('UI/Components/SkillList/SkillList');
 	var PartyUI        = require('UI/Components/PartyFriends/PartyFriends');
 	var PetMessageConst    = require('DB/Pets/PetMessageConst');
 	var uint32ToRGB    = require('Utils/colors');

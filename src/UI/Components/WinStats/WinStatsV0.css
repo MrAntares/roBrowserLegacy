@@ -1,0 +1,21 @@
+#winstats { position:absolute; width:280px; height:130px; background-color:transparent; background-repeat:no-repeat; font-size:11px; }
+
+#winstats .titlebar { width:280px; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
+#winstats .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle;}
+#winstats .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+	/* chrome bug */ display: inline-block; width: 32px; height:13px; }
+
+#winstats .titlebar .left { margin-left:3px; float:left; }
+#winstats .titlebar .right { float:right; margin-right:3px;}
+#winstats .titlebar .clear { clear:both; }
+
+#winstats .panel { height: 103px }
+#winstats .group { position:absolute; top:23px; }
+#winstats .group div { height:16px; display:block;}
+#winstats .stats { left:53px; }
+#winstats .bonus { left:70px; }
+#winstats .requirements { left:96px; text-align:right; width:12px; }
+#winstats .column1 { top:23px; right:87px; text-align:right; }
+#winstats .column2 { top:23px; right:5px; text-align:right; }
+#winstats .up { left:89px; top:18px; }
+#winstats .up button { display:block; margin-top:5px; border:none; width:11px; height:11px; background-color:transparent; background-repeat:no-repeat; }

@@ -30,7 +30,6 @@ define(function( require )
 	var Altitude              = require('Renderer/Map/Altitude');
 	var ShortCut              = require('UI/Components/ShortCut/ShortCut');
 	var ChatBox               = require('UI/Components/ChatBox/ChatBox');
-	var SkillWindow           = require('UI/Components/SkillList/SkillList');
 	var SkillTargetSelection  = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Guild                 = require('UI/Components/Guild/Guild');
 	var SkillListMER          = require('UI/Components/SkillListMER/SkillListMER');
@@ -42,9 +41,16 @@ define(function( require )
 	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
 	var Sense                 = require('UI/Components/Sense/Sense');
 	var Announce              = require('UI/Components/Announce/Announce');
+	var UIVersionManager      = require('UI/UIVersionManager');
 	var Renderer              = require('Renderer/Renderer');
 	var getModule             = require;
 
+	var SkillWindow;
+	if (UIVersionManager.getSkillListVersion() === 0) {
+		SkillWindow = require('UI/Components/SkillListV0/SkillListV0');
+	} else {
+		SkillWindow = require('UI/Components/SkillList/SkillList');
+	}
 
 	/**
 	 * Spam an effect
@@ -82,7 +88,7 @@ define(function( require )
 				effectId: EnumEffect[pkt.effectID],
 				ownerAID: pkt.AID
 			};
-		
+
 			EffectManager.spam( EF_Init_Par );
 		}
 	}
@@ -99,7 +105,7 @@ define(function( require )
 			effectId: pkt.effectID,
 			ownerAID: pkt.AID
 		};
-		
+
 		EffectManager.spam( EF_Init_Par );
 	}
 
@@ -449,7 +455,7 @@ define(function( require )
 			}
 		};
 	}
-	
+
 	/**
 	 * Get a list of items to repair
 	 *
@@ -467,7 +473,7 @@ define(function( require )
 		RefineWeaponSelection.onIndexSelected = function(index) {
 			if (index >= -1) {
 				const item = RefineWeaponSelection.getItemByIndex(index);
-				
+
 				var pkt   = new PACKET.CZ.REQ_ITEMREPAIR();
 				pkt.index = index;
 				pkt.itemId = item.ITID;
@@ -533,20 +539,20 @@ define(function( require )
 	{
 		var entity, skill, target, pkt, out;
 		var count, range;
-		
+
 		var isHomun = (id > 8000 && id < 8044);
-		
+
 		if (isHomun){
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
 		}
-		
+
 		// Client side minimum delay
 		if (entity && entity.amotionTick > Renderer.tick){ // Can't spam skills faster than amotion
 			return;
 		}
-		
+
 		target = EntityManager.get(targetID) || entity;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
@@ -633,18 +639,18 @@ define(function( require )
 		var count, range;
 
 		var isHomun = (id > 8000 && id < 8044);
-		
+
 		if (isHomun){
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
 		}
-		
+
 		// Client side minimum delay
 		if (entity && entity.amotionTick > Renderer.tick){ // Can't spam skills faster than amotion
 			return;
 		}
-		
+
 		pos    = entity.position;
 		skill  = SkillWindow.getSkillById(id);
 		out    = [];
@@ -693,7 +699,7 @@ define(function( require )
 			Network.sendPacket(pkt);
 			return;
 		}
-		
+
 		// Save the packet
 		Session.moveAction = pkt;
 
@@ -715,20 +721,20 @@ define(function( require )
 
 	function onSpiritSphere(pkt){
 		EffectManager.remove( null, pkt.AID,[ 228, 504, 629, 833]);
-		
+
 		if (pkt.num > 0){
 			var entity = EntityManager.get(pkt.AID);
 			if(entity){
 				var isMonk = (entity._job && [15, 4016, 4038, 4070, 4077, 4106].includes(entity._job) ) //Monk classes
 				var isGS = (entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job) ) //Gunslinger classes
 				var isRG = (entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job) ) //Royal Guard
-				
+
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_CHOOKGI,
 					ownerAID: pkt.AID,
 					spiritNum: pkt.num
 				};
-				
+
 				if(isMonk){
 					EF_Init_Par.effectId = EffectConst.EF_CHOOKGI2;
 				} else if (isGS){
@@ -736,7 +742,7 @@ define(function( require )
 				} else if (isRG){
 					EF_Init_Par.effectId = EffectConst.EF_CHOOKGI_N;
 				}
-				
+
 				EffectManager.spam( EF_Init_Par );
 			}
 		}
@@ -765,7 +771,7 @@ define(function( require )
 
 		ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG, color );
 	}
-	
+
 	function onSense(pkt){
 		Sense.append();
 		Sense.setWindow(pkt);

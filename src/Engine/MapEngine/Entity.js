@@ -40,14 +40,26 @@ define(function( require )
 	var MagicTarget       = require('Renderer/Effects/MagicTarget');
 	var LockOnTarget      = require('Renderer/Effects/LockOnTarget');
 	var MagicRing         = require('Renderer/Effects/MagicRing');
+
+	var UIVersionManager      = require('UI/UIVersionManager');
+
 	var BasicInfo;
-	if(PACKETVER.value >= 20180124) {
-		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
-	} else if(PACKETVER.value >= 20160101) {
+	if (UIVersionManager.getBasicInfoVersion() === 0) {
+		BasicInfo = require('UI/Components/BasicInfoV0/BasicInfoV0');
+	} else if (UIVersionManager.getBasicInfoVersion() === 3) {
 		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
-	}   else {
+	} else if (UIVersionManager.getBasicInfoVersion() === 4) {
+		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
+	} else {
 		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
 	}
+	var SkillList;
+	if (UIVersionManager.getSkillListVersion() === 0) {
+		SkillList = require('UI/Components/SkillListV0/SkillListV0');
+	} else {
+		SkillList = require('UI/Components/SkillList/SkillList');
+	}
+
 	var ChatBox           = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom          = require('UI/Components/ChatRoom/ChatRoom');
 	var Escape            = require('UI/Components/Escape/Escape');

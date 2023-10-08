@@ -49,13 +49,23 @@ define(function( require )
 		MiniMap          = require('UI/Components/MiniMap/MiniMap');
 	}
 
+	var UIVersionManager      = require('UI/UIVersionManager');
+
 	var BasicInfo;
-	if(PACKETVER.value >= 20180124) {
-		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
-	} else if(PACKETVER.value >= 20160101) {
+	if (UIVersionManager.getBasicInfoVersion() === 0) {
+		BasicInfo = require('UI/Components/BasicInfoV0/BasicInfoV0');
+	} else if (UIVersionManager.getBasicInfoVersion() === 3) {
 		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
-	}   else {
+	} else if (UIVersionManager.getBasicInfoVersion() === 4) {
+		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
+	} else {
 		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	}
+	var SkillList;
+	if (UIVersionManager.getSkillListVersion() === 0) {
+		SkillList = require('UI/Components/SkillListV0/SkillListV0');
+	} else {
+		SkillList = require('UI/Components/SkillList/SkillList');
 	}
 
 	var WinStats         = require('UI/Components/WinStats/WinStats');
@@ -69,7 +79,6 @@ define(function( require )
 	var StatusIcons      = require('UI/Components/StatusIcons/StatusIcons');
 	var ChatRoomCreate   = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
 	var Emoticons        = require('UI/Components/Emoticons/Emoticons');
-	var SkillList        = require('UI/Components/SkillList/SkillList');
 	var FPS              = require('UI/Components/FPS/FPS');
 	var PartyFriends     = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild            = require('UI/Components/Guild/Guild');
@@ -218,7 +227,7 @@ define(function( require )
 		if(PACKETVER.value >= 20180307) {
 			require('./MapEngine/Quest').call();
 		}
-		
+
 		if(Configs.get('enableCashShop')){
 			require('./MapEngine/CashShop').call();
 		}
@@ -249,6 +258,9 @@ define(function( require )
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
+		if (UIVersionManager.getWinStatsVersion() === 0) {
+			WinStats.prepare();
+		}
 		if(Configs.get('enableMapName')){
 			MapName.prepare();
 		}
@@ -408,6 +420,9 @@ define(function( require )
 			WorldMap.append();
 			SkillListMER.append();
 			MobileUI.append();
+			if (UIVersionManager.getWinStatsVersion() === 0) {
+				WinStats.append();
+			}
 			if(PACKETVER.value >= 20180307) {
 				Quest.append();
 				QuestWindow.append();
