@@ -428,7 +428,7 @@ define(function(require)
 					Equipment.ui.find('.removeOption').hide();
 				}
 				
-				if (_lastState & HasCartState && _hasCart) {
+				if (_lastState & HasCartState || _hasCart) {
 					Equipment.ui.find('.cartitems').show();
 				}
 				else {
