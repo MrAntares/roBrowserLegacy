@@ -421,7 +421,7 @@ define(function(require)
 				_lastState = character.effectState;
 				_hasCart   = character.hasCart;
 
-				if (_lastState & HasAttachmentState) {
+				if (_lastState & HasAttachmentState  || _hasCart) {
 					Equipment.ui.find('.removeOption').show();
 				}
 				else {
