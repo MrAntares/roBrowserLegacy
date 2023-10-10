@@ -22,6 +22,7 @@ define(function( require )
 	var Mouse     = require('Controls/MouseEventHandler');
 	var Session   = require('Engine/SessionStorage');
 	var Targa     = require('Loaders/Targa');
+	var Renderer  = require('Renderer/Renderer');
 	var getModule = require;
 
 
@@ -250,6 +251,40 @@ define(function( require )
 
 		if (this.onAppend) {
 			this.onAppend();
+		}
+		
+		//Fix position after append (screen changed since last time and it loads invalid positions)
+		if (this.ui) {
+			var x, y, width, height, WIDTH, HEIGHT;
+			x      = parseInt(this.ui.css('left'), 10);
+			y      = parseInt(this.ui.css('top'), 10);
+			width  = parseInt(this.ui.css('width'), 10);
+			height = parseInt(this.ui.css('height'), 10);
+			WIDTH  = Renderer.width;
+			HEIGHT = Renderer.height;
+			
+
+			if (y + height > HEIGHT) {
+				this.ui.css('top', HEIGHT - Math.min(height, HEIGHT));
+			}
+
+			if (x + width > WIDTH) {
+				this.ui.css('left', WIDTH - Math.min(width, WIDTH));
+			}
+
+			//Magnet
+			if(this.magnet.TOP){
+				//nothing to do
+			}
+			if(this.magnet.BOTTOM){
+				this.ui.css('top', HEIGHT - height);
+			}
+			if(this.magnet.LEFT){
+				//nothing to do
+			}
+			if(this.magnet.RIGHT){
+				this.ui.css('left', WIDTH - width);
+			}
 		}
 
 		this.focus();
