@@ -58,9 +58,7 @@ define(function(require)
 		if (_mapinfo && _mapinfo.notifyEnter && _newMap) {
 			// Apply preferences
 			this.ui.css({
-				opacity: 1,
-				top:  '90px',	// Below announce
-				left: (Renderer.width  - this.ui.width() >> 1) + 'px'	// responsive to mobile
+				opacity: 1
 			});
 			
 			var fadeTime = 1000;
