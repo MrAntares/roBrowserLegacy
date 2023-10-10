@@ -71,7 +71,11 @@ define(function(require)
 		magnet_top: false,
 		magnet_bottom: true,
 		magnet_left: true,
-		magnet_right: false
+		magnet_right: false,
+		tabs: [],
+		tabOption: [],
+		activeTab: 0
+		
 	}, 1.0);
 
 
@@ -139,7 +143,7 @@ define(function(require)
 		msg:  ''
 	};
 
-	ChatBox.lastTabID = 0;
+	ChatBox.lastTabID = -1;
 	ChatBox.tabCount = 0;
 	ChatBox.activeTab = 0;
 	
@@ -332,34 +336,49 @@ define(function(require)
 		
 		// Init settings window as well
 		ChatBoxSettings.append();
-
-		// default tabs
-		var firstTab = ChatBox.addNewTab(DB.getMessage(1291), [
-			ChatBox.FILTER.PUBLIC_LOG,
-			ChatBox.FILTER.PUBLIC_CHAT,
-			ChatBox.FILTER.WHISPER,
-			ChatBox.FILTER.PARTY,
-			ChatBox.FILTER.GUILD,
-			ChatBox.FILTER.ITEM,
-			ChatBox.FILTER.EQUIP,
-			ChatBox.FILTER.STATUS,
-			ChatBox.FILTER.PARTY_ITEM,
-			ChatBox.FILTER.PARTY_STATUS,
-			ChatBox.FILTER.SKILL_FAIL,
-			ChatBox.FILTER.PARTY_SETUP,
-			ChatBox.FILTER.EQUIP_DAMAGE,
-			ChatBox.FILTER.WOE,
-			ChatBox.FILTER.PARTY_SEARCH,
-			ChatBox.FILTER.QUEST,
-			ChatBox.FILTER.BATTLEFIELD,
-			ChatBox.FILTER.CLAN
-		]); // Public Log
-			
-		ChatBox.addNewTab(DB.getMessage(1292)); // Battle Log
 		
-		// switch to first
-		ChatBox.switchTab(firstTab);
-
+		
+		if(_preferences.tabs.length > 0 && _preferences.tabs.length == _preferences.tabOption.length){
+			// Load saved tabs
+			for(var i = 0; i < _preferences.tabs.length; i++){
+				if(_preferences.tabs[i] && _preferences.tabOption[i]){
+					ChatBox.addNewTab(_preferences.tabs[i].name, _preferences.tabOption[i]);
+				}
+			}
+			
+			// Switch to last active tab
+			if(ChatBox.tabs[_preferences.activeTab]){
+				this.switchTab(_preferences.activeTab);
+			}
+		} else {
+			// Default tabs
+			var firstTab = ChatBox.addNewTab(DB.getMessage(1291), [
+				ChatBox.FILTER.PUBLIC_LOG,
+				ChatBox.FILTER.PUBLIC_CHAT,
+				ChatBox.FILTER.WHISPER,
+				ChatBox.FILTER.PARTY,
+				ChatBox.FILTER.GUILD,
+				ChatBox.FILTER.ITEM,
+				ChatBox.FILTER.EQUIP,
+				ChatBox.FILTER.STATUS,
+				ChatBox.FILTER.PARTY_ITEM,
+				ChatBox.FILTER.PARTY_STATUS,
+				ChatBox.FILTER.SKILL_FAIL,
+				ChatBox.FILTER.PARTY_SETUP,
+				ChatBox.FILTER.EQUIP_DAMAGE,
+				ChatBox.FILTER.WOE,
+				ChatBox.FILTER.PARTY_SEARCH,
+				ChatBox.FILTER.QUEST,
+				ChatBox.FILTER.BATTLEFIELD,
+				ChatBox.FILTER.CLAN
+			]); // Public Log
+				
+			ChatBox.addNewTab(DB.getMessage(1292)); // Battle Log
+			
+			// switch to first
+			ChatBox.switchTab(firstTab);
+		}
+		
 		// dialog box size
 		makeResizableDiv()
 	};
@@ -401,7 +420,8 @@ define(function(require)
 		var tabName= '';
 		var _elem = this.ui.find('table.header tr td.tab');
  		_elem = this.ui.find('table.header tr td.tab')[_elem.length - 1];
-
+		
+		// Use delete instead of splice to avoid ID messup and make our life eastier.
 		delete ChatBoxSettings.tabOption[this.activeTab];
 		delete this.tabs[this.activeTab];
 		this.tabCount--;
@@ -470,6 +490,10 @@ define(function(require)
 			</td>
 		`);
 		
+		this.ui.find('table.header tr td.tab[data-tab="'+tabID+'"] div input').on('change', function(){
+			ChatBox.tabs[tabID].name = this.value;
+		});
+		
 		this.ui.find('.body .contentwrapper').append(
 			`<div class="content active" data-content="${tabID}"></div>`
 		);
@@ -524,9 +548,6 @@ define(function(require)
 	ChatBox.onRemove = function OnRemove()
 	{
 		this.ui.find('.content.active').off('scroll');
-		
-		this.lastTabID = 0;
-		this.activeTab = 0;
 
 		_preferences.y      = parseInt(this.ui.css('top'), 10) + this.ui.height();
 		_preferences.x      = parseInt(this.ui.css('left'), 10);
@@ -535,7 +556,15 @@ define(function(require)
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
 		_preferences.magnet_right = this.magnet.RIGHT;
+		
+		_preferences.tabs = this.tabs;
+		_preferences.tabOption = ChatBoxSettings.tabOption;
+		_preferences.activeTab = this.activeTab;
+		
 		_preferences.save();
+		
+		this.lastTabID = -1;
+		this.activeTab = 0;
 	};
 
 
