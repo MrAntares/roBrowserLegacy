@@ -1,8 +1,17 @@
-#MapName { position:absolute; height:190px; width:500px; }
+#MapName { 
+	position:absolute;
+	top: 90px;
+	height:190px;
+	left: 50%;
+	width:500px;
+	margin-left: -250px;
+}
+
 #MapName .container .mapbg {
     height: 190px;
     width: 500px;
     position: relative;
+	background-size: contain;
 }
 
 #MapName .mapsubtitle {
@@ -25,4 +34,40 @@
     top: 70px;
     color: white;
     font-weight: bolder;
+}
+
+/*Half size for small screens, eg: mobile in landscape*/
+@media (max-width:1000px){
+	#MapName { 
+		height:95px; 
+		width:250px;
+		margin-left: -125px;
+	}
+	#MapName .container .mapbg {
+		height: 95px;
+		width: 250px;
+		position: relative;
+	}
+
+	#MapName .mapsubtitle {
+		height: 15px;
+		width: 250px;
+		position: relative;
+		color: white;
+		font-weight: bolder;
+		text-align: center;
+		top: 35px;
+		font-size: 8px;
+	}
+
+	#MapName .maptitle {
+		height: 40px;
+		width: 250px;
+		text-align: center;
+		font-size: 18px;
+		position: relative;
+		top: 35px;
+		color: white;
+		font-weight: bolder;
+	}
 }
