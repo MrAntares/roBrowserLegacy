@@ -22,6 +22,7 @@ define(function(require)
 	var htmlText           = require('text!./MapName.html');
 	var cssText            = require('text!./MapName.css');
 	var Client             = require('Core/Client');
+	var Events             = require('Core/Events');
 
 
 	/**
@@ -33,6 +34,13 @@ define(function(require)
 	 * @var {array} _mapinfo
 	 */
 	var _mapinfo = [];
+	
+	/**
+	 * Previous map check vars
+	 */
+	var _currMap = '';
+	var _prevMap = '';
+	var _newMap = false;
 
 	/**
 	 * Initialize UI
@@ -47,17 +55,39 @@ define(function(require)
 	 */
 	MapName.onAppend = function onAppend()
 	{
-		if (_mapinfo && _mapinfo.notifyEnter) {
+		if (_mapinfo && _mapinfo.notifyEnter && _newMap) {
 			// Apply preferences
 			this.ui.css({
+				opacity: 1,
 				top:  '90px',	// Below announce
 				left: (Renderer.width  - this.ui.width() >> 1) + 'px'	// responsive to mobile
 			});
+			
+			var fadeTime = 1000;
+			var fadeCycle = 20;
+			var removeTime = 5000;
+			var fadeProgress = 0;
+			var fadeTimeout = null;
+			
+			function fade(){
+				fadeProgress += fadeCycle;
+				if(fadeProgress < fadeTime){
+					MapName.ui.css('opacity', MapName.ui.css('opacity')*1 - (100/(fadeTime/fadeCycle)/100));
+					fadeTimeout = setTimeout(function(){ fade(); }, fadeCycle);
+				}
+			}
+			
+			Events.setTimeout(function() {
+				fade();
+			}, removeTime-fadeTime);
 
 			// Automatically remove the UI element after 5 seconds
-			setTimeout(function() {
+			Events.setTimeout(function() {
+				Events.clearTimeout(fadeTimeout);
 			    MapName.ui.remove();
-			}, 5000); // 5000 milliseconds (5 seconds)
+			}, removeTime); // 5000 milliseconds (5 seconds)
+		} else {
+			MapName.ui.remove();
 		}
 	};
 
@@ -68,6 +98,10 @@ define(function(require)
 	 */
 	MapName.setMap = function setMap( mapname )
 	{
+		_prevMap = _currMap;
+		_currMap = mapname;
+		_newMap = (_currMap !== _prevMap);
+		
         _mapinfo = DB.getMapInfo(mapname.replace('.gat', '.rsw'));
 		console.log('Mapinfo:', _mapinfo);
 		
