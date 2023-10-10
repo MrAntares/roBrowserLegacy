@@ -39,7 +39,7 @@ define(function( require )
 		switch (cmd) {
 
 			case 'sound':
-				this.addText( DB.getMessage(27 + AudioPreferences.Sound.play), this.TYPE.INFO );
+				this.addText( DB.getMessage(27 + AudioPreferences.Sound.play), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				AudioPreferences.Sound.play = !AudioPreferences.Sound.play;
 				AudioPreferences.save();
 
@@ -49,7 +49,7 @@ define(function( require )
 				return;
 
 			case 'bgm':
-				this.addText( DB.getMessage(31 + AudioPreferences.BGM.play), this.TYPE.INFO );
+				this.addText( DB.getMessage(31 + AudioPreferences.BGM.play), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				AudioPreferences.BGM.play = !AudioPreferences.BGM.play;
 				AudioPreferences.save();
 
@@ -62,26 +62,26 @@ define(function( require )
 				return;
 
 			case 'effect':
-				this.addText( DB.getMessage(23 + MapPreferences.effect), this.TYPE.INFO );
+				this.addText( DB.getMessage(23 + MapPreferences.effect), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.effect = !MapPreferences.effect;
 				MapPreferences.save();
 				return;
 
 			case 'mineffect':
-				this.addText( DB.getMessage(687 + MapPreferences.mineffect), this.TYPE.INFO );
+				this.addText( DB.getMessage(687 + MapPreferences.mineffect), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.mineffect = !MapPreferences.mineffect;
 				MapPreferences.save();
 				return;
 
 			case 'miss':
-				this.addText( DB.getMessage(317 + MapPreferences.miss), this.TYPE.INFO );
+				this.addText( DB.getMessage(317 + MapPreferences.miss), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.miss = !MapPreferences.miss;
 				MapPreferences.save();
 				return;
 
 			case 'aura':
 				var isSimplified = MapPreferences.aura > 1;
-				this.addText( DB.getMessage(711 + isSimplified), this.TYPE.INFO );
+				this.addText( DB.getMessage(711 + isSimplified), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.aura = isSimplified ? 1 : 2;
 				MapPreferences.save();
 				return;
@@ -95,7 +95,7 @@ define(function( require )
 							? 'Aura effect is OFF' : 'Aura effect is ON'
 						) // default text if not in DB msgstringtable
 					),
-					this.TYPE.INFO
+					this.TYPE.INFO, this.FILTER.PUBLIC_LOG
 				);
 				MapPreferences.aura = MapPreferences.aura ? 0 : 1;
 				MapPreferences.save();
@@ -115,14 +115,14 @@ define(function( require )
 				return;
 
 			case 'camera':
-				this.addText( DB.getMessage(319 + CameraPreferences.smooth), this.TYPE.INFO );
+				this.addText( DB.getMessage(319 + CameraPreferences.smooth), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				CameraPreferences.smooth = !CameraPreferences.smooth;
 				CameraPreferences.save();
 				return;
 
 			case 'fog':
 				MapPreferences.fog = !MapPreferences.fog;
-				this.addText( 'fog ' + ( MapPreferences.fog ? 'on' : 'off'), this.TYPE.INFO );
+				this.addText( 'fog ' + ( MapPreferences.fog ? 'on' : 'off'), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.save();
 				return;
 
@@ -133,25 +133,25 @@ define(function( require )
 
 			case 'noctrl':
 			case 'nc':
-				this.addText( DB.getMessage(717 + ControlPreferences.noctrl), this.TYPE.INFO );
+				this.addText( DB.getMessage(717 + ControlPreferences.noctrl), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.noctrl = !ControlPreferences.noctrl;
 				ControlPreferences.save();
 				return;
 
 			case 'noshift':
 			case 'ns':
-				this.addText( DB.getMessage(701 + ControlPreferences.noshift), this.TYPE.INFO );
+				this.addText( DB.getMessage(701 + ControlPreferences.noshift), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.noshift = !ControlPreferences.noshift;
 				ControlPreferences.save();
 				return;
             		case 'snap':
-				this.addText( DB.getMessage(271 + ControlPreferences.snap), this.TYPE.INFO );
+				this.addText( DB.getMessage(271 + ControlPreferences.snap), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.snap = !ControlPreferences.snap;
 				ControlPreferences.save();
 				return;
 
             		case 'itemsnap':
-				this.addText( DB.getMessage(276 + ControlPreferences.itemsnap), this.TYPE.INFO );
+				this.addText( DB.getMessage(276 + ControlPreferences.itemsnap), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.itemsnap = !ControlPreferences.itemsnap;
 				ControlPreferences.save();
 				return;
@@ -231,7 +231,7 @@ define(function( require )
 				var currentMap = getModule('Renderer/MapRenderer').currentMap;
 				this.addText(
 					DB.getMapName(currentMap) + '(' + currentMap + ') : ' + Math.floor(Session.Entity.position[0]) + ', ' + Math.floor(Session.Entity.position[1]),
-					this.TYPE.INFO
+					this.TYPE.INFO, this.FILTER.PUBLIC_LOG
 				);
 				return;
 
@@ -311,21 +311,21 @@ define(function( require )
 				Session.homCustomAI = !Session.homCustomAI;
 				if(Session.homCustomAI){
 					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
-					this.addText( DB.getMessage(1023), this.TYPE.INFO );
+					this.addText( DB.getMessage(1023), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				} else {
 					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
-					this.addText( DB.getMessage(1024), this.TYPE.INFO );
+					this.addText( DB.getMessage(1024), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				}
 				return;
 
 			case 'merai':
 				Session.merCustomAI = !Session.merCustomAI;
 				if(Session.merCustomAI){
-					this.addText( DB.getMessage(1273), this.TYPE.INFO );
+					this.addText( DB.getMessage(1273), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				} else {
-					this.addText( DB.getMessage(1274), this.TYPE.INFO );
+					this.addText( DB.getMessage(1274), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				}
-				this.addText( '(Mercenary not supported yet)', this.TYPE.INFO );
+				this.addText( '(Mercenary not supported yet)', this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				return;
 
 		}
@@ -354,6 +354,6 @@ define(function( require )
 		}
 
 		// Command not found
-		this.addText( DB.getMessage(95), this.TYPE.INFO );
+		this.addText( DB.getMessage(95), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 	};
 });
