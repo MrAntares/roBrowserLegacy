@@ -393,7 +393,7 @@
 	// Custom camera support
 	ROBrowser.prototype.ThirdPersonCamera = false;
 	ROBrowser.prototype.FirstPersonCamera = false;
-	ROBrowser.prototype.CameraMaxZoomOut = 0;
+	ROBrowser.prototype.CameraMaxZoomOut = 5;
 
 	/**
 	 * Spam the window until there is an answer
