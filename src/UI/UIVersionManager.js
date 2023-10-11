@@ -12,7 +12,7 @@ define(function (require)
 	'use strict';
 
 	var Configs = require('Core/Configs');
-	var PACKETVER = require('Network/PacketStructure');
+	var PACKETVER = require('Network/PacketVerManager');
 
 	var UIVersionManager = {};
 
