@@ -98,10 +98,10 @@ define(function( require )
 			ui = component.ui;
 
 			if (ui) {
-				x      = parseInt(ui.css('left'), 10);
-				y      = parseInt(ui.css('top'), 10);
-				width  = parseInt(ui.css('width'), 10);
-				height = parseInt(ui.css('height'), 10);
+				x      = ui.offset().left;
+				y      = ui.offset().top;
+				width  = ui.width();
+				height = ui.height();
 
 				if (y + height > HEIGHT) {
 					ui.css('top', HEIGHT - Math.min(height, HEIGHT));
