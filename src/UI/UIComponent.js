@@ -256,10 +256,10 @@ define(function( require )
 		//Fix position after append (screen changed since last time and it loads invalid positions)
 		if (this.ui) {
 			var x, y, width, height, WIDTH, HEIGHT;
-			x      = parseInt(this.ui.css('left'), 10);
-			y      = parseInt(this.ui.css('top'), 10);
-			width  = parseInt(this.ui.css('width'), 10);
-			height = parseInt(this.ui.css('height'), 10);
+			x      = this.ui.offset().left;
+			y      = this.ui.offset().top;
+			width  = this.ui.width();
+			height = this.ui.height();
 			WIDTH  = Renderer.width;
 			HEIGHT = Renderer.height;
 			
