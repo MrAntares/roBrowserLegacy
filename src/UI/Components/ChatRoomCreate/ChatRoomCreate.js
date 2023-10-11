@@ -179,11 +179,16 @@ define(function(require)
 	{
 		switch (key.cmd) {
 			case 'TOGGLE':
-				this.ui.toggle();
-				if (this.ui.is(':visible')) {
-					this.focus();
-				}
+				ChatRoomCreate.toggle();
 				break;
+		}
+	};
+
+	ChatRoomCreate.toggle = function toggle()
+	{
+		this.ui.toggle();
+		if (this.ui.is(':visible')) {
+			this.focus();
 		}
 	};
 

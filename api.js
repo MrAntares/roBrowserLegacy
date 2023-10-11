@@ -118,17 +118,17 @@
 	 * @var {string} client hash to send to server
 	 */
 	ROBrowser.prototype.clientHash = null;
-	
+
 	/**
 	 * @var {string} calculate client hash
 	 */
 	ROBrowser.prototype.calculateHash = false;
-	
+
 	/**
 	 * @var {string} files to hash for hash calculation
 	 */
 	ROBrowser.prototype.hashFiles = [];
-	
+
 
 	/**
 	 * @var {constant} application name (see: ROBrowser.APP.* )
@@ -233,7 +233,7 @@
 	 * @var {boolean} Enable Cash Shop UI
 	 */
 	ROBrowser.prototype.enableCashShop = false;
-	
+
 	/**
 	 * @var {boolean} Enable Bank UI
 	 */
@@ -243,6 +243,11 @@
 	 * @var {boolean} Enable Map Name Banner
 	 */
 	ROBrowser.prototype.enableMapName = false;
+
+	/**
+	 * @var {boolean} User interface version selection mode (PacketVer | PreRenewal | Renewal)
+	 */
+	ROBrowser.prototype.clientVersionMode = "PacketVer";
 
 	/**
 	 * @var {mixed} set a version to avoid browser cache problem so
@@ -422,6 +427,7 @@
 			BGMFileExtension: this.BGMFileExtension,
 			ThirdPersonCamera: this.ThirdPersonCamera,
 			FirstPersonCamera: this.FirstPersonCamera,
+			clientVersionMode: this.clientVersionMode,
 			CameraMaxZoomOut: this.CameraMaxZoomOut,
 		}, '*');
 	}

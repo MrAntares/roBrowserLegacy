@@ -16,10 +16,31 @@ define(function(require)
 	 * Dependencies
 	 */
 	var UIComponent        = require('UI/UIComponent');
+	var UIManager          = require('UI/UIManager');
 	var Session            = require('Engine/SessionStorage');
-	var htmlText           = require('text!./WinStats.html');
-	var cssText            = require('text!./WinStats.css');
 
+	var UIVersionManager    = require('UI/UIVersionManager');
+	var Preferences        = require('Core/Preferences');
+	var Renderer           = require('Renderer/Renderer');
+
+
+	var _preferences;
+	if (UIVersionManager.getWinStatsVersion() === 0) {
+		_preferences = Preferences.get('WinStats', {
+			x:        0,
+			y:        233,
+			show:     false,
+			reduce:   false,
+		}, 1.0);
+	}
+
+	if (UIVersionManager.getWinStatsVersion() === 0) {
+		var htmlText           = require('text!./WinStatsV0.html');
+		var cssText            = require('text!./WinStatsV0.css');
+	} else {
+		var htmlText           = require('text!./WinStats.html');
+		var cssText            = require('text!./WinStats.css');
+	}
 
 	/**
 	 * Create component
@@ -44,7 +65,24 @@ define(function(require)
 				case 'luk': WinStats.onRequestUpdate( 18, 1 ); break;
 			}
 		});
+
+		if (UIVersionManager.getWinStatsVersion() === 0) {
+			this.ui.find('.titlebar .mini').click(function(){ WinStats.ui.find('.panel').toggle(); });
+			this.ui.find('.titlebar .close').click(function(){ WinStats.ui.hide(); });
+			this.draggable(this.ui.find('.titlebar'));
+		}
 	};
+
+	if (UIVersionManager.getWinStatsVersion() === 0) {
+		WinStats.toggle = function toggle()
+		{
+			this.ui.toggle();
+
+			if (this.ui.is(':visible')) {
+				this.focus();
+			}
+		};
+	}
 
 
 	/**
@@ -65,6 +103,16 @@ define(function(require)
 		}
 
 		this.stack.length = 0;
+
+		if (UIVersionManager.getWinStatsVersion() === 0) {
+			this.ui.css({
+				top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
+				left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+			});
+			if (!_preferences.show) {
+				this.ui.hide();
+			}
+		}
 	};
 
 
@@ -154,14 +202,30 @@ define(function(require)
 	};
 
 
+	WinStats.onRemove = function onRemove()
+	{
+		if (_preferences) {
+			_preferences.show   =  this.ui.is(':visible');
+			_preferences.reduce =  this.ui.find('.panel').css('display') === 'none';
+			_preferences.y      =  parseInt(this.ui.css('top'), 10);
+			_preferences.x      =  parseInt(this.ui.css('left'), 10);
+			_preferences.save();
+		}
+	}
+
+
 	/**
 	 * Abstract method to define
 	 */
 	WinStats.onRequestUpdate = function onRequestUpdate(/*id, amount*/){};
 
 
-	/**
-	 * Export it (don't add it to component list)
-	 */
-	return WinStats;
+	if (UIVersionManager.getWinStatsVersion() > 0){
+		/**
+		 * Export it (don't add it to component list)
+		 */
+		return WinStats;
+	} else {
+		return UIManager.addComponent(WinStats);
+	}
 });

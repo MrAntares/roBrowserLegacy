@@ -29,6 +29,7 @@ define(function(require)
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	var Equipment          = require('UI/Components/Equipment/Equipment');
+	var UIVersionManager   = require('UI/UIVersionManager');
 	var htmlText           = require('text!./Inventory.html');
 	var cssText            = require('text!./Inventory.css');
 	var getModule          = require;
@@ -67,7 +68,7 @@ define(function(require)
 	 */
 	var _preferences = Preferences.get('Inventory', {
 		x:        0,
-		y:        172,
+		y:        UIVersionManager.getInventoryVersion() > 0 ? 172 : 120,
 		width:    7,
 		height:   4,
 		show:     false,

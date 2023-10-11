@@ -12,6 +12,7 @@
 #Equipment .titlebar .clear { clear:both; }
 
 #Equipment .panel { background-color:white; }
+#Equipment.equipmentV0 .panel { background-color:inherit; }
 #Equipment .content { display:inline-block; width:280px; height:130px; border-spacing:0; }
 #Equipment .col1, #Equipment .col3  { width:115px; height:24px; background-color:transparent; background-repeat:no-repeat; }
 #Equipment .col1 { background-position:5% 50%; min-width: 110px; }

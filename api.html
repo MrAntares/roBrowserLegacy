@@ -2,11 +2,11 @@
 <html>
 	<head>
 		<title>roBrowser</title>
-		
+
 		<meta name="mobile-web-app-capable" content="yes"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<meta name="HandheldFriendly" content="true" />
-		
+
 		<script type="text/javascript">
 			var ROConfig = {};
 
@@ -33,6 +33,7 @@
 					ROConfig.skipIntro          = event.data.skipIntro          || false;
 					ROConfig.autoLogin          = event.data.autoLogin          || [];
 					ROConfig.enableCashShop     = event.data.enableCashShop     || false;
+					ROConfig.clientVersionMode  = event.data.clientVersionMode  || 'PacketVer';
 					ROConfig.enableBank			= event.data.enableBank			|| false;
 					ROConfig.enableMapName		= event.data.enableMapName		|| false;
 					ROConfig.version            = event.data.version            || '';
