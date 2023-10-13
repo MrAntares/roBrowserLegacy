@@ -652,14 +652,14 @@ define(function(require)
 	SkillList.useSkill = function useSkill( skill, level )
 	{
 		// Self
-		if (skill.type && SkillTargetSelection.TYPE.SELF) {
+		if (skill.type & SkillTargetSelection.TYPE.SELF) {
 			this.onUseSkill( skill.SKID, level ? level : skill.level);
 		}
 
 		skill.useLevel = level;
 
 		// no elseif intended (see flying kick).
-		if (skill.type && SkillTargetSelection.TYPE.TARGET) {
+		if (skill.type & SkillTargetSelection.TYPE.TARGET) {
 			SkillTargetSelection.append();
 			SkillTargetSelection.set(skill, skill.type);
 		}
