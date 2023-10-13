@@ -36,7 +36,7 @@ define(function(require)
 	/**
 	 * Create Component
 	 */
-	var SkillList = new UIComponent( 'SkillList', htmlText, cssText );
+	var SkillList = new UIComponent( 'SkillListV0', htmlText, cssText );
 
 
 	/**

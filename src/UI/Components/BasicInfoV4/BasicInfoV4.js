@@ -39,7 +39,7 @@ define(function(require)
 	/**
 	 * Create Basic Info component
 	 */
-	var BasicInfo = new UIComponent( 'BasicInfo', htmlText, cssText );
+	var BasicInfo = new UIComponent( 'BasicInfoV4', htmlText, cssText );
 
 
 	/**
