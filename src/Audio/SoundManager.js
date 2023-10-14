@@ -93,7 +93,9 @@ function(      Client,          Preferences,              Memory,          glMat
 		// Get the sound from client.
 		Client.loadFile( 'data/wav/' + filename, function( url ) {
 			var sound;
-
+			if (!(filename in _sounds)){
+				return;
+			}
 			// Wait a delay to replay a sound and don't play too many times (self balancing formula based on total media players)
 			if (filename in _sounds && (_sounds[filename].lastTick > Date.now() - C_SAME_SOUND_DELAY ||  _sounds[filename].instances.length > balancedMax(C_MAX_SOUND_INSTANCES))) {
 				return;

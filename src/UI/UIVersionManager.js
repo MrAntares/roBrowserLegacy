@@ -24,19 +24,19 @@ define(function (require)
 		switch (componentName) {
 			case 'BasicInfo':
 				if (UIVersionManager.getBasicInfoVersion() === 0) {
-					return 'UI/Components/BasicInfoV0/BasicInfoV0';
+					return 'BasicInfoV0';
 				} else if (UIVersionManager.getBasicInfoVersion() === 3) {
-					return 'UI/Components/BasicInfoV3/BasicInfoV3';
+					return 'BasicInfoV3';
 				} else if (UIVersionManager.getBasicInfoVersion() === 4) {
-					return 'UI/Components/BasicInfoV4/BasicInfoV4';
+					return 'BasicInfoV4';
 				} else {
-					return 'UI/Components/BasicInfo/BasicInfo';
+					return 'BasicInfo';
 				}
 			case 'SkillList':
 				if (UIVersionManager.getSkillListVersion() === 0) {
-					return 'UI/Components/SkillListV0/SkillListV0';
+					return 'SkillListV0';
 				} else {
-					return 'UI/Components/SkillList/SkillList';
+					return 'SkillList';
 				}
 		}
 	}

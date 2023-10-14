@@ -27,7 +27,7 @@ define(function(require)
 	var UIComponent          = require('UI/UIComponent');
 	var ItemInfo             = require('UI/Components/ItemInfo/ItemInfo');
 	var Inventory            = require('UI/Components/Inventory/Inventory');
-	var SkillWindow          = require('UI/Components/SkillList/SkillList');
+	var UIVersionManager     = require('UI/UIVersionManager');
 	var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
 	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
@@ -35,6 +35,12 @@ define(function(require)
 	var htmlText             = require('text!./ShortCut.html');
 	var cssText              = require('text!./ShortCut.css');
 
+	var SkillWindow;
+	if (UIVersionManager.getSkillListVersion() === 0) {
+		SkillWindow = require('UI/Components/SkillListV0/SkillListV0');
+	} else {
+		SkillWindow = require('UI/Components/SkillList/SkillList');
+	}
 
 	/**
 	 * Create Component
