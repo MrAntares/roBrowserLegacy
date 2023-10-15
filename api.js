@@ -49,7 +49,8 @@
 		GRFVIEWER:    3,
 		MODELVIEWER:  4,
 		STRVIEWER:    5,
-		GRANNYMODELVIEWER: 6  //sound weird O_o
+		GRANNYMODELVIEWER: 6,  //sound weird O_o
+		EFFECTVIEWER: 7,
 	};
 
 
@@ -323,7 +324,7 @@
 				this.height = this.height || '100%';
 
 				var frame          = document.createElement('iframe');
-				frame.src          = this.baseUrl + '?' + Math.random(); // fix bug on firefox
+				frame.src          = this.baseUrl + '?' + Math.random() + location.hash; // fix bug on firefox
 				frame.width        = this.width;
 				frame.height       = this.height;
 				frame.style.border = 'none';
@@ -368,6 +369,10 @@
 
 			case ROBrowser.APP.GRANNYMODELVIEWER:
 				this.application = 'GrannyModelViewer';
+				break;
+
+			case ROBrowser.APP.EFFECTVIEWER:
+				this.application = 'EffectViewer';
 				break;
 		}
 
