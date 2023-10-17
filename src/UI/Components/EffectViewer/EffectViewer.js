@@ -21,6 +21,7 @@ define(function(require)
 	var SpriteRenderer     = require('Renderer/SpriteRenderer');
 	var EffectManager      = require('Renderer/EffectManager');
 	var EffectTable        = require('DB/Effects/EffectTable');
+	var EC                 = require('DB/Effects/EffectConst');
 	var EntityManager      = require('Renderer/EntityManager');
 	var Entity             = require('Renderer/Entity/Entity');
 	var Session            = require('Engine/SessionStorage');
@@ -99,8 +100,18 @@ define(function(require)
 			hash = hash.substring(1);
 			_selectedEffect = hash;
 		}
+		
+		function getKeyByValue(object, value) {
+			if(isNaN(value)){
+				return undefined;
+			} else {
+				return Object.keys(object).find(key => object[key] === Number(value));
+			}
+		}
+		
 		for(const effectId of Object.keys(EffectTable)) {
-			select.add( new Option(effectId, effectId, null, _selectedEffect === effectId), null );
+			var ef_name = getKeyByValue(EC, effectId);
+			select.add( new Option( ef_name!==undefined ? effectId+' ('+ef_name+')' : effectId , effectId, null, _selectedEffect === effectId), null );
 		}
 		select.onchange = function() {
 			_selectedEffect = this.value;
