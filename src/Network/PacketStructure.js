@@ -9,12 +9,14 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (BinaryWriter, PACKETVER, Struct) {
+define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Configs'], function (BinaryWriter, PACKETVER, Struct, Configs) {
 	'use strict';
 
 
 	var UNUSED_PACKET;
 	var PACKET = {};
+	var RENEWAL = Configs.get('renewal') || false;
+	var CLASSIC = !RENEWAL; // For ease of reading checks
 	UNUSED_PACKET = PACKET;
 
 
@@ -6017,14 +6019,20 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct'], function (B
 	};
 	PACKET.ZC.SKILLINFO_LIST.size = -1;
 
-	// 0114
+	// 0x0110
 	PACKET.ZC.ACK_TOUSESKILL = function PACKET_ZC_ACK_TOUSESKILL(fp, end) {
 		this.SKID = fp.readUShort();
-		this.NUM = fp.readULong();
+		if((CLASSIC && PACKETVER.value >= 20181121) || (RENEWAL && PACKETVER.value >= 20180704)){
+			this.NUM = fp.readLong();
+			this.itemId = fp.readULong();
+		} else {
+			this.NUM = fp.readShort();
+			this.itemId = fp.readUShort();
+		}
 		this.result = fp.readUChar();
 		this.cause = fp.readUChar();
 	};
-	PACKET.ZC.ACK_TOUSESKILL.size = 12;
+	PACKET.ZC.ACK_TOUSESKILL.size = ((CLASSIC && PACKETVER.value >= 20181121) || (RENEWAL && PACKETVER.value >= 20180704) ? 14 : 10);
 
 	// 0x111
 	PACKET.ZC.ADD_SKILL = function PACKET_ZC_ADD_SKILL(fp, end) {
