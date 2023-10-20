@@ -464,6 +464,15 @@ define(function( require )
 				Sound.play('effect/assasin_cloaking.wav', this.position);
 			}
 		}
+		
+		
+		// Orcish head
+		if (value & StatusConst.EffectState.ORCISH) {
+			this.isOrcish = true;
+		} else {
+			this.isOrcish = false;
+		}
+		this.head = this.head;
 
 
 		// ------------------------
