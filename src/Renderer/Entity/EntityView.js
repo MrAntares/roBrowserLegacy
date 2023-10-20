@@ -244,7 +244,7 @@ define(function( require )
 		}
 
 		this._head  = head;
-		path        = DB.getHeadPath( head, this.job, this._sex );
+		path        = DB.getHeadPath( head, this.job, this._sex, this.isOrcish);
 
 		Client.loadFile(path + '.act');
 		Client.loadFile(path + '.spr', function(){
