@@ -3235,16 +3235,16 @@ define(function( require )
 			attachedEntity: true,
 		} ],
 		
-		201: [{	//EF_LEVEL99_2	   Normal level 99 Aura (Bottom)
-			/*type: 'FUNC',
-			attachedEntity: false,
-			func: function(pos, tick, AID){
-				var GroundEffect = require('Renderer/Effects/GroundEffect');
-				this.add(new GroundEffect(pos[0], pos[1]), AID);
-			}*/
-			//effect\\pikapika2.bmp
-			//Level99_2
-		}],
+		201: [ //EF_LEVEL99_2	   Normal level 99 Aura (Bottom)
+			{
+				type: 'FUNC',
+				attachedEntity: true,
+				func: function( Params ){
+					var Aura = require('Renderer/Effects/Aura');
+					this.add(new Aura(Params.Init.ownerEntity.position, 100, 15.0, 'pikapika2.bmp', Params.Inst.startTick), Params);
+				}
+			}
+		],
 		
 		202: [{	//EF_LEVEL99_3	   Lv 99 Aura Bubble
 			alphaMax: 0.78,
