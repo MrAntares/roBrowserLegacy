@@ -180,6 +180,7 @@ define(function(require)
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
 		EffectManager.render( gl, _modelView, Camera.projection, _fog, tick, false);
+		EffectManager.render( gl, _modelView, Camera.projection, _fog, tick, true);
 	}
 
 
