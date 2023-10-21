@@ -37,6 +37,7 @@ define(function( require )
 	var Mouse            = require('Controls/MouseEventHandler');
 	var KEYS             = require('Controls/KeyEventHandler');
 	var UIManager        = require('UI/UIManager');
+	var EffectManager     = require('Renderer/EffectManager');
 	var Background       = require('UI/Background');
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
@@ -386,7 +387,9 @@ define(function( require )
 				GID: Session.Character.GID
 			});
 			EntityManager.add( Session.Entity );
-			Session.Entity.aura.free(); // free aura so it loads in new map
+			// free and load aura so it loads in new map
+			Session.Entity.aura.free();
+			Session.Entity.aura.load(EffectManager);
 
 			// Initialize camera
 			Camera.setTarget( Session.Entity );
