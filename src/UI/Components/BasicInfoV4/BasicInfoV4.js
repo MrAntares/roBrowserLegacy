@@ -16,6 +16,8 @@ define(function(require)
 	 * Dependencies
 	 */
 	var DB                 = require('DB/DBManager');
+	var Configs      = require('Core/Configs');
+	var PACKETVER    = require('Network/PacketVerManager');
 	var MonsterTable       = require('DB/Monsters/MonsterTable');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
@@ -32,6 +34,7 @@ define(function(require)
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var Quest              = require('UI/Components/Quest/Quest');
+	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
 	var htmlText           = require('text!./BasicInfoV4.html');
 	var cssText            = require('text!./BasicInfoV4.css');
 
@@ -111,6 +114,7 @@ define(function(require)
 				case 'quest':
 					Quest.toggle();
 					break;
+
 				case 'map':
 					WorldMap.toggle();
 					break;
@@ -119,7 +123,11 @@ define(function(require)
 					Bank.toggle();
 					break;
 
-				case 'quest':
+				case 'attendance':
+					if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+						CheckAttendance.toggle();
+					}
+					break;
 			}
 		});
 

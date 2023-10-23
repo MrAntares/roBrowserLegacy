@@ -246,6 +246,11 @@
 	ROBrowser.prototype.enableMapName = false;
 
 	/**
+	 * @var {boolean} Enable Check Attendance UI
+	 */
+	ROBrowser.prototype.enableCheckAttendance = false;
+
+	/**
 	 * @var {boolean} User interface version selection mode (PacketVer | PreRenewal | Renewal)
 	 */
 	ROBrowser.prototype.clientVersionMode = "PacketVer";
@@ -423,6 +428,7 @@
 			enableCashShop:   this.enableCashShop,
 			enableBank:       this.enableBank,
 			enableMapName:    this.enableMapName,
+			enableCheckAttendance: this.enableCheckAttendance,
 			version:          this.version,
 			clientHash:       this.clientHash,
 			calculateHash:    this.calculateHash,

@@ -186,11 +186,12 @@ function createHTML(){
                                     langtype: 5,
                                     packetver: 20180704,
                                     socketProxy: "ws://127.0.0.1:5999/",
-                                    packetKeys: true
+                                    packetKeys: false
                                 },
                             ],
                             skipServerList:  true,
                             skipIntro:       true,
+                            clientVersionMode: 'PacketVer',
                             plugins: {},
                         };
             
