@@ -12447,6 +12447,17 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.GROUP_LIST2.size = -1;
 
+	// 0xa68
+	PACKET.CZ.UI_OPEN = function PACKET_CZ_UI_OPEN() {
+		this.UIType = 0;
+	};
+	PACKET.CZ.UI_OPEN.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(3);
+		pkt_buf.writeShort(0xa68);
+		pkt_buf.writeUChar(this.UIType);
+		return pkt_buf;
+	};
+
 	//0xae2
 	PACKET.ZC.UI_OPEN = function PACKET_ZC_UI_OPEN(fp, end) {
 		this.ui_type = fp.readByte();
@@ -12669,6 +12680,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.GROUP_LIST3.size = -1;
+
+	// 0xaef
+	PACKET.CZ.REQ_CHECK_ATTENDANCE = function PACKET_CZ_REQ_CHECK_ATTENDANCE() {
+	};
+	PACKET.CZ.REQ_CHECK_ATTENDANCE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+
+		pkt_buf.writeShort(0xaef);
+		return pkt_buf;
+	};
 
 	// 0xaf4
 	PACKET.CZ.USE_SKILL_TOGROUND3 = function PACKET_CZ_USE_SKILL_TOGROUND3() {

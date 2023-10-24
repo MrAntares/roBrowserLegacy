@@ -50,6 +50,10 @@ define(function( require )
 		MiniMap          = require('UI/Components/MiniMap/MiniMap');
 	}
 
+	if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+		var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
+	}
+
 	var UIVersionManager      = require('UI/UIVersionManager');
 
 	var BasicInfo;
@@ -225,6 +229,7 @@ define(function( require )
 		require('./MapEngine/Store').call();
 		require('./MapEngine/Trade').call();
 		require('./MapEngine/Friends').init();
+		require('./MapEngine/UIOpen').call();
 		if(PACKETVER.value >= 20180307) {
 			require('./MapEngine/Quest').call();
 		}
@@ -276,6 +281,10 @@ define(function( require )
 
 		if(Configs.get('enableBank')) {
 			Bank.prepare();
+		}
+
+		if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+			CheckAttendance.prepare();
 		}
 
 		// Bind UI
@@ -433,6 +442,10 @@ define(function( require )
 
 			if(Configs.get('enableCashShop')){
 				CashShop.append();
+			}
+
+			if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+				CheckAttendance.append();
 			}
 
 			// Reload plugins

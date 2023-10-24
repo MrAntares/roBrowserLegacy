@@ -18,6 +18,7 @@ define(function(require)
 	 */
 	var Client           = require('Core/Client');
 	var TextEncoding     = require('Vendors/text-encoding');
+	var fengari          = require('Vendors/fengari-web');
 	var ClassTable       = require('./Jobs/JobNameTable');
 	var PaletteTable     = require('./Jobs/PalNameTable');
 	var WeaponAction     = require('./Jobs/WeaponAction');
@@ -108,6 +109,12 @@ define(function(require)
 	var PetTalkTable = {};
 
 	/**
+	 * @var Attendance config
+	 * json object
+	 */
+	var CheckAttendanceTable = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -156,6 +163,7 @@ define(function(require)
 		loadTable( 'data/dc_scream.txt',				'\t',	1, function(index, val){	ScreamTable[index]                                        		= val;}, 			onLoad());
 
 		loadXMLFile( 'data/pettalktable.xml', function(json){PetTalkTable = json["monster_talk_table"];}, onLoad());
+		LoadAttendanceFile( 'System/CheckAttendance.lub', function(json){CheckAttendanceTable = json;}, onLoad());
 
 
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
@@ -220,6 +228,83 @@ define(function(require)
         );
 	}
 
+	/* LoadAttendanceFile to json object
+	*
+	* @param {string} filename to load
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	function LoadAttendanceFile(filename, callback, onEnd){
+		Client.loadFile( filename,
+            async function (lua) {
+				console.log('Loading file "'+ filename +'"...');
+				let json = { Config: [], Rewards: {} };
+				try
+				{
+					// load lua file from arraybuffer
+					fengari.load( new TextDecoder().decode(lua) )();
+
+					// get table
+					fengari.lua.lua_getglobal( fengari.L, "Reward" );
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log("[checkAttendance] Reward its not a table\n");
+						return;						
+					}
+
+					let rows = fengari.lauxlib.luaL_len(fengari.L, -1);
+
+					for (let i = 1; i <= rows; ++i) {
+						fengari.lua.lua_rawgeti(fengari.L, -1, i);
+						
+						fengari.lua.lua_rawgeti(fengari.L, -1, 1);
+						let day = fengari.lua.lua_tointeger(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_rawgeti(fengari.L, -1, 2);
+						let item_id = fengari.lua.lua_tointeger(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_rawgeti(fengari.L, -1, 3);
+						let quantity = fengari.lua.lua_tointeger(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						json.Rewards[i-1] = { day: day, item_id: item_id, quantity: quantity }
+					}
+
+					fengari.lua.lua_getglobal(fengari.L, "Config");
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log("[checkAttendance] Config its not a table\n");
+						fengari.lua.lua_close(fengari.L);
+						return;
+					}
+				
+					fengari.lua.lua_getfield(fengari.L, -1, "StartDate");
+					let startDate = fengari.lua.lua_tointeger(fengari.L, -1);
+					fengari.lua.lua_pop(fengari.L, 1);
+				
+					fengari.lua.lua_getfield(fengari.L, -1, "EndDate");
+					let endDate = fengari.lua.lua_tointeger(fengari.L, -1);
+					fengari.lua.lua_pop(fengari.L, 1);
+				
+					fengari.lua.lua_pop(fengari.L, 1);
+
+					json.Config.StartDate = startDate;
+					json.Config.EndDate = endDate;
+				}
+				catch( hException )
+				{
+					console.error( 'error: ', hException );
+				}
+				
+				callback.call( null, json);
+				onEnd();
+            },
+            onEnd
+        );
+	}
 
 	/**
 	 * Fog entry parser
@@ -1169,6 +1254,10 @@ define(function(require)
 	 */
 	DB.getQuestInfo = function getQuestInfo(questID) {
 		return QuestInfo[questID] || { "Title": "Unknown Quest", "Description": "Uknown Quest", "Summary": "Uknown Quest", "IconName": "", "NpcSpr": null, "NpcNavi": null, "NpcPosX": null, "NpcPosY": null, "RewardItemList": null, "RewardEXP": 0, "RewardJEXP": 0 };
+	};
+
+	DB.getCheckAttendanceInfo = function getCheckAttendanceInfo() {
+		return CheckAttendanceTable;
 	};
 
 	/**
