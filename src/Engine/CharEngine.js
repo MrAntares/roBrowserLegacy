@@ -533,7 +533,7 @@ define(function( require )
 			pkt.Dex  = Dex;
 			pkt.Luk  = Luk;
 		}
-		else if ( ( PACKET.value >= 20120307 ) && ( PACKET.value < 20151001 ) ) {
+		else if ( ( PACKETVER.value >= 20120307 ) && ( PACKETVER.value < 20151001 ) ) {
 			pkt = new PACKET.CH.MAKE_CHAR2();
 		}
 		else {
