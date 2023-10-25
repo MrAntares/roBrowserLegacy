@@ -144,6 +144,22 @@ function initialize() {
   
   window.addEventListener("load", initialize, false);  // When the webpage loads this will start roBrowser
 ```
+In case of the `langtype` option, we added support for some custom types:
+
+Normal
+- 160: Central European
+- 161: Greek
+- 162: Turkish
+- 163: Hebrew
+- 164: Estonian, Latvian, Lithuaninan
+
+Unicode
+- 240: UTF-8
+- 241: UTF-16LE
+- 242: UTF-16BE
+
+**Using these custom types makes roBrowser incompatible with other clients without modifying them as well! Only use them if you know what you are doing!**
+
 You can set up your own `index.html` / integrate roBrowser into your website as well based on the .examples/ and this example above.
 
 ### Start websocket proxy
