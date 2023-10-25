@@ -154,9 +154,10 @@ define(function( require )
 				charset = 'windows-1256';
 				break;
 		
-			//////////////////
-			// CUSTOM TYPES //
-			//////////////////
+			/////////////////////////////////////////////////////
+			// CUSTOM TYPES                                    //
+			// Only use them if you know what you are doing ;) //
+			/////////////////////////////////////////////////////
 			case 0xa0: // 160 - Central European
 				charset = 'windows-1250';
 				break;
