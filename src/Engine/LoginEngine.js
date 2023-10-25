@@ -102,19 +102,10 @@ define(function( require )
 				charset = 'windows-949';
 				break;
 
-			// SERVICETYPE_AMERICA
-			// SERVICETYPE_INDONESIA
-			// SERVICETYPE_PHILIPPINE
-			// SERVICETYPE_MALAYSIA
-			// SERVICETYPE_SINGAPORE
-			// SERVICETYPE_GERMANY
-			// SERVICETYPE_INDIA
-			// SERVICETYPE_AUSTRALIA
-			default:
-			case 0x0c: // SERVICETYPE_BRAZIL
-			case 0x12: // SERVICETYPE_FRANCE
-				charset = 'windows-1250';
+			case 0x01: // SERVICETYPE_AMERICA
+				charset = 'windows-1252';
 				break;
+				
 			case 0x02: // SERVICETYPE_JAPAN
 				charset = 'shift-jis';
 				break;
@@ -130,6 +121,17 @@ define(function( require )
 			case 0x05: // SERVICETYPE_THAI
 				charset = 'windows-874';
 				break;
+				
+			case 0x06: // SERVICETYPE_INDONESIA
+			case 0x07: // SERVICETYPE_PHILIPPINE
+			case 0x08: // SERVICETYPE_MALAYSIA
+			case 0x09: // SERVICETYPE_SINGAPORE
+			case 0x0a: // SERVICETYPE_GERMANY
+			case 0x0b: // SERVICETYPE_INDIA
+			case 0x0c: // SERVICETYPE_BRAZIL
+			case 0x0d: // SERVICETYPE_AUSTRALIA
+				charset = 'windows-1252';
+				break;
 
 			case 0x0e: // SERVICETYPE_RUSSIA
 				charset = 'windows-1251';
@@ -139,16 +141,58 @@ define(function( require )
 				charset = 'windows-1258';
 				break;
 
-			// Not supported by the encoder/decoder, jump to windows-1252
+			// Not supported by the encoder/decoder, default to windows-1252
 			//case 0x11: // SERVICETYPE_CHILE
 			//	charset = 'windows-1145';
 			//	break;
+			
+			case 0x12: // SERVICETYPE_FRANCE
+				charset = 'windows-1252';
+				break;
 
-			case 0x14: // SERVICETYPE_UAE
+			case 0x13: // SERVICETYPE_UAE
 				charset = 'windows-1256';
 				break;
-			case 0x99:
-				charset = 'windows-1250'; //EASTERN EUROPEAN
+		
+			//////////////////
+			// CUSTOM TYPES //
+			//////////////////
+			case 0xa0: // 160 - Central European
+				charset = 'windows-1250';
+				break;
+				
+			case 0xa1: // 161 - Greek
+				charset = 'windows-1253';
+				break;
+				
+			case 0xa2: // 162 - Tukish
+				charset = 'windows-1254';
+				break;
+				
+			case 0xa3: // 163 - Hebrew
+				charset = 'windows-1255';
+				break;
+				
+			case 0xa4: // 164 - Estonian, Latvian, Lithuaninan
+				charset = 'windows-1257';
+				break;
+			
+			/////////////////////////////////////////////////////
+			// Custom unicode types                            //
+			// Only use them if you know what you are doing ;) //
+			/////////////////////////////////////////////////////
+			case 0xf0: // 240 - UTF-8
+				charset = 'utf-8';
+				break;
+			case 0xf1: // 241 - UTF-16LE
+				charset = 'utf-16le';
+				break;
+			case 0xf2: // 242 - UTF-16BE
+				charset = 'utf-16be';
+				break;
+			
+			default: // Latin1
+				charset = 'windows-1252';
 				break;
 		}
 
