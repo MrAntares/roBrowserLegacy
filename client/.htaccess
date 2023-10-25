@@ -41,7 +41,7 @@ RewriteRule ^(.*)\.bmp$   $1\.png [NC,QSA]
 <ifModule mod_gzip.c>
 	mod_gzip_on Yes
 	mod_gzip_dechunk Yes
-	mod_gzip_item_include file \.(act|spr|pal|txt|xml|lua|gnd|gat|rsw|rsm)$
+	mod_gzip_item_include file \.(act|spr|pal|txt|xml|lua|lub|gnd|gat|rsw|rsm)$
 </ifModule>
 
 <IfModule mod_mime.c>
