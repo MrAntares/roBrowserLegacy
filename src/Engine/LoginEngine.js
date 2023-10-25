@@ -195,7 +195,9 @@ define(function( require )
 				charset = 'windows-1252';
 				break;
 		}
-
+		
+		console.log( "%c[LOGIN] Language Type: ", "color:#007000", Session.LangType);
+		console.log( "%c[LOGIN] Encoding: ", "color:#007000", charset);
 		TextEncoding.setCharset(charset);
 		_server = server;
 
