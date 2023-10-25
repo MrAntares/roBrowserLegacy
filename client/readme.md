@@ -12,7 +12,7 @@ Because pushing directly the fullclient on a server/ftp can provoke some errors,
 ###Add your fullclient###
 
 Just put your GRFs files and DATA.INI file in the `resources/` directory.
-Overwrite the `data/` and `BGM/` directories with your own folders.
+Overwrite the `BGM/`, `data/` and `System/` directories with your own folders.
 
 **Note: to be sure to use a compatible version of your GRFs, download *GRF Builder* and repack them manually (Option > Repack type > Decrypt -> Repack), it will ensure the GRFs files are converted in the proper version**
 
