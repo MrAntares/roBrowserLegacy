@@ -61,7 +61,8 @@ For development purposes (modifying the source/testing) skip this section and se
 - alternatively, if you don't want to use GRFs directly, then you can extract your GRFs into the `client/data` directory (not recommended, but it works fine)
 - copy your `DATA.INI` (GRF loading order) under `client/resources` directory
 - copy your BGM `.mp3` under `client/BGM` directory
-- copy your data directory under `client/data`directory
+- copy your data directory under `client/data` directory
+- copy your System files under `client/System` directory
 - copy your `clientinfo.xml` (client-server information) under `client/data` directory
 - copy your AI files under `AI` directory
 - check the `client/configs.php` if it is configured properly for your use and make sure `DEBUG` is set to false
