@@ -189,7 +189,7 @@ define(function(require)
 			case Storage.ITEM.HEALING:
 			case Storage.ITEM.USABLE:
 			case Storage.ITEM.USABLE_SKILL:
-			case Storage.ITEM.USABLE_SKILL_UNK:
+			case Storage.ITEM.USABLE_UNK:
 				tab = Storage.TAB.ITEM;
 				break;
 
