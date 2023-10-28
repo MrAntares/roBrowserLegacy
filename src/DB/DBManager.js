@@ -389,9 +389,6 @@ define(function(require)
 
 						fengari.lua.lua_pop(fengari.L, 1);
 					}
-					for(let i = 500; i < 510; i++) {
-						console.log(json[i]);
-					}
 				}
 				catch( hException )
 				{
