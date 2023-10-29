@@ -131,7 +131,7 @@ function(      FileManager,        FileSystem,           MapLoader )
 							arguments: [ result, error, msg.data ]
 						});
 					}
-				});
+				}, msg.data.args);
 				break;
 
 

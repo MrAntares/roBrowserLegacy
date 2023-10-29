@@ -422,7 +422,7 @@ define(function( require )
 						break;
 
 					case 'str':
-						result = new Str(buffer);
+						result = new Str(buffer, args?.texturePath ?? '');
 						break;
 
 					default:
