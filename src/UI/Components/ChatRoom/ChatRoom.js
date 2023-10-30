@@ -191,7 +191,7 @@ define(function(require)
 
 		// Process commands
 		if (message[0] === '/') {
-			getModule('Controls/ProcessCommand').call( ChatBox, message.substr(1) );
+			getModule('Controls/ProcessCommand').processCommand.call( ChatBox, message.substr(1) );
 			ui.find('.send input[name=message]').val('');
 			return true;
 		}

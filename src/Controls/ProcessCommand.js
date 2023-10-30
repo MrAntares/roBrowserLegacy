@@ -28,27 +28,23 @@ define(function( require )
 	var Renderer           = require('Renderer/Renderer');
 	var getModule          = require;
 
+	var aliases = {};
 
-	/**
-	 * Process command
-	 */
-	return function processCommand( text ){
-		var pkt, matches;
-		var cmd = text.split(' ')[0];
-
-		switch (cmd) {
-
-			case 'sound':
+	var CommandStore = {
+		'sound': {
+			description: 'Toggle sound.',
+			callback: function() {
 				this.addText( DB.getMessage(27 + AudioPreferences.Sound.play), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				AudioPreferences.Sound.play = !AudioPreferences.Sound.play;
 				AudioPreferences.save();
-
 				if (AudioPreferences.Sound.play) {
 					Sound.stop();
 				}
-				return;
-
-			case 'bgm':
+			}
+		},
+		'bgm': {
+			description: 'Toggle BGM.',
+			callback: function() {
 				this.addText( DB.getMessage(31 + AudioPreferences.BGM.play), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				AudioPreferences.BGM.play = !AudioPreferences.BGM.play;
 				AudioPreferences.save();
@@ -60,33 +56,48 @@ define(function( require )
 					BGM.stop();
 				}
 				return;
-
-			case 'effect':
+			}
+		},
+		'effect': {
+			description: 'Toggle effects.',
+			callback: function() {
 				this.addText( DB.getMessage(23 + MapPreferences.effect), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.effect = !MapPreferences.effect;
 				MapPreferences.save();
 				return;
-
-			case 'mineffect':
+			}
+		},
+		'mineffect': {
+			description: 'Toggle mine effects.',
+			callback: function() {
 				this.addText( DB.getMessage(687 + MapPreferences.mineffect), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.mineffect = !MapPreferences.mineffect;
 				MapPreferences.save();
 				return;
-
-			case 'miss':
+			}
+		},
+		'miss': {
+			description: 'Toggle miss effects.',
+			callback: function() {
 				this.addText( DB.getMessage(317 + MapPreferences.miss), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.miss = !MapPreferences.miss;
 				MapPreferences.save();
 				return;
-
-			case 'aura':
+			}
+		},
+		'aura': {
+			description: 'Toggle aura effect.',
+			callback: function() {
 				var isSimplified = MapPreferences.aura > 1;
 				this.addText( DB.getMessage(711 + isSimplified), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.aura = isSimplified ? 1 : 2;
 				MapPreferences.save();
 				return;
-
-			case 'aura2':
+			}
+		},
+		'aura2': {
+			description: 'Toggle aura2 effect.',
+			callback: function() {
 				this.addText(
 					DB.getMessage(
 						2994 + MapPreferences.aura,
@@ -100,8 +111,11 @@ define(function( require )
 				MapPreferences.aura = MapPreferences.aura ? 0 : 1;
 				MapPreferences.save();
 				return;
-
-			case 'showname':
+			}
+		},
+		'showname': {
+			description: 'Toggle display names.',
+			callback: function() {
 				this.addText( DB.getMessage(722 + MapPreferences.showname), this.TYPE.INFO );
 				MapPreferences.showname = !MapPreferences.showname;
 				MapPreferences.save();
@@ -113,51 +127,84 @@ define(function( require )
 					entity.display.refresh(entity);
 				});
 				return;
-
-			case 'camera':
+			}
+		},
+		'camera': {
+			description: 'Toggle camera smoothing.',
+			callback: function() {
 				this.addText( DB.getMessage(319 + CameraPreferences.smooth), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				CameraPreferences.smooth = !CameraPreferences.smooth;
 				CameraPreferences.save();
 				return;
+			}
+		},
 
-			case 'fog':
+		'fog': {
+			description: 'Toggle fog.',
+			callback: function() {
 				MapPreferences.fog = !MapPreferences.fog;
 				this.addText( 'fog ' + ( MapPreferences.fog ? 'on' : 'off'), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				MapPreferences.save();
 				return;
+			}
+		},
 
-			case 'lightmap':
+		'lightmap': {
+			description: 'Toggle lightmap',
+			callback: function() {
 				MapPreferences.lightmap = !MapPreferences.lightmap;
 				MapPreferences.save();
 				return;
+			}
+		},
 
-			case 'noctrl':
-			case 'nc':
+
+		'noctrl': {
+			description: 'Toggle noctrl.',
+			callback: function() {
 				this.addText( DB.getMessage(717 + ControlPreferences.noctrl), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.noctrl = !ControlPreferences.noctrl;
 				ControlPreferences.save();
 				return;
+			},
+			aliases: ['nc']
+		},
 
-			case 'noshift':
-			case 'ns':
+		'noshift': {
+			description: 'Toggle noshift.',
+			callback: function() {
 				this.addText( DB.getMessage(701 + ControlPreferences.noshift), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.noshift = !ControlPreferences.noshift;
 				ControlPreferences.save();
 				return;
-            		case 'snap':
+			},
+			aliases: ['ns']
+		},
+
+		'snap': {
+			description: 'Toggle snap.',
+			callback: function() {
 				this.addText( DB.getMessage(271 + ControlPreferences.snap), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.snap = !ControlPreferences.snap;
 				ControlPreferences.save();
 				return;
+			}
+		},
 
-            		case 'itemsnap':
+		'itemsnap': {
+			description: 'Toggle itemsnap.',
+			callback: function() {
 				this.addText( DB.getMessage(276 + ControlPreferences.itemsnap), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				ControlPreferences.itemsnap = !ControlPreferences.itemsnap;
 				ControlPreferences.save();
 				return;
+			}
+		},
 
-			case 'sit':
-			case 'stand':
+		'stand': {
+			description: 'Sit/Stand',
+			callback: function() {
+				var pkt;
 				if(PACKETVER.value >= 20180307) {
 					pkt        = new PACKET.CZ.REQUEST_ACT2();
 				} else {
@@ -171,8 +218,14 @@ define(function( require )
 				}
 				Network.sendPacket(pkt);
 				return;
+			},
+			aliases: ['sit']
+		},
 
-			case 'doridori':
+		'doridori': {
+			description: 'Doridori',
+			callback: function() {
+				var pkt;
 				Session.Entity.headDir = ( Session.Entity.headDir === 1 ? 2 : 1 );
 				if(PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.CHANGE_DIRECTION2();
@@ -202,8 +255,13 @@ define(function( require )
 					}
 				}
 				return;
+			},
+		},
 
-			case 'bangbang':
+		'bangbang': {
+			description: 'Bangbang',
+			callback: function() {
+				var pkt;
 				Session.Entity.direction = ( Session.Entity.direction + 1 ) % 8;
 				if(PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.CHANGE_DIRECTION2();
@@ -214,8 +272,13 @@ define(function( require )
 				pkt.dir     = Session.Entity.direction;
 				Network.sendPacket(pkt);
 				return;
+			}
+		},
 
-			case 'bingbing':
+		'bingbing': {
+			description: 'Bingbing',
+			callback: function() {
+				var pkt;
 				Session.Entity.direction = ( Session.Entity.direction + 7 ) % 8;
 				if(PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.CHANGE_DIRECTION2();
@@ -226,88 +289,148 @@ define(function( require )
 				pkt.dir     = Session.Entity.direction;
 				Network.sendPacket(pkt);
 				return;
+			}
+		},
 
-			case 'where':
+		'where': {
+			description: 'Show current position.',
+			callback: function() {
 				var currentMap = getModule('Renderer/MapRenderer').currentMap;
 				this.addText(
 					DB.getMapName(currentMap) + '(' + currentMap + ') : ' + Math.floor(Session.Entity.position[0]) + ', ' + Math.floor(Session.Entity.position[1]),
 					this.TYPE.INFO, this.FILTER.PUBLIC_LOG
 				);
 				return;
+			}
+		},
 
-			case 'who':
-			case 'w':
-				pkt = new PACKET.CZ.REQ_USER_COUNT();
+		'who': {
+			description: 'Show online players.',
+			callback: function() {
+				var pkt = new PACKET.CZ.REQ_USER_COUNT();
 				Network.sendPacket(pkt);
 				return;
+			},
+			aliases: ['w']
+		},
 
-			case 'memo':
-				pkt = new PACKET.CZ.REMEMBER_WARPPOINT();
+		'memo': {
+			description: 'Save current position.',
+			callback: function() {
+				var pkt = new PACKET.CZ.REMEMBER_WARPPOINT();
 				Network.sendPacket(pkt);
 				return;
+			}
+		},
 
-			case 'chat':
+		'chat': {
+			description: 'Create chat room.',
+			callback: function() {
 				getModule('UI/Components/ChatRoomCreate/ChatRoomCreate').show();
 				return;
+			}
+		},
 
-			case 'q':
+
+		'q': {
+			description: 'Close chat room.',
+			callback: function() {
 				getModule('UI/Components/ChatRoom/ChatRoom').remove();
 				return;
+			}
+		},
 
-			case 'leave':
+		'leave': {
+			description: 'Leave group.',
+			callback: function() {
 				getModule('Engine/MapEngine/Group').onRequestLeave();
 				return;
+			}
+		},
 
-			case 'invite':
-				matches = text.match(/^invite\s+(")?([^"]+)(")?/);
+		'invite': {
+			description: 'Invite player to group.',
+			callback: function(text) {
+				var matches = text.match(/^invite\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					getModule('Engine/MapEngine/Group').onRequestInvitation(0, matches[2]);
 					return;
 				}
-				break;
+			}
+		},
 
-			case 'organize':
-				matches = text.match(/^organize\s+(")?([^"]+)(")?/);
+		'organize': {
+			description: 'Create group.',
+			callback: function(text) {
+				var matches = text.match(/^organize\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					getModule('Engine/MapEngine/Group').onRequestCreationEasy(matches[2]);
 					return;
 				}
-				break;
+			}
+		},
 
-			case 'hi':
+		'hi': {
+			description: 'Say hi to friends.',
+			callback: function() {
 				getModule('Engine/MapEngine/Friends').sayHi();
 				return;
+			}
+		},
 
-			case 'guild':
-				matches = text.match(/^guild\s+(")?([^"]+)(")?/);
+		'guild': {
+			description: 'Create guild.',
+			callback: function(text) {
+				var matches = text.match(/^guild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					getModule('Engine/MapEngine/Guild').createGuild(matches[2]);
 					return;
 				}
-				break;
+			}
+		},
 
-			case 'breakguild':
-				matches = text.match(/^breakguild\s+(")?([^"]+)(")?/);
+		'breakguild': {
+			description: 'Break guild.',
+			callback: function(text) {
+				var matches = text.match(/^breakguild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					getModule('Engine/MapEngine/Guild').breakGuild(matches[2]);
 					return;
 				}
-				break;
+			}
+		},
 
-			case 'alchemist':
-                pkt = new PACKET.CZ.ALCHEMIST_RANK();
-				Network.sendPacket(pkt);
-                return;
-            case 'blacksmith':
-            	pkt = new PACKET.CZ.BLACKSMITH_RANK();
-				Network.sendPacket(pkt);
-                return;
-            case 'taekwon':
-                pkt = new PACKET.CZ.TAEKWON_RANK();
-				Network.sendPacket(pkt);
-                return;
 
-			case 'hoai':
+		'alchemist': {
+			description: 'Show alchemist ranking.',
+			callback: function() {
+				var pkt = new PACKET.CZ.ALCHEMIST_RANK();
+				Network.sendPacket(pkt);
+				return;
+			}
+		},
+
+		'blacksmith': {
+			description: 'Show blacksmith ranking.',
+			callback: function() {
+				var pkt = new PACKET.CZ.BLACKSMITH_RANK();
+				Network.sendPacket(pkt);
+				return;
+			}
+		},
+
+		'taekwon': {
+			description: 'Show taekwon ranking.',
+			callback: function() {
+				var pkt = new PACKET.CZ.TAEKWON_RANK();
+				Network.sendPacket(pkt);
+				return;
+			}
+		},
+
+		'hoai': {
+			description: 'Toggle custom homunculus AI.',
+			callback: function() {
 				Session.homCustomAI = !Session.homCustomAI;
 				if(Session.homCustomAI){
 					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
@@ -317,8 +440,12 @@ define(function( require )
 					this.addText( DB.getMessage(1024), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				}
 				return;
+			}
+		},
 
-			case 'merai':
+		'merai': {
+			description: 'Toggle custom mercenary AI.',
+			callback: function() {
 				Session.merCustomAI = !Session.merCustomAI;
 				if(Session.merCustomAI){
 					this.addText( DB.getMessage(1273), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
@@ -327,33 +454,105 @@ define(function( require )
 				}
 				this.addText( '(Mercenary not supported yet)', this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 				return;
-
-		}
-
-
-		// /str+
-		// TODO: do we have to spam the server with "1" unit or do we have to fix the servers code ?
-		matches = text.match(/^(\w{3})\+ (\d+)$/);
-		if (matches) {
-			var pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
-			if (pos > -1 && matches[2] !== 0) {
-				pkt = new PACKET.CZ.STATUS_CHANGE();
-				pkt.statusID     = pos + 13;
-				pkt.changeAmount = parseInt( matches[2], 10 );
-				Network.sendPacket(pkt);
-				return;
 			}
 		}
 
-		// Show emotion
-		if (cmd in Emotions.commands) {
-			pkt      = new PACKET.CZ.REQ_EMOTION();
-			pkt.type = Emotions.commands[cmd];
-			Network.sendPacket(pkt);
-			return;
-		}
-
-		// Command not found
-		this.addText( DB.getMessage(95), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
 	};
+
+	/**
+	 * Load aliases
+	 */
+	function loadAliases() {
+		for (var cmd in CommandStore) {
+			if (CommandStore[cmd].aliases) {
+				for (var i = 0; i < CommandStore[cmd].aliases.length; i++) {
+					aliases[CommandStore[cmd].aliases[i]] = cmd;
+				}
+			}
+		}
+	}
+
+	loadAliases();
+
+	/**
+	 * Process command
+	 */
+	function processCommand( text ) {
+        var cmd = text.split(' ')[0];
+		var pkt, matches;
+
+        // Check if the command exists in the store
+        if (CommandStore[cmd]) {
+            CommandStore[cmd].callback.call(this, text);
+        } else if (aliases[cmd]) {
+			var parentCommand = aliases[cmd];
+			CommandStore[parentCommand].callback.call(this, text);
+		} else {
+			// /str+
+			// TODO: do we have to spam the server with "1" unit or do we have to fix the servers code ?
+			matches = text.match(/^(\w{3})\+ (\d+)$/);
+			if (matches) {
+				var pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
+				if (pos > -1 && matches[2] !== 0) {
+					pkt = new PACKET.CZ.STATUS_CHANGE();
+					pkt.statusID     = pos + 13;
+					pkt.changeAmount = parseInt( matches[2], 10 );
+					Network.sendPacket(pkt);
+					return;
+				}
+			}
+
+			// Show emotion
+			if (cmd in Emotions.commands) {
+				pkt      = new PACKET.CZ.REQ_EMOTION();
+				pkt.type = Emotions.commands[cmd];
+				Network.sendPacket(pkt);
+				return;
+			}
+
+            // Command not found
+            this.addText( DB.getMessage(95), this.TYPE.INFO, this.FILTER.PUBLIC_LOG );
+        }
+    };
+
+	/**
+	 * Add a command to the store
+	 */
+	function addCommand( name, description = '', callback = () => {}, aliases = [] ) {
+		var ChatBox = getModule('UI/Components/ChatBox/ChatBox');
+		callback = callback.bind(ChatBox);
+
+		CommandStore[name] = {
+			description: description,
+			callback: callback,
+			aliases: aliases
+		};
+		reloadAliases();
+	};
+
+	/**
+	 * Remove a command from the store
+	 */
+	function removeCommand( name ) {
+		delete CommandStore[name];
+		reloadAliases();
+	};
+
+	/**
+ 	* Reload aliases (we dont reload aliases on each ProcessCommand because it's not a common operation)
+	 */
+	function reloadAliases() {
+		aliases = {};
+		loadAliases();
+	}
+
+	return {
+		processCommand: processCommand,
+		add: addCommand,
+		remove: removeCommand,
+		isEnabled: function( name ) {
+			return name in CommandStore;
+		},
+		reloadAliases: reloadAliases
+	}
 });
