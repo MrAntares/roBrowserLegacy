@@ -7,8 +7,8 @@
  *
  * @author Vincent Thibault
  */
-define(['DB/DBManager', './EntityManager', './Entity/Entity', 'Renderer/Map/Altitude'],
-function(   DB,            EntityManager,            Entity,                Altitude)
+define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity', 'Renderer/Map/Altitude'],
+function(   DB,            EntityManager,            EffectManager,            Entity,                Altitude)
 {
 	'use strict';
 
@@ -23,14 +23,16 @@ function(   DB,            EntityManager,            Entity,                Alti
 	 * @param {number} x
 	 * @param {number} y
 	 * @param {number} z
+	 * @param {number} dropeffectmode
+	 * @param {boolean} showdropeffect
 	 */
-	function add( gid, itemid, identify, count, x, y, z )
+	function add( gid, itemid, identify, count, x, y, z, dropeffectmode, showdropeffect )
 	{
 		var it     = DB.getItemInfo(itemid);
 		var path   = DB.getItemPath(itemid, identify);
 		var entity = new Entity();
 		var name   = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
-
+		var dropEffectPostition = [x, y, z];
 		entity.GID          = gid;
 		entity.objecttype   = Entity.TYPE_ITEM;
 		entity.position[0]  = x;
@@ -46,14 +48,16 @@ function(   DB,            EntityManager,            Entity,                Alti
 
 		entity.files.shadow.size = 0.25;
 
+		if(showdropeffect) {
+			entity.dropEffect.load(EffectManager, dropeffectmode)
+		}
+		
 		// Item falling
 		entity.animations.add(function(tick) {
 			var level          = Altitude.getCellHeight(entity.position[0], entity.position[1]);
 			entity.position[2] = Math.max(level, z - (tick / 40));
-
 			return entity.position[2] === level;
 		});
-
 
 		EntityManager.add(entity);
 	}
@@ -66,6 +70,9 @@ function(   DB,            EntityManager,            Entity,                Alti
 	 */
 	function remove( gid )
 	{
+		var entity = EntityManager.get(gid);
+		entity.dropEffect.remove( EffectManager );
+
 		EntityManager.remove(gid);
 	}
 
