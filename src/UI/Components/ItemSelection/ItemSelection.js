@@ -79,7 +79,7 @@ define(function(require)
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (isSkill) {
-				if(list[i] > 0){
+				if(list[i] > 0 && list[i] in SkillInfo){
 					item = SkillInfo[list[i]];
 					file = item.Name;
 					name = item.SkillName;
@@ -88,10 +88,14 @@ define(function(require)
 				// else: skip empty
 			} else {
 				item = Inventory.getItemByIndex(list[i]);
-				it   = DB.getItemInfo( item.ITID );
-				file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
-				name = item.IsIdentified ? it.identifiedDisplayName : it.unidentifiedDisplayName;
-				addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
+				if (item){
+					it   = DB.getItemInfo( item.ITID );
+					if(it){
+						file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
+						name = item.IsIdentified ? it.identifiedDisplayName : it.unidentifiedDisplayName;
+						addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
+					}
+				}
 			}
 
 		}
