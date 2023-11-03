@@ -90,17 +90,19 @@ function initialize() {
           development:    false,  // When false needs a compiled Online.js in the root (faster load). When true, the client will directly use the javascript files from src/ (slower load, for debugging/development only)
           version:        20230927.0959, // Update this value every time you update your robrowser, to trigger a source refresh on every browser. Recommended to use a decimal timestamp (YYYYMMDD.hhmm), but can be anything
           
-          servers: [{  // Game server info. You must configure this! You can have multiple servers like: servers: [{..}, {..}, {..}],
-              display:     "Demo Server",  // Display name, can be anything
-              desc:        "roBrowser's demo server",  // Description, can be anything
-              address:     "127.0.0.1",   // Must match your game server's
-              port:        6900,          // Must match your game server's
-              langtype:    12,            // Must match your game server's
-              packetver:   20191223,      // Must match your game server's
-              renewal:     true,          // Must match your game server's type (true/false). When using clientinfo.xml you can add the <renewal>true</renewal> custom tag.
-              packetKeys:  false,         // Packet encryption keys ( not implemented?? )
-              socketProxy: "ws://127.0.0.1:5999/",  // The websocket proxy's address you set up previously for robrowser (wsproxy)
-              adminList:   [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
+          servers: [{  // Game server info. You must configure this! You can have multiple servers like: servers: [{..}, {..}, {..}], you can also use clientinfo to set the server list (servers: "data/clientinfo.xml",)
+              display:      "Demo Server",  // Display name, can be anything
+              desc:         "roBrowser's demo server",  // Description, can be anything
+              address:      "127.0.0.1",   // Must match your game server's
+              port:         6900,          // Must match your game server's
+              langtype:     12,            // Must match your game server's
+              packetver:    20191223,      // Must match your game server's
+              //grfList:    "DATA.INI",    // By default uses DATA.INI to get grf list, but you can define an array (grfList: ['custom.grf', 'palette.grf', 'data.grf'],) or a regex (grfList: /\.grf$/i,)
+              remoteClient: "http://127.0.0.1/client", // Your remote client address. Defaults to http://grf.robrowser.com/
+              renewal:      true,          // Must match your game server's type (true/false). When using clientinfo.xml you can add the <renewal>true</renewal> custom tag.
+              packetKeys:   false,         // Packet encryption keys ( not implemented?? )
+              socketProxy:  "ws://127.0.0.1:5999/",  // The websocket proxy's address you set up previously for robrowser (wsproxy)
+              adminList:    [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
           }],
           
           skipServerList:  true,   // Skip server selection?
