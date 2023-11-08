@@ -538,7 +538,7 @@ define(function(require)
 		this.ui.find('.input .message').focus();
 
 		var content = this.ui.find('.content.active');
-		content.scrollTop = content.scrollHeight;
+		content[0].scrollTop = content[0].scrollHeight;
 	};
 
 
@@ -862,12 +862,12 @@ define(function(require)
 		var HeightList = [ 0, 0, MAGIC_NUMBER, MAGIC_NUMBER*2, MAGIC_NUMBER*3, MAGIC_NUMBER*4, MAGIC_NUMBER*5 ];
 		_heightIndex   = (_heightIndex + 1) % HeightList.length;
 
-		var $content   = this.ui.find('.contentwrapper');
+		var content   = this.ui.find('.contentwrapper');
 		var height     = HeightList[ _heightIndex ];
 		var top        = parseInt( this.ui.css('top'), 10);
 
-		this.ui.css('top', top - (height - $content.height()) );
-		$content.height(height);
+		this.ui.css('top', top - (height - content.height()) );
+		content.height(height);
 
 		// Don't remove UI
 		if (_heightIndex === 0 && AlwaysVisible) {
@@ -891,7 +891,7 @@ define(function(require)
 				break;
 		}
 
-		$content[0].scrollTop = $content[0].scrollHeight;
+		content[0].scrollTop = content[0].scrollHeight;
 	};
 
 
