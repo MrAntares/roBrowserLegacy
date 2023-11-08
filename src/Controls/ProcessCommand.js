@@ -11,24 +11,24 @@ define(function (require) {
 	"use strict";
 
 	// Load dependencies
-	var DB = require("DB/DBManager");
-	var Emotions = require("DB/Emotions");
-	var BGM = require("Audio/BGM");
-	var Sound = require("Audio/SoundManager");
-	var Session = require("Engine/SessionStorage");
-	var PACKET = require("Network/PacketStructure");
-	var PACKETVER = require("Network/PacketVerManager");
-	var Network = require("Network/NetworkManager");
-	var ControlPreferences = require("Preferences/Controls");
-	var AudioPreferences = require("Preferences/Audio");
-	var MapPreferences = require("Preferences/Map");
-	var CameraPreferences = require("Preferences/Camera");
-	var Renderer = require("Renderer/Renderer");
-	var getModule = require;
+	const DB = require("DB/DBManager");
+	const Emotions = require("DB/Emotions");
+	const BGM = require("Audio/BGM");
+	const Sound = require("Audio/SoundManager");
+	const Session = require("Engine/SessionStorage");
+	const PACKET = require("Network/PacketStructure");
+	const PACKETVER = require("Network/PacketVerManager");
+	const Network = require("Network/NetworkManager");
+	const ControlPreferences = require("Preferences/Controls");
+	const AudioPreferences = require("Preferences/Audio");
+	const MapPreferences = require("Preferences/Map");
+	const CameraPreferences = require("Preferences/Camera");
+	const Renderer = require("Renderer/Renderer");
+	const getModule = require;
 
-	var aliases = {};
+	let aliases = {};
 
-	var CommandStore = {
+	let CommandStore = {
 		sound: {
 			description: "Toggles playing of sound effects",
 			callback: function () {
@@ -105,7 +105,7 @@ define(function (require) {
 		aura: {
 			description: "Minimizes the aura effect for level 99 and 175 characters",
 			callback: function () {
-				var isSimplified = MapPreferences.aura > 1;
+				const isSimplified = MapPreferences.aura > 1;
 				this.addText(
 					DB.getMessage(711 + isSimplified),
 					this.TYPE.INFO,
@@ -291,14 +291,14 @@ define(function (require) {
 					Session.Entity.doriTime.shift();
 					Session.Entity.doriTime.push(Renderer.tick);
 
-					var doriStart = Session.Entity.doriTime[0];
-					var doriEnd = Session.Entity.doriTime[4];
+					const doriStart = Session.Entity.doriTime[0];
+					const doriEnd = Session.Entity.doriTime[4];
 
 					if (
 						doriEnd - doriStart > 1500 &&
 						doriEnd - doriStart < 3000
 					) {
-						var doripkt = new PACKET.CZ.DORIDORI();
+						const doripkt = new PACKET.CZ.DORIDORI();
 						Network.sendPacket(doripkt);
 						Session.Entity.doriTime = [0, 0, 0, 0, 0];
 					}
@@ -325,7 +325,7 @@ define(function (require) {
 		},
 
 		bingbing: {
-			description: "Bingbing",
+			description: "Rotates your character counterclockwise",
 			callback: function () {
 				var pkt;
 				Session.Entity.direction = (Session.Entity.direction + 7) % 8;
@@ -342,9 +342,9 @@ define(function (require) {
 		},
 
 		where: {
-			description: "Rotates your character counterclockwise",
+			description: "Shows your character's location as a map name and set of coordinates",
 			callback: function () {
-				var currentMap = getModule("Renderer/MapRenderer").currentMap;
+				const currentMap = getModule("Renderer/MapRenderer").currentMap;
 				this.addText(
 					DB.getMapName(currentMap) +
 						"(" +
@@ -659,7 +659,7 @@ define(function (require) {
 		aliases = [],
 		custom = true
 	) {
-		var ChatBox = getModule("UI/Components/ChatBox/ChatBox");
+		const ChatBox = getModule("UI/Components/ChatBox/ChatBox");
 		callback = callback.bind(ChatBox);
 
 		CommandStore[name] = {
