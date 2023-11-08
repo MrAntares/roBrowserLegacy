@@ -539,6 +539,52 @@ define(function (require) {
 				return;
 			},
 		},
+		commands: {
+			//description: "Show available commands.",
+			callback: function () {
+				function addTextCommand(cmd, commands) {
+					let textAliases = '';
+
+					if (commands[cmd].aliases && commands[cmd].aliases.length > 0) {
+						textAliases = ` (${commands[cmd].aliases.join(", ")})`;
+					}
+
+					return `/${cmd}` + textAliases + ` : ${commands[cmd].description || 'Unknown description.'}\n`;
+				}
+				// we list custom in a separate section
+				let customsEnabled = false;
+
+				const separator = "=======================\n";
+
+				let messages = `${separator}Available Commands:\n${separator}`;
+				let customMessages = `${separator}Custom Commands:\n${separator}`;
+
+				const sortedCommands = {};
+
+				// sort a-z commands by their name
+				Object.keys(CommandStore).sort().forEach(function (key) {
+					sortedCommands[key] = CommandStore[key];
+				});
+
+
+				for (const cmd in sortedCommands) {
+					if (sortedCommands[cmd].custom) {
+						customMessages += addTextCommand(cmd, sortedCommands);
+						customsEnabled = true;
+					} else {
+						messages += addTextCommand(cmd, sortedCommands);
+					}
+				}
+
+				this.addText(messages, this.TYPE.BLUE, this.FILTER.PUBLIC_LOG);
+
+				if (customsEnabled)
+					this.addText(customMessages, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+
+				return;
+			},
+			aliases: ["cmd", "h", "help"],
+		},
 	};
 
 	/**
@@ -610,7 +656,8 @@ define(function (require) {
 		name,
 		description = "",
 		callback = () => {},
-		aliases = []
+		aliases = [],
+		custom = true
 	) {
 		var ChatBox = getModule("UI/Components/ChatBox/ChatBox");
 		callback = callback.bind(ChatBox);
@@ -619,6 +666,7 @@ define(function (require) {
 			description: description,
 			callback: callback,
 			aliases: aliases,
+			custom
 		};
 		reloadAliases();
 	}
