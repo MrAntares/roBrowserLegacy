@@ -10683,7 +10683,74 @@ define(function( require )
 				});
 			}
 		}],
-		
+		1186: [{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_pink/dropitem_pink/dropitem_pink',
+			texturePath: 'new_dropitem/dropitem_pink/dropitem_pink/',
+			renderBeforeEntities: true
+		},{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_pink/dropitem_pink_bottom/dropitem_pink_bottom',
+			texturePath: 'new_dropitem/dropitem_pink/dropitem_pink_bottom/',
+			renderBeforeEntities: true
+		},{
+			wav: 'effect/drop_pink',
+		}],
+		1189: [{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_yellow/dropitem_yellow/dropitem_yellow',
+			texturePath: 'new_dropitem/dropitem_yellow/dropitem_yellow/',
+		},{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_yellow/dropitem_yellow_bottom/dropitem_yellow_bottom',
+			texturePath: 'new_dropitem/dropitem_yellow/dropitem_yellow_bottom/',
+		},{
+			wav: 'effect/drop_yellow',
+		}],
+		1190: [{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_purple/dropitem_purple/dropitem_purple',
+			texturePath: 'new_dropitem/dropitem_purple/dropitem_purple/',
+		},{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_purple/dropitem_purple_bottom/dropitem_purple_bottom',
+			texturePath: 'new_dropitem/dropitem_purple/dropitem_purple_bottom/',
+		},{
+			wav: 'effect/drop_purple',
+		}],
+		1869: [{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_blue/dropitem_blue/dropitem_blue',
+			texturePath: 'new_dropitem/dropitem_blue/dropitem_blue/',
+		},{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_blue/dropitem_blue_bottom/dropitem_blue_bottom',
+			texturePath: 'new_dropitem/dropitem_blue/dropitem_blue_bottom/',
+		},{
+			wav: 'effect/drop_blue',
+		}],
+		1870: [{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_green/dropitem_green/dropitem_green',
+			texturePath: 'new_dropitem/dropitem_green/dropitem_green/',
+		},{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_green/dropitem_green_bottom/dropitem_green_bottom',
+			texturePath: 'new_dropitem/dropitem_green/dropitem_green_bottom/',
+		},{
+			wav: 'effect/drop_green',
+		}],
+		1871: [{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_red/dropitem_red/dropitem_red',
+			texturePath: 'new_dropitem/dropitem_red/dropitem_red/',
+		},{
+			type: 'STR',
+			file: 'new_dropitem/dropitem_red/dropitem_red_bottom/dropitem_red_bottom',
+			texturePath: 'new_dropitem/dropitem_red/dropitem_red_bottom/',
+		},{
+			wav: 'effect/drop_red',
+		}],
 		'maximize_power_sounds': [{
 			type: 'FUNC',
 			attachedEntity: true,
@@ -11437,72 +11504,6 @@ define(function( require )
 		'ef_': [{
 			wav: 'effect/',
 			attachedEntity: true
-		}],
-		'new_dropitem_blue': [{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_blue/dropitem_blue/dropitem_blue',
-			texturePath: 'new_dropitem/dropitem_blue/dropitem_blue/'
-		},{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_blue/dropitem_blue_bottom/dropitem_blue_bottom',
-			texturePath: 'new_dropitem/dropitem_blue/dropitem_blue_bottom/'
-		},{
-			wav: 'effect/drop_blue',
-		}],
-		'new_dropitem_green': [{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_green/dropitem_green/dropitem_green',
-			texturePath: 'new_dropitem/dropitem_green/dropitem_green/'
-		},{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_green/dropitem_green_bottom/dropitem_green_bottom',
-			texturePath: 'new_dropitem/dropitem_green/dropitem_green_bottom/'
-		},{
-			wav: 'effect/drop_green',
-		}],
-		'new_dropitem_yellow': [{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_yellow/dropitem_yellow/dropitem_yellow',
-			texturePath: 'new_dropitem/dropitem_yellow/dropitem_yellow/'
-		},{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_yellow/dropitem_yellow_bottom/dropitem_yellow_bottom',
-			texturePath: 'new_dropitem/dropitem_yellow/dropitem_yellow_bottom/'
-		},{
-			wav: 'effect/drop_yellow',
-		}],
-		'new_dropitem_purple': [{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_purple/dropitem_purple/dropitem_purple',
-			texturePath: 'new_dropitem/dropitem_purple/dropitem_purple/'
-		},{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_purple/dropitem_purple_bottom/dropitem_purple_bottom',
-			texturePath: 'new_dropitem/dropitem_purple/dropitem_purple_bottom/'
-		},{
-			wav: 'effect/drop_purple',
-		}],
-		'new_dropitem_red': [{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_red/dropitem_red/dropitem_red',
-			texturePath: 'new_dropitem/dropitem_red/dropitem_red/'
-		},{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_red/dropitem_red_bottom/dropitem_red_bottom',
-			texturePath: 'new_dropitem/dropitem_red/dropitem_red_bottom/'
-		},{
-			wav: 'effect/drop_red',
-		}],
-		'new_dropitem_pink': [{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_pink/dropitem_pink/dropitem_pink',
-			texturePath: 'new_dropitem/dropitem_pink/dropitem_pink/'
-		},{
-			type: 'STR',
-			file: 'new_dropitem/dropitem_pink/dropitem_pink_bottom/dropitem_pink_bottom',
-			texturePath: 'new_dropitem/dropitem_pink/dropitem_pink_bottom/'
-		},{
-			wav: 'effect/drop_pink',
 		}]
 	};
 });

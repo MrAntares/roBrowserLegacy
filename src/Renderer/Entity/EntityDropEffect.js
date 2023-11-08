@@ -7,10 +7,19 @@
  *
  * @author Bastien Bruant
  */
-define(function(require)
+define(['DB/Effects/EffectConst'], function(EffectConst)
 {
 	'use strict';
 
+	const dropEffects = [
+		EffectConst.DROPEFFECT_PINK,
+		EffectConst.DROPEFFECT_BLUE,
+		EffectConst.DROPEFFECT_YELLOW,
+		EffectConst.DROPEFFECT_PURPLE,
+		EffectConst.DROPEFFECT_GREEN,
+		EffectConst.DROPEFFECT_RED,
+	];
+	
 	/**
 	 * drop effect class
 	 *
@@ -28,7 +37,10 @@ define(function(require)
 	 */
 	DropEffect.prototype.load = function load( effectManager, dropEffectMode )
 	{ 
-		var effect = getDropEffect(dropEffectMode);
+		// TODO the dropEffectMode 0 means that we need to get the EffectID from the lua file
+		// Right now, it's only used for cards and they all have the pink drop effect.
+		// But we should load the EffectID from ItemInfo.lua when we implement it.
+		var effect = dropEffects[dropEffectMode];
 
 		// check if drop effect is valid
 		if(!effect) {
@@ -39,6 +51,7 @@ define(function(require)
 		if(this.entity.isVisible()) {
 			// drop effect is already loaded
 			if(!this.isLoaded) {
+				console.log(this.entity.position[2]);
 				// add drop effect
 				effectManager.spam( {
 					ownerAID: this.entity.GID,
@@ -76,37 +89,6 @@ define(function(require)
 		this.isLoaded = false;
 	};
 
-	function getDropEffect( dropEffectMode ) {
-		var dropEffect;
-
-		switch(dropEffectMode) {
-			case 1:
-				// TODO: get the effectId from the lua file
-			break;
-			case 2:
-				dropEffect = 'new_dropitem_blue';
-			break;
-			case 3:
-				dropEffect = 'new_dropitem_yellow';
-			break;
-			case 4:
-				dropEffect = 'new_dropitem_purple';
-			break;
-			case 5:
-				dropEffect = 'new_dropitem_green';
-			break;
-			case 6:
-				dropEffect = 'new_dropitem_red';
-			break;
-			case 0:
-			default:
-				dropEffect = undefined
-			break;
-		}
-
-		return dropEffect;
-
-	}
 	/**
 	 * Export
 	 */
