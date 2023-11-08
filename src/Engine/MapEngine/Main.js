@@ -772,10 +772,14 @@ define(function( require )
 
 		//List
 		for(var i = 0; i < 10; ++i){
+			let name, point;
+			name = pkt?.Name?.[i] || 'None';
+			point = pkt?.Point?.[i] || 0;
+			
 			message = '[%rank%] %name% : %point% ' + DB.getMessage(2385); // [x] name : y Points
 			message = message.replace('%rank%', i+1);
-			message = message.replace('%name%', pkt.Name[i]);
-			message = message.replace('%point%', pkt.Point[i]);
+			message = message.replace('%name%', name);
+			message = message.replace('%point%', point);
 			ChatBox.addText( message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG );
 		}
 
