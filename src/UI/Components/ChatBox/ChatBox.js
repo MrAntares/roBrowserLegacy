@@ -848,8 +848,18 @@ define(function(require)
 				element.remove();
 			}
 
-			// Always put the scroll at the bottom
-			content[0].scrollTop = content[0].scrollHeight;
+
+			if (content[0].scrollTop === 0)
+				return;
+
+			// Note: Consider that if we sent messages with different heights the scroll will be wrong
+			const messageHeight = this.ui.find('.content > div:last-child')[0].scrollHeight;
+			const tolerance = 5; // pixels of tolerance
+
+			// Always put the scroll at the bottom if the user is not scrolling
+			if (content[0].scrollTop + content.height() + messageHeight >= content[0].scrollHeight - tolerance) {
+			  content[0].scrollTop = content[0].scrollHeight;
+			}
 		});
 	};
 
