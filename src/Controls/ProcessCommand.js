@@ -30,7 +30,7 @@ define(function (require) {
 
 	var CommandStore = {
 		sound: {
-			description: "Toggle sound.",
+			description: "Toggles playing of sound effects",
 			callback: function () {
 				this.addText(
 					DB.getMessage(27 + AudioPreferences.Sound.play),
@@ -45,7 +45,7 @@ define(function (require) {
 			},
 		},
 		bgm: {
-			description: "Toggle BGM.",
+			description: "Toggles playing of background music",
 			callback: function () {
 				this.addText(
 					DB.getMessage(31 + AudioPreferences.BGM.play),
@@ -64,7 +64,7 @@ define(function (require) {
 			},
 		},
 		effect: {
-			description: "Toggle effects.",
+			description: "Toggles the display of anything but basic graphical effects",
 			callback: function () {
 				this.addText(
 					DB.getMessage(23 + MapPreferences.effect),
@@ -77,7 +77,7 @@ define(function (require) {
 			},
 		},
 		mineffect: {
-			description: "Toggle mine effects.",
+			description: "Enables less graphically intense effects. This command does not work for Wizard's AoE skills.",
 			callback: function () {
 				this.addText(
 					DB.getMessage(687 + MapPreferences.mineffect),
@@ -90,7 +90,7 @@ define(function (require) {
 			},
 		},
 		miss: {
-			description: "Toggle miss effects.",
+			description: "Toggles display of the ‘miss’ animation",
 			callback: function () {
 				this.addText(
 					DB.getMessage(317 + MapPreferences.miss),
@@ -103,7 +103,7 @@ define(function (require) {
 			},
 		},
 		aura: {
-			description: "Toggle aura effect.",
+			description: "Minimizes the aura effect for level 99 and 175 characters",
 			callback: function () {
 				var isSimplified = MapPreferences.aura > 1;
 				this.addText(
@@ -117,7 +117,7 @@ define(function (require) {
 			},
 		},
 		aura2: {
-			description: "Toggle aura2 effect.",
+			description: "Disables the aura effect for level 99 and 175 characters",
 			callback: function () {
 				this.addText(
 					DB.getMessage(
@@ -135,7 +135,7 @@ define(function (require) {
 			},
 		},
 		showname: {
-			description: "Toggle display names.",
+			description: "Returns to the original font",
 			callback: function () {
 				this.addText(
 					DB.getMessage(722 + MapPreferences.showname),
@@ -154,7 +154,7 @@ define(function (require) {
 			},
 		},
 		camera: {
-			description: "Toggle camera smoothing.",
+			description: "Turns camera 'smoothing' off and on.",
 			callback: function () {
 				this.addText(
 					DB.getMessage(319 + CameraPreferences.smooth),
@@ -168,7 +168,7 @@ define(function (require) {
 		},
 
 		fog: {
-			description: "Toggle fog.",
+			description: "Turns fog on and off",
 			callback: function () {
 				MapPreferences.fog = !MapPreferences.fog;
 				this.addText(
@@ -182,7 +182,7 @@ define(function (require) {
 		},
 
 		lightmap: {
-			description: "Toggle lightmap",
+			description: "Removes shade effects and a majority of lighting effects",
 			callback: function () {
 				MapPreferences.lightmap = !MapPreferences.lightmap;
 				MapPreferences.save();
@@ -191,7 +191,7 @@ define(function (require) {
 		},
 
 		noctrl: {
-			description: "Toggle noctrl.",
+			description: "Allows attacking monsters continuously with only one left-click",
 			callback: function () {
 				this.addText(
 					DB.getMessage(717 + ControlPreferences.noctrl),
@@ -206,7 +206,7 @@ define(function (require) {
 		},
 
 		noshift: {
-			description: "Toggle noshift.",
+			description: " Allows targeting monsters or other players in PvP arenas with support skills without having to press the Shift key",
 			callback: function () {
 				this.addText(
 					DB.getMessage(701 + ControlPreferences.noshift),
@@ -221,7 +221,7 @@ define(function (require) {
 		},
 
 		snap: {
-			description: "Toggle snap.",
+			description: "The mouse cursor semi-automatically moves to the target",
 			callback: function () {
 				this.addText(
 					DB.getMessage(271 + ControlPreferences.snap),
@@ -235,7 +235,7 @@ define(function (require) {
 		},
 
 		itemsnap: {
-			description: "Toggle itemsnap.",
+			description: "The mouse cursor semi-automatically moves to the loot",
 			callback: function () {
 				this.addText(
 					DB.getMessage(276 + ControlPreferences.itemsnap),
@@ -249,7 +249,7 @@ define(function (require) {
 		},
 
 		stand: {
-			description: "Sit/Stand",
+			description: "Makes your character sit or stand",
 			callback: function () {
 				var pkt;
 				if (PACKETVER.value >= 20180307) {
@@ -269,7 +269,7 @@ define(function (require) {
 		},
 
 		doridori: {
-			description: "Doridori",
+			description: "Moves your character's head from side to side",
 			callback: function () {
 				var pkt;
 				Session.Entity.headDir = Session.Entity.headDir === 1 ? 2 : 1;
@@ -308,7 +308,7 @@ define(function (require) {
 		},
 
 		bangbang: {
-			description: "Bangbang",
+			description: "Rotates your character clockwise",
 			callback: function () {
 				var pkt;
 				Session.Entity.direction = (Session.Entity.direction + 1) % 8;
@@ -342,7 +342,7 @@ define(function (require) {
 		},
 
 		where: {
-			description: "Show current position.",
+			description: "Rotates your character counterclockwise",
 			callback: function () {
 				var currentMap = getModule("Renderer/MapRenderer").currentMap;
 				this.addText(
@@ -361,7 +361,7 @@ define(function (require) {
 		},
 
 		who: {
-			description: "Show online players.",
+			description: "Shows the current number of players on the server",
 			callback: function () {
 				var pkt = new PACKET.CZ.REQ_USER_COUNT();
 				Network.sendPacket(pkt);
@@ -371,7 +371,7 @@ define(function (require) {
 		},
 
 		memo: {
-			description: "Save current position.",
+			description: "Memorizes a location for use with the Warp Portal skill",
 			callback: function () {
 				var pkt = new PACKET.CZ.REMEMBER_WARPPOINT();
 				Network.sendPacket(pkt);
@@ -380,7 +380,7 @@ define(function (require) {
 		},
 
 		chat: {
-			description: "Create chat room.",
+			description: "Creates a chat room",
 			callback: function () {
 				getModule("UI/Components/ChatRoomCreate/ChatRoomCreate").show();
 				return;
@@ -388,7 +388,7 @@ define(function (require) {
 		},
 
 		q: {
-			description: "Close chat room.",
+			description: "Leaves a chat room",
 			callback: function () {
 				getModule("UI/Components/ChatRoom/ChatRoom").remove();
 				return;
@@ -396,7 +396,7 @@ define(function (require) {
 		},
 
 		leave: {
-			description: "Leave group.",
+			description: "Allows one to leave a party",
 			callback: function () {
 				getModule("Engine/MapEngine/Group").onRequestLeave();
 				return;
@@ -404,7 +404,7 @@ define(function (require) {
 		},
 
 		invite: {
-			description: "Invite player to group.",
+			description: "\"<name>\" Invite a person to your party. Works across different maps",
 			callback: function (text) {
 				var matches = text.match(/^invite\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
@@ -418,7 +418,7 @@ define(function (require) {
 		},
 
 		organize: {
-			description: "Create group.",
+			description: "Creates a party named <Party Name>",
 			callback: function (text) {
 				var matches = text.match(/^organize\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
@@ -431,7 +431,7 @@ define(function (require) {
 		},
 
 		hi: {
-			description: "Say hi to friends.",
+			description: "Sends the specified message to everyone on your friend list",
 			callback: function () {
 				getModule("Engine/MapEngine/Friends").sayHi();
 				return;
@@ -439,7 +439,7 @@ define(function (require) {
 		},
 
 		guild: {
-			description: "Create guild.",
+			description: "Creates a guild named <Guild Name>. This requires an Emperium to be in the creator's inventory",
 			callback: function (text) {
 				var matches = text.match(/^guild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
@@ -450,7 +450,7 @@ define(function (require) {
 		},
 
 		breakguild: {
-			description: "Break guild.",
+			description: "Disbands a guild. Can only be used by the guild leader. All members must be expelled first",
 			callback: function (text) {
 				var matches = text.match(/^breakguild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
@@ -461,7 +461,7 @@ define(function (require) {
 		},
 
 		alchemist: {
-			description: "Show alchemist ranking.",
+			description: "Shows the top 10 brewing Alchemists in the server.",
 			callback: function () {
 				var pkt = new PACKET.CZ.ALCHEMIST_RANK();
 				Network.sendPacket(pkt);
@@ -470,7 +470,7 @@ define(function (require) {
 		},
 
 		blacksmith: {
-			description: "Show blacksmith ranking.",
+			description: "Shows the top 10 forging/upgrading Blacksmiths in the server",
 			callback: function () {
 				var pkt = new PACKET.CZ.BLACKSMITH_RANK();
 				Network.sendPacket(pkt);
@@ -479,7 +479,7 @@ define(function (require) {
 		},
 
 		taekwon: {
-			description: "Show taekwon ranking.",
+			description: "Shows the top 10 TaeKwon Kids based on completion of TaeKwon Missions in the server",
 			callback: function () {
 				var pkt = new PACKET.CZ.TAEKWON_RANK();
 				Network.sendPacket(pkt);
@@ -488,7 +488,7 @@ define(function (require) {
 		},
 
 		hoai: {
-			description: "Toggle custom homunculus AI.",
+			description: "Switches Homunculus AI between default and custom mode",
 			callback: function () {
 				Session.homCustomAI = !Session.homCustomAI;
 				if (Session.homCustomAI) {
@@ -515,7 +515,7 @@ define(function (require) {
 		},
 
 		merai: {
-			description: "Toggle custom mercenary AI.",
+			description: "Switches Mercenary AI between default and custom mode",
 			callback: function () {
 				Session.merCustomAI = !Session.merCustomAI;
 				if (Session.merCustomAI) {
@@ -540,7 +540,7 @@ define(function (require) {
 			},
 		},
 		commands: {
-			//description: "Show available commands.",
+			description: "Show available commands.",
 			callback: function () {
 				function addTextCommand(cmd, commands) {
 					let textAliases = '';
