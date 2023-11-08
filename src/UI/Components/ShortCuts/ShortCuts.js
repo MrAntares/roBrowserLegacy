@@ -9,8 +9,8 @@
  define(function(require)
  {
 	 'use strict';
- 
- 
+
+
 	 /**
 	  * Dependencies
 	  */
@@ -28,8 +28,8 @@
 	 var Network            = require('Network/NetworkManager');
 	 var PACKET             = require('Network/PacketStructure');
 	 var getModule    		= require;
- 
- 
+
+
 	 /**
 	  * Create Component
 	  */
@@ -50,7 +50,7 @@
 		Num_9:  '/$'	,
 		Num_0:  '/...'
 	}, 1.0);
-	
+
 	// Fixed, can't change them
 	var _FLAG_INIT = {
 		Num_1:  13, //ET_FLAG
@@ -63,19 +63,19 @@
 		Num_8:  66, //ET_FLAG8
 		Num_9:  67 //ET_FLAG9
 	};
- 
+
 	 /**
 	  * Store ShortCuts items
 	  */
 	 ShortCuts.list = [];
- 
- 
+
+
 	 /**
 	  * @var {number} used to remember the window height
 	  */
 	 var _realSize = 0;
- 
- 
+
+
 	 /**
 	  * @var {Preferences} structure
 	  */
@@ -91,14 +91,14 @@
 		 magnet_left: true,
 		 magnet_right: false
 	 }, 1.0);
- 
- 
+
+
 	 /**
 	  * Initialize UI
 	  */
 	 ShortCuts.init = function Init()
 	 {
-		
+
 		this.ui.find('.footer button').mousedown(function(){
 			if( this.className == 'emoticons')
 				Emoticons.onShortCut({cmd: 'TOGGLE'})
@@ -122,8 +122,8 @@
 
 		this.draggable(this.ui.find('.titlebar'));
 	 };
- 
- 
+
+
 	 /**
 	  * Apply preferences once append to body
 	  */
@@ -132,14 +132,14 @@
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-		
+
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
 	 };
- 
- 
+
+
 	 /**
 	  * Remove ShortCuts from window (and so clean up items)
 	  */
@@ -148,7 +148,7 @@
 		 this.ui.find('.container .content').empty();
 		 this.list.length = 0;
 		 jQuery('.ItemInfo').remove();
- 
+
 		 // Save preferences
 		 _preferences.show   =  this.ui.is(':visible');
 		 _preferences.reduce = !!_realSize;
@@ -162,8 +162,8 @@
 		 _preferences.magnet_right = this.magnet.RIGHT;
 		 _preferences.save();
 	 };
- 
- 
+
+
 	 /**
 	  * Process shortcut
 	  *
@@ -211,7 +211,7 @@
 			case 'EXECUTE_MACRO_0':
 				executeCmd(0);
 				break;
-				
+
 			// Flags
 			case 'EXECUTE_FLAG_1':
 				executeFlag(1);
@@ -242,8 +242,8 @@
 				break;
 		}
 	 };
- 
- 
+
+
 	 /**
 	  * Extend ShortCuts window size
 	  *
@@ -254,19 +254,19 @@
 	 {
 		 width  = Math.min( Math.max(width,  6), 9);
 		 height = Math.min( Math.max(height, 2), 6);
- 
+
 		 this.ui.find('.container .content').css({
 			 width:  width  * 32 + 13, // 13 = scrollbar
 			 height: height * 32
 		 });
- 
+
 		 this.ui.css({
 			 width:  23 + 16 + 16 + width  * 32,
 			 height: 31 + 19      + height * 32
 		 });
 	 };
- 
- 
+
+
 	/**
 	 * Exit window
 	 */
@@ -274,8 +274,8 @@
 	{
 		ShortCuts.ui.hide();
 	}
- 
- 
+
+
 	 /**
 	  * Extend ShortCuts window size
 	  */
@@ -289,27 +289,27 @@
 		 var lastWidth  = 0;
 		 var lastHeight = 0;
 		 var _Interval;
- 
+
 		 function resizing()
 		 {
 			 var extraX = 23 + 16 + 16 - 30;
 			 var extraY = 31 + 19 - 30;
- 
+
 			 var w = Math.floor( (Mouse.screen.x - left - extraX) / 32 );
 			 var h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
- 
+
 			 // Maximum and minimum window size
 			 w = Math.min( Math.max(w, 6), 9);
 			 h = Math.min( Math.max(h, 2), 6);
- 
+
 			 if (w === lastWidth && h === lastHeight) {
 				 return;
 			 }
- 
+
 			 ShortCuts.resize( w, h );
 			 lastWidth  = w;
 			 lastHeight = h;
- 
+
 			 //Show or hide scrollbar
 			 if (content.height() === content[0].scrollHeight) {
 				 hide.show();
@@ -318,10 +318,10 @@
 				 hide.hide();
 			 }
 		 }
- 
+
 		 // Start resizing
 		 _Interval = setInterval( resizing, 30);
- 
+
 		 // Stop resizing on left click
 		 jQuery(window).on('mouseup.resize', function(event){
 			 if (event.which === 1) {
@@ -331,9 +331,9 @@
 		 });
 	 }
 
-	 function executeCmd(value){		
+	 function executeCmd(value){
 		var command = _MACRO_INIT[`Num_${value}`];
-		
+
 		// Nothing to submit
 		if (command.length < 1 || command == '/hide') {
 			return;
@@ -341,22 +341,22 @@
 
 		// Process commands
 		if( command[0] == '/' ){
-			getModule('Controls/ProcessCommand').call( ChatBox, command.substr(1) );
+			getModule('Controls/ProcessCommand').processCommand.call( ChatBox, command.substr(1) );
 			return;
 		}
 
 		ChatBox.onRequestTalk('', command, ChatBox.sendTo);
 	 }
-	 
-	 function executeFlag(value){		
+
+	 function executeFlag(value){
 		var command = _FLAG_INIT[`Num_${value}`];
-		
+
 		// Nothing to submit
 		if (command.length < 1) {
 			return;
 		}
 
-		var pkt = 
+		var pkt =
 		pkt = new PACKET.CZ.REQ_EMOTION();
 		pkt.type = command;
 		Network.sendPacket(pkt);
@@ -375,7 +375,7 @@
 		element.ui.find('.macro input').blur(function(){
 			var index = jQuery(this).attr('id').split("macro_")[1]
 			_MACRO_INIT[`Num_${index}`] = this.value
-			_MACRO_INIT.save();			
+			_MACRO_INIT.save();
 		});
 	 }
 
@@ -384,7 +384,7 @@
 	 */
 	  function onDropText( event )
 	  {
-		  event.stopImmediatePropagation(); 
+		  event.stopImmediatePropagation();
 		  var data;
 		  try {
 			 data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -392,12 +392,12 @@
 		  catch(e) {
 			  return false;
 		  }
-		  
+
 		  // Valid if the message type
 		  if (data.type == 'item') {
 			  return false;
 		  }
- 
+
 		  jQuery(event.currentTarget).val(data);
 		  return false;
 	  }
@@ -417,4 +417,4 @@
 	  */
 	 return UIManager.addComponent(ShortCuts);
  });
- 
+

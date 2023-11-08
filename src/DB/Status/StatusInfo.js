@@ -3091,7 +3091,7 @@ define(['./StatusConst'], function( SC )
 	};
 
 	StatusInfo[SC.LAZINESS] = {
-		ison: "masquerade_laziness.tga",
+		icon: "masquerade_laziness.tga",
 		haveTimeLimit: 1,
 		posTimeLimitStr: 2,
 		descript: [

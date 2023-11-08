@@ -30,7 +30,7 @@ define(function(require)
 	var ContextMenu        = require('UI/Components/ContextMenu/ContextMenu');
 	var htmlText           = require('text!./ChatBox.html');
 	var cssText            = require('text!./ChatBox.css');
-	var ProcessCommand     = require('Controls/ProcessCommand');
+	var Commands     = require('Controls/ProcessCommand');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
 
 
@@ -75,7 +75,7 @@ define(function(require)
 		tabs: [],
 		tabOption: [],
 		activeTab: 0
-		
+
 	}, 1.0);
 
 
@@ -101,7 +101,7 @@ define(function(require)
 		ADMIN:    1 << 9,
 		MAIL:     1 << 10,
 	};
-	
+
 	ChatBox.FILTER = {
 		PUBLIC_LOG:		0,
 		PUBLIC_CHAT:	1,
@@ -146,7 +146,7 @@ define(function(require)
 	ChatBox.lastTabID = -1;
 	ChatBox.tabCount = 0;
 	ChatBox.activeTab = 0;
-	
+
 	ChatBox.tabs = [];
 
 	/**
@@ -333,11 +333,11 @@ define(function(require)
 		this.ui.find('.chat-function .battleopt').click(function(){
 			ChatBox.toggleChatBattleOption();
 		});
-		
+
 		// Init settings window as well
 		ChatBoxSettings.append();
-		
-		
+
+
 		if(_preferences.tabs.length > 0 && _preferences.tabs.length == _preferences.tabOption.length){
 			// Load saved tabs
 			for(var i = 0; i < _preferences.tabs.length; i++){
@@ -345,7 +345,7 @@ define(function(require)
 					ChatBox.addNewTab(_preferences.tabs[i].name, _preferences.tabOption[i]);
 				}
 			}
-			
+
 			// Switch to last active tab
 			if(ChatBox.tabs[_preferences.activeTab]){
 				this.switchTab(_preferences.activeTab);
@@ -372,13 +372,13 @@ define(function(require)
 				ChatBox.FILTER.BATTLEFIELD,
 				ChatBox.FILTER.CLAN
 			]); // Public Log
-				
+
 			ChatBox.addNewTab(DB.getMessage(1292)); // Battle Log
-			
+
 			// switch to first
 			ChatBox.switchTab(firstTab);
 		}
-		
+
 		// dialog box size
 		makeResizableDiv()
 	};
@@ -416,16 +416,16 @@ define(function(require)
 	ChatBox.removeTab = function removeTab() {
 		this.ui.find('table.header tr td.tab[data-tab="'+ this.activeTab +'"]').remove();
 		this.ui.find('.body .content[data-content="'+ this.activeTab +'"]').remove();
-		
+
 		var tabName= '';
 		var _elem = this.ui.find('table.header tr td.tab');
  		_elem = this.ui.find('table.header tr td.tab')[_elem.length - 1];
-		
+
 		// Use delete instead of splice to avoid ID messup and make our life eastier.
 		delete ChatBoxSettings.tabOption[this.activeTab];
 		delete this.tabs[this.activeTab];
 		this.tabCount--;
-		
+
 		ChatBox.switchTab(_elem.dataset.tab);
 
 		tabName = this.ui.find('.header tr td div.on input').val();
@@ -433,7 +433,7 @@ define(function(require)
 	}
 
 	ChatBox.addNewTab = function addNewTab(name, settings){
-		
+
 		// Default settings
 		if(!name){
 			name = 'New Tab';
@@ -464,23 +464,23 @@ define(function(require)
 				ChatBox.FILTER.CLAN
 			];
 		}
-		
+
 		var tabName = name;
 		var tabID = ++this.lastTabID;
-		
+
 		var tab = {};
 		tab.id = tabID;
 		tab.name = tabName;
-		
+
 		// Store prev height
 		//var height = this.ui.find('.contentwrapper').height();
-		
+
 		// Remove current active state
 		this.ui.find('table.header tr td.tab div')
 			.removeClass('on');
 		this.ui.find('.body .content')
 			.removeClass('active');
-		
+
 		// Add new elements as active
 		this.ui.find('table.header tr .opttab').before(`
 			<td class="tab" data-tab="${tabID}">
@@ -489,42 +489,42 @@ define(function(require)
 				</div>
 			</td>
 		`);
-		
+
 		this.ui.find('table.header tr td.tab[data-tab="'+tabID+'"] div input').on('change', function(){
 			ChatBox.tabs[tabID].name = this.value;
 		});
-		
+
 		this.ui.find('.body .contentwrapper').append(
 			`<div class="content active" data-content="${tabID}"></div>`
 		);
 
 		ChatBoxSettings.tabOption[tabID] = settings;
-		
+
 		this.tabs[tabID] = tab;
 		this.activeTab = tabID;
-		
+
 		this.tabCount++;
-		
+
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
-		
+
 		return tabID;
 	}
 
 	ChatBox.switchTab = function switchTab(tabID){
 		var tabName = '';
-		
+
 		this.ui.find('table.header tr td.tab div')
 			.removeClass('on');
 		this.ui.find('.body .content')
 			.removeClass('active');
-		
+
 		this.activeTab = tabID;
 
 		this.ui.find('table.header tr td.tab[data-tab="'+ this.activeTab +'"] div')
 			.addClass('on');
 		this.ui.find('.body .content[data-content="'+ this.activeTab +'"]')
 			.addClass('active');
-		
+
 		tabName = this.ui.find('.header tr td div.on input').val();
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
 	}
@@ -538,7 +538,7 @@ define(function(require)
 		this.ui.find('.input .message').focus();
 
 		var content = this.ui.find('.content.active');
-		content.scrollTop = content.scrollHeight;
+		content[0].scrollTop = content[0].scrollHeight;
 	};
 
 
@@ -556,13 +556,13 @@ define(function(require)
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
 		_preferences.magnet_right = this.magnet.RIGHT;
-		
+
 		_preferences.tabs = this.tabs;
 		_preferences.tabOption = ChatBoxSettings.tabOption;
 		_preferences.activeTab = this.activeTab;
-		
+
 		_preferences.save();
-		
+
 		this.lastTabID = -1;
 		this.activeTab = 0;
 	};
@@ -737,7 +737,7 @@ define(function(require)
 			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/chatmode_'+chatmode+'.bmp', function( data ){
 				ChatBox.ui.find('.chat-function .chatmode').css('backgroundImage', 'url('+ data +')');
 			});
-			
+
 			return;
 		}
 
@@ -756,7 +756,7 @@ define(function(require)
 
 		// Command
 		if (text[0] === '/') {
-			ProcessCommand.call(this, text.substr(1) );
+			Commands.processCommand.call(this, text.substr(1) );
 			return;
 		}
 
@@ -779,7 +779,7 @@ define(function(require)
 		if(isNaN(filterType)){
 			filterType = ChatBox.FILTER.PUBLIC_LOG;
 		}
-		
+
 		this.tabs.forEach((tab, TabNum) => {
 			var content = this.ui.find('.content[data-content="'+ TabNum +'"]');
 			var chatTabOption = ChatBoxSettings.tabOption[TabNum];
@@ -862,12 +862,12 @@ define(function(require)
 		var HeightList = [ 0, 0, MAGIC_NUMBER, MAGIC_NUMBER*2, MAGIC_NUMBER*3, MAGIC_NUMBER*4, MAGIC_NUMBER*5 ];
 		_heightIndex   = (_heightIndex + 1) % HeightList.length;
 
-		var $content   = this.ui.find('.contentwrapper');
+		var content   = this.ui.find('.contentwrapper');
 		var height     = HeightList[ _heightIndex ];
 		var top        = parseInt( this.ui.css('top'), 10);
 
-		this.ui.css('top', top - (height - $content.height()) );
-		$content.height(height);
+		this.ui.css('top', top - (height - content.height()) );
+		content.height(height);
 
 		// Don't remove UI
 		if (_heightIndex === 0 && AlwaysVisible) {
@@ -891,7 +891,7 @@ define(function(require)
 				break;
 		}
 
-		$content[0].scrollTop = $content[0].scrollHeight;
+		content[0].scrollTop = content[0].scrollHeight;
 	};
 
 
@@ -1007,7 +1007,7 @@ define(function(require)
 		let original_mouse_y = 0;
 		for (let i = 0;i < resizers.length; i++) {
 			const currentResizer = resizers[i];
-			
+
 			currentResizer.addEventListener('mousedown', function(e) {
 				e.preventDefault();
 				original_height = ChatBox.ui.find('.contentwrapper').height();
@@ -1026,7 +1026,7 @@ define(function(require)
 					}
 				}
 			}
-		  
+
 			function fixHeight(height){
 				return  Math.floor(height/MAGIC_NUMBER)*MAGIC_NUMBER;
 			}
