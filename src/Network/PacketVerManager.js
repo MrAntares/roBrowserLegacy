@@ -301,7 +301,7 @@ define(['Core/Configs'], function( Configs )
 
 		// Get Back data
 		get value() {
-			return (_value > 0 ? _value : ROConfig.servers[0].packetver);
+			return (_value > 0 ? _value : (ROConfig.servers[0].packetver || ROConfig.packetver));
 			//return _value;
 		},
 
