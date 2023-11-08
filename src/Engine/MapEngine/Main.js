@@ -773,8 +773,8 @@ define(function( require )
 		//List
 		for(var i = 0; i < 10; ++i){
 			let name, point;
-			name = pkt?.Name?.[i] || 'None';
-			point = pkt?.Point?.[i] || 0;
+			name = pkt?.Name?.[i] ?? 'None';
+			point = pkt?.Point?.[i] ?? 0;
 			
 			message = '[%rank%] %name% : %point% ' + DB.getMessage(2385); // [x] name : y Points
 			message = message.replace('%rank%', i+1);
