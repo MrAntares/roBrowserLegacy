@@ -115,7 +115,7 @@ define(function( require )
 			charSelectNum = 3; //Renewal UI with Sex + Race + Stylist
 		} else if (PACKETVER.value >= 20141016) {
 			charSelectNum = 2; //Renewal UI with Sex + Race (Not yet implemented)
-		} else if (PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727) {
+		} else if ((PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727) || PACKETVER.value >= 20100803) {
 			charSelectNum = 1; //Old UI with mapname
 		} else {
 			charSelectNum = 0; //Old UI
