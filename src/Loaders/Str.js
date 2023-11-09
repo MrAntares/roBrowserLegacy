@@ -18,10 +18,12 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 	 * Str class loader
 	 *
 	 * @param {ArrayBuffer} data - optional
+	 * @param {string} texturePath - optional
 	 */
-	function STR( data )
+	function STR( data, texturePath )
 	{
 		this.version = 0.0;
+		this.texturePath = texturePath ?? '';
 
 		if (data) {
 			this.load(data);
@@ -59,7 +61,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 		this.layers   = new Array(this.layernum);
 
 		for (i = 0; i < this.layernum; ++i) {
-			this.layers[i] = new STRLayer(fp);
+			this.layers[i] = new STRLayer(fp, this.texturePath);
 		}
 	};
 
@@ -68,8 +70,9 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 	 * Layer structure
 	 *
 	 * @param {BinaryReader} fp
+	 * @param {string} texturePath
 	 */
-	function STRLayer( fp )
+	function STRLayer( fp, texturePath )
 	{
 		var i;
 
@@ -77,7 +80,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 		this.texname = new Array(this.texcnt);
 
 		for (i = 0; i < this.texcnt; ++i) {
-			this.texname[i] = 'data\\texture\\effect\\' + fp.readBinaryString(128);
+			this.texname[i] = 'data\\texture\\effect\\' + texturePath + fp.readBinaryString(128);
 		}
 
 		this.anikeynum  = fp.readLong();

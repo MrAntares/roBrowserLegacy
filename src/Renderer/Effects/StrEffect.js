@@ -148,17 +148,19 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 	 * @param {string} str effect file
 	 * @param {Array} effect position
 	 * @param {string} start tick
+	 * @param {string} texturePath
 	 */
-	function StrEffect( filename, position, startTick )
+	function StrEffect( filename, position, startTick, texturePath )
 	{
 		this.filename   = filename;
 		this.startTick  = startTick;
 		this.position   = position;
+		this.texturePath = texturePath
 
 		// If can't render it, just remove it.
 		Client.loadFile( this.filename, null, function(){
 			this.needCleanUp = true;
-		}.bind(this));
+		}.bind(this), { texturePath });
 	}
 
 
@@ -213,7 +215,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 			var strFile, layer;
 			var i, keyIndex;
 
-			strFile = Client.loadFile( this.filename );
+			strFile = Client.loadFile( this.filename, null, null, { texturePath: this.texturePath } );
 
 			// Not loaded yet
 			if (strFile === null) {

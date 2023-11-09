@@ -46,6 +46,7 @@ define( function( require )
 		require('./EntityAttachments').call(this);
 		require('./EntityAnimations').call(this);
 		require('./EntityAura').call(this);
+		require('./EntityDropEffect').call(this);
 
 		this.boundingRect = { x1:0, y1:0, x2:0, y2:0 };
 		this.matrix       = mat4.create();
@@ -311,6 +312,7 @@ define( function( require )
 		this.attachments.remove('lockon');
 		this.animations.free();
 		this.aura.free();
+		this.dropEffect.free();
 
 		// Remove
 		this.remove_tick  = 0;

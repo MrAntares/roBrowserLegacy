@@ -566,6 +566,7 @@ define(function( require )
 	function spamSTR( Params )
 	{
 		let filename;
+		const texturePath = Params.effect.texturePath || '';
 
 		// Get STR file
 		if (Preferences.mineffect && Params.effect.min) {
@@ -581,7 +582,7 @@ define(function( require )
 		}
 
 		// Start effect
-		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', Params.Inst.position, Params.Inst.startTick), Params);
+		EffectManager.add(new StrEffect('data/texture/effect/' + filename + '.str', Params.Inst.position, Params.Inst.startTick, texturePath), Params);
 	}
 
 

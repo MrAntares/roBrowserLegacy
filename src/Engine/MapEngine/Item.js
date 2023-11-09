@@ -70,7 +70,9 @@ define(function( require )
 			pkt.count,
 			x,
 			y,
-			z
+			z,
+			pkt.dropeffectmode,
+			pkt.showdropeffect
 		);
 	}
 
