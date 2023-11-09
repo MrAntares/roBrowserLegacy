@@ -33,6 +33,8 @@ define(function( require )
 	var CharSelectV3 = require('UI/Components/CharSelectV3/CharSelectV3');
 	var CharCreate;
 	if (PACKETVER.value >= 20180124) {
+		CharCreate = require('UI/Components/CharCreatev4/CharCreatev4');
+	} else if (PACKETVER.value >= 20120307) {
 		CharCreate = require('UI/Components/CharCreatev2/CharCreatev2');
 	} else {
 		CharCreate = require('UI/Components/CharCreate/CharCreate');
