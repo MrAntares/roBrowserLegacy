@@ -526,6 +526,9 @@ define(function(require)
 			.addClass('active');
 
 		tabName = this.ui.find('.header tr td div.on input').val();
+
+		this.ui.find('.content')[tabID].scrollTop = this.ui.find('.content')[tabID].scrollHeight;
+
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
 	}
 
@@ -674,7 +677,7 @@ define(function(require)
 			case KEYS.F10:
 				this.updateHeight(false);
 				// scroll down when resize
-				this.ui.find('.content')[0].scrollTop = this.ui.find('.content')[0].scrollHeight;
+				this.ui.find('.content')[this.activeTab].scrollTop = this.ui.find('.content')[this.activeTab].scrollHeight;
 				break;
 
 			// Send message
@@ -870,8 +873,7 @@ define(function(require)
 				return false;
 			}
 
-			// Note: Consider that if we sent messages with different heights the scroll will be wrong
-			const lastMessageHeight = this.ui.find('.content > div:last-child')[0].scrollHeight;
+			const lastMessageHeight = this.ui.find('.content[data-content="'+ TabNum +'"] > div:last-child')[0].scrollHeight;
 
 			if (shouldScrollDown(content[0], lastMessageHeight, content.height())) {
 				content[0].scrollTop = content[0].scrollHeight;
@@ -917,7 +919,7 @@ define(function(require)
 				break;
 		}
 
-		content[0].scrollTop = content[0].scrollHeight;
+		content[this.activeTab].scrollTop = content[this.activeTab].scrollHeight;
 	};
 
 
@@ -1052,7 +1054,7 @@ define(function(require)
 					}
 				}
 				// scroll down when resize
-				ChatBox.ui.find('.content')[0].scrollTop = ChatBox.ui.find('.content')[0].scrollHeight;
+				ChatBox.ui.find('.content')[ChatBox.activeTab].scrollTop = ChatBox.ui.find('.content')[ChatBox.activeTab].scrollHeight;
 			}
 
 			function fixHeight(height){
