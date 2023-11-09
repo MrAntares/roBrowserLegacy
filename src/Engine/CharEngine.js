@@ -31,14 +31,7 @@ define(function( require )
 	var CharSelect2 = require('UI/Components/CharSelect2/CharSelect2');
 	var CharSelectV2 = require('UI/Components/CharSelectV2/CharSelectV2');
 	var CharSelectV3 = require('UI/Components/CharSelectV3/CharSelectV3');
-	var CharCreate;
-	if (PACKETVER.value >= 20180124) {
-		CharCreate = require('UI/Components/CharCreatev4/CharCreatev4');
-	} else if (PACKETVER.value >= 20120307) {
-		CharCreate = require('UI/Components/CharCreatev2/CharCreatev2');
-	} else {
-		CharCreate = require('UI/Components/CharCreate/CharCreate');
-	}
+	var CharCreate; // init requires the correct version
 	var PincodeWindow = require('UI/Components/PincodeWindow/PincodeWindow');
 	var InputBox   = require('UI/Components/InputBox/InputBox');
 	var getModule  = require;
@@ -121,6 +114,18 @@ define(function( require )
 			charSelectNum = 1; //Old UI with mapname
 		} else {
 			charSelectNum = 0; //Old UI
+		}
+		
+		
+		//Select Character Creation UI
+		if (PACKETVER.value >= 20180124) {
+			CharCreate = require('UI/Components/CharCreatev4/CharCreatev4');
+		} else if (PACKETVER.value >= 20151001) {
+			CharCreate = require('UI/Components/CharCreatev3/CharCreatev3');
+		} else if (PACKETVER.value >= 20120307) {
+			CharCreate = require('UI/Components/CharCreatev2/CharCreatev2');
+		} else  {
+			CharCreate = require('UI/Components/CharCreate/CharCreate');
 		}
 	}
 
