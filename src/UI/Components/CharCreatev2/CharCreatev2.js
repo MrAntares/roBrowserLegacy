@@ -1,5 +1,5 @@
 /**
- * UI/Components/CharCreatev2/CharCreatev2.js
+ * UI/Components/CharCreatev2v2/CharCreatev2v2.js
  *
  * Chararacter Creation windows
  *
@@ -29,7 +29,7 @@ define(function(require)
 	/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharCreate = new UIComponent( 'CharCreate', htmlText, cssText );
+	var CharCreatev2 = new UIComponent( 'CharCreatev2', htmlText, cssText );
 
 
 	/**
@@ -52,7 +52,7 @@ define(function(require)
 	/**
 	 * Initialize UI
 	 */
-	CharCreate.init = function init()
+	CharCreatev2.init = function init()
 	{
 		_chargen.ctx = this.ui.find('.content canvas')[0].getContext('2d');
 
@@ -85,7 +85,7 @@ define(function(require)
 	 *
 	 * @param {number} sex
 	 */
-	CharCreate.setAccountSex = function setAccountSex( sex )
+	CharCreatev2.setAccountSex = function setAccountSex( sex )
 	{
 		_accountSex = sex;
 	};
@@ -94,7 +94,7 @@ define(function(require)
 	/**
 	 * Once add to HTML, start rendering
 	 */
-	CharCreate.onAppend = function onAppend()
+	CharCreatev2.onAppend = function onAppend()
 	{
 		_chargen.render = true;
 		_chargen.entity.set({
@@ -114,7 +114,7 @@ define(function(require)
 	 * Remove component from HTML
 	 * Stop rendering
 	 */
-	CharCreate.onRemove = function onRemove()
+	CharCreatev2.onRemove = function onRemove()
 	{
 		Renderer.stop(render);
 	};
@@ -126,7 +126,7 @@ define(function(require)
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	CharCreate.onKeyDown = function onKeyDown( event )
+	CharCreatev2.onKeyDown = function onKeyDown( event )
 	{
 		if (event.which === KEYS.ESCAPE) {
 			event.stopImmediatePropagation();
@@ -160,9 +160,9 @@ define(function(require)
 	 */
 	function create()
 	{
-		var ui = CharCreate.ui;
+		var ui = CharCreatev2.ui;
 
-		CharCreate.onCharCreationRequest(
+		CharCreatev2.onCharCreationRequest(
 			ui.find('input').val(),
 			1,
 			1,
@@ -181,7 +181,7 @@ define(function(require)
 	 */
 	function cancel()
 	{
-		CharCreate.onExitRequest();
+		CharCreatev2.onExitRequest();
 	}
 
 
@@ -240,17 +240,17 @@ define(function(require)
 	/**
 	 * Callback to define
 	 */
-	CharCreate.onExitRequest = function OnExitRequest(){};
+	CharCreatev2.onExitRequest = function OnExitRequest(){};
 
 
 	/**
 	 * Abstract callback to define
 	 */
-	CharCreate.onCharCreationRequest = function OnCharCreationRequest(){};
+	CharCreatev2.onCharCreationRequest = function OnCharCreationRequest(){};
 
 
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(CharCreate);
+	return UIManager.addComponent(CharCreatev2);
 });
