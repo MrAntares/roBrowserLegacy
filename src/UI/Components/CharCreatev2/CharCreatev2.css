@@ -1,84 +1,35 @@
-#charcreate{ position:absolute; width:794px; height:422px; }
+#charcreate{ position:absolute; width:150px; height:286px; }
 
-.title { position:absolute; left: 45px; top: 15px; height:20px; width:200px; }
+#charcreate .header { width:150px; height:17px; }
+#charcreate .header .corner { position: absolute; width:12px; height:17px; }
+#charcreate .header .corner.left { top: 0px; left: 0px; }
+#charcreate .header .corner.right { top: 0px; right: 0px; }
+#charcreate .header .center { position: absolute; top: 0px; left: 12px; width:128px; height:17px; }
+#charcreate .header .title { position: absolute; top: 2px; left: 12px; font-size: 13px; }
 
-.human::before, .doram::before, .human::after, .doram::after { content: ""; display: table; }
-.human::after, .doram::after { clear: both; }
-.race { display:none; }
+#charcreate .content { width:150px; height:240px; }
 
-/** Name
-#charcreate input { position:absolute; top:244px; left:62px; width: 97px; height:14px; padding-top:2px; padding-left:3px; background-color:transparent; border:0; }
-**/
+#charcreate .footer { width:150px; height:29px; }
+#charcreate .footer .corner { position: absolute; width:21px; height:29px; }
+#charcreate .footer .corner.left { bottom: 0px; left: 0px; }
+#charcreate .footer .corner.right { bottom: 0px; right: 0px; }
+#charcreate .footer .center { position: absolute; bottom: 0px; left: 21px; width:118px; height:29px; }
 
-/** Human Race **/
-.human_label { position:absolute; width:370px; height:170px; top: 35px; left: 20px; outline:none; background-repeat: no-repeat; }
-.human_title { position: absolute; color:white; top: 22px; left: 45px; height: 20px; width: 50px; }
-.human_desc { position: relative; top:22px; left:110px; height:60px; width:220px; } 
-/** Human Chargen **/
-.human .chargen canvas { position:absolute; top:40px; left:25px; }
+/** Name **/
+#charcreate .content input { position:absolute; top:142px; left:40px; width: 96px; height:18px; padding-top:2px; padding-left:3px; background-color:transparent; background-repeat: no-repeat; border:0; }
 
-/** Doram Race **/
-.doram_label { position:absolute; width:370px; height:170px; top: 210px; left: 20px; outline:none; background-repeat: no-repeat; }
-.doram_title { position: absolute; color:white; top: 22px; left: 45px; height: 20px; width: 50px; }
-.doram_desc { position: relative; top:22px; left:110px; height:60px; width:220px; } 
-/** Doram Chargen **/
-.doram .chargen_doram canvas { position:absolute; top:40px; left:25px; }
+/** Chargen **/
+#charcreate .content button { position:absolute; width:13px; height:13px; border:0; background-repeat:no-repeat; background-color:transparent; }
 
-/* Style */
-#style { position: relative; left: 395px; top: 30px; width: 200px; height: 270px; }
-.gender_button { display:none; } 
+#charcreate .content .styleleft  { top:190px; left: 15px; }
+#charcreate .content .styleright { top:190px; left: 125px; }
+#charcreate .content .colorleft  { top:230px; left: 15px; }
+#charcreate .content .colorright { top:230px; left: 125px; }
 
-#style .gender { position:absolute; top:25px; left:40px; height:26px; width:130px; }
-#male_container { position:relative; height:25px; width:62px; white-space: nowrap; }
-#female_container { position:relative; left:61px; top:-25px; height:25px; width:62px; white-space: nowrap; }
-
-#style .male_button { position:absolute; height:25px; width:62px; }
-#style .female_button { position:absolute; height:25px; width:62px; }
-
-/** Style Model **/
-.model { position: relative; top: 115px; left: 55px; width: 100px; }
-.model canvas { position: relative; top: -5px; left: 17px; }
+#charcreate .content canvas { position:absolute; top:25px; left:40px; }
 
 /** Buttons **/
-#style .rot_left { position:relative; top:40px; left:30px; height:23px; width:22px; border-width:0px; }
-#style .rot_right { position:relative; top:40px; left:130px; height:23px; width:22px; border-width:0px; ; }
-
-/** Char Name **/
-#char_name { position: relative; height: 20px; width: 140px; top: 115px; left: -20px; border-width: 0px; }
-
-/** Hair Settings **/
-#hair_setting { position: absolute; top: 35px; left: 600px; height: 380px; width: 185px; }
-
-.hair_style_title {
-    position: relative;
-    height: 15px;
-    width: 60px;
-    top: 10px;
-    left: 10px;
-}
-
-.hairstyle_row { position: relative; display: flex; top: 10px; left: 10px; }
-.styleCol { position: relative; width: 36px; height: 37px; white-space: nowrap; }
-
-.hstyle {display:none;}
-.hstyle_button { position:absolute; width:36px; height:37px; }
-.hair-styles {
-    position: relative; /* Make the container a positioning context */
-    width: 100px; /* Adjust the width as needed */
-    height: 100px; /* Adjust the height as needed */
-}
-.hair-style { position:absolute; height: 225px; top:12px; left:-2px; display: none; }
-
-.hair_color_title { position: relative; height: 20px; width: 60px; top: 230px; left: 10px; }
-
-.hair_colors { position: absolute; top: 265px; left: 15px; }
-.haircolor_row { position: relative; display: flex; }
-.colorCol { position: relative; width: 22px; height: 22px; white-space: nowrap; margin: 2px 2px; }
-.hcolor {display:none;}
-.hcolor_button { position:absolute; width:22px; height:22px; }
-
-#charcreate .btns { position:absolute; bottom:4px; width:100%; height:20px; }
-#charcreate .btn { position: absolute; border:0;   width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; }
-#charcreate .make { right: 25px; top: -20px; height: 27px; width: 152px; }
-#charcreate .cancel { right: -15px; top: -389px; }
-#charcreate .return { width: 152px; height: 27px; top: -20px; left: 25px; }
+#charcreate .footer .btns { position:absolute; bottom:4px; width:100%; height:20px; }
+#charcreate .footer .btn { position: absolute; border:0;   width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; }
+#charcreate .footer .make { right:50px; }
+#charcreate .footer .cancel { right:4px; }
