@@ -673,6 +673,8 @@ define(function(require)
 			// Update chat height
 			case KEYS.F10:
 				this.updateHeight(false);
+				// scroll down when resize
+				this.ui.find('.content')[0].scrollTop = this.ui.find('.content')[0].scrollHeight;
 				break;
 
 			// Send message
@@ -831,6 +833,7 @@ define(function(require)
 			// If there is too many line, remove the older one
 
 			var list = this.ui.find('.content');
+
 			if (list.length > MAX_MSG) {
 				var element, matches;
 				var i, count;
@@ -849,16 +852,29 @@ define(function(require)
 			}
 
 
-			if (content[0].scrollTop === 0)
-				return;
+			// Function to determine whether to scroll down or not
+			function shouldScrollDown(container, messageHeight, height) {
+				// Tolerance could be a few pixels to account for nearly at the bottom situations
+				const tolerance = 5;
+
+				// The user is considered at the bottom if the current scrollTop, plus the height of the container,
+				// plus any potential new message height, is within the tolerance of the total scrollable height.
+				const atBottom = container.scrollTop + height + messageHeight >= container.scrollHeight - tolerance;
+
+				// If there is no scrollbar (content does not overflow), or the user is at the bottom, return true.
+				if (height >= container.scrollHeight || atBottom) {
+					return true;
+				}
+
+				// In other cases, return false as we do not want to auto-scroll down
+				return false;
+			}
 
 			// Note: Consider that if we sent messages with different heights the scroll will be wrong
-			const messageHeight = this.ui.find('.content > div:last-child')[0].scrollHeight;
-			const tolerance = 5; // pixels of tolerance
+			const lastMessageHeight = this.ui.find('.content > div:last-child')[0].scrollHeight;
 
-			// Always put the scroll at the bottom if the user is not scrolling
-			if (content[0].scrollTop + content.height() + messageHeight >= content[0].scrollHeight - tolerance) {
-			  content[0].scrollTop = content[0].scrollHeight;
+			if (shouldScrollDown(content[0], lastMessageHeight, content.height())) {
+				content[0].scrollTop = content[0].scrollHeight;
 			}
 		});
 	};
@@ -1035,6 +1051,8 @@ define(function(require)
 						ChatBox.ui.find('.contentwrapper').height(height);
 					}
 				}
+				// scroll down when resize
+				ChatBox.ui.find('.content')[0].scrollTop = ChatBox.ui.find('.content')[0].scrollHeight;
 			}
 
 			function fixHeight(height){
