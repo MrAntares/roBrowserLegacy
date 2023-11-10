@@ -15,20 +15,21 @@ define(function(require)
 	/**
 	 * Dependencies
 	 */
-	var DB                 = require('DB/DBManager');
-	var Network          = require('Network/NetworkManager');
-	var PACKET           = require('Network/PacketStructure');
-	var jQuery             = require('Utils/jquery');
-	var Client             = require('Core/Client');
-	var Preferences        = require('Core/Preferences');
-	var Session            = require('Engine/SessionStorage');
-	var Renderer           = require('Renderer/Renderer');
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
-	var ChatRoom       = require('UI/Components/ChatRoom/ChatRoom');
-	var htmlText           = require('text!./ChangeCart.html');
-	var cssText            = require('text!./ChangeCart.css');
+	var Network     = require('Network/NetworkManager');
+	var PACKET      = require('Network/PacketStructure');
+	var jQuery      = require('Utils/jquery');
+	var Client      = require('Core/Client');
+	var Preferences = require('Core/Preferences');
+	var Session     = require('Engine/SessionStorage');
+	var Renderer    = require('Renderer/Renderer');
+	var Entity      = require('Renderer/Entity/Entity');
+	var SpriteRenderer  = require('Renderer/SpriteRenderer');
+	var UIManager   = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var ChatBox     = require('UI/Components/ChatBox/ChatBox');
+	var ChatRoom    = require('UI/Components/ChatRoom/ChatRoom');
+	var htmlText    = require('text!./ChangeCart.html');
+	var cssText     = require('text!./ChangeCart.css');
 
 
 	/**
@@ -43,6 +44,11 @@ define(function(require)
 	var _preferences = Preferences.get('ChangeCart', {
 		show:     false,
 	}, 1.0);
+	
+	/**
+	 * @var {object} model info
+	 */
+	var _models = {};
 
 
 	/**
@@ -50,9 +56,10 @@ define(function(require)
 	 */
 	ChangeCart.init = function init()
 	{
-		var ui = this.ui;
-
-		ui.css({
+		var carts = this.ui.find('.cart');
+		var canvases = this.ui.find('.canvas');
+		
+		this.ui.css({
 			top:  (Renderer.height - 100) / 2.0,
 			left: (Renderer.width  - 400) / 2.0
 		});
@@ -61,132 +68,45 @@ define(function(require)
 		this.ui.find('.titlebar .close').click(function(){ ChangeCart.ui.hide(); });
 		this.draggable(this.ui.find('.titlebar'));
 
-		this.ui.find('.cart').click(onCart);
-		this.ui.find('.cart1').click(onCart1);
-		this.ui.find('.cart2').click(onCart2);
-		this.ui.find('.cart3').click(onCart3);
-		this.ui.find('.cart4').click(onCart4);
-		this.ui.find('.cart5').click(onCart5);
-		this.ui.find('.cart6').click(onCart6);
-		this.ui.find('.cart7').click(onCart7);
-		this.ui.find('.cart8').click(onCart8);
-
-		this.ui.find('.cart').hide();
-		this.ui.find('.cart1').hide();
-		this.ui.find('.cart2').hide();
-		this.ui.find('.cart3').hide();
-		this.ui.find('.cart4').hide();
-		this.ui.find('.cart5').hide();
-		this.ui.find('.cart6').hide();
-		this.ui.find('.cart7').hide();
-		this.ui.find('.cart8').hide();
+		carts.hide();
+		carts.addClass('event_add_cursor');
+		carts.on('click',     function(event){ onCart(event.target.getAttribute('data-id')); })
+			.on('mouseover', function(event){_models[event.target.getAttribute('data-id')].entity.action = 1;})
+			.on('mouseout',  function(event){_models[event.target.getAttribute('data-id')].entity.action = 0;});
+			
+		canvases.each((idx, canvas) => {
+			var cartid = canvas.getAttribute("data-id");
+			var model = {
+				entity: new Entity(),
+				ctx:    canvas.getContext('2d'),
+				render: false,
+				tick:   0
+			};
+			model.entity.set({
+				type: Entity.TYPE_EFFECT,
+				action: 0,
+				direction: 5
+			});
+			
+			model.entity.hasCart = true;
+			model.entity.CartNum = cartid;
+			model.entity.hideShadow = true;
+			_models[cartid] = model;
+		});
 	};
 
-	function onCart()
+	/**
+	 * Change cart (Change cart packet IDs are not the same as global cart IDs!!)
+	 */
+	function onCart(num)
 	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  1*/)
+		if(Session.Entity.hasCart == false || num<0 || num>8)
 		{
 			return;
 		}
 
 		var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 1;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart1()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  2*/)
-		{
-			return;
-		}
-		var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 2;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart2()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  3*/)
-		{
-			return;
-		}
-        var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 3;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart3()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  4*/)
-		{
-			return;
-		}
-        var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 4;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart4()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  5*/)
-		{
-			return;
-		}
-        var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 5;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart5()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  6*/)
-		{
-			return;
-		}
-        var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 6;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart6()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  7*/)
-		{
-			return;
-		}
-        var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 7;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart7()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  8*/)
-		{
-			return;
-		}
-        var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 8;
-		Network.sendPacket(pkt);
-		ChangeCart.ui.hide();
-	}
-
-	function onCart8()
-	{
-		if(Session.Entity.hasCart == false/* || Session.Entity.CartNum ==  9*/)
-		{
-			return;
-		}
-        var pkt = new PACKET.CZ.REQ_CHANGECART();
-		pkt.num = 9;
+		pkt.num = num;
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
 	}
@@ -199,58 +119,8 @@ define(function(require)
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-
-		this.ui.find('.cart').hide();
-		this.ui.find('.cart1').hide();
-		this.ui.find('.cart2').hide();
-		this.ui.find('.cart3').hide();
-		this.ui.find('.cart4').hide();
-		this.ui.find('.cart5').hide();
-		this.ui.find('.cart6').hide();
-		this.ui.find('.cart7').hide();
-		this.ui.find('.cart8').hide();
-
-		if(Session.Character.level > 131)
-        {
-			this.ui.find('.cart8').show();
-		}
-
-		if(Session.Character.level > 121)
-        {
-			this.ui.find('.cart7').show();
-		}
-
-		if(Session.Character.level > 111)
-        {
-			this.ui.find('.cart6').show();
-		}
-
-		if(Session.Character.level > 100)
-        {
-			this.ui.find('.cart5').show();
-		}
-
-       	if(Session.Character.level > 90)
-        {
-			this.ui.find('.cart4').show();
-		}
-
-		if(Session.Character.level > 80)
-		{
-			this.ui.find('.cart3').show();
-		}
-
-		if(Session.Character.level > 65)
-		{
-			this.ui.find('.cart2').show();
-		}
-
-		if(Session.Character.level > 40)
-		{
-			this.ui.find('.cart1').show();
-		}
-
-		this.ui.find('.cart').show();
+		updateList(Session.Character.level);
+		Renderer.render(render);
 	};
 
 	ChangeCart.onChangeCartSkill = function onChangeCartSkill()
@@ -275,68 +145,62 @@ define(function(require)
 		}
 	};
 
-
 	ChangeCart.onLevelUp = function onLevelUp(blvl)
 	{
+		updateList(blvl);
+	};
+	
+	function updateList(blvl){
 		if(Session.Entity.hasCart == false)
 		{
 			return;
 		}
 
-		this.ui.find('.cart').hide();
-		this.ui.find('.cart1').hide();
-		this.ui.find('.cart2').hide();
-		this.ui.find('.cart3').hide();
-		this.ui.find('.cart4').hide();
-		this.ui.find('.cart5').hide();
-		this.ui.find('.cart6').hide();
-		this.ui.find('.cart7').hide();
-		this.ui.find('.cart8').hide();
+		ChangeCart.ui.find('.cart').hide();
+		stopAllCart();
 
+		if(blvl > 131) { ChangeCart.ui.find(".cart[data-id='9']").show(); _models['9'].render = true; }
+		if(blvl > 121) { ChangeCart.ui.find(".cart[data-id='8']").show(); _models['8'].render = true; }
+		if(blvl > 111) { ChangeCart.ui.find(".cart[data-id='7']").show(); _models['7'].render = true; }
+		if(blvl > 100) { ChangeCart.ui.find(".cart[data-id='6']").show(); _models['6'].render = true; }
+       	if(blvl > 90)  { ChangeCart.ui.find(".cart[data-id='5']").show(); _models['5'].render = true; }
+		if(blvl > 80)  { ChangeCart.ui.find(".cart[data-id='4']").show(); _models['4'].render = true; }
+		if(blvl > 65)  { ChangeCart.ui.find(".cart[data-id='3']").show(); _models['3'].render = true; }
+		if(blvl > 40)  { ChangeCart.ui.find(".cart[data-id='2']").show(); _models['2'].render = true; }
 
-		if(blvl > 131)
-        {
-			this.ui.find('.cart8').show();
-		}
-
-		if(blvl > 121)
-        {
-			this.ui.find('.cart7').show();
-		}
-
-		if(blvl > 111)
-        {
-			this.ui.find('.cart6').show();
-		}
-
-		if(blvl > 100)
-        {
-			this.ui.find('.cart5').show();
-		}
-
-       	if(blvl > 90)
-        {
-			this.ui.find('.cart4').show();
-		}
-
-		if(blvl > 80)
-		{
-			this.ui.find('.cart3').show();
-		}
-
-		if(blvl > 65)
-		{
-			this.ui.find('.cart2').show();
-		}
-
-		if(blvl > 40)
-		{
-			this.ui.find('.cart1').show();
-		}
-
-		this.ui.find('.cart').show();
-
+		ChangeCart.ui.find(".cart[data-id='1']").show();
+		_models['1'].render = true;
+	}
+	
+	/**
+	 * Remove component from HTML
+	 * Stop rendering
+	 */
+	ChangeCart.onRemove = function onRemove()
+	{
+		stopAllCart();
+		Renderer.stop(render);
 	};
+	
+	/**
+	 * Rendering the Carts
+	 */
+	function render( tick )
+	{
+		Object.entries(_models).forEach((entry) => {
+			const [key, model] = entry;
+			SpriteRenderer.bind2DContext(model.ctx, Math.floor(model.ctx.canvas.width), model.ctx.canvas.height);
+			model.ctx.clearRect(0, 0, model.ctx.canvas.width, model.ctx.canvas.height );
+			model.entity.renderEntity();
+		});
+	}
+	
+	function stopAllCart(){
+		Object.entries(_models).forEach((entry) => {
+			const [key, model] = entry;
+			model.render = false;
+		});
+	}
 
 
 	/**
