@@ -15,13 +15,15 @@ define(function(require)
 	/**
 	 * Dependencies
 	 */
-	var jQuery      = require('Utils/jquery');
-	var DB          = require('DB/DBManager');
-	var Renderer    = require('Renderer/Renderer');
-	var UIManager   = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText    = require('text!./Sense.html');
-	var cssText     = require('text!./Sense.css');
+	var jQuery         = require('Utils/jquery');
+	var DB             = require('DB/DBManager');
+	var Renderer       = require('Renderer/Renderer');
+	var Entity         = require('Renderer/Entity/Entity');
+	var SpriteRenderer = require('Renderer/SpriteRenderer');
+	var UIManager      = require('UI/UIManager');
+	var UIComponent    = require('UI/UIComponent');
+	var htmlText       = require('text!./Sense.html');
+	var cssText        = require('text!./Sense.css');
 
 
 	/**
@@ -32,6 +34,16 @@ define(function(require)
 	var Elements = [];
 	var Sizes = [];
 	var Races = [];
+	
+	/**
+	 * @var {object} model 
+	 */
+	var _model = {
+		entity: new Entity(),
+		ctx:    null,
+		render: false,
+		tick:   0
+	};
 
 	/**
 	 * Initialize popup
@@ -52,6 +64,8 @@ define(function(require)
 			.click(this.remove.bind(this));
 		
 		this.draggable(this.ui.find('.header'));
+		
+		_model.ctx = this.ui.find('#canvas_model')[0].getContext('2d');
 		
 		Elements = [
 			DB.getMessage(414), // 0 = Neutral
@@ -97,14 +111,19 @@ define(function(require)
 		this.ui.find('.header .title').text( DB.getMessage(406) );
 		
 		//SPRITE
-		//todo
+		_model.entity.set({
+			job:    pkt.job,
+			action: 0,
+			direction: 0
+		});
+		_model.render = true;
 		
 		//STATS
 		this.ui.find('#label_name').text( DB.getMessage(407) );
 		//this.ui.find('#value_name').text( pkt.job );
 		
 		//Yolo :D (remove to return to boring-ro)
-		this.ui.find('#value_name').html( '<a href="https://ratemyserver.net/mob_db.php?small=1&mob_id=' + pkt.job + '" target="_blank">' +pkt.job+' </a>' );
+		this.ui.find('#value_name').html( '<a href="https://ratemyserver.net/mob_db.php?small=1&mob_id=' + pkt.job + '" target="_blank">' +DB.getMonsterName(pkt.job)+' </a>' );
 		
 		this.ui.find('#label_size').text( DB.getMessage(410) );
 		this.ui.find('#value_size').text( Sizes[pkt.size] );
@@ -219,7 +238,20 @@ define(function(require)
 		undead.text( DB.getMessage(423) 	+': '+ pkt.propertyTable.undead );
 		
 		this.ui.show();
+		
+		Renderer.render(render);
 	};
+	
+	/**
+	 * Rendering the Character
+	 */
+	function render( tick )
+	{
+		// Render the model
+		SpriteRenderer.bind2DContext(_model.ctx, Math.floor(_model.ctx.canvas.width/2), _model.ctx.canvas.height);
+		_model.ctx.clearRect(0, 0, _model.ctx.canvas.width, _model.ctx.canvas.height );
+		_model.entity.renderEntity();
+	}
 
 	/**
 	 * Create component based on view file and export it
