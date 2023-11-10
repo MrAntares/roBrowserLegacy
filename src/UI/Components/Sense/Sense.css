@@ -8,7 +8,7 @@
 
 #win_sense .content {position: absolute; top: 17px; left: 0px; height: 155px; width: 100%; background-color: white;}
 
-#win_sense .sprite {position: absolute; top: 17px; left: 0px; height: 155px; width: 120px;}
+#win_sense .sprite {position: absolute; top: 0px; left: 0px; height: 155px; width: 120px;}
 
 #win_sense .stats {position: absolute; top: 5px; left: 120px; width: 280px;}
 #win_sense .stats tr td {padding: 0px; height: 14px;}
