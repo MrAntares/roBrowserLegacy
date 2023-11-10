@@ -243,6 +243,15 @@ define(function(require)
 	};
 	
 	/**
+	 * Remove component from HTML
+	 * Stop rendering
+	 */
+	Sense.onRemove = function onRemove()
+	{
+		Renderer.stop(render);
+	};
+	
+	/**
 	 * Rendering the Character
 	 */
 	function render( tick )
