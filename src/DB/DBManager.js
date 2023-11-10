@@ -26,6 +26,7 @@ define(function(require)
 	var BabyTable        = require('./Jobs/BabyTable');
 	var HairIndexTable   = require('./Jobs/HairIndexTable');
 	var MonsterTable     = require('./Monsters/MonsterTable');
+	var MonsterNameTable = require('./Monsters/MonsterNameTable');
 	var PetIllustration  = require('./Pets/PetIllustration');
 	var PetAction        = require('./Pets/PetAction');
 	var ItemTable        = require('./Items/ItemTable');
@@ -965,6 +966,15 @@ define(function(require)
 
 		return TextEncoding.decodeString(MapTable[map].name);
 	};
+	
+	/**
+	 * Get monster name
+	 *
+	 * @param {number} job id
+	 */
+	DB.getMonsterName = function getMonsterName( job ){
+		return MonsterNameTable[job] ?? 'Unknown';
+	}
 
 	/**
 	 * Get back town information by mapname
