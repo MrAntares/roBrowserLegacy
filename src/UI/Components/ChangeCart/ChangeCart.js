@@ -116,11 +116,7 @@ define(function(require)
 	 */
 	ChangeCart.onAppend = function onAppend()
 	{
-		if (!_preferences.show) {
-			this.ui.hide();
-		}
-		updateList(Session.Character.level);
-		Renderer.render(render);
+		this.ui.hide();
 	};
 
 	ChangeCart.onChangeCartSkill = function onChangeCartSkill()
@@ -143,6 +139,9 @@ define(function(require)
 		if (Session.Entity) {
 			Session.Entity.dialog.set( msg );
 		}
+		
+		updateList(Session.Character.level);
+		Renderer.render(render);
 	};
 
 	ChangeCart.onLevelUp = function onLevelUp(blvl)
