@@ -145,13 +145,17 @@ define(function(require)
 		loadTable( 'data/msgstringtable.txt',	'#',		1, function(index, val){	MsgStringTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/resnametable.txt', 	'#',		2, function(index, key, val){	DB.mapalias[key]                                             		= val;}, 			onLoad());
 
-		loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
-		loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
-		loadTable( 'data/num2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
-		loadTable( 'data/idnum2itemdisplaynametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName 	= val.replace(/_/g, " ");},	onLoad());
-		loadTable( 'data/idnum2itemresnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
-		loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
-		loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
+		if(PACKETVER.value >= 20130000) { // not sure herc.ws has some question about iteminfo dated to 2013 ragexe
+			LoadItemInfoFile( 'System/itemInfo.lub', function(json){ItemTable = json;}, onLoad());
+		} else {
+			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
+			loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
+			loadTable( 'data/num2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
+			loadTable( 'data/idnum2itemdisplaynametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName 	= val.replace(/_/g, " ");},	onLoad());
+			loadTable( 'data/idnum2itemresnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
+			loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
+			loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
+		}
 		loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
 
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
@@ -244,7 +248,7 @@ define(function(require)
 				try
 				{
 					// load lua file from arraybuffer
-					fengari.load( new TextDecoder().decode(lua) )();
+					fengari.load( new TextDecoder("Windows-1252").decode(lua) )();
 
 					// get table
 					fengari.lua.lua_getglobal( fengari.L, "Reward" );
@@ -294,6 +298,98 @@ define(function(require)
 
 					json.Config.StartDate = startDate;
 					json.Config.EndDate = endDate;
+				}
+				catch( hException )
+				{
+					console.error( 'error: ', hException );
+				}
+				
+				callback.call( null, json);
+				onEnd();
+            },
+            onEnd
+        );
+	}
+
+	/* LoadAttendanceFile to json object
+	*
+	* @param {string} filename to load
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	function LoadItemInfoFile(filename, callback, onEnd){
+		Client.loadFile( filename,
+            async function (lua) {
+				console.log('Loading file "'+ filename +'"...');
+				let json = {};
+				try
+				{
+					// load lua file from arraybuffer
+					fengari.load( new TextDecoder("Windows-1252").decode(lua) )();
+
+					// Acesse a tabela
+					fengari.lua.lua_getglobal(fengari.L, 'tbl');
+					
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log("[LoadItemInfoFile] tbl its not a table\n");
+						return;						
+					}
+					fengari.lua.lua_pushnil(fengari.L);
+					while (fengari.lua.lua_next(fengari.L, -2)) {
+						let item_id = fengari.lua.lua_tointeger(fengari.L, -2);
+						json[item_id] = {};
+
+						fengari.lua.lua_getfield(fengari.L, -1, "unidentifiedDisplayName");
+						json[item_id].unidentifiedDisplayName = fengari.lua.lua_tojsstring(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_getfield(fengari.L, -1, "unidentifiedResourceName");
+						json[item_id].unidentifiedResourceName = fengari.lua.lua_tojsstring(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+						
+						fengari.lua.lua_getfield(fengari.L, -1, "identifiedDisplayName");
+						json[item_id].identifiedDisplayName = fengari.lua.lua_tojsstring(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_getfield(fengari.L, -1, "identifiedResourceName");
+						json[item_id].identifiedResourceName = fengari.lua.lua_tojsstring(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_getfield(fengari.L, -1, "slotCount");
+						json[item_id].slotCount = fengari.lua.lua_tointeger(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_getfield(fengari.L, -1, "ClassNum");
+						json[item_id].ClassNum = fengari.lua.lua_tointeger(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_getfield(fengari.L, -1, "costume");
+						json[item_id].costume = fengari.lua.lua_toboolean(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_getfield(fengari.L, -1, "unidentifiedDescriptionName");
+						json[item_id].unidentifiedDescriptionName = [];
+						let rows = fengari.lauxlib.luaL_len(fengari.L, -1);
+						for (let i = 1; i <= rows; ++i) {
+							fengari.lua.lua_rawgeti(fengari.L, -1, i);
+							json[item_id].unidentifiedDescriptionName.push(fengari.lua.lua_tojsstring(fengari.L, -1));
+							fengari.lua.lua_pop(fengari.L, 1);
+						}
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_getfield(fengari.L, -1, "identifiedDescriptionName");
+						json[item_id].identifiedDescriptionName = [];
+						rows = fengari.lauxlib.luaL_len(fengari.L, -1);
+						for (let i = 1; i <= rows; ++i) {
+							fengari.lua.lua_rawgeti(fengari.L, -1, i);
+							json[item_id].identifiedDescriptionName.push(fengari.lua.lua_tojsstring(fengari.L, -1));
+							fengari.lua.lua_pop(fengari.L, 1);
+						}
+						fengari.lua.lua_pop(fengari.L, 1);
+
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
 				}
 				catch( hException )
 				{
