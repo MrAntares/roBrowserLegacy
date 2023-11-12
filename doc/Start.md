@@ -40,6 +40,7 @@ This step/section is only recommended for a "Live" server. It will only pack all
 - Access the roBrowserLegacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
 - Use build command to generate the files `npm run build`
 - Files will be generated at `dist/Web` folder
+- Copy/move the generated files into your web folder (`Online.js` and `ThreadEventHandler.js`)
 
 For development purposes (modifying the source/testing) set in the roBrowser config: `development: true,`.
 - Access the roBrowserLegacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
@@ -52,9 +53,9 @@ This step/section is only recommended for a "Live" server. It will only pack all
 For development purposes (modifying the source/testing) skip this section and set in the roBrowser config: `development: true,`. In development mode roBrowser will use the files directly from `src/`.
 - Access `http://localhost:8000/tools/build/index.html` with your browser
   ![](img/start-tools.png)
-- click on "Online", compilation should take around 10~30secs. If it runs longer than 2 minutes there might be an issue.
-- click on "Thread"
-- place `Online.js`and `ThreadEventHandler.js` files under roBrowserLegacy `root` directory
+- Click on "Online", compilation should take around 10~30secs. If it runs longer than 2 minutes there might be an issue.
+- Click on "Thread"
+- Copy/move the generated files into your web folder (`Online.js` and `ThreadEventHandler.js`)
 
 ### Add game assets ([additional info](https://github.com/MrAntares/roBrowserLegacy/blob/master/client/readme.md))
 - copy your `.grf` under `client/resources` directory (only unencripted, 0x200 version is supported)
