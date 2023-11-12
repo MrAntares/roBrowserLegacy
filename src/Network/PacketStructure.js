@@ -12487,6 +12487,43 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
 
+	// 0xa96
+	PACKET.ZC.ADD_EXCHANGE_ITEM4 = function PACKET_ZC_ADD_EXCHANGE_ITEM4(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
+		this.ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.type = fp.readUChar();
+		this.count = fp.readLong();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		if(PACKETVER.value >= 20181121) {
+			this.slot.card1 = fp.readULong();
+			this.slot.card2 = fp.readULong();
+			this.slot.card3 = fp.readULong();
+			this.slot.card4 = fp.readULong();
+		} else {
+			this.slot.card1 = fp.readUShort();
+			this.slot.card2 = fp.readUShort();
+			this.slot.card3 = fp.readUShort();
+			this.slot.card4 = fp.readUShort();
+		}
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
+		this.location = fp.readULong();
+		this.viewSprite = fp.readUShort();
+	};
+	PACKET.ZC.ADD_EXCHANGE_ITEM4.size = (PACKETVER.value >= 20181121 ? 51 : 61);
+
 	//0xa9b
 	PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO = function PACKET_ZC_SEND_SWAP_EQUIPITEM_INFO(fp, end) {
 		this.ItemInfo = (function() {
@@ -13014,6 +13051,37 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.grade = fp.readUChar();
 	};
 	PACKET.ZC.ITEM_PICKUP_ACK8.size = 70;
+
+	// 0xb42
+	PACKET.ZC.ADD_EXCHANGE_ITEM5 = function PACKET_ZC_ADD_EXCHANGE_ITEM5(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
+		this.ITID = fp.readULong();
+		this.type = fp.readUChar();
+		this.count = fp.readLong();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = fp.readULong();
+		this.slot.card2 = fp.readULong();
+		this.slot.card3 = fp.readULong();
+		this.slot.card4 = fp.readULong();
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
+		this.location = fp.readULong();
+		this.viewSprite = fp.readUShort();
+		this.RefiningLevel = fp.readUChar();
+		this.grade = fp.readUChar();
+	};
+	PACKET.ZC.ADD_EXCHANGE_ITEM5.size = 62;
 
 	// 0xb44
 	PACKET.ZC.ADD_ITEM_TO_STORE4 = function PACKET_ZC_ADD_ITEM_TO_STORE4(fp, end) {

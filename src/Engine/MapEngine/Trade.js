@@ -256,6 +256,9 @@ define(function( require )
 		Network.hookPacket(PACKET.ZC.ACK_ADD_EXCHANGE_ITEM,  onAddItemResult);
 		Network.hookPacket(PACKET.ZC.ADD_EXCHANGE_ITEM,      onItemAdded);
 		Network.hookPacket(PACKET.ZC.ADD_EXCHANGE_ITEM2,     onItemAdded);
+		Network.hookPacket(PACKET.ZC.ADD_EXCHANGE_ITEM3,     onItemAdded);
+		Network.hookPacket(PACKET.ZC.ADD_EXCHANGE_ITEM4,     onItemAdded);
+		Network.hookPacket(PACKET.ZC.ADD_EXCHANGE_ITEM5,     onItemAdded);
 		Network.hookPacket(PACKET.ZC.CANCEL_EXCHANGE_ITEM,   onTradeCancel);
 		Network.hookPacket(PACKET.ZC.CONCLUDE_EXCHANGE_ITEM, onTradeConclude);
 		Network.hookPacket(PACKET.ZC.EXEC_EXCHANGE_ITEM,     onTradeSubmitAnswer);
