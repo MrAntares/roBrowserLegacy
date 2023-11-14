@@ -9073,7 +9073,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.questCount = fp.readLong();
 		this.QuestList = (function() {
 			var i, count=(end-fp.tell())/104|0, out=new Array(count);
-			for (i = 0; i < count; ++i) {
+			for (i = 0; i < count; i++) {
+				fp.seek(end-((count-i)*104), SEEK_SET); // Position to the 104 long chunk start
 				out[i] = {};
 				out[i].questID = fp.readULong();
 				out[i].quest_svrTime = fp.readLong();
