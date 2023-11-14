@@ -30,6 +30,8 @@ define(function( require )
 	var UIManager    = require('UI/UIManager');
 	var WinList      = require('UI/Components/WinList/WinList');
 	var WinPopup     = require('UI/Components/WinPopup/WinPopup');
+	var Queue        = require('Utils/Queue');
+	var Background  = require('UI/Background');
 	var MD5          = require('Vendors/spark-md5.min');
 	var WinLogin;
 	if(PACKETVER.value >= 20181114) {
@@ -75,6 +77,7 @@ define(function( require )
 	function init( server )
 	{
 		var charset;
+		var q = new Queue();
 
 		Configs.setServer(server);
 		UIManager.removeComponents();
@@ -223,6 +226,23 @@ define(function( require )
 		// Add support for remote client in server definition
 		if (remoteClient) {
 			Thread.send( 'SET_HOST', remoteClient);
+			
+			// Re-Loading game data with server specific files (txt, lua, lub)
+			q.add(function(){
+				DB.onReady = function(){
+					Background.setImage( 'bgi_temp.bmp'); // remove loading
+					q._next();
+				};
+				DB.onProgress = function(i, count) {
+					Background.setPercent( Math.floor(i/count * 100) );
+				};
+				UIManager.removeComponents();
+				Background.init();
+				Background.resize( Renderer.width, Renderer.height );
+				Background.setImage( 'bgi_temp.bmp', function(){
+					DB.init();
+				});
+			});
 		}
 
 		// Server audio configuration
@@ -243,7 +263,7 @@ define(function( require )
 			Configs.set('autoLogin',null);
 		}
 		else {
-			WinLogin.append();
+			q.add(function(){ WinLogin.append(); });
 		}
 
 		// Hook packets
@@ -255,6 +275,9 @@ define(function( require )
 		Network.hookPacket( PACKET.AC.REFUSE_LOGIN,    onConnectionRefused );
 		Network.hookPacket( PACKET.AC.REFUSE_LOGIN_R2, onConnectionRefused );
 		Network.hookPacket( PACKET.SC.NOTIFY_BAN,      onServerClosed );
+		
+		// Execute
+		q.run();
 	}
 
 
