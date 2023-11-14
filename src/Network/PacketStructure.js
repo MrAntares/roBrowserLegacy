@@ -14,6 +14,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	var UNUSED_PACKET;
+	var NAME_LENGTH = 24; // Must be equal to same name var in mmo.h 
 	var PACKET = {};
 	var RENEWAL = Configs.get('renewal') || false;
 	var CLASSIC = !RENEWAL; // For ease of reading checks
@@ -5231,7 +5232,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x95
 	PACKET.ZC.ACK_REQNAME = function PACKET_ZC_ACK_REQNAME(fp, end) {
 		this.AID = fp.readULong();
-		this.CName = fp.readString(24);
+		this.CName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ACK_REQNAME.size = 30;
 
@@ -5245,7 +5246,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x97
 	PACKET.ZC.WHISPER = function PACKET_ZC_WHISPER(fp, end) {
-		this.sender = fp.readString(24);
+		this.sender = fp.readString(NAME_LENGTH);
 		this.isAdmin = fp.readLong();
 		if (this.isAdmin !== 0 && this.isAdmin !== 1) {
 			fp.seek(-4, SEEK_CUR);
@@ -5671,7 +5672,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			var i, count=(end-fp.tell())/24|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].name = fp.readString(24);
+				out[i].name = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -5720,7 +5721,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].role = fp.readULong();
-				out[i].name = fp.readString(24);
+				out[i].name = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -5731,7 +5732,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xdc
 	PACKET.ZC.MEMBER_NEWENTRY = function PACKET_ZC_MEMBER_NEWENTRY(fp, end) {
 		this.curcount = fp.readShort();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.MEMBER_NEWENTRY.size = 28;
 
@@ -5739,7 +5740,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xdd
 	PACKET.ZC.MEMBER_EXIT = function PACKET_ZC_MEMBER_EXIT(fp, end) {
 		this.curcount = fp.readShort();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.type = fp.readUChar();
 	};
 	PACKET.ZC.MEMBER_EXIT.size = 29;
@@ -5760,14 +5761,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xe1
 	PACKET.ZC.ROLE_CHANGE = function PACKET_ZC_ROLE_CHANGE(fp, end) {
 		this.role = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ROLE_CHANGE.size = 30;
 
 
 	// 0xe5
 	PACKET.ZC.REQ_EXCHANGE_ITEM = function PACKET_ZC_REQ_EXCHANGE_ITEM(fp, end) {
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.REQ_EXCHANGE_ITEM.size = 26;
 
@@ -5874,13 +5875,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0xfb
 	PACKET.ZC.GROUP_LIST = function PACKET_ZC_GROUP_LIST(fp, end) {
-		this.groupName = fp.readString(24);
+		this.groupName = fp.readString(NAME_LENGTH);
 		this.groupInfo = (function() {
 			var i, count=(end-fp.tell())/46|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].AID = fp.readULong();
-				out[i].characterName = fp.readString(24);
+				out[i].characterName = fp.readString(NAME_LENGTH);
 				out[i].mapName = fp.readBinaryString(16);
 				out[i].role = fp.readUChar();
 				out[i].state = fp.readUChar();
@@ -5893,7 +5894,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0xfd
 	PACKET.ZC.ACK_REQ_JOIN_GROUP = function PACKET_ZC_ACK_REQ_JOIN_GROUP(fp, end) {
-		this.characterName = fp.readString(24);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.answer = fp.readUChar();
 	};
 	PACKET.ZC.ACK_REQ_JOIN_GROUP.size = 27;
@@ -5902,7 +5903,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xfe
 	PACKET.ZC.REQ_JOIN_GROUP = function PACKET_ZC_REQ_JOIN_GROUP(fp, end) {
 		this.GRID = fp.readULong();
-		this.groupName = fp.readString(24);
+		this.groupName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.REQ_JOIN_GROUP.size = 30;
 
@@ -5921,8 +5922,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
-		this.groupName = fp.readString(24);
-		this.characterName = fp.readString(24);
+		this.groupName = fp.readString(NAME_LENGTH);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.mapName = fp.readBinaryString(16);
 	};
 	PACKET.ZC.ADD_MEMBER_TO_GROUP.size = 79;
@@ -5931,7 +5932,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x105
 	PACKET.ZC.DELETE_MEMBER_FROM_GROUP = function PACKET_ZC_DELETE_MEMBER_FROM_GROUP(fp, end) {
 		this.AID = fp.readULong();
-		this.characterName = fp.readString(24);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.result = fp.readUChar();
 	};
 	PACKET.ZC.DELETE_MEMBER_FROM_GROUP.size = 31;
@@ -6011,7 +6012,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].level = fp.readShort();
 				out[i].spcost = fp.readShort();
 				out[i].attackRange = fp.readShort();
-				out[i].skillName = fp.readBinaryString(24);
+				out[i].skillName = fp.readBinaryString(NAME_LENGTH);
 				out[i].upgradable = fp.readChar();
 			}
 			return out;
@@ -6042,7 +6043,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.data.level = fp.readShort();
 		this.data.spcost = fp.readShort();
 		this.data.attackRange = fp.readShort();
-		this.data.skillName = fp.readBinaryString(24);
+		this.data.skillName = fp.readBinaryString(NAME_LENGTH);
 		this.data.upgradable = fp.readUChar();
 	};
 	PACKET.ZC.ADD_SKILL.size = 39;
@@ -6458,7 +6459,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.data.level = fp.readShort();
 		this.data.spcost = fp.readShort();
 		this.data.attackRange = fp.readShort();
-		this.data.skillName = fp.readBinaryString(24);
+		this.data.skillName = fp.readBinaryString(NAME_LENGTH);
 		this.data.upgradable = fp.readUChar();
 	};
 	PACKET.ZC.AUTORUN_SKILL.size = 39;
@@ -6482,7 +6483,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x14b
 	PACKET.ZC.NOTIFY_MANNER_POINT_GIVEN = function PACKET_ZC_NOTIFY_MANNER_POINT_GIVEN(fp, end) {
 		this.type = fp.readUChar();
-		this.otherCharName = fp.readString(24);
+		this.otherCharName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.NOTIFY_MANNER_POINT_GIVEN.size = 27;
 
@@ -6495,7 +6496,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i] = {};
 				out[i].relation = fp.readLong();
 				out[i].GDID = fp.readLong();
-				out[i].guildName = fp.readString(24);
+				out[i].guildName = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -6523,8 +6524,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.honor = fp.readLong();
 		this.virtue = fp.readLong();
 		this.emblemVersion = fp.readLong();
-		this.guildname = fp.readString(24);
-		this.masterName = fp.readString(24);
+		this.guildname = fp.readString(NAME_LENGTH);
+		this.masterName = fp.readString(NAME_LENGTH);
 		this.manageLand = fp.readBinaryString(16);
 	};
 	PACKET.ZC.GUILD_INFO.size = 110;
@@ -6556,7 +6557,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].CurrentState = fp.readLong();
 				out[i].GPositionID = fp.readLong();
 				out[i].Memo = fp.readString(50);
-				out[i].CharName = fp.readString(24);
+				out[i].CharName = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -6587,7 +6588,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x15a
 	PACKET.ZC.ACK_LEAVE_GUILD = function PACKET_ZC_ACK_LEAVE_GUILD(fp, end) {
-		this.charName = fp.readString(24);
+		this.charName = fp.readString(NAME_LENGTH);
 		this.reasonDesc = fp.readString(40);
 	};
 	PACKET.ZC.ACK_LEAVE_GUILD.size = 66;
@@ -6595,9 +6596,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x15c
 	PACKET.ZC.ACK_BAN_GUILD = function PACKET_ZC_ACK_BAN_GUILD(fp, end) {
-		this.charName = fp.readString(24);
+		this.charName = fp.readString(NAME_LENGTH);
 		this.reasonDesc = fp.readString(40);
-		this.account = fp.readString(24);
+		this.account = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ACK_BAN_GUILD.size = 90;
 
@@ -6645,7 +6646,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].level = fp.readShort();
 				out[i].spcost = fp.readShort();
 				out[i].attackRange = fp.readShort();
-				out[i].skillName = fp.readBinaryString(24);
+				out[i].skillName = fp.readBinaryString(NAME_LENGTH);
 				out[i].upgradable = fp.readChar();
 			}
 			return out;
@@ -6661,10 +6662,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			var i, count=(end-fp.tell())/size|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].charname = fp.readString(24);
+				out[i].charname = fp.readString(NAME_LENGTH);
 
 				if (PACKETVER.max < 20100803) {
-					out[i].account = fp.readString(24);
+					out[i].account = fp.readString(NAME_LENGTH);
 				}
 
 				out[i].reason = fp.readString(40);
@@ -6681,7 +6682,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			var i, count=(end-fp.tell())/36|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].guildname = fp.readString(24);
+				out[i].guildname = fp.readString(NAME_LENGTH);
 				out[i].guildLevel = fp.readLong();
 				out[i].guildMemberSize = fp.readLong();
 				out[i].guildRanking = fp.readLong();
@@ -6699,7 +6700,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].positionID = fp.readLong();
-				out[i].posName = fp.readString(24);
+				out[i].posName = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -6724,7 +6725,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x16a
 	PACKET.ZC.REQ_JOIN_GUILD = function PACKET_ZC_REQ_JOIN_GUILD(fp, end) {
 		this.GDID = fp.readULong();
-		this.guildName = fp.readString(24);
+		this.guildName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.REQ_JOIN_GUILD.size = 30;
 
@@ -6736,7 +6737,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.right = fp.readLong();
 		this.isMaster = fp.readUChar();
 		this.InterSID = fp.readLong();
-		this.GName = fp.readString(24);
+		this.GName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.UPDATE_GDID.size = 43;
 
@@ -6761,7 +6762,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x171
 	PACKET.ZC.REQ_ALLY_GUILD = function PACKET_ZC_REQ_ALLY_GUILD(fp, end) {
 		this.otherAID = fp.readULong();
-		this.guildName = fp.readString(24);
+		this.guildName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.REQ_ALLY_GUILD.size = 30;
 
@@ -6783,7 +6784,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].right = fp.readLong();
 				out[i].ranking = fp.readLong();
 				out[i].payRate = fp.readLong();
-				out[i].posName = fp.readString(24);
+				out[i].posName = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -6805,7 +6806,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.Info.CurrentState = fp.readLong();
 		this.Info.GPositionID = fp.readLong();
 		this.Info.Memo = fp.readString(50);
-		this.Info.CharName = fp.readString(24);
+		this.Info.CharName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ACK_GUILD_MEMBER_INFO.size = 106;
 
@@ -6881,7 +6882,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.Info.currentState = fp.readLong();
 		this.Info.positionID = fp.readLong();
 		this.Info.intro = fp.readString(50);
-		this.Info.charname = fp.readString(24);
+		this.Info.charname = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.MEMBER_ADD.size = 106;
 
@@ -6899,7 +6900,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.Info = {};
 		this.Info.relation = fp.readLong();
 		this.Info.GDID = fp.readLong();
-		this.Info.guildname = fp.readString(24);
+		this.Info.guildname = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ADD_RELATED_GUILD.size = 34;
 
@@ -7013,7 +7014,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x194
 	PACKET.ZC.ACK_REQNAME_BYGID = function PACKET_ZC_ACK_REQNAME_BYGID(fp, end) {
 		this.GID = fp.readULong();
-		this.CName = fp.readString(24);
+		this.CName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ACK_REQNAME_BYGID.size = 30;
 
@@ -7021,10 +7022,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x195
 	PACKET.ZC.ACK_REQNAMEALL = function PACKET_ZC_ACK_REQNAMEALL(fp, end) {
 		this.AID = fp.readULong();
-		this.CName = fp.readString(24);
-		this.PName = fp.readString(24);
-		this.GName = fp.readString(24);
-		this.RName = fp.readString(24);
+		this.CName = fp.readString(NAME_LENGTH);
+		this.PName = fp.readString(NAME_LENGTH);
+		this.GName = fp.readString(NAME_LENGTH);
+		this.RName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ACK_REQNAMEALL.size = 102;
 
@@ -7076,7 +7077,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x1a2
 	PACKET.ZC.PROPERTY_PET = function PACKET_ZC_PROPERTY_PET(fp, end) {
-		this.szName = fp.readString(24);
+		this.szName = fp.readString(NAME_LENGTH);
 		this.bModified = fp.readUChar();
 		this.nLevel = fp.readShort();
 		this.nFullness = fp.readShort();
@@ -7212,8 +7213,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.honor = fp.readLong();
 		this.virtue = fp.readLong();
 		this.emblemVersion = fp.readLong();
-		this.guildname = fp.readString(24);
-		this.masterName = fp.readString(24);
+		this.guildname = fp.readString(NAME_LENGTH);
+		this.masterName = fp.readString(NAME_LENGTH);
 		this.manageLand = fp.readBinaryString(16);
 		this.zeny = fp.readLong();
 	};
@@ -7401,7 +7402,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x1d3
 	PACKET.ZC.SOUND = function PACKET_ZC_SOUND(fp, end) {
-		this.fileName = fp.readBinaryString(24);
+		this.fileName = fp.readBinaryString(NAME_LENGTH);
 		this.act = fp.readUChar();
 		this.term = fp.readULong();
 		this.NAID = fp.readULong();
@@ -7556,7 +7557,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x1e0
 	PACKET.ZC.ACK_ACCOUNTNAME = function PACKET_ZC_ACK_ACCOUNTNAME(fp, end) {
 		this.AID = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ACK_ACCOUNTNAME.size = 30;
 
@@ -7573,7 +7574,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.REQ_COUPLE = function PACKET_ZC_REQ_COUPLE(fp, end) {
 		this.AID = fp.readULong();
 		this.GID = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.REQ_COUPLE.size = 34;
 
@@ -7585,7 +7586,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x1e6
 	PACKET.ZC.COUPLENAME = function PACKET_ZC_COUPLENAME(fp, end) {
-		this.CoupleName = fp.readString(24);
+		this.CoupleName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.COUPLENAME.size = 26;
 
@@ -7597,8 +7598,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
-		this.groupName = fp.readString(24);
-		this.characterName = fp.readString(24);
+		this.groupName = fp.readString(NAME_LENGTH);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.mapName = fp.readBinaryString(16);
 		this.ItemPickupRule = fp.readUChar();
 		this.ItemDivisionRule = fp.readUChar();
@@ -7732,7 +7733,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x1f4
 	PACKET.ZC.REQ_EXCHANGE_ITEM2 = function PACKET_ZC_REQ_EXCHANGE_ITEM2(fp, end) {
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.GID = fp.readULong();
 		this.level = fp.readShort();
 	};
@@ -7752,7 +7753,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.REQ_BABY = function PACKET_ZC_REQ_BABY(fp, end) {
 		this.AID = fp.readULong();
 		this.GID = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.REQ_BABY.size = 34;
 
@@ -7808,7 +7809,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i] = {};
 				out[i].AID = fp.readULong();
 				out[i].GID = fp.readULong();
-				out[i].Name = fp.readString(24);
+				out[i].Name = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -7818,7 +7819,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x205
 	PACKET.ZC.DIVORCE = function PACKET_ZC_DIVORCE(fp, end) {
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.DIVORCE.size = 26;
 
@@ -7836,7 +7837,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.REQ_ADD_FRIENDS = function PACKET_ZC_REQ_ADD_FRIENDS(fp, end) {
 		this.ReqAID = fp.readULong();
 		this.ReqGID = fp.readULong();
-		this.Name = fp.readString(24);
+		this.Name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.REQ_ADD_FRIENDS.size = 34;
 
@@ -7846,7 +7847,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.Result = fp.readShort();
 		this.AID = fp.readULong();
 		this.GID = fp.readULong();
-		this.Name = fp.readString(24);
+		this.Name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ADD_FRIENDS_LIST.size = 36;
 
@@ -7876,7 +7877,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x20e
 	PACKET.ZC.STARSKILL = function PACKET_ZC_STARSKILL(fp, end) {
-		this.monsterName = fp.readBinaryString(24);
+		this.monsterName = fp.readBinaryString(NAME_LENGTH);
 		this.monsterID = fp.readLong();
 		this.star = fp.readUChar();
 		this.result = fp.readUChar();
@@ -7955,7 +7956,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			var count = 10,
 				out = new Array(count);
 			for (var i = 0; i < count; ++i) {
-				out[i] = fp.readString(24);
+				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -7977,7 +7978,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			var count = 10,
 				out = new Array(count);
 			for (var i = 0; i < count; ++i) {
-				out[i] = fp.readString(24);
+				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -8020,8 +8021,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.NOTIFY_PKINFO = function PACKET_ZC_NOTIFY_PKINFO(fp, end) {
 		this.winPoint = fp.readLong();
 		this.losePoint = fp.readLong();
-		this.killName = fp.readString(24);
-		this.killedName = fp.readString(24);
+		this.killName = fp.readString(NAME_LENGTH);
+		this.killedName = fp.readString(NAME_LENGTH);
 		this.expireTime = {};
 		this.expireTime.dwLowDateTime = fp.readULong();
 		this.expireTime.dwHighDateTime = fp.readULong();
@@ -8080,7 +8081,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			var count = 10,
 				out = new Array(count);
 			for (var i = 0; i < count; ++i) {
-				out[i] = fp.readString(24);
+				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -8216,7 +8217,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x22e
 	PACKET.ZC.PROPERTY_HOMUN = function PACKET_ZC_PROPERTY_HOMUN(fp, end) {
-		this.szName = fp.readString(24);
+		this.szName = fp.readString(NAME_LENGTH);
 		this.bModified = fp.readUChar();
 		this.nLevel = fp.readShort();
 		this.nFullness = fp.readShort();
@@ -8300,7 +8301,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].MailID = fp.readULong();
 				out[i].HEADER = fp.readString(40);
 				out[i].isOpen = fp.readChar();
-				out[i].FromName = fp.readString(24);
+				out[i].FromName = fp.readString(NAME_LENGTH);
 				out[i].DeleteTime = fp.readLong();
 			}
 			return out;
@@ -8313,7 +8314,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.MAIL_REQ_OPEN = function PACKET_ZC_MAIL_REQ_OPEN(fp, end) {
 		this.MailID = fp.readLong();
 		this.Header = fp.readString(40);
-		this.FromName = fp.readString(24);
+		this.FromName = fp.readString(NAME_LENGTH);
 		this.DeleteTime = fp.readLong();
 		this.Money = fp.readULong();
 		this.count = fp.readLong();
@@ -8351,7 +8352,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.MAIL_RECEIVE = function PACKET_ZC_MAIL_RECEIVE(fp, end) {
 		this.MailID = fp.readULong();
 		this.Header = fp.readString(40);
-		this.FromName = fp.readString(24);
+		this.FromName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.MAIL_RECEIVE.size = 70;
 
@@ -8372,7 +8373,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].AuctionID = fp.readULong();
-				out[i].SellerName = fp.readString(24);
+				out[i].SellerName = fp.readString(NAME_LENGTH);
 				out[i].ITID = fp.readUShort();
 				out[i].Type = fp.readLong();
 				out[i].count = fp.readShort();
@@ -8386,7 +8387,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].slot.card4 = fp.readUShort();
 				out[i].NowPrice = fp.readLong();
 				out[i].MaxPrice = fp.readLong();
-				out[i].BuyerName = fp.readString(24);
+				out[i].BuyerName = fp.readString(NAME_LENGTH);
 				out[i].DeleteTime = fp.readLong();
 			}
 			return out;
@@ -8616,7 +8617,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x27d
 	PACKET.ZC.PROPERTY_MERCE = function PACKET_ZC_PROPERTY_MERCE(fp, end) {
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.level = fp.readShort();
 		this.faith = fp.readShort();
 		this.summonCount = fp.readShort();
@@ -8661,7 +8662,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			var count = 10,
 				out = new Array(count);
 			for (var i = 0; i < count; ++i) {
-				out[i] = fp.readString(24);
+				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
@@ -8919,7 +8920,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.Mdef = fp.readShort();
 		this.flee = fp.readShort();
 		this.aspd = fp.readShort();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.level = fp.readShort();
 		this.hp = fp.readLong();
 		this.maxHP = fp.readLong();
@@ -8944,7 +8945,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.Mdef = fp.readShort();
 		this.flee = fp.readShort();
 		this.aspd = fp.readShort();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.level = fp.readShort();
 		this.hp = fp.readShort();
 		this.maxHP = fp.readShort();
@@ -8969,7 +8970,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].level = fp.readShort();
 				out[i].spcost = fp.readShort();
 				out[i].attackRange = fp.readShort();
-				out[i].skillName = fp.readBinaryString(24);
+				out[i].skillName = fp.readBinaryString(NAME_LENGTH);
 				out[i].upgradable = fp.readChar();
 			}
 			return out;
@@ -9083,7 +9084,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 					out[i].hunt[j] = {};
 					out[i].hunt[j].mobGID = fp.readULong();
 					out[i].hunt[j].huntCount = fp.readShort();
-					out[i].hunt[j].mobName = fp.readString(24);
+					out[i].hunt[j].mobName = fp.readString(NAME_LENGTH);
 				}
 			}
 			return out;
@@ -9105,7 +9106,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i] = {};
 				out[i].mobGID = fp.readULong();
 				out[i].huntCount = fp.readShort();
-				out[i].mobName = fp.readString(24);
+				out[i].mobName = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})(this.count);
@@ -9221,7 +9222,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x2c5
 	PACKET.ZC.PARTY_JOIN_REQ_ACK = function PACKET_ZC_PARTY_JOIN_REQ_ACK(fp, end) {
-		this.characterName = fp.readString(24);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.answer = fp.readLong();
 	};
 	PACKET.ZC.PARTY_JOIN_REQ_ACK.size = 30;
@@ -9230,7 +9231,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x2c6
 	PACKET.ZC.PARTY_JOIN_REQ = function PACKET_ZC_PARTY_JOIN_REQ(fp, end) {
 		this.GRID = fp.readULong();
-		this.groupName = fp.readString(24);
+		this.groupName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.PARTY_JOIN_REQ.size = 30;
 
@@ -9404,7 +9405,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x2d7
 	PACKET.ZC.EQUIPWIN_MICROSCOPE = function PACKET_ZC_EQUIPWIN_MICROSCOPE(fp, end) {
-		this.characterName = fp.readString(24);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.accessory = fp.readShort();
@@ -9459,7 +9460,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x2dc
 	PACKET.ZC.BATTLEFIELD_CHAT = function PACKET_ZC_BATTLEFIELD_CHAT(fp, end) {
 		this.accountID = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.msg = fp.readString(end - fp.tell());
 	};
 	PACKET.ZC.BATTLEFIELD_CHAT.size = -1;
@@ -9468,7 +9469,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x2dd
 	PACKET.ZC.BATTLEFIELD_NOTIFY_CAMPINFO = function PACKET_ZC_BATTLEFIELD_NOTIFY_CAMPINFO(fp, end) {
 		this.accountID = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.camp = fp.readShort();
 	};
 	PACKET.ZC.BATTLEFIELD_NOTIFY_CAMPINFO.size = 32;
@@ -9485,7 +9486,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x2df
 	PACKET.ZC.BATTLEFIELD_NOTIFY_POSITION = function PACKET_ZC_BATTLEFIELD_NOTIFY_POSITION(fp, end) {
 		this.accountID = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.job = fp.readUShort();
 		this.x = fp.readShort();
 		this.y = fp.readShort();
@@ -9496,7 +9497,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x2e0
 	PACKET.ZC.BATTLEFIELD_NOTIFY_HP = function PACKET_ZC_BATTLEFIELD_NOTIFY_HP(fp, end) {
 		this.accountID = fp.readULong();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 		this.hp = fp.readShort();
 		this.maxHp = fp.readShort();
 	};
@@ -9976,7 +9977,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x7dd
 	PACKET.ZC.SEEK_PARTY = function PACKET_ZC_SEEK_PARTY(fp, end) {
-		this.Name = fp.readString(24);
+		this.Name = fp.readString(NAME_LENGTH);
 		this.Job = fp.readULong();
 		this.Level = fp.readULong();
 		this.mapName = fp.readBinaryString(16);
@@ -9987,7 +9988,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x7df
 	PACKET.ZC.SEEK_PARTY_MEMBER = function PACKET_ZC_SEEK_PARTY_MEMBER(fp, end) {
-		this.Name = fp.readString(24);
+		this.Name = fp.readString(NAME_LENGTH);
 		this.Job = fp.readULong();
 		this.Level = fp.readULong();
 		this.mapName = fp.readBinaryString(16);
@@ -10268,7 +10269,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x7fe
 	PACKET.ZC.PLAY_NPC_BGM = function PACKET_ZC_PLAY_NPC_BGM(fp, end) {
-		this.Bgm = fp.readBinaryString(24);
+		this.Bgm = fp.readBinaryString(NAME_LENGTH);
 	};
 	PACKET.ZC.PLAY_NPC_BGM.size = 26;
 
@@ -10369,7 +10370,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].Index = fp.readULong();
-				out[i].CharName = fp.readString(24);
+				out[i].CharName = fp.readString(NAME_LENGTH);
 				out[i].ExpireTime = fp.readLong();
 				out[i].Detail = {};
 				out[i].Detail.Level = fp.readShort();
@@ -10399,7 +10400,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.PARTY_BOOKING_NOTIFY_INSERT = function PACKET_ZC_PARTY_BOOKING_NOTIFY_INSERT(fp, end) {
 		this.Info = {};
 		this.Info.Index = fp.readULong();
-		this.Info.CharName = fp.readString(24);
+		this.Info.CharName = fp.readString(NAME_LENGTH);
 		this.Info.ExpireTime = fp.readLong();
 		this.Info.Detail = {};
 		this.Info.Detail.Level = fp.readShort();
@@ -10715,7 +10716,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x839
 	PACKET.ZC.ACK_BAN_GUILD_SSO = function PACKET_ZC_ACK_BAN_GUILD_SSO(fp, end) {
-		this.charName = fp.readString(24);
+		this.charName = fp.readString(NAME_LENGTH);
 		this.reasonDesc = fp.readString(40);
 	};
 	PACKET.ZC.ACK_BAN_GUILD_SSO.size = 66;
@@ -10797,7 +10798,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.ySize = fp.readUChar();
 		this.clevel = fp.readShort();
 		this.font = fp.readShort();
-		this.name = fp.readString(24);
+		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.NOTIFY_MOVEENTRY6.size = -1;
 
@@ -10873,7 +10874,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x859
 	PACKET.ZC.EQUIPWIN_MICROSCOPE2 = function PACKET_ZC_EQUIPWIN_MICROSCOPE2(fp, end) {
-		this.characterName = fp.readString(24);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.accessory = fp.readShort();
@@ -11173,7 +11174,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 					out[i].hunt[j].mobGID = fp.readULong();
 					out[i].hunt[j].huntCount = fp.readShort();
 					out[i].hunt[j].maxCount = fp.readShort();
-					out[i].hunt[j].mobName = fp.readString(24);
+					out[i].hunt[j].mobName = fp.readString(NAME_LENGTH);
 				}
 			}
 			return out;
@@ -11364,7 +11365,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x995
 	PACKET.ZC.STORE_NORMAL_ITEMLIST4 = function PACKET_ZC_STORE_NORMAL_ITEMLIST4(fp, end) {
-		this.Name = fp.readString(24);
+		this.Name = fp.readString(NAME_LENGTH);
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 24 | 0,
 				out = new Array(count);
@@ -11394,7 +11395,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x996
 	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST4 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST4(fp, end) {
-		this.Name = fp.readString(24);
+		this.Name = fp.readString(NAME_LENGTH);
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 31 | 0,
 				out = new Array(count);
@@ -11428,7 +11429,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x997
 	PACKET.ZC.EQUIPWIN_MICROSCOPE_V5 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V5(fp, end) {
-		this.characterName = fp.readString(24);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.accessory = fp.readShort();
@@ -11801,7 +11802,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x9f7
 	PACKET.ZC.PROPERTY_HOMUN2 = function PACKET_ZC_PROPERTY_HOMUN2(fp, end) {
 
-		this.szName				= fp.readString(24);	// <name>.24B
+		this.szName				= fp.readString(NAME_LENGTH);	// <name>.24B
 		this.bModified 			= fp.readUChar(); 			// <modified>.B
 		this.nLevel 			= fp.readShort(); 			// <level>.W
 		this.nFullness 			= fp.readShort(); 			// <hunger>.W
@@ -11851,7 +11852,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 					out[i].hunt[j].lvlMax = fp.readShort();
 					out[i].hunt[j].huntCount = fp.readShort();
 					out[i].hunt[j].maxCount = fp.readShort();
-					out[i].hunt[j].mobName = fp.readString(24);
+					out[i].hunt[j].mobName = fp.readString(NAME_LENGTH);
 				}
 			}
 			return out;
@@ -11876,7 +11877,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].lvlMin = fp.readShort();
 				out[i].lvlMax = fp.readShort();
 				out[i].huntCount = fp.readShort();
-				out[i].mobName = fp.readString(24);
+				out[i].mobName = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})(this.count);
@@ -12242,7 +12243,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			"char param"
 		);
 
-		this.Name = fp.readString(24);
+		this.Name = fp.readString(NAME_LENGTH);
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 57 | 0,
 				out = new Array(count);
@@ -12342,10 +12343,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xa30
 	PACKET.ZC.ACK_REQNAMEALL2 = function PACKET_ZC_ACK_REQNAMEALL2(fp, end) {
 		this.AID = fp.readULong();
-		this.CName = fp.readString(24);
-		this.PName = fp.readString(24);
-		this.GName = fp.readString(24);
-		this.RName = fp.readString(24);
+		this.CName = fp.readString(NAME_LENGTH);
+		this.PName = fp.readString(NAME_LENGTH);
+		this.GName = fp.readString(NAME_LENGTH);
+		this.RName = fp.readString(NAME_LENGTH);
 		this.TitleID = fp.readULong(); //maybe change in future
 	};
 	PACKET.ZC.ACK_REQNAMEALL2.size = 106;
@@ -12419,8 +12420,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
-		this.groupName = fp.readString(24);
-		this.characterName = fp.readString(24);
+		this.groupName = fp.readString(NAME_LENGTH);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.mapName = fp.readBinaryString(16);
 		this.ItemPickupRule = fp.readUChar();
 		this.ItemDivisionRule = fp.readUChar();
@@ -12429,13 +12430,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0xa44
 	PACKET.ZC.GROUP_LIST2 = function PACKET_ZC_GROUP_LIST2(fp, end) {
-		this.groupName = fp.readBinaryString(24);
+		this.groupName = fp.readBinaryString(NAME_LENGTH);
 		this.groupInfo = (function() {
 			var i, count=(end-fp.tell())/50|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].AID = fp.readULong();
-				out[i].characterName = fp.readBinaryString(24);
+				out[i].characterName = fp.readBinaryString(NAME_LENGTH);
 				out[i].mapName = fp.readBinaryString(16);
 				out[i].role = fp.readUChar();
 				out[i].state = fp.readUChar();
@@ -12479,7 +12480,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.honor = fp.readLong();
 		this.virtue = fp.readLong();
 		this.emblemVersion = fp.readLong();
-		this.guildname = fp.readString(24);
+		this.guildname = fp.readString(NAME_LENGTH);
 		this.manageLand = fp.readString(16);
 		this.zeny = fp.readLong();
 		this.masterAID = fp.readLong();
@@ -12674,8 +12675,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.ACK_REQNAMEALL3 = function PACKET_ZC_ACK_REQNAMEALL3(fp, end) {
 		this.AID = fp.readULong();
 		this.GID = fp.readULong();
-		this.CName = fp.readString(24);
-		this.PName = fp.readString(24);
+		this.CName = fp.readString(NAME_LENGTH);
+		this.PName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.ACK_REQNAMEALL3.size = 58;
 
@@ -12689,8 +12690,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
-		this.groupName = fp.readString(24);
-		this.characterName = fp.readString(24);
+		this.groupName = fp.readString(NAME_LENGTH);
+		this.characterName = fp.readString(NAME_LENGTH);
 		this.mapName = fp.readBinaryString(16);
 		this.ItemPickupRule = fp.readUChar();
 		this.ItemDivisionRule = fp.readUChar();
@@ -12699,14 +12700,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0xae5
 	PACKET.ZC.GROUP_LIST3 = function PACKET_ZC_GROUP_LIST3(fp, end) {
-		this.groupName = fp.readBinaryString(24);
+		this.groupName = fp.readBinaryString(NAME_LENGTH);
 		this.groupInfo = (function() {
 			var i, count=(end-fp.tell())/54|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].AID = fp.readULong();
 				out[i].GID = fp.readULong();
-				out[i].characterName = fp.readBinaryString(24);
+				out[i].characterName = fp.readBinaryString(NAME_LENGTH);
 				out[i].mapName = fp.readBinaryString(16);
 				out[i].role = fp.readUChar();
 				out[i].state = fp.readUChar();
@@ -12789,7 +12790,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 					out[i].hunt[j].lvlMax = fp.readShort();
 					out[i].hunt[j].huntCount = fp.readShort();
 					out[i].hunt[j].maxCount = fp.readShort();
-					out[i].hunt[j].mobName = fp.readString(24);
+					out[i].hunt[j].mobName = fp.readString(NAME_LENGTH);
 				}
 			}
 			return out;
@@ -12907,7 +12908,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].lvlMin = fp.readShort();
 				out[i].lvlMax = fp.readShort();
 				out[i].huntCount = fp.readShort();
-				out[i].mobName = fp.readString(24);
+				out[i].mobName = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})(this.count);
