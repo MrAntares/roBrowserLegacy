@@ -40,6 +40,7 @@ define(function( require )
 	var Sky            = require('Renderer/Effects/Sky');
 	var Damage         = require('Renderer/Effects/Damage');
 	var MapPreferences = require('Preferences/Map');
+	const PACKETVER   = require('Network/PacketVerManager');
 
 
 	/**
@@ -378,19 +379,30 @@ define(function( require )
 		if (Mouse.intersect && Altitude.intersect( modelView, projection, _pos)) {
 			x = _pos[0];
 			y = _pos[1];
-			// Walkable
-			if (Altitude.getCellType( x, y ) & Altitude.TYPE.WALKABLE) {
+			const isWalkable = Altitude.getCellType( x, y ) & Altitude.TYPE.WALKABLE;
+
+			if (isWalkable) {
 				GridSelector.render( gl, modelView, projection, fog, x, y );
 				Mouse.world.x =  x;
 				Mouse.world.y =  y;
 				Mouse.world.z =  Altitude.getCellHeight( x, y );
 			}
+
+			// NO walk cursor
+			// TODO: Know the packet version for this feature
+			if (PACKETVER.value >= 20200101) {
+				if (Cursor.getActualType() === Cursor.ACTION.NOWALK && isWalkable)
+					Cursor.setType( Cursor.ACTION.DEFAULT, false );
+				if (Cursor.getActualType() === Cursor.ACTION.DEFAULT && !isWalkable)
+					Cursor.setType( Cursor.ACTION.NOWALK, false );
+			}
+
 		}
 
 		// Display zone effects and entities
 		Sky.render( gl, modelView, projection, fog, tick );
 		EffectManager.render( gl, modelView, projection, fog, tick, true);
-		
+
 		//Render Entities (no effects)
 		EntityManager.render( gl, modelView, projection, fog, false );
 
