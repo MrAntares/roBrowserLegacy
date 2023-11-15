@@ -155,7 +155,7 @@ define(function(require)
 		loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
 		loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
 		loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
-		
+
 		loadTable( 'data/skilldesctable2.txt',			'#',	2, function(index, key, val){	SkillDescription[SKID[key]]	= val.replace("\r\n", "\n");},		onLoad());
 
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
@@ -254,14 +254,14 @@ define(function(require)
 					fengari.lua.lua_getglobal( fengari.L, "Reward" );
 					if (!fengari.lua.lua_istable(fengari.L, -1)) {
 						console.log("[checkAttendance] Reward its not a table\n");
-						return;						
+						return;
 					}
 
 					let rows = fengari.lauxlib.luaL_len(fengari.L, -1);
 
 					for (let i = 1; i <= rows; ++i) {
 						fengari.lua.lua_rawgeti(fengari.L, -1, i);
-						
+
 						fengari.lua.lua_rawgeti(fengari.L, -1, 1);
 						let day = fengari.lua.lua_tointeger(fengari.L, -1);
 						fengari.lua.lua_pop(fengari.L, 1);
@@ -285,15 +285,15 @@ define(function(require)
 						fengari.lua.lua_close(fengari.L);
 						return;
 					}
-				
+
 					fengari.lua.lua_getfield(fengari.L, -1, "StartDate");
 					let startDate = fengari.lua.lua_tointeger(fengari.L, -1);
 					fengari.lua.lua_pop(fengari.L, 1);
-				
+
 					fengari.lua.lua_getfield(fengari.L, -1, "EndDate");
 					let endDate = fengari.lua.lua_tointeger(fengari.L, -1);
 					fengari.lua.lua_pop(fengari.L, 1);
-				
+
 					fengari.lua.lua_pop(fengari.L, 1);
 
 					json.Config.StartDate = startDate;
@@ -301,9 +301,9 @@ define(function(require)
 				}
 				catch( hException )
 				{
-					console.error( 'error: ', hException );
+					console.error( `(${filename}) error: `, hException );
 				}
-				
+
 				callback.call( null, json);
 				onEnd();
             },
@@ -440,10 +440,10 @@ define(function(require)
 			if (job === 4218 || job === 4220) {
 				return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' + SexTable[sex] + '/' + (HairIndexTable[sex + 2][id] || id) + '_' + SexTable[sex];
 			}
-			
+
 			return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' + SexTable[sex] + '/' + (HairIndexTable[sex][id] || id)+ '_' + SexTable[sex];
 		}
-		
+
 	};
 
 
@@ -549,15 +549,15 @@ define(function(require)
 		if ((id in ItemTable) && ('ClassNum' in ItemTable[id])) {
 			id = ItemTable[id].ClassNum;
 		}
-		
+
 		if (leftid){
 			if ((leftid in ItemTable) && ('ClassNum' in ItemTable[leftid])) {
 				leftid = ItemTable[leftid].ClassNum;
 			}
-			
+
 			// Create dualhand Id
 			var right = Object.keys(WeaponType).find(key => WeaponType[key] === id);
-			var left  = Object.keys(WeaponType).find(key => WeaponType[key] === leftid); 
+			var left  = Object.keys(WeaponType).find(key => WeaponType[key] === leftid);
 			if(right && left){
 				id = WeaponType[right+'_'+left];
 			}
@@ -594,7 +594,7 @@ define(function(require)
             WeaponTrailTable[id]
         );
     };
-	
+
 	/**
      * @param {number} cart id
      */
@@ -885,16 +885,16 @@ define(function(require)
 
 					for (i = 1; i <= 4; ++i) {
 						var card = item.slot['card'+i];
-						
+
 						if (!card) {
 							break;
 						}
-						
+
 						//store order
 						if(!(cardList.includes(card))){
 							cardList.push(card);
 						}
-						
+
 						//store details
 						if(cards[card]){
 							cards[card].count++;
@@ -905,7 +905,7 @@ define(function(require)
 							cards[card].count = 0;
 						}
 					}
-					
+
 					//create prefixes and postfixes in order
 					cardList.forEach( card => {
 						if(cards[card].isPostfix){
@@ -928,9 +928,9 @@ define(function(require)
 		if(showprefix){
 			str += prefix;
 		}
-		
+
 		str += it.identifiedDisplayName;
-		
+
 		if(showpostfix){
 			str += postfix;
 		}
@@ -989,7 +989,7 @@ define(function(require)
 
 		return TextEncoding.decodeString(MapTable[map].name);
 	};
-	
+
 	/**
 	 * Get monster name
 	 *
@@ -1050,12 +1050,12 @@ define(function(require)
 	 * Get Pet talk message
 	 *
 	 * @param {integer} message data combined with mob id, hungryState, actionState
-	 * @return {string} pet telk sentence 
-	 * 
+	 * @return {string} pet telk sentence
+	 *
 	 * @author MrUnzO
 	 */
 	DB.getPetTalk = function getPetTalk (data){
-		
+
 		// Structure:
 		// Examaple: 1013010
 		// 1013  |      01     |     0
@@ -1075,7 +1075,7 @@ define(function(require)
 		if(hungryState !== null && hungryState !== undefined){
 			hungryText = DB.getPetHungryText(parseInt(hungryState));
 		}
-		
+
 		if(actionState !== null && actionState !== undefined){
 			actionText = DB.getPetActText(parseInt(actionState));
 		}
@@ -1092,7 +1092,7 @@ define(function(require)
 			}
 			return TextEncoding.decodeString(PetTalkTable[mobName][hungryText][actionText]);
 		}
-		
+
 		return false;
 	}
 
@@ -1101,18 +1101,18 @@ define(function(require)
 	 *
 	 * @param {integer} hunger
 	 * @return {integer} hunger state
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.getPetHungryState = function getPetHungryState (hunger)
-	{	
+	{
 		if(!hunger){
 			return 0;
 		}
 		if (hunger > 90 && hunger <= 100)
 			return PetHungryState.PET_FULL;
 		else if (hunger > 75 && hunger <= 90)
-			return PetHungryState.PET_ENOUGH;		
+			return PetHungryState.PET_ENOUGH;
 		else if (hunger > 25 && hunger <= 75)
 			return PetHungryState.PET_SATISFIED;
 		else if (hunger > 10 && hunger <= 25)
@@ -1127,7 +1127,7 @@ define(function(require)
 	 *
 	 * @param {integer} friendly
 	 * @return {integer} friendly state
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.getPetFriendlyState = function getPetFriendlyState(friendly)
@@ -1138,7 +1138,7 @@ define(function(require)
 		if (friendly > 900 && friendly <= 1000)
 			return PetFriendlyState.PET_FAMILIAR;
 		else if (friendly > 750 && friendly <= 900)
-			return PetFriendlyState.PET_FRIENDLY;		
+			return PetFriendlyState.PET_FRIENDLY;
 		else if (friendly > 250 && friendly <= 750)
 			return PetFriendlyState.PET_NORMAL;
 		else if (friendly > 100 && friendly <= 250)
@@ -1153,7 +1153,7 @@ define(function(require)
 	 *
 	 * @param {integer} action
 	 * @return {string} action string
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.getPetActText = function getPetActText(action)
@@ -1182,7 +1182,7 @@ define(function(require)
 			case	PetMessageConst.PM_PERFORMANCE_S:
 				return "perfor_s";
 		}
-	
+
 		return "stand";
 	}
 
@@ -1191,7 +1191,7 @@ define(function(require)
 	 *
 	 * @param {integer} hungry state
 	 * @return {String} hungry state text
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.getPetHungryText = function getPetHungryText(state)
@@ -1209,7 +1209,7 @@ define(function(require)
 						return "so_full";
 		}
 		return "hungry";
-		
+
 	}
 
 	/**
@@ -1219,7 +1219,7 @@ define(function(require)
 	 * @param {integer} friendly state
 	 * @param {integer} action
 	 * @return {integer} emotion id
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.getPetEmotion = function getPetEmotion(hunger, friendly, act)
@@ -1237,7 +1237,7 @@ define(function(require)
 	 * @param {integer} action
 	 * @param {integer} hungry state
 	 * @return {integer} message data
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.getPetTalkNumber = function getPetTalkNumber(job, act, hungry)
@@ -1259,7 +1259,7 @@ define(function(require)
 	 *
 	 * @param {string} map name
 	 * @return {boolean} is indoor?
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.isIndoor = function isIndoor(mapname) {
@@ -1282,7 +1282,7 @@ define(function(require)
 	 * Get Quest Info by ID
 	 *
 	 * @param {integer} questID (quest id)
-	 * 
+	 *
 	 * @author alisonrag
 	 */
 	DB.getQuestInfo = function getQuestInfo(questID) {
