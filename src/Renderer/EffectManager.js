@@ -166,11 +166,22 @@ define(function( require )
 				for (i = 0, count = keys.length; i < count; ++i) {
 					clean( keys[i], AID, effectID);
 				}
-
-				return;
+				
+			} else {
+				clean( effect.name, AID, effectID);
 			}
-
-			clean( effect.name, AID, effectID);
+			
+			// Remove entity effects
+			if(!(AID == null)){
+				var entity = EntityManager.get(AID);
+				if(entity){
+					if( entity.objecttype === entity.constructor.TYPE_EFFECT ){
+						EntityManager.remove(AID); // Whole entity is an effect, just remove it
+					} else if (!(effectID == null)){
+						entity.attachments.remove(effectID); // Only remove attached effect
+					}
+				}
+			}
 		};
 	}();
 
