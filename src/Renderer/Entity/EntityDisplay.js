@@ -125,7 +125,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			DEFAULT: 0,
 			MOB: 1,
 			NPC: 2,
-			ITEM: 3
+			ITEM: 3,
+			ADMIN: 4
 		};
 
 		this.load       =  this.TYPE.NONE;
@@ -229,6 +230,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			case this.STYLE.MOB: color = '#ffc6c6'; break;
 			case this.STYLE.NPC: color = '#94bdf7'; break;
 			case this.STYLE.ITEM: color = '#FFEF94'; break;
+			case this.STYLE.ADMIN: color = '#ffff00'; break;
 		}
 
 
@@ -277,6 +279,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 			entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
 			entity.objecttype === entity.constructor.TYPE_ITEM ? entity.display.STYLE.ITEM :
+			(entity.objecttype === entity.constructor.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 			entity.display.STYLE.DEFAULT
 		)
 	}

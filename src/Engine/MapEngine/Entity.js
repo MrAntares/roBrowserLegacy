@@ -741,6 +741,7 @@ define(function( require )
 						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+						(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 						entity.display.STYLE.DEFAULT
 					)
 				});
@@ -752,6 +753,7 @@ define(function( require )
 				entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
 				entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 				entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+				(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 				entity.display.STYLE.DEFAULT
 			);
 
