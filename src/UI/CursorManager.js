@@ -42,7 +42,8 @@ define(function( require )
 		ATTACK:  5,
 		WARP:    7,
 		PICK:    9,
-		TARGET: 10
+		TARGET: 10,
+		NOWALK: 13
 	};
 
 	/**
@@ -133,13 +134,14 @@ define(function( require )
 	/**
 	 * Define sprite informations (hardcoded)
 	 */
-	var ActionInformations = {};
+	const ActionInformations = {};
 	ActionInformations[ Cursor.ACTION.DEFAULT ] = { drawX:  1, drawY: 19, startX:  0, startY:  0, delayMult: 2.0 };
 	ActionInformations[ Cursor.ACTION.TALK    ] = { drawX: 20, drawY: 40, startX: 20, startY: 20, delayMult: 1.0 };
 	ActionInformations[ Cursor.ACTION.WARP    ] = { drawX: 10, drawY: 32, startX:  0, startY:  0, delayMult: 1.0 };
 	ActionInformations[ Cursor.ACTION.ROTATE  ] = { drawX: 18, drawY: 26, startX: 10, startY:  0, delayMult: 1.0 };
 	ActionInformations[ Cursor.ACTION.PICK    ] = { drawX: 20, drawY: 40, startX: 15, startY: 15, delayMult: 1.0 };
 	ActionInformations[ Cursor.ACTION.TARGET  ] = { drawX: 20, drawY: 50, startX: 20, startY: 28, delayMult: 0.5 };
+	ActionInformations[ Cursor.ACTION.NOWALK  ] = { drawX:  13, drawY: 25, startX:  14, startY:  6, delayMult: 1.0 };
 
 
 	var EntityManager, Entity, SpriteRenderer, Mouse;
@@ -270,6 +272,11 @@ define(function( require )
 				SpriteRenderer.bind2DContext(ctx, info.drawX, info.drawY );
 				ctx.clearRect(0, 0, 50, 50);
 
+				// // add borders to debug
+				// ctx.strokeStyle = 'red';
+				// ctx.strokeRect(0, 0, 50, 50);
+
+
 				// Render layers
 				for (k = 0, total = animation.layers.length; k < total; ++k) {
 					entity.renderLayer( animation.layers[k], _sprite, _sprite, 1.0, position, false);
@@ -331,6 +338,15 @@ define(function( require )
 		}
 	};
 
+	/**
+	 * Simple method to get the current cursor type
+	 *
+	 * @return {number} Cursor.ACTION.*
+	 */
+	Cursor.getActualType = function getActualType()
+	{
+		return _type;
+	};
 
 	/**
 	 * Render the cursor (update)
@@ -344,6 +360,12 @@ define(function( require )
 
 		var info   = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
 		var action = _action.actions[_type];
+
+		// DEFAULT TO DEFAULT CURSOR in case of uknown action
+		if (action === undefined) {
+			action = _action.actions[Cursor.ACTION.DEFAULT];
+		}
+
 		var anim   = _animation;
 		var delay  = action.delay * info.delayMult;
 		var x      = info.startX;
