@@ -9849,7 +9849,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x442
 	PACKET.ZC.SKILL_SELECT_REQUEST = function PACKET_ZC_SKILL_SELECT_REQUEST(fp, end) {
 		this.why = fp.readLong();
-		this.SKIDList = (function() {
+		this.SKID = (function() {
 			var count = (end - fp.tell()) / 2 | 0,
 				out = new Array(count);
 			for (var i = 0; i < count; ++i)
