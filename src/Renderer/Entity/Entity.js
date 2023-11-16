@@ -178,6 +178,8 @@ define( function( require )
 	Entity.prototype.amotionTick    = 0;
 	Entity.prototype.targetGID    = 0;
 
+	Entity.prototype.isOverWeight = false;
+
 	/**
 	 * Initialized Entity data
 	 */
