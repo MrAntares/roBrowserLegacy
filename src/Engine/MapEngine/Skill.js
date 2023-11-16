@@ -572,7 +572,7 @@ define(function( require )
 		} else {
 			entity = Session.Entity;
 			if(entity.isOverWeight){
-				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 				return true;
 			}
 		}
@@ -674,7 +674,7 @@ define(function( require )
 		} else {
 			entity = Session.Entity;
 			if(entity.isOverWeight){
-				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 				return true;
 			}
 		}
