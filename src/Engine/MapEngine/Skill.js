@@ -335,6 +335,31 @@ define(function( require )
 
 
 	/**
+	 * Get a list of skills to use for auto-spell
+	 *
+	 * @param {object} pkt - PACKET.ZC.SKILL_SELECT_REQUEST
+	 */
+	function onSelectSkillList( pkt )
+	{
+		if (!pkt.SKID.length) {
+			return;
+		}
+
+		ItemSelection.append();
+		ItemSelection.setList(pkt.SKID, true);
+		ItemSelection.setTitle(DB.getMessage(697));
+		ItemSelection.onIndexSelected = function(index) {
+			if (index >= -1) {
+				var pkt   = new PACKET.CZ.SKILL_SELECT_RESPONSE();
+				pkt.SKID  = index;
+				pkt.why  = pkt.why;
+				Network.sendPacket(pkt);
+			}
+		};
+	}
+
+
+	/**
 	 * Manage menu to select zone to warp on
 	 *
 	 * @param {object} pkt - PACKET.ZC.WARPLIST
@@ -799,6 +824,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ITEMIDENTIFY_LIST,      onIdentifyList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMIDENTIFY,       onIdentifyResult );
 		Network.hookPacket( PACKET.ZC.AUTOSPELLLIST,          onAutoSpellList );
+		Network.hookPacket( PACKET.ZC.SKILL_SELECT_REQUEST,   onSelectSkillList );
 		Network.hookPacket( PACKET.ZC.WARPLIST,               onTeleportList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPINFO,         onTeleportResult );
 		Network.hookPacket( PACKET.ZC.ACK_REMEMBER_WARPPOINT, onMemoResult );
