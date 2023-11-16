@@ -5437,7 +5437,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.index = fp.readUShort();
 		this.wearLocation = fp.readUShort();
 		if (PACKETVER.value >= 20100629) {
-			this.a37 = fp.readUShort();
+			this.viewid = fp.readUShort();
 		}
 		this.result = fp.readUChar();
 	};
@@ -10962,7 +10962,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.REQ_WEAR_EQUIP_ACK2 = function PACKET_ZC_REQ_WEAR_EQUIP_ACK2(fp, end) {
 		this.index = fp.readUShort();
 		this.wearLocation = fp.readUShort();
-		this.a37 = fp.readUShort();
+		this.viewid = fp.readUShort();
 		this.result = !fp.readUChar();
 	};
 	PACKET.ZC.REQ_WEAR_EQUIP_ACK2.size = 9;
