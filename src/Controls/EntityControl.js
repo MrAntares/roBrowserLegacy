@@ -33,6 +33,7 @@ define(function( require )
 	var Trade       = require('UI/Components/Trade/Trade');
 	var NpcBox 		= require('UI/Components/NpcBox/NpcBox');
 	var Altitude 	= require('Renderer/Map/Altitude');
+	var ChatBox     = require('UI/Components/ChatBox/ChatBox');
 	var getModule   = require;
 
 
@@ -412,6 +413,11 @@ define(function( require )
 						return true;
 					}
 				
+					if(main.isOverWeight){
+						ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR);
+						return true;
+					}
+
 					if(PACKETVER.value >= 20180307) {
 						pkt        = new PACKET.CZ.REQUEST_ACT2();
 					} else {
