@@ -571,6 +571,10 @@ define(function( require )
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
+			if(entity.isOverWeight){
+				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR);
+				return true;
+			}
 		}
 
 		// Client side minimum delay
@@ -669,6 +673,10 @@ define(function( require )
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
+			if(entity.isOverWeight){
+				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR);
+				return true;
+			}
 		}
 
 		// Client side minimum delay

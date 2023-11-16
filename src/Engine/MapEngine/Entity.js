@@ -1696,6 +1696,9 @@ define(function( require )
 				entity.allRidingState = pkt.state;
 				break;
 
+			case StatusConst.WEIGHTOVER90:
+				entity.isOverWeight = pkt.state;
+				break;
 
 		}
 
