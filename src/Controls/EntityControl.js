@@ -414,7 +414,7 @@ define(function( require )
 					}
 				
 					if(main.isOverWeight){
-						ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR);
+						ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 						return true;
 					}
 
