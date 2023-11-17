@@ -13,9 +13,48 @@ define(function (require)
 
 	var Configs = require('Core/Configs');
 	var PACKETVER = require('Network/PacketVerManager');
-
 	var UIVersionManager = {};
-
+	
+	var _UIAliases = {};
+	
+	UIVersionManager.getUIAlias = function( name ){
+		return name in _UIAliases ? _UIAliases[name] : false;
+	};
+	
+	UIVersionManager.selectUIVersion = function( publicName, versionInfo ){
+		var SelectedUI = versionInfo.default;
+		
+		// Common UI
+		getUIbyGameMode(versionInfo.common ,SelectedUI);
+		
+		if(Configs.get('renewal')){
+			// Renewal only UI
+			getUIbyGameMode(versionInfo.re ,SelectedUI);
+		} else {
+			// Classic only UI
+			getUIbyGameMode(versionInfo.prere ,SelectedUI);
+		}
+		
+		// Store selected UI name
+		_UIAliases[publicName] = SelectedUI.name;
+		
+		return SelectedUI;
+	}
+	
+	function getUIbyGameMode(gameMode, SelectedUI){
+		if(typeof gameMode === 'object' && Object.keys(gameMode).length > 0){
+			for (const [keydate, UI] of Object.entries(gameMode)) {
+				if(PACKETVER.value >= keydate){
+					SelectedUI = UI;
+				}
+			}
+		}
+	}
+	
+	
+	
+	/// DEPRECATED
+	/// WILL BE REMOVED AFTER REFACTORING
 	UIVersionManager.category = function () {
 		return ['PacketVer', 'PreRenewal', 'Renewal'];
 	}
@@ -39,6 +78,13 @@ define(function (require)
 					return 'SkillList';
 				}
 		}
+	}
+	
+	function versionsExists(url){
+		var req = new XMLHttpRequest();
+        req.open('HEAD', url, false);
+        req.send();
+        return req.status==200;
 	}
 
 	UIVersionManager.getBasicInfoVersion = function () {
