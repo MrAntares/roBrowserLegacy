@@ -56,16 +56,8 @@ define(function( require )
 
 	var UIVersionManager      = require('UI/UIVersionManager');
 
-	var BasicInfo;
-	if (UIVersionManager.getBasicInfoVersion() === 0) {
-		BasicInfo = require('UI/Components/BasicInfoV0/BasicInfoV0');
-	} else if (UIVersionManager.getBasicInfoVersion() === 3) {
-		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
-	} else if (UIVersionManager.getBasicInfoVersion() === 4) {
-		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
-	} else {
-		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
-	}
+	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	
 	var SkillList;
 	if (UIVersionManager.getSkillListVersion() === 0) {
 		SkillList = require('UI/Components/SkillListV0/SkillListV0');
