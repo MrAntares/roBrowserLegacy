@@ -14,6 +14,7 @@ define(function( require )
 	// Load dependencies
 	var jQuery      = require('Utils/jquery');
 	var UIComponent = require('./UIComponent');
+	var UIVersionManager = require('./UIVersionManager');
 	var KEYS        = require('Controls/KeyEventHandler');
 	var Renderer    = require('Renderer/Renderer');
 	var getModule   = require;
@@ -57,6 +58,11 @@ define(function( require )
 	 */
 	UIManager.getComponent = function getComponent( name )
 	{
+		var versionAlias = UIVersionManager.getUIAlias( name );
+		if (versionAlias) {
+			name = versionAlias;
+		}
+		
 		if (!(name in this.components)) {
 			throw new Error('UIManager.getComponent() - Component "' + name + '" not found');
 		}
