@@ -33,7 +33,11 @@ define(function(require)
 	var Bank               = require('UI/Components/Bank/Bank');
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
-	var Quest              = require('UI/Components/Quest/Quest');
+	if(PACKETVER.value >= 20180307) {
+		var Quest            = require('UI/Components/Quest/Quest');
+	} else {
+		var Quest            = require('UI/Components/QuestV1/QuestV1');
+	}
 	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
 	var htmlText           = require('text!./BasicInfoV4.html');
 	var cssText            = require('text!./BasicInfoV4.css');

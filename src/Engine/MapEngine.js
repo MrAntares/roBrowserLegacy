@@ -98,6 +98,8 @@ define(function( require )
 	if(PACKETVER.value >= 20180307) {
 		var Quest            = require('UI/Components/Quest/Quest');
 		var QuestWindow      = require('UI/Components/Quest/QuestWindow');
+	} else {
+		var Quest            = require('UI/Components/QuestV1/QuestV1');
 	}
 	var PluginManager    = require('Plugins/PluginManager');
 
@@ -230,9 +232,7 @@ define(function( require )
 		require('./MapEngine/Trade').call();
 		require('./MapEngine/Friends').init();
 		require('./MapEngine/UIOpen').call();
-		if(PACKETVER.value >= 20180307) {
-			require('./MapEngine/Quest').call();
-		}
+		require('./MapEngine/Quest').call();
 
 		if(Configs.get('enableCashShop')){
 			require('./MapEngine/CashShop').call();
@@ -270,10 +270,10 @@ define(function( require )
 		if(Configs.get('enableMapName')){
 			MapName.prepare();
 		}
-		if(PACKETVER.value >= 20180307) {
-			Quest.prepare();
+		Quest.prepare();
+
+		if(PACKETVER.value >= 20180307) 
 			QuestWindow.prepare();
-		}
 
 		if(Configs.get('enableCashShop')){
 			CashShop.prepare();
@@ -435,10 +435,10 @@ define(function( require )
 			if (UIVersionManager.getWinStatsVersion() === 0) {
 				WinStats.append();
 			}
-			if(PACKETVER.value >= 20180307) {
-				Quest.append();
+			Quest.append();
+
+			if(PACKETVER.value >= 20180307)
 				QuestWindow.append();
-			}
 
 			if(Configs.get('enableCashShop')){
 				CashShop.append();
@@ -579,9 +579,7 @@ define(function( require )
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
-			if(PACKETVER.value >= 20180307) {
-				Quest.clean();
-			}
+			Quest.clean();
 			PartyFriends.clean();
 			MapRenderer.free();
 			Renderer.stop();
