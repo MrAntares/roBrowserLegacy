@@ -15,9 +15,14 @@ define(function (require) {
 	 */
 	var DB = require('DB/DBManager');
 	var Network = require('Network/NetworkManager');
+	var PACKETVER = require('Network/PacketVerManager');
 	var PACKET = require('Network/PacketStructure');
-	var Quest = require('UI/Components/Quest/Quest');
 	var jQuery = require('Utils/jquery');
+	if (PACKETVER.value >= 20180307) {
+		var Quest = require('UI/Components/Quest/Quest');
+	} else {
+		var Quest = require('UI/Components/QuestV1/QuestV1');
+	}
 
 	/**
 	 * Quest List

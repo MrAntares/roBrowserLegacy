@@ -32,6 +32,12 @@ define(function(require)
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var htmlText           = require('text!./BasicInfo.html');
 	var cssText            = require('text!./BasicInfo.css');
+	var PACKETVER          = require('Network/PacketVerManager');
+	if(PACKETVER.value >= 20180307) {
+		var Quest            = require('UI/Components/Quest/Quest');
+	} else {
+		var Quest            = require('UI/Components/QuestV1/QuestV1');
+	}
 
 
 	/**
@@ -111,6 +117,8 @@ define(function(require)
 					break;
 
 				case 'quest':
+					Quest.toggle();
+					break;
 			}
 		});
 

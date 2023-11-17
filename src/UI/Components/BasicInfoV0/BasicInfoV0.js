@@ -33,6 +33,13 @@ define(function(require)
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var WinStats           = require('UI/Components/WinStats/WinStats');
+	var PACKETVER   = require('Network/PacketVerManager');
+	if(PACKETVER.value >= 20180307) {
+		var Quest            = require('UI/Components/Quest/Quest');
+	} else {
+		var Quest            = require('UI/Components/QuestV1/QuestV1');
+	}
+	
 
 	var htmlText = require('text!./BasicInfoV0.html');
 	var cssText = require('text!./BasicInfoV0.css');
@@ -122,6 +129,8 @@ define(function(require)
 					break;
 
 				case 'quest':
+					Quest.toggle();
+					break;
 			}
 		});
 
