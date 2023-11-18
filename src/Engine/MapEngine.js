@@ -43,20 +43,9 @@ define(function( require )
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
 
-	var MiniMap;
-	if(PACKETVER.value >= 20180124) {
-		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
-	} else {
-		MiniMap          = require('UI/Components/MiniMap/MiniMap');
-	}
-
 	if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 		var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
 	}
-
-	var UIVersionManager      = require('UI/UIVersionManager');
-
-	var BasicInfo;
 	
 	var SkillList;
 	if (UIVersionManager.getSkillListVersion() === 0) {
@@ -94,6 +83,11 @@ define(function( require )
 		var Quest            = require('UI/Components/QuestV1/QuestV1');
 	}
 	var PluginManager    = require('Plugins/PluginManager');
+
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var BasicInfo;
+	var MiniMap;
 
 	/**
 	 * @var {string mapname}
@@ -200,6 +194,10 @@ define(function( require )
 		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
 		BasicInfo.selectUIVersion();
 		BasicInfo = BasicInfo.getUI();
+
+		MiniMap = require('UI/Components/MiniMap/MiniMap');
+		MiniMap.selectUIVersion();
+		MiniMap = MiniMap.getUI();
 
 		// Hook packets
 		Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );

@@ -26,13 +26,11 @@ define(function( require )
 	var MapRenderer   = require('Renderer/MapRenderer');
 	var UIManager     = require('UI/UIManager');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
-	var MiniMap;
-	if(PACKETVER.value >= 20180124) {
-		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
-	} else {
-		MiniMap          = require('UI/Components/MiniMap/MiniMap');
-	}
 	var PartyUI       = require('UI/Components/PartyFriends/PartyFriends');
+
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var MiniMap;
 
 	/**
 	 * Party namespace
@@ -51,6 +49,8 @@ define(function( require )
 	 */
 	GroupEngine.init = function init()
 	{
+		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
+
 		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM,       onMemberLifeUpdate );
 		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM_R2,    onMemberLifeUpdate );
 		Network.hookPacket( PACKET.ZC.NOTIFY_CHAT_PARTY,         onMemberTalk );

@@ -19,22 +19,20 @@ define(function(require)
 	var Client             = require('Core/Client');
 	var jQuery             = require('Utils/jquery');
 	var Network            = require('Network/NetworkManager');
-	var PACKETVER        = require('Network/PacketVerManager');
+	var PACKETVER          = require('Network/PacketVerManager');
 	var PACKET             = require('Network/PacketStructure');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ChatBox      	   = require('UI/Components/ChatBox/ChatBox');
-	var MiniMap;
-	if(PACKETVER.value >= 20180124) {
-		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
-	} else {
-		MiniMap          = require('UI/Components/MiniMap/MiniMap');
-	}
 	var Renderer           = require('Renderer/Renderer');
 	var Preferences        = require('Core/Preferences');
 	var UIManager          = require('UI/UIManager');
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./CashShop.html');
 	var cssText            = require('text!./CashShop.css');
+
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var MiniMap;
 
 	var CashShop = new UIComponent( 'CashShop', htmlText, cssText );
 
@@ -137,6 +135,8 @@ define(function(require)
 	
 	CashShop.init = function init()
 	{
+		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
+
 		//this.ui.hide();
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
 		this.ui.find('.titlebar .mini').click(onToggleReduction);

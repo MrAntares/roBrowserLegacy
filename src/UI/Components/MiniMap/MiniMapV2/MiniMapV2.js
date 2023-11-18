@@ -32,25 +32,25 @@ define(function(require)
 	/**
 	 * Create MiniMap component
 	 */
-	var MiniMap = new UIComponent( 'MiniMap', htmlText, cssText );
+	var MiniMapV2 = new UIComponent( 'MiniMapV2', htmlText, cssText );
 
 
 	/**
 	 * Mouse can cross this UI
 	 */
-	MiniMap.mouseMode = UIComponent.MouseMode.CROSS;
+	MiniMapV2.mouseMode = UIComponent.MouseMode.CROSS;
 
 
 	/**
 	 * @var {boolean} do not focus this UI
 	 */
-	MiniMap.needFocus = false;
+	MiniMapV2.needFocus = false;
 
 
 	/**
 	 * @var {Preferences}
 	 */
-	var _preferences = Preferences.get('MiniMap', {
+	var _preferences = Preferences.get('MiniMapV2', {
 		zoom:    0,
 		opacity: 2,
 		townInfoShow: true
@@ -119,11 +119,11 @@ define(function(require)
 	/**
 	 * Initialize minimap
 	 */
-	MiniMap.init = function init()
+	MiniMapV2.init = function init()
 	{
 		function genericUpdateZoom( value ) {
 			return function(event) {
-				MiniMap.updateZoom( value );
+				MiniMapV2.updateZoom( value );
 				event.stopImmediatePropagation();
 				return false;
 			};
@@ -188,7 +188,7 @@ define(function(require)
 	/**
 	 * Once append to HTML
 	 */
-	MiniMap.onAppend = function onAppend()
+	MiniMapV2.onAppend = function onAppend()
 	{
 		// Set preferences
 		this.updateZoom( _preferences.zoom );
@@ -203,7 +203,7 @@ define(function(require)
 	 *
 	 * @param {string} mapname
 	 */
-	MiniMap.setMap = function setMap( mapname )
+	MiniMapV2.setMap = function setMap( mapname )
 	{
 		_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
@@ -225,7 +225,7 @@ define(function(require)
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	MiniMap.onKeyDown = function onKeyDown( event )
+	MiniMapV2.onKeyDown = function onKeyDown( event )
 	{
 		// Will not work on Chrome :(
 		if (event.which === KEYS.TAB && KEYS.CTRL) {
@@ -241,7 +241,7 @@ define(function(require)
 	/**
 	 * Once removed from HTML
 	 */
-	MiniMap.onRemove = function onRemove()
+	MiniMapV2.onRemove = function onRemove()
 	{
 		// Clean up memory
 		_party.length   = 0;
@@ -257,7 +257,7 @@ define(function(require)
 	 * @param {number} x position
 	 * @param {number} y position
 	 */
-	MiniMap.addPartyMemberMark = function addPartyMember( key, x, y)
+	MiniMapV2.addPartyMemberMark = function addPartyMember( key, x, y)
 	{
 		var i, count = _party.length;
 		var r = Math.random;
@@ -284,7 +284,7 @@ define(function(require)
 	 *
 	 * @param {number} key account id
 	 */
-	MiniMap.removePartyMemberMark = function removePartyMemberMark( key )
+	MiniMapV2.removePartyMemberMark = function removePartyMemberMark( key )
 	{
 		var i, count = _party.length;
 
@@ -304,7 +304,7 @@ define(function(require)
 	 * @param {number} x position
 	 * @param {number} y position
 	 */
-	MiniMap.addGuildMemberMark = function addGuildMemberMark( key, x, y )
+	MiniMapV2.addGuildMemberMark = function addGuildMemberMark( key, x, y )
 	{
 		var i, count = _guild.length;
 
@@ -329,7 +329,7 @@ define(function(require)
 	 *
 	 * @param {number} key account id
 	 */
-	MiniMap.removeGuildMemberMark = function removeGuildMemberMark( key )
+	MiniMapV2.removeGuildMemberMark = function removeGuildMemberMark( key )
 	{
 		var i, count = _guild.length;
 
@@ -350,7 +350,7 @@ define(function(require)
 	 * @param {number} y position
 	 * @param {Array} color
 	 */
-	MiniMap.addNpcMark = function addNPCMark( key, x, y, lcolor, time )
+	MiniMapV2.addNpcMark = function addNPCMark( key, x, y, lcolor, time )
 	{
 		var i, count = _markers.length;
 		var color = [
@@ -384,7 +384,7 @@ define(function(require)
 	 *
 	 * @param {number} key id
 	 */
-	MiniMap.removeNpcMark = function removeNPCMark( key )
+	MiniMapV2.removeNpcMark = function removeNPCMark( key )
 	{
 		var i, count = _markers.length;
 
@@ -402,7 +402,7 @@ define(function(require)
 	 * @param {number} x increment
 	 * @param {number} y increment
 	 */
-	MiniMap.updateCoordinates = function updateCoordinates( x, y )
+	MiniMapV2.updateCoordinates = function updateCoordinates( x, y )
 	{
 		MiniMap.ui.find('.coordinates .coord.x').html(Math.floor(x));
 		MiniMap.ui.find('.coordinates .coord.y').html(Math.floor(y));
@@ -414,7 +414,7 @@ define(function(require)
 	 *
 	 * @param {number} value increment
 	 */
-	MiniMap.updateZoom = function updateZoom( value )
+	MiniMapV2.updateZoom = function updateZoom( value )
 	{
 		_preferences.zoom = Math.max(0, Math.min(_zoomFactor.length-1, _preferences.zoom + value));
 		_preferences.save();
@@ -424,7 +424,7 @@ define(function(require)
 	/**
 	 * Change window opacity
 	 */
-	MiniMap.toggleOpacity = function toggleOpacity( opacity )
+	MiniMapV2.toggleOpacity = function toggleOpacity( opacity )
 	{
 		this.opacity = ( ( arguments.length ? opacity : this.opacity ) + 2 ) % 3;
 		_preferences.opacity = this.opacity;
@@ -488,7 +488,7 @@ define(function(require)
 			start_y = (height-max) / 2 * f;
 
 			// update coords
-			MiniMap.updateCoordinates(pos[0], pos[1]);
+			MiniMapV2.updateCoordinates(pos[0], pos[1]);
 
 			// Rendering map
 			_ctx.clearRect( 0, 0, 128, 128 );
@@ -618,5 +618,5 @@ define(function(require)
 	/**
 	 * Create component and return it
 	 */
-	return UIManager.addComponent(MiniMap);
+	return UIManager.addComponent(MiniMapV2);
 });

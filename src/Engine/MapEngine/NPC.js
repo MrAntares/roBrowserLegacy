@@ -30,12 +30,10 @@ define(function( require )
 	var InputBox      = require('UI/Components/InputBox/InputBox');
 	var NpcMenu       = require('UI/Components/NpcMenu/NpcMenu');
 	var WinPopup      = require('UI/Components/WinPopup/WinPopup');
+
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
 	var MiniMap;
-	if(PACKETVER.value >= 20180124) {
-		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
-	} else {
-		MiniMap          = require('UI/Components/MiniMap/MiniMap');
-	}
 
 	/**
 	 * NPC write a message
@@ -440,6 +438,8 @@ define(function( require )
 	 */
 	return function NPCEngine()
 	{
+		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
+
 		Network.hookPacket( PACKET.ZC.SAY_DIALOG,      onMessage );
 		Network.hookPacket( PACKET.ZC.WAIT_DIALOG,     onNextAppear );
 		Network.hookPacket( PACKET.ZC.CLOSE_DIALOG,    onCloseAppear );

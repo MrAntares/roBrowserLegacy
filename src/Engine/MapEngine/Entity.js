@@ -41,23 +41,18 @@ define(function( require )
 	var LockOnTarget      = require('Renderer/Effects/LockOnTarget');
 	var MagicRing         = require('Renderer/Effects/MagicRing');
 
-	var UIVersionManager      = require('UI/UIVersionManager');
-
-	var BasicInfo;
-
 	var ChatBox           = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom          = require('UI/Components/ChatRoom/ChatRoom');
 	var Escape            = require('UI/Components/Escape/Escape');
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
 	var Inventory         = require('UI/Components/Inventory/Inventory');
-	var MiniMap;
-	if(PACKETVER.value >= 20180124) {
-		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
-	} else {
-		MiniMap          = require('UI/Components/MiniMap/MiniMap');
-	}
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
+
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var BasicInfo;
+	var MiniMap;
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -2005,6 +2000,7 @@ define(function( require )
 	return function EntityEngine()
 	{
 		BasicInfo = require('UI/Components/BasicInfo/BasicInfo').getUI();
+		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
 		
 		Network.hookPacket( PACKET.ZC.NOTIFY_STANDENTRY,            onEntitySpam );
 		Network.hookPacket( PACKET.ZC.NOTIFY_NEWENTRY,              onEntitySpam );

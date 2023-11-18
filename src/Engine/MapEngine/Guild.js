@@ -22,18 +22,16 @@ define(function( require )
 	var BinaryWriter  = require('Utils/BinaryWriter');
 	var Session       = require('Engine/SessionStorage');
 	var Network       = require('Network/NetworkManager');
-	var PACKETVER        = require('Network/PacketVerManager');
+	var PACKETVER     = require('Network/PacketVerManager');
 	var PACKET        = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
-	var MiniMap;
-	if(PACKETVER.value >= 20180124) {
-		MiniMap          = require('UI/Components/MiniMapV2/MiniMapV2');
-	} else {
-		MiniMap          = require('UI/Components/MiniMap/MiniMap');
-	}
 	var Guild         = require('UI/Components/Guild/Guild');
 	var UIManager     = require('UI/UIManager');
+
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var MiniMap;
 
 
 	/**
@@ -53,6 +51,8 @@ define(function( require )
 	 */
 	GuildEngine.init = function init()
 	{
+		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
+
 		Network.hookPacket( PACKET.ZC.GUILD_CHAT,                    onMemberTalk );
 		Network.hookPacket( PACKET.ZC.NOTIFY_POSITION_TO_GUILDM,     onMemberMove );
 		Network.hookPacket( PACKET.ZC.GUILD_INFO,                    onGuildInfo );
