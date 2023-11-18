@@ -46,13 +46,6 @@ define(function( require )
 	if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 		var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
 	}
-	
-	var SkillList;
-	if (UIVersionManager.getSkillListVersion() === 0) {
-		SkillList = require('UI/Components/SkillListV0/SkillListV0');
-	} else {
-		SkillList = require('UI/Components/SkillList/SkillList');
-	}
 
 	var WinStats         = require('UI/Components/WinStats/WinStats');
 	var Inventory        = require('UI/Components/Inventory/Inventory');
@@ -88,6 +81,12 @@ define(function( require )
 	// Version Dependent UIs
 	var BasicInfo;
 	var MiniMap;
+	var SkillList;
+	if (UIVersionManager.getSkillListVersion() === 0) {
+		SkillList = require('UI/Components/SkillListV0/SkillListV0');
+	} else {
+		SkillList = require('UI/Components/SkillList/SkillList');
+	}
 
 	/**
 	 * @var {string mapname}
