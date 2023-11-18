@@ -23,12 +23,15 @@ define(function (require)
 	
 	UIVersionManager.selectUIVersion = function( publicName, versionInfo ){
 		var SelectedUI = versionInfo.default;
+		var _maxDate = 0;
 		
 		function getUIbyGameMode(gameMode){
 			if(typeof gameMode === 'object' && Object.keys(gameMode).length > 0){
 				for (const [keydate, UI] of Object.entries(gameMode)) {
-					if(PACKETVER.value >= parseInt(keydate)){
+					var dateNum = parseInt(keydate);
+					if(PACKETVER.value >= dateNum && dateNum > _maxDate){
 						SelectedUI = UI;
+						_maxDate = dateNum;
 					}
 				}
 			}
