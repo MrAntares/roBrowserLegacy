@@ -31,17 +31,6 @@ define(function( require )
 	var Altitude       = require('Renderer/Map/Altitude');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom       = require('UI/Components/ChatRoom/ChatRoom');
-	var UIVersionManager      = require('UI/UIVersionManager');
-	
-	var BasicInfo;
-	
-	var SkillList;
-	if (UIVersionManager.getSkillListVersion() === 0) {
-		SkillList = require('UI/Components/SkillListV0/SkillListV0');
-	} else {
-		SkillList = require('UI/Components/SkillList/SkillList');
-	}
-
 	var WinStats       = require('UI/Components/WinStats/WinStats');
 	var Announce       = require('UI/Components/Announce/Announce');
 	var Equipment      = require('UI/Components/Equipment/Equipment');
@@ -49,7 +38,11 @@ define(function( require )
 	var PartyUI        = require('UI/Components/PartyFriends/PartyFriends');
 	var PetMessageConst    = require('DB/Pets/PetMessageConst');
 	var uint32ToRGB    = require('Utils/colors');
-
+	
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var BasicInfo;
+	var SkillList;
 
 	/**
 	 * Move main player to the position specify
@@ -787,6 +780,7 @@ define(function( require )
 	return function MainEngine()
 	{
 		BasicInfo = require('UI/Components/BasicInfo/BasicInfo').getUI();
+		SkillList = require('UI/Components/SkillList/SkillList').getUI();
 		
 		Network.hookPacket( PACKET.ZC.NOTIFY_PLAYERMOVE,           onPlayerMove );
 		Network.hookPacket( PACKET.ZC.PAR_CHANGE,                  onParameterChange );

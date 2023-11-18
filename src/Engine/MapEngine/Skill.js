@@ -45,12 +45,10 @@ define(function( require )
 	var Renderer              = require('Renderer/Renderer');
 	var getModule             = require;
 
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
 	var SkillWindow;
-	if (UIVersionManager.getSkillListVersion() === 0) {
-		SkillWindow = require('UI/Components/SkillListV0/SkillListV0');
-	} else {
-		SkillWindow = require('UI/Components/SkillList/SkillList');
-	}
+	
 
 	/**
 	 * Spam an effect
@@ -544,13 +542,14 @@ define(function( require )
 	 *
 	 * @param {number} skill id
 	 */
-	SkillWindow.onIncreaseSkill = Guild.onIncreaseSkill = SkillListMER.onIncreaseSkill = function onIncreaseSkill( SKID )
+	function onIncreaseSkill( SKID )
 	{
 		var pkt  = new PACKET.CZ.UPGRADE_SKILLLEVEL();
 		pkt.SKID = SKID;
 
 		Network.sendPacket(pkt);
 	};
+	Guild.onIncreaseSkill = SkillListMER.onIncreaseSkill = onIncreaseSkill;
 
 
 	/**
@@ -560,7 +559,7 @@ define(function( require )
 	 * @param {number} level
 	 * @param {optional|number} target game id
 	 */
-	SkillWindow.onUseSkill = Guild.onUseSkill = SkillListMER.onUseSkill = SkillTargetSelection.onUseSkillToId  = function onUseSkill( id, level, targetID)
+	function onUseSkill( id, level, targetID)
 	{
 		var entity, skill, target, pkt, out;
 		var count, range;
@@ -651,7 +650,7 @@ define(function( require )
 		pkt.dest[1] = out[(count-1)*2 + 1];
 		Network.sendPacket(pkt);
 	};
-
+	Guild.onUseSkill = SkillListMER.onUseSkill = SkillTargetSelection.onUseSkillToId  = onUseSkill;
 
 
 	/**
@@ -809,12 +808,21 @@ define(function( require )
 		Sense.append();
 		Sense.setWindow(pkt);
 	}
+	
+	function hookSkillWindow(){
+		SkillWindow.onIncreaseSkill = onIncreaseSkill;
+		SkillWindow.onUseSkill = onUseSkill;
+	}
 
 	/**
 	 * Initialize
 	 */
 	return function SkillEngine()
 	{
+		SkillWindow = require('UI/Components/SkillList/SkillList').getUI();
+		
+		hookSkillWindow();
+		
 		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST,         onSkillList );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE,       onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE2,      onSkillUpdate );

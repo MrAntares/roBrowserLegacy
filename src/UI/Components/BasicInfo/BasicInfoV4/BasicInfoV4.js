@@ -39,9 +39,14 @@ define(function(require)
 		var Quest            = require('UI/Components/QuestV1/QuestV1');
 	}
 	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
+	
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var SkillList;
+	
+	
 	var htmlText           = require('text!./BasicInfoV4.html');
 	var cssText            = require('text!./BasicInfoV4.css');
-
 
 	/**
 	 * Create Basic Info component
@@ -80,6 +85,7 @@ define(function(require)
 	 */
 	BasicInfo.init = function init()
 	{
+		SkillList = require('UI/Components/SkillList/SkillList').getUI();
 
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.topbar div').mousedown(function( event ){

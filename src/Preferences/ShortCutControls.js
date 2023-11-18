@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(["Core/Preferences",	"Controls/KeyEventHandler", "UI/UIVersionManager"],	function (Preferences,	KEYS, UIVersionManager) {
+define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	KEYS) {
 
 	var ShortCuts = {};
 	ShortCuts.F1_1 =			{	init:{key: KEYS.F1,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE0'				};
@@ -55,8 +55,8 @@ define(["Core/Preferences",	"Controls/KeyEventHandler", "UI/UIVersionManager"],	
 	ShortCuts.WorldMap =		{	init:{key: KEYS[0],		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'WorldMap',			cmd:'TOGGLE'				};
 	ShortCuts.Equipment =		{	init:{key: KEYS.Q,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Equipment',			cmd:'TOGGLE'				};
 	ShortCuts.ShortCuts =		{	init:{key: KEYS.M,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'ShortCuts',			cmd:'TOGGLE'				};
-	ShortCuts.SkillList =		{	init:{key: KEYS.S,		alt: true,	ctrl: false,	shift: false},	cust: false,	component: UIVersionManager.getUIComponent('SkillList'),			cmd:'TOGGLE'				};
-	ShortCuts.BasicInfo =		{	init:{key: KEYS.V,		alt: true,	ctrl: false,	shift: false},	cust: false,	component: UIVersionManager.getUIComponent('BasicInfo'),			cmd:'EXTEND'				};
+	ShortCuts.SkillList =		{	init:{key: KEYS.S,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'SkillList',			cmd:'TOGGLE'				};
+	ShortCuts.BasicInfo =		{	init:{key: KEYS.V,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'BasicInfo',			cmd:'EXTEND'				};
 	ShortCuts.Friends =			{	init:{key: KEYS.H,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'PartyFriends',		cmd:'FRIEND'				};
 	ShortCuts.Party =			{	init:{key: KEYS.Z,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'PartyFriends',		cmd:'PARTY'					};
 	ShortCuts.HomunInfo =		{	init:{key: KEYS.R,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'HomunInformations',	cmd:'TOGGLE'				};

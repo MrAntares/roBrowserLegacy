@@ -82,11 +82,6 @@ define(function( require )
 	var BasicInfo;
 	var MiniMap;
 	var SkillList;
-	if (UIVersionManager.getSkillListVersion() === 0) {
-		SkillList = require('UI/Components/SkillListV0/SkillListV0');
-	} else {
-		SkillList = require('UI/Components/SkillList/SkillList');
-	}
 
 	/**
 	 * @var {string mapname}
@@ -197,6 +192,10 @@ define(function( require )
 		MiniMap = require('UI/Components/MiniMap/MiniMap');
 		MiniMap.selectUIVersion();
 		MiniMap = MiniMap.getUI();
+		
+		SkillList = require('UI/Components/SkillList/SkillList');
+		SkillList.selectUIVersion();
+		SkillList = SkillList.getUI();
 
 		// Hook packets
 		Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );

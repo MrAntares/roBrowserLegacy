@@ -31,16 +31,20 @@ define(function(require)
 	var Bank               = require('UI/Components/Bank/Bank');
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
-	var htmlText           = require('text!./BasicInfoV3.html');
-	var cssText            = require('text!./BasicInfoV3.css');
 	var PACKETVER   = require('Network/PacketVerManager');
 	if(PACKETVER.value >= 20180307) {
 		var Quest            = require('UI/Components/Quest/Quest');
 	} else {
 		var Quest            = require('UI/Components/QuestV1/QuestV1');
 	}
+	
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var SkillList;
 
 
+	var htmlText           = require('text!./BasicInfoV3.html');
+	var cssText            = require('text!./BasicInfoV3.css');
 	/**
 	 * Create Basic Info component
 	 */
@@ -78,6 +82,7 @@ define(function(require)
 	 */
 	BasicInfo.init = function init()
 	{
+		SkillList = require('UI/Components/SkillList/SkillList').getUI();
 
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.topbar div').mousedown(function( event ){

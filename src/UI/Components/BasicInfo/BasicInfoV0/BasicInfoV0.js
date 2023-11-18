@@ -26,7 +26,6 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var Inventory          = require('UI/Components/Inventory/Inventory');
 	var Equipment          = require('UI/Components/Equipment/Equipment');
-	var SkillList          = require('UI/Components/SkillListV0/SkillListV0');
 	var PartyFriends       = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild              = require('UI/Components/Guild/Guild');
 	var ChatRoomCreate     = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
@@ -40,11 +39,13 @@ define(function(require)
 		var Quest            = require('UI/Components/QuestV1/QuestV1');
 	}
 	
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var SkillList;
+
 
 	var htmlText = require('text!./BasicInfoV0.html');
 	var cssText = require('text!./BasicInfoV0.css');
-
-
 	/**
 	 * Create Basic Info component
 	 */
@@ -81,6 +82,7 @@ define(function(require)
 	 */
 	BasicInfo.init = function init()
 	{
+		SkillList = require('UI/Components/SkillList/SkillList').getUI();
 
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.topbar button').mousedown(function( event ){

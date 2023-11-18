@@ -35,12 +35,9 @@ define(function(require)
 	var htmlText             = require('text!./ShortCut.html');
 	var cssText              = require('text!./ShortCut.css');
 
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
 	var SkillWindow;
-	if (UIVersionManager.getSkillListVersion() === 0) {
-		SkillWindow = require('UI/Components/SkillListV0/SkillListV0');
-	} else {
-		SkillWindow = require('UI/Components/SkillList/SkillList');
-	}
 
 	/**
 	 * Create Component
@@ -79,6 +76,9 @@ define(function(require)
 	 */
 	ShortCut.init = function init()
 	{
+		
+		SkillWindow = require('UI/Components/SkillList/SkillList').getUI();
+		
 		this.ui.find('.resize').mousedown(onResize);
 		this.ui.find('.close').mousedown(stopPropagation).click(onClose);
 

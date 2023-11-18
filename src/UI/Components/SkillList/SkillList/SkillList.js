@@ -28,15 +28,15 @@ define(function(require)
 	var UIComponent          = require('UI/UIComponent');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
-	var htmlText             = require('text!./SkillListV0.html');
-	var cssText              = require('text!./SkillListV0.css');
+	var htmlText             = require('text!./SkillList.html');
+	var cssText              = require('text!./SkillList.css');
 
 
 
 	/**
 	 * Create Component
 	 */
-	var SkillList = new UIComponent( 'SkillListV0', htmlText, cssText );
+	var SkillList = new UIComponent( 'SkillList', htmlText, cssText );
 
 
 	/**
@@ -222,6 +222,7 @@ define(function(require)
 		_list.length = 0;
 		this.ui.find('.content table').empty();
 		this.ui.find('.skillCol').empty();
+		this.ui.find('.extraRow').remove();
 
 		for (i = 0, count = skills.length; i < count; ++i) {
 			this.addSkill( skills[i] );
@@ -231,6 +232,24 @@ define(function(require)
 		skillPosition.forEach(function (items, list) {
 			SkillList.prepareSkillTree(items, list)
 		});
+
+		// Hide tabs 2 - 4 if no skills in them
+		for (var i = 2; i <= 4; i++) {
+			var length = SkillList.ui.find('#minitab'+i+' tr').length;
+			var length2 = SkillList.ui.find('#positionSkills'+i+' .skill').length;
+
+			if (length > 0) {
+				SkillList.ui.find('#tabminil'+i).show();
+			} else {
+				SkillList.ui.find('#tabminil'+i).hide();
+			}
+
+			if (length2 > 0) {
+				SkillList.ui.find('#tabl'+i).show();
+			} else {
+				SkillList.ui.find('#tabl'+i).hide();
+			}
+		}
 
 		onResetChoice();
 	};
@@ -248,19 +267,23 @@ define(function(require)
 				}
 
 				var sk = SkillInfo[skid];
+				if(sk?.MaxLv) {
+					skillDependencyTree[skid] = {
+						'dependency': [],
+						'position': pos,
+						'list': list,
+						'MaxLv': sk.MaxLv
+					};
 
-				skillDependencyTree[skid] = {
-					'dependency': [],
-					'position': pos,
-					'list': list,
-					'MaxLv': sk.MaxLv
-				};
-
-				if (sk?.['_NeedSkillList'] !== undefined) {
-					sk['_NeedSkillList'].forEach(function (item) {
-						skillDependencyTree[skid]['dependency'][item[0]] = item[1];
-					})
+					if (sk?.['_NeedSkillList'] !== undefined) {
+						sk['_NeedSkillList'].forEach(function (item) {
+							skillDependencyTree[skid]['dependency'][item[0]] = item[1];
+						})
+					}
+				} else {
+					console.log("Something wrong with this skill: %d", skid);
 				}
+				
 			});
 		});
 	}
@@ -276,10 +299,12 @@ define(function(require)
 			var element = '<div class="counterSkill">' + count + '</div>';
 			skillPosition.forEach(function (items, list) {
 				if (items[skillId] !== undefined) {
-					var skillbox = SkillList.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
-					if (skillbox.children().hasClass('disabled') || showAll) {
-						skillbox.addClass('needleSkill');
-						if (count !== null) skillbox.append(element);
+					if (!_preferences.mini) {
+						var skillbox = SkillList.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
+						if (skillbox.children().hasClass('disabled') || showAll) {
+							skillbox.addClass('needleSkill');
+							if (count !== null) skillbox.append(element);
+						}
 					}
 				}
 			});
@@ -312,8 +337,15 @@ define(function(require)
 			if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
 				var sk = skillDependencyTree[skId];
 				var skillbox = SkillList.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
-				if (skillbox.find('.current').text() != sk.MaxLv ) {
-					totalCounter += rememberChoice[skId]['count'];
+				if ((skillbox.find('.current').text() != sk.MaxLv ) &&
+					(skillbox.find('.current').text() != item.count))	// Add check because not all dependencies are equals to max level
+				{
+					var level = skillbox.find('.current').text();
+					var diff = 0;
+					if (item.count > level) {	// Should find difference between the count and current selected level
+						diff = item.count - level;
+					}
+					totalCounter += diff;
 					skillbox.children().removeClass('disabled');
 					skillbox.find('.level').show();
 					skillbox.find('.current').empty().append(rememberChoice[skId]['count'])
@@ -383,6 +415,14 @@ define(function(require)
 	 */
 	function getSkillPosition(JobId) {
 		var positions = [];
+
+		//TODO: DB.isBaby( JobId ) translation check?
+		
+		if( !( JobId in SkillTreeView ) ) {
+			console.error( 'Unimplemented JobId ' + JobId + ' in SkillTree!' );
+			return positions;
+		}
+		
 		positions[SkillTreeView[JobId]['list']] = SkillTreeView[JobId];
 
 		if (SkillTreeView[JobId]['beforeJob'] !== null) {
@@ -417,7 +457,6 @@ define(function(require)
 		this.addSkillMini(skill);
 	}
 
-
 	/**
 	 * Create disabled skills preview
 	 * @param items
@@ -432,18 +471,18 @@ define(function(require)
 			if (sk !== undefined) {
 				var element   = jQuery(
 					'<div class="skill id' + key + ' ' + className + '" data-index="'+ key +'" draggable="true">' +
-					'<div class="name">' +
-					jQuery.escape(sk.SkillName).substr(0, 7)  +'...<br/>' +
-					'</div>' +
-					'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
-					'<div class=selectable>' +
-					'<span class="level" style="display: none">' +
-					(
-						sk.bSeperateLv ? '<button class="currentDown"></button><span class="current">'+ 0 + '</span> / <span class="max">' + 0 + '</span><button class="currentUp"></button>'
-							: '<span class="current">'+ 0 +'</span>'
-					) +
-					'</span>' +
-					'</div>' +
+						'<div class="name">' +
+							jQuery.escape(sk.SkillName).substr(0, 7)  +'...<br/>' +
+						'</div>' +
+						'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+						'<div class=selectable>' +
+						'<span class="level" style="display: none">' +
+						(
+							sk.bSeperateLv ? '<button class="currentDown"></button><span class="current">'+ 0 + '</span> / <span class="max">' + 0 + '</span><button class="currentUp"></button>'
+								: '<span class="current">'+ 0 +'</span>'
+						) +
+						'</span>' +
+						'</div>' +
 					'</div>'
 				);
 
@@ -478,22 +517,26 @@ define(function(require)
 		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		var element   = jQuery(
 			'<div class="skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'" draggable="true">' +
-			'<div class="name">' +
-			jQuery.escape(sk.SkillName).substr(0, 7)  +'...<br/>' +
-			'</div>' +
-			'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
-			'<div class="levelupcontainer"></div>' +
-			'<div class=selectable>' +
-			'<span class="level">' +
-			(
-				sk.bSeperateLv ? '<button class="currentDown"></button><span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span><button class="currentUp"></button>'
-					: '<span class="current">'+ skill.level +'</span>'
-			) +
-			'</span>' +
-			'</div>' +
+				'<div class="name">' +
+				jQuery.escape(sk.SkillName).substr(0, 7)  +'...<br/>' +
+				'</div>' +
+				'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+				'<div class="levelupcontainer"></div>' +
+				'<div class=selectable>' +
+					'<span class="level">' +
+					(
+						sk.bSeperateLv ? '<button class="currentDown"></button><span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span><button class="currentUp"></button>'
+							: '<span class="current">'+ skill.level +'</span>'
+					) +
+					'</span>' +
+				'</div>' +
 			'</div>'
 		);
 
+		if (!skill.upgradable || !_points) {
+			levelup.hide();
+		}
+		
 		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
 		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
 
@@ -503,6 +546,33 @@ define(function(require)
 		skillPosition.forEach(function (items, list) {
 			if (items[skill.SKID] !== undefined) {
 				var box = SkillList.ui.find('#positionSkills' + list + ' .s'+items[skill.SKID]);
+				
+				if(items[skill.SKID] > 41 && box.length==0){ // Row is not added yet
+					var startPos = items[skill.SKID] - (items[skill.SKID]%7); // Row start pos
+					var rowId = Math.floor(items[skill.SKID]/7);
+					var newRow = jQuery(
+						'<div class="skillRow extraRow" data-order="'+rowId+'">'+
+						'	<div class="skillCol s'+startPos+'"></div><div class="skillCol s'+(startPos+1)+'"></div><div class="skillCol s'+(startPos+2)+'"></div>'+
+						'	<div class="skillCol s'+(startPos+3)+'"></div><div class="skillCol s'+(startPos+4)+'"></div><div class="skillCol s'+(startPos+5)+'"></div>'+
+						'	<div class="skillCol s'+(startPos+6)+'"></div>'+
+						'</div>'
+					);
+					
+					// Find correct position for new row
+					var rows = SkillList.ui.find('#positionSkills' + list +' .skillRow');
+					var beforeRow = rows.first();
+					var rowCnt = rows.length;
+					var i = 1;
+					while(i<rowCnt && (rows.eq(i).attr('data-order')*1) < rowId){
+						beforeRow = rows.eq(i);
+						i++;
+					}
+					
+					beforeRow.after(newRow);
+					
+					box = SkillList.ui.find('#positionSkills' + list + ' .s'+items[skill.SKID]);
+				}
+				
 				if (!box.is(':empty')) {
 					box.empty();
 				}
@@ -513,6 +583,28 @@ define(function(require)
 				}
 			}
 		});
+
+		if (!SkillList.ui.find('.contentbig .skill.id' + skill.SKID).length) {
+			var pos = SkillList.ui.find('#etcBIG5 .skill').length;
+			
+			if (pos > 41 && ((pos-41)%7 == 1)){ // Check position to add row
+				if (SkillList.ui.find('#etcBIG5 .s'+pos).length==0){ // Check if row is not already added
+					var rowId = Math.floor(pos/7);
+					var newRow = jQuery(
+						'<div class="skillRow extraRow" data-order="'+rowId+'">'+
+						'	<div class="skillCol s'+pos+'"></div><div class="skillCol s'+(pos+1)+'"></div><div class="skillCol s'+(pos+2)+'"></div>'+
+						'	<div class="skillCol s'+(pos+3)+'"></div><div class="skillCol s'+(pos+4)+'"></div><div class="skillCol s'+(pos+5)+'"></div>'+
+						'	<div class="skillCol s'+(pos+6)+'"></div>'+
+						'</div>'
+					);
+					SkillList.ui.find('#etcBIG5').append(newRow);
+				}
+			}
+			
+			var box = SkillList.ui.find('#etcBIG5 .s'+pos);
+			
+			box.append(element);
+		}
 
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
 			element.find('.icon img').attr('src', data);
@@ -527,26 +619,26 @@ define(function(require)
 		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 		var element   = jQuery(
 			'<tr class="skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'" draggable="true">' +
-			'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
-			'<td class="levelupcontainer"></td>' +
-			'<td class=selectable>' +
-			'<div class="name">' +
-			jQuery.escape(sk.SkillName)  +'<br/>' +
-			'<span class="level">' +
-			(
-				sk.bSeperateLv ? '<button class="currentDown"></button>Lv : <span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span><button class="currentUp"></button>'
-					: 'Lv : <span class="current">'+ skill.level +'</span>'
-			) +
-			'</span>' +
-			'</div>' +
-			'</td>' +
-			'<td class="selectable type">' +
-			'<div class="consume">' +
-			(
-				skill.type ? 'Sp : <span class="spcost">' + skill.spcost + '</span>' : 'Passive'
-			) +
-			'</div>' +
-			'</td>' +
+				'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
+				'<td class="levelupcontainer"></td>' +
+				'<td class=selectable>' +
+					'<div class="name">' +
+						jQuery.escape(sk.SkillName)  +'<br/>' +
+						'<span class="level">' +
+						(
+							sk.bSeperateLv ? '<button class="currentDown"></button>Lv : <span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span><button class="currentUp"></button>'
+							               : 'Lv : <span class="current">'+ skill.level +'</span>'
+						) +
+						'</span>' +
+					'</div>' +
+				'</td>' +
+				'<td class="selectable type">' +
+					'<div class="consume">' +
+					(
+						skill.type ? 'Sp : <span class="spcost">' + skill.spcost + '</span>' : 'Passive'
+					) +
+					'</div>' +
+				'</td>' +
 			'</tr>'
 		);
 
@@ -561,7 +653,23 @@ define(function(require)
 
 		element.find('.level .currentUp').click( function(){ skillLevelSelectUp(skill);  } );
 		element.find('.level .currentDown').click( function(){ skillLevelSelectDown(skill); } );
-		SkillList.ui.find('.content table').append(element);
+		
+		skillPosition.forEach(function (items, list) {
+			if (items[skill.SKID] !== undefined) {
+				var box = SkillList.ui.find('#minitab' + list);
+				
+				box.append(element);
+			}
+		});
+
+		if (!SkillList.ui.find('.content .skill.id' + skill.SKID).length) {
+
+			var box = SkillList.ui.find('#minitab5');
+			
+			box.append(element);
+			
+		}
+
 		this.parseHTML.call(levelup);
 
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
@@ -794,9 +902,14 @@ define(function(require)
 			height = Math.min( Math.max(height, 4), 10);
 			SkillList.ui.find('.extend').show();
 			SkillList.ui.find('.content').show();
+			const id = SkillList.ui.find('.tab-switch:checked').attr('id');
+			if (id) {
+				var i = parseInt(id.split('-')[1]);
+				SkillList.ui.find('#tab-'+i+'-mini').prop('checked', true);
+			}
 			SkillList.ui.find('.contentbig').hide();
 			SkillList.ui.find('.footer .btn').hide();
-			SkillList.ui.find('.content').css({
+			SkillList.ui.find('.content, .tab-content-mini').css({
 				width:  width  * 32,
 				height: height * 32
 			});
@@ -805,6 +918,11 @@ define(function(require)
 			height = 12;
 			SkillList.ui.find('.extend').hide();
 			SkillList.ui.find('.content').hide();
+			const id = SkillList.ui.find('.tab-switch-mini:checked').attr('id');
+			if (id) {
+				var i = parseInt(id.split('-')[1]);
+				SkillList.ui.find('#tab-'+i).prop('checked', true);
+			}
 			SkillList.ui.find('.contentbig').show();
 			SkillList.ui.find('.footer .btn').show();
 			SkillList.ui.find('.contentbig').css({
@@ -894,13 +1012,15 @@ define(function(require)
 	function onResetChoice()
 	{
 		rememberChoice.forEach(function (count, skillId) {
-			var skillbox = SkillList.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
-			if (!hasSkills?.[skillId]?.level) {
-				skillbox.children().addClass('disabled');
+			if (!_preferences.mini) {
+				var skillbox = SkillList.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
+				if (!hasSkills?.[skillId]?.level) {
+					skillbox.children().addClass('disabled');
+				}
+				skillbox.find('.selectable').show();
+				skillbox.find('.current').empty().append(hasSkills?.[skillId]?.level ?? 0)
+				skillbox.find('.max').empty().append(hasSkills?.[skillId]?.level ?? 0)
 			}
-			skillbox.find('.selectable').show();
-			skillbox.find('.current').empty().append(hasSkills?.[skillId]?.level ?? 0)
-			skillbox.find('.max').empty().append(hasSkills?.[skillId]?.level ?? 0)
 
 		});
 		totalCounter = 0;
@@ -957,7 +1077,7 @@ define(function(require)
 		}
 
 		// Add ui to window
-		if (_preferences.mini || _preferences.skillInfo) {
+		if (_preferences.skillInfo) {
 			SkillDescription.append();
 			SkillDescription.setSkill(skillID);
 		}
