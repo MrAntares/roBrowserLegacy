@@ -24,31 +24,47 @@ define(function (require)
 	UIVersionManager.selectUIVersion = function( publicName, versionInfo ){
 		var SelectedUI = versionInfo.default;
 		
+		function getUIbyGameMode(gameMode){
+			if(typeof gameMode === 'object' && Object.keys(gameMode).length > 0){
+				for (const [keydate, UI] of Object.entries(gameMode)) {
+					if(PACKETVER.value >= parseInt(keydate)){
+						SelectedUI = UI;
+					}
+				}
+			}
+		}
+		
 		// Common UI
-		getUIbyGameMode(versionInfo.common ,SelectedUI);
+		getUIbyGameMode(versionInfo.common);
 		
 		if(Configs.get('renewal')){
 			// Renewal only UI
-			getUIbyGameMode(versionInfo.re ,SelectedUI);
+			getUIbyGameMode(versionInfo.re);
 		} else {
 			// Classic only UI
-			getUIbyGameMode(versionInfo.prere ,SelectedUI);
+			getUIbyGameMode(versionInfo.prere);
 		}
 		
 		// Store selected UI name
 		_UIAliases[publicName] = SelectedUI.name;
-		
+		console.log( "%c[UIVersion] "+publicName+": ", "color:#007000", SelectedUI.name );
 		return SelectedUI;
 	}
 	
-	function getUIbyGameMode(gameMode, SelectedUI){
-		if(typeof gameMode === 'object' && Object.keys(gameMode).length > 0){
-			for (const [keydate, UI] of Object.entries(gameMode)) {
-				if(PACKETVER.value >= keydate){
-					SelectedUI = UI;
-				}
-			}
+	UIVersionManager.getUIController = function(publicName, versionInfo){
+		var _selectedUI;
+	
+		var UIController = {};
+		
+		UIController.selectUIVersion = function(){
+			_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
+		};
+		
+		UIController.getUI = function(){
+			return _selectedUI;
 		}
+		
+		return UIController;
 	}
 	
 	
