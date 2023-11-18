@@ -22,21 +22,21 @@ define(function (require)
 	var UIVersionManager = require('UI/UIVersionManager');
 	
 	var versionInfo = {
-		default: BasicInfo,
-		keys: {
-			common: {
-				20180124:	BasicInfoV4,
-				20160101:	BasicInfoV3,
-				20090601:	BasicInfoV0,
-			},
-			re: {
-				
-			},
-			prere:{
-				
-			}
+		default: BasicInfoV0,
+		common: {
+			20180124:	BasicInfoV4,
+			20160101:	BasicInfoV3,
+			20090601:	BasicInfo,
+		},
+		re: {
+			
+		},
+		prere:{
+			
 		}
 	};
 	
-	return UIVersionManager.selectUIVersion(publicName, versionInfo);
+	var BasicInfoController = UIVersionManager.getUIController(publicName, versionInfo);
+	
+	return BasicInfoController;
 });
