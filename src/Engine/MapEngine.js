@@ -56,7 +56,7 @@ define(function( require )
 
 	var UIVersionManager      = require('UI/UIVersionManager');
 
-	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	var BasicInfo;
 	
 	var SkillList;
 	if (UIVersionManager.getSkillListVersion() === 0) {
@@ -114,6 +114,10 @@ define(function( require )
 
 	var snCounter = 0;
 	var chatLines = 0;
+	
+	MapEngine.invalidate = function(){
+		_isInitialised = false;
+	}
 
 	/**
 	 * Connect to Map Server
@@ -191,7 +195,11 @@ define(function( require )
 		MapControl.onRequestWalk     = onRequestWalk;
 		MapControl.onRequestStopWalk = onRequestStopWalk;
 		MapControl.onRequestDropItem = onDropItem;
-
+		
+		//Select UI version
+		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+		BasicInfo.selectUIVersion();
+		BasicInfo = BasicInfo.getUI();
 
 		// Hook packets
 		Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );
