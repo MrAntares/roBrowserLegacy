@@ -27,31 +27,24 @@ define(function( require )
 	var PACKET     = require('Network/PacketStructure');
 	var UIManager  = require('UI/UIManager');
 	var Background = require('UI/Background');
-	var CharSelect = require('UI/Components/CharSelect/CharSelect');
-	var CharSelect2 = require('UI/Components/CharSelect2/CharSelect2');
-	var CharSelectV2 = require('UI/Components/CharSelectV2/CharSelectV2');
-	var CharSelectV3 = require('UI/Components/CharSelectV3/CharSelectV3');
-	var CharCreate; // init requires the correct version
 	var PincodeWindow = require('UI/Components/PincodeWindow/PincodeWindow');
 	var InputBox   = require('UI/Components/InputBox/InputBox');
 	var getModule  = require;
-
+	
+	var UIVersionManager = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var CharSelect;
+	var CharCreate;
 
 	/**
 	 * @var {object} server data
 	 */
 	var _server = null;
 
-
 	/**
 	 * @var {number} where to create character ?
 	 */
 	var _creationSlot = 0;
-
-	/**
-	 * @var {number} Select Character UI
-	 */
-	var charSelectNum = 2;
 
 	/*
 	 * Connect to char server
@@ -60,7 +53,7 @@ define(function( require )
 	{
 		BGM.play('01.mp3');
 		
-		// Require MapEngine to do a full init (UI could change between servers)
+		//
 		if(_server !== server){
 			MapEngine.invalidate();
 		}
@@ -91,6 +84,15 @@ define(function( require )
 				Session.AID = fp.readLong();
 			});
 		});
+		
+		//Select UI version
+		CharSelect = require('UI/Components/CharSelect/CharSelect');
+		CharSelect.selectUIVersion();
+		CharSelect = CharSelect.getUI();
+		
+		CharCreate = require('UI/Components/CharCreate/CharCreate');
+		CharCreate.selectUIVersion();
+		CharCreate = CharCreate.getUI();
 
 		// Hook packets
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION,        onConnectionAccepted );
@@ -109,29 +111,6 @@ define(function( require )
 		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
 		Network.hookPacket( PACKET.HC.SECOND_PASSWD_LOGIN, 			 onPincodeCheckSuccess);
 		Network.hookPacket( PACKET.HC.DELETE_CHAR3_RESERVED,		 onRequestCharDel);
-
-		//Select Character Window
-		if (PACKETVER.value >= 20180124) {
-			charSelectNum = 3; //Renewal UI with Sex + Race + Stylist
-		} else if (PACKETVER.value >= 20141016) {
-			charSelectNum = 2; //Renewal UI with Sex + Race (Not yet implemented)
-		} else if ((PACKETVER.value >= 20100720 && PACKETVER.value <= 20100727) || PACKETVER.value >= 20100803) {
-			charSelectNum = 1; //Old UI with mapname
-		} else {
-			charSelectNum = 0; //Old UI
-		}
-		
-		
-		//Select Character Creation UI
-		if (PACKETVER.value >= 20180124) {
-			CharCreate = require('UI/Components/CharCreatev4/CharCreatev4');
-		} else if (PACKETVER.value >= 20151001) {
-			CharCreate = require('UI/Components/CharCreatev3/CharCreatev3');
-		} else if (PACKETVER.value >= 20120307) {
-			CharCreate = require('UI/Components/CharCreatev2/CharCreatev2');
-		} else  {
-			CharCreate = require('UI/Components/CharCreate/CharCreate');
-		}
 	}
 
 
@@ -180,46 +159,15 @@ define(function( require )
 		UIManager.getComponent('WinLoading').remove();
 
 		// Initialize window
-		switch (charSelectNum)
-		{
-			case 1:
-				CharSelect2.onExitRequest = onExitRequest;
-				CharSelect2.onConnectRequest = onConnectRequest;
-				CharSelect2.onCreateRequest = onCreateRequest;
-				CharSelect2.onDeleteRequest = onDeleteRequest;
-				CharSelect2.append();
-				CharSelect2.setInfo(pkt);
-				break;
-			case 2:
-				CharSelectV2.onExitRequest = onExitRequest;
-				CharSelectV2.onConnectRequest = onConnectRequest;
-				CharSelectV2.onCreateRequest = onCreateRequest;
-				CharSelectV2.onDeleteRequest = onDeleteRequest;
-				CharSelectV2.append();
-				CharSelectV2.setInfo(pkt);
-				//PincodeWindow.onExitRequest = onExitRequest;
-				//PincodeWindow.onPincodeCheckRequest = onPincodeCheckRequest;
-				//PincodeWindow.append();
-				break;
-			case 3:
-				CharSelectV3.onExitRequest = onExitRequest;
-				CharSelectV3.onConnectRequest = onConnectRequest;
-				CharSelectV3.onCreateRequest = onCreateRequest;
-				CharSelectV3.onDeleteRequest = onDeleteRequest;
-				CharSelectV3.onDeleteReqDelay = onDeleteReqDelay;
-				CharSelectV3.onCancelDeleteRequest = onCancelDeleteRequest;
-				CharSelectV3.append();
-				CharSelectV3.setInfo(pkt);
-				break;
-			default:
-				CharSelect.onExitRequest = onExitRequest;
-				CharSelect.onConnectRequest = onConnectRequest;
-				CharSelect.onCreateRequest = onCreateRequest;
-				CharSelect.onDeleteRequest = onDeleteRequest;
-				CharSelect.append();
-				CharSelect.setInfo(pkt);
-				break;
-		}
+		CharSelect.onExitRequest = onExitRequest;
+		CharSelect.onConnectRequest = onConnectRequest;
+		CharSelect.onCreateRequest = onCreateRequest;
+		CharSelect.onDeleteRequest = onDeleteRequest;
+		CharSelect.onDeleteReqDelay = onDeleteReqDelay;
+		CharSelect.onCancelDeleteRequest = onCancelDeleteRequest;
+		CharSelect.append();
+		CharSelect.setInfo(pkt);
+		
 	}
 
 
@@ -255,21 +203,7 @@ define(function( require )
 			'ok',
 			function(){
 				UIManager.getComponent('WinLoading').remove();
-				switch (charSelectNum)
-				{
-					case 1:
-						CharSelect2.append();
-						break;
-					case 2:
-						CharSelectV2.append();
-						break;
-					case 3:
-						CharSelectV3.append();
-						break;
-					default:
-						CharSelect.append();
-						break;
-				}
+				CharSelect.append();
 			},
 			true
 		);
@@ -454,20 +388,7 @@ define(function( require )
 		} else { // Birthday deletion result
 			var result = typeof( pkt.Result ) === 'undefined' ? -1 : pkt.Result;
 		}
-		switch (charSelectNum) {
-			case 1:
-				CharSelect2.deleteAnswer(result);
-				break;
-			case 2:
-				CharSelectV2.deleteAnswer(result);
-				break;
-			case 3:
-				CharSelectV3.deleteAnswer(result);
-				break;
-			default:
-				CharSelect.deleteAnswer(result);
-				break;
-		}
+		CharSelect.deleteAnswer(result);
 	}
 
 
@@ -479,38 +400,12 @@ define(function( require )
 	function onCreateRequest( index )
 	{
 		_creationSlot = index;
-		switch (charSelectNum) {
-			case 1:
-				CharSelect2.remove();
-				break;
-			case 2:
-				CharSelectV2.remove();
-				break;
-			case 3:
-				CharSelectV3.remove();
-				break;
-			default:
-				CharSelect.remove();
-				break;
-		}
+		CharSelect.remove();
 		CharCreate.setAccountSex( Session.Sex );
 		CharCreate.onCharCreationRequest = onCharCreationRequest;
 		CharCreate.onExitRequest = function(){
 			CharCreate.remove();
-			switch (charSelectNum) {
-				case 1:
-					CharSelect2.append();
-					break;
-				case 2:
-					CharSelectV2.append();
-					break;
-				case 3:
-					CharSelectV3.append();
-					break;
-				default:
-					CharSelect.append();
-					break;
-			}
+			CharSelect.append();
 		};
 		CharCreate.append();
 	}
@@ -571,24 +466,7 @@ define(function( require )
 	function onCreationSuccess( pkt )
 	{
 		CharCreate.remove();
-		switch (charSelectNum) {
-			case 1:
-				CharSelect2.addCharacter(pkt.charinfo);
-				CharSelect2.append();
-				break;
-			case 2:
-				CharSelectV2.addCharacter(pkt.charinfo);
-				CharSelectV2.append();
-				break;
-			case 3:
-				CharSelectV3.addCharacter(pkt.charinfo);
-				CharSelectV3.append();
-				break;
-			default:
-				CharSelect.addCharacter(pkt.charinfo);
-				CharSelect.append();
-				break;
-		}
+		CharSelect.append();
 	}
 
 
@@ -638,20 +516,7 @@ define(function( require )
 		// Play sound
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
 
-		switch (charSelectNum) {
-			case 1:
-				CharSelect2.remove();
-				break;
-			case 2:
-				CharSelectV2.remove();
-				break;
-			case 3:
-				CharSelectV3.remove();
-				break;
-			default:
-				CharSelect.remove();
-				break;
-		}
+		CharSelect.remove();
 		UIManager.getComponent('WinLoading').append();
 		Session.Character = entity;
 
