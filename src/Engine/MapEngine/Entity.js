@@ -43,8 +43,7 @@ define(function( require )
 
 	var UIVersionManager      = require('UI/UIVersionManager');
 
-	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
-
+	var BasicInfo;
 
 	var ChatBox           = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom          = require('UI/Components/ChatRoom/ChatRoom');
@@ -2005,6 +2004,8 @@ define(function( require )
 	 */
 	return function EntityEngine()
 	{
+		BasicInfo = require('UI/Components/BasicInfo/BasicInfo').getUI();
+		
 		Network.hookPacket( PACKET.ZC.NOTIFY_STANDENTRY,            onEntitySpam );
 		Network.hookPacket( PACKET.ZC.NOTIFY_NEWENTRY,              onEntitySpam );
 		Network.hookPacket( PACKET.ZC.NOTIFY_ACTENTRY,              onEntitySpam );
