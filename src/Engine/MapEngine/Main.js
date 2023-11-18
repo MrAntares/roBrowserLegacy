@@ -33,7 +33,7 @@ define(function( require )
 	var ChatRoom       = require('UI/Components/ChatRoom/ChatRoom');
 	var UIVersionManager      = require('UI/UIVersionManager');
 	
-	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	var BasicInfo;
 	
 	var SkillList;
 	if (UIVersionManager.getSkillListVersion() === 0) {
@@ -786,6 +786,8 @@ define(function( require )
 	 */
 	return function MainEngine()
 	{
+		BasicInfo = require('UI/Components/BasicInfo/BasicInfo').getUI();
+		
 		Network.hookPacket( PACKET.ZC.NOTIFY_PLAYERMOVE,           onPlayerMove );
 		Network.hookPacket( PACKET.ZC.PAR_CHANGE,                  onParameterChange );
 		Network.hookPacket( PACKET.ZC.LONGPAR_CHANGE,              onParameterChange );
