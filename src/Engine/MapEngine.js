@@ -57,15 +57,7 @@ define(function( require )
 	var UIVersionManager      = require('UI/UIVersionManager');
 
 	var BasicInfo;
-	if (UIVersionManager.getBasicInfoVersion() === 0) {
-		BasicInfo = require('UI/Components/BasicInfoV0/BasicInfoV0');
-	} else if (UIVersionManager.getBasicInfoVersion() === 3) {
-		BasicInfo = require('UI/Components/BasicInfoV3/BasicInfoV3');
-	} else if (UIVersionManager.getBasicInfoVersion() === 4) {
-		BasicInfo = require('UI/Components/BasicInfoV4/BasicInfoV4');
-	} else {
-		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
-	}
+	
 	var SkillList;
 	if (UIVersionManager.getSkillListVersion() === 0) {
 		SkillList = require('UI/Components/SkillListV0/SkillListV0');
@@ -122,6 +114,10 @@ define(function( require )
 
 	var snCounter = 0;
 	var chatLines = 0;
+	
+	MapEngine.invalidate = function(){
+		_isInitialised = false;
+	}
 
 	/**
 	 * Connect to Map Server
@@ -199,7 +195,11 @@ define(function( require )
 		MapControl.onRequestWalk     = onRequestWalk;
 		MapControl.onRequestStopWalk = onRequestStopWalk;
 		MapControl.onRequestDropItem = onDropItem;
-
+		
+		//Select UI version
+		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+		BasicInfo.selectUIVersion();
+		BasicInfo = BasicInfo.getUI();
 
 		// Hook packets
 		Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );

@@ -59,6 +59,11 @@ define(function( require )
 	function init( server )
 	{
 		BGM.play('01.mp3');
+		
+		// Require MapEngine to do a full init (UI could change between servers)
+		if(_server !== server){
+			MapEngine.invalidate();
+		}
 
 		// Storing variable
 		_server = server;

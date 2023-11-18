@@ -13,9 +13,64 @@ define(function (require)
 
 	var Configs = require('Core/Configs');
 	var PACKETVER = require('Network/PacketVerManager');
-
 	var UIVersionManager = {};
-
+	
+	var _UIAliases = {};
+	
+	UIVersionManager.getUIAlias = function( name ){
+		return name in _UIAliases ? _UIAliases[name] : false;
+	};
+	
+	UIVersionManager.selectUIVersion = function( publicName, versionInfo ){
+		var SelectedUI = versionInfo.default;
+		
+		function getUIbyGameMode(gameMode){
+			if(typeof gameMode === 'object' && Object.keys(gameMode).length > 0){
+				for (const [keydate, UI] of Object.entries(gameMode)) {
+					if(PACKETVER.value >= parseInt(keydate)){
+						SelectedUI = UI;
+					}
+				}
+			}
+		}
+		
+		// Common UI
+		getUIbyGameMode(versionInfo.common);
+		
+		if(Configs.get('renewal')){
+			// Renewal only UI
+			getUIbyGameMode(versionInfo.re);
+		} else {
+			// Classic only UI
+			getUIbyGameMode(versionInfo.prere);
+		}
+		
+		// Store selected UI name
+		_UIAliases[publicName] = SelectedUI.name;
+		console.log( "%c[UIVersion] "+publicName+": ", "color:#007000", SelectedUI.name );
+		return SelectedUI;
+	}
+	
+	UIVersionManager.getUIController = function(publicName, versionInfo){
+		var _selectedUI;
+	
+		var UIController = {};
+		
+		UIController.selectUIVersion = function(){
+			_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
+		};
+		
+		UIController.getUI = function(){
+			return _selectedUI;
+		}
+		
+		return UIController;
+	}
+	
+	
+	
+	/// DEPRECATED
+	/// WILL BE REMOVED AFTER REFACTORING
 	UIVersionManager.category = function () {
 		return ['PacketVer', 'PreRenewal', 'Renewal'];
 	}
@@ -39,6 +94,13 @@ define(function (require)
 					return 'SkillList';
 				}
 		}
+	}
+	
+	function versionsExists(url){
+		var req = new XMLHttpRequest();
+        req.open('HEAD', url, false);
+        req.send();
+        return req.status==200;
 	}
 
 	UIVersionManager.getBasicInfoVersion = function () {
