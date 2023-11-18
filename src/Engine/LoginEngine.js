@@ -33,14 +33,11 @@ define(function( require )
 	var Queue        = require('Utils/Queue');
 	var Background  = require('UI/Background');
 	var MD5          = require('Vendors/spark-md5.min');
-	var WinLogin;
-	if(PACKETVER.value >= 20181114) {
-		WinLogin = require('UI/Components/WinLoginV2/WinLoginV2');
-	} else {
-		WinLogin = require('UI/Components/WinLogin/WinLogin');
-	}
 	var getModule    = require;
-
+	
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var WinLogin;
 
 	/**
 	 * Creating WinLoading
@@ -254,6 +251,10 @@ define(function( require )
 		Session.AdminList = server.adminList || [];
 
 		// Hooking win_login
+		WinLogin = require('UI/Components/WinLogin/WinLogin');
+		WinLogin.selectUIVersion();
+		WinLogin = WinLogin.getUI();
+		
 		WinLogin.onConnectionRequest = onConnectionRequest;
 		WinLogin.onExitRequest       = onExitRequest;
 
