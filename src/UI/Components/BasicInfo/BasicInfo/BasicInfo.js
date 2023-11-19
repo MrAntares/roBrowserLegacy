@@ -30,6 +30,10 @@ define(function(require)
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var PACKETVER          = require('Network/PacketVerManager');
+	
+	// Version Dependent UIs
+	var SkillList = require('UI/Components/SkillList/SkillList');
+	var Quest     = require('UI/Components/Quest/Quest');
 
 	var htmlText           = require('text!./BasicInfo.html');
 	var cssText            = require('text!./BasicInfo.css');
@@ -89,7 +93,7 @@ define(function(require)
 					break;
 
 				case 'skill':
-					require('UI/Components/SkillList/SkillList').getUI().toggle();
+					SkillList.getUI().toggle();
 					break;
 
 				case 'option':
@@ -109,7 +113,7 @@ define(function(require)
 					break;
 
 				case 'quest':
-					require('UI/Components/Quest/Quest').getUI().toggle();
+					Quest.getUI().toggle();
 					break;
 			}
 		});
