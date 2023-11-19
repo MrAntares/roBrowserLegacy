@@ -18,11 +18,10 @@ define(function (require) {
 	var PACKETVER = require('Network/PacketVerManager');
 	var PACKET = require('Network/PacketStructure');
 	var jQuery = require('Utils/jquery');
-	if (PACKETVER.value >= 20180307) {
-		var Quest = require('UI/Components/Quest/Quest');
-	} else {
-		var Quest = require('UI/Components/QuestV1/QuestV1');
-	}
+	
+	var UIVersionManager      = require('UI/UIVersionManager');
+	// Version Dependent UIs
+	var Quest;
 
 	/**
 	 * Quest List
@@ -208,6 +207,8 @@ define(function (require) {
 	 * Initialize
 	 */
 	return function MainEngine() {
+		Quest = require('UI/Components/Quest/Quest').getUI();
+		
 		Network.hookPacket(PACKET.ZC.ALL_QUEST_LIST, onAllQuestList);
 		Network.hookPacket(PACKET.ZC.ALL_QUEST_MISSION, onAllQuestList);
 		Network.hookPacket(PACKET.ZC.ALL_QUEST_LIST_V2, onAllQuestList);

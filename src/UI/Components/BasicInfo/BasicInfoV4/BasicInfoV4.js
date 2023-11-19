@@ -33,16 +33,12 @@ define(function(require)
 	var Bank               = require('UI/Components/Bank/Bank');
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
-	if(PACKETVER.value >= 20180307) {
-		var Quest            = require('UI/Components/Quest/Quest');
-	} else {
-		var Quest            = require('UI/Components/QuestV1/QuestV1');
-	}
 	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
 	
 	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
 	var SkillList;
+	var Quest;
 	
 	
 	var htmlText           = require('text!./BasicInfoV4.html');
@@ -86,6 +82,7 @@ define(function(require)
 	BasicInfo.init = function init()
 	{
 		SkillList = require('UI/Components/SkillList/SkillList').getUI();
+		Quest     = require('UI/Components/Quest/Quest').getUI();
 
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.topbar div').mousedown(function( event ){

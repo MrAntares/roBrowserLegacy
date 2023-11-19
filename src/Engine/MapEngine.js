@@ -69,12 +69,6 @@ define(function( require )
 	if(Configs.get('enableMapName')){
 		var MapName          = require('UI/Components/MapName/MapName');
 	}
-	if(PACKETVER.value >= 20180307) {
-		var Quest            = require('UI/Components/Quest/Quest');
-		var QuestWindow      = require('UI/Components/Quest/QuestWindow');
-	} else {
-		var Quest            = require('UI/Components/QuestV1/QuestV1');
-	}
 	var PluginManager    = require('Plugins/PluginManager');
 
 	var UIVersionManager      = require('UI/UIVersionManager');
@@ -82,6 +76,7 @@ define(function( require )
 	var BasicInfo;
 	var MiniMap;
 	var SkillList;
+	var Quest;
 
 	/**
 	 * @var {string mapname}
@@ -196,6 +191,10 @@ define(function( require )
 		SkillList = require('UI/Components/SkillList/SkillList');
 		SkillList.selectUIVersion();
 		SkillList = SkillList.getUI();
+		
+		Quest = require('UI/Components/Quest/Quest');
+		Quest.selectUIVersion();
+		Quest = Quest.getUI();
 
 		// Hook packets
 		Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );
@@ -267,9 +266,6 @@ define(function( require )
 			MapName.prepare();
 		}
 		Quest.prepare();
-
-		if(PACKETVER.value >= 20180307) 
-			QuestWindow.prepare();
 
 		if(Configs.get('enableCashShop')){
 			CashShop.prepare();
@@ -432,9 +428,6 @@ define(function( require )
 				WinStats.append();
 			}
 			Quest.append();
-
-			if(PACKETVER.value >= 20180307)
-				QuestWindow.append();
 
 			if(Configs.get('enableCashShop')){
 				CashShop.append();

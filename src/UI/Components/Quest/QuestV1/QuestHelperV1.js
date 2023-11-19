@@ -26,13 +26,13 @@ define(function (require) {
 	/**
 	 * Create Component
 	 */
-	var QuestHelper = new UIComponent('QuestHelper', htmlText, cssText);
+	var QuestHelperV1 = new UIComponent('QuestHelperV1', htmlText, cssText);
 
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('Quest', {
+	var _preferences = Preferences.get('QuestHelperV1', {
 		x: 200,
 		y: 200,
 		show: false,
@@ -42,7 +42,7 @@ define(function (require) {
 	/**
 	 * Initialize the component (event listener, etc.)
 	 */
-	QuestHelper.init = function init() {
+	QuestHelperV1.init = function init() {
 		// Avoid drag drop problems
 		this.ui.on('click', '.quest-info-close-btn', onClickClose);
 		this.ui.find('.base').mousedown(function (event) {
@@ -57,46 +57,46 @@ define(function (require) {
 	/**
 	 * Once append to the DOM, start to position the UI
 	 */
-	QuestHelper.onAppend = function onAppend() {
+	QuestHelperV1.onAppend = function onAppend() {
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min(Math.max(0, _preferences.x + 382), Renderer.width - this.ui.width())
 		});
 	};
 
-	QuestHelper.setQuestInfo = function setQuestInfo(quest) {
-		QuestHelper.ui.find('.title').html(quest.title);
-		QuestHelper.ui.find('.summary').html(quest.summary);
-		QuestHelper.ui.find('.objective').html(quest.description);
+	QuestHelperV1.setQuestInfo = function setQuestInfo(quest) {
+		QuestHelperV1.ui.find('.title').html(quest.title);
+		QuestHelperV1.ui.find('.summary').html(quest.summary);
+		QuestHelperV1.ui.find('.objective').html(quest.description);
 		let list = '<select class="monster-select">'
 		let first = true;
 		for (let huntID in quest.hunt_list) {
 			if(first) {
-				QuestHelper.ui.find('.killed').html(quest.hunt_list[huntID].huntCount);
-				QuestHelper.ui.find('.limited').html(quest.hunt_list[huntID].maxCount);
+				QuestHelperV1.ui.find('.killed').html(quest.hunt_list[huntID].huntCount);
+				QuestHelperV1.ui.find('.limited').html(quest.hunt_list[huntID].maxCount);
 				first = false;
 			}
 			list += '<option current="' + quest.hunt_list[huntID].huntCount + '" max="' + quest.hunt_list[huntID].maxCount + '">' + quest.hunt_list[huntID].mobName + '</option>';
 		}
 		list += '</select>'
-		QuestHelper.ui.find('.monster').html(list);
+		QuestHelperV1.ui.find('.monster').html(list);
 		this.ui.find('.monster-select').on('change', onSelectMonster);
 	};
 
-	QuestHelper.clearQuestDesc = function clearQuestDesc() {
-		QuestHelper.ui.find('.title').html("");
-		QuestHelper.ui.find('.summary').html("");
-		QuestHelper.ui.find('.objective').html("");
-		QuestHelper.ui.find('.monster').html("");
-		QuestHelper.ui.find('.killed').html("");
-		QuestHelper.ui.find('.limited').html("");
+	QuestHelperV1.clearQuestDesc = function clearQuestDesc() {
+		QuestHelperV1.ui.find('.title').html("");
+		QuestHelperV1.ui.find('.summary').html("");
+		QuestHelperV1.ui.find('.objective').html("");
+		QuestHelperV1.ui.find('.monster').html("");
+		QuestHelperV1.ui.find('.killed').html("");
+		QuestHelperV1.ui.find('.limited').html("");
 	}
 
 	/**
 	 * Clean up UI
 	 */
-	QuestHelper.clean = function clean() {
-		QuestHelper.ui.hide();
+	QuestHelperV1.clean = function clean() {
+		QuestHelperV1.ui.hide();
 		onClose();
 	};
 
@@ -105,14 +105,14 @@ define(function (require) {
 	 * Removing the UI from window, save preferences
 	 *
 	 */
-	QuestHelper.onRemove = function onRemove() {
+	QuestHelperV1.onRemove = function onRemove() {
 	};
 
 
 	/**
 	 * Show/Hide UI
 	 */
-	QuestHelper.toggle = function toggle() {
+	QuestHelperV1.toggle = function toggle() {
 		if (this.ui.is(':visible')) {
 			this.ui.hide();
 		} else {
@@ -122,25 +122,25 @@ define(function (require) {
 
 
 	function onClickClose(e) {
-		QuestHelper.ui.hide();
+		QuestHelperV1.ui.hide();
 	}
 
 	/**
 	 * Close the window
 	 */
 	function onClose() {
-		QuestHelper.ui.hide();
+		QuestHelperV1.ui.hide();
 	}
 
 	function onSelectMonster(e) {
 		var selected_monster = jQuery(e.currentTarget);
-		QuestHelper.ui.find('.killed').html(selected_monster.attr('current'));
-		QuestHelper.ui.find('.limited').html(selected_monster.attr('max'));
+		QuestHelperV1.ui.find('.killed').html(selected_monster.attr('current'));
+		QuestHelperV1.ui.find('.limited').html(selected_monster.attr('max'));
 	}
 
 
 	/**
 	 * Export
 	 */
-	return UIManager.addComponent(QuestHelper);
+	return UIManager.addComponent(QuestHelperV1);
 });

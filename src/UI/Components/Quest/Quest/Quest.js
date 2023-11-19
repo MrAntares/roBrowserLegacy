@@ -20,11 +20,12 @@ define(function (require) {
 	var Renderer = require('Renderer/Renderer');
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
+	var QuestHelper = require('./QuestHelper');
+	var QuestWindow = require('./QuestWindow');
 	var Network = require('Network/NetworkManager');
 	var PACKET = require('Network/PacketStructure');
-	var QuestHelper = require('UI/Components/QuestV1/QuestHelperV1');
-	var htmlText = require('text!./QuestV1.html');
-	var cssText = require('text!./QuestV1.css');
+	var htmlText = require('text!./Quest.html');
+	var cssText = require('text!./Quest.css');
 	var jQuery = require('Utils/jquery');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 	var Session = require('Engine/SessionStorage');
@@ -78,13 +79,12 @@ define(function (require) {
 			return false;
 		});
 
-		this.ui.find('.view').click(onClickView);
 		this.ui.find('.close').click(onClose);
-		this.ui.find('.btn-right').click(onClose);
-
 		this.ui.on('click', '.quest-menu-item', onClickMenu);
-		this.ui.find('#active-quest-list').show();
+		this.ui.on('click', '.close-quest-container-btn', onClickClose);
 		this.draggable(this.ui.find('.titlebar'));
+		this.ui.find('#active-quest-list').show();
+		this.ui.on('click', '.toggle-quest-list', onClickQuestCheckbox);
 	};
 
 
@@ -92,24 +92,26 @@ define(function (require) {
 	 * Once append to the DOM, start to position the UI
 	 */
 	Quest.onAppend = function onAppend() {
-		_index = -1;
-
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_que_01.bmp', function (data) {
-			Quest.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
+		var checkbox_background = (_preferences.showwindow) ? "checkbox_on" : "checkbox_off";
+
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp', function (data) {
+			Quest.ui.find('.toggle-quest-image').css('backgroundImage', 'url(' + data + ')');
 		}.bind(this));
 
-		Quest.ui.find('#active-quest-list').show();
-		Quest.ui.find('#inactive-quest-list').hide();
-		Quest.ui.find('#all-quest-list').hide();
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/bg_quest1.bmp', function (data) {
+			Quest.ui.find('.titlebar').css('backgroundImage', 'url(' + data + ')');
+		}.bind(this));
 
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
+		
+		QuestWindow.append(); // Prepare & append QuestWindow
 	};
 
 
@@ -119,11 +121,13 @@ define(function (require) {
 	Quest.clean = function clean() {
 		_active_menu = '';
 		_questList = {};
-		Quest.ui.find('#active-quest-list').hide();
+		Quest.ui.find('#active-quest-list').show();
 		Quest.ui.find('#inactive-quest-list').hide();
-		Quest.ui.find('#all-quest-list').hide();
+		Quest.ui.find('#feature-quest-list').hide();
+		Quest.ui.find('#cooldown-quest-list').hide();
 		Quest.ClearQuestList();
 		QuestHelper.clearQuestDesc();
+		QuestWindow.ClearQuestList();
 		onClose();
 	};
 
@@ -179,6 +183,8 @@ define(function (require) {
 		for (let questID in quests) {
 			Quest.addQuestToUI(quests[questID]);
 		}
+		QuestWindow.ClearQuestList();
+		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
 
@@ -191,6 +197,8 @@ define(function (require) {
 	Quest.addQuest = function addQuest(quest, questID) {
 		_questList[questID] = quest;
 		Quest.addQuestToUI(quest);
+		QuestWindow.ClearQuestList();
+		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
 
@@ -221,6 +229,8 @@ define(function (require) {
 		if (Session.Entity) {
 			Session.Entity.dialog.set(self_msg, "yellow");
 		}
+		QuestWindow.ClearQuestList();
+		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
 
@@ -273,19 +283,52 @@ define(function (require) {
 
 
 	Quest.addQuestToUI = function addQuest(quest) {
+		let ul_id = "";
+		let li_text = "";
 		let toggle_id = "qid" + quest.questID;
+		let show_id = "sid" + quest.questID;
 		let title = (quest.title.length > 30) ? quest.title.substr(0, 30) + '...' : quest.title;
-		let pattern = /^ico\_/; // new system ico_xx.bmp - not supported on this version
-		let quest_icon = (pattern.test(quest.icon)) ? 'SG_FEEL.bmp' : quest.icon;
-		let li_text = '<li id="' + toggle_id + '" class="quest-item ' + toggle_id + '"><div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="item/' + quest_icon + '"></div> </div> <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span> </div></li>';
+		let summary = (quest.summary.length > 30) ? quest.summary.substr(0, 30) + '...' : quest.summary;
+		let bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? "bt_check_off" : "bt_check_on";
 
-		let ul_id = (quest.active == 1) ? "#active-quest-list" : "#inactive-quest-list";
+		let epoch_seconds = new Date() / 1000;
+		if (quest.end_time > 0 && quest.end_time > epoch_seconds) {
+			ul_id = "#cooldown-quest-list"
+			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><div class="quest-item-toggle-image"><span class="quest-item-toggle-image-text">Toggle</span></div></div></li>';
+		} else if (quest.active == 1) {
+			ul_id = "#active-quest-list";
+			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <button id="' + show_id + '" class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </button></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><button id="' + toggle_id + '" class="quest-item-toggle-image" data-background="renew_questui/bt_lock_open.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
+		} else {
+			ul_id = "#inactive-quest-list";
+			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><button id="' + toggle_id + '" class="quest-item-toggle-image" data-background="renew_questui/bt_lock.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
+		}
 
-		this.ui.find(ul_id).append(li_text);
-		this.ui.find('#' + toggle_id).on('contextmenu', onClickQuestToggle);
-		this.ui.find('#' + toggle_id).on('click', onClickQuest);
-		this.ui.find('#all-quest-list').append(li_text);
-		this.ui.find('.' + toggle_id).on('click', onClickQuest);
+		this.ui.find(ul_id).append(
+			jQuery(li_text).
+				addClass('quest-item').
+				data('background', 'renew_questui/bg_questlist.bmp').
+				data('hover', 'renew_questui/bg_questlist_check.bmp').
+				data('down', 'renew_questui/bg_questlist_press.bmp').
+				on('click', function (e) {
+					if (e.target.tagName.toLowerCase() == "button") return;
+					let element = jQuery(e.currentTarget);
+					if (element.attr('class') == "quest-item") {
+						QuestHelper.clearQuestDesc();
+						QuestHelper.setQuestInfo(quest);
+						QuestHelper.prepare();
+						QuestHelper.append();
+						QuestHelper.ui.show();
+						QuestHelper.ui.focus();
+					}
+				}).
+				each(this.parseHTML)
+		);
+
+		this.ui.find('#' + toggle_id).on('click', onClickQuestToggle);
+		this.ui.find('#' + show_id).on('click', onClickQuestDisplay);
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + bt_check + '.bmp', function (data) {
+			Quest.ui.find('#' + show_id).css('backgroundImage', 'url(' + data + ')');
+		}.bind(this));
 		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
 	};
 
@@ -299,39 +342,51 @@ define(function (require) {
 		var background_image = "";
 		Quest.ui.find('#active-quest-list').hide();
 		Quest.ui.find('#inactive-quest-list').hide();
-		Quest.ui.find('#all-quest-list').hide();
+		Quest.ui.find('#feature-quest-list').hide();
+		Quest.ui.find('#cooldown-quest-list').hide();
 		switch (_active_menu) {
+			case 'feature':
+				background_image = "bg_quest2";
+				Quest.ui.find('#feature-quest-list').show();
+				break;
 			case 'inactive':
-				background_image = "tab_que_02";
+				background_image = "bg_quest3";
 				Quest.ui.find('#inactive-quest-list').show();
 				break;
-			case 'all':
-				background_image = "tab_que_03";
-				Quest.ui.find('#all-quest-list').show();
+			case 'cooldown':
+				background_image = "bg_quest4";
+				Quest.ui.find('#cooldown-quest-list').show();
 				break;
 			default:
-				background_image = "tab_que_01";
+				background_image = "bg_quest1";
 				Quest.ui.find('#active-quest-list').show();
 		}
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/' + background_image + '.bmp', function (data) {
-			Quest.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + background_image + '.bmp', function (data) {
+			Quest.ui.find('.titlebar').css('backgroundImage', 'url(' + data + ')');
 		}.bind(this));
 
 		QuestHelper.clearQuestDesc();
 	}
 
-	function onClickQuest(e) {
-		var toggle_element = jQuery(e.currentTarget);
-		let tid = toggle_element.attr('id');
-		let id = tid.replace("qid", "");
-		if (_index > -1) {
-			Quest.ui.find('.qid' + _index).css('background-color', 'white');
-			Quest.ui.find('#qid' + _index).css('background-color', 'white');
+	function onClickQuestCheckbox() {
+		var checkbox_background;
+		if (_preferences.showwindow) {
+			checkbox_background = "checkbox_off";
+			QuestWindow.ui.hide();
 		}
-		_index = id;
-		toggle_element.css('background-color', 'lightgray');
+		else {
+			checkbox_background = "checkbox_on";
+			QuestWindow.ui.show();
+		}
+		_preferences.showwindow = !_preferences.showwindow;
+		_preferences.save();
+
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp', function (data) {
+			Quest.ui.find('.toggle-quest-image').css('backgroundImage', 'url(' + data + ')');
+		}.bind(this));
 	}
+
 
 	function onClickQuestToggle(e) {
 		var toggle_element = jQuery(e.currentTarget);
@@ -343,21 +398,42 @@ define(function (require) {
 		Network.sendPacket(_pkt);
 	}
 
-	function onClickView(e) {
-		if (_index > -1) {
-			QuestHelper.clearQuestDesc();
-			QuestHelper.setQuestInfo(_questList[_index]);
-			QuestHelper.prepare();
-			QuestHelper.append();
-			QuestHelper.ui.show();
-			QuestHelper.ui.focus();
+	function onClickQuestDisplay(e) {
+		var display_element = jQuery(e.currentTarget);
+		let cid = display_element.attr('id');
+		let id = cid.replace("sid", "");
+		let iid = parseInt(Number(id));
+
+		let checkbox_background = "";
+		if (_questNotShowList.includes(iid)) {
+			let index = _questNotShowList.indexOf(iid);
+			_questNotShowList.splice(index, 1);
+			checkbox_background = "bt_check_on";
+		} else {
+			_questNotShowList.push(iid);
+			checkbox_background = "bt_check_off";
 		}
+
+		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp', function (data) {
+			Quest.ui.find('#' + cid).css('backgroundImage', 'url(' + data + ')');
+		}.bind(this));
+
+		QuestWindow.ClearQuestList();
+		QuestWindow.setQuestList(_questList, _questNotShowList);
 	}
+
+	function onClickClose(e) {
+		Quest.ui.hide();
+	}
+
 
 	function refreshQuestUI() {
 		Quest.ClearQuestList();
 		Quest.setQuestList(_questList);
+		QuestWindow.ClearQuestList();
+		QuestWindow.setQuestList(_questList, _questNotShowList);
 	}
+
 
 	Quest.ClearQuestList = function ClearQuestList() {
 		Quest.ui.find('.quest-list').html('');
