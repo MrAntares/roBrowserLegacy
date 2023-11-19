@@ -27,18 +27,17 @@ define(function(require)
 	var UIComponent          = require('UI/UIComponent');
 	var ItemInfo             = require('UI/Components/ItemInfo/ItemInfo');
 	var Inventory            = require('UI/Components/Inventory/Inventory');
-	var UIVersionManager     = require('UI/UIVersionManager');
 	var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
 	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Guild                = require('UI/Components/Guild/Guild');
+
+	// Version Dependent UIs
+	var SkillWindow = require('UI/Components/SkillList/SkillList');
+
+
 	var htmlText             = require('text!./ShortCut.html');
 	var cssText              = require('text!./ShortCut.css');
-
-	var UIVersionManager      = require('UI/UIVersionManager');
-	// Version Dependent UIs
-	var SkillWindow;
-
 	/**
 	 * Create Component
 	 */
@@ -75,10 +74,7 @@ define(function(require)
 	 * Initialize UI
 	 */
 	ShortCut.init = function init()
-	{
-		
-		SkillWindow = require('UI/Components/SkillList/SkillList').getUI();
-		
+	{	
 		this.ui.find('.resize').mousedown(onResize);
 		this.ui.find('.close').mousedown(stopPropagation).click(onClose);
 
@@ -118,6 +114,8 @@ define(function(require)
 		this.magnet.BOTTOM = _preferences.magnet_bottom;
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
+		
+		SkillWindow.getUI().onUpdateSkill = onUpdateSkill;
 	};
 
 
@@ -192,7 +190,7 @@ define(function(require)
 				} else if (list[i].ID > 8000 && list[i].ID < 8044) {
 					skill = SkillListMER.getSkillById(list[i].ID);
 				} else {
-					skill = SkillWindow.getSkillById(list[i].ID);
+					skill = SkillWindow.getUI().getSkillById(list[i].ID);
 				}
 
 				if (skill && skill.level) {
@@ -618,7 +616,7 @@ define(function(require)
 			} else if (shortcut.ID > 8000 && shortcut.ID < 8044) {
 				SkillListMER.useSkillID(shortcut.ID, shortcut.count);
 			} else {
-				SkillWindow.useSkillID(shortcut.ID, shortcut.count);
+				SkillWindow.getUI().useSkillID(shortcut.ID, shortcut.count);
 			}
 		}
 
@@ -663,7 +661,7 @@ define(function(require)
 	 * @param {number} skill id
 	 * @param {number} level
 	 */
-	SkillWindow.onUpdateSkill = function( id, level)
+	function onUpdateSkill( id, level)
 	{
 		ShortCut.setElement( true, id, level);
 	};

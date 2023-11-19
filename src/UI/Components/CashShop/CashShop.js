@@ -30,9 +30,8 @@ define(function(require)
 	var htmlText           = require('text!./CashShop.html');
 	var cssText            = require('text!./CashShop.css');
 
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var MiniMap;
+	var MiniMap = require('UI/Components/MiniMap/MiniMap');
 
 	var CashShop = new UIComponent( 'CashShop', htmlText, cssText );
 
@@ -135,8 +134,6 @@ define(function(require)
 	
 	CashShop.init = function init()
 	{
-		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
-
 		//this.ui.hide();
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
 		this.ui.find('.titlebar .mini').click(onToggleReduction);
@@ -173,11 +170,11 @@ define(function(require)
 			CashShop.onResetCartListCashShop();
 		}
 		
-		MiniMap.ui.append('<button class="cashshopIcon"></button>');
-		MiniMap.ui.on('click', '.cashshopIcon', onClickIcon);
+		MiniMap.getUI().ui.append('<button class="cashshopIcon"></button>');
+		MiniMap.getUI().ui.on('click', '.cashshopIcon', onClickIcon);
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/nc_cashshop.bmp', function(data){
-			MiniMap.ui.find('.cashshopIcon').css('backgroundImage', 'url('+ data +')');
+			MiniMap.getUI().ui.find('.cashshopIcon').css('backgroundImage', 'url('+ data +')');
 		});
 	};
 	
