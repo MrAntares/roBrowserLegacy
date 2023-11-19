@@ -404,8 +404,8 @@ define(function(require)
 	 */
 	MiniMapV2.updateCoordinates = function updateCoordinates( x, y )
 	{
-		MiniMap.ui.find('.coordinates .coord.x').html(Math.floor(x));
-		MiniMap.ui.find('.coordinates .coord.y').html(Math.floor(y));
+		MiniMapV2.ui.find('.coordinates .coord.x').html(Math.floor(x));
+		MiniMapV2.ui.find('.coordinates .coord.y').html(Math.floor(y));
 	};
 
 
