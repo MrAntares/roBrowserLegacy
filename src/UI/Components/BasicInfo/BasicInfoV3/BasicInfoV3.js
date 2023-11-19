@@ -32,11 +32,6 @@ define(function(require)
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var PACKETVER   = require('Network/PacketVerManager');
-	
-	var UIVersionManager      = require('UI/UIVersionManager');
-	// Version Dependent UIs
-	var SkillList;
-	var Quest;
 
 
 	var htmlText           = require('text!./BasicInfoV3.html');
@@ -78,8 +73,6 @@ define(function(require)
 	 */
 	BasicInfo.init = function init()
 	{
-		SkillList = require('UI/Components/SkillList/SkillList').getUI();
-		Quest     = require('UI/Components/Quest/Quest').getUI();
 
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.topbar div').mousedown(function( event ){
@@ -100,7 +93,7 @@ define(function(require)
 					break;
 
 				case 'skill':
-					SkillList.toggle();
+					require('UI/Components/SkillList/SkillList').getUI().toggle();
 					break;
 
 				case 'option':
@@ -124,7 +117,7 @@ define(function(require)
 					break;
 
 				case 'quest':
-					Quest.toggle();
+					require('UI/Components/Quest/Quest').getUI().toggle();
 					break;
 			}
 		});

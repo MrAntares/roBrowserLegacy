@@ -35,11 +35,6 @@ define(function(require)
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
 	
-	var UIVersionManager      = require('UI/UIVersionManager');
-	// Version Dependent UIs
-	var SkillList;
-	var Quest;
-	
 	
 	var htmlText           = require('text!./BasicInfoV4.html');
 	var cssText            = require('text!./BasicInfoV4.css');
@@ -103,7 +98,7 @@ define(function(require)
 					break;
 
 				case 'skill':
-					SkillList.toggle();
+					require('UI/Components/SkillList/SkillList').getUI().toggle();
 					break;
 
 				case 'option':
@@ -119,7 +114,7 @@ define(function(require)
 					break;
 
 				case 'quest':
-					Quest.toggle();
+					require('UI/Components/Quest/Quest').getUI().toggle();
 					break;
 
 				case 'map':
