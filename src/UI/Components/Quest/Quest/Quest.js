@@ -72,6 +72,7 @@ define(function (require) {
 	 */
 	Quest.init = function init() {
 		QuestHelper.prepare();
+		QuestWindow.prepare();
 
 		// Avoid drag drop problems
 		this.ui.find('.base').mousedown(function (event) {
@@ -111,7 +112,7 @@ define(function (require) {
 			this.ui.hide();
 		}
 		
-		QuestWindow.append(); // Prepare & append QuestWindow
+		QuestWindow.append();
 	};
 
 
