@@ -464,7 +464,9 @@ define(function( require )
 	function onCreationSuccess( pkt )
 	{
 		CharCreate.getUI().remove();
-		CharSelect.getUI().append();
+		var ChSel = CharSelect.getUI();
+		ChSel.addCharacter(pkt.charinfo);
+		ChSel.append();
 	}
 
 
