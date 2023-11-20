@@ -33,8 +33,8 @@ define(function( require )
 	
 	var UIVersionManager = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var CharSelect;
-	var CharCreate;
+	var CharSelect = require('UI/Components/CharSelect/CharSelect');
+	var CharCreate = require('UI/Components/CharCreate/CharCreate');
 
 	/**
 	 * @var {object} server data
@@ -86,13 +86,8 @@ define(function( require )
 		});
 		
 		//Select UI version
-		CharSelect = require('UI/Components/CharSelect/CharSelect');
 		CharSelect.selectUIVersion();
-		CharSelect = CharSelect.getUI();
-		
-		CharCreate = require('UI/Components/CharCreate/CharCreate');
 		CharCreate.selectUIVersion();
-		CharCreate = CharCreate.getUI();
 
 		// Hook packets
 		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION,        onConnectionAccepted );
@@ -159,14 +154,15 @@ define(function( require )
 		UIManager.getComponent('WinLoading').remove();
 
 		// Initialize window
-		CharSelect.onExitRequest = onExitRequest;
-		CharSelect.onConnectRequest = onConnectRequest;
-		CharSelect.onCreateRequest = onCreateRequest;
-		CharSelect.onDeleteRequest = onDeleteRequest;
-		CharSelect.onDeleteReqDelay = onDeleteReqDelay;
-		CharSelect.onCancelDeleteRequest = onCancelDeleteRequest;
-		CharSelect.append();
-		CharSelect.setInfo(pkt);
+		var ChSel = CharSelect.getUI();
+		ChSel.onExitRequest = onExitRequest;
+		ChSel.onConnectRequest = onConnectRequest;
+		ChSel.onCreateRequest = onCreateRequest;
+		ChSel.onDeleteRequest = onDeleteRequest;
+		ChSel.onDeleteReqDelay = onDeleteReqDelay;
+		ChSel.onCancelDeleteRequest = onCancelDeleteRequest;
+		ChSel.append();
+		ChSel.setInfo(pkt);
 		
 	}
 
@@ -203,7 +199,7 @@ define(function( require )
 			'ok',
 			function(){
 				UIManager.getComponent('WinLoading').remove();
-				CharSelect.append();
+				CharSelect.getUI().append();
 			},
 			true
 		);
@@ -218,7 +214,7 @@ define(function( require )
 			return;
 
 		// Just pass the packet info
-		CharSelectV3.reqdeleteAnswer(pkt);
+		CharSelect.getUI().reqdeleteAnswer(pkt);
 	}
 
 	/**
@@ -388,7 +384,7 @@ define(function( require )
 		} else { // Birthday deletion result
 			var result = typeof( pkt.Result ) === 'undefined' ? -1 : pkt.Result;
 		}
-		CharSelect.deleteAnswer(result);
+		CharSelect.getUI().deleteAnswer(result);
 	}
 
 
@@ -399,15 +395,17 @@ define(function( require )
 	 */
 	function onCreateRequest( index )
 	{
+		var ChSel = CharSelect.getUI();
+		var ChCre = CharCreate.getUI();
 		_creationSlot = index;
-		CharSelect.remove();
-		CharCreate.setAccountSex( Session.Sex );
-		CharCreate.onCharCreationRequest = onCharCreationRequest;
-		CharCreate.onExitRequest = function(){
-			CharCreate.remove();
-			CharSelect.append();
+		ChSel.remove();
+		ChCre.setAccountSex( Session.Sex );
+		ChCre.onCharCreationRequest = onCharCreationRequest;
+		ChCre.onExitRequest = function(){
+			ChCre.remove();
+			ChSel.append();
 		};
-		CharCreate.append();
+		ChCre.append();
 	}
 
 
@@ -465,8 +463,8 @@ define(function( require )
 	 */
 	function onCreationSuccess( pkt )
 	{
-		CharCreate.remove();
-		CharSelect.append();
+		CharCreate.getUI().remove();
+		CharSelect.getUI().append();
 	}
 
 
@@ -516,7 +514,7 @@ define(function( require )
 		// Play sound
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
 
-		CharSelect.remove();
+		CharSelect.getUI().remove();
 		UIManager.getComponent('WinLoading').append();
 		Session.Character = entity;
 
