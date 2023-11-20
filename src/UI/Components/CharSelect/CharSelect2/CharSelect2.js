@@ -25,6 +25,7 @@ define(function(require)
     var Camera             = require('Renderer/Camera');
     var UIManager          = require('UI/UIManager');
     var UIComponent        = require('UI/UIComponent');
+	var PACKETVER          = require('Network/PacketVerManager');
     var htmlText           = require('text!./CharSelect2.html');
     var cssText            = require('text!./CharSelect2.css');
 
@@ -271,7 +272,7 @@ define(function(require)
 
             default: // Others error ?
             case  0: // Incorrect adress email
-                UIManager.showMessageBox( DB.getMessage(301), 'ok' );
+                UIManager.showMessageBox( DB.getMessage( PACKETVER.value > 20100803 ? 1822 : 301 ), 'ok' );
                 break;
         }
     };

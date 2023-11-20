@@ -295,7 +295,7 @@ define(function(require)
 
             default: // Others error ?
             case  0: // Incorrect adress email
-                UIManager.showMessageBox( DB.getMessage(301), 'ok' );
+                UIManager.showMessageBox( DB.getMessage( 1822 ), 'ok' );
                 break;
         }
     };

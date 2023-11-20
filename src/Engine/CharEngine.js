@@ -253,7 +253,7 @@ define(function( require )
 	function onDeleteRequest( charID )
 	{
 		var _ui_box;
-		var _email;
+		var _inputValue;
 		var _overlay;
 		var _time_end;
 		var _render = false;
@@ -265,12 +265,12 @@ define(function( require )
 			if (PACKETVER.value > 20100803) {
 				var pkt = new PACKET.CH.DELETE_CHAR3();
 				pkt.GID = charID;
-				pkt.Birth = _email.substring(2);	// Server only needs the 6 digits
+				pkt.Birth = _inputValue.substring(2);	// Server only needs the 6 digits
 				Network.sendPacket(pkt);
 			} else {
 				var pkt = new PACKET.CH.DELETE_CHAR();
 				pkt.GID = charID;
-				pkt.key = _email;
+				pkt.key = _inputValue;
 				Network.sendPacket(pkt);
 			}
 		}
@@ -288,7 +288,7 @@ define(function( require )
 		function onOk(){
 			InputBox.append();
 			if (PACKETVER.value > 20100803) {
-				InputBox.setType('date', true);
+				InputBox.setType('birthdate', true);
 			} else {
 				InputBox.setType('mail', true);
 			}
@@ -302,9 +302,9 @@ define(function( require )
 		_ui_box  = UIManager.showPromptBox( DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
 		_overlay = jQuery('<div/>').addClass('win_popup_overlay').appendTo('body');
 
-		// Submit the mail
-		function onSubmit(email){
-			_email = email;
+		// Submit the mail/birthdate
+		function onSubmit(input){
+			_inputValue = input;
 			InputBox.remove();
 			_ui_box.remove();
 			

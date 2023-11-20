@@ -164,6 +164,12 @@ define(function(require)
 				this.ui.find('.text').text( DB.getMessage(300) );
 				this.ui.find('input').attr('type', 'password');
 				break;
+			
+			case 'birthdate':
+				this.ui.removeClass('number');
+				this.ui.find('.text').text( DB.getMessage(1815) );
+				this.ui.find('input').attr('type', 'text');
+				break;
 		}
 
 		if (typeof defaultVal !== 'undefined') {
