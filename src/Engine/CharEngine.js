@@ -284,10 +284,10 @@ define(function( require )
 			onDeleteAnswer({ ErrorCode: -2});
 		}
 
-		// Ask the mail
+		// Ask the mail/birthdate
 		function onOk(){
 			InputBox.append();
-			if (PACKETVER.value > 20100803) {
+			if (PACKETVER.value >= 20100803) {
 				InputBox.setType('birthdate', true);
 			} else {
 				InputBox.setType('mail', true);

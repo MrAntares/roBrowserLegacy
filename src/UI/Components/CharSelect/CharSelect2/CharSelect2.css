@@ -166,4 +166,33 @@
 }
 #charselect2 .delete {
     left: 4px;
+	width: 67px;
+}
+#charselect2 .canceldelete {
+    left: 50px;
+	width: 67px;
+}
+#charselect2 .finaldelete {
+    left: 4px;
+}
+#charselect2 .timedelete {
+    position: absolute;
+    height: 20px;
+    width: 120px;
+    top: 75px;
+}
+#charselect2 .timedelete.waitdelete{
+	color: blue;
+}
+#charselect2 .timedelete.candelete{
+	color: red;
+}
+#charselect2 .timedelete.slot1 {
+    left: 63px;
+}
+#charselect2 .timedelete.slot2 {
+    left: 227px;
+}
+#charselect2 .timedelete.slot3 {
+    left: 389px;
 }
