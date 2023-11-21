@@ -25,8 +25,8 @@ define(function(require)
     var Camera             = require('Renderer/Camera');
     var UIManager          = require('UI/UIManager');
     var UIComponent        = require('UI/UIComponent');
-    var htmlText           = require('text!./CharSelectV3.html');
-    var cssText            = require('text!./CharSelectV3.css');
+    var htmlText           = require('text!./CharSelectV4.html');
+    var cssText            = require('text!./CharSelectV4.css');
     var Client             = require('Core/Client');
     var jQuery             = require('Utils/jquery');
 
@@ -34,13 +34,13 @@ define(function(require)
     /**
      * Create Chararacter Selection namespace
      */
-    var CharSelectV3 = new UIComponent( 'CharSelectV3', htmlText, cssText );
+    var CharSelectV4 = new UIComponent( 'CharSelectV4', htmlText, cssText );
 
 
     /**
      * @var {Preferences} save preferences for the last index
      */
-    var _preferences = Preferences.get('CharSelectV3', {
+    var _preferences = Preferences.get('CharSelectV4', {
         index: 0
     }, 1.0 );
 
@@ -98,7 +98,7 @@ define(function(require)
     /**
      * Initialize UI
      */
-    CharSelectV3.init = function Init()
+    CharSelectV4.init = function Init()
     {
         var ui = this.ui;
 
@@ -145,10 +145,10 @@ define(function(require)
     /**
      * Once append to body
      */
-    CharSelectV3.onAppend = function onAppend()
+    CharSelectV4.onAppend = function onAppend()
     {
         //_index = _preferences.index;
-        const charselectready = CharSelectV3.ui;
+        const charselectready = CharSelectV4.ui;
         if (charselectready) {
             startCountdownInterval();
         }
@@ -164,7 +164,7 @@ define(function(require)
     /**
      * Stop rendering
      */
-    CharSelectV3.onRemove = function onRemove()
+    CharSelectV4.onRemove = function onRemove()
     {
         _preferences.index = _index;
         _preferences.save();
@@ -178,7 +178,7 @@ define(function(require)
      *
      * @param {object} event
      */
-    CharSelectV3.onKeyDown = function onKeyDown( event )
+    CharSelectV4.onKeyDown = function onKeyDown( event )
     {
         switch (event.which) {
             case KEYS.ESCAPE:
@@ -222,7 +222,7 @@ define(function(require)
      *
      * @param {object} pkt - packet structure
      */
-    CharSelectV3.setInfo = function setInfo( pkt )
+    CharSelectV4.setInfo = function setInfo( pkt )
     {
         _maxSlots           = Math.floor((pkt.TotalSlotNum + pkt.PremiumStartSlot) || 15); // default 9 ?
         _sex                = pkt.sex;
@@ -233,7 +233,7 @@ define(function(require)
         if (pkt.charInfo) {
             var i, count = pkt.charInfo.length;
             for (i = 0; i < count; ++i) {
-                CharSelectV3.addCharacter( pkt.charInfo[i] );
+                CharSelectV4.addCharacter( pkt.charInfo[i] );
             }
             updateCharSlot();
         }
@@ -262,7 +262,7 @@ define(function(require)
      * Countdown for delay in deletion
      */
     function updateAllVisibleCountdowns() {
-        var charselectready = CharSelectV3.ui;
+        var charselectready = CharSelectV4.ui;
         if (charselectready) {
             const visibleCountdowns = document.querySelectorAll('.timedelete:not(.hidden)');
 
@@ -282,7 +282,7 @@ define(function(require)
     }
 
     /**
-    * Start the countdown update interval only when in CharSelectV3 UI
+    * Start the countdown update interval only when in CharSelectV4 UI
     */
     function startCountdownInterval() {
         if (!countdownInterval) {
@@ -305,7 +305,7 @@ define(function(require)
      * 
      * @param {object} pkt - packet structure
      */
-    CharSelectV3.reqdeleteAnswer = function ReqDelAnswer ( pkt )
+    CharSelectV4.reqdeleteAnswer = function ReqDelAnswer ( pkt )
     {
         this.on('keydown');
 		var deleteReservedDate = pkt.DeleteReservedDate;
@@ -356,9 +356,9 @@ define(function(require)
         }
 
         // Adjust the buttons
-        CharSelectV3.ui.find('.delete').hide();
-        CharSelectV3.ui.find('.canceldelete').show();
-        CharSelectV3.ui.find('.finaldelete').show();
+        CharSelectV4.ui.find('.delete').hide();
+        CharSelectV4.ui.find('.canceldelete').show();
+        CharSelectV4.ui.find('.finaldelete').show();
     }
 
     /**
@@ -385,12 +385,12 @@ define(function(require)
             }
 
             // Adjust the buttons
-            CharSelectV3.ui.find('.canceldelete').hide();
-            CharSelectV3.ui.find('.finaldelete').hide();
-            CharSelectV3.ui.find('.delete').show();
+            CharSelectV4.ui.find('.canceldelete').hide();
+            CharSelectV4.ui.find('.finaldelete').hide();
+            CharSelectV4.ui.find('.delete').show();
 
             // Send request to the server
-            CharSelectV3.onCancelDeleteRequest(_slots[_index].GID);
+            CharSelectV4.onCancelDeleteRequest(_slots[_index].GID);
         }
     }
 
@@ -399,7 +399,7 @@ define(function(require)
      *
      * @param {number} error id
      */
-    CharSelectV3.deleteAnswer = function DeleteAnswer( error )
+    CharSelectV4.deleteAnswer = function DeleteAnswer( error )
     {
         this.on('keydown');
 
@@ -461,7 +461,7 @@ define(function(require)
      *
      * @param {object} character data
      */
-    CharSelectV3.addCharacter = function addCharacter( character )
+    CharSelectV4.addCharacter = function addCharacter( character )
     {
         if (!('sex' in character) || character.sex === 99) {
             character.sex = _sex;
@@ -481,12 +481,12 @@ define(function(require)
     /**
      * Callback to use
      */
-    CharSelectV3.onExitRequest    = function onExitRequest(){};
-    CharSelectV3.onDeleteRequest  = function onDeleteRequest(){};
-    CharSelectV3.onDeleteReqDelay = function onDeleteReqDelay(){};
-    CharSelectV3.onCreateRequest  = function onCreateRequest(){};
-    CharSelectV3.onConnectRequest = function onConnectRequest(){};
-    CharSelectV3.onCancelDeleteRequest = function onCancelDeleteRequest(){};
+    CharSelectV4.onExitRequest    = function onExitRequest(){};
+    CharSelectV4.onDeleteRequest  = function onDeleteRequest(){};
+    CharSelectV4.onDeleteReqDelay = function onDeleteReqDelay(){};
+    CharSelectV4.onCreateRequest  = function onCreateRequest(){};
+    CharSelectV4.onConnectRequest = function onConnectRequest(){};
+    CharSelectV4.onCancelDeleteRequest = function onCancelDeleteRequest(){};
 
 
     /**
@@ -510,7 +510,7 @@ define(function(require)
     function cancel()
     {
         UIManager.showPromptBox( DB.getMessage(17), 'ok', 'cancel', function(){
-            CharSelectV3.onExitRequest();
+            CharSelectV4.onExitRequest();
             updateCharSlot();
         }, null);
         stopCountdownInterval();
@@ -522,7 +522,7 @@ define(function(require)
      */
     function create()
     {
-        CharSelectV3.onCreateRequest( _index );
+        CharSelectV4.onCreateRequest( _index );
     }
 
 
@@ -533,7 +533,7 @@ define(function(require)
         if ((_slots[_index]) && (!_slots[_index].DeleteDate)) {
             _preferences.index = _index;
             _preferences.save();
-            CharSelectV3.onConnectRequest( _slots[_index] );
+            CharSelectV4.onConnectRequest( _slots[_index] );
             stopCountdownInterval();
         }
     }
@@ -543,8 +543,8 @@ define(function(require)
      */
     function reserve() {
         if (_slots[_index]) {
-            CharSelectV3.off('keydown');
-            CharSelectV3.onDeleteReqDelay( _slots[_index].GID );
+            CharSelectV4.off('keydown');
+            CharSelectV4.onDeleteReqDelay( _slots[_index].GID );
         }
     }
 
@@ -553,8 +553,8 @@ define(function(require)
      */
     function suppress() {
         if (_slots[_index]) {
-            CharSelectV3.off('keydown');
-            CharSelectV3.onDeleteRequest( _slots[_index].GID );
+            CharSelectV4.off('keydown');
+            CharSelectV4.onDeleteRequest( _slots[_index].GID );
         }
     }
 
@@ -566,7 +566,7 @@ define(function(require)
      */
     function moveCursorTo( index )
     {
-        var ui = CharSelectV3.ui;
+        var ui = CharSelectV4.ui;
         var $charinfo = ui.find('.charinfo');
 
         var entity = _slots[_index];
@@ -636,9 +636,9 @@ define(function(require)
     }
 
     function changeBackgroundEverySecond() {
-        var UIready = CharSelectV3.ui;
+        var UIready = CharSelectV4.ui;
         if (UIready) {
-            var backgroundchange = CharSelectV3.ui.find('#slot'+ _curindex);
+            var backgroundchange = CharSelectV4.ui.find('#slot'+ _curindex);
             if (backgroundchange && shouldRunBackgroundChange === true) {
                 Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot_select"+img+".bmp", function(dataURI) {
                     backgroundchange.css({'backgroundImage': 'url(' + dataURI + ')',
@@ -656,13 +656,13 @@ define(function(require)
 
     function updateCharSlot(){
         for (let i = 0; i < _maxSlots; ++i) {
-            jQuery(CharSelectV3.ui.find(".char_canvas")[i]).find('.name').html(_slots[i] !== undefined ? _slots[i].name:"");
+            jQuery(CharSelectV4.ui.find(".char_canvas")[i]).find('.name').html(_slots[i] !== undefined ? _slots[i].name:"");
             if(_slots[i] === undefined){
                 const slotNum = i;
-                jQuery(CharSelectV3.ui.find(".job_icon")[slotNum]).css('background-image', '');
-                if(CharSelectV3.ui.find('#slot'+ slotNum)){
+                jQuery(CharSelectV4.ui.find(".job_icon")[slotNum]).css('background-image', '');
+                if(CharSelectV4.ui.find('#slot'+ slotNum)){
                     Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot2_normal.bmp", function(dataURI) {
-                        CharSelectV3.ui.find('#slot'+ slotNum).css('backgroundImage', 'url(' + dataURI + ')');
+                        CharSelectV4.ui.find('#slot'+ slotNum).css('backgroundImage', 'url(' + dataURI + ')');
                     });
                 }
                 const countdown = document.querySelector('.timedelete.slot' + slotNum);  // Adjusted selector
@@ -673,10 +673,10 @@ define(function(require)
                 }
             }else{
                 Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot_normal.bmp", function(dataURI) {
-                    CharSelectV3.ui.find('#slot'+ i).css('backgroundImage', 'url(' + dataURI + ')');
+                    CharSelectV4.ui.find('#slot'+ i).css('backgroundImage', 'url(' + dataURI + ')');
                 });
                 
-                const slotJobIcon = jQuery(CharSelectV3.ui.find(".job_icon")[i]);
+                const slotJobIcon = jQuery(CharSelectV4.ui.find(".job_icon")[i]);
                 
                 Client.loadFile( DB.INTERFACE_PATH + "renewalparty/icon_jobs_"+_slots[i].job+".bmp", function(dataURI) {
                     slotJobIcon.css('backgroundImage', 'url(' + dataURI + ')');
@@ -723,5 +723,5 @@ define(function(require)
     /**
      * Create componentand export it
      */
-    return UIManager.addComponent(CharSelectV3);
+    return UIManager.addComponent(CharSelectV4);
 });

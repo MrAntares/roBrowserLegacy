@@ -15,14 +15,14 @@ define(function (require)
 	var CharSelect = require('./CharSelect/CharSelect');
 	var CharSelect2 = require('./CharSelect2/CharSelect2');
 	var CharSelectV2 = require('./CharSelectV2/CharSelectV2');
-	var CharSelectV3 = require('./CharSelectV3/CharSelectV3');
+	var CharSelectV4 = require('./CharSelectV4/CharSelectV4');
 	
 	var UIVersionManager = require('UI/UIVersionManager');
 	
 	var versionInfo = {
 		default: CharSelect,
 		common: {
-			20180124:	CharSelectV3,
+			20180124:	CharSelectV4,
 			20141016:	CharSelectV2,
 			20100803:	CharSelect2,
 			20100728:	CharSelect,

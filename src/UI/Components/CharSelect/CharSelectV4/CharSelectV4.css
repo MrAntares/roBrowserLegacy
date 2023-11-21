@@ -1,4 +1,4 @@
-#charselect_v3 {
+#CharSelectV4 {
     position:absolute;
     width:995px;
     height:625px;
@@ -14,28 +14,28 @@
 }
 
 /** Box **/
-#charselect_v3 .char_list {
+#CharSelectV4 .char_list {
     width: 800px;
     height: 625px;
     float: left;
 }
 
-#charselect_v3 .box_select { position:absolute; width:157px; height:159px; top:40px; margin-left:-5px; }
-#charselect_v3 .char_canvas {
+#CharSelectV4 .box_select { position:absolute; width:157px; height:159px; top:40px; margin-left:-5px; }
+#CharSelectV4 .char_canvas {
     width: 157px;
     height: 195px;
     float: left;
     position: relative;
     z-index: 10;
 }
-#charselect_v3 .char_canvas .name {
+#CharSelectV4 .char_canvas .name {
     position: absolute;
     bottom: 15px;
     width: 100%;
     text-align: center;
 }
 
-#charselect_v3 .char_canvas .job_icon {
+#CharSelectV4 .char_canvas .job_icon {
     position: absolute;
     top: 15px;
     right: 12px;
@@ -44,16 +44,16 @@
 }
 
 /** Slot info **/
-#charselect_v3 .slotinfo { position:absolute; top:195px; right:10px; height:20px; display:block; border:1px solid #c6cee7; border-radius:4px; padding-left:10px; padding-right:10px; }
-#charselect_v3 .slotinfo .number { color:#58709e; font-weight:bold; margin-right:10px; }
-#charselect_v3 .slotinfo .content { color:#555; top:6px; right:8px; }
+#CharSelectV4 .slotinfo { position:absolute; top:195px; right:10px; height:20px; display:block; border:1px solid #c6cee7; border-radius:4px; padding-left:10px; padding-right:10px; }
+#CharSelectV4 .slotinfo .number { color:#58709e; font-weight:bold; margin-right:10px; }
+#CharSelectV4 .slotinfo .content { color:#555; top:6px; right:8px; }
 
 /** Page info **/
-#charselect_v3 .pageinfo { position:absolute; left:275px; top:185px; font-weight: bold; color: #646464; }
-#charselect_v3 .pageinfo .current { color: #fe3b7d; }
+#CharSelectV4 .pageinfo { position:absolute; left:275px; top:185px; font-weight: bold; color: #646464; }
+#CharSelectV4 .pageinfo .current { color: #fe3b7d; }
 
 /** Characters infos **/
-#charselect_v3 .charinfo { 
+#CharSelectV4 .charinfo { 
     height: 625px;
     width: 185px;
     float: left;
@@ -62,27 +62,27 @@
     margin-left: 10px;
     position: relative;
  }
-#charselect_v3 .charinfo div {
+#CharSelectV4 .charinfo div {
     position:absolute;
     width:90px;
     height:13px;
 }
-#charselect_v3 .charinfo .name { left: 52px; top: 2px; white-space:nowrap; }
-#charselect_v3 .charinfo .job  { left: 60px; top:105px; }
-#charselect_v3 .charinfo .lvl  { left: 60px; top:123px; }
-#charselect_v3 .charinfo .exp  { left: 60px; top:140px; }
-#charselect_v3 .charinfo .hp   { left: 60px; top:157px; }
-#charselect_v3 .charinfo .sp   { left: 60px; top:174px; }
-#charselect_v3 .charinfo .map  { left: 60px; top:89px; width:238px; }
-#charselect_v3 .charinfo .str  { left:  60px; top: 191px; }
-#charselect_v3 .charinfo .agi  { left:  60px; top:208px; }
-#charselect_v3 .charinfo .vit  { left:  60px; top:225px; }
-#charselect_v3 .charinfo .int  { left:  60px; top:242px; }
-#charselect_v3 .charinfo .dex  { left:  60px; top:259px; }
-#charselect_v3 .charinfo .luk  { left:  60px; top:276px; }
+#CharSelectV4 .charinfo .name { left: 52px; top: 2px; white-space:nowrap; }
+#CharSelectV4 .charinfo .job  { left: 60px; top:105px; }
+#CharSelectV4 .charinfo .lvl  { left: 60px; top:123px; }
+#CharSelectV4 .charinfo .exp  { left: 60px; top:140px; }
+#CharSelectV4 .charinfo .hp   { left: 60px; top:157px; }
+#CharSelectV4 .charinfo .sp   { left: 60px; top:174px; }
+#CharSelectV4 .charinfo .map  { left: 60px; top:89px; width:238px; }
+#CharSelectV4 .charinfo .str  { left:  60px; top: 191px; }
+#CharSelectV4 .charinfo .agi  { left:  60px; top:208px; }
+#CharSelectV4 .charinfo .vit  { left:  60px; top:225px; }
+#CharSelectV4 .charinfo .int  { left:  60px; top:242px; }
+#CharSelectV4 .charinfo .dex  { left:  60px; top:259px; }
+#CharSelectV4 .charinfo .luk  { left:  60px; top:276px; }
 
 /** Buttons **/
-#charselect_v3 .btn.delete {
+#CharSelectV4 .btn.delete {
     position: absolute;
     border: 0;
     width: 131px;
@@ -91,7 +91,7 @@
     background-color: transparent;
 }
 
-#charselect_v3 .btn.canceldelete {
+#CharSelectV4 .btn.canceldelete {
     position: absolute;
     border: 0;
     width: 131px;
@@ -100,7 +100,7 @@
     background-color: transparent;
 }
 
-#charselect_v3 .btn.finaldelete {
+#CharSelectV4 .btn.finaldelete {
     position: absolute;
     border: 0;
     width: 131px;
@@ -109,7 +109,7 @@
     background-color: transparent;
 }
 
-#charselect_v3 .btn.ok {
+#CharSelectV4 .btn.ok {
     position: absolute;
     border: 0;
     width: 165px;
@@ -119,15 +119,15 @@
     color: white;
     padding-top: 20px;
  }
- #charselect_v3 .btn.ok:hover {
+ #CharSelectV4 .btn.ok:hover {
     text-shadow: #000 1px 1px;
  }
 
-#charselect_v3 .ok, #charselect_v3 .make {
+#CharSelectV4 .ok, #CharSelectV4 .make {
     right: 15px;
     top: 380px;
  }
-#charselect_v3 .cancel {
+#CharSelectV4 .cancel {
     position: absolute;
     top: 5px;
     right: 5px;
@@ -137,22 +137,22 @@
     background-repeat: no-repeat;
     background-color: transparent;
 }
-#charselect_v3 .delete { 
+#CharSelectV4 .delete { 
     right: 33px;
     top: 300px;
 }
 
-#charselect_v3 .canceldelete { 
+#CharSelectV4 .canceldelete { 
     right: 33px;
     top: 300px;
 }
 
-#charselect_v3 .finaldelete { 
+#CharSelectV4 .finaldelete { 
     right: 33px;
     top: 330px;
 }
 
-#charselect_v3 .timedelete {
+#CharSelectV4 .timedelete {
     position: relative;
     height: 20px;
     width: 100px;
@@ -160,6 +160,6 @@
     left: 40px;
 }
 
-#charselect_v3 .hidden {
+#CharSelectV4 .hidden {
     display: none;
 }
