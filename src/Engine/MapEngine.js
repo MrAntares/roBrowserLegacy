@@ -66,6 +66,8 @@ define(function( require )
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
+	var Rodex            = require('UI/Components/Rodex/Rodex');
+	var RodexIcon        = require('UI/Components/Rodex/RodexIcon');
 	if(Configs.get('enableMapName')){
 		var MapName          = require('UI/Components/MapName/MapName');
 	}
@@ -228,7 +230,7 @@ define(function( require )
 		require('./MapEngine/Friends').init();
 		require('./MapEngine/UIOpen').call();
 		require('./MapEngine/Quest').call();
-
+		require('./MapEngine/Rodex').call();
 		if(Configs.get('enableCashShop')){
 			require('./MapEngine/CashShop').call();
 		}
@@ -259,6 +261,8 @@ define(function( require )
 		Guild.prepare();
 		WorldMap.prepare();
 		SkillListMER.prepare();
+		Rodex.prepare();
+		RodexIcon.prepare();
 		if (UIVersionManager.getWinStatsVersion() === 0) {
 			WinStats.prepare();
 		}
