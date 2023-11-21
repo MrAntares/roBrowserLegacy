@@ -74,65 +74,6 @@ define(function (require)
 	
 	/// DEPRECATED
 	/// WILL BE REMOVED AFTER REFACTORING
-	UIVersionManager.category = function () {
-		return ['PacketVer', 'PreRenewal', 'Renewal'];
-	}
-
-	UIVersionManager.getUIComponent = function(componentName) {
-		switch (componentName) {
-			case 'BasicInfo':
-				if (UIVersionManager.getBasicInfoVersion() === 0) {
-					return 'BasicInfoV0';
-				} else if (UIVersionManager.getBasicInfoVersion() === 3) {
-					return 'BasicInfoV3';
-				} else if (UIVersionManager.getBasicInfoVersion() === 4) {
-					return 'BasicInfoV4';
-				} else {
-					return 'BasicInfo';
-				}
-			case 'SkillList':
-				if (UIVersionManager.getSkillListVersion() === 0) {
-					return 'SkillListV0';
-				} else {
-					return 'SkillList';
-				}
-		}
-	}
-	
-	function versionsExists(url){
-		var req = new XMLHttpRequest();
-        req.open('HEAD', url, false);
-        req.send();
-        return req.status==200;
-	}
-
-	UIVersionManager.getBasicInfoVersion = function () {
-		if (Configs.get('clientVersionMode') === 'PacketVer') {
-			if (PACKETVER.value >= 20180124) {
-				return 4;
-			} else if (PACKETVER.value >= 20160101) {
-				return 3;
-			} else if(PACKETVER.value >= 20090601) {
-				return 2;
-			} else {
-				return 0;
-			}
-		}
-		if (Configs.get('clientVersionMode') === 'PreRenewal') {
-			return 0;
-		}
-		if (Configs.get('clientVersionMode') === 'Renewal') {
-			if (PACKETVER.value >= 20180124) {
-				return 4;
-			} else if (PACKETVER.value >= 20160101) {
-				return 3;
-			} else if(PACKETVER.value >= 20090601) {
-				return 2;
-			}
-		}
-
-		return 2;
-	}
 	UIVersionManager.getEquipmentVersion = function () {
 		if (Configs.get('clientVersionMode') === 'PacketVer') {
 			if (PACKETVER.value >= 20090601) {
@@ -172,19 +113,7 @@ define(function (require)
 		}
 		return 1;
 	}
-	UIVersionManager.getSkillListVersion = function () {
-		if (Configs.get('clientVersionMode') === 'PacketVer') {
-			if (PACKETVER.value >= 20090601) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-		if (Configs.get('clientVersionMode') === 'PreRenewal') {
-			return 0;
-		}
-		return 1;
-	}
+
 
 	return UIVersionManager;
 });
