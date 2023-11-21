@@ -13,7 +13,7 @@ define(function (require)
 	var publicName = 'CharSelect';
 	
 	var CharSelect = require('./CharSelect/CharSelect');
-	var CharSelect2 = require('./CharSelect2/CharSelect2');
+	var CharSelectV2 = require('./CharSelectV2/CharSelectV2');
 	var CharSelectV3 = require('./CharSelectV3/CharSelectV3');
 	var CharSelectV4 = require('./CharSelectV4/CharSelectV4');
 	
@@ -24,9 +24,9 @@ define(function (require)
 		common: {
 			20180124:	CharSelectV4,
 			20141016:	CharSelectV3,
-			20100803:	CharSelect2,
+			20100803:	CharSelectV2,
 			20100728:	CharSelect,
-			20100720:	CharSelect2
+			20100720:	CharSelectV2
 		},
 		re: {
 			

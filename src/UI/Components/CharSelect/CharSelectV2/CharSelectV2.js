@@ -26,20 +26,20 @@ define(function(require)
     var UIManager          = require('UI/UIManager');
     var UIComponent        = require('UI/UIComponent');
     var PACKETVER          = require('Network/PacketVerManager');
-    var htmlText           = require('text!./CharSelect2.html');
-    var cssText            = require('text!./CharSelect2.css');
+    var htmlText           = require('text!./CharSelectV2.html');
+    var cssText            = require('text!./CharSelectV2.css');
 
 
     /**
      * Create Chararacter Selection namespace
      */
-    var CharSelect2 = new UIComponent( 'CharSelect2', htmlText, cssText );
+    var CharSelectV2 = new UIComponent( 'CharSelectV2', htmlText, cssText );
 
 
     /**
      * @var {Preferences} save where the cursor position is
      */
-    var _preferences = Preferences.get('CharSelect2', {
+    var _preferences = Preferences.get('CharSelectV2', {
         index: 0
     }, 1.0 );
 
@@ -89,7 +89,7 @@ define(function(require)
     /**
      * Initialize UI
      */
-    CharSelect2.init = function Init()
+    CharSelectV2.init = function Init()
     {
         var ui = this.ui;
 
@@ -134,7 +134,7 @@ define(function(require)
     /**
      * Once append to body
      */
-    CharSelect2.onAppend = function onAppend()
+    CharSelectV2.onAppend = function onAppend()
     {
         _index = _preferences.index;
 
@@ -152,7 +152,7 @@ define(function(require)
     /**
      * Stop rendering
      */
-    CharSelect2.onRemove = function onRemove()
+    CharSelectV2.onRemove = function onRemove()
     {
         _preferences.index = _index;
         _preferences.save();
@@ -166,7 +166,7 @@ define(function(require)
      *
      * @param {object} event
      */
-    CharSelect2.onKeyDown = function onKeyDown( event )
+    CharSelectV2.onKeyDown = function onKeyDown( event )
     {
         switch (event.which) {
             case KEYS.ESCAPE:
@@ -210,7 +210,7 @@ define(function(require)
      *
      * @param {object} pkt - packet structure
      */
-    CharSelect2.setInfo = function setInfo( pkt )
+    CharSelectV2.setInfo = function setInfo( pkt )
     {
         _maxSlots           = Math.floor((pkt.TotalSlotNum + pkt.PremiumStartSlot) || 9); // default 9 ?
         _sex                = pkt.sex;
@@ -221,7 +221,7 @@ define(function(require)
         if (pkt.charInfo) {
             var i, count = pkt.charInfo.length;
             for (i = 0; i < count; ++i) {
-                CharSelect2.addCharacter( pkt.charInfo[i] );
+                CharSelectV2.addCharacter( pkt.charInfo[i] );
 
                 // Guess the max slot
                 // required if the client is < 20100413 and have more than 9 slots
@@ -241,7 +241,7 @@ define(function(require)
      *
      * @param {number} error id
      */
-    CharSelect2.deleteAnswer = function DeleteAnswer( error )
+    CharSelectV2.deleteAnswer = function DeleteAnswer( error )
     {
         this.on('keydown');
 
@@ -286,7 +286,7 @@ define(function(require)
      *
      * @param {object} character data
      */
-    CharSelect2.addCharacter = function addCharacter( character )
+    CharSelectV2.addCharacter = function addCharacter( character )
     {
         if (!('sex' in character) || character.sex === 99) {
             character.sex = _sex;
@@ -323,12 +323,12 @@ define(function(require)
     /**
      * Callback to use
      */
-    CharSelect2.onExitRequest          = function onExitRequest(){};
-    CharSelect2.onDeleteReqDelay       = function onDeleteReqDelay(){};
-    CharSelect2.onCancelDeleteRequest  = function onCancelDeleteRequest(){};
-    CharSelect2.onDeleteRequest        = function onDeleteRequest(){};
-    CharSelect2.onCreateRequest        = function onCreateRequest(){};
-    CharSelect2.onConnectRequest       = function onConnectRequest(){};
+    CharSelectV2.onExitRequest          = function onExitRequest(){};
+    CharSelectV2.onDeleteReqDelay       = function onDeleteReqDelay(){};
+    CharSelectV2.onCancelDeleteRequest  = function onCancelDeleteRequest(){};
+    CharSelectV2.onDeleteRequest        = function onDeleteRequest(){};
+    CharSelectV2.onCreateRequest        = function onCreateRequest(){};
+    CharSelectV2.onConnectRequest       = function onConnectRequest(){};
 
 
     /**
@@ -367,7 +367,7 @@ define(function(require)
     function cancel()
     {
         UIManager.showPromptBox( DB.getMessage(17), 'ok', 'cancel', function(){
-            CharSelect2.onExitRequest();
+            CharSelectV2.onExitRequest();
         }, null);
     }
 
@@ -377,7 +377,7 @@ define(function(require)
      */
     function create()
     {
-        CharSelect2.onCreateRequest( _index );
+        CharSelectV2.onCreateRequest( _index );
     }
 
 
@@ -388,7 +388,7 @@ define(function(require)
         if (_slots[_index]) {
             _preferences.index = _index;
             _preferences.save();
-            CharSelect2.onConnectRequest( _slots[_index] );
+            CharSelectV2.onConnectRequest( _slots[_index] );
         }
     }
 
@@ -420,13 +420,12 @@ define(function(require)
     }
 	
 
-
     /**
      * Result of Request in Deleting the Character
      * 
      * @param {object} pkt - packet structure
      */
-    CharSelect2.reqdeleteAnswer = function ReqDelAnswer ( pkt )
+    CharSelectV2.reqdeleteAnswer = function ReqDelAnswer ( pkt )
     {
         this.on('keydown');
 		var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
@@ -457,6 +456,7 @@ define(function(require)
         }
     }
 
+
     /**
      * When successfully requested for character deletion
      * Update UI and add timer
@@ -466,7 +466,7 @@ define(function(require)
 		const entity = _entitySlots[index];
 		let action;
         // Add the timer
-        const countdown = CharSelect2.ui.find('.timedelete.slot' + (index % 3 + 1));
+        const countdown = CharSelectV2.ui.find('.timedelete.slot' + (index % 3 + 1));
         if (countdown) {
 			countdown.attr('data-datetime', timer);
 			countdown.text(formatDatetime(timer));
@@ -484,14 +484,15 @@ define(function(require)
         entity.action = action;
 
         // Adjust the buttons
-        CharSelect2.ui.find('.delete').hide();
-        CharSelect2.ui.find('.canceldelete').show();
+        CharSelectV2.ui.find('.delete').hide();
+        CharSelectV2.ui.find('.canceldelete').show();
 		if(Math.floor(Date.now() / 1000) > timer){
-			CharSelect2.ui.find('.finaldelete').show();
+			CharSelectV2.ui.find('.finaldelete').show();
 		} else {
-			CharSelect2.ui.find('.finaldelete').hide();
+			CharSelectV2.ui.find('.finaldelete').hide();
 		}
     }
+
 
     /**
      * Cancel reservation of character for deletion
@@ -509,18 +510,18 @@ define(function(require)
             render();
 
             // Remove the timer
-            const countdown = CharSelect2.ui.find('.timedelete.slot' + (_index % 3 + 1));  // Adjusted selector
+            const countdown = CharSelectV2.ui.find('.timedelete.slot' + (_index % 3 + 1));  // Adjusted selector
             countdown.attr('data-datetime', 0);
 			countdown.text(formatDatetime(""));
 			countdown.hide();
 
             // Adjust the buttons
-            CharSelect2.ui.find('.canceldelete').hide();
-            CharSelect2.ui.find('.finaldelete').hide();
-            CharSelect2.ui.find('.delete').show();
+            CharSelectV2.ui.find('.canceldelete').hide();
+            CharSelectV2.ui.find('.finaldelete').hide();
+            CharSelectV2.ui.find('.delete').show();
 
             // Send request to the server
-            CharSelect2.onCancelDeleteRequest(_slots[_index].GID);
+            CharSelectV2.onCancelDeleteRequest(_slots[_index].GID);
         }
     }
 
@@ -530,18 +531,19 @@ define(function(require)
      */
     function reserve() {
         if (_slots[_index]) {
-            CharSelect2.off('keydown');
-            CharSelect2.onDeleteReqDelay( _slots[_index].GID );
+            CharSelectV2.off('keydown');
+            CharSelectV2.onDeleteReqDelay( _slots[_index].GID );
         }
     }
+
 
     /**
      * Delete a character
      */
     function suppress() {
         if (_slots[_index]) {
-            CharSelect2.off('keydown');
-            CharSelect2.onDeleteRequest( _slots[_index].GID );
+            CharSelectV2.off('keydown');
+            CharSelectV2.onDeleteRequest( _slots[_index].GID );
         }
     }
 
@@ -553,7 +555,7 @@ define(function(require)
      */
     function moveCursorTo( index )
     {
-        var ui = CharSelect2.ui;
+        var ui = CharSelectV2.ui;
         var $charinfo = ui.find('.charinfo');
 
         // Set the last entity to idle
@@ -589,7 +591,7 @@ define(function(require)
 			let tmpIndex = _index-(_index%3)+i;
 			info = _slots[tmpIndex];
 			entity = _entitySlots[tmpIndex];
-			const countdown = CharSelect2.ui.find('.timedelete.slot' + (tmpIndex % 3 + 1));
+			const countdown = CharSelectV2.ui.find('.timedelete.slot' + (tmpIndex % 3 + 1));
 			
 			if(info && entity){
 				if(info.DeleteDate && PACKETVER.value >= 20100803) {
@@ -651,9 +653,6 @@ define(function(require)
 				ui.find('.canceldelete').hide();
 				ui.find('.finaldelete').show();
 			}
-            ui.find('.delete').show();
-            ui.find('.canceldelete').hide();
-            ui.find('.finaldelete').hide();
             ui.find('.make').hide();
             ui.find('.ok').show();
 			action = entity.ACTION.READYFIGHT;
@@ -711,5 +710,5 @@ define(function(require)
     /**
      * Create componentand export it
      */
-    return UIManager.addComponent(CharSelect2);
+    return UIManager.addComponent(CharSelectV2);
 });
