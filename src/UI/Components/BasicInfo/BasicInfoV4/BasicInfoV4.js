@@ -27,7 +27,6 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var Inventory          = require('UI/Components/Inventory/Inventory');
 	var Equipment          = require('UI/Components/Equipment/Equipment');
-	var SkillList          = require('UI/Components/SkillList/SkillList');
 	var PartyFriends       = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild              = require('UI/Components/Guild/Guild');
 	var Bank               = require('UI/Components/Bank/Bank');
@@ -80,9 +79,6 @@ define(function(require)
 	 */
 	BasicInfo.init = function init()
 	{
-		SkillList = require('UI/Components/SkillList/SkillList').getUI();
-		Quest     = require('UI/Components/Quest/Quest').getUI();
-
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.topbar div').mousedown(function( event ){
 			event.stopImmediatePropagation();
