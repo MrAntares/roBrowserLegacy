@@ -188,4 +188,33 @@
 }
 #charselect_v2 .delete {
     left: 4px;
+	width: 67px;
+}
+#charselect_v2 .canceldelete {
+    left: 50px;
+	width: 67px;
+}
+#charselect_v2 .finaldelete {
+    left: 4px;
+}
+#charselect_v2 .timedelete {
+    position: absolute;
+    height: 20px;
+    width: 120px;
+    top: 75px;
+}
+#charselect_v2 .timedelete.waitdelete{
+	color: blue;
+}
+#charselect_v2 .timedelete.candelete{
+	color: red;
+}
+#charselect_v2 .timedelete.slot1 {
+    left: 63px;
+}
+#charselect_v2 .timedelete.slot2 {
+    left: 227px;
+}
+#charselect_v2 .timedelete.slot3 {
+    left: 389px;
 }

@@ -26,6 +26,7 @@ define(function(require)
     var Camera             = require('Renderer/Camera');
     var UIManager          = require('UI/UIManager');
     var UIComponent        = require('UI/UIComponent');
+    var PACKETVER          = require('Network/PacketVerManager');
     var htmlText           = require('text!./CharSelectV2.html');
     var cssText            = require('text!./CharSelectV2.css');
 
@@ -102,7 +103,9 @@ define(function(require)
         ui.find('.ok'    ).click(connect);
         ui.find('.cancel').click(cancel);
         ui.find('.make'  ).click(create);
-        ui.find('.delete').click(suppress);
+        ui.find('.delete').click(reserve);
+        ui.find('.canceldelete').click(removedelete);
+        ui.find('.finaldelete').click(suppress);
 
         ui.find('.arrow.left' ).mousedown(genericArrowDown(-1));
         ui.find('.arrow.right').mousedown(genericArrowDown(+1));
@@ -158,6 +161,7 @@ define(function(require)
     {
         _preferences.index = _index;
         _preferences.save();
+		this.ui.find('.timedelete').hide().text('');
         Renderer.stop();
     };
 
@@ -317,16 +321,36 @@ define(function(require)
 
         _entitySlots[ character.CharNum ] = new Entity();
         _entitySlots[ character.CharNum ].set( character );
+		
+		
+		if (_slots[ character.CharNum ].DeleteDate && Math.floor(_index/3) == Math.floor(character.CharNum/3) ) {
+			const slotNum = (character.CharNum + _maxSlots) % _maxSlots + 1;
+			const countdown = this.ui.find('.timedelete.slot' + slotNum);  // Adjusted selector
+			const entity = _entitySlots[ character.CharNum ];
+			if (countdown) {
+				countdown.attr('data-datetime', _slots[character.CharNum].DeleteDate);
+				countdown.text(formatDatetime(_slots[character.CharNum].DeleteDate));
+				countdown.show();
+			}
+			entity.setAction({
+				action: entity.ACTION.SIT,
+				frame:  0,
+				play:   true,
+				repeat: true
+			});
+		}
     };
 
 
     /**
      * Callback to use
      */
-    CharSelectV2.onExitRequest    = function onExitRequest(){};
-    CharSelectV2.onDeleteRequest  = function onDeleteRequest(){};
-    CharSelectV2.onCreateRequest  = function onCreateRequest(){};
-    CharSelectV2.onConnectRequest = function onConnectRequest(){};
+    CharSelectV2.onExitRequest          = function onExitRequest(){};
+    CharSelectV2.onDeleteReqDelay       = function onDeleteReqDelay(){};
+    CharSelectV2.onCancelDeleteRequest  = function onCancelDeleteRequest(){};
+    CharSelectV2.onDeleteRequest        = function onDeleteRequest(){};
+    CharSelectV2.onCreateRequest        = function onCreateRequest(){};
+    CharSelectV2.onConnectRequest       = function onConnectRequest(){};
 
 
     /**
@@ -392,6 +416,149 @@ define(function(require)
 
 
     /**
+     * Format delay date time
+     */
+    function formatDatetime(epoch) {
+		
+		const datetime = new Date(0);
+		datetime.setSeconds(epoch);
+		
+		const year = datetime.getFullYear();
+		const month = datetime.getMonth()+1;
+		const day = datetime.getDate();
+		const hours = datetime.getHours();
+        const minutes = datetime.getMinutes();
+        const seconds = datetime.getSeconds();
+
+        // Use the msgstringtable
+        let formattedDatetime = DB.getMessage(2097)
+        .replace('%d', `${month}` )
+        .replace('%d', `${day}` )
+        .replace('%d', `${hours}` )
+        .replace('%d', `${minutes}`)
+        .replace('%d', `${seconds}`);
+
+        return formattedDatetime;
+    }
+	
+
+    /**
+     * Result of Request in Deleting the Character
+     * 
+     * @param {object} pkt - packet structure
+     */
+    CharSelectV2.reqdeleteAnswer = function ReqDelAnswer ( pkt )
+    {
+        this.on('keydown');
+		var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+        var result = typeof( pkt.Result ) === 'undefined' ? -1 : pkt.Result;
+        var info = _slots[_index];
+
+        switch (result) {
+            case 0: // 0: An unknown error has occurred.
+                return;
+
+            case 1: // 1: none/success
+                info.DeleteDate = pkt.DeleteReservedDate;
+                requestdelete(_index, (PACKETVER > 20130000 && PACKETVER <= 20141022) || PACKETVER >= 20150513 ? pkt.DeleteReservedDate + now : pkt.DeleteReservedDate);
+                break;
+
+            case 3: // 3: A database error occurred.
+                return;
+
+            case 4: // 4: To delete a character you must withdraw from the guild.
+                UIManager.showMessageBox( DB.getMessage(1818), 'ok' );
+                break;
+            case 5: // 5: To delete a character you must withdraw from the party.
+                UIManager.showMessageBox( DB.getMessage(1819), 'ok' );
+                break;
+            
+            default:
+                return;
+        }
+    }
+
+
+    /**
+     * When successfully requested for character deletion
+     * Update UI and add timer
+     */
+    function requestdelete ( index, timer )
+    {
+		const entity = _entitySlots[index];
+		let action;
+        // Add the timer
+        const countdown = CharSelectV2.ui.find('.timedelete.slot' + (index % 3 + 1));
+        if (countdown) {
+			countdown.attr('data-datetime', timer);
+			countdown.text(formatDatetime(timer));
+			countdown.show();
+			if(Math.floor(Date.now() / 1000) > timer){
+				countdown.removeClass('waitdelete').addClass('candelete');
+				action = entity.ACTION.DIE;
+			} else {
+				countdown.removeClass('candelete').addClass('waitdelete');
+				action = entity.ACTION.SIT;
+			}
+        }
+		
+		// Set action
+        entity.action = action;
+
+        // Adjust the buttons
+        CharSelectV2.ui.find('.delete').hide();
+        CharSelectV2.ui.find('.canceldelete').show();
+		if(Math.floor(Date.now() / 1000) > timer){
+			CharSelectV2.ui.find('.finaldelete').show();
+		} else {
+			CharSelectV2.ui.find('.finaldelete').hide();
+		}
+    }
+
+    /**
+     * Cancel reservation of character for deletion
+     * Update UI and remove timer
+     */
+    function removedelete ()
+    {
+        if (_slots[_index]) {
+            
+            // Delete here as well? Though server should tell us this
+            _slots[_index].DeleteDate = 0;
+
+            // Make it stand
+            _entitySlots[_index].action = _entitySlots[_index].ACTION.READYFIGHT;
+            render();
+
+            // Remove the timer
+            const countdown = CharSelectV2.ui.find('.timedelete.slot' + (_index % 3 + 1));  // Adjusted selector
+            countdown.attr('data-datetime', 0);
+			countdown.text(formatDatetime(""));
+			countdown.hide();
+
+            // Adjust the buttons
+            CharSelectV2.ui.find('.canceldelete').hide();
+            CharSelectV2.ui.find('.finaldelete').hide();
+            CharSelectV2.ui.find('.delete').show();
+
+            // Send request to the server
+            CharSelectV2.onCancelDeleteRequest(_slots[_index].GID);
+        }
+    }
+
+
+    /**
+     * Request to delete a character
+     */
+    function reserve() {
+        if (_slots[_index]) {
+            CharSelectV2.off('keydown');
+            CharSelectV2.onDeleteReqDelay( _slots[_index].GID );
+        }
+    }
+	
+
+    /**
      * Delete a character
      */
     function suppress() {
@@ -414,9 +581,17 @@ define(function(require)
 
         // Set the last entity to idle
         var entity = _entitySlots[_index];
+		var info = _slots[_index];
+		var action;
         if (entity) {
+			if (info.DeleteDate) {
+				action = entity.ACTION.SIT;
+			} else {
+				action = entity.ACTION.IDLE;
+			}
+			
             entity.setAction({
-                action: entity.ACTION.IDLE,
+                action: action,
                 frame:  0,
                 play:   true,
                 repeat: true
@@ -454,6 +629,37 @@ define(function(require)
                 ui.find('.make' + i).show();
             }
         }
+		
+		// Update page deltimes
+		for(let i = 0; i<3; i++){
+			let tmpIndex = _index-(_index%3)+i;
+			info = _slots[tmpIndex];
+			entity = _entitySlots[tmpIndex];
+			const countdown = CharSelectV2.ui.find('.timedelete.slot' + (tmpIndex % 3 + 1));
+			
+			if(info && entity){
+				if(info.DeleteDate) {
+					countdown.attr('data-datetime', info.DeleteDate);
+					countdown.text(formatDatetime(info.DeleteDate));
+					countdown.show();
+					if(Math.floor(Date.now() / 1000) > info.DeleteDate){
+						countdown.removeClass('waitdelete').addClass('candelete');
+					} else {
+						countdown.removeClass('candelete').addClass('waitdelete');
+					}
+					entity.action = entity.ACTION.SIT;
+				} else {
+					countdown.attr('data-datetime', 0);
+					countdown.text(formatDatetime(''));
+					countdown.hide();
+					entity.action = entity.ACTION.IDLE;
+				}
+			} else {
+				countdown.attr('data-datetime', 0);
+				countdown.text(formatDatetime(''));
+				countdown.hide();
+			}
+		}
 
         // Not found, just clean up.
         entity = _entitySlots[_index];
@@ -461,22 +667,41 @@ define(function(require)
             $charinfo.find('div').empty();
             ui.find('.make').show();
             ui.find('.delete').hide();
+            ui.find('.canceldelete').hide();
+            ui.find('.finaldelete').hide();
             ui.find('.ok').hide();
             return;
         }
 
+        info = _slots[_index];
+        // Bind new value
+        if (info.DeleteDate) {
+            ui.find('.delete').hide();
+            ui.find('.canceldelete').show();
+			if(Math.floor(Date.now() / 1000) > info.DeleteDate){
+				ui.find('.finaldelete').show();
+			} else {
+				ui.find('.finaldelete').hide();
+			}
+            ui.find('.make').hide();
+            ui.find('.ok').show();
+			action = entity.ACTION.SIT;
+        } else {
+			ui.find('.delete').show();
+			ui.find('.canceldelete').hide();
+			ui.find('.finaldelete').hide();
+            ui.find('.make').hide();
+            ui.find('.ok').show();
+			action = entity.ACTION.READYFIGHT;
+        }
+		
         // Animate the character
         entity.setAction({
-            action: entity.ACTION.READYFIGHT,
+            action: action,
             frame:  0,
             play:   true,
             repeat: true
         });
-
-        // Bind new value
-        ui.find('.make').hide();
-        ui.find('.delete').show();
-        ui.find('.ok').show();
 
         var info = _slots[_index];
         $charinfo.find('.name').text( info.name );
@@ -503,7 +728,6 @@ define(function(require)
     function render()
     {
         var i, count, idx;
-        var ui = CharSelectV2.ui;
 
         Camera.direction = 4;
         idx              = Math.floor(_index / 3) * 3;
