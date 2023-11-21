@@ -270,37 +270,52 @@ define(function(require)
         this.on('keydown');
 
         switch (error) {
-            // Do nothing, just re-set the keydown
-            case -2:
-                return;
+			// Do nothing, just re-set the keydown
+			case -1:
+			case -2:
+				return;
 
-            // Success (clean up character)
-            case -1:
-                delete _slots[_index];
-                delete _entitySlots[_index];
+			// Success (clean up character)
+			case 1:
+				delete _slots[_index];
+				delete _entitySlots[_index];
 
-                var i = 0;
-                var count = _list.length;
+				var i = 0;
+				var count = _list.length;
 
-                while (i < count) {
-                    if (_list[i].CharNum === _index) {
-                        _list.splice( i, 1 );
-                        --count;
-                    }
-                    else {
-                        i++;
-                    }
-                }
+				while (i < count) {
+					if (_list[i].CharNum === _index) {
+						_list.splice( i, 1 );
+						--count;
+					}
+					else {
+						i++;
+					}
+				}
 
-                // Refresh UI
-                moveCursorTo( _index );
-                this.ui.find('.slotinfo .number').text( _list.length + ' / ' + _maxSlots );
-                return;
+				// Refresh UI
+				moveCursorTo( _index );
+				this.ui.find('.slotinfo .number').text( _list.length + ' / ' + _maxSlots );
+				return;
 
-            default: // Others error ?
-            case  0: // Incorrect adress email
-                UIManager.showMessageBox( DB.getMessage( 1822 ), 'ok' );
-                break;
+			default: // Others error ?
+			case 0:
+			case 2: // 2: Due to system settings can not be deleted.
+			case 6: // 6: Name does not match.
+				UIManager.showMessageBox( DB.getMessage(1821), 'ok' );
+				return;
+			case 3: // 3: A database error occurred.
+				UIManager.showMessageBox( DB.getMessage(1817), 'ok' );
+				return;
+			case 4: // 4: Deleting not yet possible time.
+				UIManager.showMessageBox( DB.getMessage(1820), 'ok' );
+				return;
+			case 5: // 5: Date of birth do not match.
+				UIManager.showMessageBox( DB.getMessage(1822), 'ok' );
+				return;
+			case 7: // 7: Character Deletion has failed because you have entered an incorrect e-mail address.
+				UIManager.showMessageBox( DB.getMessage(301), 'ok' );
+				return;
         }
     };
 
