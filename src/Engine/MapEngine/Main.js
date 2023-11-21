@@ -282,7 +282,7 @@ define(function( require )
 				Session.Entity.life.update();
 
 				if (Session.Entity.life.hp > -1) {
-					BasicInfo.update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
+					BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 
 					if (Session.hasParty) {
 						PartyUI.updateMemberLife(Session.AID, Session.Entity.life.canvas, Session.Entity.life.hp, Session.Entity.life.hp_max);
@@ -393,7 +393,7 @@ define(function( require )
 
 			case StatusProperty.MAXWEIGHT:
 				BasicInfo.getUI().weight_max = amount;
-				if (BasicInfo.weight > -1) {
+				if (BasicInfo.getUI().weight > -1) {
 					BasicInfo.getUI().update('weight', BasicInfo.getUI().weight, BasicInfo.getUI().weight_max );
 				}
 				break;
