@@ -330,6 +330,13 @@ define(function(require)
         if (!('sex' in character) || character.sex === 99) {
             character.sex = _sex;
         }
+		
+		//Adjust from remaining time to fixed datetime
+		if(character.DeleteDate){
+			var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+			var timer = (PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513 ? character.DeleteDate + now : character.DeleteDate;
+			character.DeleteDate = timer;
+		}
 
         _list.push( character );
         _slots[ character.CharNum ] = character;
@@ -474,8 +481,10 @@ define(function(require)
                 return;
 
             case 1: // 1: none/success
-                info.DeleteDate = pkt.DeleteReservedDate;
-                requestdelete(_index, (PACKETVER > 20130000 && PACKETVER <= 20141022) || PACKETVER >= 20150513 ? pkt.DeleteReservedDate + now : pkt.DeleteReservedDate);
+				//Adjust from remaining time to fixed datetime
+				var timer = (PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513 ? pkt.DeleteReservedDate + now : pkt.DeleteReservedDate;
+                info.DeleteDate = timer;
+                requestdelete(_index, timer);
                 break;
 
             case 3: // 3: A database error occurred.
