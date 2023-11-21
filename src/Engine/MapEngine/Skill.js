@@ -41,13 +41,11 @@ define(function( require )
 	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
 	var Sense                 = require('UI/Components/Sense/Sense');
 	var Announce              = require('UI/Components/Announce/Announce');
-	var UIVersionManager      = require('UI/UIVersionManager');
 	var Renderer              = require('Renderer/Renderer');
 	var getModule             = require;
 
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var SkillWindow;
+	var SkillWindow = require('UI/Components/SkillList/SkillList');
 	
 
 	/**
@@ -202,7 +200,7 @@ define(function( require )
 	 */
 	function onSkillList( pkt )
 	{
-		SkillWindow.setSkills( pkt.skillList );
+		SkillWindow.getUI().setSkills( pkt.skillList );
 	}
 
 
@@ -213,7 +211,7 @@ define(function( require )
 	 */
 	function onSkillUpdate( pkt )
 	{
-		SkillWindow.updateSkill( pkt );
+		SkillWindow.getUI().updateSkill( pkt );
 	}
 
 
@@ -236,7 +234,7 @@ define(function( require )
 	 */
 	function onSkillAdded( pkt)
 	{
-		SkillWindow.addSkill( pkt.data );
+		SkillWindow.getUI().addSkill( pkt.data );
 	}
 
 
@@ -247,7 +245,7 @@ define(function( require )
 	 */
 	function onAutoCastSkill( pkt )
 	{
-		SkillWindow.useSkill(pkt.data);
+		SkillWindow.getUI().useSkill(pkt.data);
 	}
 
 
@@ -582,7 +580,7 @@ define(function( require )
 		}
 
 		target = EntityManager.get(targetID) || entity;
-		skill  = SkillWindow.getSkillById(id);
+		skill  = SkillWindow.getUI().getSkillById(id);
 		out    = [];
 
 		if (skill) {
@@ -684,7 +682,7 @@ define(function( require )
 		}
 
 		pos    = entity.position;
-		skill  = SkillWindow.getSkillById(id);
+		skill  = SkillWindow.getUI().getSkillById(id);
 		out    = [];
 
 		if (skill) {
@@ -810,8 +808,8 @@ define(function( require )
 	}
 	
 	function hookSkillWindow(){
-		SkillWindow.onIncreaseSkill = onIncreaseSkill;
-		SkillWindow.onUseSkill = onUseSkill;
+		SkillWindow.getUI().onIncreaseSkill = onIncreaseSkill;
+		SkillWindow.getUI().onUseSkill = onUseSkill;
 	}
 
 	/**
@@ -819,8 +817,6 @@ define(function( require )
 	 */
 	return function SkillEngine()
 	{
-		SkillWindow = require('UI/Components/SkillList/SkillList').getUI();
-		
 		hookSkillWindow();
 		
 		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST,         onSkillList );

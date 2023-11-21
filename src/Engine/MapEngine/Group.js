@@ -28,9 +28,8 @@ define(function( require )
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var PartyUI       = require('UI/Components/PartyFriends/PartyFriends');
 
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var MiniMap;
+	var MiniMap = require('UI/Components/MiniMap/MiniMap');
 
 	/**
 	 * Party namespace
@@ -49,8 +48,6 @@ define(function( require )
 	 */
 	GroupEngine.init = function init()
 	{
-		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
-
 		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM,       onMemberLifeUpdate );
 		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM_R2,    onMemberLifeUpdate );
 		Network.hookPacket( PACKET.ZC.NOTIFY_CHAT_PARTY,         onMemberTalk );
@@ -385,10 +382,10 @@ define(function( require )
 	{
 		// Server remove mark with "-1" as position
 		if (pkt.xPos < 0 || pkt.yPos < 0) {
-			MiniMap.removePartyMemberMark( pkt.AID );
+			MiniMap.getUI().removePartyMemberMark( pkt.AID );
 		}
 		else {
-			MiniMap.addPartyMemberMark( pkt.AID, pkt.xPos, pkt.yPos );
+			MiniMap.getUI().addPartyMemberMark( pkt.AID, pkt.xPos, pkt.yPos );
 		}
 	}
 

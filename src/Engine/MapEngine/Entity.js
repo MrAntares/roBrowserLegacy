@@ -49,10 +49,9 @@ define(function( require )
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
 
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var BasicInfo;
-	var MiniMap;
+	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	var MiniMap = require('UI/Components/MiniMap/MiniMap');
 
 	// Excludes for skill name display
 	var SkillNameDisplayExclude = [
@@ -813,7 +812,7 @@ define(function( require )
 				return;
 		}
 
-		MiniMap.addNpcMark( pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
+		MiniMap.getUI().addNpcMark( pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
 	}
 
 
@@ -853,7 +852,7 @@ define(function( require )
 				} else {
 					entity.job = pkt.value;
 					if (entity === Session.Entity) {
-						BasicInfo.update('job', pkt.value);
+						BasicInfo.getUI().update('job', pkt.value);
 						Session.Character.job = pkt.value;
 					}
 				}
@@ -1900,9 +1899,9 @@ define(function( require )
 
 	function onMarkMvp( pkt )
 	{
-		MiniMap.removeNpcMark('mvp'); //hack for mark system (todo: debug this)
+		MiniMap.getUI().removeNpcMark('mvp'); //hack for mark system (todo: debug this)
 		if(pkt.infoType == 1) {
-			MiniMap.addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
+			MiniMap.getUI().addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
 			/**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
 				ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
 			}*/
@@ -1999,9 +1998,6 @@ define(function( require )
 	 */
 	return function EntityEngine()
 	{
-		BasicInfo = require('UI/Components/BasicInfo/BasicInfo').getUI();
-		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
-		
 		Network.hookPacket( PACKET.ZC.NOTIFY_STANDENTRY,            onEntitySpam );
 		Network.hookPacket( PACKET.ZC.NOTIFY_NEWENTRY,              onEntitySpam );
 		Network.hookPacket( PACKET.ZC.NOTIFY_ACTENTRY,              onEntitySpam );

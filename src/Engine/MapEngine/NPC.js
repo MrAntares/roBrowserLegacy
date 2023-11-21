@@ -31,9 +31,8 @@ define(function( require )
 	var NpcMenu       = require('UI/Components/NpcMenu/NpcMenu');
 	var WinPopup      = require('UI/Components/WinPopup/WinPopup');
 
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var MiniMap;
+	var MiniMap = require('UI/Components/MiniMap/MiniMap');
 
 	/**
 	 * NPC write a message
@@ -311,17 +310,17 @@ define(function( require )
 
 			// Add a mark for 15 seconds
 			case 0:
-				MiniMap.addNpcMark( pkt.id, pkt.xPos, pkt.yPos, pkt.color, 15000 );
+				MiniMap.getUI().addNpcMark( pkt.id, pkt.xPos, pkt.yPos, pkt.color, 15000 );
 				break;
 
 			// Add a mark
 			case 1:
-				MiniMap.addNpcMark( pkt.id, pkt.xPos, pkt.yPos, pkt.color, Infinity );
+				MiniMap.getUI().addNpcMark( pkt.id, pkt.xPos, pkt.yPos, pkt.color, Infinity );
 				break;
 
 			// Remove a mark
 			case 2:
-				MiniMap.removeNpcMark( pkt.id );
+				MiniMap.getUI().removeNpcMark( pkt.id );
 				break;
 		}
 	}
@@ -438,8 +437,6 @@ define(function( require )
 	 */
 	return function NPCEngine()
 	{
-		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
-
 		Network.hookPacket( PACKET.ZC.SAY_DIALOG,      onMessage );
 		Network.hookPacket( PACKET.ZC.WAIT_DIALOG,     onNextAppear );
 		Network.hookPacket( PACKET.ZC.CLOSE_DIALOG,    onCloseAppear );

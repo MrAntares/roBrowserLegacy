@@ -29,9 +29,8 @@ define(function( require )
 	var Guild         = require('UI/Components/Guild/Guild');
 	var UIManager     = require('UI/UIManager');
 
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var MiniMap;
+	var MiniMap = require('UI/Components/MiniMap/MiniMap');
 
 
 	/**
@@ -51,8 +50,6 @@ define(function( require )
 	 */
 	GuildEngine.init = function init()
 	{
-		MiniMap   = require('UI/Components/MiniMap/MiniMap').getUI();
-
 		Network.hookPacket( PACKET.ZC.GUILD_CHAT,                    onMemberTalk );
 		Network.hookPacket( PACKET.ZC.NOTIFY_POSITION_TO_GUILDM,     onMemberMove );
 		Network.hookPacket( PACKET.ZC.GUILD_INFO,                    onGuildInfo );
@@ -416,10 +413,10 @@ define(function( require )
 	{
 		// Server remove mark with "-1" as position
 		if (pkt.xPos < 0 || pkt.yPos < 0) {
-			MiniMap.removeGuildMemberMark( pkt.AID );
+			MiniMap.getUI().removeGuildMemberMark( pkt.AID );
 		}
 		else {
-			MiniMap.addGuildMemberMark( pkt.AID, pkt.xPos, pkt.yPos );
+			MiniMap.getUI().addGuildMemberMark( pkt.AID, pkt.xPos, pkt.yPos );
 		}
 	}
 

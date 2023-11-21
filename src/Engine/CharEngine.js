@@ -31,7 +31,6 @@ define(function( require )
 	var InputBox   = require('UI/Components/InputBox/InputBox');
 	var getModule  = require;
 	
-	var UIVersionManager = require('UI/UIVersionManager');
 	// Version Dependent UIs
 	var CharSelect = require('UI/Components/CharSelect/CharSelect');
 	var CharCreate = require('UI/Components/CharCreate/CharCreate');

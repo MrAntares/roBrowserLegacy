@@ -35,9 +35,8 @@ define(function( require )
 	var MD5          = require('Vendors/spark-md5.min');
 	var getModule    = require;
 	
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var WinLogin;
+	var WinLogin = require('UI/Components/WinLogin/WinLogin');;
 
 	/**
 	 * Creating WinLoading
@@ -251,12 +250,10 @@ define(function( require )
 		Session.AdminList = server.adminList || [];
 
 		// Hooking win_login
-		WinLogin = require('UI/Components/WinLogin/WinLogin');
 		WinLogin.selectUIVersion();
-		WinLogin = WinLogin.getUI();
 		
-		WinLogin.onConnectionRequest = onConnectionRequest;
-		WinLogin.onExitRequest       = onExitRequest;
+		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
+		WinLogin.getUI().onExitRequest       = onExitRequest;
 
 		// Autologin features
 		if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1]) {
@@ -264,7 +261,7 @@ define(function( require )
 			Configs.set('autoLogin',null);
 		}
 		else {
-			q.add(function(){ WinLogin.append(); });
+			q.add(function(){ WinLogin.getUI().append(); });
 		}
 
 		// Hook packets
@@ -288,9 +285,9 @@ define(function( require )
 	function reload()
 	{
 		UIManager.removeComponents();
-		WinLogin.onConnectionRequest = onConnectionRequest;
-		WinLogin.onExitRequest       = onExitRequest;
-		WinLogin.append();
+		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
+		WinLogin.getUI().onExitRequest       = onExitRequest;
+		WinLogin.getUI().append();
 
 		Network.close();
 	}
@@ -309,7 +306,7 @@ define(function( require )
 
 		// Add the loading screen
 		// Store the ID to use for the ping
-		WinLogin.remove();
+		WinLogin.getUI().remove();
 		WinLoading.append();
 		_loginID = username;
 
@@ -454,7 +451,7 @@ define(function( require )
 			WinList.onExitRequest   = function(){
 				Network.close();
 				WinList.remove();
-				WinLogin.append();
+				WinLogin.getUI().append();
 			};
 			WinList.append();
 			WinList.setList(list);
@@ -507,7 +504,7 @@ define(function( require )
 			'ok',
 			function(){
 				UIManager.removeComponents();
-				WinLogin.append();
+				WinLogin.getUI().append();
 			},
 			true
 		);

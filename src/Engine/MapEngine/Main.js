@@ -39,10 +39,11 @@ define(function( require )
 	var PetMessageConst    = require('DB/Pets/PetMessageConst');
 	var uint32ToRGB    = require('Utils/colors');
 	
-	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var BasicInfo;
-	var SkillList;
+	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	var SkillList = require('UI/Components/SkillList/SkillList');
+		
+		
 
 	/**
 	 * Move main player to the position specify
@@ -218,16 +219,16 @@ define(function( require )
 				break;
 
 			case StatusProperty.EXP:
-				BasicInfo.base_exp = amount;
-				if (BasicInfo.base_exp_next) {
-					BasicInfo.update('bexp', BasicInfo.base_exp, BasicInfo.base_exp_next );
+				BasicInfo.getUI().base_exp = amount;
+				if (BasicInfo.getUI().base_exp_next) {
+					BasicInfo.getUI().update('bexp', BasicInfo.getUI().base_exp, BasicInfo.getUI().base_exp_next );
 				}
 				break;
 
 			case StatusProperty.JOBEXP:
-				BasicInfo.job_exp = amount;
-				if (BasicInfo.job_exp_next) {
-					BasicInfo.update('jexp', BasicInfo.job_exp, BasicInfo.job_exp_next );
+				BasicInfo.getUI().job_exp = amount;
+				if (BasicInfo.getUI().job_exp_next) {
+					BasicInfo.getUI().update('jexp', BasicInfo.getUI().job_exp, BasicInfo.getUI().job_exp_next );
 				}
 				break;
 
@@ -241,7 +242,7 @@ define(function( require )
 				Session.Entity.life.update();
 
 				if (Session.Entity.life.hp_max > -1) {
-					BasicInfo.update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
+					BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 
 					if (Session.hasParty) {
 						PartyUI.updateMemberLife(Session.AID, Session.Entity.life.canvas, Session.Entity.life.hp, Session.Entity.life.hp_max);
@@ -294,7 +295,7 @@ define(function( require )
 				Session.Entity.life.update();
 
 				if (Session.Entity.life.sp_max > -1) {
-					BasicInfo.update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
+					BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
 				}
 				break;
 
@@ -303,7 +304,7 @@ define(function( require )
 				Session.Entity.life.update();
 
 				if (Session.Entity.life.sp > -1) {
-					BasicInfo.update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
+					BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
 				}
 				break;
 
@@ -315,7 +316,7 @@ define(function( require )
 				Session.Entity.clevel = amount;
 				// load aura on levelup
 				Session.Entity.aura.load( EffectManager );
-				BasicInfo.update('blvl', amount);
+				BasicInfo.getUI().update('blvl', amount);
 				Equipment.onLevelUp();
 				ChangeCart.onLevelUp(amount);
 
@@ -332,7 +333,7 @@ define(function( require )
 				break;
 
 			case StatusProperty.SKPOINT:
-				SkillList.setPoints(amount);
+				SkillList.getUI().setPoints(amount);
 				break;
 
 			case StatusProperty.STR:
@@ -366,34 +367,34 @@ define(function( require )
 				break;
 
 			case StatusProperty.MONEY:
-				BasicInfo.update('zeny', amount);
+				BasicInfo.getUI().update('zeny', amount);
 				break;
 
 			case StatusProperty.MAXEXP:
-				BasicInfo.base_exp_next = amount;
-				if (BasicInfo.base_exp > -1) {
-					BasicInfo.update('bexp', BasicInfo.base_exp, BasicInfo.base_exp_next );
+				BasicInfo.getUI().base_exp_next = amount;
+				if (BasicInfo.getUI().base_exp > -1) {
+					BasicInfo.getUI().update('bexp', BasicInfo.getUI().base_exp, BasicInfo.getUI().base_exp_next );
 				}
 				break;
 
 			case StatusProperty.MAXJOBEXP:
-				BasicInfo.job_exp_next = amount;
-				if (BasicInfo.job_exp > -1) {
-					BasicInfo.update('jexp', BasicInfo.job_exp, BasicInfo.job_exp_next );
+				BasicInfo.getUI().job_exp_next = amount;
+				if (BasicInfo.getUI().job_exp > -1) {
+					BasicInfo.getUI().update('jexp', BasicInfo.getUI().job_exp, BasicInfo.getUI().job_exp_next );
 				}
 				break;
 
 			case StatusProperty.WEIGHT:
-				BasicInfo.weight = amount;
-				if (BasicInfo.weight_max > -1) {
-					BasicInfo.update('weight', BasicInfo.weight, BasicInfo.weight_max );
+				BasicInfo.getUI().weight = amount;
+				if (BasicInfo.getUI().weight_max > -1) {
+					BasicInfo.getUI().update('weight', BasicInfo.getUI().weight, BasicInfo.getUI().weight_max );
 				}
 				break;
 
 			case StatusProperty.MAXWEIGHT:
-				BasicInfo.weight_max = amount;
+				BasicInfo.getUI().weight_max = amount;
 				if (BasicInfo.weight > -1) {
-					BasicInfo.update('weight', BasicInfo.weight, BasicInfo.weight_max );
+					BasicInfo.getUI().update('weight', BasicInfo.getUI().weight, BasicInfo.getUI().weight_max );
 				}
 				break;
 
@@ -474,92 +475,92 @@ define(function( require )
 				break;
 
 			case StatusProperty.JOBLEVEL:
-				BasicInfo.update('jlvl', amount);
-				SkillList.onLevelUp();
+				BasicInfo.getUI().update('jlvl', amount);
+				SkillList.getUI().onLevelUp();
 				break;
 
 			case StatusProperty.VAR_SP_POW:
-				BasicInfo.update('pow', amount);
+				BasicInfo.getUI().update('pow', amount);
 				break;
 
 			case StatusProperty.VAR_SP_STA:
-				BasicInfo.update('sta', amount);
+				BasicInfo.getUI().update('sta', amount);
 				break;
 
 			case StatusProperty.VAR_SP_WIS:
-				BasicInfo.update('wis', amount);
+				BasicInfo.getUI().update('wis', amount);
 				break;
 
 			case StatusProperty.VAR_SP_SPL:
-				BasicInfo.update('spl', amount);
+				BasicInfo.getUI().update('spl', amount);
 				break;
 
 			case StatusProperty.VAR_SP_CON:
-				BasicInfo.update('con', amount);
+				BasicInfo.getUI().update('con', amount);
 				break;
 
 			case StatusProperty.VAR_SP_CRT:
-				BasicInfo.update('crt', amount);
+				BasicInfo.getUI().update('crt', amount);
 				break;
 
 			case StatusProperty.VAR_SP_PATK:
-				BasicInfo.update('patk', amount);
+				BasicInfo.getUI().update('patk', amount);
 				break;
 
 			case StatusProperty.VAR_SP_SMATK:
-				BasicInfo.update('smatk', amount);
+				BasicInfo.getUI().update('smatk', amount);
 				break;
 
 			case StatusProperty.VAR_SP_RES:
-				BasicInfo.update('res', amount);
+				BasicInfo.getUI().update('res', amount);
 				break;
 
 			case StatusProperty.VAR_SP_MRES:
-				BasicInfo.update('mres', amount);
+				BasicInfo.getUI().update('mres', amount);
 				break;
 
 			case StatusProperty.VAR_SP_HPLUS:
-				BasicInfo.update('hplus', amount);
+				BasicInfo.getUI().update('hplus', amount);
 				break;
 
 			case StatusProperty.VAR_SP_CRATE:
-				BasicInfo.update('crate', amount);
+				BasicInfo.getUI().update('crate', amount);
 				break;
 
 			case StatusProperty.VAR_SP_TRAITPOINT:
-				BasicInfo.update('trait_point', amount);
+				BasicInfo.getUI().update('trait_point', amount);
 				break;
 
 			case StatusProperty.VAR_SP_AP:
-				BasicInfo.update('ap', amount);
+				BasicInfo.getUI().update('ap', amount);
 				break;
 
 			case StatusProperty.VAR_SP_MAXAP:
-				BasicInfo.update('max_ap', amount);
+				BasicInfo.getUI().update('max_ap', amount);
 				break;
 
 			case StatusProperty.VAR_SP_UPOW:
-				BasicInfo.update('upow', amount);
+				BasicInfo.getUI().update('upow', amount);
 				break;
 
 			case StatusProperty.VAR_SP_USTA:
-				BasicInfo.update('usta', amount);
+				BasicInfo.getUI().update('usta', amount);
 				break;
 
 			case StatusProperty.VAR_SP_UWIS:
-				BasicInfo.update('uwis', amount);
+				BasicInfo.getUI().update('uwis', amount);
 				break;
 
 			case StatusProperty.VAR_SP_USPL:
-				BasicInfo.update('uspl', amount);
+				BasicInfo.getUI().update('uspl', amount);
 				break;
 
 			case StatusProperty.VAR_SP_UCON:
-				BasicInfo.update('ucon', amount);
+				BasicInfo.getUI().update('ucon', amount);
 				break;
 
 			case StatusProperty.VAR_SP_UCRT:
-				BasicInfo.update('ucrt', amount);
+				BasicInfo.getUI().update('ucrt', amount);
 				break;
 
 			default:
@@ -716,7 +717,7 @@ define(function( require )
 				Session.Entity.life.update();
 
 				if (Session.Entity.life.hp_max > -1) {
-					BasicInfo.update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
+					BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 				}
 				break;
 
@@ -733,7 +734,7 @@ define(function( require )
 				Session.Entity.life.update();
 
 				if (Session.Entity.life.sp_max > -1) {
-					BasicInfo.update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
+					BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
 				}
 				break;
 		}
@@ -779,9 +780,6 @@ define(function( require )
 	 */
 	return function MainEngine()
 	{
-		BasicInfo = require('UI/Components/BasicInfo/BasicInfo').getUI();
-		SkillList = require('UI/Components/SkillList/SkillList').getUI();
-		
 		Network.hookPacket( PACKET.ZC.NOTIFY_PLAYERMOVE,           onPlayerMove );
 		Network.hookPacket( PACKET.ZC.PAR_CHANGE,                  onParameterChange );
 		Network.hookPacket( PACKET.ZC.LONGPAR_CHANGE,              onParameterChange );
