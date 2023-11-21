@@ -1,5 +1,5 @@
 /**
- * UI/Components/BasicInfo/BasicInfo.js
+ * UI/Components/BasicInfoV4/BasicInfoV4.js
  *
  * Chararacter Basic information windows
  *
@@ -16,8 +16,8 @@ define(function(require)
 	 * Dependencies
 	 */
 	var DB                 = require('DB/DBManager');
-	var Configs      = require('Core/Configs');
-	var PACKETVER    = require('Network/PacketVerManager');
+	var Configs            = require('Core/Configs');
+	var PACKETVER          = require('Network/PacketVerManager');
 	var MonsterTable       = require('DB/Monsters/MonsterTable');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
@@ -45,24 +45,24 @@ define(function(require)
 	/**
 	 * Create Basic Info component
 	 */
-	var BasicInfo = new UIComponent( 'BasicInfoV4', htmlText, cssText );
+	var BasicInfoV4 = new UIComponent( 'BasicInfoV4', htmlText, cssText );
 
 
 	/**
 	 * Stored data
 	 */
-	BasicInfo.base_exp      = 0;
-	BasicInfo.base_exp_next = 1;
-	BasicInfo.job_exp       = 0;
-	BasicInfo.job_exp_next  =-1;
-	BasicInfo.weight        = 0;
-	BasicInfo.weight_max    = 1;
+	BasicInfoV4.base_exp      = 0;
+	BasicInfoV4.base_exp_next = 1;
+	BasicInfoV4.job_exp       = 0;
+	BasicInfoV4.job_exp_next  =-1;
+	BasicInfoV4.weight        = 0;
+	BasicInfoV4.weight_max    = 1;
 
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('BasicInfo', {
+	var _preferences = Preferences.get('BasicInfoV4', {
 		x:        0,
 		y:        0,
 		reduce:   true,
@@ -77,15 +77,15 @@ define(function(require)
 	/**
 	 * Initialize UI
 	 */
-	BasicInfo.init = function init()
+	BasicInfoV4.init = function init()
 	{
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.topbar div').mousedown(function( event ){
 			event.stopImmediatePropagation();
 		});
 
-		this.ui.find('.topbar .right').click(BasicInfo.toggleMode.bind(this));
-		this.ui.find('.toggle_btns').mousedown(BasicInfo.toggleButtons.bind(this));
+		this.ui.find('.topbar .right').click(BasicInfoV4.toggleMode.bind(this));
+		this.ui.find('.toggle_btns').mousedown(BasicInfoV4.toggleButtons.bind(this));
 
 		this.ui.find('.buttons div').mousedown(function(){
 			switch (this.id) {
@@ -141,7 +141,7 @@ define(function(require)
 	 * When append the element to html
 	 * Execute elements in memory
 	 */
-	BasicInfo.onAppend = function onAppend()
+	BasicInfoV4.onAppend = function onAppend()
 	{
 		// Apply preferences
 		this.ui.css({
@@ -179,7 +179,7 @@ define(function(require)
 	/**
 	 * Once remove, save preferences
 	 */
-	BasicInfo.onRemove = function onRemove()
+	BasicInfoV4.onRemove = function onRemove()
 	{
 		_preferences.x       = parseInt(this.ui.css('left'), 10);
 		_preferences.y       = parseInt(this.ui.css('top'), 10);
@@ -198,7 +198,7 @@ define(function(require)
 	 *
 	 * @param {object} key
 	 */
-	BasicInfo.onShortCut = function onShortCut( key )
+	BasicInfoV4.onShortCut = function onShortCut( key )
 	{
 		switch (key.cmd) {
 			case 'EXTEND':
@@ -211,7 +211,7 @@ define(function(require)
 	/**
 	 * Switch window size
 	 */
-	BasicInfo.toggleMode = function toggleMode()
+	BasicInfoV4.toggleMode = function toggleMode()
 	{
 		var type;
 
@@ -233,7 +233,7 @@ define(function(require)
 	/**
 	 * Toggle the list of buttons
 	 */
-	BasicInfo.toggleButtons = function toggleButtons( event )
+	BasicInfoV4.toggleButtons = function toggleButtons( event )
 	{
 		var type;
 		var $buttons = this.ui.find('.buttons');
@@ -262,7 +262,7 @@ define(function(require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	BasicInfo.update = function update( type, val1, val2 )
+	BasicInfoV4.update = function update( type, val1, val2 )
 	{
 		switch (type) {
 			case 'name':
@@ -349,5 +349,5 @@ define(function(require)
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(BasicInfo);
+	return UIManager.addComponent(BasicInfoV4);
 });

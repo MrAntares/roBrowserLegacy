@@ -1,5 +1,5 @@
 /**
- * UI/Components/BasicInfo/BasicInfo.js
+ * UI/Components/BasicInfoV0/BasicInfoV0.js
  *
  * Chararacter Basic information windows
  *
@@ -44,23 +44,23 @@ define(function(require)
 	/**
 	 * Create Basic Info component
 	 */
-	var BasicInfo = new UIComponent( 'BasicInfoV0', htmlText, cssText );
+	var BasicInfoV0 = new UIComponent( 'BasicInfoV0', htmlText, cssText );
 
 	/**
 	 * Stored data
 	 */
-	BasicInfo.base_exp      = 0;
-	BasicInfo.base_exp_next = 1;
-	BasicInfo.job_exp       = 0;
-	BasicInfo.job_exp_next  =-1;
-	BasicInfo.weight        = 0;
-	BasicInfo.weight_max    = 1;
+	BasicInfoV0.base_exp      = 0;
+	BasicInfoV0.base_exp_next = 1;
+	BasicInfoV0.job_exp       = 0;
+	BasicInfoV0.job_exp_next  =-1;
+	BasicInfoV0.weight        = 0;
+	BasicInfoV0.weight_max    = 1;
 
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('BasicInfo', {
+	var _preferences = Preferences.get('BasicInfoV0', {
 		x:        0,
 		y:        0,
 		reduce:   false,
@@ -75,7 +75,7 @@ define(function(require)
 	/**
 	 * Initialize UI
 	 */
-	BasicInfo.init = function init()
+	BasicInfoV0.init = function init()
 	{
 
 		// Don't activate drag drop when clicking on buttons
@@ -83,8 +83,8 @@ define(function(require)
 			event.stopImmediatePropagation();
 		});
 
-		this.ui.find('.topbar .right').click(BasicInfo.toggleMode.bind(this));
-		this.ui.find('.toggle_btns').mousedown(BasicInfo.toggleButtons.bind(this));
+		this.ui.find('.topbar .right').click(BasicInfoV0.toggleMode.bind(this));
+		this.ui.find('.toggle_btns').mousedown(BasicInfoV0.toggleButtons.bind(this));
 
 		this.ui.find('.buttons button').mousedown(function(){
 			switch (this.className) {
@@ -138,7 +138,7 @@ define(function(require)
 	 * When append the element to html
 	 * Execute elements in memory
 	 */
-	BasicInfo.onAppend = function onAppend()
+	BasicInfoV0.onAppend = function onAppend()
 	{
 		// Apply preferences
 		this.ui.css({
@@ -170,7 +170,7 @@ define(function(require)
 	/**
 	 * Once remove, save preferences
 	 */
-	BasicInfo.onRemove = function onRemove()
+	BasicInfoV0.onRemove = function onRemove()
 	{
 		_preferences.x       = parseInt(this.ui.css('left'), 10);
 		_preferences.y       = parseInt(this.ui.css('top'), 10);
@@ -189,7 +189,7 @@ define(function(require)
 	 *
 	 * @param {object} key
 	 */
-	BasicInfo.onShortCut = function onShortCut( key )
+	BasicInfoV0.onShortCut = function onShortCut( key )
 	{
 		switch (key.cmd) {
 			case 'EXTEND':
@@ -202,7 +202,7 @@ define(function(require)
 	/**
 	 * Switch window size
 	 */
-	BasicInfo.toggleMode = function toggleMode()
+	BasicInfoV0.toggleMode = function toggleMode()
 	{
 		var type;
 
@@ -230,7 +230,7 @@ define(function(require)
 	/**
 	 * Toggle the list of buttons
 	 */
-	BasicInfo.toggleButtons = function toggleButtons( event )
+	BasicInfoV0.toggleButtons = function toggleButtons( event )
 	{
 		var type;
 		var $buttons = this.ui.find('.buttons');
@@ -261,7 +261,7 @@ define(function(require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	BasicInfo.update = function update( type, val1, val2 )
+	BasicInfoV0.update = function update( type, val1, val2 )
 	{
 		switch (type) {
 			case 'name':
@@ -347,5 +347,5 @@ define(function(require)
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(BasicInfo);
+	return UIManager.addComponent(BasicInfoV0);
 });
