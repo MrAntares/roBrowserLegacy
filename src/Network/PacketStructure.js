@@ -12350,7 +12350,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		var pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
-		pkt_buf.writeShort(0xa6e);
+		pkt_buf.writeShort(0x9ec);
 		pkt_buf.writeShort(pkt_len);
 		pkt_buf.writeString(this.receiver, 24);
 		pkt_buf.writeString(this.sender, 24);
@@ -12424,7 +12424,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	/*
 	* TODO:
-	* 09EC: REQ_SEND_RODEX
 	* 0B98: RODEX_RETURN
 	*/
 
