@@ -133,25 +133,10 @@ define(function(require)
 
 		if (_needCleanUp) {
 			_needCleanUp = false;
-			content.empty('');
+			content.text('');
 		}
 
-		const whitelist = [
-			'font',
-			'i',
-			'b'
-		]
-
-		const html = jQuery('<div/>').html(text);
-
-		// Filter from whitelist
-		html.find('*').each(function(){
-			if (whitelist.indexOf(this.tagName.toLowerCase()) === -1) {
-				jQuery(this).replaceWith( jQuery('<span/>').html( jQuery(this).html() ) );
-			}
-		});
-
-		content.append( jQuery('<div/>').html(html) );
+		content.append( jQuery('<div/>').text(text) );
 	};
 
 

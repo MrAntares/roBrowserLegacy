@@ -59,11 +59,22 @@ define( ['jquery', 'DB/DBManager'], function( jQuery, DB )
 	 * @returns {string} encoded string
 	 */
 	jQuery.escape = (function escapeClosure(){
-		var element = document.createElement('div');
+		const whitelist = [
+			'font',
+			'i',
+			'b'
+		]
 
 		return function escape(text) {
-			element.textContent = text;
-			return element.innerHTML;
+			let filtered = jQuery('<div/>').html(text);
+			
+			// Filter from whitelist
+			filtered.find('*').each(function(){
+				if (whitelist.indexOf(this.tagName.toLowerCase()) === -1) {
+					jQuery(this).replaceWith( jQuery(this).html() );
+				}
+			});
+			return filtered.html();
 		};
 	})();
 
