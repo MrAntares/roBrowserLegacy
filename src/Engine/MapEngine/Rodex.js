@@ -16,6 +16,7 @@ define(function (require) {
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 	var Network = require('Network/NetworkManager');
 	var PACKET = require('Network/PacketStructure');
+	var PACKETVER   = require('Network/PacketVerManager');
 	var RodexIcon = require('UI/Components/Rodex/RodexIcon');
 	var Rodex = require('UI/Components/Rodex/Rodex');
 	var ReadRodex = require('UI/Components/Rodex/ReadRodex');
@@ -229,8 +230,12 @@ define(function (require) {
 	 * @param {string} body
 	 */
 	Rodex.requestSendRodex = function requestSendRodex(receiver, sender, zeny, Titlelength, Bodylength, CharID, title, body) {
-		// TODO: ADD PACKETVER
-		let pkt = new PACKET.CZ.REQ_SEND_RODEX2();
+		let pkt;
+		if(PACKETVER.value >= 20160330) {
+			pkt = new PACKET.CZ.REQ_SEND_RODEX2();
+		} else {
+			pkt = new PACKET.CZ.REQ_SEND_RODEX();
+		}
 		pkt.receiver = receiver;
 		pkt.sender = sender;
 		pkt.zeny = zeny;
@@ -243,7 +248,12 @@ define(function (require) {
 	};
 
 	WriteRodex.validateName = function(name) {
-		let pkt = new PACKET.CZ.CHECK_RODEX_RECEIVE();
+		let pkt;
+		if(PACKETVER.value >= 20201104) {
+			pkt = new PACKET.CZ.CHECK_RODEX_RECEIVE();
+		} else {
+			pkt = new PACKET.CZ.CHECK_RECEIVE_CHARACTER_NAME();
+		}
 		pkt.name = name;
 		Network.sendPacket(pkt);
 	}

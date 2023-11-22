@@ -12336,6 +12336,33 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+	// 0x9ec
+	PACKET.CZ.REQ_SEND_RODEX = function PACKET_CZ_REQ_SEND_RODEX() {
+		this.receiver = "";
+		this.sender = "";
+		this.zeny = 0;
+		this.Titlelength = 0; 
+		this.Bodylength = 0;
+		this.title = "";
+		this.body = "";
+	};
+	PACKET.CZ.REQ_SEND_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xa6e);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeString(this.receiver, 24);
+		pkt_buf.writeString(this.sender, 24);
+		pkt_buf.writeULong(this.zeny);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeUShort(this.Titlelength);
+		pkt_buf.writeUShort(this.Bodylength);
+		pkt_buf.writeString(this.title);
+		pkt_buf.writeString(this.body);
+		return pkt_buf;
+	};
+
 	// 0xa6e
 	PACKET.CZ.REQ_SEND_RODEX2 = function PACKET_CZ_REQ_SEND_RODEX2() {
 		this.receiver = "";
@@ -12364,6 +12391,21 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		pkt_buf.writeString(this.body);
 		return pkt_buf;
 	};
+
+
+	// 0xa13
+	PACKET.CZ.CHECK_RECEIVE_CHARACTER_NAME = function PACKET_CZ_CHECK_RECEIVE_CHARACTER_NAME() {
+		this.name = "";
+	};
+	PACKET.CZ.CHECK_RECEIVE_CHARACTER_NAME.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xa13);
+		pkt_buf.writeString(this.name, 24);
+		return pkt_buf;
+	};
+
 
 	// 0xb97
 	PACKET.CZ.CHECK_RODEX_RECEIVE = function PACKET_CZ_CHECK_RODEX_RECEIVE() {
