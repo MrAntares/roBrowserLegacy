@@ -12290,7 +12290,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		var pkt_len = 2 + 24;
 		var pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xa08);
-		pkt_buf.writeString(this.name);
+		pkt_buf.writeString(this.name, 24);
 		return pkt_buf;
 	};
 
@@ -12353,8 +12353,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 		pkt_buf.writeShort(0xa6e);
 		pkt_buf.writeShort(pkt_len);
-		pkt_buf.writeString(this.receiver);
-		pkt_buf.writeString(this.sender);
+		pkt_buf.writeString(this.receiver, 24);
+		pkt_buf.writeString(this.sender, 24);
 		pkt_buf.writeULong(this.zeny);
 		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
 		pkt_buf.writeUShort(this.Titlelength);
@@ -12365,13 +12365,45 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+	// 0xb97
+	PACKET.CZ.CHECK_RODEX_RECEIVE = function PACKET_CZ_CHECK_RODEX_RECEIVE() {
+		this.name = "";
+		this.unknown = 1;
+	};
+	PACKET.CZ.CHECK_RODEX_RECEIVE.prototype.build = function() {
+		var pkt_len = 2 + 24 + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb97);
+		pkt_buf.writeString(this.name, 24);
+		pkt_buf.writeUChar(this.unknown);
+		return pkt_buf;
+	};
+
 	/*
 	* TODO:
 	* 09EC: REQ_SEND_RODEX
-	* 0B97: CHECK_RODEX_RECEIVE
 	* 0B98: RODEX_RETURN
 	*/
 
+	// 0xa14
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME = function PACKET_ZC_CHECK_RECEIVE_CHARACTER_NAME(fp, end) {
+		this.CharID = fp.readULong(); 
+		this.Job = fp.readUShort();
+		this.level = fp.readUShort();
+	};
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME.size = 10;
+
+	// 0xa51
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2 = function PACKET_ZC_CHECK_RECEIVE_CHARACTER_NAME2(fp, end) {
+		this.CharID = fp.readULong(); 
+		this.Job = fp.readUShort();
+		this.level = fp.readUShort();
+		this.name = fp.readString(NAME_LENGTH);
+	};
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2.size = 34;
+
+	
 	// 0x9f7
 	PACKET.ZC.PROPERTY_HOMUN2 = function PACKET_ZC_PROPERTY_HOMUN2(fp, end) {
 
