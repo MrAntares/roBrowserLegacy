@@ -698,12 +698,13 @@ define(function(require)
             ui.find('.canceldelete').show();
 			if(Math.floor(Date.now() / 1000) > info.DeleteDate){
 				ui.find('.finaldelete').show();
+				action = entity.ACTION.DIE;
 			} else {
 				ui.find('.finaldelete').hide();
+				action = entity.ACTION.SIT;
 			}
             ui.find('.make').hide();
             ui.find('.ok').show();
-			action = entity.ACTION.SIT;
         } else {
 			if(PACKETVER.value >= 20100803){
 				ui.find('.delete').show();
