@@ -120,7 +120,6 @@ define(function (require) {
 		zeny = (isNaN(zeny)) ? 0 : zeny;
 		let title = WriteRodex.ui.find('.title-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 23);
 		let body = WriteRodex.ui.find('.content-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 499);
-		console.log(title, body);
 		let Titlelength = title.length + 1;
 		let Bodylength = body.length + 1;
 		let CharID = WriteRodex.CharID;
@@ -357,7 +356,6 @@ define(function (require) {
 			return;
 		}
 
-		console.log('dragstart');
 		// Set image to the drag drop element
 		var img = new Image();
 		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
