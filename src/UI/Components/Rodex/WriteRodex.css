@@ -37,3 +37,4 @@
 #WriteRodex .body .footer .tax { position:absolute; width:112px; height:18px; top:5px; left:10px; }
 #WriteRodex .body .footer .tax-text { position:absolute; display: table; top:8px; right:197px; font-size: 11px; }
 #WriteRodex .body .footer .send { position:absolute; width:70px; height:20px; top:5px; right:10px; }
+#WriteRodex .red { font-weight: bold; color: red;}

@@ -35,6 +35,7 @@ define(function (require) {
 	var WriteRodex = new UIComponent('WriteRodex', htmlText, cssText);
 	WriteRodex.list = [];
 	WriteRodex.receiver = null;
+	WriteRodex.tax = 0;
 
 
 	/**
@@ -51,6 +52,7 @@ define(function (require) {
 		// Bind buttons
 		WriteRodex.ui.find('.right .close').on('click', onClickClose);
 		WriteRodex.ui.find('.send').on('click', onClickSend);
+		WriteRodex.ui.find('.value').on('input', WriteRodex.updateTax);
 
 		WriteRodex.ui.css({
 			top: Math.min(Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('top'), 10)) - 20, Renderer.height - WriteRodex.ui.height()),
@@ -60,7 +62,7 @@ define(function (require) {
 		WriteRodex.draggable(WriteRodex.ui.find('.titlebar'));
 
 		WriteRodex.ui.find('.items .item-list')
-			
+
 	};
 
 
@@ -68,6 +70,7 @@ define(function (require) {
 		WriteRodex.receiver = null;
 		WriteRodex.CharID = 0;
 		WriteRodex.list = [];
+		WriteRodex.tax = 0;
 		WriteRodex.ui.find('.name').prop("type", "text");
 		WriteRodex.ui.find('.name').val(pkt.receiveName);
 		WriteRodex.ui.find('.validate-name').show();
@@ -110,20 +113,27 @@ define(function (require) {
 		WriteRodex.requestCancelWriteRodex();
 		WriteRodex.list = [];
 		WriteRodex.CharID = 0;
+		WriteRodex.tax = 0;
 		WriteRodex.ui.hide();
 	}
 
 	function onClickSend(e) {
 		e.stopImmediatePropagation();
-		if(WriteRodex.receiver == null || (typeof  WriteRodex.receiver === "string" &&  WriteRodex.receiver.trim().length === 0)) {
+		if (WriteRodex.receiver == null || (typeof WriteRodex.receiver === "string" && WriteRodex.receiver.trim().length === 0)) {
 			ChatBox.addText(DB.getMessage(2611), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 		let receiver = WriteRodex.receiver;
 		let sender = Session.Character.name;
-		let zeny = parseInt(WriteRodex.ui.find('.value').val(),10);
+		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
 		zeny = (isNaN(zeny)) ? 0 : zeny;
 		zeny = (zeny < 0) ? 0 : zeny;
+
+		if ((WriteRodex.tax + zeny) > Session.zeny) {
+			ChatBox.addText(DB.getMessage(2643), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
+			return;
+		}
+
 		let title = WriteRodex.ui.find('.title-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 23) + String.fromCharCode(0);
 		let body = WriteRodex.ui.find('.content-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 499) + String.fromCharCode(0);
 		let Titlelength = title.length;
@@ -182,7 +192,7 @@ define(function (require) {
 		let item_div = content.find('.item[data-index="' + item.index + '"]');
 		item_div
 			.on('mouseover', onItemOver)
-			.on('mouseout',  onItemOut)
+			.on('mouseout', onItemOut)
 			.on('dragstart', onItemDragStart)
 			.on('dragend', onItemDragEnd)
 			.on('contextmenu', onItemInfo)
@@ -228,7 +238,20 @@ define(function (require) {
 	WriteRodex.updateTax = function updateTax() {
 		let total_items = WriteRodex.list.length;
 		let tax = total_items * 2500;
+		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
+		zeny = (isNaN(zeny)) ? 0 : zeny;
+		zeny = (zeny < 0) ? 0 : zeny;
+		tax += parseInt(zeny * 0.02); // 2% tax
 		WriteRodex.ui.find('.tax-text').html(tax);
+		WriteRodex.tax = tax;
+
+		if ((tax + zeny) > Session.zeny) {
+			WriteRodex.ui.find('.tax-text').addClass('red');
+			WriteRodex.ui.find('.value').addClass('red');
+		} else {
+			WriteRodex.ui.find('.tax-text').removeClass('red');
+			WriteRodex.ui.find('.value').removeClass('red');
+		}
 	}
 
 	WriteRodex.close = function close() {
