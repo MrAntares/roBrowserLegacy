@@ -14,6 +14,7 @@ define(function (require) {
 	 * Dependencies
 	 */
 	var DB = require('DB/DBManager');
+	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 	var Session = require('Engine/SessionStorage');
 	var MonsterTable = require('DB/Monsters/MonsterTable');
 	var jQuery = require('Utils/jquery');
@@ -114,16 +115,22 @@ define(function (require) {
 
 	function onClickSend(e) {
 		e.stopImmediatePropagation();
+		if(WriteRodex.receiver == null || (typeof  WriteRodex.receiver === "string" &&  WriteRodex.receiver.trim().length === 0)) {
+			ChatBox.addText(DB.getMessage(2611), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
+			return;
+		}
 		let receiver = WriteRodex.receiver;
 		let sender = Session.Character.name;
 		let zeny = parseInt(WriteRodex.ui.find('.value').val(),10);
 		zeny = (isNaN(zeny)) ? 0 : zeny;
-		let title = WriteRodex.ui.find('.title-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 23);
-		let body = WriteRodex.ui.find('.content-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 499);
-		let Titlelength = title.length + 1;
-		let Bodylength = body.length + 1;
+		zeny = (zeny < 0) ? 0 : zeny;
+		let title = WriteRodex.ui.find('.title-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 23) + String.fromCharCode(0);
+		let body = WriteRodex.ui.find('.content-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 499) + String.fromCharCode(0);
+		let Titlelength = title.length;
+		let Bodylength = body.length;
 		let CharID = WriteRodex.CharID;
 		WriteRodex.requestSendRodex(receiver, sender, zeny, Titlelength, Bodylength, CharID, title, body);
+		WriteRodex.requestCancelWriteRodex();
 	}
 	/**
 	 * Search in a list for an item by its index
