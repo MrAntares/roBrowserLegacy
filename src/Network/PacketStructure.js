@@ -11810,10 +11810,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x9f0
 	PACKET.ZC.ACK_RODEX_LIST = function PACKET_ZC_ACK_RODEX_LIST(fp, end) {
 		this.openType = fp.readUChar();
-		this.cnt = fp.readUChar();
+		this.count = fp.readUChar();
 		this.IsEnd = fp.readUChar();
 		this.MailList = new Array();
-		for (var i = 0; i < this.cnt; i++) {
+		for (var i = 0; i < this.count; i++) {
 			let Mail = {};
 			Mail.openType = this.openType;
 			Mail.MailID = fp.readUInt64();
@@ -11833,10 +11833,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xa7d
 	PACKET.ZC.ACK_RODEX_LIST2 = function PACKET_ZC_ACK_RODEX_LIST2(fp, end) {
 		this.openType = fp.readUChar();
-		this.cnt = fp.readUChar();
+		this.count = fp.readUChar();
 		this.IsEnd = fp.readUChar();
 		this.MailList = new Array();
-		for (var i = 0; i < this.cnt; i++) {
+		for (var i = 0; i < this.count; i++) {
 			let Mail = {};
 			Mail.openType = this.openType;
 			Mail.MailID = fp.readUInt64();
@@ -12029,7 +12029,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		let option = new Struct( "short index", "short value", "char param");
 
 		this.index = fp.readShort();
-		this.count = fp.readLong();
+		this.count = fp.readShort();
 		this.ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
 		this.type = fp.readUChar();
 		this.IsIdentified = fp.readUChar();
@@ -12059,7 +12059,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		let option = new Struct( "short index", "short value", "char param");
 
 		this.index = fp.readShort();
-		this.count = fp.readLong();
+		this.count = fp.readShort();
 		this.ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
 		this.type = fp.readUChar();
 		this.IsIdentified = fp.readUChar();
@@ -12090,7 +12090,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.ACK_REMOVE_RODEX_ITEM = function PACKET_ZC_ACK_REMOVE_RODEX_ITEM(fp, end) {
 		this.result = fp.readUChar();
 		this.index = fp.readUShort();
-		this.cnt = fp.readUShort();
+		this.count = fp.readUShort();
 		this.weight = fp.readUShort();
 	};
 	PACKET.ZC.ACK_REMOVE_RODEX_ITEM.size = 9;
@@ -12255,14 +12255,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xa04
 	PACKET.CZ.REQ_ADD_ITEM_RODEX = function PACKET_CZ_REQ_ADD_ITEM_RODEX() {
 		this.index = 0;
-		this.cnt = 0;
+		this.count = 0;
 	};
 	PACKET.CZ.REQ_ADD_ITEM_RODEX.prototype.build = function() {
 		var pkt_len = 2 + 4;
 		var pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xa04);
 		pkt_buf.writeShort(this.index);
-		pkt_buf.writeShort(this.cnt);
+		pkt_buf.writeShort(this.count);
 		return pkt_buf;
 	};
 
@@ -12270,14 +12270,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0xa06
 	PACKET.CZ.REQ_REMOVE_RODEX_ITEM = function PACKET_CZ_REQ_REMOVE_RODEX_ITEM() {
 		this.index = 0;
-		this.cnt = 0;
+		this.count = 0;
 	};
 	PACKET.CZ.REQ_REMOVE_RODEX_ITEM.prototype.build = function() {
 		var pkt_len = 2 + 4;
 		var pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xa06);
 		pkt_buf.writeShort(this.index);
-		pkt_buf.writeShort(this.cnt);
+		pkt_buf.writeShort(this.count);
 		return pkt_buf;
 	};
 

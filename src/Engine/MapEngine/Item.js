@@ -428,6 +428,17 @@ define(function( require )
 		Network.sendPacket( pkt );
 	};
 
+	Inventory.reqMoveItemToWriteRodex = function reqMoveItemToWriteRodex( index, count )
+	{
+		if (count <= 0) {
+			return;
+		}
+
+		var pkt   = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
+		pkt.index = index;
+		pkt.count = count;
+		Network.sendPacket( pkt );
+	};
 
 	function onCartItemAdded( pkt )
 	{

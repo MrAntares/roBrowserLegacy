@@ -628,7 +628,7 @@ define(function(require)
 		}
 
 		// Just allow item from storage
-		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'CartItems' && data.from !== 'Mail')) {
+		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'CartItems' && data.from !== 'Mail' && data.from !== 'WriteRodex')) {
 			return false;
 		}
 
@@ -663,6 +663,12 @@ define(function(require)
 							parseInt(count, 10 )
 							);
 
+					case 'WriteRodex':
+						getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex(
+							item.index,
+							parseInt(count, 10 )
+							);
+
 					break;
 
 					}
@@ -682,6 +688,9 @@ define(function(require)
 
 			case 'Mail':
 				getModule('UI/Components/Mail/Mail').reqRemoveItem( item.index, 1 );
+
+			case 'WriteRodex':
+				getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex( item.index, 1 );
 			break;
 		}
 

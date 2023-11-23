@@ -19,11 +19,12 @@
 #WriteRodex .body .content .content-text { position:absolute; top:5px; left:10px; width:280px; height:220px; background:transparent; border: none; resize: none; }
 
 #WriteRodex .body .items { float:left; width:100%; height:45px; position:relative; }
-#WriteRodex .body .items .item-list { list-style:none; margin:0px; padding:0px; display:table; position:absolute; top:20px; left:30px; }
-#WriteRodex .body .items .item-list .item { float:left; width:30px; height:30px; }
-#WriteRodex .body .items .item-list .item { display:block; width:24px; height:24px; position:relative; float:left; }
+#WriteRodex .body .items .item-list { list-style:none; margin:0px; padding:0px; display:table; position:absolute; top:10px; left:27px; }
+#WriteRodex .body .items .item-list .item { display:block; width:24px; height:24px; margin:4px 4px 4px 4px; position:relative; float:left; }
 #WriteRodex .body .items .item-list .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #WriteRodex .body .items .item-list .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
+#WriteRodex .overlay { position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
+#WriteRodex .overlay.grey { color:#aaa; }
 #WriteRodex .body .items .weigth { position:absolute; width:82px; height:32px; top:10px; right:10px; border:none; }
 #WriteRodex .body .items .weigth-text { position:absolute; display: table; top:21px; right:19px; border:none; font-size: 10px; color: gray; }
 

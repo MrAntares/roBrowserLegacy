@@ -16,12 +16,12 @@ define(function (require) {
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 	var Network = require('Network/NetworkManager');
 	var PACKET = require('Network/PacketStructure');
-	var PACKETVER   = require('Network/PacketVerManager');
+	var PACKETVER = require('Network/PacketVerManager');
 	var RodexIcon = require('UI/Components/Rodex/RodexIcon');
 	var Rodex = require('UI/Components/Rodex/Rodex');
 	var ReadRodex = require('UI/Components/Rodex/ReadRodex');
 	var WriteRodex = require('UI/Components/Rodex/WriteRodex');
-	
+
 
 	/**
 	 * Send Packets
@@ -151,10 +151,10 @@ define(function (require) {
 	 * @param {int} index
 	 * @param {int} count
 	 */
-	Rodex.requestAddItemRodex = function requestAddItemRodex(index, count) {
+	WriteRodex.requestAddItemRodex = function requestAddItemRodex(index, count) {
 		let pkt = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
 		pkt.index = index;
-		pkt.cnt = count;
+		pkt.count = count;
 		Network.sendPacket(pkt);
 	};
 
@@ -165,10 +165,13 @@ define(function (require) {
 	 * @param {int} index
 	 * @param {int} count
 	 */
-	Rodex.requestRemoveItemRodex = function requestRemoveItemRodex(index, count) {
+	WriteRodex.requestRemoveItemRodex = function requestRemoveItemRodex(index, count) {
+		if (count <= 0) {
+			return;
+		}
 		let pkt = new PACKET.CZ.REQ_REMOVE_RODEX_ITEM();
 		pkt.index = index;
-		pkt.cnt = count;
+		pkt.count = count;
 		Network.sendPacket(pkt);
 	};
 
@@ -229,9 +232,9 @@ define(function (require) {
 	 * @param {int} title
 	 * @param {string} body
 	 */
-	Rodex.requestSendRodex = function requestSendRodex(receiver, sender, zeny, Titlelength, Bodylength, CharID, title, body) {
+	WriteRodex.requestSendRodex = function requestSendRodex(receiver, sender, zeny, Titlelength, Bodylength, CharID, title, body) {
 		let pkt;
-		if(PACKETVER.value >= 20160330) {
+		if (PACKETVER.value >= 20160330) {
 			pkt = new PACKET.CZ.REQ_SEND_RODEX2();
 		} else {
 			pkt = new PACKET.CZ.REQ_SEND_RODEX();
@@ -247,9 +250,9 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-	WriteRodex.validateName = function(name) {
+	WriteRodex.validateName = function (name) {
 		let pkt;
-		if(PACKETVER.value >= 20201104) {
+		if (PACKETVER.value >= 20201104) {
 			pkt = new PACKET.CZ.CHECK_RODEX_RECEIVE();
 		} else {
 			pkt = new PACKET.CZ.CHECK_RECEIVE_CHARACTER_NAME();
@@ -311,7 +314,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ACK_ZENY_FROM_RODEX
 	 */
 	function rodexGetZeny(pkt) {
-		switch(pkt.result) {
+		switch (pkt.result) {
 			case 1: // failure
 				ChatBox.addText(DB.getMessage(2592), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 				break;
@@ -330,7 +333,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ACK_ITEM_FROM_RODEX
 	 */
 	function rodexGetItem(pkt) {
-		switch(pkt.result) {
+		switch (pkt.result) {
 			case 1: // failure
 				ChatBox.addText(DB.getMessage(2589), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 				break;
@@ -358,10 +361,10 @@ define(function (require) {
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_ADD_ITEM_RODEX
 	 */
-	function rodexSetAttachment(pkt) {
-		if(!pkt.result) {
+	function onRodexItemAdded(pkt) {
+		if (!pkt.result) {
 			ChatBox.addText(DB.getMessage(2594), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
-			WriteRodex.setAttachment(pkt);
+			WriteRodex.addItem(pkt);
 		} else {
 			ChatBox.addText(DB.getMessage(2589), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 		}
@@ -372,12 +375,12 @@ define(function (require) {
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_REMOVE_RODEX_ITEM
 	 */
-	function rodexRemoveAttachment(pkt) {
-		if(!pkt.result) {
-			ChatBox.addText(DB.getMessage(2588), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
-			WriteRodex.removeAttachment(pkt);
-		} else {
+	function onRodexRemoveItem(pkt) {
+		if (pkt.result) {
 			ChatBox.addText(DB.getMessage(2589), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
+			WriteRodex.removeItem(pkt.index, pkt.count, pkt.weight);
+		} else {
+			ChatBox.addText(DB.getMessage(2588), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 		}
 	}
 
@@ -411,7 +414,11 @@ define(function (require) {
 	}
 
 	function rodexCharacterInfo(pkt) {
-		WriteRodex.characterInfo(pkt);
+		if (pkt.CharID > 0) {
+			WriteRodex.characterInfo(pkt);
+		} else {
+			ChatBox.addText(DB.getMessage(2615), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
+		}
 	}
 
 	/**
@@ -429,9 +436,9 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.ACK_ZENY_FROM_RODEX, rodexGetZeny);
 		Network.hookPacket(PACKET.ZC.ACK_ITEM_FROM_RODEX, rodexGetItem);
 		Network.hookPacket(PACKET.ZC.ACK_OPEN_WRITE_RODEX, openWindowsWriteMail);
-		Network.hookPacket(PACKET.ZC.ACK_ADD_ITEM_RODEX, rodexSetAttachment);
-		Network.hookPacket(PACKET.ZC.ACK_ADD_ITEM_RODEX2, rodexSetAttachment);
-		Network.hookPacket(PACKET.ZC.ACK_REMOVE_RODEX_ITEM, rodexRemoveAttachment);
+		Network.hookPacket(PACKET.ZC.ACK_ADD_ITEM_RODEX, onRodexItemAdded);
+		Network.hookPacket(PACKET.ZC.ACK_ADD_ITEM_RODEX2, onRodexItemAdded);
+		Network.hookPacket(PACKET.ZC.ACK_REMOVE_RODEX_ITEM, onRodexRemoveItem);
 		Network.hookPacket(PACKET.ZC.ACK_SEND_RODEX, rodexSend);
 		Network.hookPacket(PACKET.ZC.ACK_DELETE_RODEX, rodexDelete);
 		Network.hookPacket(PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME, rodexCharacterInfo);
