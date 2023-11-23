@@ -16,10 +16,7 @@ define(function (require) {
 	var DB = require('DB/DBManager');
 	var jQuery = require('Utils/jquery');
 	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
 	var Renderer = require('Renderer/Renderer');
-	var InputBox = require('UI/Components/InputBox/InputBox');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
@@ -192,7 +189,20 @@ define(function (require) {
 		Rodex.ui.find("#sender_" + MailID).html('');
 	}
 
-
+	/**
+	 * Show/Hide UI
+	 */
+	Rodex.toggle = function toggle() {
+		if (this.ui.is(':visible')) {
+			Rodex.closeRodexBox();
+			Rodex.ui.hide();
+		} else {
+			Rodex.openRodexBox();
+			Rodex.append();
+			Rodex.ui.show();
+			Rodex.ui.focus();
+		}
+	};
 
 	function createRodexList() {
 		if (Rodex.list.mailList.length === 0) {

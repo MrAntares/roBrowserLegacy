@@ -18,6 +18,7 @@
 	 var UIComponent        = require('UI/UIComponent');
 	 var htmlText           = require('text!./RodexIcon.html');
 	 var cssText            = require('text!./RodexIcon.css');
+	 var Rodex              = require('UI/Components/Rodex/Rodex');
  
  	 /**
 	  * Create Component
@@ -43,7 +44,10 @@
 	 };
 
 	 function onClickRodexIcon() {
-		RodexIcon.openRodexBox();
+		Rodex.openRodexBox();
+		Rodex.append();
+		Rodex.ui.show();
+		Rodex.ui.focus();
 	 }
 
 	 /**

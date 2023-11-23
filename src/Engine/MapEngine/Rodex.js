@@ -33,7 +33,7 @@ define(function (require) {
 	 * @param {int} openType
 	 * @param {int} MailID
 	 */
-	RodexIcon.openRodexBox = function openRodexBox(openType = 0, MailID = 0) {
+	Rodex.openRodexBox = function openRodexBox(openType = 0, MailID = 0) {
 		let pkt = new PACKET.CZ.OPEN_RODEXBOX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
@@ -284,7 +284,6 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ACK_RODEX_LIST
 	 */
 	function rodexList(pkt) {
-		Rodex.append();
 		Rodex.initData(pkt);
 	}
 

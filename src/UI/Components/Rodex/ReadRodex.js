@@ -15,10 +15,8 @@
 	  * Dependencies
 	  */
 	 var DB                 = require('DB/DBManager');
-	 var jQuery             = require('Utils/jquery');
 	 var Preferences        = require('Core/Preferences');
 	 var Renderer           = require('Renderer/Renderer');
-	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	 var Client             = require('Core/Client');
 	 var UIManager          = require('UI/UIManager');
 	 var UIComponent        = require('UI/UIComponent');
