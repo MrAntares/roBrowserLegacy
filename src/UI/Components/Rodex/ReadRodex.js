@@ -131,7 +131,9 @@
 
 	function onClickDelete(e) {
 		e.stopImmediatePropagation();
-		Rodex.requestDeleteRodex(ReadRodex.openType, ReadRodex.MailID);
+		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
+			Rodex.requestDeleteRodex(ReadRodex.openType, ReadRodex.MailID);
+		});
 	}
 
 	function onClickReply(e) {
