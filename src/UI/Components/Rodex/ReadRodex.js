@@ -75,7 +75,8 @@
 		ReadRodex.ui.find('.title-text').html(mail.title);
 		ReadRodex.ui.find('.content-text').html(data.Textcontent);
 		ReadRodex.ui.find('.value').html(prettifyZeny(data.zeny));
-		this.ui.find('.get-content').on('click', onClickRetrieveAll);
+		this.ui.find('.get-content').on('click', onClickGetItems);
+		this.ui.find('.get-zeny').on('click', onClickGetZeny);
 		this.ui.find('.delete').on('click', onClickDelete);
 		this.ui.find('.reply').on('click', onClickReply);
 		let content = ReadRodex.ui.find('.item-list');
@@ -93,6 +94,16 @@
 				content.find('.item[data-index="'+ i +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
 		}
+		if(data.ItemList.length > 0) {
+			this.ui.find('.get-content').show();
+		} else {
+			this.ui.find('.get-content').hide();
+		}
+		if(data.zeny > 0) {
+			this.ui.find('.get-zeny').show();
+		} else {
+			this.ui.find('.get-zeny').hide();
+		}
 		ReadRodex.ui.show();
 		ReadRodex.ui.focus();
 
@@ -106,11 +117,17 @@
 		ReadRodex.ui.hide();
 	}
 
-	function onClickRetrieveAll(e) {
+	function onClickGetItems(e) {
 		e.stopImmediatePropagation();
 		Rodex.requestItemsFromRodex(ReadRodex.openType, ReadRodex.MailID);
+	}
+
+	function onClickGetZeny(e) {
+		e.stopImmediatePropagation();
 		Rodex.requestZenyFromRodex(ReadRodex.openType, ReadRodex.MailID);
 	}
+
+	
 
 	function onClickDelete(e) {
 		e.stopImmediatePropagation();
