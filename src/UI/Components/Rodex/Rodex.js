@@ -46,12 +46,17 @@ define(function (require) {
 	/**
 	 * know which tab is current
 	 */
-	Rodex.openType = -1;
+	Rodex.openType = 0;
 
 	/**
 	 * know which tab is current
 	 */
 	Rodex.currentTab = 0;
+
+	/**
+	 * know what to search
+	 */
+	Rodex.searchType = 1;
 
 	Rodex.attachmentType = {
 		0: '', // none
@@ -90,6 +95,13 @@ define(function (require) {
 		this.ui.find('.retrieve-all').on('click', onClickRetrieveAll);
 		this.ui.find('.previous-page').on('click', onClickPreviousPage);
 		this.ui.find('.next-page').on('click', onClickNexPage);
+		this.ui.find('.nav-item').on('click', onClickTab);
+
+		Rodex.openType = 0;
+		Rodex.ui.find('.nav-item.active').removeClass('active');
+		Rodex.ui.find('#tab_0').addClass('active');
+		Rodex.searchType = 1;
+		
 	};
 
 	/**
@@ -102,6 +114,8 @@ define(function (require) {
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.save();
+
+		Rodex.openType = 0;
 	};
 
 
@@ -113,20 +127,25 @@ define(function (require) {
 	Rodex.initData = function initData(pkt) {
 		Rodex.list = pkt.MailList;
 		Rodex.isEnd = pkt.isEnd;
-		Rodex.openType = (typeof pkt.openType !== 'undefined') ? pkt.openType : -1;
+		Rodex.openType = (typeof pkt.openType !== 'undefined') ? pkt.openType : 0;
 		Rodex.createRodexList();
 		Rodex.ui.show();
 		Rodex.ui.focus();
 	};
 
-	Rodex.createRodexList = function createRodexList() {
+	Rodex.createRodexList = function createRodexList(tabID = 0) {
 		var content = Rodex.ui.find('.mail-list');
 		content.html('');
-		if (Rodex.list.length == 0) return;
-		let start = (Rodex.list.length > Rodex.pageSize) ? Rodex.page * Rodex.pageSize : 0;
+		let mail_list = Rodex.getMailsByTabID(tabID);
+		if (mail_list.length == 0) return;
+		let start = Rodex.pageSize * Rodex.page;
 
-		for (let i = start; i < Rodex.pageSize && i < Rodex.list.length; i++) {
-			let mail = Rodex.list[i];
+		console.log(start);
+		console.log(mail_list);
+
+		let total = 0;
+		for (let i = start; total < Rodex.pageSize && i < mail_list.length; i++) {
+			let mail = mail_list[i];
 			let mailID = mail.MailID;
 			let title = mail.title.length > 18 ? mail.title.substring(0, 18) + "..." : mail.title;
 			let sender = mail.SenderName.length > 18 ? mail.SenderName.substring(0, 18) + "..." : mail.SenderName;
@@ -152,8 +171,13 @@ define(function (require) {
 			content.append(mail_html);
 			Rodex.ui.find("#mail_" + mailID).on('click', onClickReadMail);
 			Rodex.ui.find("#sender_" + mailID).on('click', onClickReplyMail);
+			total++;
 		}
 		content.each(this.parseHTML).find('*').each(this.parseHTML);
+	}
+
+	Rodex.getMailsByTabID = function getMailsByTabID(tabID) {
+		return Rodex.list.filter(mail => mail.openType == tabID);
 	}
 
 	Rodex.getMailByID = function getMailByID(mailID) {
@@ -204,83 +228,9 @@ define(function (require) {
 		}
 	};
 
-	function createRodexList() {
-		if (Rodex.list.mailList.length === 0) {
-			Rodex.ui.find('.prev_next').hide();
-		} else {
-			Rodex.ui.find('#infor_page').text((Rodex.page + 1) + "/" + Math.ceil(Rodex.list.mailList.length / Rodex.pageSize));
-		}
-
-		adjustButtons();
-	}
-
-
-
-	function adjustButtons() {
-		if (Rodex.list.length == 0) return;
-		let mailLength = Rodex.list.mailList.length;
-
-		if (!(Rodex.page > mailLength / Rodex.pageSize - 1)) {
-			addEventNextAndPrevAdd('next');
-		} else {
-			addEventNextAndPrevRemove('next');
-		}
-		if (!(Rodex.page == 0)) {
-			addEventNextAndPrevAdd('prev');
-		} else {
-			addEventNextAndPrevRemove('prev');
-		}
-
-		Rodex.ui.find('.next span').prop('disabled', mailLength <= Rodex.pageSize || Rodex.page > mailLength / Rodex.pageSize - 1);
-		Rodex.ui.find('.prev span').prop('disabled', mailLength <= Rodex.pageSize || Rodex.page == 0);
-	}
-
-	function addEventNextAndPrevAdd(eventName) {
-		var overlay = Rodex.ui.find('.prev_next .overlay_' + eventName + '');
-		var text = Rodex.ui.find('.prev_next .' + eventName + ' span');
-		text.addClass('event_add_cursor');
-		overlay.text(text.text());
-
-		Rodex.ui.find('.' + eventName + ' .event_add_cursor').mouseover(function () {
-			if (text.hasClass('event_add_cursor')) {
-				overlay.show();
-			}
-		}).mouseout(function () {
-			overlay.hide();
-		});
-	}
-
-	function addEventNextAndPrevRemove(eventName) {
-		// Get back data
-		var overlay = Rodex.ui.find('.prev_next .overlay_' + eventName + '');
-		var text = Rodex.ui.find('.prev_next .' + eventName + ' span');
-		// Display box
-		overlay.hide();
-		text.removeClass('event_add_cursor');
-	}
-
-	function updatePageRodexItems() {
-		Rodex.ui.find('.next').click(function (e) {
-			e.stopImmediatePropagation();
-			if (Rodex.page < Rodex.list.mailList.length / Rodex.pageSize - 1) {
-				Rodex.page++;
-				createRodexList();
-				adjustButtons();
-			}
-		});
-		Rodex.ui.find('.prev').click(function (e) {
-			e.stopImmediatePropagation();
-			if (Rodex.page > 0) {
-				Rodex.page--;
-				createRodexList();
-				adjustButtons();
-			}
-		});
-		createRodexList();
-	}
-
 	function onClickClose(e) {
 		e.stopImmediatePropagation();
+		Rodex.openType = 0;
 		Rodex.closeRodexBox();
 		Rodex.ui.hide();
 	}
@@ -313,12 +263,32 @@ define(function (require) {
 
 	function onClickPreviousPage(e) {
 		e.stopImmediatePropagation();
-		//Rodex.requestOpenWriteRodex();
+		if(Rodex.page - 1 < 0 ) return;
+		Rodex.page--;
+		Rodex.createRodexList(Rodex.openType);
 	}
 
 	function onClickNexPage(e) {
 		e.stopImmediatePropagation();
-		//Rodex.requestOpenWriteRodex();
+		if((Rodex.page + 1) * Rodex.pageSize < Rodex.getMailsByTabID(Rodex.openType).length) {
+			Rodex.page++;
+			Rodex.createRodexList(Rodex.openType);
+		}
+	}
+
+	function onClickTab(e) {
+		e.stopImmediatePropagation();
+		let element = jQuery(e.currentTarget);
+		let tid = element.attr('id');
+		let id = tid.replace("tab_", "");
+		Rodex.ui.find('.nav-item.active').removeClass('active');
+		element.addClass('active');
+		if(id >= 0 && id <= 2) {
+			Rodex.openType = id;
+			Rodex.createRodexList(Rodex.openType);
+		} else {
+			Rodex.ui.find('.mail-list').html(''); // search tab
+		}
 	}
 
 	function onClickReadMail(e) {
