@@ -83,6 +83,10 @@ define(function( require )
 	 */
 	var _list = [];
 
+	/**
+	 * @var previus combo time
+	 */
+	var prevCombo = [];
 
 	/**
 	 * Convert sprite to image Data
@@ -440,8 +444,14 @@ define(function( require )
 
 			// Combo title
 			if (damage.type & Damage.TYPE.COMBO || damage.type & Damage.TYPE.COMBO_B) {
+				//Combo title need to remove if new one come up
+				if(damage.startTick < prevCombo[damage.entity.GID]){
+					continue;
+				}
+				prevCombo[damage.entity.GID] = damage.startTick;
+
 				// TODO: fix it
-				size = Math.min( perc, 0.05 ) * 75;
+				size = Math.min( perc, 0.05 ) * 70;
 
 				// Remove it
 				if (!(damage.type & Damage.TYPE.COMBO_FINAL) && perc > 0.15) {

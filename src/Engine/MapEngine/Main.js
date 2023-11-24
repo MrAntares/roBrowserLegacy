@@ -198,6 +198,9 @@ define(function( require )
 		else if (pkt.hasOwnProperty('statusID')) {
 			type = pkt.statusID;
 		}
+		else if (pkt.hasOwnProperty('type')) {
+			type = pkt.type;
+	  	}
 		else {
 			type = -1; // goto "default".
 		}

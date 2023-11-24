@@ -48,6 +48,8 @@ define(function( require )
 	var Inventory         = require('UI/Components/Inventory/Inventory');
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
+	var JobId 		  = require('DB/Jobs/JobConst');
+	var WeaponType    = require('DB/Items/WeaponType');
 
 	// Version Dependent UIs
 	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
@@ -92,6 +94,9 @@ define(function( require )
 			];
 
 	const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
+	const AVG_ATTACK_SPEED = 432;
+	const AVG_ATTACKED_SPEED = 288;
+	const MAX_ATTACKMT = AVG_ATTACK_SPEED*2;
 
 	/**
 	 * Spam an entity on the map
@@ -122,6 +127,73 @@ define(function( require )
 				}
 			}
 			EntityManager.add(entity);
+		}
+
+		//check dual weapon
+		if(entity.objecttype === Entity.TYPE_PC){
+			if(
+				entity.job == JobId.ASSASSIN ||
+				entity.job == JobId.ASSASSIN_H ||
+				entity.job == JobId.ASSASSIN_B ||
+				entity.job == JobId.GUILLOTINE_CROSS ||
+				entity.job == JobId.GUILLOTINE_CROSS_H ||
+				entity.job == JobId.GUILLOTINE_CROSS_B
+			){
+				// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
+				// so we have to swap it. maybe have a better solution.
+				if(!pkt.weapon && pkt.shield && !DB.isShield(pkt.shield)){
+					pkt.weapon = pkt.shield;
+					pkt.shield = 0;
+				}
+				
+				if(!DB.isShield(pkt.shield) && pkt.weapon){
+					let _weapon = DB.getWeaponViewID(pkt.weapon);
+					let _shield = DB.getWeaponViewID(pkt.shield);
+					
+					if(_weapon === WeaponType.KATAR){
+						_shield = _weapon;
+					}
+					if(_weapon < WeaponType.MAX && _weapon >= WeaponType.SHORTSWORD_SHORTSWORD){
+						_shield = 0;
+					}
+					const viewId = _weapon+_shield;
+					switch(viewId){
+						case 2:
+							entity.weapon = WeaponType.SHORTSWORD_SHORTSWORD;
+							break;
+						case 3:
+							entity.weapon = WeaponType.SHORTSWORD_SWORD;
+							break;
+						case 4:
+							entity.weapon = WeaponType.SWORD_SWORD;
+							break;
+						case 7:
+							entity.weapon = WeaponType.SHORTSWORD_AXE;
+							break;
+						case 8:
+							entity.weapon = WeaponType.SWORD_AXE;
+							break;
+						case 12:
+							entity.weapon = WeaponType.AXE_AXE;
+							break;
+						default:
+							entity.weapon = viewId;
+							break;
+					}
+					entity.shield = 0;
+				}else{
+					if(DB.getWeaponViewID(pkt.weapon) == WeaponType.KATAR){
+						entity.weapon = pkt.weapon;
+						entity.shield = pkt.weapon;
+					}else{
+						entity.weapon = pkt.weapon;
+						entity.shield = pkt.shield;
+					}
+				}
+			}else{
+				entity.weapon = pkt.weapon;
+				entity.shield = pkt.shield;
+			}
 		}
 
 		if(entity.objecttype === Entity.TYPE_PC &&
@@ -368,7 +440,6 @@ define(function( require )
 		var dstEntity = EntityManager.get(pkt.targetGID);
 		var target;
 		var srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
-		var srcWeaponLeft = srcEntity.shield ? srcEntity.shield : 0;
 
 
 		srcEntity.targetGID = pkt.targetGID;
@@ -394,62 +465,53 @@ define(function( require )
 				var weaponSound = WSnd ? WSnd[0] : false;
 				var weaponSoundRelease = WSnd ? WSnd[1] : false;
 
-				var WSndL = DB.getWeaponSound(srcWeaponLeft);
-				var weaponSoundLeft = WSndL ? WSndL[0] : false;
-				var weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;
+				if(pkt.attackMT > MAX_ATTACKMT){
+					pkt.attackMT = MAX_ATTACKMT;
+				}
+				srcEntity.attack_speed = pkt.attackMT;
 
-				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
-				if (weaponSound && weaponSound.includes('bow')) {
-					var EF_Init_Par = {
-						effectId: 'ef_arrow_projectile',
-						ownerAID: dstEntity.GID,
-						otherAID: srcEntity.GID,
-						otherPosition: srcEntity.position
-					};
+				let animSpeed = 0;
+				let soundTime = 0;
+				let delayTime = pkt.attackMT;
 
-					EffectManager.spam( EF_Init_Par );
+				if (srcEntity.objecttype === Entity.TYPE_PC) {
+					const factorOfmotionSpeed = pkt.attackMT / AVG_ATTACK_SPEED;
+					const isDualWeapon = DB.isDualWeapon(srcEntity._job, srcEntity._sex, srcEntity.weapon);
+					let m_attackMotion = DB.getPCAttackMotion(srcEntity._job, srcEntity._sex, srcEntity.weapon, isDualWeapon);
+					let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action); [MrUnzO]
+					if (m_motionSpeed < 1) m_motionSpeed = 1;
+					m_motionSpeed *= factorOfmotionSpeed;
+
+					soundTime = delayTime = m_attackMotion * m_motionSpeed * 24.0;
+
+					// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
+					if (DB.getWeaponType(srcEntity.weapon) == WeaponType.BOW) {
+						delayTime = (m_attackMotion + (8/m_motionSpeed)) * m_motionSpeed * 24.0;
+						pkt.attackMT += delayTime;
+						var EF_Init_Par = {
+							effectId: 'ef_arrow_projectile',
+							ownerAID: dstEntity.GID,
+							otherAID: srcEntity.GID,
+							startTick: Renderer.tick + pkt.attackMT,
+							otherPosition: srcEntity.position
+						};
+						EffectManager.spam( EF_Init_Par );
+					}
+					animSpeed = pkt.attackMT / m_attackMotion;
 				}
 
 				//attack sound
 				if(weaponSound){
 					Events.setTimeout(function(){
-						Sound.play(weaponSound);
-						}, 0 );
+						Sound.playPosition(weaponSound, srcEntity.position);
+					}, soundTime * 2 );
 				}
 				//attack release sound for bow and dagger
 				if(weaponSoundRelease){
 					Events.setTimeout(function(){
-						Sound.play(weaponSoundRelease);
-						}, pkt.attackMT * 0.25 );
+						Sound.playPosition(weaponSoundRelease, srcEntity.position);
+						}, delayTime * 2 );
 				}
-
-				//second hit (double attack)
-				if(pkt.count == 2){
-					if(weaponSound){
-						Events.setTimeout(function(){
-							Sound.play(weaponSound);
-							}, C_MULTIHIT_DELAY );
-					}
-					if(weaponSoundRelease){
-						Events.setTimeout(function(){
-							Sound.play(weaponSoundRelease);
-							}, (pkt.attackMT * 0.25) + C_MULTIHIT_DELAY );
-					}
-				}
-				//left hand
-				if(pkt.leftDamage){
-					if(weaponSoundLeft){
-						Events.setTimeout(function(){
-							Sound.play(weaponSoundLeft);
-							}, C_MULTIHIT_DELAY * 1.75 );
-					}
-					if(weaponSoundReleaseLeft){
-						Events.setTimeout(function(){
-							Sound.play(weaponSoundRelease);
-							}, (pkt.attackMT * 0.25) + (C_MULTIHIT_DELAY * 1.75) );
-					}
-				}
-
 
 				if (dstEntity) {
 					// only if damage and do not have endure
@@ -488,7 +550,7 @@ define(function( require )
 							case 4: // regular damage (endure)
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, type );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeapon, type );
 								}
 								break;
 
@@ -505,7 +567,7 @@ define(function( require )
 									}
 									if(pkt.leftDamage){
 										Damage.add(	pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, Damage.TYPE.COMBO );
-										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									} else {
 										Damage.add( pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									}
@@ -518,7 +580,7 @@ define(function( require )
 								}
 								if(pkt.leftDamage){
 									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, type );
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeapon, type );
 								} else {
 									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, type );
 								}
@@ -543,17 +605,17 @@ define(function( require )
 					srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
 				}
 
-				srcEntity.attack_speed = pkt.attackMT;
-
-
 				if(pkt.leftDamage){
-					srcEntity.setAction({
-						action: srcEntity.ACTION.ATTACK3,
+				// KAGEROU, OBORO does not use ATTCK3 for left
+				const useATTACK = (srcEntity.job == JobId.KAGEROU || srcEntity.job == JobId.KAGEROU_B || srcEntity.job == JobId.OBORO || srcEntity.job == JobId.OBORO_B);
+				srcEntity.setAction({
+						action: useATTACK ? srcEntity.ACTION.ATTACK : srcEntity.ACTION.ATTACK3,
+						speed: animSpeed,
 						frame:  0,
 						repeat: false,
 						play:   true,
 						next: {
-							delay:  Renderer.tick + pkt.attackMT,
+							delay:  Renderer.tick + pkt.attackMT + delayTime,
 							action: srcEntity.ACTION.READYFIGHT,
 							frame:  0,
 							repeat: true,
@@ -564,6 +626,7 @@ define(function( require )
 				} else {
 					srcEntity.setAction({
 						action: srcEntity.ACTION.ATTACK,
+						speed: animSpeed,
 						frame:  0,
 						repeat: false,
 						play:   true,
@@ -867,8 +930,70 @@ define(function( require )
 				// stored in a long value (uint16 and uint16 in uint32)
 				// source: https://github.com/rathena/rathena/blob/master/src/map/clif.c#L3162
 				if (pkt instanceof PACKET.ZC.SPRITE_CHANGE2) {
-					entity.shield = pkt.value >> 16;
-					entity.weapon = pkt.value & 0x00FFFF;
+					if(
+						entity.job == JobId.ASSASSIN ||
+						entity.job == JobId.ASSASSIN_H ||
+						entity.job == JobId.ASSASSIN_B ||
+						entity.job == JobId.GUILLOTINE_CROSS ||
+						entity.job == JobId.GUILLOTINE_CROSS_H ||
+						entity.job == JobId.GUILLOTINE_CROSS_B
+					){
+						// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
+						// so we have to swap it. maybe have a better solution.
+						if(!pkt.value && pkt.value2 && !DB.isShield(pkt.value2)){
+							pkt.value = pkt.value2;
+							pkt.value2 = 0;
+						}
+						
+						if(!DB.isShield(pkt.value2) && pkt.value){
+							let _weapon = DB.getWeaponViewID(pkt.value);
+							let _shield = DB.getWeaponViewID(pkt.value2);
+							
+							if(_weapon === WeaponType.KATAR){
+								_shield = _weapon;
+							}
+
+							if(_weapon < WeaponType.MAX && _weapon >= WeaponType.SHORTSWORD_SHORTSWORD){
+								_shield = 0;
+							}
+							const viewId = _weapon+_shield;
+							switch(viewId){
+								case 2:
+									entity.weapon = WeaponType.SHORTSWORD_SHORTSWORD;
+									break;
+								case 3:
+									entity.weapon = WeaponType.SHORTSWORD_SWORD;
+									break;
+								case 4:
+									entity.weapon = WeaponType.SWORD_SWORD;
+									break;
+								case 7:
+									entity.weapon = WeaponType.SHORTSWORD_AXE;
+									break;
+								case 8:
+									entity.weapon = WeaponType.SWORD_AXE;
+									break;
+								case 12:
+									entity.weapon = WeaponType.AXE_AXE;
+									break;
+								default:
+									entity.weapon = viewId;
+									break;
+							}
+							entity.shield = 0;
+						}else{
+							if(DB.getWeaponViewID(pkt.value) == WeaponType.KATAR){
+								entity.weapon = pkt.value;
+								entity.shield = pkt.value;
+							}else{
+								entity.weapon = pkt.value;
+								entity.shield = pkt.value2;
+							}
+						}
+					}else{
+						entity.weapon = pkt.value;
+						entity.shield = pkt.value2;
+					}
 				}
 				else {
 					entity.weapon = pkt.value;
@@ -1051,7 +1176,7 @@ define(function( require )
 			pkt.attackMT = Math.min( 9999, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
-			srcEntity.amotionTick = Renderer.tick + pkt.attackMT; // Add amotion delay
+			srcEntity.amotionTick = Renderer.tick + pkt.attackMT*2; // Add amotion delay
 
 			srcWeapon = 0;
 			if(srcEntity.weapon){
@@ -1099,42 +1224,51 @@ define(function( require )
 		if (dstEntity) {
 			var target = pkt.damage ? dstEntity : srcEntity;
 
-			if (target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
+			if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 
 				// Will be hit actions
 				onEntityWillBeHitSub( pkt, dstEntity );
 
 				var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 				var isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
+				
 
-				var addDamage = function(i, startTick) {
+				var addDamage = function(i) {
+					return function addDamageClosure() {
+						
+						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, null, pkt.AID);
+						
+						if(!isCombo && isBlueCombo){
+								// Blue 'crit' non-combo EG: Rampage Blaster
+							Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
+						} else {
+							Damage.add( pkt.damage / pkt.count, target, Renderer.tick, srcWeapon); // Normal
+						}
 
-					if(pkt.damage){ // Only if hits
-						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
-					}
-
-					if(!isCombo && isBlueCombo && pkt.damage){ // Blue 'crit' non-combo EG: Rampage Blaster that hits
-						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
-					} else {
-						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon); // Normal
-					}
-
-					// Only display combo if the target is not entity and
-					// there are multiple attacks and actually hits
-					if (isCombo && pkt.damage) {
-						Damage.add(
-							pkt.damage / pkt.count * (i+1),
-							target,
-							startTick,
-							srcWeapon,
-							(isBlueCombo?Damage.TYPE.COMBO_B:Damage.TYPE.COMBO) | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
-						);
-					}
+						// Only display combo if the target is not entity and
+						// there are multiple attacks
+						if (isCombo) {
+							Damage.add(
+								pkt.damage / pkt.count * (i+1),
+								target,
+								Renderer.tick,
+								srcWeapon,
+								(isBlueCombo?Damage.TYPE.COMBO_B:Damage.TYPE.COMBO) | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 )
+							);
+						}
+					};
 				};
 
+				var addEffectBeforeHit = function(){
+					return function addEffectBeforeHitClosure(){
+						EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, null, pkt.AID);
+					};
+				};
+				
+
 				for (var i = 0; i < pkt.count; ++i) {
-					EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, Renderer.tick + (C_MULTIHIT_DELAY * i), pkt.AID);
-					addDamage(i, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY * i));
+					Events.setTimeout( addEffectBeforeHit(), (C_MULTIHIT_DELAY * i));
+					Events.setTimeout( addDamage(i), pkt.attackMT + (C_MULTIHIT_DELAY * i));
 				}
 			}
 		}
@@ -1206,7 +1340,7 @@ define(function( require )
 				action: srcEntity.ACTION[action],
 				frame:  0,
 				repeat: false,
-				play: isPlay,
+				play: false,
 				next: next,
 			});
 		}
@@ -1945,11 +2079,20 @@ define(function( require )
 	 * @param dstEntity - Reveiver entity
 	 */
 	function onEntityWillBeHitSub( pkt, dstEntity ){
-		// only if has damage > 0 and type is not endure and not lucky
-		if ((pkt.damage > 0 || pkt.leftDamage > 0) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
-
+		// only if has damage and type is not endure and not lucky
+		if ((pkt.damage || pkt.leftDamage) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
+			
 			var count = pkt.count || 1;
-
+			
+			if(dstEntity.action !== dstEntity.ACTION.DIE){
+				dstEntity.setAction({ // Stop walking and wait for attack to happen
+					action: dstEntity.ACTION.IDLE,
+					frame:  0,
+					repeat: true,
+					play:   true,
+				});
+			}
+			
 			function impendingAttack(){ // Get hurt when attack happens
 				if(dstEntity.action !== dstEntity.ACTION.DIE){
 					dstEntity.setAction({
@@ -1957,17 +2100,21 @@ define(function( require )
 						frame:  0,
 						repeat: false,
 						play:   true,
-						next:	{
-							action: dstEntity.ACTION.READYFIGHT, // Wiggle-wiggle
-							delay:  pkt.attackedMT+0,
-							frame:  0,
-							repeat: true,
-							play:   true,
-						}
 					});
 				}
 			}
-
+			
+			function afterAction(){
+				if(dstEntity.action !== dstEntity.ACTION.DIE){
+					dstEntity.setAction({  // Wiggle-wiggle
+						action: dstEntity.ACTION.READYFIGHT,
+						frame:  0,
+						repeat: true,
+						play:   true,
+					});
+				}
+			}
+			
 			for(var i = 0; i<count; i++){
 				if( pkt.damage ){
 					Events.setTimeout( impendingAttack, pkt.attackMT + (C_MULTIHIT_DELAY * i) );
@@ -1976,6 +2123,7 @@ define(function( require )
 					Events.setTimeout( impendingAttack, pkt.attackMT + ((C_MULTIHIT_DELAY*1.75) * i) );
 				}
 			}
+			Events.setTimeout( afterAction,  pkt.attackMT + (C_MULTIHIT_DELAY * (count-1)) + (pkt.leftDamage?(C_MULTIHIT_DELAY*1.75):0) + pkt.attackedMT );
 		}
 	}
 

@@ -16,9 +16,9 @@ define(["./WeaponType"], function( WeaponType )
 	var WeaponSound = {};
 
 	WeaponSound[WeaponType.NONE]                  = ["attack_fist.wav"];
-	WeaponSound[WeaponType.SHORTSWORD]            = ["attack_short_sword.wav", "attack_short_sword_.wav"];
+	WeaponSound[WeaponType.SHORTSWORD]            = ["attack_sword.wav"];
 	WeaponSound[WeaponType.SWORD]                 = ["attack_sword.wav"];
-	WeaponSound[WeaponType.TWOHANDSWORD]          = ["attack_twohand_sword.wav"];
+	WeaponSound[WeaponType.TWOHANDSWORD]          = ["attack_sword.wav"];
 	WeaponSound[WeaponType.SPEAR]                 = ["attack_spear.wav"];
 	WeaponSound[WeaponType.TWOHANDSPEAR]          = ["attack_spear.wav"];
 	WeaponSound[WeaponType.AXE]                   = ["attack_axe.wav"];

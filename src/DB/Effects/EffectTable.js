@@ -11314,7 +11314,7 @@ define(function( require )
 			duration: 140,
 			fadeIn: true,
 			fadeOut: true,
-			spriteName: '../npc/skel_archer_arrow', //it is not in the effects folder so use relative path
+			spriteName: 'data/sprite/npc/skel_archer_arrow', //it is not in the effects folder so use relative path
 			toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
@@ -11333,7 +11333,7 @@ define(function( require )
 			timeBetweenDupli: 0,
 			fadeIn: true,
 			fadeOut: true,
-			spriteName: '../npc/skel_archer_arrow', //it is not in the effects folder so use relative path
+			spriteName: 'data/sprite/npc/skel_archer_arrow', //it is not in the effects folder so use relative path
 			toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
