@@ -99,12 +99,14 @@ define(function (require) {
 		this.ui.find('.nav-item').on('click', onClickTab);
 		this.ui.find('.search-title').on('click', onClickSearchTitle);
 		this.ui.find('.search-sender').on('click', onClickSearchSender);
+		this.ui.find('.search').val('');
 		this.ui.find('.search-btn').on('click', onClickSearchButton);
 
 		Rodex.openType = 0;
 		Rodex.ui.find('.nav-item.active').removeClass('active');
 		Rodex.ui.find('#tab_0').addClass('active');
 		Rodex.searchType = 1;
+		Rodex.page = 0;
 	};
 
 	/**
@@ -254,6 +256,10 @@ define(function (require) {
 		e.stopImmediatePropagation();
 		Rodex.openType = 0;
 		Rodex.closeRodexBox();
+		// Save preferences
+		_preferences.y = parseInt(Rodex.ui.css('top'), 10);
+		_preferences.x = parseInt(Rodex.ui.css('left'), 10);
+		_preferences.save();
 		Rodex.ui.hide();
 	}
 
