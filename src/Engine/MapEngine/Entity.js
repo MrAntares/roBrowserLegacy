@@ -137,7 +137,8 @@ define(function( require )
 				entity.job == JobId.ASSASSIN_B ||
 				entity.job == JobId.GUILLOTINE_CROSS ||
 				entity.job == JobId.GUILLOTINE_CROSS_H ||
-				entity.job == JobId.GUILLOTINE_CROSS_B
+				entity.job == JobId.GUILLOTINE_CROSS_B ||
+				entity.job == JobId.SHADOW_CROSS
 			){
 				// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
 				// so we have to swap it. maybe have a better solution.
