@@ -39,12 +39,12 @@ define(["./WeaponType"], function( WeaponType )
 	WeaponSound[WeaponType.GUN_GRANADE]           = ["_hit_\xb1\xd7\xb7\xb9\xb3\xd7\xc0\xcc\xb5\xe5\xb7\xb1\xc3\xc4.wav"]; //_hit_±×·¹³×ÀÌµå·±ÃÄ.wav
 	WeaponSound[WeaponType.SYURIKEN]              = ["_hit_mace.wav"];
 	WeaponSound[WeaponType.TWOHANDROD]            = ["_hit_rod.wav"];
-	WeaponSound[WeaponType.SHORTSWORD_SHORTSWORD] = ["_hit_mace.wav"];
-	WeaponSound[WeaponType.SWORD_SWORD]           = ["_hit_mace.wav"];
-	WeaponSound[WeaponType.AXE_AXE]               = ["_hit_mace.wav"];
-	WeaponSound[WeaponType.SHORTSWORD_SWORD]      = ["_hit_mace.wav"];
-	WeaponSound[WeaponType.SHORTSWORD_AXE]        = ["_hit_mace.wav"];
-	WeaponSound[WeaponType.SWORD_AXE]             = ["_hit_mace.wav"];
+	WeaponSound[WeaponType.SHORTSWORD_SHORTSWORD] = ["_hit_sword.wav"];
+	WeaponSound[WeaponType.SWORD_SWORD]           = ["_hit_sword.wav"];
+	WeaponSound[WeaponType.AXE_AXE]               = ["_hit_axe.wav"];
+	WeaponSound[WeaponType.SHORTSWORD_SWORD]      = ["_hit_sword.wav"];
+	WeaponSound[WeaponType.SHORTSWORD_AXE]        = ["_hit_sword.wav"];
+	WeaponSound[WeaponType.SWORD_AXE]             = ["_hit_sword.wav"];
 	WeaponSound[WeaponType.LAST]                  = ["_hit_fist4.wav"];
 	WeaponSound[WeaponType.MAX]                   = ["_hit_mace.wav"];
 
