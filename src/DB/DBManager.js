@@ -1316,17 +1316,24 @@ define(function(require)
 		if (isDualWeapon) {
 			switch (job) {
 				case JobId.THIEF:
+				case JobId.THIEF_H:
 					return 5.75;
 					break;
 				case JobId.MERCHANT:
+				case JobId.MERCHANT_H:
 					return 5.85;
 					break;
 			}
 		} else {
 			switch (job) {
 				case JobId.NOVICE:
+				case JobId.NOVICE_H:
+				case JobId.NOVICE_B:
 				case JobId.SUPERNOVICE:
 				case JobId.SUPERNOVICE_B:
+				case JobId.SUPERNOVICE2:
+				case JobId.SUPERNOVICE2_B:
+				case JobId.HYPER_NOVICE:
 					switch (sex) {
 						case 1:
 							return 5.85;
@@ -1336,6 +1343,10 @@ define(function(require)
 				case JobId.ASSASSIN:
 				case JobId.ASSASSIN_H:
 				case JobId.ASSASSIN_B:
+				case JobId.GUILLOTINE_CROSS:
+				case JobId.GUILLOTINE_CROSS_H:
+				case JobId.GUILLOTINE_CROSS_B:
+				case JobId.SHADOW_CROSS:
 					switch (DB.getWeaponType(weapon)) {
 						case WeaponType.KATAR:
 						case WeaponType.SHORTSWORD_SHORTSWORD:
@@ -1354,11 +1365,14 @@ define(function(require)
 
 	DB.isDualWeapon = function isDualWeapon(job, sex, weapon) {
 
-
 		let isDualWeapon = false;
 
 		switch (job) {
 			case JobId.GUNSLINGER:
+			case JobId.GUNSLINGER_B:
+			case JobId.REBELLION:
+			case JobId.REBELLION_B:
+			case JobId.NIGHT_WATCH:
 				{
 					switch (weapon) {
 						case WeaponType.GUN_RIFLE:
@@ -1371,6 +1385,13 @@ define(function(require)
 					break;
 				}
 			case JobId.NINJA:
+			case JobId.NINJA_B:
+			case JobId.KAGEROU:
+			case JobId.KAGEROU_B:
+			case JobId.SHINKIRO:
+			case JobId.OBORO:
+			case JobId.OBORO_B:
+			case JobId.SHIRANUI:
 				{
 					switch (weapon) {
 						case WeaponType.SYURIKEN:
@@ -1387,12 +1408,26 @@ define(function(require)
 					break;
 				}
 			case JobId.TAEKWON:
+			case JobId.TAEKWON_B:
 			case JobId.STAR:
+			case JobId.STAR_B:
 			case JobId.STAR2:
+			case JobId.STAR2_B:
+			case JobId.EMPEROR:
+			case JobId.EMPEROR_B:			
+			case JobId.EMPEROR2:
+			case JobId.EMPEROR2_B:
+			case JobId.SKY_EMPEROR:
+			case JobId.SKY_EMPEROR2:
 				{
 					break;
 				}
 			case JobId.LINKER:
+			case JobId.LINKER_B:
+			case JobId.REAPER:
+			case JobId.REAPER_B:
+			case JobId.SOUL_ASCETIC:
+			//case JobId.SOUL_ASCETIC2:??
 				{
 					switch (weapon) {
 						case WeaponType.SHORTSWORD:
@@ -1410,7 +1445,7 @@ define(function(require)
 			case JobId.SWORDMAN_B:
 				{
 					switch (weapon) {
-						case WeaponType.SPEAR:
+						case WeaponType.TWOHANDSWORD:
 						case WeaponType.TWOHANDSPEAR:
 							isDualWeapon = true;
 							break;
@@ -1446,7 +1481,7 @@ define(function(require)
 			case JobId.MAGICIAN_B:
 				{
 					switch (weapon) {
-						case WeaponType.SHORTSWORD:
+						case WeaponType.TWOHANDROD:
 							isDualWeapon = true;
 							break;
 					}
@@ -1457,7 +1492,7 @@ define(function(require)
 			case JobId.MERCHANT_B:
 				{
 					switch (weapon) {
-						case WeaponType.SHORTSWORD:
+						case WeaponType.TWOHANDAXE:
 							isDualWeapon = true;
 							break;
 					}
@@ -1471,20 +1506,19 @@ define(function(require)
 				}
 			case JobId.NOVICE:
 			case JobId.NOVICE_H:
-			case JobId.SUPERNOVICE:
 			case JobId.NOVICE_B:
+			case JobId.SUPERNOVICE:
 			case JobId.SUPERNOVICE_B:
+			case JobId.SUPERNOVICE2:
+			case JobId.SUPERNOVICE2_B:
+			case JobId.HYPER_NOVICE:
 				{
 					switch (sex) {
 						case 0:
 							switch (weapon) {
-								case WeaponType.SWORD:
 								case WeaponType.TWOHANDSWORD:
-								case WeaponType.AXE:
 								case WeaponType.TWOHANDAXE:
-								case WeaponType.ROD:
 								case WeaponType.TWOHANDROD:
-								case WeaponType.MACE:
 								case WeaponType.TWOHANDMACE:
 									break;
 								case WeaponType.SHORTSWORD:
@@ -1494,13 +1528,9 @@ define(function(require)
 							break;
 						case 1:
 							switch (weapon) {
-								case WeaponType.SWORD:
 								case WeaponType.TWOHANDSWORD:
-								case WeaponType.AXE:
 								case WeaponType.TWOHANDAXE:
-								case WeaponType.ROD:
 								case WeaponType.TWOHANDROD:
-								case WeaponType.MACE:
 								case WeaponType.TWOHANDMACE:
 									isDualWeapon = true;
 									break;
@@ -1512,15 +1542,27 @@ define(function(require)
 					break;
 				}
 			case JobId.KNIGHT:
+			case JobId.KNIGHT2:
 			case JobId.CHICKEN:
 			case JobId.KNIGHT_H:
 			case JobId.CHICKEN_H:
 			case JobId.KNIGHT_B:
 			case JobId.CHICKEN_B:
+			case JobId.KNIGHT2_H:
+			case JobId.KNIGHT2_B:
+			case JobId.RUNE_KNIGHT:
+			case JobId.RUNE_KNIGHT_H:
+			case JobId.RUNE_KNIGHT_B:
+			case JobId.RUNE_KNIGHT2:
+			case JobId.RUNE_KNIGHT2_H:
+			case JobId.RUNE_KNIGHT2_B:
+			case JobId.RUNE_KNIGHT2_H:
+			case JobId.DRAGON_KNIGHT:
+			case JobId.DRAGON_KNIGHT2:
 				{
 					switch (weapon) {
-						case WeaponType.SPEAR:
 						case WeaponType.TWOHANDSPEAR:
+						case WeaponAction.TWOHANDSWORD:
 							isDualWeapon = true;
 							break;
 					}
@@ -1529,6 +1571,10 @@ define(function(require)
 			case JobId.PRIEST:
 			case JobId.PRIEST_H:
 			case JobId.PRIEST_B:
+			case JobId.ARCHBISHOP:
+			case JobId.ARCHBISHOP_H:
+			case JobId.ARCHBISHOP_B:
+			case JobId.CARDINAL:
 				{
 					switch (weapon) {
 						case WeaponType.BOOK:
@@ -1540,6 +1586,10 @@ define(function(require)
 			case JobId.WIZARD:
 			case JobId.WIZARD_H:
 			case JobId.WIZARD_B:
+			case JobId.WARLOCK:
+			case JobId.WARLOCK_H:
+			case JobId.WARLOCK_B:
+			case JobId.ARCH_MAGE:
 				{
 					switch (weapon) {
 						case WeaponType.SHORTSWORD:
@@ -1555,6 +1605,14 @@ define(function(require)
 			case JobId.BLACKSMITH:
 			case JobId.BLACKSMITH_H:
 			case JobId.BLACKSMITH_B:
+			case JobId.MECHANIC:
+			case JobId.MECHANIC_H:
+			case JobId.MECHANIC_B:
+			case JobId.MECHANIC2:
+			case JobId.MECHANIC2_H:
+			case JobId.MECHANIC2_B:
+			case JobId.MEISTER:
+			case JobId.MEISTER2:
 				{
 					switch (weapon) {
 						case WeaponType.SWORD:
@@ -1569,6 +1627,10 @@ define(function(require)
 			case JobId.ASSASSIN:
 			case JobId.ASSASSIN_H:
 			case JobId.ASSASSIN_B:
+			case JobId.GUILLOTINE_CROSS:
+			case JobId.GUILLOTINE_CROSS_H:
+			case JobId.GUILLOTINE_CROSS_B:
+			case JobId.SHADOW_CROSS:
 				{
 					switch (weapon) {
 						case WeaponType.KATAR:
@@ -1586,6 +1648,14 @@ define(function(require)
 			case JobId.HUNTER:
 			case JobId.HUNTER_H:
 			case JobId.HUNTER_B:
+			case JobId.RANGER:
+			case JobId.RANGER_H:
+			case JobId.RANGER_B:
+			case JobId.RANGER2:
+			case JobId.RANGER2_H:
+			case JobId.RANGER2_B:
+			case JobId.WINDHAWK:
+			case JobId.WINDHAWK2:
 				{
 					switch (weapon) {
 						case WeaponType.BOW:
@@ -1597,6 +1667,10 @@ define(function(require)
 			case JobId.SAGE:
 			case JobId.SAGE_H:
 			case JobId.SAGE_B:
+			case JobId.SORCERER:
+			case JobId.SORCERER_H:
+			case JobId.SORCERER_B:
+			case JobId.ELEMENTAL_MASTER:
 				{
 					switch (weapon) {
 						case WeaponType.BOOK:
@@ -1611,6 +1685,10 @@ define(function(require)
 			case JobId.ALCHEMIST:
 			case JobId.ALCHEMIST_H:
 			case JobId.ALCHEMIST_B:
+			case JobId.GENETIC:
+			case JobId.GENETIC_H:
+			case JobId.GENETIC_B:
+			case JobId.BIOLO:
 				{
 					switch (weapon) {
 						case WeaponType.SWORD:
@@ -1622,12 +1700,23 @@ define(function(require)
 					}
 				}
 				break;
-			case JobId.CHICKEN2:
 			case JobId.CRUSADER:
-			case JobId.CHICKEN2_H:
 			case JobId.CRUSADER_H:
 			case JobId.CRUSADER_B:
+			case JobId.CHICKEN2:
+			case JobId.CHICKEN2_H:
 			case JobId.CHICKEN2_B:
+			case JobId.CRUSADER2:
+			case JobId.CRUSADER2_H:
+			case JobId.CRUSADER2_B:
+			case JobId.ROYAL_GUARD:
+			case JobId.ROYAL_GUARD_H:
+			case JobId.ROYAL_GUARD_B:
+			case JobId.ROYAL_GUARD2:
+			case JobId.ROYAL_GUARD2_H:
+			case JobId.ROYAL_GUARD2_B:
+			case JobId.IMPERIAL_GUARD:
+			case JobId.IMPERIAL_GUARD2:
 				{
 					switch (weapon) {
 						case WeaponType.SPEAR:
@@ -1640,6 +1729,10 @@ define(function(require)
 			case JobId.MONK:
 			case JobId.MONK_H:
 			case JobId.MONK_B:
+			case JobId.SURA:
+			case JobId.SURA_H:
+			case JobId.SURA_B:
+			case JobId.INQUISITOR:
 				{
 					switch (weapon) {
 						case WeaponType.KNUKLE:
@@ -1652,6 +1745,10 @@ define(function(require)
 			case JobId.ROGUE:
 			case JobId.ROGUE_H:
 			case JobId.ROGUE_B:
+			case JobId.SHADOW_CHASER:
+			case JobId.SHADOW_CHASER_H:
+			case JobId.SHADOW_CHASER_B:
+			case JobId.ABYSS_CHASER:
 				{
 					switch (weapon) {
 						case WeaponType.BOW:
@@ -1661,11 +1758,19 @@ define(function(require)
 				}
 				break;
 			case JobId.BARD:
-			case JobId.DANCER:
 			case JobId.BARD_H:
-			case JobId.DANCER_H:
 			case JobId.BARD_B:
+			case JobId.MINSTREL:
+			case JobId.MINSTREL_H:
+			case JobId.MINSTREL_B:
+			case JobId.TROUBADOUR:
+			case JobId.DANCER:
+			case JobId.DANCER_H:
 			case JobId.DANCER_B:
+			case JobId.WANDERER:
+			case JobId.WANDERER_H:
+			case JobId.WANDERER_B:
+			case JobId.TROUVERE:
 				{
 					switch (weapon) {
 						case WeaponType.BOW:
@@ -1673,6 +1778,10 @@ define(function(require)
 							break;
 					}
 				}
+				break;
+			case JobId.DO_SUMMONER1:
+			case JobId.DO_SUMMONER_B1:
+			case JobId.SPIRIT_HANDLER:
 				break;
 		}
 		return isDualWeapon;
