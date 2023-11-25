@@ -33,6 +33,7 @@ define(function(require)
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
+	var Rodex              = require('UI/Components/Rodex/Rodex');
 	
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
@@ -129,6 +130,9 @@ define(function(require)
 					if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 						CheckAttendance.toggle();
 					}
+					break;
+				case 'mail':
+					Rodex.toggle();
 					break;
 			}
 		});

@@ -30,7 +30,7 @@ define(function(require)
 	var Bank               = require('UI/Components/Bank/Bank');
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
-	var PACKETVER   = require('Network/PacketVerManager');
+	var Rodex              = require('UI/Components/Rodex/Rodex');
 	
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
@@ -121,6 +121,10 @@ define(function(require)
 
 				case 'quest':
 					Quest.getUI().toggle();
+					break;
+
+				case 'mail':
+					Rodex.toggle();
 					break;
 			}
 		});

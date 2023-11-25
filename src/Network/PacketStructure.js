@@ -10725,7 +10725,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x83a
 	PACKET.ZC.OPEN_SEARCH_STORE_INFO = function PACKET_ZC_OPEN_SEARCH_STORE_INFO(fp, end) {
-		this.OpenType = fp.readShort();
+		this.openType = fp.readShort();
 		this.SearchCntMax = fp.readUChar();
 	};
 	PACKET.ZC.OPEN_SEARCH_STORE_INFO.size = 5;
@@ -11794,12 +11794,657 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.DELETEITEM_FROM_MCSTORE2.size = 18;
 
-	// 0x9e7 todo show Rodex icon
+	/** RodEx **/
+
+	/** Icon **/
+
+	// 0x9e7
 	PACKET.ZC.RODEX_ICON = function PACKET_ZC_RODEX_ICON(fp, end) {
 		this.show = fp.readUChar();
 	};
-	PACKET.ZC.ACK_WHISPER2.size = 3;
+	PACKET.ZC.RODEX_ICON.size = 3;
 
+
+	/** Mail List **/
+
+	// 0x9f0
+	PACKET.ZC.ACK_RODEX_LIST = function PACKET_ZC_ACK_RODEX_LIST(fp, end) {
+		this.openType = fp.readUChar();
+		this.count = fp.readUChar();
+		this.IsEnd = fp.readUChar();
+		this.MailList = new Array();
+		for (var i = 0; i < this.count; i++) {
+			let Mail = {};
+			Mail.openType = this.openType;
+			Mail.MailID = fp.readUInt64();
+			Mail.Isread = fp.readUChar();
+			Mail.type = fp.readUChar();
+			Mail.SenderName = fp.readString(NAME_LENGTH);
+			Mail.regDateTime = fp.readULong();
+			Mail.expireDateTime = fp.readULong();
+			Mail.Titlelength = fp.readShort();
+			Mail.title = fp.readString(Mail.Titlelength);
+			this.MailList.push(Mail);
+		}
+	};
+	PACKET.ZC.ACK_RODEX_LIST.size = -1;
+
+
+	// 0xa7d
+	PACKET.ZC.ACK_RODEX_LIST2 = function PACKET_ZC_ACK_RODEX_LIST2(fp, end) {
+		this.openType = fp.readUChar();
+		this.count = fp.readUChar();
+		this.IsEnd = fp.readUChar();
+		this.MailList = new Array();
+		for (var i = 0; i < this.count; i++) {
+			let Mail = {};
+			Mail.openType = this.openType;
+			Mail.MailID = fp.readUInt64();
+			Mail.Isread = fp.readUChar();
+			Mail.type = fp.readUChar();
+			Mail.SenderName = fp.readString(NAME_LENGTH);
+			Mail.regDateTime = fp.readULong();
+			Mail.expireDateTime = fp.readULong();
+			Mail.Titlelength = fp.readShort();
+			Mail.title = fp.readString(Mail.Titlelength);
+			this.MailList.push(Mail);
+		}
+	};
+	PACKET.ZC.ACK_RODEX_LIST2.size = -1;
+
+
+	// 0xac2
+	PACKET.ZC.ACK_RODEX_LIST3 = function PACKET_ZC_ACK_RODEX_LIST3(fp, end) {
+		this.IsEnd = fp.readUChar();
+		this.MailList = new Array();
+		var len = end-fp.tell();
+		for (var i = 0; i < len; i+=41) {
+			let Mail = {};
+			Mail.openType = fp.readUChar();
+			Mail.MailID = fp.readUInt64();
+			Mail.Isread = fp.readUChar();
+			Mail.type = fp.readUChar();
+			Mail.SenderName = fp.readString(NAME_LENGTH);
+			Mail.expireDateTime = fp.readULong();
+			Mail.Titlelength = fp.readShort();
+			Mail.title = fp.readString(Mail.Titlelength);
+			i+=Mail.Titlelength;
+			this.MailList.push(Mail);
+		}
+	};
+	PACKET.ZC.ACK_RODEX_LIST3.size = -1;
+
+
+	// 0xb5f
+	PACKET.ZC.ACK_RODEX_LIST4 = function PACKET_ZC_ACK_RODEX_LIST4(fp, end) {
+		this.IsEnd = fp.readUChar();
+		this.MailList = new Array();
+		var len = end-fp.tell();
+		for (var i = 0; i < len; i+=45) {
+			let Mail = {};
+			Mail.openType = fp.readUChar();
+			Mail.MailID = fp.readUInt64();
+			Mail.Isread = fp.readUChar();
+			Mail.type = fp.readUChar();
+			Mail.SenderName = fp.readString(NAME_LENGTH);
+			Mail.expireDateTime = fp.readULong();
+			Mail.Titlelength = fp.readShort();
+			Mail.title = fp.readString(Mail.Titlelength);
+			Mail.unknown = fp.readULong();
+			i+=Mail.Titlelength;
+			this.MailList.push(Mail);
+		}
+	};
+	PACKET.ZC.ACK_RODEX_LIST4.size = -1;
+
+	/** Failed to Retrieve Mail List **/
+
+	// 0xAC3
+	PACKET.ZC.ACK_FAILED_ALL_RODEX_LIST = function PACKET_ZC_ACK_FAILED_ALL_RODEX_LIST(fp, end) {};
+	PACKET.ZC.ACK_FAILED_ALL_RODEX_LIST.size = 2;
+
+	
+	/** READ MAIL **/
+
+	// 0x9eb
+	PACKET.ZC.ACK_READ_RODEX = function PACKET_ZC_ACK_READ_RODEX(fp, end) {
+		this.openType = fp.readUChar();
+		this.MailID = fp.readUInt64();
+		this.TextcontentsLength = fp.readShort();
+		this.zeny = fp.readUInt64();
+		this.ItemCnt = fp.readUChar();
+		this.Textcontent = fp.readString(this.TextcontentsLength);
+		this.ItemList = new Array();
+		let option = new Struct("short index", "short value", "char param");
+		for (var i = 0; i < this.ItemCnt; i++) {
+			let Item = {};
+			Item.count = fp.readUShort();
+			Item.ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.IsIdentified = fp.readUChar();
+			Item.IsDamaged = fp.readUChar();
+			Item.RefiningLevel = fp.readUChar();
+			Item.slot = {};
+			Item.slot.card1 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.slot.card2 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.slot.card3 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.slot.card4 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.location = fp.readLong();
+			Item.type = fp.readUChar();
+			Item.viewSprite = fp.readUShort();
+			Item.bindOnEquipType = fp.readUShort();
+			Item.Options = [];
+			Item.Options[1] = fp.readStruct(option);
+			Item.Options[2] = fp.readStruct(option);
+			Item.Options[3] = fp.readStruct(option);
+			Item.Options[4] = fp.readStruct(option);
+			Item.Options[5] = fp.readStruct(option);
+			this.ItemList.push(Item);
+		}
+	};
+	PACKET.ZC.ACK_READ_RODEX.size = -1;
+
+
+	// 0xb63
+	PACKET.ZC.ACK_READ_RODEX2 = function PACKET_ZC_ACK_READ_RODEX2(fp, end) {
+		this.openType = fp.readUChar();
+		this.MailID = fp.readUInt64();
+		this.TextcontentsLength = fp.readShort();
+		this.zeny = fp.readUInt64();
+		this.ItemCnt = fp.readUChar();
+		this.Textcontent = fp.readString(this.TextcontentsLength);
+		this.ItemList = new Array();
+		let option = new Struct("short index", "short value", "char param");
+		for (var i = 0; i < this.ItemCnt; i++) {
+			let Item = {};
+			Item.count = fp.readUShort();
+			Item.ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.IsIdentified = fp.readUChar();
+			Item.IsDamaged = fp.readUChar();
+			Item.slot = {};
+			Item.slot.card1 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.slot.card2 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.slot.card3 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.slot.card4 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+			Item.location = fp.readLong();
+			Item.type = fp.readUChar();
+			Item.viewSprite = fp.readUShort();
+			Item.bindOnEquipType = fp.readUShort();
+			Item.Options = [];
+			Item.Options[1] = fp.readStruct(option);
+			Item.Options[2] = fp.readStruct(option);
+			Item.Options[3] = fp.readStruct(option);
+			Item.Options[4] = fp.readStruct(option);
+			Item.Options[5] = fp.readStruct(option);
+			Item.RefiningLevel = fp.readUChar();
+			Item.grade = fp.readUChar();
+			this.ItemList.push(Item);
+		}
+	};
+	PACKET.ZC.ACK_READ_RODEX2.size = -1;
+
+
+	/** Delete Mail Result **/
+
+	// 0x9f6 - only on success
+	PACKET.ZC.ACK_DELETE_RODEX = function PACKET_ZC_ACK_DELETE_RODEX(fp, end) {
+		this.openType = fp.readUChar();
+		this.MailID = fp.readUInt64();
+	};
+	PACKET.ZC.ACK_DELETE_RODEX.size = 11;
+
+	/** Sent Result **/
+
+	// 0x9ed
+	PACKET.ZC.ACK_SEND_RODEX = function PACKET_ZC_ACK_SEND_RODEX(fp, end) {
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.ACK_SEND_RODEX.size = 3;
+
+
+	/** Retrieve Result **/
+	
+	// 0x9f2
+	PACKET.ZC.ACK_ZENY_FROM_RODEX = function PACKET_ZC_ACK_ZENY_FROM_RODEX(fp, end) {
+		this.MailID = fp.readUInt64();
+		this.openType = fp.readUChar();
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.ACK_ZENY_FROM_RODEX.size = 12;
+
+
+	// 0x9f4
+	PACKET.ZC.ACK_ITEM_FROM_RODEX = function PACKET_ZC_ACK_ITEM_FROM_RODEX(fp, end) {
+		this.MailID = fp.readUInt64();
+		this.openType = fp.readUChar();
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.ACK_ITEM_FROM_RODEX.size = 12;
+
+
+	/** Add item to Mail Result **/
+
+	// 0xa05
+	PACKET.ZC.ACK_ADD_ITEM_RODEX = function PACKET_ZC_ACK_ADD_ITEM_RODEX(fp, end) {
+		this.result = fp.readUChar();
+		let option = new Struct( "short index", "short value", "char param");
+
+		this.index = fp.readShort();
+		this.count = fp.readShort();
+		this.ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.type = fp.readUChar();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.RefiningLevel = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.slot.card2 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.slot.card3 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.slot.card4 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
+		this.weight = fp.readShort();
+		this.favorite = fp.readUChar();
+		this.location = fp.readULong();
+	};
+	PACKET.ZC.ACK_ADD_ITEM_RODEX.size = (PACKETVER.value >= 20181121 ? 63 : 53);
+
+
+	// 0xb3f
+	PACKET.ZC.ACK_ADD_ITEM_RODEX2 = function PACKET_ZC_ACK_ADD_ITEM_RODEX2(fp, end) {
+		this.result = fp.readUChar();
+		let option = new Struct( "short index", "short value", "char param");
+
+		this.index = fp.readShort();
+		this.count = fp.readShort();
+		this.ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.type = fp.readUChar();
+		this.IsIdentified = fp.readUChar();
+		this.IsDamaged = fp.readUChar();
+		this.slot = {};
+		this.slot.card1 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.slot.card2 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.slot.card3 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.slot.card4 = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
+		this.weight = fp.readShort();
+		this.favorite = fp.readUChar();
+		this.location = fp.readULong();
+		this.RefiningLevel = fp.readUChar();
+		this.grade = fp.readUChar();
+	};
+	PACKET.ZC.ACK_ADD_ITEM_RODEX2.size = (PACKETVER.value >= 20181121 ? 64 : 54);
+
+
+	/** Remove Item from Mail Result **/
+
+	// 0xa07
+	PACKET.ZC.ACK_REMOVE_RODEX_ITEM = function PACKET_ZC_ACK_REMOVE_RODEX_ITEM(fp, end) {
+		this.result = fp.readUChar();
+		this.index = fp.readUShort();
+		this.count = fp.readUShort();
+		this.weight = fp.readUShort();
+	};
+	PACKET.ZC.ACK_REMOVE_RODEX_ITEM.size = 9;
+
+
+	/** Write Request Result **/
+
+	//0xa12
+	PACKET.ZC.ACK_OPEN_WRITE_RODEX = function PACKET_ZC_ACK_OPEN_WRITE_RODEX(fp, end) {
+		this.receiveName = fp.readString(NAME_LENGTH);
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.ACK_OPEN_WRITE_RODEX.size = 27;
+
+
+	/* 
+	* TODO:
+	* 0A32: ZC_OPEN_RODEX_THROUGH_NPC_ONLY
+	* 0B96: ZC_RODEX_BLOCK_RECEIVE
+	* 0B99: ZC_RODEX_RETURN_ACK
+	*/
+
+	// 0x9e8
+	PACKET.CZ.OPEN_RODEXBOX = function PACKET_CZ_OPEN_RODEXBOX() {
+		this.openType = 0;
+		this.MailID = 0;
+	};
+	PACKET.CZ.OPEN_RODEXBOX.prototype.build = function() {
+		var pkt_len = 2 + 9;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9e8);
+		pkt_buf.writeUChar(this.openType);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		return pkt_buf;
+	};
+
+
+	// 0x9e9
+	PACKET.CZ.CLOSE_RODEXBOX = function PACKET_CZ_CLOSE_RODEXBOX() {};
+	PACKET.CZ.CLOSE_RODEXBOX.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x9e9);
+		return pkt_buf;
+	};
+
+
+	// 0x9ea
+	PACKET.CZ.REQ_READ_RODEX = function PACKET_CZ_REQ_READ_RODEX() {
+		this.openType = 0;
+		this.MailID = 0;
+	};
+	PACKET.CZ.REQ_READ_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 9;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9ea);
+		pkt_buf.writeUChar(this.openType);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		return pkt_buf;
+	};
+
+	
+	// 0x9ee
+	PACKET.CZ.REQ_NEXT_RODEX = function PACKET_CZ_REQ_NEXT_RODEX() {
+		this.openType = 0;
+		this.MailID = 0;
+	};
+	PACKET.CZ.REQ_NEXT_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 9;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9ee);
+		pkt_buf.writeUChar(this.openType);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		return pkt_buf;
+	};
+
+
+	// 0x9ef
+	PACKET.CZ.REQ_REFRESH_RODEX = function PACKET_CZ_REQ_REFRESH_RODEX() {
+		this.openType = 0;
+		this.MailID = 0;
+	};
+	PACKET.CZ.REQ_REFRESH_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 9;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9ef);
+		pkt_buf.writeUChar(this.openType);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		return pkt_buf;
+	};
+
+
+	// 0x9f1
+	PACKET.CZ.REQ_ZENY_FROM_RODEX = function PACKET_CZ_REQ_ZENY_FROM_RODEX() {
+		this.MailID = 0;
+		this.openType = 0;
+	};
+	PACKET.CZ.REQ_ZENY_FROM_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 9;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9f1);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeUChar(this.openType);
+		return pkt_buf;
+	};
+
+
+	// 0x9f3
+	PACKET.CZ.REQ_ITEM_FROM_RODEX = function PACKET_CZ_REQ_ITEM_FROM_RODEX() {
+		this.MailID = 0;
+		this.openType = 0;
+	};
+	PACKET.CZ.REQ_ITEM_FROM_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 9;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9f3);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeUChar(this.openType);
+		return pkt_buf;
+	};
+
+
+	// 0x9f5
+	PACKET.CZ.REQ_DELETE_RODEX = function PACKET_CZ_REQ_DELETE_RODEX() {
+		this.openType = 0;
+		this.MailID = 0;
+	};
+	PACKET.CZ.REQ_DELETE_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 9;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9f5);
+		pkt_buf.writeUChar(this.openType);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		return pkt_buf;
+	};
+
+
+	// 0xa03
+	PACKET.CZ.REQ_CANCEL_WRITE_RODEX = function PACKET_CZ_REQ_CANCEL_WRITE_RODEX() {};
+	PACKET.CZ.REQ_CANCEL_WRITE_RODEX.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0xa03);
+		return pkt_buf;
+	};
+
+
+	// 0xa04
+	PACKET.CZ.REQ_ADD_ITEM_RODEX = function PACKET_CZ_REQ_ADD_ITEM_RODEX() {
+		this.index = 0;
+		this.count = 0;
+	};
+	PACKET.CZ.REQ_ADD_ITEM_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0xa04);
+		pkt_buf.writeShort(this.index);
+		pkt_buf.writeShort(this.count);
+		return pkt_buf;
+	};
+
+
+	// 0xa06
+	PACKET.CZ.REQ_REMOVE_RODEX_ITEM = function PACKET_CZ_REQ_REMOVE_RODEX_ITEM() {
+		this.index = 0;
+		this.count = 0;
+	};
+	PACKET.CZ.REQ_REMOVE_RODEX_ITEM.prototype.build = function() {
+		var pkt_len = 2 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0xa06);
+		pkt_buf.writeShort(this.index);
+		pkt_buf.writeShort(this.count);
+		return pkt_buf;
+	};
+
+
+	// 0xa08
+	PACKET.CZ.REQ_OPEN_WRITE_RODEX = function PACKET_CZ_REQ_OPEN_WRITE_RODEX() {
+		this.name = "";
+	};
+	PACKET.CZ.REQ_OPEN_WRITE_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0xa08);
+		pkt_buf.writeString(this.name, 24);
+		return pkt_buf;
+	};
+
+
+	// 0xac0
+	PACKET.CZ.OPEN_ALL_RODEX = function PACKET_CZ_OPEN_ALL_RODEX() {
+		this.MailID = 0;
+		this.MailReturnID = 0;
+		this.MailAccountID = 0;
+	};
+	PACKET.CZ.OPEN_ALL_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xac0);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeULong(this.MailReturnID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeULong(this.MailAccountID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		return pkt_buf;
+	};
+
+
+	// 0xac1
+	PACKET.CZ.UPDATE_ALL_RODEX = function PACKET_CZ_UPDATE_ALL_RODEX() {
+		this.MailID = 0;
+		this.MailReturnID = 0;
+		this.MailAccountID = 0;
+	};
+	PACKET.CZ.UPDATE_ALL_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xac1);
+		pkt_buf.writeULong(this.MailID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeULong(this.MailReturnID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeULong(this.MailAccountID);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		return pkt_buf;
+	};
+
+	// 0x9ec
+	PACKET.CZ.REQ_SEND_RODEX = function PACKET_CZ_REQ_SEND_RODEX() {
+		this.receiver = "";
+		this.sender = "";
+		this.zeny = 0;
+		this.Titlelength = 0; 
+		this.Bodylength = 0;
+		this.title = "";
+		this.body = "";
+	};
+	PACKET.CZ.REQ_SEND_RODEX.prototype.build = function() {
+		var pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9ec);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeString(this.receiver, 24);
+		pkt_buf.writeString(this.sender, 24);
+		pkt_buf.writeULong(this.zeny);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeUShort(this.Titlelength);
+		pkt_buf.writeUShort(this.Bodylength);
+		pkt_buf.writeString(this.title);
+		pkt_buf.writeString(this.body);
+		return pkt_buf;
+	};
+
+	// 0xa6e
+	PACKET.CZ.REQ_SEND_RODEX2 = function PACKET_CZ_REQ_SEND_RODEX2() {
+		this.receiver = "";
+		this.sender = "";
+		this.zeny = 0;
+		this.Titlelength = 0; 
+		this.Bodylength = 0;
+		this.CharID = 0;
+		this.title = "";
+		this.body = "";
+	};
+	PACKET.CZ.REQ_SEND_RODEX2.prototype.build = function() {
+		var pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xa6e);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeString(this.receiver, 24);
+		pkt_buf.writeString(this.sender, 24);
+		pkt_buf.writeULong(this.zeny);
+		pkt_buf.writeULong(0); // TODO check or convert to 8 bytes (UINT64)
+		pkt_buf.writeUShort(this.Titlelength);
+		pkt_buf.writeUShort(this.Bodylength);
+		pkt_buf.writeULong(this.CharID);
+		pkt_buf.writeString(this.title);
+		pkt_buf.writeString(this.body);
+		return pkt_buf;
+	};
+
+
+	// 0xa13
+	PACKET.CZ.CHECK_RECEIVE_CHARACTER_NAME = function PACKET_CZ_CHECK_RECEIVE_CHARACTER_NAME() {
+		this.name = "";
+	};
+	PACKET.CZ.CHECK_RECEIVE_CHARACTER_NAME.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xa13);
+		pkt_buf.writeString(this.name, 24);
+		return pkt_buf;
+	};
+
+
+	// 0xb97
+	PACKET.CZ.CHECK_RODEX_RECEIVE = function PACKET_CZ_CHECK_RODEX_RECEIVE() {
+		this.name = "";
+		this.unknown = 1;
+	};
+	PACKET.CZ.CHECK_RODEX_RECEIVE.prototype.build = function() {
+		var pkt_len = 2 + 24 + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb97);
+		pkt_buf.writeString(this.name, 24);
+		pkt_buf.writeUChar(this.unknown);
+		return pkt_buf;
+	};
+
+	/*
+	* TODO:
+	* 0B98: RODEX_RETURN
+	*/
+
+	// 0xa14
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME = function PACKET_ZC_CHECK_RECEIVE_CHARACTER_NAME(fp, end) {
+		this.CharID = fp.readULong(); 
+		this.Job = fp.readUShort();
+		this.level = fp.readUShort();
+	};
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME.size = 10;
+
+	// 0xa51
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2 = function PACKET_ZC_CHECK_RECEIVE_CHARACTER_NAME2(fp, end) {
+		this.CharID = fp.readULong(); 
+		this.Job = fp.readUShort();
+		this.level = fp.readUShort();
+		this.name = fp.readString(NAME_LENGTH);
+	};
+	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2.size = 34;
+
+	
 	// 0x9f7
 	PACKET.ZC.PROPERTY_HOMUN2 = function PACKET_ZC_PROPERTY_HOMUN2(fp, end) {
 
