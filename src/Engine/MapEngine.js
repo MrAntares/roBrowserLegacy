@@ -189,23 +189,6 @@ define(function( require )
 			MapControl.onRequestWalk     = onRequestWalk;
 			MapControl.onRequestStopWalk = onRequestStopWalk;
 			MapControl.onRequestDropItem = onDropItem;
-			
-			//Select UI version
-			BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
-			BasicInfo.selectUIVersion();
-			BasicInfo = BasicInfo.getUI();
-
-			MiniMap = require('UI/Components/MiniMap/MiniMap');
-			MiniMap.selectUIVersion();
-			MiniMap = MiniMap.getUI();
-			
-			SkillList = require('UI/Components/SkillList/SkillList');
-			SkillList.selectUIVersion();
-			SkillList = SkillList.getUI();
-			
-			Quest = require('UI/Components/Quest/Quest');
-			Quest.selectUIVersion();
-			Quest = Quest.getUI();
 
 			// Hook packets
 			Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );
