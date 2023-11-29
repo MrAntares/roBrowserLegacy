@@ -568,10 +568,11 @@ define(function( require )
 			entity = EntityManager.get(Session.homunId);
 		} else {
 			entity = Session.Entity;
-			if(entity.isOverWeight){
+			//Fixme: this check is needed, but not here, because flywing and other AUTORUN_SKILL then doesn't work
+			/*if(entity.isOverWeight){
 				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 				return true;
-			}
+			}*/
 		}
 
 		// Client side minimum delay
