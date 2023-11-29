@@ -75,10 +75,10 @@ define(function( require )
 
 	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
-	var BasicInfo;
-	var MiniMap;
-	var SkillList;
-	var Quest;
+	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+	var MiniMap   = require('UI/Components/MiniMap/MiniMap');
+	var SkillList = require('UI/Components/SkillList/SkillList');
+	var Quest     = require('UI/Components/Quest/Quest');
 
 	/**
 	 * @var {string mapname}
@@ -169,133 +169,152 @@ define(function( require )
 			Session.Playing = true;
 		}, true);
 
+
+		// Select UI version when needed
+		if(MapEngine.needsUIVerUpdate || !_isInitialised){
+			BasicInfo.selectUIVersion();
+			MiniMap.selectUIVersion();
+			SkillList.selectUIVersion();
+			Quest.selectUIVersion();
+		}
+
 		// Do not hook multiple time
-		if (_isInitialised) {
-			return;
+		if (!_isInitialised) {
+			_isInitialised = true;
+
+			MapControl.init();
+			MapControl.onRequestWalk     = onRequestWalk;
+			MapControl.onRequestStopWalk = onRequestStopWalk;
+			MapControl.onRequestDropItem = onDropItem;
+			
+			//Select UI version
+			BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+			BasicInfo.selectUIVersion();
+			BasicInfo = BasicInfo.getUI();
+
+			MiniMap = require('UI/Components/MiniMap/MiniMap');
+			MiniMap.selectUIVersion();
+			MiniMap = MiniMap.getUI();
+			
+			SkillList = require('UI/Components/SkillList/SkillList');
+			SkillList.selectUIVersion();
+			SkillList = SkillList.getUI();
+			
+			Quest = require('UI/Components/Quest/Quest');
+			Quest.selectUIVersion();
+			Quest = Quest.getUI();
+
+			// Hook packets
+			Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );
+			Network.hookPacket( PACKET.ZC.ACCEPT_ENTER,        onConnectionAccepted );
+			Network.hookPacket( PACKET.ZC.ACCEPT_ENTER2,       onConnectionAccepted );
+			Network.hookPacket( PACKET.ZC.ACCEPT_ENTER3,       onConnectionAccepted );
+			Network.hookPacket( PACKET.ZC.NPCACK_MAPMOVE,      onMapChange );
+			Network.hookPacket( PACKET.ZC.NPCACK_SERVERMOVE,   onServerChange );
+			Network.hookPacket( PACKET.ZC.ACCEPT_QUIT,         onExitSuccess );
+			Network.hookPacket( PACKET.ZC.REFUSE_QUIT,         onExitFail );
+			Network.hookPacket( PACKET.ZC.RESTART_ACK,         onRestartAnswer );
+			Network.hookPacket( PACKET.ZC.ACK_REQ_DISCONNECT,  onDisconnectAnswer );
+			Network.hookPacket( PACKET.ZC.NOTIFY_TIME,         onPong );
+
+			// Extend controller
+			require('./MapEngine/Main').call();
+			require('./MapEngine/NPC').call();
+			require('./MapEngine/Entity').call();
+			require('./MapEngine/Item').call();
+			require('./MapEngine/Mail').call();
+			require('./MapEngine/PrivateMessage').call();
+			require('./MapEngine/Storage').call();
+			require('./MapEngine/Group').init();
+			require('./MapEngine/Guild').init();
+			require('./MapEngine/Skill').call();
+			require('./MapEngine/ChatRoom').call();
+			require('./MapEngine/Pet').call();
+			require('./MapEngine/Homun').call();
+			require('./MapEngine/Store').call();
+			require('./MapEngine/Trade').call();
+			require('./MapEngine/Friends').init();
+			require('./MapEngine/UIOpen').call();
+			require('./MapEngine/Quest').call();
+			require('./MapEngine/Rodex').call();
+			if(Configs.get('enableCashShop')){
+				require('./MapEngine/CashShop').call();
+			}
+
+			if(Configs.get('enableBank')) {
+				require('./MapEngine/Bank').init();
+			}
+
+			// Prepare UI
+			Escape.prepare();
+			Inventory.prepare();
+			CartItems.prepare();
+			Vending.prepare();
+			ChangeCart.prepare();
+			Equipment.prepare();
+			ShortCuts.prepare();
+			ShortCut.prepare();
+			ChatRoomCreate.prepare();
+			Emoticons.prepare();
+			FPS.prepare();
+			PartyFriends.prepare();
+			StatusIcons.prepare();
+			ChatBox.prepare();
+			ChatBoxSettings.prepare();
+			Guild.prepare();
+			WorldMap.prepare();
+			SkillListMER.prepare();
+			Rodex.prepare();
+			RodexIcon.prepare();
+			if (UIVersionManager.getWinStatsVersion() === 0) {
+				WinStats.prepare();
+			}
+			if(Configs.get('enableMapName')){
+				MapName.prepare();
+			}
+
+			if(Configs.get('enableCashShop')){
+				CashShop.prepare();
+			}
+
+			if(Configs.get('enableBank')) {
+				Bank.prepare();
+			}
+
+			if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+				CheckAttendance.prepare();
+			}
+
+			// Bind UI
+			WinStats.onRequestUpdate        = onRequestStatUpdate;
+			Equipment.onUnEquip             = onUnEquip;
+			Equipment.onConfigUpdate        = onConfigUpdate;
+			Equipment.onEquipItem           = onEquipItem;
+			Equipment.onRemoveOption        = onRemoveOption;
+			Inventory.onUseItem             = onUseItem;
+			Inventory.onEquipItem           = onEquipItem;
+			Escape.onExitRequest            = onExitRequest;
+			Escape.onCharSelectionRequest   = onRestartRequest;
+			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
+			Escape.onResurectionRequest     = onResurectionRequest;
+			ChatBox.onRequestTalk           = onRequestTalk;
+
 		}
-
-		_isInitialised = true;
-
-		MapControl.init();
-		MapControl.onRequestWalk     = onRequestWalk;
-		MapControl.onRequestStopWalk = onRequestStopWalk;
-		MapControl.onRequestDropItem = onDropItem;
-		
-		//Select UI version
-		BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
-		BasicInfo.selectUIVersion();
-		BasicInfo = BasicInfo.getUI();
-
-		MiniMap = require('UI/Components/MiniMap/MiniMap');
-		MiniMap.selectUIVersion();
-		MiniMap = MiniMap.getUI();
-		
-		SkillList = require('UI/Components/SkillList/SkillList');
-		SkillList.selectUIVersion();
-		SkillList = SkillList.getUI();
-		
-		Quest = require('UI/Components/Quest/Quest');
-		Quest.selectUIVersion();
-		Quest = Quest.getUI();
-
-		// Hook packets
-		Network.hookPacket( PACKET.ZC.AID,                 onReceiveAccountID );
-		Network.hookPacket( PACKET.ZC.ACCEPT_ENTER,        onConnectionAccepted );
-		Network.hookPacket( PACKET.ZC.ACCEPT_ENTER2,       onConnectionAccepted );
-		Network.hookPacket( PACKET.ZC.ACCEPT_ENTER3,       onConnectionAccepted );
-		Network.hookPacket( PACKET.ZC.NPCACK_MAPMOVE,      onMapChange );
-		Network.hookPacket( PACKET.ZC.NPCACK_SERVERMOVE,   onServerChange );
-		Network.hookPacket( PACKET.ZC.ACCEPT_QUIT,         onExitSuccess );
-		Network.hookPacket( PACKET.ZC.REFUSE_QUIT,         onExitFail );
-		Network.hookPacket( PACKET.ZC.RESTART_ACK,         onRestartAnswer );
-		Network.hookPacket( PACKET.ZC.ACK_REQ_DISCONNECT,  onDisconnectAnswer );
-		Network.hookPacket( PACKET.ZC.NOTIFY_TIME,         onPong );
-
-		// Extend controller
-		require('./MapEngine/Main').call();
-		require('./MapEngine/NPC').call();
-		require('./MapEngine/Entity').call();
-		require('./MapEngine/Item').call();
-		require('./MapEngine/Mail').call();
-		require('./MapEngine/PrivateMessage').call();
-		require('./MapEngine/Storage').call();
-		require('./MapEngine/Group').init();
-		require('./MapEngine/Guild').init();
-		require('./MapEngine/Skill').call();
-		require('./MapEngine/ChatRoom').call();
-		require('./MapEngine/Pet').call();
-		require('./MapEngine/Homun').call();
-		require('./MapEngine/Store').call();
-		require('./MapEngine/Trade').call();
-		require('./MapEngine/Friends').init();
-		require('./MapEngine/UIOpen').call();
-		require('./MapEngine/Quest').call();
-		require('./MapEngine/Rodex').call();
-		if(Configs.get('enableCashShop')){
-			require('./MapEngine/CashShop').call();
+			
+		// Init selected UIs when needed
+		if(MapEngine.needsUIVerUpdate || !_isInitialised){
+			// Prepare UIs
+			MiniMap.getUI().prepare();
+			SkillList.getUI().prepare();
+			BasicInfo.getUI().prepare();
+			Quest.getUI().prepare();
+			
+			// Bind UIs
+			// nothing yet
+			
+			// Avoid zone server change init
+			MapEngine.needsUIVerUpdate = false;
 		}
-
-		if(Configs.get('enableBank')) {
-			require('./MapEngine/Bank').init();
-		}
-
-		// Prepare UI
-		MiniMap.prepare();
-		Escape.prepare();
-		Inventory.prepare();
-		CartItems.prepare();
-		Vending.prepare();
-		ChangeCart.prepare();
-		Equipment.prepare();
-		ShortCuts.prepare();
-		ShortCut.prepare();
-		ChatRoomCreate.prepare();
-		Emoticons.prepare();
-		SkillList.prepare();
-		FPS.prepare();
-		PartyFriends.prepare();
-		StatusIcons.prepare();
-		BasicInfo.prepare();
-		ChatBox.prepare();
-		ChatBoxSettings.prepare();
-		Guild.prepare();
-		WorldMap.prepare();
-		SkillListMER.prepare();
-		Rodex.prepare();
-		RodexIcon.prepare();
-		if (UIVersionManager.getWinStatsVersion() === 0) {
-			WinStats.prepare();
-		}
-		if(Configs.get('enableMapName')){
-			MapName.prepare();
-		}
-		Quest.prepare();
-
-		if(Configs.get('enableCashShop')){
-			CashShop.prepare();
-		}
-
-		if(Configs.get('enableBank')) {
-			Bank.prepare();
-		}
-
-		if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
-			CheckAttendance.prepare();
-		}
-
-		// Bind UI
-		WinStats.onRequestUpdate        = onRequestStatUpdate;
-		Equipment.onUnEquip             = onUnEquip;
-		Equipment.onConfigUpdate        = onConfigUpdate;
-		Equipment.onEquipItem           = onEquipItem;
-		Equipment.onRemoveOption        = onRemoveOption;
-		Inventory.onUseItem             = onUseItem;
-		Inventory.onEquipItem           = onEquipItem;
-		Escape.onExitRequest            = onExitRequest;
-		Escape.onCharSelectionRequest   = onRestartRequest;
-		Escape.onReturnSavePointRequest = onReturnSavePointRequest;
-		Escape.onResurectionRequest     = onResurectionRequest;
-		ChatBox.onRequestTalk           = onRequestTalk;
 	};
 
 

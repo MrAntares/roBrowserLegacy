@@ -52,10 +52,8 @@ define(function( require )
 	{
 		BGM.play('01.mp3');
 		
-		//
-		if(_server !== server){
-			MapEngine.invalidate();
-		}
+		//Notify MapEngine if it needs UI update
+		MapEngine.needsUIVerUpdate = (_server !== server);
 
 		// Storing variable
 		_server = server;
