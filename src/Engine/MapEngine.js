@@ -100,9 +100,12 @@ define(function( require )
 	var snCounter = 0;
 	var chatLines = 0;
 	
-	MapEngine.invalidate = function(){
-		_isInitialised = false;
-	}
+	
+	/**
+	 * @var {boolean} do we need to update UI versions?
+	 */
+	MapEngine.needsUIVerUpdate = false;
+
 
 	/**
 	 * Connect to Map Server
