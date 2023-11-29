@@ -350,11 +350,11 @@ define(function( require )
 
 		Session.Entity.clevel = Session.Character.level;
 
-		BasicInfo.update('blvl', Session.Character.level );
-		BasicInfo.update('jlvl', Session.Character.joblevel );
-		BasicInfo.update('zeny', Session.Character.money );
-		BasicInfo.update('name', Session.Character.name );
-		BasicInfo.update('job',  Session.Character.job );
+		BasicInfo.getUI().update('blvl', Session.Character.level );
+		BasicInfo.getUI().update('jlvl', Session.Character.joblevel );
+		BasicInfo.getUI().update('zeny', Session.Character.money );
+		BasicInfo.getUI().update('name', Session.Character.name );
+		BasicInfo.getUI().update('job',  Session.Character.job );
 
 		// Fix http://forum.robrowser.com/?topic=32177.0
 		onMapChange({
@@ -406,15 +406,15 @@ define(function( require )
 			Camera.init();
 
 			// Add Game UI
-			MiniMap.append();
-			MiniMap.setMap( MapRenderer.currentMap );
+			MiniMap.getUI().append();
+			MiniMap.getUI().setMap( MapRenderer.currentMap );
 			if(Configs.get('enableMapName')){
 				MapName.setMap( MapRenderer.currentMap );
 				MapName.append();
 			}
 			ChatBox.append();
 			ChatBoxSettings.append();
-			BasicInfo.append();
+			BasicInfo.getUI().append();
 			Escape.append();
 			Inventory.append();
 			CartItems.append();
@@ -426,7 +426,7 @@ define(function( require )
 			ShortCut.append();
 			ChatRoomCreate.append();
 			Emoticons.append();
-			SkillList.append();
+			SkillList.getUI().append();
 			FPS.append();
 			PartyFriends.append();
 			Guild.append();
@@ -436,7 +436,7 @@ define(function( require )
 			if (UIVersionManager.getWinStatsVersion() === 0) {
 				WinStats.append();
 			}
-			Quest.append();
+			Quest.getUI().append();
 
 			if(Configs.get('enableCashShop')){
 				CashShop.append();
@@ -573,11 +573,11 @@ define(function( require )
 			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 		}
 		else {
-			BasicInfo.remove();
+			BasicInfo.getUI().remove();
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
-			Quest.clean();
+			Quest.getUI().clean();
 			PartyFriends.clean();
 			MapRenderer.free();
 			Renderer.stop();
@@ -595,11 +595,11 @@ define(function( require )
 		switch (pkt.result) {
 			// Disconnect
 			case 0:
-				BasicInfo.remove();
+				BasicInfo.getUI().remove();
 				StatusIcons.clean();
 				ChatBox.clean();
 				ShortCut.clean();
-				Quest.clean();
+				Quest.getUI().clean();
 				PartyFriends.clean();
 				Renderer.stop();
 				onExitSuccess();
@@ -666,7 +666,7 @@ define(function( require )
 
 		//Super Novice Chant
 		if(chatLines > 7 && ([ 23, 4045, 4128, 4172, 4190, 4191, 4192, 4193]).includes(Session.Entity._job)){
-			if(Math.floor((BasicInfo.base_exp / BasicInfo.base_exp_next) * 1000.0) % 100 == 0){
+			if(Math.floor((BasicInfo.getUI().base_exp / BasicInfo.getUI().base_exp_next) * 1000.0) % 100 == 0){
 				if(text == DB.getMessage(790)){
 					snCounter = 1;
 				} else if(snCounter == 1 && text == (DB.getMessage(791) + ' ' + Session.Entity.display.name + ' ' +DB.getMessage(792))){
