@@ -156,7 +156,7 @@ define(function(require)
 		loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
 		loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
 
-		loadTable( 'data/skilldesctable2.txt',			'#',	2, function(index, key, val){	SkillDescription[SKID[key]]	= val.replace("\r\n", "\n");},		onLoad());
+		loadTable( 'data/skilldesctable.txt',			'#',	2, function(index, key, val){	SkillDescription[SKID[key]]	= val.replace("\r\n", "\n");},		onLoad());
 
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixName     			= val;}, 			onLoad());
