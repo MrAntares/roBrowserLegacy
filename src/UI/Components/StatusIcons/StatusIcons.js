@@ -53,7 +53,7 @@ define(function( require )
 	/**
 	 * @var {int} last updated time
 	 */
-	var _last_updated_time = performance.now();
+	var _last_updated_time = Date.now();
 
 	/**
 	 * @var {int} render wait time
@@ -347,7 +347,7 @@ define(function( require )
 		indexes = Object.keys(_status);
 		count   = indexes.length;
 
-		let time_now = performance.now();
+		let time_now = Date.now();
 		if(time_now - _last_updated_time > _render_time) {
 			_last_updated_time = time_now;
 			for (i = 0; i < count; ++i) {
