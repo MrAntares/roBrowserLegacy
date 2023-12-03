@@ -58,7 +58,7 @@ define(function( require )
 	/**
 	 * @var {int} render wait time
 	 */
-	var _render_time = 750;
+	var _render_time = 500;
 
 
 	/**
