@@ -51,6 +51,17 @@ define(function( require )
 
 
 	/**
+	 * @var {int} last updated time
+	 */
+	var _last_updated_time = Date.now();
+
+	/**
+	 * @var {int} render wait time
+	 */
+	var _render_time = 500;
+
+
+	/**
 	 * Initialize component
 	 */
 	StatusIcons.init = function init()
@@ -336,8 +347,12 @@ define(function( require )
 		indexes = Object.keys(_status);
 		count   = indexes.length;
 
-		for (i = 0; i < count; ++i) {
-			renderStatus(_status[indexes[i]], tick);
+		let time_now = Date.now();
+		if(time_now - _last_updated_time > _render_time) {
+			_last_updated_time = time_now;
+			for (i = 0; i < count; ++i) {
+				renderStatus(_status[indexes[i]], tick);
+			}
 		}
 	}
 
