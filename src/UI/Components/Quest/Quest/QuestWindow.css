@@ -10,6 +10,7 @@
 #QuestWindow .quest-window-ul {
     list-style: none;
     margin:5px;
+    text-shadow: 1px 1px 1px black;
 }
 
 #QuestWindow .quest-window-ul .quest-window-li {
