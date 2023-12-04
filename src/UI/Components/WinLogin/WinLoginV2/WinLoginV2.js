@@ -18,13 +18,12 @@ define(function(require)
 	var DB          = require('DB/DBManager');
 	var Client      = require('Core/Client');
 	var Preferences = require('Core/Preferences');
-	var Renderer    = require('Renderer/Renderer');
 	var KEYS        = require('Controls/KeyEventHandler');
 	var UIManager   = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 	var htmlText    = require('text!./WinLoginV2.html');
 	var cssText     = require('text!./WinLoginV2.css');
-
+	var WinLoginV2Background = require('./WinLoginV2Background');
 
 	/**
 	 * Create WinLogin namespace
@@ -35,7 +34,7 @@ define(function(require)
 	/**
 	 * @var {Preferences}
 	 */
-	var _preferences = Preferences.get('WinLoginV2', {
+	var _preferences = Preferences.get('WinLogin', {
 		saveID: true,
 		ID:     ''
 	}, 1.0);
@@ -65,19 +64,19 @@ define(function(require)
 	WinLoginV2.init = function init()
 	{
 
-		var ui = this.ui;
-
-		this.draggable(this.ui.find('.win_login'));
+		WinLoginV2Background.init();
+		WinLoginV2Background.append();
+		this.draggable(WinLoginV2.ui.find('.win_login'));
 
 		// Save Elements
-		_inputUsername = ui.find('.user').mousedown(function(event){ this.focus(); this.value = ''; event.stopImmediatePropagation(); return false; });
-		_inputPassword = ui.find('.pass').mousedown(function(event){ this.focus(); this.value = ''; event.stopImmediatePropagation(); return false; });
-		_buttonSave    = ui.find('.save').mousedown(toggleSaveButton);
+		_inputUsername = WinLoginV2.ui.find('.user').mousedown(function(event){ this.focus(); this.value = ''; event.stopImmediatePropagation(); return false; });
+		_inputPassword = WinLoginV2.ui.find('.pass').mousedown(function(event){ this.focus(); this.value = ''; event.stopImmediatePropagation(); return false; });
+		_buttonSave    = WinLoginV2.ui.find('.save').mousedown(toggleSaveButton);
 
 		// Connect / Exit
 
-		ui.find('.connect').click(connect);
-		ui.find('.exit').click(exit);
+		WinLoginV2.ui.find('.connect').click(connect);
+		WinLoginV2.ui.find('.exit').click(exit);	
 	};
 
 
@@ -101,6 +100,7 @@ define(function(require)
 		else {
 			_inputUsername.focus();
 		}
+		WinLoginV2.focus();
 	};
 
 

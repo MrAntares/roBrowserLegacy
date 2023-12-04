@@ -1,10 +1,9 @@
 #WinLoginV2 { position:absolute; width:301px; height:132px; z-index:1; top: 60%; left: 50%; margin: 0 0 0 -140px; }
-#WinLoginV2 input { position:absolute; left:17px; height:18px; width:127px; border:none; background-color:transparent; padding-left:2px; outline:none; text-align: center;}
-#WinLoginV2 input.user { top:39px; }
-#WinLoginV2 input.pass { top:61px; }
-#WinLoginV2 .save { position:absolute; top:85px; left:57px; display:block; width:38px; height:10px; border:none; background-color:transparent; background-repeat:no-repeat; }
-#WinLoginV2 .btn { position:absolute; border:0; background-color:transparent; }
-#WinLoginV2 .btn.connect { width:84px; height:84px; right:25px; bottom: 15px; }
-#WinLoginV2 .btn.signup { width:84px; height:21px; right:130px; bottom: 15px;}
-#login_background { position: absolute; top:0px; left: 0px; width: 100%; height: 100%; z-index: 0; }
-#login_background .login_background_image { float:left; width: 25%; height: 33.3%; background-size: 100% 100%; }
+#WinLoginV2 .win_login { width: 100%; height: 100%; }
+#WinLoginV2 .win_login input { position:absolute; left:17px; height:18px; width:127px; border:none; background-color:transparent; padding-left:2px; outline:none; text-align: center;}
+#WinLoginV2 .win_login input.user { top:39px; }
+#WinLoginV2 .win_login input.pass { top:61px; }
+#WinLoginV2 .win_login .save { position:absolute; top:85px; left:57px; display:block; width:38px; height:10px; border:none; background-color:transparent; background-repeat:no-repeat; }
+#WinLoginV2 .win_login .btn { position:absolute; border:0; background-color:transparent; }
+#WinLoginV2 .win_login .btn.connect { width:84px; height:84px; right:25px; bottom: 15px; }
+#WinLoginV2 .win_login .btn.signup { width:84px; height:21px; right:130px; bottom: 15px;}
