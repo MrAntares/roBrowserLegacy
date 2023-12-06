@@ -169,6 +169,13 @@ define(function(require)
 			this.ui.find('.btn_open').show();
 			this.ui.find('.btn_close').hide();
 		}
+
+		this.ui.find('#equip').hide();
+		this.ui.find('#battle').hide();
+		this.ui.find('#navigation').hide();
+		this.ui.find('#battle').hide();
+		this.ui.find('#replay').hide();
+		this.ui.find('#achievment').hide();
 	};
 
 
