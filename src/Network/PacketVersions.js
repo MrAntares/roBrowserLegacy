@@ -6075,7 +6075,7 @@ define( ['./PacketStructure'], function( PACKET )
 
 
 		// 2018-03-07bRagexeRE+
-		20180304: [
+		20180308: [
 			[PACKET.CZ.ADD_FRIENDS,0x0202,26,2],
 			[PACKET.CZ.COMMAND_MER,0x022D,5,2,4],
 			[PACKET.CZ.ACK_STORE_PASSWORD,0x023B,36,0],
