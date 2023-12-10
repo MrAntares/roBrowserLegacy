@@ -1,0 +1,82 @@
+</html>
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+  <title>ROBrowser's App</title>
+
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <!-- <style>
+    body div > * {
+      transform: scale(1.5);
+      transform-origin: 0 0;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style> -->
+  <script type="text/javascript" src="api.js"></script>
+  <script type="text/javascript">
+    function initialize() {
+      var ROConfig = {
+        target: document.getElementById("robrowser"),
+        type: ROBrowser.TYPE.FRAME,
+        application: ROBrowser.APP.ONLINE,
+        remoteClient: "http://localhost:8888/roBrowserEarissou/client/",
+        development: true,
+        servers: 'data/clientinfo.xml',
+        socketProxy: 'ws://localhost:5999',
+		servers: [{  // Game server info. You must configure this! You can have multiple servers like: servers: [{..}, {..}, {..}], you can also use clientinfo to set the server list (servers: "data/clientinfo.xml",)
+			display:      "Demo Server",  // Display name, can be anything
+			desc:         "roBrowser's demo server",  // Description, can be anything
+			address:      "127.0.0.1",   // Must match your game server's
+			port:         6900,          // Must match your game server's
+			langtype:     1,            // Must match your game server's
+			packetver:    20211117,      // Must match your game server's
+			//grfList:    "DATA.INI",    // By default uses DATA.INI to get grf list, but you can define an array (grfList: ['custom.grf', 'palette.grf', 'data.grf'],) or a regex (grfList: /\.grf$/i,)
+			remoteClient: "http://localhost:8888/roBrowserEarissou/client/", // Your remote client address. Defaults to http://grf.robrowser.com/
+			renewal:      true,          // Must match your game server's type (true/false). When using clientinfo.xml you can add the <renewal>true</renewal> custom tag.
+			packetKeys:   false,         // Packet encryption keys ( not implemented?? )
+			socketProxy:  "ws://localhost:5999",  // The websocket proxy's address you set up previously for robrowser (wsproxy)
+			adminList:    [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
+        },
+		{
+			display: 'Devlopment Server',
+			desc: "Devlopment server",
+			address: '54.207.32.184',
+			port: 6900,
+			version: 55,
+			langtype: 12,
+			packetver: 20211103,
+			socketProxy: "ws://54.207.32.184:5999/",
+			packetKeys: false,
+			remoteClient:  "http://54.207.32.184/",
+		},],
+        //packetver: 20120307,
+        //packetver: 20180418,
+		clientVersionMode: 'PacketVer',
+        packetver: 20211117,
+        //autoLogin: ['admin', '123456'],
+		//plugins: {
+		//	Rain: 'Rain/Rain',
+		//}
+      };
+      var RO = new ROBrowser(ROConfig);
+      RO.start();
+    }
+    window.addEventListener("load", initialize, false);
+  </script>
+</head>
+
+<body>
+  <div id="robrowser">Initializing roBrowser...</div>
+</body>
+
+</html>
