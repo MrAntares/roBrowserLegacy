@@ -1,12 +1,90 @@
 # Getting started
 
-## Important notes before starting
-- **In case of any error start by opening developer mode and check the browser `Console` (`F12` or `CTRL+Shift+I` in most browsers). Don't forget to adjust the level filters if you don't see everything. Also worth checking the `Network` tab.**
-- **For public servers using secure web protocols `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.**
+This guide has the goal to help you to Setup/Play RoBrowser. If there's any trouble during the process, please open an [issue](https://github.com/MrAntares/roBrowserLegacy/issues/new) with all your concerns and points to improve.
 
-## Local testing
+## 1. Important notes before starting
+
+![Browser Console with Packets exchange](img/browser-console.png)
+In case of any error start by opening developer mode and check the browser `Console` (`F12` or `CTRL+Shift+I` in most browsers). Don't forget to adjust the level filters if you don't see everything. Also worth checking the `Network` tab.
+
+
+> For public servers using secure web protocols `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.
+
+## 2. Local Installation
+
 This guide section will help you running robrowser locally.
-### Prerequisite
+
+### 2.1 Prerequisites
+
+Here's a list of things that you will need to have for a sucessfull installation and gameplay of your favorite server.
+
+| Item            | Description                                                                   |
+|-----------------|-------------------------------------------------------------------------------|
+| RoBrowserLegacy | Client to Run Ragnarok Online on browser                                      |
+| NodeJS 20+      | NodeJS to compile RoBrowser assets                                            |
+| wsproxy         | A Websocket Proxy to interligate Login + Server + Map into one endpoint       |
+| Game Server     | Your Emulator that usually is rAthena or Hercules                             |
+| Game Files      | A kRO or any RO installation files to use as your base for the server         |
+| Browser         | Any browser that is compatible with OpenGL ES 2.0 (Requirement for RoBrowser) |
+
+
+To run roBrowser you will need an up to date browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
+* Chrome _(Desktop & Mobile)_
+* FireFox _(Desktop & Mobile)_
+* Safari _(Desktop & Mobile)_
+* Edge
+
+Others will probably work as well especially if **Chromium based**, but there might be slight differences.
+
+### 3. Setup Instructions
+
+
+#### 3.1 Setup: NodeJS and NVM
+
+> If you already have NodeJS LTS installed, skip this step.
+
+Make sure you're running NodeJS LTS or 18 above. Validate your version using the command:
+
+```shell
+node --version
+# v20.10.0 (example output)
+```
+
+If your version is minor than 18 you can 
+
+To install NVM you can use the command below:
+
+```shell
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+After you install NVM, reopen your terminal and check if the installation was successful:
+
+```bash
+nvm --version 
+# 0.39.0
+```
+
+Now you need to switch to the appropriate version to run MeteorJS 2 by using the command:
+
+```bash
+nvm install --lts
+# Downloading and installing node latest version
+# Now using node v20.10.0 (npm v10.2.3)
+```
+
+Just to make sure, check if the node changed to the specified version after installation:
+
+```bash
+node --version
+# v20.10.0
+npm --version
+# v10.2.3
+```
+
+Now you're good to go and compile the needed files to your Ro-Browser application!
+
+
 #### RoBrowser
 - Install websocket proxy `npm install wsproxy -g`. For more info read [the wsProxy Readme](https://github.com/herenow/wsProxy#readme)
 - Get the source code
@@ -24,14 +102,6 @@ This guide section will help you running robrowser locally.
 - All client/packet versions are supported, but the number of missing features increases with higher dates, since we need time to get everything implemented. We advise you to use versions older than `2015` for the best experience, but this is not a restriction, only a suggestion.
 - Disable pincode on the game server. (Not supported yet)
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
-#### Browser
-To run roBrowser you will need an up to date browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
-* Chrome _(Desktop & Mobile)_
-* FireFox _(Desktop & Mobile)_
-* Safari _(Desktop & Mobile)_
-* Edge
-
-Others will probably work as well especially if Chromium based, but there might be slight differences.
 
 __We assume in the guide below http server to run on port `8000`.__
 
