@@ -26,13 +26,14 @@ Here's a list of things that you will need to have for a sucessfull installation
 | Game Server     | Your Emulator that usually is rAthena or Hercules                             |
 | Game Files      | A kRO or any RO installation files to use as your base for the server         |
 | Browser         | Any browser that is compatible with OpenGL ES 2.0 (Requirement for RoBrowser) |
+| Embed Server    | Any programming language that has embed servers to use. Example: PHP or Ruby  |
 
 
 To run roBrowser you will need an up to date browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
-* Chrome _(Desktop & Mobile)_
-* FireFox _(Desktop & Mobile)_
-* Safari _(Desktop & Mobile)_
-* Edge
+* Chrome: _(Desktop & Mobile)_
+* FireFox: _(Desktop & Mobile)_
+* Safari: _(Desktop & Mobile)_
+* Edge: _(Desktop)_
 
 Others will probably work as well especially if **Chromium based**, but there might be slight differences.
 
@@ -85,32 +86,109 @@ npm --version
 Now you're good to go and compile the needed files to your Ro-Browser application!
 
 
-#### RoBrowser
-- Install websocket proxy `npm install wsproxy -g`. For more info read [the wsProxy Readme](https://github.com/herenow/wsProxy#readme)
-- Get the source code
-  - Either Get the code via GIT
-    - HTTPS: `https://github.com/MrAntares/roBrowserLegacy.git`
-    - GitHub CLI: `gh repo clone MrAntares/roBrowserLegacy`
-  - Or download the [source code](https://github.com/MrAntares/roBrowserLegacy/archive/refs/heads/master.zip) and unpack it to somwehere on your machine.
-- Get a web server that supports `PHP` and `.htaccess`. Run http server at the root of the roBrowserLegacy directory, or place roBrowserLegacy into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
-![](img/start-http-server.png)
-- You own a full client
-#### Game Server
-- You need a game server that is compatible with the original game. There are many implementations/versions/forks that are compatible, you can use any of them, but we suggest using one of the following two, because we test using these emulators:
-  - [rAthena](https://github.com/rathena/rathena)
-  - [Hercules](https://github.com/HerculesWS/Hercules/)
-- All client/packet versions are supported, but the number of missing features increases with higher dates, since we need time to get everything implemented. We advise you to use versions older than `2015` for the best experience, but this is not a restriction, only a suggestion.
+#### 3.2 Setup: Node wsproxy
+
+![Ro Browser App flow fluxogram](img/ro-browser-app-flow.png)
+
+To run **roBrowserLegacy** it will be necessary a proxy layer between your browser and the *map_server*, *login_server*, and *char_server*. Instead connect into 3 instances, you will only connect to the main proxy.
+
+
+To install **wsproxy**, use the command below:
+
+```shell
+npm install wsproxy -g
+```
+
+For more info read [the wsProxy Readme.](https://github.com/herenow/wsProxy#readme)
+
+
+#### 3.2 Setup: Game Files
+
+![Nemo's platform listing all Clients](img/client-list.png)
+
+All client/packet versions are supported, but the number of missing features increases with higher dates, since we need time to get everything implemented. We advise you to use versions older than `2015` for the best experience, but this is not a restriction, only a suggestion.
+
+The game files needs to match the version/episode that you will play. Due that, we recommend to always start with **kRO Client** or you can choose a different Client dowloading from one of **Hercules assets** on [Nemo](http://nemo.herc.ws/downloads/) website. 
+
+#### 3.3 Setup: Game Server
+
+You need a game server that is compatible with the original game. There are many implementations/versions/forks that are compatible, you can use any of them, but we suggest using one of the following two, because we test using these emulators:
+  
+- [rAthena](https://github.com/rathena/rathena)
+- [Hercules](https://github.com/HerculesWS/Hercules/)
+
+Useful information: 
 - Disable pincode on the game server. (Not supported yet)
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
 
-__We assume in the guide below http server to run on port `8000`.__
+#### 3.4 Setup: RoBrowser
 
-### Compile files using NPM
-This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
-- Access the roBrowserLegacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
-- Use build command to generate the files `npm run build`
-- Files will be generated at `dist/Web` folder
-- Copy/move the generated files into your web folder (`Online.js` and `ThreadEventHandler.js`)
+First, you will need the project in your machine. You can fork your own version or just clone the repository by typing:
+
+```
+git clone https://github.com/MrAntares/roBrowserLegacy.git
+```
+
+Or you can just download our latest release [here.](ttps://github.com/MrAntares/roBrowserLegacy/archive/refs/heads/master.zip)
+
+Having the project extracted in your machine, you will need to install the node dependencies by running:
+
+```shell
+npm install
+```
+
+
+
+<!-- - Get a web server that supports `PHP` and `.htaccess`. Run http server at the root of the roBrowserLegacy directory, or place roBrowserLegacy into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
+![](img/start-http-server.png)
+- You own a full client
+
+__We assume in the guide below http server to run on port `8000`.__ -->
+
+### 4. Compiling and Running roBrowser
+
+Now we have everything to make our game run as expected. Before start, we have to start a web-server to host all our roBrowserLegacy. 
+
+If you're using PHP or Ruby you can type any of these commands:
+
+```shell
+php -S 0.0.0.0:8000
+
+# or
+
+ruby -run -ehttpd . -p8000
+```
+
+With that, you will be able to access `http://localhost:8000` with an Apache/Nginx server running locally. 
+
+#### 4.1 Compiling Game: with Node
+
+There's two builds available today: Development and Production. 
+
+This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. 
+
+First, we have to  access the **roBrowserLegacy** project root:
+
+```bash
+cd path/to/robrowserlegacy
+```
+
+Then you can simply run:
+```bash
+npm run build -- -O -T -H
+```
+
+It will generate 3 files inside `dist/Web`, which are **Online.js**, **ThreadEventHandler.js** and **index.html** that you have to move/copy into your **project root**.
+
+```
+cp dist/Web/* .
+```
+
+
+
+> In case you want to minify your roBrowser, go on the instance config and turn the `development` flag into `false`.
+
+##### 4.1.1 Development Build
 
 For development purposes (modifying the source/testing) set in the roBrowser config: `development: true,`.
 - Access the roBrowserLegacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
@@ -127,7 +205,10 @@ For development purposes (modifying the source/testing) skip this section and se
 - Click on "Thread"
 - Copy/move the generated files into your web folder (`Online.js` and `ThreadEventHandler.js`)
 
-### Add game assets ([additional info](https://github.com/MrAntares/roBrowserLegacy/blob/master/client/readme.md))
+### Add game assets 
+
+
+([additional info](https://github.com/MrAntares/roBrowserLegacy/blob/master/client/readme.md))
 - copy your `.grf` under `client/resources` directory (only unencripted, 0x200 version is supported)
 - alternatively, if you don't want to use GRFs directly, then you can extract your GRFs into the `client/data` directory (not recommended, but it works fine)
 - copy your `DATA.INI` (GRF loading order) under `client/resources` directory
@@ -235,14 +316,6 @@ Unicode
 
 You can set up your own `index.html` / integrate roBrowser into your website as well based on the .examples/ and this example above.
 
-### Start websocket proxy
-- run `wsproxy -p 5999 -a 127.0.0.1:6900,127.0.0.1:6121,127.0.0.1:5121`
-
-Again, for more info read [the wsProxy Readme](https://github.com/herenow/wsProxy#readme)!
-Also don't forget to start your game server!
-
-Note: Most of the browsers nowadays don't support mixed security, so either use `https` & `wss` everywhere or `http` & `ws`. Some browsers recently started to disable non-secure websocket calls, so `https` & `wss` is highly recommended if you are using roBrowser on a non-local/open server. To start wsProxy in secure mode (`wss`), you need to have the key and chain files for your certificate and use the following command:
-- `wsproxy -p 5999 -a 127.0.0.1:6900,127.0.0.1:6121,127.0.0.1:5121 -s -k your/path/to/privkey.pem -c your/path/to/fullchain.pem`
 
 ### Enjoy!
 - Access to `http://localhost:8000/examples/api-online-frame.html` with your browser
@@ -271,4 +344,5 @@ You probably forgot the step about `AI` `require` replacement in `Add game asset
 You probably have a server security issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
 
 ### Other
+
 I personally had to disable `metamask` extension.
