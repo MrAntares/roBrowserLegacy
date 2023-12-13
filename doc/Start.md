@@ -72,7 +72,7 @@ Currently tested browsers:
 
 #### 3.1 Setup: NodeJS and NVM
 
-> If you already have NodeJS LTS installed, skip this step.
+> If you already have NodeJS LTS installed, [skip this step](#RoBrowser).
 
 Make sure you're running NodeJS LTS or 18 above. Validate your version using the command:
 
