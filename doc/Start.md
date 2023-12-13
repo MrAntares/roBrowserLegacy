@@ -2,6 +2,35 @@
 
 This guide has the goal to help you to Setup/Play RoBrowser. If there's any trouble during the process, please open an [issue](https://github.com/MrAntares/roBrowserLegacy/issues/new) with all your concerns and points to improve.
 
+
+
+- [Getting started](#getting-started)
+  - [1. Important notes before starting](#1-important-notes-before-starting)
+  - [2. Local Installation](#2-local-installation)
+    - [2.1 Prerequisites](#21-prerequisites)
+    - [3. Setup Instructions](#3-setup-instructions)
+      - [3.1 Setup: NodeJS and NVM](#31-setup-nodejs-and-nvm)
+      - [3.2 Setup: Node wsproxy](#32-setup-node-wsproxy)
+      - [3.2 Setup: Game Files](#32-setup-game-files)
+      - [3.3 Setup: Game Server](#33-setup-game-server)
+      - [3.4 Setup: RoBrowser](#34-setup-robrowser)
+    - [4. Compiling and Running roBrowser](#4-compiling-and-running-robrowser)
+      - [4.1 Compiling Game: Live Server/Production](#41-compiling-game-live-serverproduction)
+      - [4.2 Compiling Game: Development](#42-compiling-game-development)
+      - [4.3 Compile files using browser](#43-compile-files-using-browser)
+    - [5. Add game assets](#5-add-game-assets)
+    - [6. Adding Custom Plugins](#6-adding-custom-plugins)
+    - [7. ROBrowser Settings Overview](#7-robrowser-settings-overview)
+    - [8. Play the Game](#8-play-the-game)
+  - [Troubleshooting](#troubleshooting)
+    - [The screen is weird and/or the developer console (F12) says it can't load game assets](#the-screen-is-weird-andor-the-developer-console-f12-says-it-cant-load-game-assets)
+    - [Screen is blank](#screen-is-blank)
+    - [AI%5cConst.js(404 not found)](#ai5cconstjs404-not-found)
+    - [....(403 not found) ... 403 (Forbidden)](#403-not-found--403-forbidden)
+    - [Other](#other)
+
+
+
 ## 1. Important notes before starting
 
 ![Browser Console with Packets exchange](img/browser-console.png)
@@ -18,24 +47,25 @@ This guide section will help you running robrowser locally.
 
 Here's a list of things that you will need to have for a sucessfull installation and gameplay of your favorite server.
 
-| Item            | Description                                                                   |
-|-----------------|-------------------------------------------------------------------------------|
-| RoBrowserLegacy | Client to Run Ragnarok Online on browser                                      |
-| NodeJS 20+      | NodeJS to compile RoBrowser assets                                            |
-| wsproxy         | A Websocket Proxy to interligate Login + Server + Map into one endpoint       |
-| Game Server     | Your Emulator that usually is rAthena or Hercules                             |
-| Game Files      | A kRO or any RO installation files to use as your base for the server         |
-| Browser         | Any browser that is compatible with OpenGL ES 2.0 (Requirement for RoBrowser) |
-| Embed Server    | Any programming language that has embed servers to use. Example: PHP or Ruby  |
+| Item            | Description                                                                                                                                                  |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| RoBrowserLegacy | [Client](https://github.com/MrAntares/roBrowserLegacy) to Run Ragnarok Online on browser                                                                     |
+| NodeJS 20+      | [NodeJS](https://nodejs.org/en/download/current) to compile RoBrowser assets                                                                                 |
+| wsproxy         | A [Websocket Proxy](https://github.com/herenow/wsProxy#readme) to interligate Login + Server + Map into one endpoint                                         |
+| Game Server     | Your Emulator that usually is [rAthena](https://github.com/rathena/rathena) or [Hercules](https://github.com/HerculesWS/Hercules/)                           |
+| Game Files      | A [kRO](https://rathena.org/board/topic/106413-kro-full-client-2023-04-04-includes-bgm-rsu/) or any RO installation files to use as your base for the server |
+| Browser         | Any browser that is compatible with [OpenGL ES 2.0](https://caniuse.com/?search=opengl) (Requirement for RoBrowser)                                          |
+| Embed Server    | Any programming language that has embed servers to use. Example: PHP or Ruby                                                                                 |
 
 
-To run roBrowser you will need an up to date browser that supports [WebGL](http://www.chromeexperiments.com/webgl/) and is OpenGL ES 2.0 compatible. We've tested the following browsers:
+Currently tested browsers:
+
 * Chrome: _(Desktop & Mobile)_
 * FireFox: _(Desktop & Mobile)_
 * Safari: _(Desktop & Mobile)_
 * Edge: _(Desktop)_
 
-Others will probably work as well especially if **Chromium based**, but there might be slight differences.
+> Others will probably work as well especially if **Chromium based**, but there might be slight differences.
 
 ### 3. Setup Instructions
 
@@ -66,7 +96,7 @@ nvm --version
 # 0.39.0
 ```
 
-Now you need to switch to the appropriate version to run MeteorJS 2 by using the command:
+Now you need to switch to the appropriate version to run **roBrowser** by using the command:
 
 ```bash
 nvm install --lts
@@ -161,7 +191,7 @@ ruby -run -ehttpd . -p8000
 
 With that, you will be able to access `http://localhost:8000` with an Apache/Nginx server running locally. 
 
-#### 4.1 Compiling Game: with Node
+#### 4.1 Compiling Game: Live Server/Production
 
 There's two builds available today: Development and Production. 
 
@@ -184,18 +214,38 @@ It will generate 3 files inside `dist/Web`, which are **Online.js**, **ThreadEve
 cp dist/Web/* .
 ```
 
-
+Now you're good to open your browser at `https://127.0.0.1:8000` and see your roBrowser base client running!
 
 > In case you want to minify your roBrowser, go on the instance config and turn the `development` flag into `false`.
 
-##### 4.1.1 Development Build
+#### 4.2 Compiling Game: Development
 
-For development purposes (modifying the source/testing) set in the roBrowser config: `development: true,`.
-- Access the roBrowserLegacy Folder using terminal or cmd `cd path/to/robrowserlegacy`
-- Use build command to generate the files `npm run serve`
-- Files will be loaded from  at `src/` folder
+![RO Browser running in Chromium](img/ro-browser-dev.png)
 
-### Compile files using browser
+If you want to contribute directly on RoBrowserLegacy source, you should focus on `/src` path.
+
+
+First, go to your roBrowserLegacy Folder:
+
+```shell
+cd path/to/robrowserlegacy
+```
+
+You can start the development build by typing:
+
+```shell
+npm run serve
+# > robrowser@1.0.0 serve
+# > live-server ./dist/Web
+#
+# Serving "./dist/Web" at http://127.0.0.1:8080
+```
+
+Since we're under development purposes (modifying the source/testing) change in the roBrowser config inside the `dist/Web/index.html` with: `development: true`.
+
+
+#### 4.3 Compile files using browser
+
 This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
 
 For development purposes (modifying the source/testing) skip this section and set in the roBrowser config: `development: true,`. In development mode roBrowser will use the files directly from `src/`.
@@ -205,10 +255,12 @@ For development purposes (modifying the source/testing) skip this section and se
 - Click on "Thread"
 - Copy/move the generated files into your web folder (`Online.js` and `ThreadEventHandler.js`)
 
-### Add game assets 
+### 5. Add game assets 
 
+TODO: improve this flow (important!)
 
-([additional info](https://github.com/MrAntares/roBrowserLegacy/blob/master/client/readme.md))
+[Important info](https://github.com/MrAntares/roBrowserLegacy/blob/master/client/readme.md) before start.
+
 - copy your `.grf` under `client/resources` directory (only unencripted, 0x200 version is supported)
 - alternatively, if you don't want to use GRFs directly, then you can extract your GRFs into the `client/data` directory (not recommended, but it works fine)
 - copy your `DATA.INI` (GRF loading order) under `client/resources` directory
@@ -224,13 +276,15 @@ In all `AI/*.lua` files :
 - Replace all `require "AI\\Const"` with `dofile "./AI/Const.lua"`
 - Replace all `require "AI\\Util"` with `dofile "./AI/Util.lua"`
 
-### Plugins
+### 6. Adding Custom Plugins
 - copy your custom plugins into `src\Plugins` 
 
 Some examples: https://github.com/MrAntares/roBrowserLegacy-plugins
 
-### Configure ROBrowser
-- edit `examples/api-online-frame.html`
+### 7. ROBrowser Settings Overview
+
+Her you have a list with all of init variables on ROBrowser. Let's take a look:
+
 ```js
 function initialize() {
       var ROConfig = {
@@ -317,10 +371,10 @@ Unicode
 You can set up your own `index.html` / integrate roBrowser into your website as well based on the .examples/ and this example above.
 
 
-### Enjoy!
-- Access to `http://localhost:8000/examples/api-online-frame.html` with your browser
+### 8. Play the Game
+- Access to `http://localhost:8000/` after moving all the files from your `ro-browser/dist/Web` to `ro-browser` (project root).
 - 
-![](img/start-robrowser.png)
+![RO Browser Running on Browser locally.](img/start-robrowser.png)
 
 ## Troubleshooting
 
