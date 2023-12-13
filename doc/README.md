@@ -55,7 +55,7 @@ Here's a list of things that you will need to have for a sucessfull installation
 | Game Server     | Your Emulator that usually is [rAthena](https://github.com/rathena/rathena) or [Hercules](https://github.com/HerculesWS/Hercules/)                           |
 | Game Files      | A [kRO](https://rathena.org/board/topic/106413-kro-full-client-2023-04-04-includes-bgm-rsu/) or any RO installation files to use as your base for the server |
 | Browser         | Any browser that is compatible with [OpenGL ES 2.0](https://caniuse.com/?search=opengl) (Requirement for RoBrowser)                                          |
-| Embed Server    | Any programming language that has embed servers to use. Example: PHP or Ruby                                                                                 |
+| Embed Server    | Any programming language that has embed servers to use. Example: NodeJS, PHP or Ruby. It's totally up to you.                                                                                 |
 
 
 Currently tested browsers:
@@ -168,18 +168,20 @@ npm install
 ```
 
 
-
-<!-- - Get a web server that supports `PHP` and `.htaccess`. Run http server at the root of the roBrowserLegacy directory, or place roBrowserLegacy into your webserver's content directory (use any of [one liner http server](https://gist.github.com/willurd/5720255))
-![](img/start-http-server.png)
-- You own a full client
-
-__We assume in the guide below http server to run on port `8000`.__ -->
-
 ### 4. Compiling and Running roBrowser
 
-Now we have everything to make our game run as expected. Before start, we have to start a web-server to host all our roBrowserLegacy. 
+Now we have everything to make our game run as expected. Before start, we have to start a web-server to host all our roBrowserLegacy. By default, our project already have one installed on the node dependencies, which is called `live-server`, configured under the project's [package.json](../package.json) pre-configured commands.
 
-If you're using PHP or Ruby you can type any of these commands:
+Running the live server (browserless): 
+```bash
+npm run live
+
+# robrowser@1.0.0 live
+# > live-server . --no-browser
+# Serving "." at http://127.0.0.1:8000
+```
+
+Or if you're using PHP or Ruby you can type any of these commands:
 
 ```shell
 php -S 0.0.0.0:8000
@@ -189,7 +191,7 @@ php -S 0.0.0.0:8000
 ruby -run -ehttpd . -p8000
 ```
 
-With that, you will be able to access `http://localhost:8000` with an Apache/Nginx server running locally. 
+With any of them, you will be able to access `http://localhost:8000` with a proper web-server running locally. 
 
 #### 4.1 Compiling Game: Live Server/Production
 
