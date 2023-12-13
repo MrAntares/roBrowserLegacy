@@ -5,57 +5,55 @@ This guide has the goal to help you to Setup/Play RoBrowser. If there's any trou
 
 
 - [Getting started](#getting-started)
-  - [1. Important notes before starting](#1-important-notes-before-starting)
-  - [2. Local Installation](#2-local-installation)
-    - [2.1 Prerequisites](#21-prerequisites)
-    - [3. Setup Instructions](#3-setup-instructions)
-      - [3.1 Setup: NodeJS and NVM](#31-setup-nodejs-and-nvm)
-      - [3.2 Setup: Node wsproxy](#32-setup-node-wsproxy)
-      - [3.2 Setup: Game Files](#32-setup-game-files)
-      - [3.3 Setup: Game Server](#33-setup-game-server)
-      - [3.4 Setup: RoBrowser](#34-setup-robrowser)
-    - [4. Compiling and Running roBrowser](#4-compiling-and-running-robrowser)
-      - [4.1 Compiling Game: Live Server/Production](#41-compiling-game-live-serverproduction)
-      - [4.2 Compiling Game: Development](#42-compiling-game-development)
-      - [4.3 Compile files using browser](#43-compile-files-using-browser)
-    - [5. Add game assets](#5-add-game-assets)
-    - [6. Adding Custom Plugins](#6-adding-custom-plugins)
-    - [7. ROBrowser Settings Overview](#7-robrowser-settings-overview)
-    - [8. Play the Game](#8-play-the-game)
-  - [Troubleshooting](#troubleshooting)
-    - [The screen is weird and/or the developer console (F12) says it can't load game assets](#the-screen-is-weird-andor-the-developer-console-f12-says-it-cant-load-game-assets)
-    - [Screen is blank](#screen-is-blank)
-    - [AI%5cConst.js(404 not found)](#ai5cconstjs404-not-found)
-    - [....(403 not found) ... 403 (Forbidden)](#403-not-found--403-forbidden)
-    - [Other](#other)
+- [1. Important notes before starting](#1-important-notes-before-starting)
+- [2. Local Installation](#2-local-installation)
+  - [2.1 Prerequisites](#21-prerequisites)
+- [3. Setup Instructions](#3-setup-instructions)
+  - [3.1 Setup: NodeJS and NVM](#31-setup-nodejs-and-nvm)
+  - [3.2 Setup: Node wsproxy](#32-setup-node-wsproxy)
+  - [3.3 Setup: Game Files](#33-setup-game-files)
+  - [3.4 Setup: Game Server](#34-setup-game-server)
+  - [3.5 Setup: RoBrowser](#35-setup-robrowser)
+- [4. Serving and Running roBrowser](#4-serving-and-running-robrowser)
+  - [4.1 Serving Game: Live Server/Production](#41-serving-game-live-serverproduction)
+  - [4.2 Serving Game: Development](#42-serving-game-development)
+  - [4.3 Serving Game: using Browser](#43-serving-game-using-browser)
+- [5. Add game assets](#5-add-game-assets)
+- [6. Adding Custom Plugins](#6-adding-custom-plugins)
+- [7. ROBrowser Settings Overview](#7-robrowser-settings-overview)
+  - [8. Play the Game](#8-play-the-game)
+- [9. Troubleshooting](#9-troubleshooting)
+  - [9.1 Troubleshooting: The screen is weird and/or the developer console (F12) says it can't load game assets](#91-troubleshooting-the-screen-is-weird-andor-the-developer-console-f12-says-it-cant-load-game-assets)
+  - [9.2 Troubleshooting:  Screen is blank](#92-troubleshooting--screen-is-blank)
+  - [9.3 Troubleshooting: AI%5cConst.js (404 not found)](#93-troubleshooting-ai5cconstjs-404-not-found)
+  - [9.4 Troubleshooting:  Wrong Response Status - 403 Not Found, 403 Forbidden](#94-troubleshooting--wrong-response-status---403-not-found-403-forbidden)
+  - [9.5 Troubleshooting: Other](#95-troubleshooting-other)
 
 
-
-## 1. Important notes before starting
+# 1. Important notes before starting
 
 ![Browser Console with Packets exchange](img/browser-console.png)
 In case of any error start by opening developer mode and check the browser `Console` (`F12` or `CTRL+Shift+I` in most browsers). Don't forget to adjust the level filters if you don't see everything. Also worth checking the `Network` tab.
 
 
 > For public servers using secure web protocols `https` and `wss` is a de-facto must, since most browsers don't allow non-secure websocket calls on the internet anymore.
-
-## 2. Local Installation
+# 2. Local Installation
 
 This guide section will help you running robrowser locally.
 
-### 2.1 Prerequisites
+## 2.1 Prerequisites
 
 Here's a list of things that you will need to have for a sucessfull installation and gameplay of your favorite server.
 
 | Item            | Description                                                                                                                                                  |
-|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | RoBrowserLegacy | [Client](https://github.com/MrAntares/roBrowserLegacy) to Run Ragnarok Online on browser                                                                     |
 | NodeJS 20+      | [NodeJS](https://nodejs.org/en/download/current) to compile RoBrowser assets                                                                                 |
 | wsproxy         | A [Websocket Proxy](https://github.com/herenow/wsProxy#readme) to interligate Login + Server + Map into one endpoint                                         |
 | Game Server     | Your Emulator that usually is [rAthena](https://github.com/rathena/rathena) or [Hercules](https://github.com/HerculesWS/Hercules/)                           |
 | Game Files      | A [kRO](https://rathena.org/board/topic/106413-kro-full-client-2023-04-04-includes-bgm-rsu/) or any RO installation files to use as your base for the server |
 | Browser         | Any browser that is compatible with [OpenGL ES 2.0](https://caniuse.com/?search=opengl) (Requirement for RoBrowser)                                          |
-| Embed Server    | Any programming language that has embed servers to use. Example: NodeJS, PHP or Ruby. It's totally up to you.                                                                                 |
+| Embed Server    | Any programming language that has embed servers to use. Example: NodeJS, PHP or Ruby. It's totally up to you.                                                |
 
 
 Currently tested browsers:
@@ -67,10 +65,10 @@ Currently tested browsers:
 
 > Others will probably work as well especially if **Chromium based**, but there might be slight differences.
 
-### 3. Setup Instructions
+# 3. Setup Instructions
 
 
-#### 3.1 Setup: NodeJS and NVM
+## 3.1 Setup: NodeJS and NVM
 
 > If you already have NodeJS LTS installed, [skip this step](#RoBrowser).
 
@@ -116,7 +114,7 @@ npm --version
 Now you're good to go and compile the needed files to your Ro-Browser application!
 
 
-#### 3.2 Setup: Node wsproxy
+## 3.2 Setup: Node wsproxy
 
 ![Ro Browser App flow fluxogram](img/ro-browser-app-flow.png)
 
@@ -132,7 +130,7 @@ npm install wsproxy -g
 For more info read [the wsProxy Readme.](https://github.com/herenow/wsProxy#readme)
 
 
-#### 3.2 Setup: Game Files
+## 3.3 Setup: Game Files
 
 ![Nemo's platform listing all Clients](img/client-list.png)
 
@@ -140,7 +138,7 @@ All client/packet versions are supported, but the number of missing features inc
 
 The game files needs to match the version/episode that you will play. Due that, we recommend to always start with **kRO Client** or you can choose a different Client dowloading from one of **Hercules assets** on [Nemo](http://nemo.herc.ws/downloads/) website. 
 
-#### 3.3 Setup: Game Server
+## 3.4 Setup: Game Server
 
 You need a game server that is compatible with the original game. There are many implementations/versions/forks that are compatible, you can use any of them, but we suggest using one of the following two, because we test using these emulators:
   
@@ -151,7 +149,7 @@ Useful information:
 - Disable pincode on the game server. (Not supported yet)
 - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
 
-#### 3.4 Setup: RoBrowser
+## 3.5 Setup: RoBrowser
 
 First, you will need the project in your machine. You can fork your own version or just clone the repository by typing:
 
@@ -168,7 +166,7 @@ npm install
 ```
 
 
-### 4. Compiling and Running roBrowser
+# 4. Serving and Running roBrowser
 
 Now we have everything to make our game run as expected. Before start, we have to start a web-server to host all our roBrowserLegacy. By default, our project already have one installed on the node dependencies, which is called `live-server`, configured under the project's [package.json](../package.json) pre-configured commands.
 
@@ -193,7 +191,7 @@ ruby -run -ehttpd . -p8000
 
 With any of them, you will be able to access `http://localhost:8000` with a proper web-server running locally. 
 
-#### 4.1 Compiling Game: Live Server/Production
+## 4.1 Serving Game: Live Server/Production
 
 There's two builds available today: Development and Production. 
 
@@ -220,7 +218,7 @@ Now you're good to open your browser at `https://127.0.0.1:8000` and see your ro
 
 > In case you want to minify your roBrowser, go on the instance config and turn the `development` flag into `false`.
 
-#### 4.2 Compiling Game: Development
+## 4.2 Serving Game: Development
 
 ![RO Browser running in Chromium](img/ro-browser-dev.png)
 
@@ -246,7 +244,7 @@ npm run serve
 Since we're under development purposes (modifying the source/testing) change in the roBrowser config inside the `dist/Web/index.html` with: `development: true`.
 
 
-#### 4.3 Compile files using browser
+## 4.3 Serving Game: using Browser
 
 This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
 
@@ -257,7 +255,7 @@ For development purposes (modifying the source/testing) skip this section and se
 - Click on "Thread"
 - Copy/move the generated files into your web folder (`Online.js` and `ThreadEventHandler.js`)
 
-### 5. Add game assets 
+# 5. Add game assets 
 
 TODO: improve this flow (important!)
 
@@ -278,12 +276,12 @@ In all `AI/*.lua` files :
 - Replace all `require "AI\\Const"` with `dofile "./AI/Const.lua"`
 - Replace all `require "AI\\Util"` with `dofile "./AI/Util.lua"`
 
-### 6. Adding Custom Plugins
+# 6. Adding Custom Plugins
 - copy your custom plugins into `src\Plugins` 
 
 Some examples: https://github.com/MrAntares/roBrowserLegacy-plugins
 
-### 7. ROBrowser Settings Overview
+# 7. ROBrowser Settings Overview
 
 Her you have a list with all of init variables on ROBrowser. Let's take a look:
 
@@ -373,32 +371,32 @@ Unicode
 You can set up your own `index.html` / integrate roBrowser into your website as well based on the .examples/ and this example above.
 
 
-### 8. Play the Game
+## 8. Play the Game
 - Access to `http://localhost:8000/` after moving all the files from your `ro-browser/dist/Web` to `ro-browser` (project root).
 - 
 ![RO Browser Running on Browser locally.](img/start-robrowser.png)
 
-## Troubleshooting
+# 9. Troubleshooting
 
-### The screen is weird and/or the developer console (F12) says it can't load game assets
+## 9.1 Troubleshooting: The screen is weird and/or the developer console (F12) says it can't load game assets
 Your remote client is not configured properly.
 - Check the `client/configs.php` and make sure `DEBUG` is set to false.
 - Check the `client/.htaccess` file if the ErrorDocument option points to the `client/index.php` via the correct url. If you don't run roBrowser from the www root and you use remote client then you need to adjust this url (see examples in the file).
 
 If it is still not working you can try setting `DEBUG` to true and open the `http://localhost:8000/client/index.php` in your browser to see the debug trace. You can also call files directly from your game data to see if they load properly, eg: `http://localhost:8000/client/data/texture/black.bmp`. After debugging set `DEBUG` to false.
 
-### Screen is blank
+##  9.2 Troubleshooting:  Screen is blank
 Check that you don't have an extension using [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/message_event), it will conflict with code in `api.html` which listen for message.
 
-### AI%5cConst.js(404 not found)
+## 9.3 Troubleshooting: AI%5cConst.js (404 not found)
 ![](img/start-ai-error.png)
 
 You probably forgot the step about `AI` `require` replacement in `Add game assets` section
 
-### ....(403 not found) ... 403 (Forbidden)
+## 9.4 Troubleshooting:  Wrong Response Status - 403 Not Found, 403 Forbidden 
 
 You probably have a server security issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
 
-### Other
+## 9.5 Troubleshooting: Other
 
 I personally had to disable `metamask` extension.
