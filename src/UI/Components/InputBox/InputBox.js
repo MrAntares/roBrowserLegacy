@@ -44,10 +44,11 @@ define(function(require)
 		});
 
 		this.ui.find('input').keyup(function(e){
-			if(e.keyCode == 13) { // Enter
-				let text = InputBox.ui.find('input').val(); 
-				InputBox.onSubmitRequest(text);
-			}
+			let enterKey = 13;
+			if (e.keyCode !== enterKey) return;
+
+			let text = InputBox.ui.find('input').val();
+			if (text.length > 0) InputBox.onSubmitRequest(text);
 		});
 
 		this.overlay = jQuery('<div/>')
