@@ -69,7 +69,7 @@ Currently tested browsers:
 
 
 ## 3.1 Setup: NodeJS and NVM
-
+> [!NOTE]
 > If you already have NodeJS LTS installed, [skip this step](#RoBrowser).
 
 Make sure you're running NodeJS LTS or 18 above. Validate your version using the command:
@@ -145,9 +145,9 @@ You need a game server that is compatible with the original game. There are many
 - [rAthena](https://github.com/rathena/rathena)
 - [Hercules](https://github.com/HerculesWS/Hercules/)
 
-Useful information: 
-- Disable pincode on the game server. (Not supported yet)
-- Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
+> [!WARNING]
+> - Disable pincode on the game server. (Not supported yet)
+> - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
 
 ## 3.5 Setup: RoBrowser
 
@@ -215,7 +215,7 @@ cp dist/Web/* .
 ```
 
 Now you're good to open your browser at `https://127.0.0.1:8000` and see your roBrowser base client running!
-
+> [!TIP]
 > In case you want to minify your roBrowser, go on the instance config and turn the `development` flag into `false`.
 
 ## 4.2 Serving Game: Development
