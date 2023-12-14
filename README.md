@@ -8,7 +8,7 @@ For info on how to setup the client read the contents of our [Getting Started do
 All credits to the original owners/creators and the new ones.
 
 ## Guide
-Checkout the [getting started guide](https://github.com/MrAntares/roBrowserLegacy/blob/master/doc/Start.md)
+Checkout the [getting started guide](doc/README.md)
 
 ## Plugins
 For available plugins and information on how to install them please visit the [roBrowserLegacy-plugins](https://github.com/MrAntares/roBrowserLegacy-plugins) repository.

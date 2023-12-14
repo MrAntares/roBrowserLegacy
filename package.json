@@ -4,6 +4,7 @@
 	"version": "1.0.0",
 	"scripts": {
 		"serve": "live-server ./dist/Web",
+		"live": "live-server .  --no-browser --port=8000",
 		"build": "node ./tools/builder-web.js"
 	},
 	"author": "Vincent Thibault",
