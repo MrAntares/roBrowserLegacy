@@ -131,7 +131,9 @@ define(function( require )
 		InputBox.onAppend = function OnAppend()
 		{
 			InputBox.setType(type, true);
+			InputBox.ui.find('input').trigger('select');
 		};
+
 
 		InputBox.onSubmitRequest = function OnSubmitRequest( data )
 		{
