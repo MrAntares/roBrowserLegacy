@@ -3,6 +3,7 @@
 /client/BGM/*
 /client/data/*
 /client/resources/*
+/client/System/*
 /dist/
 /node_modules/
 /src/Plugins/*/
