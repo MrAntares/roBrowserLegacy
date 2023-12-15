@@ -3,7 +3,7 @@ This is a continuation of [roBrowser](https://www.robrowser.com/) expanded with 
 
 If you wish to discuss anything related to this project, or you want to join, contact us on Discord: https://discord.gg/8JdHwM4Kqm
 
-For info on how to setup the client read the contents of our [Getting Started doc](https://github.com/MrAntares/roBrowserLegacy/blob/master/doc/Start.md). For the original branche's docs please visit the https://www.robrowser.com/ site.
+For info on how to setup the client read the contents of our [Getting Started doc](https://github.com/MrAntares/roBrowserLegacy/blob/master/doc/README.md). For the original branche's docs please visit the https://www.robrowser.com/ site.
 
 All credits to the original owners/creators and the new ones.
 
