@@ -189,6 +189,7 @@ function createHTML(){
                                     packetKeys: false
                                 },
                             ],
+                            packetDump:  false,
                             skipServerList:  true,
                             skipIntro:       true,
                             clientVersionMode: 'PacketVer',

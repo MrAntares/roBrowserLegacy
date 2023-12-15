@@ -180,6 +180,11 @@
 
 
 	/**
+	 * @var {boolean}dump packet as hex in console ?
+	 */
+	ROBrowser.prototype.packetDump = false;
+
+	/**
 	 * @var {integer|boolean|array} packetKeys
 	 * see: http://hercules.ws/board/topic/1105-hercules-wpe-free-june-14th-patch/
 	 *
@@ -440,6 +445,7 @@
 			FirstPersonCamera: this.FirstPersonCamera,
 			clientVersionMode: this.clientVersionMode,
 			CameraMaxZoomOut: this.CameraMaxZoomOut,
+			packetDump:       this.packetDump,
 		}, '*');
 	}
 

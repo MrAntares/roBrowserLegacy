@@ -310,7 +310,8 @@ function initialize() {
               socketProxy:  "ws://127.0.0.1:5999/",  // The websocket proxy's address you set up previously for robrowser (wsproxy)
               adminList:    [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
           }],
-          
+
+          packetDump:      false,  // Dump packet as hex in console?
           skipServerList:  true,   // Skip server selection?
           skipIntro:       false,  // Skip intro page?
           
