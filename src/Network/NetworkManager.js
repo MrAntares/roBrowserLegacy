@@ -50,6 +50,12 @@ define(function( require )
 	 */
 	var _save_buffer = null;
 
+	/**
+	 * Defines if dump packets as hex string
+	 * @var packetDump
+	 */
+	var packetDump = Configs.get('packetDump', false);
+
 
 	/**
 	 * Packets definition
@@ -152,8 +158,15 @@ define(function( require )
 	 */
 	function sendPacket( Packet )
 	{
-		console.log( '%c[Network] Send: ', 'color:#007070', Packet );
 		var pkt = Packet.build();
+
+		if(packetDump) {
+			let fp = new BinaryReader( pkt.buffer );
+			let id = fp.readUShort()
+			console.log("[Network] [send] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), pkt.buffer.byteLength, utilsBufferToHexString(pkt.buffer).toUpperCase());
+		}
+
+		console.log( '%c[Network] Send: ', 'color:#007070', Packet );
 
 		// Encrypt packet
 		if (_socket && _socket.isZone) {
@@ -162,7 +175,6 @@ define(function( require )
 
 		send( pkt.buffer );
 	}
-
 
 	/**
 	 * Send buffer to the server
@@ -280,6 +292,10 @@ define(function( require )
 
 			// Packet not defined ?
 			if (!Packets.list[id]) {
+				if(packetDump) {
+					let unknown_buffer = new Uint8Array( buffer, 0, fp.length-fp.tell() );
+					console.log("[Network] [recv] [UNKNOWN] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), fp.length-fp.tell(), utilsBufferToHexString(unknown_buffer).toUpperCase());
+				}
 				console.error(
 					'[Network] Packet "%c0x%s%c" not register, skipping %d bytes.',
 					'font-weight:bold', id.toString(16), 'font-weight:normal', (fp.length-fp.tell())
@@ -313,6 +329,11 @@ define(function( require )
 					fp.length - offset
 				);
 				return;
+			}
+
+			if(packetDump) {
+				let buffer_console = new Uint8Array( buffer, 0, length );
+				console.log("[Network] [recv] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), length, utilsBufferToHexString(buffer_console).toUpperCase());
 			}
 
 			// Parse packet
@@ -430,6 +451,18 @@ define(function( require )
 		uint32[0]  = long;
 
 		return Array.prototype.join.call( uint8, '.' );
+	}
+
+	/**
+	 * Convert ArryBuffer into a hex string
+	 *
+	 * @param {ArrayBuffer} buffer
+	 */
+	function utilsBufferToHexString(buffer)
+	{
+		return [...new Uint8Array(buffer)]
+			.map(x => x.toString(16).padStart(2, '0') + " ")
+			.join('');
 	}
 
 
