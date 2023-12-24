@@ -163,7 +163,7 @@ define(function( require )
 		if(packetDump) {
 			let fp = new BinaryReader( pkt.buffer );
 			let id = fp.readUShort()
-			console.log("[Network] [send] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), pkt.buffer.byteLength, utilsBufferToHexString(pkt.buffer).toUpperCase());
+			console.log("[Network] [send] Packet ID: 0x%s - %s - Length: %d\nContent:\n%s", id.toString(16), Packet.constructor.name, pkt.buffer.byteLength, utilsBufferToHexString(pkt.buffer).toUpperCase());
 		}
 
 		console.log( '%c[Network] Send: ', 'color:#007070', Packet );
@@ -333,7 +333,7 @@ define(function( require )
 
 			if(packetDump) {
 				let buffer_console = new Uint8Array( buffer, 0, length );
-				console.log("[Network] [recv] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), length, utilsBufferToHexString(buffer_console).toUpperCase());
+				console.log("[Network] [recv] Packet ID: 0x%s - %s - Length: %d\nContent:\n%s", id.toString(16), packet.name, length, utilsBufferToHexString(buffer_console).toUpperCase());
 			}
 
 			// Parse packet
