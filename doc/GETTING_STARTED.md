@@ -1,15 +1,9 @@
 # Getting started
 
-Clone the repository:
-
-```bash
-git clone https://github.com/MrAntares/roBrowserLegacy
-```
-
 This project has two components: the Remote Client API and the roBrowser client. The Remote Client API is responsible for
 serving the game client assets for the roBrowser client, but the roBrowser client also supports loading the files directly from the browser window.
 
-The roBrowser also needs to communicate with the game server emulator via WebSockets, so you can use the [wsProxy](https://github.com/herenow/wsProxy#readme) to this purpose.
+The roBrowser also needs to communicate with the game server emulator via WebSockets, you can use the [wsProxy](https://github.com/herenow/wsProxy#readme) to this purpose.
 
 The final communication layout can vary according to your setup, but a production environment should look like:
 
@@ -28,8 +22,8 @@ remoteClient:  "http://roclient.localhost/" //or ""
 
 Set this property to the address where the Remote Client API is accessible (from the user browser perspective).
 
-* [Set up a self-hosted Remote Client API]()
-* [Using an existing Remote Client API]()
+* [Set up a self-hosted Remote Client API](./REMOTE_CLIENT_API.md#self-hosting-the-remote-client-api)
+* [Using an existing Remote Client API](./REMOTE_CLIENT_API.md#list-of-remote-client-apis)
 * [Upload files from local disk via browser]()
 
 Set the value to "" if you intend to use the local disk files.
@@ -39,7 +33,7 @@ Next, set up the login-server address, example:
 address: '127.0.0.1',
 ```
 
-> [!IMPORTANT]  
+> [!NOTE]  
 > The address should be accessible by the char-server and map-server. It does not need to be externally accessible.
 
 Next, set up the packetver value from your server. You should get this from the emulator server that you're trying to access. Example: 
@@ -57,7 +51,7 @@ socketProxy: "ws://127.0.0.1:5999/",
 
 Before compiling, copy all the files in the AI directory from the official game client to the AI directory from the project root.
 
-> [!NOTE]  
+> [!IMPORTANT]  
 > You should change the import declaration in the LUA files to work properly with the roBrowser.
 
 To do this, after copying the files you can run this command on a terminal window:
@@ -79,3 +73,7 @@ npm run build -- -O -T -H -A
 ```
 
 Wait for the command to run. After that, a directory named **dist** will be created.
+
+## Troubleshooting
+
+TODO
