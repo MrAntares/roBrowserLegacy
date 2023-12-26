@@ -17,7 +17,8 @@ http://grf.robrowser.com/
 
 For serving the files, we will be using Apache HTTP server and the [client](../client) directory.
 
-This document assumes that Apache web server is running and properly configured to handle PHP files.
+This document assumes that Apache web server is running and properly configured to handle PHP files. Also the modules
+rewrite and headers should be enabled.
 
 Copy the files and folders in the [client](../client) directory to the Apache web server root. 
 
@@ -52,7 +53,7 @@ For example, if the web server root is **/var/www/html** the file structure shou
   * DATA.INI
   * data.grf
   from the official game client to the resources directory inside the web root;
-  * You can skip this part if you extracted the GRF files to the data directory of the web root;
+    * You can skip this part if you extracted the GRF files to the data directory of the web root;
 * Copy the files inside the System directory from the official game client to the System directory inside the web root;
 
 
