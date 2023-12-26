@@ -1,0 +1,81 @@
+# Getting started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/MrAntares/roBrowserLegacy
+```
+
+This project has two components: the Remote Client API and the roBrowser client. The Remote Client API is responsible for
+serving the game client assets for the roBrowser client, but the roBrowser client also supports loading the files directly from the browser window.
+
+The roBrowser also needs to communicate with the game server emulator via WebSockets, so you can use the [wsProxy](https://github.com/herenow/wsProxy#readme) to this purpose.
+
+The final communication layout can vary according to your setup, but a production environment should look like:
+
+![](./img/robrowser-connection-overview.png)
+
+## Setup roBrowser client
+
+There are many ways to use this client, but the most basic will be covered in this document. You can check out the [Advanced client usage guide](ADVANCED_CLIENT_USAGE.md) for more ways to implement the client.
+
+To start, open the file [tools/builder-web.js](../tools/builder-web.js) file and search for the ```window.ROConfig``` variable. You can check out the [full configuration overview,](README.md#7-robrowser-settings-overview)
+but we will only change the necessary configuration:
+
+```js
+remoteClient:  "http://roclient.localhost/" //or ""
+```
+
+Set this property to the address where the Remote Client API is accessible (from the user browser perspective).
+
+* [Set up a self-hosted Remote Client API]()
+* [Using an existing Remote Client API]()
+* [Upload files from local disk via browser]()
+
+Set the value to "" if you intend to use the local disk files.
+
+Next, set up the login-server address, example:
+```js
+address: '127.0.0.1',
+```
+
+> [!IMPORTANT]  
+> The address should be accessible by the char-server and map-server. It does not need to be externally accessible.
+
+Next, set up the packetver value from your server. You should get this from the emulator server that you're trying to access. Example: 
+```js
+packetver: 20180704,
+```
+
+And finally, set up the websocket proxy address. This is the only entrypoint that is needed for the roBrowser client, example:
+
+```js
+socketProxy: "ws://127.0.0.1:5999/",
+```
+
+### Preparing the dependencies
+
+Before compiling, copy all the files in the AI directory from the official game client to the AI directory from the project root.
+
+> [!NOTE]  
+> You should change the import declaration in the LUA files to work properly with the roBrowser.
+
+To do this, after copying the files you can run this command on a terminal window:
+
+```bash 
+sed -i 's@require "AI\\\\Const@dofile "./AI/Const.lua@;s@require "AI\\\\Util@dofile "./AI/Util.lua@' ./AI/*.lua
+```
+OR replace it manually with a text editor:
+* Replace all `require "AI\\Const"` with `dofile "./AI/Const.lua"`
+* Replace all `require "AI\\Util"` with `dofile "./AI/Util.lua"`
+
+
+### Compiling the code
+
+Open a terminal window and navigate to the roBrowser project root. After that, type the command bellow to start compiling:
+
+```js
+npm run build -- -O -T -H -A
+```
+
+Wait for the command to run. After that, a directory named **dist** will be created.
