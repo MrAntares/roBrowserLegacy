@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  ro-browser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: client
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    tty: true
+    command: ['sleep', '360h']
+    networks:
+        - "ro-browser"
+
+  remote-client-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    volumes:
+      - ./client:/var/www/html
+    ports:
+        - "80:80"
+    networks:
+        - "ro-browser"
+
+networks:
+    ro-browser:
+
