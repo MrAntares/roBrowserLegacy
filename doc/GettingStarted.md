@@ -1,6 +1,8 @@
 # Getting started
 
-This project has two components: the Remote Client API and the roBrowser client. The Remote Client API is responsible for
+This document assumes that you already set up your environment to run it. If not check out the [Environment](./Environment.md) page before using this guide.
+
+This project has two components: the [Remote Client API](../client) and the [roBrowser client](../src). The Remote Client API is responsible for
 serving the game client assets for the roBrowser client, but the roBrowser client also supports loading the files directly from the browser window.
 
 The roBrowser also needs to communicate with the game server emulator via WebSockets, you can use the [wsProxy](https://github.com/herenow/wsProxy#readme) to this purpose.
