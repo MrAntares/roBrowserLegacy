@@ -17,7 +17,7 @@ http://grf.robrowser.com/
 
 For serving the files, we will be using Apache HTTP server and the [client](../client) directory.
 
-This document assumes that Apache web server is running and properly configured to handle PHP files. Also the modules
+This document assumes that Apache web server is running and properly configured to handle PHP files. Also, the modules
 rewrite and headers should be enabled.
 
 Copy the files and folders in the [client](../client) directory to the Apache web server root. 

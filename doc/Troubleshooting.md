@@ -24,7 +24,7 @@ Check that you don't have an extension using [postMessage](https://developer.moz
 ### AI%5cConst.js (404 not found)
 ![](./img/start-ai-error.png)
 
-Probably there is an error with the AI/ files set up. Check this [Getting Started section](./GETTING_STARTED.md#preparing-the-dependencies)
+Probably there is an error with the AI/ files set up. Check this [Getting Started section](./GettingStarted.md#preparing-the-dependencies)
 
 ### Wrong Response Status - 403 Not Found, 403 Forbidden 
 

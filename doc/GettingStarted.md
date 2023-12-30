@@ -11,7 +11,7 @@ The final communication layout can vary according to your setup, but a productio
 
 ## Setup roBrowser client
 
-There are many ways to use this client, but the most basic will be covered in this document. You can check out the [Advanced client usage guide](ADVANCED_CLIENT_USAGE.md) for more ways to implement the client.
+There are many ways to use this client, but the most basic will be covered in this document. You can check out the [Advanced client usage guide](AdvancedClientUsage.md) for more ways to implement the client.
 
 To start, open the file [tools/builder-web.js](../tools/builder-web.js) file and search for the ```window.ROConfig``` variable. You can check out the [full configuration overview,](README.md#7-robrowser-settings-overview)
 but we will only change the necessary configuration:
@@ -22,9 +22,9 @@ remoteClient:  "http://roclient.localhost/" //or ""
 
 Set this property to the address where the Remote Client API is accessible (from the user browser perspective).
 
-* [Set up a self-hosted Remote Client API](./REMOTE_CLIENT_API.md#self-hosting-the-remote-client-api)
-* [Using an existing Remote Client API](./REMOTE_CLIENT_API.md#list-of-remote-client-apis)
-* [Upload files from local disk via browser]()
+* [Set up a self-hosted Remote Client API](./RemoteClientAPI.md#self-hosting-the-remote-client-api)
+* [Using an existing Remote Client API](./RemoteClientAPI.md#list-of-remote-client-apis)
+* [Upload files from local disk via browser](#TODO)
 
 Set the value to "" if you intend to use the local disk files.
 
@@ -68,7 +68,7 @@ OR replace it manually with a text editor:
 
 Open a terminal window and navigate to the roBrowser project root. After that, type the command bellow to start compiling:
 
-```js
+```bash
 npm run build -- -O -T -H -A
 ```
 
