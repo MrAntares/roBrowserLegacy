@@ -74,6 +74,23 @@ npm run build -- -O -T -H -A
 
 Wait for the command to run. After that, a directory named **dist** will be created.
 
+Run the following command to test the dist files:
+
+```bash
+npm run serve
+```
+
+Navigate to [http://127.0.0.1:8080](http://127.0.0.1:8080) to see if the roBrowser client is starting. At this stage,
+it's recommended to open your developer tools on the browser you're using to check for errors on the console.
+
+Close the browser window and stop the npm process when finished testing.
+
+## Playing the game
+
+After following the steps above, you can copy the contents of the dist/Web directory to the webserver root and start playing:
+
+![RO Browser Running on Browser locally.](img/start-robrowser.png)
+
 ## Troubleshooting
 
-TODO
+Check out the [Troubleshooting](Troubleshooting.md) page to more information about errors you may encounter.

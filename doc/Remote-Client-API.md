@@ -105,5 +105,5 @@ After the test stage and disabling the debug property, the Remote Client API is 
 
 ## Troubleshooting
 
-TODO
+Check out the [Troubleshooting](Troubleshooting.md#remote-client-api) page to more information about errors you may encounter.
 

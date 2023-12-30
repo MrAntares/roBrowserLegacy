@@ -375,29 +375,6 @@ You can set up your own `index.html` / integrate roBrowser into your website as 
 ## 8. Play the Game
 - Access to `http://localhost:8000/` after moving all the files from your `ro-browser/dist/Web` to `ro-browser` (project root).
 - 
-![RO Browser Running on Browser locally.](img/start-robrowser.png)
+
 
 # 9. Troubleshooting
-
-## 9.1 Troubleshooting: The screen is weird and/or the developer console (F12) says it can't load game assets
-Your remote client is not configured properly.
-- Check the `client/configs.php` and make sure `DEBUG` is set to false.
-- Check the `client/.htaccess` file if the ErrorDocument option points to the `client/index.php` via the correct url. If you don't run roBrowser from the www root and you use remote client then you need to adjust this url (see examples in the file).
-
-If it is still not working you can try setting `DEBUG` to true and open the `http://localhost:8000/client/index.php` in your browser to see the debug trace. You can also call files directly from your game data to see if they load properly, eg: `http://localhost:8000/client/data/texture/black.bmp`. After debugging set `DEBUG` to false.
-
-##  9.2 Troubleshooting:  Screen is blank
-Check that you don't have an extension using [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/message_event), it will conflict with code in `api.html` which listen for message.
-
-## 9.3 Troubleshooting: AI%5cConst.js (404 not found)
-![](img/start-ai-error.png)
-
-You probably forgot the step about `AI` `require` replacement in `Add game assets` section
-
-## 9.4 Troubleshooting:  Wrong Response Status - 403 Not Found, 403 Forbidden 
-
-You probably have a server security issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
-
-## 9.5 Troubleshooting: Other
-
-I personally had to disable `metamask` extension.

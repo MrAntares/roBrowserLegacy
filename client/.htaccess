@@ -8,7 +8,7 @@
 # Example for the url http://client.myroserver.com/
 # > ErrorDocument 404 /index.php
 # -----------------------------------------
-ErrorDocument 404 /client/index.php
+ErrorDocument 404 /index.php
 
 
 # Uncomment the line below if it does not cause error
