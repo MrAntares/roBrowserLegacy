@@ -92,6 +92,6 @@ You can set up your own `index.html` / integrate roBrowser into your website as 
 
 ## Custom plugins
 
-- Copy your custom plugins into `src\Plugins` 
+- Copy your custom plugins into `src\Plugins`
 
 Some examples: https://github.com/MrAntares/roBrowserLegacy-plugins
