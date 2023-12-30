@@ -48,8 +48,6 @@ Save the file and access the http://localhost. You should see a debug screen if 
 
 This text informs us that are no files present to be served by the script. Check the [Getting started section](./GettingStarted.md#preparing-the-dependencies) for the needed set-up, example:
 
-![](./img/remote-client-api-debug-screen.png)
-
 #### roBrowser client
 
 To start using this service, just execute the following command on your terminal window:
