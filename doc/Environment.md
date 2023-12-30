@@ -46,7 +46,7 @@ Save the file and access the http://localhost. You should see a debug screen if 
 
 ![](./img/remote-client-api-example-debug.png)
 
-This text informs us that are no files present to be served by the script. Check the [](./GettingStarted.md#preparing-the-dependencies) for the needed set-up, example:
+This text informs us that are no files present to be served by the script. Check the [Getting started section](./GettingStarted.md#preparing-the-dependencies) for the needed set-up, example:
 
 ![](./img/remote-client-api-debug-screen.png)
 
