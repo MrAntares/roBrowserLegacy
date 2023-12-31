@@ -80,4 +80,8 @@ Run ```docker compose down``` and after that ```docker compose up -d``` again. A
 
 ![](./img/docker-service-nodejs-root-user.png)
 
+After checking if the environment is ready, you can follow up the [getting started guide](GettingStarted.md)
+
+## Host machine
+
 TODO: Add the setup using the host machine (maybe in a VM environment.)
