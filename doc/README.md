@@ -1,5 +1,8 @@
 # Getting started
 
+1. Pre requisites
+2. 
+
 This document assumes that you already set up your environment to run it. If not check out the [Environment](./Environment.md) page before using this guide.
 
 This project has two components: the [Remote Client API](../client) and the [roBrowser client](../src). The Remote Client API is responsible for
@@ -28,19 +31,13 @@ The game files needs to match the version/episode that you will play. Due that, 
 There are many ways to use this client, but the most basic will be covered in this document. You can check out the [Advanced client usage guide](AdvancedClientUsage.md) for more ways to implement the client.
 
 To start, open the file [tools/builder-web.js](../tools/builder-web.js) file and search for the ```window.ROConfig``` variable. You can check out the [full configuration overview,](./AdvancedClientUsage.md#settings-overview)
-but we will only change the necessary configuration:
+but we will only change the necessary configuration.
+
+Set this property to the address where the Remote Client API is accessible (from the user browser perspective):
 
 ```js
-remoteClient:  "http://roclient.localhost/" //or ""
+remoteClient:  "http://localhost/" //or "" to use local files
 ```
-
-Set this property to the address where the Remote Client API is accessible (from the user browser perspective).
-
-* [Set up a self-hosted Remote Client API](./RemoteClientAPI.md#self-hosting-the-remote-client-api)
-* [Using an existing Remote Client API](./RemoteClientAPI.md#list-of-remote-client-apis)
-* [Upload files from local disk via browser](#TODO)
-
-Set the value to "" if you intend to use the local disk files.
 
 Next, set up the login-server address, example:
 ```js
@@ -103,13 +100,15 @@ npm run serve
 Navigate to [http://127.0.0.1:8080](http://127.0.0.1:8080) to see if the roBrowser client is starting. At this stage,
 it's recommended to open your developer tools on the browser you're using to check for errors on the console.
 
+If you choose to serve you local files and upload it from the browser, you should see a screen like this:
+
+![RO Browser Running on Browser locally.](img/start-robrowser.png)
+
 Close the browser window and stop the npm process when finished testing.
 
 ## Playing the game
 
 After following the steps above, you can copy the contents of the dist/Web directory to the webserver root and start playing:
-
-![RO Browser Running on Browser locally.](img/start-robrowser.png)
 
 ## Troubleshooting
 

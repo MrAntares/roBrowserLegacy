@@ -7,6 +7,7 @@ As a common rule, try this steps when testing out roBrowser:
   * If not using the devtools all the time, be sure to refresh the page with the browser option to ignore the cache
     * Chrome: Shift+F5 on Win/Linux, Command+Shift+r on OS X;
     * Microsoft Edge: Ctrl+Shift+r on Win/Linux, Command+Shift+r on OS X;
+* Disable the debug mode from the Remote Client API when not testing it directly from your browser;
 
 ## RO Browser client
 
