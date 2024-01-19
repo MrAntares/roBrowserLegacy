@@ -23,6 +23,18 @@ services:
     volumes:
       - ./client:/var/www/html
     ports:
+        - "8001:80"
+    networks:
+        - "ro-browser"
+
+  ro-browser-dist:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    volumes:
+      - ./dist/Web:/var/www/html
+    ports:
         - "80:80"
     networks:
         - "ro-browser"
