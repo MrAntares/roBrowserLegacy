@@ -22,6 +22,7 @@ define(function( require )
 	var PacketVersions = require('./PacketVersions');
 	var PacketRegister = require('./PacketRegister');
 	var PacketCrypt    = require('./PacketCrypt');
+	var PacketLength   = require('./PacketLength');
 	var ChromeSocket   = require('./SocketHelpers/ChromeSocket');
 	var JavaSocket     = require('./SocketHelpers/JavaSocket');
 	var WebSocket      = require('./SocketHelpers/WebSocket');
@@ -289,24 +290,11 @@ define(function( require )
 			}
 
 			id     = fp.readUShort();
-
+			let packet_len = PacketLength.getPacketLength(id);
+			packet_len = packet_len ? packet_len : fp.length - offset;
 			// Packet not defined ?
-			if (!Packets.list[id]) {
-				if(packetDump) {
-					let unknown_buffer = new Uint8Array( buffer, 0, fp.length-fp.tell() );
-					console.log("[Network] [recv] [UNKNOWN] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), fp.length-fp.tell(), utilsBufferToHexString(unknown_buffer).toUpperCase());
-				}
-				console.error(
-					'[Network] Packet "%c0x%s%c" not register, skipping %d bytes.',
-					'font-weight:bold', id.toString(16), 'font-weight:normal', (fp.length-fp.tell())
-				);
-				break;
-			}
 
-			// Find packet size
-			packet  = Packets.list[id];
-
-			if (packet.size < 0) {
+			if (packet_len < 0) {
 				// Not enough bytes...
 				if (offset + 4 >= fp.length) {
 					_save_buffer = new Uint8Array( buffer, offset, fp.length - offset );
@@ -315,14 +303,14 @@ define(function( require )
 				length = fp.readUShort();
 			}
 			else {
-				length = packet.size;
+				length = packet_len;
 			}
 
 			offset += length;
 
 			// Not enough bytes, need to wait for new buffer to read more.
 			if (offset > fp.length) {
-				offset       = fp.tell() - (packet.size < 0 ? 4 : 2);
+				offset       = fp.tell() - (packet_len < 0 ? 4 : 2);
 				_save_buffer = new Uint8Array(
 					buffer,
 					offset,
@@ -331,29 +319,41 @@ define(function( require )
 				return;
 			}
 
-			if(packetDump) {
-				let buffer_console = new Uint8Array( buffer, 0, length );
-				console.log("[Network] [recv] Packet ID: 0x%s - %s - Length: %d\nContent:\n%s", id.toString(16), packet.name, length, utilsBufferToHexString(buffer_console).toUpperCase());
+			if(Packets.list[id]) {
+				if(packetDump) {
+					let buffer_console = new Uint8Array( buffer, 0, length );
+					console.log("[Network] [recv] Packet ID: 0x%s - %s - Length: %d\nContent:\n%s", id.toString(16), packet.name, length, utilsBufferToHexString(buffer_console).toUpperCase());
+				}
+
+				packet  = Packets.list[id];
+				// Parse packet
+				//if (!packet.instance) {
+					packet.instance = new packet.Struct(fp, offset);
+				//}
+				//else {
+				//	packet.Struct.call(packet.instance, fp, offset); //this causes packet conflicts where the same type of packets following eachother copy the previous packet's variables with the previous values
+				//}
+
+				console.log( '%c[Network] Recv:', 'color:#900090', packet.instance, packet.callback ? '' : '(no callback)'  );
+
+				// Call controller
+				if (packet.callback) {
+					packet.callback(packet.instance);
+				}
+			} else {
+				if(packetDump) {
+					let unknown_buffer = new Uint8Array( buffer, 0, length );
+					console.log("[Network] [recv] [UNKNOWN] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), length, utilsBufferToHexString(unknown_buffer).toUpperCase());
+				}
+				console.error(
+					'[Network] Packet "%c0x%s%c" not register, skipping %d bytes.',
+					'font-weight:bold', id.toString(16), 'font-weight:normal', (length)
+				);
 			}
-
-			// Parse packet
-			//if (!packet.instance) {
-				packet.instance = new packet.Struct(fp, offset);
-			//}
-			//else {
-			//	packet.Struct.call(packet.instance, fp, offset); //this causes packet conflicts where the same type of packets following eachother copy the previous packet's variables with the previous values
-			//}
-
-			console.log( '%c[Network] Recv:', 'color:#900090', packet.instance, packet.callback ? '' : '(no callback)'  );
 
 			// Support for "0" type
 			if (length) {
 				fp.seek( offset, SEEK_SET );
-			}
-
-			// Call controller
-			if (packet.callback) {
-				packet.callback(packet.instance);
 			}
 		}
 
