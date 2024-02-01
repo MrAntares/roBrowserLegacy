@@ -576,6 +576,11 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x97b: PACKET.ZC.PERSONAL_INFOMATION, // ? (exp)
 		0x983: PACKET.ZC.MSG_STATE_CHANGE4, // ok
 		0x984: PACKET.ZC.MSG_STATE_CHANGE5, // ok
+		0x988: PACKET.ZC.NOTIFY_CLAN_CONNECTINFO, // ok (no callback)
+		0x989: PACKET.ZC.ACK_CLAN_LEAVE, // ok (no callback)
+		0x98a: PACKET.ZC.CLANINFO, // ok (no callback)
+		0x98d: PACKET.CZ.CLAN_CHAT, // ok (no callback)
+		0x98e: PACKET.ZC.NOTIFY_CLAN_CHAT, // ok (no callback)
 		0x990: PACKET.ZC.ITEM_PICKUP_ACK5, // partially
 		0x991: PACKET.ZC.NORMAL_ITEMLIST4, // ok
 		0x992: PACKET.ZC.EQUIPMENT_ITEMLIST4, // ok
