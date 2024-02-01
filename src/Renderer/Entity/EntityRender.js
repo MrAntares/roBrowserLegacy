@@ -333,7 +333,7 @@ define( function( require )
 			var isBlendModeOne = false;
 
 			// Nothing to render
-			if (!files.spr || !files.act)
+			if (typeof files === 'undefined' || !files.spr || !files.act)
 			{
 				return;
 			}
