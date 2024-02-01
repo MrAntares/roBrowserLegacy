@@ -172,7 +172,7 @@ define(function( require )
 			// Focus the UI on mousedown
 			element.mousedown(this.focus.bind(this));
 		}
-		
+
 		if (this.mouseMode !== UIComponent.MouseMode.CROSS) {
 			var element = this.__mouseStopBlock || this.ui;
 			// Do not cross
@@ -180,7 +180,7 @@ define(function( require )
 				event.stopImmediatePropagation();
 			});
 		}
-		
+
 
 		if (this._htmlText) {
 			this.ui.detach();
@@ -252,7 +252,7 @@ define(function( require )
 		if (this.onAppend) {
 			this.onAppend();
 		}
-		
+
 		//Fix position after append (screen changed since last time and it loads invalid positions)
 		if (this.ui) {
 			var x, y, width, height, WIDTH, HEIGHT;
@@ -262,7 +262,7 @@ define(function( require )
 			height = this.ui.height();
 			WIDTH  = Renderer.width;
 			HEIGHT = Renderer.height;
-			
+
 
 			if (y + height > HEIGHT) {
 				this.ui.css('top', HEIGHT - Math.min(height, HEIGHT));
@@ -531,7 +531,7 @@ define(function( require )
 			Client.loadFile( DB.INTERFACE_PATH + hover, function(dataURI){
 				hover_uri = dataURI;
 				$node.mouseover(function(){ this.style.backgroundImage = 'url(' + hover_uri + ')'; });
-				$node.mouseout( function(){ this.style.backgroundImage = 'url(' + bg_uri    + ')'; });
+				$node.mouseout( function(){ this.style.backgroundImage = bg_uri ? 'url(' + bg_uri    + ')' : ''; });
 			});
 		}
 
@@ -543,7 +543,7 @@ define(function( require )
 			});
 
 			if (!hover) {
-				$node.mouseout( function(){ this.style.backgroundImage = 'url(' + bg_uri + ')'; });
+				$node.mouseout( function(){ this.style.backgroundImage = bg_uri ? 'url(' + bg_uri    + ')' : ''; });
 			}
 		}
 
