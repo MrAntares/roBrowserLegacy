@@ -14,7 +14,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	var UNUSED_PACKET;
-	var NAME_LENGTH = 24; // Must be equal to same name var in mmo.h 
+	var NAME_LENGTH = 24; // Must be equal to same name var in mmo.h
+	var MAP_NAME_LENGTH = (11 + 1);
+	var MAP_NAME_LENGTH_EXT = (MAP_NAME_LENGTH + 4);
 	var PACKET = {};
 	var RENEWAL = Configs.get('renewal') || false;
 	var CLASSIC = !RENEWAL; // For ease of reading checks
@@ -11218,6 +11220,63 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.MSG_STATE_CHANGE5.size = 28;
 
 
+	// 0x988
+	PACKET.ZC.NOTIFY_CLAN_CONNECTINFO = function PACKET_ZC_NOTIFY_CLAN_CONNECTINFO(fp, end) {
+		this.NumConnect = fp.readShort();
+		this.NumTotal = fp.readShort();
+	};
+	PACKET.ZC.NOTIFY_CLAN_CONNECTINFO.size = 6;
+
+
+	// 0x989
+	PACKET.ZC.ACK_CLAN_LEAVE = function PACKET_ZC_ACK_CLAN_LEAVE(fp, end) {
+	};
+	PACKET.ZC.ACK_CLAN_LEAVE.size = 2;
+
+
+	// 0x98a
+	PACKET.ZC.CLANINFO = function PACKET_ZC_CLANINFO(fp, end) {
+		this.ClanID = fp.readLong();
+		this.ClanName = fp.readString(NAME_LENGTH);
+		this.MasterName = fp.readString(NAME_LENGTH);
+		this.Map = fp.readString(MAP_NAME_LENGTH_EXT);
+		this.AllyCount = fp.readUChar();
+		this.AntagonistCount = fp.readUChar();
+		this.AllyList = new Array(this.AllyCount);
+		for (let i = 0; i < this.AllyCount; i++) {
+			this.AllyList[i] = fp.readString(NAME_LENGTH);
+		}
+		this.AntagonistList = new Array(this.AntagonistCount);
+		for (let i = 0; i < this.AntagonistCount; i++) {
+			this.AntagonistList[i] = fp.readString(NAME_LENGTH);
+		}
+	};
+	PACKET.ZC.CLANINFO.size = -1;
+
+
+	// 0x98d
+	PACKET.CZ.CLAN_CHAT = function PACKET_CZ_CLAN_CHAT() {
+		this.msg = '';
+	};
+	PACKET.CZ.CLAN_CHAT.prototype.build = function() {
+		var pkt_len = 2 + 2 + this.msg.length + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x98d);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeString(this.msg);
+		return pkt_buf;
+	};
+
+
+	// 0x98e
+	PACKET.ZC.NOTIFY_CLAN_CHAT = function PACKET_ZC_NOTIFY_CLAN_CHAT(fp, end) {
+		this.MemberName = fp.readString(NAME_LENGTH);
+		this.msg = fp.readString(end - fp.tell());
+	};
+	PACKET.ZC.NOTIFY_CLAN_CHAT.size = -1;
+
+
 	// 0x990
 	PACKET.ZC.ITEM_PICKUP_ACK5 = function PACKET_ZC_ITEM_PICKUP_ACK5(fp, end) {
 		this.index = fp.readUShort();
@@ -11903,7 +11962,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.ACK_FAILED_ALL_RODEX_LIST = function PACKET_ZC_ACK_FAILED_ALL_RODEX_LIST(fp, end) {};
 	PACKET.ZC.ACK_FAILED_ALL_RODEX_LIST.size = 2;
 
-	
+
 	/** READ MAIL **/
 
 	// 0x9eb
@@ -12002,7 +12061,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	/** Retrieve Result **/
-	
+
 	// 0x9f2
 	PACKET.ZC.ACK_ZENY_FROM_RODEX = function PACKET_ZC_ACK_ZENY_FROM_RODEX(fp, end) {
 		this.MailID = fp.readUInt64();
@@ -12106,7 +12165,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.ACK_OPEN_WRITE_RODEX.size = 27;
 
 
-	/* 
+	/*
 	* TODO:
 	* 0A32: ZC_OPEN_RODEX_THROUGH_NPC_ONLY
 	* 0B96: ZC_RODEX_BLOCK_RECEIVE
@@ -12156,7 +12215,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
-	
+
 	// 0x9ee
 	PACKET.CZ.REQ_NEXT_RODEX = function PACKET_CZ_REQ_NEXT_RODEX() {
 		this.openType = 0;
@@ -12341,7 +12400,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.receiver = "";
 		this.sender = "";
 		this.zeny = 0;
-		this.Titlelength = 0; 
+		this.Titlelength = 0;
 		this.Bodylength = 0;
 		this.title = "";
 		this.body = "";
@@ -12368,7 +12427,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.receiver = "";
 		this.sender = "";
 		this.zeny = 0;
-		this.Titlelength = 0; 
+		this.Titlelength = 0;
 		this.Bodylength = 0;
 		this.CharID = 0;
 		this.title = "";
@@ -12429,7 +12488,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0xa14
 	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME = function PACKET_ZC_CHECK_RECEIVE_CHARACTER_NAME(fp, end) {
-		this.CharID = fp.readULong(); 
+		this.CharID = fp.readULong();
 		this.Job = fp.readUShort();
 		this.level = fp.readUShort();
 	};
@@ -12437,14 +12496,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0xa51
 	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2 = function PACKET_ZC_CHECK_RECEIVE_CHARACTER_NAME2(fp, end) {
-		this.CharID = fp.readULong(); 
+		this.CharID = fp.readULong();
 		this.Job = fp.readUShort();
 		this.level = fp.readUShort();
 		this.name = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2.size = 34;
 
-	
+
 	// 0x9f7
 	PACKET.ZC.PROPERTY_HOMUN2 = function PACKET_ZC_PROPERTY_HOMUN2(fp, end) {
 
@@ -13043,7 +13102,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.CH.MAKE_CHAR3.prototype.build = function() {
 		var pkt_len = 2 + 24 + 1 + 2 + 2 + 2 + 2 + 1; // Total 36 bytes
 		var pkt_buf = new BinaryWriter(pkt_len);
-		
+
 		pkt_buf.writeShort(0xa39);
 		pkt_buf.writeString(this.name, 24);
 		pkt_buf.writeUChar(this.CharNum);
@@ -13054,7 +13113,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		pkt_buf.writeUChar(0);
 		pkt_buf.writeUChar(0);
 		pkt_buf.writeUChar(this.Sex);
-		
+
 		return pkt_buf;
 	};
 
