@@ -46,7 +46,7 @@ define(function( require )
 
 	// Version Dependent UIs
 	var SkillWindow = require('UI/Components/SkillList/SkillList');
-	
+
 
 	/**
 	 * Spam an effect
@@ -807,7 +807,7 @@ define(function( require )
 		Sense.append();
 		Sense.setWindow(pkt);
 	}
-	
+
 	function hookSkillWindow(){
 		SkillWindow.getUI().onIncreaseSkill = onIncreaseSkill;
 		SkillWindow.getUI().onUseSkill = onUseSkill;
@@ -819,7 +819,7 @@ define(function( require )
 	return function SkillEngine()
 	{
 		hookSkillWindow();
-		
+
 		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST,         onSkillList );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE,       onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE2,      onSkillUpdate );
@@ -833,6 +833,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_EFFECT2,         onEffect );
 		Network.hookPacket( PACKET.ZC.NOTIFY_EFFECT3,         onEffect );
 		Network.hookPacket( PACKET.ZC.NOTIFY_GROUNDSKILL,     onSkillToGround );
+		Network.hookPacket( PACKET.ZC.SKILL_SCALE,            onSkillToGround );
 		Network.hookPacket( PACKET.ZC.AUTORUN_SKILL,          onAutoCastSkill );
 		Network.hookPacket( PACKET.ZC.ITEMIDENTIFY_LIST,      onIdentifyList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMIDENTIFY,       onIdentifyResult );

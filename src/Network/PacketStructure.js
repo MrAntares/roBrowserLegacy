@@ -13117,6 +13117,19 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+
+	// 0xa41
+	PACKET.ZC.SKILL_SCALE = function PACKET_ZC_SKILL_SCALE(fp, end) {
+		this.AID = fp.readULong();
+		this.SKID = fp.readUShort();
+		this.level = fp.readShort();
+		this.xPos = fp.readShort();
+		this.yPos = fp.readShort();
+		this.startTime = fp.readULong();
+	};
+	PACKET.ZC.SKILL_SCALE.size = 18;
+
+
 	// 0xa43
 	PACKET.ZC.ADD_MEMBER_TO_GROUP3 = function PACKET_ZC_ADD_MEMBER_TO_GROUP3(fp, end) {
 		this.AID = fp.readULong();
