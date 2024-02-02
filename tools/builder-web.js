@@ -9,7 +9,7 @@ const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 const dist = './dist/';
 const platform = "Web";
 (function build() {
-    
+
     //delete all files in dist
     fs.rmSync(dist + platform +'/AI', { recursive: true, force: true });
     fs.rmSync(dist + platform +'/index.html', { recursive: true, force: true });
@@ -27,6 +27,8 @@ const platform = "Web";
     if (!fs.existsSync(dist + platform)){
         fs.mkdirSync(dist + platform);
     }
+
+	copyFolder('./src/UI/Components/Intro/images/', dist + platform + '/src/UI/Components/Intro/images/');
 
     if ((args && (args['G'])) || args['all'] || Object.keys(args).length === 0) {
         compile("GrannyModelViewer", args['m']);
@@ -59,7 +61,7 @@ const platform = "Web";
     if ((args && args['H']) || args['all'] || Object.keys(args).length === 0) {
         createHTML();
     }
-    
+
     if ((args && args['A']) || args['all'] || Object.keys(args).length === 0) {
         copyFolder('./AI', dist + platform + '/AI');
     }
@@ -195,7 +197,7 @@ function createHTML(){
                             clientVersionMode: 'PacketVer',
                             plugins: {},
                         };
-            
+
                         script = document.createElement('script');
                         script.type = 'text/javascript';
                         script.src = 'Online.js';
