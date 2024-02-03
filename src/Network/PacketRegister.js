@@ -700,6 +700,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xacc: PACKET.ZC.NOTIFY_EXP2,
 		0xaef: PACKET.CZ.REQ_CHECK_ATTENDANCE, // ok
 		0xaf4: PACKET.CZ.USE_SKILL_TOGROUND3,
+		0xaf7: PACKET.ZC.ACK_REQNAME_BYGID2, // ok
 		0xafe: PACKET.ZC.UPDATE_MISSION_HUNT4, // ok
 		0xaff: PACKET.ZC.ALL_QUEST_LIST_V4, // ok
 		0xadd: PACKET.ZC.ITEM_FALL_ENTRY3, // ok
