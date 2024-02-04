@@ -54,6 +54,10 @@ const platform = "Web";
         compile("StrViewer", args['m']);
     }
 
+	if ((args && args['E']) || args['all'] || Object.keys(args).length === 0) {
+        compile("EffectViewer", args['m']);
+    }
+
     if ((args && args['T']) || args['all'] || Object.keys(args).length === 0) {
         compile("ThreadEventHandler", args['m']);
     }
@@ -106,6 +110,11 @@ function compile(appName, isMinify) {
 
         case "StrViewer":
             appPath = "App/StrViewer";
+            startFile = ["src/Vendors/require.js"];
+            break;
+
+		case "EffectViewer":
+            appPath = "App/EffectViewer";
             startFile = ["src/Vendors/require.js"];
             break;
 
@@ -196,6 +205,12 @@ function createHTML(){
                             skipIntro:       true,
                             clientVersionMode: 'PacketVer',
                             plugins: {},
+							clientHash: null,
+							enableCashShop: false,
+							enableBank: false,
+							enableMapName: false,
+							enableCheckAttendance: false,
+							CameraMaxZoomOut: 5,
                         };
 
                         script = document.createElement('script');
