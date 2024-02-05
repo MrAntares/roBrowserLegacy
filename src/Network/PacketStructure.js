@@ -13467,6 +13467,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt;
 	};
 
+	// 0xaf7
+	PACKET.ZC.ACK_REQNAME_BYGID2 = function PACKET_ZC_ACK_REQNAME_BYGID2(fp, end) {
+		this.flag = fp.readUShort();
+		this.GID = fp.readULong();
+		this.CName = fp.readString(NAME_LENGTH);
+	};
+	PACKET.ZC.ACK_REQNAME_BYGID2.size = 32;
+
 	// 0xafe
 	PACKET.ZC.UPDATE_MISSION_HUNT4 = function PACKET_ZC_UPDATE_MISSION_HUNT4(fp, end) {
 		this.questCount = fp.readShort();

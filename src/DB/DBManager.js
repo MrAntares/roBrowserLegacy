@@ -171,7 +171,8 @@ define(function(require)
 		LoadAttendanceFile( 'System/CheckAttendance.lub', function(json){CheckAttendanceTable = json;}, onLoad());
 
 
-		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,     onUpdateOwnerName);
+		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,      onUpdateOwnerName);
+		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID2,     onUpdateOwnerName);
 	};
 
 
