@@ -484,6 +484,7 @@ define( function( require )
 		var animation = entity.animation;
 		var animCount = act.animations.length;
 		var animSize  = animCount;
+		var animLastIndex = animSize-1;
 		var isIdle	= (action === ACTION.IDLE || action === ACTION.SIT);
 		var delay	 = getAnimationDelay(type, entity, act);
 		var headDir   = 0;
@@ -503,14 +504,16 @@ define( function( require )
 
 		// Get rid of doridori
 		if (type === 'body' && entity.objecttype === entity.constructor.TYPE_PC && isIdle) {
-			return entity.headDir;
+			if(entity.headDir <= animLastIndex)
+				return entity.headDir;
+			return animLastIndex;
 		}
 
 		// If hat/hair, divide to 3 since there is doridori include
 		// TODO: fixed, just on IDLE and SIT ?
 		if (type === 'head' && isIdle) {
 			animCount = Math.floor(animCount / 3);
-			headDir   = entity.headDir;
+			headDir = entity.headDir <= animLastIndex ? entity.headDir : animLastIndex;
 		}
 
 		// Don't play, so stop at the current frame.
