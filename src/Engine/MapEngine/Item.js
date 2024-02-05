@@ -102,8 +102,8 @@ define(function( require )
 		}
 
 		ItemObtain.append();
-		ItemObtain.set(pkt);		
-		
+		ItemObtain.set(pkt);
+
 		var getTextItem = DB.getItemName(pkt);
 
 		ChatBox.addText(
@@ -168,6 +168,7 @@ define(function( require )
 			if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) Session.Entity.accessory  = 0;
 			if (pkt.wearLocation & EquipLocation.WEAPON)      Session.Entity.weapon     = 0;
 			if (pkt.wearLocation & EquipLocation.SHIELD)      Session.Entity.shield     = 0;
+			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe       = 0;
 		}
 	}
 
@@ -194,6 +195,7 @@ define(function( require )
 			if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) Session.Entity.accessory  = pkt.viewid;
 			if (pkt.wearLocation & EquipLocation.WEAPON)      Session.Entity.weapon     = pkt.viewid;
 			if (pkt.wearLocation & EquipLocation.SHIELD)      Session.Entity.shield     = pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe       = pkt.viewid;
 		}
 
 		// Fail to equip
@@ -241,7 +243,7 @@ define(function( require )
 			ChatBox.FILTER.ITEM
 		);
 	}
-	
+
 	/**
 	 * View other player's equipment - CZ_EQUIPWIN_MICROSCOPE
 	 *
@@ -253,7 +255,7 @@ define(function( require )
 		pkt.AID = AID;
 		Network.sendPacket(pkt);
 	}
-	
+
 	/**
 	 * Show other player's equipment
 	 *
@@ -604,7 +606,7 @@ define(function( require )
 				throw new Error("[PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL] - Unknown invType '" + pkt.invType + "'.");
 		}
 	}
-	
+
 	/**
 	 * Initialize
 	 */
@@ -665,10 +667,10 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL,       onItemListNormal );
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP,        onItemListEquip );
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2,        onItemListEquip );
-		
+
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE,        onShowPlayerEquipment );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE2,       onShowPlayerEquipment );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V5,     onShowPlayerEquipment );
-		
+
 	};
 });

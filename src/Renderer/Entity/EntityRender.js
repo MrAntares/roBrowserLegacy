@@ -248,6 +248,11 @@ define( function( require )
 			{
 				renderElement( this, this.files.body, 'body', _position, true );
 
+				// Draw Robe
+				if (this.robe > 0) {
+					renderElement( this, this.files.robe, 'robe', _position, true);
+				}
+
 			 	if(Session.Playing == true && this.hasCart == true)
 				{
 					var cartidx = [
@@ -274,6 +279,10 @@ define( function( require )
 						].includes(this._job)? 0 : this.CartNum;
   					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
 					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);
+				}
+				// Draw Robe
+				if (this.robe > 0) {
+					renderElement( this, this.files.robe, 'robe', _position, true);
 				}
 				renderElement( this, this.files.body, 'body', _position, true );
 			}
@@ -502,7 +511,7 @@ define( function( require )
 		}
 
 		// Get rid of doridori
-		if (type === 'body' && entity.objecttype === entity.constructor.TYPE_PC && isIdle) {
+		if ((type === 'body' || type === 'robe') && entity.objecttype === entity.constructor.TYPE_PC && isIdle) {
 			return entity.headDir;
 		}
 

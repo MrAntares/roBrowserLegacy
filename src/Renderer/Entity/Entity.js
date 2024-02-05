@@ -147,6 +147,7 @@ define( function( require )
 	Entity.prototype._accessory   = -1;
 	Entity.prototype._accessory2  = -1;
 	Entity.prototype._accessory3  = -1;
+	Entity.prototype.robe         = -1;
 	Entity.prototype.GUID         = 0;
 	Entity.prototype.GEmblemVer   = 0;
 	Entity.prototype.honor        = 0;
@@ -282,6 +283,22 @@ define( function( require )
 					this.position[1] = unit.MoveData[1];
 					this.position[2] = Altitude.getCellHeight(  unit.MoveData[0],  unit.MoveData[1] );
 					this.walkTo.apply( this, [unit.MoveData[0], unit.MoveData[1], unit.MoveData[2], unit.MoveData[3]] );
+					break;
+
+				case 'accessory':
+					this.accessory = unit.accessory;
+					break;
+
+				case 'accessory2':
+					this.accessory2 = unit.accessory2;
+					break;
+
+				case 'accessory3':
+					this.accessory2 = unit.accessory2;
+					break;
+
+				case 'Robe':
+					this.robe = unit.Robe;
 					break;
 
 				default:
