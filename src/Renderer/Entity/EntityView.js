@@ -50,6 +50,7 @@ define(function( require )
 		this.accessory  = new ViewFiles();
 		this.accessory2 = new ViewFiles();
 		this.accessory3 = new ViewFiles();
+		this.robe       = new ViewFiles();
 		this.shadow     = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
 
 		this.cart     = [];
@@ -91,6 +92,7 @@ define(function( require )
 		this.accessory   = this._accessory;
 		this.accessory2  = this._accessory2;
 		this.accessory3  = this._accessory3;
+		this.robe        = this._robe;
 	}
 
 
@@ -303,6 +305,7 @@ define(function( require )
 			switch (type) {
 				case 'weapon':
 				case 'shield':
+				case 'robe':
 					path  = DB[func]( val, this.job, this._sex );
 					break;
 
@@ -424,6 +427,11 @@ define(function( require )
 		Object.defineProperty(this, 'accessory3', {
 			get: function(){ return this._accessory3; },
 			set: UpdateGeneric('accessory3', 'getHatPath')
+		});
+
+		Object.defineProperty(this, 'robe', {
+			get: function(){ return this._robe; },
+			set: UpdateGeneric('robe', 'getRobePath')
 		});
 	};
 });

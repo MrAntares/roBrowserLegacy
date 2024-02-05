@@ -36,6 +36,7 @@ define(function(require)
 	var WeaponType       = require('./Items/WeaponType');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
+	var RobeTable        = require('./Items/RobeTable');
 	var SKID             = require('./Skills/SkillConst');
 	var SkillDescription = require('./Skills/SkillDescription');
 	var JobHitSoundTable = require('./Jobs/JobHitSoundTable');
@@ -477,6 +478,21 @@ define(function(require)
 		}
 
 		return 'data/sprite/\xbe\xc7\xbc\xbc\xbb\xe7\xb8\xae/' + SexTable[sex] + '/' + SexTable[sex] + HatTable[id];
+	};
+
+	/**
+	 * @return {string} path to Robe
+	 * @param {number} id robe id
+	 * @param {number} job class
+	 * @param {boolean} sex
+	 */
+	DB.getRobePath = function getRobePath( id, job, sex )
+	{
+		if (id === 0 || !(id in RobeTable)) {
+			return null;
+		}
+
+		return 'data/sprite/\xb7\xce\xba\xea/' + RobeTable[id] + '/' + SexTable[sex] + '/' + (ClassTable[job] || ClassTable[0]) + '_' + SexTable[sex];
 	};
 
 

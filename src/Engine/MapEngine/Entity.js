@@ -884,9 +884,12 @@ define(function( require )
 			case 6: entity.headpalette = pkt.value; break;
 			case 7: entity.bodypalette = pkt.value; break;
 			case 8: entity.shield      = pkt.value; break;
-			case 9:  break; // UNKNOWN
-			case 10: break; // UNKNOWN²
-			case 11: break; // robe, not supported yet
+			case 9:  break; // LOOK_SHOES ??
+			case 10: break; // LOOK_BODY ??
+			case 11: break; // LOOK_RESET_COSTUMES (Makes all headgear sprites on player vanish when activated.)
+			case 12: entity.robe       = pkt.value; break;
+			case 13: break; // LOOK_FLOOR ??
+			case 14: break; // LOOK_BODY2 ??
 		}
 	}
 
