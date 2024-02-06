@@ -31,7 +31,7 @@ define(function(require)
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var Rodex              = require('UI/Components/Rodex/Rodex');
-	
+
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
 	var Quest     = require('UI/Components/Quest/Quest');
@@ -92,7 +92,7 @@ define(function(require)
 					break;
 
 				case 'info':
-					Equipment.toggle();
+					Equipment.getUI().toggle();
 					break;
 
 				case 'skill':

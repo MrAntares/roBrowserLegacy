@@ -278,7 +278,7 @@ define(function(require)
 			}
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);
-				this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
+				this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 				this.onUpdateItem(items[i].ITID, items[i].count ? items[i].count : 1);
 			}
 
@@ -307,7 +307,7 @@ define(function(require)
 		object = jQuery.extend({}, item);
 		if (this.addItemSub(object)) {
 			this.list.push(object);
-			this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
+			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 			this.onUpdateItem(object.ITID, object.count);
 		}
 	};
@@ -346,7 +346,7 @@ define(function(require)
 
 		// Equip item (if not arrow)
 		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-			Equipment.equip(item);
+			Equipment.getUI().equip(item);
 			return false;
 		}
 
@@ -405,7 +405,7 @@ define(function(require)
 
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
+		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');
@@ -443,7 +443,7 @@ define(function(require)
 		// no quantity, remove
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		this.ui.find('.ncnt').text(this.list.length + Equipment.getNumber());
+		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');

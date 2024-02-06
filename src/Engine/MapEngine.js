@@ -99,8 +99,8 @@ define(function( require )
 
 	var snCounter = 0;
 	var chatLines = 0;
-	
-	
+
+
 	/**
 	 * @var {boolean} do we need to update UI versions?
 	 */
@@ -179,6 +179,7 @@ define(function( require )
 			MiniMap.selectUIVersion();
 			SkillList.selectUIVersion();
 			Quest.selectUIVersion();
+			Equipment.selectUIVersion();
 		}
 
 		// Do not hook multiple time
@@ -237,7 +238,7 @@ define(function( require )
 			CartItems.prepare();
 			Vending.prepare();
 			ChangeCart.prepare();
-			Equipment.prepare();
+			Equipment.getUI().prepare();
 			ShortCuts.prepare();
 			ShortCut.prepare();
 			ChatRoomCreate.prepare();
@@ -273,10 +274,10 @@ define(function( require )
 
 			// Bind UI
 			WinStats.onRequestUpdate        = onRequestStatUpdate;
-			Equipment.onUnEquip             = onUnEquip;
-			Equipment.onConfigUpdate        = onConfigUpdate;
-			Equipment.onEquipItem           = onEquipItem;
-			Equipment.onRemoveOption        = onRemoveOption;
+			Equipment.getUI().onUnEquip             = onUnEquip;
+			Equipment.getUI().onConfigUpdate        = onConfigUpdate;
+			Equipment.getUI().onEquipItem           = onEquipItem;
+			Equipment.getUI().onRemoveOption        = onRemoveOption;
 			Inventory.onUseItem             = onUseItem;
 			Inventory.onEquipItem           = onEquipItem;
 			Escape.onExitRequest            = onExitRequest;
@@ -286,18 +287,19 @@ define(function( require )
 			ChatBox.onRequestTalk           = onRequestTalk;
 
 		}
-			
+
 		// Init selected UIs when needed
 		if(MapEngine.needsUIVerUpdate || !_isInitialised){
 			// Prepare UIs
 			MiniMap.getUI().prepare();
 			SkillList.getUI().prepare();
 			BasicInfo.getUI().prepare();
+			Equipment.getUI().prepare();
 			Quest.getUI().prepare();
-			
+
 			// Bind UIs
 			// nothing yet
-			
+
 			// Avoid zone server change init
 			MapEngine.needsUIVerUpdate = false;
 		}
@@ -420,7 +422,7 @@ define(function( require )
 			CartItems.append();
 			Vending.append();
 			ChangeCart.append();
-			Equipment.append();
+			Equipment.getUI().append();
 			ShortCuts.append();
 			StatusIcons.append();
 			ShortCut.append();

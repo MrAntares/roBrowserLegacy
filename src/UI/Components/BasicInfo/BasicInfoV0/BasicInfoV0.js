@@ -33,7 +33,7 @@ define(function(require)
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var WinStats           = require('UI/Components/WinStats/WinStats');
 	var PACKETVER   = require('Network/PacketVerManager');
-	
+
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
 	var Quest     = require('UI/Components/Quest/Quest');
@@ -97,7 +97,7 @@ define(function(require)
 					break;
 
 				case 'equip':
-					Equipment.toggle();
+					Equipment.getUI().toggle();
 					break;
 
 				case 'skill':

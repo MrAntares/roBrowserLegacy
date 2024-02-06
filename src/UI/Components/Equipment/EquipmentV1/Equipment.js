@@ -1,0 +1,829 @@
+/**
+ * UI/Components/EquipmentV1/Equipment/Equipment.js
+ *
+ * Chararacter Equipment window
+ *
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
+ *
+ * @author Vincent Thibault
+ */
+define(function(require)
+{
+	'use strict';
+
+
+	/**
+	 * Dependencies
+	 */
+	var DB                 = require('DB/DBManager');
+	var StatusConst        = require('DB/Status/StatusState');
+	var EquipLocation      = require('DB/Items/EquipmentLocation');
+	var Network            = require('Network/NetworkManager');
+	var PACKET             = require('Network/PacketStructure');
+	var ItemType           = require('DB/Items/ItemType');
+	var jQuery             = require('Utils/jquery');
+	var Client             = require('Core/Client');
+	var Preferences        = require('Core/Preferences');
+	var Session            = require('Engine/SessionStorage');
+	var Renderer           = require('Renderer/Renderer');
+	var Camera             = require('Renderer/Camera');
+	var SpriteRenderer     = require('Renderer/SpriteRenderer');
+	var UIVersionManager   = require('UI/UIVersionManager');
+	var UIManager          = require('UI/UIManager');
+	var UIComponent        = require('UI/UIComponent');
+	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
+	var CartItems          = require('UI/Components/CartItems/CartItems');
+	var WinStats           = require('UI/Components/WinStats/WinStats');
+	var htmlText           = require('text!./Equipment.html');
+	var cssText            = require('text!./Equipment.css');
+
+
+	/**
+	 * Create Component
+	 */
+	var Equipment = new UIComponent( 'Equipment', htmlText, cssText );
+
+
+	/**
+	 * @var {Preference} window preferences
+	 */
+	var _preferences = Preferences.get('Equipment', {
+		x:        480,
+		y:        200,
+		show:     false,
+		reduce:   false,
+		stats:    true
+	}, 1.0);
+
+
+	/**
+	 * @var {Array} equipment list
+	 */
+	var _list = {};
+
+
+	/**
+	 * @var {CanvasRenderingContext2D} canvas context
+	 */
+	var _ctx = [];
+
+
+	/**
+	 * @var {boolean} show equipment to other people ?
+	 */
+	var _showEquip = false;
+
+
+	/**
+	 * @var {jQuery} button that appeared when level up
+	 */
+	var _btnLevelUp;
+
+	var tabLinks = new Array();
+    var contentDivs = new Array();
+	var currentTabId = 'general'; // Variable to store the current tab's ID
+
+	/**
+	 * Initialize UI
+	 */
+	Equipment.init = function init()
+	{
+		_ctx.push(this.ui.find('canvas')[0].getContext('2d'));
+		_ctx.push(this.ui.find('canvas')[1].getContext('2d'));
+
+		// Grab the tab links and content divs from the page
+		var tabListItems = document.getElementById('tabs').childNodes;
+		for ( var i = 0; i < tabListItems.length; i++ ) {
+		  if ( tabListItems[i].nodeName == "DIV" ) {
+			var tabLink = getFirstChildWithTagName( tabListItems[i], 'A' );
+			var id = getHash( tabLink.getAttribute('href') );
+			tabLinks[id] = tabLink;
+			contentDivs[id] = document.getElementById( id );
+		  }
+		}
+
+		// Assign onclick events to the tab links, and
+		// highlight the first tab
+		var i = 0;
+
+		for ( var id in tabLinks ) {
+		  tabLinks[id].onclick = showTab;
+		  tabLinks[id].onfocus = function() { this.blur() };
+		  if ( i == 0 ) tabLinks[id].className = 'tab selected';
+		  i++;
+		}
+
+		// Hide all content divs except the first
+		var i = 0;
+
+		for ( var id in contentDivs ) {
+			if (contentDivs[id]) {
+				if (i != 0) {
+				  contentDivs[id].classList.add('content', 'hide');
+				}
+				i++;
+			}
+		}
+
+		if (UIVersionManager.getEquipmentVersion() > 0) {
+			// Get button to open skill when level up
+			_btnLevelUp = jQuery('#lvlup_base')
+				.detach()
+				.mousedown(stopPropagation)
+				.click(function () {
+					_btnLevelUp.detach();
+					Equipment.ui.show();
+					Equipment.ui.parent().append(Equipment.ui);
+
+					if (Equipment.ui.is(':visible')) {
+						Renderer.render(renderCharacter);
+					}
+				});
+
+			// Append WinStats to content (hacked)
+			WinStats.prepare();
+			WinStats.__loaded = true;
+			this.ui.find('.status_component').append(WinStats.ui);
+		} else {
+			this.ui.find('#equipment_footer').remove();
+			this.ui.addClass('equipmentV0');
+			this.ui.find('#lvlup_base').remove();
+		}
+		// Don't activate drag drop when clicking on buttons
+		this.ui.find('.titlebar .base').mousedown(stopPropagation);
+		this.ui.find('.titlebar .mini').click(function(){ Equipment.ui.find('.panel').toggle(); });
+		this.ui.find('.titlebar .close').click(function(){ Equipment.ui.hide(); });
+
+		this.ui.find('.removeOption').mousedown(onRemoveOption);
+		this.ui.find('.view_status').mousedown(toggleStatus);
+		this.ui.find('.show_equip').mousedown(toggleEquip);
+
+		this.ui.find('.cartitems').click(onCartItems);
+
+
+		// drag, drop items
+		this.ui.on('dragover', onDragOver);
+		this.ui.on('dragleave', onDragLeave);
+		this.ui.on('drop', onDrop);
+
+		// Bind items
+		this.ui.find('.content')
+			.on('contextmenu', '.item',  onEquipmentInfo)
+			.on('dblclick',    '.item',  onEquipmentUnEquip)
+			.on('mouseover',   'button', onEquipmentOver)
+			.on('mouseout',    'button', onEquipmentOut);
+
+		this.draggable(this.ui.find('.titlebar'));
+
+		//Add to item owner name update queue
+		DB.UpdateOwnerName.Equipment = onUpdateOwnerName;
+	};
+
+	function showTab() {
+		var selectedId = getHash( this.getAttribute('href') );
+
+		// Highlight the selected tab, and dim all others.
+		// Also show the selected content div, and hide all others.
+		for ( var id in contentDivs ) {
+		  if ( id == selectedId ) {
+			tabLinks[id].className = 'tab selected';
+			contentDivs[id].className = 'content';
+		  } else {
+			tabLinks[id].className = 'tab';
+			contentDivs[id].classList.add('content', 'hide');
+		  }
+		}
+
+		// Update the current tab ID
+		currentTabId = selectedId;
+
+		// Stop the browser following the link
+		return false;
+	}
+
+	function getFirstChildWithTagName( element, tagName ) {
+		for ( var i = 0; i < element.childNodes.length; i++ ) {
+	 		if ( element.childNodes[i].nodeName == tagName.toUpperCase() ) {
+				return element.childNodes[i];
+			}
+		}
+	}
+
+	function getHash( url ) {
+		var hashPos = url.lastIndexOf ( '#' );
+		return url.substring( hashPos + 1 );
+	}
+
+	function onCartItems()
+	{
+		if(Session.Entity.hasCart ==  false)
+		{
+			return;
+		}
+		CartItems.ui.toggle();
+	}
+
+
+	function onRemoveOption()
+	{
+		var pkt = new PACKET.CZ.REQ_CARTOFF();
+		Network.sendPacket(pkt);
+	}
+
+
+	/**
+	 * Append to body
+	 */
+	Equipment.onAppend = function onAppend()
+	{
+		// Apply preferences
+		this.ui.css({
+			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
+			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+		});
+
+		// Hide window ?
+		if (!_preferences.show) {
+			this.ui.hide();
+		}
+
+		// Reduce window ?
+		if (_preferences.reduce) {
+			this.ui.find('.panel').hide();
+		}
+
+		// Show status window ?
+		if (UIVersionManager.getEquipmentVersion() > 0) {
+			if (!_preferences.stats) {
+				this.ui.find('.status_component').hide();
+				Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', function(data){
+					this.ui.find('.view_status').css('backgroundImage', 'url(' + data + ')');
+				}.bind(this));
+			}
+		}
+
+		if (this.ui.find('canvas').is(':visible')) {
+			Renderer.render(renderCharacter);
+		}
+	};
+
+
+	/**
+	 * Remove Inventory from window (and so clean up items)
+	 */
+	Equipment.onRemove = function onRemove()
+	{
+		if (UIVersionManager.getEquipmentVersion() > 0) {
+			_btnLevelUp.detach();
+		}
+
+		// Stop rendering
+		Renderer.stop(renderCharacter);
+
+		// Clean equipments
+		_list = {};
+		this.ui.find('.col1, .col3, .ammo').empty();
+
+		// Save preferences
+		_preferences.show   =  this.ui.is(':visible');
+		_preferences.reduce =  this.ui.find('.panel').css('display') === 'none';
+		_preferences.stats  =  this.ui.find('.status_component').css('display') !== 'none';
+		_preferences.y      =  parseInt(this.ui.css('top'), 10);
+		_preferences.x      =  parseInt(this.ui.css('left'), 10);
+		_preferences.save();
+	};
+
+
+	/**
+	 * Start/stop rendering character in UI
+	 */
+	Equipment.toggle = function toggle()
+	{
+		this.ui.toggle();
+
+		if (this.ui.is(':visible')) {
+			Renderer.render(renderCharacter);
+			if (UIVersionManager.getEquipmentVersion() > 0) {
+				_btnLevelUp.detach();
+			}
+			this.focus();
+		}
+		else {
+			Renderer.stop(renderCharacter);
+		}
+	};
+
+
+	/**
+	 * Process shortcut
+	 *
+	 * @param {object} key
+	 */
+	Equipment.onShortCut = function onShurtCut( key )
+	{
+		switch (key.cmd) {
+			case 'TOGGLE':
+				this.toggle();
+				break;
+		}
+	};
+
+
+	/**
+	 * Show or hide equipment
+	 *
+	 * @param {boolean} on
+	 */
+	Equipment.setEquipConfig = function setEquipConfig( on )
+	{
+		_showEquip = on;
+
+		Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', function(data){
+			Equipment.ui.find('.show_equip').css('backgroundImage', 'url(' + data + ')');
+		});
+	};
+
+
+	/**
+	 * Add an equipment to the window
+	 *
+	 * @param {Item} item
+	 */
+	Equipment.equip = function equip( item, location )
+	{
+		var it            = DB.getItemInfo( item.ITID );
+		_list[item.index] = item;
+
+		if (arguments.length === 1) {
+			if ('WearState' in item) {
+				location = item.WearState;
+			}
+			else if ('location' in item) {
+				location = item.location;
+			}
+		}
+
+
+		function add3Dots(string, limit) {
+			var dots = "...";
+			if (string.length > limit) {
+				string = string.substring(0,limit) + dots;
+			}
+
+			return string;
+		}
+
+		this.ui.find(getSelectorFromLocation(location)).html(
+			'<div class="item" data-index="'+ item.index +'">' +
+				'<button></button>' +
+				'<span class="itemName">' + add3Dots(jQuery.escape(DB.getItemName(item)), 19) + '</span>' +
+			'</div>'
+		);
+
+		Client.loadFile( DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function(data){
+			this.ui.find('.item[data-index="'+ item.index +'"] button').css('backgroundImage', 'url('+ data +')');
+		}.bind(this));
+	};
+
+
+	/**
+	 * Remove equipment from window
+	 *
+	 * @param {number} item index
+	 * @param {number} item location
+	 */
+	Equipment.unEquip = function unEquip( index, location )
+	{
+		var selector = getSelectorFromLocation( location );
+		var item     = _list[ index ];
+
+		this.ui.find( selector ).empty();
+		delete _list[ index ];
+
+		return item;
+	};
+
+
+	/**
+	 * Add the button when leveling up
+	 */
+	Equipment.onLevelUp = function onLevelUp()
+	{
+		if (UIVersionManager.getEquipmentVersion() > 0) {
+			_btnLevelUp.appendTo('body');
+		}
+	};
+
+	/**
+	 * Check equipment location for item
+	 * @param {number} location - The equipment location to check
+	 * @returns {item.wItemSpriteNumber} Object with { item }
+	 */
+	Equipment.checkEquipLoc = function checkEquipLoc( location )
+	{
+		var selector = getSelectorFromLocation(location);
+		var itemElement = document.querySelector(selector);
+
+		if (itemElement) {
+			// Traverse to find the div with the data-index attribute
+			var divWithDataIndex = itemElement.querySelector('.item[data-index]');
+			if (divWithDataIndex) {
+			  	var dataIndex = parseInt(divWithDataIndex.getAttribute('data-index'));
+				var item = _list[dataIndex];
+				if (!item)
+					return 0;
+				return item.wItemSpriteNumber;
+			}
+		}
+
+		return 0;
+	};
+
+	/**
+	 * Stop an event to propagate
+	 */
+	function stopPropagation( event )
+	{
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+
+	/**
+	 * Display or not status window
+	 */
+	function toggleStatus()
+	{
+		if (UIVersionManager.getEquipmentVersion() > 0) {
+			var status = Equipment.ui.find('.status_component');
+			var self   = Equipment.ui.find('.view_status');
+			var state  = status.is(':visible') ? 'on' : 'off';
+
+			status.toggle();
+
+			Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function(data){
+				self.css('backgroundImage', 'url(' + data + ')');
+			});
+		}
+	}
+
+
+	/**
+	 * Does player can see your equipment ?
+	 */
+	function toggleEquip()
+	{
+		Equipment.onConfigUpdate( 0, !_showEquip ? 1 : 0 );
+	}
+
+
+	/**
+	 * Rendering character
+	 */
+	var renderCharacter = function renderCharacterClosure()
+	{
+		var _lastState = 0;
+		var _hasCart   = 0;
+
+		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		var _savedColor = new Float32Array(4);
+		var _animation  = {
+			tick:  0,
+			frame: 0,
+			repeat:true,
+			play:  true,
+			next:  false,
+			delay: 0,
+			save:  false
+		};
+
+		// Current removable options
+		var HasAttachmentState =
+			StatusConst.EffectState.FALCON   |
+			StatusConst.EffectState.RIDING   |
+			StatusConst.EffectState.DRAGON1  |
+			StatusConst.EffectState.DRAGON2  |
+			StatusConst.EffectState.DRAGON3  |
+			StatusConst.EffectState.DRAGON4  |
+			StatusConst.EffectState.DRAGON5  |
+			StatusConst.EffectState.MADOGEAR |
+			StatusConst.EffectState.CART1    |
+			StatusConst.EffectState.CART2    |
+			StatusConst.EffectState.CART3    |
+			StatusConst.EffectState.CART4    |
+			StatusConst.EffectState.CART5;
+
+		var HasCartState =
+			StatusConst.EffectState.CART1    |
+			StatusConst.EffectState.CART2    |
+			StatusConst.EffectState.CART3    |
+			StatusConst.EffectState.CART4    |
+			StatusConst.EffectState.CART5;
+
+		return function renderCharacter()
+		{
+			var character = Session.Entity;
+			var direction = character.direction;
+			var headDir   = character.headDir;
+			var action    = character.action;
+			var animation = character.animation;
+
+			// Variables for Headgear Checks
+			var CostumeCheckTop = Equipment.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
+			var CostumeCheckMid = Equipment.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
+			var CostumeCheckBot = Equipment.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
+			var CheckTop        = Equipment.checkEquipLoc(EquipLocation.HEAD_TOP);
+			var CheckMid        = Equipment.checkEquipLoc(EquipLocation.HEAD_MID);
+			var CheckBot        = Equipment.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
+			var CostumeCheckRobe = Equipment.checkEquipLoc(EquipLocation.COSTUME_ROBE);
+			var CheckGarment    = Equipment.checkEquipLoc(EquipLocation.GARMENT);
+
+			var headtop   = (CostumeCheckTop) ? CostumeCheckTop : (CheckTop) ? CheckTop : 0;
+			var headmid   = (CostumeCheckMid) ? CostumeCheckMid : ( (CheckMid && (CheckMid !== CheckTop && CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckTop)) ) ? CheckMid : 0;
+			var headbot   = (CostumeCheckBot) ? CostumeCheckBot : ( (CheckBot && (CheckBot !== CheckTop)) && (CheckBot && (CheckBot !== CheckMid)) ) ? CheckBot : 0;
+			var garment   = (CostumeCheckRobe) ? CostumeCheckRobe : CheckGarment ? CheckGarment : 0;
+
+			// If state change, we have to check if the new option is removable.
+			if (character.effectState !== _lastState || _hasCart !== character.hasCart) {
+				_lastState = character.effectState;
+				_hasCart   = character.hasCart;
+
+				if (_lastState & HasAttachmentState  || _hasCart) {
+					Equipment.ui.find('.removeOption').show();
+				}
+				else {
+					Equipment.ui.find('.removeOption').hide();
+				}
+
+				if (_lastState & HasCartState || _hasCart) {
+					Equipment.ui.find('.cartitems').show();
+				}
+				else {
+					Equipment.ui.find('.cartitems').hide();
+				}
+			}
+
+			// Set action
+			Camera.direction    = 4;
+			character.direction = 4;
+			character.headDir   = 0;
+			character.action    = character.ACTION.IDLE;
+			character.animation = _animation;
+
+			// General Tab only shows normal headgears
+			if (currentTabId === 'general') {
+				character.accessory  = Equipment.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
+				character.accessory2 = Equipment.checkEquipLoc(EquipLocation.HEAD_TOP);
+				character.accessory3 = Equipment.checkEquipLoc(EquipLocation.HEAD_MID);
+				character.robe = Equipment.checkEquipLoc(EquipLocation.GARMENT);
+			}
+			// Costume Tab only shows costume headgears
+			else if (currentTabId === 'costume') {
+				character.accessory  = Equipment.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
+				character.accessory2 = Equipment.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
+				character.accessory3 = Equipment.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
+				character.robe = Equipment.checkEquipLoc(EquipLocation.COSTUME_ROBE);
+			}
+
+			_savedColor.set(character.effectColor);
+			character.effectColor.set(_cleanColor);
+
+			// Rendering
+			for (var i = 0; i < _ctx.length; i++) {
+				var ctx = _ctx[i];
+				SpriteRenderer.bind2DContext( ctx, 30, 130 );
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height );
+				character.renderEntity(ctx);
+			}
+
+			// Revert changes
+			character.direction = direction;
+			character.headDir   = headDir;
+			character.action    = action;
+			character.animation = animation;
+			character.effectColor.set(_savedColor);
+			character.accessory = headbot;
+			character.accessory2 = headtop;
+			character.accessory3 = headmid;
+			character.robe = garment;
+		};
+	}();
+
+
+	/**
+	 * Find elements in html base on item location
+	 *
+	 * @param {number} location
+	 * @returns {string} selector
+	 */
+	function getSelectorFromLocation( location )
+	{
+		var selector = [];
+
+		if (location & EquipLocation.HEAD_TOP)    selector.push('.head_top');
+		if (location & EquipLocation.HEAD_MID)    selector.push('.head_mid');
+		if (location & EquipLocation.HEAD_BOTTOM) selector.push('.head_bottom');
+		if (location & EquipLocation.ARMOR)       selector.push('.armor');
+		if (location & EquipLocation.WEAPON)      selector.push('.weapon');
+		if (location & EquipLocation.SHIELD)      selector.push('.shield');
+		if (location & EquipLocation.GARMENT)     selector.push('.garment');
+		if (location & EquipLocation.SHOES)       selector.push('.shoes');
+		if (location & EquipLocation.ACCESSORY1)  selector.push('.accessory1');
+		if (location & EquipLocation.ACCESSORY2)  selector.push('.accessory2');
+		if (location & EquipLocation.AMMO)        selector.push('.ammo');
+
+		// Costume Tab
+		if (location & EquipLocation.COSTUME_HEAD_TOP)    selector.push('.costume_head_top');
+		if (location & EquipLocation.COSTUME_HEAD_MID)    selector.push('.costume_head_mid');
+		if (location & EquipLocation.COSTUME_HEAD_BOTTOM) selector.push('.costume_head_bottom');
+		if (location & EquipLocation.SHADOW_ARMOR)        selector.push('.shadow_armor');
+		if (location & EquipLocation.SHADOW_WEAPON)       selector.push('.shadow_weapon');
+		if (location & EquipLocation.SHADOW_SHIELD)       selector.push('.shadow_shield');
+		if (location & EquipLocation.COSTUME_ROBE)     	  selector.push('.shadow_garment');
+		if (location & EquipLocation.SHADOW_SHOES)        selector.push('.shadow_shoes');
+		if (location & EquipLocation.SHADOW_ACCESSORY1)   selector.push('.shadow_accessory1');
+		if (location & EquipLocation.SHADOW_ACCESSORY2)   selector.push('.shadow_accessory2');
+
+		return selector.join(', ');
+	}
+
+
+	/**
+	 * Drag an item over the equipment, show where to place the item
+	 */
+	function onDragOver( event )
+	{
+		if (window._OBJ_DRAG_) {
+			var data = window._OBJ_DRAG_;
+			var item, selector, ui;
+
+			// Just support items for now ?
+			if (data.type === 'item') {
+				item = data.data;
+
+				if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
+				    item.IsIdentified && !item.IsDamaged) {
+					selector = getSelectorFromLocation( 'location' in item ? item.location : item.WearLocation);
+					ui       = Equipment.ui.find(selector);
+
+					Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function(data){
+						ui.css('backgroundImage', 'url('+ data + ')');
+					});
+				}
+			}
+		}
+
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+
+	/**
+	 * Drag out the window
+	 */
+	function onDragLeave( event )
+	{
+		Equipment.ui.find('td').css('backgroundImage', 'none');
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+
+	/**
+	 * Drop an item in the equipment, equip it if possible
+	 */
+	function onDrop( event )
+	{
+		var item, data;
+
+		try {
+			data = JSON.parse(
+				event.originalEvent.dataTransfer.getData('Text')
+			);
+		}
+		catch(e) {}
+
+		// Just support items for now ?
+		if (data && data.type === 'item') {
+			item = data.data;
+
+			if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP || item.type === ItemType.AMMO) &&
+			    item.IsIdentified && !item.IsDamaged) {
+			    Equipment.ui.find('td').css('backgroundImage','none');
+				Equipment.onEquipItem( item.index, 'location' in item ? item.location : item.WearState );
+			}
+		}
+
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+
+	/**
+	 * Right click on an item
+	 */
+	function onEquipmentInfo( event )
+	{
+		var index = parseInt(this.getAttribute('data-index'), 10);
+		var item  = _list[index];
+
+		if (item) {
+
+			// Don't add the same UI twice, remove it
+			if (ItemInfo.uid === item.ITID) {
+				ItemInfo.remove();
+			}
+
+			// Add ui to window
+			else {
+				ItemInfo.append();
+				ItemInfo.uid = item.ITID;
+				ItemInfo.setItem(item);
+			}
+		}
+
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+
+	/**
+	 * Double click on an equipment to remove it
+	 */
+	function onEquipmentUnEquip()
+	{
+		var index = parseInt(this.getAttribute('data-index'), 10);
+		Equipment.onUnEquip( index );
+		Equipment.ui.find('.overlay').hide();
+	}
+
+
+	/**
+	 * When mouse is over an equipment, display the item name
+	 */
+	function onEquipmentOver()
+	{
+		var idx  = parseInt( this.parentNode.getAttribute('data-index'), 10);
+		var item = _list[idx];
+
+		if (!item) {
+			return;
+		}
+
+		// Get back data
+		var overlay = Equipment.ui.find('.overlay');
+		var pos     = jQuery(this).position();
+
+		// Possible jquery error
+		if (!pos.top && !pos.left) {
+			return;
+		}
+
+		// Display box
+		overlay.show();
+		overlay.css({top: pos.top-22, left:pos.left-22});
+		overlay.text(DB.getItemName(item));
+	}
+
+
+	/**
+	 * Remove the item name
+	 */
+	function onEquipmentOut()
+	{
+		Equipment.ui.find('.overlay').hide();
+	}
+
+	function onUpdateOwnerName (){
+		for (var index in _list) {
+			var item = _list[index];
+			if(item.slot && [0x00FF, 0x00FE, 0xFF00].includes(item.slot.card1)){
+				Equipment.ui.find('.item[data-index="'+ index +'"] .itemName').text( jQuery.escape(DB.getItemName(item)) );
+			}
+		}
+	}
+
+	Equipment.getNumber = function(){
+		var num = 0;
+		for (var key in _list) {
+			if(_list[key].location && _list[key].location != EquipLocation.AMMO){
+				num++;
+			}
+		}
+		return num;
+	}
+
+	/**
+	 * Method to define
+	 */
+	Equipment.onUnEquip      = function onUnEquip(/* index */){};
+	Equipment.onConfigUpdate = function onConfigUpdate(/* type, value*/){};
+	Equipment.onEquipItem    = function onEquipItem(/* index, location */){};
+	Equipment.onRemoveCart   = function onRemoveCart(){};
+
+
+	/**
+	 * Create component and export it
+	 */
+	return UIManager.addComponent(Equipment);
+});
