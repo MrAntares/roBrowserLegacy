@@ -320,7 +320,7 @@ define(['./SkillConst'], function( SK )
 	// Bard
 	SkillEffect[SK.BA_MUSICALSTRIKE]               = {hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile'};		//Melody Strike
 	SkillEffect[SK.BA_DISSONANCE]                  = {groundEffectId: '277_ground'};		//Unchained Serenade
-	SkillEffect[SK.BA_FROSTJOKER]                  = {/*not here*/};		//Unbarring Octave
+	SkillEffect[SK.BA_FROSTJOKE]                  = {/*not here*/};		//Unbarring Octave
 	SkillEffect[SK.BA_WHISTLE]                     = {effectId: 286, groundEffectId: '286_ground'};		//Perfect Tablature
 	SkillEffect[SK.BA_ASSASSINCROSS]               = {effectId: 287, groundEffectId: '287_ground'};		//Impressive Riff
 	SkillEffect[SK.BA_POEMBRAGI]                   = {effectId: 288, groundEffectId: '288_ground'};		//Magic Strings
