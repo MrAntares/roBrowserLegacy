@@ -38,12 +38,12 @@ define(function( require )
 	var PartyUI        = require('UI/Components/PartyFriends/PartyFriends');
 	var PetMessageConst    = require('DB/Pets/PetMessageConst');
 	var uint32ToRGB    = require('Utils/colors');
-	
+
 	// Version Dependent UIs
 	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
 	var SkillList = require('UI/Components/SkillList/SkillList');
-		
-		
+
+
 
 	/**
 	 * Move main player to the position specify
@@ -317,7 +317,7 @@ define(function( require )
 				// load aura on levelup
 				Session.Entity.aura.load( EffectManager );
 				BasicInfo.getUI().update('blvl', amount);
-				Equipment.onLevelUp();
+				Equipment.getUI().onLevelUp();
 				ChangeCart.onLevelUp(amount);
 
 				//Pet Talk
@@ -624,7 +624,7 @@ define(function( require )
 
 			// equipment
 			case 0:
-				Equipment.setEquipConfig( pkt.Value );
+				Equipment.getUI().setEquipConfig( pkt.Value );
 				ChatBox.addText(
 					DB.getMessage(1358 + (pkt.Value ? 1 : 0) ),
 					ChatBox.TYPE.INFO,
@@ -761,7 +761,7 @@ define(function( require )
 			let name, point;
 			name = pkt?.Name?.[i] ?? 'None';
 			point = pkt?.Point?.[i] ?? 0;
-			
+
 			message = '[%rank%] %name% : %point% ' + DB.getMessage(2385); // [x] name : y Points
 			message = message.replace('%rank%', i+1);
 			message = message.replace('%name%', name);

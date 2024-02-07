@@ -34,12 +34,12 @@ define(function(require)
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
 	var Rodex              = require('UI/Components/Rodex/Rodex');
-	
+
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
 	var Quest     = require('UI/Components/Quest/Quest');
-	
-	
+
+
 	var htmlText           = require('text!./BasicInfoV4.html');
 	var cssText            = require('text!./BasicInfoV4.css');
 
@@ -95,7 +95,7 @@ define(function(require)
 					break;
 
 				case 'info':
-					Equipment.toggle();
+					Equipment.getUI().toggle();
 					break;
 
 				case 'skill':

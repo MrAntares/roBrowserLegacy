@@ -23,7 +23,7 @@ define(function( require )
 	var Session     = require('Engine/SessionStorage');
 	var Friends     = require('Engine/MapEngine/Friends');
 	var PACKETVER   = require('Network/PacketVerManager');
-	var PACKET      = require('Network/PacketStructure');	
+	var PACKET      = require('Network/PacketStructure');
 	var Network     = require('Network/NetworkManager');
 	var Cursor      = require('UI/CursorManager');
 	var InputBox    = require('UI/Components/InputBox/InputBox');
@@ -34,6 +34,7 @@ define(function( require )
 	var NpcBox 		= require('UI/Components/NpcBox/NpcBox');
 	var Altitude 	= require('Renderer/Map/Altitude');
 	var ChatBox     = require('UI/Components/ChatBox/ChatBox');
+	var Equipment   = require('UI/Components/Equipment/Equipment');
 	var getModule   = require;
 
 
@@ -227,7 +228,7 @@ define(function( require )
 					if (Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE) {
 						break
 					}
-				}	
+				}
 
 				if(PACKETVER.value >= 20180307) {
 					pkt         = new PACKET.CZ.REQUEST_MOVE2();
@@ -280,10 +281,10 @@ define(function( require )
 
 				ContextMenu.remove();
 				ContextMenu.append();
-				
+
 				// Check equipment
 				ContextMenu.addElement( DB.getMessage(1360).replace('%s', this.display.name), function(){
-					getModule('UI/Components/Equipment/Equipment').onCheckPlayerEquipment(entity.GID);
+					getModule(Equipment.getUI()).onCheckPlayerEquipment(entity.GID); // simple version
 				});
 
 				// Trade option
@@ -412,7 +413,7 @@ define(function( require )
 					if (!count) {
 						return true;
 					}
-				
+
 					if(main.isOverWeight){
 						ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 						return true;

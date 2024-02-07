@@ -11,8 +11,13 @@
 		<div class="clear"></div>
 	</div>
 	<div class="overlay"></div>
+	<div class="tab-manager" id="tabs">
+		<div class="tab"><a href="#general"><span data-text="3158"></span></a></div>
+		<div class="tab"><a href="#costume"><span data-text="3159"></span></a></div>
+		<div class="tab"><a href="#title"><span data-text="3160"></span></a></div>
+	</div>
 	<div class="panel">
-		<table class="content" data-background="basic_interface/equipwin_bg.bmp">
+		<table class="content" id="general" data-background="basic_interface/equipwin_bg.bmp">
 			<tr>
 				<td class="head_top col1"></td>
 				<td rowspan="6">
@@ -42,6 +47,36 @@
 				<td class="accessory1 col1"></td>
 				<td class="accessory2 col3"></td>
 			</tr>
+		</table>
+		<table class="content" id="costume" data-background="basic_interface/equipwin_special.bmp">
+			<tr>
+				<td class="costume_head_top col1"></td>
+				<td rowspan="6">
+					<!-- avoid applying css on td directly-->
+					<div class="col2 ammo_container">
+						<canvas width="55" height="125"></canvas>
+					</div>
+				</td>
+				<td class="costume_head_mid col3"></td>
+			</tr>
+			<tr>
+				<td class="costume_head_bottom col1"></td>
+				<td class="shadow_armor col3"></td>
+			</tr>
+			<tr>
+				<td class="shadow_weapon col1"></td>
+				<td class="shadow_shield col3"></td>
+			</tr>
+			<tr>
+				<td class="shadow_garment col1"></td>
+				<td class="shadow_shoes col3"></td>
+			</tr>
+			<tr>
+				<td class="shadow_accessory1 col1"></td>
+				<td class="shadow_accessory2 col3"></td>
+			</tr>
+		</table>
+		<table class="content" id="title">
 		</table>
 		<div class="footer" id="equipment_footer">
 			<div class="left">

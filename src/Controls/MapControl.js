@@ -112,7 +112,7 @@ define(function( require )
 			case 1:
 				Session.moveAction = null;
 				Session.autoFollow = false;
-				
+
 				var stop        = false;
 				if(entityOver != Session.Entity){
 					if (entityFocus && entityFocus != entityOver) {
@@ -134,7 +134,7 @@ define(function( require )
 						}
 					}
 				}
-				
+
 				// Start walking
 				if (this.onRequestWalk) {
 					this.onRequestWalk();
@@ -147,7 +147,7 @@ define(function( require )
 				_rightClickPosition[1] = Mouse.screen.y;
 
 				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
-					
+
 					Cursor.setType( Cursor.ACTION.ROTATE );
 					Camera.rotate( false );
 
@@ -156,13 +156,13 @@ define(function( require )
 					if (entityOver) {
 						AIDriver.setmsg(Session.homunId, '3,'+ entityOver.GID);
 					}
-					
+
 				} else if (KEYS.SHIFT && entityOver && entityOver != Session.Entity ) {
-					
+
 					Session.autoFollowTarget = entityOver;
 					Session.autoFollow = true;
 					onAutoFollow();
-					
+
 					stop = stop || entityOver.onMouseDown();
 					stop = stop || entityOver.onFocus();
 					EntityManager.setFocusEntity(entityOver);
@@ -171,12 +171,12 @@ define(function( require )
 					if (stop) {
 						return;
 					}
-					
+
 				} else {
-					
+
 					Cursor.setType( Cursor.ACTION.ROTATE );
 					Camera.rotate( true );
-					
+
 				}
 				break;
 		}
@@ -313,7 +313,7 @@ define(function( require )
 		}
 
 		// Can't drop an item on map if Equipment window is open
-		if (Equipment.ui.is(':visible')) {
+		if (Equipment.getUI().ui.is(':visible')) {
 			ChatBox.addText(
 				DB.getMessage(189),
 				ChatBox.TYPE.ERROR,
@@ -344,7 +344,7 @@ define(function( require )
 
 		return false;
 	}
-	
+
 	/**
 	 * Auto follow logic
 	 */
@@ -352,14 +352,14 @@ define(function( require )
 		if(Session.autoFollow){
 			var player = Session.Entity;
 			var target = Session.autoFollowTarget;
-			
+
 			var dx = Math.abs(player.position[0] - target.position[0]);
 			var dy = Math.abs(player.position[1] - target.position[1]);
-			
+
 			// Use square based range check instead of Pythagorean because of diagonals
 			if( dx>1 || dy>1 ){
 				var dest = [0,0];
-				
+
 				// If there is valid cell send move packet
 				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
 					var pkt;
@@ -372,7 +372,7 @@ define(function( require )
 					Network.sendPacket(pkt);
 				}
 			}
-			
+
 			Events.setTimeout( onAutoFollow, 500);
 		}
 	}
