@@ -66,6 +66,10 @@ define(function( require )
 				SkillId.SC_INVISIBILITY,
 				SkillId.KO_YAMIKUMO,
 
+				//Talking
+				SkillId.BA_FROSTJOKE,
+				SkillId.DC_SCREAM,
+
 				//3rd job extra skills
 				SkillId.LG_OVERBRAND_BRANDISH,
 				SkillId.LG_OVERBRAND_PLUSATK,
@@ -1172,8 +1176,6 @@ define(function( require )
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
 
-		var message = false;
-
 		if (!srcEntity) {
 			return;
 		}
@@ -1227,27 +1229,12 @@ define(function( require )
 			}
 		}
 
-		//Frost joke and scream messages
-		if(pkt.SKID === SkillId.BA_FROSTJOKER && srcEntity == Session.Entity){
-			var msg = DB.getRandomJoke();
-			if(msg){
-				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
-				message = true;
-			}
-		} else if(pkt.SKID === SkillId.DC_SCREAM && srcEntity == Session.Entity){
-			var msg = DB.getRandomScream();
-			if(msg){
-				ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
-				message = true;
-			}
-		}
-
 		// Only mob to don't display skill name ?
 		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
 				srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
 				srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
 		) {
-			if(!SkillNameDisplayExclude.includes(pkt.SKID) && !message){
+			if(!SkillNameDisplayExclude.includes(pkt.SKID)){
 				srcEntity.dialog.set(
 					( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 					'white'

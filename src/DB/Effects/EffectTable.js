@@ -4743,8 +4743,36 @@ define(function( require )
 			}
 		}],
 
-		//295: [{}],	//EF_TALK_FROSTJOKE	   Frost Joke
-		//296: [{}],	//EF_TALK_SCREAM	   Scream
+		295: [{	//EF_TALK_FROSTJOKE	   Frost Joke
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ){
+				var self = this;
+				var DB  = require('DB/DBManager');
+				var ChatBox = require('UI/Components/ChatBox/ChatBox');
+				var msg = DB.getRandomJoke();
+				if(msg){
+					ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				}
+				
+			}
+		}],
+		
+		296: [{	//EF_TALK_SCREAM	   Scream
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ){
+				var self = this;
+				var DB  = require('DB/DBManager');
+				var ChatBox = require('UI/Components/ChatBox/ChatBox');
+				var msg = DB.getRandomScream();
+				if(msg){
+					ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				}
+				
+			}
+		}],
+		
 		//297: [{}],	//EF_POKJUK	   Fire Works (Visual Effect)
 
 		298: [{	//EF_THROWITEM	   Acid Terror Animnation
