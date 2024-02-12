@@ -26,6 +26,7 @@ define(function( require )
 	var Network      = require('Network/NetworkManager');
 	var PACKETVER    = require('Network/PacketVerManager');
 	var PACKET       = require('Network/PacketStructure');
+	var PluginManager = require('Plugins/PluginManager');
 	var Renderer     = require('Renderer/Renderer');
 	var UIManager    = require('UI/UIManager');
 	var WinList      = require('UI/Components/WinList/WinList');
@@ -250,6 +251,9 @@ define(function( require )
 
 		// GMs account list from server
 		Session.AdminList = server.adminList || [];
+		
+		// Init per server plugins
+		PluginManager.init();
 
 		// Hooking win_login
 		WinLogin.selectUIVersion();
