@@ -88,12 +88,25 @@ define(function()
 	}
 
 
+	
+	/**
+	 * Return the server informations
+	 *
+	 */
+	function getServer()
+	{
+		return _server;
+	}
+
+
+
 	/**
 	 * Export
 	 */
 	return {
 		get:       get,
 		set:       set,
-		setServer: setServer
+		setServer: setServer,
+		getServer: getServer
 	};
 });

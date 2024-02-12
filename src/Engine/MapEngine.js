@@ -119,7 +119,10 @@ define(function( require )
 		_mapName = mapName;
 
 		// Connect to char server
-		Network.connect( Network.utils.longToIP( ip ), port, function onconnect( success ) {
+		var forceAddress = Configs.get('forceUseAddress');
+		var server_info = Configs.getServer();
+		var current_ip = forceAddress ? server_info.address : Network.utils.longToIP( ip );
+		Network.connect( current_ip, port, function onconnect( success ) {
 
 			// Force reloading map
 			MapRenderer.currentMap = '';

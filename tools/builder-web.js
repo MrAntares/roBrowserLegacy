@@ -196,6 +196,7 @@ function createHTML(){
                                     version: 55,
                                     langtype: 5,
                                     packetver: 20180704,
+                                    forceUseAddress: false,
                                     socketProxy: "ws://127.0.0.1:5999/",
                                     packetKeys: false
                                 },

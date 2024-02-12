@@ -267,6 +267,10 @@
 	 */
 	ROBrowser.prototype.version = '';
 
+	/**
+	 * @var {boolean} Enable use address to connect in all servers (login, char, map)
+	*/
+	ROBrowser.prototype.forceUseAddress = false;
 
 	/**
 	 * @var {Array} list of extensions you want to use for your BGMs.
@@ -446,6 +450,7 @@
 			clientVersionMode: this.clientVersionMode,
 			CameraMaxZoomOut: this.CameraMaxZoomOut,
 			packetDump:       this.packetDump,
+			forceUseAddress:  this.forceUseAddress,
 		}, '*');
 	}
 
