@@ -41,7 +41,7 @@ define(function(require)
 	/**
 	 * @var {boolean} do not focus this UI
 	 */
-	ItemObtain.needFocus = false;
+	ItemObtain.needFocus = true;
 
 
 	/**
@@ -61,7 +61,7 @@ define(function(require)
 	 */
 	ItemObtain.init = function init()
 	{
-		this.ui.css('zIndex', 45); // Between Interface and Game Announce
+		// this.ui.css('zIndex', 45); // Between Interface and Game Announce
 	};
 
 
@@ -105,6 +105,8 @@ define(function(require)
 		var it       = DB.getItemInfo(item.ITID);
 		var display  = DB.getItemName(item);
 		var resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
+
+		this.ui.focus();
 
 		this.ui.find('.content').html(
 			'<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="'+ item.ITID +'" width="24" height="24" /> ' +
