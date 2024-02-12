@@ -261,12 +261,14 @@ define(function(require)
 
 		// Upload emblem
 		ui.find('.content.info .emblem_edit input').change(function(){
-			if (this.files.length && this.files[0].type === 'image/bmp') {
+			if (this.files.length && this.files[0].type === 'image/bmp' && this.files[0].size < 1783) {
 				var reader = new FileReader();
 				reader.onload = function(e) {
 					Guild.onSendEmblem(new Uint8Array(e.target.result));
 				};
 				reader.readAsArrayBuffer(this.files[0]);
+			} else {
+				console.warn('[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted.');
 			}
 		});
 
