@@ -34,7 +34,6 @@ define(function( require )
 	var Queue        = require('Utils/Queue');
 	var Background  = require('UI/Background');
 	var MD5          = require('Vendors/spark-md5.min');
-	var PacketLength = require('Network/PacketLength');
 	var getModule    = require;
 	
 	// Version Dependent UIs
@@ -213,7 +212,6 @@ define(function( require )
 		if (packetver) {
 			if (packetver.match(/^\d+$/)) {
 				PACKETVER.value = parseInt(packetver, 10);
-				PacketLength.init(PACKETVER.value);
 			}
 		}
 

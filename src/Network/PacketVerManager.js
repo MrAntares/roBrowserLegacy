@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(['Core/Configs'], function( Configs )
+define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength )
 {
 	"use strict";
-
 
 	/**
 	 * PACKETVER range
@@ -307,6 +306,7 @@ define(['Core/Configs'], function( Configs )
 
 		set value(v) {
 			if (v !== _value) {
+				PacketLength.init(v);
 				console.log( "%c[PACKETVER] Set packet version ", "color:#007000", _value = v);
 			}
 		},
