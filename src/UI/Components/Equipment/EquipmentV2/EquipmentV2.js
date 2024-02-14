@@ -535,10 +535,10 @@ define(function(require)
 			var CostumeCheckRobe = EquipmentV2.checkEquipLoc(EquipLocation.COSTUME_ROBE);
 			var CheckGarment    = EquipmentV2.checkEquipLoc(EquipLocation.GARMENT);
 
-			var headtop   = (CostumeCheckTop) ? CostumeCheckTop : (CheckTop) ? CheckTop : 0;
-			var headmid   = (CostumeCheckMid) ? CostumeCheckMid : ( (CheckMid && (CheckMid !== CheckTop && CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckTop)) ) ? CheckMid : 0;
-			var headbot   = (CostumeCheckBot) ? CostumeCheckBot : ( (CheckBot && (CheckBot !== CheckTop)) && (CheckBot && (CheckBot !== CheckMid)) ) ? CheckBot : 0;
-			var garment   = (CostumeCheckRobe) ? CostumeCheckRobe : CheckGarment ? CheckGarment : 0;
+			var headtop   = (CostumeCheckTop) ? CostumeCheckTop : CheckTop;
+			var headmid   = (CostumeCheckMid) ? CostumeCheckMid : CheckMid;
+			var headbot   = (CostumeCheckBot) ? CostumeCheckBot : CheckBot;
+			var garment   = (CostumeCheckRobe) ? CostumeCheckRobe : CheckGarment;
 
 			// If state change, we have to check if the new option is removable.
 			if (character.effectState !== _lastState || _hasCart !== character.hasCart) {

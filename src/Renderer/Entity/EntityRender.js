@@ -299,12 +299,12 @@ define( function( require )
 				}
 
 				// Hat Middle
-				if (this.accessory3 > 0 && this.accessory3 !== this.accessory2 && this.accessory3 !== this.accessory) {
+				if (this.accessory3 > 0 && this.accessory3 !== this.accessory) { // accessory already rendered, avoid render same item again
 					renderElement( this, this.files.accessory3, 'head', _position, false);
 				}
 
 				// Hat Top
-				if (this.accessory2 > 0 && this.accessory2 !== this.accessory) {
+				if (this.accessory2 > 0 && this.accessory2 !== this.accessory && this.accessory2 !== this.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
 					renderElement( this, this.files.accessory2, 'head', _position, false);
 				}
 
