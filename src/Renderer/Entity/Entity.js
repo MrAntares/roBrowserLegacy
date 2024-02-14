@@ -309,7 +309,7 @@ define( function( require )
 					break;
 
 				case 'accessory3':
-					this.accessory2 = unit.accessory2;
+					this.accessory3 = unit.accessory3;
 					break;
 
 				case 'Robe':
