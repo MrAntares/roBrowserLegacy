@@ -13744,6 +13744,51 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.PAR_4JOB_CHANGE.size = 6;
 
+	// 0xb3d
+	PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3 = function PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC3(fp, end) {
+		this.AID = fp.readULong();
+		this.UniqueID = fp.readULong();
+		this.itemList = (function() {
+			var i, count = 0,
+			out = new Array(count);
+			count = (end - fp.tell()) / (4+2+2+1+4+1+1+16+25+4+2+1+1); //Item options 25 bytes, (location viewSprite), itemId use Long now, grade
+
+			let option = new Struct(
+				"short index",
+				"short value",
+				"char param"
+			);
+
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].price = fp.readLong();
+				out[i].count = fp.readShort();
+				out[i].index = fp.readShort();
+				out[i].type = fp.readUChar();
+				out[i].ITID = fp.readULong();
+				out[i].IsIdentified = fp.readUChar();
+				out[i].IsDamaged = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readULong();
+				out[i].slot.card2 = fp.readULong();
+				out[i].slot.card3 = fp.readULong();
+				out[i].slot.card4 = fp.readULong();
+				out[i].Options = [];
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
+				out[i].location = fp.readULong();
+				out[i].viewSprite = fp.readUShort();
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].grade = fp.readUChar();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3.size = -1;
+
 	// 0xb41
 	PACKET.ZC.ITEM_PICKUP_ACK8 = function PACKET_ZC_ITEM_PICKUP_ACK8(fp, end) {
 		let option = new Struct(
