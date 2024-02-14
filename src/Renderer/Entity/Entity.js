@@ -71,13 +71,19 @@ define( function( require )
 	Entity.TYPE_WARP      = -1;
 	Entity.TYPE_PC        =  0;
 	Entity.TYPE_DISGUISED =  1;
+	Entity.ITEM_TYPE      =  2;
+	Entity.SKILL_TYPE     =  3;
+	Entity.UNKNOWN_TYPE   =  4;
 	Entity.TYPE_MOB       =  5;
 	Entity.TYPE_NPC       =  6;
 	Entity.TYPE_PET       =  7;
 	Entity.TYPE_HOM       =  8;
 	Entity.TYPE_MERC      =  9;
 	Entity.TYPE_ELEM      = 10;
-	Entity.TYPE_ITEM      = 11;
+	Entity.UNKNOWN_TYPE2  = 11;
+	Entity.TYPE_NPC2      = 12; // recognized as walkable npc
+	Entity.TYPE_NPC_ABR   = 13; // recognized as mob
+	Entity.TYPE_NPC_BIONIC = 14; // recognized as mob
 
 
 	/**
@@ -86,8 +92,11 @@ define( function( require )
 	Entity.PickingPriority = {};
 	Entity.PickingPriority.Normal = {};
 	Entity.PickingPriority.Normal[Entity.TYPE_MOB]=			3;
+	Entity.PickingPriority.Normal[Entity.TYPE_NPC_BIONIC]=	3;
+	Entity.PickingPriority.Normal[Entity.TYPE_NPC_ABR]=		3;
 	Entity.PickingPriority.Normal[Entity.TYPE_ITEM]=		2;
 	Entity.PickingPriority.Normal[Entity.TYPE_NPC]=			1;
+	Entity.PickingPriority.Normal[Entity.TYPE_NP2]=			1;
 	Entity.PickingPriority.Normal[Entity.TYPE_UNKNOWN]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_WARP]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_PC]=			0;
@@ -107,9 +116,12 @@ define( function( require )
 	Entity.PickingPriority.Support[Entity.TYPE_MERC]=		3;
 	Entity.PickingPriority.Support[Entity.TYPE_ELEM]=		3;
 	Entity.PickingPriority.Support[Entity.TYPE_MOB]=		2;
+	Entity.PickingPriority.Support[Entity.TYPE_NPC_ABR]=	2;
+	Entity.PickingPriority.Support[Entity.TYPE_NPC_BIONIC]=	2;
 	Entity.PickingPriority.Support[Entity.TYPE_PET]=		1;
 	Entity.PickingPriority.Support[Entity.TYPE_ITEM]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_NPC]=		0;
+	Entity.PickingPriority.Support[Entity.TYPE_NPC2]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_UNKNOWN]=	0;
 	Entity.PickingPriority.Support[Entity.TYPE_WARP]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_UNIT]=		0;
@@ -272,8 +284,11 @@ define( function( require )
 					if( this.display.name.length == 0 ){ this.display.load = this.display.TYPE.NONE };
 					this.display.update(
 						this.objecttype === Entity.TYPE_MOB ? this.display.STYLE.MOB :
+						this.objecttype === Entity.TYPE_NPC_ABR ? this.display.STYLE.MOB :
+						this.objecttype === Entity.TYPE_NPC_BIONIC ? this.display.STYLE.MOB :
 						this.objecttype === Entity.TYPE_DISGUISED ? this.display.STYLE.MOB :
 						this.objecttype === Entity.TYPE_NPC ? this.display.STYLE.NPC :
+						this.objecttype === Entity.TYPE_NPC2 ? this.display.STYLE.NPC :
 						this.display.STYLE.DEFAULT
 					);
 					break;

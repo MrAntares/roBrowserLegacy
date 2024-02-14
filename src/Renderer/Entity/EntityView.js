@@ -150,7 +150,10 @@ define(function( require )
 				job < 45   ? Entity.TYPE_PC   :
 				job < 46   ? Entity.TYPE_WARP :
 				job < 1000 ? Entity.TYPE_NPC  :
+				job < 1000 ? Entity.TYPE_NPC2 :
 				job < 4000 ? Entity.TYPE_MOB  :
+				job < 4000 ? Entity.TYPE_NPC_ABR :
+				job < 4000 ? Entity.TYPE_NPC_BIONIC :
 				job < 6000 ? Entity.TYPE_PC   :
 				job < 7000 ? Entity.TYPE_HOM  :
 				             Entity.TYPE_MERC

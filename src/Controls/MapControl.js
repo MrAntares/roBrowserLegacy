@@ -207,7 +207,7 @@ define(function( require )
 					entity.onMouseUp();
 
 					// Entity lock is only on MOB type (except when Touch Targeting is active)
-					if (Preferences.noctrl === false || (entity.objecttype !== entity.constructor.TYPE_MOB && !Session.TouchTargeting )) {
+					if (Preferences.noctrl === false || ((entity.objecttype !== entity.constructor.TYPE_MOB || entity.objecttype !== entity.constructor.TYPE_NPC_ABR || entity.objecttype !== entity.constructor.TYPE_NPC_BIONIC) && !Session.TouchTargeting )) {
 						EntityManager.setFocusEntity(null);
 						entity.onFocusEnd();
 					}

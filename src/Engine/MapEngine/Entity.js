@@ -471,7 +471,7 @@ define(function( require )
 
 					// damage or miss display
 					if (target) {
-						if(dstEntity.objecttype === Entity.TYPE_MOB){
+						if(dstEntity.objecttype === Entity.TYPE_MOB || dstEntity.objecttype === Entity.TYPE_NPC_ABR || dstEntity.objecttype === Entity.TYPE_NPC_BIONIC){
 							if(pkt.damage > 0){
 								var EF_Init_Par = {
 									effectId: EffectConst.EF_HIT1,
@@ -503,7 +503,7 @@ define(function( require )
 							case 9: // multi-hit damage (endure)
 
 								// Display combo only if entity is mob and the attack don't miss
-								if ( dstEntity.objecttype === Entity.TYPE_MOB && pkt.damage > 0 ) {
+								if ( (dstEntity.objecttype === Entity.TYPE_MOB || dstEntity.objecttype === Entity.TYPE_NPC_ABR || dstEntity.objecttype === Entity.TYPE_NPC_BIONIC) && pkt.damage > 0 ) {
 									if( pkt.damage > 1 ){ // Can't divide 1 damage
 										Damage.add(	pkt.damage / 2, dstEntity, Renderer.tick + pkt.attackMT, srcWeapon,	Damage.TYPE.COMBO );
 									}
@@ -728,8 +728,11 @@ define(function( require )
 					entity.display.emblem = image;
 					entity.display.update(
 						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+						entity.objecttype === Entity.TYPE_NPC2 ? entity.display.STYLE.NPC :
 						(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 						entity.display.STYLE.DEFAULT
 					)
@@ -740,8 +743,11 @@ define(function( require )
 			}
 			entity.display.update(
 				entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+				entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+				entity.objecttype === Entity.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
 				entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 				entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+				entity.objecttype === Entity.TYPE_NPC2 ? entity.display.STYLE.NPC :
 				(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 				entity.display.STYLE.DEFAULT
 			);

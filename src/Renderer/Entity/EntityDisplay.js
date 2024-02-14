@@ -276,8 +276,11 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 	{
 		this.update(
 			entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
 			entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 			entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
+			entity.objecttype === entity.constructor.TYPE_NPC2 ? entity.display.STYLE.NPC :
 			entity.objecttype === entity.constructor.TYPE_ITEM ? entity.display.STYLE.ITEM :
 			(entity.objecttype === entity.constructor.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 			entity.display.STYLE.DEFAULT

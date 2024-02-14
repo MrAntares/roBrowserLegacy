@@ -77,10 +77,13 @@ define(function( require )
 
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 				Cursor.setType( Cursor.ACTION.ATTACK );
 				break;
 
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_NPC2:
 				//check if already talk to NPC
 				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
 					Cursor.setType( Cursor.ACTION.TALK, true );
@@ -191,6 +194,7 @@ define(function( require )
 				return true;
 
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_NPC2:
 				//check if already talk to NPC
 				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
 					pkt      = new PACKET.CZ.CONTACTNPC();
@@ -388,6 +392,8 @@ define(function( require )
 
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 
 				// Start rendering the lock on arrow
 				this.attachments.add({
@@ -467,6 +473,8 @@ define(function( require )
 			case Entity.TYPE_HOM:
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 				if (Entity.Manager.getFocusEntity()) {
 					Network.sendPacket(new PACKET.CZ.CANCEL_LOCKON());
 				}
