@@ -13714,6 +13714,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+	// 0xb27
+	PACKET.ZC.GUILD_AGIT_INFO = function PACKET_ZC_GUILD_AGIT_INFO(fp, end) {
+		this.castle_list = fp.readString(end - fp.tell()); // check this
+	};
+	PACKET.ZC.GUILD_AGIT_INFO.size = -1;
+
 	//0xb39
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2 = function PACKET_ZC_SPLIT_SEND_ITEMLIST_EQUIP2(fp, end) {
 		this.invType = fp.readUChar();
@@ -14042,6 +14048,52 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
+
+	// 0xb7b
+	PACKET.ZC.GUILD_INFO4 = function PACKET_ZC_GUILD_INFO4(fp, end) {
+		this.GDID = fp.readLong();
+		this.level = fp.readLong();
+		this.userNum = fp.readLong();
+		this.maxUserNum = fp.readLong();
+		this.userAverageLevel = fp.readLong();
+		this.exp = fp.readLong();
+		this.maxExp = fp.readLong();
+		this.point = fp.readLong();
+		this.honor = fp.readLong();
+		this.virtue = fp.readLong();
+		this.emblemVersion = fp.readLong();
+		this.guildname = fp.readString(NAME_LENGTH);
+		this.manageLand = fp.readString(16);
+		this.zeny = fp.readLong();
+		this.masterAID = fp.readLong();
+		this.masterName = fp.readString(NAME_LENGTH);
+	};
+	PACKET.ZC.GUILD_INFO4.size = 118; // - <master name>.24B + <master char id>.L
+
+	// 0xb7d
+	PACKET.ZC.MEMBERMGR_INFO3 = function PACKET_ZC_MEMBERMGR_INFO3(fp, end) {
+		this.memberInfo = (function() {
+			var i, count=(end-fp.tell())/58|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].AID = fp.readULong();
+				out[i].GID = fp.readULong();
+				out[i].HeadType = fp.readShort();
+				out[i].HeadPalette = fp.readShort();
+				out[i].Sex = fp.readShort();
+				out[i].Job = fp.readShort();
+				out[i].Level = fp.readShort();
+				out[i].MemberExp = fp.readLong();
+				out[i].CurrentState = fp.readLong();
+				out[i].GPositionID = fp.readLong();
+				out[i].LastLogin = fp.readLong();
+				out[i].CharName = fp.readString(NAME_LENGTH);
+				out[i].Memo = '';
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.MEMBERMGR_INFO3.size = -1;
 
 	// 0xb6f
 	PACKET.HC.ACCEPT_MAKECHAR = function PACKET_HC_ACCEPT_MAKECHAR(fp, end) {
