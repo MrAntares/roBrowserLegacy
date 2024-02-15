@@ -206,6 +206,7 @@ define(function( require )
 			Network.hookPacket( PACKET.ZC.RESTART_ACK,         onRestartAnswer );
 			Network.hookPacket( PACKET.ZC.ACK_REQ_DISCONNECT,  onDisconnectAnswer );
 			Network.hookPacket( PACKET.ZC.NOTIFY_TIME,         onPong );
+			Network.hookPacket( PACKET.ZC.PING_LIVE,           onPingLive );
 
 			// Extend controller
 			require('./MapEngine/Main').call();
@@ -316,6 +317,16 @@ define(function( require )
 	function onPong( pkt )
 	{
 		//pkt.time
+	}
+
+
+	/**
+	 * Ping from server?
+	 */
+	function onPingLive( pkt )
+	{
+		var pong_pkt = new PACKET.CZ.PING_LIVE();
+		Network.sendPacket(pong_pkt);
 	}
 
 
