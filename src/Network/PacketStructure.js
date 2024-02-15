@@ -13049,6 +13049,12 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.RECOVERY2.size = 8;
 
+	// 0xa28
+	PACKET.ZC.ACK_OPENSTORE2 = function PACKET_ZC_ACK_OPENSTORE2(fp, end) {
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.ACK_OPENSTORE2.size = 3;
+
 	// 0xa30
 	PACKET.ZC.ACK_REQNAMEALL2 = function PACKET_ZC_ACK_REQNAMEALL2(fp, end) {
 		this.AID = fp.readULong();
@@ -13657,6 +13663,20 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
     };
     PACKET.ZC.EXTEND_BODYITEM_SIZE.size = 4;
 
+	// 0xb1c
+	PACKET.CZ.PING_LIVE = function PACKET_CZ_PING_LIVE() {
+	};
+	PACKET.CZ.PING_LIVE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+		pkt_buf.writeShort(0xb1c);
+		return pkt_buf;
+	};
+
+	// 0xb1d
+	PACKET.ZC.PING_LIVE = function PACKET_ZC_PING_LIVE(fp, end) {
+	};
+	PACKET.ZC.PING_LIVE.size = 2;
+
 	// 0xb20
 	PACKET.ZC.SHORTCUT_KEY_LIST_V4 = function PACKET_ZC_SHORTCUT_KEY_LIST_V4(fp, end) {
 		this.rotate = fp.readUChar();
@@ -13792,6 +13812,47 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3.size = -1;
+
+	// 0xb40
+	PACKET.ZC.PC_PURCHASE_MYITEMLIST2 = function PACKET_ZC_PC_PURCHASE_MYITEMLIST2(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
+		this.AID = fp.readULong();
+		this.itemList = (function() {
+			var len = 4 + 2 + 2 + 1 + 4 + 1 + 1 + 16 + 25 + 1 +1;
+
+			var i, count=(end-fp.tell())/len|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].price = fp.readLong();
+				out[i].index = fp.readShort();
+				out[i].count = fp.readShort();
+				out[i].type = fp.readUChar();
+				out[i].ITID = fp.readULong();
+				out[i].IsIdentified = fp.readUChar();
+				out[i].IsDamaged = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readULong();
+				out[i].slot.card2 = fp.readULong();
+				out[i].slot.card3 = fp.readULong();
+				out[i].slot.card4 = fp.readULong();
+				out[i].Options = [];
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].grade = fp.readUChar();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.PC_PURCHASE_MYITEMLIST2.size = -1;
 
 	// 0xb41
 	PACKET.ZC.ITEM_PICKUP_ACK8 = function PACKET_ZC_ITEM_PICKUP_ACK8(fp, end) {
