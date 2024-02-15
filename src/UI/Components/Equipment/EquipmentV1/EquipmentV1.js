@@ -638,8 +638,8 @@ define(function(require)
 		if (location & EquipLocation.SHADOW_SHIELD)       selector.push('.shadow_shield');
 		if (location & EquipLocation.COSTUME_ROBE)     	  selector.push('.shadow_garment');
 		if (location & EquipLocation.SHADOW_SHOES)        selector.push('.shadow_shoes');
-		if (location & EquipLocation.SHADOW_ACCESSORY1)   selector.push('.shadow_accessory1');
-		if (location & EquipLocation.SHADOW_ACCESSORY2)   selector.push('.shadow_accessory2');
+		if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW)   selector.push('.shadow_accessory1');
+		if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW)   selector.push('.shadow_accessory2');
 
 		return selector.join(', ');
 	}
