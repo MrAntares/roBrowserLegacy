@@ -726,6 +726,9 @@ define(function( require )
 			if (entity.GUID) {
 				Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function(image) {
 					entity.display.emblem = image;
+					entity.emblem.emblem = image;
+					entity.emblem.display = true;
+					entity.emblem.update();
 					entity.display.update(
 						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
 						entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :

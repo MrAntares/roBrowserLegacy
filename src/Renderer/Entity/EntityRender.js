@@ -104,6 +104,7 @@ define( function( require )
 
 			// Display UI
 			if (entity.life.display)	entity.life.render( _matrix );
+			if (entity.emblem.display)	entity.emblem.render( _matrix );
 			if (entity.display.display) entity.display.render( _matrix );
 			if (entity.dialog.display)  entity.dialog.render( _matrix );
 			if (entity.cast.display)	entity.cast.render( _matrix );
