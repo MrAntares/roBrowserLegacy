@@ -202,9 +202,9 @@ define(function( require )
 			case 1:
 				// Remove entity picking ?
 				entity = EntityManager.getFocusEntity();
-				ET = entity.constructor;
 
 				if (entity) {
+					ET = entity.constructor;
 					entity.onMouseUp();
 
 					// Entity lock is only on MOB type (except when Touch Targeting is active)
