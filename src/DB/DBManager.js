@@ -394,6 +394,23 @@ define(function(require)
 			return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' + SexTable[sex] + '/' + ( ClassTable[id] || ClassTable[0] ) + '_' + SexTable[sex];
 		}
 
+		if(id == '11_FALCON' || id == '4034_FALCON') { // 2nd
+			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
+		}
+
+		if(id == '4012_FALCON') { // rebirth
+			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5\x32';
+		}
+
+		if(id == '4056_FALCON' || id == '4062_FALCON' || id == '4098_FALCON') { // 3rd
+			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
+		}
+
+		if(id == '4257_FALCON') { // 4th
+			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
+		}
+
+
 		// Homunculus
 		return 'data/sprite/homun/' + ( MonsterTable[id] || MonsterTable[1002] ).toLowerCase();
 

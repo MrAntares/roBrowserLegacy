@@ -24,6 +24,7 @@ define(function( require )
 	var SkillActionTable  = require('DB/Skills/SkillAction');
 	var EffectConst       = require('DB/Effects/EffectConst');
 	var PetMessageConst   = require('DB/Pets/PetMessageConst');
+	var JobConst   		  = require('DB/Jobs/JobConst');
 	var Sound             = require('Audio/SoundManager');
 	var Events            = require('Core/Events');
 	var Guild             = require('Engine/MapEngine/Guild');
@@ -41,6 +42,7 @@ define(function( require )
 	var LockOnTarget      = require('Renderer/Effects/LockOnTarget');
 	var MagicRing         = require('Renderer/Effects/MagicRing');
 
+	var BasicInfo         = require('UI/Components/BasicInfo/BasicInfo');
 	var ChatBox           = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom          = require('UI/Components/ChatRoom/ChatRoom');
 	var Escape            = require('UI/Components/Escape/Escape');
@@ -84,7 +86,7 @@ define(function( require )
 				SkillId.WL_SUMMON_ATK_WATER,
 				SkillId.WL_SUMMON_ATK_GROUND
 			];
-
+			
 	// Skills that display blue crit like combo damage
 	var SkillBlueCombo = [
 				SkillId.TK_STORMKICK,
@@ -116,7 +118,7 @@ define(function( require )
 					ownerAID: entity.GID,
 					position: entity.position
 				};
-
+				
 				if(PACKETVER.value < 20030715){
 					EF_Init_Par.effectId = EffectConst.EF_WARPZONE;
 					EffectManager.spam( EF_Init_Par );
@@ -128,6 +130,22 @@ define(function( require )
 			EntityManager.add(entity);
 		}
 
+		if(pkt.effectState === StatusState.EffectState.FALCON && (pkt.job === 4012 || pkt.job === 11)){
+			var falcon = new Entity();
+			falcon.set({
+				objecttype: falcon.constructor.TYPE_FALCON,
+				GID: entity.GID + '_FALCON',
+				PosDir: [entity.position[0], entity.position[1], 0],
+				job: entity.job + '_FALCON',
+				speed: 200,
+				name: "",
+				hp: -1,
+				maxhp: -1,
+			});
+			EntityManager.add(falcon);
+			entity.falconGID = falcon.GID;
+		}
+		
 		if(entity.objecttype === Entity.TYPE_PC &&
 			!(entity._effectState & StatusState.EffectState.INVISIBLE) &&
 			(pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY3
@@ -138,7 +156,7 @@ define(function( require )
 				ownerAID: entity.GID,
 				position: entity.position
 			};
-
+			
 			if(PACKETVER.value < 20030715){
 				EF_Init_Par.effectId = EffectConst.EF_ENTRY;
 				EffectManager.spam( EF_Init_Par );
@@ -147,7 +165,7 @@ define(function( require )
 				EffectManager.spam( EF_Init_Par );
 			}
 		}
-
+		
 		if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
 			HomunInformations.startAI();
 		}
@@ -166,38 +184,38 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.GID);
 		if (entity) {
-
+			
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {  //death animation only for myself
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_DEVIL,
 					ownerAID: entity.GID
 				};
-
+				
 				EffectManager.spam( EF_Init_Par );
 			}
-
+			
 			if(entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId){
 				HomunInformations.stopAI();
 			}
-
+			
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI, EffectConst.EF_CHOOKGI2, EffectConst.EF_CHOOKGI3, EffectConst.EF_CHOOKGI_N ]); // Spirit spheres
 			EffectManager.remove( null, pkt.GID,[ EffectConst.EF_CHOOKGI_FIRE, EffectConst.EF_CHOOKGI_WIND, EffectConst.EF_CHOOKGI_WATER, EffectConst.EF_CHOOKGI_GROUND, 'temporary_warlock_sphere' ]); // Elemental spheres (Warlock)
-
-			switch( pkt.type ) {
-				case Entity.VT.EXIT:
+			
+			switch(pkt.type){
+				case Entity.VT.EXIT: 
 				case Entity.VT.TELEPORT:
 					if( !(entity._effectState & StatusState.EffectState.INVISIBLE) ){
 
 						var EF_Init_Par = { position: entity.position };
-
+					
 						if(PACKETVER.value < 20030715){
 							EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION;
 						} else {
 							EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION2;
 						}
-						EffectManager.spam( EF_Init_Par );
+							EffectManager.spam( EF_Init_Par );
 					}
-
+				
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
 
@@ -206,6 +224,12 @@ define(function( require )
 					if (entity.objecttype !== Entity.TYPE_PC) {
 						entity.aura.remove( EffectManager );
 					}
+			}
+
+			if(entity.falconGID) {
+				entity.falconGID = null;
+				var falcon = EntityManager.get(pkt.GID + '_FALCON');
+				falcon.remove( pkt.type );
 			}
 
 			entity.remove( pkt.type );
@@ -235,6 +259,11 @@ define(function( require )
 			//entity.position[0] = pkt.MoveData[0];
 			//entity.position[1] = pkt.MoveData[1];
 			//entity.position[2] = Altitude.getCellHeight(  pkt.MoveData[0],  pkt.MoveData[1] );
+			if(entity.falconGID){
+				var falcon = EntityManager.get(pkt.GID + '_FALCON');
+				falcon.walk.speed = 200; // check this?
+				falcon.flyTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
+			}
 			entity.walkTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
 		}
 	}
@@ -252,7 +281,7 @@ define(function( require )
 			entity.position[0] = pkt.xPos;
 			entity.position[1] = pkt.yPos;
 			entity.position[2] = Altitude.getCellHeight( pkt.xPos,  pkt.yPos );
-
+			
 			entity.walk.index = entity.walk.total;
 
 			if (entity.action === entity.ACTION.WALK) {
@@ -263,9 +292,19 @@ define(function( require )
 					play:   true
 				});
 			}
+
+			if(entity.falconGID) {
+				var falcon = EntityManager.get(pkt.AID + '_FALCON');
+				falcon.walk.speed = 200;
+				falcon.flyTo(
+					pkt.xPos,
+					pkt.yPos,
+					pkt.xPos,
+					pkt.yPos,
+				);
+			}
 		}
 	}
-
 
 	/**
 	 * Move entity to a point
@@ -380,18 +419,18 @@ define(function( require )
 		switch (pkt.action) {
 
 			// Damage
-			case 0:  // regular [DMG_NORMAL]
-			//case 1: // [DMG_PICKUP_ITEM]
-			//case 2: // [DMG_SIT_DOWN]
-			//case 3: // [DMG_STAND_UP]
-			case 4:  // absorbed [DMG_ENDURE]
-			//case 5: [DMG_SPLASH]
-			//case 5: [DMG_SKILL]
-			//case 7: [DMG_REPEAT]
-			//case 11: [DMG_TOUCH] probably something new.
-			case 8:  // double attack [DMG_MULTI_HIT]
-			case 9:  // endure [DMG_MULTI_HIT_ENDURE]
-			case 10: // critital [DMG_CRITICAL]
+            case 0:  // regular [DMG_NORMAL]
+            //case 1: // [DMG_PICKUP_ITEM]
+            //case 2: // [DMG_SIT_DOWN]
+            //case 3: // [DMG_STAND_UP]
+            case 4:  // absorbed [DMG_ENDURE]
+            //case 5: [DMG_SPLASH]
+            //case 5: [DMG_SKILL]
+            //case 7: [DMG_REPEAT]
+            //case 11: [DMG_TOUCH] probably something new.
+            case 8:  // double attack [DMG_MULTI_HIT]
+            case 9:  // endure [DMG_MULTI_HIT_ENDURE]
+            case 10: // critital [DMG_CRITICAL]
 			case 11: // lucky
 			case 13: // multi-hit critical
 				var WSnd = DB.getWeaponSound(srcWeapon);
@@ -410,7 +449,7 @@ define(function( require )
 						otherAID: srcEntity.GID,
 						otherPosition: srcEntity.position
 					};
-
+					
 					EffectManager.spam( EF_Init_Par );
 				}
 
@@ -458,7 +497,7 @@ define(function( require )
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
-
+					
 					// Will be hit actions
 					onEntityWillBeHitSub( pkt, dstEntity );
 
@@ -481,7 +520,7 @@ define(function( require )
 								EffectManager.spam(EF_Init_Par);
 							}
 						}
-
+						
 						var type = null;
 						switch (pkt.action) {
 
@@ -501,7 +540,7 @@ define(function( require )
 								type = Damage.TYPE.CRIT;
 							case 8: // multi-hit damage
 							case 9: // multi-hit damage (endure)
-
+							
 								// Display combo only if entity is mob and the attack don't miss
 								if ( (dstEntity.objecttype === Entity.TYPE_MOB || dstEntity.objecttype === Entity.TYPE_NPC_ABR || dstEntity.objecttype === Entity.TYPE_NPC_BIONIC) && pkt.damage > 0 ) {
 									if( pkt.damage > 1 ){ // Can't divide 1 damage
@@ -514,7 +553,7 @@ define(function( require )
 										Damage.add( pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									}
 								}
-
+								
 								var div = 1;
 								if( pkt.damage > 1 ){ // Can't divide 1 damage
 									div = 2;
@@ -539,7 +578,7 @@ define(function( require )
 									repeat: false,
 								});
 								break;
-
+							
 						}
 					}
 
@@ -548,8 +587,8 @@ define(function( require )
 				}
 
 				srcEntity.attack_speed = pkt.attackMT;
-
-
+				
+				
 				if(pkt.leftDamage){
 					srcEntity.setAction({
 						action: srcEntity.ACTION.ATTACK3,
@@ -581,7 +620,7 @@ define(function( require )
 						}
 					});
 				}
-
+				
 				// Talk sometime
 				if(srcEntity.GID === Session.Entity.GID && (Session.pet.friendly > 900 && (Session.pet.lastTalk || 0) + 10000 < Date.now())){
 					const talkRate = parseInt((Math.random() * 10));
@@ -595,7 +634,7 @@ define(function( require )
 						Session.pet.lastTalk = Date.now();
 					}
 				}
-
+				
 				break;
 
 			// Pickup item
@@ -695,9 +734,9 @@ define(function( require )
 		pkt.msg = pkt.msg.replace(/\: \|\d{2}/, ': ');
 
 		entity = EntityManager.get(pkt.accountID);
-		if (entity) {
-			entity.dialog.set( pkt.msg );
-		}
+        if (entity) {
+            entity.dialog.set( pkt.msg );
+        }
 		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT, color);
 	}
 
@@ -886,6 +925,14 @@ define(function( require )
 
 				// load self aura
 				entity.aura.load( EffectManager );
+
+				if (entity.falconGID) {
+					var falcon = EntityManager.get(entity.GID + '_FALCON');
+					falcon.set({
+						PosDir: [ entity.position[0], entity.position[1], 0 ],
+						job: entity.job + '_FALCON',
+					});
+				}
 				break;
 
 			case 3: entity.accessory   = pkt.value; break;
@@ -902,7 +949,7 @@ define(function( require )
 			case 14: break; // LOOK_BODY2 ??
 		}
 	}
-
+	
 	/**
 	 * Update NPC's visual look
 	 *
@@ -931,10 +978,10 @@ define(function( require )
 
 		// Don't display skill names for mobs and hiding skills
 		if (srcEntity && (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
-			srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-			srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
-		)
-		{
+            srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+            srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
+        )
+        {
 			if(!SkillNameDisplayExclude.includes(pkt.SKID)){
 				srcEntity.dialog.set(
 					( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
@@ -964,16 +1011,16 @@ define(function( require )
 
 			// In healing skill, the level parameter stored the healed value
 			if (pkt.SKID === SkillId.AL_HEAL ||
-				pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
-				pkt.SKID === SkillId.AB_CHEAL) {
+			    pkt.SKID === SkillId.AB_HIGHNESSHEAL ||
+			    pkt.SKID === SkillId.AB_CHEAL) {
 				Damage.add( pkt.level, dstEntity, Renderer.tick, null, Damage.TYPE.HEAL );
-				Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
-			}
+                Sound.playPosition('_heal_effect.wav', dstEntity.position); // healing on neutral targets got another effect than undeads
+            }
 
-			// Steal Coin zeny
-			if (pkt.SKID === SkillId.RG_STEALCOIN) {
-				ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
-			}
+            // Steal Coin zeny
+            if (pkt.SKID === SkillId.RG_STEALCOIN) {
+                ChatBox.addText('You got '+pkt.level+' zeny.', ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
+            }
 
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if(dstEntity.RollCounter){
@@ -981,7 +1028,7 @@ define(function( require )
 						effectId: EffectConst.EF_ROLLING1 + dstEntity.RollCounter-1,
 						ownerAID: dstEntity.GID
 					};
-
+					
 					EffectManager.spam( EF_Init_Par );
 				}
 			}
@@ -992,7 +1039,7 @@ define(function( require )
 						effectId: EffectConst.EF_BEGINASURA1 + pkt.level-1,
 						ownerAID: dstEntity.GID
 					};
-
+					
 					EffectManager.spam( EF_Init_Par );
 				}
 			}
@@ -1054,7 +1101,7 @@ define(function( require )
 		SkillAction.LUCY_DODGE			= 11;	/// lucky dodge
 		SkillAction.TOUCH				= 12;	/// (touch skill?)
 		SkillAction.MULTI_HIT_CRITICAL	= 13;	/// multi-hit critical
-
+		
 
 		var srcEntity = EntityManager.get(pkt.AID);
 		var dstEntity = EntityManager.get(pkt.targetID);
@@ -1064,7 +1111,8 @@ define(function( require )
 			pkt.attackMT = Math.min( 9999, pkt.attackMT ); // FIXME: cap value ?
 			pkt.attackMT = Math.max(   1, pkt.attackMT );
 			srcEntity.attack_speed = pkt.attackMT;
-			srcEntity.amotionTick = Renderer.tick + pkt.attackMT; // Add amotion delay
+			
+			srcEntity.amotionTick = Renderer.tick + pkt.attackMT*2; // Add amotion delay
 
 			srcWeapon = 0;
 			if(srcEntity.weapon){
@@ -1075,11 +1123,11 @@ define(function( require )
 			if (!SkillNameDisplayExclude.includes(pkt.SKID)
 				&&
 				(srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
-				srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-				srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
+                srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
 			){
-				srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
-			}
+                srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
+            }
 
 			//Action handling
 			if(srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT){
@@ -1091,7 +1139,7 @@ define(function( require )
 				} else {
 					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 				}
-
+				
 				//Pet Talk
 				if(srcEntity.GID === Session.Entity.GID && (Session.pet.friendly > 900 && (Session.pet.lastTalk || 0) + 10000 < Date.now())){
 					var talkRate = parseInt((Math.random() * 10));
@@ -1105,7 +1153,52 @@ define(function( require )
 						Session.pet.lastTalk = Date.now();
 					}
 				}
+			}
 
+			if(srcEntity.falconGID){
+				var falcon = EntityManager.get(srcEntity.GID + '_FALCON');
+				if(pkt.SKID == SkillId.HT_BLITZBEAT) {
+					falcon.action = srcEntity.action;
+		
+					falcon.walk.speed = 30;
+					falcon.walkToNonWalkableGround(
+						srcEntity.position[0],
+						srcEntity.position[1],
+						dstEntity.position[0],
+						dstEntity.position[1],
+					);
+
+					setTimeout(function(){
+						falcon.walk.speed = 200;
+						falcon.walkToNonWalkableGround(
+							dstEntity.position[0],
+							dstEntity.position[1],
+							srcEntity.position[0],
+							srcEntity.position[1],
+						);
+					}.bind(falcon), 200);
+
+				} else if(pkt.SKID == SkillId.SN_FALCONASSAULT) {
+					falcon.action = srcEntity.action;
+
+					falcon.walk.speed = 45;
+					falcon.flyTo(
+						srcEntity.position[0],
+						srcEntity.position[1],
+						dstEntity.position[0],
+						dstEntity.position[1],
+					);
+
+					setTimeout(function(){
+						falcon.walk.speed = 200;
+						falcon.flyTo(
+							dstEntity.position[0],
+							dstEntity.position[1],
+							srcEntity.position[0],
+							srcEntity.position[1],
+						);
+					}.bind(falcon), 200);
+				}
 			}
 		}
 
@@ -1113,25 +1206,25 @@ define(function( require )
 			var target = pkt.damage ? dstEntity : srcEntity;
 
 			if (target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
-
+				
 				// Will be hit actions
 				onEntityWillBeHitSub( pkt, dstEntity );
-
+				
 				var isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 				var isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
-
+	
 				var addDamage = function(i, startTick) {
 
-					if(pkt.damage){ // Only if hits
+					if(pkt.damage){ // Only if hits						
 						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
 					}
-
+						
 					if(!isCombo && isBlueCombo && pkt.damage){ // Blue 'crit' non-combo EG: Rampage Blaster that hits
 						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
 					} else {
 						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon); // Normal
 					}
-
+	
 					// Only display combo if the target is not entity and
 					// there are multiple attacks and actually hits
 					if (isCombo && pkt.damage) {
@@ -1144,7 +1237,7 @@ define(function( require )
 						);
 					}
 				};
-
+	
 				for (var i = 0; i < pkt.count; ++i) {
 					EffectManager.spamSkillBeforeHit( pkt.SKID, pkt.targetID, Renderer.tick + (C_MULTIHIT_DELAY * i), pkt.AID);
 					addDamage(i, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY * i));
@@ -1152,7 +1245,7 @@ define(function( require )
 			}
 		}
 
-		if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
+		if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) { // && pkt.action != SkillAction.MULTI_HIT
 			EffectManager.spamSkill( pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
 		}
 	}
@@ -1173,9 +1266,9 @@ define(function( require )
 		//     5 = Poison elemental cast aura
 		//     6 = Holy elemental cast aura
 		//     7 = Shadow/Dark elemental cast aura
-		//     8 = Ghost elemental cast aura (same as 6?)
-		//     9 = Undead elemental cast aura
-		// is disposable:
+        //     8 = Ghost elemental cast aura (same as 6?)
+        //     9 = Undead elemental cast aura
+        // is disposable:
 		//     0 = yellow chat text "[src name] will use skill [skill name]."
 		//     1 = no text
 
@@ -1185,7 +1278,7 @@ define(function( require )
 		if (!srcEntity) {
 			return;
 		}
-
+	
 		var hideCastBar = false;
 		var hideCastAura = false;
 		var isPlay = true;
@@ -1196,9 +1289,9 @@ define(function( require )
 			play:   true,
 			next:   false
 		}
-
+		
 		if(pkt.delayTime) {
-
+			
 			// Check if cast bar needs to be hidden
 			hideCastBar = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastBar);
 
@@ -1208,7 +1301,7 @@ define(function( require )
 			isPlay = false;
 			next = false;
 		}
-
+		
 		if (srcEntity.objecttype === Entity.TYPE_PC) { //monsters don't use ACTION.SKILL animation
 
 			var action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
@@ -1222,48 +1315,65 @@ define(function( require )
 			});
 		}
 
+		Session.Entity.isCastingSkill = true;
 		Session.Entity.lastSKID = pkt.SKID;
 
-		// Hardcoded version of Auto Counter casting bar
-		// It's dont gey any delayTime so we need to handle it diffrent:
-		// if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
-		// if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
-		if(pkt.SKID == SkillId.KN_AUTOCOUNTER){
-			srcEntity.cast.set( 1000 );
-			if (srcEntity === Session.Entity) {
-				Session.underAutoCounter = true;
-			}
+        // Hardcoded version of Auto Counter casting bar
+        // It's dont gey any delayTime so we need to handle it diffrent:
+        // if the monster hit us then PACKET_ZC_DISPEL is received (to force cast bar to cancel)
+        // if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
+        if(pkt.SKID == SkillId.KN_AUTOCOUNTER){
+            srcEntity.cast.set( 1000 );
+            if (srcEntity === Session.Entity) {
+                Session.underAutoCounter = true;
+            }
+        }
+
+		if(pkt.SKID == SkillId.HT_DETECTING && srcEntity.falconGID){
+			var falcon = EntityManager.get(srcEntity.GID + '_FALCON');
+			falcon.action = srcEntity.action;
+
+			falcon.walk.speed = 25;
+			falcon.walkToNonWalkableGround(
+				srcEntity.position[0],
+				srcEntity.position[1],
+				pkt.xPos,
+				pkt.yPos,
+				null,
+				false,
+				true, // is overshoot
+			);
 		}
 
-		// Only mob to don't display skill name ?
+        // Only mob to don't display skill name ?
 		if (srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
-				srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
-				srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
-		) {
+                srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
+                srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM
+        ) {
 			if(!SkillNameDisplayExclude.includes(pkt.SKID)){
 				srcEntity.dialog.set(
 					( ( SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!',
 					'white'
 				);
 			}
-		}
+        }
 
 		//Spells like Bash, Hide, Double Strafe etc. has special casting effect
 		EffectManager.spamSkillCast( pkt.SKID, pkt.AID, null, pkt.targetID);
 
 		if (dstEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
-			if (pkt.delayTime) {
+            if (pkt.delayTime) {
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_LOCKON,
 					ownerAID: dstEntity.GID,
 					position: dstEntity.position,
 					duration: pkt.delayTime
 				};
-
+				
 				EffectManager.spam( EF_Init_Par );
-			}
-		} else if (pkt.xPos && pkt.yPos) {
+            }
+        } else if (pkt.xPos && pkt.yPos) {
 			srcEntity.lookTo( pkt.xPos, pkt.yPos );
 			if (pkt.delayTime) {
 				var EF_Init_Par = {
@@ -1273,14 +1383,14 @@ define(function( require )
 					duration: pkt.delayTime,
 					otherAID: srcEntity.GID
 				};
-
+				
 				EffectManager.spam( EF_Init_Par );
 			}
 		}
-
+		
 		// Check if cast aura needs to be hidden
 		hideCastAura = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastAura);
-
+		
 		// Cast aura
 		if(srcEntity && pkt.delayTime && !hideCastAura){
 			var EF_Init_Par = {
@@ -1289,7 +1399,7 @@ define(function( require )
 				position: srcEntity.position,
 				duration: pkt.delayTime
 			};
-
+			
 			switch(pkt.property) {
 				case 0:
 					EF_Init_Par.effectId = EffectConst.EF_BEGINSPELL;
@@ -1322,7 +1432,7 @@ define(function( require )
 					EF_Init_Par.effectId = EffectConst.EF_DARKCASTING;
 					break;
 			}
-
+			
 			EffectManager.spam( EF_Init_Par );
 		}
 	}
@@ -1343,22 +1453,22 @@ define(function( require )
 			EffectManager.remove(null, entity.GID, [12, 54, 55, 56, 57, 58, 59, 454, 60, 513]);
 			EffectManager.remove(LockOnTarget, entity.GID);
 			EffectManager.remove(MagicTarget, entity.GID);
-			EffectManager.remove(MagicRing, entity.GID);
+            EffectManager.remove(MagicRing, entity.GID);
 
-			if (entity === Session.Entity) { // Autocounter hardcoded animation (any better place to put this?)
-				if(Session.underAutoCounter) {
-					if(Session.Entity.life.hp > 0)
+            if (entity === Session.Entity) { // Autocounter hardcoded animation (any better place to put this?)
+                if(Session.underAutoCounter) {
+                    if(Session.Entity.life.hp > 0)
 						var EF_Init_Par = {
 							effectId: EffectConst.EF_AUTOCOUNTER,
 							ownerAID: pkt.AID
 						};
-
-						EffectManager.spam( EF_Init_Par );
-					Session.underAutoCounter = false;
-				}
-			}
-		}
-	}
+					
+                        EffectManager.spam( EF_Init_Par );
+                    Session.underAutoCounter = false;
+                }
+            }
+        }
+    }
 
 
 	/**
@@ -1389,81 +1499,99 @@ define(function( require )
 
 			// Show cart
 			case StatusConst.ON_PUSH_CART:
-				entity.hasCart = pkt.state || (!pkt.hasOwnProperty('state'));
+                entity.hasCart = pkt.state || (!pkt.hasOwnProperty('state'));
 				if(pkt.val && (pkt.state || (!pkt.hasOwnProperty('state')) )){
 					entity.CartNum = pkt.val[0];
 				}
-				break;
+                break;
 
 
-			case StatusConst.HIDING:
+            case StatusConst.HIDING:
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_SUMMONSLAVE,
 					ownerAID: pkt.AID
 				};
-
+			
 				if (pkt.state == 1){
 					EF_Init_Par.effectId = EffectConst.EF_BASH;
 				}
-
+				
 				EffectManager.spam( EF_Init_Par );
+				break;
+			case StatusConst.FALCON:
+				if(pkt.state || (!pkt.hasOwnProperty('state')) ){
+					var falcon = new Entity();
+					falcon.set({
+						objecttype: falcon.constructor.TYPE_FALCON,
+						GID: entity.GID + '_FALCON',
+						PosDir: [entity.position[0], entity.position[1], 0],
+						job: entity.job + '_FALCON',
+						speed: 200,
+						name: "",
+						hp: -1,
+						maxhp: -1,
+					});
+					EntityManager.add(falcon);
+					entity.falconGID = falcon.GID;
+				}
+				
 				break;
 
 			case StatusConst.EXPLOSIONSPIRITS: //state: 1 ON  0 OFF
-			case StatusConst.MARIONETTE_MASTER:
-			case StatusConst.MARIONETTE:
-			case StatusConst.TWOHANDQUICKEN:
-			case StatusConst.ONEHANDQUICKEN:
-			case StatusConst.SPEARQUICKEN:
-			case StatusConst.LKCONCENTRATION:
-			case StatusConst.BERSERK:
-			case StatusConst.ENERGYCOAT:
-			case StatusConst.OVERTHRUST:
-			case StatusConst.OVERTHRUSTMAX:
-			case StatusConst.SWOO:
-			case StatusConst.SKE:
-			case StatusConst.NJ_BUNSINJYUTSU:
-			case StatusConst.STEELBODY:
-			case StatusConst.AURABLADE:
-			case StatusConst.ASSUMPTIO:
-			case StatusConst.ASSUMPTIO2:
-			case StatusConst.SG_WARM:
-			case StatusConst.SG_SUN_WARM:
-			case StatusConst.SG_MOON_WARM:
-			case StatusConst.SG_STAR_WARM:
-			case StatusConst.KAITE:
-			case StatusConst.SOULLINK:
-			case StatusConst.PROPERTYUNDEAD:
-			case StatusConst.DA_CONTRACT:
-			//CG_MOONLIT Moonlit Water Mill
-			//SC_MERC_QUICKEN
-			//SC_SKA
-			//SC_INCATKRATE
-				entity.toggleOpt3(pkt.index, pkt.state)
+            case StatusConst.MARIONETTE_MASTER:
+            case StatusConst.MARIONETTE:
+            case StatusConst.TWOHANDQUICKEN:
+            case StatusConst.ONEHANDQUICKEN:
+            case StatusConst.SPEARQUICKEN:
+            case StatusConst.LKCONCENTRATION:
+            case StatusConst.BERSERK:
+            case StatusConst.ENERGYCOAT:
+            case StatusConst.OVERTHRUST:
+            case StatusConst.OVERTHRUSTMAX:
+            case StatusConst.SWOO:
+            case StatusConst.SKE:
+            case StatusConst.NJ_BUNSINJYUTSU:
+            case StatusConst.STEELBODY:
+            case StatusConst.AURABLADE:
+            case StatusConst.ASSUMPTIO:
+            case StatusConst.ASSUMPTIO2:
+            case StatusConst.SG_WARM:
+            case StatusConst.SG_SUN_WARM:
+            case StatusConst.SG_MOON_WARM:
+            case StatusConst.SG_STAR_WARM:
+            case StatusConst.KAITE:
+            case StatusConst.SOULLINK:
+            case StatusConst.PROPERTYUNDEAD:
+            case StatusConst.DA_CONTRACT:
+            //CG_MOONLIT Moonlit Water Mill
+            //SC_MERC_QUICKEN
+            //SC_SKA
+            //SC_INCATKRATE
+                entity.toggleOpt3(pkt.index, pkt.state)
 				break;
 
-			case StatusConst.RUN: //state: 1 ON  0 OFF
+            case StatusConst.RUN: //state: 1 ON  0 OFF
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_STOPEFFECT,
 					ownerAID: pkt.AID
 				};
-
+			
 				if (pkt.state == 1){
 					EF_Init_Par.effectId = EffectConst.EF_RUN;
 					//todo: draw footprints on the floor
 				}
-
+				
 				EffectManager.spam( EF_Init_Par );
-				break;
+                break;
 
 			case StatusConst.TING:
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_QUAKEBODY,
 					ownerAID: pkt.AID
 				};
-
+				
 				EffectManager.spam( EF_Init_Par );
-				break;
+                break;
 
 			case StatusConst.STORMKICK_ON:
 			case StatusConst.STORMKICK_READY:
@@ -1474,7 +1602,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-				break;
+                break;
 
 			case StatusConst.DOWNKICK_ON:
 			case StatusConst.DOWNKICK_READY:
@@ -1485,7 +1613,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-				break;
+                break;
 
 			case StatusConst.TURNKICK_ON:
 			case StatusConst.TURNKICK_READY:
@@ -1494,6 +1622,15 @@ define(function( require )
 					frame:  3,
 					repeat: false,
 					play:   false,
+					next:   false
+				});
+                break;
+			case StatusConst.TRUESIGHT:
+				entity.setAction({
+					action: entity.ACTION.IDLE,
+					frame:  3,
+					repeat: true,
+					play:   true,
 					next:   false
 				});
 				break;
@@ -1507,7 +1644,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-				break;
+                break;
 
 			case StatusConst.DODGE_ON:
 			case StatusConst.DODGE_READY:
@@ -1518,7 +1655,7 @@ define(function( require )
 					play:   false,
 					next:   false
 				});
-				break;
+                break;
 
 			case StatusConst.ROLLINGCUTTER:
 				if (pkt.state == 1) {
@@ -1536,7 +1673,7 @@ define(function( require )
 				}
 				entity.effectState = entity.effectState;
 				break;
-
+			
 			case StatusConst.SUMMON1:
 				if (pkt.state == 1) {
 					entity.Summon1 = pkt.val[0];
@@ -1545,7 +1682,7 @@ define(function( require )
 				}
 				updateWarlockSpheres(entity);
 				break;
-
+			
 			case StatusConst.SUMMON2:
 				if (pkt.state == 1) {
 					entity.Summon2 = pkt.val[0];
@@ -1554,7 +1691,7 @@ define(function( require )
 				}
 				updateWarlockSpheres(entity);
 				break;
-
+			
 			case StatusConst.SUMMON3:
 				if (pkt.state == 1) {
 					entity.Summon3 = pkt.val[0];
@@ -1563,7 +1700,7 @@ define(function( require )
 				}
 				updateWarlockSpheres(entity);
 				break;
-
+			
 			case StatusConst.SUMMON4:
 				if (pkt.state == 1) {
 					entity.Summon4 = pkt.val[0];
@@ -1572,7 +1709,7 @@ define(function( require )
 				}
 				updateWarlockSpheres(entity);
 				break;
-
+			
 			case StatusConst.SUMMON5:
 				if (pkt.state == 1) {
 					entity.Summon5 = pkt.val[0];
@@ -1581,7 +1718,7 @@ define(function( require )
 				}
 				updateWarlockSpheres(entity);
 				break;
-
+			
 			case StatusConst.STEALTHFIELD:
 				if (pkt.state == 1) {
 					entity.Stealthfield = pkt.val[0];
@@ -1600,26 +1737,26 @@ define(function( require )
 				entity.effectState = entity.effectState;
 				break;
 
-			case StatusConst.TRICKDEAD:
-				if(pkt.state == 1) {
-					entity.setAction({
-						action: entity.ACTION.DIE,
-						frame:  0,
-						repeat: false,
-						play:   true,
-						next:   false
-					});
-				}
-				if(pkt.state == 0) {
-					entity.setAction({
-						action: entity.ACTION.IDLE,
-						frame:  0,
-						repeat: false,
-						play:   true,
-						next:   false
-					});
-				}
-				break;
+            case StatusConst.TRICKDEAD:
+                if(pkt.state == 1) {
+                    entity.setAction({
+                        action: entity.ACTION.DIE,
+                        frame:  0,
+                        repeat: false,
+                        play:   true,
+                        next:   false
+                    });
+                }
+                if(pkt.state == 0) {
+                    entity.setAction({
+                        action: entity.ACTION.IDLE,
+                        frame:  0,
+                        repeat: false,
+                        play:   true,
+                        next:   false
+                    });
+                }
+                break;
 
 			case StatusConst.ILLUSION:
 				if (pkt.state == 1) {
@@ -1627,7 +1764,7 @@ define(function( require )
 				} else {
 					entity.isHallucinating = false;
 				}
-				break;
+                break;
 
 			case StatusConst.STOP:
 				if (pkt.state == 1) {
@@ -1639,7 +1776,7 @@ define(function( require )
 				} else {
 					entity.attachments.remove('status-stop');
 				}
-				break;
+                break;
 
 			case StatusConst.C_MARKER:
 				if (pkt.state == 1) {
@@ -1647,13 +1784,14 @@ define(function( require )
 						effectId: 'ef_c_marker2',
 						ownerAID: pkt.AID
 					};
-
+					
 					EffectManager.spam( EF_Init_Par );
 				}
 				break;
 
 
 			// Cast a skill, TODO: add progressbar in shortcut
+			case StatusConst.GROUNDMAGIC:
 			case StatusConst.POSTDELAY:
 				entity.setAction({
 					action: entity.ACTION.SKILL,
@@ -1688,8 +1826,8 @@ define(function( require )
 			StatusIcons.update( pkt.index, pkt.state, pkt.RemainMS );
 		}
 	}
-
-
+	
+	
 	//Warlock sphere summons update
 	function updateWarlockSpheres(entity){
 		if (entity.Summon1 || entity.Summon2 || entity.Summon3 || entity.Summon4 || entity.Summon5){
@@ -1698,9 +1836,9 @@ define(function( require )
 				ownerAID: entity.GID,
 				persistent: false
 			};
-
+			
 			EffectManager.spam( EF_Init_Par );
-
+			
 			entity.WarlockSpheres = true;
 		} else if (entity.WarlockSpheres){
 			EffectManager.remove( null, entity.GID, 'temporary_warlock_sphere');
@@ -1728,6 +1866,25 @@ define(function( require )
 
 		// for changes in effectState (HIDING, CLOAK)
 		entity.aura.load( EffectManager );
+
+		if(!entity.falconGID && entity.effectState == 16) {
+			var falcon = new Entity();
+			falcon.set({
+				objecttype: falcon.constructor.TYPE_FALCON,
+				GID: entity.GID + '_FALCON',
+				PosDir: [entity.position[0], entity.position[1], 0],
+				job: entity.job + '_FALCON',
+				speed: 200,
+				name: "",
+				hp: -1,
+				maxhp: -1,
+			});
+			EntityManager.add(falcon);
+			entity.falconGID = falcon.GID;
+		} else if(entity.falconGID && entity.effectState == 0) {
+			entity.falconGID = null;
+			falcon.remove();
+		}
 	}
 
 
@@ -1826,46 +1983,46 @@ define(function( require )
 	}
 
 
-	/**
-	 * "Blade Stop" / "Root" visual
-	 */
+    /**
+     * "Blade Stop" / "Root" visual
+     */
 
-	function onBladeStopVisual(srcEntity, dstEntity, state)
-	{
-			srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
-			srcEntity.toggleOpt3(StatusConst.BLADESTOP, state);
-			if(state == 1)
-				srcEntity.setAction({
-					action: srcEntity.ACTION.READYFIGHT,
-					frame:  0,
-					repeat: false,
-					play:   true,
-					next:   false
-				});
-			if(state == 0)
-				srcEntity.setAction({
-					action: srcEntity.ACTION.IDLE,
-					frame:  0,
-					repeat: false,
-					play:   true,
-					next:   false
-				});
-	}
+    function onBladeStopVisual(srcEntity, dstEntity, state)
+    {
+            srcEntity.lookTo( dstEntity.position[0], dstEntity.position[1] );
+            srcEntity.toggleOpt3(StatusConst.BLADESTOP, state);
+            if(state == 1)
+                srcEntity.setAction({
+                    action: srcEntity.ACTION.READYFIGHT,
+                    frame:  0,
+                    repeat: false,
+                    play:   true,
+                    next:   false
+                });
+            if(state == 0)
+                srcEntity.setAction({
+                    action: srcEntity.ACTION.IDLE,
+                    frame:  0,
+                    repeat: false,
+                    play:   true,
+                    next:   false
+                });
+    }
 
-	 /**
-	 * "Blade Stop" / "Root" skill status
-	 *
-	 * @param {object} pkt - PACKET.ZC.BLADESTOP
-	 */
-	function onBladeStopPacket(pkt)
-	{
-		var srcEntity = EntityManager.get(pkt.srcAID);
-		var dstEntity = EntityManager.get(pkt.destAID);
-		if (srcEntity && dstEntity) {
-			onBladeStopVisual(srcEntity, dstEntity, pkt.flag);
-			onBladeStopVisual(dstEntity, srcEntity, pkt.flag);
-		}
-	}
+     /**
+     * "Blade Stop" / "Root" skill status
+     *
+     * @param {object} pkt - PACKET.ZC.BLADESTOP
+     */
+    function onBladeStopPacket(pkt)
+    {
+        var srcEntity = EntityManager.get(pkt.srcAID);
+        var dstEntity = EntityManager.get(pkt.destAID);
+        if (srcEntity && dstEntity) {
+            onBladeStopVisual(srcEntity, dstEntity, pkt.flag);
+            onBladeStopVisual(dstEntity, srcEntity, pkt.flag);
+        }
+    }
 
 	/**
 	 * Notify experience gained
@@ -1875,14 +2032,14 @@ define(function( require )
 
 	function onNotifyExp( pkt )
 	{
-		if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
-			if(pkt. varID == 1) {
-				ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
-			}
-			if(pkt. varID == 2) {
+        if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
+            if(pkt. varID == 1) {
+                ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
+            }
+            if(pkt. varID == 2) {
 				ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
-			}
-		}
+            }
+        }
 	}
 
 	/**
@@ -1895,16 +2052,16 @@ define(function( require )
 
 	function onMarkMvp( pkt )
 	{
-		MiniMap.getUI().removeNpcMark('mvp'); //hack for mark system (todo: debug this)
-		if(pkt.infoType == 1) {
-			MiniMap.getUI().addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
-			/**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
-				ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
-			}*/
-		}
-		if(pkt.infoType == 0) {
-			ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		}
+        MiniMap.getUI().removeNpcMark('mvp'); //hack for mark system (todo: debug this)
+        if(pkt.infoType == 1) {
+            MiniMap.getUI().addNpcMark( 'mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity );
+            /**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
+                ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
+            }*/
+        }
+        if(pkt.infoType == 0) {
+            ChatBox.addText( 'Boss monster not found.', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+        }
 	}
 
 	/**
@@ -1928,12 +2085,12 @@ define(function( require )
 	 * @param {object} pkt - PACKET.ZC.MVP_GETTING_ITEM
 	 */
 	function onEntityMvpRewardItemMessage( pkt ) {
-		var item = DB.getItemInfo(pkt.ITID);
+        var item = DB.getItemInfo(pkt.ITID);
 		ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 		ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 	}
-
-
+	
+	
 	/**
 	 * Entity will be hit, handle getting hit and after actions
 	 *
@@ -1943,9 +2100,9 @@ define(function( require )
 	function onEntityWillBeHitSub( pkt, dstEntity ){
 		// only if has damage > 0 and type is not endure and not lucky
 		if ((pkt.damage > 0 || pkt.leftDamage > 0) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
-
+			
 			var count = pkt.count || 1;
-
+			
 			function impendingAttack(){ // Get hurt when attack happens
 				if(dstEntity.action !== dstEntity.ACTION.DIE){
 					dstEntity.setAction({
@@ -1961,9 +2118,20 @@ define(function( require )
 							play:   true,
 						}
 					});
+
+					if(pkt.targetGID >= 2000000 && dstEntity.objecttype === 0 && dstEntity.falconGID){
+						var falcon = EntityManager.get(dstEntity.GID + '_FALCON');
+						falcon.walk.speed = 45;
+						falcon.flyTo(
+							dstEntity.position[0],
+							dstEntity.position[1],
+							dstEntity.position[0],
+							dstEntity.position[1],
+						);
+					}
 				}
 			}
-
+			
 			for(var i = 0; i<count; i++){
 				if( pkt.damage ){
 					Events.setTimeout( impendingAttack, pkt.attackMT + (C_MULTIHIT_DELAY * i) );
@@ -1979,13 +2147,13 @@ define(function( require )
 	 * Does player have a Token of Siegfried?
 	 */
 	function haveSiegfriedItem(){
-		var	itemInfo = Inventory.getItemById(7621);
+		var	itemInfo = Inventory.getItemById(7621); 
 
 		if ( Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode )
 			return false ;
-		else if ( itemInfo && itemInfo.count > 0 )
-			return true ;
-		else
+		else if ( itemInfo && itemInfo.count > 0 ) 
+			return true ; 
+		else 
 			return false ;
 	}
 

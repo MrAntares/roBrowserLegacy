@@ -183,6 +183,11 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 				this.ACTION.ATTACK3 = 6;
 				this.ACTION.ACTION  = 7;
 				break;
+			
+			case Entity.TYPE_FALCON:
+				this.ACTION.IDLE    = 0;
+				this.ACTION.WALK    = 1;
+				break;
 
 			//TODO: define others Entities ACTION
 			case Entity.TYPE_ELEM:
