@@ -4747,14 +4747,16 @@ define(function( require )
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function( Params ){
-				var self = this;
-				var DB  = require('DB/DBManager');
-				var ChatBox = require('UI/Components/ChatBox/ChatBox');
-				var msg = DB.getRandomJoke();
-				if(msg){
-					ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				var Session = require('Engine/SessionStorage');
+				if(Params.Init.ownerAID == Session.Entity.GID){
+					var self = this;
+					var DB  = require('DB/DBManager');
+					var ChatBox = require('UI/Components/ChatBox/ChatBox');
+					var msg = DB.getRandomJoke();
+					if(msg){
+						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+					}
 				}
-				
 			}
 		}],
 		
@@ -4762,14 +4764,16 @@ define(function( require )
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function( Params ){
-				var self = this;
-				var DB  = require('DB/DBManager');
-				var ChatBox = require('UI/Components/ChatBox/ChatBox');
-				var msg = DB.getRandomScream();
-				if(msg){
-					ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+				var Session = require('Engine/SessionStorage');
+				if(Params.Init.ownerAID == Session.Entity.GID){
+					var self = this;
+					var DB  = require('DB/DBManager');
+					var ChatBox = require('UI/Components/ChatBox/ChatBox');
+					var msg = DB.getRandomScream();
+					if(msg){
+						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
+					}
 				}
-				
 			}
 		}],
 		
