@@ -87,6 +87,7 @@ define( function( require )
 	 */
 	function walkToNonWalkableGround( from_x, from_y, to_x, to_y, range, isOverShoot = false, isGliding = false )
 	{
+		this.resetRoute();
 		var path  = this.walk.path;
 
 		if (isOverShoot) { //falcon overshoot
@@ -139,6 +140,7 @@ define( function( require )
 	 */
 	function walkTo( from_x, from_y, to_x, to_y, range )
 	{
+		this.resetRoute();
 		var path  = this.walk.path;
 		
 		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
@@ -158,21 +160,12 @@ define( function( require )
 			this.walk.tick =  this.walk.prevTick = Renderer.tick;
 			this.headDir   = 0;
 
-			if (this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON) { // Falcon use idle action to fly
-				this.setAction({
-					action: this.ACTION.WALK,
-					frame:  0,
-					repeat: true,
-					play:   true
-				});
-			} else {
-				this.setAction({
-					action: this.ACTION.IDLE,
-					frame:  0,
-					repeat: true,
-					play:   true
-				});
-			}
+			this.setAction({
+				action: this.ACTION.WALK,
+				frame:  0,
+				repeat: true,
+				play:   true
+			});
 		}
 	}
 
@@ -192,8 +185,11 @@ define( function( require )
 		var delay = 0;
 		var cellHeight;
 		var falconGliding = 5;
-	
-		if (this.action === this.ACTION.WALK || this.objecttype == this.constructor.TYPE_FALCON) {
+
+		if(this.objecttype == this.constructor.TYPE_FALCON && total == 0) 
+			return;
+
+		if (this.action === this.ACTION.WALK || this.objecttype === this.constructor.TYPE_FALCON) {
 
 			if (index < total) {
 				
@@ -262,7 +258,7 @@ define( function( require )
 			pos[0] = Math.round(pos[0]);
 			pos[1] = Math.round(pos[1]);
 			pos[2] = cellHeight;
-			
+			this.resetRoute();
 		} 
 		else {
 			if (index < total) { // Walking got interrupted by getting attacked or other means
@@ -273,6 +269,14 @@ define( function( require )
 		}
 	}
 
+	function resetRoute() {
+		this.tick  =  0;
+		this.prevTick = 0;
+		this.path  =  new Int16Array(PathFinding.MAX_WALKPATH * 2);
+		this.onEnd = null;
+		this.index =  0;
+		this.total =  0;
+	}
 
 	/**
 	 * Initialize and export methods
@@ -284,5 +288,6 @@ define( function( require )
 		this.walkTo      = walkTo;
 		this.walkProcess = walkProcess;
 		this.walkToNonWalkableGround = walkToNonWalkableGround;
+		this.resetRoute = resetRoute;
 	};
 });
