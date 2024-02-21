@@ -61,8 +61,8 @@ define(function( require )
 
 		if (Session.Entity.falconGID) {
 			var falcon = EntityManager.get(Session.Entity.falconGID);
-			falcon.speed = 200;
-			falcon.flyTo(
+			falcon.walk.speed = 200;
+			falcon.walkTo(
 				pkt.MoveData[0],
 				pkt.MoveData[1],
 				pkt.MoveData[2],

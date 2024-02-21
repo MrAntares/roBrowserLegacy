@@ -28,9 +28,6 @@ define( function( require )
 		[7,6,5]
 	];
 
-	var charOrigPos = []; //for falcon
-	var isFalconOs = false;
-
 
 	/**
 	 * Walk save structure
@@ -47,43 +44,35 @@ define( function( require )
 		this.total =  0;
 	}
 
-	function fixPathFlacon(from_x, from_y, to_x, to_y, path){
-
-		var addedCell = 5;
-		var cnt = 1;
-		for(var i = 0; i < path.length; ++i){
-
-			if(i == 0 && path[i] <= 0) return;
-
-			if(path[i] <= 0 && cnt <= addedCell){
-				var overshot = 0;
-				if(from_x > to_x && from_y > to_y){ //Quadrant 3
-					path[i] = path[i - 2] - 1; //y
-					path[i+1] = path[i - 1] - 1; //x
-				} else if(from_x < to_x && from_y > to_y){ //Quadrant 4
-					path[i] = path[i - 2] - 1; // y
-					path[i+1] = path[i - 1] + 1; // x
-				} else if(from_x < to_x && from_y < to_y){ //Quadrant 1
-					path[i] = path[i - 2] + 1; // y
-					path[i+1] = path[i - 1] + 1; // x
-				} else if(from_x > to_x && from_y < to_y){ //Quadrant 2
-					path[i] = path[i - 2] + 1; // y
-					path[i+1] = path[i - 1] - 1; // x
-				} else if (from_y < to_y) { // pure positve y position
-					to_y = to_y + overshot;
-				} else if(to_y < from_y){ // pure negative y position
-					to_y = to_y - overshot;
-				} else if(from_x < to_x){ // pure positve y position
-					to_x = to_x + overshot;
-				} else if(from_x > to_x){ // pure negative x position
-					to_x = to_x - overshot;
-				}
-
-				cnt++;
-			}
+	function calculateOverShot(from_x, from_y, to_x, to_y) {
+		var overshot = 5;
+		var over_x = to_x, over_y = to_y;
+		if (from_x > to_x && from_y > to_y) { //Quadrant 3
+			over_x = to_x - overshot;
+			over_y = to_y - overshot;
+		} else if (from_x < to_x && from_y > to_y) { //Quadrant 4
+			over_x = to_x + overshot;
+			over_y = to_y - overshot;
+		} else if (from_x < to_x && from_y < to_y) { //Quadrant 1
+			over_x = to_x + overshot;
+			over_y = to_y + overshot;
+		} else if (from_x > to_x && from_y < to_y) { //Quadrant 2
+			over_x = to_x - overshot;
+			over_y = to_y + overshot;
+		} else if (from_y < to_y) { // pure positve y position
+			over_x = to_x;
+			over_y = to_y + overshot;
+		} else if (to_y < from_y) { // pure negative y position
+			over_x = to_x;
+			over_y = to_y - overshot;
+		} else if (from_x < to_x) { // pure positve y position
+			over_x = to_x + overshot;
+			over_y = to_y;
+		} else if (from_x > to_x) { // pure negative x position
+			over_x = to_x - overshot;
+			over_y = to_y;
 		}
-
-		return path;
+		return [over_x, over_y];
 	}
 
 	/**
@@ -94,29 +83,31 @@ define( function( require )
 	 * @param {number} to_x
 	 * @param {number} to_y
 	 * @param {number} range optional
-	 * @param {bool} isEntBack optional if true entity is back to the original position
 	 * @param {bool} isOverShoot use for falcon
 	 */
-	function walkToNonWalkableGround( from_x, from_y, to_x, to_y, range, isEntBack = false, isOverShoot = false, )
+	function walkToNonWalkableGround( from_x, from_y, to_x, to_y, range, isOverShoot = false, isGliding = false )
 	{
 		var path  = this.walk.path;
-		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, true);
-		var overshot = 10;
 
-		if(this.objecttype == -6){
-			if(isOverShoot && !isEntBack){
-				charOrigPos = [from_x, from_y];
-				isFalconOs = true;
-			}
+		if (isOverShoot) { //falcon overshoot
+			var OverShootPosition = calculateOverShot(from_x, from_y, to_x, to_y);
+			to_x = OverShootPosition[0];
+			to_y = OverShootPosition[1];
 		}
+
+		var total = 0;
+		var result = PathFinding.searchLongIgnoreCellType( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, true);
+
+		if(result.success)
+			total = result.pathLength + 1
 
 		this.walk.index =     1 * 2; // skip first index
 		this.walk.total = total * 2;
-		if (total) {
+		if (total > 0) {
 			// Same position
 			if (total === 2 &&
 				path[this.walk.index+0] === from_x &&
-				path[this.walk.index+1] === from_y){
+				path[this.walk.index+1] === from_y) {
 				return;
 			}
 
@@ -124,67 +115,15 @@ define( function( require )
 			this.walk.tick =  this.walk.prevTick = Renderer.tick;
 			this.headDir   = 0;
 
-			if (this.objecttype != -6 && this.action !== this.ACTION.WALK) {
+			if (this.objecttype === this.constructor.TYPE_FALCON) {
+				var action = isGliding ? this.ACTION.WALK : this.ACTION.IDLE;
 				this.setAction({
-					action: this.ACTION.WALK,
+					action: action,
 					frame:  0,
 					repeat: true,
 					play:   true
 				});
 			}
-
-			if(this.objecttype == -6 && (this.action === this.ACTION.WALK || (this.action === 12 || this.action === 1))){
-				var act = (this.action == 12 || this.action == 1) ? isFalconOs ? this.ACTION.WALK : this.ACTION.IDLE : this.ACTION.IDLE;
-				this.setAction({
-					action: act,
-					frame:  0,
-					repeat: true,
-					play:   true
-				});
-
-				this.isGliding = true;
-			}
-		}
-
-		if(this.objecttype == -6 && isEntBack){ //falcon back
-			setTimeout(function(){
-				this.isGliding = false;
-				this.walk.speed = 30 ;
-				isFalconOs = false;
-				this.walkToNonWalkableGround(to_x, to_y, charOrigPos[0], charOrigPos[1], null, false, false);
-			}.bind(this), 200);
-		} else if(this.objecttype == -6 && isOverShoot){ //falcon overshoot
-			this.isGliding = true;
-
-			var over_x = 0,
-				over_y = 0;
-			if(from_x > to_x && from_y > to_y){ //Quadrant 3
-				over_x = to_x - overshot;
-				over_y = to_y - overshot;
-			} else if(from_x < to_x && from_y > to_y){ //Quadrant 4
-				over_x = to_x + overshot;
-				over_y = to_y - overshot;
-			} else if(from_x < to_x && from_y < to_y){ //Quadrant 1
-				over_x = to_x + overshot;
-				over_y = to_y + overshot;
-			} else if(from_x > to_x && from_y < to_y){ //Quadrant 2
-				over_x = to_x - overshot;
-				over_y = to_y + overshot;
-			} else if (from_y < to_y) { // pure positve y position
-				over_x = to_x;
-				over_y = to_y + overshot;
-			} else if(to_y < from_y){ // pure negative y position
-				over_x = to_x;
-				over_y = to_y - overshot;
-			} else if(from_x < to_x){ // pure positve y position
-				over_x = to_x + overshot;
-				over_y = to_y;
-			} else if(from_x > to_x){ // pure negative x position
-				over_x = to_x - overshot;
-				over_y = to_y;
-			}
-
-			this.walkToNonWalkableGround(to_x, to_y, over_x, over_y, null, true, false);
 		}
 	}
 
@@ -211,7 +150,7 @@ define( function( require )
 			// Same position
 			if (total === 2 &&
 				path[this.walk.index+0] === from_x &&
-				path[this.walk.index+1] === from_y){
+				path[this.walk.index+1] === from_y) {
 				return;
 			}
 
@@ -219,68 +158,20 @@ define( function( require )
 			this.walk.tick =  this.walk.prevTick = Renderer.tick;
 			this.headDir   = 0;
 
-			if (this.action !== this.ACTION.WALK) {
+			if (this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON) { // Falcon use idle action to fly
 				this.setAction({
 					action: this.ACTION.WALK,
 					frame:  0,
 					repeat: true,
 					play:   true
 				});
-			}
-		}
-	}
-
-
-	/**
-	 * Want to move to a cell
-	 *
-	 * @param {number} from_x
-	 * @param {number} from_y
-	 * @param {number} to_x
-	 * @param {number} to_y
-	 * @param {number} range optional
-	 * @param {bool} isEntBack optional if true entity is back to the original position
-	 */
-	function flyTo( from_x, from_y, to_x, to_y, range)
-	{
-		var path  = this.walk.path;
-		
-		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
-
-		this.walk.index =     1 * 2; // skip first index
-		this.walk.total = total * 2;
-
-		if (total) {
-			// Same position
-			if (total === 2 &&
-				path[this.walk.index+0] === from_x &&
-				path[this.walk.index+1] === from_y){
-				return;
-			}
-
-			this.walk.pos.set(this.position);
-			this.walk.tick =  this.walk.prevTick = Renderer.tick;
-			this.headDir   = 0;
-
-			if (this.action !== this.ACTION.WALK) {
+			} else {
 				this.setAction({
-					action: this.ACTION.WALK,
+					action: this.ACTION.IDLE,
 					frame:  0,
 					repeat: true,
 					play:   true
 				});
-			}
-
-			if((this.action === this.ACTION.WALK || (this.action === 12 || this.action === 1))){
-				var act = (this.action == 12 || this.action == 1) ? isFalconOs ? this.ACTION.WALK : this.ACTION.IDLE : this.ACTION.IDLE;
-				this.setAction({
-					action: act,
-					frame:  0,
-					repeat: true,
-					play:   true
-				});
-
-				this.isGliding = true;
 			}
 		}
 	}
@@ -301,16 +192,8 @@ define( function( require )
 		var delay = 0;
 		var cellHeight;
 		var falconGliding = 5;
-
-		if(this.objecttype == -6 && this.action == 1){
-			//this.falcon.walk.speed += this.falcon.walk.speed < 50 ? 2 : 5 ;
-			// this.falcon.walk.speed = 15 ;
-			if(this.isGliding){
-				falconGliding -= 1;
-			}
-		}
-		
-		if(this.action === this.ACTION.WALK || (this.objecttype == -6 && (this.action == this.ACTION.IDLE || this.action == 5))){
+	
+		if (this.action === this.ACTION.WALK || this.objecttype == this.constructor.TYPE_FALCON) {
 
 			if (index < total) {
 				
@@ -346,7 +229,7 @@ define( function( require )
 					delay = 150;
 				}
 
-				cellHeight = this.objecttype == -6 ? Altitude.getCellHeight( pos[0], pos[1] ) + falconGliding : Altitude.getCellHeight( pos[0], pos[1] );
+				cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( pos[0], pos[1] ) + falconGliding : Altitude.getCellHeight( pos[0], pos[1] );
 				pos[0] = walk.pos[0] + x / (speed / delay);
 				pos[1] = walk.pos[1] + y / (speed / delay);
 				pos[2] = cellHeight;
@@ -358,8 +241,8 @@ define( function( require )
 				}
 			}
 
-			if(this.objecttype != -6){
-				// Stop walking
+			// Stop walking
+			if(this.objecttype !== this.constructor.TYPE_FALCON) {
 				this.setAction({
 					action: this.ACTION.IDLE,
 					frame:  0,
@@ -375,14 +258,14 @@ define( function( require )
 				walk.onEnd();
 				walk.onEnd = null;
 			}
-			cellHeight = this.objecttype == -6 ? Altitude.getCellHeight( pos[0], pos[1] ) + 5 : Altitude.getCellHeight( pos[0], pos[1] );
+			cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( pos[0], pos[1] ) + 5 : Altitude.getCellHeight( pos[0], pos[1] );
 			pos[0] = Math.round(pos[0]);
 			pos[1] = Math.round(pos[1]);
 			pos[2] = cellHeight;
 			
 		} 
 		else {
-			if (index < total){ // Walking got interrupted by getting attacked or other means
+			if (index < total) { // Walking got interrupted by getting attacked or other means
 				this.walk.tick += TICK - this.walk.prevTick; // Offset walking by the time elapsed.
 				this.walk.prevTick = TICK; // Store tick
 			}
@@ -396,13 +279,10 @@ define( function( require )
 	 */
 	return function Init()
 	{
-		this.onWalkEnd   = function onWalkEnd(){};
+		this.onWalkEnd   = function onWalkEnd() {};
 		this.walk        = new WalkStructure();
 		this.walkTo      = walkTo;
-		this.flyTo      = flyTo;
 		this.walkProcess = walkProcess;
 		this.walkToNonWalkableGround = walkToNonWalkableGround;
-		this.fixPathFlacon = fixPathFlacon;
 	};
 });
-

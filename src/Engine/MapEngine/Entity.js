@@ -130,7 +130,7 @@ define(function( require )
 			EntityManager.add(entity);
 		}
 
-		if(pkt.effectState === StatusState.EffectState.FALCON && (pkt.job === 4012 || pkt.job === 11)){
+		if(pkt.effectState === StatusState.EffectState.FALCON && ([11,4012,4034,4056,4062,4098,4257].includes(pkt.job))){
 			var falcon = new Entity();
 			falcon.set({
 				objecttype: falcon.constructor.TYPE_FALCON,
@@ -262,7 +262,7 @@ define(function( require )
 			if(entity.falconGID){
 				var falcon = EntityManager.get(pkt.GID + '_FALCON');
 				falcon.walk.speed = 200; // check this?
-				falcon.flyTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
+				falcon.walkTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
 			}
 			entity.walkTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
 		}
@@ -296,7 +296,7 @@ define(function( require )
 			if(entity.falconGID) {
 				var falcon = EntityManager.get(pkt.AID + '_FALCON');
 				falcon.walk.speed = 200;
-				falcon.flyTo(
+				falcon.walkTo(
 					pkt.xPos,
 					pkt.yPos,
 					pkt.xPos,
@@ -1160,12 +1160,15 @@ define(function( require )
 				if(pkt.SKID == SkillId.HT_BLITZBEAT) {
 					falcon.action = srcEntity.action;
 		
-					falcon.walk.speed = 30;
+					falcon.walk.speed = 25;
 					falcon.walkToNonWalkableGround(
 						srcEntity.position[0],
 						srcEntity.position[1],
 						dstEntity.position[0],
 						dstEntity.position[1],
+						1,
+						true,
+						false,
 					);
 
 					setTimeout(function(){
@@ -1175,29 +1178,38 @@ define(function( require )
 							dstEntity.position[1],
 							srcEntity.position[0],
 							srcEntity.position[1],
+							1,
+							false,
+							false
 						);
-					}.bind(falcon), 200);
+					}.bind(falcon), 250);
 
 				} else if(pkt.SKID == SkillId.SN_FALCONASSAULT) {
 					falcon.action = srcEntity.action;
 
-					falcon.walk.speed = 45;
-					falcon.flyTo(
+					falcon.walk.speed = 25;
+					falcon.walkToNonWalkableGround(
 						srcEntity.position[0],
 						srcEntity.position[1],
 						dstEntity.position[0],
 						dstEntity.position[1],
+						1,
+						true,
+						true,
 					);
 
 					setTimeout(function(){
 						falcon.walk.speed = 200;
-						falcon.flyTo(
+						falcon.walkToNonWalkableGround(
 							dstEntity.position[0],
 							dstEntity.position[1],
 							srcEntity.position[0],
 							srcEntity.position[1],
+							1,
+							false,
+							false
 						);
-					}.bind(falcon), 200);
+					}.bind(falcon), 250);
 				}
 			}
 		}
@@ -1331,7 +1343,6 @@ define(function( require )
 
 		if(pkt.SKID == SkillId.HT_DETECTING && srcEntity.falconGID){
 			var falcon = EntityManager.get(srcEntity.GID + '_FALCON');
-			falcon.action = srcEntity.action;
 
 			falcon.walk.speed = 25;
 			falcon.walkToNonWalkableGround(
@@ -1339,10 +1350,23 @@ define(function( require )
 				srcEntity.position[1],
 				pkt.xPos,
 				pkt.yPos,
-				null,
-				false,
-				true, // is overshoot
+				1,
+				true,
+				true,
 			);
+
+			setTimeout(function(){
+				falcon.walk.speed = 200;
+				falcon.walkToNonWalkableGround(
+					pkt.xPos,
+					pkt.yPos,
+					srcEntity.position[0],
+					srcEntity.position[1],
+					1,
+					false,
+					false
+				);
+			}.bind(falcon), 250);
 		}
 
         // Only mob to don't display skill name ?
@@ -2121,8 +2145,8 @@ define(function( require )
 
 					if(pkt.targetGID >= 2000000 && dstEntity.objecttype === 0 && dstEntity.falconGID){
 						var falcon = EntityManager.get(dstEntity.GID + '_FALCON');
-						falcon.walk.speed = 45;
-						falcon.flyTo(
+						falcon.walk.speed = 25;
+						falcon.walkTo(
 							dstEntity.position[0],
 							dstEntity.position[1],
 							dstEntity.position[0],

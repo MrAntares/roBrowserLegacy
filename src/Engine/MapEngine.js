@@ -19,7 +19,6 @@ define(function( require )
 	 */
 	var jQuery           = require('Utils/jquery');
 	var DB               = require('DB/DBManager');
-	var StatusConst      = require('DB/Status/StatusState');
 	var Configs          = require('Core/Configs');
 	var SoundManager     = require('Audio/SoundManager');
 	var BGM              = require('Audio/BGM');
@@ -43,6 +42,7 @@ define(function( require )
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
+	var StatusConst        = require('DB/Status/StatusState');
 
 	if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 		var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
