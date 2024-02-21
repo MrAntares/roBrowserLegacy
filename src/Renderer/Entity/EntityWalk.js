@@ -44,6 +44,89 @@ define( function( require )
 		this.total =  0;
 	}
 
+	function calculateOverShot(from_x, from_y, to_x, to_y) {
+		var overshot = 5;
+		var over_x = to_x, over_y = to_y;
+		if (from_x > to_x && from_y > to_y) { //Quadrant 3
+			over_x = to_x - overshot;
+			over_y = to_y - overshot;
+		} else if (from_x < to_x && from_y > to_y) { //Quadrant 4
+			over_x = to_x + overshot;
+			over_y = to_y - overshot;
+		} else if (from_x < to_x && from_y < to_y) { //Quadrant 1
+			over_x = to_x + overshot;
+			over_y = to_y + overshot;
+		} else if (from_x > to_x && from_y < to_y) { //Quadrant 2
+			over_x = to_x - overshot;
+			over_y = to_y + overshot;
+		} else if (from_y < to_y) { // pure positve y position
+			over_x = to_x;
+			over_y = to_y + overshot;
+		} else if (to_y < from_y) { // pure negative y position
+			over_x = to_x;
+			over_y = to_y - overshot;
+		} else if (from_x < to_x) { // pure positve y position
+			over_x = to_x + overshot;
+			over_y = to_y;
+		} else if (from_x > to_x) { // pure negative x position
+			over_x = to_x - overshot;
+			over_y = to_y;
+		}
+		return [over_x, over_y];
+	}
+
+	/**
+	 * Want to move non walkable cell
+	 *
+	 * @param {number} from_x
+	 * @param {number} from_y
+	 * @param {number} to_x
+	 * @param {number} to_y
+	 * @param {number} range optional
+	 * @param {bool} isOverShoot use for falcon
+	 */
+	function walkToNonWalkableGround( from_x, from_y, to_x, to_y, range, isOverShoot = false, isGliding = false )
+	{
+		var path  = this.walk.path;
+
+		if (isOverShoot) { //falcon overshoot
+			var OverShootPosition = calculateOverShot(from_x, from_y, to_x, to_y);
+			to_x = OverShootPosition[0];
+			to_y = OverShootPosition[1];
+		}
+
+		var total = 0;
+		var result = PathFinding.searchLongIgnoreCellType( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, true);
+
+		if(result.success)
+			total = result.pathLength + 1
+
+		this.walk.index =     1 * 2; // skip first index
+		this.walk.total = total * 2;
+		if (total > 0) {
+			// Same position
+			if (total === 2 &&
+				path[this.walk.index+0] === from_x &&
+				path[this.walk.index+1] === from_y) {
+				return;
+			}
+
+			this.walk.pos.set(this.position);
+			this.walk.tick =  this.walk.prevTick = Renderer.tick;
+			this.headDir   = 0;
+
+			if (this.objecttype === this.constructor.TYPE_FALCON) {
+				var action = isGliding ? this.ACTION.WALK : this.ACTION.IDLE;
+				this.setAction({
+					action: action,
+					frame:  0,
+					repeat: true,
+					play:   true
+				});
+			}
+		}
+	}
+
 
 	/**
 	 * Want to move to a cell
@@ -67,7 +150,7 @@ define( function( require )
 			// Same position
 			if (total === 2 &&
 				path[this.walk.index+0] === from_x &&
-				path[this.walk.index+1] === from_y){
+				path[this.walk.index+1] === from_y) {
 				return;
 			}
 
@@ -75,9 +158,16 @@ define( function( require )
 			this.walk.tick =  this.walk.prevTick = Renderer.tick;
 			this.headDir   = 0;
 
-			if (this.action !== this.ACTION.WALK) {
+			if (this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON) { // Falcon use idle action to fly
 				this.setAction({
 					action: this.ACTION.WALK,
+					frame:  0,
+					repeat: true,
+					play:   true
+				});
+			} else {
+				this.setAction({
+					action: this.ACTION.IDLE,
 					frame:  0,
 					repeat: true,
 					play:   true
@@ -85,7 +175,6 @@ define( function( require )
 			}
 		}
 	}
-
 
 	/**
 	 * Process walking
@@ -101,9 +190,11 @@ define( function( require )
 		var x, y, speed;
 		var TICK = Renderer.tick;
 		var delay = 0;
-		
-		if(this.action === this.ACTION.WALK){
-			
+		var cellHeight;
+		var falconGliding = 5;
+	
+		if (this.action === this.ACTION.WALK || this.objecttype == this.constructor.TYPE_FALCON) {
+
 			if (index < total) {
 				
 				// Calculate new position, base on time and walk speed.
@@ -138,9 +229,10 @@ define( function( require )
 					delay = 150;
 				}
 
+				cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( pos[0], pos[1] ) + falconGliding : Altitude.getCellHeight( pos[0], pos[1] );
 				pos[0] = walk.pos[0] + x / (speed / delay);
 				pos[1] = walk.pos[1] + y / (speed / delay);
-				pos[2] = Altitude.getCellHeight( pos[0], pos[1] );
+				pos[2] = cellHeight;
 
 				// Update player direction while walking
 				if (index < total) {
@@ -150,12 +242,14 @@ define( function( require )
 			}
 
 			// Stop walking
-			this.setAction({
-				action: this.ACTION.IDLE,
-				frame:  0,
-				play:   true,
-				repeat: true
-			});
+			if(this.objecttype !== this.constructor.TYPE_FALCON) {
+				this.setAction({
+					action: this.ACTION.IDLE,
+					frame:  0,
+					play:   true,
+					repeat: true
+				});
+			}
 
 			this.onWalkEnd();
 
@@ -164,14 +258,14 @@ define( function( require )
 				walk.onEnd();
 				walk.onEnd = null;
 			}
-
-
+			cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( pos[0], pos[1] ) + 5 : Altitude.getCellHeight( pos[0], pos[1] );
 			pos[0] = Math.round(pos[0]);
 			pos[1] = Math.round(pos[1]);
-			pos[2] = Altitude.getCellHeight( pos[0], pos[1] );
+			pos[2] = cellHeight;
 			
-		} else {
-			if (index < total){ // Walking got interrupted by getting attacked or other means
+		} 
+		else {
+			if (index < total) { // Walking got interrupted by getting attacked or other means
 				this.walk.tick += TICK - this.walk.prevTick; // Offset walking by the time elapsed.
 				this.walk.prevTick = TICK; // Store tick
 			}
@@ -185,10 +279,10 @@ define( function( require )
 	 */
 	return function Init()
 	{
-		this.onWalkEnd   = function onWalkEnd(){};
+		this.onWalkEnd   = function onWalkEnd() {};
 		this.walk        = new WalkStructure();
 		this.walkTo      = walkTo;
 		this.walkProcess = walkProcess;
+		this.walkToNonWalkableGround = walkToNonWalkableGround;
 	};
 });
-

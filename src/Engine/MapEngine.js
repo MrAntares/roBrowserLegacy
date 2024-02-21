@@ -42,6 +42,7 @@ define(function( require )
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
+	var StatusConst        = require('DB/Status/StatusState');
 
 	if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 		var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
@@ -413,6 +414,21 @@ define(function( require )
 				GID: Session.Character.GID
 			});
 			EntityManager.add( Session.Entity );
+			if(Session.Entity.effectState & StatusConst.EffectState.FALCON) {
+				var falcon = new Entity();
+				falcon.set({
+					objecttype: falcon.constructor.TYPE_FALCON,
+					GID: Session.Entity.GID + '_FALCON',
+					PosDir: [Session.Entity.position[0], Session.Entity.position[1], 0],
+					job: Session.Entity.job + '_FALCON',
+					speed: 200,
+					name: "",
+					hp: -1,
+					maxhp: -1,
+				});
+				EntityManager.add(falcon);
+				Session.Entity.falconGID = falcon.GID;
+			}
 			// free and load aura so it loads in new map
 			Session.Entity.aura.free();
 			Session.Entity.aura.load(EffectManager);

@@ -58,6 +58,17 @@ define(function( require )
 			pkt.MoveData[2],
 			pkt.MoveData[3]
 		);
+
+		if (Session.Entity.falconGID) {
+			var falcon = EntityManager.get(Session.Entity.falconGID);
+			falcon.walk.speed = 200;
+			falcon.walkTo(
+				pkt.MoveData[0],
+				pkt.MoveData[1],
+				pkt.MoveData[2],
+				pkt.MoveData[3]
+			);
+		}
 	}
 
 

@@ -63,7 +63,7 @@ define( function( require )
 	/**
 	 * Constantes
 	 */
-
+	Entity.TYPE_FALCON    = -6;
 	Entity.TYPE_EFFECT    = -5;
 	Entity.TYPE_UNKNOWN   = -4;
 	Entity.TYPE_UNIT      = -3;
@@ -108,6 +108,7 @@ define( function( require )
 	Entity.PickingPriority.Normal[Entity.TYPE_UNIT]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_EFFECT]=		-1;
+	Entity.PickingPriority.Normal[Entity.TYPE_FALCON]=		-1;
 
 	Entity.PickingPriority.Support = {};
 	Entity.PickingPriority.Support[Entity.TYPE_PC]=			3;
@@ -127,6 +128,7 @@ define( function( require )
 	Entity.PickingPriority.Support[Entity.TYPE_UNIT]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_EFFECT]=		-1;
+	Entity.PickingPriority.Support[Entity.TYPE_FALCON]=		-1;
 
 
 	/**
@@ -192,6 +194,8 @@ define( function( require )
 	Entity.prototype.targetGID    = 0;
 
 	Entity.prototype.isOverWeight = false;
+
+	Entity.prototype.falconGID = null;
 
 	/**
 	 * Initialized Entity data
@@ -352,6 +356,7 @@ define( function( require )
 		this.remove_tick  = 0;
 		this.remove_delay = 0;
 
+		this.falconGID = null;
 		// Aviod conflict if entity re-appears. Official sets it to -1
 		this.GID += Math.random();
 	};
