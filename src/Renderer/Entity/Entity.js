@@ -196,6 +196,7 @@ define( function( require )
 	Entity.prototype.isOverWeight = false;
 
 	Entity.prototype.falconGID = null;
+	Entity.prototype.hideShadow = false;
 
 	/**
 	 * Initialized Entity data
@@ -320,6 +321,9 @@ define( function( require )
 					this.robe = unit.Robe;
 					break;
 
+				case 'hideShadow':
+					this.hideShadow = unit.hideShadow;
+
 				default:
 					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty('_' + keys[i])) {
 						this[keys[i]] = unit[keys[i]];
@@ -392,18 +396,21 @@ define( function( require )
 
 			case Entity.VT.DEAD:
 				var is_pc = this.objecttype === Entity.TYPE_PC;
-				this.setAction({
-					action: this.ACTION.DIE,
-					repeat: is_pc,
-					play:   true,
-					frame:  0,
-					next:   false
-				});
+				var is_falcon = this.objecttype === Entity.TYPE_FALCON;
+				if(!is_falcon) {
+					this.setAction({
+						action: this.ACTION.DIE,
+						repeat: is_pc,
+						play:   true,
+						frame:  0,
+						next:   false
+					});
 
-				if (!is_pc) {
-					this.clean();
-					this.remove_tick  = +Renderer.tick;
-					this.remove_delay = 5000;
+					if (!is_pc) {
+						this.clean();
+						this.remove_tick  = +Renderer.tick;
+						this.remove_delay = 5000;
+					}
 				}
 				break;
 

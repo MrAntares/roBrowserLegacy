@@ -141,6 +141,7 @@ define(function( require )
 				name: "",
 				hp: -1,
 				maxhp: -1,
+				hideShadow: true,
 			});
 			EntityManager.add(falcon);
 			entity.falconGID = falcon.GID;
@@ -215,21 +216,25 @@ define(function( require )
 						}
 							EffectManager.spam( EF_Init_Par );
 					}
-				
+					if(entity.falconGID) {
+						entity.falconGID = null;
+						var falcon = EntityManager.get(pkt.GID + '_FALCON');
+						falcon.remove( pkt.type );
+					}
+
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
+					if(entity.falconGID) {
+						entity.falconGID = null;
+						var falcon = EntityManager.get(pkt.GID + '_FALCON');
+						falcon.remove( pkt.type );
+					}
 
 				case Entity.VT.DEAD:
 					// remove aura on non-PC death
 					if (entity.objecttype !== Entity.TYPE_PC) {
 						entity.aura.remove( EffectManager );
 					}
-			}
-
-			if(entity.falconGID) {
-				entity.falconGID = null;
-				var falcon = EntityManager.get(pkt.GID + '_FALCON');
-				falcon.remove( pkt.type );
 			}
 
 			entity.remove( pkt.type );
@@ -259,12 +264,12 @@ define(function( require )
 			//entity.position[0] = pkt.MoveData[0];
 			//entity.position[1] = pkt.MoveData[1];
 			//entity.position[2] = Altitude.getCellHeight(  pkt.MoveData[0],  pkt.MoveData[1] );
+			entity.walkTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
 			if(entity.falconGID){
 				var falcon = EntityManager.get(pkt.GID + '_FALCON');
 				falcon.walk.speed = 200; // check this?
-				falcon.walkTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
+				falcon.walkToNonWalkableGround( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
 			}
-			entity.walkTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
 		}
 	}
 
@@ -281,8 +286,8 @@ define(function( require )
 			entity.position[0] = pkt.xPos;
 			entity.position[1] = pkt.yPos;
 			entity.position[2] = Altitude.getCellHeight( pkt.xPos,  pkt.yPos );
-			
-			entity.walk.index = entity.walk.total;
+
+			entity.resetRoute();
 
 			if (entity.action === entity.ACTION.WALK) {
 				entity.setAction({
@@ -296,7 +301,7 @@ define(function( require )
 			if(entity.falconGID) {
 				var falcon = EntityManager.get(pkt.AID + '_FALCON');
 				falcon.walk.speed = 200;
-				falcon.walkTo(
+				falcon.walkToNonWalkableGround(
 					pkt.xPos,
 					pkt.yPos,
 					pkt.xPos,
@@ -1166,7 +1171,7 @@ define(function( require )
 						srcEntity.position[1],
 						dstEntity.position[0],
 						dstEntity.position[1],
-						1,
+						0,
 						true,
 						false,
 					);
@@ -1178,7 +1183,7 @@ define(function( require )
 							dstEntity.position[1],
 							srcEntity.position[0],
 							srcEntity.position[1],
-							1,
+							0,
 							false,
 							false
 						);
@@ -1193,7 +1198,7 @@ define(function( require )
 						srcEntity.position[1],
 						dstEntity.position[0],
 						dstEntity.position[1],
-						1,
+						0,
 						true,
 						true,
 					);
@@ -1205,7 +1210,7 @@ define(function( require )
 							dstEntity.position[1],
 							srcEntity.position[0],
 							srcEntity.position[1],
-							1,
+							0,
 							false,
 							false
 						);
@@ -1350,7 +1355,7 @@ define(function( require )
 				srcEntity.position[1],
 				pkt.xPos,
 				pkt.yPos,
-				1,
+				0,
 				true,
 				true,
 			);
@@ -1362,7 +1367,7 @@ define(function( require )
 					pkt.yPos,
 					srcEntity.position[0],
 					srcEntity.position[1],
-					1,
+					0,
 					false,
 					false
 				);
@@ -1554,6 +1559,7 @@ define(function( require )
 						name: "",
 						hp: -1,
 						maxhp: -1,
+						hideShadow: true,
 					});
 					EntityManager.add(falcon);
 					entity.falconGID = falcon.GID;
@@ -1902,6 +1908,7 @@ define(function( require )
 				name: "",
 				hp: -1,
 				maxhp: -1,
+				hideShadow: true,
 			});
 			EntityManager.add(falcon);
 			entity.falconGID = falcon.GID;
@@ -2146,7 +2153,7 @@ define(function( require )
 					if(pkt.targetGID >= 2000000 && dstEntity.objecttype === 0 && dstEntity.falconGID){
 						var falcon = EntityManager.get(dstEntity.GID + '_FALCON');
 						falcon.walk.speed = 25;
-						falcon.walkTo(
+						falcon.walkToNonWalkableGround(
 							dstEntity.position[0],
 							dstEntity.position[1],
 							dstEntity.position[0],
@@ -2164,6 +2171,8 @@ define(function( require )
 					Events.setTimeout( impendingAttack, pkt.attackMT + ((C_MULTIHIT_DELAY*1.75) * i) );
 				}
 			}
+
+			dstEntity.resetRoute();
 		}
 	}
 

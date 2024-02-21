@@ -425,6 +425,7 @@ define(function( require )
 					name: "",
 					hp: -1,
 					maxhp: -1,
+					hideShadow: true,
 				});
 				EntityManager.add(falcon);
 				Session.Entity.falconGID = falcon.GID;
