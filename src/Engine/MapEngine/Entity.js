@@ -24,7 +24,8 @@ define(function( require )
 	var SkillActionTable  = require('DB/Skills/SkillAction');
 	var EffectConst       = require('DB/Effects/EffectConst');
 	var PetMessageConst   = require('DB/Pets/PetMessageConst');
-	var JobConst   		  = require('DB/Jobs/JobConst');
+	var JobId 		      = require('DB/Jobs/JobConst');
+	var WeaponType        = require('DB/Items/WeaponType');
 	var Sound             = require('Audio/SoundManager');
 	var Events            = require('Core/Events');
 	var Guild             = require('Engine/MapEngine/Guild');
@@ -98,6 +99,9 @@ define(function( require )
 			];
 
 	const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
+	const AVG_ATTACK_SPEED = 432;
+	const AVG_ATTACKED_SPEED = 288;
+	const MAX_ATTACKMT = AVG_ATTACK_SPEED*2;
 
 	/**
 	 * Spam an entity on the map
@@ -146,7 +150,75 @@ define(function( require )
 			EntityManager.add(falcon);
 			entity.falconGID = falcon.GID;
 		}
-		
+
+		//check dual weapon
+		if(entity.objecttype === Entity.TYPE_PC){
+			if(
+				entity.job == JobId.ASSASSIN ||
+				entity.job == JobId.ASSASSIN_H ||
+				entity.job == JobId.ASSASSIN_B ||
+				entity.job == JobId.GUILLOTINE_CROSS ||
+				entity.job == JobId.GUILLOTINE_CROSS_H ||
+				entity.job == JobId.GUILLOTINE_CROSS_B ||
+				entity.job == JobId.SHADOW_CROSS
+			){
+				// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
+				// so we have to swap it. maybe have a better solution.
+				if(!pkt.weapon && pkt.shield && !DB.isShield(pkt.shield)){
+					pkt.weapon = pkt.shield;
+					pkt.shield = 0;
+				}
+
+				if(!DB.isShield(pkt.shield) && pkt.weapon){
+					let _weapon = DB.getWeaponViewID(pkt.weapon);
+					let _shield = DB.getWeaponViewID(pkt.shield);
+
+					if(_weapon === WeaponType.KATAR){
+						_shield = _weapon;
+					}
+					if(_weapon < WeaponType.MAX && _weapon >= WeaponType.SHORTSWORD_SHORTSWORD){
+						_shield = 0;
+					}
+					const viewId = _weapon+_shield;
+					switch(viewId){
+						case 2:
+							entity.weapon = WeaponType.SHORTSWORD_SHORTSWORD;
+							break;
+						case 3:
+							entity.weapon = WeaponType.SHORTSWORD_SWORD;
+							break;
+						case 4:
+							entity.weapon = WeaponType.SWORD_SWORD;
+							break;
+						case 7:
+							entity.weapon = WeaponType.SHORTSWORD_AXE;
+							break;
+						case 8:
+							entity.weapon = WeaponType.SWORD_AXE;
+							break;
+						case 12:
+							entity.weapon = WeaponType.AXE_AXE;
+							break;
+						default:
+							entity.weapon = viewId;
+							break;
+					}
+					entity.shield = 0;
+				}else{
+					if(DB.getWeaponViewID(pkt.weapon) == WeaponType.KATAR){
+						entity.weapon = pkt.weapon;
+						entity.shield = pkt.weapon;
+					}else{
+						entity.weapon = pkt.weapon;
+						entity.shield = pkt.shield;
+					}
+				}
+			}else{
+				entity.weapon = pkt.weapon;
+				entity.shield = pkt.shield;
+			}
+		}
+
 		if(entity.objecttype === Entity.TYPE_PC &&
 			!(entity._effectState & StatusState.EffectState.INVISIBLE) &&
 			(pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY3
@@ -438,6 +510,15 @@ define(function( require )
             case 10: // critital [DMG_CRITICAL]
 			case 11: // lucky
 			case 13: // multi-hit critical
+				if(pkt.attackMT > MAX_ATTACKMT){
+					pkt.attackMT = MAX_ATTACKMT;
+				}
+				srcEntity.attack_speed = pkt.attackMT;
+
+				let animSpeed = 0;
+				let soundTime = 0;
+				let delayTime = pkt.attackMT;
+
 				var WSnd = DB.getWeaponSound(srcWeapon);
 				var weaponSound = WSnd ? WSnd[0] : false;
 				var weaponSoundRelease = WSnd ? WSnd[1] : false;
@@ -446,29 +527,44 @@ define(function( require )
 				var weaponSoundLeft = WSndL ? WSndL[0] : false;
 				var weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;
 
-				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
-				if (weaponSound && weaponSound.includes('bow')) {
-					var EF_Init_Par = {
-						effectId: 'ef_arrow_projectile',
-						ownerAID: dstEntity.GID,
-						otherAID: srcEntity.GID,
-						otherPosition: srcEntity.position
-					};
-					
-					EffectManager.spam( EF_Init_Par );
+				if (srcEntity.objecttype === Entity.TYPE_PC) {
+					const factorOfmotionSpeed = pkt.attackMT / AVG_ATTACK_SPEED;
+					const isDualWeapon = DB.isDualWeapon(srcEntity._job, srcEntity._sex, srcEntity.weapon);
+					let m_attackMotion = DB.getPCAttackMotion(srcEntity._job, srcEntity._sex, srcEntity.weapon, isDualWeapon);
+					let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action); [MrUnzO]
+					if (m_motionSpeed < 1) m_motionSpeed = 1;
+					m_motionSpeed *= factorOfmotionSpeed;
+
+					soundTime = delayTime = m_attackMotion * m_motionSpeed * 24.0;
+					animSpeed = pkt.attackMT / m_attackMotion;
+
+					// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
+					if (DB.getWeaponType(srcEntity.weapon) == WeaponType.BOW) {
+						delayTime = (m_attackMotion + (8/m_motionSpeed)) * m_motionSpeed * 24.0;
+						pkt.attackMT += delayTime;
+						var EF_Init_Par = {
+							effectId: 'ef_arrow_projectile',
+							ownerAID: dstEntity.GID,
+							otherAID: srcEntity.GID,
+							startTick: Renderer.tick + pkt.attackMT,
+							otherPosition: srcEntity.position
+						};
+						EffectManager.spam( EF_Init_Par );
+					}
+
 				}
 
 				//attack sound
 				if(weaponSound){
 					Events.setTimeout(function(){
-						Sound.play(weaponSound);
-						}, 0 );
+						Sound.playPosition(weaponSound, srcEntity.position);
+					}, soundTime * 2 );
 				}
 				//attack release sound for bow and dagger
 				if(weaponSoundRelease){
 					Events.setTimeout(function(){
-						Sound.play(weaponSoundRelease);
-						}, pkt.attackMT * 0.25 );
+						Sound.playPosition(weaponSoundRelease, srcEntity.position);
+						}, delayTime * 2 );
 				}
 
 				//second hit (double attack)
@@ -536,7 +632,7 @@ define(function( require )
 							case 4: // regular damage (endure)
 								Damage.add( pkt.damage, target, Renderer.tick + pkt.attackMT, srcWeapon, type );
 								if(pkt.leftDamage){
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeapon, type );
 								}
 								break;
 
@@ -553,7 +649,7 @@ define(function( require )
 									}
 									if(pkt.leftDamage){
 										Damage.add(	pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, Damage.TYPE.COMBO );
-										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeaponLeft, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
+										Damage.add(	pkt.damage + pkt.leftDamage, dstEntity, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75),	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									} else {
 										Damage.add( pkt.damage, dstEntity, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY,	srcWeapon, Damage.TYPE.COMBO | Damage.TYPE.COMBO_FINAL );
 									}
@@ -566,7 +662,7 @@ define(function( require )
 								}
 								if(pkt.leftDamage){
 									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY/2), srcWeapon, type );
-									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeaponLeft, type );
+									Damage.add( pkt.leftDamage, target, Renderer.tick + pkt.attackMT + (C_MULTIHIT_DELAY*1.75), srcWeapon, type );
 								} else {
 									Damage.add(	pkt.damage / div, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, type );
 								}
@@ -595,13 +691,15 @@ define(function( require )
 				
 				
 				if(pkt.leftDamage){
+					// KAGEROU, OBORO does not use ATTCK3 for left
+					const useATTACK = (srcEntity.job == JobId.KAGEROU || srcEntity.job == JobId.KAGEROU_B || srcEntity.job == JobId.OBORO || srcEntity.job == JobId.OBORO_B);
 					srcEntity.setAction({
-						action: srcEntity.ACTION.ATTACK3,
+						action: useATTACK ? srcEntity.ACTION.ATTACK : srcEntity.ACTION.ATTACK3,
 						frame:  0,
 						repeat: false,
 						play:   true,
 						next: {
-							delay:  Renderer.tick + pkt.attackMT,
+							delay: Renderer.tick + pkt.attackMT + delayTime,
 							action: srcEntity.ACTION.READYFIGHT,
 							frame:  0,
 							repeat: true,
@@ -612,6 +710,7 @@ define(function( require )
 				} else {
 					srcEntity.setAction({
 						action: srcEntity.ACTION.ATTACK,
+						speed: animSpeed,
 						frame:  0,
 						repeat: false,
 						play:   true,
@@ -921,8 +1020,74 @@ define(function( require )
 				// stored in a long value (uint16 and uint16 in uint32)
 				// source: https://github.com/rathena/rathena/blob/master/src/map/clif.c#L3162
 				if (pkt instanceof PACKET.ZC.SPRITE_CHANGE2) {
-					entity.shield = pkt.value >> 16;
-					entity.weapon = pkt.value & 0x00FFFF;
+					if(
+						entity.job == JobId.ASSASSIN ||
+						entity.job == JobId.ASSASSIN_H ||
+						entity.job == JobId.ASSASSIN_B ||
+						entity.job == JobId.GUILLOTINE_CROSS ||
+						entity.job == JobId.GUILLOTINE_CROSS_H ||
+						entity.job == JobId.GUILLOTINE_CROSS_B
+					){
+						// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
+						// so we have to swap it. maybe have a better solution.
+						if(!pkt.value && pkt.value2 && !DB.isShield(pkt.value2)){
+							pkt.value = pkt.value2;
+							pkt.value2 = 0;
+						}
+
+						if(!DB.isShield(pkt.value2) && pkt.value){
+							let _weapon = DB.getWeaponViewID(pkt.value);
+							let _shield = DB.getWeaponViewID(pkt.value2);
+
+							if(_weapon === WeaponType.KATAR){
+								_shield = _weapon;
+							}
+
+							if(_weapon < WeaponType.MAX && _weapon >= WeaponType.SHORTSWORD_SHORTSWORD){
+								_shield = 0;
+							}
+							const viewId = _weapon+_shield;
+							switch(viewId){
+								case 2:
+									entity.weapon = WeaponType.SHORTSWORD_SHORTSWORD;
+									break;
+								case 3:
+									entity.weapon = WeaponType.SHORTSWORD_SWORD;
+									break;
+								case 4:
+									entity.weapon = WeaponType.SWORD_SWORD;
+									break;
+								case 7:
+									entity.weapon = WeaponType.SHORTSWORD_AXE;
+									break;
+								case 8:
+									entity.weapon = WeaponType.SWORD_AXE;
+									break;
+								case 12:
+									entity.weapon = WeaponType.AXE_AXE;
+									break;
+								default:
+									entity.weapon = viewId;
+									break;
+							}
+							entity.shield = 0;
+						}else{
+							if(DB.getWeaponViewID(pkt.value) == WeaponType.KATAR){
+								entity.weapon = pkt.value;
+								entity.shield = pkt.value;
+							}else{
+								entity.weapon = pkt.value;
+								entity.shield = pkt.value2;
+							}
+						}
+					}else{
+						entity.weapon = pkt.value;
+						entity.shield = pkt.value2;
+
+						// was this working before?
+						// entity.shield = pkt.value >> 16;
+						// entity.weapon = pkt.value & 0x00FFFF;
+					}
 				}
 				else {
 					entity.weapon = pkt.value;
@@ -1222,7 +1387,7 @@ define(function( require )
 		if (dstEntity) {
 			var target = pkt.damage ? dstEntity : srcEntity;
 
-			if (target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
+			if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 				
 				// Will be hit actions
 				onEntityWillBeHitSub( pkt, dstEntity );
@@ -1236,7 +1401,7 @@ define(function( require )
 						EffectManager.spamSkillHit( pkt.SKID, pkt.targetID, startTick, pkt.AID);
 					}
 						
-					if(!isCombo && isBlueCombo && pkt.damage){ // Blue 'crit' non-combo EG: Rampage Blaster that hits
+					if(!isCombo && isBlueCombo){ // Blue 'crit' non-combo EG: Rampage Blaster that hits
 						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | ( (i+1) === pkt.count ? Damage.TYPE.COMBO_FINAL : 0 ) );
 					} else {
 						Damage.add( pkt.damage / pkt.count, target, startTick, srcWeapon); // Normal
@@ -1244,7 +1409,7 @@ define(function( require )
 	
 					// Only display combo if the target is not entity and
 					// there are multiple attacks and actually hits
-					if (isCombo && pkt.damage) {
+					if (isCombo) {
 						Damage.add(
 							pkt.damage / pkt.count * (i+1),
 							target,
