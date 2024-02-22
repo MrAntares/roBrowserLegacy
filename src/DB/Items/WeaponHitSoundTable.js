@@ -16,7 +16,7 @@ define(["./WeaponType"], function( WeaponType )
 	var WeaponSound = {};
 
 	WeaponSound[WeaponType.NONE]                  = ["_hit_fist1.wav", "_hit_fist2.wav", "_hit_fist3.wav", "_hit_fist4.wav"];
-	WeaponSound[WeaponType.SHORTSWORD]            = ["_hit_sword.wav"];
+	WeaponSound[WeaponType.SHORTSWORD]            = ["_hit_dagger.wav"];
 	WeaponSound[WeaponType.SWORD]                 = ["_hit_sword.wav"];
 	WeaponSound[WeaponType.TWOHANDSWORD]          = ["_hit_sword.wav"];
 	WeaponSound[WeaponType.SPEAR]                 = ["_hit_spear.wav"];
@@ -27,7 +27,7 @@ define(["./WeaponType"], function( WeaponType )
 	WeaponSound[WeaponType.TWOHANDMACE]           = ["_hit_mace.wav"];
 	WeaponSound[WeaponType.ROD]                   = ["_hit_rod.wav"];
 	WeaponSound[WeaponType.BOW]                   = ["_hit_arrow.wav"];
-	WeaponSound[WeaponType.KNUKLE]                = ["_hit_mace.wav"];
+	WeaponSound[WeaponType.KNUKLE]                = ["_HIT_FIST2.wav"];
 	WeaponSound[WeaponType.INSTRUMENT]            = ["_hit_mace.wav"];
 	WeaponSound[WeaponType.WHIP]                  = ["_hit_mace.wav"];
 	WeaponSound[WeaponType.BOOK]                  = ["_hit_mace.wav"];
