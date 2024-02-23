@@ -273,7 +273,6 @@
 		 var singleMatUsed = false;
 		 this.material.forEach(item => { if(validSingleMaterials.includes(item.ITID)){ singleMatUsed = true; } });
 		 
-		 console.log([this.material,singleMatUsed])
          if( this.material.length < 3 && (validMultipleMaterials.includes(item.ITID) || (validSingleMaterials.includes(item.ITID) && !singleMatUsed) )){
              if (this.addItemSub(item)) {
 				 switch(from)

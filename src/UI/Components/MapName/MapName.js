@@ -101,9 +101,9 @@ define(function(require)
 		_newMap = (_currMap !== _prevMap);
 		
         _mapinfo = DB.getMapInfo(mapname.replace('.gat', '.rsw'));
-		console.log('Mapinfo:', _mapinfo);
-		
+
 		/*
+		console.log('Mapinfo:', _mapinfo);
 		console.log('bg:%s, subtitle:%s, title:%s', _mapinfo.backgroundBmp, _mapinfo.signName.subTitle, _mapinfo.signName.mainTitle );
 		*/
 		if ( _mapinfo && _mapinfo.backgroundBmp ) {

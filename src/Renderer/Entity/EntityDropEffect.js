@@ -51,7 +51,6 @@ define(['DB/Effects/EffectConst'], function(EffectConst)
 		if(this.entity.isVisible()) {
 			// drop effect is already loaded
 			if(!this.isLoaded) {
-				console.log(this.entity.position[2]);
 				// add drop effect
 				effectManager.spam( {
 					ownerAID: this.entity.GID,
