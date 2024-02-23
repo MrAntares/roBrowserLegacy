@@ -279,7 +279,7 @@ define(function(require)
 
 		if (select[0].id === "human") {
 			Client.loadFile( marker, function(dataURI) {
-				CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'url(' + dataURI + ')');console.log('loaded');
+				CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'url(' + dataURI + ')');
             });
 			CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'none');
 			race = RACE.HUMAN;
@@ -288,7 +288,7 @@ define(function(require)
 		if (select[0].id === "doram") {
 			CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'none');
 			Client.loadFile( marker, function(dataURI) {
-				CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'url(' + dataURI + ')');console.log('loaded');
+				CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'url(' + dataURI + ')');
             });
 			race = RACE.DORAM;
 		}
@@ -369,13 +369,13 @@ define(function(require)
 				
 				if (_model.entity.job === RACE.HUMAN) {
 					Client.loadFile( RACE_MARK, function(dataURI) {
-						CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'url(' + dataURI + ')');console.log('loaded');
+						CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'url(' + dataURI + ')');
 					});
 					CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'none');
 				} else {
 					CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'none');
 					Client.loadFile( RACE_MARK, function(dataURI) {
-						CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'url(' + dataURI + ')');console.log('loaded');
+						CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'url(' + dataURI + ')');
 					});
 				}
 				

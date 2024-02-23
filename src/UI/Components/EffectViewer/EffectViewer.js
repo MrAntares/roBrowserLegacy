@@ -212,7 +212,6 @@ define(function (require) {
 
 		// Check for double click (reset angle and zoom)
 		// if (action.tick + 500 > tick) {
-		console.log("aaaa");
 		this.angleFinal[1] = 0.0;
 		action.x = Mouse.screen.x;
 		action.y = Mouse.screen.y;

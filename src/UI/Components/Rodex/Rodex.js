@@ -156,9 +156,6 @@ define(function (require) {
 		if (mail_list.length == 0) return;
 		let start = Rodex.pageSize * Rodex.page;
 
-		console.log(start);
-		console.log(mail_list);
-
 		let total = 0;
 		for (let i = start; total < Rodex.pageSize && i < mail_list.length; i++) {
 			let mail = mail_list[i];
