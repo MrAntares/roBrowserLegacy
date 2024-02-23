@@ -19,6 +19,7 @@ define(function(require)
 	var Client           = require('Core/Client');
 	var TextEncoding     = require('Vendors/text-encoding');
 	var fengari          = require('Vendors/fengari-web');
+	var JobId            = require('./Jobs/JobConst');
 	var ClassTable       = require('./Jobs/JobNameTable');
 	var PaletteTable     = require('./Jobs/PalNameTable');
 	var WeaponAction     = require('./Jobs/WeaponAction');
@@ -536,6 +537,622 @@ define(function(require)
 		return 'data/texture/' + (PetIllustration[id] || PetIllustration[1002]);
 	};
 
+	/**
+	 * is shield checking
+	 *
+	 * @param {integer} id
+	 * @return {boolean} is shield?
+	 * 
+	 * @author MrUnzO
+	 */
+	DB.isShield = function isShield(id) {
+		// Dual weapon (based on range id)
+		if (id > 500 && (id < 2100 || id > 2200)) {
+			return false;
+		}
+		return true;
+	};
+
+	DB.getPCAttackMotion = function getPCAttackMotion(job, sex, weapon, isDualWeapon) {
+
+		if (isDualWeapon) {
+			switch (job) {
+				case JobId.THIEF:
+				case JobId.THIEF_H:
+					return 5.75;
+					break;
+				case JobId.MERCHANT:
+				case JobId.MERCHANT_H:
+					return 5.85;
+					break;
+			}
+		} else {
+			switch (job) {
+				case JobId.NOVICE:
+				case JobId.NOVICE_H:
+				case JobId.NOVICE_B:
+				case JobId.SUPERNOVICE:
+				case JobId.SUPERNOVICE_B:
+				case JobId.SUPERNOVICE2:
+				case JobId.SUPERNOVICE2_B:
+				case JobId.HYPER_NOVICE:
+					switch (sex) {
+						case 1:
+							return 5.85;
+							break;
+					}
+					break;
+				case JobId.ASSASSIN:
+				case JobId.ASSASSIN_H:
+				case JobId.ASSASSIN_B:
+				case JobId.GUILLOTINE_CROSS:
+				case JobId.GUILLOTINE_CROSS_H:
+				case JobId.GUILLOTINE_CROSS_B:
+				case JobId.SHADOW_CROSS:
+					switch (DB.getWeaponType(weapon)) {
+						case WeaponType.KATAR:
+						case WeaponType.SHORTSWORD_SHORTSWORD:
+						case WeaponType.SWORD_SWORD:
+						case WeaponType.AXE_AXE:
+						case WeaponType.SHORTSWORD_SWORD:
+						case WeaponType.SHORTSWORD_AXE:
+						case WeaponType.SWORD_AXE:
+							return 3.0;
+					}
+					break;
+			}
+		}
+		return 6;
+	}
+
+	DB.isDualWeapon = function isDualWeapon(job, sex, weapon) {
+
+		let isDualWeapon = false;
+
+		switch (job) {
+			case JobId.GUNSLINGER:
+			case JobId.GUNSLINGER_B:
+			case JobId.REBELLION:
+			case JobId.REBELLION_B:
+			case JobId.NIGHT_WATCH:
+				{
+					switch (weapon) {
+						case WeaponType.GUN_RIFLE:
+						case WeaponType.GUN_GATLING:
+						case WeaponType.GUN_SHOTGUN:
+						case WeaponType.GUN_GRANADE:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.NINJA:
+			case JobId.NINJA_B:
+			case JobId.KAGEROU:
+			case JobId.KAGEROU_B:
+			case JobId.SHINKIRO:
+			case JobId.OBORO:
+			case JobId.OBORO_B:
+			case JobId.SHIRANUI:
+				{
+					switch (weapon) {
+						case WeaponType.SYURIKEN:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.GANGSI:
+			case JobId.DEATHKNIGHT:
+			case JobId.COLLECTOR:
+				{
+					// �ӽ�
+					break;
+				}
+			case JobId.TAEKWON:
+			case JobId.TAEKWON_B:
+			case JobId.STAR:
+			case JobId.STAR_B:
+			case JobId.STAR2:
+			case JobId.STAR2_B:
+			case JobId.EMPEROR:
+			case JobId.EMPEROR_B:			
+			case JobId.EMPEROR2:
+			case JobId.EMPEROR2_B:
+			case JobId.SKY_EMPEROR:
+			case JobId.SKY_EMPEROR2:
+				{
+					break;
+				}
+			case JobId.LINKER:
+			case JobId.LINKER_B:
+			case JobId.REAPER:
+			case JobId.REAPER_B:
+			case JobId.SOUL_ASCETIC:
+			//case JobId.SOUL_ASCETIC2:??
+				{
+					switch (weapon) {
+						case WeaponType.SHORTSWORD:
+							if (sex == 1) isDualWeapon = true; // male
+							break;
+						case WeaponType.ROD:
+						case WeaponType.TWOHANDROD:
+							if (sex == 0) isDualWeapon = true; // Female
+							break;
+					}
+					break;
+				}
+			case JobId.SWORDMAN:
+			case JobId.SWORDMAN_H:
+			case JobId.SWORDMAN_B:
+				{
+					switch (weapon) {
+						case WeaponType.TWOHANDSWORD:
+						case WeaponType.TWOHANDSPEAR:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.ARCHER:
+			case JobId.ARCHER_H:
+			case JobId.ARCHER_B:
+				{
+					switch (weapon) {
+						case WeaponType.BOW:
+							break;
+						default:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.THIEF:
+			case JobId.THIEF_H:
+			case JobId.THIEF_B:
+				{
+					switch (weapon) {
+						case WeaponType.BOW:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.MAGICIAN:
+			case JobId.MAGICIAN_H:
+			case JobId.MAGICIAN_B:
+				{
+					switch (weapon) {
+						case WeaponType.TWOHANDROD:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.MERCHANT:
+			case JobId.MERCHANT_H:
+			case JobId.MERCHANT_B:
+				{
+					switch (weapon) {
+						case WeaponType.TWOHANDAXE:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.ACOLYTE:
+			case JobId.ACOLYTE_H:
+			case JobId.ACOLYTE_B:
+				{
+					break;
+				}
+			case JobId.NOVICE:
+			case JobId.NOVICE_H:
+			case JobId.NOVICE_B:
+			case JobId.SUPERNOVICE:
+			case JobId.SUPERNOVICE_B:
+			case JobId.SUPERNOVICE2:
+			case JobId.SUPERNOVICE2_B:
+			case JobId.HYPER_NOVICE:
+				{
+					switch (sex) {
+						case 0:
+							switch (weapon) {
+								case WeaponType.TWOHANDSWORD:
+								case WeaponType.TWOHANDAXE:
+								case WeaponType.TWOHANDROD:
+								case WeaponType.TWOHANDMACE:
+									break;
+								case WeaponType.SHORTSWORD:
+									isDualWeapon = true;
+									break;
+							}
+							break;
+						case 1:
+							switch (weapon) {
+								case WeaponType.TWOHANDSWORD:
+								case WeaponType.TWOHANDAXE:
+								case WeaponType.TWOHANDROD:
+								case WeaponType.TWOHANDMACE:
+									isDualWeapon = true;
+									break;
+								case WeaponType.SHORTSWORD:
+									break;
+							}
+							break;
+					}
+					break;
+				}
+			case JobId.KNIGHT:
+			case JobId.KNIGHT2:
+			case JobId.CHICKEN:
+			case JobId.KNIGHT_H:
+			case JobId.CHICKEN_H:
+			case JobId.KNIGHT_B:
+			case JobId.CHICKEN_B:
+			case JobId.KNIGHT2_H:
+			case JobId.KNIGHT2_B:
+			case JobId.RUNE_KNIGHT:
+			case JobId.RUNE_KNIGHT_H:
+			case JobId.RUNE_KNIGHT_B:
+			case JobId.RUNE_KNIGHT2:
+			case JobId.RUNE_KNIGHT2_H:
+			case JobId.RUNE_KNIGHT2_B:
+			case JobId.RUNE_KNIGHT2_H:
+			case JobId.DRAGON_KNIGHT:
+			case JobId.DRAGON_KNIGHT2:
+				{
+					switch (weapon) {
+						case WeaponType.TWOHANDSPEAR:
+						case WeaponAction.TWOHANDSWORD:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.PRIEST:
+			case JobId.PRIEST_H:
+			case JobId.PRIEST_B:
+			case JobId.ARCHBISHOP:
+			case JobId.ARCHBISHOP_H:
+			case JobId.ARCHBISHOP_B:
+			case JobId.CARDINAL:
+				{
+					switch (weapon) {
+						case WeaponType.BOOK:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.WIZARD:
+			case JobId.WIZARD_H:
+			case JobId.WIZARD_B:
+			case JobId.WARLOCK:
+			case JobId.WARLOCK_H:
+			case JobId.WARLOCK_B:
+			case JobId.ARCH_MAGE:
+				{
+					switch (weapon) {
+						case WeaponType.SHORTSWORD:
+							if (sex == 1) isDualWeapon = true;
+							break;
+						case WeaponType.ROD:
+						case WeaponType.TWOHANDROD:
+							if (sex == 0) isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.BLACKSMITH:
+			case JobId.BLACKSMITH_H:
+			case JobId.BLACKSMITH_B:
+			case JobId.MECHANIC:
+			case JobId.MECHANIC_H:
+			case JobId.MECHANIC_B:
+			case JobId.MECHANIC2:
+			case JobId.MECHANIC2_H:
+			case JobId.MECHANIC2_B:
+			case JobId.MEISTER:
+			case JobId.MEISTER2:
+				{
+					switch (weapon) {
+						case WeaponType.SWORD:
+						case WeaponType.AXE:
+						case WeaponType.TWOHANDAXE:
+						case WeaponType.MACE:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.ASSASSIN:
+			case JobId.ASSASSIN_H:
+			case JobId.ASSASSIN_B:
+			case JobId.GUILLOTINE_CROSS:
+			case JobId.GUILLOTINE_CROSS_H:
+			case JobId.GUILLOTINE_CROSS_B:
+			case JobId.SHADOW_CROSS:
+				{
+					switch (weapon) {
+						case WeaponType.KATAR:
+						case WeaponType.SHORTSWORD_SHORTSWORD:
+						case WeaponType.SHORTSWORD_SWORD:
+						case WeaponType.SHORTSWORD_AXE:
+						case WeaponType.SWORD_SWORD:
+						case WeaponType.SWORD_AXE:
+						case WeaponType.AXE_AXE:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.HUNTER:
+			case JobId.HUNTER_H:
+			case JobId.HUNTER_B:
+			case JobId.RANGER:
+			case JobId.RANGER_H:
+			case JobId.RANGER_B:
+			case JobId.RANGER2:
+			case JobId.RANGER2_H:
+			case JobId.RANGER2_B:
+			case JobId.WINDHAWK:
+			case JobId.WINDHAWK2:
+				{
+					switch (weapon) {
+						case WeaponType.BOW:
+							isDualWeapon = true;
+							break;
+					}
+					break;
+				}
+			case JobId.SAGE:
+			case JobId.SAGE_H:
+			case JobId.SAGE_B:
+			case JobId.SORCERER:
+			case JobId.SORCERER_H:
+			case JobId.SORCERER_B:
+			case JobId.ELEMENTAL_MASTER:
+				{
+					switch (weapon) {
+						case WeaponType.BOOK:
+						case WeaponType.ROD:
+						case WeaponType.TWOHANDROD:
+						case WeaponType.TWOHANDSPEAR:	// ��ս������� ���� ���̵� ����� �����Ǹ� �����.
+							isDualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.ALCHEMIST:
+			case JobId.ALCHEMIST_H:
+			case JobId.ALCHEMIST_B:
+			case JobId.GENETIC:
+			case JobId.GENETIC_H:
+			case JobId.GENETIC_B:
+			case JobId.BIOLO:
+				{
+					switch (weapon) {
+						case WeaponType.SWORD:
+						case WeaponType.AXE:
+						case WeaponType.TWOHANDAXE:
+						case WeaponType.MACE:
+							isDualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.CRUSADER:
+			case JobId.CRUSADER_H:
+			case JobId.CRUSADER_B:
+			case JobId.CHICKEN2:
+			case JobId.CHICKEN2_H:
+			case JobId.CHICKEN2_B:
+			case JobId.CRUSADER2:
+			case JobId.CRUSADER2_H:
+			case JobId.CRUSADER2_B:
+			case JobId.ROYAL_GUARD:
+			case JobId.ROYAL_GUARD_H:
+			case JobId.ROYAL_GUARD_B:
+			case JobId.ROYAL_GUARD2:
+			case JobId.ROYAL_GUARD2_H:
+			case JobId.ROYAL_GUARD2_B:
+			case JobId.IMPERIAL_GUARD:
+			case JobId.IMPERIAL_GUARD2:
+				{
+					switch (weapon) {
+						case WeaponType.SPEAR:
+						case WeaponType.TWOHANDSPEAR:
+							isDualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.MONK:
+			case JobId.MONK_H:
+			case JobId.MONK_B:
+			case JobId.SURA:
+			case JobId.SURA_H:
+			case JobId.SURA_B:
+			case JobId.INQUISITOR:
+				{
+					switch (weapon) {
+						case WeaponType.KNUKLE:
+						case WeaponType.NONE:
+							isDualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.ROGUE:
+			case JobId.ROGUE_H:
+			case JobId.ROGUE_B:
+			case JobId.SHADOW_CHASER:
+			case JobId.SHADOW_CHASER_H:
+			case JobId.SHADOW_CHASER_B:
+			case JobId.ABYSS_CHASER:
+				{
+					switch (weapon) {
+						case WeaponType.BOW:
+							isDualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.BARD:
+			case JobId.BARD_H:
+			case JobId.BARD_B:
+			case JobId.MINSTREL:
+			case JobId.MINSTREL_H:
+			case JobId.MINSTREL_B:
+			case JobId.TROUBADOUR:
+			case JobId.DANCER:
+			case JobId.DANCER_H:
+			case JobId.DANCER_B:
+			case JobId.WANDERER:
+			case JobId.WANDERER_H:
+			case JobId.WANDERER_B:
+			case JobId.TROUVERE:
+				{
+					switch (weapon) {
+						case WeaponType.BOW:
+							isDualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.DO_SUMMONER1:
+			case JobId.DO_SUMMONER_B1:
+			case JobId.SPIRIT_HANDLER:
+				break;
+		}
+		return isDualWeapon;
+	}
+
+	DB.getWeaponType = function getWeaponType(itemID) {
+		if (itemID == 0) {
+			return WeaponType.NONE;
+		} else if (itemID >= 1100 && itemID <= 1199) {
+			return WeaponType.SWORD;
+		} else if (itemID >= 1901 && itemID < 1999) {
+			return WeaponType.INSTRUMENT;
+		} else if (itemID >= 1201 && itemID <= 1249) {
+			return WeaponType.SHORTSWORD;
+		} else if (itemID >= 1250 && itemID <= 1299) {
+			return WeaponType.KATAR;
+		} else if (itemID >= 1350 && itemID <= 1399) {
+			return WeaponType.AXE;
+		} else if (itemID >= 1301 && itemID <= 1349) {
+			return WeaponType.TWOHANDAXE;//˫�ָ�
+		} else if (itemID >= 1450 && itemID <= 1499) {
+			return WeaponType.SPEAR;
+		} else if (itemID >= 1401 && itemID <= 1449) {
+			return WeaponType.TWOHANDSPEAR;
+		} else if (itemID >= 1501 && itemID <= 1599) {
+			return WeaponType.MACE;
+		} else if (itemID >= 1601 && itemID <= 1699) {
+			return WeaponType.ROD;
+		} else if (itemID >= 1701 && itemID <= 1749) {
+			return WeaponType.BOW;
+		} else if (itemID >= 1801 && itemID <= 1899) {
+			return WeaponType.KNUKLE;
+		} else if (itemID >= 2001 && itemID <= 2099) {
+			return WeaponType.TWOHANDSWORD;
+		}
+		/* else if (itemID >= 1800 && itemID < 1900) {
+		 return WeaponType.KNUKLE;
+		 } else if (itemID >= 1900 && itemID < 1950) {
+		 return WeaponType.INSTRUMENT;
+		 } else if (itemID >= 1950 && itemID < 2000) {
+		 return WeaponType.WHIP;	
+		 } else if (itemID >= 2000 && itemID < 2100) {
+		 return WeaponType.TWOHANDROD;	
+		 } else if (itemID >= 13150 && itemID < 13200) { 
+		 return WeaponType.GUN_RIFLE;
+		 } else if (itemID >= 13000 && itemID < 13100) {
+		 return WeaponType.SHORTSWORD;
+		 } else if (itemID >= 13100 && itemID < 13150) {
+		 return WeaponType.GUN_HANDGUN;
+		 } else if (itemID >= 13300 && itemID < 13400) {
+		 return WeaponType.SYURIKEN;
+		 }*/
+
+		return -1;
+	}
+
+	DB.makeWeaponType = function makeWeaponType(left, right) {
+		let type = 0;
+		if (!left && right) {
+			left = right;
+			right = 0;
+		}
+
+		if ((left >= 1101 && left <= 1199)) {			// �Ѽհ�
+			type = WeaponType.SWORD;
+			if (right >= 1101 && right <= 1199)	// �Ѽհ�
+				return WeaponType.SWORD_SWORD;
+
+			if (right >= 1201 && right <= 1299)	// �ܰ�
+				return WeaponType.SHORTSWORD_SWORD;
+			//if (right >= 13400 && right < 13500)	// �Ѽհ�
+			//	return WeaponType.SWORD_SWORD;
+
+			if (right >= 1301 && right <= 1399)	// �Ѽյ���
+				return WeaponType.SWORD_AXE;
+		}
+		else if (left >= 1201 && left <= 1299) {	// �ܰ�
+			type = WeaponType.SHORTSWORD;
+			if (right >= 1201 && right <= 1299)	// �ܰ�
+				return WeaponType.SHORTSWORD_SHORTSWORD;
+
+			//if (right >= 13000 && right < 13100)	// �ܰ�
+			//	return WeaponType.SHORTSWORD_SHORTSWORD;
+
+			if (right >= 1101 && right <= 1199)	// �Ѽհ�
+				return WeaponType.SHORTSWORD_SWORD;
+
+			//if (right >= 13400 && right < 13500)	// �Ѽհ�
+			//	return WeaponType.SHORTSWORD_SWORD;
+
+			if (right >= 1301 && right <= 1399)	// �Ѽյ���
+				return WeaponType.SHORTSWORD_AXE;
+		}
+		else if (left >= 1301 && left <= 1399) {	// �Ѽյ���
+			type = WeaponType.AXE;
+			if (right >= 1101 && right <= 1199)	// �Ѽհ�
+				return WeaponType.SWORD_AXE;
+
+			if (right >= 1201 && right <= 1299)	// �ܰ�
+				return WeaponType.SHORTSWORD_AXE;
+
+			if (right >= 1301 && right <= 1399)	// �Ѽյ���
+				return WeaponType.AXE_AXE;
+		} else if (left >= 2801 && left <= 2899) {
+			return WeaponType.KATAR;
+		} else if (right >= 2801 && right <= 2899) {
+			return WeaponType.KATAR;
+		}
+		//else if (left >= 13000 && left < 13100) 
+		//{	// �ܰ�
+		//	type = WeaponType.SHORTSWORD;
+		//	if (right >= 1201 && right < 1299)	// �ܰ�
+		//		return WeaponType.SHORTSWORD_SHORTSWORD;
+
+		//	if (right >= 13000 && right < 13100)	// �ܰ�
+		//		return WeaponType.SHORTSWORD_SHORTSWORD;
+
+		//	if (right >= 1100 && right < 1150)	// �Ѽհ�
+		//		return WeaponType.SHORTSWORD_SWORD;
+
+		//	if (right >= 13400 && right < 13500)	// �Ѽհ�
+		//		return WeaponType.SHORTSWORD_SWORD;
+
+		//	if (right >= 1300 && right < 1350)	// �Ѽյ���
+		//		return WeaponType.SHORTSWORD_AXE;
+		//}
+
+		return type;
+	}
 
 	/**
 	 * @return {string} Path to shield
