@@ -47,6 +47,7 @@ define( function( require )
 		require('./EntityAnimations').call(this);
 		require('./EntityAura').call(this);
 		require('./EntityDropEffect').call(this);
+		require('./EntityEmblem').call(this);
 
 		this.boundingRect = { x1:0, y1:0, x2:0, y2:0 };
 		this.matrix       = mat4.create();
@@ -347,6 +348,7 @@ define( function( require )
 	{
 		// Remove UI elements
 		this.life.clean();
+		this.emblem.clean();
 		this.display.clean();
 		this.dialog.clean();
 		this.cast.clean();

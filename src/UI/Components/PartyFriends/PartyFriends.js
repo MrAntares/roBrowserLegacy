@@ -554,6 +554,24 @@ define(function(require)
 
 
 	/**
+	 * Check if character is a group member
+	 *
+	 * @param {string} character name
+	 */
+	PartyFriends.isGroupMember = function isGroupMember( characterName )
+	{
+		let count = _party.length;
+		for (let i = 0; i < count; ++i) {
+			// No GID, need to compare using charactername (wtf)
+			if (_party[i].characterName === characterName) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Resizing UI
 	 */
 	function onResize()

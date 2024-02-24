@@ -28,7 +28,7 @@ define(function(require)
 	var UIManager     = require('UI/UIManager');
 	var UIComponent   = require('UI/UIComponent');
 	var Cursor        = require('UI/CursorManager');
-
+	var getModule   = require;
 
 	/**
 	 * Create Announce component
@@ -394,7 +394,7 @@ define(function(require)
 		}
 
 		// This skill can't be casted on this type
-		if (!(target & _flag) && !KEYS.SHIFT && !Controls.noshift) {
+		if (!(target & _flag) && !KEYS.SHIFT && !Controls.noshift && !SkillTargetSelection.checkMapState(entity)) {
 			return;
 		}
 
@@ -427,6 +427,24 @@ define(function(require)
 		}
 	};
 
+
+	/**
+	 * Check if can use Skill on target based on MapState
+	 */
+	SkillTargetSelection.checkMapState = function checkMapState(entity)
+	{
+		if ( Session.mapState.isPVP ) {
+			if ( Session.hasParty && getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember( entity.display.name ) ) {
+				return false;
+			}
+			return true;
+		} else if( Session.mapState.isGVG ) {
+			if(Session.Entity.GUID > 0 && entity.GUID !== Session.Entity.GUID || (entity.GUID == 0 && entity !== Session.Entity)) { // 0 = no guild, can be attacked by anyone
+				return true;
+			}
+		}
+		return false;
+	};
 
 
 	/**

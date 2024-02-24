@@ -211,6 +211,7 @@ define(function( require )
 
 			// Extend controller
 			require('./MapEngine/Main').call();
+			require('./MapEngine/MapState').call();
 			require('./MapEngine/NPC').call();
 			require('./MapEngine/Entity').call();
 			require('./MapEngine/Item').call();
@@ -366,6 +367,21 @@ define(function( require )
 		Session.homunId       =     0;
 
 		Session.Entity.clevel = Session.Character.level;
+
+		Session.mapState =  {
+			property        : 0,
+			type            : 0,
+			flag            : 0,
+			isPVPZone       : false,
+			isAgitZone      : false,
+			isPVP           : false,
+			isGVG           : false,
+			isSiege         : false,
+			isNoLockOn      : false,
+			showPVPCounter  : false,
+			showBFCounter   : false,
+			isBattleField   : false,
+		};
 
 		BasicInfo.getUI().update('blvl', Session.Character.level );
 		BasicInfo.getUI().update('jlvl', Session.Character.joblevel );
@@ -783,7 +799,7 @@ define(function( require )
 	{
 		// setTimeout isn't accurate, so reduce the value
 		// to avoid possible errors.
-		if (_walkLastTick + 450 > Renderer.tick) {
+		if (_walkLastTick + 200 > Renderer.tick) {
 			return;
 		}
 

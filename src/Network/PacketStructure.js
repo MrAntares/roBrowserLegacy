@@ -11554,11 +11554,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	// 0x99b
-	PACKET.ZC.NOTIFY_MAPPROPERTY2 = function PACKET_ZC_NOTIFY_MAPPROPERTY2(fp, end) {
+	PACKET.ZC.MAPPROPERTY_R2 = function PACKET_ZC_MAPPROPERTY_R2(fp, end) {
 		this.type = fp.readShort();
 		this.flag = fp.readLong();
 	};
-	PACKET.ZC.NOTIFY_MAPPROPERTY2.size = 8;
+	PACKET.ZC.MAPPROPERTY_R2.size = 8;
 
 
 	// 0x99d
