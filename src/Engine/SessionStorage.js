@@ -57,5 +57,20 @@ define(function()
 		
 		autoFollow:       false,
 		autoFollowTarget: null,
+
+		mapState:  {
+			property        : 0,
+			type            : 0,
+			flag            : 0,
+			isPVPZone       : false,
+			isAgitZone      : false,
+			isPVP           : false,
+			isGVG           : false,
+			isSiege         : false,
+			isNoLockOn      : false,
+			showPVPCounter  : false,
+			showBFCounter   : false,
+			isBattleField   : false,
+		},
 	};
 });

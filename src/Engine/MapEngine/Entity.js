@@ -151,7 +151,18 @@ define(function( require )
 			entity.falconGID = falcon.GID;
 		}
 
-		//check dual weapon
+		if (entity.GUID) {
+			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function(image) {
+				entity.display.emblem = image;
+				entity.emblem.emblem = image;
+				entity.emblem.update();
+
+				if(Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
+					entity.emblem.display = true;
+				}
+			});
+		}
+
 		if(entity.objecttype === Entity.TYPE_PC){
 			if(
 				entity.job == JobId.ASSASSIN ||
@@ -879,6 +890,12 @@ define(function( require )
 						(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 						entity.display.STYLE.DEFAULT
 					)
+					entity.emblem.emblem = image;
+					entity.emblem.update();
+
+					if(Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
+						entity.emblem.display = true;
+					}
 				});
 			}
 			else {

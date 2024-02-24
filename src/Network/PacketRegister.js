@@ -591,7 +591,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x997: PACKET.ZC.EQUIPWIN_MICROSCOPE_V5,
 		0x999: PACKET.ZC.ACK_WEAR_EQUIP_V5, // ok
 		0x99a: PACKET.ZC.ACK_TAKEOFF_EQUIP_V5, // ok
-		0x99b: PACKET.ZC.NOTIFY_MAPPROPERTY2,
+		0x99b: PACKET.ZC.MAPPROPERTY_R2,
 		0x99f: PACKET.ZC.SKILL_ENTRY4, //ok
 /*
         bgqueue_ackType = 0x8d8,
