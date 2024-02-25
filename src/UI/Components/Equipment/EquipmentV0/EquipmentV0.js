@@ -664,6 +664,11 @@ define(function(require)
 		return num;
 	}
 
+	EquipmentV0.checkEquipLoc = function checkEquipLoc( location )
+	{
+		return 0;
+	};
+
 	/**
 	 * Method to define
 	 */
