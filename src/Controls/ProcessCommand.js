@@ -662,7 +662,7 @@ define(function (require) {
 				}
 			},
 		},
-		kilall: {
+		killall: {
 			description: "Disconnect all players.",
 			callback: function () {
 				var pkt    = new PACKET.CZ.DISCONNECT_ALL_CHARACTER();
