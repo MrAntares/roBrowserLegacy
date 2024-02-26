@@ -334,6 +334,29 @@ define(function( require )
 		this.ui.css('zIndex', list.length + 50 - j);
 	};
 
+	
+	/**
+	 * add UI at the top of others
+	 */
+	UIComponent.prototype.placeOnTop = function placeOnTop()
+	{
+		if (!this.manager) {
+			return;
+		}
+
+		var components = this.manager.components;
+		var name, zIndex, list = [];
+
+		// Store components zIndex in a list
+		for (name in components) {
+			if (this !== components[name] && components[name].__active) {
+				zIndex = parseInt(components[name].ui.css('zIndex'), 10);
+				list.push(zIndex);
+			}
+		}
+		let lastZIndex = Math.max(...list);
+		this.ui.css('zIndex', lastZIndex + 1);
+	};
 
 	/**
 	 * Clone a component

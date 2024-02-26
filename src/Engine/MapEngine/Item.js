@@ -101,7 +101,6 @@ define(function( require )
 			return;
 		}
 
-		ItemObtain.prepare();
 		ItemObtain.append();
 		ItemObtain.set(pkt);
 

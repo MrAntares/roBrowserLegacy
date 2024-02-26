@@ -106,7 +106,7 @@ define(function(require)
 		var display  = DB.getItemName(item);
 		var resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 
-		this.ui.focus();
+		this.placeOnTop();
 
 		this.ui.find('.content').html(
 			'<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="'+ item.ITID +'" width="24" height="24" /> ' +
