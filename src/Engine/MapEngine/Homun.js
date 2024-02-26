@@ -238,6 +238,9 @@ define(function( require )
 	{
 		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN,         onHomunInformation);
 		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN2,        onHomunInformation);
+		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN3,        onHomunInformation);
+		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN4,        onHomunInformation);
+		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN5,        onHomunInformation);
 		Network.hookPacket( PACKET.ZC.CHANGESTATE_MER,        onHomunInformationUpdate);
 		Network.hookPacket( PACKET.ZC.FEED_MER,               onFeedResult);
 		Network.hookPacket( PACKET.ZC.MER_SKILLINFO_LIST,     onSkillList);

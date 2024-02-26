@@ -23,6 +23,7 @@ define(function (require) {
     var cssText = require('text!./HomunInformations.css');
     var Session = require('Engine/SessionStorage');
     var AIDriver = require('Core/AIDriver');
+    var PACKETVER   = require('Network/PacketVerManager');
 
     /**
      * Create Component
@@ -38,6 +39,10 @@ define(function (require) {
         show: false,
     }, 1.0);
 
+    /**
+     * Auto Feed Flag
+     */
+    var homunculusAutoFeeding = 0;
 
     /**
      * Initialize component
@@ -50,6 +55,7 @@ define(function (require) {
         this.ui.find('.modify').click(onChangeName);
         this.ui.find('.feed').click(onFeed);
         this.ui.find('.del').click(onDelete);
+        this.ui.find('.homun_auto_feed').mousedown(homunToggleAutoFeed);
 
         if (!_preferences.show) {
             this.ui.hide();
@@ -65,6 +71,14 @@ define(function (require) {
         });
     };
 
+    HomunInformations.onAppend = function onAppend() {
+        Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (homunculusAutoFeeding ? '1' : '0') + '.bmp', function(data){
+			HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
+		});
+
+        if(PACKETVER.value < 20170920)
+            HomunInformations.ui.find('.feeding').hide();
+    }
 
     /**
      * feed homunculus
@@ -309,7 +323,27 @@ define(function (require) {
 		this.stopAI();
 		this.startAI();
 	};
-	
+
+    HomunInformations.setFeedConfig = function setFeedConfig(flag)
+	{
+		homunculusAutoFeeding = flag;
+
+        // server sent this info before of homun
+        if(HomunInformations.ui) {
+            Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (homunculusAutoFeeding ? '1' : '0') + '.bmp', function(data){
+                HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
+            });
+        }
+	}
+
+	/**
+	 * Toggle AutoFeed
+	 */
+	function homunToggleAutoFeed()
+	{
+		HomunInformations.onConfigUpdate( 3, !homunculusAutoFeeding ? 1 : 0 );
+	}
+
     /**
      * Request to modify homun's name
      */
@@ -347,6 +381,7 @@ define(function (require) {
     HomunInformations.reqMoveToOwner = function reqMoveToOwner() {};
 
     HomunInformations.reqHomunAction = function reqHomunAction() {};
+    HomunInformations.onConfigUpdate = function onConfigUpdate(/* type, value*/){};
 
 
     /**
