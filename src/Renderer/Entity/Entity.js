@@ -199,6 +199,8 @@ define( function( require )
 	Entity.prototype.falconGID = null;
 	Entity.prototype.hideShadow = false;
 
+	Entity.prototype.call_flag = 0;
+
 	/**
 	 * Initialized Entity data
 	 */

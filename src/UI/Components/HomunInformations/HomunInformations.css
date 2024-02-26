@@ -1,4 +1,4 @@
-#HomunInformations { position:absolute; top:100px; left:100px; width:280px; height:180px; font-size:12px; background-color:white; border-radius:5px; }
+#HomunInformations { position:absolute; top:100px; left:100px; width:280px; height:190px; font-size:12px; background-color:white; border-radius:5px; }
 
 #HomunInformations .content { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
 #HomunInformations .content .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
@@ -64,3 +64,5 @@
 #HomunInformations .block2 .intimacy            { width: 50px; float: right; text-align: right; }
 
 #HomunInformations .feed { position:absolute; background-color:grey; top:155px; right:5px; border:0; width:65px; height:20px; background-repeat:no-repeat; background-color:transparent; }
+#HomunInformations .feeding { position:absolute; top: 110px; right:0px; width: 75px; }
+#HomunInformations .feeding .homun_auto_feed { width:10px; height:12px; border:none; background-color:transparent; background-repeat:no-repeat; margin-left: 5px; }

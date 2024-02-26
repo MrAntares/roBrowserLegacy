@@ -239,22 +239,6 @@ define(function( require )
 		}
 	}
 
-
-	/**
-	 * Do we show equipment to others ?
-	 *
-	 * @param {object} pkt - PACKET_ZC_CONFIG_NOTIFY
-	 */
-	function onConfigEquip( pkt )
-	{
-		Equipment.getUI().setEquipConfig( pkt.bOpenEquipmentWin );
-		ChatBox.addText(
-			DB.getMessage(1358 + (pkt.bOpenEquipmentWin ? 1 : 0) ),
-			ChatBox.TYPE.INFO,
-			ChatBox.FILTER.ITEM
-		);
-	}
-
 	/**
 	 * View other player's equipment - CZ_EQUIPWIN_MICROSCOPE
 	 *
@@ -660,7 +644,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.DELETE_ITEM_FROM_CART,  onCartRemoveItem );
 		Network.hookPacket( PACKET.ZC.USE_ITEM_ACK,           onItemUseAnswer );
 		Network.hookPacket( PACKET.ZC.USE_ITEM_ACK2,          onItemUseAnswer );
-		Network.hookPacket( PACKET.ZC.CONFIG_NOTIFY,          onConfigEquip );
 		Network.hookPacket( PACKET.ZC.EQUIP_ARROW,            onArrowEquipped );
 		Network.hookPacket( PACKET.ZC.ITEMCOMPOSITION_LIST,   onItemCompositionList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMCOMPOSITION,    onItemCompositionResult );

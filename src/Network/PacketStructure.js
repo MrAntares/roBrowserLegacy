@@ -9459,7 +9459,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x2da
 	PACKET.ZC.CONFIG_NOTIFY = function PACKET_ZC_CONFIG_NOTIFY(fp, end) {
-		this.bOpenEquipmentWin = fp.readUChar();
+		this.show_eq_flag = fp.readUChar();
 	};
 	PACKET.ZC.CONFIG_NOTIFY.size = 3;
 
@@ -12517,7 +12517,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.nFullness 			= fp.readShort(); 			// <hunger>.W
 		this.nRelationship 		= fp.readShort(); 			// <intimacy>.W
 
-		this.ITID 		= fp.readShort(); 		// <equip id>.W
+		this.ITID               = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort()); 		// <equip id>.W
 
 		this.atk 		= fp.readShort(); 		// <atk>.W
 		this.Matk 		= fp.readShort();		// <matk>.W
@@ -13216,6 +13216,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
 
+	// 0xa95
+	PACKET.ZC.CONFIG_NOTIFY2 = function PACKET_ZC_CONFIG_NOTIFY2(fp, end) {
+		this.show_eq_flag = fp.readUChar();
+		this.call_flag = fp.readUChar();
+	};
+	PACKET.ZC.CONFIG_NOTIFY2.size = 4;
+
 	// 0xa96
 	PACKET.ZC.ADD_EXCHANGE_ITEM4 = function PACKET_ZC_ADD_EXCHANGE_ITEM4(fp, end) {
 		let option = new Struct(
@@ -13293,6 +13300,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.MEMBERMGR_INFO2.size = -1;
+
+	// 0xaa8
+	PACKET.ZC.CONFIG_NOTIFY3 = function PACKET_ZC_CONFIG_NOTIFY3(fp, end) {
+		this.show_eq_flag = fp.readUChar();
+		this.call_flag = fp.readUChar();
+		this.pet_autofeeding_flag = fp.readUChar();
+	};
+	PACKET.ZC.CONFIG_NOTIFY3.size = 5;
 
 	// 0xab2
 	PACKET.ZC.GROUP_ISALIVE = function PACKET_ZC_GROUP_ISALIVE(fp, end) {
@@ -13376,6 +13391,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.HAT_EFFECT.size = -1;
+
+	// 0xadc
+	PACKET.ZC.CONFIG_NOTIFY4 = function PACKET_ZC_CONFIG_NOTIFY4(fp, end) {
+		this.show_eq_flag = fp.readUChar();
+		this.call_flag = fp.readUChar();
+		this.pet_autofeeding_flag = fp.readUChar();
+		this.homunculus_autofeeding_flag = fp.readUChar();
+	};
+	PACKET.ZC.CONFIG_NOTIFY4.size = 6;
 
 	// 0xadd
 	PACKET.ZC.ITEM_FALL_ENTRY3 = function PACKET_ZC_ITEM_FALL_ENTRY3(fp, end) {
@@ -13720,6 +13744,35 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.GUILD_AGIT_INFO.size = -1;
 
+	// 0xb2f
+	PACKET.ZC.PROPERTY_HOMUN3 = function PACKET_ZC_PROPERTY_HOMUN3(fp, end) {
+
+		this.szName				= fp.readString(NAME_LENGTH);	// <name>.24B
+		this.bModified 			= fp.readUChar(); 			// <modified>.B
+		this.nLevel 			= fp.readShort(); 			// <level>.W
+		this.nFullness 			= fp.readShort(); 			// <hunger>.W
+		this.nRelationship 		= fp.readShort(); 			// <intimacy>.W
+
+		this.atk 		= fp.readShort(); 		// <atk>.W
+		this.Matk 		= fp.readShort();		// <matk>.W
+		this.hit 		= fp.readShort();		// <hit>.W
+		this.critical 	= fp.readShort();		// <crit>.W
+		this.def 		= fp.readShort();		// <def>.W
+		this.Mdef 		= fp.readShort();		// <mdef>.W
+		this.flee 		= fp.readShort();		// <flee>.W
+		this.aspd 		= fp.readShort();		// <aspd>.W // todo wrong
+
+		this.hp 		= fp.readLong();		// <hp>.L
+		this.maxHP 		= fp.readLong();		// <max hp>.L
+		this.sp 		= fp.readShort();		// <sp>.W
+		this.maxSP 		= fp.readShort();		// <max sp>.W
+		this.exp 		= fp.readLong(); 		// <exp>.L
+		this.maxEXP 	= fp.readLong();		// <max exp>.L
+		this.SKPoint 	= fp.readShort(); 		// <skill points>.W
+		this.ATKRange 	= fp.readShort();		// <atk range>.W
+	};
+	PACKET.ZC.PROPERTY_HOMUN3.size = 73;
+
 	//0xb39
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2 = function PACKET_ZC_SPLIT_SEND_ITEMLIST_EQUIP2(fp, end) {
 		this.invType = fp.readUChar();
@@ -14030,6 +14083,35 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2.size = -1;
 
+	// 0xb76
+	PACKET.ZC.PROPERTY_HOMUN4 = function PACKET_ZC_PROPERTY_HOMUN4(fp, end) {
+
+		this.szName				= fp.readString(NAME_LENGTH);	// <name>.24B
+		this.bModified 			= fp.readUChar(); 			// <modified>.B
+		this.nLevel 			= fp.readShort(); 			// <level>.W
+		this.nFullness 			= fp.readShort(); 			// <hunger>.W
+		this.nRelationship 		= fp.readShort(); 			// <intimacy>.W
+
+		this.atk 		= fp.readShort(); 		// <atk>.W
+		this.Matk 		= fp.readShort();		// <matk>.W
+		this.hit 		= fp.readShort();		// <hit>.W
+		this.critical 	= fp.readShort();		// <crit>.W
+		this.def 		= fp.readShort();		// <def>.W
+		this.Mdef 		= fp.readShort();		// <mdef>.W
+		this.flee 		= fp.readShort();		// <flee>.W
+		this.aspd 		= fp.readShort();		// <aspd>.W // todo wrong
+
+		this.hp 		= fp.readLong();		// <hp>.L
+		this.maxHP 		= fp.readLong();		// <max hp>.L
+		this.sp 		= fp.readLong();		// <sp>.L
+		this.maxSP 		= fp.readLong();		// <max sp>.L
+		this.exp 		= fp.readLong(); 		// <exp>.L
+		this.maxEXP 	= fp.readLong();		// <max exp>.L
+		this.SKPoint 	= fp.readShort(); 		// <skill points>.W
+		this.ATKRange 	= fp.readShort();		// <atk range>.W
+	};
+	PACKET.ZC.PROPERTY_HOMUN4.size = 77;
+
 	// 0xb77
 	PACKET.ZC.PC_PURCHASE_ITEMLIST2 = function PACKET_ZC_PC_PURCHASE_ITEMLIST2(fp, end) {
 		this.itemList = (function() {
@@ -14119,6 +14201,35 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.REPUTE_INFO.size = -1;
+
+	// 0xba4
+	PACKET.ZC.PROPERTY_HOMUN5 = function PACKET_ZC_PROPERTY_HOMUN5(fp, end) {
+
+		this.szName				= fp.readString(NAME_LENGTH);	// <name>.24B
+		this.bModified 			= fp.readUChar(); 			// <modified>.B
+		this.nLevel 			= fp.readShort(); 			// <level>.W
+		this.nFullness 			= fp.readShort(); 			// <hunger>.W
+		this.nRelationship 		= fp.readShort(); 			// <intimacy>.W
+
+		this.atk 		= fp.readShort(); 		// <atk>.W
+		this.Matk 		= fp.readShort();		// <matk>.W
+		this.hit 		= fp.readShort();		// <hit>.W
+		this.critical 	= fp.readShort();		// <crit>.W
+		this.def 		= fp.readShort();		// <def>.W
+		this.Mdef 		= fp.readShort();		// <mdef>.W
+		this.flee 		= fp.readShort();		// <flee>.W
+		this.aspd 		= fp.readShort();		// <aspd>.W // todo wrong
+
+		this.hp 		= fp.readLong();		// <hp>.L
+		this.maxHP 		= fp.readLong();		// <max hp>.L
+		this.sp 		= fp.readLong();		// <sp>.L
+		this.maxSP 		= fp.readLong();		// <max sp>.L
+		this.exp 		= fp.readUInt64(); 		// <exp>.L
+		this.maxEXP 	= fp.readUInt64();		// <max exp>.L
+		this.SKPoint 	= fp.readShort(); 		// <skill points>.W
+		this.ATKRange 	= fp.readShort();		// <atk range>.W
+	};
+	PACKET.ZC.PROPERTY_HOMUN5.size = 85;
 
 	/**
 	 * Export
