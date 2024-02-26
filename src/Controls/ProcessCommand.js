@@ -549,6 +549,185 @@ define(function (require) {
 				return;
 			},
 		},
+
+		/*
+		*  GM COMMANDS
+		*/
+		broadcast: {
+			description: "Sends a broadcast message with your name (yellow).",
+			callback:function (text) {
+				var matches = text.match(/(^broadcast|^b)\s+(.*)/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.BROADCAST();
+					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+			aliases: ["b"],
+		},
+		nb: {
+			description: "Sends a broadcast message without your name (yellow).",
+			callback:function (text) {
+				var matches = text.match(/(^nb)\s+(.*)/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.BROADCAST();
+					pkt.msg = matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+		localbroadcast: {
+			description: "Sends a local broadcast message with your name. (yellow)",
+			callback:function (text) {
+				var matches = text.match(/(^localbroadcast|^lb)\s+(.*)/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.LOCALBROADCAST();
+					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+			aliases: ["lb"],
+		},
+		nlb: {
+			description: "Sends a local broadcast message without your name. (yellow)",
+			callback:function (text) {
+				var matches = text.match(/(^nlb)\s+(.*)/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.LOCALBROADCAST();
+					pkt.msg = matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+		mapmove: {
+			description: "Move to map x y.",
+			callback: function (text) {
+				var matches = text.match(/(^mapmove|mm)\s+(\w+)\s+(\d+)\s+(\d+)/);
+				if (matches) {
+					var pkt = new PACKET.CZ.MOVETO_MAP();
+					pkt.mapName = matches[2];
+					pkt.xPos = matches[3];
+					pkt.yPos = matches[4];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+			aliases: ["mm"],
+		},
+		summon: {
+			description: "Recall a player at your position",
+			callback: function (text) {
+				var matches = text.match(/(^summon)\s+(.*)/);
+				if (matches) {
+					var pkt = new PACKET.CZ.MOVETO_MAP();
+					pkt.CharacterName = matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+		recall: {
+			description: "Sends a local broadcast message (needs account name).",
+			callback: function (text) {
+				var matches = text.match(/(^recall)\s+(.*)/);
+				if (matches) {
+					var pkt = new PACKET.CZ.RECALL();
+					pkt.AccountName = matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+		hide: {
+			description: "Enter in Perfect Hide.",
+			callback: function () {
+				var pkt    = new PACKET.CZ.CHANGE_EFFECTSTATE();
+				Network.sendPacket(pkt);
+				return;
+			},
+		},
+		kill: {
+			description: "Disconnect a player (needs account id).",
+			callback: function (text) {
+				var matches = text.match(/(^kill)\s+(\d+)/);
+				if (matches) {
+					var pkt = new PACKET.CZ.DISCONNECT_CHARACTER();
+					pkt.AID = matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+		kilall: {
+			description: "Disconnect all players.",
+			callback: function () {
+				var pkt    = new PACKET.CZ.DISCONNECT_ALL_CHARACTER();
+				Network.sendPacket(pkt);
+				return;
+			},
+		},
+		item: {
+			description: "Create Item or Monster (uses AEGIS name).",
+			callback: function (text) {
+				var matches = text.match(/(^item|^monster)\s+(")?([^"]+)(")?/);
+				if (matches && matches[2]) {
+					var pkt    = new PACKET.CZ.ITEM_CREATE();
+					pkt.itemName = matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+			aliases: ["monster"],
+		},
+		resetstate: {
+			description: "Reset Stats.",
+			callback: function () {
+				var pkt    = new PACKET.CZ.RESET();
+				pkt.type = 0;
+				Network.sendPacket(pkt);
+				return;
+			},
+		},
+		resetskill: {
+			description: "Reset Skills.",
+			callback: function () {
+				var pkt    = new PACKET.CZ.RESET();
+				pkt.type = 1;
+				Network.sendPacket(pkt);
+				return;
+			},
+		},
+		remove: {
+			description: "Remove a player (need account name)",
+			callback: function (text) {
+				var matches = text.match(/(^remove)\s+(.*)/);
+				if (matches) {
+					var pkt = new PACKET.CZ.REMOVE_AID();
+					pkt.AccountName = matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+		changemaptype: {
+			description: "Change a cell type (x,y,type).",
+			callback: function (text) {
+				var matches = text.match(/(^changemaptype|cmt)\s+(\d+)\s+(\d+)\s+(\d+)/);
+				if (matches) {
+					var pkt = new PACKET.CZ.MOVETO_MAP();
+					pkt.xPos = matches[2];
+					pkt.yPos = matches[3];
+					pkt.type = matches[4];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+			aliases: ["cmt"],
+		},
 		commands: {
 			description: "Show available commands.",
 			callback: function () {
