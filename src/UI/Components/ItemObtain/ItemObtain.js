@@ -41,7 +41,7 @@ define(function(require)
 	/**
 	 * @var {boolean} do not focus this UI
 	 */
-	ItemObtain.needFocus = true;
+	ItemObtain.needFocus = false;
 
 
 	/**
