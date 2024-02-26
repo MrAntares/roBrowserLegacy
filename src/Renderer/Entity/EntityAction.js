@@ -134,6 +134,8 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 
 			// Mob action
 			case Entity.TYPE_MOB:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 				this.ACTION.IDLE   = 0;
 				this.ACTION.WALK   = 1;
 				this.ACTION.ATTACK = 2;
@@ -155,6 +157,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 
 			// NPC action
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_NPC2:
 				this.ACTION.IDLE   = 0;
 				// For those NPC that move with unitwalk scriptcommand
 				this.ACTION.WALK   = 1;
@@ -179,6 +182,11 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 				this.ACTION.ATTACK2 = 5;
 				this.ACTION.ATTACK3 = 6;
 				this.ACTION.ACTION  = 7;
+				break;
+			
+			case Entity.TYPE_FALCON:
+				this.ACTION.IDLE    = 0;
+				this.ACTION.WALK    = 1;
 				break;
 
 			//TODO: define others Entities ACTION

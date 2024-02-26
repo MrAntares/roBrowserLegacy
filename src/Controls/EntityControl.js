@@ -64,23 +64,26 @@ define(function( require )
 			case Entity.TYPE_ELEM:
 			case Entity.TYPE_HOM:
 			case Entity.TYPE_MERC:
-				// TODO: Check for pvp flag ?
-				if ((KEYS.SHIFT === false && Preferences.noshift === false) || this === Session.Entity)  {
+				if ((KEYS.SHIFT === true || Preferences.noshift === true) && this !== Session.Entity)  {
 					if (!Camera.action.active ) {
-						Cursor.setType( Cursor.ACTION.DEFAULT );
+						Cursor.setType( Cursor.ACTION.ATTACK );
 					}
 					break;
 				}
 
-				Cursor.setType( Cursor.ACTION.ATTACK );
+				let action = this.canAttackEntity() ? Cursor.ACTION.ATTACK : Cursor.ACTION.DEFAULT;
+				Cursor.setType( action );
 				break;
 
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 				Cursor.setType( Cursor.ACTION.ATTACK );
 				break;
 
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_NPC2:
 				//check if already talk to NPC
 				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
 					Cursor.setType( Cursor.ACTION.TALK, true );
@@ -191,6 +194,7 @@ define(function( require )
 				return true;
 
 			case Entity.TYPE_NPC:
+			case Entity.TYPE_NPC2:
 				//check if already talk to NPC
 				if (!NpcBox.ui || !NpcBox.ui.is(':visible')) {
 					pkt      = new PACKET.CZ.CONTACTNPC();
@@ -376,7 +380,7 @@ define(function( require )
 			case Entity.TYPE_ELEM:
 			case Entity.TYPE_HOM:
 				// TODO: add check for PVP/WOE mapflag
-				if (KEYS.SHIFT === false && Preferences.noshift === false)  {
+				if (KEYS.SHIFT === false && Preferences.noshift === false && !this.canAttackEntity())  {
 					if (!Camera.action.active) {
 						Cursor.setType( Cursor.ACTION.DEFAULT );
 					}
@@ -388,6 +392,8 @@ define(function( require )
 
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 
 				// Start rendering the lock on arrow
 				this.attachments.add({
@@ -467,6 +473,8 @@ define(function( require )
 			case Entity.TYPE_HOM:
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
+			case Entity.TYPE_NPC_ABR:
+			case Entity.TYPE_NPC_BIONIC:
 				if (Entity.Manager.getFocusEntity()) {
 					Network.sendPacket(new PACKET.CZ.CANCEL_LOCKON());
 				}
@@ -538,6 +546,26 @@ define(function( require )
 		}
 	}
 
+	function canAttackEntity() {
+			if(this === Session.Entity) {
+				return false;
+			}
+			// Show attack cursor on non-party members (PvP)
+		 	else if ( Session.mapState.isPVP ) {
+				if ( Session.hasParty && getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember( this.display.name ) ) {
+					return false;
+				}
+				return true;
+			} 
+			// Show attack cursor on non-guild members (GvG)
+			else if( Session.mapState.isGVG ) {
+				if(Session.Entity.GUID > 0 && this.GUID !== Session.Entity.GUID || (this.GUID == 0 && this !== Session.Entity)) { // 0 = no guild, can be attacked by anyone
+					return true;
+				}
+			}
+			return false;
+	}
+
 	/**
 	 * Export
 	 */
@@ -551,5 +579,6 @@ define(function( require )
 		this.onFocusEnd    = onFocusEnd;
 		this.onRoomEnter   = onRoomEnter;
 		this.onContextMenu = onContextMenu;
+		this.canAttackEntity = canAttackEntity;
 	};
 });

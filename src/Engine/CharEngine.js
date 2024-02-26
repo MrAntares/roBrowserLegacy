@@ -17,6 +17,7 @@ define(function( require )
 	// Load modules
 	var jQuery     = require('Utils/jquery');
 	var DB         = require('DB/DBManager');
+	var Configs    = require('Core/Configs');
 	var Events     = require('Core/Events');
 	var Sound      = require('Audio/SoundManager');
 	var BGM        = require('Audio/BGM');
@@ -59,7 +60,10 @@ define(function( require )
 		_server = server;
 
 		// Connect to char server
-		Network.connect( Network.utils.longToIP( server.ip ), server.port, function( success ){
+		var forceAddress = Configs.get('forceUseAddress');
+		var server_info = Configs.getServer();
+		var ip = forceAddress ? server_info.address : Network.utils.longToIP( server.ip );
+		Network.connect( ip, server.port, function( success ){
 
 			// Fail to connect...
 			if (!success) {

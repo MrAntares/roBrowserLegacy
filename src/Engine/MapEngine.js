@@ -42,6 +42,7 @@ define(function( require )
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
+	var StatusConst        = require('DB/Status/StatusState');
 
 	if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 		var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
@@ -68,6 +69,8 @@ define(function( require )
 	var Bank             = require('UI/Components/Bank/Bank');
 	var Rodex            = require('UI/Components/Rodex/Rodex');
 	var RodexIcon        = require('UI/Components/Rodex/RodexIcon');
+	var PetInformations  = require('UI/Components/PetInformations/PetInformations');
+	var HomunInformations= require('UI/Components/HomunInformations/HomunInformations');
 	if(Configs.get('enableMapName')){
 		var MapName          = require('UI/Components/MapName/MapName');
 	}
@@ -119,7 +122,10 @@ define(function( require )
 		_mapName = mapName;
 
 		// Connect to char server
-		Network.connect( Network.utils.longToIP( ip ), port, function onconnect( success ) {
+		var forceAddress = Configs.get('forceUseAddress');
+		var server_info = Configs.getServer();
+		var current_ip = forceAddress ? server_info.address : Network.utils.longToIP( ip );
+		Network.connect( current_ip, port, function onconnect( success ) {
 
 			// Force reloading map
 			MapRenderer.currentMap = '';
@@ -203,9 +209,16 @@ define(function( require )
 			Network.hookPacket( PACKET.ZC.RESTART_ACK,         onRestartAnswer );
 			Network.hookPacket( PACKET.ZC.ACK_REQ_DISCONNECT,  onDisconnectAnswer );
 			Network.hookPacket( PACKET.ZC.NOTIFY_TIME,         onPong );
+			Network.hookPacket( PACKET.ZC.PING_LIVE,           onPingLive );
+			Network.hookPacket( PACKET.ZC.CONFIG_NOTIFY,       onConfigNotify );
+			Network.hookPacket( PACKET.ZC.CONFIG_NOTIFY2,      onConfigNotify );
+			Network.hookPacket( PACKET.ZC.CONFIG_NOTIFY3,      onConfigNotify );
+			Network.hookPacket( PACKET.ZC.CONFIG_NOTIFY4,      onConfigNotify );
+			Network.hookPacket( PACKET.ZC.CONFIG,              onConfig );
 
 			// Extend controller
 			require('./MapEngine/Main').call();
+			require('./MapEngine/MapState').call();
 			require('./MapEngine/NPC').call();
 			require('./MapEngine/Entity').call();
 			require('./MapEngine/Item').call();
@@ -278,6 +291,8 @@ define(function( require )
 			Equipment.getUI().onConfigUpdate        = onConfigUpdate;
 			Equipment.getUI().onEquipItem           = onEquipItem;
 			Equipment.getUI().onRemoveOption        = onRemoveOption;
+			PetInformations.onConfigUpdate          = onConfigUpdate;
+			HomunInformations.onConfigUpdate        = onConfigUpdate;
 			Inventory.onUseItem             = onUseItem;
 			Inventory.onEquipItem           = onEquipItem;
 			Escape.onExitRequest            = onExitRequest;
@@ -317,6 +332,103 @@ define(function( require )
 
 
 	/**
+	 * Ping from server?
+	 */
+	function onPingLive( pkt )
+	{
+		var pong_pkt = new PACKET.CZ.PING_LIVE();
+		Network.sendPacket(pong_pkt);
+	}
+
+	/**
+	 * Receive user config from server
+	 *
+	 * @param {object} pkt - PACKET_ZC_CONFIG
+	 */
+	function onConfig( pkt )
+	{
+		console.log(pkt);
+		switch(pkt.Config) {
+			case 0:
+				Equipment.getUI().setEquipConfig( pkt.Value );
+				ChatBox.addText(
+					DB.getMessage(1358 + (pkt.Value ? 1 : 0) ),
+					ChatBox.TYPE.INFO,
+					ChatBox.FILTER.PUBLIC_LOG
+				);
+				break;
+			case 1:
+				Session.Entity.call_flag = pkt.Value;
+				ChatBox.addText(
+					DB.getMessage(2978 + (pkt.Value ? 0 : 1) ),
+					ChatBox.TYPE.INFO,
+					ChatBox.FILTER.PUBLIC_LOG
+				);
+				break;
+			case 2:
+				PetInformations.setFeedConfig( pkt.Value );
+				ChatBox.addText(
+					DB.getMessage(2579 + (pkt.Value ? 0 : 1) ),
+					ChatBox.TYPE.INFO,
+					ChatBox.FILTER.PUBLIC_LOG
+				);
+				break;
+			case 3:
+				HomunInformations.setFeedConfig( pkt.Value );
+				ChatBox.addText(
+					DB.getMessage(3282 + (pkt.Value ? 0 : 1) ),
+					ChatBox.TYPE.INFO,
+					ChatBox.FILTER.PUBLIC_LOG
+				);
+				break;
+			default:
+				console.log('[PACKET_ZC_CONFIG] Unknown Config Type %d (value:%d)', pkt.Config, pkt.Value);
+		}
+	}
+
+	/**
+	 * Show some system configs
+	 *
+	 * @param {object} pkt - PACKET_ZC_CONFIG_NOTIFY
+	 */
+	function onConfigNotify( pkt )
+	{
+		if (typeof pkt.show_eq_flag !== 'undefined') {
+			Equipment.getUI().setEquipConfig( pkt.show_eq_flag );
+			ChatBox.addText(
+				DB.getMessage(1358 + (pkt.show_eq_flag ? 1 : 0) ),
+				ChatBox.TYPE.INFO,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+		}
+		if (typeof pkt.pet_autofeeding_flag !== 'undefined') {
+			PetInformations.setFeedConfig( pkt.pet_autofeeding_flag );
+			ChatBox.addText(
+				DB.getMessage(2579 + (pkt.pet_autofeeding_flag ? 0 : 1) ),
+				ChatBox.TYPE.INFO,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+		}
+		if (typeof pkt.call_flag !== 'undefined') {
+			Session.Entity.call_flag = pkt.call_flag;
+			ChatBox.addText(
+				DB.getMessage(2978 + (pkt.call_flag ? 0 : 1) ),
+				ChatBox.TYPE.INFO,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+		}
+		if (typeof pkt.homunculus_autofeeding_flag !== 'undefined') {
+			HomunInformations.setFeedConfig( pkt.homunculus_autofeeding_flag );
+			ChatBox.addText(
+				DB.getMessage(3282 + (pkt.homunculus_autofeeding_flag ? 0 : 1) ),
+				ChatBox.TYPE.INFO,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+		}
+	}
+
+
+	/**
 	 * Server update our account id
 	 *
 	 * @param {object} pkt - PACKET.ZC.AID
@@ -351,6 +463,21 @@ define(function( require )
 		Session.homunId       =     0;
 
 		Session.Entity.clevel = Session.Character.level;
+
+		Session.mapState =  {
+			property        : 0,
+			type            : 0,
+			flag            : 0,
+			isPVPZone       : false,
+			isAgitZone      : false,
+			isPVP           : false,
+			isGVG           : false,
+			isSiege         : false,
+			isNoLockOn      : false,
+			showPVPCounter  : false,
+			showBFCounter   : false,
+			isBattleField   : false,
+		};
 
 		BasicInfo.getUI().update('blvl', Session.Character.level );
 		BasicInfo.getUI().update('jlvl', Session.Character.joblevel );
@@ -399,6 +526,22 @@ define(function( require )
 				GID: Session.Character.GID
 			});
 			EntityManager.add( Session.Entity );
+			if(Session.Entity.effectState & StatusConst.EffectState.FALCON) {
+				var falcon = new Entity();
+				falcon.set({
+					objecttype: falcon.constructor.TYPE_FALCON,
+					GID: Session.Entity.GID + '_FALCON',
+					PosDir: [Session.Entity.position[0], Session.Entity.position[1], 0],
+					job: Session.Entity.job + '_FALCON',
+					speed: 200,
+					name: "",
+					hp: -1,
+					maxhp: -1,
+					hideShadow: true,
+				});
+				EntityManager.add(falcon);
+				Session.Entity.falconGID = falcon.GID;
+			}
 			// free and load aura so it loads in new map
 			Session.Entity.aura.free();
 			Session.Entity.aura.load(EffectManager);
@@ -752,7 +895,7 @@ define(function( require )
 	{
 		// setTimeout isn't accurate, so reduce the value
 		// to avoid possible errors.
-		if (_walkLastTick + 450 > Renderer.tick) {
+		if (_walkLastTick + 200 > Renderer.tick) {
 			return;
 		}
 

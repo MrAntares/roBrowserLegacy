@@ -23,6 +23,7 @@ define(function(require)
 	var UIComponent          = require('UI/UIComponent');
 	var htmlText             = require('text!./PetInformations.html');
 	var cssText              = require('text!./PetInformations.css');
+	var PACKETVER            = require('Network/PacketVerManager');
 
 
 	/**
@@ -40,6 +41,10 @@ define(function(require)
 		show:     true,
 	}, 1.0);
 
+	/**
+	 * Auto Feed Flag
+	 */
+	var petAutoFeeding = 0;
 
 	/**
 	 * Initialize component
@@ -52,6 +57,7 @@ define(function(require)
 		this.ui.find('.close').click(onClose);
 		this.ui.find('.modify').click(onChangeName);
 		this.ui.find('.command').change(onCommandSelected);
+		this.ui.find('.pet_auto_feed').mousedown(petToggleAutoFeed);
 
 		if (!_preferences.show) {
 			this.ui.hide();
@@ -63,6 +69,14 @@ define(function(require)
 		});
 	};
 
+	PetInformations.onAppend = function onAppend() {
+		Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (petAutoFeeding ? '1' : '0') + '.bmp', function(data){
+			PetInformations.ui.find('.pet_auto_feed').css('backgroundImage', 'url(' + data + ')');
+		});
+		if(PACKETVER.value < 20141008)
+			PetInformations.ui.find('.feeding').hide();
+
+    }
 
 	/**
 	 * Once remove from body, save user preferences
@@ -144,6 +158,17 @@ define(function(require)
 		));
 	};
 
+	PetInformations.setFeedConfig = function setFeedConfig(flag)
+	{
+		petAutoFeeding = flag;
+
+		 // server sent this info before of pet
+		if(PetInformations.ui) {
+			Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (petAutoFeeding ? '1' : '0') + '.bmp', function(data){
+				PetInformations.ui.find('.pet_auto_feed').css('backgroundImage', 'url(' + data + ')');
+			});
+		}
+	}
 
 	/**
 	 * Set hunger value
@@ -192,6 +217,15 @@ define(function(require)
 
 
 	/**
+	 * Toggle Auto Feed
+	 */
+	function petToggleAutoFeed()
+	{
+		PetInformations.onConfigUpdate( 2, !petAutoFeeding ? 1 : 0 );
+	}
+
+
+	/**
 	 * Request to modify pet's name
 	 */
 	function onChangeName()
@@ -228,6 +262,7 @@ define(function(require)
 	PetInformations.reqNameEdit   = function reqNameEdit(){};
 	PetInformations.reqUnEquipPet = function reqUnEquipPet(){};
 	PetInformations.reqBackToEgg  = function reqBackToEgg(){};
+	PetInformations.onConfigUpdate = function onConfigUpdate(/* type, value*/){};
 
 
 	/**

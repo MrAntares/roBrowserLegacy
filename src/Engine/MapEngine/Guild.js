@@ -55,10 +55,12 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.GUILD_INFO,                    onGuildInfo );
 		Network.hookPacket( PACKET.ZC.GUILD_INFO2,                   onGuildInfo );
 		Network.hookPacket( PACKET.ZC.GUILD_INFO3,                   onGuildInfo );
+		Network.hookPacket( PACKET.ZC.GUILD_INFO4,                   onGuildInfo );
 		Network.hookPacket( PACKET.ZC.MYGUILD_BASIC_INFO,            onGuildRelation );
 		Network.hookPacket( PACKET.ZC.GUILD_EMBLEM_IMG,              onGuildEmblem );
 		Network.hookPacket( PACKET.ZC.MEMBERMGR_INFO,                onGuildMembers );
 		Network.hookPacket( PACKET.ZC.MEMBERMGR_INFO2,               onGuildMembers );
+		Network.hookPacket( PACKET.ZC.MEMBERMGR_INFO3,               onGuildMembers );
 		Network.hookPacket( PACKET.ZC.ACK_GUILD_MEMBER_INFO,         onGuildMemberUpdate );
 		Network.hookPacket( PACKET.ZC.POSITION_INFO,                 onGuildPositions );
 		Network.hookPacket( PACKET.ZC.POSITION_ID_NAME_INFO,         onGuildPositionsName );
@@ -83,6 +85,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.REQ_ALLY_GUILD,                onGuildAskForAlliance );
 		Network.hookPacket( PACKET.ZC.ACK_REQ_ALLY_GUILD,            onGuildAllianceResult );
 		Network.hookPacket( PACKET.ZC.ACK_REQ_HOSTILE_GUILD,         onGuildHostilityResult );
+		Network.hookPacket( PACKET.ZC.GUILD_AGIT_INFO,               onGuildCastleInfo );
 
 		// Hook UI
 		Guild.onGuildInfoRequest      = GuildEngine.requestInfo;
@@ -909,6 +912,10 @@ define(function( require )
 		}
 	}
 
+	function onGuildCastleInfo ( pkt )
+	{
+		// TODO: what is castle list?
+	}
 
 	/**
 	 * Initialize

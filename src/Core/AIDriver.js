@@ -115,7 +115,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
         var entity = EntityManager.get(Number(id));
 
-        if (entity.objecttype === entity.TYPE_MOB) {
+        if (entity.objecttype === entity.TYPE_MOB || entity.objecttype === entity.TYPE_NPC_ABR || entity.objecttype === entity.TYPE_NPC_BIONIC) {
             return 1;
         }
         return 0;
@@ -165,7 +165,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 res.forEach((item) => {
                     if (item != 0 && item != Session.AID && item != Session.homunId) {
                         var entity = EntityManager.get(Number(item))
-                        if (entity && entity.objecttype === Entity.TYPE_MOB) {
+                        if (entity && (entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC)) {
                             if (status == 0) { //idle = 0
                                 // attak
                                 AIDriver.setmsg(Session.homunId, '3,'+ item);

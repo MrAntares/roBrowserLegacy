@@ -303,6 +303,7 @@ function initialize() {
               port:         6900,          // Must match your game server's
               langtype:     12,            // Must match your game server's
               packetver:    20191223,      // Must match your game server's
+              forceUseAddress: false,      // Some times when connect to server, the server return 127.0.0.1 as IP to connect. This key force robrowse to ignore and use IP set at 'address'
               //grfList:    "DATA.INI",    // By default uses DATA.INI to get grf list, but you can define an array (grfList: ['custom.grf', 'palette.grf', 'data.grf'],) or a regex (grfList: /\.grf$/i,)
               remoteClient: "http://127.0.0.1/client", // Your remote client address. Defaults to http://grf.robrowser.com/
               renewal:      true,          // Must match your game server's type (true/false). When using clientinfo.xml you can add the <renewal>true</renewal> custom tag.

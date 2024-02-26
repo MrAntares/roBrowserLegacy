@@ -1,4 +1,4 @@
-#PetInformations { position:absolute; top:100px; left:100px; width:280px; height:160px; font-size:12px; background-color:white; border-radius:5px; }
+#PetInformations { position:absolute; top:100px; left:100px; width:280px; height:180px; font-size:12px; background-color:white; border-radius:5px; }
 
 #PetInformations .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
 #PetInformations .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
@@ -30,5 +30,7 @@
 
 #PetInformations .title_accessory { position:absolute; top: 100px; left:100px; }
 #PetInformations .accessory { position:absolute; top: 120px; left:100px; }
+#PetInformations .feeding { position:absolute; top: 140px; left:100px; display: flex; align-items: center; }
+#PetInformations .feeding .pet_auto_feed { width:10px; height:12px; border:none; background-color:transparent; background-repeat:no-repeat; margin-left: 5px; }
 
 #PetInformations .command { position:absolute; top:27px; right:5px; }

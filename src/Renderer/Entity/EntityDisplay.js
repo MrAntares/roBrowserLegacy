@@ -186,7 +186,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		var lines    = new Array(2);
 		var fontSize = 12;
 		var ctx      = this.ctx;
-		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT) ? 26 : 0) + 5;
+		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN) ? 26 : 0) + 5;
 		var width, height;
 		var paddingTop = 5;
 
@@ -196,12 +196,12 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 
 
 		// Add the party name
-		if (this.party_name.length && (style === this.STYLE.DEFAULT)) {
+		if (this.party_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN)) {
 			lines[0] += ' (' + this.party_name + ')';
 		}
 
 		// Add guild name
-		if (this.guild_name.length && (style === this.STYLE.DEFAULT)) {
+		if (this.guild_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN)) {
 			lines[1]  = this.guild_name;
 
 			// Add guild rank
@@ -220,7 +220,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		ctx.canvas.height = height;
 
 		// Draw emblem
-		if (this.emblem  && (style === this.STYLE.DEFAULT)) {
+		if (this.emblem  && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN)) {
 			ctx.drawImage( this.emblem, 0, 0 );
 		}
 
@@ -276,8 +276,11 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 	{
 		this.update(
 			entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+			entity.objecttype === entity.constructor.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
 			entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
 			entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
+			entity.objecttype === entity.constructor.TYPE_NPC2 ? entity.display.STYLE.NPC :
 			entity.objecttype === entity.constructor.TYPE_ITEM ? entity.display.STYLE.ITEM :
 			(entity.objecttype === entity.constructor.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
 			entity.display.STYLE.DEFAULT

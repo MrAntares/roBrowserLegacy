@@ -395,7 +395,7 @@ define(function( require )
 		if (Cursor.magnetism && !Cursor.blockMagnetism) {
 			var entity = EntityManager.getOverEntity();
 
-			if (entity && ((entity.objecttype === Entity.TYPE_MOB && Preferences.snap === true) || (entity.objecttype === Entity.TYPE_ITEM && Preferences.itemsnap === true))) {
+			if (entity && (((entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC) && Preferences.snap === true) || (entity.objecttype === Entity.TYPE_ITEM && Preferences.itemsnap === true))) {
 				x += Math.floor( Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2-entity.boundingRect.x1) / 2));
 				y += Math.floor( Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2-entity.boundingRect.y1) / 2));
 			}

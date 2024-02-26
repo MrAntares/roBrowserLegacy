@@ -3513,6 +3513,226 @@ define(['./StatusConst'], function( SC )
 	StatusInfo[SC.GLASTHEIM_HEAL] = {
 		icon: "glastheim_heal.tga"
 	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_NOTHING] = {
+		icon: "weapon_property.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Neutral Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_WATER] = {
+		icon: "weapon_property_water.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Water Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_GROUND] = {
+		icon: "weapon_property_ground.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Earth Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_FIRE] = {
+		icon: "weapon_property_fire.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Fire Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_WIND] = {
+		icon: "weapon_property_wind.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Wind Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_POISON] = {
+		icon: "weapon_property.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Poison Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_SAINT] = {
+		icon: "weapon_property.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Holy Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_DARKNESS] = {
+		icon: "weapon_property.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Dark Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_TELEKINESIS] = {
+		icon: "weapon_property.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Ghost Property"]
+		]
+	};
+	
+	StatusInfo[SC.ATTACK_PROPERTY_UNDEAD] = {
+		icon: "weapon_property.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Weapon Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Enchants Weapon with Undead Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_NOTHING] = {
+		icon: "resist_elemental_nothing.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Neutral Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_WATER] = {
+		icon: "resist_elemental_water.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Water Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_GROUND] = {
+		icon: "resist_elemental_ground.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Earth Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_FIRE] = {
+		icon: "resist_elemental_fire.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Fire Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_WIND] = {
+		icon: "resist_elemental_wind.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Wind Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_POISON] = {
+		icon: "resist_elemental_poison.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Poison Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_SAINT] = {
+		icon: "resist_elemental_saint.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Holy Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_DARKNESS] = {
+		icon: "resist_elemental_darkness.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Dark Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_TELEKINESIS] = {
+		icon: "resist_elemental_telekinesis.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Ghost Property"]
+		]
+	};
+	
+	StatusInfo[SC.RESIST_PROPERTY_UNDEAD] = {
+		icon: "resist_elemental_undead.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Resist Property", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["Increases your resistance to the Undead Property"]
+		]
+	};
 
 	return StatusInfo;
 });

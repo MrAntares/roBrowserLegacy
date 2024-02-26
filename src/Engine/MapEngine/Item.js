@@ -170,10 +170,9 @@ define(function( require )
 			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe       = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
 			if (pkt.wearLocation & EquipLocation.WEAPON)      Session.Entity.weapon     = 0;
 			if (pkt.wearLocation & EquipLocation.SHIELD)      Session.Entity.shield     = 0;
-			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe       = 0;
-			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_TOP)    Session.Entity.accessory2 = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
-			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_MID)    Session.Entity.accessory3 = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
-			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM) Session.Entity.accessory  = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
+			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_TOP)    Session.Entity.accessory2 = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_TOP);
+			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_MID)    Session.Entity.accessory3 = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_MID);
+			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM) Session.Entity.accessory  = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 			if (pkt.wearLocation & EquipLocation.COSTUME_ROBE)     Session.Entity.robe       = Equipment.getUI().checkEquipLoc(EquipLocation.GARMENT);
 		}
 	}
@@ -199,47 +198,13 @@ define(function( require )
 			var CostumeCheckTop = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
 			var CostumeCheckMid = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
 			var CostumeCheckBot = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
-			var CheckTop        = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_TOP);
-			var CheckMid        = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_MID);
-			var CheckBot        = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 			var CostumeCheckRobe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
-			var CheckGarment    = Equipment.getUI().checkEquipLoc(EquipLocation.GARMENT);
-
-
-			// Costumes
-			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_TOP ||
-				pkt.wearLocation & EquipLocation.COSTUME_HEAD_MID ||
-				pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM ||
-				pkt.wearLocation & EquipLocation.COSTUME_ROBE
-			) {
-				/**
-				 * Clear slots first if equipping a costume
-				 * Not doing so retains sprites or viewid from 3 and 2 slots headgears
-				 *
-				 */
-				Session.Entity.accessory2 = 0;
-				Session.Entity.accessory3 = 0;
-				Session.Entity.accessory = 0;
-				Session.Entity.robe = 0;
-
-				/**
-				 *  Here we check Costume Slot first then normal headgear slots
-				 *  Prioritize Upper headgear viewid
-				 *  The check of 3 slots headgears (upper, mid and lower)
-				 *  and 2 slots headgears (upper and mid) or (lower and mid)
-				 *  were added in mid and lower headgear check
-				 */
-				Session.Entity.accessory2 = (CostumeCheckTop) ? CostumeCheckTop : (CheckTop) ? CheckTop : 0;
-				Session.Entity.accessory3 = (CostumeCheckMid) ? CostumeCheckMid : ( (CheckMid && (CheckMid !== CheckTop && CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckTop)) ) ? CheckMid : 0;
-				Session.Entity.accessory  = (CostumeCheckBot) ? CostumeCheckBot : ( (CheckBot && (CheckBot !== CheckTop)) && (CheckBot && (CheckBot !== CheckMid)) ) ? CheckBot : 0;
-				Session.Entity.robe  =  (CostumeCheckRobe) ? CostumeCheckRobe : CheckGarment ? CheckGarment : 0;
-			}
 
 			// Display
-			if (pkt.wearLocation & EquipLocation.HEAD_TOP)    Session.Entity.accessory2 = (CostumeCheckTop) ? CostumeCheckTop : (CheckTop) ? pkt.viewid : 0;
-			if (pkt.wearLocation & EquipLocation.HEAD_MID)    Session.Entity.accessory3 = (CostumeCheckMid) ? CostumeCheckMid : ( (CheckMid && (CheckMid !== CheckTop && CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckBot)) && (CheckMid && (CheckMid !== CheckTop)) ) ? pkt.viewid : 0;
-			if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) Session.Entity.accessory  = (CostumeCheckBot) ? CostumeCheckBot : ( (CheckBot && (CheckBot !== CheckTop)) && (CheckBot && (CheckBot !== CheckMid)) ) ? pkt.viewid : 0;
-			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe  =  (CostumeCheckRobe) ? CostumeCheckRobe : CheckGarment ? CheckGarment : 0;
+			if (pkt.wearLocation & EquipLocation.HEAD_TOP)    Session.Entity.accessory2 = (CostumeCheckTop) ? CostumeCheckTop : pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.HEAD_MID)    Session.Entity.accessory3 = (CostumeCheckMid) ? CostumeCheckMid : pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) Session.Entity.accessory  = (CostumeCheckBot) ? CostumeCheckBot : pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe  =  (CostumeCheckRobe) ? CostumeCheckRobe : pkt.viewid;
 			if (pkt.wearLocation & EquipLocation.WEAPON)      Session.Entity.weapon     = pkt.viewid;
 			if (pkt.wearLocation & EquipLocation.SHIELD)      Session.Entity.shield     = pkt.viewid;
 			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe       = pkt.viewid;
@@ -273,22 +238,6 @@ define(function( require )
 		if(pkt.result){
 			EffectManager.spamItem( pkt.id, pkt.AID, null, null, null);
 		}
-	}
-
-
-	/**
-	 * Do we show equipment to others ?
-	 *
-	 * @param {object} pkt - PACKET_ZC_CONFIG_NOTIFY
-	 */
-	function onConfigEquip( pkt )
-	{
-		Equipment.getUI().setEquipConfig( pkt.bOpenEquipmentWin );
-		ChatBox.addText(
-			DB.getMessage(1358 + (pkt.bOpenEquipmentWin ? 1 : 0) ),
-			ChatBox.TYPE.INFO,
-			ChatBox.FILTER.ITEM
-		);
 	}
 
 	/**
@@ -696,7 +645,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.DELETE_ITEM_FROM_CART,  onCartRemoveItem );
 		Network.hookPacket( PACKET.ZC.USE_ITEM_ACK,           onItemUseAnswer );
 		Network.hookPacket( PACKET.ZC.USE_ITEM_ACK2,          onItemUseAnswer );
-		Network.hookPacket( PACKET.ZC.CONFIG_NOTIFY,          onConfigEquip );
 		Network.hookPacket( PACKET.ZC.EQUIP_ARROW,            onArrowEquipped );
 		Network.hookPacket( PACKET.ZC.ITEMCOMPOSITION_LIST,   onItemCompositionList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMCOMPOSITION,    onItemCompositionResult );

@@ -153,14 +153,15 @@ define(['./JobConst', 'DB/Items/WeaponType'], function( JobId, WeaponType )
 
 	WeaponAction[JobId.ASSASSIN] = new function(){
 		this[ WeaponType.NONE ]                  = 0;
+		this[ WeaponType.AXE ]                   = 1;
 		this[ WeaponType.SWORD ]                 = 1;
 		this[ WeaponType.SHORTSWORD ]            = 1;
-		this[ WeaponType.SHORTSWORD_SHORTSWORD ] = 1;
-		this[ WeaponType.SWORD_SWORD ]           = 1;
-		this[ WeaponType.AXE_AXE ]               = 1;
-		this[ WeaponType.SHORTSWORD_SWORD ]      = 1;
-		this[ WeaponType.SHORTSWORD_AXE ]        = 1;
-		this[ WeaponType.SWORD_AXE ]             = 1;
+		this[ WeaponType.SHORTSWORD_SHORTSWORD ] = 2;
+		this[ WeaponType.SWORD_SWORD ]           = 2;
+		this[ WeaponType.AXE_AXE ]               = 2;
+		this[ WeaponType.SHORTSWORD_SWORD ]      = 2;
+		this[ WeaponType.SHORTSWORD_AXE ]        = 2;
+		this[ WeaponType.SWORD_AXE ]             = 2;
 		this[ WeaponType.KATAR ]                 = 2;
 	};
 
@@ -344,8 +345,8 @@ define(['./JobConst', 'DB/Items/WeaponType'], function( JobId, WeaponType )
 	duplicateEntry(JobId.SUPERNOVICE, JobId.SUPERNOVICE_B, JobId.SUPERNOVICE2, JobId.SUPERNOVICE2_B, JobId.HYPER_NOVICE);
 	duplicateEntry(JobId.NINJA,      JobId.NINJA_B,      JobId.KAGEROU,      JobId.KAGEROU_B,        JobId.OBORO,              JobId.OBORO_B,              JobId.SHINKIRO,     JobId.SHIRANUI);
 	duplicateEntry(JobId.GUNSLINGER, JobId.GUNSLINGER_B, JobId.REBELLION,     JobId.REBELLION_B,     JobId.NIGHT_WATCH);
-	duplicateEntry(JobId.LINKER,     JobId.REAPER,       JobId.SOUL_ASCETIC);
-	duplicateEntry(JobId.LINKER,     JobId.REAPER,      JobId.SOUL_ASCETIC);
+	duplicateEntry(JobId.LINKER,     JobId.LINKER_B,     JobId.REAPER,       JobId.REAPER_B,         JobId.SOUL_ASCETIC);
+
 	// missing star/evolutions?
 
 	/**

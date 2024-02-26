@@ -227,7 +227,10 @@ define(function( require )
 			var i, count;
 			var pkt;
 
-			if (_pkt instanceof PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC2) {
+			if(_pkt instanceof PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3) {
+				pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC3();
+				pkt.UniqueID = _pkt.UniqueID;
+			} else if (_pkt instanceof PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC2) {
 				pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC2();
 				pkt.UniqueID = _pkt.UniqueID;
 			}
@@ -258,6 +261,16 @@ define(function( require )
 		Vending.onVendingSkill(pkt);
 	}
 
+
+	/**
+	 * Open vending creation window with X slots
+	 *
+	 * @param {object} pkt - PACKET.ZC.ACK_OPENSTORE2
+	 */
+	function onOpenVendingResult(pkt){
+		// TODO: check what it do in client
+	}
+
 	/**
 	 * Initialize
 	 */
@@ -272,10 +285,13 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PC_SELL_RESULT,               onSellResult );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC,  onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC2, onVendingStoreList );
+		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_RESULT_FROMMC,    onBuyResult );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_MYITEMLIST,       onBuyVendingList );
+		Network.hookPacket( PACKET.ZC.PC_PURCHASE_MYITEMLIST2,      onBuyVendingList );
 		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE,      onDeleteVendingItem );
-		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE2,      onDeleteVendingItem );
+		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE2,     onDeleteVendingItem );
 		Network.hookPacket( PACKET.ZC.OPENSTORE,                    onOpenVending );
+		Network.hookPacket( PACKET.ZC.ACK_OPENSTORE2,               onOpenVendingResult );
 	};
 });

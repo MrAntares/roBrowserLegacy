@@ -164,7 +164,9 @@ define(function( require )
 		if(packetDump) {
 			let fp = new BinaryReader( pkt.buffer );
 			let id = fp.readUShort()
-			console.log("[Network] [send] Packet ID: 0x%s - %s - Length: %d\nContent:\n%s", id.toString(16), Packet.constructor.name, pkt.buffer.byteLength, utilsBufferToHexString(pkt.buffer).toUpperCase());
+			console.log("%c[Network] Dump Send: \n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s", 
+				'color:#007070', 'color:#FFFFFF',
+				id.toString(16), Packet.constructor.name, pkt.buffer.byteLength, utilsBufferToHexString(pkt.buffer).toUpperCase());
 		}
 
 		console.log( '%c[Network] Send: ', 'color:#007070', Packet );
@@ -320,12 +322,15 @@ define(function( require )
 			}
 
 			if(Packets.list[id]) {
+				packet  = Packets.list[id];
+				
 				if(packetDump) {
 					let buffer_console = new Uint8Array( buffer, 0, length );
-					console.log("[Network] [recv] Packet ID: 0x%s - %s - Length: %d\nContent:\n%s", id.toString(16), packet.name, length, utilsBufferToHexString(buffer_console).toUpperCase());
+					console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s", 
+						'color:#900090', 'color:#FFFFFF', 
+						id.toString(16), packet.name, length, utilsBufferToHexString(buffer_console).toUpperCase());
 				}
 
-				packet  = Packets.list[id];
 				// Parse packet
 				//if (!packet.instance) {
 					packet.instance = new packet.Struct(fp, offset);
@@ -343,10 +348,12 @@ define(function( require )
 			} else {
 				if(packetDump) {
 					let unknown_buffer = new Uint8Array( buffer, 0, length );
-					console.log("[Network] [recv] [UNKNOWN] Packet ID: 0x%s - Length: %d\nContent:\n%s", id.toString(16), length, utilsBufferToHexString(unknown_buffer).toUpperCase());
+					console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s",
+						'color:#900090', 'color:#FFFFFF',
+						id.toString(16), length, utilsBufferToHexString(unknown_buffer).toUpperCase());
 				}
 				console.error(
-					'[Network] Packet "%c0x%s%c" not register, skipping %d bytes.',
+					'[Network] Packet "%c0x%s%c" not registered, skipping %d bytes.',
 					'font-weight:bold', id.toString(16), 'font-weight:normal', (length)
 				);
 			}

@@ -188,7 +188,7 @@ define(function( require )
 	 */
 	function onMouseUp( event )
 	{
-		var entity;
+		var entity, ET;
 		var action = event && event.which || 1;
 
 		// Not rendering yet
@@ -204,10 +204,11 @@ define(function( require )
 				entity = EntityManager.getFocusEntity();
 
 				if (entity) {
+					ET = entity.constructor;
 					entity.onMouseUp();
 
 					// Entity lock is only on MOB type (except when Touch Targeting is active)
-					if (Preferences.noctrl === false || (entity.objecttype !== entity.constructor.TYPE_MOB && !Session.TouchTargeting )) {
+					if (Preferences.noctrl === false || (![ET.TYPE_MOB, ET.TYPE_NPC_ABR, ET.TYPE_NPC_BIONIC].includes(entity.objecttype) && !Session.TouchTargeting )) {
 						EntityManager.setFocusEntity(null);
 						entity.onFocusEnd();
 					}

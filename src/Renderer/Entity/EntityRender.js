@@ -104,6 +104,7 @@ define( function( require )
 
 			// Display UI
 			if (entity.life.display)	entity.life.render( _matrix );
+			if (entity.emblem.display)  entity.emblem.render( _matrix );
 			if (entity.display.display) entity.display.render( _matrix );
 			if (entity.dialog.display)  entity.dialog.render( _matrix );
 			if (entity.cast.display)	entity.cast.render( _matrix );
@@ -299,12 +300,12 @@ define( function( require )
 				}
 
 				// Hat Middle
-				if (this.accessory3 > 0 && this.accessory3 !== this.accessory2 && this.accessory3 !== this.accessory) {
+				if (this.accessory3 > 0 && this.accessory3 !== this.accessory) { // accessory already rendered, avoid render same item again
 					renderElement( this, this.files.accessory3, 'head', _position, false);
 				}
 
 				// Hat Top
-				if (this.accessory2 > 0 && this.accessory2 !== this.accessory) {
+				if (this.accessory2 > 0 && this.accessory2 !== this.accessory && this.accessory2 !== this.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
 					renderElement( this, this.files.accessory2, 'head', _position, false);
 				}
 

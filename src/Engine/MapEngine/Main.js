@@ -58,6 +58,17 @@ define(function( require )
 			pkt.MoveData[2],
 			pkt.MoveData[3]
 		);
+
+		if (Session.Entity.falconGID) {
+			var falcon = EntityManager.get(Session.Entity.falconGID);
+			falcon.walk.speed = 200;
+			falcon.walkToNonWalkableGround(
+				pkt.MoveData[0],
+				pkt.MoveData[1],
+				pkt.MoveData[2],
+				pkt.MoveData[3]
+			);
+		}
 	}
 
 
@@ -198,6 +209,9 @@ define(function( require )
 		else if (pkt.hasOwnProperty('statusID')) {
 			type = pkt.statusID;
 		}
+		else if (pkt.hasOwnProperty('type')) {
+			type = pkt.type;
+	  	}
 		else {
 			type = -1; // goto "default".
 		}
@@ -614,30 +628,6 @@ define(function( require )
 
 
 	/**
-	 * Receive user config from server
-	 *
-	 * @param {object} pkt - PACKET.ZC.CONFIG
-	 */
-	function onConfigUpdate( pkt )
-	{
-		switch (pkt.Config) {
-
-			// equipment
-			case 0:
-				Equipment.getUI().setEquipConfig( pkt.Value );
-				ChatBox.addText(
-					DB.getMessage(1358 + (pkt.Value ? 1 : 0) ),
-					ChatBox.TYPE.INFO,
-					ChatBox.FILTER.PUBLIC_LOG
-				);
-				break;
-
-			// TODO: other config type to support (PACKET.ZC.CONFIG)
-		}
-	}
-
-
-	/**
 	 * Despite the name, it give information about item equipped
 	 *
 	 * @param {object} pkt - PACKET_ZC_ACTION_FAILURE
@@ -795,7 +785,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.USER_COUNT,                  onPlayerCountAnswer );
 		Network.hookPacket( PACKET.ZC.NOTIFY_PLAYERCHAT,           onPlayerMessage );
 		Network.hookPacket( PACKET.ZC.ATTACK_FAILURE_FOR_DISTANCE, onPlayerTooFarToAttack );
-		Network.hookPacket( PACKET.ZC.CONFIG,                      onConfigUpdate );
 		Network.hookPacket( PACKET.ZC.ACTION_FAILURE,              onActionFailure );
 		Network.hookPacket( PACKET.ZC.MSG,                         onMessage );
 		Network.hookPacket( PACKET.ZC.MSG_COLOR,                   onMessage );

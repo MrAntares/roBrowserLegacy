@@ -26,6 +26,7 @@ define(function( require )
 	var Network      = require('Network/NetworkManager');
 	var PACKETVER    = require('Network/PacketVerManager');
 	var PACKET       = require('Network/PacketStructure');
+	var PluginManager = require('Plugins/PluginManager');
 	var Renderer     = require('Renderer/Renderer');
 	var UIManager    = require('UI/UIManager');
 	var WinList      = require('UI/Components/WinList/WinList');
@@ -33,7 +34,6 @@ define(function( require )
 	var Queue        = require('Utils/Queue');
 	var Background  = require('UI/Background');
 	var MD5          = require('Vendors/spark-md5.min');
-	var PacketLength = require('Network/PacketLength');
 	var getModule    = require;
 	
 	// Version Dependent UIs
@@ -212,7 +212,6 @@ define(function( require )
 		if (packetver) {
 			if (packetver.match(/^\d+$/)) {
 				PACKETVER.value = parseInt(packetver, 10);
-				PacketLength.init(PACKETVER.value);
 			}
 		}
 
@@ -250,6 +249,9 @@ define(function( require )
 
 		// GMs account list from server
 		Session.AdminList = server.adminList || [];
+		
+		// Init per server plugins
+		PluginManager.init();
 
 		// Hooking win_login
 		WinLogin.selectUIVersion();

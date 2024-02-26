@@ -470,6 +470,84 @@ define(function()
 		GAT.cells[x + y * GAT.width] = type;
 	}
 
+	/**
+	 * Check the direct path between two points and find if there is a cell that is in range
+	 *
+	 * @param {number} x0
+	 * @param {number} y0
+	 * @param {number} x1
+	 * @param {number} y1
+	 * @param {Array} out
+	 * @param {number} range
+	 */
+	function searchLongIgnoreCellType( x0, y0, x1, y1, range, out )
+	{
+		var i, dx, dy, x, y, rx, ry;
+		var result = {
+			success: false,
+			inRange: false,
+			targetCell: [x0, y0],
+			pathLength: 0
+		};
+		
+		rx = x1-x0;
+		ry = y1-y0;
+		
+		dx   = rx ? ((rx<0) ? -1 : 1) : 0;
+		dy   = ry ? ((ry<0) ? -1 : 1) : 0;
+		x    = x0;
+		y    = y0;
+		
+		out[0] = x0;
+		out[1] = y0;
+		
+		if (Math.sqrt(rx*rx + ry*ry) <= range){
+			// Already in range
+			result.success = true;
+			result.inRange = true;
+			// Don't return yet must check for walls
+		}
+		
+		i = 1;
+		while (i <= MAX_WALKPATH) {
+			x      += dx;
+			y      += dy;
+			
+			if(result.success && x === x1 && y === y1){
+				// Last cell can be in wall if alredy has path to inrange.. Like mobs on/in walls that can be attacked in some maps
+				break;
+			}
+	
+			if(!result.success){
+				// Only save path when not found a valid target cell already
+				out[i*2 + 0] = x;
+				out[i*2 + 1] = y;
+				result.pathLength = i;
+			}
+			
+			rx = x1-x;
+			ry = y1-y;
+			
+			if (Math.sqrt(rx*rx + ry*ry) <= range && !result.success){
+				// There is a path to a cell that is in range
+				result.success = true;	
+				result.inRange = false;
+				result.targetCell = [x, y];
+				// Must continue checking if there is a wall
+			}
+
+			if (x === x1) dx = 0;
+			if (y === y1) dy = 0;
+
+			if (dx === 0 && dy === 0) {
+				break;
+			}
+			
+			i++;
+		}
+		return result;
+		
+	}
 
 	// Exports
 	return {
@@ -477,6 +555,7 @@ define(function()
 		searchLong: searchLong,
 		setGat:     setGat,
 		updateGat:  updateGat,
+		searchLongIgnoreCellType: searchLongIgnoreCellType,
 		MAX_HEAP:	MAX_HEAP,
 		MAX_WALKPATH: MAX_WALKPATH
 	};

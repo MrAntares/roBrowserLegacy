@@ -539,6 +539,16 @@ define(function (require) {
 				return;
 			},
 		},
+		call: {
+			description: "Toggles the ability to be Urgent Called.",
+			callback: function () {
+				var pkt    = new PACKET.CZ.CONFIG();
+				pkt.Config = 1;
+				pkt.Value  = !Session.Entity.call_flag ? 1 : 0;
+				Network.sendPacket(pkt);
+				return;
+			},
+		},
 		commands: {
 			description: "Show available commands.",
 			callback: function () {

@@ -108,7 +108,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		ctx.fillRect( 1, 1, width-2, height-2 );
 
 		// Display HP
-		if (this.entity.objecttype === Entity.TYPE_MOB) {
+		if (this.entity.objecttype === Entity.TYPE_MOB || this.entity.objecttype === Entity.TYPE_NPC_ABR || this.entity.objecttype === Entity.TYPE_NPC_BIONIC) {
 			ctx.fillStyle = ( hp_per < 0.25 ) ? '#FFFF00' : '#FF00E7';
 		}
 		else if (this.entity.objecttype === Entity.TYPE_PET) {
