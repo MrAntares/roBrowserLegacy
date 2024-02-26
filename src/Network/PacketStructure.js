@@ -306,22 +306,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
-
-	// 0x99
-	PACKET.CZ.BROADCAST = function PACKET_CZ_BROADCAST() {
-		this.msg = '';
-	};
-	PACKET.CZ.BROADCAST.prototype.build = function() {
-		var pkt_len = 2 + 2 + this.msg.length + 1;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x99);
-		pkt_buf.writeShort(pkt_len);
-		pkt_buf.writeString(this.msg);
-		return pkt_buf;
-	};
-
-
 	// 0x9b
 	PACKET.CZ.CHANGE_DIRECTION = function PACKET_CZ_CHANGE_DIRECTION() {
 		this.headDir = 0;
@@ -580,31 +564,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			pkt_buf.writeShort(this.itemList[i].count);
 		}
 
-		return pkt_buf;
-	};
-
-
-	// 0xcc
-	PACKET.CZ.DISCONNECT_CHARACTER = function PACKET_CZ_DISCONNECT_CHARACTER() {
-		this.AID = 0;
-	};
-	PACKET.CZ.DISCONNECT_CHARACTER.prototype.build = function() {
-		var pkt_len = 2 + 4;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0xcc);
-		pkt_buf.writeULong(this.AID);
-		return pkt_buf;
-	};
-
-
-	// 0xce
-	PACKET.CZ.DISCONNECT_ALL_CHARACTER = function PACKET_CZ_DISCONNECT_ALL_CHARACTER() {};
-	PACKET.CZ.DISCONNECT_ALL_CHARACTER.prototype.build = function() {
-		var pkt_len = 2;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0xce);
 		return pkt_buf;
 	};
 
@@ -1235,38 +1194,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 
 
-	// 0x13f
-	PACKET.CZ.ITEM_CREATE = function PACKET_CZ_ITEM_CREATE() {
-		this.itemName = '';
-	};
-	PACKET.CZ.ITEM_CREATE.prototype.build = function() {
-		var pkt_len = 2 + 24;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x13f);
-		pkt_buf.writeString(this.itemName, 24);
-		return pkt_buf;
-	};
-
-
-	// 0x140
-	PACKET.CZ.MOVETO_MAP = function PACKET_CZ_MOVETO_MAP() {
-		this.mapName = '';
-		this.xPos = 0;
-		this.yPos = 0;
-	};
-	PACKET.CZ.MOVETO_MAP.prototype.build = function() {
-		var pkt_len = 2 + 16 + 2 + 2;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x140);
-		pkt_buf.writeBinaryString(this.mapName, 16);
-		pkt_buf.writeShort(this.xPos);
-		pkt_buf.writeShort(this.yPos);
-		return pkt_buf;
-	};
-
-
 	// 0x143
 	PACKET.CZ.INPUT_EDITDLG = function PACKET_CZ_INPUT_EDITDLG() {
 		this.NAID = 0;
@@ -1293,24 +1220,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 		pkt_buf.writeShort(0x146);
 		pkt_buf.writeULong(this.NAID);
-		return pkt_buf;
-	};
-
-
-	// 0x149
-	PACKET.CZ.REQ_GIVE_MANNER_POINT = function PACKET_CZ_REQ_GIVE_MANNER_POINT() {
-		this.otherAID = 0;
-		this.type = 0;
-		this.point = 0;
-	};
-	PACKET.CZ.REQ_GIVE_MANNER_POINT.prototype.build = function() {
-		var pkt_len = 2 + 4 + 1 + 2;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x149);
-		pkt_buf.writeULong(this.otherAID);
-		pkt_buf.writeUChar(this.type);
-		pkt_buf.writeShort(this.point);
 		return pkt_buf;
 	};
 
@@ -1783,67 +1692,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
-	// 0x197
-	PACKET.CZ.RESET = function PACKET_CZ_RESET() {
-		this.type = 0;
-	};
-	PACKET.CZ.RESET.prototype.build = function() {
-		var pkt_len = 2 + 2;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x197);
-		pkt_buf.writeShort(this.type);
-		return pkt_buf;
-	};
-
-
-	// 0x198
-	PACKET.CZ.CHANGE_MAPTYPE = function PACKET_CZ_CHANGE_MAPTYPE() {
-		this.xPos = 0;
-		this.yPos = 0;
-		this.type = 0;
-	};
-	PACKET.CZ.CHANGE_MAPTYPE.prototype.build = function() {
-		var pkt_len = 2 + 2 + 2 + 2;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x198);
-		pkt_buf.writeShort(this.xPos);
-		pkt_buf.writeShort(this.yPos);
-		pkt_buf.writeShort(this.type);
-		return pkt_buf;
-	};
-
-
-	// 0x19c
-	PACKET.CZ.LOCALBROADCAST = function PACKET_CZ_LOCALBROADCAST() {
-		this.msg = '';
-	};
-	PACKET.CZ.LOCALBROADCAST.prototype.build = function() {
-		var pkt_len = 2 + 2 + this.msg.length + 1;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x19c);
-		pkt_buf.writeShort(pkt_len);
-		pkt_buf.writeString(this.msg);
-		return pkt_buf;
-	};
-
-
-	// 0x19d
-	PACKET.CZ.CHANGE_EFFECTSTATE = function PACKET_CZ_CHANGE_EFFECTSTATE() {
-		this.EffectState = 0;
-	};
-	PACKET.CZ.CHANGE_EFFECTSTATE.prototype.build = function() {
-		var pkt_len = 2 + 4;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x19d);
-		pkt_buf.writeLong(this.EffectState);
-		return pkt_buf;
-	};
-
-
 	// 0x19f
 	PACKET.CZ.TRYCAPTURE_MONSTER = function PACKET_CZ_TRYCAPTURE_MONSTER() {
 		this.targetAID = 0;
@@ -1997,20 +1845,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 
 
-	// 0x1ba
-	PACKET.CZ.REMOVE_AID = function PACKET_CZ_REMOVE_AID() {
-		this.AccountName = '';
-	};
-	PACKET.CZ.REMOVE_AID.prototype.build = function() {
-		var pkt_len = 2 + 24;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x1ba);
-		pkt_buf.writeString(this.AccountName, 24);
-		return pkt_buf;
-	};
-
-
 	// 0x1bb
 	PACKET.CZ.SHIFT = function PACKET_CZ_SHIFT() {
 		this.CharacterName = '';
@@ -2020,36 +1854,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1bb);
-		pkt_buf.writeString(this.CharacterName, 24);
-		return pkt_buf;
-	};
-
-
-
-	// 0x1bc
-	PACKET.CZ.RECALL = function PACKET_CZ_RECALL() {
-		this.AccountName = '';
-	};
-	PACKET.CZ.RECALL.prototype.build = function() {
-		var pkt_len = 2 + 24;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x1bc);
-		pkt_buf.writeString(this.AccountName, 24);
-		return pkt_buf;
-	};
-
-
-
-	// 0x1bd
-	PACKET.CZ.RECALL_GID = function PACKET_CZ_RECALL_GID() {
-		this.CharacterName = '';
-	};
-	PACKET.CZ.RECALL_GID.prototype.build = function() {
-		var pkt_len = 2 + 24;
-		var pkt_buf = new BinaryWriter(pkt_len);
-
-		pkt_buf.writeShort(0x1bd);
 		pkt_buf.writeString(this.CharacterName, 24);
 		return pkt_buf;
 	};
@@ -14230,6 +14034,175 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.ATKRange 	= fp.readShort();		// <atk range>.W
 	};
 	PACKET.ZC.PROPERTY_HOMUN5.size = 85;
+
+	/**
+	 * GM COMMANDS
+	 */
+
+	// 0x99
+	PACKET.CZ.BROADCAST = function PACKET_CZ_BROADCAST() {
+		this.msg = '';
+	};
+	PACKET.CZ.BROADCAST.prototype.build = function() {
+		var pkt_len = 2 + 2 + this.msg.length + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x99);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeString(this.msg);
+		return pkt_buf;
+	};
+
+	// 0x19c
+	PACKET.CZ.LOCALBROADCAST = function PACKET_CZ_LOCALBROADCAST() {
+		this.msg = '';
+	};
+	PACKET.CZ.LOCALBROADCAST.prototype.build = function() {
+		var pkt_len = 2 + 2 + this.msg.length + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x19c);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeString(this.msg);
+		return pkt_buf;
+	};
+
+	// 0x140
+	PACKET.CZ.MOVETO_MAP = function PACKET_CZ_MOVETO_MAP() {
+		this.mapName = '';
+		this.xPos = 0;
+		this.yPos = 0;
+	};
+	PACKET.CZ.MOVETO_MAP.prototype.build = function() {
+		var pkt_len = 2 + 16 + 2 + 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x140);
+		pkt_buf.writeBinaryString(this.mapName, 16);
+		pkt_buf.writeShort(this.xPos);
+		pkt_buf.writeShort(this.yPos);
+		return pkt_buf;
+	};
+
+	// 0x1bd
+	PACKET.CZ.RECALL_GID = function PACKET_CZ_RECALL_GID() {
+		this.CharacterName = '';
+	};
+	PACKET.CZ.RECALL_GID.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x1bd);
+		pkt_buf.writeString(this.CharacterName, 24);
+		return pkt_buf;
+	};
+
+	// 0x1bc
+	PACKET.CZ.RECALL = function PACKET_CZ_RECALL() {
+		this.AccountName = '';
+	};
+	PACKET.CZ.RECALL.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x1bc);
+		pkt_buf.writeString(this.AccountName, 24);
+		return pkt_buf;
+	};
+
+	// 0x19d
+	PACKET.CZ.CHANGE_EFFECTSTATE = function PACKET_CZ_CHANGE_EFFECTSTATE() {
+		this.EffectState = 0;
+	};
+	PACKET.CZ.CHANGE_EFFECTSTATE.prototype.build = function() {
+		var pkt_len = 2 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x19d);
+		pkt_buf.writeLong(this.EffectState);
+		return pkt_buf;
+	};
+
+
+	// 0xcc
+	PACKET.CZ.DISCONNECT_CHARACTER = function PACKET_CZ_DISCONNECT_CHARACTER() {
+		this.AID = 0;
+	};
+	PACKET.CZ.DISCONNECT_CHARACTER.prototype.build = function() {
+		var pkt_len = 2 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xcc);
+		pkt_buf.writeULong(this.AID);
+		return pkt_buf;
+	};
+
+	// 0xce
+	PACKET.CZ.DISCONNECT_ALL_CHARACTER = function PACKET_CZ_DISCONNECT_ALL_CHARACTER() {};
+	PACKET.CZ.DISCONNECT_ALL_CHARACTER.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xce);
+		return pkt_buf;
+	};
+
+	// 0x13f
+	PACKET.CZ.ITEM_CREATE = function PACKET_CZ_ITEM_CREATE() {
+		this.itemName = '';
+	};
+	PACKET.CZ.ITEM_CREATE.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x13f);
+		pkt_buf.writeString(this.itemName, 24);
+		return pkt_buf;
+	};
+
+	// 0x197
+	PACKET.CZ.RESET = function PACKET_CZ_RESET() {
+		this.type = 0;
+	};
+	PACKET.CZ.RESET.prototype.build = function() {
+		var pkt_len = 2 + 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x197);
+		pkt_buf.writeShort(this.type);
+		return pkt_buf;
+	};
+
+	// 0x1ba
+	PACKET.CZ.REMOVE_AID = function PACKET_CZ_REMOVE_AID() {
+		this.AccountName = '';
+	};
+	PACKET.CZ.REMOVE_AID.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x1ba);
+		pkt_buf.writeString(this.AccountName, 24);
+		return pkt_buf;
+	};
+
+	// 0x198
+	PACKET.CZ.CHANGE_MAPTYPE = function PACKET_CZ_CHANGE_MAPTYPE() {
+		this.xPos = 0;
+		this.yPos = 0;
+		this.type = 0;
+	};
+	PACKET.CZ.CHANGE_MAPTYPE.prototype.build = function() {
+		var pkt_len = 2 + 2 + 2 + 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x198);
+		pkt_buf.writeShort(this.xPos);
+		pkt_buf.writeShort(this.yPos);
+		pkt_buf.writeShort(this.type);
+		return pkt_buf;
+	};
+
 
 	/**
 	 * Export
