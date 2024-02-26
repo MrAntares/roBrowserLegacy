@@ -251,7 +251,7 @@ define( function( require )
 					this.direction   = ([ 4, 3, 2, 1, 0, 7, 6, 5 ])[(unit.PosDir[2]+8)%8];
 					this.position[0] = unit.PosDir[0];
 					this.position[1] = unit.PosDir[1];
-					this.position[2] = Altitude.getCellHeight(  unit.PosDir[0],  unit.PosDir[1] );
+					this.position[2] = Altitude.getCellHeight(  unit.PosDir[0],  unit.PosDir[1] ) + (this.objecttype === Entity.TYPE_FALCON ? 5 : 0);
 					break;
 
 				case 'state':
