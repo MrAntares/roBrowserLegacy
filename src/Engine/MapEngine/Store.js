@@ -228,7 +228,7 @@ define(function( require )
 			var pkt;
 
 			if(_pkt instanceof PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3) {
-				pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC3();
+				pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC2();
 				pkt.UniqueID = _pkt.UniqueID;
 			} else if (_pkt instanceof PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC2) {
 				pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC2();
