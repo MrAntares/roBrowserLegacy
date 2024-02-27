@@ -30,6 +30,10 @@ define(function(require)
 	 */
 	var WinLoginV2 = new UIComponent( 'WinLoginV2', htmlText, cssText );
 
+	/**
+	 * @var {boolean} focus element zIndex ?
+	 */
+	WinLoginV2.needFocus = false;
 
 	/**
 	 * @var {Preferences}
@@ -65,7 +69,7 @@ define(function(require)
 	{
 
 		WinLoginV2Background.init();
-		WinLoginV2Background.append();
+
 		this.draggable(WinLoginV2.ui.find('.win_login'));
 
 		// Save Elements
@@ -85,6 +89,7 @@ define(function(require)
 	 */
 	WinLoginV2.onAppend = function onAppend()
 	{
+		WinLoginV2Background.append();
 		// Complete element
 		_inputUsername.val(_preferences.saveID ? _preferences.ID : '');
 		_inputPassword.val('');
@@ -100,7 +105,7 @@ define(function(require)
 		else {
 			_inputUsername.focus();
 		}
-		WinLoginV2.focus();
+		WinLoginV2.placeOnTop();
 	};
 
 
