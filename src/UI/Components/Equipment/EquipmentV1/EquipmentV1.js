@@ -36,6 +36,7 @@ define(function(require)
 	var WinStats           = require('UI/Components/WinStats/WinStats');
 	var htmlText           = require('text!./EquipmentV1.html');
 	var cssText            = require('text!./EquipmentV1.css');
+	var getModule          = require;
 
 
 	/**
@@ -349,17 +350,8 @@ define(function(require)
 	EquipmentV1.equip = function equip( item, location )
 	{
 		var it            = DB.getItemInfo( item.ITID );
+		item.equipped = location;
 		_list[item.index] = item;
-
-		if (arguments.length === 1) {
-			if ('WearState' in item) {
-				location = item.WearState;
-			}
-			else if ('location' in item) {
-				location = item.location;
-			}
-		}
-
 
 		function add3Dots(string, limit) {
 			var dots = "...";
@@ -393,6 +385,7 @@ define(function(require)
 	{
 		var selector = getSelectorFromLocation( location );
 		var item     = _list[ index ];
+		item.equipped = 0;
 
 		this.ui.find( selector ).empty();
 		delete _list[ index ];
@@ -418,18 +411,9 @@ define(function(require)
 	 */
 	EquipmentV1.checkEquipLoc = function checkEquipLoc( location )
 	{
-		var selector = getSelectorFromLocation(location);
-		var itemElement = document.querySelector(selector);
-
-		if (itemElement) {
-			// Traverse to find the div with the data-index attribute
-			var divWithDataIndex = itemElement.querySelector('.item[data-index]');
-			if (divWithDataIndex) {
-			  	var dataIndex = parseInt(divWithDataIndex.getAttribute('data-index'));
-				var item = _list[dataIndex];
-				if (!item)
-					return 0;
-				return item.wItemSpriteNumber;
+		for (var key in _list) {
+			if(_list[key].equipped & location) {
+				return _list[key].wItemSpriteNumber;
 			}
 		}
 
@@ -519,31 +503,23 @@ define(function(require)
 
 		return function renderCharacter()
 		{
-			var character = Session.Entity;
-			var direction = character.direction;
-			var headDir   = character.headDir;
-			var action    = character.action;
-			var animation = character.animation;
-
-			// Variables for Headgear Checks
-			var CostumeCheckTop = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
-			var CostumeCheckMid = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
-			var CostumeCheckBot = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
-			var CheckTop        = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_TOP);
-			var CheckMid        = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_MID);
-			var CheckBot        = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
-			var CostumeCheckRobe = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_ROBE);
-			var CheckGarment    = EquipmentV1.checkEquipLoc(EquipLocation.GARMENT);
-
-			var headtop   = (CostumeCheckTop) ? CostumeCheckTop : CheckTop;
-			var headmid   = (CostumeCheckMid) ? CostumeCheckMid : CheckMid;
-			var headbot   = (CostumeCheckBot) ? CostumeCheckBot : CheckBot;
-			var garment   = (CostumeCheckRobe) ? CostumeCheckRobe : CheckGarment;
+			var Entity = getModule('Renderer/Entity/Entity');
+			var equip_character = new Entity();
+			equip_character.set({
+				GID: Session.Entity.GID + '_EQUIP',
+				objecttype: equip_character.constructor.TYPE_PC,
+				job: Session.Entity.job,
+				sex: Session.Entity.sex,
+				name: "",
+				hideShadow: true,
+				head:   Session.Entity.head,
+				headpalette: Session.Entity.headpalette,
+			});
 
 			// If state change, we have to check if the new option is removable.
-			if (character.effectState !== _lastState || _hasCart !== character.hasCart) {
-				_lastState = character.effectState;
-				_hasCart   = character.hasCart;
+			if (Session.Entity.effectState !== _lastState || _hasCart !== Session.Entity.hasCart) {
+				_lastState = Session.Entity.effectState;
+				_hasCart   = Session.Entity.hasCart;
 
 				if (_lastState & HasAttachmentState  || _hasCart) {
 					EquipmentV1.ui.find('.removeOption').show();
@@ -560,49 +536,37 @@ define(function(require)
 				}
 			}
 
-			// Set action
-			Camera.direction    = 4;
-			character.direction = 4;
-			character.headDir   = 0;
-			character.action    = character.ACTION.IDLE;
-			character.animation = _animation;
-
 			// General Tab only shows normal headgears
 			if (currentTabId === 'general') {
-				character.accessory  = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
-				character.accessory2 = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_TOP);
-				character.accessory3 = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_MID);
-				character.robe = EquipmentV1.checkEquipLoc(EquipLocation.GARMENT);
+				equip_character.accessory  = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
+				equip_character.accessory2 = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_TOP);
+				equip_character.accessory3 = EquipmentV1.checkEquipLoc(EquipLocation.HEAD_MID);
+				equip_character.robe = EquipmentV1.checkEquipLoc(EquipLocation.GARMENT);
 			}
 			// Costume Tab only shows costume headgears
 			else if (currentTabId === 'costume') {
-				character.accessory  = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
-				character.accessory2 = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
-				character.accessory3 = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
-				character.robe = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_ROBE);
+				equip_character.accessory  = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
+				equip_character.accessory2 = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
+				equip_character.accessory3 = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
+				equip_character.robe = EquipmentV1.checkEquipLoc(EquipLocation.COSTUME_ROBE);
 			}
 
-			_savedColor.set(character.effectColor);
-			character.effectColor.set(_cleanColor);
+			_savedColor.set(equip_character.effectColor);
+			equip_character.effectColor.set(_cleanColor);
+
+			// Set action
+			equip_character.direction = 0;
+			equip_character.headDir   = 0;
+			equip_character.action    = equip_character.ACTION.IDLE;
+			equip_character.animation = _animation;
 
 			// Rendering
 			for (var i = 0; i < _ctx.length; i++) {
 				var ctx = _ctx[i];
 				SpriteRenderer.bind2DContext( ctx, 30, 130 );
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height );
-				character.renderEntity(ctx);
+				equip_character.renderEntity(ctx);
 			}
-
-			// Revert changes
-			character.direction = direction;
-			character.headDir   = headDir;
-			character.action    = action;
-			character.animation = animation;
-			character.effectColor.set(_savedColor);
-			character.accessory = headbot;
-			character.accessory2 = headtop;
-			character.accessory3 = headmid;
-			character.robe = garment;
 		};
 	}();
 

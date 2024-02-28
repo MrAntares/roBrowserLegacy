@@ -346,7 +346,7 @@ define(function(require)
 
 		// Equip item (if not arrow)
 		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-			Equipment.getUI().equip(item);
+			Equipment.getUI().equip(item, item.WearState);
 			return false;
 		}
 
