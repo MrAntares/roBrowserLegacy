@@ -200,13 +200,19 @@ define(function( require )
 			var CostumeCheckRobe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
 
 			// Display
-			if (pkt.wearLocation & EquipLocation.HEAD_TOP)    Session.Entity.accessory2 = (CostumeCheckTop) ? CostumeCheckTop : pkt.viewid;
-			if (pkt.wearLocation & EquipLocation.HEAD_MID)    Session.Entity.accessory3 = (CostumeCheckMid) ? CostumeCheckMid : pkt.viewid;
-			if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) Session.Entity.accessory  = (CostumeCheckBot) ? CostumeCheckBot : pkt.viewid;
-			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe  =  (CostumeCheckRobe) ? CostumeCheckRobe : pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.HEAD_TOP)    Session.Entity.accessory2 = (CostumeCheckTop)  ? CostumeCheckTop  : pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.HEAD_MID)    Session.Entity.accessory3 = (CostumeCheckMid)  ? CostumeCheckMid  : pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) Session.Entity.accessory  = (CostumeCheckBot)  ? CostumeCheckBot  : pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe       = (CostumeCheckRobe) ? CostumeCheckRobe : pkt.viewid;
+
 			if (pkt.wearLocation & EquipLocation.WEAPON)      Session.Entity.weapon     = pkt.viewid;
 			if (pkt.wearLocation & EquipLocation.SHIELD)      Session.Entity.shield     = pkt.viewid;
-			if (pkt.wearLocation & EquipLocation.GARMENT)     Session.Entity.robe       = pkt.viewid;
+
+			// costume override regular equips
+			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_TOP)    Session.Entity.accessory2  = pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_MID)    Session.Entity.accessory3  = pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM) Session.Entity.accessory   = pkt.viewid;
+			if (pkt.wearLocation & EquipLocation.COSTUME_ROBE)        Session.Entity.robe        = pkt.viewid;
 		}
 
 		// Fail to equip
