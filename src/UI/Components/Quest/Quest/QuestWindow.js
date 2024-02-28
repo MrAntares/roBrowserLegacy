@@ -35,6 +35,12 @@ define(function (require) {
 
 
 	/**
+	 * Mouse can cross this UI
+	 */
+	QuestWindow.mouseMode = UIComponent.MouseMode.CROSS;
+
+
+	/**
 	 * Initialize the component (event listener, etc.)
 	 */
 	QuestWindow.init = function init() {
