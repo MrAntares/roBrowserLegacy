@@ -1783,10 +1783,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.CZ.REQ_MAKINGARROW.prototype.build = function() {
 		var pkt_len = 2 + 2;
+		if(PACKETVER.value >= 20181121)
+			pkt_len +=2;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1ae);
-		pkt_buf.writeUShort(this.id);
+		if(PACKETVER.value >= 20181121) {
+			pkt_buf.writeULong(this.id);
+		} else {
+			pkt_buf.writeUShort(this.id);
+		}
 		return pkt_buf;
 	};
 
@@ -6954,14 +6960,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x1ad
 	PACKET.ZC.MAKINGARROW_LIST = function PACKET_ZC_MAKINGARROW_LIST(fp, end) {
-		this.arrowList = (function() {
-			var i, count=(end-fp.tell())/2|0, out=new Array(count);
+		let size = (PACKETVER.value >= 20181121) ? 4 : 2;
+		this.arrowList = (function(size) {
+			var i, count=(end-fp.tell())/size|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].index = fp.readShort();
+				out[i].index = size == 2 ? fp.readShort() : fp.readLong();
 			}
 			return out;
-		})();
+		})(size);
 	};
 	PACKET.ZC.MAKINGARROW_LIST.size = -1;
 
