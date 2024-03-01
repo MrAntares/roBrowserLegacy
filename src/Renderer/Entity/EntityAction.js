@@ -136,6 +136,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_NPC_ABR:
 			case Entity.TYPE_NPC_BIONIC:
+			case Entity.TYPE_WUG:
 				this.ACTION.IDLE   = 0;
 				this.ACTION.WALK   = 1;
 				this.ACTION.ATTACK = 2;

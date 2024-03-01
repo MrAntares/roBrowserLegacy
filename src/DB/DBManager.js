@@ -411,6 +411,9 @@ define(function(require)
 			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
 		}
 
+		if(id == 'WUG') {
+			return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+		}
 
 		// Homunculus
 		return 'data/sprite/homun/' + ( MonsterTable[id] || MonsterTable[1002] ).toLowerCase();
