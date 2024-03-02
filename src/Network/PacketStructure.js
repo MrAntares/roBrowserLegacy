@@ -1635,14 +1635,21 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.itemList = {};
 	};
 	PACKET.CZ.REQMAKINGITEM.prototype.build = function() {
-		var pkt_len = 2 + 2 + 6;
+		var pkt_len = (PACKETVER.value >= 20181121) ? 18 : 10;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x18e);
-		pkt_buf.writeUShort(this.itemList.ITID);
-		pkt_buf.writeUShort(this.itemList.material_ID[0]);
-		pkt_buf.writeUShort(this.itemList.material_ID[1]);
-		pkt_buf.writeUShort(this.itemList.material_ID[2]);
+		if(PACKETVER.value >= 20181121) {
+			pkt_buf.writeULong(this.itemList.ITID);
+			pkt_buf.writeULong(this.itemList.material_ID[0]);
+			pkt_buf.writeULong(this.itemList.material_ID[1]);
+			pkt_buf.writeULong(this.itemList.material_ID[2]);
+		} else {
+			pkt_buf.writeUShort(this.itemList.ITID);
+			pkt_buf.writeUShort(this.itemList.material_ID[0]);
+			pkt_buf.writeUShort(this.itemList.material_ID[1]);
+			pkt_buf.writeUShort(this.itemList.material_ID[2]);
+		}
 		return pkt_buf;
 	};
 
@@ -2816,12 +2823,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.id = 0;
 	};
 	PACKET.CZ.REQ_MAKINGITEM.prototype.build = function() {
-		var pkt_len = 2 + 2 + 2;
+		var pkt_len = (PACKETVER.value >= 20181121) ? 8 : 6;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x25b);
 		pkt_buf.writeShort(this.mkType);
-		pkt_buf.writeUShort(this.id);
+		if(PACKETVER.value >= 20181121) {
+			pkt_buf.writeUShort(this.id);
+		} else {
+			pkt_buf.writeULong(this.id);
+		}
 		return pkt_buf;
 	};
 
@@ -6784,19 +6795,28 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x18d
 	PACKET.ZC.MAKABLEITEMLIST = function PACKET_ZC_MAKABLEITEMLIST(fp, end) {
-		this.itemList = (function() {
-			var i, count=(end-fp.tell())/8|0, out=new Array(count);
+		let size = (PACKETVER.value >= 20181121) ? 16 : 8;
+		this.itemList = (function(size) {
+			var i, count=(end-fp.tell())/size|0, out=new Array(count);
 
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].ITID = fp.readShort();
-				out[i].material_ID = {};
-				out[i].material_ID[0] = fp.readShort();
-				out[i].material_ID[1] = fp.readShort();
-				out[i].material_ID[2] = fp.readShort();
+				if(size == 16) {
+					out[i].ITID = fp.readULong();
+					out[i].material_ID = {};
+					out[i].material_ID[0] = fp.readULong();
+					out[i].material_ID[1] = fp.readULong();
+					out[i].material_ID[2] = fp.readULong();
+				} else {
+					out[i].ITID = fp.readShort();
+					out[i].material_ID = {};
+					out[i].material_ID[0] = fp.readShort();
+					out[i].material_ID[1] = fp.readShort();
+					out[i].material_ID[2] = fp.readShort();
+				}
 			}
 			return out;
-		})();
+		})(size);
 	};
 	PACKET.ZC.MAKABLEITEMLIST.size = -1;
 
@@ -8253,13 +8273,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x25a
 	PACKET.ZC.MAKINGITEM_LIST = function PACKET_ZC_MAKINGITEM_LIST(fp, end) {
-		this.idList = (function() {
-			var count = (end-fp.tell())/2|0, out = new Array(count);
+		let size = (PACKETVER.value >= 20181121) ? 4 : 2;
+		this.idList = (function(size) {
+			var count = (end-fp.tell())/size|0, out = new Array(count);
 			for (var i = 0; i < count; ++i) {
-				out[i] = fp.readUShort();
+				out[i] = (size == 4) ? fp.readULong() : fp.readUShort();
 			}
 			return out;
-		})();
+		})(size);
 	};
 	PACKET.ZC.MAKINGITEM_LIST.size = -1;
 
