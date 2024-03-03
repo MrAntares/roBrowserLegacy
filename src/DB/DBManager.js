@@ -149,14 +149,18 @@ define(function(require)
 		loadTable( 'data/msgstringtable.txt',	'#',		1, function(index, val){	MsgStringTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/resnametable.txt', 	'#',		2, function(index, key, val){	DB.mapalias[key]                                             		= val;}, 			onLoad());
 
-		loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
-		loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
-		loadTable( 'data/num2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
-		loadTable( 'data/idnum2itemdisplaynametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName 	= val.replace(/_/g, " ");},	onLoad());
-		loadTable( 'data/idnum2itemresnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
-		loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
-		loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
-		loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
+		if (/*Configs.get('loadlua')*/true) {
+			loadLuaFile( 'System/itemInfo_EN.lua', function(json){ItemTable = json;}, onLoad());
+		} else {
+			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
+			loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
+			loadTable( 'data/num2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName 	= val.split("\n");}, 		onLoad());
+			loadTable( 'data/idnum2itemdisplaynametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName 	= val.replace(/_/g, " ");},	onLoad());
+			loadTable( 'data/idnum2itemresnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
+			loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
+			loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
+			loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
+		}
 
 		loadTable( 'data/skilldesctable.txt',			'#',	2, function(index, key, val){	SkillDescription[SKID[key]]	= val.replace("\r\n", "\n");},		onLoad());
 
@@ -301,6 +305,122 @@ define(function(require)
 
 					json.Config.StartDate = startDate;
 					json.Config.EndDate = endDate;
+				}
+				catch( hException )
+				{
+					console.error( `(${filename}) error: `, hException );
+				}
+
+				callback.call( null, json);
+				onEnd();
+            },
+            onEnd
+        );
+	}
+
+	/**
+	 * Remove LUA comments
+	 *
+	 * @param {string} content
+	 * @param {string} new content
+	 */
+	function lua_remove_comments(content) {
+		// Block comment
+		var start = 0, end;
+		while ((start = content.indexOf('--[[')) !== -1) {
+			end = content.indexOf('--]]');
+			if (end === -1) {
+				end = content.length;
+			}
+
+			content = content.substring(0, start) + content.substring(end + 4, end.length);
+		}
+
+		// temp replace in quote...
+		content = content.replace(/"([^"]+)?--[^"]+/g, function(a){
+			return a.replace(/-/g, '\\\\x2d');
+		});
+
+		// Remove inline comment
+		content = content.replace(/--[^\n]+/g, '');
+
+		// Get back --
+		content = content.replace(/\\\\x2d/g, '-');
+		
+		content = content.replace(/^\s*([\/-][\/-][^\n]+)/gm, '');
+
+		return content;
+	}
+
+	/**
+	 * Difficult lua loader
+	 *
+	 * @param {string} content
+	 */
+	function lua_parse_glob(content) {
+		// Remove comments
+		content = lua_remove_comments(content);
+
+		// Some failed escaped string on lua
+		content = content.replace(/\\\\\\/g, '\\');
+
+		// Remove variable container
+		content = content.replace(/^([^\{]+)\{/, '');
+		// Replace trailing semicolon with comma
+		content = content.replace(/";\s?$/gm, "\",");
+
+		// Convert lua array
+		content = content.replace(/\{(\s+?"[^\}]+)\}/g, '[$1]');
+
+		content = content.replace(/"\s+\]/g, '",\n]');
+		content = content.replace(/\\'/g, '\'');
+
+		// Restore key index
+		content = content.replace(/\[(\w+)]\s+?=\s+?\{/g, '$1: {');
+
+		// Convert parameters
+		content = content.replace(/(\s+)(\w+)\s+?=\s+?/g, '$1"$2": ');
+
+		// Remove un-needed coma
+		content = content.replace(/,(\s+(\]|\}))/g, '$1').replace(/,(\s+)?$/, '');
+
+		// Removed from the first regex
+		content = '{' + content;
+
+		// some functions code
+		content = (content+'\0').replace(/\n\}[^\0]+\0/, '');
+
+		// Fix curly brace
+		var open  = content.split('{').length;
+		var close = content.split('}').length;
+		if (open > close) {
+			content += '}';
+		}
+		content = content.replace(/^\s*(\w+)\s*:/gm, '"$1":');
+		content = content.replace(/(?=[^\\"])\s--.*/gm, '');
+		// Remove lines with just a single double quote
+		content = content.replace(/,\s.\s*"\s?$/gm, '');
+
+
+		return content;
+	}
+
+	/* Load Lua File to json object
+	*
+	* @param {string} filename to load
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author Raiken
+	*/
+	function loadLuaFile(filename, callback, onEnd) {
+		Client.loadFile( filename,
+            async function (data) {
+				let json = { };
+				console.log('Loading file "'+ filename +'"...');
+				try
+				{
+					let output = lua_parse_glob(data);
+					json = JSON.parse(output);
 				}
 				catch( hException )
 				{
