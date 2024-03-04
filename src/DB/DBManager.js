@@ -17,6 +17,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var Client           = require('Core/Client');
+	var Configs          = require('Core/Configs');
 	var TextEncoding     = require('Vendors/text-encoding');
 	var fengari          = require('Vendors/fengari-web');
 	var JobId            = require('./Jobs/JobConst');
@@ -149,7 +150,7 @@ define(function(require)
 		loadTable( 'data/msgstringtable.txt',	'#',		1, function(index, val){	MsgStringTable[index]                                        		= val;}, 			onLoad());
 		loadTable( 'data/resnametable.txt', 	'#',		2, function(index, key, val){	DB.mapalias[key]                                             		= val;}, 			onLoad());
 
-		if (/*Configs.get('loadlua')*/true) {
+		if (Configs.get('loadlua')) {
 			loadLuaFile( 'System/itemInfo_EN.lua', function(json){ItemTable = json;}, onLoad());
 		} else {
 			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
