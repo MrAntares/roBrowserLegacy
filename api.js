@@ -162,6 +162,12 @@
 
 
 	/**
+	 * @var {boolean} load lua files ?
+	 */
+	ROBrowser.prototype.loadlua = false;
+
+
+	/**
 	 * @var {function} callback to execute once roBrowser is ready
 	 */
 	ROBrowser.prototype.onReady = null;
@@ -427,6 +433,7 @@
 			remoteClient:     this.remoteClient,
 			packetver:        this.packetver,
 			development:      this.development,
+            loadlua:          this.loadlua,
 			api:              this.api,
 			socketProxy:      this.socketProxy,
 			packetKeys:       this.packetKeys,
