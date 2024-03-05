@@ -433,7 +433,7 @@
 			remoteClient:     this.remoteClient,
 			packetver:        this.packetver,
 			development:      this.development,
-            loadlua:          this.loadlua,
+            loadLua:          this.loadLua,
 			api:              this.api,
 			socketProxy:      this.socketProxy,
 			packetKeys:       this.packetKeys,

@@ -7,7 +7,6 @@
 /dist/
 /node_modules/
 /src/Plugins/*/
-/api.html
 /index.html
 /package-lock.json
 /GrannyModelViewer.js
