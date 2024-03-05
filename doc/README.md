@@ -283,19 +283,19 @@ Some examples: https://github.com/MrAntares/roBrowserLegacy-plugins
 
 # 7. ROBrowser Settings Overview
 
-Her you have a list with all of init variables on ROBrowser. Let's take a look:
+Here you have a list with all of init variables on ROBrowser. Let's take a look:
 
 ```js
 function initialize() {
       var ROConfig = {
+      // GLOBAL VARIABLES
           type:          ROBrowser.TYPE.FRAME,  // Possible: .FRAME (instert into current document), .POPUP (open new window)
           target:        document.getElementById("robrowser"),  // When using TYPE.FRAME this is the id of the target iframe in the current document
           application:   ROBrowser.APP.ONLINE,  // Possible: .ONLINE (game), .MAPVIEWER, .GRFVIEWER, .MODELVIEWER, .STRVIEWER, .GRANNYMODELVIEWER (not implemented)
           width:          800,    // Only affects TYPE.POPUP
           height:         600,    // Only affects TYPE.POPUP
-          development:    false,  // When false needs a compiled Online.js in the root (faster load). When true, the client will directly use the javascript files from src/ (slower load, for debugging/development only)
-          version:        20230927.0959, // Update this value every time you update your robrowser, to trigger a source refresh on every browser. Recommended to use a decimal timestamp (YYYYMMDD.hhmm), but can be anything
-          
+
+      // SERVER CONFIG
           servers: [{  // Game server info. You must configure this! You can have multiple servers like: servers: [{..}, {..}, {..}], you can also use clientinfo to set the server list (servers: "data/clientinfo.xml",)
               display:      "Demo Server",  // Display name, can be anything
               desc:         "roBrowser's demo server",  // Description, can be anything
@@ -303,8 +303,7 @@ function initialize() {
               port:         6900,          // Must match your game server's
               langtype:     12,            // Must match your game server's
               packetver:    20191223,      // Must match your game server's
-              forceUseAddress: false,      // Some times when connect to server, the server return 127.0.0.1 as IP to connect. This key force robrowse to ignore and use IP set at 'address'
-              //grfList:    "DATA.INI",    // By default uses DATA.INI to get grf list, but you can define an array (grfList: ['custom.grf', 'palette.grf', 'data.grf'],) or a regex (grfList: /\.grf$/i,)
+              grfList:      "DATA.INI",    // By default uses DATA.INI to get grf list, but you can define an array (grfList: ['custom.grf', 'palette.grf', 'data.grf'],) or a regex (grfList: /\.grf$/i,)
               remoteClient: "http://127.0.0.1/client", // Your remote client address. Defaults to http://grf.robrowser.com/
               renewal:      true,          // Must match your game server's type (true/false). When using clientinfo.xml you can add the <renewal>true</renewal> custom tag.
               packetKeys:   false,         // Packet encryption keys ( not implemented?? )
@@ -312,17 +311,19 @@ function initialize() {
               adminList:    [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
           }],
 
-          packetDump:      false,  // Dump packet as hex in console?
-          skipServerList:  true,   // Skip server selection?
+      // OTHER CONFIG - These can be part of the server config as well, thus making them adjustable per server
+          development:     false,  // When false needs a compiled Online.js in the root (faster load). When true, the client will directly use the javascript files from src/ (slower load, for debugging/development only)
+          packetDump:      false,  // Dump packet as hex to the console?
+          skipServerList:  false,  // Skip server selection?
           skipIntro:       false,  // Skip intro page?
-          
+          version:         20230927.0959, // Update this value every time you update your robrowser, to trigger a source refresh on every browser. Recommended to use a decimal timestamp (YYYYMMDD.hhmm), but can be anything
+          forceUseAddress: false,      // Some times when connect to server, the server return 127.0.0.1 as IP to connect. This key force robrowse to ignore and use IP set at 'address'
+
           enableCashShop:  false,  // Enable Cash Shop UI?
           enableBank:      false,  // Enable Bank UI? (Requires PACKETVER 20130724 above)
           enableMapName:   false,  // Enable Map Name Banner? (Requires client data (GRF) newer than 2019.06.19)
           enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
-          
-       /* OPTIONAL/CUSTOM CONFIGS */
-       /* Add/Remove the below as you wish */
+          loadLua:         false,  // Enable this option to load LUA tables (currently only item table) from client/System/...
           
           //clientHash:    '113e195e6c051bb1cfb12a644bb084c5', // Set fixed client hash value here (less secure, for development only)
           calculateHash:   false,  // When true, the client will calculate it's own hash and send that value (slower, more secure, only when development is false). Must provide the list of files in hashFiles!
