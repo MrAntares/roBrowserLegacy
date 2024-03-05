@@ -27,10 +27,10 @@ function(      WebGL,         glMatrix,      Camera )
 		#version 100
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
-	
+
 		attribute vec2 aPosition;
 		attribute vec2 aTextureCoord;
-	
+
 		varying vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
@@ -60,26 +60,36 @@ function(      WebGL,         glMatrix,      Camera )
 			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
 			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
 			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
-			
+
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
 			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
-			
+
 			return mat;
 		}
 
 		void main(void) {
-			
+
 			// Calculate position base on angle and sprite offset/size
 			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
 			position.x   += uSpriteRendererOffset.x;
 			position.y   -= uSpriteRendererOffset.y + 0.5;
-			
+
+			// We use this to compensate the Y billboarding, applying it on the Z axis
+			float yView = (position.y - 0.5) * (1.0 + cos(uCameraLatitude * (3.1416 * 2.0) / 360.0));
+
 			// Project to camera plane
-			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
-			
+			gl_Position = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
+
+			float uCameraZoomMod = uCameraZoom / 50.0;
+
+			// Adjust depth calculation based on the adjusted Y position
+			gl_Position.z -= ((uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoomMod, 1.0)) + (yView * 0.01);
+
+			// Apply depth offset based on the sprite's Y position, this avoids z-fighting
+			gl_Position.z += uSpriteRendererOffset.y * 0.0001;
+
 			vTextureCoord = aTextureCoord;
 		}
 	`;
