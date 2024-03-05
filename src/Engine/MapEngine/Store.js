@@ -253,6 +253,47 @@ define(function( require )
 	}
 
 	/**
+	 * Received items list to buy from player
+	 *
+	 * @param {object} pkt - PACKET.ZC.ACK_ITEMLIST_BUYING_STORE
+	 */
+	function onBuyingStoreList( _pkt )
+	{
+		NpcStore.append();
+		NpcStore.setType(NpcStore.Type.BUYING_STORE);
+		NpcStore.setList(_pkt.itemList);
+		NpcStore.setPriceLimit(_pkt.limitZeny);
+
+		// Get seller name
+		var entity = EntityManager.get(_pkt.AID);
+		NpcStore.ui.find('.seller').text( entity ? entity.display.name : '');
+
+		// Bying items
+		NpcStore.onSubmit = function(itemList) {
+			NpcStore.remove();
+
+			var i, count;
+			var pkt;
+
+			pkt = new PACKET.CZ.REQ_TRADE_BUYING_STORE();
+			pkt.UniqueID = _pkt.UniqueID;
+			pkt.AID = _pkt.AID;
+
+			count   = itemList.length;
+
+			for (i = 0; i < count; ++i) {
+				pkt.itemList.push({
+					index:  itemList[i].index,
+					ITID:  itemList[i].ITID,
+					count: itemList[i].count
+				});
+			}
+
+			Network.sendPacket(pkt);
+		};
+	}
+
+	/**
 	 * Open vending creation window with X slots
 	 *
 	 * @param {object} pkt - PACKET.ZC.PACKET_ZC_OPENSTORE
@@ -293,5 +334,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE2,     onDeleteVendingItem );
 		Network.hookPacket( PACKET.ZC.OPENSTORE,                    onOpenVending );
 		Network.hookPacket( PACKET.ZC.ACK_OPENSTORE2,               onOpenVendingResult );
+		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList );
+		Network.hookPacket( PACKET.ZC.ACK_ITEMLIST_BUYING_STORE,    onBuyingStoreList );
 	};
 });

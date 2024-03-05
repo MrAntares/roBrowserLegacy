@@ -4174,24 +4174,26 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x819
 	PACKET.CZ.REQ_TRADE_BUYING_STORE = function PACKET_CZ_REQ_TRADE_BUYING_STORE() {
-		this.makerAID = 0;
-		this.StoreID = 0;
-		this.ItemList = [];
+		this.AID = 0;
+		this.UniqueID = 0;
+		this.itemList = [];
 	};
 	PACKET.CZ.REQ_TRADE_BUYING_STORE.prototype.build = function() {
 		var ver = this.getPacketVersion();
-		var pkt = new BinaryWriter(ver[2]);
+		var len = 2 + 2 + 4 + 4 + this.itemList.length * 6; // ver[2] = -1
+		var pkt = new BinaryWriter(len);
 		var i, count;
 
 		pkt.writeShort(ver[1]);
-		pkt.writeShort(2 + 2 + 4 + 4 + this.ItemList.length * 6);
-		pkt.writeULong(this.makerAID);
-		pkt.writeULong(this.StoreID);
+		pkt.writeShort(len);
+		pkt.writeULong(this.AID);
+		pkt.writeULong(this.UniqueID);
 
-		for (i = 0, count = this.ItemList.length; i < count; ++i) {
-			pkt.writeUShort(this.ItemList[i].index);
-			pkt.writeUShort(this.ItemList[i].id);
-			pkt.writeShort(this.ItemList[i].count);
+		for (i = 0, count = this.itemList.length; i < count; ++i) {
+			console.log(this.itemList[i]);
+			pkt.writeUShort(this.itemList[i].index);
+			pkt.writeUShort(this.itemList[i].ITID);
+			pkt.writeShort(this.itemList[i].count);
 		}
 
 		return pkt;
@@ -10359,10 +10361,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x818
 	PACKET.ZC.ACK_ITEMLIST_BUYING_STORE = function PACKET_ZC_ACK_ITEMLIST_BUYING_STORE(fp, end) {
-		this.makerAID = fp.readULong();
-		this.StoreID = fp.readULong();
+		this.AID = fp.readULong();
+		this.UniqueID = fp.readULong();
 		this.limitZeny = fp.readLong();
-		this.ItemList = (function() {
+		this.itemList = (function() {
 			var i, count = (end - fp.tell()) / 9 | 0,
 				out = new Array(count);
 			for (i = 0; i < count; ++i) {
