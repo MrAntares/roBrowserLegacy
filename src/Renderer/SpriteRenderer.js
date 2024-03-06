@@ -12,6 +12,7 @@ function(      WebGL,         glMatrix,      Camera )
 {
 	"use strict";
 
+	const Session = require("Engine/SessionStorage");
 
 	/**
 	 * Import
@@ -24,80 +25,80 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _vertexShader = `
-    #version 100
-    #pragma vscode_glsllint_stage : vert
-    #define M_PI 3.1415926535897932384626433832795
+		#version 100
+		#pragma vscode_glsllint_stage : vert
+		#define M_PI 3.1415926535897932384626433832795
 
-    precision highp float;
+		precision highp float;
 
-    attribute vec2 aPosition;
-    attribute vec2 aTextureCoord;
+		attribute vec2 aPosition;
+		attribute vec2 aTextureCoord;
 
-    varying vec2 vTextureCoord;
+		varying vec2 vTextureCoord;
 
-    uniform mat4 uModelViewMat;
-    uniform mat4 uViewModelMat;
-    uniform mat4 uProjectionMat;
+		uniform mat4 uModelViewMat;
+		uniform mat4 uViewModelMat;
+		uniform mat4 uProjectionMat;
 
-    uniform float uCameraZoom;
-    uniform float uCameraLatitude;
-    uniform float uCameraAngle;
+		uniform float uCameraZoom;
+		uniform float uCameraLatitude;
+		uniform float uCameraAngle;
 
-    uniform vec2 uSpriteRendererSize;
-    uniform vec2 uSpriteRendererOffset;
-    uniform mat4 uSpriteRendererAngle;
-    uniform vec3 uSpriteRendererPosition;
-    uniform float uSpriteRendererDepth;
-    uniform float uSpriteRendererZindex;
+		uniform vec2 uSpriteRendererSize;
+		uniform vec2 uSpriteRendererOffset;
+		uniform mat4 uSpriteRendererAngle;
+		uniform vec3 uSpriteRendererPosition;
+		uniform float uSpriteRendererDepth;
+		uniform float uSpriteRendererZindex;
 
-    mat4 Project(mat4 mat, vec3 pos, float angle) {
-        // xyz = x(-z)y + middle of cell (0.5)
-        float x = pos.x + 0.5;
-        float y = -pos.z;
-        float z = pos.y + 0.5;
+		mat4 Project(mat4 mat, vec3 pos, float angle) {
+			// xyz = x(-z)y + middle of cell (0.5)
+			float x = pos.x + 0.5;
+			float y = -pos.z;
+			float z = pos.y + 0.5;
 
-		float cameraLatitude = uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0;
+			float cameraLatitude = uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0;
 
-        // Matrix translation
-        mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
-        mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-        mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + min(cameraLatitude, 0.5);
-        mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
-
-
-        // Spherical billboard
-        mat[0].xyz = vec3(1.0, 0.0, 0.0);
-        mat[2].xyz = vec3(0.0, 0.0, 1.0);
-
-        mat[1].xyz = -mat[1].xyz;
-        mat[2].xyz = -mat[2].xyz;
-
-        mat[1].y = cos(angle * (M_PI * 2.0) / 360.0);
-
-        return mat;
-    }
-
-    void main(void) {
-        // Calculate position base on angle and sprite offset/size
-        vec4 position = uSpriteRendererAngle * vec4(aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0);
-        position.x += uSpriteRendererOffset.x;
-        position.y -= uSpriteRendererOffset.y + 0.5;
-
-        // We use this to compensate the Y billboarding, applying it on the Z axis
-        float yView = (position.y - 0.5) * (cos(uCameraAngle * (M_PI * 2.0) / 360.0));
-
-        gl_Position = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition, uCameraAngle) * position;
-        float uCameraZoomMod = uCameraZoom / 50.0;
-
-        // Adjust depth calculation based on the adjusted Y position and camera latitude
-        gl_Position.z -= ((uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoomMod, 1.0)) + (yView * 0.005);
+			// Matrix translation
+			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
+			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
+			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + min(cameraLatitude, 0.5);
+			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
 
 
-        // Apply depth offset based on the sprite's Y position, this avoids z-fighting
-        gl_Position.z += uSpriteRendererOffset.y * 0.0001;
+			// Spherical billboard
+			mat[0].xyz = vec3(1.0, 0.0, 0.0);
+			mat[2].xyz = vec3(0.0, 0.0, 1.0);
 
-        vTextureCoord = aTextureCoord;
-    }
+			mat[1].xyz = -mat[1].xyz;
+			mat[2].xyz = -mat[2].xyz;
+
+			mat[1].y = cos(angle * (M_PI * 2.0) / 360.0);
+
+			return mat;
+		}
+
+		void main(void) {
+			// Calculate position base on angle and sprite offset/size
+			vec4 position = uSpriteRendererAngle * vec4(aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0);
+			position.x += uSpriteRendererOffset.x;
+			position.y -= uSpriteRendererOffset.y + 0.5;
+
+			// We use this to compensate the Y billboarding, applying it on the Z axis
+			float yView = (position.y - 0.5) * (cos(uCameraAngle * (M_PI * 2.0) / 360.0));
+
+			gl_Position = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition, uCameraAngle) * position;
+			float uCameraZoomMod = uCameraZoom / 50.0;
+
+			// Adjust depth calculation based on the adjusted Y position and camera latitude
+			gl_Position.z -= ((uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoomMod, 1.0)) + (yView * 0.005);
+
+
+			// Apply depth offset based on the sprite's Y position, this avoids z-fighting
+			gl_Position.z += uSpriteRendererOffset.y * 0.0001;
+
+			vTextureCoord = aTextureCoord;
+		}
 	`;
 
 
@@ -126,6 +127,8 @@ function(      WebGL,         glMatrix,      Camera )
 		uniform float uShadow;
 		uniform vec2 uTextSize;
 		uniform bool uIsRGBA;
+
+		uniform bool uDebugMode;
 
 		// With palette we don't have a good result because of the gl.NEAREST, so smooth it.
 		vec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {
@@ -167,9 +170,17 @@ function(      WebGL,         glMatrix,      Camera )
 				texture = texture2D( uDiffuse, vTextureCoord.st );
 			}
 
-			// No alpha, skip.
-			if ( texture.a == 0.0 )
-				discard;
+			// Debug mode: Draw red rectangle around the sprite
+			if (uDebugMode) {
+				float thickness = 0.02; // Increased thickness for more visible lines
+				vec2 coord = vTextureCoord;
+				vec2 pixelSize = 1.0 / uTextSize;
+				if (coord.x < thickness || coord.x > 1.0 - thickness ||
+					coord.y < thickness || coord.y > 1.0 - thickness) {
+					texture = mix(texture, vec4(1.0, 0.0, 0.0, 1.0), 0.9); // Increased mixing factor for more opaque lines
+				}
+
+			}
 
 			// Apply shadow, apply color
 			texture.rgb   *= uShadow;
@@ -183,7 +194,6 @@ function(      WebGL,         glMatrix,      Camera )
 			}
 		}
 	`;
-
 
 
 	/**
@@ -426,6 +436,13 @@ function(      WebGL,         glMatrix,      Camera )
 		gl.uniform1f( uniform.uCameraZoom, Camera.zoom );
 		gl.uniform1f( uniform.uCameraLatitude, Camera.getLatitude() );
 		gl.uniform1f( uniform.uCameraAngle, Camera.getAngle() * (Math.PI / 180.0));
+
+		// Get the location of the uDebugMode uniform
+		var uDebugModeLocation = gl.getUniformLocation(_program, 'uDebugMode');
+
+		// Set the value of uDebugMode based on your debug mode flag
+		var isDebugMode = Session.debug ?? false; // Set this to true or false based on your debug mode flag
+		gl.uniform1i(uDebugModeLocation, isDebugMode);
 
 		// Enable all attributes
 		gl.enableVertexAttribArray( attribute.aPosition );

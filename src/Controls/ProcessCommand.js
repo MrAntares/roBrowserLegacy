@@ -551,6 +551,22 @@ define(function (require) {
 		},
 
 		/*
+		*	DEVELOPER COMMANDS
+		*/
+		debug: {
+			description: "Toggles debug mode, enabling sprite outlines.",
+			callback: function (text) {
+				this.addText(
+					`${!Session.debug ? "[Enabled]" : "[Disabled]"} Debug sprite outlines`,
+					this.TYPE.BLUE,
+					this.FILTER.PUBLIC_LOG
+				);
+				Session.debug = !Session.debug;
+				return;
+			},
+			custom: true
+		},
+		/*
 		*  GM COMMANDS
 		*/
 		broadcast: {
