@@ -4190,7 +4190,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		pkt.writeULong(this.UniqueID);
 
 		for (i = 0, count = this.itemList.length; i < count; ++i) {
-			console.log(this.itemList[i]);
 			pkt.writeUShort(this.itemList[i].index);
 			pkt.writeUShort(this.itemList[i].ITID);
 			pkt.writeShort(this.itemList[i].count);
