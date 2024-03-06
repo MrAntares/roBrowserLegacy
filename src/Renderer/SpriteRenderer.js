@@ -24,74 +24,80 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _vertexShader = `
-		#version 100
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
+    #version 100
+    #pragma vscode_glsllint_stage : vert
+    #define M_PI 3.1415926535897932384626433832795
 
-		attribute vec2 aPosition;
-		attribute vec2 aTextureCoord;
+    precision highp float;
 
-		varying vec2 vTextureCoord;
+    attribute vec2 aPosition;
+    attribute vec2 aTextureCoord;
 
-		uniform mat4 uModelViewMat;
-		uniform mat4 uViewModelMat;
-		uniform mat4 uProjectionMat;
+    varying vec2 vTextureCoord;
 
-		uniform float uCameraZoom;
-		uniform float uCameraLatitude;
+    uniform mat4 uModelViewMat;
+    uniform mat4 uViewModelMat;
+    uniform mat4 uProjectionMat;
 
-		uniform vec2 uSpriteRendererSize;
-		uniform vec2 uSpriteRendererOffset;
-		uniform mat4 uSpriteRendererAngle;
-		uniform vec3 uSpriteRendererPosition;
-		uniform float uSpriteRendererDepth;
-		uniform float uSpriteRendererZindex;
+    uniform float uCameraZoom;
+    uniform float uCameraLatitude;
+    uniform float uCameraAngle;
 
-		mat4 Project( mat4 mat, vec3 pos) {
+    uniform vec2 uSpriteRendererSize;
+    uniform vec2 uSpriteRendererOffset;
+    uniform mat4 uSpriteRendererAngle;
+    uniform vec3 uSpriteRendererPosition;
+    uniform float uSpriteRendererDepth;
+    uniform float uSpriteRendererZindex;
 
-			// xyz = x(-z)y + middle of cell (0.5)
-			float x =  pos.x + 0.5;
-			float y = -pos.z;
-			float z =  pos.y + 0.5;
-			float NEARPLANE = 1.0;
+    mat4 Project(mat4 mat, vec3 pos, float angle) {
+        // xyz = x(-z)y + middle of cell (0.5)
+        float x = pos.x + 0.5;
+        float y = -pos.z;
+        float z = pos.y + 0.5;
 
-			// Matrix translation
-			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
-			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
-			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
+		float cameraLatitude = uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0;
 
-			// Spherical billboard
-			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
-			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
-			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
+        // Matrix translation
+        mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
+        mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
+        mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + min(cameraLatitude, 0.5);
+        mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
 
-			return mat;
-		}
 
-		void main(void) {
+        // Spherical billboard
+        mat[0].xyz = vec3(1.0, 0.0, 0.0);
+        mat[2].xyz = vec3(0.0, 0.0, 1.0);
 
-			// Calculate position base on angle and sprite offset/size
-			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
-			position.x   += uSpriteRendererOffset.x;
-			position.y   -= uSpriteRendererOffset.y + 0.5;
+        mat[1].xyz = -mat[1].xyz;
+        mat[2].xyz = -mat[2].xyz;
 
-			// We use this to compensate the Y billboarding, applying it on the Z axis
-			float yView = (position.y - 0.5) * (1.0 + cos(uCameraLatitude * (3.1416 * 2.0) / 360.0));
+        mat[1].y = cos(angle * (M_PI * 2.0) / 360.0);
 
-			// Project to camera plane
-			gl_Position = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
+        return mat;
+    }
 
-			float uCameraZoomMod = uCameraZoom / 50.0;
+    void main(void) {
+        // Calculate position base on angle and sprite offset/size
+        vec4 position = uSpriteRendererAngle * vec4(aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0);
+        position.x += uSpriteRendererOffset.x;
+        position.y -= uSpriteRendererOffset.y + 0.5;
 
-			// Adjust depth calculation based on the adjusted Y position
-			gl_Position.z -= ((uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoomMod, 1.0)) + (yView * 0.01);
+        // We use this to compensate the Y billboarding, applying it on the Z axis
+        float yView = (position.y - 0.5) * (cos(uCameraAngle * (M_PI * 2.0) / 360.0));
 
-			// Apply depth offset based on the sprite's Y position, this avoids z-fighting
-			gl_Position.z += uSpriteRendererOffset.y * 0.0001;
+        gl_Position = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition, uCameraAngle) * position;
+        float uCameraZoomMod = uCameraZoom / 50.0;
 
-			vTextureCoord = aTextureCoord;
-		}
+        // Adjust depth calculation based on the adjusted Y position and camera latitude
+        gl_Position.z -= ((uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoomMod, 1.0)) + (yView * 0.005);
+
+
+        // Apply depth offset based on the sprite's Y position, this avoids z-fighting
+        gl_Position.z += uSpriteRendererOffset.y * 0.0001;
+
+        vTextureCoord = aTextureCoord;
+    }
 	`;
 
 
@@ -419,6 +425,7 @@ function(      WebGL,         glMatrix,      Camera )
 		// Camera position for billboarding
 		gl.uniform1f( uniform.uCameraZoom, Camera.zoom );
 		gl.uniform1f( uniform.uCameraLatitude, Camera.getLatitude() );
+		gl.uniform1f( uniform.uCameraAngle, Camera.getAngle() * (Math.PI / 180.0));
 
 		// Enable all attributes
 		gl.enableVertexAttribArray( attribute.aPosition );
