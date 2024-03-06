@@ -31,6 +31,11 @@ define(function(require)
 	var MapName = new UIComponent( 'MapName', htmlText, cssText );
 
 	/**
+	 * Mouse can cross this UI
+	 */
+	MapName.mouseMode = UIComponent.MouseMode.CROSS;
+
+	/**
 	 * @var {array} _mapinfo
 	 */
 	var _mapinfo = [];
