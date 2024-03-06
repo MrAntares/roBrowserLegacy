@@ -179,8 +179,11 @@ function(      WebGL,         glMatrix,      Camera )
 					coord.y < thickness || coord.y > 1.0 - thickness) {
 					texture = mix(texture, vec4(1.0, 0.0, 0.0, 1.0), 0.9); // Increased mixing factor for more opaque lines
 				}
-
 			}
+
+			// No alpha, skip.
+			if ( texture.a == 0.0 )
+				discard;
 
 			// Apply shadow, apply color
 			texture.rgb   *= uShadow;
