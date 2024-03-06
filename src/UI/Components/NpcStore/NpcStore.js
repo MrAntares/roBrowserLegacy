@@ -477,16 +477,10 @@ define(function(require)
 			return;
 		}
 
-		if(typeof item.maxCount !== 'undefined' && item.count > item.maxCount) {
-			let text = DB.getMessage(1739);
-			let result = text.replace("%d", item.maxCount); // workaround
-			ChatBox.addText( result, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		}
-
 		// Already here, update it
 		// Note: just the amount can be updated ?
 		if (element.length) {
-			amountText = (_type == NpcStore.Type.BUYING_STORE) ? ' ea.' : '';
+			amountText = (_type == NpcStore.Type.BUYING_STORE && !(content.hasClass('contentAvailable'))) ? ' ea.' : '';
 			element.find('.amount').text(isFinite(item.count) ? item.count + amountText: '');
 			return;
 		}
@@ -519,6 +513,7 @@ define(function(require)
 				'<div class="item itemAvailable" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
+					'<div class="nameOverlay">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
 				'</div>'
 			);
 		}
@@ -623,6 +618,12 @@ define(function(require)
 
 				addItem( fromContent, tmpItem);
 				addItem( toContent, _output[index]);
+
+				if(typeof _output[index].maxCount !== 'undefined' && _output[index].count > _output[index].maxCount) {
+					let text = DB.getMessage(1739);
+					let result = text.replace("%d", _output[index].maxCount); // workaround
+					ChatBox.addText( result, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				}
 			}
 
 			// Remove item
