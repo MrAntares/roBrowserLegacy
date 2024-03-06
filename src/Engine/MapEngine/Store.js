@@ -156,6 +156,22 @@ define(function( require )
 
 
 	/**
+	 * Received purchased informations
+	 *
+	 * @param {object} pkt - FAILED_TRADE_BUYING_STORE_TO_SELLER
+	 */
+
+	function onSellToBuyingStoreResult( pkt )
+	{
+		switch (pkt.Result) {
+			case 6:  ChatBox.addText( DB.getMessage(1742), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // The trade failed, because the entered amount of item %s is higher, than the buyer is willing to buy.
+			case 7:  ChatBox.addText( DB.getMessage(1740), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // The trade failed, because the buyer is lacking required balance.
+			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
+		}
+	}
+
+
+	/**
 	 * Received items list to buy from npc
 	 *
 	 * @param {object} pkt - PACKET.ZC.PC_SELL_ITEMLIST
@@ -253,6 +269,47 @@ define(function( require )
 	}
 
 	/**
+	 * Received items list to buy from player
+	 *
+	 * @param {object} pkt - PACKET.ZC.ACK_ITEMLIST_BUYING_STORE
+	 */
+	function onBuyingStoreList( _pkt )
+	{
+		NpcStore.append();
+		NpcStore.setType(NpcStore.Type.BUYING_STORE);
+		NpcStore.setList(_pkt.itemList);
+		NpcStore.setPriceLimit(_pkt.limitZeny);
+
+		// Get seller name
+		var entity = EntityManager.get(_pkt.AID);
+		NpcStore.ui.find('.seller').text( entity ? entity.display.name : '');
+
+		// Bying items
+		NpcStore.onSubmit = function(itemList) {
+			NpcStore.remove();
+
+			var i, count;
+			var pkt;
+
+			pkt = new PACKET.CZ.REQ_TRADE_BUYING_STORE();
+			pkt.UniqueID = _pkt.UniqueID;
+			pkt.AID = _pkt.AID;
+
+			count   = itemList.length;
+
+			for (i = 0; i < count; ++i) {
+				pkt.itemList.push({
+					index:  itemList[i].index,
+					ITID:  itemList[i].ITID,
+					count: itemList[i].count
+				});
+			}
+
+			Network.sendPacket(pkt);
+		};
+	}
+
+	/**
 	 * Open vending creation window with X slots
 	 *
 	 * @param {object} pkt - PACKET.ZC.PACKET_ZC_OPENSTORE
@@ -293,5 +350,8 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE2,     onDeleteVendingItem );
 		Network.hookPacket( PACKET.ZC.OPENSTORE,                    onOpenVending );
 		Network.hookPacket( PACKET.ZC.ACK_OPENSTORE2,               onOpenVendingResult );
+		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList );
+		Network.hookPacket( PACKET.ZC.ACK_ITEMLIST_BUYING_STORE,    onBuyingStoreList );
+		Network.hookPacket( PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult );
 	};
 });

@@ -48,7 +48,8 @@ define(function(require)
 	NpcStore.Type = {
 		BUY:  0,
 		SELL: 1,
-		VENDING_STORE: 2
+		VENDING_STORE: 2,
+		BUYING_STORE: 3
 	};
 
 
@@ -70,6 +71,11 @@ define(function(require)
 		outputWindow: {
 			x:    100 + 280 + 10,
 			y:    100 + (7*32) - (2*32),
+			height: 2
+		},
+		AvailableItemsWindow: {
+			x:    100 + 280 + 10,
+			y:    100 + (4*32) - (2*32),
 			height: 2
 		},
 		select_all: false
@@ -102,6 +108,7 @@ define(function(require)
 		var ui           = this.ui;
 		var InputWindow  = ui.find('.InputWindow');
 		var OutputWindow = ui.find('.OutputWindow');
+		var AvailableItemsWindow = ui.find('.AvailableItemsWindow');
 
 		if (PACKETVER.value >= 20131223) {
 			ui.find('.btn.cancel').click(function(){
@@ -120,6 +127,7 @@ define(function(require)
 		// Resize
 		InputWindow.find('.resize').mousedown(function(){ onResize(InputWindow); });
 		OutputWindow.find('.resize').mousedown(function(){ onResize(OutputWindow); });
+		AvailableItemsWindow.find('.resize').mousedown(function(){ onResize(AvailableItemsWindow); });
 
 		// Items options
 		ui.find('.content')
@@ -133,7 +141,7 @@ define(function(require)
 			});
 
 		// Drop items
-		ui.find('.InputWindow, .OutputWindow')
+		ui.find('.InputWindow, .OutputWindow, .AvailableItemsWindow')
 			.on('drop', onDrop)
 			.on('dragover', function(event) {
 				event.stopImmediatePropagation();
@@ -146,7 +154,7 @@ define(function(require)
 		// Hacky drag drop
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
 		this.draggable.call({ui: OutputWindow }, OutputWindow.find('.titlebar'));
-
+		this.draggable.call({ui: AvailableItemsWindow }, AvailableItemsWindow.find('.titlebar'));
 	};
 
 
@@ -157,9 +165,11 @@ define(function(require)
 	{
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
+		var AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
 
 		InputWindow.css({  top:  _preferences.inputWindow.y,  left: _preferences.inputWindow.x });
 		OutputWindow.css({ top:  _preferences.outputWindow.y, left: _preferences.outputWindow.x });
+		AvailableItemsWindow.css({ top:  _preferences.AvailableItemsWindow.y, left: _preferences.AvailableItemsWindow.x });
 
 		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp', function(data){
 			this.ui.find('.selectall:first').css('backgroundImage', 'url('+ data +')');
@@ -167,6 +177,7 @@ define(function(require)
 
 		resize( InputWindow.find('.content'),  _preferences.inputWindow.height );
 		resize( OutputWindow.find('.content'), _preferences.outputWindow.height );
+		resize( AvailableItemsWindow.find('.content'), _preferences.AvailableItemsWindow.height );
 
 		// Seems like "EscapeWindow" is execute first, push it before.
 		var events = jQuery._data( window, 'events').keydown;
@@ -181,6 +192,7 @@ define(function(require)
 	{
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
+		var AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
 
 		_input.length    = 0;
 		_output.length   = 0;
@@ -192,6 +204,10 @@ define(function(require)
 		_preferences.outputWindow.x      = parseInt( OutputWindow.css('left'), 10);
 		_preferences.outputWindow.y      = parseInt( OutputWindow.css('top'), 10);
 		_preferences.outputWindow.height = OutputWindow.find('.content').height() / 32 | 0;
+
+		_preferences.AvailableItemsWindow.x      = parseInt( AvailableItemsWindow.css('left'), 10);
+		_preferences.AvailableItemsWindow.y      = parseInt( AvailableItemsWindow.css('top'), 10);
+		_preferences.AvailableItemsWindow.height = AvailableItemsWindow.find('.content').height() / 32 | 0;
 
 		_preferences.save();
 
@@ -232,18 +248,26 @@ define(function(require)
 	{
 		switch (type) {
 			case NpcStore.Type.BUY:
-				this.ui.find('.WinSell, .WinVendingStore, .WinCash').hide();
+				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
 				this.ui.find('.WinBuy').show();
 				break;
 
 			case NpcStore.Type.SELL:
-				this.ui.find('.WinBuy, .WinVendingStore, .WinCash').hide();
+				this.ui.find('.WinBuy, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
 				this.ui.find('.WinSell').show();
 				break;
 
 			case NpcStore.Type.VENDING_STORE:
-				this.ui.find('.WinBuy, .WinSell, .WinCash').hide();
+				this.ui.find('.WinBuy, .WinSell, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
 				this.ui.find('.WinVendingStore').show();
+				break;
+
+			case NpcStore.Type.BUYING_STORE:
+				this.ui.find('.WinBuy, .WinSell, .WinCash, .WinVendingStore').hide();
+				this.ui.find('.WinBuyingStore, .AvailableItemsWindow').show();
+				this.ui.find('.content').css('height','160px');
+				this.ui.find('.contentAvailable').css('height','65px');
+				
 				break;
 		}
 
@@ -259,7 +283,7 @@ define(function(require)
 	NpcStore.setList = function setList( items )
 	{
 		var i, count;
-		var it, item, out, content;
+		var it, item, out, content, availableContent;
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
@@ -267,7 +291,7 @@ define(function(require)
 		_input.length  = 0;
 		_output.length = 0;
 		content        = this.ui.find('.InputWindow .content');
-
+		availableContent = this.ui.find('.AvailableItemsWindow .content');
 		switch (_type) {
 
 			case NpcStore.Type.BUY:
@@ -285,6 +309,37 @@ define(function(require)
 
 					_input[items[i].index]  = items[i];
 					_output[items[i].index] = out;
+
+				}
+				break;
+			case NpcStore.Type.BUYING_STORE:
+				for (i = 0, count = items.length; i < count; ++i) {
+					if (!('index' in items[i])) {
+						items[i].index = i;
+					}
+					items[i].count        = items[i].count || Infinity;
+					items[i].IsIdentified = true;
+					out                   = jQuery.extend({}, items[i]);
+					out.count             = 0;
+
+					addItem( content, items[i]);
+					it = Inventory.getItemById(items[i].ITID);
+
+					if (it) {
+						item                 = jQuery.extend({}, it);
+						item.ITID            = it.ITID;
+						item.price           = items[i].price;
+						item.count           = ('count' in item) ? item.count : 1;
+						item.maxCount        = isFinite(items[i].count) ? items[i].count : 0;
+
+						out                  = jQuery.extend({}, item);
+						out.count            = 0;
+
+						addItem( availableContent, item);
+
+						_input[item.index]  = item;
+						_output[item.index] = out;
+					}
 				}
 				break;
 
@@ -311,6 +366,13 @@ define(function(require)
 		}
 	};
 
+	NpcStore.setPriceLimit = function setPriceLimit(price)
+	{
+		let prettyPrice = prettyZeny(price);
+		let text = DB.getMessage(1735);
+		let result = text.replace("%s", prettyPrice); // workaround
+		this.ui.find('.priceLimit').text(result);
+	}
 
 	/**
 	 * Submit data to send items
@@ -351,7 +413,7 @@ define(function(require)
 			}
 		}
 
-		this.ui.find('.total .result').text(total);
+		this.ui.find('.total .result').text(prettyZeny(total));
 
 		return total;
 	};
@@ -400,11 +462,12 @@ define(function(require)
 	 * @param {jQuery} content element
 	 * @param {Item} item info
 	 */
-	function addItem( content, item )
+	function addItem( content, item)
 	{
 		var it      = DB.getItemInfo(item.ITID);
 		var element = content.find('.item[data-index='+ item.index +']:first');
 		var price;
+		let amountText;
 
 		// 0 as amount ? remove it
 		if (item.count === 0) {
@@ -417,31 +480,43 @@ define(function(require)
 		// Already here, update it
 		// Note: just the amount can be updated ?
 		if (element.length) {
-			element.find('.amount').text(isFinite(item.count) ? item.count : '');
+			amountText = (_type == NpcStore.Type.BUYING_STORE && !(content.hasClass('contentAvailable'))) ? ' ea.' : '';
+			element.find('.amount').text(isFinite(item.count) ? item.count + amountText: '');
 			return;
 		}
 
-		price = prettyZeny(item.price, _type === NpcStore.Type.VENDING_STORE);
+		if(!(content.hasClass('contentAvailable'))) {
+			price = prettyZeny(item.price, _type === NpcStore.Type.VENDING_STORE || _type === NpcStore.Type.BUYING_STORE);
 
-		// Discount price
-		if ('discountprice' in item && item.price !== item.discountprice) {
-			price += ' -> ' + prettyZeny(item.discountprice);
+			// Discount price
+			if ('discountprice' in item && item.price !== item.discountprice) {
+				price += ' -> ' + prettyZeny(item.discountprice);
+			}
+			else if ('overchargeprice' in item && item.price !== item.overchargeprice) {
+				price += ' -> ' + prettyZeny(item.overchargeprice);
+			}
+
+			let buyingClass = (_type == NpcStore.Type.BUYING_STORE) ? ' amountBuying' : '';
+			amountText = (_type == NpcStore.Type.BUYING_STORE) ? ' ea.' : '';
+			// Create it
+			content.append(
+				'<div class="item" draggable="true" data-index="'+ item.index +'">' +
+					'<div class="icon"></div>' +
+					'<div class="amount' + buyingClass + '">' + (isFinite(item.count) ? item.count : (_type === NpcStore.Type.BUYING_STORE) ? 0 : '') + amountText + '</div>' +
+					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
+					'<div class="price">'+ price +'</div>' +
+					'<div class="unity">Z</div>' +
+				'</div>'
+			);
+		} else {
+			content.append(
+				'<div class="item itemAvailable" draggable="true" data-index="'+ item.index +'">' +
+					'<div class="icon"></div>' +
+					'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
+					'<div class="nameOverlay">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
+				'</div>'
+			);
 		}
-		else if ('overchargeprice' in item && item.price !== item.overchargeprice) {
-			price += ' -> ' + prettyZeny(item.overchargeprice);
-		}
-
-		// Create it
-		content.append(
-			'<div class="item" draggable="true" data-index="'+ item.index +'">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
-				'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
-				'<div class="price">'+ price +'</div>' +
-				'<div class="unity">Z</div>' +
-			'</div>'
-		);
-
 		// Add the icon once loaded
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function(data){
 			content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
@@ -543,6 +618,12 @@ define(function(require)
 
 				addItem( fromContent, tmpItem);
 				addItem( toContent, _output[index]);
+
+				if(typeof _output[index].maxCount !== 'undefined' && _output[index].count > _output[index].maxCount) {
+					let text = DB.getMessage(1739);
+					let result = text.replace("%d", _output[index].maxCount); // workaround
+					ChatBox.addText( result, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				}
 			}
 
 			// Remove item
@@ -753,12 +834,13 @@ define(function(require)
 	function onDragStart( event )
 	{
 		var container, img, url;
-		var InputWindow, OutputWindow;
+		var InputWindow, OutputWindow, AvailableItemsWindow;
 
 		InputWindow  = NpcStore.ui.find('.InputWindow:first').get(0);
 		OutputWindow = NpcStore.ui.find('.OutputWindow:first').get(0);
+		AvailableItemsWindow = NpcStore.ui.find('.AvailableItemsWindow:first').get(0);
 
-		container = (jQuery.contains(InputWindow, this) ? InputWindow : OutputWindow).className;
+		container = (jQuery.contains(InputWindow, this) ? InputWindow : (jQuery.contains(AvailableItemsWindow, this)) ? AvailableItemsWindow : OutputWindow).className;
 		img       = new Image();
 		url       = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
 		img.src   = url;
