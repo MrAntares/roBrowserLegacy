@@ -165,7 +165,7 @@ define(function(require)
 	{
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
-		var AvailableItemsWindow = this.ui.find('.OutputWindow');
+		var AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
 
 		InputWindow.css({  top:  _preferences.inputWindow.y,  left: _preferences.inputWindow.x });
 		OutputWindow.css({ top:  _preferences.outputWindow.y, left: _preferences.outputWindow.x });
@@ -296,7 +296,6 @@ define(function(require)
 
 			case NpcStore.Type.BUY:
 			case NpcStore.Type.VENDING_STORE:
-			case NpcStore.Type.BUYING_STORE:
 				for (i = 0, count = items.length; i < count; ++i) {
 					if (!('index' in items[i])) {
 						items[i].index = i;
@@ -308,26 +307,38 @@ define(function(require)
 
 					addItem( content, items[i]);
 
-					if(NpcStore.Type.BUYING_STORE) {
-						it = Inventory.getItemById(items[i].ITID);
+					_input[items[i].index]  = items[i];
+					_output[items[i].index] = out;
 
-						if (it) {
-							item                 = jQuery.extend({}, it);
-							item.ITID            = it.ITID;
-							item.price           = items[i].price;
-							item.count           = ('count' in item) ? item.count : 1;
+				}
+				break;
+			case NpcStore.Type.BUYING_STORE:
+				for (i = 0, count = items.length; i < count; ++i) {
+					if (!('index' in items[i])) {
+						items[i].index = i;
+					}
+					items[i].count        = items[i].count || Infinity;
+					items[i].IsIdentified = true;
+					out                   = jQuery.extend({}, items[i]);
+					out.count             = 0;
 
-							out                  = jQuery.extend({}, item);
-							out.count            = 0;
+					addItem( content, items[i]);
+					it = Inventory.getItemById(items[i].ITID);
 
-							addItem( availableContent, item, true);
+					if (it) {
+						item                 = jQuery.extend({}, it);
+						item.ITID            = it.ITID;
+						item.price           = items[i].price;
+						item.count           = ('count' in item) ? item.count : 1;
+						item.maxCount        = isFinite(items[i].count) ? items[i].count : 0;
 
-							_input[item.index]  = item;
-							_output[item.index] = out;
-						}
-					} else {
-						_input[items[i].index]  = items[i];
-						_output[items[i].index] = out;
+						out                  = jQuery.extend({}, item);
+						out.count            = 0;
+
+						addItem( availableContent, item);
+
+						_input[item.index]  = item;
+						_output[item.index] = out;
 					}
 				}
 				break;
@@ -451,11 +462,12 @@ define(function(require)
 	 * @param {jQuery} content element
 	 * @param {Item} item info
 	 */
-	function addItem( content, item, isAvailableContent = false )
+	function addItem( content, item)
 	{
 		var it      = DB.getItemInfo(item.ITID);
 		var element = content.find('.item[data-index='+ item.index +']:first');
 		var price;
+		let amountText;
 
 		// 0 as amount ? remove it
 		if (item.count === 0) {
@@ -465,14 +477,21 @@ define(function(require)
 			return;
 		}
 
+		if(typeof item.maxCount !== 'undefined' && item.count > item.maxCount) {
+			let text = DB.getMessage(1739);
+			let result = text.replace("%d", item.maxCount); // workaround
+			ChatBox.addText( result, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+		}
+
 		// Already here, update it
 		// Note: just the amount can be updated ?
 		if (element.length) {
-			element.find('.amount').text(isFinite(item.count) ? item.count : '');
+			amountText = (_type == NpcStore.Type.BUYING_STORE) ? ' ea.' : '';
+			element.find('.amount').text(isFinite(item.count) ? item.count + amountText: '');
 			return;
 		}
 
-		if(!isAvailableContent) {
+		if(!(content.hasClass('contentAvailable'))) {
 			price = prettyZeny(item.price, _type === NpcStore.Type.VENDING_STORE || _type === NpcStore.Type.BUYING_STORE);
 
 			// Discount price
@@ -484,7 +503,7 @@ define(function(require)
 			}
 
 			let buyingClass = (_type == NpcStore.Type.BUYING_STORE) ? ' amountBuying' : '';
-			let amountText = (_type == NpcStore.Type.BUYING_STORE) ? ' ea.' : '';
+			amountText = (_type == NpcStore.Type.BUYING_STORE) ? ' ea.' : '';
 			// Create it
 			content.append(
 				'<div class="item" draggable="true" data-index="'+ item.index +'">' +
@@ -640,7 +659,6 @@ define(function(require)
 	 */
 	function requestMoveItem( index, fromContent, toContent, isAdding)
 	{
-		console.log(index, fromContent, toContent, isAdding);
 		var item, count;
 		var isStackable;
 

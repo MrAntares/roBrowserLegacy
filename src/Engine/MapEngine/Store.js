@@ -156,6 +156,22 @@ define(function( require )
 
 
 	/**
+	 * Received purchased informations
+	 *
+	 * @param {object} pkt - FAILED_TRADE_BUYING_STORE_TO_SELLER
+	 */
+
+	function onSellToBuyingStoreResult( pkt )
+	{
+		switch (pkt.Result) {
+			case 6:  ChatBox.addText( DB.getMessage(1742), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // The trade failed, because the entered amount of item %s is higher, than the buyer is willing to buy.
+			case 7:  ChatBox.addText( DB.getMessage(1740), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // The trade failed, because the buyer is lacking required balance.
+			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
+		}
+	}
+
+
+	/**
 	 * Received items list to buy from npc
 	 *
 	 * @param {object} pkt - PACKET.ZC.PC_SELL_ITEMLIST
@@ -336,5 +352,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_OPENSTORE2,               onOpenVendingResult );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMLIST_BUYING_STORE,    onBuyingStoreList );
+		Network.hookPacket( PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult );
 	};
 });
