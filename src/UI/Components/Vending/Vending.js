@@ -915,7 +915,7 @@ define(function(require)
 		if(!(this.classList.contains('input'))) return;
 
 		var idx  = parseInt( this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(idx);
+		var item = _type == Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getItemByIndex(idx);
 
 		if (!item) {
 			return;
@@ -927,7 +927,7 @@ define(function(require)
 
 		// Display box
 		overlay.show();
-		overlay.css({top: pos.top - 10, left:pos.left-10});
+		overlay.css({top: pos.top - 20, left:pos.left-10});
 		overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
 	}
 

@@ -10331,20 +10331,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x813
 	PACKET.ZC.MYITEMLIST_BUYING_STORE = function PACKET_ZC_MYITEMLIST_BUYING_STORE(fp, end) {
+		let size = PACKETVER.value >= 20181121 ? 11 : 9;
 		this.AID = fp.readULong();
 		this.limitZeny = fp.readLong();
-		this.itemList = (function() {
-			var i, count = (end - fp.tell()) / 9 | 0,
+		this.itemList = (function(size) {
+			var i, count = (end - fp.tell()) / size | 0,
 				out = new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].price = fp.readLong();
 				out[i].count = fp.readShort();
 				out[i].type = fp.readUChar();
-				out[i].ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());;
+				out[i].ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
+				out[i].index = i;
 			}
 			return out;
-		})();
+		})(size);
 	};
 	PACKET.ZC.MYITEMLIST_BUYING_STORE.size = -1;
 

@@ -232,12 +232,7 @@ define(function(require)
 	{
 		var i, count;
 
-		console.log(items);
 		for (i = 0, count = items.length; i < count ; ++i) {
-			var object= this.getItemByIndex(items[i].index);
-			if(object){
-				var item=this.removeItem(object.index,object.count);
-			}
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);
 			}
@@ -276,12 +271,6 @@ define(function(require)
 	 */
 	VendingShop.addItemSub = function AddItemSub( item )
 	{
-		// Equip item (if not arrow)
-		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-			//Equipment.equip(item);
-			return false;
-		}
-
 			var it      = DB.getItemInfo( item.ITID );
 			var content = this.ui.find('.container .content');
 
@@ -532,7 +521,7 @@ define(function(require)
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
 		}
-		else {
+		else if(_type === VendingShop.Type.VENDING_LIST) {
 			overlay.addClass('grey');
 		}
 	}
