@@ -147,7 +147,7 @@ define(function( require )
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 				gl.generateMipmap( gl.TEXTURE_2D );
 			}
-			
+
 			for(var i = 0; i < 6; i++){  //bluemsg.spr miss crit lucky...
 
 				var source = sprBlue.getCanvasFromFrame(i);
@@ -250,7 +250,7 @@ define(function( require )
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
 			obj.color[2] = 0.15;
-			
+
 			// Add CRIT background
 			var bgObj      = new Damage();
 			bgObj.type     = Damage.TYPE.CRIT;
@@ -264,7 +264,7 @@ define(function( require )
 			bgObj.offset   = [0.0, -6.0];
 			bgObj.isDisposable = false;
 			_list.push(bgObj);
-			
+
 			// Add hit effect
 			var EF_Init_Par = {
 				effectId: 1,
@@ -279,7 +279,7 @@ define(function( require )
 			obj.color[0] = 1.0;
 			obj.color[1] = 1.0;
 			obj.color[2] = 1.0;
-			
+
 			// Add Blue CRIT background
 			var bgObj      = new Damage();
 			bgObj.type     = obj.type;
@@ -365,9 +365,9 @@ define(function( require )
 		if(hitSounds){
 			obj.soundFile = hitSounds[0];
 		}
-		
+
 		_list.push( obj );
-		
+
 	};
 
 
@@ -508,7 +508,7 @@ define(function( require )
 			SpriteRenderer.size[0] = damage.width  * size;
 			SpriteRenderer.size[1] = damage.height * size;
 			damage.color[3]        = 1.0 - perc;
-			
+
 			if(damage.offset){
 				SpriteRenderer.offset[0] = damage.offset[0];
 				SpriteRenderer.offset[1] = damage.offset[1];
@@ -521,6 +521,7 @@ define(function( require )
 
 			SpriteRenderer.color.set( damage.color );
 			SpriteRenderer.image.texture = damage.texture;
+			SpriteRenderer.objecttype = Entity.TYPE_EFFECT;
 			SpriteRenderer.render();
 		}
 

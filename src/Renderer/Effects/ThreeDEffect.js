@@ -2,6 +2,8 @@ define(['Utils/WebGL', 'Core/Client', 'Renderer/SpriteRenderer', 'Renderer/Entit
 function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 	'use strict';
 
+	const { TYPE_EFFECT } = require('Renderer/Entity/Entity');
+
 	function randBetween(minimum, maximum) {
 		return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 	}
@@ -604,6 +606,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		SpriteRenderer.color[3] = 1;
 		SpriteRenderer.depth = 0;
 		SpriteRenderer.zIndex = 0;
+		SpriteRenderer.objecttype = TYPE_EFFECT;
 	};
 
 	ThreeDEffect.afterRender = function afterRender(gl) {

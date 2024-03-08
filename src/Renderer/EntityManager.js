@@ -300,7 +300,6 @@ define(function( require )
 					count--;
 					continue;
 				}
-
 				_list[i].render( modelView, projection);
 			}
 		}

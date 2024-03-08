@@ -124,6 +124,7 @@ function(      WebGL,         glMatrix,      Camera )
 		uniform vec2 uTextSize;
 		uniform bool uIsRGBA;
 
+		uniform int objectType;
 		uniform bool uDebugMode;
 
 		out vec4 fragColor;
@@ -166,14 +167,52 @@ function(      WebGL,         glMatrix,      Camera )
 				texColor = texture(uDiffuse, vTextureCoord.st);
 			}
 
+			if (objectType == 1 || objectType >= 5 && objectType <= 10 || objectType == 12) {
+				float edgeFactor = smoothstep(0.10, 1.0, texColor.a);
+				texColor.rgb *= edgeFactor;
+			}
+
+
 			// Debug mode: Draw red rectangle around the sprite
 			if (uDebugMode) {
 				float thickness = 0.02; // Increased thickness for more visible lines
 				vec2 coord = vTextureCoord;
 				vec2 pixelSize = 1.0 / uTextSize;
+				vec4 colorLine = vec4(1.0, 0.0, 0.0, 1.0);
+
+				switch (objectType) {
+					case -5: // Effect is pink
+						colorLine = vec4(1.0, 0.75, 0.8, 1.0);
+						break;
+					case 0: // Character blue
+						colorLine = vec4(0.0, 0.0, 1.0, 1.0);
+						break;
+					case 5:
+					case 1: // Monster green
+						colorLine = vec4(0.0, 1.0, 0.0, 1.0);
+						break;
+					case 12:
+					case 6: // NPC yellow
+						colorLine = vec4(1.0, 1.0, 0.0, 1.0);
+						break;
+					case 7: // Pet purple
+						colorLine = vec4(1.0, 0.0, 1.0, 1.0);
+						break;
+					case 10:
+					case 8: // Homunculus and Ele orange
+						colorLine = vec4(1.0, 0.5, 0.0, 1.0);
+						break;
+					case 9: // Mercenary cyan
+						colorLine = vec4(0.0, 1.0, 1.0, 1.0);
+						break;
+					default: // Others red
+						colorLine = vec4(1.0, 0.0, 0.0, 1.0);
+						break;
+				}
+
 				if (coord.x < thickness || coord.x > 1.0 - thickness ||
 					coord.y < thickness || coord.y > 1.0 - thickness) {
-					texColor = mix(texColor, vec4(1.0, 0.0, 0.0, 1.0), 0.9); // Increased mixing factor for more opaque lines
+					texColor = mix(texColor, colorLine, 0.9); // Increased mixing factor for more opaque lines
 				}
 			}
 
@@ -288,6 +327,11 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {number} height unity
 	 */
 	SpriteRenderer.ySize = 5;
+
+    /**
+     * @var {number} object type
+     */
+    SpriteRenderer.objecttype = null;
 
 
 	/**
@@ -437,7 +481,10 @@ function(      WebGL,         glMatrix,      Camera )
 		gl.uniform1f( uniform.uCameraLatitude, Camera.getLatitude() );
 		gl.uniform1f( uniform.uCameraAngle, Camera.getAngle() * (Math.PI / 180.0));
 
-		gl.uniform1i( uniform.uDebugModeLocation, Session.debug ?? false );
+		// Debug mode
+		const uDebugModeLocation = gl.getUniformLocation(_program, 'uDebugMode');
+		gl.uniform1i( uDebugModeLocation, Session.debug ?? false );
+
 
 		// Enable all attributes
 		gl.enableVertexAttribArray( attribute.aPosition );
@@ -556,7 +603,13 @@ function(      WebGL,         glMatrix,      Camera )
 		gl.uniform4fv( uniform.uSpriteRendererColor,  this.color );
 		gl.uniform2fv( uniform.uSpriteRendererSize,   _size );
 		gl.uniform2fv( uniform.uSpriteRendererOffset, _offset );
-		gl.uniform1i( uniform.uIsRGBA, this.sprite.type)
+		gl.uniform1i( uniform.uIsRGBA, this.sprite.type);
+
+
+		// Used to know what kind of object we are rendering
+		const objectType = gl.getUniformLocation(_program, 'objectType');
+		gl.uniform1i( objectType, this.objecttype ?? -1);
+
 
 		// Avoid binding the new texture 150 times if it's the same.
 		if (_groupId !== _lastGroupId || _texture !== this.image.texture) {
