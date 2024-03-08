@@ -121,6 +121,12 @@ define(function(require)
 	var CheckAttendanceTable = {};
 
 	/**
+	 * @var buyingStoreItemList config
+	 * array
+	 */
+	var buyingStoreItemList = new Array();
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -177,6 +183,9 @@ define(function(require)
 		loadXMLFile( 'data/pettalktable.xml', function(json){PetTalkTable = json["monster_talk_table"];}, onLoad());
 		LoadAttendanceFile( 'System/CheckAttendance.lub', function(json){CheckAttendanceTable = json;}, onLoad());
 
+		if(PACKETVER.value >= 20100427) {
+			loadTable( 'data/buyingstoreitemlist.txt',		'#',	1, function(index, key){ buyingStoreItemList.push(parseInt(key, 10)); }, 			onLoad());
+		}
 
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID,      onUpdateOwnerName);
 		Network.hookPacket( PACKET.ZC.ACK_REQNAME_BYGID2,     onUpdateOwnerName);
@@ -2063,6 +2072,14 @@ define(function(require)
 
 	DB.getCheckAttendanceInfo = function getCheckAttendanceInfo() {
 		return CheckAttendanceTable;
+	};
+
+	DB.getBuyingStoreItemList = function getBuyingStoreItemList() {
+		return buyingStoreItemList;
+	};
+
+	DB.isBuyable = function isBuyable(id) {
+		return buyingStoreItemList.includes(id);
 	};
 
 	/**

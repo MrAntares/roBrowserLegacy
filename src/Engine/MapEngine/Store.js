@@ -65,15 +65,30 @@ define(function( require )
 
 
 	/**
-	 * Received items list to buy from cash npc
+	 * Received items list to sell
 	 *
 	 * @param {object} pkt - PACKET.ZC.ZC_PC_CASH_POINT_ITEMLIST
 	 */
 	function onBuyVendingList( pkt )
 	{
 		VendingShop.append();
+		VendingShop.setType(VendingShop.Type.VENDING_LIST);
 		VendingShop.setItems(pkt.itemList);
 	}
+
+
+	/**
+	 * Received items list to buy
+	 *
+	 * @param {object} pkt - PACKET.ZC.ZC_PC_CASH_POINT_ITEMLIST
+	 */
+	function onBuyingList( pkt )
+	{
+		VendingShop.append();
+		VendingShop.setType(VendingShop.Type.BUYING_LIST);
+		VendingShop.setItems(pkt.itemList);
+	}
+
 
 	function onDeleteVendingItem( pkt )
 	{
@@ -315,9 +330,19 @@ define(function( require )
 	 * @param {object} pkt - PACKET.ZC.PACKET_ZC_OPENSTORE
 	 */
 	function onOpenVending(pkt){
+		Vending.setType(Vending.Type.VENDING_STORE);
 		Vending.onVendingSkill(pkt);
 	}
 
+	/**
+	 * Open Buying creation window with X slots
+	 *
+	 * @param {object} pkt - PACKET.ZC.PACKET_ZC_OPENSTORE
+	 */
+	function onOpenBuying(pkt){
+		Vending.setType(Vending.Type.BUYING_STORE);
+		Vending.onBuyingSkill(pkt);
+	}
 
 	/**
 	 * Open vending creation window with X slots
@@ -326,6 +351,25 @@ define(function( require )
 	 */
 	function onOpenVendingResult(pkt){
 		// TODO: check what it do in client
+	}
+
+	/**
+	 * Open vending creation window with X slots
+	 *
+	 * @param {object} pkt - PACKET.ZC.ACK_OPENSTORE2
+	 */
+	function onOpenBuyingResult(pkt){
+		// client use same message for all errors, i just documented it here:
+		switch(pkt.Result) {
+			case 1:
+				ChatBox.addText( DB.getMessage(1741), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); // "Failed to open buying store." - invalid item/amount/price
+				break;
+			case 2:
+				ChatBox.addText( DB.getMessage(1741), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); // "Total amount of then possessed items exceeds the weight limit by %d. Please re-enter." - not able to carry all wanted items without getting overweight (90%)
+				break; 
+			default:
+				ChatBox.addText( DB.getMessage(1741), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+		}
 	}
 
 	/**
@@ -350,6 +394,9 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.DELETEITEM_FROM_MCSTORE2,     onDeleteVendingItem );
 		Network.hookPacket( PACKET.ZC.OPENSTORE,                    onOpenVending );
 		Network.hookPacket( PACKET.ZC.ACK_OPENSTORE2,               onOpenVendingResult );
+		Network.hookPacket( PACKET.ZC.OPEN_BUYING_STORE,            onOpenBuying );
+		Network.hookPacket( PACKET.ZC.FAILED_OPEN_BUYING_STORE_TO_BUYER, onOpenBuyingResult );
+		Network.hookPacket( PACKET.ZC.MYITEMLIST_BUYING_STORE,      onBuyingList );
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMLIST_BUYING_STORE,    onBuyingStoreList );
 		Network.hookPacket( PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult );

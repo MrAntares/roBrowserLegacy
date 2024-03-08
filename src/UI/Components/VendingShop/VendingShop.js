@@ -41,7 +41,13 @@ define(function(require)
 	 */
 	var VendingShop = new UIComponent( 'VendingShop', htmlText, cssText );
 
-
+	/**
+	 * @var {enum} Store type
+	 */
+	VendingShop.Type = {
+		VENDING_LIST: 0,
+		BUYING_LIST: 1
+	};
 
 	/**
 	 * Store inventory items
@@ -54,6 +60,10 @@ define(function(require)
 	 */
 	var _realSize = 0;
 
+	/**
+	 * @var {number} type (buy/sell)
+	 */
+	var _type;
 
 	var _vendcount = 0;
 
@@ -116,6 +126,15 @@ define(function(require)
 		this.ui.find('.text.shopname').text(messageText+" : "+titleShop);
 	};
 
+	/**
+	 * Specify the type of the shop
+	 *
+	 * @param {number} type (see NpcStore.Type.*)
+	 */
+	VendingShop.setType = function setType(type)
+	{
+		_type = type;
+	};
 
 	/**
 	 * Remove Inventory from window (and so clean up items)
@@ -214,10 +233,6 @@ define(function(require)
 		var i, count;
 
 		for (i = 0, count = items.length; i < count ; ++i) {
-			var object= this.getItemByIndex(items[i].index);
-			if(object){
-				var item=this.removeItem(object.index,object.count);
-			}
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);
 			}
@@ -235,7 +250,6 @@ define(function(require)
 	VendingShop.addItem = function AddItem( item )
 	{
 		var object = this.getItemByIndex(item.index);
-		//console.log("add");
 
 		if (object) {
 			object.count += item.count;
@@ -257,12 +271,6 @@ define(function(require)
 	 */
 	VendingShop.addItemSub = function AddItemSub( item )
 	{
-		// Equip item (if not arrow)
-		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-			//Equipment.equip(item);
-			return false;
-		}
-
 			var it      = DB.getItemInfo( item.ITID );
 			var content = this.ui.find('.container .content');
 
@@ -513,7 +521,7 @@ define(function(require)
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
 		}
-		else {
+		else if(_type === VendingShop.Type.VENDING_LIST) {
 			overlay.addClass('grey');
 		}
 	}
@@ -599,7 +607,11 @@ define(function(require)
 	VendingShop.onSubmit = function onSubmit()
 	{
 		var pkt;
-		pkt   = new PACKET.CZ.REQ_CLOSESTORE();
+		if(_type === VendingShop.Type.VENDING_LIST) {
+			pkt   = new PACKET.CZ.REQ_CLOSESTORE();
+		} else {
+			pkt   = new PACKET.CZ.REQ_CLOSE_BUYING_STORE();
+		}
 		Network.sendPacket(pkt);
 		this.onRemove();
 	};
