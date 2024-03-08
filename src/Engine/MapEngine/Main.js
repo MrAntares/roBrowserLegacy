@@ -546,11 +546,21 @@ define(function( require )
 				break;
 
 			case StatusProperty.VAR_SP_AP:
-				BasicInfo.getUI().update('ap', amount);
+				Session.Entity.life.ap = amount;
+				Session.Entity.life.update();
+
+				if (Session.Entity.life.ap_max > -1) {
+					BasicInfo.getUI().update('ap', Session.Entity.life.ap, Session.Entity.life.ap_max);
+				}
 				break;
 
 			case StatusProperty.VAR_SP_MAXAP:
-				BasicInfo.getUI().update('max_ap', amount);
+				Session.Entity.life.ap_max = amount;
+				Session.Entity.life.update();
+
+				if (Session.Entity.life.ap > -1) {
+					BasicInfo.getUI().update('ap', Session.Entity.life.ap, Session.Entity.life.ap_max);
+				}
 				break;
 
 			case StatusProperty.VAR_SP_UPOW:

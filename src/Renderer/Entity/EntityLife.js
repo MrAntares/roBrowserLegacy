@@ -27,8 +27,10 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 	{
 		this.hp      = -1;
 		this.sp      = -1;
+		this.ap      = -1;
 		this.hp_max  = -1;
 		this.sp_max  = -1;
+		this.ap_max  = -1;
 		this.display = false;
 		this.canvas  = document.createElement('canvas');
 		this.ctx     = this.canvas.getContext('2d');
@@ -83,11 +85,18 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		var hp_per   = this.hp / this.hp_max;
 		var sp       = this.sp > -1 && this.sp_max > -1;
 		var sp_per   = this.sp / this.sp_max;
+		var ap       = this.ap > -1 && this.ap_max > -1;
+		var ap_per   = this.ap / this.ap_max;
 
 		var hunger       = this.hunger > -1 && this.hunger_max > -1;
 		var hunger_per   = this.hunger / this.hunger_max;
 
 		if (sp) {
+			height += 4;
+		}
+
+		// AP should only show to 4th Job Class
+		if (this.entity._job >= 4252 || this.entity.job <= 4316 && ap) {
 			height += 4;
 		}
 
@@ -126,6 +135,13 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 			ctx.fillRect( 0, 4, width, 1);
 			ctx.fillStyle = '#1863de';
 			ctx.fillRect( 1, 5, Math.round( (width-2) * sp_per ), 3 );
+		}
+
+		if (ap) {
+			ctx.fillStyle = '#424242';
+			ctx.fillRect( 1, 9, width, 1 );
+			ctx.fillStyle = '#ffc663';
+			ctx.fillRect( 1, 9, Math.round( (width-2) * ap_per ), 3 );
 		}
 
 		if (hunger){
