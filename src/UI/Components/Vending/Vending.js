@@ -34,6 +34,8 @@ define(function(require)
 	var htmlText     = require('text!./Vending.html');
 	var cssText      = require('text!./Vending.css');
 	var Renderer     = require('Renderer/Renderer');
+	var Inventory    = require('UI/Components/Inventory/Inventory');
+	var BasicInfo    = require('UI/Components/BasicInfo/BasicInfo');
 
 
 	/**
@@ -48,6 +50,14 @@ define(function(require)
 	 */
 	//Vending.mouseMode = UIComponent.MouseMode.FREEZE;
 
+
+	/**
+	 * @var {enum} Store type
+	 */
+	Vending.Type = {
+		VENDING_STORE: 0,
+		BUYING_STORE: 1
+	};
 
 	/**
 	 * @var {Preferences} 
@@ -118,6 +128,13 @@ define(function(require)
 		});
 		this.ui.find('.btn.cancel').click(function(e){
 			e.stopImmediatePropagation();
+			var pkt;
+			if(_type === Vending.Type.VENDING_STORE)
+				pkt = new PACKET.CZ.REQ_OPENSTORE2();
+			else
+				pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
+	
+			submitNetworkPacket(pkt);
 			Vending.onRemove();
 		});
 		
@@ -126,8 +143,10 @@ define(function(require)
 
 		// Items options
 		ui.find('.content')
-			.on('mousewheel DOMMouseScroll', onScroll)
 			.on('contextmenu',      '.icon', onItemInfo)
+			.on('mousewheel DOMMouseScroll', onScroll)
+			.on('mouseover',        '.item', onItemOver)
+			.on('mouseout',         '.item', onItemOut)
 			.on('dblclick',         '.item', onItemSelected)
 			.on('mousedown',        '.item', onItemFocus)
 			.on('dragstart',        '.item', onDragStart)
@@ -185,7 +204,33 @@ define(function(require)
 		
 		this.ui.hide();
 	};
-	
+
+	/**
+	 * Specify the type of the shop
+	 *
+	 * @param {number} type (see NpcStore.Type.*)
+	 */
+	Vending.setType = function setType(type)
+	{
+		switch (type) {
+			case Vending.Type.VENDING_STORE:
+				this.ui.find('.WinBuy').hide();
+				this.ui.find('.WinSell').show();
+				break;
+
+			case Vending.Type.BUYING_STORE:
+				this.ui.find('.WinSell').hide();
+				this.ui.find('.WinBuy').show();
+				//this.ui.find('.content').css('height','160px');
+				this.ui.find('.zenySpan').text(prettyZeny(Session.zeny));
+				this.ui.find('.weightSpan').text(BasicInfo.getUI().weight + '/' + BasicInfo.getUI().weight_max);
+				this.ui.find('.limitZeny').val('0');
+				break;
+		}
+
+		_type = type;
+	};
+
 	/**
 	 * Resize the content
 	 *
@@ -204,13 +249,6 @@ define(function(require)
 	 */
 	Vending.onRemove = function onRemove()
 	{
-		
-		var pkt = new PACKET.CZ.REQ_OPENSTORE2();
-		pkt.storeName = '';
-		pkt.result = 0; // canceled vending
-		pkt.storeList = [];
-		submitNetworkPacket(pkt);
-
 		VendingModelMessage.onRemove();//remove message if show
 
 		var InputWindow  = this.ui.find('.InputWindow');
@@ -288,7 +326,9 @@ define(function(require)
 					if(!(items[i].hasOwnProperty('count'))){
 						items[i].count = 1;
 					}
-					
+
+					items[i].total = items[i].count; // keep track on buying store
+
 					out                   = jQuery.extend({}, items[i]);
 					out.count             = 0;
 
@@ -357,7 +397,9 @@ define(function(require)
 		// 0 as amount ? remove it
 		if (item.count === 0) {
 			if (element.length) {
-				element.parent('.item-container').remove();
+				let parent = element.parent('.item-container');
+				element.remove();
+				parent.remove();
 			}
 			return;
 		}
@@ -377,23 +419,29 @@ define(function(require)
 		if(isinput == true)
 		{
 			var itemObj = jQuery(
-				'<div class="item-container"><div class="item" draggable="true" data-index="'+ item.index +'">' +
+				'<div class="item input" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">' + (item.IsStackable ? item.count : '') + '</div>' +
-					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
-				'</div></div>'
+				'</div>'
 			);		
 		}
 		else
 		{
 			var itemObj = jQuery(
-				'<div class="item-container"><div class="item" draggable="true" data-index="'+ item.index +'">' +
+				'<div class="item-container">' + 
+					'<div class="item output" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
-					'<div class="amount">' + (item.IsStackable ? item.count : '') + '</div>' +
+					'<div class="amount">' + (_type === Vending.Type.BUYING_STORE ? item.total : item.IsStackable ? item.count : '') + '</div>' +
+					(_type === Vending.Type.BUYING_STORE ? '<div class="amount_">' + item.count + ' ea</div>' : '') +
 					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
 					'<div class="price">'+textPrice+' '+ price +'</div>' +
 				'</div></div>'
 			);
+			if(_type === Vending.Type.BUYING_STORE) {
+				let limit = parseInt(Vending.ui.find('.limitZeny').val(),10);
+				limit += item.count * item.price;
+				Vending.ui.find('.limitZeny').val(limit);
+			}
 		}
 
 		if(item.IsDamaged){
@@ -432,12 +480,12 @@ define(function(require)
 					VendingModelMessage.setInit(603);
 					return;
 				}
-				
-				_output[index].count = Math.min( _output[index].count + count, _input[index].count);
+
+				_output[index].count = (_type === Vending.Type.BUYING_STORE) ? count : Math.min( _output[index].count + count, _input[index].count);
+				tmpItem = jQuery.extend({}, _input[index]);
 
 				// Update input ui item amount
-				tmpItem = jQuery.extend({}, _input[index]);
-				tmpItem.count = _input[index].count - _output[index].count;
+				tmpItem.count = (_type === Vending.Type.BUYING_STORE) ? 0 : _input[index].count - _output[index].count;
 
 				addItem( fromContent, tmpItem, true);
 				addItem( toContent, _output[index], false);
@@ -450,11 +498,11 @@ define(function(require)
 					return;
 				}
 
-				_output[index].count = _output[index].count - count;
+				_output[index].count = (_type === Vending.Type.BUYING_STORE) ? 0 : _output[index].count - count;
 
 				// Update input ui item amount
 				tmpItem = jQuery.extend({}, _input[index]);
-				tmpItem.count = _input[index].count + _output[index].count;
+				tmpItem.count = (_type === Vending.Type.BUYING_STORE) ? _input[index].total : _input[index].count + _output[index].count;
 
 				addItem( fromContent, _output[index], false);
 				addItem( toContent,   tmpItem, true);
@@ -499,7 +547,7 @@ define(function(require)
 		}*/
 
 		// Just one item amount
-		if (item.count === 1 || !item.IsStackable/* || (_type === Vending.Type.SELL && _preferences.select_all)*/) {
+		if ((item.count === 1 || !item.IsStackable) && _type === Vending.Type.VENDING_STORE /* || (_type === Vending.Type.SELL && _preferences.select_all)*/) {
 			
 			if(isAdding)
 			{
@@ -528,7 +576,16 @@ define(function(require)
 		InputBox.onSubmitRequest = function(count) {
 			InputBox.remove();
 			if (count > 0) {
-				
+				if(count >= 9999 && _type === Vending.Type.BUYING_STORE ) {
+					VendingModelMessage.setInit(1742);
+					return;
+				}
+
+				if(item.count + count > 9999 && _type === Vending.Type.BUYING_STORE ) {
+					VendingModelMessage.setInit(1728);
+					return;
+				}
+
 				if(isAdding)
 				{
 					// Have to specify an price
@@ -756,17 +813,35 @@ define(function(require)
 		this.ui.show();
 	};
 
+	
+	Vending.onBuyingSkill = function onBuyingSkill(pkt)
+	{
+		_slots = pkt.itemcount; 
+		// get from inventory and compare with buyingstoreitemlist.txt
+		//Inventory.list
+		let buyable = new Array();
+		for(let key in Inventory.list) {
+			let item = Inventory.list[key];
+			if(isItemStackable(item) && DB.isBuyable(item.ITID))
+				buyable.push(item);
+		}
+		this.setList(buyable);
+		this.ui.find('.add_shop')[0].style.height = (32 * _slots) + 'px';
+		this.ui.find('.shopname').val('');
+		this.ui.show();
+	};
 
 	Vending.onSubmit = function onSubmit()
 	{
 		
 		var output;
-		var i, count,shopname,ctr = 0;
+		var i, count,shopname,limitZeny,ctr = 0;
 
 		output = [];
 		count  = _output.length;
 		
 		shopname = this.ui.find('.shopname').val();
+		
 
 		for (i = 0; i < count; ++i) {
 			if (_output[i] && _output[i].count) {
@@ -781,11 +856,28 @@ define(function(require)
 			return;
 		}
 	
-        var pkt = new PACKET.CZ.REQ_OPENSTORE2();
+        var pkt;
+		if(_type === Vending.Type.VENDING_STORE) {
+			pkt = new PACKET.CZ.REQ_OPENSTORE2();
+		}
+		else {
+			pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
+			limitZeny = parseInt(this.ui.find('.limitZeny').val(), 10);
+			if(limitZeny > Session.zeny) {
+				VendingModelMessage.setInit(3683);
+				return;
+			}
+			if(limitZeny <= 0) {
+				VendingModelMessage.setInit(1730);
+				return;
+			}
+			pkt.LimitZeny = limitZeny;
+		}
+
 		pkt.storeName = shopname;
 		pkt.result = 1;
 		pkt.storeList = output;
-
+		
 		if(!shopname)
 		{
 			VendingModelMessage.setInit(225);
@@ -813,6 +905,39 @@ define(function(require)
 	function submitNetworkPacket(pkt)
 	{
 		Network.sendPacket(pkt);
+	}
+
+	/**
+	 * Show item name when mouse is over
+	 */
+	function onItemOver()
+	{
+		if(!(this.classList.contains('input'))) return;
+
+		var idx  = parseInt( this.getAttribute('data-index'), 10);
+		var item = CartItems.getItemByIndex(idx);
+
+		if (!item) {
+			return;
+		}
+
+		// Get back data
+		var pos     = jQuery(this).position();
+		var overlay = Vending.ui.find('.overlay');
+
+		// Display box
+		overlay.show();
+		overlay.css({top: pos.top - 10, left:pos.left-10});
+		overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+	}
+
+
+	/**
+	 * Hide the item name
+	 */
+	function onItemOut()
+	{
+		Vending.ui.find('.overlay').hide();
 	}
 
 

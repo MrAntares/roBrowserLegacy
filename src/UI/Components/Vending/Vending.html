@@ -3,10 +3,12 @@
 		<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
 			<div class="text">
 				<span class="WinSell" data-text="232">Available Items for Vending</span>
+				<span class="WinBuy" data-text="1733">Available Items for Buying</span>
 			</div>
 		</div>
 		<div class="container">
-			<div class="content" data-background="basic_interface/itemwin_mid.bmp"></div>
+			<div class="overlay"></div>
+			<div class="content available" data-background="basic_interface/itemwin_mid.bmp"></div>
 		</div>
 		<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
 			<button class="extend" data-background="btn_resize.bmp"></button>
@@ -16,15 +18,25 @@
 		<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
 			<div class="text">
 				<span class="WinSell" data-text="224">Vending</span>
+				<span class="WinBuy" data-text="1720">Buying</span>
 			</div>
 		</div>
 		<div class="container" >
-			<div class="nstore"><span data-text="407">Name</span>:</div>
+			<div class="nstore"><span data-text="407">Name</span></div>
 			<input class="shopname" type="text" value="" maxlength="36"/><br />
 			<div class="content add_shop" data-background="basic_interface/itemwin_mid.bmp"></div>
 		</div>
+		<div class="footer WinBuy" data-background="basic_interface/btnbar_mid2.bmp">
+			<span class="WinBuy zenyLabel" data-text="2464">Zeny</span>
+			<span class="WinBuy zenySpan">0</span>
+			<span class="WinBuy weightLabel">Weigth:</span>
+			<span class="WinBuy weightSpan">0/0</span>
+		</div>
 		<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
-			<button class="btn sell WinSell" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
+			<div class="limit WinBuy"><span data-text="1723">Purchase Zeny Limit</span></div>
+			<input class="limitZeny WinBuy" type="text" value="" maxlength="36"/><br />
+			<div class="zeny WinBuy"><span data-text="2464">Zeny</span></div>
+			<button class="btn sell" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
 			<button class="btn cancel" data-background="btn_cancel.bmp" data-hover="btn_cancel_a.bmp" data-down="btn_cancel_b.bmp"></button>
 		</div>
 	</div>

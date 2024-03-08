@@ -4123,23 +4123,29 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.LimitZeny = 0;
 		this.result = 0;
 		this.storeName = '';
-		this.ItemList = [];
+		this.storeList = [];
 	};
 	PACKET.CZ.REQ_OPEN_BUYING_STORE.prototype.build = function() {
 		var ver = this.getPacketVersion();
-		var pkt = new BinaryWriter(ver[2]);
+		var item_len = (PACKETVER.value >= 20181121) ? 10 : 8;
+		var pkt_len = 2 + 2 + 4 + 1 + 80 + (this.storeList.length * item_len);
+		var pkt = new BinaryWriter(pkt_len);
 		var i, count;
 
-		pkt.writeShort(ver[1]);
-		pkt.writeShort(ver[2]);
+		pkt.writeShort(ver[1]); // header
+		pkt.writeShort(pkt_len); // len -1
 		pkt.writeULong(this.LimitZeny);
 		pkt.writeUChar(this.result);
 		pkt.writeString(this.storeName, 80);
 
-		for (i = 0, count = this.ItemList.length; i < count; ++i) {
-			pkt.writeUShort(this.ItemList[i].id);
-			pkt.writeShort(this.ItemList[i].count);
-			pkt.writeLong(this.ItemList[i].price);
+		for (i = 0, count = this.storeList.length; i < count; ++i) {
+			if(PACKETVER.value >= 20181121) {
+				pkt.writeULong(this.storeList[i].ITID);
+			} else {
+				pkt.writeUShort(this.storeList[i].ITID);
+			}
+			pkt.writeShort(this.storeList[i].count);
+			pkt.writeLong(this.storeList[i].price);
 		}
 
 		return pkt;
@@ -10310,7 +10316,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x810
 	PACKET.ZC.OPEN_BUYING_STORE = function PACKET_ZC_OPEN_BUYING_STORE(fp, end) {
-		this.count = fp.readUChar();
+		this.itemcount = fp.readUChar();
 	};
 	PACKET.ZC.OPEN_BUYING_STORE.size = 3;
 
@@ -10327,7 +10333,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.MYITEMLIST_BUYING_STORE = function PACKET_ZC_MYITEMLIST_BUYING_STORE(fp, end) {
 		this.AID = fp.readULong();
 		this.limitZeny = fp.readLong();
-		this.ItemList = (function() {
+		this.itemList = (function() {
 			var i, count = (end - fp.tell()) / 9 | 0,
 				out = new Array(count);
 			for (i = 0; i < count; ++i) {
@@ -10335,7 +10341,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].price = fp.readLong();
 				out[i].count = fp.readShort();
 				out[i].type = fp.readUChar();
-				out[i].ITID = fp.readUShort();
+				out[i].ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());;
 			}
 			return out;
 		})();
