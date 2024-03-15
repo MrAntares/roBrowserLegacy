@@ -13,6 +13,23 @@ Checkout the [getting started guide](doc/README.md)
 ## Plugins
 For available plugins and information on how to install them please visit the [roBrowserLegacy-plugins](https://github.com/MrAntares/roBrowserLegacy-plugins) repository.
 
+## Running up with Docker
+
+If you have Docker and Docker Compose available, you can run the following command: 
+
+```bash
+docker compose up -d
+```
+
+If the containers are up, they will be accessible from the following addresses/ports:
+
+* http://localhost:8001/
+  * The Remote Client API, served from the [client](./client) directory;
+* http://localhost
+  * The roBrowser client, served from the [dist/web](./dist/Web) directory. You can compile the code on the ro-browser container;
+* http://localhost:8000
+  * Anything that you run on the ro-browser container, you can execute npm run live or something else in there;
+
 ## Contributing
 
 roBrowser was started by this [awesome team](https://github.com/vthibault/roBrowser/graphs/contributors) and [we](https://github.com/MrAntares/roBrowserLegacy/graphs/contributors) continue it. We also manually add content from other forks that didn't made it back to the original branch, huge shoutout to them! If you wish to contribute then check out the [documentation](http://www.robrowser.com/getting-started#API) or the code itself and submit a pull request!
