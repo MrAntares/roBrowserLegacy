@@ -181,7 +181,9 @@ define(function( require )
 
 		// Select UI version when needed
 		if(MapEngine.needsUIVerUpdate || !_isInitialised){
-			BasicInfo.selectUIVersion();
+			if(PACKETVER.value < 20200520) {
+				BasicInfo.selectUIVersion();
+			}
 			MiniMap.selectUIVersion();
 			SkillList.selectUIVersion();
 			Quest.selectUIVersion();
@@ -308,7 +310,9 @@ define(function( require )
 			// Prepare UIs
 			MiniMap.getUI().prepare();
 			SkillList.getUI().prepare();
-			BasicInfo.getUI().prepare();
+			if(PACKETVER.value < 20200520) {
+				BasicInfo.getUI().prepare();
+			}
 			Equipment.getUI().prepare();
 			Quest.getUI().prepare();
 
@@ -478,6 +482,15 @@ define(function( require )
 			showBFCounter   : false,
 			isBattleField   : false,
 		};
+
+		if(PACKETVER.value >= 20200520) {
+			if (Session.Character.job >= 4252) {
+				BasicInfo.selectSpecificUIVersion(20200520);
+			} else {
+				BasicInfo.selectSpecificUIVersion(20180124);
+			}
+			BasicInfo.getUI().prepare();
+		}
 
 		BasicInfo.getUI().update('blvl', Session.Character.level );
 		BasicInfo.getUI().update('jlvl', Session.Character.joblevel );

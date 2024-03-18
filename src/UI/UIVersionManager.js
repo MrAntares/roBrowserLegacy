@@ -53,7 +53,7 @@ define(function (require)
 		console.log( "%c[UIVersion] "+publicName+": ", "color:#007000", SelectedUI.name );
 		return SelectedUI;
 	}
-	
+
 	UIVersionManager.getUIController = function(publicName, versionInfo){
 		var _selectedUI;
 	
@@ -62,7 +62,13 @@ define(function (require)
 		UIController.selectUIVersion = function(){
 			_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
 		};
-		
+
+		UIController.selectSpecificUIVersion = function(version) {
+			_selectedUI = versionInfo.common[version] || versionInfo.default;
+			_UIAliases[publicName] = _selectedUI.name;
+			console.log("[UIVersion] " + publicName + ": ", _selectedUI.name);
+		};
+
 		UIController.getUI = function(){
 			return _selectedUI;
 		}
