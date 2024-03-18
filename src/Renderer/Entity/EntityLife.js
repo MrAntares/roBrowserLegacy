@@ -96,7 +96,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		}
 
 		// AP should only show to 4th Job Class
-		if (this.entity._job >= 4252 || this.entity.job <= 4316 && ap) {
+		if (this.entity._job >= 4252 && ap) {
 			height += 4;
 		}
 
