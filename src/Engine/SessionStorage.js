@@ -37,6 +37,7 @@ define(function()
 		moveAction:  null,
 
 		zeny:        0,
+		weight:      0,
 
 		petId:       0,
 		pet:		{},

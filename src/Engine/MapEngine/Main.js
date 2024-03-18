@@ -399,16 +399,16 @@ define(function( require )
 				break;
 
 			case StatusProperty.WEIGHT:
-				BasicInfo.getUI().weight = amount;
+				Session.Character.weight = amount;	// Save weight in Session instead of UI
 				if (BasicInfo.getUI().weight_max > -1) {
-					BasicInfo.getUI().update('weight', BasicInfo.getUI().weight, BasicInfo.getUI().weight_max );
+					BasicInfo.getUI().update('weight', Session.Character.weight, BasicInfo.getUI().weight_max );
 				}
 				break;
 
 			case StatusProperty.MAXWEIGHT:
 				BasicInfo.getUI().weight_max = amount;
 				if (BasicInfo.getUI().weight > -1) {
-					BasicInfo.getUI().update('weight', BasicInfo.getUI().weight, BasicInfo.getUI().weight_max );
+					BasicInfo.getUI().update('weight', Session.Character.weight, BasicInfo.getUI().weight_max );
 				}
 				break;
 
