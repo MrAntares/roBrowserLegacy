@@ -42,6 +42,8 @@
 /* REDUCED */
 #BasicInfoV5 .small .line1 { position:absolute; top:2px;  left:18px; text-shadow:1px 1px white; white-space:nowrap; }
 #BasicInfoV5 .small .info-container { position:absolute; top:17px; height: 60px; width: 220px; background-color: #FFFFFF; }
+#BasicInfoV5 .small .hpcontainer, #BasicInfoV5 .small .spcontainer { position:absolute; width: 130px; }
+#BasicInfoV5 .small .expcontainer, #BasicInfoV5 .small .apcontainer { position:absolute; width: 65px; left: 140px; }
 #BasicInfoV5 .small .line2 { position:absolute; top:3px; left:10px; white-space:nowrap; }
 #BasicInfoV5 .small .line3 { position:absolute; top:20px; left:10px; white-space:nowrap; }
 #BasicInfoV5 .small .line3 .hp_max_value {
