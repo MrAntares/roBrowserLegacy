@@ -1022,6 +1022,23 @@ define(function( require )
 				} else {
 					entity.job = pkt.value;
 					if (entity === Session.Entity) {
+						//Interchange UI depending on Job
+						if (PACKETVER.value >= 20200520) {
+							if (pkt.value >= 4252) {
+								BasicInfo.getUI().remove();
+								BasicInfo.selectSpecificUIVersion(20200520);
+							} else {
+								BasicInfo.getUI().remove();
+								BasicInfo.selectSpecificUIVersion(20180124);
+							}
+							BasicInfo.getUI().prepare();
+							BasicInfo.getUI().update('blvl', Session.Character.level );
+							BasicInfo.getUI().update('jlvl', Session.Character.joblevel );
+							BasicInfo.getUI().update('zeny', Session.Character.money );
+							BasicInfo.getUI().update('name', Session.Character.name );
+							BasicInfo.getUI().update('bexp', Session.Character.exp, BasicInfo.getUI().base_exp_next );
+							BasicInfo.getUI().append();
+						}
 						BasicInfo.getUI().update('job', pkt.value);
 						Session.Character.job = pkt.value;
 					}
