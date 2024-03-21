@@ -1,0 +1,104 @@
+#WinStatsV3 { position:absolute; width:280px; height:140px; background-color:transparent; background-repeat:no-repeat; font-size:11px; }
+
+#WinStatsV3 .titlebar { width:280px; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
+#WinStatsV3 .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle;}
+#WinStatsV3 .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+	/* chrome bug */ display: inline-block; width: 32px; height:13px; }
+
+#WinStatsV3 .titlebar .left { margin-left:3px; float:left; }
+#WinStatsV3 .titlebar .right { float:right; margin-right:3px;}
+#WinStatsV3 .titlebar .clear { clear:both; }
+
+#WinStatsV3 .panel { height: 235px; }
+#WinStatsV3 .common_stats { height: 123px; }
+#WinStatsV3 .group { position:absolute; top:23px; }
+#WinStatsV3 .group div { height:16px; display:block;}
+#WinStatsV3 .stats { left:37px; }
+#WinStatsV3 .bonus { left:54px; }
+#WinStatsV3 .requirements, #WinStatsV3 .t_requirements  { left:85px; text-align:right; width:12px; }
+#WinStatsV3 .column1 { top:23px; right:88px; text-align:right; }
+#WinStatsV3 .column2 { top:23px; right:5px; text-align:right; }
+#WinStatsV3 .up { left:75px; top:19px; }
+#WinStatsV3 .up button { display:block; margin-top:5px; border:none; width:11px; height:11px; background-color:transparent; background-repeat:no-repeat; }
+
+#WinStatsV3 .footer { height: 23px; position: absolute; top: 117px; width: 100px; }
+#WinStatsV3 .footer .left { float:left; text-align:left; margin-top:3px; }
+#WinStatsV3 .footer .view_traits { width:20px; height:20px; border:none; }
+
+#WinStatsV3 .trait_text { position: absolute; top: 5px; left: 20px; }
+
+#WinStatsV3 .traits_component { position: absolute; left: 0px; display: block; width: 280px; }
+
+#WinStatsV3 .traits_panel { background-position: 0px -123px; position: absolute; height: 100px; width: 280px; }
+#WinStatsV3 .trait { position:absolute; top:4px; }
+#WinStatsV3 .trait div { height:16px; display:block;}
+
+#WinStatsV3 .t_up { left:75px; top:0px; }
+#WinStatsV3 .t_up button { display:block; margin-top:5px; border:none; width:11px; height:11px; background-color:transparent; background-repeat:no-repeat; }
+
+#WinStatsV3 .t_column1 { top:3px; right:92px; text-align:right; }
+#WinStatsV3 .t_column2 { top:3px; right:5px; text-align:right; }
+
+#WinStatsV3 .trait_point { position: absolute; left: 80px;}
+
+/* Tooltips */
+
+#WinStatsV3 .status_panel_tooltip { position: relative; width: 75px; height: 100px; }
+
+#WinStatsV3 .status_panel_tooltip div { display: inline-block; position: relative; width: 70px; height: 16px; left: 5px; top: 4px; z-index: 10; }
+
+#WinStatsV3 .status_panel_tooltip .desc { display: block; position: relative; }
+
+#WinStatsV3 .status_panel_tooltip .hover { position: absolute; display: none; z-index: 1; background-color: rgba(0, 0, 0, 0.6); color: white; padding:5px; white-space: nowrap; font-size: 0.6rem; pointer-events: none; }
+
+#WinStatsV3 .status_panel_tooltip div:hover .hover { display: block; }
+
+#WinStatsV3 .column1_tooltip { position: absolute; width: 87px; height: 100px; top: 20px; left: 105px; }
+
+#WinStatsV3 .column1_tooltip div { display: inline-block; position: relative; width: 85px; height: 16px; left:0px; top:0px; z-index: 10; }
+
+#WinStatsV3 .column1_tooltip .desc { display: block; position: relative; }
+
+#WinStatsV3 .column1_tooltip .hover { position: absolute; display: none; z-index: 1; background-color: rgba(0, 0, 0, 0.6); color: white; padding:5px; white-space: nowrap; font-size: 0.6rem; pointer-events: none; }
+
+#WinStatsV3 .column1_tooltip div:hover .hover { display: block; }
+
+#WinStatsV3 .column2_tooltip { position: absolute; width: 85px; height: 65px; top: 20px; left: 195px; }
+
+#WinStatsV3 .column2_tooltip div { display: inline-block; position: relative; width: 85px; height: 16px; left:0px; top:0px; z-index: 10; }
+
+#WinStatsV3 .column2_tooltip .desc { display: block; position: relative; }
+
+#WinStatsV3 .column2_tooltip .hover { position: absolute; display: none; z-index: 1; background-color: rgba(0, 0, 0, 0.6); color: white; padding:5px; white-space: nowrap; font-size: 0.6rem; pointer-events: none; }
+
+#WinStatsV3 .column2_tooltip div:hover .hover { display: block; }
+
+#WinStatsV3 .trait_panel_tooltip { position: relative; width: 75px; height: 100px; }
+
+#WinStatsV3 .trait_panel_tooltip div { display: inline-block; position: relative; width: 70px; height: 16px; left: 5px; top: 4px; z-index: 10; }
+
+#WinStatsV3 .trait_panel_tooltip .desc { display: block; position: relative; }
+
+#WinStatsV3 .trait_panel_tooltip .hover { position: absolute; display: none; z-index: 1; background-color: rgba(0, 0, 0, 0.6); color: white; padding:5px; white-space: nowrap; font-size: 0.6rem; pointer-events: none; }
+
+#WinStatsV3 .trait_panel_tooltip div:hover .hover { display: block; }
+
+#WinStatsV3 .t_column1_tooltip { position: absolute; width: 87px; height: 100px; top: 0px; left: 105px; }
+
+#WinStatsV3 .t_column1_tooltip div { display: inline-block; position: relative; width: 85px; height: 16px; left:0px; top:0px; z-index: 10; }
+
+#WinStatsV3 .t_column1_tooltip .desc { display: block; position: relative; }
+
+#WinStatsV3 .t_column1_tooltip .hover { position: absolute; display: none; z-index: 1; background-color: rgba(0, 0, 0, 0.6); color: white; padding:5px; white-space: nowrap; font-size: 0.6rem; pointer-events: none; }
+
+#WinStatsV3 .t_column1_tooltip div:hover .hover { display: block; }
+
+#WinStatsV3 .t_column2_tooltip { position: absolute; width: 85px; height: 65px; top: 0px; left: 195px; }
+
+#WinStatsV3 .t_column2_tooltip div { display: inline-block; position: relative; width: 85px; height: 16px; left:0px; top:0px; z-index: 10; }
+
+#WinStatsV3 .t_column2_tooltip .desc { display: block; position: relative; }
+
+#WinStatsV3 .t_column2_tooltip .hover { position: absolute; display: none; z-index: 1; background-color: rgba(0, 0, 0, 0.6); color: white; padding:5px; white-space: nowrap; font-size: 0.6rem; pointer-events: none; }
+
+#WinStatsV3 .t_column2_tooltip div:hover .hover { display: block; }

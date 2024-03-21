@@ -188,6 +188,7 @@ define(function( require )
 			SkillList.selectUIVersion();
 			Quest.selectUIVersion();
 			Equipment.selectUIVersion();
+			WinStats.selectUIVersion();
 		}
 
 		// Do not hook multiple time
@@ -268,9 +269,7 @@ define(function( require )
 			SkillListMER.prepare();
 			Rodex.prepare();
 			RodexIcon.prepare();
-			if (UIVersionManager.getWinStatsVersion() === 0) {
-				WinStats.prepare();
-			}
+
 			if(Configs.get('enableMapName')){
 				MapName.prepare();
 			}
@@ -288,7 +287,7 @@ define(function( require )
 			}
 
 			// Bind UI
-			WinStats.onRequestUpdate        = onRequestStatUpdate;
+			WinStats.getUI().onRequestUpdate        = onRequestStatUpdate;
 			Equipment.getUI().onUnEquip             = onUnEquip;
 			Equipment.getUI().onConfigUpdate        = onConfigUpdate;
 			Equipment.getUI().onEquipItem           = onEquipItem;
@@ -315,6 +314,7 @@ define(function( require )
 			}
 			Equipment.getUI().prepare();
 			Quest.getUI().prepare();
+			WinStats.getUI().prepare();
 
 			// Bind UIs
 			// nothing yet
@@ -587,9 +587,13 @@ define(function( require )
 			WorldMap.append();
 			SkillListMER.append();
 			MobileUI.append();
-			if (UIVersionManager.getWinStatsVersion() === 0) {
-				WinStats.append();
+
+			if (PACKETVER.value >= 20090617 && PACKETVER.value < 20140521) {
+				WinStats.getUI().append(Equipment.getUI().ui.find('.status_component'));
+			} else {
+				WinStats.getUI().append();
 			}
+
 			Quest.getUI().append();
 
 			if(Configs.get('enableCashShop')){

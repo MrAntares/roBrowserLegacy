@@ -33,7 +33,6 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	var CartItems          = require('UI/Components/CartItems/CartItems');
-	var WinStats           = require('UI/Components/WinStats/WinStats');
 	var htmlText           = require('text!./EquipmentV0.html');
 	var cssText            = require('text!./EquipmentV0.css');
 
@@ -100,11 +99,6 @@ define(function(require)
 						Renderer.render(renderCharacter);
 					}
 				});
-
-			// Append WinStats to content (hacked)
-			WinStats.prepare();
-			WinStats.__loaded = true;
-			this.ui.find('.status_component').append(WinStats.ui);
 		} else {
 			this.ui.find('#equipment_footer').remove();
 			this.ui.addClass('equipmentV0');
