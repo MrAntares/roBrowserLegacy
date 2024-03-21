@@ -821,6 +821,19 @@ define(function (require) {
 				}
 			}
 
+			if (matches) {
+				var pos = ["pow", "sta", "wis", "spl", "con", "crt"].indexOf(
+					matches[1]
+				);
+				if (pos > -1 && matches[2] !== 0) {
+					pkt = new PACKET.CZ.STATUS_CHANGE();
+					pkt.statusID = pos + 219;
+					pkt.changeAmount = parseInt(matches[2], 10);
+					Network.sendPacket(pkt);
+					return;
+				}
+			}
+
 			// Show emotion
 			if (cmd in Emotions.commands) {
 				pkt = new PACKET.CZ.REQ_EMOTION();
