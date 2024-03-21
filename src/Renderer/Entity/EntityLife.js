@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
+define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function( glMatrix, Renderer, DB )
 {
 	'use strict';
 
@@ -96,7 +96,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		}
 
 		// AP should only show to 4th Job Class
-		if (this.entity._job >= 4252 && ap) {
+		if (DB.getJobClass(this.entity._job) === 'Fourth_Class' && ap) {
 			height += 4;
 		}
 
