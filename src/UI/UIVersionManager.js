@@ -63,6 +63,12 @@ define(function (require)
 			_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
 		};
 
+		UIController.selectUIVersionWithJob = function(job) {
+			_selectedUI = versionInfo.job[job] || versionInfo.job.default;
+			_UIAliases[publicName] = _selectedUI.name;
+			console.log("[UIVersion] " + publicName + ": ", _selectedUI.name);
+		};
+
 		UIController.selectSpecificUIVersion = function(version) {
 			_selectedUI = versionInfo.common[version] || versionInfo.default;
 			_UIAliases[publicName] = _selectedUI.name;

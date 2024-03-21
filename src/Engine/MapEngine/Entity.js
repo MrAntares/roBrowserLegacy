@@ -1022,15 +1022,13 @@ define(function( require )
 				} else {
 					entity.job = pkt.value;
 					if (entity === Session.Entity) {
+						// Apply the job change first
+						Session.Character.job = pkt.value;
+
 						//Interchange UI depending on Job
 						if (PACKETVER.value >= 20200520) {
-							if (pkt.value >= 4252) {
-								BasicInfo.getUI().remove();
-								BasicInfo.selectSpecificUIVersion(20200520);
-							} else {
-								BasicInfo.getUI().remove();
-								BasicInfo.selectSpecificUIVersion(20180124);
-							}
+							BasicInfo.getUI().remove();
+							BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Character.job));
 							BasicInfo.getUI().prepare();
 							BasicInfo.getUI().update('blvl', Session.Character.level );
 							BasicInfo.getUI().update('jlvl', Session.Character.joblevel );
@@ -1039,8 +1037,8 @@ define(function( require )
 							BasicInfo.getUI().update('bexp', Session.Character.exp, BasicInfo.getUI().base_exp_next );
 							BasicInfo.getUI().append();
 						}
+						// Update UI for all client versions
 						BasicInfo.getUI().update('job', pkt.value);
-						Session.Character.job = pkt.value;
 					}
 				}
 				break;

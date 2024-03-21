@@ -35,6 +35,10 @@ define(function (require)
 		},
 		prere:{
 			
+		},
+		job: {
+			Fourth_Class: BasicInfoV5,
+			default: BasicInfoV4
 		}
 	};
 	

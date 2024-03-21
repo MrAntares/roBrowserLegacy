@@ -484,11 +484,7 @@ define(function( require )
 		};
 
 		if(PACKETVER.value >= 20200520) {
-			if (Session.Character.job >= 4252) {
-				BasicInfo.selectSpecificUIVersion(20200520);
-			} else {
-				BasicInfo.selectSpecificUIVersion(20180124);
-			}
+			BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Character.job));
 			BasicInfo.getUI().prepare();
 		}
 
