@@ -218,9 +218,11 @@ define(function( require )
 
 
 	/**
-	 * Add the component to HTML
-	 */
-	UIComponent.prototype.append = function append()
+	* Add the component to HTML
+	*
+	* @param {string|jQueryElement} [target] - Target element to append the UI to. If not provided, appends to body.
+	*/
+	UIComponent.prototype.append = function append(target)
 	{
 		this.__active = true;
 
@@ -237,7 +239,20 @@ define(function( require )
 			return;
 		}
 
-		this.ui.appendTo('body');
+		// Determine the target element
+		var $target;
+		if (target) {
+			$target = jQuery(target);
+			if (!$target.length) {
+				console.error("Error: Unable to find target element for appending UI.");
+				return;
+			}
+		} else {
+			$target = jQuery('body');
+		}
+	
+		// Append UI content to the target element
+		this.ui.appendTo($target);
 
 		if (this.onKeyDown) {
 			jQuery(window).off('keydown.' + this.name).on('keydown.' + this.name, this.onKeyDown.bind(this));
