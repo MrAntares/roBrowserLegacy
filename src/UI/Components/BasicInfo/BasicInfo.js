@@ -18,12 +18,14 @@ define(function (require)
 	var BasicInfoV0 = require('./BasicInfoV0/BasicInfoV0');
 	var BasicInfoV3 = require('./BasicInfoV3/BasicInfoV3');
 	var BasicInfoV4 = require('./BasicInfoV4/BasicInfoV4');
+	var BasicInfoV5 = require('./BasicInfoV5/BasicInfoV5');
 	
 	var UIVersionManager = require('UI/UIVersionManager');
 	
 	var versionInfo = {
 		default: BasicInfoV0,
 		common: {
+			20200520:	BasicInfoV5, // not sure the exact client date that started supporting 4th Jobs
 			20180124:	BasicInfoV4,
 			20160101:	BasicInfoV3,
 			20090601:	BasicInfo,
@@ -33,6 +35,10 @@ define(function (require)
 		},
 		prere:{
 			
+		},
+		job: {
+			Fourth_Class: BasicInfoV5,
+			default: BasicInfoV4
 		}
 	};
 	
