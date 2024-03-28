@@ -514,6 +514,7 @@ define(function(require)
 				hideShadow: true,
 				head:   Session.Entity.head,
 				headpalette: Session.Entity.headpalette,
+				bodypalette: Session.Entity.bodypalette,
 			});
 
 			// If state change, we have to check if the new option is removable.
@@ -555,6 +556,7 @@ define(function(require)
 			equip_character.effectColor.set(_cleanColor);
 
 			// Set action
+			Camera.direction = 0;
 			equip_character.direction = 0;
 			equip_character.headDir   = 0;
 			equip_character.action    = equip_character.ACTION.IDLE;
