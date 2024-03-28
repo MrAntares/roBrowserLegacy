@@ -42,6 +42,7 @@ define( function( require )
 
 		// Always process walk. It will decide it for itself if it is walking or not and handles it accordingly.
 		this.walkProcess();
+		this.entitiesWalkProcess(); // falcon/wug
 
 		this.boundingRect.x1 =  Infinity;
 		this.boundingRect.y1 = -Infinity;
