@@ -31,7 +31,6 @@ define(function( require )
 	var Altitude       = require('Renderer/Map/Altitude');
 	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom       = require('UI/Components/ChatRoom/ChatRoom');
-	var WinStats       = require('UI/Components/WinStats/WinStats');
 	var Announce       = require('UI/Components/Announce/Announce');
 	var Equipment      = require('UI/Components/Equipment/Equipment');
 	var ChangeCart     = require('UI/Components/ChangeCart/ChangeCart');
@@ -42,6 +41,7 @@ define(function( require )
 	// Version Dependent UIs
 	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
 	var SkillList = require('UI/Components/SkillList/SkillList');
+	var WinStats  = require('UI/Components/WinStats/WinStats');
 
 
 
@@ -123,32 +123,32 @@ define(function( require )
 	 */
 	function onStatusParameterChange( pkt )
 	{
-		WinStats.update('str',         pkt.str);
-		WinStats.update('agi',         pkt.agi);
-		WinStats.update('vit',         pkt.vit);
-		WinStats.update('int',         pkt.Int);
-		WinStats.update('dex',         pkt.dex);
-		WinStats.update('luk',         pkt.luk);
-		WinStats.update('str3',        pkt.standardStr);
-		WinStats.update('agi3',        pkt.standardAgi);
-		WinStats.update('vit3',        pkt.standardVit);
-		WinStats.update('int3',        pkt.standardInt);
-		WinStats.update('dex3',        pkt.standardDex);
-		WinStats.update('luk3',        pkt.standardLuk);
-		WinStats.update('aspd',        ( pkt.ASPD + pkt.plusASPD ) / 4);
-		WinStats.update('atak',        pkt.attPower);
-		WinStats.update('atak2',       pkt.refiningPower);
-		WinStats.update('matak',       pkt.min_mattPower);
-		WinStats.update('matak2',      pkt.max_mattPower);
-		WinStats.update('flee',        pkt.avoidSuccessValue );
-		WinStats.update('flee2',       pkt.plusAvoidSuccessValue );
-		WinStats.update('critical',    pkt.criticalSuccessValue );
-		WinStats.update('hit',         pkt.hitSuccessValue );
-		WinStats.update('def',         pkt.itemdefPower );
-		WinStats.update('def2',        pkt.plusdefPower );
-		WinStats.update('mdef',        pkt.mdefPower );
-		WinStats.update('mdef2',       pkt.plusmdefPower );
-		WinStats.update('statuspoint', pkt.point );
+		WinStats.getUI().update('str',         pkt.str);
+		WinStats.getUI().update('agi',         pkt.agi);
+		WinStats.getUI().update('vit',         pkt.vit);
+		WinStats.getUI().update('int',         pkt.Int);
+		WinStats.getUI().update('dex',         pkt.dex);
+		WinStats.getUI().update('luk',         pkt.luk);
+		WinStats.getUI().update('str3',        pkt.standardStr);
+		WinStats.getUI().update('agi3',        pkt.standardAgi);
+		WinStats.getUI().update('vit3',        pkt.standardVit);
+		WinStats.getUI().update('int3',        pkt.standardInt);
+		WinStats.getUI().update('dex3',        pkt.standardDex);
+		WinStats.getUI().update('luk3',        pkt.standardLuk);
+		WinStats.getUI().update('aspd',        ( pkt.ASPD + pkt.plusASPD ) / 4);
+		WinStats.getUI().update('atak',        pkt.attPower);
+		WinStats.getUI().update('atak2',       pkt.refiningPower);
+		WinStats.getUI().update('matak',       pkt.min_mattPower);
+		WinStats.getUI().update('matak2',      pkt.max_mattPower);
+		WinStats.getUI().update('flee',        pkt.avoidSuccessValue );
+		WinStats.getUI().update('flee2',       pkt.plusAvoidSuccessValue );
+		WinStats.getUI().update('critical',    pkt.criticalSuccessValue );
+		WinStats.getUI().update('hit',         pkt.hitSuccessValue );
+		WinStats.getUI().update('def',         pkt.itemdefPower );
+		WinStats.getUI().update('def2',        pkt.plusdefPower );
+		WinStats.getUI().update('mdef',        pkt.mdefPower );
+		WinStats.getUI().update('mdef2',       pkt.plusmdefPower );
+		WinStats.getUI().update('statuspoint', pkt.point );
 	}
 
 
@@ -166,27 +166,51 @@ define(function( require )
 
 		switch (pkt.statusID) {
 			case StatusProperty.STR:
-				WinStats.update('str', pkt.value);
+				WinStats.getUI().update('str', pkt.value);
 				break;
 
 			case StatusProperty.AGI:
-				WinStats.update('agi', pkt.value);
+				WinStats.getUI().update('agi', pkt.value);
 				break;
 
 			case StatusProperty.VIT:
-				WinStats.update('vit', pkt.value);
+				WinStats.getUI().update('vit', pkt.value);
 				break;
 
 			case StatusProperty.INT:
-				WinStats.update('int', pkt.value);
+				WinStats.getUI().update('int', pkt.value);
 				break;
 
 			case StatusProperty.DEX:
-				WinStats.update('dex', pkt.value);
+				WinStats.getUI().update('dex', pkt.value);
 				break;
 
 			case StatusProperty.LUK:
-				WinStats.update('luk', pkt.value);
+				WinStats.getUI().update('luk', pkt.value);
+				break;
+
+			case StatusProperty.VAR_SP_POW:
+				WinStats.getUI().update('pow', pkt.value);
+				break;
+
+			case StatusProperty.VAR_SP_STA:
+				WinStats.getUI().update('sta', pkt.value);
+				break;
+
+			case StatusProperty.VAR_SP_WIS:
+				WinStats.getUI().update('wis', pkt.value);
+				break;
+
+			case StatusProperty.VAR_SP_SPL:
+				WinStats.getUI().update('spl', pkt.value);
+				break;
+
+			case StatusProperty.VAR_SP_CON:
+				WinStats.getUI().update('con', pkt.value);
+				break;
+
+			case StatusProperty.VAR_SP_CRT:
+				WinStats.getUI().update('crt', pkt.value);
 				break;
 		}
 	}
@@ -323,7 +347,7 @@ define(function( require )
 				break;
 
 			case StatusProperty.POINT:
-				WinStats.update('statuspoint', amount);
+				WinStats.getUI().update('statuspoint', amount);
 				break;
 
 			case StatusProperty.CLEVEL:
@@ -351,33 +375,33 @@ define(function( require )
 				break;
 
 			case StatusProperty.STR:
-				WinStats.update('str',  pkt.defaultStatus);
-				WinStats.update('str2', pkt.plusStatus);
+				WinStats.getUI().update('str',  pkt.defaultStatus);
+				WinStats.getUI().update('str2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.AGI:
-				WinStats.update('agi',  pkt.defaultStatus);
-				WinStats.update('agi2', pkt.plusStatus);
+				WinStats.getUI().update('agi',  pkt.defaultStatus);
+				WinStats.getUI().update('agi2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.VIT:
-				WinStats.update('vit',  pkt.defaultStatus);
-				WinStats.update('vit2', pkt.plusStatus);
+				WinStats.getUI().update('vit',  pkt.defaultStatus);
+				WinStats.getUI().update('vit2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.INT:
-				WinStats.update('int',  pkt.defaultStatus);
-				WinStats.update('int2', pkt.plusStatus);
+				WinStats.getUI().update('int',  pkt.defaultStatus);
+				WinStats.getUI().update('int2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.DEX:
-				WinStats.update('dex',  pkt.defaultStatus);
-				WinStats.update('dex2', pkt.plusStatus);
+				WinStats.getUI().update('dex',  pkt.defaultStatus);
+				WinStats.getUI().update('dex2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.LUK:
-				WinStats.update('luk',  pkt.defaultStatus);
-				WinStats.update('luk2', pkt.plusStatus);
+				WinStats.getUI().update('luk',  pkt.defaultStatus);
+				WinStats.getUI().update('luk2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.MONEY:
@@ -413,79 +437,79 @@ define(function( require )
 				break;
 
 			case StatusProperty.STANDARD_STR:
-				WinStats.update('str3', amount);
+				WinStats.getUI().update('str3', amount);
 				break;
 
 			case StatusProperty.STANDARD_AGI:
-				WinStats.update('agi3', amount);
+				WinStats.getUI().update('agi3', amount);
 				break;
 
 			case StatusProperty.STANDARD_VIT:
-				WinStats.update('vit3', amount);
+				WinStats.getUI().update('vit3', amount);
 				break;
 
 			case StatusProperty.STANDARD_INT:
-				WinStats.update('int3', amount);
+				WinStats.getUI().update('int3', amount);
 				break;
 
 			case StatusProperty.STANDARD_DEX:
-				WinStats.update('dex3', amount);
+				WinStats.getUI().update('dex3', amount);
 				break;
 
 			case StatusProperty.STANDARD_LUK:
-				WinStats.update('luk3', amount);
+				WinStats.getUI().update('luk3', amount);
 				break;
 
 			case StatusProperty.ATTPOWER:
-				WinStats.update('atak', amount);
+				WinStats.getUI().update('atak', amount);
 				break;
 
 			case StatusProperty.REFININGPOWER:
-				WinStats.update('atak2', amount);
+				WinStats.getUI().update('atak2', amount);
 				break;
 
 			case StatusProperty.MAX_MATTPOWER:
-				WinStats.update('matak', amount);
+				WinStats.getUI().update('matak', amount);
 				break;
 
 			case StatusProperty.MIN_MATTPOWER:
-				WinStats.update('matak2', amount);
+				WinStats.getUI().update('matak2', amount);
 				break;
 
 			case StatusProperty.ITEMDEFPOWER:
-				WinStats.update('def', amount);
+				WinStats.getUI().update('def', amount);
 				break;
 
 			case StatusProperty.PLUSDEFPOWER:
-				WinStats.update('def2', amount);
+				WinStats.getUI().update('def2', amount);
 				break;
 
 			case StatusProperty.MDEFPOWER:
-				WinStats.update('mdef', amount);
+				WinStats.getUI().update('mdef', amount);
 				break;
 
 			case StatusProperty.PLUSMDEFPOWER:
-				WinStats.update('mdef2', amount);
+				WinStats.getUI().update('mdef2', amount);
 				break;
 
 			case StatusProperty.HITSUCCESSVALUE:
-				WinStats.update('hit', amount);
+				WinStats.getUI().update('hit', amount);
 				break;
 
 			case StatusProperty.AVOIDSUCCESSVALUE:
-				WinStats.update('flee', amount);
+				WinStats.getUI().update('flee', amount);
 				break;
 
 			case StatusProperty.PLUSAVOIDSUCCESSVALUE:
-				WinStats.update('flee2', amount);
+				WinStats.getUI().update('flee2', amount);
 				break;
 
 			case StatusProperty.CRITICALSUCCESSVALUE:
-				WinStats.update('critical', amount);
+				WinStats.getUI().update('critical', amount);
 				break;
 
 			case StatusProperty.ASPD:
-				WinStats.update('aspd', amount);
+				WinStats.getUI().update('aspd', amount);
 				break;
 
 			case StatusProperty.JOBLEVEL:
@@ -494,55 +518,61 @@ define(function( require )
 				break;
 
 			case StatusProperty.VAR_SP_POW:
-				BasicInfo.getUI().update('pow', amount);
+				WinStats.getUI().update('pow', 	pkt.defaultStatus);
+				WinStats.getUI().update('pow2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.VAR_SP_STA:
-				BasicInfo.getUI().update('sta', amount);
+				WinStats.getUI().update('sta', 	pkt.defaultStatus);
+				WinStats.getUI().update('sta2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.VAR_SP_WIS:
-				BasicInfo.getUI().update('wis', amount);
+				WinStats.getUI().update('wis', 	pkt.defaultStatus);
+				WinStats.getUI().update('wis2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.VAR_SP_SPL:
-				BasicInfo.getUI().update('spl', amount);
+				WinStats.getUI().update('spl', 	pkt.defaultStatus);
+				WinStats.getUI().update('spl2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.VAR_SP_CON:
-				BasicInfo.getUI().update('con', amount);
+				WinStats.getUI().update('con', 	pkt.defaultStatus);
+				WinStats.getUI().update('con2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.VAR_SP_CRT:
-				BasicInfo.getUI().update('crt', amount);
+				WinStats.getUI().update('crt', 	pkt.defaultStatus);
+				WinStats.getUI().update('crt2', pkt.plusStatus);
 				break;
 
 			case StatusProperty.VAR_SP_PATK:
-				BasicInfo.getUI().update('patk', amount);
+				WinStats.getUI().update('patk', amount);
 				break;
 
 			case StatusProperty.VAR_SP_SMATK:
-				BasicInfo.getUI().update('smatk', amount);
+				WinStats.getUI().update('smatk', amount);
 				break;
 
 			case StatusProperty.VAR_SP_RES:
-				BasicInfo.getUI().update('res', amount);
+				WinStats.getUI().update('res', amount);
 				break;
 
 			case StatusProperty.VAR_SP_MRES:
-				BasicInfo.getUI().update('mres', amount);
+				WinStats.getUI().update('mres', amount);
 				break;
 
 			case StatusProperty.VAR_SP_HPLUS:
-				BasicInfo.getUI().update('hplus', amount);
+				WinStats.getUI().update('hplus', amount);
 				break;
 
 			case StatusProperty.VAR_SP_CRATE:
-				BasicInfo.getUI().update('crate', amount);
+				WinStats.getUI().update('crate', amount);
 				break;
 
 			case StatusProperty.VAR_SP_TRAITPOINT:
-				BasicInfo.getUI().update('trait_point', amount);
+				WinStats.getUI().update('trait_point', amount);
 				break;
 
 			case StatusProperty.VAR_SP_AP:
@@ -564,27 +594,27 @@ define(function( require )
 				break;
 
 			case StatusProperty.VAR_SP_UPOW:
-				BasicInfo.getUI().update('upow', amount);
+				WinStats.getUI().update('pow3', amount);
 				break;
 
 			case StatusProperty.VAR_SP_USTA:
-				BasicInfo.getUI().update('usta', amount);
+				WinStats.getUI().update('sta3', amount);
 				break;
 
 			case StatusProperty.VAR_SP_UWIS:
-				BasicInfo.getUI().update('uwis', amount);
+				WinStats.getUI().update('wis3', amount);
 				break;
 
 			case StatusProperty.VAR_SP_USPL:
-				BasicInfo.getUI().update('uspl', amount);
+				WinStats.getUI().update('spl3', amount);
 				break;
 
 			case StatusProperty.VAR_SP_UCON:
-				BasicInfo.getUI().update('ucon', amount);
+				WinStats.getUI().update('con3', amount);
 				break;
 
 			case StatusProperty.VAR_SP_UCRT:
-				BasicInfo.getUI().update('ucrt', amount);
+				WinStats.getUI().update('crt3', amount);
 				break;
 
 			default:

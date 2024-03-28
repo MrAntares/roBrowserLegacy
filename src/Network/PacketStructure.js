@@ -465,10 +465,18 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.changeAmount = 0;
 	};
 	PACKET.CZ.STATUS_CHANGE.prototype.build = function() {
-		var pkt_len = 2 + 2 + 1;
+		if (this.statusID >= 219 && this.statusID <= 224) {
+			var pkt_len = 2 + 3 + 1;
+		} else {
+			var pkt_len = 2 + 2 + 1;
+		}
 		var pkt_buf = new BinaryWriter(pkt_len);
 
-		pkt_buf.writeShort(0xbb);
+		if (this.statusID >= 219 && this.statusID <= 224) {
+			pkt_buf.writeShort(0xb24);
+		} else {
+			pkt_buf.writeShort(0xbb);
+		}
 		pkt_buf.writeUShort(this.statusID);
 		pkt_buf.writeUChar(this.changeAmount);
 		return pkt_buf;

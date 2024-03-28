@@ -1,0 +1,21 @@
+#WinStatsV2 { position:absolute; width:280px; height:130px; background-color:transparent; background-repeat:no-repeat; font-size:11px; }
+
+#WinStatsV2 .titlebar { width:280px; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
+#WinStatsV2 .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle;}
+#WinStatsV2 .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+	/* chrome bug */ display: inline-block; width: 32px; height:13px; }
+
+#WinStatsV2 .titlebar .left { margin-left:3px; float:left; }
+#WinStatsV2 .titlebar .right { float:right; margin-right:3px;}
+#WinStatsV2 .titlebar .clear { clear:both; }
+
+#WinStatsV2 .panel { height: 103px }
+#WinStatsV2 .group { position:absolute; top:23px; }
+#WinStatsV2 .group div { height:16px; display:block;}
+#WinStatsV2 .stats { left:37px; }
+#WinStatsV2 .bonus { left:56px; }
+#WinStatsV2 .requirements { left:90px; text-align:right; width:12px; }
+#WinStatsV2 .column1 { top:23px; right:88px; text-align:right; }
+#WinStatsV2 .column2 { top:23px; right:5px; text-align:right; }
+#WinStatsV2 .up { left:78px; top:19px; }
+#WinStatsV2 .up button { display:block; margin-top:5px; border:none; width:11px; height:11px; background-color:transparent; background-repeat:no-repeat; }
