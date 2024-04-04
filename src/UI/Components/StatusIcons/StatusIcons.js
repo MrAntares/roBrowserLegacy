@@ -113,7 +113,7 @@ define(function( require )
 		}
 
 		// Remove it
-		if (!state) {
+		if (!state && (!life || life <= 0)) {
 			removeElementIndex(index);
 			resetElementsPosition();
 			return;
