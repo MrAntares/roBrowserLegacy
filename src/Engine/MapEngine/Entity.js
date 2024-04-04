@@ -2039,7 +2039,10 @@ define(function( require )
 				break;
 
 			case StatusConst.ALL_RIDING:
-				entity.allRidingState = pkt.state;
+				entity.allRidingState = pkt.state || (!pkt.hasOwnProperty('state'));
+				if(pkt.val && (pkt.state || (!pkt.hasOwnProperty('state')) )){
+					entity.allRidingState = pkt.val[0];
+				}
 				break;
 
 			case StatusConst.WEIGHTOVER90:
