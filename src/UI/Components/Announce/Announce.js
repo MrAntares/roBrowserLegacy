@@ -63,7 +63,7 @@ define(function(require)
 
 		this.ui.attr('id', 'Announce').css({
 			position: 'absolute',
-			top:       50,
+			top:       85,
 			zIndex:    40
 		});
 	};
