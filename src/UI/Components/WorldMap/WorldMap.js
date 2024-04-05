@@ -213,7 +213,7 @@ define(function (require) {
 				{ id: 'cmd_fild02', name: 'Comodo Field 02 - Kokomo beach', top: 894, left: 367, width: 58, height: 56 },
 				{ id: 'cmd_fild03', name: 'Comodo Field 03 - Zenhai Marsh', top: 835, left: 426, width: 57, height: 58 },
 				{ id: 'cmd_fild04', name: 'Comodo Field 04 - Kokomo beach', top: 894, left: 426, width: 57, height: 56 },
-				{ id: 'cmd_fild05', name: 'Comodo Field 05 - Border of Papuchica forest', top: 835, left: 484, width: 57, height: 58 },
+				{ id: 'cmd_fild05', name: 'Comodo Field 05 - Border of Papuchica forest', top: 835, left: 484, width: 59, height: 58 },
 				{ id: 'cmd_fild06', name: 'Comodo Field 06 - Fortress Saint Darmain (West)', top: 894, left: 484, width: 59, height: 56 },
 				{ id: 'cmd_fild07', name: 'Comodo Field 07 - Beacon Island, Pharos', top: 951, left: 484, width: 59, height: 58 },
 				{ id: 'cmd_fild08', name: 'Comodo Field 08 - Fortress Saint Darmain (East)', top: 894, left: 544, width: 58, height: 56 },
@@ -237,9 +237,11 @@ define(function (require) {
             id: 'worldmap_localizing1', name: 'Eastern Kingdoms', maps: [
                 { id: 'ama_fild01', name: 'Amatsu Field 01', top: 165, left: 332, width: 88, height: 88 },
                 { id: 'amatsu', name: 'Amatsu', top: 256, left: 281, width: 88, height: 88 },
-                { id: 'gon_fild01', name: 'Gonryun Field 01', top: 170, left: 906, width: 88, height: 88 },
-                { id: 'gonryun', name: 'Gonryun', top: 268, left: 911, width: 88, height: 88 },
+                { id: 'gon_fild01', name: 'Gonryun Field 01', top: 268, left: 911, width: 88, height: 88 },
+                { id: 'gon_dun01', name: 'Gonryun Dungeon 01', top: 100, left: 1030, width: 88, height: 88 },
+                { id: 'gonryun', name: 'Gonryun', top: 170, left: 906, width: 88, height: 88 },
                 { id: 'lou_fild01', name: 'Louyang Field 01', top: 768, left: 276, width: 88, height: 88 },
+                { id: 'lou_dun01', name: 'Louyang Dungeon 01', top: 672, left: 178, width: 88, height: 88 },
                 { id: 'louyang', name: 'Louyang', top: 673, left: 276, width: 88, height: 88 },
                 { id: 'ayo_fild01', name: 'Ayothaya Field 01', top: 734, left: 920, width: 88, height: 88 },
                 { id: 'ayothaya', name: 'Ayothaya', top: 724, left: 827, width: 88, height: 88 },
@@ -251,14 +253,18 @@ define(function (require) {
         {
             id: 'worldmap_localizing2', name: 'Far Lands', maps: [
                 { id: 'mosk_fild02', name: 'Moscovia Field 02', top: 299, left: 187, width: 88, height: 88 },
+                { id: 'mosk_dun01', name: 'Moscovia Dungeon 01', top: 206, left: 185, width: 88, height: 88 },
+                { id: 'mosk_dun02', name: 'Moscovia Dungeon 02', top: 111, left: 207, width: 88, height: 88 },
+                { id: 'mosk_dun03', name: 'Moscovia Dungeon 03', top: 126, left: 307, width: 88, height: 88 },
                 { id: 'moscovia', name: 'Moscovia', top: 332, left: 394, width: 110, height: 110 },
                 { id: 'bra_fild01', name: 'Brasilis Field 01', top: 110, left: 998, width: 88, height: 88 },
                 { id: 'brasilis', name: 'Brasilis', top: 255, left: 924, width: 88, height: 88 },
                 { id: 'dew_fild01', name: 'Dewata Field 01', top: 668, left: 37, width: 88, height: 88 },
+                { id: 'dew_dun01', name: 'Dewata Dungeon 01', top: 836, left: 337, width: 88, height: 88 },
                 { id: 'dewata', name: 'Dewata', top: 712, left: 232, width: 88, height: 88 },
-                { id: 'mal_fild01', name: 'Malaya Field 01', top: 810, left: 956, width: 88, height: 88 },
-                { id: 'mal_fild02', name: 'Malaya Field 02', top: 713, left: 946, width: 88, height: 88 },
-                { id: 'mal_fild03', name: 'Malaya Field 03', top: 601, left: 1076, width: 88, height: 88 },
+                { id: 'ma_fild01', name: 'Malaya Field - Baryo Mahiwaga', top: 810, left: 956, width: 88, height: 88 },
+                { id: 'ma_fild02', name: 'Malaya Field - Forest', top: 713, left: 946, width: 88, height: 88 },
+                { id: 'ma_scene01', name: 'Malaya Field - Bakonawa Lake', top: 601, left: 1076, width: 88, height: 88 },
                 { id: 'malaya', name: 'Malaya', top: 883, left: 832, width: 88, height: 88 },
             ]
         },
@@ -267,8 +273,23 @@ define(function (require) {
         // #region Dimension / New World
         {
             id: 'worldmap_dimension', name: 'New World', maps: [
-                // TODO
-                // { id: 'dimension', name: 'Dimension', top: 0, left: 0, width: 0, height: 0 },
+				{ id: 'eclage', name: 'Eclage', top: 185, left: 393, width: 91, height: 91 },
+				{ id: 'ecl_fild01', name: 'Blooming Flower Land', top: 275, left: 393, width: 91, height: 91 },
+				{ id: 'mora', name: 'Mora Village', top: 365, left: 393, width: 91, height: 91 },
+				{ id: 'bif_fild01', name: 'Bifrost Bridge', top: 455, left: 393, width: 91, height: 91 },
+				{ id: 'splendide', name: 'Forest Village Splendide', top: 544, left: 393, width: 91, height: 91 },
+				{ id: 'spl_fild01', name: 'Splendide Field 01', top: 455, left: 483, width: 91, height: 91 },
+				{ id: 'spl_fild02', name: 'Splendide Field 02', top: 544, left: 483, width: 91, height: 91 },
+				{ id: 'spl_fild02', name: 'Splendide Field 03', top: 636, left: 483, width: 91, height: 91 },
+				{ id: 'mid_camp', name: 'Rune Midgard Allied Forces Post', top: 544, left: 573, width: 91, height: 91 },
+				{ id: 'man_fild01', name: 'Manuk Field 01', top: 544, left: 662, width: 91, height: 91 },
+				{ id: 'man_fild03', name: 'Manuk Field 03', top: 636, left: 662, width: 91, height: 91 },
+				{ id: 'man_fild02', name: 'Manuk Field 02', top: 544, left: 753, width: 91, height: 91 },
+				{ id: 'manuk', name: 'Mining Village Manuk', top: 636, left: 753, width: 91, height: 91 },
+				{ id: 'dicastes02', name: 'Dicastes Diel', top: 451, left: 978, width: 91, height: 91 },
+				{ id: 'dicastes01', name: 'El Dicastes, the Sapha Capital', top: 544, left: 978, width: 91, height: 91 },
+				{ id: 'dic_fild01', name: 'Outskirts of Kamidal Mountain 01', top: 636, left: 978, width: 91, height: 91 },
+				{ id: 'dic_fild02', name: 'Outskirts of Kamidal Mountain 02', top: 729, left: 978, width: 91, height: 91 },
             ]
         },
         // #endregion
