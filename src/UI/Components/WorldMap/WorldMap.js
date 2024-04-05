@@ -43,16 +43,16 @@ define(function (require) {
         // #region Midgard
         {
             id: 'worldmap', name: 'Midgard', maps: [
-                { id: 'hu_fild01', name: 'Hugel Field 01', top: 5, left: 700, width: 45, height: 45 },
-                { id: 'hu_fild02', name: 'Hugel Field 02', top: 5, left: 757, width: 45, height: 45 },
-                { id: 'hu_fild03', name: 'Hugel Field 03', top: 5, left: 817, width: 45, height: 45 },
-                { id: 'hu_fild04', name: 'Hugel Field 04', top: 62, left: 757, width: 45, height: 45 },
-                { id: 'hu_fild05', name: 'Hugel Field 05', top: 62, left: 817, width: 45, height: 45 },
-                { id: 'hu_fild06', name: 'Hugel Field 06', top: 62, left: 875, width: 45, height: 45 },
+                { id: 'hu_fild01', name: 'Hugel Field 01', top: 0, left: 694, width: 57, height: 56 },
+                { id: 'hu_fild02', name: 'Hugel Field 02', top: 0, left: 752, width: 57, height: 56 },
+                { id: 'hu_fild03', name: 'Hugel Field 03', top: 0, left: 811, width: 57, height: 56 },
+                { id: 'hu_fild04', name: 'Hugel Field 04', top: 57, left: 752, width: 58, height: 59 },
+                { id: 'hu_fild05', name: 'Hugel Field 05', top: 57, left: 811, width: 58, height: 59 },
+                { id: 'hu_fild06', name: 'Hugel Field 06', top: 57, left: 870, width: 58, height: 59 },
                 { id: 'hu_fild07', name: 'Hugel Field 07', top: 120, left: 816, width: 45, height: 45 },
-                { id: 'hugel', name: 'Hugel', top: 5, left: 875, width: 45, height: 45 },
+                { id: 'hugel', name: 'Hugel', top: 0, left: 870, width: 57, height: 56 },
 
-                { id: 'ein_fild01', name: 'Einbroch Field 01', top: 62, left: 580, width: 45, height: 45 },
+                { id: 'ein_fild01', name: 'Einbroch Field 01', top: 57, left: 580, width: 58, height: 59 },
                 { id: 'ein_fild02', name: 'Einbroch Field 02', top: 120, left: 580, width: 45, height: 45 },
                 { id: 'ein_fild03', name: 'Einbroch Field 03', top: 177, left: 463, width: 45, height: 45 },
                 { id: 'ein_fild04', name: 'Einbroch Field 04', top: 177, left: 521, width: 45, height: 45 },
@@ -347,7 +347,7 @@ define(function (require) {
             img.src = '';
             img.alt = `Loading ${e.target.id}...`;
             // load the image
-            Client.loadFile(`${DB.INTERFACE_PATH}/map/${e.target.id}.bmp`, (data) => {
+            Client.loadFile(`${DB.INTERFACE_PATH}map/${e.target.id}.bmp`, (data) => {
                 // img.src = `textures/map/${e.target.id}.bmp`;
                 // http://127.0.0.1/data/texture/À¯ÀúÀÎÅÍÆäÀÌ½º/map/prontera.bmp
                 //img.src = `${resourcePath}/map/${e.target.id}.bmp`;
@@ -411,6 +411,8 @@ define(function (require) {
         // output <div id="worldmap_localizing1" class="map-view" data-name="Eastern Kingdoms"></div>
         for (const section of map.maps) {
             const el = document.createElement('div');
+			const el_mapid = document.createElement('div');
+			
             el.id = section.id;
             el.className = 'section';
             el.style.top = `${section.top}px`;
@@ -418,6 +420,13 @@ define(function (require) {
             el.style.width = `${section.width}px`;
             el.style.height = `${section.height}px`;
             el.setAttribute('data-name', section.name);
+			el.title = section.name;
+			
+			el_mapid.className = 'mapid';
+			el_mapid.innerHTML = section.id;
+			
+			el.appendChild(el_mapid);
+			
             mapView.appendChild(el);
             // output <div id="um_fild04" class="section" title="Umbala Forest 04"></div>
         }
