@@ -93,7 +93,7 @@ define(function(require)
 					break;
 
 				case 'info':
-					WinStats.toggle(); // split stats
+					WinStats.getUI().toggle(); // split stats
 					break;
 
 				case 'equip':

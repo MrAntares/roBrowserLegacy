@@ -34,6 +34,7 @@ define(function(require)
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var CheckAttendance    = require('UI/Components/CheckAttendance/CheckAttendance');
 	var Rodex              = require('UI/Components/Rodex/Rodex');
+	var WinStats           = require('UI/Components/WinStats/WinStats');
 
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
@@ -95,6 +96,10 @@ define(function(require)
 					break;
 
 				case 'info':
+					WinStats.getUI().toggle();
+					break;
+
+				case 'equip':
 					Equipment.getUI().toggle();
 					break;
 
@@ -178,7 +183,6 @@ define(function(require)
 			this.ui.find('.btn_close').hide();
 		}
 
-		this.ui.find('#equip').hide();
 		this.ui.find('#battle').hide();
 		this.ui.find('#navigation').hide();
 		this.ui.find('#battle').hide();
