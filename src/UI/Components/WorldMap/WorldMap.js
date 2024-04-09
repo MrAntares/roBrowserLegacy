@@ -31,6 +31,7 @@ define(function (require) {
     const Client = require('Core/Client');
     const Preferences = require('Core/Preferences');
     const Renderer = require('Renderer/Renderer');
+    const MapRenderer = require('Renderer/MapRenderer');
     const UIManager = require('UI/UIManager');
     const UIComponent = require('UI/UIComponent');
     const htmlText = require('text!./WorldMap.html');
@@ -317,6 +318,7 @@ define(function (require) {
     WorldMap.init = function init() {
         this.ui.find('.titlebar .base').mousedown(stopPropagation);
         this.ui.find('.titlebar select').change(onSelect);
+        this.ui.find('.titlebar .togglemaps').click(onToggleMaps);
         this.ui.find('.titlebar .close').click(onClose);
 
         // worldmap dialog
@@ -371,6 +373,9 @@ define(function (require) {
         if (e.target.classList.contains('section')) {
             const dialog = WorldMap.ui.find('#dialog-map-view')[0];
             if (dialog == null) return;
+			WorldMap.ui.find('#dialog-map-view .mapname').text(e.target.getAttribute('data-name'));
+			WorldMap.ui.find('#dialog-map-view .mapid').text(e.target.id);
+			
             dialog.showModal();
 
             const img = dialog.querySelector('#img-map-view');
@@ -442,9 +447,17 @@ define(function (require) {
         for (const section of map.maps) {
             const el = document.createElement('div');
 			const el_mapid = document.createElement('div');
+			const el_mapname = document.createElement('div');
+			
 			
             el.id = section.id;
-            el.className = 'section';
+			
+            if(MapRenderer.currentMap == section.id+'.gat'){
+				el.className = 'section currentmap';
+			} else {
+				el.className = 'section';
+			}
+			
             el.style.top = `${section.top}px`;
             el.style.left = `${section.left}px`;
             el.style.width = `${section.width}px`;
@@ -452,11 +465,14 @@ define(function (require) {
             el.setAttribute('data-name', section.name);
 			el.title = section.name;
 			
+			el_mapname.className = 'mapname';
+			el_mapname.innerHTML = section.name;
+			
 			el_mapid.className = 'mapid';
 			el_mapid.innerHTML = section.id;
 			
+			el.appendChild(el_mapname);
 			el.appendChild(el_mapid);
-			
             mapView.appendChild(el);
             // output <div id="um_fild04" class="section" title="Umbala Forest 04"></div>
         }
@@ -604,6 +620,19 @@ define(function (require) {
                 break;
         }
     };
+	
+	/**
+     * Toggle all maps
+     */
+	function onToggleMaps(){
+		if(WorldMap.showAllMaps){
+			WorldMap.ui.find('.worldmap .section').removeClass('allmapvisible');
+			WorldMap.showAllMaps = false;
+		} else {
+			WorldMap.ui.find('.worldmap .section').addClass('allmapvisible');
+			WorldMap.showAllMaps = true;
+		}
+	}
 
     /**
      * Stop event propagation

@@ -7,6 +7,8 @@
 
 			</div>
 			<div class="right">
+				<button class="base togglemaps" data-background="minimap/i_object_3.bmp"
+					data-hover="minimap/i_object_2.bmp"></button>
 				<button class="base close" data-background="basic_interface/sys_close_off.bmp"
 					data-hover="basic_interface/sys_close_on.bmp"></button>
 			</div>
@@ -17,7 +19,10 @@
 		</div>
 	</div>
 	<dialog id="dialog-map-view">
-		<button id="dialog-close">X</button>
+		<button id="dialog-close" data-background="basic_interface/sys_close_off.bmp"
+					data-hover="basic_interface/sys_close_on.bmp"></button>
 		<img id="img-map-view" width="512" height="512" />
+		<div class="mapname"/>
+		<div class="mapid"/>
 	</dialog>
 </div>
