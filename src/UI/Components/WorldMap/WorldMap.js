@@ -329,8 +329,6 @@ define(function (require) {
         // worldmap dialog
         this.ui.find('.map .content').on('click', onWorldMapClick);
         this.ui.find('#dialog-map-view').on('click', onWorldMapDialogClick);
-
-        setMapList();
     };
 
     /**
@@ -341,7 +339,10 @@ define(function (require) {
             let list = '';
             for (const map of MAPS) {
                 // list += '<option value="' + mapList[wmap].img + '">' + mapList[wmap].name + '</option>'
-                list += `<option value="${map.id}">${map.name}</option>`;
+				// Episode check
+				if(WorldMap.settings.episode >= map.ep_from && WorldMap.settings.episode < map.ep_to){
+					list += `<option value="${map.id}">${map.name}</option>`;
+				}
             }
             return list;
         })
@@ -449,17 +450,6 @@ define(function (require) {
         const container = WorldMap.ui.find('.map .content');
         const worldmap = document.createElement('div');
 		const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
-		const worldMapSettings = { episode: 98, add: [], remove: [] };
-		
-		const conf = Configs.get('worldMapSettings', { episode: 98, add: [], remove: [] });
-		// Prevent stupidity
-		if('episode' in conf){ worldMapSettings.episode = conf.episode };
-		if('add' in conf && Array.isArray(conf.add)){ worldMapSettings.add = conf.add };
-		if('remove' in conf && Array.isArray(conf.remove)){ worldMapSettings.remove = conf.remove };
-		
-		console.log( "%c[WoldMap] Episode: ", "color:#007000", worldMapSettings.episode );
-		if(worldMapSettings.add.length > 0){ console.log( "%c[WoldMap] Add Maps: ", "color:#007000", worldMapSettings.add ); };
-		if(worldMapSettings.remove.length > 0){ console.log( "%c[WoldMap] Remove Maps: ", "color:#007000", worldMapSettings.remove ); };
 		
         worldmap.className = 'worldmap';
 
@@ -476,7 +466,7 @@ define(function (require) {
         for (const section of map.maps) {
 			
 			//Episode & custom add/remove check
-			if(((worldMapSettings.episode >= section.ep_from && worldMapSettings.episode < section.ep_to) || worldMapSettings.add.includes(section.id)) && !worldMapSettings.remove.includes(section.id)){
+			if(((WorldMap.settings.episode >= section.ep_from && WorldMap.settings.episode < section.ep_to) || WorldMap.settings.add.includes(section.id)) && !WorldMap.settings.remove.includes(section.id)){
 				const el = document.createElement('div');
 				const el_mapid = document.createElement('div');
 				const el_mapname = document.createElement('div');
@@ -609,8 +599,23 @@ define(function (require) {
         if (!_preferences.show) {
             this.ui.hide();
         }
+		
+		// settings
+		this.settings = { episode: 98, add: [], remove: [] };
+		const conf = Configs.get('worldMapSettings', { episode: 98, add: [], remove: [] });
+		// Prevent stupidity
+		if('episode' in conf){ this.settings.episode = conf.episode };
+		if('add' in conf && Array.isArray(conf.add)){ this.settings.add = conf.add };
+		if('remove' in conf && Array.isArray(conf.remove)){ this.settings.remove = conf.remove };
+		
+		console.log( "%c[WoldMap] Episode: ", "color:#007000", this.settings.episode );
+		if(this.settings.add.length > 0){ console.log( "%c[WoldMap] Add Maps: ", "color:#007000", this.settings.add ); };
+		if(this.settings.remove.length > 0){ console.log( "%c[WoldMap] Remove Maps: ", "color:#007000", this.settings.remove ); };
+		
+		// set maps
+        setMapList();
 
-        //  resize map container
+        // resize map container & add sections
         resize();
 
         this.ui.css({
