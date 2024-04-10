@@ -319,6 +319,11 @@ function initialize() {
           version:         20230927.0959, // Update this value every time you update your robrowser, to trigger a source refresh on every browser. Recommended to use a decimal timestamp (YYYYMMDD.hhmm), but can be anything
           forceUseAddress: false,      // Some times when connect to server, the server return 127.0.0.1 as IP to connect. This key force robrowse to ignore and use IP set at 'address'
 
+          worldMapSettings: {               // Settings for world map.
+                              episode: 98, // Episode content to show (0-98, eg:14.2, default:98 = latest)
+                              add:[],      // Optional, Array of maps to custom show  (eg: ['rachel', 'ra_fild01'])
+                              remove:[]    // Optional, Array of maps to custom remove (eg: ['alberta', 'pay_fild03'])
+                           },
           enableCashShop:  false,  // Enable Cash Shop UI?
           enableBank:      false,  // Enable Bank UI? (Requires PACKETVER 20130724 above)
           enableMapName:   false,  // Enable Map Name Banner? (Requires client data (GRF) newer than 2019.06.19)

@@ -162,12 +162,6 @@
 
 
 	/**
-	 * @var {boolean} load lua files ?
-	 */
-	ROBrowser.prototype.loadlua = false;
-
-
-	/**
 	 * @var {function} callback to execute once roBrowser is ready
 	 */
 	ROBrowser.prototype.onReady = null;
@@ -272,6 +266,11 @@
 	 * cached one.
 	 */
 	ROBrowser.prototype.version = '';
+	
+	/**
+	 * @var {Object} Dettings for World Map
+	 */
+	ROBrowser.prototype.worldMapSettings = {};
 
 	/**
 	 * @var {boolean} Enable use address to connect in all servers (login, char, map)
@@ -433,7 +432,6 @@
 			remoteClient:     this.remoteClient,
 			packetver:        this.packetver,
 			development:      this.development,
-            loadLua:          this.loadLua,
 			api:              this.api,
 			socketProxy:      this.socketProxy,
 			packetKeys:       this.packetKeys,
@@ -446,6 +444,7 @@
 			enableMapName:    this.enableMapName,
 			enableCheckAttendance: this.enableCheckAttendance,
 			version:          this.version,
+			worldMapSettings:  this.worldMapSettings,
 			clientHash:       this.clientHash,
 			calculateHash:    this.calculateHash,
 			hashFiles:        this.hashFiles,
