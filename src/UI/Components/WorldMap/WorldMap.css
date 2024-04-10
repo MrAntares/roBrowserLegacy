@@ -84,21 +84,20 @@
 	overflow: visible;
 }
 
-#WorldMap .worldmap .section:hover, #WorldMap .worldmap .section.allmapvisible {
-    position: absolute;
-    width: 45px;
-    height: 45px;
+#WorldMap .worldmap .section:hover, #WorldMap .worldmap .section.allmapvisible, #WorldMap .worldmap .section.currentmap, #WorldMap .worldmap .section.membersonmap {
     border: 1px solid #dddddd7a;
-	border-radius: 4px;
 }
 
 #WorldMap .worldmap .section:hover{
     background-color: rgba(0, 128, 255, 0.5);
 }
 
+#WorldMap .worldmap .section.membersonmap:not(.currentmap) {
+	background-color: rgba(128, 255, 0, 0.5);
+}
+
 #WorldMap .worldmap .section.currentmap {
 	background-color: rgba(255, 128, 0, 0.5);
-    border: 1px solid #dddddd7a;
 }
 
 #WorldMap .worldmap .section .mapname {
@@ -171,8 +170,8 @@
 
 #WorldMap dialog .mapname {
 	position: absolute;
-	top: 5px;
-	left: 5px;
+	top: 7px;
+	left: 10px;
 	font-size: 16px;
 	color: gold;
 	font-weight: bold;
@@ -183,10 +182,24 @@
 		 1px  1px 0 #000;
 }
 
+#WorldMap dialog .memberlist {
+	position: absolute;
+	top: 35px;
+	left: 15px;
+	font-size: 13px;
+	color: salmon;
+	font-weight: bold;
+	text-shadow:
+		-1px -1px 0 #000,  
+		 1px -1px 0 #000,
+		-1px  1px 0 #000,
+		 1px  1px 0 #000;
+}
+
 #WorldMap dialog .mapid {
 	position: absolute;
-	bottom: 5px;
-	left: 5px;
+	bottom: 7px;
+	left: 10px;
 	font-size: 12px;
 	color: white;
 	text-shadow:

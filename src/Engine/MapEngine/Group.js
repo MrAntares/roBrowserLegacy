@@ -20,13 +20,13 @@ define(function( require )
 	var Session       = require('Engine/SessionStorage');
 	var Network       = require('Network/NetworkManager');
 	var PACKETVER  	  = require('Network/PacketVerManager');
-	var PACKETVER        = require('Network/PacketVerManager');
 	var PACKET        = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
 	var MapRenderer   = require('Renderer/MapRenderer');
 	var UIManager     = require('UI/UIManager');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var PartyUI       = require('UI/Components/PartyFriends/PartyFriends');
+	var WorldMap      = require('UI/Components/WorldMap/WorldMap');
 
 	// Version Dependent UIs
 	var MiniMap = require('UI/Components/MiniMap/MiniMap');
@@ -283,6 +283,7 @@ define(function( require )
 		}
 
 		PartyUI.setParty( pkt.groupName, pkt.groupInfo);
+		WorldMap.updatePartyMembers(pkt);
 	}
 
 

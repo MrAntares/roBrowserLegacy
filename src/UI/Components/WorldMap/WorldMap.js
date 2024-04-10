@@ -34,6 +34,7 @@ define(function (require) {
     const MapRenderer = require('Renderer/MapRenderer');
     const UIManager = require('UI/UIManager');
     const UIComponent = require('UI/UIComponent');
+	const Session = require('Engine/SessionStorage');
     const htmlText = require('text!./WorldMap.html');
     const cssText = require('text!./WorldMap.css');
 
@@ -311,6 +312,9 @@ define(function (require) {
         height: Renderer.height,
         show: false,
     }, 1.0);
+	
+	// Party member store
+	let _partyMembersByMap = {};
 
     /**
      * Initialize UI
@@ -393,6 +397,17 @@ define(function (require) {
                 // when image is loaded for 100% chance, then use this instead
                 // adjustImageTransparency(img);
             });
+			
+			
+			// display party member list on map
+			let memberList = "";
+			if(Array.isArray(_partyMembersByMap[e.target.id])){
+				_partyMembersByMap[e.target.id].forEach((member) => {
+					memberList += member.Name+'<br/>';
+				});
+				
+			}
+			WorldMap.ui.find('#dialog-map-view .memberlist').text(memberList);
         }
     }
 
@@ -432,6 +447,7 @@ define(function (require) {
     function createWorldMapView(map, imgData) {
         const container = WorldMap.ui.find('.map .content');
         const worldmap = document.createElement('div');
+		const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
         worldmap.className = 'worldmap';
 
         // set loaded worldmap background image
@@ -452,7 +468,7 @@ define(function (require) {
 			
             el.id = section.id;
 			
-            if(MapRenderer.currentMap == section.id+'.gat'){
+            if(currentMap == section.id){
 				el.className = 'section currentmap';
 			} else {
 				el.className = 'section';
@@ -620,6 +636,29 @@ define(function (require) {
                 break;
         }
     };
+	
+	/**
+     * Update party members on map
+     *
+     * @param {object} key
+     */
+	WorldMap.updatePartyMembers = function updatePartyMembers(pkt){
+		_partyMembersByMap = {};
+		pkt.groupInfo.forEach((member) => {
+			if(member.AID !== Session.AID && member.state === 0){
+				const mapId = member.mapName.replace(/\.gat$/i, '')
+				if(!_partyMembersByMap[mapId]){
+					_partyMembersByMap[mapId] = [];
+				}
+				_partyMembersByMap[mapId].push({ AID: member.AID, Name: member.characterName});
+			}
+		});
+		
+		WorldMap.ui.find('.worldmap .section').removeClass('membersonmap');
+		for (const [mapId, members] of Object.entries(_partyMembersByMap)) {
+			WorldMap.ui.find('.worldmap .section#'+mapId).addClass('membersonmap');
+		}
+	}
 	
 	/**
      * Toggle all maps
