@@ -2,31 +2,10 @@
 <html>
 	<head>
 		
-		<title>Ragna.ro Webkliens</title>
+		<title>roBrowser</title>
 		<meta name="mobile-web-app-capable" content="yes"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<meta name="HandheldFriendly" content="true" />
-		<meta charset="UTF-8">
-		
-		<!-- Console for debugging mobile and consolless browsers -->
-		<script type="text/javascript" src="../YConsole-compiled.js"></script>
-		<script type="text/javascript">
-			YConsole.SPLITTER_WIDTH=16;
-			YConsole.docking="right";
-			
-			window.addEventListener('load', (event) => {
-				var elemDiv = document.createElement('div');
-				elemDiv.style.cssText = 'position:absolute; bottom: 0px; right: 0px; width:20px; height: 20px; opacity:0.1; z-index:100; background:#000;';
-				elemDiv.addEventListener('click', (event) => { YConsole.activate(); YConsole.show(); elemDiv.parentNode.removeChild(elemDiv); });
-				document.body.appendChild(elemDiv);
-			});
-        </script>
-		
-		<style>
-			window, body {
-				touch-action: pan-x pan-y;
-			}
-		</style>
 		
 		<script type="text/javascript">
 			var ROConfig = {};
@@ -45,6 +24,7 @@
 					ROConfig.clientHash         = event.data.clientHash         || null;
 					ROConfig.calculateHash      = event.data.calculateHash      || false;
 					ROConfig.hashFiles          = event.data.hashFiles          || [];
+					ROConfig.loadLua            = event.data.loadLua            || false;
 					ROConfig.development        = event.data.development        || false;
 					ROConfig.API                = event.data.api                || false;
 					ROConfig.socketProxy        = event.data.socketProxy        || null;
@@ -65,6 +45,9 @@
 					ROConfig.FirstPersonCamera  = event.data.FirstPersonCamera  || false;
 					ROConfig.CameraMaxZoomOut   = event.data.CameraMaxZoomOut   || 5;
 					ROConfig.packetDump   		= event.data.packetDump   		|| false;
+					ROConfig.application   		= event.data.application   		|| 1;
+					ROConfig.enableCheckAttendance = event.data.enableCheckAttendance   || false;
+					ROConfig.forceUseAddress    = event.data.forceUseAddress   	|| false;
 
 					if (ROConfig.development) {
 						var script  = document.createElement('script');
