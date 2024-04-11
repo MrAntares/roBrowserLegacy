@@ -67,12 +67,14 @@
     box-sizing: border-box;
 }
 
+#WorldMap .border, #WorldMap .map, #WorldMap .content, #WorldMap .worldmap, #WorldMap .map-view {
+	height: 100%;
+}
+
 #WorldMap .worldmap .map-view {
     position: relative;
-    width: 1280px;
-    height: 1024px;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: contain;
 }
 
 #WorldMap .worldmap .section {
@@ -164,8 +166,9 @@
 }
 
 #WorldMap dialog #img-map-view {
-    width: 512px;
-    height: 512px;
+    max-width: 512px;
+    max-height: 512px;
+    object-fit: scale-down;
 }
 
 #WorldMap dialog .mapname {

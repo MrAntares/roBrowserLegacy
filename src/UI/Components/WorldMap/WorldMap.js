@@ -316,6 +316,18 @@ define(function (require) {
 	
 	// Party member store
 	let _partyMembersByMap = {};
+	
+	// Sizing params
+	const C_TITLEBARHEIGHT = 17;
+	const C_BASEWIDTH = 1280;
+	const C_BASEHEIGHT = 1024;
+	const C_ASPECTX = 5;
+	const C_ASPECTY = 4;
+	const C_DIALOG_BASEWIDTH = 512;
+	const C_DIALOG_BASEHEIGHT = 512;
+	const C_DIALOG_ASPECTX = 1;
+	const C_DIALOG_ASPECTY = 1;
+	const C_DIALOGPADDING = 20;
 
     /**
      * Initialize UI
@@ -349,26 +361,69 @@ define(function (require) {
     }
 
     function onSelect() {
-        resize(WorldMap.ui.find('.titlebar select').val());
+        selectMap(WorldMap.ui.find('.titlebar select').val());
     }
 
     /**
-     * Extend WorldMap window size
+     * Select world map
      * 
      * @param {string} name eg. `"worldmap_localizing1"`
      */
-    function resize(name = 'worldmap') {
+    function selectMap(name = 'worldmap') {
         // load map image asset and render it
         Client.loadFile(DB.INTERFACE_PATH + name + '.bmp', (data) => {
             // find map data by name and render it
             for (const map of MAPS) {
                 if (map.id === name) {
                     createWorldMapView(map, data);
+					resizeMap();
                     break;
                 }
             }
         });
     }
+	
+	
+	/**
+	 * Resize world map
+	 */
+	function resizeMap(){
+		
+		const mapContainer = WorldMap.ui.find('.map-view');
+		
+		const currentwidth = Renderer.width;
+		const currentheight = Renderer.height-C_TITLEBARHEIGHT;
+		
+		const xmult = currentwidth/C_BASEWIDTH;
+		const ymult = currentheight/C_BASEHEIGHT;
+		
+		let mult = xmult;
+		if(currentwidth/C_ASPECTX > currentheight/C_ASPECTY){
+			mult = ymult;
+		}
+		
+		mapContainer.width(C_BASEWIDTH*mult);
+		mapContainer.height(C_BASEHEIGHT*mult);
+		
+		
+		const dialogImg = WorldMap.ui.find('#img-map-view');
+		let d_width = C_DIALOG_BASEWIDTH;
+		let d_height = C_DIALOG_BASEHEIGHT;
+		if(currentwidth < C_DIALOG_BASEWIDTH+C_DIALOGPADDING || currentheight < C_DIALOG_BASEHEIGHT+C_DIALOGPADDING){
+			const d_xmult = (currentwidth-C_DIALOGPADDING)/C_DIALOG_BASEWIDTH;
+			const d_ymult = (currentheight-C_DIALOGPADDING)/C_DIALOG_BASEHEIGHT;
+			
+			let mult = d_xmult;
+			if(currentwidth/C_DIALOG_ASPECTX > currentheight/C_DIALOG_ASPECTY){
+				mult = d_ymult;
+			}
+			
+			d_width = C_DIALOG_BASEWIDTH*mult;
+			d_height = C_DIALOG_BASEHEIGHT*mult;
+		}
+		dialogImg.width(d_width);
+		dialogImg.height(d_height);
+	}
 
     /**
      * When worldmap container is clicked
@@ -458,6 +513,8 @@ define(function (require) {
         const worldmap = document.createElement('div');
 		const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
 		
+		
+		
         worldmap.className = 'worldmap';
 
         // set loaded worldmap background image
@@ -487,10 +544,10 @@ define(function (require) {
 					el.className = 'section';
 				}
 				
-				el.style.top = `${section.top}px`;
-				el.style.left = `${section.left}px`;
-				el.style.width = `${section.width}px`;
-				el.style.height = `${section.height}px`;
+				el.style.top = `${section.top/C_BASEHEIGHT*100}%`;
+				el.style.left = `${section.left/C_BASEWIDTH*100}%`;
+				el.style.width = `${section.width/C_BASEWIDTH*100}%`;
+				el.style.height = `${section.height/C_BASEHEIGHT*100}%`;
 				el.setAttribute('data-name', section.name);
 				el.title = section.name;
 				
@@ -623,7 +680,7 @@ define(function (require) {
         setMapList();
 
         // resize map container & add sections
-        resize();
+        selectMap();
 
         this.ui.css({
             top: 0,
@@ -666,6 +723,14 @@ define(function (require) {
                 break;
         }
     };
+	
+	
+	/**
+	 * Resize UI
+	 */
+	WorldMap.onResize = function(){
+		resizeMap();
+	} 
 	
 	/**
      * Update party members on map

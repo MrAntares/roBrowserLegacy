@@ -130,7 +130,11 @@ define(function( require )
 				if(component.magnet.RIGHT){
 					ui.css('left', WIDTH - width);
 				}
+				
+				// Call custom resize function if has one
+				if(component.onResize){ component.onResize(); }
 			}
+			
 		}
 	};
 
