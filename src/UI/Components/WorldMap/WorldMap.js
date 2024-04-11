@@ -73,13 +73,13 @@ define(function (require) {
 				{ id: 'yuno_fild03', ep_from: 5, ep_to: 99, name: 'Yuno Field 03 - El Mes Plateau', top: 117, left: 707, width: 45, height: 56 },
 				{ id: 'yuno_fild04', ep_from: 5, ep_to: 99, name: 'Yuno Field 04 - El Mes Plateau', top: 137, left: 636, width: 58, height: 36 },
 				{ id: 'yuno_fild05', ep_from: 5, ep_to: 13.1, name: 'Yuno Field 05 - El Mes Plateau', top: 57, left: 635, width: 59, height: 59 },
-				{ id: 'yuno_fild06', ep_from: 5, ep_to: 99, name: 'Yuno Field 06 - El Mes Plateau', top: 58, left: 707, width: 45, height: 58 },
-				{ id: 'yuno_fild07', ep_from: 5, ep_to: 99, name: 'Yuno Field 07 - El Mes Gorge (Valley of Abyss)', top: 174, left: 695, width: 57, height: 60 },
-				{ id: 'yuno_fild08', ep_from: 5, ep_to: 99, name: 'Yuno Field 08 - Kiel Khayr\'s Academy', top: 174, left: 753, width: 58, height: 60 },
-				{ id: 'yuno_fild09', ep_from: 5, ep_to: 99, name: 'Yuno Field 09 - Schwaltzwald Guards Camp', top: 174, left: 812, width: 58, height: 60 },
-				{ id: 'yuno_fild10', ep_from: 5, ep_to: 13.1, name: 'Yuno Field 10', top: 174, left: 871, width: 58, height: 60 },
-				{ id: 'yuno_fild11', ep_from: 5, ep_to: 99, name: 'Yuno Field 11', top: 235, left: 695, width: 57, height: 56 },
-				{ id: 'yuno_fild12', ep_from: 5, ep_to: 99, name: 'Yuno Field 12 - Border Checkpoint', top: 235, left: 753, width: 58, height: 56 },
+				{ id: 'yuno_fild06', ep_from: 10.12, ep_to: 99, name: 'Yuno Field 06 - El Mes Plateau', top: 58, left: 707, width: 45, height: 58 },
+				{ id: 'yuno_fild07', ep_from: 10.12, ep_to: 99, name: 'Yuno Field 07 - El Mes Gorge (Valley of Abyss)', top: 174, left: 695, width: 57, height: 60 },
+				{ id: 'yuno_fild08', ep_from: 10.12, ep_to: 99, name: 'Yuno Field 08 - Kiel Khayr\'s Academy', top: 174, left: 753, width: 58, height: 60 },
+				{ id: 'yuno_fild09', ep_from: 10.12, ep_to: 99, name: 'Yuno Field 09 - Schwaltzwald Guards Camp', top: 174, left: 812, width: 58, height: 60 },
+				{ id: 'yuno_fild10', ep_from: 10.12, ep_to: 13.1, name: 'Yuno Field 10', top: 174, left: 871, width: 58, height: 60 },
+				{ id: 'yuno_fild11', ep_from: 10.12, ep_to: 99, name: 'Yuno Field 11', top: 235, left: 695, width: 57, height: 56 },
+				{ id: 'yuno_fild12', ep_from: 10.12, ep_to: 99, name: 'Yuno Field 12 - Border Checkpoint', top: 235, left: 753, width: 58, height: 56 },
 				{ id: 'yuno', ep_from: 5, ep_to: 99, name: 'Yuno, the capital of Schwarzwald Republic', top: 80, left: 644, width: 62, height: 56 },
 				 
 				{ id: 'odin_tem01', ep_from: 10.4, ep_to: 99, name: 'Odin Temple F1', top: 174, left: 988, width: 55, height: 60 },
@@ -429,15 +429,22 @@ define(function (require) {
             e.clientY < dialogDimensions.top ||
             e.clientY > dialogDimensions.bottom
         ) {
-            dialog.close()
+            closeMapDialog();
             return;
         }
         // close button
         if (e.target.id === 'dialog-close') {
-            dialog.close()
+            closeMapDialog();
             return;
         }
     }
+	
+	function closeMapDialog(){
+		// Remove image (causes fps drop)
+		WorldMap.ui.find('#img-map-view').attr('src', '');
+		const dialog = WorldMap.ui.find('#dialog-map-view')[0];
+		if(dialog){ dialog.close() };
+	}
 
     /**
      * Create the .worldmap container and loop through all the maps 
@@ -642,7 +649,9 @@ define(function (require) {
 
         if (this.ui.is(':visible')) {
             this.focus();
-        }
+        } else {
+			closeMapDialog();
+		};
     };
 
     /**
