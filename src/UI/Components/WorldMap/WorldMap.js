@@ -335,7 +335,7 @@ define(function (require) {
      * Create WorldMap list of maps (select Element)
      */
     function setMapList() {
-        WorldMap.ui.find('#WorldMaps').prepend(function () {
+        WorldMap.ui.find('#WorldMaps').html(function () {
             let list = '';
             for (const map of MAPS) {
                 // list += '<option value="' + mapList[wmap].img + '">' + mapList[wmap].name + '</option>'
@@ -345,7 +345,7 @@ define(function (require) {
 				}
             }
             return list;
-        })
+        });
     }
 
     function onSelect() {
