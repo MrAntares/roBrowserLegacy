@@ -5206,7 +5206,9 @@ define(function( require )
 			attachedEntity: true,
 			file: 'safetywall',
 			type: 'STR'
-		}, {
+		}],
+
+		'315_ground': [{
 			alphaMax: 0.4,
 			animation: 0,
 			attachedEntity: true,
@@ -5256,15 +5258,6 @@ define(function( require )
 			textureName: 'alpha_down',
 			topSize: 0.7,
 			type: 'CYLINDER'
-		}],
-
-		'315_ground': [{
-			type: 'FUNC',
-			attachedEntity: false,
-			func: function( Params ){
-				var Cylinder = require('Renderer/Effects/Cylinder');
-				this.add(new Cylinder(Params.Inst.position, 0.7, 0.7, 20, 'magic_violet', Params.Inst.startTick), Params);
-			}
 		}],
 
 		316: [{ //Warp Portal Animation 1	//EF_READYPORTAL2	Warp Portal Animation 1
