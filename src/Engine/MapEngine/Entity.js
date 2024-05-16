@@ -1731,7 +1731,6 @@ define(function( require )
 				}
                 break;
 
-
             case StatusConst.HIDING:
 				var EF_Init_Par = {
 					effectId: EffectConst.EF_SUMMONSLAVE,
@@ -1744,6 +1743,7 @@ define(function( require )
 				
 				EffectManager.spam( EF_Init_Par );
 				break;
+			
 			case StatusConst.FALCON:
 				if(pkt.state || (!pkt.hasOwnProperty('state')) ){
 					var falcon = new Entity();
@@ -2088,6 +2088,11 @@ define(function( require )
 		if (!entity) {
 			return;
 		}
+		
+		//display/remove special effects on state change
+		addStateEffect(pkt.AID, entity._effectState, pkt.effectState, StatusState.EffectState.SIGHT, EffectConst.EF_SIGHT);
+		addStateEffect(pkt.AID, entity._effectState, pkt.effectState, StatusState.EffectState.RUWACH, EffectConst.EF_RUWACH);
+		
 
 		entity.bodyState   = pkt.bodyState;
 		entity.healthState = pkt.healthState;
@@ -2388,6 +2393,29 @@ define(function( require )
 			return true ; 
 		else 
 			return false ;
+	}
+
+
+	/**
+	 * Add/remove effect when state changes
+	 */
+	function addStateEffect(AID, OldState, NewState, Status, EffectId){
+		// Kinda weird logic, but it is what it is... always remove if present in OldState, and add/re-add if present in NewState
+		
+		// Remove
+		if ( (OldState & Status) ){
+			EffectManager.remove( null, AID, EffectId );
+		}
+		
+		// Apply
+		if ( (NewState & Status) ){
+			EffectManager.remove( null, AID, EffectId );
+			var EF_Init_Par = {
+				effectId: EffectId,
+				ownerAID: AID
+			};
+			EffectManager.spam( EF_Init_Par );
+		}
 	}
 
 	/**
