@@ -55,7 +55,7 @@
 	 // Mage
 	 SkillEffect[SK.MG_SIGHT]                       = {/*state effect not here*/};		//Sight
 	 SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
-	 SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315, groundEffectId: '315_ground'};		//Safety Wall
+	 SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315};		//Safety Wall
 	 SkillEffect[SK.MG_SOULSTRIKE]                  = {beforeHitEffectId: 15, hitEffectId: 1};		//Soul Strike
 	 SkillEffect[SK.MG_COLDBOLT]                    = {beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51};		//Cold Bolt
 	 SkillEffect[SK.MG_FROSTDIVER]                  = {effectId: 27, hitEffectId: 28};		//Frost Diver
@@ -69,7 +69,7 @@
 	 SkillEffect[SK.AL_RUWACH]                      = {hitEffectId: 1 /*state effect not here*/};		//Ruwach
 	 SkillEffect[SK.AL_PNEUMA]                      = {groundEffectId: 141};		//Pneuma
 	 SkillEffect[SK.AL_TELEPORT]                    = {/*not here*/};		//Teleport
-	 SkillEffect[SK.AL_WARP]                        = {effectId: 35, groundEffectId: 317};		//Warp Portal
+	 SkillEffect[SK.AL_WARP]                        = {/*not here*/};		//Warp Portal
 	 SkillEffect[SK.AL_HEAL]                        = {effectId: 312, hitEffectId: 320};		//Heal
 	 SkillEffect[SK.AL_INCAGI]                      = {effectId: 37};		//Increase AGI
 	 SkillEffect[SK.AL_DECAGI]                      = {effectId: 38};		//Decrease AGI
