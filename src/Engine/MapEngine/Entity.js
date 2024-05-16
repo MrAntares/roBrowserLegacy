@@ -2409,7 +2409,6 @@ define(function( require )
 		
 		// Apply
 		if ( (NewState & Status) ){
-			EffectManager.remove( null, AID, EffectId );
 			var EF_Init_Par = {
 				effectId: EffectId,
 				ownerAID: AID
