@@ -5303,13 +5303,13 @@ define(function( require )
 			wav: 'effect/ef_readyportal',
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 0.5,
+			alphaMax: 0.3,
 			animation: 0,
 			attachedEntity: true,
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 0.6,
-			duration: 30000,
+			duration: 25000,
 			fade: true,
 			green: 0.6,
 			height: 15,
@@ -5320,13 +5320,13 @@ define(function( require )
 			wav: 'effect/ef_portal',
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 0.5,
+			alphaMax: 0.3,
 			animation: 0,
 			attachedEntity: true,
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 0.8,
-			duration: 30000,
+			duration: 25000,
 			fade: true,
 			green: 0.6,
 			height: 13,
@@ -5336,13 +5336,13 @@ define(function( require )
 			topSize: 0.8,
 			type: 'CYLINDER'
 		}, {
-			alphaMax: 1,
+			alphaMax: 0.5,
 			animation: 0,
 			attachedEntity: true,
 			blendMode: 2,
 			blue: 1,
 			bottomSize: 1,
-			duration: 30000,
+			duration: 25000,
 			fade: true,
 			green: 0.6,
 			height: 1,
