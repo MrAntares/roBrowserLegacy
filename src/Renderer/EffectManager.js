@@ -699,28 +699,21 @@ define(function( require )
 		if (!(effectId in EffectDB)) {
 			return;
 		}
-
-		// Add entity for clickables
-		entity = EntityManager.get(uid);
-		isNewEntity = false;
-
-		if (!entity) {
-			entity            = new Entity();
-			entity.GID        = uid;
-			entity.position   = [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ];
-			entity.hideShadow = true;
-			entity.objecttype = traps.includes(unit_id) ? entity.constructor.TYPE_TRAP : ( targetableUnits.includes(unit_id) ? entity.constructor.TYPE_UNIT : entity.constructor.TYPE_EFFECT );
-			entity.creatorGID = creatorUid;
-			isNewEntity = true;
-		}
-
-		if(isNewEntity){
-			EntityManager.add(entity);
-		}
-
-		// Add effect
+		
+		// Remove old version if present (effect & entity)
 		EffectManager.remove(null, uid);
+		
+		// New Entity
+		entity            = new Entity();
+		entity.GID        = uid;
+		entity.position   = [ xPos, yPos, Altitude.getCellHeight( xPos, yPos) ];
+		entity.hideShadow = true;
+		entity.objecttype = traps.includes(unit_id) ? entity.constructor.TYPE_TRAP : ( targetableUnits.includes(unit_id) ? entity.constructor.TYPE_UNIT : entity.constructor.TYPE_EFFECT );
+		entity.creatorGID = creatorUid;
 
+		EntityManager.add(entity);
+
+		// Effect
 		EF_Init_Par = {
 			effectId: effectId,
 			ownerAID: uid,
