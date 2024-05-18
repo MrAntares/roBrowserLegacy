@@ -9,66 +9,41 @@ const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 const dist = './dist/';
 const platform = "Web";
 (function build() {
+    const basePath = dist + platform;
+    
+    // Object mapping each module to its respective file path and compile function
+    const modules = {
+        'G': { path: '/GrannyModelViewer.js', action: () => compile("GrannyModelViewer", args['m']) },
+        'D': { path: '/GrfViewer.js', action: () => compile("GrfViewer", args['m']) },
+        'V': { path: '/MapViewer.js', action: () => compile("MapViewer", args['m']) },
+        'M': { path: '/ModelViewer.js', action: () => compile("ModelViewer", args['m']) },
+        'O': { path: '/Online.js', action: () => compile("Online", args['m']) },
+        'S': { path: '/StrViewer.js', action: () => compile("StrViewer", args['m']) },
+        'E': { path: '/EffectViewer.js', action: () => compile("EffectViewer", args['m']) },
+        'T': { path: '/ThreadEventHandler.js', action: () => compile("ThreadEventHandler", args['m']) },
+        'H': { path: '/index.html', action: createHTML },
+        'A': { path: '/AI', action: () => copyFolder('./AI', `${basePath}/AI`) }
+    };
 
-    //delete all files in dist
-    fs.rmSync(dist + platform +'/AI', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/index.html', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/GrannyModelViewer.js', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/GrfViewer.js', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/MapViewer.js', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/ModelViewer.js', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/Online.js', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/StrViewer.js', { recursive: true, force: true });
-    fs.rmSync(dist + platform +'/ThreadEventHandler.js', { recursive: true, force: true });
-
-    if (!fs.existsSync(dist)){
+    // Ensure base directories exist
+    if (!fs.existsSync(dist)) {
         fs.mkdirSync(dist);
     }
-    if (!fs.existsSync(dist + platform)){
-        fs.mkdirSync(dist + platform);
+    if (!fs.existsSync(basePath)) {
+        fs.mkdirSync(basePath);
     }
 
-	copyFolder('./src/UI/Components/Intro/images/', dist + platform + '/src/UI/Components/Intro/images/');
-
-    if ((args && (args['G'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("GrannyModelViewer", args['m']);
-    }
-
-    if ((args && (args['D'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("GrfViewer", args['m']);
-    }
-
-    if ((args && (args['V'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("MapViewer", args['m']);
-    }
-
-    if ((args && (args['M'])) || args['all'] || Object.keys(args).length === 0) {
-        compile("ModelViewer", args['m']);
-    }
-
-    if ((args && args['O']) || args['all'] || Object.keys(args).length === 0) {
-        compile("Online", args['m']);
-    }
-
-    if ((args && args['S']) || args['all'] || Object.keys(args).length === 0) {
-        compile("StrViewer", args['m']);
-    }
-
-	if ((args && args['E']) || args['all'] || Object.keys(args).length === 0) {
-        compile("EffectViewer", args['m']);
-    }
-
-    if ((args && args['T']) || args['all'] || Object.keys(args).length === 0) {
-        compile("ThreadEventHandler", args['m']);
-    }
-
-    if ((args && args['H']) || args['all'] || Object.keys(args).length === 0) {
-        createHTML();
-    }
-
-    if ((args && args['A']) || args['all'] || Object.keys(args).length === 0) {
-        copyFolder('./AI', dist + platform + '/AI');
-    }
+    // Filter and process only necessary modules
+    const isAll = args['all'] || Object.keys(args).length === 0;
+    const activeModules = Object.keys(modules).filter(key => isAll || args[key]);
+    activeModules.forEach(key => {
+        const { path, action } = modules[key];
+        const fullPath = `${basePath}${path}`;
+        if (fs.existsSync(fullPath)) {
+            fs.rmSync(fullPath, { recursive: true, force: true });
+        }
+        action();
+    });
 })();
 
 function compile(appName, isMinify) {
