@@ -14,7 +14,7 @@ define(['./SkillUnitConst', 'DB/Effects/EffectConst'], function( SU, EC )
 	
 	var SkillUnit = {};
 
-	SkillUnit[SU.UNT_SAFETYWALL] =			'315_ground';	// Tofix
+	SkillUnit[SU.UNT_SAFETYWALL] =			EC.EF_GLASSWALL2;
 	SkillUnit[SU.UNT_FIREWALL] =			EC.EF_FIREWALL;
 	SkillUnit[SU.UNT_WARPPORTAL] =			EC.EF_PORTAL2;
 	SkillUnit[SU.UNT_PRE_WARPPORTAL] =		EC.EF_READYPORTAL2;

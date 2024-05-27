@@ -53,9 +53,9 @@
 	 SkillEffect[SK.SM_MAGNUM]                      = {effectIdOnCaster: 17, effectId: 'quake_magnum'};		//Magnum Break
 	 SkillEffect[SK.SM_ENDURE]                      = {effectId: 11};		//Endure
 	 // Mage
-	 SkillEffect[SK.MG_SIGHT]                       = {/*state effect not here*/};		//Sight
+	 SkillEffect[SK.MG_SIGHT]                       = {/*not here*/};		//Sight
 	 SkillEffect[SK.MG_NAPALMBEAT]                  = {hitEffectId: 1};		//Napalm Beat
-	 SkillEffect[SK.MG_SAFETYWALL]                  = {effectId: 315};		//Safety Wall
+	 SkillEffect[SK.MG_SAFETYWALL]                  = {/*not here*/};		//Safety Wall
 	 SkillEffect[SK.MG_SOULSTRIKE]                  = {beforeHitEffectId: 15, hitEffectId: 1};		//Soul Strike
 	 SkillEffect[SK.MG_COLDBOLT]                    = {beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51};		//Cold Bolt
 	 SkillEffect[SK.MG_FROSTDIVER]                  = {effectId: 27, hitEffectId: 28};		//Frost Diver

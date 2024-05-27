@@ -5205,10 +5205,10 @@ define(function( require )
 		315: [{	//EF_GLASSWALL2	Safety Wall
 			attachedEntity: true,
 			file: 'safetywall',
-			type: 'STR'
-		}],
-
-		'315_ground': [{
+			repeat: false,
+			type: 'STR',
+			wav:  'effect/ef_glasswall'
+		}, {
 			alphaMax: 0.4,
 			animation: 0,
 			attachedEntity: true,
