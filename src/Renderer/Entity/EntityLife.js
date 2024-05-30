@@ -115,6 +115,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function( glMat
 		// empty
 		ctx.fillStyle = '#424242';
 		ctx.fillRect( 1, 1, width-2, height-2 );
+		
+		//zIndex
+		this.canvas.style.zIndex = this.entity.objecttype === Entity.TYPE_PC ? 2 : 1;
 
 		// Display HP
 		if (this.entity.objecttype === Entity.TYPE_MOB || this.entity.objecttype === Entity.TYPE_NPC_ABR || this.entity.objecttype === Entity.TYPE_NPC_BIONIC) {
