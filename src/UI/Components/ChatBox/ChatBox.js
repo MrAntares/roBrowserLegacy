@@ -381,6 +381,8 @@ define(function(require)
 
 		// dialog box size
 		makeResizableDiv()
+		
+		Commands.add('savechat', 'Saves current chat tab to txt file.', function(){ ChatBox.saveCurrentTabChat(); return; }, ['sc'], false );
 	};
 
 
@@ -931,6 +933,30 @@ define(function(require)
 	ChatBox.saveNickName = function saveNickName( pseudo )
 	{
 		_historyNickName.push(pseudo);
+	};
+	
+	/**
+	 * Save chat from current tab into a file.
+	 */
+	ChatBox.saveCurrentTabChat = function saveCurrentTabChat(){
+		
+		var timezone, date, data, url;
+		
+		// Create a date
+		var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    	var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+		localISOTime = localISOTime.replace('T', ' ');
+		timezone = (new Date().getTimezoneOffset() / 60);
+		date     = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
+		
+		data = '<html><head><title>Chat History</title><style> body { background-color: DarkSlateGray; } </style></head><body>'
+		data += this.ui.find('.content[data-content="'+ ChatBox.activeTab +'"]')[0].outerHTML;
+		data += '</body></html>';
+		
+		// We create a local file
+		url = window.URL.createObjectURL(new Blob([data], {type: 'text/plain'}));
+		
+		ChatBox.addText('Chat History ['+ ChatBox.tabs[ChatBox.activeTab].name +'] ' + date + ' can be saved by <a style="color:#F88" download="ChatHistory ['+ ChatBox.tabs[ChatBox.activeTab].name +'] (' + date.replace('/', '-') + ').html" href="'+ url +'" target="_blank">clicking here</a>.', ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, null, true);
 	};
 
 
