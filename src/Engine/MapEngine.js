@@ -351,7 +351,6 @@ define(function( require )
 	 */
 	function onConfig( pkt )
 	{
-		console.log(pkt);
 		switch(pkt.Config) {
 			case 0:
 				Equipment.getUI().setEquipConfig( pkt.Value );
@@ -536,9 +535,11 @@ define(function( require )
 			});
 			EntityManager.add( Session.Entity );
 			if(Session.Entity.effectState & StatusConst.EffectState.FALCON) {
-				var falcon = new Entity();
-				falcon.set({
-					objecttype: falcon.constructor.TYPE_FALCON,
+				if(!Session.Entity.falcon)
+					Session.Entity.falcon = new Entity();
+				
+				Session.Entity.falcon.set({
+					objecttype: Session.Entity.falcon.constructor.TYPE_FALCON,
 					GID: Session.Entity.GID + '_FALCON',
 					PosDir: [Session.Entity.position[0], Session.Entity.position[1], 0],
 					job: Session.Entity.job + '_FALCON',
@@ -548,8 +549,22 @@ define(function( require )
 					maxhp: -1,
 					hideShadow: true,
 				});
-				EntityManager.add(falcon);
-				Session.Entity.falconGID = falcon.GID;
+				EntityManager.add(Session.Entity.falcon);
+			} else if(Session.Entity.effectState & StatusConst.EffectState.WUG) {
+				if(!Session.Entity.wug)
+					Session.Entity.wug = new Entity();
+
+				Session.Entity.wug.set({
+					objecttype: Session.Entity.wug.constructor.TYPE_WUG,
+					GID: Session.Entity.GID + '_WUG',
+					PosDir: [Session.Entity.position[0], Session.Entity.position[1], 0],
+					job: 'WUG',
+					speed: Session.Entity.walk.speed,
+					name: "",
+					hp: -1,
+					maxhp: -1,
+				});
+				EntityManager.add(Session.Entity.wug);
 			}
 			// free and load aura so it loads in new map
 			Session.Entity.aura.free();

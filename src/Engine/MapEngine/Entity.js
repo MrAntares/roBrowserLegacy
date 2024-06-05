@@ -135,9 +135,11 @@ define(function( require )
 		}
 
 		if(pkt.effectState === StatusState.EffectState.FALCON && ([11,4012,4034,4056,4062,4098,4257].includes(pkt.job))){
-			var falcon = new Entity();
-			falcon.set({
-				objecttype: falcon.constructor.TYPE_FALCON,
+			if(!entity.falcon)
+				entity.falcon = new Entity();
+			
+			entity.falcon.set({
+				objecttype: entity.falcon.constructor.TYPE_FALCON,
 				GID: entity.GID + '_FALCON',
 				PosDir: [entity.position[0], entity.position[1], 0],
 				job: entity.job + '_FALCON',
@@ -147,8 +149,21 @@ define(function( require )
 				maxhp: -1,
 				hideShadow: true,
 			});
-			EntityManager.add(falcon);
-			entity.falconGID = falcon.GID;
+			EntityManager.add(entity.falcon);
+		} else if (pkt.effectState === StatusState.EffectState.WUG) {
+			if(!entity.wug)
+			entity.wug = new Entity();
+			entity.wug.set({
+				objecttype: entity.wug.constructor.TYPE_WUG,
+				GID: entity.GID + '_WUG',
+				PosDir: [entity.position[0], entity.position[1], 0],
+				job: 'WUG',
+				speed: entity.walk.speed,
+				name: "",
+				hp: -1,
+				maxhp: -1,
+			});
+			EntityManager.add(entity.wug);
 		}
 
 		if (entity.GUID) {
@@ -299,18 +314,22 @@ define(function( require )
 						}
 							EffectManager.spam( EF_Init_Par );
 					}
-					if(entity.falconGID) {
-						entity.falconGID = null;
-						var falcon = EntityManager.get(pkt.GID + '_FALCON');
-						falcon.remove( pkt.type );
+					if(entity.falcon) {
+						entity.falcon.remove( pkt.type );
+						entity.falcon = null;
+					} else if(entity.wug) {
+						entity.wug.remove( pkt.type );
+						entity.wug = null;
 					}
 
 				case Entity.VT.OUTOFSIGHT:
 					EffectManager.remove( null, pkt.GID, null);
-					if(entity.falconGID) {
-						entity.falconGID = null;
-						var falcon = EntityManager.get(pkt.GID + '_FALCON');
-						falcon.remove( pkt.type );
+					if(entity.falcon) {
+						entity.falcon.remove( pkt.type );
+						entity.falcon = null;
+					} else if(entity.wug) {
+						entity.wug.remove( pkt.type );
+						entity.wug = null;
 					}
 
 				case Entity.VT.DEAD:
@@ -348,11 +367,6 @@ define(function( require )
 			//entity.position[1] = pkt.MoveData[1];
 			//entity.position[2] = Altitude.getCellHeight(  pkt.MoveData[0],  pkt.MoveData[1] );
 			entity.walkTo( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
-			if(entity.falconGID){
-				var falcon = EntityManager.get(pkt.GID + '_FALCON');
-				falcon.walk.speed = 200; // check this?
-				falcon.walkToNonWalkableGround( pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3] );
-			}
 		}
 	}
 
@@ -379,17 +393,6 @@ define(function( require )
 					repeat: true,
 					play:   true
 				});
-			}
-
-			if(entity.falconGID) {
-				var falcon = EntityManager.get(pkt.AID + '_FALCON');
-				falcon.walk.speed = 200;
-				falcon.walkToNonWalkableGround(
-					pkt.xPos,
-					pkt.yPos,
-					pkt.xPos,
-					pkt.yPos,
-				);
 			}
 		}
 	}
@@ -474,6 +477,15 @@ define(function( require )
 			repeat: true,
 			play:   true
 		});
+
+		if(entity.wug) {
+			entity.wug.setAction({
+				action: entity.ACTION.IDLE,
+				frame:  0,
+				repeat: true,
+				play:   true
+			});
+		}
 
 		// If it's our main character update Escape ui
 		if (entity === Session.Entity) {
@@ -1128,11 +1140,15 @@ define(function( require )
 				// load self aura
 				entity.aura.load( EffectManager );
 
-				if (entity.falconGID) {
-					var falcon = EntityManager.get(entity.GID + '_FALCON');
-					falcon.set({
+				if (entity.falcon) {
+					entity.falcon.set({
 						PosDir: [ entity.position[0], entity.position[1], 0 ],
 						job: entity.job + '_FALCON',
+					});
+				} else if (entity.wug) {
+					entity.wug.set({
+						PosDir: [ entity.position[0], entity.position[1], 0 ],
+						job: 'WUG',
 					});
 				}
 				break;
@@ -1357,61 +1373,37 @@ define(function( require )
 				}
 			}
 
-			if(srcEntity.falconGID){
-				var falcon = EntityManager.get(srcEntity.GID + '_FALCON');
-				if(pkt.SKID == SkillId.HT_BLITZBEAT) {
-					falcon.action = srcEntity.action;
-		
-					falcon.walk.speed = 25;
-					falcon.walkToNonWalkableGround(
-						srcEntity.position[0],
-						srcEntity.position[1],
+			if(srcEntity.falcon){
+				if(pkt.SKID == SkillId.HT_BLITZBEAT || pkt.SKID == SkillId.SN_FALCONASSAULT) {
+					srcEntity.falcon.action = srcEntity.action;
+					srcEntity.falcon.walk.speed = 25;
+
+					srcEntity.falcon.walkToNonWalkableGround(
+						srcEntity.falcon.position[0],
+						srcEntity.falcon.position[1],
 						dstEntity.position[0],
 						dstEntity.position[1],
 						0,
 						true,
+						true,
+					);
+				}
+			}
+
+			if(srcEntity.wug){
+				if(pkt.SKID == SkillId.RA_WUGSTRIKE || pkt.SKID == SkillId.RA_WUGBITE) {
+					srcEntity.wug.action = srcEntity.action;
+					srcEntity.wug.walk.speed = 35;
+
+					srcEntity.wug.walkToNonWalkableGround(
+						srcEntity.wug.position[0],
+						srcEntity.wug.position[1],
+						dstEntity.position[0],
+						dstEntity.position[1],
+						1,
 						false,
-					);
-
-					setTimeout(function(){
-						falcon.walk.speed = 200;
-						falcon.walkToNonWalkableGround(
-							dstEntity.position[0],
-							dstEntity.position[1],
-							srcEntity.position[0],
-							srcEntity.position[1],
-							0,
-							false,
-							false
-						);
-					}.bind(falcon), 250);
-
-				} else if(pkt.SKID == SkillId.SN_FALCONASSAULT) {
-					falcon.action = srcEntity.action;
-
-					falcon.walk.speed = 25;
-					falcon.walkToNonWalkableGround(
-						srcEntity.position[0],
-						srcEntity.position[1],
-						dstEntity.position[0],
-						dstEntity.position[1],
-						0,
-						true,
 						true,
 					);
-
-					setTimeout(function(){
-						falcon.walk.speed = 200;
-						falcon.walkToNonWalkableGround(
-							dstEntity.position[0],
-							dstEntity.position[1],
-							srcEntity.position[0],
-							srcEntity.position[1],
-							0,
-							false,
-							false
-						);
-					}.bind(falcon), 250);
 				}
 			}
 		}
@@ -1543,32 +1535,17 @@ define(function( require )
             }
         }
 
-		if(pkt.SKID == SkillId.HT_DETECTING && srcEntity.falconGID){
-			var falcon = EntityManager.get(srcEntity.GID + '_FALCON');
-
-			falcon.walk.speed = 25;
-			falcon.walkToNonWalkableGround(
-				srcEntity.position[0],
-				srcEntity.position[1],
+		if(pkt.SKID == SkillId.HT_DETECTING && srcEntity.falcon){
+			srcEntity.falcon.walk.speed = 25;
+			srcEntity.falcon.walkToNonWalkableGround(
+				srcEntity.falcon.position[0],
+				srcEntity.falcon.position[1],
 				pkt.xPos,
 				pkt.yPos,
 				0,
 				true,
 				true,
 			);
-
-			setTimeout(function(){
-				falcon.walk.speed = 200;
-				falcon.walkToNonWalkableGround(
-					pkt.xPos,
-					pkt.yPos,
-					srcEntity.position[0],
-					srcEntity.position[1],
-					0,
-					false,
-					false
-				);
-			}.bind(falcon), 250);
 		}
 
         // Only mob to don't display skill name ?
@@ -1746,9 +1723,11 @@ define(function( require )
 			
 			case StatusConst.FALCON:
 				if(pkt.state || (!pkt.hasOwnProperty('state')) ){
-					var falcon = new Entity();
-					falcon.set({
-						objecttype: falcon.constructor.TYPE_FALCON,
+					if(!entity.falcon)
+						entity.falcon = new Entity();
+					
+					entity.falcon.set({
+						objecttype: entity.falcon.constructor.TYPE_FALCON,
 						GID: entity.GID + '_FALCON',
 						PosDir: [entity.position[0], entity.position[1], 0],
 						job: entity.job + '_FALCON',
@@ -1758,8 +1737,7 @@ define(function( require )
 						maxhp: -1,
 						hideShadow: true,
 					});
-					EntityManager.add(falcon);
-					entity.falconGID = falcon.GID;
+					EntityManager.add(entity.falcon);
 				}
 				
 				break;
@@ -2102,10 +2080,10 @@ define(function( require )
 		// for changes in effectState (HIDING, CLOAK)
 		entity.aura.load( EffectManager );
 
-		if(!entity.falconGID && entity.effectState == 16) {
-			var falcon = new Entity();
-			falcon.set({
-				objecttype: falcon.constructor.TYPE_FALCON,
+		if(!entity.falcon && entity.effectState & StatusState.EffectState.FALCON) {
+			entity.falcon = new Entity();
+			entity.falcon.set({
+				objecttype: entity.falcon.constructor.TYPE_FALCON,
 				GID: entity.GID + '_FALCON',
 				PosDir: [entity.position[0], entity.position[1], 0],
 				job: entity.job + '_FALCON',
@@ -2115,11 +2093,28 @@ define(function( require )
 				maxhp: -1,
 				hideShadow: true,
 			});
-			EntityManager.add(falcon);
-			entity.falconGID = falcon.GID;
-		} else if(entity.falconGID && entity.effectState == 0) {
-			entity.falconGID = null;
-			falcon.remove();
+			EntityManager.add(entity.falcon);
+		} else if(entity.falcon && !(entity.effectState & StatusState.EffectState.FALCON)) {
+			entity.falcon.remove();
+			entity.falcon = null;
+		}
+
+		if(!entity.wug && entity.effectState & StatusState.EffectState.WUG) {
+			entity.wug = new Entity();
+			entity.wug.set({
+				objecttype: entity.wug.constructor.TYPE_WUG,
+				GID: entity.GID + '_WUG',
+				PosDir: [entity.position[0], entity.position[1], 0],
+				job: 'WUG',
+				speed: entity.walk.speed,
+				name: "",
+				hp: -1,
+				maxhp: -1,
+			});
+			EntityManager.add(entity.wug);
+		} else if(entity.wug &&  !(entity.effectState & StatusState.EffectState.WUG)) {
+			entity.wug.remove();
+			entity.wug = null;
 		}
 	}
 
@@ -2354,17 +2349,6 @@ define(function( require )
 							play:   true,
 						}
 					});
-
-					if(pkt.targetGID >= 2000000 && dstEntity.objecttype === 0 && dstEntity.falconGID){
-						var falcon = EntityManager.get(dstEntity.GID + '_FALCON');
-						falcon.walk.speed = 25;
-						falcon.walkToNonWalkableGround(
-							dstEntity.position[0],
-							dstEntity.position[1],
-							dstEntity.position[0],
-							dstEntity.position[1],
-						);
-					}
 				}
 			}
 			

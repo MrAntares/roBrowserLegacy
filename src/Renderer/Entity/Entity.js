@@ -64,6 +64,7 @@ define( function( require )
 	/**
 	 * Constantes
 	 */
+	Entity.TYPE_WUG       = -7;
 	Entity.TYPE_FALCON    = -6;
 	Entity.TYPE_EFFECT    = -5;
 	Entity.TYPE_UNKNOWN   = -4;
@@ -110,6 +111,7 @@ define( function( require )
 	Entity.PickingPriority.Normal[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Normal[Entity.TYPE_EFFECT]=		-1;
 	Entity.PickingPriority.Normal[Entity.TYPE_FALCON]=		-1;
+	Entity.PickingPriority.Normal[Entity.TYPE_WUG]=		    -1;
 
 	Entity.PickingPriority.Support = {};
 	Entity.PickingPriority.Support[Entity.TYPE_PC]=			3;
@@ -130,6 +132,7 @@ define( function( require )
 	Entity.PickingPriority.Support[Entity.TYPE_TRAP]=		0;
 	Entity.PickingPriority.Support[Entity.TYPE_EFFECT]=		-1;
 	Entity.PickingPriority.Support[Entity.TYPE_FALCON]=		-1;
+	Entity.PickingPriority.Support[Entity.TYPE_WUG]=		-1;
 
 
 	/**
@@ -196,7 +199,8 @@ define( function( require )
 
 	Entity.prototype.isOverWeight = false;
 
-	Entity.prototype.falconGID = null;
+	Entity.prototype.falcon = null;
+	Entity.prototype.wug = null;
 	Entity.prototype.hideShadow = false;
 
 	Entity.prototype.call_flag = 0;
@@ -364,7 +368,8 @@ define( function( require )
 		this.remove_tick  = 0;
 		this.remove_delay = 0;
 
-		this.falconGID = null;
+		this.falcon = null;
+		this.wug = null;
 		// Aviod conflict if entity re-appears. Official sets it to -1
 		this.GID += Math.random();
 	};
@@ -401,6 +406,7 @@ define( function( require )
 			case Entity.VT.DEAD:
 				var is_pc = this.objecttype === Entity.TYPE_PC;
 				var is_falcon = this.objecttype === Entity.TYPE_FALCON;
+				var is_wug = this.objecttype === Entity.TYPE_WUG;
 				if(!is_falcon) {
 					this.setAction({
 						action: this.ACTION.DIE,
@@ -410,7 +416,7 @@ define( function( require )
 						next:   false
 					});
 
-					if (!is_pc) {
+					if (!is_pc && !is_wug) {
 						this.clean();
 						this.remove_tick  = +Renderer.tick;
 						this.remove_delay = 5000;
