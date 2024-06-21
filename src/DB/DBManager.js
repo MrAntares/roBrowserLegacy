@@ -109,6 +109,11 @@ define(function(require)
 	DB.INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
 
 	/**
+	 * @var {string} lua path
+	 */
+	DB.LUA_PATH = 'data/luafiles514/lua files/';
+
+	/**
 	 * @var Pet Talk
 	 * json object
 	 */
@@ -157,7 +162,10 @@ define(function(require)
 		loadTable( 'data/resnametable.txt', 	'#',		2, function(index, key, val){	DB.mapalias[key]                                             		= val;}, 			onLoad());
 
 		if (Configs.get('loadLua')) {
-			loadLuaFile( 'System/itemInfo_EN.lua', function(json){ItemTable = json;}, onLoad());
+			loadLuaFile( 'System/itemInfo.lub', function(json){ItemTable = json;}, onLoad());
+			loadHatTable( function(json){ HatTable = json; }, onLoad());
+			loadRobeTable( function(json){ RobeTable = json; }, onLoad());
+			loadNPCIdentityTable( function(json){ MonsterTable = json; }, onLoad());
 		} else {
 			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
 			loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
@@ -430,6 +438,9 @@ define(function(require)
 				console.log('Loading file "'+ filename +'"...');
 				try
 				{
+					if(data instanceof ArrayBuffer) {
+						data = new TextDecoder('iso-8859-1').decode(data);
+					}
 					let output = lua_parse_glob(data);
 					json = JSON.parse(output);
 				}
@@ -443,6 +454,267 @@ define(function(require)
             },
             onEnd
         );
+	}
+
+	/* Load Hat table from lua to json object
+	*
+	* @param {function} callback to run once the file is loaded
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	function loadHatTable(callback, onEnd) {
+		let accessoryid_filename = DB.LUA_PATH + 'datainfo/accessoryid.lub';
+		let accname_filename = DB.LUA_PATH + 'datainfo/accname.lub';
+
+		console.log('Loading file "'+ accessoryid_filename +'"...');
+		Client.loadFile( accessoryid_filename,
+            async function (data) {
+				try {
+					// check if is ArrayBuffer or String
+					if(data instanceof ArrayBuffer) {
+						data = new TextDecoder().decode(data);
+					}
+					// load data into lua vm
+					fengari.load(data)();
+					loadAccName();
+				} catch( hException ) {
+					onEnd.call();
+					console.error( 'error: ', hException );
+				}
+            }
+        );
+
+		function loadAccName() {
+			console.log('Loading file "'+ accname_filename +'"...');
+			Client.loadFile( accname_filename,
+				async function (data) {
+					try {
+						// check if is ArrayBuffer or String
+						if(data instanceof ArrayBuffer) {
+							data = new TextDecoder('iso-8859-1').decode(data);
+						}
+						fengari.load(data)();
+						parseHatTable();
+					} catch( hException ) {
+						onEnd.call();
+						console.error( 'error: ', hException );
+					}
+				},
+			);
+		}
+
+		function parseHatTable() {
+			// Get the global table "AccNameTable"
+			fengari.lua.lua_getglobal(fengari.L, "AccNameTable");
+
+			// Check if it's a table
+			if (!fengari.lua.lua_istable(fengari.L, -1)) {
+				console.log('[parseHatTable] AccNameTable is not a table')
+				onEnd.call();
+				return;
+			}
+
+			// Push nil key to start iteration
+			fengari.lua.lua_pushnil(fengari.L);
+
+			// declare the hatTable array
+			let hatTable = new Array();
+
+			// iterate over table
+			while (fengari.lua.lua_next(fengari.L, -2)) {
+				// get key (achievementId)
+				let hat_id = fengari.lua.lua_tointeger(fengari.L, -2);
+				let hat_name = fengari.lua.lua_tojsstring(fengari.L, -1);
+				hatTable[hat_id] = hat_name;
+
+				// Pop the value and move to the next key
+				fengari.lua.lua_pop(fengari.L, 1);
+			}
+
+			// pop table
+			fengari.lua.lua_pop(fengari.L, 1);
+
+			// clean lua stack
+			fengari.lua.lua_settop(fengari.L, 0);
+
+			callback.call(null, hatTable);
+			onEnd.call();
+		}
+	}
+
+	/* Load Robe table from lua to json object
+	*
+	* @param {function} callback to run once the file is loaded
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	function loadRobeTable(callback, onEnd) {
+		let spriterobeid_filename = DB.LUA_PATH + 'datainfo/spriterobeid.lub';
+		let spriterobename_filename = DB.LUA_PATH + 'datainfo/spriterobename.lub';
+
+		console.log('Loading file "'+ spriterobeid_filename +'"...');
+		Client.loadFile( spriterobeid_filename,
+            async function (data) {
+				try {
+					// check if is ArrayBuffer or String
+					if(data instanceof ArrayBuffer) {
+						data = new TextDecoder().decode(data);
+					}
+					// load data into lua vm
+					fengari.load(data)();
+					loadRobeName();
+				} catch( hException ) {
+					onEnd.call();
+					console.error( 'error: ', hException );
+				}
+            }
+        );
+
+		function loadRobeName() {
+			console.log('Loading file "'+ spriterobename_filename +'"...');
+			Client.loadFile( spriterobename_filename,
+				async function (data) {
+					try {
+						// check if is ArrayBuffer or String
+						if(data instanceof ArrayBuffer) {
+							data = new TextDecoder('iso-8859-1').decode(data);
+						}
+						fengari.load(data)();
+						parseRobeTable();
+					} catch( hException ) {
+						onEnd.call();
+						console.error( 'error: ', hException );
+					}
+				},
+			);
+		}
+
+		function parseRobeTable() {
+			// Get the global table "RobeNameTable"
+			fengari.lua.lua_getglobal(fengari.L, "RobeNameTable");
+
+			// Check if it's a table
+			if (!fengari.lua.lua_istable(fengari.L, -1)) {
+				console.log('[parseHatTable] RobeNameTable is not a table')
+				onEnd.call();
+				return;
+			}
+
+			// Push nil key to start iteration
+			fengari.lua.lua_pushnil(fengari.L);
+
+			// declare the hatTable array
+			let robeTable = new Array();
+
+			// iterate over table
+			while (fengari.lua.lua_next(fengari.L, -2)) {
+				// get key (achievementId)
+				let robe_id = fengari.lua.lua_tointeger(fengari.L, -2);
+				let robe_name = fengari.lua.lua_tojsstring(fengari.L, -1);
+				robeTable[robe_id] = robe_name;
+
+				// Pop the value and move to the next key
+				fengari.lua.lua_pop(fengari.L, 1);
+			}
+
+			// pop table
+			fengari.lua.lua_pop(fengari.L, 1);
+
+			// clean lua stack
+			fengari.lua.lua_settop(fengari.L, 0);
+
+			callback.call(null, robeTable);
+			onEnd.call();
+		}
+	}
+
+	/* Load Robe table from lua to json object
+	*
+	* @param {function} callback to run once the file is loaded
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	function loadNPCIdentityTable(callback, onEnd) {
+		let npcidentity_filename = DB.LUA_PATH + 'datainfo/npcidentity.lub';
+		let jobname_filename = DB.LUA_PATH + 'datainfo/jobname.lub';
+
+		console.log('Loading file "'+ npcidentity_filename +'"...');
+		Client.loadFile( npcidentity_filename,
+            async function (data) {
+				try {
+					// check if is ArrayBuffer or String
+					if(data instanceof ArrayBuffer) {
+						data = new TextDecoder().decode(data);
+					}
+					// load data into lua vm
+					fengari.load(data)();
+					loadJobName();
+				} catch( hException ) {
+					onEnd.call();
+					console.error( 'error: ', hException );
+				}
+            }
+        );
+
+		function loadJobName() {
+			console.log('Loading file "'+ jobname_filename +'"...');
+			Client.loadFile( jobname_filename,
+				async function (data) {
+					try {
+						// check if is ArrayBuffer or String
+						if(data instanceof ArrayBuffer) {
+							data = new TextDecoder('iso-8859-1').decode(data);
+						}
+						fengari.load(data)();
+						parseNPCTable();
+					} catch( hException ) {
+						onEnd.call();
+						console.error( 'error: ', hException );
+					}
+				},
+			);
+		}
+
+		function parseNPCTable() {
+			// Get the global table "JobNameTable"
+			fengari.lua.lua_getglobal(fengari.L, "JobNameTable");
+
+			// Check if it's a table
+			if (!fengari.lua.lua_istable(fengari.L, -1)) {
+				console.log('[parseHatTable] JobNameTable is not a table')
+				onEnd.call();
+				return;
+			}
+
+			// Push nil key to start iteration
+			fengari.lua.lua_pushnil(fengari.L);
+
+			// declare the hatTable array
+			let monsterTable = new Array();
+
+			// iterate over table
+			while (fengari.lua.lua_next(fengari.L, -2)) {
+				// get key (achievementId)
+				let npc_id = fengari.lua.lua_tointeger(fengari.L, -2);
+				let npc_name = fengari.lua.lua_tojsstring(fengari.L, -1);
+				monsterTable[npc_id] = npc_name;
+
+				// Pop the value and move to the next key
+				fengari.lua.lua_pop(fengari.L, 1);
+			}
+
+			// pop table
+			fengari.lua.lua_pop(fengari.L, 1);
+
+			// clean lua stack
+			fengari.lua.lua_settop(fengari.L, 0);
+
+			callback.call(null, monsterTable);
+			onEnd.call();
+		}
 	}
 
 	/**
