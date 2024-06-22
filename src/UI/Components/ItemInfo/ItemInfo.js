@@ -18,7 +18,6 @@ define(function(require)
 	var jQuery             = require('Utils/jquery');
 	var DB                 = require('DB/DBManager');
 	var ItemType           = require('DB/Items/ItemType');
-	var RandomOption       = require('DB/Items/ItemRandomOptionTable');
 	var Client             = require('Core/Client');
 	var KEYS               = require('Controls/KeyEventHandler');
 	var CardIllustration   = require('UI/Components/CardIllustration/CardIllustration');
@@ -209,18 +208,15 @@ define(function(require)
 		if(item.Options && item.IsIdentified){
 			//Clear all option list
 			optionContainer.html('');
+
 			//Loop to Show Options
 			for (let i = 1; i <= 5; i++) {
-				if(item.Options[i].index > 0 && RandomOption[item.Options[i].index]){
+				if(item.Options[i].index > 0) {
+					let randomOptionName = DB.getOptionName(item.Options[i].index);
 					let optionList = 	'<div class="optionlist">' +
 															'<div class="border">' +
-															RandomOption[item.Options[i].index].replace('{0}', item.Options[i].value) +
+															randomOptionName.replace('\%d', item.Options[i].value).replace('\%\%', '%') +
 															'</div>' +
-													'</div>';
-					optionContainer.append(optionList);
-				}else if(item.Options[i].index > 0 && !RandomOption[item.Options[i].index]){
-					let optionList = 	'<div class="optionlist">' +
-															'<div class="border">Unknow option.</div>' +
 													'</div>';
 					optionContainer.append(optionList);
 				}
