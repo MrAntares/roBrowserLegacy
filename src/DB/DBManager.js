@@ -168,6 +168,7 @@ define(function(require)
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function(json){ RobeTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function(json){ MonsterTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function(json){ RandomOption = json; },  onLoad());
+			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function(json){ SkillDescription = json; },  onLoad());
 		} else {
 			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
 			loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
@@ -177,9 +178,8 @@ define(function(require)
 			loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
 			loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
 			loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
+			loadTable( 'data/skilldesctable.txt',			    '#',	2, function(index, key, val){	SkillDescription[SKID[key]]	= val.replace("\r\n", "\n");},		onLoad());
 		}
-
-		loadTable( 'data/skilldesctable.txt',			'#',	2, function(index, key, val){	SkillDescription[SKID[key]]	= val.replace("\r\n", "\n");},		onLoad());
 
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixName     			= val;}, 			onLoad());
@@ -526,11 +526,27 @@ define(function(require)
 
 			// iterate over table
 			while (fengari.lua.lua_next(fengari.L, -2)) {
-				// get key (achievementId)
-				let id = fengari.lua.lua_tointeger(fengari.L, -2);
-				let name = fengari.lua.lua_tojsstring(fengari.L, -1);
+				let id;
+				let name = "";
+				if (fengari.lua.lua_istable(fengari.L, -1)) {
+					// go to first key
+					id = fengari.lua.lua_tointeger(fengari.L, -2);
+					fengari.lua.lua_pushnil(fengari.L);
+					let value_array = new Array();
+					while (fengari.lua.lua_next(fengari.L, -2) != 0) { // skilldescription
+						if (fengari.lua.lua_isstring(fengari.L, -1)) {
+							value_array.push(fengari.lua.lua_tojsstring(fengari.L, -1) + "\n");
+						}
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
+					name = value_array.reverse().join('');
+					console.log(name);
+				} else {
+					// get key
+					id = fengari.lua.lua_tointeger(fengari.L, -2);
+					name = fengari.lua.lua_tojsstring(fengari.L, -1);
+				}
 				table[id] = name;
-
 				// Pop the value and move to the next key
 				fengari.lua.lua_pop(fengari.L, 1);
 			}
@@ -1908,6 +1924,14 @@ define(function(require)
 		return TextEncoding.decodeString( MsgStringTable[id] );
 	};
 
+	/**
+	 * Get Skill Description from DB
+	 *
+	 * @param {number} skill id
+	 */
+	DB.getSkillDescription = function getSkillDescription(id) {
+		return SkillDescription[id] || '...';
+	}
 
 	/**
 	 * @param {string} filename

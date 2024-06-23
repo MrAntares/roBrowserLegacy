@@ -16,7 +16,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var jQuery      = require('Utils/jquery');
-	var SkillDB     = require('DB/Skills/SkillDescription');
+	var DB          = require('DB/DBManager');
 	var Renderer    = require('Renderer/Renderer');
 	var KEYS        = require('Controls/KeyEventHandler');
 	var Mouse       = require('Controls/MouseEventHandler');
@@ -94,7 +94,7 @@ define(function(require)
 	SkillDescription.setSkill = function setSkill( id )
 	{
 		this.uid = id;
-		this.ui.find('.content').text(SkillDB[id] || '...');
+		this.ui.find('.content').text(DB.getSkillDescription(id));
 
 		this.ui.css({
 			top:  Math.min( Mouse.screen.y + 10, Renderer.height - this.ui.height()),
