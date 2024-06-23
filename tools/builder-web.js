@@ -187,6 +187,7 @@ function createHTML(){
 							enableMapName: false,
 							enableCheckAttendance: false,
 							CameraMaxZoomOut: 5,
+                            loadLua: true,
                         };
 
                         script = document.createElement('script');
@@ -199,6 +200,7 @@ function createHTML(){
         </html>
     `;
     fs.writeFileSync(dist + platform + '/index.html', body, { encoding: "utf8" });
+    copyFolder('./src/UI/Components/Intro/images/', dist + platform + '/src/UI/Components/Intro/images/');
     console.log("index.html has been created in", (Date.now() - start), "ms.");
 }
 
