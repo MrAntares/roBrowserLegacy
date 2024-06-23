@@ -540,7 +540,6 @@ define(function(require)
 						fengari.lua.lua_pop(fengari.L, 1);
 					}
 					name = value_array.reverse().join('');
-					console.log(name);
 				} else {
 					// get key
 					id = fengari.lua.lua_tointeger(fengari.L, -2);
