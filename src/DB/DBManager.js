@@ -468,7 +468,7 @@ define(function(require)
 	*/
 	function loadLuaTable(file_list, table_name, callback, onEnd) {
 		let id_filename = file_list[0];
-		let value_table_filetaname = file_list[1];
+		let value_table_filename = file_list[1];
 
 		console.log('Loading file "'+ id_filename +'"...');
 		Client.loadFile( id_filename,
@@ -489,8 +489,8 @@ define(function(require)
         );
 
 		function loadValueTable() {
-			console.log('Loading file "'+ value_table_filetaname +'"...');
-			Client.loadFile( value_table_filetaname,
+			console.log('Loading file "'+ value_table_filename +'"...');
+			Client.loadFile( value_table_filename,
 				async function (data) {
 					try {
 						// check if is ArrayBuffer or String
@@ -501,7 +501,7 @@ define(function(require)
 						parseTable();
 					} catch( hException ) {
 						onEnd.call();
-						console.error( `(${value_table_filetaname}) error: `, hException );
+						console.error( `(${value_table_filename}) error: `, hException );
 					}
 				},
 			);
