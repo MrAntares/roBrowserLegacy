@@ -381,11 +381,12 @@ define(function( require )
 			y = _pos[1];
 			const isWalkable = Altitude.getCellType( x, y ) & Altitude.TYPE.WALKABLE;
 
+			Mouse.world.x =  x;
+			Mouse.world.y =  y;
+			Mouse.world.z =  Altitude.getCellHeight( x, y );
+
 			if (isWalkable) {
 				GridSelector.render( gl, modelView, projection, fog, x, y );
-				Mouse.world.x =  x;
-				Mouse.world.y =  y;
-				Mouse.world.z =  Altitude.getCellHeight( x, y );
 			}
 
 			// NO walk cursor

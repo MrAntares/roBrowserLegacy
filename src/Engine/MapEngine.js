@@ -938,7 +938,7 @@ define(function( require )
 			} else {
 				pkt         = new PACKET.CZ.REQUEST_MOVE();
 			}
-			if (!checkFreeCell(Mouse.world.x, Mouse.world.y, 1, pkt.dest)) {
+			if (!checkFreeCell(Mouse.world.x, Mouse.world.y, 9, pkt.dest)) {
 				pkt.dest[0] = Mouse.world.x;
 				pkt.dest[1] = Mouse.world.y;
 			}
@@ -947,7 +947,7 @@ define(function( require )
 		}
 
 		Events.clearTimeout(_walkTimer);
-		_walkTimer    =  Events.setTimeout( walkIntervalProcess, 500);
+		_walkTimer    =  Events.setTimeout( walkIntervalProcess, 200);
 		_walkLastTick = +Renderer.tick;
 	}
 
