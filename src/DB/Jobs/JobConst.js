@@ -293,11 +293,11 @@ define(function()
 
 		SKY_EMPEROR:        4302,
 		SOUL_ASCETIC:       4303,
-		SHINKIRO:           4303,
-		SHIRANUI:           4304,
-		NIGHT_WATCH:        4305,
-		HYPER_NOVICE:       4306,
-		SPIRIT_HANDLER:     4307,
+		SHINKIRO:           4304,
+		SHIRANUI:           4305,
+		NIGHT_WATCH:        4306,
+		HYPER_NOVICE:       4307,
+		SPIRIT_HANDLER:     4308,
 
 		SKY_EMPEROR2: 	    4316,
 
