@@ -131,7 +131,15 @@ define(function( require )
 		InputBox.onAppend = function OnAppend()
 		{
 			InputBox.setType(type, true);
-			InputBox.ui.find('input').trigger('select');
+			this.ui.find('input').select();
+
+			this.ui.find('input').keydown(function(e){
+				let enterKey = 13;
+				if (e.keyCode !== enterKey) return;
+	
+				let text = InputBox.ui.find('input').val();
+				if (text.length > 0) InputBox.onSubmitRequest(text);
+			});
 		};
 
 

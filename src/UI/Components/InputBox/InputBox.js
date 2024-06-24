@@ -43,14 +43,6 @@ define(function(require)
 			event.stopImmediatePropagation();
 		});
 
-		this.ui.find('input').keyup(function(e){
-			let enterKey = 13;
-			if (e.keyCode !== enterKey) return;
-
-			let text = InputBox.ui.find('input').val();
-			if (text.length > 0) InputBox.onSubmitRequest(text);
-		});
-
 		this.overlay = jQuery('<div/>')
 			.addClass('win_popup_overlay')
 			.css('zIndex', 30)
@@ -74,6 +66,7 @@ define(function(require)
 	{
 		this.ui.find('input').val('');
 		this.ui.find('.text').text('');
+		this.ui.find('input').keydown(null);
 		this.overlay.detach();
 	};
 
