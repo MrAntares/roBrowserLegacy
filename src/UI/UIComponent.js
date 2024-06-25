@@ -139,6 +139,7 @@ define(function( require )
 					if (_intersect) {
 						Mouse.intersect = false;
 						Cursor.setType( Cursor.ACTION.DEFAULT );
+						getModule('Renderer/EntityManager').setOverEntity(null);
 					}
 				}
 			});
