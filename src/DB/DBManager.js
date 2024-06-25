@@ -133,6 +133,12 @@ define(function(require)
 	var buyingStoreItemList = new Array();
 
 	/**
+	 * @var ExpansionWeaponID
+	 * array
+	 */
+	var ExpansionWeaponID = new Object();
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -169,6 +175,7 @@ define(function(require)
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function(json){ MonsterTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function(json){ RandomOption = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function(json){ SkillDescription = json; },  onLoad());
+			loadLuaWeaponTable( DB.LUA_PATH + 'datainfo/weapontable.lub', function(weaponType, weaponTable, weaponHitTable, expansionWeaponID){ WeaponType = weaponType; WeaponTable= weaponTable; WeaponHitSoundTable = weaponHitTable; expansionWeaponID = ExpansionWeaponID; }, onLoad());
 		} else {
 			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
 			loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
@@ -559,6 +566,164 @@ define(function(require)
 			callback.call(null, table);
 			onEnd.call();
 		}
+	}
+
+	/* Load Ragnarok Weapon Lua table to json object
+	* @param {string} file name
+	* @param {function} callback to run once the file is loaded
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	function loadLuaWeaponTable(filename, callback, onEnd) {
+		console.log('Loading file "'+ filename +'"...');
+		Client.loadFile( filename,
+            async function (data) {
+				try {
+					// check if is ArrayBuffer or String
+					if(data instanceof ArrayBuffer) {
+						data = new TextDecoder('iso-8859-1').decode(data);
+					}
+					// load data into lua vm
+					fengari.load(data)();
+
+					// Get the global table
+					fengari.lua.lua_getglobal(fengari.L, "Weapon_IDs");
+
+					// Check if it's a table
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log('[loadLuaWeaponTable] Weapon_IDs is not a table');
+						onEnd.call();
+						return;
+					}
+
+					// Push nil key to start iteration
+					fengari.lua.lua_pushnil(fengari.L);
+
+					// declare the table object
+					let weaponType = new Object();
+
+					// iterate over table
+					while (fengari.lua.lua_next(fengari.L, -2)) {
+						// get key and value
+						let id = fengari.lua.lua_tojsstring(fengari.L, -2);
+						let name = fengari.lua.lua_tointeger(fengari.L, -1);
+
+						let final_id = id.replace("WEAPONTYPE_", "");
+						weaponType[final_id] = name;
+						// Pop the value and move to the next key
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
+
+					// pop table
+					fengari.lua.lua_pop(fengari.L, 1);
+
+					// Get the global table
+					fengari.lua.lua_getglobal(fengari.L, "WeaponNameTable");
+
+					// Check if it's a table
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log('[loadLuaWeaponTable] WeaponNameTable is not a table');
+						onEnd.call();
+						return;
+					}
+
+					// Push nil key to start iteration
+					fengari.lua.lua_pushnil(fengari.L);
+
+					// declare the table object
+					let weaponTable = new Object();
+
+					// iterate over table
+					while (fengari.lua.lua_next(fengari.L, -2)) {
+						// get key and value
+						let id = fengari.lua.lua_tointeger(fengari.L, -2);
+						let name = fengari.lua.lua_tojsstring(fengari.L, -1);
+
+						weaponTable[id] = name;
+						// Pop the value and move to the next key
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
+
+					// pop table
+					fengari.lua.lua_pop(fengari.L, 1);
+
+					//
+					// TODO: Seems like Expansion_Weapon_IDs is used to get the relative weapontype
+					// example: [Weapon_IDs.WEAPONTYPE_FOXTAIL_METAL] = Weapon_IDs.WEAPONTYPE_ROD
+					// means that FOXTAIL_METAL is considered as a ROD
+					//
+
+					// Get the global table
+					fengari.lua.lua_getglobal(fengari.L, "Expansion_Weapon_IDs");
+
+					// Check if it's a table
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log('[loadLuaWeaponTable] Expansion_Weapon_IDs is not a table');
+						onEnd.call();
+						return;
+					}
+
+					// Push nil key to start iteration
+					fengari.lua.lua_pushnil(fengari.L);
+
+					let expansionWeaponID = new Object();
+					// iterate over table
+					while (fengari.lua.lua_next(fengari.L, -2)) {
+						// get key and value
+						let id_replicated = fengari.lua.lua_tointeger(fengari.L, -2);
+						let id_base = fengari.lua.lua_tointeger(fengari.L, -1);
+
+						expansionWeaponID[id_replicated] = id_base;
+						// Pop the value and move to the next key
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
+
+					// pop table
+					fengari.lua.lua_pop(fengari.L, 1);
+					
+					// Get the global table
+					fengari.lua.lua_getglobal(fengari.L, "WeaponHitWaveNameTable");
+
+					// Check if it's a table
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log('[loadLuaWeaponTable] WeaponHitWaveNameTable is not a table');
+						onEnd.call();
+						return;
+					}
+
+					// Push nil key to start iteration
+					fengari.lua.lua_pushnil(fengari.L);
+
+					// declare the table array
+					let weaponHitTable = new Object();
+
+					// iterate over table
+					while (fengari.lua.lua_next(fengari.L, -2)) {
+						// get key and value
+						let id = fengari.lua.lua_tointeger(fengari.L, -2);
+						let name = fengari.lua.lua_tojsstring(fengari.L, -1);
+
+						weaponHitTable[id] = name;
+						// Pop the value and move to the next key
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
+
+					// pop table
+					fengari.lua.lua_pop(fengari.L, 1);
+
+					// clean lua stack
+					fengari.lua.lua_settop(fengari.L, 0);
+
+					callback.call(null, weaponType, weaponTable, weaponHitTable, expansionWeaponID);
+					onEnd.call();
+				} catch( hException ) {
+					onEnd.call();
+					console.error( `(${filename}) error: `, hException );
+				}
+            }
+        );
+
 	}
 
 	/**
