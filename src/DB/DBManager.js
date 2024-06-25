@@ -1816,13 +1816,25 @@ define(function(require)
 						default : elem = MsgStringTable[450]; break; // 's
 					}
 				case 0x00FE: // CREATE
+					elem = MsgStringTable[450];
 				case 0xFF00: // PET
-					name = 'Unknown';
+					
 
 					var GID = (item.slot.card4<<16) + item.slot.card3;
-					if( DB.CNameTable[GID] ){
-						name = DB.CNameTable[GID];
+					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
+					if( DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
+						name = '<font color="blue" class="owner-' + GID + '">'+DB.CNameTable[GID]+'</font>';
 					} else {
+						DB.UpdateOwnerName[GID] = function onUpdateOwnerName(pkt) {
+							delete DB.UpdateOwnerName[pkt.GID];
+							setTimeout(() => {
+								let elements = document.querySelectorAll('.owner-'+pkt.GID);
+								for(let i = 0; i < elements.length; i++) {
+									elements[i].innerText = pkt.CName;
+									elements[i].style.color = "blue";
+								}
+							  }, "1000");
+						};
 						DB.getNameByGID(GID);
 					}
 
@@ -2007,6 +2019,8 @@ define(function(require)
 	};
 
 	DB.getNameByGID = function getNameByGID (GID){
+		if(DB.CNameTable[GID] &&  DB.CNameTable[GID] === 'Unknown') // already requested
+			return;
 		var pkt;
 		if(PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.REQNAME_BYGID2();
@@ -2219,11 +2233,7 @@ define(function(require)
 
 	function onUpdateOwnerName (pkt){
 		DB.CNameTable[pkt.GID] = pkt.CName;
-
-		//Update other components
-		for (var key in DB.UpdateOwnerName){
-			DB.UpdateOwnerName[key]();
-		}
+		DB.UpdateOwnerName[pkt.GID](pkt);
 	}
 
 	/**
