@@ -174,25 +174,26 @@ define(function(require)
 						default: elem = DB.getMessage(450); break; // 's
 					}
 				case 0x00FE: // CREATE
+					elem = DB.getMessage(450);
 				case 0xFF00: // PET
 					hideslots = true;
 
-					name = 'Unknown';
+					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
 					var GID = (item.slot['card4']<<16) + item.slot['card3'];
 
-					if (DB.CNameTable[GID]){
-						name = DB.CNameTable[GID];
+					if( DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
+						name = '<font color="blue" class="owner-' + GID + '">'+DB.CNameTable[GID]+'</font>';
 					} else {
-						DB.getNameByGID(GID);
 
 						//Add to item owner name update queue
-						DB.UpdateOwnerName.ItemInfo = onUpdateOwnerName;
+						DB.UpdateOwnerName[GID] = onUpdateOwnerName;
+						DB.getNameByGID(GID);
 					}
 
 					if(item.IsDamaged){
 						customname = very + ' ' + name + elem + ' ';
 					} else {
-						customname = name=='Unknown' ? very + ' ' + '^FF0000' + name + '^000000 ' + elem + ' ' : very + ' ' + '^0000FF' + name + '^000000 ' + elem + ' ';
+						customname = !DB.CNameTable[GID] ? very + ' ' + ' ' + name + ' ' + elem + ' ' : very + ' ' + ' ' + name + ' ' + elem + ' ';
 					}
 
 					break;
@@ -386,11 +387,11 @@ define(function(require)
 		});
 	}
 
-	function onUpdateOwnerName (){
-		var str = ItemInfo.ui.find('.title').text();
-		ItemInfo.ui.find('.title').text(str.replace('Unknown\'s', '^0000FF'+pkt.CName+'\'s^000000'));
+	function onUpdateOwnerName (pkt){
+		var str = ItemInfo.ui.find('.owner-'+pkt.GID).text();
+		ItemInfo.ui.find('.owner-'+pkt.GID).text(pkt.CName);
 
-		delete DB.UpdateOwnerName.ItemInfo;
+		delete DB.UpdateOwnerName[pkt.GID];
 	}
 
 
