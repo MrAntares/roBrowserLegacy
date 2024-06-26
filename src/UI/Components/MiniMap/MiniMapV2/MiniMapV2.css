@@ -5,3 +5,12 @@
 #MiniMapV2 .info_container .mini { position:absolute; left:88px; width:12px; height:12px; border:none; background:transparent; }
 #MiniMapV2 .info_container .viewon { position:absolute; left:102px; width:12px; height:12px; border:none; background:transparent; }
 #MiniMapV2 .info_container .coordinates{ position: absolute; color: #fff; text-shadow: 1px 1px 1px #000; left: 14px; }
+
+#MiniMapV2 button.cashshopIcon {
+    position: absolute;
+    height: 43px;
+    width: 43px;
+    border: none;
+    top: 0px;
+    left: -45px;
+}

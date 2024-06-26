@@ -170,12 +170,6 @@ define(function(require)
 			CashShop.onResetCartListCashShop();
 		}
 		
-		MiniMap.getUI().ui.append('<button class="cashshopIcon"></button>');
-		MiniMap.getUI().ui.on('click', '.cashshopIcon', onClickIcon);
-
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/nc_cashshop.bmp', function(data){
-			MiniMap.getUI().ui.find('.cashshopIcon').css('backgroundImage', 'url('+ data +')');
-		});
 	};
 	
 	CashShop.onAppend = function OnAppend()
@@ -197,6 +191,13 @@ define(function(require)
 		this.magnet.RIGHT = _preferences.magnet_right;
 
 		//this.ui.find('.titlebar .mini').trigger('mousedown');
+
+		MiniMap.getUI().ui.append('<button class="cashshopIcon"></button>');
+		MiniMap.getUI().ui.on('click', '.cashshopIcon', onClickIcon);
+
+		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/nc_cashshop.bmp', function(data){
+			MiniMap.getUI().ui.find('.cashshopIcon').css('backgroundImage', 'url('+ data +')');
+		});
 	};
 
 	/**
