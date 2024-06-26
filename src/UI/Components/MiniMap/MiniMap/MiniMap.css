@@ -1,3 +1,12 @@
 #minimap { position:absolute; top:2px; right:2px; }
 #minimap .plus { position:absolute; top: 0px; right:0px; width:12px; height:12px; border:none; background:transparent; }
 #minimap .minus { position:absolute; top:12px; right:0px; width:12px; height:12px; border:none; background:transparent; }
+
+#minimap button.cashshopIcon {
+    position: absolute;
+    height: 43px;
+    width: 43px;
+    border: none;
+    top: 0px;
+    left: -45px;
+}
