@@ -164,7 +164,7 @@
 	/**
 	 * @var {boolean} load lua files ?
 	 */
-	ROBrowser.prototype.loadlua = false;
+	ROBrowser.prototype.loadLua = false;
 
 
 	/**
