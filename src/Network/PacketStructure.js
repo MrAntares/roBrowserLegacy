@@ -10729,7 +10729,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	// 0x859
-	PACKET.ZC.EQUIPWIN_MICROSCOPE2 = function PACKET_ZC_EQUIPWIN_MICROSCOPE2(fp, end) {
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V2 = function PACKET_ZC_EQUIPWIN_MICROSCOPEV2(fp, end) {
 		this.characterName = fp.readString(NAME_LENGTH);
 		this.job = fp.readShort();
 		this.head = fp.readShort();
@@ -10765,7 +10765,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			return out;
 		})();
 	};
-	PACKET.ZC.EQUIPWIN_MICROSCOPE2.size = -1;
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V2.size = -1;
 
 	// 0x8b3
 	PACKET.ZC.SHOWSCRIPT = function PACKET_ZC_SHOWSCRIPT(fp, end) {
@@ -10880,6 +10880,44 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.MSG_STATE_CHANGE3.size = 24;
 
+	// 0x906
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V3 = function PACKET_ZC_EQUIPWIN_MICROSCOPEV3(fp, end) {
+		this.characterName = fp.readString(NAME_LENGTH);
+		this.job = fp.readShort();
+		this.head = fp.readShort();
+		this.accessory = fp.readShort();
+		this.accessory2 = fp.readShort();
+		this.accessory3 = fp.readShort();
+		this.Robe = fp.readShort();
+		this.headpalette = fp.readShort();
+		this.bodypalette = fp.readShort();
+		this.sex = fp.readUChar();
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / 28 | 0,
+				out = new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].IsIdentified = fp.readUChar();
+				out[i].location = fp.readUShort();
+				out[i].WearState = fp.readUShort();
+				out[i].IsDamaged = fp.readUChar();
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V3.size = -1;
 
 	// 0x908
 	PACKET.ZC.ITEM_FAVORITE = function PACKET_ZC_ITEM_FAVORITE(fp, end) {
@@ -11341,7 +11379,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	// 0x997
-	PACKET.ZC.EQUIPWIN_MICROSCOPE_V5 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V5(fp, end) {
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V4 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V4(fp, end) {
 		this.characterName = fp.readString(NAME_LENGTH);
 		this.job = fp.readShort();
 		this.head = fp.readShort();
@@ -11380,7 +11418,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			return out;
 		})();
 	};
-	PACKET.ZC.EQUIPWIN_MICROSCOPE_V5.size = -1;
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V4.size = -1;
 
 
 	// 0x999
@@ -12904,6 +12942,60 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ACK_OPENSTORE2.size = 3;
 
+	// 0xa2d
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V5 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V5(fp, end) {
+		this.characterName = fp.readString(NAME_LENGTH);
+		this.job = fp.readShort();
+		this.head = fp.readShort();
+		this.accessory = fp.readShort();
+		this.accessory2 = fp.readShort();
+		this.accessory3 = fp.readShort();
+		this.Robe = fp.readShort();
+		this.headpalette = fp.readShort();
+		this.bodypalette = fp.readShort();
+		this.sex = fp.readUChar();
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / 57 | 0,
+				out = new Array(count);
+			var flag;
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+				out[i].nRandomOptionCnt = fp.readChar();
+				out[i].Options = [];
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V5.size = -1;
+
 	// 0xa30
 	PACKET.ZC.ACK_REQNAMEALL2 = function PACKET_ZC_ACK_REQNAMEALL2(fp, end) {
 		this.AID = fp.readULong();
@@ -13406,6 +13498,62 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})(this.questCount);
 	};
 	PACKET.ZC.ALL_QUEST_LIST_V4.size = -1;
+
+	//0xb03
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V6 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V6(fp, end) {
+		this.characterName = fp.readString(NAME_LENGTH);
+		this.job = fp.readShort();
+		this.head = fp.readShort();
+		this.accessory = fp.readShort();
+		this.accessory2 = fp.readShort();
+		this.accessory3 = fp.readShort();
+		this.Robe = fp.readShort();
+		this.headpalette = fp.readShort();
+		this.bodypalette = fp.readShort();
+		this.body2 = fp.readShort();
+		this.sex = fp.readUChar();
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+		let item_size = 67;
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / item_size | 0,
+				out = new Array(count);
+			var flag;
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readUShort();
+				out[i].slot.card2 = fp.readUShort();
+				out[i].slot.card3 = fp.readUShort();
+				out[i].slot.card4 = fp.readUShort();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+				out[i].nRandomOptionCnt = fp.readChar();
+				out[i].Options = [];
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V6.size = -1;
 
 	//0xb08
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_SET = function PACKET_SPLIT_SEND_ITEMLIST_SET(fp, end) {

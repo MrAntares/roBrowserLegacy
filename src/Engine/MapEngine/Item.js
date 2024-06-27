@@ -669,8 +669,11 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2,        onItemListEquip );
 
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE,        onShowPlayerEquip );
-		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE2,       onShowPlayerEquip );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V2,     onShowPlayerEquip );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V3,     onShowPlayerEquip );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V4,     onShowPlayerEquip );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V5,     onShowPlayerEquip );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V6,     onShowPlayerEquip );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V7,     onShowPlayerEquip );
 
 	};
