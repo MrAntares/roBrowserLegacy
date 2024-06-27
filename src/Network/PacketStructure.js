@@ -13622,6 +13622,63 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.PROPERTY_HOMUN3.size = 73;
 
+	//0xb37
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V7 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V7(fp, end) {
+		this.characterName = fp.readString(NAME_LENGTH);
+		this.job = fp.readShort();
+		this.head = fp.readShort();
+		this.accessory = fp.readShort();
+		this.accessory2 = fp.readShort();
+		this.accessory3 = fp.readShort();
+		this.Robe = fp.readShort();
+		this.headpalette = fp.readShort();
+		this.bodypalette = fp.readShort();
+		this.body2 = fp.readShort();
+		this.sex = fp.readUChar();
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+		let item_size = 68;
+		this.ItemInfo = (function() {
+			var i, count = (end - fp.tell()) / item_size | 0,
+				out = new Array(count);
+			var flag;
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].index = fp.readShort();
+				out[i].ITID = fp.readULong();
+				out[i].type = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
+				out[i].slot = {};
+				out[i].slot.card1 = fp.readULong();
+				out[i].slot.card2 = fp.readULong();
+				out[i].slot.card3 = fp.readULong();
+				out[i].slot.card4 = fp.readULong();
+				out[i].HireExpireDate = fp.readLong();
+				out[i].bindOnEquipType = fp.readUShort();
+				out[i].wItemSpriteNumber = fp.readUShort();
+				out[i].nRandomOptionCnt = fp.readChar();
+				out[i].Options = [];
+				out[i].Options[1] = fp.readStruct(option);
+				out[i].Options[2] = fp.readStruct(option);
+				out[i].Options[3] = fp.readStruct(option);
+				out[i].Options[4] = fp.readStruct(option);
+				out[i].Options[5] = fp.readStruct(option);
+				out[i].RefiningLevel = fp.readUChar();
+				out[i].enchantgrade = fp.readUChar();
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.EQUIPWIN_MICROSCOPE_V7.size = -1;
+
 	//0xb39
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2 = function PACKET_ZC_SPLIT_SEND_ITEMLIST_EQUIP2(fp, end) {
 		this.invType = fp.readUChar();

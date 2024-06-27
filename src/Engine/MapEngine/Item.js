@@ -29,7 +29,7 @@ define(function( require )
 	var Inventory    			 = require('UI/Components/Inventory/Inventory');
 	var CartItems    			 = require('UI/Components/CartItems/CartItems');
 	var Equipment    			 = require('UI/Components/Equipment/Equipment');
-	var PlayerEquipment    		 = require('UI/Components/PlayerEquipment/PlayerEquipment');
+	var PlayerViewEquip    		 = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
 	var Storage                  = require('UI/Components/Storage/Storage');
 	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var ItemListWindowSelection  = require('UI/Components/MakeItemSelection/ItemListWindowSelection');
@@ -262,11 +262,11 @@ define(function( require )
 	 *
 	 * @param {object} pkt - ZC_EQUIPWIN_MICROSCOPE
 	 */
-	function onShowPlayerEquipment( pkt ){
-		//console.log(PlayerEquipment);
-		//PlayerEquipment.append();
-		//PlayerEquipment.show();
-		//PlayerEquipment.set();
+	function onShowPlayerEquip( pkt ){
+		PlayerViewEquip.getUI().append();
+		PlayerViewEquip.getUI().setTitleBar(pkt.characterName);
+		PlayerViewEquip.getUI().setEquipmentData(pkt.ItemInfo);
+		PlayerViewEquip.getUI().setChar2Render(pkt);
 	}
 
 
@@ -668,9 +668,10 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP,        onItemListEquip );
 		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2,        onItemListEquip );
 
-		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE,        onShowPlayerEquipment );
-		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE2,       onShowPlayerEquipment );
-		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V5,     onShowPlayerEquipment );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE,        onShowPlayerEquip );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE2,       onShowPlayerEquip );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V5,     onShowPlayerEquip );
+		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V7,     onShowPlayerEquip );
 
 	};
 });

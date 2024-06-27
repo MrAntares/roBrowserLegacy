@@ -1,0 +1,76 @@
+<div id="PlayerViewEquipV2" data-repload="basic_interface/item_invert.bmp">
+	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+		<div class="left">
+			<button class="base" data-background="basic_interface/sys_base_off.bmp" data-hover="basic_interface/sys_base_on.bmp"></button>
+			<span class="PlayerName"></span>
+		</div>
+		<div class="right">
+			<button class="base mini" data-background="basic_interface/sys_mini_off.bmp" data-hover="basic_interface/sys_mini_on.bmp"></button>
+			<button class="base close" data-background="basic_interface/sys_close_off.bmp" data-hover="basic_interface/sys_close_on.bmp"></button>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div class="overlay"></div>
+	<div class="vieweqtab-manager" id="vieweqtabs">
+		<div class="vieweqtab" id="vieweqgentab"><a href="#vieweqgeneral"><span data-text="3158"></span></a></div>
+		<div class="vieweqtab" id="vieweqcostab"><a href="#vieweqcostume"><span data-text="3159"></span></a></div>
+	</div>
+	<div class="panel">
+		<table class="vieweqcontent" id="vieweqgeneral" data-background="basic_interface/equipwin_bg.bmp">
+			<tr>
+				<td class="head_top col1"></td>
+				<td rowspan="6">
+					<!-- avoid applying css on td directly-->
+					<div class="col2 ammo_container">
+						<canvas width="55" height="125"></canvas>
+					</div>
+				</td>
+				<td class="head_mid col3"></td>
+			</tr>
+			<tr>
+				<td class="head_bottom col1"></td>
+				<td class="armor col3"></td>
+			</tr>
+			<tr>
+				<td class="weapon col1"></td>
+				<td class="shield col3"></td>
+			</tr>
+			<tr>
+				<td class="garment col1"></td>
+				<td class="shoes col3"></td>
+			</tr>
+			<tr>
+				<td class="accessory1 col1"></td>
+				<td class="accessory2 col3"></td>
+			</tr>
+		</table>
+		<table class="vieweqcontent" id="vieweqcostume" data-background="basic_interface/equipwin_special.bmp">
+			<tr>
+				<td class="costume_head_top col1"></td>
+				<td rowspan="6">
+					<!-- avoid applying css on td directly-->
+					<div class="col2 ammo_container">
+						<canvas width="55" height="125"></canvas>
+					</div>
+				</td>
+				<td class="costume_head_mid col3"></td>
+			</tr>
+			<tr>
+				<td class="costume_head_bottom col1"></td>
+				<td class="shadow_armor col3"></td>
+			</tr>
+			<tr>
+				<td class="shadow_weapon col1"></td>
+				<td class="shadow_shield col3"></td>
+			</tr>
+			<tr>
+				<td class="shadow_garment col1"></td>
+				<td class="shadow_shoes col3"></td>
+			</tr>
+			<tr>
+				<td class="shadow_accessory1 col1"></td>
+				<td class="shadow_accessory2 col3"></td>
+			</tr>
+		</table>
+	</div>
+</div>
