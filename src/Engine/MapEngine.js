@@ -82,6 +82,7 @@ define(function( require )
 	var MiniMap   = require('UI/Components/MiniMap/MiniMap');
 	var SkillList = require('UI/Components/SkillList/SkillList');
 	var Quest     = require('UI/Components/Quest/Quest');
+	var PlayerViewEquip     = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
 
 	/**
 	 * @var {string mapname}
@@ -188,6 +189,7 @@ define(function( require )
 			SkillList.selectUIVersion();
 			Quest.selectUIVersion();
 			Equipment.selectUIVersion();
+			PlayerViewEquip.selectUIVersion();
 			WinStats.selectUIVersion();
 		}
 
@@ -747,6 +749,7 @@ define(function( require )
 		}
 		else {
 			BasicInfo.getUI().remove();
+			PlayerViewEquip.getUI().remove();
 			StatusIcons.clean();
 			ChatBox.clean();
 			ShortCut.clean();
@@ -769,6 +772,7 @@ define(function( require )
 			// Disconnect
 			case 0:
 				BasicInfo.getUI().remove();
+				PlayerViewEquip.getUI().remove();
 				StatusIcons.clean();
 				ChatBox.clean();
 				ShortCut.clean();
