@@ -93,6 +93,7 @@ define(function(require)
 	NpcBox.onKeyDown = function onKeyDown( event )
 	{
 		switch (event.which) {
+			case KEYS.SPACE:	// Same as Enter
 			case KEYS.ENTER:
 				if (this.ui.find('.next').is(':visible')) {
 					this.next();
