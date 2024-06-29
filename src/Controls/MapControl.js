@@ -17,6 +17,7 @@ define(function( require )
 	var DB            = require('DB/DBManager');
 	var UIManager     = require('UI/UIManager');
 	var Cursor        = require('UI/CursorManager');
+	var Entity        = require('Renderer/Entity/Entity');
 	var InputBox      = require('UI/Components/InputBox/InputBox');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
@@ -157,15 +158,21 @@ define(function( require )
 						AIDriver.setmsg(Session.homunId, '3,'+ entityOver.GID);
 					}
 
-				} else if (KEYS.SHIFT && entityOver && entityOver != Session.Entity ) {
+				} else if (entityOver && entityOver != Session.Entity ) {
+					if (KEYS.SHIFT) {	// Shift + Right click on an entity
+						Session.autoFollowTarget = entityOver;
+						Session.autoFollow = true;
+						onAutoFollow();
 
-					Session.autoFollowTarget = entityOver;
-					Session.autoFollow = true;
-					onAutoFollow();
+						stop = stop || entityOver.onMouseDown();
+						stop = stop || entityOver.onFocus();
+						EntityManager.setFocusEntity(entityOver);
 
-					stop = stop || entityOver.onMouseDown();
-					stop = stop || entityOver.onFocus();
-					EntityManager.setFocusEntity(entityOver);
+					} else if (entityOver.objecttype == Entity.TYPE_NPC) {	// Right click on a NPC
+						stop = stop || entityOver.onMouseDown();
+						stop = stop || entityOver.onFocus();
+						EntityManager.setFocusEntity(entityOver);
+					}
 
 					// Know if propagate to map mousedown
 					if (stop) {
