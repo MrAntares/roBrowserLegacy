@@ -115,7 +115,7 @@ define(function( require )
 				Session.autoFollow = false;
 
 				var stop        = false;
-				if(entityOver && entityOver != Session.Entity){
+				if(entityOver != Session.Entity){
 					if (entityFocus && entityFocus != entityOver) {
 						if(!(Session.TouchTargeting && !entityOver)) {
 							entityFocus.onFocusEnd();

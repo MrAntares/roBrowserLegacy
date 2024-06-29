@@ -951,7 +951,7 @@ define(function( require )
 		}
 
 		Events.clearTimeout(_walkTimer);
-		_walkTimer    =  Events.setTimeout( walkIntervalProcess, 200);
+		_walkTimer    =  Events.setTimeout( walkIntervalProcess, 500);
 		_walkLastTick = +Renderer.tick;
 	}
 
