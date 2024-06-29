@@ -1,7 +1,7 @@
 /**
  * UI/Components/PlayerViewEquip/PlayerViewEquip.js
  *
- * Chararacter Basic information windows
+ * Show a player equip when allowed
  *
  * Note: For different versions, please use different Object names and main div IDs to avoid conflicts in settings and styles
  *
@@ -15,8 +15,8 @@ define(function (require)
 	var publicName = 'PlayerViewEquip';
 
 	var PlayerViewEquipV0 = require('./PlayerViewEquipV0/PlayerViewEquipV0'); // equip
-	var PlayerViewEquipV1 = require('./PlayerViewEquipV1/PlayerViewEquipV1'); // equip + costume
-	var PlayerViewEquipV2 = require('./PlayerViewEquipV2/PlayerViewEquipV2'); // equip + costume + title (not implemented)
+	var PlayerViewEquipV1 = require('./PlayerViewEquipV1/PlayerViewEquipV1'); // equip + costume (headgears + robe)
+	var PlayerViewEquipV2 = require('./PlayerViewEquipV2/PlayerViewEquipV2'); // equip + costume (full)
 
 	var UIVersionManager = require('UI/UIVersionManager');
 	var DB               = require('DB/DBManager');
