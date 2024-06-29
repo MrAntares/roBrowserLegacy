@@ -22,6 +22,7 @@ define(function( require )
 	var Session        = require('Engine/SessionStorage');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var vec3           = require('Utils/gl-matrix').vec3;
+	const Entity         = require('Renderer/Entity/Entity');
 
 
 	/**
@@ -220,6 +221,7 @@ define(function( require )
 			// Calculate position
 			vec3.add( cloud.position, cloud.position, cloud.direction );
 			SpriteRenderer.position.set(cloud.position);
+			SpriteRenderer.objecttype = Entity.TYPE_EFFECT;
 			SpriteRenderer.render();
 		}
 

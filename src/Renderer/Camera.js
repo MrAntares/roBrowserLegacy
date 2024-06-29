@@ -28,25 +28,25 @@ define(function( require )
 	var _position   = vec3.create();
 	var DB 			= require('DB/DBManager');
 	var getModule = require;
-	
+
 	/**
 	 * @var {number} camera min-max constants
 	 */
 	const C_MIN_ZOOM = 1;
 	const C_MAX_ZOOM = 5;
-	
+
 	const C_MIN_V_ANGLE_ISOMETRIC = 190;
 	const C_MAX_V_ANGLE_ISOMETRIC = 270;
-	
+
 	const C_THIRDPERSON_TRESHOLD_ZOOM = 1;
 	const C_MIN_V_ANGLE_3RDPERSON = 175;
 	const C_MAX_V_ANGLE_3RDPERSON = 270;
-	
+
 	const C_MIN_V_ANGLE_1STPERSON = 90;
 	const C_MAX_V_ANGLE_1STPERSON = 270;
-	
+
 	const C_QUAKE_MULT = 0.1;
-	
+
 	/**
 	 * Camera Namespace
 	 */
@@ -135,7 +135,7 @@ define(function( require )
 	Camera.zoomStep     =  15;
 	Camera.zoomStepMult =  1;
 
-	
+
 	/**
 	 * @var {number} current map
 	 */
@@ -145,7 +145,7 @@ define(function( require )
   	Camera.indoorRotationFrom 	= -60;
   	Camera.indoorRotationTo 	= -25;
 	Camera.indoorRange 			= 240;
-	
+
 	/**
 	 * @var {number} camera zoom indoor
 	 */
@@ -155,17 +155,17 @@ define(function( require )
 	 * @var {number} min camera altitude indoor
 	 */
 	Camera.MIN_ALTITUDE_INDOOR 		= 220;
-	
+
 	/**
 	 * @var {number} max camera altitude indoor
 	 */
   	Camera.MAX_ALTITUDE_INDOOR 		= 240;
-	
+
 	Camera.enable3RDPerson = false;
 	Camera.enable1STPerson = false;
-	
+
 	Camera.state = -1;
-	
+
 	Camera.states = {
 		isometric: 0,
 		third_person: 1,
@@ -181,7 +181,7 @@ define(function( require )
 		x:      0,
 		y:      0
 	};
-	
+
 	Camera.quakes = [];
 
 
@@ -205,7 +205,17 @@ define(function( require )
 	{
 		return this.angle[0] - 180.0;
 	};
-	
+
+	/**
+	 * Get camera angle
+	 *
+	 * @return {number} angle
+	 */
+	Camera.getAngle = function GetAngle()
+	{
+		return this.angle[0];
+	}
+
 	/**
 	 * Set screen quake
 	 *
@@ -224,10 +234,10 @@ define(function( require )
 		quake.latitudeQuake = yAmt || 0.2;
 		quake.zoomQuake = zAmt || 0.24;
 		quake.active = true;
-		
+
 		this.quakes.push( quake );
 	};
-	
+
 	/**
 	 * Set screen quake
 	 *
@@ -244,14 +254,14 @@ define(function( require )
 				if(this.quakes[i].startTick <= tick){
 					if(this.quakes[i].startTick + this.quakes[i].duration > tick){
 						var step = (tick - this.quakes[i].startTick) / this.quakes[i].duration;
-						
+
 						this.position[0] += (((Math.random()*5)-2.5)/10 + this.quakes[i].sideQuake) * Math.cos(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
 						this.position[1] += (((Math.random()*5)-2.5)/10 + this.quakes[i].sideQuake) * -Math.sin(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
 						this.quakes[i].sideQuake *= -1;
-						
+
 						this.zoom += (((Math.random()*5)-2.5)/10 + this.quakes[i].zoomQuake) * C_QUAKE_MULT;
 						this.quakes[i].zoomQuake *= -1;
-						
+
 						this.angle[0] += (((Math.random()*5)-2.5)/15 + this.quakes[i].latitudeQuake) * C_QUAKE_MULT;
 						this.quakes[i].latitudeQuake *= -1
 					} else {
@@ -262,7 +272,7 @@ define(function( require )
 				this.quakes.splice(i, 1);
 			}
 		}
-		
+
 	};
 
 
@@ -274,7 +284,7 @@ define(function( require )
 		Camera.enable3RDPerson = Configs.get('ThirdPersonCamera', false);
 		Camera.enable1STPerson = Configs.get('FirstPersonCamera', false);
 		Camera.MAX_ZOOM = Configs.get('CameraMaxZoomOut', C_MAX_ZOOM);
-		
+
 		this.lastTick  = Date.now();
 
 		this.angle[0]      = this.range % 360.0;//240.0;
@@ -285,9 +295,9 @@ define(function( require )
 		this.position[0] = -this.target.position[0];
 		this.position[1] = -this.target.position[1];
 		this.position[2] =  this.target.position[2];
-		
+
 		this.altitudeRange = this.altitudeTo - this.altitudeFrom;
-		
+
 		if(this.enable1STPerson){
 			this.MIN_ZOOM = 0;
 		} else if(this.enable3RDPerson){
@@ -434,7 +444,7 @@ define(function( require )
 				this.angleFinal[1] = Math.max( this.angleFinal[1], this.rotationFrom );
 				this.angleFinal[1] = Math.min( this.angleFinal[1], this.rotationTo );
 			}
-			
+
 			if(this.state == this.states.first_person || this.state == this.states.third_person){
 				this.angleFinal[0] += ( Mouse.screen.y - this.action.y ) / Mouse.screen.height * 300;
 				this.angleFinal[0]  = Math.max( this.angleFinal[0], this.MIN_V_ANGLE );
@@ -470,7 +480,7 @@ define(function( require )
 			this.save();
 		}
 	};
-	
+
 	Camera.updateState = function UpdateState(){
 		if(this.enable1STPerson && this.zoomFinal == 0){
 			if(this.state != this.states.first_person){
@@ -522,7 +532,7 @@ define(function( require )
 	 */
 	Camera.update = function Update( tick )
 	{
-		
+
 		var lerp      = Math.min( (tick - this.lastTick) * 0.006, 1.0);
 		this.lastTick = tick;
 
@@ -530,10 +540,10 @@ define(function( require )
 		if (this.action.x !== -1 && this.action.y !== -1 && this.action.active) {
 			this.processMouseAction();
 		}
-		
+
 		// Screen quake
 		this.processQuake( tick );
-		
+
 		// Move Camera
 		if (Preferences.smooth && this.state != this.states.first_person) {
 			this.position[0] += ( -this.target.position[0] - this.position[0] ) * lerp ;
@@ -545,23 +555,23 @@ define(function( require )
 			this.position[1] = -this.target.position[1];
 			this.position[2] =  this.target.position[2];
 		}
-		
+
 		// Zoom
 		this.zoom        += ( this.zoomFinal - this.zoom ) * lerp * 2.0;
-		
+
 		var zOffset = 0;
 		if(this.state == this.states.first_person){
 			zOffset = 2;
 		} else if (this.state == this.states.third_person && this.zoomFinal < (Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM) ){
 			zOffset = 1.5;
 		}
-		
+
 		// Angle
 		this.angle[0]    += ( this.angleFinal[0] - this.angle[0] ) * lerp * 2.0;
 		this.angle[1]    += ( this.angleFinal[1] - this.angle[1] ) * lerp * 2.0;
 		this.angle[0]    %=   360;
 		this.angle[1]    %=   360;
-		
+
 		// Find Camera direction (for NPC direction)
 		this.direction    = Math.floor( ( this.angle[1] + 22.5 ) / 45 ) % 8;
 
@@ -571,7 +581,7 @@ define(function( require )
 		mat4.translateZ( matrix, (this.altitudeFrom - this.zoom) / 2);
 		mat4.rotateX( matrix, matrix, this.angle[0] / 180 * Math.PI );
 		mat4.rotateY( matrix, matrix, this.angle[1] / 180 * Math.PI );
-		
+
 		// Center of the cell and inversed Y-Z axis
 		_position[0] = this.position[0] - 0.5;
 		_position[1] = this.position[2] + zOffset;
