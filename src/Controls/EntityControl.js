@@ -288,7 +288,7 @@ define(function( require )
 
 				// Check equipment
 				ContextMenu.addElement( DB.getMessage(1360).replace('%s', this.display.name), function(){
-					getModule(Equipment.getUI()).onCheckPlayerEquipment(entity.GID); // simple version
+					getModule(Equipment.getUI().onCheckPlayerEquipment(entity.GID)); // simple version
 				});
 
 				// Trade option
