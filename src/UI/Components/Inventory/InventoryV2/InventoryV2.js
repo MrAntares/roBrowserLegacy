@@ -381,6 +381,7 @@ define(function(require)
 					'<div class="icon"></div>' +
 					'<div class="switch1"></div>' +
 					'<div class="switch2"></div>' +
+					'<div class="grade"></div>' +
 					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
 				'</div>'
 			);
@@ -410,6 +411,32 @@ define(function(require)
 				Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/ico_change.bmp', function(data){
 					content.find('.item[data-index="'+ item.index +'"] .switch2').css('backgroundImage', 'url('+ data +')');
 				});
+			}
+
+			/* Grade System */
+			switch(item.enchantgrade) {
+				case 1:
+					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon1.bmp', function(data){
+						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+					});
+					break;
+				case 2:
+					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon2.bmp', function(data){
+						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+					});
+					break;
+				case 3:
+					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon3.bmp', function(data){
+						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+					});
+					break;
+				case 4:
+					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon4.bmp', function(data){
+						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+					});
+					break;
+				default:
+					break;
 			}
 		}
 

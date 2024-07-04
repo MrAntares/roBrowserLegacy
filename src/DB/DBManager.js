@@ -1790,6 +1790,25 @@ define(function(require)
 			str = '+' + item.RefiningLevel + ' ';
 		}
 
+		if (item.enchantgrade) {
+			switch(item.enchantgrade) {
+				case 1:
+					str += '[D] ';
+					break;
+				case 2:
+					str += '[C] ';
+					break;
+				case 3:
+					str += '[B] ';
+					break;
+				case 4:
+					str += '[A] ';
+					break;
+				default:
+					break;
+			}
+		}
+
 		//Hide slots for forged weapons
 		var showslots = true;
 		if (item.slot) {
