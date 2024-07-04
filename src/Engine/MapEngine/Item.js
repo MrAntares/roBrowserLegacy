@@ -30,6 +30,7 @@ define(function( require )
 	var CartItems    			 = require('UI/Components/CartItems/CartItems');
 	var Equipment    			 = require('UI/Components/Equipment/Equipment');
 	var PlayerViewEquip    		 = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
+	var SwitchEquip	    		 = require('UI/Components/SwitchEquip/SwitchEquip');
 	var Storage                  = require('UI/Components/Storage/Storage');
 	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var ItemListWindowSelection  = require('UI/Components/MakeItemSelection/ItemListWindowSelection');
@@ -173,6 +174,10 @@ define(function( require )
 			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_MID)    Session.Entity.accessory3 = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_MID);
 			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM) Session.Entity.accessory  = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 			if (pkt.wearLocation & EquipLocation.COSTUME_ROBE)     Session.Entity.robe       = Equipment.getUI().checkEquipLoc(EquipLocation.GARMENT);
+		
+			if(!Inventory.getUI().isInEquipSwitchList(pkt.wearLocation)) {
+				SwitchEquip.unEquip( pkt.index, pkt.wearLocation );
+			}
 		}
 	}
 
@@ -609,6 +614,56 @@ define(function( require )
 	}
 
 	/**
+	 * Received Switch Equip List
+	 */
+	function onSwitchEquipList(pkt) {
+		if (pkt && pkt.ItemInfo) {
+			pkt.ItemInfo.forEach(function(item) {
+				if (Inventory.getUI().getItemByIndex(item.index)) {
+					Inventory.getUI().addItemtoSwitch(item.index);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Add item to Switch Equip
+	 */
+	function onSwitchEquipAdd(pkt) {
+		if (pkt) {
+			switch (pkt.flag) {
+				case 0:
+					Inventory.getUI().addItemtoSwitch(pkt.index);
+					break;
+				case 1:
+				case 2:
+					break;
+				default:
+					throw new Error("[PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT] - Error!");
+			}
+		}
+	}
+
+	/**
+	 * Remove item to Switch Equip
+	 */
+	function onSwitchEquipRemove(pkt) {
+		if (pkt) {
+			switch (pkt.flag) {
+				case 0:
+					Inventory.getUI().removeItemFromSwitch(pkt.index);
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				default:
+					throw new Error("[PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT] - Error!");
+			}
+		}
+	}
+
+	/**
 	 * Initialize
 	 */
 	return function ItemEngine()
@@ -675,6 +730,11 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V5,     onShowPlayerEquip );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V6,     onShowPlayerEquip );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V7,     onShowPlayerEquip );
+
+		/* Switch Equipment*/
+		Network.hookPacket( PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO,   		 	onSwitchEquipList );
+		Network.hookPacket( PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT,   	onSwitchEquipAdd );
+		Network.hookPacket( PACKET.ZC.REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT,   onSwitchEquipRemove );
 
 		Inventory.getUI().onUseCard            = onUseCard;
 	};

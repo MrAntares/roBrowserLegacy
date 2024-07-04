@@ -55,6 +55,7 @@ define(function( require )
 	var ChangeCart       = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
+	var SwitchEquip      = require('UI/Components/SwitchEquip/SwitchEquip');
 	var ShortCuts        = require('UI/Components/ShortCuts/ShortCuts');
 	var StatusIcons      = require('UI/Components/StatusIcons/StatusIcons');
 	var ChatRoomCreate   = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
@@ -258,6 +259,7 @@ define(function( require )
 			Vending.prepare();
 			ChangeCart.prepare();
 			Equipment.getUI().prepare();
+			SwitchEquip.prepare();
 			ShortCuts.prepare();
 			ShortCut.prepare();
 			ChatRoomCreate.prepare();
@@ -304,6 +306,8 @@ define(function( require )
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
 			Escape.onResurectionRequest     = onResurectionRequest;
 			ChatBox.onRequestTalk           = onRequestTalk;
+			SwitchEquip.onAddSwitchEquip	= onAddSwitchEquip;
+			SwitchEquip.onRemoveSwitchEquip	= onRemoveSwitchEquip;
 
 		}
 
@@ -1121,6 +1125,29 @@ define(function( require )
 	{
 		var pkt   = new PACKET.CZ.REQ_TAKEOFF_EQUIP();
 		pkt.index = index;
+		Network.sendPacket(pkt);
+	}
+
+
+	/**
+	 * Add Switch Equip
+	 */
+	function onAddSwitchEquip( index, location )
+	{
+		var pkt          = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD();
+		pkt.index		 = index;
+		pkt.wearLocation = location;
+		Network.sendPacket(pkt);
+	}
+
+
+	/**
+	 * Remove Switch Equip
+	 */
+	function onRemoveSwitchEquip( index )
+	{
+		var pkt          = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE();
+		pkt.index		 = index;
 		Network.sendPacket(pkt);
 	}
 

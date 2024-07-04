@@ -16,7 +16,7 @@ define(function (require)
 
 	var InventoryV0 = require('./InventoryV0/InventoryV0');
 	//var InventoryV1 = require('./InventoryV1/InventoryV1');	// Favorite Tab
-	//var InventoryV2 = require('./InventoryV2/InventoryV2');     // Equipment Switch
+	var InventoryV2 = require('./InventoryV2/InventoryV2');     // Equipment Switch
 	//var InventoryV3 = require('./InventoryV3/InventoryV3');   // Inventory Expansion
 
 	var UIVersionManager = require('UI/UIVersionManager');
@@ -26,7 +26,7 @@ define(function (require)
 		default: InventoryV0,
 		common: {
 			//20181219:	InventoryV3,    // Inventory Expansion
-			//20170621:	InventoryV2,    // Equipment Switch
+			20170621:	InventoryV2,    // Equipment Switch
 			//20111207:	InventoryV1,    // Favorite Tab
 		},
 		re: {
