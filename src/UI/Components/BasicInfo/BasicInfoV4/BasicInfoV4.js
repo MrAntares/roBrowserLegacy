@@ -87,9 +87,9 @@ define(function(require)
 		});
 
 		this.ui.find('.topbar .right').click(BasicInfoV4.toggleMode.bind(this));
-		this.ui.find('.toggle_btns').mousedown(BasicInfoV4.toggleButtons.bind(this));
+		this.ui.find('.toggle_btns').click(BasicInfoV4.toggleButtons.bind(this));
 
-		this.ui.find('.buttons div').mousedown(function(){
+		this.ui.find('.buttons div').click(function(){
 			switch (this.id) {
 				case 'item':
 					Inventory.getUI().toggle();
