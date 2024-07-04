@@ -112,7 +112,7 @@ define(function( require )
 			ChatBox.FILTER.ITEM
 		);
 
-		Inventory.addItem(pkt);
+		Inventory.getUI().addItem(pkt);
 	}
 
 
@@ -123,7 +123,7 @@ define(function( require )
 	 */
 	function onInventorySetList( pkt )
 	{
-		Inventory.setItems( pkt.itemInfo || pkt.ItemInfo );
+		Inventory.getUI().setItems( pkt.itemInfo || pkt.ItemInfo );
 	}
 
 
@@ -134,7 +134,7 @@ define(function( require )
 	 */
 	function onIventoryRemoveItem( pkt )
 	{
-		Inventory.removeItem( pkt.Index, pkt.count || pkt.Count || 0);
+		Inventory.getUI().removeItem( pkt.Index, pkt.count || pkt.Count || 0);
 	}
 
 
@@ -159,7 +159,7 @@ define(function( require )
 				);
 
 				if (!(pkt.wearLocation & EquipLocation.AMMO)) {
-					Inventory.addItem(item);
+					Inventory.getUI().addItem(item);
 				}
 			}
 
@@ -185,7 +185,7 @@ define(function( require )
 	function onItemEquip( pkt )
 	{
 		if (pkt.result == 1) {
-			var item = Inventory.removeItem( pkt.index, 1 );
+			var item = Inventory.getUI().removeItem( pkt.index, 1 );
 			Equipment.getUI().equip( item, pkt.wearLocation );
 			ChatBox.addText(
 				DB.getItemName(item) + ' ' + DB.getMessage(170),
@@ -234,7 +234,7 @@ define(function( require )
 	{
 		if (!pkt.hasOwnProperty('AID') || Session.Entity.GID === pkt.AID) {
 			if (pkt.result) {
-				Inventory.updateItem( pkt.index, pkt.count );
+				Inventory.getUI().updateItem( pkt.index, pkt.count );
 			}
 			else {
 				// should we show a msg in chatbox ?
@@ -277,7 +277,7 @@ define(function( require )
 	 */
 	function onArrowEquipped( pkt )
 	{
-		var item = Inventory.getItemByIndex( pkt.index );
+		var item = Inventory.getUI().getItemByIndex( pkt.index );
 		Equipment.getUI().equip( item, EquipLocation.AMMO);
 	}
 
@@ -293,7 +293,7 @@ define(function( require )
 	 *
 	 * @param {number} card index
 	 */
-	Inventory.onUseCard = function onUseCard(index)
+	function onUseCard(index)
 	{
 		_cardComposition = index;
 		var pkt          = new PACKET.CZ.REQ_ITEMCOMPOSITION_LIST();
@@ -313,7 +313,7 @@ define(function( require )
 			return;
 		}
 
-		var card = Inventory.getItemByIndex(_cardComposition);
+		var card = Inventory.getUI().getItemByIndex(_cardComposition);
 
 		ItemSelection.append();
 		ItemSelection.setList(pkt.ITIDList);
@@ -340,8 +340,8 @@ define(function( require )
 	{
 		switch (pkt.result) {
 			case 0: // success
-				var item = Inventory.removeItem(pkt.equipIndex, 1);
-				var card = Inventory.removeItem(pkt.cardIndex,  1);
+				var item = Inventory.getUI().removeItem(pkt.equipIndex, 1);
+				var card = Inventory.getUI().removeItem(pkt.cardIndex,  1);
 
 				if (item) {
 					for (var i = 0; i < 4; ++i) {
@@ -350,7 +350,7 @@ define(function( require )
 							break;
 						}
 					}
-					Inventory.addItem(item);
+					Inventory.getUI().addItem(item);
 				}
 				break;
 
@@ -367,10 +367,10 @@ define(function( require )
 	 */
 	function onRefineResult( pkt )
 	{
-		var item = Inventory.removeItem( pkt.itemIndex, 1);
+		var item = Inventory.getUI().removeItem( pkt.itemIndex, 1);
 		if (item) {
 			item.RefiningLevel = pkt.RefiningLevel;
-			Inventory.addItem(item);
+			Inventory.getUI().addItem(item);
 		}
 
 		// TODO: effect ?
@@ -573,7 +573,7 @@ define(function( require )
 	function onItemListNormal(pkt) {
 		switch (pkt.invType) {
 			case 0:
-				Inventory.setItems( pkt.itemInfo || pkt.ItemInfo );
+				Inventory.getUI().setItems( pkt.itemInfo || pkt.ItemInfo );
 				break;
 			case 1:
 				CartItems.setItems( pkt.itemInfo || pkt.ItemInfo );
@@ -595,7 +595,7 @@ define(function( require )
 	function onItemListEquip(pkt) {
 		switch (pkt.invType) {
 			case 0:
-				Inventory.setItems( pkt.itemInfo || pkt.ItemInfo );
+				Inventory.getUI().setItems( pkt.itemInfo || pkt.ItemInfo );
 				break;
 			case 1:
 				CartItems.setItems( pkt.itemInfo || pkt.ItemInfo );
@@ -676,5 +676,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V6,     onShowPlayerEquip );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V7,     onShowPlayerEquip );
 
+		Inventory.getUI().onUseCard            = onUseCard;
 	};
 });

@@ -323,7 +323,7 @@ define(function(require)
 					out.count             = 0;
 
 					addItem( content, items[i]);
-					it = Inventory.getItemById(items[i].ITID);
+					it = Inventory.getUI().getItemById(items[i].ITID);
 
 					if (it) {
 						item                 = jQuery.extend({}, it);
@@ -345,7 +345,7 @@ define(function(require)
 
 			case NpcStore.Type.SELL:
 				for (i = 0, count = items.length; i < count; ++i) {
-					it = Inventory.getItemByIndex(items[i].index);
+					it = Inventory.getUI().getItemByIndex(items[i].index);
 
 					if (it) {
 						item                 = jQuery.extend({}, it);

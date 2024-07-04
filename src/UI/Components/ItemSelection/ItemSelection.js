@@ -87,7 +87,7 @@ define(function(require)
 				}
 				// else: skip empty
 			} else {
-				item = Inventory.getItemByIndex(list[i]);
+				item = Inventory.getUI().getItemByIndex(list[i]);
 				if (item){
 					it   = DB.getItemInfo( item.ITID );
 					if(it){

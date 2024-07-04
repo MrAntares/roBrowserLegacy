@@ -191,6 +191,7 @@ define(function( require )
 			Equipment.selectUIVersion();
 			PlayerViewEquip.selectUIVersion();
 			WinStats.selectUIVersion();
+			Inventory.selectUIVersion();
 		}
 
 		// Do not hook multiple time
@@ -252,7 +253,7 @@ define(function( require )
 
 			// Prepare UI
 			Escape.prepare();
-			Inventory.prepare();
+			Inventory.getUI().prepare();
 			CartItems.prepare();
 			Vending.prepare();
 			ChangeCart.prepare();
@@ -296,8 +297,8 @@ define(function( require )
 			Equipment.getUI().onRemoveOption        = onRemoveOption;
 			PetInformations.onConfigUpdate          = onConfigUpdate;
 			HomunInformations.onConfigUpdate        = onConfigUpdate;
-			Inventory.onUseItem             = onUseItem;
-			Inventory.onEquipItem           = onEquipItem;
+			Inventory.getUI().onUseItem             = onUseItem;
+			Inventory.getUI().onEquipItem           = onEquipItem;
 			Escape.onExitRequest            = onExitRequest;
 			Escape.onCharSelectionRequest   = onRestartRequest;
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
@@ -587,7 +588,7 @@ define(function( require )
 			ChatBoxSettings.append();
 			BasicInfo.getUI().append();
 			Escape.append();
-			Inventory.append();
+			Inventory.getUI().append();
 			CartItems.append();
 			Vending.append();
 			ChangeCart.append();

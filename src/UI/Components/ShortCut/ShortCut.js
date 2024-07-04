@@ -96,6 +96,8 @@ define(function(require)
 
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName;
+
+		Inventory.getUI().onUpdateItem = onUpdateItem;
 	};
 
 
@@ -320,7 +322,7 @@ define(function(require)
 		}
 		else {
 			_list[index].count = count;
-			var item = Inventory.getItemById(ID);
+			var item = Inventory.getUI().getItemById(ID);
 
 			// Do not display items not in inventory
 			if (!item) {
@@ -576,7 +578,7 @@ define(function(require)
 
 			ItemInfo.append();
 			ItemInfo.uid = _list[index].ID;
-			ItemInfo.setItem(Inventory.getItemById(_list[index].ID ));
+			ItemInfo.setItem(Inventory.getUI().getItemById(_list[index].ID ));
 		}
 
 		return false;
@@ -622,9 +624,9 @@ define(function(require)
 
 		// Use the item
 		else {
-			var item = Inventory.getItemById( _list[index].ID );
+			var item = Inventory.getUI().getItemById( _list[index].ID );
 			if (item) {
-				Inventory.useItem( item );
+				Inventory.getUI().useItem( item );
 			}
 		}
 	}
@@ -648,7 +650,7 @@ define(function(require)
 	 * @param {number} index
 	 * @param {number} count
 	 */
-	Inventory.onUpdateItem = function( index, count)
+	function onUpdateItem ( index, count)
 	{
 		ShortCut.setElement( false, index, count);
 	};

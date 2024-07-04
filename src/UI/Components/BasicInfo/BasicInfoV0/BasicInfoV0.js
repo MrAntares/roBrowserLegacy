@@ -89,7 +89,7 @@ define(function(require)
 		this.ui.find('.buttons button').mousedown(function(){
 			switch (this.className) {
 				case 'item':
-					Inventory.ui.toggle();
+					Inventory.getUI().toggle();
 					break;
 
 				case 'info':
