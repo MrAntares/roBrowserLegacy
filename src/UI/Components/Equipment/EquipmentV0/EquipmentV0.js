@@ -35,7 +35,7 @@ define(function(require)
 	var CartItems          = require('UI/Components/CartItems/CartItems');
 	var htmlText           = require('text!./EquipmentV0.html');
 	var cssText            = require('text!./EquipmentV0.css');
-
+	var getModule          = require;
 
 	/**
 	 * Create Component
@@ -301,6 +301,12 @@ define(function(require)
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function(data){
 			this.ui.find('.item[data-index="'+ item.index +'"] button').css('backgroundImage', 'url('+ data +')');
 		}.bind(this));
+
+		var Inventory = getModule('UI/Components/Inventory/Inventory');
+		
+		if (!Inventory.getUI().equippedItems.includes(item.index)) {
+			Inventory.getUI().equippedItems.push(item.index);
+		}
 	};
 
 

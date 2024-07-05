@@ -66,6 +66,13 @@ define(function(require)
 
 
 	/**
+	 * Store new items
+	 */
+	InventoryV2.newItems = [];
+	InventoryV2.equippedItems = [];
+
+
+	/**
 	 * @var {number} used to remember the window height
 	 */
 	var _realSize = 0;
@@ -164,6 +171,7 @@ define(function(require)
 		this.ui.find('.container .content').empty();
 		this.list.length = 0;
 		this.equipswitchlist.length = 0; // Clear the equipswitchlist array
+		InventoryV2.newItems.length = 0; // Clear the new items array
 		jQuery('.ItemInfo').remove();
 
 		// Save preferences
@@ -201,9 +209,15 @@ define(function(require)
 					// triggered ALT+E then, the window disapear and you
 					// can't trigger the scene anymore
 					this.ui.trigger('mouseleave');
+					this.clearNewItems(); // Clear new items
+					this.ui.find('.new_item').css('backgroundImage', '');
 				}
 				break;
 		}
+
+		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
+		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+		changeUI.hide();
 	};
 
 
@@ -216,9 +230,22 @@ define(function(require)
 			this.focus();
 		} else {
 			this.ui.trigger('mouseleave');
+			this.clearNewItems(); // Clear new items
+			this.ui.find('.new_item').css('backgroundImage', '');
 		}
+
+		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
+		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+		changeUI.hide();
 	};
 
+
+	/**
+	 * Clear newItems array
+	 */
+	InventoryV2.clearNewItems = function clearNewItems() {
+	    this.newItems = [];
+	};
 
 	/**
 	 * Extend inventory window size
@@ -319,10 +346,32 @@ define(function(require)
 	{
 		var object = this.getItemByIndex(item.index);
 
+		// Check if the item was equipped
+    	var equippedIndex = InventoryV2.equippedItems.indexOf(item.index);
+    	if (equippedIndex !== -1) {
+    	    // Remove from equipped tracker
+    	    InventoryV2.equippedItems.splice(equippedIndex, 1);
+    	} else {
+    	    // Mark as new item
+    	    InventoryV2.newItems.push(item.index);
+
+			var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
+			var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+			changeUI.show();
+		}
+
 		if (object) {
 			object.count += item.count;
 			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
 			this.onUpdateItem(object.ITID, object.count);
+			// Replace the existing index in newItems to maintain it as new
+			var indexPosition = InventoryV2.newItems.indexOf(item.index);
+			if (indexPosition !== -1) {
+				InventoryV2.newItems.splice(indexPosition, 1, item.index);
+			} else {
+				InventoryV2.newItems.push(item.index);
+			}
+			onAddNewItem();
 			return;
 		}
 
@@ -332,6 +381,49 @@ define(function(require)
 			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 			this.onUpdateItem(object.ITID, object.count);
 		}
+
+		function onAddNewItem() {
+			var tab;
+			switch (item.type) {
+				case ItemType.HEALING:
+				case ItemType.USABLE:
+				case ItemType.USABLE_SKILL:
+				case ItemType.USABLE_UNK:
+					tab = InventoryV2.TAB.USABLE;
+					break;
+
+				case ItemType.WEAPON:
+				case ItemType.EQUIP:
+				case ItemType.PETEGG:
+				case ItemType.PETEQUIP:
+					tab = InventoryV2.TAB.EQUIP;
+					break;
+
+				default:
+				case ItemType.ETC:
+				case ItemType.CARD:
+				case ItemType.AMMO:
+					tab = InventoryV2.TAB.ETC;
+					break;
+			}
+
+			if (tab === _preferences.tab) {
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
+        	        InventoryV2.ui.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
+        	    });
+			}
+		}
+	};
+
+
+	/**
+	 * Check if item index is in newItems list
+	 *
+	 * @param {number} index - Item index to check
+	 * @returns {boolean} - True if item index is in newItems list, false otherwise
+	 */
+	InventoryV2.isNewItem = function isNewItem(index) {
+	    return InventoryV2.newItems.includes(index);
 	};
 
 
@@ -378,6 +470,7 @@ define(function(require)
 
 			content.append(
 				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
+					'<div class="new_item"></div>' +
 					'<div class="icon"></div>' +
 					'<div class="switch1"></div>' +
 					'<div class="switch2"></div>' +
@@ -396,6 +489,14 @@ define(function(require)
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
+
+			if (InventoryV2.isNewItem(item.index)) {
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
+            	    content.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
+            	});
+			} else {
+				content.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', '');
+			}
 
 			// Check if the item is in the equipswitchlist
 			var isInEquipSwitchList = InventoryV2.equipswitchlist.some(function(equipItem) {
@@ -865,7 +966,7 @@ define(function(require)
 
 		// Set image to the drag drop element
 		var img   = new Image();
-		var url   = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		var url = this.querySelector('.icon').style.backgroundImage.match(/\((.*?)\)/)[1].replace(/('|")/g,'');
 		img.src   = url.replace(/^\"/, '').replace(/\"$/, '');
 
 		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );

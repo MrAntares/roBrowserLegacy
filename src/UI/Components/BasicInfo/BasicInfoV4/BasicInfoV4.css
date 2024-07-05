@@ -45,3 +45,5 @@
 #BasicInfoV4 .buttons div .name { position: relative; display:none; z-index:1; top:-20px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem;; }
 #BasicInfoV4 .buttons div:hover .name { display:table; }
 #BasicInfoV4 .buttons div .name { display:none; }
+
+#BasicInfoV4 .buttons .btn_overlay { width:35px; height:40px; border:none; position: relative; top: -13px; left: -7px; z-index: 10; display: none; }

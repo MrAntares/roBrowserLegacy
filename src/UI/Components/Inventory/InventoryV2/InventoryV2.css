@@ -71,3 +71,14 @@
     z-index: 1;
     top: 12px;
 }
+
+#InventoryV2 .content .item .new_item {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    top: -5px;
+    left: -5px;
+}

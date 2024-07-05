@@ -1,5 +1,5 @@
 /**
- * UI/Components/Inventory/InventoryV0/InventoryV0.js
+ * UI/Components/InventoryV0/InventoryV0.js
  *
  * Chararacter Inventory
  *
@@ -55,6 +55,13 @@ define(function(require)
 	 * Store inventory items
 	 */
 	InventoryV0.list = [];
+
+
+	/**
+	 * Store new items
+	 */
+	InventoryV0.newItems = [];
+	InventoryV0.equippedItems = [];
 
 
 	/**
@@ -155,6 +162,7 @@ define(function(require)
 	{
 		this.ui.find('.container .content').empty();
 		this.list.length = 0;
+		InventoryV0.newItems.length = 0; // Clear the new items array
 		jQuery('.ItemInfo').remove();
 
 		// Save preferences
@@ -192,9 +200,46 @@ define(function(require)
 					// triggered ALT+E then, the window disapear and you
 					// can't trigger the scene anymore
 					this.ui.trigger('mouseleave');
+					this.clearNewItems(); // Clear new items
+					this.ui.find('.new_item').css('backgroundImage', '');
 				}
 				break;
 		}
+
+		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
+		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+		if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+			changeUI.hide();
+		}
+	};
+
+
+	/**
+	 * Show/Hide UI
+	 */
+	InventoryV0.toggle = function toggle() {
+		this.ui.toggle();
+		if (this.ui.is(':visible')) {
+			this.focus();
+		} else {
+			this.ui.trigger('mouseleave');
+			this.clearNewItems(); // Clear new items
+			this.ui.find('.new_item').css('backgroundImage', '');
+		}
+
+		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
+		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+		if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+			changeUI.hide();
+		}
+	};
+
+
+	/**
+	 * Clear newItems array
+	 */
+	InventoryV0.clearNewItems = function clearNewItems() {
+	    this.newItems = [];
 	};
 
 
@@ -297,10 +342,34 @@ define(function(require)
 	{
 		var object = this.getItemByIndex(item.index);
 
+		// Check if the item was equipped
+    	var equippedIndex = InventoryV0.equippedItems.indexOf(item.index);
+    	if (equippedIndex !== -1) {
+    	    // Remove from equipped tracker
+    	    InventoryV0.equippedItems.splice(equippedIndex, 1);
+    	} else {
+    	    // Mark as new item
+    	    InventoryV0.newItems.push(item.index);
+
+			var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
+			var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+			if (changeUI) {	// Only applicable to BasicInfoV4 and BasicInfoV5
+				changeUI.show();
+			}
+		}
+
 		if (object) {
 			object.count += item.count;
 			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
 			this.onUpdateItem(object.ITID, object.count);
+			// Replace the existing index in newItems to maintain it as new
+			var indexPosition = InventoryV0.newItems.indexOf(item.index);
+			if (indexPosition !== -1) {
+				InventoryV0.newItems.splice(indexPosition, 1, item.index);
+			} else {
+				InventoryV0.newItems.push(item.index);
+			}
+			onAddNewItem();
 			return;
 		}
 
@@ -310,6 +379,49 @@ define(function(require)
 			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 			this.onUpdateItem(object.ITID, object.count);
 		}
+
+		function onAddNewItem() {
+			var tab;
+			switch (item.type) {
+				case ItemType.HEALING:
+				case ItemType.USABLE:
+				case ItemType.USABLE_SKILL:
+				case ItemType.USABLE_UNK:
+					tab = InventoryV0.TAB.USABLE;
+					break;
+
+				case ItemType.WEAPON:
+				case ItemType.EQUIP:
+				case ItemType.PETEGG:
+				case ItemType.PETEQUIP:
+					tab = InventoryV0.TAB.EQUIP;
+					break;
+
+				default:
+				case ItemType.ETC:
+				case ItemType.CARD:
+				case ItemType.AMMO:
+					tab = InventoryV0.TAB.ETC;
+					break;
+			}
+
+			if (tab === _preferences.tab) {
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
+        	        InventoryV0.ui.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
+        	    });
+			}
+		}
+	};
+
+
+	/**
+	 * Check if item index is in newItems list
+	 *
+	 * @param {number} index - Item index to check
+	 * @returns {boolean} - True if item index is in newItems list, false otherwise
+	 */
+	InventoryV0.isNewItem = function isNewItem(index) {
+	    return InventoryV0.newItems.includes(index);
 	};
 
 
@@ -356,6 +468,7 @@ define(function(require)
 
 			content.append(
 				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
+					'<div class="new_item"></div>' +
 					'<div class="icon"></div>' +
 					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
 				'</div>'
@@ -371,6 +484,14 @@ define(function(require)
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
+
+			if (InventoryV0.isNewItem(item.index)) {
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
+            	    content.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
+            	});
+			} else {
+				content.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', '');
+			}
 		}
 
 		return true;
@@ -649,27 +770,28 @@ define(function(require)
 							item.index,
 							parseInt(count, 10 )
 							);
-					break;
+						break;
 
 					case 'CartItems':
 						getModule('UI/Components/CartItems/CartItems').reqRemoveItem(
 							item.index,
 							parseInt(count, 10 )
 							);
+						break;
 
 					case 'Mail':
 						getModule('UI/Components/Mail/Mail').reqRemoveItem(
 							item.index,
 							parseInt(count, 10 )
 							);
+						break;
 
 					case 'WriteRodex':
 						getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex(
 							item.index,
 							parseInt(count, 10 )
 							);
-
-					break;
+						break;
 
 					}
 			};
@@ -680,18 +802,19 @@ define(function(require)
 		{
 			case 'Storage':
 				getModule('UI/Components/Storage/Storage').reqRemoveItem( item.index, 1 );
-			break;
+				break;
 
 			case 'CartItems':
 				getModule('UI/Components/CartItems/CartItems').reqRemoveItem( item.index, 1 );
-			break;
+				break;
 
 			case 'Mail':
 				getModule('UI/Components/Mail/Mail').reqRemoveItem( item.index, 1 );
+				break;
 
 			case 'WriteRodex':
 				getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex( item.index, 1 );
-			break;
+				break;
 		}
 
 		return false;
@@ -774,7 +897,7 @@ define(function(require)
 
 		// Set image to the drag drop element
 		var img   = new Image();
-		var url   = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		var url = this.querySelector('.icon').style.backgroundImage.match(/\((.*?)\)/)[1].replace(/('|")/g,'');
 		img.src   = url.replace(/^\"/, '').replace(/\"$/, '');
 
 		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );

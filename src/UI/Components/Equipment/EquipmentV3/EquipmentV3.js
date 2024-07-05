@@ -438,8 +438,12 @@ define(function(require)
 			this.ui.find('.item[data-index="'+ item.index +'"] button').css('backgroundImage', 'url('+ data +')');
 		}.bind(this));
 
-		var Inventory          = require('UI/Components/Inventory/Inventory');
-
+		var Inventory = getModule('UI/Components/Inventory/Inventory');
+		
+		if (!Inventory.getUI().equippedItems.includes(item.index)) {
+			Inventory.getUI().equippedItems.push(item.index);
+		}
+		
 		if (PACKETVER.value >= 20170621) {
 			if(!Inventory.getUI().isInEquipSwitchList(location)) {
 				SwitchEquip.equip(item, location, false);
