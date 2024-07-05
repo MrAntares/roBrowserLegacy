@@ -94,7 +94,7 @@ define(function(require)
 	 * @var {jQuery} variable for Switch Equip
 	 */
 	var switchappend;
-
+	var switchUIopen;
 
 	/**
 	 * Initialize UI
@@ -213,6 +213,19 @@ define(function(require)
 
 		if (SwitchEquip.ui){
 			SwitchEquip.showSwapTab(currentTabId);
+		}
+
+		if (currentTabId === 'title') {
+			if (SwitchEquip.ui) {
+				switchUIopen = SwitchEquip.ui.is(':visible');
+				SwitchEquip.ui.hide();
+			}
+			EquipmentV3.ui.find('.switch_equip').hide();
+		} else {
+			if (SwitchEquip.ui && switchUIopen) {
+				SwitchEquip.ui.show();
+			}
+			EquipmentV3.ui.find('.switch_equip').show();
 		}
 
 		// Stop the browser following the link
