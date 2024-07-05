@@ -217,7 +217,9 @@ define(function(require)
 
 		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-		changeUI.hide();
+		if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+			changeUI.hide();
+		}
 	};
 
 
@@ -236,7 +238,9 @@ define(function(require)
 
 		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-		changeUI.hide();
+		if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+			changeUI.hide();
+		}
 	};
 
 
@@ -347,17 +351,19 @@ define(function(require)
 		var object = this.getItemByIndex(item.index);
 
 		// Check if the item was equipped
-    	var equippedIndex = InventoryV2.equippedItems.indexOf(item.index);
-    	if (equippedIndex !== -1) {
-    	    // Remove from equipped tracker
-    	    InventoryV2.equippedItems.splice(equippedIndex, 1);
-    	} else {
-    	    // Mark as new item
-    	    InventoryV2.newItems.push(item.index);
+		var equippedIndex = InventoryV2.equippedItems.indexOf(item.index);
+		if (equippedIndex !== -1) {
+		    // Remove from equipped tracker
+		    InventoryV2.equippedItems.splice(equippedIndex, 1);
+		} else {
+		    // Mark as new item
+		    InventoryV2.newItems.push(item.index);
 
 			var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 			var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-			changeUI.show();
+			if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+				changeUI.show();
+			}
 		}
 
 		if (object) {
