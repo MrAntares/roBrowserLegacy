@@ -20,6 +20,7 @@ define(function( require )
 	var EquipLocation			 = require('DB/Items/EquipmentLocation');
 	var Network      			 = require('Network/NetworkManager');
 	var PACKET       			 = require('Network/PacketStructure');
+	var PACKETVER   			 = require('Network/PacketVerManager');
 	var ItemObject   			 = require('Renderer/ItemObject');
 	var Altitude     			 = require('Renderer/Map/Altitude');
 	var Session      			 = require('Engine/SessionStorage');
@@ -175,8 +176,10 @@ define(function( require )
 			if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM) Session.Entity.accessory  = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 			if (pkt.wearLocation & EquipLocation.COSTUME_ROBE)     Session.Entity.robe       = Equipment.getUI().checkEquipLoc(EquipLocation.GARMENT);
 		
-			if(!Inventory.getUI().isInEquipSwitchList(pkt.wearLocation)) {
-				SwitchEquip.unEquip( pkt.index, pkt.wearLocation );
+			if(PACKETVER.value >= 20170208) { // Remove from Switch Window as well
+				if (!Inventory.getUI().isInEquipSwitchList(pkt.wearLocation)) {
+					SwitchEquip.unEquip( pkt.index, pkt.wearLocation );
+				}
 			}
 		}
 	}
