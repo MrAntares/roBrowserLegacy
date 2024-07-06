@@ -14057,7 +14057,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.favorite = fp.readUChar();
 		this.look = fp.readUShort();
 		this.RefiningLevel = fp.readUChar();
-		this.grade = fp.readUChar();
+		this.enchantgrade = fp.readUChar();
 	};
 	PACKET.ZC.ITEM_PICKUP_ACK8.size = 70;
 
