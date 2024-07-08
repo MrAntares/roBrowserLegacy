@@ -83,7 +83,7 @@
 
         this.draggable(this.ui.find('.titlebar'));
         
-        this.setList(Inventory.list);
+        this.setList(Inventory.getUI().list);
      };
 
 
@@ -92,7 +92,7 @@
 	 */
 	ItemListWindowSelection.onAppend = function OnAppend()
 	{
-		this.setList(Inventory.list);
+		this.setList(Inventory.getUI().list);
 		ConvertItems.append();
 	}
  

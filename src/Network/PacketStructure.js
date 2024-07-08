@@ -13201,10 +13201,53 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ADD_EXCHANGE_ITEM4.size = (PACKETVER.value >= 20181121 ? 51 : 61);
 
+	// 0xa97
+	PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD = function PACKET_CZ_REQ_WEAR_SWITCHEQUIP_ADD() {
+		this.index = 0;
+		this.wearLocation = 0;
+	};
+	PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(8);
+
+		pkt_buf.writeShort(0xa97);
+		pkt_buf.writeUShort(this.index);
+    	pkt_buf.writeULong(this.wearLocation);
+		return pkt_buf;
+	};
+
+	// 0xa98
+	PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT = function PACKET_ZC_REQ_WEAR_SWITCHEQUIP_ADD_RESULT(fp, end) {
+		this.index = fp.readUShort();
+		this.location = fp.readULong();
+		this.flag = (PACKETVER.value > 20170502 ? fp.readUShort() : fp.readULong());
+	};
+	PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT.size = (PACKETVER.value > 20170502 ? 10 : 12);
+
+	// 0xa99
+	PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE = function PACKET_CZ_REQ_WEAR_SWITCHEQUIP_REMOVE() {
+		this.index = 0;
+		this.wearLocation = 0;
+	};
+	PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(4);
+
+		pkt_buf.writeShort(0xa99);
+		pkt_buf.writeUShort(this.index);
+		return pkt_buf;
+	};
+
+	// 0xa9a
+	PACKET.ZC.REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT = function PACKET_ZC_REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT(fp, end) {
+		this.index = fp.readUShort();
+		this.location = fp.readULong();
+		this.flag = fp.readUShort();
+	};
+	PACKET.ZC.REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT.size = 10;
+
 	//0xa9b
 	PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO = function PACKET_ZC_SEND_SWAP_EQUIPITEM_INFO(fp, end) {
 		this.ItemInfo = (function() {
-			var i, count = (end - fp.tell()) / 4 | 0,
+			var i, count = (end - fp.tell()) / 6 | 0,
 				out = new Array(count);
 			var flag;
 			for (i = 0; i < count; ++i) {
@@ -13216,6 +13259,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO.size = -1;
+
+	// 0xa9c - Equip switch request packet
+	PACKET.CZ.REQ_FULLSWITCH = function PACKET_CZ_REQ_FULLSWITCH() {
+	};
+	PACKET.CZ.REQ_FULLSWITCH.prototype.build = function() {
+	    var pkt_buf = new BinaryWriter(2);
+
+	    pkt_buf.writeShort(0xa9c); // Packet ID for equip switch request
+	    return pkt_buf;
+	};
+
+	// 0xa9d - Equip switch reply packet
+	PACKET.ZC.REQ_FULLSWITCH_RESULT = function PACKET_ZC_REQ_FULLSWITCH_RESULT(fp, end) {
+	    this.failed = fp.readUShort();
+	};
+	PACKET.ZC.REQ_FULLSWITCH_RESULT.size = 4;
 
 	// 0xaa5
 	PACKET.ZC.MEMBERMGR_INFO2 = function PACKET_ZC_MEMBERMGR_INFO2(fp, end) {
@@ -13998,7 +14057,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.favorite = fp.readUChar();
 		this.look = fp.readUShort();
 		this.RefiningLevel = fp.readUChar();
-		this.grade = fp.readUChar();
+		this.enchantgrade = fp.readUChar();
 	};
 	PACKET.ZC.ITEM_PICKUP_ACK8.size = 70;
 

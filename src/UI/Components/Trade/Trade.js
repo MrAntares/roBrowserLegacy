@@ -140,7 +140,7 @@ define(function(require)
 			return;
 		}
 
-		var item    = jQuery.extend({}, Inventory.removeItem(index, _tmpCount[index]));
+		var item    = jQuery.extend({}, Inventory.getUI().removeItem(index, _tmpCount[index]));
 		var it      = DB.getItemInfo( item.ITID );
 		var idx     = _send.push(item) - 1;
 		var box     = this.ui.find('.box.send');

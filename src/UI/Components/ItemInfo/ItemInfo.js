@@ -234,6 +234,39 @@ define(function(require)
 			ui.find('.title').removeClass('damaged');
 		}
 
+		/* Grade System */
+		var container = ui.find('.container');
+
+		switch(item.enchantgrade)  {
+			case 0:
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg.bmp', function(data){
+					container.css('background-image', 'url(' + data + ')');
+				});
+				break;
+		    case 1:
+		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g1.bmp', function(data){
+		            container.css('background-image', 'url(' + data + ')');
+		        });
+		        break;
+		    case 2:
+		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g2.bmp', function(data){
+		            container.css('background-image', 'url(' + data + ')');
+		        });
+		        break;
+		    case 3:
+		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g3.bmp', function(data){
+		            container.css('background-image', 'url(' + data + ')');
+		        });
+		        break;
+		    case 4:
+		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g4.bmp', function(data){
+		            container.css('background-image', 'url(' + data + ')');
+		        });
+		        break;
+		    default:
+		        break;
+		}
+
 		ui.find('.title').text( item.IsIdentified ? (customname + it.identifiedDisplayName) : it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
 

@@ -290,12 +290,12 @@ define(function( require )
 				ChatBox.addText( DB.getMessage(491), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 				// Remove old item
-				var item = Inventory.removeItem(pkt.index, 1);
+				var item = Inventory.getUI().removeItem(pkt.index, 1);
 
 				// Add new item updated
 				if (item) {
 					item.IsIdentified = true;
-					Inventory.addItem(item);
+					Inventory.getUI().addItem(item);
 				}
 				break;
 

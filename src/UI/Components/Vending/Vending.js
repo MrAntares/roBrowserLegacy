@@ -820,8 +820,8 @@ define(function(require)
 		// get from inventory and compare with buyingstoreitemlist.txt
 		//Inventory.list
 		let buyable = new Array();
-		for(let key in Inventory.list) {
-			let item = Inventory.list[key];
+		for(let key in Inventory.getUI().list) {
+			let item = Inventory.getUI().list[key];
 			if(isItemStackable(item) && DB.isBuyable(item.ITID))
 				buyable.push(item);
 		}
@@ -915,7 +915,7 @@ define(function(require)
 		if(!(this.classList.contains('input'))) return;
 
 		var idx  = parseInt( this.getAttribute('data-index'), 10);
-		var item = _type == Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getItemByIndex(idx);
+		var item = _type == Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return;

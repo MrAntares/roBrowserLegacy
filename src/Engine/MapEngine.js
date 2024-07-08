@@ -55,6 +55,7 @@ define(function( require )
 	var ChangeCart       = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
+	var SwitchEquip      = require('UI/Components/SwitchEquip/SwitchEquip');
 	var ShortCuts        = require('UI/Components/ShortCuts/ShortCuts');
 	var StatusIcons      = require('UI/Components/StatusIcons/StatusIcons');
 	var ChatRoomCreate   = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
@@ -191,6 +192,7 @@ define(function( require )
 			Equipment.selectUIVersion();
 			PlayerViewEquip.selectUIVersion();
 			WinStats.selectUIVersion();
+			Inventory.selectUIVersion();
 		}
 
 		// Do not hook multiple time
@@ -252,11 +254,12 @@ define(function( require )
 
 			// Prepare UI
 			Escape.prepare();
-			Inventory.prepare();
+			Inventory.getUI().prepare();
 			CartItems.prepare();
 			Vending.prepare();
 			ChangeCart.prepare();
 			Equipment.getUI().prepare();
+			SwitchEquip.prepare();
 			ShortCuts.prepare();
 			ShortCut.prepare();
 			ChatRoomCreate.prepare();
@@ -296,13 +299,15 @@ define(function( require )
 			Equipment.getUI().onRemoveOption        = onRemoveOption;
 			PetInformations.onConfigUpdate          = onConfigUpdate;
 			HomunInformations.onConfigUpdate        = onConfigUpdate;
-			Inventory.onUseItem             = onUseItem;
-			Inventory.onEquipItem           = onEquipItem;
+			Inventory.getUI().onUseItem             = onUseItem;
+			Inventory.getUI().onEquipItem           = onEquipItem;
 			Escape.onExitRequest            = onExitRequest;
 			Escape.onCharSelectionRequest   = onRestartRequest;
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
 			Escape.onResurectionRequest     = onResurectionRequest;
 			ChatBox.onRequestTalk           = onRequestTalk;
+			SwitchEquip.onAddSwitchEquip	= onAddSwitchEquip;
+			SwitchEquip.onRemoveSwitchEquip	= onRemoveSwitchEquip;
 
 		}
 
@@ -587,7 +592,7 @@ define(function( require )
 			ChatBoxSettings.append();
 			BasicInfo.getUI().append();
 			Escape.append();
-			Inventory.append();
+			Inventory.getUI().append();
 			CartItems.append();
 			Vending.append();
 			ChangeCart.append();
@@ -1120,6 +1125,29 @@ define(function( require )
 	{
 		var pkt   = new PACKET.CZ.REQ_TAKEOFF_EQUIP();
 		pkt.index = index;
+		Network.sendPacket(pkt);
+	}
+
+
+	/**
+	 * Add Switch Equip
+	 */
+	function onAddSwitchEquip( index, location )
+	{
+		var pkt          = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD();
+		pkt.index		 = index;
+		pkt.wearLocation = location;
+		Network.sendPacket(pkt);
+	}
+
+
+	/**
+	 * Remove Switch Equip
+	 */
+	function onRemoveSwitchEquip( index )
+	{
+		var pkt          = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE();
+		pkt.index		 = index;
 		Network.sendPacket(pkt);
 	}
 

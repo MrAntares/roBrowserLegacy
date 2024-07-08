@@ -231,7 +231,7 @@
      {
          this.onIndexSelected( this.index, this.material, this.mkType );
          if(this.index == -1){
-             this.material.forEach(item => Inventory.addItem(item));
+             this.material.forEach(item => Inventory.getUI().addItem(item));
          }
          this.remove();
      };
@@ -278,7 +278,7 @@
 				 switch(from)
 				{
 					case 'Inventory':
-						Inventory.removeItem( item.index, 1 );
+						Inventory.getUI().removeItem( item.index, 1 );
 					break;
 				}
                  this.material.push(item);

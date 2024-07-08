@@ -2369,7 +2369,7 @@ define(function( require )
 	 * Does player have a Token of Siegfried?
 	 */
 	function haveSiegfriedItem(){
-		var	itemInfo = Inventory.getItemById(7621); 
+		var	itemInfo = Inventory.getUI().getItemById(7621); 
 
 		if ( Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode )
 			return false ;
