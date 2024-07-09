@@ -551,7 +551,7 @@ define(function(require)
 					break;
 
 					case 'Inventory':
-						getModule('UI/Components/Inventory/Inventory').reqMoveItemToCart(
+						getModule('UI/Components/Inventory/Inventory').getUI().reqMoveItemToCart(
 							item.index,
 							parseInt(count, 10 )
 							);
@@ -569,7 +569,7 @@ define(function(require)
 			break;
 
 			case 'Inventory':
-				getModule('UI/Components/Inventory/Inventory').reqMoveItemToCart( item.index, 1 );
+				getModule('UI/Components/Inventory/Inventory').getUI().reqMoveItemToCart( item.index, 1 );
 			break;
 		}
 
