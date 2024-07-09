@@ -10919,6 +10919,21 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.EQUIPWIN_MICROSCOPE_V3.size = -1;
 
+	// 0x907
+	PACKET.CZ.INVENTORY_TAB = function PACKET_CZ_INVENTORY_TAB() {
+		this.item_index = 0;
+		this.favorite = 0;
+	};
+	PACKET.CZ.INVENTORY_TAB.prototype.build = function() {
+		var pkt_len = 5;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x907);
+		pkt_buf.writeShort(this.item_index);
+		pkt_buf.writeByte(this.favorite ? 1 : 0);
+		return pkt_buf;
+	};
+
 	// 0x908
 	PACKET.ZC.ITEM_FAVORITE = function PACKET_ZC_ITEM_FAVORITE(fp, end) {
 		this.index = fp.readUShort();
@@ -13737,11 +13752,51 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
     };
     PACKET.ZC.NOTIFY_ACTORINIT2.size = 2;
 
+	// 0xb14
+	PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE = function PACKET_CZ_REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE() {
+	};
+	PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+		pkt_buf.writeShort(0xb14);
+		return pkt_buf;
+	};
+
+	// 0xb15
+	PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE = function PACKET_ZC_ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE(fp, end) {
+		this.result = fp.readUChar();
+		this.itemId = fp.readULong();
+	};
+	PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE.size = 7;
+
+	// 0xb16
+	PACKET.CZ.REQ_EXTEND_BODYITEM_SIZE = function PACKET_CZ_REQ_EXTEND_BODYITEM_SIZE() {
+	};
+	PACKET.CZ.REQ_EXTEND_BODYITEM_SIZE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+		pkt_buf.writeShort(0xb16);
+		return pkt_buf;
+	};
+
+	// 0xb17
+	PACKET.ZC.ACK_EXTEND_BODYITEM_SIZE = function PACKET_ZC_ACK_EXTEND_BODYITEM_SIZE(fp, end) {
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.ACK_EXTEND_BODYITEM_SIZE.size = 3;
+
 	// 0xb18
 	PACKET.ZC.EXTEND_BODYITEM_SIZE = function PACKET_ZC_EXTEND_BODYITEM_SIZE(fp, end) {
         this.type = fp.readUShort();
     };
     PACKET.ZC.EXTEND_BODYITEM_SIZE.size = 4;
+
+	// 0xb19
+	PACKET.CZ.CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE = function PACKET_CZ_CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE() {
+	};
+	PACKET.CZ.CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+		pkt_buf.writeShort(0xb19);
+		return pkt_buf;
+	};
 
 	// 0xb1c
 	PACKET.CZ.PING_LIVE = function PACKET_CZ_PING_LIVE() {

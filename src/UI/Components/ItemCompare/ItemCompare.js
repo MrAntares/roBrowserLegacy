@@ -1,7 +1,7 @@
 /**
- * UI/Components/ItemInfo/ItemInfo.js
+ * UI/Components/ItemCompare/ItemCompare.js
  *
- * Item Information
+ * Item Comparison Information
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -24,14 +24,13 @@ define(function(require)
 	var UIManager          = require('UI/UIManager');
 	var Mouse              = require('Controls/MouseEventHandler');
 	var UIComponent        = require('UI/UIComponent');
-	var ItemCompare        = require('UI/Components/ItemCompare/ItemCompare');
 	var MakeReadBook       = require('UI/Components/MakeReadBook/MakeReadBook');
 	var Renderer           = require('Renderer/Renderer');
 	var SpriteRenderer     = require('Renderer/SpriteRenderer');
 	var Sprite             = require('Loaders/Sprite');
 	var Action             = require('Loaders/Action');
-	var htmlText           = require('text!./ItemInfo.html');
-	var cssText            = require('text!./ItemInfo.css');
+	var htmlText           = require('text!./ItemCompare.html');
+	var cssText            = require('text!./ItemCompare.css');
 	var Network       	   = require('Network/NetworkManager');
 	var PACKET        	   = require('Network/PacketStructure');
 	var getModule     = require;
@@ -40,7 +39,7 @@ define(function(require)
 	/**
 	 * Create Component
 	 */
-	var ItemInfo = new UIComponent( 'ItemInfo', htmlText, cssText );
+	var ItemCompare = new UIComponent( 'ItemCompare', htmlText, cssText );
 
 	/**
 	 * @var {Sprite,Action} objects
@@ -63,44 +62,52 @@ define(function(require)
 	var _start = 0;
 
 	/**
-	 * @var {number} ItemInfo unique id
+	 * @var {number} ItemCompare unique id
 	 */
-	ItemInfo.uid = -1;
+	ItemCompare.uid = -1;
 
 	/**
 	 * Once append to the DOM
 	 */
-	ItemInfo.onKeyDown = function onKeyDown( event )
+	/*
+	ItemCompare.onKeyDown = function onKeyDown( event )
 	{
 		if (event.which === KEYS.ESCAPE) {
-			ItemInfo.remove();
-			if (ItemCompare.ui) {
-				ItemCompare.remove();
-			}
+			ItemCompare.remove();
 			event.stopImmediatePropagation();
 			return false;
 		}
 
 		return true;
 	};
-
+	*/
 
 	/**
 	 * Once append
 	 */
-	ItemInfo.onAppend = function onAppend()
+	ItemCompare.onAppend = function onAppend()
 	{
 		// Seems like "EscapeWindow" is execute first, push it before.
 		var events = jQuery._data( window, 'events').keydown;
 		events.unshift( events.pop() );
-		resize(ItemInfo.ui.find('.container').height());
+		resize(ItemCompare.ui.find('.container').height());
+
+		var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
+		// Position ItemCompare next to ItemInfo
+		var itemInfoPosition = ItemInfo.ui.offset();
+		var itemInfoWidth = ItemInfo.ui.outerWidth();
+		ItemCompare.ui.css({
+			position: 'absolute',
+			top: itemInfoPosition.top ? itemInfoPosition.top : 200,
+			left: itemInfoPosition.left ?  itemInfoPosition.left - itemInfoWidth : 200 // Adjust spacing as needed
+		});
 	};
 
 
 	/**
 	 * Once removed from html
 	 */
-	ItemInfo.onRemove = function onRemove()
+	ItemCompare.onRemove = function onRemove()
 	{
 		this.uid = -1;
 	};
@@ -109,21 +116,10 @@ define(function(require)
 	/**
 	 * Initialize UI
 	 */
-	ItemInfo.init = function init()
+	ItemCompare.init = function init()
 	{
-		this.ui.css({ top: 200, left:480 });
+		this.ui.css({ top: 200, left:200 });
 		this.ui.find('.extend').mousedown(onResize);
-		this.ui.find('.close')
-			.mousedown(function(event){
-				event.stopImmediatePropagation();
-				return false;
-			})
-			.click(function() {
-				this.remove();
-				if (ItemCompare.ui) {
-					ItemCompare.remove();
-				}
-			}.bind(this));
 
 		// Ask to see card.
 		this.ui.find('.view').click(function(){
@@ -131,7 +127,8 @@ define(function(require)
 			CardIllustration.setCard(this.item);
 		}.bind(this));
 
-		this.draggable(this.ui.find('.title'));
+		var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
+		this.draggable(ItemInfo.ui.find('.title'));
 
 	};
 
@@ -140,7 +137,7 @@ define(function(require)
 	 *
 	 * @param {object} item
 	 */
-	ItemInfo.setItem = function setItem( item )
+	ItemCompare.setItem = function setItem( item )
 	{
 		var it = DB.getItemInfo( item.ITID );
 		var ui = this.ui;
@@ -243,39 +240,6 @@ define(function(require)
 			ui.find('.title').removeClass('damaged');
 		}
 
-		/* Grade System */
-		var container = ui.find('.container');
-
-		switch(item.enchantgrade)  {
-			case 0:
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg.bmp', function(data){
-					container.css('background-image', 'url(' + data + ')');
-				});
-				break;
-		    case 1:
-		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g1.bmp', function(data){
-		            container.css('background-image', 'url(' + data + ')');
-		        });
-		        break;
-		    case 2:
-		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g2.bmp', function(data){
-		            container.css('background-image', 'url(' + data + ')');
-		        });
-		        break;
-		    case 3:
-		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g3.bmp', function(data){
-		            container.css('background-image', 'url(' + data + ')');
-		        });
-		        break;
-		    case 4:
-		        Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g4.bmp', function(data){
-		            container.css('background-image', 'url(' + data + ')');
-		        });
-		        break;
-		    default:
-		        break;
-		}
-
 		ui.find('.title').text( item.IsIdentified ? (customname + it.identifiedDisplayName) : it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
 
@@ -313,7 +277,7 @@ define(function(require)
 				break;
 
 		}
-		resize(ItemInfo.ui.find('.container').height());
+		resize(ItemCompare.ui.find('.container').height());
 	};
 
 
@@ -355,7 +319,7 @@ define(function(require)
 
 			if (itemId && card) {
 				element.on('contextmenu',function(){
-					ItemInfo.setItem({
+					ItemCompare.setItem({
 						ITID:         itemId,
 						IsIdentified: true,
 						type:         6
@@ -366,11 +330,11 @@ define(function(require)
 		});
 	}
 	/**
-	* Extend ItemInfo window size
+	* Extend ItemCompare window size
 	*/
 	function onResize()
 	{
-		var ui      = ItemInfo.ui;
+		var ui      = ItemCompare.ui;
 		var top     = ui.position().top;
 		var left    = ui.position().left;
 		var lastHeight = 0;
@@ -400,15 +364,15 @@ define(function(require)
 
 
 	/**
-	* Extend ItemInfo window size
+	* Extend ItemCompare window size
 	*
 	* @param {number} height
 	*/
 	function resize( height )
 	{
-		var container = ItemInfo.ui.find('.container');
-		var description = ItemInfo.ui.find('.description');
-		var descriptionInner = ItemInfo.ui.find('.description-inner');
+		var container = ItemCompare.ui.find('.container');
+		var description = ItemCompare.ui.find('.description');
+		var descriptionInner = ItemCompare.ui.find('.description-inner');
 		var containerHeight = height;
 		var minHeight = 120;
 		var maxHeight = (descriptionInner.height() + 45 > 120) ? descriptionInner.height() + 45 : 120;
@@ -430,15 +394,15 @@ define(function(require)
 	}
 
 	function onUpdateOwnerName (pkt){
-		var str = ItemInfo.ui.find('.owner-'+pkt.GID).text();
-		ItemInfo.ui.find('.owner-'+pkt.GID).text(pkt.CName);
+		var str = ItemCompare.ui.find('.owner-'+pkt.GID).text();
+		ItemCompare.ui.find('.owner-'+pkt.GID).text(pkt.CName);
 
 		delete DB.UpdateOwnerName[pkt.GID];
 	}
 
 
 	function addEvent(item){
-		var event = ItemInfo.ui.find('.event_view');
+		var event = ItemCompare.ui.find('.event_view');
 		validateFieldsExist(event) ? '' : addEvent(item);
 
 		event.find('.view').hide();
@@ -465,7 +429,7 @@ define(function(require)
 	}
 
 	function eventsBooks(){
-		var event = ItemInfo.ui.find('.event_view');
+		var event = ItemCompare.ui.find('.event_view');
 
 		Client.getFiles([
 			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr',
@@ -484,13 +448,13 @@ define(function(require)
 				canvas  = _sprite.getCanvasFromFrame( 0 );
 				canvas.className = 'book_open event_add_cursor';
 				event.append(canvas);
-				var bookOpen = ItemInfo.ui.find('.book_open');
+				var bookOpen = ItemCompare.ui.find('.book_open');
 				bookOpen.mouseover(function(e) {
 					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_open').show();
+					ItemCompare.ui.find('.overlay_open').show();
 				}).mouseout(function(e) {
 					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_open').hide();
+					ItemCompare.ui.find('.overlay_open').hide();
 				});
 				bookOpen.click(function(e){
 					e.stopImmediatePropagation();
@@ -503,13 +467,13 @@ define(function(require)
 				canvas.height        = 15;
 				_ctx 				 = canvas[0].getContext('2d');
 
-				var bookRead = ItemInfo.ui.find('.book_read');
+				var bookRead = ItemCompare.ui.find('.book_read');
 				bookRead.mouseover(function(e) {
 					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_read').show();
+					ItemCompare.ui.find('.overlay_read').show();
 				}).mouseout(function(e) {
 					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_read').hide();
+					ItemCompare.ui.find('.overlay_read').hide();
 				});
 				bookRead.click(function(e){
 					e.stopImmediatePropagation();
@@ -573,19 +537,19 @@ define(function(require)
 					'<span class="overlay_open" data-text="1294">'+DB.getMessage(1294)+'</span>'+
 					'<span class="overlay_read" data-text="1295">'+DB.getMessage(1295)+'</span>'
         		'</div>';
-			ItemInfo.ui.find('.collection').after(validExitElement);
+			ItemCompare.ui.find('.collection').after(validExitElement);
 			return false;
 		}
 
-		if(ItemInfo.ui.find('.overlay_open').length == 0
-			&& ItemInfo.ui.find('.overlay_read').length == 0){
+		if(ItemCompare.ui.find('.overlay_open').length == 0
+			&& ItemCompare.ui.find('.overlay_read').length == 0){
 				event.append(
 					'<span class="overlay_open" data-text="1294">'+DB.getMessage(1294)+'</span>'+
 					'<span class="overlay_read" data-text="1295">'+DB.getMessage(1295)+'</span>'
 				)
 		}
 
-		if(ItemInfo.ui.find('button').length == 0){
+		if(ItemCompare.ui.find('button').length == 0){
 			event.append(
 				'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'
 			)
@@ -597,5 +561,5 @@ define(function(require)
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ItemInfo);
+	return UIManager.addComponent(ItemCompare);
 });
