@@ -14,20 +14,20 @@ define(function (require)
 
 	var publicName = 'Inventory';
 
-	var InventoryV0 = require('./InventoryV0/InventoryV0');
-	//var InventoryV1 = require('./InventoryV1/InventoryV1');	// Favorite Tab
-	var InventoryV2 = require('./InventoryV2/InventoryV2');     // Equipment Switch
-	//var InventoryV3 = require('./InventoryV3/InventoryV3');   // Inventory Expansion
+	var InventoryV0 = require('./InventoryV0/InventoryV0');		// Basic Inventory
+	var InventoryV1 = require('./InventoryV1/InventoryV1');		// Favorite Tab
+	var InventoryV2 = require('./InventoryV2/InventoryV2');		// Equipment Switch
+	var InventoryV3 = require('./InventoryV3/InventoryV3');		// Inventory Expansion
 
 	var UIVersionManager = require('UI/UIVersionManager');
 	var DB               = require('DB/DBManager');
 
 	var versionInfo = {
-		default: InventoryV0,
+		default: InventoryV0,			// Basic Inventory
 		common: {
-			//20181219:	InventoryV3,    // Inventory Expansion
-			20170621:	InventoryV2,    // Equipment Switch
-			//20111207:	InventoryV1,    // Favorite Tab
+			20181219:	InventoryV3,    // Inventory Expansion
+			20170208:	InventoryV2,    // Equipment Switch
+			20111207:	InventoryV1,    // Favorite Tab
 		},
 		re: {
 

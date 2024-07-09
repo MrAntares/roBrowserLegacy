@@ -330,6 +330,12 @@ define(function( require )
 			return false;
 		}
 
+		// Item Drop Lock
+		var InventoryVersion = UIManager.getComponent('Inventory').name;
+		if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true) {
+			return false;
+		}
+
 		item = data.data;
 
 		// Have to specify how much

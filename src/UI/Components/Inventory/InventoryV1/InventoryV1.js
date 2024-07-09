@@ -1,7 +1,7 @@
 /**
- * UI/Components/InventoryV0/InventoryV0.js
+ * UI/Components/Inventory/InventoryV1/InventoryV1.js
  *
- * Chararacter Inventory
+ * Chararacter Inventory Window
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -19,6 +19,8 @@ define(function(require)
 	 */
 	var DB                 = require('DB/DBManager');
 	var ItemType           = require('DB/Items/ItemType');
+	var Network            = require('Network/NetworkManager');
+	var PACKET             = require('Network/PacketStructure');
 	var jQuery             = require('Utils/jquery');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
@@ -28,42 +30,44 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var CartItems          = require('UI/Components/CartItems/CartItems');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
+	var ItemCompare        = require('UI/Components/ItemCompare/ItemCompare');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	var Equipment          = require('UI/Components/Equipment/Equipment');
 	var Storage   	       = require('UI/Components/Storage/Storage');
 	var UIVersionManager   = require('UI/UIVersionManager');
-	var htmlText           = require('text!./InventoryV0.html');
-	var cssText            = require('text!./InventoryV0.css');
+	var htmlText           = require('text!./InventoryV1.html');
+	var cssText            = require('text!./InventoryV1.css');
 	var getModule          = require;
 
 
 	/**
 	 * Create Component
 	 */
-	var InventoryV0 = new UIComponent( 'InventoryV0', htmlText, cssText );
+	var InventoryV1 = new UIComponent( 'InventoryV1', htmlText, cssText );
 
 
 	/**
 	 * Tab constant
 	 */
-	InventoryV0.TAB = {
+	InventoryV1.TAB = {
 		USABLE: 0,
 		EQUIP:  1,
-		ETC:    2
+		ETC:    2,
+		FAV:	3
 	};
 
 
 	/**
 	 * Store inventory items
 	 */
-	InventoryV0.list = [];
+	InventoryV1.list = [];
 
 
 	/**
 	 * Store new items
 	 */
-	InventoryV0.newItems = [];
-	InventoryV0.equippedItems = [];
+	InventoryV1.newItems = [];
+	InventoryV1.equippedItems = [];
 
 
 	/**
@@ -75,14 +79,17 @@ define(function(require)
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('InventoryV0', {
+	var _preferences = Preferences.get('InventoryV1', {
 		x:        0,
 		y:        UIVersionManager.getInventoryVersion() > 0 ? 172 : 120,
 		width:    7,
-		height:   4,
+		height:   193,
 		show:     false,
 		reduce:   false,
-		tab:      InventoryV0.TAB.USABLE,
+		tab:      InventoryV1.TAB.USABLE,
+		itemlock:	false,
+		itemcomp:	false,
+		npcsalelock:	false,
 		magnet_top: false,
 		magnet_bottom: false,
 		magnet_left: true,
@@ -91,9 +98,18 @@ define(function(require)
 
 
 	/**
+	 * Store variables from preferences
+	 */
+	InventoryV1.itemlock = _preferences.itemlock;
+	InventoryV1.itemcomp = _preferences.itemcomp;
+	InventoryV1.npcsalelock = _preferences.npcsalelock;
+	var lockOverlayTimeout;
+
+
+	/**
 	 * Initialize UI
 	 */
-	InventoryV0.init = function Init()
+	InventoryV1.init = function Init()
 	{
 		// Bind buttons
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
@@ -101,7 +117,7 @@ define(function(require)
 		this.ui.find('.tabs button').mousedown(onSwitchTab);
 		this.ui.find('.footer .extend').mousedown(onResize);
 		this.ui.find('.titlebar .close').click(function(){
-			InventoryV0.ui.hide();
+			InventoryV1.ui.hide();
 		});
 
 		// on drop item
@@ -119,26 +135,60 @@ define(function(require)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed);
 
-		this.ui.find('.ncnt').text(0);
+		this.ui.find('.ncnt').text(0 + ' / ');
 		this.ui.find('.mcnt').text(100);
 
 		this.draggable(this.ui.find('.titlebar'));
+
+		// Add drop events for tabs
+		this.ui.find('.tabs button').on('dragover', stopPropagation).on('drop', onTabDrop);
+
+		// Set initial selected tab based on _preferences.tab
+		jQuery('.tabs button').removeClass('selected');
+		var initialTab = this.ui.find('.tabs button').eq(_preferences.tab);
+		initialTab.addClass('selected');
+
+		// Buttons
+		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp' ;
+		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
+			InventoryV1.ui.find('.item_drop_lock').css('backgroundImage', 'url(' + data + ')');
+		});
+
+		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp' ;
+		Client.loadFile(DB.INTERFACE_PATH + compImg, function (data) {
+			InventoryV1.ui.find('.item_compare').css('backgroundImage', 'url(' + data + ')');
+		});
+
+		var lockSale = _preferences.npcsalelock ? InventoryV1.ui.find('.deallock_on') : InventoryV1.ui.find('.deallock_off');
+		if (_preferences.tab != InventoryV1.TAB.FAV) {
+			lockSale.hide();
+			InventoryV1.ui.find('.sort').hide();
+		} else {
+			lockSale.show();
+			InventoryV1.ui.find('.sort').show();
+		}
+
+		// Button Functions
+		InventoryV1.ui.find('.item_drop_lock').click(onItemLock);
+		InventoryV1.ui.find('.item_compare').click(onItemCompare);
+		InventoryV1.ui.find('.deal_lock').click(onNPCLock);
+		InventoryV1.ui.find('.lockoverlayclose').click(function(){ 
+			InventoryV1.ui.find('.lockoverlaymsg').hide();
+			clearTimeout(lockOverlayTimeout); 
+		});
+		InventoryV1.ui.find('.sort').click( function(){ requestFilter();} );
 	};
 
 
 	/**
 	 * Apply preferences once append to body
 	 */
-	InventoryV0.onAppend = function OnAppend()
+	InventoryV1.onAppend = function OnAppend()
 	{
 		// Apply preferences
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-
-		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/tab_itm_0'+ (_preferences.tab+1) +'.bmp', function(data){
-			InventoryV0.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
-		});
 
 		this.resize( _preferences.width, _preferences.height );
 
@@ -160,11 +210,11 @@ define(function(require)
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	InventoryV0.onRemove = function OnRemove()
+	InventoryV1.onRemove = function OnRemove()
 	{
 		this.ui.find('.container .content').empty();
 		this.list.length = 0;
-		InventoryV0.newItems.length = 0; // Clear the new items array
+		InventoryV1.newItems.length = 0; // Clear the new items array
 		jQuery('.ItemInfo').remove();
 
 		// Save preferences
@@ -173,11 +223,13 @@ define(function(require)
 		_preferences.y      =  parseInt(this.ui.css('top'), 10);
 		_preferences.x      =  parseInt(this.ui.css('left'), 10);
 		_preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
-		_preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
 		_preferences.magnet_right = this.magnet.RIGHT;
+		_preferences.itemlock = _preferences.itemlock;
+		_preferences.itemcomp = _preferences.itemcomp;
+		_preferences.npcsalelock = _preferences.npcsalelock;
 		_preferences.save();
 	};
 
@@ -187,7 +239,7 @@ define(function(require)
 	 *
 	 * @param {object} key
 	 */
-	InventoryV0.onShortCut = function onShurtCut( key )
+	InventoryV1.onShortCut = function onShurtCut( key )
 	{
 		switch (key.cmd) {
 			case 'TOGGLE':
@@ -219,7 +271,7 @@ define(function(require)
 	/**
 	 * Show/Hide UI
 	 */
-	InventoryV0.toggle = function toggle() {
+	InventoryV1.toggle = function toggle() {
 		this.ui.toggle();
 		if (this.ui.is(':visible')) {
 			this.focus();
@@ -240,7 +292,7 @@ define(function(require)
 	/**
 	 * Clear newItems array
 	 */
-	InventoryV0.clearNewItems = function clearNewItems() {
+	InventoryV1.clearNewItems = function clearNewItems() {
 	    this.newItems = [];
 	};
 
@@ -251,19 +303,16 @@ define(function(require)
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	InventoryV0.resize = function Resize( width, height )
+	InventoryV1.resize = function Resize( width )
 	{
-		width  = Math.min( Math.max(width,  6), 9);
-		height = Math.min( Math.max(height, 2), 6);
+		width  = Math.min( Math.max(width,  6), 8);
 
 		this.ui.find('.container .content').css({
 			width:  width  * 32 + 13, // 13 = scrollbar
-			height: height * 32
 		});
 
 		this.ui.css({
 			width:  23 + 16 + 16 + width  * 32,
-			height: 31 + 19      + height * 32
 		});
 	};
 
@@ -274,10 +323,10 @@ define(function(require)
 	 * @param {number} id
 	 * @returns {Item}
 	 */
-	InventoryV0.getItemById = function GetItemById( id )
+	InventoryV1.getItemById = function GetItemById( id )
 	{
 		var i, count;
-		var list = InventoryV0.list;
+		var list = InventoryV1.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -295,10 +344,10 @@ define(function(require)
 	 * @param {number} index
 	 * @returns {Item}
 	 */
-	InventoryV0.getItemByIndex = function getItemByIndex( index )
+	InventoryV1.getItemByIndex = function getItemByIndex( index )
 	{
 		var i, count;
-		var list = InventoryV0.list;
+		var list = InventoryV1.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -314,7 +363,7 @@ define(function(require)
 	 * Add items to the list
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
-	InventoryV0.setItems = function SetItems(items)
+	InventoryV1.setItems = function SetItems(items)
 	{
 		var i, count;
 
@@ -325,7 +374,7 @@ define(function(require)
 			}
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);
-				this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+				this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 				this.onUpdateItem(items[i].ITID, items[i].count ? items[i].count : 1);
 			}
 
@@ -340,22 +389,22 @@ define(function(require)
 	 *
 	 * @param {object} Item
 	 */
-	InventoryV0.addItem = function AddItem( item )
+	InventoryV1.addItem = function AddItem( item )
 	{
 		var object = this.getItemByIndex(item.index);
 
 		// Check if the item was equipped
-    	var equippedIndex = InventoryV0.equippedItems.indexOf(item.index);
-    	if (equippedIndex !== -1) {
-    	    // Remove from equipped tracker
-    	    InventoryV0.equippedItems.splice(equippedIndex, 1);
-    	} else {
-    	    // Mark as new item
-    	    InventoryV0.newItems.push(item.index);
+		var equippedIndex = InventoryV1.equippedItems.indexOf(item.index);
+		if (equippedIndex !== -1) {
+		    // Remove from equipped tracker
+		    InventoryV1.equippedItems.splice(equippedIndex, 1);
+		} else {
+		    // Mark as new item
+		    InventoryV1.newItems.push(item.index);
 
 			var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 			var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-			if (changeUI) {	// Only applicable to BasicInfoV4 and BasicInfoV5
+			if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
 				changeUI.show();
 			}
 		}
@@ -365,11 +414,11 @@ define(function(require)
 			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
 			this.onUpdateItem(object.ITID, object.count);
 			// Replace the existing index in newItems to maintain it as new
-			var indexPosition = InventoryV0.newItems.indexOf(item.index);
+			var indexPosition = InventoryV1.newItems.indexOf(item.index);
 			if (indexPosition !== -1) {
-				InventoryV0.newItems.splice(indexPosition, 1, item.index);
+				InventoryV1.newItems.splice(indexPosition, 1, item.index);
 			} else {
-				InventoryV0.newItems.push(item.index);
+				InventoryV1.newItems.push(item.index);
 			}
 			onAddNewItem();
 			return;
@@ -378,7 +427,7 @@ define(function(require)
 		object = jQuery.extend({}, item);
 		if (this.addItemSub(object)) {
 			this.list.push(object);
-			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 			this.onUpdateItem(object.ITID, object.count);
 		}
 
@@ -389,30 +438,31 @@ define(function(require)
 				case ItemType.USABLE:
 				case ItemType.USABLE_SKILL:
 				case ItemType.USABLE_UNK:
-					tab = InventoryV0.TAB.USABLE;
+					tab = InventoryV1.TAB.USABLE;
 					break;
 
 				case ItemType.WEAPON:
 				case ItemType.EQUIP:
 				case ItemType.PETEGG:
 				case ItemType.PETEQUIP:
-					tab = InventoryV0.TAB.EQUIP;
+					tab = InventoryV1.TAB.EQUIP;
 					break;
 
 				default:
 				case ItemType.ETC:
 				case ItemType.CARD:
 				case ItemType.AMMO:
-					tab = InventoryV0.TAB.ETC;
+					tab = InventoryV1.TAB.ETC;
 					break;
 			}
 
 			if (tab === _preferences.tab) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
-        	        InventoryV0.ui.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
+        	        InventoryV1.ui.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
         	    });
 			}
 		}
+
 	};
 
 
@@ -422,8 +472,8 @@ define(function(require)
 	 * @param {number} index - Item index to check
 	 * @returns {boolean} - True if item index is in newItems list, false otherwise
 	 */
-	InventoryV0.isNewItem = function isNewItem(index) {
-	    return InventoryV0.newItems.includes(index);
+	InventoryV1.isNewItem = function isNewItem(index) {
+	    return InventoryV1.newItems.includes(index);
 	};
 
 
@@ -432,7 +482,7 @@ define(function(require)
 	 *
 	 * @param {object} Item
 	 */
-	InventoryV0.addItemSub = function AddItemSub( item )
+	InventoryV1.addItemSub = function AddItemSub( item )
 	{
 		var tab;
 		switch (item.type) {
@@ -440,22 +490,26 @@ define(function(require)
 			case ItemType.USABLE:
 			case ItemType.USABLE_SKILL:
 			case ItemType.USABLE_UNK:
-				tab = InventoryV0.TAB.USABLE;
+				tab = InventoryV1.TAB.USABLE;
 				break;
 
 			case ItemType.WEAPON:
 			case ItemType.EQUIP:
 			case ItemType.PETEGG:
 			case ItemType.PETEQUIP:
-				tab = InventoryV0.TAB.EQUIP;
+				tab = InventoryV1.TAB.EQUIP;
 				break;
 
 			default:
 			case ItemType.ETC:
 			case ItemType.CARD:
 			case ItemType.AMMO:
-				tab = InventoryV0.TAB.ETC;
+				tab = InventoryV1.TAB.ETC;
 				break;
+		}
+
+		if (item.PlaceETCTab) {
+			tab  = InventoryV1.TAB.FAV;
 		}
 
 		// Equip item (if not arrow)
@@ -487,7 +541,7 @@ define(function(require)
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
 
-			if (InventoryV0.isNewItem(item.index)) {
+			if (InventoryV1.isNewItem(item.index)) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
             	    content.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
             	});
@@ -506,7 +560,7 @@ define(function(require)
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	InventoryV0.removeItem = function RemoveItem( index, count )
+	InventoryV1.removeItem = function RemoveItem( index, count )
 	{
 		var item = this.getItemByIndex(index);
 
@@ -528,7 +582,7 @@ define(function(require)
 
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');
@@ -546,7 +600,7 @@ define(function(require)
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	InventoryV0.updateItem = function UpdateItem( index, count )
+	InventoryV1.updateItem = function UpdateItem( index, count )
 	{
 		var item = this.getItemByIndex(index);
 
@@ -566,7 +620,7 @@ define(function(require)
 		// no quantity, remove
 		this.list.splice( this.list.indexOf(item), 1 );
 		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
-		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 		this.onUpdateItem(item.ITID, 0);
 
 		var content = this.ui.find('.container .content');
@@ -581,7 +635,7 @@ define(function(require)
 	 *
 	 * @param {Item} item
 	 */
-	InventoryV0.useItem = function UseItem( item )
+	InventoryV1.useItem = function UseItem( item )
 	{
 		switch (item.type) {
 
@@ -589,12 +643,12 @@ define(function(require)
 			case ItemType.HEALING:
 			case ItemType.USABLE:
 			case ItemType.USABLE_UNK:
-				InventoryV0.onUseItem( item.index );
+				InventoryV1.onUseItem( item.index );
 				break;
 
 			// Use card
 			case ItemType.CARD:
-				InventoryV0.onUseCard( item.index );
+				InventoryV1.onUseCard( item.index );
 				break;
 
 			case ItemType.USABLE_SKILL:
@@ -606,7 +660,7 @@ define(function(require)
 			case ItemType.PETEQUIP:
 			case ItemType.AMMO:
 				if (item.IsIdentified && !item.IsDamaged) {
-					InventoryV0.onEquipItem( item.index, item.location );
+					InventoryV1.onEquipItem( item.index, item.location );
 				}
 				break;
 		}
@@ -630,34 +684,29 @@ define(function(require)
 	 */
 	function onResize()
 	{
-		var ui      = InventoryV0.ui;
+		var ui      = InventoryV1.ui;
 		var content = ui.find('.container .content');
 		var hide    = ui.find('.hide');
 		var top     = ui.position().top;
 		var left    = ui.position().left;
 		var lastWidth  = 0;
-		var lastHeight = 0;
 		var _Interval;
 
 		function resizing()
 		{
 			var extraX = 23 + 16 + 16 - 30;
-			var extraY = 31 + 19 - 30;
 
 			var w = Math.floor( (Mouse.screen.x - left - extraX) / 32 );
-			var h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
 
 			// Maximum and minimum window size
 			w = Math.min( Math.max(w, 6), 9);
-			h = Math.min( Math.max(h, 2), 6);
 
-			if (w === lastWidth && h === lastHeight) {
+			if (w === lastWidth) {
 				return;
 			}
 
-			InventoryV0.resize( w, h );
+			InventoryV1.resize(w);
 			lastWidth  = w;
-			lastHeight = h;
 
 			//Show or hide scrollbar
 			if (content.height() === content[0].scrollHeight) {
@@ -688,11 +737,31 @@ define(function(require)
 	{
 		var idx          = jQuery(this).index();
 		_preferences.tab = parseInt(idx, 10);
+		requestFilter();
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0'+ (idx+1) +'.bmp', function(data){
-			InventoryV0.ui.find('.tabs').css('backgroundImage', 'url(' + data + ')');
-			requestFilter();
-		});
+		jQuery('.tabs button').removeClass('selected');
+    	jQuery(this).addClass('selected');
+
+		// Toggle visibility based on tab selection and npc sale lock preference
+		if (_preferences.tab !== InventoryV1.TAB.FAV) {
+			InventoryV1.ui.find('.deallock_on').hide();
+			InventoryV1.ui.find('.deallock_off').hide();
+			InventoryV1.ui.find('.lockoverlay').hide();
+			InventoryV1.ui.find('.lockoverlaymsg').hide();
+			InventoryV1.ui.find('.sort').hide();
+		} else {
+			if (_preferences.npcsalelock) {
+				InventoryV1.ui.find('.deallock_on').show();
+				InventoryV1.ui.find('.lockoverlay').show();
+				InventoryV1.ui.find('.deallock_off').hide();
+			} else {
+				InventoryV1.ui.find('.deallock_on').hide();
+				InventoryV1.ui.find('.lockoverlay').hide();
+				InventoryV1.ui.find('.lockoverlaymsg').hide();
+				InventoryV1.ui.find('.deallock_off').show();
+			}
+			InventoryV1.ui.find('.sort').show();
+		}
 	};
 
 
@@ -701,7 +770,7 @@ define(function(require)
 	 */
 	function onToggleReduction()
 	{
-		var ui = InventoryV0.ui;
+		var ui = InventoryV1.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
@@ -721,13 +790,13 @@ define(function(require)
 	 */
 	function requestFilter()
 	{
-		InventoryV0.ui.find('.container .content').empty();
+		InventoryV1.ui.find('.container .content').empty();
 
-		var list = InventoryV0.list;
+		var list = InventoryV1.list;
 		var i, count;
 
 		for (i = 0, count = list.length; i < count; ++i) {
-			InventoryV0.addItemSub( list[i] );
+			InventoryV1.addItemSub( list[i] );
 		}
 	};
 
@@ -852,7 +921,7 @@ define(function(require)
 	function onItemOver()
 	{
 		var idx  = parseInt( this.getAttribute('data-index'), 10);
-		var item = InventoryV0.getItemByIndex(idx);
+		var item = InventoryV1.getItemByIndex(idx);
 
 		if (!item) {
 			return;
@@ -860,7 +929,7 @@ define(function(require)
 
 		// Get back data
 		var pos     = jQuery(this).position();
-		var overlay = InventoryV0.ui.find('.overlay');
+		var overlay = InventoryV1.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -881,7 +950,7 @@ define(function(require)
 	 */
 	function onItemOut()
 	{
-		InventoryV0.ui.find('.overlay').hide();
+		InventoryV1.ui.find('.overlay').hide();
 	};
 
 
@@ -891,7 +960,7 @@ define(function(require)
 	function onItemDragStart( event )
 	{
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = InventoryV0.getItemByIndex(index);
+		var item  = InventoryV1.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -933,7 +1002,7 @@ define(function(require)
 		event.stopImmediatePropagation();
 
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = InventoryV0.getItemByIndex(index);
+		var item  = InventoryV1.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -949,6 +1018,9 @@ define(function(require)
 		// Don't add the same UI twice, remove it
 		if (ItemInfo.uid === item.ITID) {
 			ItemInfo.remove();
+			if (ItemCompare.ui) {
+				ItemCompare.remove();
+			}
 			return false;
 		}
 
@@ -956,6 +1028,17 @@ define(function(require)
 		ItemInfo.append();
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
+
+		// Check if there is an equipped item in the same location
+		var compareItem = Equipment.getUI().isInEquipList(item.location);
+
+		// If a comparison item is found, display comparison
+		if (compareItem && InventoryV1.itemcomp) {
+			ItemCompare.prepare();
+			ItemCompare.append();
+			ItemCompare.uid = compareItem.ITID;
+			ItemCompare.setItem(compareItem);
+		}
 
 		return false;
 	};
@@ -1001,7 +1084,7 @@ define(function(require)
 		if (isStorageOpen) {
 			Storage.reqAddItem(item.index, count);
 		} else if (isCartOpen) {
-			InventoryV0.reqMoveItemToCart(item.index, count);
+			InventoryV1.reqMoveItemToCart(item.index, count);
 		}
 
 		return true;
@@ -1014,10 +1097,10 @@ define(function(require)
 	function onItemUsed( event )
 	{
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = InventoryV0.getItemByIndex(index);
+		var item  = InventoryV1.getItemByIndex(index);
 
 		if (item) {
-			InventoryV0.useItem(item);
+			InventoryV1.useItem(item);
 			onItemOut();
 		}
 
@@ -1027,17 +1110,175 @@ define(function(require)
 
 
 	/**
+	 * Handle drop event on tabs
+	 */
+	function onTabDrop(event)
+	{
+	    var item, data;
+		event.stopImmediatePropagation();
+
+		try {
+			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+			item = data.data;
+		}
+		catch(e) {
+			return false;
+		}
+
+		if (data.type !== 'item') {
+			return false;
+		}
+
+		if (!item) {
+			return false;
+		}
+
+	    // Retrieve the data-tab attribute using native JavaScript
+    	var targetTab = event.target.getAttribute('data-tab');
+		var itemfav = (targetTab === 'fav' ? 0 : 1);
+	    
+		// Send Request to client
+		var pkt = new PACKET.CZ.INVENTORY_TAB();
+		pkt.item_index = item.index;
+		pkt.favorite = itemfav;
+		Network.sendPacket(pkt);
+	};
+
+
+	/**
+	 * Update PlaceETCTab of an item in the inventory
+	 * @param {number} itemIndex - The index of the item to update
+	 * @param {number} newValue - boolean for PlaceETCTab (1 or 0)
+	 */
+	InventoryV1.updatePlaceETCTab = function(itemIndex, newValue)
+	{
+		var item = InventoryV1.getItemByIndex(itemIndex);
+		
+		if (!item) {
+			return;
+		}
+    	
+		if (newValue) {
+			var favoriteval;
+			switch (item.type) {
+				case ItemType.HEALING:
+				case ItemType.USABLE:
+				case ItemType.USABLE_SKILL:
+				case ItemType.USABLE_UNK:
+				case ItemType.ETC:
+				case ItemType.CARD:
+				case ItemType.AMMO:
+					// Normal items: PlaceETCTab = flag & 2;
+					favoriteval = 2;
+					break;
+
+				case ItemType.WEAPON:
+				case ItemType.EQUIP:
+				case ItemType.PETEGG:
+				case ItemType.PETEQUIP:
+					// Equipment: PlaceETCTab = flag & 4;
+					favoriteval = 4;
+					break;
+
+				default:
+					break;
+			}
+			item.PlaceETCTab = favoriteval;
+		} else {
+			item.PlaceETCTab = newValue;
+		}
+
+	    requestFilter();
+	};
+
+
+	/**
+	 * Toggle the item drop lock preference and update the UI accordingly.
+	 */
+	function onItemLock()
+	{
+		// Toggle _preferences.itemlock
+		_preferences.itemlock = !_preferences.itemlock;
+
+		// Save it
+		InventoryV1.itemlock = _preferences.itemlock;
+	
+		// Determine the image path based on the toggled state
+		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
+	
+		// Load the image and update the button background
+		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
+			InventoryV1.ui.find('.item_drop_lock').css('backgroundImage', 'url(' + data + ')');
+		});
+	};
+
+
+	/**
+	 * Toggles the value of Item Compare
+	 * and updates the UI accordingly.
+	 */
+	function onItemCompare()
+	{
+		// Toggle _preferences.itemcomp
+		_preferences.itemcomp = !_preferences.itemcomp;
+
+		// Save it
+		InventoryV1.itemcomp = _preferences.itemcomp;
+
+		// Determine the image path based on the toggled state
+		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp' ;
+
+		// Load the image and update the button background
+		Client.loadFile(DB.INTERFACE_PATH + compImg, function (data) {
+			InventoryV1.ui.find('.item_compare').css('backgroundImage', 'url(' + data + ')');
+		});
+	};
+
+
+	/**
+	 * Toggles the value of Item Lock NPCSale
+	 * and updates the UI accordingly.
+	 */
+	function onNPCLock()
+	{
+		// Toggle _preferences.npcsalelock
+		_preferences.npcsalelock = !_preferences.npcsalelock;
+
+		// Save it
+		InventoryV1.npcsalelock = _preferences.npcsalelock;
+
+		// Determine which div to show/hide based on the toggled state
+		if (_preferences.npcsalelock) {
+			InventoryV1.ui.find('.deallock_on').show();
+			InventoryV1.ui.find('.lockoverlay').show();
+			InventoryV1.ui.find('.lockoverlaymsg').show();
+			InventoryV1.ui.find('.deallock_off').hide();
+
+			// Show for 3 seconds
+            lockOverlayTimeout = setTimeout(function() {
+                InventoryV1.ui.find('.lockoverlaymsg').fadeOut();
+            }, 3000);
+		} else {
+			InventoryV1.ui.find('.deallock_on').hide();
+			InventoryV1.ui.find('.lockoverlay').hide();
+            InventoryV1.ui.find('.lockoverlaymsg').hide();
+			InventoryV1.ui.find('.deallock_off').show();
+		}
+	};
+
+
+	/**
 	 * functions to define
 	 */
-	InventoryV0.onUseItem    = function OnUseItem(/* index */){};
-	InventoryV0.onUseCard    = function onUseCard(/* index */){};
-	InventoryV0.onEquipItem  = function OnEquipItem(/* index, location */){};
-	InventoryV0.onUpdateItem = function OnUpdateItem(/* index, amount */){};
-	InventoryV0.reqMoveItemToCart = function reqMoveItemToCart(/* index, amount */){};
-
+	InventoryV1.onUseItem    = function OnUseItem(/* index */){};
+	InventoryV1.onUseCard    = function onUseCard(/* index */){};
+	InventoryV1.onEquipItem  = function OnEquipItem(/* index, location */){};
+	InventoryV1.onUpdateItem = function OnUpdateItem(/* index, amount */){};
+	InventoryV1.reqMoveItemToCart = function reqMoveItemToCart(/* index, amount */){};
 
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(InventoryV0);
+	return UIManager.addComponent(InventoryV1);
+
 });

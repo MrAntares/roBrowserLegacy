@@ -344,10 +344,13 @@ define(function(require)
 				break;
 
 			case NpcStore.Type.SELL:
+				var InventoryVersion = UIManager.getComponent('Inventory').name;
 				for (i = 0, count = items.length; i < count; ++i) {
 					it = Inventory.getUI().getItemByIndex(items[i].index);
 
-					if (it) {
+					var condition = (InventoryVersion !== 'InventoryV0') ? it && (!Inventory.getUI().npcsalelock || it.PlaceETCTab < 1) : it;
+					
+					if (condition) {
 						item                 = jQuery.extend({}, it);
 						item.price           = items[i].price;
 						item.overchargeprice = items[i].overchargeprice;

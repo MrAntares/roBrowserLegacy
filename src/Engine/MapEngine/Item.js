@@ -427,7 +427,7 @@ define(function( require )
 		Network.sendPacket( pkt );
 	};
 
-	Inventory.reqMoveItemToCart = function reqMoveItemToCart( index, count )
+	function reqMoveItemToCart( index, count )
 	{
 		if (count <= 0) {
 			return;
@@ -557,7 +557,11 @@ define(function( require )
 	 * @param {object} pkt - PACKET.ZC.EXTEND_BODYITEM_SIZE
 	 */
 	function onBodyItemSize(pkt) {
-        // TODO add it to inventory
+        if (pkt) {
+			var baselimit = 100;	// Base Limit
+			var newlimit = baselimit + pkt.type;
+			Inventory.getUI().ui.find('.mcnt').text(newlimit);
+		}
     }
 
 	/**
@@ -616,6 +620,24 @@ define(function( require )
 		}
 	}
 
+
+	/**
+	 * Updates the favorite status of an item in the Inventory UI
+	 *
+	 * @param {object} pkt - PACKET.ZC.ITEM_FAVORITE
+	 * pkt.favorite:
+	 *  0 = move item to personal tab
+	 * 	1 = move item to normal tab
+	 */
+	function onFavItemList(pkt) {
+		if(pkt) {
+			// So if favorite is 0, we send 1 to change item.PlaceETCTab to 1
+			var isfavitem = pkt.favorite ? 0 : 1;
+			Inventory.getUI().updatePlaceETCTab(pkt.index, isfavitem);
+		}
+	}
+
+
 	/**
 	 * Received Switch Equip List
 	 */
@@ -628,6 +650,7 @@ define(function( require )
 			});
 		}
 	}
+
 
 	/**
 	 * Add item to Switch Equip
@@ -734,11 +757,15 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V6,     onShowPlayerEquip );
 		Network.hookPacket( PACKET.ZC.EQUIPWIN_MICROSCOPE_V7,     onShowPlayerEquip );
 
+		/* Favorite Tab */
+		Network.hookPacket( PACKET.ZC.ITEM_FAVORITE,			  onFavItemList );
+
 		/* Switch Equipment*/
 		Network.hookPacket( PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO,   		 	onSwitchEquipList );
 		Network.hookPacket( PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT,   	onSwitchEquipAdd );
 		Network.hookPacket( PACKET.ZC.REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT,   onSwitchEquipRemove );
 
 		Inventory.getUI().onUseCard            = onUseCard;
+		Inventory.getUI().reqMoveItemToCart	   = reqMoveItemToCart;
 	};
 });
