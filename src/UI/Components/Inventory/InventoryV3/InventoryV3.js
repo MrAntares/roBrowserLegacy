@@ -578,29 +578,10 @@ define(function(require)
 			}
 
 			/* Grade System */
-			switch(item.enchantgrade) {
-				case 1:
-					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon1.bmp', function(data){
-						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
-					});
-					break;
-				case 2:
-					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon2.bmp', function(data){
-						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
-					});
-					break;
-				case 3:
-					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon3.bmp', function(data){
-						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
-					});
-					break;
-				case 4:
-					Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon4.bmp', function(data){
-						content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
-					});
-					break;
-				default:
-					break;
+			if (item.enchantgrade) {
+				Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', function(data){
+					content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+				});
 			}
 		}
 
@@ -1098,6 +1079,11 @@ define(function(require)
 				ItemCompare.remove();
 			}
 			return false;
+		}
+
+		// Remove existing compare UI if it's currently displayed
+		if (ItemCompare.ui) {
+			ItemCompare.remove();
 		}
 
 		// Add ui to window
