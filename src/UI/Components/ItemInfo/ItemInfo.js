@@ -103,6 +103,10 @@ define(function(require)
 	ItemInfo.onRemove = function onRemove()
 	{
 		this.uid = -1;
+		// Remove existing compare UI if it's currently displayed
+		if (ItemCompare.ui) {
+			ItemCompare.remove();
+		}
 	};
 
 

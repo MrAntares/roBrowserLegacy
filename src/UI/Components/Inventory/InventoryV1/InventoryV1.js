@@ -1029,6 +1029,11 @@ define(function(require)
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
 
+		// Remove existing compare UI if it's currently displayed
+		if (ItemCompare.ui) {
+			ItemCompare.remove();
+		}
+
 		// Check if there is an equipped item in the same location
 		var compareItem = Equipment.getUI().isInEquipList(item.location);
 

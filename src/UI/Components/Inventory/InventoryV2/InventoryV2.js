@@ -1073,6 +1073,11 @@ define(function(require)
 			return false;
 		}
 
+		// Remove existing compare UI if it's currently displayed
+		if (ItemCompare.ui) {
+			ItemCompare.remove();
+		}
+
 		// Add ui to window
 		ItemInfo.append();
 		ItemInfo.uid = item.ITID;
