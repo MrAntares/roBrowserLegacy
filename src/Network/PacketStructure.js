@@ -13291,6 +13291,70 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.REQ_FULLSWITCH_RESULT.size = 4;
 
+	// 0xaa0
+	PACKET.ZC.OPEN_REFINING_UI = function  PACKET_ZC_OPEN_REFINING_UI(fp, end){
+	};
+	PACKET.ZC.OPEN_REFINING_UI.size = 2;
+
+	// 0xaa1
+	PACKET.CZ.REFINING_SELECT_ITEM = function PACKET_CZ_REFINING_SELECT_ITEM() {
+		this.index = 0;
+	};
+	PACKET.CZ.REFINING_SELECT_ITEM.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(4);
+
+	    pkt_buf.writeShort(0xaa1);
+		pkt_buf.writeShort(this.index);
+	    return pkt_buf;
+	};
+
+	// 0xaa2
+	PACKET.ZC.REFINING_MATERIAL_LIST = function PACKET_ZC_REFINING_MATERIAL_LIST(fp, end) {
+		this.itemIndex = fp.readShort();
+		this.blacksmithBlessing = fp.readChar();
+		this.MaterialInfo = (function() {
+			var i, count, size, out;
+       		size = (PACKETVER.value >= 20181121) ? 9 : 7;
+			count = (end - fp.tell()) / size | 0;
+			out = new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].itemId = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+				out[i].chance = fp.readChar();
+				out[i].zeny = fp.readLong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.REFINING_MATERIAL_LIST.size = -1;
+
+	// 0xaa3
+	PACKET.CZ.REQ_REFINING = function PACKET_CZ_REQ_REFINING() {
+		this.index = 0;
+		this.itemId = 0;
+		this.blacksmithBlessing = 0;
+	};
+	PACKET.CZ.REQ_REFINING.prototype.build = function() {
+		var pkt_len = (PACKETVER.value >= 20181121) ? 9 : 7;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+	    pkt_buf.writeShort(0xaa3);
+		pkt_buf.writeShort(this.index);
+		(PACKETVER.value >= 20181121) ? pkt_buf.writeULong(this.itemId) : pkt_buf.writeUShort(itemId);
+		pkt_buf.writeChar(this.blacksmithBlessing);
+	    return pkt_buf;
+	};
+
+	// 0xaa4
+	PACKET.CZ.CLOSE_REFINING_UI = function PACKET_CZ_CLOSE_REFINING_UI() {
+	};
+	PACKET.CZ.CLOSE_REFINING_UI.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+
+	    pkt_buf.writeShort(0xaa4);
+	    return pkt_buf;
+	};
+
 	// 0xaa5
 	PACKET.ZC.MEMBERMGR_INFO2 = function PACKET_ZC_MEMBERMGR_INFO2(fp, end) {
 		this.memberInfo = (function() {
@@ -13406,6 +13470,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.HAT_EFFECT.size = -1;
+
+	// 0xada
+	PACKET.ZC.BROADCAST_ITEMREFINING_RESULT = function PACKET_ZC_BROADCAST_ITEMREFINING_RESULT(fp, end) {
+		this.charName = fp.readString(NAME_LENGTH);
+		this.itemId = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+		this.refineLevel = fp.readChar();
+		this.status = fp.readChar();
+	};
+	PACKET.ZC.BROADCAST_ITEMREFINING_RESULT.size = (PACKETVER.value >= 20181121) ? 32 : 30;
 
 	// 0xadc
 	PACKET.ZC.CONFIG_NOTIFY4 = function PACKET_ZC_CONFIG_NOTIFY4(fp, end) {
