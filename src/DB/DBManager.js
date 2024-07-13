@@ -1791,22 +1791,8 @@ define(function(require)
 		}
 
 		if (item.enchantgrade) {
-			switch(item.enchantgrade) {
-				case 1:
-					str += '[D] ';
-					break;
-				case 2:
-					str += '[C] ';
-					break;
-				case 3:
-					str += '[B] ';
-					break;
-				case 4:
-					str += '[A] ';
-					break;
-				default:
-					break;
-			}
+			let list = ['','D','C','B','A'];
+			str += '[' + list[item.enchantgrade] +'] ';
 		}
 
 		//Hide slots for forged weapons
