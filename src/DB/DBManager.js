@@ -378,6 +378,9 @@ define(function(require)
 	 * @param {string} content
 	 */
 	function lua_parse_glob(content) {
+		// Fix possible missing spaces after an array assignment.
+		content = content.replace(/^(\s+)(\w+)\s+?={/mg, '$1$2 = {');
+
 		// Remove comments
 		content = lua_remove_comments(content);
 
