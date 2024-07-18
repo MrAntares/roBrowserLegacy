@@ -31,6 +31,7 @@ define(function( require )
 	var CartItems    			 = require('UI/Components/CartItems/CartItems');
 	var Equipment    			 = require('UI/Components/Equipment/Equipment');
 	var PlayerViewEquip    		 = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
+	var Refine		    		 = require('UI/Components/Refine/Refine');
 	var SwitchEquip	    		 = require('UI/Components/SwitchEquip/SwitchEquip');
 	var Storage                  = require('UI/Components/Storage/Storage');
 	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
@@ -375,19 +376,37 @@ define(function( require )
 	 */
 	function onRefineResult( pkt )
 	{
-		var item = Inventory.getUI().removeItem( pkt.itemIndex, 1);
-		if (item) {
-			item.RefiningLevel = pkt.RefiningLevel;
-			Inventory.getUI().addItem(item);
-		}
+		// Check if refine UI is enabled and packet version is >= 20161012
+		if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
+			Refine.onRefineResult(pkt);
+		} else {
+			var item = Inventory.getUI().removeItem( pkt.itemIndex, 1);
+			if (item) {
+				item.RefiningLevel = pkt.RefiningLevel;
+				Inventory.getUI().addItem(item);
+			}
 
-		// TODO: effect ?
-		switch (pkt.result) {
-			case 0: // success
-			case 1: // failure
-			case 2: // downgrade
+			switch (pkt.result) {
+				case 0: // success
+					ChatBox.addText(DB.getMessage(498),	// Upgrade success!!
+						ChatBox.TYPE.BLUE,
+						ChatBox.FILTER.PUBLIC_LOG
+					);
+					break;
+				case 1: // failure
+					ChatBox.addText(DB.getMessage(499),	// Upgrade failed!!
+						ChatBox.TYPE.BLUE,
+						ChatBox.FILTER.PUBLIC_LOG
+					);
+					break;
+				case 2: // downgrade
+					ChatBox.addText(DB.getMessage(1537), // Is now refining the value lowered
+						ChatBox.TYPE.BLUE,
+						ChatBox.FILTER.PUBLIC_LOG
+					);
+					break;
+			}
 		}
-
 	}
 
 	/**
