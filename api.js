@@ -449,6 +449,7 @@
 			enableCashShop:   this.enableCashShop,
 			enableBank:       this.enableBank,
 			enableMapName:    this.enableMapName,
+			enableRefineUI:   this.enableRefineUI,
 			enableCheckAttendance: this.enableCheckAttendance,
 			version:          this.version,
 			worldMapSettings:  this.worldMapSettings,

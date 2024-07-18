@@ -185,6 +185,7 @@ function createHTML(){
 							enableCashShop: false,
 							enableBank: false,
 							enableMapName: false,
+                            enableRefineUI: false,
 							enableCheckAttendance: false,
 							CameraMaxZoomOut: 5,
                             loadLua: true,

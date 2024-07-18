@@ -70,6 +70,7 @@ define(function( require )
 	var Bank             = require('UI/Components/Bank/Bank');
 	var Rodex            = require('UI/Components/Rodex/Rodex');
 	var RodexIcon        = require('UI/Components/Rodex/RodexIcon');
+	var Refine           = require('UI/Components/Refine/Refine');
 	var PetInformations  = require('UI/Components/PetInformations/PetInformations');
 	var HomunInformations= require('UI/Components/HomunInformations/HomunInformations');
 	if(Configs.get('enableMapName')){
@@ -274,6 +275,7 @@ define(function( require )
 			SkillListMER.prepare();
 			Rodex.prepare();
 			RodexIcon.prepare();
+			Refine.prepare();
 
 			if(Configs.get('enableMapName')){
 				MapName.prepare();
