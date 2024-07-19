@@ -558,7 +558,7 @@ define(function(require)
 
 		// If item doesn't exist and should be increased, add it back
 		if (increase && !itemExists) {
-			let item = Inventory.getUI().getItemById(itemId);
+			let item = Inventory.getUI().getItemByIndex(itemIndex);
 			if (item) {
 				let inventory_count = (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) ? 1 : item.count;
             	let sourceItem = LaphineUIState.sourceItems.find(sourceItem => sourceItem.id === itemId);
