@@ -1978,10 +1978,6 @@ define(function(require)
 						 case 4: elem = MsgStringTable[453]; break; // 's Wind
 						 default : elem = MsgStringTable[450]; break; // 's
 					 }
-				 case 0x00FE: // CREATE
-					 elem = MsgStringTable[450];
-				 case 0xFF00: // PET
-					 
  
 					 var GID = (item.slot.card4<<16) + item.slot.card3;
 					 name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
