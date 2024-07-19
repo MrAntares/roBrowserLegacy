@@ -4,12 +4,13 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     var Session = require('Engine/SessionStorage');
     var Network = require('Network/NetworkManager');
     var PACKET = require('Network/PacketStructure');
+	var Configs = require('Core/Configs');
 
     function AIDriver() {
     }
 
     AIDriver.init = function init() {
-		var code = '';
+		var code = `package.path = package.path .. '${Configs.get('remoteClient')}'`;
 		
 		if(Session.homCustomAI){
 			code += `
