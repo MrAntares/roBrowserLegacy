@@ -1910,149 +1910,172 @@ define(function(require)
 
 
 	/**
-	 * Get full item name
-	 *
-	 * @param {object} item
-	 * @return {string} item full name
-	 */
-	DB.getItemName = function getItemName( item )
-	{
-		var it = DB.getItemInfo( item.ITID );
-		var str = '';
-		var prefix = '';
-		var postfix = '';
-		var showprefix = false;
-		var showpostfix = false;
-
-		if (!item.IsIdentified) {
-			return it.unidentifiedDisplayName;
-		}
-
-		if (item.RefiningLevel) {
-			str = '+' + item.RefiningLevel + ' ';
-		}
-
-		if (item.enchantgrade) {
-			let list = ['','D','C','B','A'];
-			str += '[' + list[item.enchantgrade] +'] ';
-		}
-
-		//Hide slots for forged weapons
-		var showslots = true;
-		if (item.slot) {
-
-			var very = '';
-			var name = '';
-			var elem = '';
-
-			switch (item.slot.card1) {
-				case 0x00FF: // FORGE
-					showslots = false;
-					if (item.slot.card2 >= 3840) {
-						very = MsgStringTable[461]; //Very Very Very Strong
-					} else if (item.slot.card2 >= 2560) {
-						very = MsgStringTable[460]; //Very Very Strong
-					} else if (item.slot.card2 >= 1024) {
-						very = MsgStringTable[459]; //Very Strong
-					}
-					switch (Math.abs(item.slot.card2 % 10)){
-						case 1: elem = MsgStringTable[452]; break; // 's Ice
-						case 2: elem = MsgStringTable[454]; break; // 's Earth
-						case 3: elem = MsgStringTable[451]; break; // 's Fire
-						case 4: elem = MsgStringTable[453]; break; // 's Wind
-						default : elem = MsgStringTable[450]; break; // 's
-					}
-
-					var GID = (item.slot.card4<<16) + item.slot.card3;
-					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
-					if( DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
-						name = '<font color="#87cefa" class="owner-' + GID + '">'+DB.CNameTable[GID]+'</font>';
-					} else {
-						DB.UpdateOwnerName[GID] = function onUpdateOwnerName(pkt) {
-							delete DB.UpdateOwnerName[pkt.GID];
-							setTimeout(() => {
-								let elements = document.querySelectorAll('.owner-'+pkt.GID);
-								for(let i = 0; i < elements.length; i++) {
-									elements[i].innerText = pkt.CName;
-									elements[i].style.color = "blue";
-								}
-							}, 1000);
-						};
-						DB.getNameByGID(GID);
-					}
-
-					str += very + ' ' + name + elem + ' ';
-					break;
-				case 0x00FE: // CREATE
-					elem = MsgStringTable[450];
-					break;
-				case 0xFF00: // PET
-					break;
-				// Show card prefix
-				default:
-					var list  = ['', 'Double ', 'Triple ', 'Quadruple '];
-					var cards = {};
-					var cardList = [];
-					var i;
-
-					for (i = 1; i <= 4; ++i) {
-						var card = item.slot['card'+i];
-
-						if (!card) {
-							break;
-						}
-
-						//store order
-						if(!(cardList.includes(card))){
-							cardList.push(card);
-						}
-
-						//store details
-						if(cards[card]){
-							cards[card].count++;
-						} else {
-							cards[card] = {};
-							cards[card].isPostfix = DB.getItemInfo(card).isPostfix;
-							cards[card].prefixName = DB.getItemInfo(card).prefixName;
-							cards[card].count = 0;
-						}
-					}
-
-					//create prefixes and postfixes in order
-					cardList.forEach( card => {
-						if(cards[card].isPostfix){
-							postfix += ' ' + list[cards[card].count] + cards[card].prefixName;
-							showpostfix = true;
-						} else {
-							prefix  +=       list[cards[card].count] + cards[card].prefixName + ' ';
-							showprefix = true;
-						}
-					});
-			}
-			switch (item.slot.card4) {
-				case 0x1: //BELOVED PET
-					showslots = false;
-					str = DB.getMessage(756) + ' ' + str;
-					break;
-			}
-		}
-
-		if(showprefix){
-			str += prefix;
-		}
-
-		str += it.identifiedDisplayName;
-
-		if(showpostfix){
-			str += postfix;
-		}
-
-		if (it.slotCount && showslots) {
-			str += ' [' + it.slotCount + ']';
-		}
-
-		return str;
-	};
+ 	* Get full item name
+ 	*
+ 	* @param {object} item - The item object containing details about the item.
+ 	* @param {object} [options] - Optional parameters to customize the output.
+ 	* @param {boolean} [options.showItemRefine=true] - Whether to show the refining level of the item.
+ 	* @param {boolean} [options.showItemGrade=true] - Whether to show the grade of the item.
+ 	* @param {boolean} [options.showItemSlots=true] - Whether to show the number of slots on the item.
+ 	* @param {boolean} [options.showItemPrefix=true] - Whether to show the prefix of the item.
+ 	* @param {boolean} [options.showItemPostfix=true] - Whether to show the postfix of the item.
+ 	* @param {boolean} [options.showItemOptions=true] - Whether to show the number of options on the item.
+ 	* @return {string} - The full name of the item with all applicable details.
+ 	*/
+	 DB.getItemName = function getItemName( item, options = {} )
+	 {
+		 const {
+			 showItemRefine = true,
+			 showItemGrade = true,
+			 showItemSlots = true,
+			 showItemPrefix = true,
+			 showItemPostfix = true,
+			 showItemOptions = true,
+		 } = options;
+ 
+		 var it = DB.getItemInfo( item.ITID );
+		 var str = '';
+		 var prefix = '';
+		 var postfix = '';
+		 var showprefix = false;
+		 var showpostfix = false;
+ 
+		 if (!item.IsIdentified) {
+			 return it.unidentifiedDisplayName;
+		 }
+ 
+		 if (item.RefiningLevel && showItemRefine) {
+			 str = '+' + item.RefiningLevel + ' ';
+		 }
+ 
+		 if (item.enchantgrade && showItemGrade) {
+			 let list = ['','D','C','B','A'];
+			 str += '[' + list[item.enchantgrade] +'] ';
+		 }
+ 
+		 //Hide slots for forged weapons
+		 var showslots = true;
+		 if (item.slot) {
+ 
+			 var very = '';
+			 var name = '';
+			 var elem = '';
+ 
+			 switch (item.slot.card1) {
+				 case 0x00FF: // FORGE
+					 showslots = false;
+					 if (item.slot.card2 >= 3840) {
+						 very = MsgStringTable[461]; //Very Very Very Strong
+					 } else if (item.slot.card2 >= 2560) {
+						 very = MsgStringTable[460]; //Very Very Strong
+					 } else if (item.slot.card2 >= 1024) {
+						 very = MsgStringTable[459]; //Very Strong
+					 }
+					 switch (Math.abs(item.slot.card2 % 10)){
+						 case 1: elem = MsgStringTable[452]; break; // 's Ice
+						 case 2: elem = MsgStringTable[454]; break; // 's Earth
+						 case 3: elem = MsgStringTable[451]; break; // 's Fire
+						 case 4: elem = MsgStringTable[453]; break; // 's Wind
+						 default : elem = MsgStringTable[450]; break; // 's
+					 }
+ 
+					 var GID = (item.slot.card4<<16) + item.slot.card3;
+					 name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
+					 if( DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
+						 name = '<font color="#87cefa" class="owner-' + GID + '">'+DB.CNameTable[GID]+'</font>';
+					 } else {
+						 DB.UpdateOwnerName[GID] = function onUpdateOwnerName(pkt) {
+							 delete DB.UpdateOwnerName[pkt.GID];
+							 setTimeout(() => {
+								 let elements = document.querySelectorAll('.owner-'+pkt.GID);
+								 for(let i = 0; i < elements.length; i++) {
+									 elements[i].innerText = pkt.CName;
+									 elements[i].style.color = "blue";
+								 }
+							 }, 1000);
+						 };
+						 DB.getNameByGID(GID);
+					 }
+ 
+					 str += very + ' ' + name + elem + ' ';
+					 break;
+				 case 0x00FE: // CREATE
+					 elem = MsgStringTable[450];
+					 break;
+				 case 0xFF00: // PET
+					 break;
+				 // Show card prefix
+				 default:
+					 var list  = ['', 'Double ', 'Triple ', 'Quadruple '];
+					 var cards = {};
+					 var cardList = [];
+					 var i;
+ 
+					 for (i = 1; i <= 4; ++i) {
+						 var card = item.slot['card'+i];
+ 
+						 if (!card) {
+							 break;
+						 }
+ 
+						 //store order
+						 if(!(cardList.includes(card))){
+							 cardList.push(card);
+						 }
+ 
+						 //store details
+						 if(cards[card]){
+							 cards[card].count++;
+						 } else {
+							 cards[card] = {};
+							 cards[card].isPostfix = DB.getItemInfo(card).isPostfix;
+							 cards[card].prefixName = DB.getItemInfo(card).prefixName;
+							 cards[card].count = 0;
+						 }
+					 }
+ 
+					 //create prefixes and postfixes in order
+					 cardList.forEach( card => {
+						 if(cards[card].isPostfix){
+							 postfix += ' ' + list[cards[card].count] + cards[card].prefixName;
+							 showpostfix = true;
+						 } else {
+							 prefix  +=       list[cards[card].count] + cards[card].prefixName + ' ';
+							 showprefix = true;
+						 }
+					 });
+			 }
+			 switch (item.slot.card4) {
+				 case 0x1: //BELOVED PET
+					 showslots = false;
+					 str = DB.getMessage(756) + ' ' + str;
+					 break;
+			 }
+		 }
+ 
+		 if(showprefix && showItemPrefix){
+			 str += prefix;
+		 }
+ 
+		 str += it.identifiedDisplayName;
+ 
+		 if(showpostfix && showItemPostfix){
+			 str += postfix;
+		 }
+ 
+		 if (it.slotCount && showslots && showItemSlots) {
+			 str += ' [' + it.slotCount + ']';
+		 }
+ 
+		 if (item.Options && showItemOptions) {
+			 let numOfOptions = item.Options.filter(Option => Option.index !== 0).length;
+			 if (numOfOptions) {
+				 str += ' [' + numOfOptions + ' Option]'
+			 }
+		 }
+ 
+		 return str;
+	 };
 
 	/**
 	 * Get random option name

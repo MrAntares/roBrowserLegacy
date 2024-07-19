@@ -92,7 +92,7 @@ define(function(require)
 					it   = DB.getItemInfo( item.ITID );
 					if(it){
 						file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
-						name = item.IsIdentified ? it.identifiedDisplayName : it.unidentifiedDisplayName;
+						name = DB.getItemName(item, {showItemGrade: false, showItemSlots: false, showItemOptions: false});
 						addElement( DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
 					}
 				}
