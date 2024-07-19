@@ -10,6 +10,9 @@ All credits to the original owners/creators and the new ones.
 ## Guide
 Checkout the [getting started guide](doc/README.md)
 
+## Remote Client
+Remote Client serves game assets to roBrowser via http by extracting them from their GRFs. You will need to setup a remote client if you want to serve the game assets centrally from your server. roBrowser can use local game assets via the Intro screen by dragging them into the file box. The original implementation of the Remote Client is written in PHP and can be found in the [roBrowserLegacy-RemoteClient-PHP](https://github.com/MrAntares/roBrowserLegacy-RemoteClient-PHP) repository. Other implementations may arise and when they do we will list them here.
+
 ## Plugins
 For available plugins and information on how to install them please visit the [roBrowserLegacy-plugins](https://github.com/MrAntares/roBrowserLegacy-plugins) repository.
 
