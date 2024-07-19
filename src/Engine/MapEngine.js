@@ -68,6 +68,7 @@ define(function( require )
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
+	var LaphineSys       = require('UI/Components/LaphineSys/LaphineSys');
 	var Rodex            = require('UI/Components/Rodex/Rodex');
 	var RodexIcon        = require('UI/Components/Rodex/RodexIcon');
 	var Refine           = require('UI/Components/Refine/Refine');
@@ -276,6 +277,7 @@ define(function( require )
 			Rodex.prepare();
 			RodexIcon.prepare();
 			Refine.prepare();
+			LaphineSys.prepare();
 
 			if(Configs.get('enableMapName')){
 				MapName.prepare();
@@ -1091,6 +1093,11 @@ define(function( require )
 	 */
 	function onUseItem( index )
 	{
+		// Items are not usable when Laphine Synthesis UI is open
+		if (LaphineSys.ui.is(':visible')) {
+			return false;
+		}
+
 		var pkt;
 		if(PACKETVER.value >= 20180307) { // not sure - this date is when the shuffle packets stoped
 			pkt = new PACKET.CZ.USE_ITEM2();
