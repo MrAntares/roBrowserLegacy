@@ -133,6 +133,12 @@ define(function(require)
 	var buyingStoreItemList = new Array();
 
 	/**
+	 * @var LaphineSys Table
+	 * json object
+	 */
+	var LaphineSysTable = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -169,6 +175,7 @@ define(function(require)
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function(json){ MonsterTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function(json){ RandomOption = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function(json){ SkillDescription = json; },  onLoad());
+			loadLaphineSysFile ( DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', function(laphinesys_list){ LaphineSysTable = laphinesys_list; },  onLoad());
 		} else {
 			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
 			loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
@@ -337,6 +344,138 @@ define(function(require)
             onEnd
         );
 	}
+
+	/* load lapineddukddakbox.lub to json object
+	 *
+	 * @param {string} filename to load
+	 * @param {function} callback to run once the file is loaded
+	 * @param {function} onEnd to run after the callback
+	 *
+	 */
+	function loadLaphineSysFile(filename, callback, onEnd) {
+	    Client.loadFile(filename,
+	        async function (lua) {
+	            console.log('Loading file "' + filename + '"...');
+	            let laphinesys_list = new Array();
+	            try {
+	                if (lua instanceof ArrayBuffer) {
+	                    lua = new TextDecoder('iso-8859-1').decode(lua);
+	                }
+
+	                // load lua file
+	                fengari.load(lua)();
+
+	                // Get the global table "tblLapineDdukddakBox"
+	                fengari.lua.lua_getglobal(fengari.L, "tblLapineDdukddakBox");
+
+	                // Check if it's a table
+	                if (!fengari.lua.lua_istable(fengari.L, -1)) {
+	                    console.log('[loadLapineFile] tblLapineDdukddakBox is not a table');
+	                    return;
+	                }
+
+	                // Get the "sources" table
+                	fengari.lua.lua_getfield(fengari.L, -1, "sources");
+
+                	// Check if "sources" is a table
+                	if (!fengari.lua.lua_istable(fengari.L, -1)) {
+                	    console.log('[loadLapineFile] sources is not a table');
+                	    return;
+                	}
+
+                	// Push nil key to start iteration
+                	fengari.lua.lua_pushnil(fengari.L);
+
+                	// Iterate over the "sources" table
+                	while (fengari.lua.lua_next(fengari.L, -2)) {
+	                    // get key (sourceId)
+	                    let sourceId = fengari.lua.lua_tojsstring(fengari.L, -2);
+	                    let source = { ItemID: 0, NeedCount: 0, NeedRefineMin: 0, NeedRefineMax: 0, SourceItems: new Array(), NeedSource_String: "" };
+
+	                    // get ItemID
+	                    fengari.lua.lua_getfield(fengari.L, -1, "ItemID");
+	                    source.ItemID = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get NeedCount
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedCount");
+	                    source.NeedCount = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get NeedRefineMin
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedRefineMin");
+	                    source.NeedRefineMin = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get NeedRefineMax
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedRefineMax");
+	                    source.NeedRefineMax = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get NeedSource_String
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedSource_String");
+	                    source.NeedSource_String = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get SourceItems
+	                    fengari.lua.lua_getfield(fengari.L, -1, "SourceItems");
+
+	                    // Push nil key to start iteration
+	                    fengari.lua.lua_pushnil(fengari.L);
+
+	                    // iterate over SourceItems table
+	                    while (fengari.lua.lua_next(fengari.L, -2)) {
+	                        // create SourceItem object
+	                        let sourceItem = { name: "", count: 0, id: 0 };
+
+	                        // get SourceItem values
+	                        fengari.lua.lua_pushinteger(fengari.L, 1);
+	                        fengari.lua.lua_gettable(fengari.L, -2);
+	                        sourceItem.name = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                        fengari.lua.lua_pop(fengari.L, 1);
+
+	                        fengari.lua.lua_pushinteger(fengari.L, 2);
+	                        fengari.lua.lua_gettable(fengari.L, -2);
+	                        sourceItem.count = fengari.lua.lua_tointeger(fengari.L, -1);
+	                        fengari.lua.lua_pop(fengari.L, 1);
+
+	                        fengari.lua.lua_pushinteger(fengari.L, 3);
+	                        fengari.lua.lua_gettable(fengari.L, -2);
+	                        sourceItem.id = fengari.lua.lua_tointeger(fengari.L, -1);
+	                        fengari.lua.lua_pop(fengari.L, 1);
+
+	                        // add sourceItem to SourceItems array
+	                        source.SourceItems.push(sourceItem);
+
+	                        // Pop the value and move to the next key
+	                        fengari.lua.lua_pop(fengari.L, 1);
+	                    }
+
+	                    // pop SourceItems
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // add source to lapine_list
+	                    laphinesys_list[sourceId] = source;
+
+	                    // Pop the value and move to the next key
+	                    fengari.lua.lua_pop(fengari.L, 1);
+	                }
+
+	                // pop table
+	                fengari.lua.lua_pop(fengari.L, 1);
+
+	                // clean lua stack
+	                fengari.lua.lua_settop(fengari.L, 0);
+	            }
+	            catch (hException) {
+	                console.error('error: ', hException);
+	            }
+	            callback.call(null, laphinesys_list);
+	            onEnd();
+	        },
+	        onEnd
+	    );
+	};
 
 	/**
 	 * Remove LUA comments
@@ -2005,6 +2144,28 @@ define(function(require)
 	 */
 	DB.getMapInfo = function GetMapInfo(mapname) {
 		return MapInfo[mapname] || null;
+	};
+
+	/**
+	 * Get the whole Laphine Synthesis Table
+	 * @returns LaphineSysTable
+	 */
+	DB.getLaphineSysList = function getLaphineSysList() {
+		return LaphineSysTable;
+	};
+
+	/**
+	 * Get Laphine Synthesis information by itemId
+	 * @param {number} itemId 
+	 * @returns LaphineSysTable[key] if itemId found
+	 */
+	DB.getLaphineSysInfoById = function getLaphineSysInfoById(itemId) {
+		for (let key in LaphineSysTable) {
+			if (LaphineSysTable[key].ItemID === itemId) {
+				return LaphineSysTable[key];
+			}
+		}
+		return null;
 	};
 
 	/**
