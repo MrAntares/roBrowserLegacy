@@ -52,6 +52,7 @@ Here's a list of things that you will need to have for a sucessfull installation
 | wsproxy         | A [Websocket Proxy](https://github.com/herenow/wsProxy#readme) to interligate Login + Server + Map into one endpoint                                         |
 | Game Server     | Your Emulator that usually is [rAthena](https://github.com/rathena/rathena) or [Hercules](https://github.com/HerculesWS/Hercules/)                           |
 | Game Files      | A [kRO](https://rathena.org/board/topic/106413-kro-full-client-2023-04-04-includes-bgm-rsu/) or any RO installation files to use as your base for the server |
+| Remote Client   | If you don't want to use local files you will need a Remote Client to serve the game assets to roBrowser hia http. Default version: [RemoteClient-PHP](https://github.com/MrAntares/roBrowserLegacy-RemoteClient-PHP) |
 | Browser         | Any browser that is compatible with [OpenGL ES 2.0](https://caniuse.com/?search=opengl) (Requirement for RoBrowser)                                          |
 | Embed Server    | Any programming language that has embed servers to use. Example: NodeJS, PHP or Ruby. It's totally up to you.                                                |
 
@@ -258,19 +259,26 @@ For development purposes (modifying the source/testing) skip this section and se
 # 5. Add game assets 
 
 TODO: improve this flow (important!)
+## Local Assets
 
-[Important info](https://github.com/MrAntares/roBrowserLegacy/blob/master/client/readme.md) before start.
+- Enable Intro screen in the configs by setting `skipIntro: false`
+- Drag your game assets into the box on your Intro sceen
 
-- copy your `.grf` under `client/resources` directory (only unencripted, 0x200 version is supported)
-- alternatively, if you don't want to use GRFs directly, then you can extract your GRFs into the `client/data` directory (not recommended, but it works fine)
-- copy your `DATA.INI` (GRF loading order) under `client/resources` directory
-- copy your BGM `.mp3` under `client/BGM` directory
-- copy your data directory under `client/data` directory
-- copy your System files under `client/System` directory
-- copy your `clientinfo.xml` (client-server information) under `client/data` directory
+## Remote Client
+- Install a Remote Client to your web server.
+  - Available versions:
+    - [PHP](https://github.com/MrAntares/roBrowserLegacy-RemoteClient-PHP)
+
+- copy your `.grf` under `resources` directory (only unencripted, 0x200 version is supported)
+- alternatively, if you don't want to use GRFs directly, then you can extract your GRFs into the `data` directory (not recommended, but it works fine)
+- copy your `DATA.INI` (GRF loading order) under `resources` directory
+- copy your BGM `.mp3` under `BGM` directory
+- copy your data directory under `data` directory
+- copy your System files under `System` directory
+- copy your `clientinfo.xml` (client-server information) under `data` directory
 - copy your AI files under `AI` directory
-- check the `client/configs.php` if it is configured properly for your use and make sure `DEBUG` is set to false
-- check the `client/.htaccess` file if the ErrorDocument option points to the `client/index.php` via the correct url. If you don't run roBrowser from the www root and you use remote client then you need to adjust this url (see examples in the file)
+- check the `configs.php` if it is configured properly for your use and make sure `DEBUG` is set to false
+- check the `.htaccess` file if the ErrorDocument option points to the `index.php` via the correct url. If you don't run roBrowser from the www root and you use remote client then you need to adjust this url (see examples in the file)
 
 In all `AI/*.lua` files :
 - Replace all `require "AI\\Const"` with `dofile "./AI/Const.lua"`
