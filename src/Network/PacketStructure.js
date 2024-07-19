@@ -11794,6 +11794,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ACK_RODEX_LIST.size = -1;
 
+	// 0xa70
+	PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE = function PACKET_CZ_RANDOM_COMBINE_ITEM_UI_CLOSE() {
+	};
+	PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xa70);
+		return pkt_buf;
+	};
 
 	// 0xa7d
 	PACKET.ZC.ACK_RODEX_LIST2 = function PACKET_ZC_ACK_RODEX_LIST2(fp, end) {
@@ -13131,6 +13141,40 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.GROUP_LIST2.size = -1;
+
+	// 0xa4e
+	PACKET.ZC.RANDOM_COMBINE_ITEM_UI_OPEN = function PACKET_ZC_RANDOM_COMBINE_ITEM_UI_OPEN(fp, end) {
+		this.itemId = (PACKETVER.value >= 20181121) ? fp.readLong() : fp.readShort();
+	};
+	PACKET.ZC.RANDOM_COMBINE_ITEM_UI_OPEN.size = (PACKETVER.value >= 20181121) ? 6 : 4;
+
+	// 0xa4f
+	PACKET.CZ.REQ_RANDOM_COMBINE_ITEM = function PACKET_CZ_REQ_RANDOM_COMBINE_ITEM() {
+		this.itemId = 0;
+		this.items = [];
+	};
+	PACKET.CZ.REQ_RANDOM_COMBINE_ITEM.prototype.build = function() {
+		var pkt_len;
+		var pkt_itemIdSize = (PACKETVER.value >= 20181121) ? 4 : 2;
+		pkt_len = 2 + 2 + pkt_itemIdSize + this.items.length * 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xa4f);
+		pkt_buf.writeShort(pkt_len);
+		(PACKETVER.value >= 20181121) ? pkt_buf.writeLong(this.itemId) : pkt_buf.writeShort(this.itemId);
+		for (var i = 0; i < this.items.length; i++) {
+			pkt_buf.writeShort(this.items[i].index);
+        	pkt_buf.writeShort(this.items[i].count);
+    	}
+
+		return pkt_buf;
+	};
+
+	// 0xa50
+	PACKET.ZC.ACK_RANDOM_COMBINE_ITEM = function PACKET_ZC_ACK_RANDOM_COMBINE_ITEM(fp, end) {
+		this.result = fp.readShort();
+	};
+	PACKET.ZC.ACK_RANDOM_COMBINE_ITEM.size = 4;
 
 	// 0xa68
 	PACKET.CZ.UI_OPEN = function PACKET_CZ_UI_OPEN() {
