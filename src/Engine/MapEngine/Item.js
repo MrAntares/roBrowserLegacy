@@ -108,7 +108,7 @@ define(function( require )
 		ItemObtain.append();
 		ItemObtain.set(pkt);
 
-		var getTextItem = DB.getItemName(pkt);
+		var getTextItem = DB.getItemName(pkt, {showItemOptions: false});
 
 		ChatBox.addText(
 			DB.getMessage(153).replace('%s', getTextItem ).replace('%d', pkt.count ),
