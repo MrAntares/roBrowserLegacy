@@ -10,15 +10,19 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     }
 
     AIDriver.init = function init() {
-		var code = `package.path = package.path .. '${Configs.get('remoteClient')}'`;
+		var clientPath = Configs.get('remoteClient');
+		
+		var code = `
+			package.path = '${clientPath}?.lua'
+		`;
 		
 		if(Session.homCustomAI){
 			code += `
-				dofile ("./AI/USER_AI/AI.lua")
+				require "AI/USER_AI/AI"
 			`;
 		} else {
 			code += `
-				dofile ("./AI/AI.lua")
+				require "AI/AI"
 			`;
 		}
 		
