@@ -184,10 +184,10 @@ define(function(require)
 			loadTable( 'data/idnum2itemresnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName 	= val;}, 			onLoad());
 			loadTable( 'data/idnum2itemdesctable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName 	= val.split("\n");},		onLoad());
 			loadTable( 'data/itemslotcounttable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).slotCount 			= val;},			onLoad());
-			loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
 			loadTable( 'data/skilldesctable.txt',			    '#',	2, function(index, key, val){	SkillDescription[SKID[key]]	= val.replace("\r\n", "\n");},		onLoad());
 		}
 
+		loadTable( 'data/metalprocessitemlist.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).processitemlist 	= val.split("\n");},		onLoad());
 		loadTable( 'data/num2cardillustnametable.txt',	'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName 		= val;}, 			onLoad());
 		loadTable( 'data/cardprefixnametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).prefixName     			= val;}, 			onLoad());
 		loadTable( 'data/cardpostfixnametable.txt',		'#',	1, function(index, key){		(ItemTable[key] || (ItemTable[key] = {})).isPostfix    				= true;}, 			onLoad());
@@ -505,7 +505,7 @@ define(function(require)
 
 		// Get back --
 		content = content.replace(/\\\\x2d/g, '-');
-		
+
 		content = content.replace(/^\s*([\/-][\/-][^\n]+)/gm, '');
 
 		return content;
@@ -986,7 +986,7 @@ define(function(require)
 	 *
 	 * @param {integer} id
 	 * @return {boolean} is shield?
-	 * 
+	 *
 	 * @author MrUnzO
 	 */
 	DB.isShield = function isShield(id) {
@@ -1100,7 +1100,7 @@ define(function(require)
 			case JobId.STAR2:
 			case JobId.STAR2_B:
 			case JobId.EMPEROR:
-			case JobId.EMPEROR_B:			
+			case JobId.EMPEROR_B:
 			case JobId.EMPEROR2:
 			case JobId.EMPEROR2_B:
 			case JobId.SKY_EMPEROR:
@@ -1508,10 +1508,10 @@ define(function(require)
 		 } else if (itemID >= 1900 && itemID < 1950) {
 		 return WeaponType.INSTRUMENT;
 		 } else if (itemID >= 1950 && itemID < 2000) {
-		 return WeaponType.WHIP;	
+		 return WeaponType.WHIP;
 		 } else if (itemID >= 2000 && itemID < 2100) {
-		 return WeaponType.TWOHANDROD;	
-		 } else if (itemID >= 13150 && itemID < 13200) { 
+		 return WeaponType.TWOHANDROD;
+		 } else if (itemID >= 13150 && itemID < 13200) {
 		 return WeaponType.GUN_RIFLE;
 		 } else if (itemID >= 13000 && itemID < 13100) {
 		 return WeaponType.SHORTSWORD;
@@ -1576,7 +1576,7 @@ define(function(require)
 		} else if (right >= 2801 && right <= 2899) {
 			return WeaponType.KATAR;
 		}
-		//else if (left >= 13000 && left < 13100) 
+		//else if (left >= 13000 && left < 13100)
 		//{	// �ܰ�
 		//	type = WeaponType.SHORTSWORD;
 		//	if (right >= 1201 && right < 1299)	// �ܰ�
@@ -1962,15 +1962,11 @@ define(function(require)
 						case 4: elem = MsgStringTable[453]; break; // 's Wind
 						default : elem = MsgStringTable[450]; break; // 's
 					}
-				case 0x00FE: // CREATE
-					elem = MsgStringTable[450];
-				case 0xFF00: // PET
-					
 
 					var GID = (item.slot.card4<<16) + item.slot.card3;
 					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
 					if( DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
-						name = '<font color="blue" class="owner-' + GID + '">'+DB.CNameTable[GID]+'</font>';
+						name = '<font color="#87cefa" class="owner-' + GID + '">'+DB.CNameTable[GID]+'</font>';
 					} else {
 						DB.UpdateOwnerName[GID] = function onUpdateOwnerName(pkt) {
 							delete DB.UpdateOwnerName[pkt.GID];
@@ -1980,14 +1976,18 @@ define(function(require)
 									elements[i].innerText = pkt.CName;
 									elements[i].style.color = "blue";
 								}
-							  }, "1000");
+							}, 1000);
 						};
 						DB.getNameByGID(GID);
 					}
 
 					str += very + ' ' + name + elem + ' ';
 					break;
-
+				case 0x00FE: // CREATE
+					elem = MsgStringTable[450];
+					break;
+				case 0xFF00: // PET
+					break;
 				// Show card prefix
 				default:
 					var list  = ['', 'Double ', 'Triple ', 'Quadruple '];
@@ -2156,7 +2156,7 @@ define(function(require)
 
 	/**
 	 * Get Laphine Synthesis information by itemId
-	 * @param {number} itemId 
+	 * @param {number} itemId
 	 * @returns LaphineSysTable[key] if itemId found
 	 */
 	DB.getLaphineSysInfoById = function getLaphineSysInfoById(itemId) {
@@ -2402,7 +2402,7 @@ define(function(require)
 
 	function onUpdateOwnerName (pkt){
 		DB.CNameTable[pkt.GID] = pkt.CName;
-		DB.UpdateOwnerName[pkt.GID](pkt);
+		DB.UpdateOwnerName[pkt.GID] = (pkt);
 	}
 
 	/**
@@ -2454,9 +2454,9 @@ define(function(require)
 
 	/**
 	 * Get Job Class Category
-	 * 
+	 *
 	 * @param {integer} JobId
-	 * 
+	 *
 	 */
 	DB.getJobClass = function getJobClass(job) {
 
@@ -2465,7 +2465,7 @@ define(function(require)
 			case JobId.DO_SUMMONER1:
 				return "Base_Class";
 				break;
-			
+
 			case JobId.SWORDMAN:
 			case JobId.MAGICIAN:
 			case JobId.ARCHER:
@@ -2493,7 +2493,7 @@ define(function(require)
 			case JobId.SUPERNOVICE:
 				return "Second_Class";
 				break;
-			
+
 			case JobId.GUNSLINGER:
 			case JobId.NINJA:
 			case JobId.TAEKWON:
@@ -2503,7 +2503,7 @@ define(function(require)
 			case JobId.NOVICE_H:
 				return "Rebirth_Class";
 				break;
-			
+
 			case JobId.SWORDMAN_H:
 			case JobId.MAGICIAN_H:
 			case JobId.ARCHER_H:
@@ -2530,7 +2530,7 @@ define(function(require)
 			case JobId.CRUSADER2_H:
 				return "Rebirth_Second_Class";
 				break;
-			
+
 			case JobId.STAR:
 			case JobId.STAR2:
 			case JobId.LINKER:
@@ -2539,7 +2539,7 @@ define(function(require)
 			case JobId.REBELLION:
 				return "Expanded_Second_Class";
 				break;
-			
+
 			case JobId.RUNE_KNIGHT:
 			case JobId.WARLOCK:
 			case JobId.RANGER:
@@ -2574,7 +2574,7 @@ define(function(require)
 			case JobId.SHADOW_CHASER_H:
 				return "Rebirth_Third_Class";
 				break;
-			
+
 			case JobId.EMPEROR:
 			case JobId.REAPER:
 			case JobId.EMPEROR2:
