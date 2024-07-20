@@ -429,14 +429,20 @@ define(function(require)
 
 		this.ui.find(getSelectorFromLocation(location)).html(
 			'<div class="item" data-index="'+ item.index +'">' +
-				'<button></button>' +
-				'<span class="itemName">' + add3Dots(jQuery.escape(DB.getItemName(item)), 19) + '</span>' +
+				'<button><div class="grade"></div></button>' +
+				'<span class="itemName">' + add3Dots(jQuery.escape(DB.getItemName(item, {showItemGrade: false, showItemSlots: false, showItemOptions: false})), 19) + '</span>' +
 			'</div>'
 		);
 
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function(data){
 			this.ui.find('.item[data-index="'+ item.index +'"] button').css('backgroundImage', 'url('+ data +')');
 		}.bind(this));
+
+		if (item.enchantgrade) {
+			Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', function(data){
+				this.ui.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+			}.bind(this));
+		}
 
 		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		

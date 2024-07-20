@@ -318,6 +318,7 @@ define(function(require)
 			content.append(
 				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
 					'<div class="icon"></div>' +
+					'<div class="grade"></div>' +
 					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
 				'</div>'
 			);
@@ -332,6 +333,14 @@ define(function(require)
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
+
+			/* Grade System */
+			if (item.enchantgrade) {
+				Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', function(data){
+					content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+				});
+			}
+
 		return true;
 	};
 
@@ -612,6 +621,13 @@ define(function(require)
 			return;
 		}
 
+		let quantity = ' ea';
+		if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) && 
+			item.Options.filter(Option => Option.index !== 0).length > 0)
+		{
+			quantity = ' Quantity';
+		}
+
 		// Get back data
 		var pos     = jQuery(this).position();
 		var overlay = CartItems.ui.find('.overlay');
@@ -619,7 +635,7 @@ define(function(require)
 		// Display box
 		overlay.show();
 		overlay.css({top: pos.top, left:pos.left+35});
-		overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+		overlay.text(DB.getItemName(item) + ': ' + (item.count || 1) + quantity);
 
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');

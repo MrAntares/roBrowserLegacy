@@ -103,7 +103,7 @@ define(function(require)
 	ItemObtain.set = function set( item )
 	{
 		var it       = DB.getItemInfo(item.ITID);
-		var display  = DB.getItemName(item);
+		var display  = DB.getItemName(item, {showItemSlots: false , showItemOptions: false});
 		var resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 
 		this.placeOnTop();
