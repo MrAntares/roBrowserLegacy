@@ -239,6 +239,10 @@ define( function( require )
 
 			SpriteRenderer.position.set(this.position);
 
+			// Everything right after the shadow should also be adjusted in height to ensure the sprites are above the shadow
+			if (this.objecttype === Entity.TYPE_PC || this.objecttype === Entity.TYPE_MOB || this.objecttype === Entity.TYPE_NPC) {
+				SpriteRenderer.position[2] = SpriteRenderer.position[2] + .1;
+			}
 
 			// Shield is behind on some position, seems to be hardcoded by the client
 			if (this.objecttype === Entity.TYPE_PC && this.shield && behind) {
