@@ -239,6 +239,7 @@ define( function( require )
 
 			SpriteRenderer.position.set(this.position);
 
+			SpriteRenderer.objecttype = this.objecttype;
 
 			// Shield is behind on some position, seems to be hardcoded by the client
 			if (this.objecttype === Entity.TYPE_PC && this.shield && behind) {
@@ -661,6 +662,7 @@ define( function( require )
 		SpriteRenderer.xSize		 = this.xSize;
 		SpriteRenderer.ySize		 = this.ySize;
 		SpriteRenderer.image.texture = frame.texture;
+		SpriteRenderer.objecttype    = this.objecttype;
 
 		// Draw Sprite
 		SpriteRenderer.render(isBlendModeOne);

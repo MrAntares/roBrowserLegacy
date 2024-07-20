@@ -12,26 +12,27 @@ function(      WebGL,         glMatrix,      Camera )
 {
 	"use strict";
 
+	const Session = require("Engine/SessionStorage");
 
 	/**
 	 * Import
 	 */
-	var mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 
 	/**
 	 * Generic Vertex Shader
-	 * @var {string}
+	 * @const {string}
 	 */
-	var _vertexShader = `
-		#version 100
-		#pragma vscode_glsllint_stage : vert
+	const _vertexShader = /*glsl*/ `#version 300 es
+		#define M_PI 3.1415926535897932384626433832795
+
 		precision highp float;
-	
-		attribute vec2 aPosition;
-		attribute vec2 aTextureCoord;
-	
-		varying vec2 vTextureCoord;
+
+		in vec2 aPosition;
+		in vec2 aTextureCoord;
+
+		out vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uViewModelMat;
@@ -39,6 +40,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 		uniform float uCameraZoom;
 		uniform float uCameraLatitude;
+		uniform float uCameraAngle;
 
 		uniform vec2 uSpriteRendererSize;
 		uniform vec2 uSpriteRendererOffset;
@@ -47,39 +49,52 @@ function(      WebGL,         glMatrix,      Camera )
 		uniform float uSpriteRendererDepth;
 		uniform float uSpriteRendererZindex;
 
-		mat4 Project( mat4 mat, vec3 pos) {
-
+		mat4 Project(mat4 mat, vec3 pos, float angle) {
 			// xyz = x(-z)y + middle of cell (0.5)
-			float x =  pos.x + 0.5;
+			float x = pos.x + 0.5;
 			float y = -pos.z;
-			float z =  pos.y + 0.5;
-			float NEARPLANE = 1.0;
+			float z = pos.y + 0.5;
+
+			float cameraLatitude = uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0;
 
 			// Matrix translation
 			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
 			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
+			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + min(cameraLatitude, 0.5);
 			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
-			
+
+
 			// Spherical billboard
-			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
-			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
-			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
-			
+			mat[0].xyz = vec3(1.0, 0.0, 0.0);
+			mat[2].xyz = vec3(0.0, 0.0, 1.0);
+
+			mat[1].xyz = -mat[1].xyz;
+			mat[2].xyz = -mat[2].xyz;
+
+			mat[1].y = cos(angle * (M_PI * 2.0) / 360.0);
+
 			return mat;
 		}
 
 		void main(void) {
-			
 			// Calculate position base on angle and sprite offset/size
-			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
-			position.x   += uSpriteRendererOffset.x;
-			position.y   -= uSpriteRendererOffset.y + 0.5;
-			
-			// Project to camera plane
-			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
-			
+			vec4 position = uSpriteRendererAngle * vec4(aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0);
+			position.x += uSpriteRendererOffset.x;
+			position.y -= uSpriteRendererOffset.y + 0.5;
+
+			// We use this to compensate the Y billboarding, applying it on the Z axis
+			float yView = (position.y - 0.5) * (cos(uCameraAngle * (M_PI * 2.0) / 360.0));
+
+			gl_Position = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition, uCameraAngle) * position;
+			float uCameraZoomMod = uCameraZoom / 50.0;
+
+			// Adjust depth calculation based on the adjusted Y position and camera latitude
+			gl_Position.z -= ((uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoomMod, 1.0)) + (yView * 0.005);
+
+
+			// Apply depth offset based on the sprite's Y position, this avoids z-fighting
+			gl_Position.z += uSpriteRendererOffset.y * 0.0001;
+
 			vTextureCoord = aTextureCoord;
 		}
 	`;
@@ -87,14 +102,12 @@ function(      WebGL,         glMatrix,      Camera )
 
 	/**
 	 * Generic Fragment Shader
-	 * @var {string}
+	 * @const {string}
 	 */
-	var _fragmentShader = `
-		#version 100
-		#pragma vscode_glsllint_stage : frag
+	const _fragmentShader = /*glsl*/ `#version 300 es
 		precision highp float;
 
-		varying vec2 vTextureCoord;
+		in vec2 vTextureCoord;
 
 		uniform sampler2D uDiffuse;
 		uniform sampler2D uPalette;
@@ -111,69 +124,121 @@ function(      WebGL,         glMatrix,      Camera )
 		uniform vec2 uTextSize;
 		uniform bool uIsRGBA;
 
+		uniform int objectType;
+		uniform bool uDebugMode;
+
+		out vec4 fragColor;
+
 		// With palette we don't have a good result because of the gl.NEAREST, so smooth it.
 		vec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {
 			vec2 TextInterval = 1.0 / uTextSize;
 
-			float tlLUT = texture2D(indexT, uv ).x;
-			float trLUT = texture2D(indexT, uv + vec2(TextInterval.x, 0.0)).x;
-			float blLUT = texture2D(indexT, uv + vec2(0.0, TextInterval.y)).x;
-			float brLUT = texture2D(indexT, uv + TextInterval).x;
+			float tlLUT = texture(indexT, uv).x;
+			float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;
+			float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;
+			float brLUT = texture(indexT, uv + TextInterval).x;
 
-			vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);
+			vec4 transparent = vec4(0.0, 0.0, 0.0, 0.0);
 
-			vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(tlLUT,1.0)).rgb, 1.0);
-			vec4 tr = trLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(trLUT,1.0)).rgb, 1.0);
-			vec4 bl = blLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(blLUT,1.0)).rgb, 1.0);
-			vec4 br = brLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(brLUT,1.0)).rgb, 1.0);
+			vec4 tl = tlLUT == 0.0 ? transparent : vec4(texture(LUT, vec2(tlLUT, 1.0)).rgb, 1.0);
+			vec4 tr = trLUT == 0.0 ? transparent : vec4(texture(LUT, vec2(trLUT, 1.0)).rgb, 1.0);
+			vec4 bl = blLUT == 0.0 ? transparent : vec4(texture(LUT, vec2(blLUT, 1.0)).rgb, 1.0);
+			vec4 br = brLUT == 0.0 ? transparent : vec4(texture(LUT, vec2(brLUT, 1.0)).rgb, 1.0);
 
-			vec2 f  = fract( uv.xy * uTextSize );
-			vec4 tA = mix( tl, tr, f.x );
-			vec4 tB = mix( bl, br, f.x );
+			vec2 f = fract(uv * uTextSize);
+			vec4 tA = mix(tl, tr, f.x);
+			vec4 tB = mix(bl, br, f.x);
 
-			return mix( tA, tB, f.y );
+			return mix(tA, tB, f.y);
 		}
 
-
 		void main(void) {
-
 			// Don't render if it's not shown.
 			if (uSpriteRendererColor.a == 0.0) {
 				discard;
 			}
 
 			// Calculate texture
-			vec4 texture;
+			vec4 texColor;
 			if (uUsePal) {
-				texture = bilinearSample( vTextureCoord, uDiffuse, uPalette );
+				texColor = bilinearSample(vTextureCoord, uDiffuse, uPalette);
 			}
 			else {
-				texture = texture2D( uDiffuse, vTextureCoord.st );
+				texColor = texture(uDiffuse, vTextureCoord.st);
+			}
+
+			if (objectType == 1 || objectType >= 5 && objectType <= 10 || objectType == 12) {
+				float edgeFactor = smoothstep(0.10, 1.0, texColor.a);
+				texColor.rgb *= edgeFactor;
+			}
+
+
+			// Debug mode: Draw red rectangle around the sprite
+			if (uDebugMode) {
+				float thickness = 0.02; // Increased thickness for more visible lines
+				vec2 coord = vTextureCoord;
+				vec2 pixelSize = 1.0 / uTextSize;
+				vec4 colorLine = vec4(1.0, 0.0, 0.0, 1.0);
+
+				switch (objectType) {
+					case -5: // Effect is pink
+						colorLine = vec4(1.0, 0.75, 0.8, 1.0);
+						break;
+					case 0: // Character blue
+						colorLine = vec4(0.0, 0.0, 1.0, 1.0);
+						break;
+					case 5:
+					case 1: // Monster green
+						colorLine = vec4(0.0, 1.0, 0.0, 1.0);
+						break;
+					case 12:
+					case 6: // NPC yellow
+						colorLine = vec4(1.0, 1.0, 0.0, 1.0);
+						break;
+					case 7: // Pet purple
+						colorLine = vec4(1.0, 0.0, 1.0, 1.0);
+						break;
+					case 10:
+					case 8: // Homunculus and Ele orange
+						colorLine = vec4(1.0, 0.5, 0.0, 1.0);
+						break;
+					case 9: // Mercenary cyan
+						colorLine = vec4(0.0, 1.0, 1.0, 1.0);
+						break;
+					default: // Others red
+						colorLine = vec4(1.0, 0.0, 0.0, 1.0);
+						break;
+				}
+
+				if (coord.x < thickness || coord.x > 1.0 - thickness ||
+					coord.y < thickness || coord.y > 1.0 - thickness) {
+					texColor = mix(texColor, colorLine, 0.9); // Increased mixing factor for more opaque lines
+				}
 			}
 
 			// No alpha, skip.
-			if ( texture.a == 0.0 )
-				discard;
+			if (texColor.a == 0.0) {
+					discard;
+			}
 
 			// Apply shadow, apply color
-			texture.rgb   *= uShadow;
-			gl_FragColor   = texture * uSpriteRendererColor;
+			texColor.rgb *= uShadow;
+			fragColor = texColor * uSpriteRendererColor;
 
 			// Fog feature
 			if (uFogUse) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+					float depth = gl_FragCoord.z / gl_FragCoord.w;
+					float fogFactor = smoothstep(uFogNear, uFogFar, depth);
+					fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);
 			}
 		}
 	`;
 
 
-
 	/**
 	 * Sprite Renderer NameSpace
 	 */
-	var SpriteRenderer = {};
+	const SpriteRenderer = {};
 
 
 	/**
@@ -263,95 +328,100 @@ function(      WebGL,         glMatrix,      Camera )
 	 */
 	SpriteRenderer.ySize = 5;
 
-
-	/**
-	 * @var {WebGLProgram}
-	 */
-	var _program = null;
-
-
-	/**
-	 * @var {WebGLBuffer}
-	 */
-	var _buffer = null;
+    /**
+     * @var {number} object type
+     */
+    SpriteRenderer.objecttype = null;
 
 
 	/**
-	 * @var {CanvasRenderingContext2D} canvas context
+	 * @let {WebGLProgram}
 	 */
-	var _ctx = null;
+	let _program = null;
 
 
 	/**
-	 * @var {WebGLRenderingContext} 3d context
+	 * @let {WebGLBuffer}
 	 */
-	var _gl = null;
+	let _buffer = null;
+
+
+	/**
+	 * @let {CanvasRenderingContext2D} canvas context
+	 */
+	let _ctx = null;
+
+
+	/**
+	 * @let {WebGLRenderingContext} 3d context
+	 */
+	let _gl = null;
 
 
 	/**
 	 * @var {number} group id
 	 * Used to know if we have to bind texture again
 	 */
-	var _groupId = 0;
+	let _groupId = 0;
 
 
 	/**
-	 * @var {number} last group id
+	 * @let {number} last group id
 	 */
-	var _lastGroupId = 0;
+	let _lastGroupId = 0;
 
 
 	/**
-	 * @var {number} last shadow used
+	 * @let {number} last shadow used
 	 */
-	var _shadow = null;
+	let _shadow = null;
 
 
 	/**
-	 * @var {number} last rotation angle used
+	 * @let {number} last rotation angle used
 	 */
-	var _angle = null;
+	let _angle = null;
 
 	/**
-	 * @var {number} last depth operation
+	 * @let {number} last depth operation
 	 */
-	var _depth = null;
+	let _depth = null;
 
 
 	/**
 	 * @var {object} last texture used
 	 */
-	var _texture = null;
+	let _texture = null;
 
 
 	/**
-	 * @var {boolean} do we use palette ?
+	 * @let {boolean} do we use palette ?
 	 */
-	var _usepal = null;
+	let _usepal = null;
 
 
 	/**
-	 * @var {Uint16Array} position in 2D canvas
+	 * @let {Uint16Array} position in 2D canvas
 	 */
-	var _pos = new Int16Array(2);
+	let _pos = new Int16Array(2);
 
 
 	/**
 	 * @var {mat4} last generated matrix (used for rotation)
 	 */
-	var _matrix = new Float32Array(4*4);
+	let _matrix = new Float32Array(4*4);
 
 
 	/**
-	 * @var {Float32Array[2]} sprite size
+	 * @let {Float32Array[2]} sprite size
 	 */
-	var _size = new Float32Array(2);
+	let _size = new Float32Array(2);
 
 
 	/**
-	 * @var {Float32Array[2]} sprite offset position
+	 * @let {Float32Array[2]} sprite offset position
 	 */
-	var _offset = new Float32Array(2);
+	let _offset = new Float32Array(2);
 
 
 	/**
@@ -388,8 +458,8 @@ function(      WebGL,         glMatrix,      Camera )
 	 */
 	SpriteRenderer.bind3DContext = function Bind3dContext( gl, modelView, projection, fog )
 	{
-		var attribute = _program.attribute;
-		var uniform   = _program.uniform;
+		const attribute = _program.attribute;
+		const uniform   = _program.uniform;
 
 		gl.useProgram( _program );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false,  projection );
@@ -409,6 +479,12 @@ function(      WebGL,         glMatrix,      Camera )
 		// Camera position for billboarding
 		gl.uniform1f( uniform.uCameraZoom, Camera.zoom );
 		gl.uniform1f( uniform.uCameraLatitude, Camera.getLatitude() );
+		gl.uniform1f( uniform.uCameraAngle, Camera.getAngle() * (Math.PI / 180.0));
+
+		// Debug mode
+		const uDebugModeLocation = gl.getUniformLocation(_program, 'uDebugMode');
+		gl.uniform1i( uDebugModeLocation, Session.debug ?? false );
+
 
 		// Enable all attributes
 		gl.enableVertexAttribArray( attribute.aPosition );
@@ -436,7 +512,7 @@ function(      WebGL,         glMatrix,      Camera )
 	 */
 	SpriteRenderer.unbind = function unBind( gl )
 	{
-		var attribute = _program.attribute;
+		const attribute = _program.attribute;
 
 		gl.disableVertexAttribArray( attribute.aPosition );
 		gl.disableVertexAttribArray( attribute.aTextureCoord );
@@ -475,9 +551,9 @@ function(      WebGL,         glMatrix,      Camera )
 		// gl.uniform* seems to be expensive
 		// cache values to avoid flooding the GPU and reducing perf.
 
-		var uniform = _program.uniform;
-		var gl      = _gl;
-		var use_pal = this.image.palette !== null;
+		const uniform = _program.uniform;
+		const gl      = _gl;
+		const use_pal = this.image.palette !== null;
 
 		if (isBlendModeOne) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -527,7 +603,13 @@ function(      WebGL,         glMatrix,      Camera )
 		gl.uniform4fv( uniform.uSpriteRendererColor,  this.color );
 		gl.uniform2fv( uniform.uSpriteRendererSize,   _size );
 		gl.uniform2fv( uniform.uSpriteRendererOffset, _offset );
-		gl.uniform1i( uniform.uIsRGBA, this.sprite.type)
+		gl.uniform1i( uniform.uIsRGBA, this.sprite.type);
+
+
+		// Used to know what kind of object we are rendering
+		const objectType = gl.getUniformLocation(_program, 'objectType');
+		gl.uniform1i( objectType, this.objecttype ?? -1);
+
 
 		// Avoid binding the new texture 150 times if it's the same.
 		if (_groupId !== _lastGroupId || _texture !== this.image.texture) {
@@ -541,9 +623,9 @@ function(      WebGL,         glMatrix,      Camera )
 	/**
 	 * Render in 2D
 	 */
-	var RenderCanvas2D = function RenderCanvas2DClosure()
+	const RenderCanvas2D = function RenderCanvas2DClosure()
 	{
-		var canvas, ctx, imageData;
+		let canvas, ctx, imageData;
 
 		canvas         = document.createElement("canvas");
 		ctx            = canvas.getContext("2d");
@@ -558,10 +640,10 @@ function(      WebGL,         glMatrix,      Camera )
 				return;
 			}
 
-			var scale_x, scale_y, idx1, idx2;
-			var x, y, _x, _y, width, height, outputWidth;
-			var pal, frame, color;
-			var input, output;
+			let scale_x, scale_y, idx1, idx2;
+			let x, y, _x, _y, width, height, outputWidth;
+			let pal, frame, color;
+			let input, output;
 
 			scale_x  = 1.0;
 			scale_y  = 1.0;
