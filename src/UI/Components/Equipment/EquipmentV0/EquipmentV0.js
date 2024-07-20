@@ -294,7 +294,7 @@ define(function(require)
 		this.ui.find(getSelectorFromLocation(location)).html(
 			'<div class="item" data-index="'+ item.index +'">' +
 				'<button></button>' +
-				'<span class="itemName">' + add3Dots(jQuery.escape(DB.getItemName(item)), 19) + '</span>' +
+				'<span class="itemName">' + add3Dots(jQuery.escape(DB.getItemName(item, {showItemGrade: false, showItemSlots: false, showItemOptions: false})), 19) + '</span>' +
 			'</div>'
 		);
 
