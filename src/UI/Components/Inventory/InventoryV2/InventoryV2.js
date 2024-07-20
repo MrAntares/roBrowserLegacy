@@ -976,6 +976,13 @@ define(function(require)
 			return;
 		}
 
+		let quantity = ' ea';
+		if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) && 
+			item.Options.filter(Option => Option.index !== 0).length > 0)
+		{
+			quantity = ' Quantity';
+		}
+
 		// Get back data
 		var pos     = jQuery(this).position();
 		var overlay = InventoryV2.ui.find('.overlay');
@@ -983,7 +990,7 @@ define(function(require)
 		// Display box
 		overlay.show();
 		overlay.css({top: pos.top, left:pos.left+35});
-		overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+		overlay.text(DB.getItemName(item) + ': ' + (item.count || 1) + quantity);
 
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
