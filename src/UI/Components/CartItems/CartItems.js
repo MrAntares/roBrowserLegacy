@@ -318,6 +318,7 @@ define(function(require)
 			content.append(
 				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
 					'<div class="icon"></div>' +
+					'<div class="grade"></div>' +
 					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
 				'</div>'
 			);
@@ -332,6 +333,14 @@ define(function(require)
 			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
 			});
+
+			/* Grade System */
+			if (item.enchantgrade) {
+				Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', function(data){
+					content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
+				});
+			}
+
 		return true;
 	};
 

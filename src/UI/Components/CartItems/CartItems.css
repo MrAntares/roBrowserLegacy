@@ -25,3 +25,14 @@
 #cartitems .footer button { position:absolute; right:0px; bottom:1px; width:13px; height:13px; border:none; background-repeat:no-repeat; background-color:transparent; }
 #cartitems .footer .cnt { position:absolute; left:10px; bottom:6px; font-size:12px; }
 #cartitems .footer .wt { position:absolute; left:80px; bottom:6px; font-size:12px; }
+
+#cartitems .content .item .grade {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 2;
+    top: 12px;
+}
