@@ -402,6 +402,8 @@ define(function(require)
 	{
 		var object = this.getItemByIndex(item.index);
 
+		var Refine = getModule('UI/Components/Refine/Refine');
+
 		// Check if the item was equipped
 		var equippedIndex = InventoryV3.equippedItems.indexOf(item.index);
 		if (equippedIndex !== -1) {
@@ -416,6 +418,16 @@ define(function(require)
 			if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
 				changeUI.show();
 			}
+		}
+
+		if (Refine.isRefineOpen()) {
+			var refinecount = Refine.ui.find('.materials .item[data-index="'+ item.ITID +'"] .mat_count');
+			var previousDataText = refinecount.text().split('/')[0]; // Get the previous count part before the '/'
+    		var previousData = parseInt(previousDataText, 10); // Parse the previous count as integer
+    		var newCount = previousData + item.count; // Add the new count to the previous count
+
+    		// Update the .mat_count text with the new count
+    		refinecount.empty().text(newCount + '/1');
 		}
 
 		if (object) {
@@ -694,6 +706,8 @@ define(function(require)
 	 */
 	InventoryV3.useItem = function UseItem( item )
 	{
+		var Refine = getModule('UI/Components/Refine/Refine');
+
 		switch (item.type) {
 
 			// Usable item
@@ -714,6 +728,10 @@ define(function(require)
 			// Equip item
 			case ItemType.WEAPON:
 			case ItemType.EQUIP:
+				if (Refine.isRefineOpen()) {
+					Refine.onRequestItemRefine(item);
+					break;
+				}
 			case ItemType.PETEQUIP:
 			case ItemType.AMMO:
 				if (item.IsIdentified && !item.IsDamaged) {
