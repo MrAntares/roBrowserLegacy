@@ -12,7 +12,6 @@ define(function( require )
 {
 	'use strict';
 
-
 	// Load dependencies
 	var jQuery        = require('Utils/jquery');
 	var Client        = require('Core/Client');
@@ -23,12 +22,10 @@ define(function( require )
 	var Preferences   = require('Preferences/Controls');
 	var getModule     = require;
 
-
 	/**
 	 * Cursor Constructor
 	 */
 	var Cursor = {};
-
 
 	/**
 	 * Cursor animation Constant
@@ -51,12 +48,20 @@ define(function( require )
 	 */
 	Cursor.freeze = false;
 
+	/**
+	 * @var {integer} left in px
+	 */
+	Cursor.x = 0;
+
+	/**
+	 * @var {integer} top in px
+	 */
+	Cursor.y = 0;
 
 	/**
 	 * @var {boolean} magnetism while picking entites ?
 	 */
 	Cursor.magnetism = true;
-
 
 	/**
 	 * @var {boolean} force disabled magnetism
@@ -64,72 +69,65 @@ define(function( require )
 	 */
 	Cursor.blockMagnetism = false;
 
-
 	/**
 	 * @var {integer} Cursor.ACTION.* constant
 	 */
 	var _type = Cursor.ACTION.DEFAULT;
-
 
 	/**
 	 * @var {integer} tick
 	 */
 	var _tick = 0;
 
-
 	/**
 	 * @var {boolean} repeat animation ?
 	 */
 	var _norepeat = false;
-
 
 	/**
 	 * @var {integer} animation frame
 	 */
 	var _animation = 0;
 
-
 	/**
 	 * @var {boolean} play animation ?
 	 */
 	var _play = true;
-
 
 	/**
 	 * @var {number} last style id rendered
 	 */
 	var _lastStyleId = -1;
 
-
 	/**
 	 * @var {number} last rendered position x
 	 */
 	var _lastX = 0;
-
 
 	/**
 	 * @var {number} last renderer position y
 	 */
 	var _lastY = 0;
 
-
 	/**
 	 * @var {Array} css style list
 	 */
 	var _compiledStyle = [];
-
 
 	/**
 	 * @var {Sprite} sprite
 	 */
 	var _sprite;
 
-
 	/**
 	 * @var {Action} action
 	 */
 	var _action;
 
+	/**
+	 * @var {reference} selector
+	 */
+	var _selector;
 
 	/**
 	 * Define sprite informations (hardcoded)
@@ -143,9 +141,7 @@ define(function( require )
 	ActionInformations[ Cursor.ACTION.TARGET  ] = { drawX: 20, drawY: 50, startX: 20, startY: 28, delayMult: 0.5 };
 	ActionInformations[ Cursor.ACTION.NOWALK  ] = { drawX:  13, drawY: 25, startX:  14, startY:  6, delayMult: 1.0 };
 
-
 	var EntityManager, Entity, SpriteRenderer, Mouse;
-
 
 	/**
 	 * Load cursor data (action, sprite)
@@ -172,8 +168,9 @@ define(function( require )
 			MemoryManager.remove(null, 'data/sprite/cursors.spr');
 			MemoryManager.remove(null, 'data/sprite/cursors.act');
 
-			bindMouseEvent();
+			bindMouseEvents();
 			preCompiledAnimations();
+			createSpriteSheet();
 			fn();
 
 		});
@@ -186,55 +183,54 @@ define(function( require )
 
 
 
-	/**
-	 * Change the cursor for the button click event
-	 */
-	function bindMouseEvent()
-	{
-		// Convert an image from an action to a blob url
-		function generateImage(index)
-		{
-			var canvas, binary, data;
-			var i, count;
+/**
+ * Change the cursor for the button click event
+ */
+function bindMouseEvents() {
+	const cursorCSS = `
+		.custom-cursor * { cursor: none!important; }
+		.custom-cursor .cursor { display: block; }
+		.cursor { pointer-events: none; z-index: 9999; position: fixed; width: 50px; height: 50px; overflow: hidden; display: none; }
+		.cursor__sprite { position: absolute; top: 0; left: 0; }
+	`;
+	jQuery('head').append(`<style type="text/css">${cursorCSS}</style>`);
+	jQuery('body').append('<div class="cursor"></div>');
+	_selector = document.querySelector('.cursor');
 
-			canvas = _sprite.getCanvasFromFrame(index);
-			if (!canvas) {
-				return '';
-			}
+	const isClickableSurface = (evt) => ['BUTTON', 'LABEL', 'SELECT'].includes(evt.target.tagName);
+	const updateCursor = (type, norepeat = false, animation = 0) => Cursor.setType(type, norepeat, animation);
 
-			binary = atob( canvas.toDataURL('image/png').replace(/^data[^,]+,/,'') );
-			count  = binary.length;
-			data   = new Uint8Array(count);
+	document.body.addEventListener('mouseover', (e) => {
+		isClickableSurface(e) ? updateCursor(Cursor.ACTION.CLICK) : Cursor.setType(Cursor.ACTION.DEFAULT);
+	});
 
-			for (i = 0; i < count; ++i) {
-				data[i] = binary.charCodeAt(i);
-			}
+	document.body.addEventListener('mouseout', (e) => {
+		if (isClickableSurface(e)) Cursor.setType(Cursor.ACTION.DEFAULT);
+	});
 
-			return URL.createObjectURL(new Blob([data], {type: 'image/png'}));
+	document.body.addEventListener('mousedown', (e) => {
+		if (isClickableSurface(e)) {
+			updateCursor(Cursor.ACTION.CLICK, true, 1);
+		} else if (![Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
+			Cursor.setType(Cursor.ACTION.DEFAULT);
 		}
+	}, true);
 
-		// Add default CSS rule with cursor
-		var action = _action.actions[Cursor.ACTION.CLICK];
-		var hover  = generateImage(action.animations[0].layers[0].index);
-		var down   = generateImage(action.animations[1].layers[0].index);
-		var action_text = _action.actions[Cursor.ACTION.DEFAULT];
-		var hover_text  = generateImage(action_text.animations[0].layers[0].index);
+	document.body.addEventListener('mouseup', (e) => {
+		if (!isClickableSurface(e) && ![Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
+			Cursor.setType(Cursor.ACTION.DEFAULT);
+		} else if (isClickableSurface(e)) {
+			updateCursor(Cursor.ACTION.CLICK);
+		}
+	});
 
-		// Append CSS to head
-		jQuery('head').append([
-			'<style type="text/css">',
-				'button { cursor: url(' + hover + '), auto; }',
-				'button:active { cursor: url(' + down + '), auto; }',
-				// add event de click
-				'.event_add_cursor { cursor: url(' + hover + '), auto; }',
-				'.event_add_cursor:active { cursor: url(' + down + '), auto; }',
-				// add default cursor for text field
-				'input[type=text] { cursor: url(' + hover_text + '), auto; }',
-				'textarea { cursor: url(' + hover_text + '), auto; }',
-			'</style>'
-		].join('\n'));
-	}
-
+	document.addEventListener('mousemove', (e) => {
+		Cursor.x = e.pageX;
+		Cursor.y = e.pageY;
+		_selector.style.left = `${e.pageX}px`;
+		_selector.style.top = `${e.pageY}px`;
+	}, true);
+}
 
 	/**
 	 * Start pre-compiling animation to avoid building sprites
@@ -276,7 +272,6 @@ define(function( require )
 				// ctx.strokeStyle = 'red';
 				// ctx.strokeRect(0, 0, 50, 50);
 
-
 				// Render layers
 				for (k = 0, total = animation.layers.length; k < total; ++k) {
 					entity.renderLayer( animation.layers[k], _sprite, _sprite, 1.0, position, false);
@@ -304,12 +299,68 @@ define(function( require )
 				animation.compiledStyleIndex = _compiledStyle.length;
 
 				dataURIList.push(dataURI);
-				_compiledStyle.push(URL.createObjectURL(new Blob([data.buffer], {type:'image/png'})));
+				
+				var blobURL = URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' }));
+
+
+				_compiledStyle.push(blobURL);
 			}
 		}
 	}
 
-
+	/**
+	 * Creates a sprite sheet from a list of image URLs and appends it to the DOM.
+	 *
+	 * Creates a canvas, draws each sprite in a row, converts the canvas to a data URL, 
+	 * and then creates a Blob URL to display the sprite sheet.
+	 */
+	function createSpriteSheet() {
+		var spriteWidth = 50, spriteHeight = 50;
+		var totalSprites = _compiledStyle.length;
+		var spriteSheetWidth = totalSprites * spriteWidth;
+		var spriteSheetHeight = spriteHeight;
+	
+		// Create a canvas to hold the sprite sheet
+		var spriteSheetCanvas = document.createElement('canvas');
+		spriteSheetCanvas.width = spriteSheetWidth;
+		spriteSheetCanvas.height = spriteSheetHeight;
+		var ctx = spriteSheetCanvas.getContext('2d');
+	
+		var imagesLoaded = 0;
+	
+		function drawSprite(n) {
+			var img = new Image();
+			img.onload = function() {
+				ctx.drawImage(img, n * spriteWidth, 0, spriteWidth, spriteHeight);
+				imagesLoaded++;
+				if (imagesLoaded === totalSprites) {
+					finalizeSpriteSheet();
+				}
+			};
+			img.src = _compiledStyle[n];
+		}
+	
+		function finalizeSpriteSheet() {
+			// Convert the sprite sheet canvas to a data URL
+			var spriteSheetDataURL = spriteSheetCanvas.toDataURL('image/png');
+	
+			// Create a Blob from the sprite sheet data URL
+			var binary = atob(spriteSheetDataURL.split(',')[1]);
+			var array = [];
+			for (var i = 0; i < binary.length; i++) {
+				array.push(binary.charCodeAt(i));
+			}
+			var blob = new Blob([new Uint8Array(array)], { type: 'image/png' });
+			var spriteSheetBlobURL = URL.createObjectURL(blob);
+	
+			// Append the sprite sheet to the DOM
+			jQuery('.cursor').append('<img class="cursor__sprite" src="' + spriteSheetBlobURL + '">');
+		}
+	
+		for (var i = 0; i < totalSprites; i++) {
+			drawSprite(i);
+		}
+	}
 
 	/**
 	 * Change cursor action
@@ -351,69 +402,58 @@ define(function( require )
 	/**
 	 * Render the cursor (update)
 	 */
-	Cursor.render = function render( tick )
-	{
-		// Not loaded yet.
+	Cursor.render = function render(tick) {
 		if (!Graphics.cursor || !_compiledStyle.length) {
+			if (_selector) _selector.style.display = 'hidden';
 			return;
+		} 
+		if (_selector.style.display !== 'show') {
+			if (_selector) _selector.style.display = 'show';
 		}
-
-		var info   = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
-		var action = _action.actions[_type];
-
-		// DEFAULT TO DEFAULT CURSOR in case of uknown action
-		if (action === undefined) {
-			action = _action.actions[Cursor.ACTION.DEFAULT];
-		}
-
-		var anim   = _animation;
-		var delay  = action.delay * info.delayMult;
-		var x      = info.startX;
-		var y      = info.startY;
-		var animation;
-
-		// Repeat / No-repeat features
+	
+		let info = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
+		let action = _action.actions[_type] || _action.actions[Cursor.ACTION.DEFAULT];
+		let anim = _animation;
+		let delay = action.delay * info.delayMult;
+		let x = info.startX;
+		let y = info.startY;
+		let animation;
+	
 		if (_play) {
-			var frame = (tick - _tick) / delay | 0;
-			if (_norepeat) {
-				anim = Math.min( frame, action.animations.length - 1 );
-			}
-			else {
-				anim = frame % action.animations.length;
-			}
+			let frame = Math.floor((tick - _tick) / delay);
+			anim = _norepeat ? Math.min(frame, action.animations.length - 1) : frame % action.animations.length;
 		}
-
+	
+		if (Graphics.cursor) document.body.classList.add('custom-cursor');
+	
 		animation = action.animations[anim];
-
-		// Issue #61 - Not able to reproduce
-		// If someone got more informations...
-		if (!animation) {
-			return;
-		}
-
-		// Cursor magnetism
+	
+		if (!animation) return;
+	
 		if (Cursor.magnetism && !Cursor.blockMagnetism) {
-			var entity = EntityManager.getOverEntity();
-
-			if (entity && (((entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC) && Preferences.snap === true) || (entity.objecttype === Entity.TYPE_ITEM && Preferences.itemsnap === true))) {
-				x += Math.floor( Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2-entity.boundingRect.x1) / 2));
-				y += Math.floor( Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2-entity.boundingRect.y1) / 2));
+			let entity = EntityManager.getOverEntity();
+			if (entity && ((['TYPE_MOB', 'TYPE_NPC_ABR', 'TYPE_NPC_BIONIC'].includes(entity.objecttype) && Preferences.snap) || (entity.objecttype === Entity.TYPE_ITEM && Preferences.itemsnap))) {
+				x += Math.floor(Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2));
+				y += Math.floor(Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2));
 			}
 		}
-
-		// Rendering if cursor changed
+	
 		if (animation.compiledStyleIndex !== _lastStyleId || x !== _lastX || y !== _lastY) {
 			_lastStyleId = animation.compiledStyleIndex;
-			_lastX       = x;
-			_lastY       = y;
-
-			document.body.style.cursor = 'url(' + _compiledStyle[_lastStyleId] + ') ' + x + ' ' + y + ', auto';
+			_lastX = x;
+			_lastY = y;
+	
+			let cursorSprite = document.querySelector('.cursor__sprite');
+			if (cursorSprite) cursorSprite.style.left = `${-_lastStyleId * 50}px`;
+	
+			let cursor = document.querySelector('.cursor');
+			if (cursor) cursor.style.transform = `translate(-${_lastX}px, -${_lastY}px)`;
 		}
 	};
-
 
 	/**
 	 * Export
 	 */
 	return Cursor;
+
 });

@@ -54,7 +54,7 @@ define(function(require)
 
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.ui.find('.details').change(onUpdateQualityDetails);
-		this.ui.find('.cursor').change(onToggleGameCursor);
+		this.ui.find('.cursor-option').change(onToggleGameCursor);
 		this.ui.find('.screensize').change(onUpdateScreenSize);
 		this.ui.find('.fpslimit').change(onUpdateFPSLimit);
 		this.ui.find('.fps').change(onToggleFPSDisplay);
@@ -76,7 +76,7 @@ define(function(require)
 
 		this.ui.find('.details').val(GraphicsSettings.quality);
 		this.ui.find('.screensize').val(GraphicsSettings.screensize);
-		this.ui.find('.cursor').attr('checked', GraphicsSettings.cursor);
+		this.ui.find('.cursor-option').attr('checked', GraphicsSettings.cursor);
 		this.ui.find('.fpslimit').val(GraphicsSettings.fpslimit);
 		this.ui.find('.fps').attr('checked', FPS.ui.is(':visible'));
 	};
@@ -114,9 +114,11 @@ define(function(require)
 		GraphicsSettings.cursor = !!this.checked;
 		GraphicsSettings.save();
 
-		// Remove cursor image
+		// display cursor depending on user settings
 		if (!GraphicsSettings.cursor) {
-			document.body.style.cursor = 'default';
+			document.body.classList.remove('custom-cursor');
+		} else {	
+			document.body.classList.add('custom-cursor');
 		}
 	}
 
