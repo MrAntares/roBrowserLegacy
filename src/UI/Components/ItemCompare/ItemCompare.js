@@ -90,7 +90,7 @@ define(function(require)
 		// Seems like "EscapeWindow" is execute first, push it before.
 		var events = jQuery._data( window, 'events').keydown;
 		events.unshift( events.pop() );
-		resize(ItemCompare.ui.find('.container').height());
+		resize(ItemCompare.ui.find('.description-inner').height() + 45);
 
 		var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
 		// Position ItemCompare next to ItemInfo
@@ -277,7 +277,7 @@ define(function(require)
 				break;
 
 		}
-		resize(ItemCompare.ui.find('.container').height());
+		resize(ItemCompare.ui.find('.description-inner').height() + 45);
 	};
 
 
@@ -375,7 +375,7 @@ define(function(require)
 		var descriptionInner = ItemCompare.ui.find('.description-inner');
 		var containerHeight = height;
 		var minHeight = 120;
-		var maxHeight = (descriptionInner.height() + 45 > 120) ? descriptionInner.height() + 45 : 120;
+		var maxHeight = descriptionInner.height() + 45 > 120 ? Math.min(descriptionInner.height() + 45, 448) : 120;
 
 		if (containerHeight <= minHeight) {
 			containerHeight = minHeight;

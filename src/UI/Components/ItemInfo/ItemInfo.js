@@ -93,7 +93,7 @@ define(function(require)
 		// Seems like "EscapeWindow" is execute first, push it before.
 		var events = jQuery._data( window, 'events').keydown;
 		events.unshift( events.pop() );
-		resize(ItemInfo.ui.find('.container').height());
+		resize(ItemInfo.ui.find('.description-inner').height() + 45);
 	};
 
 
@@ -307,7 +307,7 @@ define(function(require)
 				break;
 
 		}
-		resize(ItemInfo.ui.find('.container').height());
+		resize(ItemInfo.ui.find('.description-inner').height() + 45);
 	};
 
 
@@ -405,7 +405,7 @@ define(function(require)
 		var descriptionInner = ItemInfo.ui.find('.description-inner');
 		var containerHeight = height;
 		var minHeight = 120;
-		var maxHeight = (descriptionInner.height() + 45 > 120) ? descriptionInner.height() + 45 : 120;
+		var maxHeight = descriptionInner.height() + 45 > 120 ? Math.min(descriptionInner.height() + 45, 448) : 120;
 
 		if (containerHeight <= minHeight) {
 			containerHeight = minHeight;
