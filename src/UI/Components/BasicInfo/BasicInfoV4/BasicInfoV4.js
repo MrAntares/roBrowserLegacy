@@ -86,6 +86,7 @@ define(function(require)
 			event.stopImmediatePropagation();
 		});
 
+		this.ui.find('.topbar').dblclick(BasicInfoV4.toggleMode.bind(this));
 		this.ui.find('.topbar .right').click(BasicInfoV4.toggleMode.bind(this));
 		this.ui.find('.toggle_btns').click(BasicInfoV4.toggleButtons.bind(this));
 

@@ -8,6 +8,7 @@
 #BasicInfoV4.large .buttons { top:144px; }
 #BasicInfoV4.small .buttons { top:62px; }
 
+#BasicInfoV4 .topbar { height: 16px; }
 #BasicInfoV4 .topbar .left { position:absolute; top:3px; left:4px; width:11px; height:11px; border:none; background:none; }
 #BasicInfoV4 .topbar .right { position:absolute; top:3px; right:2px; width:11px; height:11px; border:none; background:none; }
 
