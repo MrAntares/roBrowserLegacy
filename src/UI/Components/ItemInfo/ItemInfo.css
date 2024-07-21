@@ -1,5 +1,5 @@
 .ItemInfo { position:absolute; top:0px; left:0px; width:280px; background-repeat:no-repeat; background-color:transparent; }
-.ItemInfo .container { height:120px; position:relative; box-shadow: white 0px 0px 0px 3px inset, rgb(192, 192, 192) 0px 0px 0px 4px inset; background-repeat: no-repeat; background-color: white; border-radius: 10px; }
+.ItemInfo .container { height:120px; position:relative; box-shadow: white 0px 0px 0px 3px inset, rgb(192, 192, 192) 0px 0px 0px 4px inset; background-repeat: no-repeat; background-color: white; border-radius: 5px; }
 .ItemInfo .event_view { position: absolute; }
 .ItemInfo .event_view .view { position:absolute; width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; border:none; top:6px; left:6px; }
 .ItemInfo .collection { position:absolute; top:11px; left:10px; width:75px; height:100px; background-repeat:no-repeat; background-color:transparent; }
