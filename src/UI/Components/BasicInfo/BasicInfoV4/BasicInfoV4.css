@@ -5,6 +5,7 @@
 #BasicInfoV4.large .bt_menu { top:135px; }
 #BasicInfoV4.small .bt_menu { top:53px; }
 
+#BasicInfoV4 .buttons { background-position: left bottom; }
 #BasicInfoV4.large .buttons { top:144px; }
 #BasicInfoV4.small .buttons { top:62px; }
 
@@ -31,11 +32,9 @@
 #BasicInfoV4 .large .jexp { top:101px; }
 #BasicInfoV4 .large .extra { position:absolute; top:119px; right:-15px; width:100%; }
 #BasicInfoV4 .large .extra { padding-right:10px; }
-#BasicInfoV4 .buttons { position:absolute; left:0px; top:9px; width:220px; height:184px; }
+#BasicInfoV4 .buttons { position:absolute; left:0px; top:9px; width:220px; display: grid; grid-template-columns: auto auto auto auto auto; justify-items: center; }
 #BasicInfoV4 .bt_menu { position:absolute; left:0px; width:219px; height:9px; }
-#BasicInfoV4 .buttons:hover { }
-#BasicInfoV4 .buttons div { float:left; width:32px; height:32px; border:none; margin:6px; }
-#BasicInfoV4 .buttons .clear { clear:both; }
+#BasicInfoV4 .buttons button { width:32px; height:32px; border:none; margin:6px; background: transparent; }
 
 /* REDUCED */
 #BasicInfoV4 .small .line1 { position:absolute; top:2px;  left:18px; text-shadow:1px 1px white; white-space:nowrap; }
@@ -43,8 +42,8 @@
 #BasicInfoV4 .small .line3 { position:absolute; top:36px; left:10px; white-space:nowrap; }
 #BasicInfoV4 .toggle_btns {  border:none; background-repeat:no-repeat; }
 
-#BasicInfoV4 .buttons div .name { position: relative; display:none; z-index:1; top:-20px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem;; }
-#BasicInfoV4 .buttons div:hover .name { display:table; }
-#BasicInfoV4 .buttons div .name { display:none; }
+#BasicInfoV4 .buttons button .name { pointer-events: none; position: relative; display:none; z-index:1; top:-20px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem;; }
+#BasicInfoV4 .buttons button:hover .name { display:table; }
+#BasicInfoV4 .buttons button .name { display:none; }
 
 #BasicInfoV4 .buttons .btn_overlay { width:35px; height:40px; border:none; position: relative; top: -13px; left: -7px; z-index: 10; display: none; }
