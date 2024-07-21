@@ -24,6 +24,21 @@
 	align-items: center;
 }
 
+.EntityRoom button::after {
+	content: '';
+	position: absolute;
+	bottom: -12px;
+	left: 50%;
+	margin-left: -10px;
+	z-index: -1;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 0 10.5px 26px 10.5px;
+	border-color: transparent transparent #fff transparent;
+	transform: rotate(220deg);
+}
+
 .EntityRoom .image {
 	width: 24px;
 	height: 24px;
