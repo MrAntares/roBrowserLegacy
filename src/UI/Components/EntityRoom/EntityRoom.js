@@ -70,7 +70,7 @@ define(function(require)
 	 */
 	EntityRoom.setTitle = function setTitle( title, url )
 	{
-		this.ui.find('button').css('backgroundImage', 'url('+ url +')');
+		this.ui.find('button img').attr('src', url);
 		this.ui.find('.title, .overlay').text(title);
 	};
 

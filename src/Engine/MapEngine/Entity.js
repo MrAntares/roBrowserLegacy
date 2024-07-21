@@ -2159,7 +2159,7 @@ define(function( require )
 			if (entity) {
 
 				var type  = entity.room.constructor.Type.PUBLIC_CHAT;
-				var title = pkt.title + '('+ pkt.curcount +'/'+ pkt.maxcount +')';
+				var title = pkt.title + ' ('+ pkt.curcount +'/'+ pkt.maxcount +')';
 
 				switch (pkt.type) {
 					case 0: // password
