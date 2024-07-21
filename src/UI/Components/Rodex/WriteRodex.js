@@ -81,7 +81,7 @@ define(function (require) {
 		WriteRodex.ui.find('.validate-name').on('click', onClickValidateName);
 		WriteRodex.ui.find('.weigth-text').html('0  2000');
 		WriteRodex.ui.find('.tax-text').html('0');
-		WriteRodex.ui.find('.value').val('');
+		WriteRodex.ui.find('.value').val('').attr('max', Session.zeny);
 		WriteRodex.ui.find('.item-list').html('');
 		WriteRodex.ui.find('.items').on('drop', onDrop)
 			.on('dragover', stopPropagation)
@@ -305,7 +305,7 @@ define(function (require) {
 		// Have to specify how much
 		if (item.count > 1) {
 			InputBox.append();
-			InputBox.setType('number', false, item.count);
+			InputBox.setType('item', false, item.count, item.ITID);
 
 			InputBox.onSubmitRequest = function OnSubmitRequest(count) {
 				InputBox.remove();
