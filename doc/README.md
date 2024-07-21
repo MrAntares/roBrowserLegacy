@@ -52,7 +52,7 @@ Here's a list of things that you will need to have for a sucessfull installation
 | wsproxy         | A [Websocket Proxy](https://github.com/herenow/wsProxy#readme) to interligate Login + Server + Map into one endpoint                                         |
 | Game Server     | Your Emulator that usually is [rAthena](https://github.com/rathena/rathena) or [Hercules](https://github.com/HerculesWS/Hercules/)                           |
 | Game Files      | A [kRO](https://rathena.org/board/topic/106413-kro-full-client-2023-04-04-includes-bgm-rsu/) or any RO installation files to use as your base for the server |
-| Remote Client   | If you don't want to use local files you will need a Remote Client to serve the game assets to roBrowser hia http. Default version: [RemoteClient-PHP](https://github.com/MrAntares/roBrowserLegacy-RemoteClient-PHP) |
+| Remote Client   | If you don't want to use local files you will need a Remote Client to serve the game assets to roBrowser hia http. Default version: [PHP](https://github.com/MrAntares/roBrowserLegacy-RemoteClient-PHP) Other versions: [JS](https://github.com/FranciscoWallison/roBrowserLegacy-RemoteClient-JS) |
 | Browser         | Any browser that is compatible with [OpenGL ES 2.0](https://caniuse.com/?search=opengl) (Requirement for RoBrowser)                                          |
 | Embed Server    | Any programming language that has embed servers to use. Example: NodeJS, PHP or Ruby. It's totally up to you.                                                |
 
@@ -268,6 +268,7 @@ TODO: improve this flow (important!)
 - Install a Remote Client to your web server.
   - Available versions:
     - [PHP](https://github.com/MrAntares/roBrowserLegacy-RemoteClient-PHP)
+    - [JS](https://github.com/FranciscoWallison/roBrowserLegacy-RemoteClient-JS)
 
 - copy your `.grf` under `resources` directory (only unencripted, 0x200 version is supported)
 - alternatively, if you don't want to use GRFs directly, then you can extract your GRFs into the `data` directory (not recommended, but it works fine)
