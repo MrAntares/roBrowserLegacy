@@ -140,7 +140,7 @@ define(function( require )
 
 		// Cast position
 		_pos[0] =  0.0;
-		_pos[1] =  140 / 35;
+		_pos[1] =  120 / 35;
 		_pos[2] =  0.0;
 		_pos[3] =  1.0;
 
@@ -157,7 +157,7 @@ define(function( require )
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
 		ui.style.top  = (_pos[1] | 0 ) + 'px';
-		ui.style.left = ((_pos[0] - 70) | 0) + 'px';
+		ui.style.left = ((_pos[0] - ui.clientWidth/2) | 0) + 'px';
 	};
 
 
