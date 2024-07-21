@@ -49,20 +49,16 @@ body {
 	padding-bottom:5px;
 	padding-left:25px;
 	padding-right:25px;
-	cursor:default;
 }
 #contextmenu div:hover, #contextmenu a:hover {
 	background-color:#efefef;
-	cursor:pointer;
 }
 #contextmenu .disable, #contextmenu a.disable {
 	color: #a1a192;
 	font-weight:bold;
 }
 #contextmenu .disable:hover {
-	background-color:white;
-	cursor:default;
-}
+	background-color:white;}
 
 
 /** ICONS **/
@@ -74,7 +70,6 @@ body {
 	vertical-align: top;
 	width: 95px;
 	height:95px;
-	cursor:pointer;
 	border:1px solid transparent;
 	word-wrap: break-word;
 	z-index:10;
@@ -135,7 +130,6 @@ body {
 
 #next.on, #previous.on {
 	opacity:1.0;
-	cursor:pointer;
 }
 
 
@@ -229,7 +223,6 @@ body {
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	color: rgb(51, 51, 51);
-	cursor: pointer;
 	font-family: sans-serif;
 	font-size: 14px;
 	text-align: center;
