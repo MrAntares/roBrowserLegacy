@@ -261,7 +261,6 @@ define(function( require )
 			Vending.prepare();
 			ChangeCart.prepare();
 			Equipment.getUI().prepare();
-			SwitchEquip.prepare();
 			ShortCuts.prepare();
 			ShortCut.prepare();
 			ChatRoomCreate.prepare();
@@ -276,8 +275,6 @@ define(function( require )
 			SkillListMER.prepare();
 			Rodex.prepare();
 			RodexIcon.prepare();
-			Refine.prepare();
-			LaphineSys.prepare();
 
 			if(Configs.get('enableMapName')){
 				MapName.prepare();
@@ -289,6 +286,20 @@ define(function( require )
 
 			if(Configs.get('enableBank')) {
 				Bank.prepare();
+			}
+
+			if(PACKETVER.value >= 20160601) {
+				LaphineSys.prepare();
+			}
+
+			if(Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
+				Refine.prepare();
+			}
+
+			if (PACKETVER.value >= 20170208) {
+				SwitchEquip.prepare();
+				SwitchEquip.onAddSwitchEquip	= onAddSwitchEquip;
+				SwitchEquip.onRemoveSwitchEquip	= onRemoveSwitchEquip;
 			}
 
 			if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
@@ -310,8 +321,6 @@ define(function( require )
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
 			Escape.onResurectionRequest     = onResurectionRequest;
 			ChatBox.onRequestTalk           = onRequestTalk;
-			SwitchEquip.onAddSwitchEquip	= onAddSwitchEquip;
-			SwitchEquip.onRemoveSwitchEquip	= onRemoveSwitchEquip;
 
 		}
 
