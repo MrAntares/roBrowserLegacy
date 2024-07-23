@@ -46,4 +46,5 @@
 #BasicInfoV4 .buttons button:hover .name { display:table; }
 #BasicInfoV4 .buttons button .name { display:none; }
 
-#BasicInfoV4 .buttons .btn_overlay { width:35px; height:40px; border:none; position: relative; top: -13px; left: -7px; z-index: 10; display: none; }
+#BasicInfoV4 .buttons .btn_overlay { pointer-events: none; width:35px; height:40px; border:none; position: relative; top: -6px; left: 0; display: none; }
+#BasicInfoV4 .buttons button:active .btn_overlay { pointer-events: none; top: -5px; }
