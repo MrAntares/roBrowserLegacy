@@ -555,7 +555,19 @@ define(function(require)
 				_ctx.save();
 				_ctx.translate( projectX(pos[0]), projectY(pos[1]) );
 				_ctx.rotate( ( Session.Entity.direction + 4 ) * 45 * Math.PI / 180 );
+
+				_ctx.shadowColor = 'rgba(0, 0, 0, 1)';
+				_ctx.shadowBlur = 5;
+				_ctx.shadowOffsetX = 0;
+				_ctx.shadowOffsetY = 0;
+
 				_ctx.drawImage( _arrow, -_arrow.width * 0.5, -_arrow.height * 0.5 );
+
+				_ctx.shadowColor = 'rgba(0, 0, 0, 0)';
+				_ctx.shadowBlur = 0;
+				_ctx.shadowOffsetX = 0;
+				_ctx.shadowOffsetY = 0;
+
 				_ctx.restore();
 			}
 
