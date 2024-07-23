@@ -40,7 +40,8 @@ define(function(require)
 	var htmlText           = require('text!./InventoryV3.html');
 	var cssText            = require('text!./InventoryV3.css');
 	var getModule          = require;
-
+	var Configs            = require('Core/Configs');
+	var PACKETVER          = require('Network/PacketVerManager');
 
 	/**
 	 * Create Component
@@ -401,8 +402,10 @@ define(function(require)
 	InventoryV3.addItem = function AddItem( item )
 	{
 		var object = this.getItemByIndex(item.index);
-
-		var Refine = getModule('UI/Components/Refine/Refine');
+		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
+		if(hasRefineFlag) {
+			var Refine = getModule('UI/Components/Refine/Refine');
+		}
 
 		// Check if the item was equipped
 		var equippedIndex = InventoryV3.equippedItems.indexOf(item.index);
@@ -420,7 +423,7 @@ define(function(require)
 			}
 		}
 
-		if (Refine.isRefineOpen()) {
+		if (hasRefineFlag && Refine.isRefineOpen()) {
 			var refinecount = Refine.ui.find('.materials .item[data-index="'+ item.ITID +'"] .mat_count');
 			var previousDataText = refinecount.text().split('/')[0]; // Get the previous count part before the '/'
     		var previousData = parseInt(previousDataText, 10); // Parse the previous count as integer
@@ -706,7 +709,10 @@ define(function(require)
 	 */
 	InventoryV3.useItem = function UseItem( item )
 	{
-		var Refine = getModule('UI/Components/Refine/Refine');
+		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
+		if (hasRefineFlag) {
+			var Refine = getModule('UI/Components/Refine/Refine');
+		}
 
 		switch (item.type) {
 
@@ -728,7 +734,7 @@ define(function(require)
 			// Equip item
 			case ItemType.WEAPON:
 			case ItemType.EQUIP:
-				if (Refine.isRefineOpen()) {
+				if (hasRefineFlag && Refine.isRefineOpen()) {
 					Refine.onRequestItemRefine(item);
 					break;
 				}

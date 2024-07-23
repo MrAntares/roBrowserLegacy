@@ -32,7 +32,9 @@ define(function( require )
 	var CartItems    			 = require('UI/Components/CartItems/CartItems');
 	var Equipment    			 = require('UI/Components/Equipment/Equipment');
 	var PlayerViewEquip    		 = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
-	var Refine		    		 = require('UI/Components/Refine/Refine');
+	if(Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
+		var Refine = require('UI/Components/Refine/Refine');
+	}
 	var SwitchEquip	    		 = require('UI/Components/SwitchEquip/SwitchEquip');
 	var Storage                  = require('UI/Components/Storage/Storage');
 	var MakeItemSelection     	 = require('UI/Components/MakeItemSelection/MakeItemSelection');
