@@ -341,7 +341,7 @@ define(function( require )
 		// Have to specify how much
 		if (item.count > 1) {
 			InputBox.append();
-			InputBox.setType('number', false, item.count);
+			InputBox.setType('item', false, item.count, item.ITID);
 			InputBox.onSubmitRequest = function onSubmitRequest( count ) {
 				InputBox.remove();
 				MapControl.onRequestDropItem(

@@ -211,13 +211,13 @@ function bindMouseEvents() {
 	document.body.addEventListener('mousedown', (e) => {
 		if (isClickableSurface(e)) {
 			updateCursor(Cursor.ACTION.CLICK, true, 1);
-		} else if (![Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
+		} else if (![Cursor.ACTION.DEFAULT, Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
 			Cursor.setType(Cursor.ACTION.DEFAULT);
 		}
 	}, true);
 
 	document.body.addEventListener('mouseup', (e) => {
-		if (!isClickableSurface(e) && ![Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
+		if (!isClickableSurface(e) && ![Cursor.ACTION.DEFAULT, Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
 			Cursor.setType(Cursor.ACTION.DEFAULT);
 		} else if (isClickableSurface(e)) {
 			updateCursor(Cursor.ACTION.CLICK);

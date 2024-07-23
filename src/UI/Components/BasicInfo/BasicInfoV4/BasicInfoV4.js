@@ -86,10 +86,11 @@ define(function(require)
 			event.stopImmediatePropagation();
 		});
 
+		this.ui.find('.topbar').dblclick(BasicInfoV4.toggleMode.bind(this));
 		this.ui.find('.topbar .right').click(BasicInfoV4.toggleMode.bind(this));
 		this.ui.find('.toggle_btns').click(BasicInfoV4.toggleButtons.bind(this));
 
-		this.ui.find('.buttons div').click(function(){
+		this.ui.find('.buttons button').click(function(){
 			switch (this.id) {
 				case 'item':
 					Inventory.getUI().toggle();
