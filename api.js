@@ -252,6 +252,11 @@
 	ROBrowser.prototype.enableBank = false;
 
 	/**
+	 * @var {boolean} Enable Refine UI
+	 */
+	ROBrowser.prototype.enableRefineUI = false;
+
+	/**
 	 * @var {boolean} Enable Map Name Banner
 	 */
 	ROBrowser.prototype.enableMapName = false;
