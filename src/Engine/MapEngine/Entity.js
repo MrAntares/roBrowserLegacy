@@ -804,6 +804,16 @@ define(function( require )
 				});
 				break;
 		}
+
+		if (pkt?.damage > 0) {
+			if (srcEntity.GID === Session.Character.GID) {
+				ChatBox.addText((DB.getMessage(1607)).replace('%s', dstEntity.display.name).replace('%d', pkt.damage),
+					ChatBox.TYPE.INFO, ChatBox.FILTER.BATTLE)
+			} else {
+				ChatBox.addText(DB.getMessage(1605).replace('%s', srcEntity.display.name).replace('%d', pkt.damage),
+					ChatBox.TYPE.INFO, ChatBox.FILTER.BATTLE)
+			}
+		}
 	}
 
 
@@ -2263,14 +2273,22 @@ define(function( require )
 
 	function onNotifyExp( pkt )
 	{
-        if(pkt.expType == 1) {  // for now it will be only for quest (for common exp @showexp is much better)
-            if(pkt. varID == 1) {
-                ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
-            }
-            if(pkt. varID == 2) {
-				ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
-            }
-        }
+        switch (pkt.expType) {
+			case 0:
+				if (pkt.varID === 1) {
+					ChatBox.addText( DB.getMessage(1613).replace('%d', pkt.amount), ChatBox.TYPE.INFO, ChatBox.FILTER.EXP );
+				} else if (pkt.varID === 2) {
+					ChatBox.addText( DB.getMessage(1614).replace('%d', pkt.amount), ChatBox.TYPE.INFO, ChatBox.FILTER.EXP );
+				}
+				break;
+			case 1:
+				if (pkt.varID === 1) {
+					ChatBox.addText( 'Experience gained from Quest, Base:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
+				} else if(pkt.varID === 2) {
+					ChatBox.addText( 'Experience gained from Quest, Job:'+pkt.amount, null, ChatBox.FILTER.EXP, '#A442DC');
+				}
+				break;
+		}
 	}
 
 	/**
