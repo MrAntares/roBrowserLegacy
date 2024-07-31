@@ -84,6 +84,10 @@ define(function(require)
 	 */
 	var _sex = 0;
 
+	/**
+	 * var {boolean} disable input
+	 */
+	var _disable_UI = false;
 
 	/**
 	 * Initialize UI
@@ -297,6 +301,16 @@ define(function(require)
 
 
 	/**
+	 * Disable or Enable the UI.
+	 *
+	 * @param {boolean}
+	 */
+	CharSelect.setUIEnabled = function setUIEnabled( value )
+	{
+		_disable_UI = !value;
+	}
+
+	/**
 	 * Callback to use
 	 */
 	CharSelect.onExitRequest    = function onExitRequest(){};
@@ -340,9 +354,11 @@ define(function(require)
 	 */
 	function cancel()
 	{
-		UIManager.showPromptBox( DB.getMessage(17), 'ok', 'cancel', function(){
-			CharSelect.onExitRequest();
-		}, null);
+		if (_disable_UI === false) {
+			UIManager.showPromptBox( DB.getMessage(17), 'ok', 'cancel', function(){
+				CharSelect.onExitRequest();
+			}, null);
+		}
 	}
 
 
@@ -351,7 +367,9 @@ define(function(require)
 	 */
 	function create()
 	{
-		CharSelect.onCreateRequest( _index );
+		if (_disable_UI === false) {
+			CharSelect.onCreateRequest( _index );
+		}
 	}
 
 
@@ -359,10 +377,12 @@ define(function(require)
 	 * Select Player, connect
 	 */
 	function connect() {
-		if (_slots[_index]) {
-			_preferences.index = _index;
-			_preferences.save();
-			CharSelect.onConnectRequest( _slots[_index] );
+		if (_disable_UI === false) {
+			if (_slots[_index]) {
+				_preferences.index = _index;
+				_preferences.save();
+				CharSelect.onConnectRequest( _slots[_index] );
+			}
 		}
 	}
 
@@ -371,9 +391,11 @@ define(function(require)
 	 * Delete a character
 	 */
 	function suppress() {
-		if (_slots[_index]) {
-			CharSelect.off('keydown');
-			CharSelect.onDeleteRequest( _slots[_index].GID );
+		if (_disable_UI === false) {
+			if (_slots[_index]) {
+				CharSelect.off('keydown');
+				CharSelect.onDeleteRequest( _slots[_index].GID );
+			}
 		}
 	}
 

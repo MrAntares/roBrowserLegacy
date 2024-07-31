@@ -85,6 +85,10 @@ define(function(require)
      */
     var _sex = 0;
 
+    /**
+     * var {boolean} disable input
+     */
+    var _disable_UI = false;
 
     /**
      * Initialize UI
@@ -378,6 +382,15 @@ define(function(require)
 		}
     };
 
+    /**
+     * Disable or Enable the UI.
+     *
+     * @param {boolean}
+     */
+    CharSelectV2.setUIEnabled = function setUIEnabled( value )
+    {
+        _disable_UI = !value;
+    }
 
     /**
      * Callback to use
@@ -425,9 +438,11 @@ define(function(require)
      */
     function cancel()
     {
-        UIManager.showPromptBox( DB.getMessage(17), 'ok', 'cancel', function(){
-            CharSelectV2.onExitRequest();
-        }, null);
+        if (_disable_UI === false) {
+            UIManager.showPromptBox( DB.getMessage(17), 'ok', 'cancel', function(){
+                CharSelectV2.onExitRequest();
+            }, null);
+        }
     }
 
 
@@ -436,7 +451,9 @@ define(function(require)
      */
     function create()
     {
-        CharSelectV2.onCreateRequest( _index );
+        if (_disable_UI === false) {
+            CharSelectV2.onCreateRequest( _index );
+        }
     }
 
 
@@ -444,10 +461,12 @@ define(function(require)
      * Select Player, connect
      */
     function connect() {
-        if (_slots[_index]) {
-            _preferences.index = _index;
-            _preferences.save();
-            CharSelectV2.onConnectRequest( _slots[_index] );
+        if (_disable_UI === false) {
+            if (_slots[_index]) {
+                _preferences.index = _index;
+                _preferences.save();
+                CharSelectV2.onConnectRequest( _slots[_index] );
+            }
         }
     }
 
@@ -591,9 +610,11 @@ define(function(require)
      * Request to delete a character
      */
     function reserve() {
-        if (_slots[_index]) {
-            CharSelectV2.off('keydown');
-            CharSelectV2.onDeleteReqDelay( _slots[_index].GID );
+        if (_disable_UI === false) {
+            if (_slots[_index]) {
+                CharSelectV2.off('keydown');
+                CharSelectV2.onDeleteReqDelay( _slots[_index].GID );
+            }
         }
     }
 
@@ -602,9 +623,11 @@ define(function(require)
      * Delete a character
      */
     function suppress() {
-        if (_slots[_index]) {
-            CharSelectV2.off('keydown');
-            CharSelectV2.onDeleteRequest( _slots[_index].GID );
+        if (_disable_UI === false) {
+            if (_slots[_index]) {
+                CharSelectV2.off('keydown');
+                CharSelectV2.onDeleteRequest( _slots[_index].GID );
+            }
         }
     }
 
