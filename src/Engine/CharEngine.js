@@ -46,6 +46,26 @@ define(function( require )
 	 */
 	var _creationSlot = 0;
 
+	/**
+	 * @var {number} times attempted to provide pin code.
+	 */
+	var _pincodeAttempts = 0;
+
+	/**
+	 * @var {boolean} are we currently attempting to authenticate a pin code reset?
+	 */
+	var _inAuthPincodeReset = false;
+
+	/**
+	 * @var {boolean} are we resetting a pincode?
+	 */
+	var _resettingPincode = false;
+
+	/**
+	 * @var {boolean} are we creating a pincode?
+	 */
+	var _creatingPincode = false;
+
 	/*
 	 * Connect to char server
 	 */
@@ -492,8 +512,7 @@ define(function( require )
 		UIManager.showMessageBox( DB.getMessage(msg_id), 'ok' );
 	}
 
-	function onPincodeCheckRequest(pincode)
-	{
+        function onPincodeCheckRequest(pincode) {
 		var pkt;
 
 		pkt = new PACKET.CH.PINCODE_CHECK();
@@ -503,8 +522,173 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}
 
+	function onPincodeCreate(bad, pincode) {
+		var pkt;
+
+		_creatingPincode = true;
+
+		pkt = new PACKET.CH.PINCODE_FIRST_PIN();
+		pkt.AID = Session.AID;
+		pkt.PINCODE = pincode;
+
+		Network.sendPacket(pkt);
+	}
+
+	function onPincodeReset(oldpin, newpin) {
+		var pkt;
+
+		_inAuthPincodeReset = false;
+		_resettingPincode = true;
+
+		pkt = new PACKET.CH.PINCODE_CHANGE();
+		pkt.AID = Session.AID;
+		pkt.OLD_PINCODE = oldpin;
+		pkt.NEW_PINCODE = newpin;
+
+		Network.sendPacket(pkt);
+	}
+
+	function onAuthPincodeReset(oldpin, newpin) {
+		_inAuthPincodeReset = true;
+		onPincodeCheckRequest(oldpin);
+	}
+
+	function onUserPincodeResetReq() {
+		_pincodeAttempts = 0;
+		PincodeWindow.onPincodeReset = onPincodeReset;
+	}
+
 	function onPincodeCheckSuccess(pkt) {
 		PincodeWindow.remove();
+		if (PACKETVER.value < 20110309) {
+			console.log("Pincode packet sent from server, but PACKETVER is too old. Ignoring.");
+			return;
+                }
+		PincodeWindow.onPincodeCheckRequest = onPincodeCheckRequest;
+		PincodeWindow.onUserPincodeResetReq = onUserPincodeResetReq;
+		PincodeWindow.onExitRequest = function(){
+			_pincodeAttempts = 0;
+			_inAuthPincodeReset = false;
+			_resettingPincode = false;
+			_creatingPincode = false;
+			PincodeWindow.resetUI();
+			PincodeWindow.remove();
+			onExitRequest();
+		}
+
+		/*
+		 * Pincode
+		 *
+		 * S 08b8 <AID>.L <data>.4B - check PIN
+		 * S 08c5 <AID>.L <data>.4B - request for PIN button ?
+		 * S 08be <AID>.L <old>.4B <new>.4B - change PIN
+		 * S 08ba <AID>.L <new>.4B - set PIN
+		 * R 08b9 <seed>.L <AID>.L <state>.W
+		 *	State:
+		 *	0 = pin is correct
+		 *	1 = ask for pin - client sends 0x8b8
+		 *	2 = create new pin - client sends 0x8ba
+		 *	3 = pin must be changed - client 0x8be
+		 *	4 = create new pin ?? - client sends 0x8ba
+		 *	5 = client shows msgstr(1896)
+		 *	6 = client shows msgstr(1897) Unable to use your KSSN number
+		 *	7 = char select window shows a button - client sends 0x8c5
+		 *	8 = pincode was incorrect
+		 */
+		switch (pkt.State) {
+			case 0: // pin is correct
+				_pincodeAttempts = 0;
+				if (_inAuthPincodeReset === true) {
+					PincodeWindow.onPincodeReset = onPincodeReset;
+					PincodeWindow.onOldPincodeCheckResult(true);
+                                } else {
+					if (_creatingPincode === true) {
+						_creatingPincode = false;
+						UIManager.showMessageBox( DB.getMessage( 1889 ), 'ok' );
+					}
+					if (_resettingPincode === true) {
+						_resettingPincode = false;
+						UIManager.showMessageBox( DB.getMessage( 1891 ), 'ok' );
+					}
+					PincodeWindow.resetUI();
+					var ChSel = CharSelect.getUI();
+					ChSel.setUIEnabled(true);
+                                }
+				break;
+			case 1: // ask for pin
+                                var ChSel = CharSelect.getUI();
+                                ChSel.setUIEnabled(false);
+				PincodeWindow.selectInput(0);
+				if (_pincodeAttempts < 3) {
+					PincodeWindow.clearPin();
+					PincodeWindow.setUserSeed(pkt.Seed);
+					PincodeWindow.append();
+				} else {
+					PincodeWindow.onExitRequest(); // Failed authentication.
+				}
+				break;
+			case 2: // create new pin
+			case 4: // create new pin ??
+				var ChSel = CharSelect.getUI();
+				ChSel.setUIEnabled(false);
+				UIManager.showMessageBox( DB.getMessage( 1900 ), 'ok' );
+				PincodeWindow.selectInput(0);
+				PincodeWindow.setUserSeed(pkt.Seed);
+				PincodeWindow.onPincodeCheckRequest = onPincodeCreate;
+				PincodeWindow.append();
+				break;
+			case 3: // pin must be changed
+				var ChSel = CharSelect.getUI();
+				ChSel.setUIEnabled(false);
+				if (_pincodeAttempts < 3) {
+					UIManager.showMessageBox( DB.getMessage( 2345 ), 'ok' );
+					PincodeWindow.setUserSeed(pkt.Seed);
+					PincodeWindow.onPincodeReset = onPincodeReset;
+					PincodeWindow.onParentPincodeResetReq();
+					PincodeWindow.append();
+				} else {
+					PincodeWindow.onExitRequest(); // Failed authentication.
+				}
+				break;
+			case 7: // char select window shows a button - client sends 0x8c5
+				if (PACKETVER.value < 20180124) {  // rAthena says this button was removed with PACKETVER >= 20180124. See also: rathena/src/char/char.hpp
+					// TODO: Figure out what the flow for this is.
+					// For now, just pretend the user wants to finish dealing with authentication.
+					_pincodeAttempts = 0;
+					PincodeWindow.selectInput(0);
+					PincodeWindow.setUserSeed(pkt.Seed);
+					PincodeWindow.resetPins();
+					var ChSel = CharSelect.getUI();
+					ChSel.setUIEnabled(false);
+                                        PincodeWindow.append();
+				}
+				break;
+			case 5: // client shows msgstr(1896)
+			case 6: // client shows msgstr(1897) Unable to use your KSSN number
+			case 8: // pincode was incorrect
+				if (_creatingPincode === true) {
+					UIManager.showMessageBox( DB.getMessage( 1893 ), 'ok' );
+				} else {
+					UIManager.showMessageBox( DB.getMessage( ((pkt.State == 5) ? 1895 : ((pkt.State == 6) ? 1896 : 1892)) ), 'ok' );
+				}
+				_pincodeAttempts++;
+				if (_pincodeAttempts < 3) {
+					PincodeWindow.resetPins();
+					PincodeWindow.setUserSeed(pkt.Seed);
+					if (_inAuthPincodeReset === true) {
+						_inAuthPincodeReset = false;
+						PincodeWindow.onOldPincodeCheckResult(false);
+					}
+					PincodeWindow.append();
+				} else {
+					PincodeWindow.onExitRequest(); // Failed authentication.
+				}
+				break;
+			default:
+				console.log("PINCODE: Received unknown state from server: " + pkt.State);
+				PincodeWindow.append();
+				break;
+		}
 	}
 
 	/**
@@ -564,27 +748,6 @@ define(function( require )
 	 * S 08d4 <from>.W <to>.W <unk>.W
 	 * R 08d5 <len>.W <success>.W <unk>.W
 	 */
-
-	/*
-	 * Pincode
-	 *
-	 * S 08b8 <AID>.L <data>.4B - check PIN
-	 * S 08c5 <AID>.L <data>.4B - request for PIN button ?
-	 * S 08be <AID>.L <old>.4B <new>.4B - change PIN
-	 * S 08ba <AID>.L <new>.4B - set PIN
-	 * R 08b9 <seed>.L <AID>.L <state>.W
-	 *	State:
-	 *	0 = pin is correct
-	 *	1 = ask for pin - client sends 0x8b8
-	 *	2 = create new pin - client sends 0x8ba
-	 *	3 = pin must be changed - client 0x8be
-	 *	4 = create new pin ?? - client sends 0x8ba
-	 *	5 = client shows msgstr(1896)
-	 *	6 = client shows msgstr(1897) Unable to use your KSSN number
-	 *	7 = char select window shows a button - client sends 0x8c5
-	 *	8 = pincode was incorrect
-	 */
-
 
 	/**
 	 * Export
