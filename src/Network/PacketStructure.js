@@ -4334,7 +4334,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
         var pkt = new BinaryWriter(pkt_len);
 		var i, count;
 
-		pkt.writeShort(0X848);
+		pkt.writeShort(0x848);
 		pkt.writeShort(pkt_len);
 		pkt.writeUShort(this.item_list.length);
 		pkt.writeULong(this.kafraPoints);
@@ -4598,8 +4598,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		var pkt_len = 2 + 4 + 4 + 4;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
-		pkt_buf.writeShort(0x8c5);
-		pkt_buf.view.setUint32(pkt_buf[3], this.AID, true);
+		pkt_buf.writeShort(0x8be);
+		pkt_buf.writeULong(this.AID);
 		pkt_buf.writeString(this.OLD_PINCODE, 4);
 		pkt_buf.writeString(this.NEW_PINCODE, 4);
 		return pkt_buf;
@@ -4614,9 +4614,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		var pkt_len = 2 + 4 + 4;
 		var pkt_buf = new BinaryWriter(pkt_len);
 
-		pkt_buf.writeShort(0x8c5);
-		pkt_buf.view.setUint32(pkt_buf[3], this.AID, true);
+		pkt_buf.writeShort(0x8ba);
+		pkt_buf.writeULong(this.AID);
 		pkt_buf.writeString(this.PINCODE, 4);
+		return pkt_buf;
+	};
+
+	// 0x8c5
+	PACKET.CH.PINCODE_REQUEST = function PACKET_CH_PINCODE_REQUEST() {
+		this.AID = '';
+	};
+	PACKET.CH.PINCODE_REQUEST.prototype.build = function () {
+		var pkt_len = 2 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x8c5);
+		pkt_buf.writeULong(this.AID);
 		return pkt_buf;
 	};
 

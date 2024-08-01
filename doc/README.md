@@ -147,7 +147,6 @@ You need a game server that is compatible with the original game. There are many
 - [Hercules](https://github.com/HerculesWS/Hercules/)
 
 > [!WARNING]
-> - Disable pincode on the game server. (Not supported yet)
 > - Disable packet_obfuscation on the game server. (Not supported yet, causes invalid packets)
 
 ## 3.5 Setup: RoBrowser
