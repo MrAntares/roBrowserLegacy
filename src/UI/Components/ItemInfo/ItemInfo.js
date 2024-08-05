@@ -588,6 +588,62 @@ define(function(require)
 		return true;
 	 }
 
+
+	/**
+	 * A function that handles previewing an item.
+	 *
+	 * @param {type} pkt - The packet containing information about the item
+	 * @return {type} Indicates success or failure of the preview action
+	 */
+	function onItemPreview(pkt)
+	{
+		if (pkt) {
+			var Equipment = getModule('UI/Components/Equipment/Equipment');
+			var Inventory = getModule('UI/Components/Inventory/Inventory');
+			let item = Inventory.getUI().getItemByIndex(pkt.index);
+
+			if (!item) {
+				return false;
+			}
+
+			// Remove existing compare UI if it's currently displayed
+			if (ItemCompare.ui) {
+				ItemCompare.remove();
+			}
+
+			// Don't add the same UI twice, remove it
+			if (ItemInfo.uid === item.ITID) {
+				ItemInfo.remove();
+				if (ItemCompare.ui) {
+					ItemCompare.remove();
+				}
+				return false;
+			}
+
+			// Add ui to window
+			ItemInfo.append();
+			ItemInfo.uid = item.ITID;
+			ItemInfo.setItem(item);
+
+			// Check if there is an equipped item in the same location
+			var compareItem = Equipment.getUI().isInEquipList(item.location);
+
+			// If a comparison item is found, display comparison
+			if (compareItem && Inventory.getUI().itemcomp) {
+				ItemCompare.prepare();
+				ItemCompare.append();
+				ItemCompare.uid = compareItem.ITID;
+				ItemCompare.setItem(compareItem);
+			}
+		}
+	};
+
+
+	/**
+	 * Packet Hooks to functions
+	 */
+	Network.hookPacket( PACKET.ZC.CHANGE_ITEM_OPTION,		onItemPreview );
+
 	/**
 	 * Create component and export it
 	 */
