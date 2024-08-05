@@ -13452,6 +13452,48 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.GROUP_ISALIVE.size = 7;
 
+	// 0xab4
+	PACKET.ZC.RANDOM_UPGRADE_ITEM_UI_OPEN = function PACKET_ZC_RANDOM_UPGRADE_ITEM_UI_OPEN(fp, end) {
+		this.itemId = (PACKETVER.value >= 20181121) ? fp.readLong() : fp.readShort();
+	};
+	PACKET.ZC.RANDOM_UPGRADE_ITEM_UI_OPEN.size = (PACKETVER.value >= 20181121) ? 6 : 4;
+
+	// 0xab5
+	PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE = function PACKET_CZ_RANDOM_UPGRADE_ITEM_UI_CLOSE() {
+	};
+	PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xab5);
+		return pkt_buf;
+	};
+
+	// 0xab6
+	PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM = function PACKET_CZ_REQ_RANDOM_UPGRADE_ITEM() {
+		this.itemId = 0;
+		this.item_index = 0;
+	};
+	PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM.prototype.build = function() {
+		var pkt_len;
+		var pkt_itemIdSize = (PACKETVER.value >= 20181121) ? 4 : 2;
+		var pkt_index = 2;
+		pkt_len = 2 + pkt_itemIdSize +  pkt_index;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xab6);
+		(PACKETVER.value >= 20181121) ? pkt_buf.writeULong(this.itemId) : pkt_buf.writeUShort(this.itemId);
+		pkt_buf.writeUShort(this.item_index);
+
+		return pkt_buf;
+	};
+
+	// 0xab7
+	PACKET.ZC.ACK_RANDOM_UPGRADE_ITEM = function PACKET_ZC_ACK_RANDOM_UPGRADE_ITEM(fp, end) {
+		this.result = fp.readShort();
+	};
+	PACKET.ZC.ACK_RANDOM_UPGRADE_ITEM.size = 4;
+
 	// 0xac4
 	PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 		this.AuthCode = fp.readLong();
@@ -14276,6 +14318,32 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.grade = fp.readUChar();
 	};
 	PACKET.ZC.ADD_EXCHANGE_ITEM5.size = 62;
+
+	// 0xb43
+	PACKET.ZC.CHANGE_ITEM_OPTION = function PACKET_ZC_CHANGE_ITEM_OPTION(fp, end) {
+		let option = new Struct(
+			"short index",
+			"short value",
+			"char param"
+		);
+
+		this.index = fp.readShort();
+		this.isDamaged = fp.readChar();
+		this.slot = {};
+		this.slot.card1 = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort() ;
+		this.slot.card2 = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort() ;
+		this.slot.card3 = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort() ;
+		this.slot.card4 = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort() ;
+		this.Options = [];
+		this.Options[1] = fp.readStruct(option);
+		this.Options[2] = fp.readStruct(option);
+		this.Options[3] = fp.readStruct(option);
+		this.Options[4] = fp.readStruct(option);
+		this.Options[5] = fp.readStruct(option);
+		this.refiningLevel = fp.readUChar();
+		this.enchantgrade = fp.readUChar();
+	};
+	PACKET.ZC.CHANGE_ITEM_OPTION.size = (PACKETVER.value >= 20181121) ? 48 : 44;
 
 	// 0xb44
 	PACKET.ZC.ADD_ITEM_TO_STORE4 = function PACKET_ZC_ADD_ITEM_TO_STORE4(fp, end) {
