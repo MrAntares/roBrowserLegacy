@@ -1166,7 +1166,11 @@ define(function(require)
 	 */
 	Refine.isRefineOpen = function isRefineOpen()
 	{
-		return Refine.ui.is(':visible');
+		if (Refine.ui && Refine.ui.is(':visible')) {
+			return true;
+		} else {
+			return false;
+		}
 	};
 
 
