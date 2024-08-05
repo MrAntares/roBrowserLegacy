@@ -70,9 +70,8 @@ define(function( require )
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
-	if(PACKETVER.value >= 20160601) {
-		var LaphineSys  = require('UI/Components/LaphineSys/LaphineSys');
-	}
+	var LaphineSys		 = require('UI/Components/LaphineSys/LaphineSys');
+	var LaphineUpg		 = require('UI/Components/LaphineUpg/LaphineUpg');
 	var Rodex            = require('UI/Components/Rodex/Rodex');
 	var RodexIcon        = require('UI/Components/Rodex/RodexIcon');	
 	if(Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
@@ -296,6 +295,10 @@ define(function( require )
 
 			if(PACKETVER.value >= 20160601) {
 				LaphineSys.prepare();
+			}
+
+			if(PACKETVER.value >= 20170726) {
+				LaphineUpg.prepare();
 			}
 
 			if(Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
@@ -1108,8 +1111,8 @@ define(function( require )
 	 */
 	function onUseItem( index )
 	{
-		// Items are not usable when Laphine Synthesis UI is open
-		if (LaphineSys.ui.is(':visible')) {
+		// Items are not usable when Laphine Synthesis or Upgrade UI is open
+		if (LaphineSys.ui.is(':visible') || LaphineUpg.ui.is(':visible')) {
 			return false;
 		}
 

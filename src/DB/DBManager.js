@@ -139,6 +139,12 @@ define(function(require)
 	var LaphineSysTable = {};
 
 	/**
+	 * @var LaphineUpg Table
+	 * json object
+	 */
+	var LaphineUpgTable = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -176,6 +182,7 @@ define(function(require)
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function(json){ RandomOption = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function(json){ SkillDescription = json; },  onLoad());
 			loadLaphineSysFile ( DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', function(laphinesys_list){ LaphineSysTable = laphinesys_list; },  onLoad());
+			loadLaphineUpgFile ( DB.LUA_PATH + 'datainfo/LapineUpgradeBox.lub', function(laphineupg_list){ LaphineUpgTable = laphineupg_list; },  onLoad());
 		} else {
 			loadTable( 'data/num2itemdisplaynametable.txt',		'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName 	= val.replace(/_/g, " ");}, 	onLoad());
 			loadTable( 'data/num2itemresnametable.txt',			'#',	2, function(index, key, val){	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName 	= val;}, 			onLoad());
@@ -471,6 +478,138 @@ define(function(require)
 	                console.error('error: ', hException);
 	            }
 	            callback.call(null, laphinesys_list);
+	            onEnd();
+	        },
+	        onEnd
+	    );
+	};
+
+	/* load LapineUpgradeBox.lub to json object
+	 *
+	 * @param {string} filename to load
+	 * @param {function} callback to run once the file is loaded
+	 * @param {function} onEnd to run after the callback
+	 *
+	 */
+	function loadLaphineUpgFile(filename, callback, onEnd) {
+	    Client.loadFile(filename,
+	        async function (lua) {
+	            console.log('Loading file "' + filename + '"...');
+	            let laphineupg_list = new Array();
+	            try {
+	                if (lua instanceof ArrayBuffer) {
+	                    lua = new TextDecoder('iso-8859-1').decode(lua);
+	                }
+
+	                // load lua file
+	                fengari.load(lua)();
+
+	                // Get the global table "tblLapineUpgradeBox"
+	                fengari.lua.lua_getglobal(fengari.L, "tblLapineUpgradeBox");
+
+	                // Check if it's a table
+	                if (!fengari.lua.lua_istable(fengari.L, -1)) {
+	                    console.log('[loadLapineFile] tblLapineUpgradeBox is not a table');
+	                    return;
+	                }
+
+	                // Get the "targets" table
+                	fengari.lua.lua_getfield(fengari.L, -1, "targets");
+
+                	// Check if "targets" is a table
+                	if (!fengari.lua.lua_istable(fengari.L, -1)) {
+                	    console.log('[loadLapineFile] targets is not a table');
+                	    return;
+                	}
+
+                	// Push nil key to start iteration
+                	fengari.lua.lua_pushnil(fengari.L);
+
+                	// Iterate over the "targets" table
+                	while (fengari.lua.lua_next(fengari.L, -2)) {
+	                    // get key (sourceId)
+	                    let targetId = fengari.lua.lua_tojsstring(fengari.L, -2);
+	                    let target = { ItemID: 0, NeedRefineMin: 0, NeedRefineMax: 0, NeedOptionNumMin:0, NotSocketEnchantItem: false, TargetItems: new Array(), NeedSource_String: "" };
+
+	                    // get ItemID
+	                    fengari.lua.lua_getfield(fengari.L, -1, "ItemID");
+	                    target.ItemID = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get NeedRefineMin
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedRefineMin");
+	                    target.NeedRefineMin = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get NeedRefineMax
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedRefineMax");
+	                    target.NeedRefineMax = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+						// get NeedOptionNumMin
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedOptionNumMin");
+	                    target.NeedOptionNumMin = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+						// get NotSocketEnchantItem
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NotSocketEnchantItem");
+	                    target.NotSocketEnchantItem = fengari.lua.lua_toboolean(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get NeedSource_String
+	                    fengari.lua.lua_getfield(fengari.L, -1, "NeedSource_String");
+	                    target.NeedSource_String = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get TargetItems
+	                    fengari.lua.lua_getfield(fengari.L, -1, "TargetItems");
+
+	                    // Push nil key to start iteration
+	                    fengari.lua.lua_pushnil(fengari.L);
+
+	                    // iterate over TargetItems table
+	                    while (fengari.lua.lua_next(fengari.L, -2)) {
+	                        // create TargetItems object
+	                        let targetItem = { name: "", id: 0 };
+
+	                        // get TargetItem values
+	                        fengari.lua.lua_pushinteger(fengari.L, 1);
+	                        fengari.lua.lua_gettable(fengari.L, -2);
+	                        targetItem.name = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                        fengari.lua.lua_pop(fengari.L, 1);
+
+	                        fengari.lua.lua_pushinteger(fengari.L, 2);
+	                        fengari.lua.lua_gettable(fengari.L, -2);
+	                        targetItem.id = fengari.lua.lua_tointeger(fengari.L, -1);
+	                        fengari.lua.lua_pop(fengari.L, 1);
+
+	                        // add targetItem to TargetItems array
+	                        target.TargetItems.push(targetItem);
+
+	                        // Pop the value and move to the next key
+	                        fengari.lua.lua_pop(fengari.L, 1);
+	                    }
+
+	                    // pop TargetItems
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // add target to lapine_list
+	                    laphineupg_list[targetId] = target;
+
+	                    // Pop the value and move to the next key
+	                    fengari.lua.lua_pop(fengari.L, 1);
+	                }
+
+	                // pop table
+	                fengari.lua.lua_pop(fengari.L, 1);
+
+	                // clean lua stack
+	                fengari.lua.lua_settop(fengari.L, 0);
+	            }
+	            catch (hException) {
+	                console.error('error: ', hException);
+	            }
+	            callback.call(null, laphineupg_list);
 	            onEnd();
 	        },
 	        onEnd
@@ -2186,6 +2325,30 @@ define(function(require)
 		for (let key in LaphineSysTable) {
 			if (LaphineSysTable[key].ItemID === itemId) {
 				return LaphineSysTable[key];
+			}
+		}
+		return null;
+	};
+
+	/**
+	 * Retrieves the Laphine Upgrade Table.
+	 *
+	 * @return {Object} The Laphine Upgrade Table.
+	 */
+	DB.getLaphineUpgList = function getLaphineUpgList() {
+		return LaphineUpgTable;
+	};
+
+	/**
+	 * Retrieves the Laphine Upgrade information by the given item ID.
+	 *
+	 * @param {number} itemId - The ID of the item to search for.
+	 * @return {Object|null} The Laphine Upgrade information if found, or null if not found.
+	 */
+	DB.getLaphineUpgInfoById = function getLaphineUpgInfoById(itemId) {
+		for (let key in LaphineUpgTable) {
+			if (LaphineUpgTable[key].ItemID === itemId) {
+				return LaphineUpgTable[key];
 			}
 		}
 		return null;
