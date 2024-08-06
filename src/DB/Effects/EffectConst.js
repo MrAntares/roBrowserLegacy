@@ -1151,8 +1151,10 @@ define(function()
 		DROPEFFECT_BLUE:					1869,
 		DROPEFFECT_GREEN:					1870,
 		DROPEFFECT_RED:						1871,
+
+		EF_NEW_SUCCESS:						1872,
 		// ALWAYS UPDATE TO LARGEST ID + 1
-		EF_MAX:								1872,
+		EF_MAX:								1873,
 		
 	};
 });
