@@ -2,7 +2,7 @@
 #LaphineSys .container { position:absolute; top:0px; left:0px; height:100%; width:100%; background-repeat:no-repeat; background-color:transparent; border-radius: 10px; }
 #LaphineSys .titlebar { width:100%; height:17px; }
 #LaphineSys .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
-#LaphineSys .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+#LaphineSys .titlebar .item_text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
  /* chrome bug */ display: inline-block; width: 32px; height:13px; }
 
 #LaphineSys .titlebar .left { margin-left:3px; float:left; }
