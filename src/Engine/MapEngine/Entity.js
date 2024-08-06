@@ -51,6 +51,7 @@ define(function( require )
 	var Inventory         = require('UI/Components/Inventory/Inventory');
 	var ShortCut          = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons       = require('UI/Components/StatusIcons/StatusIcons');
+	var getModule	      = require;
 
 	// Version Dependent UIs
 	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
@@ -129,6 +130,13 @@ define(function( require )
 				} else {
 					EF_Init_Par.effectId = EffectConst.EF_WARPZONE2;
 					EffectManager.spam( EF_Init_Par );
+				}
+			}
+			if (entity.objecttype === Entity.TYPE_NPC || Entity.TYPE_WARP) {
+				const mapName = getModule("Renderer/MapRenderer").currentMap.replace('.gat', '').toLowerCase();
+				let signboardData = DB.findSignboard(mapName, entity.position[0], entity.position[1], 1 );
+				if(signboardData) {
+					entity.signboard.load(signboardData);
 				}
 			}
 			EntityManager.add(entity);
