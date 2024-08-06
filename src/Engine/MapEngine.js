@@ -70,6 +70,7 @@ define(function( require )
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
+	var ItemReform		 = require('UI/Components/ItemReform/ItemReform');
 	var LaphineSys		 = require('UI/Components/LaphineSys/LaphineSys');
 	var LaphineUpg		 = require('UI/Components/LaphineUpg/LaphineUpg');
 	var Rodex            = require('UI/Components/Rodex/Rodex');
@@ -313,6 +314,10 @@ define(function( require )
 
 			if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 				CheckAttendance.prepare();
+			}
+
+			if (PACKETVER.value >= 20200916) {
+				ItemReform.prepare();
 			}
 
 			// Bind UI
@@ -1111,8 +1116,8 @@ define(function( require )
 	 */
 	function onUseItem( index )
 	{
-		// Items are not usable when Laphine Synthesis or Upgrade UI is open
-		if (LaphineSys.ui.is(':visible') || LaphineUpg.ui.is(':visible')) {
+		// Items are not usable when Laphine Synthesis, Upgrade, ItemReform UI is open
+		if (LaphineSys.ui.is(':visible') || LaphineUpg.ui.is(':visible') || ItemReform.ui.is(':visible')) {
 			return false;
 		}
 

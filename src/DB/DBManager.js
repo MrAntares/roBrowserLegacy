@@ -145,6 +145,18 @@ define(function(require)
 	var LaphineUpgTable = {};
 
 	/**
+	 * @var ItemDBName Table
+	 * json object
+	 */
+	var ItemDBNameTbl = {};
+
+	/**
+	 * @var ItemReform Table
+	 * json object
+	 */
+	var ItemReformTable = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -176,10 +188,12 @@ define(function(require)
 
 		if (Configs.get('loadLua')) {
 			loadLuaFile( 'System/itemInfo.lub', function(json){ItemTable = json;}, onLoad());
+			loadItemDBTable( DB.LUA_PATH + 'ItemDBNameTbl.lub', function(json){ ItemDBNameTbl = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'], 'AccNameTable', function(json){ HatTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function(json){ RobeTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function(json){ MonsterTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function(json){ RandomOption = json; },  onLoad());
+			loadItemReformFile( DB.LUA_PATH + 'ItemReform/ItemReformSystem.lub', function(json){ ItemReformTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function(json){ SkillDescription = json; },  onLoad());
 			loadLaphineSysFile ( DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', function(laphinesys_list){ LaphineSysTable = laphinesys_list; },  onLoad());
 			loadLaphineUpgFile ( DB.LUA_PATH + 'datainfo/LapineUpgradeBox.lub', function(laphineupg_list){ LaphineUpgTable = laphineupg_list; },  onLoad());
@@ -614,6 +628,226 @@ define(function(require)
 	        },
 	        onEnd
 	    );
+	};
+
+	/**
+	 * Loads ItemDBNameTbl.lub which is used in newer UI System (holds ItemDBName and ItemID)
+	 *
+	 * @param {string} filename - The name of the file to load.
+	 * @param {function} callback - The function to invoke with the loaded data.
+	 * @param {function} onEnd - The function to invoke when loading is complete.
+	 * @return {void}
+	 */
+	function loadItemDBTable(filename, callback, onEnd)
+	{
+		Client.loadFile( filename,
+            async function (lua) {
+				console.log('Loading file "'+ filename +'"...');
+				let json = {};
+	            
+				try {
+					if (lua instanceof ArrayBuffer) {
+						lua = new TextDecoder('iso-8859-1').decode(lua);
+					}
+	
+					// Load lua file
+					fengari.load(lua)();
+	
+					// Get the global table "ItemDBNameTbl"
+					fengari.lua.lua_getglobal(fengari.L, "ItemDBNameTbl");
+	
+					// Check if it's a table
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log('[loadItemDBTable] ItemDBNameTbl is not a table');
+						return;
+					}
+	
+					// Push nil key to start iteration
+					fengari.lua.lua_pushnil(fengari.L);
+	
+					// Iterate over the "ItemDBNameTbl" table
+					while (fengari.lua.lua_next(fengari.L, -2)) {
+						// get key (BaseItem)
+						let baseItem = fengari.lua.lua_tojsstring(fengari.L, -2);
+						// get value (ItemID)
+						let itemID = fengari.lua.lua_tointeger(fengari.L, -1);
+	
+						// add to json object
+						json[baseItem] = itemID;
+	
+						// Pop the value and move to the next key
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
+	
+					// pop table
+					fengari.lua.lua_pop(fengari.L, 1);
+	
+					// clean lua stack
+					fengari.lua.lua_settop(fengari.L, 0);
+				} catch (hException) {
+					console.error('error: ', hException);
+				}
+				callback.call(null, json);
+				onEnd();
+			},
+			onEnd
+		);
+	};
+
+	/**
+	 * Loads ItemReformSystem.lub file into json content.
+	 *
+	 * @param {string} filename - The name of the file to load.
+	 * @param {function} callback - The function to call with the processed data.
+	 * @param {function} onEnd - The function to call when the loading is complete.
+	 * @return {void}
+	 */
+	function loadItemReformFile(filename, callback, onEnd) {
+		Client.loadFile(filename,
+			async function (lua) {
+				console.log('Loading file "' + filename + '"...');
+				let json = { ReformInfo: {}, ReformItemList: {}	};
+
+				try {
+					if (lua instanceof ArrayBuffer) {
+						lua = new TextDecoder('iso-8859-1').decode(lua);
+					}
+				
+					// Load lua file
+					fengari.load(lua)();
+				
+					// Helper function to safely get Lua field values
+					function getLuaField(fieldName, convertFunc) {
+						fengari.lua.lua_getfield(fengari.L, -1, fieldName);
+						const value = convertFunc(fengari.L, -1);
+						fengari.lua.lua_pop(fengari.L, 1);
+						return value;
+					}
+				
+					// Helper function to push and check table field
+					function pushFieldAndCheck(tableName) {
+						fengari.lua.lua_getglobal(fengari.L, tableName);
+						if (!fengari.lua.lua_istable(fengari.L, -1)) {
+							console.error(`[loadItemReformFile] ${tableName} is not a table`);
+							fengari.lua.lua_pop(fengari.L, 1);
+							return false;
+						}
+						return true;
+					}
+				
+					// Helper function to get the keys of a Lua table
+					function getTableKeys() {
+						let keys = [];
+						fengari.lua.lua_pushnil(fengari.L); // Push nil to start iteration
+						while (fengari.lua.lua_next(fengari.L, -2)) {
+							keys.push(fengari.lua.lua_tointeger(fengari.L, -2));
+							fengari.lua.lua_pop(fengari.L, 1); // Remove value, keep key for next iteration
+						}
+						return keys.sort((a, b) => a - b); // Sort keys in ascending order
+					}
+				
+					// Process ReformInfo table
+					if (pushFieldAndCheck("ReformInfo")) {
+						const reformKeys = getTableKeys(); // Get sorted keys
+						reformKeys.forEach(reformId => {
+							fengari.lua.lua_pushinteger(fengari.L, reformId);
+							fengari.lua.lua_gettable(fengari.L, -2);
+						
+							let itemInfo = {
+								BaseItem: "",
+								BaseItemId: 0,
+								ResultItem: "",
+								ResultItemId: 0,
+								Materials: [],
+								NeedRefineMin: 0,
+								NeedRefineMax: 0,
+								NeedOptionNumMin: 0,
+								IsEmptySocket: false,
+								ChangeRefineValue: 0,
+								RandomOptionCode: "",
+								PreserveSocketItem: false,
+								PreserveGrade: false,
+								InformationString: [],
+							};
+						
+							// Populate itemInfo fields
+							itemInfo.BaseItem = getLuaField("BaseItem", fengari.lua.lua_tojsstring);
+							itemInfo.BaseItemId = DB.getItemIdfromBase(itemInfo.BaseItem);
+							itemInfo.ResultItem = getLuaField("ResultItem", fengari.lua.lua_tojsstring);
+							itemInfo.ResultItemId = DB.getItemIdfromBase(itemInfo.ResultItem);
+							itemInfo.NeedRefineMin = getLuaField("NeedRefineMin", fengari.lua.lua_tointeger);
+							itemInfo.NeedRefineMax = getLuaField("NeedRefineMax", fengari.lua.lua_tointeger);
+							itemInfo.NeedOptionNumMin = getLuaField("NeedOptionNumMin", fengari.lua.lua_tointeger);
+							itemInfo.IsEmptySocket = getLuaField("IsEmptySocket", fengari.lua.lua_toboolean);
+							itemInfo.ChangeRefineValue = getLuaField("ChangeRefineValue", fengari.lua.lua_tointeger);
+							itemInfo.RandomOptionCode = getLuaField("RandomOptionCode", fengari.lua.lua_tojsstring);
+							itemInfo.PreserveSocketItem = getLuaField("PreserveSocketItem", fengari.lua.lua_toboolean);
+							itemInfo.PreserveGrade = getLuaField("PreserveGrade", fengari.lua.lua_toboolean);
+						
+							// Get InformationString
+							fengari.lua.lua_getfield(fengari.L, -1, "InformationString");
+							if (fengari.lua.lua_istable(fengari.L, -1)) {
+								const infoKeys = getTableKeys();
+								infoKeys.forEach(key => {
+									fengari.lua.lua_pushinteger(fengari.L, key);
+									fengari.lua.lua_gettable(fengari.L, -2);
+									itemInfo.InformationString.push(fengari.lua.lua_tojsstring(fengari.L, -1));
+									fengari.lua.lua_pop(fengari.L, 1);
+								});
+							}
+							fengari.lua.lua_pop(fengari.L, 1);
+						
+							// Get Materials
+							fengari.lua.lua_getfield(fengari.L, -1, "Material");
+							if (fengari.lua.lua_istable(fengari.L, -1)) {
+								fengari.lua.lua_pushnil(fengari.L); // Push nil to start iteration
+								while (fengari.lua.lua_next(fengari.L, -2)) {
+									let materialName = fengari.lua.lua_tojsstring(fengari.L, -2); // Key of the current table entry
+									let materialAmount = fengari.lua.lua_tointeger(fengari.L, -1); // Value of the current table entry
+									let materialItemId = DB.getItemIdfromBase(materialName);
+									itemInfo.Materials.push({ Material: materialName, Amount: materialAmount, MaterialItemID: materialItemId });
+									fengari.lua.lua_pop(fengari.L, 1); // Remove value, keep key for next iteration
+								}
+							}
+							fengari.lua.lua_pop(fengari.L, 1);
+						
+							// Add itemInfo to ReformInfo
+							json.ReformInfo[reformId] = itemInfo;
+						
+							// Pop the value and move to the next key
+							fengari.lua.lua_pop(fengari.L, 1);
+						});
+						fengari.lua.lua_pop(fengari.L, 1);  // Pop ReformInfo table
+					}
+				
+					// Process ReformItemList table
+					if (pushFieldAndCheck("ReformItemList")) {
+						fengari.lua.lua_pushnil(fengari.L); // Push nil to start iteration
+						while (fengari.lua.lua_next(fengari.L, -2)) {
+							let reformListName = fengari.lua.lua_tojsstring(fengari.L, -2);
+							let reformItems = [];
+						
+							// Get sorted keys for the item list
+							fengari.lua.lua_pushnil(fengari.L);
+							while (fengari.lua.lua_next(fengari.L, -2)) {
+								let itemId = fengari.lua.lua_tointeger(fengari.L, -1);
+								reformItems.push(itemId);
+								fengari.lua.lua_pop(fengari.L, 1);
+							}
+							json.ReformItemList[reformListName] = reformItems.sort((a, b) => a - b);
+							fengari.lua.lua_pop(fengari.L, 1);  // Pop sub-table
+						}
+						fengari.lua.lua_pop(fengari.L, 1);  // Pop ReformItemList table
+					}
+				
+					// Clean Lua stack
+					fengari.lua.lua_settop(fengari.L, 0);
+				} catch (e) {
+					console.error('Error:', e);
+				}
+				callback.call(null, json);
+				onEnd();
+			}, onEnd);
 	};
 
 	/**
@@ -2352,6 +2586,87 @@ define(function(require)
 			}
 		}
 		return null;
+	};
+
+	/**
+	 * Returns the item ID associated with a given base item.
+	 *
+	 * @param {string} baseItem - The base item to get the ID for.
+	 * @return {number} The item ID associated with the base item.
+	 */
+	DB.getItemIdfromBase = function getItemIdfromBase(baseItem) {
+		return ItemDBNameTbl[baseItem];
+	};
+	
+	/**
+	 * Retrieves the base item associated with a given item ID.
+	 *
+	 * @param {number} itemId - The ID of the item to search for.
+	 * @return {string|null} The base item associated with the item ID, or null if not found.
+	 */
+	DB.getBasefromItemID = function getBasefromItemID(itemId) {
+		for (let key in ItemDBNameTbl) {
+			if (ItemDBNameTbl[key] === itemId) {
+				return key;
+			}
+		}
+		return null; // Return null if not found
+	};
+
+	/**
+	 * Finds the reform list associated with a given item ID.
+	 *
+	 * @param {number} itemId - The ID of the item to search for.
+	 * @return {Object|null} The reform list associated with the item ID, or null if not found.
+	 */
+	DB.findReformListByItemID = function findReformListByItemID(itemId) {
+		// First, get the base item from the item ID
+		const baseItem = DB.getBasefromItemID(itemId);
+	
+		// Check if the base item was found and if it exists as a key in ReformItemList
+		if (baseItem && ItemReformTable.ReformItemList.hasOwnProperty(baseItem)) {
+			return ItemReformTable.ReformItemList[baseItem];
+		} else {
+			return null; // Return null if not found
+		}
+	};
+
+	/**
+	 * Retrieves the reform information for a given reform ID.
+	 *
+	 * @param {string} reformId - The ID of the reform to retrieve information for.
+	 * @return {Object|null} The reform information object if found, or null if not found.
+	 */
+	DB.getReformInfo = function getReformInfo(reformId) {
+		// Check if the reformId exists in the ReformInfo
+		if (ItemReformTable.ReformInfo[reformId]) {
+			return ItemReformTable.ReformInfo[reformId];
+		} else {
+			return null; // Return null if the reform ID is not found
+		}
+	};
+
+	/**
+	 * Retrieves information for all reform IDs in the provided array.
+	 *
+	 * @param {Array} reformIds - An array of reform IDs to retrieve information for.
+	 * @return {Array} An array of reform information objects.
+	 */
+	DB.getAllReformInfos = function getAllReformInfos(reformIds) {
+		let reformInfos = [];
+		
+		for (let i = 0; i < reformIds.length; i++) {
+			const reformId = reformIds[i];
+			const reformInfo = DB.getReformInfo(reformId);
+			
+			if (reformInfo) {
+				reformInfos.push(reformInfo);
+			} else {
+				console.log('Reform Info not found for reform ID:', reformId);
+			}
+		}
+		
+		return reformInfos;
 	};
 
 	/**

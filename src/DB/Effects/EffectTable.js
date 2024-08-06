@@ -10780,6 +10780,11 @@ define(function( require )
 		},{
 			wav: 'effect/drop_red',
 		}],
+		1872: [{	// EF_NEW_SUCCESS
+			type: 'STR',
+			file: 'grade_enchant/new_success/new_success',
+			texturePath: 'grade_enchant/new_success/'
+		}],
 
 		'maximize_power_sounds': [{
 			type: 'FUNC',
