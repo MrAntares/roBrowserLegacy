@@ -157,6 +157,16 @@ define(function(require)
 	var ItemReformTable = {};
 
 	/**
+	 * @var SignBoardTranslated Table
+	 */
+	var SignBoardTranslatedTable = {};
+
+	/**
+	 * @var SignBoard Table
+	 */
+	var SignBoardTable = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -188,7 +198,9 @@ define(function(require)
 
 		if (Configs.get('loadLua')) {
 			loadLuaFile( 'System/itemInfo.lub', function(json){ItemTable = json;}, onLoad());
+			loadSignBoardData( 'System/Sign_Data_EN.lub', function(json){SignBoardTranslatedTable = json;}, onLoad());
 			loadItemDBTable( DB.LUA_PATH + 'ItemDBNameTbl.lub', function(json){ ItemDBNameTbl = json; },  onLoad());
+			loadSignBoardList( DB.LUA_PATH + 'SignBoardList.lub', function(signBoardList){ SignBoardTable = signBoardList; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'], 'AccNameTable', function(json){ HatTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function(json){ RobeTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function(json){ MonsterTable = json; },  onLoad());
@@ -848,6 +860,199 @@ define(function(require)
 				callback.call(null, json);
 				onEnd();
 			}, onEnd);
+	};
+
+	/**
+	 * Loads the System/Sign_Data_EN.lub to json object.
+	 *
+	 * @param {string} filename - The name of the Lua file to load.
+	 * @param {function} callback - The function to invoke with the loaded data.
+	 * @param {function} onEnd - The function to invoke when loading is complete.
+	 * @return {void}
+	 */
+	function loadSignBoardData(filename, callback, onEnd) {
+		Client.loadFile(filename, async function(lua) {
+			console.log('Loading file "' + filename + '"...');
+			let json = {};
+	
+			try {
+				if (lua instanceof ArrayBuffer) {
+					lua = new TextDecoder('iso-8859-1').decode(lua);
+				}
+	
+				// Load the Lua file
+				fengari.load(lua)();
+	
+				// Get the global table "SignBoardData"
+				fengari.lua.lua_getglobal(fengari.L, "SignBoardData");
+	
+				// Check if it's a table
+				if (!fengari.lua.lua_istable(fengari.L, -1)) {
+					console.log('[loadSignBoardData] SignBoardData is not a table');
+					return;
+				}
+	
+				// Push nil key to start iteration
+				fengari.lua.lua_pushnil(fengari.L);
+	
+				// Iterate over the "SignBoardData" table
+				while (fengari.lua.lua_next(fengari.L, -2)) {
+					let key = fengari.lua.lua_tojsstring(fengari.L, -2);
+					let value = fengari.lua.lua_tojsstring(fengari.L, -1);
+					json[key] = value;
+	
+					// Pop the value and move to the next key
+					fengari.lua.lua_pop(fengari.L, 1);
+				}
+	
+				// Clean Lua stack
+				fengari.lua.lua_settop(fengari.L, 0);
+			} catch (hException) {
+				console.error('error: ', hException);
+			}
+
+			callback.call(null, json);
+			onEnd();
+		}, onEnd);
+	};
+
+	/**
+	 * Load SignBoardList.lub to JSON object
+	 *
+	 * @param {string} filename - The name of the Lua file to load.
+	 * @param {function} callback - The function to invoke with the loaded data.
+	 * @param {function} onEnd - The function to invoke when loading is complete.
+	 * @return {void}
+	 */
+	function loadSignBoardList(filename, callback, onEnd) {
+	    Client.loadFile(filename,
+	        async function (lua) {
+	            console.log('Loading file "' + filename + '"...');
+	            let signBoardList = [];
+
+	            try {
+	                if (lua instanceof ArrayBuffer) {
+	                    lua = new TextDecoder('iso-8859-1').decode(lua);
+	                }
+
+	                // Load the Lua file
+	                fengari.load(lua)();
+
+	                // Get the global table "SignBoardList"
+	                fengari.lua.lua_getglobal(fengari.L, "SignBoardList");
+
+	                // Check if it's a table
+	                if (!fengari.lua.lua_istable(fengari.L, -1)) {
+	                    console.log('[loadSignBoardList] SignBoardList is not a table');
+	                    return;
+	                }
+
+	                // Push nil key to start iteration
+	                fengari.lua.lua_pushnil(fengari.L);
+
+	                // Iterate over the "SignBoardList" table
+	                while (fengari.lua.lua_next(fengari.L, -2)) {
+	                    let entry = {};
+
+	                    // get mapname (index 1)
+	                    fengari.lua.lua_pushinteger(fengari.L, 1);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    entry.mapname = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get x (index 2)
+	                    fengari.lua.lua_pushinteger(fengari.L, 2);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    entry.x = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get y (index 3)
+	                    fengari.lua.lua_pushinteger(fengari.L, 3);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    entry.y = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get height (index 4)
+	                    fengari.lua.lua_pushinteger(fengari.L, 4);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    entry.height = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get type (index 5)
+	                    fengari.lua.lua_pushinteger(fengari.L, 5);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    entry.type = fengari.lua.lua_tointeger(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get icon_location (index 6)
+	                    fengari.lua.lua_pushinteger(fengari.L, 6);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    entry.icon_location = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get description (index 7, optional)
+	                    fengari.lua.lua_pushinteger(fengari.L, 7);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    if (fengari.lua.lua_isstring(fengari.L, -1)) {
+	                        let rawDescription = fengari.lua.lua_tojsstring(fengari.L, -1);
+    						entry.description = DB.getTranslatedSignBoard(rawDescription);
+	                    } else {
+	                        entry.description = null;
+	                    }
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // get color (index 8, optional)
+	                    fengari.lua.lua_pushinteger(fengari.L, 8);
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    if (fengari.lua.lua_isstring(fengari.L, -1)) {
+	                        entry.color = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                    } else {
+	                        entry.color = null;
+	                    }
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // Add entry to signBoardList
+	                    signBoardList.push(entry);
+
+	                    // Pop the value and move to the next key
+	                    fengari.lua.lua_pop(fengari.L, 1);
+	                }
+
+	                // Clean Lua stack
+	                fengari.lua.lua_settop(fengari.L, 0);
+	            } catch (hException) {
+	                console.error('error: ', hException);
+	            }
+				// Preprocess the signboard list into a nested dictionary
+				const signboardDict = preprocessSignboardData(signBoardList);
+	            callback.call(null, signboardDict);
+	            onEnd();
+	        },
+	        onEnd
+	    );
+	};
+
+	/**
+	 * Preprocesses an array of signboard objects and organizes them into a nested dictionary.
+	 *
+	 * @param {Array} signboardArray - The array of signboard objects.
+	 * @return {Object} The nested dictionary containing the preprocessed signboard data.
+	 */
+	function preprocessSignboardData(signboardArray) {
+	    const signboardDict = {};
+
+	    for (let signboard of signboardArray) {
+	        const { mapname, x, y } = signboard;
+	        if (!signboardDict[mapname]) {
+	            signboardDict[mapname] = {};
+	        }
+	        if (!signboardDict[mapname][x]) {
+	            signboardDict[mapname][x] = {};
+	        }
+	        signboardDict[mapname][x][y] = signboard;
+	    }
+
+	    return signboardDict;
 	};
 
 	/**
@@ -2667,6 +2872,42 @@ define(function(require)
 		}
 		
 		return reformInfos;
+	};
+
+	/**
+	 * Finds a signboard in the given map based on the provided coordinates.
+	 *
+	 * @param {string} mapname - The name of the map to search in.
+	 * @param {number} x - The x-coordinate of the signboard.
+	 * @param {number} y - The y-coordinate of the signboard.
+	 * @param {number} [tolerance=1] - The tolerance value for matching coordinates.
+	 * @return {Object|null} The signboard object if found, or null if not found.
+	 */
+	DB.findSignboard = function findSignboard(mapname, x, y, tolerance = 1) {
+		const mapData = SignBoardTable[mapname];
+    	if (mapData) {
+    	    for (let xKey in mapData) {
+    	        if (Math.abs(x - xKey) <= tolerance) {
+    	            const yData = mapData[xKey];
+    	            for (let yKey in yData) {
+    	                if (Math.abs(y - yKey) <= tolerance) {
+    	                    return yData[yKey];
+    	                }
+    	            }
+    	        }
+    	    }
+    	}
+    	return null;
+	};
+
+	/**
+	 * Retrieves the translated signboard description based on the provided description.
+	 *
+	 * @param {string} description - The description of the signboard.
+	 * @return {string} The translated signboard description if found, otherwise the original description.
+	 */
+	DB.getTranslatedSignBoard = function getTranslatedSignBoard(description) {
+		return SignBoardTranslatedTable[description] || description;
 	};
 
 	/**
