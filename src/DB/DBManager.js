@@ -145,6 +145,12 @@ define(function(require)
 	var LaphineUpgTable = {};
 
 	/**
+	 * @var ItemDBName Table
+	 * json object
+	 */
+	var ItemDBNameTbl = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init()
@@ -176,6 +182,7 @@ define(function(require)
 
 		if (Configs.get('loadLua')) {
 			loadLuaFile( 'System/itemInfo.lub', function(json){ItemTable = json;}, onLoad());
+			loadItemDBTable( DB.LUA_PATH + 'ItemDBNameTbl.lub', function(json){ ItemDBNameTbl = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'], 'AccNameTable', function(json){ HatTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function(json){ RobeTable = json; },  onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function(json){ MonsterTable = json; },  onLoad());
@@ -614,6 +621,70 @@ define(function(require)
 	        },
 	        onEnd
 	    );
+	};
+
+	/**
+	 * Loads ItemDBNameTbl.lub which is used in newer UI System (holds ItemDBName and ItemID)
+	 *
+	 * @param {string} filename - The name of the file to load.
+	 * @param {function} callback - The function to invoke with the loaded data.
+	 * @param {function} onEnd - The function to invoke when loading is complete.
+	 * @return {void}
+	 */
+	function loadItemDBTable(filename, callback, onEnd)
+	{
+		Client.loadFile( filename,
+            async function (lua) {
+				console.log('Loading file "'+ filename +'"...');
+				let json = {};
+	            
+				try {
+					if (lua instanceof ArrayBuffer) {
+						lua = new TextDecoder('iso-8859-1').decode(lua);
+					}
+	
+					// Load lua file
+					fengari.load(lua)();
+	
+					// Get the global table "ItemDBNameTbl"
+					fengari.lua.lua_getglobal(fengari.L, "ItemDBNameTbl");
+	
+					// Check if it's a table
+					if (!fengari.lua.lua_istable(fengari.L, -1)) {
+						console.log('[loadItemDBTable] ItemDBNameTbl is not a table');
+						return;
+					}
+	
+					// Push nil key to start iteration
+					fengari.lua.lua_pushnil(fengari.L);
+	
+					// Iterate over the "ItemDBNameTbl" table
+					while (fengari.lua.lua_next(fengari.L, -2)) {
+						// get key (BaseItem)
+						let baseItem = fengari.lua.lua_tojsstring(fengari.L, -2);
+						// get value (ItemID)
+						let itemID = fengari.lua.lua_tointeger(fengari.L, -1);
+	
+						// add to json object
+						json[baseItem] = itemID;
+	
+						// Pop the value and move to the next key
+						fengari.lua.lua_pop(fengari.L, 1);
+					}
+	
+					// pop table
+					fengari.lua.lua_pop(fengari.L, 1);
+	
+					// clean lua stack
+					fengari.lua.lua_settop(fengari.L, 0);
+				} catch (hException) {
+					console.error('error: ', hException);
+				}
+				callback.call(null, json);
+				onEnd();
+			},
+			onEnd
+		);
 	};
 
 	/**
@@ -2352,6 +2423,31 @@ define(function(require)
 			}
 		}
 		return null;
+	};
+
+	/**
+	 * Returns the item ID associated with a given base item.
+	 *
+	 * @param {string} baseItem - The base item to get the ID for.
+	 * @return {number} The item ID associated with the base item.
+	 */
+	DB.getItemIdfromBase = function getItemIdfromBase(baseItem) {
+		return ItemDBNameTbl[baseItem];
+	};
+	
+	/**
+	 * Retrieves the base item associated with a given item ID.
+	 *
+	 * @param {number} itemId - The ID of the item to search for.
+	 * @return {string|null} The base item associated with the item ID, or null if not found.
+	 */
+	DB.getBasefromItemID = function getBasefromItemID(itemId) {
+		for (let key in ItemDBNameTbl) {
+			if (ItemDBNameTbl[key] === itemId) {
+				return key;
+			}
+		}
+		return null; // Return null if not found
 	};
 
 	/**
