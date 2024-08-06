@@ -14568,6 +14568,45 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.REPUTE_INFO.size = -1;
 
+	// 0xb8f
+	PACKET.ZC.OPEN_REFORM_UI = function PACKET_ZC_OPEN_REFORM_UI(fp, end) {
+		this.ITID = fp.readLong();
+	};
+	PACKET.ZC.OPEN_REFORM_UI.size = 6;
+
+	// 0xb90
+	PACKET.CZ.CLOSE_REFORM_UI = function PACKET_CZ_CLOSE_REFORM_UI() {
+	};
+	PACKET.CZ.CLOSE_REFORM_UI.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb90);
+		return pkt_buf;
+	};
+
+	// 0xb91
+	PACKET.CZ.ITEM_REFORM = function PACKET_CZ_ITEM_REFORM() {
+		this.ITID = 0;
+		this.index = 0;
+	};
+	PACKET.CZ.ITEM_REFORM.prototype.build = function() {
+		var pkt_len = 2 + 4 + 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb91);
+		pkt_buf.writeLong(this.ITID);
+		pkt_buf.writeShort(this.index);
+		return pkt_buf;
+	};
+
+	// 0xb92
+	PACKET.ZC.ITEM_REFORM_ACK = function PACKET_ZC_ITEM_REFORM_ACK(fp, end) {
+		this.index = fp.readShort();
+		this.result = fp.readChar();
+	};
+	PACKET.ZC.ITEM_REFORM_ACK.size = 5;
+
 	// 0xba4
 	PACKET.ZC.PROPERTY_HOMUN5 = function PACKET_ZC_PROPERTY_HOMUN5(fp, end) {
 
