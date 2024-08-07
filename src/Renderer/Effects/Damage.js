@@ -65,7 +65,7 @@ define(function( require )
 	/**
 	 * @var {string} Sprite of the damage sprite
 	 */
-	var _numbers = new Array(10);
+	var _numbers = new Array(12);
 	var _msgNames = {
 		0: 'miss',
 		1: 'guard',
@@ -120,7 +120,7 @@ define(function( require )
 			}
 
 			// Create SpriteSheet
-			for (var i = 0; i < 10; ++i) {
+			for (var i = 0; i < 12; ++i) {
 				_numbers[i]  = sprNumbers.getCanvasFromFrame(i);
 			}
 
@@ -201,7 +201,24 @@ define(function( require )
 
 		var canvas  = document.createElement('canvas');
 		var ctx     = canvas.getContext('2d');
-		var numbers = damage.toString().split('');
+		var numbers;
+		var suffix = null;
+	
+		// Check for large numbers and convert accordingly
+		if (damage >= 100000000) {
+			damage = Math.floor(damage / 1000000);
+			suffix = 11; // 'M'
+		} else if (damage >= 1000000) {
+			damage = Math.floor(damage / 1000);
+			suffix = 10; // 'K'
+		}
+
+		numbers = damage.toString().split('');
+
+		// Add suffix to numbers if it exists
+		if (suffix !== null) {
+		    numbers.push(suffix);
+		}
 
 		var width   = 0;
 		var height  = 0;
