@@ -35,6 +35,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 	 * Files to load
 	 */
 	RSW.prototype.files = {
+		buildnumber: null,
 		ini: null,
 		gnd: null,
 		gat: null,
@@ -57,12 +58,14 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 	 * Water informations
 	 */
 	RSW.prototype.water    = {
-		level:       0.0,
+		level:       0,
 		type:        0,
-		waveHeight:  0.2,
-		waveSpeed:   2.0,
-		wavePitch:  50.0,
-		animSpeed:   3,
+		waveHeight:  0,
+		waveSpeed:   0,
+		wavePitch:   0,
+		animSpeed:   0,
+		splitWidth:  0,
+		splitHeight: 0,
 		images:     new Array(32)
 	};
 
@@ -100,6 +103,14 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 			throw new Error('RSW::load() - Invalid header "' + header + '", must be "GRSW"');
 		}
 
+		if (version >= 2.5) {
+			this.files.buildnumber = fp.readLong();
+		}
+
+		if (version >= 2.2) {
+			var Unknown = fp.readByte();
+		}
+
 		// Read sub files.
 		this.files.ini = fp.readBinaryString(40);
 		this.files.gnd = fp.readBinaryString(40);
@@ -109,19 +120,34 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 			this.files.src = fp.readBinaryString(40);
 		}
 
+		// Reset water to prototype values
+		// A little hack, as changing maps, doesn't reset the water properties
+    	this.water = Object.assign({}, RSW.prototype.water);
+
 		// Read water info.
-		if (version >= 1.3) {
-			this.water.level = fp.readFloat() / 5;
+		if (version < 2.6) {
+			if (version >= 1.3) {
+				this.water.level = fp.readFloat() / 5;
+			} else {
+				this.water.level = 0.0;
+			}
 
 			if (version >= 1.8) {
 				this.water.type       = fp.readLong();
 				this.water.waveHeight = fp.readFloat()/5;
 				this.water.waveSpeed  = fp.readFloat();
 				this.water.wavePitch  = fp.readFloat();
+			} else {
+				this.water.type = 0;
+				this.water.waveHeight = 1.0;
+				this.water.waveSpeed  = 2.0;
+				this.water.wavePitch  = 50.0;
+			}
 
-				if (version >= 1.9) {
+			if (version >= 1.9) {
 					this.water.animSpeed = fp.readLong();
-				}
+			} else {
+				this.water.animSpeed = 3;
 			}
 		}
 
@@ -145,6 +171,11 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 			this.ground.right  =  fp.readLong();
 		}
 
+		if (version >= 2.7) {
+			const count = fp.readLong(); 
+			fp.seek(4 * count, SEEK_CUR); // Moves the file pointer forward by 4 * count bytes
+		}
+
 		// Read Object
 		var models  = this.models;
 		var lights  = this.lights;
@@ -164,8 +195,10 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 					models[m++] = {
 						name:      version >= 1.3 ? fp.readBinaryString(40) : null,
 						animType:  version >= 1.3 ? fp.readLong()  : 0,
-						animSpeed: version >= 1.3 ? fp.readFloat() : 0.0,
+						animSpeed: version >= 1.3 ? fp.readFloat() : 1.0,
 						blockType: version >= 1.3 ? fp.readLong()  : 0,
+						UnknownByte: (version >= 2.6 && this.files.buildnumber >= 186) ? fp.readByte() : 0,
+						UnknownByte2: (version >= 2.7) ? fp.readLong() : 0,
 						filename:  fp.readBinaryString(80),
 						nodename:  fp.readBinaryString(80),
 						position:[ fp.readFloat()/5, fp.readFloat()/5, fp.readFloat()/5 ],

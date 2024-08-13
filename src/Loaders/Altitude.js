@@ -48,7 +48,20 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 		3: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE | GAT.TYPE.WATER, // walkable water
 		4: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,                  // ???
 		5: GAT.TYPE.SNIPABLE,                                      // gat (snipable)
-		6: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE                   // ???
+		6: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,                  // ???
+
+		/* Taken from Grf Editor */
+		[-1]: GAT.TYPE.NONE,                                       // NoGat (-1)
+    	[0x80000000]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,       // Weird0 (Int32.MinValue)
+    	[0x80000001]: GAT.TYPE.NONE,                               // Weird1
+    	[0x80000002]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,       // Weird2
+    	[0x80000003]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE | GAT.TYPE.WATER, // Weird3
+    	[0x80000004]: GAT.TYPE.NONE,                               // Weird4
+    	[0x80000005]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,       // Weird5
+    	[0x80000006]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,       // Weird6
+    	[0x80000007]: GAT.TYPE.NONE,                               // Weird7
+    	[0x80000008]: GAT.TYPE.NONE,                               // Weird8
+    	[0x80000009]: GAT.TYPE.NONE                                // Weird9
 	};
 
 

@@ -414,6 +414,7 @@ define(function( require )
 						break;
 
 					case 'rsm':
+					case 'rsm2':
 						result = new Model(buffer);
 						break;
 

@@ -198,6 +198,7 @@ define(function(require)
 
 		if (Configs.get('loadLua')) {
 			loadLuaFile( 'System/itemInfo.lub', function(json){ItemTable = json;}, onLoad());
+			loadMapTbl( 'System/mapInfo_true_EN.lub', function(json){ for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } updateMapTable(); }, onLoad());
 			loadSignBoardData( 'System/Sign_Data_EN.lub', function(json){SignBoardTranslatedTable = json;}, onLoad());
 			loadItemDBTable( DB.LUA_PATH + 'ItemDBNameTbl.lub', function(json){ ItemDBNameTbl = json; },  onLoad());
 			loadSignBoardList( DB.LUA_PATH + 'SignBoardList.lub', function(signBoardList){ SignBoardTable = signBoardList; },  onLoad());
@@ -1280,6 +1281,117 @@ define(function(require)
 			onEnd.call();
 		}
 	}
+
+	/**
+	 * Loads System/mapInfo_true_EN.lub
+	 *
+	 * @param {string} filename - The name of the file to load.
+	 * @param {function} callback - The function to invoke with the parsed data.
+	 * @param {function} onEnd - The function to invoke when loading is complete.
+	 */
+	function loadMapTbl(filename, callback, onEnd) {
+	    Client.loadFile(filename, async function (lua) {
+	        console.log('Loading file "' + filename + '"...');
+	        let mapData = {};
+
+	        try {
+	            if (lua instanceof ArrayBuffer) {
+	                lua = new TextDecoder('iso-8859-1').decode(lua);
+	            }
+
+	            // Load Lua file
+	            fengari.load(lua)();
+
+	            // Get the global table "mapTbl"
+	            fengari.lua.lua_getglobal(fengari.L, "mapTbl");
+
+	            // Check if it's a table
+	            if (!fengari.lua.lua_istable(fengari.L, -1)) {
+	                console.log('[loadMapTbl] mapTbl is not a table');
+	                return;
+	            }
+
+	            // Push nil key to start iteration
+	            fengari.lua.lua_pushnil(fengari.L);
+
+	            // Iterate over the "mapTbl" table
+	            while (fengari.lua.lua_next(fengari.L, -2)) {
+	                // Get key (filename)
+	                let filename = fengari.lua.lua_tojsstring(fengari.L, -2);
+				
+	                // Get value (table)
+	                if (fengari.lua.lua_istable(fengari.L, -1)) {
+	                    let entry = {};
+
+	                    // Get displayName
+	                    fengari.lua.lua_pushstring(fengari.L, "displayName");
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    if (fengari.lua.lua_isstring(fengari.L, -1)) {
+	                        entry.displayName = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                    }
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // Get notifyEnter
+	                    fengari.lua.lua_pushstring(fengari.L, "notifyEnter");
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    if (fengari.lua.lua_isboolean(fengari.L, -1)) {
+	                        entry.notifyEnter = fengari.lua.lua_toboolean(fengari.L, -1);
+	                    }
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // Get signName
+	                    fengari.lua.lua_pushstring(fengari.L, "signName");
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    if (fengari.lua.lua_istable(fengari.L, -1)) {
+	                        entry.signName = {};
+
+	                        // Get subTitle
+	                        fengari.lua.lua_pushstring(fengari.L, "subTitle");
+	                        fengari.lua.lua_gettable(fengari.L, -2);
+	                        if (fengari.lua.lua_isstring(fengari.L, -1)) {
+	                            entry.signName.subTitle = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                        }
+	                        fengari.lua.lua_pop(fengari.L, 1);
+
+	                        // Get mainTitle
+	                        fengari.lua.lua_pushstring(fengari.L, "mainTitle");
+	                        fengari.lua.lua_gettable(fengari.L, -2);
+	                        if (fengari.lua.lua_isstring(fengari.L, -1)) {
+	                            entry.signName.mainTitle = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                        }
+	                        fengari.lua.lua_pop(fengari.L, 1);
+	                    }
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // Get backgroundBmp
+	                    fengari.lua.lua_pushstring(fengari.L, "backgroundBmp");
+	                    fengari.lua.lua_gettable(fengari.L, -2);
+	                    if (fengari.lua.lua_isstring(fengari.L, -1)) {
+	                        entry.backgroundBmp = fengari.lua.lua_tojsstring(fengari.L, -1);
+	                    }
+	                    fengari.lua.lua_pop(fengari.L, 1);
+
+	                    // Add entry to mapData
+	                    mapData[filename] = entry;
+	                }
+				
+	                // Pop the value and move to the next key
+	                fengari.lua.lua_pop(fengari.L, 1);
+	            }
+
+	            // Pop table
+	            fengari.lua.lua_pop(fengari.L, 1);
+
+	            // Clean lua stack
+	            fengari.lua.lua_settop(fengari.L, 0);
+	        } catch (e) {
+	            console.error('error: ', e);
+	        }
+
+	        callback.call(null, mapData);
+	        onEnd();
+	    }, onEnd);
+	};
 
 	/**
 	 * Fog entry parser
@@ -3355,6 +3467,21 @@ define(function(require)
 				return "Base_Class";
 				break;
 		}
+	};
+
+	/**
+	 * Function to update MapTable with MapInfo values
+	 */
+	function updateMapTable() {
+	    for (const key in MapInfo) {
+	        if (MapInfo.hasOwnProperty(key)) {
+	            if (MapTable[key]) {
+	                MapTable[key].name = MapInfo[key].displayName;
+	            } else {
+	                MapTable[key] = { name: MapInfo[key].displayName };
+	            }
+	        }
+	    }
 	};
 
 	/**

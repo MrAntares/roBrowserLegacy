@@ -504,6 +504,7 @@ define(function(require)
 				break;
 
 			case 'rsm':
+			case 'rsm2':
 				img = '3d';
 				break;
 
