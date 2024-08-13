@@ -69,7 +69,7 @@ define( ['Utils/WebGL'], function( WebGL )
 	/**
 	 * @var {number} water opacity
 	 */
-	var _waterOpacity = 0.6;
+	var _waterOpacity = 0.9;
 
 
 	/**
@@ -168,7 +168,7 @@ define( ['Utils/WebGL'], function( WebGL )
 		_waterLevel   = water.level;
 		_animSpeed    = water.animSpeed;
 		_wavePitch    = water.wavePitch;
-		_waterOpacity = water.type !== 4 && water.type !== 6 ? 0.6 : 1.0;
+		_waterOpacity = water.type !== 4 && water.type !== 6 ? 0.8 : 1.0;
 
 		// No water ?
 		if (!_vertCount) {
