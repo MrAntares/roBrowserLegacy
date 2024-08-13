@@ -40,6 +40,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 	 */
 	GND.prototype.load = function load( data )
 	{
+		var i;
 		this.fp     = new BinaryReader(data);
 		var header  = this.fp.readBinaryString(4);
 
@@ -57,8 +58,37 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 
 		this.tiles    = this.parseTiles();
 		this.surfaces = this.parseSurfaces();
-	};
 
+		// Read water-related parameters
+		if (this.version >= 1.8) {
+			this.water = {
+				level: this.fp.readFloat() / 5,
+				type: this.fp.readLong(),
+				waveHeight: this.fp.readFloat() / 5,
+				waveSpeed: this.fp.readFloat(),
+				wavePitch: this.fp.readFloat(),
+				animSpeed: this.fp.readLong(),
+				splitWidth: this.fp.readLong(),
+				splitHeight: this.fp.readLong(),
+			};
+				if (this.version >= 1.9) {
+					this.water.Zones = [];
+					var count = this.water.splitWidth * this.water.splitHeight;
+			
+					for (var i = 0; i < count; i++) {
+						var waterSub = {
+							level: this.fp.readFloat(),
+							type: this.fp.readLong(),
+							waveHeight: this.fp.readFloat(),
+							waveSpeed: this.fp.readFloat(),
+							wavePitch: this.fp.readFloat(),
+							animSpeed: this.fp.readLong()
+						};
+						this.water.Zones.push(waterSub);
+					}
+				}
+		}
+	};
 
 	/**
 	 * Loading textures
@@ -101,7 +131,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 	{
 		// Load info
 		var fp         = this.fp;
-		var count      = fp.readULong();
+		var count      = fp.readLong();
 		var per_cell_x = fp.readLong();
 		var per_cell_y = fp.readLong();
 		var size_cell  = fp.readLong();

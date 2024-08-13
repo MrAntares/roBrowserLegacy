@@ -216,6 +216,9 @@ define( ['Core/FileManager'], function( FileManager )
 			loader.setProgress( 3 );
 
 			// Compiling ground
+			if (ground && ground.version >= 1.8) {
+				world.water = ground.water;
+			}
 			var compiledGround = ground.compile( world.water.level, world.water.waveHeight );
 
 			// Just to approximate, guess we have 2 textures for each models

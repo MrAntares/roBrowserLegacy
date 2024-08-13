@@ -178,7 +178,20 @@ function(       glMatrix,          PathFinding,            Mouse )
 		3: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE | Altitude.TYPE.WATER, // walkable water
 		4: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,                  // ???
 		5: Altitude.TYPE.SNIPABLE,                                      // gat (snipable)
-		6: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE                   // ???
+		6: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,                  // ???
+
+		/* Taken from Grf Editor */
+		[-1]: Altitude.TYPE.NONE,                                       // NoGat (-1)
+    	[0x80000000]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,  // Weird0 (Int32.MinValue)
+    	[0x80000001]: Altitude.TYPE.NONE,                               // Weird1
+    	[0x80000002]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,  // Weird2
+    	[0x80000003]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE | Altitude.TYPE.WATER, // Weird3
+    	[0x80000004]: Altitude.TYPE.NONE,                               // Weird4
+    	[0x80000005]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,  // Weird5
+    	[0x80000006]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE,  // Weird6
+    	[0x80000007]: Altitude.TYPE.NONE,                               // Weird7
+    	[0x80000008]: Altitude.TYPE.NONE,                               // Weird8
+    	[0x80000009]: Altitude.TYPE.NONE                                // Weird9
 	};
 
 
