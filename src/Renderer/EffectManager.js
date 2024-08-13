@@ -547,6 +547,7 @@ define(function( require )
 				break;
 
 			case 'RSM':
+			case 'RSM2':
 				break;
 
 			case 'QuadHorn':

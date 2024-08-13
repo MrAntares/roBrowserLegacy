@@ -64,15 +64,17 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 	 */
 	RSM.prototype.load = function Load( data )
 	{
-		var fp, header, name;
+		var fp, header;
 		var i, count;
-		var textures, nodes, posKeyframes, volumebox;
+		var nodes, posKeyframes, volumebox;
+		var textures = [];
+    	var additionalTextures = [];
 
 		// Read header.
 		fp      = new BinaryReader(data);
 		header  = fp.readBinaryString(4);
 
-		if (header !== 'GRSM') {
+		if (header !== 'GRSM' && header !== "GRSX") {
 			throw new Error('RSM::load() - Incorrect header "' + header + '", must be "GRSM"');
 		}
 
@@ -84,24 +86,43 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		this.main_node  = null;
 
 		this.alpha      =   ( this.version >= 1.4 ) ? fp.readUByte() / 255.0 : 1.0;
-		fp.seek( 16, SEEK_CUR ); // reserved.
+		
+		// Read data based on version
+		if (this.version >= 2.3) {
+			this.frameRatePerSecond = fp.readFloat();
+			count = fp.readLong();
+	
+			for (var i = 0; i < count; i++) {
+				textures.push(fp.readBinaryString(fp.readLong()));
+			}
+		} 
+		else if (this.version >= 2.2) {
+			this.frameRatePerSecond = fp.readFloat();
+			count     = fp.readLong();
+			for (i = 0; i < count; ++i) {
+				additionalTextures.push(fp.readBinaryString(fp.readLong()));
+			}
 
+			count = fp.readLong();
 
-		// Read textures.
-		count     = fp.readLong();
-		textures  =  new Array(count);
-		for (i = 0; i < count; ++i) {
-			textures[i] = fp.readBinaryString(40);
+			for (var i = 0; i < count; i++) {
+				textures.push(fp.readBinaryString(fp.readLong()));
+			}
+		} 
+		else {
+			fp.seek(16, SEEK_CUR); // reserved
+			count     = fp.readLong();
+			for (i = 0; i < count; ++i) {
+				additionalTextures.push(fp.readBinaryString(40));
+			}
+			textures.push(fp.readBinaryString(40));
 		}
 
-		// Read nodes.
-		name   =  fp.readBinaryString(40);
-		count  =  fp.readLong();
+		count = fp.readLong();
 		nodes  =  new Array(count);
-
 		for (i = 0; i < count; ++i) {
 			nodes[i] =  new RSM.Node( this, fp, count === 1 );
-			if (nodes[i].name === name) {
+			if (nodes[i].name === textures) {
 				this.main_node = nodes[i];
 			}
 		}
@@ -113,7 +134,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		}
 
 		// Read poskeyframes
-		if (this.version < 1.5) {
+		if (this.version < 1.6) {
 			count         = fp.readLong();
 			posKeyframes  = new Array(count);
 
@@ -122,19 +143,18 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 					frame: fp.readLong(),
 					px:    fp.readFloat(),
 					py:    fp.readFloat(),
-					pz:    fp.readFloat()
+					pz:    fp.readFloat(),
+					data:  fp.readFloat()
 				};
 			}
 
 			this.posKeyframes = posKeyframes;
-		}
-		else {
+		} else {
 			this.posKeyframes = [];
 		}
 
-
 		// read Volume box
-		count       = fp.readLong();
+		count       = (fp.offset >= fp.length) ? 0 : fp.readLong();
 		volumebox   = new Array(count);
 
 		for (i = 0; i < count; ++i) {
@@ -146,17 +166,33 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 			};
 		}
 
+		this.textures     = additionalTextures;
+		this.nodes        = nodes;
+		if (this.version >= 2.3) {
+            for (i = 0; i < this.main_node.textures.length; i++) {
+                if (!this.textures.includes(this.main_node.textures[i])) {
+                    let texture = this.main_node.textures[i];
+                    this.textures.push(texture);
+                    this.main_node.textures[i] = this.textures.indexOf(texture);
+                }
+            }
+            this.nodes.forEach(node => {
+                for (i = 0; i < node.textures.length; i++) {
+                    if (typeof node.textures[i] !== "number") {
+                        let texture = node.textures[i];
+                        if (!this.textures.includes(texture)) {
+                            this.textures.push(texture);
+                        }
+                        node.textures[i] = this.textures.indexOf(texture);
+                    }
+                }
+            });
+        }
+		this.volumebox    = volumebox;
 		this.instances    = [];
 		this.box          = new RSM.Box();
-		this.textures     = textures;
-		this.nodes        = nodes;
-		this.volumebox    = volumebox;
-
-
-		// Calculate bounding box
 		this.calcBoundingBox();
 	};
-
 
 	/**
 	 * Create a model instance
@@ -175,7 +211,21 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		mat4.rotateX(   matrix, matrix, model.rotation[0]/180*Math.PI );
 		mat4.rotateY(   matrix, matrix, model.rotation[1]/180*Math.PI );
 		mat4.scale(     matrix, matrix, model.scale );
-
+		
+		if (this.main_node.main.version >= 2.2) {
+			// Apply scaling based on the main node's flip attribute
+			mat4.scale(matrix, matrix, this.main_node.flip);
+			
+			// Apply translation based on the main node's offset attribute
+			mat4.translate(matrix, matrix, this.main_node.offset);
+			
+			// Apply translation upwards by the range value in the Y axis
+			mat4.translate(matrix, matrix, [0.0, this.box.range[1], 0.0]);
+			
+			// Apply translation based on the box's offset attribute
+			mat4.translate(matrix, matrix, this.box.offset);
+		}
+	
 		this.instances.push(matrix);
 	};
 
@@ -205,7 +255,6 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 			box.center[i] =  box.min[i] + box.range[i]     ;
 		}
 	};
-
 
 	/**
 	 * Compile Model
@@ -243,114 +292,197 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 	 * @param {boolean} only
 	 */
 	RSM.Node = function Node( rsm, fp, only ) {
-		var i, j, count, version = rsm.version;
-		var textures, vertices, tvertices, faces, posKeyframes, rotKeyframes;
+	var i, j, count, version = rsm.version;
+	var vertices, tvertices, faces, posKeyframes, rotKeyframes, scaleKeyFrames, textureKeyFrameGroup;
+	var textures = [];
+	// Read initialised
+	this.main     =  rsm;
+	this.is_only  =  only;
 
-		// Read initialised
-		this.main     =  rsm;
-		this.is_only  =  only;
+	// Read name and parent name
+	if (version >= 2.2) {
+		this.name = fp.readBinaryString(fp.readLong());
+		this.parentname = fp.readBinaryString(fp.readLong());
+	} else {
+		this.name = fp.readBinaryString(40);
+		this.parentname = fp.readBinaryString(40);
+	}
 
-		// Read name
-		this.name       =  fp.readBinaryString(40);
-		this.parentname =  fp.readBinaryString(40);
+	// Read textures
+	count = fp.readLong();
+	textures = new Array(count);
 
-		// Read textures
-		count    = fp.readLong();
-		textures = new Array(count);
+    for (let i = 0; i < count; i++) {
+        textures[i] = version >= 2.3 ? fp.readBinaryString(fp.readLong()) : fp.readLong();
+    }
 
-		for (i = 0; i < count; ++i) {
-			textures[i] = fp.readLong();
+	// Read options
+	this.mat3 = [
+		fp.readFloat(), fp.readFloat(), fp.readFloat(),
+		fp.readFloat(), fp.readFloat(), fp.readFloat(),
+		fp.readFloat(), fp.readFloat(), fp.readFloat()
+	];
+	this.offset = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
+
+	// Read position, rotation angle, rotation axis, and scale
+	if (version >= 2.2) {
+		this.pos = [0, 0, 0];
+		this.rotangle = 0;
+		this.rotaxis = [0, 0, 0];
+		this.scale = [1, 1, 1];
+		this.flip = [1, -1, 1];
+	} else {
+		this.pos = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
+		this.rotangle = fp.readFloat();
+		this.rotaxis = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
+		this.scale = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
+		this.flip = [1, 1, 1];
+	}
+
+	// Read vertices
+	count = fp.readLong();
+	vertices = new Array(count);
+
+	for (i = 0; i < count; ++i) {
+		vertices[i] = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
+	}
+
+	// Read texture vertices
+	count = fp.readLong();
+	tvertices = new Float32Array(count * 6);
+
+	for (i = 0, j = 0; i < count; ++i, j += 6) {
+		if (version >= 1.2) {
+			tvertices[j + 0] = fp.readUByte() / 255;
+			tvertices[j + 1] = fp.readUByte() / 255;
+			tvertices[j + 2] = fp.readUByte() / 255;
+			tvertices[j + 3] = fp.readUByte() / 255;
 		}
+		tvertices[j + 4] = fp.readFloat() * 0.98 + 0.01;
+		tvertices[j + 5] = fp.readFloat() * 0.98 + 0.01;
+	}
 
-		// Read options
-		this.mat3 = [
-			fp.readFloat(), fp.readFloat(), fp.readFloat(),
-			fp.readFloat(), fp.readFloat(), fp.readFloat(),
-			fp.readFloat(), fp.readFloat(), fp.readFloat()
-		];
-		this.offset   = [ fp.readFloat(), fp.readFloat(), fp.readFloat() ];
-		this.pos      = [ fp.readFloat(), fp.readFloat(), fp.readFloat() ];
-		this.rotangle =   fp.readFloat();
-		this.rotaxis  = [ fp.readFloat(), fp.readFloat(), fp.readFloat() ];
-		this.scale    = [ fp.readFloat(), fp.readFloat(), fp.readFloat() ];
+	// Read faces
+	count = fp.readLong();
+	faces = new Array(count);
 
-
-		// Read vertices
-		count    = fp.readLong();
-		vertices = new Array(count);
-		for (i = 0; i < count; ++i) {
-			vertices[i] =  [ fp.readFloat(), fp.readFloat(), fp.readFloat() ];
+	for (i = 0; i < count; ++i) {
+		var len = -1;
+		if (version >= 2.2) {
+			len = fp.readLong();
 		}
+		faces[i] = {
+	        vertidx: [fp.readUShort(), fp.readUShort(), fp.readUShort()],
+	        tvertidx: [fp.readUShort(), fp.readUShort(), fp.readUShort()],
+	        texid: fp.readUShort(),
+	        padding: fp.readUShort(),
+	        twoSide: fp.readLong()
+	    };
 
-
-		// Read textures vertices
-		count     = fp.readLong();
-		tvertices = new Float32Array(count*6);
-		for (i = 0, j = 0; i < count; ++i, j+=6) {
-			if (version >= 1.2) {
-				tvertices[j+0] = fp.readUByte() / 255;
-				tvertices[j+1] = fp.readUByte() / 255;
-				tvertices[j+2] = fp.readUByte() / 255;
-				tvertices[j+3] = fp.readUByte() / 255;
+		if (version >= 1.2) {
+			faces[i].smoothGroup = fp.readLong();
+			if (len > 24) {
+				faces[i].smoothGroup_1 = fp.readLong();
 			}
-			tvertices[j+4] = fp.readFloat() * 0.98 + 0.01;
-			tvertices[j+5] = fp.readFloat() * 0.98 + 0.01;
+			if (len > 28) {
+				faces[i].smoothGroup_2 = fp.readLong();
+			}
+			if (len > 32) {
+				fp.seek(len - 32, SEEK_CUR);
+			}
 		}
+	}
 
-
-		// Read faces
+	// Read scaleKeyFrame
+	if (version >= 1.6) {
 		count = fp.readLong();
-		faces = new Array(count);
-		for (i = 0; i < count; ++i) {
-			faces[i] = {
-				vertidx:   [ fp.readUShort(), fp.readUShort(), fp.readUShort() ],
-				tvertidx:  [ fp.readUShort(), fp.readUShort(), fp.readUShort() ],
-				texid:       fp.readUShort(),
-				padding:     fp.readUShort(),
-				twoSide:     fp.readLong(),
-				smoothGroup: version >= 1.2 ? fp.readLong() : 0
-			};
-		}
+		scaleKeyFrames = new Array(count);
 
-		// Read poskeyframes
-		if (version >= 1.5) {
-			count         = fp.readLong();
-			posKeyframes  = new Array(count);
-
-			for (i = 0; i < count; ++i) {
-				posKeyframes[i] = {
-					frame: fp.readLong(),
-					px:    fp.readFloat(),
-					py:    fp.readFloat(),
-					pz:    fp.readFloat()
-				};
+		for (i = 0; i < count; i++) {
+			scaleKeyFrames[i] = {
+				Frame: fp.readLong(),
+				Scale: [fp.readFloat(), fp.readFloat(), fp.readFloat()],
+				Data: fp.readFloat()
 			}
 		}
+	}
 
+	// Read rotkeyframes
+	count = fp.readLong();
+	rotKeyframes = new Array(count);
 
-		// Read rotkeyframes
-		count        = fp.readLong();
-		rotKeyframes = new Array(count);
+	for (i = 0; i < count; ++i) {
+		rotKeyframes[i] = {
+			frame: fp.readLong(),
+			q: [fp.readFloat(), fp.readFloat(), fp.readFloat(), fp.readFloat()]
+		};
+	}
+
+	// Read poskeyframes
+	if (version >= 2.2) {
+		count = fp.readLong();
+		posKeyframes = new Array(count);
 
 		for (i = 0; i < count; ++i) {
-			rotKeyframes[i] = {
+			posKeyframes[i] = {
 				frame: fp.readLong(),
-				q:     [ fp.readFloat(), fp.readFloat(), fp.readFloat(), fp.readFloat() ]
+				px: fp.readFloat(),
+				py: fp.readFloat(),
+				pz: fp.readFloat(),
+				Data: fp.readLong()
 			};
 		}
+	}
 
-		this.box          = new RSM.Box();
-		this.matrix       = mat4.create();
-		this.textures     = textures;
-		this.vertices     = vertices;
-		this.tvertices    = tvertices;
-		this.faces        = faces;
-		this.rotKeyframes = rotKeyframes;
-		this.posKeyframes = posKeyframes;
+	// Additional version 2.3 changes
+	if (version >= 2.3) {
+	    count = fp.readLong();
+	    textureKeyFrameGroup = new Array(count);
+
+	    for (i = 0; i < count; ++i) {
+	        var textureId = fp.readLong();
+	        var amountTextureAnimations = fp.readLong();
+
+	        // Initialize textureKeyFrameGroup[i] if it doesn't exist
+	        if (!textureKeyFrameGroup[i]) {
+	            textureKeyFrameGroup[i] = [];
+	        }
+
+	        // Initialize textureKeyFrameGroup[i][textureId] if it doesn't exist
+	        if (!textureKeyFrameGroup[i][textureId]) {
+	            textureKeyFrameGroup[i][textureId] = [];
+	        }
+
+	        for (var j = 0; j < amountTextureAnimations; ++j) {
+	            var type = fp.readLong();
+	            var amountFrames = fp.readLong();
+
+	            // Initialize textureKeyFrameGroup[i][textureId][type] if it doesn't exist
+	            if (!textureKeyFrameGroup[i][textureId][type]) {
+	                textureKeyFrameGroup[i][textureId][type] = [];
+	            }
+
+	            for (var k = 0; k < amountFrames; ++k) {
+	                textureKeyFrameGroup[i][textureId][type].push({
+	                    frame: fp.readLong(),
+	                    offset: fp.readFloat()
+	                });
+	            }
+	        }
+	    }
+	}
+
+	this.box = new RSM.Box();
+	this.matrix = mat4.create();
+	this.textures = textures;
+	this.vertices = vertices;
+	this.tvertices = tvertices;
+	this.faces = faces;
+	this.rotKeyframes = rotKeyframes;
+	this.posKeyframes = posKeyframes;
+	this.scaleKeyFrames = scaleKeyFrames;
+	this.textureKeyFrameGroup = textureKeyFrameGroup;
 	};
-
-
-
 
 	/**
 	 * Calculate node bounding box
