@@ -213,6 +213,7 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
+		this.ui.find('.totalP .resultP').text(0);
 	};
 
 
@@ -227,7 +228,7 @@ define(function(require)
 			this.remove();
 			event.stopImmediatePropagation();
 
-			if (PACKETVER.value >= 20131223) { 
+			if (PACKETVER.value >= 20131223) {
 				var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
 				Network.sendPacket(pkt);
 			}
@@ -267,7 +268,11 @@ define(function(require)
 				this.ui.find('.WinBuyingStore, .AvailableItemsWindow').show();
 				this.ui.find('.content').css('height','160px');
 				this.ui.find('.contentAvailable').css('height','65px');
-				
+				break;
+
+			case NpcStore.Type.CASH_SHOP:
+				this.ui.find('.WinSell, .WinVendingStore, .WinBuyingStore, .AvailableItemsWindow, .total').hide();
+				this.ui.find('.WinBuy').show();
 				break;
 		}
 
@@ -287,6 +292,7 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
+		this.ui.find('.totalP .resultP').text(0);
 
 		_input.length  = 0;
 		_output.length = 0;
@@ -296,6 +302,7 @@ define(function(require)
 
 			case NpcStore.Type.BUY:
 			case NpcStore.Type.VENDING_STORE:
+			case NpcStore.Type.CASH_SHOP:
 				for (i = 0, count = items.length; i < count; ++i) {
 					if (!('index' in items[i])) {
 						items[i].index = i;
@@ -349,7 +356,7 @@ define(function(require)
 					it = Inventory.getUI().getItemByIndex(items[i].index);
 
 					var condition = (InventoryVersion !== 'InventoryV0') ? it && (!Inventory.getUI().npcsalelock || it.PlaceETCTab < 1) : it;
-					
+
 					if (condition) {
 						item                 = jQuery.extend({}, it);
 						item.price           = items[i].price;
@@ -395,6 +402,16 @@ define(function(require)
 		}
 
 		NpcStore.onSubmit( output );
+
+		// work around - cashshop dont close after buy
+		this.ui.find('.OutputWindow').find('.content').empty();
+		this.ui.find('.totalP .resultP').text(0);
+
+		for (i = 0; i < count; ++i) {
+			if (_output[i] && _output[i].count) {
+				_output[i].count = 0; // clear
+			}
+		}
 	};
 
 
@@ -417,6 +434,7 @@ define(function(require)
 		}
 
 		this.ui.find('.total .result').text(prettyZeny(total));
+		this.ui.find('.totalP .resultP').text(prettyZeny(total));
 
 		return total;
 	};

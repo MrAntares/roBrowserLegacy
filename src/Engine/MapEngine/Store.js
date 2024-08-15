@@ -54,7 +54,8 @@ define(function( require )
             {
 				pkt.list.push({
 					count: itemList[i].count,
-					ITID:  itemList[i].ITID
+					ITID:  itemList[i].ITID,
+					price: itemList[i].discountprice || itemList[i].price
 				});
             	//pkt.kafrapts += (itemList[i].discountprice || itemList[i].price) * itemList[i].count;
 			}
@@ -155,8 +156,6 @@ define(function( require )
 
 	function onBuyCashResult( pkt )
 	{
-		NpcStore.remove();
-
 		switch (pkt.Error) {
 			case 0:  ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);  break; // success
 			case 1:  ChatBox.addText( DB.getMessage(1227),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // zeny
@@ -167,6 +166,8 @@ define(function( require )
 			case 7:  ChatBox.addText( DB.getMessage(1813), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // no sale information
 			default: ChatBox.addText( DB.getMessage(1814),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
 		}
+
+		NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
 	}
 
 

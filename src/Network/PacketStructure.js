@@ -3083,31 +3083,38 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	// 0x288
-
-	PACKET.CZ.PC_BUY_CASH_POINT_ITEM = function PACKET_CZ_PC_BUY_CASH_POINT_ITEM() {
-		this.list = [];
-		this.kafrapts = 0;
-	};
-	PACKET.CZ.PC_BUY_CASH_POINT_ITEM.prototype.build = function() {
+	PACKET.CZ.PC_BUY_CASH_POINT_ITEM =
+		function PACKET_CZ_PC_BUY_CASH_POINT_ITEM() {
+			this.list = [];
+			this.kafrapts = 0;
+		};
+	PACKET.CZ.PC_BUY_CASH_POINT_ITEM.prototype.build = function () {
 		var ver = this.getPacketVersion();
-
-    	var len = 10 + this.list.length * 4;
+		let itemSize = PACKETVER.value >= 20181121 ? 6 : 4;
+		var len = 10 + this.list.length * itemSize;
 		var pkt = new BinaryWriter(len);
-    	pkt.writeShort(ver[1]); // cmd
-		pkt.writeShort(len);
-		pkt.view.setInt32(ver[3], this.kafrapts, true);
-		pkt.view.setInt16(ver[4], this.list.length, true);
-		var pos = ver[4] + 2;
-		var i, count = this.list.length;
-
-    	for (i = 0; i < count; ++i)
-        {
-			pkt.view.setInt16(pos + 0, this.list[i].amount , true);
-			pkt.view.setUint16(pos + 2, this.list[i].ITID , true);
-			pos += 4;
+		pkt.writeShort(ver[1]); // cmd
+		if(PACKETVER.value < 20100803) { // can only buy 1 item per packet
+			pkt.writeShort(this.list[0].ITID); // nameID
+			pkt.writeShort(this.list[0].count); // amount
+			if(PACKETVER.value >= 20070711)
+				pkt.writeShort(this.list[0].price); // amount
+			return pkt;
 		}
+		pkt.writeShort(len);
+		pkt.writeULong(this.kafrapts, true);
+		pkt.writeShort(this.list.length, true);
+		var i,
+			count = this.list.length;
 
-
+		for (i = 0; i < count; ++i) {
+			pkt.writeShort(this.list[i].count);
+			if (PACKETVER.value >= 20181121) {
+				pkt.writeULong(this.list[i].ITID);
+			} else {
+				pkt.writeShort(this.list[i].ITID);
+			}
+		}
 		return pkt;
 	};
 
@@ -8569,19 +8576,40 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.DEATH_QUESTION.size = 6;
 
 
-	// 0x287
-	PACKET.ZC.PC_CASH_POINT_ITEMLIST = function PACKET_ZC_PC_CASH_POINT_ITEMLIST(fp, end) {
-    	this.KafraPoint = fp.readULong();
-    	this.CashPoint = fp.readULong();
-		this.itemList = (function() {
-			var i, count=(end-fp.tell())/11|0, out=new Array(count);
+	/// 0287
+	PACKET.ZC.PC_CASH_POINT_ITEMLIST =
+	function PACKET_ZC_PC_CASH_POINT_ITEMLIST(fp, end) {
+		this.KafraPoint = fp.readULong();
+		this.CashPoint = fp.readULong();
+		this.itemList = (function () {
+			let div = PACKETVER.value >= 20181121 ? 13 : 11;
+			var itemListLen = end - fp.tell();
+			let itemLen =
+				itemListLen % 20 === 0
+					? 20
+					: itemListLen % 18 == 0
+					? 18
+					: div;
+			var i,
+				count = ((end - fp.tell()) / itemLen) | 0,
+				out = new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].price = fp.readLong();
 				out[i].discountprice = fp.readLong();
 				out[i].type = fp.readUChar();
-				out[i].ITID = fp.readUShort();
+				out[i].ITID =
+					PACKETVER.value >= 20181121
+						? fp.readULong()
+						: fp.readUShort();
+				if (itemLen >= 18) {
+					out[i].viewSprite = fp.readUShort();
+					out[i].location = fp.readLong();
+					out[i].unused = fp.readUChar();
+				}
 			}
+			console.log(itemListLen, itemLen);
+			console.log(out);
 			return out;
 		})();
 	};
