@@ -103,11 +103,8 @@ define(function(require)
         ui.find('.newpass').prop('disabled', true);
         ui.find('.checkpass').prop('disabled', true);
 
-        // In a new enough PACKETVER, the exit button was removed.
-        // (TODO: Figure out when this was removed...)
-        if (PACKETVER.value >= 20210406) {
-            ui.find('.btn2.unused').hide();
-        }
+        // This exit button was never used.
+        ui.find('.btn2.unused').hide();
 
         // Hide, disable, and fix the location of the verify button.
         ui.find('.btn2.verify').prop('disabled', true);
