@@ -522,7 +522,7 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}
 
-	function onPincodeCreate(bad, pincode) {
+	function onPincodeCreate(pincode, bad) {
 		var pkt;
 
 		_creatingPincode = true;
