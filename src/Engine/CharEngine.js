@@ -184,7 +184,23 @@ define(function( require )
 		ChSel.onCancelDeleteRequest = onCancelDeleteRequest;
 		ChSel.append();
 		ChSel.setInfo(pkt);
-		
+
+		 /**
+		  * In PACKETVERs < 20180124 that support pincode auth, we're supposed to
+		  * show a button that will ask the server to perform it.
+		  * In this case, the server will send the pincode request packet.
+		  *
+		  * Later PACKETVERs have the char server handle this on initial connection,
+		  * so the button was removed, and we don't have to do anything here.
+		  */
+		if (PACKETVER.value < 20180124 && PACKETVER.value >= 20110309) {
+			sendPincodeRequest();
+
+			/**
+			 * TODO: rAthena says this button was removed with PACKETVER >= 20180124. See also: rathena/src/char/char.hpp
+			 * Need to find out where this button is supposed to be and place it on the correct screen.
+			 */
+		}
 	}
 
 
@@ -512,6 +528,15 @@ define(function( require )
 		UIManager.showMessageBox( DB.getMessage(msg_id), 'ok' );
 	}
 
+	function sendPincodeRequest() {
+		var pkt;
+
+		pkt = new PACKET.CH.PINCODE_REQUEST();
+		pkt.AID = Session.AID;
+
+		Network.sendPacket(pkt);
+	}
+
         function onPincodeCheckRequest(pincode) {
 		var pkt;
 
@@ -596,6 +621,11 @@ define(function( require )
 		 *	8 = pincode was incorrect
 		 */
 		switch (pkt.State) {
+			case 7: // Pin is correct on PACKETVERs < 20180124.
+				if (PACKETVER.value >= 20180124) {
+					console.log("PINCODE: Received invalid state from server for configured PACKETVER: " + pkt.State + ". Aborting, please fix your PACKETVER in the config.");
+					PincodeWindow.onExitRequest();
+				}
 			case 0: // pin is correct
 				_pincodeAttempts = 0;
 				if (_inAuthPincodeReset === true) {
@@ -648,19 +678,6 @@ define(function( require )
 					PincodeWindow.append();
 				} else {
 					PincodeWindow.onExitRequest(); // Failed authentication.
-				}
-				break;
-			case 7: // char select window shows a button - client sends 0x8c5
-				if (PACKETVER.value < 20180124) {  // rAthena says this button was removed with PACKETVER >= 20180124. See also: rathena/src/char/char.hpp
-					// TODO: Figure out what the flow for this is.
-					// For now, just pretend the user wants to finish dealing with authentication.
-					_pincodeAttempts = 0;
-					PincodeWindow.selectInput(0);
-					PincodeWindow.setUserSeed(pkt.Seed);
-					PincodeWindow.resetPins();
-					var ChSel = CharSelect.getUI();
-					ChSel.setUIEnabled(false);
-                                        PincodeWindow.append();
 				}
 				break;
 			case 5: // client shows msgstr(1896)
