@@ -686,18 +686,19 @@ define(function( require )
 		var pkt = new PACKET.CZ.REQUEST_QUIT();
 		Network.sendPacket(pkt);
 
-		// No Answer from the server, close it now
-		UIManager.removeComponents();
-		Network.close();
-		Renderer.stop();
-		MapRenderer.free();
-		SoundManager.stop();
-		BGM.stop();
-
-		Background.remove(function(){
-			window.close();
-			require('Engine/GameEngine').init();
-		});
+		// Wait a second, if no answer from the server, then close it.
+		Events.setTimeout(function(){
+			UIManager.removeComponents();
+			Network.close();
+			Renderer.stop();
+			MapRenderer.free();
+			SoundManager.stop();
+			BGM.stop();
+			Background.remove();
+			Background.setImage('bgi_temp.bmp', function(){
+				require('Engine/GameEngine').reload();
+			});
+		}, 1000);
 	}
 
 
@@ -719,19 +720,15 @@ define(function( require )
 	 */
 	function onExitSuccess()
 	{
-		Renderer.stop();
-		MapRenderer.free();
-
 		UIManager.removeComponents();
 		Network.close();
 		Renderer.stop();
 		MapRenderer.free();
 		SoundManager.stop();
 		BGM.stop();
-
-		Background.remove(function(){
-			window.close();
-			require('Engine/GameEngine').init();
+		Background.remove();
+		Background.setImage('bgi_temp.bmp', function(){
+			require('Engine/GameEngine').reload();
 		});
 	}
 

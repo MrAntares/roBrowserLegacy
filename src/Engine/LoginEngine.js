@@ -75,6 +75,7 @@ define(function( require )
 	{
 		var charset;
 		var q = new Queue();
+		var old_server = _server;
 
 		Configs.setServer(server);
 		UIManager.removeComponents();
@@ -223,23 +224,27 @@ define(function( require )
 		// Add support for remote client in server definition
 		if (remoteClient) {
 			Thread.send( 'SET_HOST', remoteClient);
-			
-			// Re-Loading game data with server specific files (txt, lua, lub)
-			q.add(function(){
-				DB.onReady = function(){
-					Background.setImage( 'bgi_temp.bmp'); // remove loading
-					q._next();
-				};
-				DB.onProgress = function(i, count) {
-					Background.setPercent( Math.floor(i/count * 100) );
-				};
-				UIManager.removeComponents();
-				Background.init();
-				Background.resize( Renderer.width, Renderer.height );
-				Background.setImage( 'bgi_temp.bmp', function(){
-					DB.init();
+
+			// Check if the selected server changed.
+			if (old_server != null && (old_server.address != _server.address ||
+			old_server.port != _server.port)) {
+				// Re-Loading game data with server specific files (txt, lua, lub)
+				q.add(function(){
+					DB.onReady = function(){
+						Background.setImage( 'bgi_temp.bmp'); // remove loading
+						q._next();
+					};
+					DB.onProgress = function(i, count) {
+						Background.setPercent( Math.floor(i/count * 100) );
+					};
+					UIManager.removeComponents();
+					Background.init();
+					Background.resize( Renderer.width, Renderer.height );
+					Background.setImage( 'bgi_temp.bmp', function(){
+						DB.init();
+					});
 				});
-			});
+			}
 		}
 
 		// Server audio configuration
@@ -549,10 +554,23 @@ define(function( require )
 
 
 	/**
+	 * setLoadedServer()
+	 *
+	 * Called by GameEngine when it reloads files due to a service change
+	 * so we don't wind up trying to load the db twice. (Or concurrently.)
+	 */
+	function setLoadedServer( server )
+	{
+		_server = server;
+	}
+
+
+	/**
 	 * Export
 	 */
 	return {
 		init:   init,
-		reload: reload
+		reload: reload,
+		setLoadedServer: setLoadedServer
 	};
 });
