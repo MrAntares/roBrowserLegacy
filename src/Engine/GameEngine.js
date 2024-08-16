@@ -43,39 +43,23 @@ define(function( require )
 
 
 	/**
+	 * @var {server} the previously selected server (if set)
+	 */
+	var _previous_server = undefined;
+
+
+	/**
 	 * @var {boolean} is thread ready ? (fix)
 	 */
 	var _thread_ready = false;
 
 
 	/**
-	 * Initialize Game
+	 * Load files.
 	 */
-	function init()
+	function loadFiles(callback)
 	{
 		var q = new Queue();
-
-		// Waiting for the Thread to be ready
-		q.add(function(){
-			if (!_thread_ready) {
-				Thread.hook('THREAD_ERROR', onThreadError );
-				Thread.hook('THREAD_LOG',   onThreadLog );
-				Thread.hook('THREAD_READY', function(){
-					_thread_ready = true;
-					q._next();
-				});
-				Thread.init();
-			}
-			else {
-				q._next();
-			}
-		});
-
-		// Initialize renderer
-		q.add(function(){
-			Renderer.init();
-			q._next();
-		});
 
 		// Start Intro, wait the user to add files
 		q.add(function(){
@@ -131,9 +115,49 @@ define(function( require )
 			Cursor.init(q.next);
 		});
 
-		// Initialize Login
+		// Run callback
 		q.add(function(){
-			reload();
+			callback();
+		});
+
+		// Execute
+		q.run();
+	}
+
+
+	/**
+	 * Initialize Game
+	 */
+	function init()
+	{
+		var q = new Queue();
+
+		// Waiting for the Thread to be ready
+		q.add(function(){
+			if (!_thread_ready) {
+				Thread.hook('THREAD_ERROR', onThreadError );
+				Thread.hook('THREAD_LOG',   onThreadLog );
+				Thread.hook('THREAD_READY', function(){
+					_thread_ready = true;
+					q._next();
+				});
+				Thread.init();
+			}
+			else {
+				q._next();
+			}
+		});
+
+		// Initialize renderer
+		q.add(function(){
+			Renderer.init();
+			q._next();
+		});
+
+		// Load everything.
+		q.add(function() {
+			// Load files and initialize Login
+			loadFiles(reload);
 		});
 
 
@@ -160,7 +184,6 @@ define(function( require )
 		Background.init();
 		Background.resize( Renderer.width, Renderer.height );
 		Background.setImage( 'bgi_temp.bmp', function(){
-
 			// Display server list
 			var list = new Array( _servers.length );
 			var i, count = list.length;
@@ -194,6 +217,15 @@ define(function( require )
 		WinList.onExitRequest   = onExit;
 	}
 
+	function onReadyLoginServer( index )
+	{
+		// Set the previous server.
+		_previous_server = _servers[index];
+
+		WinList.remove();
+		LoginEngine.onExitRequest = reload;
+		LoginEngine.init( _servers[index] );
+	}
 
 	/**
 	 * Once a server is selected
@@ -205,9 +237,26 @@ define(function( require )
 		// Play "¹öÆ°¼Ò¸®.wav" (possible problem with charset)
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
 
-		WinList.remove();
-		LoginEngine.onExitRequest = reload;
-		LoginEngine.init( _servers[index] );
+		// Check if the selected server is different than the previous one.
+		if (_previous_server !== undefined &&
+		(_previous_server.address != _servers[index].address ||
+		 _previous_server.port != _servers[index].port)) {
+			UIManager.removeComponents();
+			Network.close();
+
+			Background.init();
+			Background.resize( Renderer.width, Renderer.height );
+			Background.setImage( 'bgi_temp.bmp' );
+
+			// Need to reload the files.
+			loadFiles(function(){
+				LoginEngine.setLoadedServer( _servers[index] );
+				onReadyLoginServer(index);
+			});
+
+		} else {
+			onReadyLoginServer(index);
+		}
 	}
 
 
@@ -219,7 +268,7 @@ define(function( require )
 		Sound.stop();
 		Renderer.stop();
 		UIManager.removeComponents();
-		Background.remove(init);
+		Background.setImage('bgi_temp.bmp', reload);
 	}
 
 
