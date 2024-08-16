@@ -7,3 +7,4 @@
 #WinLoginV2 .win_login .btn { position:absolute; border:0; background-color:transparent; }
 #WinLoginV2 .win_login .btn.connect { width:84px; height:84px; right:25px; bottom: 15px; }
 #WinLoginV2 .win_login .btn.signup { width:84px; height:21px; right:130px; bottom: 15px;}
+#WinLoginV2 .win_login .btn.exit { width:24px; height:23px; right:7px; bottom: 96px; }
