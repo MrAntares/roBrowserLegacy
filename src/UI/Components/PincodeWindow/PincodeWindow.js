@@ -225,6 +225,7 @@ define(function(require)
     PincodeWindow.onAppend = function onAppend() {
         // Start rendering
         Renderer.render(render);
+        PincodeWindow.ui.focus();
     };
 
 
