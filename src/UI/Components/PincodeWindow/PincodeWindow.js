@@ -63,16 +63,15 @@ define(function(require)
     }
 
     PincodeWindow.clearPin = function clearPin() {
-        var ui = PincodeWindow.ui;
-        switch (this.sel_input) {
+        switch (PincodeWindow.sel_input) {
             case 1:
-                this._newpass = '';
+                PincodeWindow._newpass = '';
                 break;
             case 2:
-                this._pass = '';
+                PincodeWindow._pass = '';
                 break;
             default:
-                this._checkpass = '';
+                PincodeWindow._checkpass = '';
                 break;
         }
     }
@@ -226,6 +225,7 @@ define(function(require)
     PincodeWindow.onAppend = function onAppend() {
         // Start rendering
         Renderer.render(render);
+        PincodeWindow.ui.focus();
     };
 
 
