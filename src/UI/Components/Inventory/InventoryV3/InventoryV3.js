@@ -182,9 +182,9 @@ define(function(require)
 		InventoryV3.ui.find('.item_drop_lock').click(onItemLock);
 		InventoryV3.ui.find('.item_compare').click(onItemCompare);
 		InventoryV3.ui.find('.deal_lock').click(onNPCLock);
-		InventoryV3.ui.find('.lockoverlayclose').click(function(){ 
+		InventoryV3.ui.find('.lockoverlayclose').click(function(){
 			InventoryV3.ui.find('.lockoverlaymsg').hide();
-			clearTimeout(lockOverlayTimeout); 
+			clearTimeout(lockOverlayTimeout);
 		});
 		InventoryV3.ui.find('.sort').click( function(){ requestFilter();} );
 	};
@@ -623,7 +623,7 @@ define(function(require)
 		return this.equipswitchlist.some(function(existingItem) {
 			return (existingItem.location & location) !== 0;
 		});
-	};	
+	};
 
 
 	/**
@@ -1009,7 +1009,7 @@ define(function(require)
 		}
 
 		let quantity = ' ea';
-		if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) && 
+		if (item.Options && (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
 			item.Options.filter(Option => Option.index !== 0).length > 0)
 		{
 			quantity = ' Quantity';
@@ -1229,7 +1229,7 @@ define(function(require)
 	    // Retrieve the data-tab attribute using native JavaScript
     	var targetTab = event.target.getAttribute('data-tab');
 		var itemfav = (targetTab === 'fav' ? 0 : 1);
-	    
+
 		// Send Request to client
 		var pkt = new PACKET.CZ.INVENTORY_TAB();
 		pkt.item_index = item.index;
@@ -1246,11 +1246,11 @@ define(function(require)
 	InventoryV3.updatePlaceETCTab = function(itemIndex, newValue)
 	{
 		var item = InventoryV3.getItemByIndex(itemIndex);
-		
+
 		if (!item) {
 			return;
 		}
-    	
+
 		if (newValue) {
 			var favoriteval;
 			switch (item.type) {
@@ -1426,10 +1426,10 @@ define(function(require)
 
 		// Save it
 		InventoryV3.itemlock = _preferences.itemlock;
-	
+
 		// Determine the image path based on the toggled state
 		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
-	
+
 		// Load the image and update the button background
 		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
 			InventoryV3.ui.find('.item_drop_lock').css('backgroundImage', 'url(' + data + ')');
@@ -1507,7 +1507,7 @@ define(function(require)
 		var existingItemIndex = this.equipswitchlist.findIndex(function(existingItem) {
 			return existingItem.location === item.location;
 		});
-	
+
 		// If an item with the same location exists, unequip it and remove it from the list
 		if (existingItemIndex > -1) {
 			var existingItem = this.equipswitchlist[existingItemIndex];
@@ -1601,7 +1601,7 @@ define(function(require)
 	InventoryV3.onUpdateItem = function OnUpdateItem(/* index, amount */){};
 	InventoryV3.reqMoveItemToCart = function reqMoveItemToCart(/* index, amount */){};
 
-	
+
 	Network.hookPacket( PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE,		onRequestInventoryExpandResult );
 	Network.hookPacket( PACKET.ZC.ACK_EXTEND_BODYITEM_SIZE,					onFinalReqInventoryExpandResult );
 

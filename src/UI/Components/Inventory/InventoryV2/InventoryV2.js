@@ -180,9 +180,9 @@ define(function(require)
 		InventoryV2.ui.find('.item_drop_lock').click(onItemLock);
 		InventoryV2.ui.find('.item_compare').click(onItemCompare);
 		InventoryV2.ui.find('.deal_lock').click(onNPCLock);
-		InventoryV2.ui.find('.lockoverlayclose').click(function(){ 
+		InventoryV2.ui.find('.lockoverlayclose').click(function(){
 			InventoryV2.ui.find('.lockoverlaymsg').hide();
-			clearTimeout(lockOverlayTimeout); 
+			clearTimeout(lockOverlayTimeout);
 		});
 		InventoryV2.ui.find('.sort').click( function(){ requestFilter();} );
 	};
@@ -600,7 +600,7 @@ define(function(require)
 		return this.equipswitchlist.some(function(existingItem) {
 			return (existingItem.location & location) !== 0;
 		});
-	};	
+	};
 
 
 	/**
@@ -977,7 +977,7 @@ define(function(require)
 		}
 
 		let quantity = ' ea';
-		if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) && 
+		if (item.Options && (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
 			item.Options.filter(Option => Option.index !== 0).length > 0)
 		{
 			quantity = ' Quantity';
@@ -1197,7 +1197,7 @@ define(function(require)
 	    // Retrieve the data-tab attribute using native JavaScript
     	var targetTab = event.target.getAttribute('data-tab');
 		var itemfav = (targetTab === 'fav' ? 0 : 1);
-	    
+
 		// Send Request to client
 		var pkt = new PACKET.CZ.INVENTORY_TAB();
 		pkt.item_index = item.index;
@@ -1214,11 +1214,11 @@ define(function(require)
 	InventoryV2.updatePlaceETCTab = function(itemIndex, newValue)
 	{
 		var item = InventoryV2.getItemByIndex(itemIndex);
-		
+
 		if (!item) {
 			return;
 		}
-    	
+
 		if (newValue) {
 			var favoriteval;
 			switch (item.type) {
@@ -1263,10 +1263,10 @@ define(function(require)
 
 		// Save it
 		InventoryV2.itemlock = _preferences.itemlock;
-	
+
 		// Determine the image path based on the toggled state
 		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
-	
+
 		// Load the image and update the button background
 		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
 			InventoryV2.ui.find('.item_drop_lock').css('backgroundImage', 'url(' + data + ')');
@@ -1344,14 +1344,14 @@ define(function(require)
 		var existingItemIndex = this.equipswitchlist.findIndex(function(existingItem) {
 			return existingItem.location === item.location;
 		});
-	
+
 		// If an item with the same location exists, unequip it and remove it from the list
 		if (existingItemIndex > -1) {
 			var existingItem = this.equipswitchlist[existingItemIndex];
 			SwitchEquip.unEquip(existingItem.index, existingItem.location);
 			this.equipswitchlist.splice(existingItemIndex, 1);
 		}
-	
+
 		// Add the new item to the list
 		this.equipswitchlist.push(item);
 
@@ -1390,14 +1390,14 @@ define(function(require)
     	});
 
     	if (existingItemIndex > -1) {
-    	
+
 			var content = this.ui.find('.container .content');
     	    content.find('.item[data-index="'+ item.index +'"] .switch1').css('backgroundImage', 'none');
 		    content.find('.item[data-index="'+ item.index +'"] .switch2').css('backgroundImage', 'none');
 
     	    SwitchEquip.unEquip(item.index, item.location);
 			var removedItem = this.equipswitchlist.splice(existingItemIndex, 1)[0];
-    	
+
 			ChatBox.addText(
 				DB.getItemName(item) + ' ' + DB.getMessage(3144),
 				ChatBox.TYPE.BLUE,
