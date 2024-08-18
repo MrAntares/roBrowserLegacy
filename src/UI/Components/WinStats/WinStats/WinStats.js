@@ -69,6 +69,11 @@ define(function(require)
 	 */
 	WinStats.stack = [];
 
+	WinStats.append = function append(target) {
+		// ignoring target, to for WinStats not to be attached to equipment window
+		UIComponent.prototype.append.call(this);
+	}
+
 
 	/**
 	 * Execute elements in memory

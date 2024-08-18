@@ -51,7 +51,7 @@ define(function(require)
 		y:        200,
 		show:     false,
 		reduce:   false,
-		stats:    true
+		stats:    false
 	}, 1.0);
 
 
@@ -303,7 +303,7 @@ define(function(require)
 		}.bind(this));
 
 		var Inventory = getModule('UI/Components/Inventory/Inventory');
-		
+
 		if (!Inventory.getUI().equippedItems.includes(item.index)) {
 			Inventory.getUI().equippedItems.push(item.index);
 		}
