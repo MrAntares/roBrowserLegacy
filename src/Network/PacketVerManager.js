@@ -19,12 +19,6 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 	var _value = 0;
 
 	/**
-	 * RENEWAL
-	 * @var boolean
-	 */
-	var _RENEWAL = Configs.get('renewal') || false;
-
-	/**
 	 * Loop over version to find the good one
 	 * @return integer[] offset
 	 */
@@ -106,7 +100,7 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 			blockSize += 4; // job_exp
 		}
 
-		if ((_RENEWAL == true && _value >= 20211103) || (_value >= 20220330)) {
+		if (_value >= 20211103) {
 			blockSize += 4; // hp
 			blockSize += 4; // maxhp
 			blockSize += 6; // sp
@@ -184,11 +178,11 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 				out[i].maxhp = fp.readShort();
 			} else {
 				out[i].hp = fp.readLong();
-				if ((_RENEWAL == true && _value >= 20211103) || _value >= 20220330 || blockSize >= 175) {
+				if (_value >= 20211103 || blockSize >= 175) {
 					fp.readLong();
 				}
 				out[i].maxhp = fp.readLong();
-				if ((_RENEWAL == true && _value >= 20211103) || _value >= 20220330 || blockSize >= 175) {
+				if (_value >= 20211103 || blockSize >= 175) {
 					fp.readLong();
 				}
 			}
@@ -198,11 +192,11 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 				out[i].maxsp = fp.readShort();
 			} else {
 				out[i].sp = fp.readLong();
-				if ((_RENEWAL == true && _value >= 20211103) || _value >= 20220330 || blockSize >= 175) {
+				if (_value >= 20211103 || blockSize >= 175) {
 					fp.readLong();
 				}
 				out[i].maxsp = fp.readLong();
-				if ((_RENEWAL == true && _value >= 20211103) || _value >= 20220330 || blockSize >= 175) {
+				if (_value >= 20211103 || blockSize >= 175) {
 					fp.readLong();
 				}
 			}
