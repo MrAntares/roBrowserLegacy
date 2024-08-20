@@ -434,6 +434,13 @@ define(function(require)
 		}
 
 		if (object) {
+			// Handle NaN values (equips)
+			if (isNaN(object.count)) {
+				object.count = 1;
+			}
+			if (isNaN(item.count)) {
+				item.count = 1;
+			}
 			object.count += item.count;
 			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
 			this.onUpdateItem(object.ITID, object.count);
