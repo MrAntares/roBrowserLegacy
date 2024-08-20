@@ -14,6 +14,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var DB                 = require('DB/DBManager');
+	var ItemType           = require('DB/Items/ItemType');
 	var jQuery             = require('Utils/jquery');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
@@ -25,6 +26,7 @@ define(function(require)
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	var htmlText           = require('text!./Storage.html');
 	var cssText            = require('text!./Storage.css');
+	var getModule		   = require;
 
 
 	/**
@@ -574,6 +576,13 @@ define(function(require)
 			return false;
 		}
 
+		// If right click w/ alt (Request Transfer Item)
+		if (event.altKey && event.which === 3) {
+			event.stopImmediatePropagation();
+			transferItemToOtherUI( _list[i] );
+			return false;
+		}
+
 		// Don't add the same UI twice, remove it
 		if (ItemInfo.uid === _list[i].ITID) {
 			ItemInfo.remove();
@@ -586,6 +595,32 @@ define(function(require)
 
 		return false;
 	}
+
+
+	/**
+	 * Alt Right Click Request Transfer
+	 */
+	function transferItemToOtherUI(item)
+	{
+		var CartItems = getModule('UI/Components/CartItems/CartItems');
+		var Inventory = getModule('UI/Components/Inventory/Inventory');
+		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
+
+		if (!item) {
+			return false;
+		}
+
+		var count = item.count || 1;
+
+		if (isInventoryOpen) {
+			Storage.reqRemoveItem(item.index, count);
+		} else if (isCartOpen) {
+			Storage.reqMoveItemToCart(item.index, count);
+		}
+
+		return true;
+	};
 
 
 	/**
