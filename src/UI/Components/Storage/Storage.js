@@ -602,7 +602,6 @@ define(function(require)
 	 */
 	function transferItemToOtherUI(item)
 	{
-		console.log("Item is:", item);
 		var CartItems = getModule('UI/Components/CartItems/CartItems');
 		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
