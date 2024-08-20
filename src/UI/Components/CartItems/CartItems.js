@@ -28,6 +28,7 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
+	var ItemCompare        = require('UI/Components/ItemCompare/ItemCompare');
 	var Session    			= require('Engine/SessionStorage');
 	var htmlText           = require('text!./CartItems.html');
 	var cssText            = require('text!./CartItems.css');
@@ -709,10 +710,25 @@ define(function(require)
 			return false;
 		}
 
+		// If right click w/ alt (Request Transfer Item)
+		if (event.altKey && event.which === 3) {
+			event.stopImmediatePropagation();
+			transferItemToOtherUI(item);
+			return false;
+		}
+
 		// Don't add the same UI twice, remove it
 		if (ItemInfo.uid === item.ITID) {
 			ItemInfo.remove();
+			if (ItemCompare.ui) {
+				ItemCompare.remove();
+			}
 			return false;
+		}
+
+		// Remove existing compare UI if it's currently displayed
+		if (ItemCompare.ui) {
+			ItemCompare.remove();
 		}
 
 		// Add ui to window
@@ -720,8 +736,70 @@ define(function(require)
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
 
+		var Equipment = getModule('UI/Components/Equipment/Equipment');
+		var Inventory = getModule('UI/Components/Inventory/Inventory');
+		// Check if there is an equipped item in the same location
+		var compareItem = Equipment.getUI().isInEquipList(item.location);
+
+		// If a comparison item is found, display comparison
+		if (compareItem && Inventory.getUI().itemcomp) {
+			ItemCompare.prepare();
+			ItemCompare.append();
+			ItemCompare.uid = compareItem.ITID;
+			ItemCompare.setItem(compareItem);
+		}
+
 		return false;
 	}
+
+
+	/**
+	 * Alt Right Click Request Transfer
+	 */
+	function transferItemToOtherUI(item)
+	{
+		var Inventory = getModule('UI/Components/Inventory/Inventory');
+		var Storage = getModule('UI/Components/Storage/Storage');
+		var isStorageOpen = Storage.ui ? Storage.ui.is(':visible') : false;
+		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+
+		if (!item) {
+			return false;
+		}
+
+		var count;
+		switch (item.type) {
+			case ItemType.HEALING:
+			case ItemType.USABLE:
+			case ItemType.USABLE_SKILL:
+			case ItemType.USABLE_UNK:
+			case ItemType.ETC:
+			case ItemType.CARD:
+			case ItemType.AMMO:
+				// Normal items have count (stackable)
+				count = item.count;
+				break;
+
+			case ItemType.WEAPON:
+			case ItemType.EQUIP:
+			case ItemType.PETEGG:
+			case ItemType.PETEQUIP:
+				// Equipment always 1 (non-stackable)
+				count = 1;
+				break;
+
+			default:
+				break;
+		}
+
+		if (isStorageOpen) {
+			Storage.reqAddItemFromCart(item.index, count);
+		} else if (isInventoryOpen) {
+			CartItems.reqRemoveItem(item.index, count);
+		}
+
+		return true;
+	};
 
 
 	/**
