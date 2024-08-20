@@ -399,9 +399,16 @@ define(function(require)
         // Make sure the given pincode is acceptable. (Less than 6 digits, digits only.)
         intCode = Number.parseInt(pincode);
         if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) {
-            if (intCode > 999 && intCode < 1000000) {
+            if (intCode >= 0 && intCode < 1000000 && pincode.length >= 4 && pincode.length <= 6) {
                 // Get intCode into a parseable string.
-                strCode = intCode.toString();
+                if (intCode === 0) {
+                    // Special case, an all zero pincode will cause toString() to only return one digit.
+                    for (i = 0; i < pincode.length; i++) {
+                        strCode += '0';
+                    }
+                } else {
+                    strCode = intCode.toString();
+                }
 
                 // Encrypt raw digits with pad.
                 for (i = 0; i < strCode.length; i++) {
