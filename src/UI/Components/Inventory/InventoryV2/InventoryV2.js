@@ -1124,30 +1124,7 @@ define(function(require)
 			return false;
 		}
 
-		var count;
-		switch (item.type) {
-			case ItemType.HEALING:
-			case ItemType.USABLE:
-			case ItemType.USABLE_SKILL:
-			case ItemType.USABLE_UNK:
-			case ItemType.ETC:
-			case ItemType.CARD:
-			case ItemType.AMMO:
-				// Normal items have count (stackable)
-				count = item.count;
-				break;
-
-			case ItemType.WEAPON:
-			case ItemType.EQUIP:
-			case ItemType.PETEGG:
-			case ItemType.PETEQUIP:
-				// Equipment always 1 (non-stackable)
-				count = 1;
-				break;
-
-			default:
-				break;
-		}
+		var count = item.count || 1;
 
 		if (isStorageOpen) {
 			Storage.reqAddItem(item.index, count);
