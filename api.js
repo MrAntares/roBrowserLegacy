@@ -257,6 +257,11 @@
 	ROBrowser.prototype.enableRefineUI = false;
 
 	/**
+	 * @var {boolean} Enable Damage Suffix
+	 */
+	ROBrowser.prototype.enableDmgSuffix = false;
+
+	/**
 	 * @var {boolean} Enable Map Name Banner
 	 */
 	ROBrowser.prototype.enableMapName = false;
@@ -455,6 +460,7 @@
 			enableBank:       this.enableBank,
 			enableMapName:    this.enableMapName,
 			enableRefineUI:   this.enableRefineUI,
+			enableDmgSuffix:  this.enableDmgSuffix,
 			enableCheckAttendance: this.enableCheckAttendance,
 			version:          this.version,
 			worldMapSettings:  this.worldMapSettings,
