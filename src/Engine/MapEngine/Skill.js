@@ -328,6 +328,30 @@ define(function( require )
 			}
 		};
 	}
+	
+
+	/**
+	* Get a list of players under the effect of devotion
+	*
+	* @param {object} pkt - PACKET.ZC.DEVOTIONLIST
+	*/
+	function onDevotionList( pkt )
+	{
+		EffectManager.remove(null, pkt.myAID, EffectConst.EF_LINELINK);
+		
+		pkt.AID.forEach((tgtAID) => {
+			if(tgtAID > 0){
+				var EF_Init_Par = {
+					effectId: EffectConst.EF_LINELINK,
+					ownerAID: pkt.myAID,
+					otherAID: tgtAID,
+					persistent: true
+				};
+
+				EffectManager.spam( EF_Init_Par );
+			}
+		});
+	}
 
 
 	/**
@@ -853,5 +877,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.STARSKILL,              onTaekwonMission );
 		Network.hookPacket( PACKET.ZC.MSG_SKILL,        	  onMessageSkill );
 		Network.hookPacket( PACKET.ZC.MONSTER_INFO,           onSense );
+		Network.hookPacket( PACKET.ZC.DEVOTIONLIST,           onDevotionList );
 	};
 });

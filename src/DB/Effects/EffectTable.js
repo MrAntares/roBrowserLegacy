@@ -4024,7 +4024,29 @@ define(function( require )
 		//229: [{}],	//EF_CLOUD	   (Nothing)
 		//230: [{}],	//EF_CLOUD2	   (Nothing)
 		//231: [{}],	//EF_MAPPILLAR	   Map Light Pillar Animation 1
-		//232: [{}],	//EF_LINELINK	   Sacrifice (Visual Effect)
+		
+		232: [{	//EF_LINELINK	   Sacrifice (Visual Effect)
+			type: '3D',
+			alphaMax: 0.5,
+			angle: 180,
+			attachedEntity: true,
+			blendMode: 2,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.9,
+			duration: 100,
+			fadeIn: true,
+			fadeOut: true,
+			file: 'effect/alpha_center.tga',
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			sizeX: 5,
+			sizeY: 50,
+			zOffset: 1,
+			zIndex: 1
+		}],
+		
 		//233: [{}],	//EF_CLOUD3	   Fog
 
 		234: [{	//EF_SPELLBREAKER	Spell Breaker
