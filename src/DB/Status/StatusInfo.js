@@ -2553,6 +2553,17 @@ define(['./StatusConst'], function( SC )
 		]
 	};
 
+	StatusInfo[SC.DEVOTION] = {
+		icon: "\xc7\xe5\xbd\xc5.tga",
+		haveTimeLimit: 1,
+		posTimeLimitStr: 2,
+		descript: [
+			["Devotion", COLOR_TITLE_BUFF],
+			["%s", COLOR_TIME],
+			["A Crusader is taking damage for you"]
+		]
+	};
+
 	StatusInfo[SC.RIDING] = {
 		icon: "\xb6\xf3\xc0\xcc\xb5\xf9.tga",
 		descript: [
