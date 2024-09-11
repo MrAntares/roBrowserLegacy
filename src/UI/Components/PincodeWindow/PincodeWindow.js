@@ -401,14 +401,12 @@ define(function(require)
         if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) {
             if (intCode >= 0 && intCode < 1000000 && pincode.length >= 4 && pincode.length <= 6) {
                 // Get intCode into a parseable string.
-                if (intCode === 0) {
-                    // Special case, an all zero pincode will cause toString() to only return one digit.
-                    for (i = 0; i < pincode.length; i++) {
-                        strCode += '0';
+                for (var i = pincode.length - 1; i > 0; i--) {
+                    if (intCode < Math.pow(10, i)) {
+                        strCode += "0";
                     }
-                } else {
-                    strCode = intCode.toString();
                 }
+                strCode += intCode.toString();
 
                 // Encrypt raw digits with pad.
                 for (i = 0; i < strCode.length; i++) {
