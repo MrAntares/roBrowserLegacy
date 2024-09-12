@@ -320,7 +320,9 @@ function initialize() {
           }],
 
       // OTHER CONFIG - These can be part of the server config as well, thus making them adjustable per server
-          development:     false,  // When false needs a compiled Online.js in the root (faster load). When true, the client will directly use the javascript files from src/ (slower load, for debugging/development only)
+          development:     false,  // When false needs a compiled Online.js in the root (faster load). When true, the client will directly use the javascript files from src/ (slower load, for debugging/development only). Additionally, the console output is enabled when set to true to help debugging.
+          enableConsole:   false,  // Enables the console output in a non-development environment (development: false)
+          disableConsole:  false,  // Force disables console output in any environment (regardless or the development config option) 
           packetDump:      false,  // Dump packet as hex to the console?
           skipServerList:  false,  // Skip server selection?
           skipIntro:       false,  // Skip intro page?
