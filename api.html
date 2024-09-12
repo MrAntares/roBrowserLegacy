@@ -50,6 +50,8 @@
 					ROConfig.application   		= event.data.application   		|| 1;
 					ROConfig.enableCheckAttendance = event.data.enableCheckAttendance   || false;
 					ROConfig.forceUseAddress    = event.data.forceUseAddress   	|| false;
+					ROConfig.enableConsole      = event.data.enableConsole      || false;
+					ROConfig.disableConsole     = event.data.disableConsole     || false;
 
 					if (ROConfig.development) {
 						var script  = document.createElement('script');

@@ -294,6 +294,16 @@
 	ROBrowser.prototype.forceUseAddress = false;
 
 	/**
+	 * @var {boolean} Enable console in non-development environment
+	*/
+	ROBrowser.prototype.enableConsole = false;
+
+	/**
+	 * @var {boolean} Force disable console in any environment
+	*/
+	ROBrowser.prototype.disableConsole = false;
+
+	/**
 	 * @var {Array} list of extensions you want to use for your BGMs.
 	 * It will test each extensions until there is one it can read.
 	 *

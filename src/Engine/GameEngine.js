@@ -34,6 +34,7 @@ define(function( require )
 	var Background  = require('UI/Background');
 	var Intro       = require('UI/Components/Intro/Intro');
 	var WinList     = require('UI/Components/WinList/WinList');
+	var ConsoleManager = require ('Utils/ConsoleManager');
 
 
 	/**
@@ -130,6 +131,11 @@ define(function( require )
 	 */
 	function init()
 	{
+		
+		// Enable/Disable console based on settings
+		ConsoleManager.init();
+		ConsoleManager.toggle();
+		
 		var q = new Queue();
 
 		// Waiting for the Thread to be ready
