@@ -836,16 +836,14 @@ define(function(require)
 
 
 			// If there is too many line, remove the older one
-
-			var list = this.ui.find('.content');
-
-			if (list.length > MAX_MSG) {
+			if (content[0].childElementCount > MAX_MSG) {
 				var element, matches;
 				var i, count;
 
 				//Check if theres any blob url object to be released from buffer (Check Controls/ScreenShot.js)
-				element = list.eq(0);
-				matches = element.html().match(/(blob:[^"]+)/g);
+				element = content[0].firstElementChild;
+
+				matches = element.innerHTML.match(/(blob:[^"]+)/g);
 
 				if (matches) {
 					for (i = 0, count = matches.length; i < count; ++i) {
