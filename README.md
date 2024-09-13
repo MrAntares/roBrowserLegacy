@@ -7,6 +7,10 @@ For info on how to setup the client read the contents of our [Getting Started do
 
 All credits to the original owners/creators and the new ones.
 
+## DEMO
+
+[PLAY!](https://mrantares.github.io/roBrowserLegacy/)
+
 ## Guide
 Checkout the [getting started guide](doc/README.md)
 
