@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>roBrowserLegacy Demo</title>
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="theme-color" content="#ff8cb5">
+		<meta charset="UTF-8">
+
+		<script type="text/javascript" src="../api.js"></script>
+		<script type="text/javascript">
+		
+			function initialize() {
+				var ROConfig = {
+					target:         document.getElementById("robrowser"),
+					type:           ROBrowser.TYPE.FRAME,
+					application:    ROBrowser.APP.ONLINE,
+					remoteClient:   'https://grf.robrowser.com/', //For main menu data
+          
+					//enableConsole:		true,
+					//disableConsole:		true,
+					
+					packetDump:			false,
+					servers:			[
+  					{
+      					display:	'roBrowser Demo Server',
+  							desc:			'roBrowser\'s demo server',
+  							//address:		'connect.robrowser.com',
+  							address:		'127.0.0.1',
+  							port:			  6900,
+  							version:		25,
+  							langtype:		12,
+  							packetver:	20130618,
+  							renewal:		false,
+  							worldMapSettings: { episode: 12 },
+  							packetKeys:		false,
+  							socketProxy:	'wss://connect.robrowser.com',
+  							remoteClient:	'https://grf.robrowser.com/',
+  							adminList:		[2000000]
+  					},
+            {
+  							display:		'Ragna.ro',
+  							desc:			  'Ragna.ro [1/1/1] Renewal II',
+  							address:		'ragna.ro',
+  							port:			  6900,
+  							version:		30,
+  							langtype:		240,
+  							packetver:	20120410,
+  							renewal:		true,
+  							worldMapSettings: { episode: 14 },
+  							packetKeys:		false,
+  							socketProxy:	'wss://ragna.ro:5999',
+  							remoteClient:	'https://client.ragna.ro/',
+  							adminList:		[2000000, 2000001]
+  					},
+					],
+					
+					development: true,
+					plugins: { 
+							KeyToMove: 'KeyToMove/KeyToMove'
+					},
+          ThirdPersonCamera:	true,
+					FirstPersonCamera:	true,
+					CameraMaxZoomOut:	50
+				};
+				var RO = new ROBrowser(ROConfig);
+				RO.start();
+			}
+
+			window.addEventListener("load", function(){ 
+					initialize();
+			}, false);
+		</script>
+		
+	</head>
+	<body>
+		<div id="robrowser">Initializing roBrowser...</div>
+	</body>
+</html>
