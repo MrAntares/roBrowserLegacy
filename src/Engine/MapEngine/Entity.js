@@ -2016,19 +2016,6 @@ define(function( require )
 			// Cast a skill, TODO: add progressbar in shortcut
 			case StatusConst.GROUNDMAGIC:
 			case StatusConst.POSTDELAY:
-				entity.setAction({
-					action: entity.ACTION.SKILL,
-					frame:  0,
-					repeat: false,
-					play:   true,
-					next: {
-						action: entity.ACTION.READYFIGHT,
-						frame:  0,
-						repeat: true,
-						play:   true,
-						next:   false
-					}
-				});
 				if(pkt.RemainMS && entity == Session.Entity){
 					ShortCut.setGlobalSkillDelay(pkt.RemainMS);
 				}
