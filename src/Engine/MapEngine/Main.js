@@ -684,17 +684,6 @@ define(function( require )
 				ChatBox.addText( DB.getMessage(245), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM );
 				break;
 		}
-
-		if(srcEntity){
-			var action = {
-				action: srcEntity.ACTION.READYFIGHT,
-				frame:  0,
-				repeat: true,
-				play:   true,
-				next:   false
-			}
-			srcEntity.setAction(action);
-		}
 	}
 
 
