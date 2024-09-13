@@ -1113,8 +1113,10 @@ define(function( require )
 	 */
 	function onUseItem( index )
 	{
-		// Items are not usable when Laphine Synthesis, Upgrade, ItemReform UI is open
-		if (LaphineSys.ui.is(':visible') || LaphineUpg.ui.is(':visible') || ItemReform.ui.is(':visible')) {
+		// Items are not usable when Laphine Synthesis, Upgrade, ItemReform UI is open (if they are available at all)
+		if ((LaphineSys.__loaded && LaphineSys.__active && LaphineSys.ui.is(':visible')) || 
+			(LaphineUpg.__loaded && LaphineUpg.__active && LaphineUpg.ui.is(':visible')) || 
+			(ItemReform.__loaded && ItemReform.__active && ItemReform.ui.is(':visible'))) {
 			return false;
 		}
 
