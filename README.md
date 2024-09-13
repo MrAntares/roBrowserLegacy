@@ -11,6 +11,8 @@ All credits to the original owners/creators and the new ones.
 
 [PLAY!](https://mrantares.github.io/roBrowserLegacy/)
 
+_Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen._
+
 ## Guide
 Checkout the [getting started guide](doc/README.md)
 
