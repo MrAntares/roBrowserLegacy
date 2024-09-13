@@ -21,6 +21,9 @@
 		<script type="text/javascript">
 		
 			function initialize() {
+
+				var gitHash = 'NO_INFO';
+				
 				var ROConfig = {
 					target:         document.getElementById("robrowser"),
 					type:           ROBrowser.TYPE.FRAME,
@@ -60,8 +63,37 @@
 				RO.start();
 			}
 
+			var getJSON = function(url, callback) {
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', url, true);
+				xhr.responseType = 'json';
+				xhr.onload = function() {
+				  var status = xhr.status;
+				  if (status === 200) {
+					callback(null, xhr.response);
+				  } else {
+					callback(status, xhr.response);
+				  }
+				};
+				xhr.send();
+			};
+
 			window.addEventListener("load", function(){ 
-					initialize();
+				//Get latest GIT hash first then initialize
+				getJSON('https://api.github.com/repos/MrAntares/roBrowserLegacy/commits/master',
+					function(err, data) {
+						if (err !== null) {
+							console.warn("Error reading latest GIT hash.");
+						} else {
+							if(data && data.sha){
+								gitHash = data.sha;
+								console.log("Latest GIT hash: "+gitHash);
+							} else {
+								console.warn('No hash found in response');
+							}
+						}
+						initialize();
+				});
 			}, false);
 		</script>
 		
