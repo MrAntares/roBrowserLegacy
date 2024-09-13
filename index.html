@@ -20,9 +20,7 @@
 		<script type="text/javascript" src="api.js"></script>
 		<script type="text/javascript">
 		
-			function initialize() {
-
-				var gitHash = 'NO_INFO';
+			function initialize(gitHash) {
 				
 				var ROConfig = {
 					target:         document.getElementById("robrowser"),
@@ -84,6 +82,7 @@
 				//Get latest GIT hash first then initialize
 				getJSON('https://api.github.com/repos/MrAntares/roBrowserLegacy/commits/master',
 					function(err, data) {
+						var gitHash = 'NO_INFO';
 						if (err !== null) {
 							console.warn("Error reading latest GIT hash.");
 						} else {
@@ -94,7 +93,7 @@
 								console.warn('No hash found in response');
 							}
 						}
-						initialize();
+						initialize(gitHash);
 				});
 			}, false);
 		</script>
