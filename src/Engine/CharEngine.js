@@ -193,14 +193,14 @@ define(function( require )
 		  * Later PACKETVERs have the char server handle this on initial connection,
 		  * so the button was removed, and we don't have to do anything here.
 		  */
-		if (PACKETVER.value < 20180124 && PACKETVER.value >= 20110309) {
-			sendPincodeRequest();
+		//if (PACKETVER.value < 20180124 && PACKETVER.value >= 20110309) {
+			//sendPincodeRequest(); // This causes duplicate packets, please fix
 
 			/**
 			 * TODO: rAthena says this button was removed with PACKETVER >= 20180124. See also: rathena/src/char/char.hpp
 			 * Need to find out where this button is supposed to be and place it on the correct screen.
 			 */
-		}
+		//}
 	}
 
 
