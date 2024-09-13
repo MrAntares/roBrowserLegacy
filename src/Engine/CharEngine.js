@@ -584,11 +584,17 @@ define(function( require )
 	}
 
 	function onPincodeCheckSuccess(pkt) {
+		if(!PincodeWindow.__active && pkt.State == 0){
+			console.log("Pincode is disabled.");
+			return;
+		}
+		
 		PincodeWindow.remove();
+		
 		if (PACKETVER.value < 20110309) {
 			console.log("Pincode packet sent from server, but PACKETVER is too old. Ignoring.");
 			return;
-                }
+        }
 		PincodeWindow.onPincodeCheckRequest = onPincodeCheckRequest;
 		PincodeWindow.onUserPincodeResetReq = onUserPincodeResetReq;
 		PincodeWindow.onExitRequest = function(){
@@ -610,7 +616,7 @@ define(function( require )
 		 * S 08ba <AID>.L <new>.4B - set PIN
 		 * R 08b9 <seed>.L <AID>.L <state>.W
 		 *	State:
-		 *	0 = pin is correct
+		 *	0 = pin is correct OR pincode feature is disabled
 		 *	1 = ask for pin - client sends 0x8b8
 		 *	2 = create new pin - client sends 0x8ba
 		 *	3 = pin must be changed - client 0x8be
