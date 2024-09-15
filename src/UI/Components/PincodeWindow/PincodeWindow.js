@@ -67,10 +67,10 @@ define(function(require)
             case 1:
                 PincodeWindow._newpass = '';
                 break;
-            case 2:
+            default:
                 PincodeWindow._pass = '';
                 break;
-            default:
+            case 2:
                 PincodeWindow._checkpass = '';
                 break;
         }
@@ -254,12 +254,12 @@ define(function(require)
                     PincodeWindow.ui.find('.checkpass').css({'background-color': '#D3D3D3'});
                     PincodeWindow.ui.find('.newpass').css({'background-color': '#87CEFA'});
                     break;
-                case 2:
+                default:
                     PincodeWindow.ui.find('.newpass').css({'background-color': '#D3D3D3'});
                     PincodeWindow.ui.find('.checkpass').css({'background-color': '#D3D3D3'});
                     PincodeWindow.ui.find('.pass').css({'background-color': '#87CEFA'});
                     break;
-                default:
+                case 2:
                     PincodeWindow.ui.find('.newpass').css({'background-color': '#D3D3D3'});
                     PincodeWindow.ui.find('.pass').css({'background-color': '#D3D3D3'});
                     PincodeWindow.ui.find('.checkpass').css({'background-color': '#87CEFA'});
@@ -286,15 +286,15 @@ define(function(require)
      */
     PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
         if (PincodeWindow._resetstate === 3 && typeof PincodeWindow.onPincodeReset === 'function' &&
-            PincodeWindow._checkpass != PincodeWindow._pass &&
-            PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7 &&
-            PincodeWindow._pass == PincodeWindow._newpass) {
+            PincodeWindow._pass != PincodeWindow._newpass &&
+            PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 &&
+            PincodeWindow._newpass == PincodeWindow._checkpass) {
             success();
         } else {
             if (PincodeWindow._resetstate === 2 && typeof PincodeWindow.onPincodeReset === 'function' &&
-                PincodeWindow._checkpass != PincodeWindow._pass) {
-                if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
-                    PincodeWindow.selectInput(1);
+                PincodeWindow._pass != PincodeWindow._newpass) {
+                if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7) {
+                    PincodeWindow.selectInput(2);
                     PincodeWindow.clearPin();
                     PincodeWindow._resetstate = 3;
                 } else {
@@ -308,7 +308,7 @@ define(function(require)
                 PincodeWindow.ui.find('.btn2.verify').off('click');
                 PincodeWindow.ui.find('.btn2.verify').click(function(){ PincodeWindow.onParentPincodeResetReq() });
                 PincodeWindow.ui.find('.btn2.verify').show();
-                PincodeWindow.selectInput(2);
+                PincodeWindow.selectInput(0);
                 PincodeWindow.clearPin();
                 PincodeWindow._resetstate = 2;
             }
@@ -324,23 +324,23 @@ define(function(require)
          * the old pin code for verification, before sending the change packet.
          */
          if (PincodeWindow._resetstate === 3 && typeof PincodeWindow.onPincodeReset === 'function' &&
-             PincodeWindow._checkpass.length > 0 && PincodeWindow._checkpass != PincodeWindow._pass &&
-             PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7 &&
-             PincodeWindow._pass == PincodeWindow._newpass) {
+             PincodeWindow._pass.length > 0 && PincodeWindow._pass != PincodeWindow._newpass &&
+             PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 &&
+             PincodeWindow._newpass == PincodeWindow._checkpass) {
              success();
          } else {
              if (PincodeWindow._resetstate === 2 && typeof PincodeWindow.onPincodeReset === 'function' &&
-                 PincodeWindow._checkpass.length > 0 && PincodeWindow._checkpass != PincodeWindow._pass) {
-                 if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
-                     PincodeWindow.selectInput(1);
+                 PincodeWindow._pass.length > 0 && PincodeWindow._pass != PincodeWindow._newpass) {
+                 if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7) {
+                     PincodeWindow.selectInput(2);
                      PincodeWindow._resetstate = 3;
                  } else {
                      UIManager.showMessageBox( DB.getMessage( 1887 ), 'ok' );
                  }
              } else {
                  if (PincodeWindow._resetstate === 1 && typeof PincodeWindow.onPincodeReset === 'function' &&
-                     PincodeWindow._checkpass.length > 0) {
-                     PincodeWindow.selectInput(2);
+                     PincodeWindow._pass.length > 0) {
+                     PincodeWindow.selectInput(1);
                      PincodeWindow._resetstate = 2;
                  } else {
                      // This gets called from the change btn.
@@ -444,15 +444,15 @@ define(function(require)
         PincodeWindow._resetstate = 0;
 
         switch (PincodeWindow.sel_input) {
-            case 1:
+            case 2:
                 PincodeWindow.onPincodeReset(
-                    checkPassEnc,
+                    passEnc,
                     newPassEnc,
                 );
                 break;
             default:
                 PincodeWindow.onPincodeCheckRequest(
-                    checkPassEnc,
+                    passEnc,
                 );
                 break;
         }
@@ -474,10 +474,10 @@ define(function(require)
             case 1:
                 PincodeWindow._newpass += num;
                 break;
-            case 2:
+            default:
                 PincodeWindow._pass += num;
                 break;
-            default:
+            case 2:
                 PincodeWindow._checkpass += num;
                 break;
         }
@@ -497,14 +497,14 @@ define(function(require)
     PincodeWindow.onUserPincodeResetReq = function onUserPincodeResetReq() { console.log("ERROR: PincodeWindow.onUserPincodeResetReq() not defined."); };
 
     function render( tick ) {
-        var num = ((PincodeWindow.sel_input === 1) ? PincodeWindow._newpass : ((PincodeWindow.sel_input === 2) ? PincodeWindow._pass: PincodeWindow._checkpass)).length;
+        var num = ((PincodeWindow.sel_input === 1) ? PincodeWindow._newpass : ((PincodeWindow.sel_input === 2) ? PincodeWindow._checkpass: PincodeWindow._pass)).length;
         var str = "";
 
         for (var x = 0; x < num; x++) {
             str += "*";
         }
 
-        PincodeWindow.ui.find(((PincodeWindow.sel_input === 1) ? '.newpass' : ((PincodeWindow.sel_input === 2) ? '.pass': '.checkpass'))).val(str);
+        PincodeWindow.ui.find(((PincodeWindow.sel_input === 1) ? '.newpass' : ((PincodeWindow.sel_input === 2) ? '.checkpass': '.pass'))).val(str);
     }
 
     /**
