@@ -9,7 +9,7 @@ All credits to the original owners/creators and the new ones.
 
 ## DEMO
 
-[PLAY!](https://mrantares.github.io/roBrowserLegacy/)
+[PLAY!](https://mrantares.github.io/roBrowserLegacy/demo.html)
 
 _Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen._
 
