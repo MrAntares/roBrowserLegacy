@@ -128,7 +128,8 @@ function compile(appName, isMinify) {
                 console.log(appName + ".js - Minifying...");
                 const options = {
                     output: {
-                        ascii_only: true
+                        ascii_only: true,
+                        comments: false
                     }
                 };
                 source = await Terser.minify(source, options);
