@@ -15,7 +15,8 @@
 		"build:threadhandler": "npm run build -- -T",
 		"build:html": "npm run build -- -H",
 		"build:ai": "npm run build -- -A",
-		"build:all": "npm run build -- --all"
+		"build:all": "npm run build -- --all",
+		"build:all:minify": "npm run build -- --all --m"
 	},
 	"author": "Vincent Thibault",
 	"license": "GNU GPL V3",
