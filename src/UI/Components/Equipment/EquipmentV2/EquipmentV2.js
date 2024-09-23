@@ -777,6 +777,13 @@ define(function(require)
 	}
 
 	/**
+	 * EquipmentV3 has the supported function. This is for compatibility with EquipmentV2
+	 */
+	EquipmentV2.isInEquipList = function(data) {
+		return 0;
+	};
+
+	/**
 	 * Method to define
 	 */
 	EquipmentV2.onUnEquip      = function onUnEquip(/* index */){};
