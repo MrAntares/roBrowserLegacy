@@ -115,7 +115,7 @@ define(function( require )
 			var sprNumbers, sprMsg, sprBlue;
 
 			// Load it properly later using webgl
-			MemoryManager.remove(null, 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr');
+			MemoryManager.remove(gl, 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr');
 
 			try {
 				sprNumbers = new Sprite(numbers);
