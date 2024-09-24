@@ -174,19 +174,19 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 				case '.spr':
 					if (file.frames) {
 						for (i = 0, count = file.frames.length; i < count; ++i) {
-							if (file.frames[i].texture && gl.isTexture(file.frames[i].texture)) {
+							if (file.frames[i].texture && gl != null && gl.isTexture(file.frames[i].texture)) {
 								gl.deleteTexture( file.frames[i].texture );
 							}
 						}
 					}
-					if (file.texture && gl.isTexture(file.texture)) {
+					if (file.texture && gl != null && gl.isTexture(file.texture)) {
 						gl.deleteTexture( file.texture );
 					}
 					break;
 
 				// Delete palette
 				case '.pal':
-					if (file.texture && gl.isTexture(file.texture)) {
+					if (file.texture && gl != null && gl.isTexture(file.texture)) {
 						gl.deleteTexture( file.texture );
 					}
 					break;
