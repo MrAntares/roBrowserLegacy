@@ -25,6 +25,7 @@ define(function( require )
 	var Cursor        = require('UI/CursorManager');
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Camera        = require('Renderer/Camera');
+	var Session       = require('Engine/SessionStorage');
 	var mat4          = glMatrix.mat4;
 	var getModule     = require;
 
@@ -266,6 +267,9 @@ define(function( require )
 
 			this.updateId = _requestAnimationFrame( this._render.bind(this), this.canvas );
 		}
+		
+		// Increment serverTick with delta
+		Session.serverTick += (newTick - this.tick);
 
 		// TODO: clamp this so we don't accumulate a huge delta if we're set inactive for a while
 		this.tick = newTick;
