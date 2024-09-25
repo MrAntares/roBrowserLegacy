@@ -58,6 +58,15 @@ define(function()
 		
 		autoFollow:       false,
 		autoFollowTarget: null,
+		
+		ping: {
+			pingTime: 0,
+			pongTime: 0,
+			returned: false,
+			value: 0,
+		},
+		
+		serverTick: 0,
 
 		mapState:  {
 			property        : 0,

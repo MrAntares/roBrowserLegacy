@@ -172,7 +172,9 @@ define(function( require )
 			var is_sec_hbt = Configs.get('sec_HBT', null);
 
 			// Ping
-			var ping;
+			var ping, SP;
+			SP = Session.ping;
+
 			if(PACKETVER.value >= 20180307) {
 				ping = new PACKET.CZ.REQUEST_TIME2();
 			} else {
@@ -180,8 +182,14 @@ define(function( require )
 			}
 			var startTick = Date.now();
 			Network.setPing(function(){
-			if(is_sec_hbt)Network.sendPacket(hbt);
+				if(is_sec_hbt) { Network.sendPacket(hbt); }
+
 				ping.clientTime = Date.now() - startTick;
+				
+				if(!SP.returned && SP.pingTime)	{ console.warn('[Network] The server did not answer the previous PING!'); }
+				SP.pingTime = ping.clientTime;
+				SP.returned = false;
+
 				Network.sendPacket(ping);
 			});
 
@@ -365,7 +373,13 @@ define(function( require )
 	 */
 	function onPong( pkt )
 	{
-		//pkt.time
+		var SP = Session.ping;
+		
+		SP.returned = true;
+		SP.pongTime = 0;
+		SP.value = SP.pongTime - SP.pingTime;
+		
+		Session.serverTick = pkt.time + (SP.value/2); // Adjust with half ping
 	}
 
 
