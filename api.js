@@ -282,6 +282,11 @@
 	 * cached one.
 	 */
 	ROBrowser.prototype.version = '';
+
+	/**
+	 * @var {URL} URL to the server's registration site
+	 */
+	ROBrowser.prototype.registrationweb = '';
 	
 	/**
 	 * @var {Object} Dettings for World Map
@@ -473,6 +478,7 @@
 			enableDmgSuffix:  this.enableDmgSuffix,
 			enableCheckAttendance: this.enableCheckAttendance,
 			version:          this.version,
+			registrationweb:   this.registrationweb,
 			worldMapSettings:  this.worldMapSettings,
 			clientHash:       this.clientHash,
 			calculateHash:    this.calculateHash,

@@ -321,6 +321,7 @@ define(function( require )
 					version:    connection.find('version:first').text(),
 					langtype:   connection.find('langtype:first').text(),
 					packetver:  connection.find('packetver:first').text(),
+					registrationweb: connection.find('registrationweb:first').text(),
 					renewal:    ['true', '1', 1, true].includes(connection.find('renewal:first').text().toLowerCase()),
 					adminList:  (function(){
 						var list   = [];

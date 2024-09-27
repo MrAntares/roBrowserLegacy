@@ -17,6 +17,7 @@ define(function(require)
 	 */
 	var DB          = require('DB/DBManager');
 	var Client      = require('Core/Client');
+	var Configs     = require('Core/Configs');
 	var Preferences = require('Core/Preferences');
 	var KEYS        = require('Controls/KeyEventHandler');
 	var UIManager   = require('UI/UIManager');
@@ -79,6 +80,7 @@ define(function(require)
 
 		// Connect / Exit
 
+		WinLoginV2.ui.find('.signup').click(signup);
 		WinLoginV2.ui.find('.connect').click(connect);
 		WinLoginV2.ui.find('.exit').click(exit);	
 	};
@@ -194,6 +196,23 @@ define(function(require)
 		// Connect
 		WinLoginV2.onConnectionRequest( user, pass );
 		return false;
+	}
+	
+	/**
+	 * Signup button func that takes the player to the <registrationweb>
+	 */
+	function signup(){
+		var url = Configs.get('registrationweb');
+		
+		if(url){
+			UIManager.showPromptBox( DB.getMessage(662), 'ok', 'cancel', function(){
+				window.open(url);
+			}, null);
+
+		} else {
+			UIManager.showPromptBox( "No registration URL was provided.\nIf this server uses simplified registration, then input your new:\n - Username followed by _M for Male and _F for Female account (Eg: MyUser_M)\n - Password.", 'ok', 'cancel', null, null);
+		}
+		
 	}
 
 

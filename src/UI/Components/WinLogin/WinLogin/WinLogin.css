@@ -5,4 +5,5 @@
 #WinLogin .save { position:absolute; top:32px; right:10px; display:block; width:38px; height:10px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #WinLogin .btn { position:absolute; border:0; width:42px; height:20px; bottom:4px; background-color:transparent; }
 #WinLogin .btn.connect { right:50px; }
+#WinLogin .btn.signup { left:5px; }
 #WinLogin .btn.exit { right:5px; }
