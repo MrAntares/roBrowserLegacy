@@ -21,8 +21,7 @@ const platform = "Web";
         'S': { path: '/StrViewer.js', action: () => compile("StrViewer", args['m']) },
         'E': { path: '/EffectViewer.js', action: () => compile("EffectViewer", args['m']) },
         'T': { path: '/ThreadEventHandler.js', action: () => compile("ThreadEventHandler", args['m']) },
-        'H': { path: '/index.html', action: createHTML },
-        'A': { path: '/AI', action: () => copyFolder('./AI', `${basePath}/AI`) }
+        'H': { path: '/index.html', action: createHTML }
     };
 
     // Ensure base directories exist
