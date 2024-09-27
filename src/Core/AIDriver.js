@@ -4,29 +4,36 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     var Session = require('Engine/SessionStorage');
     var Network = require('Network/NetworkManager');
     var PACKET = require('Network/PacketStructure');
-	var Configs = require('Core/Configs');
+    var Configs = require('Core/Configs');
 
     function AIDriver() {
     }
 
     AIDriver.init = function init() {
-		var clientPath = Configs.get('remoteClient');
-		
-		var code = `
-			package.path = '${clientPath}?.lua'
-		`;
-		
-		if(Session.homCustomAI){
-			code += `
-				require "AI/USER_AI/AI"
-			`;
-		} else {
-			code += `
-				require "AI/AI"
-			`;
-		}
-		
-		code +=`
+        var clientPath = Configs.get('remoteClient');console.warn("ASDASDAASDASD");
+        var ai_path = Session.homCustomAI ? "AI/USER_AI/AI" : "AI/AI";
+        
+        var code = `
+            package.path = '${clientPath}?.lua'
+            
+            local ai_main, ai_error = loadfile("${clientPath}${ai_path}.lua")
+			
+			
+			-- Dummy AI if there is no AI file
+			function AI()
+				return false
+			end
+            
+			-- Init main AI if exists
+            if (ai_main) then
+                ai_main()
+                js.global.console:log("%c[AI] %cAI initialized.", "color:#DD0078", "color:inherit")
+            else
+                js.global.console:warn("%c[AI] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
+            end
+            
+            
+            -----------------------------------------
             function TraceAI (string)
                 return js.global:TraceAI(string)
             end
@@ -84,7 +91,6 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return js.global:IsMonster(id)
             end
             
-            
             -----------------------------------------
             function Split(s, delimiter)
                 result = {};
@@ -94,7 +100,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return result;
             end
         `;
-		AIDriver.exec(code);
+        AIDriver.exec(code);
 
     }
 
@@ -213,8 +219,8 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
             case 4: // V_ATTACKRANGE ok
                 // Returns the attack range (Not implemented yet; temporarily set as 1 cell)
                 if(entity){
-					return entity.attack_range || 1;
-				}
+                    return entity.attack_range || 1;
+                }
                 return 1;
 
             case 5: // V_TARGET ok
@@ -226,8 +232,8 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
             case 6: // V_SKILLATTACKRANGE
                 // Returns the skill attack range (Not implemented yet)
                 if(entity){
-					return entity.attack_range || 1;
-				}
+                    return entity.attack_range || 1;
+                }
                 return 1;
 
             case 7: // V_HOMUNTYPE ok
@@ -260,18 +266,15 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
     AIDriver.exec = function exec(code) {
         try {
-			fengari.load(code)();
+            fengari.load(code)();
         } catch (e) {
-            console.error('AI_error: ', e);
+            console.error('%c[AI] %cAI Error: ', "color:#DD0078", "color:inherit", e);
         }
     }
-	
-	AIDriver.reset = function reset(){
-		
-		this.init();
-	}
-
-    AIDriver.init();
+    
+    AIDriver.reset = function reset(){
+        this.init();
+    }
 
     return AIDriver;
 });
