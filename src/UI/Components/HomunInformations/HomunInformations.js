@@ -105,6 +105,7 @@ define(function (require) {
         _preferences.y = parseInt(this.ui.css('top'), 10);
         _preferences.x = parseInt(this.ui.css('left'), 10);
         _preferences.save();
+        this.stopAI();
     };
 
 
