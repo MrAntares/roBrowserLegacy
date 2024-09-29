@@ -935,7 +935,7 @@ define(function(require)
 		}
 
 		let quantity = ' ea';
-		if (item.Options && item.Opt(item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
+		if (item.Options && (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
 			item.Options.filter(Option => Option.index !== 0).length > 0)
 		{
 			quantity = ' Quantity';
