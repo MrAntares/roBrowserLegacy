@@ -67,6 +67,7 @@ define(function( require )
 	return function PrivateMessageEngine()
 	{
 		Network.hookPacket( PACKET.ZC.WHISPER,      onPrivateMessage );
+		Network.hookPacket( PACKET.ZC.WHISPER2,     onPrivateMessage );
 		Network.hookPacket( PACKET.ZC.ACK_WHISPER,  onPrivateMessageSent );
 		Network.hookPacket( PACKET.ZC.ACK_WHISPER2, onPrivateMessageSent );
 	};

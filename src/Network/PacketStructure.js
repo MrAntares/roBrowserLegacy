@@ -5116,6 +5116,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.msg = fp.readString(end - fp.tell());
 	};
 	PACKET.ZC.WHISPER.size = -1;
+	
+	// 0x9de
+	PACKET.ZC.WHISPER2 = function PACKET_ZC_WHISPER2(fp, end) {
+		this.senderGID = fp.readULong();
+		this.sender = fp.readString(NAME_LENGTH);
+		this.isAdmin = fp.readUByte();
+		this.msg = fp.readString(end - fp.tell());
+	};
+	PACKET.ZC.WHISPER2.size = -1;
 
 
 	// 0x98
