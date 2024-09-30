@@ -37,17 +37,13 @@ define(function( require )
 	var Mouse            = require('Controls/MouseEventHandler');
 	var KEYS             = require('Controls/KeyEventHandler');
 	var UIManager        = require('UI/UIManager');
-	var EffectManager     = require('Renderer/EffectManager');
+	var EffectManager    = require('Renderer/EffectManager');
 	var Background       = require('UI/Background');
 	var Escape           = require('UI/Components/Escape/Escape');
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
-	var StatusConst        = require('DB/Status/StatusState');
-
-	if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
-		var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
-	}
-
+	var StatusConst      = require('DB/Status/StatusState');
+    var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
 	var WinStats         = require('UI/Components/WinStats/WinStats');
 	var Inventory        = require('UI/Components/Inventory/Inventory');
 	var CartItems        = require('UI/Components/CartItems/CartItems');
@@ -55,9 +51,7 @@ define(function( require )
 	var ChangeCart       = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
-	if (PACKETVER.value >= 20170208) {
-		var SwitchEquip  = require('UI/Components/SwitchEquip/SwitchEquip');
-	}
+	var SwitchEquip      = require('UI/Components/SwitchEquip/SwitchEquip');
 	var ShortCuts        = require('UI/Components/ShortCuts/ShortCuts');
 	var StatusIcons      = require('UI/Components/StatusIcons/StatusIcons');
 	var ChatRoomCreate   = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
@@ -75,14 +69,10 @@ define(function( require )
 	var LaphineUpg		 = require('UI/Components/LaphineUpg/LaphineUpg');
 	var Rodex            = require('UI/Components/Rodex/Rodex');
 	var RodexIcon        = require('UI/Components/Rodex/RodexIcon');	
-	if(Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
-		var Refine = require('UI/Components/Refine/Refine');
-	}
+	var Refine           = require('UI/Components/Refine/Refine');
 	var PetInformations  = require('UI/Components/PetInformations/PetInformations');
-	var HomunInformations= require('UI/Components/HomunInformations/HomunInformations');
-	if(Configs.get('enableMapName')){
-		var MapName          = require('UI/Components/MapName/MapName');
-	}
+	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
+	var MapName          = require('UI/Components/MapName/MapName');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	var UIVersionManager      = require('UI/UIVersionManager');
