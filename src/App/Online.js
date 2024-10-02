@@ -48,12 +48,17 @@ window.roInitSpinner = {
 			}
 		`;
 		
-		document.head.appendChild(loadingStyle);
-		document.body.appendChild(loading);
+		// roBrowser will append all the css in the first style tag in the DOM, 
+		// so we add a style tag before our own to avoid removing every style altogether,
+		// when we remove the spinner later.
+		document.head.appendChild(document.createElement('style'));
+		// We also need to store a direct reference, because iframe messes with document
+		window.roInitSpinner.styleElem = document.head.appendChild(loadingStyle);
+		window.roInitSpinner.divElem = document.body.appendChild(loading);
 	},
 	remove: function(){
-		document.getElementById('loading-element').remove();
-		document.getElementById('loading-style').remove();
+		window.roInitSpinner.styleElem?.remove();
+		window.roInitSpinner.divElem?.remove();
 	}
 };
 
