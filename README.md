@@ -37,10 +37,4 @@ roBrowser was started by this [awesome team](https://github.com/vthibault/roBrow
 
 ## Contact
 
-* [Discord](https://discord.gg/8JdHwM4Kqm)
-
-Original branch:
-* [Demo](http://demo.robrowser.com/)
-* [roBrowser website](http://www.robrowser.com/)
-* [roBrowser forum](http://forum.robrowser.com/)
-* IRC Channel: *irc.rizon.net* / Channel: *#roBrowser*
+* Join us on [Discord](https://discord.gg/8JdHwM4Kqm)!
