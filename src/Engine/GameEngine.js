@@ -172,6 +172,9 @@ define(function( require )
 
 		// Execute
 		q.run();
+
+		// Remove init spinner
+		window.roInitSpinner.remove();
 	}
 
 
