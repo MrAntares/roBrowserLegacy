@@ -319,15 +319,8 @@ define(function( require )
 			}
 
 			// Bind UI
-			WinStats.getUI().onRequestUpdate        = onRequestStatUpdate;
-			Equipment.getUI().onUnEquip             = onUnEquip;
-			Equipment.getUI().onConfigUpdate        = onConfigUpdate;
-			Equipment.getUI().onEquipItem           = onEquipItem;
-			Equipment.getUI().onRemoveOption        = onRemoveOption;
 			PetInformations.onConfigUpdate          = onConfigUpdate;
 			HomunInformations.onConfigUpdate        = onConfigUpdate;
-			Inventory.getUI().onUseItem             = onUseItem;
-			Inventory.getUI().onEquipItem           = onEquipItem;
 			Escape.onExitRequest            = onExitRequest;
 			Escape.onCharSelectionRequest   = onRestartRequest;
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
@@ -349,7 +342,13 @@ define(function( require )
 			WinStats.getUI().prepare();
 
 			// Bind UIs
-			// nothing yet
+			WinStats.getUI().onRequestUpdate        = onRequestStatUpdate;
+			Equipment.getUI().onUnEquip             = onUnEquip;
+			Equipment.getUI().onConfigUpdate        = onConfigUpdate;
+			Equipment.getUI().onEquipItem           = onEquipItem;
+			Equipment.getUI().onRemoveOption        = onRemoveOption;
+			Inventory.getUI().onUseItem             = onUseItem;
+			Inventory.getUI().onEquipItem           = onEquipItem;
 
 			// Avoid zone server change init
 			MapEngine.needsUIVerUpdate = false;
