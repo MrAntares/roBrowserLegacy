@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(["Core/Preferences",	"Controls/KeyEventHandler", "Network/PacketVerManager"],	function (Preferences,	KEYS, PACKETVER) {
+define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	KEYS) {
 
 	var ShortCuts = {};
 	ShortCuts.F1_1 =			{	init:{key: KEYS.F1,		alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXECUTE0'				};
@@ -54,9 +54,7 @@ define(["Core/Preferences",	"Controls/KeyEventHandler", "Network/PacketVerManage
 	ShortCuts.Emotions =		{	init:{key: KEYS.L,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Emoticons',			cmd:'TOGGLE'				};
 	ShortCuts.WorldMap =		{	init:{key: KEYS[0],		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'WorldMap',			cmd:'TOGGLE'				};
 	ShortCuts.Equipment =		{	init:{key: KEYS.Q,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Equipment',			cmd:'TOGGLE'				};
-	if ( PACKETVER.value < 20090617 || PACKETVER.value  >= 20140521 ) {
-		ShortCuts.WinStats =	{	init:{key: KEYS.A,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'WinStats',		cmd:'TOGGLE'				};
-	}
+	ShortCuts.WinStats =		{	init:{key: KEYS.A,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'WinStats',			cmd:'TOGGLE'				};//FIX ME: Need to implement conditional shortcuts based on version and dynamic settings window. For now let the status window deal with this.
 	ShortCuts.ShortCuts =		{	init:{key: KEYS.M,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'ShortCuts',			cmd:'TOGGLE'				};
 	ShortCuts.SkillList =		{	init:{key: KEYS.S,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'SkillList',			cmd:'TOGGLE'				};
 	ShortCuts.BasicInfo =		{	init:{key: KEYS.V,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'BasicInfo',			cmd:'EXTEND'				};
