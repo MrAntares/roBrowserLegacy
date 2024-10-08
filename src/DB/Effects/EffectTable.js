@@ -1,5 +1,5 @@
 /**
- * DB/Effects/EffectTable.js
+ * @module DB/Effects/EffectTable
  *
  * List effects
  * TODO: complete the list, add informations about sound.
@@ -4024,7 +4024,7 @@ define(function( require )
 		//229: [{}],	//EF_CLOUD	   (Nothing)
 		//230: [{}],	//EF_CLOUD2	   (Nothing)
 		//231: [{}],	//EF_MAPPILLAR	   Map Light Pillar Animation 1
-		
+
 		232: [{	//EF_LINELINK	   Sacrifice (Visual Effect)
 			type: '3D',
 			alphaMax: 0.5,
@@ -4046,7 +4046,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		//233: [{}],	//EF_CLOUD3	   Fog
 
 		234: [{	//EF_SPELLBREAKER	Spell Breaker
@@ -4781,7 +4781,7 @@ define(function( require )
 				}
 			}
 		}],
-		
+
 		296: [{	//EF_TALK_SCREAM	   Scream
 			type: 'FUNC',
 			attachedEntity: true,
@@ -4798,7 +4798,7 @@ define(function( require )
 				}
 			}
 		}],
-		
+
 		//297: [{}],	//EF_POKJUK	   Fire Works (Visual Effect)
 
 		298: [{	//EF_THROWITEM	   Acid Terror Animnation
@@ -11529,8 +11529,8 @@ define(function( require )
 		}],
 
 		'ef_oldtrap_default': [{
-			type: 'SPR',
-			file: '\xb1\xe2\xba\xbb\xc6\xae\xb7\xa6',
+			type: 'RSM',
+			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa6\x30\x31',
 			attachedEntity: true,
 		}],
 

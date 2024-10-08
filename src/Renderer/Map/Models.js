@@ -1,5 +1,5 @@
 /**
- * Renderer/Map/Models.js
+ * @module Renderer/Map/Models
  *
  * Rendering Models
  *
@@ -65,7 +65,7 @@ define( ['Utils/WebGL'], function( WebGL )
 			vLightWeighting  = max( dotProduct, 0.5 );
 		}
 	`;
-		
+
 	/**
 	 * @var {string} fragment shader
 	 */
