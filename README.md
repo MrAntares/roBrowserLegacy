@@ -1,7 +1,7 @@
 ## ROBrowser Legacy
 This is a continuation of [roBrowser](https://www.robrowser.com/) expanded with some features. This repo is not directly forked from the original repository due to safety concerns, but it is roBrowser.
 
-If you wish to discuss anything related to this project, or you want to join, contact us on Discord: https://discord.gg/8JdHwM4Kqm
+If you wish to discuss anything related to this project, or you want to join, contact us on [Discord](https://discord.gg/8JdHwM4Kqm) or in the [GIT Discussions](https://github.com/MrAntares/roBrowserLegacy/discussions)
 
 For info on how to setup the client read the contents of our [Getting Started doc](https://github.com/MrAntares/roBrowserLegacy/blob/master/doc/README.md). For the original branche's docs please visit the https://www.robrowser.com/ site.
 
@@ -37,4 +37,5 @@ roBrowser was started by this [awesome team](https://github.com/vthibault/roBrow
 
 ## Contact
 
-* Join us on [Discord](https://discord.gg/8JdHwM4Kqm)!
+* Join us on [Discord](https://discord.gg/8JdHwM4Kqm)
+* Or in the [GIT Discussions](https://github.com/MrAntares/roBrowserLegacy/discussions)
