@@ -13,7 +13,9 @@ All credits to the original owners/creators and the new ones.
 
 _Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen._
 
-Visit [#robrowser-servers](https://discord.gg/MFtJj9n5Hr) for more live examples.
+More live examples:
+* [#robrowser-servers on Discord](https://discord.gg/MFtJj9n5Hr)
+* [roBrowserLegacy Servers on Discussions](https://github.com/MrAntares/roBrowserLegacy/discussions/categories/robrowserlegacy-servers)
 
 ## Guide
 Checkout the [getting started guide](doc/README.md)
