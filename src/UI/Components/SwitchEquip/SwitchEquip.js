@@ -354,7 +354,7 @@ define(function(require)
 			if (data.type === 'item') {
 				item = data.data;
 
-				if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
+				if ((item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) &&
 				    item.IsIdentified && !item.IsDamaged) {
 					selector = getSelectorFromLocation( 'location' in item ? item.location : item.WearLocation);
 					ui       = SwitchEquip.ui.find(selector);
@@ -400,7 +400,7 @@ define(function(require)
 		if (data && data.type === 'item') {
 			item = data.data;
 
-			if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP || item.type === ItemType.AMMO) &&
+			if ((item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.AMMO) &&
 			    item.IsIdentified && !item.IsDamaged) {
 			    SwitchEquip.ui.find('td').css('backgroundImage','none');
 				SwitchEquip.onAddSwitchEquip( item.index, 'location' in item ? item.location : item.WearState );

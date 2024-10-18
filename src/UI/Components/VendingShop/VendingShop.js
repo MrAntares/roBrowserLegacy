@@ -18,7 +18,6 @@ define(function(require)
 	 * Dependencies
 	 */
 	var DB                 = require('DB/DBManager');
-	var ItemType           = require('DB/Items/ItemType');
 	var jQuery             = require('Utils/jquery');
 	var Network          = require('Network/NetworkManager');
 	var PACKET           = require('Network/PacketStructure');

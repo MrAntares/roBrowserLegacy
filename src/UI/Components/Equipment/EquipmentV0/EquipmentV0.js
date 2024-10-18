@@ -511,7 +511,7 @@ define(function(require)
 			if (data.type === 'item') {
 				item = data.data;
 
-				if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
+				if ((item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) &&
 				    item.IsIdentified && !item.IsDamaged) {
 					selector = getSelectorFromLocation( 'location' in item ? item.location : item.WearLocation);
 					ui       = EquipmentV0.ui.find(selector);
@@ -557,7 +557,7 @@ define(function(require)
 		if (data && data.type === 'item') {
 			item = data.data;
 
-			if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP || item.type === ItemType.AMMO) &&
+			if ((item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.AMMO || item.type === ItemType.SHADOWGEAR) &&
 			    item.IsIdentified && !item.IsDamaged) {
 			    EquipmentV0.ui.find('td').css('backgroundImage','none');
 				EquipmentV0.onEquipItem( item.index, 'location' in item ? item.location : item.WearState );

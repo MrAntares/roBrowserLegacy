@@ -623,7 +623,7 @@ define(function(require)
 		}
 
 		let quantity = ' ea';
-		if ((item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) && 
+		if ((item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) && 
 			item.Options.filter(Option => Option.index !== 0).length > 0)
 		{
 			quantity = ' Quantity';

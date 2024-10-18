@@ -260,7 +260,7 @@ define(function(require)
 				let isValid = true;
 
             	// Check refining level for weapons and equipment
-            	if ((inventoryItem.type === ItemType.WEAPON || inventoryItem.type === ItemType.EQUIP) &&
+            	if ((inventoryItem.type === ItemType.WEAPON || inventoryItem.type === ItemType.ARMOR) &&
             	    (inventoryItem.RefiningLevel < LaphineUpgUIState.needRefineMin || 
             	     inventoryItem.RefiningLevel > LaphineUpgUIState.needRefineMax)) {
             	    	isValid = false;

@@ -100,9 +100,10 @@ define(function(require)
 	function isItemStackable(item){
 		if(
 			item.type === ItemType.WEAPON ||
-			item.type === ItemType.EQUIP  ||
+			item.type === ItemType.ARMOR  ||
+			item.type === ItemType.SHADOWGEAR  ||
 			item.type === ItemType.PETEGG ||
-			item.type === ItemType.PETEQUIP
+			item.type === ItemType.PETARMOR
 		){
 			return false;
 		} else {

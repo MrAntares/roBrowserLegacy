@@ -153,7 +153,7 @@ define(function(require)
 		var customname = '';
 		var hideslots = false;
 		
-		if(item.type == ItemType.WEAPON && item.location == 0){ //Pet Egg
+		if(item.type == ItemType.ARMOR && item.location == 0){ //Pet Egg
 			hideslots = true;
 		}
 		
@@ -253,7 +253,8 @@ define(function(require)
 				break;
 
 			case ItemType.WEAPON:
-			case ItemType.EQUIP:
+			case ItemType.ARMOR:
+			case ItemType.SHADOWGEAR:
 				if (hideslots){
 					cardList.parent().hide();
 					break;

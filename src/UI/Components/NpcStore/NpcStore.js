@@ -687,9 +687,10 @@ define(function(require)
 		item        = isAdding ? _input[index] : _output[index];
 		isStackable = (
 			item.type !== ItemType.WEAPON &&
-			item.type !== ItemType.EQUIP  &&
+			item.type !== ItemType.ARMOR  &&
+			item.type !== ItemType.SHADOWGEAR  &&
 			item.type !== ItemType.PETEGG &&
-			item.type !== ItemType.PETEQUIP
+			item.type !== ItemType.PETARMOR
 		);
 
 		if (isAdding) {

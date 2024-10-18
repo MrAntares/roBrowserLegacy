@@ -463,7 +463,7 @@ define(function(require)
 			if (!mat_item) {
 				inventory_mat_count = 0;
 			} else {
-				inventory_mat_count = (mat_item.type === ItemType.WEAPON || mat_item.type === ItemType.EQUIP) ? 1 : mat_item.count;
+				inventory_mat_count = (mat_item.type === ItemType.WEAPON || mat_item.type === ItemType.ARMOR) ? 1 : mat_item.count;
 			}
 
 			if (inventory_mat_count >= material.Amount) {

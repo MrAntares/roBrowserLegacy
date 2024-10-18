@@ -394,15 +394,16 @@ define(function(require)
 			switch (item.type) {
 				case ItemType.HEALING:
 				case ItemType.USABLE:
-				case ItemType.USABLE_SKILL:
-				case ItemType.USABLE_UNK:
+				case ItemType.DELAYCONSUME:
+				case ItemType.CASH:
 					tab = InventoryV0.TAB.USABLE;
 					break;
 
 				case ItemType.WEAPON:
-				case ItemType.EQUIP:
+				case ItemType.ARMOR:
 				case ItemType.PETEGG:
-				case ItemType.PETEQUIP:
+				case ItemType.PETARMOR:
+				case ItemType.SHADOWGEAR:
 					tab = InventoryV0.TAB.EQUIP;
 					break;
 
@@ -445,15 +446,16 @@ define(function(require)
 		switch (item.type) {
 			case ItemType.HEALING:
 			case ItemType.USABLE:
-			case ItemType.USABLE_SKILL:
-			case ItemType.USABLE_UNK:
+			case ItemType.DELAYCONSUME:
+			case ItemType.CASH:
 				tab = InventoryV0.TAB.USABLE;
 				break;
 
 			case ItemType.WEAPON:
-			case ItemType.EQUIP:
+			case ItemType.ARMOR:
 			case ItemType.PETEGG:
-			case ItemType.PETEQUIP:
+			case ItemType.PETARMOR:
+			case ItemType.SHADOWGEAR:
 				tab = InventoryV0.TAB.EQUIP;
 				break;
 
@@ -595,7 +597,7 @@ define(function(require)
 			// Usable item
 			case ItemType.HEALING:
 			case ItemType.USABLE:
-			case ItemType.USABLE_UNK:
+			case ItemType.CASH:
 				InventoryV0.onUseItem( item.index );
 				break;
 
@@ -604,13 +606,14 @@ define(function(require)
 				InventoryV0.onUseCard( item.index );
 				break;
 
-			case ItemType.USABLE_SKILL:
+			case ItemType.DELAYCONSUME:
 				break;
 
 			// Equip item
 			case ItemType.WEAPON:
-			case ItemType.EQUIP:
-			case ItemType.PETEQUIP:
+			case ItemType.ARMOR:
+			case ItemType.SHADOWGEAR:
+			case ItemType.PETARMOR:
 			case ItemType.AMMO:
 				if (item.IsIdentified && !item.IsDamaged) {
 					InventoryV0.onEquipItem( item.index, item.location );
@@ -866,7 +869,7 @@ define(function(require)
 		}
 
 		let quantity = ' ea';
-		if (item.Options && (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) &&
+		if (item.Options && (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) &&
 			item.Options.filter(Option => Option.index !== 0).length > 0)
 		{
 			quantity = ' Quantity';

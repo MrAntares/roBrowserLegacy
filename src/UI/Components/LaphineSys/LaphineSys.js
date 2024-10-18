@@ -238,7 +238,7 @@ define(function(require)
 		LaphineUIState.sourceItems.forEach(sourceItem => {
 			let matchingItems = GetInventoryItemsById(sourceItem.id);
 			matchingItems.forEach(inventoryItem => {
-				let count = (inventoryItem.type === ItemType.WEAPON || inventoryItem.type === ItemType.EQUIP) ? 1 : inventoryItem.count;
+				let count = (inventoryItem.type === ItemType.WEAPON || inventoryItem.type === ItemType.ARMOR) ? 1 : inventoryItem.count;
 				onAddMaterialItem( inventoryItem, count, sourceItem.count, sourceItem.name);
 			});
 		});
@@ -254,7 +254,7 @@ define(function(require)
 
 		// Determine if the item is selectable based on item type and corresponding criteria
 		let isSelectable;
-		if (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) {
+		if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) {
 			isSelectable = item.RefiningLevel >= LaphineUIState.needRefineMin &&
 						   item.RefiningLevel <= LaphineUIState.needRefineMax;
 		} else {
@@ -384,7 +384,7 @@ define(function(require)
 		// Check if the clicked item has the class 'unselectable'
 		if (jQuery(this).hasClass('unselectable')) {
 			let message;
-			if (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) {
+			if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) {
 				if (item.RefiningLevel > LaphineUIState.needRefineMax) {
 					message = DB.getMessage(3644);
 					showMessage(message);
@@ -413,7 +413,7 @@ define(function(require)
 		let sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 
 		// Determine the count based on item type
-		let itemCount = (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) ? 1 : sourceItem.count;
+		let itemCount = (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) ? 1 : sourceItem.count;
 
 		let newItem = jQuery('<div class="item" data-index="' + item.index + '" draggable="true">' +
 			'<div class="shadow"></div>'+
@@ -537,7 +537,7 @@ define(function(require)
 			if (item.ITID === itemId && idx === itemIndex) {
 				itemExists = true;
 				selectedItem = jQuery(this);
-				let tempCount = (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) ? 1 : item.count;
+				let tempCount = (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) ? 1 : item.count;
 				if (increase) {
 					jQuery(this).removeClass('unselectable');
 					jQuery(this).find('.amount').text(tempCount);
@@ -560,7 +560,7 @@ define(function(require)
 		if (increase && !itemExists) {
 			let item = Inventory.getUI().getItemByIndex(itemIndex);
 			if (item) {
-				let inventory_count = (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) ? 1 : item.count;
+				let inventory_count = (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) ? 1 : item.count;
             	let sourceItem = LaphineUIState.sourceItems.find(sourceItem => sourceItem.id === itemId);
             	let source_needcount = sourceItem.count;
             	let source_iconname = sourceItem.name;
@@ -756,7 +756,7 @@ define(function(require)
 		// Check if the clicked item has the class 'unselectable'
 		if (jQuery(this).hasClass('unselectable')) {
 			let message;
-			if (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) {
+			if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) {
 				if (item.RefiningLevel > LaphineUIState.needRefineMax) {
 					message = DB.getMessage(3644);
 					showMessage(message);

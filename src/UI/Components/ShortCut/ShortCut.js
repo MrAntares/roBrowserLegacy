@@ -334,7 +334,7 @@ define(function(require)
 			name   = DB.getItemName(item);
 
 			// If equipment, do not display count
-			if (item.type === ItemType.WEAPON || item.type === ItemType.EQUIP) {
+			if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) {
 				count = 1;
 			}
 
