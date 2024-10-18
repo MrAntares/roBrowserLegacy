@@ -14,6 +14,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var DB                 = require('DB/DBManager');
+	var ItemType           = require('DB/Items/ItemType');
 	var jQuery             = require('Utils/jquery');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
@@ -35,31 +36,13 @@ define(function(require)
 
 
 	/**
-	 * Item type constants
-	 */
-	Storage.ITEM = {
-		HEALING:       0,
-		USABLE:        2,
-		ETC:           3,
-		WEAPON:        4,
-		EQUIP:         5,
-		CARD:          6,
-		PETEGG:        7,
-		PETEQUIP:      8,
-		AMMO:         10,
-		USABLE_SKILL: 11,
-		USABLE_UNK:   18
-	};
-
-
-	/**
 	 * Tab constant
 	 */
 	Storage.TAB = {
 		ITEM:   0,
 		KAFRA:  1,
-		ARMS:   2,
-		ARMOR:  3,
+		ARMOR:  2,
+		ARMS:   3,
 		AMMO:   4,
 		CARD:   5,
 		ETC:    6
@@ -187,37 +170,37 @@ define(function(require)
 		var tab;
 
 		switch (item.type) {
-			case Storage.ITEM.HEALING:
-			case Storage.ITEM.USABLE:
-			case Storage.ITEM.USABLE_SKILL:
-			case Storage.ITEM.USABLE_UNK:
+			case ItemType.HEALING:
+			case ItemType.USABLE:
+			case ItemType.DELAYCONSUME:
 				tab = Storage.TAB.ITEM;
 				break;
 
-			// TOFIX: WTH is it for ?
-			//	tab = Storage.TAB.KAFRA;
-			//	break;
+			case ItemType.CASH:
+				tab = Storage.TAB.KAFRA;
+				break;
 
-			case Storage.ITEM.EQUIP:
-			case Storage.ITEM.PETEQUIP:
+			case ItemType.ARMOR:
+			case ItemType.SHADOWGEAR:
+			case ItemType.PETEGG:
 				tab = Storage.TAB.ARMOR;
 				break;
 
-			case Storage.ITEM.WEAPON:
+			case ItemType.WEAPON:
+			case ItemType.PETARMOR:
 				tab = Storage.TAB.ARMS;
 				break;
 
-			case Storage.ITEM.AMMO:
+			case ItemType.AMMO:
 				tab = Storage.TAB.AMMO;
 				break;
 
-			case Storage.ITEM.CARD:
+			case ItemType.CARD:
 				tab = Storage.TAB.CARD;
 				break;
 
 			default:
-			case Storage.ITEM.ETC:
-			case Storage.ITEM.PETEGG:
+			case ItemType.ETC:
 				tab = Storage.TAB.ETC;
 				break;
 		}
