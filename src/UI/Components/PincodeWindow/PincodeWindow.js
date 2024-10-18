@@ -233,7 +233,7 @@ define(function(require)
      * Stop rendering
      */
     PincodeWindow.onRemove = function onRemove() {
-        Renderer.stop();
+        Renderer.stop(render);
     };
 
 
