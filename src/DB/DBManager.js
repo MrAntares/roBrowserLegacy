@@ -3319,7 +3319,7 @@ define(function(require)
 	 * @returns {boolean}
 	 */
 	DB.isPetEgg = function isPetEgg(id) {
-		return (id>=9000 && is<=9150);
+		return (id>=9000 && id<=9150);
 	};
 
 	/**
