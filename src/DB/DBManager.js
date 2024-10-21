@@ -3307,6 +3307,22 @@ define(function(require)
 	};
 
 	/**
+	 * Is item id a pet egg?
+	 * 
+	 * Used for older versions,
+	 * because item type PETEGG didn't exist back then
+	 * and type ARMOR was used with equip location 0,
+	 * but this is not usable in vending since location
+	 * is not received with packet...
+	 * 
+	 * @param {integer} id 
+	 * @returns {boolean}
+	 */
+	DB.isPetEgg = function isPetEgg(id) {
+		return (id>=9000 && is<=9150);
+	};
+
+	/**
 	 * Get Job Class Category
 	 *
 	 * @param {integer} JobId
