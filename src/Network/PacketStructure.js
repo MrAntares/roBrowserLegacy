@@ -11458,15 +11458,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.ItemInfo = (function() {
 			var i, count = (end - fp.tell()) / 31 | 0,
 				out = new Array(count);
+			var flag;
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].index = fp.readShort();
 				out[i].ITID = fp.readUShort();
 				out[i].type = fp.readUChar();
-				out[i].IsIdentified = fp.readUChar();
-				out[i].location = fp.readUShort();
-				out[i].WearState = fp.readUShort();
-				out[i].IsDamaged = fp.readUChar();
+				out[i].location = fp.readULong();
+				out[i].WearState = fp.readULong();
 				out[i].RefiningLevel = fp.readUChar();
 				out[i].slot = {};
 				out[i].slot.card1 = fp.readUShort();
@@ -11476,9 +11475,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].HireExpireDate = fp.readLong();
 				out[i].bindOnEquipType = fp.readUShort();
 				out[i].wItemSpriteNumber = fp.readUShort();
-
-				// What is it for ?
-				fp.seek(3, SEEK_CUR);
+				flag = fp.readUChar();
+				out[i].IsIdentified = flag & 1;
+				out[i].IsDamaged = flag & 2;
+				out[i].PlaceETCTab = flag & 4;
 			}
 			return out;
 		})();
