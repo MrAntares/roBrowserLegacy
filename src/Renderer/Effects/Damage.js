@@ -63,9 +63,8 @@ define(function( require )
 	};
 
 
-	// Get the number of sprites to be used
-	var numberOfSprites;
-
+	// Damage suffix status
+	var _enableSuffix = false;
 
 	/**
 	 * @var {string} Sprite of the damage sprite
@@ -99,13 +98,21 @@ define(function( require )
 	 */
 	Damage.init = function init( gl )
 	{
-		numberOfSprites = Configs.get('enableDmgSuffix') ? 12 : 10;
-		_numbers = new Array(numberOfSprites);
+		var confChange = !(_enableSuffix === Configs.get('enableDmgSuffix'));
+		
+		_enableSuffix = Configs.get('enableDmgSuffix');
 
 		// Already loaded
-		if (_numbers[0] && _msg.miss && _msgBlue.miss) {
-			return;
+		if (_numbers && _numbers[0] && _msg.miss && _msgBlue.miss) {
+			if(confChange){
+				// Remove old file, need to get different version of the sprite
+				MemoryManager.remove(gl, 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr');
+			} else {
+				return;
+			}
 		}
+		
+		_numbers = new Array(_enableSuffix ? 12 : 10);
 
 		Client.getFiles([
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xfd\xc0\xda.spr',
@@ -128,7 +135,7 @@ define(function( require )
 			}
 
 			// Create SpriteSheet
-			for (var i = 0; i < numberOfSprites; ++i) {
+			for (var i = 0; i < _numbers.length; ++i) {
 				_numbers[i]  = sprNumbers.getCanvasFromFrame(i);
 			}
 
@@ -212,7 +219,7 @@ define(function( require )
 		var numbers;
 		var suffix = null;
 
-		if (numberOfSprites === 12) {
+		if (_enableSuffix) {
 			// Check for large numbers and convert accordingly
 			if (damage >= 100000000) {
 				damage = Math.floor(damage / 1000000);
