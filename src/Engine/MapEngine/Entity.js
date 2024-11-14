@@ -815,11 +815,29 @@ define(function( require )
 
 		if (pkt?.damage > 0) {
 			if (srcEntity.GID === Session.Character.GID) {
+				// I deal damage
 				ChatBox.addText((DB.getMessage(1607)).replace('%s', dstEntity.display.name).replace('%d', pkt.damage),
 					ChatBox.TYPE.INFO, ChatBox.FILTER.BATTLE)
-			} else {
+			} else if (dstEntity.GID === Session.Character.GID) {
+				// I receive damage
 				ChatBox.addText(DB.getMessage(1605).replace('%s', srcEntity.display.name).replace('%d', pkt.damage),
 					ChatBox.TYPE.INFO, ChatBox.FILTER.BATTLE)
+			} else if (srcEntity.GID === Session.homunId || srcEntity.GID === Session.merId || srcEntity.GID === Session.petId || srcEntity.GID === Session.elemId) {
+				// My buddy deals damage
+				ChatBox.addText(DB.getMessage(1608).replace('%s', srcEntity.display.name).replace('%s', dstEntity.display.name).replace('%d', pkt.damage),
+					ChatBox.TYPE.INFO, ChatBox.FILTER.BATTLE)
+			} else if (dstEntity.GID === Session.homunId || dstEntity.GID === Session.merId || dstEntity.GID === Session.petId || dstEntity.GID === Session.elemId) {
+				// My buddy receives damage
+				ChatBox.addText(DB.getMessage(1606).replace('%s', dstEntity.display.name).replace('%s', srcEntity.display.name).replace('%d', pkt.damage),
+					ChatBox.TYPE.INFO, ChatBox.FILTER.BATTLE)
+			} else if (getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember( srcEntity.display.name )) {
+				// Party member deals damage
+				ChatBox.addText(DB.getMessage(1608).replace('%s', srcEntity.display.name).replace('%s', dstEntity.display.name).replace('%d', pkt.damage),
+					ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_BATTLE)
+			} else if (getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember( dstEntity.display.name )) {
+				// Party member receives damage
+				ChatBox.addText(DB.getMessage(1606).replace('%s', dstEntity.display.name).replace('%s', srcEntity.display.name).replace('%d', pkt.damage),
+					ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_BATTLE)
 			}
 		}
 	}
