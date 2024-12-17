@@ -1373,12 +1373,17 @@ define(function( require )
 				srcWeapon = srcEntity.weapon;
 			}
 
-			// Don't display skill names for mobs and hiding skills
+			// Don't display skill names for 
+			//  - hiding skills
+			//  - mobs
+			//  - skill level <= 0
 			if (!SkillNameDisplayExclude.includes(pkt.SKID)
 				&&
 				(srcEntity.objecttype === Entity.TYPE_PC || srcEntity.objecttype === Entity.TYPE_DISGUISED ||
                 srcEntity.objecttype === Entity.TYPE_PET || srcEntity.objecttype === Entity.TYPE_HOM ||
                 srcEntity.objecttype === Entity.TYPE_MERC || srcEntity.objecttype === Entity.TYPE_ELEM)
+				&&
+				pkt.level>0
 			){
                 srcEntity.dialog.set( ( (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName ) || 'Unknown Skill' ) + ' !!' );
             }
