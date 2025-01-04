@@ -1267,7 +1267,7 @@ define(function (require) {
 		);
 	}
 
-	/* Load Ragnarok Lua table to json object
+	/* Load Ragnarok Lua table to object
 	* A lot of ragnarok lua tables are splited in 2 files ( 1 - ID table, 2 - Table of values )
 	* @param {Array} list of files to be load (must be 2 files)
 	* @param {String} name of table in lua file
@@ -1363,6 +1363,12 @@ define(function (require) {
 						end
 						main_table()
 					`);
+
+				// unmount files
+				lua.unmountFile(value_table_filename);
+				lua.unmountFile(id_filename);
+
+				// return table
 				callback.call(null, table);
 			}
 		} catch (e) {
