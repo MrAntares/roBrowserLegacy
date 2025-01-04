@@ -200,8 +200,9 @@ define(function (require) {
 		loadTable('data/msgstringtable.txt', '#', 1, function (index, val) { MsgStringTable[index] = val; }, onLoad());
 		loadTable('data/resnametable.txt', '#', 2, function (index, key, val) { DB.mapalias[key] = val; }, onLoad());
 
+		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
-			loadLuaFile('System/itemInfo.lub', function (json) { ItemTable = json; }, onLoad());
+			loadItemInfo('System/itemInfo.lub', null, onLoad());
 			loadMapTbl('System/mapInfo_true_EN.lub', function (json) { for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } updateMapTable(); }, onLoad());
 			loadSignBoardData('System/Sign_Data_EN.lub', function (json) { SignBoardTranslatedTable = json; }, onLoad());
 			loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', function (json) { ItemDBNameTbl = json; }, onLoad());
@@ -214,6 +215,7 @@ define(function (require) {
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
 			loadLaphineSysFile(DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', function (laphinesys_list) { LaphineSysTable = laphinesys_list; }, onLoad());
 			loadLaphineUpgFile(DB.LUA_PATH + 'datainfo/LapineUpgradeBox.lub', function (laphineupg_list) { LaphineUpgTable = laphineupg_list; }, onLoad());
+			loadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
 		} else {
 			loadTable('data/num2itemdisplaynametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, " "); }, onLoad());
 			loadTable('data/num2itemresnametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName = val; }, onLoad());
@@ -236,7 +238,6 @@ define(function (require) {
 		loadTable('data/dc_scream.txt', '\t', 1, function (index, val) { ScreamTable[index] = val; }, onLoad());
 
 		loadXMLFile('data/pettalktable.xml', function (json) { PetTalkTable = json["monster_talk_table"]; }, onLoad());
-		LoadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
 
 		if (PACKETVER.value >= 20100427) {
 			loadTable('data/buyingstoreitemlist.txt', '#', 1, function (index, key) { buyingStoreItemList.push(parseInt(key, 10)); }, onLoad());
@@ -307,14 +308,14 @@ define(function (require) {
 		);
 	}
 
-	/* LoadAttendanceFile to json object
+	/* Load CheckAttendance file to object
 	*
 	* @param {string} filename to load
 	* @param {function} onEnd to run once the file is loaded
 	*
 	* @author alisonrag
 	*/
-	function LoadAttendanceFile(filename, callback, onEnd) {
+	function loadAttendanceFile(filename, callback, onEnd) {
 		Client.loadFile(filename,
 			async function (file) {
 				try {
@@ -338,12 +339,132 @@ define(function (require) {
 					// execute main lua function
 					lua.doStringSync(`main()`);
 				} catch (error) {
-					console.error('[LoadAttendanceFile] Error: ', error);
+					console.error('[loadAttendanceFile] Error: ', error);
 				} finally {
 					// release file from memmory
 					lua.unmountFile('CheckAttendance.lub');
+					// call onEnd
+					onEnd();
 				}
-				onEnd();
+			},
+			onEnd
+		);
+	}
+
+	/* Load ItemInfo file to object
+	*
+	* @param {string} filename to load
+	* @param {function} onEnd to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	function loadItemInfo(filename, callback, onEnd) {
+		Client.loadFile(filename,
+			async function (file) {
+				try {
+					// check if file is ArrayBuffer and convert to Uint8Array if necessary
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+					// get context, a proxy. It will be used to interact with lua conveniently
+					const ctx = lua.ctx;
+					// create decoders
+					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					// create itemInfo required functions in context
+					ctx.AddItem = (ItemID, unidentifiedDisplayName, unidentifiedResourceName, identifiedDisplayName, identifiedResourceName, slotCount, ClassNum) => {
+						ItemTable[ItemID] = {
+							unidentifiedDisplayName: userStringDecoder.decode(unidentifiedDisplayName),
+							unidentifiedResourceName: iso88591Decoder.decode(unidentifiedResourceName),
+							identifiedDisplayName: userStringDecoder.decode(identifiedDisplayName),
+							identifiedResourceName: iso88591Decoder.decode(identifiedResourceName),
+							unidentifiedDescriptionName: [],
+							identifiedDescriptionName: [],
+							EffectID: null,
+							costume: null,
+							PackageID: null,
+							slotCount: slotCount,
+							ClassNum: ClassNum
+						};
+
+						return 1;
+					};
+					ctx.AddItemUnidentifiedDesc = (ItemID, v) => {
+						ItemTable[ItemID].unidentifiedDescriptionName.push(userStringDecoder.decode(v));
+						return 1;
+					};
+					ctx.AddItemIdentifiedDesc = (ItemID, v) => {
+						ItemTable[ItemID].identifiedDescriptionName.push(userStringDecoder.decode(v));
+						return 1;
+					};
+					ctx.AddItemEffectInfo = (ItemID, EffectID) => {
+						ItemTable[ItemID].EffectID = EffectID;
+						return 1;
+					};
+					ctx.AddItemIsCostume = (ItemID, costume) => {
+						ItemTable[ItemID].costume = costume;
+						return 1;
+					};
+					ctx.AddItemPackageID = (ItemID, PackageID) => {
+						ItemTable[ItemID].PackageID = PackageID;
+						return 1;
+					};
+					// mount file
+					lua.mountFile('iteminfo.lub', buffer);
+					// execute file
+					await lua.doFile('iteminfo.lub');
+					// create and execute our own main function
+					// this is necessary because some servers has main function on itemInfo.lub and others load it from itemInfo_f.lub
+					// doing this way we avoid to have to load the other file
+					// on my tests dont care if the main() is on itemInfo.lub or itemInfo_f.lub the content is always the same
+					lua.doStringSync(`
+						function main_item()
+							for ItemID, DESC in pairs(tbl) do
+								result, msg = AddItem(ItemID, DESC.unidentifiedDisplayName, DESC.unidentifiedResourceName, DESC.identifiedDisplayName, DESC.identifiedResourceName, DESC.slotCount, DESC.ClassNum)
+								if not result then
+								return false, msg
+								end
+								for k, v in pairs(DESC.unidentifiedDescriptionName) do
+								result, msg = AddItemUnidentifiedDesc(ItemID, v)
+								if not result then
+									return false, msg
+								end
+								end
+								for k, v in pairs(DESC.identifiedDescriptionName) do
+								result, msg = AddItemIdentifiedDesc(ItemID, v)
+								if not result then
+									return false, msg
+								end
+								end
+								if nil ~= DESC.EffectID then
+								result, msg = AddItemEffectInfo(ItemID, DESC.EffectID)
+								if not result then
+									return false, msg
+								end
+								end
+								if nil ~= DESC.costume then
+								result, msg = AddItemIsCostume(ItemID, DESC.costume)
+								if not result then
+									return false, msg
+								end
+								end
+								if nil ~= DESC.PackageID then
+								result, msg = AddItemPackageID(ItemID, DESC.PackageID)
+								if not result then
+									return false, msg
+								end
+								end
+							end
+							return true, "good"
+							end
+						main_item()
+						`);
+				} catch (error) {
+					console.error('[loadItemInfo] Error: ', error);
+				} finally {
+					// release file from memmory
+					lua.unmountFile('iteminfo.lub');
+					// call onEnd
+					onEnd();
+				}
 			},
 			onEnd
 		);
