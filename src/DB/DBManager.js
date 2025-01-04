@@ -203,7 +203,7 @@ define(function (require) {
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
 			loadItemInfo('System/itemInfo.lub', null, onLoad());
-			loadMapTbl('System/mapInfo_true_EN.lub', function (json) { for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } updateMapTable(); }, onLoad());
+			loadMapTbl('System/mapInfo.lub', function (json) { for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } updateMapTable(); }, onLoad());
 			loadSignBoardData('System/Sign_Data_EN.lub', function (json) { SignBoardTranslatedTable = json; }, onLoad());
 			loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', function (json) { ItemDBNameTbl = json; }, onLoad());
 			loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', function (signBoardList) { SignBoardTable = signBoardList; }, onLoad());
@@ -362,6 +362,7 @@ define(function (require) {
 		Client.loadFile(filename,
 			async function (file) {
 				try {
+					console.log('Loading file "' + filename + '"...');
 					// check if file is ArrayBuffer and convert to Uint8Array if necessary
 					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
 					// get context, a proxy. It will be used to interact with lua conveniently
@@ -1379,114 +1380,80 @@ define(function (require) {
 	}
 
 	/**
-	 * Loads System/mapInfo_true_EN.lub
+	 * Loads System/mapInfo.lub
 	 *
 	 * @param {string} filename - The name of the file to load.
 	 * @param {function} callback - The function to invoke with the parsed data.
 	 * @param {function} onEnd - The function to invoke when loading is complete.
 	 */
 	function loadMapTbl(filename, callback, onEnd) {
-		Client.loadFile(filename, async function (lua) {
-			console.log('Loading file "' + filename + '"...');
-			let mapData = {};
+		Client.loadFile(filename,
+			async function (file) {
+				try {
+					console.log('Loading file "' + filename + '"...');
+					// check if file is ArrayBuffer and convert to Uint8Array if necessary
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
 
-			try {
-				if (lua instanceof ArrayBuffer) {
-					lua = new TextDecoder('iso-8859-1').decode(lua);
+					// get context, a proxy. It will be used to interact with lua conveniently
+					const ctx = lua.ctx;
+
+					// create decoders
+					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+
+					// create mapInfo required functions in context
+					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
+						let decoded_name = iso88591Decoder.decode(name);
+						MapInfo[decoded_name] = {
+							displayName: userStringDecoder.decode(displayName),
+							notifyEnter: notify_enter,
+							signName: {
+								subTitle: null,
+								mainTitle: null
+							},
+							backgroundBmp: null
+						};
+
+						console.log(MapInfo[decoded_name]);
+						return 1;
+					};
+
+					ctx.AddMapSignName = (name, subTitle, mainTitle) => {
+						let decoded_name = iso88591Decoder.decode(name);
+						let decoded_subTitle = subTitle && subTitle.length > 1 ? iso88591Decoder.decode(subTitle) : null;
+						let decoded_mainTitle = mainTitle && mainTitle.length > 1 ? iso88591Decoder.decode(mainTitle) : null;
+						MapInfo[decoded_name].signName = {
+							subTitle: decoded_subTitle,
+							mainTitle: decoded_mainTitle
+						};
+						return 1;
+					};
+
+					ctx.AddMapBackgroundBmp = (name, backgroundBmp) => {
+						let decoded_name = iso88591Decoder.decode(name);
+						MapInfo[decoded_name].backgroundBmp = backgroundBmp ? iso88591Decoder.decode(backgroundBmp) : "field";
+						return 1;
+					};
+
+					// mount file
+					lua.mountFile('mapInfo.lub', buffer);
+
+					// execute file
+					await lua.doFile('mapInfo.lub');
+
+					// execute main function
+					lua.doStringSync(`main()`);
+				} catch (error) {
+					console.error('[loadMapTbl] Error: ', error);
+				} finally {
+					// release file from memmory
+					lua.unmountFile('mapInfo.lub');
+					// call onEnd
+					onEnd();
 				}
-
-				// Load Lua file
-				fengari.load(lua)();
-
-				// Get the global table "mapTbl"
-				fengari.lua.lua_getglobal(fengari.L, "mapTbl");
-
-				// Check if it's a table
-				if (!fengari.lua.lua_istable(fengari.L, -1)) {
-					console.log('[loadMapTbl] mapTbl is not a table');
-					return;
-				}
-
-				// Push nil key to start iteration
-				fengari.lua.lua_pushnil(fengari.L);
-
-				// Iterate over the "mapTbl" table
-				while (fengari.lua.lua_next(fengari.L, -2)) {
-					// Get key (filename)
-					let filename = fengari.lua.lua_tojsstring(fengari.L, -2);
-
-					// Get value (table)
-					if (fengari.lua.lua_istable(fengari.L, -1)) {
-						let entry = {};
-
-						// Get displayName
-						fengari.lua.lua_pushstring(fengari.L, "displayName");
-						fengari.lua.lua_gettable(fengari.L, -2);
-						if (fengari.lua.lua_isstring(fengari.L, -1)) {
-							entry.displayName = fengari.lua.lua_tojsstring(fengari.L, -1);
-						}
-						fengari.lua.lua_pop(fengari.L, 1);
-
-						// Get notifyEnter
-						fengari.lua.lua_pushstring(fengari.L, "notifyEnter");
-						fengari.lua.lua_gettable(fengari.L, -2);
-						if (fengari.lua.lua_isboolean(fengari.L, -1)) {
-							entry.notifyEnter = fengari.lua.lua_toboolean(fengari.L, -1);
-						}
-						fengari.lua.lua_pop(fengari.L, 1);
-
-						// Get signName
-						fengari.lua.lua_pushstring(fengari.L, "signName");
-						fengari.lua.lua_gettable(fengari.L, -2);
-						if (fengari.lua.lua_istable(fengari.L, -1)) {
-							entry.signName = {};
-
-							// Get subTitle
-							fengari.lua.lua_pushstring(fengari.L, "subTitle");
-							fengari.lua.lua_gettable(fengari.L, -2);
-							if (fengari.lua.lua_isstring(fengari.L, -1)) {
-								entry.signName.subTitle = fengari.lua.lua_tojsstring(fengari.L, -1);
-							}
-							fengari.lua.lua_pop(fengari.L, 1);
-
-							// Get mainTitle
-							fengari.lua.lua_pushstring(fengari.L, "mainTitle");
-							fengari.lua.lua_gettable(fengari.L, -2);
-							if (fengari.lua.lua_isstring(fengari.L, -1)) {
-								entry.signName.mainTitle = fengari.lua.lua_tojsstring(fengari.L, -1);
-							}
-							fengari.lua.lua_pop(fengari.L, 1);
-						}
-						fengari.lua.lua_pop(fengari.L, 1);
-
-						// Get backgroundBmp
-						fengari.lua.lua_pushstring(fengari.L, "backgroundBmp");
-						fengari.lua.lua_gettable(fengari.L, -2);
-						if (fengari.lua.lua_isstring(fengari.L, -1)) {
-							entry.backgroundBmp = fengari.lua.lua_tojsstring(fengari.L, -1);
-						}
-						fengari.lua.lua_pop(fengari.L, 1);
-
-						// Add entry to mapData
-						mapData[filename] = entry;
-					}
-
-					// Pop the value and move to the next key
-					fengari.lua.lua_pop(fengari.L, 1);
-				}
-
-				// Pop table
-				fengari.lua.lua_pop(fengari.L, 1);
-
-				// Clean lua stack
-				fengari.lua.lua_settop(fengari.L, 0);
-			} catch (e) {
-				console.error('error: ', e);
-			}
-
-			callback.call(null, mapData);
-			onEnd();
-		}, onEnd);
+			},
+			onEnd
+		);
 	};
 
 	/**
