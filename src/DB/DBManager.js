@@ -1267,9 +1267,10 @@ define(function (require) {
 		);
 	}
 
-	/* Load Ragnarok Lua table to json object
+	/* Load Ragnarok Lua table to object
 	* A lot of ragnarok lua tables are splited in 2 files ( 1 - ID table, 2 - Table of values )
-	* @param {Array} list of files to be load (2)
+	* @param {Array} list of files to be load (must be 2 files)
+	* @param {String} name of table in lua file
 	* @param {function} callback to run once the file is loaded
 	* @param {function} onEnd to run once the file is loaded
 	*
@@ -1279,93 +1280,100 @@ define(function (require) {
 		let id_filename = file_list[0];
 		let value_table_filename = file_list[1];
 
-		console.log('Loading file "' + id_filename + '"...');
-		Client.loadFile(id_filename,
-			async function (data) {
-				try {
-					// check if is ArrayBuffer or String
-					if (data instanceof ArrayBuffer) {
-						data = new TextDecoder().decode(data);
-					}
-					// load data into lua vm
-					fengari.load(data)();
-					loadValueTable();
-				} catch (hException) {
-					onEnd.call();
-					console.error(`(${id_filename}) error: `, hException);
-				}
-			}
-		);
-
-		function loadValueTable() {
-			console.log('Loading file "' + value_table_filename + '"...');
-			Client.loadFile(value_table_filename,
-				async function (data) {
+		try {
+			console.log('Loading file "' + id_filename + '"...');
+			Client.loadFile(id_filename,
+				async function (file) {
 					try {
-						// check if is ArrayBuffer or String
-						if (data instanceof ArrayBuffer) {
-							data = new TextDecoder('iso-8859-1').decode(data);
-						}
-						fengari.load(data)();
-						parseTable();
+						// check if file is ArrayBuffer and convert to Uint8Array if necessary
+						let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+						// mount file
+						lua.mountFile(id_filename, buffer);
+						// execute file
+						await lua.doFile(id_filename);
+						loadValueTable();
 					} catch (hException) {
 						onEnd.call();
-						console.error(`(${value_table_filename}) error: `, hException);
+						console.error(`(${id_filename}) error: `, hException);
 					}
-				},
-			);
-		}
-
-		function parseTable() {
-			// Get the global table
-			fengari.lua.lua_getglobal(fengari.L, table_name);
-
-			// Check if it's a table
-			if (!fengari.lua.lua_istable(fengari.L, -1)) {
-				console.log('[parseTable] ' + table_name + ' is not a table');
-				onEnd.call();
-				return;
-			}
-
-			// Push nil key to start iteration
-			fengari.lua.lua_pushnil(fengari.L);
-
-			// declare the table array
-			let table = new Array();
-
-			// iterate over table
-			while (fengari.lua.lua_next(fengari.L, -2)) {
-				let id;
-				let name = "";
-				if (fengari.lua.lua_istable(fengari.L, -1)) {
-					// go to first key
-					id = fengari.lua.lua_tointeger(fengari.L, -2);
-					fengari.lua.lua_pushnil(fengari.L);
-					let value_array = new Array();
-					while (fengari.lua.lua_next(fengari.L, -2) != 0) { // skilldescription
-						if (fengari.lua.lua_isstring(fengari.L, -1)) {
-							value_array.push(fengari.lua.lua_tojsstring(fengari.L, -1) + "\n");
-						}
-						fengari.lua.lua_pop(fengari.L, 1);
-					}
-					name = value_array.reverse().join('');
-				} else {
-					// get key
-					id = fengari.lua.lua_tointeger(fengari.L, -2);
-					name = fengari.lua.lua_tojsstring(fengari.L, -1);
 				}
-				table[id] = name;
-				// Pop the value and move to the next key
-				fengari.lua.lua_pop(fengari.L, 1);
+			);
+
+			function loadValueTable() {
+				console.log('Loading file "' + value_table_filename + '"...');
+				Client.loadFile(value_table_filename,
+					async function (file) {
+						try {
+							// check if file is ArrayBuffer and convert to Uint8Array if necessary
+							let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+							// mount file
+							lua.mountFile(value_table_filename, buffer);
+							// execute file
+							await lua.doFile(value_table_filename);
+							parseTable();
+						} catch (hException) {
+							onEnd.call();
+							console.error(`(${value_table_filename}) error: `, hException);
+						}
+					},
+				);
 			}
 
-			// pop table
-			fengari.lua.lua_pop(fengari.L, 1);
+			function parseTable() {
+				// declare the table object
+				let table = {};
 
-			// clean lua stack
-			fengari.lua.lua_settop(fengari.L, 0);
+				// get context
+				const ctx = lua.ctx;
 
-			callback.call(null, table);
+				// create a decoder for iso-8859-1
+				let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+
+				// create context function
+				ctx.addKeyAndValueToTable = (key, value) => {
+					table[key] = iso88591Decoder.decode(value);
+					return 1;
+				}
+
+				// used in some specific cases like skilldescript.lub
+				ctx.addKeyAndMoreValuesToTable = (key, value) => {
+					if (!table[key])
+						table[key] = "";
+					table[key] += iso88591Decoder.decode(value) + "\n";
+					return 1;
+				}
+
+				// create and execute a wrapper lua code
+				// this way we let webassembly handle the code and still can get the table data
+				lua.doStringSync(`
+						function main_table()
+							for key, value in pairs(${table_name}) do
+								if type(value) == "table" then
+									for k, v in pairs(value) do
+										result, msg = addKeyAndMoreValuesToTable(key, v)
+									end
+								else
+									result, msg = addKeyAndValueToTable(key, value)
+								end
+								if not result then
+									return false, msg
+								end
+							end
+							return true, "good"
+						end
+						main_table()
+					`);
+
+				// unmount files
+				lua.unmountFile(value_table_filename);
+				lua.unmountFile(id_filename);
+
+				// return table
+				callback.call(null, table);
+			}
+		} catch (e) {
+			console.error('error: ', e);
+		} finally {
 			onEnd.call();
 		}
 	}
