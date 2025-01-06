@@ -1228,7 +1228,7 @@
 							error = luaError;
 						}
 						else {
-							error.message = this.indexToString(-1);
+							error.message = new TextDecoder().decode(this.indexToString(-1));
 						}
 					}
 				}
@@ -1452,7 +1452,13 @@
 								}
 							} else d += String.fromCharCode(f);
 						} return d
-					}, ib = [], jb = a => { for (var b = 0, c = 0; c < a.length; ++c) { var d = a.charCodeAt(c); 127 >= d ? b++ : 2047 >= d ? b += 2 : 55296 <= d && 57343 >= d ? (b += 4, ++c) : b += 3; } return b }, kb = (a, b, c, d) => {
+					}, ib = [],
+					jb = a => {
+						if (typeof a !== 'string') return new TextDecoder().decode(a).length;
+						for (var b = 0, c = 0; c < a.length; ++c) { var d = a.charCodeAt(c); 127 >= d ? b++ : 2047 >= d ? b += 2 : 55296 <= d && 57343 >= d ? (b += 4, ++c) : b += 3; } return b
+					},
+					kb = (a, b, c, d) => {
+						if (typeof a !== 'string') a = new TextDecoder().decode(a);
 						u("string" === typeof a, `stringToUTF8Array expects a string (got ${typeof a})`);
 						if (!(0 < d)) return 0; var f = c; d = c + d - 1; for (var h = 0; h < a.length; ++h) {
 							var m = a.charCodeAt(h); if (55296 <= m && 57343 >= m) { var p = a.charCodeAt(++h); m = 65536 + ((m & 1023) << 10) | p & 1023; } if (127 >= m) { if (c >= d) break; b[c++] = m; } else {
