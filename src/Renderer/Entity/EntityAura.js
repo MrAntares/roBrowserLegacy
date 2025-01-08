@@ -32,6 +32,7 @@ function(EffectConst, MapPreferences)
 	{
 		this.isLoaded = false; // to avoid duplicate aura effects
 		this.entity = entity; // reference to attached entity
+		this.lastAuraState = 0; // save last aura state to track changes on aura/aura2 command
 	}
 
 	/**
@@ -43,8 +44,11 @@ function(EffectConst, MapPreferences)
 		if( MapPreferences.aura > 0 && this.entity.clevel >= 99) {
 			// check if entity is visible
 			if(this.entity.isVisible()) {
-				// aura is already loaded
+				// check if aura state has changed
+				if(this.lastAuraState !== MapPreferences.aura && this.isLoaded) 
+					this.remove( effectManager );
 				if(!this.isLoaded) {
+					// aura is already loaded
 					// select effects based on /aura preference
 					var effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
 					// add aura effects
@@ -54,14 +58,21 @@ function(EffectConst, MapPreferences)
 							position: this.entity.position,
 							effectId: effects[effectIndex]
 						} );
-					  }
-					  // set flag to avoid duplicate aura effects
-					  this.isLoaded = true;
+					}
+					// set flag to avoid duplicate aura effects
+					this.isLoaded = true;
+					// save current aura state
+					this.lastAuraState = MapPreferences.aura;
 				}
 			} else {
 				// remove aura if entity is invisible
 				this.remove( effectManager );
 			}
+		} else if (this.isLoaded) {
+			// remove aura if entity does not qualify
+			this.remove( effectManager );
+			// save current aura state
+			this.lastAuraState = MapPreferences.aura;
 		}
 	};
 
