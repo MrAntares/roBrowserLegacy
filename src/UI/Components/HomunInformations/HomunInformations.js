@@ -44,6 +44,9 @@ define(function (require) {
      */
     var homunculusAutoFeeding = 0;
 
+	HomunInformations.base_exp      = 0;
+	HomunInformations.base_exp_next = 1;
+
     /**
      * Initialize component
      */
@@ -162,6 +165,9 @@ define(function (require) {
 
         this.setHpSpBar('hp', info.hp, info.maxHP);
         this.setHpSpBar('sp', info.sp, info.maxSP);
+
+		HomunInformations.base_exp      = info.exp;
+		HomunInformations.base_exp_next = info.maxEXP;
 
         this.setExp(info.exp, info.maxEXP);
         this.setHunger(info.nFullness);

@@ -34,8 +34,8 @@ define(function( require )
 	 */
 	function onHomunInformation( pkt )
 	{
-		var entity = EntityManager.get(Session.homunId);
 		if (Session.homunId) {
+			var entity = EntityManager.get(Session.homunId);
 			if (entity) {
 				entity.attack_range        = pkt.ATKRange;
 				entity.life.hp             = pkt.hp;
@@ -48,15 +48,12 @@ define(function( require )
 			}
 		}
 
-		if (entity && entity.life.display) {
-			pkt.life = entity.life;
-		}
+		SkillListMER.setPoints( pkt.SKPoint );
 
 		HomunInformations.append();
 		HomunInformations.setInformations( pkt );
-		HomunInformations.startAI();
-
-		SkillListMER.setPoints( pkt.SKPoint );
+		if(entity)
+			HomunInformations.startAI();
 	}
 
 
@@ -92,53 +89,41 @@ define(function( require )
 				break;
 
 			case StatusProperty.EXP:
-			case StatusProperty.JOBEXP:
+				HomunInformations.base_exp = pkt.value;
+				HomunInformations.setExp(HomunInformations.base_exp, HomunInformations.base_exp_next);
 				break;
 			
-			// (not used ?)
-			case StatusProperty.VIRTUE:
-			case StatusProperty.HONOR:
-				break;
-
 			case StatusProperty.HP:
 				entity.life.hp = pkt.value;
 				entity.life.update();
+				HomunInformations.setHpSpBar('hp', entity.life.hp, entity.life.hp_max);
 				break;
 
 			case StatusProperty.MAXHP:
 				entity.life.hp_max = pkt.value;
 				entity.life.update();
+				HomunInformations.setHpSpBar('hp', entity.life.hp, entity.life.hp_max);
 				break;
 
 			case StatusProperty.SP:
 				entity.life.sp = pkt.value;
 				entity.life.update();
+				HomunInformations.setHpSpBar('sp', entity.life.sp, entity.life.sp_max);
 				break;
 
 			case StatusProperty.MAXSP:
 				entity.life.sp_max = pkt.value;
 				entity.life.update();
-				break;
-
-			case StatusProperty.POINT:
+				HomunInformations.setHpSpBar('sp', entity.life.sp, entity.life.sp_max);
 				break;
 
 			case StatusProperty.CLEVEL:
 				entity.clevel = pkt.value;
 				break;
 
-			case StatusProperty.SKPOINT:
 			case StatusProperty.MAXEXP:
-			case StatusProperty.MAXJOBEXP:
-			case StatusProperty.ATTPOWER:
-			case StatusProperty.MAX_MATTPOWER:
-			case StatusProperty.ITEMDEFPOWER:
-			case StatusProperty.MDEFPOWER:
-			case StatusProperty.HITSUCCESSVALUE:
-			case StatusProperty.AVOIDSUCCESSVALUE:
-			case StatusProperty.CRITICALSUCCESSVALUE:
-			case StatusProperty.ASPD:
-			case StatusProperty.JOBLEVEL:
+				HomunInformations.base_exp_next = pkt.value;
+				HomunInformations.setExp(HomunInformations.base_exp, HomunInformations.base_exp_next);
 				break;
 
 			default:
@@ -155,25 +140,23 @@ define(function( require )
 	{
 		var entity = EntityManager.get(pkt.GID);
 
-		if (!entity) {
-			return;
-		}
+		if (entity) {
+			switch (pkt.state) {
+				case 0:
+					Session.homunId = pkt.GID;
+					break;
 
-		switch (pkt.state) {
-			case 0:
-				Session.homunId = pkt.GID;
-				break;
+				case 1:
+					HomunInformations.setIntimacy(pkt.data);
+					break;
 
-			case 1:
-				HomunInformations.setIntimacy(pkt.data);
-				break;
-
-			case 2:
-				HomunInformations.setHunger(pkt.data);
-				entity.life.hunger    = pkt.data;
-				entity.life.hunger_max = 100;
-				entity.life.update();
-				break;
+				case 2:
+					HomunInformations.setHunger(pkt.data);
+					entity.life.hunger    = pkt.data;
+					entity.life.hunger_max = 100;
+					entity.life.update();
+					break;
+			}
 		}
 	}
 
