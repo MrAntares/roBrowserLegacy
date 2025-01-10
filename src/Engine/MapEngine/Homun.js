@@ -16,6 +16,7 @@ define(function( require )
 	 * Load dependencies
 	 */
 	var DB                   = require('DB/DBManager');
+	var StatusProperty       = require('DB/Status/StatusProperty');
 	var Network              = require('Network/NetworkManager');
 	var PACKET               = require('Network/PacketStructure');
 	var Session              = require('Engine/SessionStorage');
@@ -75,6 +76,75 @@ define(function( require )
 		// success, what to do ? Action feed ? or is it sent by server ?
 	}
 
+	
+	/**
+	 * Update homun parameter
+	 *
+	 * @param {object} pkt - PACKET.ZC.HO_PAR_CHANGE
+	 */
+	function onHomunParameterChange ( pkt )
+	{
+		var entity = EntityManager.get(Session.homunId);
+
+		switch(pkt.param) {
+			case StatusProperty.SPEED:
+				entity.walk.speed = pkt.value;
+				break;
+
+			case StatusProperty.EXP:
+			case StatusProperty.JOBEXP:
+				break;
+			
+			// (not used ?)
+			case StatusProperty.VIRTUE:
+			case StatusProperty.HONOR:
+				break;
+
+			case StatusProperty.HP:
+				entity.life.hp = pkt.value;
+				entity.life.update();
+				break;
+
+			case StatusProperty.MAXHP:
+				entity.life.hp_max = pkt.value;
+				entity.life.update();
+				break;
+
+			case StatusProperty.SP:
+				entity.life.sp = pkt.value;
+				entity.life.update();
+				break;
+
+			case StatusProperty.MAXSP:
+				entity.life.sp_max = pkt.value;
+				entity.life.update();
+				break;
+
+			case StatusProperty.POINT:
+				break;
+
+			case StatusProperty.CLEVEL:
+				entity.clevel = pkt.value;
+				break;
+
+			case StatusProperty.SKPOINT:
+			case StatusProperty.MAXEXP:
+			case StatusProperty.MAXJOBEXP:
+			case StatusProperty.ATTPOWER:
+			case StatusProperty.MAX_MATTPOWER:
+			case StatusProperty.ITEMDEFPOWER:
+			case StatusProperty.MDEFPOWER:
+			case StatusProperty.HITSUCCESSVALUE:
+			case StatusProperty.AVOIDSUCCESSVALUE:
+			case StatusProperty.CRITICALSUCCESSVALUE:
+			case StatusProperty.ASPD:
+			case StatusProperty.JOBLEVEL:
+				break;
+
+			default:
+				console.log( 'Homun::onHomunParameterChange() - Unsupported type', pkt);
+		}
+	}
 
 	/**
 	 * Update homun information
@@ -242,6 +312,8 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN4,        onHomunInformation);
 		Network.hookPacket( PACKET.ZC.PROPERTY_HOMUN5,        onHomunInformation);
 		Network.hookPacket( PACKET.ZC.CHANGESTATE_MER,        onHomunInformationUpdate);
+		Network.hookPacket( PACKET.ZC.HO_PAR_CHANGE,          onHomunParameterChange);
+		Network.hookPacket( PACKET.ZC.HO_PAR_CHANGE2,         onHomunParameterChange);
 		Network.hookPacket( PACKET.ZC.FEED_MER,               onFeedResult);
 		Network.hookPacket( PACKET.ZC.MER_SKILLINFO_LIST,     onSkillList);
 		Network.hookPacket( PACKET.ZC.MER_SKILLINFO_UPDATE,   onSkillUpdate);
