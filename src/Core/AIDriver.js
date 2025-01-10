@@ -44,6 +44,13 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Renderer/Entity/Entity']
                 end
                 return res
             end
+			function GetMsg (id) 
+                res = {}
+                for i,v in ipairs(Split(GetMsgJS(id), ",")) do
+                    res[i] = tonumber(v)
+                end
+                return res
+            end
 			 function Split(s, delimiter)
                 result = {};
                 for match in (s..delimiter):gmatch("(.-)"..delimiter) do
@@ -69,7 +76,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Renderer/Entity/Entity']
 			console.log(typeof logMessage === 'object' && logMessage.buffer ? decoder.decode(logMessage) : logMessage);
 		}
 
-		ctx.GetMsg = function GetMsg(id) {
+		ctx.GetMsgJS = function GetMsgJS(id) {
 			if (id in msg) {
 				let res = msg[id];
 				delete msg[id];
@@ -91,21 +98,35 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Renderer/Entity/Entity']
 				// check if skillId is valid - checked on rAthena 20250109
 				if (skillId > 8000 && skillId < 8060) {
 					let homun = EntityManager.get(Number(homunId));
+					let target = EntityManager.get(Number(targetID));
 					// check range
-					let range = SkillInfo[id].AttackRange[level - 1] + 1 || homun.attack_range || 1;
-					// check if homun is in a valid state to cast skill
-					if (homun && ([0, 1, 4].includes(homun.action))) {
-						let pkt;
-						if (PACKETVER.value >= 20180307) {
-							pkt = new PACKET.CZ.USE_SKILL2();
+					let range = SkillInfo[skillId].AttackRange[level - 1] + 1 || homun.attack_range || 1;
+
+					if (homun?.position[0] > 0 && homun?.position[1] > 0 && target?.position[0] > 0 && target?.position[1] > 0) {
+						let distance = Math.sqrt(Math.pow((homun?.position[0] - target?.position[0]), 2) + Math.pow((homun?.position[1] - target?.position[1]), 2));
+						console.log('SkillObject - RANGE AND DISTANCE', range, distance);
+						if (range >= distance) {
+							// check if homun is in a valid state to cast skill
+							if (homun && ([0, 1, 4].includes(homun.action))) {
+								let pkt;
+								if (PACKETVER.value >= 20180307) {
+									pkt = new PACKET.CZ.USE_SKILL2();
+								} else {
+									pkt = new PACKET.CZ.USE_SKILL();
+								}
+								pkt.SKID = skillId;
+								pkt.selectedLevel = level;
+								pkt.targetID = targetID || Session.Entity.GID;
+								Network.sendPacket(pkt);
+							}
 						} else {
-							pkt = new PACKET.CZ.USE_SKILL();
+							console.log('SkillObject - NOT IN RANGE', homunId, level, skillId, targetID);
 						}
-						pkt.SKID = skillId;
-						pkt.selectedLevel = level;
-						pkt.targetID = targetID || Session.Entity.GID;
-						Network.sendPacket(pkt);
+					} else {
+						console.log('SkillObject - SOME POSITION NOT VALID', homunId, level, skillId, targetID);
 					}
+				} else {
+					console.log('SkillObject - SKILLID NOT VALID', homunId, level, skillId, targetID);
 				}
 			}
 
@@ -156,12 +177,12 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Renderer/Entity/Entity']
 
 		ctx.Trace = function Trace(str) {
 			let decoder = new TextDecoder();
-			console.warn('Trace', typeof str === 'object' && str.buffer ? decoder.decode(str) : str)
+			console.log('Trace - ', typeof str === 'object' && str.buffer ? decoder.decode(str) : str)
 		}
 
 		ctx.TraceAI = function TraceAI(str) {
 			let decoder = new TextDecoder();
-			console.warn('TraceAI', typeof str === 'object' && str.buffer ? decoder.decode(str) : str)
+			console.log('TraceAI - ', typeof str === 'object' && str.buffer ? decoder.decode(str) : str)
 		}
 
 		ctx.GetTick = function GetTick() {
@@ -266,12 +287,14 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Renderer/Entity/Entity']
 					return 1;
 				case 13: // V_POSITION_APPLY_SKILLATTACKRANGE - seems to return best position (x,y) to cast skill
 					//GetV (V_POSITION_APPLY_SKILLATTACKRANGE, MyEnemy, MySkill, MySkillLevel)
+					console.log("V_POSITION_APPLY_SKILLATTACKRANGE", id, skillId, skilLevel);
 					if (skillId && skilLevel) {
 						range = SkillInfo[skillId].AttackRange[skilLevel - 1] + 1 || homun.attack_range || 1;
 						let homun = EntityManager.get(Session.homunId);
 						if (homun?.position[0] > 0 && homun?.position[1] > 0 && entity?.position[0] > 0 && entity?.position[1] > 0) {
-							let distance = Math.sqrt(Math.pow((homun?.position[0] - hoentitymun?.position[0]), 2) + Math.pow((homun?.position[1] - entity?.position[1]), 2));
-							if (range <= distance) {
+							let distance = Math.sqrt(Math.pow((homun?.position[0] - entity?.position[0]), 2) + Math.pow((homun?.position[1] - entity?.position[1]), 2));
+
+							if (range >= distance) {
 								console.log("in range");
 								return homun.position[0].toFixed(2) + ',' + homun.position[1].toFixed(2);
 							}
@@ -284,6 +307,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Renderer/Entity/Entity']
 					}
 					return entity.position[0].toFixed(2) + ',' + entity.position[1].toFixed(2);
 				case 14: // V_SKILLATTACKRANGE_LEVEL
+					console.log("V_SKILLATTACKRANGE_LEVEL", id, skillId, skilLevel);
 					range = SkillInfo[id].AttackRange[level - 1] + 1 || homun.attack_range || 1;
 					return range;
 				default:
