@@ -16752,17 +16752,47 @@ define('source-map-url', function() {
 });
 // Copyright 2014-2020 Simon Lydell
 define('source-map-resolve', function() {
-  var urlLib = require("url")
-  var pathLib = require("path")
+  const isNode = typeof window !== "undefined" && typeof window.document !== "undefined";
+  if(isNode) {
+	console.log(window);
+	var getModule = require;
+	var urlLib = getModule("url")
+	var pathLib = getModule("path")
 
-  function resolveUrl(/* ...urls */) {
-    return Array.prototype.reduce.call(arguments, function(resolved, nextUrl) {
-      return urlLib.resolve(resolved, nextUrl)
-    })
-  }
+	function resolveUrl(/* ...urls */) {
+		return Array.prototype.reduce.call(arguments, function(resolved, nextUrl) {
+		  return urlLib.resolve(resolved, nextUrl)
+		})
+	  }
+	
+	  function convertWindowsPath(aPath) {
+		return pathLib.sep === "\\" ? aPath.replace(/\\/g, "/").replace(/^[a-z]:\/?/i, "/") : aPath
+	  }
+  } else {
+	function resolveUrl(/* ...urls */) {
+		return Array.prototype.reduce.call(arguments, function(resolved, nextUrl) {
+	 
+		// Criar um elemento de âncora para simular o comportamento de resolver URLs
+		const anchor = document.createElement('a');
+		anchor.href = resolved;
+	  
+		// Resolver o URL `to` com base no URL base `from`
+		const base = anchor.href; // Obtém o URL absoluto de `from`
+		const resolvedAnchor = document.createElement('a');
+		resolvedAnchor.href = new URL(nextUrl, base).toString();
+	  
+		// Retornar o caminho completo, incluindo o search e hash
+		return resolvedAnchor.pathname + resolvedAnchor.search + resolvedAnchor.hash;
+		})
+	  }
 
-  function convertWindowsPath(aPath) {
-    return pathLib.sep === "\\" ? aPath.replace(/\\/g, "/").replace(/^[a-z]:\/?/i, "/") : aPath
+	  function convertWindowsPath(aPath) {
+		const isWindows = navigator.platform.startsWith("Win");
+		if (isWindows) {
+		  return aPath.replace(/\\/g, "/").replace(/^[a-z]:\/?/i, "/");
+		}
+		return aPath;
+	  }
   }
 
   function customDecodeUriComponent(string) {
