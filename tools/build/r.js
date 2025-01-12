@@ -16754,7 +16754,6 @@ define('source-map-url', function() {
 define('source-map-resolve', function() {
   const isNode = typeof window !== "undefined" && typeof window.document !== "undefined";
   if(isNode) {
-	console.log(window);
 	var getModule = require;
 	var urlLib = getModule("url")
 	var pathLib = getModule("path")
@@ -16772,16 +16771,16 @@ define('source-map-resolve', function() {
 	function resolveUrl(/* ...urls */) {
 		return Array.prototype.reduce.call(arguments, function(resolved, nextUrl) {
 	 
-		// Criar um elemento de âncora para simular o comportamento de resolver URLs
+		// create element to simulate anchor
 		const anchor = document.createElement('a');
 		anchor.href = resolved;
 	  
-		// Resolver o URL `to` com base no URL base `from`
-		const base = anchor.href; // Obtém o URL absoluto de `from`
+		// resolve the url
+		const base = anchor.href;
 		const resolvedAnchor = document.createElement('a');
 		resolvedAnchor.href = new URL(nextUrl, base).toString();
 	  
-		// Retornar o caminho completo, incluindo o search e hash
+		// return the full path
 		return resolvedAnchor.pathname + resolvedAnchor.search + resolvedAnchor.hash;
 		})
 	  }
