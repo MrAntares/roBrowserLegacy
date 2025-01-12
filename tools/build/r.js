@@ -16752,17 +16752,46 @@ define('source-map-url', function() {
 });
 // Copyright 2014-2020 Simon Lydell
 define('source-map-resolve', function() {
-  var urlLib = require("url")
-  var pathLib = require("path")
+  const isNode = typeof window !== "undefined" && typeof window.document !== "undefined";
+  if(isNode) {
+	var getModule = require;
+	var urlLib = getModule("url")
+	var pathLib = getModule("path")
 
-  function resolveUrl(/* ...urls */) {
-    return Array.prototype.reduce.call(arguments, function(resolved, nextUrl) {
-      return urlLib.resolve(resolved, nextUrl)
-    })
-  }
+	function resolveUrl(/* ...urls */) {
+		return Array.prototype.reduce.call(arguments, function(resolved, nextUrl) {
+		  return urlLib.resolve(resolved, nextUrl)
+		})
+	  }
+	
+	  function convertWindowsPath(aPath) {
+		return pathLib.sep === "\\" ? aPath.replace(/\\/g, "/").replace(/^[a-z]:\/?/i, "/") : aPath
+	  }
+  } else {
+	function resolveUrl(/* ...urls */) {
+		return Array.prototype.reduce.call(arguments, function(resolved, nextUrl) {
+	 
+		// create element to simulate anchor
+		const anchor = document.createElement('a');
+		anchor.href = resolved;
+	  
+		// resolve the url
+		const base = anchor.href;
+		const resolvedAnchor = document.createElement('a');
+		resolvedAnchor.href = new URL(nextUrl, base).toString();
+	  
+		// return the full path
+		return resolvedAnchor.pathname + resolvedAnchor.search + resolvedAnchor.hash;
+		})
+	  }
 
-  function convertWindowsPath(aPath) {
-    return pathLib.sep === "\\" ? aPath.replace(/\\/g, "/").replace(/^[a-z]:\/?/i, "/") : aPath
+	  function convertWindowsPath(aPath) {
+		const isWindows = navigator.platform.startsWith("Win");
+		if (isWindows) {
+		  return aPath.replace(/\\/g, "/").replace(/^[a-z]:\/?/i, "/");
+		}
+		return aPath;
+	  }
   }
 
   function customDecodeUriComponent(string) {
