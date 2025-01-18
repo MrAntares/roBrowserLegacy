@@ -49,7 +49,8 @@ define(function(require)
 		BUY:  0,
 		SELL: 1,
 		VENDING_STORE: 2,
-		BUYING_STORE: 3
+		BUYING_STORE: 3,
+		BARTER_MARKET: 4
 	};
 
 
@@ -112,9 +113,7 @@ define(function(require)
 
 		if (PACKETVER.value >= 20131223) {
 			ui.find('.btn.cancel').click(function(){
-				NpcStore.remove();
-				var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
-				Network.sendPacket(pkt);
+				NpcStore.closeStore();
 			});
 		} else {
 			ui.find('.btn.cancel').click(this.remove.bind(this));
@@ -213,7 +212,6 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
-		this.ui.find('.totalP .resultP').text(0);
 	};
 
 
@@ -228,7 +226,7 @@ define(function(require)
 			this.remove();
 			event.stopImmediatePropagation();
 
-			if (PACKETVER.value >= 20131223) {
+			if (PACKETVER.value >= 20131223) { 
 				var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
 				Network.sendPacket(pkt);
 			}
@@ -269,10 +267,11 @@ define(function(require)
 				this.ui.find('.content').css('height','160px');
 				this.ui.find('.contentAvailable').css('height','65px');
 				break;
-
-			case NpcStore.Type.CASH_SHOP:
-				this.ui.find('.WinSell, .WinVendingStore, .WinBuyingStore, .AvailableItemsWindow, .total').hide();
+			
+			case NpcStore.Type.BARTER_MARKET:
+				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
 				this.ui.find('.WinBuy').show();
+				this.ui.find('.total').hide();
 				break;
 		}
 
@@ -292,7 +291,6 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
-		this.ui.find('.totalP .resultP').text(0);
 
 		_input.length  = 0;
 		_output.length = 0;
@@ -302,7 +300,6 @@ define(function(require)
 
 			case NpcStore.Type.BUY:
 			case NpcStore.Type.VENDING_STORE:
-			case NpcStore.Type.CASH_SHOP:
 				for (i = 0, count = items.length; i < count; ++i) {
 					if (!('index' in items[i])) {
 						items[i].index = i;
@@ -350,13 +347,30 @@ define(function(require)
 				}
 				break;
 
+			case NpcStore.Type.BARTER_MARKET:
+				for (i = 0, count = items.length; i < count; ++i) {
+					if (!('index' in items[i])) {
+						items[i].index = i;
+					}
+					items[i].count        = items[i].count || Infinity;
+					items[i].IsIdentified = true;
+					out                   = jQuery.extend({}, items[i]);
+					out.count             = 0;
+
+					addItem( content, items[i]);
+
+					_input[items[i].index]  = items[i];
+					_output[items[i].index] = out;
+				}
+				break;
+
 			case NpcStore.Type.SELL:
 				var InventoryVersion = UIManager.getComponent('Inventory').name;
 				for (i = 0, count = items.length; i < count; ++i) {
 					it = Inventory.getUI().getItemByIndex(items[i].index);
 
 					var condition = (InventoryVersion !== 'InventoryV0') ? it && (!Inventory.getUI().npcsalelock || it.PlaceETCTab < 1) : it;
-
+					
 					if (condition) {
 						item                 = jQuery.extend({}, it);
 						item.price           = items[i].price;
@@ -402,16 +416,6 @@ define(function(require)
 		}
 
 		NpcStore.onSubmit( output );
-
-		// work around - cashshop dont close after buy
-		this.ui.find('.OutputWindow').find('.content').empty();
-		this.ui.find('.totalP .resultP').text(0);
-
-		for (i = 0; i < count; ++i) {
-			if (_output[i] && _output[i].count) {
-				_output[i].count = 0; // clear
-			}
-		}
 	};
 
 
@@ -434,9 +438,30 @@ define(function(require)
 		}
 
 		this.ui.find('.total .result').text(prettyZeny(total));
-		this.ui.find('.totalP .resultP').text(prettyZeny(total));
+
+		if (_type === NpcStore.Type.BARTER_MARKET) {
+			this.ui.find('.total').hide();
+		}
 
 		return total;
+	};
+
+
+	/**
+	 * Calculate the total weight of all items in the output box
+	 *
+	 * @return {number}
+	 */
+	NpcStore.calculateWeight = function calculateWeight() {
+	    let totalWeight = 0;
+
+	    _output.forEach(item => {
+	        if (item && item.count > 0 && item.total_weight) {
+	            totalWeight += item.total_weight;
+	        }
+	    });
+
+	    return totalWeight;
 	};
 
 
@@ -485,10 +510,18 @@ define(function(require)
 	 */
 	function addItem( content, item)
 	{
+		console.log("npcstore item:", item);
 		var it      = DB.getItemInfo(item.ITID);
+		var currencyit = DB.getItemInfo(item.currencyITID);
 		var element = content.find('.item[data-index='+ item.index +']:first');
 		var price;
 		let amountText;
+
+		let currency_item;
+		if (_type === NpcStore.Type.BARTER_MARKET) {
+			currency_item = { ...item };  // Shallow copy of the item
+			currency_item.ITID = item.currencyITID;
+		}
 
 		// 0 as amount ? remove it
 		if (item.count === 0) {
@@ -506,7 +539,7 @@ define(function(require)
 			return;
 		}
 
-		if(!(content.hasClass('contentAvailable'))) {
+		if(!(content.hasClass('contentAvailable')) && (_type !== NpcStore.Type.BARTER_MARKET)) {
 			price = prettyZeny(item.price, _type === NpcStore.Type.VENDING_STORE || _type === NpcStore.Type.BUYING_STORE);
 
 			// Discount price
@@ -529,6 +562,17 @@ define(function(require)
 					'<div class="unity">Z</div>' +
 				'</div>'
 			);
+		} else if (_type === NpcStore.Type.BARTER_MARKET) {
+			content.append(
+				'<div class="item" draggable="true" data-index="'+ item.index +'" data-weight="'+ item.weight +'" data-location="'+ item.location +'" data-viewSprite="'+ item.viewSprite +'">' +
+					'<div class="icon"></div>' +
+					'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
+					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
+					'<div class="currency_icon" data-item="'+ item.currencyITID + '"></div>' +
+					'<div class="currency_amount">' + item.currencyamount + '</div>' +
+					'<div class="currency_nameOverlay">'+ jQuery.escape(DB.getItemName(currency_item)) +'</div>' +
+				'</div>'
+			);
 		} else {
 			content.append(
 				'<div class="item itemAvailable" draggable="true" data-index="'+ item.index +'">' +
@@ -541,6 +585,10 @@ define(function(require)
 		// Add the icon once loaded
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function(data){
 			content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
+		});
+
+		Client.loadFile( DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? currencyit.identifiedResourceName : currencyit.unidentifiedResourceName) + '.bmp', function(data){
+			content.find('.item[data-index="'+ item.index +'"] .currency_icon').css('backgroundImage', 'url('+ data +')');
 		});
 	}
 
@@ -601,73 +649,111 @@ define(function(require)
 	/**
 	 * Transfer item from input to output (or the inverse)
 	 *
-	 * @param {jQueryElement} from content (input / output)
-	 * @param {jQueryElement} to content (input / output)
-	 * @param {boolean} is adding the content to the output element
-	 * @param {number} item index
-	 * @param {number} amount
+	 * @param {jQueryElement} fromContent (input / output)
+	 * @param {jQueryElement} toContent (input / output)
+	 * @param {boolean} isAdding adding the content to the output element
+	 * @param {number} index item index
+	 * @param {number} count amount
 	 */
-	var transferItem = function transferItemQuantityClosure()
-	{
-		var tmpItem = {
-			ITID:   0,
-			count:  0,
-			price:  0,
-			index:  0
-		};
+	const transferItem = function() {
+	    const tmpItem = {
+	        ITID: 0,
+	        count: 0,
+	        price: 0,
+	        index: 0
+	    };
 
-		return function transferItem(fromContent, toContent, isAdding, index, count)
-		{
-			// Add item to the list
+	    const updateTmpItem = (inputItem, outputItem) => {
+	        tmpItem.ITID = inputItem.ITID;
+	        tmpItem.count = inputItem.count - outputItem.count;
+	        tmpItem.price = inputItem.price;
+	        tmpItem.index = inputItem.index;
+	    };
+
+	    return function(fromContent, toContent, isAdding, index, count) {
+			const inputItem = _input[index];
+			const outputItem = _output[index];
+
 			if (isAdding) {
+				if ((_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) &&
+					NpcStore.calculateCost() + (inputItem.discountprice || inputItem.price) * count > Session.zeny) {
+					ChatBox.addText(DB.getMessage(55), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+					return;
+				}
 
-				// You don't have enough zeny
-				if (_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) {
-					if (NpcStore.calculateCost() + (_input[index].discountprice || _input[index].price) * count > Session.zeny) {
-						ChatBox.addText( DB.getMessage(55), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				let originalCount = outputItem.count;
+				outputItem.count = Math.min(outputItem.count + count, inputItem.count); // Update count
+
+				if (_type === NpcStore.Type.BARTER_MARKET) {
+					// Calculate weight
+					let inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
+					let inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
+					let currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
+					let currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
+					let additionalWeight = currencyItemWeight * (outputItem.count - originalCount);
+					let expectedWeight = Session.Character.weight + NpcStore.calculateWeight() + additionalWeight;
+				
+					console.log("Npcstore Max Weight:%d vs expected weight:%d for total of:%d", Session.Character.max_weight, expectedWeight, outputItem.count);
+
+					if (expectedWeight > Session.Character.max_weight) {
+						ChatBox.addText(DB.getMessage(56), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+						outputItem.count -= count; // Revert count change
 						return;
 					}
+
+					outputItem.total_weight = currencyItemWeight * outputItem.count;
+
+					// First, update the items
+					updateTmpItem(inputItem, outputItem);
+					addItem(fromContent, tmpItem);
+					addItem(toContent, outputItem);
+
+					// Then, update currency properties
+					let outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
+					let currencyItemDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_icon`);
+					let currencyItem = parseInt(currencyItemDiv.attr('data-item'), 10);
+					let currencyTotal = currencyAmount * outputItem.count;
+
+					outputCurrencyDiv.text(currencyTotal); // Update displayed currency total
+					outputItem.shopIndex = index; // Assign shop index
+					outputItem.matcurrency = currencyItem; // Assign material currency ID
+					outputItem.matcurrencyamount = currencyTotal; // Assign material currency amount
+				}				
+
+				if (typeof outputItem.maxCount !== 'undefined' && outputItem.count > outputItem.maxCount) {
+					let text = DB.getMessage(1739).replace("%d", outputItem.maxCount);
+					ChatBox.addText(text, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				}
-
-				_output[index].count = Math.min( _output[index].count + count, _input[index].count);
-
-				// Update input ui item amount
-				tmpItem.ITID  = _input[index].ITID;
-				tmpItem.count = _input[index].count - _output[index].count;
-				tmpItem.price = _input[index].price;
-				tmpItem.index = _input[index].index;
-
-				addItem( fromContent, tmpItem);
-				addItem( toContent, _output[index]);
-
-				if(typeof _output[index].maxCount !== 'undefined' && _output[index].count > _output[index].maxCount) {
-					let text = DB.getMessage(1739);
-					let result = text.replace("%d", _output[index].maxCount); // workaround
-					ChatBox.addText( result, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-				}
-			}
-
-			// Remove item
-			else {
-				count = Math.min(count, _output[index].count);
+			} else {
+				count = Math.min(count, outputItem.count);
 				if (!count) {
 					return;
 				}
 
-				_output[index].count -= count;
+				outputItem.count -= count;
 
-				// Update input ui item amount
-				tmpItem.ITID  = _input[index].ITID;
-				tmpItem.count = _input[index].count + _output[index].count;
-				tmpItem.price = _input[index].price;
-				tmpItem.index = _input[index].index;
+				if (_type === NpcStore.Type.BARTER_MARKET) {
+					let inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
+					let currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
+					outputItem.total_weight = currencyItemWeight * outputItem.count;
+		
+					let inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
+					let outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
+					let currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
+					let currencyTotal = currencyAmount * outputItem.count;
+		
+					outputCurrencyDiv.text(currencyTotal);
+					outputItem.matcurrencyamount = currencyTotal; // Update material currency amount
+				}
 
-				addItem( fromContent, _output[index]);
-				addItem( toContent,   tmpItem);
+				updateTmpItem(inputItem, outputItem);
+				addItem(fromContent, outputItem);
+				addItem(toContent, tmpItem);
 			}
 
 			NpcStore.calculateCost();
-		};
+			NpcStore.calculateWeight(); // Update total weight after every operation
+		};		
 	}();
 
 
@@ -687,10 +773,9 @@ define(function(require)
 		item        = isAdding ? _input[index] : _output[index];
 		isStackable = (
 			item.type !== ItemType.WEAPON &&
-			item.type !== ItemType.ARMOR  &&
-			item.type !== ItemType.SHADOWGEAR  &&
+			item.type !== ItemType.EQUIP  &&
 			item.type !== ItemType.PETEGG &&
-			item.type !== ItemType.PETARMOR
+			item.type !== ItemType.PETEQUIP
 		);
 
 		if (isAdding) {
@@ -890,6 +975,19 @@ define(function(require)
 			this.style.backgroundImage = 'url('+ data +')';
 		}.bind(this));
 	}
+
+
+	NpcStore.closeStore = function() {
+		NpcStore.remove();
+		this.ui.find('.total').show();
+		var pkt  = (_type === NpcStore.Type.BARTER_MARKET) ? new PACKET.CZ.NPC_BARTER_MARKET_CLOSE() : new PACKET.CZ.NPC_TRADE_QUIT();
+		Network.sendPacket(pkt);
+	};
+
+
+	NpcStore.getCurrentType = function() {
+		return _type;
+	};
 
 
 	/**
