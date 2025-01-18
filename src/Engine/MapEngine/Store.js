@@ -130,7 +130,7 @@ define(function( require )
 	/**
 	 * Received items list to from barter NPC
 	 *
-	 * @param {object} pkt - PACKET.ZC.PC_PURCHASE_ITEMLIST
+	 * @param {object} pkt - PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO
 	 */
 	function onBarterBuyList( pkt )
 	{
@@ -184,7 +184,7 @@ define(function( require )
 			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
 		}
 
-		if (NpcStore.getCurrentType() === 4) {
+		if (NpcStore.getCurrentType() >= 4) {	// Marketshop && Barter
 			NpcStore.closeStore();
 		}
 	}
@@ -415,6 +415,35 @@ define(function( require )
 	}
 
 	/**
+	 * Received items list to from Marketshop NPC
+	 *
+	 * @param {object} pkt - PACKET.ZC.NPC_MARKET_OPEN2
+	 */
+	function onMarketShop(pkt) {
+		// Initialize the NPC store for Market Shop
+		NpcStore.append();
+		NpcStore.setType(NpcStore.Type.MARKETSHOP); // Set the type to MARKETSHOP
+		NpcStore.setList(pkt.itemList); // Set the item list from the packet
+	
+		// Define the submission callback
+		NpcStore.onSubmit = function(itemList) {
+			let i, count;
+			const pkt = new PACKET.CZ.NPC_MARKET_PURCHASE(); // Use the market purchase packet
+			count = itemList.length;
+	
+			for (i = 0; i < count; ++i) {
+				pkt.itemList.push({
+					itemId: itemList[i].ITID,		// Item ID
+					amount: itemList[i].count,		// Quantity to purchase
+				});
+			}
+	
+			// Send the constructed packet
+			Network.sendPacket(pkt);
+		};
+	}
+
+	/**
 	 * Initialize
 	 */
 	return function MainEngine()
@@ -442,6 +471,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMLIST_BUYING_STORE,    onBuyingStoreList );
 		Network.hookPacket( PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult );
+		Network.hookPacket( PACKET.ZC.NPC_MARKET_OPEN2,				onMarketShop );
 		Network.hookPacket( PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO, 	onBarterBuyList );
 	};
 });

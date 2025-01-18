@@ -50,7 +50,8 @@ define(function(require)
 		SELL: 1,
 		VENDING_STORE: 2,
 		BUYING_STORE: 3,
-		BARTER_MARKET: 4
+		MARKETSHOP: 4,
+		BARTER_MARKET: 5
 	};
 
 
@@ -268,6 +269,11 @@ define(function(require)
 				this.ui.find('.contentAvailable').css('height','65px');
 				break;
 			
+			case NpcStore.Type.MARKETSHOP:
+				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
+				this.ui.find('.WinBuy').show();
+				break;
+
 			case NpcStore.Type.BARTER_MARKET:
 				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
 				this.ui.find('.WinBuy').show();
@@ -300,6 +306,7 @@ define(function(require)
 
 			case NpcStore.Type.BUY:
 			case NpcStore.Type.VENDING_STORE:
+			case NpcStore.Type.MARKETSHOP:
 				for (i = 0, count = items.length; i < count; ++i) {
 					if (!('index' in items[i])) {
 						items[i].index = i;
@@ -675,7 +682,7 @@ define(function(require)
 			const outputItem = _output[index];
 
 			if (isAdding) {
-				if ((_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) &&
+				if ((_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE || _type === NpcStore.Type.MARKETSHOP) &&
 					NpcStore.calculateCost() + (inputItem.discountprice || inputItem.price) * count > Session.zeny) {
 					ChatBox.addText(DB.getMessage(55), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 					return;
@@ -988,14 +995,34 @@ define(function(require)
 	}
 
 
+	/**
+	 * Handles the packet to send to the server when closing stores
+	 */
 	NpcStore.closeStore = function() {
 		NpcStore.remove();
 		this.ui.find('.total').show();
-		var pkt  = (_type === NpcStore.Type.BARTER_MARKET) ? new PACKET.CZ.NPC_BARTER_MARKET_CLOSE() : new PACKET.CZ.NPC_TRADE_QUIT();
+		var pkt;
+
+		switch(_type) {
+			case NpcStore.Type.MARKETSHOP:
+				pkt = new PACKET.CZ.NPC_MARKET_CLOSE();
+				break;
+			case NpcStore.Type.BARTER_MARKET:
+				pkt = new PACKET.CZ.NPC_BARTER_MARKET_CLOSE();
+				break;
+			default:
+				pkt = new PACKET.CZ.NPC_TRADE_QUIT();
+				break;
+		}
+
 		Network.sendPacket(pkt);
 	};
 
 
+	/**
+	 * Returns Npc Store Type
+	 * @returns {type}
+	 */
 	NpcStore.getCurrentType = function() {
 		return _type;
 	};
