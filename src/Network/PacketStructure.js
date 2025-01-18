@@ -1707,6 +1707,46 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+	// 0x9d6
+	PACKET.CZ.NPC_MARKET_PURCHASE = function PACKET_CZ_NPC_MARKET_PURCHASE() {
+	    this.itemList = [];
+	};
+
+	PACKET.CZ.NPC_MARKET_PURCHASE.prototype.build = function() {
+	    // Determine the item size based on PACKETVER
+	    const item_size = (PACKETVER.value >= 20181121) ? 8 : 6; // 8 bytes (4 + 4) or 6 bytes (2 + 4)
+	    const pkt_len = 4 + (this.itemList.length * item_size); // Total packet length
+	    const pkt_buf = new BinaryWriter(pkt_len); // Create a buffer with the required size
+
+	    pkt_buf.writeShort(0x9d6); // Packet type
+	    pkt_buf.writeShort(pkt_len); // Packet length
+
+	    for (let i = 0; i < this.itemList.length; ++i) {
+	        // Write ITID based on PACKETVER
+	        if (PACKETVER.value >= 20181121) {
+	            pkt_buf.writeULong(this.itemList[i].itemId); // uint32
+	        } else {
+	            pkt_buf.writeUShort(this.itemList[i].itemId); // uint16
+	        }
+
+	        // Write quantity (int32)
+	        pkt_buf.writeLong(this.itemList[i].amount); // int32
+	    }
+
+	    return pkt_buf;
+	};
+
+	// 0x9d8
+	PACKET.CZ.NPC_MARKET_CLOSE = function PACKET_CZ_NPC_MARKET_CLOSE() {
+	};
+	PACKET.CZ.NPC_MARKET_CLOSE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9d8);
+		return pkt_buf;
+	};
+
 	// 0x19f
 	PACKET.CZ.TRYCAPTURE_MONSTER = function PACKET_CZ_TRYCAPTURE_MONSTER() {
 		this.targetAID = 0;
@@ -14555,6 +14595,29 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.grade = fp.readUChar();
 	};
 	PACKET.ZC.ITEM_PICKUP_PARTY2.size = 33;
+
+	// 0b7a
+	PACKET.ZC.NPC_MARKET_OPEN2 = function PACKET_ZC_NPC_MARKET_OPEN2(fp, end) {
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 19 : 17; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+	
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].type = fp.readUChar();
+				out[i].price = fp.readULong();
+				out[i].qty = fp.readULong();
+				out[i].weight = fp.readUShort();
+				out[i].location = fp.readULong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_OPEN2.size = -1;	
 
 	// 0xb72
 	PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2 = function PACKET_HC_ACCEPT_ENTER_NEO_UNION_LIST2(fp, end) {
