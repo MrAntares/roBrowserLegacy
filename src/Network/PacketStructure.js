@@ -14000,11 +14000,42 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ADD_QUEST3.size = 155;
 
+	// 0xb0f
+	PACKET.CZ.NPC_BARTER_MARKET_PURCHASE = function PACKET_CZ_NPC_BARTER_MARKET_PURCHASE() {
+		this.itemList = [];
+	};
+	PACKET.CZ.NPC_BARTER_MARKET_PURCHASE.prototype.build = function() {
+		var item_size = (PACKETVER.value >= 20181121) ? 14 : 12;
+    	var pkt_len = 4 + (this.itemList.length * item_size);
+    	var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb0f);
+		pkt_buf.writeShort(pkt_len);
+
+		for (var i = 0; i < this.itemList.length; ++i) {
+			(PACKETVER.value >= 20181121) ? pkt_buf.writeULong(this.itemList[i].itemId) : pkt_buf.writeUShort(this.itemList[i].itemId);
+			pkt_buf.writeULong(this.itemList[i].amount);
+			pkt_buf.writeUShort(this.itemList[i].invIndex);
+			pkt_buf.writeULong(this.itemList[i].shopIndex);
+		}
+
+		return pkt_buf;
+	};
+
 	// 0xb1b
 	// this means that player is allowed to do actions
 	PACKET.ZC.NOTIFY_ACTORINIT2 = function PACKET_ZC_NOTIFY_ACTORINIT2(fp, end) {
     };
     PACKET.ZC.NOTIFY_ACTORINIT2.size = 2;
+
+	// 0xb12
+	PACKET.CZ.NPC_BARTER_MARKET_CLOSE = function PACKET_CZ_NPC_BARTER_MARKET_CLOSE() {
+	};
+	PACKET.CZ.NPC_BARTER_MARKET_CLOSE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+		pkt_buf.writeShort(0xb12);
+		return pkt_buf;
+	};
 
 	// 0xb14
 	PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE = function PACKET_CZ_REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE() {
@@ -14578,6 +14609,28 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
+
+	// 0xb78
+	PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEMINFO(fp, end) {
+		this.itemList = (function() {
+			let item_size = (PACKETVER.value >= 20181121) ? 31: 27;
+			var i, count=(end-fp.tell())/item_size|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].amount = fp.readULong();
+				out[i].currencyITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+				out[i].currencyamount = fp.readULong();
+				out[i].weight = fp.readULong();
+				out[i].index = fp.readULong();
+				out[i].viewSprite = fp.readUShort();
+				out[i].location = fp.readULong();
+			}
+			return out;
+		})();
+	}
+	PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO.size = -1;
 
 	// 0xb7b
 	PACKET.ZC.GUILD_INFO4 = function PACKET_ZC_GUILD_INFO4(fp, end) {
