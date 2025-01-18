@@ -718,7 +718,18 @@ define(function(require)
 					outputItem.shopIndex = index; // Assign shop index
 					outputItem.matcurrency = currencyItem; // Assign material currency ID
 					outputItem.matcurrencyamount = currencyTotal; // Assign material currency amount
-				}				
+				} else {
+					_output[index].count = Math.min( _output[index].count + count, _input[index].count);
+
+					// Update input ui item amount
+					tmpItem.ITID  = _input[index].ITID;
+					tmpItem.count = _input[index].count - _output[index].count;
+					tmpItem.price = _input[index].price;
+					tmpItem.index = _input[index].index;
+
+					addItem( fromContent, tmpItem);
+					addItem( toContent, _output[index]);
+				}
 
 				if (typeof outputItem.maxCount !== 'undefined' && outputItem.count > outputItem.maxCount) {
 					let text = DB.getMessage(1739).replace("%d", outputItem.maxCount);
