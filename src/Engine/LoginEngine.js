@@ -418,6 +418,7 @@ define(function( require )
 		WinLoading.append();
 
 		CharEngine.onExitRequest = reload;
+		Session.ServerName = _charServers[index].name; // Save server name
 		CharEngine.init( _charServers[index] );
 	}
 
@@ -450,6 +451,7 @@ define(function( require )
 		if (count === 1 && Configs.get('skipServerList')) {
 			WinLoading.append();
 			CharEngine.onExitRequest = reload;
+			Session.ServerName = _charServers[0].name; // Save server name
 			CharEngine.init(_charServers[0]);
 		}
 
