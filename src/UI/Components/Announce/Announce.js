@@ -63,7 +63,7 @@ define(function(require)
 
 		this.ui.attr('id', 'Announce').css({
 			position: 'absolute',
-			top:       85,
+			top:       40,
 			zIndex:    40
 		});
 	};
@@ -78,6 +78,7 @@ define(function(require)
 			Events.clearTimeout( _timer );
 			this.timer = 0;
 		}
+		this.ui.remove(); // Remove from DOM
 	};
 
 
@@ -96,10 +97,10 @@ define(function(require)
 	 * @param {string} text to display
 	 * @param {string} color
 	 */
-	Announce.set = function set( text, color )
+	Announce.set = function set( text, color, allowNewlines = false)
 	{
 		var fontSize = 12;
-		var maxWidth = 450;
+		var maxWidth = 500;
 		var lines    = [];
 
 		var width    = 0;
@@ -108,52 +109,68 @@ define(function(require)
 
 		this.ctx.font = fontSize + 'px Arial';
 
-		// Create lines
-		while (text.length) {
-			i = text.length;
-			while (this.ctx.measureText(text.substr(0,i)).width > maxWidth) {
-				i--;
-			}
-
-			result = text.substr(0,i);
-
-			if (i !== text.length) {
-				j = 0;
-				while (result.indexOf(' ',j) !== -1) {
-					j = result.indexOf(' ',j) + 1;
+		if (allowNewlines) {
+			// Process '\n' explicitly as a new line
+			text.split('\n').forEach((line) => {
+				const words = line.split(' ');
+				let currentLine = '';
+	
+				words.forEach((word) => {
+					const testLine = currentLine + word + ' ';
+					if (this.ctx.measureText(testLine).width > maxWidth) {
+						lines.push(currentLine.trim());
+						currentLine = word + ' ';
+					} else {
+						currentLine = testLine;
+					}
+				});
+	
+				if (currentLine.trim()) {
+					lines.push(currentLine.trim());
 				}
+			});
+		} else {
+			// Ignore '\n' and wrap text as a single block
+			let currentLine = '';
+			text.split(' ').forEach((word) => {
+				const testLine = currentLine + word + ' ';
+				if (this.ctx.measureText(testLine).width > maxWidth) {
+					lines.push(currentLine.trim());
+					currentLine = word + ' ';
+				} else {
+					currentLine = testLine;
+				}
+			});
+	
+			if (currentLine.trim()) {
+				lines.push(currentLine.trim());
 			}
-
-			lines.push( result.substr(0, j || result.length) );
-			width = Math.max( width, this.ctx.measureText(lines[ lines.length-1 ]).width );
-			text  = text.substr( lines[ lines.length-1 ].length, text.length );
 		}
-
-
+	
 		// Get new canvas size
-		this.canvas.width      = 20 + width;
-		this.canvas.height     = 10 + ( fontSize + 5 ) * lines.length;
-		this.canvas.style.left = ((Renderer.width - this.canvas.width) >> 1) + 'px';
-
-		// Updating canvas size reset font value
-		this.ctx.font          = fontSize + 'px Arial';
-
+		this.canvas.width = 20 + Math.max(...lines.map((line) => this.ctx.measureText(line).width));
+		this.canvas.height = 10 + (fontSize + 5) * lines.length;
+		this.canvas.style.left = `${((Renderer.width - this.canvas.width) >> 1)}px`;
+	
+		// Updating canvas size resets font value
+		this.ctx.font = fontSize + 'px Arial';
+	
 		// Display background
-		this.ctx.fillStyle     = 'rgba(0,0,0,0.5)';
-		this.ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
-
+		this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	
 		// Display text
-		this.ctx.fillStyle     = color || '#FFFF00';
-		for (i = 0, count = lines.length; i < count; ++i) {
-			this.ctx.fillText( lines[i], 10, 5 + fontSize + (fontSize+5) * i );
-		}
-
-		// Start tomer
+		this.ctx.fillStyle = color || '#FFFF00';
+		lines.forEach((line, index) => {
+			this.ctx.fillText(line, 10, 5 + fontSize + (fontSize + 5) * index);
+		});
+	
+		// Start timer
 		if (_timer) {
 			Events.clearTimeout(_timer);
 		}
-
-		this.timer = Events.setTimeout( this.timeEnd.bind(this), _life );
+	
+		this.timer = Events.setTimeout(this.timeEnd.bind(this), _life);
 	};
 
 
