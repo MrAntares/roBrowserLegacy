@@ -414,6 +414,7 @@ define(function( require )
 		}
 	}
 
+
 	/**
 	 * Received items list to from Marketshop NPC
 	 *
@@ -441,7 +442,29 @@ define(function( require )
 			// Send the constructed packet
 			Network.sendPacket(pkt);
 		};
-	}
+	};
+
+
+	/**
+	 * Handles marketshop purchase result packet
+	 *
+	 * @param {PACKET.ZC.NPC_MARKET_PURCHASE_RESULT} pkt
+	 * @param {PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2} pkt
+	 */
+	function onMarketShopResult(pkt) {
+		if (pkt) {
+			switch (pkt.result) {
+				case 0: // PACKETVER.value >= 20190807 success
+				case 1: // PACKETVER.value < 20190807 success
+					ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
+					NpcStore.onMarketShopResultUI(pkt.itemList);
+					break;
+				default:
+					break;
+			}
+		}
+	};
+
 
 	/**
 	 * Initialize
@@ -472,6 +495,8 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ACK_ITEMLIST_BUYING_STORE,    onBuyingStoreList );
 		Network.hookPacket( PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult );
 		Network.hookPacket( PACKET.ZC.NPC_MARKET_OPEN2,				onMarketShop );
+		Network.hookPacket( PACKET.ZC.NPC_MARKET_PURCHASE_RESULT,	onMarketShopResult);
+		Network.hookPacket( PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2,	onMarketShopResult);
 		Network.hookPacket( PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO, 	onBarterBuyList );
 	};
 });

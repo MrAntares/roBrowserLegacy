@@ -80,6 +80,11 @@ define(function(require)
 			y:    100 + (4*32) - (2*32),
 			height: 2
 		},
+		PurchaseResult: {
+			x:    100 + 280 + 10,
+			y:    100 + (7*32) - (2*32),
+			height: 2
+		},
 		select_all: false
 	}, 1.0);
 
@@ -111,6 +116,7 @@ define(function(require)
 		var InputWindow  = ui.find('.InputWindow');
 		var OutputWindow = ui.find('.OutputWindow');
 		var AvailableItemsWindow = ui.find('.AvailableItemsWindow');
+		var PurchaseResult = ui.find('.PurchaseResult');
 
 		if (PACKETVER.value >= 20131223) {
 			ui.find('.btn.cancel').click(function(){
@@ -128,6 +134,7 @@ define(function(require)
 		InputWindow.find('.resize').mousedown(function(){ onResize(InputWindow); });
 		OutputWindow.find('.resize').mousedown(function(){ onResize(OutputWindow); });
 		AvailableItemsWindow.find('.resize').mousedown(function(){ onResize(AvailableItemsWindow); });
+		PurchaseResult.find('.resize').mousedown(function(){ onResize(PurchaseResult); });
 
 		// Items options
 		ui.find('.content')
@@ -155,6 +162,12 @@ define(function(require)
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
 		this.draggable.call({ui: OutputWindow }, OutputWindow.find('.titlebar'));
 		this.draggable.call({ui: AvailableItemsWindow }, AvailableItemsWindow.find('.titlebar'));
+		this.draggable.call({ui: PurchaseResult }, PurchaseResult.find('.titlebar'));
+
+		// MarketShop close
+		ui.find('.btn.ok').click(function(){
+			NpcStore.closeStore();
+		})
 	};
 
 
@@ -166,10 +179,12 @@ define(function(require)
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
 		var AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
+		var PurchaseResult = this.ui.find('.PurchaseResult');
 
 		InputWindow.css({  top:  _preferences.inputWindow.y,  left: _preferences.inputWindow.x });
 		OutputWindow.css({ top:  _preferences.outputWindow.y, left: _preferences.outputWindow.x });
 		AvailableItemsWindow.css({ top:  _preferences.AvailableItemsWindow.y, left: _preferences.AvailableItemsWindow.x });
+		PurchaseResult.css({ top:  _preferences.PurchaseResult.y, left: _preferences.PurchaseResult.x });
 
 		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp', function(data){
 			this.ui.find('.selectall:first').css('backgroundImage', 'url('+ data +')');
@@ -178,6 +193,7 @@ define(function(require)
 		resize( InputWindow.find('.content'),  _preferences.inputWindow.height );
 		resize( OutputWindow.find('.content'), _preferences.outputWindow.height );
 		resize( AvailableItemsWindow.find('.content'), _preferences.AvailableItemsWindow.height );
+		resize( PurchaseResult.find('.content'), _preferences.PurchaseResult.height );
 
 		// Seems like "EscapeWindow" is execute first, push it before.
 		var events = jQuery._data( window, 'events').keydown;
@@ -193,6 +209,7 @@ define(function(require)
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
 		var AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
+		var PurchaseResult = this.ui.find('.PurchaseResult');
 
 		_input.length    = 0;
 		_output.length   = 0;
@@ -208,6 +225,10 @@ define(function(require)
 		_preferences.AvailableItemsWindow.x      = parseInt( AvailableItemsWindow.css('left'), 10);
 		_preferences.AvailableItemsWindow.y      = parseInt( AvailableItemsWindow.css('top'), 10);
 		_preferences.AvailableItemsWindow.height = AvailableItemsWindow.find('.content').height() / 32 | 0;
+
+		_preferences.PurchaseResult.x      = parseInt( PurchaseResult.css('left'), 10);
+		_preferences.PurchaseResult.y      = parseInt( PurchaseResult.css('top'), 10);
+		_preferences.PurchaseResult.height = PurchaseResult.find('.content').height() / 32 | 0;
 
 		_preferences.save();
 
@@ -227,9 +248,8 @@ define(function(require)
 			this.remove();
 			event.stopImmediatePropagation();
 
-			if (PACKETVER.value >= 20131223) { 
-				var pkt  = new PACKET.CZ.NPC_TRADE_QUIT();
-				Network.sendPacket(pkt);
+			if (PACKETVER.value >= 20131223) {
+				NpcStore.StoreClosePacket(_type);
 			}
 
 			return false;
@@ -248,34 +268,30 @@ define(function(require)
 	{
 		switch (type) {
 			case NpcStore.Type.BUY:
-				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
+			case NpcStore.Type.MARKETSHOP:
+				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult').hide();
 				this.ui.find('.WinBuy').show();
 				break;
 
 			case NpcStore.Type.SELL:
-				this.ui.find('.WinBuy, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
+				this.ui.find('.WinBuy, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult').hide();
 				this.ui.find('.WinSell').show();
 				break;
 
 			case NpcStore.Type.VENDING_STORE:
-				this.ui.find('.WinBuy, .WinSell, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
+				this.ui.find('.WinBuy, .WinSell, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult').hide();
 				this.ui.find('.WinVendingStore').show();
 				break;
 
 			case NpcStore.Type.BUYING_STORE:
-				this.ui.find('.WinBuy, .WinSell, .WinCash, .WinVendingStore').hide();
+				this.ui.find('.WinBuy, .WinSell, .WinCash, .WinVendingStore, .PurchaseResult').hide();
 				this.ui.find('.WinBuyingStore, .AvailableItemsWindow').show();
 				this.ui.find('.content').css('height','160px');
 				this.ui.find('.contentAvailable').css('height','65px');
 				break;
-			
-			case NpcStore.Type.MARKETSHOP:
-				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
-				this.ui.find('.WinBuy').show();
-				break;
 
 			case NpcStore.Type.BARTER_MARKET:
-				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow').hide();
+				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult').hide();
 				this.ui.find('.WinBuy').show();
 				this.ui.find('.total').hide();
 				break;
@@ -517,7 +533,6 @@ define(function(require)
 	 */
 	function addItem( content, item)
 	{
-		console.log("npcstore item:", item);
 		var it      = DB.getItemInfo(item.ITID);
 		var currencyit = DB.getItemInfo(item.currencyITID);
 		var element = content.find('.item[data-index='+ item.index +']:first');
@@ -577,7 +592,7 @@ define(function(require)
 					'<div class="name">'+ jQuery.escape(DB.getItemName(item)) +'</div>' +
 					'<div class="currency_icon" data-item="'+ item.currencyITID + '"></div>' +
 					'<div class="currency_amount">' + item.currencyamount + '</div>' +
-					'<div class="currency_nameOverlay">'+ jQuery.escape(DB.getItemName(currency_item)) +'</div>' +
+					'<div class="currency_nameOverlay">'+ jQuery.escape(DB.getItemName(currency_item)) +' '+ item.currencyamount +' ea</div>' +
 				'</div>'
 			);
 		} else {
@@ -699,8 +714,7 @@ define(function(require)
 					let currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
 					let additionalWeight = currencyItemWeight * (outputItem.count - originalCount);
 					let expectedWeight = Session.Character.weight + NpcStore.calculateWeight() + additionalWeight;
-				
-					console.log("Npcstore Max Weight:%d vs expected weight:%d for total of:%d", Session.Character.max_weight, expectedWeight, outputItem.count);
+
 
 					if (expectedWeight > Session.Character.max_weight) {
 						ChatBox.addText(DB.getMessage(56), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
@@ -752,7 +766,7 @@ define(function(require)
 					let outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
 					let currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
 					let currencyTotal = currencyAmount * outputItem.count;
-		
+
 					outputCurrencyDiv.text(currencyTotal);
 					outputItem.matcurrencyamount = currencyTotal; // Update material currency amount
 				}
@@ -994,11 +1008,26 @@ define(function(require)
 	NpcStore.closeStore = function() {
 		NpcStore.remove();
 		this.ui.find('.total').show();
-		var pkt;
 
-		switch(_type) {
+		NpcStore.StoreClosePacket(_type);
+	};
+
+
+	/**
+	* Handles packet to close store based on the store type
+	*
+	* @param {String} type - The store type (e.g., NpcStore.Type.MARKETSHOP, etc.)
+	*/
+	NpcStore.StoreClosePacket = function(type) {
+		let inputWindow  = NpcStore.ui.find('.InputWindow');
+		let outputWindow = NpcStore.ui.find('.OutputWindow');
+
+		let pkt;
+		switch(type) {
 			case NpcStore.Type.MARKETSHOP:
 				pkt = new PACKET.CZ.NPC_MARKET_CLOSE();
+				inputWindow.show();
+				outputWindow.show();
 				break;
 			case NpcStore.Type.BARTER_MARKET:
 				pkt = new PACKET.CZ.NPC_BARTER_MARKET_CLOSE();
@@ -1007,17 +1036,49 @@ define(function(require)
 				pkt = new PACKET.CZ.NPC_TRADE_QUIT();
 				break;
 		}
-
 		Network.sendPacket(pkt);
 	};
 
 
 	/**
 	 * Returns Npc Store Type
-	 * @returns {type}
+	 * @returns {_type}
 	 */
 	NpcStore.getCurrentType = function() {
 		return _type;
+	};
+
+
+	/**
+	 * Update Marketshop Result UI
+	 *
+	 * @param {Array.<PACKET.ZC.NPC_MARKET_PURCHASE_RESULT.Item>} itemList
+	 * @param {Array.<PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2.Item>} itemList
+	 */
+	NpcStore.onMarketShopResultUI = function(itemList) {
+		let InputWindow  = NpcStore.ui.find('.InputWindow');
+		let OutputWindow = NpcStore.ui.find('.OutputWindow');
+		let OutputWindowcontent = OutputWindow.find('.content');
+		let resultUI = NpcStore.ui.find('.PurchaseResult');
+		let resultUIcontent =  resultUI.find('.content');
+
+		// Update UI
+		InputWindow.hide();
+		OutputWindow.hide();
+		resultUI.show();
+		resultUIcontent.empty();
+
+		if (!itemList || itemList.length === 0) {
+			return;
+		}
+
+		// Hack (Using the itemList from packet rearranges the index, so clone OutputWindow instead)
+		resultUIcontent.append(OutputWindowcontent.children().clone());
+
+		// Reapply resize logic for PurchaseResult
+		resultUI.find('.resize').off('mousedown').on('mousedown', function() {
+    		onResize(resultUI);
+		});
 	};
 
 
