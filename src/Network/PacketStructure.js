@@ -1707,11 +1707,32 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+	// 0x9d5
+	PACKET.ZC.NPC_MARKET_OPEN = function PACKET_ZC_NPC_MARKET_OPEN(fp, end) {
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 15 : 13; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+	
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].type = fp.readUChar();
+				out[i].price = fp.readULong();
+				out[i].qty = fp.readULong();
+				out[i].weight = fp.readUShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_OPEN.size = -1;
+
 	// 0x9d6
 	PACKET.CZ.NPC_MARKET_PURCHASE = function PACKET_CZ_NPC_MARKET_PURCHASE() {
 	    this.itemList = [];
 	};
-
 	PACKET.CZ.NPC_MARKET_PURCHASE.prototype.build = function() {
 	    // Determine the item size based on PACKETVER
 	    const item_size = (PACKETVER.value >= 20181121) ? 8 : 6; // 8 bytes (4 + 4) or 6 bytes (2 + 4)
@@ -1735,6 +1756,27 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	    return pkt_buf;
 	};
+
+	// 0x9d7
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT = function PACKET_ZC_NPC_MARKET_PURCHASE_RESULT(fp, end) {
+		this.result = fp.readUChar();
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 10 : 8; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].qty = fp.readUShort();
+				out[i].price = fp.readULong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT.size = -1;
 
 	// 0x9d8
 	PACKET.CZ.NPC_MARKET_CLOSE = function PACKET_CZ_NPC_MARKET_CLOSE() {
@@ -14558,6 +14600,27 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ADD_ITEM_TO_CART4.size = 58;
 
+	// 0xb4e
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2 = function PACKET_ZC_NPC_MARKET_PURCHASE_RESULT2(fp, end) {
+		this.result = fp.readUShort();
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 10 : 8; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].qty = fp.readUShort();
+				out[i].price = fp.readULong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2.size = -1;
+
 	// 0xb65
 	PACKET.ZC.REPAIRITEMLIST2 = function PACKET_ZC_REPAIRITEMLIST2(fp, end) {
 		this.itemList = (function() {
@@ -14617,7 +14680,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			return out;
 		})();
 	};
-	PACKET.ZC.NPC_MARKET_OPEN2.size = -1;	
+	PACKET.ZC.NPC_MARKET_OPEN2.size = -1;
 
 	// 0xb72
 	PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2 = function PACKET_HC_ACCEPT_ENTER_NEO_UNION_LIST2(fp, end) {
