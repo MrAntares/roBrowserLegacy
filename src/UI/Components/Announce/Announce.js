@@ -141,35 +141,35 @@ define(function(require)
 					currentLine = testLine;
 				}
 			});
-	
+
 			if (currentLine.trim()) {
 				lines.push(currentLine.trim());
 			}
 		}
-	
+
 		// Get new canvas size
 		this.canvas.width = 20 + Math.max(...lines.map((line) => this.ctx.measureText(line).width));
 		this.canvas.height = 10 + (fontSize + 5) * lines.length;
 		this.canvas.style.left = `${((Renderer.width - this.canvas.width) >> 1)}px`;
-	
+
 		// Updating canvas size resets font value
 		this.ctx.font = fontSize + 'px Arial';
-	
+
 		// Display background
 		this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-	
+
 		// Display text
 		this.ctx.fillStyle = color || '#FFFF00';
 		lines.forEach((line, index) => {
 			this.ctx.fillText(line, 10, 5 + fontSize + (fontSize + 5) * index);
 		});
-	
+
 		// Start timer
 		if (_timer) {
 			Events.clearTimeout(_timer);
 		}
-	
+
 		this.timer = Events.setTimeout(this.timeEnd.bind(this), _life);
 	};
 
