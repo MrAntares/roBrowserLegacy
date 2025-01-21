@@ -186,7 +186,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		var lines    = new Array(2);
 		var fontSize = 12;
 		var ctx      = this.ctx;
-		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN) ? 26 : 0) + 5;
+		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.NPC) ? 26 : 0) + 5;
 		var width, height;
 		var paddingTop = 5;
 
@@ -220,7 +220,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		ctx.canvas.height = height;
 
 		// Draw emblem
-		if (this.emblem  && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN)) {
+		if (this.emblem  && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.NPC)) {
 			ctx.drawImage( this.emblem, 0, 0 );
 		}
 

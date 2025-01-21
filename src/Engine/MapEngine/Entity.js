@@ -14,6 +14,7 @@ define(function( require )
 	/**
 	 * Load dependencies
 	 */
+	var Client            = require('Core/Client');
 	var DB                = require('DB/DBManager');
 	var SkillId           = require('DB/Skills/SkillConst');
 	var SkillInfo         = require('DB/Skills/SkillInfo');
@@ -945,8 +946,25 @@ define(function( require )
 						entity.emblem.display = true;
 					}
 				});
-			}
-			else {
+			} else if ((entity.objecttype === Entity.TYPE_NPC || entity.objecttype === Entity.TYPE_NPC2) && pkt.GID) {
+				const emblemPath = DB.INTERFACE_PATH + 'group/group_' + pkt.GID + '.bmp';
+    
+    			Client.loadFile(emblemPath, function(data) {
+    			    var emblemImage = new Image();
+					emblemImage.onload = () => {
+						entity.display.emblem = emblemImage;
+						entity.display.update(entity.display.STYLE.NPC);
+    				    entity.emblem.emblem = emblemImage;
+						entity.emblem.update();
+					};
+					if(Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
+						entity.emblem.display = true;
+					}
+    				emblemImage.src = data; // Ensure `data` is a valid image URL/base64
+				}, function(error) {
+					console.error('Failed to load NPC emblem:', error);
+				});
+			} else {
 				entity.display.emblem = null;
 			}
 			entity.display.update(
