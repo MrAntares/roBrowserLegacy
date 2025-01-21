@@ -4340,6 +4340,28 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
     };
     PACKET.ZC.ACK_SCHEDULER_CASHITEM.size = -1;
 
+	// 0x8cb
+	// <packet len>.W <exp>.L <death>.L <drop>.L <DETAIL_EXP_INFO>13B
+	// (ZC_PERSONAL_INFORMATION) <InfoType>.B <Exp>.L <Death>.L <Drop>.L (DETAIL_EXP_INFO)
+	PACKET.ZC.PERSONAL_INFORMATION = function PACKET_ZC_PERSONAL_INFORMATION(fp, end) {
+		this.total_exp = fp.readShort();
+		this.total_death = fp.readShort();
+		this.total_drop = fp.readShort();
+
+		this.info = (function() {
+			var i, count=(end-fp.tell())/7|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].type = fp.readChar(); // ?
+				out[i].exp = fp.readShort();
+				out[i].death = fp.readShort();
+				out[i].drop = fp.readShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.PERSONAL_INFORMATION.size = -1;
+
 	//0x08c0
 	PACKET.ZC.ACK_SE_CASH_ITEM_LIST2 = function PACKET_ZC_ACK_SE_CASH_ITEM_LIST2(fp, end) {
         this.len = fp.readULong();
@@ -8965,22 +8987,25 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x97b
 	// <packet len>.W <exp>.L <death>.L <drop>.L <DETAIL_EXP_INFO>13B
-	// (ZC_PERSONAL_INFOMATION2) <InfoType>.B <Exp>.L <Death>.L <Drop>.L (DETAIL_EXP_INFO)
-	PACKET.ZC.PERSONAL_INFOMATION = function PACKET_ZC_PERSONAL_INFOMATION(fp, end) {
+	// (ZC_PERSONAL_INFORMATION2) <InfoType>.B <Exp>.L <Death>.L <Drop>.L (DETAIL_EXP_INFO)
+	PACKET.ZC.PERSONAL_INFORMATION2 = function PACKET_ZC_PERSONAL_INFORMATION2(fp, end) {
+		this.total_exp = fp.readLong();
+		this.total_death = fp.readLong();
+		this.total_drop = fp.readLong();
 
 		this.info = (function() {
-			var i, count=(end-fp.tell())/24|0, out=new Array(count);
+			var i, count=(end-fp.tell())/13|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
+				out[i].type = fp.readChar(); // ?
 				out[i].exp = fp.readLong();
 				out[i].death = fp.readLong();
 				out[i].drop = fp.readLong();
-				out[i].type = fp.readChar(); // ?
 			}
 			return out;
 		})();
 	};
-	PACKET.ZC.PERSONAL_INFOMATION.size = -1;
+	PACKET.ZC.PERSONAL_INFORMATION2.size = -1;
 
 	// 0x29e
 	PACKET.ZC.MER_SKILLINFO_UPDATE = function PACKET_ZC_MER_SKILLINFO_UPDATE(fp, end) {

@@ -26,6 +26,8 @@ define(function()
 		UserLevel:   0,
 		Sex:         0,
 		LangType:    0,
+		ServerName:  null,
+		ratesInfo:	 null,
 
 		Character:   null,
 		Entity:      null,

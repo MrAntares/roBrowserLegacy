@@ -785,6 +785,51 @@ define(function( require )
 	}
 
 	/**
+	 * Received server rates information packet
+	 * @param {object} pkt - PACKET.ZC.PERSONAL_INFORMATION|PACKET.ZC.PERSONAL_INFORMATION2
+	 * Notes:
+	 * DB.getMessage(3032) - used for newer clients (tested on PACKETVER > 20220406)
+	 */
+	function onRatesInfo(pkt) {
+		const serverName = Session.ServerName || "Unknown Server";
+    	let message = '';
+
+		// Header
+		ChatBox.addText("=====================================================================", ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, '#ffb563');
+		message += DB.getMessage(1933) + formatRate(DB.getMessage(3032), pkt.total_exp, pkt.info, 'exp', serverName) + '\n';
+		message += DB.getMessage(1934) + formatRate(DB.getMessage(3032), pkt.total_drop, pkt.info, 'drop', serverName) + '\n';
+		message += DB.getMessage(1935) + formatRate(DB.getMessage(3032), pkt.total_death, pkt.info, 'death', serverName) + '\n';
+		ChatBox.addText(message, ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_LOG, '#ffb563' );
+		ChatBox.addText("=====================================================================", ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, '#ffb563');
+		Session.ratesInfo = message;
+	}
+
+	/**
+	 * Formats the rate values into a given string format.
+	 *
+	 * @param {string} format - The format string containing placeholders for rate values.
+	 * @param {number} total - The total value used to calculate the total rate.
+	 * @param {object} info - An object containing rate information for various sources.
+	 * @param {string} key - The key used to access rate information from the info object.
+	 * @param {string} serverName - The name of the server used in the formatted string.
+	 * @returns {string} - The formatted string with rate values and server name.
+	 */
+	function formatRate(format, total, info, key, serverName) {
+		const totalRate = (total / 1000).toFixed(1);
+		const pcCafeRate = (info[0]?.[key] / 1000).toFixed(1) || "0.0";
+		const tplusRate = (info[3]?.[key] / 1000).toFixed(1) || "0.0"; // TPLUS fallback
+		const serverRate = (info[2]?.[key] / 1000).toFixed(1) || "0.0"; // Server fallback
+	
+		// Replace placeholders in the format string
+		return format
+			.replace('%.1f%%', `${totalRate}%`)
+			.replace('%.1f%%', `${pcCafeRate}%`)
+			.replace('%.1f%%', `${tplusRate}%`)
+			.replace('%s', serverName)
+			.replace('%.1f%%', `${serverRate}%`);
+	}
+
+	/**
 	 * Initialize
 	 */
 	return function MainEngine()
@@ -816,6 +861,8 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ALCHEMIST_RANK,              onRank );
 		Network.hookPacket( PACKET.ZC.TAEKWON_RANK,                onRank );
 		//Network.hookPacket( PACKET.ZC.KILLER_RANK,                 onRank ); //PK currently unsupported
-		Network.hookPacket( PACKET.ZC.UPDATE_MAPINFO,              onUpdateMapInfo );
+		Network.hookPacket( PACKET.ZC.UPDATE_MAPINFO,				onUpdateMapInfo );
+		Network.hookPacket( PACKET.ZC.PERSONAL_INFORMATION,			onRatesInfo);
+		Network.hookPacket( PACKET.ZC.PERSONAL_INFORMATION2,		onRatesInfo);
 	};
 });
