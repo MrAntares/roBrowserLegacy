@@ -800,8 +800,7 @@ define(function( require )
 		message += DB.getMessage(1935) + formatRate(DB.getMessage(3032), pkt.total_death, pkt.info, 'death', serverName) + '\n';
 		ChatBox.addText(message, ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_LOG, '#ffb563' );
 		ChatBox.addText("=====================================================================", ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, '#ffb563');
-		Announce.append();
-		Announce.set(message, '#FFFF00', true);
+		Session.ratesInfo = message;
 	}
 
 	/**

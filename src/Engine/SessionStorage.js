@@ -27,6 +27,7 @@ define(function()
 		Sex:         0,
 		LangType:    0,
 		ServerName:  null,
+		ratesInfo:	 null,
 
 		Character:   null,
 		Entity:      null,
