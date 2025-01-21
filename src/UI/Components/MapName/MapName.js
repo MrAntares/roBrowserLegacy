@@ -149,6 +149,17 @@ define(function(require)
 	};
 
 	/**
+	 * Resets the state of the MapName component.
+	 *
+	 * Resets the current map name, previous map name, and the new map flag.
+	 */
+	MapName.resetState = function() {
+		_currMap = '';
+        _prevMap = '';
+		_newMap = false;
+	};
+
+	/**
 	 * Create component and export it
 	 */
 	return UIManager.addComponent(MapName);
