@@ -73,6 +73,7 @@ define(function( require )
 	var PetInformations  = require('UI/Components/PetInformations/PetInformations');
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
 	var MapName          = require('UI/Components/MapName/MapName');
+	var Announce         = require('UI/Components/Announce/Announce');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	var UIVersionManager      = require('UI/UIVersionManager');
@@ -663,6 +664,12 @@ define(function( require )
 			Network.sendPacket(
 				new PACKET.CZ.NOTIFY_ACTORINIT()
 			);
+
+			// Rates Info
+			if (Session.ratesInfo) {
+				Announce.append();
+        		Announce.set(Session.ratesInfo, '#FFFF00', true);
+			}
 		};
 
 		MapRenderer.setMap( pkt.mapName );
