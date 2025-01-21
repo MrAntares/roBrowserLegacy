@@ -38,6 +38,7 @@ define(function()
 
 		zeny:        0,
 		weight:      0,
+		max_weight:  0,
 
 		petId:       0,
 		pet:		{},
