@@ -14922,6 +14922,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.PROPERTY_HOMUN5.size = 85;
 
+	// 0xba5
+	PACKET.ZC.HO_PAR_CHANGE2 = function PACKET_ZC_HO_PAR_CHANGE2(fp, end) {
+		this.param = fp.readUShort();
+		this.value = fp.readUInt64();
+	};
+	PACKET.ZC.HO_PAR_CHANGE2.size = 10;
+
 	/**
 	 * GM COMMANDS
 	 */

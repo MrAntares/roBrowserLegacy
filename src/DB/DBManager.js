@@ -69,6 +69,7 @@ define(function (require) {
 	 * @var {Object} lua instance
 	 */
 	var lua;
+	var AILua;
 	startLua();
 
 	/**
@@ -238,12 +239,51 @@ define(function (require) {
 			loadTable('data/buyingstoreitemlist.txt', '#', 1, function (index, key) { buyingStoreItemList.push(parseInt(key, 10)); }, onLoad());
 		}
 
+		DB.prepareAIFiles();
+
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 	};
 
 	async function startLua() {
 		lua = await CLua.Lua.create();
+		AILua = await CLua.Lua.create();
+	}
+
+	DB.prepareAIFiles = async function prepareAIFiles() {
+		console.log('Loading AI files...');
+		// Gravity files
+		let files = [
+			// Gravity files
+			'AI/AI.lua', 'AI/Const.lua', 'AI/Util.lua',
+			'AI/USER_AI/AI.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/Util.lua',
+			// AzzyAI files
+			'AI/USER_AI/Const_.lua', 'AI/USER_AI/H_SkillList.lua',
+			'AI/USER_AI/Defaults.lua', 'AI/USER_AI/AzzyUtil.lua', 'AI/USER_AI/Stubs.lua',
+			'AI/USER_AI/A_Friends.lua', 'AI/USER_AI/H_Config.lua', 'AI/USER_AI/H_Tactics.lua',
+			'AI/USER_AI/AI_main.lua', 'AI/USER_AI/H_PVP_Tact.lua', 'AI/USER_AI/H_Avoid.lua',
+			'AI/USER_AI/H_Extra.lua'
+		];
+
+		files.forEach((filename) => {
+			Client.loadFile(filename,
+				async function (file) {
+					try {
+						console.log('Loading file "' + filename + '"...');
+						// convert file to text if necessary
+						let text = (file instanceof ArrayBuffer) ? new TextDecoder('iso-8859-1').decode(file) : file;
+						text = text.replaceAll("\\\\","/");// replace \\ to / -- example: require(AI\\Const) to require(AI/Const)
+						text = text.replaceAll("./AI/","AI/"); // replace (./AI to (AI -- example: require(./AI/Const) to require(AI/Const)
+						let buffer = new TextEncoder().encode(text);
+						// mount file
+						AILua.mountFile(filename, buffer);
+					} catch (error) {
+						console.error(`[${filename}] Error: `, error);
+					}
+				},
+				null
+			);
+		});
 	}
 
 	/**
@@ -1373,31 +1413,31 @@ define(function (require) {
 	 *
 	 * @param {number} jobid
 	 */
-	function isNPC(jobid) {
+	DB.isNPC = function isNPC(jobid) {
 		return (jobid >= 45 && jobid < 1000) || (jobid >= 10001 && jobid < 19999);
 	}
 
-	function isMercenary(jobid) {
+	DB.isMercenary = function isMercenary(jobid) {
 		return (jobid >= 6017 && jobid <= 6046);
 	}
 
-	function isHomunculus(jobid) {
+	DB.isHomunculus = function isHomunculus(jobid) {
 		return (jobid >= 6001 && jobid <= 6016) || (jobid >= 6048 && jobid <= 6052);
 	}
 
-	function isMonster(jobid) {
+	DB.isMonster = function isMonster(jobid) {
 		return (jobid >= 1001 && jobid <= 3999) || jobid >= 20000;
 	}
 
-	function isPlayer(jobid) {
+	DB.isPlayer = function isPlayer(jobid) {
 		return jobid < 45 || (jobid >= 4001 && jobid <= 4317) || jobid == 4294967294;
 	}
 
-	function isDoram(jobid) {
+	DB.isDoram = 	function isDoram(jobid) {
 		return (jobid >= 4217 && jobid <= 4220) || jobid === 4308 || jobid === 4315;
 	}
 
-	function isBaby(jobid) {
+	DB.isBaby = function isBaby(jobid) {
 		if ((jobid >= 4023 && jobid <= 4045) || (jobid >= 4096 && jobid <= 4112) ||
 			(jobid >= 4158 && jobid <= 4182) || jobid == 4191 || jobid == 4193 ||
 			jobid == 4195 || jobid == 4196 || (jobid >= 4205 && jobid <= 4210) ||
@@ -1408,7 +1448,7 @@ define(function (require) {
 		return false;
 	}
 
-	function isMadogear(jobid) {
+	DB.isMadogear = function isMadogear(jobid) {
 		return jobid == 4086 || jobid == 4087 || jobid == 4112 || jobid == 4279;
 	}
 
@@ -1431,9 +1471,9 @@ define(function (require) {
 		}
 
 		// PC
-		if (isPlayer(id)) {
+		if (DB.isPlayer(id)) {
 			// DORAM
-			if (isDoram(id)) {
+			if (DB.isDoram(id)) {
 				return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/' + SexTable[sex] + '/' + (ClassTable[id] || ClassTable[0]) + '_' + SexTable[sex];
 			}
 
@@ -1442,19 +1482,19 @@ define(function (require) {
 		}
 
 		// NPC
-		if (isNPC(id)) {
+		if (DB.isNPC(id)) {
 			return 'data/sprite/npc/' + (MonsterTable[id] || MonsterTable[46]).toLowerCase();
 		}
 
 		// MERC
-		if (isMercenary(id)) {
+		if (DB.isMercenary(id)) {
 			// archer - female path | lancer and swordman - male path
 			// mercenary entry on monster table have sex path included
 			return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' + MonsterTable[id];
 		}
 
 		// HOMUN
-		if (isHomunculus(id)) {
+		if (DB.isHomunculus(id)) {
 			return 'data/sprite/homun/' + (MonsterTable[id] || MonsterTable[1002]).toLowerCase();
 		}
 
@@ -1524,7 +1564,7 @@ define(function (require) {
 		}
 
 		// DORAM
-		if (isDoram(job)) {
+		if (DB.isDoram(job)) {
 			return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' + SexTable[sex] + '/' + (HairIndexTable[sex + 2][id] || id) + '_' + SexTable[sex];
 		}
 
@@ -3403,6 +3443,10 @@ define(function (require) {
 			}
 		}
 	};
+
+	DB.getAILua = function getAILua() {
+		return AILua;
+	}
 
 	/**
 	 * Export
