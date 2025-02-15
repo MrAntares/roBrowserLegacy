@@ -26,6 +26,8 @@ define(function()
 		UserLevel:   0,
 		Sex:         0,
 		LangType:    0,
+		ServerName:  null,
+		ratesInfo:	 null,
 
 		Character:   null,
 		Entity:      null,
@@ -38,6 +40,7 @@ define(function()
 
 		zeny:        0,
 		weight:      0,
+		max_weight:  0,
 
 		petId:       0,
 		pet:		{},

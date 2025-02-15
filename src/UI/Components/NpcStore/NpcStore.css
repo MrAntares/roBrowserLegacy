@@ -25,10 +25,17 @@
 
 #NpcStore .footer .total, #NpcStore .footer .totalP, #NpcStore .footer .cashuser { padding-left:10px; padding-top:8px; }
 #NpcStore .footer .total, #NpcStore .footer .totalP, #NpcStore .footer .limitZeny { padding-left:10px; padding-top:8px; }
-#NpcStore .InputWindow, #NpcStore .OutputWindow, #NpcStore .AvailableItemsWindow { width:280px; position:absolute; z-index:50; }
+#NpcStore .InputWindow, #NpcStore .OutputWindow, #NpcStore .AvailableItemsWindow, #NpcStore .PurchaseResult { width:280px; position:absolute; z-index:50; }
 #NpcStore .btn.buy, #NpcStore .btn.sell { position:absolute; top:4px; right:62px; }
+#NpcStore .btn.ok { position:absolute; top:4px; right:20px; }
 #NpcStore .btn.cancel { position:absolute; top:4px; right:15px;} 
 
-#NpcStore .content .item .nameOverlay { position: relative; display:none; top:-17px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem;; }
+#NpcStore .content .item .nameOverlay { position: relative; display:none; top:-17px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem; }
 #NpcStore .content .item:hover .nameOverlay { display:table; }
 #NpcStore .content .item .nameOverlay { display:none; }
+
+#NpcStore .content .item .currency_icon { position:absolute; top:6px; left:200px; width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
+#NpcStore .content .item .currency_amount { position:absolute; white-space:nowrap; font-size:11px; top:18px; right:13px; text-align:left; text-shadow:-1px -1px white; }
+#NpcStore .content .item .currency_nameOverlay { position: relative; display:none; top:-17px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem; }
+#NpcStore .content .item:hover .currency_nameOverlay { display:table; }
+#NpcStore .content .item .currency_nameOverlay { display:none; }

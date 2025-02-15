@@ -170,7 +170,20 @@ define(function( require )
 		});
 
 		Session.Playing = false;
-    		Session.hasCart = false;
+    	Session.hasCart = false;
+
+		// Reset Announcement component
+		var Announce = UIManager.getComponent('Announce');
+		if (Announce) {
+			Announce.remove();
+		}
+
+		// Reset MapName component
+		var MapName = UIManager.getComponent('MapName');
+		if (MapName) {
+			MapName.remove();
+			MapName.resetState();
+		}
 
 		UIManager.getComponent('WinLoading').remove();
 

@@ -1707,6 +1707,88 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+	// 0x9d5
+	PACKET.ZC.NPC_MARKET_OPEN = function PACKET_ZC_NPC_MARKET_OPEN(fp, end) {
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 15 : 13; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+	
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].type = fp.readUChar();
+				out[i].price = fp.readULong();
+				out[i].qty = fp.readULong();
+				out[i].weight = fp.readUShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_OPEN.size = -1;
+
+	// 0x9d6
+	PACKET.CZ.NPC_MARKET_PURCHASE = function PACKET_CZ_NPC_MARKET_PURCHASE() {
+	    this.itemList = [];
+	};
+	PACKET.CZ.NPC_MARKET_PURCHASE.prototype.build = function() {
+	    // Determine the item size based on PACKETVER
+	    const item_size = (PACKETVER.value >= 20181121) ? 8 : 6; // 8 bytes (4 + 4) or 6 bytes (2 + 4)
+	    const pkt_len = 4 + (this.itemList.length * item_size); // Total packet length
+	    const pkt_buf = new BinaryWriter(pkt_len); // Create a buffer with the required size
+
+	    pkt_buf.writeShort(0x9d6); // Packet type
+	    pkt_buf.writeShort(pkt_len); // Packet length
+
+	    for (let i = 0; i < this.itemList.length; ++i) {
+	        // Write ITID based on PACKETVER
+	        if (PACKETVER.value >= 20181121) {
+	            pkt_buf.writeULong(this.itemList[i].itemId); // uint32
+	        } else {
+	            pkt_buf.writeUShort(this.itemList[i].itemId); // uint16
+	        }
+
+	        // Write quantity (int32)
+	        pkt_buf.writeLong(this.itemList[i].amount); // int32
+	    }
+
+	    return pkt_buf;
+	};
+
+	// 0x9d7
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT = function PACKET_ZC_NPC_MARKET_PURCHASE_RESULT(fp, end) {
+		this.result = fp.readUChar();
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 10 : 8; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].qty = fp.readUShort();
+				out[i].price = fp.readULong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT.size = -1;
+
+	// 0x9d8
+	PACKET.CZ.NPC_MARKET_CLOSE = function PACKET_CZ_NPC_MARKET_CLOSE() {
+	};
+	PACKET.CZ.NPC_MARKET_CLOSE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9d8);
+		return pkt_buf;
+	};
+
 	// 0x19f
 	PACKET.CZ.TRYCAPTURE_MONSTER = function PACKET_CZ_TRYCAPTURE_MONSTER() {
 		this.targetAID = 0;
@@ -4257,6 +4339,28 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
         })();
     };
     PACKET.ZC.ACK_SCHEDULER_CASHITEM.size = -1;
+
+	// 0x8cb
+	// <packet len>.W <exp>.L <death>.L <drop>.L <DETAIL_EXP_INFO>13B
+	// (ZC_PERSONAL_INFORMATION) <InfoType>.B <Exp>.L <Death>.L <Drop>.L (DETAIL_EXP_INFO)
+	PACKET.ZC.PERSONAL_INFORMATION = function PACKET_ZC_PERSONAL_INFORMATION(fp, end) {
+		this.total_exp = fp.readShort();
+		this.total_death = fp.readShort();
+		this.total_drop = fp.readShort();
+
+		this.info = (function() {
+			var i, count=(end-fp.tell())/7|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].type = fp.readChar(); // ?
+				out[i].exp = fp.readShort();
+				out[i].death = fp.readShort();
+				out[i].drop = fp.readShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.PERSONAL_INFORMATION.size = -1;
 
 	//0x08c0
 	PACKET.ZC.ACK_SE_CASH_ITEM_LIST2 = function PACKET_ZC_ACK_SE_CASH_ITEM_LIST2(fp, end) {
@@ -8883,22 +8987,25 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x97b
 	// <packet len>.W <exp>.L <death>.L <drop>.L <DETAIL_EXP_INFO>13B
-	// (ZC_PERSONAL_INFOMATION2) <InfoType>.B <Exp>.L <Death>.L <Drop>.L (DETAIL_EXP_INFO)
-	PACKET.ZC.PERSONAL_INFOMATION = function PACKET_ZC_PERSONAL_INFOMATION(fp, end) {
+	// (ZC_PERSONAL_INFORMATION2) <InfoType>.B <Exp>.L <Death>.L <Drop>.L (DETAIL_EXP_INFO)
+	PACKET.ZC.PERSONAL_INFORMATION2 = function PACKET_ZC_PERSONAL_INFORMATION2(fp, end) {
+		this.total_exp = fp.readLong();
+		this.total_death = fp.readLong();
+		this.total_drop = fp.readLong();
 
 		this.info = (function() {
-			var i, count=(end-fp.tell())/24|0, out=new Array(count);
+			var i, count=(end-fp.tell())/13|0, out=new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
+				out[i].type = fp.readChar(); // ?
 				out[i].exp = fp.readLong();
 				out[i].death = fp.readLong();
 				out[i].drop = fp.readLong();
-				out[i].type = fp.readChar(); // ?
 			}
 			return out;
 		})();
 	};
-	PACKET.ZC.PERSONAL_INFOMATION.size = -1;
+	PACKET.ZC.PERSONAL_INFORMATION2.size = -1;
 
 	// 0x29e
 	PACKET.ZC.MER_SKILLINFO_UPDATE = function PACKET_ZC_MER_SKILLINFO_UPDATE(fp, end) {
@@ -14000,11 +14107,42 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ADD_QUEST3.size = 155;
 
+	// 0xb0f
+	PACKET.CZ.NPC_BARTER_MARKET_PURCHASE = function PACKET_CZ_NPC_BARTER_MARKET_PURCHASE() {
+		this.itemList = [];
+	};
+	PACKET.CZ.NPC_BARTER_MARKET_PURCHASE.prototype.build = function() {
+		var item_size = (PACKETVER.value >= 20181121) ? 14 : 12;
+    	var pkt_len = 4 + (this.itemList.length * item_size);
+    	var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb0f);
+		pkt_buf.writeShort(pkt_len);
+
+		for (var i = 0; i < this.itemList.length; ++i) {
+			(PACKETVER.value >= 20181121) ? pkt_buf.writeULong(this.itemList[i].itemId) : pkt_buf.writeUShort(this.itemList[i].itemId);
+			pkt_buf.writeULong(this.itemList[i].amount);
+			pkt_buf.writeUShort(this.itemList[i].invIndex);
+			pkt_buf.writeULong(this.itemList[i].shopIndex);
+		}
+
+		return pkt_buf;
+	};
+
 	// 0xb1b
 	// this means that player is allowed to do actions
 	PACKET.ZC.NOTIFY_ACTORINIT2 = function PACKET_ZC_NOTIFY_ACTORINIT2(fp, end) {
     };
     PACKET.ZC.NOTIFY_ACTORINIT2.size = 2;
+
+	// 0xb12
+	PACKET.CZ.NPC_BARTER_MARKET_CLOSE = function PACKET_CZ_NPC_BARTER_MARKET_CLOSE() {
+	};
+	PACKET.CZ.NPC_BARTER_MARKET_CLOSE.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+		pkt_buf.writeShort(0xb12);
+		return pkt_buf;
+	};
 
 	// 0xb14
 	PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE = function PACKET_CZ_REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE() {
@@ -14487,6 +14625,27 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ADD_ITEM_TO_CART4.size = 58;
 
+	// 0xb4e
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2 = function PACKET_ZC_NPC_MARKET_PURCHASE_RESULT2(fp, end) {
+		this.result = fp.readUShort();
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 10 : 8; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].qty = fp.readUShort();
+				out[i].price = fp.readULong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2.size = -1;
+
 	// 0xb65
 	PACKET.ZC.REPAIRITEMLIST2 = function PACKET_ZC_REPAIRITEMLIST2(fp, end) {
 		this.itemList = (function() {
@@ -14524,6 +14683,29 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.grade = fp.readUChar();
 	};
 	PACKET.ZC.ITEM_PICKUP_PARTY2.size = 33;
+
+	// 0b7a
+	PACKET.ZC.NPC_MARKET_OPEN2 = function PACKET_ZC_NPC_MARKET_OPEN2(fp, end) {
+		this.itemList = (function() {
+			// Determine item size based on PACKETVER
+			const item_size = (PACKETVER.value >= 20181121) ? 19 : 17; // Adjust sizes based on nameid (4 or 2 bytes)
+			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
+			const out = new Array(count);
+	
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				// Parse fields with conditional handling for nameid
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort(); // uint32 or uint16
+				out[i].type = fp.readUChar();
+				out[i].price = fp.readULong();
+				out[i].qty = fp.readULong();
+				out[i].weight = fp.readUShort();
+				out[i].location = fp.readULong();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.NPC_MARKET_OPEN2.size = -1;
 
 	// 0xb72
 	PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2 = function PACKET_HC_ACCEPT_ENTER_NEO_UNION_LIST2(fp, end) {
@@ -14578,6 +14760,28 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
+
+	// 0xb78
+	PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEMINFO(fp, end) {
+		this.itemList = (function() {
+			let item_size = (PACKETVER.value >= 20181121) ? 31: 27;
+			var i, count=(end-fp.tell())/item_size|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+				out[i].type = fp.readUChar();
+				out[i].amount = fp.readULong();
+				out[i].currencyITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+				out[i].currencyamount = fp.readULong();
+				out[i].weight = fp.readULong();
+				out[i].index = fp.readULong();
+				out[i].viewSprite = fp.readUShort();
+				out[i].location = fp.readULong();
+			}
+			return out;
+		})();
+	}
+	PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO.size = -1;
 
 	// 0xb7b
 	PACKET.ZC.GUILD_INFO4 = function PACKET_ZC_GUILD_INFO4(fp, end) {

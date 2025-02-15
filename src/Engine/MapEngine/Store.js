@@ -20,6 +20,7 @@ define(function( require )
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
+	var Inventory     = require('UI/Components/Inventory/Inventory');
 	var NpcStore      = require('UI/Components/NpcStore/NpcStore');
 	var Vending       = require('UI/Components/Vending/Vending');
 	var VendingShop   = require('UI/Components/VendingShop/VendingShop');
@@ -54,8 +55,7 @@ define(function( require )
             {
 				pkt.list.push({
 					count: itemList[i].count,
-					ITID:  itemList[i].ITID,
-					price: itemList[i].discountprice || itemList[i].price
+					ITID:  itemList[i].ITID
 				});
             	//pkt.kafrapts += (itemList[i].discountprice || itemList[i].price) * itemList[i].count;
 			}
@@ -128,6 +128,39 @@ define(function( require )
 
 
 	/**
+	 * Received items list to from barter NPC
+	 *
+	 * @param {object} pkt - PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO
+	 */
+	function onBarterBuyList( pkt )
+	{
+		NpcStore.append();
+		NpcStore.setType(NpcStore.Type.BARTER_MARKET);
+		NpcStore.setList(pkt.itemList);
+		NpcStore.onSubmit = function(itemList) {
+			var i, count;
+			var pkt;
+
+			pkt   = new PACKET.CZ.NPC_BARTER_MARKET_PURCHASE();
+			count = itemList.length;
+
+			for (i = 0; i < count; ++i) {
+				let item = Inventory.getUI().getItemById(itemList[i].matcurrency);
+				let item_index = (item) ? item.index : -1;
+				pkt.itemList.push({
+					itemId:  itemList[i].ITID,
+					amount: itemList[i].count,
+					invIndex: item_index,
+					shopIndex: itemList[i].shopIndex
+				});
+			}
+
+			Network.sendPacket(pkt);
+		};
+	}
+
+
+	/**
 	 * Received purchased informations
 	 *
 	 * @param {object} pkt - PACKET_ZC_PC_PURCHASE_RESULT
@@ -144,7 +177,15 @@ define(function( require )
 			case 5:  ChatBox.addText( DB.getMessage(281),  ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // trade
 			// case 6: 6 = Because the store information was incorrect the item was not purchased.
 			case 7:  ChatBox.addText( DB.getMessage(1797), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // no sale information
+			case 11: ChatBox.addText( DB.getMessage(3554), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // Exchange failed
+			case 12: ChatBox.addText( DB.getMessage(3555), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG); break;  // Exchange successfuly completed
+			case 13: ChatBox.addText( DB.getMessage(3557), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // The item has been sold and out of stock
+			case 14: ChatBox.addText( DB.getMessage(3556), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // Not enough items to exchange
 			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
+		}
+
+		if (NpcStore.getCurrentType() >= 4) {	// Marketshop && Barter
+			NpcStore.closeStore();
 		}
 	}
 
@@ -156,6 +197,8 @@ define(function( require )
 
 	function onBuyCashResult( pkt )
 	{
+		NpcStore.remove();
+
 		switch (pkt.Error) {
 			case 0:  ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);  break; // success
 			case 1:  ChatBox.addText( DB.getMessage(1227),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // zeny
@@ -166,8 +209,6 @@ define(function( require )
 			case 7:  ChatBox.addText( DB.getMessage(1813), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // no sale information
 			default: ChatBox.addText( DB.getMessage(1814),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
 		}
-
-		NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
 	}
 
 
@@ -373,6 +414,58 @@ define(function( require )
 		}
 	}
 
+
+	/**
+	 * Received items list to from Marketshop NPC
+	 *
+	 * @param {object} pkt - PACKET.ZC.NPC_MARKET_OPEN2
+	 */
+	function onMarketShop(pkt) {
+		// Initialize the NPC store for Market Shop
+		NpcStore.append();
+		NpcStore.setType(NpcStore.Type.MARKETSHOP); // Set the type to MARKETSHOP
+		NpcStore.setList(pkt.itemList); // Set the item list from the packet
+	
+		// Define the submission callback
+		NpcStore.onSubmit = function(itemList) {
+			let i, count;
+			const pkt = new PACKET.CZ.NPC_MARKET_PURCHASE(); // Use the market purchase packet
+			count = itemList.length;
+	
+			for (i = 0; i < count; ++i) {
+				pkt.itemList.push({
+					itemId: itemList[i].ITID,		// Item ID
+					amount: itemList[i].count,		// Quantity to purchase
+				});
+			}
+	
+			// Send the constructed packet
+			Network.sendPacket(pkt);
+		};
+	};
+
+
+	/**
+	 * Handles marketshop purchase result packet
+	 *
+	 * @param {PACKET.ZC.NPC_MARKET_PURCHASE_RESULT} pkt
+	 * @param {PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2} pkt
+	 */
+	function onMarketShopResult(pkt) {
+		if (pkt) {
+			switch (pkt.result) {
+				case 0: // PACKETVER.value >= 20190807 success
+				case 1: // PACKETVER.value < 20190807 success
+					ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
+					NpcStore.onMarketShopResultUI(pkt.itemList);
+					break;
+				default:
+					break;
+			}
+		}
+	};
+
+
 	/**
 	 * Initialize
 	 */
@@ -401,5 +494,9 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList );
 		Network.hookPacket( PACKET.ZC.ACK_ITEMLIST_BUYING_STORE,    onBuyingStoreList );
 		Network.hookPacket( PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult );
+		Network.hookPacket( PACKET.ZC.NPC_MARKET_OPEN2,				onMarketShop );
+		Network.hookPacket( PACKET.ZC.NPC_MARKET_PURCHASE_RESULT,	onMarketShopResult);
+		Network.hookPacket( PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2,	onMarketShopResult);
+		Network.hookPacket( PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO, 	onBarterBuyList );
 	};
 });

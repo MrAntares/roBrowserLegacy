@@ -148,42 +148,31 @@ define(function( require )
 				_rightClickPosition[1] = Mouse.screen.y;
 
 				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
-
-					Cursor.setType( Cursor.ACTION.ROTATE );
 					Camera.rotate( false );
-
-					AIDriver.setmsg(Session.homunId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
-
-					if (entityOver) {
+					
+					if (entityOver && entityOver != Session.Entity && entityOver.objecttype != Entity.TYPE_EFFECT && entityOver.objecttype != Entity.TYPE_TRAP) {
 						AIDriver.setmsg(Session.homunId, '3,'+ entityOver.GID);
+					} else {
+						AIDriver.setmsg(Session.homunId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
 					}
-
-				} else if (entityOver && entityOver != Session.Entity ) {
-					if (KEYS.SHIFT) {	// Shift + Right click on an entity
-						Session.autoFollowTarget = entityOver;
-						Session.autoFollow = true;
-						onAutoFollow();
-
-						stop = stop || entityOver.onMouseDown();
-						stop = stop || entityOver.onFocus();
-						EntityManager.setFocusEntity(entityOver);
-
-					} else if (entityOver.objecttype == Entity.TYPE_NPC) {	// Right click on a NPC
-						stop = stop || entityOver.onMouseDown();
-						stop = stop || entityOver.onFocus();
-						EntityManager.setFocusEntity(entityOver);
-					}
-
-					// Know if propagate to map mousedown
-					if (stop) {
-						return;
-					}
-
+					
 				} else {
+					if (entityOver && entityOver != Session.Entity && entityOver.objecttype != Entity.TYPE_EFFECT && entityOver.objecttype != Entity.TYPE_TRAP) {
+						if (KEYS.SHIFT) {	// Shift + Right click on an entity
+							Session.autoFollowTarget = entityOver;
+							Session.autoFollow = true;
+							onAutoFollow();
 
+						}
+						
+						// Right click on a NPC/Mob/Unit
+						entityOver.onMouseDown();
+						entityOver.onFocus();
+						EntityManager.setFocusEntity(entityOver);
+					}
+					
 					Cursor.setType( Cursor.ACTION.ROTATE );
 					Camera.rotate( true );
-
 				}
 				break;
 		}
