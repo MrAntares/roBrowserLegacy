@@ -922,6 +922,7 @@ define(function( require )
 			entity.display.party_name = pkt.PName || '';
 			entity.display.guild_name = pkt.GName || '';
 			entity.display.guild_rank = pkt.RName || '';
+			entity.display.title_name = pkt.Title || '';
 
 			entity.display.load = entity.display.TYPE.COMPLETE;
 
@@ -944,6 +945,22 @@ define(function( require )
 					if(Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
 						entity.emblem.display = true;
 					}
+				});
+			} else if (pkt.GID) {
+				DB.loadGroupEmblem(pkt.GID, function(image) {
+					entity.display.emblem = image;
+					entity.display.update(
+						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+						entity.objecttype === Entity.TYPE_NPC2 ? entity.display.STYLE.NPC :
+						(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
+						entity.display.STYLE.DEFAULT
+					)
+					entity.emblem.emblem = image;
+					entity.emblem.update();
 				});
 			}
 			else {

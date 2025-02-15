@@ -135,6 +135,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		this.party_name =  '';
 		this.guild_name =  '';
 		this.guild_rank =  '';
+		this.title_name =  '';
 		this.emblem     =  null;
 		this.display    =  false;
 		this.canvas     =  document.createElement('canvas');
@@ -186,7 +187,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		var lines    = new Array(2);
 		var fontSize = 12;
 		var ctx      = this.ctx;
-		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN) ? 26 : 0) + 5;
+		var start_x  = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN  || style === this.STYLE.MOB || style === this.STYLE.NPC) ? 26 : 0) + 5;
 		var width, height;
 		var paddingTop = 5;
 
@@ -196,18 +197,24 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 
 
 		// Add the party name
-		if (this.party_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN)) {
+		if (this.party_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
 			lines[0] += ' (' + this.party_name + ')';
 		}
 
 		// Add guild name
-		if (this.guild_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN)) {
+		if (this.guild_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
 			lines[1]  = this.guild_name;
 
 			// Add guild rank
 			if (this.guild_rank.length) {
 				lines[1] +=  ' [' + this.guild_rank + ']';
 			}
+		}
+
+		// Add Title name
+		// when title is set client render title in line[0] and name/fakename in line[1]
+		if (this.title_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
+			[lines[0], lines[1]] = [this.title_name, lines[0]];
 		}
 
 		// Setup the canvas
@@ -220,7 +227,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 		ctx.canvas.height = height;
 
 		// Draw emblem
-		if (this.emblem  && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN)) {
+		if (this.emblem  && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
 			ctx.drawImage( this.emblem, 0, 0 );
 		}
 

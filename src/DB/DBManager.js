@@ -3405,6 +3405,29 @@ define(function (require) {
 	};
 
 	/**
+	* Load Group Emblem file
+	* Icons for group reads from texture/유저인터페이스/group/...
+	*
+	* @param {integer} groupId
+	* @param {function} callback to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	DB.loadGroupEmblem = function loadGroupEmblem(groupId, callback) {
+		let extension = [22,23,24,25].includes(groupId) ? 'gif' : 'bmp'; // for some reason 22 ~ 25 group emblem has .gif extension
+
+		Client.loadFile( DB.INTERFACE_PATH + "group/group_" + groupId + "." + extension, function(dataURI) {
+			let img = new Image();
+			img.src = dataURI; // String Base64
+
+			// wait image load to call the callback
+			img.onload = function() {
+				callback(img);
+			};
+		});
+	}
+
+	/**
 	 * Export
 	 */
 	return DB;
