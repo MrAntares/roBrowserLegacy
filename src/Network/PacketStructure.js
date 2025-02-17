@@ -8421,14 +8421,27 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x25a
 	PACKET.ZC.MAKINGITEM_LIST = function PACKET_ZC_MAKINGITEM_LIST(fp, end) {
-		let size = (PACKETVER.value >= 20181121) ? 4 : 2;
-		this.idList = (function(size) {
-			var count = (end-fp.tell())/size|0, out = new Array(count);
-			for (var i = 0; i < count; ++i) {
-				out[i] = (size == 4) ? fp.readULong() : fp.readUShort();
-			}
-			return out;
-		})(size);
+		if (PACKETVER.value >= 20211103) {
+			this.makeItem = fp.readShort();
+			let size = (PACKETVER.value >= 20181121) ? 4 : 2;
+			this.items = (function(size) {
+				var count = (end-fp.tell())/size|0, out = new Array(count);
+				for (var i = 0; i < count; ++i) {
+					out[i] = {};
+					out[i].itemId = (size == 4) ? fp.readULong() : fp.readUShort();
+				}
+				return out;
+			})(size);
+		} else {
+			let size = (PACKETVER.value >= 20181121) ? 4 : 2;
+			this.idList = (function(size) {
+				var count = (end-fp.tell())/size|0, out = new Array(count);
+				for (var i = 0; i < count; ++i) {
+					out[i] = (size == 4) ? fp.readULong() : fp.readUShort();
+				}
+				return out;
+			})(size);
+		}
 	};
 	PACKET.ZC.MAKINGITEM_LIST.size = -1;
 

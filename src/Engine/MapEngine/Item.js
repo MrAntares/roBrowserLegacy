@@ -557,15 +557,29 @@ define(function( require )
 	 */
 	function onMakeitem_List( pkt )
 	{
-		if (!pkt.idList.length) {
-			return;
+		let itemList;
+		let makeType;
+		if (PACKETVER.value >= 20211103) {
+			if (!pkt.items.length) {
+				return;
+			}
+			itemList = pkt.items.map(item => item.itemId);
+			makeType = pkt.makeItem;
+		} else {
+			if (!pkt.idList.length) {
+				return;
+			}
+			itemList = pkt.idList;
+			makeType = itemList[0]; // First item is mktype for older versions
+			itemList = itemList.slice(1); // Remove mktype from item list
 		}
+
 		MakeItemSelection.append();
-		MakeItemSelection.setCookingList(pkt.idList);
+		MakeItemSelection.setCookingList(itemList, makeType);
 		MakeItemSelection.setTitle(DB.getMessage(425));
 		MakeItemSelection.onIndexSelected = function(index, material, mkType) {
 			if (index >= -1) {
-				var pkt   = new PACKET.CZ.REQ_MAKINGITEM();
+				var pkt = new PACKET.CZ.REQ_MAKINGITEM();
 				pkt.mkType = mkType;
 				pkt.id = index;
 				Network.sendPacket(pkt);
