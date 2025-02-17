@@ -13814,10 +13814,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0xadf
 	PACKET.ZC.ACK_REQNAMEALL3 = function PACKET_ZC_ACK_REQNAMEALL3(fp, end) {
-		this.AID = fp.readULong();
-		this.GID = fp.readULong();
-		this.CName = fp.readString(NAME_LENGTH);
-		this.PName = fp.readString(NAME_LENGTH);
+		this.AID = fp.readULong(); // account ID
+		this.GID = fp.readULong(); // group ID
+		this.CName = fp.readString(NAME_LENGTH); // name
+		this.Title = fp.readString(NAME_LENGTH); // title (guild name)
 	};
 	PACKET.ZC.ACK_REQNAMEALL3.size = 58;
 
