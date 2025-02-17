@@ -128,7 +128,7 @@
       *
       * @param {Array} list object to display
       */
-      MakeItemSelection.setCookingList = function setCookingList( list )
+      MakeItemSelection.setCookingList = function setCookingList( list, mkType )
       {
          var i, count;
          var item, it, file, name;
@@ -138,9 +138,9 @@
          this.ui.find('.materials').hide();
 		 this.ui.find('.item').remove();
 
-		 this.mkType = list[0]; // add mk type
+		 this.mkType = mkType; // add mk type
 
-         for (i = 1, count = list.length; i < count; ++i) {
+         for (i = 0, count = list.length; i < count; ++i) {
 
              item = list[i];
              it   = DB.getItemInfo( item );
