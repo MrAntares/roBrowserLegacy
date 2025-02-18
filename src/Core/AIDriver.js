@@ -10,7 +10,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     }
 
     AIDriver.init = function init() {
-        var clientPath = Configs.get('remoteClient');console.warn("ASDASDAASDASD");
+        var clientPath = Configs.get('remoteClient');
         var ai_path = Session.homCustomAI ? "AI/USER_AI/AI" : "AI/AI";
         
         var code = `
