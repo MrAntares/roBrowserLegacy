@@ -16,6 +16,7 @@ define(function (require) {
     var Client = require('Core/Client');
     var Preferences = require('Core/Preferences');
     var Renderer = require('Renderer/Renderer');
+	var EntityManager    = require('Renderer/EntityManager');
     var UIManager = require('UI/UIManager');
     var UIComponent = require('UI/UIComponent');
     var SkillListHOM = require('UI/Components/SkillListHOM/SkillListHOM');
@@ -314,7 +315,10 @@ define(function (require) {
 		HomAI.reset(HomAI.HOM_TYPE);
 		this.AILoop = setInterval(function () {
             if (Session.homunId) {
-                HomAI.exec('AI(' + Session.homunId + ')')
+				var entity = EntityManager.get(Session.homunId);
+				if (entity) {
+                	HomAI.exec('AI(' + Session.homunId + ')')
+				}
             }
         }, 100);
 	};

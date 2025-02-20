@@ -133,9 +133,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     }
 
     window.TraceAI = function TraceAI(str) {
-        if (Configs.get('debugAI')){
-            console.warn('TraceAI', str)
-        }
+        console.warn('TraceAI', str)
     }
 
     window.GetTick = function GetTick() {
@@ -216,24 +214,27 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                     var avtors = window.GetActors();
                     return EntityManager.get(Number(avtors[id])).action;
                 }
+                if (entity === null) {
+                    return 0;
+                }
                 return entity.action;
 
             case 4: // V_ATTACKRANGE ok
                 // Returns the attack range (Not implemented yet; temporarily set as 1 cell)
-                if(entity){
+                if(entity !== null){
                     return entity.attack_range || 1;
                 }
                 return 1;
 
             case 5: // V_TARGET ok
-                if (id < 1 || typeof (id) !== 'number') {
+                if (entity === null || id < 1 || typeof (id) !== 'number') {
                     return 0;
                 }
                 return entity.targetGID;
 
             case 6: // V_SKILLATTACKRANGE
                 // Returns the skill attack range (Not implemented yet)
-                if(entity){
+                if(entity !== null){
                     return entity.attack_range || 1;
                 }
                 return 1;
@@ -270,7 +271,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
             case 14: // V_SKILLATTACKRANGE_LEVEL
                 // Returns the skill attack range for the skill level (Not implemented yet)
-                if(entity){
+                if(entity !== null){
                     return entity.attack_range || 1;
                 }
                 return 1;

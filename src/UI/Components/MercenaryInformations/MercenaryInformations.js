@@ -346,7 +346,10 @@ define(function(require)
 		MercAI.reset();
 		this.AILoop = setInterval(function () {
 			if (Session.mercId) {
-				MercAI.exec('AI(' + Session.mercId + ')')
+				var entity = EntityManager.get(Session.mercId);
+				if (entity) {
+					MercAI.exec('AI(' + Session.mercId + ')')
+				}
 			}
 		}, 100);
 	};
