@@ -22,7 +22,7 @@ define(function (require) {
     var htmlText = require('text!./HomunInformations.html');
     var cssText = require('text!./HomunInformations.css');
     var Session = require('Engine/SessionStorage');
-    var AIDriver = require('Core/AIDriver');
+    var HomAI = require('Core/HomAI');
     var PACKETVER   = require('Network/PacketVerManager');
 
     /**
@@ -69,6 +69,11 @@ define(function (require) {
         this.ui.find('.skill').mousedown(function () {
             SkillListHOM.toggle()
         });
+
+		// If no aggressive level defined, default to 1
+		// otherwise toggle and untoggle to remain the same
+		this.toggleAggressive();
+		this.toggleAggressive();
     };
 
     HomunInformations.onAppend = function onAppend() {
@@ -306,10 +311,10 @@ define(function (require) {
 	
 	HomunInformations.startAI = function startAI(){
 		this.stopAI();
-		AIDriver.reset();
+		HomAI.reset(HomAI.HOM_TYPE);
 		this.AILoop = setInterval(function () {
             if (Session.homunId) {
-                AIDriver.exec('AI(' + Session.homunId + ')')
+                HomAI.exec('AI(' + Session.homunId + ')')
             }
         }, 100);
 	};

@@ -22,7 +22,7 @@ define(function(require)
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
     var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
-	var AIDriver         = require('Core/AIDriver');
+	var MercAI           = require('Core/MercAI');
 	var htmlText         = require('text!./MercenaryInformations.html');
 	var cssText          = require('text!./MercenaryInformations.css');
 
@@ -95,6 +95,11 @@ define(function(require)
         this.ui.find('.skill').mousedown(function () {
             SkillListMER.toggle();
         });
+
+		// If no aggressive level defined, default to 1
+		// otherwise toggle and untoggle to remain the same
+		this.toggleAggressive();
+		this.toggleAggressive();
 	};
 
 	/**
@@ -338,10 +343,10 @@ define(function(require)
 	MercenaryInformations.startAI = function startAI()
 	{
 		this.stopAI();
-		AIDriver.reset();
+		MercAI.reset();
 		this.AILoop = setInterval(function () {
 			if (Session.mercId) {
-				AIDriver.exec('AI(' + Session.mercId + ')')
+				MercAI.exec('AI(' + Session.mercId + ')')
 			}
 		}, 100);
 	};
