@@ -18,7 +18,7 @@ define(function (require) {
     var Renderer = require('Renderer/Renderer');
     var UIManager = require('UI/UIManager');
     var UIComponent = require('UI/UIComponent');
-    var SkillListMER = require('UI/Components/SkillListMER/SkillListMER');
+    var SkillListHOM = require('UI/Components/SkillListHOM/SkillListHOM');
     var htmlText = require('text!./HomunInformations.html');
     var cssText = require('text!./HomunInformations.css');
     var Session = require('Engine/SessionStorage');
@@ -67,7 +67,7 @@ define(function (require) {
         });
 
         this.ui.find('.skill').mousedown(function () {
-            SkillListMER.toggle()
+            SkillListHOM.toggle()
         });
     };
 
@@ -128,10 +128,10 @@ define(function (require) {
                         this.focus();
                     }
                     if (!this.ui.is(':visible')) {
-                        SkillListMER.ui.hide();
+                        SkillListHOM.ui.hide();
                     }
                 } else {
-                    SkillListMER.ui.hide();
+                    SkillListHOM.ui.hide();
                     this.ui.hide();
                 }
                 break;
@@ -173,7 +173,7 @@ define(function (require) {
             this.ui.find('.name, .modify').addClass('disabled').attr('disabled', true);
         }
 
-        SkillListMER.setPoints(info.SKPoint);
+        SkillListHOM.setPoints(info.SKPoint);
     };
 
 
@@ -300,8 +300,8 @@ define(function (require) {
     };
 	
 	HomunInformations.toggleAggressive = function toggleAggressive(){
-		let agr = localStorage.getItem('AGGRESSIVE') == 0 ? 1 : 0;
-        localStorage.setItem('AGGRESSIVE', agr);
+		let agr = localStorage.getItem('HOM_AGGRESSIVE') == 0 ? 1 : 0;
+        localStorage.setItem('HOM_AGGRESSIVE', agr);
 	};
 	
 	HomunInformations.startAI = function startAI(){
@@ -359,7 +359,7 @@ define(function (require) {
      */
     function onClose() {
         HomunInformations.ui.hide();
-        SkillListMER.ui.hide();
+        SkillListHOM.ui.hide();
     }
 
 

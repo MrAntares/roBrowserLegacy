@@ -48,6 +48,7 @@ define(function (require) {
 	var ChatRoom = require('UI/Components/ChatRoom/ChatRoom');
 	var Escape = require('UI/Components/Escape/Escape');
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
+	var MercenaryInformations = require('UI/Components/MercenaryInformations/MercenaryInformations');
 	var Inventory = require('UI/Components/Inventory/Inventory');
 	var ShortCut = require('UI/Components/ShortCut/ShortCut');
 	var StatusIcons = require('UI/Components/StatusIcons/StatusIcons');
@@ -276,6 +277,10 @@ define(function (require) {
 			HomunInformations.startAI();
 		}
 
+		if (entity.objecttype === Entity.TYPE_MERC && pkt.GID === Session.mercId) {
+			MercenaryInformations.startAI();
+		}
+
 		// load others aura
 		entity.aura.load(EffectManager);
 	}
@@ -301,6 +306,10 @@ define(function (require) {
 
 			if (entity.objecttype === Entity.TYPE_HOM && pkt.GID === Session.homunId) {
 				HomunInformations.stopAI();
+			}
+
+			if (entity.objecttype === Entity.TYPE_MERC && pkt.GID === Session.mercId) {
+				MercenaryInformations.stopAI();
 			}
 
 			EffectManager.remove(null, pkt.GID, [EffectConst.EF_CHOOKGI, EffectConst.EF_CHOOKGI2, EffectConst.EF_CHOOKGI3, EffectConst.EF_CHOOKGI_N]); // Spirit spheres

@@ -33,6 +33,7 @@ define(function( require )
 	var SkillTargetSelection  = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Guild                 = require('UI/Components/Guild/Guild');
 	var SkillListMER          = require('UI/Components/SkillListMER/SkillListMER');
+	var SkillListHOM          = require('UI/Components/SkillListHOM/SkillListHOM');
 	var ItemSelection         = require('UI/Components/ItemSelection/ItemSelection');
 	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
 	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
@@ -571,7 +572,7 @@ define(function( require )
 
 		Network.sendPacket(pkt);
 	};
-	Guild.onIncreaseSkill = SkillListMER.onIncreaseSkill = onIncreaseSkill;
+	Guild.onIncreaseSkill = SkillListMER.onIncreaseSkill = SkillListHOM.onIncreaseSkill = onIncreaseSkill;
 
 
 	/**
@@ -673,7 +674,7 @@ define(function( require )
 		pkt.dest[1] = out[(count-1)*2 + 1];
 		Network.sendPacket(pkt);
 	};
-	Guild.onUseSkill = SkillListMER.onUseSkill = SkillTargetSelection.onUseSkillToId  = onUseSkill;
+	Guild.onUseSkill = SkillListMER.onUseSkill = SkillListHOM.onUseSkill = SkillTargetSelection.onUseSkillToId  = onUseSkill;
 
 
 	/**
