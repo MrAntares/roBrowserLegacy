@@ -11,7 +11,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
     MercAI.init = function init() {
         var clientPath = Configs.get('remoteClient');
-        var ai_path = Session.homCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M";
+        var ai_path = Session.merCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M";
 
         var code = `
             package.path = '${clientPath}?.lua'
