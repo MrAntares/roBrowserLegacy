@@ -20,7 +20,7 @@ define(function( require )
 	var EntityManager        = require('Renderer/EntityManager');
 	var UIManager            = require('UI/UIManager');
 	var MercenaryInformations = require('UI/Components/MercenaryInformations/MercenaryInformations');
-	var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
+	var SkillListMH          = require('UI/Components/SkillListMH/SkillListMH');
 	var Mouse                = require('Controls/MouseEventHandler');
 
 	/**
@@ -120,7 +120,7 @@ define(function( require )
 	 */
 	function onSkillList( pkt )
 	{
-		SkillListMER.setSkills( pkt.skillList );
+		SkillListMH.mercenary.setSkills( pkt.skillList );
 	}
 
 	/**
@@ -130,7 +130,7 @@ define(function( require )
 	 */
 	function onSkillUpdate( pkt )
 	{
-		SkillListMER.updateSkill( pkt );
+		SkillListMH.mercenary.updateSkill( pkt );
 	}
 
 	/**

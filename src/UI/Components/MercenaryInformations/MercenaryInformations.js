@@ -21,7 +21,7 @@ define(function(require)
 	var Session          = require('Engine/SessionStorage');
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
-    var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
+    var SkillListMH      = require('UI/Components/SkillListMH/SkillListMH');
 	var AIDriver         = require('Core/AIDriver');
 	var htmlText         = require('text!./MercenaryInformations.html');
 	var cssText          = require('text!./MercenaryInformations.css');
@@ -65,7 +65,7 @@ define(function(require)
 		});
 
         this.ui.find('.skill').mousedown(function () {
-            SkillListMER.toggle();
+            SkillListMH.mercenary.toggle();
         });
 
 		// If no aggressive level defined, default to 1
@@ -117,10 +117,10 @@ define(function(require)
 						this.focus();
 					}
 					if (!this.ui.is(':visible')) {
-						SkillListMER.ui.hide();
+						SkillListMH.mercenary.ui.hide();
 					}
 				} else {
-					SkillListMER.ui.hide();
+					SkillListMH.mercenary.ui.hide();
 					this.ui.hide();
 				}
 				break;
@@ -145,7 +145,7 @@ define(function(require)
 	function onClose()
 	{
 		MercenaryInformations.ui.hide();
-        SkillListMER.ui.hide();
+        SkillListMH.mercenary.ui.hide();
 	}
 
 	/**
@@ -262,7 +262,7 @@ define(function(require)
 		this.setKills(info.approval_monster_kill_counter || 0);
 		this.setFaith(info.faith || 0);
 
-        SkillListMER.setPoints(info.SKPoint);
+        SkillListMH.mercenary.setPoints(info.SKPoint);
 	};
 
 	/**
