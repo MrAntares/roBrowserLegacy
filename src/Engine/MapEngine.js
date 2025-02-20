@@ -61,6 +61,7 @@ define(function( require )
 	var Guild            = require('UI/Components/Guild/Guild');
 	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
 	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
+	var SkillListHOM     = require('UI/Components/SkillListHOM/SkillListHOM');
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
@@ -245,6 +246,7 @@ define(function( require )
 			require('./MapEngine/ChatRoom').call();
 			require('./MapEngine/Pet').call();
 			require('./MapEngine/Homun').call();
+			require('./MapEngine/Mercenary').call();
 			require('./MapEngine/Store').call();
 			require('./MapEngine/Trade').call();
 			require('./MapEngine/Friends').init();
@@ -278,6 +280,7 @@ define(function( require )
 			Guild.prepare();
 			WorldMap.prepare();
 			SkillListMER.prepare();
+			SkillListHOM.prepare();
 			Rodex.prepare();
 			RodexIcon.prepare();
 
@@ -639,6 +642,7 @@ define(function( require )
 			Guild.append();
 			WorldMap.append();
 			SkillListMER.append();
+			SkillListHOM.append();
 			MobileUI.append();
 
 			if (PACKETVER.value >= 20090617 && PACKETVER.value < 20140521) {

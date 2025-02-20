@@ -32,7 +32,8 @@ define(function( require )
 	var Session       = require('Engine/SessionStorage');
 	var Preferences   = require('Preferences/Controls');
 	var KEYS          = require('Controls/KeyEventHandler');
-	var AIDriver      = require('Core/AIDriver');
+	var HomAI         = require('Core/HomAI');
+	var MercAI        = require('Core/MercAI');
 	var Altitude 	  = require('Renderer/Map/Altitude');
 	var PACKETVER     = require('Network/PacketVerManager');
 	var PACKET        = require('Network/PacketStructure');
@@ -151,9 +152,11 @@ define(function( require )
 					Camera.rotate( false );
 					
 					if (entityOver && entityOver != Session.Entity && entityOver.objecttype != Entity.TYPE_EFFECT && entityOver.objecttype != Entity.TYPE_TRAP) {
-						AIDriver.setmsg(Session.homunId, '3,'+ entityOver.GID);
+						HomAI.setmsg(Session.homunId, '3,'+ entityOver.GID);
+						MercAI.setmsg(Session.mercId, '3,'+ entityOver.GID);
 					} else {
-						AIDriver.setmsg(Session.homunId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
+						HomAI.setmsg(Session.homunId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
+						MercAI.setmsg(Session.mercId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
 					}
 					
 				} else {

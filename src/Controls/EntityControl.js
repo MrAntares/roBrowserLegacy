@@ -354,9 +354,34 @@ define(function( require )
 					ContextMenu.addElement( 'Feed', function(){
 						getModule('UI/Components/HomunInformations/HomunInformations').reqHomunFeed();
 					});
-					ContextMenu.addElement( 'Stand By', function(){
-						getModule('UI/Components/HomunInformations/HomunInformations').toggleAggressive();
+					if (localStorage.getItem('HOM_AGGRESSIVE') == 0) {
+						ContextMenu.addElement( 'Assist', function(){
+							getModule('UI/Components/HomunInformations/HomunInformations').toggleAggressive();
+						});
+					} else {
+						ContextMenu.addElement( 'Stand By', function(){
+							getModule('UI/Components/HomunInformations/HomunInformations').toggleAggressive();
+						});
+					}
+				}
+				break;
+
+			case Entity.TYPE_MERC:
+				if (Session.mercId === this.GID) {
+					ContextMenu.remove();
+					ContextMenu.append();
+					ContextMenu.addElement( 'View Status', function(){
+						getModule('UI/Components/MercenaryInformations/MercenaryInformations').ui.toggle();
 					});
+					if (localStorage.getItem('MER_AGGRESSIVE') == 0) {
+						ContextMenu.addElement( 'Assist', function(){
+							getModule('UI/Components/MercenaryInformations/MercenaryInformations').toggleAggressive();
+						});
+					} else {
+						ContextMenu.addElement( 'Stand By', function(){
+							getModule('UI/Components/MercenaryInformations/MercenaryInformations').toggleAggressive();
+						});
+					}
 				}
 				break;
 		}

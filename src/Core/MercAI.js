@@ -6,47 +6,47 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     var PACKET = require('Network/PacketStructure');
     var Configs = require('Core/Configs');
 
-    function AIDriver() {
+    function MercAI() {
     }
 
-    AIDriver.init = function init() {
+    MercAI.init = function init() {
         var clientPath = Configs.get('remoteClient');
-        var ai_path = Session.homCustomAI ? "AI/USER_AI/AI" : "AI/AI";
-        
+        var ai_path = Session.homCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M";
+
         var code = `
             package.path = '${clientPath}?.lua'
-            
+
             local ai_main, ai_error = loadfile("${clientPath}${ai_path}.lua")
-			
-			
+
+
 			-- Dummy AI if there is no AI file
 			function AI()
 				return false
 			end
-            
+
 			-- Init main AI if exists
             if (ai_main) then
                 ai_main()
-                js.global.console:log("%c[AI] %cAI initialized.", "color:#DD0078", "color:inherit")
+                js.global.console:log("%c[mercAI] %cAI initialized.", "color:#DD0078", "color:inherit")
             else
-                js.global.console:warn("%c[AI] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
+                js.global.console:warn("%c[mercAI] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
             end
-            
-            
+
+
             -----------------------------------------
             function TraceAI (string)
                 return js.global:TraceAI(string)
             end
-            function MoveToOwner (id) 
+            function MoveToOwner (id)
                 return js.global:MoveToOwner(id)
             end
-            function Move (id,x,y) 
+            function Move (id,x,y)
                 return js.global:Move(id,x,y)
             end
-            function Attack (GID, targetGID) 
+            function Attack (GID, targetGID)
                 return js.global:Attack(GID, targetGID)
             end
-            function GetV (V_, id) 
+            function GetV (V_, id)
                 p = Split(js.global:GetV(V_, id), ",")
                 if (V_ == V_MOTION or V_ == V_OWNER or V_ == V_HOMUNTYPE or V_ == V_TARGET or V_ == V_ATTACKRANGE) then
                     return tonumber(p[1])
@@ -59,7 +59,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 end
                 return tonumber(p[1]), tonumber(p[2]), tonumber(p[3]), tonumber(p[4])
             end
-            function GetActors () 
+            function GetActors ()
                 actors = js.global:GetActors()
                 res = {}
                 for i,v in ipairs(actors) do
@@ -67,10 +67,10 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 end
                 return res
             end
-            function GetTick () 
+            function GetTick ()
                 return js.global:GetTick()
             end
-            function GetMsg (id) 
+            function GetMsg (id)
                 res = {}
                 for i,v in ipairs(Split(js.global:GetMsg(id), ",")) do
                     res[i] = tonumber(v)
@@ -81,16 +81,16 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 -- print('GetResMsg', id)
                 return {0}
             end
-            function SkillObject (id,level,skill,target) 
+            function SkillObject (id,level,skill,target)
                 print('SkillObject', id, level, skill, target)
             end
-            function SkillGround (id,level,skill,x,y) 
+            function SkillGround (id,level,skill,x,y)
                 print('SkillGround', id, level, skill, x, y)
             end
-            function IsMonster (id) 
+            function IsMonster (id)
                 return js.global:IsMonster(id)
             end
-            
+
             -----------------------------------------
             function Split(s, delimiter)
                 result = {};
@@ -100,14 +100,14 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return result;
             end
         `;
-        AIDriver.exec(code);
+        MercAI.exec(code);
 
     }
 
     var msg = {};
 
-    AIDriver.setmsg = function setmsg(homId, str) {
-        msg[homId] = str;
+    MercAI.setmsg = function setmsg(merId, str) {
+        msg[merId] = str;
     }
 
     window.GetMsg = function GetMsg(id) {
@@ -164,7 +164,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
     window.status = null;
     window.GetActors = function () {
-        AIDriver.exec('js.global.status = MyState')
+        MercAI.exec('js.global.status = MyState')
         var res = [0]
         EntityManager.forEach((item) => {
             res.push(item.GID)
@@ -172,20 +172,20 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
         // aggressive logic
         if (res.length > 3) {
-            if (localStorage.getItem('AGGRESSIVE') == 1) {
+            if (localStorage.getItem('MER_AGGRESSIVE') == 1) {
                 res.forEach((item) => {
-                    if (item != 0 && item != Session.AID && item != Session.homunId) {
+                    if (item != 0 && item != Session.AID && item != Session.mercId) {
                         var entity = EntityManager.get(Number(item))
                         if (entity && (entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC)) {
                             if (status == 0) { //idle = 0
                                 // attak
-                                AIDriver.setmsg(Session.homunId, '3,'+ item);
+                                MercAI.setmsg(Session.mercId, '3,'+ item);
                             }
                         }
                     }
                 })
             } else {
-                AIDriver.setmsg(Session.homunId, status);
+                MercAI.setmsg(Session.mercId, status);
             }
         }
         return res;
@@ -214,24 +214,27 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                     var avtors = window.GetActors();
                     return EntityManager.get(Number(avtors[id])).action;
                 }
+                if (entity === null) {
+                    return 0;
+                }
                 return entity.action;
 
             case 4: // V_ATTACKRANGE ok
                 // Returns the attack range (Not implemented yet; temporarily set as 1 cell)
-                if(entity){
+                if(entity !== null){
                     return entity.attack_range || 1;
                 }
                 return 1;
 
             case 5: // V_TARGET ok
-                if (id < 1 || typeof (id) !== 'number') {
+                if (entity === null || id < 1 || typeof (id) !== 'number') {
                     return 0;
                 }
                 return entity.targetGID;
 
             case 6: // V_SKILLATTACKRANGE
                 // Returns the skill attack range (Not implemented yet)
-                if(entity){
+                if(entity !== null){
                     return entity.attack_range || 1;
                 }
                 return 1;
@@ -255,8 +258,23 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return entity.life.sp_max;
 
             case 12: // V_MERTYPE
-                console.warn("V_MERTYPE ", id, entity)
-                return 0;
+                if (entity === null) {
+                    return 0;
+                }
+                return Number((entity._job + '').substring(1));
+
+            case 13: // V_POSITION_APPLY_SKILLATTACKRANGE
+                if (entity !== null) {
+                    return entity.position[0] + ',' + entity.position[1];
+                }
+                return '-1,-1'
+
+            case 14: // V_SKILLATTACKRANGE_LEVEL
+                // Returns the skill attack range for the skill level (Not implemented yet)
+                if(entity !== null){
+                    return entity.attack_range || 1;
+                }
+                return 1;
 
             default:
                 console.error("unknown V_ ", V_, entity)
@@ -264,17 +282,17 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
         }
     }
 
-    AIDriver.exec = function exec(code) {
+    MercAI.exec = function exec(code) {
         try {
             fengari.load(code)();
         } catch (e) {
-            console.error('%c[AI] %cAI Error: ', "color:#DD0078", "color:inherit", e);
+            console.error('%c[mercAI] %cAI Error: ', "color:#DD0078", "color:inherit", e);
         }
     }
-    
-    AIDriver.reset = function reset(){
+
+    MercAI.reset = function reset(){
         this.init();
     }
 
-    return AIDriver;
+    return MercAI;
 });

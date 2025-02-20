@@ -519,23 +519,24 @@ define(function (require) {
 			callback: function () {
 				Session.merCustomAI = !Session.merCustomAI;
 				if (Session.merCustomAI) {
+					getModule(
+						"UI/Components/MercenaryInformations/MercenaryInformations"
+					).resetAI();
 					this.addText(
 						DB.getMessage(1273),
 						this.TYPE.INFO,
 						this.FILTER.PUBLIC_LOG
 					);
 				} else {
+					getModule(
+						"UI/Components/MercenaryInformations/MercenaryInformations"
+					).resetAI();
 					this.addText(
 						DB.getMessage(1274),
 						this.TYPE.INFO,
 						this.FILTER.PUBLIC_LOG
 					);
 				}
-				this.addText(
-					"(Mercenary not supported yet)",
-					this.TYPE.INFO,
-					this.FILTER.PUBLIC_LOG
-				);
 				return;
 			},
 		},

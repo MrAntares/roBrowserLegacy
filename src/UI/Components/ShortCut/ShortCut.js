@@ -28,6 +28,7 @@ define(function(require)
 	var ItemInfo             = require('UI/Components/ItemInfo/ItemInfo');
 	var Inventory            = require('UI/Components/Inventory/Inventory');
 	var SkillListMER         = require('UI/Components/SkillListMER/SkillListMER');
+	var SkillListHOM         = require('UI/Components/SkillListHOM/SkillListHOM');
 	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Guild                = require('UI/Components/Guild/Guild');
@@ -191,6 +192,9 @@ define(function(require)
 					skill = Guild.getSkillById(list[i].ID);
 				} else if (list[i].ID > 8000 && list[i].ID < 8044) {
 					skill = SkillListMER.getSkillById(list[i].ID);
+					if (!skill) {
+						skill = SkillListHOM.getSkillById(list[i].ID);
+					}
 				} else {
 					skill = SkillWindow.getUI().getSkillById(list[i].ID);
 				}
@@ -486,6 +490,7 @@ define(function(require)
 
 		switch (data.from) {
 			case 'SkillListMER':
+			case 'SkillListHOM':
 			case 'SkillList':
 			case 'Guild':
 				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
@@ -616,7 +621,9 @@ define(function(require)
 			if(shortcut.ID > 10000 && shortcut.ID < 10100){
 				Guild.useSkillID(shortcut.ID, shortcut.count);
 			} else if (shortcut.ID > 8000 && shortcut.ID < 8044) {
+				// if one of them don't have the skill, it returns early
 				SkillListMER.useSkillID(shortcut.ID, shortcut.count);
+				SkillListHOM.useSkillID(shortcut.ID, shortcut.count);
 			} else {
 				SkillWindow.getUI().useSkillID(shortcut.ID, shortcut.count);
 			}
@@ -682,6 +689,15 @@ define(function(require)
 	 * @param level
 	 */
 	SkillListMER.onUpdateSkill = function( id, level)
+	{
+		ShortCut.setElement( true, id, level);
+	};
+
+	/**
+	 * @param id
+	 * @param level
+	 */
+	SkillListHOM.onUpdateSkill = function( id, level)
 	{
 		ShortCut.setElement( true, id, level);
 	};
