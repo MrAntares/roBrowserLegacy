@@ -6,32 +6,53 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     var PACKET = require('Network/PacketStructure');
     var Configs = require('Core/Configs');
 
-    function MercAI() {
+    function AIDriver(type) {
+        this.type = type; // 'homunculus' or 'mercenary'
+        this.msg = {};
     }
 
-    MercAI.init = function init() {
+    AIDriver.prototype.getConfig = function getConfig() {
+        switch (this.type) {
+            case 'homunculus':
+                return {
+                    id: Session.homunId,
+                    aggressiveKey: 'HOM_AGGRESSIVE',
+                    aiPath: Session.homCustomAI ? "/AI/USER_AI/AI" : "/AI/AI",
+                    logPrefix: 'homAI'
+                };
+            case 'mercenary':
+                return {
+                    id: Session.mercId,
+                    aggressiveKey: 'MER_AGGRESSIVE',
+                    aiPath: Session.merCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M",
+                    logPrefix: 'merAI'
+                };
+            default:
+                throw new Error('Invalid AI type');
+        }
+    };
+
+    AIDriver.prototype.init = function init() {
+        var config = this.getConfig();
         var clientPath = Configs.get('remoteClient');
-        var ai_path = Session.merCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M";
 
         var code = `
             package.path = '${clientPath}?.lua'
 
-            local ai_main, ai_error = loadfile("${clientPath}${ai_path}.lua")
+            local ai_main, ai_error = loadfile("${clientPath}${config.aiPath}.lua")
 
-
-			-- Dummy AI if there is no AI file
-			function AI()
-				return false
-			end
-
-			-- Init main AI if exists
-            if (ai_main) then
-                ai_main()
-                js.global.console:log("%c[mercAI] %cAI initialized.", "color:#DD0078", "color:inherit")
-            else
-                js.global.console:warn("%c[mercAI] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
+            -- Dummy AI if there is no AI file
+            function AI()
+                return false
             end
 
+            -- Init main AI if exists
+            if (ai_main) then
+                ai_main()
+                js.global.console:log("%c[${config.logPrefix}] %cAI initialized.", "color:#DD0078", "color:inherit")
+            else
+                js.global.console:warn("%c[${config.logPrefix}] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
+            end
 
             -----------------------------------------
             function TraceAI (string)
@@ -100,20 +121,41 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return result;
             end
         `;
-        MercAI.exec(code);
+        this.exec(code);
+    };
 
-    }
+    AIDriver.prototype.setmsg = function setmsg(id, str) {
+        this.msg[id] = str;
+    };
 
-    var msg = {};
+    AIDriver.prototype.exec = function exec(code) {
+        var config = this.getConfig();
+        try {
+            fengari.load(code)();
+        } catch (e) {
+            console.error(`%c[${config.logPrefix}] %cAI Error: `, "color:#DD0078", "color:inherit", e);
+        }
+    };
 
-    MercAI.setmsg = function setmsg(merId, str) {
-        msg[merId] = str;
-    }
+    AIDriver.prototype.reset = function reset() {
+        this.init();
+    };
 
+    // Create singleton instances for homunculus and mercenary
+    var homAI = new AIDriver('homunculus');
+    var merAI = new AIDriver('mercenary');
+
+    // Setup global functions that need to be shared between both AIs
     window.GetMsg = function GetMsg(id) {
-        if (id in msg) {
-            let res = msg[id];
-            delete msg[id];
+        // Check both message queues
+        if (id in homAI.msg) {
+            let res = homAI.msg[id];
+            delete homAI.msg[id];
+            return res;
+        }
+        if (id in merAI.msg) {
+            let res = merAI.msg[id];
+            delete merAI.msg[id];
             return res;
         }
         return '';
@@ -164,28 +206,43 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
     window.status = null;
     window.GetActors = function () {
-        MercAI.exec('js.global.status = MyState')
-        var res = [0]
+        var currentAI = null;
+        var config = null;
+
+        // Determine which AI is currently active based on the context
+        if (window.status === null) {
+            homAI.exec('js.global.status = MyState');
+            if (window.status !== null) {
+                currentAI = homAI;
+                config = homAI.getConfig();
+            } else {
+                merAI.exec('js.global.status = MyState');
+                currentAI = merAI;
+                config = merAI.getConfig();
+            }
+        }
+
+        var res = [0];
         EntityManager.forEach((item) => {
             res.push(item.GID)
         });
 
-        // aggressive logic
-        if (res.length > 3) {
-            if (localStorage.getItem('MER_AGGRESSIVE') == 1) {
+        // Aggressive logic
+        if (res.length > 3 && currentAI) {
+            if (localStorage.getItem(config.aggressiveKey) == 1) {
                 res.forEach((item) => {
-                    if (item != 0 && item != Session.AID && item != Session.mercId) {
-                        var entity = EntityManager.get(Number(item))
+                    if (item != 0 && item != Session.AID && item != config.id) {
+                        var entity = EntityManager.get(Number(item));
                         if (entity && (entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC)) {
-                            if (status == 0) { //idle = 0
-                                // attak
-                                MercAI.setmsg(Session.mercId, '3,'+ item);
+                            if (window.status == 0) { //idle = 0
+                                // attack
+                                currentAI.setmsg(config.id, '3,' + item);
                             }
                         }
                     }
-                })
+                });
             } else {
-                MercAI.setmsg(Session.mercId, status);
+                currentAI.setmsg(config.id, window.status);
             }
         }
         return res;
@@ -280,19 +337,10 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 console.error("unknown V_ ", V_, entity)
                 return 0;
         }
-    }
+    };
 
-    MercAI.exec = function exec(code) {
-        try {
-            fengari.load(code)();
-        } catch (e) {
-            console.error('%c[mercAI] %cAI Error: ', "color:#DD0078", "color:inherit", e);
-        }
-    }
-
-    MercAI.reset = function reset(){
-        this.init();
-    }
-
-    return MercAI;
+    return {
+        homunculus: homAI,
+        mercenary: merAI
+    };
 });

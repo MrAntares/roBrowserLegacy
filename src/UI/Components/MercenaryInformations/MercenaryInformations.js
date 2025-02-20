@@ -22,7 +22,7 @@ define(function(require)
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
     var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
-	var MercAI           = require('Core/MercAI');
+	var AIDriver         = require('Core/AIDriver');
 	var htmlText         = require('text!./MercenaryInformations.html');
 	var cssText          = require('text!./MercenaryInformations.css');
 
@@ -41,34 +41,6 @@ define(function(require)
 		reduce:   false
 	}, 1.0);
 
-	/**
-	 * @var {boolean} do we need to clean up?
-	 */
-	var _clean = false;
-
-	/**
-	 * @var {number} AI timer
-	 */
-	var _AITimer = null;
-
-	/**
-	 * @var {number} Follow timer
-	 */
-	var _followTimer = null;
-
-	/**
-	 * @var {Object} AI states
-	 */
-	var AIStates = {
-		IDLE: 0,
-		FOLLOW: 1,
-		ATTACK: 2
-	};
-
-	/**
-	 * @var {number} Current AI state
-	 */
-	var _currentState = AIStates.IDLE;
 
 	/**
 	 * Initialize UI
@@ -110,10 +82,6 @@ define(function(require)
 		// Set preferences
 		if (!_preferences.show) {
 			this.ui.hide();
-		}
-
-		if (!_clean) {
-			_clean = true;
 		}
 	};
 
@@ -343,12 +311,12 @@ define(function(require)
 	MercenaryInformations.startAI = function startAI()
 	{
 		this.stopAI();
-		MercAI.reset();
+		AIDriver.mercenary.reset();
 		this.AILoop = setInterval(function () {
 			if (Session.mercId) {
 				var entity = EntityManager.get(Session.mercId);
 				if (entity) {
-					MercAI.exec('AI(' + Session.mercId + ')')
+					AIDriver.mercenary.exec('AI(' + Session.mercId + ')')
 				}
 			}
 		}, 100);

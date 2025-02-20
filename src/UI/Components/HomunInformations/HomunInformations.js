@@ -23,7 +23,7 @@ define(function (require) {
     var htmlText = require('text!./HomunInformations.html');
     var cssText = require('text!./HomunInformations.css');
     var Session = require('Engine/SessionStorage');
-    var HomAI = require('Core/HomAI');
+    var AIDriver = require('Core/AIDriver');
     var PACKETVER   = require('Network/PacketVerManager');
 
     /**
@@ -312,12 +312,12 @@ define(function (require) {
 	
 	HomunInformations.startAI = function startAI(){
 		this.stopAI();
-		HomAI.reset(HomAI.HOM_TYPE);
+		AIDriver.homunculus.reset();
 		this.AILoop = setInterval(function () {
             if (Session.homunId) {
 				var entity = EntityManager.get(Session.homunId);
 				if (entity) {
-                	HomAI.exec('AI(' + Session.homunId + ')')
+                	AIDriver.homunculus.exec('AI(' + Session.homunId + ')')
 				}
             }
         }, 100);
