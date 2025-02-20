@@ -1,0 +1,38 @@
+.SkillListMH { position:absolute; top:100px; left:100px; border-radius:5px; background:white; line-height:18px; letter-spacing:0px; border:1px solid #c1c6c2; }
+.SkillListMH .border { border:1px solid #c1c6c2; margin:1px; border-radius:5px; }
+
+.SkillListMH .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
+.SkillListMH .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
+.SkillListMH .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
+    /* chrome bug */ display: inline-block; width: 32px; height:13px; }
+
+.SkillListMH .titlebar .left { margin-left:3px; float:left; }
+.SkillListMH .titlebar .right { float:right; margin-right:3px;}
+.SkillListMH .titlebar .clear { clear:both; }
+
+.SkillListMH .content { overflow-y:auto; padding:5px; width:270px; height:200px; }
+.SkillListMH .content table { border:none; border-spacing:0px; padding-top:5px; }
+.SkillListMH .content td, .SkillListMH .content .name { padding:0px; }
+
+.SkillListMH .levelup { border:0; width:24px; height:24px; padding:0; background-repeat:no-repeat; background-color:transparent; }
+.SkillListMH td.type { vertical-align:bottom; }
+
+.SkillListMH .content .icon { padding-left: 15px; }
+.SkillListMH .content .levelupcontainer { padding-left:5px; padding-right:5px; width:24px; }
+.SkillListMH .content div.name { line-height: 12px; white-space:nowrap; padding-left:5px; white-space:nowrap; width:120px; padding-top:4px; height:28px; }
+.SkillListMH .disabled .icon, .SkillListMH .disabled .name { opacity:0.5; }
+.SkillListMH .disabled .consume, .SkillListMH .disabled .level { display:none; }
+.SkillListMH .currentDown, .SkillListMH .currentUp { width: 11px; height: 11px; border:none; background-color:transparent; background-repeat:no-repeat;  vertical-align:middle;}
+
+.SkillListMH .selected.disabled .selectable { background-color:#b5b5b5;}
+.SkillListMH .selected.passive .selectable { background-color:#73d5ee;}
+.SkillListMH .selected.active .selectable { background-color:#739cee;}
+
+.SkillListMH .footer { width:100%; height:27px; background-repeat:repeat-x; background-color:transparent; position:relative; }
+.SkillListMH .footer .text { padding-top:7px; margin-left:10px; }
+.SkillListMH .footer .btn { position: absolute; top:5px; border:0; width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; display:none; }
+.SkillListMH .footer .apply { right:70px; }
+.SkillListMH .footer .reset { right:20px; }
+.SkillListMH .footer .extend { position:absolute; right:0px; bottom:1px; width:13px; height:13px; border:none; background-repeat:no-repeat; background-color:transparent; }
+
+#lvlup_job { z-index:51; position:absolute; right:0px; bottom:0px; width:43px; height:43px; border:none; background-color:transparent; background-repeat:no-repeat; }

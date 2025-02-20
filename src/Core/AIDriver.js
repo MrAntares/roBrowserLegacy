@@ -6,32 +6,54 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     var PACKET = require('Network/PacketStructure');
     var Configs = require('Core/Configs');
 
-    function MercAI() {
+    function AIDriver(type) {
+        this.type = type; // 'homunculus' or 'mercenary'
+        this.msg = {};
+        this.status = null;
     }
 
-    MercAI.init = function init() {
+    AIDriver.prototype.getConfig = function getConfig() {
+        switch (this.type) {
+            case 'homunculus':
+                return {
+                    id: Session.homunId,
+                    aggressiveKey: 'HOM_AGGRESSIVE',
+                    aiPath: Session.homCustomAI ? "/AI/USER_AI/AI" : "/AI/AI",
+                    logPrefix: 'homAI'
+                };
+            case 'mercenary':
+                return {
+                    id: Session.mercId,
+                    aggressiveKey: 'MER_AGGRESSIVE',
+                    aiPath: Session.merCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M",
+                    logPrefix: 'merAI'
+                };
+            default:
+                throw new Error('Invalid AI type');
+        }
+    };
+
+    AIDriver.prototype.init = function init() {
+        var config = this.getConfig();
         var clientPath = Configs.get('remoteClient');
-        var ai_path = Session.homCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M";
 
         var code = `
             package.path = '${clientPath}?.lua'
 
-            local ai_main, ai_error = loadfile("${clientPath}${ai_path}.lua")
+            local ai_main, ai_error = loadfile("${clientPath}${config.aiPath}.lua")
 
-
-			-- Dummy AI if there is no AI file
-			function AI()
-				return false
-			end
-
-			-- Init main AI if exists
-            if (ai_main) then
-                ai_main()
-                js.global.console:log("%c[mercAI] %cAI initialized.", "color:#DD0078", "color:inherit")
-            else
-                js.global.console:warn("%c[mercAI] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
+            -- Dummy AI if there is no AI file
+            function AI()
+                return false
             end
 
+            -- Init main AI if exists
+            if (ai_main) then
+                ai_main()
+                js.global.console:log("%c[${config.logPrefix}] %cAI initialized.", "color:#DD0078", "color:inherit")
+            else
+                js.global.console:warn("%c[${config.logPrefix}] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
+            end
 
             -----------------------------------------
             function TraceAI (string)
@@ -60,7 +82,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return tonumber(p[1]), tonumber(p[2]), tonumber(p[3]), tonumber(p[4])
             end
             function GetActors ()
-                actors = js.global:GetActors()
+                actors = js.global:GetActors('${this.type}')
                 res = {}
                 for i,v in ipairs(actors) do
                     res[i] = tonumber(v)
@@ -72,7 +94,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
             end
             function GetMsg (id)
                 res = {}
-                for i,v in ipairs(Split(js.global:GetMsg(id), ",")) do
+                for i,v in ipairs(Split(js.global:GetMsg('${this.type}', id), ",")) do
                     res[i] = tonumber(v)
                 end
                 return res
@@ -90,6 +112,9 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
             function IsMonster (id)
                 return js.global:IsMonster(id)
             end
+            function GetState ()
+                return MyState
+            end
 
             -----------------------------------------
             function Split(s, delimiter)
@@ -100,20 +125,48 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return result;
             end
         `;
-        MercAI.exec(code);
+        this.exec(code);
+    };
 
-    }
+    AIDriver.prototype.getState = function getState() {
+        var state = null;
+        try {
+            var fn = fengari.load('return GetState()');
+            state = fn();
+        } catch (e) {
+            var config = this.getConfig();
+            console.error(`%c[${config.logPrefix}] %cFailed to get AI state: `, "color:#DD0078", "color:inherit", e);
+        }
+        return state;
+    };
 
-    var msg = {};
+    AIDriver.prototype.setmsg = function setmsg(id, str) {
+        this.msg[id] = str;
+    };
 
-    MercAI.setmsg = function setmsg(merId, str) {
-        msg[merId] = str;
-    }
+    AIDriver.prototype.exec = function exec(code) {
+        var config = this.getConfig();
+        try {
+            fengari.load(code)();
+        } catch (e) {
+            console.error(`%c[${config.logPrefix}] %cAI Error: `, "color:#DD0078", "color:inherit", e);
+        }
+    };
 
-    window.GetMsg = function GetMsg(id) {
-        if (id in msg) {
-            let res = msg[id];
-            delete msg[id];
+    AIDriver.prototype.reset = function reset() {
+        this.init();
+    };
+
+    // Create singleton instances for homunculus and mercenary
+    var homAI = new AIDriver('homunculus');
+    var merAI = new AIDriver('mercenary');
+
+    // Setup global functions that need to be shared between both AIs
+    window.GetMsg = function GetMsg(type, id) {
+        var ai = type === 'homunculus' ? homAI : merAI;
+        if (id in ai.msg) {
+            let res = ai.msg[id];
+            delete ai.msg[id];
             return res;
         }
         return '';
@@ -162,30 +215,34 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
         Network.sendPacket(pkt);
     }
 
-    window.status = null;
-    window.GetActors = function () {
-        MercAI.exec('js.global.status = MyState')
-        var res = [0]
+    window.GetActors = function GetActors(type) {
+        var ai = type === 'homunculus' ? homAI : merAI;
+        var config = ai.getConfig();
+
+        // Execute AI state check
+        ai.status = ai.getState();
+
+        var res = [0];
         EntityManager.forEach((item) => {
             res.push(item.GID)
         });
 
-        // aggressive logic
+        // Aggressive logic
         if (res.length > 3) {
-            if (localStorage.getItem('MER_AGGRESSIVE') == 1) {
+            if (localStorage.getItem(config.aggressiveKey) == 1) {
                 res.forEach((item) => {
-                    if (item != 0 && item != Session.AID && item != Session.mercId) {
-                        var entity = EntityManager.get(Number(item))
+                    if (item != 0 && item != Session.AID && item != config.id) {
+                        var entity = EntityManager.get(Number(item));
                         if (entity && (entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC)) {
-                            if (status == 0) { //idle = 0
-                                // attak
-                                MercAI.setmsg(Session.mercId, '3,'+ item);
+                            if (ai.status == 0) { //idle = 0
+                                // attack
+                                ai.setmsg(config.id, '3,' + item);
                             }
                         }
                     }
-                })
+                });
             } else {
-                MercAI.setmsg(Session.mercId, status);
+                ai.setmsg(config.id, ai.status);
             }
         }
         return res;
@@ -280,19 +337,10 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 console.error("unknown V_ ", V_, entity)
                 return 0;
         }
-    }
+    };
 
-    MercAI.exec = function exec(code) {
-        try {
-            fengari.load(code)();
-        } catch (e) {
-            console.error('%c[mercAI] %cAI Error: ', "color:#DD0078", "color:inherit", e);
-        }
-    }
-
-    MercAI.reset = function reset(){
-        this.init();
-    }
-
-    return MercAI;
+    return {
+        homunculus: homAI,
+        mercenary: merAI
+    };
 });

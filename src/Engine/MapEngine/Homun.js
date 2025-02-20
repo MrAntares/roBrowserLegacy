@@ -23,7 +23,7 @@ define(function( require )
 	var UIManager            = require('UI/UIManager');
 	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
 	var HomunInformations    = require('UI/Components/HomunInformations/HomunInformations');
-	var SkillListHOM         = require('UI/Components/SkillListHOM/SkillListHOM');
+	var SkillListMH          = require('UI/Components/SkillListMH/SkillListMH');
 	var Mouse                = require('Controls/MouseEventHandler');
 
 	/**
@@ -55,7 +55,7 @@ define(function( require )
 		HomunInformations.setInformations( pkt );
 		HomunInformations.startAI();
 
-		SkillListHOM.setPoints( pkt.SKPoint );
+		SkillListMH.homunculus.setPoints( pkt.SKPoint );
 	}
 
 
@@ -210,7 +210,7 @@ define(function( require )
 	 */
 	function onSkillList( pkt )
 	{
-		SkillListHOM.setSkills( pkt.skillList );
+		SkillListMH.homunculus.setSkills( pkt.skillList );
 	}
 
 
@@ -221,7 +221,7 @@ define(function( require )
 	 */
 	function onSkillUpdate( pkt )
 	{
-		SkillListHOM.updateSkill( pkt );
+		SkillListMH.homunculus.updateSkill( pkt );
 	}
 
 

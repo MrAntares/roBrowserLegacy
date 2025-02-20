@@ -60,8 +60,7 @@ define(function( require )
 	var PartyFriends     = require('UI/Components/PartyFriends/PartyFriends');
 	var Guild            = require('UI/Components/Guild/Guild');
 	var WorldMap         = require('UI/Components/WorldMap/WorldMap');
-	var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
-	var SkillListHOM     = require('UI/Components/SkillListHOM/SkillListHOM');
+	var SkillListMH      = require('UI/Components/SkillListMH/SkillListMH');
 	var MobileUI         = require('UI/Components/MobileUI/MobileUI');
 	var CashShop         = require('UI/Components/CashShop/CashShop');
 	var Bank             = require('UI/Components/Bank/Bank');
@@ -279,8 +278,8 @@ define(function( require )
 			ChatBoxSettings.prepare();
 			Guild.prepare();
 			WorldMap.prepare();
-			SkillListMER.prepare();
-			SkillListHOM.prepare();
+			SkillListMH.homunculus.prepare();
+			SkillListMH.mercenary.prepare();
 			Rodex.prepare();
 			RodexIcon.prepare();
 
@@ -641,8 +640,8 @@ define(function( require )
 			PartyFriends.append();
 			Guild.append();
 			WorldMap.append();
-			SkillListMER.append();
-			SkillListHOM.append();
+			SkillListMH.homunculus.append();
+			SkillListMH.mercenary.append();
 			MobileUI.append();
 
 			if (PACKETVER.value >= 20090617 && PACKETVER.value < 20140521) {

@@ -19,11 +19,11 @@ define(function (require) {
 	var EntityManager    = require('Renderer/EntityManager');
     var UIManager = require('UI/UIManager');
     var UIComponent = require('UI/UIComponent');
-    var SkillListHOM = require('UI/Components/SkillListHOM/SkillListHOM');
+    var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
     var htmlText = require('text!./HomunInformations.html');
     var cssText = require('text!./HomunInformations.css');
     var Session = require('Engine/SessionStorage');
-    var HomAI = require('Core/HomAI');
+    var AIDriver = require('Core/AIDriver');
     var PACKETVER   = require('Network/PacketVerManager');
 
     /**
@@ -68,7 +68,7 @@ define(function (require) {
         });
 
         this.ui.find('.skill').mousedown(function () {
-            SkillListHOM.toggle()
+            SkillListMH.homunculus.toggle()
         });
 
 		// If no aggressive level defined, default to 1
@@ -134,10 +134,10 @@ define(function (require) {
                         this.focus();
                     }
                     if (!this.ui.is(':visible')) {
-                        SkillListHOM.ui.hide();
+                        SkillListMH.homunculus.ui.hide();
                     }
                 } else {
-                    SkillListHOM.ui.hide();
+                    SkillListMH.homunculus.ui.hide();
                     this.ui.hide();
                 }
                 break;
@@ -179,7 +179,7 @@ define(function (require) {
             this.ui.find('.name, .modify').addClass('disabled').attr('disabled', true);
         }
 
-        SkillListHOM.setPoints(info.SKPoint);
+        SkillListMH.homunculus.setPoints(info.SKPoint);
     };
 
 
@@ -312,12 +312,12 @@ define(function (require) {
 	
 	HomunInformations.startAI = function startAI(){
 		this.stopAI();
-		HomAI.reset(HomAI.HOM_TYPE);
+		AIDriver.homunculus.reset();
 		this.AILoop = setInterval(function () {
             if (Session.homunId) {
 				var entity = EntityManager.get(Session.homunId);
 				if (entity) {
-                	HomAI.exec('AI(' + Session.homunId + ')')
+                	AIDriver.homunculus.exec('AI(' + Session.homunId + ')')
 				}
             }
         }, 100);
@@ -368,7 +368,7 @@ define(function (require) {
      */
     function onClose() {
         HomunInformations.ui.hide();
-        SkillListHOM.ui.hide();
+        SkillListMH.homunculus.ui.hide();
     }
 
 

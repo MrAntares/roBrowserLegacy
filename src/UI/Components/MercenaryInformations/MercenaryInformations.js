@@ -21,8 +21,8 @@ define(function(require)
 	var Session          = require('Engine/SessionStorage');
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
-    var SkillListMER     = require('UI/Components/SkillListMER/SkillListMER');
-	var MercAI           = require('Core/MercAI');
+    var SkillListMH      = require('UI/Components/SkillListMH/SkillListMH');
+	var AIDriver         = require('Core/AIDriver');
 	var htmlText         = require('text!./MercenaryInformations.html');
 	var cssText          = require('text!./MercenaryInformations.css');
 
@@ -41,34 +41,6 @@ define(function(require)
 		reduce:   false
 	}, 1.0);
 
-	/**
-	 * @var {boolean} do we need to clean up?
-	 */
-	var _clean = false;
-
-	/**
-	 * @var {number} AI timer
-	 */
-	var _AITimer = null;
-
-	/**
-	 * @var {number} Follow timer
-	 */
-	var _followTimer = null;
-
-	/**
-	 * @var {Object} AI states
-	 */
-	var AIStates = {
-		IDLE: 0,
-		FOLLOW: 1,
-		ATTACK: 2
-	};
-
-	/**
-	 * @var {number} Current AI state
-	 */
-	var _currentState = AIStates.IDLE;
 
 	/**
 	 * Initialize UI
@@ -93,7 +65,7 @@ define(function(require)
 		});
 
         this.ui.find('.skill').mousedown(function () {
-            SkillListMER.toggle();
+            SkillListMH.mercenary.toggle();
         });
 
 		// If no aggressive level defined, default to 1
@@ -110,10 +82,6 @@ define(function(require)
 		// Set preferences
 		if (!_preferences.show) {
 			this.ui.hide();
-		}
-
-		if (!_clean) {
-			_clean = true;
 		}
 	};
 
@@ -149,10 +117,10 @@ define(function(require)
 						this.focus();
 					}
 					if (!this.ui.is(':visible')) {
-						SkillListMER.ui.hide();
+						SkillListMH.mercenary.ui.hide();
 					}
 				} else {
-					SkillListMER.ui.hide();
+					SkillListMH.mercenary.ui.hide();
 					this.ui.hide();
 				}
 				break;
@@ -177,7 +145,7 @@ define(function(require)
 	function onClose()
 	{
 		MercenaryInformations.ui.hide();
-        SkillListMER.ui.hide();
+        SkillListMH.mercenary.ui.hide();
 	}
 
 	/**
@@ -294,7 +262,7 @@ define(function(require)
 		this.setKills(info.approval_monster_kill_counter || 0);
 		this.setFaith(info.faith || 0);
 
-        SkillListMER.setPoints(info.SKPoint);
+        SkillListMH.mercenary.setPoints(info.SKPoint);
 	};
 
 	/**
@@ -343,12 +311,12 @@ define(function(require)
 	MercenaryInformations.startAI = function startAI()
 	{
 		this.stopAI();
-		MercAI.reset();
+		AIDriver.mercenary.reset();
 		this.AILoop = setInterval(function () {
 			if (Session.mercId) {
 				var entity = EntityManager.get(Session.mercId);
 				if (entity) {
-					MercAI.exec('AI(' + Session.mercId + ')')
+					AIDriver.mercenary.exec('AI(' + Session.mercId + ')')
 				}
 			}
 		}, 100);
