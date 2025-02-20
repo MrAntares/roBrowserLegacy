@@ -242,7 +242,7 @@ define( function( require )
 			SpriteRenderer.position.set(this.position);
 
 			// Everything right after the shadow should also be adjusted in height to ensure the sprites are above the shadow
-			if (this.objecttype === Entity.TYPE_PC || this.objecttype === Entity.TYPE_MOB || this.objecttype === Entity.TYPE_NPC) {
+			if (this.objecttype === Entity.TYPE_PC || this.objecttype === Entity.TYPE_MOB || this.objecttype === Entity.TYPE_NPC || this.objecttype === Entity.TYPE_MERC) {
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + .1;
 			}
 
@@ -297,7 +297,7 @@ define( function( require )
 
 
 
-			if (this.objecttype === Entity.TYPE_PC) {
+			if (this.objecttype === Entity.TYPE_PC || this.objecttype === Entity.TYPE_MERC) {
 				// Draw Head
 				renderElement( this, this.files.head, 'head', _position, false);
 
@@ -522,7 +522,10 @@ define( function( require )
 
 		// Get rid of doridori
 
-		if ((type === 'body' || type === 'robe') && entity.objecttype === entity.constructor.TYPE_PC && isIdle) {
+		if ((type === 'body' || type === 'robe') &&
+			(entity.objecttype === entity.constructor.TYPE_PC ||
+			 entity.objecttype === entity.constructor.TYPE_MERC) &&
+			isIdle) {
 			if(entity.headDir <= animLastIndex)
 				return entity.headDir;
 			return animLastIndex;
@@ -530,7 +533,10 @@ define( function( require )
 
 		// If hat/hair, divide to 3 since there is doridori include
 		// TODO: fixed, just on IDLE and SIT ?
-		if (type === 'head' && isIdle) {
+		if (type === 'head' &&
+			(entity.objecttype === entity.constructor.TYPE_PC ||
+			 entity.objecttype === entity.constructor.TYPE_MERC) &&
+			isIdle) {
 			animCount = Math.floor(animCount / 3);
 			headDir = entity.headDir <= animLastIndex ? entity.headDir : animLastIndex;
 		}
