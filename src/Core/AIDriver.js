@@ -9,6 +9,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     function AIDriver(type) {
         this.type = type; // 'homunculus' or 'mercenary'
         this.msg = {};
+        this.status = null;
     }
 
     AIDriver.prototype.getConfig = function getConfig() {
@@ -81,7 +82,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return tonumber(p[1]), tonumber(p[2]), tonumber(p[3]), tonumber(p[4])
             end
             function GetActors ()
-                actors = js.global:GetActors()
+                actors = js.global:GetActors('${this.type}')
                 res = {}
                 for i,v in ipairs(actors) do
                     res[i] = tonumber(v)
@@ -93,7 +94,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
             end
             function GetMsg (id)
                 res = {}
-                for i,v in ipairs(Split(js.global:GetMsg(id), ",")) do
+                for i,v in ipairs(Split(js.global:GetMsg('${this.type}', id), ",")) do
                     res[i] = tonumber(v)
                 end
                 return res
@@ -111,6 +112,9 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
             function IsMonster (id)
                 return js.global:IsMonster(id)
             end
+            function GetState ()
+                return MyState
+            end
 
             -----------------------------------------
             function Split(s, delimiter)
@@ -122,6 +126,18 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
             end
         `;
         this.exec(code);
+    };
+
+    AIDriver.prototype.getState = function getState() {
+        var state = null;
+        try {
+            var fn = fengari.load('return GetState()');
+            state = fn();
+        } catch (e) {
+            var config = this.getConfig();
+            console.error(`%c[${config.logPrefix}] %cFailed to get AI state: `, "color:#DD0078", "color:inherit", e);
+        }
+        return state;
     };
 
     AIDriver.prototype.setmsg = function setmsg(id, str) {
@@ -146,16 +162,11 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     var merAI = new AIDriver('mercenary');
 
     // Setup global functions that need to be shared between both AIs
-    window.GetMsg = function GetMsg(id) {
-        // Check both message queues
-        if (id in homAI.msg) {
-            let res = homAI.msg[id];
-            delete homAI.msg[id];
-            return res;
-        }
-        if (id in merAI.msg) {
-            let res = merAI.msg[id];
-            delete merAI.msg[id];
+    window.GetMsg = function GetMsg(type, id) {
+        var ai = type === 'homunculus' ? homAI : merAI;
+        if (id in ai.msg) {
+            let res = ai.msg[id];
+            delete ai.msg[id];
             return res;
         }
         return '';
@@ -204,23 +215,12 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
         Network.sendPacket(pkt);
     }
 
-    window.status = null;
-    window.GetActors = function () {
-        var currentAI = null;
-        var config = null;
+    window.GetActors = function GetActors(type) {
+        var ai = type === 'homunculus' ? homAI : merAI;
+        var config = ai.getConfig();
 
-        // Determine which AI is currently active based on the context
-        if (window.status === null) {
-            homAI.exec('js.global.status = MyState');
-            if (window.status !== null) {
-                currentAI = homAI;
-                config = homAI.getConfig();
-            } else {
-                merAI.exec('js.global.status = MyState');
-                currentAI = merAI;
-                config = merAI.getConfig();
-            }
-        }
+        // Execute AI state check
+        ai.status = ai.getState();
 
         var res = [0];
         EntityManager.forEach((item) => {
@@ -228,21 +228,21 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
         });
 
         // Aggressive logic
-        if (res.length > 3 && currentAI) {
+        if (res.length > 3) {
             if (localStorage.getItem(config.aggressiveKey) == 1) {
                 res.forEach((item) => {
                     if (item != 0 && item != Session.AID && item != config.id) {
                         var entity = EntityManager.get(Number(item));
                         if (entity && (entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC)) {
-                            if (window.status == 0) { //idle = 0
+                            if (ai.status == 0) { //idle = 0
                                 // attack
-                                currentAI.setmsg(config.id, '3,' + item);
+                                ai.setmsg(config.id, '3,' + item);
                             }
                         }
                     }
                 });
             } else {
-                currentAI.setmsg(config.id, window.status);
+                ai.setmsg(config.id, ai.status);
             }
         }
         return res;
