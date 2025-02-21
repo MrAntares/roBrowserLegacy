@@ -38,7 +38,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
         var clientPath = Configs.get('remoteClient');
 
         var code = `
-            package.path = '${clientPath}?.lua'
+            package.path = '${clientPath}/?.lua'
 
             local ai_main, ai_error = loadfile("${clientPath}${config.aiPath}.lua")
 
