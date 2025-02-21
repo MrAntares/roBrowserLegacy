@@ -20,6 +20,8 @@ define(function (require) {
 	var Renderer = require('Renderer/Renderer');
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
+	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
+	var jQuery = require('Utils/jquery');
 	var htmlText = require('text!./QuestHelper.html');
 	var cssText = require('text!./QuestHelper.css');
 
@@ -40,6 +42,45 @@ define(function (require) {
 
 
 	/**
+	 * Process text with color codes (^RRGGBB)
+	 * @param {string} text - The text to process
+	 * @returns {string} HTML with color spans
+	 */
+	function processColorCodes(text) {
+		if (!text) return '';
+		// Convert to string to handle non-string inputs
+		text = String(text);
+		return text.replace(/\^([0-9A-Fa-f]{6})/g, function(match, color) {
+			return '<span style="color:#' + color + '">';
+		}).replace(/\^000000/g, '</span>');
+	}
+
+	/**
+	 * Process item tags in text (<ITEM>Name<INFO>ID</INFO></ITEM>)
+	 * @param {string} text - The text to process
+	 * @returns {string} HTML with processed item tags
+	 */
+	function processItemTags(text) {
+		if (!text) return '';
+		text = String(text);
+		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function(match, itemName, itemId) {
+			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
+		});
+	}
+
+	/**
+	 * Process all text formatting (color codes and item tags)
+	 * @param {string} text - The text to process
+	 * @returns {string} Fully processed HTML
+	 */
+	function processText(text) {
+		if (!text) return '';
+		text = processItemTags(text);
+		text = processColorCodes(text);
+		return text;
+	}
+
+	/**
 	 * Initialize the component (event listener, etc.)
 	 */
 	QuestHelper.init = function init() {
@@ -48,6 +89,25 @@ define(function (require) {
 		this.ui.find('.base').mousedown(function (event) {
 			event.stopImmediatePropagation();
 			return false;
+		});
+
+		// Add click handler for item links
+		this.ui.on('click', '.item-link', function(event) {
+			var itemId = parseInt(jQuery(this).data('item-id'), 10);
+			if (!itemId) {
+				return;
+			}
+
+			// Don't add the same UI twice, remove it
+			if (ItemInfo.uid === itemId) {
+				ItemInfo.remove();
+				return;
+			}
+
+			// Add ui to window
+			ItemInfo.append();
+			ItemInfo.uid = itemId;
+			ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
 		});
 
 		this.draggable(this.ui.find('.titlebar'));
@@ -65,11 +125,11 @@ define(function (require) {
 	};
 
 	QuestHelper.setQuestInfo = function setQuestInfo(quest) {
-		QuestHelper.ui.find('.quest-info-title-panel-text').html(quest.title);
-		QuestHelper.ui.find('.quest-info-description-panel-text .quest-ui-text-span').html(quest.description);
+		QuestHelper.ui.find('.quest-info-title-panel-text').html(processText(quest.title));
+		QuestHelper.ui.find('.quest-info-description-panel-text .quest-ui-text-span').html(processText(quest.description));
 		let list = ""
 		for (let huntID in quest.hunt_list) {
-			list += '<li>' + quest.hunt_list[huntID].mobName + ' ( ' + quest.hunt_list[huntID].huntCount + ' / ' + quest.hunt_list[huntID].maxCount + ' )</li>';
+			list += '<li>' + processText(quest.hunt_list[huntID].mobName) + ' ( ' + quest.hunt_list[huntID].huntCount + ' / ' + quest.hunt_list[huntID].maxCount + ' )</li>';
 		}
 		QuestHelper.ui.find('.quest-info-monster-panel-text .quest-ui-text-span').html('<ul class="quest-ui-monster-list">' + list + '<ul>');
 		if (quest.reward_exp_base > 0)
@@ -79,7 +139,7 @@ define(function (require) {
 
 		for (let i = 0; i < quest.reward_item_list.length; i++) {
 			let it = DB.getItemInfo(quest.reward_item_list[i].ItemID);
-			let item_li = '<li class="quest-reward-item-li"><div class="quest-reward-item" data-index="' + quest.reward_item_list[i].ItemID + '">' + '<div class="quest-icon"></div></div><div class="quest-reward-item-info"><span class="quest-reward-item-name">' + it.identifiedDisplayName + '</span><br><span>' + quest.reward_item_list[i].ItemNum + '</span></div></li>';
+			let item_li = '<li class="quest-reward-item-li"><div class="quest-reward-item" data-index="' + quest.reward_item_list[i].ItemID + '">' + '<div class="quest-icon"></div></div><div class="quest-reward-item-info"><span class="quest-reward-item-name">' + processText(it.identifiedDisplayName) + '</span><br><span>' + quest.reward_item_list[i].ItemNum + '</span></div></li>';
 			QuestHelper.ui.find('.quest-info-reward-li-item-list').append(item_li);
 			Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/img_questiocn.bmp', function (data) {
 				QuestHelper.ui.find('.quest-reward-item[data-index="' + quest.reward_item_list[i].ItemID + '"]').css('backgroundImage', 'url(' + data + ')');

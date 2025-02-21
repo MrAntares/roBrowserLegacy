@@ -193,3 +193,13 @@
     list-style: none;
     padding-left: 20px;
 }
+
+.item-link {
+    color: #0070C0;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.item-link:hover {
+    color: #00A0FF;
+}
