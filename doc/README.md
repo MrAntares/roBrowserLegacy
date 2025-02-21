@@ -281,8 +281,11 @@ TODO: improve this flow (important!)
 - check the `.htaccess` file if the ErrorDocument option points to the `index.php` via the correct url. If you don't run roBrowser from the www root and you use remote client then you need to adjust this url (see examples in the file)
 
 In all `AI/*.lua` files :
+- Replace all `dofile` with `require`
 - Replace all `require "AI\\Const"` with `require "AI/Const"`
 - Replace all `require "AI\\Util"` with `require "AI/Util"`
+- Replace all `require("./AI/Const.lua")` with `require("AI/Const")`
+- Replace all `require("./AI/Util.lua")` with `require("AI/Util")`
 
 # 6. Adding Custom Plugins
 - copy your custom plugins into `src\Plugins` 
