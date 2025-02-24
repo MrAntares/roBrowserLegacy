@@ -25,7 +25,6 @@ define( function( require )
 	var Altitude         = require('Renderer/Map/Altitude');
 	var Session          = require('Engine/SessionStorage');
 	var JobId            = require('DB/Jobs/JobConst');
-	var getModule     = require;
 
 
 	var _last_body_dir = 0;
@@ -325,7 +324,6 @@ define( function( require )
 				if (this.shield > 0 && !behind) {
 					renderElement( this, this.files.shield, 'shield', _position, true );
 				}
-				this.aura.load(getModule('Renderer/EffectManager'));
 			}
 		};
 	}();
