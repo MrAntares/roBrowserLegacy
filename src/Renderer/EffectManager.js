@@ -17,7 +17,9 @@ define(function (require) {
 	const SkillUnit     = require('DB/Skills/SkillUnit');
 	const SU            = require('DB/Skills/SkillUnitConst');
 	const ItemEffect    = require('DB/Items/ItemEffect');
+	const Commands      = require('Controls/ProcessCommand');
 	const Events        = require('Core/Events');
+	const Configs       = require('Core/Configs');
 	const Cylinder      = require('Renderer/Effects/Cylinder');
 	const StrEffect     = require('Renderer/Effects/StrEffect');
 	const RsmEffect     = require('Renderer/Effects/RsmEffect');
@@ -60,6 +62,23 @@ define(function (require) {
 	 */
 	EffectManager.init = function init(gl) {
 		_gl = gl;
+		
+		if(Configs.get('development')){
+			Commands.add(
+				'd_effectmanager',
+				'Print EffectManager list to console.',
+				function(){
+					EffectManager.debug();
+				},
+				['d_em'],
+				true
+			);
+		} else {
+			if(Commands.isEnabled('d_effectmanager')){
+				Commands.remove('d_effectmanager');
+			}
+		}
+		
 	};
 
 
@@ -965,6 +984,10 @@ define(function (require) {
 				EffectManager.spam(EF_Init_Par);
 			});
 		}
+	};
+	
+	EffectManager.debug = function(){
+		console.log( '%c[DEBUG] EffectManager _list: ', 'color:#F5B342', _list );
 	};
 
 	/**
