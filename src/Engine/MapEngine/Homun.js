@@ -135,12 +135,13 @@ define(function (require) {
 				break;
 
 			case 1:
+				_info.nRelationship = pkt.data;
 				HomunInformations.setIntimacy(pkt.data);
 				break;
 
 			case 2:
 				HomunInformations.setHunger(pkt.data);
-				entity.life.hunger = pkt.data;
+				_info.nFullness = entity.life.hunger = pkt.data;
 				entity.life.hunger_max = 100;
 				entity.life.update();
 				break;
