@@ -224,6 +224,44 @@ define(function( require )
 		SkillListMH.homunculus.updateSkill( pkt );
 	}
 
+	/**
+	 * Update homunculus parameters e.g. hp/sp recovery
+	 * 
+	 * @param {object} pkt - PACKET.ZC.HO_PAR_CHANGE
+	 */
+	function onParamsUpdate( pkt )
+	{
+		if (!Session.homunId) {
+			return;
+		}
+
+		var entity = EntityManager.get(Session.homunId);
+
+		if (!entity) {
+			return;
+		}
+
+		switch (pkt.param) {
+			case 1: // EXP = value
+				// TODO update homunculus current EXP value.
+				// How go get expMax, whene is't only in onHomunInformation callback?
+				// HomunInformations.setExp(exp, expMax);
+				break;
+
+			case 5: // HP = value
+				entity.life.hp = pkt.value;
+				entity.life.update();
+				break;
+
+			case 7: // SP = value
+				// HomunInformations.setHP(pkt.value);
+				entity.life.sp = pkt.value;
+				entity.life.update();
+				break;
+
+			default: break;
+		}
+	}
 
 	// function testing( pkt )
 	// {
@@ -245,6 +283,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.FEED_MER,               onFeedResult);
 		Network.hookPacket( PACKET.ZC.MER_SKILLINFO_LIST,     onSkillList);
 		Network.hookPacket( PACKET.ZC.MER_SKILLINFO_UPDATE,   onSkillUpdate);
+		Network.hookPacket( PACKET.ZC.HO_PAR_CHANGE,          onParamsUpdate );
 
 		// Network.hookPacket( PACKET.ZC.MER_INIT,     testing);
 		// Network.hookPacket( PACKET.ZC.MER_PROPERTY,     testing);
