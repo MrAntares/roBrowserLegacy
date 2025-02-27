@@ -113,6 +113,12 @@ define(function (require) {
 				);
 				MapPreferences.aura = isSimplified ? 1 : 2;
 				MapPreferences.save();
+
+				var EntityManager = getModule("Renderer/EntityManager");
+				var EffectManager = getModule("Renderer/EffectManager");
+				EntityManager.forEach(function (entity) {
+					entity.aura.load(EffectManager);
+				});
 				return;
 			},
 		},
@@ -131,6 +137,12 @@ define(function (require) {
 				);
 				MapPreferences.aura = MapPreferences.aura ? 0 : 1;
 				MapPreferences.save();
+
+				var EntityManager = getModule("Renderer/EntityManager");
+				var EffectManager = getModule("Renderer/EffectManager");
+				EntityManager.forEach(function (entity) {
+					entity.aura.load(EffectManager);
+				});
 				return;
 			},
 		},
