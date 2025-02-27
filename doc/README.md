@@ -19,6 +19,8 @@ This guide has the goal to help you to Setup/Play RoBrowser. If there's any trou
   - [4.2 Serving Game: Development](#42-serving-game-development)
   - [4.3 Serving Game: using Browser](#43-serving-game-using-browser)
 - [5. Add game assets](#5-add-game-assets)
+  - [Local Assets](#local-assets)
+  - [Remote Client](#remote-client)
 - [6. Adding Custom Plugins](#6-adding-custom-plugins)
 - [7. ROBrowser Settings Overview](#7-robrowser-settings-overview)
   - [8. Play the Game](#8-play-the-game)
@@ -319,7 +321,8 @@ function initialize() {
               renewal:      true,          // Must match your game server's type (true/false). When using clientinfo.xml you can add the <renewal>true</renewal> custom tag.
               packetKeys:   false,         // Packet encryption keys ( not implemented?? )
               socketProxy:  "ws://127.0.0.1:5999/",  // The websocket proxy's address you set up previously for robrowser (wsproxy)
-              adminList:    [2000000]      // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
+              adminList:    [2000000],     // List admins' account IDs here like: [2000000, 2000001, 2000002 .... etc]
+              aura: { defaultLv: 99 }      // optional aura levels
           }],
 
       // OTHER CONFIG - These can be part of the server config as well, thus making them adjustable per server
