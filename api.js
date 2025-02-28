@@ -20,13 +20,7 @@
 	 */
 	function ROBrowser( options ){
 		if (typeof options === 'object') {
-			var key;
-
-			for (key in options) {
-				if (ROBrowser.prototype.hasOwnProperty( key )) {
-					this[ key ] = options[key];
-				}
-			}
+			Object.assign(this.config, options);
 		}
 	}
 
@@ -52,282 +46,270 @@
 		GRANNYMODELVIEWER: 6,  //sound weird O_o
 		EFFECTVIEWER: 7,
 	};
-
-
-	/**
-	 * @var {number} screen width
-	 */
-	ROBrowser.prototype.width = 0;
-
-
-	/**
-	 * @var {number} screen height
-	 */
-	ROBrowser.prototype.height = 0;
-
-
-	/**
-	 * @var {mixed} grf listing
-	 *
-	 * a) {Array} of GRFs:
-	 *    [ 'custom.grf', 'palette.grf', 'data.grf' ]
-	 *
-	 * b) {string} DATA.INI filename to load
-	 *    'DATA.INI'
-	 *
-	 * c) {RegExp} to filter grf files:
-	 *     /\.grf$/i
-	 */
-	ROBrowser.prototype.grfList = null;
-
-
-	/**
-	 * @var {servers} server listing
-	 *
-	 * a) {string} clientinfo file to load
-	 *    'data/clientinfo.xml'
-	 *
-	 * b) {Array} server list to display:
-	 */
-	ROBrowser.prototype.servers = 'data/clientinfo.xml';
-
-
-	/**
-	 * @var {string} Host where to download files
-	 */
-	ROBrowser.prototype.remoteClient = 'http://grf.robrowser.com/';
-
-
-	/**
-	 * @var {number|string} packet version
-	 *
-	 * Supported value:
-	 *    a) YYYYMMDD     (number: date you want)
-	 *    c) 'executable' (detect packetver from executable compilation date)
-	 */
-	ROBrowser.prototype.packetver    = 'auto';
-
-
-	/**
-	 * @var {number} character info block size
-	 * If not set, it will try to guess the type based on the packetver and the block total length
-	 */
-	ROBrowser.prototype.charBlockSize = 0;
-
-
-	/**
-	 * @var {string} client hash to send to server
-	 */
-	ROBrowser.prototype.clientHash = null;
-
-	/**
-	 * @var {string} calculate client hash
-	 */
-	ROBrowser.prototype.calculateHash = false;
-
-	/**
-	 * @var {string} files to hash for hash calculation
-	 */
-	ROBrowser.prototype.hashFiles = [];
-
-
-	/**
-	 * @var {constant} application name (see: ROBrowser.APP.* )
-	 *
-	 * Known applications:
-	 *   a) ROBrowser.APP.ONLINE    - RoBrowser online mode
-	 *   b) ROBrowser.APP.GRFVIEWER - parse and visualize GRF contents
-	 *   c) ROBrowser.APP.MAPVIEWER - parse and visualize maps
-	 */
-	ROBrowser.prototype.application = ROBrowser.APP.ONLINE;
-
-
-	/**
-	 * @var {constant} container type (see: ROBrowser.TYPE.POPUP)
-	 */
-	ROBrowser.prototype.type = ROBrowser.TYPE.POPUP;
-
-
-	/**
-	 * @var {string} element ID
-	 * If using container type 'frame', place the content in the HTMLElement specify
-	 */
-	ROBrowser.prototype.target = null;
-
-
-	/**
-	 * @var {boolean} is in development mode ?
-	 */
-	ROBrowser.prototype.development = false;
-
-
-	/**
-	 * @var {boolean} load lua files ?
-	 */
-	ROBrowser.prototype.loadLua = false;
-
-
-	/**
-	 * @var {function} callback to execute once roBrowser is ready
-	 */
-	ROBrowser.prototype.onReady = null;
-
-
-	/**
-	 * @var {boolean} use API once ready ?
-	 */
-	ROBrowser.prototype.api = false;
-
-
-	/**
-	 * @var {string} proxy server ex: 'ws://pserver.com:5200/'
-	 */
-	ROBrowser.prototype.socketProxy = null;
-
-
-	/**
-	 * @var {boolean}dump packet as hex in console ?
-	 */
-	ROBrowser.prototype.packetDump = false;
-
-	/**
-	 * @var {integer|boolean|array} packetKeys
-	 * see: http://hercules.ws/board/topic/1105-hercules-wpe-free-june-14th-patch/
-	 *
-	 * Supported value:
-	 * - integer : client date,
-	 *         ex: packetKeys: 20131223,
-	 * - boolean : supported ? If it's the case, will use the executable compiled date to get the keys
-	 *         ex: packetKeys: true,
-	 * - array: the keys you want to use:
-	 *         ex: packetKeys: [0xFF2615DE, 0x96AAE533, 0x1166CC33],
-	 */
-	ROBrowser.prototype.packetKeys = false;
-
-
-	/**
-	 * @var {boolean} should we save files in chrome filesystem ?
-	 *
-	 * If set to true, then we try to save the files loaded from server/grfs on a filesystem to load
-	 * them faster the next time.
-	 *
-	 * Only working on Chrome, status: deprecated.
-	 */
-	ROBrowser.prototype.saveFiles = true;
-
-
-	/**
-	 * @var {boolean} skip server list if only one server define ?
-	 *
-	 * If set to true and the server list (clientinfo, char-server list) just have one
-	 * element defined, the window will be skipped and you will auto-connect to the server.
-	 *
-	 * Set to false, will display the server list even if there is just one server set.
-	 */
-	ROBrowser.prototype.skipServerList = true;
-
-
-	/**
-	 * @var {boolean} do we skip the intro ?
-	 * Note: if you skip it, the user will not be able to load their local fullclient
-	 */
-	ROBrowser.prototype.skipIntro = false;
-
-
-	/**
-	 * @var {Array} do you want to auto-login to the server ?
-	 * Can be used in a securized session to auto-connect to the server without inserting login-pass (ie: Facebook app ?)
-	 * Using as autoLogin: ["username", "userpass"]
-	 */
-	ROBrowser.prototype.autoLogin = [];
-
-	/**
-	 * @var {boolean} Enable Cash Shop UI
-	 */
-	ROBrowser.prototype.enableCashShop = false;
-
-	/**
-	 * @var {boolean} Enable Bank UI
-	 */
-	ROBrowser.prototype.enableBank = false;
-
-	/**
-	 * @var {boolean} Enable Refine UI
-	 */
-	ROBrowser.prototype.enableRefineUI = false;
-
-	/**
-	 * @var {boolean} Enable Damage Suffix
-	 */
-	ROBrowser.prototype.enableDmgSuffix = false;
-
-	/**
-	 * @var {boolean} Enable Map Name Banner
-	 */
-	ROBrowser.prototype.enableMapName = false;
-
-	/**
-	 * @var {boolean} Enable Check Attendance UI
-	 */
-	ROBrowser.prototype.enableCheckAttendance = false;
-
-	/**
-	 * @var {boolean} User interface version selection mode (PacketVer | PreRenewal | Renewal)
-	 */
-	ROBrowser.prototype.clientVersionMode = "PacketVer";
-
-	/**
-	 * @var {mixed} set a version to avoid browser cache problem so
-	 * your users wil get the latest version running instead of a
-	 * cached one.
-	 */
-	ROBrowser.prototype.version = '';
-
-	/**
-	 * @var {URL} URL to the server's registration site
-	 */
-	ROBrowser.prototype.registrationweb = '';
 	
 	/**
-	 * @var {Object} Dettings for World Map
+	 * @var {Object} ROBrowser configuration object
 	 */
-	ROBrowser.prototype.worldMapSettings = {};
-
-	/**
-	 * @var {boolean} Enable use address to connect in all servers (login, char, map)
-	*/
-	ROBrowser.prototype.forceUseAddress = false;
-
-	/**
-	 * @var {boolean} Enable console in non-development environment
-	*/
-	ROBrowser.prototype.enableConsole = false;
-
-	/**
-	 * @var {boolean} Force disable console in any environment
-	*/
-	ROBrowser.prototype.disableConsole = false;
-
-	/**
-	 * @var {Object} Settings for display aura levels
-	*/
-	ROBrowser.prototype.aura = {};
-
-	/**
-	 * @var {Array} list of extensions you want to use for your BGMs.
-	 * It will test each extensions until there is one it can read.
-	 *
-	 * Examples: ['ogg', 'mp4', 'mp3']
-	 * Will try to see if it can load '.ogg' audio file, if it fail, will try to see if it can load .mp4, etc.
-	 */
-	ROBrowser.prototype.BGMFileExtension = ['mp3'];
-
-
-	/**
-	 * @var {Object} Define plugin to execute
-	 * It will test each extensions until there is one it can read.
-	 */
-	ROBrowser.prototype.plugins = {};
+	ROBrowser.prototype.config = {
+		/**
+		 * @var {number} screen width
+		 */
+		width: 0,
+		
+		/**
+		 * @var {number} screen height
+		 */
+		height: 0,
+		
+		/**
+		 * @var {mixed} grf listing
+		 *
+		 * a) {Array} of GRFs:
+		 *    [ 'custom.grf', 'palette.grf', 'data.grf' ]
+		 *
+		 * b) {string} DATA.INI filename to load
+		 *    'DATA.INI'
+		 *
+		 * c) {RegExp} to filter grf files:
+		 *     /\.grf$/i
+		 */
+		grfList: null,
+		
+		/**
+		 * @var {servers} server listing
+		 *
+		 * a) {string} clientinfo file to load
+		 *    'data/clientinfo.xml'
+		 *
+		 * b) {Array} server list to display:
+		 */
+		servers: 'data/clientinfo.xml',
+		
+		/**
+		 * @var {string} Host where to download files
+		 */
+		remoteClient: 'http://grf.robrowser.com/',
+		
+		/**
+		 * @var {number|string} packet version
+		 *
+		 * Supported value:
+		 *    a) YYYYMMDD     (number: date you want)
+		 *    c) 'executable' (detect packetver from executable compilation date)
+		 */
+		packetver: 'auto',
+		
+		/**
+		 * @var {number} character info block size
+		 * If not set, it will try to guess the type based on the packetver and the block total length
+		 */
+		charBlockSize: 0,
+		
+		/**
+		 * @var {string} client hash to send to server
+		 */
+		clientHash: null,
+		
+		/**
+		 * @var {string} calculate client hash
+		 */
+		calculateHash: false,
+		
+		/**
+		 * @var {string} files to hash for hash calculation
+		 */
+		hashFiles: [],
+		
+		/**
+		 * @var {constant} application name (see: ROBrowser.APP.* )
+		 *
+		 * Known applications:
+		 *   a) ROBrowser.APP.ONLINE    - RoBrowser online mode
+		 *   b) ROBrowser.APP.GRFVIEWER - parse and visualize GRF contents
+		 *   c) ROBrowser.APP.MAPVIEWER - parse and visualize maps
+		 */
+		application: ROBrowser.APP.ONLINE,
+		
+		/**
+		 * @var {constant} container type (see: ROBrowser.TYPE.POPUP)
+		 */
+		type: ROBrowser.TYPE.POPUP,
+		
+		/**
+		 * @var {string} element ID
+		 * If using container type 'frame', place the content in the HTMLElement specify
+		 */
+		target: null,
+		
+		/**
+		 * @var {boolean} is in development mode ?
+		 */
+		development: false,
+		
+		/**
+		 * @var {boolean} load lua files ?
+		 */
+		loadLua: false,
+		
+		/**
+		 * @var {function} callback to execute once roBrowser is ready
+		 */
+		onReady: null,
+		
+		/**
+		 * @var {boolean} use API once ready ?
+		 */
+		api: false,
+		
+		/**
+		 * @var {string} proxy server ex: 'ws://pserver.com:5200/'
+		 */
+		socketProxy: null,
+		
+		/**
+		 * @var {boolean}dump packet as hex in console ?
+		 */
+		packetDump: false,
+		
+		/**
+		 * @var {integer|boolean|array} packetKeys
+		 * see: http://hercules.ws/board/topic/1105-hercules-wpe-free-june-14th-patch/
+		 *
+		 * Supported value:
+		 * - integer : client date,
+		 *         ex: packetKeys: 20131223,
+		 * - boolean : supported ? If it's the case, will use the executable compiled date to get the keys
+		 *         ex: packetKeys: true,
+		 * - array: the keys you want to use:
+		 *         ex: packetKeys: [0xFF2615DE, 0x96AAE533, 0x1166CC33],
+		 */
+		packetKeys: false,
+		
+		/**
+		 * @var {boolean} should we save files in chrome filesystem ?
+		 *
+		 * If set to true, then we try to save the files loaded from server/grfs on a filesystem to load
+		 * them faster the next time.
+		 *
+		 * Only working on Chrome, status: deprecated.
+		 */
+		saveFiles: true,
+		
+		/**
+		 * @var {boolean} skip server list if only one server define ?
+		 *
+		 * If set to true and the server list (clientinfo, char-server list) just have one
+		 * element defined, the window will be skipped and you will auto-connect to the server.
+		 *
+		 * Set to false, will display the server list even if there is just one server set.
+		 */
+		skipServerList: true,
+		
+		/**
+		 * @var {boolean} do we skip the intro ?
+		 * Note: if you skip it, the user will not be able to load their local fullclient
+		 */
+		skipIntro: false,
+		
+		/**
+		 * @var {Array} do you want to auto-login to the server ?
+		 * Can be used in a securized session to auto-connect to the server without inserting login-pass (ie: Facebook app ?)
+		 * Using as autoLogin: ["username", "userpass"]
+		 */
+		autoLogin: [],
+		
+		/**
+		 * @var {boolean} Enable Cash Shop UI
+		 */
+		enableCashShop: false,
+		
+		/**
+		 * @var {boolean} Enable Bank UI
+		 */
+		enableBank: false,
+		
+		/**
+		 * @var {boolean} Enable Damage Suffix
+		 */
+		enableDmgSuffix: false,
+		
+		/**
+		 * @var {boolean} Enable Damage Suffix
+		 */
+		enableDmgSuffix: false,
+		
+		/**
+		 * @var {boolean} Enable Map Name Banner
+		 */
+		enableMapName: false,
+		
+		/**
+		 * @var {boolean} Enable Check Attendance UI
+		 */
+		enableCheckAttendance: false,
+		
+		/**
+		 * @var {boolean} User interface version selection mode (PacketVer | PreRenewal | Renewal)
+		 */
+		clientVersionMode: "PacketVer",
+		
+		/**
+		 * @var {mixed} set a version to avoid browser cache problem so
+		 * your users wil get the latest version running instead of a
+		 * cached one.
+		 */
+		version: '',
+		
+		/**
+		 * @var {URL} URL to the server's registration site
+		 */
+		registrationweb: '',
+		
+		/**
+		 * @var {Object} Dettings for World Map
+		 */
+		worldMapSettings: {},
+		
+		/**
+		 * @var {boolean} Enable use address to connect in all servers (login, char, map)
+		 */
+		forceUseAddress: false,
+		
+		/**
+		 * @var {boolean} Enable console in non-development environment
+		 */
+		enableConsole: false,
+		
+		/**
+		 * @var {boolean} Force disable console in any environment
+		 */
+		disableConsole: false,
+		
+		/**
+		 * @var {Object} Settings for display aura levels
+		 */
+		aura: {},
+		
+		/**
+		 * @var {Array} list of extensions you want to use for your BGMs.
+		 * It will test each extensions until there is one it can read.
+		 *
+		 * Examples: ['ogg', 'mp4', 'mp3']
+		 * Will try to see if it can load '.ogg' audio file, if it fail, will try to see if it can load .mp4, etc.
+		 */
+		BGMFileExtension: ['mp3'],
+		
+		/**
+		 * @var {Object} Define plugin to execute
+		 * It will test each extensions until there is one it can read.
+		 */
+		plugins: {},
+		
+		// Custom camera support
+		ThirdPersonCamera: false,
+		FirstPersonCamera: false,
+		CameraMaxZoomOut: 5,
+	};
 
 
 	/**
@@ -346,23 +328,23 @@
 	 */
 	ROBrowser.prototype.start = function Start()
 	{
-		switch (this.type) {
+		switch (this.config.type) {
 
 			// Create Popup
 			case ROBrowser.TYPE.POPUP:
-				this.width  = this.width  || '800';
-				this.height = this.height || '600';
+				this.config.width  = this.config.width  || '800';
+				this.config.height = this.config.height || '600';
 
 				this._APP = window.open(
-					this.baseUrl + '?' + this.version,
+					this.baseUrl + '?' + this.config.version,
 					'_blank',
 					[
 						'directories=0',
 						'fullscreen=0',
-						'top='  + ( (window.innerHeight||document.body.clientHeight)-this.height) / 2,
-						'left=' + ( (window.innerWidth ||document.body.clientWidth) -this.width ) / 2,
-						'height='+ this.height,
-						'width=' + this.width,
+						'top='  + ( (window.innerHeight||document.body.clientHeight)-this.config.height) / 2,
+						'left=' + ( (window.innerWidth ||document.body.clientWidth) -this.config.width ) / 2,
+						'height='+ this.config.height,
+						'width=' + this.config.width,
 						'location=0',
 						'menubar=0',
 						'resizable=0',
@@ -375,24 +357,24 @@
 
 			// Append ROBrowser to an element
 			case ROBrowser.TYPE.FRAME:
-				this.width  = this.width  || '100%';
-				this.height = this.height || '100%';
+				this.config.width  = this.config.width  || '100%';
+				this.config.height = this.config.height || '100%';
 
 				var frame          = document.createElement('iframe');
 				frame.src          = this.baseUrl + '?' + Math.random() + location.hash; // fix bug on firefox
-				frame.width        = this.width;
-				frame.height       = this.height;
+				frame.width        = this.config.width;
+				frame.height       = this.config.height;
 				frame.style.border = 'none';
 
 				frame.setAttribute('allowfullscreen', 'true');
 				frame.setAttribute('webkitallowfullscreen', 'true');
 				frame.setAttribute('mozallowfullscreen', 'true');
 
-				if (this.target) {
-					while (this.target.firstChild) {
-						this.target.removeChild( this.target.firstChild );
+				if (this.config.target) {
+					while (this.config.target.firstChild) {
+						this.config.target.removeChild( this.config.target.firstChild );
 					}
-					this.target.appendChild(frame);
+					this.config.target.appendChild(frame);
 				}
 
 				this._APP = frame.contentWindow;
@@ -401,33 +383,33 @@
 
 
 		// Get back application name
-		switch (this.application) {
+		switch (this.config.application) {
 			case ROBrowser.APP.ONLINE:
-				this.application = 'Online';
+				this.config.application = 'Online';
 				break;
 
 			case ROBrowser.APP.MAPVIEWER:
-				this.application = 'MapViewer';
+				this.config.application = 'MapViewer';
 				break;
 
 			case ROBrowser.APP.GRFVIEWER:
-				this.application = 'GrfViewer';
+				this.config.application = 'GrfViewer';
 				break;
 
 			case ROBrowser.APP.MODELVIEWER:
-				this.application = 'ModelViewer';
+				this.config.application = 'ModelViewer';
 				break;
 
 			case ROBrowser.APP.STRVIEWER:
-				this.application = 'StrViewer';
+				this.config.application = 'StrViewer';
 				break;
 
 			case ROBrowser.APP.GRANNYMODELVIEWER:
-				this.application = 'GrannyModelViewer';
+				this.config.application = 'GrannyModelViewer';
 				break;
 
 			case ROBrowser.APP.EFFECTVIEWER:
-				this.application = 'EffectViewer';
+				this.config.application = 'EffectViewer';
 				break;
 		}
 
@@ -450,57 +432,13 @@
 		window.addEventListener('message', OnMessage, false );
 	};
 
-	// Custom camera support
-	ROBrowser.prototype.ThirdPersonCamera = false;
-	ROBrowser.prototype.FirstPersonCamera = false;
-	ROBrowser.prototype.CameraMaxZoomOut = 5;
-
 	/**
 	 * Spam the window until there is an answer
 	 * No onload event from external iframe/popup
 	 */
 	function WaitForInitialization()
 	{
-		this._APP.postMessage({
-			application:      this.application,
-			servers:          this.servers,
-			grfList:          this.grfList,
-			remoteClient:     this.remoteClient,
-			packetver:        this.packetver,
-			development:      this.development,
-			loadLua:          this.loadLua,
-			api:              this.api,
-			socketProxy:      this.socketProxy,
-			packetKeys:       this.packetKeys,
-			saveFiles:        this.saveFiles,
-			skipServerList:   this.skipServerList,
-			skipIntro:        this.skipIntro,
-			autoLogin:        this.autoLogin,
-			enableCashShop:   this.enableCashShop,
-			enableBank:       this.enableBank,
-			enableMapName:    this.enableMapName,
-			enableRefineUI:   this.enableRefineUI,
-			enableDmgSuffix:  this.enableDmgSuffix,
-			enableCheckAttendance: this.enableCheckAttendance,
-			version:          this.version,
-			registrationweb:   this.registrationweb,
-			worldMapSettings:  this.worldMapSettings,
-			clientHash:       this.clientHash,
-			calculateHash:    this.calculateHash,
-			hashFiles:        this.hashFiles,
-			plugins:          this.plugins,
-			charBlockSize:    this.charBlockSize,
-			BGMFileExtension: this.BGMFileExtension,
-			ThirdPersonCamera: this.ThirdPersonCamera,
-			FirstPersonCamera: this.FirstPersonCamera,
-			clientVersionMode: this.clientVersionMode,
-			CameraMaxZoomOut: this.CameraMaxZoomOut,
-			packetDump:       this.packetDump,
-			forceUseAddress:  this.forceUseAddress,
-			enableConsole:    this.enableConsole,
-			disableConsole:   this.disableConsole,
-			aura:             this.aura,
-		}, '*');
+		this._APP.postMessage( JSON.parse(JSON.stringify(this.config)), '*');
 	}
 
 
