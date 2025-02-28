@@ -26,7 +26,7 @@
 					ROConfig.hashFiles          = event.data.hashFiles          || [];
 					ROConfig.loadLua            = event.data.loadLua            || false;
 					ROConfig.development        = event.data.development        || false;
-					ROConfig.API                = event.data.api                || false;
+					ROConfig.api                = event.data.api                || false;
 					ROConfig.socketProxy        = event.data.socketProxy        || null;
 					ROConfig.packetKeys         = event.data.packetKeys         || false;
 					ROConfig.saveFiles          = event.data.saveFiles          || false;
@@ -53,6 +53,7 @@
 					ROConfig.forceUseAddress    = event.data.forceUseAddress   	|| false;
 					ROConfig.enableConsole      = event.data.enableConsole      || false;
 					ROConfig.disableConsole     = event.data.disableConsole     || false;
+					ROConfig.aura               = event.data.aura               || {};
 
 					if (ROConfig.development) {
 						var script  = document.createElement('script');

@@ -309,6 +309,11 @@
 	ROBrowser.prototype.disableConsole = false;
 
 	/**
+	 * @var {Object} Settings for display aura levels
+	*/
+	ROBrowser.prototype.aura = {};
+
+	/**
 	 * @var {Array} list of extensions you want to use for your BGMs.
 	 * It will test each extensions until there is one it can read.
 	 *
@@ -492,6 +497,9 @@
 			CameraMaxZoomOut: this.CameraMaxZoomOut,
 			packetDump:       this.packetDump,
 			forceUseAddress:  this.forceUseAddress,
+			enableConsole:    this.enableConsole,
+			disableConsole:   this.disableConsole,
+			aura:             this.aura,
 		}, '*');
 	}
 
