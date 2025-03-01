@@ -8,3 +8,17 @@
 #WinLoginV2 .win_login .btn.connect { width:84px; height:84px; right:25px; bottom: 15px; }
 #WinLoginV2 .win_login .btn.signup { width:84px; height:21px; right:130px; bottom: 15px;}
 #WinLoginV2 .win_login .btn.exit { width:24px; height:23px; right:7px; bottom: 96px; }
+
+/* Override browser autofill styles */
+#WinLoginV2 .win_login input:-webkit-autofill,
+#WinLoginV2 .win_login input:-webkit-autofill:hover,
+#WinLoginV2 .win_login input:-webkit-autofill:focus,
+#WinLoginV2 .win_login input:-webkit-autofill:active,
+#WinLoginV2 .win_login input:-internal-autofill-selected,
+#WinLoginV2 .win_login input:-internal-autofill-previewed {
+-webkit-background-clip: text;
+    transition: background-color 5000sease-in-out 0s;
+    box-shadow: inset 0 0 20px 20px #ffffff00;
+}
+
+

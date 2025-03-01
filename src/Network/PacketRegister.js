@@ -8,9 +8,8 @@
  * @author Vincent Thibault
  */
 
-define( ['./PacketStructure' ], function( PACKET )
-{
-	'use strict';
+define(["./PacketStructure"], function (PACKET) {
+	"use strict";
 
 	return {
 		0x69: PACKET.AC.ACCEPT_LOGIN, // ok
@@ -19,7 +18,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x6c: PACKET.HC.REFUSE_ENTER, // ok
 		0x6d: PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION, // ok
 		0x6e: PACKET.HC.REFUSE_MAKECHAR, // ok
-		0x6f: PACKET.HC.ACCEPT_DELETECHAR,  // ok
+		0x6f: PACKET.HC.ACCEPT_DELETECHAR, // ok
 		0x70: PACKET.HC.REFUSE_DELETECHAR, // ok
 		0x71: PACKET.HC.NOTIFY_ZONESVR, // ok
 		0x73: PACKET.ZC.ACCEPT_ENTER, // ok
@@ -34,7 +33,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x7c: PACKET.ZC.NOTIFY_STANDENTRY_NPC, // ok
 		0x7f: PACKET.ZC.NOTIFY_TIME, // ok
 		0x80: PACKET.ZC.NOTIFY_VANISH, // ok
-		0x81: PACKET.SC.NOTIFY_BAN,  // ok
+		0x81: PACKET.SC.NOTIFY_BAN, // ok
 		0x83: PACKET.ZC.ACCEPT_QUIT, // ok
 		0x84: PACKET.ZC.REFUSE_QUIT, // ok
 		0x86: PACKET.ZC.NOTIFY_MOVE, // ok
@@ -535,7 +534,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x82a: PACKET.HC.DELETE_CHAR3,
 		0x82b: PACKET.CH.DELETE_CHAR3_CANCEL,
 		0x82c: PACKET.HC.DELETE_CHAR3_CANCEL,
-		0x82d: PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER,  // ok
+		0x82d: PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, // ok
 		0x835: PACKET.CZ.SEARCH_STORE_INFO,
 		0x836: PACKET.ZC.SEARCH_STORE_INFO_ACK,
 		0x837: PACKET.ZC.SEARCH_STORE_INFO_FAILED,
@@ -543,7 +542,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x839: PACKET.ZC.ACK_BAN_GUILD_SSO, // ok
 		0x83a: PACKET.ZC.OPEN_SEARCH_STORE_INFO,
 		0x83d: PACKET.ZC.SSILIST_ITEM_CLICK_ACK,
-		0x83e: PACKET.AC.REFUSE_LOGIN_R2,  // ok
+		0x83e: PACKET.AC.REFUSE_LOGIN_R2, // ok
 		0x840: PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME, // ok
 		0x84b: PACKET.ZC.ITEM_FALL_ENTRY2, // ok
 		0x856: PACKET.ZC.NOTIFY_MOVEENTRY6, // ok
@@ -597,7 +596,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x99a: PACKET.ZC.ACK_TAKEOFF_EQUIP_V5, // ok
 		0x99b: PACKET.ZC.MAPPROPERTY_R2,
 		0x99f: PACKET.ZC.SKILL_ENTRY4, //ok
-/*
+		/*
         bgqueue_ackType = 0x8d8,
         bgqueue_notice_deleteType = 0x8db,
         bgqueue_registerType = 0x8d7,
@@ -608,7 +607,7 @@ define( ['./PacketStructure' ], function( PACKET )
         bgqueue_notify_entryType = 0x8d9,
         bgqueue_battlebeginsType = 0x8df,
 */
-		0x99d: PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST,  // ok
+		0x99d: PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST, // ok
 		0x9a0: PACKET.HC.CHARLIST_NOTIFY,
 		0x9a6: PACKET.ZC.BANKING_CHECK,
 		0x9a7: PACKET.CZ.REQ_BANKING_DEPOSIT,
@@ -647,7 +646,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x9f3: PACKET.CZ.REQ_ITEM_FROM_RODEX, // ok
 		0x9f4: PACKET.ZC.ACK_ITEM_FROM_RODEX, // ok
 		0x9f5: PACKET.CZ.REQ_DELETE_RODEX, // ok
-		0x9f6: PACKET.ZC.ACK_DELETE_RODEX , // ok
+		0x9f6: PACKET.ZC.ACK_DELETE_RODEX, // ok
 		0x9f7: PACKET.ZC.PROPERTY_HOMUN2, // ok
 		0x9f8: PACKET.ZC.ALL_QUEST_LIST_V3, // ok
 		0x9f9: PACKET.ZC.ADD_QUEST2, // ok
@@ -662,7 +661,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xa04: PACKET.CZ.REQ_ADD_ITEM_RODEX, // ok
 		0xa05: PACKET.ZC.ACK_ADD_ITEM_RODEX, // ok
 		0xa06: PACKET.CZ.REQ_REMOVE_RODEX_ITEM, // ok
-		0xa07: PACKET.ZC.ACK_REMOVE_RODEX_ITEM , // ok
+		0xa07: PACKET.ZC.ACK_REMOVE_RODEX_ITEM, // ok
 		0xa08: PACKET.CZ.REQ_OPEN_WRITE_RODEX, // ok
 		0xa09: PACKET.ZC.ADD_EXCHANGE_ITEM3,
 		0xa0b: PACKET.ZC.ADD_ITEM_TO_CART3,
@@ -723,7 +722,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xac0: PACKET.CZ.OPEN_ALL_RODEX, // ok
 		0xac1: PACKET.CZ.UPDATE_ALL_RODEX, // ok
 		0xac2: PACKET.ZC.ACK_RODEX_LIST3, // ok
-		0xAC3: PACKET.ZC.ACK_FAILED_ALL_RODEX_LIST , // ok
+		0xac3: PACKET.ZC.ACK_FAILED_ALL_RODEX_LIST, // ok
 		0xac4: PACKET.AC.ACCEPT_LOGIN3, // ok
 		0xac5: PACKET.HC.NOTIFY_ZONESVR2, // ok
 		0xacb: PACKET.ZC.LONGPAR_CHANGE2, // ok
@@ -740,6 +739,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xadf: PACKET.ZC.ACK_REQNAMEALL3,
 		0xae4: PACKET.ZC.ADD_MEMBER_TO_GROUP4, // ok
 		0xae5: PACKET.ZC.GROUP_LIST3, // ok
+		0xb02: PACKET.AC.REFUSE_LOGIN,
 		0xb03: PACKET.ZC.EQUIPWIN_MICROSCOPE_V6,
 		0xb08: PACKET.ZC.SPLIT_SEND_ITEMLIST_SET,
 		0xb09: PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL,
@@ -773,7 +773,7 @@ define( ['./PacketStructure' ], function( PACKET )
 		0xb44: PACKET.ZC.ADD_ITEM_TO_STORE4,
 		0xb45: PACKET.ZC.ADD_ITEM_TO_CART4,
 		0xb4e: PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2,
-		0xb5f: PACKET.ZC.ACK_RODEX_LIST4 , // ok
+		0xb5f: PACKET.ZC.ACK_RODEX_LIST4, // ok
 		0xb63: PACKET.ZC.ACK_READ_RODEX2, // ok
 		0xb65: PACKET.ZC.REPAIRITEMLIST2,
 		0xb67: PACKET.ZC.ITEM_PICKUP_PARTY2,
@@ -817,6 +817,6 @@ define( ['./PacketStructure' ], function( PACKET )
 		0x84a: PACKET.CZ.CASH_SHOP_CLOSE, // FIXME, duplicate entry with PACKET.CZ.NPC_TRADE_QUIT, it will override this line
 		0x84a: PACKET.CZ.NPC_TRADE_QUIT,
 		0xae2: PACKET.ZC.UI_OPEN,
-		0x9cd: PACKET.ZC.MSG_COLOR
+		0x9cd: PACKET.ZC.MSG_COLOR,
 	};
 });
