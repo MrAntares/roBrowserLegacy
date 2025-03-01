@@ -7,3 +7,16 @@
 #WinLogin .btn.connect { right:50px; }
 #WinLogin .btn.signup { left:5px; }
 #WinLogin .btn.exit { right:5px; }
+
+
+/* Override browser autofill styles */
+#WinLogin input:-webkit-autofill,
+#WinLogin input:-webkit-autofill:hover,
+#WinLogin input:-webkit-autofill:focus,
+#WinLogin input:-webkit-autofill:active,
+#WinLogin input:-internal-autofill-selected,
+#WinLogin input:-internal-autofill-previewed {
+-webkit-background-clip: text;
+    transition: background-color 5000sease-in-out 0s;
+    box-shadow: inset 0 0 20px 20px #ffffff00;
+}
