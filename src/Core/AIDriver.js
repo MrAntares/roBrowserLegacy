@@ -186,7 +186,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     }
 
     window.TraceAI = function TraceAI(str) {
-        console.warn('TraceAI', str)
+        //console.warn('TraceAI', str)
     }
 
     window.GetTick = function GetTick() {

@@ -162,6 +162,13 @@ define(function (require) {
 		});
 	};
 
+	HomunInformations.sendHomunFeed = function sendHomunFeed() {
+		var pkt = new PACKET.CZ.COMMAND_MER();
+		pkt.type = 0x22f;
+		pkt.command = 1;
+		Network.sendPacket(pkt);
+	};
+
 	HomunInformations.reqDeleteHomun = function reqDeleteHomun() {
 		// Are you sure that you want to delete?
 		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {

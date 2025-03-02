@@ -16,7 +16,7 @@ define(function (require) {
     var Client = require('Core/Client');
     var Preferences = require('Core/Preferences');
     var Renderer = require('Renderer/Renderer');
-	var EntityManager    = require('Renderer/EntityManager');
+    var EntityManager = require('Renderer/EntityManager');
     var UIManager = require('UI/UIManager');
     var UIComponent = require('UI/UIComponent');
     var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
@@ -24,7 +24,10 @@ define(function (require) {
     var cssText = require('text!./HomunInformations.css');
     var Session = require('Engine/SessionStorage');
     var AIDriver = require('Core/AIDriver');
-    var PACKETVER   = require('Network/PacketVerManager');
+    var PACKETVER = require('Network/PacketVerManager');
+
+    var autoFeedInterval;
+    var autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
 
     /**
      * Create Component
@@ -32,18 +35,14 @@ define(function (require) {
     var HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
 
     /**
-     * @var {Preferences} Window preferences
+     * @var {Preferences} Window preferences (localStorage)
      */
     var _preferences = Preferences.get('HomunInformations', {
         x: 100,
         y: 200,
         show: false,
+        autoFeed: 0,
     }, 1.0);
-
-    /**
-     * Auto Feed Flag
-     */
-    var homunculusAutoFeeding = 0;
 
     /**
      * Initialize component
@@ -56,7 +55,7 @@ define(function (require) {
         this.ui.find('.modify').click(onChangeName);
         this.ui.find('.feed').click(onFeed);
         this.ui.find('.del').click(onDelete);
-        this.ui.find('.homun_auto_feed').mousedown(homunToggleAutoFeed);
+        this.ui.find('.homun_auto_feed').click(homunToggleAutoFeed);
 
         if (!_preferences.show) {
             this.ui.hide();
@@ -71,19 +70,43 @@ define(function (require) {
             SkillListMH.homunculus.toggle()
         });
 
-		// If no aggressive level defined, default to 1
-		// otherwise toggle and untoggle to remain the same
-		this.toggleAggressive();
-		this.toggleAggressive();
+        // If no aggressive level defined, default to 1
+        // otherwise toggle and untoggle to remain the same
+        this.toggleAggressive();
+        this.toggleAggressive();
+
+        // added support to autofeed for older clients with setInterval
+        if (PACKETVER.value < 20170920) {
+            // feed homunculus every 1 minutes when auto feed is enabled
+            // and homunculus hunger is below 90%
+            // feed should restore about 10% hunger
+            // 1 hunger is lost every 60 seconds
+            autoFeedInterval = window.setInterval(function () {
+                if (!Session.homunId) return;
+                if (_preferences.autoFeed != 1) return;
+                var entity = EntityManager.get(Session.homunId);
+                if (!entity) return;
+                // check if homunculus hunger is below 90% before feed
+                if (entity.life.hunger >= 90) return console.log('homun full', entity.life.hunger);
+                // feed from 89% to 99% full, restore about 10% hunger
+                HomunInformations.sendHomunFeed();
+            }, autoFeedIntervalMs);
+        }
     };
 
     HomunInformations.onAppend = function onAppend() {
-        Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (homunculusAutoFeeding ? '1' : '0') + '.bmp', function(data){
-			HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
-		});
+        Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.autoFeed ? '1' : '0') + '.bmp', function (data) {
+            HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
+        });
 
-        if(PACKETVER.value < 20170920)
-            HomunInformations.ui.find('.feeding').hide();
+        // added support to autofeed for older clients with setInterval
+        // if (PACKETVER.value < 20170920) {
+        //     HomunInformations.ui.find('.feeding').hide();
+        // }
+    }
+
+    HomunInformations.stopAutoFeed = function stopAutoFeed() {
+        window.clearInterval(autoFeedInterval);
     }
 
     /**
@@ -235,10 +258,10 @@ define(function (require) {
 
         this.ui.find('.intimacy').text(DB.getMessage(
             val < 100 ? 672 :
-            val < 250 ? 673 :
-            val < 600 ? 669 :
-            val < 900 ? 674 :
-            675
+                val < 250 ? 673 :
+                    val < 600 ? 669 :
+                        val < 900 ? 674 :
+                            675
         ));
     };
 
@@ -304,55 +327,55 @@ define(function (require) {
 
         this.ui.find('.hunger').text(val + '/' + 100);
     };
-	
-	HomunInformations.toggleAggressive = function toggleAggressive(){
-		let agr = localStorage.getItem('HOM_AGGRESSIVE') == 0 ? 1 : 0;
+
+    HomunInformations.toggleAggressive = function toggleAggressive() {
+        let agr = localStorage.getItem('HOM_AGGRESSIVE') == 0 ? 1 : 0;
         localStorage.setItem('HOM_AGGRESSIVE', agr);
-	};
-	
-	HomunInformations.startAI = function startAI(){
-		this.stopAI();
-		AIDriver.homunculus.reset();
-		this.AILoop = setInterval(function () {
+    };
+
+    HomunInformations.startAI = function startAI() {
+        this.stopAI();
+        AIDriver.homunculus.reset();
+        this.AILoop = setInterval(function () {
             if (Session.homunId) {
-				var entity = EntityManager.get(Session.homunId);
-				if (entity) {
-                	AIDriver.homunculus.exec('AI(' + Session.homunId + ')')
-				}
+                var entity = EntityManager.get(Session.homunId);
+                if (entity) {
+                    AIDriver.homunculus.exec('AI(' + Session.homunId + ')')
+                }
             }
         }, 100);
-	};
-	
-	HomunInformations.stopAI = function stopAI(){
-		if(this.AILoop){
-			clearInterval(this.AILoop);
-		}
-	};
+    };
 
-	HomunInformations.resetAI = function resetAI(){
-		this.stopAI();
-		this.startAI();
-	};
+    HomunInformations.stopAI = function stopAI() {
+        if (this.AILoop) {
+            clearInterval(this.AILoop);
+        }
+    };
 
-    HomunInformations.setFeedConfig = function setFeedConfig(flag)
-	{
-		homunculusAutoFeeding = flag;
+    HomunInformations.resetAI = function resetAI() {
+        this.stopAI();
+        this.startAI();
+    };
 
+    HomunInformations.setFeedConfig = function setFeedConfig(flag) {
+        _preferences.autoFeed = flag;
+        _preferences.save();
         // server sent this info before of homun
-        if(HomunInformations.ui) {
-            Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (homunculusAutoFeeding ? '1' : '0') + '.bmp', function(data){
+        if (HomunInformations.ui) {
+            Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.autoFeed ? '1' : '0') + '.bmp', function (data) {
                 HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
             });
         }
-	}
+    }
 
-	/**
-	 * Toggle AutoFeed
-	 */
-	function homunToggleAutoFeed()
-	{
-		HomunInformations.onConfigUpdate( 3, !homunculusAutoFeeding ? 1 : 0 );
-	}
+    /**
+     * Toggle AutoFeed
+     */
+    function homunToggleAutoFeed() {
+        HomunInformations.setFeedConfig(_preferences.autoFeed == 1 ? 0 : 1);
+        if (PACKETVER.value < 20170920) return;
+        HomunInformations.onConfigUpdate(3, !_preferences.autoFeed ? 1 : 0);
+    }
 
     /**
      * Request to modify homun's name
@@ -384,14 +407,14 @@ define(function (require) {
     /**
      * Functions defined in Engine/MapEngine/Homun.js
      */
-    HomunInformations.reqHomunFeed = function reqHomunFeed() {};
-    HomunInformations.reqNameEdit = function reqNameEdit() {};
-    HomunInformations.reqAttack = function reqAttack() {};
-    HomunInformations.reqMoveTo = function reqMoveTo() {};
-    HomunInformations.reqMoveToOwner = function reqMoveToOwner() {};
+    HomunInformations.reqHomunFeed = function reqHomunFeed() { };
+    HomunInformations.reqNameEdit = function reqNameEdit() { };
+    HomunInformations.reqAttack = function reqAttack() { };
+    HomunInformations.reqMoveTo = function reqMoveTo() { };
+    HomunInformations.reqMoveToOwner = function reqMoveToOwner() { };
 
-    HomunInformations.reqHomunAction = function reqHomunAction() {};
-    HomunInformations.onConfigUpdate = function onConfigUpdate(/* type, value*/){};
+    HomunInformations.reqHomunAction = function reqHomunAction() { };
+    HomunInformations.onConfigUpdate = function onConfigUpdate(/* type, value*/) { };
 
 
     /**
