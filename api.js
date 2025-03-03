@@ -247,6 +247,11 @@
 		 * @var {boolean} Enable Check Attendance UI
 		 */
 		enableCheckAttendance: false,
+
+		/**
+		 * @var {boolean} Enable Homunculus Auto Feed for older PACKETVER than 20170920
+		 */
+		enableHomunAutoFeed: false,
 		
 		/**
 		 * @var {boolean} User interface version selection mode (PacketVer | PreRenewal | Renewal)

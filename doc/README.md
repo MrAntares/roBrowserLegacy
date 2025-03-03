@@ -346,6 +346,7 @@ function initialize() {
           enableRefineUI:  false,  // Enable Renewal Refine UI? (Requires client data (GRF) newer than 2016.10.12) (Should also enable in server side)
           enableDmgSuffix: false,  // Enable Damage Suffix (>1M = K, >100M = M) - Requires client data (GRF) newer or equals to 2019.05.08
           enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
+          enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920
           loadLua:         false,  // Enable this option to load LUA tables (currently only item table) from client/System/...
           
           //clientHash:    '113e195e6c051bb1cfb12a644bb084c5', // Set fixed client hash value here (less secure, for development only)
