@@ -24,6 +24,7 @@ define(function (require) {
     var cssText = require('text!./HomunInformations.css');
     var Session = require('Engine/SessionStorage');
     var AIDriver = require('Core/AIDriver');
+    var Configs = require('Core/Configs');
     var PACKETVER = require('Network/PacketVerManager');
 
     var autoFeedInterval;
@@ -74,24 +75,6 @@ define(function (require) {
         // otherwise toggle and untoggle to remain the same
         this.toggleAggressive();
         this.toggleAggressive();
-
-        // added support to autofeed for older clients with setInterval
-        if (PACKETVER.value < 20170920) {
-            // feed homunculus every 1 minutes when auto feed is enabled
-            // and homunculus hunger is below 90%
-            // feed should restore about 10% hunger
-            // 1 hunger is lost every 60 seconds
-            autoFeedInterval = window.setInterval(function () {
-                if (!Session.homunId) return;
-                if (_preferences.autoFeed != 1) return;
-                var entity = EntityManager.get(Session.homunId);
-                if (!entity) return;
-                // check if homunculus hunger is below 90% before feed
-                if (entity.life.hunger >= 90) return console.log('homun full', entity.life.hunger);
-                // feed from 89% to 99% full, restore about 10% hunger
-                HomunInformations.sendHomunFeed();
-            }, autoFeedIntervalMs);
-        }
     };
 
     HomunInformations.onAppend = function onAppend() {
@@ -99,10 +82,33 @@ define(function (require) {
             HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
         });
 
-        // added support to autofeed for older clients with setInterval
-        // if (PACKETVER.value < 20170920) {
-        //     HomunInformations.ui.find('.feeding').hide();
-        // }
+        if (PACKETVER.value < 20170920) {
+            if (Configs.get('enableHomunAutoFeed', false)) {
+                // added support to autofeed for older clients with setInterval
+                HomunInformations.startAutoFeed();
+            } else {
+                HomunInformations.ui.find('.feeding').hide();
+            }
+        }
+    }
+
+    // feed homunculus every 1 minutes when enableHomunAutoFeed is enabled
+    // and homunculus hunger is below 90%
+    // feed should restore about 10% hunger
+    // 1 hunger is lost every 60 seconds
+    HomunInformations.startAutoFeed = function startAutoFeed() {
+        window.clearInterval(autoFeedInterval);
+
+        autoFeedInterval = window.setInterval(function () {
+            if (!Session.homunId) return;
+            if (_preferences.autoFeed != 1) return; // is UI toggled
+            var entity = EntityManager.get(Session.homunId);
+            if (!entity) return;
+            if (entity.life.hp <= 0) return;
+            if (entity.life.hunger >= 90) return;
+            // feed from 89% to 99% full, restore about 10% hunger
+            HomunInformations.sendHomunFeed();
+        }, autoFeedIntervalMs);
     }
 
     HomunInformations.stopAutoFeed = function stopAutoFeed() {
@@ -134,6 +140,7 @@ define(function (require) {
         _preferences.y = parseInt(this.ui.css('top'), 10);
         _preferences.x = parseInt(this.ui.css('left'), 10);
         _preferences.save();
+        HomunInformations.stopAutoFeed();
         this.stopAI();
     };
 
