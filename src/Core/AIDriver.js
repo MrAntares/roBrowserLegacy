@@ -186,7 +186,9 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     }
 
     window.TraceAI = function TraceAI(str) {
-        //console.warn('TraceAI', str)
+        if (Configs.get('debugAI', false)) {
+            console.warn('TraceAI', str)
+        }
     }
 
     window.GetTick = function GetTick() {
@@ -278,7 +280,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
             case 4: // V_ATTACKRANGE ok
                 // Returns the attack range (Not implemented yet; temporarily set as 1 cell)
-                if(entity !== null){
+                if (entity !== null) {
                     return entity.attack_range || 1;
                 }
                 return 1;
@@ -291,7 +293,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
             case 6: // V_SKILLATTACKRANGE
                 // Returns the skill attack range (Not implemented yet)
-                if(entity !== null){
+                if (entity !== null) {
                     return entity.attack_range || 1;
                 }
                 return 1;
@@ -328,7 +330,7 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
 
             case 14: // V_SKILLATTACKRANGE_LEVEL
                 // Returns the skill attack range for the skill level (Not implemented yet)
-                if(entity !== null){
+                if (entity !== null) {
                     return entity.attack_range || 1;
                 }
                 return 1;
