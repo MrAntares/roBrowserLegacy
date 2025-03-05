@@ -96,7 +96,8 @@ define(function (require) {
     // feed homunculus every 1 minutes when enableHomunAutoFeed is enabled
     HomunInformations.startAutoFeed = function startAutoFeed() {
         window.clearInterval(autoFeedInterval);
-        autoFeedInterval = window.setInterval(autoFeedCheck, autoFeedIntervalMs);
+        // feed every 1 minutes (default value). No zero value
+        autoFeedInterval = window.setInterval(autoFeedCheck, Number(Configs.get('homunAutoFeedTimeMs')) || autoFeedIntervalMs);
         autoFeedCheck();
     }
 
