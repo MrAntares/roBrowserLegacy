@@ -29,7 +29,7 @@ define(function (require) {
 
     var autoFeedInterval;
     var autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
-    var autoFeedBreakPoint = 31;
+    var autoFeedPercent = 30;
 
     /**
      * Create Component
@@ -128,7 +128,7 @@ define(function (require) {
         if (!entity) return;
         if (entity.life.hp <= 0) return;
         // get the auto feed break point from the config or default
-        if (entity.life.hunger >= Number(Configs.get('homunAutoFeedPoint', autoFeedBreakPoint))) return;
+        if (entity.life.hunger > Number(Configs.get('homunAutoFeedPercent', autoFeedPercent))) return;
         // hunger is now at 30, so feed +10 points
         HomunInformations.sendHomunFeed();
     }
