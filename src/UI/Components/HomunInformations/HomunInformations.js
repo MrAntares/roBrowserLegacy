@@ -29,6 +29,7 @@ define(function (require) {
 
     var autoFeedInterval;
     var autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
+    var autoFeedPercent = 30;
 
     /**
      * Create Component
@@ -93,26 +94,43 @@ define(function (require) {
     }
 
     // feed homunculus every 1 minutes when enableHomunAutoFeed is enabled
-    // and homunculus hunger is below 90%
-    // feed should restore about 10% hunger
-    // 1 hunger is lost every 60 seconds
     HomunInformations.startAutoFeed = function startAutoFeed() {
         window.clearInterval(autoFeedInterval);
-
-        autoFeedInterval = window.setInterval(function () {
-            if (!Session.homunId) return;
-            if (_preferences.autoFeed != 1) return; // is UI toggled
-            var entity = EntityManager.get(Session.homunId);
-            if (!entity) return;
-            if (entity.life.hp <= 0) return;
-            if (entity.life.hunger >= 90) return;
-            // feed from 89% to 99% full, restore about 10% hunger
-            HomunInformations.sendHomunFeed();
-        }, autoFeedIntervalMs);
+        // feed every 1 minutes (default value). No zero value
+        autoFeedInterval = window.setInterval(autoFeedCheck, Number(Configs.get('homunAutoFeedTimeMs')) || autoFeedIntervalMs);
+        autoFeedCheck();
     }
 
     HomunInformations.stopAutoFeed = function stopAutoFeed() {
         window.clearInterval(autoFeedInterval);
+    }
+
+    /**
+     * Checks if homun should be fed or not
+     * - feed when hunger drops below 31 (default value)
+     * - feed should restore about 10 hunger
+     * - 1 hunger is lost every 60 seconds
+     *
+     * @return {void}
+     */
+    function autoFeedCheck() {
+        // check is feature enabled (ui toggeled)
+        if (_preferences.autoFeed != 1) return;
+
+        // check current player
+        var player = Session.Entity;
+        if (!player) return;
+        if (player.life.hp <= 0) return;
+
+        // check current homunculus
+        if (!Session.homunId) return;
+        var entity = EntityManager.get(Session.homunId);
+        if (!entity) return;
+        if (entity.life.hp <= 0) return;
+        // get the auto feed break point from the config or default
+        if (entity.life.hunger > Number(Configs.get('homunAutoFeedPercent', autoFeedPercent))) return;
+        // hunger is now at 30, so feed +10 points
+        HomunInformations.sendHomunFeed();
     }
 
     /**
@@ -373,6 +391,7 @@ define(function (require) {
                 HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
             });
         }
+        autoFeedCheck();
     }
 
     /**
