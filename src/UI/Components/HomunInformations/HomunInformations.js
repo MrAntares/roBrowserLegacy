@@ -114,8 +114,16 @@ define(function (require) {
      * @return {void}
      */
     function autoFeedCheck() {
+        // check is feature enabled (ui toggeled)
+        if (_preferences.autoFeed != 1) return;
+
+        // check current player
+        var player = Session.Entity;
+        if (!player) return;
+        if (player.life.hp <= 0) return;
+
+        // check current homunculus
         if (!Session.homunId) return;
-        if (_preferences.autoFeed != 1) return; // is UI toggled
         var entity = EntityManager.get(Session.homunId);
         if (!entity) return;
         if (entity.life.hp <= 0) return;
