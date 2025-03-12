@@ -63,7 +63,7 @@ define(function (require) {
 		//Hiding skills
 		SkillId.TF_HIDING,
 		SkillId.AS_CLOAKING,
-		SkillId.RG_CHASEWALK,
+		SkillId.ST_CHASEWALK,
 		SkillId.GC_CLOAKINGEXCEED,
 		SkillId.RA_CAMOUFLAGE,
 		SkillId.NC_STEALTHFIELD,
