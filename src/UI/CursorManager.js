@@ -354,7 +354,11 @@ function bindMouseEvents() {
 			var spriteSheetBlobURL = URL.createObjectURL(blob);
 	
 			// Append the sprite sheet to the DOM
-			jQuery('.cursor').append('<img class="cursor__sprite" src="' + spriteSheetBlobURL + '">');
+			var imageElem = jQuery('<img class="cursor__sprite" src="' + spriteSheetBlobURL + '">');
+			imageElem.one('load', function (e) {
+				URL.revokeObjectURL(e.target.src);
+			})
+			jQuery('.cursor').append(imageElem);
 		}
 	
 		for (var i = 0; i < totalSprites; i++) {

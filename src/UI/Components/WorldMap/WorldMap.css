@@ -1,234 +1,260 @@
 #loader {
-    position: relative;
-    transform: translate(-10%, -50%);
-    top: 50%;
-    left: 50%;
+	position: relative;
+	transform: translate(-10%, -50%);
+	top: 50%;
+	left: 50%;
 }
 
 #WorldMap {
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: black;
-    height: 100%;
-    width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: black;
+	height: 100%;
+	width: 100%;
 }
 
 #WorldMap .hidden {
-    display: none;
+	display: none;
 }
 
 #WorldMap .titlebar {
-    height: 17px;
-    background-color: white;
-    background-repeat: repeat-x;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
 }
 
 #WorldMap .titlebar .base {
-    width: 11px;
-    height: 11px;
-    border: none;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    vertical-align: middle;
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
 }
 
 #WorldMap .titlebar .text {
-    text-shadow: 1px 1px white;
-    vertical-align: -2px;
-    white-space: nowrap;
-    /* chrome bug */
-    display: inline-block;
-    width: 60px;
-    height: 13px;
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	white-space: nowrap;
+	/* chrome bug */
+	display: inline-block;
+	width: 60px;
+	height: 13px;
 }
 
 #WorldMap .titlebar .left {
-    margin-left: 3px;
-    float: left;
-    height: 17px;
+	margin-left: 3px;
+	float: left;
+	height: 17px;
 }
 
 #WorldMap .titlebar .right {
-    float: right;
-    margin-right: 3px;
+	float: right;
+	margin-right: 3px;
 }
 
 #WorldMap .titlebar .clear {
-    clear: both;
+	clear: both;
 }
 
 #WorldMap select {
-    height: 17px;
+	height: 17px;
 }
 
 /* V2 */
 #WorldMap .worldmap {
-    box-sizing: border-box;
-    display: grid;
-    justify-content: center;
-    overflow: auto;
+	box-sizing: border-box;
+	display: grid;
+	justify-content: center;
+	overflow: auto;
 }
 
 #WorldMap .worldmap * {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
-#WorldMap .border, #WorldMap .map, #WorldMap .content, #WorldMap .worldmap, #WorldMap .map-view {
-    height: 100%;
+#WorldMap .border,
+#WorldMap .map,
+#WorldMap .content,
+#WorldMap .worldmap,
+#WorldMap .map-view {
+	height: 100%;
 }
 
 #WorldMap .worldmap .map-view {
-    position: relative;
-    background-repeat: no-repeat;
-    background-size: contain;
+	position: relative;
+	background-repeat: no-repeat;
+	background-size: contain;
 }
 
 #WorldMap .worldmap .section {
-    position: absolute;
-    border: 0px;
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0);
-    cursor: pointer;
-    overflow: visible;
+	position: absolute;
+	border: 0px;
+	border-radius: 4px;
+	background-color: rgba(0, 0, 0, 0);
+	cursor: pointer;
+	overflow: visible;
 }
 
-#WorldMap .worldmap .section:hover, #WorldMap .worldmap .section.allmapvisible, #WorldMap .worldmap .section.currentmap, #WorldMap .worldmap .section.membersonmap {
-    border: 1px solid #dddddd7a;
+#WorldMap .worldmap .section:hover,
+#WorldMap .worldmap .section.allmapvisible,
+#WorldMap .worldmap .section.currentmap,
+#WorldMap .worldmap .section.membersonmap {
+	border: 1px solid #dddddd7a;
 }
 
 #WorldMap .worldmap .section:hover {
-    background-color: rgba(0, 128, 255, 0.5);
+	background-color: rgba(0, 128, 255, 0.5);
 }
 
 #WorldMap .worldmap .section.membersonmap:not(.currentmap) {
-    background-color: rgba(128, 255, 0, 0.5);
+	background-color: rgba(128, 255, 0, 0.5);
 }
 
 #WorldMap .worldmap .section.currentmap {
-    background-color: rgba(255, 128, 0, 0.5);
+	background-color: rgba(255, 128, 0, 0.5);
 }
 
 #WorldMap .worldmap .section .mapname {
-    display: none;
+	display: none;
 }
 
 #WorldMap .worldmap .section.currentmap .mapname {
-    display: block;
-    position: absolute;
-    top: 3px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    height: 11px;
-    font-size: 10px;
-    color: white;
-    font-weight: bold;
-    text-shadow: -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-    text-wrap: nowrap;
-    text-align: center;
+	display: block;
+	position: absolute;
+	top: 3px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	height: 11px;
+	font-size: 10px;
+	color: white;
+	font-weight: bold;
+	text-shadow: -1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+	text-wrap: nowrap;
+	text-align: center;
 }
 
 #WorldMap .worldmap .section .mapid {
-    display: none;
+	display: none;
 }
 
-#WorldMap .worldmap .section:hover .mapid, #WorldMap .worldmap .section.allmapvisible .mapid {
-    display: block;
-    position: absolute;
-    bottom: 3px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    height: 10px;
-    font-size: 9px;
-    color: white;
-    text-shadow: -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-    text-align: center;
+#WorldMap .worldmap .section:hover .mapid,
+#WorldMap .worldmap .section.allmapvisible .mapid {
+	display: block;
+	position: absolute;
+	bottom: 3px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	height: 10px;
+	font-size: 9px;
+	color: white;
+	text-shadow: -1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+	text-align: center;
 }
 
 #WorldMap .worldmap .airplane {
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    top: 0px;
-    left: 0px;
-    transform: rotate(75deg);
-    background-repeat: no-repeat;
-    background-size: cover;
+	position: absolute;
+	width: 32px;
+	height: 32px;
+	top: 0px;
+	left: 0px;
+	transform: rotate(75deg);
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 
-
-#WorldMap dialog {
-    border: 1px solid black;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
+#WorldMap .dialog-backdrop {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: hsla(0, 0%, 16%, 0.25);
 }
 
-#WorldMap dialog #img-map-view {
-    max-width: 512px;
-    max-height: 512px;
-    object-fit: scale-down;
+#WorldMap .dialog-backdrop.show,
+#WorldMap .dialog-backdrop.show .dialog {
+	display: block;
 }
 
-#WorldMap dialog .mapname {
-    position: absolute;
-    top: 7px;
-    left: 10px;
-    font-size: 16px;
-    color: gold;
-    font-weight: bold;
-    text-shadow: -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
+#WorldMap .dialog {
+	border: 1px solid black;
+	border-radius: 5px;
+	background-color: rgba(255, 255, 255, 0.2);
+	backdrop-filter: blur(5px);
+	width: fit-content;
+	height: fit-content;
+	max-width: calc(100% - 2em - 6px);
+	max-height: calc(100% - 2em - 6px);
+	user-select: text;
+	visibility: visible;
+	overflow: auto;
+	margin: 5em auto;
+	padding: 1em;
 }
 
-#WorldMap dialog .memberlist {
-    position: absolute;
-    top: 35px;
-    left: 15px;
-    font-size: 13px;
-    color: salmon;
-    font-weight: bold;
-    text-shadow: -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
+#WorldMap .dialog.show {
+	display: block;
 }
 
-#WorldMap dialog .mapid {
-    position: absolute;
-    bottom: 7px;
-    left: 10px;
-    font-size: 12px;
-    color: white;
-    text-shadow: -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
+#WorldMap .dialog #img-map-view {
+	max-width: 512px;
+	max-height: 512px;
+	object-fit: scale-down;
 }
 
-/*#WorldMap dialog::backdrop {
-	background-color: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(5px);
-}*/
-
-#WorldMap dialog::backdrop {
-    background-color: hsla(0, 0%, 16%, 0.25);
+#WorldMap .dialog .mapname {
+	position: absolute;
+	top: 7px;
+	left: 10px;
+	font-size: 16px;
+	color: gold;
+	font-weight: bold;
+	text-shadow: -1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
 }
 
-#WorldMap dialog button#dialog-close {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 11px;
-    height: 11px;
-    border: none;
-    background-color: rgba(255, 255, 255, 0.0);
+#WorldMap .dialog .memberlist {
+	position: absolute;
+	top: 35px;
+	left: 15px;
+	font-size: 13px;
+	color: salmon;
+	font-weight: bold;
+	text-shadow: -1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+}
+
+#WorldMap .dialog .mapid {
+	position: absolute;
+	bottom: 7px;
+	left: 10px;
+	font-size: 12px;
+	color: white;
+	text-shadow: -1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+}
+
+#WorldMap .dialog button#dialog-close {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: rgba(255, 255, 255, 0.0);
 }
