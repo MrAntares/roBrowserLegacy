@@ -22,3 +22,13 @@
 .item-link:hover {
     color: #00A0FF;
 }
+
+.navi-link {
+    color: #C00000;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.navi-link:hover {
+    color: #FF0000;
+}
