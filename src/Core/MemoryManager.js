@@ -151,8 +151,8 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	 */
 	function remove( gl, filename )
 	{
-		// Not found ?
-		if (!_memory[filename]) {
+		// Not found or filename is undefined?
+		if (!filename || !_memory[filename]) {
 			return;
 		}
 
