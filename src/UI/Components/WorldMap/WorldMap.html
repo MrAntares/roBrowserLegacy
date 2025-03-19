@@ -8,9 +8,9 @@
 			</div>
 			<div class="right">
 				<button class="base togglemaps" data-background="minimap/i_object_3.bmp"
-						data-hover="minimap/i_object_2.bmp"></button>
+					data-hover="minimap/i_object_2.bmp"></button>
 				<button class="base close" data-background="basic_interface/sys_close_off.bmp"
-						data-hover="basic_interface/sys_close_on.bmp"></button>
+					data-hover="basic_interface/sys_close_on.bmp"></button>
 			</div>
 		</div>
 
@@ -18,12 +18,16 @@
 			<div class="content"></div>
 		</div>
 	</div>
-	<dialog id="dialog-map-view">
-		<button id="dialog-close" data-background="basic_interface/sys_close_off.bmp"
+	<div class="dialog-backdrop" id="dialog-map-view-backdrop">
+		<div class="dialog" id="dialog-map-view">
+			<button id="dialog-close" data-background="basic_interface/sys_close_off.bmp"
 				data-hover="basic_interface/sys_close_on.bmp"></button>
-		<div id="img-map-view"><div id="loader"></div></div>
-		<div class="mapname"/>
-		<div class="memberlist"/>
-		<div class="mapid"/>
-	</dialog>
+			<div id="img-map-view">
+				<div id="loader"></div>
+			</div>
+			<div class="mapname" />
+			<div class="memberlist" />
+			<div class="mapid" />
+		</div>
+	</div>
 </div>
