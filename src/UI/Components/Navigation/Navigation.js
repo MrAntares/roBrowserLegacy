@@ -133,7 +133,13 @@ define(function (require) {
 	 * @returns {string} Normalized map name
 	 */
 	function normalizeMapName(mapName) {
-		return mapName.replace(/\.gat$/, "").toLowerCase();
+		// Remove .gat extension and convert to lowercase
+		mapName = mapName.replace(/\.gat$/, "").toLowerCase();
+
+		// Handle map variations with _a, _b, _c, _d suffixes
+		mapName = mapName.replace(/^(.+)_[a-d]$/, "$1");
+
+		return mapName;
 	}
 
 	/**
