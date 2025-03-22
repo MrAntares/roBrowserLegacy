@@ -306,7 +306,6 @@ define(function (require) {
 	}
 
 	function resetPathFindingWorker() {
-		console.log("[DEBUG] resetPathFindingWorker called");
 		terminatePathFindingWorker();
 		initializePathFindingWorker();
 	}
@@ -446,7 +445,6 @@ define(function (require) {
 	 * Once append to the DOM
 	 */
 	Navigation.onAppend = function onAppend() {
-		console.log("[DEBUG] onAppend called");
 		// Clear path for clean render
 		this.clearPath();
 
@@ -482,7 +480,6 @@ define(function (require) {
 	 * Once removed from DOM
 	 */
 	Navigation.onRemove = function onRemove() {
-		console.log("[DEBUG] onRemove called");
 		this.clearPath();
 		terminatePathFindingWorker();
 	};
@@ -570,11 +567,8 @@ define(function (require) {
 	 * @param {Object} result - The search result to navigate to
 	 */
 	Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
-		console.log("[DEBUG] navigateToSearchResult called with:", result);
-
 		// Validate result
 		if (!result || !result.mapName) {
-			console.log("[DEBUG] Invalid result, returning");
 			return;
 		}
 
@@ -584,9 +578,6 @@ define(function (require) {
 		// Get current map and position
 		var currentMap = getCurrentMap();
 		var currentPos = getPlayerPosition();
-
-		console.log("[DEBUG] Current position:", currentPos.x, currentPos.y);
-		console.log("[DEBUG] Target position:", result.x, result.y);
 
 		// Use our unified navigation function
 		this.navigateTo({
@@ -616,24 +607,16 @@ define(function (require) {
 		if (x >= 0 && x < _mapData.width && y >= 0 && y < _mapData.height) {
 			var index = x + y * _mapData.width;
 			var cellType = _mapData.cellTypes[index];
-			console.log("[Navigation] Checking cell at", x, y, "index:", index, "type:", cellType);
 
 			if (cellType & _mapData.walkableType) {
-				console.log("[Navigation] Cell is walkable");
 				return { x: x, y: y };
-			} else {
-				console.log("[Navigation] Cell is NOT walkable");
 			}
-		} else {
-			console.log("[Navigation] Cell is out of bounds:", x, y, "map size:", _mapData.width, "x", _mapData.height);
 		}
 
 		maxRadius = maxRadius || 10;
 		var radius = 1;
 		var bestDistance = Infinity;
 		var bestCell = null;
-
-		console.log("[Navigation] Searching for walkable cell in radius", maxRadius);
 
 		// Search in increasing radius until we find a walkable cell or reach maxRadius
 		while (radius <= maxRadius) {
@@ -660,7 +643,6 @@ define(function (require) {
 							if (distance < bestDistance) {
 								bestDistance = distance;
 								bestCell = { x: cx, y: cy };
-								console.log("[Navigation] Found better walkable cell at", cx, cy, "distance:", distance);
 							}
 						}
 					}
@@ -669,14 +651,12 @@ define(function (require) {
 
 			// If we found a walkable cell, return it
 			if (bestCell) {
-				console.log("[Navigation] Returning best walkable cell at", bestCell.x, bestCell.y, "distance:", bestDistance);
 				return bestCell;
 			}
 
 			radius++;
 		}
 
-		console.log("[Navigation] No walkable cell found within radius", maxRadius);
 		// If no walkable cell found, return null instead of the original coordinates
 		return null;
 	};
@@ -718,11 +698,8 @@ define(function (require) {
 	 * @param {string} displayName - Optional display name for the map
 	 */
 	Navigation.loadMap = function loadMap(mapName, displayName) {
-		console.log("[DEBUG] loadMap called with:", mapName, displayName);
-
 		// Ensure we have the map name without extension for loading
 		var mapBaseName = mapName.replace(/\..*/, "");
-		console.log("[DEBUG] Map base name:", mapBaseName);
 
 		// Load town info
 		_towninfo = DB.getTownInfo(mapBaseName) || [];
@@ -731,11 +708,9 @@ define(function (require) {
 		var bmpPath = DB.INTERFACE_PATH.replace("data/texture/", "") + "map/" + mapBaseName + ".bmp";
 		bmpPath = bmpPath.replace(/\//g, "\\"); // normalize path separator
 		bmpPath = DB.mapalias[bmpPath] || bmpPath;
-		console.log("[DEBUG] BMP path:", bmpPath);
 
 		// Load the map image using the correct bmpPath
 		Client.loadFile("data/texture/" + bmpPath, function (dataURI) {
-			console.log("[DEBUG] Map image loaded:", dataURI ? "success" : "failed");
 			if (dataURI) {
 				_map.src = dataURI;
 			} else {
@@ -748,18 +723,14 @@ define(function (require) {
 		var gatPath = mapBaseName + ".gat";
 		gatPath = gatPath.replace(/\//g, "\\"); // normalize path separator
 		gatPath = DB.mapalias[gatPath] || gatPath;
-		console.log("[DEBUG] GAT path:", gatPath);
 
 		// Load the GAT file for pathfinding
 		Client.loadFile(
 			"data/" + gatPath,
 			function (gatData) {
-				console.log("[DEBUG] GAT data loaded:", gatData ? "success" : "failed");
 				if (gatData) {
 					// If we have GAT data, use it directly for pathfinding
 					if (gatData.cells && gatData.width && gatData.height) {
-						console.log("[DEBUG] GAT dimensions:", gatData.width, gatData.height);
-
 						// Update _mapData with the new map information
 						_mapData.width = gatData.width;
 						_mapData.height = gatData.height;
@@ -1367,17 +1338,10 @@ define(function (require) {
 	 * @param {string} options.displayName - Optional display name for the destination
 	 */
 	Navigation.navigateTo = function navigateTo(options) {
-		console.log("[DEBUG] navigateTo called with:", options);
 		// Normalize map names
 		var startMap = normalizeMapName(options.startMap);
 		var endMap = normalizeMapName(options.endMap);
 		var displayName = options.displayName;
-
-		console.log("[DEBUG] Normalized map names:", {
-			startMap: startMap,
-			endMap: endMap,
-			displayName: displayName,
-		});
 
 		if (_finalTargetData && (_finalTargetData.map !== endMap || _finalTargetData.x !== options.endX || _finalTargetData.y !== options.endY)) {
 			this.clearPath();
@@ -1402,15 +1366,12 @@ define(function (require) {
 			warpTypes = [200, 201, 202, 203, 204, 205]; // Include service warps (includes paid warps)
 		}
 
-		console.log("[DEBUG] Warp types:", warpTypes);
 		// Cross-map navigation - find path to next warp
 		var path = MapPathFinder.findPathBetweenMaps(startMap, options.startX, options.startY, endMap, options.endX, options.endY, warpTypes);
 
 		if (path && path.length > 0) {
 			// Get the first segment (path to next warp)
-			console.log("[DEBUG] Path:", path);
 			var target = path[0];
-			console.log("[DEBUG] First segment:", target);
 
 			this.waitForMapData(function () {
 				var walkableCell = this.findClosestWalkableCell(target.x, target.y);
