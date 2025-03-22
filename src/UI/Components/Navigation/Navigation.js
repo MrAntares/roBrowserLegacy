@@ -123,6 +123,11 @@ define(function (require) {
 	var _finalTargetData = null;
 
 	/**
+	 * @var {boolean} was target set by map click
+	 */
+	var _isMapClickTarget = false;
+
+	/**
 	 * Local utility functions
 	 */
 
@@ -574,6 +579,7 @@ define(function (require) {
 
 		// Store the target result for later reference
 		this.targetResult = result;
+		_isMapClickTarget = false;
 
 		// Get current map and position
 		var currentMap = getCurrentMap();
@@ -679,6 +685,9 @@ define(function (require) {
 		var currentMap = getCurrentMap();
 		var currentPos = getPlayerPosition();
 
+		// Set flag that this target was set by map click
+		_isMapClickTarget = true;
+
 		// Use the unified navigation function with the current map as both start and end map
 		this.navigateTo({
 			startMap: currentMap,
@@ -698,6 +707,12 @@ define(function (require) {
 	 * @param {string} displayName - Optional display name for the map
 	 */
 	Navigation.loadMap = function loadMap(mapName, displayName) {
+		// Clear target if it was set by map click and we're changing maps
+		if (_isMapClickTarget && _mapData && _mapData.map && _mapData.map !== mapName) {
+			this.clear();
+			_isMapClickTarget = false;
+		}
+
 		// Ensure we have the map name without extension for loading
 		var mapBaseName = mapName.replace(/\..*/, "");
 
@@ -766,9 +781,16 @@ define(function (require) {
 		this.clearPath();
 		_finalTargetData = null;
 		_targetData = null;
+		_isMapClickTarget = false;
 
 		// Hide the target coordinates display
 		this.ui.find(".target-info").hide();
+
+		// Update location title with current map name
+		var currentMap = getCurrentMap();
+		if (currentMap) {
+			this.setLocationTitle(currentMap, null);
+		}
 	};
 
 	Navigation.clearPath = function clearPath() {
@@ -1293,6 +1315,7 @@ define(function (require) {
 
 		// Clear the search input
 		this.ui.find(".search-input").val("");
+		_isMapClickTarget = false;
 
 		// Get current map and position
 		var currentMap = getCurrentMap();
