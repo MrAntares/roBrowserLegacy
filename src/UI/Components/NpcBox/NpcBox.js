@@ -20,6 +20,8 @@ define(function(require)
 	var Renderer    = require('Renderer/Renderer');
 	var UIManager   = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
+	var ItemInfo    = require('UI/Components/ItemInfo/ItemInfo');
+	var Navigation  = require('UI/Components/Navigation/Navigation');
 	var htmlText    = require('text!./NpcBox.html');
 	var cssText     = require('text!./NpcBox.css');
 
@@ -44,6 +46,58 @@ define(function(require)
 
 
 	/**
+	 * Process NAVI tags in text (<NAVI>Display Name<INFO>mapname,x,y,0,000,flag</INFO></NAVI>)
+	 * @param {string} text - The text to process
+	 * @returns {string} HTML with processed NAVI tags
+	 */
+	function processNAVITags(text) {
+		if (!text) return '';
+		text = String(text);
+		return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function(match, displayName, naviInfo) {
+			return '<span class="navi-link" data-navi-info="' + naviInfo + '" data-navi-name="' + displayName + '">' + displayName + '</span>';
+		});
+	}
+
+	/**
+	 * Process ITEM tags in text (<ITEM>Name<INFO>ID</INFO></ITEM>)
+	 * @param {string} text - The text to process
+	 * @returns {string} HTML with processed item tags
+	 */
+	function processItemTags(text) {
+		if (!text) return '';
+		text = String(text);
+		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function(match, itemName, itemId) {
+			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
+		});
+	}
+
+	/**
+	 * Process color codes in text (^RRGGBB)
+	 * @param {string} text - The text to process
+	 * @returns {string} HTML with color spans
+	 */
+	function processColorCodes(text) {
+		if (!text) return '';
+		text = String(text);
+		return text.replace(/\^([0-9A-Fa-f]{6})/g, function(match, color) {
+			return '<span style="color:#' + color + '">';
+		}).replace(/\^000000/g, '</span>');
+	}
+
+	/**
+	 * Process all text formatting (color codes, NAVI tags, and item tags)
+	 * @param {string} text - The text to process
+	 * @returns {string} Fully processed HTML
+	 */
+	function processText(text) {
+		if (!text) return '';
+		text = processItemTags(text);
+		text = processNAVITags(text);
+		text = processColorCodes(text);
+		return text;
+	}
+
+	/**
 	 * Initialize Component
 	 */
 	NpcBox.init = function init()
@@ -61,6 +115,46 @@ define(function(require)
 		// Will also fix the problem about the scrollbar
 		this.ui.find('.content').mousedown(function(event){
 			event.stopImmediatePropagation();
+		});
+
+		// Add click handler for item links
+		this.ui.on('click', '.item-link', function(event) {
+			var itemId = parseInt(jQuery(this).data('item-id'), 10);
+			if (!itemId) {
+				return;
+			}
+
+			// Don't add the same UI twice, remove it
+			if (ItemInfo.uid === itemId) {
+				ItemInfo.remove();
+				return;
+			}
+
+			// Add ui to window
+			ItemInfo.append();
+			ItemInfo.uid = itemId;
+			ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
+		});
+
+		// Add click handler for navi links
+		this.ui.on('click', '.navi-link', function(event) {
+			var naviInfo = jQuery(this).data('navi-info');
+			var displayName = jQuery(this).data('navi-name');
+
+			if (!naviInfo) {
+				return;
+			}
+
+			// If the Navigation window is already showing this location, toggle it off
+			if (Navigation.uid === naviInfo && Navigation.ui.is(':visible')) {
+				Navigation.hide();
+				return;
+			}
+
+			// Show the Navigation window and set the info
+			Navigation.show();
+			Navigation.uid = naviInfo;
+			Navigation.setNaviInfo(naviInfo, displayName);
 		});
 
 		this.draggable();
@@ -137,7 +231,7 @@ define(function(require)
 			content.text('');
 		}
 
-		content.append( jQuery('<div/>').text(text) );
+		content.append( jQuery('<div/>').html(processText(text)) );
 	};
 
 

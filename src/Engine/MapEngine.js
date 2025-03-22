@@ -74,6 +74,7 @@ define(function( require )
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
 	var MapName          = require('UI/Components/MapName/MapName');
 	var Announce         = require('UI/Components/Announce/Announce');
+	var Navigation         = require('UI/Components/Navigation/Navigation');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	var UIVersionManager      = require('UI/UIVersionManager');
@@ -282,6 +283,7 @@ define(function( require )
 			SkillListMH.mercenary.prepare();
 			Rodex.prepare();
 			RodexIcon.prepare();
+			Navigation.prepare();
 
 			if(Configs.get('enableMapName')){
 				MapName.prepare();
@@ -643,6 +645,7 @@ define(function( require )
 			SkillListMH.homunculus.append();
 			SkillListMH.mercenary.append();
 			MobileUI.append();
+			Navigation.append();
 
 			if (PACKETVER.value >= 20090617 && PACKETVER.value < 20140521) {
 				WinStats.getUI().append(Equipment.getUI().ui.find('.status_component'));
