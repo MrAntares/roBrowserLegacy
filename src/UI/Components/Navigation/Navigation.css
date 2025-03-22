@@ -91,8 +91,30 @@
     background-color: #f7f7f7;
 }
 
+.Navigation .services-toggle-container {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    background-color: #f7f7f7;
+    position: absolute;
+    left: 6px;
+}
+
+.Navigation .services-checkbox {
+    font-size: 10px;
+    color: #000;
+    display: flex;
+    align-items: center;
+}
+
+.Navigation .services-toggle {
+    margin-right: 4px;
+    margin-top: 3px;
+}
+
 .Navigation .search-type {
-	top: 3px;
+    top: 3px;
     height: 20px;
     margin-right: 5px;
     border: 1px solid #ccc;
@@ -102,7 +124,7 @@
     cursor: pointer;
     width: 50px;
     z-index: 2;
-	position: relative;
+    position: relative;
 }
 
 .Navigation .search-left {

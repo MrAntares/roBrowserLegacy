@@ -1396,8 +1396,15 @@ define(function (require) {
 			displayName: displayName,
 		};
 
+		// Get warp types based on Services checkbox
+		var warpTypes = [200, 201]; // Default warp types (free)
+		if (this.ui.find('.services-toggle').is(':checked')) {
+			warpTypes = [200, 201, 202, 203, 204, 205]; // Include service warps (includes paid warps)
+		}
+
+		console.log("[DEBUG] Warp types:", warpTypes);
 		// Cross-map navigation - find path to next warp
-		var path = MapPathFinder.findPathBetweenMaps(startMap, options.startX, options.startY, endMap, options.endX, options.endY);
+		var path = MapPathFinder.findPathBetweenMaps(startMap, options.startX, options.startY, endMap, options.endX, options.endY, warpTypes);
 
 		if (path && path.length > 0) {
 			// Get the first segment (path to next warp)
