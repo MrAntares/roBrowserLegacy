@@ -167,6 +167,36 @@ define(function (require) {
 	var SignBoardTable = {};
 
 	/**
+	 * @var NaviMap Table
+	 */
+	var NaviMapTable = {};
+
+	/**
+	 * @var NaviMob Table
+	 */
+	var NaviMobTable = {};
+
+	/**
+	 * @var NaviNpc Table
+	 */
+	var NaviNpcTable = {};
+
+	/**
+	 * @var NaviLink Table
+	*/
+	var NaviLinkTable = {};
+
+	/**
+	 * @var NaviLinkDistance Table
+	*/
+	var NaviLinkDistanceTable = {};
+
+	/**
+	 * @var NaviNpcDistance Table
+	 */
+	var NaviNpcDistanceTable = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -203,6 +233,12 @@ define(function (require) {
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function (json) { RandomOption = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
+			loadLuaValue(DB.LUA_PATH + 'navigation/navi_map_krpri.lub', 'Navi_Map', function (json) { NaviMapTable = json; }, onLoad());
+			loadLuaValue(DB.LUA_PATH + 'navigation/navi_mob_krpri.lub', 'Navi_Mob', function (json) { NaviMobTable = json; }, onLoad());
+			loadLuaValue(DB.LUA_PATH + 'navigation/navi_npc_krpri.lub', 'Navi_Npc', function (json) { NaviNpcTable = json; }, onLoad());
+			loadLuaValue(DB.LUA_PATH + 'navigation/navi_link_krpri.lub', 'Navi_Link', function (json) { NaviLinkTable = json; }, onLoad());
+			loadLuaValue(DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub', 'Navi_Distance', function (json) { NaviLinkDistanceTable = json; }, onLoad());
+			loadLuaValue(DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub', 'Navi_NpcDistance', function (json) { NaviNpcDistanceTable = json; }, onLoad());
 			loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', null, onLoad());
 			loadLaphineSysFile(DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', null, onLoad()); // 2017-06-14
 			loadLaphineUpgFile(DB.LUA_PATH + 'datainfo/lapineupgradebox.lub', null, onLoad()); // 2017-06-14
@@ -1251,6 +1287,113 @@ define(function (require) {
 			console.error('error: ', e);
 		} finally {
 			onEnd.call();
+		}
+	}
+
+	/**
+	* Extracts a variable from a Lua file and converts it to a JavaScript value
+	* @param {String} file_path - Path to the Lua file
+	* @param {String} variable_name - Name of the variable to extract
+	* @param {function} callback - Function to run with the extracted value
+	* @param {function} onEnd - Function to run once the process is complete
+	*
+	* @author guicaulada
+	*/
+	function loadLuaValue(file_path, variable_name, callback, onEnd) {
+		try {
+			console.log('Loading file "' + file_path + '"...');
+			Client.loadFile(file_path,
+				async function (file) {
+					try {
+						// Check if file is ArrayBuffer and convert to Uint8Array if necessary
+						let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+
+						// Mount file
+						lua.mountFile(file_path, buffer);
+
+						// Execute file
+						await lua.doFile(file_path);
+
+						// Get context
+						const ctx = lua.ctx;
+
+						// Create a decoder for iso-8859-1
+						let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+
+						// Initialize result variable
+						let result = null;
+
+						// Add key-value pairs to objects at any nesting level
+						ctx.extractValue = (value) => {
+							result = JSON.parse(iso88591Decoder.decode(value));
+						};
+
+						// Create and execute a wrapper Lua code to extract the variable
+						lua.doStringSync(String.raw`
+							local function escape_str(str)
+								return str:gsub("\\", "\\\\"):gsub("\"", "\\\"")
+							end
+
+							local function to_json(value)
+								if type(value) == "boolean" then
+									return tostring(value)
+								elseif type(value) == "number" then
+									return value
+								elseif type(value) == "string" then
+									return "\"" .. escape_str(value) .. "\""
+								elseif type(value) == "table" then
+									local is_array = true
+									local index = 1
+									for k, _ in pairs(value) do
+										if type(k) ~= "number" or k ~= index then
+											is_array = false
+											break
+										end
+										index = index + 1
+									end
+
+									local result = {}
+									if is_array then
+										for _, v in ipairs(value) do
+											table.insert(result, to_json(v))
+										end
+										return "[" .. table.concat(result, ",") .. "]"
+									else
+										for k, v in pairs(value) do
+											if type(k) == "string" then
+												table.insert(result, "\"" .. escape_str(k) .. "\":" .. to_json(v))
+											end
+										end
+										return "{" .. table.concat(result, ",") .. "}"
+									end
+								else
+									return "null"
+								end
+							end
+						` + `
+							extractValue(to_json(${variable_name}))
+						`);
+
+						// Unmount file
+						lua.unmountFile(file_path);
+
+						// Return the extracted value
+						callback.call(null, result);
+					} catch (hException) {
+						console.error(`(${file_path}) error: `, hException);
+						callback.call(null, null);
+					} finally {
+						if (onEnd) {
+							onEnd.call();
+						}
+					}
+				}
+			);
+		} catch (e) {
+			console.error('error: ', e);
+			if (onEnd) {
+				onEnd.call();
+			}
 		}
 	}
 
@@ -3426,6 +3569,115 @@ define(function (require) {
 			};
 		});
 	}
+
+	/**
+	 * Search for NPCs or MOBs in the navigation tables
+	 *
+	 * @param {string} query - The search query
+	 * @param {string} type - The type of search (ALL, NPC, MOB)
+	 * @returns {Array} Array of search results
+	 */
+	DB.searchNavigation = function searchNavigation(query, type) {
+		if (!query || query.length < 2) {
+			return [];
+		}
+
+		query = query.toLowerCase();
+		var results = [];
+
+		// Search NPCs if type is ALL or NPC
+		if (type === 'ALL' || type === 'NPC') {
+			// NaviNpcTable structure: [["map_name", npc_id, npc_type, class_id, "npc_name", "", x, y], ...]
+			for (var i = 0; i < NaviNpcTable.length; i++) {
+				var npc = NaviNpcTable[i];
+				var mapName = npc[0];
+				var npcId = npc[1];
+				var npcName = npc[4] || '';
+
+				// Skip if no name
+				if (!npcName) {
+					continue;
+				}
+
+				// Check if the NPC name contains the query
+				if (npcName.toLowerCase().indexOf(query) !== -1) {
+					results.push({
+						type: 'NPC',
+						id: npcId,
+						name: npcName,
+						mapName: mapName,
+						x: npc[6],
+						y: npc[7]
+					});
+				}
+			}
+		}
+
+		// Search MOBs if type is ALL or MOB
+		if (type === 'ALL' || type === 'MOB') {
+			// NaviMobTable structure: [["map_name", spawn_id, mob_type, mob_class, "mob_name", "sprite_name", level, mob_info], ...]
+			for (var i = 0; i < NaviMobTable.length; i++) {
+				var mob = NaviMobTable[i];
+				var mapName = mob[0];
+				var mobId = mob[3]; // Using mob_class as the ID
+				var mobName = mob[4] || '';
+
+				// Skip if no name
+				if (!mobName) {
+					continue;
+				}
+
+				// Check if the MOB name contains the query
+				if (mobName.toLowerCase().indexOf(query) !== -1) {
+					// Note: mob_info might contain position data, but structure is unclear
+					// For now, we're not including x/y coordinates for mobs
+					results.push({
+						type: 'MOB',
+						id: mobId,
+						name: mobName,
+						mapName: mapName,
+						x: null,
+						y: null
+					});
+				}
+			}
+		}
+
+		// Sort results by name
+		results.sort(function(a, b) {
+			return a.name.localeCompare(b.name);
+		});
+
+		// Limit to 50 results to avoid performance issues
+		return results.slice(0, 50);
+	};
+
+	/**
+	 * Get the NaviLinkTable
+	 *
+	 * @returns {Array} The NaviLinkTable
+	 */
+	DB.getNaviLinkTable = function getNaviLinkTable() {
+		return NaviLinkTable;
+	};
+
+	/**
+	 * Get the NaviLinkDistanceTable
+	 *
+	 * @returns {Array} The NaviLinkDistanceTable
+	 */
+	DB.getNaviLinkDistanceTable = function getNaviLinkDistanceTable() {
+		return NaviLinkDistanceTable;
+	};
+
+	/**
+	 * Get the NaviNpcDistanceTable
+	 *
+	 * @returns {Array} The NaviNpcDistanceTable
+	 */
+	DB.getNaviNpcDistanceTable = function getNaviNpcDistanceTable() {
+		return NaviNpcDistanceTable;
+	};
 
 	/**
 	 * Export

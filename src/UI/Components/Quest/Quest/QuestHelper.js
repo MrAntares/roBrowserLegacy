@@ -21,6 +21,7 @@ define(function (require) {
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
+	var Navigation = require('UI/Components/Navigation/Navigation');
 	var jQuery = require('Utils/jquery');
 	var htmlText = require('text!./QuestHelper.html');
 	var cssText = require('text!./QuestHelper.css');
@@ -69,6 +70,19 @@ define(function (require) {
 	}
 
 	/**
+	 * Process NAVI tags in text (<NAVI>Display Name<INFO>mapname,x,y,0,000,flag</INFO></NAVI>)
+	 * @param {string} text - The text to process
+	 * @returns {string} HTML with processed NAVI tags
+	 */
+	function processNAVITags(text) {
+		if (!text) return '';
+		text = String(text);
+		return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function(match, displayName, naviInfo) {
+			return '<span class="navi-link" data-navi-info="' + naviInfo + '" data-navi-name="' + displayName + '">' + displayName + '</span>';
+		});
+	}
+
+	/**
 	 * Process all text formatting (color codes and item tags)
 	 * @param {string} text - The text to process
 	 * @returns {string} Fully processed HTML
@@ -76,6 +90,7 @@ define(function (require) {
 	function processText(text) {
 		if (!text) return '';
 		text = processItemTags(text);
+		text = processNAVITags(text);
 		text = processColorCodes(text);
 		return text;
 	}
@@ -108,6 +123,27 @@ define(function (require) {
 			ItemInfo.append();
 			ItemInfo.uid = itemId;
 			ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
+		});
+
+		// Add click handler for navi links
+		this.ui.on('click', '.navi-link', function(event) {
+			var naviInfo = jQuery(this).data('navi-info');
+			var displayName = jQuery(this).data('navi-name');
+
+			if (!naviInfo) {
+				return;
+			}
+
+			// If the Navigation window is already showing this location, toggle it off
+			if (Navigation.uid === naviInfo && Navigation.ui.is(':visible')) {
+				Navigation.hide();
+				return;
+			}
+
+			// Show the Navigation window and set the info
+			Navigation.show();
+			Navigation.uid = naviInfo;
+			Navigation.setNaviInfo(naviInfo, displayName);
 		});
 
 		this.draggable(this.ui.find('.titlebar'));
