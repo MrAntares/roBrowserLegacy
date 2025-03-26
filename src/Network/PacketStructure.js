@@ -1284,7 +1284,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		pkt_buf.writeShort(pkt_len);
 		pkt_buf.writeBuffer(this.img);
 
-		window.buffer = pkt_buf.buffer;
 		return pkt_buf;
 	};
 
@@ -1714,7 +1713,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			const item_size = (PACKETVER.value >= 20181121) ? 15 : 13; // Adjust sizes based on nameid (4 or 2 bytes)
 			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
 			const out = new Array(count);
-	
+
 			for (let i = 0; i < count; ++i) {
 				out[i] = {};
 				// Parse fields with conditional handling for nameid
@@ -5220,7 +5219,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.msg = fp.readString(end - fp.tell());
 	};
 	PACKET.ZC.WHISPER.size = -1;
-	
+
 	// 0x9de
 	PACKET.ZC.WHISPER2 = function PACKET_ZC_WHISPER2(fp, end) {
 		this.senderGID = fp.readULong();
@@ -13025,7 +13024,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	};
 	PACKET.ZC.EQUIPMENT_ITEMLIST5.size = -1;
-	
+
 	//0xa0f
 	PACKET.ZC.CART_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST5(fp, end) {
 		let option = new Struct(
@@ -14704,7 +14703,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			const item_size = (PACKETVER.value >= 20181121) ? 19 : 17; // Adjust sizes based on nameid (4 or 2 bytes)
 			const count = (end - fp.tell()) / item_size | 0; // Calculate item count
 			const out = new Array(count);
-	
+
 			for (let i = 0; i < count; ++i) {
 				out[i] = {};
 				// Parse fields with conditional handling for nameid
