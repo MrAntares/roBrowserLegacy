@@ -1,32 +1,25 @@
-version: '3.8'
-
 services:
   ro-browser:
     build:
       context: .
       dockerfile: Dockerfile
-      target: client
+      target: dev
     ports:
       - "8000:8000"
+      # You can use to serve wsproxy.
+      #- "5999:5999"
     volumes:
       - ./:/app
     tty: true
-    command: ['sleep', '360h']
-    networks:
-        - "ro-browser"
 
-  remote-client-api:
+  serve-dist:
     build:
       context: .
       dockerfile: Dockerfile
-      target: server
-    volumes:
-      - ./client:/var/www/html
+      target: dist-server
     ports:
-        - "80:80"
-    networks:
-        - "ro-browser"
+      - "8080:8080"
+    volumes:
+      - ./dist/Web:/var/www/html
 
-networks:
-    ro-browser:
 
