@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     ports:
       - "8000:8000"
       # You can use to serve wsproxy.
@@ -10,5 +11,15 @@ services:
     volumes:
       - ./:/app
     tty: true
-    command: ['sleep', '360h']
+
+  serve-dist:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dist-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dist/Web:/var/www/html
+
 
