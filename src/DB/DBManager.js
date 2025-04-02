@@ -406,6 +406,7 @@ define(function (require) {
 					// create itemInfo required functions in context
 					ctx.AddItem = (ItemID, unidentifiedDisplayName, unidentifiedResourceName, identifiedDisplayName, identifiedResourceName, slotCount, ClassNum) => {
 						ItemTable[ItemID] = {
+							...typeof ItemTable[ItemID] === "object" && ItemTable[ItemID],
 							unidentifiedDisplayName: userStringDecoder.decode(unidentifiedDisplayName),
 							unidentifiedResourceName: iso88591Decoder.decode(unidentifiedResourceName),
 							identifiedDisplayName: userStringDecoder.decode(identifiedDisplayName),
