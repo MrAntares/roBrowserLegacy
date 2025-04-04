@@ -7,7 +7,6 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 	"use strict";
 
 	var _program   = null;
-	var _buffer	= null;
 	var _normalMat = new Float32Array(3 * 3);
 	var mat4	   = glMatrix.mat4;
 	var mat3	   = glMatrix.mat3;
@@ -34,15 +33,15 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 
 		uniform vec3 uLightDirection;
 		uniform mat3 uNormalMat;
-		
+
 		uniform vec3 uPosition;
 		uniform float uSize;
 
 		void main(void) {
-			
+
 			vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
 			position += vec4(aPosition.x * uSize, aPosition.y * -uSize, aPosition.z * uSize, 0.0);
-			
+
 			gl_Position	 = uProjectionMat * uModelViewMat * position;
 
 			vTextureCoord   = aTextureCoord;
@@ -114,6 +113,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 		this.size = 1;
 		this.filename = 'data\\model\\' + params.effect.file + '.rsm';
 		this.objects = [];
+		this.buffer = null;
 		this.globalParameters = {
 			position: new Float32Array(3),
 			rotation: new Float32Array(3),
@@ -127,7 +127,12 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 		var count	   = data.infos.length;
 		this.objects.length = count;
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		// Create a buffer if it doesn't exist
+		if (!this.buffer) {
+			this.buffer = gl.createBuffer();
+		}
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 
 		function onTextureLoaded(texture, i) {
@@ -151,14 +156,13 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 
 	RsmEffect.init = function init(gl) {
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-		_buffer = gl.createBuffer();
-		
+
 		this.ready = true;
 	};
 
 	RsmEffect.prototype.init = function render(gl, tick) {
 		var self	 = this;
-		
+
 		Client.getFile(this.filename, function (buf) {
 			self.model = new Model(buf);
 
@@ -245,17 +249,16 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 			gl.deleteTexture(this.objects[i].texture);
 		}
 
+		if (this.buffer) {
+			gl.deleteBuffer(this.buffer);
+			this.buffer = null;
+		}
+
 		this.objects.length = 0;
-		
 		this.ready = false;
 	};
 
 	RsmEffect.free = function free(gl) {
-		if (_buffer) {
-			gl.deleteBuffer(_buffer);
-			_buffer = null;
-		}
-
 		if (_program) {
 			gl.deleteProgram(_program);
 			_program = null;
@@ -300,14 +303,6 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
 		gl.enableVertexAttribArray(attribute.aAlpha);
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-
-		// Link attribute
-		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 9 * 4, 0);
-		gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 9 * 4, 3 * 4);
-		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 9 * 4, 6 * 4);
-		gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 9 * 4, 8 * 4);
-
 		// Textures
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
@@ -315,10 +310,20 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 
 	RsmEffect.prototype.render = function render(gl, tick) {
 		var uniform = _program.uniform;
-		
+
 		gl.uniform3fv(uniform.uPosition, this.position);
 		gl.uniform1f( uniform.uSize, this.size);
-		
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+
+		// Resetting attributes because buffer has changed
+		var attribute = _program.attribute;
+		// Link attribute
+		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 9 * 4, 0);
+		gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 9 * 4, 3 * 4);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 9 * 4, 6 * 4);
+		gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 9 * 4, 8 * 4);
+
 		for (var i = 0, count = this.objects.length; i < count; ++i) {
 			if (this.objects[i].complete) {
 				gl.bindTexture(gl.TEXTURE_2D, this.objects[i].texture);
