@@ -17,6 +17,7 @@ define(function( require ) {
 	var Texture  = require('Utils/Texture');
 	var glMatrix = require('Utils/gl-matrix');
 	var Client   = require('Core/Client');
+	var Configs  = require('../../Core/Configs');
 
 
 	/**
@@ -200,6 +201,7 @@ define(function( require ) {
 
 		Client.loadFile('data/texture/effect/lockon128.tga', function(buffer) {
 			Texture.load(buffer, function() {
+				var enableMipmap = Configs.get('enableMipmap');
 				var ctx = this.getContext('2d');
 				ctx.save();
 				ctx.translate(  this.width/2,  this.height/2 );
@@ -213,7 +215,9 @@ define(function( require ) {
 				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-				gl.generateMipmap( gl.TEXTURE_2D );
+				if(enableMipmap) {
+					gl.generateMipmap( gl.TEXTURE_2D );
+				}
 
 				LockOnTarget.ready = true;
 			});

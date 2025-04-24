@@ -53,6 +53,7 @@ define(function( require )
 	 */
 	Error.addTrace = function addTrace( error )
 	{
+		console.error(error);
 		var url = requirejs.toUrl(''); // global
 		error   = error.stack || error;
 

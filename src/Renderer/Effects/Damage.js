@@ -28,6 +28,7 @@ define(function( require )
 	var Entity            = require('Renderer/Entity/Entity');
 
 	var EndureSound    = "player_metal.wav";
+	var dpr            = window.devicePixelRatio || 1;
 
 	/**
 	 * Damage Namespace
@@ -120,6 +121,7 @@ define(function( require )
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/bluemsg.spr'
 		], function( numbers, msg, bluemsg ) {
 			var sprNumbers, sprMsg, sprBlue;
+			var enableMipmap = Configs.get('enableMipmap');
 
 			// Load it properly later using webgl
 			MemoryManager.remove(gl, 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr');
@@ -145,8 +147,8 @@ define(function( require )
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
 
-				canvas.width  = WebGL.toPowerOfTwo(source.width);
-				canvas.height = WebGL.toPowerOfTwo(source.height);
+				canvas.width  = WebGL.toPowerOfTwo(source.width) * dpr;
+				canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
 				ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
 
 				_msg[_msgNames[i]] = {
@@ -160,7 +162,9 @@ define(function( require )
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-				gl.generateMipmap( gl.TEXTURE_2D );
+				if(enableMipmap) {
+					gl.generateMipmap( gl.TEXTURE_2D );
+				}
 			}
 			
 			for(var i = 0; i < 6; i++){  //bluemsg.spr miss crit lucky...
@@ -169,8 +173,8 @@ define(function( require )
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
 
-				canvas.width  = WebGL.toPowerOfTwo(source.width);
-				canvas.height = WebGL.toPowerOfTwo(source.height);
+				canvas.width  = WebGL.toPowerOfTwo(source.width) * dpr;
+				canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
 				ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
 
 				_msgBlue[_msgNames[i]] = {
@@ -184,7 +188,9 @@ define(function( require )
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-				gl.generateMipmap( gl.TEXTURE_2D );
+				if(enableMipmap) {
+					gl.generateMipmap( gl.TEXTURE_2D );
+				}
 			}
 
 		});
@@ -355,8 +361,8 @@ define(function( require )
 		}
 
 		// Set canvas size (pow of 2 for webgl).
-		ctx.canvas.width  = WebGL.toPowerOfTwo( width );
-		ctx.canvas.height = WebGL.toPowerOfTwo( height );
+		ctx.canvas.width  = WebGL.toPowerOfTwo( width ) * dpr;
+		ctx.canvas.height = WebGL.toPowerOfTwo( height ) * dpr;
 
 		// find where to start to get the image at the center
 		start_x = (ctx.canvas.width  - width ) >> 1;
@@ -376,11 +382,14 @@ define(function( require )
 
 		texture = gl.createTexture();
 
+		var enableMipmap = Configs.get('enableMipmap');
 		gl.bindTexture( gl.TEXTURE_2D, texture );
 		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.generateMipmap( gl.TEXTURE_2D );
+		if(enableMipmap) {
+			gl.generateMipmap( gl.TEXTURE_2D );
+		}
 
 		obj.texture  = texture;
 		obj.width    = canvas.width;

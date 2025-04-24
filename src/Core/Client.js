@@ -290,6 +290,7 @@ define(function( require )
 							frames[i].texture = gl.createTexture();
 							precision  = frames[i].type ? gl.LINEAR : gl.NEAREST;
 							size       = frames[i].type ? gl.RGBA   : gl.LUMINANCE;
+							gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 							gl.bindTexture( gl.TEXTURE_2D, frames[i].texture );
 							gl.texImage2D(gl.TEXTURE_2D, 0, size, frames[i].width, frames[i].height, 0, size, gl.UNSIGNED_BYTE, frames[i].data );
 							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
@@ -312,6 +313,7 @@ define(function( require )
 
 					// Build palette
 					case 'pal':
+						var enableMipmap = Configs.get('enableMipmap');
 						gl      = getModule('Renderer/Renderer').getContext();
 						texture = gl.createTexture();
 						palette = new Uint8Array(data);
@@ -320,7 +322,9 @@ define(function( require )
 						gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, palette );
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-						gl.generateMipmap( gl.TEXTURE_2D );
+						if(enableMipmap) {
+							gl.generateMipmap( gl.TEXTURE_2D );
+						}
 
 						Memory.set( input.filename, { palette:palette, texture:texture }, error);
 						return;

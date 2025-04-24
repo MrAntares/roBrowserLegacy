@@ -1,6 +1,6 @@
 "use strict";
 
-define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Client"], function (exports, _WebGL, _Texture, _glMatrix, _Client) {
+define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Client", "Core/Configs"], function (exports, _WebGL, _Texture, _glMatrix, _Client, Configs) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -82,6 +82,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
 
     _Client2.default.loadFile(texture.filename, function (buffer) {
       _Texture2.default.load(buffer, function (canvas) {
+        var enableMipmap = Configs.get('enableMipmap');
         var size = texture.size;
         var canvas = document.createElement('canvas');
         canvas.width = canvas.height = size;
@@ -96,7 +97,9 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.generateMipmap(gl.TEXTURE_2D);
+        if(enableMipmap) {
+          gl.generateMipmap( gl.TEXTURE_2D );
+        }
         cb(_texture);
       });
     });

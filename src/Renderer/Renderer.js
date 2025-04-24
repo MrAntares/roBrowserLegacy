@@ -202,7 +202,7 @@ define(function( require )
 	 */
 	Renderer.resize = function resize()
 	{
-		var width, height, quality;
+		var width, height, quality, dpr = window.devicePixelRatio || 1;
 
 		width  = window.innerWidth  || document.body.offsetWidth;
 		height = window.innerHeight || document.body.offsetHeight;
@@ -214,12 +214,12 @@ define(function( require )
 		width  *= quality;
 		height *= quality;
 
-		this.canvas.width         = width;
-		this.canvas.height        = height;
+		this.canvas.width         = width * dpr;
+		this.canvas.height        = height * dpr;
 		this.canvas.style.width   = this.width + 'px';
 		this.canvas.style.height  = this.height + 'px';
 
-		this.gl.viewport( 0, 0, width, height );
+		this.gl.viewport( 0, 0, width * dpr, height * dpr );
 
 		mat4.perspective( this.vFov, width/height, 1, 1000, Camera.projection );
 

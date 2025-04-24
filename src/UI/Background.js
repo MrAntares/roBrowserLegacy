@@ -18,6 +18,7 @@ define( function( require )
 	var DB     = require('DB/DBManager');
 	var jQuery = require('Utils/jquery');
 	var Client = require('Core/Client');
+	var devicePixelRatio = window.devicePixelRatio || 1;
 
 
 	/**
@@ -97,12 +98,15 @@ define( function( require )
 	 */
 	Background.resize = function resize( width, height )
 	{
+		let widthDpr = width * devicePixelRatio;
+		let heightDpr = height * devicePixelRatio;
+
 		_canvas[0].width   = width;
 		_canvas[0].height  = height;
-		_overlay.css({ width:width, height:height });
+		_overlay.css({ width:widthDpr, height:heightDpr });
 
 		_ctx.fillStyle = 'black';
-		_ctx.fillRect( 0, 0, width, height );
+		_ctx.fillRect( 0, 0, widthDpr, heightDpr );
 
 		render();
 	};
@@ -199,8 +203,8 @@ define( function( require )
 
 		_progress     = Math.min( Math.floor(percent), 100 );
 
-		width         = 240;
-		height        = 15;
+		width         = 240 * devicePixelRatio;
+		height        = 15 * devicePixelRatio;
 		x             = Math.floor( ( _canvas[0].width - width ) * 0.5 );
 		y             = Math.floor( _canvas[0].height * 0.75 );
 
