@@ -1027,8 +1027,6 @@ define(function(require)
 	 * Handles the packet to send to the server when closing stores
 	 */
 	NpcStore.closeStore = function() {
-
-		console.log('closing anyway closeStore');
 		NpcStore.remove();
 		this.ui.find('.total').show();
 
