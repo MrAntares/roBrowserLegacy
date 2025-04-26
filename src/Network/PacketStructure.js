@@ -8733,8 +8733,6 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 					out[i].unused = fp.readUChar();
 				}
 			}
-			console.log(itemListLen, itemLen);
-			console.log(out);
 			return out;
 		})();
 	};

@@ -51,7 +51,9 @@ define(function(require)
 		VENDING_STORE: 2,
 		BUYING_STORE: 3,
 		MARKETSHOP: 4,
-		BARTER_MARKET: 5
+		BARTER_MARKET: 5,
+		BARTER_MARKET_EXTENDED: 6,
+		CASH_SHOP: 7,
 	};
 
 
@@ -82,7 +84,7 @@ define(function(require)
 		},
 		PurchaseResult: {
 			x:    100 + 280 + 10,
-			y:    100 + (7*32) - (2*32),
+			y:    100 + (4*32) - (2*32),
 			height: 2
 		},
 		select_all: false
@@ -234,6 +236,7 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
+		this.ui.find('.totalP .resultP').text(0);
 	};
 
 
@@ -295,6 +298,11 @@ define(function(require)
 				this.ui.find('.WinBuy').show();
 				this.ui.find('.total').hide();
 				break;
+
+			case NpcStore.Type.CASH_SHOP:
+				this.ui.find('.WinSell, .WinVendingStore, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult, .total').hide();
+				this.ui.find('.WinBuy').show();
+				break;
 		}
 
 		_type = type;
@@ -313,6 +321,7 @@ define(function(require)
 
 		this.ui.find('.content').empty();
 		this.ui.find('.total .result').text(0);
+		this.ui.find('.totalP .resultP').text(0);
 
 		_input.length  = 0;
 		_output.length = 0;
@@ -323,6 +332,7 @@ define(function(require)
 			case NpcStore.Type.BUY:
 			case NpcStore.Type.VENDING_STORE:
 			case NpcStore.Type.MARKETSHOP:
+			case NpcStore.Type.CASH_SHOP:
 				for (i = 0, count = items.length; i < count; ++i) {
 					if (!('index' in items[i])) {
 						items[i].index = i;
@@ -439,6 +449,16 @@ define(function(require)
 		}
 
 		NpcStore.onSubmit( output );
+
+		// work around - cashshop dont close after buy
+		this.ui.find('.OutputWindow').find('.content').empty();
+		this.ui.find('.totalP .resultP').text(0);
+
+		for (i = 0; i < count; ++i) {
+			if (_output[i] && _output[i].count) {
+				_output[i].count = 0; // clear
+			}
+		}
 	};
 
 
@@ -461,6 +481,7 @@ define(function(require)
 		}
 
 		this.ui.find('.total .result').text(prettyZeny(total));
+		this.ui.find('.totalP .resultP').text(prettyZeny(total))
 
 		if (_type === NpcStore.Type.BARTER_MARKET) {
 			this.ui.find('.total').hide();
@@ -1006,6 +1027,8 @@ define(function(require)
 	 * Handles the packet to send to the server when closing stores
 	 */
 	NpcStore.closeStore = function() {
+
+		console.log('closing anyway closeStore');
 		NpcStore.remove();
 		this.ui.find('.total').show();
 
