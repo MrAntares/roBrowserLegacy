@@ -55,7 +55,8 @@ define(function( require )
             {
 				pkt.list.push({
 					count: itemList[i].count,
-					ITID:  itemList[i].ITID
+					ITID:  itemList[i].ITID,
+					price: itemList[i].discountprice || itemList[i].price
 				});
             	//pkt.kafrapts += (itemList[i].discountprice || itemList[i].price) * itemList[i].count;
 			}
@@ -184,7 +185,7 @@ define(function( require )
 			default: ChatBox.addText( DB.getMessage(57),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
 		}
 
-		if (NpcStore.getCurrentType() >= 4) {	// Marketshop && Barter
+		if (NpcStore.getCurrentType() >= 4 && NpcStore.getCurrentType() != NpcStore.Type.CASH_SHOP) {	// Marketshop && Barter
 			NpcStore.closeStore();
 		}
 	}
@@ -197,7 +198,10 @@ define(function( require )
 
 	function onBuyCashResult( pkt )
 	{
-		NpcStore.remove();
+		if (NpcStore.getCurrentType() >= 4 && NpcStore.getCurrentType() != NpcStore.Type.CASH_SHOP) {	// Marketshop && Barter
+			NpcStore.remove();
+			NpcStore.closeStore();
+		}
 
 		switch (pkt.Error) {
 			case 0:  ChatBox.addText( DB.getMessage(54),   ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);  break; // success
@@ -209,6 +213,8 @@ define(function( require )
 			case 7:  ChatBox.addText( DB.getMessage(1813), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // no sale information
 			default: ChatBox.addText( DB.getMessage(1814),   ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG); break; // deal failed
 		}
+
+		NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
 	}
 
 
