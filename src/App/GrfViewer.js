@@ -23,7 +23,7 @@ require.onError = function (err) {
 };
 
 require({
-	baseUrl: './src/',
+	baseUrl: '../../src/',
 	paths: {
 		text:   'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'
@@ -34,9 +34,7 @@ require({
 
 	GRFViewer.append();
 
-	if (!Context.Is.APP) {
-		window.onbeforeunload = function() {
-			return 'Are you sure to exit ?';
-		};
-	}
+	window.onbeforeunload = function() {
+		return 'Are you sure to exit ?';
+	};
 });

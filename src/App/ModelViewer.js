@@ -23,7 +23,7 @@ require.onError = function (err) {
 };
 
 require({
-	baseUrl: './src/',
+	baseUrl: '../../src/',
 	paths: {
 		text:   'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'

@@ -1,11 +1,13 @@
 {
 	"name": "robrowser",
-	"main": "index.html",
 	"version": "1.0.0",
 	"scripts": {
 		"serve": "live-server ./dist/Web",
-		"live": "live-server .  --no-browser --port=8000",
-		"build": "node ./tools/builder-web.js",
+		"live": "live-server . --open=./applications/browser-examples",
+		"pwa": "live-server . --open=./applications/pwa",
+		"tools": "live-server . --open=./applications/tools",
+		"nw": "nw .",
+		"build": "node ./applications/tools/builder-web.js",
 		"build:online": "npm run build -- -O",
 		"build:mapviewer": "npm run build -- -V",
 		"build:grfviewer": "npm run build -- -G",
@@ -16,13 +18,35 @@
 		"build:html": "npm run build -- -H",
 		"build:ai": "npm run build -- -A",
 		"build:all": "npm run build -- --all",
-		"build:all:minify": "npm run build -- --all --m"
+		"build:all:minify": "npm run build -- --all --m",
+		"build:pwa": "npm run build -- --O --T --PWA",
+		"build:nw": "build --concurrent --tasks win-x86,win-x64 --mirror https://dl.nwjs.io/ ./applications/nwjs"
 	},
 	"author": "Vincent Thibault",
 	"license": "GNU GPL V3",
 	"devDependencies": {
 		"live-server": "^1.2.2",
+		"nw": "^0.99.0-sdk",
+		"nwjs-builder-phoenix": "^1.15.0",
 		"requirejs": "^2.3.6",
 		"terser": "^5.19.4"
-	}
+	},
+	"build": {
+		"nwVersion": "stable",
+		"output": "./dist/Desktop",
+		"packed": true,
+		"targets": "zip",
+		"files": [
+			"**/*"
+		]
+	},
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
+	"window": {
+		"width": 1024,
+		"height": 768,
+		"fullscreen": false,
+		"frame": true,
+		"icon": "icon.png"
+	},
+	"main": "applications/nwjs/index.html"
 }

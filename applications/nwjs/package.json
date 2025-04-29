@@ -1,0 +1,24 @@
+{
+	"name": "robrowser",
+	"main": "index.html",
+	"version": "1.0.0",
+	"author": "Vincent Thibault",
+	"license": "GNU GPL V3",
+	"build": {
+		"nwVersion": "stable",
+		"output": "./dist/Desktop",
+		"packed": true,
+		"targets": "zip",
+		"files": [
+			"**/*"
+		]
+	},
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
+	"window": {
+		"width": 1024,
+		"height": 768,
+		"fullscreen": false,
+		"frame": true,
+		"icon": "icon.png"
+	}
+}

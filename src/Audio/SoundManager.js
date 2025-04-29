@@ -4,7 +4,7 @@
  * Sound Manager
  *
  * Manage sounds effects
- * All browsers seems to support .wav file (with HTML5), so don't need a flash callback here
+ * All browsers seems to support .wav file (with HTML5)
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *

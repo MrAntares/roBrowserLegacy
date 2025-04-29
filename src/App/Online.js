@@ -81,7 +81,7 @@ require.onError = function (err) {
 
 require( {
 	urlArgs: ROConfig.version,
-	baseUrl: './src/',
+	baseUrl: '../../src/',
 	paths: {
 		text:   'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'
@@ -94,10 +94,8 @@ require( {
 		Plugins.init();
 		GameEngine.init();
 
-		if (!Context.Is.APP) {
-			window.onbeforeunload = function() {
-				return 'Are you sure to exit roBrowser ?';
-			};
-		}
+		window.onbeforeunload = function() {
+			return 'Are you sure to exit roBrowser ?';
+		};
 	}
 );

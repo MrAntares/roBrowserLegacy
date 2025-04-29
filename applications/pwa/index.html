@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta charset="UTF-8">
+	<title>Progressive Web App - roBrowserLegacy</title>
+	<link rel="icon" type="./icon.png">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="HandheldFriendly" content="true">
+
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="roBrowser">
+	<meta name="mobile-web-app-capable" content="yes">
+
+	<meta name="description" content="roBrowser">
+	<meta name="keywords" content="roBrowser">
+	<meta name="author" content="roBrowser">
+	<meta name="robots" content="index">
+
+	<meta name="theme-color" content="#ff8cb5">
+
+	<meta property="og:title" content="roBrowser">
+	<meta property="og:description" content="roBrowser">
+	<meta property="og:type" content="website">
+	<meta property="og:locale" content="en_US">
+
+	<link rel="apple-touch-icon" href="./icon.png">
+	<link rel="manifest" href="./manifest.webmanifest">
+
+	<style type="text/css">
+		html,
+		div,
+		body {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			height: 100%;
+			width: 100%;
+			overflow: hidden;
+		}
+	</style>
+
+	<script type="text/javascript" src="../api/api.js"></script>
+	<script type="text/javascript">
+
+		function initialize(gitHash) {
+
+			var ROConfig = {
+				target: document.getElementById("robrowser"),
+				type: ROBrowser.TYPE.FRAME,
+				application: ROBrowser.APP.ONLINE,
+				development: true,
+				version: gitHash,
+				servers: [
+					{
+						display: 'roBrowser Demo Server',
+						desc: 'demo server',
+						address: '127.0.0.1',
+						port: 6900,
+						version: 25,
+						langtype: 12,
+						packetver: 20130618,
+						renewal: false,
+						worldMapSettings: { episode: 12 },
+						packetKeys: false,
+						socketProxy: 'wss://connect.robrowser.com',
+						remoteClient: 'https://grf.robrowser.com/',
+						adminList: [2000000]
+					},
+					// ADD PUBLIC TEST SERVERS HERE WITH _M _F REGISTRATION
+				],
+				packetDump: false,
+				skipServerList: true,
+				skipIntro: false,
+				aura: {},
+				autoLogin: [],
+				BGMFileExtension: ['mp3'],
+				calculateHash: false,
+				CameraMaxZoomOut: 5,
+				charBlockSize: 0,
+				clientHash: null,
+				clientVersionMode: "PacketVer",
+				disableConsole: false,
+				enableBank: false,
+				enableCashShop: false,
+				enableCheckAttendance: false,
+				enableDmgSuffix: false,
+				enableHomunAutoFeed: false,
+				enableMapName: false,
+				FirstPersonCamera: false,
+				grfList: null,
+				hashFiles: [],
+				loadLua: false,
+				onReady: null,
+				plugins: {},
+				registrationweb: '',
+				saveFiles: true,
+				ThirdPersonCamera: false,
+			};
+			var RO = new ROBrowser(ROConfig);
+			RO.start();
+		}
+
+		var getJSON = function (url, callback) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', url, true);
+			xhr.responseType = 'json';
+			xhr.onload = function () {
+				var status = xhr.status;
+				if (status === 200) {
+					callback(null, xhr.response);
+				} else {
+					callback(status, xhr.response);
+				}
+			};
+			xhr.send();
+		};
+
+		window.addEventListener("load", function () {
+			//Get latest GIT hash first then initialize
+			getJSON('https://api.github.com/repos/MrAntares/roBrowserLegacy/commits/master',
+				function (err, data) {
+					var gitHash = 'NO_INFO';
+					if (err !== null) {
+						console.warn("Error reading latest GIT hash.");
+					} else {
+						if (data && data.sha) {
+							gitHash = data.sha;
+							console.log("Latest GIT hash: " + gitHash);
+						} else {
+							console.warn('No hash found in response');
+						}
+					}
+					initialize(gitHash);
+				});
+		}, false);
+	</script>
+
+</head>
+
+<body>
+	<div id="robrowser">Initializing roBrowser...</div>
+</body>
+
+</html>
