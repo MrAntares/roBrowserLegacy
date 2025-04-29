@@ -13,7 +13,7 @@ requirejs.config({
 	baseUrl: '../'
 });
 
-require(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'],
+requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'],
 function(      FileManager,        FileSystem,           MapLoader )
 {
 	'use strict';

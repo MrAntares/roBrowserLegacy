@@ -41,13 +41,13 @@
 			overflow: hidden;
 		}
 	</style>
-	<script src="./bootstrap.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		var ROConfig = {
 			target: document.getElementById("robrowser"),
 			type: 2,
 			application: 1,
 			development: true,
+			remoteClient: 'http://192.168.0.182:3338',
 			servers: [{
 				display: 'roBrowser Demo Server',
 				desc: 'demo server',
@@ -82,30 +82,40 @@
 			enableHomunAutoFeed: false,
 			enableMapName: false,
 			FirstPersonCamera: false,
-			grfList: null,
+			//grfList: ['custom.grf', 'data.grf'], // FIX ME, ITS NOT READING FROM DATA.INI
 			hashFiles: [],
 			loadLua: false,
 			onReady: null,
 			plugins: {},
 			registrationweb: '',
-			saveFiles: true,
+			saveFiles: false,
 			ThirdPersonCamera: false,
 		};
-		function initialize() {
-			var script = document.createElement('script');
-			script.src = '/src/Vendors/require.js?' + ROConfig.version;
-			script.type = 'text/javascript';
-			script.setAttribute('data-main', '/src/App/Online.js?' + ROConfig.version);
-
-			document.getElementsByTagName('head')[0].appendChild(script);
-		}
-		window.addEventListener("load", initialize, false);
 	</script>
 </head>
 
 <body>
 	<h1>ROBrowser</h1>
 	<div id="robrowser">[WIP] Initializing roBrowser...</div>
+	<script>
+		window.nodeRequire = window.require;
+		delete window.require;
+		window.nodeRequire.version = process.versions.node;
+		delete process.versions.node;
+		globalThis.__process = globalThis.process;
+		delete globalThis.process;
+	</script>
+	<script src="../../src/Vendors/require.js"></script>
+	<script>
+		requirejs.config({
+			//Pass the top-level main.js/index.js require
+			//function to requirejs so that node modules
+			//are loaded relative to the top-level JS file.
+			nodeRequire: window.nodeRequire
+		});
+		window.require = require;
+	</script>
+	<script>require(["../../src/App/Online"])</script>
 </body>
 
 </html>
