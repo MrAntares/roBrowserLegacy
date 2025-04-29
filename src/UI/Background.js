@@ -98,15 +98,15 @@ define( function( require )
 	 */
 	Background.resize = function resize( width, height )
 	{
-		let widthDpr = width * devicePixelRatio;
-		let heightDpr = height * devicePixelRatio;
+		//let widthDpr = width * devicePixelRatio;
+		//let heightDpr = height * devicePixelRatio;
 
 		_canvas[0].width   = width;
 		_canvas[0].height  = height;
-		_overlay.css({ width:widthDpr, height:heightDpr });
+		_overlay.css({ width:width, height:height });
 
 		_ctx.fillStyle = 'black';
-		_ctx.fillRect( 0, 0, widthDpr, heightDpr );
+		_ctx.fillRect( 0, 0, width, height );
 
 		render();
 	};
