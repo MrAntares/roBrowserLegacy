@@ -35,7 +35,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 				alpha:              false,
 				depth:              true,
 				stencil:            false,
-				antialias:          false,
+				antialias:          true,
 				premultipliedAlpha: false,
 				preserveDrawingBuffer: true,
 			};
