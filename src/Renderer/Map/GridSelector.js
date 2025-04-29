@@ -7,8 +7,8 @@
  *
  * @author Vincent Thibault
  */
-define( ['Renderer/Map/Altitude', 'Core/Client', 'Utils/WebGL', 'Utils/Texture'],
-function(              Altitude,        Client,         WebGL,         Texture )
+define( ['Renderer/Map/Altitude', 'Core/Client', 'Utils/WebGL', 'Utils/Texture', 'Core/Configs'],
+function(              Altitude,        Client,         WebGL,         Texture,        Configs )
 {
 	'use strict';
 
@@ -125,6 +125,7 @@ function(              Altitude,        Client,         WebGL,         Texture )
 
 				var canvas = document.createElement('canvas');
 				var ctx    = canvas.getContext('2d');
+				var enableMipmap = Configs.get('enableMipmap');
 
 				canvas.width  = WebGL.toPowerOfTwo(this.width);
 				canvas.height = WebGL.toPowerOfTwo(this.height);
@@ -140,7 +141,9 @@ function(              Altitude,        Client,         WebGL,         Texture )
 				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-				gl.generateMipmap( gl.TEXTURE_2D );
+				if(enableMipmap) {
+					gl.generateMipmap( gl.TEXTURE_2D );
+				}
 			});
 		});
 

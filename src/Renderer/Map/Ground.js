@@ -7,8 +7,8 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Preferences/Map'],
-function(      WebGL,         Texture,   Preferences )
+define(['Utils/WebGL', 'Utils/Texture', 'Preferences/Map', 'Core/Configs'],
+function(      WebGL,         Texture,   Preferences,            Configs )
 {
 	'use strict';
 
@@ -261,6 +261,7 @@ function(      WebGL,         Texture,   Preferences )
 	function initLightmap( gl, lightmap, size )
 	{
 		var width, height;
+		var enableMipmap = Configs.get('enableMipmap');
 
 		width  = WebGL.toPowerOfTwo( Math.round( Math.sqrt(size) ) * 8 );
 		height = WebGL.toPowerOfTwo( Math.ceil(  Math.sqrt(size) ) * 8 );
@@ -275,7 +276,9 @@ function(      WebGL,         Texture,   Preferences )
 
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.generateMipmap( gl.TEXTURE_2D );
+		if(enableMipmap) {
+			gl.generateMipmap( gl.TEXTURE_2D );
+		}
 	}
 
 
@@ -292,6 +295,7 @@ function(      WebGL,         Texture,   Preferences )
 
 		var _width, _height, i, count;
 		var smooth, canvas, ctx, imageData, data;
+		var enableMipmap = Configs.get('enableMipmap');
 
 		// Build image
 		canvas        = document.createElement('canvas');
@@ -329,7 +333,9 @@ function(      WebGL,         Texture,   Preferences )
 		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, smooth );
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.generateMipmap( gl.TEXTURE_2D );
+		if(enableMipmap) {
+			gl.generateMipmap( gl.TEXTURE_2D );
+		}
 	}
 
 
@@ -398,7 +404,10 @@ function(      WebGL,         Texture,   Preferences )
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-		gl.generateMipmap( gl.TEXTURE_2D );
+		var enableMipmap = Configs.get('enableMipmap');
+		if(enableMipmap) {
+			gl.generateMipmap( gl.TEXTURE_2D );
+		}
 	}
 
 

@@ -611,8 +611,8 @@ define( function( require )
 
 		if (!is_rgba) {
 			SpriteRenderer.image.palette = pal.texture;
-			SpriteRenderer.image.size[0] = spr.frames[ index ].width;
-			SpriteRenderer.image.size[1] = spr.frames[ index ].height;
+			SpriteRenderer.image.size[0] = 2 * spr.frames[ index ].width;
+			SpriteRenderer.image.size[1] = 2 * spr.frames[ index ].height;
 		}
 
 		// RGBA is at the end of the spr.

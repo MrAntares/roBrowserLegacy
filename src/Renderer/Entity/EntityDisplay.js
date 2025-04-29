@@ -19,6 +19,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	var vec4 = glMatrix.vec4;
 	var _pos = new Float32Array(4);
 	var _size = new Float32Array(2);
+	var dpr = window.devicePixelRatio || 1;
 
 
 	// Some helper for Firefox to render text-border
@@ -55,7 +56,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	var _isUglyShadow = function isUglyGPUShadow() {
 		var canvas = document.createElement('canvas');
 		var ctx = canvas.getContext('2d');
-		var fontSize = 12;
+		var fontSize = 12 * dpr;
 		var text = 'Testing';
 		var width, height, percent;
 
@@ -310,7 +311,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
 		canvas.style.top = ((_pos[1] + 13) | 0) + 'px';
-		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
+		canvas.style.left = ((_pos[0] - canvas.width / dpr / 2) | 0) + 'px';
+		canvas.style.width = canvas.width / dpr + "px";
+		canvas.style.height = canvas.height / dpr + "px";
 
 		// Append to body
 		if (!canvas.parentNode) {

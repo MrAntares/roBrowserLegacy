@@ -10,7 +10,7 @@
  * @author Vincent Thibault
  */
 
-define( ['Utils/Texture'], function( Texture )
+define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 {
 	'use strict';
 
@@ -35,7 +35,7 @@ define( ['Utils/Texture'], function( Texture )
 				alpha:              false,
 				depth:              true,
 				stencil:            false,
-				antialias:          false,
+				antialias:          true,
 				premultipliedAlpha: false,
 				preserveDrawingBuffer: true,
 			};
@@ -174,6 +174,7 @@ define( ['Utils/Texture'], function( Texture )
 			}
 
 			var canvas, ctx, texture;
+			var enableMipmap = Configs.get('enableMipmap');
 
 			canvas        = document.createElement('canvas');
 			canvas.width  = toPowerOfTwo(this.width);
@@ -188,7 +189,9 @@ define( ['Utils/Texture'], function( Texture )
 			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.generateMipmap( gl.TEXTURE_2D );
+			if(enableMipmap) {
+				gl.generateMipmap( gl.TEXTURE_2D );
+			}
 
 			args.unshift( texture );
 			callback.apply( null, args );
