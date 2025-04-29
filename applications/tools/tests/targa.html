@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<body></body>
+<script type="text/javascript" src="../../../src/Vendors/require.js"></script>
+<script type="text/javascript">
+	// workaround to network PacketVerManager.getvalue() // FIXME
+	var ROConfig = {
+		servers: [{
+			packetver: 0
+		}
+		],
+		packetver: 0,
+	}
+	require({
+		baseUrl: '../../../src/',
+		paths: {
+			text: "Vendors/text.require",
+			jquery: "Vendors/jquery-1.9.1"
+		}
+	}, ['../applications/tools/tests/FileTester', 'Loaders/Targa'], function (FileTester, Targa) {
+		var ft = new FileTester("tga", function (data) {
+			var tga = new Targa();
+			tga.load(new Uint8Array(data));
+			tga.getCanvas();
+		});
+
+		ft.start();
+	});
+</script>
+
+</html>

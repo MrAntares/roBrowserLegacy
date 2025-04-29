@@ -20,7 +20,6 @@ define(function()
 	 * Get Informations about current Context
 	 */
 	Context.Is = {
-		APP:   !!(window.chrome && window.chrome.app && window.chrome.app.window),
 		POPUP: !!(window.opener),
 		FRAME:    window.top !== window.self
 	};
@@ -35,8 +34,7 @@ define(function()
 		return !!(
 			document.fullscreenElement ||
 			document.mozFullScreenElement ||
-			document.webkitFullscreenElement ||
-			( Context.Is.APP && window.chrome.app.window.current().isFullscreen() )
+			document.webkitFullscreenElement
 		);
 	};
 
@@ -46,11 +44,6 @@ define(function()
 	 */
 	Context.requestFullScreen = function RequestFullScreen()
 	{
-		if (Context.Is.APP) {
-			window.chrome.app.window.current().fullscreen();
-			return;
-		}
-
 		if (!Context.isFullScreen()) {
 			var element = document.documentElement;
 
@@ -72,11 +65,6 @@ define(function()
 	 */
 	Context.cancelFullScreen = function CancelFullScreen()
 	{
-		if (Context.Is.APP) {
-			window.chrome.app.window.current().restore();
-			return;
-		}
-
 		if (document.cancelFullScreen) {
 			document.cancelFullScreen();
 		}

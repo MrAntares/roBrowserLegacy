@@ -280,7 +280,7 @@ define(function( require )
 		}
 
 		// Don't load mp3 sounds to avoid blocking the queue
-		// They can be load by the HTML5 Audio / Flash directly.
+		// They can be load by the HTML5 Audio
 		if (filename.match(/\.(mp3|wav)$/)) {
 			callback(url);
 			return;

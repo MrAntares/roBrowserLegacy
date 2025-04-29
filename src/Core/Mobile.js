@@ -277,18 +277,12 @@ define(function( require )
 
 	// Add full screen on mobile (sux to have the browser title bar)
 	if (Math.max(screen.availHeight,screen.availWidth) <= 800) {
-		// Mobile app (in future ?)
-		if (Context.Is.APP) {
-			Context.requestFullScreen();
-		}
 		// Fullscreen on action
-		else {
-			jQuery(window).on('touchstart', function(){
-				if (!Context.isFullScreen()) {
-					Context.requestFullScreen();
-				}
-			});
-		}
+		jQuery(window).on('touchstart', function(){
+			if (!Context.isFullScreen()) {
+				Context.requestFullScreen();
+			}
+		});
 	}
 	
 	//Add mobile UI on touch

@@ -16,17 +16,13 @@ define(function( require )
 
 	// Load dependencies
 	var Configs        = require('Core/Configs');
-	var Context        = require('Core/Context');
 	var BinaryReader   = require('Utils/BinaryReader');
 	var PACKETVER      = require('./PacketVerManager');
 	var PacketVersions = require('./PacketVersions');
 	var PacketRegister = require('./PacketRegister');
 	var PacketCrypt    = require('./PacketCrypt');
 	var PacketLength   = require('./PacketLength');
-	var ChromeSocket   = require('./SocketHelpers/ChromeSocket');
-	var JavaSocket     = require('./SocketHelpers/JavaSocket');
 	var WebSocket      = require('./SocketHelpers/WebSocket');
-	var TCPSocket      = require('./SocketHelpers/TCPSocket');
 	var NodeSocket     = require('./SocketHelpers/NodeSocket');
 	var getModule      = require;
 
@@ -95,29 +91,14 @@ define(function( require )
 		var socket, Socket;
 		var proxy = Configs.get('socketProxy', null);
 
-		// Chrome App
-		if (Context.Is.APP) {
-			Socket = ChromeSocket;
-		}
-
-		// Firefox OS App
-		else if (TCPSocket.isSupported()) {
-			Socket = TCPSocket;
-		}
-
 		// node-webkit
-		else if (NodeSocket.isSupported()) {
+		if (NodeSocket.isSupported()) {
 			Socket = NodeSocket;
 		}
 
 		// Web Socket with proxy
-		else if (proxy) {
-			Socket = WebSocket;
-		}
-
-		// Java socket...
 		else {
-			Socket = JavaSocket;
+			Socket = WebSocket;
 		}
 
 		socket            = new Socket(host, port, proxy);

@@ -37,7 +37,7 @@ define(function(require)
 
 
 	// Ugly, require api.js to display models and map
-	require('../../../../api');
+	require('../../../../applications/api/api');
 
 
 

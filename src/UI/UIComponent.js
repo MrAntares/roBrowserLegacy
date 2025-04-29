@@ -230,13 +230,10 @@ define(function( require )
 		if (!this.__loaded) {
 			this.prepare();
 
-			// Hack to fix async preferences on Chrome App...
-			// Check if we still want to display it.
-			Events.setTimeout(function(){
-				if (this.__active) {
-					this.append();
-				}
-			}.bind(this), 10 );
+			if (this.__active) {
+				this.append();
+			}
+
 			return;
 		}
 

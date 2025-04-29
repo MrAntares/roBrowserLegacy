@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta charset="UTF-8">
+	<title>NWJS - roBrowserLegacy</title>
+	<link rel="icon" type="/applications/nwjs/icon.png">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="HandheldFriendly" content="true">
+
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="roBrowser">
+	<meta name="mobile-web-app-capable" content="yes">
+
+	<meta name="description" content="roBrowser">
+	<meta name="keywords" content="roBrowser">
+	<meta name="author" content="roBrowser">
+	<meta name="robots" content="index">
+
+	<meta name="theme-color" content="#ff8cb5">
+
+	<meta property="og:title" content="roBrowser">
+	<meta property="og:description" content="roBrowser">
+	<meta property="og:type" content="website">
+	<meta property="og:locale" content="en_US">
+
+	<link rel="apple-touch-icon" href="/applications/nwjs/icon.png">
+
+	<style type="text/css">
+		html,
+		div,
+		body {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			height: 100%;
+			width: 100%;
+			overflow: hidden;
+		}
+	</style>
+	<script src="./bootstrap.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		var ROConfig = {
+			target: document.getElementById("robrowser"),
+			type: 2,
+			application: 1,
+			development: true,
+			servers: [{
+				display: 'roBrowser Demo Server',
+				desc: 'demo server',
+				address: '127.0.0.1',
+				port: 6900,
+				version: 25,
+				langtype: 12,
+				packetver: 20130618,
+				renewal: false,
+				worldMapSettings: { episode: 12 },
+				packetKeys: false,
+				socketProxy: 'wss://connect.robrowser.com',
+				remoteClient: 'https://grf.robrowser.com/',
+				adminList: [2000000]
+			}],
+			packetDump: false,
+			skipServerList: true,
+			skipIntro: false,
+			aura: {},
+			autoLogin: [],
+			BGMFileExtension: ['mp3'],
+			calculateHash: false,
+			CameraMaxZoomOut: 5,
+			charBlockSize: 0,
+			clientHash: null,
+			clientVersionMode: "PacketVer",
+			disableConsole: false,
+			enableBank: true,
+			enableCashShop: true,
+			enableCheckAttendance: true,
+			enableDmgSuffix: true,
+			enableHomunAutoFeed: true,
+			enableMapName: true,
+			FirstPersonCamera: false,
+			grfList: null,
+			hashFiles: [],
+			loadLua: false,
+			onReady: null,
+			plugins: {},
+			registrationweb: '',
+			saveFiles: true,
+			ThirdPersonCamera: false,
+		};
+		function initialize() {
+			var script = document.createElement('script');
+			script.src = '/src/Vendors/require.js?' + ROConfig.version;
+			script.type = 'text/javascript';
+			script.setAttribute('data-main', '/src/App/Online.js?' + ROConfig.version);
+
+			document.getElementsByTagName('head')[0].appendChild(script);
+		}
+		window.addEventListener("load", initialize, false);
+	</script>
+</head>
+
+<body>
+	<h1>ROBrowser</h1>
+	<div id="robrowser">[WIP] Initializing roBrowser...</div>
+</body>
+
+</html>
