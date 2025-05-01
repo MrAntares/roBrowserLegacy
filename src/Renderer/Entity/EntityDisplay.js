@@ -177,7 +177,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 
 		// Setup variables
 		var lines = new Array(2);
-		var fontSize = 12;
+		var fontSize = 12 * dpr;
 		var ctx = this.ctx;
 		var start_x = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC) ? 26 : 0) + 5;
 		var width, height;
