@@ -2811,7 +2811,7 @@ define(function (require) {
 			str += postfix;
 		}
 
-		if (it.slotCount && showslots && showItemSlots) {
+		if (it.slotCount > 0 && showslots && showItemSlots) {
 			str += ' [' + it.slotCount + ']';
 		}
 
