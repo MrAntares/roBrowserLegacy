@@ -2762,23 +2762,21 @@ define(function (require) {
 					for (i = 1; i <= 4; ++i) {
 						var card = item.slot['card' + i];
 
-						if (!card) {
-							break;
-						}
-
-						//store order
-						if (!(cardList.includes(card))) {
-							cardList.push(card);
-						}
-
-						//store details
-						if (cards[card]) {
-							cards[card].count++;
-						} else {
-							cards[card] = {};
-							cards[card].isPostfix = DB.getItemInfo(card).isPostfix;
-							cards[card].prefixName = DB.getItemInfo(card).prefixName;
-							cards[card].count = 0;
+						if (card) {
+							//store order
+							if (!(cardList.includes(card))) {
+								cardList.push(card);
+							}
+	
+							//store details
+							if (cards[card]) {
+								cards[card].count++;
+							} else {
+								cards[card] = {};
+								cards[card].isPostfix = DB.getItemInfo(card).isPostfix;
+								cards[card].prefixName = DB.getItemInfo(card).prefixName;
+								cards[card].count = 0;
+							}
 						}
 					}
 
