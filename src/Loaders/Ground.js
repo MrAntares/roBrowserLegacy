@@ -299,7 +299,9 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 
 				// Check tile up
 				if (cell.tile_up > -1) {
-					data.set(tiles[cell.tile_up].color, (x + y * width) * 4);
+					// Colors are stored in BGRA format, convert to RGBA for WebGL
+					const [b, g, r, a] = tiles[cell.tile_up].color;
+					data.set([r, g, b, a], (x + y * width) * 4);
 				}
 			}
 		}

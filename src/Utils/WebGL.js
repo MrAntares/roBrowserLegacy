@@ -198,6 +198,16 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		});
 	}
 
+	/**
+	 * Check if the context is a WebGL2 context
+	 *
+	 * @param {object} gl context
+	 * @return {boolean}
+	 */
+	function isWebGL2(gl)
+	{
+		return gl && window['WebGL2RenderingContext'] !== undefined && gl instanceof WebGL2RenderingContext;
+	}
 
 	/**
 	 * Export
@@ -206,6 +216,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		getContext:          getContext,
 		createShaderProgram: createShaderProgram,
 		toPowerOfTwo:        toPowerOfTwo,
-		texture:             texture
+		texture:             texture,
+		isWebGL2:		 	 isWebGL2,
 	};
 });
