@@ -305,6 +305,26 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 
 
 	/**
+	 * Multiplies a vec3 by a mat4
+	 * The last component of the vec3 is assumed to be 1.0
+	 * 
+	 * @param {vec3} vec 3 position vector
+	 * @param {mat4} mat 4x4 matrix
+	 * 
+	 * @returns {vec3} resulting vector
+	 */
+	glMatrix.mat4.multiplyVec3 = function(vec, mat) {
+		const out = new Float32Array(3);
+		const x = vec[0], y = vec[1], z = vec[2];
+
+		out[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
+		out[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
+		out[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
+		return out;
+	}
+
+
+	/**
 	 * Export
 	 */
 	return glMatrix;
