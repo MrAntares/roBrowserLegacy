@@ -40,8 +40,10 @@ define(function( require )
 	var Sky            = require('Renderer/Effects/Sky');
 	var Damage         = require('Renderer/Effects/Damage');
 	var MapPreferences = require('Preferences/Map');
-	const PACKETVER   = require('Network/PacketVerManager');
-
+	const glMatrix     = require('Utils/gl-matrix');
+	const PACKETVER    = require('Network/PacketVerManager');
+	
+	const mat4         = glMatrix.mat4;
 
 	/**
 	 * Renderer Namespace
@@ -217,9 +219,16 @@ define(function( require )
 		var longitude        = this.light.longitude * Math.PI / 180;
 		var latitude         = this.light.latitude  * Math.PI / 180;
 
-		this.light.direction[0] = -Math.cos(longitude) * Math.sin(latitude);
-		this.light.direction[1] = -Math.cos(latitude);
-		this.light.direction[2] = -Math.sin(longitude) * Math.sin(latitude);
+		const dirMat4 = mat4.create();
+		// Original client first rotates around X then Y, but then multiplies matrixes in reverse order
+		// Which means we have to rotate Y first then X
+		mat4.rotateY(dirMat4, dirMat4, longitude);
+		mat4.rotateX(dirMat4, dirMat4, latitude);
+		const dirVec = mat4.multiplyVec3([0, 1, 0], dirMat4);
+
+		this.light.direction[0] = -dirVec[0];
+		this.light.direction[1] = -dirVec[1];
+		this.light.direction[2] = -dirVec[2];
 	}
 
 

@@ -102,7 +102,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 			vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);
 			vec3 dirVector   = normalize(lDirection.xyz);
 			float dotProduct = dot( uNormalMat * aVertexNormal, dirVector );
-			vLightWeighting  = max( dotProduct, 0.1 );
+			vLightWeighting  = max( dotProduct, 1.0 );
 		}
 	`;
 
@@ -144,7 +144,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 
 			if (vTileColorCoord.st != vec2(0.0,0.0)) {
 				texture    *= texture2D( uTileColor, vTileColorCoord.st);
-				lightWeight = vLightWeighting;
+				//lightWeight = vLightWeighting; // Note: This is not used in the original client
 			}
 
 			vec3 Ambient    = uLightAmbient * uLightOpacity;
