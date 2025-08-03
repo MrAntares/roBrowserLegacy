@@ -53,7 +53,6 @@ function(      WebGL,         glMatrix,      Camera )
 			float x =  pos.x + 0.5;
 			float y = -pos.z;
 			float z =  pos.y + 0.5;
-			float NEARPLANE = 1.0;
 
 			// Matrix translation
 			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
@@ -63,7 +62,7 @@ function(      WebGL,         glMatrix,      Camera )
 			
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
-			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
+			mat[1].xyz = vec3( 0.0, 1.0, -mat[1].z);
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
 			
 			return mat;
@@ -78,7 +77,7 @@ function(      WebGL,         glMatrix,      Camera )
 			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
+			gl_Position.z -= (uSpriteRendererZindex + uSpriteRendererDepth + 1.0 + position.y) * sin(radians(uCameraLatitude)) / max(uCameraZoom, 1.0);
 			
 			vTextureCoord = aTextureCoord;
 		}
