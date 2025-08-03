@@ -69,15 +69,18 @@ function(      WebGL,         glMatrix,      Camera )
 		}
 
 		void main(void) {
-			
+			float zScaleFactor = 2.0;
 			// Calculate position base on angle and sprite offset/size
 			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
 			position.x   += uSpriteRendererOffset.x;
 			position.y   -= uSpriteRendererOffset.y + 0.5;
 			
+			float spriteRendererBaseZ = uSpriteRendererZindex * 0.1 + uSpriteRendererDepth;
+			float spriteRendererAngleZ = (spriteRendererBaseZ + 1.0 + position.y) * sin(radians(max(0.0, uCameraLatitude))) * zScaleFactor;
+			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex + uSpriteRendererDepth + 1.0 + position.y) * sin(radians(uCameraLatitude)) / max(uCameraZoom, 1.0);
+			gl_Position.z -= max(spriteRendererBaseZ, spriteRendererAngleZ) / max(uCameraZoom, 1.0);
 			
 			vTextureCoord = aTextureCoord;
 		}
