@@ -53,7 +53,6 @@ function(      WebGL,         glMatrix,      Camera )
 			float x =  pos.x + 0.5;
 			float y = -pos.z;
 			float z =  pos.y + 0.5;
-			float NEARPLANE = 1.0;
 
 			// Matrix translation
 			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
@@ -63,22 +62,25 @@ function(      WebGL,         glMatrix,      Camera )
 			
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
-			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
+			mat[1].xyz = vec3( 0.0, 1.0, -mat[1].z);
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
 			
 			return mat;
 		}
 
 		void main(void) {
-			
+			float zScaleFactor = 2.0;
 			// Calculate position base on angle and sprite offset/size
 			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
 			position.x   += uSpriteRendererOffset.x;
 			position.y   -= uSpriteRendererOffset.y + 0.5;
 			
+			float spriteRendererBaseZ = uSpriteRendererZindex * 0.1 + uSpriteRendererDepth;
+			float spriteRendererAngleZ = (spriteRendererBaseZ + 1.0 + position.y) * sin(radians(max(0.0, uCameraLatitude))) * zScaleFactor;
+			
 			// Project to camera plane
 			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
-			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
+			gl_Position.z -= max(spriteRendererBaseZ, spriteRendererAngleZ) / max(uCameraZoom, 1.0);
 			
 			vTextureCoord = aTextureCoord;
 		}
