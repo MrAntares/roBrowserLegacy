@@ -6112,7 +6112,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	
 	if (PACKETVER.value >= 20170502) {
-		PACKET.ZC.WARPLIST.size = 48;
+		PACKET.ZC.WARPLIST.size = -1;
 	} else {
 		PACKET.ZC.WARPLIST.size = 68;
 	}
