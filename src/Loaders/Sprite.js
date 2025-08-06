@@ -304,7 +304,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 		var frames = this.frames;
 		var frame;
 		var i, count = frames.length;
-		var data, width, height, gl_width, gl_height, start_x, start_y, x, y;
+		var data, width, height, gl_width, gl_height, start_x, start_y, x, y, alpha;
 		var pow = Math.pow, ceil = Math.ceil, log = Math.log, floor = Math.floor;
 		var out;
 		var output = new Array(count);
@@ -341,13 +341,19 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			// RGBA Images
 			else {
 				out = new Uint8Array( gl_width * gl_height * 4 );
+				let srcIndex, dstIndex;
 
 				for (y = 0; y < height; ++y) {
 					for (x = 0; x < width; ++x) {
-						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4 + 0 ] = data[ ( (height-y-1) * width + x ) * 4 + 3 ];
-						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4 + 1 ] = data[ ( (height-y-1) * width + x ) * 4 + 2 ];
-						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4 + 2 ] = data[ ( (height-y-1) * width + x ) * 4 + 1 ];
-						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4 + 3 ] = data[ ( (height-y-1) * width + x ) * 4 + 0 ];
+						srcIndex = ( ( height -y -1 ) * width + x ) * 4;
+						dstIndex = ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4;
+						// Set all colors to 0 if alpha is also 0
+						// This fixes white outlines appearing on RGBA sprites
+						alpha = data[srcIndex];
+						out[dstIndex + 0 ] = alpha ? data[srcIndex + 3] : 0;
+						out[dstIndex + 1 ] = alpha ? data[srcIndex + 2] : 0;
+						out[dstIndex + 2 ] = alpha ? data[srcIndex + 1] : 0;
+						out[dstIndex + 3 ] = alpha;
 					}
 				}
 			}
