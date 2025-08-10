@@ -62,7 +62,7 @@ define( ['Utils/WebGL'], function( WebGL )
 			vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);
 			vec3 dirVector   = normalize(lDirection.xyz);
 			float dotProduct = dot( uNormalMat * aVertexNormal, dirVector );
-			vLightWeighting  = max( dotProduct, 0.15 );
+			vLightWeighting  = max( dotProduct, 0.0 );
 		}
 	`;
 
@@ -96,8 +96,8 @@ define( ['Utils/WebGL'], function( WebGL )
 				discard;
 			}
 
-			vec3 Ambient    = uLightAmbient * uLightOpacity;
-			vec3 Diffuse    = uLightDiffuse * clamp(vLightWeighting * 1.5, 0.0, 1.0);
+			vec3 Ambient    = uLightAmbient;
+			vec3 Diffuse    = uLightDiffuse * vLightWeighting;
 			vec4 LightColor = vec4( Ambient + Diffuse, 1.0);
 
 			gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0);

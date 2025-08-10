@@ -102,7 +102,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 			vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);
 			vec3 dirVector   = normalize(lDirection.xyz);
 			float dotProduct = dot( uNormalMat * aVertexNormal, dirVector );
-			vLightWeighting  = max( dotProduct, 1.0 );
+			vLightWeighting  = max( dotProduct, 0.0 );
 		}
 	`;
 
@@ -144,22 +144,23 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 
 			if (vTileColorCoord.st != vec2(0.0,0.0)) {
 				texture    *= texture2D( uTileColor, vTileColorCoord.st);
-				//lightWeight = vLightWeighting; // Note: This is not used in the original client
+				lightWeight = 0.5 + vLightWeighting * 0.5;
 			}
 
+			// TODO: Ground color is still not accurate, some maps appear darker or lighter than the official version in certain areas.
+			// This may be caused by incorrect handling of lighting or maybe ambient light.
 			vec3 Ambient    = uLightAmbient * uLightOpacity;
 			vec3 Diffuse    = uLightDiffuse * lightWeight;
+			vec3 env = vec3(1.0) - (vec3(1.0) - uLightAmbient) * (vec3(1.0) - uLightDiffuse);
+			
+			vec4 LightColor = vec4(Ambient + Diffuse, 1.0);
+			gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0);
+			gl_FragColor *= vec4(env, 1.0);
 
 			if (uLightMapUse) {
-				vec4 lightmap   = texture2D( uLightmap, vLightmapCoord.st);
-				vec4 LightColor = vec4( (Ambient + Diffuse) * lightmap.a, 1.0);
-				vec4 ColorMap   = vec4( lightmap.rgb, 0.0 );
-
-				gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0) + ColorMap;
-			}
-			else {
-				vec4 LightColor = vec4( Ambient + Diffuse, 1.0);
-				gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0);
+				// TODO: The colormap is showing stepped colors instead of a smooth gradient between colors like in the official client.
+				vec4 lightmap = texture2D(uLightmap, vLightmapCoord.st);
+				gl_FragColor.rgb = mix(gl_FragColor.rgb + lightmap.rgb, lightmap.rgb, 1.0 - lightmap.a);
 			}
 
 			if (uFogUse) {
