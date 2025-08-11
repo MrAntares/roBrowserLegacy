@@ -162,6 +162,36 @@ define(function( require )
 
 
 	/**
+	 * Received items list to from expanded barter NPC
+	 *
+	 * @param {object} pkt - PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO
+	 */
+	function onExpandedBarterBuyList( pkt )
+	{
+		NpcStore.append();
+		NpcStore.setType(NpcStore.Type.BARTER_MARKET_EXTENDED);
+		NpcStore.setList(pkt.itemList);
+		NpcStore.onSubmit = function(itemList) {
+			var i, count;
+			var pkt;
+
+			pkt   = new PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE();
+			count = itemList.length;
+
+			for (i = 0; i < count; ++i) {
+				pkt.itemList.push({
+					itemId:  itemList[i].ITID,
+					shopIndex: itemList[i].index,
+					amount: itemList[i].count
+				});
+			}
+
+			Network.sendPacket(pkt);
+		};
+	}
+
+
+	/**
 	 * Received purchased informations
 	 *
 	 * @param {object} pkt - PACKET_ZC_PC_PURCHASE_RESULT
@@ -504,5 +534,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NPC_MARKET_PURCHASE_RESULT,	onMarketShopResult);
 		Network.hookPacket( PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2,	onMarketShopResult);
 		Network.hookPacket( PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO, 	onBarterBuyList );
+		Network.hookPacket( PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO,	onExpandedBarterBuyList );
 	};
 });

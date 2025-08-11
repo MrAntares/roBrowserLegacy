@@ -14656,6 +14656,40 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2.size = -1;
 
+	// 0xb57
+	PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE = function PACKET_CZ_NPC_EXPANDED_BARTER_MARKET_PURCHASE() {
+		this.itemList = [];
+	};
+	PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE.prototype.build = function() {
+		var item_size = (PACKETVER.value >= 20181121) ? 12 : 10;
+		var pkt_len = 4 + (this.itemList.length * item_size);
+		var pkt_buf = new BinaryWriter(pkt_len);
+	
+		pkt_buf.writeShort(0x0b57);
+		pkt_buf.writeShort(pkt_len);
+	
+		for (var i = 0; i < this.itemList.length; ++i) {
+			(PACKETVER.value >= 20181121) 
+				? pkt_buf.writeULong(this.itemList[i].itemId) 
+				: pkt_buf.writeUShort(this.itemList[i].itemId);
+			pkt_buf.writeULong(this.itemList[i].shopIndex);
+			pkt_buf.writeULong(this.itemList[i].amount);
+		}
+	
+		return pkt_buf;
+	};
+
+	// 0xb58
+	PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_CLOSE = function PACKET_CZ_NPC_EXPANDED_BARTER_MARKET_CLOSE() {
+	};
+	PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_CLOSE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb58);
+		return pkt_buf;
+	};
+
 	// 0xb65
 	PACKET.ZC.REPAIRITEMLIST2 = function PACKET_ZC_REPAIRITEMLIST2(fp, end) {
 		this.itemList = (function() {
@@ -14792,6 +14826,57 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		})();
 	}
 	PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO.size = -1;
+
+	// 0xb79
+	PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_BARTER_MARKET_ITEMINFO(fp, end) {
+		// Ensure 'this' is properly bound and initialized
+		let self = this;
+
+		self.items_count = fp.readLong(); // Assign items_count to 'self' properly
+		self.itemList = (function() {
+			let item_size = (PACKETVER.value >= 20181121) ? 32 : 30;	// size of the `sub` structure
+			let sub2_size = (PACKETVER.value >= 20181121) ? 12 : 10;	// size of the `sub2` structure
+			let items = [];
+	
+			for (let i = 0; i < self.items_count; ++i) {
+				if (fp.tell() + item_size > end) {
+					console.error("Attempted to read beyond packet bounds");
+					break;
+				}
+	
+				let item = {};
+				item.ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+				item.type = fp.readUShort();
+				item.amount = fp.readULong();
+				item.weight = fp.readULong();
+				item.index = fp.readULong();
+				item.price = fp.readULong();
+				item.viewSprite = fp.readUShort();
+				item.location = fp.readULong();
+				item.currency_count = fp.readULong();
+	
+				item.currencyList = [];
+				for (let j = 0; j < item.currency_count; ++j) {
+					if (fp.tell() + sub2_size > end) {
+						console.error("Attempted to read beyond packet bounds in currencies");
+						break;
+					}
+	
+					let currency = {};
+					currency.ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
+					currency.refine_level = fp.readUShort();
+					currency.amount = fp.readULong();
+					currency.type = fp.readUShort();
+					item.currencyList.push(currency);
+				}
+	
+				items.push(item);
+			}
+	
+			return items;
+		})();
+	}
+	PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO.size = -1;
 
 	// 0xb7b
 	PACKET.ZC.GUILD_INFO4 = function PACKET_ZC_GUILD_INFO4(fp, end) {
