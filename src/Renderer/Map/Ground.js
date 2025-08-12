@@ -90,7 +90,6 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		uniform mat4 uProjectionMat;
 
 		uniform vec3 uLightDirection;
-		uniform mat3 uNormalMat;
 
 		void main(void) {
 			gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);
@@ -99,10 +98,8 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 			vLightmapCoord  = aLightmapCoord;
 			vTileColorCoord = aTileColorCoord;
 
-			vec4 lDirection  = uModelViewMat * vec4( uLightDirection, 0.0);
-			vec3 dirVector   = normalize(lDirection.xyz);
-			float dotProduct = dot( uNormalMat * aVertexNormal, dirVector );
-			vLightWeighting  = max( dotProduct, 1.0 );
+			float dotProduct = dot(aVertexNormal, uLightDirection );
+			vLightWeighting = max(dotProduct, 0.0);
 		}
 	`;
 
@@ -132,41 +129,43 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		uniform vec3  uLightAmbient;
 		uniform vec3  uLightDiffuse;
 		uniform float uLightOpacity;
+		uniform vec3  uLightDirection;
 
 		void main(void) {
-
-			vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
-			float lightWeight = 1.0;
-
-			if (texture.a == 0.0) {
+			vec4 texture = texture2D(uDiffuse, vTextureCoord.st);
+			if (texture.a < 0.1)
 				discard;
-			}
 
 			if (vTileColorCoord.st != vec2(0.0,0.0)) {
 				texture    *= texture2D( uTileColor, vTileColorCoord.st);
-				//lightWeight = vLightWeighting; // Note: This is not used in the original client
 			}
 
-			vec3 Ambient    = uLightAmbient * uLightOpacity;
-			vec3 Diffuse    = uLightDiffuse * lightWeight;
+			// The following was taken from BrowEdit
+			vec3 ambientFactor = (1.0 - uLightAmbient) * uLightAmbient;
+			vec3 ambient = uLightAmbient - ambientFactor + ambientFactor * uLightDiffuse;
+
+			vec3 diffuseFactor = (1.0 - uLightDiffuse) * uLightDiffuse;
+			vec3 diffuse = uLightDiffuse - diffuseFactor + diffuseFactor * uLightAmbient;
+
+			vec3 mult1 = min(vLightWeighting * diffuse + ambient, 1.0);
+			vec3 mult2 = min(max(uLightDiffuse, uLightAmbient) + (1.0 - max(uLightDiffuse, uLightAmbient)) * min(uLightDiffuse, uLightAmbient), 1.0);
+
+			texture.rgb *= min(mult1, mult2);
 
 			if (uLightMapUse) {
-				vec4 lightmap   = texture2D( uLightmap, vLightmapCoord.st);
-				vec4 LightColor = vec4( (Ambient + Diffuse) * lightmap.a, 1.0);
-				vec4 ColorMap   = vec4( lightmap.rgb, 0.0 );
+				vec4 lightmap = texture2D( uLightmap, vLightmapCoord.st);
+				texture.rgb *= lightmap.a;
+				texture.rgb += clamp(lightmap.rgb, 0.0, 1.0);
+			}
 
-				gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0) + ColorMap;
-			}
-			else {
-				vec4 LightColor = vec4( Ambient + Diffuse, 1.0);
-				gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0);
-			}
+			gl_FragColor = texture;
 
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
 				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
 			}
+
 		}
 	`;
 
@@ -190,7 +189,6 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		// Bind matrix
 		gl.uniformMatrix4fv( uniform.uModelViewMat,  false, modelView );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );
-		gl.uniformMatrix3fv( uniform.uNormalMat,     false, normalMat );
 
 		// Bind light
 		gl.uniform3fv( uniform.uLightDirection, light.direction );

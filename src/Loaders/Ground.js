@@ -265,9 +265,9 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 			for (_x = 0; _x < 8; ++_x) {
 				for (_y = 0; _y < 8; ++_y) {
 					idx          = ((x + _x) + (y + _y) * _width) * 4;
-					out[idx + 0] = data[pos + per_cell + (_x + _y * 8) * 3 + 0] >> 4 << 4; // Posterisation
-					out[idx + 1] = data[pos + per_cell + (_x + _y * 8) * 3 + 1] >> 4 << 4; // Posterisation
-					out[idx + 2] = data[pos + per_cell + (_x + _y * 8) * 3 + 2] >> 4 << 4; // Posterisation
+					out[idx + 0] = data[pos + per_cell + (_x + _y * 8) * 3 + 0];
+					out[idx + 1] = data[pos + per_cell + (_x + _y * 8) * 3 + 1];
+					out[idx + 2] = data[pos + per_cell + (_x + _y * 8) * 3 + 2];
 					out[idx + 3] = data[pos + (_x + _y * 8)];
 				}
 			}
@@ -492,12 +492,12 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 
 					mesh.push(
 						//      vec3 pos           |        vec3 normals          |     vec2 texcoords     |  vec2 lightcoord  |      vec2 tileCoords
-						(x+0)*2, h_a[0], (y+0)*2,    n[0][0], n[0][1], n[0][1],       tile.u1, tile.v1,          l.u1, l.v1,      (x+0.5)/width, (y+0.5)/height,
-						(x+1)*2, h_a[1], (y+0)*2,    n[1][0], n[1][1], n[1][1],       tile.u2, tile.v2,          l.u2, l.v1,      (x+1.5)/width, (y+0.5)/height,
-						(x+1)*2, h_a[3], (y+1)*2,    n[2][0], n[2][1], n[2][1],       tile.u4, tile.v4,          l.u2, l.v2,      (x+1.5)/width, (y+1.5)/height,
-						(x+1)*2, h_a[3], (y+1)*2,    n[2][0], n[2][1], n[2][1],       tile.u4, tile.v4,          l.u2, l.v2,      (x+1.5)/width, (y+1.5)/height,
-						(x+0)*2, h_a[2], (y+1)*2,    n[3][0], n[3][1], n[3][1],       tile.u3, tile.v3,          l.u1, l.v2,      (x+0.5)/width, (y+1.5)/height,
-						(x+0)*2, h_a[0], (y+0)*2,    n[0][0], n[0][1], n[0][1],       tile.u1, tile.v1,          l.u1, l.v1,      (x+0.5)/width, (y+0.5)/height
+						(x+0)*2, h_a[0], (y+0)*2,    n[0][0], n[0][1], n[0][2],       tile.u1, tile.v1,          l.u1, l.v1,      (x+0.5)/width, (y+0.5)/height,
+						(x+1)*2, h_a[1], (y+0)*2,    n[1][0], n[1][1], n[1][2],       tile.u2, tile.v2,          l.u2, l.v1,      (x+1.5)/width, (y+0.5)/height,
+						(x+1)*2, h_a[3], (y+1)*2,    n[2][0], n[2][1], n[2][2],       tile.u4, tile.v4,          l.u2, l.v2,      (x+1.5)/width, (y+1.5)/height,
+						(x+1)*2, h_a[3], (y+1)*2,    n[2][0], n[2][1], n[2][2],       tile.u4, tile.v4,          l.u2, l.v2,      (x+1.5)/width, (y+1.5)/height,
+						(x+0)*2, h_a[2], (y+1)*2,    n[3][0], n[3][1], n[3][2],       tile.u3, tile.v3,          l.u1, l.v2,      (x+0.5)/width, (y+1.5)/height,
+						(x+0)*2, h_a[0], (y+0)*2,    n[0][0], n[0][1], n[0][2],       tile.u1, tile.v1,          l.u1, l.v1,      (x+0.5)/width, (y+0.5)/height
 					);
 
 					// Add water only if it's upper than the ground.

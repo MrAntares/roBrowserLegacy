@@ -77,7 +77,7 @@ define( ['Utils/BinaryReader', 'Utils/gl-matrix'], function( BinaryReader, glMat
 		longitude: 45,
 		latitude:  45,
 		diffuse:   [ 1.0, 1.0, 1.0 ],
-		ambient:   [ 0.3, 0.3, 0.3 ],
+		ambient:   [ 0.0, 0.0, 0.0 ],
 		opacity:   1.0,
 		direction: glMatrix.vec3.create()
 	};
