@@ -132,6 +132,7 @@ define(["./PacketStructure"], function (PACKET) {
 		0x119: PACKET.ZC.STATE_CHANGE, // ok
 		0x11a: PACKET.ZC.USE_SKILL, // partially
 		0x11c: PACKET.ZC.WARPLIST, // ok
+		0xabe: PACKET.ZC.WARPLIST, // ok
 		0x11e: PACKET.ZC.ACK_REMEMBER_WARPPOINT, // ok
 		0x11f: PACKET.ZC.SKILL_ENTRY, // ok
 		0x120: PACKET.ZC.SKILL_DISAPPEAR, // ok
