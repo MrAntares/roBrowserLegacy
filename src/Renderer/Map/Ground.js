@@ -120,6 +120,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		uniform sampler2D uLightmap;
 		uniform sampler2D uTileColor;
 		uniform bool uLightMapUse;
+		uniform bool uPosterize;
 
 		uniform bool  uFogUse;
 		uniform float uFogNear;
@@ -130,6 +131,13 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		uniform vec3  uLightDiffuse;
 		uniform float uLightOpacity;
 		uniform vec3  uLightDirection;
+
+		vec3 posterize(vec3 c) {
+		    c *= 255.0;
+		    c = floor(c / 16.0) * 16.0;
+		    c /= 255.0;
+		    return c;
+		}
 
 		void main(void) {
 			vec4 texture = texture2D(uDiffuse, vTextureCoord.st);
@@ -154,6 +162,9 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 
 			if (uLightMapUse) {
 				vec4 lightmap = texture2D( uLightmap, vLightmapCoord.st);
+				if(uPosterize) {
+					lightmap.rgb = posterize(lightmap.rgb);
+				}
 				texture.rgb *= lightmap.a;
 				texture.rgb += clamp(lightmap.rgb, 0.0, 1.0);
 			}
@@ -198,6 +209,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 
 		// Render lightmap ?
 		gl.uniform1i(  uniform.uLightMapUse, Preferences.lightmap );
+		gl.uniform1i(  uniform.uPosterize, !Preferences.smoothlight );
 
 		// Fog settings
 		gl.uniform1i(  uniform.uFogUse,   fog.use && fog.exist );

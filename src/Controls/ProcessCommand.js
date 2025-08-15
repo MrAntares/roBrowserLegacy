@@ -202,6 +202,15 @@ define(function (require) {
 			},
 		},
 
+		smoothlight: {
+			description: "Toggles the posterization effect of the lightmap",
+			callback: function () {
+				MapPreferences.smoothlight = !MapPreferences.smoothlight;
+				MapPreferences.save();
+				return;
+			},
+		},
+
 		noctrl: {
 			description: "Allows attacking monsters continuously with only one left-click",
 			callback: function () {

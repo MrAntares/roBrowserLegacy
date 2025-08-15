@@ -31,6 +31,13 @@ define( ['Core/Preferences'], function( Preferences )
 		 */
 		lightmap: true,
 
+		/**
+		 * Posterize lightmap ?
+		 *
+		 * Toggle using "/smoothlight" in the chatbox
+		 */
+		smoothlight: false,
+
 
 		/**
 		 * Display effects ?
