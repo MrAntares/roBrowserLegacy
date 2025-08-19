@@ -86,6 +86,7 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 		uniform vec3  uLightDiffuse;
 		uniform float uLightOpacity;
 		uniform bool uLightMapUse;
+		uniform vec3 uLightEnv;
 
 		void main(void) {
 			vec4 texture  = texture2D( uDiffuse,  vTextureCoord.st );
@@ -94,31 +95,9 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 				discard;
 			}
 
-			vec3 Ambient    = uLightAmbient;
-			vec3 Diffuse    = uLightDiffuse * vLightWeighting;
-			vec4 LightColor = vec4( Ambient + Diffuse, 1.0);
-
-			gl_FragColor    = texture * clamp(LightColor, 0.0, 1.0);
-			gl_FragColor.a *= vAlpha;
-
-			if (uFogUse) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
-			}
-
-			// The following was taken from BrowEdit
-			vec3 ambientFactor = (1.0 - uLightAmbient) * uLightAmbient;
-			vec3 ambient = uLightAmbient - ambientFactor + ambientFactor * uLightDiffuse;
-
-			vec3 diffuseFactor = (1.0 - uLightDiffuse) * uLightDiffuse;
-			vec3 diffuse = uLightDiffuse - diffuseFactor + diffuseFactor * uLightAmbient;
-
-			vec3 mult1 = min((uLightMapUse ? vLightWeighting : 1.0) * diffuse + ambient, 1.0);
-			vec3 mult2 = min(max(uLightDiffuse, uLightAmbient) + (1.0 - max(uLightDiffuse, uLightAmbient)) * min(uLightDiffuse, uLightAmbient), 1.0);
-
-			texture.rgb *= min(mult1, mult2);
-			texture.a *= vAlpha;
+			vec3 color = ((uLightMapUse ? vLightWeighting : 1.0) * uLightDiffuse + uLightAmbient);
+			texture.rgb *= clamp(color, 0.0, 1.0);
+			texture.rgb *= clamp(uLightEnv, 0.0, 1.0);
 
 			gl_FragColor = texture;
 			
@@ -201,10 +180,11 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );
 
 		// Bind light
-		gl.uniform3fv( uniform.uLightDirection, light.direction );
+		gl.uniform3fv( uniform.uLightDirection, light.direction );	
 		gl.uniform1f(  uniform.uLightOpacity,   light.opacity );
 		gl.uniform3fv( uniform.uLightAmbient,   light.ambient );
 		gl.uniform3fv( uniform.uLightDiffuse,   light.diffuse );
+		gl.uniform3fv( uniform.uLightEnv,   light.env );
 
 		// Use shadows
 		gl.uniform1i(  uniform.uLightMapUse, Preferences.lightmap );

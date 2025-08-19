@@ -46,7 +46,7 @@ define(function( require )
 	_stateToVirtue[StatusConst.Status.OVERTHRUSTMAX] = StatusConst.OPT3.OVERTHRUST;
 	_stateToVirtue[StatusConst.Status.SWOO] = StatusConst.OPT3.OVERTHRUST;
 	_stateToVirtue[StatusConst.Status.ENERGYCOAT] = StatusConst.OPT3.ENERGYCOAT;
-	_stateToVirtue[StatusConst.Status.SKE] = StatusConst.OPT3.ENERGYCOAT;
+	//_stateToVirtue[StatusConst.Status.SKE] = StatusConst.OPT3.ENERGYCOAT; // TODO: Don't use until it's fully implemented, it breaks night mode and looks ugly
 	_stateToVirtue[StatusConst.Status.BERSERK] = StatusConst.OPT3.BERSERK;
 	_stateToVirtue[StatusConst.Status.MARIONETTE] = StatusConst.OPT3.MARIONETTE;
 	_stateToVirtue[StatusConst.Status.MARIONETTE_MASTER] = StatusConst.OPT3.MARIONETTE;

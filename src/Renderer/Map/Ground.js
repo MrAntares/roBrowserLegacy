@@ -90,6 +90,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		uniform mat4 uProjectionMat;
 
 		uniform vec3 uLightDirection;
+		uniform vec3 uLightEnv;
 
 		void main(void) {
 			gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);
@@ -130,6 +131,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		uniform vec3  uLightDiffuse;
 		uniform float uLightOpacity;
 		uniform vec3  uLightDirection;
+		uniform vec3 uLightEnv;
 
 		void main(void) {
 			vec4 texture = texture2D(uDiffuse, vTextureCoord.st);
@@ -140,17 +142,9 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 				texture    *= texture2D( uTileColor, vTileColorCoord.st);
 			}
 
-			// The following was taken from BrowEdit
-			vec3 ambientFactor = (1.0 - uLightAmbient) * uLightAmbient;
-			vec3 ambient = uLightAmbient - ambientFactor + ambientFactor * uLightDiffuse;
-
-			vec3 diffuseFactor = (1.0 - uLightDiffuse) * uLightDiffuse;
-			vec3 diffuse = uLightDiffuse - diffuseFactor + diffuseFactor * uLightAmbient;
-
-			vec3 mult1 = min(vLightWeighting * diffuse + ambient, 1.0);
-			vec3 mult2 = min(max(uLightDiffuse, uLightAmbient) + (1.0 - max(uLightDiffuse, uLightAmbient)) * min(uLightDiffuse, uLightAmbient), 1.0);
-
-			texture.rgb *= min(mult1, mult2);
+			vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);
+			texture.rgb *= clamp(color, 0.0, 1.0);
+			texture.rgb *= clamp(uLightEnv, 0.0, 1.0);
 
 			if (uLightMapUse) {
 				vec4 lightmap = texture2D( uLightmap, vLightmapCoord.st);
@@ -163,7 +157,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+				gl_FragColor    = mix( gl_FragColor, vec4(uFogColor, gl_FragColor.w), fogFactor );
 			}
 
 		}
@@ -195,6 +189,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		gl.uniform1f(  uniform.uLightOpacity,   light.opacity );
 		gl.uniform3fv( uniform.uLightAmbient,   light.ambient );
 		gl.uniform3fv( uniform.uLightDiffuse,   light.diffuse );
+		gl.uniform3fv( uniform.uLightEnv,   light.env );
 
 		// Render lightmap ?
 		gl.uniform1i(  uniform.uLightMapUse, Preferences.lightmap );
