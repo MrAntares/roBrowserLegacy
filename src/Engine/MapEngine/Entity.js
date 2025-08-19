@@ -1818,7 +1818,10 @@ define(function (require) {
 				//SC_MERC_QUICKEN
 				//SC_SKA
 				//SC_INCATKRATE
-				entity.toggleOpt3(pkt.index, pkt.state)
+				entity.toggleOpt3(pkt.index, pkt.state);
+				if (entity === Session.Entity && [StatusConst.SOULLINK, StatusConst.SKE].includes(pkt.index)) {
+					getModule("Renderer/MapRenderer").setNight(pkt.state === 1);
+				}
 				break;
 
 			case StatusConst.RUN: //state: 1 ON  0 OFF

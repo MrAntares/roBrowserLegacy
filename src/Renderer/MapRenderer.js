@@ -86,6 +86,11 @@ define(function( require )
 	 */
 	MapRenderer.loading = false;
 
+	/**
+	 * @var {Float32Array} diffuse Modified diffuse color
+	 */
+	MapRenderer.diffuse = null;
+
 
 	/**
 	 * @var {Object} Fog structure
@@ -213,6 +218,14 @@ define(function( require )
 		this.water   = data.water;
 		this.sounds  = data.sound;
 		this.effects = data.effect;
+		this.diffuse = new Float32Array(this.light.diffuse);
+
+		// Set default env color
+		this.light.env = new Float32Array([
+			1 - (1 - this.light.diffuse[0]) * (1 - this.light.ambient[0]),
+			1 - (1 - this.light.diffuse[1]) * (1 - this.light.ambient[1]),
+			1 - (1 - this.light.diffuse[2]) * (1 - this.light.ambient[2]),
+		]);
 
 		// Calculate light direction
 		this.light.direction = new Float32Array(3);
@@ -445,6 +458,38 @@ define(function( require )
 	{
 	};
 
+	/**
+	 * Set night mode by changing the diffuse color
+	 * This effect is the same as SC_SKE
+	 * 
+	 * @param {boolean} night - true for night mode, false for day mode
+	 */
+	MapRenderer.setNight = function(night) {
+		const intervalId = setInterval(() => {
+			if (night) {
+				if (this.diffuse[0] > 0.5)
+					this.diffuse[0] -= 0.005;
+				if (this.diffuse[1] > 0.5)
+					this.diffuse[1] -= 0.005;
+			} else {
+				if (this.diffuse[0] < this.light.diffuse[0])
+					this.diffuse[0] += 0.005;
+				if (this.diffuse[1] < this.light.diffuse[1])
+					this.diffuse[1] += 0.005; 
+			}
+	
+			this.light.env = [
+				1 - (1 - this.diffuse[0]) * (1 - this.light.ambient[0]),
+				1 - (1 - this.diffuse[1]) * (1 - this.light.ambient[1]),
+				1 - (1 - this.diffuse[2]) * (1 - this.light.ambient[2])
+			]
+
+			if ((night && this.diffuse[0] <= 0.5 && this.diffuse[1] <= 0.5) ||
+				(!night && this.diffuse[0] >= this.light.diffuse[0] && this.diffuse[1] >= this.light.diffuse[1])) {
+					clearInterval(intervalId);
+			}
+		}, 8);
+	}
 
 	/**
 	 * Export
