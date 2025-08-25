@@ -11,7 +11,7 @@ All credits to the original owners/creators and the new ones.
 
 [![Start!](https://github.com/MrAntares/roBrowserLegacy/raw/master/src/UI/Components/Intro/images/play.png "Start Demo")](https://mrantares.github.io/roBrowserLegacy/applications/browser-examples/demo.html)
 
-_Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen._
+_Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen, or use the Register/Request button to navigate to the server's account registration page._
 
 More live examples:
 * [#robrowser-servers on Discord](https://discord.gg/MFtJj9n5Hr)
