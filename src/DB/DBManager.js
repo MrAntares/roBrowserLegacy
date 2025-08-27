@@ -45,7 +45,6 @@ define(function (require) {
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo = require('./TownInfo');
 	var XmlParse = require('Vendors/xmlparse');
-	var QuestInfo = require('./QuestTable');
 
 	//Pet
 	var PetEmotionTable = require('./Pets/PetEmotionTable')
@@ -197,6 +196,11 @@ define(function (require) {
 	var NaviNpcDistanceTable = {};
 
 	/**
+	 * @var QuestInfo Table
+	 */
+	var QuestInfo = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -247,6 +251,7 @@ define(function (require) {
 			loadSignBoardData('System/Sign_Data.lub', null, onLoad()); // this is not official, its a translation file
 			loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', null, onLoad());
 			loadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
+			loadLuaValue('System/OngoingQuests.lub', 'QuestInfoList', function (json) { QuestInfo = json; }, onLoad());
 		} else {
 			loadTable('data/num2itemdisplaynametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, " "); }, onLoad());
 			loadTable('data/num2itemresnametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName = val; }, onLoad());
