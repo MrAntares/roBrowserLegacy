@@ -194,7 +194,7 @@ define(function (require) {
 	 * @var NaviNpcDistance Table
 	 */
 	var NaviNpcDistanceTable = {};
-
+	
 	/**
 	 * @var QuestInfo Table
 	 */
@@ -231,28 +231,60 @@ define(function (require) {
 
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
+			// Item
 			loadItemInfo('System/itemInfo.lub', null, onLoad()); // 2012-04-10
 			loadLuaTable([DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'], 'AccNameTable', function (json) { HatTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function (json) { RobeTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function (json) { RandomOption = json; }, onLoad());
-			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
-			loadLuaValue(DB.LUA_PATH + 'navigation/navi_map_krpri.lub', 'Navi_Map', function (json) { NaviMapTable = json; }, onLoad());
-			loadLuaValue(DB.LUA_PATH + 'navigation/navi_mob_krpri.lub', 'Navi_Mob', function (json) { NaviMobTable = json; }, onLoad());
-			loadLuaValue(DB.LUA_PATH + 'navigation/navi_npc_krpri.lub', 'Navi_Npc', function (json) { NaviNpcTable = json; }, onLoad());
-			loadLuaValue(DB.LUA_PATH + 'navigation/navi_link_krpri.lub', 'Navi_Link', function (json) { NaviLinkTable = json; }, onLoad());
-			loadLuaValue(DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub', 'Navi_Distance', function (json) { NaviLinkDistanceTable = json; }, onLoad());
-			loadLuaValue(DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub', 'Navi_NpcDistance', function (json) { NaviNpcDistanceTable = json; }, onLoad());
 			loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', null, onLoad());
-			loadLaphineSysFile(DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', null, onLoad()); // 2017-06-14
-			loadLaphineUpgFile(DB.LUA_PATH + 'datainfo/lapineupgradebox.lub', null, onLoad()); // 2017-06-14
-			loadItemReformFile(DB.LUA_PATH + 'ItemReform/ItemReformSystem.lub', null, onLoad()); // 2021-10-18
-			loadMapTbl('System/mapInfo.lub', function (json) { for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } updateMapTable(); }, onLoad()); // 2019-06-05
+			
+			// Skill
+			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
+	
+			// Legacy Navigation
+			if(PACKETVER.value >= 20111010){
+				loadLuaValue(DB.LUA_PATH + 'navigation/navi_map_krpri.lub', 'Navi_Map', function (json) { NaviMapTable = json; }, onLoad());
+				loadLuaValue(DB.LUA_PATH + 'navigation/navi_mob_krpri.lub', 'Navi_Mob', function (json) { NaviMobTable = json; }, onLoad());
+				loadLuaValue(DB.LUA_PATH + 'navigation/navi_npc_krpri.lub', 'Navi_Npc', function (json) { NaviNpcTable = json; }, onLoad());
+				loadLuaValue(DB.LUA_PATH + 'navigation/navi_link_krpri.lub', 'Navi_Link', function (json) { NaviLinkTable = json; }, onLoad());
+				loadLuaValue(DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub', 'Navi_Distance', function (json) { NaviLinkDistanceTable = json; }, onLoad());
+				loadLuaValue(DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub', 'Navi_NpcDistance', function (json) { NaviNpcDistanceTable = json; }, onLoad());
+			}
+			
+			// LahineSys
+			if(PACKETVER.value >= 20160601){
+				loadLaphineSysFile(DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', null, onLoad());
+			}
+			
+			// LaphineUpg
+			if(PACKETVER.value >= 20170726){
+				loadLaphineUpgFile(DB.LUA_PATH + 'datainfo/lapineupgradebox.lub', null, onLoad());
+			}
+			
+			// ItemReform
+			if(PACKETVER.value >= 20200916){
+				loadItemReformFile(DB.LUA_PATH + 'ItemReform/ItemReformSystem.lub', null, onLoad());
+			}
+			
+			// MapName
+			if( Configs.get('enableMapName')  /*PACKETVER.value >= 20190605*/){ // We allow this feature to be enabled on any version due to popular demand
+				loadMapTbl('System/mapInfo.lub', function (json) { for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } updateMapTable(); }, onLoad());
+			}
+			
+			// EntitySignBoard
 			loadSignBoardData('System/Sign_Data.lub', null, onLoad()); // this is not official, its a translation file
 			loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', null, onLoad());
-			loadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
+			
+			// CheckAttendance
+			if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+				loadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
+			}
+			
+			// Quest
 			loadLuaValue('System/OngoingQuests.lub', 'QuestInfoList', function (json) { QuestInfo = json; }, onLoad());
 		} else {
+			// Item
 			loadTable('data/num2itemdisplaynametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, " "); }, onLoad());
 			loadTable('data/num2itemresnametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName = val; }, onLoad());
 			loadTable('data/num2itemdesctable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName = val.split("\n"); }, onLoad());
@@ -260,7 +292,12 @@ define(function (require) {
 			loadTable('data/idnum2itemresnametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName = val; }, onLoad());
 			loadTable('data/idnum2itemdesctable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName = val.split("\n"); }, onLoad());
 			loadTable('data/itemslotcounttable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).slotCount = val; }, onLoad());
+			
+			// Skill
 			loadTable('data/skilldesctable.txt', '#', 2, function (index, key, val) { SkillDescription[SKID[key]] = val.replace("\r\n", "\n"); }, onLoad());
+			
+			// Quest
+			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad());
 		}
 
 		loadTable('data/metalprocessitemlist.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).processitemlist = val.split("\n"); }, onLoad());
@@ -269,7 +306,8 @@ define(function (require) {
 		loadTable('data/cardpostfixnametable.txt', '#', 1, function (index, key) { (ItemTable[key] || (ItemTable[key] = {})).isPostfix = true; }, onLoad());
 		loadTable('data/fogparametertable.txt', '#', 5, parseFogEntry, onLoad());
 		loadTable('data/indoorrswtable.txt', '#', 1, parseIndoorEntry, onLoad());
-
+		
+		// Frost/Scream
 		loadTable('data/ba_frostjoke.txt', '\t', 1, function (index, val) { JokeTable[index] = val; }, onLoad());
 		loadTable('data/dc_scream.txt', '\t', 1, function (index, val) { ScreamTable[index] = val; }, onLoad());
 
@@ -1515,6 +1553,26 @@ define(function (require) {
 		var key = key.replace('.gat', '.rsw');
 		var map = MapTable[key] || (MapTable[key] = {});
 		map.indoor = true;
+	}
+	
+	/**
+	 * Quest entry parser
+	 *
+	 * @param {number} index
+	 * @param {string} title
+	 * @param {string} group
+	 * @param {string} image
+	 * @param {string} description
+	 * @param {string} summary
+	 */
+	function parseQuestEntry(index, key, title, group, image, description, summary) {
+		var quest = (QuestInfo[key] || (QuestInfo[key] = {}));
+
+		quest.Title = title;
+		quest.Group = group;
+		quest.Image = image;
+		quest.Description = description;
+		quest.Summary = summary;
 	}
 
 	/**
