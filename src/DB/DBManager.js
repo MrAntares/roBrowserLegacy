@@ -446,29 +446,34 @@ define(function (require) {
 				// create required functions in context
 
 				// add quest info
-				ctx.AddQuestInfo = (QuestID, Title, Summary, IconName, NpcSpr, NpcNavi, NpcPosX, NpcPosY, RewardItemList, RewardEXP, RewardJEXP) => {
-					
+				ctx.AddQuestInfo = (QuestID, Title, Summary, IconName, NpcSpr, NpcNavi, NpcPosX, NpcPosY, RewardEXP, RewardJEXP) => {
+
 					QuestInfo[QuestID] = { 
 						"Title": userStringDecoder.decode(Title),
 						"Summary": userStringDecoder.decode(Summary),
 						"IconName": userStringDecoder.decode(IconName),
 						"Description": [],
-						"NpcSpr": NpcSpr,
-						"NpcNavi": NpcNavi,
+						"NpcSpr": (NpcSpr instanceof Uint8Array) ? userStringDecoder.decode(NpcSpr) : null,
+						"NpcNavi": (NpcNavi instanceof Uint8Array) ? userStringDecoder.decode(NpcNavi) : null,
 						"NpcPosX": NpcPosX,
 						"NpcPosY": NpcPosY,
-						"RewardItemList": RewardItemList,
+						"RewardItemList": [],
 						"RewardEXP": RewardEXP,
 						"RewardJEXP": RewardJEXP
 					};
 
-					
 					return 1;
 				};
 
 				// add quest description
 				ctx.AddQuestDescription = (QuestID, QuestDescription) => {
 					QuestInfo[QuestID].Description.push(userStringDecoder.decode(QuestDescription));
+					return 1;
+				};
+
+				// add quest reward item
+				ctx.AddQuestRewardItem = (QuestID, ItemID, ItemNum) => {
+					QuestInfo[QuestID].RewardItemList.push({ItemID: ItemID, ItemNum: ItemNum});
 					return 1;
 				};
 
@@ -494,23 +499,31 @@ define(function (require) {
 							Title = DESC.Title or "Unknown Quest",
 							Summary = DESC.Summary or "Unknown Quest",
 							IconName = DESC.IconName or "",
-							NpcSpr = DESC.NpcSpr or null,
-							NpcNavi = DESC.NpcNavi or null,
+							NpcSpr = DESC.NpcSpr or "",
+							NpcNavi = DESC.NpcNavi or "",
 							NpcPosX = DESC.NpcPosX or 0,
 							NpcPosY = DESC.NpcPosY or 0,
-							RewardItemList = DESC.RewardItemList or null,
-							RewardEXP = DESC.RewardEXP or 0,
-							RewardJEXP = DESC.RewardJEXP or 0,
+							RewardItemList = DESC.RewardItemList or {},
+							RewardEXP = tonumber(DESC.RewardEXP) or 0,
+							RewardJEXP = tonumber(DESC.RewardJEXP) or 0,
 
 							Description = type(DESC.Description) == "table" and DESC.Description or {}
 						}
 
 						result, msg = AddQuestInfo(QuestID, questData.Title, questData.Summary, questData.IconName, 
 												questData.NpcSpr, questData.NpcNavi, questData.NpcPosX, 
-												questData.NpcPosY, questData.RewardItemList, questData.RewardEXP, 
+												questData.NpcPosY, questData.RewardEXP, 
 												questData.RewardJEXP)
 						if not result then
 							return false, msg
+						end
+
+						-- Iterate over RewardItemList table, use empty table if nil
+						for k, v in pairs(questData.RewardItemList) do
+							result, msg = AddQuestRewardItem(QuestID, v.ItemID, v.ItemNum)
+							if not result then
+								return false, msg
+							end
 						end
 
 						-- Iterate over Description table, use empty table if nil
@@ -3492,7 +3505,7 @@ define(function (require) {
 	 * @author alisonrag
 	 */
 	DB.getQuestInfo = function getQuestInfo(questID) {
-		return QuestInfo[questID] || { "Title": "Unknown Quest", "Description": "Uknown Quest", "Summary": "Uknown Quest", "IconName": "", "NpcSpr": null, "NpcNavi": null, "NpcPosX": null, "NpcPosY": null, "RewardItemList": null, "RewardEXP": 0, "RewardJEXP": 0 };
+		return QuestInfo[questID] || { "Title": "Unknown Quest", "Description": [], "Summary": "Uknown Quest", "IconName": "", "NpcSpr": null, "NpcNavi": null, "NpcPosX": null, "NpcPosY": null, "RewardItemList": [], "RewardEXP": 0, "RewardJEXP": 0 };
 	};
 
 	DB.getCheckAttendanceInfo = function getCheckAttendanceInfo() {
