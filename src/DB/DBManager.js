@@ -282,7 +282,7 @@ define(function (require) {
 			}
 			
 			// Quest
-			loadLuaValue('System/OngoingQuests.lub', 'QuestInfoList', function (json) { QuestInfo = json; }, onLoad());
+			loadQuestInfo('System/OngoingQuestInfoList.lub', null, onLoad());
 		} else {
 			// Item
 			loadTable('data/num2itemdisplaynametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, " "); }, onLoad());
@@ -419,6 +419,117 @@ define(function (require) {
 				} finally {
 					// release file from memmory
 					lua.unmountFile('CheckAttendance.lub');
+					// call onEnd
+					onEnd();
+				}
+			},
+			onEnd
+		);
+	}
+
+	function loadQuestInfo(filename, callback, onEnd) {
+		Client.loadFile(filename,
+			async function (file) {
+				console.log('Loading file "' + filename + '"...');
+
+				try {
+				// check if file is ArrayBuffer and convert to Uint8Array if necessary
+				let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+
+				// create decoders
+				let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+				let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+
+				// get context, a proxy. It will be used to interact with lua conveniently
+				const ctx = lua.ctx;
+
+				// create required functions in context
+
+				// add quest info
+				ctx.AddQuestInfo = (QuestID, QuestName, QuestImage, QuestSummary, NpcSpr, NpcNavi, NpcPosX, NpcPosY, RewardItemList, RewardEXP, RewardJEXP) => {
+					
+					QuestInfo[QuestID] = { 
+						"Title": userStringDecoder.decode(QuestName),
+						"Summary": userStringDecoder.decode(QuestSummary),
+						"IconName": userStringDecoder.decode(QuestImage),
+						"Description": [],
+						"NpcSpr": NpcSpr,
+						"NpcNavi": NpcNavi,
+						"NpcPosX": NpcPosX,
+						"NpcPosY": NpcPosY,
+						"RewardItemList": RewardItemList,
+						"RewardEXP": RewardEXP,
+						"RewardJEXP": RewardJEXP
+					};
+
+					
+					return 1;
+				};
+
+				// add quest description
+				ctx.AddQuestDescription = (QuestID, QuestDescription) => {
+					QuestInfo[QuestID].Description.push(userStringDecoder.decode(QuestDescription));
+					return 1;
+				};
+
+				// mount file
+				lua.mountFile('OngoingQuestInfoList.lub', buffer);
+				// execute file
+				await lua.doFile('OngoingQuestInfoList.lub');
+
+				// create and execute our own main function
+				lua.doStringSync(`
+					function main_quest()
+					-- Check if QuestInfoList is a table and not nil
+					if type(QuestInfoList) ~= "table" or QuestInfoList == nil then
+						return false, "Error: Quest table is nil or not a table"
+					end
+
+					for QuestID, DESC in pairs(QuestInfoList) do
+						-- Ensure DESC is a table, use empty table if nil
+						DESC = type(DESC) == "table" and DESC or {}
+
+						-- Provide default values for DESC fields if they are nil
+						local questData = {
+							Title = DESC.Title or "Unnamed Quest",
+							Summary = DESC.Summary or "No summary available",
+							IconName = DESC.IconName or "default_icon.png",
+							NpcSpr = DESC.NpcSpr or "default_sprite",
+							NpcNavi = DESC.NpcNavi or "default_navi",
+							NpcPosX = DESC.NpcPosX or 0,
+							NpcPosY = DESC.NpcPosY or 0,
+							RewardItemList = DESC.RewardItemList or {},
+							RewardEXP = DESC.RewardEXP or 0,
+							RewardJEXP = DESC.RewardJEXP or 0,
+							Description = type(DESC.Description) == "table" and DESC.Description or {}
+						}
+
+						result, msg = AddQuestInfo(QuestID, questData.Title, questData.Summary, questData.IconName, 
+												questData.NpcSpr, questData.NpcNavi, questData.NpcPosX, 
+												questData.NpcPosY, questData.RewardItemList, questData.RewardEXP, 
+												questData.RewardJEXP)
+						if not result then
+							return false, msg
+						end
+
+						-- Iterate over Description table, use empty table if nil
+						for k, v in pairs(questData.Description) do
+							result, msg = AddQuestDescription(QuestID, v or "No description available")
+							if not result then
+								return false, msg
+							end
+						end
+					end
+					return true, "good"
+				end
+
+				main_quest()
+					`);
+				} catch (error) {
+					console.error('[loadQuestInfo] Error: ', error);
+				} finally {
+					// release file from memmory
+					lua.unmountFile('OngoingQuestInfoList.lub');
 					// call onEnd
 					onEnd();
 				}
@@ -1555,26 +1666,6 @@ define(function (require) {
 		map.indoor = true;
 	}
 	
-	/**
-	 * Quest entry parser
-	 *
-	 * @param {number} index
-	 * @param {string} title
-	 * @param {string} group
-	 * @param {string} image
-	 * @param {string} description
-	 * @param {string} summary
-	 */
-	function parseQuestEntry(index, key, title, group, image, description, summary) {
-		var quest = (QuestInfo[key] || (QuestInfo[key] = {}));
-
-		quest.Title = title;
-		quest.Group = group;
-		quest.Image = image;
-		quest.Description = description;
-		quest.Summary = summary;
-	}
-
 	/**
 	 * Actor Type checks
 	 *
