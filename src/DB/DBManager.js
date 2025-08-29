@@ -446,12 +446,12 @@ define(function (require) {
 				// create required functions in context
 
 				// add quest info
-				ctx.AddQuestInfo = (QuestID, QuestName, QuestImage, QuestSummary, NpcSpr, NpcNavi, NpcPosX, NpcPosY, RewardItemList, RewardEXP, RewardJEXP) => {
+				ctx.AddQuestInfo = (QuestID, Title, Summary, IconName, NpcSpr, NpcNavi, NpcPosX, NpcPosY, RewardItemList, RewardEXP, RewardJEXP) => {
 					
 					QuestInfo[QuestID] = { 
-						"Title": userStringDecoder.decode(QuestName),
-						"Summary": userStringDecoder.decode(QuestSummary),
-						"IconName": userStringDecoder.decode(QuestImage),
+						"Title": userStringDecoder.decode(Title),
+						"Summary": userStringDecoder.decode(Summary),
+						"IconName": userStringDecoder.decode(IconName),
 						"Description": [],
 						"NpcSpr": NpcSpr,
 						"NpcNavi": NpcNavi,
@@ -491,16 +491,17 @@ define(function (require) {
 
 						-- Provide default values for DESC fields if they are nil
 						local questData = {
-							Title = DESC.Title or "Unnamed Quest",
-							Summary = DESC.Summary or "No summary available",
-							IconName = DESC.IconName or "default_icon.png",
-							NpcSpr = DESC.NpcSpr or "default_sprite",
-							NpcNavi = DESC.NpcNavi or "default_navi",
+							Title = DESC.Title or "Unknown Quest",
+							Summary = DESC.Summary or "Unknown Quest",
+							IconName = DESC.IconName or "",
+							NpcSpr = DESC.NpcSpr or null,
+							NpcNavi = DESC.NpcNavi or null,
 							NpcPosX = DESC.NpcPosX or 0,
 							NpcPosY = DESC.NpcPosY or 0,
-							RewardItemList = DESC.RewardItemList or {},
+							RewardItemList = DESC.RewardItemList or null,
 							RewardEXP = DESC.RewardEXP or 0,
 							RewardJEXP = DESC.RewardJEXP or 0,
+
 							Description = type(DESC.Description) == "table" and DESC.Description or {}
 						}
 
