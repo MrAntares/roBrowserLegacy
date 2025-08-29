@@ -241,8 +241,8 @@ define(function (require) {
 			
 			// Skill
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
-			// TODO: DB.LUA_PATH + skillinfoz/skillinfolist.lub
-			// TODO: DB.LUA_PATH + skillinfoz/skilltreeview.lub
+			// TODO: DB.LUA_PATH + skillinfoz/skillinfolist.lub	- Replaces part of DB/Skills/SkillInfo.js (if we can find a txt version, otherwise just overrides)
+			// TODO: DB.LUA_PATH + skillinfoz/skilltreeview.lub	- Replaces DB/Skills/SkillTreeView.js
 			
 			// Status
 			// TODO: DB.LUA_PATH + stateicon/stateiconinfo.lub
@@ -311,17 +311,23 @@ define(function (require) {
 			
 			// Skill
 			loadTable('data/skilldesctable.txt', '#', 2, function (index, key, val) { SkillDescription[SKID[key]] = val.replace("\r\n", "\n"); }, onLoad());
-			// TODO: data/skillnametable.txt?
-			// TODO: data/skilltreeview.txt
+			// TODO: data/skillnametable.txt	- ?
+			// TODO: data/skilltreeview.txt	- Replaces DB/Skills/SkillTreeView.js
+			// TODO: data/leveluseskillspamount.txt	- Replaces DB/Skills/SkillInfo.js -> SkillInfo.SpAmount
 			
 			// Quest
 			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad());
 		}
 
+		// Forging/Creation
 		loadTable('data/metalprocessitemlist.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).processitemlist = val.split("\n"); }, onLoad());
+
+		// Card
 		loadTable('data/num2cardillustnametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).illustResourcesName = val; }, onLoad());
 		loadTable('data/cardprefixnametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).prefixName = val; }, onLoad());
 		loadTable('data/cardpostfixnametable.txt', '#', 1, function (index, key) { (ItemTable[key] || (ItemTable[key] = {})).isPostfix = true; }, onLoad());
+
+		// EtcMapData
 		loadTable('data/fogparametertable.txt', '#', 5, parseFogEntry, onLoad());
 		loadTable('data/indoorrswtable.txt', '#', 1, parseIndoorEntry, onLoad());
 		
