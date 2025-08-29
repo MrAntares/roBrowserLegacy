@@ -1679,6 +1679,26 @@ define(function (require) {
 		var map = MapTable[key] || (MapTable[key] = {});
 		map.indoor = true;
 	}
+
+	/**
+	 * Quest entry parser
+	 *
+	 * @param {number} index
+	 * @param {string} title
+	 * @param {string} group
+	 * @param {string} image
+	 * @param {string} description
+	 * @param {string} summary
+	 */
+	function parseQuestEntry(index, key, title, group, image, description, summary) {
+		var quest = (QuestInfo[key] || (QuestInfo[key] = {}));
+
+		quest.Title = title;
+		quest.Group = group;
+		quest.Image = image;
+		quest.Description = description;
+		quest.Summary = summary;
+	}
 	
 	/**
 	 * Actor Type checks
