@@ -241,6 +241,11 @@ define(function (require) {
 			
 			// Skill
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
+			// TODO: DB.LUA_PATH + skillinfoz/skillinfolist.lub
+			// TODO: DB.LUA_PATH + skillinfoz/skilltreeview.lub
+			
+			// Status
+			// TODO: DB.LUA_PATH + stateicon/stateiconinfo.lub
 	
 			// Legacy Navigation
 			if(PACKETVER.value >= 20111010){
@@ -252,7 +257,7 @@ define(function (require) {
 				loadLuaValue(DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub', 'Navi_NpcDistance', function (json) { NaviNpcDistanceTable = json; }, onLoad());
 			}
 			
-			// LahineSys
+			// LaphineSys
 			if(PACKETVER.value >= 20160601){
 				loadLaphineSysFile(DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', null, onLoad());
 			}
@@ -283,6 +288,17 @@ define(function (require) {
 			
 			// Quest
 			loadQuestInfo('System/OngoingQuestInfoList.lub', null, onLoad());
+			// TODO: System/RecommendedQuests.lub
+			
+			// WoldMap
+			// TODO: DB.LUA_PATH + woldviewdata/worldviewdata_list.lub	- Replaces DB/Map/WorldMap.js
+			// TODO: DB.LUA_PATH + woldviewdata/worldviewdata_table.lub	- Replaces DB/Map/WorldMap.js
+			
+			// Achievements
+			// TODO: System/achievements.lub
+			
+			// Town Info
+			// TODO: System/Towninfo.lub	- Replaces DB/TownInfo.js
 		} else {
 			// Item
 			loadTable('data/num2itemdisplaynametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, " "); }, onLoad());
@@ -295,6 +311,8 @@ define(function (require) {
 			
 			// Skill
 			loadTable('data/skilldesctable.txt', '#', 2, function (index, key, val) { SkillDescription[SKID[key]] = val.replace("\r\n", "\n"); }, onLoad());
+			// TODO: data/skillnametable.txt?
+			// TODO: data/skilltreeview.txt
 			
 			// Quest
 			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad());
@@ -310,6 +328,10 @@ define(function (require) {
 		// Frost/Scream
 		loadTable('data/ba_frostjoke.txt', '\t', 1, function (index, val) { JokeTable[index] = val; }, onLoad());
 		loadTable('data/dc_scream.txt', '\t', 1, function (index, val) { ScreamTable[index] = val; }, onLoad());
+		
+		// Tips
+		// TODO: /tipoftheday.txt
+		// TODO: /GuildTip.txt
 
 		loadXMLFile('data/pettalktable.xml', function (json) { PetTalkTable = json["monster_talk_table"]; }, onLoad());
 
