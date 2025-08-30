@@ -373,8 +373,11 @@ define(function(require)
 		switch (entity.objecttype) {
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
-			case Entity.TYPE_TRAP:
 				target = SkillTargetSelection.TYPE.ENEMY | SkillTargetSelection.TYPE.PET;
+				break;
+				
+			case Entity.TYPE_TRAP:
+				target = SkillTargetSelection.TYPE.TRAP;
 				break;
 
 			case Entity.TYPE_HOM:
