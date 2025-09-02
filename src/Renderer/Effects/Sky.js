@@ -77,6 +77,8 @@ define(function( require )
 		color    = WeatherTable.sky[mapname].skyColor;
 		if(_color){
 			_display = true;
+		} else {
+			_display = false;
 		}
 
 		gl.clearColor( color[0], color[1], color[2], color[3]);
