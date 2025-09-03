@@ -75,12 +75,16 @@ define(function( require )
 		// Save color
 		_color   = WeatherTable.sky[mapname].cloudColor;
 		color    = WeatherTable.sky[mapname].skyColor;
-		_display = true;
+		if(_color){
+			_display = true;
+		} else {
+			_display = false;
+		}
 
 		gl.clearColor( color[0], color[1], color[2], color[3]);
 
 		// Add images to GPU
-		if (!_textures.length) {
+		if (!_textures.length && _display) {
 			_textures.length = 8;
 
 			for (i = 0; i < 7; i++) {
