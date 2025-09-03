@@ -11,7 +11,6 @@ define(function(require)
 {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -250,7 +249,7 @@ define(function(require)
 	CashShop.readPoints = function readPoints(cashPoint, kafraPoints, tab){
 		this.cashPoint = cashPoint;
 		this.kafraPoints = kafraPoints;
-		this.activeCashMenu = tab;
+		this.activeCashMenu = tab || 0; // 0x0845 no tab
 		this.ui.find('#cashpoint > span').html(this.cashPoint);
 		this.ui.find('.cashpoint_footer').html(this.cashPoint);
 		var pkt = new PACKET.CZ.PC_CASH_POINT_ITEMLIST();
@@ -298,7 +297,6 @@ define(function(require)
 	}
 
 	CashShop.readCashShopItems = function readCashShopItems(items){
-
 		if(CashShop.loadedCategory >= CashShop.totalActiveCategory){
 			CashShop.cashShopListItem.push({
 				count: items.count,
