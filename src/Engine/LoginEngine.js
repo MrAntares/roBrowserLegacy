@@ -35,9 +35,9 @@ define(function( require )
 	var Background  = require('UI/Background');
 	var MD5          = require('Vendors/spark-md5.min');
 	var getModule    = require;
-	
+
 	// Version Dependent UIs
-	var WinLogin = require('UI/Components/WinLogin/WinLogin');;
+	var WinLogin = require('UI/Components/WinLogin/WinLogin');
 
 	/**
 	 * Creating WinLoading
@@ -80,7 +80,7 @@ define(function( require )
 		Configs.setServer(server);
 		UIManager.removeComponents();
 		Session.LangType = 'langtype' in server ? parseInt(server.langtype, 10) : 1; // default to SERVICETYPE_AMERICA
-		
+
 		// Renewal switch
 		Session.isRenewal = Configs.get('renewal', false);
 		console.log( "%c[LOGIN] Game Mode: ", "color:#007000", (Session.isRenewal ? 'RENEWAL' : 'PRE-RENEWAL') );
@@ -106,7 +106,7 @@ define(function( require )
 			case 0x01: // SERVICETYPE_AMERICA
 				charset = 'windows-1252';
 				break;
-				
+
 			case 0x02: // SERVICETYPE_JAPAN
 				charset = 'shift-jis';
 				break;
@@ -122,7 +122,7 @@ define(function( require )
 			case 0x05: // SERVICETYPE_THAI
 				charset = 'windows-874';
 				break;
-				
+
 			case 0x06: // SERVICETYPE_INDONESIA
 			case 0x07: // SERVICETYPE_PHILIPPINE
 			case 0x08: // SERVICETYPE_MALAYSIA
@@ -146,7 +146,7 @@ define(function( require )
 			//case 0x11: // SERVICETYPE_CHILE
 			//	charset = 'windows-1145';
 			//	break;
-			
+
 			case 0x12: // SERVICETYPE_FRANCE
 				charset = 'windows-1252';
 				break;
@@ -154,7 +154,7 @@ define(function( require )
 			case 0x13: // SERVICETYPE_UAE
 				charset = 'windows-1256';
 				break;
-		
+
 			/////////////////////////////////////////////////////
 			// CUSTOM TYPES                                    //
 			// Only use them if you know what you are doing ;) //
@@ -162,23 +162,23 @@ define(function( require )
 			case 0xa0: // 160 - Central European
 				charset = 'windows-1250';
 				break;
-				
+
 			case 0xa1: // 161 - Greek
 				charset = 'windows-1253';
 				break;
-				
+
 			case 0xa2: // 162 - Tukish
 				charset = 'windows-1254';
 				break;
-				
+
 			case 0xa3: // 163 - Hebrew
 				charset = 'windows-1255';
 				break;
-				
+
 			case 0xa4: // 164 - Estonian, Latvian, Lithuaninan
 				charset = 'windows-1257';
 				break;
-			
+
 			/////////////////////////////////////////////////////
 			// Custom unicode types                            //
 			// Only use them if you know what you are doing ;) //
@@ -192,12 +192,12 @@ define(function( require )
 			case 0xf2: // 242 - UTF-16BE
 				charset = 'utf-16be';
 				break;
-			
+
 			default: // Latin1
 				charset = 'windows-1252';
 				break;
 		}
-		
+
 		console.log( "%c[LOGIN] Language Type: ", "color:#007000", Session.LangType);
 		console.log( "%c[LOGIN] Encoding: ", "color:#007000", charset);
 		TextEncoding.setCharset(charset);
@@ -254,13 +254,13 @@ define(function( require )
 
 		// GMs account list from server
 		Session.AdminList = server.adminList || [];
-		
+
 		// Init per server plugins
 		PluginManager.init();
 
 		// Hooking win_login
 		WinLogin.selectUIVersion();
-		
+
 		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
 		WinLogin.getUI().onExitRequest       = onExitRequest;
 
@@ -282,7 +282,7 @@ define(function( require )
 		Network.hookPacket( PACKET.AC.REFUSE_LOGIN,    onConnectionRefused );
 		Network.hookPacket( PACKET.AC.REFUSE_LOGIN_R2, onConnectionRefused );
 		Network.hookPacket( PACKET.SC.NOTIFY_BAN,      onServerClosed );
-		
+
 		// Execute
 		q.run();
 	}
@@ -329,14 +329,14 @@ define(function( require )
 
 			var pkt;
 			var hash = false;
-			
+
 			// Get client hash
 			if ( Configs.get('calculateHash') && !Configs.get('development') ){
 				// Calucalte hash from files (slower, more "secure")
 				var files = Configs.get('hashFiles');
 				var fileStatus = 0;
 				var fileContents = [];
-				
+
 				for (var i=0; i<files.length; i++ ){
 					var jsonFile = new XMLHttpRequest();
 					jsonFile.open("GET",files[i],true);
@@ -347,7 +347,7 @@ define(function( require )
 							fileContents[i] = jsonFile.responseText;
 							fileStatus++;
 						}
-						
+
 						if(fileStatus == files.length){
 							var contentString = fileContents.join("\r\n"); // Join strings with carrige return & newline
 							hash = MD5.hash(contentString); // Just hash the whole array
@@ -356,13 +356,13 @@ define(function( require )
 					}
 				}
 
-				
+
 			} else {
 				// Just use the predefined value (faster, less "secure")
 				hash = Configs.get('clientHash');
 				sendLogin();
 			}
-			
+
 
 			function sendLogin(){
 				if (hash) {

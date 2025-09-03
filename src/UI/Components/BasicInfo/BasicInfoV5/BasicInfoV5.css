@@ -59,7 +59,7 @@
   }
 #BasicInfoV5 .toggle_btns {  border:none; background-repeat:no-repeat; }
 
-#BasicInfoV5 .buttons div .name { position: relative; display:none; z-index:1; top:-20px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem;; }
+#BasicInfoV5 .buttons div .name { position: relative; display:none; z-index:1; top:-20px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem; }
 #BasicInfoV5 .buttons div:hover .name { display:table; }
 #BasicInfoV5 .buttons div .name { display:none; }
 

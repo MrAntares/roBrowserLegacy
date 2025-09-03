@@ -539,7 +539,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 		}
 
 		Section.prototype.decompress = function(fp) {
-			if (this.IsReady) return true;;
+			if (this.IsReady) return true;
 
 			var data = new BinaryReader(fp.buffer,this.DataOffset,this.DataSize);
 			// TODO Create an output buffer the size of ExpandedDataSize for copying uncompressed data into.
