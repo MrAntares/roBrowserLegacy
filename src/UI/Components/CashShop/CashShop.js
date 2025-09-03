@@ -11,7 +11,6 @@ define(function(require)
 {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -19,7 +18,7 @@ define(function(require)
 	var Client             = require('Core/Client');
 	var jQuery             = require('Utils/jquery');
 	var Network            = require('Network/NetworkManager');
-	var PACKETVER          = require('Network/PacketVerManager');
+	//var PACKETVER          = require('Network/PacketVerManager');
 	var PACKET             = require('Network/PacketStructure');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ChatBox      	   = require('UI/Components/ChatBox/ChatBox');
@@ -29,6 +28,7 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./CashShop.html');
 	var cssText            = require('text!./CashShop.css');
+	var getModule          = require;
 
 	// Version Dependent UIs
 	var MiniMap = require('UI/Components/MiniMap/MiniMap');
@@ -44,7 +44,7 @@ define(function(require)
 	 * Store cash shop items
 	 */
 	CashShop.list = [];
-	
+
 	var _preferences = Preferences.get('CashShop', {
 		x:        80,
 		y:        100,
@@ -131,7 +131,7 @@ define(function(require)
 	CashShop.checkCartItemLen = 0;
 	CashShop.pageEnd = 9;
 	CashShop.isSearch = false;
-	
+
 	CashShop.init = function init()
 	{
 		//this.ui.hide();
@@ -156,7 +156,7 @@ define(function(require)
 
 		//this.ui.find('.ncnt').text(0);
 		//this.ui.find('.mcnt').text(100);
-		
+
 
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.on('click', '.purchase-btn-container button', onClickActionAddCartItem);
@@ -169,9 +169,9 @@ define(function(require)
 		if(this.ui.find('#cart-list items').length > 0){
 			CashShop.onResetCartListCashShop();
 		}
-		
+
 	};
-	
+
 	CashShop.onAppend = function OnAppend()
 	{
 		// Apply preferences
@@ -219,17 +219,17 @@ define(function(require)
 
 		return null;
 	};
-	
+
 	CashShop.show = function show()
 	{
 		this.ui.show();
 	};
-	
+
 	CashShop.hide = function hide()
 	{
 		this.ui.hide();
 	};
-	
+
 	CashShop.resize = function Resize( width, height )
 	{
 		width  = Math.min( Math.max(width,  6), 9);
@@ -249,7 +249,7 @@ define(function(require)
 	CashShop.readPoints = function readPoints(cashPoint, kafraPoints, tab){
 		this.cashPoint = cashPoint;
 		this.kafraPoints = kafraPoints;
-		this.activeCashMenu = tab;
+		this.activeCashMenu = tab || 0; // 0x0845 no tab
 		this.ui.find('#cashpoint > span').html(this.cashPoint);
 		this.ui.find('.cashpoint_footer').html(this.cashPoint);
 		var pkt = new PACKET.CZ.PC_CASH_POINT_ITEMLIST();
@@ -297,7 +297,6 @@ define(function(require)
 	}
 
 	CashShop.readCashShopItems = function readCashShopItems(items){
-		
 		if(CashShop.loadedCategory >= CashShop.totalActiveCategory){
 			CashShop.cashShopListItem.push({
 				count: items.count,
@@ -442,7 +441,7 @@ define(function(require)
 					</div>
 				</div>`
 			);
-			
+
 			Client.loadFile( DB.INTERFACE_PATH + 'collection/' + ( it.identifiedResourceName ) + '.bmp', function(data){
 				content.find('.item[data-index="'+ item.itemId +'"] .item-left-img').css('backgroundImage', 'url('+ data +')');
 			});
@@ -502,9 +501,10 @@ define(function(require)
 
 	function onClickPagination(e){
 		let index = parseInt(e.currentTarget.dataset.index);
-		let items = CashShop.isSearch 
-			? CashShop.csListItemSearchResult 
-			: CashShop.cashShopListItem[CashShop.activeCashMenu].items;
+		let items = CashShop.isSearch
+			? CashShop.csListItemSearchResult
+			: CashShop.cashShopListItem[CashShop.activeCashMenu]?.items || [];
+		if (items.length === 0) return;
 		var content = CashShop.ui.find('.item-paginations');
 
 		CashShop.isFirstPage = false;
@@ -579,7 +579,7 @@ define(function(require)
 				for(var iit = 0; iit < items.length; ++iit){
 					items[iit].tab = CashShop.cashShopListItem[i].tabNum;
 					var it = DB.getItemInfo( items[iit].itemId );
-					
+
 					if(it.identifiedDisplayName){
 						var matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
 						if(matches) newList.push(items[iit]);
@@ -634,7 +634,7 @@ define(function(require)
 		else {
 			CashShop.show();
 			CashShop.ui.find("#main-menu").empty();
-			
+
 			if(!CashShop.isNotRefresh){
 				var pkt        = new PACKET.CZ.SE_CASHSHOP_OPEN2();
 					pkt.tab        = 0;
@@ -670,14 +670,14 @@ define(function(require)
 			ChatBox.addText( 'Minimum Quantity 1!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
-		
+
 		if(counter === 'up'){
 			itemCart.amount += 1;
 		} else {
 			itemCart.amount -= 1;
 		}
 
-		jQuery(e.currentTarget).closest('.item').find('.item-counter .item-cnt').html(itemCart.amount);;
+		jQuery(e.currentTarget).closest('.item').find('.item-counter .item-cnt').html(itemCart.amount);
 		CashShop.cartItemTotalPrice = CashShop.cartItem.map(item => item.price * item.amount).reduce((prev, next) => prev + next);
 		CashShop.ui.find('.container-cart-footer .item-desc-price span').html(CashShop.cartItemTotalPrice);
 	}
@@ -698,7 +698,7 @@ define(function(require)
 	 * Add cash item in cart list
 	 */
 	function onClickActionAddCartItem(e){
-		
+
 		var html = '';
 		let itemId = parseInt(e.currentTarget.dataset.itemid);
 		var it = DB.getItemInfo( itemId );
@@ -1005,6 +1005,6 @@ define(function(require)
 			//requestFilter();
 		});
 	}
-	
+
 	return UIManager.addComponent(CashShop);
 });

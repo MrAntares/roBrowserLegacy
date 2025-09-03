@@ -4304,14 +4304,15 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.SE_CASHSHOP_OPEN = function PACKET_ZC_SE_CASHSHOP_OPEN(fp, end) {
         this.cashPoints = fp.readULong();
         this.kafraPoints = fp.readULong();
+		this.tab = fp.readULong();
     };
-    PACKET.ZC.SE_CASHSHOP_OPEN.size = 10;
+    PACKET.ZC.SE_CASHSHOP_OPEN.size = 14;
 
 	//0x0a2b
 	PACKET.ZC.SE_CASHSHOP_OPEN2 = function PACKET_ZC_SE_CASHSHOP_OPEN2(fp, end) {
-        this.cashPoints = fp.readUShort();
-        this.kafraPoints = fp.readUShort();
-		this.tab = fp.readUShort();
+        this.cashPoints = fp.readULong();
+        this.kafraPoints = fp.readULong();
+		this.tab = fp.readULong();
     };
     PACKET.ZC.SE_CASHSHOP_OPEN2.size = 14;
 
@@ -4328,10 +4329,18 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
         this.tabNum = fp.readUShort();
         this.items = (function() {
             var out = [];
-			var cnt = (end - fp.tell()) / 6;
+			var divider = 6; // original
+			if (PACKETVER.value >= 20181121 || PACKETVER.value >= 20180704 || PACKETVER.value >= 20181114) {
+				divider = 8;
+			}
+			var cnt = (end - fp.tell()) / divider;
             for (var i = 0; i < cnt; ++i) {
                 out[i] = {};
-                out[i].itemId = fp.readUShort();
+				if (PACKETVER.value >= 20181121 || PACKETVER.value >= 20180704 || PACKETVER.value >= 20181114) {
+                	out[i].itemId = fp.readULong();
+				} else {
+					out[i].itemId = fp.readUShort();
+				}
                 out[i].price = fp.readULong();
             }
             return out;
@@ -14664,18 +14673,18 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		var item_size = (PACKETVER.value >= 20181121) ? 12 : 10;
 		var pkt_len = 4 + (this.itemList.length * item_size);
 		var pkt_buf = new BinaryWriter(pkt_len);
-	
+
 		pkt_buf.writeShort(0x0b57);
 		pkt_buf.writeShort(pkt_len);
-	
+
 		for (var i = 0; i < this.itemList.length; ++i) {
-			(PACKETVER.value >= 20181121) 
-				? pkt_buf.writeULong(this.itemList[i].itemId) 
+			(PACKETVER.value >= 20181121)
+				? pkt_buf.writeULong(this.itemList[i].itemId)
 				: pkt_buf.writeUShort(this.itemList[i].itemId);
 			pkt_buf.writeULong(this.itemList[i].shopIndex);
 			pkt_buf.writeULong(this.itemList[i].amount);
 		}
-	
+
 		return pkt_buf;
 	};
 
@@ -14837,13 +14846,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			let item_size = (PACKETVER.value >= 20181121) ? 32 : 30;	// size of the `sub` structure
 			let sub2_size = (PACKETVER.value >= 20181121) ? 12 : 10;	// size of the `sub2` structure
 			let items = [];
-	
+
 			for (let i = 0; i < self.items_count; ++i) {
 				if (fp.tell() + item_size > end) {
 					console.error("Attempted to read beyond packet bounds");
 					break;
 				}
-	
+
 				let item = {};
 				item.ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
 				item.type = fp.readUShort();
@@ -14854,14 +14863,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				item.viewSprite = fp.readUShort();
 				item.location = fp.readULong();
 				item.currency_count = fp.readULong();
-	
+
 				item.currencyList = [];
 				for (let j = 0; j < item.currency_count; ++j) {
 					if (fp.tell() + sub2_size > end) {
 						console.error("Attempted to read beyond packet bounds in currencies");
 						break;
 					}
-	
+
 					let currency = {};
 					currency.ITID = (PACKETVER.value >= 20181121) ? fp.readULong() : fp.readUShort();
 					currency.refine_level = fp.readUShort();
@@ -14869,10 +14878,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 					currency.type = fp.readUShort();
 					item.currencyList.push(currency);
 				}
-	
+
 				items.push(item);
 			}
-	
+
 			return items;
 		})();
 	}

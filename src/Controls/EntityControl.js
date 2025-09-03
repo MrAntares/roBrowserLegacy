@@ -288,7 +288,7 @@ define(function( require )
 
 				// Check equipment
 				ContextMenu.addElement( DB.getMessage(1360).replace('%s', this.display.name), function(){
-					getModule(Equipment.onCheckPlayerEquipment(entity.GID)); // simple version
+					Equipment.onCheckPlayerEquipment(entity.GID); // simple version (MapEngine/Item.js)
 				});
 
 				// Trade option
@@ -581,7 +581,7 @@ define(function( require )
 					return false;
 				}
 				return true;
-			} 
+			}
 			// Show attack cursor on non-guild members (GvG)
 			else if( Session.mapState.isGVG ) {
 				if(Session.Entity.GUID > 0 && this.GUID !== Session.Entity.GUID || (this.GUID == 0 && this !== Session.Entity)) { // 0 = no guild, can be attacked by anyone
