@@ -18,7 +18,7 @@ define(function(require)
 	var Client             = require('Core/Client');
 	var jQuery             = require('Utils/jquery');
 	var Network            = require('Network/NetworkManager');
-	//var PACKETVER          = require('Network/PacketVerManager');
+	var PACKETVER          = require('Network/PacketVerManager');
 	var PACKET             = require('Network/PacketStructure');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ChatBox      	   = require('UI/Components/ChatBox/ChatBox');
@@ -636,9 +636,14 @@ define(function(require)
 			CashShop.ui.find("#main-menu").empty();
 
 			if(!CashShop.isNotRefresh){
-				var pkt        = new PACKET.CZ.SE_CASHSHOP_OPEN2();
-					pkt.tab        = 0;
+				if (PACKETVER.value >= 20191224) {
+					var pkt = new PACKET.CZ.SE_CASHSHOP_OPEN2();
+					pkt.tab = 0;
 					Network.sendPacket(pkt);
+				} else {
+					var pkt = new PACKET.CZ.SE_CASHSHOP_OPEN1();
+					Network.sendPacket(pkt);
+				}
 			} else {
 				CashShop.paginationOffsetLimit();
 				CashShop.renderCashShopItems(

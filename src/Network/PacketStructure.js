@@ -4392,13 +4392,14 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	//0x0844
 	PACKET.CZ.SE_CASHSHOP_OPEN1 = function PACKET_CZ_SE_CASHSHOP_OPEN1() {};
-    PACKET.CZ.SE_CASHSHOP_OPEN1.prototype.build = function() {
-		var ver = this.getPacketVersion();
-        var pkt_buf = new BinaryWriter(ver[2]);
+	PACKET.CZ.SE_CASHSHOP_OPEN1.prototype.build = function() {
+		// var ver = this.getPacketVersion();
+		// var pkt_buf = new BinaryWriter(ver[2]);
+		var pkt_buf = new BinaryWriter(2);
 
-        pkt_buf.writeShort(0x0844);
-        return pkt_buf;
-    };
+		pkt_buf.writeShort(0x0844);
+		return pkt_buf;
+	};
 
 	//0x0b6d
 	PACKET.CZ.SE_CASHSHOP_OPEN2 = function PACKET_CZ_SE_CASHSHOP_OPEN2() {
