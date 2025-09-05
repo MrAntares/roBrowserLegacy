@@ -300,6 +300,9 @@ define( function( require )
 		this.walk.tick  =  0;
 		this.walk.prevTick = 0;
 		this.walk.path  =  new Int16Array(PathFinding.MAX_WALKPATH * 2);
+		if (this.walk.onEnd) {
+			this.walk.onEnd();
+		}
 		this.walk.onEnd = null;
 		this.walk.index =  0;
 		this.walk.total =  0;
