@@ -249,9 +249,19 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 
 		frame = this.frames[index];
 
-		// Empty frame ?
-		if (frame.width <= 0 || frame.height <= 0) {
-			return null;
+		// Missing/empty frame?
+		if ( !frame || frame.width <= 0 || frame.height <= 0) {
+			// Create a red X on a 30x30 canvas as error image
+			var size = 30;
+			var fontSize = Math.floor(size * 0.8);
+			canvas.width = canvas.height = size;
+        	ctx.fillStyle = 'red';
+        	ctx.textAlign = 'center';
+        	ctx.textBaseline = 'middle';
+        	ctx.font = fontSize+'px sans-serif';
+        	ctx.fillText('X', size / 2, size / 2);
+			
+			return canvas; // Return error image. Caller expects a canvas..
 		}
 
 		canvas.width  = frame.width;
