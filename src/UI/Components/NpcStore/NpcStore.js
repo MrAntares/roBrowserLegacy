@@ -231,18 +231,13 @@ define(function(require)
 	 */
 	NpcStore.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			this.remove();
-			event.stopImmediatePropagation();
 
 			if (PACKETVER.value >= 20131223) {
 				NpcStore.StoreClosePacket(_type);
 			}
-
-			return false;
 		}
-
-		return true;
 	};
 
 
@@ -278,7 +273,7 @@ define(function(require)
 				break;
 
 			case NpcStore.Type.BARTER_MARKET:
-			case NpcStore.Type.BARTER_MARKET_EXTENDED:	
+			case NpcStore.Type.BARTER_MARKET_EXTENDED:
 				this.ui.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult').hide();
 				this.ui.find('.WinBuy').show();
 				this.ui.find('.total').hide();
@@ -412,7 +407,7 @@ define(function(require)
 					it = Inventory.getUI().getItemByIndex(items[i].index);
 
 					var condition = (InventoryVersion !== 'InventoryV0') ? it && (!Inventory.getUI().npcsalelock || it.PlaceETCTab < 1) : it;
-					
+
 					if (condition) {
 						item                 = jQuery.extend({}, it);
 						item.price           = items[i].price;
@@ -654,7 +649,7 @@ define(function(require)
 			}
 			content.append(
 				'<div class="item expanded-barter" draggable="true" data-index="'+ item.index +'" data-weight="'+ item.weight +'" data-location="'+ item.location +'" data-viewSprite="'+ item.viewSprite +'">' +
-					'<div class="expanded_currency_holder">' +	
+					'<div class="expanded_currency_holder">' +
 						'<div class="icon"></div>' +
 					'</div>' +
 					'<div class="amount">' + (isFinite(item.count) ? item.count : '') + '</div>' +
@@ -671,7 +666,7 @@ define(function(require)
 				for (let i = 0; i < item.currencyList.length; i++) {
 					const currency = item.currencyList[i];
 					const currencyItem = DB.getItemInfo(currency.ITID);
-		
+
 					Client.loadFile(DB.INTERFACE_PATH + 'item/' + currencyItem.identifiedResourceName + '.bmp', function(data) {
 						content.find(`.currency_slot[data-item="${currency.ITID}"] .expanded_currency_icon`).css('backgroundImage', `url(${data})`);
 					});
@@ -847,7 +842,7 @@ define(function(require)
 					let inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
 					let currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
 					outputItem.total_weight = currencyItemWeight * outputItem.count;
-		
+
 					let inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
 					let outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
 					let currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
@@ -864,7 +859,7 @@ define(function(require)
 
 			NpcStore.calculateCost();
 			NpcStore.calculateWeight(); // Update total weight after every operation
-		};		
+		};
 	}();
 
 

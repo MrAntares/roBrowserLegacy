@@ -9,8 +9,8 @@
  define(function(require)
  {
 	 'use strict';
- 
- 
+
+
 	 /**
 	  * Dependencies
 	  */
@@ -21,6 +21,7 @@
 	 var Session      		= require('Engine/SessionStorage');
 	 var Renderer           = require('Renderer/Renderer');
 	 var Mouse              = require('Controls/MouseEventHandler');
+	 var KEYS               = require('Controls/KeyEventHandler');
 	 var InputBox           = require('UI/Components/InputBox/InputBox');
 	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	 var Inventory			= require('UI/Components/Inventory/Inventory');
@@ -29,13 +30,13 @@
 	 var UIComponent        = require('UI/UIComponent');
 	 var htmlText           = require('text!./Mail.html');
 	 var cssText            = require('text!./Mail.css');
- 
- 
+
+
 	 /**
 	  * Create Component
 	  */
 	 var Mail = new UIComponent( 'Mail', htmlText, cssText );
- 
+
 	 /**
 	  * Store Mail items
 	  */
@@ -49,13 +50,13 @@
 	  */
 	 Mail.page = 0;
 
- 
+
 	 /**
 	  * @var {number} used to remember the window height
 	  */
 	 var _realSize = 0;
- 
- 
+
+
 	 /**
 	  * @var {Preferences} structure
 	  */
@@ -72,7 +73,7 @@
 		 magnet_right: false,
 		 item_add_email: {}
 	 }, 2.0);
- 
+
 	 /**
 	  * Apply preferences once append to body
 	  */
@@ -92,18 +93,18 @@
 			.on('drop', onDrop)
 			.on('dragover', stopPropagation)
 				// item
-				.on('mouseover',   '.item', onItemOver)				
+				.on('mouseover',   '.item', onItemOver)
 				.on('mouseout',    '.item', onItemOut)
 				.on('dragstart',   '.item', onItemDragStart)
 				.on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo);
 
-		
+
 		// Validate information dragged into text field
 		this.ui.find('input[type=text]')
 				.on('drop', onDropText)
 				.on('dragover', stopPropagation)
-	
+
 		this.ui.find('textarea')
 				.on('drop', onDropText)
 				.on('dragover', stopPropagation)
@@ -119,10 +120,10 @@
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
 
-		this.draggable(this.ui.find('.titlebar'));		
+		this.draggable(this.ui.find('.titlebar'));
 	 };
 
-	 
+
 	/**
 	 * Add item to inventory
 	 *
@@ -145,7 +146,7 @@
 		this.ui.find(".item" ).remove();
 		content.append(
 			'<div class="item" data-index="'+ item.index +'" draggable="true">' +
-				'<div class="icon"></div>' +				
+				'<div class="icon"></div>' +
 				'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
 			'</div>'
 		);
@@ -166,7 +167,7 @@
 		this.ui.find(".item" ).remove();
 	 };
 
-	 
+
 	 /**
 	  * Send from mail to inventory
 	  * Remove zenys
@@ -194,8 +195,8 @@
 		 _preferences.magnet_left = this.magnet.LEFT;
 		 _preferences.magnet_right = this.magnet.RIGHT;
 		 _preferences.save();
-	 };  
- 
+	 };
+
 	 /**
 	  * Extend Mail window size
 	  *
@@ -206,7 +207,7 @@
 	 {
 		 width  = Math.min( Math.max(width,  6), 9);
 		 height = Math.min( Math.max(height, 2), 6);
- 
+
 		 this.ui.css({
 			 width:  23 + 16 + 16 + width  * 32,
 			 height: 31 + 19      + height * 32
@@ -232,7 +233,7 @@
 	*/
 	Mail.mailReceiveUpdate = function mailReceiveUpdate( newMail )
 	{
-		if(Mail.list.mailList === undefined) return;		
+		if(Mail.list.mailList === undefined) return;
 		Mail.list.MailNumber = Mail.MailNumber +1;
 		let validIsOpen = 0;
 		Mail.list.mailList = Mail.list.mailList.map((el) =>
@@ -250,7 +251,7 @@
 				validIsOpen = 1;
 			}else {
 				newElement = el;
-			}			
+			}
 
 			return newElement;
 		});
@@ -294,10 +295,10 @@
 	 */
 	Mail.replyNewMailFriends = async function replyNewMailFriends( fromName )
 	{
-		
+
 		Mail.append();
 		sleep(1).then(() => {
-			
+
 			// Do something after the sleep!
 			onWindowCreateMessages();
 			offWindowListMail();
@@ -306,7 +307,7 @@
 			Mail.ui.find('#inbox')
 				.prop('disabled', false)
 			.on('click', function() {
-				
+
 			});
 			Mail.ui.find('#create_mail_cancel').off('click');
 			Mail.ui.find('#create_mail_cancel').on('click',this.onClosePressed.bind(this));
@@ -314,7 +315,7 @@
 			//Mail.ui.find('.block_send_cancel').css('margin-top','19%');
 
 		});
-		
+
 	}
 
 	Mail.clearFieldsItemZeny = function clearFieldsItemZeny()
@@ -323,6 +324,13 @@
 		this.ui.find(".input_zeny_amt" ).val('');
 		this.ui.find('#create_mail_send').prop('disabled', false);
 	}
+
+	Mail.onKeyDown = function onKeyDown( event )
+	{
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.remove();
+		}
+	};
 
 	/*
 	* Update item pagination
@@ -352,7 +360,7 @@
 	 * Create messages window size
 	 */
 	function onWindowMailbox()
-	{	
+	{
 		// List Email
 		Mail.parseMailrefreshinbox();
 
@@ -364,14 +372,14 @@
 		Mail.ui.find('.textarea_mail').val("");
 		Mail.ui.find('.input_zeny_amt').val("");
 		Mail.ui.find('.input_add_item').val("");
-		
+
 		// on window list mail
 		Mail.ui.find('.prev_next').show();
-		Mail.ui.find('.block_mail').show();		
+		Mail.ui.find('.block_mail').show();
 		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/maillist1_bg.bmp', function(url) {
 			Mail.ui.find('.body').css('backgroundImage', 'url(' + url + ')');
 		}.bind(this));
-		Mail.ui.find('#title').text(DB.getMessage(1025));		
+		Mail.ui.find('#title').text(DB.getMessage(1025));
 	};
 
 
@@ -415,7 +423,7 @@
 			);
 			if(!isOpen){
 				Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function(data){
-					
+
 					content.find('#envelop_'+mailId).css('backgroundImage', 'url('+ data +')');
 				});
 			}
@@ -435,7 +443,7 @@
 		}else{
 			Mail.ui.find('#infor_page').text((Mail.page + 1)+"/"+Math.ceil(Mail.list.mailList.length / Mail.pageSize));
 		}
-		
+
 		adjustButtons();
 	}
 
@@ -449,26 +457,26 @@
 			addEventNextAndPrevAdd('next');
 		}else{
 			addEventNextAndPrevRemove('next');
-		}		
+		}
 		if(!(Mail.page == 0)){
 			addEventNextAndPrevAdd('prev');
 		}else{
 			addEventNextAndPrevRemove('prev');
 		}
-				
+
 		Mail.ui.find('.next span').prop('disabled', mailLength <=  Mail.pageSize || Mail.page > mailLength /  Mail.pageSize - 1);
     	Mail.ui.find('.prev span').prop('disabled', mailLength <=  Mail.pageSize || Mail.page == 0);
 	}
 
 	function addEventNextAndPrevAdd(eventName)
-	{		
+	{
 		var overlay = Mail.ui.find('.prev_next .overlay_'+eventName+'');
 		var text = Mail.ui.find('.prev_next .'+eventName+' span');
 		text.addClass('event_add_cursor');
 		overlay.text(text.text());
 
 		Mail.ui.find('.'+eventName+' .event_add_cursor' ).mouseover(function() {
-			if(text.hasClass('event_add_cursor')){	
+			if(text.hasClass('event_add_cursor')){
 				overlay.show();
 			}
 		}).mouseout(function() {
@@ -492,7 +500,7 @@
 		onWindowMailbox();
 		// Reset mail item and/or Zeny
 		removeCreateAllItem();// CZ_MAIL_RESET_ITEM
-		
+
 	};
 
 	function sendCreateMessagesMail(event)
@@ -518,10 +526,10 @@
 		}
 
 		let send_message = {
-			ReceiveName: 	to, 
+			ReceiveName: 	to,
 			Header:			title,
 			msg_len:		message.length,
-			msg:			message, 
+			msg:			message,
 		}
 		Mail.ui.find('#create_mail_send').prop('disabled', true);
 		Mail.parseMailSend(send_message);
@@ -568,12 +576,12 @@
 		event.stopImmediatePropagation();
 		Mail.ui.find('#zeny_amt').hide();
 		Mail.ui.find('#zeny_ok').show();
-		Mail.ui.find('.input_zeny_amt').prop('disabled', false);		
+		Mail.ui.find('.input_zeny_amt').prop('disabled', false);
 		Mail.ui.find('.input_zeny_amt').focus();
 		Mail.ui.find('.input_zeny_amt').select();
 		Mail.parseMailWinopen(2); // reset zeny
 	}
-	
+
 	function onValidZenyInput(event)
 	{
 		event.stopImmediatePropagation();
@@ -607,7 +615,7 @@
 	 */
 	function onDrop( event )
 	{
-		
+
 		var item, data;
 		event.stopImmediatePropagation();
 
@@ -623,7 +631,7 @@
 		if (data.type !== 'item' || (data.from == 'Storage' || data.from == 'Mail')) {
 			return false;
 		}
-		
+
 		// Have to specify how much
 		if (item.count > 1) {
 			InputBox.append();
@@ -637,9 +645,9 @@
 					Inventory.getUI().removeItem(
 						item.index,
 						parseInt(count, 10 )
-					);		
+					);
 				}
-				
+
 				Mail.parseMailSetattach(
 					item.index,
 					parseInt(count, 10 )
@@ -653,9 +661,9 @@
 			return false;
 		}
 
-		
+
 		if(data.from == 'Inventory'){
-			Inventory.getUI().removeItem( item.index, 1 );						
+			Inventory.getUI().removeItem( item.index, 1 );
 		}
 		Mail.parseMailWinopen(1); // remove item
 
@@ -806,7 +814,7 @@
 
 
 	/**
-	 * Converte DeleteTime 
+	 * Converte DeleteTime
 	 *
 	 * @param {number}
 	 * @return {string}
@@ -840,7 +848,7 @@
 	 */
 	 function onDropText( event )
 	 {
-		 event.stopImmediatePropagation(); 
+		 event.stopImmediatePropagation();
 		 var data;
 		 try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -848,7 +856,7 @@
 		 catch(e) {
 			 return false;
 		 }
-		 
+
 		 // Valid if the message type
 		 if (data.type == 'item') {
 			 return false;
@@ -901,7 +909,7 @@
 	function sleep (time) {
 		return new Promise((resolve) => setTimeout(resolve, time));
 	}
-	
+
 	 /**
 	 * Callbacks
 	 */
@@ -913,11 +921,11 @@
 	Mail.parseMailSend  				= function parseMailSend(/*object*/){};
 	Mail.openMail   					= function openMail(/*MailID*/){};
 	Mail.replyMail   					= function replyMail(/*MailID*/){};
-	
+
 
 	 /**
 	  * Create component and export it
 	  */
 	 return UIManager.addComponent(Mail);
  });
- 
+

@@ -20,6 +20,7 @@
      var SkillInfo   = require('DB/Skills/SkillInfo');
      var Client      = require('Core/Client');
      var Renderer    = require('Renderer/Renderer');
+	 var KEYS        = require('Controls/KeyEventHandler');
      var UIManager   = require('UI/UIManager');
      var UIComponent = require('UI/UIComponent');
      var Inventory   = require('UI/Components/Inventory/Inventory');
@@ -35,7 +36,7 @@
      var validMultipleMaterials = 	[
                                  1000 //star crumb
                              ];
-							 
+
 	 var validSingleMaterials = 	[
                                  997 //great nature
                                  ,996 //rough wind
@@ -237,7 +238,6 @@
      };
 
 
-
      /**
       * Free variables once removed from HTML
       */
@@ -246,6 +246,11 @@
          this.index = 0;
      };
 
+	MakeItemSelection.onKeyDown = function onKeyDown( event ) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.remove();
+		}
+	}
 
      /**
       * Set new window name
@@ -272,7 +277,7 @@
      {
 		 var singleMatUsed = false;
 		 this.material.forEach(item => { if(validSingleMaterials.includes(item.ITID)){ singleMatUsed = true; } });
-		 
+
          if( this.material.length < 3 && (validMultipleMaterials.includes(item.ITID) || (validSingleMaterials.includes(item.ITID) && !singleMatUsed) )){
              if (this.addItemSub(item)) {
 				 switch(from)

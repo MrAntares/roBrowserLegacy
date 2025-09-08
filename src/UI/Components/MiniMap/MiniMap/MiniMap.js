@@ -35,9 +35,9 @@ define(function(require)
 
 
 	/**
-	 * Mouse can cross this UI
+	 * Mouse cant cross this UI
 	 */
-	MiniMap.mouseMode = UIComponent.MouseMode.CROSS;
+	MiniMap.mouseMode = UIComponent.MouseMode.STOP;
 
 
 	/**

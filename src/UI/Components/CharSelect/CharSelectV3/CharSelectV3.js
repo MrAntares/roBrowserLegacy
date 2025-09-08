@@ -177,6 +177,7 @@ define(function(require)
      */
     CharSelectV3.onKeyDown = function onKeyDown( event )
     {
+		if (!this.ui.is(':visible')) return true;
         switch (event.which) {
             case KEYS.ESCAPE:
                 cancel();
@@ -334,7 +335,7 @@ define(function(require)
         if (!('sex' in character) || character.sex === 99) {
             character.sex = _sex;
         }
-		
+
 		//Adjust from remaining time to fixed datetime
 		if(character.DeleteDate){
 			var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
@@ -347,8 +348,8 @@ define(function(require)
 
         _entitySlots[ character.CharNum ] = new Entity();
         _entitySlots[ character.CharNum ].set( character );
-		
-		
+
+
 		if (_slots[ character.CharNum ].DeleteDate && Math.floor(_index/3) == Math.floor(character.CharNum/3) ) {
 			const slotNum = (character.CharNum + _maxSlots) % _maxSlots + 1;
 			const countdown = this.ui.find('.timedelete.slot' + slotNum);  // Adjusted selector
@@ -460,10 +461,10 @@ define(function(require)
      * Format delay date time
      */
     function formatDatetime(epoch) {
-		
+
 		const datetime = new Date(0);
 		datetime.setSeconds(epoch);
-		
+
 		const year = datetime.getFullYear();
 		const month = datetime.getMonth()+1;
 		const day = datetime.getDate();
@@ -481,11 +482,11 @@ define(function(require)
 
         return formattedDatetime;
     }
-	
+
 
     /**
      * Result of Request in Deleting the Character
-     * 
+     *
      * @param {object} pkt - packet structure
      */
     CharSelectV3.reqdeleteAnswer = function ReqDelAnswer ( pkt )
@@ -515,7 +516,7 @@ define(function(require)
             case 5: // 5: To delete a character you must withdraw from the party.
                 UIManager.showMessageBox( DB.getMessage(1819), 'ok' );
                 break;
-            
+
             default:
                 return;
         }
@@ -544,7 +545,7 @@ define(function(require)
 				action = entity.ACTION.SIT;
 			}
         }
-		
+
 		// Set action
         entity.action = action;
 
@@ -565,7 +566,7 @@ define(function(require)
     function removedelete ()
     {
         if (_slots[_index]) {
-            
+
             // Delete here as well? Though server should tell us this
             _slots[_index].DeleteDate = 0;
 
@@ -601,7 +602,7 @@ define(function(require)
             }
         }
     }
-	
+
 
     /**
      * Delete a character
@@ -636,7 +637,7 @@ define(function(require)
 			} else {
 				action = entity.ACTION.IDLE;
 			}
-			
+
             entity.setAction({
                 action: action,
                 frame:  0,
@@ -676,14 +677,14 @@ define(function(require)
                 ui.find('.make' + i).show();
             }
         }
-		
+
 		// Update page deltimes
 		for(let i = 0; i<3; i++){
 			let tmpIndex = _index-(_index%3)+i;
 			info = _slots[tmpIndex];
 			entity = _entitySlots[tmpIndex];
 			const countdown = CharSelectV3.ui.find('.timedelete.slot' + (tmpIndex % 3 + 1));
-			
+
 			if(info && entity){
 				if(info.DeleteDate) {
 					countdown.attr('data-datetime', info.DeleteDate);
@@ -742,7 +743,7 @@ define(function(require)
             ui.find('.ok').show();
 			action = entity.ACTION.READYFIGHT;
         }
-		
+
         // Animate the character
         entity.setAction({
             action: action,

@@ -8,8 +8,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var publicName = 'PlayerViewEquip';
@@ -19,33 +18,41 @@ define(function (require)
 	var PlayerViewEquipV2 = require('./PlayerViewEquipV2/PlayerViewEquipV2'); // equip + costume (full)
 
 	var UIVersionManager = require('UI/UIVersionManager');
-	var DB               = require('DB/DBManager');
+	var DB = require('DB/DBManager');
+	var KEYS = require('Controls/KeyEventHandler');
 
 	var versionInfo = {
 		default: PlayerViewEquipV0,
 		common: {
-			20150225:	PlayerViewEquipV2,
-			20101124:	PlayerViewEquipV1,
+			20150225: PlayerViewEquipV2,
+			20101124: PlayerViewEquipV1,
 		},
 		re: {
 
 		},
-		prere:{
+		prere: {
 
 		}
 	};
 
 	var PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
-	
+
 	var _selectUIVersion = PlayerViewEquipController.selectUIVersion;
-	
+
 	// Extend default UI selector
-	PlayerViewEquipController.selectUIVersion = function(){
-		
+	PlayerViewEquipController.selectUIVersion = function () {
 		_selectUIVersion();
-		
+
 		//Add selected UI to item owner name update queue
-		DB.UpdateOwnerName.PlayerViewEquip = PlayerViewEquipController.getUI().onUpdateOwnerName;
+		var component = PlayerViewEquipController.getUI();
+		DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
+
+		// Escape to close the UI
+		component.onKeyDown = function onKeyDown(e) {
+			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
+				if (typeof component.remove === 'function') component.remove();
+			}
+		}
 	};
 
 	return PlayerViewEquipController;

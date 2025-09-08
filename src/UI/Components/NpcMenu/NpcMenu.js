@@ -95,7 +95,7 @@ define(function(require)
 	{
 		var count, top;
 		var content;
-
+		if (!this.ui.is(':visible')) return true;
 		switch (event.which) {
 
 			case KEYS.SPACE:	// Same as Enter

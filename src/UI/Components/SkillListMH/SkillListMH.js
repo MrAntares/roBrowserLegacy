@@ -19,6 +19,7 @@ define(function(require)
 	var Preferences          = require('Core/Preferences');
 	var Renderer             = require('Renderer/Renderer');
 	var Mouse                = require('Controls/MouseEventHandler');
+	var KEYS                 = require('Controls/KeyEventHandler');
 	var UIManager            = require('UI/UIManager');
 	var UIComponent          = require('UI/UIComponent');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
@@ -271,6 +272,14 @@ define(function(require)
 			this.btnLevelUp.detach();
 		}
 	};
+
+	SkillListMH.prototype.onKeyDown = function onKeyDown( event )
+	{
+		// Event.which is deprecated
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.toggle();
+		}
+	}
 
 	/**
 	 * Add skills to the list

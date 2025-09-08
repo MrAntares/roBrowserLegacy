@@ -18,6 +18,7 @@ define(function (require) {
 	var Client = require('Core/Client');
 	var Preferences = require('Core/Preferences');
 	var Renderer = require('Renderer/Renderer');
+	var KEYS = require('Controls/KeyEventHandler');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
@@ -248,6 +249,12 @@ define(function (require) {
 			Rodex.ui.focus();
 		}
 	};
+
+	Rodex.onKeyDown = function onKeyDown( event ) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.toggle();
+		}
+	}
 
 	function onClickClose(e) {
 		e.stopImmediatePropagation();

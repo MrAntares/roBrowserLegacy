@@ -24,6 +24,7 @@ define(function(require)
 	var Renderer    = require('Renderer/Renderer');
 	var Entity      = require('Renderer/Entity/Entity');
 	var SpriteRenderer  = require('Renderer/SpriteRenderer');
+	var KEYS        = require('Controls/KeyEventHandler');
 	var UIManager   = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 	var ChatBox     = require('UI/Components/ChatBox/ChatBox');
@@ -44,7 +45,7 @@ define(function(require)
 	var _preferences = Preferences.get('ChangeCart', {
 		show:     false,
 	}, 1.0);
-	
+
 	/**
 	 * @var {object} model info
 	 */
@@ -58,7 +59,7 @@ define(function(require)
 	{
 		var carts = this.ui.find('.cart');
 		var canvases = this.ui.find('.canvas');
-		
+
 		this.ui.css({
 			top:  (Renderer.height - 100) / 2.0,
 			left: (Renderer.width  - 400) / 2.0
@@ -73,7 +74,7 @@ define(function(require)
 		carts.on('click',     function(event){ onCart(event.target.getAttribute('data-id')); })
 			.on('mouseover', function(event){_models[event.target.getAttribute('data-id')].entity.action = 1;})
 			.on('mouseout',  function(event){_models[event.target.getAttribute('data-id')].entity.action = 0;});
-			
+
 		canvases.each((idx, canvas) => {
 			var cartid = canvas.getAttribute("data-id");
 			var model = {
@@ -87,7 +88,7 @@ define(function(require)
 				action: 0,
 				direction: 5
 			});
-			
+
 			model.entity.hasCart = true;
 			model.entity.CartNum = cartid;
 			model.entity.hideShadow = true;
@@ -139,7 +140,7 @@ define(function(require)
 		if (Session.Entity) {
 			Session.Entity.dialog.set( msg );
 		}
-		
+
 		updateList(Session.Character.level);
 		Renderer.render(render);
 	};
@@ -148,7 +149,7 @@ define(function(require)
 	{
 		updateList(blvl);
 	};
-	
+
 	function updateList(blvl){
 		if(Session.Entity.hasCart == false)
 		{
@@ -170,7 +171,7 @@ define(function(require)
 		ChangeCart.ui.find(".cart[data-id='1']").show();
 		_models['1'].render = true;
 	}
-	
+
 	/**
 	 * Remove component from HTML
 	 * Stop rendering
@@ -180,7 +181,13 @@ define(function(require)
 		stopAllCart();
 		Renderer.stop(render);
 	};
-	
+
+	ChangeCart.onKeyDown = function onKeyDown( event ) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.hide();
+		}
+	}
+
 	/**
 	 * Rendering the Carts
 	 */
@@ -193,7 +200,7 @@ define(function(require)
 			model.entity.renderEntity();
 		});
 	}
-	
+
 	function stopAllCart(){
 		Object.entries(_models).forEach((entry) => {
 			const [key, model] = entry;

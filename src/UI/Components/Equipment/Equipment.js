@@ -20,7 +20,8 @@ define(function (require)
 	var EquipmentV3 = require('./EquipmentV3/EquipmentV3'); // EquipmentV2 + Switch Equip
 
 	var UIVersionManager = require('UI/UIVersionManager');
-	var DB               = require('DB/DBManager');
+	var DB = require('DB/DBManager');
+	var KEYS = require('Controls/KeyEventHandler');
 
 	var versionInfo = {
 		default: EquipmentV0,
@@ -38,16 +39,24 @@ define(function (require)
 	};
 
 	var EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
-	
+
 	var _selectUIVersion = EquipmentController.selectUIVersion;
-	
+
 	// Extend default UI selector
 	EquipmentController.selectUIVersion = function(){
-		
+
 		_selectUIVersion();
-		
+
 		//Add selected UI to item owner name update queue
-		DB.UpdateOwnerName.Equipment = EquipmentController.getUI().onUpdateOwnerName;
+		var component = EquipmentController.getUI();
+		DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
+
+		// Escape to close the UI
+		component.onKeyDown = function onKeyDown(e) {
+			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
+				if (typeof component.toggle === 'function') component.toggle();
+			}
+		};
 	};
 
 	return EquipmentController;

@@ -20,6 +20,7 @@ define(function(require)
 	var SkillInfo   = require('DB/Skills/SkillInfo');
 	var Client      = require('Core/Client');
 	var Renderer    = require('Renderer/Renderer');
+	var KEYS        = require('Controls/KeyEventHandler');
 	var UIManager   = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 	var Inventory   = require('UI/Components/Inventory/Inventory');
@@ -165,6 +166,11 @@ define(function(require)
 	 */
 	MakeArrowSelection.onIndexSelected = function onIndexSelected(){};
 
+	MakeArrowSelection.onKeyDown = function onKeyDown( event ) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.remove();
+		}
+	}
 
 	/**
 	 * Create component based on view file and export it

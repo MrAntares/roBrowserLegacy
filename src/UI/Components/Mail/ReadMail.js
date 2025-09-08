@@ -9,8 +9,8 @@
  define(function(require)
  {
 	 'use strict';
- 
- 
+
+
 	 /**
 	  * Dependencies
 	  */
@@ -21,6 +21,7 @@
 	 var Session      		= require('Engine/SessionStorage');
 	 var Renderer           = require('Renderer/Renderer');
 	 var Mouse              = require('Controls/MouseEventHandler');
+	 var KEYS               = require('Controls/KeyEventHandler');
 	 var InputBox           = require('UI/Components/InputBox/InputBox');
 	 var ChatBox            = require('UI/Components/ChatBox/ChatBox');
 	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
@@ -29,25 +30,25 @@
 	 var htmlText           = require('text!./ReadMail.html');
 	 var cssText            = require('text!./ReadMail.css');
 	 var getModule    		= require;
- 
- 
+
+
 	 /**
 	  * Create Component
 	  */
 	 var ReadMail = new UIComponent( 'ReadMail', htmlText, cssText );
- 
+
 	 /**
 	  * Store ReadMail items
 	  */
 	 ReadMail.list = [];
- 
- 
+
+
 	 /**
 	  * @var {number} used to remember the window height
 	  */
 	 var _realSize = 0;
- 
- 
+
+
 	 /**
 	  * @var {Preferences} structure
 	  */
@@ -78,7 +79,7 @@
 		ReadMail.ui.find('#read_mail_del').click(deleteMail);
 		ReadMail.ui.find('#read_mail_remail').click(replyMail);
 		ReadMail.ui.find('#read_mail_return').click(returnMail);
-		
+
 		ReadMail.ui.css({
 			top:  Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10)), Renderer.height - ReadMail.ui.height()),
 			left: Math.min( Math.max( 0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('left'), 10)) + 300, Renderer.width  - ReadMail.ui.width())
@@ -105,7 +106,7 @@
 		 _preferences.magnet_left = this.magnet.LEFT;
 		 _preferences.magnet_right = this.magnet.RIGHT;
 		 _preferences.save();
-	}; 
+	};
 
 	ReadMail.openEmail = function openEmail(inforMail)
 	{
@@ -114,7 +115,7 @@
 		let textSender = inforMail.FromName;
 		let textTitle =  inforMail.Header;
 		let textMessage = inforMail.msg === "(no message)" ? "" : inforMail.msg;
-		
+
 		this.ui.find('.text_sender').text(textSender);
 		this.ui.find('.text_title').text(textTitle);
 		this.ui.find('.textarea_mail').val(textMessage);
@@ -129,11 +130,18 @@
 
 	ReadMail.resetItemZeny = function resetItemZeny()
 	{
-		_preferences.item_add_email = {};			
-		_preferences.save();			
+		_preferences.item_add_email = {};
+		_preferences.save();
 		removeValueItemZeny();
 		ReadMail.ui.find(".zeny_item_infor_box" ).remove();
 	}
+
+	ReadMail.onKeyDown = function onKeyDown( event )
+	{
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.remove();
+		}
+	};
 
 	function addItemSub(itemMail)
 	{
@@ -142,10 +150,10 @@
 		if(itemMail.ITID != 0 && itemMail.count > 0){
 			let item = itemMail;
 			var it      = DB.getItemInfo( item.ITID );
-			var content = ReadMail.ui.find('.container_item');			
+			var content = ReadMail.ui.find('.container_item');
 			content.append(
 				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
-					'<div class="icon"></div>' +				
+					'<div class="icon"></div>' +
 					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
 				'</div>'
 			);
@@ -162,11 +170,11 @@
 					.on('contextmenu', '.item', onItemInfo);
 		}
 
-		if(itemMail.Money > 0){			
+		if(itemMail.Money > 0){
 			ReadMail.ui.find('.input_zeny_amt').val(prettifyZeny(itemMail.Money));
 			ReadMail.ui.find('.input_zeny_amt').prop('disabled', true);
 		}
-		
+
 
 		ReadMail.ui.find(".zeny_item_infor_box" ).remove();
 		zenyItemContainer.append(
@@ -190,7 +198,7 @@
 			if(!validItemMoneyExists()){
 				let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
 				getModule('UI/Components/Mail/Mail').parseMailgetattach(mailID);
-			}			
+			}
 		});
 
 	}
@@ -267,7 +275,7 @@
 	function deleteMail(event)
 	{
 		event.stopImmediatePropagation();
-		
+
 		if(validItemMoneyExists()){
 			let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
 			getModule('UI/Components/Mail/Mail').deleteMail(mailID);
@@ -376,7 +384,7 @@
 		ReadMail.ui.find(".item" ).remove();
 		ReadMail.ui.find(".input_zeny_amt" ).val('');
 	}
-	
+
 	 /**
 	 * Callbacks
 	 */

@@ -60,13 +60,9 @@ define(function(require)
 	 */
 	LaphineSys.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			LaphineSys.remove();
-			event.stopImmediatePropagation();
-			return false;
 		}
-
-		return true;
 	};
 
 
@@ -166,12 +162,12 @@ define(function(require)
 	function onOpenLaphineUI(pkt)
 	{
 		if (pkt) {
-	
+
 			// Assume lapine_list is already loaded and available
 			let laphineInfo = DB.getLaphineSysInfoById(pkt.itemId);
-	
+
 			if (laphineInfo) {
-	
+
 				// Update the state object
 				LaphineUIState.itemId = laphineInfo.ItemID;
 				LaphineUIState.needCount = laphineInfo.NeedCount;
@@ -179,7 +175,7 @@ define(function(require)
 				LaphineUIState.needRefineMax = laphineInfo.NeedRefineMax;
 				LaphineUIState.sourceItems = laphineInfo.SourceItems;
 				LaphineUIState.needSourceString = laphineInfo.NeedSource_String;
-	
+
 				// Use a function to build/update your UI
 				onUpdateLaphineUI();
 				populateAvailableMatList();
@@ -234,7 +230,7 @@ define(function(require)
 	function populateAvailableMatList() {
 		let availableMatList = LaphineSys.ui.find('.available_mat_list');
 		availableMatList.empty(); // Clear the list before populating
-	
+
 		LaphineUIState.sourceItems.forEach(sourceItem => {
 			let matchingItems = GetInventoryItemsById(sourceItem.id);
 			matchingItems.forEach(inventoryItem => {
@@ -311,7 +307,7 @@ define(function(require)
 	function onRequestLaphineClose()
 	{
 		LaphineSys.remove();
-		
+
 		var pkt = new PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE();
 		Network.sendPacket(pkt);
 	};
@@ -329,12 +325,12 @@ define(function(require)
 
 		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var item = Inventory.getUI().getItemByIndex(idx);
-	
-	
+
+
 		if (!item) {
 			return false;
 		}
-	
+
 		LaphineSys.ui.find('.name').removeClass('selected');
 		LaphineSys.ui.find('.item[data-index="' + item.index + '"] .name').addClass('selected');
 	};
@@ -409,7 +405,7 @@ define(function(require)
 	{
 		let it   = DB.getItemInfo( item.ITID );
         let submittedMatList = LaphineSys.ui.find('.submitted_mat_list');
-		
+
 		let sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 
 		// Determine the count based on item type
@@ -533,7 +529,7 @@ define(function(require)
 		availableMatList.find('.item').each(function() {
 			let idx = parseInt(jQuery(this).attr('data-index'), 10);
 			let item = Inventory.getUI().getItemByIndex(idx);
-	
+
 			if (item.ITID === itemId && idx === itemIndex) {
 				itemExists = true;
 				selectedItem = jQuery(this);
@@ -631,7 +627,7 @@ define(function(require)
 		var parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
 		var itemPos = pos.position();
 		var containerPos = parentContainer.position();
-	
+
 		// Calculate the desired position of the overlay relative to the container
 		var top = itemPos.top - overlay.outerHeight() + 25;
 		var left = itemPos.left;
@@ -734,7 +730,7 @@ define(function(require)
 		if (data.type !== 'item') {
 			return false;
 		}
-		
+
 		let submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10);
 		let neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
 

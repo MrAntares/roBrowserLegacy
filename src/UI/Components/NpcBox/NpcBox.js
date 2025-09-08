@@ -186,6 +186,7 @@ define(function(require)
 	 */
 	NpcBox.onKeyDown = function onKeyDown( event )
 	{
+		if (!this.ui.is(':visible')) return true;
 		switch (event.which) {
 			case KEYS.SPACE:	// Same as Enter
 			case KEYS.ENTER:

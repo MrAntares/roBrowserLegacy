@@ -72,7 +72,7 @@ define(function(require)
 	/*
 	ItemCompare.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape")) {
 			ItemCompare.remove();
 			event.stopImmediatePropagation();
 			return false;
@@ -152,11 +152,11 @@ define(function(require)
 
 		var customname = '';
 		var hideslots = false;
-		
+
 		if(item.type == ItemType.ARMOR && item.location == 0){ //Pet Egg
 			hideslots = true;
 		}
-		
+
 		if(item.slot){
 
 			var very = '';
@@ -272,7 +272,7 @@ define(function(require)
 					cardList.parent().hide();
 				}
 				break;
-			
+
 			case ItemType.PETEGG:
 				cardList.parent().hide();
 				break;

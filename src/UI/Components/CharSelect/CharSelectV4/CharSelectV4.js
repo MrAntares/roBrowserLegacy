@@ -185,6 +185,7 @@ define(function(require)
      */
     CharSelectV4.onKeyDown = function onKeyDown( event )
     {
+		if (!this.ui.is(':visible')) return true;
         switch (event.which) {
             case KEYS.ESCAPE:
                 cancel();
@@ -307,7 +308,7 @@ define(function(require)
 
     /**
      * Result of Request in Deleting the Character
-     * 
+     *
      * @param {object} pkt - packet structure
      */
     CharSelectV4.reqdeleteAnswer = function ReqDelAnswer ( pkt )
@@ -336,12 +337,12 @@ define(function(require)
             case 5: // 5: To delete a character you must withdraw from the party.
                 UIManager.showMessageBox( DB.getMessage(1819), 'ok' );
                 break;
-            
+
             default:
                 return;
         }
     }
-    
+
     /**
      * When successfully requested for character deletion
      * Update UI and add timer
@@ -373,7 +374,7 @@ define(function(require)
     function removedelete ()
     {
         if (_slots[_index]) {
-            
+
             // Delete here as well? Though server should tell us this
             _slots[_index].DeleteDate = 0;
 
@@ -474,13 +475,13 @@ define(function(require)
 
         _list.push( character );
         _slots[ character.CharNum ] = character;
-        
+
         _entitySlots[ character.CharNum ] = new Entity();
         _entitySlots[ character.CharNum ].set( character );
         _entitySlots[ character.CharNum ].hideShadow = true;
         updateCharSlot();
     };
-    
+
 
     /**
      * Disable or Enable the UI.
@@ -644,7 +645,7 @@ define(function(require)
         }
 
         ui.find('.ok').show();
-        
+
         $charinfo.find('.map').text( DB.getMapName(info.lastMap, '') || '' );
         $charinfo.find('.job').text( MonsterTable[info.job] || '' );
         $charinfo.find('.lvl').text( info.level );
@@ -699,9 +700,9 @@ define(function(require)
                 Client.loadFile( DB.INTERFACE_PATH + "select_character_ver3/img_slot_normal.bmp", function(dataURI) {
                     CharSelectV4.ui.find('#slot'+ i).css('backgroundImage', 'url(' + dataURI + ')');
                 });
-                
+
                 const slotJobIcon = jQuery(CharSelectV4.ui.find(".job_icon")[i]);
-                
+
                 Client.loadFile( DB.INTERFACE_PATH + "renewalparty/icon_jobs_"+_slots[i].job+".bmp", function(dataURI) {
                     slotJobIcon.css('backgroundImage', 'url(' + dataURI + ')');
                 });

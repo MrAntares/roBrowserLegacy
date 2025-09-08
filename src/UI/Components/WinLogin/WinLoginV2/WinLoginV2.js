@@ -82,7 +82,7 @@ define(function(require)
 
 		WinLoginV2.ui.find('.signup').click(signup);
 		WinLoginV2.ui.find('.connect').click(connect);
-		WinLoginV2.ui.find('.exit').click(exit);	
+		WinLoginV2.ui.find('.exit').click(exit);
 	};
 
 
@@ -119,6 +119,7 @@ define(function(require)
 	 */
 	WinLoginV2.onKeyDown = function onKeyDown( event )
 	{
+		if (!this.ui.is(':visible')) return true;
 		switch (event.which)
 		{
 			case KEYS.ENTER:
@@ -197,13 +198,13 @@ define(function(require)
 		WinLoginV2.onConnectionRequest( user, pass );
 		return false;
 	}
-	
+
 	/**
 	 * Signup button func that takes the player to the <registrationweb>
 	 */
 	function signup(){
 		var url = Configs.get('registrationweb');
-		
+
 		if(url){
 			UIManager.showPromptBox( DB.getMessage(662), 'ok', 'cancel', function(){
 				window.open(url);
@@ -212,7 +213,7 @@ define(function(require)
 		} else {
 			UIManager.showPromptBox( "No registration URL was provided.\nIf this server uses simplified registration, then input your new:\n - Username followed by _M for Male and _F for Female account (Eg: MyUser_M)\n - Password.", 'ok', 'cancel', null, null);
 		}
-		
+
 	}
 
 

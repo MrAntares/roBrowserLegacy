@@ -45,8 +45,9 @@ define(function(require)
 	 */
 	Intro.onKeyDown = function OnKeyDown( event )
 	{
+		if (!this.ui.is(':visible')) return true;
 		// Exit fullScreen mode
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape")) {
 
 			if (Context.isFullScreen()) {
 				Context.cancelFullScreen();

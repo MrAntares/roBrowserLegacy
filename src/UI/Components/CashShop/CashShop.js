@@ -20,6 +20,7 @@ define(function(require)
 	var Network            = require('Network/NetworkManager');
 	var PACKETVER          = require('Network/PacketVerManager');
 	var PACKET             = require('Network/PacketStructure');
+	var KEYS               = require('Controls/KeyEventHandler');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ChatBox      	   = require('UI/Components/ChatBox/ChatBox');
 	var Renderer           = require('Renderer/Renderer');
@@ -229,6 +230,17 @@ define(function(require)
 	{
 		this.ui.hide();
 	};
+
+	CashShop.onKeyDown = function onKeyDown( event )
+	{
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			var pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
+            Network.sendPacket(pkt);
+			CashShop.ui.hide();
+			CashShop.hide();
+			CashShop.onRemove();
+		}
+	}
 
 	CashShop.resize = function Resize( width, height )
 	{

@@ -216,7 +216,7 @@ define(function(require)
 		updateRace();
 		cleanup();
 		Renderer.render(render);
-		
+
 	};
 
 	/**
@@ -236,7 +236,7 @@ define(function(require)
 	 */
 	CharCreatev4.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			event.stopImmediatePropagation();
 			cancel();
 			return false;
@@ -256,7 +256,7 @@ define(function(require)
 		Client.loadFile( DB.INTERFACE_PATH + "make_character_ver2/bt_hairstyle_normal.bmp", function(dataURI) {
 			CharCreatev4.ui.find('.style'+_prevhead).css('backgroundImage', 'url(' + dataURI + ')');
 		});
-		
+
 		_curhead = value;
 
 		updateCharacter( type, value );
@@ -274,7 +274,7 @@ define(function(require)
 		Client.loadFile( DB.INTERFACE_PATH + "make_character_ver2/color0"+(parseInt(_prevcolor) + 1)+"_off.bmp", function(dataURI) {
 			CharCreatev4.ui.find('.cstyle0'+_prevcolor).css('backgroundImage', 'url(' + dataURI + ')');
 		});
-		
+
 		_curcolor = value;
 
 		updateCharacter( type, value );
@@ -297,7 +297,7 @@ define(function(require)
             });
 			value = 0;
 		}
-		
+
 		if (select[0].id === "doram_race") {
 			Client.loadFile( DB.INTERFACE_PATH + "make_character_ver2/img_human_off.bmp", function(dataURI) {
                 CharCreatev4.ui.find('.human_label').css('backgroundImage', 'url(' + dataURI + ')');
@@ -331,7 +331,7 @@ define(function(require)
 	 */
 	function updateCharacterGeneric( type, value )
 	{
-	
+
 		return function( event) {
 			if (type === 'gender') {
 				updateHstyleList(type, value);
@@ -378,7 +378,7 @@ define(function(require)
 
 		// Show the correct one
 		CharCreatev4.ui.find('#'+_race+'_'+_gender+'').css('display', "block");
-		
+
 	};
 
 	/**
@@ -423,7 +423,7 @@ define(function(require)
 				CharCreatev4.ui.find('.cstyle0'+i).css('backgroundImage', 'url(' + dataURI + ')');
 			});
 		}
-		
+
 		updateCharacter('default',0);
 	}
 
@@ -524,7 +524,7 @@ define(function(require)
 		SpriteRenderer.bind2DContext(_model.ctx, 32, 115);
 		_model.ctx.clearRect(0, 0, _model.ctx.canvas.width, _model.ctx.canvas.height );
 		_model.entity.renderEntity();
-	
+
 		// Need this to persist, rendering resets them?
 
 		CharCreatev4.ui.find('#char_name').focus();

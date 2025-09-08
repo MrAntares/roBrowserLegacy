@@ -19,6 +19,7 @@ define(function(require)
 	var SkillInfo      = require('DB/Skills/SkillInfo');
 	var jQuery         = require('Utils/jquery');
 	var Mouse          = require('Controls/MouseEventHandler');
+	var KEYS           = require('Controls/KeyEventHandler');
 	var MonsterTable   = require('DB/Monsters/MonsterTable');
 	var Session        = require('Engine/SessionStorage');
 	var Entity         = require('Renderer/Entity/Entity');
@@ -330,6 +331,11 @@ define(function(require)
 		}
 	};
 
+	Guild.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.toggle();
+		}
+	};
 
 	/**
 	 * Show guild element
@@ -531,9 +537,9 @@ define(function(require)
 					selectElement += '<option value="' + position.positionID + '" ' + ( key == member.GPositionID ? 'selected' : '') + '>' + position.posName + '</option>';
 				});
 				selectElement += '</select>';
-				
+
 				view.find('.position')[0].innerHTML = selectElement;
-				
+
 				view.find('.member_'+member.AID+'_'+member.GID).change(function(evt){
 						Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
 					});
@@ -562,7 +568,7 @@ define(function(require)
 		member.entity.sex         = member.Sex;
 		member.entity.head        = member.HeadType;
 		member.entity.headpalette = member.HeadPalette;
-		
+
 		this.ui.find('.content.info .members .numMember').text(_members.length);
 	};
 
@@ -606,7 +612,7 @@ define(function(require)
 		if ('headPalette' in member) {
 			_members[i].entity.headpalette = member.headPalette;
 		}
-		
+
 		// Update online count
 		for (i = 0, count = _members.length; i < count; ++i) {
 			online    += _members[i].CurrentState ? 1 : 0;
@@ -638,7 +644,7 @@ define(function(require)
 				break;
 			}
 		}
-		
+
 		if(validate){
 			onValidate();
 		}
@@ -1292,7 +1298,7 @@ define(function(require)
 		switch (activeTab) {
 			case 'members':
 				var list = [];
-				
+
 				_members.forEach((member) => {
 					list.push({
 						AID: member.AID,
@@ -1300,7 +1306,7 @@ define(function(require)
 						positionID: member.GPositionID
 					});
 				});
-				
+
 				Guild.onChangeMemberPosRequest(list);
 				break;
 

@@ -405,7 +405,7 @@ define(function (require) {
 		this.ui.find(".search-button").click(this.onSearch.bind(this));
 		this.ui.find(".search-input").keypress(
 			function (e) {
-				if (e.which === KEYS.ENTER) {
+				if (e.which === KEYS.ENTER || e.key === "Enter") {
 					this.onSearch();
 				}
 			}.bind(this),
@@ -1266,6 +1266,12 @@ define(function (require) {
 		this.ui.hide();
 		terminatePathFindingWorker();
 	};
+
+	Navigation.onKeyDown = function onKeyDown( event ) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.hide();
+		}
+	}
 
 	/**
 	 * Handle mouse movement over the map to display coordinates

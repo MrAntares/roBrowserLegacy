@@ -132,6 +132,7 @@ define(function(require)
 	 */
 	WinList.onKeyDown = function onKeyDown( event )
 	{
+		if (!this.ui.is(':visible')) return true;
 		switch (event.which) {
 			default:                                           return;
 			case KEYS.ENTER:  this.selectIndex();              break;
