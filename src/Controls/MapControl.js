@@ -111,34 +111,44 @@ define(function( require )
 
 			// Left click
 			case 1:
-				Session.moveAction = null;
-				Session.autoFollow = false;
+				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
 
-				var stop        = false;
-				if(entityOver != Session.Entity){
-					if (entityFocus && entityFocus != entityOver) {
-						if(!(Session.TouchTargeting && !entityOver)) {
-							entityFocus.onFocusEnd();
-							EntityManager.setFocusEntity(null);
+					if (entityOver && entityOver != Session.Entity && entityOver.objecttype != Entity.TYPE_EFFECT && entityOver.objecttype != Entity.TYPE_TRAP) {
+						AIDriver.mercenary.setmsg(Session.mercId, '3,'+ entityOver.GID);
+					} else {
+						AIDriver.mercenary.setmsg(Session.mercId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
+					}
+
+				} else {
+					Session.moveAction = null;
+					Session.autoFollow = false;
+					
+					var stop        = false;
+					if(entityOver != Session.Entity){
+						if (entityFocus && entityFocus != entityOver) {
+							if(!(Session.TouchTargeting && !entityOver)) {
+								entityFocus.onFocusEnd();
+								EntityManager.setFocusEntity(null);
+							}
+						}
+
+						// Entity picking ?
+						if (entityOver) {
+							stop = stop || entityOver.onMouseDown();
+							stop = stop || entityOver.onFocus();
+							EntityManager.setFocusEntity(entityOver);
+
+							// Know if propagate to map mousedown
+							if (stop) {
+								return;
+							}
 						}
 					}
 
-					// Entity picking ?
-					if (entityOver) {
-						stop = stop || entityOver.onMouseDown();
-						stop = stop || entityOver.onFocus();
-						EntityManager.setFocusEntity(entityOver);
-
-						// Know if propagate to map mousedown
-						if (stop) {
-							return;
-						}
+					// Start walking
+					if (this.onRequestWalk) {
+						this.onRequestWalk();
 					}
-				}
-
-				// Start walking
-				if (this.onRequestWalk) {
-					this.onRequestWalk();
 				}
 				break;
 
@@ -152,10 +162,8 @@ define(function( require )
 
 					if (entityOver && entityOver != Session.Entity && entityOver.objecttype != Entity.TYPE_EFFECT && entityOver.objecttype != Entity.TYPE_TRAP) {
 						AIDriver.homunculus.setmsg(Session.homunId, '3,'+ entityOver.GID);
-						AIDriver.mercenary.setmsg(Session.mercId, '3,'+ entityOver.GID);
 					} else {
 						AIDriver.homunculus.setmsg(Session.homunId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
-						AIDriver.mercenary.setmsg(Session.mercId, '1,'+ Mouse.world.x + ',' + Mouse.world.y);
 					}
 
 				} else {
