@@ -61,7 +61,9 @@ define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	
 	ShortCuts.Friends =			{	init:{key: KEYS.H,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'PartyFriends',		cmd:'FRIEND'				};
 	ShortCuts.Party =			{	init:{key: KEYS.Z,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'PartyFriends',		cmd:'PARTY'					};
 	ShortCuts.HomunInfo =		{	init:{key: KEYS.R,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'HomunInformations',	cmd:'TOGGLE'				};
-	ShortCuts.HomunState =		{	init:{key: KEYS.T,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'HomunInformations',	cmd:'TOGGLE'				};
+	ShortCuts.HomunState =		{	init:{key: KEYS.T,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'HomunInformations',	cmd:'AGGRESSIVE'			};
+	ShortCuts.MercInfo =		{	init:{key: KEYS.R,		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MercenaryInformations',	cmd:'TOGGLE'			};
+	ShortCuts.MercState =		{	init:{key: KEYS.T,		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MercenaryInformations',	cmd:'AGGRESSIVE'		};
 	ShortCuts.Quest =			{	init:{key: KEYS.U,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Quest',	            cmd:'TOGGLE'				};
 	//ShortCuts.Sit =			{	init:{key: KEYS.INSERT,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'xxx',				cmd:'xxx'					};//TODO
 	ShortCuts.ChatSize =		{	init:{key: KEYS.F10,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ChatBox', 			cmd:'updateHeight'			};
