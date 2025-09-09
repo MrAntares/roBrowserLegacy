@@ -32,7 +32,6 @@ define(function(require)
 	var NpcBox = new UIComponent( 'NpcBox', htmlText, cssText );
 
 
-
 	/**
 	 * @var {boolean} does the box need to be clean up?
 	 */
@@ -42,7 +41,7 @@ define(function(require)
 	/**
 	 * @var {integer} NPC GID
 	 */
-	var _ownerID = 0;
+	NpcBox.ownerID = 0;
 
 
 	/**
@@ -171,7 +170,7 @@ define(function(require)
 		this.ui.find('.content').text('');
 
 		_needCleanUp = false;
-		_ownerID     = 0;
+		NpcBox.ownerID = 0;
 
 		// Cutin system
 		var cutin = document.getElementById('cutin');
@@ -225,7 +224,7 @@ define(function(require)
 	NpcBox.setText = function SetText( text, gid )
 	{
 		var content = this.ui.find('.content');
-		_ownerID    = gid;
+		NpcBox.ownerID = gid;
 
 		if (_needCleanUp) {
 			_needCleanUp = false;
@@ -243,7 +242,7 @@ define(function(require)
 	 */
 	NpcBox.addNext = function addNext( gid )
 	{
-		_ownerID = gid;
+		NpcBox.ownerID = gid;
 		this.ui.find('.next').show();
 	};
 
@@ -255,7 +254,7 @@ define(function(require)
 	 */
 	NpcBox.addClose = function addClose( gid )
 	{
-		_ownerID = gid;
+		NpcBox.ownerID = gid;
 		this.ui.find('.close').show();
 	};
 
@@ -267,7 +266,7 @@ define(function(require)
 	{
 		_needCleanUp = true;
 		this.ui.find('.next').hide();
-		this.onNextPressed( _ownerID );
+		this.onNextPressed( NpcBox.ownerID );
 	};
 
 
@@ -278,7 +277,7 @@ define(function(require)
 	{
 		_needCleanUp = true;
 		this.ui.find('.close').hide();
-		this.onClosePressed( _ownerID );
+		this.onClosePressed( NpcBox.ownerID );
 	};
 
 
