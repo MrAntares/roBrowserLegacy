@@ -18,6 +18,7 @@ define(function(require)
 	var Preferences      = require('Core/Preferences');
 	var Renderer         = require('Renderer/Renderer');
 	var EntityManager    = require('Renderer/EntityManager');
+	var KEYS             = require('Controls/KeyEventHandler');
 	var Session          = require('Engine/SessionStorage');
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
@@ -127,6 +128,18 @@ define(function(require)
 			case 'AGGRESSIVE':
 				this.toggleAggressive();
 				break;
+		}
+	};
+
+	/**
+	 * Process key down
+	 *
+	 * @param {object} event
+	 */
+	MercenaryInformations.onKeyDown = function onKeyDown(event)
+	{
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.ui.toggle();
 		}
 	};
 

@@ -20,7 +20,8 @@ define(function (require)
 	var InventoryV3 = require('./InventoryV3/InventoryV3');		// Inventory Expansion
 
 	var UIVersionManager = require('UI/UIVersionManager');
-	var DB               = require('DB/DBManager');
+	var DB = require('DB/DBManager');
+	var KEYS = require('Controls/KeyEventHandler');
 
 	var versionInfo = {
 		default: InventoryV0,			// Basic Inventory
@@ -38,16 +39,24 @@ define(function (require)
 	};
 
 	var InventoryController = UIVersionManager.getUIController(publicName, versionInfo);
-	
+
 	var _selectUIVersion = InventoryController.selectUIVersion;
-	
+
 	// Extend default UI selector
 	InventoryController.selectUIVersion = function(){
-		
+
 		_selectUIVersion();
-		
+
 		//Add selected UI to item owner name update queue
-		DB.UpdateOwnerName.Inventory = InventoryController.getUI().onUpdateOwnerName;
+		var component = InventoryController.getUI();
+		DB.UpdateOwnerName.Inventory = component.onUpdateOwnerName;
+
+		// Escape to close the UI
+		component.onKeyDown = function onKeyDown(e) {
+			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
+				if (typeof component.toggle === 'function') component.toggle();
+			}
+		}
 	};
 
 	return InventoryController;

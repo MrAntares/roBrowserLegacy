@@ -43,13 +43,9 @@ define(function(require)
 	 */
 	SkillDescription.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			this.remove();
-			event.stopImmediatePropagation();
-			return false;
 		}
-
-		return true;
 	};
 
 

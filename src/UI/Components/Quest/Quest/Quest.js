@@ -111,7 +111,7 @@ define(function (require) {
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-		
+
 		QuestWindow.append();
 	};
 

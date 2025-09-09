@@ -105,12 +105,12 @@ define(function(require)
 	 	*/
 		function addValueToInput(inputValue, addValue) {
 			if (isMax && inputValue === 'MAX') return 'MAX';
-			
+
 			const currentValue = parseInt(inputValue) || 0;
 			if (!isMax)
 				return (currentValue + addValue);
 		}
-		
+
 		document.querySelector('.deposit').addEventListener('click', function() {
 			sendDepositRequest(inputDepo.value);
 		});
@@ -140,7 +140,7 @@ define(function(require)
 	function CheckValue ( value )
 	{
 		var error = Bank.ui.find('.errorupdate');
-				
+
 		if (value === '') {	// Input is blank
 			if (error)
 				error.text ( DB.getMessage(2781) );
@@ -197,7 +197,7 @@ define(function(require)
 					ChatBox.addText( DB.getMessage(2770), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 					input.val('');
 					return;
-				} 
+				}
 				else {
 					value = Session.zeny;
 				}
@@ -264,10 +264,10 @@ define(function(require)
 	function getIntValueFromFormattedString(formattedString) {
 		// Remove commas and 'z' from the string
 		const strippedString = formattedString.replace(/,/g, '').replace('z', '');
-	
+
 		// Parse the stripped string as an integer
 		const intValue = parseInt(strippedString, 10);
-	
+
 		// Check if the parsing was successful
 		if (!isNaN(intValue)) {
 			return intValue;
@@ -291,7 +291,7 @@ define(function(require)
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
 		});
-		
+
 		var input = Bank.ui.find('.depo');
 		input.val('');
 		input.focus();
@@ -305,13 +305,9 @@ define(function(require)
 	 */
 	Bank.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
-			event.stopImmediatePropagation();
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			reqCloseBank();
-			return false;
 		}
-
-		return true;
 	};
 
 	/**

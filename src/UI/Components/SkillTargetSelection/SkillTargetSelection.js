@@ -160,7 +160,7 @@ define(function(require)
 	 */
 	SkillTargetSelection.onKeyDown = function onKeyDown(event)
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			this.remove();
 			event.stopImmediatePropagation();
 			return false;
@@ -180,7 +180,7 @@ define(function(require)
 		Cursor.blockMagnetism = false;
 		Cursor.freeze         = false;
 		Cursor.setType(Cursor.ACTION.DEFAULT);
-		
+
 		EntityManager.setSupportPicking(false);
 
 		if (_skillName.parentNode) {
@@ -214,7 +214,7 @@ define(function(require)
 		if (!_flag) {
 			return;
 		}
-		
+
 		if(Session.TouchTargeting){
 			var entityFocus = EntityManager.getFocusEntity();
 			if(entityFocus){
@@ -261,7 +261,7 @@ define(function(require)
 		if(_skill.useLevel > _skill.level){
 			_skill.useLevel = _skill.level;
 		}
-		
+
 		renderLevel(_skill.useLevel, _skill_level);
 	}
 
@@ -295,7 +295,7 @@ define(function(require)
 		canvas.style.left = ((Renderer.width - canvas.width) >> 1) + 'px';
 	}
 
-	
+
 	/**
 	 * Render text into the canvas
 	 *
@@ -349,7 +349,7 @@ define(function(require)
 		if (!entity) {
 			return false;
 		}
-		
+
 		// Trap check
 		if ( entity.objecttype === Entity.TYPE_TRAP && !(_flag & (SkillTargetSelection.TYPE.TRAP)) ) {
 			return false;
@@ -375,7 +375,7 @@ define(function(require)
 			case Entity.TYPE_UNIT:
 				target = SkillTargetSelection.TYPE.ENEMY | SkillTargetSelection.TYPE.PET;
 				break;
-				
+
 			case Entity.TYPE_TRAP:
 				target = SkillTargetSelection.TYPE.TRAP;
 				break;

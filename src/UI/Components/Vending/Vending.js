@@ -17,7 +17,7 @@ define(function(require)
 	var jQuery       = require('Utils/jquery');
 	var DB           = require('DB/DBManager');
 	var Network          = require('Network/NetworkManager');
-	var PACKET           = require('Network/PacketStructure');	
+	var PACKET           = require('Network/PacketStructure');
 	var ItemType     = require('DB/Items/ItemType');
 	var Client       = require('Core/Client');
 	var Preferences  = require('Core/Preferences');
@@ -60,7 +60,7 @@ define(function(require)
 	};
 
 	/**
-	 * @var {Preferences} 
+	 * @var {Preferences}
 	 */
 	var _preferences = Preferences.get('Vending', {
 		inputWindow: {
@@ -94,9 +94,9 @@ define(function(require)
 	 * @var {number} type (buy/sell)
 	 */
 	var _type;
-	
+
 	var _shopname = '';
-	
+
 	function isItemStackable(item){
 		if(
 			item.type === ItemType.WEAPON ||
@@ -134,11 +134,11 @@ define(function(require)
 				pkt = new PACKET.CZ.REQ_OPENSTORE2();
 			else
 				pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
-	
+
 			submitNetworkPacket(pkt);
 			Vending.onRemove();
 		});
-		
+
 		InputWindow.find('.footer .extend').mousedown(onResizeInput);
 
 
@@ -166,8 +166,8 @@ define(function(require)
 				Vending.focus();
 			});
 
-		
-		
+
+
 
 		// Hacky drag drop
 		this.draggable.call({ui: InputWindow },  InputWindow.find('.titlebar'));
@@ -186,7 +186,7 @@ define(function(require)
 	{
 		var InputWindow  = this.ui.find('.InputWindow');
 		var OutputWindow = this.ui.find('.OutputWindow');
-		
+
 		InputWindow.css({
 			top:  Math.min( Math.max( 0, _preferences.inputWindow.y), Renderer.height - InputWindow.find('.content').height()),
 			left: Math.min( Math.max( 0, _preferences.inputWindow.x), Renderer.width  - InputWindow.find('.content').width())
@@ -201,8 +201,8 @@ define(function(require)
 
 		// Seems like "EscapeWindow" is execute first, push it before.
 		//var events = jQuery._data( window, 'events').keydown;
-		//events.unshift( events.pop() );		
-		
+		//events.unshift( events.pop() );
+
 		this.ui.hide();
 	};
 
@@ -242,7 +242,7 @@ define(function(require)
 	{
 		height = Math.min( Math.max(height, 2), 9);
 		content.css('height', height * 32);
-	}	
+	}
 
 
 	/**
@@ -269,8 +269,8 @@ define(function(require)
 		_preferences.save();
 
 		this.ui.find('.content').empty();
-		
-		this.ui.hide();		
+
+		this.ui.hide();
 	};
 
 
@@ -281,16 +281,12 @@ define(function(require)
 	 */
 	Vending.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			this.remove();
-			event.stopImmediatePropagation();
-			return false;
 		}
-
-		return true;
 	};
-	
-	
+
+
 
 	/**
 	 * Add items to list
@@ -306,24 +302,24 @@ define(function(require)
 
 		_input.length  = 0;
 		_output.length = 0;
-		
-		
+
+
 		content        = this.ui.find('.InputWindow .content');
 
-		{		
+		{
 				for (i = 0, count = items.length; i < count; ++i) {
-					
+
 
 					if (!('index' in items[i])) {
 						items[i].index = i;
 					}
-					
+
 					if(isItemStackable(items[i])){
 						items[i].IsStackable = true;
 					} else {
 						items[i].IsStackable = false;
 					}
-					
+
 					if(!(items[i].hasOwnProperty('count'))){
 						items[i].count = 1;
 					}
@@ -353,7 +349,7 @@ define(function(require)
 	 */
 	function prettyZeny( val, useStyle )
 	{
-		
+
 		var list = val.toString().split('');
 		var i, count = list.length;
 		var str = '';
@@ -393,7 +389,7 @@ define(function(require)
 		var it      = DB.getItemInfo(item.ITID);
 		var element = content.find('.item[data-index='+ item.index +']:first');
 		var price;
-		var textPrice = DB.getMessage(1721); 
+		var textPrice = DB.getMessage(1721);
 
 		// 0 as amount ? remove it
 		if (item.count === 0) {
@@ -424,12 +420,12 @@ define(function(require)
 					'<div class="icon"></div>' +
 					'<div class="amount">' + (item.IsStackable ? item.count : '') + '</div>' +
 				'</div>'
-			);		
+			);
 		}
 		else
 		{
 			var itemObj = jQuery(
-				'<div class="item-container">' + 
+				'<div class="item-container">' +
 					'<div class="item output" draggable="true" data-index="'+ item.index +'">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">' + (_type === Vending.Type.BUYING_STORE ? item.total : item.IsStackable ? item.count : '') + '</div>' +
@@ -476,7 +472,7 @@ define(function(require)
 		{
 			// Add item to the list
 			if (isAdding) {
-				
+
 				if(!_input[index].IsIdentified){
 					VendingModelMessage.setInit(603);
 					return;
@@ -533,7 +529,7 @@ define(function(require)
 			if(!(countSlotsUsed() < _slots)){
 				return false;
 			}
-			
+
 			count = _input[index].count;
 		}
 		else {
@@ -549,7 +545,7 @@ define(function(require)
 
 		// Just one item amount
 		if ((item.count === 1 || !item.IsStackable) && _type === Vending.Type.VENDING_STORE /* || (_type === Vending.Type.SELL && _preferences.select_all)*/) {
-			
+
 			if(isAdding)
 			{
 				// Have to specify an price
@@ -565,7 +561,7 @@ define(function(require)
 				};
 			}
 			else
-			{			
+			{
 				transferItem(fromContent, toContent, isAdding, index, item.count);
 			}
 			return false;
@@ -602,7 +598,7 @@ define(function(require)
 					};
 				}
 				else
-				{			
+				{
 					transferItem(fromContent, toContent, isAdding, index, count);
 				}
 			}
@@ -650,7 +646,7 @@ define(function(require)
 	function onItemInfo(event)
 	{
 		event.stopImmediatePropagation();
-		
+
 		var index = parseInt( this.parentNode.getAttribute('data-index'), 10);
 		var item  = _input[index];
 
@@ -762,7 +758,7 @@ define(function(require)
 			})
 		);
 	}
-	
+
 	/**
 	 * Extend InputWindow size
 	 */
@@ -814,10 +810,10 @@ define(function(require)
 		this.ui.show();
 	};
 
-	
+
 	Vending.onBuyingSkill = function onBuyingSkill(pkt)
 	{
-		_slots = pkt.itemcount; 
+		_slots = pkt.itemcount;
 		// get from inventory and compare with buyingstoreitemlist.txt
 		//Inventory.list
 		let buyable = new Array();
@@ -834,15 +830,15 @@ define(function(require)
 
 	Vending.onSubmit = function onSubmit()
 	{
-		
+
 		var output;
 		var i, count,shopname,limitZeny,ctr = 0;
 
 		output = [];
 		count  = _output.length;
-		
+
 		shopname = this.ui.find('.shopname').val();
-		
+
 
 		for (i = 0; i < count; ++i) {
 			if (_output[i] && _output[i].count) {
@@ -856,7 +852,7 @@ define(function(require)
 			VendingModelMessage.setInit(2494);
 			return;
 		}
-	
+
         var pkt;
 		if(_type === Vending.Type.VENDING_STORE) {
 			pkt = new PACKET.CZ.REQ_OPENSTORE2();
@@ -878,7 +874,7 @@ define(function(require)
 		pkt.storeName = shopname;
 		pkt.result = 1;
 		pkt.storeList = output;
-		
+
 		if(!shopname)
 		{
 			VendingModelMessage.setInit(225);
@@ -888,12 +884,12 @@ define(function(require)
 		{
 			this._shopname = shopname;
 			submitNetworkPacket(pkt);
-		}	
-		
+		}
+
 		this.onRemove();
-		 
+
 	};
-	
+
 	function countSlotsUsed(){
 		var count = 0;
 		_output.forEach((item) => {

@@ -56,13 +56,9 @@ define(function(require)
 	 */
 	ItemReform.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			ItemReform.remove();
-			event.stopImmediatePropagation();
-			return false;
 		}
-
-		return true;
 	};
 
 
@@ -459,7 +455,7 @@ define(function(require)
 			let mat_it = DB.getItemInfo(material.MaterialItemID);
 			let mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
 			let inventory_mat_count;
-			
+
 			if (!mat_item) {
 				inventory_mat_count = 0;
 			} else {
@@ -477,7 +473,7 @@ define(function(require)
 				'<div class="icon"></div>' +
 				'<div class="count ' + itemClass + '">' + inventory_mat_count + ' / ' + material.Amount + '</div>' +
 			'</div>');
-	
+
 			// Append the new material div to the material list
 			materialDiv.append(newMat);
 
@@ -502,7 +498,7 @@ define(function(require)
 
 			// InformationString array
 			var infoText = SelectedReformInfo.InformationString.join('\n');
-			
+
 			// Display the information in NpcBox
 			NpcBox.append();
 			NpcBox.setText(infoText, 0);
@@ -520,13 +516,13 @@ define(function(require)
 					left: e.pageX
 				});
 			}
-	
+
 			// Add NpcBox to body so it can follow cursor correctly
 			jQuery('body').append(NpcBox.ui);
-	
+
 			// Update position on mouse move
 			jQuery(document).on('mousemove', updateNpcBoxPosition);
-	
+
 			// Remove the event listener on mouse out
 			jQuery(event.currentTarget).on('mouseout', function() {
 				jQuery(document).off('mousemove', updateNpcBoxPosition);
@@ -600,7 +596,7 @@ define(function(require)
 	function onRequestReformClose()
 	{
 		ItemReform.remove();
-		
+
 		var pkt = new PACKET.CZ.CLOSE_REFORM_UI();
 		Network.sendPacket(pkt);
 	};
@@ -672,13 +668,13 @@ define(function(require)
 				left: (e.pageX - uiOffset.left + 10) + 'px' // Adjust for UI offset
 			});
 		}
-	
+
 		// Initial position update
 		updateOverlayPosition(event);
-	
+
 		// Update position on mouse move
 		jQuery(document).on('mousemove', updateOverlayPosition);
-	
+
 		// Remove the event listener on mouse out
 		jQuery(event.currentTarget).on('mouseout', function() {
 			jQuery(document).off('mousemove', updateOverlayPosition);

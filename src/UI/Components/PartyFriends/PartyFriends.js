@@ -22,6 +22,7 @@ define(function(require)
 	var Renderer             = require('Renderer/Renderer');
 	var Session              = require('Engine/SessionStorage');
 	var Mouse                = require('Controls/MouseEventHandler');
+	var KEYS                 = require('Controls/KeyEventHandler');
 	var UIManager            = require('UI/UIManager');
 	var UIComponent          = require('UI/UIComponent');
 	var PartyHelper          = require('UI/Components/PartyFriends/PartyHelper');
@@ -236,6 +237,13 @@ define(function(require)
 		}
 	};
 
+	PartyFriends.onKeyDown = function onKeyDown( event )
+	{
+		// Event.which is deprecated
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.toggle();
+		}
+	}
 
 	/**
 	 * Set friends to UI

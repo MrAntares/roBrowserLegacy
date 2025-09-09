@@ -61,13 +61,9 @@ define(function(require)
 	 */
 	LaphineUpg.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			LaphineUpg.remove();
-			event.stopImmediatePropagation();
-			return false;
 		}
-
-		return true;
 	};
 
 
@@ -187,9 +183,9 @@ define(function(require)
 
 			// Assume lapine_list is already loaded and available
 			let laphineUpgInfo = DB.getLaphineUpgInfoById(pkt.itemId);
-	
+
 			if (laphineUpgInfo) {
-	
+
 				// Update the state object
 				LaphineUpgUIState.itemId = laphineUpgInfo.ItemID;
 				LaphineUpgUIState.needRefineMin = laphineUpgInfo.NeedRefineMin;
@@ -198,7 +194,7 @@ define(function(require)
 				LaphineUpgUIState.notsocketenchantitem = laphineUpgInfo.NotSocketEnchantItem;
 				LaphineUpgUIState.targetItems = laphineUpgInfo.TargetItems;
 				LaphineUpgUIState.needSourceString = laphineUpgInfo.NeedSource_String;
-	
+
 				// Use a function to build/update your UI
 				onUpdateLaphineUpgUI();
 				populateAvailableUpgMatList();
@@ -253,7 +249,7 @@ define(function(require)
 	function populateAvailableUpgMatList() {
 		let availableMatList = LaphineUpg.ui.find('.available_mat_list');
 		availableMatList.empty(); // Clear the list before populating
-	
+
 		LaphineUpgUIState.targetItems.forEach(targetItem => {
 			let matchingItems = GetInventoryItemsById(targetItem.id);
 			matchingItems.forEach(inventoryItem => {
@@ -261,11 +257,11 @@ define(function(require)
 
             	// Check refining level for weapons and equipment
             	if ((inventoryItem.type === ItemType.WEAPON || inventoryItem.type === ItemType.ARMOR) &&
-            	    (inventoryItem.RefiningLevel < LaphineUpgUIState.needRefineMin || 
+            	    (inventoryItem.RefiningLevel < LaphineUpgUIState.needRefineMin ||
             	     inventoryItem.RefiningLevel > LaphineUpgUIState.needRefineMax)) {
             	    	isValid = false;
             	}
-		
+
 				if (LaphineUpgUIState.needoptionnummin) {
 					console.log("Laphine Upgrade need min option:", LaphineUpgUIState.needoptionnummin);
 					isValid = false;
@@ -279,7 +275,7 @@ define(function(require)
 						}
             		}
 				}
-			
+
             	if (isValid) {
             	    // We get icon name from item table instead because some targetItem.name are not identifiedResourceName
 					let it = DB.getItemInfo(targetItem.id);
@@ -347,7 +343,7 @@ define(function(require)
 	function onRequestLaphineUpgClose()
 	{
 		LaphineUpg.remove();
-		
+
 		var pkt = new PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE();
 		Network.sendPacket(pkt);
 	};
@@ -361,8 +357,8 @@ define(function(require)
 
 		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var item = Inventory.getUI().getItemByIndex(idx);
-	
-	
+
+
 		if (!item) {
 			return false;
 		}
@@ -401,11 +397,11 @@ define(function(require)
 		if (LaphineUpg.submittedIndex !== 0) {
 			return false; // An item is already submitted
 		}
-	
+
 		// Check if any item already exists in the .submitted_mat_list .item elements
 		if (ui.find('.submitted_mat_list .item').length > 0) {
 			return false; // An item already exists in the submitted list
-		}	
+		}
 
 		// Get the target item from LaphineUpgUIState.targetItems
 		let targetItem = LaphineUpgUIState.targetItems.find(si => si.id === item.ITID);
@@ -526,7 +522,7 @@ define(function(require)
 		availableMatList.find('.item').each(function() {
 			let idx = parseInt(jQuery(this).attr('data-index'), 10);
 			let item = Inventory.getUI().getItemByIndex(idx);
-	
+
 			if (item.ITID === itemId && idx === itemIndex) {
 				itemExists = true;
 				if (remove) {
@@ -611,7 +607,7 @@ define(function(require)
 		var parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
 		var itemPos = pos.position();
 		var containerPos = parentContainer.position();
-	
+
 		// Calculate the desired position of the overlay relative to the container
 		var top = itemPos.top - overlay.outerHeight() + 25;
 		var left = itemPos.left;
@@ -716,7 +712,7 @@ define(function(require)
 		if (data.type !== 'item') {
 			return false;
 		}
-		
+
 		// Check if there's a currently selected item in the .name class
 		let selectedItem = LaphineUpg.ui.find('.item .name.selected');
 		let idx;
@@ -736,11 +732,11 @@ define(function(require)
 		if (LaphineUpg.submittedIndex !== 0) {
 			return false; // An item is already submitted
 		}
-	
+
 		// Check if any item already exists in the .submitted_mat_list .item elements
 		if (ui.find('.submitted_mat_list .item').length > 0) {
 			return false; // An item already exists in the submitted list
-		}	
+		}
 
 		// Get the target item from LaphineUpgUIState.targetItems
 		let targetItem = LaphineUpgUIState.targetItems.find(si => si.id === item.ITID);

@@ -159,7 +159,7 @@ define(function(require)
 				event.stopImmediatePropagation();
 				return false;
 			}
-			else if (event.which === KEYS.ESCAPE) {
+			else if ((event.which === KEYS.ESCAPE || event.key === "Escape")) {
 				this.hide();
 				event.stopImmediatePropagation();
 				return false;

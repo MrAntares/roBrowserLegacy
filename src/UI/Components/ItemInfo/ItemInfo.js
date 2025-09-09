@@ -72,16 +72,12 @@ define(function(require)
 	 */
 	ItemInfo.onKeyDown = function onKeyDown( event )
 	{
-		if (event.which === KEYS.ESCAPE) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
 			ItemInfo.remove();
 			if (ItemCompare.ui) {
 				ItemCompare.remove();
 			}
-			event.stopImmediatePropagation();
-			return false;
 		}
-
-		return true;
 	};
 
 
@@ -159,7 +155,7 @@ define(function(require)
 
 		var customname = '';
 		var hideslots = false;
-		
+
 		if(item.slot){
 
 			var very = '';
@@ -277,7 +273,7 @@ define(function(require)
 			default:
 				cardList.parent().hide();
 				break;
-			
+
 			case ItemType.ARMOR:
 				// Pet Egg check for old versions (before ItemType.PETEGG existed)
 				if (DB.isPetEgg(item.ITID)){
@@ -302,7 +298,7 @@ define(function(require)
 					cardList.parent().hide();
 				}
 				break;
-			
+
 			case ItemType.PETEGG:
 				cardList.parent().hide();
 				break;

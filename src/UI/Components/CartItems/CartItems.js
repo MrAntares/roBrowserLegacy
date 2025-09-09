@@ -24,6 +24,7 @@ define(function(require)
 	var Preferences        = require('Core/Preferences');
 	var Renderer           = require('Renderer/Renderer');
 	var Mouse              = require('Controls/MouseEventHandler');
+	var KEYS               = require('Controls/KeyEventHandler');
 	var UIManager          = require('UI/UIManager');
 	var UIComponent        = require('UI/UIComponent');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
@@ -180,6 +181,12 @@ define(function(require)
 		}
 	};
 
+	CartItems.onKeyDown = function onKeyDown( event )
+	{
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.ui.toggle();
+		}
+	}
 
 	/**
 	 * Extend inventory window size
@@ -623,7 +630,7 @@ define(function(require)
 		}
 
 		let quantity = ' ea';
-		if ((item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) && 
+		if ((item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) &&
 			item.Options && item.Options.filter(Option => Option.index !== 0).length > 0)
 		{
 			quantity = ' Quantity';

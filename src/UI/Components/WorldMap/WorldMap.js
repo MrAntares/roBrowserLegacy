@@ -12,6 +12,7 @@ define(function (require) {
     const Client = require('Core/Client');
     const Configs = require('Core/Configs');
     const Preferences = require('Core/Preferences');
+	const KEYS = require('Controls/KeyEventHandler');
     const Renderer = require('Renderer/Renderer');
     const MapRenderer = require('Renderer/MapRenderer');
     const UIManager = require('UI/UIManager');
@@ -461,6 +462,14 @@ define(function (require) {
             closeMapDialog();
         }
     };
+
+	WorldMap.onKeyDown = function onKeyDown( event )
+	{
+		// Event.which is deprecated
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			this.toggle();
+		}
+	}
 
     /**
      * Process shortcut

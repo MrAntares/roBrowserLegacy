@@ -36,9 +36,9 @@ define(function(require)
 
 
 	/**
-	 * Mouse can cross this UI
+	 * Mouse cant cross this UI
 	 */
-	MiniMapV2.mouseMode = UIComponent.MouseMode.CROSS;
+	MiniMapV2.mouseMode = UIComponent.MouseMode.STOP;
 
 
 	/**
@@ -158,7 +158,7 @@ define(function(require)
 			_kafra.src = dataURI;
 		});
 
-		
+
 		// Bind DOM elements
 		this.ui.find('.plus').mousedown(genericUpdateZoom(+1));
 		this.ui.find('.minus').mousedown(genericUpdateZoom(-1));
