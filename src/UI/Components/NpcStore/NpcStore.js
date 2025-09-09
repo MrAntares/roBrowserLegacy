@@ -1103,6 +1103,9 @@ define(function(require)
 		let inputWindow  = NpcStore.ui.find('.InputWindow');
 		let outputWindow = NpcStore.ui.find('.OutputWindow');
 
+		// Also remove the input box, if present
+		InputBox.remove();
+
 		let pkt;
 		switch(type) {
 			case NpcStore.Type.MARKETSHOP:
