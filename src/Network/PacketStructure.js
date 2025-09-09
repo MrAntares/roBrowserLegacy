@@ -2645,6 +2645,25 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		pkt_buf.writeULong(this.GID);
 		return pkt_buf;
 	};
+	
+	// 0x235
+	PACKET.ZC.HOSKILLINFO_LIST = function PACKET_ZC_HOSKILLINFO_LIST(fp, end) {
+		this.skillList = (function() {
+			var i, count=(end-fp.tell())/37|0, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].SKID = fp.readShort();
+				out[i].type = fp.readLong();
+				out[i].level = fp.readShort();
+				out[i].spcost = fp.readShort();
+				out[i].attackRange = fp.readShort();
+				out[i].skillName = fp.readBinaryString(NAME_LENGTH);
+				out[i].upgradable = fp.readChar();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.HOSKILLINFO_LIST.size = -1;
 
 
 	// 0x237
@@ -2656,6 +2675,16 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		pkt_buf.writeShort(0x237);
 		return pkt_buf;
 	};
+	
+	// 0x239
+	PACKET.ZC.HOSKILLINFO_UPDATE = function PACKET_ZC_HOSKILLINFO_UPDATE(fp, end) {
+		this.SKID = fp.readUShort();
+		this.level = fp.readShort();
+		this.spcost = fp.readShort();
+		this.attackRange = fp.readShort();
+		this.upgradable = fp.readUChar();
+	};
+	PACKET.ZC.HOSKILLINFO_UPDATE.size = 11;
 
 
 	// 0x23b
