@@ -393,12 +393,6 @@ define(function (require) {
 	function onEntityStopMove(pkt) {
 		var entity = EntityManager.get(pkt.AID);
 		if (entity) {
-			entity.position[0] = pkt.xPos;
-			entity.position[1] = pkt.yPos;
-			entity.position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
-
-			entity.resetRoute();
-
 			if (entity.action === entity.ACTION.WALK) {
 				entity.setAction({
 					action: entity.ACTION.IDLE,
@@ -407,6 +401,11 @@ define(function (require) {
 					play: true
 				});
 			}
+
+			entity.position[0] = pkt.xPos;
+			entity.position[1] = pkt.yPos;
+			entity.position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
+			entity.resetRoute();
 		}
 	}
 
