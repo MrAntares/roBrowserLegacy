@@ -401,11 +401,11 @@ define(function (require) {
 					play: true
 				});
 			}
-
+			
+			entity.resetRoute();
 			entity.position[0] = pkt.xPos;
 			entity.position[1] = pkt.yPos;
 			entity.position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
-			entity.resetRoute();
 		}
 	}
 
