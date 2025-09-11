@@ -188,7 +188,14 @@ define(function( require )
 
 		if (error) {
 			ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL );
-			srcEntity.setAction(SkillActionTable['DEFAULT']( srcEntity, Renderer.tick ));
+			if (pkt.SKID in SkillActionTable) {
+				var action = SkillActionTable[pkt.SKID];
+				if (action) {
+					srcEntity.setAction(action(srcEntity, Renderer.tick));
+				}
+			} else {
+				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+			}
 		}
 	}
 
