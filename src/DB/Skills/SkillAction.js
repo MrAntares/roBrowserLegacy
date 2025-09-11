@@ -402,44 +402,6 @@ define(['./SkillConst'], function(SK) {
 		};
 	};
 	
-	//TK STANCE
-	SkillAction[SK.TK_READYSTORM] = function(entity, tick){
-		return {
-			action: entity.ACTION.SKILL,
-			frame: 0,
-			repeat: false,
-			play: false,
-			next: false
-		};
-	};
-	SkillAction[SK.TK_READYDOWN] = function(entity, tick){
-		return {
-			action: entity.ACTION.SKILL,
-			frame: 2,
-			repeat: false,
-			play: false,
-			next: false
-		};
-	};
-	SkillAction[SK.TK_READYTURN] = function(entity, tick){
-		return {
-			action: entity.ACTION.SKILL,
-			frame: 3,
-			repeat: false,
-			play: false,
-			next: false
-		};
-	};
-	SkillAction[SK.TK_READYCOUNTER] = function(entity, tick){
-		return {
-			action: entity.ACTION.SKILL,
-			frame: 4,
-			repeat: false,
-			play: false,
-			next: false
-		};
-	};
-	
 	//9hit
 	SkillAction[SK.CG_ARROWVULCAN] = function(entity, tick){
 		return {
@@ -641,8 +603,13 @@ define(['./SkillConst'], function(SK) {
 	
 		
 	//Prevent default skill action
+	SkillAction[SK.NV_BASIC] =
 	SkillAction[SK.TF_BACKSLIDING] =
 	SkillAction[SK.NV_TRICKDEAD] =
+	SkillAction[SK.TK_READYSTORM] =
+	SkillAction[SK.TK_READYDOWN] =
+	SkillAction[SK.TK_READYTURN] =
+	SkillAction[SK.TK_READYCOUNTER] =
 	SkillAction[SK.TK_HIGHJUMP] =
 	SkillAction[SK.TK_DODGE] =
 	SkillAction[SK.LK_TENSIONRELAX] =
@@ -653,4 +620,5 @@ define(['./SkillConst'], function(SK) {
 	return SkillAction;
 
 });	
+
 
