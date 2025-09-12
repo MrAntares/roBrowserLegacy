@@ -2855,6 +2855,7 @@ define(function( require )
 			type: 'FUNC',
 			func: function( Params ){
 				var QuadHorn = require('Renderer/Effects/QuadHorn');
+				var Altitude = require('Renderer/Map/Altitude');
 				for(let i=-2; i<=2; i++){
 					for(let j=-2; j<=2; j++){
 						var newParams = {
@@ -2879,11 +2880,12 @@ define(function( require )
 							Init: {},
 							Inst: {},
 						};
+						var newPos = [Params.Init.position[0]+i, Params.Init.position[1]+j];
 						Object.assign(newParams.Init, Params.Init);
-						newParams.Init.position = [Params.Init.position[0]+i, Params.Init.position[1]+j, Params.Init.position[2]];
+						newParams.Init.position = [newPos[0], newPos[1], Altitude.getCellHeight(newPos[0], newPos[1])];
 						newParams.Init.duration = newParams.effect.duration;
 						Object.assign(newParams.Inst, Params.Inst);
-						newParams.Inst.position = [Params.Inst.position[0]+i, Params.Inst.position[1]+j, Params.Inst.position[2]];
+						newParams.Inst.position = [newPos[0], newPos[1], Altitude.getCellHeight(newPos[0], newPos[1])];
 						newParams.Inst.duration = newParams.effect.duration;
 						newParams.Inst.endTick = newParams.Inst.startTick + newParams.effect.duration;
 						this.add(new QuadHorn(newParams.effect, newParams.Inst, newParams.Init), newParams);
