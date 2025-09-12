@@ -2864,10 +2864,10 @@ define(function( require )
 								attachedEntity: false,
 								duration: 1000,
 								height: [0.75, 1.2],
-								offsetX: [0.4, 0.6],
-								offsetY: [0.4, 0.6],
+								offsetX: [0.2, 0.2],
+								offsetY: [0.2, 0.2],
 								offsetZ: -0.1,
-								bottomSize: [0.3, 0.45],
+								bottomSize: [0.4, 0.7],
 								blendMode: 1,
 								rotateY: [1, 360],
 								rotateZ: [-8.0, 8.0],
@@ -8689,8 +8689,34 @@ define(function( require )
 		}],
 
 		732: [{	//EF_EARTHWALL	   Spike from the ground
-			wav: 'effect/wizard_earthspike'
+			type: 'QuadHorn',
+			textureFile: 'effect/stone.bmp',
+			attachedEntity: false,
+			duration: 1000,
+			height: [0.75, 1.2],
+			offsetX: [0.2, 0.2],
+			offsetY: [0.2, 0.2],
+			offsetZ: -0.1,
+			bottomSize: [0.4, 0.9],
+			blendMode: 1,
+			rotateY: [1, 360],
+			rotateZ: [-8.0, 8.0],
+			color: [1.0, 1.0, 1.0, 1.0],
+			animation: 3,
+			animationSpeed: 250,
+			animationOut: true,
+			wav: 'effect/wizard_earthspike',
+		}, {
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var Camera = require('Renderer/Camera');
+				var start = Params.Inst.startTick;
+				var duration = 200;
+				Camera.setQuake( start, duration );
+			}
 		}],
+		
 		//733: [{}],	//EF_SOULBREAKER4	   Fluffy Ball flying by
 
 		734: [{	//EF_CHAINL_STR	Chain Lightning
