@@ -95,7 +95,6 @@ define(function (require) {
 
 		HomunInformations.append();
 		HomunInformations.setInformations(pkt);
-		HomunInformations.startAI();
 
 		SkillListMH.homunculus.setPoints(pkt.SKPoint);
 	}

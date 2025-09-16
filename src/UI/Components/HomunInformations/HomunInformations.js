@@ -365,16 +365,17 @@ define(function (require) {
     };
 
     HomunInformations.startAI = function startAI() {
-        this.stopAI();
-        AIDriver.homunculus.reset();
-        this.AILoop = setInterval(function () {
-            if (Session.homunId) {
-                var entity = EntityManager.get(Session.homunId);
-                if (entity) {
-                    AIDriver.homunculus.exec('AI(' + Session.homunId + ')')
+        if (!this.AILoop) {
+            AIDriver.homunculus.reset();
+            this.AILoop = setInterval(function () {
+                if (Session.homunId) {
+                    var entity = EntityManager.get(Session.homunId);
+                    if (entity) {
+                        AIDriver.homunculus.exec('AI(' + Session.homunId + ')')
+                    }
                 }
-            }
-        }, 100);
+            }, 100);
+        }
     };
 
     HomunInformations.stopAI = function stopAI() {
