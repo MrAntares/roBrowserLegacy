@@ -51,6 +51,7 @@ define(function( require )
 
 		MercenaryInformations.append();
 		MercenaryInformations.setInformations(pkt);
+		MercenaryInformations.startAI();
 	}
 
 	/**
