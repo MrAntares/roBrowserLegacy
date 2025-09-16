@@ -380,7 +380,7 @@ define(function (require) {
 
     HomunInformations.stopAI = function stopAI() {
         if (this.AILoop) {
-            clearInterval(this.AILoop);
+            this.AILoop = clearInterval(this.AILoop);
         }
     };
 

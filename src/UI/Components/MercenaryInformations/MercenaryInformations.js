@@ -342,7 +342,7 @@ define(function(require)
 	MercenaryInformations.stopAI = function stopAI()
 	{
 		if(this.AILoop){
-			clearInterval(this.AILoop);
+			this.AILoop = clearInterval(this.AILoop);
 		}
 	};
 
