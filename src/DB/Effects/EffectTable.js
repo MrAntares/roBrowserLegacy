@@ -6134,7 +6134,7 @@ define(function( require )
 		}],
 
 		368: [{	//EF_REDBODY	Berserk
-			wav:  'effect/\xef\x82\xb9\xef\x83\xb6\xef\x82\xbc\xef\x82\xad\xc5\xa9',
+			wav:  'effect/\xb9\xf6\xbc\xad\xc5\xa9',
 			attachedEntity: true
 			//shake screen
 		}],
