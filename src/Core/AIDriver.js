@@ -18,14 +18,14 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return {
                     id: Session.homunId,
                     aggressiveKey: 'HOM_AGGRESSIVE',
-                    aiPath: Session.homCustomAI ? "/AI/USER_AI/AI" : "/AI/AI",
+                    aiPath: Session.homCustomAI ? "AI/USER_AI/AI" : "AI/AI",
                     logPrefix: 'homAI'
                 };
             case 'mercenary':
                 return {
                     id: Session.mercId,
                     aggressiveKey: 'MER_AGGRESSIVE',
-                    aiPath: Session.merCustomAI ? "/AI/USER_AI/AI_M" : "/AI/AI_M",
+                    aiPath: Session.merCustomAI ? "AI/USER_AI/AI_M" : "AI/AI_M",
                     logPrefix: 'merAI'
                 };
             default:
@@ -36,11 +36,12 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
     AIDriver.prototype.init = function init() {
         var config = this.getConfig();
         var clientPath = Configs.get('remoteClient');
+		var sep = clientPath.substr(clientPath.length - 1) == "/" ? "" : "/";
 
         var code = `
-            package.path = '${clientPath}/?.lua'
+            package.path = '${clientPath}${sep}?.lua'
 
-            local ai_main, ai_error = loadfile("${clientPath}${config.aiPath}.lua")
+            local ai_main, ai_error = loadfile("${clientPath}${sep}${config.aiPath}.lua")
 
             -- Dummy AI if there is no AI file
             function AI()
