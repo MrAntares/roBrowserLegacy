@@ -1070,7 +1070,7 @@
 	 SkillEffect[SK.MA_SANDMAN]                     = SkillEffect[SK.HT_SANDMAN];		//Sandman
 	 SkillEffect[SK.MA_FREEZINGTRAP]                = SkillEffect[SK.HT_FREEZINGTRAP];		//Freezing_Trap
 	 SkillEffect[SK.MA_REMOVETRAP]                  = SkillEffect[SK.HT_REMOVETRAP];		//Remove_Trap
-	 SkillEffect[SK.MA_CHARGEARROW]                 = SkillEffect[SK.HT_CHARGEARROW];		//Arrow_Repel
+	 SkillEffect[SK.MA_CHARGEARROW]                 = SkillEffect[SK.AC_CHARGEARROW];		//Arrow_Repel
 	 SkillEffect[SK.MA_SHARPSHOOTING]               = SkillEffect[SK.SN_SHARPSHOOTING];		//Focused_Arrow_Strike
 	 SkillEffect[SK.ML_PIERCE]                      = SkillEffect[SK.KN_PIERCE];		//Pierce
 	 SkillEffect[SK.ML_BRANDISH]                    = SkillEffect[SK.KN_BRANDISH];		//Brandish_Spear
