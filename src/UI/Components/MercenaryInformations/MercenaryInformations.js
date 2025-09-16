@@ -323,7 +323,7 @@ define(function(require)
 	 */
 	MercenaryInformations.startAI = function startAI()
 	{
-		if(this.AILoop){
+		if(!this.AILoop){
 			AIDriver.mercenary.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.mercId) {
