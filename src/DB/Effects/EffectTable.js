@@ -11619,6 +11619,42 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
+		
+		'ef_mandragora_attack': [{
+			type: 'SPR',
+			file: '../npc/mandragora_atk',
+			attachedEntity: true
+		}],
+		
+		'ef_hydra_attack': [{
+			type: 'SPR',
+			file: '../npc/hydra_atk',
+			attachedEntity: true
+		}],
+		
+		'ef_odium_attack': [{
+			type: 'SPR',
+			file: '../npc/tha_odium_ef',
+			attachedEntity: true
+		}],
+		
+		'ef_drosera_attack': [{
+			type: 'SPR',
+			file: '../npc/drosera_bullet',
+			attachedEntity: true
+		}],
+		
+		'ef_mavka_attack': [{
+			type: 'SPR',
+			file: '../npc/mavka_bullet',
+			attachedEntity: true
+		}],
+		
+		'ef_entweihen_attack': [{
+			type: 'SPR',
+			file: '../npc/entweihen_bullet',
+			attachedEntity: true
+		}],
 
 		'ef_c_marker1': [{
 			type: 'STR',
