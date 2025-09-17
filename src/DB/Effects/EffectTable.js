@@ -11623,37 +11623,37 @@ define(function( require )
 		'ef_mandragora_attack': [{
 			type: 'SPR',
 			file: '../npc/mandragora_atk',
-			attachedEntity: true
+			attachedEntity: false
 		}],
 		
 		'ef_hydra_attack': [{
 			type: 'SPR',
 			file: '../npc/hydra_atk',
-			attachedEntity: true
+			attachedEntity: false
 		}],
 		
 		'ef_odium_attack': [{
 			type: 'SPR',
 			file: '../npc/tha_odium_ef',
-			attachedEntity: true
+			attachedEntity: false
 		}],
 		
 		'ef_drosera_attack': [{
 			type: 'SPR',
 			file: '../npc/drosera_bullet',
-			attachedEntity: true
+			attachedEntity: false
 		}],
 		
 		'ef_mavka_attack': [{
 			type: 'SPR',
 			file: '../npc/mavka_bullet',
-			attachedEntity: true
+			attachedEntity: false
 		}],
 		
 		'ef_entweihen_attack': [{
 			type: 'SPR',
 			file: '../npc/entweihen_bullet',
-			attachedEntity: true
+			attachedEntity: false
 		}],
 
 		'ef_c_marker1': [{
