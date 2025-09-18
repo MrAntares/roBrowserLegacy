@@ -18,7 +18,8 @@
 .human .chargen canvas { position:absolute; top:40px; left:25px; }
 
 /** Doram Race **/
-#charcreate_v4 .doram_label { position:absolute; width:370px; height:170px; top: 210px; left: 20px; outline:none; background-repeat: no-repeat; }
+#charcreate_v4 .doram_label { display: none; }
+/**#charcreate_v4 .doram_label { position:absolute; width:370px; height:170px; top: 210px; left: 20px; outline:none; background-repeat: no-repeat; }**/
 #charcreate_v4 .doram_title { position: absolute; color:white; top: 22px; left: 45px; height: 20px; width: 50px; }
 #charcreate_v4 .doram_desc { position: relative; top:22px; left:110px; height:60px; width:220px; } 
 /** Doram Chargen **/

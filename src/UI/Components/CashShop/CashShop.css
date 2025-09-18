@@ -8,6 +8,7 @@
     height: 530px;
     background: #fff;
 }
+
 #CashShop table { border-spacing:0px; display:inline-block; }
 
 #CashShop .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
@@ -123,6 +124,18 @@
     -webkit-box-shadow: 6px 6px 5px -1px rgb(170 170 170 / 75%);
     -moz-box-shadow: 6px 6px 5px -1px rgba(170,170,170,0.75);
 }
+#CashShop .container-body .inner-body .items .item {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+#CashShop .container-body .inner-body .items .item:hover {
+    transform: scale(1.05);
+    box-shadow: 8px 8px 12px -2px rgba(100, 100, 100, 0.6);
+    z-index: 5;
+}
+
+
 #CashShop .container-cart{
     float: left;
     height: inherit;

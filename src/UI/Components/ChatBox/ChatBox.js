@@ -613,18 +613,26 @@ define(function(require)
 	 * @param {object} event - KeyEventHandler
 	 * @return {boolean}
 	 */
-	ChatBox.onKeyDown = function OnKeyDown( event )
+	//  Handles key press events inside the chatbox
+	ChatBox.onKeyDown = function OnKeyDown(event) 
 	{
 		var messageBox = this.ui.find('.input .message');
-		var nickBox    = this.ui.find('.input .username');
+		var nickBox = this.ui.find('.input .username');
+		
 		this.ui.find('.header tr td div.on input').on('keyup', function(){
 			ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
 		});
+
 		switch (event.which) {
 
-			// Battle mode system
+			//  Battle mode system (Includes F1-F24, 0-9, A-Z, ALT, SHIFT, CTRL)
 			default:
-				if ((event.target.tagName && !event.target.tagName.match(/input|select|textarea/i)) || (event.which >= KEYS.F1 && event.which <= KEYS.F24) || KEYS.ALT || KEYS.SHIFT || KEYS.CTRL){
+				if ((event.target.tagName && !event.target.tagName.match(/input|select|textarea/i)) 
+					|| (event.which >= KEYS.F1 && event.which <= KEYS.F24) 
+					|| (event.which >= KEYS[1] && event.which <= KEYS[9])   //  Numbers 0-9 - MicromeX
+					|| (event.which >= KEYS.A && event.which <= KEYS.Z)   //  Letters A-Z - MicromeX
+					|| KEYS.ALT || KEYS.SHIFT || KEYS.CTRL) {
+					
 					if (ChatBox.processBattleMode(event.which)) {
 						event.stopImmediatePropagation();
 						return false;
@@ -632,27 +640,25 @@ define(function(require)
 				}
 				return true;
 
-			// Switch from user name, to message input
+			// 🔹 Switch input field (TAB key)
 			case KEYS.TAB:
 				if (document.activeElement === messageBox[0]) {
 					nickBox.select().focus();
 					break;
 				}
-
 				if (document.activeElement === nickBox[0]) {
 					messageBox.select().focus();
 					break;
 				}
 				return true;
 
-			// Get back message from history
+			// 🔹 Retrieve last chat message (UP arrow key)
 			case KEYS.UP:
 				if (!jQuery('#NpcMenu').length) {
 					if (document.activeElement === messageBox[0]) {
 						messageBox.val(_historyMessage.previous()).select();
 						break;
 					}
-
 					if (document.activeElement === nickBox[0]) {
 						nickBox.val(_historyNickName.previous()).select();
 						break;
@@ -660,14 +666,13 @@ define(function(require)
 				}
 				return true;
 
-			// Message from history
+			// 🔹 Retrieve next chat message (DOWN arrow key)
 			case KEYS.DOWN:
 				if (!jQuery('#NpcMenu').length) {
 					if (document.activeElement === messageBox[0]) {
 						messageBox.val(_historyMessage.next()).select();
 						break;
 					}
-
 					if (document.activeElement === nickBox[0]) {
 						nickBox.val(_historyNickName.next()).select();
 						break;
@@ -675,17 +680,16 @@ define(function(require)
 				}
 				return true;
 
-			// Update chat height
+			// 🔹 Resize chatbox (F10 key)
 			case KEYS.F10:
 				this.updateHeight(false);
-				// scroll down when resize
 				this.ui.find('.content')[this.activeTab].scrollTop = this.ui.find('.content')[this.activeTab].scrollHeight;
 				break;
 
-			// Send message
+			// 🔹 Send message (ENTER key)
 			case KEYS.ENTER:
 				if (document.activeElement.tagName === 'INPUT' &&
-				    document.activeElement !== messageBox[0]) {
+					document.activeElement !== messageBox[0]) {
 					return true;
 				}
 

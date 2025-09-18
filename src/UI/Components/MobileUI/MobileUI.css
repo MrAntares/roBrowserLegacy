@@ -18,6 +18,8 @@
 	background: rgba(193,193,193,0.33);
 	border-radius: 6px;
 	border: 1px solid grey;
+	font-size: 16px;
+    font-weight: bold;
 }
 
 #MobileUI .mobileKeys{
@@ -56,8 +58,34 @@
 	float: right;
 }
 
-#MobileUI .active{
-	background: rgba(193,255,193,0.33);
+#MobileUI .active {
+    background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
+    border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border */
+    box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect */
+    border-radius: 8px; /* Smooth edges */
+    animation: pulse 1.5s infinite; /* Subtle pulsing animation */
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transition for hover */
+}
+
+#MobileUI #toggleUIButton:active {
+    background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
+    border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border */
+    box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect */
+    border-radius: 8px; /* Smooth edges */
+    animation: pulse 1.5s infinite; /* Subtle pulsing animation */
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transition for hover */
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);
+    }
+    50% {
+        box-shadow: 0px 6px 12px rgba(144, 238, 144, 0.6);
+    }
+    100% {
+        box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);
+    }
 }
 
 #MobileUI .pressed{
@@ -73,3 +101,269 @@
 	width: 30px;
 	height: 30px;
 }
+
+
+/* Container for all buttons -MicromeX */
+#buttonContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+			bottom: 10%;
+            right: 10%;
+            width: 150px;
+            height: 150px;
+            z-index: 1000;
+}
+
+/* Attack Button (center and larger) -MicromeX */
+#MobileUI .atkButton {
+    position: absolute;
+    width: 70px; /* Reduced size */
+    height: 70px;
+    background-color: #f44336;
+    border: 1px solid #666;
+    border-radius: 50%;
+    font-size: 28px; /* Adjusted font size */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2); /* Adjusted shadow for smaller size */
+    cursor: pointer;
+}
+
+/* Functional Buttons (around the attack button) -MicromeX */
+#MobileUI .pickupButton {
+    position: absolute;
+    width: 40px; /* Reduced size */
+    height: 40px;
+    background: rgba(193, 193, 193, 0.33);
+    border: 1px solid #666;
+    border-radius: 50%;
+    font-size: 25px; /* Adjusted font size */
+    color: rgb(0, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+#MobileUI .talktonpcButton {
+    position: absolute;
+    width: 40px; /* Reduced size */
+    height: 40px;
+    background: rgba(193, 193, 193, 0.33);
+    border: 1px solid #666;
+    border-radius: 50%;
+    font-size: 25px; /* Adjusted font size */
+    color: rgb(0, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+#MobileUI .switchshorcutButton {
+    position: absolute;
+    width: 40px; /* Reduced size */
+    height: 40px;
+    background: rgba(193, 193, 193, 0.33);
+    border: 1px solid #666;
+    border-radius: 50%;
+    font-size: 25px; /* Adjusted font size */
+	font-weight: bold;
+    color: rgb(0, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+/* Functional Buttons (smaller and proportional) -MicromeX */
+#MobileUI .FButton {
+    position: absolute;
+    width: 30px; /* Reduced size */
+    height: 30px;
+    background: rgba(193, 193, 193, 0.33);
+    border: 1px solid #666;
+    border-radius: 50%;
+    font-size: 15px; /* Adjusted font size */
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+/* Positioning Buttons Around Attack Button -MicromeX */
+#f1Button { top: 97%; left: 35%; transform: translate(-50%, -50%); }
+#f2Button { top: 78%; left: 24%; transform: translate(-50%, -50%); }
+#f3Button { top: 56%; left: 24%; transform: translate(-50%, -50%); }
+#f4Button { top: 37%; left: 35%; transform: translate(-50%, -50%); }
+#f5Button { top: 30%; left: 57%; transform: translate(-50%, -50%); }
+#f6Button { top: 37%; left: 80%; transform: translate(-50%, -50%); }
+#f7Button { top: 7%; left: 35%; transform: translate(-50%, -50%); }
+#f8Button { top: 7%; left: 57%; transform: translate(-50%, -50%); }
+#f9Button { top: 7%; left: 80%; transform: translate(-50%, -50%); }
+/* Positioning Buttons Around Attack Button -MicromeX */
+#n1Button { top: 97%; left: 35%; transform: translate(-50%, -50%); }
+#n2Button { top: 78%; left: 24%; transform: translate(-50%, -50%); }
+#n3Button { top: 56%; left: 24%; transform: translate(-50%, -50%); }
+#n4Button { top: 37%; left: 35%; transform: translate(-50%, -50%); }
+#n5Button { top: 30%; left: 57%; transform: translate(-50%, -50%); }
+#n6Button { top: 37%; left: 80%; transform: translate(-50%, -50%); }
+#n7Button { top: 7%; left: 35%; transform: translate(-50%, -50%); }
+#n8Button { top: 7%; left: 57%; transform: translate(-50%, -50%); }
+#n9Button { top: 7%; left: 80%; transform: translate(-50%, -50%); }
+/* Positioning Buttons Around Attack Button -MicromeX */
+#qButton { top: 97%; left: 35%; transform: translate(-50%, -50%); }
+#wButton { top: 78%; left: 24%; transform: translate(-50%, -50%); }
+#eButton { top: 56%; left: 24%; transform: translate(-50%, -50%); }
+#rButton { top: 37%; left: 35%; transform: translate(-50%, -50%); }
+#tButton { top: 30%; left: 57%; transform: translate(-50%, -50%); }
+#yButton { top: 37%; left: 80%; transform: translate(-50%, -50%); }
+#uButton { top: 7%; left: 35%; transform: translate(-50%, -50%); }
+#iButton { top: 7%; left: 57%; transform: translate(-50%, -50%); }
+#oButton { top: 7%; left: 80%; transform: translate(-50%, -50%); }
+/* Positioning Buttons Around Attack Button -MicromeX */
+#aButton { top: 97%; left: 35%; transform: translate(-50%, -50%); }
+#sButton { top: 78%; left: 24%; transform: translate(-50%, -50%); }
+#dButton { top: 56%; left: 24%; transform: translate(-50%, -50%); }
+#fButton { top: 37%; left: 35%; transform: translate(-50%, -50%); }
+#gButton { top: 30%; left: 57%; transform: translate(-50%, -50%); }
+#hButton { top: 37%; left: 80%; transform: translate(-50%, -50%); }
+#jButton { top: 7%; left: 35%; transform: translate(-50%, -50%); }
+#kButton { top: 7%; left: 57%; transform: translate(-50%, -50%); }
+#lButton { top: 7%; left: 80%; transform: translate(-50%, -50%); }
+/* Pickup Button (slightly below attackButton) -MicromeX */
+#attackButton {
+    bottom: -10%;
+    left: 60%;
+    transform: translate(-50%, 0);
+}
+/* Pickup Button (slightly below attackButton) -MicromeX */
+#pickupButton {
+    bottom: 10%;
+    left: 105%;
+    transform: translate(-50%, 0);
+}
+
+/* TalkToNpc Button (slightly below attackButton) -MicromeX */
+#talktonpcButton {
+    bottom: -23%;
+    left: 105%;
+    transform: translate(-50%, 0);
+}
+/* TalkToNpc Button (slightly below attackButton) -MicromeX */
+#switchshorcutButton {
+    bottom: 43%;
+    left: 105%;
+    transform: translate(-50%, 0);
+}
+
+/* Hover Effect for Buttons -MicromeX */
+#f1Button:active, 
+#f2Button:active, 
+#f3Button:active, 
+#f4Button:active, 
+#f5Button:active, 
+#f6Button:active, 
+#f7Button:active, 
+#f8Button:active, 
+#f9Button:active,
+#n1Button:active, 
+#n2Button:active, 
+#n3Button:active, 
+#n4Button:active, 
+#n5Button:active, 
+#n6Button:active, 
+#n7Button:active, 
+#n8Button:active, 
+#n9Button:active,
+#qButton:active, 
+#wButton:active, 
+#eButton:active, 
+#rButton:active, 
+#tButton:active, 
+#yButton:active, 
+#uButton:active, 
+#iButton:active, 
+#oButton:active,
+#aButton:active, 
+#sButton:active, 
+#dButton:active, 
+#fButton:active, 
+#gButton:active, 
+#hButton:active, 
+#jButton:active, 
+#kButton:active, 
+#lButton:active,
+#switchshorcutButton:active,
+#pickupButton:active{
+	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
+    border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border -MicromeX */
+    box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect -MicromeX */
+    border-radius: 50%; /* Smooth edges */
+    animation: pulse 1.5s infinite; /* Subtle pulsing animation */
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transition for hover -MicromeX */
+}
+
+
+#talktonpcButton:active{
+	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
+    border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border -MicromeX */
+    box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect -MicromeX */
+    border-radius: 50%; /* Smooth edges */
+    animation: pulse 1.5s infinite; /* Subtle pulsing animation -MicromeX */
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transition for hover -MicromeX */
+}
+ 
+#attackButton:active {
+    background-color: #4caf50; /* Green color on active state */
+    box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.4); /* Enhanced shadow for depth */
+    border: 2px solid #388e3c; /* Add a darker green border for contrast */
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, border 0.2s ease; /* Smooth transition for multiple properties */
+}
+
+
+
+/* Joystick container -MicromeX */
+.joystick-container {
+    position: absolute;
+    bottom: 5%; /* Adjusted for better fit */
+    left: 7%; /* Adjusted for better fit */
+    width: 100px; /* Reduced size */
+    height: 100px; /* Reduced size */
+    z-index: 1000;
+}
+
+/* Joystick base -MicromeX */
+.joystick-base {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: rgba(193, 193, 193, 0.33);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Joystick thumb -MicromeX */
+.joystick-thumb {
+    position: absolute;
+    width: 40px; /* Reduced size */
+    height: 40px; /* Reduced size */
+    background: radial-gradient(circle, rgba(236, 240, 241, 1) 70%, rgba(189, 195, 199, 1) 100%);
+    border-radius: 50%;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4); /* Adjusted shadow for smaller size */
+    touch-action: none; /* Prevent scrolling -MicromeX */
+    cursor: grab;
+}
+

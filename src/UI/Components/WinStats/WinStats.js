@@ -33,7 +33,7 @@ define(function (require)
 
 		},
 		prere:{
-
+			20211103:	WinStatsV2,
 		}
 	};
 

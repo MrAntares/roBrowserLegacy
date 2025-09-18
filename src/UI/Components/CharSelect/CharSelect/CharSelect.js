@@ -168,7 +168,6 @@ define(function(require)
 	 */
 	CharSelect.onKeyDown = function onKeyDown( event )
 	{
-		if (!this.ui.is(':visible')) return true;
 		switch (event.which) {
 			case KEYS.ESCAPE:
 				cancel();

@@ -22,8 +22,9 @@ define(function (require)
 	var versionInfo = {
 		default: CharSelect,
 		common: {
+			20211103:	CharSelectV3,
 			20180124:	CharSelectV4,
-			20141016:	CharSelectV3,
+			20151104:	CharSelectV3,
 			20100803:	CharSelectV2,
 			20100728:	CharSelect,
 			20100720:	CharSelectV2

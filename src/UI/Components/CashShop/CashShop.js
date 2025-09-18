@@ -20,7 +20,6 @@ define(function(require)
 	var Network            = require('Network/NetworkManager');
 	var PACKETVER          = require('Network/PacketVerManager');
 	var PACKET             = require('Network/PacketStructure');
-	var KEYS               = require('Controls/KeyEventHandler');
 	var InputBox           = require('UI/Components/InputBox/InputBox');
 	var ChatBox      	   = require('UI/Components/ChatBox/ChatBox');
 	var Renderer           = require('Renderer/Renderer');
@@ -167,6 +166,9 @@ define(function(require)
 		this.ui.on('click', '#main-menu .menu', onClickMenu);
 		this.ui.on('click', '.item-paginations .page', onClickPagination);
 		this.ui.on('click', '.item-searcher .btnSearch', onClickSearch);
+		// Bind right-click on entire item and its image
+		this.ui.on('contextmenu', '.container .content .item, .item-left-img', onRightClickItem);
+
 		if(this.ui.find('#cart-list items').length > 0){
 			CashShop.onResetCartListCashShop();
 		}
@@ -231,17 +233,6 @@ define(function(require)
 		this.ui.hide();
 	};
 
-	CashShop.onKeyDown = function onKeyDown( event )
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
-			var pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
-            Network.sendPacket(pkt);
-			CashShop.ui.hide();
-			CashShop.hide();
-			CashShop.onRemove();
-		}
-	}
-
 	CashShop.resize = function Resize( width, height )
 	{
 		width  = Math.min( Math.max(width,  6), 9);
@@ -264,6 +255,8 @@ define(function(require)
 		this.activeCashMenu = tab || 0; // 0x0845 no tab
 		this.ui.find('#cashpoint > span').html(this.cashPoint);
 		this.ui.find('.cashpoint_footer').html(this.cashPoint);
+		this.ui.find('#kafrapoint > span').html(this.kafraPoints);
+		this.ui.find('.kafrapoint_footer').html(this.kafraPoints);
 		var pkt = new PACKET.CZ.PC_CASH_POINT_ITEMLIST();
             Network.sendPacket(pkt);
 	}
@@ -375,19 +368,19 @@ define(function(require)
 					iconName = 'img_shop_tap3_on';
 				break;
 				case 'CASHSHOP_TAB_PERPETUITY':
-					menuName = 'Perpetuity';
+					menuName = 'Permanent';
 					iconName = 'img_shop_tap4_on';
 				break;
 				case 'CASHSHOP_TAB_BUFF':
-					menuName = 'Buffs';
+					menuName = 'Scrolls';
 					iconName = 'img_shop_tap5_on';
 				break;
 				case 'CASHSHOP_TAB_RECOVERY':
-					menuName = 'Recovery';
+					menuName = 'Consumables';
 					iconName = 'img_shop_tap6_on';
 				break;
 				case 'CASHSHOP_TAB_ETC':
-					menuName = 'ETC';
+					menuName = 'Others';
 					iconName = 'img_shop_tap7_on';
 				break;
 			}
@@ -1022,6 +1015,60 @@ define(function(require)
 			//requestFilter();
 		});
 	}
+	
+		function onRightClickItem(event) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			var itemId = parseInt(jQuery(event.currentTarget).closest('.item').data('index'), 10);
+			var it = DB.getItemInfo(itemId);
+			if (!it) return false;
+
+			var ItemInfo    = getModule('UI/Components/ItemInfo/ItemInfo');
+			var ItemCompare = getModule('UI/Components/ItemCompare/ItemCompare');
+			var Equipment   = getModule('UI/Components/Equipment/Equipment');
+
+			// Build fake item exactly like inventory format
+			var itemObj = {
+				ITID: itemId,
+				index: -1, // no inventory slot
+				count: 1,
+				type: it.type || 0,
+				IsIdentified: true,
+				IsDamaged: false,
+				location: it.location || 0,
+				RefiningLevel: 0,
+				enchantgrade: 0,
+				slot: { card1: 0, card2: 0, card3: 0, card4: 0 },
+				PlaceETCTab: 0,
+				desc: it.identifiedDescriptionName || it.unidentifiedDescriptionName || ""
+			};
+
+			// Toggle off if already open
+			if (ItemInfo.uid === itemObj.ITID) {
+				ItemInfo.remove();
+				if (ItemCompare.ui) ItemCompare.remove();
+				return false;
+			}
+
+			if (ItemCompare.ui) ItemCompare.remove();
+
+			// Show Item Info window
+			ItemInfo.append();
+			ItemInfo.uid = itemObj.ITID;
+			ItemInfo.setItem(itemObj);
+
+			// Compare with equipped item
+			var compareItem = Equipment.getUI().isInEquipList(itemObj.location);
+			if (compareItem) {
+				ItemCompare.prepare();
+				ItemCompare.append();
+				ItemCompare.uid = compareItem.ITID;
+				ItemCompare.setItem(compareItem);
+			}
+
+			return false;
+		}
 
 	return UIManager.addComponent(CashShop);
 });

@@ -22,8 +22,10 @@ define(function (require)
 	var versionInfo = {
 		default: CharCreate,
 		common: {
+			20211103:	CharCreateV4,
 			20180124:	CharCreateV4,
 			20151001:	CharCreateV3,
+			20151104:	CharCreateV2,
 			20120307:	CharCreateV2
 		},
 		re: {

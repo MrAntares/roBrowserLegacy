@@ -177,7 +177,6 @@ define(function(require)
      */
     CharSelectV3.onKeyDown = function onKeyDown( event )
     {
-		if (!this.ui.is(':visible')) return true;
         switch (event.which) {
             case KEYS.ESCAPE:
                 cancel();
@@ -215,34 +214,39 @@ define(function(require)
     };
 
 
-    /**
-     * Add players to window
-     *
-     * @param {object} pkt - packet structure
-     */
-    CharSelectV3.setInfo = function setInfo( pkt )
-    {
-        _maxSlots           = Math.floor((pkt.TotalSlotNum + pkt.PremiumStartSlot) || 9); // default 9 ?
-        _sex                = pkt.sex;
-        _slots.length       = 0;
-        _entitySlots.length = 0;
-        _list.length        = 0;
+   /**
+	 * Add players to window
+	 *
+	 * @param {object} pkt - packet structure containing character slot information.
+	 */
+	CharSelectV3.setInfo = function setInfo(pkt) {
+		// 🔹 Determine the maximum slot count, defaulting to 9 if not specified.
+		// 🔹 Ensure max slots do not exceed 15.
+		_maxSlots = Math.min(15, Math.floor((pkt.TotalSlotNum + pkt.PremiumStartSlot) || 9)); 
+		_sex = pkt.sex; // Store the player's gender information.
 
-        if (pkt.charInfo) {
-            var i, count = pkt.charInfo.length;
-            for (i = 0; i < count; ++i) {
-                CharSelectV3.addCharacter( pkt.charInfo[i] );
+		// 🔹 Reset slot-related arrays before repopulating.
+		_slots.length = 0;
+		_entitySlots.length = 0;
+		_list.length = 0;
 
-                // Guess the max slot
-                // required if the client is < 20100413 and have more than 9 slots
-                _maxSlots = Math.max( _maxSlots, Math.floor(pkt.charInfo[i].CharNum / 3 + 1) * 3 );
-            }
-        }
+		// 🔹 If character information exists, process each character.
+		if (pkt.charInfo) {
+			var i, count = pkt.charInfo.length;
+			for (i = 0; i < count; ++i) {
+				CharSelectV3.addCharacter(pkt.charInfo[i]); // Add character to the list.
 
-        this.ui.find('.slotinfo .number').text( _list.length + ' / ' + _maxSlots );
+				// 🔹 Adjust max slot calculation dynamically but limit it to 15.
+				_maxSlots = Math.min(15, Math.max(_maxSlots, Math.floor(pkt.charInfo[i].CharNum / 3 + 1) * 3));
+			}
+		}
 
-        moveCursorTo( _index );
-    };
+		// 🔹 Update the UI to show the current number of characters and max slots.
+		this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
+
+		// 🔹 Ensure the cursor is positioned correctly in the character selection.
+		moveCursorTo(_index);
+	};
 
 
     function drawBall(btnList, index, sel) {
@@ -335,7 +339,7 @@ define(function(require)
         if (!('sex' in character) || character.sex === 99) {
             character.sex = _sex;
         }
-
+		
 		//Adjust from remaining time to fixed datetime
 		if(character.DeleteDate){
 			var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
@@ -348,8 +352,8 @@ define(function(require)
 
         _entitySlots[ character.CharNum ] = new Entity();
         _entitySlots[ character.CharNum ].set( character );
-
-
+		
+		
 		if (_slots[ character.CharNum ].DeleteDate && Math.floor(_index/3) == Math.floor(character.CharNum/3) ) {
 			const slotNum = (character.CharNum + _maxSlots) % _maxSlots + 1;
 			const countdown = this.ui.find('.timedelete.slot' + slotNum);  // Adjusted selector
@@ -461,10 +465,10 @@ define(function(require)
      * Format delay date time
      */
     function formatDatetime(epoch) {
-
+		
 		const datetime = new Date(0);
 		datetime.setSeconds(epoch);
-
+		
 		const year = datetime.getFullYear();
 		const month = datetime.getMonth()+1;
 		const day = datetime.getDate();
@@ -482,11 +486,11 @@ define(function(require)
 
         return formattedDatetime;
     }
-
+	
 
     /**
      * Result of Request in Deleting the Character
-     *
+     * 
      * @param {object} pkt - packet structure
      */
     CharSelectV3.reqdeleteAnswer = function ReqDelAnswer ( pkt )
@@ -516,7 +520,7 @@ define(function(require)
             case 5: // 5: To delete a character you must withdraw from the party.
                 UIManager.showMessageBox( DB.getMessage(1819), 'ok' );
                 break;
-
+            
             default:
                 return;
         }
@@ -545,7 +549,7 @@ define(function(require)
 				action = entity.ACTION.SIT;
 			}
         }
-
+		
 		// Set action
         entity.action = action;
 
@@ -566,7 +570,7 @@ define(function(require)
     function removedelete ()
     {
         if (_slots[_index]) {
-
+            
             // Delete here as well? Though server should tell us this
             _slots[_index].DeleteDate = 0;
 
@@ -602,7 +606,7 @@ define(function(require)
             }
         }
     }
-
+	
 
     /**
      * Delete a character
@@ -637,7 +641,7 @@ define(function(require)
 			} else {
 				action = entity.ACTION.IDLE;
 			}
-
+			
             entity.setAction({
                 action: action,
                 frame:  0,
@@ -677,14 +681,14 @@ define(function(require)
                 ui.find('.make' + i).show();
             }
         }
-
+		
 		// Update page deltimes
 		for(let i = 0; i<3; i++){
 			let tmpIndex = _index-(_index%3)+i;
 			info = _slots[tmpIndex];
 			entity = _entitySlots[tmpIndex];
 			const countdown = CharSelectV3.ui.find('.timedelete.slot' + (tmpIndex % 3 + 1));
-
+			
 			if(info && entity){
 				if(info.DeleteDate) {
 					countdown.attr('data-datetime', info.DeleteDate);
@@ -743,7 +747,7 @@ define(function(require)
             ui.find('.ok').show();
 			action = entity.ACTION.READYFIGHT;
         }
-
+		
         // Animate the character
         entity.setAction({
             action: action,

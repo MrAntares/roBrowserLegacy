@@ -128,7 +128,7 @@ define(function(require)
 	 */
 	CharCreatev2.onKeyDown = function onKeyDown( event )
 	{
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+		if (event.which === KEYS.ESCAPE) {
 			event.stopImmediatePropagation();
 			cancel();
 			return false;
