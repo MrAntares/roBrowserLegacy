@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta charset="UTF-8">
-	<title>Progressive Web App - roBrowserLegacy</title>
+	<title>MRXrO-Classic</title>
 	<link rel="icon" type="./icon.png">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -52,51 +52,56 @@
 				target: document.getElementById("robrowser"),
 				type: ROBrowser.TYPE.FRAME,
 				application: ROBrowser.APP.ONLINE,
-				development: true,
+				development: false,
 				version: gitHash,
-				remoteClient: 'https://grf.robrowser.com/',
+				remoteClient: 'http://192.168.100.128/client/',
 				servers: [
 					{
 						display: 'roBrowser Demo Server',
 						desc: 'demo server',
-						address: '127.0.0.1',
+						address: '192.168.100.128',
 						port: 6900,
 						version: 25,
 						langtype: 12,
-						packetver: 20130618,
+						packetver: 20211103,
 						renewal: false,
 						worldMapSettings: { episode: 12 },
 						packetKeys: false,
-						socketProxy: 'wss://connect.robrowser.com',
-						adminList: [2000000]
+						socketProxy: 'ws://192.168.100.128:5999/',
+						adminList: [2000002]
 					},
 					// ADD PUBLIC TEST SERVERS HERE WITH _M _F REGISTRATION
 				],
 				packetDump: false,
 				skipServerList: true,
-				skipIntro: false,
+				skipIntro: true,
 				aura: {},
 				autoLogin: [],
 				BGMFileExtension: ['mp3'],
 				calculateHash: false,
-				CameraMaxZoomOut: 5,
+				CameraMaxZoomOut: 2,
 				charBlockSize: 0,
 				clientHash: null,
 				clientVersionMode: "PacketVer",
 				disableConsole: false,
-				enableBank: false,
-				enableCashShop: false,
-				enableCheckAttendance: false,
+				enableBank: true,
+				enableCashShop: true,
+				enableCheckAttendance: true,
 				enableDmgSuffix: false,
 				enableHomunAutoFeed: false,
-				enableMapName: false,
+				enableMapName: true,
+				enableRefineUI: true,
 				FirstPersonCamera: false,
 				grfList: null,
 				hashFiles: [],
-				loadLua: false,
+				loadLua: true,
 				onReady: null,
-				plugins: {},
-				registrationweb: '',
+				plugins: {
+										//IntroMessage: { path:'IntroMessage/IntroMessage', pars: { newsUrl: 'http://192.168.100.128/intro.html' } },
+										KeyToMove: 'KeyToMove/KeyToMove',
+										BBGutterLines: 'BBGutterLines/BBGutterLines'
+				},
+				registrationweb: 'http://192.168.100.128/fluxcp/?module=account&action=create',
 				saveFiles: true,
 				ThirdPersonCamera: false,
 			};
