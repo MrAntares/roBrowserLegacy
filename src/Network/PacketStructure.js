@@ -6130,17 +6130,13 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.USE_SKILL.size = 15;
 
 
-	// 0x11c || 0xabe
+	// 0x11c
 	PACKET.ZC.WARPLIST = function PACKET_ZC_WARPLIST(fp, end) {
 		this.SKID = fp.readUShort();
 		this.mapName = (function() {
 			var count;
 
-			if (PACKETVER.value >= 20170502) {
-				count = (end - fp.tell()) / 16 | 0;
-			} else {
-				count = 4;
-			}
+			count = 4;
 
 			var out = new Array(count);
 			for (var i = 0; i < count; ++i) {
@@ -6149,12 +6145,24 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			return out;
 		})();
 	};
+	PACKET.ZC.WARPLIST.size = 68;
 	
-	if (PACKETVER.value >= 20170502) {
-		PACKET.ZC.WARPLIST.size = -1;
-	} else {
-		PACKET.ZC.WARPLIST.size = 68;
-	}
+	// 0xabe
+	PACKET.ZC.WARPLIST2 = function PACKET_ZC_WARPLIST2(fp, end) {
+		this.SKID = fp.readUShort();
+		this.mapName = (function() {
+			var count;
+
+			count = (end - fp.tell()) / 16 | 0;
+
+			var out = new Array(count);
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readBinaryString(16);
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.WARPLIST2.size = -1;
 
 
 	// 0x11e

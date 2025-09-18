@@ -880,6 +880,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.AUTOSPELLLIST,          onAutoSpellList );
 		Network.hookPacket( PACKET.ZC.SKILL_SELECT_REQUEST,   onSelectSkillList );
 		Network.hookPacket( PACKET.ZC.WARPLIST,               onTeleportList );
+		Network.hookPacket( PACKET.ZC.WARPLIST2,              onTeleportList );
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPINFO,         onTeleportResult );
 		Network.hookPacket( PACKET.ZC.ACK_REMEMBER_WARPPOINT, onMemoResult );
 		Network.hookPacket( PACKET.ZC.MAKINGARROW_LIST,       onMakingarrowList );
