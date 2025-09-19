@@ -614,7 +614,8 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.TK_DODGE] =
 	SkillAction[SK.LK_TENSIONRELAX] =
 	SkillAction[SK.NC_F_SIDESLIDE] =
-	SkillAction[SK.NC_B_SIDESLIDE] = false;
+	SkillAction[SK.NC_B_SIDESLIDE] =
+	SkillAction[SK.SU_HIDE] = false;
 		
 	
 	return SkillAction;
