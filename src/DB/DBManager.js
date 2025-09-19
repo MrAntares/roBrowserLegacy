@@ -1753,7 +1753,7 @@ define(function (require) {
 		return jobid < 45 || (jobid >= 4001 && jobid <= 4317) || jobid == 4294967294;
 	}
 
-	function isDoram(jobid) {
+	DB.isDoram = function (jobid) {
 		return (jobid >= 4217 && jobid <= 4220) || jobid === 4308 || jobid === 4315;
 	}
 
@@ -1793,7 +1793,7 @@ define(function (require) {
 		// PC
 		if (isPlayer(id)) {
 			// DORAM
-			if (isDoram(id)) {
+			if (DB.isDoram(id)) {
 				return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/' + SexTable[sex] + '/' + (ClassTable[id] || ClassTable[0]) + '_' + SexTable[sex];
 			}
 
@@ -1884,7 +1884,7 @@ define(function (require) {
 		}
 
 		// DORAM
-		if (isDoram(job)) {
+		if (DB.isDoram(job)) {
 			return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' + SexTable[sex] + '/' + (HairIndexTable[sex + 2][id] || id) + '_' + SexTable[sex];
 		}
 

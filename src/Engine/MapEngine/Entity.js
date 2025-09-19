@@ -1280,7 +1280,11 @@ define(function (require) {
 						srcEntity.setAction(action(srcEntity, Renderer.tick));
 					}
 				} else {
-					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+					if(DB.isDoram(srcEntity.job)){
+						srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick));
+					} else {
+						srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+					}
 				}
 			}
 		}
@@ -2069,6 +2073,27 @@ define(function (require) {
 						frame: 4,
 						repeat: false,
 						play: false,
+						next: false
+					});
+				} else if (pkt.state == 0) {
+					entity.setAction({
+						action: entity.ACTION.IDLE,
+						frame: 0,
+						repeat: false,
+						play: true,
+						next: false
+					});
+				}
+				break;
+				
+			case StatusConst.SU_STOOP:
+				if (pkt.state == 1) {
+					entity.setAction({
+						action: entity.ACTION.SKILL,
+						frame: 1,
+						length: 3,
+						repeat: true,
+						play: true,
 						next: false
 					});
 				} else if (pkt.state == 0) {
