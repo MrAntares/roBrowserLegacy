@@ -29,6 +29,22 @@ define(['./SkillConst'], function(SK) {
 			}
 		};
 	};
+	
+	SkillAction['DEFAULT_DORAM'] = function(entity, tick){
+		return {
+			action: entity.ACTION.ATTACK2,
+			frame:  0,
+			repeat: false,
+			play:   true,
+			next: {
+				action: entity.ACTION.IDLE,
+				frame:  0,
+				repeat: true,
+				play:   true,
+				next:   false
+			}
+		};
+	};
 		
 	//Skill action overrides
 	
@@ -614,7 +630,9 @@ define(['./SkillConst'], function(SK) {
 	SkillAction[SK.TK_DODGE] =
 	SkillAction[SK.LK_TENSIONRELAX] =
 	SkillAction[SK.NC_F_SIDESLIDE] =
-	SkillAction[SK.NC_B_SIDESLIDE] = false;
+	SkillAction[SK.NC_B_SIDESLIDE] =
+	SkillAction[SK.SU_HIDE] = 
+	SkillAction[SK.SU_STOOP] = false;
 		
 	
 	return SkillAction;

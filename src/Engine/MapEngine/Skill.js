@@ -194,7 +194,11 @@ define(function( require )
 					srcEntity.setAction(action(srcEntity, Renderer.tick));
 				}
 			} else {
-				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+				if(DB.isDoram(srcEntity.job)){
+					srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick));
+				} else {
+					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+				}
 			}
 		}
 	}
