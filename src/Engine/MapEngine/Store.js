@@ -407,10 +407,19 @@ define(function( require )
 	 *
 	 * @param {object} pkt - PACKET.ZC.PACKET_ZC_OPENSTORE
 	 */
-	function onOpenVending(pkt){
-		Vending.setType(Vending.Type.VENDING_STORE);
-		Vending.onVendingSkill(pkt);
-	}
+    function onOpenVending(pkt) {
+		//console.log('[store]', Vending.isOpen);	        // Prevent UI reset if this is my own vending echo
+        if (Vending.isOpen) {
+            console.log("[Store] Ignoring my own ZC_OPENSTORE echo:", pkt);
+            return;
+        }
+
+        // Otherwise, open another merchant's shop
+        Vending.setType(Vending.Type.VENDING_STORE);
+        Vending.onVendingSkill(pkt);
+
+        console.log("[Store] Opened another player’s vending store:", pkt);
+    }
 
 	/**
 	 * Open Buying creation window with X slots
