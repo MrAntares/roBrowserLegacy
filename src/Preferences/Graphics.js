@@ -38,7 +38,9 @@ define( ['Core/Preferences'], function( Preferences )
 		/**
 		 * Game FPS Limit
 		 */
-		fpslimit:    60
+		fpslimit:    60,
+
+		pixelPerfectSprites: false
 	}, 1.1 );
 
 });

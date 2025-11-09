@@ -58,6 +58,7 @@ define(function(require)
 		this.ui.find('.screensize').change(onUpdateScreenSize);
 		this.ui.find('.fpslimit').change(onUpdateFPSLimit);
 		this.ui.find('.fps').change(onToggleFPSDisplay);
+		this.ui.find('.pixel-perfect').change(onTogglePixelPerfect);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
@@ -79,6 +80,7 @@ define(function(require)
 		this.ui.find('.cursor-option').attr('checked', GraphicsSettings.cursor);
 		this.ui.find('.fpslimit').val(GraphicsSettings.fpslimit);
 		this.ui.find('.fps').attr('checked', FPS.ui.is(':visible'));
+		this.ui.find('.pixel-perfect').attr('checked', GraphicsSettings.pixelPerfectSprites);
 	};
 
 
@@ -145,6 +147,15 @@ define(function(require)
 	function onToggleFPSDisplay()
 	{
 		FPS.toggle(!!this.checked);
+	}
+
+	function onTogglePixelPerfect()
+	{
+	    GraphicsSettings.pixelPerfectSprites = !!this.checked;
+	    GraphicsSettings.save();
+
+		// Show alert that reload is required
+		alert('Please reload the page for sprite filtering changes to take effect.');
 	}
 
 	/**
