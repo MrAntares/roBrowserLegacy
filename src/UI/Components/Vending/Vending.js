@@ -43,21 +43,21 @@ define(function(require)
 	 */
 	var Vending = new UIComponent( 'Vending', htmlText, cssText );
 
+	Vending.isOpen = false;
+	Vending.Type = {
+		VENDING_STORE: 0,
+		BUYING_STORE: 1
+	};
 
+    Vending.setType = function (type) {
+        this.type = type;
+    };
 
 	/**
 	 * Freeze the mouse
 	 */
 	//Vending.mouseMode = UIComponent.MouseMode.FREEZE;
 
-
-	/**
-	 * @var {enum} Store type
-	 */
-	Vending.Type = {
-		VENDING_STORE: 0,
-		BUYING_STORE: 1
-	};
 
 	/**
 	 * @var {Preferences}
@@ -271,6 +271,9 @@ define(function(require)
 		this.ui.find('.content').empty();
 
 		this.ui.hide();
+
+		// Reset open flag on remove/close
+		Vending.isOpen = false;
 	};
 
 
@@ -801,18 +804,28 @@ define(function(require)
 		});
 	}
 
-	Vending.onVendingSkill = function onVendingSkill(pkt)
-	{
-		_slots = pkt.itemcount;
-		this.setList(CartItems.list);
-		this.ui.find('.add_shop')[0].style.height = (32 * _slots) + 'px';
-		this.ui.find('.shopname').val('');
-		this.ui.show();
-	};
+    Vending.onVendingSkill = function onVendingSkill(pkt) {
+        if (Vending.isOpen) {
+            return;
+        }
+
+        _slots = pkt.itemcount;
+        this.setList(CartItems.list);
+        this.ui.find('.add_shop')[0].style.height = (32 * _slots) + 'px';
+        this.ui.find('.shopname').val('');
+        this.ui.show();
+
+        Vending.isOpen = true;
+    };
 
 
 	Vending.onBuyingSkill = function onBuyingSkill(pkt)
 	{
+
+        if (Vending.isOpen) {
+            return;
+        }
+
 		_slots = pkt.itemcount;
 		// get from inventory and compare with buyingstoreitemlist.txt
 		//Inventory.list
@@ -826,7 +839,18 @@ define(function(require)
 		this.ui.find('.add_shop')[0].style.height = (32 * _slots) + 'px';
 		this.ui.find('.shopname').val('');
 		this.ui.show();
+
+        Vending.isOpen = true;
 	};
+	
+	Vending.onClose = function () {
+        if (this.ui) {
+            this.ui.hide();
+        }
+        Vending.isOpen = false;
+
+    };
+
 
 	Vending.onSubmit = function onSubmit()
 	{

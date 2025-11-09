@@ -407,10 +407,15 @@ define(function( require )
 	 *
 	 * @param {object} pkt - PACKET.ZC.PACKET_ZC_OPENSTORE
 	 */
-	function onOpenVending(pkt){
-		Vending.setType(Vending.Type.VENDING_STORE);
-		Vending.onVendingSkill(pkt);
-	}
+    function onOpenVending(pkt) {
+        if (Vending.isOpen) {
+            return;
+        }
+
+        // Otherwise, open another merchant's shop
+        Vending.setType(Vending.Type.VENDING_STORE);
+        Vending.onVendingSkill(pkt);
+    }
 
 	/**
 	 * Open Buying creation window with X slots
