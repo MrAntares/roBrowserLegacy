@@ -3,7 +3,7 @@
  *
  * Pincode windows
  *
- * This file is part of ROBrowser, Ragnarok Online in the Web Browser .
+ * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
  * @author Disaml
  */
