@@ -50,11 +50,14 @@ define(function(require)
 
     var _keypad = undefined;
 
+    var _currentSeed = undefined;
+
     var _resetstate = 0;
 
     PincodeWindow.resetUI = function resetUI() {
         PincodeWindow._resetstate = 0;
         PincodeWindow._keypad = undefined;
+        PincodeWindow._currentSeed = undefined;
         PincodeWindow.init();
     }
 
@@ -84,7 +87,46 @@ define(function(require)
 
     PincodeWindow.setUserSeed = function setUserSeed(value) {
         PincodeWindow._keypad = generateKeypad(value);
+        PincodeWindow._currentSeed = new Uint32Array([value]);
     }
+
+function shuffleUsingKeypad(keypad) {
+    var ui = PincodeWindow.ui;
+    if (!ui || !keypad) return;
+    for (var loc = 0; loc < 10; loc++) {
+        var posBtn = ui.find('.btn.num' + loc);
+        if (!posBtn || posBtn.length === 0) continue;
+
+        var el = posBtn[0];
+        var off = posBtn.offset();
+        el.__original_x_pos = off.left;
+        el.__original_y_pos = off.top;
+    }
+    for (var loc = 0; loc < 10; loc++) {
+        var d = keypad[loc];
+        var btn = ui.find('.btn.num' + d);
+        if (!btn || btn.length === 0) continue;
+
+        var targetEl = ui.find('.btn.num' + loc)[0];
+        var target_x = targetEl.__original_x_pos;
+        var target_y = targetEl.__original_y_pos;
+        btn.offset({
+            left: target_x,
+            top: target_y
+        });
+    }
+}
+
+function advanceVisualSeed() {
+    if (PincodeWindow._currentSeed !== undefined) {
+        const multiplier = parseInt('0x3498', 16);
+        const baseSeed = parseInt('0x881234', 16);
+        PincodeWindow._currentSeed[0] =
+            (baseSeed + (PincodeWindow._currentSeed[0] * multiplier)) >>> 0;
+        const visualKeypad = generateKeypad(PincodeWindow._currentSeed[0]);
+        shuffleUsingKeypad(visualKeypad);
+    }
+}
 
     /**
      * Initialize UI
@@ -149,54 +191,7 @@ define(function(require)
 
         // Randomize position of num buttons.
         if (PincodeWindow._keypad !== undefined) {
-            for (var x = 0; x < 10; x++) {
-                var btn = ui.find((".btn.num" + x));
-
-                // Check for set original location.
-                var original_x = btn.offset().left;
-                var original_y = btn.offset().top;
-                if (btn.__original_x_pos > 0 && btn.__original_y_pos > 0) {
-                   original_x = btn.__original_x_pos;
-                   original_y = btn.__original_y_pos;
-                } else {
-                   // Assume current position is the original location.
-                   btn.__original_x_pos = original_x;
-                   btn.__original_y_pos = original_y;
-                }
-
-                // Find button in keypad.
-                var target_x = 0;
-                var target_y = 0;
-                for (var keypad_loc = 0; keypad_loc < 10; keypad_loc++) {
-                    if (PincodeWindow._keypad[keypad_loc] == x) {
-                        if (keypad_loc != x) {
-                            var target = ui.find((".btn.num" + keypad_loc));
-
-                            target_x = target.offset().left;
-                            target_y = target.offset().top;
-                            if (target.__original_x_pos > 0 && target.__original_y_pos > 0) {
-                                target_x = target.__original_x_pos;
-                                target_y = target.__original_y_pos;
-                            } else {
-                                // Assume current position is the original location.
-                                target.__original_x_pos = target_x;
-                                target.__original_y_pos = target_y;
-                            }
-
-                            // Set new location.
-                            target.offset({left:original_x,top:original_y});
-                        } else {
-                            // Same button.
-                            target_x = original_x;
-                            target_y = original_y;
-                        }
-                        break;
-                    }
-                }
-
-                // Set new location.
-                btn.offset({left:target_x,top:target_y});
-            }
+            shuffleUsingKeypad(PincodeWindow._keypad);
         }
 
         // Deactivate stopPropagation.
@@ -213,10 +208,7 @@ define(function(require)
         this.draggable(ui.find('.titlebar'));
 
 	PincodeWindow.resetPins();
-
         PincodeWindow.selectInput(0);
-
-	// Note: We cannot reset the _keypad here because init() gets called -after- setUserSeed().
     };
 
     /**
@@ -285,20 +277,37 @@ define(function(require)
      * Called by the parent when we have received a pincode reset request from the server.
      */
     PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
+        var ui = PincodeWindow.ui;
         if (PincodeWindow._resetstate === 3 && typeof PincodeWindow.onPincodeReset === 'function' &&
             PincodeWindow._pass != PincodeWindow._newpass &&
             PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 &&
             PincodeWindow._newpass == PincodeWindow._checkpass) {
             success();
         } else {
-            if (PincodeWindow._resetstate === 2 && typeof PincodeWindow.onPincodeReset === 'function' &&
-                PincodeWindow._pass != PincodeWindow._newpass) {
-                if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7) {
-                    PincodeWindow.selectInput(2);
-                    PincodeWindow.clearPin();
-                    PincodeWindow._resetstate = 3;
+            if (PincodeWindow._resetstate === 2) {
+                if (PincodeWindow.sel_input === 0) {
+                    if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
+                        PincodeWindow.selectInput(1);
+                        advanceVisualSeed();
+                    } else {
+                         UIManager.showMessageBox( DB.getMessage( 1887 ), 'ok' );
+                         PincodeWindow.clearPin();
+                    }
                 } else {
-                     UIManager.showMessageBox( DB.getMessage( 1887 ), 'ok' );
+                    if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 &&
+                        PincodeWindow._pass != PincodeWindow._newpass) {
+                        PincodeWindow.selectInput(2);
+                        PincodeWindow.clearPin();
+                        PincodeWindow._resetstate = 3;
+                        advanceVisualSeed();
+                    } else {
+                         UIManager.showMessageBox( DB.getMessage( 1887 ), 'ok' );
+                         // Optionally clear _newpass if invalid length
+                         if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) {
+                             PincodeWindow._newpass = '';
+                         }
+                         // If same as old, perhaps another message, but for now stay
+                    }
                 }
             } else {
                 PincodeWindow.ui.find('.btn2.ok').prop('disabled', true);
@@ -306,11 +315,12 @@ define(function(require)
                 PincodeWindow.ui.find('.btn2.change').prop('disabled', true);
                 PincodeWindow.ui.find('.btn2.verify').prop('disabled', false);
                 PincodeWindow.ui.find('.btn2.verify').off('click');
-                PincodeWindow.ui.find('.btn2.verify').click(function(){ PincodeWindow.onParentPincodeResetReq() });
+                ui.find('.btn2.verify').click(function(){ PincodeWindow.onParentPincodeResetReq() });
                 PincodeWindow.ui.find('.btn2.verify').show();
                 PincodeWindow.selectInput(0);
                 PincodeWindow.clearPin();
                 PincodeWindow._resetstate = 2;
+                advanceVisualSeed();
             }
         }
     };
@@ -334,6 +344,7 @@ define(function(require)
                  if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7) {
                      PincodeWindow.selectInput(2);
                      PincodeWindow._resetstate = 3;
+                     advanceVisualSeed();
                  } else {
                      UIManager.showMessageBox( DB.getMessage( 1887 ), 'ok' );
                  }
@@ -342,8 +353,8 @@ define(function(require)
                      PincodeWindow._pass.length > 0) {
                      PincodeWindow.selectInput(1);
                      PincodeWindow._resetstate = 2;
+                     advanceVisualSeed();
                  } else {
-                     // This gets called from the change btn.
                      PincodeWindow.ui.find('.btn2.ok').prop('disabled', true);
                      PincodeWindow.ui.find('.btn2.ok').hide();
                      PincodeWindow.ui.find('.btn2.change').prop('disabled', true);
@@ -354,6 +365,7 @@ define(function(require)
                      PincodeWindow.selectInput(0);
                      PincodeWindow.resetPins();
                      PincodeWindow._resetstate = 1;
+                     advanceVisualSeed();
                      PincodeWindow.onUserPincodeResetReq();
                  }
              }
@@ -371,7 +383,7 @@ define(function(require)
 
         // Set up onetime pad.
         for (i = 1; i < 10; i++) {
-            userSeed[0] = baseSeed + (userSeed[0] * multiplier);
+            userSeed[0] = (baseSeed + (userSeed[0] * multiplier)) >>> 0;
             pos = userSeed[0] % ( i + 1 );
             if (i != pos) {
                 tab[i] ^= tab[pos];
@@ -396,7 +408,6 @@ define(function(require)
         var x = 0;
         var out = '';
 
-        // Make sure the given pincode is acceptable. (Less than 6 digits, digits only.)
         intCode = Number.parseInt(pincode);
         if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) {
             if (intCode >= 0 && intCode < 1000000 && pincode.length >= 4 && pincode.length <= 6) {
@@ -408,7 +419,7 @@ define(function(require)
                 }
                 strCode += intCode.toString();
 
-                // Encrypt raw digits with pad.
+				// Encrypt raw digits with pad.
                 for (i = 0; i < strCode.length; i++) {
                     x = Number(strCode[i]);
                     out += (PincodeWindow._keypad[x]).toString();
@@ -469,19 +480,32 @@ define(function(require)
     }
 
 
-    function keyNum(num) {
-        switch (PincodeWindow.sel_input) {
-            case 1:
-                PincodeWindow._newpass += num;
-                break;
-            default:
-                PincodeWindow._pass += num;
-                break;
-            case 2:
-                PincodeWindow._checkpass += num;
-                break;
-        }
-    }
+	function keyNum(num) {
+		switch (PincodeWindow.sel_input) {
+			case 1:
+				PincodeWindow._newpass += num;
+				break;
+			default:
+				PincodeWindow._pass += num;
+				break;
+			case 2:
+				PincodeWindow._checkpass += num;
+				break;
+		}
+		if (PincodeWindow._currentSeed !== undefined) {
+			const multiplier = parseInt('0x3498', 16);
+			const baseSeed = parseInt('0x881234', 16);
+
+			// Evolve the existing number instead of resetting Uint32Array
+			PincodeWindow._currentSeed[0] =
+				(baseSeed + (PincodeWindow._currentSeed[0] * multiplier)) >>> 0;
+
+			// Generate new keypad layout based on updated seed
+			const visualKeypad = generateKeypad(PincodeWindow._currentSeed[0]);
+			shuffleUsingKeypad(visualKeypad);
+		}
+	}
+
 
 
     /**
