@@ -622,9 +622,14 @@ define(function(require)
 		});
 		switch (event.which) {
 
-			// Battle mode system
+			//  Battle mode system (Includes F1-F24, 0-9, A-Z, ALT, SHIFT, CTRL)
 			default:
-				if ((event.target.tagName && !event.target.tagName.match(/input|select|textarea/i)) || (event.which >= KEYS.F1 && event.which <= KEYS.F24) || KEYS.ALT || KEYS.SHIFT || KEYS.CTRL){
+				if ((event.target.tagName && !event.target.tagName.match(/input|select|textarea/i)) 
+					|| (event.which >= KEYS.F1 && event.which <= KEYS.F24) 
+					|| (event.which >= KEYS[1] && event.which <= KEYS[9])   //  Numbers 0-9 - MicromeX
+					|| (event.which >= KEYS.A && event.which <= KEYS.Z)   //  Letters A-Z - MicromeX
+					|| KEYS.ALT || KEYS.SHIFT || KEYS.CTRL) {
+					
 					if (ChatBox.processBattleMode(event.which)) {
 						event.stopImmediatePropagation();
 						return false;
@@ -685,7 +690,6 @@ define(function(require)
 			// Send message
 			case KEYS.ENTER:
 				if (document.activeElement.tagName === 'INPUT' &&
-				    document.activeElement !== messageBox[0]) {
 					return true;
 				}
 
