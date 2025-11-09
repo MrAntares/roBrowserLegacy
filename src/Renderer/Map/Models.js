@@ -98,6 +98,7 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 			vec3 color = ((uLightMapUse ? vLightWeighting : 1.0) * uLightDiffuse + uLightAmbient);
 			texture.rgb *= clamp(color, 0.0, 1.0);
 			texture.rgb *= clamp(uLightEnv, 0.0, 1.0);
+			texture.a *= vAlpha;
 
 			gl_FragColor = texture;
 			
