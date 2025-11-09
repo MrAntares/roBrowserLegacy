@@ -15244,7 +15244,20 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
-
+	// 0xb1a // New "Use Skill" packet. Fixes issues with Casting.
+	PACKET.ZC.USESKILL_ACK3 = function PACKET_ZC_USESKILL_ACK3(fp, end) {
+		this.AID = fp.readULong();			// src id
+		this.targetID = fp.readULong();		// dst id
+		this.xPos = fp.readShort();			// x
+		this.yPos = fp.readShort();			// y
+		this.SKID = fp.readUShort();		// skill id
+		this.property = fp.readULong();		// property (element)
+		this.delayTime = fp.readULong();	// delaytime
+		this.disposable = fp.readUChar();	// is disposable
+		this.attackMT = fp.readULong();		// attackMT
+	};
+	PACKET.ZC.USESKILL_ACK3.size = 32;
+	
 	/**
 	 * Export
 	 */
