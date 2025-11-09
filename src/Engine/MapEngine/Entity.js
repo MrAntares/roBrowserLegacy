@@ -2570,6 +2570,7 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.NOTIFY_SKILL_POSITION, onEntityUseSkillToAttack);
 		Network.hookPacket(PACKET.ZC.USESKILL_ACK, onEntityCastSkill);
 		Network.hookPacket(PACKET.ZC.USESKILL_ACK2, onEntityCastSkill);
+		Network.hookPacket(PACKET.ZC.USESKILL_ACK3, onEntityCastSkill); // New "Use Skill" packet. Fixes issues with Casting.
 		Network.hookPacket(PACKET.ZC.STATE_CHANGE, onEntityOptionChange);
 		Network.hookPacket(PACKET.ZC.STATE_CHANGE3, onEntityOptionChange);
 		Network.hookPacket(PACKET.ZC.MSG_STATE_CHANGE, onEntityStatusChange);
