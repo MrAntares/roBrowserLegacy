@@ -30,6 +30,8 @@ This guide has the goal to help you to Setup/Play RoBrowser. If there's any trou
   - [9.3 Troubleshooting: AI%5cConst.js (404 not found)](#93-troubleshooting-ai5cconstjs-404-not-found)
   - [9.4 Troubleshooting:  Wrong Response Status - 403 Not Found, 403 Forbidden](#94-troubleshooting--wrong-response-status---403-not-found-403-forbidden)
   - [9.5 Troubleshooting: Other](#95-troubleshooting-other)
+- [10. FAQ](#10-faq)
+  - [10.1 Which client/packet version should I use?](#101-which-clientpacket-version-should-i-use)
 
 
 # 1. Important notes before starting
@@ -427,3 +429,9 @@ You probably have a server security issue if your server is public. Check your c
 ## 9.5 Troubleshooting: Other
 
 I personally had to disable `metamask` extension.
+
+# 10. FAQ
+
+## 10.1 Which client/packet version should I use?
+
+Robrowser is not like the desktop client. It doesn't have a fixed client version. It inherits version from the date closest (behind) to the set date, thus every version is supported at any time. The real question is how many features are implemented at any set date? We continously add features and work on new additions, but generaly, the older the version date, the more complete the feature list. The "latest" supported version is what you can login with and play, without the game falling apart. You have to try it, because it is always evolving and it depends on your server's source's version. If you want a "close enough" version then use a date 4~5 years old or check the packet structure and versions in the source in the `src/Network` folder. You can check the UI modules as well in `src/UI/Components`. We add every old and new UI and feature tied to it's appropriate date, so you can time travel to any point in history using the clientver date and see how the client used to look like in old episodes. So really the question should be: What episode you want to use? Set the date accordingly. You can find the episode/update dates online. Also keep in mind that the client date must be equal to the server's date, so changes in packets don't cause problems.

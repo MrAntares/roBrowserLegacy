@@ -822,5 +822,7 @@ define(["./PacketStructure"], function (PACKET) {
 		0x84a: PACKET.CZ.NPC_TRADE_QUIT,
 		0xae2: PACKET.ZC.UI_OPEN,
 		0x9cd: PACKET.ZC.MSG_COLOR,
+
+		0xb1a: PACKET.ZC.USESKILL_ACK3, // USE SKILL 3
 	};
 });

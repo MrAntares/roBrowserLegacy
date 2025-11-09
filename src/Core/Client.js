@@ -24,6 +24,7 @@ define(function( require )
 	var PACKETVER     = require('Network/PacketVerManager');
 	var getModule     = require;
 
+	var GraphicsSettings = require('Preferences/Graphics');
 
 	/**
 	 * Initialize Client
@@ -288,7 +289,9 @@ define(function( require )
 						// Send sprites to GPU
 						for (i = 0; i < count; i++) {
 							frames[i].texture = gl.createTexture();
-							precision  = frames[i].type ? gl.LINEAR : gl.NEAREST;
+							precision = GraphicsSettings.pixelPerfectSprites
+							    ? gl.NEAREST
+							    : (frames[i].type ? gl.LINEAR : gl.NEAREST);
 							size       = frames[i].type ? gl.RGBA   : gl.LUMINANCE;
 							gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 							gl.bindTexture( gl.TEXTURE_2D, frames[i].texture );
