@@ -690,6 +690,7 @@ define(function(require)
 			// Send message
 			case KEYS.ENTER:
 				if (document.activeElement.tagName === 'INPUT' &&
+					document.activeElement !== messageBox[0]) {
 					return true;
 				}
 
