@@ -111,34 +111,38 @@ define( function( require )
 	 * @param {number} to_y
 	 * @param {number} range optional
 	 */
-	function walkTo( from_x, from_y, to_x, to_y, range )
-	{
-		this.resetRoute();
-
-		// Same position
-		if(from_x === to_x && from_y === to_y) {
-			return;
-		}
-
-		var path  = this.walk.path;
-		
-		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
-
+	function walkTo( from_x, from_y, to_x, to_y, range )  
+	{  
+		// Same position  
+		if(from_x === to_x && from_y === to_y) {  
+			return;  
+		}  
+	  
+		var isCurrentlyWalking = this.action === this.ACTION.WALK && this.walk.total > 0;  
+		  
+		this.resetRoute();  
+	  
+		var path  = this.walk.path;  
+		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);  
+	  
 		this.walk.index =     1 * 2; // skip first index
-		this.walk.total = total * 2;
-
-		if (total) {
-			this.walk.pos.set(this.position);
-			this.walk.tick =  this.walk.prevTick = Renderer.tick;
-			this.headDir   = 0;
-
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame:  0,
-				repeat: true,
-				play:   true
-			});
-		}
+		this.walk.total = total * 2;  
+	  
+		if (total) {  
+			this.walk.pos.set(this.position);  
+			this.walk.tick = this.walk.prevTick = Renderer.tick;  
+			this.headDir = 0;  
+	  
+			// Only set action if not already walking  
+			if (!isCurrentlyWalking) {  
+				this.setAction({  
+					action: this.ACTION.WALK,  
+					frame:  0,  
+					repeat: true,  
+					play:   true  
+				});  
+			}  
+		}  
 	}
 
 	/**
