@@ -76,7 +76,7 @@ define(function(require)
 	{
 		if (_timer) {
 			Events.clearTimeout( _timer );
-			this.timer = 0;
+			_timer = 0;
 		}
 		this.ui.remove(); // Remove from DOM
 	};
@@ -170,7 +170,7 @@ define(function(require)
 			Events.clearTimeout(_timer);
 		}
 
-		this.timer = Events.setTimeout(this.timeEnd.bind(this), _life);
+		_timer = Events.setTimeout(this.timeEnd.bind(this), _life);
 	};
 
 
