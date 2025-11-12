@@ -111,38 +111,38 @@ define( function( require )
 	 * @param {number} to_y
 	 * @param {number} range optional
 	 */
-	function walkTo( from_x, from_y, to_x, to_y, range )  
-	{  
-		// Same position  
-		if(from_x === to_x && from_y === to_y) {  
-			return;  
-		}  
-	  
-		var isCurrentlyWalking = this.action === this.ACTION.WALK && this.walk.total > 0;  
-		  
-		this.resetRoute();  
-	  
-		var path  = this.walk.path;  
-		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);  
-	  
+	function walkTo( from_x, from_y, to_x, to_y, range )
+	{
+		// Same position
+		if(from_x === to_x && from_y === to_y) {
+			return;
+		}
+
+		var isCurrentlyWalking = this.action === this.ACTION.WALK && this.walk.total > 0;
+
+		this.resetRoute();
+
+		var path  = this.walk.path;
+		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+
 		this.walk.index =     1 * 2; // skip first index
-		this.walk.total = total * 2;  
-	  
-		if (total) {  
-			this.walk.pos.set(this.position);  
-			this.walk.tick = this.walk.prevTick = Renderer.tick;  
-			this.headDir = 0;  
-	  
-			// Only set action if not already walking  
-			if (!isCurrentlyWalking) {  
-				this.setAction({  
-					action: this.ACTION.WALK,  
-					frame:  0,  
-					repeat: true,  
-					play:   true  
-				});  
-			}  
-		}  
+		this.walk.total = total * 2;
+
+		if (total) {
+			this.walk.pos.set(this.position);
+			this.walk.tick = this.walk.prevTick = Renderer.tick;
+			this.headDir = 0;
+
+			// Only set action if not already walking
+			if (!isCurrentlyWalking) {
+				this.setAction({
+					action: this.ACTION.WALK,
+					frame:  0,
+					repeat: true,
+					play:   true
+				});
+			}
+		}
 	}
 
 	/**
@@ -165,10 +165,41 @@ define( function( require )
 		if(total == 0)
 			return;
 
+		if (total > 0 &&
+			this.action !== this.ACTION.WALK &&
+			this.objecttype !== this.constructor.TYPE_FALCON &&
+			this.objecttype !== this.constructor.TYPE_WUG) {
+
+			// Encontrar o nome da ação atual
+			var actionName = 'UNKNOWN';
+			for (var key in this.ACTION) {
+				if (this.ACTION[key] === this.action) {
+					actionName = key;
+					break;
+				}
+			}
+
+			console.warn('🚨 CHARACTER STUCK IN WALKING ANIMATION:', {
+				GID: this.GID,
+				nome: this.display ? this.display.name : 'N/A',
+				action: this.action,
+				actionName: actionName,
+				walkTotal: total,
+				walkIndex: index,
+				position: [Math.round(pos[0]), Math.round(pos[1])],
+				objecttype: this.objecttype,
+				timestamp: new Date().toISOString()
+			});
+
+			// Stack trace para ver de onde veio a chamada
+			console.trace('Stack trace of debug:');
+		}
+		// ===== FIM DO LOG =====
+
 		if (this.action === this.ACTION.WALK || this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) {
 
 			if (index < total) {
-				
+
 				// Calculate new position, base on time and walk speed.
 				while (index < total) {
 					x = path[index+0] - (walk.pos[0]);
@@ -251,7 +282,7 @@ define( function( require )
 			pos[2] = cellHeight;
 			this.resetRoute();
 			this.isAttacking = false;
-		} 
+		}
 		else {
 			if (index < total) { // Walking got interrupted by getting attacked or other means
 				this.walk.tick += TICK - this.walk.prevTick; // Offset walking by the time elapsed.
