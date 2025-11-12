@@ -179,7 +179,7 @@ define( function( require )
 				}
 			}
 
-			console.warn('🚨 CHARACTER STUCK IN WALKING ANIMATION:', {
+			console.warn('🚨 CHARACTER STUCK IN WALKING ANIMATION - SHARE DETAILS AT ROBROWSER GITHUB:', {
 				GID: this.GID,
 				nome: this.display ? this.display.name : 'N/A',
 				action: this.action,
