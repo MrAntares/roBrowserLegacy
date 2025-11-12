@@ -294,6 +294,9 @@ define(function( require )
 	function UpdateGeneric( type, func, fallback )
 	{
 		return function (val) {
+			if(this.GID === 2000001){
+				console.log(type, func, val, 'type, func, val');
+			}
 			var path;
 			var _this = this;
 			var _val  = val;
