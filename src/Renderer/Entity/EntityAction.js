@@ -95,10 +95,6 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 				this.objecttype !== this.constructor.TYPE_FALCON &&
 				this.objecttype !== this.constructor.TYPE_WUG) {
 
-				console.log('✅ FIX: Reseting the route when change WALK animation to:',
-					Object.keys(this.ACTION).find(k => this.ACTION[k] === newAction) || 'UNKNOWN',
-					'GID:', this.GID);
-
 				this.resetRoute();
 			}
 
