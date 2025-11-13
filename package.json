@@ -2,7 +2,7 @@
 	"name": "robrowser",
 	"version": "1.0.0",
 	"scripts": {
-		"serve": "live-server . --open./dist/Web/index.html --port=8081",
+		"serve": "live-server /dist/Web",
 		"live": "live-server . --open=./applications/browser-examples",
 		"pwa": "live-server . --open=./applications/pwa",
 		"tools": "live-server . --open=./applications/tools",
