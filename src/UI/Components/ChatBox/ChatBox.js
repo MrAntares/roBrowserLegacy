@@ -62,9 +62,17 @@ define(function(require)
 
 
 	/**
-	 * Buffer para acumular mensagens antes de adicionar ao DOM
+	 * Buffer para acumular mensagens antes de adicionar ao DOM.
+	 * @private
+	 * @type {ChatMessage[]}
 	 */
 	var _messageBuffer = [];
+
+	/**
+	 * Flag que indica se um requestAnimationFrame foi agendado para processar o buffer.
+	 * @private
+	 * @type {boolean}
+	 */
 	var _rafScheduled = false;
 
 	/**
@@ -797,7 +805,7 @@ define(function(require)
 			filterType = ChatBox.FILTER.PUBLIC_LOG;
 		}
 
-		// Adicionar ao buffer ao invés de processar imediatamente
+		// Add to the buffer instead of processing immediately
 		_messageBuffer.push({
 			text: text,
 			colorType: colorType,
@@ -806,7 +814,7 @@ define(function(require)
 			override: override
 		});
 
-		// Agendar flush do buffer usando requestAnimationFrame
+		// Schedule buffer flush using requestAnimationFrame
 		if (!_rafScheduled) {
 			_rafScheduled = true;
 			requestAnimationFrame(function() {
@@ -817,18 +825,18 @@ define(function(require)
 	};
 
 	/**
-	 * Processa todas as mensagens do buffer de uma vez
+	 * Process all messages in the buffer at once
 	 */
 	function flushMessageBuffer() {
 		if (_messageBuffer.length === 0) {
 			return;
 		}
 
-		// Processar todas as mensagens do buffer
+		// Process all messages in the buffer
 		var messages = _messageBuffer.slice();
 		_messageBuffer = [];
 
-		// Agrupar por tab para minimizar operações DOM
+		// Group messages by tab to minimize DOM operations
 		var messagesByTab = {};
 
 		messages.forEach(function(msg) {
@@ -847,12 +855,12 @@ define(function(require)
 			});
 		});
 
-		// Adicionar todas as mensagens de cada tab de uma vez
+		// Add messages of each tab at once
 		Object.keys(messagesByTab).forEach(function(TabNum) {
 			var content = ChatBox.ui.find('.content[data-content="'+ TabNum +'"]');
 			var fragment = document.createDocumentFragment();
 
-			// CAPTURAR ESTADO DO SCROLL ANTES DE ADICIONAR MENSAGENS
+			// Get scroll state before adding messages
 			var wasAtBottom = shouldScrollDownBeforeAdd(content[0], content.height());
 
 			messagesByTab[TabNum].forEach(function(msg) {
@@ -861,10 +869,10 @@ define(function(require)
 				fragment.appendChild(div);
 			});
 
-			// Adicionar tudo de uma vez (1 reflow ao invés de N)
+			// Add all at once (1 reflow instead of N)
 			content[0].appendChild(fragment);
 
-			// Limpar mensagens antigas
+			// Clean up old messages
 			while (content[0].childElementCount > MAX_MSG) {
 				var element = content[0].firstElementChild;
 				var matches = element.innerHTML.match(/(blob:[^"]+)/g);
@@ -876,7 +884,7 @@ define(function(require)
 				element.remove();
 			}
 
-			// Atualizar scroll apenas se estava no final
+			// Update the scroll only if it was at the bottom
 			if (wasAtBottom) {
 				content[0].scrollTop = content[0].scrollHeight;
 			}
@@ -884,7 +892,11 @@ define(function(require)
 	}
 
 	/**
-	 * Determina a cor baseada no tipo de mensagem
+	 * Determine color based on message type
+	 * @param {number} colorType
+	 * @return {string} color hex
+	 *
+	 *
 	 */
 	function getColorForType(colorType) {
 		if ((colorType & ChatBox.TYPE.PUBLIC) && (colorType & ChatBox.TYPE.SELF)) {
@@ -918,13 +930,16 @@ define(function(require)
 	}
 
 	/**
-	 * Verifica se estava no final ANTES de adicionar mensagens
+	 * Validates if the scroll was at the bottom before adding new messages
+	 * @param {HTMLElement} container
+	 * @param {number} height
+	 * @return {boolean}
 	 */
 	function shouldScrollDownBeforeAdd(container, height) {
 		const tolerance = 5;
 		const atBottom = container.scrollTop + height >= container.scrollHeight - tolerance;
 
-		// Se não há scrollbar ou está no final, retorna true
+		// If there is no scrollbar or is at the end, return true
 		if (height >= container.scrollHeight || atBottom) {
 			return true;
 		}
