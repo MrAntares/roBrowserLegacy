@@ -62,6 +62,12 @@ define(function(require)
 
 
 	/**
+	 * Buffer para acumular mensagens antes de adicionar ao DOM
+	 */
+	var _messageBuffer = [];
+	var _rafScheduled = false;
+
+	/**
 	 * @var {Preferences} structure
 	 */
 	var _preferences = Preferences.get('ChatBox', {
@@ -132,7 +138,6 @@ define(function(require)
 	 * @var {number} target message ?
 	 */
 	ChatBox.sendTo = ChatBox.TYPE.PUBLIC;
-
 
 	/**
 	 * Storage to cache the private messages
@@ -381,7 +386,7 @@ define(function(require)
 
 		// dialog box size
 		makeResizableDiv()
-		
+
 		Commands.add('savechat', 'Saves current chat tab to txt file.', function(){ ChatBox.saveCurrentTabChat(); return; }, ['sc'], false );
 	};
 
@@ -624,12 +629,12 @@ define(function(require)
 
 			//  Battle mode system (Includes F1-F24, 0-9, A-Z, ALT, SHIFT, CTRL)
 			default:
-				if ((event.target.tagName && !event.target.tagName.match(/input|select|textarea/i)) 
-					|| (event.which >= KEYS.F1 && event.which <= KEYS.F24) 
+				if ((event.target.tagName && !event.target.tagName.match(/input|select|textarea/i))
+					|| (event.which >= KEYS.F1 && event.which <= KEYS.F24)
 					|| (event.which >= KEYS[1] && event.which <= KEYS[9])   //  Numbers 0-9 - MicromeX
 					|| (event.which >= KEYS.A && event.which <= KEYS.Z)   //  Letters A-Z - MicromeX
 					|| KEYS.ALT || KEYS.SHIFT || KEYS.CTRL) {
-					
+
 					if (ChatBox.processBattleMode(event.which)) {
 						event.stopImmediatePropagation();
 						return false;
@@ -781,110 +786,151 @@ define(function(require)
 	 *
 	 * @param {string} text
 	 * @param {number} colorType
-	 * @param {string} color
-	 * @param {boolean} default false, html or text ?
 	 * @param {number} filterType
+	 * @param {string} color
+	 * @param {boolean} override - default false, html or text ?
 	 */
-	ChatBox.addText = function addText( text, colorType, filterType, color, override )
+	ChatBox.addText = function addText(text, colorType, filterType, color, override)
 	{
 		// Backward compatibility for older calls without filter
 		if(isNaN(filterType)){
 			filterType = ChatBox.FILTER.PUBLIC_LOG;
 		}
 
-		this.tabs.forEach((tab, TabNum) => {
-			var content = this.ui.find('.content[data-content="'+ TabNum +'"]');
-			var chatTabOption = ChatBoxSettings.tabOption[TabNum];
+		// Adicionar ao buffer ao invés de processar imediatamente
+		_messageBuffer.push({
+			text: text,
+			colorType: colorType,
+			filterType: filterType,
+			color: color,
+			override: override
+		});
 
-			if(!chatTabOption.includes(filterType)){
-				return;
-			}
+		// Agendar flush do buffer usando requestAnimationFrame
+		if (!_rafScheduled) {
+			_rafScheduled = true;
+			requestAnimationFrame(function() {
+				_rafScheduled = false;
+				flushMessageBuffer();
+			});
+		}
+	};
 
-			if (!color) {
-				if ((colorType & ChatBox.TYPE.PUBLIC) && (colorType & ChatBox.TYPE.SELF)) {
-					color = '#00FF00';
-				}
-				else if (colorType & ChatBox.TYPE.PARTY) {
-					color = ( colorType & ChatBox.TYPE.SELF ) ? 'rgb(200, 200, 100)' : 'rgb(230,215,200)';
-				}
-				else if (colorType & ChatBox.TYPE.GUILD) {
-					color = 'rgb(180, 255, 180)';
-				}
-				else if (colorType & ChatBox.TYPE.PRIVATE) {
-					color = '#FFFF00';
-				}
-				else if (colorType & ChatBox.TYPE.ERROR) {
-					color = '#FF0000';
-				}
-				else if (colorType & ChatBox.TYPE.INFO) {
-					color = '#FFFF63';
-				}
-				else if (colorType & ChatBox.TYPE.BLUE) {
-					color = '#00FFFF';
-				}
-				else if (colorType & ChatBox.TYPE.ADMIN) {
-					color = '#FFFF00';
-				}
-				else if (colorType & ChatBox.TYPE.MAIL) {
-					color = '#F4D293';
-				}
-				else {
-					color = 'white';
-				}
-			}
+	/**
+	 * Processa todas as mensagens do buffer de uma vez
+	 */
+	function flushMessageBuffer() {
+		if (_messageBuffer.length === 0) {
+			return;
+		}
 
-			content.append(
-				jQuery('<div/>').
-					css('color', color)
-					[ !override ? 'text' : 'html' ](text)
-			);
+		// Processar todas as mensagens do buffer
+		var messages = _messageBuffer.slice();
+		_messageBuffer = [];
 
+		// Agrupar por tab para minimizar operações DOM
+		var messagesByTab = {};
 
-			// If there is too many line, remove the older one
-			if (content[0].childElementCount > MAX_MSG) {
-				var element, matches;
-				var i, count;
+		messages.forEach(function(msg) {
+			ChatBox.tabs.forEach(function(tab, TabNum) {
+				var chatTabOption = ChatBoxSettings.tabOption[TabNum];
 
-				//Check if theres any blob url object to be released from buffer (Check Controls/ScreenShot.js)
-				element = content[0].firstElementChild;
+				if (!chatTabOption.includes(msg.filterType)) {
+					return;
+				}
 
-				matches = element.innerHTML.match(/(blob:[^"]+)/g);
+				if (!messagesByTab[TabNum]) {
+					messagesByTab[TabNum] = [];
+				}
 
+				messagesByTab[TabNum].push(msg);
+			});
+		});
+
+		// Adicionar todas as mensagens de cada tab de uma vez
+		Object.keys(messagesByTab).forEach(function(TabNum) {
+			var content = ChatBox.ui.find('.content[data-content="'+ TabNum +'"]');
+			var fragment = document.createDocumentFragment();
+
+			// CAPTURAR ESTADO DO SCROLL ANTES DE ADICIONAR MENSAGENS
+			var wasAtBottom = shouldScrollDownBeforeAdd(content[0], content.height());
+
+			messagesByTab[TabNum].forEach(function(msg) {
+				var color = msg.color || getColorForType(msg.colorType);
+				var div = jQuery('<div/>').css('color', color)[!msg.override ? 'text' : 'html'](msg.text)[0];
+				fragment.appendChild(div);
+			});
+
+			// Adicionar tudo de uma vez (1 reflow ao invés de N)
+			content[0].appendChild(fragment);
+
+			// Limpar mensagens antigas
+			while (content[0].childElementCount > MAX_MSG) {
+				var element = content[0].firstElementChild;
+				var matches = element.innerHTML.match(/(blob:[^"]+)/g);
 				if (matches) {
-					for (i = 0, count = matches.length; i < count; ++i) {
+					for (var i = 0; i < matches.length; i++) {
 						window.URL.revokeObjectURL(matches[i]);
 					}
 				}
-
 				element.remove();
 			}
 
-
-			// Function to determine whether to scroll down or not
-			function shouldScrollDown(container, messageHeight, height) {
-				// Tolerance could be a few pixels to account for nearly at the bottom situations
-				const tolerance = 5;
-
-				// The user is considered at the bottom if the current scrollTop, plus the height of the container,
-				// plus any potential new message height, is within the tolerance of the total scrollable height.
-				const atBottom = container.scrollTop + height + messageHeight >= container.scrollHeight - tolerance;
-
-				// If there is no scrollbar (content does not overflow), or the user is at the bottom, return true.
-				if (height >= container.scrollHeight || atBottom) {
-					return true;
-				}
-
-				// In other cases, return false as we do not want to auto-scroll down
-				return false;
-			}
-
-			const lastMessageHeight = this.ui.find('.content[data-content="'+ TabNum +'"] > div:last-child')[0].scrollHeight;
-
-			if (shouldScrollDown(content[0], lastMessageHeight, content.height())) {
+			// Atualizar scroll apenas se estava no final
+			if (wasAtBottom) {
 				content[0].scrollTop = content[0].scrollHeight;
 			}
 		});
-	};
+	}
+
+	/**
+	 * Determina a cor baseada no tipo de mensagem
+	 */
+	function getColorForType(colorType) {
+		if ((colorType & ChatBox.TYPE.PUBLIC) && (colorType & ChatBox.TYPE.SELF)) {
+			return '#00FF00';
+		}
+		else if (colorType & ChatBox.TYPE.PARTY) {
+			return (colorType & ChatBox.TYPE.SELF) ? 'rgb(200, 200, 100)' : 'rgb(230,215,200)';
+		}
+		else if (colorType & ChatBox.TYPE.GUILD) {
+			return 'rgb(180, 255, 180)';
+		}
+		else if (colorType & ChatBox.TYPE.PRIVATE) {
+			return '#FFFF00';
+		}
+		else if (colorType & ChatBox.TYPE.ERROR) {
+			return '#FF0000';
+		}
+		else if (colorType & ChatBox.TYPE.INFO) {
+			return '#FFFF63';
+		}
+		else if (colorType & ChatBox.TYPE.BLUE) {
+			return '#00FFFF';
+		}
+		else if (colorType & ChatBox.TYPE.ADMIN) {
+			return '#FFFF00';
+		}
+		else if (colorType & ChatBox.TYPE.MAIL) {
+			return '#F4D293';
+		}
+		return 'white';
+	}
+
+	/**
+	 * Verifica se estava no final ANTES de adicionar mensagens
+	 */
+	function shouldScrollDownBeforeAdd(container, height) {
+		const tolerance = 5;
+		const atBottom = container.scrollTop + height >= container.scrollHeight - tolerance;
+
+		// Se não há scrollbar ou está no final, retorna true
+		if (height >= container.scrollHeight || atBottom) {
+			return true;
+		}
+
+		return false;
+	}
 
 
 	/**
@@ -937,28 +983,28 @@ define(function(require)
 	{
 		_historyNickName.push(pseudo);
 	};
-	
+
 	/**
 	 * Save chat from current tab into a file.
 	 */
 	ChatBox.saveCurrentTabChat = function saveCurrentTabChat(){
-		
+
 		var timezone, date, data, url;
-		
+
 		// Create a date
 		var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
     	var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 		localISOTime = localISOTime.replace('T', ' ');
 		timezone = (new Date().getTimezoneOffset() / 60);
 		date     = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
-		
+
 		data = '<html><head><title>Chat History</title><style> body { background-color: DarkSlateGray; } </style></head><body>'
 		data += this.ui.find('.content[data-content="'+ ChatBox.activeTab +'"]')[0].outerHTML;
 		data += '</body></html>';
-		
+
 		// We create a local file
 		url = window.URL.createObjectURL(new Blob([data], {type: 'text/plain'}));
-		
+
 		ChatBox.addText('Chat History ['+ ChatBox.tabs[ChatBox.activeTab].name +'] ' + date + ' can be saved by <a style="color:#F88" download="ChatHistory ['+ ChatBox.tabs[ChatBox.activeTab].name +'] (' + date.replace('/', '-') + ').html" href="'+ url +'" target="_blank">clicking here</a>.', ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, null, true);
 	};
 
