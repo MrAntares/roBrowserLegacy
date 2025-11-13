@@ -170,7 +170,6 @@ define( function( require )
 			this.objecttype !== this.constructor.TYPE_FALCON &&
 			this.objecttype !== this.constructor.TYPE_WUG) {
 
-			// Encontrar o nome da ação atual
 			var actionName = 'UNKNOWN';
 			for (var key in this.ACTION) {
 				if (this.ACTION[key] === this.action) {
@@ -191,10 +190,8 @@ define( function( require )
 				timestamp: new Date().toISOString()
 			});
 
-			// Stack trace para ver de onde veio a chamada
 			console.trace('Stack trace of debug:');
 		}
-		// ===== FIM DO LOG =====
 
 		if (this.action === this.ACTION.WALK || this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) {
 
