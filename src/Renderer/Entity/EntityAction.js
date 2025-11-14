@@ -85,7 +85,20 @@ define(['Renderer/Renderer', 'DB/DBManager'], function( Renderer, DB )
 				}
 			}
 
-			this.action = option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
+			// FIX: Detect the walk animation change and reset pathfinding route
+			var wasWalking = (this.action === this.ACTION.WALK);
+			var newAction = option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
+			var willWalk = (newAction === this.ACTION.WALK);
+
+			if (wasWalking && !willWalk &&
+				this.walk && this.walk.total > 0 &&
+				this.objecttype !== this.constructor.TYPE_FALCON &&
+				this.objecttype !== this.constructor.TYPE_WUG) {
+
+				this.resetRoute();
+			}
+
+			this.action = newAction;
 			anim.tick   = Renderer.tick + 0;
 			anim.delay  = 0;
 			anim.frame  = option.frame  || 0;
