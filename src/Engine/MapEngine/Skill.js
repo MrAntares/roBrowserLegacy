@@ -865,6 +865,7 @@ define(function( require )
 		hookSkillWindow();
 
 		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST,         onSkillList );
+		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST2,        onSkillList );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE,       onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE2,      onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.ADD_SKILL,              onSkillAdded );
