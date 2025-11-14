@@ -2548,13 +2548,13 @@ define(function (require) {
 			return WeaponType.NONE;
 		}
 
-		// if itemID is lesser then WeaponType.MAX, return the itemID
-		if (!realType && id < WeaponType.MAX) {
-			return id;
-		}
-
 		if(realType && id in WeaponTypeExpansion) {
 			return WeaponTypeExpansion[id];
+		}
+
+		// if itemID is lesser then WeaponType.MAX, return the itemID
+		if (id < WeaponType.MAX) {
+			return id;
 		}
 
 		// look for classnum in ItemTable
@@ -2662,14 +2662,9 @@ define(function (require) {
 			return null;
 		}
 
-		console.log(id, job, sex, leftid, 'getWeaponPath id, job, sex, leftid');
 		var baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
-		// ItemID to View Id
-		if ((id in ItemTable) && ('ClassNum' in ItemTable[id])) {
-			console.log(ItemTable[id].ClassNum, 'getWeaponPath ItemTable[id].ClassNum');
-			id = ItemTable[id].ClassNum;
-		}
+		id = DB.getWeaponType(id);
 
 		// TODO: CHECK IF THIS IS CORRECT
 		if (leftid) {
@@ -2837,8 +2832,6 @@ define(function (require) {
 				break;
 		}
 
-		console.log(weapon, 'mountWeapon weapon');
-		console.log(weaponID, shieldID, 'mountWeapon weaponID, shieldID');
 		return weapon;
 	}
 
@@ -3289,7 +3282,7 @@ define(function (require) {
 			if (reformInfo) {
 				reformInfos.push(reformInfo);
 			} else {
-				console.log('Reform Info not found for reform ID:', reformId);
+				console.error('Reform Info not found for reform ID:', reformId);
 			}
 		}
 
