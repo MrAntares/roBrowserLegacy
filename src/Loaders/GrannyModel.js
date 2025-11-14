@@ -681,7 +681,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 		var SectionArrayAddress = 0x20+this.Header.SectionArrayOffset;
 		var crc = fp.CRC32(SectionArrayAddress);
 
-	    console.log(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
+	    console.error(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
 		fp.seek(SectionArrayAddress);
 		for (var i=0; i< this.Header.SectionArrayCount; i++) {
 			var s = new Section(fp);

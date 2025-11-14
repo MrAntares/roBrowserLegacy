@@ -263,13 +263,10 @@ define(function(require)
             	}
 
 				if (LaphineUpgUIState.needoptionnummin) {
-					console.log("Laphine Upgrade need min option:", LaphineUpgUIState.needoptionnummin);
 					isValid = false;
             		// Check the options count
             		if (inventoryItem.Options) {
-						console.log("Item:",inventoryItem);
 						let numOfOptions = inventoryItem.Options.filter(Option => Option.index !== 0).length;
-						console.log("Item has %d options", numOfOptions);
 						if (numOfOptions && numOfOptions >= LaphineUpgUIState.needoptionnummin) {
             		    	isValid = true;
 						}

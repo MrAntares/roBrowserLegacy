@@ -52,7 +52,7 @@ define(function (require) {
                 }
                 break;
             default:
-                console.log(`[PACKET.ZC.UI_OPEN] not implemented (${pkt.ui_type})`);
+                console.error(`[PACKET.ZC.UI_OPEN] not implemented (${pkt.ui_type})`);
         }
     }
 

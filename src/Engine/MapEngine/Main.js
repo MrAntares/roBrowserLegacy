@@ -608,7 +608,7 @@ define(function( require )
 				break;
 
 			default:
-				console.log( 'Main::onParameterChange() - Unsupported type', pkt);
+				console.error( 'Main::onParameterChange() - Unsupported type', pkt);
 		}
 	}
 
