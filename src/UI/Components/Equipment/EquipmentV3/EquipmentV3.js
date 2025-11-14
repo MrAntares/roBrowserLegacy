@@ -161,7 +161,7 @@ define(function(require)
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
 		this.ui.find('.titlebar .mini').click(function(){ EquipmentV3.ui.find('.panel').toggle(); });
-		this.ui.find('.titlebar .close').click(function(){ EquipmentV3.ui.hide(); });
+		this.ui.find('.titlebar .close').click(function(){ EquipmentV3.ui.hide(); Renderer.stop(renderCharacter); });
 
 		this.ui.find('.removeOption').mousedown(onRemoveOption);
 		this.ui.find('.view_status').mousedown(toggleStatus);
