@@ -166,6 +166,7 @@ define(function( require )
 
 			case Entity.TYPE_ITEM:
 				Cursor.setType( Cursor.ACTION.PICK, true, 2 );
+				Session.Entity.lookTo( this.position[0], this.position[1] );
 				if(PACKETVER.value >= 20180307) {
 					pkt       = new PACKET.CZ.ITEM_PICKUP2();
 				} else {
@@ -188,9 +189,8 @@ define(function( require )
 
 					return true;
 				}
-
 				Network.sendPacket(pkt);
-				Session.Entity.lookTo( this.position[0], this.position[1] );
+
 				return true;
 
 			case Entity.TYPE_NPC:

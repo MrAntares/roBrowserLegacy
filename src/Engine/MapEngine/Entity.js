@@ -564,6 +564,9 @@ define(function (require) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
 
+					// Update entity position
+					srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
+
 					// Will be hit actions
 					onEntityWillBeHitSub(pkt, dstEntity);
 
@@ -647,9 +650,6 @@ define(function (require) {
 
 						}
 					}
-
-					// Update entity position
-					srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 				}
 
 				srcEntity.attack_speed = pkt.attackMT;
