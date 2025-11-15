@@ -2540,7 +2540,7 @@ define(function (require) {
 		return isDualWeapon;
 	}
 
-	DB.getWeaponType = function getWeaponType(itemID, realType = false) {
+	DB.getWeaponType = function getWeaponType(itemID, realType = false, considerDualHandIds = false) {
 
 		const id = Number(itemID);
 
@@ -2548,8 +2548,12 @@ define(function (require) {
 			return WeaponType.NONE;
 		}
 
-		if(realType && id in WeaponTypeExpansion) {
+		if (realType && id in WeaponTypeExpansion) {
 			return WeaponTypeExpansion[id];
+		}
+
+		if (considerDualHandIds && id <= WeaponType.SWORD_AXE) {
+			return id;
 		}
 
 		// if itemID is lesser then WeaponType.MAX, return the itemID
@@ -2696,10 +2700,7 @@ define(function (require) {
 
 		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
-		// ItemID to View Id
-		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-			id = ItemTable[id].ClassNum;
-		}
+		let realId = DB.getWeaponType(id, true, true);
 
 		return (
 			'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
@@ -2708,7 +2709,7 @@ define(function (require) {
 			baseClass +
 			'_' +
 			SexTable[sex] +
-			WeaponTrailTable[id]
+			WeaponTrailTable[realId]
 		);
 	};
 
@@ -2737,7 +2738,7 @@ define(function (require) {
 	 * @param {number} weapon id
 	 */
 	DB.getWeaponSound = function getWeaponSound(id) {
-		var type = DB.getWeaponViewID(id);
+		var type = DB.getWeaponType(id, true);
 		return WeaponSoundTable[type];
 	};
 
@@ -2747,13 +2748,16 @@ define(function (require) {
 	 * @param {number} weapon id
 	 */
 	DB.getWeaponHitSound = function getWeaponHitSound(id) {
-		var type = DB.getWeaponViewID(id, true);
+		var type = DB.getWeaponType(id, true, true);
 
-		if (type === WeaponType.NONE) {
-			return [WeaponHitSoundTable[type][Math.floor(Math.random() * 4)]];
+		let hitSound = WeaponHitSoundTable[type];
+
+		// if array return random item
+		if (Array.isArray(hitSound)) {
+			return hitSound[Math.floor(Math.random() * hitSound.length)];
 		}
 
-		return WeaponHitSoundTable[type];
+		return hitSound;
 	};
 
 	/**

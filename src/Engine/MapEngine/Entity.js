@@ -189,7 +189,7 @@ define(function (require) {
 		if (entity.objecttype === Entity.TYPE_PC) {
 			// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
 			// so we have to swap it. maybe have a better solution.
-			if (pkt.weapon === 0 && pkt.shield !== 0 && !DB.isShield(pkt.shield)) {
+			if (pkt.weapon == 0 && pkt.shield != 0 && !DB.isShield(pkt.shield)) {
 				pkt.weapon = pkt.shield;
 				pkt.shield = 0;
 			}
@@ -559,47 +559,6 @@ define(function (require) {
 					};
 					EffectManager.spam(EF_Init_Par);
 				}
-
-				//attack sound
-				if (weaponSound) {
-					Events.setTimeout(function () {
-						Sound.playPosition(weaponSound, srcEntity.position);
-					}, soundTime * 2);
-				}
-				//attack release sound for bow and dagger
-				if (weaponSoundRelease) {
-					Events.setTimeout(function () {
-						Sound.playPosition(weaponSoundRelease, srcEntity.position);
-					}, delayTime * 2);
-				}
-
-				//second hit (double attack)
-				if (pkt.count == 2) {
-					if (weaponSound) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSound);
-						}, C_MULTIHIT_DELAY);
-					}
-					if (weaponSoundRelease) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSoundRelease);
-						}, (pkt.attackMT * 0.25) + C_MULTIHIT_DELAY);
-					}
-				}
-				//left hand
-				if (pkt.leftDamage) {
-					if (weaponSoundLeft) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSoundLeft);
-						}, C_MULTIHIT_DELAY * 1.75);
-					}
-					if (weaponSoundReleaseLeft) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSoundRelease);
-						}, (pkt.attackMT * 0.25) + (C_MULTIHIT_DELAY * 1.75));
-					}
-				}
-
 
 				if (dstEntity) {
 					// only if damage and do not have endure
