@@ -1295,6 +1295,11 @@ define(function (require) {
 						WeaponHitSoundTable[weaponID] = decoded_soundFile;  
 						return 1;  
 					};  
+
+					ctx.AddExpansionWeapon = (weaponID, expansionWeaponID) => {
+						WeaponTypeExpansion[weaponID] = expansionWeaponID;
+						return 1;
+					};
 	
 					// mount file  
 					lua.mountFile('weapontable.lub', buffer);  
@@ -1315,10 +1320,21 @@ define(function (require) {
 								end  
 							end  
 							
-							-- Process WeaponHitWaveNameTable  
-							if type(WeaponHitWaveNameTable) == "table" then  
-								for weaponID, soundFile in pairs(WeaponHitWaveNameTable) do  
-									result, msg = AddWeaponHitSound(weaponID, soundFile)  
+							-- Process WeaponHitWaveNameTable  (seems like gravity is still using the hardcoded sound files)
+							-- uncomment this if you want to use the custom sound files
+							--if type(WeaponHitWaveNameTable) == "table" then  
+							--	for weaponID, soundFile in pairs(WeaponHitWaveNameTable) do  
+							--		result, msg = AddWeaponHitSound(weaponID, soundFile)  
+							--		if not result then  
+							--			return false, msg  
+							--		end  
+							--	end  
+							--end  
+
+							-- Process WeaponTypeExpansionTable
+							if type(Expansion_Weapon_IDs) == "table" then  
+								for weaponID, expansionWeaponID in pairs(Expansion_Weapon_IDs) do  
+									result, msg = AddExpansionWeapon(weaponID, expansionWeaponID)  
 									if not result then  
 										return false, msg  
 									end  
@@ -2778,6 +2794,28 @@ define(function (require) {
 	 * @param {number} id weapon
 	 */
 	DB.getWeaponViewID = function getWeaponViewID(id) {
+
+		// validate if is number
+		if (isNaN(id)) {
+			return 0;
+		}
+
+		// if id is 0, return 0
+		if (id === 0) {
+			return 0;
+		}
+
+		// if less then weapon type.MAX, return the id
+		if (id < WeaponType.MAX) {
+			return id;
+		}
+
+		// try to get view from classnum in ItemTable
+		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
+			return ItemTable[id].ClassNum;
+		}
+
+		// all cases failed, return weapon type to use base sprite
 		return DB.getWeaponType(id);
 	};
 
