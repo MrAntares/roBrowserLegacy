@@ -68,7 +68,7 @@ define(function( require )
 		}
 		var value = _stateToVirtue[state];
 		if (value === undefined){
-			console.log('toggleState: unknown state', state);
+			console.error('toggleState: unknown state', state);
 			return;
 		}
 		if (enabled){
@@ -84,7 +84,7 @@ define(function( require )
 		}
 		var value = _stateToVirtue[state];
 		if (value === undefined){
-			console.log('toggleState: unknown state', state);
+			console.error('toggleState: unknown state', state);
 			return false;
 		}
 		return (this.virtue & value) !== 0;

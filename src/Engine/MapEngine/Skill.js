@@ -188,18 +188,21 @@ define(function( require )
 
 		if (error) {
 			ChatBox.addText( DB.getMessage(error), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL );
-			if (pkt.SKID in SkillActionTable) {
-				var action = SkillActionTable[pkt.SKID];
-				if (action) {
-					srcEntity.setAction(action(srcEntity, Renderer.tick));
-				}
-			} else {
-				if(DB.isDoram(srcEntity.job)){
-					srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick));
-				} else {
-					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
-				}
-			}
+			// all skills fails that i tested not executed skill action
+			// maybe there is some edge case that i missed
+			// so i'm commenting out for now
+			//if (pkt.SKID in SkillActionTable) {
+			//	var action = SkillActionTable[pkt.SKID];
+			//	if (action) {
+			//		srcEntity.setAction(action(srcEntity, Renderer.tick));
+			//	}
+			//} else {
+			//	if(DB.isDoram(srcEntity.job)){
+			//		srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick));
+			//	} else {
+			//		srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+			//	}
+			//}
 		}
 	}
 
@@ -865,6 +868,7 @@ define(function( require )
 		hookSkillWindow();
 
 		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST,         onSkillList );
+		Network.hookPacket( PACKET.ZC.SKILLINFO_LIST2,        onSkillList );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE,       onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.SKILLINFO_UPDATE2,      onSkillUpdate );
 		Network.hookPacket( PACKET.ZC.ADD_SKILL,              onSkillAdded );

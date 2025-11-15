@@ -427,7 +427,7 @@ define(function( require )
 				);
 				break;
 			default:
-				console.log('[PACKET_ZC_CONFIG] Unknown Config Type %d (value:%d)', pkt.Config, pkt.Value);
+				console.error('[PACKET_ZC_CONFIG] Unknown Config Type %d (value:%d)', pkt.Config, pkt.Value);
 		}
 	}
 

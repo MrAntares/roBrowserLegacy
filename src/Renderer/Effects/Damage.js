@@ -396,17 +396,17 @@ define(function( require )
 		obj.height   = canvas.height;
 		obj.isDisposable = true;
 
-		var hitSounds;
+		var hitSound;
 		if(entity.objecttype === Entity.TYPE_PC){
-			hitSounds = DB.getJobHitSound(entity._job);
-		}else{
+			hitSound = DB.getJobHitSound(entity._job);
+		} else {
 			if((weapon || weapon === 0)){
-				hitSounds = DB.getWeaponHitSound(weapon);
+				hitSound = DB.getWeaponHitSound(weapon);
 			}
 		}
 
-		if(hitSounds){
-			obj.soundFile = hitSounds[0];
+		if(hitSound){
+			obj.soundFile = hitSound;
 		}
 		
 		_list.push( obj );

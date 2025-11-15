@@ -26,7 +26,6 @@ define(function (require) {
 	var PetMessageConst = require('DB/Pets/PetMessageConst');
 	var JobId = require('DB/Jobs/JobConst');
 	var AttackEffect = require('DB/Monsters/AttackEffectTable');
-	var WeaponType = require('DB/Items/WeaponType');
 	var Sound = require('Audio/SoundManager');
 	var Events = require('Core/Events');
 	var Guild = require('Engine/MapEngine/Guild');
@@ -188,70 +187,27 @@ define(function (require) {
 		}
 
 		if (entity.objecttype === Entity.TYPE_PC) {
-			if (
-				entity.job == JobId.ASSASSIN ||
-				entity.job == JobId.ASSASSIN_H ||
-				entity.job == JobId.ASSASSIN_B ||
-				entity.job == JobId.GUILLOTINE_CROSS ||
-				entity.job == JobId.GUILLOTINE_CROSS_H ||
-				entity.job == JobId.GUILLOTINE_CROSS_B ||
-				entity.job == JobId.SHADOW_CROSS
-			) {
-				// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
-				// so we have to swap it. maybe have a better solution.
-				if (!pkt.weapon && pkt.shield && !DB.isShield(pkt.shield)) {
-					pkt.weapon = pkt.shield;
-					pkt.shield = 0;
-				}
+			// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
+			// so we have to swap it. maybe have a better solution.
+			if (pkt.weapon == 0 && pkt.shield != 0 && !DB.isShield(pkt.shield)) {
+				pkt.weapon = pkt.shield;
+				pkt.shield = 0;
+			}
 
-				if (!DB.isShield(pkt.shield) && pkt.weapon) {
-					let _weapon = DB.getWeaponViewID(pkt.weapon);
-					let _shield = DB.getWeaponViewID(pkt.shield);
-
-					if (_weapon === WeaponType.KATAR) {
-						_shield = _weapon;
-					}
-					if (_weapon < WeaponType.MAX && _weapon >= WeaponType.SHORTSWORD_SHORTSWORD) {
-						_shield = 0;
-					}
-					const viewId = _weapon + _shield;
-					switch (viewId) {
-						case 2:
-							entity.weapon = WeaponType.SHORTSWORD_SHORTSWORD;
-							break;
-						case 3:
-							entity.weapon = WeaponType.SHORTSWORD_SWORD;
-							break;
-						case 4:
-							entity.weapon = WeaponType.SWORD_SWORD;
-							break;
-						case 7:
-							entity.weapon = WeaponType.SHORTSWORD_AXE;
-							break;
-						case 8:
-							entity.weapon = WeaponType.SWORD_AXE;
-							break;
-						case 12:
-							entity.weapon = WeaponType.AXE_AXE;
-							break;
-						default:
-							entity.weapon = viewId;
-							break;
-					}
-					entity.shield = 0;
-				} else {
-					if (DB.getWeaponViewID(pkt.weapon) == WeaponType.KATAR) {
-						entity.weapon = pkt.weapon;
-						entity.shield = pkt.weapon;
-					} else {
-						entity.weapon = pkt.weapon;
-						entity.shield = pkt.shield;
-					}
-				}
+			let weaponType = DB.getWeaponType(pkt.weapon, true);
+			let viewId = DB.getWeaponViewID(pkt.weapon);
+			if (DB.isAssassin(entity.job) && pkt.shield !== 0 && !DB.isShield(pkt.shield) && pkt.weapon !== 0) {
+				let secondaryWeaponType = DB.getWeaponType(pkt.shield, true);
+				entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
+				entity.shield = 0;
+			} else if (DB.isKatar(weaponType)) {
+				entity.weapon = viewId;
+				entity.shield = viewId;
 			} else {
-				entity.weapon = pkt.weapon;
+				entity.weapon = viewId;
 				entity.shield = pkt.shield;
 			}
+
 		}
 
 		if (entity.objecttype === Entity.TYPE_PC &&
@@ -570,7 +526,7 @@ define(function (require) {
 					animSpeed = pkt.attackMT / m_attackMotion;
 
 					// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
-					if (DB.getWeaponType(srcEntity.weapon) == WeaponType.BOW) {
+					if (DB.isBow(DB.getWeaponType(srcEntity.weapon, true))) {
 						delayTime = (m_attackMotion + (8 / m_motionSpeed)) * m_motionSpeed * 24.0;
 						pkt.attackMT += delayTime;
 						var EF_Init_Par = {
@@ -604,50 +560,12 @@ define(function (require) {
 					EffectManager.spam(EF_Init_Par);
 				}
 
-				//attack sound
-				if (weaponSound) {
-					Events.setTimeout(function () {
-						Sound.playPosition(weaponSound, srcEntity.position);
-					}, soundTime * 2);
-				}
-				//attack release sound for bow and dagger
-				if (weaponSoundRelease) {
-					Events.setTimeout(function () {
-						Sound.playPosition(weaponSoundRelease, srcEntity.position);
-					}, delayTime * 2);
-				}
-
-				//second hit (double attack)
-				if (pkt.count == 2) {
-					if (weaponSound) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSound);
-						}, C_MULTIHIT_DELAY);
-					}
-					if (weaponSoundRelease) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSoundRelease);
-						}, (pkt.attackMT * 0.25) + C_MULTIHIT_DELAY);
-					}
-				}
-				//left hand
-				if (pkt.leftDamage) {
-					if (weaponSoundLeft) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSoundLeft);
-						}, C_MULTIHIT_DELAY * 1.75);
-					}
-					if (weaponSoundReleaseLeft) {
-						Events.setTimeout(function () {
-							Sound.play(weaponSoundRelease);
-						}, (pkt.attackMT * 0.25) + (C_MULTIHIT_DELAY * 1.75));
-					}
-				}
-
-
 				if (dstEntity) {
 					// only if damage and do not have endure
 					// and damage isn't absorbed (healing)
+
+					// Update entity position
+					srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 
 					// Will be hit actions
 					onEntityWillBeHitSub(pkt, dstEntity);
@@ -732,9 +650,6 @@ define(function (require) {
 
 						}
 					}
-
-					// Update entity position
-					srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 				}
 
 				srcEntity.attack_speed = pkt.attackMT;
@@ -1130,77 +1045,30 @@ define(function (require) {
 				// stored in a long value (uint16 and uint16 in uint32)
 				// source: https://github.com/rathena/rathena/blob/master/src/map/clif.c#L3162
 				if (pkt instanceof PACKET.ZC.SPRITE_CHANGE2) {
-					if (
-						entity.job == JobId.ASSASSIN ||
-						entity.job == JobId.ASSASSIN_H ||
-						entity.job == JobId.ASSASSIN_B ||
-						entity.job == JobId.GUILLOTINE_CROSS ||
-						entity.job == JobId.GUILLOTINE_CROSS_H ||
-						entity.job == JobId.GUILLOTINE_CROSS_B
-					) {
 						// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
 						// so we have to swap it. maybe have a better solution.
-						if (!pkt.value && pkt.value2 && !DB.isShield(pkt.value2)) {
+						if (pkt.value === 0 && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
 							pkt.value = pkt.value2;
 							pkt.value2 = 0;
 						}
 
-						if (!DB.isShield(pkt.value2) && pkt.value) {
-							let _weapon = DB.getWeaponViewID(pkt.value);
-							let _shield = DB.getWeaponViewID(pkt.value2);
+						let weaponType = DB.getWeaponType(pkt.value, true);
+						let viewId = DB.getWeaponViewID(pkt.value);
 
-							if (_weapon === WeaponType.KATAR) {
-								_shield = _weapon;
-							}
-
-							if (_weapon < WeaponType.MAX && _weapon >= WeaponType.SHORTSWORD_SHORTSWORD) {
-								_shield = 0;
-							}
-							const viewId = _weapon + _shield;
-							switch (viewId) {
-								case 2:
-									entity.weapon = WeaponType.SHORTSWORD_SHORTSWORD;
-									break;
-								case 3:
-									entity.weapon = WeaponType.SHORTSWORD_SWORD;
-									break;
-								case 4:
-									entity.weapon = WeaponType.SWORD_SWORD;
-									break;
-								case 7:
-									entity.weapon = WeaponType.SHORTSWORD_AXE;
-									break;
-								case 8:
-									entity.weapon = WeaponType.SWORD_AXE;
-									break;
-								case 12:
-									entity.weapon = WeaponType.AXE_AXE;
-									break;
-								default:
-									entity.weapon = viewId;
-									break;
-							}
+						if (DB.isAssassin(entity.job) && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
+							let secondaryWeaponType = DB.getWeaponType(pkt.value2, true);
+							entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
 							entity.shield = 0;
+						} else if (DB.isKatar(weaponType)) {
+							entity.weapon = viewId;
+							entity.shield = viewId;
 						} else {
-							if (DB.getWeaponViewID(pkt.value) == WeaponType.KATAR) {
-								entity.weapon = pkt.value;
-								entity.shield = pkt.value;
-							} else {
-								entity.weapon = pkt.value;
-								entity.shield = pkt.value2;
-							}
+							entity.weapon = viewId;
+							entity.shield = pkt.value2;
 						}
-					} else {
-						entity.weapon = pkt.value;
-						entity.shield = pkt.value2;
-
-						// was this working before?
-						// entity.shield = pkt.value >> 16;
-						// entity.weapon = pkt.value & 0x00FFFF;
-					}
-				}
-				else {
+				} else {
 					entity.weapon = pkt.value;
+					entity.shield = pkt.value2;
 				}
 
 				// load self aura

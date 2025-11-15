@@ -281,7 +281,7 @@ define(function(require)
 						})
 					}
 				} else {
-					console.log("Something wrong with this skill: %d", skid);
+					console.error("Something wrong with this skill: %d", skid);
 				}
 				
 			});

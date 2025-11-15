@@ -62,7 +62,6 @@ define(function( require )
             if (self.type === Signboard.Type.ICON_ONLY) {
                 self.posY = 15;
                 self.posX = 120;
-                console.log("Signboard icon!");
                 Client.loadFile( DB.INTERFACE_PATH + signboardData.icon_location, function(url){
                     self.display = true;
 
@@ -73,7 +72,6 @@ define(function( require )
             } else if (self.type === Signboard.Type.FULL_SIGNBOARD) {
                 self.posY = 70;
                 self.posX = 140;
-                console.log("Signboard Fullboard!");
                 Client.loadFile( DB.INTERFACE_PATH + signboardData.icon_location, function(url){
                     self.display = true;
     

@@ -35,6 +35,7 @@ define(function (require) {
 	var ShieldTable = require('./Items/ShieldTable');
 	var WeaponTable = require('./Items/WeaponTable');
 	var WeaponType = require('./Items/WeaponType');
+	var WeaponTypeExpansion = require('./Items/WeaponTypeExpansion');
 	var WeaponSoundTable = require('./Items/WeaponSoundTable');
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
 	var RobeTable = require('./Items/RobeTable');
@@ -238,6 +239,9 @@ define(function (require) {
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function (json) { RandomOption = json; }, onLoad());
 			loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', null, onLoad());
+
+			// Weapon tables  
+			loadWeaponTable(DB.LUA_PATH + 'datainfo/weapontable.lub', null, onLoad());
 			
 			// Skill
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
@@ -1257,6 +1261,106 @@ define(function (require) {
 		return signboardDict;
 	};
 
+	/**  
+	 * Load weapontable.lub to WeaponTable and WeaponHitSoundTable  
+	 *  
+	 * @param {string} filename to load  
+	 * @param {function} callback to run once the file is loaded  
+	 * @param {function} onEnd to run after the callback  
+	 */  
+	function loadWeaponTable(filename, callback, onEnd) {  
+		Client.loadFile(filename,  
+			async function (file) {  
+				try {  
+					console.log('Loading file "' + filename + '"...');  
+	
+					// check if file is ArrayBuffer and convert to Uint8Array if necessary  
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;  
+	
+					// get context, a proxy. It will be used to interact with lua conveniently  
+					const ctx = lua.ctx;  
+	
+					// create decoders  
+					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');  
+	
+					// create required functions in context  
+					ctx.AddWeaponName = (weaponID, weaponName) => {  
+						let decoded_weaponName = weaponName && weaponName.length > 0 ? iso88591Decoder.decode(weaponName) : "";  
+						WeaponTable[weaponID] = decoded_weaponName;  
+						return 1;  
+					};  
+	
+					ctx.AddWeaponHitSound = (weaponID, soundFile) => {  
+						let decoded_soundFile = soundFile && soundFile.length > 0 ? iso88591Decoder.decode(soundFile) : "";  
+						WeaponHitSoundTable[weaponID] = decoded_soundFile;  
+						return 1;  
+					};  
+
+					ctx.AddExpansionWeapon = (weaponID, expansionWeaponID) => {
+						WeaponTypeExpansion[weaponID] = expansionWeaponID;
+						return 1;
+					};
+	
+					// mount file  
+					lua.mountFile('weapontable.lub', buffer);  
+	
+					// execute file  
+					await lua.doFile('weapontable.lub');  
+	
+					// create and execute our own main function  
+					lua.doStringSync(`  
+						function main_weapontable()  
+							-- Process WeaponNameTable  
+							if type(WeaponNameTable) == "table" then  
+								for weaponID, weaponName in pairs(WeaponNameTable) do  
+									result, msg = AddWeaponName(weaponID, weaponName)  
+									if not result then  
+										return false, msg  
+									end  
+								end  
+							end  
+							
+							-- Process WeaponHitWaveNameTable  (seems like gravity is still using the hardcoded sound files)
+							-- uncomment this if you want to use the custom sound files
+							--if type(WeaponHitWaveNameTable) == "table" then  
+							--	for weaponID, soundFile in pairs(WeaponHitWaveNameTable) do  
+							--		result, msg = AddWeaponHitSound(weaponID, soundFile)  
+							--		if not result then  
+							--			return false, msg  
+							--		end  
+							--	end  
+							--end  
+
+							-- Process WeaponTypeExpansionTable
+							if type(Expansion_Weapon_IDs) == "table" then  
+								for weaponID, expansionWeaponID in pairs(Expansion_Weapon_IDs) do  
+									result, msg = AddExpansionWeapon(weaponID, expansionWeaponID)  
+									if not result then  
+										return false, msg  
+									end  
+								end  
+							end  
+							
+							return true, "success"  
+						end  
+						main_weapontable()  
+					`);  
+	
+				} catch (error) {  
+					console.error('[loadWeaponTable] Error: ', error);  
+	
+				} finally {  
+					// release file from memory  
+					lua.unmountFile('weapontable.lub');  
+
+					// call onEnd  
+					onEnd();  
+				}  
+			},  
+			onEnd  
+		);  
+	}
+
 	/**
 	 * Remove LUA comments
 	 *
@@ -1966,14 +2070,18 @@ define(function (require) {
 	 * @author MrUnzO
 	 */
 	DB.isShield = function isShield(id) {
-		// Dual weapon (based on range id)
-		if (id > 500 && (id < 2100 || id > 2200)) {
-			return false;
+		// shields has the following ranges:
+		// 2100 - 2199
+		// 28900 - 28999
+		// 460000 - 460099
+		if ((id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099)) {
+			return true;
 		}
-		return true;
+		return false;
 	};
 
-	DB.getPCAttackMotion = function getPCAttackMotion(job, sex, weapon, isDualWeapon) {
+
+	DB.getPCAttackMotion = function getPCAttackMotion(job, sex, itemID, isDualWeapon) {
 
 		if (isDualWeapon) {
 			switch (job) {
@@ -1999,7 +2107,6 @@ define(function (require) {
 					switch (sex) {
 						case 1:
 							return 5.85;
-							break;
 					}
 					break;
 				case JobId.ASSASSIN:
@@ -2009,7 +2116,7 @@ define(function (require) {
 				case JobId.GUILLOTINE_CROSS_H:
 				case JobId.GUILLOTINE_CROSS_B:
 				case JobId.SHADOW_CROSS:
-					switch (DB.getWeaponType(weapon)) {
+					switch (DB.getWeaponType(itemID)) {
 						case WeaponType.KATAR:
 						case WeaponType.SHORTSWORD_SHORTSWORD:
 						case WeaponType.SWORD_SWORD:
@@ -2025,7 +2132,7 @@ define(function (require) {
 		return 6;
 	}
 
-	DB.isDualWeapon = function isDualWeapon(job, sex, weapon) {
+	DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 
 		let isDualWeapon = false;
 
@@ -2036,7 +2143,7 @@ define(function (require) {
 			case JobId.REBELLION_B:
 			case JobId.NIGHT_WATCH:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.GUN_RIFLE:
 						case WeaponType.GUN_GATLING:
 						case WeaponType.GUN_SHOTGUN:
@@ -2055,7 +2162,7 @@ define(function (require) {
 			case JobId.OBORO_B:
 			case JobId.SHIRANUI:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.SYURIKEN:
 							isDualWeapon = true;
 							break;
@@ -2091,7 +2198,7 @@ define(function (require) {
 			case JobId.SOUL_ASCETIC:
 				//case JobId.SOUL_ASCETIC2:??
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.SHORTSWORD:
 							if (sex == 1) isDualWeapon = true; // male
 							break;
@@ -2106,7 +2213,7 @@ define(function (require) {
 			case JobId.SWORDMAN_H:
 			case JobId.SWORDMAN_B:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.TWOHANDSWORD:
 						case WeaponType.TWOHANDSPEAR:
 							isDualWeapon = true;
@@ -2118,7 +2225,7 @@ define(function (require) {
 			case JobId.ARCHER_H:
 			case JobId.ARCHER_B:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.BOW:
 							break;
 						default:
@@ -2131,7 +2238,7 @@ define(function (require) {
 			case JobId.THIEF_H:
 			case JobId.THIEF_B:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.BOW:
 							isDualWeapon = true;
 							break;
@@ -2142,7 +2249,7 @@ define(function (require) {
 			case JobId.MAGICIAN_H:
 			case JobId.MAGICIAN_B:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.TWOHANDROD:
 							isDualWeapon = true;
 							break;
@@ -2153,7 +2260,7 @@ define(function (require) {
 			case JobId.MERCHANT_H:
 			case JobId.MERCHANT_B:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.TWOHANDAXE:
 							isDualWeapon = true;
 							break;
@@ -2177,7 +2284,7 @@ define(function (require) {
 				{
 					switch (sex) {
 						case 0:
-							switch (weapon) {
+							switch (weaponType) {
 								case WeaponType.TWOHANDSWORD:
 								case WeaponType.TWOHANDAXE:
 								case WeaponType.TWOHANDROD:
@@ -2189,7 +2296,7 @@ define(function (require) {
 							}
 							break;
 						case 1:
-							switch (weapon) {
+							switch (weaponType) {
 								case WeaponType.TWOHANDSWORD:
 								case WeaponType.TWOHANDAXE:
 								case WeaponType.TWOHANDROD:
@@ -2222,7 +2329,7 @@ define(function (require) {
 			case JobId.DRAGON_KNIGHT:
 			case JobId.DRAGON_KNIGHT2:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.TWOHANDSPEAR:
 						case WeaponAction.TWOHANDSWORD:
 							isDualWeapon = true;
@@ -2238,7 +2345,7 @@ define(function (require) {
 			case JobId.ARCHBISHOP_B:
 			case JobId.CARDINAL:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.BOOK:
 							isDualWeapon = true;
 							break;
@@ -2253,7 +2360,7 @@ define(function (require) {
 			case JobId.WARLOCK_B:
 			case JobId.ARCH_MAGE:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.SHORTSWORD:
 							if (sex == 1) isDualWeapon = true;
 							break;
@@ -2276,7 +2383,7 @@ define(function (require) {
 			case JobId.MEISTER:
 			case JobId.MEISTER2:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.SWORD:
 						case WeaponType.AXE:
 						case WeaponType.TWOHANDAXE:
@@ -2294,7 +2401,7 @@ define(function (require) {
 			case JobId.GUILLOTINE_CROSS_B:
 			case JobId.SHADOW_CROSS:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.KATAR:
 						case WeaponType.SHORTSWORD_SHORTSWORD:
 						case WeaponType.SHORTSWORD_SWORD:
@@ -2319,7 +2426,7 @@ define(function (require) {
 			case JobId.WINDHAWK:
 			case JobId.WINDHAWK2:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.BOW:
 							isDualWeapon = true;
 							break;
@@ -2334,7 +2441,7 @@ define(function (require) {
 			case JobId.SORCERER_B:
 			case JobId.ELEMENTAL_MASTER:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.BOOK:
 						case WeaponType.ROD:
 						case WeaponType.TWOHANDROD:
@@ -2352,7 +2459,7 @@ define(function (require) {
 			case JobId.GENETIC_B:
 			case JobId.BIOLO:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.SWORD:
 						case WeaponType.AXE:
 						case WeaponType.TWOHANDAXE:
@@ -2380,7 +2487,7 @@ define(function (require) {
 			case JobId.IMPERIAL_GUARD:
 			case JobId.IMPERIAL_GUARD2:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.SPEAR:
 						case WeaponType.TWOHANDSPEAR:
 							isDualWeapon = true;
@@ -2396,7 +2503,7 @@ define(function (require) {
 			case JobId.SURA_B:
 			case JobId.INQUISITOR:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.KNUKLE:
 						case WeaponType.NONE:
 							isDualWeapon = true;
@@ -2412,7 +2519,7 @@ define(function (require) {
 			case JobId.SHADOW_CHASER_B:
 			case JobId.ABYSS_CHASER:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.BOW:
 							isDualWeapon = true;
 							break;
@@ -2434,7 +2541,7 @@ define(function (require) {
 			case JobId.WANDERER_B:
 			case JobId.TROUVERE:
 				{
-					switch (weapon) {
+					switch (weaponType) {
 						case WeaponType.BOW:
 							isDualWeapon = true;
 							break;
@@ -2449,130 +2556,93 @@ define(function (require) {
 		return isDualWeapon;
 	}
 
-	DB.getWeaponType = function getWeaponType(itemID) {
-		if (itemID == 0) {
+	DB.getWeaponType = function getWeaponType(itemID, realType = false, considerDualHandIds = false) {
+
+		const id = Number(itemID);
+
+		if (isNaN(id) || id < 0) {
 			return WeaponType.NONE;
-		} else if (itemID >= 1100 && itemID <= 1199) {
-			return WeaponType.SWORD;
-		} else if (itemID >= 1901 && itemID < 1999) {
-			return WeaponType.INSTRUMENT;
-		} else if (itemID >= 1201 && itemID <= 1249) {
-			return WeaponType.SHORTSWORD;
-		} else if (itemID >= 1250 && itemID <= 1299) {
-			return WeaponType.KATAR;
-		} else if (itemID >= 1350 && itemID <= 1399) {
-			return WeaponType.AXE;
-		} else if (itemID >= 1301 && itemID <= 1349) {
-			return WeaponType.TWOHANDAXE;//˫�ָ�
-		} else if (itemID >= 1450 && itemID <= 1499) {
-			return WeaponType.SPEAR;
-		} else if (itemID >= 1401 && itemID <= 1449) {
-			return WeaponType.TWOHANDSPEAR;
-		} else if (itemID >= 1501 && itemID <= 1599) {
-			return WeaponType.MACE;
-		} else if (itemID >= 1601 && itemID <= 1699) {
-			return WeaponType.ROD;
-		} else if (itemID >= 1701 && itemID <= 1749) {
-			return WeaponType.BOW;
-		} else if (itemID >= 1801 && itemID <= 1899) {
-			return WeaponType.KNUKLE;
-		} else if (itemID >= 2001 && itemID <= 2099) {
-			return WeaponType.TWOHANDSWORD;
-		}
-		/* else if (itemID >= 1800 && itemID < 1900) {
-		 return WeaponType.KNUKLE;
-		 } else if (itemID >= 1900 && itemID < 1950) {
-		 return WeaponType.INSTRUMENT;
-		 } else if (itemID >= 1950 && itemID < 2000) {
-		 return WeaponType.WHIP;
-		 } else if (itemID >= 2000 && itemID < 2100) {
-		 return WeaponType.TWOHANDROD;
-		 } else if (itemID >= 13150 && itemID < 13200) {
-		 return WeaponType.GUN_RIFLE;
-		 } else if (itemID >= 13000 && itemID < 13100) {
-		 return WeaponType.SHORTSWORD;
-		 } else if (itemID >= 13100 && itemID < 13150) {
-		 return WeaponType.GUN_HANDGUN;
-		 } else if (itemID >= 13300 && itemID < 13400) {
-		 return WeaponType.SYURIKEN;
-		 }*/
-
-		return -1;
-	}
-
-	DB.makeWeaponType = function makeWeaponType(left, right) {
-		let type = 0;
-		if (!left && right) {
-			left = right;
-			right = 0;
 		}
 
-		if ((left >= 1101 && left <= 1199)) {			// �Ѽհ�
-			type = WeaponType.SWORD;
-			if (right >= 1101 && right <= 1199)	// �Ѽհ�
-				return WeaponType.SWORD_SWORD;
-
-			if (right >= 1201 && right <= 1299)	// �ܰ�
-				return WeaponType.SHORTSWORD_SWORD;
-			//if (right >= 13400 && right < 13500)	// �Ѽհ�
-			//	return WeaponType.SWORD_SWORD;
-
-			if (right >= 1301 && right <= 1399)	// �Ѽյ���
-				return WeaponType.SWORD_AXE;
+		if (realType && id in WeaponTypeExpansion) {
+			return WeaponTypeExpansion[id];
 		}
-		else if (left >= 1201 && left <= 1299) {	// �ܰ�
-			type = WeaponType.SHORTSWORD;
-			if (right >= 1201 && right <= 1299)	// �ܰ�
-				return WeaponType.SHORTSWORD_SHORTSWORD;
 
-			//if (right >= 13000 && right < 13100)	// �ܰ�
-			//	return WeaponType.SHORTSWORD_SHORTSWORD;
-
-			if (right >= 1101 && right <= 1199)	// �Ѽհ�
-				return WeaponType.SHORTSWORD_SWORD;
-
-			//if (right >= 13400 && right < 13500)	// �Ѽհ�
-			//	return WeaponType.SHORTSWORD_SWORD;
-
-			if (right >= 1301 && right <= 1399)	// �Ѽյ���
-				return WeaponType.SHORTSWORD_AXE;
+		if (considerDualHandIds && id <= WeaponType.SWORD_AXE) {
+			return id;
 		}
-		else if (left >= 1301 && left <= 1399) {	// �Ѽյ���
-			type = WeaponType.AXE;
-			if (right >= 1101 && right <= 1199)	// �Ѽհ�
-				return WeaponType.SWORD_AXE;
 
-			if (right >= 1201 && right <= 1299)	// �ܰ�
-				return WeaponType.SHORTSWORD_AXE;
-
-			if (right >= 1301 && right <= 1399)	// �Ѽյ���
-				return WeaponType.AXE_AXE;
-		} else if (left >= 2801 && left <= 2899) {
-			return WeaponType.KATAR;
-		} else if (right >= 2801 && right <= 2899) {
-			return WeaponType.KATAR;
+		// if itemID is lesser then WeaponType.MAX, return the itemID
+		if (id < WeaponType.MAX) {
+			return id;
 		}
-		//else if (left >= 13000 && left < 13100)
-		//{	// �ܰ�
-		//	type = WeaponType.SHORTSWORD;
-		//	if (right >= 1201 && right < 1299)	// �ܰ�
-		//		return WeaponType.SHORTSWORD_SHORTSWORD;
 
-		//	if (right >= 13000 && right < 13100)	// �ܰ�
-		//		return WeaponType.SHORTSWORD_SHORTSWORD;
+		// look for classnum in ItemTable
+		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
+			let classNum = ItemTable[id].ClassNum;
 
-		//	if (right >= 1100 && right < 1150)	// �Ѽհ�
-		//		return WeaponType.SHORTSWORD_SWORD;
+			// look for classNum in WeaponTypeExpansion
+			if (classNum in WeaponTypeExpansion) {
+				return WeaponTypeExpansion[classNum];
+			}
 
-		//	if (right >= 13400 && right < 13500)	// �Ѽհ�
-		//		return WeaponType.SHORTSWORD_SWORD;
+			// ClassNUm is the real weapon type
+			return classNum;
+		} else {
+			// if itemID is not in ItemTable, try to find the corresponding weapon type based on the range id
+			const ranges = [
+				{ min: 1100, max: 1149, type: WeaponType.SWORD },
+				{ min: 1150, max: 1199, type: WeaponType.TWOHANDSWORD },
+				{ min: 1200, max: 1249, type: WeaponType.SHORTSWORD },
+				{ min: 1250, max: 1299, type: WeaponType.KATAR },
+				{ min: 1300, max: 1349, type: WeaponType.AXE },
+				{ min: 1350, max: 1399, type: WeaponType.TWOHANDAXE },
+				{ min: 1400, max: 1449, type: WeaponType.SPEAR },
+				{ min: 1450, max: 1499, type: WeaponType.TWOHANDSPEAR },
+				{ min: 1500, max: 1549, type: WeaponType.MACE },
+				{ min: 1550, max: 1599, type: WeaponType.BOOK },
+				{ min: 1600, max: 1699, type: WeaponType.ROD },
+				{ min: 1700, max: 1749, type: WeaponType.BOW },
+				{ min: 1750, max: 1799, type: WeaponType.NONE },
+				{ min: 1800, max: 1849, type: WeaponType.KNUKLE },
+				{ min: 1900, max: 1949, type: WeaponType.INSTRUMENT },
+				{ min: 1950, max: 1999, type: WeaponType.WHIP },
+				{ min: 20000, max: 20999, type: WeaponType.TWOHANDROD },
+				{ min: 13000, max: 13099, type: WeaponType.SHORTSWORD },
+				{ min: 13100, max: 13149, type: WeaponType.GUN_HANDGUN },
+				{ min: 13150, max: 13199, type: WeaponType.GUN_RIFLE },
+				{ min: 13300, max: 13399, type: WeaponType.SYURIKEN },
+				{ min: 13400, max: 13499, type: WeaponType.SWORD },
+				{ min: 18100, max: 18499, type: WeaponType.BOW },
+				{ min: 21000, max: 21999, type: WeaponType.TWOHANDSWORD },
+			];
+		
+			// Find the corresponding range
+			for (const range of ranges) {
+				if (id >= range.min && id <= range.max) {
+					return range.type;
+				}
+			}
 
-		//	if (right >= 1300 && right < 1350)	// �Ѽյ���
-		//		return WeaponType.SHORTSWORD_AXE;
-		//}
+			const gunGatling = [13157, 13158, 13159, 13172, 13177];
+			if (gunGatling.indexOf(id) > -1) {
+				return WeaponType.GUN_GATLING;
+			}
 
-		return type;
-	}
+			const gunShotGun = [13154, 13155, 13156, 13167, 13168, 13169, 13173, 13178];
+			if (gunShotGun.indexOf(id) > -1) {
+				return WeaponType.GUN_SHOTGUN;
+			}
+
+			const gunGranade = [13160, 13161, 13162, 13174, 13179];
+			if (gunGranade.indexOf(id) > -1) {
+				return WeaponType.GUN_GRANADE;
+			}
+		}
+		
+		// if itemID is not in any range, return NONE
+		return WeaponType.NONE;
+	};
 
 	/**
 	 * @return {string} Path to shield
@@ -2586,11 +2656,11 @@ define(function (require) {
 		}
 
 		// Dual weapon (based on range id)
-		if (id > 500 && (id < 2100 || id > 2200)) {
+		if (!DB.isShield(id)) {
 			return DB.getWeaponPath(id, job, sex);
 		}
 
-		var baseClass = WeaponJobTable[job] || WeaponJobTable[0];
+		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
 		// ItemID to View Id
 		if ((id in ItemTable) && ('ClassNum' in ItemTable[id])) {
@@ -2614,11 +2684,9 @@ define(function (require) {
 
 		var baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
-		// ItemID to View Id
-		if ((id in ItemTable) && ('ClassNum' in ItemTable[id])) {
-			id = ItemTable[id].ClassNum;
-		}
+		id = DB.getWeaponType(id);
 
+		// TODO: CHECK IF THIS IS CORRECT
 		if (leftid) {
 			if ((leftid in ItemTable) && ('ClassNum' in ItemTable[leftid])) {
 				leftid = ItemTable[leftid].ClassNum;
@@ -2648,10 +2716,7 @@ define(function (require) {
 
 		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
-		// ItemID to View Id
-		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-			id = ItemTable[id].ClassNum;
-		}
+		let realId = DB.getWeaponType(id, true, true);
 
 		return (
 			'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
@@ -2660,7 +2725,7 @@ define(function (require) {
 			baseClass +
 			'_' +
 			SexTable[sex] +
-			WeaponTrailTable[id]
+			WeaponTrailTable[realId]
 		);
 	};
 
@@ -2685,11 +2750,11 @@ define(function (require) {
 
 
 	/**
-	 * @return {string} Path to eapon sound
+	 * @return {string} Path to weapon sound
 	 * @param {number} weapon id
 	 */
 	DB.getWeaponSound = function getWeaponSound(id) {
-		var type = DB.getWeaponViewID(id);
+		var type = DB.getWeaponType(id, true);
 		return WeaponSoundTable[type];
 	};
 
@@ -2699,13 +2764,16 @@ define(function (require) {
 	 * @param {number} weapon id
 	 */
 	DB.getWeaponHitSound = function getWeaponHitSound(id) {
-		var type = DB.getWeaponViewID(id);
+		var type = DB.getWeaponType(id, true, true);
 
-		if (type === WeaponType.NONE) {
-			return [WeaponHitSoundTable[type][Math.floor(Math.random() * 4)]];
+		let hitSound = WeaponHitSoundTable[type];
+
+		// if array return random item
+		if (Array.isArray(hitSound)) {
+			return hitSound[Math.floor(Math.random() * hitSound.length)];
 		}
 
-		return WeaponHitSoundTable[type];
+		return hitSound;
 	};
 
 	/**
@@ -2725,76 +2793,31 @@ define(function (require) {
 	 * @return {number} weapon viewid
 	 * @param {number} id weapon
 	 */
-	DB.getWeaponViewID = function getWeaponViewIdClosure() {
-		var gunGatling = [13157, 13158, 13159, 13172, 13177];
-		var gunShotGun = [13154, 13155, 13156, 13167, 13168, 13169, 13173, 13178];
-		var gunGranade = [13160, 13161, 13162, 13174, 13179];
+	DB.getWeaponViewID = function getWeaponViewID(id) {
 
-		return function getWeaponViewID(id) {
-			// Already weapon type.
-			if (id < WeaponType.MAX) {
-				return id;
-			}
+		// validate if is number
+		if (isNaN(id)) {
+			return 0;
+		}
 
-			// Based on view id
-			if (id in ItemTable) {
-				if (ItemTable[id].ClassNum) {
-					return ItemTable[id].ClassNum;
-				}
-			}
+		// if id is 0, return 0
+		if (id === 0) {
+			return 0;
+		}
 
-			// Weapon ID starting at 1100
-			if (id < 1100) {
-				return WeaponType.NONE;
-			}
+		// if less then weapon type.MAX, return the id
+		if (id < WeaponType.MAX) {
+			return id;
+		}
 
-			// Specific weapon range inside other range (wtf gravity ?)
-			if (id >= 1116 && id <= 1118) return WeaponType.TWOHANDSWORD;
-			if (id >= 1314 && id <= 1315) return WeaponType.TWOHANDAXE;
-			if (id >= 1410 && id <= 1412) return WeaponType.TWOHANDSPEAR;
-			if (id >= 1472 && id <= 1473) return WeaponType.ROD;
-			if (id === 1599) return WeaponType.MACE;
-			if (gunGatling.indexOf(id) > -1) return WeaponType.GUN_GATLING;
-			if (gunShotGun.indexOf(id) > -1) return WeaponType.GUN_SHOTGUN;
-			if (gunGranade.indexOf(id) > -1) return WeaponType.GUN_GRANADE;
+		// try to get view from classnum in ItemTable
+		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
+			return ItemTable[id].ClassNum;
+		}
 
-			// Ranges
-			return (
-				id < 1150 ? WeaponType.SWORD :
-					id < 1200 ? WeaponType.TWOHANDSWORD :
-						id < 1250 ? WeaponType.SHORTSWORD :
-							id < 1300 ? WeaponType.KATAR :
-								id < 1350 ? WeaponType.AXE :
-									id < 1400 ? WeaponType.TWOHANDAXE :
-										id < 1450 ? WeaponType.SPEAR :
-											id < 1500 ? WeaponType.TWOHANDSPEAR :
-												id < 1550 ? WeaponType.MACE :
-													id < 1600 ? WeaponType.BOOK :
-														id < 1650 ? WeaponType.ROD :
-															id < 1700 ? WeaponType.NONE :
-																id < 1750 ? WeaponType.BOW :
-																	id < 1800 ? WeaponType.NONE :
-																		id < 1850 ? WeaponType.KNUKLE :
-																			id < 1900 ? WeaponType.NONE :
-																				id < 1950 ? WeaponType.INSTRUMENT :
-																					id < 2000 ? WeaponType.WHIP :
-																						id < 2050 ? WeaponType.TWOHANDROD :
-																							id < 13000 ? WeaponType.NONE :
-																								id < 13050 ? WeaponType.SHORTSWORD :
-																									id < 13100 ? WeaponType.NONE :
-																										id < 13150 ? WeaponType.GUN_HANDGUN :
-																											id < 13200 ? WeaponType.GUN_RIFLE :
-																												id < 13300 ? WeaponType.NONE :
-																													id < 13350 ? WeaponType.SYURIKEN :
-																														id < 13400 ? WeaponType.NONE :
-																															id < 13450 ? WeaponType.SWORD :
-																																id < 18100 ? WeaponType.NONE :
-																																	id < 18150 ? WeaponType.BOW :
-																																		WeaponType.NONE
-			);
-		};
-	}();
-
+		// all cases failed, return weapon type to use base sprite
+		return DB.getWeaponType(id);
+	};
 
 	/**
 	 * @return {number} weapon action frame
@@ -2803,7 +2826,7 @@ define(function (require) {
 	 * @param {number} sex
 	 */
 	DB.getWeaponAction = function getWeaponAction(id, job, sex) {
-		var type = DB.getWeaponViewID(id);
+		var type = DB.getWeaponType(id, true);
 
 		if (job in WeaponAction) {
 			if (WeaponAction[job] instanceof Array) {
@@ -2819,6 +2842,59 @@ define(function (require) {
 		return 0;
 	};
 
+	DB.mountWeapon = function mountWeapon(weaponID, shieldID) {
+		let _weapon = DB.getWeaponType(weaponID, true);
+		let _shield = DB.getWeaponType(shieldID, true);
+
+		let weapon;
+
+		const viewId = _weapon + _shield;
+
+		switch (viewId) {
+			case 2:
+				weapon = WeaponType.SHORTSWORD_SHORTSWORD;
+				break;
+			case 3:
+				weapon = WeaponType.SHORTSWORD_SWORD;
+				break;
+			case 4:
+				weapon = WeaponType.SWORD_SWORD;
+				break;
+			case 7:
+				weapon = WeaponType.SHORTSWORD_AXE;
+				break;
+			case 8:
+				weapon = WeaponType.SWORD_AXE;
+				break;
+			case 12:
+				weapon = WeaponType.AXE_AXE;
+				break;
+			default:
+				weapon = viewId;
+				break;
+		}
+
+		return weapon;
+	}
+
+	DB.isBow = function isBow(weaponType) {
+		return weaponType == WeaponType.BOW || weaponType == WeaponType.CrossBow || weaponType == WeaponType.Arbalest || weaponType == WeaponType.Kakkung || weaponType == WeaponType.Hunter_Bow || weaponType == WeaponType.Bow_Of_Rudra;
+	}
+
+	DB.isKatar = function isKatar(weaponType) {
+		return weaponType == WeaponType.KATAR;
+	}
+
+	DB.isAssassin = function isAssassin(jobID) {
+		return jobID == JobId.ASSASSIN ||
+				jobID == JobId.ASSASSIN_H ||
+				jobID == JobId.ASSASSIN_B ||
+				jobID == JobId.GUILLOTINE_CROSS ||
+				jobID == JobId.GUILLOTINE_CROSS_H ||
+				jobID == JobId.GUILLOTINE_CROSS_B ||
+				jobID == JobId.SHADOW_CROSS;
+	};
+	
 
 	/**
 	 * Get back informations from id
@@ -3248,7 +3324,7 @@ define(function (require) {
 			if (reformInfo) {
 				reformInfos.push(reformInfo);
 			} else {
-				console.log('Reform Info not found for reform ID:', reformId);
+				console.error('Reform Info not found for reform ID:', reformId);
 			}
 		}
 

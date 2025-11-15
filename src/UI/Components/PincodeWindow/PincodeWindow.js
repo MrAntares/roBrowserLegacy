@@ -425,10 +425,10 @@ function advanceVisualSeed() {
                     out += (PincodeWindow._keypad[x]).toString();
                 }
             } else {
-                console.log("ERROR: PincodeWindow.encryptPincode(): Pincode length invalid.");
+                console.error("ERROR: PincodeWindow.encryptPincode(): Pincode length invalid.");
             }
         } else {
-            console.log("ERROR: PincodeWindow.encryptPincode(): Unsafe Int.");
+            console.error("ERROR: PincodeWindow.encryptPincode(): Unsafe Int.");
 	}
 
         return out;
@@ -512,13 +512,13 @@ function advanceVisualSeed() {
      * Method to define
      */
     // Called when the performing a new pin / check pin request and the user has typed in their pin.
-    PincodeWindow.onPincodeCheckRequest = function onPincodeCheckRequest() { console.log("ERROR: PincodeWindow.onPincodeCheckRequest() not defined."); };
+    PincodeWindow.onPincodeCheckRequest = function onPincodeCheckRequest() { console.error("ERROR: PincodeWindow.onPincodeCheckRequest() not defined."); };
     // Called when the window is closed.
-    PincodeWindow.onExitRequest = function onExitRequest() { console.log("WARNING: PincodeWindow.onExitRequest() not defined."); PincodeWindow.resetUI(); };
+    PincodeWindow.onExitRequest = function onExitRequest() { console.error("WARNING: PincodeWindow.onExitRequest() not defined."); PincodeWindow.resetUI(); };
     // Called when the user has provided all three pincodes needed for a reset.
-    PincodeWindow.onPincodeReset = function onPincodeReset() { console.log("ERROR: PincodeWindow.onPincodeReset() not defined."); };
+    PincodeWindow.onPincodeReset = function onPincodeReset() { console.error("ERROR: PincodeWindow.onPincodeReset() not defined."); };
     // Called when the user clicks on the change button.
-    PincodeWindow.onUserPincodeResetReq = function onUserPincodeResetReq() { console.log("ERROR: PincodeWindow.onUserPincodeResetReq() not defined."); };
+    PincodeWindow.onUserPincodeResetReq = function onUserPincodeResetReq() { console.error("ERROR: PincodeWindow.onUserPincodeResetReq() not defined."); };
 
     function render( tick ) {
         var num = ((PincodeWindow.sel_input === 1) ? PincodeWindow._newpass : ((PincodeWindow.sel_input === 2) ? PincodeWindow._checkpass: PincodeWindow._pass)).length;
