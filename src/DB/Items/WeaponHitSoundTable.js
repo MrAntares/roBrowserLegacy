@@ -16,7 +16,7 @@ define(["./WeaponType"], function( WeaponType )
 	var WeaponSound = {};
 
 	WeaponSound[WeaponType.NONE]                  = ["_hit_fist1.wav", "_hit_fist2.wav", "_hit_fist3.wav", "_hit_fist4.wav"];
-	WeaponSound[WeaponType.SHORTSWORD]            = ["_hit_dagger.wav"];
+	WeaponSound[WeaponType.SHORTSWORD]            = ["_hit_sword.wav"]; // at some point this was _hit_dagger.wav but now it is _hit_short_sword.wav
 	WeaponSound[WeaponType.SWORD]                 = ["_hit_sword.wav"];
 	WeaponSound[WeaponType.TWOHANDSWORD]          = ["_hit_sword.wav"];
 	WeaponSound[WeaponType.SPEAR]                 = ["_hit_spear.wav"];

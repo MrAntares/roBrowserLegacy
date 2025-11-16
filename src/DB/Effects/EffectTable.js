@@ -233,6 +233,10 @@ define(function( require )
 	/// - spriteName:
 	///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
 	///
+	/// - absoluteSpriteName:
+	///   Sprite file name stored in the absolute path.spr
+	///   eg: data/sprite/npc/skel_archer_arrow.spr
+	///
 	/// - playSprite:
 	///   if set to true plays the sprite animation
 	///
@@ -11347,7 +11351,7 @@ define(function( require )
 			duration: 140,
 			fadeIn: true,
 			fadeOut: true,
-			spriteName: '../npc/skel_archer_arrow', //it is not in the effects folder so use relative path
+			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
 			toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
@@ -11366,7 +11370,7 @@ define(function( require )
 			timeBetweenDupli: 0,
 			fadeIn: true,
 			fadeOut: true,
-			spriteName: '../npc/skel_archer_arrow', //it is not in the effects folder so use relative path
+			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
 			toSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,

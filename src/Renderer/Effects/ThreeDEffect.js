@@ -29,6 +29,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		this.fadeIn = effect.fadeIn ? true : false;
 		this.shadowTexture = effect.shadowTexture ? true : false;
 		this.spriteName = effect.spriteName;
+		this.absoluteSpriteName = effect.absoluteSpriteName;
 		this.spriteRessource = null;
 		this.playSprite = effect.playSprite ? true : false;
 		this.sprDelay = effect.sprDelay ? effect.sprDelay : 0;
@@ -321,6 +322,9 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			if (this.shadowTexture) {
 				this.spriteRessource = Client.loadFile('data/sprite/shadow.spr');
 				this.actRessource = Client.loadFile('data/sprite/shadow.act');
+			} else if(this.absoluteSpriteName) {
+				this.spriteRessource = Client.loadFile(this.absoluteSpriteName + '.spr', null, null, {to_rgba:true});
+				this.actRessource = Client.loadFile(this.absoluteSpriteName + '.act', null, null, {to_rgba:true});
 			} else if (this.spriteName) {
 				this.spriteRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.spr');
 				this.actRessource = Client.loadFile('data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + this.spriteName + '.act');
