@@ -91,6 +91,31 @@ define(function( require )
 		}
 	}
 
+	/**
+	 * Server sent request about Dynamic NPC Create Result
+	 *
+	 * @param {object} pkt - PACKET.ZC.DYNAMICNPC_CREATE_RESULT
+	 */
+	function onDynamicNPCCreateRequest( pkt )
+	{
+		switch(pkt.result) {
+			case 0:
+				break;
+			case 1:
+				ChatBox.addText( "[Dynamic NPC] Unknown error", ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
+				break;
+			case 2:
+				ChatBox.addText( "[Dynamic NPC] Unknown NPC", ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
+				break;
+			case 3:
+				ChatBox.addText( "[Dynamic NPC] Duplicate NPC", ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
+				break;
+			case 4:
+				ChatBox.addText( "[Dynamic NPC] Out of time", ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
+				break;
+		}
+	}
+
 
 	/**
 	 * Display a menu
@@ -456,5 +481,6 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.SOUND,           onSound );
 		Network.hookPacket( PACKET.ZC.PLAY_NPC_BGM,    onBGM );
 		Network.hookPacket( PACKET.ZC.CLOSE_SCRIPT,    onCloseScript );
+		Network.hookPacket( PACKET.ZC.DYNAMICNPC_CREATE_RESULT, onDynamicNPCCreateRequest );
 	};
 });

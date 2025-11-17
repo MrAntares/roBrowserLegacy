@@ -12495,6 +12495,34 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
+	// 0xa15
+	PACKET.ZC.GOLDPCCAFE_POINT = function PACKET_ZC_GOLDPCCAFE_POINT(fp, end) {
+		this.isActive = fp.readUChar();
+		this.mode = fp.readUChar();
+		this.point = fp.readULong();
+		this.playedTime = fp.readULong();
+	};
+	PACKET.ZC.GOLDPCCAFE_POINT.size = 12;
+
+	// 0xa16
+	PACKET.CZ.DYNAMICNPC_CREATE_REQUEST = function PACKET_CZ_DYNAMICNPC_CREATE_REQUEST() {
+		this.name = "";
+	}
+	PACKET.CZ.DYNAMICNPC_CREATE_REQUEST.prototype.build = function() {
+		var pkt_len = 2 + 24;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xa16);
+		pkt_buf.writeString(this.name, NAME_LENGTH);
+
+		return pkt_buf;
+	};
+
+	// 0xa17
+	PACKET.ZC.DYNAMICNPC_CREATE_RESULT = function PACKET_ZC_DYNAMICNPC_CREATE_RESULT(fp, end) {
+		this.result = fp.readULong();
+	}
+	PACKET.ZC.DYNAMICNPC_CREATE_RESULT.size = 6;
 
 	// 0xac0
 	PACKET.CZ.OPEN_ALL_RODEX = function PACKET_CZ_OPEN_ALL_RODEX() {
