@@ -88,7 +88,7 @@ define(function(require)
 		reduce:   false,
 		tab:      InventoryV1.TAB.USABLE,
 		itemlock:	false,
-		itemcomp:	false,
+		itemcomp:	true,
 		npcsalelock:	false,
 		magnet_top: false,
 		magnet_bottom: false,
