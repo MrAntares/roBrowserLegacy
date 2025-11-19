@@ -32,6 +32,8 @@ define(function(require)
 	var cssText            = require('text!./ChatBox.css');
 	var Commands     = require('Controls/ProcessCommand');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
+	var HTMLEntity        = require('Utils/HTMLEntity');
+	var getModule          = require;
 
 
 	/**
@@ -217,15 +219,15 @@ define(function(require)
 			return false;
 		});
 
-		this.ui.find('.input .message').blur(function(){
+		this.ui.find('.input-chatbox').blur(function(){
 			Events.setTimeout(function(){
 				if (!document.activeElement.tagName.match(/input|select|textarea/i)) {
-					this.ui.find('.input .message').focus();
+					this.ui.find('.input-chatbox').focus();
 				}
 			}.bind(this), 1);
 		}.bind(this));
 
-		this.ui.find('.input .message')[0].maxLength = MAX_LENGTH;
+		this.ui.find('.input-chatbox')[0].maxLength = MAX_LENGTH;
 
 		this.ui.find('.input .username').blur(function(){
 			Events.setTimeout(function(){
@@ -415,7 +417,7 @@ define(function(require)
 		}
 
 		this.ui.find('.content').empty();
-		this.ui.find('.input .message').val('');
+		this.ui.find('.input-chatbox').html('');
 		this.ui.find('.input .username').val('');
 
 		_historyMessage.clear();
@@ -553,7 +555,7 @@ define(function(require)
 	ChatBox.onAppend = function OnAppend()
 	{
 		// Focus the input
-		this.ui.find('.input .message').focus();
+		this.ui.find('.input-chatbox').focus();
 
 		var content = this.ui.find('.content.active');
 		content[0].scrollTop = content[0].scrollHeight;
@@ -601,8 +603,8 @@ define(function(require)
 			return BattleMode.process(keyId);
 		}
 /*
-		var messageBox = this.ui.find('.input .message');
-		var text       = messageBox.val();
+		var messageBox = this.ui.find('.input-chatbox');
+		var text       = messageBox.html();
 
 		var messageBoxUser = this.ui.find('.input .username');
 		var text2       = messageBoxUser.val();
@@ -611,7 +613,7 @@ define(function(require)
 		// If there is no change, send the shortcut.
 		Events.setTimeout(function(){
 			// Nothing rendered, can process the shortcut
-			if ((messageBox.val() === text) && (messageBoxUser.val() === text2)) {
+			if ((messageBox.html() === text) && (messageBoxUser.val() === text2)) {
 				BattleMode.process(keyId);
 			}
 		}.bind(this), 4);*/
@@ -628,7 +630,7 @@ define(function(require)
 	 */
 	ChatBox.onKeyDown = function OnKeyDown( event )
 	{
-		var messageBox = this.ui.find('.input .message');
+		var messageBox = this.ui.find('.input-chatbox');
 		var nickBox    = this.ui.find('.input .username');
 		this.ui.find('.header tr td div.on input').on('keyup', function(){
 			ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
@@ -667,7 +669,7 @@ define(function(require)
 			case KEYS.UP:
 				if (!jQuery('#NpcMenu').length) {
 					if (document.activeElement === messageBox[0]) {
-						messageBox.val(_historyMessage.previous()).select();
+						messageBox.html(_historyMessage.previous()).select();
 						break;
 					}
 
@@ -682,7 +684,7 @@ define(function(require)
 			case KEYS.DOWN:
 				if (!jQuery('#NpcMenu').length) {
 					if (document.activeElement === messageBox[0]) {
-						messageBox.val(_historyMessage.next()).select();
+						messageBox.html(_historyMessage.next()).select();
 						break;
 					}
 
@@ -702,7 +704,7 @@ define(function(require)
 
 			// Send message
 			case KEYS.ENTER:
-				if (document.activeElement.tagName === 'INPUT' &&
+				if (document.activeElement.className === 'message input-chatbox' &&
 					document.activeElement !== messageBox[0]) {
 					return true;
 				}
@@ -721,7 +723,7 @@ define(function(require)
 	};
 
 	ChatBox.toggleChat = function toggleChat(){
-		var messageBox = this.ui.find('.input .message');
+		var messageBox = this.ui.find('.input-chatbox');
 
 		if (document.activeElement.tagName === 'INPUT' &&
 		    document.activeElement !== messageBox[0]) {
@@ -744,10 +746,10 @@ define(function(require)
 	{
 		var input = this.ui.find('.input');
 		var $user = input.find('.username');
-		var $text = input.find('.message');
+		var $text = input.find('.input-chatbox');
 
 		var user = $user.val();
-		var text = $text.val();
+		var text = $text.html();
 		var isChatOn = false;
 
 		// Battle mode
@@ -777,7 +779,7 @@ define(function(require)
 		// Save in history
 		_historyMessage.push(text);
 
-		$text.val('');
+		$text.html('');
 
 		// Command
 		if (text[0] === '/') {
@@ -785,6 +787,12 @@ define(function(require)
 			return;
 		}
 
+		// get item-data from this and replace the entire span with the item link
+		text = text.replace(/\<span data\-item\=\"(.*?)".*?\<\/span\>/gm, function(match, itemData) {
+			itemData = HTMLEntity.decodeHTMLEntities(itemData);
+			console.log(itemData);
+			return itemData;
+		});
 		this.onRequestTalk( user, text, ChatBox.sendTo );
 	};
 
@@ -800,6 +808,15 @@ define(function(require)
 	 */
 	ChatBox.addText = function addText(text, colorType, filterType, color, override)
 	{
+		// parse as many <ITEMLINK> or <ITEML> as possible and replace with clickable item link, but first decode the link to get the item id
+		text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function(match) {
+			let item = DB.parseItemLink(match);
+			let span = '<span data-item="' + match + '" class="item-link" style="color:#FFFF63;">&lt;' + item.name + '&gt;</span>';
+			override = true;
+			console.log(span);
+			return span;
+		});
+
 		// Backward compatibility for older calls without filter
 		if(isNaN(filterType)){
 			filterType = ChatBox.FILTER.PUBLIC_LOG;
@@ -1103,7 +1120,7 @@ define(function(require)
 	{
 		return function onChangeTargetMessageClosure()
 		{
-			var $input = ChatBox.ui.find('.input .message');
+			var $input = ChatBox.ui.find('.input-chatbox');
 
 			$input.removeClass('guild party');
 
@@ -1157,6 +1174,31 @@ define(function(require)
 		}
 	  }
 
+	
+	
+	// CLICKABLE ITEM → OPEN ITEMINFO
+	jQuery(document).on('click', '.item-link', function () {
+
+		let item = DB.parseItemLink(jQuery(this).data('item'));
+		console.log(item, 'BEFORE ITEMINFO');
+		if (!item) return;	// item not found
+
+		let ItemInfo = getModule('UI/Components/ItemInfo/ItemInfo');
+
+		ItemInfo.append();
+		ItemInfo.setItem(item);
+	});
+	
+	ChatBox.insertText = function(text) {
+		// Find chat input
+		var input = this.ui.find('.input-chatbox');
+
+		// Append text
+		input.val(input.val() + text);
+
+		// Focus input
+		input.focus();
+	};
 
 	/**
 	 * Create componentand export it
