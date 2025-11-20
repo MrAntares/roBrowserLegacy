@@ -4051,21 +4051,19 @@ define(function (require) {
 		}
 	  
 		// Encode random options (up to 5)
-		const optionCount = Math.min(item.nRandomOptionCnt || 0, 5);
-		for (let i = 0; i < optionCount; i++) {
-		  const option = item.Options[i];
-		  if (option && option.index > 0) {
-			data += optid_sep;
-			data += Base62.encode(option.index).padStart(2, "0");
-	  
-			data += optpar_sep;
-			data += Base62.encode(option.param).padStart(2, "0");
-	  
-			data += optval_sep;
-			data += Base62.encode(option.value).padStart(2, "0");
-		  }
+		if (item.Options) {
+			item.Options.forEach(option => {
+				if (option.index > 0) {
+					data += optid_sep;
+					data += Base62.encode(option.index).padStart(2, "0");
+					data += optpar_sep;
+					data += Base62.encode(option.param).padStart(2, "0");
+					data += optval_sep;
+					data += Base62.encode(option.value).padStart(2, "0");
+				}
+			});
 		}
-	  
+
 		return `<ITEML>${data}</ITEML>`;
 	  };
 	  

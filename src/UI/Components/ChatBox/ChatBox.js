@@ -790,7 +790,6 @@ define(function(require)
 		// get item-data from this and replace the entire span with the item link
 		text = text.replace(/\<span data\-item\=\"(.*?)".*?\<\/span\>/gm, function(match, itemData) {
 			itemData = HTMLEntity.decodeHTMLEntities(itemData);
-			console.log(itemData);
 			return itemData;
 		});
 		this.onRequestTalk( user, text, ChatBox.sendTo );
@@ -813,7 +812,6 @@ define(function(require)
 			let item = DB.parseItemLink(match);
 			let span = '<span data-item="' + match + '" class="item-link" style="color:#FFFF63;">&lt;' + item.name + '&gt;</span>';
 			override = true;
-			console.log(span);
 			return span;
 		});
 
@@ -1180,7 +1178,6 @@ define(function(require)
 	jQuery(document).on('click', '.item-link', function () {
 
 		let item = DB.parseItemLink(jQuery(this).data('item'));
-		console.log(item, 'BEFORE ITEMINFO');
 		if (!item) return;	// item not found
 
 		let ItemInfo = getModule('UI/Components/ItemInfo/ItemInfo');

@@ -1203,7 +1203,7 @@ define(function(require)
 			if (!item) return false;
 
 			item.name = DB.getItemName(item);
-			var link = '<span data-item="' + DB.createItemLink(item) + '" class="item-link" style="color:#FFFF63;">&lt;' + item.name + '&gt;</span>';
+			var link = '<span data-item="' + DB.createItemLink(item) + '" class="item-link" style="color:#A9B95F;">&lt;' + item.name + '&gt;</span>';
 
 			var msgBox = ChatBox.ui.find('.input-chatbox')[0];
 			if (msgBox) {
