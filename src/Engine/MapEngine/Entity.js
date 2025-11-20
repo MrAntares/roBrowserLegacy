@@ -796,7 +796,13 @@ define(function (require) {
 		type = ChatBox.TYPE.PUBLIC;
 		entity = EntityManager.get(pkt.GID);
 
+		ChatBox.addText(pkt.msg, type, ChatBox.FILTER.PUBLIC_CHAT, null, false);
+
 		if (entity) {
+			pkt.msg = pkt.msg.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function(match) {
+				return '<' + DB.getItemNameFromLink(match) + '>';
+			});
+
 			entity.dialog.set(pkt.msg);
 
 			// Should not happen
@@ -808,7 +814,6 @@ define(function (require) {
 			}
 		}
 
-		ChatBox.addText(pkt.msg, type, ChatBox.FILTER.PUBLIC_CHAT);
 	}
 
 

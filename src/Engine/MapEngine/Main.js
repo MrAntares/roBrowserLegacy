@@ -73,8 +73,13 @@ define(function( require )
 			return;
 		}
 
-		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_CHAT );
+		ChatBox.addText( pkt.msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_CHAT, null, false );
+
 		if (Session.Entity) {
+			pkt.msg = pkt.msg.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function(match) {
+				return '<' + DB.getItemNameFromLink(match) + '>';
+			});
+	
 			Session.Entity.dialog.set( pkt.msg );
 		}
 	}

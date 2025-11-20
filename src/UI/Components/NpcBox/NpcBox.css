@@ -7,7 +7,6 @@
 .item-link {
     color: #0070C0;
     cursor: pointer;
-    text-decoration: underline;
 }
 
 .item-link:hover {
