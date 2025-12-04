@@ -143,51 +143,7 @@ define(function(require)
 				.on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
 				.on('dblclick',    '.item', onItemUsed)
-				.on('click', '.item', function (e) {
-
-				// =============================================
-				// CTRL + LEFT CLICK → insert <ItemName> in chat
-				// =============================================
-					if (e.shiftKey && e.which === 1) {
-
-						var DB      = require('DB/DBManager');
-						var ChatBox = require('UI/Components/ChatBox/ChatBox');
-
-						var idx  = parseInt(jQuery(this).attr('data-index'), 10);
-						var item = InventoryV3.getItemByIndex(idx);
-						if (!item) return false;
-
-						var info = DB.getItemInfo(item.ITID);
-						if (!info) return false;
-
-						var data = [
-								item.ITID,
-								item.RefiningLevel || 0,
-								item.slot?.card1 || 0,
-								item.slot?.card2 || 0,
-								item.slot?.card3 || 0,
-								item.slot?.card4 || 0
-							].join(',');
-
-						    // ✔ Use inventory naming logic (shows refine + prefix + card)
-							var fullName = DB.getItemName(item);
-
-							var text = '[' + fullName + ']';
-
-							var coloredText = '<span style="color:#FFD700">[' + fullName + ']</span>';
-							var link = '<span class="chat-item-link" data-item="' + data + '">' + coloredText + '</span>';
-
-							var msgBox = ChatBox.ui.find('.message')[0];
-							if (msgBox) {
-								msgBox.value += link + " ";
-								msgBox.focus();
-							}
-
-						e.stopImmediatePropagation();
-						return false;
-					}
-
-				});
+				.on('click',       '.item', onItemClick);
 
 		this.ui.find('.ncnt').text(0 + ' / ');
 		this.ui.find('.mcnt').text(100);
@@ -1232,6 +1188,34 @@ define(function(require)
 		event.stopImmediatePropagation();
 		return false;
 	};
+
+	
+	/**
+	 * Handle click event on an item
+	 */
+	function onItemClick( event )
+	{
+		// Shift + LEFT CLICK → insert <ItemName> in chat
+		if (event.shiftKey && event.which === 1) {
+
+			var idx  = parseInt(jQuery(this).attr('data-index'), 10);
+			var item = InventoryV3.getItemByIndex(idx);
+			if (!item) return false;
+
+			item.name = DB.getItemName(item);
+			var link = '<span data-item="' + DB.createItemLink(item) + '" class="item-link" style="color:#A9B95F;">&lt;' + item.name + '&gt;</span>';
+
+			var msgBox = ChatBox.ui.find('.input-chatbox')[0];
+			if (msgBox) {
+				msgBox.innerHTML += link + " ";
+				msgBox.focus();
+			}
+
+			event.stopImmediatePropagation();
+		}
+
+		return false;
+	}
 
 
 	/**
