@@ -179,7 +179,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 
 		// Status checking
 		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-			console.error("WebGL::createFramebuffer() - Framebuffer não está completo!");
+			console.error("WebGL::createFramebuffer() - Incomplete Framebuffer!");
 		}
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
