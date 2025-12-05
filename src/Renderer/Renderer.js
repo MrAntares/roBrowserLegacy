@@ -221,7 +221,7 @@ define(function( require )
 		try {
 			bloomProgram = WebGL.createShaderProgram(gl, commonVS, bloomFS); 
 		} catch (e) {
-			console.error("Erro ao compilar shader BLOOM:", e);
+			console.error("Error when compiling shader BLOOM.", e);
 		}
 
 		this.postProcessProgram = bloomProgram;
