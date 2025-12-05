@@ -149,7 +149,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 */
 	function createFramebuffer (gl, width, height) {
 		if (gl.fbo) {
-			// Limpeza de recursos antigos, se existirem
+			// Cleaning old resources if exist
 			gl.deleteTexture(gl.fbo.texture);
 			gl.deleteRenderbuffer(gl.fbo.rbo);
 			gl.deleteFramebuffer(gl.fbo.framebuffer);
