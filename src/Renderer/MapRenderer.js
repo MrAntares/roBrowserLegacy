@@ -379,11 +379,11 @@ define(function( require )
 		if (usePostProcessing && gl.fbo && gl.fbo.framebuffer) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, gl.fbo.framebuffer);
 			gl.viewport(0, 0, gl.fbo.width, gl.fbo.height);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpa o FBO antes de desenhar
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 		} else {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpa o Canvas
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 		}
 
 		var fog   = MapRenderer.fog;
