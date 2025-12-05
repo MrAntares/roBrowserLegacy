@@ -40,6 +40,11 @@ define( ['Core/Preferences'], function( Preferences )
 		 */
 		fpslimit:    60,
 
+		/**
+		 * Game Post-Processing
+		 */
+		bloom:    false,
+
 		pixelPerfectSprites: false
 	}, 1.1 );
 

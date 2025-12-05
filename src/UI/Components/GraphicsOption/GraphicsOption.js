@@ -59,6 +59,7 @@ define(function(require)
 		this.ui.find('.fpslimit').change(onUpdateFPSLimit);
 		this.ui.find('.fps').change(onToggleFPSDisplay);
 		this.ui.find('.pixel-perfect').change(onTogglePixelPerfect);
+		this.ui.find('.bloom').change(onToggleBloom);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
@@ -81,6 +82,7 @@ define(function(require)
 		this.ui.find('.fpslimit').val(GraphicsSettings.fpslimit);
 		this.ui.find('.fps').attr('checked', FPS.ui.is(':visible'));
 		this.ui.find('.pixel-perfect').attr('checked', GraphicsSettings.pixelPerfectSprites);
+		this.ui.find('.bloom').attr('checked', GraphicsSettings.bloom);
 	};
 
 
@@ -156,6 +158,15 @@ define(function(require)
 
 		// Show alert that reload is required
 		alert('Please reload the page for sprite filtering changes to take effect.');
+	}
+
+	/**
+	 * Post-Processing
+	 */
+	function onToggleBloom()
+	{
+		GraphicsSettings.bloom = !!this.checked;
+		GraphicsSettings.save();
 	}
 
 	/**

@@ -144,6 +144,58 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		return shaderProgram;
 	}
 
+	/**
+	 * Create main (FBO) for texture collors and depth renderbuffer.
+	 */
+	function createFramebuffer (gl, width, height) {
+		if (gl.fbo) {
+			// Limpeza de recursos antigos, se existirem
+			gl.deleteTexture(gl.fbo.texture);
+			gl.deleteRenderbuffer(gl.fbo.rbo);
+			gl.deleteFramebuffer(gl.fbo.framebuffer);
+		}
+
+		var fbo = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+		// Color Attachment
+		var texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+		
+		// Prevents Artifacts filter and wrapper in FBO
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+		// Depth Attachment
+		var rbo = gl.createRenderbuffer();
+		gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
+		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo);
+
+		// Status checking
+		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+			console.error("WebGL::createFramebuffer() - Framebuffer não está completo!");
+		}
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.bindTexture(gl.TEXTURE_2D, null); 
+		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+		gl.fbo = {
+			framebuffer: fbo,
+			texture: texture,
+			rbo: rbo,
+			width: width,
+			height: height
+		};
+		
+		return gl.fbo;
+	}
 
 	/**
 	 * Webgl Require textures to be power of two size
@@ -215,6 +267,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	return {
 		getContext:          getContext,
 		createShaderProgram: createShaderProgram,
+		createFramebuffer:   createFramebuffer,
 		toPowerOfTwo:        toPowerOfTwo,
 		texture:             texture,
 		isWebGL2:		 	 isWebGL2,
