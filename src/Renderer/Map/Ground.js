@@ -71,20 +71,20 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 	 * @var {string} Vertex Shader
 	 */
 	var _vertexShader   = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
 
-		attribute vec3 aPosition;
-		attribute vec3 aVertexNormal;
-		attribute vec2 aTextureCoord;
-		attribute vec2 aLightmapCoord;
-		attribute vec2 aTileColorCoord;
+		in vec3 aPosition;
+		in vec3 aVertexNormal;
+		in vec2 aTextureCoord;
+		in vec2 aLightmapCoord;
+		in vec2 aTileColorCoord;
 
-		varying vec2 vTextureCoord;
-		varying vec2 vLightmapCoord;
-		varying vec2 vTileColorCoord;
-		varying float vLightWeighting;
+		out vec2 vTextureCoord;
+		out vec2 vLightmapCoord;
+		out vec2 vTileColorCoord;
+		out float vLightWeighting;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uProjectionMat;
@@ -108,14 +108,15 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 	 * @var {string} Fragment Shader
 	 */
 	var _fragmentShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
-		varying vec2 vTextureCoord;
-		varying vec2 vLightmapCoord;
-		varying vec2 vTileColorCoord;
-		varying float vLightWeighting;
+		in vec2 vTextureCoord;
+		in vec2 vLightmapCoord;
+		in vec2 vTileColorCoord;
+		in float vLightWeighting;
+		out vec4 fragColor;
 
 		uniform sampler2D uDiffuse;
 		uniform sampler2D uLightmap;
@@ -142,33 +143,33 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		}
 
 		void main(void) {
-			vec4 texture = texture2D(uDiffuse, vTextureCoord.st);
-			if (texture.a < 0.1)
+			vec4 textureSample = texture(uDiffuse, vTextureCoord.st);
+			if (textureSample.a < 0.1)
 				discard;
 
 			if (vTileColorCoord.st != vec2(0.0,0.0)) {
-				texture    *= texture2D( uTileColor, vTileColorCoord.st);
+				textureSample    *= texture( uTileColor, vTileColorCoord.st);
 			}
 
 			vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);
-			texture.rgb *= clamp(color, 0.0, 1.0);
-			texture.rgb *= clamp(uLightEnv, 0.0, 1.0);
+			textureSample.rgb *= clamp(color, 0.0, 1.0);
+			textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);
 
 			if (uLightMapUse) {
-				vec4 lightmap = texture2D( uLightmap, vLightmapCoord.st);
+				vec4 lightmap = texture( uLightmap, vLightmapCoord.st);
 				if(uPosterize) {
 					lightmap.rgb = posterize(lightmap.rgb);
 				}
-				texture.rgb *= lightmap.a;
-				texture.rgb += clamp(lightmap.rgb, 0.0, 1.0);
+				textureSample.rgb *= lightmap.a;
+				textureSample.rgb += clamp(lightmap.rgb, 0.0, 1.0);
 			}
 
-			gl_FragColor = texture;
+			fragColor = textureSample;
 
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4(uFogColor, gl_FragColor.w), fogFactor );
+				fragColor    = mix( fragColor, vec4(uFogColor, fragColor.w), fogFactor );
 			}
 
 		}

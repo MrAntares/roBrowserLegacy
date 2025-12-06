@@ -26,8 +26,8 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	function getContext( canvas, parameters )
 	{
 		var gl = null;
-		var args = ['webgl2', 'webgl'];
-		var i, count = args.length;
+		var names;
+		var i, count;
 
 		// Default options
 		if (!parameters) {
@@ -41,25 +41,34 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 			};
 		}
 
+		// Prefer a high-performance context when available
+		if (parameters && parameters.powerPreference === undefined) {
+			parameters.powerPreference = 'high-performance';
+		}
+
+		// WebGL2 only (fallback to experimental-webgl2 name if needed)
+		names = ['webgl2', 'experimental-webgl2'];
+		count = names.length;
+
 		// Find the context
-		if (canvas.getContext && window.WebGLRenderingContext) {
+		if (canvas.getContext) {
 			for (i = 0; i < count; ++i) {
 				try {
-					gl = canvas.getContext( args[i], parameters );
-					if (gl)
+					gl = canvas.getContext( names[i], parameters );
+					if (gl) {
 						break;
+					}
 				} catch(e) {}
 			}
 		}
 
 		// :(
 		if (!gl) {
-			throw new Error('WebGL::getContext() - Can\'t find a valid context, is WebGL supported ?');
+			throw new Error('WebGL::getContext() - WebGL2 is required but not available.');
 		}
 
 		return gl;
 	}
-
 
 	/**
 	 * Compile Webgl shader (fragment and vertex)
@@ -71,6 +80,12 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	function compileShader( gl, source, type)
 	{
 		var shader, error;
+
+		// Ensure #version is first token by trimming leading whitespace/BOM
+		if (source && source.charCodeAt(0) === 0xFEFF) {
+			source = source.slice(1);
+		}
+		source = source.replace(/^\s+/, '');
 
 		// Compile shader
 		shader = gl.createShader(type);
@@ -162,7 +177,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-		
+
 		// Prevents Artifacts filter and wrapper in FBO
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -183,7 +198,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		}
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null); 
+		gl.bindTexture(gl.TEXTURE_2D, null);
 		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
 		gl.fbo = {
@@ -193,7 +208,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 			width: width,
 			height: height
 		};
-		
+
 		return gl.fbo;
 	}
 

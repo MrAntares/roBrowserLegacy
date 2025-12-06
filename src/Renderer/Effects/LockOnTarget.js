@@ -53,15 +53,15 @@ define(function( require ) {
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader   = `
-		#version 100
+var _vertexShader   = `
+		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
 
-		attribute vec2 aPosition;
-		attribute vec2 aTextureCoord;
+		in vec2 aPosition;
+		in vec2 aTextureCoord;
 
-		varying vec2 vTextureCoord;
+		out vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uProjectionMat;
@@ -84,15 +84,16 @@ define(function( require ) {
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = `
-		#version 100
+var _fragmentShader = `
+		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
-		varying vec2 vTextureCoord;
+		in vec2 vTextureCoord;
 
 		uniform sampler2D uDiffuse;
 		uniform float uColor;
+		out vec4 fragColor;
 
 		uniform bool  uFogUse;
 		uniform float uFogNear;
@@ -100,19 +101,19 @@ define(function( require ) {
 		uniform vec3  uFogColor;
 
 		void main(void) {
-			vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
+			vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
 
-			if (texture.a == 0.0) {
+			if (textureSample.a == 0.0) {
 				discard;
 			}
 
-			gl_FragColor     = texture;
-			gl_FragColor.gb *= uColor;
+			fragColor     = textureSample;
+			fragColor.gb *= uColor;
 
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
 			}
 		}
 	`;

@@ -14,19 +14,19 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 	/**
 	 * @var {string} vertex shader
 	 */
-	var _vertexShader = `
-		#version 100
+var _vertexShader = `
+		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
 
-		attribute vec3 aPosition;
-		attribute vec3 aVertexNormal;
-		attribute vec2 aTextureCoord;
-		attribute float aAlpha;
+		in vec3 aPosition;
+		in vec3 aVertexNormal;
+		in vec2 aTextureCoord;
+		in float aAlpha;
 
-		varying vec2 vTextureCoord;
-		varying float vLightWeighting;
-		varying float vAlpha;
+		out vec2 vTextureCoord;
+		out float vLightWeighting;
+		out float vAlpha;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uProjectionMat;
@@ -58,14 +58,15 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 	/**
 	 * @var {string} fragment shader
 	 */
-	var _fragmentShader = `
-		#version 100
+var _fragmentShader = `
+		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
-		varying vec2 vTextureCoord;
-		varying float vLightWeighting;
-		varying float vAlpha;
+		in vec2 vTextureCoord;
+		in float vLightWeighting;
+		in float vAlpha;
+		out vec4 fragColor;
 
 		uniform sampler2D uDiffuse;
 
@@ -79,9 +80,9 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 		uniform float uLightOpacity;
 
 		void main(void) {
-			vec4 texture  = texture2D( uDiffuse,  vTextureCoord.st );
+			vec4 textureSample  = texture( uDiffuse,  vTextureCoord.st );
 
-			if (texture.a == 0.0) {
+			if (textureSample.a == 0.0) {
 				discard;
 			}
 
@@ -89,13 +90,13 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], funct
 			vec3 Diffuse	= uLightDiffuse * vLightWeighting;
 			vec4 LightColor = vec4( Ambient + Diffuse, 1.0);
 
-			gl_FragColor	= texture * clamp(LightColor, 0.0, 1.0);
-			gl_FragColor.a *= vAlpha;
+			fragColor	= textureSample * clamp(LightColor, 0.0, 1.0);
+			fragColor.a *= vAlpha;
 
 			if (uFogUse) {
 				float depth	 = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor	= mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+				fragColor	= mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
 			}
 		}
 	`;

@@ -24,14 +24,14 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _vertexShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
 	
-		attribute vec2 aPosition;
-		attribute vec2 aTextureCoord;
+		in vec2 aPosition;
+		in vec2 aTextureCoord;
 	
-		varying vec2 vTextureCoord;
+		out vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uViewModelMat;
@@ -89,11 +89,12 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _fragmentShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
-		varying vec2 vTextureCoord;
+		in vec2 vTextureCoord;
+		out vec4 fragColor;
 
 		uniform sampler2D uDiffuse;
 		uniform sampler2D uPalette;
@@ -114,17 +115,17 @@ function(      WebGL,         glMatrix,      Camera )
 		vec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {
 			vec2 TextInterval = 1.0 / uTextSize;
 
-			float tlLUT = texture2D(indexT, uv ).x;
-			float trLUT = texture2D(indexT, uv + vec2(TextInterval.x, 0.0)).x;
-			float blLUT = texture2D(indexT, uv + vec2(0.0, TextInterval.y)).x;
-			float brLUT = texture2D(indexT, uv + TextInterval).x;
+			float tlLUT = texture(indexT, uv ).x;
+			float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;
+			float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;
+			float brLUT = texture(indexT, uv + TextInterval).x;
 
 			vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);
 
-			vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(tlLUT,1.0)).rgb, 1.0);
-			vec4 tr = trLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(trLUT,1.0)).rgb, 1.0);
-			vec4 bl = blLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(blLUT,1.0)).rgb, 1.0);
-			vec4 br = brLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(brLUT,1.0)).rgb, 1.0);
+			vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);
+			vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);
+			vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);
+			vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);
 
 			vec2 f  = fract( uv.xy * uTextSize );
 			vec4 tA = mix( tl, tr, f.x );
@@ -142,27 +143,27 @@ function(      WebGL,         glMatrix,      Camera )
 			}
 
 			// Calculate texture
-			vec4 texture;
+			vec4 textureSample;
 			if (uUsePal) {
-				texture = bilinearSample( vTextureCoord, uDiffuse, uPalette );
+				textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );
 			}
 			else {
-				texture = texture2D( uDiffuse, vTextureCoord.st );
+				textureSample = texture( uDiffuse, vTextureCoord.st );
 			}
 
 			// No alpha, skip.
-			if ( texture.a == 0.0 )
+			if ( textureSample.a == 0.0 )
 				discard;
 
 			// Apply shadow, apply color
-			texture.rgb   *= uShadow;
-			gl_FragColor   = texture * uSpriteRendererColor;
+			textureSample.rgb   *= uShadow;
+			fragColor   = textureSample * uSpriteRendererColor;
 
 			// Fog feature
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
 			}
 		}
 	`;

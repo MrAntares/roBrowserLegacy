@@ -20,14 +20,14 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 	 * @var {string}
 	 */
 	var _vertexShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
 
-		attribute vec2 aPosition;
-		attribute vec2 aTextureCoord;
+		in vec2 aPosition;
+		in vec2 aTextureCoord;
 
-		varying vec2 vTextureCoord;
+		out vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uProjectionMat;
@@ -78,11 +78,12 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 	 * @var {string}
 	 */
 	var _fragmentShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
-		varying vec2 vTextureCoord;
+		in vec2 vTextureCoord;
+		out vec4 fragColor;
 
 		uniform vec4 uSpriteColor;
 		uniform sampler2D uDiffuse;
@@ -93,15 +94,15 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 		uniform vec3  uFogColor;
 
 		void main(void) {
-			gl_FragColor = texture2D( uDiffuse, vTextureCoord.st ) * uSpriteColor;
-			if ( gl_FragColor.a == 0.0 || (gl_FragColor.r == 0.0 && gl_FragColor.g == 0.0 && gl_FragColor.b == 0.0) ) {
+			fragColor = texture( uDiffuse, vTextureCoord.st ) * uSpriteColor;
+			if ( fragColor.a == 0.0 || (fragColor.r == 0.0 && fragColor.g == 0.0 && fragColor.b == 0.0) ) {
 				discard;
 			}
 
 			if ( uFogUse ) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
 			}
 		}
 	`;

@@ -14,13 +14,13 @@ define(["exports", "Utils/WebGL", "Renderer/Effects/Tiles"], function (exports, 
   }
 
   var _LPVertexShader = `
-        #version 100
+        #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
 
-        attribute vec2 aPosition;
-        attribute vec2 aTextureCoord;
-        varying vec2 vTextureCoord;
+        in vec2 aPosition;
+        in vec2 aTextureCoord;
+        out vec2 vTextureCoord;
         uniform mat4 uModelViewMat;
         uniform mat4 uProjectionMat;
         uniform vec3 uPosition;
@@ -34,19 +34,20 @@ define(["exports", "Utils/WebGL", "Renderer/Effects/Tiles"], function (exports, 
         }
 `;
   var _LPFragmentShader = `
-        #version 100
+        #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
 
-        varying vec2 vTextureCoord;
+        in vec2 vTextureCoord;
         uniform sampler2D uDiffuse;
+        out vec4 fragColor;
         void main(void) {
-            vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
-            if (texture.r < 0.5 || texture.g < 0.5 || texture.b < 0.5) {
+            vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
+            if (textureSample.r < 0.5 || textureSample.g < 0.5 || textureSample.b < 0.5) {
                discard;
             }
-            texture.a = 0.7;
-            gl_FragColor = texture;
+            textureSample.a = 0.7;
+            fragColor = textureSample;
         }
 `;
   var _lpNum = 0;
