@@ -167,18 +167,44 @@ define(function( require )
 		} 
 	};
 
+	Renderer.createPingPongFbos = function(gl, width, height) {
+		if (!gl.blurFBO1 || gl.blurFBO1.width !== width || gl.blurFBO1.height !== height) {
+			gl.blurFBO1 = WebGL.createFramebuffer(gl, width, height);
+			gl.blurFBO2 = WebGL.createFramebuffer(gl, width, height);
+		}
+	};
+
 	Renderer._drawPostProcessQuad = function(gl, program, texture) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, Renderer.quadBuffer);
 
 		var posLoc = program.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-        
+
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.uniform1i(program.uniform.uTexture, 0);
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
+	};
+
+	Renderer.runPostProcessing = function(gl) {
+		// 1. Horizontal blur
+		gl.bindFramebuffer(gl.FRAMEBUFFER, gl.blurFBO1.framebuffer);
+		gl.useProgram(this.blurHProgram);
+		gl.uniform2f(this.blurHProgram.uniform.uTexelSize, 1/gl.blurFBO1.width, 1/gl.blurFBO1.height);
+		this._drawPostProcessQuad(gl, this.blurHProgram, gl.fbo.texture);
+
+		// 2. Vertical blur
+		gl.bindFramebuffer(gl.FRAMEBUFFER, gl.blurFBO2.framebuffer);
+		gl.useProgram(this.blurVProgram);
+		gl.uniform2f(this.blurVProgram.uniform.uTexelSize, 1/gl.blurFBO2.width, 1/gl.blurFBO2.height);
+		this._drawPostProcessQuad(gl, this.blurVProgram, gl.blurFBO1.texture);
+
+		// 3. Final pass
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.useProgram(this.finalProgram);
+		this._drawPostProcessQuad(gl, this.finalProgram, gl.blurFBO2.texture);
 	};
 
 	/**
@@ -204,27 +230,108 @@ define(function( require )
 			uniform sampler2D uTexture; 
 			uniform float uBloomIntensity;
 			varying vec2 vUv;
-
 			void main() {
 				vec4 color = texture2D(uTexture, vUv);
 	
 				color.rgb += uBloomIntensity * 0.1;
 				const float contrast = 1.1; 
 				color.rgb = (color.rgb - 0.5) * contrast + 0.5;
-
 				gl_FragColor = color;
 			}
 		`;
 
+		var blurHorizontalFS = `
+			precision mediump float;
+
+			uniform sampler2D uTexture;
+			uniform vec2 uTexelSize;
+			varying vec2 vUv;
+
+			void main() {
+				vec3 result = vec3(0.0);
+	
+				float weights[5];
+				weights[0] = 0.227027;  
+				weights[1] = 0.1945946;
+				weights[2] = 0.1216216;
+				weights[3] = 0.054054;
+				weights[4] = 0.016216;
+				
+				result += texture2D(uTexture, vUv) * weights[0];
+				
+				for(int i = 1; i < 5; i++) {
+					result += texture2D(uTexture, vUv + vec2(uTexelSize.x * float(i), 0.0)) * weights[i];
+					result += texture2D(uTexture, vUv - vec2(uTexelSize.x * float(i), 0.0)) * weights[i];
+				}
+				
+				gl_FragColor = vec4(result, 1.0);
+			}
+		`;
+		var blurVerticalFS = `
+			precision mediump float;
+			
+			uniform sampler2D uTexture;
+			uniform vec2 uTexelSize;
+			varying vec2 vUv;
+			
+			void main() {
+				vec3 result = vec3(0.0);
+				
+				float weights[5];
+				weights[0] = 0.227027;  
+				weights[1] = 0.1945946;
+				weights[2] = 0.1216216;
+				weights[3] = 0.054054;
+				weights[4] = 0.016216;
+				
+				result += texture2D(uTexture, vUv) * weights[0];
+				
+				for(int i = 1; i < 5; i++) {
+					result += texture2D(uTexture, vUv + vec2(0.0, uTexelSize.y * float(i))) * weights[i];
+					result += texture2D(uTexture, vUv - vec2(0.0, uTexelSize.y * float(i))) * weights[i];
+				}
+				
+				gl_FragColor = vec4(result, 1.0);
+			}
+		`;
+
 		var bloomProgram = null;
-        
+  		var blurHProgram = null;
+		var blurVProgram = null;
+      
 		try {
 			bloomProgram = WebGL.createShaderProgram(gl, commonVS, bloomFS); 
+			blurHProgram = WebGL.createShaderProgram(gl, commonVS, blurHorizontalFS);
+			blurVProgram = WebGL.createShaderProgram(gl, commonVS, blurVerticalFS);
 		} catch (e) {
 			console.error("Error when compiling shader BLOOM.", e);
 		}
 
-		this.postProcessProgram = bloomProgram;
+		this.finalProgram = bloomProgram;
+		this.blurHProgram = blurHProgram;
+		this.blurVProgram = blurVProgram;
+		// Register attributes and uniforms
+		function registerProgram(prog, wantTexel, wantBloom) {
+			if (!prog) return;
+
+			prog.attribute = {
+				aPosition: gl.getAttribLocation(prog, "aPosition")
+			};
+			
+			prog.uniform = {
+				uTexture: gl.getUniformLocation(prog, "uTexture")
+			};
+			
+			if (wantTexel)
+				prog.uniform.uTexelSize = gl.getUniformLocation(prog, "uTexelSize");
+			
+			if (wantBloom)
+				prog.uniform.uBloomIntensity = gl.getUniformLocation(prog, "uBloomIntensity");
+		}
+
+		registerProgram(bloomProgram, false, true);
+		registerProgram(blurHProgram, true, false);
+		registerProgram(blurVProgram, true, false);
 
 		var quadVertices = new Float32Array([
 			-1, -1, 
@@ -239,7 +346,7 @@ define(function( require )
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
         
-		if (this.postProcessProgram) {
+		if (this.finalProgram) {
 			var width, height, quality, dpr = window.devicePixelRatio || 1;
              
 			width  = window.innerWidth  || document.body.offsetWidth;
@@ -250,6 +357,7 @@ define(function( require )
 			var renderHeight = height * quality * dpr;
 
 			this.createPostProcessFbos(gl, renderWidth, renderHeight);
+			this.createPingPongFbos(gl, renderWidth, renderHeight);
 		}
 	};
 
@@ -320,8 +428,12 @@ define(function( require )
 
 		Background.resize( this.width, this.height );
 
-  		if (this.postProcessProgram) {
-  	          this.createPostProcessFbos(this.gl, width * dpr, height * dpr);
+		if (this.postProcessProgram) {
+			var rw = width * dpr;
+			var rh = height * dpr;
+			
+			this.createPostProcessFbos(this.gl, rw, rh);
+			this.createPingPongFbos(this.gl, rw, rh);
 		}
 
 		/*
