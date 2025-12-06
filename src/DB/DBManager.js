@@ -234,7 +234,7 @@ define(function (require) {
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
 			// Item
-			loadItemInfo('System/itemInfo.lub', null, onLoad()); // 2012-04-10
+			tryLoadItemInfo(['System/itemInfo.lub', 'System/itemInfo.lua', 'System/itemInfo_true.lub', 'System/itemInfo_true.lua'], onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'], 'AccNameTable', function (json) { HatTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function (json) { RobeTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad());
@@ -584,6 +584,18 @@ define(function (require) {
 			onEnd
 		);
 	}
+	
+	function tryLoadItemInfo(files, onEnd) {
+		function tryNext(index) {
+			if (index >= files.length) {
+				return;
+			}
+
+			loadItemInfo(files[index], null, onEnd);
+			tryNext(index + 1);			
+		}
+		tryNext(0);
+	}
 
 	/* Load ItemInfo file to object
 	*
@@ -644,49 +656,53 @@ define(function (require) {
 						return 1;
 					};
 					// mount file
-					lua.mountFile('iteminfo.lub', buffer);
+					lua.mountFile(filename, buffer);
 					// execute file
-					await lua.doFile('iteminfo.lub');
+					await lua.doFile(filename);
 					// create and execute our own main function
 					// this is necessary because some servers has main function on itemInfo.lub and others load it from itemInfo_f.lub
 					// doing this way we avoid to have to load the other file
 					// on my tests dont care if the main() is on itemInfo.lub or itemInfo_f.lub the content is always the same
 					lua.doStringSync(`
 						function main_item()
+							_processedItems = _processedItems or {} 
 							for ItemID, DESC in pairs(tbl) do
-								result, msg = AddItem(ItemID, DESC.unidentifiedDisplayName, DESC.unidentifiedResourceName, DESC.identifiedDisplayName, DESC.identifiedResourceName, DESC.slotCount, DESC.ClassNum)
-								if not result then
-								return false, msg
-								end
-								for k, v in pairs(DESC.unidentifiedDescriptionName) do
-								result, msg = AddItemUnidentifiedDesc(ItemID, v)
-								if not result then
-									return false, msg
-								end
-								end
-								for k, v in pairs(DESC.identifiedDescriptionName) do
-								result, msg = AddItemIdentifiedDesc(ItemID, v)
-								if not result then
-									return false, msg
-								end
-								end
-								if nil ~= DESC.EffectID then
-								result, msg = AddItemEffectInfo(ItemID, DESC.EffectID)
-								if not result then
-									return false, msg
-								end
-								end
-								if nil ~= DESC.costume then
-								result, msg = AddItemIsCostume(ItemID, DESC.costume)
-								if not result then
-									return false, msg
-								end
-								end
-								if nil ~= DESC.PackageID then
-								result, msg = AddItemPackageID(ItemID, DESC.PackageID)
-								if not result then
-									return false, msg
-								end
+								if not _processedItems[ItemID] and #DESC.identifiedDescriptionName > 0 then
+									_processedItems[ItemID] = true 
+									result, msg = AddItem(ItemID, DESC.unidentifiedDisplayName, DESC.unidentifiedResourceName, DESC.identifiedDisplayName, DESC.identifiedResourceName, DESC.slotCount, DESC.ClassNum)
+									if not result then
+										return false, msg
+									end
+									for k, v in pairs(DESC.unidentifiedDescriptionName) do
+										result, msg = AddItemUnidentifiedDesc(ItemID, v)
+										if not result then
+											return false, msg
+										end
+									end
+									for k, v in pairs(DESC.identifiedDescriptionName) do
+										result, msg = AddItemIdentifiedDesc(ItemID, v)
+										if not result then
+											return false, msg
+										end
+									end
+									if nil ~= DESC.EffectID then
+										result, msg = AddItemEffectInfo(ItemID, DESC.EffectID)
+										if not result then
+											return false, msg
+										end
+									end
+									if nil ~= DESC.costume then
+										result, msg = AddItemIsCostume(ItemID, DESC.costume)
+										if not result then
+											return false, msg
+										end
+									end
+									if nil ~= DESC.PackageID then
+										result, msg = AddItemPackageID(ItemID, DESC.PackageID)
+										if not result then
+											return false, msg
+										end
+									end
 								end
 							end
 							return true, "good"
