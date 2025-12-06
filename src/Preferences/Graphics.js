@@ -44,6 +44,7 @@ define( ['Core/Preferences'], function( Preferences )
 		 * Game Post-Processing
 		 */
 		bloom:    false,
+		bloomIntensity: 0.5,
 
 		pixelPerfectSprites: false
 	}, 1.1 );

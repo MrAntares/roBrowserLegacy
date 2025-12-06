@@ -374,15 +374,17 @@ define(function( require )
 	MapRenderer.onRender = function OnRender( tick, gl )
 	{
 
-		if (GraphicsSettings.bloom) {
+		var usePostProcessing = GraphicsSettings.bloom || false;
+		
+		if (usePostProcessing && gl.fbo && gl.fbo.framebuffer) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, gl.fbo.framebuffer);
 			gl.viewport(0, 0, gl.fbo.width, gl.fbo.height);
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 		} else {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 		}
-
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		var fog   = MapRenderer.fog;
 		fog.use   = MapPreferences.fog;
@@ -461,8 +463,29 @@ define(function( require )
 		// Clean up
 		MemoryManager.clean(gl, tick);
 
-		if (GraphicsSettings.bloom) {
-			Renderer.runPostProcessing(gl);
+		if (usePostProcessing && Renderer.quadBuffer) {
+			
+			var inputTexture = gl.fbo.texture;
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			var finalProgramToUse = null;
+
+			if (usePostProcessing && Renderer.postProcessProgram) {
+ 				finalProgramToUse = Renderer.postProcessProgram;
+ 				gl.useProgram(finalProgramToUse);
+ 				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity); 
+			}
+			// Fallback
+ 			else if (Renderer.postProcessProgram) {
+ 				finalProgramToUse = Renderer.postProcessProgram;
+ 				gl.useProgram(finalProgramToUse);
+ 				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, 0.0);
+ 			}
+			
+			if(finalProgramToUse) {
+				Renderer._drawPostProcessQuad(gl, finalProgramToUse, inputTexture);
+			}
 		}
 	};
 

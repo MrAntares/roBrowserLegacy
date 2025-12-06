@@ -60,6 +60,7 @@ define(function(require)
 		this.ui.find('.fps').change(onToggleFPSDisplay);
 		this.ui.find('.pixel-perfect').change(onTogglePixelPerfect);
 		this.ui.find('.bloom').change(onToggleBloom);
+		this.ui.find('.bloom-intensity').change(onUpdateBloomIntensity);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
@@ -83,6 +84,7 @@ define(function(require)
 		this.ui.find('.fps').attr('checked', FPS.ui.is(':visible'));
 		this.ui.find('.pixel-perfect').attr('checked', GraphicsSettings.pixelPerfectSprites);
 		this.ui.find('.bloom').attr('checked', GraphicsSettings.bloom);
+		this.ui.find('.bloom-intensity').val(GraphicsSettings.bloomIntensity);
 	};
 
 
@@ -167,6 +169,12 @@ define(function(require)
 	{
 		GraphicsSettings.bloom = !!this.checked;
 		GraphicsSettings.save();
+	}
+
+	function onUpdateBloomIntensity()  
+	{  
+		GraphicsSettings.bloomIntensity = parseFloat(this.value);  
+		GraphicsSettings.save();  
 	}
 
 	/**
