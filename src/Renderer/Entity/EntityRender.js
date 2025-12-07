@@ -234,7 +234,7 @@ define( function( require )
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
-				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]);
+				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + 0.05;
 
 				// Keep shadow on ground: depth test on, depth write off
 				SpriteRenderer.setDepthMask(false);
