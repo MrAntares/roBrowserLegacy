@@ -132,7 +132,7 @@ define(function (require) {
 					EffectManager.spam(EF_Init_Par);
 				}
 			}
-			if (entity.objecttype === Entity.TYPE_NPC || Entity.TYPE_WARP) {
+			if (entity.objecttype === Entity.TYPE_NPC || entity.objecttype === Entity.TYPE_NPC2 || entity.objecttype === Entity.TYPE_WARP) {
 				const mapName = getModule("Renderer/MapRenderer").currentMap.replace('.gat', '').toLowerCase();
 				let signboardData = DB.findSignboard(mapName, entity.position[0], entity.position[1], 1);
 				if (signboardData) {
