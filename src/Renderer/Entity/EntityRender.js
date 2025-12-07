@@ -236,7 +236,10 @@ define( function( require )
 				SpriteRenderer.position[1] = this.position[1];
 				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]);
 
+				// Keep shadow on ground: depth test on, depth write off
+				SpriteRenderer.setDepthMask(false);
 				renderElement( this, this.files.shadow, 'shadow', _position, false );
+				SpriteRenderer.setDepthMask(true);
 
 			}
 
