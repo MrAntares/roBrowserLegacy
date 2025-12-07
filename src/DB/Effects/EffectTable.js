@@ -5246,6 +5246,7 @@ define(function( require )
 			animation: 4,
 			attachedEntity: true,
 			blendMode: 2,
+			renderBeforeEntities: true,
 			blue: 1,
 			bottomSize: 2.4,
 			duration: 500,
@@ -5268,6 +5269,7 @@ define(function( require )
 			animation: 4,
 			attachedEntity: true,
 			blendMode: 2,
+			renderBeforeEntities: true,
 			blue: 1,
 			bottomSize: 2.4,
 			duration: 500,
@@ -5584,6 +5586,7 @@ define(function( require )
 		321: [{  //EF_WARPZONE2	   Warp NPC
 			alphaMax: 0.4,
 			animation: 3,
+			renderBeforeEntities: true,
 			attachedEntity: true,
 			blendMode: 2,
 			bottomSize: 2,
@@ -5603,6 +5606,7 @@ define(function( require )
 		}, {
 			alphaMax: 0.4,
 			animation: 3,
+			renderBeforeEntities: true,
 			attachedEntity: true,
 			blendMode: 2,
 			bottomSize: 1.9,
@@ -5623,6 +5627,7 @@ define(function( require )
 			alphaMax: 1.0,
 			attachedEntity: true,
 			blendMode: 2,
+			renderBeforeEntities: true,
 			duration: 1000,
 			duplicate: 5,
 			timeBetweenDupli: 300,
@@ -8722,7 +8727,7 @@ define(function( require )
 				Camera.setQuake( start, duration );
 			}
 		}],
-		
+
 		//733: [{}],	//EF_SOULBREAKER4	   Fluffy Ball flying by
 
 		734: [{	//EF_CHAINL_STR	Chain Lightning
@@ -11436,7 +11441,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_parasite_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11453,7 +11458,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_stone_shooter_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11470,7 +11475,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_wootan_shooter_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11487,7 +11492,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_peach_tree_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11504,7 +11509,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_hermit_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11521,7 +11526,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_canon_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11538,7 +11543,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_canon1_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11555,7 +11560,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_canon2_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11572,7 +11577,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_canon3_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11589,7 +11594,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_tanee_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11606,7 +11611,7 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_ragged_projectile': [{
 			type: '3D',
 			alphaMax: 1,
@@ -11623,37 +11628,37 @@ define(function( require )
 			zOffset: 1,
 			zIndex: 1
 		}],
-		
+
 		'ef_mandragora_attack': [{
 			type: 'SPR',
 			file: '../npc/mandragora_atk',
 			attachedEntity: false
 		}],
-		
+
 		'ef_hydra_attack': [{
 			type: 'SPR',
 			file: '../npc/hydra_atk',
 			attachedEntity: false
 		}],
-		
+
 		'ef_odium_attack': [{
 			type: 'SPR',
 			file: '../npc/tha_odium_ef',
 			attachedEntity: false
 		}],
-		
+
 		'ef_drosera_attack': [{
 			type: 'SPR',
 			file: '../npc/drosera_bullet',
 			attachedEntity: false
 		}],
-		
+
 		'ef_mavka_attack': [{
 			type: 'SPR',
 			file: '../npc/mavka_bullet',
 			attachedEntity: false
 		}],
-		
+
 		'ef_entweihen_attack': [{
 			type: 'SPR',
 			file: '../npc/entweihen_bullet',
@@ -11765,115 +11770,115 @@ define(function( require )
 			file: '\xc3\xbb\xb7\xcf\xbb\xf6\xc6\xae\xb7\xa6',
 			attachedEntity: true,
 		}],
-		
+
 		'ef_trap_01': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa601',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_02': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa602',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_03': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa603',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_03_2': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa603_2',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_03_3': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa603_3',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_03_4': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa603_4',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_03_5': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa603_5',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_03_6': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa603_6',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_04': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa604',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_05': [{
 			type: 'RSM',
 			file: '\xbf\xdc\xba\xce\xbc\xd2\xc7\xb0\x5c\xc6\xae\xb7\xa605',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_thorn': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xb0\xa1\xbd\xc301',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_cobalt': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xba\xaf\xbc\xf601',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_maze': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xba\xaf\xc1\xf601',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_verdure': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xba\xaf\xc7\xb301',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_magenta': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xba\xaf\xc8\xad01',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_ice': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xbc\xf601',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_cluster': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xc1\xf601',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_shock': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xc7\xb301',
 			attachedEntity: true
 		}],
-		
+
 		'ef_trap_3_fire': [{
 			type: 'RSM',
 			file: 'event/3\xc2\xf7\xc6\xae\xb7\xa6_\xc8\xad01',

@@ -53,14 +53,14 @@ define(function( require ) {
      * @var {string} Vertex Shader
      */
     var _vertexShader   = `
-        #version 100
+        #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
 
-        attribute vec2 aPosition;
-        attribute vec2 aTextureCoord;
+        in vec2 aPosition;
+        in vec2 aTextureCoord;
 
-        varying vec2 vTextureCoord;
+        out vec2 vTextureCoord;
 
         uniform mat4 uModelViewMat;
         uniform mat4 uProjectionMat;
@@ -92,26 +92,27 @@ define(function( require ) {
      * @var {string} Fragment Shader
      */
     var _fragmentShader = `
-        #version 100
+        #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;    
 
-        varying vec2 vTextureCoord;
+        in vec2 vTextureCoord;
+        out vec4 fragColor;
 
         uniform vec4 uColor;
         uniform sampler2D uDiffuse;
         float tmp;
 
         void main(void) {
-            vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
+            vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
             
-            texture *= uColor;
+            textureSample *= uColor;
             
             /*if (texture.r < 0.1 && texture.g < 0.1 && texture.b < 0.1) {
                discard;
             }*/
             
-            gl_FragColor = texture;
+            fragColor = textureSample;
 
         }`;
 

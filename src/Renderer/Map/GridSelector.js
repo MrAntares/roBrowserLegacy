@@ -53,14 +53,14 @@ function(              Altitude,        Client,         WebGL,         Texture, 
 	 * @var {string} vertex shader
 	 */
 	var _vertexShader   = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
 
-		attribute vec3 aPosition;
-		attribute vec2 aTextCoord;
+		in vec3 aPosition;
+		in vec2 aTextCoord;
 
-		varying vec2 vTextureCoord;
+		out vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uProjectionMat;
@@ -79,11 +79,12 @@ function(              Altitude,        Client,         WebGL,         Texture, 
 	 * @var {string} fragment shader
 	 */
 	var _fragmentShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
-		varying vec2 vTextureCoord;
+		in vec2 vTextureCoord;
+		out vec4 fragColor;
 		uniform sampler2D uDiffuse;
 
 		uniform bool  uFogUse;
@@ -93,18 +94,18 @@ function(              Altitude,        Client,         WebGL,         Texture, 
 
 		void main(void) {
 			
-			vec4 texture = texture2D( uDiffuse, vTextureCoord.st);
+			vec4 textureSample = texture( uDiffuse, vTextureCoord.st);
 			
-			if (texture.a == 0.0) {
+			if (textureSample.a == 0.0) {
 				discard;
 			}
 			
-			gl_FragColor = texture;
+			fragColor = textureSample;
 
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
 			}
 		}
 	`;

@@ -97,7 +97,7 @@ define(function(require)
 		reduce:   false,
 		tab:      InventoryV3.TAB.USABLE,
 		itemlock:	false,
-		itemcomp:	false,
+		itemcomp:	true,
 		npcsalelock:	false,
 		magnet_top: false,
 		magnet_bottom: false,
@@ -142,7 +142,8 @@ define(function(require)
 				.on('dragstart',   '.item', onItemDragStart)
 				.on('dragend',     '.item', onItemDragEnd)
 				.on('contextmenu', '.item', onItemInfo)
-				.on('dblclick',    '.item', onItemUsed);
+				.on('dblclick',    '.item', onItemUsed)
+				.on('click',       '.item', onItemClick);
 
 		this.ui.find('.ncnt').text(0 + ' / ');
 		this.ui.find('.mcnt').text(100);
@@ -1187,6 +1188,34 @@ define(function(require)
 		event.stopImmediatePropagation();
 		return false;
 	};
+
+	
+	/**
+	 * Handle click event on an item
+	 */
+	function onItemClick( event )
+	{
+		// Shift + LEFT CLICK → insert <ItemName> in chat
+		if (event.shiftKey && event.which === 1) {
+
+			var idx  = parseInt(jQuery(this).attr('data-index'), 10);
+			var item = InventoryV3.getItemByIndex(idx);
+			if (!item) return false;
+
+			item.name = DB.getItemName(item);
+			var link = '<span data-item="' + DB.createItemLink(item) + '" class="item-link" style="color:#A9B95F;">&lt;' + item.name + '&gt;</span>';
+
+			var msgBox = ChatBox.ui.find('.input-chatbox')[0];
+			if (msgBox) {
+				msgBox.innerHTML += link + " ";
+				msgBox.focus();
+			}
+
+			event.stopImmediatePropagation();
+		}
+
+		return false;
+	}
 
 
 	/**

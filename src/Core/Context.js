@@ -85,7 +85,7 @@ define(function()
 	 */
 	Context.checkSupport = function CheckSupport()
 	{
-		var div, canvas, element, gl;
+		var div, canvas, element, gl, i;
 
 		// Drag drop
 		div = document.createElement('div');
@@ -100,16 +100,25 @@ define(function()
 		}
 
 		// WebGL
-		if (!window.WebGLRenderingContext) {
-			throw 'Your web browser need to be updated, it does not support 3D graphics.';
+		if (!window.WebGL2RenderingContext) {
+			throw 'Your web browser need to be updated, it does not support WebGL2 3D graphics.';
 		}
 
 		element = document.createElement('canvas');
-		try { gl = element.getContext('webgl2'); } catch(e){}
-		try { gl = gl || element.getContext('webgl'); } catch(e){}
+		var contextNames = ['webgl2', 'experimental-webgl2'];
+
+		for (i = 0; i < contextNames.length; ++i) {
+			try {
+				gl = element.getContext(contextNames[i], { powerPreference: 'high-performance' });
+			} catch(e) {}
+
+			if (gl) {
+				break;
+			}
+		}
 
 		if (!gl) {
-			throw 'Your web browser OR your Graphics Card OR Drivers need to be updated, it does not support 3D graphics.\nFor more informations check <a href="http://get.webgl.org/" target="_blank">get.webgl.org</a>';
+			throw 'Your web browser OR your Graphics Card OR Drivers need to be updated, it does not support WebGL2 3D graphics.\nFor more informations check <a href="http://get.webgl.org/" target="_blank">get.webgl.org</a>';
 		}
 
 		// Web Worker

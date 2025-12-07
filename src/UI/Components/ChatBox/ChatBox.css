@@ -137,9 +137,10 @@
 }
 
 #chatbox .input .wrapper {
-	position: absolute;
-	left:108px;
-	right:32px;
+	display: flex;
+    align-items: center;
+    margin-left: 108px;
+    height: 100%;
 }
 
 #chatbox .input .message {
