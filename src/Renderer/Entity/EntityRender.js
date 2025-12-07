@@ -207,6 +207,8 @@ define( function( require )
 		{
 			if(this.hideEntity) return;
 
+			var depthMaskChanged = false;
+
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
 			SpriteRenderer.zIndex = 1;
@@ -237,6 +239,10 @@ define( function( require )
 				renderElement( this, this.files.shadow, 'shadow', _position, false );
 
 			}
+
+			// Disable depth writes for layered sprite parts to keep draw-order stacking
+			SpriteRenderer.setDepthMask(false);
+			depthMaskChanged = true;
 
 			SpriteRenderer.position.set(this.position);
 
@@ -324,6 +330,10 @@ define( function( require )
 				if (this.shield > 0 && !behind) {
 					renderElement( this, this.files.shield, 'shield', _position, true );
 				}
+			}
+
+			if (depthMaskChanged) {
+				SpriteRenderer.setDepthMask(true);
 			}
 		};
 	}();

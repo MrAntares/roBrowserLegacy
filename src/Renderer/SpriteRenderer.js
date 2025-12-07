@@ -27,10 +27,10 @@ function(      WebGL,         glMatrix,      Camera )
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
-	
+
 		in vec2 aPosition;
 		in vec2 aTextureCoord;
-	
+
 		out vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
@@ -59,26 +59,56 @@ function(      WebGL,         glMatrix,      Camera )
 			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
 			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
 			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
-			
+
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
 			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
-			
+
 			return mat;
 		}
 
+		vec3 getCameraPosition() {
+			return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+		}
+
+		vec3 getCameraForward() {
+			return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);
+		}
+
 		void main(void) {
-			float zScaleFactor = 2.0;
 			// Calculate position base on angle and sprite offset/size
 			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
 			position.x   += uSpriteRendererOffset.x;
 			position.y   -= uSpriteRendererOffset.y + 0.5;
-			
-			// Project to camera plane
-			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
+
+			mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);
+			vec4 viewPosition = modelView * position;
+			vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );
+
+			gl_Position = uProjectionMat * viewPosition;
+
+			vec3 cameraPos     = getCameraPosition();
+			vec3 cameraForward = getCameraForward();
+
+			// Vertical billboard depth correction (per-vertex, plane anchored to sprite center)
+			vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));
+			if (length(planeNormal) < 0.000001) {
+				planeNormal = cameraForward;
+			}
+
+			vec3 worldVertex = (uViewModelMat * viewPosition).xyz;
+			vec3 planePoint  = (uViewModelMat * viewCenter).xyz;
+			vec3 rayDir      = normalize(worldVertex - cameraPos);
+			float denom      = max(dot(planeNormal, rayDir), 0.000001);
+			float dist       = dot(planePoint - cameraPos, planeNormal) / denom;
+
+			vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));
+			float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));
+
+			gl_Position.z = min(gl_Position.z, correctedZBase);
 			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
-			
+
 			vTextureCoord = aTextureCoord;
 		}
 	`;
@@ -317,6 +347,11 @@ function(      WebGL,         glMatrix,      Camera )
 	 */
 	var _depth = null;
 
+	/**
+	 * @var {boolean} cached depth mask state
+	 */
+	var _depthMask = true;
+
 
 	/**
 	 * @var {object} last texture used
@@ -425,6 +460,7 @@ function(      WebGL,         glMatrix,      Camera )
 		this.ySize  = 5;
 
 		_gl = gl;
+		_depthMask = true;
 		_groupId++;
 	};
 
@@ -536,6 +572,20 @@ function(      WebGL,         glMatrix,      Camera )
 		}
 		gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
 	}
+
+	/**
+	 * Control depth writing state with caching to avoid redundant GL calls.
+	 *
+	 * @param {boolean} enable
+	 */
+	SpriteRenderer.setDepthMask = function setDepthMask(enable)
+	{
+		if (!_gl || _depthMask === enable) {
+			return;
+		}
+		_gl.depthMask(enable);
+		_depthMask = enable;
+	};
 
 
 	/**
