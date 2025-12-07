@@ -25,13 +25,13 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
 
   const mat4 = _glMatrix2.default.mat4;
   var flatTextureVertexShader = exports.flatTextureVertexShader = `
-        #version 100
+        #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
 
-        attribute vec2 aPosition;
-        attribute vec2 aTextureCoord;
-        varying vec2 vTextureCoord;
+        in vec2 aPosition;
+        in vec2 aTextureCoord;
+        out vec2 vTextureCoord;
         uniform mat4 uModelViewMat;
         uniform mat4 uProjectionMat;
         uniform vec3 uPosition;
@@ -48,11 +48,12 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
 `;
 
   var flatTextureFragmentShader = exports.flatTextureFragmentShader = `
-        #version 100
+        #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
         
-        varying vec2 vTextureCoord;
+        in vec2 vTextureCoord;
+        out vec4 fragColor;
         uniform sampler2D uDiffuse;
         uniform float alpha;
         
@@ -62,17 +63,17 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
         uniform vec3  uFogColor;
         
             void main(void) {
-                vec4 texture = texture2D( uDiffuse,  vTextureCoord.st );
-                if (texture.r < 0.1 || texture.g < 0.1 || texture.b < 0.1) {
+                vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
+                if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {
                   discard;
                 }
-                texture.a = alpha;
-                gl_FragColor = texture;
+                textureSample.a = alpha;
+                fragColor = textureSample;
           
           if (uFogUse) {
             float depth     = gl_FragCoord.z / gl_FragCoord.w;
             float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-            gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+            fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
           }
         }
 `;

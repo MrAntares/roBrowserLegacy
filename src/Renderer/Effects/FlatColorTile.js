@@ -6,13 +6,13 @@ define(function( require ) {
 
 
     var _vertexShader = `
-        #version 100
+        #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
 
-        varying vec4 fragColor;
+        out vec4 vColor;
 
-        attribute vec2 aPosition;
+        in vec2 aPosition;
 
         uniform vec4 uColor;
 
@@ -28,19 +28,20 @@ define(function( require ) {
 
             gl_Position    = uProjectionMat * uModelViewMat * position;
             gl_Position.z -= 0.01;
-            fragColor = uColor;
+            vColor = uColor;
         }
     `;
 
     var _fragmentShader = `
-        #version 100
-        #pragma vscode_glsllint_stage : vert
+        #version 300 es
+        #pragma vscode_glsllint_stage : frag
         precision highp float;
 
-        varying vec4 fragColor;
+        in vec4 vColor;
+        out vec4 fragColor;
 
         void main(void) {
-                gl_FragColor = fragColor;
+                fragColor = vColor;
         }
     `;
 

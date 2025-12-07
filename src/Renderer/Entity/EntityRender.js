@@ -207,6 +207,8 @@ define( function( require )
 		{
 			if(this.hideEntity) return;
 
+			var depthMaskChanged = false;
+
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
 			SpriteRenderer.zIndex = 1;
@@ -232,11 +234,18 @@ define( function( require )
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
-				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]);
+				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + 0.05;
 
+				// Keep shadow on ground: depth test on, depth write off
+				SpriteRenderer.setDepthMask(false);
 				renderElement( this, this.files.shadow, 'shadow', _position, false );
+				SpriteRenderer.setDepthMask(true);
 
 			}
+
+			// Disable depth writes for layered sprite parts to keep draw-order stacking
+			SpriteRenderer.setDepthMask(false);
+			depthMaskChanged = true;
 
 			SpriteRenderer.position.set(this.position);
 
@@ -324,6 +333,10 @@ define( function( require )
 				if (this.shield > 0 && !behind) {
 					renderElement( this, this.files.shield, 'shield', _position, true );
 				}
+			}
+
+			if (depthMaskChanged) {
+				SpriteRenderer.setDepthMask(true);
 			}
 		};
 	}();

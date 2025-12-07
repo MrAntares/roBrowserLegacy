@@ -47,6 +47,11 @@ define(function( require )
 	 */
 	Renderer.gl     = null;
 
+	/**
+	 * @var {boolean} true when using a WebGL2 context
+	 */
+	Renderer.isWebGL2 = false;
+
 
 	/**
 	 * @var {integer} screen width
@@ -82,7 +87,7 @@ define(function( require )
 	 * @var {integer} game tick
 	 */
 	Renderer.tick = 0;
-	
+
 	/**
 	 * @var {float} vertical field of view in degrees
 	 */
@@ -136,6 +141,11 @@ define(function( require )
 			this.canvas.style.zIndex   =  0;
 
 			this.gl = WebGL.getContext( this.canvas, param );
+			this.isWebGL2 = WebGL.isWebGL2(this.gl);
+
+			if (typeof console !== 'undefined' && console.info) {
+				console.info('Renderer using WebGL ' + (this.isWebGL2 ? '2' : '1') + ' context');
+			}
 
 			jQuery(window)
 				.resize(this.onResize.bind(this))
@@ -149,6 +159,7 @@ define(function( require )
 		}
 
 		var gl = this.gl;
+		this.isWebGL2 = WebGL.isWebGL2(gl);
 
 		gl.clearDepth( 1.0 );
 		gl.enable( gl.DEPTH_TEST );
@@ -161,10 +172,10 @@ define(function( require )
 	/**
 	 * Post Processing Helpers
 	 */
-	Renderer.createPostProcessFbos = function(gl, width, height) {	 
-		if (!gl.fbo || gl.fbo.width !== width || gl.fbo.height !== height) {	 
-			gl.fbo = WebGL.createFramebuffer(gl, width, height);	 
-		} 
+	Renderer.createPostProcessFbos = function(gl, width, height) {
+		if (!gl.fbo || gl.fbo.width !== width || gl.fbo.height !== height) {
+			gl.fbo = WebGL.createFramebuffer(gl, width, height);
+		}
 	};
 
 	Renderer._drawPostProcessQuad = function(gl, program, texture) {
@@ -173,7 +184,7 @@ define(function( require )
 		var posLoc = program.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-        
+
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.uniform1i(program.uniform.uTexture, 0);
@@ -186,38 +197,44 @@ define(function( require )
 	 */
 	Renderer.initPostProcessing = function() {
 		var gl = this.gl;
-		if (!gl) return; 
+		if (!gl) return;
 
 		var commonVS = `
-			attribute vec2 aPosition;
-			varying vec2 vUv;
+			#version 300 es
+			#pragma vscode_glsllint_stage : vert
+			precision highp float;
+			in vec2 aPosition;
+			out vec2 vUv;
 
 			void main() {
-				vUv = aPosition * 0.5 + 0.5; 
+				vUv = aPosition * 0.5 + 0.5;
 				gl_Position = vec4(aPosition, 0.0, 1.0);
 			}
 		`;
 
 		var bloomFS = `
+			#version 300 es
+			#pragma vscode_glsllint_stage : frag
 			precision mediump float;
-            
-			uniform sampler2D uTexture; 
+
+			uniform sampler2D uTexture;
 			uniform float uBloomIntensity;
-			varying vec2 vUv;
+			in vec2 vUv;
+			out vec4 fragColor;
 			void main() {
-				vec4 color = texture2D(uTexture, vUv);
-	
+				vec4 color = texture(uTexture, vUv);
+
 				color.rgb += uBloomIntensity * 0.1;
-				const float contrast = 1.1; 
+				const float contrast = 1.1;
 				color.rgb = (color.rgb - 0.5) * contrast + 0.5;
-				gl_FragColor = color;
+				fragColor = color;
 			}
 		`;
 
 		var bloomProgram = null;
-        
+
 		try {
-			bloomProgram = WebGL.createShaderProgram(gl, commonVS, bloomFS); 
+			bloomProgram = WebGL.createShaderProgram(gl, commonVS, bloomFS);
 		} catch (e) {
 			console.error("Error when compiling shader BLOOM.", e);
 		}
@@ -225,10 +242,10 @@ define(function( require )
 		this.postProcessProgram = bloomProgram;
 
 		var quadVertices = new Float32Array([
-			-1, -1, 
+			-1, -1,
 			 1, -1,
 			-1,  1,
-			-1,  1, 
+			-1,  1,
 			 1, -1,
 			 1,  1
 		]);
@@ -236,10 +253,10 @@ define(function( require )
 		this.quadBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
-        
+
 		if (this.postProcessProgram) {
 			var width, height, quality, dpr = window.devicePixelRatio || 1;
-             
+
 			width  = window.innerWidth  || document.body.offsetWidth;
 			height = window.innerHeight || document.body.offsetHeight;
 			quality = Configs.get('quality', 100) / 100;
@@ -364,7 +381,7 @@ define(function( require )
 
 			this.updateId = _requestAnimationFrame( this._render.bind(this), this.canvas );
 		}
-		
+
 		// Increment serverTick with delta
 		Session.serverTick += (newTick - this.tick);
 

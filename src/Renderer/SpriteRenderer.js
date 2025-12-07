@@ -24,14 +24,14 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _vertexShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
-	
-		attribute vec2 aPosition;
-		attribute vec2 aTextureCoord;
-	
-		varying vec2 vTextureCoord;
+
+		in vec2 aPosition;
+		in vec2 aTextureCoord;
+
+		out vec2 vTextureCoord;
 
 		uniform mat4 uModelViewMat;
 		uniform mat4 uViewModelMat;
@@ -57,28 +57,59 @@ function(      WebGL,         glMatrix,      Camera )
 			// Matrix translation
 			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
 			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
+			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);
 			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
-			
+
 			// Spherical billboard
 			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
 			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
 			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
-			
+
 			return mat;
 		}
 
+		vec3 getCameraPosition() {
+			return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+		}
+
+		vec3 getCameraForward() {
+			return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);
+		}
+
 		void main(void) {
-			float zScaleFactor = 2.0;
 			// Calculate position base on angle and sprite offset/size
 			vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );
 			position.x   += uSpriteRendererOffset.x;
 			position.y   -= uSpriteRendererOffset.y + 0.5;
-			
-			// Project to camera plane
-			gl_Position   = uProjectionMat * Project(uModelViewMat, uSpriteRendererPosition) * position;
+
+			mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);
+			vec4 viewPosition = modelView * position;
+			vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );
+
+			gl_Position = uProjectionMat * viewPosition;
+
+			vec3 cameraPos     = getCameraPosition();
+			vec3 cameraForward = getCameraForward();
+
+			// Vertical billboard depth correction (per-vertex), plane anchored at sprite center.
+			// Plane normal uses camera forward (flattened Y) for stability.
+			vec3 planePoint = (uViewModelMat * viewCenter).xyz;
+			vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));
+			if (length(planeNormal) < 0.000001) {
+				planeNormal = cameraForward;
+			}
+
+			vec3 worldVertex = (uViewModelMat * viewPosition).xyz;
+			vec3 rayDir      = normalize(worldVertex - cameraPos);
+			float denom      = max(dot(planeNormal, rayDir), 0.000001);
+			float dist       = dot(planePoint - cameraPos, planeNormal) / denom;
+
+			vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));
+			float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));
+
+			gl_Position.z = min(gl_Position.z, correctedZBase);
 			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
-			
+
 			vTextureCoord = aTextureCoord;
 		}
 	`;
@@ -89,11 +120,12 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {string}
 	 */
 	var _fragmentShader = `
-		#version 100
+		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
 
-		varying vec2 vTextureCoord;
+		in vec2 vTextureCoord;
+		out vec4 fragColor;
 
 		uniform sampler2D uDiffuse;
 		uniform sampler2D uPalette;
@@ -114,17 +146,17 @@ function(      WebGL,         glMatrix,      Camera )
 		vec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {
 			vec2 TextInterval = 1.0 / uTextSize;
 
-			float tlLUT = texture2D(indexT, uv ).x;
-			float trLUT = texture2D(indexT, uv + vec2(TextInterval.x, 0.0)).x;
-			float blLUT = texture2D(indexT, uv + vec2(0.0, TextInterval.y)).x;
-			float brLUT = texture2D(indexT, uv + TextInterval).x;
+			float tlLUT = texture(indexT, uv ).x;
+			float trLUT = texture(indexT, uv + vec2(TextInterval.x, 0.0)).x;
+			float blLUT = texture(indexT, uv + vec2(0.0, TextInterval.y)).x;
+			float brLUT = texture(indexT, uv + TextInterval).x;
 
 			vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);
 
-			vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(tlLUT,1.0)).rgb, 1.0);
-			vec4 tr = trLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(trLUT,1.0)).rgb, 1.0);
-			vec4 bl = blLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(blLUT,1.0)).rgb, 1.0);
-			vec4 br = brLUT == 0.0 ? transparent : vec4( texture2D(LUT, vec2(brLUT,1.0)).rgb, 1.0);
+			vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);
+			vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);
+			vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);
+			vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);
 
 			vec2 f  = fract( uv.xy * uTextSize );
 			vec4 tA = mix( tl, tr, f.x );
@@ -142,27 +174,27 @@ function(      WebGL,         glMatrix,      Camera )
 			}
 
 			// Calculate texture
-			vec4 texture;
+			vec4 textureSample;
 			if (uUsePal) {
-				texture = bilinearSample( vTextureCoord, uDiffuse, uPalette );
+				textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );
 			}
 			else {
-				texture = texture2D( uDiffuse, vTextureCoord.st );
+				textureSample = texture( uDiffuse, vTextureCoord.st );
 			}
 
 			// No alpha, skip.
-			if ( texture.a == 0.0 )
+			if ( textureSample.a == 0.0 )
 				discard;
 
 			// Apply shadow, apply color
-			texture.rgb   *= uShadow;
-			gl_FragColor   = texture * uSpriteRendererColor;
+			textureSample.rgb   *= uShadow;
+			fragColor   = textureSample * uSpriteRendererColor;
 
 			// Fog feature
 			if (uFogUse) {
 				float depth     = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				gl_FragColor    = mix( gl_FragColor, vec4( uFogColor, gl_FragColor.w ), fogFactor );
+				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
 			}
 		}
 	`;
@@ -316,6 +348,11 @@ function(      WebGL,         glMatrix,      Camera )
 	 */
 	var _depth = null;
 
+	/**
+	 * @var {boolean} cached depth mask state
+	 */
+	var _depthMask = true;
+
 
 	/**
 	 * @var {object} last texture used
@@ -424,6 +461,7 @@ function(      WebGL,         glMatrix,      Camera )
 		this.ySize  = 5;
 
 		_gl = gl;
+		_depthMask = true;
 		_groupId++;
 	};
 
@@ -535,6 +573,20 @@ function(      WebGL,         glMatrix,      Camera )
 		}
 		gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
 	}
+
+	/**
+	 * Control depth writing state with caching to avoid redundant GL calls.
+	 *
+	 * @param {boolean} enable
+	 */
+	SpriteRenderer.setDepthMask = function setDepthMask(enable)
+	{
+		if (!_gl || _depthMask === enable) {
+			return;
+		}
+		_gl.depthMask(enable);
+		_depthMask = enable;
+	};
 
 
 	/**
