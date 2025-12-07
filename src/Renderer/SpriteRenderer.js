@@ -57,7 +57,7 @@ function(      WebGL,         glMatrix,      Camera )
 			// Matrix translation
 			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
 			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z) + (uCameraLatitude * floor(min(uCameraZoom, 1.0)) / 50.0);
+			mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);
 			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
 
 			// Spherical billboard
@@ -91,14 +91,15 @@ function(      WebGL,         glMatrix,      Camera )
 			vec3 cameraPos     = getCameraPosition();
 			vec3 cameraForward = getCameraForward();
 
-			// Vertical billboard depth correction (per-vertex, plane anchored to sprite center)
+			// Vertical billboard depth correction (per-vertex), plane anchored at sprite center.
+			// Plane normal uses camera forward (flattened Y) for stability.
+			vec3 planePoint = (uViewModelMat * viewCenter).xyz;
 			vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));
 			if (length(planeNormal) < 0.000001) {
 				planeNormal = cameraForward;
 			}
 
 			vec3 worldVertex = (uViewModelMat * viewPosition).xyz;
-			vec3 planePoint  = (uViewModelMat * viewCenter).xyz;
 			vec3 rayDir      = normalize(worldVertex - cameraPos);
 			float denom      = max(dot(planeNormal, rayDir), 0.000001);
 			float dist       = dot(planePoint - cameraPos, planeNormal) / denom;
