@@ -482,7 +482,7 @@ var _fragmentShader = `
 	 */
 	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		var uniform = _program.uniform;
-		//Disble DepthMask
+		//Disable DepthMask
 		gl.depthMask(false);
 
 		gl.useProgram(_program);

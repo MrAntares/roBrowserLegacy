@@ -62,7 +62,7 @@ define(function (require) {
 	 */
 	EffectManager.init = function init(gl) {
 		_gl = gl;
-		
+
 		if(Configs.get('development')){
 			Commands.add(
 				'd_effectmanager',
@@ -78,7 +78,7 @@ define(function (require) {
 				Commands.remove('d_effectmanager');
 			}
 		}
-		
+
 	};
 
 
@@ -137,6 +137,14 @@ define(function (require) {
 		}
 
 		effect._Params = Params;
+
+		// Capture per-instance ordering if provided (e.g., renderBeforeEntities on effect params)
+		// Default to constructor setting when not present
+		if (effect._Params && effect._Params.Inst && typeof effect._Params.Inst.renderBeforeEntities !== 'undefined') {
+			effect.renderBeforeEntities = !!effect._Params.Inst.renderBeforeEntities;
+		} else {
+			effect.renderBeforeEntities = !!effect.constructor.renderBeforeEntities;
+		}
 
 		_list[name].push(effect);
 	};
@@ -256,20 +264,21 @@ define(function (require) {
 
 			constructor = list[0].constructor;
 
-			// Will be render after/before.
-			if (constructor.renderBeforeEntities !== renderBeforeEntities) {
-				continue;
-			}
-
+			// Initialize constructor if needed
 			if (!(constructor.ready) && constructor.needInit) {
 				constructor.init(gl);
 				constructor.needInit = false;
 			}
 
 			if (constructor.ready) {
-				constructor.beforeRender(gl, modelView, projection, fog, tick);
+				constructor.beforeRender(gl, modelView, projection, fog, tick, null);
 
 				for (j = 0, size = list.length; j < size; ++j) {
+					// Filter per-instance ordering against the pass flag
+					if (!!list[j].renderBeforeEntities !== renderBeforeEntities) {
+						continue;
+					}
+
 					if (!(list[j].ready) && list[j].needInit) {
 						list[j].init(gl);
 						list[j].needInit = false;
@@ -478,6 +487,11 @@ define(function (require) {
 
 		Params.Inst.position      = Params.Init.position;
 		Params.Inst.otherPosition = Params.Init.otherPosition;
+
+		// Propagate per-instance render ordering from effect definition
+		if (typeof Params.effect.renderBeforeEntities !== 'undefined') {
+			Params.Inst.renderBeforeEntities = !!Params.effect.renderBeforeEntities;
+		}
 
 		if (!Params.Inst.position) {
 			if (!Params.Init.ownerEntity) {
@@ -985,7 +999,7 @@ define(function (require) {
 			});
 		}
 	};
-	
+
 	EffectManager.debug = function(){
 		console.log( '%c[DEBUG] EffectManager _list: ', 'color:#F5B342', _list );
 	};
