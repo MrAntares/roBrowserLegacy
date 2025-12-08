@@ -6,10 +6,10 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Gulfaraz Rahman
- * 
+ *
  * @typedef {Object} TMapPreferencesAura
  * @prop {number} aura - 0: no aura, 1: only aura, 2: aura and aura2
- * 
+ *
  * @typedef {Object} TAuraSettings - default settings for aura (can be overridden by server config)
  * @prop {number} defaultLv - default aura level
  * @prop {number} babyLv - Baby class aura level
@@ -71,6 +71,9 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'],
 					if (this.lastAuraState !== MapPreferences.aura && this.isLoaded) {
 						this.remove(effectManager);
 					}
+					// Always reset constructors before (re)loading to pick up latest render ordering/depth settings.
+					effectManager.resetConstructor('TwoDEffect');
+					effectManager.resetConstructor('ThreeDEffect');
 					if (!this.isLoaded) {
 						// aura is already loaded
 						// select effects based on /aura preference
@@ -108,6 +111,9 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'],
 			effectManager.remove(null, this.entity.GID, normalEffects);
 			// free aura - needs to be separate to avoid circular dependency
 			this.free();
+			// reset constructors so aura effects re-init on next load
+			effectManager.resetConstructor('TwoDEffect');
+			effectManager.resetConstructor('ThreeDEffect');
 		};
 
 		/**

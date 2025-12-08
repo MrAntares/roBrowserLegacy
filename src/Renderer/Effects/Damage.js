@@ -100,7 +100,7 @@ define(function( require )
 	Damage.init = function init( gl )
 	{
 		var confChange = !(_enableSuffix === Configs.get('enableDmgSuffix'));
-		
+
 		_enableSuffix = Configs.get('enableDmgSuffix');
 
 		// Already loaded
@@ -112,7 +112,7 @@ define(function( require )
 				return;
 			}
 		}
-		
+
 		_numbers = new Array(_enableSuffix ? 12 : 10);
 
 		Client.getFiles([
@@ -166,7 +166,7 @@ define(function( require )
 					gl.generateMipmap( gl.TEXTURE_2D );
 				}
 			}
-			
+
 			for(var i = 0; i < 6; i++){  //bluemsg.spr miss crit lucky...
 
 				var source = sprBlue.getCanvasFromFrame(i);
@@ -290,7 +290,7 @@ define(function( require )
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
 			obj.color[2] = 0.15;
-			
+
 			// Add CRIT background
 			var bgObj      = new Damage();
 			bgObj.type     = Damage.TYPE.CRIT;
@@ -304,7 +304,7 @@ define(function( require )
 			bgObj.offset   = [0.0, -6.0];
 			bgObj.isDisposable = false;
 			_list.push(bgObj);
-			
+
 			// Add hit effect
 			var EF_Init_Par = {
 				effectId: 1,
@@ -319,7 +319,7 @@ define(function( require )
 			obj.color[0] = 1.0;
 			obj.color[1] = 1.0;
 			obj.color[2] = 1.0;
-			
+
 			// Add Blue CRIT background
 			var bgObj      = new Damage();
 			bgObj.type     = obj.type;
@@ -408,9 +408,9 @@ define(function( require )
 		if(hitSound){
 			obj.soundFile = hitSound;
 		}
-		
+
 		_list.push( obj );
-		
+
 	};
 
 
@@ -452,6 +452,11 @@ define(function( require )
 
 		// Init program
 		SpriteRenderer.bind3DContext( gl, modelView, projection, fog );
+		SpriteRenderer.disableDepthCorrection = true;
+
+		// Damage indicators should always be visible: render without depth test/writes.
+		gl.disable(gl.DEPTH_TEST);
+		SpriteRenderer.setDepthMask(false);
 
 		// Base parameters
 		SpriteRenderer.shadow    = 1.0;
@@ -551,7 +556,7 @@ define(function( require )
 			SpriteRenderer.size[0] = damage.width  * size;
 			SpriteRenderer.size[1] = damage.height * size;
 			damage.color[3]        = 1.0 - perc;
-			
+
 			if(damage.offset){
 				SpriteRenderer.offset[0] = damage.offset[0];
 				SpriteRenderer.offset[1] = damage.offset[1];
@@ -567,6 +572,10 @@ define(function( require )
 			SpriteRenderer.render();
 		}
 
+		// Restore GL state
+		SpriteRenderer.setDepthMask(true);
+		gl.enable(gl.DEPTH_TEST);
+		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind( gl );
 	};
 

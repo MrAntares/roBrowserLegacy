@@ -178,8 +178,9 @@ define(function( require )
 
 		var i, cloud, opacity;
 
-		// Init program
+		// Init program - interact with environment (use depth test + ray-plane)
 		SpriteRenderer.bind3DContext( gl, modelView, projection, fog );
+		SpriteRenderer.disableDepthCorrection = false;
 
 		// Base parameters
 		SpriteRenderer.color.set(_color);
@@ -191,7 +192,7 @@ define(function( require )
 		SpriteRenderer.offset[1]     = 0;
 		SpriteRenderer.image.palette = null;
 		SpriteRenderer.depth         = 0;
-		gl.depthMask(false);
+		SpriteRenderer.setDepthMask(false);
 
 		for (i = 0; i < MAX_CLOUDS; i++) {
 			cloud = _clouds[i];
@@ -228,8 +229,9 @@ define(function( require )
 		}
 
 		// Clean up
+		SpriteRenderer.setDepthMask(true);
+		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind(gl);
-		gl.depthMask(true);
 	}
 
 

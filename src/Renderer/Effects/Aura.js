@@ -128,6 +128,8 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Rende
         renderer.color[1] = 1;
         renderer.color[2] = 1;
         renderer.zIndex = 1;
+        // No depth bias; draw order + depth test will keep it under bodies.
+        renderer.depth = 0;
         renderer.position[0] = this.position[0];
         renderer.position[1] = this.position[1];
         renderer.position[2] = this.position[2];
@@ -176,7 +178,8 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Rende
      */
     Aura.init = function init(gl) {
       this.ready = true;
-      this.renderBeforeEntities = false;
+      // Render before entities so bodies naturally draw over the aura.
+      this.renderBeforeEntities = true;
 
     };
 
@@ -197,8 +200,11 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Rende
      * @param {object} webgl context
      */
     Aura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-      gl.depthMask(false);
+      // Interact with environment: enable depth test and ray-plane correction; keep depth writes off for translucency.
+      gl.enable(gl.DEPTH_TEST);
       SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+      SpriteRenderer.disableDepthCorrection = false;
+      SpriteRenderer.setDepthMask(false);
       SpriteRenderer.shadow = 1;
       SpriteRenderer.angle = 0;
       SpriteRenderer.size[0] = 100;
@@ -223,7 +229,8 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Rende
      */
     Aura.afterRender = function afterRender(gl) {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.depthMask(true);
+      SpriteRenderer.setDepthMask(true);
+      SpriteRenderer.disableDepthCorrection = false;
       SpriteRenderer.unbind(gl);
     };
 

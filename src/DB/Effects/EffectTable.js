@@ -418,6 +418,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 				wav: 'effect/ef_hit2'
 			},
@@ -438,6 +439,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 			},
 			{
@@ -457,6 +459,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 			},
 			{
@@ -476,6 +479,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 			},
 			{
@@ -495,6 +499,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 			},
 			{
@@ -514,6 +519,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 			},
 			{
@@ -533,6 +539,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 			},
 			{
@@ -552,6 +559,7 @@ define(function( require )
 				circleOuterSizeRand: [5,6],
 				circleInnerSize: 2.2,
 				type: '2D',
+				overlay: true,
 				zIndex: 1,
 			}
 		],
@@ -654,6 +662,7 @@ define(function( require )
 			sizeX: 10,
 			toAngle: 0,
 			type: '2D',
+			overlay: true,
 			wav: 'effect/ef_hit6'
 		}, {
 			alphaMax: 1,
@@ -669,6 +678,7 @@ define(function( require )
 			sizeX: 10,
 			toAngle: 90,
 			type: '2D',
+			overlay: true,
 			wav: 'effect/ef_hit6'
 		}],
 
@@ -1670,6 +1680,7 @@ define(function( require )
 
 		50: [{	//EF_FIRESPLASHHIT	Spinning Fire Thing
 			type: '2D',
+			overlay: true,
 			duration: 500,
 			file: 'effect/firering.tga',
 			sizeStart: 10,
@@ -4399,6 +4410,7 @@ define(function( require )
 
 		274: [{	//EF_RG_COIN	   Steal Coin Animation
 			type: '2D',
+			overlay: true,
 			file: 'effect/coin_a.bmp',
 			blendMode: 2,
 			alphaMax: 0.8,

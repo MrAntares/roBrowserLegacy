@@ -46,6 +46,7 @@ function(      WebGL,         glMatrix,      Camera )
 		uniform vec3 uSpriteRendererPosition;
 		uniform float uSpriteRendererDepth;
 		uniform float uSpriteRendererZindex;
+		uniform bool  uDisableDepthCorrection;
 
 		mat4 Project( mat4 mat, vec3 pos) {
 
@@ -91,23 +92,25 @@ function(      WebGL,         glMatrix,      Camera )
 			vec3 cameraPos     = getCameraPosition();
 			vec3 cameraForward = getCameraForward();
 
-			// Vertical billboard depth correction (per-vertex), plane anchored at sprite center.
-			// Plane normal uses camera forward (flattened Y) for stability.
-			vec3 planePoint = (uViewModelMat * viewCenter).xyz;
-			vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));
-			if (length(planeNormal) < 0.000001) {
-				planeNormal = cameraForward;
+			if (!uDisableDepthCorrection) {
+				// Vertical billboard depth correction (per-vertex), plane anchored at sprite center.
+				// Plane normal uses camera forward (flattened Y) for stability.
+				vec3 planePoint = (uViewModelMat * viewCenter).xyz;
+				vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));
+				if (length(planeNormal) < 0.000001) {
+					planeNormal = cameraForward;
+				}
+
+				vec3 worldVertex = (uViewModelMat * viewPosition).xyz;
+				vec3 rayDir      = normalize(worldVertex - cameraPos);
+				float denom      = max(dot(planeNormal, rayDir), 0.000001);
+				float dist       = dot(planePoint - cameraPos, planeNormal) / denom;
+
+				vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));
+				float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));
+
+				gl_Position.z = min(gl_Position.z, correctedZBase);
 			}
-
-			vec3 worldVertex = (uViewModelMat * viewPosition).xyz;
-			vec3 rayDir      = normalize(worldVertex - cameraPos);
-			float denom      = max(dot(planeNormal, rayDir), 0.000001);
-			float dist       = dot(planePoint - cameraPos, planeNormal) / denom;
-
-			vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));
-			float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));
-
-			gl_Position.z = min(gl_Position.z, correctedZBase);
 			gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
 
 			vTextureCoord = aTextureCoord;
@@ -282,6 +285,11 @@ function(      WebGL,         glMatrix,      Camera )
 	 */
 	SpriteRenderer.groupId = 0;
 
+	/**
+	 * @var {boolean} disable depth correction (ray-plane) for current draw
+	 */
+	SpriteRenderer.disableDepthCorrection = false;
+
 
 	/**
 	 * @var {number} width unity
@@ -347,6 +355,11 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @var {number} last depth operation
 	 */
 	var _depth = null;
+
+	/**
+	 * @var {boolean} cached disable depth correction state
+	 */
+	var _disableDepthCorrection = false;
 
 	/**
 	 * @var {boolean} cached depth mask state
@@ -445,6 +458,7 @@ function(      WebGL,         glMatrix,      Camera )
 		// Camera position for billboarding
 		gl.uniform1f( uniform.uCameraZoom, Camera.zoom );
 		gl.uniform1f( uniform.uCameraLatitude, Camera.getLatitude() );
+		gl.uniform1i( uniform.uDisableDepthCorrection, _disableDepthCorrection = false );
 
 		// Enable all attributes
 		gl.enableVertexAttribArray( attribute.aPosition );
@@ -541,6 +555,12 @@ function(      WebGL,         glMatrix,      Camera )
 
 		if (this.depth !== _depth) {
 			gl.uniform1f( uniform.uSpriteRendererDepth, _depth = this.depth);
+		}
+
+		var disableDepthCorrection = !!this.disableDepthCorrection;
+		if (_disableDepthCorrection !== disableDepthCorrection) {
+			_disableDepthCorrection = disableDepthCorrection;
+			gl.uniform1i( uniform.uDisableDepthCorrection, disableDepthCorrection );
 		}
 
 		gl.uniform1f( uniform.uSpriteRendererZindex, this.zIndex++ );

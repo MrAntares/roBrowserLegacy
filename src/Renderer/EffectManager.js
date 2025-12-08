@@ -56,6 +56,30 @@ define(function (require) {
 	 */
 	let _uniqueId = 1;
 
+	/**
+	 * Reset a constructor and clear its instances so it re-initializes on next use.
+	 *
+	 * @param {string} name constructor key in _list
+	 */
+	EffectManager.resetConstructor = function resetConstructor(name) {
+		if (_list[name]) {
+			delete _list[name];
+		}
+		// If we have a known constructor in scope, mark for re-init
+		switch (name) {
+		case 'TwoDEffect':
+			TwoDEffect.ready = false;
+			TwoDEffect.needInit = true;
+			break;
+		case 'ThreeDEffect':
+			ThreeDEffect.ready = false;
+			ThreeDEffect.needInit = true;
+			break;
+		default:
+			break;
+		}
+	};
+
 
 	/**
 	 * Initialize effects manager
@@ -127,9 +151,8 @@ define(function (require) {
 				effect.constructor.needInit = true;
 			}
 
-			if (!effect.constructor.renderBeforeEntities) {
-				effect.constructor.renderBeforeEntities = false;
-			}
+			// Keep constructor renderBeforeEntities as-is; do not override to false here,
+			// so external configuration (e.g., aura ordering) is respected.
 		}
 
 		if (effect.init) {
@@ -138,12 +161,19 @@ define(function (require) {
 
 		effect._Params = Params;
 
-		// Capture per-instance ordering if provided (e.g., renderBeforeEntities on effect params)
-		// Default to constructor setting when not present
+		// Per-instance ordering: prefer explicit flag, else constructor default
 		if (effect._Params && effect._Params.Inst && typeof effect._Params.Inst.renderBeforeEntities !== 'undefined') {
 			effect.renderBeforeEntities = !!effect._Params.Inst.renderBeforeEntities;
 		} else {
 			effect.renderBeforeEntities = !!effect.constructor.renderBeforeEntities;
+		}
+
+		// Aura-specific: force renderBeforeEntities for known aura effect IDs to keep them under sprites.
+		if (effect._Params && effect._Params.Inst && effect._Params.Inst.effectID) {
+			const auraEffectIds = [200, 201, 202, 362, 397, 398, 881];
+			if (auraEffectIds.indexOf(effect._Params.Inst.effectID) !== -1) {
+				effect.renderBeforeEntities = true;
+			}
 		}
 
 		_list[name].push(effect);
