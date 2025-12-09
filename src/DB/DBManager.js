@@ -586,12 +586,37 @@ define(function (require) {
 	}
 	
 	function tryLoadItemInfo(files, onEnd) {
-		function tryNext(index) {
-			if (index >= files.length) {
-				return;
+		const totalFiles = files.length;
+		if (totalFiles === 0) {
+			if (typeof onEnd === 'function') {
+				onEnd();
+			}
+			return;
+		}
+
+		let finishedCount = 0;
+		let failedCount = 0;
+		const trackedOnEnd = (isSuccess) => {
+			finishedCount++;
+			if (!isSuccess) {
+				failedCount++;
 			}
 
-			loadItemInfo(files[index], null, onEnd);
+			if (finishedCount === totalFiles) {
+				if (failedCount === totalFiles) {
+					console.error(`[tryLoadItemInfo] ERRO: All ${totalFiles} tryes to find iteminfo failed. Verify your iteminfo filename.`);
+				}
+				if (typeof onEnd === 'function') {
+					onEnd();
+				}
+			}
+		};
+		
+		function tryNext(index) {
+			if (index >= totalFiles) {
+				return;
+			}
+			loadItemInfo(files[index], null, trackedOnEnd);
 			tryNext(index + 1);			
 		}
 		tryNext(0);
@@ -605,8 +630,18 @@ define(function (require) {
 	* @author alisonrag
 	*/
 	function loadItemInfo(filename, callback, onEnd) {
-		Client.loadFile(filename,
-			async function (file) {
+		const failureHandler = (error) => {
+			if (typeof onEnd === 'function') {
+				onEnd(false);
+			}
+		};
+
+		const loadPromise = new Promise((resolve, reject) => {
+			Client.loadFile(filename, resolve, reject);
+		});
+		
+		loadPromise.then(async (file) => {
+				let wasSuccessful = false;
 				try {
 					console.log('Loading file "' + filename + '"...');
 					// check if file is ArrayBuffer and convert to Uint8Array if necessary
@@ -709,17 +744,21 @@ define(function (require) {
 							end
 						main_item()
 						`);
+					wasSuccessful = true; 
 				} catch (error) {
 					console.error('[loadItemInfo] Error: ', error);
 				} finally {
 					// release file from memmory
 					lua.unmountFile('iteminfo.lub');
 					// call onEnd
-					onEnd();
+					onEnd(wasSuccessful);
 				}
-			},
-			onEnd
-		);
+		}).catch((error) => {			
+			if (typeof onEnd === 'function') {
+				onEnd(false);
+			}
+
+		});
 	}
 
 	/**
