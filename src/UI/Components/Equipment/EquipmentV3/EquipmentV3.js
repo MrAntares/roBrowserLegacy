@@ -173,22 +173,6 @@ define(function(require)
 
 		this.ui.find('.switch_equip').click(onSwtichEquip);
 
-		var buttons = this.ui.find('#damageskin .skin-option');
-		buttons.each(function() {
-			jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
-		});
-		buttons.each(this.parseHTML);
-		buttons.off('mouseup'); 
-		this.ui.find('#damageskin .skin-option').on('mousedown', function(event) {
-			var skinId = parseInt(this.getAttribute('data-skin'), 10);  
-			EquipmentV3.setDamageSkin(skinId);  
-		});
-		this.ui.find('#damageskin .skin-option').on('mouseout', function(event) {
-			var skinId = parseInt(this.getAttribute('data-skin'), 10);  
-			EquipmentV3.onSkinMouseOut(skinId);  
-		});
-		this.setDamageSkin(GraphicsSettings.damageSkin || 0);
-
 		// drag, drop items
 		this.ui.on('dragover', onDragOver);
 		this.ui.on('dragleave', onDragLeave);
@@ -204,6 +188,20 @@ define(function(require)
 		this.draggable(this.ui.find('.titlebar'));
 
 		switchappend = this.ui.find('.footer');
+
+		var buttons = this.ui.find('#damageskin .skin-option');
+
+		buttons.each(function() {
+			jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
+		});
+		
+		buttons.each(this.parseHTML);
+		buttons.off('mouseup'); 
+		buttons.on('mousedown', function(event) {
+			var skinId = parseInt(this.getAttribute('data-skin'), 10);
+			EquipmentV3.setDamageSkin(skinId);
+		});
+		EquipmentV3.setDamageSkin(GraphicsSettings.damageSkin || 0);
 	};
 
 
@@ -909,32 +907,20 @@ define(function(require)
 	 */
 	EquipmentV3.setDamageSkin = function setDamageSkin(skinId) {
 		var buttons = this.ui.find('#damageskin .skin-option');
-		var button  = this.ui.find('#damageskin .skin-option[data-skin=' + skinId + ']');
-
-    		buttons.each(function() {  		
-			jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
-		});
-      
-		button.attr('data-background', 'showdamage/btn_damage_pick.bmp').attr('data-hover', 'showdamage/btn_damage_pick.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
+		var buttonSelected  = this.ui.find('#damageskin .skin-option[data-skin=' + skinId + ']');
 		
-		buttons.each(this.parseHTML);
-		buttons.off('mouseup'); 
-
 		GraphicsSettings.damageSkin = skinId;
 		GraphicsSettings.save();
-	};
 
-	EquipmentV3.onSkinMouseOut = function setDamageSkin(skinId) {
-		var buttons = this.ui.find('#damageskin .skin-option');
+		Client.loadFile( DB.INTERFACE_PATH + 'showdamage/btn_damage.bmp', function(data){
+			buttons.css('backgroundImage', 'url(' + data + ')');
+		});
 
-    		buttons.each(function() {
-			if(jQuery(this).attr('data-background') === 'showdamage/btn_damage_pick.bmp')
-				jQuery(this).attr('data-background', 'showdamage/btn_damage_pick.bmp').attr('data-hover', 'showdamage/btn_damage_pick.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
-			else
-				jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
-		});		
-		buttons.each(this.parseHTML);
-		buttons.off('mouseup'); 
+		Client.loadFile( DB.INTERFACE_PATH + 'showdamage/btn_damage_pick.bmp', function(data){
+			buttonSelected.css('backgroundImage', 'url(' + data + ')');
+		});
+
+		buttonSelected.off('mouseover mouseout mouseup');
 	};
 
 	EquipmentV3.reloadDamageSkin = function(skinId) {  
