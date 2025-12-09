@@ -26,9 +26,43 @@ define(function( require )
 	var EffectManager  = require('Renderer/EffectManager');
 	var MemoryManager = require('Core/MemoryManager');
 	var Entity            = require('Renderer/Entity/Entity');
-
+	var GraphicsSettings = require('Preferences/Graphics');
 	var EndureSound    = "player_metal.wav";
 	var dpr            = window.devicePixelRatio || 1;
+
+	var _skin = 0; 
+	var _damageSkins = {  
+		0: { // DT_Default  
+			BaseNumber: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xfd\xc0\xda.spr',  
+			BaseMsg: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr',  
+			BaseBlue: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/bluemsg.spr'  
+		},  
+		1: { // DT_NewNumber  
+			BaseNumber: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumber.spr',  
+			BaseMsg: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumber_MSG.spr',  
+			BaseBlue: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumber_BMSG.spr'  
+		},  
+		2: { // DT_Han  
+			BaseNumber: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/Han.spr',  
+			BaseMsg: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/Han_MSG.spr',  
+			BaseBlue: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/Han_BMSG.spr'  
+		},  
+		3: { // DT_Invi  
+			BaseNumber: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumberH.spr',  
+			BaseMsg: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumberH_MSG.spr',  
+			BaseBlue: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumberH_BMSG.spr'  
+		}  
+	};
+
+	/**
+	 * Set damage skin
+	 *
+	 * @param {number} skin
+	 */
+	Damage.setSkin = function SetSkin(skin)
+	{
+		_skin = skin;
+	};
 
 	/**
 	 * Damage Namespace
@@ -103,11 +137,14 @@ define(function( require )
 
 		_enableSuffix = Configs.get('enableDmgSuffix');
 
+		_skin = GraphicsSettings.damageSkin || 0;
+		var currentSkin = _damageSkins[_skin];
+
 		// Already loaded
 		if (_numbers && _numbers[0] && _msg.miss && _msgBlue.miss) {
 			if(confChange){
 				// Remove old file, need to get different version of the sprite
-				MemoryManager.remove(gl, 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr');
+				MemoryManager.remove(gl, currentSkin.BaseMsg);
 			} else {
 				return;
 			}
@@ -116,15 +153,15 @@ define(function( require )
 		_numbers = new Array(_enableSuffix ? 12 : 10);
 
 		Client.getFiles([
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xfd\xc0\xda.spr',
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr',
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/bluemsg.spr'
+			currentSkin.BaseNumber,
+			currentSkin.BaseMsg,
+			currentSkin.BaseBlue
 		], function( numbers, msg, bluemsg ) {
 			var sprNumbers, sprMsg, sprBlue;
 			var enableMipmap = Configs.get('enableMipmap');
 
 			// Load it properly later using webgl
-			MemoryManager.remove(gl, 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/msg.spr');
+			MemoryManager.remove(gl, msg);
 
 			try {
 				sprNumbers = new Sprite(numbers);
@@ -195,7 +232,6 @@ define(function( require )
 
 		});
 	};
-
 
 	/**
 	 * Add Damage to the scene
@@ -578,7 +614,6 @@ define(function( require )
 		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind( gl );
 	};
-
 
 	/**
 	 * Export

@@ -56,6 +56,50 @@
 
 #lvlup_base { z-index:51; position:absolute; left:0px; bottom:0px; width:43px; height:43px; border:none; background-color:transparent; background-repeat:no-repeat; }
 
+#EquipmentV3 #damageskin .damageskin-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 280px;
+    margin: 0 auto;
+}
+
+#EquipmentV3 #damageskin .skin-option {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+	
+    width: 64px;
+    height: 92px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+#EquipmentV3 #damageskin .skin-option .icon {
+    width: 36px;
+    height: 36px;
+}
+
+#EquipmentV3 #damageskin .skin-wrapper {
+    width: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+}
+
+#EquipmentV3 #damageskin .skin-wrapper .label {
+    margin-top: 6px;
+    font-size: 12px;
+    text-align: center;
+}
+
 #EquipmentV3 .item .grade {
     position: relative;
     width: 12px;
