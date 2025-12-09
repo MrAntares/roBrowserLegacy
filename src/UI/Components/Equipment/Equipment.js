@@ -18,6 +18,7 @@ define(function (require)
 	var EquipmentV1 = require('./EquipmentV1/EquipmentV1'); // equip + costume
 	var EquipmentV2 = require('./EquipmentV2/EquipmentV2'); // equip + costume + title (not implemented)
 	var EquipmentV3 = require('./EquipmentV3/EquipmentV3'); // EquipmentV2 + Switch Equip
+	var EquipmentV4 = require('./EquipmentV4/EquipmentV4'); // EquipmentV3 + Switch Damage Skin
 
 	var UIVersionManager = require('UI/UIVersionManager');
 	var DB = require('DB/DBManager');
@@ -26,6 +27,7 @@ define(function (require)
 	var versionInfo = {
 		default: EquipmentV0,
 		common: {
+			20220831:	EquipmentV4,
 			20170208:	EquipmentV3,
 			20150225:	EquipmentV2,
 			20101124:	EquipmentV1,
