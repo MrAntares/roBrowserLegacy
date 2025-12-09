@@ -1,4 +1,4 @@
-<div id="EquipmentV3" data-repload="basic_interface/item_invert.bmp">
+<div id="EquipmentV4" data-repload="basic_interface/item_invert.bmp">
 	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
 		<div class="left">
 			<button class="base" data-background="basic_interface/sys_base_off.bmp" data-hover="basic_interface/sys_base_on.bmp"></button>
@@ -15,6 +15,7 @@
 		<div class="tab"><a href="#general"><span data-text="3158"></span></a></div>
 		<div class="tab"><a href="#costume"><span data-text="3159"></span></a></div>
 		<div class="tab"><a href="#title"><span data-text="3160"></span></a></div>
+		<div class="tab"><a href="#damageskin"><span data-text="3990"></span></a></div>
 	</div>
 	<div class="panel">
 		<table class="content" id="general" data-background="basic_interface/equipwin_bg.bmp">
@@ -77,6 +78,44 @@
 			</tr>
 		</table>
 		<table class="content" id="title">
+		</table>
+		<table class="content" id="damageskin">  
+			<!-- Select Damage Font -->  
+			<tr>  
+				<td colspan="3">  
+					<div class="damageskin-selector"
+						 data-background="showdamage/bg_damage.bmp">
+						<div class="skin-wrapper">
+						<!-- Damage Skin 0: Default -->
+						<button class="skin-option" data-skin="0">
+							<div class="icon" data-background="showdamage/icon_damage00.bmp"></div>
+						</button> 
+						<span data-text="3994">Default</span> 
+						</div>
+						<div class="skin-wrapper">
+						<!-- Damage Skin 1: Color -->
+						<button class="skin-option" data-skin="1">
+							<div class="icon" data-background="showdamage/icon_damage01.bmp"></div>
+						</button>
+						<span data-text="3993">Color</span>
+						</div>
+						<div class="skin-wrapper">
+						<!-- Damage Skin 2: Han -->
+						<button class="skin-option" data-skin="2">
+							<div class="icon" data-background="showdamage/icon_damage02.bmp"></div>
+						</button>
+						<span data-text="3992">Han</span>
+						</div>
+						<div class="skin-wrapper">
+						<!-- Damage Skin 3: Hidden -->
+						<button class="skin-option" data-skin="3">
+							<div class="icon" data-background="showdamage/icon_damage03.bmp"></div>	
+						</button>
+						<span data-text="3991">Hidden</span>
+						</div>
+					</div>
+				</td>  
+			</tr>
 		</table>
 		<div class="footer" id="equipment_footer" data-background="basic_interface/equipwin_bg2.bmp">
 			<div class="left">
