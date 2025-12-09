@@ -190,18 +190,18 @@ define(function(require)
 		switchappend = this.ui.find('.footer');
 
 		var buttons = this.ui.find('#damageskin .skin-option');
-
 		buttons.each(function() {
 			jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
-		});
-		
+		});		
 		buttons.each(this.parseHTML);
-		buttons.off('mouseup'); 
+		buttons.off('mouseup');
 		buttons.on('mousedown', function(event) {
 			var skinId = parseInt(this.getAttribute('data-skin'), 10);
 			EquipmentV3.setDamageSkin(skinId);
 		});
-		EquipmentV3.setDamageSkin(GraphicsSettings.damageSkin || 0);
+		var savedSkin = GraphicsSettings.damageSkin;
+		savedSkin = savedSkin !== undefined && savedSkin !== null ? savedSkin : 0;
+		EquipmentV3.setDamageSkin(savedSkin);	
 	};
 
 
@@ -912,6 +912,12 @@ define(function(require)
 		GraphicsSettings.damageSkin = skinId;
 		GraphicsSettings.save();
 
+		buttons.each(function() {
+			jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
+		});
+		buttons.each(this.parseHTML); // restore mouse events
+		buttons.off('mouseup');
+
 		Client.loadFile( DB.INTERFACE_PATH + 'showdamage/btn_damage.bmp', function(data){
 			buttons.css('backgroundImage', 'url(' + data + ')');
 		});
@@ -920,17 +926,9 @@ define(function(require)
 			buttonSelected.css('backgroundImage', 'url(' + data + ')');
 		});
 
-		buttonSelected.off('mouseover mouseout mouseup');
+		buttonSelected.off('mouseover mouseout');
 	};
 
-	EquipmentV3.reloadDamageSkin = function(skinId) {  
-		//var Damage = require('Renderer/Effects/Damage');  
-		//var gl = Renderer.getContext();  
-      
-		//Damage.free(gl);  
-		//Damage.setSkin(skinId);  
-		//Damage.init(gl);  
-	};
 
 	/**
 	 * Function to check if an item with a given location exists in the equip switch list

@@ -27,10 +27,11 @@ define(function( require )
 	var MemoryManager = require('Core/MemoryManager');
 	var Entity            = require('Renderer/Entity/Entity');
 	var GraphicsSettings = require('Preferences/Graphics');
+	var PACKETVER          = require('Network/PacketVerManager');
 	var EndureSound    = "player_metal.wav";
 	var dpr            = window.devicePixelRatio || 1;
 
-	var _skin = 0; 
+	var _skin = 0;
 	var _damageSkins = {  
 		0: { // DT_Default  
 			BaseNumber: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xfd\xc0\xda.spr',  
@@ -53,16 +54,7 @@ define(function( require )
 			BaseBlue: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumberH_BMSG.spr'  
 		}  
 	};
-
-	/**
-	 * Set damage skin
-	 *
-	 * @param {number} skin
-	 */
-	Damage.setSkin = function SetSkin(skin)
-	{
-		_skin = skin;
-	};
+	var _loadedSkinsData = {};
 
 	/**
 	 * Damage Namespace
@@ -104,7 +96,6 @@ define(function( require )
 	/**
 	 * @var {string} Sprite of the damage sprite
 	 */
-	var _numbers;
 	var _msgNames = {
 		0: 'miss',
 		1: 'guard',
@@ -113,8 +104,6 @@ define(function( require )
 		4: 'luckybg',
 		5: 'lucky',
 	}
-	var _msg     = new Array(6);
-	var _msgBlue = new Array(6);
 
 
 	/**
@@ -137,99 +126,116 @@ define(function( require )
 
 		_enableSuffix = Configs.get('enableDmgSuffix');
 
-		_skin = GraphicsSettings.damageSkin || 0;
-		var currentSkin = _damageSkins[_skin];
+		var totalSkins = Object.keys(_damageSkins).length;
 
-		// Already loaded
-		if (_numbers && _numbers[0] && _msg.miss && _msgBlue.miss) {
-			if(confChange){
-				// Remove old file, need to get different version of the sprite
-				MemoryManager.remove(gl, currentSkin.BaseMsg);
-			} else {
-				return;
-			}
+		var num_count = _enableSuffix ? 12 : 10;
+
+		if( PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0 && !confChange){
+			return;
 		}
 
-		_numbers = new Array(_enableSuffix ? 12 : 10);
+		if (Object.keys(_loadedSkinsData).length === totalSkins && !confChange) {
+			return;
+		}
 
-		Client.getFiles([
-			currentSkin.BaseNumber,
-			currentSkin.BaseMsg,
-			currentSkin.BaseBlue
-		], function( numbers, msg, bluemsg ) {
-			var sprNumbers, sprMsg, sprBlue;
-			var enableMipmap = Configs.get('enableMipmap');
-
-			// Load it properly later using webgl
-			MemoryManager.remove(gl, msg);
-
-			try {
-				sprNumbers = new Sprite(numbers);
-				sprMsg   = new Sprite(msg);
-				sprBlue   = new Sprite(bluemsg);
-			}
-			catch(e) {
-				console.error('Damage::init() - ' + e.message );
+		Object.keys(_damageSkins).forEach(function(skinIdStr) {
+			var skinId = parseInt(skinIdStr, 10);
+    			var currentSkin = _damageSkins[skinId];
+			
+			if (_loadedSkinsData[skinId] && !confChange) {
 				return;
 			}
 
-			// Create SpriteSheet
-			for (var i = 0; i < _numbers.length; ++i) {
-				_numbers[i]  = sprNumbers.getCanvasFromFrame(i);
+			if( PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0 ){
+				return;
 			}
 
-			for(var i = 0; i < 6; i++){  //msg.spr miss crit lucky...
+			_loadedSkinsData[skinId] = {
+				numbers: new Array(num_count),
+				msg: {},
+				msgBlue: {}
+			};
+			
+			var skinData = _loadedSkinsData[skinId];
 
-				var source = sprMsg.getCanvasFromFrame(i);
-				var canvas = document.createElement('canvas');
-				var ctx    = canvas.getContext('2d');
+			Client.getFiles([
+				currentSkin.BaseNumber,
+				currentSkin.BaseMsg,
+				currentSkin.BaseBlue
+			], function( numbers, msg, bluemsg ) {
+				var sprNumbers, sprMsg, sprBlue;
+				var enableMipmap = Configs.get('enableMipmap');
 
-				canvas.width  = WebGL.toPowerOfTwo(source.width) * dpr;
-				canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
-				ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
+				// Load it properly later using webgl
+				MemoryManager.remove(gl, msg);
 
-				_msg[_msgNames[i]] = {
-					texture: gl.createTexture(),
-					canvas:  canvas
-				};
-
-				gl.bindTexture( gl.TEXTURE_2D, _msg[_msgNames[i]].texture );
-				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-				if(enableMipmap) {
-					gl.generateMipmap( gl.TEXTURE_2D );
+				try {
+					sprNumbers = new Sprite(numbers);
+					sprMsg   = new Sprite(msg);
+					sprBlue   = new Sprite(bluemsg);
 				}
-			}
-
-			for(var i = 0; i < 6; i++){  //bluemsg.spr miss crit lucky...
-
-				var source = sprBlue.getCanvasFromFrame(i);
-				var canvas = document.createElement('canvas');
-				var ctx    = canvas.getContext('2d');
-
-				canvas.width  = WebGL.toPowerOfTwo(source.width) * dpr;
-				canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
-				ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
-
-				_msgBlue[_msgNames[i]] = {
-					texture: gl.createTexture(),
-					canvas:  canvas
-				};
-
-				gl.bindTexture( gl.TEXTURE_2D, _msgBlue[_msgNames[i]].texture );
-				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-				if(enableMipmap) {
-					gl.generateMipmap( gl.TEXTURE_2D );
+				catch(e) {
+					console.error('Damage::init() - ' + e.message );
+					return;
 				}
-			}
 
+				// Create SpriteSheet
+				for (var i = 0; i < skinData.numbers.length; ++i) {
+					skinData.numbers[i] = sprNumbers.getCanvasFromFrame(i);
+				}
+	
+				for(var i = 0; i < 6; i++){  //msg.spr miss crit lucky...
+
+					var source = sprMsg.getCanvasFromFrame(i);
+					var canvas = document.createElement('canvas');
+					var ctx    = canvas.getContext('2d');
+
+					canvas.width  = WebGL.toPowerOfTwo(source.width) * dpr;
+					canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
+					ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
+
+					skinData.msg[_msgNames[i]] = {
+						texture: gl.createTexture(),
+						canvas:  canvas
+					};
+
+					gl.bindTexture( gl.TEXTURE_2D, skinData.msg[_msgNames[i]].texture );
+					gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					if(enableMipmap) {
+						gl.generateMipmap( gl.TEXTURE_2D );
+					}
+				}
+
+				for(var i = 0; i < 6; i++){  //bluemsg.spr miss crit lucky...
+
+					var source = sprBlue.getCanvasFromFrame(i);
+					var canvas = document.createElement('canvas');
+					var ctx    = canvas.getContext('2d');	
+
+					canvas.width  = WebGL.toPowerOfTwo(source.width) * dpr;
+					canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
+					ctx.drawImage( source, (canvas.width-source.width)/2, (canvas.height-source.height)/2, source.width, source.height );
+
+					skinData.msgBlue[_msgNames[i]] = {
+						texture: gl.createTexture(),
+						canvas:  canvas
+					};
+
+					gl.bindTexture( gl.TEXTURE_2D, skinData.msgBlue[_msgNames[i]].texture );
+					gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					if(enableMipmap) {
+						gl.generateMipmap( gl.TEXTURE_2D );
+					}
+				}
+			});
 		});
 	};
 
@@ -243,9 +249,35 @@ define(function( require )
 	 */
 	Damage.add = function add( damage, entity, tick, weapon, type)
 	{
+		_skin = GraphicsSettings.damageSkin || 0;
+
+		if( _skin == 3 )
+			return;
+
+		if( PACKETVER.value < 20220821 )
+			_skin = 0;
+
+		var skinData = _loadedSkinsData[_skin];
+		var numbersData, msgData, msgBlueData;
+		if (skinData) {
+			numbersData = skinData.numbers;
+			msgData = skinData.msg;
+			msgBlueData = skinData.msgBlue;
+		} else {
+			if (_loadedSkinsData[0]) {
+				skinData = _loadedSkinsData[0];
+				numbersData = skinData.numbers;
+				msgData = skinData.msg;
+				msgBlueData = skinData.msgBlue;
+			} else {
+				console.warn('Damage::add() - No Damage Skin Loaded.');
+				return;
+			}
+		}
+
 		// Can not display negative damages.
 		// Need to wait the client to load damage sprite
-		if (damage < 0 || !_numbers[0] || !_msg.miss || !_msgBlue.miss) {
+		if (damage < 0 || !numbersData[0] || !msgData.miss || !msgBlueData.miss) {
 			return;
 		}
 
@@ -334,9 +366,9 @@ define(function( require )
 			bgObj.delay    = 1500;
 			bgObj.startTick    = tick;
 			bgObj.entity   = entity;
-			bgObj.texture  = _msg.critbg.texture;
-			bgObj.width    = _msg.critbg.canvas.width * 0.6;
-			bgObj.height   = _msg.critbg.canvas.height * 0.6;
+			bgObj.texture  = msgData.critbg.texture;
+			bgObj.width    = msgData.critbg.canvas.width * 0.6;
+			bgObj.height   = msgData.critbg.canvas.height * 0.6;
 			bgObj.offset   = [0.0, -6.0];
 			bgObj.isDisposable = false;
 			_list.push(bgObj);
@@ -363,9 +395,9 @@ define(function( require )
 			bgObj.delay    = 1500;
 			bgObj.startTick    = tick;
 			bgObj.entity   = entity;
-			bgObj.texture  = _msgBlue.critbg.texture;
-			bgObj.width    = _msgBlue.critbg.canvas.width * 0.6;
-			bgObj.height   = _msgBlue.critbg.canvas.height * 0.6;
+			bgObj.texture  = msgBlueData.critbg.texture;
+			bgObj.width    = msgBlueData.critbg.canvas.width * 0.6;
+			bgObj.height   = msgBlueData.critbg.canvas.height * 0.6;
 			bgObj.offset   = [0.0, -6.0];
 			bgObj.isDisposable = false;
 			_list.push(bgObj);
@@ -380,9 +412,9 @@ define(function( require )
 		// Miss
 		if (!damage) {
 			if (MapPreferences.miss) {
-				obj.texture  = _msg.miss.texture;
-				obj.width    = _msg.miss.canvas.width;
-				obj.height   = _msg.miss.canvas.height;
+				obj.texture  = msgData.miss.texture;
+				obj.width    = msgData.miss.canvas.width;
+				obj.height   = msgData.miss.canvas.height;
 				obj.isDisposable = false;
 				_list.push(obj);
 			}
@@ -391,7 +423,7 @@ define(function( require )
 
 		// Calculate canvas width and height
 		for (i = 0, count = numbers.length; i < count; ++i) {
-			frame  = _numbers[ numbers[i] ];
+			frame  = numbersData[ numbers[i] ];
 			width += frame.width + PADDING;
 			height = Math.max( height, frame.height );
 		}
@@ -407,7 +439,7 @@ define(function( require )
 		// build texture
 		width = 0;
 		for (i = 0, count = numbers.length; i < count; ++i) {
-			frame  = _numbers[ numbers[i] ];
+			frame  = numbersData[ numbers[i] ];
 			ctx.drawImage(
 				frame,
 				start_x + width,
