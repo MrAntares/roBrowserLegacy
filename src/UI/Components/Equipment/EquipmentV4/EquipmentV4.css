@@ -78,6 +78,14 @@
     margin-top: 12px;
 }
 
+#EquipmentV4 #damageskin .skin-option span {
+    position: relative; 
+    top: -9px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
 #EquipmentV4 #damageskin .skin-option .icon {
     width: 36px;
     height: 36px;
