@@ -616,8 +616,10 @@ define(function (require) {
 			if (index >= totalFiles) {
 				return;
 			}
-			loadItemInfo(files[index], null, trackedOnEnd);
-			tryNext(index + 1);			
+			loadItemInfo(files[index], null, (isSuccess) => {
+				trackedOnEnd(isSuccess); //await last iteminfo finish loading 
+				tryNext(index + 1);
+			});		
 		}
 		tryNext(0);
 	}
