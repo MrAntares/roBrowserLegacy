@@ -55,25 +55,25 @@ define( function( require )
 	 * Convert a server moveStartTime to a client tick so we can fast-forward
 	 * the walk based on latency.
 	 */
-	function computeWalkStartTick(nowTick, moveStartTime, pathDuration) {
-		if (!moveStartTime || !Session || !Session.serverTick) {
-			return nowTick;
-		}
+		function computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxClamp) {
+			if (!moveStartTime || !Session || !Session.serverTick) {
+				return nowTick;
+			}
 
 		var elapsed = Session.serverTick - moveStartTime;
 		if (!isFinite(elapsed) || elapsed <= 0) {
 			return nowTick;
 		}
 
-		if (pathDuration && pathDuration > 0) {
-			// If the delta is wildly larger than the path duration, serverTick is probably not aligned.
-			if (elapsed > pathDuration * 4) {
-				return nowTick;
+			if (pathDuration && pathDuration > 0) {
+				// If the delta is wildly larger than the path duration, serverTick is probably not aligned.
+				if (elapsed > pathDuration * 4) {
+					return nowTick;
+				}
+				elapsed = Math.min(elapsed, (typeof maxClamp === 'number' ? maxClamp : pathDuration));
+			} else {
+				elapsed = Math.min(elapsed, (typeof maxClamp === 'number' ? maxClamp : 1000));
 			}
-			elapsed = Math.min(elapsed, pathDuration);
-		} else {
-			elapsed = Math.min(elapsed, 1000);
-		}
 
 		return nowTick - elapsed;
 	}
@@ -157,20 +157,31 @@ define( function( require )
 		if(result.success)
 			total = result.pathLength + 1
 
-		this.walk.index =     1 * 2; // skip first index
-		this.walk.total = total * 2;
-		if (total > 0) {
-			this.walk.pos.set(this.position);
-			var nowTick = Renderer.tick;
-			var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
-			var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration);
-			this.walk.tick = this.walk.prevTick = startTick;
+			this.walk.index =     1 * 2; // skip first index
+			this.walk.total = total * 2;
+			if (total > 0) {
+				this.walk.pos.set(this.position);
+				var nowTick = Renderer.tick;
+				var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
+				var isPlayerLike = (
+					this.objecttype === this.constructor.TYPE_PC ||
+					this.objecttype === this.constructor.TYPE_DISGUISED ||
+					this.objecttype === this.constructor.TYPE_PET ||
+					this.objecttype === this.constructor.TYPE_HOM ||
+					this.objecttype === this.constructor.TYPE_MERC
+				);
+				// For non-player entities we only fast-forward up to one step worth of time.
+				// Their client-side path can diverge from the server due to dynamic obstacles,
+				// and over-fast-forwarding makes STOPMOVE snaps more visible.
+				var maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+				var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+				this.walk.tick = this.walk.prevTick = startTick;
 
-			// Keep distance accumulation if we were already walking to avoid animation restarts.
-			if (!hadRoute) {
-				this.walk.dist = 0;
-			}
-			this.walk.lastPos.set(this.position);
+				// Keep distance accumulation if we were already walking to avoid animation restarts.
+				if (!hadRoute) {
+					this.walk.dist = 0;
+				}
+				this.walk.lastPos.set(this.position);
 
 				// Initialize facing for the first segment (continuous heading handled in walkProcess).
 				if (this.walk.total >= 2) {
@@ -180,21 +191,23 @@ define( function( require )
 					this.direction = quantizeDir(initDir0);
 				}
 
-			var action = this.ACTION.WALK;
-			if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) // falcon: action.walk = gliding
-				action = this.ACTION.IDLE;
-			if (this.objecttype === this.constructor.TYPE_WUG && isAttacking)
-				action = this.ACTION.ATTACK;
+				var action = this.ACTION.WALK;
+				if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) { // falcon: action.walk = gliding
+					action = this.ACTION.IDLE;
+				}
+				if (this.objecttype === this.constructor.TYPE_WUG && isAttacking) {
+					action = this.ACTION.ATTACK;
+				}
 
-			if(this.action !== action) {
-				this.setAction({
-					action: action,
-					frame:  0,
-					repeat: true,
-					play:   true
-				});
+				if (this.action !== action) {
+					this.setAction({
+						action: action,
+						frame:  0,
+						repeat: true,
+						play:   true
+					});
+				}
 			}
-		}
 	}
 
 	/**
@@ -221,20 +234,28 @@ define( function( require )
 		var path  = this.walk.path;
 		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
 
-		this.walk.index =     1 * 2; // skip first index
-		this.walk.total = total * 2;
+			this.walk.index =     1 * 2; // skip first index
+			this.walk.total = total * 2;
 
-		if (total) {
-			this.walk.pos.set(this.position);
-			var nowTick = Renderer.tick;
-			var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
-			var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration);
-			this.walk.tick = this.walk.prevTick = startTick;
+			if (total) {
+				this.walk.pos.set(this.position);
+				var nowTick = Renderer.tick;
+				var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
+				var isPlayerLike = (
+					this.objecttype === this.constructor.TYPE_PC ||
+					this.objecttype === this.constructor.TYPE_DISGUISED ||
+					this.objecttype === this.constructor.TYPE_PET ||
+					this.objecttype === this.constructor.TYPE_HOM ||
+					this.objecttype === this.constructor.TYPE_MERC
+				);
+				var maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+				var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+				this.walk.tick = this.walk.prevTick = startTick;
 
-			if (!hadRoute) {
-				this.walk.dist = 0;
-			}
-			this.walk.lastPos.set(this.position);
+				if (!hadRoute) {
+					this.walk.dist = 0;
+				}
+				this.walk.lastPos.set(this.position);
 
 				// Initialize facing for the first segment (continuous heading handled in walkProcess).
 				if (this.walk.total >= 2) {
@@ -243,7 +264,7 @@ define( function( require )
 					var initDir1 = offsetToFloatDir(firstX1 - this.position[0], firstY1 - this.position[1]);
 					this.direction = quantizeDir(initDir1);
 				}
-			this.headDir = 0;
+				this.headDir = 0;
 
 			// Only set action if not already walking
 			if (!wasWalkingAction) {
