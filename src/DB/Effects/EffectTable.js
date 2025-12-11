@@ -3219,94 +3219,71 @@ define(function( require )
 			attachedEntity: false
 		}],
 
-		200: [{	//EF_LEVEL99	   Normal level 99 Aura (Middle)
-			type: 'CYLINDER',
-			textureName: 'ring_blue',
-			duration: 1033,
-			blendMode: 2,
-			red: 0.5,
-			green: 0.5,
-			blue: 1,
-			alphaMax: 0.17,
-			angleY: 180,
-			bottomSize: 0.77,
-			topSize: 3.77,
-			height: 1.5,
-			rotate: true,
-			repeat: true,
-			attachedEntity: true,
-		}, {
-			type: 'CYLINDER',
-			textureName: 'ring_blue',
-			duration: 1022,
-			blendMode: 2,
-			red: 0.5,
-			green: 0.5,
-			blue: 1,
-			alphaMax: 0.17,
-			angleY: 90,
-			bottomSize: 0.76,
-			topSize: 3.76,
-			height: 1.75,
-			rotate: true,
-			repeat: true,
-			attachedEntity: true,
-		}, {
-			type: 'CYLINDER',
-			textureName: 'ring_blue',
-			duration: 1000,
-			blendMode: 2,
-			red: 0.5,
-			green: 0.5,
-			blue: 1,
-			alphaMax: 0.17,
-			angleY: 0,
-			bottomSize: 0.75,
-			topSize: 3.75,
-			height: 2,
-			rotate: true,
-			repeat: true,
-			attachedEntity: true,
-		} ],
-
-		201: [ //EF_LEVEL99_2	   Normal level 99 Aura (Bottom)
+		200: [
+			// EF_LEVEL99 - Normal level 99 Aura (Rising Cone / Swirling Band)
+			// Math model from original game:
+			// - Ring radius ≈ 3.9, tilt 55°, vertical amplitude 15, 315° sweep
+			// - height_k(t) = H·sin(90+9(k−10))·sin(ωt), ω=1°/frame
+			// - Spin adds (ec+3)°/frame
 			{
 				type: 'FUNC',
 				attachedEntity: true,
-				func: function( Params ){
-					var Aura = require('Renderer/Effects/Aura');
-					this.add(new Aura(Params.Init.ownerEntity.position, 100, 15.0, 'pikapika2.bmp', Params.Inst.startTick), Params);
+				func: function(Params) {
+					var SwirlingAura = require('Renderer/Effects/SwirlingAura');
+					this.add(new SwirlingAura(
+						Params.Init.ownerEntity.position,
+						'ring_blue.tga',
+						Params.Inst.startTick
+					), Params);
 				}
 			}
 		],
 
-		202: [{	//EF_LEVEL99_3	   Lv 99 Aura Bubble
-			alphaMax: 0.78,
-			attachedEntity: true,
-			blendMode: 2,
-			duration: 2000,
-			duplicate: 5,
-			timeBetweenDupli: 400,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/freezing_circle.bmp',
-			posxStartRand: 0.5,
-			posxStartRandMiddle: 0,
-			posyStartRand: 0.5,
-			posyStartRandMiddle: 0,
-			posxEndRand: 4,
-			posxEndRandMiddle: 0,
-			posyEndRand: 4,
-			posyEndRandMiddle: 0,
-			poszEndRand: 1,
-			poszEndRandMiddle: 3,
-			poszStart: 0,
-			repeat: true,
-			size: 10,
-			sizeRand: 1.7,
-			type: '3D',
-			zIndex: 1
-		}],
+		201: [
+			// EF_LEVEL99_2 - Normal level 99 Aura (Bottom / Ground Ring)
+			// Uses GroundAura which renders flat quads on the ground plane
+			{
+				type: 'FUNC',
+				attachedEntity: true,
+				func: function(Params) {
+					var GroundAura = require('Renderer/Effects/GroundAura');
+					this.add(new GroundAura(
+						Params.Init.ownerEntity.position,
+						100,    // size (same as original Aura.js)
+						15.0,   // distance (same as original Aura.js)
+						'pikapika2.bmp',
+						Params.Inst.startTick
+					), Params);
+				}
+			}
+		],
+
+		202: [
+			// EF_LEVEL99_3 - Level 99 aura bubble sparkle (camera-facing diamonds)
+			{
+				type: 'FUNC',
+				attachedEntity: true,
+				func: function(Params) {
+					var Level99Bubble = require('Renderer/Effects/Level99Bubble');
+					// Default to blue variant (flag1 = 1) unless overridden
+					var flag1 = 1;
+
+					// Allow effect table or caller to override tint variant
+					if (typeof Params.effect.flag1 !== 'undefined') {
+						flag1 = Params.effect.flag1;
+					} else if (Params.Inst && typeof Params.Inst.flag1 !== 'undefined') {
+						flag1 = Params.Inst.flag1;
+					}
+
+					this.add(new Level99Bubble(
+						Params.Init.ownerEntity.position,
+						'whitelight.tga',
+						Params.Inst.startTick,
+						flag1
+					), Params);
+				}
+			}
+		],
 
 		203: [{	//EF_GUMGANG	   Fury (Visual Effect)
 			//super1..5.bmp
