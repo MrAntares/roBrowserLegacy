@@ -288,9 +288,12 @@ define( function( require )
 					this.walk.speed = unit.speed;
 					break;
 
-				case 'moveStartTime':
-					this.walk.tick = +Renderer.tick;
-					break;
+					case 'moveStartTime':
+						// Keep for walkTo() latency compensation; avoid overriding its tick.
+						if (this.walk) {
+							this.walk.serverStartTime = unit.moveStartTime;
+						}
+						break;
 
 				case 'name':
 					this.display.name = unit.name;
@@ -306,12 +309,19 @@ define( function( require )
 					);
 					break;
 
-				case 'MoveData':
-					this.position[0] = unit.MoveData[0];
-					this.position[1] = unit.MoveData[1];
-					this.position[2] = Altitude.getCellHeight(  unit.MoveData[0],  unit.MoveData[1] );
-					this.walkTo.apply( this, [unit.MoveData[0], unit.MoveData[1], unit.MoveData[2], unit.MoveData[3]] );
-					break;
+					case 'MoveData':
+						this.position[0] = unit.MoveData[0];
+						this.position[1] = unit.MoveData[1];
+						this.position[2] = Altitude.getCellHeight(  unit.MoveData[0],  unit.MoveData[1] );
+						this.walkTo(
+							unit.MoveData[0],
+							unit.MoveData[1],
+							unit.MoveData[2],
+							unit.MoveData[3],
+							undefined,
+							unit.moveStartTime
+						);
+						break;
 
 				case 'accessory':
 					this.accessory = unit.accessory;

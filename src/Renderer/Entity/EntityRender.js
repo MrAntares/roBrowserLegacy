@@ -29,6 +29,18 @@ define( function( require )
 
 	var _last_body_dir = 0;
 
+	// Official client uses: floor(dist * 0.37 * 4 / motionSpeed) % motionCount
+	// where dist is in the client's internal move units (not map-cell units).
+	// In roBrowser, `entity.walk.dist` is accumulated in *map cells*.
+	// We scale cells -> client-like units so the stride cadence matches.
+	//
+	// roBrowser stores .act delays in milliseconds (loader multiplies by 25ms ticks),
+	// while the official formula uses delays in 25ms ticks. Converting gives:
+	// frame = floor(distCells * stepSize * 0.37 * 4 * 25 / actDelayMs)
+	// stepSize ≈ 4.6 maps cell-units to the official internal move units.
+	const WALK_STEP_SIZE = 4.6;
+	const WALK_DIST_TO_MOTION = WALK_STEP_SIZE * 0.37 * 4 * 25; // ≈ 170.2
+
 	/**
 	 * Render an Entity
 	 *
@@ -560,6 +572,44 @@ define( function( require )
 
 			return anim;
 		}
+
+			// Distance-driven walk animation to keep motion synced to ground distance.
+			// Adapted from official client: floor(dist * stepSize * 0.37 * 4 / (delay/24)) % motionCount
+			// In roBrowser, `entity.walk.dist` is in map cells and WALK_DIST_TO_MOTION encodes
+			// stepSize * 0.37 * 4 * 24, so we divide by act.delay (ms).
+			// Apply to all sprite parts so hats/weapons stay in phase with the body.
+			if (action === ACTION.WALK && entity.walk) {
+				var motionCount = animCount || 1;
+				if (animation.length) {
+					motionCount = animation.length;
+				}
+				motionCount = Math.max(motionCount, 1);
+
+				// motionSpeed is the per-action delay from the .act file.
+				// Cache a shared walk phase per render tick so all parts stay in step.
+				var motionSpeed = Math.max(act.delay || 1, 1);
+				var phase;
+				var nowTick = Renderer.tick;
+				var havePhaseThisTick = (entity.walk._motionPhaseTick === nowTick && typeof entity.walk._motionPhase === 'number');
+				var isBodyPart = (type === 'body');
+
+				// Body is authoritative for motionSpeed; recompute when we render it.
+				if (!havePhaseThisTick || isBodyPart) {
+					phase = entity.walk.dist * WALK_DIST_TO_MOTION / motionSpeed;
+					entity.walk._motionPhase = phase;
+					entity.walk._motionPhaseTick = nowTick;
+				} else {
+					phase = entity.walk._motionPhase;
+				}
+
+				var motion = Math.floor(phase);
+				motion %= motionCount;
+				motion += motionCount * headDir; // keep head dir offset handling consistent
+				motion += animation.frame;
+				motion %= animSize;
+
+				return motion;
+			}
 
 		// Repeatable
 		if (animation.repeat) {

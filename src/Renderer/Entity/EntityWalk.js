@@ -17,6 +17,7 @@ define( function( require )
 	var PathFinding = require('Utils/PathFinding');
 	var Renderer    = require('Renderer/Renderer');
 	var Altitude    = require('Renderer/Map/Altitude');
+	var Session     = require('Engine/SessionStorage');
 
 	/**
 	 * Direction look up table
@@ -27,6 +28,55 @@ define( function( require )
 		[7,6,5]
 	];
 
+	// Facing behavior (official-like):
+	// - First segment: continuous heading toward next tile center.
+	// - Later segments: snap to 8-way direction per segment offset.
+
+	/**
+	 * Estimate total walk duration for a path, in ms.
+	 * `total` is the number of coordinate entries in `path` (walk.total).
+	 */
+	function estimatePathDuration(path, total, baseSpeed) {
+		if (!total || total < 4 || !baseSpeed) {
+			return baseSpeed || 0;
+		}
+
+		var duration = 0;
+		for (var i = 0; i < total - 2; i += 2) {
+			var dx = path[i + 2] - path[i];
+			var dy = path[i + 3] - path[i + 1];
+			duration += (dx && dy) ? baseSpeed * Math.SQRT2 : baseSpeed;
+		}
+
+		return duration;
+	}
+
+	/**
+	 * Convert a server moveStartTime to a client tick so we can fast-forward
+	 * the walk based on latency.
+	 */
+	function computeWalkStartTick(nowTick, moveStartTime, pathDuration) {
+		if (!moveStartTime || !Session || !Session.serverTick) {
+			return nowTick;
+		}
+
+		var elapsed = Session.serverTick - moveStartTime;
+		if (!isFinite(elapsed) || elapsed <= 0) {
+			return nowTick;
+		}
+
+		if (pathDuration && pathDuration > 0) {
+			// If the delta is wildly larger than the path duration, serverTick is probably not aligned.
+			if (elapsed > pathDuration * 4) {
+				return nowTick;
+			}
+			elapsed = Math.min(elapsed, pathDuration);
+		} else {
+			elapsed = Math.min(elapsed, 1000);
+		}
+
+		return nowTick - elapsed;
+	}
 
 	/**
 	 * Walk save structure
@@ -36,11 +86,37 @@ define( function( require )
 		this.speed =  150;
 		this.tick  =  0;
 		this.prevTick = 0;
+		this.dist  =  0;
 		this.path  =  new Int16Array(PathFinding.MAX_WALKPATH * 2);
 		this.pos   =  new Float32Array(3);
+		this.lastPos = new Float32Array(3);
 		this.onEnd = null;
 		this.index =  0;
 		this.total =  0;
+	}
+
+	/**
+	 * Convert dx/dy offset to a floating-point direction in [0..8).
+	 * 0 = south, 2 = west, 4 = north, 6 = east (matching DIRECTION table).
+	 */
+	function offsetToFloatDir(dx, dy) {
+		if (dx === 0 && dy === 0) {
+			return 0;
+		}
+		// atan2: 0=+X (east), PI/2=+Y (north), PI=-X (west), -PI/2=-Y (south)
+		// We need: 6=east, 4=north, 2=west, 0=south (RO direction indexing).
+		// Formula: dir = ((-angle)/(PI/4) + 6) mod 8
+		var angle = Math.atan2(dy, dx);
+		var dir = ((-angle) / (Math.PI / 4) + 6) % 8;
+		if (dir < 0) dir += 8;
+		return dir;
+	}
+
+	/**
+	 * Quantize floating-point direction to integer [0..7].
+	 */
+	function quantizeDir(floatDir) {
+		return Math.round(floatDir) % 8;
 	}
 
 	/**
@@ -54,9 +130,11 @@ define( function( require )
 	 * @param {bool} isOverShoot use for falcon
 	 * @param {bool} isAttacking falcon = set walk / wug = set attack
 	 */
-	function walkToNonWalkableGround( from_x, from_y, to_x, to_y, range, isOverShoot = false, isAttacking = false )
+	function walkToNonWalkableGround( from_x, from_y, to_x, to_y, range, isOverShoot = false, isAttacking = false, moveStartTime )
 	{
-		this.resetRoute();
+			var hadRoute = this.walk && this.walk.total > 0;
+
+		this.resetRoute(hadRoute);
 
 		this.isAttacking = isAttacking;
 
@@ -83,7 +161,24 @@ define( function( require )
 		this.walk.total = total * 2;
 		if (total > 0) {
 			this.walk.pos.set(this.position);
-			this.walk.tick =  this.walk.prevTick = Renderer.tick;
+			var nowTick = Renderer.tick;
+			var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
+			var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration);
+			this.walk.tick = this.walk.prevTick = startTick;
+
+			// Keep distance accumulation if we were already walking to avoid animation restarts.
+			if (!hadRoute) {
+				this.walk.dist = 0;
+			}
+			this.walk.lastPos.set(this.position);
+
+				// Initialize facing for the first segment (continuous heading handled in walkProcess).
+				if (this.walk.total >= 2) {
+					var firstX0 = this.walk.path[2];
+					var firstY0 = this.walk.path[3];
+					var initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
+					this.direction = quantizeDir(initDir0);
+				}
 
 			var action = this.ACTION.WALK;
 			if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) // falcon: action.walk = gliding
@@ -111,16 +206,17 @@ define( function( require )
 	 * @param {number} to_y
 	 * @param {number} range optional
 	 */
-	function walkTo( from_x, from_y, to_x, to_y, range )
+	function walkTo( from_x, from_y, to_x, to_y, range, moveStartTime )
 	{
 		// Same position
 		if(from_x === to_x && from_y === to_y) {
 			return;
 		}
 
-		var isCurrentlyWalking = this.action === this.ACTION.WALK && this.walk.total > 0;
+		var hadRoute = this.walk && this.walk.total > 0;
+		var wasWalkingAction = this.action === this.ACTION.WALK;
 
-		this.resetRoute();
+		this.resetRoute(hadRoute);
 
 		var path  = this.walk.path;
 		var total = PathFinding.search( from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
@@ -130,11 +226,27 @@ define( function( require )
 
 		if (total) {
 			this.walk.pos.set(this.position);
-			this.walk.tick = this.walk.prevTick = Renderer.tick;
+			var nowTick = Renderer.tick;
+			var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
+			var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration);
+			this.walk.tick = this.walk.prevTick = startTick;
+
+			if (!hadRoute) {
+				this.walk.dist = 0;
+			}
+			this.walk.lastPos.set(this.position);
+
+				// Initialize facing for the first segment (continuous heading handled in walkProcess).
+				if (this.walk.total >= 2) {
+					var firstX1 = this.walk.path[2];
+					var firstY1 = this.walk.path[3];
+					var initDir1 = offsetToFloatDir(firstX1 - this.position[0], firstY1 - this.position[1]);
+					this.direction = quantizeDir(initDir1);
+				}
 			this.headDir = 0;
 
 			// Only set action if not already walking
-			if (!isCurrentlyWalking) {
+			if (!wasWalkingAction) {
 				this.setAction({
 					action: this.ACTION.WALK,
 					frame:  0,
@@ -156,10 +268,7 @@ define( function( require )
 		var index = walk.index;
 		var total = walk.total;
 
-		var x, y, speed;
 		var TICK = Renderer.tick;
-		var delay = 0;
-		var cellHeight;
 		var falconGliding = 5;
 
 		if(total == 0)
@@ -195,90 +304,166 @@ define( function( require )
 
 		if (this.action === this.ACTION.WALK || this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) {
 
-			if (index < total) {
-
-				// Calculate new position, base on time and walk speed.
-				while (index < total) {
-					x = path[index+0] - (walk.pos[0]);
-					y = path[index+1] - (walk.pos[1]);
-
-					// Seems like walking on diagonal is slower ?
-					speed = ( x && y ) ? walk.speed / 0.7 : walk.speed;
-
-					// New position :)
-					if (TICK - walk.tick <= speed) {
-						break;
-					}
-
-					walk.tick += speed;
-					walk.prevTick = TICK; // Store tick
-
-					walk.pos[0] = path[index+0];
-					walk.pos[1] = path[index+1];
-					index += 2;
+			var getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
+				var duration = (dx && dy) ? baseSpeed * Math.SQRT2 : baseSpeed;
+				if (!duration || duration < 1) {
+					duration = 1;
 				}
+				return duration;
+			};
 
-				// Calculate and store new position
-				// TODO: check the min() part.
+			var finishWalk = function finishWalk() {
+				var cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( path[total-2], path[total-1] ) + 5 : Altitude.getCellHeight( path[total-2], path[total-1] );
 
-				delay      = Math.min(speed, TICK-walk.tick);
-				walk.index = index;
-
-				// Should not happened, avoid division by 0
-				if (!delay) {
-					delay = 150;
-				}
-
-				cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( pos[0], pos[1] ) + falconGliding : Altitude.getCellHeight( pos[0], pos[1] );
-				pos[0] = walk.pos[0] + x / (speed / delay);
-				pos[1] = walk.pos[1] + y / (speed / delay);
+				pos[0] = path[total-2];
+				pos[1] = path[total-1];
 				pos[2] = cellHeight;
+				walk.lastPos.set(pos);
 
-				// Update player direction while walking
-				if (index < total) {
-					this.direction = DIRECTION[(x>0?1:x<0?-1:0)+1][(y>0?1:y<0?-1:0)+1];
-					return;
-				}
-			}
-
-			// Stop walking
-			if(this.objecttype == this.constructor.TYPE_WUG && this.isAttacking) {
-				this.setAction({
-					action: this.ACTION.ATTACK,
-					frame:  0,
-					repeat: false,
-					play:   true,
-					next: {
-						delay:  Renderer.tick + 432,
-						action: this.ACTION.IDLE,
+				if(this.objecttype == this.constructor.TYPE_WUG && this.isAttacking) {
+					this.setAction({
+						action: this.ACTION.ATTACK,
 						frame:  0,
 						repeat: false,
 						play:   true,
-						next:  false
-					}
-				});
-			} else {
-				this.setAction({
-					action: this.ACTION.IDLE,
-					frame:  0,
-					play:   true,
-					repeat: true
-				});
+						next: {
+							delay:  Renderer.tick + 432,
+							action: this.ACTION.IDLE,
+							frame:  0,
+							repeat: false,
+							play:   true,
+							next:  false
+						}
+					});
+				} else {
+					this.setAction({
+						action: this.ACTION.IDLE,
+						frame:  0,
+						play:   true,
+						repeat: true
+					});
+				}
+
+				this.onWalkEnd();
+
+				// Temporary callback
+				if (walk.onEnd) {
+					walk.onEnd();
+					walk.onEnd = null;
+				}
+
+				this.resetRoute();
+				this.isAttacking = false;
+			}.bind(this);
+
+			if (index >= total) {
+				finishWalk();
+				return;
 			}
 
-			this.onWalkEnd();
+			var startX = walk.pos[0];
+			var startY = walk.pos[1];
+			var nextX  = path[index+0];
+			var nextY  = path[index+1];
+			var dx     = nextX - startX;
+			var dy     = nextY - startY;
+			var speed  = getSegmentDuration(dx, dy, walk.speed);
+			var segmentStart = walk.tick || TICK;
+			var segmentEnd   = segmentStart + speed;
+			var traveledDist = 0;
 
-			// Temporary callback
-			if (walk.onEnd) {
-				walk.onEnd();
-				walk.onEnd = null;
+			// If we were paused by another action, keep segment timing in sync.
+			if (walk.prevTick && walk.prevTick !== TICK && walk.prevTick > segmentStart && this.action !== this.ACTION.WALK) {
+				segmentStart += TICK - walk.prevTick;
+				segmentEnd   = segmentStart + speed;
 			}
-			cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( pos[0], pos[1] ) + 5 : Altitude.getCellHeight( pos[0], pos[1] );
-			pos[0] = Math.round(pos[0]);
-			pos[1] = Math.round(pos[1]);
+
+			// Advance across any fully elapsed segments, accumulating distance.
+			while (index < total - 2 && TICK >= segmentEnd) {
+				traveledDist += Math.sqrt(
+					(nextX - walk.lastPos[0]) * (nextX - walk.lastPos[0]) +
+					(nextY - walk.lastPos[1]) * (nextY - walk.lastPos[1])
+				);
+
+				walk.pos[0] = startX = nextX;
+				walk.pos[1] = startY = nextY;
+				walk.lastPos[0] = nextX;
+				walk.lastPos[1] = nextY;
+				index += 2;
+
+				nextX  = path[index+0];
+				nextY  = path[index+1];
+				dx     = nextX - startX;
+				dy     = nextY - startY;
+				speed  = getSegmentDuration(dx, dy, walk.speed);
+				segmentStart = segmentEnd;
+				segmentEnd   = segmentStart + speed;
+			}
+
+			// Interpolate current segment
+			var duration = Math.max(segmentEnd - segmentStart, 1);
+			var t = Math.min(Math.max((TICK - segmentStart) / duration, 0), 1);
+			var newX = startX + dx * t;
+			var newY = startY + dy * t;
+
+			traveledDist += Math.sqrt(
+				(newX - walk.lastPos[0]) * (newX - walk.lastPos[0]) +
+				(newY - walk.lastPos[1]) * (newY - walk.lastPos[1])
+			);
+			walk.lastPos[0] = newX;
+			walk.lastPos[1] = newY;
+
+			var cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight( newX, newY ) + falconGliding : Altitude.getCellHeight( newX, newY );
+			pos[0] = newX;
+			pos[1] = newY;
 			pos[2] = cellHeight;
-			this.resetRoute();
-			this.isAttacking = false;
+
+			// Facing update:
+			// First segment uses continuous heading from current interpolated position to next tile.
+			// Later segments snap to discrete 8-way direction based on the segment offset.
+			if (index < total) {
+				if (index === 2) {
+					var remDx = nextX - newX;
+					var remDy = nextY - newY;
+
+					// If we're effectively at the next tile (fast-forwarded/last frame),
+					// fall back to the segment's discrete direction instead of defaulting south.
+					if (Math.abs(remDx) < 0.001 && Math.abs(remDy) < 0.001) {
+						var prevTileX0 = path[index - 2];
+						var prevTileY0 = path[index - 1];
+						var segDx0 = nextX - prevTileX0;
+						var segDy0 = nextY - prevTileY0;
+						var dirRow0 = DIRECTION[segDx0 + 1];
+						if (dirRow0 && typeof dirRow0[segDy0 + 1] !== 'undefined') {
+							this.direction = dirRow0[segDy0 + 1];
+						}
+					} else {
+						var contDir = offsetToFloatDir(remDx, remDy);
+						this.direction = quantizeDir(contDir);
+					}
+				} else {
+					var segDx = Math.round(nextX - startX);
+					var segDy = Math.round(nextY - startY);
+					var dirRow = DIRECTION[segDx + 1];
+					if (dirRow && typeof dirRow[segDy + 1] !== 'undefined') {
+						this.direction = dirRow[segDy + 1];
+					}
+				}
+			}
+
+			walk.dist += traveledDist;
+			walk.index = index;
+			walk.tick  = segmentStart;
+			walk.prevTick = TICK;
+
+			var reachedEnd = (index >= total - 2 && t >= 0.999 && TICK >= segmentEnd);
+
+			if (!reachedEnd) {
+				return;
+			}
+
+			// Stop walking
+			finishWalk();
 		}
 		else {
 			if (index < total) { // Walking got interrupted by getting attacked or other means
@@ -328,10 +513,16 @@ define( function( require )
 		this.walk.lastWalkTick = Renderer.tick;
 	}
 
-	function resetRoute() {
+	function resetRoute(keepDistance) {
 		this.walk.tick  =  0;
 		this.walk.prevTick = 0;
+		if (!keepDistance) {
+			this.walk.dist = 0;
+		}
 		this.walk.path  =  new Int16Array(PathFinding.MAX_WALKPATH * 2);
+		this.walk.lastPos[0] = 0;
+		this.walk.lastPos[1] = 0;
+		this.walk.lastPos[2] = 0;
 		if (this.walk.onEnd) {
 			this.walk.onEnd();
 		}

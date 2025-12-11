@@ -56,7 +56,9 @@ define(function( require )
 			pkt.MoveData[0],
 			pkt.MoveData[1],
 			pkt.MoveData[2],
-			pkt.MoveData[3]
+			pkt.MoveData[3],
+			undefined,
+			pkt.moveStartTime
 		);
 	}
 
@@ -79,7 +81,7 @@ define(function( require )
 			pkt.msg = pkt.msg.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function(match) {
 				return '<' + DB.getItemNameFromLink(match) + '>';
 			});
-	
+
 			Session.Entity.dialog.set( pkt.msg );
 		}
 	}
@@ -824,7 +826,7 @@ define(function( require )
 		const pcCafeRate = (info[0]?.[key] / 1000).toFixed(1) || "0.0";
 		const tplusRate = (info[3]?.[key] / 1000).toFixed(1) || "0.0"; // TPLUS fallback
 		const serverRate = (info[2]?.[key] / 1000).toFixed(1) || "0.0"; // Server fallback
-	
+
 		// Replace placeholders in the format string
 		return format
 			.replace('%.1f%%', `${totalRate}%`)
