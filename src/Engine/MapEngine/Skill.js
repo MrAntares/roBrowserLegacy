@@ -97,13 +97,20 @@ define(function( require )
 	 */
 	function onEffect( pkt )
 	{
-		// Weather snow toggle: some servers use NOTIFY_EFFECT3 with numdata=0 to stop.
-		// [Waken] TODO: To confirm if is needed
-		if (pkt.effectID === EffectConst.EF_SNOW && typeof pkt.numdata !== 'undefined') {
-			var SnowWeatherEffect = getModule('Renderer/Effects/SnowWeather');
-			if (pkt.numdata <= 0) {
-				SnowWeatherEffect.stop(pkt.AID, Renderer.tick);
-				return;
+		// Weather toggles: some servers use NOTIFY_EFFECT3 with numdata=0 to stop.
+		if (typeof pkt.numdata !== 'undefined') {
+			if (pkt.effectID === EffectConst.EF_SNOW) {
+				var SnowWeatherEffect = getModule('Renderer/Effects/SnowWeather');
+				if (pkt.numdata <= 0) {
+					SnowWeatherEffect.stop(pkt.AID, Renderer.tick);
+					return;
+				}
+			} else if (pkt.effectID === EffectConst.EF_RAIN) {
+				var RainWeatherEffect = getModule('Renderer/Effects/RainWeather');
+				if (pkt.numdata <= 0) {
+					RainWeatherEffect.stop(pkt.AID, Renderer.tick);
+					return;
+				}
 			}
 		}
 

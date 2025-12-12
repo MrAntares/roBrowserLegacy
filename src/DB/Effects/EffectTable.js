@@ -3041,7 +3041,14 @@ define(function( require )
 
 		//159: [{}],	//EF_TOPRANK	   PvP circle
 		//160: [{}],	//EF_PARTY	   PvP Party Circle
-		//161: [{}],	//EF_RAIN	   (Nothing)
+		161: [{	//EF_RAIN	Rain weather
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var RainWeatherEffect = require('Renderer/Effects/RainWeather');
+				RainWeatherEffect.startOrRestart(Params, this);
+			}
+		}],
 		162: [{	//EF_SNOW	Snow weather
 			type: 'FUNC',
 			attachedEntity: true,
