@@ -146,6 +146,13 @@
 #chatbox .input .message {
 	width: 100%;
 	padding-left:5px;
+	font-size:12px;
+	line-height:18px;
+	outline:none;
+	white-space: pre-wrap;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+	max-width: 100%;
 }
 #chatbox .input .message.party { color:#840084; }
 #chatbox .input .message.guild { color:#008484; }
