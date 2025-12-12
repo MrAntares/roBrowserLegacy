@@ -604,7 +604,7 @@ define(function (require) {
 
 			if (finishedCount === totalFiles) {
 				if (failedCount === totalFiles) {
-					console.error(`[tryLoadItemInfo] ERRO: All ${totalFiles} tryes to find iteminfo failed. Verify your iteminfo filename.`);
+					console.error(`[tryLoadItemInfo] ERROR: All ${totalFiles} tryes to find iteminfo failed. Verify your iteminfo filename.`);
 				}
 				if (typeof onEnd === 'function') {
 					onEnd();
@@ -616,8 +616,10 @@ define(function (require) {
 			if (index >= totalFiles) {
 				return;
 			}
-			loadItemInfo(files[index], null, trackedOnEnd);
-			tryNext(index + 1);			
+			loadItemInfo(files[index], null, (isSuccess) => {
+				trackedOnEnd(isSuccess); //await last iteminfo finish loading 
+				tryNext(index + 1);
+			});		
 		}
 		tryNext(0);
 	}
@@ -649,8 +651,11 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 					// create decoders
+					var servers = Configs.get('servers', []);
+					var langType = (servers[0] && servers[0].langtype) ? parseInt(servers[0].langtype, 10) : 1;
+					var autoEncoding = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					let userStringDecoder = new TextEncoding.TextDecoder(autoEncoding);
 					// create itemInfo required functions in context
 					ctx.AddItem = (ItemID, unidentifiedDisplayName, unidentifiedResourceName, identifiedDisplayName, identifiedResourceName, slotCount, ClassNum) => {
 						ItemTable[ItemID] = {
@@ -749,7 +754,7 @@ define(function (require) {
 					console.error('[loadItemInfo] Error: ', error);
 				} finally {
 					// release file from memmory
-					lua.unmountFile('iteminfo.lub');
+					lua.unmountFile(filename);
 					// call onEnd
 					onEnd(wasSuccessful);
 				}
@@ -2982,6 +2987,10 @@ define(function (require) {
 			var item = ItemTable[itemid] || unknownItem;
 
 			if (!item._decoded) {
+				var servers = Configs.get('servers', []);
+				var langType = (servers[0] && servers[0].langtype) ? parseInt(servers[0].langtype, 10) : 1;
+				var autoEncoding = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+				TextEncoding.setCharset(autoEncoding);
 				item.identifiedDescriptionName = (item.identifiedDescriptionName && item.identifiedDescriptionName instanceof Array) ? TextEncoding.decodeString(item.identifiedDescriptionName.join('\n')) : '';
 				item.unidentifiedDescriptionName = (item.unidentifiedDescriptionName && item.unidentifiedDescriptionName instanceof Array) ? TextEncoding.decodeString(item.unidentifiedDescriptionName.join('\n')) : '';
 				item.identifiedDisplayName = TextEncoding.decodeString(item.identifiedDisplayName);
