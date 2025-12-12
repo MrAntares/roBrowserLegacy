@@ -97,6 +97,16 @@ define(function( require )
 	 */
 	function onEffect( pkt )
 	{
+		// Weather snow toggle: some servers use NOTIFY_EFFECT3 with numdata=0 to stop.
+		// [Waken] TODO: To confirm if is needed
+		if (pkt.effectID === EffectConst.EF_SNOW && typeof pkt.numdata !== 'undefined') {
+			var SnowWeatherEffect = getModule('Renderer/Effects/SnowWeather');
+			if (pkt.numdata <= 0) {
+				SnowWeatherEffect.stop(pkt.AID, Renderer.tick);
+				return;
+			}
+		}
+
 		var EF_Init_Par = {
 			effectId: pkt.effectID,
 			ownerAID: pkt.AID
@@ -342,7 +352,7 @@ define(function( require )
 			}
 		};
 	}
-	
+
 
 	/**
 	* Get a list of players under the effect of devotion
@@ -352,7 +362,7 @@ define(function( require )
 	function onDevotionList( pkt )
 	{
 		EffectManager.remove(null, pkt.myAID, EffectConst.EF_LINELINK);
-		
+
 		pkt.AID.forEach((tgtAID) => {
 			if(tgtAID > 0){
 				var EF_Init_Par = {
@@ -602,7 +612,7 @@ define(function( require )
 
 		var isHomun = (id > SkillId.HOMUN_BEGIN && id < SkillId.HOMUN_LAST);
 		var isMerc = (id > SkillId.MERCENARY_BEGIN && id < SkillId.MERCENARY_LAST);
-		
+
 		// Not used so far
 		//var isElem = (id > SkillId.ELEMENTAL_BEGIN && id < SkillId.ELEMENTAL_LAST);
 

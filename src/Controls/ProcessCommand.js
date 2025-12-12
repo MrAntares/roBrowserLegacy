@@ -24,6 +24,8 @@ define(function (require) {
 	const MapPreferences = require("Preferences/Map");
 	const CameraPreferences = require("Preferences/Camera");
 	const Renderer = require("Renderer/Renderer");
+	const Configs = require("Core/Configs");
+	const EffectConst = require("DB/Effects/EffectConst");
 	const getModule = require;
 
 	let aliases = {};
@@ -797,6 +799,63 @@ define(function (require) {
 			aliases: ["cmd", "h", "help"],
 		},
 	};
+
+	// Dev-only weather helper to trigger weather effects locally.
+	if (Configs.get("development")) {
+		CommandStore.weather = {
+			description: "Dev-only weather toggle. Usage: /weather snow|off",
+			callback: function (text) {
+				var args = text.trim().split(/\s+/).slice(1);
+				var mode = (args[0] || "").toLowerCase();
+
+				if (!mode || mode === "help") {
+					this.addText(
+						"Usage: /weather snow|off",
+						this.TYPE.INFO,
+						this.FILTER.PUBLIC_LOG
+					);
+					return;
+				}
+
+				if (!Session.Entity) {
+					return;
+				}
+
+				var ownerAID = Session.Entity.GID || Session.GID || Session.AID;
+				var EffectManager = getModule("Renderer/EffectManager");
+				var SnowWeatherEffect = getModule("Renderer/Effects/SnowWeather");
+
+				if (mode === "snow" || mode === "on") {
+					EffectManager.spam({
+						effectId: EffectConst.EF_SNOW,
+						ownerAID: ownerAID
+					});
+					this.addText(
+						"Snow started.",
+						this.TYPE.INFO,
+						this.FILTER.PUBLIC_LOG
+					);
+					return;
+				}
+
+				if (mode === "off" || mode === "stop" || mode === "clear") {
+					SnowWeatherEffect.stop(ownerAID, Renderer.tick);
+					this.addText(
+						"Snow stopping.",
+						this.TYPE.INFO,
+						this.FILTER.PUBLIC_LOG
+					);
+					return;
+				}
+
+				this.addText(
+					"Unknown weather. Usage: /weather snow|off",
+					this.TYPE.INFO,
+					this.FILTER.PUBLIC_LOG
+				);
+			}
+		};
+	}
 
 	/**
 	 * Load aliases

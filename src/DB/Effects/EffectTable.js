@@ -3042,7 +3042,14 @@ define(function( require )
 		//159: [{}],	//EF_TOPRANK	   PvP circle
 		//160: [{}],	//EF_PARTY	   PvP Party Circle
 		//161: [{}],	//EF_RAIN	   (Nothing)
-		//162: [{}],	//EF_SNOW	   Snow
+		162: [{	//EF_SNOW	Snow weather
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function( Params ) {
+				var SnowWeatherEffect = require('Renderer/Effects/SnowWeather');
+				SnowWeatherEffect.startOrRestart(Params, this);
+			}
+		}],
 		//163: [{}],	//EF_SAKURA	   White Sakura Leaves
 		//164: [{}],	//EF_STATUS_STATE	   (Nothing)
 
