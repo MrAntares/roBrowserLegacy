@@ -17,6 +17,7 @@ define(function(require) {
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var Altitude       = require('Renderer/Map/Altitude');
 	var Camera         = require('Renderer/Camera');
+	var Preferences    = require('Preferences/Audio');
 
 	var RAG_TICK_MS = 25;
 	var FADEOUT_TAIL_MS = 300 * RAG_TICK_MS;
@@ -326,6 +327,8 @@ define(function(require) {
 	RainWeatherEffect.prototype.initRainSound = function () {
 		if (!this.audioCtx) return;
 
+		if (!Preferences.Sound.play) return;
+
 		var ctx = this.audioCtx;
 		var bufferSize = 2 * ctx.sampleRate;
 		var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -346,7 +349,7 @@ define(function(require) {
 		rainFilter.frequency.value = 400; 
 
 		var gainNode = ctx.createGain();
-		gainNode.gain.value = RAIN_VOLUME;
+		gainNode.gain.value = gainNode.gain.value = RAIN_VOLUME * Preferences.Sound.volume;  
 
 		whiteNoise.connect(rainFilter);
 		rainFilter.connect(gainNode);
@@ -358,6 +361,8 @@ define(function(require) {
 
 	RainWeatherEffect.prototype.triggerRainDropSound = function () {
 		if (!this.audioCtx) return;
+
+		if (!Preferences.Sound.play) return;
 
 		const ctx = this.audioCtx;
 
@@ -376,7 +381,7 @@ define(function(require) {
 		gain.connect(ctx.destination);
 
 		const duration = 0.01; // Plink duration
-		const peakVolume = randRange(0.1, RAIN_VOLUME);
+		const peakVolume = randRange(0.1, RAIN_VOLUME) * Preferences.Sound.volume; 
 
 		gain.gain.setValueAtTime(0, now);
 		// Fast attach
@@ -398,6 +403,8 @@ define(function(require) {
 
 	RainWeatherEffect.prototype.triggerThunderSound = function () {
 		if (!this.audioCtx) return;
+
+		if (!Preferences.Sound.play) return;
 
 		// Browser can block audio interactions, try to resume it.
 		if (this.audioCtx.state === 'suspended') {
@@ -422,8 +429,8 @@ define(function(require) {
 
 		// add gain to thunderstorm
 		var thunderGain = ctx.createGain();
-		thunderGain.gain.setValueAtTime(0.8, ctx.currentTime);
-		thunderGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.5);
+		thunderGain.gain.setValueAtTime(0.8 * Preferences.Sound.volume, ctx.currentTime);
+		thunderGain.gain.exponentialRampToValueAtTime(0.01 * Preferences.Sound.volume, ctx.currentTime + 1.5);
 
 		source.connect(filter);
 		filter.connect(thunderGain);
