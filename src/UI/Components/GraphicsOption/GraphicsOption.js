@@ -22,7 +22,6 @@ define(function(require)
 	var GraphicsSettings = require('Preferences/Graphics');
 	var Renderer         = require('Renderer/Renderer');
 	const MapRenderer		 = require('Renderer/MapRenderer');
-	const Session		     = require('Engine/SessionStorage');
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
 	var htmlText         = require('text!./GraphicsOption.html');
