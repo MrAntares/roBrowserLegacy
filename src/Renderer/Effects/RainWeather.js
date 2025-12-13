@@ -349,7 +349,7 @@ define(function(require) {
 		rainFilter.frequency.value = 400; 
 
 		var gainNode = ctx.createGain();
-		gainNode.gain.value = gainNode.gain.value = RAIN_VOLUME * Preferences.Sound.volume;  
+		gainNode.gain.value = RAIN_VOLUME * Preferences.Sound.volume;  
 
 		whiteNoise.connect(rainFilter);
 		rainFilter.connect(gainNode);
