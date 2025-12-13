@@ -174,7 +174,7 @@ define(function( require )
 
 	/**
 	 * Trick to reload sprite renderer
-	 * Same behavior to @reload
+	 * Same behavior to @refresh
 	 */
 	MapRenderer.forceReloadMap = function forceReloadMap() {
 		var gl = Renderer.getContext();
