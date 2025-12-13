@@ -551,8 +551,9 @@ define(function( require )
 	 * Changing map, loading new map
 	 *
 	 * @param {object} pkt - PACKET.ZC.NPCACK_MAPMOVE
+	 * @param {bool} force reload map renderer teleporting to same map
 	 */
-	function onMapChange( pkt )
+	function onMapChange( pkt , force = false )
 	{
 		jQuery(window).off('keydown.map');
 
@@ -681,7 +682,7 @@ define(function( require )
 			}
 		};
 
-		MapRenderer.setMap( pkt.mapName );
+		MapRenderer.setMap( pkt.mapName, force );
 	}
 
 
@@ -1229,5 +1230,7 @@ define(function( require )
 	/**
 	 * Export
 	 */
+	MapEngine.onMapChange = onMapChange;
+
 	return MapEngine;
 });
