@@ -21,6 +21,7 @@ define(function(require)
 	var Preferences      = require('Core/Preferences');
 	var GraphicsSettings = require('Preferences/Graphics');
 	var Renderer         = require('Renderer/Renderer');
+	const MapRenderer		 = require('Renderer/MapRenderer');
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
 	var htmlText         = require('text!./GraphicsOption.html');
@@ -158,8 +159,7 @@ define(function(require)
 	    GraphicsSettings.pixelPerfectSprites = !!this.checked;
 	    GraphicsSettings.save();
 
-		// Show alert that reload is required
-		alert('Please reload the page for sprite filtering changes to take effect.');
+		MapRenderer.forceReloadMap();
 	}
 
 	/**
