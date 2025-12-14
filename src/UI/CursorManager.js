@@ -197,30 +197,107 @@ function bindMouseEvents() {
 	jQuery('body').append('<div class="cursor"></div>');
 	_selector = document.querySelector('.cursor');
 
-	const isClickableSurface = (evt) => ['BUTTON', 'LABEL', 'SELECT'].includes(evt.target.tagName);
-	const updateCursor = (type, norepeat = false, animation = 0) => Cursor.setType(type, norepeat, animation);
+	const CLICKABLE_SELECTOR = [
+		'a',
+		'button',
+		'input',
+		'label',
+		'select',
+		'textarea',
+		'.item-link',
+		'.draggable'
+	].join(',');
+
+	let _hasClickableHover = false;
+	let _restoreType = Cursor.ACTION.DEFAULT;
+
+	const findClickableTarget = (target) => {
+		if (!target) {
+			return null;
+		}
+
+		// Text node → element
+		if (target.nodeType && target.nodeType !== 1) {
+			target = target.parentElement;
+		}
+
+		if (!target) {
+			return null;
+		}
+
+		// Tabs are clickable UI, but should not override the game cursor to "click".
+		if (target.closest && target.closest('#chatbox td.tab')) {
+			return null;
+		}
+
+		if (target.closest) {
+			return target.closest(CLICKABLE_SELECTOR);
+		}
+
+		while (target && target !== document.body) {
+			if (target.matches && target.matches(CLICKABLE_SELECTOR)) {
+				return target;
+			}
+			target = target.parentElement;
+		}
+
+		return null;
+	};
+
+	const setCursorClick = (norepeat, animation) => {
+		if (norepeat) {
+			Cursor.setType(Cursor.ACTION.CLICK, true, animation);
+			return;
+		}
+
+		if (Cursor.getActualType() !== Cursor.ACTION.CLICK) {
+			Cursor.setType(Cursor.ACTION.CLICK);
+		}
+	};
 
 	document.body.addEventListener('mouseover', (e) => {
-		isClickableSurface(e) ? updateCursor(Cursor.ACTION.CLICK) : Cursor.setType(Cursor.ACTION.DEFAULT);
+		if (findClickableTarget(e.target)) {
+			if (!_hasClickableHover) {
+				_restoreType = Cursor.getActualType();
+				_hasClickableHover = true;
+			}
+			setCursorClick(false, 0);
+		}
 	});
 
 	document.body.addEventListener('mouseout', (e) => {
-		if (isClickableSurface(e)) Cursor.setType(Cursor.ACTION.DEFAULT);
+		if (!_hasClickableHover) {
+			return;
+		}
+
+		// Ignore transitions between clickable elements.
+		if (findClickableTarget(e.relatedTarget)) {
+			return;
+		}
+
+		_hasClickableHover = false;
+		Cursor.setType(_restoreType);
 	});
 
 	document.body.addEventListener('mousedown', (e) => {
-		if (isClickableSurface(e)) {
-			updateCursor(Cursor.ACTION.CLICK, true, 1);
-		} else if (![Cursor.ACTION.DEFAULT, Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
-			Cursor.setType(Cursor.ACTION.DEFAULT);
+		if (findClickableTarget(e.target)) {
+			if (!_hasClickableHover) {
+				_restoreType = Cursor.getActualType();
+				_hasClickableHover = true;
+			}
+			setCursorClick(true, 1);
 		}
 	}, true);
 
 	document.body.addEventListener('mouseup', (e) => {
-		if (!isClickableSurface(e) && ![Cursor.ACTION.DEFAULT, Cursor.ACTION.ROTATE, Cursor.ACTION.LOCK, Cursor.ACTION.ATTACK].includes(Cursor.getActualType())) {
-			Cursor.setType(Cursor.ACTION.DEFAULT);
-		} else if (isClickableSurface(e)) {
-			updateCursor(Cursor.ACTION.CLICK);
+		if (findClickableTarget(e.target)) {
+			setCursorClick(false, 0);
+			return;
+		}
+
+		if (_hasClickableHover) {
+			_hasClickableHover = false;
+			Cursor.setType(_restoreType);
 		}
 	});
 

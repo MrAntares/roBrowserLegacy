@@ -82,8 +82,14 @@
 	text-decoration:underline;
 }
 
-#chatbox .draggable {
-	height:10px;
+#chatbox .content a,
+#chatbox .content .item-link {
+	cursor: pointer;
+}
+
+#chatbox .event_add_cursor {
+	height:14px;
+	cursor: ns-resize;
 }
 
 #chatbox .battlemode {
@@ -179,6 +185,9 @@
     position: absolute;
     right: 0px;
     top: 0px;
+	/* Expand the "no-walk" header zone around buttons (but don't move them visually). */
+	padding: 6px;
+	margin: -6px;
 }
 #chatbox .chat-function button{
     background-size: auto;

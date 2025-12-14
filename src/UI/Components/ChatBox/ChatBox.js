@@ -23,6 +23,7 @@ define(function(require)
 	var Preferences        = require('Core/Preferences');
 	var KEYS               = require('Controls/KeyEventHandler');
 	var Mouse         	   = require('Controls/MouseEventHandler');
+	var Cursor             = require('UI/CursorManager');
 	var BattleMode         = require('Controls/BattleMode');
 	var History            = require('./History');
 	var UIManager          = require('UI/UIManager');
@@ -172,13 +173,6 @@ define(function(require)
 		_heightIndex = _preferences.height - 1;
 		ChatBox.updateHeight();
 
-		this.ui.mouseover(function(){
-			Mouse.intersect = false;
-		})
-		.mouseout(function() {
-			Mouse.intersect = true;
-		});
-
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y - this.ui.height()), Renderer.height - this.ui.height()),
 			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
@@ -193,7 +187,9 @@ define(function(require)
 		this.draggable( this.ui.find('.battlemode') );
 
 		// Sorry for this un-documented code (see UIComponent for more informations)
-		this.__mouseStopBlock = this.ui.find('.input');
+		// Keep chat log area click-through for walking; only block over interactive UI parts.
+		// Note: tabs are created dynamically; their hover-block is handled via delegated events below.
+		this.__mouseStopBlock = this.ui.find('.input, .chat-function, .battlemode, .event_add_cursor');
 
 		// Setting chatbox scrollbar
 		Client.loadFiles([DB.INTERFACE_PATH + 'basic_interface/dialscr_down.bmp', DB.INTERFACE_PATH + 'basic_interface/dialscr_up.bmp'], function( down, up ){
@@ -317,8 +313,7 @@ define(function(require)
 		});
 
 		this.ui.find('.draggable').mousedown(function(event){
-			event.stopImmediatePropagation();
-			return false;
+			event.stopPropagation();
 		});
 
 		// Send message to...
@@ -351,6 +346,42 @@ define(function(require)
 
 		// Scroll feature should block at each line
 		this.ui.find('.content').on('mousewheel DOMMouseScroll', onScroll);
+		// Tabs should behave like "UI" (no entity hover / map cursor changes), but opttab remains click-through.
+		(function initTabHoverBlock(){
+			var _tabIntersect, _tabEnter = 0;
+
+			ChatBox.ui.on('mouseenter', 'table.header tr td.tab, table.header tr td.tab *', function(){
+				if (_tabEnter === 0) {
+					_tabIntersect = Mouse.intersect;
+					_tabEnter++;
+					if (_tabIntersect) {
+						Mouse.intersect = false;
+						Cursor.setType(Cursor.ACTION.DEFAULT);
+						getModule('Renderer/EntityManager').setOverEntity(null);
+					}
+				}
+			});
+
+			ChatBox.ui.on('mouseleave', 'table.header tr td.tab, table.header tr td.tab *', function(){
+				if (_tabEnter > 0) {
+					_tabEnter--;
+					if (_tabEnter === 0 && _tabIntersect) {
+						Mouse.intersect = true;
+						getModule('Renderer/EntityManager').setOverEntity(null);
+					}
+				}
+			});
+
+			// Prevent walking when clicking tabs (MapControl listens on window mousedown).
+			ChatBox.ui.on('mousedown', 'table.header tr td.tab, table.header tr td.tab *', function(event){
+				event.stopPropagation();
+			});
+		})();
+
+		// Clicking interactive elements in chat should not trigger map movement.
+		this.ui.on('mousedown', '.content a, .content .item-link', function(event){
+			event.stopPropagation();
+		});
 
 		this.ui.find('.battlemode .bmtoggle').click(function ( event ){
 			ChatBox.ui.find('.input').toggle();
@@ -1287,43 +1318,49 @@ define(function(require)
 	}
 
 	function makeResizableDiv() {
-		const resizers = document.querySelectorAll('.draggable')
-		let original_height = 0;
-		let original_y = 0;
-		let original_mouse_y = 0;
-		for (let i = 0;i < resizers.length; i++) {
-			const currentResizer = resizers[i];
-
-			currentResizer.addEventListener('mousedown', function(e) {
-				e.preventDefault();
-				original_height = ChatBox.ui.find('.contentwrapper').height();
-				original_y = parseInt( ChatBox.ui.css('top'), 10) + original_height;
-				original_mouse_y = e.pageY;
-				window.addEventListener('mousemove', resize);
-				window.addEventListener('mouseup', stopResize);
-			})
-
-			function resize(e) {
-				if (currentResizer.classList.contains('draggable')) {
-					const height = fixHeight(original_height - (e.pageY - original_mouse_y));
-					if (height > MAGIC_NUMBER) {
-						ChatBox.ui.css('top', original_y - height);
-						ChatBox.ui.find('.contentwrapper').height(height);
-					}
-				}
-				// scroll down when resize
-				ChatBox.ui.find('.content')[ChatBox.activeTab].scrollTop = ChatBox.ui.find('.content')[ChatBox.activeTab].scrollHeight;
-			}
-
-			function fixHeight(height){
-				return  Math.floor(height/MAGIC_NUMBER)*MAGIC_NUMBER;
-			}
-
-			function stopResize() {
-				window.removeEventListener('mousemove', resize);
-			}
+		var resizer = ChatBox.ui.find('.event_add_cursor')[0];
+		if (!resizer) {
+			return;
 		}
-	  }
+
+		var originalHeight = 0;
+		var originalAnchorY = 0;
+		var originalMouseY = 0;
+
+		var fixHeight = function fixHeight(height) {
+			return Math.floor(height / MAGIC_NUMBER) * MAGIC_NUMBER;
+		};
+
+		var resize = function resize(e) {
+			var height = fixHeight(originalHeight - (e.pageY - originalMouseY));
+			// Clamp to supported height steps (keep in sync with updateHeight()).
+			height = Math.max(MAGIC_NUMBER, Math.min(MAGIC_NUMBER * 5, height));
+
+			ChatBox.ui.css('top', originalAnchorY - height);
+			ChatBox.ui.find('.contentwrapper').height(height);
+			_heightIndex = Math.max(2, Math.min(6, (height / MAGIC_NUMBER) + 1));
+
+			var active = ChatBox.ui.find('.content[data-content="'+ ChatBox.activeTab +'"]')[0];
+			if (active) {
+				active.scrollTop = active.scrollHeight;
+			}
+		};
+
+		var stopResize = function stopResize() {
+			window.removeEventListener('mousemove', resize);
+			window.removeEventListener('mouseup', stopResize);
+		};
+
+		resizer.addEventListener('mousedown', function(e) {
+			e.preventDefault();
+			originalHeight = ChatBox.ui.find('.contentwrapper').height();
+			originalAnchorY = parseInt(ChatBox.ui.css('top'), 10) + originalHeight;
+			originalMouseY = e.pageY;
+
+			window.addEventListener('mousemove', resize);
+			window.addEventListener('mouseup', stopResize);
+		});
+	}
 
 	
 	
