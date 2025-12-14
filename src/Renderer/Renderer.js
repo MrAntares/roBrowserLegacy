@@ -216,18 +216,29 @@ define(function( require )
 			#version 300 es
 			#pragma vscode_glsllint_stage : frag
 			precision mediump float;
-
 			uniform sampler2D uTexture;
 			uniform float uBloomIntensity;
+			uniform float uBloomThreshold;
+			uniform float uBloomSoftKnee;
 			in vec2 vUv;
 			out vec4 fragColor;
-			void main() {
-				vec4 color = texture(uTexture, vUv);
 
-				color.rgb += uBloomIntensity * 0.1;
-				const float contrast = 1.1;
-				color.rgb = (color.rgb - 0.5) * contrast + 0.5;
-				fragColor = color;
+			float luminance(vec3 c) {
+				return dot(c, vec3(0.2126, 0.7152, 0.0722));
+			}
+
+			void main() {
+				vec3 color = texture(uTexture, vUv).rgb;
+				float l = luminance(color);
+				// ---- DARK AREA FILTER (BRIGHT PASS) ----
+				float knee = uBloomThreshold * uBloomSoftKnee;
+				float bloomFactor = smoothstep(
+					uBloomThreshold - knee,
+					uBloomThreshold + knee,
+					l
+				);
+				vec3 bloom = color * bloomFactor * uBloomIntensity;
+				fragColor = vec4(color + bloom, 1.0);
 			}
 		`;
 

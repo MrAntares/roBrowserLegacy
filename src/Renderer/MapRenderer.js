@@ -397,11 +397,9 @@ define(function( require )
 		if (usePostProcessing && gl.fbo && gl.fbo.framebuffer) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, gl.fbo.framebuffer);
 			gl.viewport(0, 0, gl.fbo.width, gl.fbo.height);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 		} else {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 		}
 
 		var fog   = MapRenderer.fog;
@@ -492,7 +490,9 @@ define(function( require )
 			if (usePostProcessing && Renderer.postProcessProgram) {
  				finalProgramToUse = Renderer.postProcessProgram;
  				gl.useProgram(finalProgramToUse);
- 				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity); 
+				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
+				gl.uniform1f(finalProgramToUse.uniform.uBloomThreshold, 0.88); // ignore shadows
+				gl.uniform1f(finalProgramToUse.uniform.uBloomSoftKnee, 0.45); // soft transition
 			}
 			// Fallback
  			else if (Renderer.postProcessProgram) {
