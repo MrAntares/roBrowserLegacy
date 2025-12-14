@@ -123,6 +123,8 @@
 	height:18px;
 	background-color:transparent;
 	border:none;
+	font-family: Arial;
+	font-size: 12px;
 }
 
 #chatbox .input .username {
@@ -154,6 +156,7 @@
 	padding-left:5px;
 	font-size:12px;
 	line-height:18px;
+	font-family: Arial;
 	outline:none;
 	white-space: pre-wrap;
 	word-break: break-word;
