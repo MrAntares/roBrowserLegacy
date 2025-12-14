@@ -203,6 +203,13 @@ define(function (require) {
 	var QuestInfo = {};
 
 	/**
+	 * @var User charpage init
+	 */
+	var servers = Configs.get('servers', []);
+	var langType = (servers[0] && servers[0].langtype) ? parseInt(servers[0].langtype, 10) : 1;
+	var userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -471,7 +478,7 @@ define(function (require) {
 
 				// create decoders
 				let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-				let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+				let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
@@ -651,11 +658,8 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 					// create decoders
-					var servers = Configs.get('servers', []);
-					var langType = (servers[0] && servers[0].langtype) ? parseInt(servers[0].langtype, 10) : 1;
-					var autoEncoding = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder(autoEncoding);
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 					// create itemInfo required functions in context
 					ctx.AddItem = (ItemID, unidentifiedDisplayName, unidentifiedResourceName, identifiedDisplayName, identifiedResourceName, slotCount, ClassNum) => {
 						ItemTable[ItemID] = {
@@ -788,7 +792,7 @@ define(function (require) {
 
 					// create decoders
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddLaphineSysItem = (key, ItemID, NeedCount, NeedRefineMin, NeedRefineMax, NeedSource_String) => {
@@ -880,7 +884,7 @@ define(function (require) {
 
 					// create decoders
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddLaphineUpgradeItem = (key, ItemID, NeedCount, NeedRefineMin, NeedRefineMax, NeedSource_String, NeedOptionNumMin, NotSocketEnchantItem) => {
@@ -1779,7 +1783,7 @@ define(function (require) {
 
 					// create decoders
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create mapInfo required functions in context
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
