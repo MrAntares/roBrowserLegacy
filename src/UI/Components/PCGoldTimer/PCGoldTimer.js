@@ -78,7 +78,7 @@ define(function (require) {
 		_data.mode = packet.mode ? packet.mode : 0;
 		_data.point = packet.point ? packet.point : 0;
 		_data.playedTime = packet.playedTime ? packet.playedTime : 0;
-		_data.backgroundImage = packet.mode == 1 ? "mileage_bg2.bmp" : "mileage_bg1.bmp";
+		_data.backgroundImage = packet.mode == 1 ? "mileage_bg1.bmp" : "mileage_bg2.bmp";
 		_data.startTime = Date.now();
 	}
 
@@ -92,8 +92,9 @@ define(function (require) {
 	PCGoldTimer.startTimer = function startTimer() {
 		// set Timer to update ui information every 1 second
 		this.timer = setInterval(function() {
-			let millisecondsSinceStart = (Date.now() - _data.startTime) + (_data.playedTime * 1000);
-			let text = this.formatTime(millisecondsSinceStart);
+			// timer display how many time is missing to reach 00:00 from 60:00
+			let millisecondsMissing = 60 * 60 * 1000 - ((Date.now() - _data.startTime) + (_data.playedTime * 1000));
+			let text = this.formatTime(millisecondsMissing);
 			this.ui.find(".timer-text-value").text(text);
 			this.ui.find(".total-points-value").text(_data.point);
 		}.bind(this), 1000);
@@ -112,10 +113,10 @@ define(function (require) {
 		this.stopTimer();
 	}
 
-	PCGoldTimer.formatTime = function formatTime(millisecondsSinceStart) {
+	PCGoldTimer.formatTime = function formatTime(millisecondsMissing) {
 		// format time to 00:00
-		let minutes = Math.floor((millisecondsSinceStart % 3600000) / 60000);
-		let seconds = Math.floor((millisecondsSinceStart % 60000) / 1000);
+		let minutes = Math.floor((millisecondsMissing % 3600000) / 60000);
+		let seconds = Math.floor((millisecondsMissing % 60000) / 1000);
 		return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
 	}
 
