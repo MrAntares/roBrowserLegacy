@@ -225,6 +225,7 @@ function createHTML(includeManifest = false) {
                             grfList: null,
                             hashFiles: [],
                             loadLua: false,
+                            customItemInfo: [],
                             onReady: null,
                             plugins: {},
                             registrationweb: '',
