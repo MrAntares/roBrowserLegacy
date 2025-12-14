@@ -7,6 +7,8 @@
  * - Coherent, slowly‑varying wind so streaks slant consistently.
  * - Three depth layers (far/mid/near) with different speeds, sizes, and opacity.
  * - Alpha fades by fall progress (not raw time) to avoid popping.
+* - Added procedural audio system for Rain and Thunder (Web Audio API).
+* - Added lightning visual effect using the existing overlay system.
  */
 define(function(require) {
 	'use strict';
@@ -15,6 +17,7 @@ define(function(require) {
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var Altitude       = require('Renderer/Map/Altitude');
 	var Camera         = require('Renderer/Camera');
+	var Preferences    = require('Preferences/Audio');
 
 	var RAG_TICK_MS = 25;
 	var FADEOUT_TAIL_MS = 300 * RAG_TICK_MS;
@@ -33,6 +36,13 @@ define(function(require) {
 	var WIND_STRENGTH_BASE = 0.14;
 	var WIND_STRENGTH_VAR = 0.06;
 	var WIND_ANGLE_MAX_RAD = 0.55; // ~31deg sideways
+
+	// Thunderstorm
+	var THUNDER_MIN_INTERVAL = 5000;
+	var THUNDER_MAX_INTERVAL = 60000;
+	var FLASH_FADE_IN = 50;
+	var FLASH_FADE_OUT = 300;
+	var RAIN_VOLUME = 0.03;
 
 	// Depth layers: far/mid/near.
 	// Each layer defines relative look and speed.
@@ -147,7 +157,7 @@ define(function(require) {
 			0,
 			gl.RGBA,
 			gl.UNSIGNED_BYTE,
-			new Uint8Array([180, 185, 195, 255])
+			new Uint8Array([255, 255, 255, 255])
 		);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -287,12 +297,148 @@ define(function(require) {
 
 		this._wind = { xTick: 0, yTick: 0, xMs: 0, yMs: 0 };
 
+		// --- Thunderstorm ---
+		this.nextLightningTime = Date.now() + randRange(THUNDER_MIN_INTERVAL, THUNDER_MAX_INTERVAL);
+		this.isFlashing = false;
+		this.flashStartTime = 0;
+		this.flashMultiCount = 1; // Double thunders
+		this.audioCtx = null;
+		this.rainNode = null;
+		this.audioResumed = false;
+
+		// Try start audio feature
+		try {
+			var AudioContext = window.AudioContext || window.webkitAudioContext;
+			if (AudioContext) {
+				this.audioCtx = new AudioContext();
+				this.initRainSound();
+			}
+		} catch (e) {
+			console.warn("RainWeather: Web Audio API is not supported", e);
+		}
+
 		this.ready = true;
 		this.needInit = false;
 		this.needCleanUp = false;
 
 		RainWeatherEffect._activeByOwner[this.ownerAID] = this;
 	}
+
+	RainWeatherEffect.prototype.initRainSound = function () {
+		if (!this.audioCtx) return;
+
+		if (!Preferences.Sound.play) return;
+
+		var ctx = this.audioCtx;
+		var bufferSize = 2 * ctx.sampleRate;
+		var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+		var output = buffer.getChannelData(0);
+
+		// Generate white noise
+		for (var i = 0; i < bufferSize; i++) {
+			output[i] = Math.random() * 2 - 1;
+		}
+
+		var whiteNoise = ctx.createBufferSource();
+		whiteNoise.buffer = buffer;
+		whiteNoise.loop = true;
+
+		// Low pass filter
+		var rainFilter = ctx.createBiquadFilter();
+		rainFilter.type = 'lowpass';
+		rainFilter.frequency.value = 400; 
+
+		var gainNode = ctx.createGain();
+		gainNode.gain.value = RAIN_VOLUME * Preferences.Sound.volume;  
+
+		whiteNoise.connect(rainFilter);
+		rainFilter.connect(gainNode);
+		gainNode.connect(ctx.destination);
+
+		whiteNoise.start(0);
+		this.rainNode = whiteNoise;
+	};
+
+	RainWeatherEffect.prototype.triggerRainDropSound = function () {
+		if (!this.audioCtx) return;
+
+		if (!Preferences.Sound.play) return;
+
+		const ctx = this.audioCtx;
+
+		if (ctx.state === 'suspended') {
+			ctx.resume();
+		}
+
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+		const now = ctx.currentTime;
+
+		osc.frequency.value = randRange(1000, 1200); // Plink Frequency
+		osc.type = 'sine';
+
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+
+		const duration = 0.01; // Plink duration
+		const peakVolume = randRange(0.1, RAIN_VOLUME) * Preferences.Sound.volume; 
+
+		gain.gain.setValueAtTime(0, now);
+		// Fast attach
+		gain.gain.linearRampToValueAtTime(peakVolume, now + 0.001);
+		gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+		// Start and End
+		osc.start(now);
+		osc.stop(now + duration + 0.01);
+		
+		//clean afteruse
+		setTimeout(() => {
+			try {
+				osc.disconnect();
+				gain.disconnect();
+			} catch (e) { /* Ignore */ }
+		}, duration * 1000 + 50);
+	};
+
+	RainWeatherEffect.prototype.triggerThunderSound = function () {
+		if (!this.audioCtx) return;
+
+		if (!Preferences.Sound.play) return;
+
+		// Browser can block audio interactions, try to resume it.
+		if (this.audioCtx.state === 'suspended') {
+			this.audioCtx.resume();
+		}
+
+		var ctx = this.audioCtx;
+		var bufferSize = ctx.sampleRate * 2;
+		var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+		var data = buffer.getChannelData(0);
+
+		for (let i = 0; i < bufferSize; i++) {
+			data[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufferSize);
+		}
+
+		var source = ctx.createBufferSource();
+		source.buffer = buffer;
+
+		var filter = ctx.createBiquadFilter();
+		filter.type = "lowpass";
+		filter.frequency.value = 300;
+
+		// add gain to thunderstorm
+		var thunderGain = ctx.createGain();
+		thunderGain.gain.setValueAtTime(0.8 * Preferences.Sound.volume, ctx.currentTime);
+		thunderGain.gain.exponentialRampToValueAtTime(0.01 * Preferences.Sound.volume, ctx.currentTime + 1.5);
+
+		source.connect(filter);
+		filter.connect(thunderGain);
+		thunderGain.connect(ctx.destination);
+
+		source.start();
+	};
+
 
 	RainWeatherEffect._activeByOwner = Object.create(null);
 
@@ -436,12 +582,82 @@ define(function(require) {
 		// Update global wind for this frame.
 		this._wind = computeGlobalWind(tick);
 
-		// Grey screen filter while raining.
+		// --- ThunderStorm system (Visual and Sound) ---
+		var now = Date.now();
+
+		// check if need to flash on thunderstorm
+		if (!this.isFlashing && now >= this.nextLightningTime) {
+			this.triggerThunderSound();
+			this.isFlashing = true;
+			this.flashStartTime = now;
+			// 40% chance of double storm
+			this.flashMultiCount = Math.random() > 0.6 ? 2 : 1;
+			this.nextLightningTime = now + randRange(THUNDER_MIN_INTERVAL, THUNDER_MAX_INTERVAL);
+		}
+
+		// common grey filter
+		var overlayR = 0.65;
+		var overlayG = 0.67;
+		var overlayB = 0.70;
+		var overlayA = 0.14;
+
+		// flash filter
+		if (this.isFlashing) {
+			var elapsed = now - this.flashStartTime;
+			var flashAlpha = 0;
+
+			if (this.flashMultiCount === 2) {
+				// --- Double Flash (Strobe) ---
+				// 0-80ms: First flash is faster
+				if (elapsed < 80) {
+					flashAlpha = 0.6 * (1 - (elapsed / 80));
+				}
+				// 80-160ms: darker (dramatic pause)
+				else if (elapsed < 160) {
+					flashAlpha = 0;
+				}
+				// 160ms+: Another Flash (Main)
+				else {
+					var elapsed2 = elapsed - 160;
+					if (elapsed2 < FLASH_FADE_IN) {
+						flashAlpha = (elapsed2 / FLASH_FADE_IN) * 0.8;
+					} else if (elapsed2 < (FLASH_FADE_IN + FLASH_FADE_OUT)) {
+						var p = (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT;
+						flashAlpha = 0.8 * (1 - p);
+					} else {
+						this.isFlashing = false;
+					}
+				}
+			} else {
+				// --- FLASH (Default) ---
+				if (elapsed < FLASH_FADE_IN) {
+					// Fade In
+					flashAlpha = (elapsed / FLASH_FADE_IN) * 0.8;
+				} else if (elapsed < (FLASH_FADE_IN + FLASH_FADE_OUT)) {
+					// Fade Out
+					var p = (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT;
+					flashAlpha = 0.8 * (1 - p);
+				} else {
+					// end
+					this.isFlashing = false;
+				}
+			}
+
+			if (this.isFlashing) {
+				// Thunder collor white blue
+				overlayR = 0.90;
+				overlayG = 0.95;
+				overlayB = 1.00;
+				overlayA = flashAlpha;
+			}
+		}
+
+		// Renderize filter (Thunderstorm)
 		if (_filterFrame) {
-			var filterAlpha = 0.14;
-			if (this.endTick > 0) {
+			// skip rain fade out to visual storm 
+			if (this.endTick > 0 && !this.isFlashing) {
 				var tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
-				filterAlpha *= tail;
+				overlayA *= tail;
 			}
 
 			SpriteRenderer.image.palette = null;
@@ -451,10 +667,12 @@ define(function(require) {
 			SpriteRenderer.position[1] = this.ownerEntity.position[1];
 			SpriteRenderer.position[2] = this.ownerEntity.position[2];
 			SpriteRenderer.zIndex = -1000;
-			SpriteRenderer.color[0] = 0.65;
-			SpriteRenderer.color[1] = 0.67;
-			SpriteRenderer.color[2] = 0.70;
-			SpriteRenderer.color[3] = filterAlpha;
+
+			SpriteRenderer.color[0] = overlayR;
+			SpriteRenderer.color[1] = overlayG;
+			SpriteRenderer.color[2] = overlayB;
+			SpriteRenderer.color[3] = overlayA;
+
 			SpriteRenderer.angle = 0;
 			SpriteRenderer.size[0] = 6000;
 			SpriteRenderer.size[1] = 6000;
@@ -507,6 +725,7 @@ define(function(require) {
 					if (this.splashes.length > 300) {
 						this.splashes.splice(0, this.splashes.length - 300);
 					}
+					this.triggerRainDropSound();  // call water sound
 				}
 				this.drops.splice(d, 1);
 				continue;
@@ -598,6 +817,18 @@ define(function(require) {
 	};
 
 	RainWeatherEffect.prototype.free = function free() {
+		// Clean thunder audio
+		if (this.audioCtx) {
+			try {
+				if (this.rainNode) {
+					this.rainNode.stop();
+					this.rainNode = null;
+				}
+				this.audioCtx.close();
+				this.audioCtx = null;
+			} catch (e) { console.log(e); }
+		}
+
 		this.ready = false;
 		if (RainWeatherEffect._activeByOwner[this.ownerAID] === this) {
 			delete RainWeatherEffect._activeByOwner[this.ownerAID];
