@@ -1604,12 +1604,12 @@ define(function (require) {
 				// get context
 				const ctx = lua.ctx;
 
-				// create a decoder for iso-8859-1
-				let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+				// create a decoder
+				let userDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 				// create context function
 				ctx.addKeyAndValueToTable = (key, value) => {
-					table[key] = iso88591Decoder.decode(value);
+					table[key] = userDecoder.decode(value);
 					return 1;
 				}
 
@@ -1617,7 +1617,7 @@ define(function (require) {
 				ctx.addKeyAndMoreValuesToTable = (key, value) => {
 					if (!table[key])
 						table[key] = "";
-					table[key] += iso88591Decoder.decode(value) + "\n";
+					table[key] += userDecoder.decode(value) + "\n";
 					return 1;
 				}
 
