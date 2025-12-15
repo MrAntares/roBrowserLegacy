@@ -203,6 +203,13 @@ define(function (require) {
 	var QuestInfo = {};
 
 	/**
+	 * @var User charpage init
+	 */
+	var servers = Configs.get('servers', []);
+	var langType = (servers[0] && servers[0].langtype) ? parseInt(servers[0].langtype, 10) : 1;
+	var userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -234,7 +241,17 @@ define(function (require) {
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
 			// Item
-			tryLoadItemInfo(['System/itemInfo.lub', 'System/itemInfo.lua', 'System/itemInfo_true.lub', 'System/itemInfo_true.lua'], onLoad());
+			var iteminfoNames = [];
+			var customII = Configs.get('customItemInfo',[]);
+
+			if( customII !== undefined && customII !== [] && customII.length > 0){ // add custom client info table
+				iteminfoNames = iteminfoNames.concat(customII);
+				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad(), true);
+			} else { 
+				iteminfoNames = iteminfoNames.concat(getSystemAliases('System/itemInfo.lub'));
+				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad());
+			}
+			
 			loadLuaTable([DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'], 'AccNameTable', function (json) { HatTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function (json) { RobeTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad());
@@ -279,7 +296,10 @@ define(function (require) {
 			
 			// MapName
 			if( Configs.get('enableMapName')  /*PACKETVER.value >= 20190605*/){ // We allow this feature to be enabled on any version due to popular demand
-				loadMapTbl('System/mapInfo.lub', function (json) { for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } updateMapTable(); }, onLoad());
+				tryLoadLuaAliases(loadMapTbl, getSystemAliases('System/mapInfo.lub'), function (json) { 
+					for (const key in json) { if (json.hasOwnProperty(key)) { MapInfo[key] = json[key]; } } 
+					updateMapTable(); 
+				}, onLoad());
 			}
 			
 			// EntitySignBoard
@@ -292,7 +312,7 @@ define(function (require) {
 			}
 			
 			// Quest
-			loadQuestInfo('System/OngoingQuestInfoList.lub', null, onLoad());
+			tryLoadLuaAliases(loadQuestInfo, getSystemAliases('System/OngoingQuestInfoList.lub'), null, onLoad());
 			// TODO: System/RecommendedQuests.lub
 			
 			// WoldMap
@@ -356,6 +376,24 @@ define(function (require) {
 
 	async function startLua() {
 		lua = await CLua.Lua.create();
+	}
+
+	/**
+	 * get System folder variants
+	 */
+	function getSystemAliases(basePath) {
+		basePath = basePath.replace(/\.(lub|lua)$/i, ''); // Prevents extension been passed
+
+		var suffixes = ['', '_true', '_sak', '_Sakray' ]; // Priority order
+		var extensions = ['.lub', '.lua'];
+		var fileList = [];
+
+		for (var s = 0; s < suffixes.length; s++) {
+			for (var e = 0; e < extensions.length; e++) {
+				fileList.push(basePath + suffixes[s] + extensions[e]);
+			}
+		}
+		return fileList;
 	}
 
 	/**
@@ -461,17 +499,20 @@ define(function (require) {
 	}
 
 	function loadQuestInfo(filename, callback, onEnd) {
-		Client.loadFile(filename,
-			async function (file) {
+		const loadPromise = new Promise((resolve, reject) => {
+			Client.loadFile(filename, resolve, reject);
+		});
+		
+		loadPromise.then(async (file) => {
 				console.log('Loading file "' + filename + '"...');
 
-				try {
+			try {
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
 				let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
 
 				// create decoders
 				let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-				let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+				let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
@@ -511,9 +552,9 @@ define(function (require) {
 				};
 
 				// mount file
-				lua.mountFile('OngoingQuestInfoList.lub', buffer);
+				lua.mountFile(filename, buffer);
 				// execute file
-				await lua.doFile('OngoingQuestInfoList.lub');
+				await lua.doFile(filename);
 
 				// create and execute our own main function
 				lua.doStringSync(`
@@ -572,20 +613,33 @@ define(function (require) {
 
 				main_quest()
 					`);
-				} catch (error) {
-					console.error('[loadQuestInfo] Error: ', error);
-				} finally {
-					// release file from memmory
-					lua.unmountFile('OngoingQuestInfoList.lub');
-					// call onEnd
-					onEnd();
-				}
-			},
-			onEnd
-		);
+			} catch (error) {
+				console.error('[loadQuestInfo] Error: ', error);
+			} finally {
+				// release file from memmory
+				lua.unmountFile(filename);
+				// call onEnd
+				onEnd(true);
+			}
+		}).catch((error) => {
+			if (typeof onEnd === 'function') {
+				onEnd(false);
+			}
+		});
 	}
-	
-	function tryLoadItemInfo(files, onEnd) {
+
+	/**
+	* Attempt to load files sequentially (Recursive - Fallback).
+	* Stop immediately on the first success.
+	*
+	* @param {Function} loaderFunc
+	* @param {Array<String>} file name aliases array.
+	* @param {Function} dataCallback - Callback to process the loaded data (the original `callback`, e.g., the one that receives the `json` from mapInfo).
+	* @param {Function} onEnd - Called when the entire process finishes (success or total failure).
+	* @param {Bool} try load all aliases
+	 */
+	function tryLoadLuaAliases(rFunc, files, callBack, onEnd, loadAll = false) {
+
 		const totalFiles = files.length;
 		if (totalFiles === 0) {
 			if (typeof onEnd === 'function') {
@@ -602,9 +656,9 @@ define(function (require) {
 				failedCount++;
 			}
 
-			if (finishedCount === totalFiles) {
+			if (finishedCount === totalFiles || isSuccess && !loadAll) {
 				if (failedCount === totalFiles) {
-					console.error(`[tryLoadItemInfo] ERROR: All ${totalFiles} tryes to find iteminfo failed. Verify your iteminfo filename.`);
+					console.error(`[tryLoadLuaAliases] ERROR: All ${totalFiles} tryes to find ${files[0]} failed. Verify your ${files[0]} filename.`);
 				}
 				if (typeof onEnd === 'function') {
 					onEnd();
@@ -616,10 +670,15 @@ define(function (require) {
 			if (index >= totalFiles) {
 				return;
 			}
-			loadItemInfo(files[index], null, (isSuccess) => {
-				trackedOnEnd(isSuccess); //await last iteminfo finish loading 
-				tryNext(index + 1);
-			});		
+
+			if (files[index].indexOf('System/') !== 0 && files[index].indexOf('System\\') !== 0)   
+				files[index] = 'System/' + files[index];  
+			
+			rFunc(files[index], callBack, (isSuccess) => {
+				trackedOnEnd(isSuccess); //await last lua parsing
+				if((isSuccess && loadAll) || !isSuccess)
+					tryNext(index + 1);
+			}); 
 		}
 		tryNext(0);
 	}
@@ -632,11 +691,6 @@ define(function (require) {
 	* @author alisonrag
 	*/
 	function loadItemInfo(filename, callback, onEnd) {
-		const failureHandler = (error) => {
-			if (typeof onEnd === 'function') {
-				onEnd(false);
-			}
-		};
 
 		const loadPromise = new Promise((resolve, reject) => {
 			Client.loadFile(filename, resolve, reject);
@@ -651,11 +705,8 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 					// create decoders
-					var servers = Configs.get('servers', []);
-					var langType = (servers[0] && servers[0].langtype) ? parseInt(servers[0].langtype, 10) : 1;
-					var autoEncoding = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder(autoEncoding);
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 					// create itemInfo required functions in context
 					ctx.AddItem = (ItemID, unidentifiedDisplayName, unidentifiedResourceName, identifiedDisplayName, identifiedResourceName, slotCount, ClassNum) => {
 						ItemTable[ItemID] = {
@@ -758,7 +809,7 @@ define(function (require) {
 					// call onEnd
 					onEnd(wasSuccessful);
 				}
-		}).catch((error) => {			
+		}).catch((error) => {
 			if (typeof onEnd === 'function') {
 				onEnd(false);
 			}
@@ -788,7 +839,7 @@ define(function (require) {
 
 					// create decoders
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddLaphineSysItem = (key, ItemID, NeedCount, NeedRefineMin, NeedRefineMax, NeedSource_String) => {
@@ -880,7 +931,7 @@ define(function (require) {
 
 					// create decoders
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddLaphineUpgradeItem = (key, ItemID, NeedCount, NeedRefineMin, NeedRefineMax, NeedSource_String, NeedOptionNumMin, NotSocketEnchantItem) => {
@@ -1600,12 +1651,12 @@ define(function (require) {
 				// get context
 				const ctx = lua.ctx;
 
-				// create a decoder for iso-8859-1
-				let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+				// create a decoder
+				let userDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 				// create context function
 				ctx.addKeyAndValueToTable = (key, value) => {
-					table[key] = iso88591Decoder.decode(value);
+					table[key] = userDecoder.decode(value);
 					return 1;
 				}
 
@@ -1613,7 +1664,7 @@ define(function (require) {
 				ctx.addKeyAndMoreValuesToTable = (key, value) => {
 					if (!table[key])
 						table[key] = "";
-					table[key] += iso88591Decoder.decode(value) + "\n";
+					table[key] += userDecoder.decode(value) + "\n";
 					return 1;
 				}
 
@@ -1767,8 +1818,11 @@ define(function (require) {
 	 * @param {function} onEnd - The function to invoke when loading is complete.
 	 */
 	function loadMapTbl(filename, callback, onEnd) {
-		Client.loadFile(filename,
-			async function (file) {
+		const loadPromise = new Promise((resolve, reject) => {
+			Client.loadFile(filename, resolve, reject);
+		});
+		
+		loadPromise.then(async (file) => {
 				try {
 					console.log('Loading file "' + filename + '"...');
 					// check if file is ArrayBuffer and convert to Uint8Array if necessary
@@ -1779,7 +1833,7 @@ define(function (require) {
 
 					// create decoders
 					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
-					let userStringDecoder = new TextEncoding.TextDecoder('euc-kr'); // TODO: Add keys to config
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create mapInfo required functions in context
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
@@ -1815,10 +1869,10 @@ define(function (require) {
 					};
 
 					// mount file
-					lua.mountFile('mapInfo.lub', buffer);
+					lua.mountFile(filename, buffer);
 
 					// execute file
-					await lua.doFile('mapInfo.lub');
+					await lua.doFile(filename);
 
 					// execute main function
 					lua.doStringSync(`main()`);
@@ -1826,14 +1880,14 @@ define(function (require) {
 					console.error('[loadMapTbl] Error: ', error);
 				} finally {
 					// release file from memmory
-					lua.unmountFile('mapInfo.lub');
+					lua.unmountFile(filename);
 					// call onEnd
-					onEnd();
+					onEnd(true);
 				}
-			},
-			onEnd
-		);
-	};
+		}).catch((error) => {
+			onEnd(false);
+		});
+	}
 
 	/**
 	 * Fog entry parser
