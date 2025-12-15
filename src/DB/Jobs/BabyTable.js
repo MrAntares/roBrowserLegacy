@@ -66,9 +66,10 @@ define(['./JobConst'], function( JobId )
 		JobId.GUNSLINGER_B,
 		JobId.REBELLION_B,
 		JobId.STAR2_B,
-		JobId.EMPEROR_B,
-		JobId.REAPER_B,
-		JobId.EMPEROR2_B,
+		JobId.STAR_EMPEROR_B,
+		JobId.SOUL_REAPER_B,
+		JobId.SOUL_REAPER2_B,
+		JobId.STAR_EMPEROR2_B,
 
 		JobId.PORING_NOVICE_B,
 		JobId.PECO_SWORD_B,
