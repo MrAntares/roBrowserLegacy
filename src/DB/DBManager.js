@@ -1504,12 +1504,13 @@ define(function (require) {
 
 					// create decoders  
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 
 					// create required functions in context  
 					ctx.AddSkillInfo = (skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale) => {
 						// Convert to format expected by SkillInfo.js  
 						SkillInfo[skillId] = {
-							Name: userStringDecoder.decode(resName),
+							Name: iso88591Decoder.decode(resName),
 							SkillName: userStringDecoder.decode(skillName),
 							MaxLv: maxLv,
 							SpAmount: spAmount,
