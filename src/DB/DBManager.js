@@ -43,6 +43,7 @@ define(function (require) {
 	var SKID = require('./Skills/SkillConst');
 	var SkillDescription = require('./Skills/SkillDescription');
 	var SkillInfo = require('./Skills/SkillInfo');	
+	var SkillTreeView = require('./Skills/SkillTreeView');
 	var JobHitSoundTable = require('./Jobs/JobHitSoundTable');
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo = require('./TownInfo');
@@ -248,7 +249,7 @@ define(function (require) {
 			// Skill
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
 			loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, onLoad()); // TODO: txt version
-			// TODO: DB.LUA_PATH + skillinfoz/skilltreeview.lub	- Replaces DB/Skills/SkillTreeView.js
+			loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, onLoad());
 			
 			// Status
 			// TODO: DB.LUA_PATH + stateicon/stateiconinfo.lub
@@ -1512,7 +1513,162 @@ define(function (require) {
 			onEnd
 		);
 	}
-
+	
+	/**  
+	* Loads jobinheritlist.lub and skilltreeview.lub which replaces DB/Skills/SkillTreeView.js  
+	*  
+	* @param {string} filename - The name of the file to load.  
+	* @param {function} callback - The function to invoke with the loaded data.  
+	* @param {function} onEnd - The function to invoke when loading is complete.  
+	* @return {void}  
+	*/  
+	function loadSkillTreeView(filename, callback, onEnd) {  
+		// First load jobinheritlist.lub  
+		Client.loadFile(DB.LUA_PATH + 'skillinfoz/jobinheritlist.lub',  
+			async function (file) {  
+				try {  
+					console.log('Loading file "jobinheritlist.lub"...');  
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;  
+					const ctx = lua.ctx;  
+					
+					// Mount and execute jobinheritlist.lub  
+					lua.mountFile('jobinheritlist.lub', buffer);  
+					await lua.doFile('jobinheritlist.lub');  
+					
+					// Now load skilltreeview.lub  
+					loadSkillTreeViewData(filename, callback, onEnd);  
+					
+				} catch (error) {  
+					console.error('[loadSkillTreeView - jobinheritlist] Error: ', error);  
+					onEnd();  
+				}  
+			},  
+			onEnd  
+		);  
+	}  
+	
+	function loadSkillTreeViewData(filename, callback, onEnd) {  
+		Client.loadFile(filename,  
+			async function (file) {  
+				try {  
+					console.log('Loading file "' + filename + '"...');  
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;  
+					const ctx = lua.ctx;  
+					// Create automatic JT_ mappings  
+					const jobIdWithJT = { ...JobId };  
+					for (const [key, value] of Object.entries(JobId)) {  
+						jobIdWithJT[`JT_${key}`] = value;  
+					}  
+					ctx.JOBID = jobIdWithJT; 
+					
+					// Function to add skill tree data using job hierarchy from jobinheritlist.lub  
+					ctx.AddSkillTreeView = function (jobId) {  
+						// Calculate list and beforeJob from inheritance chain  
+						let list = 1;  
+						let beforeJob = null;  
+						
+						let currentJob = jobId;  
+						let level = 0;  
+						const hardcodedEntry = SkillTreeView[jobId];  
+						if (hardcodedEntry) {  
+							list = hardcodedEntry.list;  
+							beforeJob = hardcodedEntry.beforeJob;  
+						} else {  
+							const inheritList = lua.ctx.JOB_INHERIT_LIST;  						
+							beforeJob = inheritList[jobId];  
+							if (jobId === lua.ctx.JOBID.JT_NOVICE) {  
+								beforeJob = null;  
+								list = 1;  
+							} else if (jobId < lua.ctx.JOBID.JT_KNIGHT) {  
+								list = 1;  
+							} else if (jobId < lua.ctx.JOBID.JT_NOVICE_H) {  
+								list = 2;  
+							} else if (jobId < lua.ctx.JOBID.JT_KNIGHT_H) {  
+								list = 1;  
+							} else if (jobId < lua.ctx.JOBID.JT_RUNE_KNIGHT) {  
+								list = 2;  
+							} else if (jobId < lua.ctx.JOBID.JT_DRAGON_KNIGHT) {  
+								list = 3;  
+							} else if (jobId < lua.ctx.JOBID.JT_TROUVERE) {  
+								list = 4;  
+							} else {  
+								list = 1; // Default para jobs não definidos  
+							} 
+						}
+						
+						// Create the skill tree entry  
+						const entry = {  
+							list: list,  
+							beforeJob: beforeJob  
+						};  
+						
+						SkillTreeView[jobId] = entry;  
+						return 1;  
+					};  
+					
+					ctx.AddSkillToJob = function (jobId, pos, skillId) {  
+						if (SkillTreeView[jobId]) {  
+							SkillTreeView[jobId][skillId] = Number(pos);  
+						}  
+						return 1;  
+					};
+	
+					lua.doStringSync(`
+						JobSkillTab = {}
+					
+						function JobSkillTab.ChangeSkillTabName(in_job, in_1sttab, in_2ndtab, in_3rdtab, in_4thtab)
+							local tbl = {
+								job = in_job,
+								TabName1st = in_1sttab,
+								TabName2nd = in_2ndtab,
+								TabName3rd = in_3rdtab,
+								TabName4th = in_4thtab
+							}
+							JobSkillTab[#JobSkillTab + 1] = tbl
+							return true
+						end
+					`);
+	
+					lua.mountFile('skilltreeview.lub', buffer);  
+					await lua.doFile('skilltreeview.lub');  
+	
+					lua.doStringSync(`    
+						function main_skillTreeView()    
+							if not SKILL_TREEVIEW_FOR_JOB then    
+								return false, "Error: SKILL_TREEVIEW_FOR_JOB is nil or not a table"    
+							end    
+					
+							for jobId, skillData in pairs(SKILL_TREEVIEW_FOR_JOB) do    
+								result, msg = AddSkillTreeView(jobId)    
+								if not result then    
+									return false, msg    
+								end  
+								
+								for pos, skillId in pairs(skillData) do    
+									result, msg = AddSkillToJob(jobId, pos, skillId)    
+									if not result then    
+										return false, msg    
+									end    
+								end  
+							end    
+							return true, "good"    
+						end    
+						
+						main_skillTreeView()    
+					`);
+	
+				} catch (error) {  
+					console.error('[loadSkillTreeView] Error: ', error);  
+				} finally {  
+					lua.unmountFile('skilltreeview.lub');  
+					lua.unmountFile('jobinheritlist.lub');  
+					onEnd();  
+				}  
+			},  
+			onEnd  
+		);  
+	}
+	
 	/**
 	 * Remove LUA comments
 	 *
