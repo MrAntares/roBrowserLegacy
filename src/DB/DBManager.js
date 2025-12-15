@@ -42,6 +42,7 @@ define(function (require) {
 	var RandomOption = require('DB/Items/ItemRandomOptionTable');
 	var SKID = require('./Skills/SkillConst');
 	var SkillDescription = require('./Skills/SkillDescription');
+	var SkillInfo = require('./Skills/SkillInfo');	
 	var JobHitSoundTable = require('./Jobs/JobHitSoundTable');
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo = require('./TownInfo');
@@ -246,7 +247,7 @@ define(function (require) {
 			
 			// Skill
 			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
-			// TODO: DB.LUA_PATH + skillinfoz/skillinfolist.lub	- Replaces part of DB/Skills/SkillInfo.js (if we can find a txt version, otherwise just overrides)
+			loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, onLoad()); // TODO: txt version
 			// TODO: DB.LUA_PATH + skillinfoz/skilltreeview.lub	- Replaces DB/Skills/SkillTreeView.js
 			
 			// Status
@@ -1420,6 +1421,96 @@ define(function (require) {
 			},  
 			onEnd  
 		);  
+	}
+
+	/**  
+	 * Loads skillinfolist.lub which replaces part of DB/Skills/SkillInfo.js  
+	 *  
+	 * @param {string} filename - The name of the file to load.  
+	 * @param {function} callback - The function to invoke with the loaded data.  
+	 * @param {function} onEnd - The function to invoke when loading is complete.  
+	 * @return {void}  
+	 */
+	function loadSkillInfoList(filename, callback, onEnd) {
+		Client.loadFile(filename,
+			async function (file) {
+				try {
+					console.log('Loading file "' + filename + '"...');
+
+					// check if file is ArrayBuffer and convert to Uint8Array if necessary  
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+
+					// get context, a proxy. It will be used to interact with lua conveniently  
+					const ctx = lua.ctx;
+
+					// Create automatic JT_ mappings  
+					const jobIdWithJT = { ...JobId };  
+					for (const [key, value] of Object.entries(JobId)) {  
+						jobIdWithJT[`JT_${key}`] = value;  
+					}  
+					ctx.JOBID = jobIdWithJT; 
+
+					// create decoders  
+					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+
+					// create required functions in context  
+					ctx.AddSkillInfo = (skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale) => {
+						// Convert to format expected by SkillInfo.js  
+						SkillInfo[skillId] = {
+							Name: iso88591Decoder.decode(resName),
+							SkillName: iso88591Decoder.decode(skillName),
+							MaxLv: maxLv,
+							SpAmount: spAmount,
+							bSeperateLv: bSeperateLv,
+							AttackRange: attackRange,
+							SkillScale: skillScale
+						};
+						return 1;
+					};
+
+					// mount file  
+					lua.mountFile('skillinfolist.lub', buffer);
+
+					// execute file  
+					await lua.doFile('skillinfolist.lub');
+
+					// create and execute our own main function  
+					lua.doStringSync(`  
+					function main_skillInfoList()  
+						if not SKILL_INFO_LIST then  
+							return false, "Error: SKILL_INFO_LIST is nil or not a table"  
+						end  
+					
+						for skillId, skillData in pairs(SKILL_INFO_LIST) do 
+							local resName = skillData[1] or "" 
+							local skillName = skillData.SkillName or ""  
+							local maxLv = skillData.MaxLv or 1  
+							local spAmount = skillData.SpAmount or {}  
+							local bSeperateLv = skillData.bSeperateLv or false  
+							local attackRange = skillData.AttackRange or {}  
+							local skillScale = skillData.SkillScale or {}  
+					
+							result, msg = AddSkillInfo(skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale)  
+							if not result then  
+								return false, msg  
+							end  
+						end  
+						return true, "good"  
+						end
+					main_skillInfoList()  
+					`);  
+
+				} catch (error) {
+					console.error('[loadSkillInfoList] Error: ', error);
+				} finally {
+					// release file from memory  
+					lua.unmountFile('skillinfolist.lub');
+					// call onEnd  
+					onEnd();
+				}
+			},
+			onEnd
+		);
 	}
 
 	/**
