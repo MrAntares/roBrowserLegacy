@@ -22,6 +22,7 @@ define(function(require)
 	var Renderer           = require('Renderer/Renderer');
 	var Entity             = require('Renderer/Entity/Entity');
 	var SpriteRenderer     = require('Renderer/SpriteRenderer');
+	var StatusConst 	   = require('DB/Status/StatusState');
 	var Camera             = require('Renderer/Camera');
 	var UIManager          = require('UI/UIManager');
 	var UIComponent        = require('UI/UIComponent');
@@ -298,6 +299,7 @@ define(function(require)
 
 		_entitySlots[ character.CharNum ] = new Entity();
 		_entitySlots[ character.CharNum ].set( character );
+		_entitySlots[character.CharNum].effectState = _entitySlots[character.CharNum]._effectState & ~StatusConst.EffectState.INVISIBLE;
 	};
 
 
