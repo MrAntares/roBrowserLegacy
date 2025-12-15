@@ -180,8 +180,8 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.PECO_REBELLION]    = "peco_rebellion";
 	
 	// FIX ME: encoder.html cant solve Ø and Â encoding
-	JobNameTable[JobId.SOUL_REAPER2]      = "\xc7\xd8\xc5\xc2\xbc\xd2\xbf\xef\xb8\xae\xc6\xdb";// 해태소울리퍼 / ÇØÅÂ¼Ò¿ï¸®ÆÛ
-	JobNameTable[JobId.STAR_EMPEROR2]     = "\xc7\xd8\xc5\xc2\xbc\xba\xc1\xa6"; // 해태소울리 / ÇØÅÂ¼ºÁ¦
+	JobNameTable[JobId.SOUL_REAPER2] = "ÇØÅÂ¼Ò¿ï¸®ÆÛ"; // 해태소울리퍼
+	JobNameTable[JobId.STAR_EMPEROR2] = "ÇØÅÂ¼ºÁ¦"; // 해태소울리
 
 	JobNameTable[JobId.DO_SUMMONER] 	  = "summoner";
 
