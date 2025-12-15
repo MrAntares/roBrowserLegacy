@@ -89,10 +89,12 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.RANGER2]          = "\xB7\xB9\xC0\xCE\xC1\xAE\xB4\xC1\xB4\xEB";
 	JobNameTable[JobId.MECHANIC2]        = "\xB8\xB6\xB5\xB5\xB1\xE2\xBE\xEE";
 
-	JobNameTable[JobId.SUPERNOVICE2]	 = "\xBD\xB4\xC6\xDB\xB3\xEB\xBA\xF1\xBD\xBA";
-	JobNameTable[JobId.KAGEROU] 		 = "kagerou";
-	JobNameTable[JobId.OBORO] 			 = "oboro";
-	JobNameTable[JobId.REBELLION] 		 = "rebellion";
+	JobNameTable[JobId.SUPERNOVICE2]     = "\xBD\xB4\xC6\xDB\xB3\xEB\xBA\xF1\xBD\xBA";
+	JobNameTable[JobId.KAGEROU] 	     = "kagerou";
+	JobNameTable[JobId.OBORO]            = "oboro";
+	JobNameTable[JobId.REBELLION]        = "rebellion";
+	JobNameTable[JobId.STAR_EMPEROR]     = "\xbc\xba\xc1\xa6";  
+	JobNameTable[JobId.SOUL_REAPER]      = "\xbc\xd2\xbf\xef\xb8\xae\xc6\xdb";
 
 	// 4th
 	JobNameTable[JobId.DRAGON_KNIGHT] = "dragon_knight";
@@ -177,7 +179,11 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.FROG_OBORO]        = "frog_oboro";
 	JobNameTable[JobId.PECO_REBELLION]    = "peco_rebellion";
 	
-	JobNameTable[JobId.DO_SUMMONER1] 	  = "summoner";
+	// FIX ME: encoder.html cant solve Ø and Â encoding
+	JobNameTable[JobId.SOUL_REAPER2]      = "\xc7\xd8\xc5\xc2\xbc\xd2\xbf\xef\xb8\xae\xc6\xdb";// 해태소울리퍼 / ÇØÅÂ¼Ò¿ï¸®ÆÛ
+	JobNameTable[JobId.STAR_EMPEROR2]     = "\xc7\xd8\xc5\xc2\xbc\xba\xc1\xa6"; // 해태소울리 / ÇØÅÂ¼ºÁ¦
+
+	JobNameTable[JobId.DO_SUMMONER] 	  = "summoner";
 
 	JobNameTable[JobId.SHEEP_HPRIEST]     = "\xc7\xcf\xc0\xcc\xc7\xc1\xb8\xae\xbd\xba\xc6\xae\xbe\xcb\xc6\xc4\xc4\xab";
 	JobNameTable[JobId.OSTRICH_SNIPER]    = "\xc5\xb8\xc1\xb6\xbd\xba\xb3\xaa\xc0\xcc\xc6\xdb";
@@ -248,8 +254,9 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.SURA,             JobId.SURA_H,             JobId.SURA_B);
 	duplicateEntry(JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B);
 	duplicateEntry(JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B);
-	
-	duplicateEntry(JobId.DO_SUMMONER1,     JobId.DO_SUMMONER_B1);
+	duplicateEntry(JobId.SOUL_REAPER,      JobId.SOUL_REAPER_B);
+	duplicateEntry(JobId.STAR_EMPEROR,     JobId.STAR_EMPEROR_B);
+	duplicateEntry(JobId.DO_SUMMONER,      JobId.DO_SUMMONER_B);
 	
 
 	//MOUNTS
@@ -297,6 +304,8 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.FROG_NINJA       ,JobId.FROG_NINJA_B);
 	duplicateEntry(JobId.PECO_GUNNER      ,JobId.PECO_GUNNER_B);
 	duplicateEntry(JobId.PORING_TAEKWON   ,JobId.PORING_TAEKWON_B);
+	duplicateEntry(JobId.SOUL_REAPER2     ,JobId.SOUL_REAPER2_B);
+	duplicateEntry(JobId.STAR_EMPEROR2    ,JobId.STAR_EMPEROR2_B);
 
 	duplicateEntry(JobId.PORING_STAR      ,JobId.PORING_STAR_B);
 	duplicateEntry(JobId.FROG_LINKER      ,JobId.FROG_LINKER_B);

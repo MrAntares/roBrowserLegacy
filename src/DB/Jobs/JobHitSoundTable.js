@@ -146,8 +146,8 @@ define(["./JobConst"], function( JobId )
 	JobHitSoundTable[JobId.FROG_KAGEROU]      = ["player_wooden_male.wav"];
 	JobHitSoundTable[JobId.FROG_OBORO]        = ["player_wooden_male.wav"];
 	JobHitSoundTable[JobId.PECO_REBELLION]    = ["player_clothes.wav"];
-	
-	JobHitSoundTable[JobId.DO_SUMMONER1] 	  = ["player_clothes.wav"];
+
+	JobHitSoundTable[JobId.DO_SUMMONER] 	  = ["player_clothes.wav"];
 
 	JobHitSoundTable[JobId.SHEEP_HPRIEST]     = ["player_clothes.wav"];
 	JobHitSoundTable[JobId.OSTRICH_SNIPER]    = ["player_wooden_male.wav"];
@@ -238,7 +238,7 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B);
 	duplicateEntry(JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B);
 	
-	duplicateEntry(JobId.DO_SUMMONER1,     JobId.DO_SUMMONER_B1);
+	duplicateEntry(JobId.DO_SUMMONER,     JobId.DO_SUMMONER_B);
 	
 
 	//MOUNTS
@@ -257,6 +257,15 @@ define(["./JobConst"], function( JobId )
 	duplicateEntry(JobId.PIG_BLACKSMITH   ,JobId.PIG_BLACKSMITH_B);
 	duplicateEntry(JobId.LION_KNIGHT      ,JobId.LION_KNIGHT_B);
 	duplicateEntry(JobId.DOG_ASSASSIN     ,JobId.DOG_ASSASSIN_B);
+
+	duplicateEntry(JobId.STAR             ,JobId.STAR_EMPEROR);
+	duplicateEntry(JobId.STAR             ,JobId.SOUL_REAPER);
+	duplicateEntry(JobId.STAR2            ,JobId.STAR_EMPEROR2);
+	duplicateEntry(JobId.STAR2            ,JobId.SOUL_REAPER2);
+	duplicateEntry(JobId.STAR             ,JobId.STAR_EMPEROR_B);
+	duplicateEntry(JobId.STAR             ,JobId.SOUL_REAPER_B);
+	duplicateEntry(JobId.STAR2            ,JobId.STAR_EMPEROR2_B);
+	duplicateEntry(JobId.STAR2            ,JobId.SOUL_REAPER2_B);
 
 	duplicateEntry(JobId.SHEEP_MONK       ,JobId.SHEEP_MONK_B);
 	duplicateEntry(JobId.OSTRICH_BARD     ,JobId.OSTRICH_BARD_B);

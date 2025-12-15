@@ -1503,14 +1503,14 @@ define(function (require) {
 					ctx.JOBID = jobIdWithJT; 
 
 					// create decoders  
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context  
 					ctx.AddSkillInfo = (skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale) => {
 						// Convert to format expected by SkillInfo.js  
 						SkillInfo[skillId] = {
-							Name: iso88591Decoder.decode(resName),
-							SkillName: iso88591Decoder.decode(skillName),
+							Name: userStringDecoder.decode(resName),
+							SkillName: userStringDecoder.decode(skillName),
 							MaxLv: maxLv,
 							SpAmount: spAmount,
 							bSeperateLv: bSeperateLv,
@@ -1578,7 +1578,7 @@ define(function (require) {
 		Client.loadFile(DB.LUA_PATH + 'skillinfoz/jobinheritlist.lub',  
 			async function (file) {  
 				try {  
-					console.log('Loading file "jobinheritlist.lub"...');  
+					console.log(`Loading file ${DB.LUA_PATH}skillinfoz/jobinheritlist.lub...`);  
 					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;  
 					const ctx = lua.ctx;  
 					
@@ -1613,40 +1613,28 @@ define(function (require) {
 					ctx.JOBID = jobIdWithJT; 
 					
 					// Function to add skill tree data using job hierarchy from jobinheritlist.lub  
-					ctx.AddSkillTreeView = function (jobId) {  
+					ctx.AddSkillTreeView = function (jobId, beforeJob) {  
 						// Calculate list and beforeJob from inheritance chain  
-						let list = 1;  
-						let beforeJob = null;  
-						
-						let currentJob = jobId;  
-						let level = 0;  
-						const hardcodedEntry = SkillTreeView[jobId];  
-						if (hardcodedEntry) {  
-							list = hardcodedEntry.list;  
-							beforeJob = hardcodedEntry.beforeJob;  
+						let list = 1;						
+						// TODO: Find another way to do that
+						if (jobId === JobId.NOVICE) {  
+							list = 1;  
+						} else if (jobId < JobId.KNIGHT || jobId === JobId.TAEKWON || (jobId >= JobId.SUPERNOVICE && jobId <= JobId.NINJA) || jobId == JobId.DO_SUMMONER ) {  
+							list = 1;  
+						} else if (jobId < JobId.NOVICE_H || jobId == JobId.STAR || jobId == JobId.LINKER || (jobId >= JobId.KAGEROU && jobId <= JobId.REBELLION) || jobId == JobId.SUPERNOVICE2 || jobId == JobId.SPIRIT_HANDLER ) {  
+							list = 2;  
+						} else if ((jobId <= JobId.THIEF_H && jobId >= JobId.NOVICE_H) || (jobId >= JobId.NOVICE_B && jobId <= JobId.THIEF_B) || jobId == JobId.DO_SUMMONER_B || jobId == JobId.NINJA_B || jobId == JobId.TAEKWON_B || jobId == JobId.GUNSLINGER_B) {  
+							list = 1;  
+						} else if (jobId < JobId.RUNE_KNIGHT || (jobId >= JobId.KNIGHT_B && jobId <= JobId.DANCER_B) || (jobId >= JobId.KAGEROU_B && jobId <= JobId.REBELLION_B) ) {  
+							list = 2;  
+						} else if (jobId < JobId.DRAGON_KNIGHT || jobId == JobId.STAR_EMPEROR || jobId == JobId.SOUL_REAPER || (jobId >= JobId.RUNE_KNIGHT_B && jobId <= JobId.SHADOW_CHASER_B) || jobId === JobId.EMPEROR_B || jobId === JobId.REAPER_B ) {  
+							list = 3;  
+						} else if (jobId <= JobId.TROUVERE || ( jobId >= JobId.SKY_EMPEROR && jobId <= JobId.HYPER_NOVICE) ) {  
+							list = 4;  
 						} else {  
-							const inheritList = lua.ctx.JOB_INHERIT_LIST;  						
-							beforeJob = inheritList[jobId];  
-							if (jobId === lua.ctx.JOBID.JT_NOVICE) {  
-								beforeJob = null;  
-								list = 1;  
-							} else if (jobId < lua.ctx.JOBID.JT_KNIGHT) {  
-								list = 1;  
-							} else if (jobId < lua.ctx.JOBID.JT_NOVICE_H) {  
-								list = 2;  
-							} else if (jobId < lua.ctx.JOBID.JT_KNIGHT_H) {  
-								list = 1;  
-							} else if (jobId < lua.ctx.JOBID.JT_RUNE_KNIGHT) {  
-								list = 2;  
-							} else if (jobId < lua.ctx.JOBID.JT_DRAGON_KNIGHT) {  
-								list = 3;  
-							} else if (jobId < lua.ctx.JOBID.JT_TROUVERE) {  
-								list = 4;  
-							} else {  
-								list = 1; // Default para jobs não definidos  
-							} 
+							list = 1;
+							console.error(`[loadSkillTreeViewData] Failed to find inherith list job: (${jobId})`);
 						}
-						
 						// Create the skill tree entry  
 						const entry = {  
 							list: list,  
@@ -1689,11 +1677,12 @@ define(function (require) {
 								return false, "Error: SKILL_TREEVIEW_FOR_JOB is nil or not a table"    
 							end    
 					
-							for jobId, skillData in pairs(SKILL_TREEVIEW_FOR_JOB) do    
-								result, msg = AddSkillTreeView(jobId)    
-								if not result then    
-									return false, msg    
-								end  
+							for jobId, skillData in pairs(SKILL_TREEVIEW_FOR_JOB) do      
+								local beforeJob = JOB_INHERIT_LIST[jobId] or nil  
+								result, msg = AddSkillTreeView(jobId, beforeJob)      
+								if not result then      
+									return false, msg      
+								end   
 								
 								for pos, skillId in pairs(skillData) do    
 									result, msg = AddSkillToJob(jobId, pos, skillId)    

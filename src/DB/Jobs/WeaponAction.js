@@ -345,7 +345,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function( JobId, WeaponType )
 	duplicateEntry(JobId.SUPERNOVICE, JobId.SUPERNOVICE_B, JobId.SUPERNOVICE2, JobId.SUPERNOVICE2_B, JobId.HYPER_NOVICE);
 	duplicateEntry(JobId.NINJA,      JobId.NINJA_B,      JobId.KAGEROU,      JobId.KAGEROU_B,        JobId.OBORO,              JobId.OBORO_B,              JobId.SHINKIRO,     JobId.SHIRANUI);
 	duplicateEntry(JobId.GUNSLINGER, JobId.GUNSLINGER_B, JobId.REBELLION,     JobId.REBELLION_B,     JobId.NIGHT_WATCH);
-	duplicateEntry(JobId.LINKER,     JobId.LINKER_B,     JobId.REAPER,       JobId.REAPER_B,         JobId.SOUL_ASCETIC);
+	duplicateEntry(JobId.LINKER,     JobId.LINKER_B,     JobId.SOUL_REAPER,       JobId.REAPER_B,         JobId.SOUL_ASCETIC);
 
 	// missing star/evolutions?
 

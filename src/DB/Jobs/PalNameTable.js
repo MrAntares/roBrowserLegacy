@@ -85,8 +85,11 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable )
 	PalNameTable[JobId.KAGEROU] 		 = "KAGEROU";	// Upper case
 	PalNameTable[JobId.OBORO] 			 = "OBORO";	// Upper case
 	PalNameTable[JobId.REBELLION] 		 = "\xb8\xae\xba\xa7\xb8\xae\xbf\xc2";	// "rebellion"
-	
-	PalNameTable[JobId.DO_SUMMONER1] 	 = "\xb9\xa6\xc1\xb7";	// "miao"
+	PalNameTable[JobId.STAR_EMPEROR]             = JobNameTable[JobId.STAR_EMPEROR];
+	PalNameTable[JobId.STAR_EMPEROR2]            = JobNameTable[JobId.STAR_EMPEROR2];
+	PalNameTable[JobId.SOUL_REAPER]             = JobNameTable[JobId.SOUL_REAPER];
+	PalNameTable[JobId.SOUL_REAPER2]            = JobNameTable[JobId.SOUL_REAPER2];
+	PalNameTable[JobId.DO_SUMMONER] 	 = "\xb9\xa6\xc1\xb7";	// "miao"
 	
 	//MOUNTS                              	//MOUNTS
 	PalNameTable[JobId.PORING_NOVICE]    = JobNameTable[JobId.PORING_NOVICE];
@@ -230,7 +233,9 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable )
 	duplicateEntry(JobId.SURA,             JobId.SURA_H,             JobId.SURA_B);
 	duplicateEntry(JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B);
 	duplicateEntry(JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B);
-	duplicateEntry(JobId.DO_SUMMONER1,     JobId.DO_SUMMONER_B1);
+	duplicateEntry(JobId.DO_SUMMONER,     JobId.DO_SUMMONER_B);
+	duplicateEntry(JobId.SOUL_REAPER,     JobId.SOUL_REAPER_B);
+	duplicateEntry(JobId.STAR_EMPEROR,     JobId.STAR_EMPEROR_B);
 	//MOUNTS
 	duplicateEntry(JobId.PORING_NOVICE    ,JobId.PORING_NOVICE_H     ,JobId.PORING_NOVICE_B);
 	duplicateEntry(JobId.SHEEP_ACO        ,JobId.SHEEP_ACO_H         ,JobId.SHEEP_ACO_B);
@@ -274,5 +279,7 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable )
 	duplicateEntry(JobId.FROG_KAGEROU     ,JobId.FROG_KAGEROU_B);
 	duplicateEntry(JobId.FROG_OBORO       ,JobId.FROG_OBORO_B);
 	duplicateEntry(JobId.PECO_REBELLION   ,JobId.PECO_REBELLION_B);
+	duplicateEntry(JobId.SOUL_REAPER2     ,JobId.SOUL_REAPER2_B);
+	duplicateEntry(JobId.STAR_EMPEROR2    ,JobId.STAR_EMPEROR2_B);
 	return PalNameTable;
 });

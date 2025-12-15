@@ -66,8 +66,10 @@ define(['./JobConst'], function( JobId )
 
 	AllMountTable[JobId.SUPERNOVICE2]		= JobId.PORING_SNOVICE2;
 	AllMountTable[JobId.KAGEROU]			= JobId.FROG_KAGEROU;
-	AllMountTable[JobId.OBORO]				= JobId.FROG_OBORO;
+	AllMountTable[JobId.OBORO]			= JobId.FROG_OBORO;
 	AllMountTable[JobId.REBELLION]			= JobId.PECO_REBELLION;
+	AllMountTable[JobId.SOUL_REAPER]		= JobId.SOUL_REAPER2;
+	AllMountTable[JobId.STAR_EMPEROR]		= JobId.STAR_EMPEROR2;
 
 	//REBIRTH
 	AllMountTable[JobId.NOVICE_H]			= JobId.PORING_NOVICE_H;
@@ -149,7 +151,8 @@ define(['./JobConst'], function( JobId )
 	AllMountTable[JobId.KAGEROU_B]			= JobId.FROG_KAGEROU_B;
 	AllMountTable[JobId.OBORO_B]			= JobId.FROG_OBORO_B;
 	AllMountTable[JobId.REBELLION_B]		= JobId.PECO_REBELLION_B;
-
+	AllMountTable[JobId.SOUL_REAPER_B]		= JobId.SOUL_REAPER2_B;
+	AllMountTable[JobId.STAR_EMPEROR_B]		= JobId.STAR_EMPEROR2_B;
 
 	function duplicateEntry(origin) {
 		var value = AllMountTable[origin];
