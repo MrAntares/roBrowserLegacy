@@ -106,7 +106,7 @@ define(['./JobConst'], function( JobId )
 		JobId.LION_RUNE_KNIGHT_B,
 		JobId.LION_CRUSADER_B,
 
-		JobId.DO_SUMMONER_B1,
+		JobId.DO_SUMMONER_B,
 
 	];
 });

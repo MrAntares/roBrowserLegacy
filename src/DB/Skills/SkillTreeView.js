@@ -1183,7 +1183,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 		[SK.RL_QD_SHOT]: 31,
 		[SK.RL_E_CHAIN]: 32
 	},
-	SkillTreeView[JobId.DO_SUMMONER1] = {
+	SkillTreeView[JobId.DO_SUMMONER] = {
 		list: 1,
 		beforeJob: null,
 		[SK.SU_BASIC_SKILL]: 0,
@@ -1583,7 +1583,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 	},
 	SkillTreeView[JobId.SPIRIT_HANDLER] = {
 		list: 2,
-		beforeJob: JobId.DO_SUMMONER1,
+		beforeJob: JobId.DO_SUMMONER,
 		[SK.SH_MYSTICAL_CREATURE_MASTERY]: 3,
 		[SK.SH_CHUL_HO_SONIC_CLAW]: 8,
 		[SK.SH_KI_SUL_WATER_SPRAYING]: 10,
@@ -1697,6 +1697,13 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 	duplicateEntry(JobId.SOUL_REAPER,      JobId.REAPER_B);
 
 	// High + Baby
+	duplicateEntry(JobId.NOVICE,    JobId.NOVICE_H);  
+	duplicateEntry(JobId.SWORDMAN,  JobId.SWORDMAN_H);  
+	duplicateEntry(JobId.MAGICIAN,  JobId.MAGICIAN_H);  
+	duplicateEntry(JobId.ARCHER,    JobId.ARCHER_H);  
+	duplicateEntry(JobId.ACOLYTE,   JobId.ACOLYTE_H);  
+	duplicateEntry(JobId.MERCHANT,  JobId.MERCHANT_H);  
+	duplicateEntry(JobId.THIEF,     JobId.THIEF_H);
 	duplicateEntry(JobId.RUNE_KNIGHT,      JobId.RUNE_KNIGHT_H,      JobId.RUNE_KNIGHT_B);
 	duplicateEntry(JobId.RUNE_KNIGHT,      JobId.RUNE_KNIGHT2,       JobId.RUNE_KNIGHT2_H,     JobId.RUNE_KNIGHT2_B);
 	duplicateEntry(JobId.WARLOCK,          JobId.WARLOCK_H,          JobId.WARLOCK_B);
@@ -1715,7 +1722,7 @@ define(["./SkillConst", "DB/Jobs/JobConst"], function (SK, JobId) {
 	duplicateEntry(JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B);
 	duplicateEntry(JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B);
 	
-	duplicateEntry(JobId.DO_SUMMONER1,     JobId.DO_SUMMONER_B1);
+	duplicateEntry(JobId.DO_SUMMONER,     JobId.DO_SUMMONER_B);
 
 	//MOUNTS
 	duplicateEntry(JobId.NOVICE           ,JobId.PORING_NOVICE    ,JobId.PORING_NOVICE_H     ,JobId.PORING_NOVICE_B);
