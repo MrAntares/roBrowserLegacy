@@ -175,7 +175,7 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 				_filesToClean = [];  
 				
 				if (list.length) {  
-					console.log('%c[MemoryManager] - Removing ' + list.length +   
+					console.log('%c[MemoryManager] - Removed ' + list.length +   
 								' unused elements from memory.', 'color:#d35111', list);  
 				}  
 			}  
