@@ -40,6 +40,12 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	 */
 	var _cleanUpInterval = 30 * 1000;
 
+	/**
+	 * @vars async cleaning tracking
+	 */
+	var _cleaningInProgress = false;  
+	var _cleanIndex = 0;  
+	var _filesToClean = [];
 
 	/**
 	 * Get back data from memory
@@ -115,31 +121,65 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	 */
 	function clean( gl, now )
 	{
-		if (_lastCheckTick + _cleanUpInterval > now) {
+		if (_lastCheckTick + _cleanUpInterval > now || _cleaningInProgress)
 			return;
-		}
 
 		var keys, item;
 		var i, count, tick;
 		var list = [];
+		_filesToClean = [];
 
 		keys  = Object.keys(_memory);
 		count = keys.length;
 		tick  = now - _rememberTime;
 
+		var INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
+
 		for (i = 0; i < count; ++i) {
+			// Skip INTERFACE_PATH files  
+			if (keys[i].indexOf(INTERFACE_PATH) === 0) 
+				continue;
+
 			item = _memory[ keys[i] ];
 			if (item.complete && item.lastTimeUsed < tick) {
-				remove( gl, keys[i] );
-				list.push( keys[i] );
+				_filesToClean.push(keys[i]);
 			}
 		}
 
-		if (list.length) {
-			console.log( '%c[MemoryManager] - Removing ' +  list.length + ' unused elements from memory.', 'color:#d35111', list);
-		}
-
-		_lastCheckTick = now;
+		if (_filesToClean.length === 0) {  
+			_lastCheckTick = now;  
+			return;  
+		}  
+		_cleaningInProgress = true;  
+		_cleanIndex = 0;
+		requestIdleCallback(function cleanChunk(deadline) {  
+			var processed = 0;  
+			var maxProcess = Math.min(5, _filesToClean.length - _cleanIndex); // Total 5 Max Process each call 
+			
+			while (_cleanIndex < _filesToClean.length &&   
+					(deadline.timeRemaining() > 0 || processed < maxProcess)) {  
+				
+				remove(gl, _filesToClean[_cleanIndex]);  
+				list.push(_filesToClean[_cleanIndex]);  
+				_cleanIndex++;  
+				processed++;  
+			}  
+			
+			if (_cleanIndex < _filesToClean.length) {  
+				// Will be back in next time
+				requestIdleCallback(cleanChunk);  
+			} else {  
+				// Finished 
+				_cleaningInProgress = false;  
+				_lastCheckTick = now;  
+				_filesToClean = [];  
+				
+				if (list.length) {  
+					console.log('%c[MemoryManager] - Removing ' + list.length +   
+								' unused elements from memory.', 'color:#d35111', list);  
+				}  
+			}  
+		});
 	}
 
 
@@ -204,6 +244,15 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 		delete _memory[filename];
 	}
 
+	/**  
+	 * Protect a file from being removed from memory  
+	 *  
+	 * @param {string} filename  
+	 */  
+	function protect(filename)  
+	{  
+		_protectedFiles[filename] = true;  
+	}
 
 	/**
 	 * Search files in memory based on a regex
