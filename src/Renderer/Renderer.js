@@ -98,6 +98,26 @@ define(function( require )
 	 */
 	Renderer.renderCallbacks = [];
 
+	/**
+	 * Detect Post-Processing can be Enabled (Bad Combination of Chrome+SoftwareOnly+IntelXE(block-listed by WebGL- crbug.com/41479539))
+	 */
+	function detectBadWebGL(gl) {
+		const renderer = gl.getParameter(gl.RENDERER) || "";
+		const vendor   = gl.getParameter(gl.VENDOR)   || "";
+		const ua       = navigator.userAgent;
+
+		const isSwiftShader = renderer.toLowerCase().includes("swiftshader");
+		const isIntel       = vendor.toLowerCase().includes("intel");
+		const isChrome      = /chrome|chromium/i.test(ua) && !/edg|opr/i.test(ua);
+
+		return {
+			isSwiftShader,
+			isIntel,
+			isChrome,
+			shouldDisableBloom: isSwiftShader && isIntel && isChrome
+		};
+	}
+
 
 	/**
 	 * Shime for requestAnimationFrame
@@ -155,7 +175,18 @@ define(function( require )
 
 			this.render(null);
 			this.resize();
-			this.initPostProcessing();
+			const webglCheck = detectBadWebGL(this.gl);
+
+			if (webglCheck.shouldDisableBloom) {
+				console.warn("[WebGL] PostProcessing disabled due to WebGL compatibility issue:", {
+					reason: "Intel + Chrome + SwiftShader",
+					vendor: this.gl.getParameter(this.gl.VENDOR),
+					renderer: this.gl.getParameter(this.gl.RENDERER),
+					version:this. gl.getParameter(this.gl.VERSION)
+				});
+				GraphicsSettings.bloom = false;
+			} else
+				this.initPostProcessing();
 		}
 
 		var gl = this.gl;
