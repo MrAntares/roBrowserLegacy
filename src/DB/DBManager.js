@@ -1760,8 +1760,6 @@ define(function (require) {
 					if (typeof sourceTable === 'object' && sourceTable !== null) {
 						// Populate SC with constants from the Lua table (e.g., EFST_PROVOKE -> SC.PROVOKE)
 						for (const key in sourceTable) {
-							if(SC[key])
-								delete SC[key];
 							if (key.startsWith('EFST_')) {
 								const jsKey = key.replace('EFST_', ''); 
 								SC[jsKey] = sourceTable[key];
