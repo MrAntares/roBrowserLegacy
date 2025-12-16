@@ -47,6 +47,8 @@ define(function (require) {
 	var JobHitSoundTable = require('./Jobs/JobHitSoundTable');
 	var WeaponTrailTable = require('./Items/WeaponTrailTable');
 	var TownInfo = require('./TownInfo');
+	var StatusInfo = require('./Status/StatusInfo');
+	var SC = require('./Status/StatusConst');
 	var XmlParse = require('Vendors/xmlparse');
 	var Base62 = require('Utils/Base62');
 
@@ -269,7 +271,7 @@ define(function (require) {
 			loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, onLoad());
 			
 			// Status
-			// TODO: DB.LUA_PATH + stateicon/stateiconinfo.lub
+			loadStateIconInfo(DB.LUA_PATH + 'stateicon/', null, onLoad());
 	
 			// Legacy Navigation
 			if(PACKETVER.value >= 20111010){
@@ -1708,6 +1710,174 @@ define(function (require) {
 			},  
 			onEnd  
 		);  
+	}
+
+	/**
+	* Load State Icon Info (StatusInfo) from Lua files
+	* Loads efstids.lub, stateiconimginfo.lub, and stateiconinfo.lub sequentially,
+	* synchronizing EFST_IDs with StatusConst and populating the StatusInfo table.
+	*
+	* @param {string} basePath - Directory path (e.g., DB.LUA_PATH + 'stateicon/')
+	* @param {function} callback - (Unused/Legacy)
+	* @param {function} onEnd - Function to run when done
+	*/
+	function loadStateIconInfo(basePath, callback, onEnd) {
+		const files = [
+			'efstids.lub',
+			'stateiconimginfo.lub',
+			'stateiconinfo.lub'
+		];
+
+		let loadedBuffers = [];
+
+		const dirPath = basePath.endsWith('/') ? basePath : basePath + '/';
+
+		function loadNext(index) {
+			if (index >= files.length) {
+				processLuaData();
+				return;
+			}
+
+			let fullPath = dirPath + files[index];
+			console.log('Loading file "' + fullPath + '"...');
+
+			Client.loadFile(fullPath, function(data) {
+				loadedBuffers.push({ name: files[index], data: data });
+				loadNext(index + 1);
+			}, function() {
+				console.error('[loadStateIconInfo] - Failed to load ' + fullPath);
+				if (onEnd) onEnd();
+			});
+		}
+	
+		async function processLuaData() {
+			try {
+				const ctx = lua.ctx;
+				const userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+				const isoDecoder = new TextEncoding.TextDecoder('iso-8859-1');
+
+				ctx.SetStatusConstants = (sourceTable) => {
+					if (typeof sourceTable === 'object' && sourceTable !== null) {
+						// Populate SC with constants from the Lua table (e.g., EFST_PROVOKE -> SC.PROVOKE)
+						for (const key in sourceTable) {
+							if (key.startsWith('EFST_')) {
+								const jsKey = key.replace('EFST_', ''); 
+								SC[jsKey] = sourceTable[key];
+							}
+						}
+						// Add BLANK back if it was cleared and not defined in LUB
+						if (!SC.BLANK) {
+							SC.BLANK = -1;
+						}
+					} else {
+						console.error('[loadStateIconInfo]: EFST_IDs table not received from Lua. Cannot synchronize StatusConst.');
+					}
+					return 1;
+				}
+
+				ctx.SetStatusInfo = (id, haveTimeLimit, posTimeLimitStr) => {
+					if (!StatusInfo[id]) StatusInfo[id] = {};
+					StatusInfo[id].haveTimeLimit = haveTimeLimit;
+					StatusInfo[id].posTimeLimitStr = posTimeLimitStr;
+					StatusInfo[id].descript = [];
+					return 1;
+				};
+
+				ctx.AddStatusDesc = (id, desc, r, g, b) => {
+					if (!StatusInfo[id]) return 0;
+					let text = userStringDecoder.decode(desc);
+					let color = null;
+					if (r >= 0 && g >= 0 && b >= 0) {
+						color = `rgb(${r}, ${g}, ${b})`;
+					}
+					StatusInfo[id].descript.push([text, color]);
+					return 1;
+				};
+
+				ctx.SetStatusIcon = (id, iconName) => {
+					let icon = isoDecoder.decode(iconName);
+					if (!StatusInfo[id]) StatusInfo[id] = { descript: [] }; 
+					StatusInfo[id].icon = icon;
+					return 1;
+				};
+
+				for (let i = 0; i < loadedBuffers.length; i++) {
+					let f = loadedBuffers[i];
+					let buffer = (f.data instanceof ArrayBuffer) ? new Uint8Array(f.data) : f.data;
+					lua.mountFile(f.name, buffer);
+					await lua.doFile(f.name);
+
+					// This prevents the 'table index is nil' crash in stateiconimginfo.lub.
+					if (f.name === 'efstids.lub') {
+						await lua.doString(`
+							if EFST_IDs then
+								__EFST_IDS_ORIGINAL = EFST_IDs 
+
+								EFST_IDs = setmetatable({}, {
+									__index = function(t, k)
+										local id = __EFST_IDS_ORIGINAL[k]
+										return id ~= nil and id or 0 
+									end
+								})
+							end
+						`);
+					}
+				}
+
+				lua.doStringSync(`
+					function extract_status_info()
+						-- Sync StatusConst (SC) with the full list of EFST_IDs from the original table
+						if type(__EFST_IDS_ORIGINAL) == "table" then
+							SetStatusConstants(__EFST_IDS_ORIGINAL)
+						end
+
+						-- Process Basic Info & Descriptions
+						if StateIconList ~= nil then
+							for id, info in pairs(StateIconList) do
+								SetStatusInfo(id, info.haveTimeLimit, info.posTimeLimitStr)
+
+								if info.descript ~= nil then
+									for _, descLine in ipairs(info.descript) do
+										local text = descLine[1]
+										local colorData = descLine[2]
+										local r, g, b = -1, -1, -1
+
+										if type(colorData) == "table" and #colorData >= 3 then
+											r = colorData[1]
+											g = colorData[2]
+											b = colorData[3]
+										end
+
+										AddStatusDesc(id, text, r, g, b)
+									end
+								end
+							end
+						end
+
+						-- Process Icons 
+						if StateIconImgList ~= nil then
+							for priorityId, list in pairs(StateIconImgList) do 
+								if type(list) == "table" then
+									for id, iconName in pairs(list) do
+										SetStatusIcon(id, iconName)
+									end
+								end
+							end
+						end
+					end
+
+					extract_status_info()
+				`);
+	
+			} catch (e) {
+				console.error("[loadStateIconInfo] Lua Error:", e);
+			} finally {
+				loadedBuffers.forEach(f => lua.unmountFile(f.name));
+				if (onEnd) onEnd();
+			}
+		}
+	
+		loadNext(0);
 	}
 	
 	/**
