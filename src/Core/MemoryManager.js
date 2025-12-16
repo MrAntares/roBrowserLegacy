@@ -41,11 +41,13 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	var _cleanUpInterval = 30 * 1000;
 
 	/**
-	 * @vars async cleaning tracking
+	 * Async cleanup state tracking.
+	 * These variables are used to split memory cleanup into small chunks
+	 * to avoid blocking the main thread during large clean operations.
 	 */
-	var _cleaningInProgress = false;  
-	var _cleanIndex = 0;  
-	var _filesToClean = [];
+	var _cleaningInProgress = false;  // Prevents multiple clean cycles running at the same time
+	var _cleanIndex = 0;              // Tracks the current cleanup position
+	var _filesToClean = [];           // List of memory entries scheduled for removal
 
 	/**
 	 * Get back data from memory
@@ -121,13 +123,14 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	 */
 	function clean( gl, now )
 	{
+		// Skip cleanup if interval has not elapsed or if an async cleanup is already running
 		if (_lastCheckTick + _cleanUpInterval > now || _cleaningInProgress)
 			return;
 
 		var keys, item;
 		var i, count, tick;
 		var list = [];
-		_filesToClean = [];
+		_filesToClean = []; // Reset pending cleanup list
 
 		keys  = Object.keys(_memory);
 		count = keys.length;
@@ -136,19 +139,24 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 		for (i = 0; i < count; ++i) {
 			item = _memory[ keys[i] ];
 			if (item.complete && item.lastTimeUsed < tick) {
-				_filesToClean.push(keys[i]);
+				_filesToClean.push(keys[i]); // Collect unused memory entries instead of removing them immediately
 			}
 		}
-
+		// If nothing needs to be cleaned, just update the last check timestamp
 		if (_filesToClean.length === 0) {  
 			_lastCheckTick = now;  
 			return;  
-		}  
+		} 
+ 
+		// Mark cleanup as running to avoid re-entry
 		_cleaningInProgress = true;  
 		_cleanIndex = 0;
+
+		// Perform cleanup incrementally during idle time to reduce frame drops
 		requestIdleCallback(function cleanChunk(deadline) {  
 			var processed = 0;  
-			var maxProcess = Math.min(5, _filesToClean.length - _cleanIndex); // Total 5 Max Process each call 
+			// Limit the number of removals per idle callback
+			var maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
 			
 			while (_cleanIndex < _filesToClean.length &&   
 					(deadline.timeRemaining() > 0 || processed < maxProcess)) {  
@@ -160,10 +168,10 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 			}  
 			
 			if (_cleanIndex < _filesToClean.length) {  
-				// Will be back in next time
+				// Continue cleanup in the next idle period
 				requestIdleCallback(cleanChunk);  
 			} else {  
-				// Finished 
+				// Cleanup finished
 				_cleaningInProgress = false;  
 				_lastCheckTick = now;  
 				_filesToClean = [];  
