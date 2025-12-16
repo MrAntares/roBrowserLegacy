@@ -1745,7 +1745,7 @@ define(function (require) {
 				loadedBuffers.push({ name: files[index], data: data });
 				loadNext(index + 1);
 			}, function() {
-				console.error('Failed to load ' + fullPath);
+				console.error('[loadStateIconInfo] - Failed to load ' + fullPath);
 				if (onEnd) onEnd();
 			});
 		}
