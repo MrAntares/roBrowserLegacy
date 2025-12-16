@@ -266,10 +266,28 @@ define(function (require) {
 			loadWeaponTable(DB.LUA_PATH + 'datainfo/weapontable.lub', null, onLoad());
 			
 			// Skill
-			loadLuaTable([DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'], 'SKILL_DESCRIPT', function (json) { SkillDescription = json; }, onLoad());
-			loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, onLoad()); // TODO: txt version
-			loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, onLoad());
-			
+			loadLuaTable(
+				[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
+				'SKILL_DESCRIPT',
+				function (json) {
+					SkillDescription = json;
+				},
+				function () {
+					// Calls after skillids and descs been populated
+					loadSkillInfoList(
+						DB.LUA_PATH + 'skillinfoz/skillinfolist.lub',
+						null,
+						function () {
+							loadSkillTreeView(
+								DB.LUA_PATH + 'skillinfoz/skilltreeview.lub',
+								null,
+								onLoad()
+							);
+						}
+					);
+				}
+			);
+
 			// Status
 			loadStateIconInfo(DB.LUA_PATH + 'stateicon/', null, onLoad());
 	
@@ -1572,6 +1590,19 @@ define(function (require) {
 						};
 						return 1;
 					};
+					ctx.SKID = SKID;
+					await lua.doString(`
+						if SKID then
+							__SKID_ORIGINAL = SKID 
+
+							SKID = setmetatable({}, {
+								__index = function(t, k)
+								local id = __SKID_ORIGINAL[k]
+								return id ~= nil and id or 0 
+								end
+							})
+						end
+					`);
 
 					// mount file  
 					lua.mountFile('skillinfolist.lub', buffer);
@@ -1720,7 +1751,21 @@ define(function (require) {
 							return true
 						end
 					`);
-	
+
+					ctx.SKID = SKID;
+					await lua.doString(`
+						if SKID then
+							__SKID_ORIGINAL = SKID 
+
+							SKID = setmetatable({}, {
+								__index = function(t, k)
+								local id = __SKID_ORIGINAL[k]
+								return id ~= nil and id or 0 
+								end
+							})
+						end
+					`);
+
 					lua.mountFile('skilltreeview.lub', buffer);  
 					await lua.doFile('skilltreeview.lub');  
 	
@@ -1858,6 +1903,7 @@ define(function (require) {
 					await lua.doFile(f.name);
 
 					// This prevents the 'table index is nil' crash in stateiconimginfo.lub.
+					// return SC.BLANK on nil
 					if (f.name === 'efstids.lub') {
 						await lua.doString(`
 							if EFST_IDs then
@@ -1866,7 +1912,7 @@ define(function (require) {
 								EFST_IDs = setmetatable({}, {
 									__index = function(t, k)
 										local id = __EFST_IDS_ORIGINAL[k]
-										return id ~= nil and id or 0 
+										return id ~= nil and id or -1
 									end
 								})
 							end
