@@ -130,6 +130,13 @@ define(function()
 	function errorHandler(e)
 	{
 		var msg = '';
+		var FileError = {  
+			QUOTA_EXCEEDED_ERR: 22,  
+			NOT_FOUND_ERR: 1,  
+			SECURITY_ERR: 2,  
+			INVALID_MODIFICATION_ERR: 9,  
+			INVALID_STATE_ERR: 7  
+		};
 		switch (e.code) {
 			case FileError.QUOTA_EXCEEDED_ERR:
 				msg = 'QUOTA_EXCEEDED_ERR';
@@ -279,22 +286,43 @@ define(function()
 
 
 	/**
-	 * Remove all files from FileSystem
-	 */
+	* Remove all files from FileSystem
+	*/
 	function cleanUp()
 	{
-		var i, count;
-		var dirReader = _fs_sync.root.createReader();
-		var entries   = dirReader.readEntries();
-
-		for (i = 0, count = entries.length; i < count; ++i) {
-			if (entries[i].isDirectory) {
-				entries[i].removeRecursively();
-			}
-			else {
-				entries[i].remove();
-			}
-		}
+	var i, count;  
+	var dirReader = _fs_sync.root.createReader();  
+	var entries   = dirReader.readEntries();  
+	var retryCount = 0;  
+	var maxRetries = 3;  
+	
+	function removeWithRetry(entry, callback) {  
+		try {  
+			if (entry.isDirectory) {  
+				entry.removeRecursively(callback, callback);  
+			}  
+			else {  
+				entry.remove(callback, callback);  
+			}  
+		} catch (e) {  
+			if (retryCount < maxRetries && e.name === 'InvalidModificationError') {  
+				retryCount++;  
+				setTimeout(function() {  
+					removeWithRetry(entry, callback);  
+				}, 100);  
+			} else {  
+				callback(e);  
+			}  
+		}  
+	}  
+  
+    for (i = 0, count = entries.length; i < count; ++i) {  
+        removeWithRetry(entries[i], function(error) {  
+            if (error) {  
+                console.warn('Failed to remove entry:', error);  
+            }  
+        });  
+    }  
 	}
 
 
