@@ -40,6 +40,14 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	 */
 	var _cleanUpInterval = 30 * 1000;
 
+	/**
+	 * Async cleanup state tracking.
+	 * These variables are used to split memory cleanup into small chunks
+	 * to avoid blocking the main thread during large clean operations.
+	 */
+	var _cleaningInProgress = false;  // Prevents multiple clean cycles running at the same time
+	var _cleanIndex = 0;              // Tracks the current cleanup position
+	var _filesToClean = [];           // List of memory entries scheduled for removal
 
 	/**
 	 * Get back data from memory
@@ -115,13 +123,14 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	 */
 	function clean( gl, now )
 	{
-		if (_lastCheckTick + _cleanUpInterval > now) {
+		// Skip cleanup if interval has not elapsed or if an async cleanup is already running
+		if (_lastCheckTick + _cleanUpInterval > now || _cleaningInProgress)
 			return;
-		}
 
 		var keys, item;
 		var i, count, tick;
 		var list = [];
+		_filesToClean = []; // Reset pending cleanup list
 
 		keys  = Object.keys(_memory);
 		count = keys.length;
@@ -130,16 +139,49 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 		for (i = 0; i < count; ++i) {
 			item = _memory[ keys[i] ];
 			if (item.complete && item.lastTimeUsed < tick) {
-				remove( gl, keys[i] );
-				list.push( keys[i] );
+				_filesToClean.push(keys[i]); // Collect unused memory entries instead of removing them immediately
 			}
 		}
+		// If nothing needs to be cleaned, just update the last check timestamp
+		if (_filesToClean.length === 0) {  
+			_lastCheckTick = now;  
+			return;  
+		} 
+ 
+		// Mark cleanup as running to avoid re-entry
+		_cleaningInProgress = true;  
+		_cleanIndex = 0;
 
-		if (list.length) {
-			console.log( '%c[MemoryManager] - Removing ' +  list.length + ' unused elements from memory.', 'color:#d35111', list);
-		}
-
-		_lastCheckTick = now;
+		// Perform cleanup incrementally during idle time to reduce frame drops
+		requestIdleCallback(function cleanChunk(deadline) {  
+			var processed = 0;  
+			// Limit the number of removals per idle callback
+			var maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
+			
+			while (_cleanIndex < _filesToClean.length &&   
+					(deadline.timeRemaining() > 0 || processed < maxProcess)) {  
+				
+				remove(gl, _filesToClean[_cleanIndex]);  
+				list.push(_filesToClean[_cleanIndex]);  
+				_cleanIndex++;  
+				processed++;  
+			}  
+			
+			if (_cleanIndex < _filesToClean.length) {  
+				// Continue cleanup in the next idle period
+				requestIdleCallback(cleanChunk);  
+			} else {  
+				// Cleanup finished
+				_cleaningInProgress = false;  
+				_lastCheckTick = now;  
+				_filesToClean = [];  
+				
+				if (list.length) {  
+					console.log('%c[MemoryManager] - Removed ' + list.length +   
+								' unused elements from memory.', 'color:#d35111', list);  
+				}  
+			}  
+		});
 	}
 
 
@@ -203,7 +245,6 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 		// Delete from memory
 		delete _memory[filename];
 	}
-
 
 	/**
 	 * Search files in memory based on a regex
