@@ -504,7 +504,7 @@ define(function (require) {
 	/**
 	* Load Town Info file
 	*
-	* @param {string} basePath - Directory path (e.g., DB.LUA_PATH + 'stateicon/')
+	* @param {string} basePath - Directory path (e.g., 'System/Towninfo.lub')
 	* @param {function} callback - (Unused/Legacy)
 	* @param {function} onEnd - Function to run when done
 	*/
