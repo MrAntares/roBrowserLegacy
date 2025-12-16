@@ -325,7 +325,7 @@ define(function (require) {
 			// TODO: System/achievements.lub
 			
 			// Town Info
-			// TODO: System/Towninfo.lub	- Replaces DB/TownInfo.js
+			loadTownInfoFile('System/Towninfo.lub', null, onLoad());
 		} else {
 			// Item
 			loadTable('data/num2itemdisplaynametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, " "); }, onLoad());
@@ -492,6 +492,56 @@ define(function (require) {
 				} finally {
 					// release file from memmory
 					lua.unmountFile('CheckAttendance.lub');
+					// call onEnd
+					onEnd();
+				}
+			},
+			onEnd
+		);
+	}
+
+
+	/**
+	* Load Town Info file
+	*
+	* @param {string} basePath - Directory path (e.g., DB.LUA_PATH + 'stateicon/')
+	* @param {function} callback - (Unused/Legacy)
+	* @param {function} onEnd - Function to run when done
+	*/
+	function loadTownInfoFile(filename, callback, onEnd) {
+		Client.loadFile(filename,
+			async function (file) {
+				console.log('Loading file "' + filename + '"...');
+				try {
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+					// get context, a proxy. It will be used to interact with lua conveniently
+					const ctx = lua.ctx;
+					// create decoders
+					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+					
+					// create AddTownInfo required functions in context
+					ctx.AddTownInfo = function AddTownInfo(mapName, name, X, Y, TYPE) {
+						mapName = iso88591Decoder.decode(mapName);
+						TownInfo[mapName] = [];
+						TownInfo[mapName].push({
+							Name: userStringDecoder.decode(name), 
+							X: X,
+							Y: Y,
+							Type: TYPE
+						});
+    					};
+					// mount file
+					lua.mountFile(filename, buffer);
+					// execute file
+					await lua.doFile(filename);
+					// execute main lua function
+					lua.doStringSync(`main()`);
+				} catch (error) {
+					console.error('[loadTownInfoFile] Error: ', error);
+				} finally {
+					// release file from memmory
+					lua.unmountFile(filename);
 					// call onEnd
 					onEnd();
 				}
