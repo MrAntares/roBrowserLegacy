@@ -133,13 +133,7 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 		count = keys.length;
 		tick  = now - _rememberTime;
 
-		var INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
-
 		for (i = 0; i < count; ++i) {
-			// Skip INTERFACE_PATH files  
-			if (keys[i].indexOf(INTERFACE_PATH) === 0) 
-				continue;
-
 			item = _memory[ keys[i] ];
 			if (item.complete && item.lastTimeUsed < tick) {
 				_filesToClean.push(keys[i]);
