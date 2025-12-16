@@ -244,16 +244,6 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 		delete _memory[filename];
 	}
 
-	/**  
-	 * Protect a file from being removed from memory  
-	 *  
-	 * @param {string} filename  
-	 */  
-	function protect(filename)  
-	{  
-		_protectedFiles[filename] = true;  
-	}
-
 	/**
 	 * Search files in memory based on a regex
 	 *
