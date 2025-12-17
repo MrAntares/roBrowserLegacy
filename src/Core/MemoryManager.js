@@ -159,7 +159,7 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 			var maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
 			
 			while (_cleanIndex < _filesToClean.length &&   
-					(deadline.timeRemaining() > 0 || processed < maxProcess)) {  
+					(processed < maxProcess || deadline.timeRemaining() > 0)) {  
 				
 				remove(gl, _filesToClean[_cleanIndex]);  
 				list.push(_filesToClean[_cleanIndex]);  
