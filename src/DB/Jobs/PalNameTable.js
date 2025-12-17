@@ -81,6 +81,24 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable )
 	PalNameTable[JobId.RANGER2]          = "\xbf\xef\xc7\xc1\xb7\xb9\xc0\xce\xc0\xfa";	// "wolfranger"
 	PalNameTable[JobId.MECHANIC2]        = "\xb9\xcc\xc4\xc9\xb4\xd0\x5f\xb8\xb6\xb5\xb5\xb1\xe2\xbe\xee";	// "mechanic_mado gear"
 	
+	PalNameTable[JobId.RUNE_KNIGHT_2ND]      = 'costume_1/' + PalNameTable[JobId.RUNE_KNIGHT];
+	PalNameTable[JobId.WARLOCK_2ND]          = 'costume_1/' + PalNameTable[JobId.WARLOCK];
+	PalNameTable[JobId.RANGER_2ND]           = 'costume_1/' + PalNameTable[JobId.RANGER];
+	PalNameTable[JobId.ARCHBISHOP_2ND]       = 'costume_1/' + PalNameTable[JobId.ARCHBISHOP];
+	PalNameTable[JobId.MECHANIC_2ND]         = 'costume_1/' + PalNameTable[JobId.MECHANIC];
+	PalNameTable[JobId.GUILLOTINE_CROSS_2ND] = 'costume_1/' + PalNameTable[JobId.GUILLOTINE_CROSS];
+	PalNameTable[JobId.ROYAL_GUARD_2ND]      = 'costume_1/' + PalNameTable[JobId.ROYAL_GUARD];
+	PalNameTable[JobId.SORCERER_2ND]         = 'costume_1/' + PalNameTable[JobId.SORCERER];
+	PalNameTable[JobId.MINSTREL_2ND]         = 'costume_1/' + PalNameTable[JobId.MINSTREL];
+	PalNameTable[JobId.WANDERER_2ND]         = 'costume_1/' + PalNameTable[JobId.WANDERER];
+	PalNameTable[JobId.SURA_2ND]             = 'costume_1/' + PalNameTable[JobId.SURA];
+	PalNameTable[JobId.GENETIC_2ND]          = 'costume_1/' + PalNameTable[JobId.GENETIC];
+	PalNameTable[JobId.SHADOW_CHASER_2ND]    = 'costume_1/' + PalNameTable[JobId.SHADOW_CHASER];
+	PalNameTable[JobId.RUNE_KNIGHT2_2ND]     = 'costume_1/' + PalNameTable[JobId.RUNE_KNIGHT2];
+	PalNameTable[JobId.ROYAL_GUARD2_2ND]     = 'costume_1/' + PalNameTable[JobId.ROYAL_GUARD2];
+	PalNameTable[JobId.RANGER2_2ND]          = 'costume_1/' + PalNameTable[JobId.RANGER2];
+	PalNameTable[JobId.MECHANIC2_2ND]        = 'costume_1/' + PalNameTable[JobId.MECHANIC2];
+
 	PalNameTable[JobId.SUPERNOVICE2]	 = JobNameTable[JobId.SUPERNOVICE2];
 	PalNameTable[JobId.KAGEROU] 		 = "KAGEROU";	// Upper case
 	PalNameTable[JobId.OBORO] 			 = "OBORO";	// Upper case

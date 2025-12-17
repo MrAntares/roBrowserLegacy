@@ -2472,7 +2472,7 @@ define(function (require) {
 	}
 
 	function isPlayer(jobid) {
-		return jobid < 45 || (jobid >= 4001 && jobid <= 4317) || jobid == 4294967294;
+		return jobid < 45 || (jobid >= 4001 && jobid <= 4350) || jobid == 4294967294;
 	}
 
 	DB.isDoram = function (jobid) {
@@ -2497,11 +2497,11 @@ define(function (require) {
 	/**
 	 * @return {string} path to body sprite/action
 	 * @param {number} id entity
-	 * @param {boolean} alternative sprite
 	 * @param {boolean} sex
+	 * @param {number} alternative sprite
 	 * @return {string}
 	 */
-	DB.getBodyPath = function getBodyPath(id, sex, alternative) {
+	DB.getBodyPath = function getBodyPath(id, sex, alternative = -1) {
 		// TODO: Warp STR file
 		if (id === 45) {
 			return null;
@@ -2515,12 +2515,28 @@ define(function (require) {
 		// PC
 		if (isPlayer(id)) {
 			// DORAM
-			if (DB.isDoram(id)) {
-				return 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/' + SexTable[sex] + '/' + (ClassTable[id] || ClassTable[0]) + '_' + SexTable[sex];
+			var isDoram = DB.isDoram(id);
+			var result = isDoram ? 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/' : 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
+			result += SexTable[sex] + '/';
+
+			if(PACKETVER.value > 20141022){
+				if(alternative > 0){
+					if((PACKETVER.value > 20231220 && alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) || alternative === 1)
+						result += 'costume_1/';
+
+					result += (ClassTable[id] || ClassTable[0]);
+					result += '_' + SexTable[sex];
+
+					if((PACKETVER.value > 20231220 && alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) || alternative === 1)
+						result += '_1';
+					return result;
+				}
 			}
 
-			// TODO: check for alternative 3rd and MADO alternative sprites
-			return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' + SexTable[sex] + '/' + (ClassTable[id] || ClassTable[0]) + '_' + SexTable[sex];
+			result += (ClassTable[id] || ClassTable[0]);
+			result += '_' + SexTable[sex];
+
+			return result;
 		}
 
 		// NPC

@@ -207,6 +207,10 @@ define(function (require) {
 				entity.weapon = viewId;
 				entity.shield = pkt.shield;
 			}
+			if(PACKETVER.value > 20150513){
+				if(entity.body !== pkt.body)
+					entity.body = pkt.body;
+			}
 
 		}
 
@@ -1102,8 +1106,8 @@ define(function (require) {
 			case 10: break; // LOOK_BODY ??
 			case 11: break; // LOOK_RESET_COSTUMES (Makes all headgear sprites on player vanish when activated.)
 			case 12: entity.robe = pkt.value; break;
-			case 13: break; // LOOK_FLOOR ??
-			case 14: break; // LOOK_BODY2 ??
+			case 13: entity.body = pkt.value; break; // LOOK_BODY2
+			case 14: break;  // LOOK_FLOOR ??
 		}
 	}
 

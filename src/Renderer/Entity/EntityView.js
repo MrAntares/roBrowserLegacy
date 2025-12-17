@@ -19,7 +19,7 @@ define(function( require )
 	var MountTable    = require('DB/Jobs/MountTable');
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var EntityAction  = require('./EntityAction');
-
+	const PACKETVER    = require('Network/PacketVerManager');
 
 	/**
 	 * Files to display a view
@@ -143,9 +143,8 @@ define(function( require )
 		// Resize character
 		this.xSize = this.ySize = DB.isBaby(job) ? 4 : 5;
 
-
 		this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
-		path                   = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath( job, this._sex );
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
 		Entity                 = this.constructor;
 
 		// Define Object type based on its id
@@ -212,8 +211,49 @@ define(function( require )
 		}.bind(this), null, {
 			to_rgba: this.objecttype !== Entity.TYPE_PC
 		});
+
+		// Refresh costume
+		if(PACKETVER.value > 20141022 && this._body > 0)
+			this.body = this._body;
 	}
 
+	/**
+	 * Updating BodyStyle
+	 *
+	 * @param {number} Body2 id
+	 */
+	function UpdateBodyStyle( look )
+	{
+		var baseJob, path;
+		var Entity;
+
+		if (look < 0) {
+			return;
+		}
+		this._body = look;
+
+		// Resize character
+		this.xSize = this.ySize = DB.isBaby(this.job) ? 4 : 5;
+
+		this.files.shadow.size = this.job in ShadowTable ? ShadowTable[this.job] : 1.0;
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this.job, this._sex, this._body);
+		Entity                 = this.constructor;
+
+		// Loading
+		Client.loadFile(path + '.act');
+		Client.loadFile(path + '.spr', function(){
+			this.files.body.spr = path + '.spr';
+			this.files.body.act = path + '.act';
+
+			// Update linked attachments
+			this.bodypalette = this._bodypalette;
+			this.weapon      = this._weapon;
+			this.shield      = this._shield;
+
+		}.bind(this), null, {
+			to_rgba: this.objecttype !== Entity.TYPE_PC
+		});
+	}
 
 	/**
 	 * Update body palette
@@ -394,6 +434,11 @@ define(function( require )
 		Object.defineProperty(this, 'job', {
 			get: function(){ return this.costume || this._job; },
 			set: UpdateBody
+		});
+		this._body = this._job;
+		Object.defineProperty(this, 'body', {
+			get: function(){ return this._body; },
+			set: UpdateBodyStyle
 		});
 
 		Object.defineProperty(this, 'bodypalette', {
