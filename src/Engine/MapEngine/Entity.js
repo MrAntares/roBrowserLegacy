@@ -1107,7 +1107,7 @@ define(function (require) {
 			case 11: break; // LOOK_RESET_COSTUMES (Makes all headgear sprites on player vanish when activated.)
 			case 12: entity.robe = pkt.value; break;
 			case 13: entity.body = pkt.value; break; // LOOK_BODY2
-			case 14: entity.body = pkt.value; break;  // LOOK_FLOOR ??
+			case 14: break;  // LOOK_FLOOR ??
 		}
 	}
 
