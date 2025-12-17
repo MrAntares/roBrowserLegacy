@@ -136,15 +136,15 @@ define(function( require )
 		// Clothes keep the old job in memory
 		// and show the costum if used
 		this._job = job;
-		if (this.costume) {
+		this._body = job;
+		if (this.costume) 
 			job = this.costume;
-		}
 
 		// Resize character
 		this.xSize = this.ySize = DB.isBaby(job) ? 4 : 5;
 
 		this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
-		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, this._body);
 		Entity                 = this.constructor;
 
 		// Define Object type based on its id
@@ -227,20 +227,22 @@ define(function( require )
 			return;
 		}
 
+		this._body = job;
+
 		// Avoid fuck*ng errors with mounts !
 		// Sometimes the server send us the job of the mount sprite instead
 		// of the base sprite + effect to have the mount.
 		for (baseJob in MountTable) {
-			if (MountTable[baseJob] === job) {
-				this.costume = job;
+			if (MountTable[baseJob] === this.job) {
+				this.costume = this.job;
 				job          = baseJob;
 				break;
 			}
 		}
 
 		for (baseJob in AllMountTable) {
-			if (AllMountTable[baseJob] === job) {
-				this.costume = job;
+			if (AllMountTable[baseJob] === this.job) {
+				this.costume = this.job;
 				job          = baseJob;
 				break;
 			}
@@ -248,13 +250,14 @@ define(function( require )
 
 		// Clothes keep the old job in memory
 		// and show the costum if used
-		this._body = job;
+		if (this.costume) 
+			job = this.costume;
 
 		// Resize character
 		this.xSize = this.ySize = DB.isBaby(this.job) ? 4 : 5;
 
 		this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
-		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this.job, this._sex, this._body);
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, this._body);
 		Entity                 = this.constructor;
 
 		// Loading
