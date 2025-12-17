@@ -143,9 +143,8 @@ define(function( require )
 		// Resize character
 		this.xSize = this.ySize = DB.isBaby(job) ? 4 : 5;
 
-
 		this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
-		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, this.costume );
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
 		Entity                 = this.constructor;
 
 		// Define Object type based on its id
@@ -197,6 +196,66 @@ define(function( require )
 				path = DB.getBodyPath( 1002, this._sex );
 			}
 		}
+
+		// Loading
+		Client.loadFile(path + '.act');
+		Client.loadFile(path + '.spr', function(){
+			this.files.body.spr = path + '.spr';
+			this.files.body.act = path + '.act';
+
+			// Update linked attachments
+			this.bodypalette = this._bodypalette;
+			this.weapon      = this._weapon;
+			this.shield      = this._shield;
+
+		}.bind(this), null, {
+			to_rgba: this.objecttype !== Entity.TYPE_PC
+		});
+	}
+
+	/**
+	 * Updating BodyStyle
+	 *
+	 * @param {number} BodyStyle id
+	 */
+	function UpdateBodyStyle( job )
+	{
+		var baseJob, path;
+		var Entity;
+
+		if (job < 0) {
+			return;
+		}
+
+		// Avoid fuck*ng errors with mounts !
+		// Sometimes the server send us the job of the mount sprite instead
+		// of the base sprite + effect to have the mount.
+		for (baseJob in MountTable) {
+			if (MountTable[baseJob] === job) {
+				this.costume = job;
+				job          = baseJob;
+				break;
+			}
+		}
+
+		for (baseJob in AllMountTable) {
+			if (AllMountTable[baseJob] === job) {
+				this.costume = job;
+				job          = baseJob;
+				break;
+			}
+		}
+
+		// Clothes keep the old job in memory
+		// and show the costum if used
+		this._body = job;
+
+		// Resize character
+		this.xSize = this.ySize = DB.isBaby(this.job) ? 4 : 5;
+
+		this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this.job, this._sex, this._body);
+		Entity                 = this.constructor;
 
 		// Loading
 		Client.loadFile(path + '.act');
@@ -393,6 +452,11 @@ define(function( require )
 		Object.defineProperty(this, 'job', {
 			get: function(){ return this.costume || this._job; },
 			set: UpdateBody
+		});
+		this._body = this._job;
+		Object.defineProperty(this, 'body', {
+			get: function(){ return this._body; },
+			set: UpdateBodyStyle
 		});
 
 		Object.defineProperty(this, 'bodypalette', {

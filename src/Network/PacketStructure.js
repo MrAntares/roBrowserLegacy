@@ -11964,6 +11964,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.hp = fp.readLong();
 		this.maxhp = fp.readLong();
 		this.isBoss = fp.readUChar();
+		this.body = fp.readShort();
 		this.name = fp.readString(end - fp.tell());
 	};
 	PACKET.ZC.NOTIFY_NEWENTRY8.size = -1;

@@ -2468,23 +2468,27 @@ define(function (require) {
 
 		// PC
 		if (isPlayer(id)) {
-			var result = 'data/sprite/';
 			// DORAM
 			var isDoram = DB.isDoram(id);
-			result += isDoram ? '\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/' : '\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
+			var result = isDoram ? 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/' : 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
 			result += SexTable[sex] + '/';
-			console.log('alt:'+alternative);
-			if(alternative !== -1 && !isDoram){
-				if(id > JobId.COSTUME_SECOND_JOB_START && id < JobId.COSTUME_SECOND_JOB_END)
-					result += 'costume_1/';
+
+			if(PACKETVER.value > 20141022){
+				if(alternative > 0){
+					if((PACKETVER.value > 20231220 && alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) || alternative === 1)
+						result += 'costume_1/';
+
+					result += (ClassTable[id] || ClassTable[0]);
+					result += '_' + SexTable[sex];
+
+					if((PACKETVER.value > 20231220 && alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) || alternative === 1)
+						result += '_1';
+					return result;
+				}
 			}
+
 			result += (ClassTable[id] || ClassTable[0]);
 			result += '_' + SexTable[sex];
-
-			if(alternative !== -1 && !isDoram){
-				if(id > JobId.COSTUME_SECOND_JOB_START && id < JobId.COSTUME_SECOND_JOB_END)
-					result += '_1';
-			}
 
 			return result;
 		}
