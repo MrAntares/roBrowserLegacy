@@ -145,7 +145,7 @@ define(function( require )
 
 
 		this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
-		path                   = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath( job, this._sex );
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, this.costume );
 		Entity                 = this.constructor;
 
 		// Define Object type based on its id
@@ -213,7 +213,6 @@ define(function( require )
 			to_rgba: this.objecttype !== Entity.TYPE_PC
 		});
 	}
-
 
 	/**
 	 * Update body palette

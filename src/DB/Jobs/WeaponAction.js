@@ -327,28 +327,26 @@ define(['./JobConst', 'DB/Items/WeaponType'], function( JobId, WeaponType )
 	duplicateEntry(JobId.ACOLYTE,    JobId.ACOLYTE_H,    JobId.ACOLYTE_B);
 	duplicateEntry(JobId.MERCHANT,   JobId.MERCHANT_H,   JobId.MERCHANT_B);
 	duplicateEntry(JobId.THIEF,      JobId.THIEF_H,      JobId.THIEF_B);
-	duplicateEntry(JobId.KNIGHT,     JobId.KNIGHT_B,     JobId.KNIGHT_H,     JobId.RUNE_KNIGHT,      JobId.RUNE_KNIGHT_H,      JobId.RUNE_KNIGHT_B,        JobId.DRAGON_KNIGHT);
-	duplicateEntry(JobId.KNIGHT2,    JobId.KNIGHT2_B,    JobId.KNIGHT2_H,    JobId.RUNE_KNIGHT2,     JobId.RUNE_KNIGHT2_H,     JobId.RUNE_KNIGHT2_B,       JobId.DRAGON_KNIGHT2);
-	duplicateEntry(JobId.PRIEST,     JobId.PRIEST_B,     JobId.PRIEST_H,     JobId.ARCHBISHOP,       JobId.ARCHBISHOP_H,       JobId.ARCHBISHOP_B,         JobId.CARDINAL);
-	duplicateEntry(JobId.WIZARD,     JobId.WIZARD_B,     JobId.WIZARD_H,     JobId.WARLOCK,          JobId.WARLOCK_H,          JobId.WARLOCK_B,            JobId.ARCH_MAGE);
-	duplicateEntry(JobId.BLACKSMITH, JobId.BLACKSMITH_B, JobId.BLACKSMITH_H, JobId.MECHANIC,         JobId.MECHANIC_H,         JobId.MECHANIC_B,           JobId.MEISTER,   JobId.MEISTER2);
-	duplicateEntry(JobId.HUNTER,     JobId.HUNTER_B,     JobId.HUNTER_H,     JobId.RANGER,           JobId.RANGER_H,           JobId.RANGER_B,             JobId.WINDHAWK,   JobId.WINDHAWK2);
-	duplicateEntry(JobId.ASSASSIN,   JobId.ASSASSIN_B,   JobId.ASSASSIN_H,   JobId.GUILLOTINE_CROSS, JobId.GUILLOTINE_CROSS_H, JobId.GUILLOTINE_CROSS_B,   JobId.SHADOW_CROSS);
-	duplicateEntry(JobId.CRUSADER,   JobId.CRUSADER_B,   JobId.CRUSADER_H,   JobId.ROYAL_GUARD,      JobId.ROYAL_GUARD_H,      JobId.ROYAL_GUARD_B,        JobId.IMPERIAL_GUARD);
-	duplicateEntry(JobId.CRUSADER2,  JobId.CRUSADER2_B,  JobId.CRUSADER2_H,  JobId.ROYAL_GUARD2,     JobId.ROYAL_GUARD2_H,     JobId.ROYAL_GUARD2_B,       JobId.IMPERIAL_GUARD2);
-	duplicateEntry(JobId.MONK,       JobId.MONK_B,       JobId.MONK_H,       JobId.SURA,             JobId.SURA_H,             JobId.SURA_B,               JobId.INQUISITOR);
-	duplicateEntry(JobId.SAGE,       JobId.SAGE_B,       JobId.SAGE_H,       JobId.SORCERER,         JobId.SORCERER_H,         JobId.SORCERER_B,           JobId.ELEMENTAL_MASTER);
-	duplicateEntry(JobId.ROGUE,      JobId.ROGUE_B,      JobId.ROGUE_H,      JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B,      JobId.ABYSS_CHASER);
-	duplicateEntry(JobId.ALCHEMIST,  JobId.ALCHEMIST_B,  JobId.ALCHEMIST_H,  JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B,            JobId.BIOLO);
-	duplicateEntry(JobId.BARD,       JobId.BARD_B,       JobId.BARD_H,       JobId.MINSTREL,         JobId.MINSTREL_H,         JobId.MINSTREL_B,           JobId.TROUBADOUR);
-	duplicateEntry(JobId.DANCER,     JobId.DANCER_B,     JobId.DANCER_H,     JobId.WANDERER,         JobId.WANDERER_H,         JobId.WANDERER_B,           JobId.TROUVERE);
+	duplicateEntry(JobId.KNIGHT,     JobId.KNIGHT_B,     JobId.KNIGHT_H,     JobId.RUNE_KNIGHT,      JobId.RUNE_KNIGHT_H,      JobId.RUNE_KNIGHT_B,        JobId.DRAGON_KNIGHT, JobId.RUNE_KNIGHT_2ND);
+	duplicateEntry(JobId.KNIGHT2,    JobId.KNIGHT2_B,    JobId.KNIGHT2_H,    JobId.RUNE_KNIGHT2,     JobId.RUNE_KNIGHT2_H,     JobId.RUNE_KNIGHT2_B,       JobId.DRAGON_KNIGHT2, JobId.RUNE_KNIGHT2_2ND);
+	duplicateEntry(JobId.PRIEST,     JobId.PRIEST_B,     JobId.PRIEST_H,     JobId.ARCHBISHOP,       JobId.ARCHBISHOP_H,       JobId.ARCHBISHOP_B,         JobId.CARDINAL,JobId.ARCHBISHOP_2ND);
+	duplicateEntry(JobId.WIZARD,     JobId.WIZARD_B,     JobId.WIZARD_H,     JobId.WARLOCK,          JobId.WARLOCK_H,          JobId.WARLOCK_B,            JobId.ARCH_MAGE, JobId.WARLOCK_2ND);
+	duplicateEntry(JobId.BLACKSMITH, JobId.BLACKSMITH_B, JobId.BLACKSMITH_H, JobId.MECHANIC,         JobId.MECHANIC_H,         JobId.MECHANIC_B,           JobId.MEISTER,   JobId.MEISTER2,JobId.MECHANIC2_2ND, JobId.MECHANIC_2ND);
+	duplicateEntry(JobId.HUNTER,     JobId.HUNTER_B,     JobId.HUNTER_H,     JobId.RANGER,           JobId.RANGER_H,           JobId.RANGER_B,             JobId.WINDHAWK,   JobId.WINDHAWK2, JobId.RANGER_2ND,JobId.RANGER2_2ND);
+	duplicateEntry(JobId.ASSASSIN,   JobId.ASSASSIN_B,   JobId.ASSASSIN_H,   JobId.GUILLOTINE_CROSS, JobId.GUILLOTINE_CROSS_H, JobId.GUILLOTINE_CROSS_B,   JobId.SHADOW_CROSS,JobId.GUILLOTINE_CROSS_2ND);
+	duplicateEntry(JobId.CRUSADER,   JobId.CRUSADER_B,   JobId.CRUSADER_H,   JobId.ROYAL_GUARD,      JobId.ROYAL_GUARD_H,      JobId.ROYAL_GUARD_B,        JobId.IMPERIAL_GUARD,JobId.ROYAL_GUARD_2ND);
+	duplicateEntry(JobId.CRUSADER2,  JobId.CRUSADER2_B,  JobId.CRUSADER2_H,  JobId.ROYAL_GUARD2,     JobId.ROYAL_GUARD2_H,     JobId.ROYAL_GUARD2_B,       JobId.IMPERIAL_GUARD2,JobId.ROYAL_GUARD2_2ND);
+	duplicateEntry(JobId.MONK,       JobId.MONK_B,       JobId.MONK_H,       JobId.SURA,             JobId.SURA_H,             JobId.SURA_B,               JobId.INQUISITOR,JobId.SURA_2ND);
+	duplicateEntry(JobId.SAGE,       JobId.SAGE_B,       JobId.SAGE_H,       JobId.SORCERER,         JobId.SORCERER_H,         JobId.SORCERER_B,           JobId.ELEMENTAL_MASTER,JobId.SORCERER_2ND);
+	duplicateEntry(JobId.ROGUE,      JobId.ROGUE_B,      JobId.ROGUE_H,      JobId.SHADOW_CHASER,    JobId.SHADOW_CHASER_H,    JobId.SHADOW_CHASER_B,      JobId.ABYSS_CHASER, JobId.SHADOW_CHASER_2ND);
+	duplicateEntry(JobId.ALCHEMIST,  JobId.ALCHEMIST_B,  JobId.ALCHEMIST_H,  JobId.GENETIC,          JobId.GENETIC_H,          JobId.GENETIC_B,            JobId.BIOLO,JobId.GENETIC_2ND);
+	duplicateEntry(JobId.BARD,       JobId.BARD_B,       JobId.BARD_H,       JobId.MINSTREL,         JobId.MINSTREL_H,         JobId.MINSTREL_B,           JobId.TROUBADOUR,JobId.MINSTREL_2ND);
+	duplicateEntry(JobId.DANCER,     JobId.DANCER_B,     JobId.DANCER_H,     JobId.WANDERER,         JobId.WANDERER_H,         JobId.WANDERER_B,           JobId.TROUVERE,JobId.WANDERER_2ND);
 	duplicateEntry(JobId.SUPERNOVICE, JobId.SUPERNOVICE_B, JobId.SUPERNOVICE2, JobId.SUPERNOVICE2_B, JobId.HYPER_NOVICE);
 	duplicateEntry(JobId.NINJA,      JobId.NINJA_B,      JobId.KAGEROU,      JobId.KAGEROU_B,        JobId.OBORO,              JobId.OBORO_B,              JobId.SHINKIRO,     JobId.SHIRANUI);
 	duplicateEntry(JobId.GUNSLINGER, JobId.GUNSLINGER_B, JobId.REBELLION,     JobId.REBELLION_B,     JobId.NIGHT_WATCH);
 	duplicateEntry(JobId.LINKER,     JobId.LINKER_B,     JobId.SOUL_REAPER,       JobId.SOUL_REAPER_B,         JobId.SOUL_ASCETIC);
-
-	// missing star/evolutions?
-
+     
 	/**
 	 * Exports
 	 */
