@@ -26,7 +26,9 @@ define(function()
 
 
 	const MAX_HEAP     = 150;
-	const MAX_WALKPATH = 33;
+	const MAX_WALKPATH = 32;
+	const MOVE_COST = 10;
+	const MOVE_DIAGONAL_COST = 14;
 
 
 	// Memory
@@ -51,12 +53,12 @@ define(function()
 	// Should be convert to inline code by the browser (V8)
 	function calc_index(x, y)
 	{
-		return ( x + y * MAX_WALKPATH ) % (MAX_WALKPATH * MAX_WALKPATH);
+		return ( x + y * MAX_WALKPATH ) & (MAX_WALKPATH * MAX_WALKPATH-1);
 	}
 
 	function calc_cost(i, x1, y1)
 	{
-		return ( Math.abs(x1-_x[i]) + Math.abs(y1-_y[i]) ) * 10 + _dist[i];
+		return (Math.abs((x1) - (_x[i])) + Math.abs((y1) - (_y[i]))) * MOVE_COST + _dist[i];
 	}
 
 
@@ -160,10 +162,10 @@ define(function()
 	 * @param {number} before
 	 * @param {number} cost
 	 */
-	function add_path( heap, x, y, dist, before, cost )
+	function add_path( heap, x, y, dist, before, x1, y1 )
 	{
 		var i = calc_index(x,y);
-
+		var cost = dist + calc_cost( i, x1, y1);
 		if (_x[i] === x && _y[i] === y) {
 
 			if (_dist[i] > dist) {
@@ -377,7 +379,7 @@ define(function()
 
 			x     = _x[currentNode];
 			y     = _y[currentNode];
-			dist  = _dist[currentNode] + 10;
+			dist  = _dist[currentNode];
 			cost  = _cost[currentNode];
 
 			// Finished
@@ -388,42 +390,42 @@ define(function()
 			if (y < sizeY && types[ (x+0) + (y+1) * width ] & TYPE.WALKABLE) {
 				dc[0] = (y >= y1 ? 20 : 0);
 				dirFlag    |= 1;
-				error    += add_path( heap, x+0, y+1, dist, currentNode, cost + dc[0] );
+				error    += add_path( heap, x+0, y+1, dist+MOVE_COST, currentNode, x1, y1 );
 			}
 
 			if (x > 0 && types[ (x-1) + (y+0) * width ] & TYPE.WALKABLE) {
 				dc[1] = (x <= x1 ? 20 : 0);
 				dirFlag    |= 2;
-				error    += add_path( heap, x-1, y+0, dist, currentNode, cost + dc[1] );
+				error    += add_path( heap, x-1, y+0, dist+MOVE_COST, currentNode, x1, y1 );
 			}
 
 			if (y > 0 && types[ (x+0) + (y-1) * width ] & TYPE.WALKABLE) {
 				dc[2] = (y <= y1 ? 20 : 0);
 				dirFlag    |= 4;
-				error    += add_path( heap, x+0, y-1, dist, currentNode, cost + dc[2] );
+				error    += add_path( heap, x+0, y-1, dist+MOVE_COST, currentNode, x1, y1 );
 			}
 
 			if (x < sizeX && types[ (x+1) + (y+0) * width ] & TYPE.WALKABLE) {
 				dc[3] = (x >= x1 ? 20 : 0);
 				dirFlag    |= 8;
-				error    += add_path( heap, x+1, y+0, dist, currentNode, cost + dc[3] );
+				error    += add_path( heap, x+1, y+0, dist+MOVE_COST, currentNode, x1, y1 );
 			}
 
 			// Diagonals
 			if ((dirFlag & (2+1)) === 2+1 && types[ (x-1) + (y+1) * width ] & TYPE.WALKABLE) {
-				error += add_path( heap, x-1, y+1, dist+4, currentNode, cost + dc[1] + dc[0] - 6 );
+				error += add_path( heap, x-1, y+1, dist + MOVE_DIAGONAL_COST, currentNode, x1, y1 );
 			}
 
 			if ((dirFlag & (2+4)) === 2+4 && types[ (x-1) + (y-1) * width ] & TYPE.WALKABLE) {
-				error += add_path( heap, x-1, y-1, dist+4, currentNode ,cost + dc[1] + dc[2] - 6 );
+				error += add_path( heap, x-1, y-1, dist + MOVE_DIAGONAL_COST, currentNode ,x1, y1 );
 			}
 
 			if ((dirFlag & (8+4)) === 8+4 && types[ (x+1) + (y-1) * width ] & TYPE.WALKABLE) {
-				error += add_path( heap, x+1, y-1, dist+4, currentNode, cost + dc[3] + dc[2] - 6 );
+				error += add_path( heap, x+1, y-1, dist + MOVE_DIAGONAL_COST, currentNode, x1, y1);
 			}
 
 			if ((dirFlag & (8+1)) === 8+1 && types[ (x+1) + (y+1) * width ] & TYPE.WALKABLE) {
-				error += add_path( heap, x+1, y+1, dist+4, currentNode, cost + dc[3] + dc[0] - 6 );
+				error += add_path( heap, x+1, y+1, dist + MOVE_DIAGONAL_COST, currentNode, x1, y1 );
 			}
 
 			_flag[currentNode] = 1;
