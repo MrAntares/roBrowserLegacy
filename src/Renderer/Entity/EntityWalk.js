@@ -394,7 +394,7 @@ define( function( require )
 			var traveledDist = 0;
 
 			// If we were paused by another action, keep segment timing in sync.
-			if (walk.prevTick && walk.prevTick !== TICK && walk.prevTick > segmentStart && this.action !== this.ACTION.WALK) {
+			if (walk.prevTick && walk.prevTick !== TICK && walk.prevTick > segmentStart && this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON) {
 				segmentStart += TICK - walk.prevTick;
 				segmentEnd   = segmentStart + speed;
 			}

@@ -578,7 +578,7 @@ define( function( require )
 			// In roBrowser, `entity.walk.dist` is in map cells and WALK_DIST_TO_MOTION encodes
 			// stepSize * 0.37 * 4 * 24, so we divide by act.delay (ms).
 			// Apply to all sprite parts so hats/weapons stay in phase with the body.
-			if (action === ACTION.WALK && entity.walk) {
+			if (action === ACTION.WALK && entity.walk && entity.objecttype !== entity.constructor.TYPE_FALCON) {
 				var motionCount = animCount || 1;
 				if (animation.length) {
 					motionCount = animation.length;
