@@ -32,6 +32,8 @@ define(function (require) {
 	const Sound         = require('Audio/SoundManager');
 	const Preferences   = require('Preferences/Map');
 	const QuadHorn      = require('Renderer/Effects/QuadHorn');
+	const Session       = require('Engine/SessionStorage');
+	var GraphicsSettings = require('Preferences/Graphics');
 
 	/**
 	 * @type {object} saved webgl context
@@ -284,6 +286,15 @@ define(function (require) {
 		const count = keys.length;
 		let i, j, size, list, constructor;
 
+		// Calculate culling bounds
+		// Simple distance check from player
+		var center = [0,0,0];
+		if (Session.Entity && Session.Entity.position) {
+			center = Session.Entity.position;
+		}
+		var area_size = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var cullDistanceSq = area_size * area_size;
+
 		for (i = 0; i < count; ++i) {
 			list = _list[keys[i]];
 
@@ -309,22 +320,50 @@ define(function (require) {
 						continue;
 					}
 
-					if (!(list[j].ready) && list[j].needInit) {
-						list[j].init(gl);
-						list[j].needInit = false;
+					var effect = list[j];
+					var pos = effect._Params.Inst.position;
+
+					// Culling: If effect has position, check distance
+					// Some effects might track an entity, updating their position is usually done in render()
+					// so we might need to run a lightweight update if we cull rendering.
+					// However, most RO effects are static or simple.
+					if (pos) {
+						var distSq = (pos[0]-center[0])*(pos[0]-center[0]) + (pos[1]-center[1])*(pos[1]-center[1]);
+						if (distSq > cullDistanceSq) {
+							// Cull this effect (don't render), but we must check lifecycle
+							// Check if effect is finished
+							
+							// Simulate tick for removal
+							var shouldRemove = false;
+							if (effect._Params.Inst.duration > 0 && effect._Params.Inst.endTick > 0 && tick > effect._Params.Inst.endTick) {
+								shouldRemove = true;
+							}
+
+							if (shouldRemove) {
+								effect.needCleanUp = true;
+							} else {
+								// Check for repeat logic even if culled
+								size += repeatEffect(effect);
+								continue; // Skip rendering
+							}
+						}
 					}
 
-					if (list[j].ready) {
-						list[j].render(gl, tick);
+					if (!(effect.ready) && effect.needInit) {
+						effect.init(gl);
+						effect.needInit = false;
+					}
+
+					if (effect.ready) {
+						effect.render(gl, tick);
 					}
 
 					// Try repeating the effect.
-					// This will increase the list size if successful
-					size += repeatEffect(list[j]);
+					size += repeatEffect(effect);
 
-					if (list[j].needCleanUp) {
-						if (list[j].free) {
-							list[j].free(gl);
+					if (effect.needCleanUp) {
+						if (effect.free) {
+							effect.free(gl);
 						}
 						list.splice(j, 1);
 						j--;

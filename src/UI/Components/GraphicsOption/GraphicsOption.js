@@ -62,6 +62,8 @@ define(function(require)
 		this.ui.find('.pixel-perfect').change(onTogglePixelPerfect);
 		this.ui.find('.bloom').change(onToggleBloom);
 		this.ui.find('.bloom-intensity').change(onUpdateBloomIntensity);
+		this.ui.find('.culling').change(onToggleCulling);
+		this.ui.find('.view-area').change(onUpdateAreaView);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
@@ -86,6 +88,8 @@ define(function(require)
 		this.ui.find('.pixel-perfect').attr('checked', GraphicsSettings.pixelPerfectSprites);
 		this.ui.find('.bloom').attr('checked', GraphicsSettings.bloom);
 		this.ui.find('.bloom-intensity').val(GraphicsSettings.bloomIntensity);
+		this.ui.find('.culling').attr('checked', GraphicsSettings.culling);
+		this.ui.find('.view-area').val(GraphicsSettings.viewArea);
 	};
 
 
@@ -174,6 +178,21 @@ define(function(require)
 	function onUpdateBloomIntensity()  
 	{  
 		GraphicsSettings.bloomIntensity = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	/**
+	 * Culling
+	 */
+	function onToggleCulling()
+	{
+		GraphicsSettings.culling = !!this.checked;
+		GraphicsSettings.save();
+	}
+
+	function onUpdateAreaView()  
+	{  
+		GraphicsSettings.viewArea = parseInt(this.value);  
 		GraphicsSettings.save();  
 	}
 

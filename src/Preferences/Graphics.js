@@ -46,6 +46,12 @@ define( ['Core/Preferences'], function( Preferences )
 		bloom:    false,
 		bloomIntensity: 0.5,
 
+		/**
+		 * View Area Culling
+		 */
+		culling:    false,
+		viewArea: 14,
+
 		pixelPerfectSprites: false
 	}, 1.1 );
 
