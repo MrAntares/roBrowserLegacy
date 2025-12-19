@@ -52,39 +52,55 @@ define(function(require)
 	};
 
 	/**
-	 * When append the element to html
-	 */
+	* When appended to DOM
+	*/
 	FPS.onAppend = function OnAppend()
 	{
 		// Apply preferences
-		if (!_preferences.show) {
-			this.ui.hide();
-		} else {
-			this.ui.show();
-		}
+		this.ui.toggle(_preferences.show);
 
 		this.ui.css({
 			top:  _preferences.y,
 			left: _preferences.x,
 		});
 
-		var fps = this.ui.find('#fpsCounter');
+		var fpsEl = this.ui.find('#fpsCounter');
 		var startTime = 0;
 		var frame = 0;
+		var lastValue = null;
+		var lastClass = null;
 
-		function tick( timeDelta ) {
-			frame++;
-			if (timeDelta - startTime >= 1000) {
-				var value = (frame / ((timeDelta - startTime) / 1000)).toFixed(1);
-				fps.text( value );
-				
-				var frameLimit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
-				this.ui.css('color', value >= frameLimit - ( ( 10 / frameLimit ) * 100 ) ? 'green' : value >= 15 ? 'orange' : 'red' );
-				startTime = timeDelta;
-				frame = 0;
-			}
+		function getFPSClass(value, frameLimit){
+			if (value >= frameLimit - ((10 / frameLimit) * 100)) return 'fps-good';
+			if (value >= 15) return 'fps-warn';
+			return 'fps-bad';
 		}
-		Renderer.render( tick.bind(this) );
+		
+		function tick(time){
+			frame++;
+			if (time - startTime < 1000) return;
+			var value = +(frame / ((time - startTime) / 1000)).toFixed(1);
+
+			// Update text only if changed
+			if (value !== lastValue) {
+				fpsEl.text(value);
+				lastValue = value;
+			}
+
+			var limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
+			var cls = getFPSClass(value, limit);
+
+			// Update class only if changed
+			if (cls !== lastClass) {
+				this.ui.removeClass('fps-good fps-warn fps-bad').addClass(cls);
+				lastClass = cls;
+			}
+
+			startTime = time;
+			frame = 0;
+		}
+		// Passive FPS listener (no render logic impact)
+		Renderer.render(tick.bind(this));
 	};
 
 	/**
