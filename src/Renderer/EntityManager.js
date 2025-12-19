@@ -474,7 +474,8 @@ define(function (require) {
 				
 				// Quick distance check (Manhattan or Euclidean)
 				var distSq = Math.pow(entity.position[0] - sourceEntity.position[0], 2) + Math.pow(entity.position[1] - sourceEntity.position[1], 2);
-				if (distSq > 400) return; // Ignore entities > 20 cells away
+				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+				if (distSq > view_range) return; // Ignore entities > viewrange cells away
 
 				var dst = Infinity;
 				if (closestEntity) {
