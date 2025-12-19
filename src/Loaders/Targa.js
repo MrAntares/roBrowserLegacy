@@ -135,202 +135,6 @@ define(function()
 		return output;
 	}
 
-
-	/**
-	 * Return a ImageData object from a TGA file (8bits)
-	 *
-	 * @param {Array} imageData - ImageData to bind
-	 * @param {Array} indexes - index to colormap
-	 * @param {Array} colormap
-	 * @param {number} width
-	 * @param {number} y_start - start at y pixel.
-	 * @param {number} x_start - start at x pixel.
-	 * @param {number} y_step  - increment y pixel each time.
-	 * @param {number} y_end   - stop at pixel y.
-	 * @param {number} x_step  - increment x pixel each time.
-	 * @param {number} x_end   - stop at pixel x.
-	 * @returns {Array} imageData
-	 */
-	function getImageData8bits(imageData, indexes, colormap, width, y_start, y_step, y_end, x_start, x_step, x_end)
-	{
-		var color, i, x, y;
-
-		for (i = 0, y = y_start; y !== y_end; y += y_step) {
-			for (x = x_start; x !== x_end; x += x_step, i++) {
-				color = indexes[i];
-				imageData[(x + width * y) * 4 + 3] = 255;
-				imageData[(x + width * y) * 4 + 2] = colormap[(color * 3) + 0];
-				imageData[(x + width * y) * 4 + 1] = colormap[(color * 3) + 1];
-				imageData[(x + width * y) * 4 + 0] = colormap[(color * 3) + 2];
-			}
-		}
-
-		return imageData;
-	}
-
-
-	/**
-	 * Return a ImageData object from a TGA file (16bits)
-	 *
-	 * @param {Array} imageData - ImageData to bind
-	 * @param {Array} pixels data
-	 * @param {Array} colormap - not used
-	 * @param {number} width
-	 * @param {number} y_start - start at y pixel.
-	 * @param {number} x_start - start at x pixel.
-	 * @param {number} y_step  - increment y pixel each time.
-	 * @param {number} y_end   - stop at pixel y.
-	 * @param {number} x_step  - increment x pixel each time.
-	 * @param {number} x_end   - stop at pixel x.
-	 * @returns {Array} imageData
-	 */
-	function getImageData16bits(imageData, pixels, colormap, width, y_start, y_step, y_end, x_start, x_step, x_end)
-	{
-		var color, i, x, y;
-
-		for (i = 0, y = y_start; y !== y_end; y += y_step) {
-			for (x = x_start; x !== x_end; x += x_step, i += 2) {
-				color = pixels[i + 0] | (pixels[i + 1] << 8);
-				imageData[(x + width * y) * 4 + 0] = (color & 0x7C00) >> 7;
-				imageData[(x + width * y) * 4 + 1] = (color & 0x03E0) >> 2;
-				imageData[(x + width * y) * 4 + 2] = (color & 0x001F) >> 3;
-				imageData[(x + width * y) * 4 + 3] = (color & 0x8000) ? 0 : 255;
-			}
-		}
-
-		return imageData;
-	}
-
-
-	/**
-	 * Return a ImageData object from a TGA file (24bits)
-	 *
-	 * @param {Array} imageData - ImageData to bind
-	 * @param {Array} pixels data
-	 * @param {Array} colormap - not used
-	 * @param {number} width
-	 * @param {number} y_start - start at y pixel.
-	 * @param {number} x_start - start at x pixel.
-	 * @param {number} y_step  - increment y pixel each time.
-	 * @param {number} y_end   - stop at pixel y.
-	 * @param {number} x_step  - increment x pixel each time.
-	 * @param {number} x_end   - stop at pixel x.
-	 * @returns {Array} imageData
-	 */
-	function getImageData24bits(imageData, pixels, colormap, width, y_start, y_step, y_end, x_start, x_step, x_end)
-	{
-		var i, x, y;
-
-		for (i = 0, y = y_start; y !== y_end; y += y_step) {
-			for (x = x_start; x !== x_end; x += x_step, i += 3) {
-				imageData[(x + width * y) * 4 + 3] = 255;
-				imageData[(x + width * y) * 4 + 2] = pixels[i + 0];
-				imageData[(x + width * y) * 4 + 1] = pixels[i + 1];
-				imageData[(x + width * y) * 4 + 0] = pixels[i + 2];
-			}
-		}
-
-		return imageData;
-	}
-
-
-	/**
-	 * Return a ImageData object from a TGA file (32bits)
-	 *
-	 * @param {Array} imageData - ImageData to bind
-	 * @param {Array} pixels data
-	 * @param {Array} colormap - not used
-	 * @param {number} width
-	 * @param {number} y_start - start at y pixel.
-	 * @param {number} x_start - start at x pixel.
-	 * @param {number} y_step  - increment y pixel each time.
-	 * @param {number} y_end   - stop at pixel y.
-	 * @param {number} x_step  - increment x pixel each time.
-	 * @param {number} x_end   - stop at pixel x.
-	 * @returns {Array} imageData
-	 */
-	function getImageData32bits(imageData, pixels, colormap, width, y_start, y_step, y_end, x_start, x_step, x_end)
-	{
-		var i, x, y;
-
-		for (i = 0, y = y_start; y !== y_end; y += y_step) {
-			for (x = x_start; x !== x_end; x += x_step, i += 4) {
-				imageData[(x + width * y) * 4 + 2] = pixels[i + 0];
-				imageData[(x + width * y) * 4 + 1] = pixels[i + 1];
-				imageData[(x + width * y) * 4 + 0] = pixels[i + 2];
-				imageData[(x + width * y) * 4 + 3] = pixels[i + 3];
-			}
-		}
-
-		return imageData;
-	}
-
-
-	/**
-	 * Return a ImageData object from a TGA file (8bits grey)
-	 *
-	 * @param {Array} imageData - ImageData to bind
-	 * @param {Array} pixels data
-	 * @param {Array} colormap - not used
-	 * @param {number} width
-	 * @param {number} y_start - start at y pixel.
-	 * @param {number} x_start - start at x pixel.
-	 * @param {number} y_step  - increment y pixel each time.
-	 * @param {number} y_end   - stop at pixel y.
-	 * @param {number} x_step  - increment x pixel each time.
-	 * @param {number} x_end   - stop at pixel x.
-	 * @returns {Array} imageData
-	 */
-	function getImageDataGrey8bits(imageData, pixels, colormap, width, y_start, y_step, y_end, x_start, x_step, x_end)
-	{
-		var color, i, x, y;
-
-		for (i = 0, y = y_start; y !== y_end; y += y_step) {
-			for (x = x_start; x !== x_end; x += x_step, i++) {
-				color = pixels[i];
-				imageData[(x + width * y) * 4 + 0] = color;
-				imageData[(x + width * y) * 4 + 1] = color;
-				imageData[(x + width * y) * 4 + 2] = color;
-				imageData[(x + width * y) * 4 + 3] = 255;
-			}
-		}
-
-		return imageData;
-	}
-
-
-	/**
-	 * Return a ImageData object from a TGA file (16bits grey)
-	 *
-	 * @param {Array} imageData - ImageData to bind
-	 * @param {Array} pixels data
-	 * @param {Array} colormap - not used
-	 * @param {number} width
-	 * @param {number} y_start - start at y pixel.
-	 * @param {number} x_start - start at x pixel.
-	 * @param {number} y_step  - increment y pixel each time.
-	 * @param {number} y_end   - stop at pixel y.
-	 * @param {number} x_step  - increment x pixel each time.
-	 * @param {number} x_end   - stop at pixel x.
-	 * @returns {Array} imageData
-	 */
-	function getImageDataGrey16bits(imageData, pixels, colormap, width, y_start, y_step, y_end, x_start, x_step, x_end)
-	{
-		var i, x, y;
-
-		for (i = 0, y = y_start; y !== y_end; y += y_step) {
-			for (x = x_start; x !== x_end; x += x_step, i += 2) {
-				imageData[(x + width * y) * 4 + 0] = pixels[i + 0];
-				imageData[(x + width * y) * 4 + 1] = pixels[i + 0];
-				imageData[(x + width * y) * 4 + 2] = pixels[i + 0];
-				imageData[(x + width * y) * 4 + 3] = pixels[i + 1];
-			}
-		}
-
-		return imageData;
-	}
-
-
 	/**
 	 * Open a targa file using XHR, be aware with Cross Domain files...
 	 *
@@ -432,25 +236,13 @@ define(function()
 	{
 		var width  = this.header.width;
 		var height = this.header.height;
-		var origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
-		var x_start, x_step, x_end, y_start, y_step, y_end;
-		var getImageData;
-
 		// Create an imageData
 		if (!imageData) {
-			if (document) {
-				imageData = document.createElement('canvas').getContext('2d').createImageData(width, height);
-			}
-			// In Thread context ?
-			else {
-				imageData = {
-					width:  width,
-					height: height,
-					data: new Uint8ClampedArray(width * height * 4)
-				};
-			}
+			imageData = { width: width, height: height, data: new Uint8ClampedArray(width * height * 4) };
 		}
-
+		var origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
+		var x_start, x_step, x_end, y_start, y_step, y_end;
+		
 		if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT) {
 			y_start = 0;
 			y_step  = 1;
@@ -473,27 +265,97 @@ define(function()
 			x_end   = -1;
 		}
 
-		// TODO: use this.header.offsetX and this.header.offsetY ?
+		var data = imageData.data;
+		var input = this.imageData;
+		var buffer32 = new Uint32Array(data.buffer);
+		var i = 0;
 
 		switch (this.header.pixelDepth) {
 			case 8:
-				getImageData = this.header.isGreyColor ? getImageDataGrey8bits : getImageData8bits;
-				break;
+			if (this.header.isGreyColor) {
+				// 8-bit grayscale
+				for (var y = y_start; y !== y_end; y += y_step) {
+					var rowOffset = y * width;
+					for (var x = x_start; x !== x_end; x += x_step) {
+						var v = input[i++];
+						buffer32[rowOffset + x] =
+							(255 << 24) | (v << 16) | (v << 8) | v;
+					}
+				}
+			} else {
+				// 8-bit indexed (paletted)
+				var colormap = this.palette;
+				for (var y = y_start; y !== y_end; y += y_step) {
+					var rowOffset = y * width;
+					for (var x = x_start; x !== x_end; x += x_step) {
+						var idx = input[i++] * 3;
+						var b = colormap[idx + 0];
+						var g = colormap[idx + 1];
+						var r = colormap[idx + 2];
+						buffer32[rowOffset + x] =
+							(255 << 24) | (b << 16) | (g << 8) | r;
+					}
+				}
+			}
+			break;
 
 			case 16:
-				getImageData = this.header.isGreyColor ? getImageDataGrey16bits : getImageData16bits;
-				break;
+			if (this.header.isGreyColor) {
+				// 16-bit grayscale (intensity + alpha)
+				for (var y = y_start; y !== y_end; y += y_step) {
+					var rowOffset = y * width;
+					for (var x = x_start; x !== x_end; x += x_step) {
+						var intensity = input[i++];
+						var alpha = input[i++];
+						buffer32[rowOffset + x] =
+							(alpha << 24) |
+							(intensity << 16) |
+							(intensity << 8) |
+							intensity;
+					}
+				}
+			} else {
+				// 16-bit 5-5-5-1
+				for (var y = y_start; y !== y_end; y += y_step) {
+					var rowOffset = y * width;
+					for (var x = x_start; x !== x_end; x += x_step) {
+						var color = input[i] | (input[i + 1] << 8);
+						i += 2;
 
+						var r = (color & 0x7C00) >> 7;
+						var g = (color & 0x03E0) >> 2;
+						var b = (color & 0x001F) << 3;
+						var a = (color & 0x8000) ? 0 : 255;
+
+						buffer32[rowOffset + x] =
+							(a << 24) | (b << 16) | (g << 8) | r;
+					}
+				}
+			}
+			break;
 			case 24:
-				getImageData = getImageData24bits;
+				for (var y = y_start; y !== y_end; y += y_step) {
+					var rowOffset = y * width;
+					for (var x = x_start; x !== x_end; x += x_step) {
+						var b = input[i++]; var g = input[i++]; var r = input[i++];
+						buffer32[rowOffset + x] = (255 << 24) | (b << 16) | (g << 8) | r;
+					}
+				}
 				break;
 
 			case 32:
-				getImageData = getImageData32bits;
+				for (var y = y_start; y !== y_end; y += y_step) {
+					var rowOffset = y * width;
+					for (var x = x_start; x !== x_end; x += x_step) {
+						// BGRA to RGBA (or ABGR depending on endianness)
+						// TGA 32 is usually BGRA
+						// WebGL expects RGBA
+						var b = input[i++]; var g = input[i++]; var r = input[i++]; var a = input[i++];
+						buffer32[rowOffset + x] = (a << 24) | (b << 16) | (g << 8) | r;
+					}
+				}
 				break;
 		}
-
-		getImageData(imageData.data, this.imageData, this.palette, width, y_start, y_step, y_end, x_start, x_step, x_end);
 		return imageData;
 	};
 
