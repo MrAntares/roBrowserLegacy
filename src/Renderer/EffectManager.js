@@ -33,6 +33,7 @@ define(function (require) {
 	const Preferences   = require('Preferences/Map');
 	const QuadHorn      = require('Renderer/Effects/QuadHorn');
 	const Session       = require('Engine/SessionStorage');
+	var GraphicsSettings = require('Preferences/Graphics');
 
 	/**
 	 * @type {object} saved webgl context
@@ -56,12 +57,7 @@ define(function (require) {
 	 * @type {number} used to differenciate constructors
 	 */
 	let _uniqueId = 1;
-	
-	/**
-	 * @type {number} used to culling effects
-	 */
-	let EFFECT_AREA_SIZE = 15;
-	
+
 	/**
 	 * Reset a constructor and clear its instances so it re-initializes on next use.
 	 *
@@ -296,7 +292,8 @@ define(function (require) {
 		if (Session.Entity && Session.Entity.position) {
 			center = Session.Entity.position;
 		}
-		var cullDistanceSq = EFFECT_AREA_SIZE * EFFECT_AREA_SIZE; // 28 cells visibility radius squared
+		var area_size = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var cullDistanceSq = area_size * area_size;
 
 		for (i = 0; i < count; ++i) {
 			list = _list[keys[i]];
