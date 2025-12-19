@@ -129,6 +129,7 @@ define( function( require )
 		// Get and load Image
 		Client.loadFile( DB.INTERFACE_PATH + filename, function(url) {
 			if (url !== _image.src) {
+				_image.decoding = 'async';
 				_image.src    = url;
 				_image.onload = render;
 			}

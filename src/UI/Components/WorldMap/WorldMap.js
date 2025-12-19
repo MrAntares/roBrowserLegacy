@@ -184,7 +184,7 @@ define(function (require) {
             loader.innerText = '';
             img.style.backgroundImage = `url(${data})`;
             img.style.backgroundSize = 'cover';
-
+            img.decoding = 'async';
             // try to adjust purple color transparency
             img.onload = () => {
                 adjustImageTransparency(img);
@@ -322,6 +322,7 @@ define(function (require) {
             const airplane = document.createElement('img');
             airplane.id = 'midgard-airplane';
             airplane.className = 'airplane';
+            airplane.decoding = 'async';
             airplane.src = data;
             // update it's position and angle
             setAirplanePosition(airplane);
@@ -390,6 +391,7 @@ define(function (require) {
         ctx.putImageData(imgData, 0, 0);
 
         // replace the existing source image with the new one
+	img.decoding = 'async';
         img.src = canvas.toDataURL();
     }
 

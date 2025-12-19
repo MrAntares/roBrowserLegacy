@@ -567,6 +567,7 @@ define(function(require)
 						if (url.match(/^blob\:/)){
 							img.onload = img.onerror = img.onabort = cleanUp;
 						}
+						img.decoding = 'async';
 						img.src = url;
 					}
 
@@ -745,6 +746,7 @@ define(function(require)
 						new Blob( [data], { type: 'image/' + path.substr(-3) })
 					);
 					var img = new Image();
+					img.decoding = 'async';
 					img.src = url;
 					img.onload = function() {
 						box

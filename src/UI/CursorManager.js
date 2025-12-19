@@ -330,6 +330,7 @@ function bindMouseEvents() {
 	
 		function drawSprite(n) {
 			var img = new Image();
+			img.decoding = 'async';
 			img.onload = function() {
 				ctx.drawImage(img, n * spriteWidth, 0, spriteWidth, spriteHeight);
 				imagesLoaded++;

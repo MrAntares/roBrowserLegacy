@@ -284,6 +284,7 @@ define(function( require )
 
 		Client.loadFile( DB.INTERFACE_PATH + 'illust/' + pkt.imageName, function( url ){
 			var img            = new Image();
+			img.decoding = 'async';
 			img.src            = url;
 			img.style.position = 'absolute';
 			img.style.zIndex   = 40;

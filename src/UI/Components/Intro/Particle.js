@@ -54,6 +54,7 @@ define(function( require )
 		this.ctx.globalCompositeOperation = 'lighter';
 
 		this.bg     = new Image();
+		this.bg.decoding = 'async';
 		this.bg.src = require.toUrl('./images/background.jpg');
 		this.bg.onload = function(){ this.ready = true; };
 
