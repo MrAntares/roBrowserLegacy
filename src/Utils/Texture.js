@@ -56,6 +56,7 @@ define(['Loaders/Targa'], function( Targa )
 
 		// Regular images
 		var img = new Image();
+		img.decoding = 'async';
 		img.src = data;
 		img.onload = function OnLoadClosure(){
 

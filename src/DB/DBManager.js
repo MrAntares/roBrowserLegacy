@@ -4494,6 +4494,7 @@ define(function (require) {
 
 		Client.loadFile( DB.INTERFACE_PATH + "group/group_" + groupId + "." + extension, function(dataURI) {
 			let img = new Image();
+			img.decoding = 'async';
 			img.src = dataURI; // String Base64
 
 			// wait image load to call the callback

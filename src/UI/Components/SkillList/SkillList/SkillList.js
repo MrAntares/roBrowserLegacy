@@ -1133,6 +1133,7 @@ define(function(require)
 		}
 
 		var img   = new Image();
+		img.decoding = 'async';
 		img.src   = jQuery(this).find('.icon img').attr('src');
 		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
 		event.originalEvent.dataTransfer.setData('Text',

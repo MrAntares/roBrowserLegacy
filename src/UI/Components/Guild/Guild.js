@@ -1075,6 +1075,7 @@ define(function(require)
 		}
 
 		var img   = new Image();
+		img.decoding = 'async';
 		img.src   = this.firstChild.firstChild.src;
 
 		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );

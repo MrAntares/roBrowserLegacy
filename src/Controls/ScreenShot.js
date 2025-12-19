@@ -91,6 +91,7 @@ define(function(require)
 		// Get and draw src_logo to canvas
 		Client.loadFile( 'data/texture/scr_logo.bmp', function(url) {
 			var img = new Image();
+			img.decoding = 'async';
 			img.src = url;
 			img.onload = function() {
 				x = canvas.width  - img.width - 20;

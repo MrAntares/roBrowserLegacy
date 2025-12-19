@@ -78,28 +78,37 @@ define(function(require)
 	 */
 	var _towninfo = [];
 
+	/**
+	 * Async image create helper
+	 */
+	function createAsyncImage() {
+		const img = new Image();
+		img.decoding = 'async';
+		return img;
+	}
+
 
     /**
 	 * @var {Image} arrow image
 	 */
-	var _arrow = new Image();
+	var _arrow = createAsyncImage();
 
 
 	/**
 	 * @var {Image} map information images
 	 */
-	var _toolDealer = new Image();
-	var _weaponDealer = new Image();
-	var _armorDealer = new Image();
-	var _blacksmith = new Image();
-	var _guide = new Image();
-	var _inn = new Image();
-	var _kafra = new Image();
+	var _toolDealer = createAsyncImage();
+	var _weaponDealer = createAsyncImage();
+	var _armorDealer = createAsyncImage();
+	var _blacksmith = createAsyncImage();
+	var _guide = createAsyncImage();
+	var _inn = createAsyncImage();
+	var _kafra = createAsyncImage();
 
 	/**
 	 * @var {Image} minimap image
 	 */
-	var _map = new Image();
+	var _map = createAsyncImage();
 
 
 	/**
@@ -133,7 +142,6 @@ define(function(require)
 		Client.loadFile( DB.INTERFACE_PATH + 'map/map_arrow.bmp', function(dataURI){
 			_arrow.src = dataURI;
 		});
-
 		Client.loadFile(DB.INTERFACE_PATH + 'information/store.bmp', function (dataURI) {
 			_toolDealer.src = dataURI;
 		});

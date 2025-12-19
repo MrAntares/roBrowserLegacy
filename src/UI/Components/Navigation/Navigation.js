@@ -33,25 +33,36 @@ define(function (require) {
 	var Navigation = new UIComponent("Navigation", htmlText, cssText);
 
 	/**
-	 * @var {Image} minimap image
+	 * Async image create helper
 	 */
-	var _map = new Image();
+	function createAsyncImage() {
+		const img = new Image();
+		img.decoding = 'async';
+		return img;
+	}
+
 
 	/**
-	 * @var {Image} arrow image for player position
+	 * @var {Image} arrow image
 	 */
-	var _arrow = new Image();
+	var _arrow = createAsyncImage();
+
 
 	/**
 	 * @var {Image} map information images
 	 */
-	var _toolDealer = new Image();
-	var _weaponDealer = new Image();
-	var _armorDealer = new Image();
-	var _blacksmith = new Image();
-	var _guide = new Image();
-	var _inn = new Image();
-	var _kafra = new Image();
+	var _toolDealer = createAsyncImage();
+	var _weaponDealer = createAsyncImage();
+	var _armorDealer = createAsyncImage();
+	var _blacksmith = createAsyncImage();
+	var _guide = createAsyncImage();
+	var _inn = createAsyncImage();
+	var _kafra = createAsyncImage();
+
+	/**
+	 * @var {Image} minimap image
+	 */
+	var _map = createAsyncImage();
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context

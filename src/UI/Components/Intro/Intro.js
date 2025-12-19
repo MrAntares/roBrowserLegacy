@@ -297,7 +297,9 @@ define(function(require)
 		Intro.ui.find('.btn_settings img').attr('src', require.toUrl('./images/settings.png') );
 
 		// Preload image
-		(new Image()).src = require.toUrl('./images/play-down.png');
+		var img = new Image();
+		img.decoding = 'async';
+		img.src = require.toUrl('./images/play-down.png');
 	}
 
 

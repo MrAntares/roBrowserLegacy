@@ -507,6 +507,7 @@ define(function( require )
 			img            = new Image();
 			img.onload     = renderEmblem;
 			emblem.version = pkt.emblemVersion;
+			img.decoding = 'async';
 
 			// Load the emblem, remove magenta, free blob from memory
 			Texture.load(src, function(){

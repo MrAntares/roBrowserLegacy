@@ -389,6 +389,7 @@ define(function (require) {
 		// Set image to the drag drop element
 		var img = new Image();
 		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
 		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);

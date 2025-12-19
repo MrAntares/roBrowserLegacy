@@ -1056,6 +1056,7 @@ define(function(require)
 		container = (jQuery.contains(InputWindow, this) ? InputWindow : (jQuery.contains(AvailableItemsWindow, this)) ? AvailableItemsWindow : OutputWindow).className;
 		img       = new Image();
 		url       = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
+		img.decoding = 'async';
 		img.src   = url;
 
 		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );

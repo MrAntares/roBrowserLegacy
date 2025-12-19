@@ -343,6 +343,7 @@
 		var img = new Image();
 		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		url     = url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
+		img.decoding = 'async';
 		img.src = url;
 
 		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
