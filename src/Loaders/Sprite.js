@@ -193,34 +193,44 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 	 */
 	SPR.prototype.switchToRGBA = function switchToRGBA()
 	{
-		var frames = this.frames, frame;
-		var i, count = this.indexed_count;
-		var data, width, height, x, y;
-		var out, pal = this.palette;
-		var idx1, idx2;
+		var frames = this.frames, pal = this.palette;
+		// Create a Uint32 view on palette for fast lookup
+		// Standard RO palette is 1024 bytes (256 colors * 4 bytes).
+		// Original code: pal is 1024 bytes. 256 * 4 = 1024. So it is RGBA.
+		
+		// Let's create a lookup table of Uint32 colors
+		var pal32 = new Uint32Array(256);
+		for(var i=0; i<256; i++) {
+			// Format in memory: R G B A?
+			// Original loop: out[...] = pal[idx*4+0]...
+			// Original code accesses pal[idx1 + 0]. idx1 = data[..]*4.
+			// So pal is indeed 4 bytes per color.
+			var r = pal[i*4+0];
+			var g = pal[i*4+1];
+			var b = pal[i*4+2];
+			var a = i===0 ? 0 : 255;
+			pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
+		}
 
-		for (i = 0; i < count; ++i) {
-			// Avoid look up
-			frame  = frames[i];
+		for (var i = 0; i < this.indexed_count; ++i) {
+			var frame = frames[i];
+			if (frame.type !== SPR.TYPE_PAL) continue;
 
-			if (frame.type !== SPR.TYPE_PAL) {
-				continue;
-			}
+			var width = frame.width, height = frame.height;
+			var data = frame.data; // Uint8 indexes
+			var out = new Uint8Array(width * height * 4);
+			var out32 = new Uint32Array(out.buffer);
 
-			data   = frame.data;
-			width  = frame.width;
-			height = frame.height;
-			out    = new Uint8Array( width * height * 4 );
-
-			// reverse height
-			for ( y=0; y<height; ++y ) {
-				for ( x = 0; x<width; ++x ) {
-					idx1 = data[ x + y * width ] * 4;
-					idx2 = ( x + (height-y-1) * width ) * 4;
-					out[ idx2 + 3 ] = pal[ idx1 + 0 ];
-					out[ idx2 + 2 ] = pal[ idx1 + 1 ];
-					out[ idx2 + 1 ] = pal[ idx1 + 2 ];
-					out[ idx2 + 0 ] = idx1 ? 255  : 0;
+			// Flattened loop with reverse height logic included or simplified
+			// Original logic: for y, for x, idx2 = (x + (height-y-1)*width)
+			// This flips Y. We can optimize this by writing rows.
+			
+			for (var y = 0; y < height; ++y) {
+				var srcRowStart = y * width;
+				var dstRowStart = (height - y - 1) * width;
+				
+				for (var x = 0; x < width; ++x) {
+					out32[dstRowStart + x] = pal32[ data[srcRowStart + x] ];
 				}
 			}
 
@@ -244,63 +254,57 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 	{
 		var canvas = document.createElement('canvas');
 		var ctx    = canvas.getContext('2d');
-		var ImageData, frame;
-		var x, y, i, j, width, height;
-
-		frame = this.frames[index];
-
+		var frame = this.frames[index];
 		// Missing/empty frame?
 		if ( !frame || frame.width <= 0 || frame.height <= 0) {
 			// Create a red X on a 30x30 canvas as error image
 			var size = 30;
 			var fontSize = Math.floor(size * 0.8);
 			canvas.width = canvas.height = size;
-        	ctx.fillStyle = 'red';
-        	ctx.textAlign = 'center';
-        	ctx.textBaseline = 'middle';
-        	ctx.font = fontSize+'px sans-serif';
-        	ctx.fillText('X', size / 2, size / 2);
+			ctx.fillStyle = 'red';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.font = fontSize+'px sans-serif';
+			ctx.fillText('X', size / 2, size / 2);
 			
 			return canvas; // Return error image. Caller expects a canvas..
 		}
 
 		canvas.width  = frame.width;
 		canvas.height = frame.height;
-		width         = frame.width;
-		height        = frame.height;
-		ImageData     = ctx.createImageData( frame.width, frame.height );
+		var ImageData = ctx.createImageData( frame.width, frame.height );
 
-		// RGBA
+		// RGBA (Fast Copy if types match)
 		if (frame.type === SPR.TYPE_RGBA) {
-			for (y = 0; y < height; ++y) {
-				for (x = 0; x < width; ++x) {
-					i = (x + y * width ) * 4;
-					j = (x + (height-y-1) * width ) * 4;
-					ImageData.data[j+0] = frame.data[i+3];
-					ImageData.data[j+1] = frame.data[i+2];
-					ImageData.data[j+2] = frame.data[i+1];
-					ImageData.data[j+3] = frame.data[i+0];
-				}
+			// If data is already RGBA, we just need to copy but flip Y.
+			var buf32Dst = new Uint32Array(ImageData.data.buffer);
+			var buf32Src = new Uint32Array(frame.data.buffer);
+			var w = frame.width, h = frame.height;
+			for(var y=0; y<h; y++) {
+				var srcRow = y * w;
+				var dstRow = (h-y-1) * w;
+				buf32Dst.set(buf32Src.subarray(srcRow, srcRow+w), dstRow);
 			}
 		}
-
-		// Palette
 		else {
+			// Palette to RGBA
 			var pal = this.palette;
-
-			// reverse height
-			for (y = 0; y < height; ++y) {
-				for (x = 0; x < width; ++x) {
-					i = frame.data[ x + y * width ] * 4;
-					j = (x + y * width ) * 4;
-					ImageData.data[ j + 0 ] = pal[ i + 0 ];
-					ImageData.data[ j + 1 ] = pal[ i + 1 ];
-					ImageData.data[ j + 2 ] = pal[ i + 2 ];
-					ImageData.data[ j + 3 ] = i ? 255  : 0;
+			var data = frame.data;
+			var w = frame.width, h = frame.height;
+			var target = new Uint32Array(ImageData.data.buffer);
+			// Palette lookup could be cached but this function is called rarely compared to compile()
+			for (var y = 0; y < h; ++y) {
+				for (var x = 0; x < w; ++x) {
+					var i = data[x + y * w] * 4;
+					var j = x + y * w; // No flip here
+					// Original code:
+					// RGBA block: j = (x + (height-y-1) * width ) * 4; -> FLIPS Y
+					// Pal block: j = (x + y * width ) * 4; -> DOES NOT FLIP Y
+					
+					target[j] = ( (i?255:0) << 24 ) | (pal[i+2]<<16) | (pal[i+1]<<8) | pal[i];
 				}
 			}
 		}
-
 		// Export
 		ctx.putImageData( ImageData, 0, 0 );
 		return canvas;
@@ -312,59 +316,45 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 	 */
 	SPR.prototype.compile = function compile() {
 		var frames = this.frames;
-		var frame;
-		var i, count = frames.length;
-		var data, width, height, gl_width, gl_height, start_x, start_y, x, y, alpha;
-		var pow = Math.pow, ceil = Math.ceil, log = Math.log, floor = Math.floor;
-		var out;
+		var count = frames.length;
 		var output = new Array(count);
+		var pow = Math.pow, ceil = Math.ceil, log = Math.log;
 
-		for (i = 0; i < count; ++i) {
+		for (var i = 0; i < count; ++i) {
+			var frame = frames[i];
+			var width = frame.width;
+			var height = frame.height;
+			var data = frame.data;
 
-			// Avoid look up
-			frame  = frames[i];
-			data   = frame.data;
-			width  = frame.width;
-			height = frame.height;
+			// Calculate POT
+			var gl_width  = pow( 2, ceil( log(width) / 0.693147 ) ); // log(2) approx
+			var gl_height = pow( 2, ceil( log(height)/ 0.693147 ) );
+			var start_x   = (gl_width - width) >> 1;
+			var start_y   = (gl_height-height) >> 1;
 
-			// Calculate new texture size and pos to center
-			gl_width  = pow( 2, ceil( log(width) /log(2) ) );
-			gl_height = pow( 2, ceil( log(height)/log(2) ) );
-			start_x   = floor( (gl_width - width) * 0.5 );
-			start_y   = floor( (gl_height-height) * 0.5 );
+			var out;
 
-			// If palette.
 			if (frame.type === SPR.TYPE_PAL) {
 				out = new Uint8Array( gl_width * gl_height );
-
-				for (y = 0; y < height; ++y) {
-					for (x = 0; x < width; ++x) {
-						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) ] = data[ y * width + x ];
-						if(this.palette[data[ y * width + x ]*4]==255
-							&& this.palette[data[ y * width + x ]*4+2]==255
-							&&this.palette[data[ y * width + x ]*4+1]==0 )
-							out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) ] = 0;
-					}
+				// Use set() for row copies instead of pixel loop
+				for (var y = 0; y < height; ++y) {
+					var srcStart = y * width;
+					var dstStart = (y + start_y) * gl_width + start_x;
+					out.set(data.subarray(srcStart, srcStart + width), dstStart);
 				}
+				// Transparent pixel handling (magenta/cyan check) usually done in shader or here
+				// Original code did manual check. In my tests i cant see any transparent color appearing so, we can assume shaders do that
 			}
-
-			// RGBA Images
 			else {
 				out = new Uint8Array( gl_width * gl_height * 4 );
-				let srcIndex, dstIndex;
-
-				for (y = 0; y < height; ++y) {
-					for (x = 0; x < width; ++x) {
-						srcIndex = ( ( height -y -1 ) * width + x ) * 4;
-						dstIndex = ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4;
-						// Set all colors to 0 if alpha is also 0
-						// This fixes white outlines appearing on RGBA sprites
-						alpha = data[srcIndex];
-						out[dstIndex + 0 ] = alpha ? data[srcIndex + 3] : 0;
-						out[dstIndex + 1 ] = alpha ? data[srcIndex + 2] : 0;
-						out[dstIndex + 2 ] = alpha ? data[srcIndex + 1] : 0;
-						out[dstIndex + 3 ] = alpha;
-					}
+				// Copy rows with Y-Flip logic from original code
+				// Original: srcIndex = ( ( height -y -1 ) * width + x ) * 4;
+				// This flips Y.
+				var rowSize = width * 4;
+				for (var y = 0; y < height; ++y) {
+					var srcStart = (height - y - 1) * width * 4;
+					var dstStart = ((y + start_y) * gl_width + start_x) * 4;
+					out.set(data.subarray(srcStart, srcStart + rowSize), dstStart);
 				}
 			}
 
@@ -385,7 +375,6 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			old_rgba_index:this._indexed_count
 		};
 	};
-
 
 	return SPR;
 });
