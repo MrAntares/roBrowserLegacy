@@ -403,65 +403,101 @@ define(function( require )
 
 
 	/**
-	 * Rendering scene
-	 */
-	Renderer._render = function render( timeDelta )
-	{
+	* Rendering scene
+	*/
+	Renderer._render = function render(time) {
+		// time: DOMHighResTimeStamp (from rAF) or undefined if fallback
+		var now = (typeof time === 'number') ? time : (window.performance && performance.now ? performance.now() : Date.now());
+	
+		// bind cache for scheduling (avoid new bind each frame)
+		if (!this._renderBound) {
+			this._renderBound = this._render.bind(this);
+		}
+	
+		// initialize lastFrameTime on first run
+		if (typeof this._lastFrameTime === 'undefined' || this._lastFrameTime === 0) {
+			this._lastFrameTime = now;
+			// ensure tick has a sane initial value
+			if (!this.tick) this.tick = Date.now();
+		}
+	
+		// Throttle when frameLimit > 0
+		if (this.frameLimit > 0) {
+			var interval = 1000 / this.frameLimit;
+			var elapsed = now - this._lastFrameTime;
+	
+			if (elapsed < interval) {
+				// Not enough time elapsed for next allowed frame — schedule next rAF and exit
+				this.updateId = _requestAnimationFrame(this._renderBound);
+				return;
+			}
+	
+			// Advance lastFrameTime preserving alignment (avoid time drift)
+			// keep lastFrameTime at nearest interval boundary
+			this._lastFrameTime = now - (elapsed % interval);
+		} else {
+			// No limit => run every rAF
+			this._lastFrameTime = now;
+		}
+	
+		// Use Date.now for serverTick and Events processing, to keep existing behavior intact
 		var newTick = Date.now();
-
-		if( this.frameLimit > 0 ) {
-			if( typeof( timeDelta ) !== 'undefined' ) {
-				_cancelAnimationFrame( this.updateId );
-			}
-
-			if( ( 100 / ( newTick - this.tick ) ) > ( 1000 / this.frameLimit ) ) return;
-		}
-		else {
-			if( typeof( timeDelta ) === 'undefined' ) {
-				clearInterval( this.updateId );
-			}
-
-			this.updateId = _requestAnimationFrame( this._render.bind(this), this.canvas );
-		}
-
+	
 		// Increment serverTick with delta
 		Session.serverTick += (newTick - this.tick);
-
-		// TODO: clamp this so we don't accumulate a huge delta if we're set inactive for a while
+	
+		// Update engine tick
 		this.tick = newTick;
-
+	
 		// Execute events
-		Events.process( this.tick );
-
+		Events.process(this.tick);
+	
+		// Execute render callbacks
 		var i, count;
-
 		for (i = 0, count = this.renderCallbacks.length; i < count; ++i) {
-			this.renderCallbacks[i]( this.tick, this.gl );
+			try {
+				this.renderCallbacks[i](this.tick, this.gl);
+			} catch (e) {
+				// Defensive: a single callback shouldn't break the whole loop
+				console.error('[Renderer] render callback error', e);
+			}
 		}
-
-		Cursor.render( this.tick );
+	
+		Cursor.render(this.tick);
+	
+		// Schedule next frame
+		this.updateId = _requestAnimationFrame(this._renderBound);
 	};
-
-
+	
+	
 	/**
-	 * Start rendering
-	 */
-	Renderer.render = function renderCallback( fn )
-	{
+	* Start rendering
+	*/
+	Renderer.render = function renderCallback(fn) {
 		if (fn) {
 			this.renderCallbacks.push(fn);
 		}
-
+	
 		if (!this.rendering) {
 			this.rendering = true;
-			if( this.frameLimit > 0 ) {
-				this.updateId = setInterval( this._render.bind(this), 1000 / this.frameLimit );
-			}
-			else {
-				this._render();
-			}
+	
+			// Cancel any previous interval/animation to be safe
+			try {
+				clearInterval(this.updateId);
+			} catch (e) {}
+			try {
+				_cancelAnimationFrame(this.updateId);
+			} catch (e) {}
+	
+			// Reset timing helpers so first rAF initializes cleanly
+			this._lastFrameTime = 0;
+			this._renderBound = this._render.bind(this);
+	
+			// Start loop with requestAnimationFrame (safer & sync with browser)
+			this.updateId = _requestAnimationFrame(this._renderBound);
 		}
 	};
+
 
 
 	/**
