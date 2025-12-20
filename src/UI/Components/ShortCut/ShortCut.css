@@ -14,3 +14,6 @@
 #ShortCut .icon:hover .name { display:block; }
 #ShortCut .icon.hide .name { display:none; }
 #ShortCut .icon .amount { font-size:10px; position:absolute; right:1px; top:20px; text-shadow:1px 1px 0px white; text-align:right; font-weight:bold; }
+
+.shortcut-tooltip { display:none; position:fixed; background-color:rgba(0,0,0,0.8); text-shadow:1px 1px black; color:white; padding:2px 6px; white-space:nowrap; z-index:10000; border-radius:2px; pointer-events:none; font-size:11px; line-height:1.2; }
+.shortcut-tooltip.show { display:block; }

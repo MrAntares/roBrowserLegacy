@@ -31,6 +31,8 @@ define(function(require)
 	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Guild                = require('UI/Components/Guild/Guild');
+	var ShortCutControls     = require('Preferences/ShortCutControls');
+	var KEYS                 = require('Controls/KeyEventHandler');
 
 	// Version Dependent UIs
 	var SkillWindow = require('UI/Components/SkillList/SkillList');
@@ -94,6 +96,14 @@ define(function(require)
 
 		this.draggable();
 
+		// Tooltip events - attach directly to each container element
+		// This must be done AFTER draggable() to avoid conflicts
+		this.ui.find('.container').each(function() {
+			jQuery(this)
+				.on('mouseenter', onContainerMouseEnter)
+				.on('mouseleave', onContainerMouseLeave);
+		});
+
 		//Add to item owner name update queue
 		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName;
 
@@ -118,6 +128,9 @@ define(function(require)
 		this.magnet.RIGHT = _preferences.magnet_right;
 		
 		SkillWindow.getUI().onUpdateSkill = onUpdateSkill;
+
+		// Initialize tooltips for empty slots
+		updateEmptySlotTooltips();
 	};
 
 
@@ -126,6 +139,14 @@ define(function(require)
 	 */
 	ShortCut.onRemove = function onRemove()
 	{
+		// Hide tooltip
+		jQuery('.shortcut-tooltip').removeClass('show');
+
+		// Remove tooltip event listeners from containers
+		this.ui.find('.container')
+			.off('mouseenter', onContainerMouseEnter)
+			.off('mouseleave', onContainerMouseLeave);
+
 		// Save preferences
 		_preferences.y      = parseInt(this.ui.css('top'), 10);
 		_preferences.x      = parseInt(this.ui.css('left'), 10);
@@ -225,6 +246,162 @@ define(function(require)
 	 * @param {number} id
 	 * @param {number} count
 	 */
+
+	/**
+	 * Update tooltip for empty slots with hotkey only
+	 */
+	function updateEmptySlotTooltips()
+	{
+		var i, size;
+		// Get all containers, not just those in _list
+		var containers = ShortCut.ui.find('.container');
+		size = containers.length;
+
+		for (i = 0; i < size; ++i) {
+			var ui = containers.eq(i);
+
+			// Only update empty slots - store hotkey as data attribute
+			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
+				var hotkey = getHotKeyString(i);
+				if (hotkey) {
+					ui.attr('data-tooltip', hotkey);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Update all tooltips (for both empty and filled slots)
+	 * Called when hotkey settings change
+	 */
+	ShortCut.updateAllTooltips = function updateAllTooltips()
+	{
+		var i, size;
+		for (i = 0, size = _list.length; i < size; ++i) {
+			var ui = ShortCut.ui.find('.container:eq(' + i + ')');
+			var hotkey = getHotKeyString(i);
+
+			// Update empty slots
+			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
+				if (hotkey) {
+					ui.attr('data-tooltip', hotkey);
+				}
+			}
+			// Update filled slots
+			else if (_list[i] && (_list[i].isSkill || _list[i].ID)) {
+				var name = '';
+				if (_list[i].isSkill && SkillInfo[_list[i].ID]) {
+					name = SkillInfo[_list[i].ID].SkillName;
+				}
+				else if (_list[i].ID) {
+					var item = Inventory.getUI().getItemById(_list[i].ID);
+					if (item) {
+						name = DB.getItemName(item);
+					}
+				}
+
+				if (name) {
+					var tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
+					ui.attr('data-tooltip', tooltipText);
+				}
+			}
+		}
+	};
+
+	/**
+	 * Get hotkey string for shortcut index
+	 *
+	 * @param {number} index of the shortcut slot
+	 * @return {string} hotkey string or empty string
+	 */
+	function getHotKeyString(index)
+	{
+		var shortcutKeys = ['F1_1', 'F1_2', 'F1_3', 'F1_4', 'F1_5', 'F1_6', 'F1_7', 'F1_8', 'F1_9',
+		                    'F2_1', 'F2_2', 'F2_3', 'F2_4', 'F2_5', 'F2_6', 'F2_7', 'F2_8', 'F2_9',
+		                    'F3_1', 'F3_2', 'F3_3', 'F3_4', 'F3_5', 'F3_6', 'F3_7', 'F3_8', 'F3_9',
+		                    'F4_1', 'F4_2', 'F4_3', 'F4_4', 'F4_5', 'F4_6', 'F4_7', 'F4_8', 'F4_9'];
+
+		if (index < 0 || index >= shortcutKeys.length) {
+			return '';
+		}
+
+		var scKey = shortcutKeys[index];
+		var shortcut = ShortCutControls.ShortCuts[scKey];
+
+		if (!shortcut) {
+			return '';
+		}
+
+		var key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
+		var alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
+		var ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
+		var shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
+
+		if (!key) {
+			return '';
+		}
+
+		var hotkeyStr = '';
+		if (alt) { hotkeyStr += 'ALT + '; }
+		if (ctrl) { hotkeyStr += 'CTRL + '; }
+		if (shift) { hotkeyStr += 'SHIFT + '; }
+		hotkeyStr += KEYS.toReadableKey(key);
+
+		return hotkeyStr;
+	}
+
+	/**
+	 * Show fixed tooltip on container hover
+	 */
+	function onContainerMouseEnter(event)
+	{
+		var container = jQuery(this);
+		var tooltipText = container.attr('data-tooltip');
+
+		if (tooltipText) {
+			var tooltip = jQuery('.shortcut-tooltip');
+			var shortcutUI = ShortCut.ui;
+			var shortcutPos = shortcutUI.offset();
+			var shortcutWidth = shortcutUI.outerWidth();
+			var shortcutHeight = shortcutUI.outerHeight();
+
+			tooltip.text(tooltipText);
+			tooltip.addClass('show');
+
+			// Calculate tooltip dimensions
+			var tooltipWidth = tooltip.outerWidth();
+			var tooltipHeight = tooltip.outerHeight();
+			
+			// Check if there's enough space below
+			var windowHeight = jQuery(window).height();
+			var spaceBelow = windowHeight - (shortcutPos.top + shortcutHeight);
+			var showAbove = spaceBelow < (tooltipHeight + 10);
+
+			// Position tooltip centered horizontally
+			var left = shortcutPos.left + (shortcutWidth / 2) - (tooltipWidth / 2);
+			var top;
+
+			if (showAbove) {
+				// Position above ShortCut
+				top = shortcutPos.top - tooltipHeight - 2;
+			} else {
+				// Position below ShortCut
+				top = shortcutPos.top + shortcutHeight + 2;
+			}
+
+			tooltip.css({ 'left': left + 'px', 'top': top + 'px' });
+		}
+	}
+
+	/**
+	 * Hide fixed tooltip on container leave
+	 */
+	function onContainerMouseLeave(event)
+	{
+		var tooltip = jQuery('.shortcut-tooltip');
+		tooltip.removeClass('show');
+	}
+
 	ShortCut.setElement = function setElement( isSkill, ID, count )
 	{
 		var i, size;
@@ -352,18 +529,21 @@ define(function(require)
 			}
 		}
 
+		// Get hotkey for this slot
+		var hotkey = getHotKeyString(index);
+		var tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
+
 		Client.loadFile( DB.INTERFACE_PATH + 'item/' + file + '.bmp', function(url){
 			ui.html(
 				'<div draggable="true" class="icon">' +
 					'<div class="img"></div>' +
 					'<div class="amount"></div>' +
-					'<span class="name"></span>' +
 				'</div>'
 			);
 
 			ui.find('.img').css('backgroundImage', 'url('+ url +')');
 			ui.find('.amount').text(count);
-			ui.find('.name').text(name);
+			ui.attr('data-tooltip', tooltipText);
 
 		});
 
@@ -410,7 +590,7 @@ define(function(require)
 	 * @param {number} delay in ms
 	 */
 	ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay ( delay ){
-		_list.forEach((element, index) => {
+		_list.forEach(function(element, index) {
 			if (element.isSkill) {
 				setDelayOnIndex( index, delay);
 			}
@@ -424,7 +604,7 @@ define(function(require)
 	 * @param {number} delay in ms
 	 */
 	ShortCut.setSkillDelay = function setGlobalSkillDelay ( ID, delay ){
-		_list.forEach((element, index) => {
+		_list.forEach(function(element, index) {
 			if (element.isSkill && element.ID == ID) {
 				setDelayOnIndex( index, delay);
 			}
