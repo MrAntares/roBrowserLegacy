@@ -407,7 +407,7 @@ define(function( require )
 	*/
 	Renderer._render = function render(time) {
 		// time: DOMHighResTimeStamp (from rAF) or undefined if fallback
-		var now = (typeof time === 'number') ? time : (window.performance && performance.now ? performance.now() : Date.now());
+		var now = (typeof time === 'number') ? time : Date.now();
 	
 		// bind cache for scheduling (avoid new bind each frame)
 		if (!this._renderBound) {
