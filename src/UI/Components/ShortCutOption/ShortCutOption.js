@@ -195,6 +195,12 @@ define(function (require) {
 		ShortCutsTemp = {};
 		updateKeyList();
 		$("#ShortCutOption td.changed").removeClass("changed");
+
+		// Update ShortCut tooltips if the component is loaded
+		var ShortCut = UIManager.getComponent('ShortCut');
+		if (ShortCut && ShortCut.updateAllTooltips) {
+			ShortCut.updateAllTooltips();
+		}
 	}
 	
 	/**
