@@ -20,11 +20,15 @@
 		"build:all": "npm run build -- --all",
 		"build:all:minify": "npm run build -- --all --m",
 		"build:pwa": "npm run build -- --O --T --PWA",
-		"build:nw": "build --concurrent --tasks win-x86,win-x64 --mirror https://dl.nwjs.io/ ./applications/nwjs"
+		"build:nw": "build --concurrent --tasks win-x86,win-x64 --mirror https://dl.nwjs.io/ ./applications/nwjs",
+		"lint": "eslint src/**/*.js",
+		"lint:fix": "eslint src/**/*.js --fix",
+		"lint:check": "eslint src/**/*.js --max-warnings 0"
 	},
 	"author": "Vincent Thibault",
 	"license": "GNU GPL V3",
 	"devDependencies": {
+		"eslint": "^8.57.1",
 		"live-server": "^1.2.2",
 		"nw": "^0.99.0-sdk",
 		"nwjs-builder-phoenix": "^1.15.0",
