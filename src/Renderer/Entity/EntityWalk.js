@@ -28,6 +28,9 @@ define( function( require )
 		[7,6,5]
 	];
 
+	// Server C++ uses a fixed 1.414 approximation for diagonals in path duration
+	const DIAGONAL_FACTOR = 1.414;
+
 	// Facing behavior (official-like):
 	// - First segment: continuous heading toward next tile center.
 	// - Later segments: snap to 8-way direction per segment offset.
@@ -36,16 +39,40 @@ define( function( require )
 	 * Estimate total walk duration for a path, in ms.
 	 * `total` is the number of coordinate entries in `path` (walk.total).
 	 */
-	function estimatePathDuration(path, total, baseSpeed) {
+	function estimatePathDuration(path, total, baseSpeed, startPos) {
 		if (!total || total < 4 || !baseSpeed) {
 			return baseSpeed || 0;
 		}
 
 		var duration = 0;
-		for (var i = 0; i < total - 2; i += 2) {
-			var dx = path[i + 2] - path[i];
-			var dy = path[i + 3] - path[i + 1];
-			duration += (dx && dy) ? baseSpeed * Math.SQRT2 : baseSpeed;
+
+		// First Segment: Exact float distance
+		// path[0/1] is the integer start cell, but startPos is the entity's actual float position.
+		// path[2/3] is the first target cell.
+		var sx = startPos ? startPos[0] : path[0];
+		var sy = startPos ? startPos[1] : path[1];
+		var ex = path[2];
+		var ey = path[3];
+
+		var dx = ex - sx;
+		var dy = ey - sy;
+		var distFirst = Math.sqrt(dx*dx + dy*dy);
+		
+		duration += distFirst * baseSpeed;
+
+		// Remaining Segments: Grid logic
+		// Starts from index 2 (node 1 to node 2)
+		for (var i = 2; i < total - 2; i += 2) {
+			var segDx = path[i + 2] - path[i];
+			var segDy = path[i + 3] - path[i + 1];
+
+			if (segDx && segDy) {
+				// Diagonal
+				duration += baseSpeed * DIAGONAL_FACTOR;
+			} else {
+				// Straight
+				duration += baseSpeed;
+			}
 		}
 
 		return duration;
@@ -162,7 +189,7 @@ define( function( require )
 			if (total > 0) {
 				this.walk.pos.set(this.position);
 				var nowTick = Renderer.tick;
-				var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
+				var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
 				var isPlayerLike = (
 					this.objecttype === this.constructor.TYPE_PC ||
 					this.objecttype === this.constructor.TYPE_DISGUISED ||

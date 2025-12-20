@@ -57,7 +57,7 @@ define(function()
 
 	function calc_cost(i, x1, y1)
 	{
-		return (Math.abs((x1) - (_x[i])) + Math.abs((y1) - (_y[i]))) * MOVE_COST + _dist[i];
+		return (Math.abs((x1) - (_x[i])) + Math.abs((y1) - (_y[i]))) * MOVE_COST;
 	}
 
 
