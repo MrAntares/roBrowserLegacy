@@ -37,7 +37,6 @@ define(function()
 
 	var short_clean  = new Uint16Array(MAX_WALKPATH*MAX_WALKPATH);
 	var char_clean   = new Uint8Array(MAX_WALKPATH*MAX_WALKPATH);
-	var dc           = new Uint8Array(4);
 
 	// struct tmp_path {
 		/* short   */ var _x      = new Uint16Array(MAX_WALKPATH*MAX_WALKPATH);
@@ -365,11 +364,6 @@ define(function()
 			error     = 0;
 			dirFlag   = 0;
 
-			dc[0] = 0;
-			dc[1] = 0;
-			dc[2] = 0;
-			dc[3] = 0;
-
 			currentNode    = pop_heap_path(heap);
 
 			// No path found.
@@ -388,25 +382,21 @@ define(function()
 			}
 
 			if (y < sizeY && types[ (x+0) + (y+1) * width ] & TYPE.WALKABLE) {
-				dc[0] = (y >= y1 ? 20 : 0);
 				dirFlag    |= 1;
 				error    += add_path( heap, x+0, y+1, dist+MOVE_COST, currentNode, x1, y1 );
 			}
 
 			if (x > 0 && types[ (x-1) + (y+0) * width ] & TYPE.WALKABLE) {
-				dc[1] = (x <= x1 ? 20 : 0);
 				dirFlag    |= 2;
 				error    += add_path( heap, x-1, y+0, dist+MOVE_COST, currentNode, x1, y1 );
 			}
 
 			if (y > 0 && types[ (x+0) + (y-1) * width ] & TYPE.WALKABLE) {
-				dc[2] = (y <= y1 ? 20 : 0);
 				dirFlag    |= 4;
 				error    += add_path( heap, x+0, y-1, dist+MOVE_COST, currentNode, x1, y1 );
 			}
 
 			if (x < sizeX && types[ (x+1) + (y+0) * width ] & TYPE.WALKABLE) {
-				dc[3] = (x >= x1 ? 20 : 0);
 				dirFlag    |= 8;
 				error    += add_path( heap, x+1, y+0, dist+MOVE_COST, currentNode, x1, y1 );
 			}
