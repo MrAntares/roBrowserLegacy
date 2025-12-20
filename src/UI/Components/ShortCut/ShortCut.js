@@ -368,12 +368,28 @@ define(function(require)
 			tooltip.text(tooltipText);
 			tooltip.addClass('show');
 
-			// Position tooltip centered below ShortCut
+			// Calculate tooltip dimensions
 			var tooltipWidth = tooltip.outerWidth();
-			var left = shortcutPos.left + (shortcutWidth / 2) - (tooltipWidth / 2);
-			var top = shortcutPos.top + shortcutHeight + 2;
+			var tooltipHeight = tooltip.outerHeight();
+			
+			// Check if there's enough space below
+			var windowHeight = jQuery(window).height();
+			var spaceBelow = windowHeight - (shortcutPos.top + shortcutHeight);
+			var showAbove = spaceBelow < (tooltipHeight + 10);
 
-			tooltip.css({ 'left': left + 'px', 'top': top + 'px', height: '13px' });
+			// Position tooltip centered horizontally
+			var left = shortcutPos.left + (shortcutWidth / 2) - (tooltipWidth / 2);
+			var top;
+
+			if (showAbove) {
+				// Position above ShortCut
+				top = shortcutPos.top - tooltipHeight - 2;
+			} else {
+				// Position below ShortCut
+				top = shortcutPos.top + shortcutHeight + 2;
+			}
+
+			tooltip.css({ 'left': left + 'px', 'top': top + 'px' });
 		}
 	}
 
