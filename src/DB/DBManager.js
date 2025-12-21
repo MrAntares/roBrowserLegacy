@@ -537,12 +537,11 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 					
 					// create AddTownInfo required functions in context
 					ctx.AddTownInfo = function AddTownInfo(mapName, name, X, Y, TYPE) {
-						mapName = iso88591Decoder.decode(mapName);
+						mapName = userStringDecoder.decode(mapName);
 						TownInfo[mapName] = [];
 						TownInfo[mapName].push({
 							Name: userStringDecoder.decode(name), 
@@ -583,7 +582,6 @@ define(function (require) {
 				let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
 
 				// create decoders
-				let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 				let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 				// get context, a proxy. It will be used to interact with lua conveniently
@@ -777,16 +775,15 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 					// create itemInfo required functions in context
 					ctx.AddItem = (ItemID, unidentifiedDisplayName, unidentifiedResourceName, identifiedDisplayName, identifiedResourceName, slotCount, ClassNum) => {
 						ItemTable[ItemID] = {
 							...typeof ItemTable[ItemID] === "object" && ItemTable[ItemID],
 							unidentifiedDisplayName: userStringDecoder.decode(unidentifiedDisplayName),
-							unidentifiedResourceName: iso88591Decoder.decode(unidentifiedResourceName),
+							unidentifiedResourceName: userStringDecoder.decode(unidentifiedResourceName),
 							identifiedDisplayName: userStringDecoder.decode(identifiedDisplayName),
-							identifiedResourceName: iso88591Decoder.decode(identifiedResourceName),
+							identifiedResourceName: userStringDecoder.decode(identifiedResourceName),
 							unidentifiedDescriptionName: [],
 							identifiedDescriptionName: [],
 							EffectID: null,
@@ -910,12 +907,11 @@ define(function (require) {
 					const ctx = lua.ctx;
 
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddLaphineSysItem = (key, ItemID, NeedCount, NeedRefineMin, NeedRefineMax, NeedSource_String) => {
-						let decoded_key = key && key.length > 1 ? iso88591Decoder.decode(key) : null;
+						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
 						let decoded_NeedSource_String = NeedSource_String && NeedSource_String.length > 1 ? userStringDecoder.decode(NeedSource_String) : "";
 						LaphineSysTable[decoded_key] = {
 							ItemID: ItemID,
@@ -929,8 +925,8 @@ define(function (require) {
 					};
 
 					ctx.AddLaphineSysSourceItem = (key, name, count, ItemID) => {
-						let decoded_key = key && key.length > 1 ? iso88591Decoder.decode(key) : null;
-						let decoded_name = name && name.length > 1 ? iso88591Decoder.decode(name) : "";
+						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+						let decoded_name = name && name.length > 1 ? userStringDecoder.decode(name) : "";
 						LaphineSysTable[decoded_key].SourceItems.push(
 							{
 								name: decoded_name,
@@ -1002,12 +998,11 @@ define(function (require) {
 					const ctx = lua.ctx;
 
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddLaphineUpgradeItem = (key, ItemID, NeedCount, NeedRefineMin, NeedRefineMax, NeedSource_String, NeedOptionNumMin, NotSocketEnchantItem) => {
-						let decoded_key = key && key.length > 1 ? iso88591Decoder.decode(key) : null;
+						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
 						let decoded_NeedSource_String = NeedSource_String && NeedSource_String.length > 1 ? userStringDecoder.decode(NeedSource_String) : "";
 
 						LaphineUpgTable[decoded_key] = {
@@ -1024,8 +1019,8 @@ define(function (require) {
 					};
 
 					ctx.AddLaphineUpgradeTargetItem = (key, name, ItemID) => {
-						let decoded_key = key && key.length > 1 ? iso88591Decoder.decode(key) : null;
-						let decoded_name = name && name.length > 1 ? iso88591Decoder.decode(name) : "";
+						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+						let decoded_name = name && name.length > 1 ? userStringDecoder.decode(name) : "";
 						LaphineUpgTable[decoded_key].TargetItems.push(
 							{
 								name: decoded_name,
@@ -1096,11 +1091,11 @@ define(function (require) {
 					const ctx = lua.ctx;
 
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddDBItemName = (baseItem, itemID) => {
-						let decoded_baseItem = baseItem && baseItem.length > 1 ? iso88591Decoder.decode(baseItem) : null;
+						let decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
 						ItemDBNameTbl[decoded_baseItem] = itemID;
 						return 1;
 					};
@@ -1159,13 +1154,13 @@ define(function (require) {
 					const ctx = lua.ctx;
 
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddReformInfo = (key, BaseItem, ResultItem, NeedRefineMin, NeedRefineMax, NeedOptionNumMin, IsEmptySocket, ChangeRefineValue, RandomOptionCode, PreserveSocketItem, PreserveGrade) => {
-						let decoded_BaseItem = BaseItem && BaseItem.length > 1 ? iso88591Decoder.decode(BaseItem) : null;
-						let decoded_ResultItem = ResultItem && ResultItem.length > 1 ? iso88591Decoder.decode(ResultItem) : null;
-						let decoded_RandomOptionCode = RandomOptionCode && RandomOptionCode.length > 1 ? iso88591Decoder.decode(RandomOptionCode) : null;
+						let decoded_BaseItem = BaseItem && BaseItem.length > 1 ? userStringDecoder.decode(BaseItem) : null;
+						let decoded_ResultItem = ResultItem && ResultItem.length > 1 ? userStringDecoder.decode(ResultItem) : null;
+						let decoded_RandomOptionCode = RandomOptionCode && RandomOptionCode.length > 1 ? userStringDecoder.decode(RandomOptionCode) : null;
 
 						ItemReformTable.ReformInfo[key] = {
 							BaseItem: decoded_BaseItem,
@@ -1187,13 +1182,13 @@ define(function (require) {
 					};
 
 					ctx.ReformInfoAddInformationString = (key, string) => {
-						let decoded_string = string && string.length > 1 ? iso88591Decoder.decode(string) : null;
+						let decoded_string = string && string.length > 1 ? userStringDecoder.decode(string) : null;
 						ItemReformTable.ReformInfo[key].InformationString.push(decoded_string);
 						return 1;
 					}
 
 					ctx.ReformInfoAddMaterial = (key, Material, Amount) => {
-						let decoded_Material = Material && Material.length > 1 ? iso88591Decoder.decode(Material) : null;
+						let decoded_Material = Material && Material.length > 1 ? userStringDecoder.decode(Material) : null;
 						ItemReformTable.ReformInfo[key].Materials.push(
 							{
 								Material: decoded_Material,
@@ -1205,7 +1200,7 @@ define(function (require) {
 					}
 
 					ctx.AddReformItem = (baseItem, itemID) => {
-						let decoded_baseItem = baseItem && baseItem.length > 1 ? iso88591Decoder.decode(baseItem) : null;
+						let decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
 						if (!ItemReformTable.ReformItemList[decoded_baseItem])
 							ItemReformTable.ReformItemList[decoded_baseItem] = [];
 						ItemReformTable.ReformItemList[decoded_baseItem].push(itemID);
@@ -1289,12 +1284,12 @@ define(function (require) {
 					const ctx = lua.ctx;
 
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddSignBoardData = (key, translation) => {
-						let decoded_key = key && key.length > 1 ? iso88591Decoder.decode(key) : null;
-						let decoded_translation = translation && translation.length > 1 ? iso88591Decoder.decode(translation) : null;
+						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+						let decoded_translation = translation && translation.length > 1 ? userStringDecoder.decode(translation) : null;
 						SignBoardTranslatedTable[decoded_key] = decoded_translation;
 						return 1;
 					};
@@ -1356,14 +1351,14 @@ define(function (require) {
 					const ctx = lua.ctx;
 
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddSignBoard = (mapname, x, y, height, type, icon_location, description, color) => {
-						let decoded_mapname = mapname && mapname.length > 1 ? iso88591Decoder.decode(mapname) : null;
-						let decoded_icon_location = icon_location && icon_location.length > 1 ? iso88591Decoder.decode(icon_location) : null;
-						let decoded_description = description && description.length > 1 ? iso88591Decoder.decode(description) : null;
-						let decoded_color = color && color.length > 1 ? iso88591Decoder.decode(color) : null;
+						let decoded_mapname = mapname && mapname.length > 1 ? userStringDecoder.decode(mapname) : null;
+						let decoded_icon_location = icon_location && icon_location.length > 1 ? userStringDecoder.decode(icon_location) : null;
+						let decoded_description = description && description.length > 1 ? userStringDecoder.decode(description) : null;
+						let decoded_color = color && color.length > 1 ? userStringDecoder.decode(color) : null;
 
 						signBoardList.push({
 							mapname: decoded_mapname,
@@ -1465,17 +1460,17 @@ define(function (require) {
 					const ctx = lua.ctx;  
 	
 					// create decoders  
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');  
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);  
 	
 					// create required functions in context  
 					ctx.AddWeaponName = (weaponID, weaponName) => {  
-						let decoded_weaponName = weaponName && weaponName.length > 0 ? iso88591Decoder.decode(weaponName) : "";  
+						let decoded_weaponName = weaponName && weaponName.length > 0 ? userStringDecoder.decode(weaponName) : "";  
 						WeaponTable[weaponID] = decoded_weaponName;  
 						return 1;  
 					};  
 	
 					ctx.AddWeaponHitSound = (weaponID, soundFile) => {  
-						let decoded_soundFile = soundFile && soundFile.length > 0 ? iso88591Decoder.decode(soundFile) : "";  
+						let decoded_soundFile = soundFile && soundFile.length > 0 ? userStringDecoder.decode(soundFile) : "";  
 						WeaponHitSoundTable[weaponID] = decoded_soundFile;  
 						return 1;  
 					};  
@@ -1574,13 +1569,12 @@ define(function (require) {
 
 					// create decoders  
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 
 					// create required functions in context  
 					ctx.AddSkillInfo = (skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale) => {
 						// Convert to format expected by SkillInfo.js  
 						SkillInfo[skillId] = {
-							Name: iso88591Decoder.decode(resName),
+							Name: userStringDecoder.decode(resName),
 							SkillName: userStringDecoder.decode(skillName),
 							MaxLv: maxLv,
 							SpAmount: spAmount,
@@ -1849,7 +1843,6 @@ define(function (require) {
 			try {
 				const ctx = lua.ctx;
 				const userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-				const isoDecoder = new TextEncoding.TextDecoder('iso-8859-1');
 
 				ctx.SetStatusConstants = (sourceTable) => {
 					if (typeof sourceTable === 'object' && sourceTable !== null) {
@@ -1890,7 +1883,7 @@ define(function (require) {
 				};
 
 				ctx.SetStatusIcon = (id, iconName) => {
-					let icon = isoDecoder.decode(iconName);
+					let icon = userStringDecoder.decode(iconName);
 					if (!StatusInfo[id]) StatusInfo[id] = { descript: [] }; 
 					StatusInfo[id].icon = icon;
 					return 1;
@@ -2081,7 +2074,7 @@ define(function (require) {
 				console.log('Loading file "' + filename + '"...');
 				try {
 					if (data instanceof ArrayBuffer) {
-						data = new TextDecoder('iso-8859-1').decode(data);
+						data = new TextDecoder(userCharpage).decode(data);
 					}
 					let output = lua_parse_glob(data);
 					json = JSON.parse(output);
@@ -2233,15 +2226,15 @@ define(function (require) {
 						// Get context
 						const ctx = lua.ctx;
 
-						// Create a decoder for iso-8859-1
-						let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
+						// Create a decoder
+						let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 						// Initialize result variable
 						let result = null;
 
 						// Add key-value pairs to objects at any nesting level
 						ctx.extractValue = (value) => {
-							result = JSON.parse(iso88591Decoder.decode(value));
+							result = JSON.parse(userStringDecoder.decode(value));
 						};
 
 						// Create and execute a wrapper Lua code to extract the variable
@@ -2335,12 +2328,11 @@ define(function (require) {
 					const ctx = lua.ctx;
 
 					// create decoders
-					let iso88591Decoder = new TextEncoding.TextDecoder('iso-8859-1');
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create mapInfo required functions in context
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
-						let decoded_name = iso88591Decoder.decode(name);
+						let decoded_name = userStringDecoder.decode(name);
 						MapInfo[decoded_name] = {
 							displayName: userStringDecoder.decode(displayName),
 							notifyEnter: notify_enter,
@@ -2355,9 +2347,9 @@ define(function (require) {
 					};
 
 					ctx.AddMapSignName = (name, subTitle, mainTitle) => {
-						let decoded_name = iso88591Decoder.decode(name);
-						let decoded_subTitle = subTitle && subTitle.length > 1 ? iso88591Decoder.decode(subTitle) : null;
-						let decoded_mainTitle = mainTitle && mainTitle.length > 1 ? iso88591Decoder.decode(mainTitle) : null;
+						let decoded_name = userStringDecoder.decode(name);
+						let decoded_subTitle = subTitle && subTitle.length > 1 ? userStringDecoder.decode(subTitle) : null;
+						let decoded_mainTitle = mainTitle && mainTitle.length > 1 ? userStringDecoder.decode(mainTitle) : null;
 						MapInfo[decoded_name].signName = {
 							subTitle: decoded_subTitle,
 							mainTitle: decoded_mainTitle
@@ -2366,8 +2358,8 @@ define(function (require) {
 					};
 
 					ctx.AddMapBackgroundBmp = (name, backgroundBmp) => {
-						let decoded_name = iso88591Decoder.decode(name);
-						MapInfo[decoded_name].backgroundBmp = backgroundBmp ? iso88591Decoder.decode(backgroundBmp) : "field";
+						let decoded_name = userStringDecoder.decode(name);
+						MapInfo[decoded_name].backgroundBmp = backgroundBmp ? userStringDecoder.decode(backgroundBmp) : "field";
 						return 1;
 					};
 
