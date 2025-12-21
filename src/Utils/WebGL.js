@@ -96,8 +96,10 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			error = gl.getShaderInfoLog(shader);
 			gl.deleteShader(shader);
-
-			throw new Error('WebGL::CompileShader() - Fail to compile shader : ' + error);
+			
+			// More descriptive error
+			var typeStr = (type === gl.VERTEX_SHADER) ? "Vertex" : "Fragment";
+			throw new Error('WebGL::CompileShader() - Fail to compile ' + typeStr + ' shader: ' + error);
 		}
 
 		return shader;
@@ -120,22 +122,31 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 			error;
 
 		// Compile shader and attach them
-		shaderProgram = gl.createProgram();
-		vs = compileShader( gl, vertexShader  , gl.VERTEX_SHADER );
-		fs = compileShader( gl, fragmentShader, gl.FRAGMENT_SHADER );
+		try {
+			shaderProgram = gl.createProgram();
+			vs = compileShader( gl, vertexShader  , gl.VERTEX_SHADER );
+			fs = compileShader( gl, fragmentShader, gl.FRAGMENT_SHADER );
 
-		gl.attachShader(shaderProgram, vs);
-		gl.attachShader(shaderProgram, fs);
-		gl.linkProgram(shaderProgram);
+			gl.attachShader(shaderProgram, vs);
+			gl.attachShader(shaderProgram, fs);
+			gl.linkProgram(shaderProgram);
 
-		// Is there an error
-		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-			error = gl.getProgramInfoLog(shaderProgram);
-			gl.deleteProgram(shaderProgram);
-			gl.deleteShader(vs);
-			gl.deleteShader(fs);
+			// Is there an error
+			if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+				error = gl.getProgramInfoLog(shaderProgram);
+				gl.deleteProgram(shaderProgram);
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-			throw new Error('WebGL::CreateShaderProgram() - Fail to link shaders : ' + error);
+				throw new Error('WebGL::CreateShaderProgram() - Fail to link shaders : ' + error);
+			}
+		} catch (e) {
+			console.error("Critical WebGL Shader Error:", e);
+			// Clean up if partial
+			if (shaderProgram) gl.deleteProgram(shaderProgram);
+			if (vs) gl.deleteShader(vs);
+			if (fs) gl.deleteShader(fs);
+			throw e;
 		}
 
 		// Get back attributes
@@ -163,53 +174,64 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 * Create main (FBO) for texture collors and depth renderbuffer.
 	 */
 	function createFramebuffer (gl, width, height) {
-		if (gl.fbo) {
-			// Cleaning old resources if exist
-			gl.deleteTexture(gl.fbo.texture);
-			gl.deleteRenderbuffer(gl.fbo.rbo);
-			gl.deleteFramebuffer(gl.fbo.framebuffer);
+		try {
+			if (gl.fbo) {
+				// Cleaning old resources if exist
+				if(gl.isTexture(gl.fbo.texture)) gl.deleteTexture(gl.fbo.texture);
+				if(gl.isRenderbuffer(gl.fbo.rbo)) gl.deleteRenderbuffer(gl.fbo.rbo);
+				if(gl.isFramebuffer(gl.fbo.framebuffer)) gl.deleteFramebuffer(gl.fbo.framebuffer);
+			}
+
+			var fbo = gl.createFramebuffer();
+			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+			// Color Attachment
+			var texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			// Use simple parameters first
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
+
+			// Prevents Artifacts filter and wrapper in FBO
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+			// Depth Attachment
+			var rbo = gl.createRenderbuffer();
+			gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
+			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo);
+
+			// Status checking
+			var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+			if (status !== gl.FRAMEBUFFER_COMPLETE) {
+				throw new Error("WebGL::createFramebuffer() - Incomplete Framebuffer! Status: " + status);
+			}
+
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+			gl.fbo = {
+				framebuffer: fbo,
+				texture: texture,
+				rbo: rbo,
+				width: width,
+				height: height
+			};
+
+			return gl.fbo;
+		} catch (e) {
+			console.error("WebGL::createFramebuffer failed (likely OOM or context loss):", e);
+			// Clean up partially created resources
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+			return null;
 		}
-
-		var fbo = gl.createFramebuffer();
-		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-		// Color Attachment
-		var texture = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
-
-		// Prevents Artifacts filter and wrapper in FBO
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-
-		// Depth Attachment
-		var rbo = gl.createRenderbuffer();
-		gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
-		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
-		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo);
-
-		// Status checking
-		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-			console.error("WebGL::createFramebuffer() - Incomplete Framebuffer!");
-		}
-
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-
-		gl.fbo = {
-			framebuffer: fbo,
-			texture: texture,
-			rbo: rbo,
-			width: width,
-			height: height
-		};
-
-		return gl.fbo;
 	}
 
 	/**
@@ -239,29 +261,38 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 			if (!success) {
 				return;
 			}
-
-			var canvas, ctx, texture;
-			var enableMipmap = Configs.get('enableMipmap');
-
-			canvas        = document.createElement('canvas');
-			canvas.width  = toPowerOfTwo(this.width);
-			canvas.height = toPowerOfTwo(this.height);
-			ctx           = canvas.getContext('2d');
-			ctx.drawImage( this, 0, 0, canvas.width, canvas.height );
-
-			texture = gl.createTexture();
-			gl.bindTexture( gl.TEXTURE_2D, texture );
-			gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
-			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			if(enableMipmap) {
-				gl.generateMipmap( gl.TEXTURE_2D );
+			
+			// Defensive: Check if context is lost before trying to create textures
+			if (gl.isContextLost()) {
+				console.warn("WebGL::texture - context lost, skipping texture creation");
+				return;
 			}
+			try {
+				var canvas, ctx, texture;
+				var enableMipmap = Configs.get('enableMipmap');
 
-			args.unshift( texture );
-			callback.apply( null, args );
+				canvas        = document.createElement('canvas');
+				canvas.width  = toPowerOfTwo(this.width);
+				canvas.height = toPowerOfTwo(this.height);
+				ctx           = canvas.getContext('2d');
+				ctx.drawImage( this, 0, 0, canvas.width, canvas.height );
+
+				texture = gl.createTexture();
+				gl.bindTexture( gl.TEXTURE_2D, texture );
+				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				if(enableMipmap) {
+					gl.generateMipmap( gl.TEXTURE_2D );
+				}
+
+				args.unshift( texture );
+				callback.apply( null, args );
+			} catch (e) {
+				console.error("WebGL::texture creation error:", e);
+			}
 		});
 	}
 
