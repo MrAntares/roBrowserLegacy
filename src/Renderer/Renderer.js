@@ -52,6 +52,17 @@ define(function( require )
 	 */
 	Renderer.isWebGL2 = false;
 
+	/**
+	 * @var {boolean} flag for context lost state
+	 */
+	Renderer.contextLost = false;
+
+
+	/**
+	 * @var {HTMLElement} overlay for context loss message
+	 */
+	Renderer.errorOverlay = null;
+
 
 	/**
 	 * @var {integer} screen width
@@ -160,6 +171,10 @@ define(function( require )
 			this.canvas.style.left     = '0px';
 			this.canvas.style.zIndex   =  0;
 
+			// Context Loss Listeners
+			this.canvas.addEventListener('webglcontextlost', this.onContextLost.bind(this), false);
+			this.canvas.addEventListener('webglcontextrestored', this.onContextRestored.bind(this), false);
+
 			this.gl = WebGL.getContext( this.canvas, param );
 			this.isWebGL2 = WebGL.isWebGL2(this.gl);
 
@@ -201,15 +216,92 @@ define(function( require )
 	};
 
 	/**
+	 * Handle WebGL Context Loss
+	 * stops the render loop and notifies the user
+	 */
+	Renderer.onContextLost = function(event) {
+		event.preventDefault(); // Prevent default browser behavior (which is not restoring)
+		this.contextLost = true;
+		console.warn("[Renderer] WebGL Context Lost! Pausing rendering.");
+		
+		this.stop();
+
+		// Create/Show overlay message
+		if (!this.errorOverlay) {
+			this.errorOverlay = document.createElement('div');
+			this.errorOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; font-family:sans-serif; text-align:center;';
+			this.errorOverlay.innerHTML = '<h2 style="color:#ff6b6b; margin-bottom:10px;">Graphics Context Lost</h2><p>The browser lost connection to the GPU.</p><p style="font-size:0.9em; opacity:0.8;">Attempting to restore automatically...</p>';
+			document.body.appendChild(this.errorOverlay);
+		} else {
+			this.errorOverlay.style.display = 'flex';
+		}
+	};
+
+	/**
+	 * Handle WebGL Context Restoration
+	 * Re-initializes WebGL state and resumes rendering
+	 */
+	Renderer.onContextRestored = function(event) {
+		console.info("[Renderer] WebGL Context Restored! Re-initializing...");
+		this.contextLost = false;
+
+		if (this.errorOverlay) {
+			this.errorOverlay.style.display = 'none';
+		}
+
+		var gl = this.gl;
+		
+		// Re-detect capabilities
+		this.isWebGL2 = WebGL.isWebGL2(gl);
+
+		// Reset Global GL State
+		gl.clearDepth( 1.0 );
+		gl.enable( gl.DEPTH_TEST );
+		gl.depthFunc( gl.LEQUAL );
+		gl.enable( gl.BLEND );
+		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+		// Re-initialize Post Processing (Shaders/Framebuffers need to be recreated)
+		if (this.postProcessProgram) {
+			this.postProcessProgram = null; // Clear old reference
+		}
+		
+		// Only re-enable bloom if it was previously enabled and safe
+		if (GraphicsSettings.bloom) {
+			const webglCheck = detectBadWebGL(gl);
+			if (!webglCheck.shouldDisableBloom) {
+				this.initPostProcessing();
+			}
+		}
+		
+		// Trigger resize to reset viewport and framebuffers
+		this.resize();
+
+		// Resume Render Loop
+		this.render();
+	};
+
+
+	/**
 	 * Post Processing Helpers
 	 */
 	Renderer.createPostProcessFbos = function(gl, width, height) {
-		if (!gl.fbo || gl.fbo.width !== width || gl.fbo.height !== height) {
-			gl.fbo = WebGL.createFramebuffer(gl, width, height);
+		try {
+			if (!gl.fbo || gl.fbo.width !== width || gl.fbo.height !== height) {
+				gl.fbo = WebGL.createFramebuffer(gl, width, height);
+			}
+		} catch (e) {
+			console.error("Failed to create PostProcess FBOs:", e);
+			// Fallback: Disable bloom if FBO creation fails (likely OOM)
+			GraphicsSettings.bloom = false;
+			this.postProcessProgram = null;
 		}
 	};
 
 	Renderer._drawPostProcessQuad = function(gl, program, texture) {
+		// Guard against lost buffer/context
+		if (!Renderer.quadBuffer || !gl.isBuffer(Renderer.quadBuffer)) return;
+		
 		gl.bindBuffer(gl.ARRAY_BUFFER, Renderer.quadBuffer);
 
 		var posLoc = program.attribute.aPosition;
@@ -228,7 +320,7 @@ define(function( require )
 	 */
 	Renderer.initPostProcessing = function() {
 		var gl = this.gl;
-		if (!gl) return;
+		if (!gl || this.contextLost) return;
 
 		var commonVS = `
 			#version 300 es
@@ -279,6 +371,7 @@ define(function( require )
 			bloomProgram = WebGL.createShaderProgram(gl, commonVS, bloomFS);
 		} catch (e) {
 			console.error("Error when compiling shader BLOOM.", e);
+			return;
 		}
 
 		this.postProcessProgram = bloomProgram;
@@ -354,6 +447,9 @@ define(function( require )
 	 */
 	Renderer.resize = function resize()
 	{
+		// Don't resize if context is lost
+		if (this.contextLost || !this.gl) return;
+		
 		var width, height, quality, dpr = window.devicePixelRatio || 1;
 
 		width  = window.innerWidth  || document.body.offsetWidth;
@@ -371,7 +467,9 @@ define(function( require )
 		this.canvas.style.width   = this.width + 'px';
 		this.canvas.style.height  = this.height + 'px';
 
-		this.gl.viewport( 0, 0, width * dpr, height * dpr );
+		try {
+			this.gl.viewport( 0, 0, width * dpr, height * dpr );
+		} catch(e) { console.error("Viewport resize failed", e); }
 
 		mat4.perspective( this.vFov, width/height, 1, 1000, Camera.projection );
 
@@ -406,6 +504,9 @@ define(function( require )
 	* Rendering scene
 	*/
 	Renderer._render = function render(time) {
+		// Stop if context is lost
+		if (this.contextLost) return;
+		
 		// time: DOMHighResTimeStamp (from rAF) or undefined if fallback
 		var now = (typeof time === 'number') ? time : Date.now();
 	
@@ -460,6 +561,21 @@ define(function( require )
 			} catch (e) {
 				// Defensive: a single callback shouldn't break the whole loop
 				console.error('[Renderer] render callback error', e);
+				
+				// Memory Pressure Detection / Fallback
+				// If we hit an error during rendering, check if it's OOM or Context Lost related
+				if (this.gl.isContextLost()) {
+					// Handled by event listener, but break loop now
+					return;
+				}
+
+				// Basic Heuristic: If errors persist or explicitly OOM
+				// We could disable bloom/fancy effects here to recover
+				if (GraphicsSettings.bloom) {
+					console.warn("[Renderer] Disabling bloom due to render error (potential resource pressure)");
+					GraphicsSettings.bloom = false;
+					this.postProcessProgram = null;
+				}
 			}
 		}
 	
@@ -508,6 +624,10 @@ define(function( require )
 		// No callback specified, remove all
 		if (!arguments.length) {
 			this.renderCallbacks.length = 0;
+			this.rendering = false; // Ensure rendering flag is cleared
+			try {
+				_cancelAnimationFrame(this.updateId);
+			} catch(e) {}
 			return;
 		}
 
