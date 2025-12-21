@@ -369,7 +369,8 @@ define(function()
 			var i, count = _files.length;
 
 			for (i = 0; i < count; ++i) {
-				if (_files[i]._path === filename) {
+				// Not case sensitive...
+				if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
 					return _files[i];
 				}
 			}
@@ -410,7 +411,8 @@ define(function()
 			var i, count = _files.length;
 
 			for (i = 0; i < count; ++i) {
-				if (_files[i]._path === filename) {
+				// Not case sensitive...
+				if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
 					onload(_files[i]);
 					return;
 				}
