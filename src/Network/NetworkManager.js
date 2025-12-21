@@ -150,7 +150,7 @@ define(function( require )
 				id.toString(16), Packet.constructor.name, pkt.buffer.byteLength, utilsBufferToHexString(pkt.buffer).toUpperCase());
 		}
 
-		console.log( '%c[Network] Send: ', 'color:#007070', Packet );
+		console.log( '%c[Network] Send:', 'color:#007070', Packet );
 
 		// Encrypt packet
 		if (_socket && _socket.isZone) {

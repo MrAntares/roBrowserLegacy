@@ -129,7 +129,7 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 
 		var keys, item;
 		var i, count, tick;
-		var list = [];
+		var files = [];
 		_filesToClean = []; // Reset pending cleanup list
 
 		keys  = Object.keys(_memory);
@@ -158,11 +158,9 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 			// Limit the number of removals per idle callback
 			var maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
 			
-			while (_cleanIndex < _filesToClean.length &&   
-					(processed < maxProcess || deadline.timeRemaining() > 0)) {  
-				
+			while (_cleanIndex < _filesToClean.length && processed < maxProcess && deadline.timeRemaining() > 0) {  
 				remove(gl, _filesToClean[_cleanIndex]);  
-				list.push(_filesToClean[_cleanIndex]);  
+				files.push(_filesToClean[_cleanIndex]);  
 				_cleanIndex++;  
 				processed++;  
 			}  
@@ -176,10 +174,9 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 				_lastCheckTick = now;  
 				_filesToClean = [];  
 				
-				if (list.length) {  
-					console.log('%c[MemoryManager] - Removed ' + list.length +   
-								' unused elements from memory.', 'color:#d35111', list);  
-				}  
+				if (files.length) 
+					console.log('%c[MemoryManager] - Removed ' + files.length + ' unused elements from memory.', 'color:#d35111', {files});
+
 			}  
 		});
 	}
