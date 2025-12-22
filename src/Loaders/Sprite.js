@@ -188,39 +188,66 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 
 
 	/**
+	 * Helper to convert 8bit palette to 32bit lookup table.
+	 * OLD LOGIC: Accessed palette per byte (pal[i*4+0], pal[i*4+1], etc.) inside the pixel loops.
+	 * NEW LOGIC: Pre-processes the palette into a 32-bit integer array.
+	 * Endianness: On Little-endian systems, writing (A<<24|B<<16|G<<8|R) to memory results 
+	 * in the byte sequence [R, G, B, A], which is exactly what Canvas and WebGL expect.
+	 */
+	SPR.prototype.convert32bPal = function convert32bPal( pal, flip = false) {
+		var pal32 = new Uint32Array(256);
+		for (var i = 0; i < 256; i++) {
+			var r = pal[i * 4 + 0];
+			var g = pal[i * 4 + 1];
+			var b = pal[i * 4 + 2];
+			var a = i === 0 ? 0 : 255; // A? A = 255
+
+			// If flip=true, we prepare the integer to be written as ABGR in memory
+			// effectively resulting in RGBA sequence in Little Endian systems.
+			if(flip === true) // out[+0]=A, out[+1]=B, out[+2]=G, out[+3]=R
+				pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
+			else // out[+3]=A, out[+2]=B, out[+1]=G, out[+0]=R
+				pal32[i] = (r << 24) | (g << 16) | (b << 8) | a;
+		}
+		return pal32;
+	}
+	
+	/**
 	 * Change SPR mode : indexed to rgba
 	 * (why keep palette for hat/weapon/shield/monster ?)
 	 */
 	SPR.prototype.switchToRGBA = function switchToRGBA()
 	{
-		var frames = this.frames, frame;
-		var i, count = this.indexed_count;
-		var data, width, height, x, y;
-		var out, pal = this.palette;
-		var idx1, idx2;
+		var frames = this.frames, pal = this.palette;		
+		// Create a lookup table of Uint32 colors to speed up conversion
+		var pal32 = this.convert32bPal (pal, false);
+		for (var i = 0; i < this.indexed_count; ++i) {
+			var frame = frames[i];
+			if (frame.type !== SPR.TYPE_PAL) continue;
 
-		for (i = 0; i < count; ++i) {
-			// Avoid look up
-			frame  = frames[i];
+			var width = frame.width, height = frame.height;
+			var data = frame.data; // Uint8 indexes
+			var out = new Uint8Array(width * height * 4);
+			
+			// We map a Uint32View to the output buffer to write 4 bytes at once
+			var out32 = new Uint32Array(out.buffer);
+			
+			/**
+			 * OLD LOGIC: 
+			 * - READ: Accessed data[x + y * width] every iteration (redundant multiplication).
+			 * - WRITE: Performed 4 separate byte assignments (out[ idx2 + 3 ] = pal[ idx1 + 0 ]...out[ idx2 + 1 ] = pal[ idx1 + 2 ]).
+			 * NEW LOGIC:
+			 * - READ: Pre-calculates row offsets per line to minimize arithmetic overhead.
+			 * - WRITE: Uses a single 32-bit integer assignment to write all 4 channels (RGBA) at once.
+			 * COORDINATES: Vertical flip logic (height - y - 1) is maintained for correct visual orientation.
+			 */
+			for (var y = 0; y < height; ++y) { // reverse height
+				var srcRowStart = y * width;
+				var dstRowStart = (height - y - 1) * width;
 
-			if (frame.type !== SPR.TYPE_PAL) {
-				continue;
-			}
-
-			data   = frame.data;
-			width  = frame.width;
-			height = frame.height;
-			out    = new Uint8Array( width * height * 4 );
-
-			// reverse height
-			for ( y=0; y<height; ++y ) {
-				for ( x = 0; x<width; ++x ) {
-					idx1 = data[ x + y * width ] * 4;
-					idx2 = ( x + (height-y-1) * width ) * 4;
-					out[ idx2 + 3 ] = pal[ idx1 + 0 ];
-					out[ idx2 + 2 ] = pal[ idx1 + 1 ];
-					out[ idx2 + 1 ] = pal[ idx1 + 2 ];
-					out[ idx2 + 0 ] = idx1 ? 255  : 0;
+				for (var x = 0; x < width; ++x) {
+					// Single 32-bit assignment from pre-calculated palette table
+					out32[dstRowStart + x] = pal32[ data[srcRowStart + x] ];
 				}
 			}
 
@@ -244,10 +271,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 	{
 		var canvas = document.createElement('canvas');
 		var ctx    = canvas.getContext('2d');
-		var ImageData, frame;
-		var x, y, i, j, width, height;
-
-		frame = this.frames[index];
+		var frame = this.frames[index];
 
 		// Missing/empty frame?
 		if ( !frame || frame.width <= 0 || frame.height <= 0) {
@@ -255,54 +279,61 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			var size = 30;
 			var fontSize = Math.floor(size * 0.8);
 			canvas.width = canvas.height = size;
-        	ctx.fillStyle = 'red';
-        	ctx.textAlign = 'center';
-        	ctx.textBaseline = 'middle';
-        	ctx.font = fontSize+'px sans-serif';
-        	ctx.fillText('X', size / 2, size / 2);
+			ctx.fillStyle = 'red';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.font = fontSize+'px sans-serif';
+			ctx.fillText('X', size / 2, size / 2);
 			
 			return canvas; // Return error image. Caller expects a canvas..
 		}
 
-		canvas.width  = frame.width;
-		canvas.height = frame.height;
-		width         = frame.width;
-		height        = frame.height;
-		ImageData     = ctx.createImageData( frame.width, frame.height );
+		var width = canvas.width = frame.width;
+		var height = canvas.height = frame.height;
+		var imageData = ctx.createImageData(width, height);
 
+		// Use a 32-bit view to write pixels to the ImageData buffer efficiently
+		var data32 = new Uint32Array(imageData.data.buffer);
+		
 		// RGBA
 		if (frame.type === SPR.TYPE_RGBA) {
-			for (y = 0; y < height; ++y) {
-				for (x = 0; x < width; ++x) {
-					i = (x + y * width ) * 4;
-					j = (x + (height-y-1) * width ) * 4;
-					ImageData.data[j+0] = frame.data[i+3];
-					ImageData.data[j+1] = frame.data[i+2];
-					ImageData.data[j+2] = frame.data[i+1];
-					ImageData.data[j+3] = frame.data[i+0];
+			var frameData32 = new Uint32Array(frame.data.buffer);
+			for (var y = 0; y < height; ++y) {
+				var srcRow = y * width;
+				var dstRow = (height - y - 1) * width; // Flip Y
+				for (var x = 0; x < width; ++x) {
+					var pixel = frameData32[srcRow + x];
+
+					/**
+					 * OLD LOGIC: Manual assignments for each channel (ImageData.data[j+0] = ...).
+					 * NEW LOGIC: Reads the source pixel as a 32-bit integer and performs a bitwise "Byte Swap".
+					 * WHY: The source RGBA order in .spr files might not match the Canvas [R,G,B,A] layout. 
+					 * Manipulating the full 32-bit word with shifts and masks is faster than 4 separate array writes.
+					 */
+					data32[dstRow + x] = 
+						((pixel & 0x000000ff) << 24) | // A
+						((pixel & 0x0000ff00) << 8)  | // R
+						((pixel & 0x00ff0000) >> 8)  | // G
+						((pixel & 0xff000000) >> 24);  // B
 				}
 			}
 		}
 
 		// Palette
 		else {
-			var pal = this.palette;
-
-			// reverse height
-			for (y = 0; y < height; ++y) {
-				for (x = 0; x < width; ++x) {
-					i = frame.data[ x + y * width ] * 4;
-					j = (x + y * width ) * 4;
-					ImageData.data[ j + 0 ] = pal[ i + 0 ];
-					ImageData.data[ j + 1 ] = pal[ i + 1 ];
-					ImageData.data[ j + 2 ] = pal[ i + 2 ];
-					ImageData.data[ j + 3 ] = i ? 255  : 0;
+			// Convert palette to 32bit using flip=true for ABGR order (Little Endian -> RGBA)
+			var pal32 = this.convert32bPal (this.palette, true);
+			for (var y = 0; y < height; ++y) { // reverse height
+				var rowStart = y * width;
+				for (var x = 0; x < width; ++x) {
+					var idx = frame.data[rowStart + x];
+					data32[rowStart + x] = pal32[idx];
 				}
 			}
 		}
 
 		// Export
-		ctx.putImageData( ImageData, 0, 0 );
+		ctx.putImageData( imageData, 0, 0 );
 		return canvas;
 	};
 
