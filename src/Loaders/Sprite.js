@@ -188,11 +188,15 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 
 
 	/**
-	 * Helper to convert 8bit palette to 32bit lookup table.
-	 * OLD LOGIC: Accessed palette per byte (pal[i*4+0], pal[i*4+1], etc.) inside the pixel loops.
-	 * NEW LOGIC: Pre-processes the palette into a 32-bit integer array.
-	 * Endianness: On Little-endian systems, writing (A<<24|B<<16|G<<8|R) to memory results 
-	 * in the byte sequence [R, G, B, A], which is exactly what Canvas and WebGL expect.
+	 * Builds a 32-bit palette lookup table.
+	 *
+	 * NOTE ABOUT ENDIANNESS:
+	 * JavaScript TypedArrays are Little Endian.
+	 *
+	 * Writing (A<<24 | B<<16 | G<<8 | R) produces memory bytes [R, G, B, A],
+	 * which matches Canvas ImageData (RGBA).
+	 *
+	 * The exact byte layout depends on the chosen packing below.
 	 */
 	SPR.prototype.convert32bPal = function convert32bPal( pal, flip = false) {
 		var pal32 = new Uint32Array(256);
@@ -204,9 +208,9 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 
 			// If flip=true, we prepare the integer to be written as ABGR in memory
 			// effectively resulting in RGBA sequence in Little Endian systems.
-			if(flip === true) // out[+0]=A, out[+1]=B, out[+2]=G, out[+3]=R
+			if(flip === true) // Memory (LE): [R, G, B, A]  -> Canvas RGBA
 				pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
-			else // out[+0]=R, out[+1]=G, out[+2]=B, out[+3]=A
+			else // Memory (LE): [A, B, G, R]  -> ABGR layout
 				pal32[i] = (r << 24) | (g << 16) | (b << 8) | a;
 		}
 		return pal32;
