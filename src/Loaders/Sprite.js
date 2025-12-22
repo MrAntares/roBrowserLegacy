@@ -206,7 +206,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 			// effectively resulting in RGBA sequence in Little Endian systems.
 			if(flip === true) // out[+0]=A, out[+1]=B, out[+2]=G, out[+3]=R
 				pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
-			else // out[+3]=A, out[+2]=B, out[+1]=G, out[+0]=R
+			else // out[+0]=R, out[+1]=G, out[+2]=B, out[+3]=A
 				pal32[i] = (r << 24) | (g << 16) | (b << 8) | a;
 		}
 		return pal32;
