@@ -324,8 +324,8 @@ define(function()
 
 						var r = (color & 0x7C00) >> 7;
 						var g = (color & 0x03E0) >> 2;
-						var b = (color & 0x001F) << 3;
-						var a = (color & 0x8000) ? 0 : 255;
+						var b = (color & 0x001F) >> 3;
+						var a = (color & 0x8000) ? 255 : 0;
 
 						buffer32[rowOffset + x] =
 							(a << 24) | (b << 16) | (g << 8) | r;
