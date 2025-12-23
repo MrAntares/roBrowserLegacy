@@ -629,10 +629,10 @@ function(      WebGL,         glMatrix,      Camera )
 				return;
 			}
 
-			var scale_x, scale_y, idx1, idx2;
+			var scale_x, scale_y;
 			var x, y, _x, _y, width, height, outputWidth;
 			var pal, frame, color;
-			var input, output;
+			var input, output32;
 
 			scale_x  = 1.0;
 			scale_y  = 1.0;
@@ -663,35 +663,89 @@ function(      WebGL,         glMatrix,      Camera )
 				imageData     = ctx.createImageData(width, height);
 			}
 
-			output      = imageData.data;
-			input       = frame.data;
-			color       = this.color;
+			input = frame.data;
+			color = this.color; // [r, g, b, a] as floats 0..1
 			outputWidth = canvas.width;
+
+			// Use 32-bit view for the output buffer (ImageData)
+			// WHY: Writing a single 32-bit value per pixel is faster than 4 separate byte writes.
+			output32 = new Uint32Array(imageData.data.buffer);
+
+			// Pre-calculate color multipliers for 32-bit assembly
+			// Avoid repeated array lookups inside the inner loop.
+			var r_mul = color[0], g_mul = color[1], b_mul = color[2], a_mul = color[3];
+
+			// Fast path: no color modulation (identity)
+			var isColorIdentity = (r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1);
 
 			// RGBA images
 			if (this.sprite.type === 1) {
+				/**
+				 * OLD LOGIC: Per-channel RGBA modulation using byte array access.
+				 *            4 loads + 4 stores + multiplications per pixel.
+				 * NEW LOGIC: Reads and writes pixels as a single 32-bit integer.
+				 *            Uses bitwise extraction and assembly with optional color modulation.
+				 *            1 load + 1 store per pixel in the fast path.
+				 * Reduces memory writes and bounds checks inside the inner loop.
+				 */
+				var input32 = new Uint32Array(input.buffer);
+
 				for (y = 0; y < height; ++y) {
+					var outRow = y * outputWidth;
+					var inRow = y * width;
+
 					for (x = 0; x < width; ++x) {
-						idx1 = (x + y * outputWidth) * 4;
-						idx2 = (x + y * width) * 4;
-						output[idx1 + 0] = input[idx2 + 0] * color[0];
-						output[idx1 + 1] = input[idx2 + 1] * color[1];
-						output[idx1 + 2] = input[idx2 + 2] * color[2];
-						output[idx1 + 3] = input[idx2 + 3] * color[3];
+						var pixel = input32[inRow + x];
+						if (pixel === 0) { // Transparent skip behavior due n*0 = 0
+							output32[outRow + x] = 0;
+							continue;
+						}
+
+						if (isColorIdentity) {
+							// Fast path: no color modulation.
+							// Copy the precompiled RGBA pixel directly.
+							output32[outRow + x] = pixel;
+						} else {
+							// Extract RGBA components from packed 32-bit pixel.
+							// Note: In Little Endian, 0xAABBGGRR is stored as [R, G, B, A] in memory.
+							var r = (pixel & 0xFF) * r_mul;
+							var g = ((pixel >> 8) & 0xFF) * g_mul;
+							var b = ((pixel >> 16) & 0xFF) * b_mul;
+							var a = ((pixel >> 24) & 0xFF) * a_mul;
+							output32[outRow + x] = (a << 24) | (b << 16) | (g << 8) | r;
+						}
 					}
 				}
 			}
 
 			// Palettes
 			else {
+				// Pre-calculate a color-modulated 32-bit palette for this frame.
+				// WHY: Avoid per-pixel palette lookups and color multiplications.
+				// Cost: O(256) setup, O(pixels) usage.
+				var pal32 = new Uint32Array(256);
+				for (var i = 0; i < 256; i++) {
+					if (i === 0) { // Transparent skip behavior due n*0 = 0
+						pal32[i] = 0;
+						continue;
+					}
+					var pIdx = i * 4;
+					var r = (pal[pIdx + 0] * r_mul) | 0;
+					var g = (pal[pIdx + 1] * g_mul) | 0;
+					var b = (pal[pIdx + 2] * b_mul) | 0;
+					var a = (255 * a_mul) | 0;
+					// Store in LE format [R, G, B, A] -> 0xAABBGGRR
+					pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
+				}
+
 				for (y = 0; y < height; ++y) {
+					var outRow = y * outputWidth;
+					var inRow = y * width;
 					for (x = 0; x < width; ++x) {
-						idx1 = (y * outputWidth + x) * 4;
-						idx2 = input[y * width + x] * 4;
-						output[idx1 + 0] = pal[idx2 + 0] * color[0];
-						output[idx1 + 1] = pal[idx2 + 1] * color[1];
-						output[idx1 + 2] = pal[idx2 + 2] * color[2];
-						output[idx1 + 3] = input[y * width + x] ? 255 * color[3] : 0;
+						// Fast palette lookup: single array access and single 32-bit write.
+						// OLD: Per-channel palette reads and multiplications per pixel.
+						// NEW: O(1) lookup using precomputed 32-bit palette.
+						output32[outRow + x] = pal32[input[inRow + x]];
 					}
 				}
 			}
