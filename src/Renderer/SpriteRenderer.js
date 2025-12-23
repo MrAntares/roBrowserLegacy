@@ -703,7 +703,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 						if (isColorIdentity) {
 							// Fast path: no color modulation.
-							// Copy the precompiled RGBA pixel directly.
+							// Copy the precompiled RGBA pixel directly due n*1 = n.
 							output32[outRow + x] = pixel;
 						} else {
 							// Extract RGBA components from packed 32-bit pixel.
