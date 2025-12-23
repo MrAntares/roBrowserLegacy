@@ -386,6 +386,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 						// Fast transparency check using pre-calculated 32-bit palette
 						// OLD: O(pixels * 3)
 						// NEW: O(256) + O(pixels * 1)
+						// Set all colors to 0 if collor is Magenta (RO Magic Collor)
 						if (pal32[idx] === MAGENTA) {
 							out[dstRow + x] = 0; // Fully transparent pixel
 						} else {
@@ -413,6 +414,8 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 						 * NEW LOGIC: Reads RGBA bytes, remaps color channels using bitwise operations, and writes the result as a single 32-bit integer. 4 loads + 1 store.
 						 */
 
+						// Set all colors to 0 if alpha is also 0
+						// This fixes white outlines appearing on RGBA sprites
 						var a = data[srcIdx];
 						if (a === 0) {
 							out32[dstRow + x] = 0; // Fully transparent pixel
