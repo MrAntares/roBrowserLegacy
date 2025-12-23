@@ -310,7 +310,7 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 
 					/**
 					 * OLD LOGIC: Manual assignments for each channel (ImageData.data[j+0] = ...).
-					 * NEW LOGIC: Reads the source pixel as a 32-bit integer and performs a bitwise "Byte Swap".
+					 * NEW LOGIC: Reads the source pixel as a 32-bit integer and performs bitwise operations
 					 * WHY: The source RGBA order in .spr files might not match the Canvas [R,G,B,A] layout. 
 					 * Manipulating the full 32-bit word with shifts and masks is faster than 4 separate array writes.
 					 */
@@ -350,55 +350,83 @@ define( ['Utils/BinaryReader'], function( BinaryReader )
 		var frame;
 		var i, count = frames.length;
 		var data, width, height, gl_width, gl_height, start_x, start_y, x, y, alpha;
-		var pow = Math.pow, ceil = Math.ceil, log = Math.log, floor = Math.floor;
 		var out;
 		var output = new Array(count);
 
 		for (i = 0; i < count; ++i) {
 
 			// Avoid look up
-			frame  = frames[i];
-			data   = frame.data;
-			width  = frame.width;
-			height = frame.height;
+			var frame = frames[i];
+			var data = frame.data;
+			var width = frame.width;
+			var height = frame.height;
 
-			// Calculate new texture size and pos to center
-			gl_width  = pow( 2, ceil( log(width) /log(2) ) );
-			gl_height = pow( 2, ceil( log(height)/log(2) ) );
-			start_x   = floor( (gl_width - width) * 0.5 );
-			start_y   = floor( (gl_height-height) * 0.5 );
+			// Calculate new texture size (Power of Two)
+			var gl_width = Math.pow(2, Math.ceil(Math.log(width) / Math.log(2)));
+			var gl_height = Math.pow(2, Math.ceil(Math.log(height) / Math.log(2)));
+			var start_x = Math.floor((gl_width - width) * 0.5);
+			var start_y = Math.floor((gl_height - height) * 0.5);
 
 			// If palette.
 			if (frame.type === SPR.TYPE_PAL) {
-				out = new Uint8Array( gl_width * gl_height );
+				// Pre-calculate the palette with flip=true for fast checking
+				var pal32 = this.convert32bPal(this.palette, true);
 
-				for (y = 0; y < height; ++y) {
-					for (x = 0; x < width; ++x) {
-						out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) ] = data[ y * width + x ];
-						if(this.palette[data[ y * width + x ]*4]==255
-							&& this.palette[data[ y * width + x ]*4+2]==255
-							&&this.palette[data[ y * width + x ]*4+1]==0 )
-							out[ ( ( y + start_y ) * gl_width + ( x + start_x ) ) ] = 0;
+				// This creates values in 0xAABBGGRR format (Little Endian).
+				// Magenta (R=255, G=0, B=255, A=255) becomes 0xFFFF00FF.
+				var MAGENTA = 0xFFFF00FF;
+
+				var out = new Uint8Array(gl_width * gl_height);
+				for (var y = 0; y < height; ++y) {
+					var srcRow = y * width;
+					var dstRow = (y + start_y) * gl_width + start_x; // precomputed destination row offset 
+					for (var x = 0; x < width; ++x) {
+						var idx = data[srcRow + x];
+
+						// Fast transparency check using pre-calculated 32-bit palette
+						// OLD: O(pixels * 3)
+						// NEW: O(256) + O(pixels * 1)
+						// Set all colors to 0 if collor is Magenta (RO Magic Collor)
+						if (pal32[idx] === MAGENTA) {
+							out[dstRow + x] = 0; // Fully transparent pixel
+						} else {
+							out[dstRow + x] = idx;
+						}
 					}
 				}
 			}
 
 			// RGBA Images
 			else {
-				out = new Uint8Array( gl_width * gl_height * 4 );
-				let srcIndex, dstIndex;
+				var out = new Uint8Array(gl_width * gl_height * 4);
+				// Use 32-bit views destination for maximum throughput
+				var out32 = new Uint32Array(out.buffer);
+				
+				for (var y = 0; y < height; ++y) {
+					var srcRow = (height - y - 1) * width * 4; 
+					var dstRow = (y + start_y) * gl_width + start_x;
+		
+					for (var x = 0; x < width; ++x) {
+						var srcIdx = srcRow + (x * 4);
 
-				for (y = 0; y < height; ++y) {
-					for (x = 0; x < width; ++x) {
-						srcIndex = ( ( height -y -1 ) * width + x ) * 4;
-						dstIndex = ( ( y + start_y ) * gl_width + ( x + start_x ) ) * 4;
+						/**
+						 * OLD LOGIC: Manual per-channel assignments (out[dst+0]=... out[dst+3]=...). 4 loads + 4 stores + branches.
+						 * NEW LOGIC: Reads RGBA bytes, remaps color channels using bitwise operations, and writes the result as a single 32-bit integer. 4 loads + 1 store.
+						 */
+
 						// Set all colors to 0 if alpha is also 0
 						// This fixes white outlines appearing on RGBA sprites
-						alpha = data[srcIndex];
-						out[dstIndex + 0 ] = alpha ? data[srcIndex + 3] : 0;
-						out[dstIndex + 1 ] = alpha ? data[srcIndex + 2] : 0;
-						out[dstIndex + 2 ] = alpha ? data[srcIndex + 1] : 0;
-						out[dstIndex + 3 ] = alpha;
+						var a = data[srcIdx];
+						if (a === 0) {
+							out32[dstRow + x] = 0; // Fully transparent pixel
+						} else {
+							var r = data[srcIdx + 3];
+							var g = data[srcIdx + 2];
+							var b = data[srcIdx + 1];						
+	 						// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
+							// Reconstruct as 32-bit integer (A B G R -> 0xAABBGGRR)
+							out32[dstRow + x] = (a << 24) | (b << 16) | (g << 8) | r;
+						}
 					}
 				}
 			}
