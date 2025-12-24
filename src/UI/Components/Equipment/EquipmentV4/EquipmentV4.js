@@ -78,6 +78,10 @@ define(function(require)
 	 */
 	var _showEquip = false;
 
+	/**
+	 * @var {boolean} show costume ?
+	 */
+	var _hideCostume = false;
 
 	/**
 	 * @var {jQuery} button that appeared when level up
@@ -168,6 +172,7 @@ define(function(require)
 		this.ui.find('.removeOption').mousedown(onRemoveOption);
 		this.ui.find('.view_status').mousedown(toggleStatus);
 		this.ui.find('.show_equip').mousedown(toggleEquip);
+		this.ui.find('.show_costume').mousedown(toggleCostume);
 
 		this.ui.find('.cartitems').click(onCartItems);
 
@@ -189,6 +194,9 @@ define(function(require)
 
 		switchappend = this.ui.find('.footer');
 
+		EquipmentV4.ui.find('.show_costume').hide();  
+		EquipmentV4.ui.find('.show_costume').next('span').hide();
+
 		var buttons = this.ui.find('#damageskin .skin-option');
 		buttons.each(function() {
 			jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
@@ -201,7 +209,7 @@ define(function(require)
 		});
 		var savedSkin = GraphicsSettings.damageSkin;
 		savedSkin = savedSkin !== undefined && savedSkin !== null ? savedSkin : 0;
-		EquipmentV4.setDamageSkin(savedSkin);	
+		EquipmentV4.setDamageSkin(savedSkin);
 	};
 
 
@@ -232,13 +240,28 @@ define(function(require)
 			SwitchEquip.showSwapTab(currentTabId);
 		}
 
-		if (currentTabId === 'title' || currentTabId === 'damageskin') {
+		if (currentTabId !== 'general') {
 			if (SwitchEquip.ui) {
 				switchUIopen = SwitchEquip.ui.is(':visible');
 				SwitchEquip.ui.hide();
 			}
 			EquipmentV4.ui.find('.switch_equip').hide();
+			EquipmentV4.ui.find('.show_equip').hide();
+			EquipmentV4.ui.find('.show_equip').next('span').hide();
+			if (currentTabId === 'costume'){
+				EquipmentV4.ui.find('.show_costume').show();
+				EquipmentV4.ui.find('.show_costume').next('span').show();
+			}
+			else
+			{
+				EquipmentV4.ui.find('.show_costume').hide();
+				EquipmentV4.ui.find('.show_costume').next('span').hide();
+			}
 		} else {
+			EquipmentV4.ui.find('.show_equip').show();
+			EquipmentV4.ui.find('.show_equip').next('span').show(); 
+			EquipmentV4.ui.find('.show_costume').hide();
+			EquipmentV4.ui.find('.show_costume').next('span').hide();
 			if (SwitchEquip.ui && switchUIopen) {
 				SwitchEquip.ui.show();
 			}
@@ -426,6 +449,21 @@ define(function(require)
 
 
 	/**
+	 * Show or hide equipment
+	 *
+	 * @param {boolean} on
+	 */
+	EquipmentV4.setCostumeConfig = function setCostumeConfig( on )
+	{
+		_hideCostume = on;
+
+		Client.loadFile( DB.INTERFACE_PATH + 'checkbox_' + (on ? '0' : '1') + '.bmp', function(data){
+			EquipmentV4.ui.find('.show_costume').css('backgroundImage', 'url(' + data + ')');
+		});
+	};
+
+
+	/**
 	 * Add an equipment to the window
 	 *
 	 * @param {Item} item
@@ -556,6 +594,13 @@ define(function(require)
 		EquipmentV4.onConfigUpdate( 0, !_showEquip ? 1 : 0 );
 	};
 
+	/**
+	 * Show Costume ?
+	 */
+	function toggleCostume()
+	{
+		EquipmentV4.onConfigUpdate( 5, !_hideCostume ? 1 : 0 );
+	};
 
 	/**
 	 * Rendering character
