@@ -258,3 +258,44 @@
 	border: none;
 	background-color: rgba(255, 255, 255, 0.0);
 }
+
+#WorldMap .worldmap .section.is-dungeon {
+    background-color: rgba(255, 0, 0, 0.5) !important;
+    border: 1px solid rgba(255, 50, 50, 0.8);
+    box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+#WorldMap .worldmap .section.is-dungeon .mapname,
+#WorldMap .worldmap .section.is-dungeon .mapid {
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
+
+#WorldMap .worldmap .map-view .section.is-dungeon:hover {
+    background-color: rgba(255, 0, 0, 0.7) !important;
+    border: 1px solid white !important;
+    cursor: pointer;
+}
+
+#WorldMap .worldmap .map-view .section.is-dungeon:hover .mapname {
+    display: block !important;
+    color: #ffff00;
+}
+
+#WorldMap .worldmap .section .level-range {
+    position: center;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #FF0000;
+    
+    text-shadow: 
+        -1px -1px 0 #000,  
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+         
+    pointer-events: none;
+    white-space: nowrap;
+}

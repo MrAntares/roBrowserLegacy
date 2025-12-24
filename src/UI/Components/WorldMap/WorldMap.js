@@ -60,11 +60,13 @@ define(function (require) {
         this.ui.find('.titlebar .base').mousedown(stopPropagation);
         this.ui.find('.titlebar select').change(onSelect);
         this.ui.find('.titlebar .togglemaps').click(onToggleMaps);
+        this.ui.find('.titlebar .showdg').click(onShowDG);
         this.ui.find('.titlebar .close').click(onClose);
 
         // worldmap dialog
         this.ui.find('.map .content').on('click', onWorldMapClick);
         this.ui.find('#dialog-map-view-backdrop').on('click', onWorldMapDialogClick);
+	WorldMap.showDungeonsMode = false;
     };
 
 
@@ -261,6 +263,7 @@ define(function (require) {
         const container = WorldMap.ui.find('.map .content');
         const worldmap = document.createElement('div');
         const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
+	const targetType = WorldMap.showDungeonsMode ? 1 : 0;
 
         worldmap.className = 'worldmap';
 
@@ -275,7 +278,9 @@ define(function (require) {
 
         // output <div id="worldmap_localizing1" class="map-view" data-name="Eastern Kingdoms"></div>
         for (const section of map.maps) {
-
+            const sectionType = section.type !== undefined ? section.type : 0;
+            if (sectionType !== targetType)
+                continue; 
             //Episode & custom add/remove check
             if (((WorldMap.settings.episode >= section.ep_from && WorldMap.settings.episode < section.ep_to) || WorldMap.settings.add.includes(section.id)) && !WorldMap.settings.remove.includes(section.id)) {
                 const el = document.createElement('div');
@@ -284,11 +289,16 @@ define(function (require) {
 
                 el.id = section.id;
 
+                let className = 'section';
                 if (currentMap == section.id) {
-                    el.className = 'section currentmap';
-                } else {
-                    el.className = 'section';
+                    className += ' currentmap';
                 }
+
+                if (sectionType === 1) {
+                    className += ' is-dungeon';
+                }
+
+                el.className = className;
 
                 el.style.top = `${section.top / C_BASEHEIGHT * 100}%`;
                 el.style.left = `${section.left / C_BASEWIDTH * 100}%`;
@@ -305,13 +315,21 @@ define(function (require) {
 
                 el.appendChild(el_mapname);
                 el.appendChild(el_mapid);
+
+                if (section.moblevel && section.moblevel.length > 0) {
+                    const el_level = document.createElement('div');
+                    el_level.className = 'level-range';
+                    el_level.innerText = section.moblevel;
+                    el.appendChild(el_level);
+                }
+
                 mapView.appendChild(el);
             }
         }
         // airplanes, currently only in the worldmap
         // do secondary assets loading to load the airplane image
         // and then create element and append it to the DOM
-        if (map.id === 'worldmap') {
+        if (map.id === 'worldmap' && !WorldMap.showDungeonsMode) {
             loadAirplane(mapView);
         }
         worldmap.appendChild(mapView);
@@ -537,6 +555,14 @@ define(function (require) {
         }
     }
 
+    /**
+     * Toggle all maps and show dungeons
+     */
+    function onShowDG () {
+	WorldMap.showDungeonsMode = !WorldMap.showDungeonsMode;
+        const currentMapId = WorldMap.ui.find('.titlebar select').val();
+        selectMap(currentMapId);
+    }
 
     /**
      * Stop event propagation
