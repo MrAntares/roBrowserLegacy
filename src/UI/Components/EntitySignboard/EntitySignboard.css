@@ -32,6 +32,7 @@
 }
 
 .EntitySignboard button .title {
+    display: none;
     position: relative;
     left: 30px;
     width: 122px;
@@ -48,6 +49,7 @@
 }
 
 .EntitySignboard .overlay {
+	display: none;
 	position: absolute;
 	top: 0px;
 	left: 26px;

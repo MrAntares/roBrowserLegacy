@@ -73,14 +73,15 @@ define(function(require)
 	{
 		this.ui.find('button').css('backgroundImage', 'url('+ url +')');
 		this.ui.find('.title, .overlay').text(title);
-
-		const titleElement = this.ui.find('.title');
-		const overlayElement = this.ui.find('.overlay');
+		var titleElement = this.ui.find('.title');
+		var overlayElement = this.ui.find('.overlay');
+		titleElement.show();
+		overlayElement.show();
 
 		// Check if the title is overflowing
-		if (!isOverflowing(titleElement[0])) {
+		if (!isOverflowing(titleElement[0]))
 			overlayElement.hide(); // Hide the overlay if no overflow
-		}
+
 	};
 
 
