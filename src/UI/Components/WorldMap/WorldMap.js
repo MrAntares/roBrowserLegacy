@@ -96,9 +96,16 @@ define(function (require) {
      *
      * @param {string} name eg. `"worldmap_localizing1"`
      */
-    function selectMap (name = 'worldmap') {
+    function selectMap (name = null) {  
+	// If no name provided, use the first available map  
+	if (!name) {
+		if(MAPS.length > 0)
+			name = MAPS[0].id;
+		else
+			name = 'worldmap.jpg';
+	}
         // load map image asset and render it
-        Client.loadFile(DB.INTERFACE_PATH + name + '.bmp', (data) => {
+        Client.loadFile(DB.INTERFACE_PATH + name, (data) => {
             // find map data by name and render it
             for (const map of MAPS) {
                 if (map.id === name) {

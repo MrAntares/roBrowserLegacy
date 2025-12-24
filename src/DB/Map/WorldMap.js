@@ -6,7 +6,7 @@ define([], function () {
     return [
         // #region Midgard
         {
-            id: 'worldmap', ep_from: 0, ep_to: 99, name: 'Midgard', maps: [
+            id: 'worldmap.jpg', ep_from: 0, ep_to: 99, name: 'Midgard', maps: [
                 { id: 'hu_fild01', ep_from: 10.3, ep_to: 99, name: 'Hugel Field 01 - Entrance to Thanatos Tower', top: 0, left: 695, width: 57, height: 57 },
                 { id: 'hu_fild02', ep_from: 10.3, ep_to: 99, name: 'Hugel Field 02', top: 0, left: 753, width: 58, height: 57 },
                 { id: 'hu_fild03', ep_from: 10.3, ep_to: 13.1, name: 'Hugel Field 03 - Royal Hunting Ground', top: 0, left: 811, width: 59, height: 57 },
@@ -198,7 +198,7 @@ define([], function () {
 
         // #region Localize1 / Eastern Kingdoms
         {
-            id: 'worldmap_localizing1', ep_from: 6, ep_to: 99, name: 'Eastern Kingdoms', maps: [
+            id: 'worldmap_localizing1.bmp', ep_from: 6, ep_to: 99, name: 'Eastern Kingdoms', maps: [
                 { id: 'ama_fild01', ep_from: 6, ep_to: 99, name: 'Amatsu Field 01', top: 165, left: 332, width: 88, height: 88 },
                 { id: 'amatsu', ep_from: 6, ep_to: 99, name: 'Amatsu', top: 256, left: 281, width: 88, height: 88 },
                 { id: 'gon_fild01', ep_from: 6, ep_to: 99, name: 'Gonryun Field 01', top: 268, left: 911, width: 88, height: 88 },
@@ -215,7 +215,7 @@ define([], function () {
 
         // #region Localize2 / Far Fields
         {
-            id: 'worldmap_localizing2', ep_from: 12, ep_to: 99, name: 'Far Lands', maps: [
+            id: 'worldmap_localizing2.bmp', ep_from: 12, ep_to: 99, name: 'Far Lands', maps: [
                 { id: 'mosk_fild02', ep_from: 12, ep_to: 99, name: 'Moscovia Field 02', top: 299, left: 187, width: 88, height: 88 },
                 { id: 'mosk_dun01', ep_from: 12, ep_to: 99, name: 'Moscovia Dungeon 01', top: 206, left: 185, width: 88, height: 88 },
                 { id: 'mosk_dun02', ep_from: 12, ep_to: 99, name: 'Moscovia Dungeon 02', top: 111, left: 207, width: 88, height: 88 },
@@ -236,7 +236,7 @@ define([], function () {
 
         // #region Dimension / New World
         {
-            id: 'worldmap_dimension', ep_from: 13.1, ep_to: 99, name: 'New World', maps: [
+            id: 'worldmap_dimension.bmp', ep_from: 13.1, ep_to: 99, name: 'New World', maps: [
                 { id: 'eclage', ep_from: 14.2, ep_to: 99, name: 'Eclage', top: 185, left: 393, width: 91, height: 91 },
                 { id: 'ecl_fild01', ep_from: 14.2, ep_to: 99, name: 'Blooming Flower Land', top: 275, left: 393, width: 91, height: 91 },
                 { id: 'mora', ep_from: 14.1, ep_to: 99, name: 'Mora Village', top: 365, left: 393, width: 91, height: 91 },

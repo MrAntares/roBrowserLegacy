@@ -40,6 +40,7 @@ define(function (require) {
 	var WeaponHitSoundTable = require('./Items/WeaponHitSoundTable');
 	var RobeTable = require('./Items/RobeTable');
 	var RandomOption = require('DB/Items/ItemRandomOptionTable');
+	var WorldMap = require('./Map/WorldMap');
 	var SKID = require('./Skills/SkillConst');
 	var SkillDescription = require('./Skills/SkillDescription');
 	var SkillInfo = require('./Skills/SkillInfo');	
@@ -338,8 +339,7 @@ define(function (require) {
 			// TODO: System/RecommendedQuests.lub
 			
 			// WoldMap
-			// TODO: DB.LUA_PATH + woldviewdata/worldviewdata_list.lub	- Replaces DB/Map/WorldMap.js
-			// TODO: DB.LUA_PATH + woldviewdata/worldviewdata_table.lub	- Replaces DB/Map/WorldMap.js
+			loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
 			
 			// Achievements
 			// TODO: System/achievements.lub
@@ -518,6 +518,156 @@ define(function (require) {
 			},
 			onEnd
 		);
+	}
+
+
+	/**
+	 * Loads WorldMap data from Lua files (Language, List, and Table)
+	 * Replaces DB/Map/WorldMap.js
+	 *
+	 * @param {string} basePath - Path to the directory containing worldviewdata files
+	 * @param {function} onEnd - Function to run when done
+	 */
+	function loadWorldMapInfo(basePath, onEnd) {
+		const files = [
+			'worldviewdata_language.lub',
+			'worldviewdata_list.lub',
+			'worldviewdata_table.lub'
+		];
+
+		const dirPath = basePath.endsWith('/') ? basePath : basePath + '/';
+		let loadedBuffers = [];
+
+		// Recursive loader to ensure sequential loading
+		function loadNext(index) {
+			if (index >= files.length) {
+				processWorldMapLua();
+				return;
+			}
+
+			let fullPath = dirPath + files[index];
+			console.log('Loading file "' + fullPath + '"...');
+
+			Client.loadFile(fullPath, function(data) {
+				loadedBuffers.push({ name: files[index], data: data });
+				loadNext(index + 1);
+			}, function() {
+				console.error('[loadWorldMapInfo] - Failed to load ' + fullPath);
+				// If a file fails, we might not be able to generate the map, but we continue to avoid hanging
+				if (onEnd) onEnd();
+			});
+		}
+
+		async function processWorldMapLua() {
+			try {
+				const ctx = lua.ctx;
+				const userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+
+				// Function to add a World Category (e.g., Midgard)
+				ctx.AddWorldMapCategory = (id, name, tableKey) => {
+					let decodedName = userStringDecoder.decode(name);
+					let decodedId = userStringDecoder.decode(id);
+					let decodedTableKey = userStringDecoder.decode(tableKey);
+
+					WorldMap.push({
+						id: decodedId || decodedTableKey, // fallback to table name if id missing
+						ep_from: 0,
+						ep_to: 99,
+						name: decodedName,
+						maps: [],
+						_tableKey: decodedTableKey // Internal use for mapping maps to this world
+					});
+					return 1;
+				};
+
+				// Function to add a Map to a specific World
+				ctx.AddMapToWorld = (worldTableKey, rswName, left, top, right, bottom, nameDisplay) => {
+					let decodedTableKey = userStringDecoder.decode(worldTableKey);
+					let decodedRsw = userStringDecoder.decode(rswName);
+					let decodedName = userStringDecoder.decode(nameDisplay);
+
+					// Find the world this map belongs to
+					let world = WorldMap.find(w => w._tableKey === decodedTableKey);
+					
+					if (world) {
+						// clean .rsw extension for ID
+						let mapId = decodedRsw.toLowerCase().replace('.rsw', '').replace('.gat', '');
+						
+						world.maps.push({
+							id: mapId,
+							ep_from: 0,
+							ep_to: 99,
+							name: decodedName,
+							top: top,
+							left: left,
+							width: right - left, // Calculate width
+							height: bottom - top // Calculate height
+						});
+					}
+					return 1;
+				};
+
+				// Mount and execute all files
+				for (let i = 0; i < loadedBuffers.length; i++) {
+					let f = loadedBuffers[i];
+					let buffer = (f.data instanceof ArrayBuffer) ? new Uint8Array(f.data) : f.data;
+					lua.mountFile(f.name, buffer);
+					await lua.doFile(f.name);
+				}
+
+				// Clean Hardcoded DB Safely
+				WorldMap.splice(0, WorldMap.length);
+
+				// Execute the processing script
+				// Logic: Iterate over World_List -> Get Table Name -> Iterate over that Table -> Extract Data
+				lua.doStringSync(`
+					function main_worldmap_process()
+						if World_List == nil then return end
+
+						for _, worldData in ipairs(World_List) do
+							-- worldData structure: { Name, MainTableName, DungeonTableName, BgImage }
+							local worldName = worldData[1]
+							local mainTableStr = worldData[2]
+							local resourceStr = worldData[4]
+
+							-- Add the world category
+							AddWorldMapCategory(resourceStr, worldName, mainTableStr)
+
+							-- Fetch the actual table using the string name (global variable)
+							local mapTable = _G[mainTableStr]
+
+							if mapTable ~= nil then
+								for _, mapEntry in ipairs(mapTable) do
+									-- mapEntry structure: { Index, "map.rsw", left, top, right, bottom, LocalizedName, ... }
+									local rswName = mapEntry[2]
+									local left = mapEntry[3]
+									local top = mapEntry[4]
+									local right = mapEntry[5]
+									local bottom = mapEntry[6]
+									local nameDisplay = mapEntry[7] -- This is resolved from WORLD_MSGID by Lua automatically
+
+									AddMapToWorld(mainTableStr, rswName, left, top, right, bottom, nameDisplay)
+								end
+							end
+						end
+					end
+					main_worldmap_process()
+				`);
+
+				// Clean up internal keys
+				WorldMap.forEach(w => delete w._tableKey);
+
+			} catch (e) {
+				console.error("[loadWorldMapInfo] Lua Error:", e);
+			} finally {
+				// Unmount files
+				loadedBuffers.forEach(f => lua.unmountFile(f.name));
+				if (onEnd) onEnd();
+			}
+		}
+
+		// Start the chain
+		loadNext(0);
 	}
 
 
