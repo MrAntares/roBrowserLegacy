@@ -50,6 +50,7 @@
 #EquipmentV4 .footer .right { float:right; text-align:right; margin-right:5px; margin-top:3px; }
 #EquipmentV4 .footer .view_status { width:9px; height:14px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #EquipmentV4 .footer .show_equip { width:10px; height:12px; border:none; background-color:transparent; background-repeat:no-repeat; }
+#EquipmentV4 .footer .show_costume { width:10px; height:12px; border:none; background-color:transparent; background-repeat:no-repeat; }
 
 #EquipmentV4 .footer .switch_equip { width:40px; height: 20px; border: none; position: relative; top: -3px; }
 #EquipmentV4 .footer .remove_equip { width:40px; height: 20px; border: none; position: relative; top: -3px; }
