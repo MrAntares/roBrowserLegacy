@@ -26,7 +26,7 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 	 * Remove files from memory if not used until a period of time
 	 * @var {number}
 	 */
-	var _rememberTime = 2 * 60 * 1000; // 2 min
+	var _rememberTime = 30 * 1000; // 30s
 
 
 	/**
@@ -36,9 +36,9 @@ define( ['Core/MemoryItem'], function( MemoryItem )
 
 
 	/**
-	 * @var {number} perform the clean up every 30 secs
+	 * @var {number} perform the clean up every 10 secs
 	 */
-	var _cleanUpInterval = 30 * 1000;
+	var _cleanUpInterval = 10 * 1000;
 
 	/**
 	 * Async cleanup state tracking.
