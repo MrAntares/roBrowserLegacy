@@ -4647,6 +4647,41 @@ define(function (require) {
 	}
 
 	/**
+	* Load Mob Type file
+	* Icons for Miniboss and MVP from texture/À¯ÀúÀÎÅÍÆäÀÌ½º/montype_...bmp
+	*
+	* @param {integer} mobType
+	* @param {function} callback to run once the file is loaded
+	*
+	*/
+	DB.loadMobEmblem = function loadMobEmblem(mobType, callback) {
+		let monType = '';
+
+		switch (mobType) {
+			case 1:
+				monType = 'montype_boss.bmp';
+				break;
+			case 2:
+				monType = 'montype_mvp.bmp';
+				break;
+			default:
+				console.error('Unknown mob type:', mobType);
+				return;
+		}
+
+		Client.loadFile( DB.INTERFACE_PATH + monType, function(dataURI) {
+			let img = new Image();
+			img.decoding = 'async';
+			img.src = dataURI; // String Base64
+
+			// wait image load to call the callback
+			img.onload = function() {
+				callback(img);
+			};
+		});
+	}
+
+	/**
 	 * Search for NPCs or MOBs in the navigation tables
 	 *
 	 * @param {string} query - The search query
