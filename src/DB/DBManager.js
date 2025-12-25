@@ -5056,7 +5056,42 @@ define(function (require) {
 		return item.name;
 	  };
 	  
-	
+	  /**
+	  * Format a Unix timestamp (seconds) into MM/DD HH:mm
+	  *
+	  * @param {number} unixTimestamp - Unix time in seconds
+	  * @returns {string} Formatted date string (MM/DD HH:mm)
+	  */
+	  DB.formatUnixDate = function formatUnixDate(unixTimestamp) {
+		const d = new Date(unixTimestamp * 1000);
+
+		return (
+			String(d.getMonth() + 1).padStart(2, '0') + '/' +
+			String(d.getDate()).padStart(2, '0') + ' ' +
+			String(d.getHours()).padStart(2, '0') + ':' +
+			String(d.getMinutes()).padStart(2, '0')
+		);
+	  };
+
+	  /**
+	  * Convert RO color codes (^RRGGBB) to HTML spans
+	  * 
+	  * @param {string} msg - Message with RO color codes
+	  * @returns {string} Message formatted to HTML
+	  */
+	  DB.formatMsgToHtml = function MsgToHtml(msg) {
+		let hasOpenSpan = false;
+
+		msg = msg.replace(/\^([0-9a-fA-F]{6})/g, (_, color) => {
+			const close = hasOpenSpan ? '</span>' : '';
+			hasOpenSpan = true;
+			return close + `<span style="color:#${color}">`;
+		});
+
+		if (hasOpenSpan) msg += '</span>';
+		return msg;
+	  };
+
 	/**
 	 * Export
 	 */
