@@ -60,13 +60,13 @@ define(function (require) {
         this.ui.find('.titlebar .base').mousedown(stopPropagation);
         this.ui.find('.titlebar select').change(onSelect);
         this.ui.find('.titlebar .togglemaps').click(onToggleMaps);
-        this.ui.find('.titlebar .showdg').click(onShowDG);
+        this.ui.find('.titlebar .showlvl').click(onShowLVL);
         this.ui.find('.titlebar .close').click(onClose);
 
         // worldmap dialog
         this.ui.find('.map .content').on('click', onWorldMapClick);
         this.ui.find('#dialog-map-view-backdrop').on('click', onWorldMapDialogClick);
-	WorldMap.showDungeonsMode = false;
+	WorldMap.showLVLMode = false;
     };
 
 
@@ -263,9 +263,8 @@ define(function (require) {
         const container = WorldMap.ui.find('.map .content');
         const worldmap = document.createElement('div');
         const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
-	const targetType = WorldMap.showDungeonsMode ? 1 : 0;
 
-        worldmap.className = 'worldmap';
+        worldmap.className = 'worldmap' + (WorldMap.showLVLMode ? ' show-levels' : '');
 
         // set loaded worldmap background image
         // worldmap.css('backgroundImage', `url(${imgData})`);
@@ -278,9 +277,6 @@ define(function (require) {
 
         // output <div id="worldmap_localizing1" class="map-view" data-name="Eastern Kingdoms"></div>
         for (const section of map.maps) {
-            const sectionType = section.type !== undefined ? section.type : 0;
-            if (sectionType !== targetType)
-                continue; 
             //Episode & custom add/remove check
             if (((WorldMap.settings.episode >= section.ep_from && WorldMap.settings.episode < section.ep_to) || WorldMap.settings.add.includes(section.id)) && !WorldMap.settings.remove.includes(section.id)) {
                 const el = document.createElement('div');
@@ -289,14 +285,11 @@ define(function (require) {
 
                 el.id = section.id;
 
-                let className = 'section';
-                if (currentMap == section.id) {
-                    className += ' currentmap';
-                }
+                const sectionType = section.type !== undefined ? section.type : 0;
 
-                if (sectionType === 1) {
-                    className += ' is-dungeon';
-                }
+                let className = 'section';
+                if (currentMap == section.id) className += ' currentmap';
+                if (sectionType === 1) className += ' is-dungeon';
 
                 el.className = className;
 
@@ -318,7 +311,7 @@ define(function (require) {
 
                 if (section.moblevel && section.moblevel.length > 0) {
                     const el_level = document.createElement('div');
-                    el_level.className = 'level-range';
+                    el_level.className = 'level-range-text';
                     el_level.innerText = section.moblevel;
                     el.appendChild(el_level);
                 }
@@ -329,7 +322,7 @@ define(function (require) {
         // airplanes, currently only in the worldmap
         // do secondary assets loading to load the airplane image
         // and then create element and append it to the DOM
-        if (map.id === 'worldmap' && !WorldMap.showDungeonsMode) {
+        if (map.id === 'worldmap') {
             loadAirplane(mapView);
         }
         worldmap.appendChild(mapView);
@@ -556,12 +549,19 @@ define(function (require) {
     }
 
     /**
-     * Toggle all maps and show dungeons
+     * Show Monster level range
      */
-    function onShowDG () {
-	WorldMap.showDungeonsMode = !WorldMap.showDungeonsMode;
-        const currentMapId = WorldMap.ui.find('.titlebar select').val();
-        selectMap(currentMapId);
+    function onShowLVL() {
+        WorldMap.showLVLMode = !WorldMap.showLVLMode;  
+      
+        Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (WorldMap.showLVLMode ? '1' : '0') + '.bmp', function(data){  
+            WorldMap.ui.find('.showlvl').css('backgroundImage', 'url(' + data + ')');  
+        });  
+
+        if (!WorldMap.showLVLMode) 
+            WorldMap.ui.find('.worldmap').removeClass('show-lvls');
+        else
+            WorldMap.ui.find('.worldmap').addClass('show-lvls');
     }
 
     /**

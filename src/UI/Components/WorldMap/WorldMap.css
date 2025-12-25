@@ -259,43 +259,35 @@
 	background-color: rgba(255, 255, 255, 0.0);
 }
 
-#WorldMap .worldmap .section.is-dungeon {
-    background-color: rgba(255, 0, 0, 0.5) !important;
-    border: 1px solid rgba(255, 50, 50, 0.8);
-    box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.3);
+#WorldMap .showlvl {  
+    width: 10px;  
+    height: 12px;  
+    border: none;  
+    background-color: transparent;  
+    background-repeat: no-repeat;  
 }
 
-#WorldMap .worldmap .section.is-dungeon .mapname,
-#WorldMap .worldmap .section.is-dungeon .mapid {
-    color: white;
-    text-shadow: 1px 1px 2px black;
-}
-
-#WorldMap .worldmap .map-view .section.is-dungeon:hover {
-    background-color: rgba(255, 0, 0, 0.7) !important;
-    border: 1px solid white !important;
-    cursor: pointer;
-}
-
-#WorldMap .worldmap .map-view .section.is-dungeon:hover .mapname {
-    display: block !important;
-    color: #ffff00;
-}
-
-#WorldMap .worldmap .section .level-range {
-    position: center;
+#WorldMap .worldmap .section .level-range-text {
+    display: none; 
+    position: absolute;
+    
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
     width: 100%;
     text-align: center;
     font-size: 10px;
     font-weight: bold;
     color: #FF0000;
-    
-    text-shadow: 
-        -1px -1px 0 #000,  
-         1px -1px 0 #000,
-        -1px  1px 0 #000,
-         1px  1px 0 #000;
-         
-    pointer-events: none;
-    white-space: nowrap;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+#WorldMap .worldmap.show-lvls .section .level-range-text {
+    display: block;
+}
+
+#WorldMap .worldmap .section.is-dungeon {
+    background-color: rgba(255, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 0, 0, 0.6) !important;
 }
