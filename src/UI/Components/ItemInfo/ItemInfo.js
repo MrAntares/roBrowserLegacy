@@ -265,6 +265,16 @@ define(function(require)
 		ui.find('.title').text( item.IsIdentified ? (refine + gradeName + customname + it.identifiedDisplayName) : it.unidentifiedDisplayName );
 		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
 
+		if (item.HireExpireDate) {
+			const dateText = DB.formatUnixDate(item.HireExpireDate);
+
+			// Get message and replace %s
+			let msg = DB.getMessage(1255).replace('%s', dateText);
+			msg = DB.formatMsgToHtml(msg);
+
+			ui.find('.description-inner').prepend(`<div>${msg}</div>`);
+		}
+
 		// Add view button (for cards)
 		addEvent(item);
 
