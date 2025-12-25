@@ -277,7 +277,7 @@ define(function (require) {
 
         const dgMapPositions = {};
         for (const section of map.maps) {
-            if (section.type === 1) {
+            if (section.type !== undefined && section.type === 1) {
                 dgMapPositions[section.index] = {
                     W: section.width,
                     H: section.height,
@@ -301,7 +301,7 @@ define(function (require) {
                 var sectionType = section.type !== undefined ? section.type : 0;
 
                 // connected dungeons logic
-                if (section.type === 0 && dgMapPositions[section.index]) {
+                if (sectionType === 0 && dgMapPositions[section.index]) {
                     const parentPos = dgMapPositions[section.index];
                     
                     const childW = section.width;
@@ -383,7 +383,7 @@ define(function (require) {
                 el.appendChild(el_mapname);
                 el.appendChild(el_mapid);
 
-                if (section.moblevel && section.moblevel.length > 0) {
+                if (section.moblevel !== undefined && section.moblevel.length > 0) {
                     const el_level = document.createElement('div');
                     el_level.className = 'level-range-text';
                     el_level.innerText = section.moblevel;
