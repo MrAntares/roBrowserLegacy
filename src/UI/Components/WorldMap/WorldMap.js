@@ -60,11 +60,13 @@ define(function (require) {
         this.ui.find('.titlebar .base').mousedown(stopPropagation);
         this.ui.find('.titlebar select').change(onSelect);
         this.ui.find('.titlebar .togglemaps').click(onToggleMaps);
+        this.ui.find('.titlebar .showlvl').click(onShowLVL);
         this.ui.find('.titlebar .close').click(onClose);
 
         // worldmap dialog
         this.ui.find('.map .content').on('click', onWorldMapClick);
         this.ui.find('#dialog-map-view-backdrop').on('click', onWorldMapDialogClick);
+	WorldMap.showLVLMode = false;
     };
 
 
@@ -262,7 +264,7 @@ define(function (require) {
         const worldmap = document.createElement('div');
         const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
 
-        worldmap.className = 'worldmap';
+        worldmap.className = 'worldmap' + (WorldMap.showLVLMode ? ' show-levels' : '');
 
         // set loaded worldmap background image
         // worldmap.css('backgroundImage', `url(${imgData})`);
@@ -273,9 +275,21 @@ define(function (require) {
         mapView.setAttribute('data-name', map.name);
         worldmap.appendChild(mapView);
 
+        const dgMapPositions = {};
+        for (const section of map.maps) {
+            if (section.type !== undefined && section.type === 1) {
+                dgMapPositions[section.index] = {
+                    W: section.width,
+                    H: section.height,
+                    x: section.left + (section.width / 2),
+                    y: section.top + (section.height / 2)
+                };
+            }
+        }
+        const renderedDungeonPos = new Set();
+
         // output <div id="worldmap_localizing1" class="map-view" data-name="Eastern Kingdoms"></div>
         for (const section of map.maps) {
-
             //Episode & custom add/remove check
             if (((WorldMap.settings.episode >= section.ep_from && WorldMap.settings.episode < section.ep_to) || WorldMap.settings.add.includes(section.id)) && !WorldMap.settings.remove.includes(section.id)) {
                 const el = document.createElement('div');
@@ -284,11 +298,74 @@ define(function (require) {
 
                 el.id = section.id;
 
-                if (currentMap == section.id) {
-                    el.className = 'section currentmap';
-                } else {
-                    el.className = 'section';
+                var sectionType = section.type !== undefined ? section.type : 0;
+
+                // connected dungeons logic
+                if (sectionType === 0 && dgMapPositions[section.index]) {
+                    const parentPos = dgMapPositions[section.index];
+                    
+                    const childW = section.width;
+                    const childH = section.height;
+                    const childPos = {
+                        x: section.left + (childW / 2),
+                        y: section.top + (childH / 2)
+                    };
+                    
+                    const parentW = parentPos.W; 
+                    const parentH = parentPos.H;
+                    
+                    const deltaX = childPos.x - parentPos.x;
+                    const deltaY = childPos.y - parentPos.y;
+                    const fullLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    const angleRad = Math.atan2(deltaY, deltaX);
+                    
+                    const getRadius = (w, h, rad) => {
+                        const absCos = Math.abs(Math.cos(rad));
+                        const absSin = Math.abs(Math.sin(rad));
+                        return (w * absSin <= h * absCos) ? (w / (2 * absCos)) : (h / (2 * absSin));
+                    };
+                    
+                    const startOffset = getRadius(parentW, parentH, angleRad);
+                    const endOffset = getRadius(childW, childH, angleRad);
+                    
+                    if (fullLength > (startOffset + endOffset)) {
+                        const newLength = fullLength - startOffset - endOffset;
+                        
+                        const startX = parentPos.x + (Math.cos(angleRad) * startOffset);
+                        const startY = parentPos.y + (Math.sin(angleRad) * startOffset);
+                    
+                        const line = document.createElement('div');
+                        line.className = 'connector-line';
+                        
+                        line.style.left = `${(startX / C_BASEWIDTH) * 100}%`;
+                        line.style.top = `${(startY / C_BASEHEIGHT) * 100}%`;
+                        line.style.width = `${(newLength / C_BASEWIDTH) * 100}%`;
+                        
+                        const angleDeg = angleRad * 180 / Math.PI;
+                        line.style.transform = `rotate(${angleDeg}deg)`;
+                        line.style.transformOrigin = '0% 50%'; 
+                    
+                        mapView.appendChild(line);
+                    }
+                    sectionType = 1;
                 }
+                // -----------------------
+
+                let className = 'section';
+                if (currentMap == section.id) className += ' currentmap';
+
+                if (sectionType === 1) {
+                    const posKey = section.left + '_' + section.top;
+
+                    if (renderedDungeonPos.has(posKey)) {
+                         className += ' is-dungeon-stacked';
+                    } else {
+                         className += ' is-dungeon';
+                         renderedDungeonPos.add(posKey);
+                    }
+                }
+
+                el.className = className;
 
                 el.style.top = `${section.top / C_BASEHEIGHT * 100}%`;
                 el.style.left = `${section.left / C_BASEWIDTH * 100}%`;
@@ -305,6 +382,14 @@ define(function (require) {
 
                 el.appendChild(el_mapname);
                 el.appendChild(el_mapid);
+
+                if (section.moblevel !== undefined && section.moblevel.length > 0) {
+                    const el_level = document.createElement('div');
+                    el_level.className = 'level-range-text';
+                    el_level.innerText = section.moblevel;
+                    el.appendChild(el_level);
+                }
+
                 mapView.appendChild(el);
             }
         }
@@ -537,6 +622,21 @@ define(function (require) {
         }
     }
 
+    /**
+     * Show Monster level range
+     */
+    function onShowLVL() {
+        WorldMap.showLVLMode = !WorldMap.showLVLMode;  
+      
+        Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (WorldMap.showLVLMode ? '1' : '0') + '.bmp', function(data){  
+            WorldMap.ui.find('.showlvl').css('backgroundImage', 'url(' + data + ')');  
+        });  
+
+        if (!WorldMap.showLVLMode) 
+            WorldMap.ui.find('.worldmap').removeClass('show-lvls');
+        else
+            WorldMap.ui.find('.worldmap').addClass('show-lvls');
+    }
 
     /**
      * Stop event propagation

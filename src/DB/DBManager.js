@@ -581,19 +581,27 @@ define(function (require) {
 				};
 
 				// Function to add a Map to a specific World
-				ctx.AddMapToWorld = (worldTableKey, rswName, left, top, right, bottom, nameDisplay) => {
+				ctx.AddMapToWorld = (dgIndex, worldTableKey, rswName, left, top, right, bottom, nameDisplay, level, mapType) => {
 					let decodedTableKey = userStringDecoder.decode(worldTableKey);
 					let decodedRsw = userStringDecoder.decode(rswName);
 					let decodedName = userStringDecoder.decode(nameDisplay);
+					let decodedLevel = level ? userStringDecoder.decode(level) : "";
 
 					// Find the world this map belongs to
 					let world = WorldMap.find(w => w._tableKey === decodedTableKey);
-					
+
+					if(mapType === 1){
+						let originalMap = world.maps.find(m => m.index === dgIndex && m.type === 0);
+						if (originalMap) 
+							decodedRsw = originalMap.id; // Copy rsw name
+					}
+
 					if (world) {
 						// clean .rsw extension for ID
 						let mapId = decodedRsw.toLowerCase().replace('.rsw', '').replace('.gat', '');
 						
 						world.maps.push({
+							index: dgIndex,
 							id: mapId,
 							ep_from: 0,
 							ep_to: 99,
@@ -601,7 +609,9 @@ define(function (require) {
 							top: top,
 							left: left,
 							width: right - left, // Calculate width
-							height: bottom - top // Calculate height
+							height: bottom - top, // Calculate height
+							moblevel: decodedLevel,
+							type: mapType
 						});
 					}
 					return 1;
@@ -628,6 +638,7 @@ define(function (require) {
 							-- worldData structure: { Name, MainTableName, DungeonTableName, BgImage }
 							local worldName = worldData[1]
 							local mainTableStr = worldData[2]
+							local dgTableStr = worldData[3]
 							local resourceStr = worldData[4]
 
 							-- Add the world category
@@ -639,16 +650,35 @@ define(function (require) {
 							if mapTable ~= nil then
 								for _, mapEntry in ipairs(mapTable) do
 									-- mapEntry structure: { Index, "map.rsw", left, top, right, bottom, LocalizedName, ... }
+									local index = mapEntry[1]
 									local rswName = mapEntry[2]
 									local left = mapEntry[3]
 									local top = mapEntry[4]
 									local right = mapEntry[5]
 									local bottom = mapEntry[6]
 									local nameDisplay = mapEntry[7] -- This is resolved from WORLD_MSGID by Lua automatically
+									local level = mapEntry[8]
 
-									AddMapToWorld(mainTableStr, rswName, left, top, right, bottom, nameDisplay)
+									AddMapToWorld(index, mainTableStr, rswName, left, top, right, bottom, nameDisplay, level, 0)
 								end
 							end
+
+							mapTable = _G[dgTableStr]
+
+							if mapTable ~= nil then
+								for _, mapEntry in ipairs(mapTable) do
+									local index = mapEntry[1]
+									local left = mapEntry[2]
+									local top = mapEntry[3]
+									local right = mapEntry[4]
+									local bottom = mapEntry[5]
+									local nameDisplay = mapEntry[6]
+									local level = mapEntry[7]
+
+									AddMapToWorld(index, mainTableStr, "", left, top, right, bottom, nameDisplay, level, 1)
+								end
+							end
+
 						end
 					end
 					main_worldmap_process()
