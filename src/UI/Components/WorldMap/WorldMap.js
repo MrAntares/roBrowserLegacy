@@ -275,6 +275,19 @@ define(function (require) {
         mapView.setAttribute('data-name', map.name);
         worldmap.appendChild(mapView);
 
+        const dgMapPositions = {};
+        for (const section of map.maps) {
+            if (section.type === 1) {
+                dgMapPositions[section.index] = {
+                    W: section.width,
+                    H: section.height,
+                    x: section.left + (section.width / 2),
+                    y: section.top + (section.height / 2)
+                };
+            }
+        }
+        const renderedDungeonPos = new Set();
+
         // output <div id="worldmap_localizing1" class="map-view" data-name="Eastern Kingdoms"></div>
         for (const section of map.maps) {
             //Episode & custom add/remove check
@@ -285,11 +298,72 @@ define(function (require) {
 
                 el.id = section.id;
 
-                const sectionType = section.type !== undefined ? section.type : 0;
+                var sectionType = section.type !== undefined ? section.type : 0;
+
+                // connected dungeons logic
+                if (section.type === 0 && dgMapPositions[section.index]) {
+                    const parentPos = dgMapPositions[section.index];
+                    
+                    const childW = section.width;
+                    const childH = section.height;
+                    const childPos = {
+                        x: section.left + (childW / 2),
+                        y: section.top + (childH / 2)
+                    };
+                    
+                    const parentW = parentPos.W; 
+                    const parentH = parentPos.H;
+                    
+                    const deltaX = childPos.x - parentPos.x;
+                    const deltaY = childPos.y - parentPos.y;
+                    const fullLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    const angleRad = Math.atan2(deltaY, deltaX);
+                    
+                    const getRadius = (w, h, rad) => {
+                        const absCos = Math.abs(Math.cos(rad));
+                        const absSin = Math.abs(Math.sin(rad));
+                        return (w * absSin <= h * absCos) ? (w / (2 * absCos)) : (h / (2 * absSin));
+                    };
+                    
+                    const startOffset = getRadius(parentW, parentH, angleRad);
+                    const endOffset = getRadius(childW, childH, angleRad);
+                    
+                    if (fullLength > (startOffset + endOffset)) {
+                        const newLength = fullLength - startOffset - endOffset;
+                        
+                        const startX = parentPos.x + (Math.cos(angleRad) * startOffset);
+                        const startY = parentPos.y + (Math.sin(angleRad) * startOffset);
+                    
+                        const line = document.createElement('div');
+                        line.className = 'connector-line';
+                        
+                        line.style.left = `${(startX / C_BASEWIDTH) * 100}%`;
+                        line.style.top = `${(startY / C_BASEHEIGHT) * 100}%`;
+                        line.style.width = `${(newLength / C_BASEWIDTH) * 100}%`;
+                        
+                        const angleDeg = angleRad * 180 / Math.PI;
+                        line.style.transform = `rotate(${angleDeg}deg)`;
+                        line.style.transformOrigin = '0% 50%'; 
+                    
+                        mapView.appendChild(line);
+                    }
+                    sectionType = 1;
+                }
+                // -----------------------
 
                 let className = 'section';
                 if (currentMap == section.id) className += ' currentmap';
-                if (sectionType === 1) className += ' is-dungeon';
+
+                if (sectionType === 1) {
+                    const posKey = section.left + '_' + section.top;
+
+                    if (renderedDungeonPos.has(posKey)) {
+                         className += ' is-dungeon-stacked';
+                    } else {
+                         className += ' is-dungeon';
+                         renderedDungeonPos.add(posKey);
+                    }
+                }
 
                 el.className = className;
 

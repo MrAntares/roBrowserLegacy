@@ -291,3 +291,16 @@
     background-color: rgba(255, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 0, 0, 0.6) !important;
 }
+
+#WorldMap .worldmap .section.is-dungeon-stacked {
+    background-color: transparent !important;
+    border: 1px solid rgba(255, 0, 0, 0.6) !important;
+    display: block !important;
+}
+
+#WorldMap .worldmap .connector-line {
+    position: absolute;
+    height: 1px;
+    background-color: rgba(255, 0, 0, 0.5);
+    pointer-events: none;
+}
