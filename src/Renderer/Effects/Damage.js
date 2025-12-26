@@ -18,6 +18,7 @@ define(function( require )
 	var Client         = require('Core/Client');
 	var Configs        = require('Core/Configs');
 	var Sprite         = require('Loaders/Sprite');
+	var Action         = require('Loaders/Action');
 	var Renderer       = require('Renderer/Renderer');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var MapPreferences = require('Preferences/Map');
@@ -161,9 +162,10 @@ define(function( require )
 			Client.getFiles([
 				currentSkin.BaseNumber,
 				currentSkin.BaseMsg,
-				currentSkin.BaseBlue
-			], function( numbers, msg, bluemsg ) {
-				var sprNumbers, sprMsg, sprBlue;
+				currentSkin.BaseBlue,
+				currentSkin.BaseNumber.replace('.spr', '.act')
+			], function( numbers, msg, bluemsg, numbersAct ) {
+				var sprNumbers, sprMsg, sprBlue, actNumbers;
 				var enableMipmap = Configs.get('enableMipmap');
 
 				// Load it properly later using webgl
@@ -173,10 +175,19 @@ define(function( require )
 					sprNumbers = new Sprite(numbers);
 					sprMsg   = new Sprite(msg);
 					sprBlue   = new Sprite(bluemsg);
+					actNumbers = new Action(numbersAct); 
 				}
 				catch(e) {
 					console.error('Damage::init() - ' + e.message );
 					return;
+				}
+
+				skinData.Scale = [];
+				if (actNumbers.actions && actNumbers.actions[0] &&   
+					actNumbers.actions[0].animations && actNumbers.actions[0].animations[0] &&  
+					actNumbers.actions[0].animations[0].layers &&   
+					actNumbers.actions[0].animations[0].layers[0]) {  
+					skinData.Scale = actNumbers.actions[0].animations[0].layers[0].scale || [1.0, 1.0];  
 				}
 
 				// Create SpriteSheet
@@ -535,6 +546,8 @@ define(function( require )
 		var damage;
 		var size;
 
+		var skinData = _loadedSkinsData[_skin];  
+
 		// Render all list
 		for (i = 0, count = _list.length; i < count; ++i) {
 
@@ -623,6 +636,12 @@ define(function( require )
 
 			SpriteRenderer.size[0] = damage.width  * size;
 			SpriteRenderer.size[1] = damage.height * size;
+
+			if (skinData && skinData.Scale) {  
+				SpriteRenderer.size[0] *= skinData.Scale[0];  
+				SpriteRenderer.size[1] *= skinData.Scale[1];  
+			}
+
 			damage.color[3]        = 1.0 - perc;
 
 			if(damage.offset){
