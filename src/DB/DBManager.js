@@ -366,6 +366,11 @@ define(function (require) {
 			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad());
 		}
 
+		// Load ItemMoveInfo and attach to ItemTable
+		if (PACKETVER.value >= 20150422) {
+			loadMoveInfoTable(onLoad());
+		}
+
 		// Forging/Creation
 		loadTable('data/metalprocessitemlist.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).processitemlist = val.split("\n"); }, onLoad());
 
@@ -452,6 +457,66 @@ define(function (require) {
 		}, onEnd);
 	}
 
+
+	/**
+	 * Load ItemMoveInfoV5.txt and attach move info to ItemTable
+	 *
+	 * @param {function} onEnd
+	 */
+	function loadMoveInfoTable(onEnd) {
+		Client.loadFile('data/ItemMoveInfoV5.txt', function (data) {
+			console.log('Loading file "ItemMoveInfoV5.txt"...');
+
+			const lines = data.split(/\r?\n/);
+			let count = 0;
+
+			for (let line of lines) {
+				line = line.trim();
+				if (!line || line.startsWith('//')) continue;
+
+				// Remove inline comments
+				const commentIndex = line.indexOf('//');
+				if (commentIndex !== -1) {
+					line = line.slice(0, commentIndex).trim();
+				}
+
+				const cols = line.split(/\s+/);
+				if (cols.length < 9) {
+					console.warn('Invalid ItemMoveInfo line:', line);
+					continue;
+				}
+
+				const [
+					key,
+					drop,
+					exchange,
+					storage,
+					cart,
+					npcSale,
+					mail,
+					auction,
+					guildStorage
+				] = cols;
+
+				const item = ItemTable[key] || (ItemTable[key] = {});
+
+				item.moveInfo = {
+					Drop: drop === '1',
+					Exchange: exchange === '1',
+					Storage: storage === '1',
+					Cart: cart === '1',
+					NPCSale: npcSale === '1',
+					Mail: mail === '1',
+					Auction: auction === '1',
+					GuildStorage: guildStorage === '1'
+				};
+
+				count++;
+			}
+
+			onEnd();
+		}, onEnd);
+	};
 
 	/**
 	  * LoadXML to json object

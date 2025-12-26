@@ -24,6 +24,7 @@ define(function(require)
 	var UIManager          = require('UI/UIManager');
 	var Mouse              = require('Controls/MouseEventHandler');
 	var UIComponent        = require('UI/UIComponent');
+	var Cursor             = require('UI/CursorManager');
 	var ItemCompare        = require('UI/Components/ItemCompare/ItemCompare');
 	var MakeReadBook       = require('UI/Components/MakeReadBook/MakeReadBook');
 	var Renderer           = require('Renderer/Renderer');
@@ -68,11 +69,28 @@ define(function(require)
 	ItemInfo.uid = -1;
 
 	/**
+	 * ItemMoveInfo messages mapping
+	 */
+	const MOVE_INFO_MESSAGES = [
+		{ key: 'Drop',          msgId: 2788 },
+		{ key: 'Storage',       msgId: 2789 },
+		{ key: 'Cart',          msgId: 2790 },
+		{ key: 'Mail',          msgId: 2791 },
+		{ key: 'Exchange',      msgId: 2792 },
+		// 2793 Auction → intentionally skipped
+		{ key: 'GuildStorage',  msgId: 2794 },
+		{ key: 'NPCSale',       msgId: 2795 }
+	];
+
+	/**
 	 * Once append to the DOM
 	 */
 	ItemInfo.onKeyDown = function onKeyDown( event )
 	{
 		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+			// Cleanup moveInfo tooltip & cursor
+			ItemInfo.hideMoveInfoTooltip();
+
 			ItemInfo.remove();
 			if (ItemCompare.ui) {
 				ItemCompare.remove();
@@ -99,6 +117,10 @@ define(function(require)
 	ItemInfo.onRemove = function onRemove()
 	{
 		this.uid = -1;
+
+		// Cleanup moveInfo tooltip & cursor
+		ItemInfo.hideMoveInfoTooltip();
+
 		// Remove existing compare UI if it's currently displayed
 		if (ItemCompare.ui) {
 			ItemCompare.remove();
@@ -273,6 +295,43 @@ define(function(require)
 			msg = DB.formatMsgToHtml(msg);
 
 			ui.find('.description-inner').prepend(`<div>${msg}</div>`);
+		}
+
+		if (it.moveInfo) {
+			const tooltipHtml = buildMoveInfoTooltip(it.moveInfo);
+			if (!tooltipHtml) return;
+
+			// Create the hoverable label
+			const label = document.createElement('span');
+			label.textContent = DB.getMessage(2796);
+			label.className = 'moveinfo-label';
+
+			// Append label to description
+			ui.find('.description-inner').append(label);
+
+			// Tooltip container
+			const tooltip = document.getElementById('moveinfo-tooltip');
+
+			// Mouse enter → show tooltip
+			label.addEventListener('mouseenter', (e) => {
+				Cursor.setType(Cursor.ACTION.CLICK);
+				tooltip.innerHTML = tooltipHtml;
+				tooltip.style.display = 'block';
+				tooltip.style.left = e.pageX + 15 + 'px';
+				tooltip.style.top = e.pageY + 2 + 'px';
+			});
+		
+			// Mouse leave → hide tooltip
+			label.addEventListener('mouseleave', () => {
+				tooltip.style.display = 'none';
+				Cursor.setType(Cursor.ACTION.DEFAULT);
+			});
+		
+			// Mouse move → follow cursor
+			label.addEventListener('mousemove', (e) => {
+				tooltip.style.left = e.pageX + 20 + 'px';
+				tooltip.style.top  = e.pageY + 2 + 'px';
+			});
 		}
 
 		// Add view button (for cards)
@@ -645,6 +704,33 @@ define(function(require)
 		}
 	};
 
+	/**
+	 * Build moveInfo tooltip html content
+	 * @param {object} moveInfo
+	 * @returns {string} html content
+	 */
+	function buildMoveInfoTooltip(moveInfo) {
+		let lines = [];
+
+		for (const entry of MOVE_INFO_MESSAGES) {
+			if (moveInfo[entry.key] === true) {
+				lines.push(DB.getMessage(entry.msgId));
+			}
+		}
+		return lines.map(l => `<div>${l}</div>`).join('');
+	};
+
+	/**
+	 * Cleanup moveInfo tooltip and restore cursor state.
+	 * Called when ItemInfo UI is removed.
+	 */
+	ItemInfo.hideMoveInfoTooltip = function hideMoveInfoTooltip() {
+		const tooltip = document.getElementById('moveinfo-tooltip');
+		if (tooltip) {
+			tooltip.style.display = 'none';
+		}
+		Cursor.setType(Cursor.ACTION.DEFAULT);
+	};
 
 	/**
 	 * Packet Hooks to functions
