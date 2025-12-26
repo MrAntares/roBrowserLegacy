@@ -683,6 +683,11 @@ define( function( require )
 			index += spr.old_rgba_index;
 		}
 
+		if (!spr.frames[index]) {  
+			console.warn('[renderLayer] - Frame index ' + index + ' not found in sprite');  
+			return;  
+		}
+
 		var frame  = spr.frames[ index ];
 		var width  = frame.width;
 		var height = frame.height;
