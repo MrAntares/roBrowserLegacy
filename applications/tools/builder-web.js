@@ -251,6 +251,8 @@ function copyPwaFiles() {
     const start = Date.now();
     fs.copyFileSync('./applications/pwa/icon.png', dist + platform + '/icon.png');
     fs.copyFileSync('./applications/pwa/manifest.webmanifest', dist + platform + '/manifest.webmanifest');
+    fs.copyFileSync('./applications/pwa/screenshotwide.png', dist + platform + '/screenshotwide.png');
+    fs.copyFileSync('./applications/pwa/screenshotnarrow.png', dist + platform + '/screenshotnarrow.png');
     console.log("PWA files copied", (Date.now() - start), "ms.");
 }
 
