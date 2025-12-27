@@ -181,7 +181,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			spr = Client.loadFile(attachment.spr);
 			act = Client.loadFile(attachment.act);
 
-			if (!spr || !act) {
+			if (!spr || !act || !spr.frames) {
 				return clean;
 			}
 
