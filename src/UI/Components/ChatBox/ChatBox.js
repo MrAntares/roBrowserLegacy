@@ -228,7 +228,42 @@ define(function(require)
 			}.bind(this), 1);
 		}.bind(this));
 
+		// Move caret to end of text
+		this.ui.find('.input-chatbox').on('click focus', function() {  
+			var element = this;  
+			var range = document.createRange();  
+			var selection = window.getSelection();  
+
+			range.selectNodeContents(element);  
+			range.collapse(false); 
+			selection.addRange(range);  
+		});
+
 		this.ui.find('.input-chatbox')[0].maxLength = MAX_LENGTH;
+
+		this.ui.find('.input-chatbox').on('input', function(event) {  
+			var currentText = extractChatMessage(jQuery(this));  
+			if (currentText.length >= MAX_LENGTH) { // cap message to maximun lenght
+				event.preventDefault();  
+				return false;  
+			}  
+		});  
+
+		this.ui.find('.input-chatbox').on('keydown', function(event) {  
+			var currentText = extractChatMessage(jQuery(this));  
+      			// Allowed Keys (backspace, delete, arrows, etc)  
+			if (event.which >= 37 && event.which <= 40) return true; // arrows 
+			if (event.which === 8 || event.which === 46) return true; // backspace, delete  
+			if (event.which === 13) return true; // enter  
+			if (event.ctrlKey || event.altKey) return true;  
+      
+			// Block texting after reach max_lenght
+			if (currentText.length >= MAX_LENGTH) {  
+				event.preventDefault();  
+				return false;  
+			}  
+		});
+
 		this.ui.find('.input-chatbox').on('paste', function(event) {
 			// Contenteditable ignores maxLength; enforce plain-text paste + length limit.
 			event.preventDefault();
@@ -1019,12 +1054,10 @@ define(function(require)
 
 		clone.find('span.item-link').each(function() {
 			var itemData = jQuery(this).attr('data-item') || jQuery(this).data('item') || '';
-			itemData = HTMLEntity.decodeHTMLEntities(String(itemData));
 			jQuery(this).replaceWith(document.createTextNode(itemData));
 		});
 
 		var result = clone.text();
-		result = HTMLEntity.decodeHTMLEntities(result);
 		result = result.replace(/\u00A0/g, ' ');
 		return result;
 	}
