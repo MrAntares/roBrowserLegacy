@@ -661,7 +661,7 @@ define( function( require )
 	function renderLayer( layer, spr, pal, size, pos, type, isBlendModeOne )
 	{
 		// If there is nothing to render
-		if (layer.index < 0) {
+		if (layer.index < 0 || !spr || !spr.frames || layer.index >= spr.frames.length || !spr.frames[layer.index]) {
 			return;
 		}
 
@@ -681,11 +681,6 @@ define( function( require )
 		// RGBA is at the end of the spr.
 		else if (layer.spr_type === 1) {
 			index += spr.old_rgba_index;
-		}
-
-		if (!spr.frames[index]) {  
-			console.warn('[renderLayer] - Frame index ' + index + ' not found in sprite');  
-			return;  
 		}
 
 		var frame  = spr.frames[ index ];
