@@ -225,10 +225,11 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			}
 
 			// render layers
+			SpriteRenderer.setDepthMask(false);
 			for (i = 0, count = layers.length; i < count; ++i) {
-				this.entity.renderLayer(layers[i], spr, spr, 1.0, position, false);
+				this.entity.renderLayer(layers[i], spr, spr, 1.0, position, false, attachment.file === 'torch_01');
 			}
-
+			SpriteRenderer.setDepthMask(true);
 			return clean;
 		};
 	}();
