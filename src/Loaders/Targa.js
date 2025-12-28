@@ -344,14 +344,19 @@ define(function()
 				break;
 
 			case 32:
+				var MAGENTA_MASK = 0x00FF00FF;
+				var PIXEL_MASK = 0x00FFFFFF;
 				for (var y = y_start; y !== y_end; y += y_step) {
 					var rowOffset = y * width;
 					for (var x = x_start; x !== x_end; x += x_step) {
 						// BGRA to RGBA (or ABGR depending on endianness)
 						// TGA 32 is usually BGRA
-						// WebGL expects RGBA
-						var b = input[i++]; var g = input[i++]; var r = input[i++]; var a = input[i++];
-						buffer32[rowOffset + x] = (a << 24) | (b << 16) | (g << 8) | r;
+						// read as Uint32 (BGRA format input[i]=B, input[i+1]=G, input[i+2]=R, input[i+3]=A).
+						// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
+						var pixel = (input[i+3] << 24) | (input[i] << 16) | (input[i+1] << 8) | input[i+2];
+						i += 4;
+
+						buffer32[rowOffset + x] = ((pixel & PIXEL_MASK) === MAGENTA_MASK) ? 0 : pixel;
 					}
 				}
 				break;
