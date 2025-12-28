@@ -141,14 +141,47 @@ define(function( require )
 		// Load image
 		Client.loadFile( 'data/texture/effect/' + StatusTable[index].icon, function(data){
 			Texture.load( data, function(){
-				if (_status[index] && !_status[index].img) {
-					_status[index].img = this;
-					addElement(_status[index].element);
+				if (_status[index] && !_status[index].img) {  
+					addResizedStatusIcon(this, index);  
 				}
 			});
 		});
 	};
 
+	function addResizedStatusIcon(img, index) {  
+		if (img.width < 33 && img.height < 33) {  
+			_status[index].img = img;  
+			addElement(_status[index].element);  
+			return;  
+		}  
+		
+		var canvas = document.createElement('canvas');  
+		canvas.width = 32;  
+		canvas.height = 32;  
+		var ctx = canvas.getContext('2d');  
+		
+
+		ctx.save();  
+		ctx.translate(0, 32); // Move to left  
+		ctx.scale(1, -1);     // flip vertical  (official client does)
+		
+		// resize with scale  
+		var scale = Math.min(32/img.width, 32/img.height);  
+		var width = img.width * scale;  
+		var height = img.height * scale;  
+		var x = (32 - width) / 2;  
+		var y = (32 - height) / 2;  
+		
+		ctx.drawImage(img, x, y, width, height);  
+		ctx.restore();  
+		
+		var resizedImg = new Image();  
+		resizedImg.src = canvas.toDataURL();  
+		resizedImg.onload = function() {  
+			_status[index].img = resizedImg;  
+			addElement(_status[index].element);  
+		}; 
+	}
 
 	/**
 	 * Reset elements position.
