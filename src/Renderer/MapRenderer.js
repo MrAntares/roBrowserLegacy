@@ -493,19 +493,13 @@ define(function( require )
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			var finalProgramToUse = null;
 
-			if (usePostProcessing && Renderer.postProcessProgram) {
+			if (Renderer.postProcessProgram) {
  				finalProgramToUse = Renderer.postProcessProgram;
  				gl.useProgram(finalProgramToUse);
 				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
 				gl.uniform1f(finalProgramToUse.uniform.uBloomThreshold, 0.88); // ignore shadows
 				gl.uniform1f(finalProgramToUse.uniform.uBloomSoftKnee, 0.45); // soft transition
 			}
-			// Fallback
- 			else if (Renderer.postProcessProgram) {
- 				finalProgramToUse = Renderer.postProcessProgram;
- 				gl.useProgram(finalProgramToUse);
- 				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, 0.0);
- 			}
 			
 			if(finalProgramToUse) {
 				Renderer._drawPostProcessQuad(gl, finalProgramToUse, inputTexture);
