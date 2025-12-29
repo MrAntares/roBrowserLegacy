@@ -3065,18 +3065,18 @@ define(function( require )
 		//160: [{}],	//EF_PARTY	   PvP Party Circle
 		161: [{	//EF_RAIN	Rain weather
 			type: 'FUNC',
-			attachedEntity: true,
+			attachedEntity: false,
 			func: function( Params ) {
 				var RainWeatherEffect = require('Renderer/Effects/RainWeather');
-				RainWeatherEffect.startOrRestart(Params, this);
+				RainWeatherEffect.startOrRestart(Params);
 			}
 		}],
 		162: [{	//EF_SNOW	Snow weather
 			type: 'FUNC',
-			attachedEntity: true,
+			attachedEntity: false,
 			func: function( Params ) {
 				var SnowWeatherEffect = require('Renderer/Effects/SnowWeather');
-				SnowWeatherEffect.startOrRestart(Params, this);
+				SnowWeatherEffect.startOrRestart(Params);
 			}
 		}],
 		//163: [{}],	//EF_SAKURA	   White Sakura Leaves

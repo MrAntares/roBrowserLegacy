@@ -38,6 +38,8 @@ define(function( require )
 	var Effects        = require('Renderer/Map/Effects');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var EffectManager  = require('Renderer/EffectManager');
+	var SnowWeather    = require('Renderer/Effects/SnowWeather');
+	var RainWeather    = require('Renderer/Effects/RainWeather');
 	var Sky            = require('Renderer/Effects/Sky');
 	var Damage         = require('Renderer/Effects/Damage');
 	var GraphicsSettings = require('Preferences/Graphics');
@@ -467,6 +469,10 @@ define(function( require )
 		EffectManager.render( gl, modelView, projection, fog, tick, false);
 		EntityManager.render( gl, modelView, projection, fog, true );
 
+		// Weather Effects
+		SnowWeather.renderAll(gl, modelView, projection, fog, tick);
+		RainWeather.renderAll(gl, modelView, projection, fog, tick);
+
 		// Play sounds
 		Sounds.render( Session.Entity.position, tick );
 
@@ -487,19 +493,13 @@ define(function( require )
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			var finalProgramToUse = null;
 
-			if (usePostProcessing && Renderer.postProcessProgram) {
+			if (Renderer.postProcessProgram) {
  				finalProgramToUse = Renderer.postProcessProgram;
  				gl.useProgram(finalProgramToUse);
 				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
 				gl.uniform1f(finalProgramToUse.uniform.uBloomThreshold, 0.88); // ignore shadows
 				gl.uniform1f(finalProgramToUse.uniform.uBloomSoftKnee, 0.45); // soft transition
 			}
-			// Fallback
- 			else if (Renderer.postProcessProgram) {
- 				finalProgramToUse = Renderer.postProcessProgram;
- 				gl.useProgram(finalProgramToUse);
- 				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, 0.0);
- 			}
 			
 			if(finalProgramToUse) {
 				Renderer._drawPostProcessQuad(gl, finalProgramToUse, inputTexture);

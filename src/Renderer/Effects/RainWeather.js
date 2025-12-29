@@ -18,6 +18,7 @@ define(function(require) {
 	var Altitude       = require('Renderer/Map/Altitude');
 	var Camera         = require('Renderer/Camera');
 	var Preferences    = require('Preferences/Audio');
+	var Session        = require('Engine/SessionStorage');
 
 	var RAG_TICK_MS = 25;
 	var FADEOUT_TAIL_MS = 300 * RAG_TICK_MS;
@@ -287,7 +288,6 @@ define(function(require) {
 	function RainWeatherEffect(Params) {
 		this.effectID = Params.Inst.effectID;
 		this.ownerAID = Params.Init.ownerAID;
-		this.ownerEntity = Params.Init.ownerEntity;
 		this.startTick = Params.Inst.startTick;
 		this.endTick = Params.Inst.endTick; // -1 for infinite
 
@@ -321,7 +321,7 @@ define(function(require) {
 		this.needInit = false;
 		this.needCleanUp = false;
 
-		RainWeatherEffect._activeByOwner[this.ownerAID] = this;
+		RainWeatherEffect._activeByOwner["weather_"+this.ownerAID] = this;
 	}
 
 	RainWeatherEffect.prototype.initRainSound = function () {
@@ -441,7 +441,7 @@ define(function(require) {
 
 
 	RainWeatherEffect._activeByOwner = Object.create(null);
-
+	RainWeatherEffect._activeEffects = [];
 	RainWeatherEffect.ready = true;
 	RainWeatherEffect.renderBeforeEntities = false;
 
@@ -455,10 +455,7 @@ define(function(require) {
 		SpriteRenderer.offset[0] = 0;
 		SpriteRenderer.offset[1] = 0;
 		SpriteRenderer.image.palette = null;
-		SpriteRenderer.color[0] = 1;
-		SpriteRenderer.color[1] = 1;
-		SpriteRenderer.color[2] = 1;
-		SpriteRenderer.color[3] = 1;
+		SpriteRenderer.color.set([1, 1, 1, 1]);
 		SpriteRenderer.depth = 0;
 		SpriteRenderer.zIndex = 0;
 	};
@@ -471,13 +468,12 @@ define(function(require) {
 		SpriteRenderer.unbind(gl);
 	};
 
-	RainWeatherEffect.startOrRestart = function startOrRestart(Params, EffectManager) {
+	RainWeatherEffect.startOrRestart = function startOrRestart(Params) {
 		var ownerAID = Params.Init.ownerAID;
-		var existing = RainWeatherEffect._activeByOwner[ownerAID];
+		var existing = RainWeatherEffect._activeByOwner["weather_" +ownerAID];
 		var now = Params.Inst.startTick || Renderer.tick;
 
 		if (existing && !existing.needCleanUp) {
-			existing.ownerEntity = Params.Init.ownerEntity || existing.ownerEntity;
 			if (existing.endTick > 0) {
 				var remaining = existing.endTick - now;
 				if (remaining <= FADEOUT_TAIL_MS) {
@@ -490,12 +486,32 @@ define(function(require) {
 		}
 
 		var inst = new RainWeatherEffect(Params);
-		EffectManager.add(inst, Params);
+		RainWeatherEffect._activeEffects.push(inst);
 		return inst;
 	};
 
+	RainWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
+		if (!this._activeEffects.length) return;
+
+		this.beforeRender(gl, modelView, projection, fog);
+
+		for (var i = this._activeEffects.length - 1; i >= 0; i--) {
+			var effect = this._activeEffects[i];
+
+			if (effect.needCleanUp) {
+				effect.free();
+				this._activeEffects.splice(i, 1);
+				continue;
+			}
+
+			effect.render(gl, tick);
+		}
+
+		this.afterRender(gl);
+	};
+
 	RainWeatherEffect.stop = function stop(ownerAID, tick) {
-		var existing = RainWeatherEffect._activeByOwner[ownerAID];
+		var existing = RainWeatherEffect._activeByOwner["weather_" +ownerAID];
 		if (!existing || existing.needCleanUp) {
 			return;
 		}
@@ -505,15 +521,15 @@ define(function(require) {
 	};
 
 	RainWeatherEffect.prototype.spawnDrop = function spawnDrop(spawnTick) {
-		if (!this.ownerEntity) {
+		if (!Session.Entity) {
 			return;
 		}
 
 		var layerIndex = pickLayerIndex();
 		var layer = LAYERS[layerIndex];
 
-		var px = this.ownerEntity.position[0];
-		var py = this.ownerEntity.position[1];
+		var px = Session.Entity.position[0];
+		var py = Session.Entity.position[1];
 
 		var theta = Math.random() * Math.PI * 2;
 		var radius = Math.random() * SCATTER_RADIUS_CELLS;
@@ -568,8 +584,7 @@ define(function(require) {
 	};
 
 	RainWeatherEffect.prototype.render = function render(gl, tick) {
-		if (!this.ownerEntity) {
-			this.needCleanUp = true;
+		if (!Session.Entity) {
 			return;
 		}
 		ensureDropFrame(gl);
@@ -663,9 +678,9 @@ define(function(require) {
 			SpriteRenderer.image.palette = null;
 			SpriteRenderer.sprite = _filterFrame;
 			SpriteRenderer.image.texture = _filterFrame.texture;
-			SpriteRenderer.position[0] = this.ownerEntity.position[0];
-			SpriteRenderer.position[1] = this.ownerEntity.position[1];
-			SpriteRenderer.position[2] = this.ownerEntity.position[2];
+			SpriteRenderer.position[0] = Session.Entity.position[0];
+			SpriteRenderer.position[1] = Session.Entity.position[1];
+			SpriteRenderer.position[2] = Session.Entity.position[2];
 			SpriteRenderer.zIndex = -1000;
 
 			SpriteRenderer.color[0] = overlayR;
@@ -830,8 +845,8 @@ define(function(require) {
 		}
 
 		this.ready = false;
-		if (RainWeatherEffect._activeByOwner[this.ownerAID] === this) {
-			delete RainWeatherEffect._activeByOwner[this.ownerAID];
+		if (RainWeatherEffect._activeByOwner["weather_" +this.ownerAID] === this) {
+			delete RainWeatherEffect._activeByOwner["weather_" +this.ownerAID];
 		}
 	};
 

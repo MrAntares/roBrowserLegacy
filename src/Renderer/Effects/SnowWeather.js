@@ -13,6 +13,7 @@ define(function(require) {
 	var Renderer       = require('Renderer/Renderer');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var Altitude       = require('Renderer/Map/Altitude');
+	var Session        = require('Engine/SessionStorage');
 
 	// The official client uses 25ms rag ticks for weather effects.
 	var RAG_TICK_MS = 25;
@@ -47,7 +48,6 @@ define(function(require) {
 	function SnowWeatherEffect(Params) {
 		this.effectID = Params.Inst.effectID;
 		this.ownerAID = Params.Init.ownerAID;
-		this.ownerEntity = Params.Init.ownerEntity;
 		this.startTick = Params.Inst.startTick;
 		this.endTick = Params.Inst.endTick; // -1 for infinite
 
@@ -62,7 +62,7 @@ define(function(require) {
 		this.needCleanUp = false;
 
 		// Register as active snow for this owner.
-		SnowWeatherEffect._activeByOwner[this.ownerAID] = this;
+		SnowWeatherEffect._activeByOwner["weather_" + this.ownerAID] = this;
 	}
 
 	/**
@@ -70,9 +70,9 @@ define(function(require) {
 	 */
 	SnowWeatherEffect._activeByOwner = Object.create(null);
 
-	// No GL init needed; mark constructor ready so EffectManager renders instances.
+	SnowWeatherEffect._activeEffects = [];
+
 	SnowWeatherEffect.ready = true;
-	SnowWeatherEffect.renderBeforeEntities = false;
 
 	/**
 	 * Prepare SpriteRenderer state for snow flakes.
@@ -89,10 +89,7 @@ define(function(require) {
 		SpriteRenderer.offset[0] = 0;
 		SpriteRenderer.offset[1] = 0;
 		SpriteRenderer.image.palette = null;
-		SpriteRenderer.color[0] = 1;
-		SpriteRenderer.color[1] = 1;
-		SpriteRenderer.color[2] = 1;
-		SpriteRenderer.color[3] = 1;
+		SpriteRenderer.color.set([1, 1, 1, 1]);
 		SpriteRenderer.depth = 0;
 		SpriteRenderer.zIndex = 0;
 	};
@@ -111,13 +108,12 @@ define(function(require) {
 	 * Matches the official client behavior: don't restart while the previous
 	 * snow is still running, but if it is in its 300‑tick fade‑out tail, revive it.
 	 */
-	SnowWeatherEffect.startOrRestart = function startOrRestart(Params, EffectManager) {
+	SnowWeatherEffect.startOrRestart = function startOrRestart(Params) {
 		var ownerAID = Params.Init.ownerAID;
-		var existing = SnowWeatherEffect._activeByOwner[ownerAID];
+		var existing = SnowWeatherEffect._activeByOwner["weather_" + ownerAID];
 		var now = Params.Inst.startTick || Renderer.tick;
 
 		if (existing && !existing.needCleanUp) {
-			existing.ownerEntity = Params.Init.ownerEntity || existing.ownerEntity;
 			// If snow is fading out (endTick set) and close to ending, revive it.
 			if (existing.endTick > 0) {
 				var remaining = existing.endTick - now;
@@ -131,15 +127,35 @@ define(function(require) {
 		}
 
 		var inst = new SnowWeatherEffect(Params);
-		EffectManager.add(inst, Params);
+		SnowWeatherEffect._activeEffects.push(inst);
 		return inst;
+	};
+
+	SnowWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
+		if (!this._activeEffects.length) return;
+
+		this.beforeRender(gl, modelView, projection, fog);
+
+		for (var i = this._activeEffects.length - 1; i >= 0; i--) {
+			var effect = this._activeEffects[i];
+
+			if (effect.needCleanUp) {
+				effect.free();
+				this._activeEffects.splice(i, 1);
+				continue;
+			}
+
+			effect.render(gl, tick);
+		}
+
+		this.afterRender(gl);
 	};
 
 	/**
 	 * Fade out snow over the official ~300 ticks.
 	 */
 	SnowWeatherEffect.stop = function stop(ownerAID, tick) {
-		var existing = SnowWeatherEffect._activeByOwner[ownerAID];
+		var existing = SnowWeatherEffect._activeByOwner["weather_" + ownerAID];
 		if (!existing || existing.needCleanUp) {
 			return;
 		}
@@ -152,12 +168,10 @@ define(function(require) {
 	 * Spawn a single snowflake around the player.
 	 */
 	SnowWeatherEffect.prototype.spawnFlake = function spawnFlake(spawnTick) {
-		if (!this.ownerEntity) {
-			return;
-		}
+		if (!Session.Entity) return;
 
-		var px = this.ownerEntity.position[0];
-		var py = this.ownerEntity.position[1];
+		var px = Session.Entity.position[0];
+		var py = Session.Entity.position[1];
 
 		var theta = Math.random() * Math.PI * 2;
 		var radius = Math.random() * SCATTER_RADIUS_CELLS;
@@ -213,10 +227,7 @@ define(function(require) {
 			width = -width;
 		}
 
-		SpriteRenderer.color[0] = layer.color[0];
-		SpriteRenderer.color[1] = layer.color[1];
-		SpriteRenderer.color[2] = layer.color[2];
-		SpriteRenderer.color[3] = layer.color[3] * alpha;
+		SpriteRenderer.color.set([layer.color[0], layer.color[1], layer.color[2], layer.color[3] * alpha]);
 
 		SpriteRenderer.angle = layer.angle;
 		SpriteRenderer.size[0] = width;
@@ -232,11 +243,9 @@ define(function(require) {
 
 	SnowWeatherEffect.prototype.render = function render(gl, tick) {
 		// If the owner vanished, stop.
-		if (!this.ownerEntity) {
-			this.needCleanUp = true;
-			return;
+		if (!Session.Entity) {
+ 			return; 
 		}
-
 		// Always fetch from Client cache so MemoryManager knows it's still used.
 		// This prevents long-lived weather effects from having their SPR textures evicted.
 		var spr = Client.loadFile(SPR_PATH + '.spr', null, null, { to_rgba: true });
@@ -318,8 +327,8 @@ define(function(require) {
 
 	SnowWeatherEffect.prototype.free = function free() {
 		this.ready = false;
-		if (SnowWeatherEffect._activeByOwner[this.ownerAID] === this) {
-			delete SnowWeatherEffect._activeByOwner[this.ownerAID];
+		if (SnowWeatherEffect._activeByOwner["weather_" + this.ownerAID] === this) {
+			delete SnowWeatherEffect._activeByOwner["weather_" + this.ownerAID];
 		}
 	};
 
