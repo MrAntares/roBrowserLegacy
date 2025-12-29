@@ -1636,23 +1636,45 @@ define(function( require )
 			file: '\xb1\xbc\xb6\xd2\xbf\xac\xb1\xe2',
 			attachedEntity: false*/
 
-
-
 			type: '3D',
 			spriteName: '\xb1\xbc\xb6\xd2\xbf\xac\xb1\xe2',
-			alphaMax: 1,
-			//attachedEntity: true,
-			duration: 500,
+
+			duplicate: 10,
+			timeBetweenDupli: 1000,
+
+			duration: 10000,
+			alphaMax: 0.8,
 			fadeOut: true,
-			size: 150,
+			fadeIn: false,
+
 			poszStart: 0,
-			poszEnd: 9,
-			angle: -75,
+			poszEnd: 20,
+			poszSmooth: false,
+
+			posxStartRand: 0,
+			posxEndRand: 3,
+			posxSmooth: true,
+
+			sizeStart: 70,
+			sizeEnd: 300,
+			sizeSmooth: true,
+
+			angle: -90,
 			toAngle: 0,
 			rotate: true,
+			rotateWithCamera: true,
 			repeat: true,
-			param0_Func: function(e, v){ e.size = e.size*(v/100); },
-			param1_Func: function(e, v){ e.delayFrame = 100/(1+v); },
+			delayFrame: 100,
+
+			param0_Func: function(e, v) {
+				e.posxEnd = 0.5 + (v * 0.01);
+				e.size = e.size * (1 + Math.sin(v * 0.5) * 0.5);
+			},
+
+			param1_Func: function(e, v) {
+				if (v < 5) { e.alpha = 1.0; }
+				e.alpha = e.alpha * (0.9 + Math.random() * 0.1);
+			}
 		}],
 
 		45: [{ // This one is almost invisible, but there are some small white thingies flying around	//EF_FIREFLY	Faint Little Ball Things.
