@@ -1092,7 +1092,7 @@ define(function(require)
 	 */
 	function onItemDragEnd()
 	{
-		//delete window._OBJ_DRAG_;
+		delete window._OBJ_DRAG_;
 	};
 
 
