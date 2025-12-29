@@ -532,12 +532,39 @@ define(function( require )
 		var preload    = $node.data('preload');
 		var hover      = $node.data('hover');
 		var down       = $node.data('down');
+		var active     = $node.data('active');
 		var msgId      = $node.data('text');
 
 		var preloads, i, count;
 
-		var bg_uri    = null;
-		var hover_uri = null;
+		var bg_uri     = null;
+		var hover_uri  = null;
+		var active_uri = null;
+		var down_uri   = null;
+
+		var state = {
+			hover:  false,
+			down:   false,
+			active: false
+		};
+
+		function updateBackground() {
+			if (state.down && down_uri) {
+				$node.css('backgroundImage', 'url(' + down_uri + ')');
+			}
+			else if (state.active && active_uri) {
+				$node.css('backgroundImage', 'url(' + active_uri + ')');
+			}
+			else if (state.hover && hover_uri) {
+				$node.css('backgroundImage', 'url(' + hover_uri + ')');
+			}
+			else if (bg_uri) {
+				$node.css('backgroundImage', 'url(' + bg_uri + ')');
+			}
+			else {
+				$node.css('backgroundImage', '');
+			}
+		}
 
 		// text
 		if (msgId && DB.getMessage(msgId, '')) {
@@ -558,7 +585,43 @@ define(function( require )
 						console.error( e.message );
 					}
 				}
-				$node.css('backgroundImage', 'url(' + bg_uri + ')');
+				updateBackground();
+			});
+		}
+
+		// Active background
+		if (active) {
+			Client.loadFile( DB.INTERFACE_PATH + active, function(dataURI){
+				active_uri = dataURI;
+				
+				// Initialize active state if class is already present
+				if ($node.hasClass('active')) {
+					state.active = true;
+					updateBackground();
+				}
+			});
+
+			// Watch for class changes
+			var observer = new MutationObserver(function(mutations) {
+				mutations.forEach(function(mutation) {
+					if (mutation.attributeName === "class") {
+						var isActive = $node.hasClass('active');
+						if (state.active !== isActive) {
+							state.active = isActive;
+							updateBackground();
+						}
+					}
+				});
+			});
+			
+			observer.observe($node[0], {
+				attributes: true,
+				attributeFilter: ['class']
+			});
+			
+			// Clean up observer when node is removed
+			$node.on('remove', function() {
+				observer.disconnect();
 			});
 		}
 
@@ -566,20 +629,38 @@ define(function( require )
 		if (hover) {
 			Client.loadFile( DB.INTERFACE_PATH + hover, function(dataURI){
 				hover_uri = dataURI;
-				$node.mouseover(function(){ this.style.backgroundImage = 'url(' + hover_uri + ')'; });
-				$node.mouseout( function(){ this.style.backgroundImage = bg_uri ? 'url(' + bg_uri    + ')' : ''; });
+			});
+			$node.mouseover(function(){
+				state.hover = true;
+				updateBackground();
+			});
+			$node.mouseout( function(){
+				state.hover = false;
+				updateBackground();
 			});
 		}
 
 		// On mouse down
 		if (down) {
 			Client.loadFile( DB.INTERFACE_PATH + down, function(dataURI){
-				$node.mousedown(function(event){ this.style.backgroundImage = 'url(' + dataURI + ')'; event.stopImmediatePropagation(); });
-				$node.mouseup(  function()     { this.style.backgroundImage = 'url(' + (hover_uri||bg_uri) + ')'; });
+				down_uri = dataURI;
 			});
-
+			$node.mousedown(function(event){
+				state.down = true;
+				updateBackground();
+			});
+			$node.mouseup(function(){
+				state.down = false;
+				updateBackground();
+			});
+			
+			// If not hovering, we need to handle mouseout to reset down state if dragged out
 			if (!hover) {
-				$node.mouseout( function(){ this.style.backgroundImage = bg_uri ? 'url(' + bg_uri    + ')' : ''; });
+				$node.mouseout( function(){ 
+					state.down = false;
+					state.hover = false; // Just in case
+					updateBackground();
+				});
 			}
 		}
 

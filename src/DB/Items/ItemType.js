@@ -26,6 +26,7 @@ define(function()
 		AMMO:          10,
 		DELAYCONSUME:  11,
 		SHADOWGEAR:    12,
-		CASH:          18
+		CASH:          18,
+		SEARCH:        99, // used to filter search results in Storage
 	};
 });
