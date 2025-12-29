@@ -38,6 +38,8 @@ define(function( require )
 	var Effects        = require('Renderer/Map/Effects');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var EffectManager  = require('Renderer/EffectManager');
+	var SnowWeather    = require('Renderer/Effects/SnowWeather');
+	var RainWeather    = require('Renderer/Effects/RainWeather');
 	var Sky            = require('Renderer/Effects/Sky');
 	var Damage         = require('Renderer/Effects/Damage');
 	var GraphicsSettings = require('Preferences/Graphics');
@@ -466,6 +468,10 @@ define(function( require )
 		Damage.render( gl, modelView, projection, fog, tick );
 		EffectManager.render( gl, modelView, projection, fog, tick, false);
 		EntityManager.render( gl, modelView, projection, fog, true );
+
+		// Weather Effects
+		SnowWeather.renderAll(gl, modelView, projection, fog, tick);
+		RainWeather.renderAll(gl, modelView, projection, fog, tick);
 
 		// Play sounds
 		Sounds.render( Session.Entity.position, tick );
