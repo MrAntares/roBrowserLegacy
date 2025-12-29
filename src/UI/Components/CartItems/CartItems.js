@@ -768,7 +768,7 @@ define(function(require)
 	{
 		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		var Storage = getModule('UI/Components/Storage/Storage');
-		var isStorageOpen = Storage.ui ? Storage.ui.is(':visible') : false;
+		var isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
 		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 
 		if (!item) {

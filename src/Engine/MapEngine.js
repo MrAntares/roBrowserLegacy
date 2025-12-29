@@ -46,6 +46,7 @@ define(function( require )
     var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
 	var WinStats         = require('UI/Components/WinStats/WinStats');
 	var Inventory        = require('UI/Components/Inventory/Inventory');
+	var Storage          = require('UI/Components/Storage/Storage');
 	var CartItems        = require('UI/Components/CartItems/CartItems');
 	var Vending          = require('UI/Components/Vending/Vending');
 	var ChangeCart       = require('UI/Components/ChangeCart/ChangeCart');
@@ -202,6 +203,7 @@ define(function( require )
 			PlayerViewEquip.selectUIVersion();
 			WinStats.selectUIVersion();
 			Inventory.selectUIVersion();
+			Storage.selectUIVersion();
 		}
 
 		// Do not hook multiple time

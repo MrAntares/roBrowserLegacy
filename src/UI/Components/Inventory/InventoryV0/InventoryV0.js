@@ -546,6 +546,8 @@ define(function(require)
 			this.ui.find('.hide').show();
 		}
 
+		InventoryV0.ui.find('.overlay').hide();
+
 		return item;
 	};
 
@@ -985,7 +987,7 @@ define(function(require)
 	 */
 	function transferItemToOtherUI(item)
 	{
-		var isStorageOpen = Storage.ui ? Storage.ui.is(':visible') : false;
+		var isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
 		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
 
 		if (!item) {

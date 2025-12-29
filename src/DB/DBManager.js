@@ -3985,7 +3985,7 @@ define(function (require) {
 		}
 
 		if (item.Options && showItemOptions) {
-			let numOfOptions = item.Options.filter(Option => Option.index !== 0).length;
+			let numOfOptions = item.Options.filter(Option => Option?.index && Option?.index !== 0).length;
 			if (numOfOptions) {
 				str += ' [' + numOfOptions + ' Option]'
 			}

@@ -627,8 +627,8 @@ define(function( require )
 				CartItems.setItems( pkt.itemInfo || pkt.ItemInfo );
 				break;
 			case 2:
-				Storage.append();
-				Storage.setItems(  pkt.itemInfo || pkt.ItemInfo );
+				Storage.getUI().append();
+				Storage.getUI().setItems(  pkt.itemInfo || pkt.ItemInfo );
 				break;
 			default:
 				throw new Error("[PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL] - Unknown invType '" + pkt.invType + "'.");
@@ -649,7 +649,7 @@ define(function( require )
 				CartItems.setItems( pkt.itemInfo || pkt.ItemInfo );
 				break;
 			case 2:
-				Storage.setItems(  pkt.itemInfo || pkt.ItemInfo );
+				Storage.getUI().setItems(  pkt.itemInfo || pkt.ItemInfo );
 				break;
 			default:
 				throw new Error("[PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL] - Unknown invType '" + pkt.invType + "'.");

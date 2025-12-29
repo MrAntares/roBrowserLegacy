@@ -36,11 +36,11 @@ define(function( require )
 	 */
 	function onStorageInfo( pkt )
 	{
-		if(!(Storage.__loaded && Storage.__active)) { 
-			Storage.append();
+		if(!(Storage.getUI().__loaded && Storage.getUI().__active)) { 
+			Storage.getUI().append();
 		}
-		Storage.setItemInfo( pkt.curCount, pkt.maxCount );
-		Storage.setItems( itemBuffer );
+		Storage.getUI().setItemInfo( pkt.curCount, pkt.maxCount );
+		Storage.getUI().setItems( itemBuffer );
 
 		itemBuffer = [];
 	}
@@ -64,7 +64,7 @@ define(function( require )
 	 */
 	function onStorageItemAdded( pkt )
 	{
-		Storage.addItem(jQuery.extend({}, pkt));
+		Storage.getUI().addItem(jQuery.extend({}, pkt));
 	}
 
 
@@ -75,7 +75,7 @@ define(function( require )
 	 */
 	function onStorageItemRemoved( pkt )
 	{
-		Storage.removeItem( pkt.index, pkt.count );
+		Storage.getUI().removeItem( pkt.index, pkt.count );
 	}
 
 
@@ -86,7 +86,7 @@ define(function( require )
 	 */
 	function onStorageClose()
 	{
-		Storage.remove();
+		Storage.getUI().remove();
 	}
 
 
@@ -99,7 +99,7 @@ define(function( require )
 		var pkt = new PACKET.CZ.CLOSE_STORE();
 		Network.sendPacket( pkt );
 
-		Storage.remove();
+		Storage.getUI().remove();
 	};
 
 
