@@ -18,6 +18,7 @@ define(function(require)
 	var jQuery             = require('Utils/jquery');
 	var DB                 = require('DB/DBManager');
 	var ItemType           = require('DB/Items/ItemType');
+	var EquipLocation      = require('DB/Items/EquipmentLocation');
 	var Client             = require('Core/Client');
 	var KEYS               = require('Controls/KeyEventHandler');
 	var CardIllustration   = require('UI/Components/CardIllustration/CardIllustration');
@@ -26,6 +27,7 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var Cursor             = require('UI/CursorManager');
 	var ItemCompare        = require('UI/Components/ItemCompare/ItemCompare');
+	var ItemPreview        = require('UI/Components/ItemPreview/ItemPreview');
 	var MakeReadBook       = require('UI/Components/MakeReadBook/MakeReadBook');
 	var Renderer           = require('Renderer/Renderer');
 	var SpriteRenderer     = require('Renderer/SpriteRenderer');
@@ -95,6 +97,9 @@ define(function(require)
 			if (ItemCompare.ui) {
 				ItemCompare.remove();
 			}
+			if (ItemPreview.ui) {
+				ItemPreview.remove();
+			}
 		}
 	};
 
@@ -124,6 +129,9 @@ define(function(require)
 		// Remove existing compare UI if it's currently displayed
 		if (ItemCompare.ui) {
 			ItemCompare.remove();
+		}
+		if (ItemPreview.ui) {
+			ItemPreview.remove();
 		}
 	};
 
@@ -320,19 +328,21 @@ define(function(require)
 				tooltip.style.left = e.pageX + 15 + 'px';
 				tooltip.style.top = e.pageY + 2 + 'px';
 			});
-		
+
 			// Mouse leave → hide tooltip
 			label.addEventListener('mouseleave', () => {
 				tooltip.style.display = 'none';
 				Cursor.setType(Cursor.ACTION.DEFAULT);
 			});
-		
+
 			// Mouse move → follow cursor
 			label.addEventListener('mousemove', (e) => {
 				tooltip.style.left = e.pageX + 20 + 'px';
 				tooltip.style.top  = e.pageY + 2 + 'px';
 			});
 		}
+
+		updatePreviewButton(item);
 
 		// Add view button (for cards)
 		addEvent(item);
@@ -522,6 +532,92 @@ define(function(require)
 				event.find('canvas').remove();
 				break;
 		}
+	}
+
+	function updatePreviewButton(item)
+	{
+		var itemInfoContainer = ItemInfo.ui.find('.container');
+		itemInfoContainer.find('.preview-action').remove();
+
+		if (!canPreviewItem(item)) {
+			return;
+		}
+
+		var previewAction = jQuery('<div class="preview-action"></div>');
+		var previewButton = jQuery('<button class="ui-btn preview-button" type="button">Preview</button>');
+
+		previewButton.on('click', function(event) {
+			event.stopImmediatePropagation();
+			toggleItemPreview(item);
+		});
+
+		previewAction.append(previewButton);
+		itemInfoContainer.append(previewAction);
+	}
+
+	function canPreviewItem(item)
+	{
+		if (!item) {
+			return false;
+		}
+
+		var location = getPreviewLocation(item);
+		var previewLocations = EquipLocation.HEAD_BOTTOM |
+			EquipLocation.HEAD_MID |
+			EquipLocation.HEAD_TOP |
+			EquipLocation.COSTUME_HEAD_BOTTOM |
+			EquipLocation.COSTUME_HEAD_MID |
+			EquipLocation.COSTUME_HEAD_TOP |
+			EquipLocation.COSTUME_ROBE;
+
+		if (!(location & previewLocations)) {
+			return false;
+		}
+
+		var it = DB.getItemInfo(item.ITID);
+		return getPreviewSpriteId(item, it) > 0;
+	}
+
+	function getPreviewLocation(item)
+	{
+		if ('location' in item) {
+			return item.location;
+		}
+
+		if ('WearState' in item) {
+			return item.WearState;
+		}
+
+		if ('WearLocation' in item) {
+			return item.WearLocation;
+		}
+
+		return 0;
+	}
+
+	function getPreviewSpriteId(item, it)
+	{
+		if (item && item.wItemSpriteNumber) {
+			return item.wItemSpriteNumber;
+		}
+
+		if (it && it.ClassNum) {
+			return it.ClassNum;
+		}
+
+		return 0;
+	}
+
+	function toggleItemPreview(item)
+	{
+		if (ItemPreview.ui && ItemPreview.ui.is(':visible') && ItemPreview.uid === item.ITID) {
+			ItemPreview.remove();
+			return;
+		}
+
+		ItemPreview.append();
+		ItemPreview.uid = item.ITID;
+		ItemPreview.setItem(item);
 	}
 
 	function eventsBooks(){
