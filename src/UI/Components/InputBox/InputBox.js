@@ -56,7 +56,16 @@ define(function(require)
 	 * Input Post-Render callback
 	 * Should append data, focus, select text, etc...
 	 */
-	InputBox.onAppend = function OnAppend() {};
+	InputBox.onAppend = function OnAppend()
+	{
+		var input = this.ui.find('input');
+		if (input.length) {
+			input.focus();
+			if (input.val()) {
+				input.select();
+			}
+		}
+	};
 
 
 	/**
