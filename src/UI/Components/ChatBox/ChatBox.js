@@ -781,7 +781,16 @@ define(function(require)
 			ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
 		});
 
-		var isChatInputFocused = (document.activeElement === messageBox[0] || document.activeElement === nickBox[0]);
+		var activeElement = document.activeElement;
+		var isChatInputFocused = (activeElement === messageBox[0] || activeElement === nickBox[0]);
+		var isOtherTextInputFocused = activeElement &&
+			!isChatInputFocused &&
+			((activeElement.tagName && activeElement.tagName.match(/input|select|textarea/i)) ||
+				activeElement.isContentEditable);
+
+		if (isOtherTextInputFocused) {
+			return true;
+		}
 
 		switch (event.which) {
 
