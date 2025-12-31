@@ -33,6 +33,11 @@
     text-shadow: red 1px 1px 0px;
 }
 
+.ItemInfo .preview-action {
+	padding-top: 116px;
+	padding-left: 18px;
+}
+
 .moveinfo-label {
     color: #000000;
     display: block;
