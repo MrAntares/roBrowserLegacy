@@ -10822,6 +10822,16 @@ define(function( require )
 			file: 'grade_enchant/new_success/new_success',
 			texturePath: 'grade_enchant/new_success/'
 		}],
+		1873: [{	// EF_NEW_FAILURE
+			type: 'STR',
+			file: 'grade_enchant/new_failed/new_failed',
+			texturePath: 'grade_enchant/new_failed/'
+		}],
+		1874: [{	// EF_NEW_INTRO
+			type: 'STR',
+			file: 'grade_enchant/new_intro/new_intro',
+			texturePath: 'grade_enchant/new_intro/'
+		}],
 
 		'maximize_power_sounds': [{
 			type: 'FUNC',
