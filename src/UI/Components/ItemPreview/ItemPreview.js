@@ -157,8 +157,6 @@ define(function(require)
 		_previewLocation = getItemLocation(item);
 		_previewSpriteId = getPreviewSpriteId(item, it);
 		_direction = 0;
-
-		this.ui.find('.title').text(DB.getItemName(item) || 'Preview');
 	};
 
 
