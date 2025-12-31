@@ -726,6 +726,11 @@ define(function(require)
 			var Refine = getModule('UI/Components/Refine/Refine');
 		}
 
+		var hasEnchantGradeFlag = PACKETVER.value >= 20200916;
+		if (hasEnchantGradeFlag) {
+			var EnchantGrade = getModule('UI/Components/EnchantGrade/EnchantGrade');
+		}
+
 		switch (item.type) {
 
 			// Usable item
@@ -749,6 +754,10 @@ define(function(require)
 			case ItemType.SHADOWGEAR:
 				if (hasRefineFlag && Refine.isRefineOpen()) {
 					Refine.onRequestItemRefine(item);
+					break;
+				}
+				if (hasEnchantGradeFlag && EnchantGrade.isEnchantGradeOpen()) {
+					EnchantGrade.onRequestItemEnchantGrade(item);
 					break;
 				}
 			case ItemType.PETARMOR:
