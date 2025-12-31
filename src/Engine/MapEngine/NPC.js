@@ -157,6 +157,7 @@ define(function( require )
 		{
 			InputBox.setType(type, true);
 			this.ui.find('input').select();
+			this.ui.find('input').focus();
 
 			this.ui.find('input').keydown(function(e){
 				let enterKey = 13;

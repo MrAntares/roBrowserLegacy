@@ -225,7 +225,7 @@ define(function(require)
 				if (!movedInsideChatbox && !isTextInput) {
 					this.ui.find('.input-chatbox').focus();
 				}
-			}.bind(this), 1);
+			}.bind(this), 1000);
 		}.bind(this));
 
 		// Move caret to end of text
@@ -304,7 +304,7 @@ define(function(require)
 				if (!movedInsideChatbox && !isTextInput && !isChatMessage) {
 					this.ui.find('.input .username').focus();
 				}
-			}.bind(this), 1);
+			}.bind(this), 1000);
 		}.bind(this));
 
 		// Validate information dragged into text field
