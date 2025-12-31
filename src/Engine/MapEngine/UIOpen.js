@@ -30,14 +30,17 @@ define(function (require) {
         // Opens an UI window of the given type and initializes it with the given data
         // 0AE2 <type>.B <data>.L
         // type:
-        //    0x0 = BANK_UI
-        //    0x1 = STYLIST_UI
-        //    0x2 = CAPTCHA_UI
-        //    0x3 = MACRO_UI
-        //    0x4 = UI_UNUSED
-        //    0x5 = TIPBOX_UI
-        //    0x6 = RENEWQUEST_UI
-        //    0x7 = ATTENDANCE_UI
+        //    0 = BANK_UI
+        //    1 = STYLIST_UI
+        //    2 = CAPTCHA_UI
+        //    3 = MACRO_UI
+        //    4 = UI_UNUSED
+        //    5 = TIPBOX_UI
+        //    6 = RENEWQUEST_UI
+        //    7 = ATTENDANCE_UI
+        //    8 = ENCHANTGRADE_UI
+        //    9 = CHANGE_MATERIAL_UI
+        //    10 = ENCHANT_UI
 
         switch (pkt.ui_type) {
             case 7:
@@ -49,6 +52,13 @@ define(function (require) {
                     CheckAttendance.append();
                     CheckAttendance.ui.show();
                     CheckAttendance.ui.focus();
+                }
+                break;
+            case 8:
+                if (PACKETVER.value >= 20200724) {
+                    var EnchantGradeUI = require('UI/Components/EnchantGrade/EnchantGrade');
+                    EnchantGradeUI.prepare();
+                    EnchantGradeUI.onOpenEnchantGradeUI();
                 }
                 break;
             default:

@@ -12076,6 +12076,79 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ACK_RODEX_LIST3.size = -1;
 
+	// 0x0b5a
+	PACKET.ZC.GRADE_ENCHANT_MATERIAL_LIST = function PACKET_ZC_GRADE_ENCHANT_MATERIAL_LIST(fp, end) {
+		this.index = fp.readShort();
+		this.success_chance = fp.readLong();
+		this.blessing_info = {
+			id: fp.readLong(),
+			amount: fp.readLong(),
+			max_blessing: fp.readLong(),
+			bonus: fp.readLong()
+		};
+		this.protect_itemid = fp.readLong();
+		this.protect_amount = fp.readLong();
+		const material_size = 17;
+		this.materialList = [];
+
+		while (fp.tell() + material_size <= end) {
+			let mat = {};
+			mat.itemId = fp.readLong();
+			mat.amount = fp.readLong();
+			mat.price = fp.readLong();
+			mat.downgrade = fp.readLong();
+			mat.breakable = fp.readChar();
+
+			this.materialList.push(mat);
+		}
+	};
+	PACKET.ZC.GRADE_ENCHANT_MATERIAL_LIST.size = -1;
+
+	// 0xb5b
+	PACKET.CZ.GRADE_ENCHANT_REQ = function PACKET_CZ_GRADE_ENCHANT_REQ() {
+		this.index = 0;
+		this.material_index = 0;
+		this.blessing_flag = 0;
+		this.blessing_amount = 0;
+		this.protect_flag = 0;
+	};
+	PACKET.CZ.GRADE_ENCHANT_REQ.prototype.build = function() {
+		var pkt_len = 2 + 2 + 4 + 1 + 4 + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0xb5b);
+		pkt_buf.writeShort(this.index);
+		pkt_buf.writeLong(this.material_index);
+		pkt_buf.writeChar(this.blessing_flag);
+		pkt_buf.writeLong(this.blessing_amount);
+		pkt_buf.writeChar(this.protect_flag);
+		return pkt_buf;
+	};
+
+	// 0xb5c
+	PACKET.CZ.GRADE_ENCHANT_CLOSE_UI = function PACKET_CZ_GRADE_ENCHANT_CLOSE_UI() {};
+	PACKET.CZ.GRADE_ENCHANT_CLOSE_UI.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0xb5c);
+		return pkt_buf;
+	};
+
+	// 0xb5d
+	PACKET.ZC.GRADE_ENCHANT_ACK = function PACKET_ZC_GRADE_ENCHANT_ACK(fp, end) {
+		this.index = fp.readShort();
+		this.grade  = fp.readShort();
+		this.result = fp.readLong();
+	};
+	PACKET.ZC.GRADE_ENCHANT_ACK.size = 10;
+
+	// 0xb5e
+	PACKET.ZC.GRADE_ENCHANT_BROADCAST_RESULT = function PACKET_ZC_GRADE_ENCHANT_BROADCAST_RESULT(fp, end) {
+		this.char_name = fp.readString(NAME_LENGTH);
+		this.itemId = fp.readULong();
+		this.grade  = fp.readShort();
+		this.status = fp.readChar();
+	};
+	PACKET.ZC.GRADE_ENCHANT_BROADCAST_RESULT.size =  -1;
 
 	// 0xb5f
 	PACKET.ZC.ACK_RODEX_LIST4 = function PACKET_ZC_ACK_RODEX_LIST4(fp, end) {
@@ -14795,6 +14868,19 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb58);
+		return pkt_buf;
+	};
+
+	// 0xb59
+	PACKET.CZ.GRADE_ENCHANT_SELECT_EQUIPMENT = function PACKET_CZ_GRADE_ENCHANT_SELECT_EQUIPMENT() {
+		this.index = 0;
+	};
+	PACKET.CZ.GRADE_ENCHANT_SELECT_EQUIPMENT.prototype.build = function() {
+		var pkt_len = 2 + 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0xb59);
+		pkt_buf.writeUChar(this.index);
 		return pkt_buf;
 	};
 
