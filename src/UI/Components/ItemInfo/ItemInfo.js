@@ -480,8 +480,8 @@ define(function(require)
 		var description = ItemInfo.ui.find('.description');
 		var descriptionInner = ItemInfo.ui.find('.description-inner');
 		var containerHeight = height;
-		var minHeight = 120;
-		var maxHeight = descriptionInner.height() + 45 > 120 ? Math.min(descriptionInner.height() + 45, 448) : 120;
+		var minHeight = 140;
+		var maxHeight = descriptionInner.height() + 45 > 140 ? Math.min(descriptionInner.height() + 45, 448) : 140;
 
 		if (containerHeight <= minHeight) {
 			containerHeight = minHeight;
@@ -536,23 +536,17 @@ define(function(require)
 
 	function updatePreviewButton(item)
 	{
-		var itemInfoContainer = ItemInfo.ui.find('.container');
-		itemInfoContainer.find('.preview-action').remove();
-
+		let previewButton = ItemInfo.ui.find('.btn_mounting');
 		if (!canPreviewItem(item)) {
+			previewButton.hide();
 			return;
 		}
 
-		var previewAction = jQuery('<div class="preview-action"></div>');
-		var previewButton = jQuery('<button class="ui-btn preview-button" type="button">Preview</button>');
-
+		previewButton.show();
 		previewButton.on('click', function(event) {
 			event.stopImmediatePropagation();
 			toggleItemPreview(item);
 		});
-
-		previewAction.append(previewButton);
-		itemInfoContainer.append(previewAction);
 	}
 
 	function canPreviewItem(item)

@@ -58,7 +58,11 @@
 	height: 20px;
 }
 .ItemPreview .controls .reset {
-	width: 42px;
-	height: 20px;
+    border: 0;
+    width: 80px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    font-size: 11px;
 	margin: 0 2px;
 }
