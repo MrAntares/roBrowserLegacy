@@ -432,13 +432,22 @@ define(function( require )
 	 */
 	UIComponent.prototype.draggable = function draggable( element )
 	{
-		var container = this.ui;
+		var container = jQuery(this.ui).filter(function() {
+			return this.nodeType === 1;
+		});
 
 		var component = this;
 
 		// Global variable
 		if (!element) {
 			element = this.ui;
+		}
+
+		element = jQuery(element).filter(function() {
+			return this.nodeType === 1;
+		});
+		if (!container.length || !element.length) {
+			return this;
 		}
 
 		// Drag drop stuff
