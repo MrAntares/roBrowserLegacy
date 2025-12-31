@@ -259,6 +259,9 @@ define( function( require )
 					this.position[0] = unit.PosDir[0];
 					this.position[1] = unit.PosDir[1];
 					this.position[2] = Altitude.getCellHeight(  unit.PosDir[0],  unit.PosDir[1] ) + (this.objecttype === Entity.TYPE_FALCON ? 5 : 0);
+					if (isNaN(this.position[2])) { // this can happens when map provided by client is different from server
+						this.position[2] = 0;
+					}
 					break;
 
 				case 'state':
