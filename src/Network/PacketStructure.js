@@ -15393,6 +15393,76 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.USESKILL_ACK3.size = 32;
 	
+	// Roulette Packets
+
+	// 0xA19 - CZ_REQ_OPEN_ROULETTE
+	PACKET.CZ.REQ_OPEN_ROULETTE = function PACKET_CZ_REQ_OPEN_ROULETTE() {};
+	PACKET.CZ.REQ_OPEN_ROULETTE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a19);
+		return pkt_buf;
+	};
+
+	// 0xA1B - ZC_ACK_OPEN_ROULETTE
+	PACKET.ZC.ACK_OPEN_ROULETTE = function PACKET_ZC_ACK_OPEN_ROULETTE(fp, end) {
+		this.result = fp.readUChar();
+		this.serial = fp.readULong();
+		this.step = fp.readUChar();
+		this.idx = fp.readUChar();
+		this.count = fp.readUShort();
+		this.items = (function() {
+			var i, count=8, out=new Array(count);
+			for (i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].item_id = fp.readUShort();
+				out[i].count = fp.readUShort();
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.ACK_OPEN_ROULETTE.size = 44;
+
+	// 0xA1C - CZ_REQ_ROULETTE_INFO  
+	PACKET.CZ.REQ_ROULETTE_INFO = function PACKET_CZ_REQ_ROULETTE_INFO() {};
+	PACKET.CZ.REQ_ROULETTE_INFO.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a1c);
+		return pkt_buf;
+	};
+
+	// 0xA1D - ZC_ACK_GENERATE_ROULETTE (spin result)
+	PACKET.ZC.ACK_GENERATE_ROULETTE = function PACKET_ZC_ACK_GENERATE_ROULETTE(fp, end) {
+		this.result = fp.readUChar();
+		this.step = fp.readUChar();
+		this.idx = fp.readUChar();
+		this.count = fp.readUShort();
+	};
+	PACKET.ZC.ACK_GENERATE_ROULETTE.size = 7;
+
+	// 0xA1E - CZ_REQ_CLOSE_ROULETTE
+	PACKET.CZ.REQ_CLOSE_ROULETTE = function PACKET_CZ_REQ_CLOSE_ROULETTE() {};
+	PACKET.CZ.REQ_CLOSE_ROULETTE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a1e);
+		return pkt_buf;
+	};
+
+	// 0xA1F - ZC_ACK_CLOSE_ROULETTE
+	PACKET.ZC.ACK_CLOSE_ROULETTE = function PACKET_ZC_ACK_CLOSE_ROULETTE(fp, end) {
+		this.result = fp.readUChar();
+	};
+	PACKET.ZC.ACK_CLOSE_ROULETTE.size = 3;
+
+	// 0xA20 - ZC_ROULETTE_OPEN_STATE
+	PACKET.ZC.ROULETTE_OPEN_STATE = function PACKET_ZC_ROULETTE_OPEN_STATE(fp, end) {
+		this.open = fp.readUChar();
+	};
+	PACKET.ZC.ROULETTE_OPEN_STATE.size = 3;
+
+
 	/**
 	 * Export
 	 */
