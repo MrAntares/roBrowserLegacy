@@ -556,32 +556,40 @@ define(function(require)
 	 * @param {number} delay in ms
 	 */
 	function setDelayOnIndex( index , delay ){
-		if(_list[index].Delay && (_list[index].Delay >= Renderer.tick + delay)){
-			//do nothing, the new delay would end sooner.
-		} else {
-			_list[index].Delay = Renderer.tick + delay;
-			var ui = ShortCut.ui.find('.container:eq(' + index + ')');
+		//do nothing, the new delay would end sooner.
+		if(_list[index].Delay && (_list[index].Delay >= Renderer.tick + delay)) return;
+			
+		_list[index].Delay = Renderer.tick + delay;
+		var ui = ShortCut.ui.find('.container:eq(' + index + ')');
+		ui.find('.cooldown-overlay').remove();
 
-			Client.loadFile( DB.INTERFACE_PATH + 'item/\xb0\xed\xbe\xe7\xc0\xcc\xb9\xdf\xb8\xd3\xb8\xae\xc7\xc9.bmp', function(url){
-				ui.find('.img').css('filter', 'grayscale(66%)');
-				ui.find('.img').html(
-					'<img class="delay" src="'+url+'" width="24" height="24"></img>'
-				);
-				ui.find('.delay').css('display', 'block');
-			});
+		var overlay = jQuery('<div class="cooldown-overlay"></div>');
+		ui.find('.icon').append(overlay);
+		ui.find('.img').css('filter', 'none');
 
-			if(_list[index].Timeout){
-				clearTimeout(_list[index].Timeout);
+		var animationId;
+
+		function updateCooldown() {
+			var now = Renderer.tick;
+			var remaining = _list[index].Delay - now;
+			
+			if (remaining <= 0 || !_list[index].Delay) {
+				overlay.remove();
+				_list[index].Delay = 0;
+				if (animationId) cancelAnimationFrame(animationId); 
+				return;
 			}
 
-			_list[index].Timeout = setTimeout(
-				function(){
-					ui.find('.delay').css('display', 'none');
-					ui.find('.img').css('filter', 'grayscale(0%)');
-				}
-				, delay
+			var percentage = remaining / delay;
+			var degrees = (1 - percentage) * 360;
+			overlay.css('background', 
+				'conic-gradient(transparent 0deg, transparent ' + degrees + 'deg, rgba(0,0,0,0.75) ' + degrees + 'deg)'
 			);
+
+			animationId = requestAnimationFrame(updateCooldown);
 		}
+
+		animationId = requestAnimationFrame(updateCooldown);
 	}
 
 	/**

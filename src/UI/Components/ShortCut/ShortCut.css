@@ -17,3 +17,15 @@
 
 .shortcut-tooltip { display:none; position:fixed; background-color:rgba(0,0,0,0.8); text-shadow:1px 1px black; color:white; padding:2px 6px; white-space:nowrap; z-index:10000; border-radius:2px; pointer-events:none; font-size:11px; line-height:1.2; }
 .shortcut-tooltip.show { display:block; }
+
+#ShortCut .cooldown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+    border-radius: 2px;
+    z-index: 999;
+    background: conic-gradient(rgba(0,0,0,0.75) 0deg, transparent 0deg);
+}
