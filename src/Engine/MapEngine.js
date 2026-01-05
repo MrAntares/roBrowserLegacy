@@ -77,6 +77,10 @@ define(function( require )
 	var MapName          = require('UI/Components/MapName/MapName');
 	var Announce         = require('UI/Components/Announce/Announce');
 	var Navigation         = require('UI/Components/Navigation/Navigation');
+	var CaptchaUpload    = require('UI/Components/Captcha/CaptchaUpload');
+	var CaptchaSelector  = require('UI/Components/Captcha/CaptchaSelector');
+	var CaptchaAnswer    = require('UI/Components/Captcha/CaptchaAnswer');
+	var CaptchaPreview   = require('UI/Components/Captcha/CaptchaPreview');
 	var PluginManager    = require('Plugins/PluginManager');
 
 	var UIVersionManager      = require('UI/UIVersionManager');
@@ -257,6 +261,7 @@ define(function( require )
 			require('./MapEngine/Quest').call();
 			require('./MapEngine/Rodex').call();
 			require('./MapEngine/PCGoldTimer').call();
+			require('./MapEngine/Captcha').call();
 			if(Configs.get('enableCashShop')){
 				require('./MapEngine/CashShop').call();
 			}
@@ -289,6 +294,10 @@ define(function( require )
 			RodexIcon.prepare();
 			PCGoldTimer.prepare();
 			Navigation.prepare();
+			CaptchaUpload.prepare();
+			CaptchaSelector.prepare();
+			CaptchaAnswer.prepare();
+			CaptchaPreview.prepare();
 
 			if(Configs.get('enableMapName')){
 				MapName.prepare();

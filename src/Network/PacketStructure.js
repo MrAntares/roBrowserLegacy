@@ -15392,6 +15392,186 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.attackMT = fp.readULong();		// attackMT
 	};
 	PACKET.ZC.USESKILL_ACK3.size = 32;
+
+	// 0x0a52
+	PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR = function PACKET_CZ_REQ_UPLOAD_MACRO_DETECTOR() {
+		this.answer = '';
+		this.imageSize = 0;
+	};
+	PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR.prototype.build = function() {
+		var pkt_len = 2 + 16 + 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x0a52);
+		pkt_buf.writeString(this.answer, 16);
+		pkt_buf.writeUShort(this.imageSize);
+		return pkt_buf;
+	};
+	PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR.size = 20;
+
+	// 0x0a53
+	PACKET.ZC.ACK_UPLOAD_MACRO_DETECTOR = function PACKET_ZC_ACK_UPLOAD_MACRO_DETECTOR(fp, end) {
+		this.captchaKey = fp.readBinaryString(4);
+		this.captchaFlag = fp.readLong();
+	};
+	PACKET.ZC.ACK_UPLOAD_MACRO_DETECTOR.size = 10;
+
+	// 0x0a54
+	PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA = function PACKET_CZ_UPLOAD_MACRO_DETECTOR_CAPTCHA() {
+		this.captchaKey = '';
+		this.imageData = null;
+	};
+	PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA.prototype.build = function() {
+		var imgLen = this.imageData ? this.imageData.byteLength : 0;
+		var pkt_len = 2 + 2 + 4 + imgLen;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x0a54);
+		pkt_buf.writeShort(pkt_len);
+		pkt_buf.writeString(this.captchaKey, 4);
+		if (imgLen) {
+			pkt_buf.writeBuffer(this.imageData);
+		}
+		return pkt_buf;
+	};
+	PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA.size = -1;
+
+	// 0x0a55
+	PACKET.ZC.COMPLETE_UPLOAD_MACRO_DETECTOR_CAPTCHA = function PACKET_ZC_COMPLETE_UPLOAD_MACRO_DETECTOR_CAPTCHA(fp, end) {};
+	PACKET.ZC.COMPLETE_UPLOAD_MACRO_DETECTOR_CAPTCHA.size = 2;
+
+	// 0x0a56
+	PACKET.CZ.REQ_APPLY_MACRO_DETECTOR = function PACKET_CZ_REQ_APPLY_MACRO_DETECTOR() {
+		this.AID = 0;
+	};
+	PACKET.CZ.REQ_APPLY_MACRO_DETECTOR.prototype.build = function() {
+		var pkt_len = 2 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x0a56);
+		pkt_buf.writeULong(this.AID);
+		return pkt_buf;
+	};
+	PACKET.CZ.REQ_APPLY_MACRO_DETECTOR.size = 6;
+
+	// 0x0a57
+	PACKET.ZC.ACK_APPLY_MACRO_DETECTOR = function PACKET_ZC_ACK_APPLY_MACRO_DETECTOR(fp, end) {
+		this.status = fp.readLong();
+	};
+	PACKET.ZC.ACK_APPLY_MACRO_DETECTOR.size = 6;
+
+	// 0x0a58
+	PACKET.ZC.APPLY_MACRO_DETECTOR = function PACKET_ZC_APPLY_MACRO_DETECTOR(fp, end) {
+		this.imageSize = fp.readUShort();
+		this.captchaKey = fp.readBinaryString(4);
+	};
+	PACKET.ZC.APPLY_MACRO_DETECTOR.size = 8;
+
+	// 0x0a59
+	PACKET.ZC.APPLY_MACRO_DETECTOR_CAPTCHA = function PACKET_ZC_APPLY_MACRO_DETECTOR_CAPTCHA(fp, end) {
+		this.captchaKey = fp.readBinaryString(4);
+		var count = end - fp.tell();
+		this.imageData = new Uint8Array(count);
+		for (var i = 0; i < count; ++i) {
+			this.imageData[i] = fp.readUByte();
+		}
+	};
+	PACKET.ZC.APPLY_MACRO_DETECTOR_CAPTCHA.size = -1;
+
+	// 0x0a5a
+	PACKET.CZ.COMPLETE_APPLY_MACRO_DETECTOR_CAPTCHA = function PACKET_CZ_COMPLETE_APPLY_MACRO_DETECTOR_CAPTCHA() {};
+	PACKET.CZ.COMPLETE_APPLY_MACRO_DETECTOR_CAPTCHA.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a5a);
+		return pkt_buf;
+	};
+	PACKET.CZ.COMPLETE_APPLY_MACRO_DETECTOR_CAPTCHA.size = 2;
+
+	// 0x0a5b
+	PACKET.ZC.REQ_ANSWER_MACRO_DETECTOR = function PACKET_ZC_REQ_ANSWER_MACRO_DETECTOR(fp, end) {
+		this.retryCount = fp.readUChar();
+		this.timeout = fp.readLong();
+	};
+	PACKET.ZC.REQ_ANSWER_MACRO_DETECTOR.size = 7;
+
+	// 0x0a5c
+	PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR = function PACKET_CZ_ACK_ANSWER_MACRO_DETECTOR() {
+		this.answer = '';
+	};
+	PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR.prototype.build = function() {
+		var pkt_len = 2 + 16;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a5c);
+		pkt_buf.writeString(this.answer, 16);
+		return pkt_buf;
+	};
+	PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR.size = 18;
+
+	// 0x0a5d
+	PACKET.ZC.CLOSE_MACRO_DETECTOR = function PACKET_ZC_CLOSE_MACRO_DETECTOR(fp, end) {
+		this.status = fp.readLong();
+	};
+	PACKET.ZC.CLOSE_MACRO_DETECTOR.size = 6;
+
+	// 0x0a69
+	PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR = function PACKET_CZ_REQ_PREVIEW_MACRO_DETECTOR() {
+		this.captchaID = 0;
+	};
+	PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR.prototype.build = function() {
+		var pkt_len = 2 + 4;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a69);
+		pkt_buf.writeLong(this.captchaID);
+		return pkt_buf;
+	};
+	PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR.size = 6;
+
+	// 0x0a6a
+	PACKET.ZC.ACK_PREVIEW_MACRO_DETECTOR = function PACKET_ZC_ACK_PREVIEW_MACRO_DETECTOR(fp, end) {
+		this.captchaFlag = fp.readLong();
+		this.imageSize = fp.readUShort();
+		this.captchaKey = fp.readBinaryString(4);
+	};
+	PACKET.ZC.ACK_PREVIEW_MACRO_DETECTOR.size = 12;
+
+	// 0x0a6b
+	PACKET.ZC.PREVIEW_MACRO_DETECTOR_CAPTCHA = function PACKET_ZC_PREVIEW_MACRO_DETECTOR_CAPTCHA(fp, end) {
+		this.captchaKey = fp.readBinaryString(4);
+		var count = end - fp.tell();
+		this.imageData = new Uint8Array(count);
+		for (var i = 0; i < count; ++i) {
+			this.imageData[i] = fp.readUByte();
+		}
+	};
+	PACKET.ZC.PREVIEW_MACRO_DETECTOR_CAPTCHA.size = -1;
+
+	// 0x0a6c
+	PACKET.CZ.REQ_PLAYER_AID_IN_RANGE = function PACKET_CZ_REQ_PLAYER_AID_IN_RANGE() {
+		this.xPos = 0;
+		this.yPos = 0;
+		this.RadiusRange = 0;
+	};
+	PACKET.CZ.REQ_PLAYER_AID_IN_RANGE.prototype.build = function() {
+		var pkt_len = 2 + 2 + 2 + 1;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a6c);
+		pkt_buf.writeShort(this.xPos);
+		pkt_buf.writeShort(this.yPos);
+		pkt_buf.writeChar(this.RadiusRange);
+		return pkt_buf;
+	};
+	PACKET.CZ.REQ_PLAYER_AID_IN_RANGE.size = 7;
+
+	// 0x0a6d
+	PACKET.ZC.ACK_PLAYER_AID_IN_RANGE = function PACKET_ZC_ACK_PLAYER_AID_IN_RANGE(fp, end) {
+		this.AID = [];
+		var count = (end - fp.tell()) / 4;
+		for (var i = 0; i < count; ++i) {
+			this.AID.push(fp.readULong());
+		}
+	};
+	PACKET.ZC.ACK_PLAYER_AID_IN_RANGE.size = -1;
 	
 	/**
 	 * Export

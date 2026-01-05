@@ -356,6 +356,22 @@ function(       glMatrix,          PathFinding,            Mouse )
 		};
 	}();
 
+	Altitude.getCellsInSquareRange = function getCellsInSquareRangeClosure(x, y, range)
+	{
+		var cells = [];
+		
+		// get all cells in square range and return x, y if is in  and walkable
+		for (var i = x - range; i <= x + range; ++i) {
+			for (var j = y - range; j <= y + range; ++j) {
+				if (Altitude.getCellType( x, y ) & Altitude.TYPE.WALKABLE) {
+					cells.push({ x: i, y: j });
+				}
+			}
+		}
+
+		return cells;
+	}
+
 
 	/**
 	 * Export

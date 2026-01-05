@@ -243,6 +243,12 @@ define(function( require )
 				pkt.dest[1] = y;
 				Network.sendPacket(pkt);
 				return true;
+
+			case Entity.TYPE_PC:
+				if (Session.captchaGetIdOnEntityClick) {
+					getModule('UI/Components/Captcha/CaptchaSelector').addPlayer(this.GID);
+				}
+				return true;
 		}
 
 		return false;
