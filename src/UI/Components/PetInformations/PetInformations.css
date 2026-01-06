@@ -33,4 +33,4 @@
 #PetInformations .feeding { position:absolute; top: 140px; left:100px; display: flex; align-items: center; }
 #PetInformations .feeding .pet_auto_feed { width:10px; height:12px; border:none; background-color:transparent; background-repeat:no-repeat; margin-left: 5px; }
 
-#PetInformations .command { position:absolute; top:27px; right:5px; }
+#PetInformations .command { position:absolute; top:27px; right:5px; width: 105px; }
