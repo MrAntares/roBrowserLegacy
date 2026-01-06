@@ -281,7 +281,6 @@ define(function(require)
 	 * @param {PACKET.ZC.PET_EVOLUTION} pkt
 	 */
 	function onPetEvolveResult(pkt)	{
-		console.log("[PetEvolution Result]", pkt);
 		if (pkt) {
 			switch (pkt.result) {
 				case 0:	// Unknown Error
