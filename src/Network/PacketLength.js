@@ -21,7 +21,13 @@ define(function (require) {
 	*/
 	function init(packetver) {
 		packetver = parseInt(packetver);
-		if (packetver >= 20220000 ) {
+		if (packetver >= 20250000 ) {
+			var Lengths = require('./Packets/packets2025_len_main');
+		} else if (packetver >= 20240000 ) {
+			var Lengths = require('./Packets/packets2024_len_main');
+		} else if (packetver >= 20230000 ) {
+			var Lengths = require('./Packets/packets2023_len_main');
+		} else if (packetver >= 20220000 ) {
 			var Lengths = require('./Packets/packets2022_len_main');
 		} else if (packetver >= 20210000 ) {
 			var Lengths = require('./Packets/packets2021_len_main');
