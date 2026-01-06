@@ -339,6 +339,27 @@ define(function( require )
 	/// PACKET.CZ.COMMAND_PET | 0 = pet information ??? Already sent by server ?
 	/// PACKET.CZ.PET_ACT     | not needed.
 
+	/**
+	 * Request a pet evolution
+	 * @param {number} baseJobID - The Job ID of the base pet
+	 * @throws {Error} If the pet's friendly level is less than 1000
+	 */
+	PetInformations.reqEvolution = function reqEvolution(baseJobID)
+	{
+		if (Session.pet.friendly < 1000) {
+			ChatBox.addText( DB.getMessage(2576), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+			return;
+		} else { // Call Evolution UI
+			var PetEvolution = require('UI/Components/PetEvolution/PetEvolution');
+			PetEvolution.prepare();
+			PetEvolution.SetInfo(baseJobID);
+			PetEvolution.append();
+			PetEvolution.ui.show();
+			if (PetInformations.ui) {
+				PetInformations.ui.hide();
+			}
+		}
+	};
 
 	/**
 	 * Initialize
