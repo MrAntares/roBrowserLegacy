@@ -12850,6 +12850,31 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.UPDATE_MISSION_HUNT3.size = -1;
 
+	// 0x9fb
+	PACKET.CZ.PET_EVOLUTION = function PACKET_CZ_PET_EVOLUTION () {
+		this.evolutionPetEggITID = 0;
+	}
+	PACKET.CZ.PET_EVOLUTION.prototype.build = function() {
+		let isNew = PACKETVER.value >= 20181121;
+		var pkt_len = 2 + 2 + (isNew ? 4 : 2);
+		var pkt_buf = new BinaryWriter(pkt_len);
+
+		pkt_buf.writeShort(0x9fb);
+		pkt_buf.writeShort(pkt_len);
+		if (isNew) {
+        	pkt_buf.writeULong(this.evolutionPetEggITID);
+    	} else {
+       		pkt_buf.writeUShort(this.evolutionPetEggITID);
+    	}
+		return pkt_buf;
+	};
+
+	// 0x9fc
+	PACKET.ZC.PET_EVOLUTION_RESULT = function PACKET_ZC_PET_EVOLUTION_RESULT(fp, end) {
+		this.result = fp.readULong();
+	};
+	PACKET.ZC.PET_EVOLUTION_RESULT.size = 6;
+
 	// 0x9fd
 	PACKET.ZC.NOTIFY_MOVEENTRY9 = function PACKET_ZC_NOTIFY_MOVEENTRY9(fp, end) {
 		this.objecttype = fp.readUChar();
