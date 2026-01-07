@@ -633,6 +633,35 @@ define(function( require )
 			Session.Entity.aura.free();
 			Session.Entity.aura.load(EffectManager);
 
+			// Spawn all signboards for the current map  
+			const mapName = MapRenderer.currentMap.replace('.gat', '').toLowerCase();  
+			const signboards = DB.getAllSignboardsForMap(mapName);  
+			
+			if (signboards) {  
+				for (let x in signboards) {  
+					for (let y in signboards[x]) {  
+						const signboardData = signboards[x][y];  
+						
+						// Create a dummy entity for the signboard  
+						const signboardEntity = new Entity();  
+						signboardEntity.set({  
+							objecttype: Entity.TYPE_EFFECT,  
+							GID: 'SIGNBOARD_' + x + '_' + y,  
+							PosDir: [parseInt(x), parseInt(y), 0],  
+							job: 0, // No job  
+							name: "",  
+							hp: -1,  
+							maxhp: -1,  
+							hideShadow: true,  
+						});  
+						
+						// Load signboard data  
+						signboardEntity.signboard.load(signboardData);  
+						EntityManager.add(signboardEntity);  
+					}  
+				}  
+			}
+
 			// Initialize camera
 			Camera.setTarget( Session.Entity );
 			Camera.init();

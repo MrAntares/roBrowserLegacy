@@ -4236,6 +4236,15 @@ define(function (require) {
 		return null;
 	};
 
+	/**  
+	 * Get all signboards for a specific map  
+	 * @param {string} mapname - Map name  
+	 * @return {Object} Signboard data for the map  
+	 */  
+	DB.getAllSignboardsForMap = function getAllSignboardsForMap(mapname) {  
+		return SignBoardTable[mapname] || null;  
+	};
+
 	/**
 	 * Retrieves the translated signboard description based on the provided description.
 	 *
