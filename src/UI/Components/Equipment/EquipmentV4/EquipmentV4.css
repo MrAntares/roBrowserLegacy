@@ -76,7 +76,7 @@
     background-repeat: no-repeat;
     background-color: transparent;
     border: none;
-    margin-top: 12px;
+    margin-top: 3px;
 }
 
 #EquipmentV4 #damageskin .skin-option span {
@@ -102,10 +102,25 @@
     padding: 0;
 }
 
+#EquipmentV4 #damageskin .skin-wrapper > div:first-child {  
+    margin-top: 8px;  
+}
+
 #EquipmentV4 #damageskin .skin-wrapper .label {
     margin-top: 6px;
     font-size: 12px;
     text-align: center;
+}
+
+#EquipmentV4 .motion-check {  
+    border: none;   
+    background-color: transparent;
+    background-repeat: no-repeat;  
+    vertical-align: middle;  
+    cursor: pointer;  
+    width: 10px;  
+    height: 12px;  
+    margin-right: 4px;  
 }
 
 #EquipmentV4 .item .grade {

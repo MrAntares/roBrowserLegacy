@@ -595,9 +595,33 @@ define(function( require )
 			// Damage
 			else if ((damage.type & Damage.TYPE.DAMAGE) || (damage.type & Damage.TYPE.CRIT)) {
 				size = ( 1 - perc ) * 4;
-				SpriteRenderer.position[0] = damage.entity.position[0] + perc * 4;
-				SpriteRenderer.position[1] = damage.entity.position[1] - perc * 4;
-				SpriteRenderer.position[2] = damage.entity.position[2] + 2 + Math.sin( -Math.PI/2 + ( Math.PI * (0.5 + perc * 1.5 ) ) ) * 5;
+
+				var motionType = GraphicsSettings.damageMotion || 0;
+
+				// Base Z arc (Bounce)
+				var zArc = Math.sin( -Math.PI/2 + ( Math.PI * (0.5 + perc * 1.5 ) ) ) * 5;
+
+				switch(motionType) {
+				case 1: // Left (Drift X Negative)
+					SpriteRenderer.position[0] = damage.entity.position[0] - perc * 4;
+					SpriteRenderer.position[1] = damage.entity.position[1]; 
+					break;
+				case 2: // Top (Vertical - No horizontal drift)
+					SpriteRenderer.position[0] = damage.entity.position[0];
+					SpriteRenderer.position[1] = damage.entity.position[1];
+					break;
+				case 3: // Right (Drift X Positive)
+					SpriteRenderer.position[0] = damage.entity.position[0] + perc * 4;
+					SpriteRenderer.position[1] = damage.entity.position[1];
+					break;
+				case 0: // Default (Diagonal)
+				default:
+					SpriteRenderer.position[0] = damage.entity.position[0] + perc * 4;
+					SpriteRenderer.position[1] = damage.entity.position[1] - perc * 4;
+					break;
+				}
+
+				SpriteRenderer.position[2] = damage.entity.position[2] + 2 + zArc;
 				if(damage.soundFile){
 					if(damage.type & Damage.TYPE.ENDURE){
 						Sound.playPosition(EndureSound, damage.entity.position);
