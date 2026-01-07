@@ -249,7 +249,7 @@ define(function (require) {
 			var iteminfoNames = [];
 			var customII = Configs.get('customItemInfo',[]);
 
-			if( customII !== undefined && customII !== [] && customII.length > 0){ // add custom client info table
+			if( customII !== undefined && customII.length > 0){ // add custom client info table
 				iteminfoNames = iteminfoNames.concat(customII);
 				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad(), true);
 			} else { 
@@ -401,8 +401,195 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 	};
 
+	var luaInitPromise = null;
 	async function startLua() {
-		lua = await CLua.Lua.create();
+		if (lua) return; 
+		if (luaInitPromise) return luaInitPromise;
+
+		luaInitPromise = (async () => {
+			console.log('[startLua] Initializing Lua VM...');
+			const newLua = await CLua.Lua.create();
+			
+			// Override require to support simple remote loading via yield
+			newLua.doStringSync(`
+				local _old_require = require
+				function require(modname)
+					local status, result = pcall(_old_require, modname)
+					if status then return result end
+					
+					-- Only yield if it's a missing file error
+					if type(result) == "string" and result:find("module.-not found") then
+						coroutine.yield({type='REQUIRE', name=modname})
+						return _old_require(modname)
+					end
+					
+					error(result)
+				end
+
+				__RunningCoroutines = {}
+				__CoroutineNextId = 1
+				
+				function __StartFile(filename)
+					local f = assert(loadfile(filename))
+					local co = coroutine.create(f)
+					local id = __CoroutineNextId
+					__CoroutineNextId = __CoroutineNextId + 1
+					
+					__RunningCoroutines[id] = co
+					local ok, res = coroutine.resume(co)
+					
+					local is_dead = coroutine.status(co) == 'dead'
+					if is_dead then
+						__RunningCoroutines[id] = nil
+					end
+					
+					return { id = id, ok = ok, res = res, is_dead = is_dead }
+				end
+
+				function __ResumeFile(id)
+					local co = __RunningCoroutines[id]
+					if not co then
+						local keys = ""
+						for k,v in pairs(__RunningCoroutines) do keys = keys .. k .. "," end
+						return { ok = false, res = "Coroutine " .. tostring(id) .. " not found. Active: [" .. keys .. "]" }
+					end
+					
+					if coroutine.status(co) == 'dead' then
+						__RunningCoroutines[id] = nil
+						return { ok = false, res = "Cannot resume dead coroutine " .. tostring(id), is_dead = true }
+					end
+					
+					local ok, res = coroutine.resume(co)
+					
+					local is_dead = coroutine.status(co) == 'dead'
+					if is_dead then
+						__RunningCoroutines[id] = nil
+					end
+					return { ok = ok, res = res, is_dead = is_dead }
+				end
+			`);
+			
+			lua = newLua;
+		})();
+		
+		return luaInitPromise;
+	}
+
+	function bytesToString(res) {
+		if (typeof res === 'string') return res;
+		if (typeof res === 'object' && res !== null) {
+			try {
+				// Handle ArrayBuffer, Array, Uint8Array
+				let buffer = null;
+				if (res instanceof ArrayBuffer || res instanceof Uint8Array) {
+					buffer = new Uint8Array(res);
+				} else if (Array.isArray(res)) {
+					buffer = new Uint8Array(res);
+				} else if (Object.keys(res).every(k => !isNaN(parseInt(k)))) {
+					// Handle array-like object {1: 67, 2: 111, ...} (Lua 1-based arrays often come as objects)
+					const values = Object.values(res);
+					buffer = new Uint8Array(values);
+				}
+				
+				if (buffer) {
+					return new TextDecoder().decode(buffer);
+				}
+			} catch(e) { /* ignore */ }
+		}
+		return res;
+	}
+
+	async function runLuaFile(filename) {
+		const safeFilename = filename.replace(/\\/g, '/');
+		
+		// Capture the current lua instance to avoid race conditions if global lua is reset
+		const vm = lua; 
+		if (!vm) throw new Error("Lua VM not initialized");
+
+		let ret = vm.doStringSync(`return __StartFile("${safeFilename}")`);
+		
+		// Normalize res immediately (error message or Require info)
+		if (ret) {
+			if (ret.res && typeof ret.res === 'object' && ret.res.type) {
+				// Normalize nested fields if they exist (for REQUIRE object)
+				ret.res.type = bytesToString(ret.res.type);
+				ret.res.name = bytesToString(ret.res.name);
+			} else if (!ret.ok) {
+				// Normalize res if it's an error string
+				ret.res = bytesToString(ret.res);
+			}
+		}
+
+		console.log(`[runLuaFile] Started ${safeFilename} ID:${ret ? ret.id : 'null'} Dead:${ret ? ret.is_dead : 'null'}`);
+
+		if (!ret) throw new Error("Lua StartFile returned null");
+
+		if (ret.is_dead) {
+			if (!ret.ok) {
+				throw new Error('Lua Error (' + filename + '): ' + ret.res);
+			}
+			return;
+		}
+
+		while (!ret.is_dead) {
+			
+			if (ret.ok && ret.res && ret.res.type === 'REQUIRE') {
+				const modName = ret.res.name;
+				console.log('runLuaFile: Intercepted require for ' + modName + ' in coroutine ' + ret.id);
+				
+				// Attempt to load the file
+				const tryPaths = [
+					DB.LUA_PATH + modName.replace(/\./g, '/') + '.lua',
+					DB.LUA_PATH + modName.replace(/\./g, '/') + '.lub',
+					"System/" + modName.replace(/\./g, '/') + '.lub'
+				];
+
+				let loaded = false;
+				for (const path of tryPaths) {
+					try {
+						const content = await new Promise((resolve, reject) => Client.loadFile(path, resolve, reject));
+						const buffer = (content instanceof ArrayBuffer) ? new Uint8Array(content) : content;
+						vm.mountFile(path, buffer);
+						loaded = true;
+						break;
+					} catch (e) {
+						// Continue to next path
+					}
+				}
+
+				if (!loaded) {
+					console.error('runLuaFile: Failed to load module ' + modName);
+				}
+			} else if (!ret.ok) {
+				throw new Error('Lua Error (' + filename + '): ' + ret.res); 
+			}
+
+			// Resume execution
+			ret = vm.doStringSync(`return __ResumeFile(${ret.id})`);
+			
+			// Normalize again
+			if (ret) {
+				if (ret.res && typeof ret.res === 'object' && ret.res.type) {
+					ret.res.type = bytesToString(ret.res.type);
+					ret.res.name = bytesToString(ret.res.name);
+				} else if (!ret.ok) {
+					ret.res = bytesToString(ret.res);
+				}
+			} else {
+				throw new Error("Lua ResumeFile returned null");
+			}
+
+			if (ret.is_dead) {
+				if (!ret.ok) {
+					throw new Error('Lua Error (' + filename + '): ' + ret.res);
+				}
+				break;
+			}
+		}
+
+		if (!ret.ok) {
+			throw new Error('Lua Error (' + filename + '): ' + ret.res);
+		}
 	}
 
 	/**
@@ -569,7 +756,7 @@ define(function (require) {
 					// mount file
 					lua.mountFile('CheckAttendance.lub', buffer);
 					// execute file
-					await lua.doFile('CheckAttendance.lub');
+					await runLuaFile('CheckAttendance.lub');
 					// execute main lua function
 					lua.doStringSync(`main()`);
 				} catch (error) {
@@ -687,7 +874,7 @@ define(function (require) {
 					let f = loadedBuffers[i];
 					let buffer = (f.data instanceof ArrayBuffer) ? new Uint8Array(f.data) : f.data;
 					lua.mountFile(f.name, buffer);
-					await lua.doFile(f.name);
+					await runLuaFile(f.name);
 				}
 
 				// Clean Hardcoded DB Safely
@@ -721,8 +908,8 @@ define(function (require) {
 									local top = mapEntry[4]
 									local right = mapEntry[5]
 									local bottom = mapEntry[6]
-									local nameDisplay = mapEntry[7] or "" -- This is resolved from WORLD_MSGID by Lua automatically
-									local level = mapEntry[8] or 0
+									local nameDisplay = mapEntry[7] -- This is resolved from WORLD_MSGID by Lua automatically
+									local level = mapEntry[8]
 
 									AddMapToWorld(index, mainTableStr, rswName, left, top, right, bottom, nameDisplay, level, 0)
 								end
@@ -737,8 +924,8 @@ define(function (require) {
 									local top = mapEntry[3]
 									local right = mapEntry[4]
 									local bottom = mapEntry[5]
-									local nameDisplay = mapEntry[6] or ""
-									local level = mapEntry[7] or 0
+									local nameDisplay = mapEntry[6]
+									local level = mapEntry[7]
 
 									AddMapToWorld(index, mainTableStr, "", left, top, right, bottom, nameDisplay, level, 1)
 								end
@@ -869,7 +1056,7 @@ define(function (require) {
 				// mount file
 				lua.mountFile(filename, buffer);
 				// execute file
-				await lua.doFile(filename);
+				await runLuaFile(filename);
 
 				// create and execute our own main function
 				lua.doStringSync(`
@@ -1186,7 +1373,7 @@ define(function (require) {
 					lua.mountFile('lapineddukddakbox.lub', buffer);
 
 					// execute file
-					await lua.doFile('lapineddukddakbox.lub');
+					await runLuaFile('lapineddukddakbox.lub');
 
 					// create and execute our own main function
 					lua.doStringSync(`
@@ -1279,7 +1466,7 @@ define(function (require) {
 					lua.mountFile('lapineupgradebox.lub', buffer);
 
 					// execute file
-					await lua.doFile('lapineupgradebox.lub');
+					await runLuaFile('lapineupgradebox.lub');
 
 					// create and execute our own main function
 					lua.doStringSync(`
@@ -1349,7 +1536,7 @@ define(function (require) {
 					lua.mountFile('ItemDBNameTbl.lub', buffer);
 
 					// execute file
-					await lua.doFile('ItemDBNameTbl.lub');
+					await runLuaFile('ItemDBNameTbl.lub');
 
 					// create and execute our own main function
 					lua.doStringSync(`
@@ -1456,7 +1643,7 @@ define(function (require) {
 					lua.mountFile('ItemReformSystem.lub', buffer);
 
 					// execute file
-					await lua.doFile('ItemReformSystem.lub');
+					await runLuaFile('ItemReformSystem.lub');
 
 					// create and execute our own main function
 					lua.doStringSync(`
@@ -1543,7 +1730,7 @@ define(function (require) {
 					lua.mountFile('Sign_Data.lub', buffer);
 
 					// execute file
-					await lua.doFile('Sign_Data.lub');
+					await runLuaFile('Sign_Data.lub');
 
 					// create and execute our own main function
 					lua.doStringSync(`
@@ -2358,7 +2545,7 @@ define(function (require) {
 						// mount file
 						lua.mountFile(id_filename, buffer);
 						// execute file
-						await lua.doFile(id_filename);
+						await runLuaFile(id_filename);
 						loadValueTable();
 					} catch (hException) {
 						console.error(`(${id_filename}) error: `, hException);
@@ -2376,7 +2563,7 @@ define(function (require) {
 							// mount file
 							lua.mountFile(value_table_filename, buffer);
 							// execute file
-							await lua.doFile(value_table_filename);
+							await runLuaFile(value_table_filename);
 							parseTable();
 						} catch (hException) {
 							console.error(`(${value_table_filename}) error: `, hException);
@@ -2466,7 +2653,7 @@ define(function (require) {
 						lua.mountFile(file_path, buffer);
 
 						// Execute file
-						await lua.doFile(file_path);
+						await runLuaFile(file_path);
 
 						// Get context
 						const ctx = lua.ctx;
@@ -4234,15 +4421,6 @@ define(function (require) {
 			}
 		}
 		return null;
-	};
-
-	/**  
-	 * Get all signboards for a specific map  
-	 * @param {string} mapname - Map name  
-	 * @return {Object} Signboard data for the map  
-	 */  
-	DB.getAllSignboardsForMap = function getAllSignboardsForMap(mapname) {  
-		return SignBoardTable[mapname] || null;  
 	};
 
 	/**
