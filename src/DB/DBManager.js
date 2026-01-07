@@ -1612,7 +1612,7 @@ define(function (require) {
 							height: height,
 							type: type,
 							icon_location: decoded_icon_location,
-							description: DB.getTranslatedSignBoard(decoded_description),
+							description: decoded_description,
 							color: decoded_color
 						});
 
