@@ -13405,6 +13405,27 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ACK_REQNAMEALL2.size = 106;
 
+	// 0x0a2f
+	PACKET.ZC.ACK_CHANGE_TITLE = function(fp, end) {  
+		this.result = fp.readUChar(); 
+		this.title_id = fp.readULong();  
+	};
+	PACKET.ZC.ACK_CHANGE_TITLE.size = 7;
+
+	// 0x0a2e
+	PACKET.CZ.REQ_CHANGE_TITLE = function() {  
+		this.title_id = 0;  
+	};
+	PACKET.CZ.REQ_CHANGE_TITLE.prototype.build = function() {  
+		var pkt_len = 2 + 4;  
+		var pkt_buf = new BinaryWriter(pkt_len);  
+      
+		pkt_buf.writeShort(0x0a2e);  
+		pkt_buf.writeULong(this.title_id);  
+		return pkt_buf;  
+	};
+	PACKET.CZ.REQ_CHANGE_TITLE.size = 6;
+
 	// 0xa37
 	PACKET.ZC.ITEM_PICKUP_ACK7 = function PACKET_ZC_ITEM_PICKUP_ACK7(fp, end) {
 		let option = new Struct(

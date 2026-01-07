@@ -118,3 +118,33 @@
     z-index: 2;
     top: 5px;
 }
+
+#EquipmentV4 #title .title-list {  
+    height: 110px;
+    width: 254px;
+    overflow-y: auto;
+    overflow-x: hidden;  
+    padding: 8px 8px;  
+    border: 1px solid #c0c0c0;  
+    background-color: #f8f8f8;
+}  
+  
+#EquipmentV4 .title-option {  
+    padding: 1px;
+    margin: 1px 0;  
+    cursor: pointer;  
+    background-color: transparent;  
+    border: 1px solid transparent;  
+    font-size: 11px;  
+    white-space: nowrap;
+    width: 100%;
+}  
+
+#EquipmentV4 .title-option.selected {  
+    background-color: #e0e0e0;
+    font-weight: bold;  
+}
+
+#EquipmentV4 .title-option:hover {  
+    background-color: #e0e0e0;
+}
