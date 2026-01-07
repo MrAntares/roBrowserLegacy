@@ -48,7 +48,6 @@ define( function( require )
 		require('./EntityAura').call(this);
 		require('./EntityDropEffect').call(this);
 		require('./EntityEmblem').call(this);
-		require('./EntitySignboard').call(this);
 
 		this.boundingRect = { x1:0, y1:0, x2:0, y2:0 };
 		this.matrix       = mat4.create();
@@ -377,7 +376,6 @@ define( function( require )
 		this.animations.free();
 		this.aura.free();
 		this.dropEffect.free();
-		this.signboard.clean();
 
 		// Remove
 		this.remove_tick  = 0;
