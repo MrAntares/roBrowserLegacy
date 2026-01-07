@@ -721,8 +721,8 @@ define(function (require) {
 									local top = mapEntry[4]
 									local right = mapEntry[5]
 									local bottom = mapEntry[6]
-									local nameDisplay = mapEntry[7] -- This is resolved from WORLD_MSGID by Lua automatically
-									local level = mapEntry[8]
+									local nameDisplay = mapEntry[7] or "" -- This is resolved from WORLD_MSGID by Lua automatically
+									local level = mapEntry[8] or 0
 
 									AddMapToWorld(index, mainTableStr, rswName, left, top, right, bottom, nameDisplay, level, 0)
 								end
@@ -737,8 +737,8 @@ define(function (require) {
 									local top = mapEntry[3]
 									local right = mapEntry[4]
 									local bottom = mapEntry[5]
-									local nameDisplay = mapEntry[6]
-									local level = mapEntry[7]
+									local nameDisplay = mapEntry[6] or ""
+									local level = mapEntry[7] or 0
 
 									AddMapToWorld(index, mainTableStr, "", left, top, right, bottom, nameDisplay, level, 1)
 								end
