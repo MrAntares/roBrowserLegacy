@@ -197,6 +197,8 @@ define(function(require)
 		EquipmentV4.ui.find('.show_costume').hide();  
 		EquipmentV4.ui.find('.show_costume').next('span').hide();
 
+
+		// Damage Skin Settings
 		var buttons = this.ui.find('#damageskin .skin-option');
 		buttons.each(function() {
 			jQuery(this).attr('data-background', 'showdamage/btn_damage.bmp').attr('data-hover', 'showdamage/btn_damage_press.bmp').attr('data-down', 'showdamage/btn_damage_pick.bmp');
@@ -210,6 +212,17 @@ define(function(require)
 		var savedSkin = GraphicsSettings.damageSkin;
 		savedSkin = savedSkin !== undefined && savedSkin !== null ? savedSkin : 0;
 		EquipmentV4.setDamageSkin(savedSkin);
+
+		// Damage Motion Settings
+		var motionChecks = this.ui.find('.motion-check');
+		motionChecks.each(this.parseHTML);
+		motionChecks.on('mousedown', function() {
+			var motionId = parseInt(this.getAttribute('data-motion'), 10);
+			EquipmentV4.setDamageMotion(motionId);
+		});
+		var savedMotion = GraphicsSettings.damageMotion;
+		savedMotion = (savedMotion !== undefined && savedMotion !== null) ? savedMotion : 0;
+		EquipmentV4.setDamageMotion(savedMotion);
 	};
 
 
@@ -974,6 +987,26 @@ define(function(require)
 		buttonSelected.off('mouseover mouseout');
 	};
 
+	/**
+	 * Parse Damage Drawing Preference.
+	 */
+	EquipmentV4.setDamageMotion = function setDamageMotion(motionId) {
+		GraphicsSettings.damageMotion = motionId;
+		GraphicsSettings.save();
+
+		var checkboxes = this.ui.find('.motion-check');
+    
+		checkboxes.each(function() {
+			var btn = jQuery(this);
+			var btnId = parseInt(btn.attr('data-motion'), 10);
+
+			var bgImage = (btnId === motionId) ? 'checkbox_1.bmp' : 'checkbox_0.bmp';
+
+			Client.loadFile(DB.INTERFACE_PATH + bgImage, function(data) {
+				btn.css('backgroundImage', 'url(' + data + ')');
+			});
+		});
+	};
 
 	/**
 	 * Function to check if an item with a given location exists in the equip switch list

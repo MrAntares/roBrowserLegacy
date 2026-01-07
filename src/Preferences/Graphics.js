@@ -52,6 +52,17 @@ define( ['Core/Preferences'], function( Preferences )
 		culling:    false,
 		viewArea: 14,
 
+		/**
+		 * Damage Skin
+		*/
+		damageSkin: 0,
+
+		/**
+		 * Damage Motion Type
+		 * 0: Default, 1: Left, 2: Top, 3: Right
+		*/
+		damageMotion: 0,
+
 		pixelPerfectSprites: false
 	}, 1.1 );
 

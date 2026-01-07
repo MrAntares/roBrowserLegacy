@@ -108,6 +108,17 @@
     text-align: center;
 }
 
+#EquipmentV4 .motion-check {  
+    border: none;   
+    background-color: transparent;
+    background-repeat: no-repeat;  
+    vertical-align: middle;  
+    cursor: pointer;  
+    width: 10px;  
+    height: 12px;  
+    margin-right: 4px;  
+}
+
 #EquipmentV4 .item .grade {
     position: relative;
     width: 12px;
