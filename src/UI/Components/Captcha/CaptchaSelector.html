@@ -1,0 +1,43 @@
+<div id="CaptchaSelector">
+<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+        <div class="left">
+            <button class="base" data-background="basic_interface/sys_base_off.bmp"
+                data-hover="basic_interface/sys_base_on.bmp"></button>
+        </div>
+        <div class="right">
+            <button class="base close" data-background="basic_interface/sys_close_off.bmp"
+                data-hover="basic_interface/sys_close_on.bmp"></button>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="container">
+        <div class="options">
+            <input id="target_type_character" type="radio" name="target_type" value="character" checked />
+            <label for="target_type_character" data-text="2887"></label> 
+            <input id="target_type_range" type="radio" name="target_type" value="range" />
+            <label for="target_type_range" data-text="2888"></label> 
+            <input id="range_val" type="number" class="range_val" value="1" min="1" max="9" />
+            <button class="btn btn_active" data-background="btn_q_active.bmp" data-hover="btn_q_active_a.bmp" data-down="btn_q_active_b.bmp"></button>
+        </div>
+        <ul class="player_list">
+            <li class="player"></li>
+            <li class="player"></li>
+            <li class="player"></li>
+            <li class="player"></li>
+            <li class="player"></li>
+            <li class="player"></li>
+            <li class="player"></li>
+            <li class="player"></li>
+            <li class="player"></li>
+        </ul>
+        <div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
+            <button class="btn ok" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
+        </div>
+    </div>
+    <div class="character_info">
+        <button class="base close-character" data-background="basic_interface/sys_close_off.bmp"
+                data-hover="basic_interface/sys_close_on.bmp"></button>
+        <span class="character-name"></span><br>
+        <span class="character-job"></span>
+    </div>
+</div>

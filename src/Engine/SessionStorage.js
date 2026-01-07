@@ -85,5 +85,9 @@ define(function()
 			showBFCounter   : false,
 			isBattleField   : false,
 		},
+
+		captchaGetIdOnEntityClick: false,
+		captchaGetIdOnFloorClick: false,
+		captchaGetIdOnFloorRange: 1,
 	};
 });

@@ -752,6 +752,36 @@ define(function (require) {
 			},
 			aliases: ["cmt"],
 		},
+		macro_register: {
+			description: "Open the interface to upload image to captcha system",
+			callback: function () {
+				var CaptchaUpload = getModule("UI/Components/Captcha/CaptchaUpload");
+				CaptchaUpload.prepare();
+				CaptchaUpload.append();
+			},
+			aliases: ["mr"],
+		},
+		macro_detector: {
+			description: "Open the macro detector interface",
+			callback: function () {
+				var CaptchaSelector = getModule("UI/Components/Captcha/CaptchaSelector");
+				CaptchaSelector.prepare();
+				CaptchaSelector.append();
+			},
+			aliases: ["md"],
+		},
+		macro_preview: {
+			description: "Request to preview a captcha image",
+			callback: function (text) {
+				var matches = text.match(/^macro_preview\s+(\d+)/);
+				if (matches && matches[1]) {
+					var pkt = new PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR();
+					pkt.captchaID = matches[1];
+					Network.sendPacket(pkt);
+				}
+				return;
+			},
+		},
 		commands: {
 			description: "Show available commands.",
 			callback: function () {

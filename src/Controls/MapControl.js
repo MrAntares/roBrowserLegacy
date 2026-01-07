@@ -38,6 +38,7 @@ define(function( require )
 	var PACKET        = require('Network/PacketStructure');
 	var Network       = require('Network/NetworkManager');
 	var Events        = require('Core/Events');
+	var getModule     = require;
 
 	require('Controls/ScreenShot');
 
@@ -156,6 +157,10 @@ define(function( require )
 			case 3:
 				_rightClickPosition[0] = Mouse.screen.x;
 				_rightClickPosition[1] = Mouse.screen.y;
+
+				if(Session.captchaGetIdOnFloorClick) {
+					getModule('UI/Components/Captcha/CaptchaSelector').requestPlayersIds(Mouse.world.x, Mouse.world.y);
+				}
 
 				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
 					Camera.rotate( false );

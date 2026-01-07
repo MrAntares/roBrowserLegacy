@@ -443,6 +443,16 @@ define(function( require )
 			Mouse.world.z =  Altitude.getCellHeight( x, y );
 
 			if (isWalkable) {
+				if(Session.captchaGetIdOnFloorClick){
+					// render Grid Selector on floor range
+					let range = Session.captchaGetIdOnFloorRange;
+
+					// render on range
+					let cells = Altitude.getCellsInSquareRange(x, y, range);
+					cells.forEach(cell => {
+						GridSelector.render( gl, modelView, projection, fog, cell.x, cell.y );
+					});
+				}
 				GridSelector.render( gl, modelView, projection, fog, x, y );
 			}
 
