@@ -856,10 +856,16 @@ define(function (require) {
 				entity.display.name = pkt.CName;
 			}
 
+			if (PACKETVER.value >= 20170208 && pkt.TitleID > 0) {  
+				var titleText = DB.getTitleString(pkt.TitleID);  
+				entity.display.title_name = titleText;
+			}
+			else
+				entity.display.title_name = '';
+
 			entity.display.party_name = pkt.PName || '';
 			entity.display.guild_name = pkt.GName || '';
 			entity.display.guild_rank = pkt.RName || '';
-			entity.display.title_name = pkt.Title || '';
 
 			entity.display.load = entity.display.TYPE.COMPLETE;
 
@@ -936,6 +942,12 @@ define(function (require) {
 		}
 	}
 
+	function onTitleChangeAck(pkt) {
+		if(pkt.result === 0){
+			var Equipment = PACKETVER.value >= 20220831 ? require('UI/Components/Equipment/EquipmentV4/EquipmentV4') : require('UI/Components/Equipment/EquipmentV3/EquipmentV3');
+			Equipment.setTitle(pkt.title_id);
+		}
+	}
 
 	/**
 	 * Update entity's life
@@ -2493,5 +2505,6 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.BOSS_INFO, onMarkMvp);
 		Network.hookPacket(PACKET.ZC.MVP, onEntityMvpReward);
 		Network.hookPacket(PACKET.ZC.MVP_GETTING_ITEM, onEntityMvpRewardItemMessage);
+		Network.hookPacket(PACKET.ZC.ACK_CHANGE_TITLE, onTitleChangeAck);
 	};
 });

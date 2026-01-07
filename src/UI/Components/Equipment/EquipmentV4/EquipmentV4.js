@@ -84,6 +84,11 @@ define(function(require)
 	var _hideCostume = false;
 
 	/**
+	 * @var {number} title id
+	 */
+	var _currentTitleId = 0;
+
+	/**
 	 * @var {jQuery} button that appeared when level up
 	 */
 	var _btnLevelUp;
@@ -178,6 +183,8 @@ define(function(require)
 
 		this.ui.find('.switch_equip').click(onSwtichEquip);
 
+		this.loadTitles();
+
 		// drag, drop items
 		this.ui.on('dragover', onDragOver);
 		this.ui.on('dragleave', onDragLeave);
@@ -225,6 +232,63 @@ define(function(require)
 		EquipmentV4.setDamageMotion(savedMotion);
 	};
 
+	/**
+	 * Title Functions.
+	 */
+	EquipmentV4.loadTitles = function() {  
+		var titleList = this.ui.find('#title_list');    
+		titleList.empty();
+
+		var removeTitleText = DB.getMessage(2686) || "Remove Title";  
+		var removeSelectedClass = (_currentTitleId === 0) ? ' selected' : '';  
+		var removeElement = jQuery('<div class="title-option' + removeSelectedClass + '" data-title="0">' + removeTitleText + '</div>');  
+		titleList.append(removeElement);
+ 
+		var allTitles = DB.getAllTitles();
+		for (var titleId in allTitles) {  
+			if (allTitles.hasOwnProperty(titleId)) {  
+				// TODO: Check if player finished achievment for title
+				var titleName = allTitles[titleId];
+				var selectedClass = (parseInt(titleId) === _currentTitleId) ? ' selected' : ''; 
+				var titleElement = jQuery('<div class="title-option' + selectedClass + '" data-title="' + titleId + '">' + titleName + '</div>');
+				titleList.append(titleElement);    
+			}  
+		}  
+        
+		titleList.off('click', '.title-option');  
+		titleList.on('click', '.title-option', function(e) {      
+			e.preventDefault();  
+			e.stopPropagation();  
+			var titleId = parseInt(this.getAttribute('data-title'));      
+			EquipmentV4.selectTitle(titleId);      
+		});
+
+		Client.loadFiles([  
+			DB.INTERFACE_PATH + 'basic_interface/scrollbar_bg_btm.bmp',  
+			DB.INTERFACE_PATH + 'basic_interface/scrollbar_bg_mid.bmp',  
+			DB.INTERFACE_PATH + 'basic_interface/scrollbar_bg_top.bmp',  
+			DB.INTERFACE_PATH + 'basic_interface/scrollbar_thumb_out_btm.bmp',  
+			DB.INTERFACE_PATH + 'basic_interface/scrollbar_thumb_out_mid.bmp',  
+			DB.INTERFACE_PATH + 'basic_interface/scrollbar_thumb_out_top.bmp'  
+		], function (bgBottom, bgMid, bgTop, thumbOutBottom, thumbOutMid, thumbOutTop) {  
+			jQuery('style:first').append([  
+				'#EquipmentV4 #title_list::-webkit-scrollbar { width: 8px; }',  
+				'#EquipmentV4 #title_list::-webkit-scrollbar-track { background: url(' + bgTop + ') top no-repeat, url(' + bgMid + ') center repeat-y, url(' + bgBottom + ') bottom no-repeat; }',  
+				'#EquipmentV4 #title_list::-webkit-scrollbar-thumb { background: url(' + thumbOutTop + ') top no-repeat, url(' + thumbOutMid + ') center repeat-y, url(' + thumbOutBottom + ') bottom no-repeat; border-radius: 4px; }'  
+			].join('\n'));  
+		});
+	};
+
+	EquipmentV4.selectTitle = function(titleId) {  
+		var pkt = new PACKET.CZ.REQ_CHANGE_TITLE();  
+		pkt.title_id = titleId;  
+		Network.sendPacket(pkt);  
+	}; 
+
+	EquipmentV4.setTitle = function OnSetTitle(titleId) {
+		_currentTitleId = titleId;
+		EquipmentV4.loadTitles();
+	}; 
 
 	/**
 	 * Function to show the selected tab and update the current tab ID.
