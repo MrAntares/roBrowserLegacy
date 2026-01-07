@@ -59,9 +59,11 @@ define(function(require)
 		this.ui.find('.command').change(onCommandSelected);
 		this.ui.find('.pet_auto_feed').mousedown(petToggleAutoFeed);
 
+		/*
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
+		*/
 
 		this.ui.css({
 			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
@@ -139,6 +141,31 @@ define(function(require)
 		else {
 			this.ui.find('.name, .modify').addClass('disabled').attr('disabled', true);
 		}
+
+		// If pet has evolution, add evolution options
+		const cmdSelect = this.ui.find('.command');
+
+		// remove old evolution options
+		cmdSelect.find('.evolution-option').remove();
+
+		const evolution = DB.getPetEvolutionByJob(info.job);
+
+		if (evolution) {
+		  for (const targetEggID in evolution) {
+		    const evoPet = DB.getPetByEggID(Number(targetEggID));
+		    const evoName = evoPet
+		      ? (evoPet.PetString || evoPet.PetName)
+		      : `Evolution ${targetEggID}`;
+
+		    const option = document.createElement('option');
+		    option.className = 'evolution-option';
+		    option.value = 'evolution_' + info.job;
+		    option.textContent = 'Evolution - ' + evoName;
+
+		    cmdSelect.append(option);
+		  }
+		}
+
 	};
 
 
@@ -192,7 +219,16 @@ define(function(require)
 	 */
 	function onCommandSelected()
 	{
-		switch (this.value) {
+		const value = this.value;
+
+		if (value.startsWith('evolution_')) {
+			const baseJobID = Number(value.replace('evolution_', ''));
+			PetInformations.reqEvolution(baseJobID);
+			this.value = 'default';
+			return;
+		}
+
+		switch (value) {
 			case 'feed':
 				PetInformations.reqPetFeed();
 				break;
@@ -262,6 +298,7 @@ define(function(require)
 	PetInformations.reqNameEdit   = function reqNameEdit(){};
 	PetInformations.reqUnEquipPet = function reqUnEquipPet(){};
 	PetInformations.reqBackToEgg  = function reqBackToEgg(){};
+	PetInformations.reqEvolution  = function reqEvolution(){};
 	PetInformations.onConfigUpdate = function onConfigUpdate(/* type, value*/){};
 
 
