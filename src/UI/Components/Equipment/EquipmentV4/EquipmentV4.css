@@ -102,6 +102,10 @@
     padding: 0;
 }
 
+#EquipmentV4 #damageskin .skin-wrapper > div:first-child {  
+    margin-top: 8px;  
+}
+
 #EquipmentV4 #damageskin .skin-wrapper .label {
     margin-top: 6px;
     font-size: 12px;
