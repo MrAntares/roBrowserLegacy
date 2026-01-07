@@ -122,7 +122,6 @@ define( function( require )
 			if (entity.dialog.display)  entity.dialog.render( _matrix );
 			if (entity.cast.display)	entity.cast.render( _matrix );
 			if (entity.room.display)	entity.room.render( _matrix );
-			if (entity.signboard.display)	entity.signboard.render( _matrix );
 		};
 	}();
 

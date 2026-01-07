@@ -83,6 +83,7 @@ define(function( require )
 	var CaptchaAnswer    = require('UI/Components/Captcha/CaptchaAnswer');
 	var CaptchaPreview   = require('UI/Components/Captcha/CaptchaPreview');
 	var PluginManager    = require('Plugins/PluginManager');
+	var SignboardManager = require('Renderer/SignboardManager');
 
 	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
@@ -641,23 +642,7 @@ define(function( require )
 				for (let x in signboards) {  
 					for (let y in signboards[x]) {  
 						const signboardData = signboards[x][y];  
-						
-						// Create a dummy entity for the signboard  
-						const signboardEntity = new Entity();  
-						signboardEntity.set({  
-							objecttype: Entity.TYPE_EFFECT,  
-							GID: 'SIGNBOARD_' + x + '_' + y,  
-							PosDir: [parseInt(x), parseInt(y), 0],  
-							job: 0, // No job  
-							name: "",  
-							hp: -1,  
-							maxhp: -1,  
-							hideShadow: true,  
-						});  
-						
-						// Load signboard data  
-						signboardEntity.signboard.load(signboardData);  
-						EntityManager.add(signboardEntity);  
+						SignboardManager.add(parseInt(x), parseInt(y), signboardData);  
 					}  
 				}  
 			}

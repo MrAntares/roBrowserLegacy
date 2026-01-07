@@ -132,13 +132,6 @@ define(function (require) {
 					EffectManager.spam(EF_Init_Par);
 				}
 			}
-			if (entity.objecttype === Entity.TYPE_EFFECT && entity.GID.startsWith("SIGNBOARD_")) {
-				const mapName = getModule("Renderer/MapRenderer").currentMap.replace('.gat', '').toLowerCase();
-				let signboardData = DB.findSignboard(mapName, entity.position[0], entity.position[1], 1);
-				if (signboardData) {
-					entity.signboard.load(signboardData);
-				}
-			}
 			EntityManager.add(entity);
 		}
 

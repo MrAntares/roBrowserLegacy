@@ -38,6 +38,7 @@ define(function( require )
 	var Effects        = require('Renderer/Map/Effects');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var EffectManager  = require('Renderer/EffectManager');
+	var SignboardManager = require('Renderer/SignboardManager');
 	var SnowWeather    = require('Renderer/Effects/SnowWeather');
 	var RainWeather    = require('Renderer/Effects/RainWeather');
 	var Sky            = require('Renderer/Effects/Sky');
@@ -207,6 +208,7 @@ define(function( require )
 		Models.free( gl );
 		Damage.free( gl );
 		EffectManager.free( gl );
+		SignboardManager.free();
 		SoundManager.stop();
 		BGM.stop();
 
@@ -478,6 +480,9 @@ define(function( require )
 		Damage.render( gl, modelView, projection, fog, tick );
 		EffectManager.render( gl, modelView, projection, fog, tick, false);
 		EntityManager.render( gl, modelView, projection, fog, true );
+
+		// Render signboards
+		SignboardManager.render(gl, modelView, projection);
 
 		// Weather Effects
 		SnowWeather.renderAll(gl, modelView, projection, fog, tick);

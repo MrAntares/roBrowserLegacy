@@ -19,6 +19,8 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./EntitySignboard.html');
 	var cssText            = require('text!./EntitySignboard.css');
+	var DB                 = require('DB/DBManager');
+	var Client             = require('Core/Client');
 
 
 	/**
@@ -69,19 +71,24 @@ define(function(require)
 	 * @param {string} title
 	 * @param {string} url - icon url
 	 */
-	EntitySignboard.setTitle = function setTitle( title, url )
+	EntitySignboard.setTitle = function setTitle( title, icon_location )
 	{
-		this.ui.find('button').css('backgroundImage', 'url('+ url +')');
+		// add data-background attribute
+		this.ui.attr('data-background', "signboard/bg_signboard.bmp");
 		this.ui.find('.title, .overlay').text(title);
-		var titleElement = this.ui.find('.title');
-		var overlayElement = this.ui.find('.overlay');
-		titleElement.show();
-		overlayElement.show();
+		this.ui.find('.title').show();
+		this.ui.find('.overlay').show();
 
 		// Check if the title is overflowing
-		if (!isOverflowing(titleElement[0]))
-			overlayElement.hide(); // Hide the overlay if no overflow
+		if (!isOverflowing(this.ui.find('.title')[0])) {
+			this.ui.find('.overlay').hide(); // Hide the overlay if no overflow
+		}
 
+		var self = this;
+		Client.loadFile(icon_location, function(icon_location){
+			self.ui.find('button').css('backgroundImage', 'url('+ icon_location +')');
+			self.ui.each(self.parseHTML).find('*').each(self.parseHTML);
+		});
 	};
 
 
@@ -91,12 +98,14 @@ define(function(require)
 	 * @param {string} title
 	 * @param {string} url - icon url
 	 */
-	EntitySignboard.setIconOnly = function setIconOnly(url)
+	EntitySignboard.setIconOnly = function setIconOnly(icon_location)
 	{
-		this.ui.css('backgroundImage', 'none'); // Hide the background image of the entire signboard
-		this.ui.find('button').addClass('icon-only').css('backgroundImage', 'url('+ url +')');
 		this.ui.find('.title').hide();
 		this.ui.find('.overlay').hide();
+		var self = this;
+		Client.loadFile(icon_location, function(icon_location) {
+			self.ui.find('button').addClass('icon-only').css('backgroundImage', 'url('+ icon_location +')');
+		});
 	};
 
 	// Function to check if an element's content is overflowing
