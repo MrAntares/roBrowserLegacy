@@ -77,14 +77,19 @@ define(function(require)
 		this.ui.attr('data-background', "signboard/bg_signboard.bmp");
 		this.ui.find('.title, .overlay').text(title);
 		this.ui.find('.title').show();
-		this.ui.find('.overlay').show();
-
-		// Check if the title is overflowing
-		if (!isOverflowing(this.ui.find('.title')[0])) {
-			this.ui.find('.overlay').hide(); // Hide the overlay if no overflow
-		}
 
 		var self = this;
+
+		// show overlay when mouse over .title
+		this.ui.find('.title').hover(function() {
+			self.ui.find('.overlay').show();
+		});
+
+		// hide overlay when mouse out .title
+		this.ui.find('.title').mouseout(function() {
+			self.ui.find('.overlay').hide();
+		});
+
 		Client.loadFile(icon_location, function(icon_location){
 			self.ui.find('button').css('backgroundImage', 'url('+ icon_location +')');
 			self.ui.each(self.parseHTML).find('*').each(self.parseHTML);

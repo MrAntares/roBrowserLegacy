@@ -23,15 +23,15 @@ define(function (require) {
         // Prepare the UI component
         signboardUI.prepare();
 
+        // Initialize and append to DOM
+        signboardUI.append();
+
         // Set title and icon based on type  
         if (signboardData.type === 1) { // ICON_ONLY
             signboardUI.setIconOnly(DB.INTERFACE_PATH + signboardData.icon_location);
         } else { // FULL_SIGNBOARD  
             signboardUI.setTitle(DB.getTranslatedSignBoard(signboardData.description), DB.INTERFACE_PATH + signboardData.icon_location);
         }
-
-        // Initialize and append to DOM
-        signboardUI.append();
 
         signboards.push({
             type: signboardData.type,
