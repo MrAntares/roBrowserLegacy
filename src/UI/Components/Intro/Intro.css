@@ -123,11 +123,11 @@
 /** BOX **/
 
 #intro .box {
-	width:158px;
-	height:157px;
+	width:159px;
+	height:159px;
 	background-repeat:no-repeat;
 	position:absolute;
-	top:332px;
+	top:331px;
 	left:319px;
 	opacity:0.0;
 	-webkit-transition: opacity 0.5s;
