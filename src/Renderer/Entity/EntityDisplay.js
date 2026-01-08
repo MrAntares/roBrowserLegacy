@@ -201,6 +201,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 			if (this.guild_rank.length) {
 				lines[1] += ' [' + this.guild_rank + ']';
 			}
+		} else if (this.guild_rank.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) { // showname
+			lines[1] = this.guild_rank;
 		}
 
 		// Add Title name

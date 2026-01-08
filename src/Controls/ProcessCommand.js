@@ -574,6 +574,20 @@ define(function (require) {
 			},
 		},
 
+		cl: {
+			description: "Sends a message to the player clan.",
+			callback: function (text) {
+				var pkt    = new PACKET.CZ.CLAN_CHAT();
+				var matches = text.match(/(^cl)\s+(.*)/);
+				if (matches && matches[2]) {
+					pkt.msg    = Session.Entity.display.name + ' : ' + matches[2];
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+
+
 		/*
 		*  GM COMMANDS
 		*/

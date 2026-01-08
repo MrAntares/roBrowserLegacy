@@ -11354,8 +11354,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x988
 	PACKET.ZC.NOTIFY_CLAN_CONNECTINFO = function PACKET_ZC_NOTIFY_CLAN_CONNECTINFO(fp, end) {
-		this.NumConnect = fp.readShort();
-		this.NumTotal = fp.readShort();
+		this.membersOnline = fp.readShort();
+		this.membersTotal = fp.readShort();
 	};
 	PACKET.ZC.NOTIFY_CLAN_CONNECTINFO.size = 6;
 
@@ -11368,19 +11368,19 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x98a
 	PACKET.ZC.CLANINFO = function PACKET_ZC_CLANINFO(fp, end) {
-		this.ClanID = fp.readLong();
-		this.ClanName = fp.readString(NAME_LENGTH);
-		this.MasterName = fp.readString(NAME_LENGTH);
-		this.Map = fp.readString(MAP_NAME_LENGTH_EXT);
-		this.AllyCount = fp.readUChar();
-		this.AntagonistCount = fp.readUChar();
-		this.AllyList = new Array(this.AllyCount);
-		for (let i = 0; i < this.AllyCount; i++) {
-			this.AllyList[i] = fp.readString(NAME_LENGTH);
+		this.clanId = fp.readLong();
+		this.name = fp.readString(NAME_LENGTH);
+		this.master = fp.readString(NAME_LENGTH);
+		this.territory = fp.readString(MAP_NAME_LENGTH_EXT);
+		this.allyCount = fp.readUChar();
+		this.antagonistCount = fp.readUChar();
+		this.allyList = new Array(this.allyCount);
+		for (let i = 0; i < this.allyCount; i++) {
+			this.allyList[i] = fp.readString(NAME_LENGTH);
 		}
-		this.AntagonistList = new Array(this.AntagonistCount);
-		for (let i = 0; i < this.AntagonistCount; i++) {
-			this.AntagonistList[i] = fp.readString(NAME_LENGTH);
+		this.antagonistList = new Array(this.antagonistCount);
+		for (let i = 0; i < this.antagonistCount; i++) {
+			this.antagonistList[i] = fp.readString(NAME_LENGTH);
 		}
 	};
 	PACKET.ZC.CLANINFO.size = -1;
@@ -11403,8 +11403,8 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x98e
 	PACKET.ZC.NOTIFY_CLAN_CHAT = function PACKET_ZC_NOTIFY_CLAN_CHAT(fp, end) {
-		this.MemberName = fp.readString(NAME_LENGTH);
-		this.msg = fp.readString(end - fp.tell());
+		this.memberName = fp.readString(NAME_LENGTH);
+		this.message = fp.readString(end - fp.tell());
 	};
 	PACKET.ZC.NOTIFY_CLAN_CHAT.size = -1;
 
