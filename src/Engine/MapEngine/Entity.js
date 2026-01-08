@@ -106,6 +106,11 @@ define(function (require) {
 	const MAX_ATTACKMT = AVG_ATTACK_SPEED * 2;
 
 	/**
+	 * List of players and the respective clan emblem
+	 */
+	var clanEmblems = {};
+
+	/**
 	 * Spam an entity on the map
 	 * Generic packet handler
 	 */
@@ -237,6 +242,31 @@ define(function (require) {
 
 		if (entity.objecttype === Entity.TYPE_MOB && pkt.isBoss) {
 			entity.mobtype = pkt.isBoss;
+		}
+
+		// if it is listed in clanEmblems set emblem
+		if(entity.GID in clanEmblems) {
+			let clanId = clanEmblems[entity.GID];
+			console.log('>> entity spam', entity.display.name);
+			DB.loadClanEmblem(clanId, function (image) {
+				entity.clanId = clanId;
+				entity.display.emblem = image;
+				entity.display.update(
+					entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+						entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+							entity.objecttype === Entity.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
+								entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+									entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+										entity.objecttype === Entity.TYPE_NPC2 ? entity.display.STYLE.NPC :
+											(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
+												entity.display.STYLE.DEFAULT
+					)
+				entity.emblem.emblem = image;
+				entity.emblem.update();
+			});
+
+			// remove from clanEmblems
+			delete clanEmblems[entity.GID];
 		}
 
 		// load others aura
@@ -921,8 +951,23 @@ define(function (require) {
 					entity.emblem.emblem = image;
 					entity.emblem.update();
 				});
-			}
-			else {
+			} else if (entity.clanId) {
+				DB.loadClanEmblem(entity.clanId, function (image) {
+					entity.display.emblem = image;
+					entity.display.update(
+						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+							entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+								entity.objecttype === Entity.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
+									entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+										entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+											entity.objecttype === Entity.TYPE_NPC2 ? entity.display.STYLE.NPC :
+												(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
+													entity.display.STYLE.DEFAULT
+						)
+					entity.emblem.emblem = image;
+					entity.emblem.update();
+				});
+			} else {
 				entity.display.emblem = null;
 			}
 			entity.display.update(
@@ -1655,6 +1700,9 @@ define(function (require) {
 		var entity = EntityManager.get(pkt.AID);
 
 		if (!entity) {
+			if(pkt.index >= StatusConst.SWORDCLAN && pkt.index <= StatusConst.CROSSBOWCLAN) { // EFST CLAN - save it to when actor spawn, why server sometimes send this packet before entity spawn?
+				clanEmblems[pkt.AID] = (pkt.index - StatusConst.SWORDCLAN) + 1;
+			}
 			return;
 		}
 
@@ -2029,6 +2077,47 @@ define(function (require) {
 				entity.isOverWeight = pkt.state;
 				break;
 
+			case StatusConst.SWORDCLAN:
+			case StatusConst.ARCWANDCLAN:
+			case StatusConst.GOLDENMACECLAN:
+			case StatusConst.CROSSBOWCLAN:
+				let clanId = (pkt.index - StatusConst.SWORDCLAN) + 1;
+				DB.loadClanEmblem(clanId, function (image) {
+					entity.clanId = clanId;
+					entity.display.emblem = image;
+					entity.display.update(
+						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+							entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+								entity.objecttype === Entity.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
+									entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+										entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+											entity.objecttype === Entity.TYPE_NPC2 ? entity.display.STYLE.NPC :
+												(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
+													entity.display.STYLE.DEFAULT
+					)
+					entity.emblem.emblem = image;
+					entity.emblem.update();
+				});
+				break;
+
+			case StatusConst.CLAN_INFO:
+				DB.loadClanEmblem(pkt.val[1], function (image) {
+					entity.clanId = pkt.val[1];
+					entity.display.emblem = image;
+					entity.display.update(
+						entity.objecttype === Entity.TYPE_MOB ? entity.display.STYLE.MOB :
+							entity.objecttype === Entity.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
+								entity.objecttype === Entity.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
+									entity.objecttype === Entity.TYPE_DISGUISED ? entity.display.STYLE.MOB :
+										entity.objecttype === Entity.TYPE_NPC ? entity.display.STYLE.NPC :
+											entity.objecttype === Entity.TYPE_NPC2 ? entity.display.STYLE.NPC :
+												(entity.objecttype === Entity.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
+													entity.display.STYLE.DEFAULT
+					)
+					entity.emblem.emblem = image;
+					entity.emblem.update();
+				});
+				break;
 		}
 
 		// Modify icon
