@@ -16,6 +16,7 @@ define(function(require)
 	 * Dependencies
 	 */
 	var KEYS        = require('Controls/KeyEventHandler');
+	var ProcessCommand = require('Controls/ProcessCommand');
 	var Preferences = require('Preferences/ShortCutControls');
 	var UIManager   = require('UI/UIManager');
 
@@ -66,9 +67,14 @@ define(function(require)
 		
 		var key = KeyTable[keyName];
 		if (key){
-			var component = UIManager.getComponent(key.component);
-			if (component.onShortCut) {
-				component.onShortCut(key);
+			if (key.component == "_SLASHCOMMAND"){
+				ProcessCommand.processCommand(key.cmd);
+			}
+			else {
+				var component = UIManager.getComponent(key.component);
+				if (component.onShortCut) {
+					component.onShortCut(key);
+				}
 			}
 			return true;
 		}

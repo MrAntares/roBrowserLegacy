@@ -580,22 +580,6 @@ define(function( require )
 
 		MapRenderer.onLoad = function(){
 
-			// TODO: find a better place to put it
-			jQuery(window).on('keydown.map', function( event ){
-				if (event.which === KEYS.INSERT) {
-					var pkt;
-					if(PACKETVER.value >= 20180307) {
-						pkt        = new PACKET.CZ.REQUEST_ACT2();
-					} else {
-						pkt        = new PACKET.CZ.REQUEST_ACT();
-					}
-					pkt.action = Session.Entity.action === Session.Entity.ACTION.SIT ? 3 : 2;
-					Network.sendPacket(pkt);
-					event.stopImmediatePropagation();
-					return false;
-				}
-			});
-
 			Session.Entity.set({
 				PosDir: [ pkt.xPos, pkt.yPos, 0 ],
 				GID: Session.Character.GID

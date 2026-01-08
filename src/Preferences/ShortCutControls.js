@@ -65,7 +65,7 @@ define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	
 	ShortCuts.MercInfo =		{	init:{key: KEYS.R,		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MercenaryInformations',	cmd:'TOGGLE'			};
 	ShortCuts.MercState =		{	init:{key: KEYS.T,		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MercenaryInformations',	cmd:'AGGRESSIVE'		};
 	ShortCuts.Quest =			{	init:{key: KEYS.U,		alt: true,	ctrl: false,	shift: false},	cust: false,	component:'Quest',	            cmd:'TOGGLE'				};
-	//ShortCuts.Sit =			{	init:{key: KEYS.INSERT,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'xxx',				cmd:'xxx'					};//TODO
+	ShortCuts.Sit =				{	init:{key: KEYS.INSERT,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'_SLASHCOMMAND',		cmd:'sit'					};//TODO
 	ShortCuts.ChatSize =		{	init:{key: KEYS.F10,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ChatBox', 			cmd:'updateHeight'			};
 	ShortCuts.SkillBarSize =	{	init:{key: KEYS.F12,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXTEND'				};
 	ShortCuts.Bank =			{	init:{key: KEYS.B,		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'Bank',				cmd:'TOGGLE'				};
