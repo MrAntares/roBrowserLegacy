@@ -203,6 +203,7 @@ function createHTML(includeManifest = false) {
                                 socketProxy: 'wss://connect.robrowser.com',
                                 adminList: [2000000]
                             }],
+                            webserverPort: 8888,
                             packetDump: false,
                             skipServerList: true,
                             skipIntro: false,
