@@ -82,6 +82,7 @@ define(function( require )
 	var CaptchaSelector  = require('UI/Components/Captcha/CaptchaSelector');
 	var CaptchaAnswer    = require('UI/Components/Captcha/CaptchaAnswer');
 	var CaptchaPreview   = require('UI/Components/Captcha/CaptchaPreview');
+	var Clan             = require('UI/Components/Clan/Clan');
 	var PluginManager    = require('Plugins/PluginManager');
 	var SignboardManager = require('Renderer/SignboardManager');
 
@@ -265,6 +266,7 @@ define(function( require )
 			require('./MapEngine/Roulette').call();
 			require('./MapEngine/PCGoldTimer').call();
 			require('./MapEngine/Captcha').call();
+			require('./MapEngine/Clan').call();
 			if(Configs.get('enableCashShop')){
 				require('./MapEngine/CashShop').call();
 			}
@@ -302,6 +304,7 @@ define(function( require )
 			CaptchaSelector.prepare();
 			CaptchaAnswer.prepare();
 			CaptchaPreview.prepare();
+			Clan.prepare();
 
 			if(Configs.get('enableMapName')){
 				MapName.prepare();
@@ -911,8 +914,9 @@ define(function( require )
 		}
 		else if (target & ChatBox.TYPE.GUILD) {
 			pkt = new PACKET.CZ.GUILD_CHAT();
-		}
-		else {
+		} else if (target & ChatBox.TYPE.CLAN) {
+			pkt = new PACKET.CZ.CLAN_CHAT();
+		} else {
 			pkt = new PACKET.CZ.REQUEST_CHAT();
 			chatLines++;
 		}

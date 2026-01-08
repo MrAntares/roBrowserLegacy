@@ -4971,6 +4971,29 @@ define(function (require) {
 		}
 	};
 
+
+	/**
+	* Load Clan Emblem file
+	* Icons for group reads from texture/유저인터페이스/clan_system/...
+	*
+	* @param {integer} clanId
+	* @param {function} callback to run once the file is loaded
+	*
+	* @author alisonrag
+	*/
+	DB.loadClanEmblem = function loadClanEmblem(clanId, callback) {
+		Client.loadFile( DB.INTERFACE_PATH + "clan_system/clan_emblem" + clanId.toString().padStart(2, '0') + ".bmp", function(dataURI) {
+			let img = new Image();
+			img.decoding = 'async';
+			img.src = dataURI; // String Base64
+
+			// wait image load to call the callback
+			img.onload = function() {
+				callback(img);
+			};
+		});
+	}
+
 	/**
 	* Load Group Emblem file
 	* Icons for group reads from texture/유저인터페이스/group/...

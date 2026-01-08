@@ -118,6 +118,7 @@ define(function(require)
 		BLUE:     1 << 8, // TODO: find a better name
 		ADMIN:    1 << 9,
 		MAIL:     1 << 10,
+		CLAN:     1 << 11,
 	};
 
 	ChatBox.FILTER = {
@@ -364,6 +365,7 @@ define(function(require)
 			ContextMenu.addElement(DB.getMessage(85),  onChangeTargetMessage(ChatBox.TYPE.PUBLIC));
 			ContextMenu.addElement(DB.getMessage(86),  onChangeTargetMessage(ChatBox.TYPE.PARTY));
 			ContextMenu.addElement(DB.getMessage(437), onChangeTargetMessage(ChatBox.TYPE.GUILD));
+			ContextMenu.addElement(DB.getMessage(2361), onChangeTargetMessage(ChatBox.TYPE.CLAN));
 
 			ui.css({
 				top:  pos.top - ui.height() - 5,
@@ -1506,6 +1508,9 @@ define(function(require)
 			}
 			else if (type & ChatBox.TYPE.GUILD) {
 				$input.addClass('guild');
+			}
+			else if (type & ChatBox.TYPE.CLAN) {
+				$input.addClass('clan');
 			}
 
 			ChatBox.sendTo = type;

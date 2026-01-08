@@ -168,6 +168,7 @@
 }
 #chatbox .input .message.party { color:#840084; }
 #chatbox .input .message.guild { color:#008484; }
+#chatbox .input .message.clan { color:#ffa631; }
 
 #chatbox .input .filter,
 #chatbox .input .size {

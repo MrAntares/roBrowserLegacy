@@ -69,6 +69,7 @@ define(["Core/Preferences",	"Controls/KeyEventHandler"],	function (Preferences,	
 	ShortCuts.ChatSize =		{	init:{key: KEYS.F10,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ChatBox', 			cmd:'updateHeight'			};
 	ShortCuts.SkillBarSize =	{	init:{key: KEYS.F12,	alt: false,	ctrl: false,	shift: false},	cust: false,	component:'ShortCut',			cmd:'EXTEND'				};
 	ShortCuts.Bank =			{	init:{key: KEYS.B,		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'Bank',				cmd:'TOGGLE'				};
+	ShortCuts.ClanChat =		{	init:{key: KEYS.G,		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'Clan',				cmd:'TOGGLE'				};
 			
 	//Custom		
 	/*ShortCuts.M_UI =			{	init:{key: KEYS[9],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'SHOW'					};
