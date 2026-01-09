@@ -152,8 +152,7 @@ define(function( require )
 			if (!guild_id || guild_id === undefined || !Session.AID || Session.AID === 0 || Session.ServerName === undefined || !Session.WebToken)
 				return;
 
-			var serverAddress = Configs.get('servers')[0].address;
-			var webPort = Configs.get('webserverPort', 8888);
+			var webAdress = Configs.get('webserverAdress', '127.0.0.1:8888');
 
 			var formData = new FormData();
 			formData.append('GDID', guild_id);
@@ -162,7 +161,7 @@ define(function( require )
 			formData.append('AID', Session.AID);
 
 			var xhr = new XMLHttpRequest();      
-			xhr.open('POST', 'http://' + serverAddress + ':' + webPort + '/emblem/download', true);
+			xhr.open('POST', 'http://' + webAdress + '/emblem/download', true);
 			xhr.responseType = 'blob';
 
 			xhr.onload = function() {
@@ -418,8 +417,7 @@ define(function( require )
 		
 		return function sendEmblem(data) {  
 			if(PACKETVER.value >= 20170315){   
-				var serverAddress = Configs.get('servers')[0].address;    
-				var webPort = Configs.get('webserverPort', 8888);    
+				var webAdress = Configs.get('webserverAdress', '127.0.0.1:8888');  
 
 				var formData = new FormData();      
 				formData.append('GDID', GuildEngine.guild_id);      
@@ -430,7 +428,7 @@ define(function( require )
 				formData.append('ImgType', 'BMP');      
 
 				var xhr = new XMLHttpRequest();      
-				xhr.open('POST', 'http://' + serverAddress + ':' + webPort + '/emblem/upload', true);  
+				xhr.open('POST', 'http://' + webAdress + '/emblem/upload', true);  
 
 				xhr.onload = function() {    
 					if (xhr.status === 200) {    
