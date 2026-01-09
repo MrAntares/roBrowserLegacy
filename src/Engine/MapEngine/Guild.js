@@ -148,7 +148,7 @@ define(function( require )
 			return;
 		}
 
-		if(PACKETVER.value >= 20200300){
+		if(PACKETVER.value >= 20170315){
 			var serverAddress = Configs.get('servers')[0].address;
 			var webPort = Configs.get('webserverPort', 8888);
 
@@ -419,7 +419,7 @@ define(function( require )
 		}  
 		
 		return function sendEmblem(data) {  
-			if(PACKETVER.value >= 20200300){   
+			if(PACKETVER.value >= 20170315){   
 				var serverAddress = Configs.get('servers')[0].address;    
 				var webPort = Configs.get('webserverPort', 8888);    
 
