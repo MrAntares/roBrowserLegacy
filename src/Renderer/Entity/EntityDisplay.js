@@ -222,7 +222,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 
 		// Draw emblem
 		if (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
-			ctx.drawImage(this.emblem, 0, 0);
+			ctx.drawImage(this.emblem, 0, paddingTop);
 		}
 
 		// TODO: complete the color list in the Entity display
