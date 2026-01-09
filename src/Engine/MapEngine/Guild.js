@@ -149,6 +149,9 @@ define(function( require )
 		}
 
 		if(PACKETVER.value >= 20170315){
+			if (!guild_id || guild_id === undefined || !Session.AID || Session.AID === 0 || Session.ServerName === undefined || !Session.WebToken)
+				return;
+
 			var serverAddress = Configs.get('servers')[0].address;
 			var webPort = Configs.get('webserverPort', 8888);
 
@@ -183,11 +186,6 @@ define(function( require )
 								entity.display.refresh(entity);
 							}
 						});
-						// TODO: WHY EMBLEM NOT SELF RENDERING?
-						//if (Session.Entity) {  
-						//	Session.Entity.display.emblem = img;
-						//	Session.Entity.display.refresh(Session.Entity);  
-						//}
 					};
 					img.decoding = 'async';
 					img.src = URL.createObjectURL(xhr.response);
@@ -506,6 +504,12 @@ define(function( require )
 	function onGuildInfo( pkt )
 	{
 		Guild.setGuildInformations( pkt );
+		GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function(image) {  
+			Session.Entity.display.emblem = image;  
+			Session.Entity.emblem.emblem = image;  
+			Session.Entity.emblem.update();  
+			Session.Entity.display.update(Session.Entity.display.STYLE.DEFAULT);  
+		});
 	}
 
 
