@@ -147,49 +147,56 @@ define(function( require )
 			callback(emblem.image);
 			return;
 		}
-		if(PACKETVER.value >= 20200300){
-			var serverAddress = Configs.get('servers')[0].address;  
-			var webPort = Configs.get('webserverPort', 8888);  
 
-			var formData = new FormData();  
-			formData.append('GDID', guild_id);  
+		if(PACKETVER.value >= 20200300){
+			var serverAddress = Configs.get('servers')[0].address;
+			var webPort = Configs.get('webserverPort', 8888);
+
+			var formData = new FormData();
+			formData.append('GDID', guild_id);
 			formData.append('WorldName', Session.ServerName);
 			formData.append('AuthToken', Session.WebToken); 
 			formData.append('AID', Session.AID);
 
 			var xhr = new XMLHttpRequest();      
-			xhr.open('POST', 'http://' + serverAddress + ':' + webPort + '/emblem/download', true);      
-			xhr.responseType = 'blob';    
-			
-			xhr.onload = function() {    
-				if (xhr.status === 200) {    
-					var img = new Image();    
-					img.onload = function() {    
-						emblem.version = version;    
-						emblem.image = img;    
+			xhr.open('POST', 'http://' + serverAddress + ':' + webPort + '/emblem/download', true);
+			xhr.responseType = 'blob';
+
+			xhr.onload = function() {
+				if (xhr.status === 200) {
+					var img = new Image();
+					img.onload = function() {
+						emblem.version = version;
+						emblem.image = img;
 						
-						if (guild_id === GuildEngine.guild_id) {    
-							Guild.setEmblem(img);    
-						}    
+						if (guild_id === GuildEngine.guild_id) {
+							Guild.setEmblem(img);
+						}
 						
-						while (emblem.callback.length) {    
-							emblem.callback.shift().call(null, img);    
-						}    
+						while (emblem.callback.length) {
+							emblem.callback.shift().call(null, img);
+						}
 						
-						EntityManager.forEach(function(entity){    
-							if (entity.GUID === guild_id) {    
-								entity.display.emblem = img;    
-								entity.display.refresh(entity);    
-							}    
-						});    
-					};    
-					img.src = URL.createObjectURL(xhr.response);    
-				}    
-			};
-			
-			xhr.send(formData); 
+						EntityManager.forEach(function(entity){
+							if (entity.GUID === guild_id) {
+								entity.display.emblem = img;
+								entity.display.refresh(entity);
+							}
+						});
+						// TODO: WHY EMBLEM NOT SELF RENDERING?
+						//if (Session.Entity) {  
+						//	Session.Entity.display.emblem = img;
+						//	Session.Entity.display.refresh(Session.Entity);  
+						//}
+					};
+					img.decoding = 'async';
+					img.src = URL.createObjectURL(xhr.response);
+				}      
+			}; // End xhr.onload
+
+			xhr.send(formData);
 		} else {
-			// Ask for new version
+			// Ask for new version via Packet
 			var pkt  = new PACKET.CZ.REQ_GUILD_EMBLEM_IMG();
 			pkt.GDID = guild_id;
 			Network.sendPacket(pkt);
