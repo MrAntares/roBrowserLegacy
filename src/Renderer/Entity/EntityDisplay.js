@@ -198,7 +198,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 			lines[1] = this.guild_name;
 
 			// Add guild rank
-			if (this.guild_rank.length) {
+			if (this.guild_rank.length && MapPreferences.showname) {
 				lines[1] += ' [' + this.guild_rank + ']';
 			}
 		} else if (this.guild_rank.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) { // showname
@@ -207,8 +207,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 
 		// Add Title name
 		// when title is set client render title in line[0] and name/fakename in line[1]
-		if (this.title_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
-			[lines[0], lines[1]] = [this.title_name, lines[0]];
+		if (MapPreferences.showname && this.title_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
+			lines[0] = '[' + this.title_name + '] ' + lines[0];
 		}
 
 		// Setup the canvas
