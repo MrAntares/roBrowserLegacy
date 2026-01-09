@@ -13909,7 +13909,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.lastLoginTime = fp.readBinaryString(26);
 		this.Sex = fp.readUChar();
 		if (PACKETVER.value >= 20170315) {
-			fp.readBinaryString(17);
+			this.webAuthToken = fp.readBinaryString(17);
 		}
 		var pkt_len = 32;
 		if (PACKETVER.value >= 20170315) {

@@ -325,6 +325,10 @@ define(function( require )
 		Session.AID       = pkt.AID;
 		Session.UserLevel = pkt.userLevel;
 		Session.Sex       = pkt.Sex;
+
+		if (PACKETVER.value >= 20170315)
+			Session.WebToken  = pkt.webAuthToken;
+
 		_charServers      = pkt.ServerList;
 
 		// Build list of servers

@@ -28,6 +28,7 @@ define(function( require )
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var Guild         = require('UI/Components/Guild/Guild');
 	var UIManager     = require('UI/UIManager');
+	var Configs       = require("Core/Configs");
 
 	// Version Dependent UIs
 	var MiniMap = require('UI/Components/MiniMap/MiniMap');
@@ -147,11 +148,57 @@ define(function( require )
 			return;
 		}
 
-		// Ask for new version
-		var pkt  = new PACKET.CZ.REQ_GUILD_EMBLEM_IMG();
-		pkt.GDID = guild_id;
-		Network.sendPacket(pkt);
+		if(PACKETVER.value >= 20170315){
+			if (!guild_id || guild_id === undefined || !Session.AID || Session.AID === 0 || Session.ServerName === undefined || !Session.WebToken)
+				return;
 
+			var serverAddress = Configs.get('servers')[0].address;
+			var webPort = Configs.get('webserverPort', 8888);
+
+			var formData = new FormData();
+			formData.append('GDID', guild_id);
+			formData.append('WorldName', Session.ServerName);
+			formData.append('AuthToken', Session.WebToken); 
+			formData.append('AID', Session.AID);
+
+			var xhr = new XMLHttpRequest();      
+			xhr.open('POST', 'http://' + serverAddress + ':' + webPort + '/emblem/download', true);
+			xhr.responseType = 'blob';
+
+			xhr.onload = function() {
+				if (xhr.status === 200) {
+					var img = new Image();
+					img.onload = function() {
+						emblem.version = version;
+						emblem.image = img;
+						
+						if (guild_id === GuildEngine.guild_id) {
+							Guild.setEmblem(img);
+						}
+						
+						while (emblem.callback.length) {
+							emblem.callback.shift().call(null, img);
+						}
+						
+						EntityManager.forEach(function(entity){
+							if (entity.GUID === guild_id) {
+								entity.display.emblem = img;
+								entity.display.refresh(entity);
+							}
+						});
+					};
+					img.decoding = 'async';
+					img.src = URL.createObjectURL(xhr.response);
+				}      
+			}; // End xhr.onload
+
+			xhr.send(formData);
+		} else {
+			// Ask for new version via Packet
+			var pkt  = new PACKET.CZ.REQ_GUILD_EMBLEM_IMG();
+			pkt.GDID = guild_id;
+			Network.sendPacket(pkt);
+		}
 		emblem.callback.push(callback);
 	};
 
@@ -359,34 +406,59 @@ define(function( require )
 	 *
 	 * @param {Uint8Array} file
 	 */
-	GuildEngine.sendEmblem = (function sendEmblemClosure()
-	{
-		function adler32(data) {
-			for (var i = 0, len = data.length, s1 = 1, s2 = 0; i < len; i++) {
-				s1 = (s1 + data[i]) % 65521;
-				s2 = (s2 + s1) % 65521;
-			}
-			return (s2 << 16) + s1;
-		}
-		return function sendEmblem(data) {
-			var len = data.length;
-			var out = new BinaryWriter(2 + 1 + 2 + 2 + len + 4);
+	GuildEngine.sendEmblem = (function sendEmblemClosure()  
+	{  
+		function adler32(data) {  
+			for (var i = 0, len = data.length, s1 = 1, s2 = 0; i < len; i++) {  
+				s1 = (s1 + data[i]) % 65521;  
+				s2 = (s2 + s1) % 65521;  
+			}  
+			return (s2 << 16) + s1;  
+		}  
+		
+		return function sendEmblem(data) {  
+			if(PACKETVER.value >= 20170315){   
+				var serverAddress = Configs.get('servers')[0].address;    
+				var webPort = Configs.get('webserverPort', 8888);    
 
-			// zlib compression
-			out.writeUChar(0x78);
-			out.writeUChar(0x1);
-			out.writeUChar(0x1);
-			out.writeUShort(len);
-			out.writeUShort(~len & 0xffff);
-			out.writeBuffer(data.buffer);
-			out.view.setInt32( out.offset, adler32(data), false); // big endian
+				var formData = new FormData();      
+				formData.append('GDID', GuildEngine.guild_id);      
+				formData.append('WorldName', Session.ServerName);
+				formData.append('AuthToken', Session.WebToken); 
+				formData.append('AID', Session.AID);
+				formData.append('Img', new Blob([data], { type: 'image/bmp' }));      
+				formData.append('ImgType', 'BMP');      
 
+				var xhr = new XMLHttpRequest();      
+				xhr.open('POST', 'http://' + serverAddress + ':' + webPort + '/emblem/upload', true);  
 
-			// send packet
-			var pkt = new PACKET.CZ.REGISTER_GUILD_EMBLEM_IMG();
-			pkt.img = out.buffer;
-			Network.sendPacket(pkt);
-		};
+				xhr.onload = function() {    
+					if (xhr.status === 200) {    
+						var response = JSON.parse(xhr.responseText);    
+						console.log('Emblem uploaded successfully, version:', response.version);    
+					}    
+				};    
+
+				xhr.send(formData);    
+			} else {  
+				var len = data.length;  
+				var out = new BinaryWriter(2 + 1 + 2 + 2 + len + 4);  
+	
+				// zlib compression  
+				out.writeUChar(0x78);  
+				out.writeUChar(0x1);  
+				out.writeUChar(0x1);  
+				out.writeUShort(len);  
+				out.writeUShort(~len & 0xffff);  
+				out.writeBuffer(data.buffer);  
+				out.view.setInt32( out.offset, adler32(data), false); // big endian  
+
+				// send packet  
+				var pkt = new PACKET.CZ.REGISTER_GUILD_EMBLEM_IMG();  
+				pkt.img = out.buffer;  
+				Network.sendPacket(pkt);  
+			}  
+		};  
 	})();
 
 
@@ -432,6 +504,12 @@ define(function( require )
 	function onGuildInfo( pkt )
 	{
 		Guild.setGuildInformations( pkt );
+		GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function(image) {  
+			Session.Entity.display.emblem = image;  
+			Session.Entity.emblem.emblem = image;  
+			Session.Entity.emblem.update();  
+			Session.Entity.display.update(Session.Entity.display.STYLE.DEFAULT);  
+		});
 	}
 
 
