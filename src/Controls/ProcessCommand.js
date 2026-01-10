@@ -844,7 +844,7 @@ define(function (require) {
 		},
 	};
 
-	Dev-only weather helper to trigger weather effects locally.
+	// Dev-only weather helper to trigger weather effects locally.
 	if (Configs.get("development")) {
 			CommandStore.weather = {
 				description: "Dev-only weather toggle. Usage: /weather snow|rain|off",

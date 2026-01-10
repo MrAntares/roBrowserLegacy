@@ -382,8 +382,7 @@ define( ['Core/FileManager'], function( FileManager )
 					models.push({
 						texture: 'data\\texture\\' + object.textures[index],
 						alpha:   objects[i].alpha,
-						mesh:    meshes[index],
-						isTree:  objects[i].filename.toLowerCase().indexOf('tree') !== -1 
+						mesh:    meshes[index]
 					});
 
 					bufferSize += meshes[index].length;
@@ -479,8 +478,7 @@ define( ['Core/FileManager'], function( FileManager )
 				infos[j++] = {
 					filename:   texture,
 					vertOffset: offset * fcount,
-					vertCount:  size   * fcount,  
-					isTree:     object.isTree
+					vertCount:  size   * fcount
 				};
 			}
 

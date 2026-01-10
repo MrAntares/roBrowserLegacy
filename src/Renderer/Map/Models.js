@@ -152,7 +152,6 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 
 			_objects[i].vertCount  = data.infos[i].vertCount;
 			_objects[i].vertOffset = data.infos[i].vertOffset;
-			_objects[i].isTree     = data.infos[i].isTree || false;
 			_objects[i].complete   = false;
 
 			WebGL.texture( gl, data.infos[i].texture, onTextureLoaded, i );
@@ -218,20 +217,8 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 
 		for (i = 0, count = _objects.length; i < count; ++i) {
 			if (_objects[i].complete) {
-				// FIX Tree cutout
-				if(_objects[i].isTree){
-					var wasBlendEnabled = gl.isEnabled(gl.BLEND);
-					if(wasBlendEnabled)
-						gl.disable(gl.BLEND);
-				}
 				gl.bindTexture( gl.TEXTURE_2D, _objects[i].texture );
 				gl.drawArrays(  gl.TRIANGLES,  _objects[i].vertOffset, _objects[i].vertCount );
-				// Restore blending to original state
-				if(_objects[i].isTree){
-					if (wasBlendEnabled) {
-						gl.enable(gl.BLEND);
-					}
-				}
 			}
 		}
 

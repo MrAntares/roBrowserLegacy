@@ -22,7 +22,7 @@ define(function(require) {
 	var getModule = require;
 
 	var RAG_TICK_MS = 25;
-	var FADEOUT_TAIL_MS = 100 * RAG_TICK_MS;
+	var FADEOUT_TAIL_MS = 200 * RAG_TICK_MS;
 
 	// Emission control.
 	var EMIT_PER_TICK = 10;
@@ -468,8 +468,8 @@ define(function(require) {
 	};
 
 	RainWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		var ownerAID = Params.Init.ownerAID;
 		var now = Params.Inst.startTick || Renderer.tick;
+		var currentMap = getModule("Renderer/MapRenderer").currentMap;
 
 		if (_mapName !== currentMap) {
 			_instance = null;

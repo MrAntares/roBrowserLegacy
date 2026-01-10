@@ -19,7 +19,7 @@ define(function(require) {
 	// The official client uses 25ms rag ticks for weather effects.
 	var RAG_TICK_MS = 25;
 	// StopSnow() shortens remaining time to ~100 ticks.
-	var FADEOUT_TAIL_MS = 100 * RAG_TICK_MS;
+	var FADEOUT_TAIL_MS = 200 * RAG_TICK_MS;
 
 	// Emitter behavior
 	var EMIT_PER_TICK = 2;
