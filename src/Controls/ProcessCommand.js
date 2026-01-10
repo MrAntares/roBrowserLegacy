@@ -20,6 +20,7 @@ define(function (require) {
 	const PACKETVER = require("Network/PacketVerManager");
 	const Network = require("Network/NetworkManager");
 	const ControlPreferences = require("Preferences/Controls");
+	const UIPreferences = require("Preferences/UI");
 	const AudioPreferences = require("Preferences/Audio");
 	const MapPreferences = require("Preferences/Map");
 	const CameraPreferences = require("Preferences/Camera");
@@ -269,6 +270,21 @@ define(function (require) {
 				ControlPreferences.save();
 				return;
 			},
+		},
+		window: {
+			description: "Toggles snapping/magnetism between windows",
+			callback: function () {
+				UIPreferences.windowmagnet = !UIPreferences.windowmagnet;
+				this.addText(
+					"Window magnet " +
+						(UIPreferences.windowmagnet ? "ON" : "OFF"),
+					this.TYPE.INFO,
+					this.FILTER.PUBLIC_LOG
+				);
+				UIPreferences.save();
+				return;
+			},
+			aliases: ["wi"],
 		},
 
 		stand: {
