@@ -19,9 +19,10 @@ define(function(require) {
 	var Camera         = require('Renderer/Camera');
 	var Preferences    = require('Preferences/Audio');
 	var Session        = require('Engine/SessionStorage');
+	var getModule = require;
 
 	var RAG_TICK_MS = 25;
-	var FADEOUT_TAIL_MS = 300 * RAG_TICK_MS;
+	var FADEOUT_TAIL_MS = 100 * RAG_TICK_MS;
 
 	// Emission control.
 	var EMIT_PER_TICK = 10;
@@ -94,6 +95,10 @@ define(function(require) {
 	var SPLASH_LIFE_MS = 220;
 	var SPLASH_SIZE_PX = [10, 18];
 	var SPLASH_ALPHA = 0.45;
+
+	// SINGLETON STATE
+	let _instance = null;
+	let _mapName = '';
 
 	function ensureDropFrame(gl) {
 		if (_dropFrame && _dropFrame.texture && gl.isTexture(_dropFrame.texture)) {
@@ -318,10 +323,7 @@ define(function(require) {
 		}
 
 		this.ready = true;
-		this.needInit = false;
 		this.needCleanUp = false;
-
-		RainWeatherEffect._activeByOwner["weather_"+this.ownerAID] = this;
 	}
 
 	RainWeatherEffect.prototype.initRainSound = function () {
@@ -439,9 +441,6 @@ define(function(require) {
 		source.start();
 	};
 
-
-	RainWeatherEffect._activeByOwner = Object.create(null);
-	RainWeatherEffect._activeEffects = [];
 	RainWeatherEffect.ready = true;
 	RainWeatherEffect.renderBeforeEntities = false;
 
@@ -470,54 +469,54 @@ define(function(require) {
 
 	RainWeatherEffect.startOrRestart = function startOrRestart(Params) {
 		var ownerAID = Params.Init.ownerAID;
-		var existing = RainWeatherEffect._activeByOwner["weather_" +ownerAID];
 		var now = Params.Inst.startTick || Renderer.tick;
 
-		if (existing && !existing.needCleanUp) {
-			if (existing.endTick > 0) {
-				var remaining = existing.endTick - now;
-				if (remaining <= FADEOUT_TAIL_MS) {
-					existing.endTick = -1;
-					existing.needCleanUp = false;
-					existing.lastEmitTick = now;
-				}
-			}
-			return existing;
+		if (_mapName !== currentMap) {
+			_instance = null;
+			_mapName = currentMap;
 		}
 
-		var inst = new RainWeatherEffect(Params);
-		RainWeatherEffect._activeEffects.push(inst);
-		return inst;
+		if (_instance && !_instance.needCleanUp) {
+			if (_instance.endTick > 0) {
+				_instance.endTick = -1;
+				_instance.lastEmitTick = now;
+			}
+			return _instance;
+		}
+
+		_instance = new RainWeatherEffect(Params);
+		_mapName = currentMap;
+		return _instance;
 	};
 
 	RainWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-		if (!this._activeEffects.length) return;
+		if (!_instance) return;
+
+		// Clean up if map changed
+		if (_mapName !== getModule("Renderer/MapRenderer").currentMap) {
+			_instance = null;
+			return;
+		}
 
 		this.beforeRender(gl, modelView, projection, fog);
 
-		for (var i = this._activeEffects.length - 1; i >= 0; i--) {
-			var effect = this._activeEffects[i];
+		_instance.render(gl, tick);
 
-			if (effect.needCleanUp) {
-				effect.free();
-				this._activeEffects.splice(i, 1);
-				continue;
-			}
-
-			effect.render(gl, tick);
+		if (_instance.needCleanUp) {
+			_instance.free();
+			_instance = null;
 		}
 
 		this.afterRender(gl);
 	};
 
 	RainWeatherEffect.stop = function stop(ownerAID, tick) {
-		var existing = RainWeatherEffect._activeByOwner["weather_" +ownerAID];
-		if (!existing || existing.needCleanUp) {
-			return;
-		}
+		if (!_instance) return;
 
 		var now = tick || Renderer.tick;
-		existing.endTick = now + FADEOUT_TAIL_MS;
+		if (_instance.endTick === -1) {
+			_instance.endTick = now + FADEOUT_TAIL_MS;
+		}
 	};
 
 	RainWeatherEffect.prototype.spawnDrop = function spawnDrop(spawnTick) {
@@ -584,9 +583,8 @@ define(function(require) {
 	};
 
 	RainWeatherEffect.prototype.render = function render(gl, tick) {
-		if (!Session.Entity) {
-			return;
-		}
+		if (!Session.Entity) return;
+
 		ensureDropFrame(gl);
 		ensureFilterFrame(gl);
 		ensureSplashFrame(gl);
@@ -845,9 +843,6 @@ define(function(require) {
 		}
 
 		this.ready = false;
-		if (RainWeatherEffect._activeByOwner["weather_" +this.ownerAID] === this) {
-			delete RainWeatherEffect._activeByOwner["weather_" +this.ownerAID];
-		}
 	};
 
 	return RainWeatherEffect;

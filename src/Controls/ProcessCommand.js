@@ -844,8 +844,8 @@ define(function (require) {
 		},
 	};
 
-		// Dev-only weather helper to trigger weather effects locally.
-		if (Configs.get("development")) {
+	Dev-only weather helper to trigger weather effects locally.
+	if (Configs.get("development")) {
 			CommandStore.weather = {
 				description: "Dev-only weather toggle. Usage: /weather snow|rain|off",
 				callback: function (text) {
@@ -861,12 +861,12 @@ define(function (require) {
 						return;
 					}
 
-				if (!Session.Entity) {
-					return;
-				}
+					if (!Session.Entity) {
+						return;
+					}
 
-				var ownerAID = Session.Entity.GID || Session.GID || Session.AID;
-				var EffectManager = getModule("Renderer/EffectManager");
+					var ownerAID = Session.Entity.GID || Session.GID || Session.AID;
+					var EffectManager = getModule("Renderer/EffectManager");
 					var SnowWeatherEffect = getModule("Renderer/Effects/SnowWeather");
 					var RainWeatherEffect = getModule("Renderer/Effects/RainWeather");
 
@@ -874,12 +874,12 @@ define(function (require) {
 						EffectManager.spam({
 							effectId: EffectConst.EF_SNOW,
 							ownerAID: ownerAID
-					});
-					this.addText(
-						"Snow started.",
-						this.TYPE.INFO,
-						this.FILTER.PUBLIC_LOG
-					);
+						});
+						this.addText(
+							"Snow started.",
+							this.TYPE.INFO,	
+							this.FILTER.PUBLIC_LOG
+						);
 						return;
 					}
 

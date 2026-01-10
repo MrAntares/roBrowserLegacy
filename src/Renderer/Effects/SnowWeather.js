@@ -14,11 +14,12 @@ define(function(require) {
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var Altitude       = require('Renderer/Map/Altitude');
 	var Session        = require('Engine/SessionStorage');
+	var getModule = require;
 
 	// The official client uses 25ms rag ticks for weather effects.
 	var RAG_TICK_MS = 25;
-	// StopSnow() shortens remaining time to ~300 ticks.
-	var FADEOUT_TAIL_MS = 300 * RAG_TICK_MS;
+	// StopSnow() shortens remaining time to ~100 ticks.
+	var FADEOUT_TAIL_MS = 100 * RAG_TICK_MS;
 
 	// Emitter behavior
 	var EMIT_PER_TICK = 2;
@@ -45,6 +46,10 @@ define(function(require) {
 	// (Same folder used by ThreeDEffect: data/sprite/ÀÌÆÑÆ®/)
 	var SPR_PATH = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/ef_snow';
 
+	// SINGLETON STATE
+	let _instance = null;
+	let _mapName = '';
+
 	function SnowWeatherEffect(Params) {
 		this.effectID = Params.Inst.effectID;
 		this.ownerAID = Params.Init.ownerAID;
@@ -60,18 +65,11 @@ define(function(require) {
 		this.ready = true;
 		this.needInit = false;
 		this.needCleanUp = false;
-
-		// Register as active snow for this owner.
-		SnowWeatherEffect._activeByOwner["weather_" + this.ownerAID] = this;
 	}
 
 	/**
-	 * Active snow effects keyed by ownerAID.
+	 * Active snow effects control.
 	 */
-	SnowWeatherEffect._activeByOwner = Object.create(null);
-
-	SnowWeatherEffect._activeEffects = [];
-
 	SnowWeatherEffect.ready = true;
 
 	/**
@@ -109,43 +107,45 @@ define(function(require) {
 	 * snow is still running, but if it is in its 300‑tick fade‑out tail, revive it.
 	 */
 	SnowWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		var ownerAID = Params.Init.ownerAID;
-		var existing = SnowWeatherEffect._activeByOwner["weather_" + ownerAID];
 		var now = Params.Inst.startTick || Renderer.tick;
+		var currentMap = getModule("Renderer/MapRenderer").currentMap;
 
-		if (existing && !existing.needCleanUp) {
-			// If snow is fading out (endTick set) and close to ending, revive it.
-			if (existing.endTick > 0) {
-				var remaining = existing.endTick - now;
-				if (remaining <= FADEOUT_TAIL_MS) {
-					existing.endTick = -1;
-					existing.needCleanUp = false;
-					existing.lastEmitTick = now;
-				}
-			}
-			return existing;
+		// If map changed, force new instance
+		if (_mapName !== currentMap) {
+			_instance = null;
+			_mapName = currentMap;
 		}
 
-		var inst = new SnowWeatherEffect(Params);
-		SnowWeatherEffect._activeEffects.push(inst);
-		return inst;
+			if (_instance && !_instance.needCleanUp) {
+			// If snow is fading out, revive it
+			if (_instance.endTick > 0) {
+				_instance.endTick = -1;
+				_instance.lastEmitTick = now;
+			}
+			return _instance;
+		}
+
+		_instance = new SnowWeatherEffect(Params);
+		_mapName = currentMap;
+		return _instance;
 	};
 
 	SnowWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-		if (!this._activeEffects.length) return;
+		if (!_instance) return;
+
+		// Clean up if map changed abruptly
+		if (_mapName !== getModule("Renderer/MapRenderer").currentMap) {
+			_instance = null;
+			return;
+		}
 
 		this.beforeRender(gl, modelView, projection, fog);
 
-		for (var i = this._activeEffects.length - 1; i >= 0; i--) {
-			var effect = this._activeEffects[i];
+		_instance.render(gl, tick);
 
-			if (effect.needCleanUp) {
-				effect.free();
-				this._activeEffects.splice(i, 1);
-				continue;
-			}
-
-			effect.render(gl, tick);
+		if (_instance.needCleanUp) {
+			_instance.free();
+			_instance = null;
 		}
 
 		this.afterRender(gl);
@@ -155,13 +155,13 @@ define(function(require) {
 	 * Fade out snow over the official ~300 ticks.
 	 */
 	SnowWeatherEffect.stop = function stop(ownerAID, tick) {
-		var existing = SnowWeatherEffect._activeByOwner["weather_" + ownerAID];
-		if (!existing || existing.needCleanUp) {
-			return;
-		}
+		if (!_instance) return;
 
 		var now = tick || Renderer.tick;
-		existing.endTick = now + FADEOUT_TAIL_MS;
+		// The render loop will handle the fade out and eventual cleanup.
+		if (_instance.endTick === -1) {
+			_instance.endTick = now + FADEOUT_TAIL_MS;
+		}
 	};
 
 	/**
@@ -242,9 +242,10 @@ define(function(require) {
 	}
 
 	SnowWeatherEffect.prototype.render = function render(gl, tick) {
-		// If the owner vanished, stop.
 		if (!Session.Entity) {
- 			return; 
+			// Don't kill effect just because entity is missing momentarily, 
+			// but if map changed, we kill it via renderAll check.
+			return; 
 		}
 		// Always fetch from Client cache so MemoryManager knows it's still used.
 		// This prevents long-lived weather effects from having their SPR textures evicted.
@@ -327,9 +328,7 @@ define(function(require) {
 
 	SnowWeatherEffect.prototype.free = function free() {
 		this.ready = false;
-		if (SnowWeatherEffect._activeByOwner["weather_" + this.ownerAID] === this) {
-			delete SnowWeatherEffect._activeByOwner["weather_" + this.ownerAID];
-		}
+		this.flakes = [];
 	};
 
 	return SnowWeatherEffect;
