@@ -320,8 +320,10 @@ define(function (require) {
 
 			// Pet Data
 			if (PACKETVER.value >= 20141008) {
-				loadPetInfo(DB.LUA_PATH + 'datainfo/petinfo.lub', null, onLoad());
-				loadPetEvolutionFile('System/PetEvolutionCln_true.lub', null, onLoad());
+				loadPetInfo(DB.LUA_PATH + 'datainfo/petinfo.lub', null, 
+					function () { // Calls after PetTable been populated
+						tryLoadLuaAliases(loadPetEvolution, getSystemAliases('System/PetEvolutionCln.lub'), null, onLoad());
+					});
 			}
 
 			// LaphineSys
@@ -2711,94 +2713,91 @@ define(function (require) {
 	 * @return {void}
 	 */
 	function loadPetInfo(filename, callback, onEnd) {
-		const loadPromise = new Promise((resolve, reject) => {
-			Client.loadFile(filename, resolve, reject);
-		});
+		Client.loadFile(filename,
+			async function (file) {
+				try {
+					console.log('Loading file "' + filename + '"...');
 
-		loadPromise.then(async (file) => {
-			try {
-				console.log(`Loading "${filename}"...`);
-				
-				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+					// check if file is ArrayBuffer and convert to Uint8Array if necessary
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
 
-				// get context, a proxy. It will be used to interact with lua conveniently
-				const ctx = lua.ctx;
-
-				// create decoders
-				let decoder = new TextEncoding.TextDecoder(userCharpage);
-
-				lua.mountFile(filename, buffer);
-				await lua.doFile(filename);
-
-				// Read Lua table
-				const readLuaTable = (tableName) => {
-					const result = {};
+					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
-				
-					ctx.__push_kv = (k, v) => {
-						const key = (k instanceof Uint8Array) ? decoder.decode(k) : k;
-						const val = (v instanceof Uint8Array) ? decoder.decode(v) : v;
-						result[key] = val;
-						return 1;
-					};
-				
-					lua.doStringSync(`
-						for k, v in pairs(${tableName}) do
-							__push_kv(k, v)
-						end
-					`);
+
+					// create decoders
+					let decoder = new TextEncoding.TextDecoder(userCharpage);
+
+					lua.mountFile(filename, buffer);
+					await lua.doFile(filename);
+
+					// Read Lua table
+					const readLuaTable = (tableName) => {
+						const result = {};
+						const ctx = lua.ctx;
 					
-					return result;
-				};
-				
-				// Read all pet tables
-				const eggMap      = readLuaTable("PetEggItemID_PetJobID");
-				const petNames    = readLuaTable("PetNameTable");
-				const petStrings  = readLuaTable("PetStringTable");
-				const petIllusts  = readLuaTable("PetIllustNameTable_Eng");
-				const petAccIDs   = readLuaTable("PetAccIDs");
-				const petAccNames = readLuaTable("PetAccActNameTable");
-			
-				PetDBTable = {};
-			
-				for (const eggId in eggMap) {
-				    const jobId = Number(eggMap[eggId]);
-				    const petName = petNames[jobId] || null;
-				    const accKey  = petName ? `ACC_${petName.toUpperCase()}` : null;
-				    const accId   = accKey ? petAccIDs[accKey] || null : null;
-								
-				    PetDBTable[jobId] = {
-				        PetJobID: jobId,
-				        PetEggID: Number(eggId),
-				        PetName: petName,
-				        PetString: petStrings[jobId] || null,
-				        PetIllust: petIllusts[jobId] || null,
-				        PetAcc_ID: accId,
-				        PetAcc_Name: accId ? petAccNames[accId] || null : null
-				    };
-				}
+					ctx.__push_kv = (k, v) => {
+							const key = (k instanceof Uint8Array) ? decoder.decode(k) : k;
+							const val = (v instanceof Uint8Array) ? decoder.decode(v) : v;
+							result[key] = val;
+							return 1;
+						};
 
-				EggIDToJobID = {};
+						lua.doStringSync(`
+							for k, v in pairs(${tableName}) do
+								__push_kv(k, v)
+							end
+						`);
+						
+						return result;
+					};
 
-				for (const jobID in PetDBTable) {
-				    const pet = PetDBTable[jobID];
-				    EggIDToJobID[pet.PetEggID] = Number(jobID);
-				}
+					// Read all pet tables
+					const eggMap      = readLuaTable("PetEggItemID_PetJobID");
+					const petNames    = readLuaTable("PetNameTable");
+					const petStrings  = readLuaTable("PetStringTable");
+					const petIllusts  = readLuaTable("PetIllustNameTable_Eng");
+					const petAccIDs   = readLuaTable("PetAccIDs");
+					const petAccNames = readLuaTable("PetAccActNameTable");
+
+					PetDBTable = {};
+
+					for (const eggId in eggMap) {
+						const jobId = Number(eggMap[eggId]);
+						const petName = petNames[jobId] || null;
+						const accKey  = petName ? `ACC_${petName.toUpperCase()}` : null;
+						const accId   = accKey ? petAccIDs[accKey] || null : null;
+
+						PetDBTable[jobId] = {
+							PetJobID: jobId,
+							PetEggID: Number(eggId),
+							PetName: petName,
+							PetString: petStrings[jobId] || null,
+							PetIllust: petIllusts[jobId] || null,
+							PetAcc_ID: accId,
+							PetAcc_Name: accId ? petAccNames[accId] || null : null
+						};
+					}
+
+					EggIDToJobID = {};
+
+					for (const jobID in PetDBTable) {
+						const pet = PetDBTable[jobID];
+						EggIDToJobID[pet.PetEggID] = Number(jobID);
+					}
 
 				} catch (error) {
-					console.error("loadPetInfo error:", e);
+					console.error('[loadPetInfo] Error: ', error);
+
 				} finally {
 					// release file from memmory
 					lua.unmountFile(filename);
 					// call onEnd
-					onEnd(true);
+					onEnd();
 				}
-		}).catch((error) => {
-			onEnd(false);
-		});
+			},
+			onEnd
+		);
 	};
-
 	
 	/**
 	 * Loads System/PetEvolutionCLN_true.lub and attach to PetDBTable
@@ -2808,72 +2807,73 @@ define(function (require) {
 	 * @param {function} onEnd - The function to invoke when loading is complete.
 	 * @return {void}
 	 */
-	function loadPetEvolutionFile(filename, callback, onEnd) {
+	function loadPetEvolution(filename, callback, onEnd) {
 		const loadPromise = new Promise((resolve, reject) => {
 			Client.loadFile(filename, resolve, reject);
 		});
-
+		
 		loadPromise.then(async (file) => {
-			try {
-				console.log(`Loading "${filename}"...`);
-				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-				lua.mountFile(filename, buffer);
+				let wasSuccessful = false;
+				try {
+					console.log('Loading file "' + filename + '"...');
+					const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+					lua.mountFile(filename, buffer);
 
-				const ctx = lua.ctx;
+					const ctx = lua.ctx;
 
-				// InsertEvolutionRecipeLGU(BaseEggID, TargetEggID, MaterialID, Amount)
-				ctx.InsertEvolutionRecipeLGU = (baseEggID, targetEggID, matID, amt) => {
-				    const baseJobID = EggIDToJobID[baseEggID];
-				    if (!baseJobID || !PetDBTable[baseJobID]) {
-				        console.warn(`[PetEvolution] Unknown base EggID ${baseEggID}`);
-				        return 1;
-				    }
-				
-				    const pet = PetDBTable[baseJobID];
-				
-				    if (!pet.Evolution) pet.Evolution = {};
-				    if (!pet.Evolution[targetEggID]) pet.Evolution[targetEggID] = [];
-				
-				    pet.Evolution[targetEggID].push({
-				        MaterialID: Number(matID),
-				        Amount: Number(amt)
-				    });
-				
-				    return 1;
-				};
+					// InsertEvolutionRecipeLGU(BaseEggID, TargetEggID, MaterialID, Amount)
+					ctx.InsertEvolutionRecipeLGU = (baseEggID, targetEggID, matID, amt) => {
+						const baseJobID = EggIDToJobID[baseEggID];
+						if (!baseJobID || !PetDBTable[baseJobID]) {
+							console.warn(`[PetEvolution] Unknown base EggID ${baseEggID}`);
+							return 1;
+						}
 
+						const pet = PetDBTable[baseJobID];
 
-				// InsertPetAutoFeeding(PetID)
-				ctx.InsertPetAutoFeeding = (eggID) => {
-				    const jobID = EggIDToJobID[eggID];
+						if (!pet.Evolution) pet.Evolution = {};
+						if (!pet.Evolution[targetEggID]) pet.Evolution[targetEggID] = [];
+	
+						pet.Evolution[targetEggID].push({
+							MaterialID: Number(matID),
+							Amount: Number(amt)
+						});
 
-				    if (!jobID || !PetDBTable[jobID]) {
-				        console.warn(`[PetAutoFeeding] Unknown EggID ${eggID}`);
-				        return 1;
-				    }
-				
-				    PetDBTable[jobID].AutoFeeding = true;
-				    return 1;
-				};
-
-				// Execute Lua
-				await lua.doFile(filename);
-				lua.doStringSync(`main()`);
-
-				callback?.(PetDBTable);
-
-			} catch (e) {
-				console.error("[loadPetEvolutionFile] error:", e);
-			} finally {
-				lua.unmountFile(filename);
-				onEnd?.(true);
-			}
+						return 1;
+					};
+	
+					// InsertPetAutoFeeding(PetID)
+					ctx.InsertPetAutoFeeding = (eggID) => {
+						const jobID = EggIDToJobID[eggID];
+	
+						if (!jobID || !PetDBTable[jobID]) {
+							console.warn(`[PetAutoFeeding] Unknown EggID ${eggID}`);
+							return 1;
+						}
+	
+						PetDBTable[jobID].AutoFeeding = true;
+						return 1;
+					};
+	
+					// Execute Lua
+					await lua.doFile(filename);
+					lua.doStringSync(`main()`);
+					wasSuccessful = true; 
+				} catch (error) {
+					console.error('[loadPetEvolutionFile] Error: ', error);
+				} finally {
+					// release file from memmory
+					lua.unmountFile(filename);
+					// call onEnd
+					onEnd(wasSuccessful);
+				}
 		}).catch((error) => {
-			console.error("[loadPetEvolutionFile] load file error:", error);
-			onEnd?.(false);
-		});
-	};
+			if (typeof onEnd === 'function') {
+				onEnd(false);
+			}
 
+		});
+	}
 	/**
 	 * Fog entry parser
 	 *
