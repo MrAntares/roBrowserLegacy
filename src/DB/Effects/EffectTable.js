@@ -3079,7 +3079,16 @@ define(function( require )
 				SnowWeatherEffect.startOrRestart(Params);
 			}
 		}],
-		//163: [{}],	//EF_SAKURA	   White Sakura Leaves
+
+		163: [{	//EF_SAKURA	   White Sakura Leaves
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function( Params ) {
+				var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
+				SakuraWeatherEffect.startOrRestart(Params);
+			}
+		}],
+
 		//164: [{}],	//EF_STATUS_STATE	   (Nothing)
 
 		165: [{ //Comodo Fireworks Ball	//EF_BANJJAKII	Comodo Fireworks Ball
@@ -5877,7 +5886,14 @@ define(function( require )
 			wav: "effect/\xc8\xed\xb1\xe2"
 		}],
 
-		//333: [{}],	//EF_MAPLE	   Autumn Leaves
+		333: [{	//EF_MAPLE	   Autumn Leaves
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function( Params ) {
+				var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
+				SakuraWeatherEffect.startOrRestart(Params);
+			}
+		}],
 
 		334: [{	//EF_BLIND	   Blind
 			wav: '_blind'

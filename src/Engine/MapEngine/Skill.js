@@ -97,7 +97,7 @@ define(function( require )
 	 */
 	function onEffect( pkt )
 	{
-		// Weather toggles: some servers use NOTIFY_EFFECT3 with numdata=0 to stop.
+		// Weather toggles: some servers use NOTIFY_EFFECT3 with numdata=0 to stop. rAthena don't send it as default.
 		if (typeof pkt.numdata !== 'undefined') {
 			if (pkt.effectID === EffectConst.EF_SNOW) {
 				var SnowWeatherEffect = getModule('Renderer/Effects/SnowWeather');
@@ -109,6 +109,12 @@ define(function( require )
 				var RainWeatherEffect = getModule('Renderer/Effects/RainWeather');
 				if (pkt.numdata <= 0) {
 					RainWeatherEffect.stop(pkt.AID, Renderer.tick);
+					return;
+				}
+			} else if (pkt.effectID === EffectConst.EF_MAPLE || pkt.effectID === EffectConst.EF_SAKURA) {
+				var SakuraWeatherEffect = getModule('Renderer/Effects/SakuraWeatherEffect');
+				if (pkt.numdata <= 0) {
+					SakuraWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
 				}
 			}

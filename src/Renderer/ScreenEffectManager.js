@@ -13,6 +13,8 @@ define(function (require) {
 	// Load dependencies
 	var SnowWeather    = require('Renderer/Effects/SnowWeather');
 	var RainWeather    = require('Renderer/Effects/RainWeather');
+	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
+
 	var getModule = require;
 
 	/**
@@ -55,6 +57,7 @@ define(function (require) {
 		// Weather Effects
 		SnowWeather.renderAll(gl, modelView, projection, fog, tick);
 		RainWeather.renderAll(gl, modelView, projection, fog, tick);
+		SakuraWeatherEffect.renderAll(gl, modelView, projection, fog, tick);
 	}
 
 	/**
