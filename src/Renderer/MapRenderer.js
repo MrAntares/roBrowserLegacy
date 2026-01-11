@@ -39,8 +39,7 @@ define(function( require )
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var EffectManager  = require('Renderer/EffectManager');
 	var SignboardManager = require('Renderer/SignboardManager');
-	var SnowWeather    = require('Renderer/Effects/SnowWeather');
-	var RainWeather    = require('Renderer/Effects/RainWeather');
+	var ScreenEffectManager = require('Renderer/ScreenEffectManager');
 	var Sky            = require('Renderer/Effects/Sky');
 	var Damage         = require('Renderer/Effects/Damage');
 	var GraphicsSettings = require('Preferences/Graphics');
@@ -484,9 +483,8 @@ define(function( require )
 		// Render signboards
 		SignboardManager.render(gl, modelView, projection);
 
-		// Weather Effects
-		SnowWeather.renderAll(gl, modelView, projection, fog, tick);
-		RainWeather.renderAll(gl, modelView, projection, fog, tick);
+		// Screen overlayed Effects
+		ScreenEffectManager.render(gl, modelView, projection, fog, tick);
 
 		// Play sounds
 		Sounds.render( Session.Entity.position, tick );

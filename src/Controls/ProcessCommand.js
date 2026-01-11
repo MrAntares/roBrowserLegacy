@@ -845,7 +845,7 @@ define(function (require) {
 	};
 
 	// Dev-only weather helper to trigger weather effects locally.
-	if (Configs.get("development")) {
+	//if (Configs.get("development")) {
 			CommandStore.weather = {
 				description: "Dev-only weather toggle. Usage: /weather snow|rain|off",
 				callback: function (text) {
@@ -914,7 +914,7 @@ define(function (require) {
 					);
 				}
 			};
-	}
+	//}
 
 	/**
 	 * Load aliases
