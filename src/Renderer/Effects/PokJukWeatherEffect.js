@@ -182,6 +182,8 @@ define(function(require) {
 						var colorType = Math.floor(Math.random() * 5);
 						for (var i = 0; i < 15; i++) 
 							this.addParticleWave(fw, false, colorType);
+						for (var i = 0; i < 60; i++) 
+							this.addParticleWave(fw, true, colorType);
 						fw.lastWaveTime = fw.explosionTimer;
 					}
 				}
@@ -198,7 +200,7 @@ define(function(require) {
 					active++;
 				}
 
-				if (active === 0 && fw.explosionTimer > 600) {
+				if (active === 0 && fw.explosionTimer > EXPLOSION_LIFE_MS) {
 					Object.assign(fw, this.createFirework());
 				}
 			}
