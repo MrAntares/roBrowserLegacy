@@ -172,7 +172,7 @@ define(function (require) {
 			EntityManager.add(entity.wug);
 		}
 
-		if (entity.GUID) {
+		if (entity.GUID && entity.GID !== Session.Character.GID) {
 			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
 				entity.display.emblem = image;
 				entity.emblem.emblem = image;
@@ -1793,7 +1793,7 @@ define(function (require) {
 				//SC_INCATKRATE
 				entity.toggleOpt3(pkt.index, pkt.state);
 				if (entity === Session.Entity && [StatusConst.SOULLINK, StatusConst.SKE].includes(pkt.index)) {
-					getModule("Renderer/MapRenderer").setNight(pkt.state === 1);
+					getModule("Renderer/ScreenEffectManager").setNight(pkt.state === 1);
 				}
 				break;
 

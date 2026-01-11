@@ -92,7 +92,7 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 		void main(void) {
 			vec4 textureSample  = texture( uDiffuse,  vTextureCoord.st );
 
-			if (textureSample.a < 0.9) {
+			if (textureSample.a == 0.0) {
 				discard;
 			}
 
@@ -177,13 +177,6 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 
 		gl.useProgram( _program );
 
-		// FIX 3D cutout
-		var wasBlendEnabled = gl.isEnabled(gl.BLEND);
-		var depthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
-		gl.enable(gl.DEPTH_TEST);
-		gl.depthMask(true);
-		gl.disable(gl.BLEND);
-
 		// Bind matrix
 		gl.uniformMatrix4fv( uniform.uModelViewMat,  false, modelView );
 		gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );
@@ -234,14 +227,6 @@ define( ['Utils/WebGL', 'Preferences/Map'], function( WebGL, Preferences )
 		gl.disableVertexAttribArray( attribute.aVertexNormal );
 		gl.disableVertexAttribArray( attribute.aTextureCoord );
 		gl.disableVertexAttribArray( attribute.aAlpha );
-
-		// Restore blending to original state
-		if (wasBlendEnabled) {
-			gl.enable(gl.BLEND);
-		} else {
-			gl.disable(gl.BLEND);
-		}
-		gl.depthMask(depthMask);
 	}
 
 
