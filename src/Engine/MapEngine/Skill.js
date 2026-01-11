@@ -111,6 +111,12 @@ define(function( require )
 					RainWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
 				}
+			} else if (pkt.effectID === EffectConst.EF_POKJUK) {
+				var PokJukWeatherEffect = getModule('Renderer/Effects/PokJukWeatherEffect');
+				if (pkt.numdata <= 0) {
+					PokJukWeatherEffect.stop(pkt.AID, Renderer.tick);
+					return;
+				}
 			} else if (pkt.effectID === EffectConst.EF_MAPLE || pkt.effectID === EffectConst.EF_SAKURA) {
 				var SakuraWeatherEffect = getModule('Renderer/Effects/SakuraWeatherEffect');
 				if (pkt.numdata <= 0) {

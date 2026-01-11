@@ -14,6 +14,7 @@ define(function (require) {
 	var SnowWeather    = require('Renderer/Effects/SnowWeather');
 	var RainWeather    = require('Renderer/Effects/RainWeather');
 	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
+	var PokJukWeatherEffect    = require('Renderer/Effects/PokJukWeatherEffect');
 
 	var getModule = require;
 
@@ -58,6 +59,7 @@ define(function (require) {
 		SnowWeather.renderAll(gl, modelView, projection, fog, tick);
 		RainWeather.renderAll(gl, modelView, projection, fog, tick);
 		SakuraWeatherEffect.renderAll(gl, modelView, projection, fog, tick);
+		PokJukWeatherEffect.renderAll(gl, modelView, projection, fog, tick);
 	}
 
 	/**

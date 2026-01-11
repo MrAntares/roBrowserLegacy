@@ -47,7 +47,7 @@ define(function(require) {
 
 	// Paths
 	var PATH_SAKURA = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/sakura01';
-	var PATH_MAPLE  = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/maple'; // TODO: FIX FILENAME
+	var PATH_MAPLE  = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb4\xdc\xc7\xb3';
 
 	// SINGLETON STATE
 	let _instance = null;

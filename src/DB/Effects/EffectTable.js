@@ -4791,8 +4791,15 @@ define(function( require )
 				}
 			}
 		}],
-
-		//297: [{}],	//EF_POKJUK	   Fire Works (Visual Effect)
+	
+		297: [{	//EF_POKJUK	   Fire Works (Visual Effect)
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function( Params ) {
+				var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
+				PokJukWeatherEffect.startOrRestart(Params);
+			}
+		}],
 
 		298: [{	//EF_THROWITEM	   Acid Terror Animnation
 			type: '3D',
@@ -4819,7 +4826,7 @@ define(function( require )
 			wav: 'apocalips_attack'
 		}],
 
-		//301: [{}],	//EF_POKJUK_SOUND	   Fire Works (Sound Effect)
+		//301: [{}],	//EF_POKJUK_SOUND	   Fire Works (Sound Effect) [this is needed?]
 
 		302: [{	//EF_DEMONSTRATION	Bomb
 			type: 'SPR',
