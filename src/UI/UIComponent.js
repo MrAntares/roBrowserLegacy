@@ -20,6 +20,7 @@ define(function( require )
 	var Client    = require('Core/Client');
 	var Events    = require('Core/Events');
 	var Mouse     = require('Controls/MouseEventHandler');
+	var UIPreferences = require('Preferences/UI');
 	var Session   = require('Engine/SessionStorage');
 	var Targa     = require('Loaders/Targa');
 	var Renderer  = require('Renderer/Renderer');
@@ -486,6 +487,7 @@ define(function( require )
 				var x_      = Mouse.screen.x + x;
 				var y_      = Mouse.screen.y + y;
 				var opacity = parseFloat(container.css('opacity')||1) - 0.02;
+				var snapDistance = 10;
 
 				if(component.magnet){
 					component.magnet.TOP = false;
@@ -495,30 +497,123 @@ define(function( require )
 				}
 
 				// Magnet on border
-				if (Math.abs(x_) < 10) {
+				if (Math.abs(x_) < snapDistance) {
 					x_ = 0;
 					if(component.magnet){
 						component.magnet.LEFT = true;
 					}
 				}
-				if (Math.abs(y_) < 10) {
+				if (Math.abs(y_) < snapDistance) {
 					y_ = 0;
 					if(component.magnet){
 						component.magnet.TOP = true;
 					}
 				}
 
-				if (Math.abs((x_ + width) - Mouse.screen.width) < 10) {
+				if (Math.abs((x_ + width) - Mouse.screen.width) < snapDistance) {
 					x_ = Mouse.screen.width - width;
 					if(component.magnet){
 						component.magnet.RIGHT = true;
 					}
 				}
 
-				if (Math.abs((y_ + height) - Mouse.screen.height) < 10) {
+				if (Math.abs((y_ + height) - Mouse.screen.height) < snapDistance) {
 					y_ = Mouse.screen.height - height;
 					if(component.magnet){
 						component.magnet.BOTTOM = true;
+					}
+				}
+
+				if (UIPreferences.windowmagnet && component.manager) {
+					var lockX = component.magnet.LEFT || component.magnet.RIGHT;
+					var lockY = component.magnet.TOP || component.magnet.BOTTOM;
+					var snapX = null;
+					var snapY = null;
+					var snapXD = snapDistance + 1;
+					var snapYD = snapDistance + 1;
+					var containerParent = container.offsetParent();
+					var components = component.manager.components;
+					var left = x_;
+					var right = x_ + width;
+					var top = y_;
+					var bottom = y_ + height;
+
+					function rangesOverlapOrNear(startA, endA, startB, endB, distance) {
+						return !(endA + distance < startB || endB + distance < startA);
+					}
+
+					function considerX(targetX) {
+						var dist = Math.abs(targetX - x_);
+						if (dist < snapXD) {
+							snapXD = dist;
+							snapX = targetX;
+						}
+					}
+
+					function considerY(targetY) {
+						var dist = Math.abs(targetY - y_);
+						if (dist < snapYD) {
+							snapYD = dist;
+							snapY = targetY;
+						}
+					}
+
+					for (var name in components) {
+						var other = components[name];
+						if (!other || other === component || !other.__active || !other.ui || !other.ui.length) {
+							continue;
+						}
+
+						var otherParent = other.ui.offsetParent();
+						if (containerParent.length && otherParent.length && otherParent[0] !== containerParent[0]) {
+							continue;
+						}
+
+						var otherPos = other.ui.position();
+						var otherLeft = otherPos.left;
+						var otherTop = otherPos.top;
+						var otherWidth = other.ui.width();
+						var otherHeight = other.ui.height();
+						var otherRight = otherLeft + otherWidth;
+						var otherBottom = otherTop + otherHeight;
+
+						if (!lockX && rangesOverlapOrNear(top, bottom, otherTop, otherBottom, snapDistance)) {
+							if (Math.abs(otherLeft - x_) < snapDistance) {
+								considerX(otherLeft);
+							}
+							if (Math.abs((otherRight - width) - x_) < snapDistance) {
+								considerX(otherRight - width);
+							}
+							if (Math.abs(otherRight - x_) < snapDistance) {
+								considerX(otherRight);
+							}
+							if (Math.abs((otherLeft - width) - x_) < snapDistance) {
+								considerX(otherLeft - width);
+							}
+						}
+
+						if (!lockY && rangesOverlapOrNear(left, right, otherLeft, otherRight, snapDistance)) {
+							if (Math.abs(otherTop - y_) < snapDistance) {
+								considerY(otherTop);
+							}
+							if (Math.abs((otherBottom - height) - y_) < snapDistance) {
+								considerY(otherBottom - height);
+							}
+							if (Math.abs(otherBottom - y_) < snapDistance) {
+								considerY(otherBottom);
+							}
+							if (Math.abs((otherTop - height) - y_) < snapDistance) {
+								considerY(otherTop - height);
+							}
+						}
+					}
+
+					if (!lockX && snapX !== null) {
+						x_ = snapX;
+					}
+
+					if (!lockY && snapY !== null) {
+						y_ = snapY;
 					}
 				}
 
