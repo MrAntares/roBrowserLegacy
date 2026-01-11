@@ -863,14 +863,14 @@ define(function (require) {
 	// Dev-only weather helper to trigger weather effects locally.
 	if (Configs.get("development")) {
 			CommandStore.weather = {
-				description: "Dev-only weather toggle. Usage: /weather snow|rain|off",
+				description: "Dev-only weather toggle. Usage: /weather snow|rain|leaves|sakura|off",
 				callback: function (text) {
 					var args = text.trim().split(/\s+/).slice(1);
 					var mode = (args[0] || "").toLowerCase();
 
 					if (!mode || mode === "help") {
 						this.addText(
-							"Usage: /weather snow|rain|off",
+							"Usage: /weather snow|rain|leaves|sakura|off",
 							this.TYPE.INFO,
 							this.FILTER.PUBLIC_LOG
 						);
@@ -885,6 +885,7 @@ define(function (require) {
 					var EffectManager = getModule("Renderer/EffectManager");
 					var SnowWeatherEffect = getModule("Renderer/Effects/SnowWeather");
 					var RainWeatherEffect = getModule("Renderer/Effects/RainWeather");
+					var SakuraWeatherEffect = getModule("Renderer/Effects/SakuraWeatherEffect");
 
 					if (mode === "snow" || mode === "on") {
 						EffectManager.spam({
@@ -912,9 +913,36 @@ define(function (require) {
 						return;
 					}
 
+					if (mode === "sakura") {
+						EffectManager.spam({
+							effectId: EffectConst.EF_SAKURA,
+							ownerAID: ownerAID
+						});
+						this.addText(
+							"Cherry tree leaves have begun to fall.",
+							this.TYPE.INFO,
+							this.FILTER.PUBLIC_LOG
+						);
+						return;
+					}
+
+					if (mode === "leaves") {
+						EffectManager.spam({
+							effectId: EffectConst.EF_MAPLE,
+							ownerAID: ownerAID
+						});
+						this.addText(
+							"Fallen leaves fall.",
+							this.TYPE.INFO,
+							this.FILTER.PUBLIC_LOG
+						);
+						return;
+					}
+
 					if (mode === "off" || mode === "stop" || mode === "clear") {
 						SnowWeatherEffect.stop(ownerAID, Renderer.tick);
 						RainWeatherEffect.stop(ownerAID, Renderer.tick);
+						SakuraWeatherEffect.stop(ownerAID, Renderer.tick);
 						this.addText(
 							"Weather stopping.",
 							this.TYPE.INFO,
@@ -924,7 +952,7 @@ define(function (require) {
 					}
 
 					this.addText(
-						"Unknown weather. Usage: /weather snow|rain|off",
+						"Unknown weather. Usage: /weather snow|rain|leaves|sakura|off",
 						this.TYPE.INFO,
 						this.FILTER.PUBLIC_LOG
 					);
