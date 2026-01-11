@@ -83,12 +83,10 @@ define(function (require) {
 				if (diffuse[1] < light.diffuse[1]) diffuse[1] += step;
 			}
 
-			// Atualiza o ambiente global do mapa
 			light.env[0] = 1 - (1 - diffuse[0]) * (1 - light.ambient[0]);
 			light.env[1] = 1 - (1 - diffuse[1]) * (1 - light.ambient[1]);
 			light.env[2] = 1 - (1 - diffuse[2]) * (1 - light.ambient[2]);
 
-			// Verifica se chegou no objetivo para parar o Interval
 			var done = night ? 
 				(diffuse[0] <= 0.5 && diffuse[1] <= 0.5) :
 				(diffuse[0] >= light.diffuse[0] && diffuse[1] >= light.diffuse[1]);
