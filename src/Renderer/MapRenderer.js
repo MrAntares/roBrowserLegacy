@@ -528,38 +528,6 @@ define(function( require )
 	{
 	};
 
-	/**
-	 * Set night mode by changing the diffuse color
-	 * This effect is the same as SC_SKE
-	 * 
-	 * @param {boolean} night - true for night mode, false for day mode
-	 */
-	MapRenderer.setNight = function(night) {
-		const intervalId = setInterval(() => {
-			if (night) {
-				if (this.diffuse[0] > 0.5)
-					this.diffuse[0] -= 0.005;
-				if (this.diffuse[1] > 0.5)
-					this.diffuse[1] -= 0.005;
-			} else {
-				if (this.diffuse[0] < this.light.diffuse[0])
-					this.diffuse[0] += 0.005;
-				if (this.diffuse[1] < this.light.diffuse[1])
-					this.diffuse[1] += 0.005; 
-			}
-	
-			this.light.env = [
-				1 - (1 - this.diffuse[0]) * (1 - this.light.ambient[0]),
-				1 - (1 - this.diffuse[1]) * (1 - this.light.ambient[1]),
-				1 - (1 - this.diffuse[2]) * (1 - this.light.ambient[2])
-			]
-
-			if ((night && this.diffuse[0] <= 0.5 && this.diffuse[1] <= 0.5) ||
-				(!night && this.diffuse[0] >= this.light.diffuse[0] && this.diffuse[1] >= this.light.diffuse[1])) {
-					clearInterval(intervalId);
-			}
-		}, 8);
-	}
 
 	/**
 	 * Export
