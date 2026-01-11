@@ -18,8 +18,8 @@ define(function(require) {
 
 	// The official client uses 25ms rag ticks for weather effects.
 	var RAG_TICK_MS = 25;
-	// StopSnow() shortens remaining time to ~100 ticks.
-	var FADEOUT_TAIL_MS = 200 * RAG_TICK_MS;
+	// Stop() shortens remaining time to ~1000 ticks.
+	var FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 	// Emitter behavior
 	var EMIT_PER_TICK = 2;
@@ -49,6 +49,7 @@ define(function(require) {
 	// SINGLETON STATE
 	let _instance = null;
 	let _mapName = '';
+	let _isStopping = false;
 
 	function SnowWeatherEffect(Params) {
 		this.effectID = Params.Inst.effectID;
@@ -63,7 +64,6 @@ define(function(require) {
 		this.act = null;
 
 		this.ready = true;
-		this.needInit = false;
 		this.needCleanUp = false;
 	}
 
@@ -115,8 +115,8 @@ define(function(require) {
 			_instance = null;
 			_mapName = currentMap;
 		}
-
-			if (_instance && !_instance.needCleanUp) {
+		_isStopping = false;
+		if (_instance && !_instance.needCleanUp) {
 			// If snow is fading out, revive it
 			if (_instance.endTick > 0) {
 				_instance.endTick = -1;
@@ -161,6 +161,7 @@ define(function(require) {
 		// The render loop will handle the fade out and eventual cleanup.
 		if (_instance.endTick === -1) {
 			_instance.endTick = now + FADEOUT_TAIL_MS;
+			_isStopping = true;
 		}
 	};
 
@@ -274,6 +275,8 @@ define(function(require) {
 			var ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
+					if(_isStopping)
+						break;
 					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
 					this.spawnFlake(emitTick);
 					this.spawnFlake(emitTick);

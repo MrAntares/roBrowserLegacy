@@ -22,7 +22,7 @@ define(function(require) {
 	var getModule = require;
 
 	var RAG_TICK_MS = 25;
-	var FADEOUT_TAIL_MS = 200 * RAG_TICK_MS;
+	var FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 	// Emission control.
 	var EMIT_PER_TICK = 10;
@@ -99,6 +99,7 @@ define(function(require) {
 	// SINGLETON STATE
 	let _instance = null;
 	let _mapName = '';
+	let _isStopping = false;
 
 	function ensureDropFrame(gl) {
 		if (_dropFrame && _dropFrame.texture && gl.isTexture(_dropFrame.texture)) {
@@ -475,7 +476,7 @@ define(function(require) {
 			_instance = null;
 			_mapName = currentMap;
 		}
-
+		_isStopping = false;
 		if (_instance && !_instance.needCleanUp) {
 			if (_instance.endTick > 0) {
 				_instance.endTick = -1;
@@ -515,6 +516,7 @@ define(function(require) {
 
 		var now = tick || Renderer.tick;
 		if (_instance.endTick === -1) {
+			_isStopping = true;
 			_instance.endTick = now + FADEOUT_TAIL_MS;
 		}
 	};
@@ -710,6 +712,8 @@ define(function(require) {
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
 					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
+					if(_isStopping)
+						break;
 					for (var e = 0; e < EMIT_PER_TICK; e++) {
 						this.spawnDrop(emitTick);
 					}
@@ -841,7 +845,8 @@ define(function(require) {
 				this.audioCtx = null;
 			} catch (e) { console.log(e); }
 		}
-
+		this.drops = [];
+		this.splashes = [];
 		this.ready = false;
 	};
 
