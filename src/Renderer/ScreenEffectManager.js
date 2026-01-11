@@ -60,7 +60,6 @@ define(function (require) {
 	/**
 	 * Set night mode by changing the diffuse color
 	 * This effect is the same as SC_SKE
-	 * @param {object} mapRenderer
 	 * @param {boolean} night - true for night mode, false for day mode
 	 */
 	ScreenEffectManager.setNight = function(night) {
