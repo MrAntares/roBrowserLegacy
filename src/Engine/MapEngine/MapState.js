@@ -17,6 +17,8 @@ define(function( require )
 	var Session           = require('Engine/SessionStorage');
 	var Network           = require('Network/NetworkManager');
 	var PACKET            = require('Network/PacketStructure');
+	var PvPTimer          = require('UI/Components/PvPTimer/PvPTimer');
+	var PvPCount          = require('UI/Components/PvpCount/PvpCount');
 
 	var MapProperty = MapState.MapProperty;
 	var MapType     = MapState.MapType;
@@ -42,6 +44,10 @@ define(function( require )
 			Session.mapState.isNoLockOn = ( pkt.flag & MapFlag.DISABLE_LOCKON ) != 0 ? true : false; // Only allow attacks on other players with shift key or /ns active
 			Session.mapState.showPVPCounter = ( pkt.flag & MapFlag.COUNT_PK ) != 0 ? true : false; // Show the PvP counter
 			Session.mapState.showBFCounter = ( pkt.flag & MapFlag.BATTLEFIELD ) != 0 ? true : false; // Show the battlegrounds counter
+
+			if(Session.mapState.isPVP) {
+				PvPTimer.append();
+			}
 		}
 	}
 
@@ -56,6 +62,18 @@ define(function( require )
 		Session.mapState.isBattleField = pkt.type == MapType.BATTLEFIELD ? true : false;
 	}
 
+	function onNotifyRanking( pkt )
+	{
+		PvPCount.append();
+		PvPCount.setData(pkt);
+
+		if(pkt.total > 0) {
+			PvPTimer.show();
+		} else {
+			PvPTimer.hide();
+		}
+	}
+
 	/**
 	 * Initialize
 	 */
@@ -64,5 +82,8 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPPROPERTY,            onMapProperty );   // map property
 		Network.hookPacket( PACKET.ZC.NOTIFY_MAPPROPERTY2,           onMapType );       // map type
 		Network.hookPacket( PACKET.ZC.MAPPROPERTY_R2,                onMapProperty );   // map property + flag
+		Network.hookPacket( PACKET.ZC.MAPPROPERTY,                   onMapProperty );
+		Network.hookPacket( PACKET.ZC.NOTIFY_RANKING,                onNotifyRanking );
+
 	};
 });
