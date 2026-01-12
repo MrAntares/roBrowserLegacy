@@ -226,9 +226,8 @@ function(     Client,            Renderer,            SpriteRenderer,           
 
 			// render layers
 			SpriteRenderer.setDepthMask(false);
-			var useBlendOne = (attachment.file === 'torch_01');
 			for (i = 0, count = layers.length; i < count; ++i) {
-				this.entity.renderLayer(layers[i], spr, spr, 1.0, position, false, useBlendOne);
+				this.entity.renderLayer(layers[i], spr, spr, 1.0, position, false);
 			}
 			SpriteRenderer.setDepthMask(true);
 			return clean;
