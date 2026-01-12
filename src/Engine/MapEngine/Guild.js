@@ -149,7 +149,7 @@ define(function( require )
 		}
 
 		if(PACKETVER.value >= 20170315){
-			if (!guild_id || guild_id === undefined || !Session.AID || Session.AID === 0 || Session.ServerName === undefined || !Session.WebToken)
+			if (!guild_id || guild_id === undefined || !Session.AID || Session.AID === 0 || !Session.ServerName || Session.ServerName === undefined || !Session.WebToken || Session.WebToken === undefined)
 				return;
 
 			var webAdress = Configs.get('webserverAdress', '127.0.0.1:8888');
@@ -502,12 +502,17 @@ define(function( require )
 	function onGuildInfo( pkt )
 	{
 		Guild.setGuildInformations( pkt );
-		GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function(image) {  
-			Session.Entity.display.emblem = image;  
-			Session.Entity.emblem.emblem = image;  
-			Session.Entity.emblem.update();  
-			Session.Entity.display.update(Session.Entity.display.STYLE.DEFAULT);  
-		});
+
+		// Before 2024 we didn't receive this package upon login, but now we do. (~AoShinHo check: https://github.com/rathena/rathena/pull/8574).
+		if(PACKETVER.value >= 20170315){
+			GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function(image) {
+				Session.Entity.display.emblem = image;  
+				Session.Entity.emblem.emblem = image;  
+				Session.Entity.emblem.update();  
+				Session.Entity.display.update(Session.Entity.display.STYLE.DEFAULT);
+				Guild.setEmblem.bind(image);
+			});
+		}
 	}
 
 

@@ -172,7 +172,7 @@ define(function (require) {
 			EntityManager.add(entity.wug);
 		}
 
-		if (entity.GUID && entity.GID !== Session.Character.GID) {
+		if (entity.GUID && entity !== Session.Entity) {
 			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
 				entity.display.emblem = image;
 				entity.emblem.emblem = image;
@@ -899,7 +899,7 @@ define(function (require) {
 
 			entity.display.load = entity.display.TYPE.COMPLETE;
 
-			if (entity.GUID) {
+			if (entity.GUID && entity !== Session.Entity) {
 				Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
 					entity.display.emblem = image;
 					entity.display.update(
