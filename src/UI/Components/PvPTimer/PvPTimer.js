@@ -1,3 +1,11 @@
+/**
+ * UI/Components/PvPTimer/PvPTimer.js
+ *
+ * PvP timer GUI
+ *
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
+ *
+ */
 define(function (require) {
 	'use strict';
 
