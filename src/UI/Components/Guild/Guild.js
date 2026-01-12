@@ -39,6 +39,7 @@ define(function(require)
 	var htmlText       = require('text!./Guild.html');
 	var cssText        = require('text!./Guild.css');
 
+	var WinStats  = require('UI/Components/WinStats/WinStats');
 
 	/**
 	 * @var {Preferences} structure
@@ -401,6 +402,8 @@ define(function(require)
 		else {
 			general.find('.emblem_edit').hide();
 		}
+
+		WinStats.getUI().update('guildname', info.guildname);
 
 		renderTendency(info.honor, info.virtue);
 	};
