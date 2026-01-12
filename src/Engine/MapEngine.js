@@ -85,6 +85,8 @@ define(function( require )
 	var Clan             = require('UI/Components/Clan/Clan');
 	var PluginManager    = require('Plugins/PluginManager');
 	var SignboardManager = require('Renderer/SignboardManager');
+	var PvPTimer         = require('UI/Components/PvPTimer/PvPTimer');
+	var PvPCount         = require('UI/Components/PvpCount/PvpCount');
 
 	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
@@ -277,6 +279,8 @@ define(function( require )
 
 			// Prepare UI
 			Escape.prepare();
+			PvPTimer.prepare();
+			PvPCount.prepare();
 			Inventory.getUI().prepare();
 			CartItems.prepare();
 			Vending.prepare();
