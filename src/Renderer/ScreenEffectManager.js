@@ -10,13 +10,18 @@
 define(function (require) {
 	'use strict';
 
-	// Load dependencies
-	var SnowWeather    = require('Renderer/Effects/SnowWeather');
-	var RainWeather    = require('Renderer/Effects/RainWeather');
+	// Load dependencies 
+	var EffectConst         = require('DB/Effects/EffectConst');
+	var Renderer            = require('Renderer/Renderer');
+	var WeatherTable        = require('DB/Effects/WeatherEffect');
+	var SnowWeather         = require('Renderer/Effects/SnowWeather');
+	var RainWeather         = require('Renderer/Effects/RainWeather');
 	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
-	var PokJukWeatherEffect    = require('Renderer/Effects/PokJukWeatherEffect');
+	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
 
 	var getModule = require;
+	
+	var isMapflagEffect = false;
 
 	/**
 	 * @var {number} _nightInterval
@@ -31,10 +36,55 @@ define(function (require) {
 	}
 
 	/**
-	 * @param {object} gl - WebGL context
+	 * @param {object} gl context
+	 * @param {string} mapname
 	 */
-	ScreenEffectManager.init = function init( gl )
+	ScreenEffectManager.init = function init( gl, mapname )
 	{
+		// weather effects
+		if (WeatherTable.effects && WeatherTable.effects[mapname]) {
+			isMapflagEffect = true;
+		} 
+	}
+
+	ScreenEffectManager.startMapflagEffect = function startMapflagEffect( mapname )
+	{
+		if(!isMapflagEffect)
+			return;
+
+		isMapflagEffect = false;
+		var Params = {  
+			Inst: {
+			startTick: Renderer.tick,  
+			endTick: -1
+			},  
+			Init: {  
+				ownerAID: -1,  
+				position: null
+			}  
+		};
+
+		var weather = WeatherTable.effects[mapname].weather;  
+		if (weather === 'snow') {  
+			Params.Inst.effectId = EffectConst.EF_SNOW;
+			SnowWeather.startOrRestart(Params);
+		}
+		else if(weather === 'rain'){
+			Params.Inst.effectId = EffectConst.EF_RAIN;
+			RainWeather.startOrRestart(Params);
+		}
+		else if(weather === 'fireworks'){
+			Params.Inst.effectId = EffectConst.EF_POKJUK;
+			PokJukWeatherEffect.startOrRestart(Params);
+		}
+		else if(weather === 'leaves'){
+			Params.Inst.effectId = EffectConst.EF_MAPLE;
+			SakuraWeatherEffect.startOrRestart(Params);
+		}
+		else if(weather === 'sakura'){
+			Params.Inst.effectId = EffectConst.EF_SAKURA;
+			SakuraWeatherEffect.startOrRestart(Params);
+		}
 	}
 
 	/**

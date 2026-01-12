@@ -369,6 +369,7 @@ define(function( require )
 		Sky.init( gl, worldResource );
 		Damage.init(gl);
 		EffectManager.init(gl);
+		ScreenEffectManager.init( gl, worldResource );
 
 		// Starting to render
 		Background.remove(function(){
@@ -377,6 +378,7 @@ define(function( require )
 
 			MapRenderer.onLoad();
 			Sky.setUpCloudData();
+			ScreenEffectManager.startMapflagEffect( worldResource );
 
 			// Display game
 			Renderer.show();
