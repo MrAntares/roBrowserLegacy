@@ -262,21 +262,6 @@ define(function(require)
 			var titleId = parseInt(this.getAttribute('data-title'));      
 			EquipmentV4.selectTitle(titleId);      
 		});
-
-		Client.loadFiles([  
-			DB.INTERFACE_PATH + 'basic_interface/scrollbar_bg_btm.bmp',  
-			DB.INTERFACE_PATH + 'basic_interface/scrollbar_bg_mid.bmp',  
-			DB.INTERFACE_PATH + 'basic_interface/scrollbar_bg_top.bmp',  
-			DB.INTERFACE_PATH + 'basic_interface/scrollbar_thumb_out_btm.bmp',  
-			DB.INTERFACE_PATH + 'basic_interface/scrollbar_thumb_out_mid.bmp',  
-			DB.INTERFACE_PATH + 'basic_interface/scrollbar_thumb_out_top.bmp'  
-		], function (bgBottom, bgMid, bgTop, thumbOutBottom, thumbOutMid, thumbOutTop) {  
-			jQuery('style:first').append([  
-				'#EquipmentV4 #title_list::-webkit-scrollbar { width: 8px; }',  
-				'#EquipmentV4 #title_list::-webkit-scrollbar-track { background: url(' + bgTop + ') top no-repeat, url(' + bgMid + ') center repeat-y, url(' + bgBottom + ') bottom no-repeat; }',  
-				'#EquipmentV4 #title_list::-webkit-scrollbar-thumb { background: url(' + thumbOutTop + ') top no-repeat, url(' + thumbOutMid + ') center repeat-y, url(' + thumbOutBottom + ') bottom no-repeat; border-radius: 4px; }'  
-			].join('\n'));  
-		});
 	};
 
 	EquipmentV4.selectTitle = function(titleId) {  
