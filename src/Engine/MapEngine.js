@@ -87,7 +87,8 @@ define(function( require )
 	var SignboardManager = require('Renderer/SignboardManager');
 	var PvPTimer         = require('UI/Components/PvPTimer/PvPTimer');
 	var PvPCount         = require('UI/Components/PvpCount/PvpCount');
-
+	var PACKETVER        = require('Network/PacketVerManager');
+	var ShortCut         = require('UI/Components/ShortCut/ShortCut');  
 	var UIVersionManager      = require('UI/UIVersionManager');
 	// Version Dependent UIs
 	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
@@ -730,16 +731,7 @@ define(function( require )
 
 		// Wait a second, if no answer from the server, then close it.
 		Events.setTimeout(function(){
-			UIManager.removeComponents();
-			Network.close();
-			Renderer.stop();
-			MapRenderer.free();
-			SoundManager.stop();
-			BGM.stop();
-			Background.remove();
-			Background.setImage('bgi_temp.bmp', function(){
-				require('Engine/GameEngine').reload();
-			});
+			onExitSuccess();
 		}, 1000);
 	}
 
@@ -762,6 +754,9 @@ define(function( require )
 	 */
 	function onExitSuccess()
 	{
+		if (PACKETVER.value >= 20170315 && Session.WebToken)
+			ShortCut.saveToServer();  
+
 		UIManager.removeComponents();
 		Network.close();
 		Renderer.stop();

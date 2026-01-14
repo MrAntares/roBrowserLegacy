@@ -167,6 +167,11 @@
 		socketProxy: null,
 
 		/**
+		 * @var {string} web-server api: 'yourserverip:port/'
+		 */
+		webserverAddress: null,
+
+		/**
 		 * @var {boolean}dump packet as hex in console ?
 		 */
 		packetDump: false,

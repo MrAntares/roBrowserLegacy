@@ -367,6 +367,11 @@ define(function( require )
 		Network.setPing(function(){
 			Network.sendPacket(ping);
 		});
+
+		if (PACKETVER.value >= 20170315 && Session.WebToken) {  
+			var ShortCut = require('UI/Components/ShortCut/ShortCut');  
+			ShortCut.loadFromServer();  
+		}
 	}
 
 
