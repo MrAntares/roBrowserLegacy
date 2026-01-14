@@ -167,6 +167,11 @@
 		socketProxy: null,
 
 		/**
+		 * @var {string} proxy server ex: 'ws://pserver.com:5200/'
+		 */
+		webserverAddress: null,
+
+		/**
 		 * @var {boolean}dump packet as hex in console ?
 		 */
 		packetDump: false,

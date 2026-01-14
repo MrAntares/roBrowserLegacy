@@ -21,6 +21,7 @@ define(function(require)
 	var jQuery               = require('Utils/jquery');
 	var Client               = require('Core/Client');
 	var Preferences          = require('Core/Preferences');
+	var Session              = require('Engine/SessionStorage');
 	var Renderer             = require('Renderer/Renderer');
 	var Mouse                = require('Controls/MouseEventHandler');
 	var UIManager            = require('UI/UIManager');
@@ -33,6 +34,8 @@ define(function(require)
 	var Guild                = require('UI/Components/Guild/Guild');
 	var ShortCutControls     = require('Preferences/ShortCutControls');
 	var KEYS                 = require('Controls/KeyEventHandler');
+	var Configs              = require("Core/Configs"); 
+	var PACKETVER    = require('Network/PacketVerManager');
 
 	// Version Dependent UIs
 	var SkillWindow = require('UI/Components/SkillList/SkillList');
@@ -57,6 +60,10 @@ define(function(require)
 	 */
 	var _rowCount = 0;
 
+	/**
+	 * @var {object} server load hotkeys
+	 */
+	var _lastServerHotkeys = null;  
 
 	/**
 	 * @var {Preference} structure to save informations about shortcut
@@ -907,6 +914,140 @@ define(function(require)
 	 */
 	ShortCut.onChange = function OnConfigUpdate(/*index, isSkill, ID, count*/){};
 
+	function convertHotkeysToServerFormat() {  
+		var serverData = {  
+			Type: 1,  
+			data: {  
+				EmotionHotkey: [],  
+				UserHotkey_V2: {  
+					SkillBar_1Tab: []  
+				}  
+			}  
+		};  
+		
+		var emotionKeys = ['Macro1', 'Macro2', 'Macro3', 'Macro4', 'Macro5',   
+						'Macro6', 'Macro7', 'Macro8', 'Macro9', 'Macro10'];  
+		emotionKeys.forEach(function(key, index) {  
+			var shortcut = ShortCutControls.ShortCuts[key];  
+			if (shortcut && shortcut.cust && shortcut.cust.emotion) {  
+				serverData.data.EmotionHotkey[index] = shortcut.cust.emotion;  
+			}  
+		});  
+		
+		var shortcutKeys = ['F1_1', 'F1_2', 'F1_3', 'F1_4', 'F1_5', 'F1_6', 'F1_7', 'F1_8', 'F1_9',  
+						'F2_1', 'F2_2', 'F2_3', 'F2_4', 'F2_5', 'F2_6', 'F2_7', 'F2_8', 'F2_9',  
+						'F3_1', 'F3_2', 'F3_3', 'F3_4', 'F3_5', 'F3_6', 'F3_7', 'F3_8', 'F3_9',  
+						'F4_1', 'F4_2', 'F4_3', 'F4_4', 'F4_5', 'F4_6', 'F4_7', 'F4_8', 'F4_9'];  
+		
+		shortcutKeys.forEach(function(key, index) {  
+			var shortcut = ShortCutControls.ShortCuts[key];  
+			if (shortcut) {  
+				var keyData = shortcut.cust || shortcut.init;  
+				serverData.data.UserHotkey_V2.SkillBar_1Tab.push({  
+					desc: "Skill " + (index + 1),  
+					index: index,  
+					key1: keyData.key || 0,  
+					key2: 0  
+				});  
+			}  
+		});  
+		
+		return serverData;  
+	}  
+	
+	function convertHotkeysFromServerFormat(serverData) {  
+		if (!serverData || !serverData.data) {  
+			return;  
+		}  
+		
+		if (serverData.data.EmotionHotkey) {  
+			var emotionKeys = ['Macro1', 'Macro2', 'Macro3', 'Macro4', 'Macro5',   
+							'Macro6', 'Macro7', 'Macro8', 'Macro9', 'Macro10'];  
+			serverData.data.EmotionHotkey.forEach(function(emotion, index) {  
+				if (emotion && emotionKeys[index]) {  
+					if (!ShortCutControls.ShortCuts[emotionKeys[index]].cust) {  
+						ShortCutControls.ShortCuts[emotionKeys[index]].cust = {};  
+					}  
+					ShortCutControls.ShortCuts[emotionKeys[index]].cust.emotion = emotion;  
+				}  
+			});  
+		}  
+		
+		if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab) {  
+			var shortcutKeys = ['F1_1', 'F1_2', 'F1_3', 'F1_4', 'F1_5', 'F1_6', 'F1_7', 'F1_8', 'F1_9',  
+							'F2_1', 'F2_2', 'F2_3', 'F2_4', 'F2_5', 'F2_6', 'F2_7', 'F2_8', 'F2_9',  
+							'F3_1', 'F3_2', 'F3_3', 'F3_4', 'F3_5', 'F3_6', 'F3_7', 'F3_8', 'F3_9',  
+							'F4_1', 'F4_2', 'F4_3', 'F4_4', 'F4_5', 'F4_6', 'F4_7', 'F4_8', 'F4_9'];  
+			
+			serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach(function(skillData) {  
+				if (skillData && skillData.index < shortcutKeys.length) {  
+					var key = shortcutKeys[skillData.index];  
+					if (key && skillData.key1) {  
+						if (!ShortCutControls.ShortCuts[key].cust) {  
+							ShortCutControls.ShortCuts[key].cust = {};  
+						}  
+						ShortCutControls.ShortCuts[key].cust.key = skillData.key1;  
+					}  
+				}  
+			});  
+		}  
+	}  
+
+	function haveHotkeysChanged(currentData) {  
+		if (!_lastServerHotkeys) return true;
+		return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);  
+	}
+
+	ShortCut.saveToServer = function() {  
+		if (PACKETVER.value >= 20170315 && Session.WebToken) {  
+			if (!haveHotkeysChanged(hotkeys)) return;
+
+			var hotkeys = JSON.stringify(convertHotkeysToServerFormat());
+			var webAddress = Configs.get('webserverAddress', '127.0.0.1:8888');
+
+			var formData = new FormData();  
+			formData.append('AID', Session.AID);  
+			formData.append('WorldName', Session.ServerName);  
+			formData.append('AuthToken', Session.WebToken);  
+			formData.append('data', hotkeys);  
+			
+			var xhr = new XMLHttpRequest();  
+			xhr.open('POST', 'http://' + webAddress + '/userconfig/save', true);  
+			xhr.onload = function() {  
+				if (xhr.status === 200) {  
+					console.log('Hotkeys saved to server successfully');  
+				}  
+			};  
+			xhr.send(formData);  
+		}  
+	};  
+	
+	ShortCut.loadFromServer = function(callback) {  
+		if (PACKETVER.value >= 20170315 && Session.WebToken) {  
+			var webAddress = Configs.get('webserverAddress', '127.0.0.1:8888');
+			
+			var formData = new FormData();  
+			formData.append('AID', Session.AID);  
+			formData.append('WorldName', Session.ServerName);  
+			formData.append('AuthToken', Session.WebToken); 
+	
+			var xhr = new XMLHttpRequest();  
+			xhr.open('POST', 'http://' + webAddress + '/userconfig/load', true);  
+			xhr.onload = function() {  
+				if (xhr.status === 200) {  
+					try {  
+						var serverData = JSON.parse(xhr.responseText);  
+						_lastServerHotkeys = JSON.parse(JSON.stringify(serverData));
+						convertHotkeysFromServerFormat(serverData);  
+						if (callback) callback();  
+					} catch (e) {  
+						console.error('Error parsing server hotkeys:', e);  
+					}  
+				}  
+			};  
+			xhr.send(formData);  
+		}  
+	};
 
 	/**
 	 * Create component and export it
