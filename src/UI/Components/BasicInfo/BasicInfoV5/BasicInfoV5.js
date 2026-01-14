@@ -36,6 +36,7 @@ define(function(require)
 	var Rodex              = require('UI/Components/Rodex/Rodex');
 	var WinStats           = require('UI/Components/WinStats/WinStats');
 	var Navigation         = require('UI/Components/Navigation/Navigation');
+	var Reputation         = require('UI/Components/Reputation/Reputation');
 	
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
@@ -142,6 +143,9 @@ define(function(require)
 					break;
 				case 'navigation':
 					Navigation.toggle();
+					break;
+				case 'repute':
+					Reputation.toggle();
 					break;
 			}
 		});
