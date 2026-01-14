@@ -176,6 +176,27 @@ define( ['./Struct', 'Vendors/text-encoding'], function( Struct, TextEncoding )
 	};
 
 	/**
+	 * Read Int64 from buffer
+	 * @return Int64
+	 */
+	BinaryReader.prototype.getInt64 =
+	BinaryReader.prototype.readInt64 = function readInt64()
+	{
+	    const left  = this.view.getUint32(this.offset, true);
+	    const right = this.view.getInt32(this.offset + 4, true);
+
+		// combine the two 32-bit values
+		const combined = left + 2**32*right; // little endian
+
+		if (!Number.isSafeInteger(combined))
+			console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+
+	    this.offset += 8;
+
+	    return combined;
+	};
+
+	/**
 	 * Read UInt64 from buffer
 	 * @return UInt64
 	 */
