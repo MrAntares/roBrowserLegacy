@@ -2418,7 +2418,7 @@ define(function (require) {
 	* @param {String} name of table in lua file
 	* @param {function} callback to run once the file is loaded
 	* @param {function} onEnd to run once the file is loaded
-	* @param {function} contextFunc - Function to execute after parsing but before unmounting  
+	* @param {function?} contextFunc - Function to execute after parsing but before unmounting  
 	*
 	* @author alisonrag
 	*/
