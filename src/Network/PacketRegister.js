@@ -857,6 +857,8 @@ define(["./PacketStructure"], function (PACKET) {
 		0x288: PACKET.CZ.PC_BUY_CASH_POINT_ITEM,
 		0x84a: PACKET.CZ.CASH_SHOP_CLOSE, // FIXME, duplicate entry with PACKET.CZ.NPC_TRADE_QUIT, it will override this line
 		0x84a: PACKET.CZ.NPC_TRADE_QUIT,
+		0x0b9a: PACKET.ZC.UI_OPEN_V3,
+		0x0b9f: PACKET.ZC.RESPONSE_ENCHANT,
 		0xae2: PACKET.ZC.UI_OPEN,
 		0x9cd: PACKET.ZC.MSG_COLOR,
 

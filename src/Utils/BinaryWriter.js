@@ -190,6 +190,38 @@ define(['Vendors/text-encoding'], function(TextEncoding)
 		return this;
 	};
 
+	/**
+	 * Write Uint64 to buffer (little endian)
+	 *
+	 * @param {number|bigint|object} value
+	 * @return {BinaryWriter}
+	 */
+	BinaryWriter.prototype.setUint64  =
+	BinaryWriter.prototype.writeUInt64 = function setUint64( value )
+	{
+		var low = 0;
+		var high = 0;
+
+		if (typeof value === 'bigint') {
+			low = Number(value & 0xffffffffn);
+			high = Number((value >> 32n) & 0xffffffffn);
+		} else if (typeof value === 'number') {
+			if (!Number.isSafeInteger(value)) {
+				console.warn(value, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+			}
+			low = value >>> 0;
+			high = Math.floor(value / 0x100000000) >>> 0;
+		} else if (value && typeof value === 'object') {
+			low = (value.low || 0) >>> 0;
+			high = (value.high || 0) >>> 0;
+		}
+
+		this.view.setUint32( this.offset, low, true );
+		this.view.setUint32( this.offset + 4, high, true );
+		this.offset += 8;
+		return this;
+	};
+
 
 	/**
 	 * Write Float32 to buffer
@@ -343,4 +375,3 @@ define(['Vendors/text-encoding'], function(TextEncoding)
 	 */
 	return BinaryWriter;
 });
-
