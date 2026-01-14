@@ -1000,9 +1000,10 @@ define(function(require)
 
 	ShortCut.saveToServer = function() {  
 		if (PACKETVER.value >= 20170315 && Session.WebToken) {  
-			if (!haveHotkeysChanged(hotkeys)) return;
 
 			var hotkeys = JSON.stringify(convertHotkeysToServerFormat());
+			if (!haveHotkeysChanged(hotkeys)) return;
+
 			var webAddress = Configs.get('webserverAddress', '127.0.0.1:8888');
 
 			var formData = new FormData();  
