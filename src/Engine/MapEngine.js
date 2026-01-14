@@ -73,6 +73,7 @@ define(function( require )
 	var Roulette         = require('UI/Components/Roulette/Roulette');
 	var PCGoldTimer      = require('UI/Components/PCGoldTimer/PCGoldTimer');
 	var Refine           = require('UI/Components/Refine/Refine');
+	var Reputation       = require('UI/Components/Reputation/Reputation');
 	var PetInformations  = require('UI/Components/PetInformations/PetInformations');
 	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
 	var MapName          = require('UI/Components/MapName/MapName');
@@ -347,6 +348,10 @@ define(function( require )
 
 			if (PACKETVER.value >= 20200916) {
 				ItemReform.prepare();
+			}
+
+			if (PACKETVER.value >= 20220330) {
+				Reputation.prepare();
 			}
 
 			// Bind UI

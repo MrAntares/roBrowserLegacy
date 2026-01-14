@@ -15257,15 +15257,21 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out = new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].type = fp.readULong();
-				out[i].type2 = fp.readULong();
-				out[i].points = fp.readULong();
-				out[i].points2 = fp.readULong();
+				out[i].type = fp.readInt64();
+				out[i].points = fp.readInt64();
 			}
 			return out;
 		})();
 	};
 	PACKET.ZC.REPUTE_INFO.size = -1;
+
+	// 0xb8e
+	PACKET.ZC_REPUTE_OPEN = function PACKET_ZC_REPUTE_OPEN(fp, end) {
+		this.table = fp.readInt64();
+		this.type = fp.readULong();
+		this.mode = fp.readULong();
+	};
+	PACKET.ZC_REPUTE_OPEN.size = 18;
 
 	// 0xb8f
 	PACKET.ZC.OPEN_REFORM_UI = function PACKET_ZC_OPEN_REFORM_UI(fp, end) {

@@ -52,6 +52,7 @@ define(function (require) {
 	var SC = require('./Status/StatusConst');
 	var XmlParse = require('Vendors/xmlparse');
 	var Base62 = require('Utils/Base62');
+	var BSON = require('Vendors/bson');
 
 	//Pet
 	var PetEmotionTable = require('./Pets/PetEmotionTable')
@@ -230,6 +231,12 @@ define(function (require) {
 	 */
 	var PetDBTable = {};
 	var EggIDToJobID = {};
+
+	/**
+	 * @var {Object} Reputation Table
+	 */
+	var ReputeGroup = {};
+	var ReputeInfo = {};
 
 	/**
 	 * Initialize DB
@@ -432,6 +439,12 @@ define(function (require) {
 			loadTable('data/buyingstoreitemlist.txt', '#', 1, function (index, key) { buyingStoreItemList.push(parseInt(key, 10)); }, onLoad());
 		}
 
+		// Reputation
+		if (PACKETVER.value >= 20220330) {
+			loadBSONFile('data/contentdata/repute/reputegroupdata.bson', ReputeGroup, function () {});
+			loadBSONFile('data/contentdata/repute/reputeinfodata.bson', ReputeInfo, function () {});
+		}
+
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 	};
@@ -574,6 +587,73 @@ define(function (require) {
 			},
 			onEnd
 		);
+	}
+
+	/**
+	 * Load BSON to JS object / table
+	 *
+	 * @param {string} filename  File to load
+	 * @param {object|array} targetTable
+	 * @param {function} onEnd    Called when finished (success or error)
+	 *
+	 */
+	function loadBSONFile(filename, targetTable, onEnd) {
+	  Client.loadFile(
+	    filename,
+	    function (arrayBuffer) {
+	      try {
+	        console.log('Loading file "' + filename + '"...');
+
+	        var bytes = new Uint8Array(arrayBuffer);
+	        var offset = 0;
+
+	        var docs = [];
+
+        	while (offset < bytes.length) {
+        	  var size =
+        	    bytes[offset] |
+        	    (bytes[offset + 1] << 8) |
+        	    (bytes[offset + 2] << 16) |
+        	    (bytes[offset + 3] << 24);
+
+        	  var slice = bytes.slice(offset, offset + size);
+        	  docs.push(BSON.deserialize(slice));
+
+        	  offset += size;
+        	}
+
+        	// ---- AS-IS TABLE HANDLING ----
+
+        	var data;
+        	if (docs.length === 1) {
+        	  data = docs[0];        // single root document
+        	} else {
+        	  data = docs;           // true multi-doc BSON
+        	}
+
+        	// Clear target table
+        	for (var k in targetTable) delete targetTable[k];
+
+        	// If root has exactly ONE key, unwrap it
+        	if (
+        	  typeof data === "object" &&
+        	  !Array.isArray(data) &&
+        	  Object.keys(data).length === 1
+        	) {
+        	  var rootKey = Object.keys(data)[0];
+        	  data = data[rootKey];
+        	}
+
+        	// Copy AS-IS
+        	Object.assign(targetTable, data);
+	      } catch (e) {
+	        console.error("BSON parse error:", e);
+	      } finally {
+	        if (onEnd) onEnd();
+	      }
+	    },
+	    onEnd
+	  );
 	}
 
 	/**
@@ -5931,6 +6011,44 @@ define(function (require) {
 	      if (pet.PetEggID === Number(eggID)) return pet;
 	    }
 	    return null;
+	  };
+
+	  /**
+	   * Get the entire reputation group list
+	   *
+	   * @returns {Object} Reputation group list
+	   */
+	  DB.getReputeGroup = function getReputeGroup() {
+	    return ReputeGroup;
+	  };
+
+	  /**
+	   * Get the reputation group list for a given group id
+	   * 
+	   * @param {string} repute_group - Reputation group id
+	   * @returns {?Object} Reputation group list or null if not found
+	   */
+	  DB.getReputeGroupList = function getReputeList(repute_group) {
+	    return ReputeGroup[repute_group].ReputeList || null;
+	  };
+
+	  /**
+	   * Get the entire reputation information list
+	   *
+	   * @returns {Object} Reputation information list
+	   */
+	  DB.getReputeInfo = function getReputeInfo() {
+		  return ReputeInfo;
+	  };
+
+	  /**
+	   * Get the reputation data for a given reputation ID
+	   *
+	   * @param {number|string} repute_id - Reputation ID
+	   * @returns {?Object} Reputation data or null if not found
+	   */
+	  DB.getReputeData = function getReputeData(repute_id) {
+	    return ReputeInfo[repute_id] || null;
 	  };
 
 	/**
