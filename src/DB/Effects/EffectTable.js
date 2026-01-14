@@ -10855,6 +10855,51 @@ define(function( require )
 			file: 'grade_enchant/new_intro/new_intro',
 			texturePath: 'grade_enchant/new_intro/'
 		}],
+		1875: [{	// EF_UI_ENCHANT_INTRO_YELLOW
+			type: 'STR',
+			file: 'ui_enchant/ui_intro_yellow/ui_intro_yellow',
+			texturePath: 'ui_enchant/ui_intro_yellow/'
+		}],
+		1876: [{	// EF_UI_ENCHANT_SUCCESS
+			type: 'STR',
+			file: 'ui_enchant/ui_enchant_success/ui_enchant_success',
+			texturePath: 'ui_enchant/ui_enchant_success/'
+		}],
+		1877: [{	// EF_UI_ENCHANT_FAIL
+			type: 'STR',
+			file: 'ui_enchant/ui_fail/ui_enchant_fail',
+			texturePath: 'ui_enchant/ui_fail/'
+		}],
+		1878: [{	// EF_UI_ENCHANT_INTRO_BLUE
+			type: 'STR',
+			file: 'ui_enchant/ui_intro_blue/ui_intro_blue',
+			texturePath: 'ui_enchant/ui_intro_blue/'
+		}],
+		1879: [{	// EF_UI_ENCHANT_UP_SUCCESS
+			type: 'STR',
+			file: 'ui_enchant/ui_levelup_success/ui_levelup_success',
+			texturePath: 'ui_enchant/ui_levelup_success/'
+		}],
+		1880: [{	// EF_UI_ENCHANT_UP_FAIL
+			type: 'STR',
+			file: 'ui_enchant/ui_fail/ui_levelup_fail',
+			texturePath: 'ui_enchant/ui_fail/'
+		}],
+		1881: [{	// EF_UI_ENCHANT_INTRO_GREEN
+			type: 'STR',
+			file: 'ui_enchant/ui_intro_green/ui_intro_green',
+			texturePath: 'ui_enchant/ui_intro_green/'
+		}],
+		1882: [{	// EF_UI_ENCHANT_RESET_SUCCESS
+			type: 'STR',
+			file: 'ui_enchant/ui_reset_success/ui_reset_success',
+			texturePath: 'ui_enchant/ui_reset_success/'
+		}],
+		1883: [{	// EF_UI_ENCHANT_RESET_FAIL
+			type: 'STR',
+			file: 'ui_enchant/ui_fail/ui_reset_fail',
+			texturePath: 'ui_enchant/ui_fail/'
+		}],
 
 		'maximize_power_sounds': [{
 			type: 'FUNC',

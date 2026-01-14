@@ -61,6 +61,13 @@ define(function (require) {
                     EnchantGradeUI.onOpenEnchantGradeUI();
                 }
                 break;
+            case 10:
+                if (PACKETVER.value >= 20211103) {
+                    var EnchantUI = require('UI/Components/Enchant/Enchant');
+                    EnchantUI.prepare();
+                    EnchantUI.onOpenEnchantUI(pkt.data);
+                }
+                break;
             default:
                 console.error(`[PACKET.ZC.UI_OPEN] not implemented (${pkt.ui_type})`);
         }
@@ -71,5 +78,6 @@ define(function (require) {
      */
     return function MainEngine() {
         Network.hookPacket(PACKET.ZC.UI_OPEN, onUIOpen);
+        Network.hookPacket(PACKET.ZC.UI_OPEN_V3, onUIOpen);
     };
 });

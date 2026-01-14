@@ -730,6 +730,10 @@ define(function(require)
 		if (hasEnchantGradeFlag) {
 			var EnchantGrade = getModule('UI/Components/EnchantGrade/EnchantGrade');
 		}
+		var hasEnchantFlag = PACKETVER.value >= 20211103;
+		if (hasEnchantFlag) {
+			var EnchantUI = getModule('UI/Components/Enchant/Enchant');
+		}
 
 		switch (item.type) {
 
@@ -758,6 +762,10 @@ define(function(require)
 				}
 				if (hasEnchantGradeFlag && EnchantGrade.isEnchantGradeOpen()) {
 					EnchantGrade.onRequestItemEnchantGrade(item);
+					break;
+				}
+				if (hasEnchantFlag && EnchantUI.isEnchantOpen()) {
+					EnchantUI.onRequestItemEnchant(item);
 					break;
 				}
 			case ItemType.PETARMOR:
@@ -1201,7 +1209,7 @@ define(function(require)
 		return false;
 	};
 
-	
+
 	/**
 	 * Handle click event on an item
 	 */

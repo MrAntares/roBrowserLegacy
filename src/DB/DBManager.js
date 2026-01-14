@@ -163,6 +163,12 @@ define(function (require) {
 	var ItemReformTable = { ReformInfo: {}, ReformItemList: {} };
 
 	/**
+	 * @var EnchantList Table
+	 * json object
+	 */
+	var EnchantListTable = {};
+
+	/**
 	 * @var SignBoardTranslated Table
 	 */
 	var SignBoardTranslatedTable = {};
@@ -339,6 +345,11 @@ define(function (require) {
 			// ItemReform
 			if(PACKETVER.value >= 20200916){
 				loadItemReformFile(DB.LUA_PATH + 'ItemReform/ItemReformSystem.lub', null, onLoad());
+			}
+
+			// EnchantList
+			if (PACKETVER.value >= 20211103) {
+				loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', null, onLoad());
 			}
 			
 			// MapName
@@ -1580,6 +1591,360 @@ define(function (require) {
 				}
 			},
 			onEnd
+		);
+	}
+
+	/**
+	 * Loads Enchant/EnchantList(_f).lub and parses it into EnchantListTable.
+	 *
+	 * @param {string} basePath - Base path without suffix (e.g., '.../Enchant/EnchantList')
+	 * @param {function} callback - Optional callback after load
+	 * @param {function} onEnd - The function to call when the loading is complete.
+	 * @return {void}
+	 */
+	function loadEnchantListFile(basePath, callback, onEnd) {
+		const normalizedBase = basePath.replace(/\.(lub|lua)$/i, '');
+		const defFile = normalizedBase + '_f.lub';
+		const listFile = normalizedBase + '.lub';
+
+		Client.loadFile(defFile,
+			async function (file) {
+				try {
+					console.log('Loading file "' + defFile + '"...');
+
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+					const ctx = lua.ctx;
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+
+					EnchantListTable = {};
+
+					const decodeLuaString = (value) => {
+						if (value == null) {
+							return null;
+						}
+						if (typeof value === 'string') {
+							return value;
+						}
+						if (value instanceof Uint8Array) {
+							return userStringDecoder.decode(value);
+						}
+						if (value instanceof ArrayBuffer) {
+							return userStringDecoder.decode(new Uint8Array(value));
+						}
+						return String(value);
+					};
+
+					const resolveItem = (baseName) => ({
+						base: baseName,
+						id: DB.getItemIdfromBase(baseName) || 0
+					});
+
+					const ensureGroup = (id) => {
+						const key = Number(id);
+						if (!EnchantListTable[key]) {
+							EnchantListTable[key] = {
+								id: key,
+								slotOrder: [],
+								targetItems: [],
+								condition: { minRefine: 0, minGrade: 0 },
+								allowRandomOption: true,
+								reset: { enabled: false, rate: 0, zeny: 0, materials: [] },
+								caution: '',
+								slots: {}
+							};
+						}
+						return EnchantListTable[key];
+					};
+
+					const ensureSlot = (group, slotNum) => {
+						const key = Number(slotNum);
+						if (!group.slots[key]) {
+							group.slots[key] = {
+								slot: key,
+								require: { zeny: 0, materials: [] },
+								successRate: 0,
+								gradeBonus: {},
+								random: {},
+								perfect: {},
+								upgrade: {}
+							};
+						}
+						return group.slots[key];
+					};
+
+					ctx.MessageBox = (message) => {
+						console.error('[loadEnchantListFile] ' + decodeLuaString(message));
+						return 1;
+					};
+
+					ctx.C_GetSlotCount = (itemDb) => {
+						const baseName = decodeLuaString(itemDb);
+						const itemId = DB.getItemIdfromBase(baseName);
+						const item = itemId ? ItemTable[itemId] : null;
+						return item && item.slotCount ? Number(item.slotCount) : 0;
+					};
+
+					ctx.MAX_SLOT_NUM = 4;
+					ctx.MAX_MATERIAL_NUM = 10;
+					ctx.MAX_REFINE_LEVEL = 20;
+					ctx.MAX_GRADE_LEVEL = 4;
+					ctx.IS_CLIENT = true;
+
+					ctx.AddEnchantGroup = (enchantId) => {
+						ensureGroup(enchantId);
+						return 1;
+					};
+					ctx.AddEnchantSlotOrder = (enchantId, slotNum) => {
+						const group = ensureGroup(enchantId);
+						group.slotOrder.push(Number(slotNum));
+						return 1;
+					};
+					ctx.AddEnchantTargetItem = (enchantId, itemDb) => {
+						const group = ensureGroup(enchantId);
+						const baseName = decodeLuaString(itemDb);
+						group.targetItems.push(resolveItem(baseName));
+						return 1;
+					};
+					ctx.SetEnchantCondition = (enchantId, minRefine, minGrade) => {
+						const group = ensureGroup(enchantId);
+						group.condition = { minRefine: minRefine, minGrade: minGrade };
+						return 1;
+					};
+					ctx.SetEnchantRandomOption = (enchantId, allow) => {
+						const group = ensureGroup(enchantId);
+						group.allowRandomOption = !!allow;
+						return 1;
+					};
+					ctx.SetEnchantReset = (enchantId, enabled, rate, zeny) => {
+						const group = ensureGroup(enchantId);
+						group.reset = { enabled: !!enabled, rate: rate, zeny: zeny, materials: [] };
+						return 1;
+					};
+					ctx.SetEnchantCaution = (enchantId, message) => {
+						const group = ensureGroup(enchantId);
+						group.caution = decodeLuaString(message);
+						return 1;
+					};
+					ctx.AddEnchantResetMaterial = (enchantId, itemDb, count) => {
+						const group = ensureGroup(enchantId);
+						const baseName = decodeLuaString(itemDb);
+						if (!group.reset) {
+							group.reset = { enabled: false, rate: 0, zeny: 0, materials: [] };
+						}
+						group.reset.materials.push({ ...resolveItem(baseName), count: count });
+						return 1;
+					};
+					ctx.AddEnchantSlot = (enchantId, slotNum) => {
+						const group = ensureGroup(enchantId);
+						ensureSlot(group, slotNum);
+						return 1;
+					};
+					ctx.SetEnchantRequire = (enchantId, slotNum, zeny) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						slot.require = { zeny: zeny, materials: [] };
+						return 1;
+					};
+					ctx.AddEnchantRequireMaterial = (enchantId, slotNum, itemDb, count) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						const baseName = decodeLuaString(itemDb);
+						slot.require.materials.push({ ...resolveItem(baseName), count: count });
+						return 1;
+					};
+					ctx.SetEnchantSuccessRate = (enchantId, slotNum, rate) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						slot.successRate = rate;
+						return 1;
+					};
+					ctx.AddEnchantGradeBonus = (enchantId, slotNum, grade, bonus) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						slot.gradeBonus[grade] = bonus;
+						return 1;
+					};
+					ctx.AddEnchantRate = (enchantId, slotNum, grade, itemDb, rate) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						const baseName = decodeLuaString(itemDb);
+						if (!slot.random[grade]) {
+							slot.random[grade] = [];
+						}
+						slot.random[grade].push({ ...resolveItem(baseName), rate: rate });
+						return 1;
+					};
+					ctx.AddPerfectEnchant = (enchantId, slotNum, itemDb, zeny) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						const baseName = decodeLuaString(itemDb);
+						slot.perfect[baseName] = { ...resolveItem(baseName), zeny: zeny, materials: [] };
+						return 1;
+					};
+					ctx.AddPerfectEnchantMaterial = (enchantId, slotNum, itemDb, matDb, count) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						const baseName = decodeLuaString(itemDb);
+						const matName = decodeLuaString(matDb);
+						if (!slot.perfect[baseName]) {
+							slot.perfect[baseName] = { ...resolveItem(baseName), zeny: 0, materials: [] };
+						}
+						slot.perfect[baseName].materials.push({ ...resolveItem(matName), count: count });
+						return 1;
+					};
+					ctx.AddUpgradeEnchant = (enchantId, slotNum, itemDb, resultDb, zeny) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						const baseName = decodeLuaString(itemDb);
+						const resultName = decodeLuaString(resultDb);
+						slot.upgrade[baseName] = {
+							...resolveItem(baseName),
+							result: resolveItem(resultName),
+							zeny: zeny,
+							materials: []
+						};
+						return 1;
+					};
+					ctx.AddUpgradeEnchantMaterial = (enchantId, slotNum, itemDb, matDb, count) => {
+						const group = ensureGroup(enchantId);
+						const slot = ensureSlot(group, slotNum);
+						const baseName = decodeLuaString(itemDb);
+						const matName = decodeLuaString(matDb);
+						if (!slot.upgrade[baseName]) {
+							slot.upgrade[baseName] = {
+								...resolveItem(baseName),
+								result: resolveItem(baseName),
+								zeny: 0,
+								materials: []
+							};
+						}
+						slot.upgrade[baseName].materials.push({ ...resolveItem(matName), count: count });
+						return 1;
+					};
+
+					lua.mountFile('EnchantList_f.lub', buffer);
+					await lua.doFile('EnchantList_f.lub');
+
+					Client.loadFile(listFile,
+						async function (fileList) {
+							try {
+								console.log('Loading file "' + listFile + '"...');
+
+								let listBuffer = (fileList instanceof ArrayBuffer) ? new Uint8Array(fileList) : fileList;
+								lua.mountFile('EnchantList.lub', listBuffer);
+								await lua.doFile('EnchantList.lub');
+
+								lua.doStringSync(`
+									function main_enchantlist()
+										for enchantNum, info in pairs(Table) do
+											AddEnchantGroup(enchantNum)
+											if info.SlotOrder ~= nil then
+												for _, slotNum in ipairs(info.SlotOrder) do
+													AddEnchantSlotOrder(enchantNum, slotNum)
+												end
+											end
+											if info.TargetItemTbl ~= nil then
+												for _, itemDb in ipairs(info.TargetItemTbl) do
+													AddEnchantTargetItem(enchantNum, itemDb)
+												end
+											end
+											if info.Condition ~= nil then
+												SetEnchantCondition(enchantNum, info.Condition.MinRefine, info.Condition.MinGrade)
+											end
+											if info.bApproveRandomOpt ~= nil then
+												SetEnchantRandomOption(enchantNum, info.bApproveRandomOpt)
+											end
+											if info.Reset ~= nil then
+												SetEnchantReset(enchantNum, info.Reset.bReset, info.Reset.Rate, info.Reset.Zeny)
+												if info.Reset.MatTbl ~= nil then
+													for matItem, matCount in pairs(info.Reset.MatTbl) do
+														AddEnchantResetMaterial(enchantNum, matItem, matCount)
+													end
+												end
+											end
+											if info.CautionMsg ~= nil then
+												SetEnchantCaution(enchantNum, info.CautionMsg)
+											end
+											if info.Slot ~= nil then
+												for slotNum, slotInfo in pairs(info.Slot) do
+													AddEnchantSlot(enchantNum, slotNum)
+													if slotInfo.RequireTbl ~= nil then
+														SetEnchantRequire(enchantNum, slotNum, slotInfo.RequireTbl.Zeny)
+														if slotInfo.RequireTbl.MatTbl ~= nil then
+															for matItem, matCount in pairs(slotInfo.RequireTbl.MatTbl) do
+																AddEnchantRequireMaterial(enchantNum, slotNum, matItem, matCount)
+															end
+														end
+													end
+													if slotInfo.SuccessRate ~= nil then
+														SetEnchantSuccessRate(enchantNum, slotNum, slotInfo.SuccessRate)
+													end
+													if slotInfo.GradeBonusTbl ~= nil then
+														for grade, bonus in pairs(slotInfo.GradeBonusTbl) do
+															AddEnchantGradeBonus(enchantNum, slotNum, grade, bonus)
+														end
+													end
+													if slotInfo.EnchantRateTbl ~= nil then
+														for grade, rateTbl in pairs(slotInfo.EnchantRateTbl) do
+															for itemDb, rate in pairs(rateTbl) do
+																AddEnchantRate(enchantNum, slotNum, grade, itemDb, rate)
+															end
+														end
+													end
+													if slotInfo.PerfectECTbl ~= nil then
+														for itemDb, perfect in pairs(slotInfo.PerfectECTbl) do
+															AddPerfectEnchant(enchantNum, slotNum, itemDb, perfect.Zeny)
+															if perfect.MatTbl ~= nil then
+																for matItem, matCount in pairs(perfect.MatTbl) do
+																	AddPerfectEnchantMaterial(enchantNum, slotNum, itemDb, matItem, matCount)
+																end
+															end
+														end
+													end
+													if slotInfo.UpgradeECTbl ~= nil then
+														for itemDb, upgrade in pairs(slotInfo.UpgradeECTbl) do
+															AddUpgradeEnchant(enchantNum, slotNum, itemDb, upgrade.ResultItemDB, upgrade.Zeny)
+															if upgrade.MatTbl ~= nil then
+																for matItem, matCount in pairs(upgrade.MatTbl) do
+																	AddUpgradeEnchantMaterial(enchantNum, slotNum, itemDb, matItem, matCount)
+																end
+															end
+														end
+													end
+												end
+											end
+										end
+									end
+									main_enchantlist()
+								`);
+
+								if (typeof callback === 'function') {
+									callback(EnchantListTable);
+								}
+							} catch (error) {
+								console.error('[loadEnchantListFile] Error: ', error);
+							} finally {
+								lua.unmountFile('EnchantList.lub');
+								lua.unmountFile('EnchantList_f.lub');
+								onEnd();
+							}
+						},
+						function () {
+							console.error('[loadEnchantListFile] Missing file: ' + listFile);
+							lua.unmountFile('EnchantList_f.lub');
+							onEnd();
+						}
+					);
+				} catch (error) {
+					console.error('[loadEnchantListFile] Error: ', error);
+					lua.unmountFile('EnchantList_f.lub');
+					onEnd();
+				}
+			},
+			function () {
+				console.error('[loadEnchantListFile] Missing file: ' + defFile);
+				onEnd();
+			}
 		);
 	}
 
@@ -4372,6 +4737,40 @@ define(function (require) {
 			}
 		}
 		return null;
+	};
+
+	/**
+	 * Retrieves the Enchant group info by the given group ID.
+	 *
+	 * @param {number} groupId - The Enchant group ID.
+	 * @return {Object|null} The Enchant group info if found, or null.
+	 */
+	DB.getEnchantGroup = function getEnchantGroup(groupId) {
+		return EnchantListTable[groupId] || null;
+	};
+
+	/**
+	 * Retrieves all Enchant groups.
+	 *
+	 * @return {Object} Enchant group table.
+	 */
+	DB.getEnchantGroups = function getEnchantGroups() {
+		return EnchantListTable;
+	};
+
+	/**
+	 * Retrieves Enchant slot info by group and slot.
+	 *
+	 * @param {number} groupId - The Enchant group ID.
+	 * @param {number} slotNum - Slot index.
+	 * @return {Object|null} Enchant slot info if found.
+	 */
+	DB.getEnchantSlot = function getEnchantSlot(groupId, slotNum) {
+		const group = EnchantListTable[groupId];
+		if (!group || !group.slots) {
+			return null;
+		}
+		return group.slots[slotNum] || null;
 	};
 
 	/**

@@ -13614,6 +13614,84 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	PACKET.ZC.UI_OPEN.size = 7;
 
+	// 0xb9a
+	PACKET.ZC.UI_OPEN_V3 = function PACKET_ZC_UI_OPEN_V3(fp, end) {
+		this.ui_type = fp.readByte();
+		this.data = fp.readUInt64();
+	};
+	PACKET.ZC.UI_OPEN_V3.size = 11;
+
+	// 0xb9b
+	PACKET.CZ.REQUEST_RANDOM_ENCHANT = function PACKET_CZ_REQUEST_RANDOM_ENCHANT() {
+		this.enchant_group = 0;
+		this.index = 0;
+	};
+	PACKET.CZ.REQUEST_RANDOM_ENCHANT.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(12);
+		pkt_buf.writeShort(0x0b9b);
+		pkt_buf.writeUInt64(this.enchant_group);
+		pkt_buf.writeShort(this.index);
+		return pkt_buf;
+	};
+
+	// 0xb9c
+	PACKET.CZ.REQUEST_PERFECT_ENCHANT = function PACKET_CZ_REQUEST_PERFECT_ENCHANT() {
+		this.enchant_group = 0;
+		this.index = 0;
+		this.ITID = 0;
+	};
+	PACKET.CZ.REQUEST_PERFECT_ENCHANT.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(16);
+		pkt_buf.writeShort(0x0b9c);
+		pkt_buf.writeUInt64(this.enchant_group);
+		pkt_buf.writeShort(this.index);
+		pkt_buf.writeULong(this.ITID);
+		return pkt_buf;
+	};
+
+	// 0xb9d
+	PACKET.CZ.REQUEST_UPGRADE_ENCHANT = function PACKET_CZ_REQUEST_UPGRADE_ENCHANT() {
+		this.enchant_group = 0;
+		this.index = 0;
+		this.slot = 0;
+	};
+	PACKET.CZ.REQUEST_UPGRADE_ENCHANT.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(14);
+		pkt_buf.writeShort(0x0b9d);
+		pkt_buf.writeUInt64(this.enchant_group);
+		pkt_buf.writeShort(this.index);
+		pkt_buf.writeShort(this.slot);
+		return pkt_buf;
+	};
+
+	// 0xb9e
+	PACKET.CZ.REQUEST_RESET_ENCHANT = function PACKET_CZ_REQUEST_RESET_ENCHANT() {
+		this.enchant_group = 0;
+		this.index = 0;
+	};
+	PACKET.CZ.REQUEST_RESET_ENCHANT.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(12);
+		pkt_buf.writeShort(0x0b9e);
+		pkt_buf.writeUInt64(this.enchant_group);
+		pkt_buf.writeShort(this.index);
+		return pkt_buf;
+	};
+
+	// 0xb9f
+	PACKET.ZC.RESPONSE_ENCHANT = function PACKET_ZC_RESPONSE_ENCHANT(fp, end) {
+		this.msgId = fp.readLong();
+		this.ITID = fp.readULong();
+	};
+	PACKET.ZC.RESPONSE_ENCHANT.size = 10;
+
+	// 0xba0
+	PACKET.CZ.CLOSE_UI_ENCHANT = function PACKET_CZ_CLOSE_UI_ENCHANT() {};
+	PACKET.CZ.CLOSE_UI_ENCHANT.prototype.build = function() {
+		var pkt_buf = new BinaryWriter(2);
+		pkt_buf.writeShort(0x0ba0);
+		return pkt_buf;
+	};
+
 	// 0xa84
 	PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
 		this.GDID = fp.readLong();
