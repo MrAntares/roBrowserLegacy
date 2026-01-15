@@ -135,6 +135,7 @@ define(function( require )
 	 */
 	function reload()
 	{
+		require('Engine/MapEngine/Guild').guild_id = 0;
 		Network.close();
 		Background.setImage( 'bgi_temp.bmp', function() {
 			UIManager.removeComponents();

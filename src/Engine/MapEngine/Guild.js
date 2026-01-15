@@ -147,6 +147,13 @@ define(function( require )
 
 		// Lower version, update it to the current
 		if (version <= emblem.version) {
+			EntityManager.forEach(function(entity){
+				if (entity.GUID === guild_id) {
+					entity.display.emblem = emblem.image;
+					entity.emblem.update(); 
+					entity.display.refresh(entity);
+				}
+			});
 			callback(emblem.image);
 			return;
 		}
