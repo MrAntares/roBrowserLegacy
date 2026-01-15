@@ -103,7 +103,7 @@ define(function (require) {
 	{
 		if(!Session.Entity) return;
 
-		if(Session.Entity.hasStatus(StatusConst.ENCHANTPOISON))
+		if(Session.Entity.hasStatus(StatusConst.HEALTHSTATE_POISON))
 			Poison.setActive(true);
 		else
 			ScreenEffectManager.cleanStatusEffects(); //called only if no sc efst order found
