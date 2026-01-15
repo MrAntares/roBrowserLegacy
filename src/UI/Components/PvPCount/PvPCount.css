@@ -4,6 +4,8 @@
 	bottom: 0px;
 	width: 240px;
 	height: 96px;
+	pointer-events: none;
+	z-index: 1000 !important;
 }
 
 #PvPCount .pvp-rank-canvas {

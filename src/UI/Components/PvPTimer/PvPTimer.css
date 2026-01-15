@@ -6,6 +6,8 @@
 	text-align: center;
 	width: 360px;
 	height: 250px;
+	pointer-events: none;
+	z-index: 1000 !important;
 }
 
 #PvPTimer .pvp-timer-canvas {
