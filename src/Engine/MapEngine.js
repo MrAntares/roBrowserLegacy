@@ -87,7 +87,7 @@ define(function( require )
 	var PluginManager    = require('Plugins/PluginManager');
 	var SignboardManager = require('Renderer/SignboardManager');
 	var PvPTimer         = require('UI/Components/PvPTimer/PvPTimer');
-	var PvPCount         = require('UI/Components/PvpCount/PvpCount');
+	var PvPCount         = require('UI/Components/PvPCount/PvPCount');
 	var PACKETVER        = require('Network/PacketVerManager');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');  
 	var UIVersionManager      = require('UI/UIVersionManager');

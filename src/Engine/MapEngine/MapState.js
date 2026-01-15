@@ -18,7 +18,7 @@ define(function( require )
 	var Network           = require('Network/NetworkManager');
 	var PACKET            = require('Network/PacketStructure');
 	var PvPTimer          = require('UI/Components/PvPTimer/PvPTimer');
-	var PvPCount          = require('UI/Components/PvpCount/PvpCount');
+	var PvPCount          = require('UI/Components/PvPCount/PvPCount');
 
 	var MapProperty = MapState.MapProperty;
 	var MapType     = MapState.MapType;
