@@ -23,6 +23,7 @@ define(function( require )
 	var Renderer           = require('Renderer/Renderer');
 	var UIManager          = require('UI/UIManager');
 	var UIComponent        = require('UI/UIComponent');
+	var ScreenEffectManager = require('Renderer/ScreenEffectManager');
 	var cssText            = require('text!./StatusIcons.css');
 
 
@@ -95,6 +96,7 @@ define(function( require )
 	{
 		this.ui.empty();
 		_status = {};
+		ScreenEffectManager.clean();
 	};
 
 
@@ -146,6 +148,8 @@ define(function( require )
 				}
 			});
 		});
+
+		ScreenEffectManager.parseStatus( index );
 	};
 
 	function addResizedStatusIcon(img, index) {  
@@ -226,6 +230,8 @@ define(function( require )
 		if (element && element.parentNode) {
 			element.parentNode.removeChild(element);
 		}
+
+		ScreenEffectManager.cleanStatusEffect( index );
 
 		delete _status[index];
 	}

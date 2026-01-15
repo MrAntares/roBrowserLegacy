@@ -57,8 +57,8 @@ define(function (require) {
 		isMapflagEffect = false;
 		var Params = {  
 			Inst: {
-			startTick: Renderer.tick,  
-			endTick: -1
+				startTick: Renderer.tick,  
+				endTick: -1
 			},  
 			Init: {  
 				ownerAID: -1,  
@@ -96,28 +96,29 @@ define(function (require) {
 		if(Poison.isActive())
 			Poison.render(gl, modelView, projection, fog);
 
-		
 	}
 
-	ScreenEffectManager.parseStatus = function parseStatus(gl, modelView, projection, fog)
+	ScreenEffectManager.parseStatus = function parseStatus( tsc )
 	{
 		if(!Session.Entity) return;
 
-		if(Session.Entity.hasStatus(StatusConst.HEALTHSTATE_POISON))
+		if( tsc == StatusConst.HealthState.POISON )
 			Poison.setActive(true);
-		else
-			ScreenEffectManager.cleanStatusEffects(); //called only if no sc efst order found
-
-		ScreenEffectManager.renderStatusEffects(gl, modelView, projection, fog);
+	
 	}
 
-	ScreenEffectManager.cleanStatusEffects = function cleanStatusEffects()
+	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect( tsc )
 	{
 		if(!Session.Entity) return;
 
-		if(Poison.isActive())
+		if( tsc == StatusConst.HealthState.POISON )
 			Poison.setActive(false);
 	
+	}
+
+	ScreenEffectManager.clean = function clean()
+	{
+		Poison.setActive(false);
 	}
 
 	/**
@@ -145,7 +146,7 @@ define(function (require) {
 		PokJukWeatherEffect.renderAll(gl, modelView, projection, fog, tick);
 
 		// Screen Efst status based
-		ScreenEffectManager.parseStatus(gl, modelView, projection, fog);
+		ScreenEffectManager.renderStatusEffects(gl, modelView, projection, fog);
 	}
 
 	/**
