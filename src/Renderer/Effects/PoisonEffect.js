@@ -63,7 +63,7 @@ define(function(require) {
 		_active = bool;
 	};
 
-	PoisonEffect.isActive = function isActive(bool) {
+	PoisonEffect.isActive = function isActive() {
 		return _active;
 	};
 
