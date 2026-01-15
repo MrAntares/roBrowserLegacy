@@ -91,6 +91,7 @@ define(function( require )
 	 */
 	UIComponent.prototype.needFocus = true;
 
+	var _snapCache = [];
 
 	/**
 	 * Prepare the component to be used
@@ -464,10 +465,42 @@ define(function( require )
 			}
 
 			var x, y, width, height, drag;
-			x      = container.position().left - Mouse.screen.x;
-			y      = container.position().top  - Mouse.screen.y;
+			var startPos = container.position();
+			x = startPos.left - Mouse.screen.x;
+			y = startPos.top  - Mouse.screen.y;
+			
 			width  = container.width();
 			height = container.height();
+
+			_snapCache = [];
+			if (UIPreferences.windowmagnet && component.manager) {
+				var containerParent = container.offsetParent();
+				var components = component.manager.components;
+
+				for (var name in components) {
+					var other = components[name];
+					
+					if (!other || other === component || !other.__active || !other.ui || !other.ui.length) {
+						continue;
+					}
+
+					var otherParent = other.ui.offsetParent();
+					if (containerParent.length && otherParent.length && otherParent[0] !== containerParent[0]) {
+						continue;
+					}
+
+					var oPos = other.ui.position();
+					var oW = other.ui.width();
+					var oH = other.ui.height();
+
+					_snapCache.push({
+						left:   oPos.left,
+						top:    oPos.top,
+						right:  oPos.left + oW,
+						bottom: oPos.top + oH
+					});
+				}
+			}
 
 			// Start the loop
 			container.stop();
@@ -479,6 +512,7 @@ define(function( require )
 					container.stop().animate({ opacity:1.0 }, 500 );
 					Events.clearTimeout(drag);
 					jQuery(window).off('mouseup.dragdrop touchend.dragdrop');
+					_snapCache = [];
 				}
 			});
 
@@ -489,12 +523,8 @@ define(function( require )
 				var opacity = parseFloat(container.css('opacity')||1) - 0.02;
 				var snapDistance = 10;
 
-				if(component.magnet){
-					component.magnet.TOP = false;
-					component.magnet.BOTTOM = false;
-					component.magnet.LEFT = false;
-					component.magnet.RIGHT = false;
-				}
+				if(component.magnet)
+					component.magnet.TOP = component.magnet.BOTTOM = component.magnet.LEFT = component.magnet.RIGHT = false;
 
 				// Magnet on border
 				if (Math.abs(x_) < snapDistance) {
@@ -525,99 +555,52 @@ define(function( require )
 				}
 
 				if (UIPreferences.windowmagnet && component.manager) {
-					var lockX = component.magnet.LEFT || component.magnet.RIGHT;
-					var lockY = component.magnet.TOP || component.magnet.BOTTOM;
+					var lockX = (component.magnet && (component.magnet.LEFT || component.magnet.RIGHT));
+					var lockY = (component.magnet && (component.magnet.TOP || component.magnet.BOTTOM));
 					var snapX = null;
 					var snapY = null;
 					var snapXD = snapDistance + 1;
 					var snapYD = snapDistance + 1;
-					var containerParent = container.offsetParent();
-					var components = component.manager.components;
-					var left = x_;
-					var right = x_ + width;
-					var top = y_;
-					var bottom = y_ + height;
 
-					function rangesOverlapOrNear(startA, endA, startB, endB, distance) {
-						return !(endA + distance < startB || endB + distance < startA);
+					function checkX(val) {
+						var d = Math.abs(val - x_);
+						if (d < snapXD) { snapXD = d; snapX = val; }
 					}
 
-					function considerX(targetX) {
-						var dist = Math.abs(targetX - x_);
-						if (dist < snapXD) {
-							snapXD = dist;
-							snapX = targetX;
+					function checkY(val) {
+						var d = Math.abs(val - y_);
+						if (d < snapYD) { snapYD = d; snapY = val; }
+					}
+
+					function isNear(startA, endA, startB, endB) {
+						return !(endA + snapDistance < startB || endB + snapDistance < startA);
+					}
+
+					var len = _snapCache.length;
+					for (var i = 0; i < len; i++) {
+						var box = _snapCache[i];
+
+						if (!lockX && isNear(y_, y_ + height, box.top, box.bottom)) {
+							checkX(box.left);
+							checkX(box.right);
+							checkX(box.left - width);
+							checkX(box.right - width);
+						}
+
+						if (!lockY && isNear(x_, x_ + width, box.left, box.right)) {
+							checkY(box.top);
+							checkY(box.bottom);
+							checkY(box.top - height);
+							checkY(box.bottom - height);
 						}
 					}
 
-					function considerY(targetY) {
-						var dist = Math.abs(targetY - y_);
-						if (dist < snapYD) {
-							snapYD = dist;
-							snapY = targetY;
-						}
-					}
-
-					for (var name in components) {
-						var other = components[name];
-						if (!other || other === component || !other.__active || !other.ui || !other.ui.length) {
-							continue;
-						}
-
-						var otherParent = other.ui.offsetParent();
-						if (containerParent.length && otherParent.length && otherParent[0] !== containerParent[0]) {
-							continue;
-						}
-
-						var otherPos = other.ui.position();
-						var otherLeft = otherPos.left;
-						var otherTop = otherPos.top;
-						var otherWidth = other.ui.width();
-						var otherHeight = other.ui.height();
-						var otherRight = otherLeft + otherWidth;
-						var otherBottom = otherTop + otherHeight;
-
-						if (!lockX && rangesOverlapOrNear(top, bottom, otherTop, otherBottom, snapDistance)) {
-							if (Math.abs(otherLeft - x_) < snapDistance) {
-								considerX(otherLeft);
-							}
-							if (Math.abs((otherRight - width) - x_) < snapDistance) {
-								considerX(otherRight - width);
-							}
-							if (Math.abs(otherRight - x_) < snapDistance) {
-								considerX(otherRight);
-							}
-							if (Math.abs((otherLeft - width) - x_) < snapDistance) {
-								considerX(otherLeft - width);
-							}
-						}
-
-						if (!lockY && rangesOverlapOrNear(left, right, otherLeft, otherRight, snapDistance)) {
-							if (Math.abs(otherTop - y_) < snapDistance) {
-								considerY(otherTop);
-							}
-							if (Math.abs((otherBottom - height) - y_) < snapDistance) {
-								considerY(otherBottom - height);
-							}
-							if (Math.abs(otherBottom - y_) < snapDistance) {
-								considerY(otherBottom);
-							}
-							if (Math.abs((otherTop - height) - y_) < snapDistance) {
-								considerY(otherTop - height);
-							}
-						}
-					}
-
-					if (!lockX && snapX !== null) {
-						x_ = snapX;
-					}
-
-					if (!lockY && snapY !== null) {
-						y_ = snapY;
-					}
+					if (!lockX && snapX !== null) x_ = snapX;
+					if (!lockY && snapY !== null) y_ = snapY;
 				}
 
-				container.css({ top: y_, left: x_, opacity: Math.max(opacity,0.7) });
+				container.offset({ top: y_, left: x_ });
+				container.css('opacity', Math.max(opacity, 0.7));
 				drag = Events.setTimeout( dragging, 15);
 			}
 		});
