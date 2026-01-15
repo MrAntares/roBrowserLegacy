@@ -393,8 +393,8 @@ define(function(require)
 		general.find('.exp .value').text(info.exp);
 		general.find('.tax .value').text(info.point);
 
-		if (PACKETVER.value < 20170315)
-			Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
+		Guild.updateSession( info );
+		Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
 
 		if (Session.isGuildMaster) {
 			general.find('.emblem_edit').show();
@@ -1439,6 +1439,13 @@ define(function(require)
 	 */
 	Guild.onRequestAccess = function(){};
 
+	Guild.updateSession = function( info ) {
+		Session.hasGuild          = true;
+		Session.Entity.GUID       = info.GDID;
+		Session.Entity.GEmblemVer = info.emblemVersion;
+		if(Session.Character.name == info.masterName)
+			Session.isGuildMaster = true;
+	};
 
 	/**
 	 * Request guild emblem
