@@ -140,6 +140,9 @@ define(function( require )
 			};
 		}
 
+		if( Session.Entity.GUID == guild_id )
+			GuildEngine.guild_id = guild_id;
+
 		emblem = _emblems[guild_id];
 
 		// Lower version, update it to the current
@@ -182,12 +185,18 @@ define(function( require )
 						EntityManager.forEach(function(entity){
 							if (entity.GUID === guild_id) {
 								entity.display.emblem = img;
+								entity.emblem.update(); 
 								entity.display.refresh(entity);
 							}
 						});
 					};
 					img.decoding = 'async';
-					img.src = URL.createObjectURL(xhr.response);
+					var blobUrl = URL.createObjectURL(xhr.response);  
+					// Load the emblem, remove magenta, free blob from memory
+					Texture.load(blobUrl, function(){
+						img.src = this.toDataURL();
+						URL.revokeObjectURL(blobUrl);  
+					});
 				}      
 			}; // End xhr.onload
 
@@ -420,7 +429,7 @@ define(function( require )
 				var webAdress = Configs.get('webserverAdress', '127.0.0.1:8888');  
 
 				var formData = new FormData();      
-				formData.append('GDID', GuildEngine.guild_id);      
+				formData.append('GDID', Session.Entity.GUID);      
 				formData.append('WorldName', Session.ServerName);
 				formData.append('AuthToken', Session.WebToken); 
 				formData.append('AID', Session.AID);
@@ -431,9 +440,17 @@ define(function( require )
 				xhr.open('POST', 'http://' + webAdress + '/emblem/upload', true);  
 
 				xhr.onload = function() {    
-					if (xhr.status === 200) {    
+					if (xhr.status === 200) {
 						var response = JSON.parse(xhr.responseText);    
-						console.log('Emblem uploaded successfully, version:', response.version);    
+						console.log('Emblem uploaded successfully, version:', response.version);
+
+						GuildEngine.requestGuildEmblem(  
+							Session.Entity.GUID,   
+							response.version,   
+							function(image) {  
+								Guild.setEmblem(image);
+							}  
+						);
 					}    
 				};    
 
@@ -502,17 +519,6 @@ define(function( require )
 	function onGuildInfo( pkt )
 	{
 		Guild.setGuildInformations( pkt );
-
-		// Before 2024 we didn't receive this package upon login, but now we do. (~AoShinHo check: https://github.com/rathena/rathena/pull/8574).
-		if(PACKETVER.value >= 20170315){
-			GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function(image) {
-				Session.Entity.display.emblem = image;  
-				Session.Entity.emblem.emblem = image;  
-				Session.Entity.emblem.update();  
-				Session.Entity.display.update(Session.Entity.display.STYLE.DEFAULT);
-				Guild.setEmblem.bind(image);
-			});
-		}
 	}
 
 
