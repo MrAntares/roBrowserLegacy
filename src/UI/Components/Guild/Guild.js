@@ -1440,7 +1440,7 @@ define(function(require)
 	Guild.onRequestAccess = function(){};
 
 	Guild.updateSession = function( info ) {
-		Session.hasGuild = true;
+		Session.hasGuild          = true;
 		Session.Entity.GUID       = info.GDID;
 		Session.Entity.GEmblemVer = info.emblemVersion;
 		if(Session.Character.name == info.masterName)
