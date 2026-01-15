@@ -283,7 +283,17 @@ define(function (require) {
 			
 			loadLuaTable([DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'], 'AccNameTable', function (json) { HatTable = json; }, onLoad());
 			loadLuaTable([DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'], 'RobeNameTable', function (json) { RobeTable = json; }, onLoad());
-			loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad());
+
+			if (PACKETVER.value >= 20141008) {
+				loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad(), 
+					function () {  
+						loadPetInfo(DB.LUA_PATH + 'datainfo/petinfo.lub', null, function () {  
+							tryLoadLuaAliases(loadPetEvolution, getSystemAliases('System/PetEvolutionCln.lub'), null, onLoad());  
+						});  
+				});
+			} else 
+				loadLuaTable([DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'], 'JobNameTable', function (json) { MonsterTable = json; }, onLoad());  
+
 			loadLuaTable([DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'], 'NameTable_VAR', function (json) { RandomOption = json; }, onLoad());
 			loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', null, onLoad());
 
@@ -329,14 +339,6 @@ define(function (require) {
 				loadLuaValue(DB.LUA_PATH + 'navigation/navi_link_krpri.lub', 'Navi_Link', function (json) { NaviLinkTable = json; }, onLoad());
 				loadLuaValue(DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub', 'Navi_Distance', function (json) { NaviLinkDistanceTable = json; }, onLoad());
 				loadLuaValue(DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub', 'Navi_NpcDistance', function (json) { NaviNpcDistanceTable = json; }, onLoad());
-			}
-
-			// Pet Data
-			if (PACKETVER.value >= 20141008) {
-				loadPetInfo(DB.LUA_PATH + 'datainfo/petinfo.lub', null, 
-					function () { // Calls after PetTable been populated
-						tryLoadLuaAliases(loadPetEvolution, getSystemAliases('System/PetEvolutionCln.lub'), null, onLoad());
-					});
 			}
 
 			// LaphineSys
@@ -2861,10 +2863,11 @@ define(function (require) {
 	* @param {String} name of table in lua file
 	* @param {function} callback to run once the file is loaded
 	* @param {function} onEnd to run once the file is loaded
+	* @param {function?} contextFunc - Function to execute after parsing but before unmounting  
 	*
 	* @author alisonrag
 	*/
-	function loadLuaTable(file_list, table_name, callback, onEnd) {
+	function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
 		let id_filename = file_list[0];
 		let value_table_filename = file_list[1];
 
@@ -2949,6 +2952,10 @@ define(function (require) {
 						end
 						main_table()
 					`);
+
+				if (typeof contextFunc === 'function') {
+					contextFunc();
+				}
 
 				// unmount files
 				lua.unmountFile(value_table_filename);
