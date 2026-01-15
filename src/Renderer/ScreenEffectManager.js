@@ -18,8 +18,8 @@ define(function (require) {
 	var RainWeather         = require('Renderer/Effects/RainWeather');
 	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
 	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
-	var Poison		= require('Renderer/Effects/PoisonEffect');
-	var StatusConst		= require('DB/Status/StatusConst');
+	var Poison              = require('Renderer/Effects/PoisonEffect');
+	var StatusConst         = require('DB/Status/StatusConst');
 	var Session             = require('Engine/SessionStorage');
 	var getModule           = require;
 	
