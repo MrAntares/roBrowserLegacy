@@ -5903,7 +5903,13 @@ define(function( require )
 		}],
 
 		334: [{	//EF_BLIND	   Blind
-			wav: '_blind'
+			type: 'FUNC',
+			attachedEntity: false,
+			wav: '_blind',
+			func: function( Params ) {
+				var Blind = require('Renderer/Effects/BlindEffect');
+				Blind.setActive(true);
+			}
 			/*file: 'effect/fullb.tga',
 			file: 'effect/white02.bmp',*/
 		}],
