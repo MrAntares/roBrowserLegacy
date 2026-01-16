@@ -18,8 +18,10 @@ define(function (require) {
 	var RainWeather         = require('Renderer/Effects/RainWeather');
 	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
 	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
-
-	var getModule = require;
+	var Poison              = require('Renderer/Effects/PoisonEffect');
+	var StatusConst         = require('DB/Status/StatusConst');
+	var Session             = require('Engine/SessionStorage');
+	var getModule           = require;
 	
 	var isMapflagEffect = false;
 
@@ -55,8 +57,8 @@ define(function (require) {
 		isMapflagEffect = false;
 		var Params = {  
 			Inst: {
-			startTick: Renderer.tick,  
-			endTick: -1
+				startTick: Renderer.tick,  
+				endTick: -1
 			},  
 			Init: {  
 				ownerAID: -1,  
@@ -87,6 +89,38 @@ define(function (require) {
 		}
 	}
 
+	ScreenEffectManager.renderStatusEffects = function renderStatusEffects(gl, modelView, projection, fog)
+	{
+		if(!Session.Entity) return;
+
+		if(Poison.isActive())
+			Poison.render(gl, modelView, projection, fog);
+
+	}
+
+	ScreenEffectManager.parseStatus = function parseStatus( tsc )
+	{
+		if(!Session.Entity) return;
+
+		if( tsc == StatusConst.HealthState.POISON )
+			Poison.setActive(true);
+	
+	}
+
+	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect( tsc )
+	{
+		if(!Session.Entity) return;
+
+		if( tsc == StatusConst.HealthState.POISON )
+			Poison.setActive(false);
+	
+	}
+
+	ScreenEffectManager.clean = function clean()
+	{
+		Poison.setActive(false);
+	}
+
 	/**
 	 * Callback to execute once the ScreenEffectManager is loaded
 	 */
@@ -110,6 +144,9 @@ define(function (require) {
 		RainWeather.renderAll(gl, modelView, projection, fog, tick);
 		SakuraWeatherEffect.renderAll(gl, modelView, projection, fog, tick);
 		PokJukWeatherEffect.renderAll(gl, modelView, projection, fog, tick);
+
+		// Screen Efst status based
+		ScreenEffectManager.renderStatusEffects(gl, modelView, projection, fog);
 	}
 
 	/**

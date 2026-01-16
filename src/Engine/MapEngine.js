@@ -819,6 +819,7 @@ define(function( require )
 			ChatBox.addText( DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG );
 		}
 		else {
+			require('Engine/MapEngine/Guild').guild_id = 0;
 			BasicInfo.getUI().remove();
 			PlayerViewEquip.getUI().remove();
 			StatusIcons.clean();

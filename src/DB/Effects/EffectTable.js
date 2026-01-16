@@ -5908,7 +5908,14 @@ define(function( require )
 			file: 'effect/white02.bmp',*/
 		}],
 
-		//335: [{}],	//EF_POISON	   Poison
+		335: [{	//EF_POISON	   Poison
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function( Params ) {
+				var Poison = require('Renderer/Effects/PoisonEffect');
+				Poison.setActive(true);
+			}
+		}],
 
 		336: [{ //kyrie eleison / parrying	(when target blocked dmg)	//EF_GUARD	Kyrie Eleison/Parrying Shield
 			wav:  'effect/kyrie_guard',
