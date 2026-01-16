@@ -54,8 +54,7 @@ define(function(require) {
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, size, size);
 
-		ctx.globalCompositeOperation = 'destination-out'; // Isso "corta" o centro baseado no alpha
-
+		ctx.globalCompositeOperation = 'destination-out';
 		ctx.fillStyle = gradient; 
 		
 		ctx.globalCompositeOperation = 'source-over';
