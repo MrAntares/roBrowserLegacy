@@ -19,6 +19,7 @@ define(function (require) {
 	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
 	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
 	var Poison              = require('Renderer/Effects/PoisonEffect');
+	var Blind              = require('Renderer/Effects/BlindEffect');
 	var StatusConst         = require('DB/Status/StatusConst');
 	var Session             = require('Engine/SessionStorage');
 	var getModule           = require;
@@ -95,7 +96,8 @@ define(function (require) {
 
 		if(Poison.isActive())
 			Poison.render(gl, modelView, projection, fog);
-
+		if(Blind.isActive())
+			Blind.render(gl, modelView, projection, fog);
 	}
 
 	ScreenEffectManager.parseStatus = function parseStatus( tsc )
@@ -104,7 +106,8 @@ define(function (require) {
 
 		if( tsc == StatusConst.HealthState.POISON )
 			Poison.setActive(true);
-	
+		if( tsc == StatusConst.HealthState.BLIND )
+			Blind.setActive(true);
 	}
 
 	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect( tsc )
@@ -113,12 +116,15 @@ define(function (require) {
 
 		if( tsc == StatusConst.HealthState.POISON )
 			Poison.setActive(false);
+		if( tsc == StatusConst.HealthState.BLIND )
+			Blind.setActive(false);
 	
 	}
 
 	ScreenEffectManager.clean = function clean()
 	{
 		Poison.setActive(false);
+		Blind.setActive(false);
 	}
 
 	/**
