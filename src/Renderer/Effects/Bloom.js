@@ -86,11 +86,11 @@ define(function(require) {
 
 		Bloom.beforeRender(gl);
 
-                gl.useProgram(_program);
+		gl.useProgram(_program);
 		// Update uniforms based on user settings
-                gl.uniform1f(_program.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
-                gl.uniform1f(_program.uniform.uBloomThreshold, 0.88);
-                gl.uniform1f(_program.uniform.uBloomSoftKnee, 0.45);
+		gl.uniform1f(_program.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
+		gl.uniform1f(_program.uniform.uBloomThreshold, 0.88);
+		gl.uniform1f(_program.uniform.uBloomSoftKnee, 0.45);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
