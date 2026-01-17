@@ -46,7 +46,10 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	const glMatrix     = require('Utils/gl-matrix');
 	const PACKETVER    = require('Network/PacketVerManager');
+	var Bloom          = require('Renderer/Effects/Bloom');
+	var PostProcess    = require('Renderer/Effects/PostProcess');
 	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
+	var WebGL         = require('Utils/WebGL');
 
 	const mat4         = glMatrix.mat4;
 
@@ -212,6 +215,10 @@ define(function( require )
 		SoundManager.stop();
 		BGM.stop();
 
+		// Release WebGL resources for post-processing effects
+		VerticalFlip.clean();
+		Bloom.clean();
+
 		Mouse.intersect = false;
 
 		this.light   = null;
@@ -373,6 +380,11 @@ define(function( require )
 		ScreenEffectManager.init( gl, worldResource );
 		VerticalFlip.init(gl);
 
+		if (WebGL.detectBadWebGL(gl)) {
+			GraphicsSettings.bloom = false;
+		} else
+			Bloom.init(gl);
+
 		// Starting to render
 		Background.remove(function(){
 			MapRenderer.loading = false;
@@ -398,12 +410,16 @@ define(function( require )
 	var _pos = new Uint16Array(2);
 	MapRenderer.onRender = function OnRender( tick, gl )
 	{
-		var usePostProcessing = GraphicsSettings.bloom && Renderer.postProcessProgram;
-		var useVerticalFlip = VerticalFlip.isActive();
+		var usePostProcessing = GraphicsSettings.bloom && Bloom.program();
+		var useVerticalFlip = VerticalFlip.isActive() && VerticalFlip.program();
 
-		if ((usePostProcessing || useVerticalFlip) && gl.fbo && gl.fbo.framebuffer) {
-			gl.bindFramebuffer(gl.FRAMEBUFFER, gl.fbo.framebuffer);
-			gl.viewport(0, 0, gl.fbo.width, gl.fbo.height);
+		var useAnyPostProcess = usePostProcessing || useVerticalFlip;
+
+		if (useAnyPostProcess) {
+			// Priority selection: If bloom is on, use its FBO for the first pass
+			var fbo = usePostProcessing ? Bloom.getFbo() : VerticalFlip.getFbo();
+			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.framebuffer);
+			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 		} else {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -502,25 +518,44 @@ define(function( require )
 		// Clean up
 		MemoryManager.clean(gl, tick);
 
-		if ((usePostProcessing || useVerticalFlip) && gl.fbo && gl.fbo.framebuffer) {
-			var mainTexture = gl.fbo.texture;
-
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-			if(useVerticalFlip)
-				VerticalFlip.render(gl, modelView, projection, fog); 
-			else {
-				gl.useProgram(Renderer.postProcessProgram);
-				gl.uniform1f(Renderer.postProcessProgram.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
-				gl.uniform1f(Renderer.postProcessProgram.uniform.uBloomThreshold, 0.88);
-				gl.uniform1f(Renderer.postProcessProgram.uniform.uBloomSoftKnee, 0.45);
-				Renderer._drawPostProcessQuad(gl, Renderer.postProcessProgram, mainTexture);    
-			}
-		}
+		// Finalize frame with post-processing effects
+		doPostProcess( gl );
 	};
 
+	/**
+	* Executes the post-processing pipeline.
+	* @param {WebGLRenderingContext} gl - The WebGL context.
+	*/
+	function doPostProcess( gl )
+	{
+		var usePostProcessing = GraphicsSettings.bloom && Bloom.program();
+		var useVerticalFlip = VerticalFlip.isActive() && VerticalFlip.program();
+
+		var useAnyPostProcess = usePostProcessing || useVerticalFlip;
+
+		var fbo = usePostProcessing ? Bloom.getFbo() : VerticalFlip.getFbo(); // Bloom FBO First Pass Priority
+		var secondfbo = VerticalFlip.getFbo();
+
+		if (useAnyPostProcess) {
+			var sceneTexture = fbo.texture;
+			// Multi-Pass: Bloom -> Vertical Flip
+			if (usePostProcessing && useVerticalFlip) {
+				Bloom.render(gl, sceneTexture, secondfbo.framebuffer); // FirstPass draws scene on Second Pass framebuffer
+				VerticalFlip.render(gl, secondfbo.texture); // Second Pass draw texture in null framebuffer (actual scene)
+				return;
+			}
+			// Single Pass: Bloom only
+			if (usePostProcessing) {
+				Bloom.render(gl, sceneTexture);
+				return;
+			}
+			// Single Pass: Vertical Flip only
+			if (useVerticalFlip) {
+				VerticalFlip.render(gl, sceneTexture);
+				return;
+			}
+		}
+	}
 
 	/**
 	 * Callback to execute once the map is loaded

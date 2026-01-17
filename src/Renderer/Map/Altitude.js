@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 define( ['Utils/gl-matrix', 'Utils/PathFinding', 'Controls/MouseEventHandler', 'Renderer/Effects/VerticalFlip'],
-function(       glMatrix,          PathFinding,            Mouse,				VerticalFlip )
+function(       glMatrix,          PathFinding,            Mouse,                                 VerticalFlip )
 {
 	'use strict';
 
@@ -233,6 +233,8 @@ function(       glMatrix,          PathFinding,            Mouse,				VerticalFli
 			_to[0] = (Mouse.screen.x / Mouse.screen.width)  * 2 - 1;
 			_to[1] =-(Mouse.screen.y / Mouse.screen.height) * 2 + 1;
 
+			// Check if the Vertical Flip (Illusion effect) is active
+			// If true, invert the Y coordinate relative to the renderer height
 			if (VerticalFlip.isActive())  
 				_to[1] = -_to[1];
 
