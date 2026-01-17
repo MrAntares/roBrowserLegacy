@@ -11,8 +11,6 @@
 define(function(require) {
 	'use strict';
 
-	var Session          = require('Engine/SessionStorage');
-	var GraphicsSettings = require('Preferences/Graphics');
 	var WebGL            = require('Utils/WebGL'); 
 
 	function PostProcess() {}
