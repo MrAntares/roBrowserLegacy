@@ -248,9 +248,9 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		if(isSwiftShader && isIntel && isChrome){
 			console.warn("[WebGL] PostProcessing disabled due to WebGL compatibility issue:", {
 				reason: "Intel + Chrome + SwiftShader",
-				vendor: gl.getParameter(this.gl.VENDOR),
-				renderer: gl.getParameter(this.gl.RENDERER),
-				version:this. gl.getParameter(this.gl.VERSION)
+				vendor: gl.getParameter(gl.VENDOR),
+				renderer: gl.getParameter(gl.RENDERER),
+				version:this. gl.getParameter(gl.VERSION)
 			});
 		}
 
