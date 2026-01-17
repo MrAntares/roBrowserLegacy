@@ -250,7 +250,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 				reason: "Intel + Chrome + SwiftShader",
 				vendor: gl.getParameter(gl.VENDOR),
 				renderer: gl.getParameter(gl.RENDERER),
-				version:this. gl.getParameter(gl.VERSION)
+				version: gl.getParameter(gl.VERSION)
 			});
 		}
 
