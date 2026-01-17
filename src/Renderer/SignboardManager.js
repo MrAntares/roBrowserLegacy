@@ -9,7 +9,6 @@ define(function (require) {
     var vec4 = glMatrix.vec4;
     var Renderer = require('Renderer/Renderer');
     var DB = require('DB/DBManager');
-
     var _pos = new Float32Array(4);
     var _size = new Float32Array(2);
 
@@ -86,6 +85,11 @@ define(function (require) {
             z = _pos[3] === 0.0 ? 1.0 : (1.0 / _pos[3]);
             _pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
             _pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
+
+            // Check if the Vertical Flip (Illusion effect) is active
+            // If true, invert the Y coordinate relative to the renderer height
+            if (require('Renderer/Effects/VerticalFlip').isActive()) 
+                  _pos[1] = Renderer.height - _pos[1];
 
             ui.style.top = (_pos[1] | 0) + 'px';
             ui.style.left = ((_pos[0] - signboard.posY) | 0) + 'px';

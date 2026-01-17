@@ -26,6 +26,9 @@ define(function( require )
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Camera        = require('Renderer/Camera');
 	var Session       = require('Engine/SessionStorage');
+	var Bloom          = require('Renderer/Effects/Bloom');
+	var PostProcess    = require('Renderer/Effects/PostProcess');
+	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
 	var mat4          = glMatrix.mat4;
 	var getModule     = require;
 
@@ -110,27 +113,6 @@ define(function( require )
 	Renderer.renderCallbacks = [];
 
 	/**
-	 * Detect Post-Processing can be Enabled (Bad Combination of Chrome+SoftwareOnly+IntelXE(block-listed by WebGL- crbug.com/41479539))
-	 */
-	function detectBadWebGL(gl) {
-		const renderer = gl.getParameter(gl.RENDERER) || "";
-		const vendor   = gl.getParameter(gl.VENDOR)   || "";
-		const ua       = navigator.userAgent;
-
-		const isSwiftShader = renderer.toLowerCase().includes("swiftshader");
-		const isIntel       = vendor.toLowerCase().includes("intel");
-		const isChrome      = /chrome|chromium/i.test(ua) && !/edg|opr/i.test(ua);
-
-		return {
-			isSwiftShader,
-			isIntel,
-			isChrome,
-			shouldDisableBloom: isSwiftShader && isIntel && isChrome
-		};
-	}
-
-
-	/**
 	 * Shime for requestAnimationFrame
 	 */
 	var _requestAnimationFrame =
@@ -190,18 +172,6 @@ define(function( require )
 
 			this.render(null);
 			this.resize();
-			const webglCheck = detectBadWebGL(this.gl);
-
-			if (webglCheck.shouldDisableBloom) {
-				console.warn("[WebGL] PostProcessing disabled due to WebGL compatibility issue:", {
-					reason: "Intel + Chrome + SwiftShader",
-					vendor: this.gl.getParameter(this.gl.VENDOR),
-					renderer: this.gl.getParameter(this.gl.RENDERER),
-					version:this. gl.getParameter(this.gl.VERSION)
-				});
-				GraphicsSettings.bloom = false;
-			} else
-				this.initPostProcessing();
 		}
 
 		var gl = this.gl;
@@ -260,20 +230,19 @@ define(function( require )
 		gl.depthFunc( gl.LEQUAL );
 		gl.enable( gl.BLEND );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
-
-		// Re-initialize Post Processing (Shaders/Framebuffers need to be recreated)
-		if (this.postProcessProgram) {
-			this.postProcessProgram = null; // Clear old reference
-		}
 		
 		// Only re-enable bloom if it was previously enabled and safe
 		if (GraphicsSettings.bloom) {
-			const webglCheck = detectBadWebGL(gl);
-			if (!webglCheck.shouldDisableBloom) {
-				this.initPostProcessing();
-			}
+			// Re-initialize Post Processing (Shaders/Framebuffers need to be recreated)
+			Bloom.clean(); // Clear old reference
+
+			if (!WebGL.detectBadWebGL(gl))
+				Bloom.init(gl);
 		}
-		
+		if(VerticalFlip.isActive()){
+			VerticalFlip.clean();
+			VerticalFlip.init(gl);
+		}
 		// Trigger resize to reset viewport and framebuffers
 		this.resize();
 
@@ -281,127 +250,6 @@ define(function( require )
 		this.render();
 	};
 
-
-	/**
-	 * Post Processing Helpers
-	 */
-	Renderer.createPostProcessFbos = function(gl, width, height) {
-		try {
-			if (!gl.fbo || gl.fbo.width !== width || gl.fbo.height !== height) {
-				gl.fbo = WebGL.createFramebuffer(gl, width, height);
-			}
-		} catch (e) {
-			console.error("Failed to create PostProcess FBOs:", e);
-			// Fallback: Disable bloom if FBO creation fails (likely OOM)
-			GraphicsSettings.bloom = false;
-			this.postProcessProgram = null;
-		}
-	};
-
-	Renderer._drawPostProcessQuad = function(gl, program, texture) {
-		// Guard against lost buffer/context
-		if (!Renderer.quadBuffer || !gl.isBuffer(Renderer.quadBuffer)) return;
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, Renderer.quadBuffer);
-
-		var posLoc = program.attribute.aPosition;
-		gl.enableVertexAttribArray(posLoc);
-		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.uniform1i(program.uniform.uTexture, 0);
-
-		gl.drawArrays(gl.TRIANGLES, 0, 6);
-	};
-
-	/**
-	 * Initialize Post Processing
-	 */
-	Renderer.initPostProcessing = function() {
-		var gl = this.gl;
-		if (!gl || this.contextLost) return;
-
-		var commonVS = `
-			#version 300 es
-			#pragma vscode_glsllint_stage : vert
-			precision highp float;
-			in vec2 aPosition;
-			out vec2 vUv;
-
-			void main() {
-				vUv = aPosition * 0.5 + 0.5;
-				gl_Position = vec4(aPosition, 0.0, 1.0);
-			}
-		`;
-
-		var bloomFS = `
-			#version 300 es
-			#pragma vscode_glsllint_stage : frag
-			precision mediump float;
-			uniform sampler2D uTexture;
-			uniform float uBloomIntensity;
-			uniform float uBloomThreshold;
-			uniform float uBloomSoftKnee;
-			in vec2 vUv;
-			out vec4 fragColor;
-
-			float luminance(vec3 c) {
-				return dot(c, vec3(0.2126, 0.7152, 0.0722));
-			}
-
-			void main() {
-				vec3 color = texture(uTexture, vUv).rgb;
-				float l = luminance(color);
-				// ---- DARK AREA FILTER (BRIGHT PASS) ----
-				float knee = uBloomThreshold * uBloomSoftKnee;
-				float bloomFactor = smoothstep(
-					uBloomThreshold - knee,
-					uBloomThreshold + knee,
-					l
-				);
-				vec3 bloom = color * bloomFactor * uBloomIntensity;
-				fragColor = vec4(color + bloom, 1.0);
-			}
-		`;
-
-		var bloomProgram = null;
-
-		try {
-			bloomProgram = WebGL.createShaderProgram(gl, commonVS, bloomFS);
-		} catch (e) {
-			console.error("Error when compiling shader BLOOM.", e);
-			return;
-		}
-
-		this.postProcessProgram = bloomProgram;
-
-		var quadVertices = new Float32Array([
-			-1, -1,
-			 1, -1,
-			-1,  1,
-			-1,  1,
-			 1, -1,
-			 1,  1
-		]);
-
-		this.quadBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
-
-		if (this.postProcessProgram) {
-			var width, height, quality, dpr = window.devicePixelRatio || 1;
-
-			width  = window.innerWidth  || document.body.offsetWidth;
-			height = window.innerHeight || document.body.offsetHeight;
-			quality = Configs.get('quality', 100) / 100;
-
-			var renderWidth = width * quality * dpr;
-			var renderHeight = height * quality * dpr;
-
-			this.createPostProcessFbos(gl, renderWidth, renderHeight);
-		}
-	};
 
 	/**
 	 * Show renderer
@@ -475,10 +323,6 @@ define(function( require )
 
 		Background.resize( this.width, this.height );
 
-  		if (this.postProcessProgram) {
-  	          this.createPostProcessFbos(this.gl, width * dpr, height * dpr);
-		}
-
 		/*
 		* Note about this hack:
 		 * require.js parse function and search for "require()" string.
@@ -491,6 +335,10 @@ define(function( require )
 		 * UI/UIManager.
 		 */
 		getModule('UI/UIManager').fixResizeOverflow( this.width, this.height );
+		if(this.gl){
+			Bloom.recreateFbo(this.gl, this.width, this.height);
+			VerticalFlip.recreateFbo(this.gl, this.width, this.height);
+		}
 	};
 
 
@@ -574,7 +422,6 @@ define(function( require )
 				if (GraphicsSettings.bloom) {
 					console.warn("[Renderer] Disabling bloom due to render error (potential resource pressure)");
 					GraphicsSettings.bloom = false;
-					this.postProcessProgram = null;
 				}
 			}
 		}

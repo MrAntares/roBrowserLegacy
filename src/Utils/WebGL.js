@@ -170,69 +170,6 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		return shaderProgram;
 	}
 
-	/**
-	 * Create main (FBO) for texture collors and depth renderbuffer.
-	 */
-	function createFramebuffer (gl, width, height) {
-		try {
-			if (gl.fbo) {
-				// Cleaning old resources if exist
-				if(gl.isTexture(gl.fbo.texture)) gl.deleteTexture(gl.fbo.texture);
-				if(gl.isRenderbuffer(gl.fbo.rbo)) gl.deleteRenderbuffer(gl.fbo.rbo);
-				if(gl.isFramebuffer(gl.fbo.framebuffer)) gl.deleteFramebuffer(gl.fbo.framebuffer);
-			}
-
-			var fbo = gl.createFramebuffer();
-			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-			// Color Attachment
-			var texture = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			// Use simple parameters first
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
-
-			// Prevents Artifacts filter and wrapper in FBO
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-
-			// Depth Attachment
-			var rbo = gl.createRenderbuffer();
-			gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
-			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
-			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo);
-
-			// Status checking
-			var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-			if (status !== gl.FRAMEBUFFER_COMPLETE) {
-				throw new Error("WebGL::createFramebuffer() - Incomplete Framebuffer! Status: " + status);
-			}
-
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-
-			gl.fbo = {
-				framebuffer: fbo,
-				texture: texture,
-				rbo: rbo,
-				width: width,
-				height: height
-			};
-
-			return gl.fbo;
-		} catch (e) {
-			console.error("WebGL::createFramebuffer failed (likely OOM or context loss):", e);
-			// Clean up partially created resources
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-			return null;
-		}
-	}
 
 	/**
 	 * Webgl Require textures to be power of two size
@@ -297,6 +234,30 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	}
 
 	/**
+	 * Detect Post-Processing can be Enabled (Bad Combination of Chrome+SoftwareOnly+IntelXE(block-listed by WebGL- crbug.com/41479539))
+	 */
+	function detectBadWebGL(gl) {
+		const renderer = gl.getParameter(gl.RENDERER) || "";
+		const vendor   = gl.getParameter(gl.VENDOR)   || "";
+		const ua       = navigator.userAgent;
+
+		const isSwiftShader = renderer.toLowerCase().includes("swiftshader");
+		const isIntel       = vendor.toLowerCase().includes("intel");
+		const isChrome      = /chrome|chromium/i.test(ua) && !/edg|opr/i.test(ua);
+
+		if(isSwiftShader && isIntel && isChrome){
+			console.warn("[WebGL] PostProcessing disabled due to WebGL compatibility issue:", {
+				reason: "Intel + Chrome + SwiftShader",
+				vendor: gl.getParameter(gl.VENDOR),
+				renderer: gl.getParameter(gl.RENDERER),
+				version:this. gl.getParameter(gl.VERSION)
+			});
+		}
+
+		return isSwiftShader && isIntel && isChrome;
+	}
+
+	/**
 	 * Check if the context is a WebGL2 context
 	 *
 	 * @param {object} gl context
@@ -313,7 +274,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	return {
 		getContext:          getContext,
 		createShaderProgram: createShaderProgram,
-		createFramebuffer:   createFramebuffer,
+		detectBadWebGL: detectBadWebGL,
 		toPowerOfTwo:        toPowerOfTwo,
 		texture:             texture,
 		isWebGL2:		 	 isWebGL2,
