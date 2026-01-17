@@ -47,7 +47,7 @@ define(function(require) {
 	 */
 	PostProcess.createFramebuffer = function createFramebuffer(gl, width, height, oldfbo) {
 		try {
-			if (newfbo) {
+			if (oldfbo) {
 				// Free old resources to prevent memory leaks
 				if(gl.isTexture(oldfbo.texture)) gl.deleteTexture(oldfbo.texture);
 				if(gl.isRenderbuffer(oldfbo.rbo)) gl.deleteRenderbuffer(oldfbo.rbo);
