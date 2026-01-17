@@ -237,11 +237,11 @@ define(function( require )
 			Bloom.clean(); // Clear old reference
 
 			if (!WebGL.detectBadWebGL(gl))
-				Bloom.init();
+				Bloom.init(gl);
 		}
 		if(VerticalFlip.isActive()){
 			VerticalFlip.clean();
-			VerticalFlip.init();
+			VerticalFlip.init(gl);
 		}
 		// Trigger resize to reset viewport and framebuffers
 		this.resize();
