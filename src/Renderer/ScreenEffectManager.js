@@ -19,7 +19,8 @@ define(function (require) {
 	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
 	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
 	var Poison              = require('Renderer/Effects/PoisonEffect');
-	var Blind              = require('Renderer/Effects/BlindEffect');
+	var Blind               = require('Renderer/Effects/BlindEffect');
+	var VerticalFlip        = require('Renderer/Effects/VerticalFlip');
 	var StatusConst         = require('DB/Status/StatusConst');
 	var Session             = require('Engine/SessionStorage');
 	var getModule           = require;
@@ -98,6 +99,8 @@ define(function (require) {
 			Poison.render(gl, modelView, projection, fog);
 		if(Blind.isActive())
 			Blind.render(gl, modelView, projection, fog);
+		//if(VerticalFlip.isActive())
+		//	VerticalFlip.render(gl, modelView, projection, fog);
 	}
 
 	ScreenEffectManager.parseStatus = function parseStatus( tsc )
@@ -108,6 +111,8 @@ define(function (require) {
 			Poison.setActive(true);
 		if( tsc == StatusConst.HealthState.BLIND )
 			Blind.setActive(true);
+		if( tsc == StatusConst.ILLUSION )
+			VerticalFlip.setActive(true);
 	}
 
 	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect( tsc )
@@ -118,13 +123,15 @@ define(function (require) {
 			Poison.setActive(false);
 		if( tsc == StatusConst.HealthState.BLIND )
 			Blind.setActive(false);
-	
+		if( tsc == StatusConst.ILLUSION )
+			VerticalFlip.setActive(false);
 	}
 
 	ScreenEffectManager.clean = function clean()
 	{
 		Poison.setActive(false);
 		Blind.setActive(false);
+		VerticalFlip.setActive(false);
 	}
 
 	/**

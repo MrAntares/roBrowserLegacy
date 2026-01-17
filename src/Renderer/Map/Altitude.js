@@ -7,11 +7,10 @@
  *
  * @author Vincent Thibault
  */
-define( ['Utils/gl-matrix', 'Utils/PathFinding', 'Controls/MouseEventHandler'],
-function(       glMatrix,          PathFinding,            Mouse )
+define( ['Utils/gl-matrix', 'Utils/PathFinding', 'Controls/MouseEventHandler', 'Renderer/Effects/VerticalFlip'],
+function(       glMatrix,          PathFinding,            Mouse,				VerticalFlip )
 {
 	'use strict';
-
 
 	/**
 	 * Altitude Namespace
@@ -233,6 +232,10 @@ function(       glMatrix,          PathFinding,            Mouse )
 			// set two vectors with opposing z values
 			_to[0] = (Mouse.screen.x / Mouse.screen.width)  * 2 - 1;
 			_to[1] =-(Mouse.screen.y / Mouse.screen.height) * 2 + 1;
+
+			if (VerticalFlip.isActive())  
+				_to[1] = -_to[1];
+
 			_to[2] =  1.0;
 			_to[3] =  1.0;
 

@@ -184,6 +184,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function( glMat
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
+		if (require('Renderer/Effects/VerticalFlip').isActive())
+			_pos[1] = Renderer.height - _pos[1];  
+
 		canvas.style.top  = (_pos[1] | 0 ) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
