@@ -46,7 +46,8 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	const glMatrix     = require('Utils/gl-matrix');
 	const PACKETVER    = require('Network/PacketVerManager');
-	
+	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
+
 	const mat4         = glMatrix.mat4;
 
 	/**
@@ -370,6 +371,7 @@ define(function( require )
 		Damage.init(gl);
 		EffectManager.init(gl);
 		ScreenEffectManager.init( gl, worldResource );
+		VerticalFlip.init(gl);
 
 		// Starting to render
 		Background.remove(function(){
@@ -396,10 +398,10 @@ define(function( require )
 	var _pos = new Uint16Array(2);
 	MapRenderer.onRender = function OnRender( tick, gl )
 	{
+		var usePostProcessing = GraphicsSettings.bloom && Renderer.postProcessProgram;
+		var useVerticalFlip = VerticalFlip.isActive();
 
-		var usePostProcessing = GraphicsSettings.bloom || false;
-		
-		if (usePostProcessing && gl.fbo && gl.fbo.framebuffer) {
+		if ((usePostProcessing || useVerticalFlip) && gl.fbo && gl.fbo.framebuffer) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, gl.fbo.framebuffer);
 			gl.viewport(0, 0, gl.fbo.width, gl.fbo.height);
 		} else {
@@ -500,24 +502,21 @@ define(function( require )
 		// Clean up
 		MemoryManager.clean(gl, tick);
 
-		if (usePostProcessing && Renderer.quadBuffer) {
-			
-			var inputTexture = gl.fbo.texture;
+		if ((usePostProcessing || useVerticalFlip) && gl.fbo && gl.fbo.framebuffer) {
+			var mainTexture = gl.fbo.texture;
+
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-			var finalProgramToUse = null;
 
-			if (Renderer.postProcessProgram) {
- 				finalProgramToUse = Renderer.postProcessProgram;
- 				gl.useProgram(finalProgramToUse);
-				gl.uniform1f(finalProgramToUse.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
-				gl.uniform1f(finalProgramToUse.uniform.uBloomThreshold, 0.88); // ignore shadows
-				gl.uniform1f(finalProgramToUse.uniform.uBloomSoftKnee, 0.45); // soft transition
-			}
-			
-			if(finalProgramToUse) {
-				Renderer._drawPostProcessQuad(gl, finalProgramToUse, inputTexture);
+			if(useVerticalFlip)
+				VerticalFlip.render(gl, modelView, projection, fog); 
+			else {
+				gl.useProgram(Renderer.postProcessProgram);
+				gl.uniform1f(Renderer.postProcessProgram.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
+				gl.uniform1f(Renderer.postProcessProgram.uniform.uBloomThreshold, 0.88);
+				gl.uniform1f(Renderer.postProcessProgram.uniform.uBloomSoftKnee, 0.45);
+				Renderer._drawPostProcessQuad(gl, Renderer.postProcessProgram, mainTexture);    
 			}
 		}
 	};
