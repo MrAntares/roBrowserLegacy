@@ -89,8 +89,8 @@ define(function(require) {
 		gl.useProgram(_program);
 		// Update uniforms based on user settings
 		gl.uniform1f(_program.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
-		gl.uniform1f(_program.uniform.uBloomThreshold, 0.88);
-		gl.uniform1f(_program.uniform.uBloomSoftKnee, 0.45);
+		gl.uniform1f(_program.uniform.uBloomThreshold, 0.88); // Ignore Shadows factor
+		gl.uniform1f(_program.uniform.uBloomSoftKnee, 0.45); // Soft Transition factor
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
