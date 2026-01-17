@@ -410,14 +410,14 @@ define(function( require )
 	var _pos = new Uint16Array(2);
 	MapRenderer.onRender = function OnRender( tick, gl )
 	{
-		var usePostProcessing = GraphicsSettings.bloom && Bloom.program();
+		var useBloom = GraphicsSettings.bloom && Bloom.program();
 		var useVerticalFlip = VerticalFlip.isActive() && VerticalFlip.program();
 
-		var useAnyPostProcess = usePostProcessing || useVerticalFlip;
+		var useAnyPostProcess = useBloom || useVerticalFlip;
 
 		if (useAnyPostProcess) {
 			// Priority selection: If bloom is on, use its FBO for the first pass
-			var fbo = usePostProcessing ? Bloom.getFbo() : VerticalFlip.getFbo();
+			var fbo = useBloom ? Bloom.getFbo() : VerticalFlip.getFbo();
 			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.framebuffer);
 			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 		} else {
@@ -528,24 +528,24 @@ define(function( require )
 	*/
 	function doPostProcess( gl )
 	{
-		var usePostProcessing = GraphicsSettings.bloom && Bloom.program();
+		var useBloom = GraphicsSettings.bloom && Bloom.program();
 		var useVerticalFlip = VerticalFlip.isActive() && VerticalFlip.program();
 
-		var useAnyPostProcess = usePostProcessing || useVerticalFlip;
+		var useAnyPostProcess = useBloom || useVerticalFlip;
 
-		var fbo = usePostProcessing ? Bloom.getFbo() : VerticalFlip.getFbo(); // Bloom FBO First Pass Priority
+		var fbo = useBloom ? Bloom.getFbo() : VerticalFlip.getFbo(); // Bloom FBO First Pass Priority
 		var secondfbo = VerticalFlip.getFbo();
 
 		if (useAnyPostProcess) {
 			var sceneTexture = fbo.texture;
 			// Multi-Pass: Bloom -> Vertical Flip
-			if (usePostProcessing && useVerticalFlip) {
+			if (useBloom && useVerticalFlip) {
 				Bloom.render(gl, sceneTexture, secondfbo.framebuffer); // FirstPass draws scene on Second Pass framebuffer
 				VerticalFlip.render(gl, secondfbo.texture); // Second Pass draw texture in null framebuffer (actual scene)
 				return;
 			}
 			// Single Pass: Bloom only
-			if (usePostProcessing) {
+			if (useBloom) {
 				Bloom.render(gl, sceneTexture);
 				return;
 			}
