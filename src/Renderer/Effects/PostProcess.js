@@ -42,16 +42,16 @@ define(function(require) {
 	 * @param {WebGLRenderingContext} gl
 	 * @param {number} width
 	 * @param {number} height
-	 * @param {Object} [newfbo] - Old object for resource cleanup
+	 * @param {Object} oldfbo - Old object for resource cleanup
 	 * @returns {Object|null}
 	 */
-	PostProcess.createFramebuffer = function createFramebuffer(gl, width, height, newfbo) {
+	PostProcess.createFramebuffer = function createFramebuffer(gl, width, height, oldfbo) {
 		try {
 			if (newfbo) {
 				// Free old resources to prevent memory leaks
-				if(gl.isTexture(newfbo.texture)) gl.deleteTexture(newfbo.texture);
-				if(gl.isRenderbuffer(newfbo.rbo)) gl.deleteRenderbuffer(newfbo.rbo);
-				if(gl.isFramebuffer(newfbo.framebuffer)) gl.deleteFramebuffer(newfbo.framebuffer);
+				if(gl.isTexture(oldfbo.texture)) gl.deleteTexture(oldfbo.texture);
+				if(gl.isRenderbuffer(oldfbo.rbo)) gl.deleteRenderbuffer(oldfbo.rbo);
+				if(gl.isFramebuffer(oldfbo.framebuffer)) gl.deleteFramebuffer(oldfbo.framebuffer);
 			}
 
 			var fbo = gl.createFramebuffer();
