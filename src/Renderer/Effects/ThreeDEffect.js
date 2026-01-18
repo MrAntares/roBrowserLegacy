@@ -273,7 +273,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
 		if (effect.soulStrikePattern) { 
 			if (!EF_Inst_Par.duplicateID) {  
-				var hitIndex = Math.floor((this.startTick / 200) % 5);  
+				var hitIndex = Math.floor((this.startTick / effect.duration) % 5);  
           
 				var offsetAngle = (hitIndex * 72);  
 				var offsetRadius = 2;  
