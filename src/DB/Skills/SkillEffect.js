@@ -122,7 +122,7 @@
 	 SkillEffect[SK.WZ_METEOR]                      = {effectId: 92, hitEffectId: 49};		//Meteor Storm
 	 SkillEffect[SK.WZ_JUPITEL]                     = {effectId: 93, hitEffectId: 94};		//Jupitel Thunder
 	 SkillEffect[SK.WZ_VERMILION]                   = {effectId: 90, hitEffectId: 52};		//Lord of Vermilion
-	 SkillEffect[SK.WZ_WATERBALL]                   = {beforeHitEffectId: 116, hitEffectId: 117};		//Water Ball
+	 SkillEffect[SK.WZ_WATERBALL]                   = {beforeHitEffectIdOnCaster: 116, hitEffectIdOnCaster: 117};		//Water Ball
 	 SkillEffect[SK.WZ_ICEWALL]                     = {groundEffectId: 74};		//Ice Wall
 	 SkillEffect[SK.WZ_FROSTNOVA]                   = {effectIdOnCaster: 28, hitEffectId: 51};		//Frost Nova
 	 SkillEffect[SK.WZ_STORMGUST]                   = {effectId: 89, hitEffectId: 51};		//Storm Gust
