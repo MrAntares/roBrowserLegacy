@@ -2665,7 +2665,7 @@ define(function( require )
 
 		116: [{  	//EF_WATERBALL	   Fling Watersphere  
 			type: '3D',    
-			duration: 1500,    
+			duration: 500,    
 			fileList: [    
 				'effect/water_out_a.bmp',    
 				'effect/water_out_b.bmp',     
