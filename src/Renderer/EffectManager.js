@@ -940,6 +940,21 @@ define(function (require) {
 				EffectManager.spam(EF_Init_Par);
 			});
 		}
+
+		if (SkillEffect[skillId].hitEffectIdOnCaster) {
+			effects = Array.isArray(SkillEffect[skillId].hitEffectIdOnCaster) ? SkillEffect[skillId].hitEffectIdOnCaster : [SkillEffect[skillId].hitEffectIdOnCaster];
+
+			effects.forEach(effectId => {
+				EF_Init_Par = {
+					effectId:  effectId,
+					ownerAID:  srcAID,
+					startTick: tick,
+					otherAID:  destAID
+				};
+
+				EffectManager.spam(EF_Init_Par);
+			});
+		}
 	};
 
 	/**

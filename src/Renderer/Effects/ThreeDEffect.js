@@ -146,6 +146,11 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		this.yOffset = (!isNaN(effect.yOffset)) ? effect.yOffset : 0;
 		this.zOffset = (!isNaN(effect.zOffset)) ? effect.zOffset : 0;
 
+		this.zOffsetStart = (!isNaN(effect.zOffsetStart)) ? effect.zOffsetStart : 0;
+		this.zOffsetEnd   = (!isNaN(effect.zOffsetEnd)) ? effect.zOffsetEnd : 0;
+		this.arc          = (!isNaN(effect.arc)) ? effect.arc : 0;
+		this.retreat      = (!isNaN(effect.retreat)) ? effect.retreat : 0;
+
 		this.poszSmooth = effect.poszSmooth ? true : false;
 		if (effect.fromSrc) {
 			var randStart = [
@@ -163,8 +168,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			this.posxEnd = (otherPosition[0] - position[0]) + this.xOffset + randEnd[0];
 			this.posyStart = 0 + this.yOffset + randStart[1];
 			this.posyEnd = (otherPosition[1] - position[1]) + this.yOffset + randEnd[1];
-			this.poszStart = 0 + this.zOffset + randStart[2];
-			this.poszEnd = (otherPosition[2] - position[2]) + this.zOffset + randEnd[2];
+			this.poszStart = 0 + this.zOffset + this.zOffsetStart + randStart[2];
+			this.poszEnd = (otherPosition[2] - position[2]) + this.zOffset + this.zOffsetEnd + randEnd[2];
 		}
 		if (effect.toSrc) {
 			var randStart = [
@@ -394,6 +399,34 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		SpriteRenderer.position[1] = this.position[1] + posDelta;
 		posDelta = 0;
 
+		if (this.retreat !== 0) {
+			var linearX, linearY;
+		
+			if (this.posxStart != this.posxEnd) 
+				linearX = steps * ((this.posxEnd - this.posxStart) / 100) + this.posxStart;
+			else
+				linearX = this.posxStart;
+
+			if (this.posyStart != this.posyEnd)
+				linearY = steps * ((this.posyEnd - this.posyStart) / 100) + this.posyStart;
+			else
+				linearY = this.posyStart;
+
+			var dx = this.posxEnd - this.posxStart;
+			var dy = this.posyEnd - this.posyStart;
+			var dist = Math.sqrt(dx*dx + dy*dy);
+
+			if (dist > 0.001) {
+				dx = dx / dist;
+				dy = dy / dist;
+				var retreatFactor = Math.sin(steps * Math.PI / 100) * this.retreat;
+				linearX = linearX - (dx * retreatFactor);
+				linearY = linearY - (dy * retreatFactor);
+			}
+			SpriteRenderer.position[0] = this.position[0] + linearX;
+			SpriteRenderer.position[1] = this.position[1] + linearY;
+		}
+
 		if (this.poszSmooth) {
 			if (this.poszStart != this.poszEnd) {
 				var csJ = steps * 0.09 + 1;
@@ -411,6 +444,11 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				posDelta = csN;
 			} else posDelta = this.poszStart;
 		}
+
+		if (this.arc !== 0) {
+			posDelta += this.arc * Math.sin(steps * Math.PI / 100);
+		}
+
 		SpriteRenderer.position[2] = this.position[2] + posDelta;
 
 		if (this.shadowTexture) SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[0]);

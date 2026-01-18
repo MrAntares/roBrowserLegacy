@@ -301,7 +301,21 @@ define(function( require )
 	///
 	/// - sizeRandXMiddle, sizeRandYMiddle:
 	///   sets the middle value for the random range for the size X&Y values
-	///
+	///  
+	/// - zOffsetStart:  
+	///   initial Z offset when using fromSrc or toSrc  
+	///  
+	/// - zOffsetEnd:  
+	///   final Z offset when using fromSrc or toSrc  
+	///  
+	/// - arc:  
+	///   creates an arced trajectory using sine wave  
+	///   positive values create upward arc, negative values create downward arc  
+	///  
+	/// - retreat:  
+	///   makes projectile retreat backward before moving forward  
+	///   creates a "pull back" effect in the middle of the trajectory
+	///  
 	/// - rotate:
 	///   if set to true makes the texture rotate on it's y axis (turn around)
 	///
@@ -2649,8 +2663,43 @@ define(function( require )
 			attachedEntity: true
 		}],
 
-		//116: [{}],	//EF_WATERBALL	   Fling Watersphere
-		//117: [{}],	//EF_WATERBALL2	waterball  (caster or hit?)
+		116: [{  	//EF_WATERBALL	   Fling Watersphere  
+			type: '3D',    
+			duration: 1500,    
+			fileList: [    
+				'effect/water_out_a.bmp',    
+				'effect/water_out_b.bmp',     
+				'effect/water_out_c.bmp'    
+			],
+			fadeOut: true,
+			posxRand: 1.5,  
+			poszRand: 1.5,  
+			posyStart: 0,
+			posyEnd: 3,
+			posySmooth: true,
+			size: 30.5,  
+			rotateWithCamera: true,  
+			blendMode: 2,  
+			attachedEntity: true,  
+			wav: 'effect/wizard_waterball_chulung'  
+		}],
+
+		117: [{  	//EF_WATERBALL2	waterball moving to target  
+			type: '3D',    
+			duration: 1000,
+			duplicate: 20,
+			timeBetweenDupli: 50,  
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/waterball',  
+			playSprite: true,  
+			fromSrc: true,
+			rotateToTarget: true,  
+			size: 50.0,
+			zOffsetStart: 5,
+			zOffsetEnd: 0,
+			arc: 4,
+			retreat: 6,
+			wav: 'effect/wizard_waterball_chulung'
+		}],
 
 		119: [{	//EF_DETECTING	Detect
 			wav:  'effect/hunter_detecting',
