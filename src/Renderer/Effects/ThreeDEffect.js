@@ -8,6 +8,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
 	var blendMode = {};
 
+	var _soulStrikeFirstEffect = null;
+
 	function ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par) {
 		var position = EF_Inst_Par.position;
 		var otherPosition = EF_Inst_Par.otherPosition;
@@ -268,6 +270,41 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		}
 
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
+
+		if (effect.soulStrikePattern) { 
+			if (!EF_Inst_Par.duplicateID) {  
+				var hitIndex = Math.floor((this.startTick / effect.duration) % 5);  
+          
+				var offsetAngle = (hitIndex * 72);  
+				var offsetRadius = 2;  
+          
+				var offsetX = Math.cos(offsetAngle * Math.PI / 180) * offsetRadius;  
+				var offsetY = Math.sin(offsetAngle * Math.PI / 180) * offsetRadius;  
+
+				this._soulOffsetX      = offsetX;  
+				this._soulOffsetY      = offsetY;  
+				this._soulRetreat      = (this.retreat || 0) * (1 + hitIndex * 0.2);  
+				this._soulArc          = (this.arc || 0) * (1 + hitIndex * 0.1);  
+				this._soulAngle        = offsetAngle;  
+				_soulStrikeFirstEffect = this;
+			} else {  
+				var firstEffect = _soulStrikeFirstEffect;  
+				if (firstEffect) {  
+					this._soulOffsetX = firstEffect._soulOffsetX;  
+					this._soulOffsetY = firstEffect._soulOffsetY;  
+					this._soulRetreat = firstEffect._soulRetreat;  
+					this._soulArc     = firstEffect._soulArc;  
+					this._soulAngle   = firstEffect._soulAngle;  
+				}  
+			}  
+
+			this.posxStart = (this.posxStart || 0) + this._soulOffsetX;  
+			this.posyStart = (this.posyStart || 0) + this._soulOffsetY;  
+			this.retreat   = this._soulRetreat;  
+			this.arc       = this._soulArc;  
+			this.angle     = (this.angle || 0) + this._soulAngle;  
+		}
+
 	}
 
 
