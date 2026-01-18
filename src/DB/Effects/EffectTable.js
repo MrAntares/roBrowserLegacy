@@ -998,6 +998,7 @@ define(function( require )
 			attachedEntity: true,
 			blue: 1,
 			duration: 200,
+			delayLate: 200,
 			//duplicate: -1,
 			fadeIn: true,
 			fadeOut: true,
@@ -1014,6 +1015,22 @@ define(function( require )
 			type: '3D',
 			wav: 'effect/ef_soulstrike',
 			zIndex: 1
+		},
+		{
+			type: '3D',
+			duration: 200,
+			duplicate: 5,
+			timeBetweenDupli: 20,
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
+			playSprite: true,
+			toSrc: true,
+			rotateToTarget: true,
+			sizeStart: 100.0,
+			sizeEnd: 500.0,
+			zOffsetStart: 3,
+			arc: 3.0,
+			retreat: 3.0,
+			soulStrikePattern: true
 		}],
 
 
@@ -6772,7 +6789,46 @@ define(function( require )
 
 		}],
 
-		//451: [{}],	//EF_SOULSTRIKE2	   Dark Strike
+		451:[{ 	//EF_SOULSTRIKE2	   Dark Strike
+			alphaMax: 1,
+			attachedEntity: true,
+			blue: 1,
+			duration: 200,
+			delayLate: 200,
+			//duplicate: -1,
+			fadeIn: true,
+			fadeOut: true,
+			file: 'effect/pok3.tga',
+			toSrc: true,
+			green: 1,
+			poszEnd: 1,
+			poszSmooth: true,
+			poszStartRand: 5,
+			poszStartRandMiddle: 6,
+			red: 1,
+			size: 50,
+			timeBetweenDupli: 150,
+			type: '3D',
+			wav: 'effect/ef_soulstrike',
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			duration: 200,
+			duplicate: 5,
+			timeBetweenDupli: 20,
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle5',
+			playSprite: true,
+			toSrc: true,
+			rotateToTarget: true,
+			sizeStart: 100.0,
+			sizeEnd: 500.0,
+			zOffsetStart: 3,
+			arc: 3.0,
+			retreat: 3.0,
+			soulStrikePattern: true
+		}],
+
 		//452: [{}],	//EF_YUFITEL2	   Something Like Jupitel Thunder
 
 		453: [{	//EF_NPC_STOP	   Paralized
