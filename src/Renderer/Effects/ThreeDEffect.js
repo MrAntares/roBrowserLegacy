@@ -187,8 +187,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			this.posxEnd = 0 + this.xOffset + randEnd[0];
 			this.posyStart = (otherPosition[1] - position[1]) + this.yOffset + randStart[1];
 			this.posyEnd = 0 + this.yOffset + randEnd[1];
-			this.poszStart = (otherPosition[2] - position[2]) + this.zOffset + randStart[2];
-			this.poszEnd = 0 + this.zOffset + randEnd[2];
+			this.poszStart = (otherPosition[2] - position[2]) + this.zOffset + this.zOffsetStart + randStart[2];  
+			this.poszEnd = 0 + this.zOffset + this.zOffsetEnd + randEnd[2];  
 
 		}
 
