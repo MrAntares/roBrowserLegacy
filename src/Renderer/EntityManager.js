@@ -32,12 +32,15 @@ define(function (require) {
 	var SpatialGrid = {
 		cellSize: GraphicsSettings.culling ? GraphicsSettings.viewArea : 20,
 		cells: {},
+		dirty: false,
+		lastFrameCount: 0,
 		
 		/**
 		 * Clear the grid
 		 */
 		clear: function() {
 			this.cells = {};
+			this.dirty = false;
 		},
 
 		/**
@@ -53,6 +56,21 @@ define(function (require) {
 				this.cells[key] = [];
 			}
 			this.cells[key].push(entity);
+			this.dirty = true;
+		},
+
+		/**
+		 * Check if grid needs rebuild
+		 */
+		needsRebuild: function(entityCount) {
+			// Rebuild if:
+			// 1. Entity count changed (entities added/removed)
+			// 2. Grid was marked dirty (entities moved)
+			// 3. First frame (no cells yet)
+			if (this.lastFrameCount !== entityCount || Object.keys(this.cells).length === 0) {
+				return true;
+			}
+			return false;
 		},
 
 		/**
@@ -363,11 +381,16 @@ define(function (require) {
 			return;
 		}
 		SpatialGrid.cellSize = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
-		// Note: Rebuilding grid every frame is O(N), but usually N is < 1000.
-		// This allows us to sort only visible entities O(K log K) where K << N.
-		SpatialGrid.clear();
-		for(i = 0, count = _list.length; i < count; ++i) {
-			SpatialGrid.add(_list[i]);
+		
+		// Phase 1 Optimization: Only rebuild grid if entity count changed or entities moved
+		// This avoids O(N) rebuild every frame when entities are static
+		if (SpatialGrid.needsRebuild(_list.length)) {
+			SpatialGrid.clear();
+			for(i = 0, count = _list.length; i < count; ++i) {
+				SpatialGrid.add(_list[i]);
+			}
+			SpatialGrid.lastFrameCount = _list.length;
+			SpatialGrid.dirty = false;
 		}
 
 		// Get only visible entities
