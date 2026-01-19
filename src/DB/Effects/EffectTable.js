@@ -998,7 +998,7 @@ define(function( require )
 			attachedEntity: true,
 			blue: 1,
 			duration: 200,
-			delayLate: 200,
+			delayLate: 250,
 			//duplicate: -1,
 			fadeIn: true,
 			fadeOut: true,
@@ -1018,7 +1018,7 @@ define(function( require )
 		},
 		{
 			type: '3D',
-			duration: 200,
+			duration: 250,
 			duplicate: 5,
 			timeBetweenDupli: 20,
 			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
@@ -1028,7 +1028,7 @@ define(function( require )
 			sizeStart: 100.0,
 			sizeEnd: 500.0,
 			zOffsetStart: 3,
-			arc: 3.0,
+			arc: 4.0,
 			retreat: 3.0,
 			soulStrikePattern: true
 		}],
@@ -2703,18 +2703,19 @@ define(function( require )
 
 		117: [{  	//EF_WATERBALL2	waterball moving to target  
 			type: '3D',    
-			duration: 1000,
+			duration: 500,
 			duplicate: 20,
 			timeBetweenDupli: 50,  
 			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/waterball',  
 			playSprite: true,  
 			fromSrc: true,
 			rotateToTarget: true,  
+			fadeOut: true,
 			size: 50.0,
 			zOffsetStart: 5,
 			zOffsetEnd: 0,
-			arc: 4,
-			retreat: 6,
+			arc: 7.5,
+			retreat: 5.0,
 			wav: 'effect/wizard_waterball_chulung'
 		}],
 
@@ -3520,8 +3521,55 @@ define(function( require )
 			attachedEntity: true
 		}],
 
-		216: [{}],	//EF_BLOODDRAIN
-		217: [{}],	//EF_ENERGYDRAIN
+		216: [{	//EF_BLOODDRAIN (Dracula / Beast Strafe)
+			type: '3D',
+			duration: 600,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
+			playSprite: true,
+
+			toSrc: true,
+			rotateToTarget: true,
+			
+			// Blood Red
+			red: 1.0,
+			green: 0.4,
+			blue: 0.4,
+			
+			sizeStart: 150.0,
+			sizeEnd: 180.0,
+
+			zOffsetStart: 5,
+			arc: 3.0,
+			retreat: 3.0,
+			drainPattern: true
+		}],
+
+		217: [{	//EF_ENERGYDRAIN (Wizard Soul Drain)
+			type: '3D',
+			duration: 600,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
+			playSprite: true,
+
+			toSrc: true,
+			rotateToTarget: true,
+			
+			// Dark Blue
+			red: 0.4,
+			green: 0.4,
+			blue: 1.0,
+			
+			sizeStart: 150.0,
+			sizeEnd: 180.0,
+			
+			zOffsetStart: 5,
+			arc: 3.0,
+			retreat: 3.0,
+			drainPattern: true
+		}],
 
 
 		218: [{	//EF_POTION_CON	Concentration Potion
@@ -6331,7 +6379,32 @@ define(function( require )
 			wav: 'effect/\xb8\xcd\xc8\xa3\xb0\xe6\xc6\xc4\xbb\xea',
 		}],
 		//377: [{}],	//EF_BASH3D2	   Matyr's Reckoning 2
-		//378: [{}],	//EF_ENERGYDRAIN2	   Soul Drain (1st Part)
+
+		378: [{	//EF_ENERGYDRAIN2          Soul Drain (1st Part)
+			type: '3D',
+			duration: 600,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
+			playSprite: true,
+			
+			fromSrc: true,
+			toSrc: true,
+			rotateToTarget: true,
+			
+			// Cyan (Based on C++ random(81) + 160 simplified here)
+			red: 0.8,
+			green: 0.8,
+			blue: 1.0,
+			
+			sizeStart: 160.0,
+			sizeEnd: 190.0,
+			
+			zOffsetStart: 5,
+			arc: 3.0,
+			retreat: 3.0,
+			drainPattern: true
+		}],
 		//379: [{}],	//EF_TRANSBLUEBODY	   Soul Drain (2nd Part)
 
 		380: [{	//EF_MAGICCRASHER	   Magic Crasher
@@ -6378,7 +6451,31 @@ define(function( require )
 			attachedEntity: true
 		}],
 
-		//383: [{}],	//EF_ENERGYDRAIN3	   Health Conversion
+		383: [{	//EF_ENERGYDRAIN3 (Health Conversion)
+			type: '3D',
+			duration: 600,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
+			playSprite: true,
+			
+			fromSrc: true,
+			toSrc: true,
+			rotateToTarget: true,
+			
+			// Green
+			red: 0.7,
+			green: 1.0,
+			blue: 0.7,
+			
+			sizeStart: 140.0,
+			sizeEnd: 170.0,
+			
+			zOffsetStart: 5,
+			arc: 3.0,
+			retreat: 3.0,
+			drainPattern: true
+		}],
 
 		384: [{	//EF_LINELINK2	   Soul Change (Sound Effect)
 			wav: 'effect/\xbc\xd2\xbf\xef\x20\xc3\xbc\xc0\xce\xc1\xf6',
@@ -6794,7 +6891,7 @@ define(function( require )
 			attachedEntity: true,
 			blue: 1,
 			duration: 200,
-			delayLate: 200,
+			delayLate: 250,
 			//duplicate: -1,
 			fadeIn: true,
 			fadeOut: true,
@@ -6814,7 +6911,7 @@ define(function( require )
 		},
 		{
 			type: '3D',
-			duration: 200,
+			duration: 250,
 			duplicate: 5,
 			timeBetweenDupli: 20,
 			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle5',
@@ -6824,8 +6921,8 @@ define(function( require )
 			sizeStart: 100.0,
 			sizeEnd: 500.0,
 			zOffsetStart: 3,
-			arc: 3.0,
-			retreat: 3.0,
+			arc: 4.0,
+			retreat: 4.0, //soulstrike2 have a little retreat upper
 			soulStrikePattern: true
 		}],
 

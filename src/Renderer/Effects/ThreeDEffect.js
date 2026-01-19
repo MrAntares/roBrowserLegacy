@@ -271,10 +271,13 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
 		this.rotateWithCamera = effect.rotateWithCamera ? true : false;
 
-		if (effect.soulStrikePattern) { 
-			if (!EF_Inst_Par.duplicateID) {  
-				var hitIndex = Math.floor((this.startTick / effect.duration) % 5);  
-          
+		if (effect.soulStrikePattern || effect.drainPattern) { 
+			if (!EF_Inst_Par.duplicateID || effect.drainPattern) {
+				var hitIndex = Math.floor((this.startTick / effect.duration) % 5);
+
+				if(effect.drainPattern)
+					hitIndex = EF_Inst_Par.duplicateID + 1;
+
 				var offsetAngle = (hitIndex * 72);  
 				var offsetRadius = 2;  
           
@@ -283,8 +286,8 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
 				this._soulOffsetX      = offsetX;  
 				this._soulOffsetY      = offsetY;  
-				this._soulRetreat      = (this.retreat || 0) * (1 + hitIndex * 0.2);  
-				this._soulArc          = (this.arc || 0) * (1 + hitIndex * 0.1);  
+				this._soulRetreat      = (this.retreat || 0) * (1 + hitIndex * 0.2) + (effect.drainPattern? randBetween(0, 2) : 0);  
+				this._soulArc          = (this.arc || 0) * (1 + hitIndex * 0.1) + (effect.drainPattern? randBetween(0, 2) : 0);  
 				this._soulAngle        = offsetAngle;  
 				_soulStrikeFirstEffect = this;
 			} else {  

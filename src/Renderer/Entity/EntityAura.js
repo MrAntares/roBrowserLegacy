@@ -111,9 +111,11 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'],
 			effectManager.remove(null, this.entity.GID, normalEffects);
 			// free aura - needs to be separate to avoid circular dependency
 			this.free();
-			// reset constructors so aura effects re-init on next load
-			effectManager.resetConstructor('TwoDEffect');
-			effectManager.resetConstructor('ThreeDEffect');
+			setTimeout(function() {  
+				// reset constructors so aura effects re-init on next load
+				effectManager.resetConstructor('TwoDEffect');
+				effectManager.resetConstructor('ThreeDEffect');
+			}, 5000);
 		};
 
 		/**
