@@ -71,7 +71,6 @@ function compile(appName, isMinify) {
             appPath = "App/MapViewer";
             startFile = ["src/Vendors/require.js"];
             break;
-            break;
 
         case "ModelViewer":
             appPath = "App/ModelViewer";
