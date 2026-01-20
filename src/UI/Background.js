@@ -185,7 +185,7 @@ define( function( require )
 		transition(function(){
 			_canvas.css('zIndex', 0 );
 			_canvas.remove();
-
+			_image.src = ''; 
 			if (callback) {
 				callback();
 			}

@@ -35,7 +35,7 @@ define(function( require )
 	var Intro       = require('UI/Components/Intro/Intro');
 	var WinList     = require('UI/Components/WinList/WinList');
 	var ConsoleManager = require ('Utils/ConsoleManager');
-
+	var PACKETVER    = require('Network/PacketVerManager');
 
 	/**
 	 * @var {Array} Login server list
@@ -86,7 +86,10 @@ define(function( require )
 		// Loading Game file (txt, lua, lub)
 		q.add(function(){
 			DB.onReady = function(){
-				Background.setImage( 'bgi_temp.bmp'); // remove loading
+				if (PACKETVER.value < 20181114) // (duplicated?)
+					Background.setImage('bgi_temp.bmp'); // remove loading
+				else
+					Background.remove();
 				q._next();
 			};
 			DB.onProgress = function(i, count) {
@@ -183,42 +186,48 @@ define(function( require )
 
 		UIManager.removeComponents();
 		Network.close();
-
-		// Setup background
-		Background.init();
-		Background.resize( Renderer.width, Renderer.height );
-		Background.setImage( 'bgi_temp.bmp', function(){
-			// Display server list
-			var list = new Array( _servers.length );
-			var i, count = list.length;
-
-			// WTF no servers ?
-			if (count === 0) {
-				UIManager.showMessageBox( 'Sorry, no server found.', 'ok', init);
-			}
-
-			// Just 1 server, skip the WinList
-			else if (count === 1 && Configs.get('skipServerList')) {
-				LoginEngine.onExitRequest = reload;
-				LoginEngine.init( _servers[0] );
-			}
-			else {
-				for (i = 0; i < count; ++i) {
-					list[i] = _servers[i].display;
-				}
-
-				WinList.append();
-				WinList.setList( list );
-			}
-
-			Renderer.stop();
-			MapRenderer.free();
-			BGM.play('01.mp3');
-		});
-
+		if (PACKETVER.value < 20181114){
+			// Setup background
+			Background.init();
+			Background.resize( Renderer.width, Renderer.height );
+			Background.setImage( 'bgi_temp.bmp', function(){
+				onReload();
+			});
+		}
+		else
+			onReload();
 		// Hooking WinList
 		WinList.onIndexSelected = onLoginServerSelected;
 		WinList.onExitRequest   = onExit;
+	}
+
+	function onReload(){
+		// Display server list
+		var list = new Array( _servers.length );
+		var i, count = list.length;
+
+		// WTF no servers ?
+		if (count === 0) {
+			UIManager.showMessageBox( 'Sorry, no server found.', 'ok', init);
+		}
+
+		// Just 1 server, skip the WinList
+		else if (count === 1 && Configs.get('skipServerList')) {
+			LoginEngine.onExitRequest = reload;
+			LoginEngine.init( _servers[0] );
+		}
+		else {
+			for (i = 0; i < count; ++i) {
+				list[i] = _servers[i].display;
+			}
+
+			WinList.append();
+			WinList.setList( list );
+		}
+
+		Renderer.stop();
+		MapRenderer.free();
+		BGM.play('01.mp3');
 	}
 
 	function onReadyLoginServer( index )
@@ -247,11 +256,11 @@ define(function( require )
 		 _previous_server.port != _servers[index].port)) {
 			UIManager.removeComponents();
 			Network.close();
-
-			Background.init();
-			Background.resize( Renderer.width, Renderer.height );
-			Background.setImage( 'bgi_temp.bmp' );
-
+			if (PACKETVER.value < 20181114){
+				Background.init();
+				Background.resize( Renderer.width, Renderer.height );
+				Background.setImage( 'bgi_temp.bmp' );
+			}
 			// Need to reload the files.
 			loadFiles(function(){
 				LoginEngine.setLoadedServer( _servers[index] );
@@ -272,7 +281,7 @@ define(function( require )
 		Sound.stop();
 		Renderer.stop();
 		UIManager.removeComponents();
-		Background.setImage('bgi_temp.bmp', reload);
+		reload();
 	}
 
 
