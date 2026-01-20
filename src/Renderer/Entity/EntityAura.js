@@ -71,9 +71,11 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'],
 					if (this.lastAuraState !== MapPreferences.aura && this.isLoaded) {
 						this.remove(effectManager);
 					}
+					/* figure out why this is here, it's brokening 3d effects
 					// Always reset constructors before (re)loading to pick up latest render ordering/depth settings.
 					effectManager.resetConstructor('TwoDEffect');
 					effectManager.resetConstructor('ThreeDEffect');
+					*/
 					if (!this.isLoaded) {
 						// aura is already loaded
 						// select effects based on /aura preference
@@ -111,11 +113,14 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'],
 			effectManager.remove(null, this.entity.GID, normalEffects);
 			// free aura - needs to be separate to avoid circular dependency
 			this.free();
+
+			/* figure out why this is here, it's brokening 3d effects
 			setTimeout(function() {  
 				// reset constructors so aura effects re-init on next load
 				effectManager.resetConstructor('TwoDEffect');
 				effectManager.resetConstructor('ThreeDEffect');
 			}, 5000);
+			*/
 		};
 
 		/**
