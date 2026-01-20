@@ -88,8 +88,11 @@ define(function( require )
 			DB.onReady = function(){
 				if (PACKETVER.value < 20181114) // (duplicated?)
 					Background.setImage('bgi_temp.bmp'); // remove loading
-				else
-					Background.remove();
+				else {
+					Background.remove(function(){
+						require('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background').append();
+					});
+				}
 				q._next();
 			};
 			DB.onProgress = function(i, count) {
@@ -98,6 +101,8 @@ define(function( require )
 			UIManager.removeComponents();
 			Background.init();
 			Background.resize( Renderer.width, Renderer.height );
+			if (PACKETVER.value >= 20181114)
+				require('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background').init();
 			Background.setImage( 'bgi_temp.bmp', function(){
 				DB.init();
 			});
