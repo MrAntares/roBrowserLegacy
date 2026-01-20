@@ -30,6 +30,7 @@ define(function(require)
     var cssText            = require('text!./CharSelectV4.css');
     var Client             = require('Core/Client');
     var jQuery             = require('Utils/jquery');
+    var WinLoginV2Background = require('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background');
 
 
     /**
@@ -144,7 +145,6 @@ define(function(require)
         each(function(){
             _ctx.push( this.getContext('2d') );
         });
-
     };
 
 
@@ -153,6 +153,8 @@ define(function(require)
      */
     CharSelectV4.onAppend = function onAppend()
     {
+	WinLoginV2Background.append();
+
         //_index = _preferences.index;
         const charselectready = CharSelectV4.ui;
         if (charselectready) {
@@ -174,7 +176,6 @@ define(function(require)
     {
         _preferences.index = _index;
         _preferences.save();
-
         Renderer.stop();
     };
 

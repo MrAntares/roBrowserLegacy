@@ -768,10 +768,15 @@ define(function( require )
 		MapRenderer.free();
 		SoundManager.stop();
 		BGM.stop();
-		Background.remove();
-		Background.setImage('bgi_temp.bmp', function(){
+		if (PACKETVER.value < 20181114){
+			Background.remove();
+			Background.setImage('bgi_temp.bmp', function(){
+				require('Engine/GameEngine').reload();
+			});
+		}
+		else
 			require('Engine/GameEngine').reload();
-		});
+
 	}
 
 

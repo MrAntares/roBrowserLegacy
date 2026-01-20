@@ -482,6 +482,7 @@ define(function( require )
 		if (pos > -1) {
 			this.renderCallbacks.splice( pos, 1 );
 		}
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 	};
 
 
