@@ -107,9 +107,9 @@ define(function (require) {
 	{
 		if(!Session.Entity) return;
 
-		if( tsc == StatusConst.HealthState.POISON )
+		if( tsc == StatusConst.HEALTHSTATE_POISON )
 			Poison.setActive(true);
-		if( tsc == StatusConst.HealthState.BLIND )
+		if( tsc == StatusConst.HEALTHSTATE_BLIND )
 			Blind.setActive(true);
 		if( tsc == StatusConst.ILLUSION )
 			VerticalFlip.setActive(true);
@@ -119,9 +119,9 @@ define(function (require) {
 	{
 		if(!Session.Entity) return;
 
-		if( tsc == StatusConst.HealthState.POISON )
+		if( tsc == StatusConst.HEALTHSTATE_POISON )
 			Poison.setActive(false);
-		if( tsc == StatusConst.HealthState.BLIND )
+		if( tsc == StatusConst.HEALTHSTATE_BLIND )
 			Blind.setActive(false);
 		if( tsc == StatusConst.ILLUSION )
 			VerticalFlip.setActive(false);
