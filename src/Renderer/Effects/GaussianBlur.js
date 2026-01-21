@@ -1,7 +1,7 @@
 /**
  * Renderer/Effects/GaussianBlur.js
- * Implementation of Full Screen Gaussian Blur.
- * Smooth, uniform blur with configurable intensity.
+ * Implementation of Radial Gaussian Blur.
+ * Smooth, uniform radial blur with configurable intensity and area.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
