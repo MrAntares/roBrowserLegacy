@@ -46,9 +46,11 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	const glMatrix     = require('Utils/gl-matrix');
 	const PACKETVER    = require('Network/PacketVerManager');
-	var Bloom          = require('Renderer/Effects/Bloom');
 	var PostProcess    = require('Renderer/Effects/PostProcess');
+	var Bloom          = require('Renderer/Effects/Bloom');
 	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
+	var GaussianBlur   = require('Renderer/Effects/GaussianBlur');
+
 	var WebGL         = require('Utils/WebGL');
 
 	const mat4         = glMatrix.mat4;
@@ -216,8 +218,7 @@ define(function( require )
 		BGM.stop();
 
 		// Release WebGL resources for post-processing effects
-		VerticalFlip.clean();
-		Bloom.clean();
+		PostProcess.clean();
 
 		Mouse.intersect = false;
 
@@ -342,6 +343,20 @@ define(function( require )
 		Models.init( Renderer.getContext(), data );
 	}
 
+	/**
+	 * Register PostProcessing Modules in priority order
+	 */
+	function registerPostProcessModules( gl ){
+
+		PostProcess.register(GaussianBlur, gl);
+
+		if (WebGL.detectBadWebGL(gl)) {
+			GraphicsSettings.bloom = false;
+		} else
+			PostProcess.register(Bloom, gl);
+
+		PostProcess.register(VerticalFlip, gl);
+	}
 
 	/**
 	 * Once the map finished to load
@@ -378,12 +393,7 @@ define(function( require )
 		Damage.init(gl);
 		EffectManager.init(gl);
 		ScreenEffectManager.init( gl, worldResource );
-		VerticalFlip.init(gl);
-
-		if (WebGL.detectBadWebGL(gl)) {
-			GraphicsSettings.bloom = false;
-		} else
-			Bloom.init(gl);
+		registerPostProcessModules( gl );
 
 		// Starting to render
 		Background.remove(function(){
@@ -410,20 +420,7 @@ define(function( require )
 	var _pos = new Uint16Array(2);
 	MapRenderer.onRender = function OnRender( tick, gl )
 	{
-		var useBloom = GraphicsSettings.bloom && Bloom.program();
-		var useVerticalFlip = VerticalFlip.isActive() && VerticalFlip.program();
-
-		var useAnyPostProcess = useBloom || useVerticalFlip;
-
-		if (useAnyPostProcess) {
-			// Priority selection: If bloom is on, use its FBO for the first pass
-			var fbo = useBloom ? Bloom.getFbo() : VerticalFlip.getFbo();
-			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.framebuffer);
-			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		} else {
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		}
+		PostProcess.prepare( gl );
 
 		var fog   = MapRenderer.fog;
 		fog.use   = MapPreferences.fog;
@@ -437,8 +434,7 @@ define(function( require )
 		Mouse.world.y =  -1;
 		Mouse.world.z =  -1;
 
-		// Clear screen, update camera
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		// Update camera
 		Camera.update( tick );
 
 		modelView  = Camera.modelView;
@@ -519,43 +515,9 @@ define(function( require )
 		MemoryManager.clean(gl, tick);
 
 		// Finalize frame with post-processing effects
-		doPostProcess( gl );
+		PostProcess.render( gl );
 	};
 
-	/**
-	* Executes the post-processing pipeline.
-	* @param {WebGLRenderingContext} gl - The WebGL context.
-	*/
-	function doPostProcess( gl )
-	{
-		var useBloom = GraphicsSettings.bloom && Bloom.program();
-		var useVerticalFlip = VerticalFlip.isActive() && VerticalFlip.program();
-
-		var useAnyPostProcess = useBloom || useVerticalFlip;
-
-		var fbo = useBloom ? Bloom.getFbo() : VerticalFlip.getFbo(); // Bloom FBO First Pass Priority
-		var secondfbo = VerticalFlip.getFbo();
-
-		if (useAnyPostProcess) {
-			var sceneTexture = fbo.texture;
-			// Multi-Pass: Bloom -> Vertical Flip
-			if (useBloom && useVerticalFlip) {
-				Bloom.render(gl, sceneTexture, secondfbo.framebuffer); // FirstPass draws scene on Second Pass framebuffer
-				VerticalFlip.render(gl, secondfbo.texture); // Second Pass draw texture in null framebuffer (actual scene)
-				return;
-			}
-			// Single Pass: Bloom only
-			if (useBloom) {
-				Bloom.render(gl, sceneTexture);
-				return;
-			}
-			// Single Pass: Vertical Flip only
-			if (useVerticalFlip) {
-				VerticalFlip.render(gl, sceneTexture);
-				return;
-			}
-		}
-	}
 
 	/**
 	 * Callback to execute once the map is loaded

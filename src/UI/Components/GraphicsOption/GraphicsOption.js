@@ -62,6 +62,9 @@ define(function(require)
 		this.ui.find('.pixel-perfect').change(onTogglePixelPerfect);
 		this.ui.find('.bloom').change(onToggleBloom);
 		this.ui.find('.bloom-intensity').change(onUpdateBloomIntensity);
+		this.ui.find('.blur').change(onToggleBlur);
+		this.ui.find('.blur-intensity').change(onUpdateBlurIntensity);
+		this.ui.find('.blur-area').change(onUpdateBlurArea);
 		this.ui.find('.culling').change(onToggleCulling);
 		this.ui.find('.view-area').change(onUpdateAreaView);
 
@@ -88,6 +91,9 @@ define(function(require)
 		this.ui.find('.pixel-perfect').attr('checked', GraphicsSettings.pixelPerfectSprites);
 		this.ui.find('.bloom').attr('checked', GraphicsSettings.bloom);
 		this.ui.find('.bloom-intensity').val(GraphicsSettings.bloomIntensity);
+		this.ui.find('.blur').attr('checked', GraphicsSettings.blur);
+		this.ui.find('.blur-area').val(GraphicsSettings.blurArea);
+		this.ui.find('.blur-intensity').val(GraphicsSettings.blurIntensity);
 		this.ui.find('.culling').attr('checked', GraphicsSettings.culling);
 		this.ui.find('.view-area').val(GraphicsSettings.viewArea);
 	};
@@ -178,6 +184,24 @@ define(function(require)
 	function onUpdateBloomIntensity()  
 	{  
 		GraphicsSettings.bloomIntensity = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function onToggleBlur()
+	{
+		GraphicsSettings.blur = !!this.checked;
+		GraphicsSettings.save();
+	}
+
+	function onUpdateBlurIntensity()  
+	{  
+		GraphicsSettings.blurIntensity = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function onUpdateBlurArea()  
+	{  
+		GraphicsSettings.blurArea = parseFloat(this.value);  
 		GraphicsSettings.save();  
 	}
 

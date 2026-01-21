@@ -153,7 +153,7 @@ define(function(require)
      */
     CharSelectV4.onAppend = function onAppend()
     {
-	WinLoginV2Background.append();
+        WinLoginV2Background.append();
 
         //_index = _preferences.index;
         const charselectready = CharSelectV4.ui;

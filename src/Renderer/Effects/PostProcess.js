@@ -13,7 +13,97 @@ define(function(require) {
 
 	var WebGL            = require('Utils/WebGL'); 
 
+	var _effects = [];
+	var _activeEffects = [];
+
 	function PostProcess() {}
+
+	/**
+	 * Register module in pass priority order and init
+	 * @param {ShaderModule} module - Post Process Modular effect.
+	 * @param {WebGLRenderingContext} gl - The WebGL context.
+	 */
+	PostProcess.register = function( module, gl ) {
+		if(!module.program || !module.isActive || !module.getFbo || !module.init || !module.render || !module.clean)
+		{
+			console.error('[PostProcess] Incorrect modular Post-Process format registred - please Fix');
+			return;
+		}
+		_effects.push(module);
+		module.init( gl );
+	};
+
+	/**
+	 * Prepare first pass FBO if it's need.
+	 * @param {WebGLRenderingContext} gl - The WebGL context.
+	 */
+	PostProcess.prepare = function( gl ) {
+		_activeEffects = _effects.filter(e => e.program() && e.isActive());
+		
+		if (_activeEffects.length > 0) {
+			// The first active effect provides the FBO for the initial scene drawing.
+			var fbo = _activeEffects[0].getFbo();
+			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.framebuffer);
+		}
+		else
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+	};
+
+	/**
+	* Executes the post-processing pipeline. (Auto Ping-Pong)
+	* @param {WebGLRenderingContext} gl - The WebGL context.
+	*/
+	PostProcess.render = function( gl ) {
+		if (_activeEffects.length === 0) return;
+
+		for (var i = 0; i < _activeEffects.length; i++) {
+			var current = _activeEffects[i];
+			var next = _activeEffects[i + 1];
+			
+			// If there is a subsequent effect, render it in its FBO.
+			// If it's the last one, render it to the screen (null).
+			var targetFbo = next ? next.getFbo().framebuffer : null;
+			var sourceTexture = current.getFbo().texture;
+
+			current.render(gl, sourceTexture, targetFbo);
+		}
+	};
+
+	/**
+	 * restart Modules when crashs
+	 */
+	PostProcess.restartModules = function restartModules(gl, width, height) {
+		for (var i = 0; i < _activeEffects.length; i++) {
+			var module = _activeEffects[i];
+			module.clean();
+			module.init(gl);
+		}
+	};
+
+	/**
+	 * Recreates the FBO when the window size changes
+	 */
+	PostProcess.recreateFbo = function recreateFbo(gl, width, height) {
+		for (var i = 0; i < _effects.length; i++) {
+			var module = _effects[i];
+			module.recreateFbo(gl, width, height);
+		}
+	};
+
+	/**
+	 * Clean current registered modules
+	 */
+	PostProcess.clean = function() {
+		for (var i = 0; i < _effects.length; i++) {
+			var module = _effects[i];
+			module.clean();
+		}
+		_effects = [];
+		_activeEffects = [];
+	};
 
 	/**
 	 * Creates or validates an existing FBO by comparing dimensions.

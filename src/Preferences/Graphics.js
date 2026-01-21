@@ -46,6 +46,10 @@ define( ['Core/Preferences'], function( Preferences )
 		bloom:    false,
 		bloomIntensity: 0.5,
 
+		blur:    false,
+		blurArea: 14.0,
+		blurIntensity: 3.0,
+
 		/**
 		 * View Area Culling
 		 */
