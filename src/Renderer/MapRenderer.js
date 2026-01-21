@@ -46,9 +46,7 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	const glMatrix     = require('Utils/gl-matrix');
 	const PACKETVER    = require('Network/PacketVerManager');
-	var Bloom          = require('Renderer/Effects/Bloom');
 	var PostProcess    = require('Renderer/Effects/PostProcess');
-	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
 	var WebGL         = require('Utils/WebGL');
 
 	const mat4         = glMatrix.mat4;
@@ -341,6 +339,17 @@ define(function( require )
 		Models.init( Renderer.getContext(), data );
 	}
 
+	/**
+	 * Register PostProcessing Modules in priority order
+	 */
+	function registerPostProcessModules( gl ){
+		if (WebGL.detectBadWebGL(gl)) {
+			GraphicsSettings.bloom = false;
+		} else
+			PostProcess.register(getModule('Renderer/Effects/Bloom'), gl);
+
+		PostProcess.register(getModule('Renderer/Effects/VerticalFlip'), gl);
+	}
 
 	/**
 	 * Once the map finished to load
@@ -377,12 +386,7 @@ define(function( require )
 		Damage.init(gl);
 		EffectManager.init(gl);
 		ScreenEffectManager.init( gl, worldResource );
-		if (WebGL.detectBadWebGL(gl)) {
-			GraphicsSettings.bloom = false;
-		} else
-			PostProcess.register(Bloom, gl);
-
-		PostProcess.register(VerticalFlip, gl);
+		registerPostProcessModules( gl );
 
 		// Starting to render
 		Background.remove(function(){
