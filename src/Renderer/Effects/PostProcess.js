@@ -73,10 +73,30 @@ define(function(require) {
 	};
 
 	/**
+	 * restart Modules when crashs
+	 */
+	PostProcess.restartModules = function restartModules(gl, width, height) {
+		for (var i = 0; i < _activeEffects.length; i++) {
+			var module = _activeEffects[i];
+			module.clean();
+			module.init(gl);
+		}
+	};
+
+	/**
+	 * Recreates the FBO when the window size changes
+	 */
+	PostProcess.recreateFbo = function recreateFbo(gl, width, height) {
+		for (var i = 0; i < _effects.length; i++) {
+			var module = _effects[i];
+			module.recreateFbo(gl, width, height);
+		}
+	};
+
+	/**
 	 * Clean current registered modules
 	 */
 	PostProcess.clean = function() {
-
 		for (var i = 0; i < _effects.length; i++) {
 			var module = _effects[i];
 			module.clean();

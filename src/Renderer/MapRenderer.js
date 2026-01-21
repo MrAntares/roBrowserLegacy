@@ -47,6 +47,10 @@ define(function( require )
 	const glMatrix     = require('Utils/gl-matrix');
 	const PACKETVER    = require('Network/PacketVerManager');
 	var PostProcess    = require('Renderer/Effects/PostProcess');
+	var Bloom          = require('Renderer/Effects/Bloom');
+	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
+	var GaussianBlur   = require('Renderer/Effects/GaussianBlur');
+
 	var WebGL         = require('Utils/WebGL');
 
 	const mat4         = glMatrix.mat4;
@@ -343,12 +347,15 @@ define(function( require )
 	 * Register PostProcessing Modules in priority order
 	 */
 	function registerPostProcessModules( gl ){
+
+		PostProcess.register(GaussianBlur, gl);
+
 		if (WebGL.detectBadWebGL(gl)) {
 			GraphicsSettings.bloom = false;
 		} else
-			PostProcess.register(getModule('Renderer/Effects/Bloom'), gl);
+			PostProcess.register(Bloom, gl);
 
-		PostProcess.register(getModule('Renderer/Effects/VerticalFlip'), gl);
+		PostProcess.register(VerticalFlip, gl);
 	}
 
 	/**

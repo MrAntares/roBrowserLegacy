@@ -26,9 +26,7 @@ define(function( require )
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Camera        = require('Renderer/Camera');
 	var Session       = require('Engine/SessionStorage');
-	var Bloom          = require('Renderer/Effects/Bloom');
 	var PostProcess    = require('Renderer/Effects/PostProcess');
-	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
 	var mat4          = glMatrix.mat4;
 	var getModule     = require;
 
@@ -231,18 +229,9 @@ define(function( require )
 		gl.enable( gl.BLEND );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		
-		// Only re-enable bloom if it was previously enabled and safe
-		if (GraphicsSettings.bloom) {
-			// Re-initialize Post Processing (Shaders/Framebuffers need to be recreated)
-			Bloom.clean(); // Clear old reference
+		// Restart post process active modules
+		PostProcess.restartModules( gl );
 
-			if (!WebGL.detectBadWebGL(gl))
-				Bloom.init(gl);
-		}
-		if(VerticalFlip.isActive()){
-			VerticalFlip.clean();
-			VerticalFlip.init(gl);
-		}
 		// Trigger resize to reset viewport and framebuffers
 		this.resize();
 
@@ -323,6 +312,9 @@ define(function( require )
 
 		Background.resize( this.width, this.height );
 
+		// Updates FBO sizes
+		PostProcess.recreateFbo(this.gl, width * dpr, height * dpr);
+
 		/*
 		* Note about this hack:
 		 * require.js parse function and search for "require()" string.
@@ -335,10 +327,6 @@ define(function( require )
 		 * UI/UIManager.
 		 */
 		getModule('UI/UIManager').fixResizeOverflow( this.width, this.height );
-		if(this.gl){
-			Bloom.recreateFbo(this.gl, this.width, this.height);
-			VerticalFlip.recreateFbo(this.gl, this.width, this.height);
-		}
 	};
 
 

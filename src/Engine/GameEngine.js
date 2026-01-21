@@ -89,9 +89,7 @@ define(function( require )
 				if (PACKETVER.value < 20181114) // (duplicated?)
 					Background.setImage('bgi_temp.bmp'); // remove loading
 				else {
-					Background.remove(function(){
-						require('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background').append();
-					});
+					Background.remove();
 				}
 				q._next();
 			};

@@ -13,8 +13,8 @@
 		<table>
 			<tr>
 				<td>Details</td>
-				<td>
-					<input class="details" type="range" value="100" max="100" min="25" step="5"/>
+				<td style="display: inline-block; width: 260px;">
+					<input class="details" type="range" value="100" max="100" min="25" step="5" style="width: 90%;"/>
 				</td>
 			</tr>
 			<tr class="resolution">
@@ -75,19 +75,33 @@
 					<label style="display: inline-block; margin-right: 20px;">    
 						<input class="bloom" type="checkbox" />    
 					</label>  
-					<label style="display: inline-block; width: calc(100% - 120px);">  
-						Intensity: <input class="bloom-intensity" type="range" value="0.5" min="0.1" max="0.5" step="0.05" style="width: 80%; vertical-align: middle;"/>  
+					<label style="display: inline-block; width: 200px;">  
+						Intensity: <input class="bloom-intensity" type="range" value="0.5" min="0.1" max="0.5" step="0.05" style="width: 90%; vertical-align: middle;"/>  
 					</label>   
 				</td>    
+			</tr>    
+			<tr>    
+				<td>Blur</td>    
+				<td>  
+					<label style="display: inline-block; margin-right: 20px;">      
+						<input class="blur" type="checkbox" />      
+					</label>    
+					<label style="display: inline-block; width: 90px;">    
+						Intensity: <input class="blur-intensity" type="range" value="3.0" min="1.0" max="6.0" step="1.0" style="width: 90%; vertical-align: middle;"/>    
+					</label>     
+					<label style="display: inline-block; width: 90px;">    
+						Area: <input class="blur-area" type="range" value="14.0" min="3.0" max="20.0" step="1.0" style="width: 90%; vertical-align: middle;"/>    
+					</label>    
+				</td>
 			</tr>
 			<tr>    
 				<td>Culling</td>    
 				<td>    
-					<label style="display: inline-block; margin-right: 20px;">    
+					<label style="display: inline-block; margin-right: 20px;">   
 						<input class="culling" type="checkbox" />    
 					</label>  
-					<label style="display: inline-block; width: calc(100% - 120px);">  
-						Area: <input class="view-area" type="range" value="14" min="4" max="14" step="1" style="width: 80%; vertical-align: middle;"/>  
+					<label style="display: inline-block; width: 200px;"> 
+						Area: <input class="view-area" type="range" value="14.0" min="4.0" max="14.0" step="1.0" style="width: 90%; vertical-align: middle;"/>  
 					</label>   
 				</td>    
 			</tr>
