@@ -21,7 +21,7 @@ define(function (require) {
 	var Poison              = require('Renderer/Effects/PoisonEffect');
 	var Blind               = require('Renderer/Effects/BlindEffect');
 	var VerticalFlip        = require('Renderer/Effects/VerticalFlip');
-	var StatusConst         = require('DB/Status/StatusConst');
+	var EFST                = require('DB/Status/StatusConst');
 	var Session             = require('Engine/SessionStorage');
 	var getModule           = require;
 	
@@ -103,27 +103,27 @@ define(function (require) {
 		//	VerticalFlip.render(gl, modelView, projection, fog);
 	}
 
-	ScreenEffectManager.parseStatus = function parseStatus( tsc )
+	ScreenEffectManager.parseStatus = function parseStatus( efstConst )
 	{
 		if(!Session.Entity) return;
 
-		if( tsc == StatusConst.HealthState.POISON )
+		if( efstConst == EFST.HEALTHSTATE_POISON )
 			Poison.setActive(true);
-		if( tsc == StatusConst.HealthState.BLIND )
+		if( efstConst == EFST.HEALTHSTATE_BLIND )
 			Blind.setActive(true);
-		if( tsc == StatusConst.ILLUSION )
+		if( efstConst == EFST.ILLUSION )
 			VerticalFlip.setActive(true);
 	}
 
-	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect( tsc )
+	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect( efstConst )
 	{
 		if(!Session.Entity) return;
 
-		if( tsc == StatusConst.HealthState.POISON )
+		if( efstConst == EFST.HEALTHSTATE_POISON )
 			Poison.setActive(false);
-		if( tsc == StatusConst.HealthState.BLIND )
+		if( efstConst == EFST.HEALTHSTATE_BLIND )
 			Blind.setActive(false);
-		if( tsc == StatusConst.ILLUSION )
+		if( efstConst == EFST.ILLUSION )
 			VerticalFlip.setActive(false);
 	}
 
