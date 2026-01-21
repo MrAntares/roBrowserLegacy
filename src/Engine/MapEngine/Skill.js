@@ -855,6 +855,29 @@ define(function( require )
 		}
 	}
 
+	/**
+	 * Millennium Shield visual effect
+	 *
+	 * @param {object} pkt - PACKET.ZC.MILLENNIUMSHIELD
+	 */
+	function onMillenniumShield(pkt){
+		// Remove existing millennium shield effects
+		EffectManager.remove( null, pkt.AID, [749]);
+
+		if (pkt.num > 0 && pkt.state > 0){
+			var entity = EntityManager.get(pkt.AID);
+			if(entity){
+				var EF_Init_Par = {
+					effectId: EffectConst.EF_MILSHIELD_STR,
+					ownerAID: pkt.AID,
+					spiritNum: pkt.num
+				};
+
+				EffectManager.spam( EF_Init_Par );
+			}
+		}
+	}
+
 	function onTaekwonMission(pkt){
 		var total = 100;
 		var message = DB.getMessage(927);
@@ -926,7 +949,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.REPAIRITEMLIST2,        onRepairList);
 		Network.hookPacket( PACKET.ZC.SPIRITS,                onSpiritSphere );
 		Network.hookPacket( PACKET.ZC.SPIRITS2,               onSpiritSphere );
-		Network.hookPacket( PACKET.ZC.MILLENNIUMSHIELD,       onSpiritSphere );
+		Network.hookPacket( PACKET.ZC.MILLENNIUMSHIELD,       onMillenniumShield );
 		Network.hookPacket( PACKET.ZC.SKILL_POSTDELAY,        onSetSkillDelay );
 		Network.hookPacket( PACKET.ZC.STARSKILL,              onTaekwonMission );
 		Network.hookPacket( PACKET.ZC.MSG_SKILL,        	  onMessageSkill );
