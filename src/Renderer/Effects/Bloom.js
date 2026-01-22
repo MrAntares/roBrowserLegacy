@@ -45,6 +45,8 @@ define(function(require) {
 		uniform float uBloomIntensity;
 		uniform float uBloomThreshold;
 		uniform float uBloomSoftKnee;
+		uniform vec2 uTexelSize;
+		uniform float uDownsampleFactor;
 		in vec2 vUv;
 		out vec4 fragColor;
 
@@ -52,8 +54,20 @@ define(function(require) {
 			return dot(c, vec3(0.2126, 0.7152, 0.0722));
 		}
 
+		// Got from ReShade, Inspired by algorithm described in https://gpuopen.com/manuals/fidelityfx_sdk/fidelityfx_sdk-page_techniques_single-pass-downsampler/#algorithm-structure
+		vec3 downsample(sampler2D tex, vec2 uv, vec2 texelSize) {  
+			vec2 offset = texelSize * 0.5;  
+			  
+			vec3 c0 = texture(tex, uv + vec2(-offset.x, -offset.y)).rgb;  
+			vec3 c1 = texture(tex, uv + vec2(offset.x, -offset.y)).rgb;  
+			vec3 c2 = texture(tex, uv + vec2(-offset.x, offset.y)).rgb;  
+			vec3 c3 = texture(tex, uv + vec2(offset.x, offset.y)).rgb;  
+			  
+			return (c0 + c1 + c2 + c3) * 0.25;  
+		}  
+
 		void main() {
-			vec3 color = texture(uTexture, vUv).rgb;
+			vec3 color = downsample(uTexture, vUv, uTexelSize * uDownsampleFactor);  
 			float l = luminance(color);
 			// ---- DARK AREA FILTER (BRIGHT PASS) ----
 			float knee = uBloomThreshold * uBloomSoftKnee;
@@ -62,8 +76,10 @@ define(function(require) {
 				uBloomThreshold + knee,
 				l
 			);
+
 			vec3 bloom = color * bloomFactor * uBloomIntensity;
-			fragColor = vec4(color + bloom, 1.0);
+			vec3 original = texture(uTexture, vUv).rgb; 
+			fragColor = vec4(original + bloom, 1.0);
 		}
 	`;
 
@@ -83,14 +99,22 @@ define(function(require) {
 		if (!_buffer || !_program || !Bloom.isActive()) return;
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-
 		Bloom.beforeRender(gl);
 
 		gl.useProgram(_program);
+
 		// Update uniforms based on user settings
 		gl.uniform1f(_program.uniform.uBloomIntensity, GraphicsSettings.bloomIntensity);
 		gl.uniform1f(_program.uniform.uBloomThreshold, 0.88); // Ignore Shadows factor
 		gl.uniform1f(_program.uniform.uBloomSoftKnee, 0.45); // Soft Transition factor
+
+		// Downsample Config
+		var baseTexelSizeX = 1.0 / gl.canvas.width;  
+		var baseTexelSizeY = 1.0 / gl.canvas.height;  
+		var downsampleFactor = 4.0; // higher = performance, lower = quality
+  
+		gl.uniform2f(_program.uniform.uTexelSize, baseTexelSizeX * downsampleFactor, baseTexelSizeY * downsampleFactor);  
+		gl.uniform1f(_program.uniform.uDownsampleFactor, downsampleFactor);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
