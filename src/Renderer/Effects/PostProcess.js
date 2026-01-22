@@ -75,7 +75,7 @@ define(function(require) {
 	/**
 	 * restart Modules when crashs
 	 */
-	PostProcess.restartModules = function restartModules(gl, width, height) {
+	PostProcess.restartModules = function restartModules(gl) {
 		for (var i = 0; i < _activeEffects.length; i++) {
 			var module = _activeEffects[i];
 			module.clean();

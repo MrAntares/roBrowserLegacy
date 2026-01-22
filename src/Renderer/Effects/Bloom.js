@@ -116,7 +116,6 @@ define(function(require) {
 		var boxsampleFactor = 4.0;
   
 		gl.uniform2f(_program.uniform.uTexelSize, (1.0/gl.canvas.width)*boxsampleFactor, (1.0/gl.canvas.height)*boxsampleFactor);  
-		gl.uniform1f(_program.uniform.uDownsampleFactor, boxsampleFactor);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
