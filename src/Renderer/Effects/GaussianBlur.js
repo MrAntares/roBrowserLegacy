@@ -48,7 +48,7 @@ define(function(require) {
 		out vec4 fragColor;
 
 		// Got from ReShade, Inspired by algorithm described in https://gpuopen.com/manuals/fidelityfx_sdk/fidelityfx_sdk-page_techniques_single-pass-downsampler/#algorithm-structure
-		vec3 downsample(sampler2D tex, vec2 uv, vec2 texelSize, float intensity) {  
+		vec3 boxsample(sampler2D tex, vec2 uv, vec2 texelSize, float intensity) {  
 			vec2 offset = texelSize * (intensity * 0.5); 
 			  
 			vec3 c0 = texture(tex, uv + vec2(-offset.x, -offset.y)).rgb;  
@@ -69,7 +69,7 @@ define(function(require) {
 				return;
 			}
 
-			vec3 blurred = downsample(uTexture, vUv, uTexelSize, effectMask);
+			vec3 blurred = boxsample(uTexture, vUv, uTexelSize, effectMask);
 			fragColor = vec4(mix(original, blurred, effectMask), 1.0);
 		}
 	`;
@@ -91,9 +91,9 @@ define(function(require) {
 		gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
 		gl.uniform2f(_program.uniform.uResolution, gl.canvas.width, gl.canvas.height);
 
-		var downsampleFactor = GraphicsSettings.blurIntensity;
+		var boxsampleFactor = GraphicsSettings.blurIntensity;
   
-		gl.uniform2f(_program.uniform.uTexelSize, (1.0/gl.canvas.width)*downsampleFactor, (1.0/gl.canvas.height)*downsampleFactor);  
+		gl.uniform2f(_program.uniform.uTexelSize, (1.0/gl.canvas.width)*boxsampleFactor, (1.0/gl.canvas.height)*boxsampleFactor);  
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		var posLoc = _program.attribute.aPosition;
