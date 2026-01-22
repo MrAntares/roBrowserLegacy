@@ -39,7 +39,6 @@ define(function(require) {
 		precision mediump float;
 
 		uniform sampler2D uTexture;
-		uniform vec2 uResolution;
 		uniform float uFocusRadius;
 		uniform float uFocusFalloff;
 		uniform vec2 uTexelSize;
@@ -93,7 +92,6 @@ define(function(require) {
 
 		gl.uniform1f(_program.uniform.uFocusRadius, focusRadius);
 		gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
-		gl.uniform2f(_program.uniform.uResolution, gl.canvas.width, gl.canvas.height);
 
 		var boxsampleFactor = GraphicsSettings.blurIntensity;
   
