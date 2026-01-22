@@ -46,7 +46,7 @@ define(function(require) {
 		uniform float uBloomThreshold;
 		uniform float uBloomSoftKnee;
 		uniform vec2 uTexelSize;
-		uniform float uDownsampleFactor;
+
 		in vec2 vUv;
 		out vec4 fragColor;
 
@@ -67,7 +67,7 @@ define(function(require) {
 		}  
 
 		void main() {
-			vec3 color = downsample(uTexture, vUv, uTexelSize * uDownsampleFactor);  
+			vec3 color = downsample(uTexture, vUv, uTexelSize);  
 			float l = luminance(color);
 			// ---- DARK AREA FILTER (BRIGHT PASS) ----
 			float knee = uBloomThreshold * uBloomSoftKnee;
@@ -109,11 +109,9 @@ define(function(require) {
 		gl.uniform1f(_program.uniform.uBloomSoftKnee, 0.45); // Soft Transition factor
 
 		// Downsample Config
-		var baseTexelSizeX = 1.0 / gl.canvas.width;  
-		var baseTexelSizeY = 1.0 / gl.canvas.height;  
-		var downsampleFactor = 4.0; // higher = performance, lower = quality
+		var downsampleFactor = 4.0;
   
-		gl.uniform2f(_program.uniform.uTexelSize, baseTexelSizeX * downsampleFactor, baseTexelSizeY * downsampleFactor);  
+		gl.uniform2f(_program.uniform.uTexelSize, (1.0/gl.canvas.width)*downsampleFactor, (1.0/gl.canvas.height)*downsampleFactor);  
 		gl.uniform1f(_program.uniform.uDownsampleFactor, downsampleFactor);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);

@@ -40,44 +40,37 @@ define(function(require) {
 
 		uniform sampler2D uTexture;
 		uniform vec2 uResolution;
-		uniform float uBlurIntensity;
 		uniform float uFocusRadius;
 		uniform float uFocusFalloff;
+		uniform vec2 uTexelSize;
 
 		in vec2 vUv;
 		out vec4 fragColor;
 
-		const float RADIUS = 3.0; 
+		// Got from ReShade, Inspired by algorithm described in https://gpuopen.com/manuals/fidelityfx_sdk/fidelityfx_sdk-page_techniques_single-pass-downsampler/#algorithm-structure
+		vec3 downsample(sampler2D tex, vec2 uv, vec2 texelSize, float intensity) {  
+			vec2 offset = texelSize * (intensity * 0.5); 
+			  
+			vec3 c0 = texture(tex, uv + vec2(-offset.x, -offset.y)).rgb;  
+			vec3 c1 = texture(tex, uv + vec2(offset.x, -offset.y)).rgb;  
+			vec3 c2 = texture(tex, uv + vec2(-offset.x, offset.y)).rgb;  
+			vec3 c3 = texture(tex, uv + vec2(offset.x, offset.y)).rgb;  
+			  
+			return (c0 + c1 + c2 + c3) * 0.25;  
+		}
 
 		void main() {
 			float dist = distance(vUv, vec2(0.5));
-
+			vec3 original = texture(uTexture, vUv).rgb;
 			float effectMask = smoothstep(uFocusRadius, uFocusRadius + uFocusFalloff, dist);
+
 			if (effectMask <= 0.01) {
 				fragColor = texture(uTexture, vUv);
 				return;
 			}
 
-			vec2 texelSize = 1.0 / uResolution;
-			vec4 color = vec4(0.0);
-			float totalWeight = 0.0;
-
-			float currentIntensity = uBlurIntensity * effectMask;
-			float sigma = currentIntensity * 0.5;
-			float sigma2 = 2.0 * sigma * sigma;
-			float piSigma2 = 3.14159 * sigma2;
-
-			for (float x = -RADIUS; x <= RADIUS; x++) {
-				for (float y = -RADIUS; y <= RADIUS; y++) {
-					vec2 offset = vec2(x, y) * currentIntensity;
-					float weight = exp(-(x*x + y*y) / sigma2) / piSigma2;
-
-					color += texture(uTexture, vUv + offset * texelSize) * weight;
-					totalWeight += weight;
-				}
-			}
-
-			fragColor = color / totalWeight;
+			vec3 blurred = downsample(uTexture, vUv, uTexelSize, effectMask);
+			fragColor = vec4(mix(original, blurred, effectMask), 1.0);
 		}
 	`;
 
@@ -91,15 +84,16 @@ define(function(require) {
 
 		gl.useProgram(_program);
 
-		var intensity = GraphicsSettings.blurIntensity || 2.5;
-
 		var focusRadius = GraphicsSettings.blurArea / 100; 
 		var focusFalloff = 0.5; 
 
-		gl.uniform1f(_program.uniform.uBlurIntensity, intensity);
 		gl.uniform1f(_program.uniform.uFocusRadius, focusRadius);
 		gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
 		gl.uniform2f(_program.uniform.uResolution, gl.canvas.width, gl.canvas.height);
+
+		var downsampleFactor = GraphicsSettings.blurIntensity;
+  
+		gl.uniform2f(_program.uniform.uTexelSize, (1.0/gl.canvas.width)*downsampleFactor, (1.0/gl.canvas.height)*downsampleFactor);  
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		var posLoc = _program.attribute.aPosition;
