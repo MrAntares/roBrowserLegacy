@@ -60,7 +60,7 @@ define(function(require) {
 			vec3 c2 = texture(tex, uv + vec2(-offset.x, offset.y)).rgb;  
 			vec3 c3 = texture(tex, uv + vec2(offset.x, offset.y)).rgb;  
 			  
-			return spdReduce4(v0, v1, v2, v3); 
+			return spdReduce4(c0, c1, c2, c3);
 		}  
 
 		void main() {
