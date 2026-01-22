@@ -54,8 +54,12 @@ define(function(require) {
 			return dot(c, vec3(0.2126, 0.7152, 0.0722));
 		}
 
-		// Got from ReShade, Inspired by algorithm described in https://gpuopen.com/manuals/fidelityfx_sdk/fidelityfx_sdk-page_techniques_single-pass-downsampler/#algorithm-structure
-		vec3 boxsample(sampler2D tex, vec2 uv, vec2 texelSize) {  
+		// Got from ReShade https://github.com/crosire/reshade/blob/8cf85bd12d56697d756d4fcb45e501f5d1b540fa/res/shaders/mipmap_cs_5_0.hlsl#L10
+		vec3 spdReduce4(vec3 c0, vec3 c1, vec3 c2, vec3 c3) {
+			return (c0 + c1 + c2 + c3) * 0.25;
+		}
+
+		vec3 load_and_reduce(sampler2D tex, vec2 uv, vec2 texelSize) {  
 			vec2 offset = texelSize * 0.5;  
 			  
 			vec3 c0 = texture(tex, uv + vec2(-offset.x, -offset.y)).rgb;  
@@ -63,11 +67,11 @@ define(function(require) {
 			vec3 c2 = texture(tex, uv + vec2(-offset.x, offset.y)).rgb;  
 			vec3 c3 = texture(tex, uv + vec2(offset.x, offset.y)).rgb;  
 			  
-			return (c0 + c1 + c2 + c3) * 0.25;  
+			return spdReduce4(v0, v1, v2, v3); 
 		}  
 
 		void main() {
-			vec3 color = boxsample(uTexture, vUv, uTexelSize);  
+			vec3 color = load_and_reduce(uTexture, vUv, uTexelSize);  
 			float l = luminance(color);
 			// ---- DARK AREA FILTER (BRIGHT PASS) ----
 			float knee = uBloomThreshold * uBloomSoftKnee;
