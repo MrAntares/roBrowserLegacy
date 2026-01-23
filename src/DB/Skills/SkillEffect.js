@@ -120,7 +120,7 @@
 	 SkillEffect[SK.WZ_FIREPILLAR]                  = {effectId: 96, groundEffectId: 138, hitEffectId: 97};		//Fire Pillar
 	 SkillEffect[SK.WZ_SIGHTRASHER]                 = {effectId: 62, hitEffectId: 49};		//Sightrasher
 	 SkillEffect[SK.WZ_METEOR]                      = {effectId: 92, hitEffectId: 49};		//Meteor Storm
-	 SkillEffect[SK.WZ_JUPITEL]                     = {effectId: 93, hitEffectId: 94};		//Jupitel Thunder
+	 SkillEffect[SK.WZ_JUPITEL]                     = {effectId: 93, beforeHitEffectId: 94};		//Jupitel Thunder
 	 SkillEffect[SK.WZ_VERMILION]                   = {effectId: 90, hitEffectId: 52};		//Lord of Vermilion
 	 SkillEffect[SK.WZ_WATERBALL]                   = {beforeHitEffectIdOnCaster: 116, hitEffectIdOnCaster: 117};		//Water Ball
 	 SkillEffect[SK.WZ_ICEWALL]                     = {groundEffectId: 74};		//Ice Wall
