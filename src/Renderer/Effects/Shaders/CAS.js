@@ -161,6 +161,7 @@ define(function(require) {
     };  
   
     CAS.clean = function clean(gl) {   
+        if (_buffer) gl.deleteBuffer(_buffer); 
         _program = _buffer = null;   
     };  
   

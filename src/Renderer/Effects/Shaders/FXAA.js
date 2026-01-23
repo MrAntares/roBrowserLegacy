@@ -157,7 +157,8 @@ define(function(require) {
         return _program;   
     };  
   
-    FXAA.clean = function clean(gl) {   
+    FXAA.clean = function clean(gl) {  
+        if (_buffer) gl.deleteBuffer(_buffer); 
         _program = _buffer = null;   
     };  
   

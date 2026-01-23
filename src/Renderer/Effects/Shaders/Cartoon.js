@@ -119,7 +119,8 @@ define(function(require) {
         return _program;   
     };  
   
-    Cartoon.clean = function clean(gl) {   
+    Cartoon.clean = function clean(gl) {  
+        if (_buffer) gl.deleteBuffer(_buffer);  
         _program = _buffer = null;   
     };  
   

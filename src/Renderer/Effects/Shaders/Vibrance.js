@@ -126,6 +126,7 @@ define(function(require) {
     };  
   
     Vibrance.clean = function clean(gl) {   
+        if (_buffer) gl.deleteBuffer(_buffer);
         _program = _buffer = null;   
     };  
   
