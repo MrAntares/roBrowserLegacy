@@ -2502,8 +2502,7 @@ define(function( require )
 			size: 35,      // widthSize 3.5f
 			toSrc: true,   // PT3DTEX_CHKTARGETPOS
 			blendMode: 2,  // RF_EMISSIVE (Aprox. Additive)
-			alphaMax: 0.66, // 170/255 on C++
-			posy: -5       // m_deltaPos2.y = -5.0f
+			alphaMax: 0.66 // 170/255 on C++
 		},{
 			type: '3D',
 			fileList: [
@@ -2518,8 +2517,7 @@ define(function( require )
 			duration: 200,  // Aprox. 20 frames on C++
 			size: 45,       // widthSize 4.5f
 			toSrc: true,   // PT3DTEX_CHKTARGETPOS
-			blendMode: 2,  // RF_EMISSIVE (Aprox. Additive)
-			posy: -5       // m_deltaPos2.y = -5.0f
+			blendMode: 2  // RF_EMISSIVE (Aprox. Additive)
 		}],
 
 
@@ -2532,7 +2530,6 @@ define(function( require )
 			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
 			rotateToTarget: true, 
 			fadeOut: true,
-			//posy: -5        // m_deltaPos2.y = -5.0f  // on ROB hiteffects auto follows target
 			attachedEntity: true
 		},{
 			type: '3D',
@@ -2547,7 +2544,6 @@ define(function( require )
 			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
 			size: 75,       // widthSize 7.5f * 10
 			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
-			//posy: -5,       // m_deltaPos2.y = -5.0f // on ROB hiteffects auto follows target
 			attachedEntity: true
 		}],
 
@@ -6978,7 +6974,6 @@ define(function( require )
 			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
 			rotateToTarget: true, 
 			fadeOut: true,
-			//posy: -5        // m_deltaPos2.y = -5.0f  // on ROB hiteffects auto follows target
 			attachedEntity: true
 		},{
 			type: '3D',
@@ -6993,7 +6988,6 @@ define(function( require )
 			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
 			size: 75,       // widthSize 7.5f * 10
 			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
-			//posy: -5,       // m_deltaPos2.y = -5.0f  // on ROB hiteffects auto follows target
 			attachedEntity: true
 		}],
 
