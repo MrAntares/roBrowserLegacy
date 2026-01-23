@@ -1,5 +1,5 @@
 /**
- * Renderer/Effects/VerticalFlip.js
+ * Renderer/Effects/Shaders/VerticalFlip.js
  *
  * Screen vertical inversion effect (Illusion/Hallucination effect).
  * Inverts UV coordinates in the fragment shader.
@@ -122,6 +122,7 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 		/** Resets effect state */
 		clean: function( gl ) {
 			_active = false;
+			if (_buffer) gl.deleteBuffer(_buffer);
 			_program = _buffer = null;
 		},
 

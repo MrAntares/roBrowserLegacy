@@ -1,5 +1,5 @@
 /**
- * Renderer/Effects/GaussianBlur.js
+ * Renderer/Effects/Shaders/GaussianBlur.js
  * Implementation of Radial Gaussian Blur.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
@@ -146,7 +146,10 @@ define(function(require) {
 	GaussianBlur.program = function program() { return _program; };
 	
 	// No internal FBO needed for this effect in this architecture
-	GaussianBlur.clean = function clean( gl ) { _program = _buffer = null; };
+	GaussianBlur.clean = function clean( gl ) {
+		if (_buffer) gl.deleteBuffer(_buffer);
+		_program = _buffer = null; 
+	};
 
 	return GaussianBlur;
 });
