@@ -110,12 +110,29 @@ define(function(require) {
 	/**
 	 * restart Modules when crashs
 	 */
-	PostProcess.restartModules = function restartModules(gl) {
+	PostProcess.restartModules = function restartModules( gl ) {
 		for (var i = 0; i < _activeEffects.length; i++) {
 			var module = _activeEffects[i];
-			module.clean();
-			module.init(gl);
+			module.clean( gl );
+			module.init( gl );
 		}
+		_activeEffects = [];
+		
+		// Physically delete Ping-Pong buffers from GPU memory
+		if (_readFbo) {
+			if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
+			if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
+			if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
+		}
+
+		if (_writeFbo) {
+			if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
+			if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
+			if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
+		}
+
+		_readFbo = null;
+		_writeFbo = null;
 	};
 
 	/**
