@@ -54,7 +54,7 @@ define(function(require) {
 		out vec4 fragColor;
 
 		float luminance(vec3 c) {
-			return dot(c, vec3(0.2126, 0.7152, 0.0722));
+			return dot(c, vec3(0.299, 0.587, 0.114)); // Use BT.709 coefficients  
 		}
 
 		float threshold(float l, float threshold, float knee) {  
