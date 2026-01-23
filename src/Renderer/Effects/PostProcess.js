@@ -141,24 +141,22 @@ define(function(require) {
 	PostProcess.clean = function( gl ) {
 		for (var i = 0; i < _effects.length; i++) {
 			var module = _effects[i];
-			module.clean();
+			module.clean( gl );
 		}
 		_effects = [];
 		_activeEffects = [];
 		
 		// Physically delete Ping-Pong buffers from GPU memory
-		if (gl) {
-			if (_readFbo) {
-				if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
-				if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
-				if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
-			}
+		if (_readFbo) {
+			if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
+			if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
+			if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
+		}
 
-			if (_writeFbo) {
-				if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
-				if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
-				if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
-			}
+		if (_writeFbo) {
+			if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
+			if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
+			if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
 		}
 
 		_readFbo = null;

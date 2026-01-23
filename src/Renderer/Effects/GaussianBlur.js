@@ -146,7 +146,7 @@ define(function(require) {
 	GaussianBlur.program = function program() { return _program; };
 	
 	// No internal FBO needed for this effect in this architecture
-	GaussianBlur.clean = function clean() { _program = _buffer = null; };
+	GaussianBlur.clean = function clean( gl ) { _program = _buffer = null; };
 
 	return GaussianBlur;
 });

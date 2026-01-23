@@ -238,9 +238,15 @@ define(function(require) {
 	};
 
 	/** Clears memory references */
-	Bloom.clean = function clean() {
+	Bloom.clean = function clean( gl ) {
 		_programs = {};
 		_buffer = null;
+		// Physically delete Internal Buffer from GPU memory
+		if (_internalFbo) {
+			if (gl.isTexture(_internalFbo.texture)) gl.deleteTexture(_internalFbo.texture);
+			if (gl.isRenderbuffer(_internalFbo.rbo)) gl.deleteRenderbuffer(_internalFbo.rbo);
+			if (gl.isFramebuffer(_internalFbo.framebuffer)) gl.deleteFramebuffer(_internalFbo.framebuffer);
+		}
 		_internalFbo = null;
 	};
 

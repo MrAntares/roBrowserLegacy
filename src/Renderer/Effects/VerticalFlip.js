@@ -120,7 +120,7 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 		},
 
 		/** Resets effect state */
-		clean: function() {
+		clean: function( gl ) {
 			_active = false;
 			_program = _buffer = null;
 		},
