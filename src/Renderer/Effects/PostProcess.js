@@ -1,8 +1,8 @@
 /**
  * Renderer/Effects/PostProcess.js
  *
- * Helper utilities for managing Framebuffer Objects (FBO)
- * used in post-processing effects.
+ * Manages the Post-Processing pipeline using a Ping-Pong buffer architecture.
+ * Ensures the main scene is rendered at full resolution before applying effects.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -11,10 +11,14 @@
 define(function(require) {
 	'use strict';
 
-	var WebGL            = require('Utils/WebGL'); 
+	var WebGL = require('Utils/WebGL'); 
 
 	var _effects = [];
 	var _activeEffects = [];
+	
+	// Ping-Pong Buffers (Full Resolution)
+	var _readFbo = null;
+	var _writeFbo = null;
 
 	function PostProcess() {}
 
@@ -24,9 +28,9 @@ define(function(require) {
 	 * @param {WebGLRenderingContext} gl - The WebGL context.
 	 */
 	PostProcess.register = function( module, gl ) {
-		if(!module.program || !module.isActive || !module.getFbo || !module.init || !module.render || !module.clean)
+		if(!module.program || !module.isActive || !module.init || !module.render || !module.clean)
 		{
-			console.error('[PostProcess] Incorrect modular Post-Process format registred - please Fix');
+			console.error('[PostProcess] Incorrect modular Post-Process format registered - please Fix');
 			return;
 		}
 		_effects.push(module);
@@ -34,41 +38,72 @@ define(function(require) {
 	};
 
 	/**
-	 * Prepare first pass FBO if it's need.
+	 * Prepare the pipeline for the scene rendering.
+	 * Always binds a full-resolution buffer to ensure the 3D scene is sharp.
 	 * @param {WebGLRenderingContext} gl - The WebGL context.
 	 */
 	PostProcess.prepare = function( gl ) {
-		_activeEffects = _effects.filter(e => e.program() && e.isActive());
+		_activeEffects = _effects.filter(e => e.isActive());
 		
+		// Ensure global buffers exist and match canvas size
+		this.validateBuffers(gl);
+
 		if (_activeEffects.length > 0) {
-			// The first active effect provides the FBO for the initial scene drawing.
-			var fbo = _activeEffects[0].getFbo();
-			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.framebuffer);
+			// Render the scene into the write buffer (which becomes read buffer in .render())
+			gl.bindFramebuffer(gl.FRAMEBUFFER, _writeFbo.framebuffer);
 		}
-		else
+		else {
+			// No effects? Render directly to screen
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		}
 
 		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	};
 
 	/**
-	* Executes the post-processing pipeline. (Auto Ping-Pong)
-	* @param {WebGLRenderingContext} gl - The WebGL context.
-	*/
+	 * Executes the post-processing pipeline using Ping-Pong swapping.
+	 * @param {WebGLRenderingContext} gl - The WebGL context.
+	 */
 	PostProcess.render = function( gl ) {
 		if (_activeEffects.length === 0) return;
 
-		for (var i = 0; i < _activeEffects.length; i++) {
-			var current = _activeEffects[i];
-			var next = _activeEffects[i + 1];
-			
-			// If there is a subsequent effect, render it in its FBO.
-			// If it's the last one, render it to the screen (null).
-			var targetFbo = next ? next.getFbo().framebuffer : null;
-			var sourceTexture = current.getFbo().texture;
+		// The buffer we just drew the 3D scene into (_writeFbo) becomes the source (_readFbo)
+		this.swapBuffers();
 
-			current.render(gl, sourceTexture, targetFbo);
+		for (var i = 0; i < _activeEffects.length; i++) {
+			var effect = _activeEffects[i];
+			var isLast = (i === _activeEffects.length - 1);
+			
+			// Destination: Screen (null) if last, otherwise the next offscreen buffer
+			var targetFbo = isLast ? null : _writeFbo.framebuffer;
+
+			// Render the effect: Source (Read) -> Effect Logic -> Destination (Write)
+			effect.render(gl, _readFbo.texture, targetFbo);
+
+			// If not the last effect, swap buffers so the output becomes the input for the next one
+			if (!isLast) {
+				this.swapBuffers();
+			}
+		}
+	};
+
+	/**
+	 * Swaps the read and write FBO references.
+	 */
+	PostProcess.swapBuffers = function() {
+		var temp = _readFbo;
+		_readFbo = _writeFbo;
+		_writeFbo = temp;
+	};
+
+	/**
+	 * Ensures Ping-Pong buffers are created and resized if necessary.
+	 */
+	PostProcess.validateBuffers = function(gl) {
+		if (!_readFbo || _readFbo.width !== gl.canvas.width || _readFbo.height !== gl.canvas.height) {
+			_readFbo = this.createFbo(gl, gl.canvas.width, gl.canvas.height, _readFbo);
+			_writeFbo = this.createFbo(gl, gl.canvas.width, gl.canvas.height, _writeFbo);
 		}
 	};
 
@@ -87,22 +122,47 @@ define(function(require) {
 	 * Recreates the FBO when the window size changes
 	 */
 	PostProcess.recreateFbo = function recreateFbo(gl, width, height) {
+		// Recreate global buffers
+		_readFbo = this.createFbo(gl, width, height, _readFbo);
+		_writeFbo = this.createFbo(gl, width, height, _writeFbo);
+
+		// Notify modules to recreate their internal buffers (if any)
 		for (var i = 0; i < _effects.length; i++) {
 			var module = _effects[i];
-			module.recreateFbo(gl, width, height);
+			if (module.recreateFbo) {
+				module.recreateFbo(gl, width, height);
+			}
 		}
 	};
 
 	/**
 	 * Clean current registered modules
 	 */
-	PostProcess.clean = function() {
+	PostProcess.clean = function( gl ) {
 		for (var i = 0; i < _effects.length; i++) {
 			var module = _effects[i];
 			module.clean();
 		}
 		_effects = [];
 		_activeEffects = [];
+		
+		// Physically delete Ping-Pong buffers from GPU memory
+		if (gl) {
+			if (_readFbo) {
+				if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
+				if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
+				if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
+			}
+
+			if (_writeFbo) {
+				if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
+				if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
+				if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
+			}
+		}
+
+		_readFbo = null;
+		_writeFbo = null;
 	};
 
 	/**
@@ -111,12 +171,16 @@ define(function(require) {
 	 * @param {number} width - Desired width
 	 * @param {number} height - Desired height
 	 * @param {Object} fbo - Current FBO object (if it exists)
+	 * @param {number} downsampleFactor - Multiplier for resolution (default 1.0)
 	 * @returns {Object|null} New FBO object or the current one if still valid
 	 */
-	PostProcess.createFbo = function(gl, width, height, fbo) {
+	PostProcess.createFbo = function(gl, width, height, fbo, downsampleFactor = 1.0) {
+		const targetWidth = Math.floor(width * downsampleFactor); 
+		const targetHeight = Math.floor(height * downsampleFactor);
+
 		try {
-			if (!fbo || fbo.width !== width || fbo.height !== height) {
-				return this.createFramebuffer(gl, width, height, fbo);
+			if (!fbo || fbo.width !== targetWidth || fbo.height !== targetHeight) {
+				return this.createFramebuffer(gl, targetWidth, targetHeight, fbo);
 			}
 			return fbo;
 		} catch (e) {

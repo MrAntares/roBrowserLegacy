@@ -218,7 +218,7 @@ define(function( require )
 		BGM.stop();
 
 		// Release WebGL resources for post-processing effects
-		PostProcess.clean();
+		PostProcess.clean( gl );
 
 		Mouse.intersect = false;
 

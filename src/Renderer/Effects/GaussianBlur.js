@@ -1,7 +1,6 @@
 /**
  * Renderer/Effects/GaussianBlur.js
  * Implementation of Radial Gaussian Blur.
- * Smooth, uniform radial blur with configurable intensity and area.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -14,7 +13,7 @@ define(function(require) {
 	var WebGL            = require('Utils/WebGL'); 
 	var PostProcess      = require('Renderer/Effects/PostProcess');
 
-	var _program, _buffer, _fbo;
+	var _program, _buffer;
 
 	var commonVS = `
 		#version 300 es
@@ -31,7 +30,6 @@ define(function(require) {
 
 	/**
 	 * Fragment Shader: Single-Pass Gaussian Blur
-	 * Uses a sampled grid to average pixel colors.
 	 */
 	var blurFS = `
 		#version 300 es
@@ -46,7 +44,6 @@ define(function(require) {
 		in vec2 vUv;
 		out vec4 fragColor;
 
-		// Got from ReShade https://github.com/crosire/reshade/blob/8cf85bd12d56697d756d4fcb45e501f5d1b540fa/res/shaders/mipmap_cs_5_0.hlsl#L10
 		vec3 spdReduce4(vec3 c0, vec3 c1, vec3 c2, vec3 c3) {
 			return (c0 + c1 + c2 + c3) * 0.25;
 		}
@@ -79,11 +76,20 @@ define(function(require) {
 
 	function GaussianBlur() {}
 
-	GaussianBlur.render = function render(gl, texture, framebuffer = null) {
+	/**
+	 * Renders the Blur effect
+	 * @param {WebGLRenderingContext} gl
+	 * @param {WebGLTexture} inputTexture - Texture from previous pass
+	 * @param {WebGLFramebuffer} outputFramebuffer - Target buffer
+	 */
+	GaussianBlur.render = function render(gl, inputTexture, outputFramebuffer) {
 		if (!_buffer || !_program || !GaussianBlur.isActive()) return;
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-		GaussianBlur.beforeRender(gl);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
+		
+		// Viewport handling
+		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		gl.useProgram(_program);
 
@@ -103,7 +109,7 @@ define(function(require) {
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
 		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.bindTexture(gl.TEXTURE_2D, inputTexture);
 		gl.uniform1i(_program.uniform.uTexture, 0);
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -119,12 +125,6 @@ define(function(require) {
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 
-	GaussianBlur.beforeRender = function beforeRender(gl) {
-		if (!_buffer || !_program) return;
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	};
-
 	GaussianBlur.init = function init(gl) {
 		if (!gl) return;
 		try {
@@ -137,26 +137,16 @@ define(function(require) {
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
-
-		if (_program) {
-			if(!(_fbo = PostProcess.createFbo(gl, gl.canvas.width, gl.canvas.height, _fbo))){
-				GraphicsSettings.blur = false;
-				_program = null;
-			}
-		}
-	};
-
-	GaussianBlur.recreateFbo = function recreateFbo(gl, width, height) {
-		if(_program) _fbo = PostProcess.createFbo(gl, width, height, _fbo);
 	};
 
 	GaussianBlur.isActive = function isActive() {
 		return GraphicsSettings.blur;
 	};
 
-	GaussianBlur.getFbo = function getFbo() { return _fbo; };
 	GaussianBlur.program = function program() { return _program; };
-	GaussianBlur.clean = function clean() { _program = _buffer = _fbo = null; };
+	
+	// No internal FBO needed for this effect in this architecture
+	GaussianBlur.clean = function clean() { _program = _buffer = null; };
 
 	return GaussianBlur;
 });
