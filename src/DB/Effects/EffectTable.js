@@ -2493,18 +2493,61 @@ define(function( require )
 
 
 		93: [{	//EF_YUFITEL	Jupitel Thunder (Ball)
-			type: 'STR',
-			//file: 'ufidel',
-			//file: 'thunder_ball000%d',
-			wav:  'effect/hunter_shockwavetrap',
-			//rand: [1, 6],
-			attachedEntity: true
+			wav: 'effect/hunter_shockwavetrap',
+			attachedEntity: false
+		},{
+			type: '3D',
+			file: 'effect/thunder_center.bmp',
+			duration: 200, // Aprox. 20 frames on C++
+			size: 35,      // widthSize 3.5f
+			toSrc: true,   // PT3DTEX_CHKTARGETPOS
+			blendMode: 2,  // RF_EMISSIVE (Aprox. Additive)
+			alphaMax: 0.66, // 170/255 on C++
+			posy: -5       // m_deltaPos2.y = -5.0f
+		},{
+			type: '3D',
+			fileList: [
+				'effect/thunder_ball_a.bmp',
+				'effect/thunder_ball_b.bmp',
+				'effect/thunder_ball_c.bmp',
+				'effect/thunder_ball_d.bmp',
+				'effect/thunder_ball_e.bmp',
+				'effect/thunder_ball_f.bmp'
+			],
+			frameDelay: 10, // m_animSpeed = 1 on C++
+			duration: 200,  // Aprox. 20 frames on C++
+			size: 45,       // widthSize 4.5f
+			toSrc: true,   // PT3DTEX_CHKTARGETPOS
+			blendMode: 2,  // RF_EMISSIVE (Aprox. Additive)
+			posy: -5       // m_deltaPos2.y = -5.0f
 		}],
 
 
 		94: [{	//EF_YUFITELHIT	Jupitel Thunder (Hit)
-			type: 'STR',
-			file: 'ufidel_pang',
+			type: '3D',
+			file: 'effect/thunder_pang.bmp',
+			duration: 100, // Aprox. 10 frames on C++
+			sizeStart: 0,
+			sizeEnd: 25,    // widthSpeed 2.5f (Growing up)
+			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
+			rotateToTarget: true, 
+			fadeOut: true,
+			//posy: -5        // m_deltaPos2.y = -5.0f  // on ROB hiteffects auto follows target
+			attachedEntity: true
+		},{
+			type: '3D',
+			fileList: [
+				'effect/thunder_plazma_blast_a.bmp',
+				'effect/thunder_plazma_blast_b.bmp',
+				'effect/thunder_ball_d.bmp',
+				'effect/thunder_ball_e.bmp',
+				'effect/thunder_ball_f.bmp'
+			],
+			frameDelay: 10,
+			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
+			size: 75,       // widthSize 7.5f * 10
+			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
+			//posy: -5,       // m_deltaPos2.y = -5.0f // on ROB hiteffects auto follows target
 			attachedEntity: true
 		}],
 
@@ -6926,7 +6969,33 @@ define(function( require )
 			soulStrikePattern: true
 		}],
 
-		//452: [{}],	//EF_YUFITEL2	   Something Like Jupitel Thunder
+		452: [{	//EF_YUFITELHIT2	Alternative Jupitel Thunder (Hit)
+			type: '3D',
+			file: 'effect/pokjuk_d.bmp',
+			duration: 100, // Aprox. 10 frames on C++
+			sizeStart: 0,
+			sizeEnd: 25,    // widthSpeed 2.5f (Growing up)
+			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
+			rotateToTarget: true, 
+			fadeOut: true,
+			//posy: -5        // m_deltaPos2.y = -5.0f  // on ROB hiteffects auto follows target
+			attachedEntity: true
+		},{
+			type: '3D',
+			fileList: [
+				'effect/twirl_soft.bmp',
+				'effect/thunder_ball_b.bmp',
+				'effect/twirl_soft.bmp',
+				'effect/thunder_ball_c.bmp',
+				'effect/twirl_soft.bmp'
+			],
+			frameDelay: 10,
+			duration: 300, // duration 300 on C++ is equal to 3000ms on ROB but it's the total duration of all hits, ROB parse each
+			size: 75,       // widthSize 7.5f * 10
+			blendMode: 2,   // RF_EMISSIVE (Aprox. Additive)
+			//posy: -5,       // m_deltaPos2.y = -5.0f  // on ROB hiteffects auto follows target
+			attachedEntity: true
+		}],
 
 		453: [{	//EF_NPC_STOP	   Paralized
 			type: 'SPR',
