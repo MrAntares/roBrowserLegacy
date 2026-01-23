@@ -2,7 +2,7 @@
  * Renderer/Effects/VerticalFlip.js
  *
  * Screen vertical inversion effect (Illusion/Hallucination effect).
- * Inverts UV coordinates in the fragment shader to draw the world upside down.
+ * Inverts UV coordinates in the fragment shader.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -12,11 +12,11 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 
 	'use strict';
 
-	var _program, _buffer, _fbo;
+	var _program, _buffer;
 	var _active = false;
 
  	/**
-	 * Vertex Shader: Passes position and texture coordinates to the fragment shader
+	 * Vertex Shader: Passes position and texture coordinates
 	 */
 	var vs = `
 		#version 300 es
@@ -31,7 +31,7 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 	`;
 
 	/**
-	 * Fragment Shader: Inverts the texture's Y axis (1.0 - y)
+	 * Fragment Shader: Inverts the texture's Y axis
 	 */
 	var fs = `
 		#version 300 es
@@ -47,8 +47,7 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 
 	return {
 		/**
-		 * Initializes shaders and prepares the quad with texture coordinates
-		 * @param {WebGLRenderingContext} gl
+		 * Initializes shaders and buffers
 		 */
 		init: function(gl) {
 			if (_program) return;
@@ -64,30 +63,24 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 
 			// Format: X, Y, U, V (Draws a TRIANGLE_STRIP quad)
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,0,0, 1,-1,1,0, -1,1,0,1, 1,1,1,1]), gl.STATIC_DRAW);
-
-			if(_program){
-				if(!(_fbo = PostProcess.createFbo(gl, gl.canvas.width, gl.canvas.height, _fbo))){
-					_program = null;
-					console.error('Failed to create VerticalFlip program');
-				}
-			}
 		},
 
 		/**
 		 * Executes the inverted drawing
 		 * @param {WebGLRenderingContext} gl
-		 * @param {WebGLTexture} texture - Scene texture to be inverted
-		 * @param {WebGLFramebuffer} [framebuffer=null] - Target (null for screen)
+		 * @param {WebGLTexture} inputTexture - Texture to be inverted
+		 * @param {WebGLFramebuffer} outputFramebuffer - Target
 		 */
-		render: function(gl, texture, framebuffer = null) {
+		render: function(gl, inputTexture, outputFramebuffer) {
 			if (!_buffer || !_program || !_active) return;  
 
+			gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
+			
+			// Viewport
+			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-
-			this.beforeRender(gl);
 			gl.useProgram(_program);      
-			gl.uniform1i(_program.uniform.uTexture, 0);    
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);   
    
@@ -102,7 +95,7 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 8);      
             
 			gl.activeTexture(gl.TEXTURE0);      
-			gl.bindTexture(gl.TEXTURE_2D, texture);      
+			gl.bindTexture(gl.TEXTURE_2D, inputTexture);      
 			gl.uniform1i(_program.uniform.uTexture, 0);
 
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -117,39 +110,22 @@ define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);  
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 		},
 
-		/** Prepares the viewport */
-		beforeRender: function(gl) {  
-			if (!_active || !_program || !_buffer) return;   
-			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		},
-
-		/** Adjusts FBO on resize */
-		recreateFbo:function(gl, width, height) {
-			if(_program)
-				_fbo = PostProcess.createFbo(gl, width, height, _fbo);
-		},
-
-		/** @returns {Object} Effect Framebuffer */
-		getFbo: function() {
-			return _fbo;
-		},
-
-		/** @returns {WebGLProgram} Shader program */
+		/**
+		 * @returns {WebGLProgram} Shader program
+		 */
 		program: function() {
 			return _program;
 		},
 
 		/** Resets effect state */
-		clean: function() {
+		clean: function( gl ) {
 			_active = false;
-			_program = _buffer = _fbo = null;
+			_program = _buffer = null;
 		},
 
-		/** @returns {boolean} Whether the illusion effect is active */
+		/** @returns {boolean} Whether the effect is active */
 		isActive: function() { return _active; },
 
 		/** @param {boolean} bool - Enables/disables the effect */
