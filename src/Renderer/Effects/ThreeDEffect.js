@@ -596,6 +596,12 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					if (i == 0) renderer = SpriteRenderer;
 					else renderer = Object.assign({}, SpriteRenderer);
 
+					// Reset channels every layer
+					renderer.color[0] = 1.0;
+					renderer.color[1] = 1.0;
+					renderer.color[2] = 1.0;
+					renderer.color[3] = 1.0;
+
 					var layer = layers[i];
 					var ctE = new Int16Array(2);
 					ctE[0] = 0;
