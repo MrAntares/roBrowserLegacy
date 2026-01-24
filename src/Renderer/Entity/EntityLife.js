@@ -186,7 +186,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function( glMat
 
 		// Check if the Vertical Flip (Illusion effect) is active
 		// If true, invert the Y coordinate relative to the renderer height
-		if (require('Renderer/Effects/VerticalFlip').isActive())
+		if (require('Renderer/Effects/Shaders/VerticalFlip').isActive())
 			_pos[1] = Renderer.height - _pos[1];  
 
 		canvas.style.top  = (_pos[1] | 0 ) + 'px';

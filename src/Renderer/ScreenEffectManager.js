@@ -20,7 +20,7 @@ define(function (require) {
 	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
 	var Poison              = require('Renderer/Effects/PoisonEffect');
 	var Blind               = require('Renderer/Effects/BlindEffect');
-	var VerticalFlip        = require('Renderer/Effects/VerticalFlip');
+	var VerticalFlip        = require('Renderer/Effects/Shaders/VerticalFlip');
 	var EFST                = require('DB/Status/StatusConst');
 	var Session             = require('Engine/SessionStorage');
 	var getModule           = require;

@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define( ['Utils/gl-matrix', 'Utils/PathFinding', 'Controls/MouseEventHandler', 'Renderer/Effects/VerticalFlip'],
+define( ['Utils/gl-matrix', 'Utils/PathFinding', 'Controls/MouseEventHandler', 'Renderer/Effects/Shaders/VerticalFlip'],
 function(       glMatrix,          PathFinding,            Mouse,                                 VerticalFlip )
 {
 	'use strict';

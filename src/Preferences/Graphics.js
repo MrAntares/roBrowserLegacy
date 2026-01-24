@@ -40,15 +40,6 @@ define( ['Core/Preferences'], function( Preferences )
 		 */
 		fpslimit:    60,
 
-		/**
-		 * Game Post-Processing
-		 */
-		bloom:    false,
-		bloomIntensity: 0.5,
-
-		blur:    false,
-		blurArea: 14.0,
-		blurIntensity: 3.0,
 
 		/**
 		 * View Area Culling
@@ -67,7 +58,34 @@ define( ['Core/Preferences'], function( Preferences )
 		*/
 		damageMotion: 0,
 
-		pixelPerfectSprites: false
+		pixelPerfectSprites: false,
+
+
+		/**
+		 * Game Post-Processing
+		 */
+		bloom:    false,
+		bloomIntensity: 0.5,
+
+		blur:    false,
+		blurArea: 14.0,
+		blurIntensity: 3.0,
+
+		fxaaEnabled: false,  
+		fxaaSubpix: 0.25, 
+		fxaaEdgeThreshold: 0.125,
+
+		vibranceEnabled: false,  
+		vibrance: 0.15,
+
+		cartoonEnabled: false,
+		cartoonPower: 1.5, 
+		cartoonEdgeSlope: 1.5,
+
+		casEnabled:    false,
+		casContrast: 0.0,
+		casSharpening: 1.0
+
 	}, 1.1 );
 
 });

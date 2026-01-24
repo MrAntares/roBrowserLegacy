@@ -46,10 +46,15 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	const glMatrix     = require('Utils/gl-matrix');
 	const PACKETVER    = require('Network/PacketVerManager');
+
 	var PostProcess    = require('Renderer/Effects/PostProcess');
-	var Bloom          = require('Renderer/Effects/Bloom');
-	var VerticalFlip   = require('Renderer/Effects/VerticalFlip');
-	var GaussianBlur   = require('Renderer/Effects/GaussianBlur');
+	var Bloom          = require('Renderer/Effects/Shaders/Bloom');
+	var VerticalFlip   = require('Renderer/Effects/Shaders/VerticalFlip');
+	var GaussianBlur   = require('Renderer/Effects/Shaders/GaussianBlur');
+	var CAS            = require('Renderer/Effects/Shaders/CAS'); 
+	var FXAA           = require('Renderer/Effects/Shaders/FXAA');
+	var Vibrance       = require('Renderer/Effects/Shaders/Vibrance'); 
+	var Cartoon        = require('Renderer/Effects/Shaders/Cartoon'); 
 
 	var WebGL         = require('Utils/WebGL');
 
@@ -344,18 +349,20 @@ define(function( require )
 	}
 
 	/**
-	 * Register PostProcessing Modules in priority order
+	 * Register PostProcessing Modules in pass order
 	 */
 	function registerPostProcessModules( gl ){
 
-		PostProcess.register(GaussianBlur, gl);
-
-		if (WebGL.detectBadWebGL(gl)) {
-			GraphicsSettings.bloom = false;
-		} else
-			PostProcess.register(Bloom, gl);
-
-		PostProcess.register(VerticalFlip, gl);
+		if (WebGL.detectBadWebGL(gl))
+			GraphicsSettings.bloom = false;  
+		else  
+			PostProcess.register(Bloom, gl);   
+		PostProcess.register(GaussianBlur, gl);  
+		PostProcess.register(FXAA, gl);
+		PostProcess.register(CAS, gl);  
+		PostProcess.register(Cartoon, gl);
+		PostProcess.register(Vibrance, gl);  
+		PostProcess.register(VerticalFlip, gl); 
 	}
 
 	/**

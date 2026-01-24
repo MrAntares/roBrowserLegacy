@@ -240,6 +240,7 @@ define(function(require) {
 	/** Clears memory references */
 	Bloom.clean = function clean( gl ) {
 		_programs = {};
+		if (_buffer) gl.deleteBuffer(_buffer);
 		_buffer = null;
 		// Physically delete Internal Buffer from GPU memory
 		if (_internalFbo) {

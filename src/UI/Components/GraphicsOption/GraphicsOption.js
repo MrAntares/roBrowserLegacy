@@ -60,11 +60,26 @@ define(function(require)
 		this.ui.find('.fpslimit').change(onUpdateFPSLimit);
 		this.ui.find('.fps').change(onToggleFPSDisplay);
 		this.ui.find('.pixel-perfect').change(onTogglePixelPerfect);
+
+		// Post-Processing
 		this.ui.find('.bloom').change(onToggleBloom);
 		this.ui.find('.bloom-intensity').change(onUpdateBloomIntensity);
 		this.ui.find('.blur').change(onToggleBlur);
 		this.ui.find('.blur-intensity').change(onUpdateBlurIntensity);
 		this.ui.find('.blur-area').change(onUpdateBlurArea);
+		this.ui.find('.casEnabled').change(oncasEnabled);
+		this.ui.find('.casContrast').change(oncasContrast);
+		this.ui.find('.casSharpening').change(oncasSharpening);
+		this.ui.find('.fxaaEnabled').change(onfxaaEnabled);
+		this.ui.find('.fxaaSubpix').change(onfxaaSubpix);
+		this.ui.find('.fxaaEdgeThreshold').change(onfxaaEdgeThreshold);
+		this.ui.find('.vibranceEnabled').change(onvibranceEnabled);
+		this.ui.find('.vibrance').change(onvibrance);
+		this.ui.find('.cartoonEnabled').change(oncartoonEnabled);
+		this.ui.find('.cartoonPower').change(oncartoonPower);
+		this.ui.find('.cartoonEdgeSlope').change(oncartoonEdgeSlope);
+
+		// Culling
 		this.ui.find('.culling').change(onToggleCulling);
 		this.ui.find('.view-area').change(onUpdateAreaView);
 
@@ -89,11 +104,26 @@ define(function(require)
 		this.ui.find('.fpslimit').val(GraphicsSettings.fpslimit);
 		this.ui.find('.fps').attr('checked', FPS.ui.is(':visible'));
 		this.ui.find('.pixel-perfect').attr('checked', GraphicsSettings.pixelPerfectSprites);
+
+		// Post-Processing
 		this.ui.find('.bloom').attr('checked', GraphicsSettings.bloom);
 		this.ui.find('.bloom-intensity').val(GraphicsSettings.bloomIntensity);
 		this.ui.find('.blur').attr('checked', GraphicsSettings.blur);
 		this.ui.find('.blur-area').val(GraphicsSettings.blurArea);
 		this.ui.find('.blur-intensity').val(GraphicsSettings.blurIntensity);
+		this.ui.find('.fxaaEnabled').attr('checked', GraphicsSettings.fxaaEnabled);
+		this.ui.find('.fxaaSubpix').val(GraphicsSettings.fxaaSubpix);
+		this.ui.find('.fxaaEdgeThreshold').val(GraphicsSettings.fxaaEdgeThreshold);
+		this.ui.find('.vibranceEnabled').attr('checked', GraphicsSettings.vibranceEnabled);
+		this.ui.find('.vibrance').val(GraphicsSettings.vibrance);
+		this.ui.find('.casEnabled').attr('checked', GraphicsSettings.casEnabled);
+		this.ui.find('.casContrast').val(GraphicsSettings.casContrast);
+		this.ui.find('.casSharpening').val(GraphicsSettings.casSharpening);
+		this.ui.find('.cartoonEnabled').attr('checked', GraphicsSettings.cartoonEnabled);
+		this.ui.find('.cartoonEdgeSlope').val(GraphicsSettings.cartoonEdgeSlope);
+		this.ui.find('.cartoonPower').val(GraphicsSettings.cartoonPower);
+
+		// Culling
 		this.ui.find('.culling').attr('checked', GraphicsSettings.culling);
 		this.ui.find('.view-area').val(GraphicsSettings.viewArea);
 	};
@@ -202,6 +232,73 @@ define(function(require)
 	function onUpdateBlurArea()  
 	{  
 		GraphicsSettings.blurArea = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function oncasEnabled()
+	{
+		GraphicsSettings.casEnabled = !!this.checked;
+		GraphicsSettings.save();
+	}
+
+	function oncasContrast()  
+	{  
+		GraphicsSettings.casContrast = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function oncasSharpening()  
+	{  
+		GraphicsSettings.casSharpening = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function onvibranceEnabled()
+	{
+		GraphicsSettings.vibranceEnabled = !!this.checked;
+		GraphicsSettings.save();
+	}
+
+	function onvibrance()  
+	{  
+		GraphicsSettings.vibrance = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+
+	function onfxaaEnabled()
+	{
+		GraphicsSettings.fxaaEnabled = !!this.checked;
+		GraphicsSettings.save();
+	}
+
+	function onfxaaSubpix()  
+	{  
+		GraphicsSettings.fxaaSubpix = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function onfxaaEdgeThreshold()  
+	{  
+		GraphicsSettings.fxaaEdgeThreshold = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function oncartoonEnabled()
+	{
+		GraphicsSettings.cartoonEnabled = !!this.checked;
+		GraphicsSettings.save();
+	}
+
+	function oncartoonPower()  
+	{  
+		GraphicsSettings.cartoonPower = parseFloat(this.value);  
+		GraphicsSettings.save();  
+	}
+
+	function oncartoonEdgeSlope()  
+	{  
+		GraphicsSettings.cartoonEdgeSlope = parseFloat(this.value);  
 		GraphicsSettings.save();  
 	}
 
