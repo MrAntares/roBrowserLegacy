@@ -1004,7 +1004,7 @@ define(function(require)
 			var hotkeys = JSON.stringify(convertHotkeysToServerFormat());
 			if (!haveHotkeysChanged(hotkeys)) return;
 
-			var webAddress = Configs.get('webserverAddress', '127.0.0.1:8888');
+			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
 			var formData = new FormData();  
 			formData.append('AID', Session.AID);  
@@ -1013,7 +1013,7 @@ define(function(require)
 			formData.append('data', hotkeys);  
 			
 			var xhr = new XMLHttpRequest();  
-			xhr.open('POST', 'http://' + webAddress + '/userconfig/save', true);  
+			xhr.open('POST', webAddress + '/userconfig/save', true);  
 			xhr.onload = function() {  
 				if (xhr.status === 200) {  
 					console.log('Hotkeys saved to server successfully');  
