@@ -37,6 +37,7 @@ define(function(require)
 	 */
 	WinLoginV2Background.onAppend = function onAppend()
 	{
+		this.ui.off('click mousedown mouseup');
 	};
 
 	/**
