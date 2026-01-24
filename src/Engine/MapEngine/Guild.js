@@ -162,7 +162,7 @@ define(function( require )
 			if (!guild_id || guild_id === undefined || !Session.AID || Session.AID === 0 || !Session.ServerName || Session.ServerName === undefined || !Session.WebToken || Session.WebToken === undefined)
 				return;
 
-			var webAddress = Configs.get('webserverAddress', '127.0.0.1:8888');
+			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
 			var formData = new FormData();
 			formData.append('GDID', guild_id);
@@ -171,7 +171,7 @@ define(function( require )
 			formData.append('AID', Session.AID);
 
 			var xhr = new XMLHttpRequest();      
-			xhr.open('POST', 'http://' + webAddress + '/emblem/download', true);
+			xhr.open('POST', webAddress + '/emblem/download', true);
 			xhr.responseType = 'blob';
 
 			xhr.onload = function() {

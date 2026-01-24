@@ -167,7 +167,7 @@
 		socketProxy: null,
 
 		/**
-		 * @var {string} web-server api: 'yourserverip:port/'
+		 * @var {string} web-server api: '<protocol>://<yourserverip>:<port>/'
 		 */
 		webserverAddress: null,
 
