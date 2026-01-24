@@ -160,6 +160,8 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 				if(uPosterize) {
 					lightmap.rgb = posterize(lightmap.rgb);
 				}
+				else
+					lightmap.rgb = pow(lightmap.rgb, vec3(1.3));
 				textureSample.rgb *= lightmap.a;
 				textureSample.rgb += clamp(lightmap.rgb, 0.0, 1.0);
 			}
