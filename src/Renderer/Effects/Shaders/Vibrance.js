@@ -17,7 +17,8 @@ define(function(require) {
     var _program, _buffer;  
   
     var commonVS = `  
-        #version 300 es  
+        #version 300 es
+        #pragma vscode_glsllint_stage : vert
         precision highp float;  
         in vec2 aPosition;  
         out vec2 vUv;  
@@ -29,7 +30,8 @@ define(function(require) {
     `;  
   
     var vibranceFS = `  
-        #version 300 es  
+        #version 300 es
+        #pragma vscode_glsllint_stage : frag
         precision mediump float;  
   
         uniform sampler2D uTexture;  
