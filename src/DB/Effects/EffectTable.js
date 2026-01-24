@@ -1716,10 +1716,17 @@ define(function( require )
 
 
 		47: [{	//EF_TORCH	Torch
-			type: 'SPR',
-			file: 'torch_01',
-			duration: 250,
-			attachedEntity: true
+			type: '3D',                // C++: PP_3DPARTICLE
+			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/torch_01', // PT_USEORGARGB
+			attachedEntity: true,      // C++: m_pos = m_master->m_pos
+			playSprite: true,
+			duration: 600,            // 6 frames 100delay each
+			posz: 0.8,                // C++: m_deltaPos2.y = -10
+			posx: 0.1,		  // finetune
+			size: 100,                // C++: m_size (m_param[0]) 1.0f
+			angle: 270,
+			rotateToTarget: true,
+			repeat: true
 		}],
 
 
