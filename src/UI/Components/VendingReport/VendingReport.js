@@ -16,21 +16,15 @@ define(function(require)
 	 */
 	var DB					= require('DB/DBManager');
 	var jQuery				= require('Utils/jquery');
-	var Network				= require('Network/NetworkManager');
-	var PACKET				= require('Network/PacketStructure');
 	var Client				= require('Core/Client');
 	var Preferences			= require('Core/Preferences');
-	var Mouse				= require('Controls/MouseEventHandler');
-	var Renderer			= require('Renderer/Renderer');
 	var EntityManager		= require('Renderer/EntityManager');
 	var UIManager			= require('UI/UIManager');
 	var UIComponent			= require('UI/UIComponent');
 	var ItemInfo			= require('UI/Components/ItemInfo/ItemInfo');
-	var Session				= require('Engine/SessionStorage');
 	var VendingShop			= require('UI/Components/VendingShop/VendingShop');
 	var htmlText			= require('text!./VendingReport.html');
 	var cssText				= require('text!./VendingReport.css');
-	var getModule			= require;
 
 
 	/**
