@@ -152,6 +152,7 @@ define( function( require )
 	 */
 	Entity.prototype.objecttype   = Entity.TYPE_UNKNOWN;
 	Entity.prototype.GID          = 0;
+	Entity.prototype.AID          = 0;
 	Entity.prototype._bodyState   = 0;
 	Entity.prototype._healthState = 0;
 	Entity.prototype._effectState = 0;

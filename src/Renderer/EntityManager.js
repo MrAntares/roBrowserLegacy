@@ -147,6 +147,28 @@ define(function (require) {
 
 
 	/**
+	 * Find an Entity and return its index
+	 *
+	 * @param {number} aid
+	 * @returns {number} position
+	 */
+	function getEntityIndexBy(getter, value) {
+		if (value < 0) {
+			return -1;
+		}
+
+		var i, count = _list.length;
+		for (i = 0; i < count; ++i) {
+			if (getter(_list[i]) === value) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+
+	/**
 	 * Fetch all entities using a callback
 	 *
 	 * @param {function} callback
@@ -184,6 +206,23 @@ define(function (require) {
 		}
 
 		return _list[index];
+	}
+
+
+	/**
+	 * Find an Entity via AID and return it
+	 * Note: Currently Character ID (CID) is stored as AID in Entity
+	 * Note2: Need to review all AID implementation in both packet and entity
+	 * @param {number} aid
+	 * @returns {object} Entity
+	 */
+	function getEntityByCID(aid) {
+		if (Session.Entity.AID === aid) {
+			return Session.Entity;
+		}
+	
+		var index = getEntityIndexBy(e => e.AID, aid);
+		return index < 0 ? null : _list[index];
 	}
 
 
@@ -523,6 +562,7 @@ define(function (require) {
 		add: addEntity,
 		remove: removeEntity,
 		get: getEntity,
+		getByCID: getEntityByCID,
 		forEach: forEach,
 
 		getOverEntity: getOverEntity,
