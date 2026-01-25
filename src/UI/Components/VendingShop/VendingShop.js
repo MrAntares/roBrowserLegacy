@@ -21,6 +21,7 @@ define(function(require)
 	var jQuery             = require('Utils/jquery');
 	var Network            = require('Network/NetworkManager');
 	var PACKET             = require('Network/PacketStructure');
+	var PACKETVER	       = require('Network/PacketVerManager');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
 	var Mouse              = require('Controls/MouseEventHandler');
@@ -617,6 +618,12 @@ define(function(require)
 		}
 		Network.sendPacket(pkt);
 		this.onRemove();
+
+		// Vending Report upon closing the store
+		if (_type === VendingShop.Type.VENDING_LIST && PACKETVER.value >= 20141016) {
+			var VendingReport    = require('UI/Components/VendingReport/VendingReport');
+			VendingReport.append();
+		}
 	};
 
 
