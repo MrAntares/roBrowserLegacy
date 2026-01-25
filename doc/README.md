@@ -23,7 +23,9 @@ This guide has the goal to help you to Setup/Play RoBrowser. If there's any trou
   - [Remote Client](#remote-client)
 - [6. Adding Custom Plugins](#6-adding-custom-plugins)
 - [7. ROBrowser Settings Overview](#7-robrowser-settings-overview)
-  - [8. Play the Game](#8-play-the-game)
+  - [7.1 Configuration Files](#71-configuration-files)
+  - [7.2 Configuration Options](#72-configuration-options)
+- [8. Play the Game](#8-play-the-game)
 - [9. Troubleshooting](#9-troubleshooting)
   - [9.1 Troubleshooting: The screen is weird and/or the developer console (F12) says it can't load game assets](#91-troubleshooting-the-screen-is-weird-andor-the-developer-console-f12-says-it-cant-load-game-assets)
   - [9.2 Troubleshooting:  Screen is blank](#92-troubleshooting--screen-is-blank)
@@ -298,11 +300,47 @@ Some examples: https://github.com/MrAntares/roBrowserLegacy-plugins
 
 # 7. ROBrowser Settings Overview
 
+## 7.1 Configuration Files
+
+roBrowser uses a two-file configuration system that separates default settings from local customizations:
+
+| File | Purpose |
+|------|---------|
+| `Config.js` | Default configuration shipped with roBrowser. This file can be overwritten during updates/deployments. |
+| `Config.local.js` | **Optional.** Your local overrides that persist across updates. This file is gitignored. |
+
+### Setting Up Your Configuration
+
+1. **For basic setups**: Edit `Config.js` directly in `applications/pwa/`
+
+2. **For production/deployment setups** (recommended):
+   - Keep `Config.js` with sensible defaults
+   - Copy `Config.local.js.example` to `Config.local.js`
+   - Add your server-specific settings to `Config.local.js`
+
+Example `Config.local.js`:
+```js
+window.ROConfigLocal = {
+    servers: [{
+        display: 'My Server',
+        address: '192.168.1.100',
+        port: 6900,
+        packetver: 20180620,
+        socketProxy: 'wss://my-proxy.example.com'
+    }],
+    skipIntro: true,
+    remoteClient: 'https://my-grf-server.com/'
+};
+```
+
+Settings in `Config.local.js` are deep-merged with `Config.js`, so you only need to specify the values you want to override.
+
+## 7.2 Configuration Options
+
 Here you have a list with all of init variables on ROBrowser. Let's take a look:
 
 ```js
-function initialize() {
-      var ROConfig = {
+var ROConfig = {
       // GLOBAL VARIABLES
           type:          ROBrowser.TYPE.FRAME,  // Possible: .FRAME (instert into current document), .POPUP (open new window)
           target:        document.getElementById("robrowser"),  // When using TYPE.FRAME this is the id of the target iframe in the current document
@@ -374,13 +412,10 @@ function initialize() {
           ThirdPersonCamera: false,  // When true you can zoom in more and rotate camera around player more freely with mouse
           FirstPersonCamera: false,  // When true you can look from the player's head, like an FPS game and rotate camera without limit
           CameraMaxZoomOut: 5,  // How far can you zoom out the camera, default:5. Note: Extreme values can break camera and/or mouse.
-      };
-      var RO = new ROBrowser(ROConfig);
-      RO.start();
-  }
-  
-  window.addEventListener("load", initialize, false);  // When the webpage loads this will start roBrowser
+};
 ```
+
+> **Note:** When using `Config.js` and `Config.local.js`, use `window.ROConfigBase` and `window.ROConfigLocal` respectively. The `type` and `application` options should use string values (`'FRAME'`, `'ONLINE'`) which are converted to their constants at runtime.
 In case of the `langtype` option, we added support for some custom types:
 
 Normal

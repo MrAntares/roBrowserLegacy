@@ -150,102 +150,151 @@ function compile(appName, isMinify) {
 function createHTML(includeManifest = false) {
     const start = Date.now();
     let manifest = includeManifest ? `<link rel="manifest" href="./manifest.webmanifest">` : ``;
-    const body = `
-        <!DOCTYPE html>
-        <html>
-            <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-                	<meta charset="UTF-8">
-                    <title>roBrowser [${package.version} - ${buildDate}]</title>
-                    <link rel="icon" type="./icon.png">
+    const body = `<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta charset="UTF-8">
+        <title>roBrowser [${package.version} - ${buildDate}]</title>
+        <link rel="icon" type="./icon.png">
 
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                    <meta name="HandheldFriendly" content="true">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="HandheldFriendly" content="true">
 
-                    <meta name="apple-mobile-web-app-capable" content="yes">
-                    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-                    <meta name="apple-mobile-web-app-title" content="roBrowser">
-                    <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="roBrowser">
+        <meta name="mobile-web-app-capable" content="yes">
 
-                    <meta name="description" content="roBrowser">
-                    <meta name="keywords" content="roBrowser">
-                    <meta name="author" content="roBrowser">
-                    <meta name="robots" content="index">
+        <meta name="description" content="roBrowser">
+        <meta name="keywords" content="roBrowser">
+        <meta name="author" content="roBrowser">
+        <meta name="robots" content="index">
 
-                    <meta name="theme-color" content="#ff8cb5">
+        <meta name="theme-color" content="#ff8cb5">
 
-                    <meta property="og:title" content="roBrowser">
-                    <meta property="og:description" content="roBrowser">
-                    <meta property="og:type" content="website">
-                    <meta property="og:locale" content="en_US">
+        <meta property="og:title" content="roBrowser">
+        <meta property="og:description" content="roBrowser">
+        <meta property="og:type" content="website">
+        <meta property="og:locale" content="en_US">
 
-                    <link rel="apple-touch-icon" href="./icon.png">
-                    ${manifest}
-            </head>
-            <body>
-                <script>
-                    window.addEventListener("load", (event) => {
-                        window.ROConfig = {
-                            development: false,
-                            remoteClient: 'https://grf.robrowser.com/',
-                            servers: [{
-                                display: 'roBrowser Demo Server',
-                                desc: 'roBrowser demo server',
-                                address: '127.0.0.1',
-                                port: 6900,
-                                version: 55,
-                                langtype: 1,
-                                packetver: 20130618,
-                                renewal: false,
-                                worldMapSettings: { episode: 12 },
-                                packetKeys: false,
-                                socketProxy: 'wss://connect.robrowser.com',
-                                adminList: [2000000]
-                            }],
-                            webserverAddress: 'http://127.0.0.1:8888',
-                            packetDump: false,
-                            skipServerList: true,
-                            skipIntro: false,
-                            aura: {},
-                            autoLogin: [],
-                            BGMFileExtension: ['mp3'],
-                            calculateHash: false,
-                            CameraMaxZoomOut: 5,
-                            charBlockSize: 0,
-                            clientHash: null,
-                            clientVersionMode: "PacketVer",
-                            disableConsole: false,
-                            enableBank: true,
-                            enableCashShop: true,
-                            enableCheckAttendance: true,
-                            enableDmgSuffix: true,
-                            enableHomunAutoFeed: true,
-                            enableMapName: true,
-                            enableRoulette: true,
-                            FirstPersonCamera: false,
-                            grfList: null,
-                            hashFiles: [],
-                            loadLua: false,
-                            customItemInfo: [],
-                            onReady: null,
-                            plugins: {},
-                            registrationweb: '',
-                            saveFiles: true,
-                            ThirdPersonCamera: false,
-                        };
+        <link rel="apple-touch-icon" href="./icon.png">
+        ${manifest}
+    </head>
+    <body>
+        <script src="Config.js"></script>
+        <script>
+            // Load optional Config.local.js for overrides (fails silently if not present)
+            (function() {
+                var script = document.createElement('script');
+                script.src = 'Config.local.js';
+                script.onerror = function() {
+                    console.log('Config.local.js not found, using defaults from Config.js');
+                };
+                document.head.appendChild(script);
+            })();
+        </script>
+        <script>
+            function deepMerge(target, source) {
+                for (var key in source) {
+                    if (source.hasOwnProperty(key)) {
+                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                            target[key] = deepMerge(target[key] || {}, source[key]);
+                        } else {
+                            target[key] = source[key];
+                        }
+                    }
+                }
+                return target;
+            }
 
-                        script = document.createElement('script');
-                        script.type = 'text/javascript';
-                        script.src = 'Online.js';
-                        document.getElementsByTagName('body')[0].appendChild(script);
-                    });
-                </script>
-            </body>
-        </html>
-    `;
+            window.addEventListener("load", (event) => {
+                // Merge Config.js defaults with Config.local.js overrides
+                var config = deepMerge({}, window.ROConfigBase || {});
+                if (window.ROConfigLocal) {
+                    config = deepMerge(config, window.ROConfigLocal);
+                }
+                window.ROConfig = config;
+
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = 'Online.js';
+                document.getElementsByTagName('body')[0].appendChild(script);
+            });
+        </script>
+    </body>
+</html>
+`;
     fs.writeFileSync(dist + platform + '/index.html', body, { encoding: "utf8" });
+    createConfigJS();
     copyFolder('./src/UI/Components/Intro/images/', dist + platform + '/src/UI/Components/Intro/images/');
     console.log("index.html has been created in", (Date.now() - start), "ms.");
+}
+
+function createConfigJS() {
+    const configContent = `/**
+ * ROBrowser Configuration - Default Settings
+ *
+ * This file contains default configuration values.
+ * To override settings without modifying this file, create Config.local.js
+ * with your custom values in window.ROConfigLocal.
+ *
+ * Example Config.local.js:
+ *   window.ROConfigLocal = {
+ *       servers: [{ display: 'My Server', address: '192.168.1.1', ... }],
+ *       skipIntro: true
+ *   };
+ */
+window.ROConfigBase = {
+    development: false,
+    remoteClient: 'https://grf.robrowser.com/',
+    servers: [{
+        display: 'roBrowser Demo Server',
+        desc: 'roBrowser demo server',
+        address: '127.0.0.1',
+        port: 6900,
+        version: 55,
+        langtype: 1,
+        packetver: 20130618,
+        renewal: false,
+        worldMapSettings: { episode: 12 },
+        packetKeys: false,
+        socketProxy: 'wss://connect.robrowser.com',
+        adminList: [2000000]
+    }],
+    webserverAddress: 'http://127.0.0.1:8888',
+    packetDump: false,
+    skipServerList: true,
+    skipIntro: false,
+    aura: {},
+    autoLogin: [],
+    BGMFileExtension: ['mp3'],
+    calculateHash: false,
+    CameraMaxZoomOut: 5,
+    charBlockSize: 0,
+    clientHash: null,
+    clientVersionMode: "PacketVer",
+    disableConsole: false,
+    enableBank: true,
+    enableCashShop: true,
+    enableCheckAttendance: true,
+    enableDmgSuffix: true,
+    enableHomunAutoFeed: true,
+    enableMapName: true,
+    enableRoulette: true,
+    FirstPersonCamera: false,
+    grfList: null,
+    hashFiles: [],
+    loadLua: false,
+    customItemInfo: [],
+    onReady: null,
+    plugins: {},
+    registrationweb: '',
+    saveFiles: true,
+    ThirdPersonCamera: false,
+};
+`;
+    fs.writeFileSync(dist + platform + '/Config.js', configContent, { encoding: "utf8" });
 }
 
 function copyPwaFiles() {

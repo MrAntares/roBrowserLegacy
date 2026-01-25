@@ -7,6 +7,7 @@
 /node_modules/
 /src/Plugins/*/
 /index.html
+Config.local.js
 /package-lock.json
 /GrannyModelViewer.js
 /GrfViewer.js
