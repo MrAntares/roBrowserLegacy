@@ -94,7 +94,6 @@ define(function( require )
 
 	function onDeleteVendingItem( pkt )
 	{
-		//TODO: add msg id: 231
 		VendingShop.removeItem(pkt.index,pkt.count);
 	}
 

@@ -19,17 +19,18 @@ define(function(require)
 	 */
 	var DB                 = require('DB/DBManager');
 	var jQuery             = require('Utils/jquery');
-	var Network          = require('Network/NetworkManager');
-	var PACKET           = require('Network/PacketStructure');
+	var Network            = require('Network/NetworkManager');
+	var PACKET             = require('Network/PacketStructure');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
 	var Mouse              = require('Controls/MouseEventHandler');
 	var Renderer           = require('Renderer/Renderer');
 	var UIManager          = require('UI/UIManager');
 	var UIComponent        = require('UI/UIComponent');
+	var ChatBox			   = require('UI/Components/ChatBox/ChatBox');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
-	var Session    			= require('Engine/SessionStorage');
-	var Vending          = require('UI/Components/Vending/Vending');
+	var Session    		   = require('Engine/SessionStorage');
+	var Vending            = require('UI/Components/Vending/Vending');
 	var htmlText           = require('text!./VendingShop.html');
 	var cssText            = require('text!./VendingShop.css');
 	var getModule          = require;
@@ -311,6 +312,9 @@ define(function(require)
 			return null;
 		}
 
+		// Sold Message
+		var msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
+		ChatBox.addText( msg,  ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 
 		if (item.count) {
 			item.count -= count;
