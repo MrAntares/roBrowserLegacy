@@ -1,0 +1,32 @@
+/**
+ * ROBrowser Local Configuration Overrides
+ *
+ * Copy this file to Config.local.js and customize as needed.
+ * Values here will override those in Config.js.
+ * Config.local.js is optional and will be silently ignored if not present.
+ */
+window.ROConfigLocal = {
+	// Example: Override server settings
+	servers: [
+		{
+			display: 'My Private Server',
+			desc: 'custom server',
+			address: '127.0.0.1',
+			port: 6900,
+			version: 25,
+			langtype: 12,
+			packetver: 20130618,
+			renewal: false,
+			worldMapSettings: { episode: 12 },
+			packetKeys: false,
+			socketProxy: 'wss://connect.robrowser.com',
+			adminList: [2000000]
+		}
+	],
+
+	// Example: Skip intro screen
+	// skipIntro: true,
+
+	// Example: Custom remote client URL
+	// remoteClient: 'https://my-grf-server.com/',
+};

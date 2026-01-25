@@ -49,62 +49,47 @@
 	</style>
 
 	<script type="text/javascript" src="../api/api.js"></script>
+	<script type="text/javascript" src="Config.js"></script>
+	<script type="text/javascript">
+		// Load optional Config.local.js for overrides (fails silently if not present)
+		(function() {
+			var script = document.createElement('script');
+			script.src = 'Config.local.js';
+			script.onerror = function() {
+				console.log('Config.local.js not found, using defaults from Config.js');
+			};
+			document.head.appendChild(script);
+		})();
+	</script>
 	<script type="text/javascript">
 
-		function initialize(gitHash) {
+		function deepMerge(target, source) {
+			for (var key in source) {
+				if (source.hasOwnProperty(key)) {
+					if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+						target[key] = deepMerge(target[key] || {}, source[key]);
+					} else {
+						target[key] = source[key];
+					}
+				}
+			}
+			return target;
+		}
 
-			var ROConfig = {
+		function initialize(gitHash) {
+			// Merge Config.js defaults with Config.local.js overrides
+			var baseConfig = deepMerge({}, window.ROConfigBase || {});
+			if (window.ROConfigLocal) {
+				baseConfig = deepMerge(baseConfig, window.ROConfigLocal);
+			}
+
+			// Build ROConfig with dynamic values
+			var ROConfig = Object.assign({}, baseConfig, {
 				target: document.getElementById("robrowser"),
-				type: ROBrowser.TYPE.FRAME,
-				application: ROBrowser.APP.ONLINE,
-				development: true,
-				version: gitHash,
-				remoteClient: 'https://grf.robrowser.com/',
-				servers: [
-					{
-						display: 'roBrowser Demo Server',
-						desc: 'demo server',
-						address: '127.0.0.1',
-						port: 6900,
-						version: 25,
-						langtype: 12,
-						packetver: 20130618,
-						renewal: false,
-						worldMapSettings: { episode: 12 },
-						packetKeys: false,
-						socketProxy: 'wss://connect.robrowser.com',
-						adminList: [2000000]
-					},
-					// ADD PUBLIC TEST SERVERS HERE WITH _M _F REGISTRATION
-				],
-				packetDump: false,
-				skipServerList: true,
-				skipIntro: false,
-				aura: {},
-				autoLogin: [],
-				BGMFileExtension: ['mp3'],
-				calculateHash: false,
-				CameraMaxZoomOut: 5,
-				charBlockSize: 0,
-				clientHash: null,
-				clientVersionMode: "PacketVer",
-				disableConsole: false,
-				enableBank: false,
-				enableCashShop: false,
-				enableCheckAttendance: false,
-				enableDmgSuffix: false,
-				enableHomunAutoFeed: false,
-				enableMapName: false,
-				FirstPersonCamera: false,
-				grfList: null,
-				hashFiles: [],
-				loadLua: false,
-				onReady: null,
-				plugins: {},
-				registrationweb: '',
-				saveFiles: true,
-				ThirdPersonCamera: false,
-			};
+				type: ROBrowser.TYPE[baseConfig.type || 'FRAME'],
+				application: ROBrowser.APP[baseConfig.application || 'ONLINE'],
+				version: gitHash
+			});
 			var RO = new ROBrowser(ROConfig);
 			RO.start();
 		}
