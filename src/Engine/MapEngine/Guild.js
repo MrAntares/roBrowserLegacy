@@ -433,7 +433,7 @@ define(function( require )
 		
 		return function sendEmblem(data) {  
 			if(PACKETVER.value >= 20170315){   
-				var webAddress = Configs.get('webserverAddress', '127.0.0.1:8888');  
+				var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');  
 
 				var formData = new FormData();      
 				formData.append('GDID', Session.Entity.GUID);      
@@ -444,7 +444,7 @@ define(function( require )
 				formData.append('ImgType', 'BMP');      
 
 				var xhr = new XMLHttpRequest();      
-				xhr.open('POST', 'http://' + webAddress + '/emblem/upload', true);  
+				xhr.open('POST', webAddress + '/emblem/upload', true);  
 
 				xhr.onload = function() {    
 					if (xhr.status === 200) {
