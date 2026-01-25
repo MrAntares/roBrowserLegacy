@@ -19,10 +19,12 @@ define(function( require )
 	var Session        = require('Engine/SessionStorage');
 	var Network       = require('Network/NetworkManager');
 	var PACKET        = require('Network/PacketStructure');
+	var PACKETVER     = require('Network/PacketVerManager');
 	var EntityManager = require('Renderer/EntityManager');
 	var Inventory     = require('UI/Components/Inventory/Inventory');
 	var NpcStore      = require('UI/Components/NpcStore/NpcStore');
 	var Vending       = require('UI/Components/Vending/Vending');
+	var VendingReport = require('UI/Components/VendingReport/VendingReport');
 	var VendingShop   = require('UI/Components/VendingShop/VendingShop');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 
@@ -94,8 +96,13 @@ define(function( require )
 
 	function onDeleteVendingItem( pkt )
 	{
-		//TODO: add msg id: 231
+		// Vending Report
+		if (PACKETVER.value >= 20141016) {
+			VendingReport.add(pkt);
+		}
+
 		VendingShop.removeItem(pkt.index,pkt.count);
+
 	}
 
 
