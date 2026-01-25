@@ -1025,7 +1025,7 @@ define(function(require)
 	
 	ShortCut.loadFromServer = function(callback) {  
 		if (PACKETVER.value >= 20170315 && Session.WebToken) {  
-			var webAddress = Configs.get('webserverAddress', '127.0.0.1:8888');
+			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 			
 			var formData = new FormData();  
 			formData.append('AID', Session.AID);  
@@ -1033,7 +1033,7 @@ define(function(require)
 			formData.append('AuthToken', Session.WebToken); 
 	
 			var xhr = new XMLHttpRequest();  
-			xhr.open('POST', 'http://' + webAddress + '/userconfig/load', true);  
+			xhr.open('POST', webAddress + '/userconfig/load', true);  
 			xhr.onload = function() {  
 				if (xhr.status === 200) {  
 					try {  
