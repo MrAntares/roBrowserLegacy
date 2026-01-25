@@ -36,7 +36,7 @@ define( ['Core/Preferences'], function( Preferences )
 		 *
 		 * Toggle using "/smoothlight" in the chatbox
 		 */
-		smoothlight: false,
+		smoothlight: 0,
 
 
 		/**

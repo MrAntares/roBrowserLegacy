@@ -206,11 +206,17 @@ define(function (require) {
 		},
 
 		smoothlight: {
-			description: "Toggles the posterization effect of the lightmap",
-			callback: function () {
-				MapPreferences.smoothlight = !MapPreferences.smoothlight;
-				MapPreferences.save();
-				return;
+			description: "Cycles the posterization effect of the lightmap: on, off, off with gamma correction",  
+			callback: function () {  
+				MapPreferences.smoothlight = (MapPreferences.smoothlight + 1) % 3;  
+				var messages = ["Posterization On", "Smoothlight On", "Smoothlight On with Gamma Correction"];  
+				this.addText(
+					messages[MapPreferences.smoothlight],  
+					this.TYPE.INFO,  
+					this.FILTER.PUBLIC_LOG  
+				);  
+				MapPreferences.save();  
+				return;  
 			},
 		},
 
