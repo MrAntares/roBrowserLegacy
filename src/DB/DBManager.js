@@ -239,6 +239,12 @@ define(function (require) {
 	var ReputeInfo = {};
 
 	/**
+	 * @var {Object} CSV Tables
+	 */
+	var MsgStringTableCSV = {};
+	var MsgEmotionCSV     = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -447,6 +453,12 @@ define(function (require) {
 			loadBSONFile('data/contentdata/repute/reputeinfodata.bson', ReputeInfo, function () {});
 		}
 
+		// CSV Tables - Client Date is not sure since when they were added
+		if (PACKETVER.value >= 20230302) {
+			loadCSV('data/msgstringtable.csv', MsgStringTableCSV, 0, 1, onLoad());
+			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
+		}
+
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 	};
@@ -507,6 +519,79 @@ define(function (require) {
 		}, onEnd);
 	}
 
+	/**
+	 * Load CSV table with Base64-encoded columns
+	 * Can pick which columns to use for key/value
+	 * @param {string} filename - path to CSV
+	 * @param {object} targetTable - object to populate
+	 * @param {number} keyIndex - 0-based index of column to use as key
+	 * @param {number} valueIndex - 0-based index of column to use as value
+	 * @param {function} onEnd - callback when done
+	 */
+	function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
+		Client.loadFile(filename, function (data) {
+			console.log('Loading file "' + filename + '"...');
+
+			// Convert to UTF-8 string
+			var text;
+			if (typeof data === 'string') {
+				text = data;
+			} else if (data instanceof Uint8Array) {
+				text = new TextDecoder('utf-8').decode(data);
+			} else if (data instanceof ArrayBuffer) {
+				text = new TextDecoder('utf-8').decode(new Uint8Array(data));
+			} else {
+				text = String(data);
+			}
+
+			// Split lines
+			var lines = text.split(/\r?\n/);
+
+			for (var i = 0; i < lines.length; i++) {
+				var line = lines[i].trim();
+				if (!line || line.startsWith('//')) continue;
+
+				var parts = line.split(',');
+				if (parts.length <= Math.max(keyIndex, valueIndex)) continue;
+
+				try {
+					var key   = base64DecodeUtf8(parts[keyIndex].trim());
+					var value = base64DecodeUtf8(parts[valueIndex].trim());
+
+					targetTable[key] = value;
+				} catch (e) {
+					console.warn('Base64 decode failed on line', i + 1, ':', line);
+				}
+			}
+
+			onEnd && onEnd();
+		}, onEnd);
+	};
+
+	/**
+	 * Decode a Base64 string as UTF-8
+	 * @param {string} str - Base64 encoded string
+	 * @returns {string} decoded UTF-8 string
+	 */
+	function base64DecodeUtf8(str) {
+		try {
+			// atob() decodes Base64 to binary string
+			var binary = atob(str);
+			var len = binary.length;
+		
+			// convert binary string to Uint8Array
+			var bytes = new Uint8Array(len);
+			for (var i = 0; i < len; i++) {
+				bytes[i] = binary.charCodeAt(i);
+			}
+		
+			// decode bytes as UTF-8
+			return new TextDecoder('utf-8').decode(bytes);
+		} catch (e) {
+			console.warn('Base64 UTF-8 decode failed:', str, e);
+			return str; // fallback to original if decoding fails
+		}
+	};
 
 	/**
 	 * Load ItemMoveInfoV5.txt and attach move info to ItemTable
@@ -4716,6 +4801,40 @@ define(function (require) {
 		}
 
 		return TextEncoding.decodeString(MsgStringTable[id]);
+	};
+
+	/**
+	 * Get a message string from the MsgStringTableCSV
+	 *
+	 * @param {string} keyorIndex - The key or id to search for
+	 * @return {string|null} - The value associated with the given key, or null if not found.
+	 */
+	DB.getMessageCSV = function getMsgStringCSV(keyOrIndex) {
+		if (typeof keyOrIndex === 'number') {
+			// Get keys as array just for this lookup
+			let keys = Object.keys(MsgStringTableCSV);
+			let key = keys[keyOrIndex];
+			return key ? MsgStringTableCSV[key] : null;
+		}
+		// string key lookup
+		return MsgStringTableCSV[keyOrIndex] ?? null;
+	};
+
+	/**
+	 * Get a message string from the MsgEmotionCSV
+	 *
+	 * @param {string} key - The key to search for
+	 * @return {string|null} - The value associated with the given key, or null if not found.
+	 */
+	DB.getMessageEmotionCSV = function getMsgEmotionCSV(keyOrIndex) {
+		if (typeof keyOrIndex === 'number') {
+			// Get keys as array just for this lookup
+			let keys = Object.keys(MsgEmotionCSV);
+			let key = keys[keyOrIndex];
+			return key ? MsgEmotionCSV[key] : null;
+		}
+		// string key lookup
+		return MsgEmotionCSV[keyOrIndex] ?? null;
 	};
 
 	/**
