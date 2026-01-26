@@ -142,11 +142,6 @@ define(function (require) {
 			JoystickUI.fullSync();
 		};
 
-		var oldsetElement = ShortCut.setElement;
-		ShortCut.setElement = function (list) {
-			oldsetElement.call(ShortCut);
-			JoystickUI.fullSync();
-		};
 	};
 
 
