@@ -424,7 +424,7 @@ define(function (require) {
 		if (!buttons[0].pressed && !buttons[1].pressed) {
 			stopClickInterval();
 		}
-		// L2+R2 troca para set 2  
+		// L2+R2 change skill set
 		if (l2 && r2) {
 			if (currentSet === 1) {
 				if (setChangeInterval) return false;
