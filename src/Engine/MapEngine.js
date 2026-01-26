@@ -97,6 +97,7 @@ define(function( require )
 	var SkillList = require('UI/Components/SkillList/SkillList');
 	var Quest     = require('UI/Components/Quest/Quest');
 	var PlayerViewEquip     = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
+	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
 
 	/**
 	 * @var {string mapname}
@@ -677,6 +678,7 @@ define(function( require )
 			SkillListMH.homunculus.append();
 			SkillListMH.mercenary.append();
 			MobileUI.append();
+			JoystickUI.append();
 			Navigation.append();
 
 			if (PACKETVER.value >= 20090617 && PACKETVER.value < 20140521) {

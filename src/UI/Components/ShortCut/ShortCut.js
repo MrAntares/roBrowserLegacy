@@ -1050,6 +1050,8 @@ define(function(require)
 		}  
 	};
 
+	ShortCut.getList = function getList(){ return _list; };
+
 	/**
 	 * Create component and export it
 	 */
