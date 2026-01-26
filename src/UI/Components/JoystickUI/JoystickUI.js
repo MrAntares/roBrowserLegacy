@@ -32,9 +32,9 @@ define(function (require) {
 	var moveInterval = null;
 	var setChangeInterval = null;
 	var ClickInterval = null;
+
 	var mouseDeltaX = 0;
 	var mouseDeltaY = 0;
-
 	var normalizedX = 0;
 	var normalizedY = 0;
 
@@ -636,10 +636,10 @@ define(function (require) {
 			if (normalizedX !== 0 || normalizedY !== 0) {
 				moveCharacter(normalizedX, normalizedY, 3);
 			}
-		}, 200); // default client walkdelay
+		}, 50);
 		setTimeout(function () {
 			stopMovement();
-		}, 200);
+		}, 200); // default client walkdelay
 	}
 
 	function stopMovement() {
