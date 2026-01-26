@@ -31,7 +31,7 @@ define(function (require) {
 	var rotate = glMatrix.mat2.create();
 	var moveInterval = null;
 	var setChangeInterval = null;
-	var moveClickInterval = null;
+	var ClickInterval = null;
 	var mouseDeltaX = 0;
 	var mouseDeltaY = 0;
 
@@ -247,6 +247,7 @@ define(function (require) {
 			var closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
 			if (!closestEntity)
 				closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_PC);
+			
 			if (closestEntity) {
 
 				if (entityFocus && closestEntity.GID !== entityFocus.GID) {
@@ -351,9 +352,9 @@ define(function (require) {
 	}
 
 	function stopClickInterval() {
-		if (moveClickInterval) {
-			clearInterval(moveClickInterval);
-			moveClickInterval = null;
+		if (ClickInterval) {
+			clearInterval(ClickInterval);
+			ClickInterval = null;
 		}
 	}
 
@@ -365,46 +366,126 @@ define(function (require) {
 	}
 
 	function leftClick() {
-		if (moveClickInterval) return;
-		if (!Mouse.intersect) {
-			Mouse.intersect = true;
-		}
+		if (ClickInterval) return;
+		if (!Mouse.intersect) Mouse.intersect = true;
 
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 1
 		});
 
-		moveClickInterval = setInterval(function () {
+		ClickInterval = setTimeout(function () {
 			jQuery(Renderer.canvas).trigger({
 				type: 'mouseup',
 				which: 1
 			});
-		}, 100);
+			stopClickInterval();
+		}, 200);
 	}
 
 	function rightClick() {
-		if (moveClickInterval) return;
-		if (!Mouse.intersect) {
-			Mouse.intersect = true;
-		}
+		if (ClickInterval) return;
+		if (!Mouse.intersect) Mouse.intersect = true;
 
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 3
 		});
 
-		moveClickInterval = setInterval(function () {
+		ClickInterval = setTimeout(function () {
 			jQuery(Renderer.canvas).trigger({
 				type: 'mouseup',
 				which: 3
 			});
-		}, 100);
+			stopClickInterval();
+		}, 200);
+	}
+
+	function setClickInterval() {
+		ClickInterval = setTimeout(function () {
+			stopClickInterval();
+		}, 200);
 	}
 
 	function processGamepadButtons(gamepad) {
 		var buttons = gamepad.buttons;
 		var buttonActive = false;
+
+		if (ClickInterval)
+			return;
+
+		var selectPressed = buttons[8].pressed;
+
+		if (selectPressed) {
+			if (buttons[12].pressed) { // D-pad Up
+				Camera.setZoom(-2);
+				setClickInterval();
+				return true;
+			}
+			if (buttons[13].pressed) { // D-pad Down
+				Camera.setZoom(2);
+				setClickInterval();
+				return true;
+			}
+			if (buttons[14].pressed) { // D-pad Left
+				Camera.angleFinal[1] -= 5;
+				Camera.updateState();
+				Camera.save();
+				setClickInterval();
+				return true;
+			}
+			if (buttons[15].pressed) { // D-pad Right  
+				Camera.angleFinal[1] += 5;
+				Camera.updateState();
+				Camera.save();
+				setClickInterval();
+				return true;
+			}
+		}
+
+		if (!selectPressed) {
+			if (buttons[12].pressed) { // D-pad Up    
+				jQuery(document).trigger({
+					type: 'keydown',
+					which: 38
+				}); // Arrow Up   
+				setClickInterval();
+				return true;
+			}
+			if (buttons[13].pressed) { // D-pad Down      
+				jQuery(document).trigger({
+					type: 'keydown',
+					which: 40
+				}); // Arrow Down  
+				setClickInterval();
+				return true;
+			}
+			if (buttons[14].pressed) { // D-pad Left    
+				jQuery(document).trigger({
+					type: 'keydown',
+					which: 37
+				}); // Arrow Left   
+				setClickInterval();
+				return true;
+			}
+			if (buttons[15].pressed) { // D-pad Right    
+				jQuery(document).trigger({
+					type: 'keydown',
+					which: 39
+				}); // Arrow Right    
+				setClickInterval();
+				return true;
+			}
+		}
+
+		if (buttons[9].pressed) { // Start button    
+			jQuery(document).trigger({
+				type: 'keydown',
+				which: 13
+			}); // Enter    
+			setClickInterval();
+			return true;
+		}
 
 		// Xbox mapping: 0=A, 1=B, 2=X, 3=Y, 4=LB, 5=RB, 6=LT, 7=RT  
 		var l1 = buttons[4] ? buttons[4].pressed : false;
@@ -412,54 +493,52 @@ define(function (require) {
 		var l2 = buttons[6] ? buttons[6].pressed : false;
 		var r2 = buttons[7] ? buttons[7].pressed : false;
 
-		if (!l2 || !r2) {
-			stopSetChangeInterval();
-		}
-
-		if (!buttons[0].pressed && !buttons[1].pressed) {
-			stopClickInterval();
-		}
 		// L2+R2 change skill set
-		if (l2 && r2) {
+		if (l2 && r2 && !setChangeInterval) {
 			if (currentSet === 1) {
-				if (setChangeInterval) return false;
-				setChangeInterval = setInterval(function () {
+				setChangeInterval = setTimeout(function () {
 					currentSet = 2;
 					updateSetIndicator();
 					JoystickUI.fullSync();
+					stopSetChangeInterval();
 				}, 200);
 				return true;
 			} else {
-				if (setChangeInterval) return false;
-				setChangeInterval = setInterval(function () {
+				setChangeInterval = setTimeout(function () {
 					currentSet = 1;
 					updateSetIndicator();
 					JoystickUI.fullSync();
+					stopSetChangeInterval();
 				}, 200);
 				return true;
 			}
 		}
+
 		if (!l1 && !r1 && !l2 && !r2) {
 			if (buttons[0].pressed) { // A  
 				leftClick();
+				setClickInterval();
 				return true;
 
 			}
 
 			if (buttons[1].pressed) { // B
 				rightClick();
+				setClickInterval();
 				return true;
 
 			}
 
 			if (buttons[2].pressed) { // X
 				attackTargeted();
+				setClickInterval();
 				return true;
 
 			}
 
 			if (buttons[3].pressed) { // Y 
 				toggleGetItem();
+				setClickInterval();
 				return true;
 
 			}
@@ -468,6 +547,7 @@ define(function (require) {
 		var shortcutIndex = getShortcutIndex(l1, r1, l2, r2, buttons);
 		if (shortcutIndex !== -1) {
 			executeShortcut(shortcutIndex);
+			setClickInterval();
 			buttonActive = true;
 		}
 
@@ -523,12 +603,11 @@ define(function (require) {
 			if (Math.abs(leftX) > deadzone || Math.abs(leftY) > deadzone) {
 				normalizedX = leftX;
 				normalizedY = -leftY;
-				if (!moveInterval) startMovement();
+				startMovement();
 				return true;
 			} else {
 				normalizedX = 0;
 				normalizedY = 0;
-				stopMovement();
 			}
 		}
 
@@ -558,6 +637,9 @@ define(function (require) {
 				moveCharacter(normalizedX, normalizedY, 3);
 			}
 		}, 200); // default client walkdelay
+		setTimeout(function () {
+			stopMovement();
+		}, 200);
 	}
 
 	function stopMovement() {
