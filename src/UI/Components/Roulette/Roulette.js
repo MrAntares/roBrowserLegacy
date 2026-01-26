@@ -24,6 +24,7 @@ define(function(require)
 	var MiniMap            = require('UI/Components/MiniMap/MiniMap');
 	var Network            = require('Network/NetworkManager');
 	var PACKET             = require('Network/PacketStructure');
+	var PACKETVER          = require('Network/PacketVerManager');
 	var jQuery             = require('Utils/jquery');
 	var htmlText           = require('text!./Roulette.html');
 	var cssText            = require('text!./Roulette.css');
@@ -141,6 +142,11 @@ define(function(require)
 	{
 		// Check if roulette is enabled in ROConfig
 		if (ROConfig.enableRoulette === false) {
+			return;
+		}
+		
+		// Check if PACKETVER >= 20141008 (Roulette requires this version)
+		if (PACKETVER.value < 20141008) {
 			return;
 		}
 		
