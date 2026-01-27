@@ -141,9 +141,9 @@ define(function (require) {
 			4, 5, 6, 7,
 			// L1R1 group (slots 8-11): Y, X, B, A  
 			8, 17, 26, 35,
-			// R1 group (slots 16-19): Y, X, B, A  
+			// R1 group (slots 12-15): Y, X, B, A  
 			13, 14, 15, 16,
-			// R2 group (slots 12-15): Y, X, B, A  
+			// R2 group (slots 16-19): Y, X, B, A  
 			9, 10, 11, 12,
 
 			// Set 2 mapping  
@@ -153,9 +153,9 @@ define(function (require) {
 			22, 23, 24, 25,
 			// L1R1 group (slots 28-31): Y, X, B, A  
 			8, 17, 26, 35,
-			// R1 group (slots 36-39): Y, X, B, A  
+			// R1 group (slots 32-35): Y, X, B, A  
 			31, 32, 33, 34,
-			// R2 group (slots 32-35): Y, X, B, A  
+			// R2 group (slots 36-39): Y, X, B, A  
 			27, 28, 29, 30
 		];
 		for (var i = 0; i < 20; i++) {
@@ -473,7 +473,7 @@ define(function (require) {
 			23: 'L2+X (Set2)',
 			24: 'L2+B (Set2)',
 			25: 'L2+A (Set2)',
-			26: 'L1+R1+Y',
+			26: 'L1+R1+B',
 
 			27: 'R1+Y (Set2)',
 			28: 'R1+X (Set2)',
@@ -483,7 +483,7 @@ define(function (require) {
 			32: 'R2+X (Set2)',
 			33: 'R2+B (Set2)',
 			34: 'R2+A (Set2)',
-			35: 'L1+R1+X'
+			35: 'L1+R1+A'
 		};
 
 		return combos[slotIndex];
