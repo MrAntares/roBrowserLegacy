@@ -35,6 +35,13 @@ define(function( require )
 
 
 	/**
+	 * Custom socket factory for plugins (e.g., AegisNetwork)
+	 * @var function|null
+	 */
+	var _socketFactory = null;
+
+
+	/**
 	 * Current Socket
 	 * @var Socket
 	 */
@@ -90,18 +97,23 @@ define(function( require )
 	{
 		var socket, Socket;
 		var proxy = Configs.get('socketProxy', null);
+		var socketMode = Configs.get('socketMode', null);
 
-		// node-webkit
-		if (NodeSocket.isSupported()) {
-			Socket = NodeSocket;
+		// Plugin-provided socket factory takes priority
+		if (_socketFactory) {
+			socket = _socketFactory(host, port, socketMode, isZone);
 		}
-
+		// node-webkit
+		else if (NodeSocket.isSupported()) {
+			Socket = NodeSocket;
+			socket = new Socket(host, port, proxy);
+		}
 		// Web Socket with proxy
 		else {
 			Socket = WebSocket;
+			socket = new Socket(host, port, proxy);
 		}
 
-		socket            = new Socket(host, port, proxy);
 		socket.isZone     = !!isZone;
 		socket.onClose    = onClose;
 		socket.onComplete = function onComplete(success)
@@ -426,6 +438,18 @@ define(function( require )
 
 
 	/**
+	 * Set a custom socket factory for plugins.
+	 * The factory function receives (host, port, mode, isZone) and returns a socket.
+	 *
+	 * @param {function|null} factory
+	 */
+	function setSocketFactory( factory )
+	{
+		_socketFactory = factory;
+	}
+
+
+	/**
 	 * Get back ip from long
 	 *
 	 * @param {number} long ip
@@ -478,13 +502,14 @@ define(function( require )
 		}
 
 		return {
-			sendPacket: sendPacket,
-			send:       send,
-			setPing:    setPing,
-			connect:    connect,
-			hookPacket: hookPacket,
-			close:      close,
-			read:       read,
+			sendPacket:       sendPacket,
+			send:             send,
+			setPing:          setPing,
+			connect:          connect,
+			hookPacket:       hookPacket,
+			close:            close,
+			read:             read,
+			setSocketFactory: setSocketFactory,
 			utils: {
 				longToIP: utilsLongToIP
 			}
