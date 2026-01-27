@@ -123,6 +123,7 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		uniform sampler2D uTileColor;
 		uniform bool uLightMapUse;
 		uniform bool uPosterize;
+		uniform bool uGammaCorrection;
 
 		uniform bool  uFogUse;
 		uniform float uFogNear;
@@ -159,6 +160,8 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 				vec4 lightmap = texture( uLightmap, vLightmapCoord.st);
 				if(uPosterize) {
 					lightmap.rgb = posterize(lightmap.rgb);
+				} else if(uGammaCorrection){
+					lightmap.rgb = pow(lightmap.rgb, vec3(1.1));
 				}
 				textureSample.rgb *= lightmap.a;
 				textureSample.rgb += clamp(lightmap.rgb, 0.0, 1.0);
@@ -205,7 +208,8 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 
 		// Render lightmap ?
 		gl.uniform1i(  uniform.uLightMapUse, Preferences.lightmap );
-		gl.uniform1i(  uniform.uPosterize, !Preferences.smoothlight );
+		gl.uniform1i(  uniform.uPosterize, Preferences.smoothlight === 0 );  
+		gl.uniform1i(  uniform.uGammaCorrection, Preferences.smoothlight === 2 );
 
 		// Fog settings
 		gl.uniform1i(  uniform.uFogUse,   fog.use && fog.exist );

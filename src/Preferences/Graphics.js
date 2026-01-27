@@ -11,11 +11,7 @@ define( ['Core/Preferences'], function( Preferences )
 {
 	'use strict';
 
-
-	/**
-	 * Export
-	 */
-	return Preferences.get( 'Graphics', {
+	var defaultGraphicsSettings = {  
 
 		/**
 		 * Game size
@@ -89,6 +85,14 @@ define( ['Core/Preferences'], function( Preferences )
 		casContrast: 0.0,
 		casSharpening: 1.0
 
-	}, 1.1 );
+	};
 
+	/**
+	 * Export
+	 */
+	var cleanDefaults = JSON.parse(JSON.stringify(defaultGraphicsSettings));
+	var GraphicsSettings = Preferences.get('Graphics', defaultGraphicsSettings, 1.1);  
+	GraphicsSettings.defaults = cleanDefaults;
+
+	return GraphicsSettings;
 });

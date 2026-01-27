@@ -26,7 +26,7 @@ define(function(require)
 	var UIComponent      = require('UI/UIComponent');
 	var htmlText         = require('text!./GraphicsOption.html');
 	var cssText          = require('text!./GraphicsOption.css');
-
+	var jQuery           = require('Utils/jquery');
 
 	/**
 	 * Create Component
@@ -54,6 +54,10 @@ define(function(require)
 		});
 
 		this.ui.find('.close').click(this.remove.bind(this));
+
+		this.ui.find('.tab-button').click(onTabSwitch);  
+		this.ui.find('.reset-button').click(onResetToDefaults.bind(this));
+
 		this.ui.find('.details').change(onUpdateQualityDetails);
 		this.ui.find('.cursor-option').change(onToggleGameCursor);
 		this.ui.find('.screensize').change(onUpdateScreenSize);
@@ -359,7 +363,7 @@ define(function(require)
 		}
 	}
 
-	function onUpdateTargetOption()
+ 	function onUpdateTargetOption()
 	{
 		var opt = 1;
 		if(this.value === 'NEAREST')
@@ -372,6 +376,29 @@ define(function(require)
 	{
 		GraphicsSettings.joySense = parseFloat(this.value, 10);
 		GraphicsSettings.save();
+  }
+  
+	function onTabSwitch() {    
+		var tabName = jQuery(this).data('tab');    
+      
+		GraphicsOption.ui.find('.tab-button').removeClass('selected');    
+		jQuery(this).addClass('selected');    
+      
+		GraphicsOption.ui.find('.tab-content').removeClass('selected');    
+		GraphicsOption.ui.find('#' + tabName).addClass('selected');    
+	}
+
+	function onResetToDefaults() {  
+		var defaultSettings = GraphicsSettings.defaults;  
+ 
+		Object.keys(defaultSettings).forEach(function(key) {  
+			if (defaultSettings.hasOwnProperty(key)) {  
+				GraphicsSettings[key] = defaultSettings[key];  
+			}  
+		}); 
+		GraphicsSettings.save();  
+      
+		GraphicsOption.onAppend();
 	}
 
 	/**

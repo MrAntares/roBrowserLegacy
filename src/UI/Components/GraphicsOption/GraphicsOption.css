@@ -10,3 +10,52 @@
 #GraphicsOption .titlebar .clear { clear:both; }
 
 #GraphicsOption .panel { padding-left:5px; padding-right:5px; }
+
+#GraphicsOption .tab-button {  
+    width: 80px;  
+    height: 100%;  
+    color: #42454a;  
+    border: 1px solid #c9c3ba;  
+    border-bottom: none;  
+    text-decoration: none;  
+    display: inline-block;  
+    vertical-align: bottom;  
+    border-radius: 3px 3px 0 0;  
+    text-align: center;  
+    background: #f0f0f0;  
+    cursor: pointer;  
+}  
+  
+#GraphicsOption .tab-button.selected {  
+    color: #000;  
+    font-weight: bold;  
+    border-bottom: 1px solid white;  
+    position: relative;  
+    z-index: 100;  
+    background-color: white;  
+}  
+  
+#GraphicsOption .tab-content {  
+    display: none;  
+}  
+  
+#GraphicsOption .tab-content.selected {  
+    display: block;  
+}
+  
+#GraphicsOption .content {   
+    display: none;   
+}  
+  
+#GraphicsOption .content.selected {   
+    display: block;   
+}  
+  
+#GraphicsOption .reset-button {  
+    background: #8B0000;  
+    border: 1px solid #A52A2A;  
+    color: white;  
+    padding: 4px 8px;  
+    cursor: pointer;  
+    margin: 10px;  
+}

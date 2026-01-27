@@ -11976,11 +11976,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ACK_WHISPER2.size = 7;
 
-	// 0x09e5 TODO: Implement the message and delete item from the shop window
+	// 0x09e5
 	PACKET.ZC.DELETEITEM_FROM_MCSTORE2 = function PACKET_ZC_DELETEITEM_FROM_MCSTORE2(fp, end) {
 		this.index = fp.readShort();
 		this.count = fp.readShort();
-		this.GID = fp.readULong();
+		this.CID = fp.readULong();
 		this.date = fp.readULong();
 		this.zeny = fp.readULong();
 	};

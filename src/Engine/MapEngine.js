@@ -49,6 +49,7 @@ define(function( require )
 	var Storage          = require('UI/Components/Storage/Storage');
 	var CartItems        = require('UI/Components/CartItems/CartItems');
 	var Vending          = require('UI/Components/Vending/Vending');
+	var VendingReport    = require('UI/Components/VendingReport/VendingReport');
 	var ChangeCart       = require('UI/Components/ChangeCart/ChangeCart');
 	var ShortCut         = require('UI/Components/ShortCut/ShortCut');
 	var Equipment        = require('UI/Components/Equipment/Equipment');
@@ -323,6 +324,10 @@ define(function( require )
 
 			if(Configs.get('enableBank')) {
 				Bank.prepare();
+			}
+
+			if(PACKETVER.value >= 20141016) {
+				VendingReport.prepare();
 			}
 
 			if(PACKETVER.value >= 20160601) {
