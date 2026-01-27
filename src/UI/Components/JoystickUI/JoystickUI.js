@@ -13,7 +13,6 @@ define(function (require) {
 	var DB = require('DB/DBManager');
 	var Mouse = require('Controls/MouseEventHandler');
 	var Renderer = require('Renderer/Renderer');
-	var glMatrix = require('Vendors/gl-matrix');
 	var Camera = require('Renderer/Camera');
 	var PathFinding = require('Utils/PathFinding');
 	var Client = require('Core/Client');
@@ -21,8 +20,8 @@ define(function (require) {
 	var cssText = require('text!./JoystickUI.css');
 	var GraphicsSettings = require('Preferences/Graphics');
 	var ItemType = require('DB/Items/ItemType');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var SkillList = require('UI/Components/SkillList/SkillList');
+	var InventoryUI = require('UI/Components/Inventory/Inventory');
+	var glMatrix = require('Vendors/gl-matrix');
 
 	var JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
 
@@ -134,7 +133,7 @@ define(function (require) {
 			'<div class="amount"></div>' +
 			'</div>'
 		);
-		if (item.isSkill) {
+		if (item.isSkill && item.count) {
 			var skillInfo = require('DB/Skills/SkillInfo')[item.ID];
 			if (skillInfo) {
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + skillInfo.Name + '.bmp', function (url) {
@@ -144,16 +143,16 @@ define(function (require) {
 				});
 			}
 		} else {
-			var inventoryItem = Inventory.getUI().getItemById(item.ID);
+			var inventoryItem = InventoryUI.getUI().getItemById(item.ID);
 			if (inventoryItem) {
 				var itemInfo = DB.getItemInfo(item.ID);
 				var fileName = inventoryItem.IsIdentified ?
 					itemInfo.identifiedResourceName :
 					itemInfo.unidentifiedResourceName;
 				var count = inventoryItem.count;
-				if (inventoryItem.type === ItemType.WEAPON ||
+				if ((inventoryItem.type === ItemType.WEAPON ||
 					inventoryItem.type === ItemType.ARMOR ||
-					inventoryItem.type === ItemType.SHADOWGEAR) {
+					inventoryItem.type === ItemType.SHADOWGEAR) && count) {
 					count = 1;
 				}
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + fileName + '.bmp', function (url) {
@@ -165,16 +164,17 @@ define(function (require) {
 		}
 	}
 
-	function updateJoystickSlotsByItemId(itemId) {
+	JoystickUI.updateJoystickSlotsById = function updateJoystickSlotsById(Id) {
 		var startIdx = (currentSet === 1) ? 0 : 20;
 		for (var i = 0; i < 20; i++) {
 			var shortcutIndex = slotMapping[startIdx + i];
 			var shortcut = ShortCut.getList()[shortcutIndex];
-			if (shortcut && !shortcut.isSkill && shortcut.ID === itemId) {
+			if (shortcut && shortcut.ID === Id) {
 				updateJoystickSlot(i, shortcutIndex);
 			}
 		}
 	}
+
 	JoystickUI.fullSync = function fullSync() {
 		var startIdx = (currentSet === 1) ? 0 : 20;
 		for (var i = 0; i < 20; i++) {
@@ -183,15 +183,20 @@ define(function (require) {
 	};
 
 	JoystickUI.setupShortcutSync = function () {
-		var oldonUpdate = ShortCut.onChange;
-		ShortCut.onChange = function () {
-			oldonUpdate.call(ShortCut);
-			JoystickUI.fullSync();
+		var oldonChange = ShortCut.onChange;
+		ShortCut.onChange = function (index, isSkill, ID, count) {
+			oldonChange.call(ShortCut,index, isSkill, ID, count);
+			JoystickUI.updateJoystickSlotsById(ID);
 		};
 		var oldSetList = ShortCut.setList;
 		ShortCut.setList = function (list) {
 			oldSetList.call(ShortCut, list);
 			JoystickUI.fullSync();
+		};
+		var oldSetElement= ShortCut.setElement;
+		ShortCut.setElement = function ( isSkill, ID, count ) {
+			oldSetElement.call(ShortCut, isSkill, ID, count );
+			JoystickUI.updateJoystickSlotsById(ID);
 		};
 	};
 
@@ -288,7 +293,7 @@ define(function (require) {
 			return;
 
 		if (!shortcut.isSkill) {
-			var inventoryItem = Inventory.getUI().getItemById(shortcut.ID);
+			var inventoryItem = InventoryUI.getUI().getItemById(shortcut.ID);
 			if (!inventoryItem || inventoryItem.count === 0) {
 				return;
 			}
@@ -297,7 +302,9 @@ define(function (require) {
 		// Move mouse to target entity position  
 		if (shortcut.isSkill && GraphicsSettings.attackTargetMode) {
 			var targetEntity = getEntityinContext();
-			if (targetEntity) moveMouseToEntity(targetEntity);
+			if (targetEntity){ 
+				moveMouseToEntity(targetEntity);
+			}
 		}
 
 		ShortCut.onShortCut({
@@ -306,7 +313,7 @@ define(function (require) {
 
 		if (!shortcut.isSkill) {
 			setTimeout(function () {
-				updateJoystickSlotsByItemId(shortcut.ID);
+				updateJoystickSlotsById(shortcut.ID);
 			}, 100);
 		} else if (GraphicsSettings.joyQuick) {
 			setTimeout(function () {
@@ -327,18 +334,17 @@ define(function (require) {
 	function getEntityinContext() {
 		var targetEntity = null;
 		var Player = Session.Entity;
-		var attackMode = GraphicsSettings.attackTargetMode || 0;
 
-		if (attackMode === 1) { // LOWEST_HP   
+		if (GraphicsSettings.attackTargetMode === 1) { // LOWEST_HP   
 			targetEntity = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_MOB);
-			if (!targetEntity) {
-				targetEntity = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_PC);
-			}
+			if (!targetEntity) targetEntity = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_PC);
+
+			// Fallback to Closest due we only have hp bars when hp packet is received
+			if (!targetEntity) targetEntity = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_MOB);
+			if (!targetEntity) targetEntity = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_PC);
 		} else { // CLOSEST
 			targetEntity = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_MOB);
-			if (!targetEntity) {
-				targetEntity = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_PC);
-			}
+			if (!targetEntity) targetEntity = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_PC);
 		}
 
 		if (!targetEntity)
@@ -347,15 +353,7 @@ define(function (require) {
 		return targetEntity;
 	}
 
-	function attackTargeted() {
-		if (!Session.Entity) {
-			return;
-		}
-
-		var Player = Session.Entity;
-		var targetEntity = getEntityinContext();
-
-		if (!targetEntity) return;
+	function focusTarget(targetEntity){
 		var entityFocus = EntityManager.getFocusEntity();
 		if (!entityFocus || entityFocus.action === entityFocus.ACTION.DIE) { //If no target, try picking one first
 			entityFocus = EntityManager.getFocusEntity();
@@ -369,10 +367,22 @@ define(function (require) {
 		} else if (!entityFocus) {
 			targetEntity.onFocus();
 			EntityManager.setFocusEntity(targetEntity);
-		} else {
+		}
+	}
+
+	function attackTargeted() {
+		if (!Session.Entity) {
 			return;
 		}
 
+		var Player = Session.Entity;
+		var targetEntity = getEntityinContext();
+
+		if (!targetEntity) return;
+
+		focusTarget(targetEntity);
+
+		var entityFocus = EntityManager.getFocusEntity();
 		if (!entityFocus) return;
 
 		var pkt;
@@ -645,11 +655,13 @@ define(function (require) {
 		}
 
 		function selectSlot() {
-			var row = (currentTab * 9) + slotInTab;
+			var row = currentTab;
+			var pos = (row * 9) + slotInTab;
 
-			ShortCut.removeElement(true, itemData.ID, row, itemData.value);
-			ShortCut.addElement(row, itemData.isSkill, itemData.ID, itemData.value);
-			ShortCut.onChange(row, itemData.isSkill, itemData.ID, itemData.value);
+			ShortCut.removeElement(itemData.isSkill, itemData.ID, row, itemData.value); 
+			ShortCut.addElement(pos, itemData.isSkill, itemData.ID, itemData.value);
+			ShortCut.onChange(pos, itemData.isSkill, itemData.ID, itemData.value);
+			
 			closeSelection();
 		}
 
@@ -746,7 +758,7 @@ define(function (require) {
 			var itemData;
 
 			if (!isSkill) {
-				var item = Inventory.getUI().getItemByIndex(index);
+				var item = InventoryUI.getUI().getItemByIndex(index);
 				if (item) {
 					if (item.type === ItemType.UNKNOWN ||
 						item.type === ItemType.ETC ||
@@ -763,7 +775,7 @@ define(function (require) {
 					};
 				}
 			} else {
-				var skill = SkillList.getUI().getSkillById(index);
+				var skill = ShortCut.getSkillById(index);
 				if (skill) {
 					itemData = {
 						isSkill: true,
@@ -800,11 +812,11 @@ define(function (require) {
 			var index = parseInt(draggableElement.getAttribute('data-index'), 10);
 			var isSkill = draggableElement.closest('.skill');
 			if (!isSkill) {
-				var item = Inventory.getUI().getItemByIndex(index);
-				if (item && item.count) Inventory.getUI().useItem(item);
+				var item = InventoryUI.getUI().getItemByIndex(index);
+				if (item && item.count) InventoryUI.getUI().useItem(item);
 			} else {
-				var item = SkillList.getUI().getSkillById(index);
-				if (item) SkillList.getUI().useSkillID(item.SKID, item.selectedLevel ? item.selectedLevel : item.level);
+				var item = ShortCut.getSkillById( index );
+				if (item) ShortCut.useSkill( item.SKID, item.selectedLevel ? item.selectedLevel : item.level );
 			}
 			return;
 		}
@@ -1168,6 +1180,7 @@ define(function (require) {
 		}
 		if (!anyConnected) {
 			isGamepadActive = false;
+			stopGamepadPolling();
 		}
 	}
 
@@ -1288,6 +1301,8 @@ define(function (require) {
 		var screenX = Renderer.width / 2 + Math.round(Renderer.width / 2 * (_pos[0] * z));
 		var screenY = Renderer.height / 2 - Math.round(Renderer.height / 2 * (_pos[1] * z));
 
+		screenY = screenY - 13;
+
 		// Update mouse position  
 		Mouse.screen.x = screenX;
 		Mouse.screen.y = screenY;
@@ -1360,6 +1375,7 @@ define(function (require) {
 				JoystickUI.ui.css('display', 'flex');
 				JoystickUI.show();
 				isGamepadActive = true;
+				JoystickUI.onRestore();
 			}
 		});
 

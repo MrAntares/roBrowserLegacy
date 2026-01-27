@@ -197,6 +197,34 @@ define(function(require)
 		}
 	};
 
+	ShortCut.useSkill = function useSkill( id, level ){
+		if(id > 10000 && id < 10100){
+			Guild.useSkillID(id, level);
+		} else if (id > 8000 && id < 8044) {
+			// if one of them don't have the skill, it returns early
+			SkillListMH.mercenary.useSkillID(id, level);
+			SkillListMH.homunculus.useSkillID(id, level);
+		} else {
+			SkillWindow.getUI().useSkillID(id, level);
+		}
+	};
+
+	ShortCut.getSkillById = function getSkillById( id ){
+		var skill;
+
+		if (id > 10000 && id < 10100) {
+			skill = Guild.getSkillById(id);
+		} else if (id > 8000 && id < 8044) {
+			skill = SkillListMH.mercenary.getSkillById(id);
+			if (!skill) {
+				skill = SkillListMH.homunculus.getSkillById(id);
+			}
+		} else {
+			skill = SkillWindow.getUI().getSkillById(id);
+		}
+
+		return skill;
+	};
 
 	/**
 	 * Bind UI with list of shortcut
@@ -215,16 +243,7 @@ define(function(require)
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].isSkill) {
 
-				if (list[i].ID > 10000 && list[i].ID < 10100) {
-					skill = Guild.getSkillById(list[i].ID);
-				} else if (list[i].ID > 8000 && list[i].ID < 8044) {
-					skill = SkillListMH.mercenary.getSkillById(list[i].ID);
-					if (!skill) {
-						skill = SkillListMH.homunculus.getSkillById(list[i].ID);
-					}
-				} else {
-					skill = SkillWindow.getUI().getSkillById(list[i].ID);
-				}
+				skill = ShortCut.getSkillById( list[i].ID );
 
 				if (skill && skill.level) {
 					ShortCut.addElement( i, true, list[i].ID, list[i].count || skill.level );
@@ -812,15 +831,7 @@ define(function(require)
 
 		// Execute skill
 		if (shortcut.isSkill) {
-			if(shortcut.ID > 10000 && shortcut.ID < 10100){
-				Guild.useSkillID(shortcut.ID, shortcut.count);
-			} else if (shortcut.ID > 8000 && shortcut.ID < 8044) {
-				// if one of them don't have the skill, it returns early
-				SkillListMH.mercenary.useSkillID(shortcut.ID, shortcut.count);
-				SkillListMH.homunculus.useSkillID(shortcut.ID, shortcut.count);
-			} else {
-				SkillWindow.getUI().useSkillID(shortcut.ID, shortcut.count);
-			}
+			ShortCut.useSkill( shortcut.ID, shortcut.count );
 		}
 
 		// Use the item
