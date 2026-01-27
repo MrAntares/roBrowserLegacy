@@ -20,6 +20,9 @@ define(function (require) {
 	var htmlText = require('text!./JoystickUI.html');
 	var cssText = require('text!./JoystickUI.css');
 
+	var Inventory = require('UI/Components/Inventory/Inventory');
+	var SkillList = require('UI/Components/SkillList/SkillList');
+
 	var JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
 
 	var gamepadTimer = null;
@@ -52,10 +55,38 @@ define(function (require) {
 		this.ui.hide();
 	};
 
-	JoystickUI.onAppend = function onAppend() {
-		this.ui.hide();
-		JoystickUI.onRestore();
-	};
+	JoystickUI.onAppend = function onAppend() {};
+
+	function isInCharSelect() {
+		return jQuery('#CharSelect, #CharSelectV2, #CharSelectV3, #CharSelectV4').is(':visible');
+	}
+
+	function getCharSelectComponent() {
+		return require('UI/Components/CharSelect/CharSelect').getUI();
+	}
+
+	function selectCurrentChar() {
+		var charSelect = getCharSelectComponent();
+		if (!charSelect) return;
+
+		var eventOptions = {
+			bubbles: true,
+			cancelable: true,
+			view: window,
+			clientX: Mouse.screen.x,
+			clientY: Mouse.screen.y,
+			which: 1
+		};
+
+		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		if (el) {
+			el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
+			setTimeout(function () {
+				el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
+				el.dispatchEvent(new MouseEvent('click', eventOptions));
+			}, 100);
+		}
+	}
 
 	function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 		var item = ShortCut.getList()[shortcutIndex];
@@ -65,6 +96,9 @@ define(function (require) {
 		$slot.empty().append($label);
 
 		if (!item || item.ID <= 1) return;
+
+		$slot.find('.icon').remove();
+
 		var $icon = jQuery(
 			'<div class="icon">' +
 			'<div class="img"></div>' +
@@ -81,7 +115,7 @@ define(function (require) {
 				});
 			}
 		} else {
-			var inventoryItem = require('UI/Components/Inventory/Inventory').getUI().getItemById(item.ID);
+			var inventoryItem = Inventory.getUI().getItemById(item.ID);
 			if (inventoryItem) {
 				var itemInfo = DB.getItemInfo(item.ID);
 				var fileName = inventoryItem.IsIdentified ?
@@ -107,10 +141,10 @@ define(function (require) {
 			4, 5, 6, 7,
 			// L1R1 group (slots 8-11): Y, X, B, A  
 			8, 17, 26, 35,
-			// R2 group (slots 12-15): Y, X, B, A  
-			9, 10, 11, 12,
 			// R1 group (slots 16-19): Y, X, B, A  
 			13, 14, 15, 16,
+			// R2 group (slots 12-15): Y, X, B, A  
+			9, 10, 11, 12,
 
 			// Set 2 mapping  
 			// L1 group (slots 20-23): Y, X, B, A  
@@ -119,10 +153,10 @@ define(function (require) {
 			22, 23, 24, 25,
 			// L1R1 group (slots 28-31): Y, X, B, A  
 			8, 17, 26, 35,
-			// R2 group (slots 32-35): Y, X, B, A  
-			27, 28, 29, 30,
 			// R1 group (slots 36-39): Y, X, B, A  
-			31, 32, 33, 34
+			31, 32, 33, 34,
+			// R2 group (slots 32-35): Y, X, B, A  
+			27, 28, 29, 30
 		];
 		for (var i = 0; i < 20; i++) {
 			updateJoystickSlot(i, slotMapping[startIdx + i]);
@@ -130,18 +164,16 @@ define(function (require) {
 	};
 
 	JoystickUI.setupShortcutSync = function () {
-		var oldonUpdate = ShortCut.onUpdate;
-		ShortCut.onUpdate = function () {
+		var oldonUpdate = ShortCut.onChange;
+		ShortCut.onChange = function () {
 			oldonUpdate.call(ShortCut);
 			JoystickUI.fullSync();
 		};
-
 		var oldSetList = ShortCut.setList;
 		ShortCut.setList = function (list) {
 			oldSetList.call(ShortCut, list);
 			JoystickUI.fullSync();
 		};
-
 	};
 
 
@@ -245,9 +277,10 @@ define(function (require) {
 			var entityFocus = EntityManager.getFocusEntity();
 
 			var closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
+
 			if (!closestEntity)
 				closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_PC);
-			
+
 			if (closestEntity) {
 
 				if (entityFocus && closestEntity.GID !== entityFocus.GID) {
@@ -366,9 +399,362 @@ define(function (require) {
 	}
 
 	function leftClick() {
-		if (ClickInterval) return;
-		if (!Mouse.intersect) Mouse.intersect = true;
+		if (isInCharSelect()) {
+			selectCurrentChar();
+			return;
+		}
+		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		var isCanvas = el && el.tagName.toLowerCase() === 'canvas';
 
+		if (!el || isCanvas) {
+			handleWorldLeftClick();
+			return;
+		}
+		var draggableElement = el.closest('.item, .skill');
+		if (draggableElement) {
+			var index = parseInt(draggableElement.getAttribute('data-index'), 10);
+			var isSkill = draggableElement.closest('.skill');
+			if (!isSkill) {
+				var item = Inventory.getUI().getItemByIndex(index);
+				if (item) Inventory.getUI().useItem(item);
+			} else {
+				var item = SkillList.getUI().getSkillById(index);
+				if (item) SkillList.getUI().useSkillID(item.SKID, item.selectedLevel ? item.selectedLevel : item.level);
+			}
+			return;
+		}
+
+		var eventOptions = {
+			bubbles: true,
+			cancelable: true,
+			view: window,
+			clientX: Mouse.screen.x,
+			clientY: Mouse.screen.y,
+			which: 1
+		};
+
+		el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
+		ClickInterval = setTimeout(function () {
+			el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
+			el.dispatchEvent(new MouseEvent('click', eventOptions));
+			stopClickInterval();
+		}, 100);
+
+	}
+
+	function getJoystickComboForSlot(slotIndex) {
+
+		var combos = {
+			0: 'L1+Y',
+			1: 'L1+X',
+			2: 'L1+B',
+			3: 'L1+A',
+			4: 'L2+Y',
+			5: 'L2+X',
+			6: 'L2+B',
+			7: 'L2+A',
+			8: 'L1+R1+Y',
+
+			9: 'R1+Y',
+			10: 'R1+X',
+			11: 'R1+B',
+			12: 'R1+A',
+			13: 'R2+Y',
+			14: 'R2+X',
+			15: 'R2+B',
+			16: 'R2+A',
+			17: 'L1+R1+X',
+
+			18: 'L1+Y (Set2)',
+			19: 'L1+X (Set2)',
+			20: 'L1+B (Set2)',
+			21: 'L1+A (Set2)',
+			22: 'L2+Y (Set2)',
+			23: 'L2+X (Set2)',
+			24: 'L2+B (Set2)',
+			25: 'L2+A (Set2)',
+			26: 'L1+R1+Y',
+
+			27: 'R1+Y (Set2)',
+			28: 'R1+X (Set2)',
+			29: 'R1+B (Set2)',
+			30: 'R1+A (Set2)',
+			31: 'R2+Y (Set2)',
+			32: 'R2+X (Set2)',
+			33: 'R2+B (Set2)',
+			34: 'R2+A (Set2)',
+			35: 'L1+R1+X'
+		};
+
+		return combos[slotIndex];
+	}
+
+	function showShortcutSelection(itemData) {
+
+		var selectionUI = jQuery('<div id="shortcut-selection">' +
+			'<h3>Select slot for ' + itemData.name + '</h3>' +
+			'<div class="tab-container">' +
+			'<div class="tab-buttons"></div>' +
+			'<div class="shortcut-grid"></div>' +
+			'</div>' +
+			'<div style="margin-top: 15px; font-size: 12px; text-align: center; opacity: 0.8;">' +
+			'    Use L1/R1 to change tab, D-pad to navigate slot, A to select, B to cancel' +
+			'</div>' +
+			'</div>');
+
+		selectionUI.css({
+			position: 'fixed',
+			top: '50%',
+			left: '50%',
+			transform: 'translate(-50%, -50%)',
+			background: 'rgba(0,0,0,0.95)',
+			border: '2px solid #fff',
+			padding: '20px',
+			zIndex: 10000,
+			color: 'white',
+			minWidth: '780px',
+			boxShadow: '0 0 20px rgba(0,0,0,0.5)',
+			borderRadius: '8px'
+		});
+
+
+		jQuery('body').append(selectionUI);
+
+
+		var tabContainer = selectionUI.find('.tab-container');
+		var tabButtons = selectionUI.find('.tab-buttons');
+		var grid = selectionUI.find('.shortcut-grid');
+
+
+		tabButtons.css({
+			display: 'flex',
+			gap: '5px',
+			marginBottom: '10px'
+		});
+
+		grid.css({
+			display: 'grid',
+			gridTemplateColumns: 'repeat(9, 1fr)',
+			gap: '8px',
+			justifyContent: 'center',
+			padding: '10px',
+			background: 'rgba(255,255,255,0.05)',
+			borderRadius: '5px'
+		});
+
+
+		for (var t = 0; t < 4; t++) {
+			var tabBtn = jQuery('<button class="tab-btn" data-tab="' + t + '">Tab ' + (t + 1) + '</button>');
+			tabBtn.css({
+				padding: '5px 10px',
+				background: t === 0 ? '#ff6600' : '#666',
+				border: '1px solid #fff',
+				color: 'white',
+				cursor: 'pointer'
+			});
+			tabButtons.append(tabBtn);
+		}
+
+		var currentTab = 0;
+		var slotInTab = 0;
+
+		function updateGrid() {
+			grid.empty();
+			var startIdx = currentTab * 9;
+
+			for (var i = 0; i < 9; i++) {
+				var globalIndex = startIdx + i;
+				var slot = ShortCut.getList()[globalIndex];
+				var isEmpty = !slot || (!slot.isSkill && !slot.ID);
+
+				var joystickCombo = getJoystickComboForSlot(globalIndex);
+				var displayText = joystickCombo || (i + 1);
+
+				var slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
+
+				slotDiv.css({
+					width: '75px',
+					height: '60px',
+					border: '2px solid #555',
+					background: isEmpty ? '#222' : '#555',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					fontSize: '11px',
+					fontWeight: 'bold',
+					cursor: 'pointer',
+					color: 'white',
+					transition: 'all 0.1s',
+					borderRadius: '5px',
+					textAlign: 'center',
+					lineHeight: '1.2',
+					padding: '5px',
+					boxSizing: 'border-box'
+				});
+
+				grid.append(slotDiv);
+			}
+
+			updateSelection();
+		}
+
+		function updateSelection() {
+			grid.find('.slot-btn').removeClass('selected').css('background', '#333');
+
+			grid.find('.slot-btn[data-index="' + slotInTab + '"]')
+				.addClass('selected').css('background', '#ff6600');
+		}
+
+		function updateTabButtons() {
+			tabButtons.find('.tab-btn').css('background', '#666');
+			tabButtons.find('.tab-btn[data-tab="' + currentTab + '"]').css('background', '#ff6600');
+		}
+
+		updateGrid();
+		updateTabButtons();
+
+		window._shortcutSelectionActive = true;
+		window._shortcutSelectionData = itemData;
+
+		function closeSelection() {
+			selectionUI.remove();
+			window._shortcutSelectionActive = false;
+			window._shortcutSelectionData = null;
+		}
+
+		function selectSlot() {
+			var row = (currentTab * 9) + slotInTab;
+
+			ShortCut.removeElement(true, itemData.ID, row, itemData.value);
+			ShortCut.addElement(row, itemData.isSkill, itemData.ID, itemData.value);
+			ShortCut.onChange(row, itemData.isSkill, itemData.ID, itemData.value);
+			closeSelection();
+		}
+
+		window._tempGamepadHandler = function (gamepad) {
+			var buttons = gamepad.buttons;
+
+			if (buttons[0].pressed) { // A - select  
+				setClickInterval();
+				selectSlot();
+				return true;
+			}
+
+			if (buttons[1].pressed) { // B - cancel  
+				setClickInterval();
+				closeSelection();
+				return true;
+			}
+
+			if (buttons[6].pressed) { // L2  
+				setClickInterval();
+				if (currentTab > 0) {
+					currentTab--;
+					slotInTab = 0;
+					updateGrid();
+					updateTabButtons();
+				}
+				return true;
+			}
+
+			if (buttons[7].pressed) { // R2 
+				setClickInterval();
+				if (currentTab < 4) {
+					currentTab++;
+					slotInTab = 0;
+					updateGrid();
+					updateTabButtons();
+				}
+				return true;
+			}
+
+			if (buttons[12].pressed) { // D-pad up  
+				setClickInterval();
+				if (slotInTab >= 3) {
+					slotInTab -= 3;
+					updateSelection();
+				}
+				return true;
+			}
+
+			if (buttons[13].pressed) { // D-pad down  
+				setClickInterval();
+				if (slotInTab < 6) {
+					slotInTab += 3;
+					updateSelection();
+				}
+				return true;
+			}
+
+			if (buttons[14].pressed) { // D-pad left  
+				setClickInterval();
+				if (slotInTab > 0) {
+					slotInTab--;
+					updateSelection();
+				}
+				return true;
+			}
+
+			if (buttons[15].pressed) { // D-pad right  
+				setClickInterval();
+				if (slotInTab < 8) {
+					slotInTab++;
+					updateSelection();
+				}
+				return true;
+			}
+
+			return false;
+		};
+	}
+
+	function rightClick() {
+		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		var isCanvas = el && el.tagName.toLowerCase() === 'canvas';
+
+		if (!el) {
+			handleWorldRightClick();
+			return;
+		}
+		var draggableElement = el.closest('.item, .skill');
+
+		if (draggableElement) {
+			var index = parseInt(draggableElement.getAttribute('data-index'), 10);
+			var isSkill = draggableElement.closest('.skill');
+			var itemData;
+
+			if (!isSkill) {
+				var item = Inventory.getUI().getItemByIndex(index);
+				if (item) {
+					itemData = {
+						isSkill: false,
+						ID: item.ITID,
+						value: item.count,
+						name: require('DB/DBManager').getItemName(item)
+					};
+				}
+			} else {
+				var skill = SkillList.getUI().getSkillById(index);
+				if (skill) {
+					itemData = {
+						isSkill: true,
+						ID: skill.SKID,
+						value: skill.selectedLevel ? skill.selectedLevel : skill.level,
+						name: require('DB/Skills/SkillInfo')[skill.SKID].SkillName
+					};
+				}
+			}
+
+			if (itemData) {
+				showShortcutSelection(itemData);
+			}
+
+			setClickInterval();
+		}
+	}
+
+	function handleWorldLeftClick() {
+		if (!Mouse.intersect) Mouse.intersect = true;
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 1
@@ -383,10 +769,8 @@ define(function (require) {
 		}, 200);
 	}
 
-	function rightClick() {
-		if (ClickInterval) return;
+	function handleWorldRightClick() {
 		if (!Mouse.intersect) Mouse.intersect = true;
-
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 3
@@ -407,13 +791,138 @@ define(function (require) {
 		}, 200);
 	}
 
+	function navigateDraggableItems(direction) {
+		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+
+		var container = el.closest('.container, .content, .inventory, .skill_list, .item, .skill');
+
+		if (!container) {
+			// Fall back to regular arrow key navigation  
+			var keyCode;
+			switch (direction) {
+				case 'up':
+					keyCode = 38;
+					break;
+				case 'down':
+					keyCode = 40;
+					break;
+				case 'left':
+					keyCode = 37;
+					break;
+				case 'right':
+					keyCode = 39;
+					break;
+			}
+			jQuery(document).trigger({
+				type: 'keydown',
+				which: keyCode
+			});
+			return;
+		}
+
+		var $container = jQuery(container);
+		var allDraggables = $container.find('.item, .skill');
+
+		if (allDraggables.length === 0) {
+			allDraggables = jQuery('.item:visible, .skill:visible');
+
+		}
+
+		// Check if we're in a skill container by looking for skill-specific structure  
+		var isSkillContainer = container.id && container.id.indexOf('positionSkills') === 0 ||
+			container.querySelector('#positionSkills1, #positionSkills2, #positionSkills3, #positionSkills4, #positionSkills5') ||
+			container.closest('.skillCol') !== null;
+
+		var draggableElement = container.closest('.item, .skill');
+
+		var currentIndex = allDraggables.index(draggableElement);
+		var newIndex = currentIndex;
+
+		// Use fixed grid width based on container type  
+		var GRID_WIDTH;
+		if (isSkillContainer) {
+			// Skills always use fixed 7-column grid  
+			GRID_WIDTH = 7;
+		} else {
+			// Items: calculate based on container width and icon size  
+			var containerWidth = $container.width() || 200;
+			var iconElement = jQuery(draggableElement).find('.icon');
+			var iconWidth = iconElement.width() || 24; // .icon has fixed 24px width  
+			var iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px  
+			var totalIconWidth = iconWidth + (iconMargin * 2);
+			GRID_WIDTH = Math.max(6, Math.min(8, Math.floor(containerWidth / totalIconWidth)));
+		}
+
+		switch (direction) {
+			case 'up':
+				newIndex = currentIndex - GRID_WIDTH;
+				break;
+			case 'down':
+				newIndex = currentIndex + GRID_WIDTH;
+				break;
+			case 'left':
+				newIndex = currentIndex - 1;
+				break;
+			case 'right':
+				newIndex = currentIndex + 1;
+				break;
+		}
+
+		// Bounds checking  
+		newIndex = Math.max(0, Math.min(allDraggables.length - 1, newIndex));
+
+		if (newIndex !== currentIndex && newIndex < allDraggables.length) {
+			var targetElement = allDraggables.eq(newIndex);
+			var targetOffset = targetElement.offset();
+
+			if (targetOffset) {
+				var targetCenterX = targetOffset.left + (targetElement.outerWidth() / 2);
+				var targetCenterY = targetOffset.top + (targetElement.outerHeight() / 2);
+
+				// Move mouse to target element  
+				Mouse.screen.x = targetCenterX;
+				Mouse.screen.y = targetCenterY;
+
+				var _selector = document.querySelector('.cursor');
+				if (_selector) {
+					_selector.style.left = targetCenterX + 'px';
+					_selector.style.top = targetCenterY + 'px';
+				}
+			}
+		}
+	}
+
 	function processGamepadButtons(gamepad) {
+
+		if (ClickInterval)
+			return false;
+
+		if (window._shortcutSelectionActive && window._tempGamepadHandler) {
+			return window._tempGamepadHandler(gamepad);
+		}
+
 		var buttons = gamepad.buttons;
 		var buttonActive = false;
 
-		if (ClickInterval)
-			return;
+		if (isInCharSelect()) {
 
+			if (buttons[0].pressed) { // A  
+				selectCurrentChar();
+				setClickInterval();
+				return true;
+			}
+
+			if (buttons[9].pressed) { // Start  
+				var charSelect = getCharSelectComponent();
+				if (charSelect && charSelect.ui.find('.ok').length > 0) {
+					charSelect.ui.find('.ok').click();
+				}
+				setClickInterval();
+				return true;
+			}
+
+			return false;
+		}
 		var selectPressed = buttons[8].pressed;
 
 		if (selectPressed) {
@@ -441,41 +950,53 @@ define(function (require) {
 				setClickInterval();
 				return true;
 			}
+			if (buttons[9].pressed) { // Start button    
+				jQuery(document).trigger({
+					type: 'keydown',
+					which: 27
+				}); // Esc    
+				setClickInterval();
+				return true;
+			}
+			var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+			var draggableElement = el.closest('.item, .skill');
+
+			if (el && draggableElement) {
+				var contextMenuEvent = new MouseEvent('contextmenu', {
+					bubbles: true,
+					cancelable: true,
+					view: window,
+					clientX: Mouse.screen.x,
+					clientY: Mouse.screen.y,
+					which: 3
+				});
+
+				el.dispatchEvent(contextMenuEvent);
+				setClickInterval();
+				return true;
+			}
 		}
 
-		if (!selectPressed) {
-			if (buttons[12].pressed) { // D-pad Up    
-				jQuery(document).trigger({
-					type: 'keydown',
-					which: 38
-				}); // Arrow Up   
-				setClickInterval();
-				return true;
-			}
-			if (buttons[13].pressed) { // D-pad Down      
-				jQuery(document).trigger({
-					type: 'keydown',
-					which: 40
-				}); // Arrow Down  
-				setClickInterval();
-				return true;
-			}
-			if (buttons[14].pressed) { // D-pad Left    
-				jQuery(document).trigger({
-					type: 'keydown',
-					which: 37
-				}); // Arrow Left   
-				setClickInterval();
-				return true;
-			}
-			if (buttons[15].pressed) { // D-pad Right    
-				jQuery(document).trigger({
-					type: 'keydown',
-					which: 39
-				}); // Arrow Right    
-				setClickInterval();
-				return true;
-			}
+
+		if (buttons[12].pressed) { // D-pad Up      
+			navigateDraggableItems('up');
+			setClickInterval();
+			return true;
+		}
+		if (buttons[13].pressed) { // D-pad Down        
+			navigateDraggableItems('down');
+			setClickInterval();
+			return true;
+		}
+		if (buttons[14].pressed) { // D-pad Left      
+			navigateDraggableItems('left');
+			setClickInterval();
+			return true;
+		}
+		if (buttons[15].pressed) { // D-pad Right      
+			navigateDraggableItems('right');
+			setClickInterval();
+			return true;
 		}
 
 		if (buttons[9].pressed) { // Start button    
@@ -517,14 +1038,12 @@ define(function (require) {
 		if (!l1 && !r1 && !l2 && !r2) {
 			if (buttons[0].pressed) { // A  
 				leftClick();
-				setClickInterval();
 				return true;
 
 			}
 
 			if (buttons[1].pressed) { // B
 				rightClick();
-				setClickInterval();
 				return true;
 
 			}
@@ -566,8 +1085,9 @@ define(function (require) {
 				var buttonActive = processGamepadButtons(gamepad);
 
 				if (axisActive || buttonActive) {
-					if (!isGamepadActive) {
+					if (!isGamepadActive && JoystickUI.ui) {
 						JoystickUI.ui.css('display', 'flex');
+						JoystickUI.show();
 						isGamepadActive = true;
 					}
 				}
@@ -616,8 +1136,8 @@ define(function (require) {
 			var rightX = gamepad.axes[2];
 			var rightY = gamepad.axes[3];
 			if (Math.abs(rightX) > deadzone || Math.abs(rightY) > deadzone) {
-				mouseDeltaX = rightX * 50;
-				mouseDeltaY = rightY * 50;
+				mouseDeltaX = rightX * 25;
+				mouseDeltaY = rightY * 25;
 
 				startMouseMovement();
 				return true;
@@ -636,10 +1156,10 @@ define(function (require) {
 			if (normalizedX !== 0 || normalizedY !== 0) {
 				moveCharacter(normalizedX, normalizedY, 3);
 			}
-		}, 50);
+		}, 150);
 		setTimeout(function () {
 			stopMovement();
-		}, 200); // default client walkdelay
+		}, 400); // default client walkdelay
 	}
 
 	function stopMovement() {
@@ -673,7 +1193,7 @@ define(function (require) {
 		var lastMouseY = 0;
 
 		function onMouseMove(event) {
-			if (!JoystickUI.ui.is(':visible')) {
+			if (!JoystickUI.ui || !JoystickUI.ui.is(':visible')) {
 				return;
 			}
 
@@ -693,7 +1213,7 @@ define(function (require) {
 	}
 
 	function startGamepadPolling() {
-		gamepadTimer = setInterval(checkGamepadInput, 50);
+		gamepadTimer = setInterval(checkGamepadInput, 60);
 	}
 
 	function stopGamepadPolling() {
@@ -703,14 +1223,11 @@ define(function (require) {
 		}
 	}
 
-	function setupDragDrop() {
-		JoystickUI.ui.find('.slot').attr('draggable', 'true');
-	}
-
 	function setupControllerConnection() {
 		window.addEventListener('gamepadconnected', function () {
 			if (JoystickUI.ui) {
 				JoystickUI.ui.css('display', 'flex');
+				JoystickUI.show();
 				isGamepadActive = true;
 			}
 		});
@@ -724,17 +1241,14 @@ define(function (require) {
 	}
 
 	JoystickUI.onRestore = function onRestore() {
+		if (!this.__loaded) {
+			this.prepare();
+		}
 		if (!gamepadTimer) {
 			startGamepadPolling();
 			setupControllerConnection();
 		}
-	};
-
-	JoystickUI.init = function init() {
-		startGamepadPolling();
 		setupMouseHide();
-		setupControllerConnection();
-		JoystickUI.setupShortcutSync();
 	};
 
 	JoystickUI.onRemove = function onRemove() {
@@ -743,6 +1257,14 @@ define(function (require) {
 		jQuery(document).off('mousemove.joystick');
 	};
 
+	JoystickUI.init = function init() {
+		setupMouseHide();
+		setupControllerConnection();
+		JoystickUI.setupShortcutSync();
+		if (!gamepadTimer) {
+			startGamepadPolling();
+		}
+	};
 
 	/**  
 	 * Process shortcut  

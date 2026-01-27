@@ -227,7 +227,7 @@ define(function(require)
 				}
 
 				if (skill && skill.level) {
-					addElement( i, true, list[i].ID, list[i].count || skill.level );
+					ShortCut.addElement( i, true, list[i].ID, list[i].count || skill.level );
 				}
 				else {
 					if (!_list[i]) {
@@ -240,7 +240,7 @@ define(function(require)
 				}
 			}
 			else {
-				addElement( i, list[i].isSkill, list[i].ID, list[i].count );
+				ShortCut.addElement( i, list[i].isSkill, list[i].ID, list[i].count );
 			}
 		}
 	};
@@ -416,9 +416,9 @@ define(function(require)
 		for (i = 0, size = _list.length; i < size; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
 				if (isSkill && _list[i].count && _list[i].count <= count) {
-					addElement( i, isSkill, ID, _list[i].count);
+					ShortCut.addElement( i, isSkill, ID, _list[i].count);
 				} else {
-					addElement( i, isSkill, ID, count);
+					ShortCut.addElement( i, isSkill, ID, count);
 				}
 			}
 		}
@@ -485,7 +485,7 @@ define(function(require)
 	 * @param {number} ID
 	 * @param {number} count or level
 	 */
-	function addElement( index, isSkill, ID, count )
+	ShortCut.addElement = function addElement( index, isSkill, ID, count )
 	{
 		var file, name;
 		var ui = ShortCut.ui.find('.container:eq(' + index + ')').empty();
@@ -634,7 +634,7 @@ define(function(require)
 	 * @param {number} row id
 	 * @param {number} amount (optional)
 	 */
-	function removeElement( isSkill, ID, row, amount )
+	ShortCut.removeElement = function removeElement( isSkill, ID, row, amount )
 	{
 		var i, count;
 
@@ -686,20 +686,20 @@ define(function(require)
 			case 'SkillList':
 			case 'Guild':
 			case 'SkillListMH':
-				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
-				addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+				ShortCut.removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
+				ShortCut.addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				break;
 
 			case 'Inventory':
-				removeElement( false, element.ITID, row);
-				addElement( index, false, element.ITID, 0);
+				ShortCut.removeElement( false, element.ITID, row);
+				ShortCut.addElement( index, false, element.ITID, 0);
 				ShortCut.onChange( index, false, element.ITID, 0);
 				break;
 
 			case 'ShortCut':
-				removeElement( element.isSkill, element.ID, row, element.isSkill ? element.count : null );
-				addElement( index, element.isSkill, element.ID, element.count);
+				ShortCut.removeElement( element.isSkill, element.ID, row, element.isSkill ? element.count : null );
+				ShortCut.addElement( index, element.isSkill, element.ID, element.count);
 				ShortCut.onChange( index, element.isSkill, element.ID, element.count);
 				break;
 		}
