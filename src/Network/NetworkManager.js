@@ -146,7 +146,7 @@ define(function( require )
 			let fp = new BinaryReader( pkt.buffer );
 			let id = fp.readUShort()
 			console.log("%c[Network] Dump Send: \n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s", 
-				'color:#007070', 'color:#FFFFFF',
+				'color:#007070', 'color:inherit',
 				id.toString(16), Packet.constructor.name, pkt.buffer.byteLength, utilsBufferToHexString(pkt.buffer).toUpperCase());
 		}
 
@@ -308,7 +308,7 @@ define(function( require )
 				if(packetDump) {
 					let buffer_console = new Uint8Array( buffer, 0, length );
 					console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s", 
-						'color:#900090', 'color:#FFFFFF', 
+						'color:#900090', 'color:inherit', 
 						id.toString(16), packet.name, length, utilsBufferToHexString(buffer_console).toUpperCase());
 				}
 
@@ -330,7 +330,7 @@ define(function( require )
 				if(packetDump) {
 					let unknown_buffer = new Uint8Array( buffer, 0, length );
 					console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s",
-						'color:#900090', 'color:#FFFFFF',
+						'color:#900090', 'color:inherit',
 						id.toString(16), length, utilsBufferToHexString(unknown_buffer).toUpperCase());
 				}
 				console.error(
