@@ -540,7 +540,7 @@ define(function (require) {
 	}
 
 	/**
-	 * Returns the closest entity to the source entity
+	 * Returns the lowest HP entity to the source entity
 	 *
 	 * @param {entity} source entity
 	 * @param {type} entity type to look for
