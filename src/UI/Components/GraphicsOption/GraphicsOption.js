@@ -83,6 +83,10 @@ define(function(require)
 		this.ui.find('.culling').change(onToggleCulling);
 		this.ui.find('.view-area').change(onUpdateAreaView);
 
+		// Joystick
+		this.ui.find('.attackTargetMode').change(onUpdateTargetOption);
+		this.ui.find('.joySense').change(onUpdateSense);
+
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
@@ -126,6 +130,10 @@ define(function(require)
 		// Culling
 		this.ui.find('.culling').attr('checked', GraphicsSettings.culling);
 		this.ui.find('.view-area').val(GraphicsSettings.viewArea);
+
+		// Joystick
+		this.ui.find('.attackTargetMode').val(GraphicsSettings.attackTargetMode);
+		this.ui.find('.joySense').val(GraphicsSettings.joySense);
 	};
 
 
@@ -351,6 +359,20 @@ define(function(require)
 		}
 	}
 
+	function onUpdateTargetOption()
+	{
+		var opt = 1;
+		if(this.value === 'NEAREST')
+			opt = 0;
+		GraphicsSettings.attackTargetMode = opt;
+		GraphicsSettings.save();
+	}
+
+	function onUpdateSense()
+	{
+		GraphicsSettings.joySense = parseFloat(this.value, 10);
+		GraphicsSettings.save();
+	}
 
 	/**
 	 * Create component and export it

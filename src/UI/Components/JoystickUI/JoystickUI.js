@@ -19,6 +19,7 @@ define(function (require) {
 	var Client = require('Core/Client');
 	var htmlText = require('text!./JoystickUI.html');
 	var cssText = require('text!./JoystickUI.css');
+	var GraphicsSettings = require('Preferences/Graphics');
 
 	var Inventory = require('UI/Components/Inventory/Inventory');
 	var SkillList = require('UI/Components/SkillList/SkillList');
@@ -268,86 +269,113 @@ define(function (require) {
 		});
 	}
 
+	function getLowestHpEntity(player, entityType) {
+		var lowestHpEntity = null;
+		var lowestHp = Infinity;
+
+		EntityManager.forEach(function (entity) {
+			if (entity.objecttype === entityType &&
+				entity.life &&
+				entity.life.hp > 0 &&
+				entity.life.hp < entity.life.hp_max) {
+
+				var distance = vec2.distance(player.position, entity.position);
+				if (distance <= player.attack_range && entity.life.hp < lowestHp) {
+					lowestHp = entity.life.hp;
+					lowestHpEntity = entity;
+				}
+			}
+		});
+
+		return lowestHpEntity;
+	}
+
 	function attackTargeted() {
-		if (Session.Entity) {
+		if (!Session.Entity) {
+			return;
+		}
 
-			var Player = Session.Entity;
-			var Entity = Player.constructor;
-
-			var entityFocus = EntityManager.getFocusEntity();
-
-			var closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
-
-			if (!closestEntity)
-				closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_PC);
-
-			if (closestEntity) {
-
-				if (entityFocus && closestEntity.GID !== entityFocus.GID) {
-					entityFocus.onFocusEnd();
-					EntityManager.setFocusEntity(null);
-
-					closestEntity.onFocus();
-					EntityManager.setFocusEntity(closestEntity);
-				} else if (!entityFocus) {
-					closestEntity.onFocus();
-					EntityManager.setFocusEntity(closestEntity);
-				} else {
-					//Same entity, nothing to do
-				}
+		var Player = Session.Entity;
+		var Entity = Player.constructor;
+		var attackMode = GraphicsSettings.attackTargetMode || 0;
+		var targetEntity = null;
+		if (attackMode === 1) { // LOWEST_HP   
+			targetEntity = getLowestHpEntity(Player, Entity.TYPE_MOB);
+			if (!targetEntity) {
+				targetEntity = getLowestHpEntity(Player, Entity.TYPE_PC);
 			}
-
-
-			var main = Session.Entity;
-			var pkt;
-
-			var entityFocus = EntityManager.getFocusEntity();
-
-			if (!entityFocus || entityFocus.action === entityFocus.ACTION.DIE) { //If no target, try picking one first
-				entityFocus = EntityManager.getFocusEntity();
-			}
-
-			if (entityFocus) {
-				var out = [];
-				var count = PathFinding.search(
-					main.position[0] | 0, main.position[1] | 0,
-					entityFocus.position[0] | 0, entityFocus.position[1] | 0,
-					main.attack_range + 1,
-					out
-				);
-
-				// Can't attack
-				if (!count) {
-					return true;
-				}
-
-				if (PACKETVER.value >= 20180307) {
-					pkt = new PACKET.CZ.REQUEST_ACT2();
-				} else {
-					pkt = new PACKET.CZ.REQUEST_ACT();
-				}
-				pkt.action = 7;
-				pkt.targetGID = entityFocus.GID;
-
-				// in range send packet
-				if (count < 2) {
-					Network.sendPacket(pkt);
-					return true;
-				}
-
-				// Move to entity
-				Session.moveAction = pkt;
-
-				if (PACKETVER.value >= 20180307) {
-					pkt = new PACKET.CZ.REQUEST_MOVE2();
-				} else {
-					pkt = new PACKET.CZ.REQUEST_MOVE();
-				}
-				pkt.dest[0] = out[(count - 1) * 2 + 0];
-				pkt.dest[1] = out[(count - 1) * 2 + 1];
-				Network.sendPacket(pkt);
+		} else { // CLOSEST
+			targetEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
+			if (!targetEntity) {
+				targetEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_PC);
 			}
 		}
+		if (!targetEntity) return;
+		var entityFocus = EntityManager.getFocusEntity();
+		if (!entityFocus || entityFocus.action === entityFocus.ACTION.DIE) { //If no target, try picking one first
+			entityFocus = EntityManager.getFocusEntity();
+		}
+		if (entityFocus && targetEntity.GID !== entityFocus.GID) {
+			entityFocus.onFocusEnd();
+			EntityManager.setFocusEntity(null);
+
+			targetEntity.onFocus();
+			EntityManager.setFocusEntity(targetEntity);
+		} else if (!entityFocus) {
+			targetEntity.onFocus();
+			EntityManager.setFocusEntity(targetEntity);
+		} else {
+			return;
+		}
+
+
+
+		var main = Session.Entity;
+		var pkt;
+
+
+
+		if (!entityFocus) return;
+		var out = [];
+		var count = PathFinding.search(
+			main.position[0] | 0, main.position[1] | 0,
+			entityFocus.position[0] | 0, entityFocus.position[1] | 0,
+			main.attack_range + 1,
+			out
+		);
+
+		// Can't attack
+		if (!count) {
+			return true;
+		}
+
+		if (PACKETVER.value >= 20180307) {
+			pkt = new PACKET.CZ.REQUEST_ACT2();
+		} else {
+			pkt = new PACKET.CZ.REQUEST_ACT();
+		}
+		pkt.action = 7;
+		pkt.targetGID = entityFocus.GID;
+
+		// in range send packet
+		if (count < 2) {
+			Network.sendPacket(pkt);
+			return true;
+		}
+
+		// Move to entity
+		Session.moveAction = pkt;
+
+		if (PACKETVER.value >= 20180307) {
+			pkt = new PACKET.CZ.REQUEST_MOVE2();
+		} else {
+			pkt = new PACKET.CZ.REQUEST_MOVE();
+		}
+		pkt.dest[0] = out[(count - 1) * 2 + 0];
+		pkt.dest[1] = out[(count - 1) * 2 + 1];
+		Network.sendPacket(pkt);
+
+
 	}
 
 	function toggleGetItem() {
