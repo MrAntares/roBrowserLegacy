@@ -540,6 +540,33 @@ define(function (require) {
 	}
 
 	/**
+	 * Returns the closest entity to the source entity
+	 *
+	 * @param {entity} source entity
+	 * @param {type} entity type to look for
+	 */
+	function getLowestHpEntity(sourceEntity, type) {
+		var lowestHpEntity = null;
+		var lowestHp = Infinity;
+
+		_list.forEach((entity) => {
+			if (entity.GID !== sourceEntity.GID && entity.objecttype === type &&
+				entity.life &&
+				entity.life.hp > 0 &&
+				entity.life.hp < entity.life.hp_max && entity.action !== entity.ACTION.DIE && entity.remove_tick === 0) {
+
+				var distance = vec2.distance(sourceEntity.position, entity.position);
+				if (distance <= sourceEntity.attack_range && entity.life.hp < lowestHp) {
+					lowestHp = entity.life.hp;
+					lowestHpEntity = entity;
+				}
+			}
+		});
+
+		return lowestHpEntity;
+	}
+
+	/**
 	 * Returns the distance between two entities based on direct walkpath
 	 *
 	 * @param {entity} from entity
@@ -571,6 +598,7 @@ define(function (require) {
 		setFocusEntity: setFocusEntity,
 
 		getClosestEntity: getClosestEntity,
+		getLowestHpEntity: getLowestHpEntity,
 
 		render: render,
 		intersect: intersect,

@@ -14,6 +14,7 @@
         <div class="tabs">  
             <button class="tab-button selected" data-tab="basic">Basic</button>  
             <button class="tab-button" data-tab="advanced">Advanced</button>  
+            <button class="tab-button" data-tab="joystick">Gamepad</button>  
         </div>  
     </div>  
       
@@ -178,5 +179,35 @@
                 <button class="reset-button">Reset to Default Values</button>  
             </div>  
         </div>  
+        <div class="tab-content" id="joystick">  
+            <table>
+                <tr>  
+                    <td>Attack Target Mode</td>  
+                    <td>  
+                        <select class="attackTargetMode">  
+                            <option value="0">Off</option>  
+                            <option value="1">Lowest HP</option>  
+                            <option value="2">Closest</option>  
+                        </select>  
+                    </td>  
+                </tr> 
+                <tr>  
+                    <td>Quick-Cast Mode</td>  
+                    <td>  
+                        <label style="display: inline-block; margin-right: 20px;">  
+                            <input class="joyQuick" type="checkbox" />  
+                        </label>  
+                    </td>  
+                </tr> 
+                <tr>  
+                    <td>R3 Mouse Move</td>  
+                    <td>  
+                        <label style="display: inline-block; width: 90px;">  
+                            Sensibility: <input class="joySense" type="range" value="25.0" min="1.0" max="100.0" step="1.0" style="width: 90%; vertical-align: middle;"/>  
+                        </label>  
+                    </td>  
+                </tr> 
+            </table>  
+        </div> 
     </div>  
 </div>

@@ -58,7 +58,8 @@ define( ['Core/Preferences'], function( Preferences )
 
 		/* Joystick */
 		attackTargetMode: 0,
-		joySense: 25.0,
+		joySense:      25.0,
+		joyQuick:     false,
 
 		/**
 		 * Game Post-Processing

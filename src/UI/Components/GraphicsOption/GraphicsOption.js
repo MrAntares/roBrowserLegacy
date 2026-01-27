@@ -90,6 +90,7 @@ define(function(require)
 		// Joystick
 		this.ui.find('.attackTargetMode').change(onUpdateTargetOption);
 		this.ui.find('.joySense').change(onUpdateSense);
+		this.ui.find('.joyQuick').change(onToggleJoyQuick);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
@@ -138,6 +139,7 @@ define(function(require)
 		// Joystick
 		this.ui.find('.attackTargetMode').val(GraphicsSettings.attackTargetMode);
 		this.ui.find('.joySense').val(GraphicsSettings.joySense);
+		this.ui.find('.joyQuick').attr('checked', GraphicsSettings.joyQuick);
 	};
 
 
@@ -363,12 +365,10 @@ define(function(require)
 		}
 	}
 
+	// Joystick
  	function onUpdateTargetOption()
 	{
-		var opt = 1;
-		if(this.value === 'NEAREST')
-			opt = 0;
-		GraphicsSettings.attackTargetMode = opt;
+		GraphicsSettings.attackTargetMode = parseInt(this.value, 10);
 		GraphicsSettings.save();
 	}
 
@@ -376,8 +376,14 @@ define(function(require)
 	{
 		GraphicsSettings.joySense = parseFloat(this.value, 10);
 		GraphicsSettings.save();
-  }
-  
+	}
+
+	function onToggleJoyQuick()
+	{
+		GraphicsSettings.joyQuick = !!this.checked;
+		GraphicsSettings.save();
+	}
+
 	function onTabSwitch() {    
 		var tabName = jQuery(this).data('tab');    
       

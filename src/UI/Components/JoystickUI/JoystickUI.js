@@ -20,7 +20,7 @@ define(function (require) {
 	var htmlText = require('text!./JoystickUI.html');
 	var cssText = require('text!./JoystickUI.css');
 	var GraphicsSettings = require('Preferences/Graphics');
-
+	var ItemType = require('DB/Items/ItemType');
 	var Inventory = require('UI/Components/Inventory/Inventory');
 	var SkillList = require('UI/Components/SkillList/SkillList');
 
@@ -42,6 +42,31 @@ define(function (require) {
 	var normalizedX = 0;
 	var normalizedY = 0;
 
+	var slotMapping = [
+		// L1 group (slots 0-3): Y, X, B, A  
+		0, 1, 2, 3,
+		// L2 group (slots 4-7): Y, X, B, A    
+		4, 5, 6, 7,
+		// L1R1 group (slots 8-11): Y, X, B, A  
+		8, 17, 26, 35,
+		// R1 group (slots 12-15): Y, X, B, A  
+		13, 14, 15, 16,
+		// R2 group (slots 16-19): Y, X, B, A  
+		9, 10, 11, 12,
+
+		// Set 2 mapping  
+		// L1 group (slots 20-23): Y, X, B, A  
+		18, 19, 20, 21,
+		// L2 group (slots 24-27): Y, X, B, A  
+		22, 23, 24, 25,
+		// L1R1 group (slots 28-31): Y, X, B, A  
+		8, 17, 26, 35,
+		// R1 group (slots 32-35): Y, X, B, A  
+		31, 32, 33, 34,
+		// R2 group (slots 36-39): Y, X, B, A  
+		27, 28, 29, 30
+	];
+
 	/**  
 	 * Show JoystickUI element  
 	 */
@@ -56,7 +81,10 @@ define(function (require) {
 		this.ui.hide();
 	};
 
-	JoystickUI.onAppend = function onAppend() {};
+	JoystickUI.onAppend = function onAppend() {
+		if (!isGamepadActive)
+			JoystickUI.hide();
+	};
 
 	function isInCharSelect() {
 		return jQuery('#CharSelect, #CharSelectV2, #CharSelectV3, #CharSelectV4').is(':visible');
@@ -122,43 +150,33 @@ define(function (require) {
 				var fileName = inventoryItem.IsIdentified ?
 					itemInfo.identifiedResourceName :
 					itemInfo.unidentifiedResourceName;
-
+				var count = inventoryItem.count;
+				if (inventoryItem.type === ItemType.WEAPON ||
+					inventoryItem.type === ItemType.ARMOR ||
+					inventoryItem.type === ItemType.SHADOWGEAR) {
+					count = 1;
+				}
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + fileName + '.bmp', function (url) {
 					$icon.find('.img').css('backgroundImage', 'url(' + url + ')');
-					$icon.find('.amount').text(item.count);
+					$icon.find('.amount').text(count);
 					$slot.append($icon);
 				});
 			}
 		}
 	}
 
+	function updateJoystickSlotsByItemId(itemId) {
+		var startIdx = (currentSet === 1) ? 0 : 20;
+		for (var i = 0; i < 20; i++) {
+			var shortcutIndex = slotMapping[startIdx + i];
+			var shortcut = ShortCut.getList()[shortcutIndex];
+			if (shortcut && !shortcut.isSkill && shortcut.ID === itemId) {
+				updateJoystickSlot(i, shortcutIndex);
+			}
+		}
+	}
 	JoystickUI.fullSync = function fullSync() {
 		var startIdx = (currentSet === 1) ? 0 : 20;
-
-		var slotMapping = [
-			// L1 group (slots 0-3): Y, X, B, A  
-			0, 1, 2, 3,
-			// L2 group (slots 4-7): Y, X, B, A    
-			4, 5, 6, 7,
-			// L1R1 group (slots 8-11): Y, X, B, A  
-			8, 17, 26, 35,
-			// R1 group (slots 12-15): Y, X, B, A  
-			13, 14, 15, 16,
-			// R2 group (slots 16-19): Y, X, B, A  
-			9, 10, 11, 12,
-
-			// Set 2 mapping  
-			// L1 group (slots 20-23): Y, X, B, A  
-			18, 19, 20, 21,
-			// L2 group (slots 24-27): Y, X, B, A  
-			22, 23, 24, 25,
-			// L1R1 group (slots 28-31): Y, X, B, A  
-			8, 17, 26, 35,
-			// R1 group (slots 32-35): Y, X, B, A  
-			31, 32, 33, 34,
-			// R2 group (slots 36-39): Y, X, B, A  
-			27, 28, 29, 30
-		];
 		for (var i = 0; i < 20; i++) {
 			updateJoystickSlot(i, slotMapping[startIdx + i]);
 		}
@@ -264,30 +282,69 @@ define(function (require) {
 	}
 
 	function executeShortcut(index) {
+		var shortcut = ShortCut.getList()[index];
+
+		if (!shortcut)
+			return;
+
+		if (!shortcut.isSkill) {
+			var inventoryItem = Inventory.getUI().getItemById(shortcut.ID);
+			if (!inventoryItem || inventoryItem.count === 0) {
+				return;
+			}
+		}
+
+		// Move mouse to target entity position  
+		if (shortcut.isSkill && GraphicsSettings.attackTargetMode) {
+			var targetEntity = getEntityinContext();
+			if (targetEntity) moveMouseToEntity(targetEntity);
+		}
+
 		ShortCut.onShortCut({
 			cmd: 'EXECUTE' + index
 		});
+
+		if (!shortcut.isSkill) {
+			setTimeout(function () {
+				updateJoystickSlotsByItemId(shortcut.ID);
+			}, 100);
+		} else if (GraphicsSettings.joyQuick) {
+			setTimeout(function () {
+				jQuery(Renderer.canvas).trigger({
+					type: 'mousedown',
+					which: 1
+				});
+				setTimeout(function () {
+					jQuery(Renderer.canvas).trigger({
+						type: 'mouseup',
+						which: 1
+					});
+				}, 50);
+			}, 50);
+		}
 	}
 
-	function getLowestHpEntity(player, entityType) {
-		var lowestHpEntity = null;
-		var lowestHp = Infinity;
+	function getEntityinContext() {
+		var targetEntity = null;
+		var Player = Session.Entity;
+		var attackMode = GraphicsSettings.attackTargetMode || 0;
 
-		EntityManager.forEach(function (entity) {
-			if (entity.objecttype === entityType &&
-				entity.life &&
-				entity.life.hp > 0 &&
-				entity.life.hp < entity.life.hp_max) {
-
-				var distance = vec2.distance(player.position, entity.position);
-				if (distance <= player.attack_range && entity.life.hp < lowestHp) {
-					lowestHp = entity.life.hp;
-					lowestHpEntity = entity;
-				}
+		if (attackMode === 1) { // LOWEST_HP   
+			targetEntity = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_MOB);
+			if (!targetEntity) {
+				targetEntity = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_PC);
 			}
-		});
+		} else { // CLOSEST
+			targetEntity = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_MOB);
+			if (!targetEntity) {
+				targetEntity = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_PC);
+			}
+		}
 
-		return lowestHpEntity;
+		if (!targetEntity)
+			targetEntity = Player;
+
+		return targetEntity;
 	}
 
 	function attackTargeted() {
@@ -296,20 +353,8 @@ define(function (require) {
 		}
 
 		var Player = Session.Entity;
-		var Entity = Player.constructor;
-		var attackMode = GraphicsSettings.attackTargetMode || 0;
-		var targetEntity = null;
-		if (attackMode === 1) { // LOWEST_HP   
-			targetEntity = getLowestHpEntity(Player, Entity.TYPE_MOB);
-			if (!targetEntity) {
-				targetEntity = getLowestHpEntity(Player, Entity.TYPE_PC);
-			}
-		} else { // CLOSEST
-			targetEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
-			if (!targetEntity) {
-				targetEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_PC);
-			}
-		}
+		var targetEntity = getEntityinContext();
+
 		if (!targetEntity) return;
 		var entityFocus = EntityManager.getFocusEntity();
 		if (!entityFocus || entityFocus.action === entityFocus.ACTION.DIE) { //If no target, try picking one first
@@ -328,19 +373,14 @@ define(function (require) {
 			return;
 		}
 
-
-
-		var main = Session.Entity;
-		var pkt;
-
-
-
 		if (!entityFocus) return;
+
+		var pkt;
 		var out = [];
 		var count = PathFinding.search(
-			main.position[0] | 0, main.position[1] | 0,
+			Player.position[0] | 0, Player.position[1] | 0,
 			entityFocus.position[0] | 0, entityFocus.position[1] | 0,
-			main.attack_range + 1,
+			Player.attack_range + 1,
 			out
 		);
 
@@ -374,8 +414,6 @@ define(function (require) {
 		pkt.dest[0] = out[(count - 1) * 2 + 0];
 		pkt.dest[1] = out[(count - 1) * 2 + 1];
 		Network.sendPacket(pkt);
-
-
 	}
 
 	function toggleGetItem() {
@@ -424,50 +462,6 @@ define(function (require) {
 			clearInterval(setChangeInterval);
 			setChangeInterval = null;
 		}
-	}
-
-	function leftClick() {
-		if (isInCharSelect()) {
-			selectCurrentChar();
-			return;
-		}
-		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
-		var isCanvas = el && el.tagName.toLowerCase() === 'canvas';
-
-		if (!el || isCanvas) {
-			handleWorldLeftClick();
-			return;
-		}
-		var draggableElement = el.closest('.item, .skill');
-		if (draggableElement) {
-			var index = parseInt(draggableElement.getAttribute('data-index'), 10);
-			var isSkill = draggableElement.closest('.skill');
-			if (!isSkill) {
-				var item = Inventory.getUI().getItemByIndex(index);
-				if (item) Inventory.getUI().useItem(item);
-			} else {
-				var item = SkillList.getUI().getSkillById(index);
-				if (item) SkillList.getUI().useSkillID(item.SKID, item.selectedLevel ? item.selectedLevel : item.level);
-			}
-			return;
-		}
-
-		var eventOptions = {
-			bubbles: true,
-			cancelable: true,
-			view: window,
-			clientX: Mouse.screen.x,
-			clientY: Mouse.screen.y,
-			which: 1
-		};
-
-		el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
-		ClickInterval = setTimeout(function () {
-			el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
-			el.dispatchEvent(new MouseEvent('click', eventOptions));
-			stopClickInterval();
-		}, 100);
-
 	}
 
 	function getJoystickComboForSlot(slotIndex) {
@@ -754,6 +748,13 @@ define(function (require) {
 			if (!isSkill) {
 				var item = Inventory.getUI().getItemByIndex(index);
 				if (item) {
+					if (item.type === ItemType.UNKNOWN ||
+						item.type === ItemType.ETC ||
+						item.type === ItemType.CARD ||
+						item.type === ItemType.PETEGG ||
+						item.type === ItemType.PETARMOR)
+						return;
+
 					itemData = {
 						isSkill: false,
 						ID: item.ITID,
@@ -779,6 +780,50 @@ define(function (require) {
 
 			setClickInterval();
 		}
+	}
+
+	function leftClick() {
+		if (isInCharSelect()) {
+			selectCurrentChar();
+			return;
+		}
+		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		var isCanvas = el && el.tagName.toLowerCase() === 'canvas';
+
+		if (!el || isCanvas) {
+			handleWorldLeftClick();
+			return;
+		}
+		var tabButton = el.closest('.tabs button');
+		var draggableElement = el.closest('.item, .skill');
+		if (draggableElement && !tabButton) {
+			var index = parseInt(draggableElement.getAttribute('data-index'), 10);
+			var isSkill = draggableElement.closest('.skill');
+			if (!isSkill) {
+				var item = Inventory.getUI().getItemByIndex(index);
+				if (item && item.count) Inventory.getUI().useItem(item);
+			} else {
+				var item = SkillList.getUI().getSkillById(index);
+				if (item) SkillList.getUI().useSkillID(item.SKID, item.selectedLevel ? item.selectedLevel : item.level);
+			}
+			return;
+		}
+
+		var eventOptions = {
+			bubbles: true,
+			cancelable: true,
+			view: window,
+			clientX: Mouse.screen.x,
+			clientY: Mouse.screen.y,
+			which: 1
+		};
+		el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
+		ClickInterval = setTimeout(function () {
+			el.dispatchEvent(new MouseEvent('click', eventOptions));
+			el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
+			stopClickInterval();
+		}, 100);
+
 	}
 
 	function handleWorldLeftClick() {
@@ -822,7 +867,7 @@ define(function (require) {
 	function navigateDraggableItems(direction) {
 		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
 
-		var container = el.closest('.container, .content, .inventory, .skill_list, .item, .skill');
+		var container = el.closest('.item, .skill');
 
 		if (!container) {
 			// Fall back to regular arrow key navigation  
@@ -849,11 +894,10 @@ define(function (require) {
 		}
 
 		var $container = jQuery(container);
-		var allDraggables = $container.find('.item, .skill');
+		var allDraggables = $container.find('.item, .skill').not('.tabs button, .tab-btn');
 
 		if (allDraggables.length === 0) {
-			allDraggables = jQuery('.item:visible, .skill:visible');
-
+			allDraggables = jQuery('.item:visible, .skill:visible').not('.tabs button, .tab-btn');
 		}
 
 		// Check if we're in a skill container by looking for skill-specific structure  
@@ -1164,8 +1208,8 @@ define(function (require) {
 			var rightX = gamepad.axes[2];
 			var rightY = gamepad.axes[3];
 			if (Math.abs(rightX) > deadzone || Math.abs(rightY) > deadzone) {
-				mouseDeltaX = rightX * 25;
-				mouseDeltaY = rightY * 25;
+				mouseDeltaX = rightX * GraphicsSettings.joySense || 25;
+				mouseDeltaY = rightY * GraphicsSettings.joySense || 25;
 
 				startMouseMovement();
 				return true;
@@ -1194,6 +1238,65 @@ define(function (require) {
 		if (moveInterval) {
 			clearInterval(moveInterval);
 			moveInterval = null;
+		}
+	}
+
+	function moveMouseToEntity(entity) {
+		if (!entity || !entity.position) return;
+
+		var mat4 = glMatrix.mat4;
+		var vec4 = glMatrix.vec4;
+
+		var _matrix = mat4.create();
+		var _vector = vec4.create();
+		var _pos = vec4.create();
+
+		// Transform entity position to screen coordinates  
+		_vector[0] = entity.position[0] + 0.5;
+		_vector[1] = -entity.position[2];
+		_vector[2] = entity.position[1] + 0.5;
+		_vector[3] = 1.0;
+
+		// Apply camera transformation  
+		mat4.translate(_matrix, Camera.modelView, _vector);
+
+		// Set up billboard matrix (like in EntityRender)  
+		_matrix[0] = 1.0;
+		_matrix[1] = 0.0;
+		_matrix[2] = 0.0;
+		_matrix[4] = 0.0;
+		_matrix[5] = 1.0;
+		_matrix[6] = 0.0;
+		_matrix[8] = 0.0;
+		_matrix[9] = 0.0;
+		_matrix[10] = 1.0;
+
+		// Project to screen  
+		mat4.multiply(_matrix, Camera.projection, _matrix);
+
+		// Cast position for projection  
+		_pos[0] = 0.0;
+		_pos[1] = 0.0;
+		_pos[2] = 0.0;
+		_pos[3] = 1.0;
+
+		// Project point to scene  
+		vec4.transformMat4(_pos, _pos, _matrix);
+
+		// Calculate screen position  
+		var z = _pos[3] === 0.0 ? 1.0 : (1.0 / _pos[3]);
+		var screenX = Renderer.width / 2 + Math.round(Renderer.width / 2 * (_pos[0] * z));
+		var screenY = Renderer.height / 2 - Math.round(Renderer.height / 2 * (_pos[1] * z));
+
+		// Update mouse position  
+		Mouse.screen.x = screenX;
+		Mouse.screen.y = screenY;
+
+		// Update cursor visual position  
+		var _selector = document.querySelector('.cursor');
+		if (_selector) {
+			_selector.style.left = screenX + 'px';
+			_selector.style.top = screenY + 'px';
 		}
 	}
 
