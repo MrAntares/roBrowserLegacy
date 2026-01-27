@@ -35,10 +35,29 @@ define(function( require )
 
 
 	/**
-	 * Custom socket factory for plugins (e.g., AegisNetwork)
+	 * Custom socket factory for plugins
 	 * @var function|null
 	 */
 	var _socketFactory = null;
+
+
+	/**
+	 * Default socket factory - creates NodeSocket or WebSocket based on environment.
+	 * Custom factories can call this as a fallback.
+	 *
+	 * @param {string} host
+	 * @param {number} port
+	 * @return {Socket}
+	 */
+	function defaultSocketFactory(host, port)
+	{
+		var proxy = Configs.get('socketProxy', null);
+
+		if (NodeSocket.isSupported()) {
+			return new NodeSocket(host, port, proxy);
+		}
+		return new WebSocket(host, port, proxy);
+	}
 
 
 	/**
@@ -95,24 +114,9 @@ define(function( require )
 	 */
 	function connect( host, port, callback, isZone)
 	{
-		var socket, Socket;
-		var proxy = Configs.get('socketProxy', null);
-		var socketMode = Configs.get('socketMode', null);
-
-		// Plugin-provided socket factory takes priority
-		if (_socketFactory) {
-			socket = _socketFactory(host, port, socketMode, isZone);
-		}
-		// node-webkit
-		else if (NodeSocket.isSupported()) {
-			Socket = NodeSocket;
-			socket = new Socket(host, port, proxy);
-		}
-		// Web Socket with proxy
-		else {
-			Socket = WebSocket;
-			socket = new Socket(host, port, proxy);
-		}
+		var socket = _socketFactory
+			? _socketFactory(host, port)
+			: defaultSocketFactory(host, port);
 
 		socket.isZone     = !!isZone;
 		socket.onClose    = onClose;
@@ -439,7 +443,8 @@ define(function( require )
 
 	/**
 	 * Set a custom socket factory for plugins.
-	 * The factory function receives (host, port, mode, isZone) and returns a socket.
+	 * The factory receives (host, port) and returns a socket.
+	 * Call defaultSocketFactory(host, port) inside your factory as a fallback.
 	 *
 	 * @param {function|null} factory
 	 */
@@ -502,14 +507,15 @@ define(function( require )
 		}
 
 		return {
-			sendPacket:       sendPacket,
-			send:             send,
-			setPing:          setPing,
-			connect:          connect,
-			hookPacket:       hookPacket,
-			close:            close,
-			read:             read,
-			setSocketFactory: setSocketFactory,
+			sendPacket:           sendPacket,
+			send:                 send,
+			setPing:              setPing,
+			connect:              connect,
+			hookPacket:           hookPacket,
+			close:                close,
+			read:                 read,
+			setSocketFactory:     setSocketFactory,
+			defaultSocketFactory: defaultSocketFactory,
 			utils: {
 				longToIP: utilsLongToIP
 			}
