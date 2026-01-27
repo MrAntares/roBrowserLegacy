@@ -30,6 +30,12 @@ define(function( require )
 
 
 	/**
+	 * Holds the name for the Inventory type received from server
+	 */
+	var InvTypeName = '';
+
+
+	/**
 	 * Get storage informations
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_STOREITEM_COUNTINFO
@@ -38,6 +44,10 @@ define(function( require )
 	{
 		if(!(Storage.getUI().__loaded && Storage.getUI().__active)) { 
 			Storage.getUI().append();
+			// Update Storage Title based on InvTypeName
+			if (PACKETVER.value >= 20181002) {
+				Storage.getUI().ui.find('.titlebar .text').text(InvTypeName);
+			}
 		}
 		Storage.getUI().setItemInfo( pkt.curCount, pkt.maxCount );
 		Storage.getUI().setItems( itemBuffer );
@@ -173,6 +183,43 @@ define(function( require )
 
 
 	/**
+	 * Inventory Type has been started
+	 * Set Inventory Name based from inventory type
+	 * @param {object} pkt - PACKET.ZC.SPLIT_SEND_ITEMLIST_SET
+	 */
+	function onItemListSet(pkt) {
+		switch (pkt.invType) {
+			case 0:	// Inventory - name is always blank
+			case 1:	// Cart - name is always blank
+			case 2:	// Storage
+			case 3: // Guild Storage
+				InvTypeName = pkt.name;
+				break;
+			default:
+				throw new Error("[PACKET.ZC.SPLIT_SEND_ITEMLIST_SET] - Unknown invType '" + pkt.invType + "'.");
+		}
+	};
+
+
+	/**
+	 * We just know that server inventory type ended
+	 *
+	 * @param {object} pkt - PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT
+	 */
+	function onItemListResult(pkt) {
+		switch (pkt.invType) {
+			case 0:	// Inventory
+			case 1:	// Cart
+			case 2:	// Storage
+			case 3: // Guild Storage
+				break;
+			default:
+				throw new Error("[PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT] - Unknown invType '" + pkt.invType + "'.");
+		}
+	};
+
+
+	/**
 	 * Initialize
 	 */
 	return function StorageEngine()
@@ -193,5 +240,7 @@ define(function( require )
 		Network.hookPacket( PACKET.ZC.ADD_ITEM_TO_STORE4,         onStorageItemAdded );
 		Network.hookPacket( PACKET.ZC.CLOSE_STORE,                onStorageClose );
 		Network.hookPacket( PACKET.ZC.DELETE_ITEM_FROM_STORE,     onStorageItemRemoved );
+		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_SET,	  onItemListSet );
+		Network.hookPacket( PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT, onItemListResult );
 	};
 });
