@@ -75,9 +75,10 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function( glMatrix, Renderer )
 	Cast.prototype.clean = function Clean()
 	{
 		this.remove();
+		if(this.onComplete){
+			this.onComplete();
+		}
 		this.onComplete = null;
-		//this.ctx    = null;
-		//this.canvas = null;
 	};
 
 
