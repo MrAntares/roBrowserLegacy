@@ -87,6 +87,11 @@ define(function(require)
 		this.ui.find('.culling').change(onToggleCulling);
 		this.ui.find('.view-area').change(onUpdateAreaView);
 
+		// Joystick
+		this.ui.find('.attackTargetMode').change(onUpdateTargetOption);
+		this.ui.find('.joySense').change(onUpdateSense);
+		this.ui.find('.joyQuick').change(onToggleJoyQuick);
+
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
@@ -130,6 +135,11 @@ define(function(require)
 		// Culling
 		this.ui.find('.culling').attr('checked', GraphicsSettings.culling);
 		this.ui.find('.view-area').val(GraphicsSettings.viewArea);
+
+		// Joystick
+		this.ui.find('.attackTargetMode').val(GraphicsSettings.attackTargetMode);
+		this.ui.find('.joySense').val(GraphicsSettings.joySense);
+		this.ui.find('.joyQuick').attr('checked', GraphicsSettings.joyQuick);
 	};
 
 
@@ -353,6 +363,25 @@ define(function(require)
 				window.moveTo( (screen.availWidth - size[0]) / 2, (screen.availHeight - size[1]) / 2 );
 			}
 		}
+	}
+
+	// Joystick
+ 	function onUpdateTargetOption()
+	{
+		GraphicsSettings.attackTargetMode = parseInt(this.value, 10);
+		GraphicsSettings.save();
+	}
+
+	function onUpdateSense()
+	{
+		GraphicsSettings.joySense = parseFloat(this.value, 10);
+		GraphicsSettings.save();
+	}
+
+	function onToggleJoyQuick()
+	{
+		GraphicsSettings.joyQuick = !!this.checked;
+		GraphicsSettings.save();
 	}
 
 	function onTabSwitch() {    

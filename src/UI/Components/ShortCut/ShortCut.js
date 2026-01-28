@@ -197,6 +197,34 @@ define(function(require)
 		}
 	};
 
+	ShortCut.useSkill = function useSkill( id, level ){
+		if(id > 10000 && id < 10100){
+			Guild.useSkillID(id, level);
+		} else if (id > 8000 && id < 8044) {
+			// if one of them don't have the skill, it returns early
+			SkillListMH.mercenary.useSkillID(id, level);
+			SkillListMH.homunculus.useSkillID(id, level);
+		} else {
+			SkillWindow.getUI().useSkillID(id, level);
+		}
+	};
+
+	ShortCut.getSkillById = function getSkillById( id ){
+		var skill;
+
+		if (id > 10000 && id < 10100) {
+			skill = Guild.getSkillById(id);
+		} else if (id > 8000 && id < 8044) {
+			skill = SkillListMH.mercenary.getSkillById(id);
+			if (!skill) {
+				skill = SkillListMH.homunculus.getSkillById(id);
+			}
+		} else {
+			skill = SkillWindow.getUI().getSkillById(id);
+		}
+
+		return skill;
+	};
 
 	/**
 	 * Bind UI with list of shortcut
@@ -215,19 +243,10 @@ define(function(require)
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].isSkill) {
 
-				if (list[i].ID > 10000 && list[i].ID < 10100) {
-					skill = Guild.getSkillById(list[i].ID);
-				} else if (list[i].ID > 8000 && list[i].ID < 8044) {
-					skill = SkillListMH.mercenary.getSkillById(list[i].ID);
-					if (!skill) {
-						skill = SkillListMH.homunculus.getSkillById(list[i].ID);
-					}
-				} else {
-					skill = SkillWindow.getUI().getSkillById(list[i].ID);
-				}
+				skill = ShortCut.getSkillById( list[i].ID );
 
 				if (skill && skill.level) {
-					addElement( i, true, list[i].ID, list[i].count || skill.level );
+					ShortCut.addElement( i, true, list[i].ID, list[i].count || skill.level );
 				}
 				else {
 					if (!_list[i]) {
@@ -240,7 +259,7 @@ define(function(require)
 				}
 			}
 			else {
-				addElement( i, list[i].isSkill, list[i].ID, list[i].count );
+				ShortCut.addElement( i, list[i].isSkill, list[i].ID, list[i].count );
 			}
 		}
 	};
@@ -416,9 +435,9 @@ define(function(require)
 		for (i = 0, size = _list.length; i < size; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
 				if (isSkill && _list[i].count && _list[i].count <= count) {
-					addElement( i, isSkill, ID, _list[i].count);
+					ShortCut.addElement( i, isSkill, ID, _list[i].count);
 				} else {
-					addElement( i, isSkill, ID, count);
+					ShortCut.addElement( i, isSkill, ID, count);
 				}
 			}
 		}
@@ -485,7 +504,7 @@ define(function(require)
 	 * @param {number} ID
 	 * @param {number} count or level
 	 */
-	function addElement( index, isSkill, ID, count )
+	ShortCut.addElement = function addElement( index, isSkill, ID, count )
 	{
 		var file, name;
 		var ui = ShortCut.ui.find('.container:eq(' + index + ')').empty();
@@ -634,7 +653,7 @@ define(function(require)
 	 * @param {number} row id
 	 * @param {number} amount (optional)
 	 */
-	function removeElement( isSkill, ID, row, amount )
+	ShortCut.removeElement = function removeElement( isSkill, ID, row, amount )
 	{
 		var i, count;
 
@@ -686,20 +705,20 @@ define(function(require)
 			case 'SkillList':
 			case 'Guild':
 			case 'SkillListMH':
-				removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
-				addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+				ShortCut.removeElement( true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
+				ShortCut.addElement( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				ShortCut.onChange( index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
 				break;
 
 			case 'Inventory':
-				removeElement( false, element.ITID, row);
-				addElement( index, false, element.ITID, 0);
+				ShortCut.removeElement( false, element.ITID, row);
+				ShortCut.addElement( index, false, element.ITID, 0);
 				ShortCut.onChange( index, false, element.ITID, 0);
 				break;
 
 			case 'ShortCut':
-				removeElement( element.isSkill, element.ID, row, element.isSkill ? element.count : null );
-				addElement( index, element.isSkill, element.ID, element.count);
+				ShortCut.removeElement( element.isSkill, element.ID, row, element.isSkill ? element.count : null );
+				ShortCut.addElement( index, element.isSkill, element.ID, element.count);
 				ShortCut.onChange( index, element.isSkill, element.ID, element.count);
 				break;
 		}
@@ -812,15 +831,7 @@ define(function(require)
 
 		// Execute skill
 		if (shortcut.isSkill) {
-			if(shortcut.ID > 10000 && shortcut.ID < 10100){
-				Guild.useSkillID(shortcut.ID, shortcut.count);
-			} else if (shortcut.ID > 8000 && shortcut.ID < 8044) {
-				// if one of them don't have the skill, it returns early
-				SkillListMH.mercenary.useSkillID(shortcut.ID, shortcut.count);
-				SkillListMH.homunculus.useSkillID(shortcut.ID, shortcut.count);
-			} else {
-				SkillWindow.getUI().useSkillID(shortcut.ID, shortcut.count);
-			}
+			ShortCut.useSkill( shortcut.ID, shortcut.count );
 		}
 
 		// Use the item
@@ -1049,6 +1060,8 @@ define(function(require)
 			xhr.send(formData);  
 		}  
 	};
+
+	ShortCut.getList = function getList(){ return _list; };
 
 	/**
 	 * Create component and export it
