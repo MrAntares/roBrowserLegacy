@@ -13,12 +13,12 @@ define(function (require) {
 	var ButtonInput = require('./JoystickButtonInput');
 	var AxisInput = require('./JoystickAxisInput');
 	var JoystickUIRenderer = require('./JoystickUIRenderer');
+	var ControlsSettings = require('Preferences/Controls');
 	var hideTimeout = false;
 
 	return {
 		active: false,
 		buttonStates: {},
-		AXIS_THRESHOLD: 0.5,
 
 		prepare: function () {
 			this._boundOnConnect = this._onConnect.bind(this);
@@ -57,7 +57,7 @@ define(function (require) {
 			});
 			// Process Axes
 			gp.axes.forEach(function (axis, index) {
-				states.axes[index] = Math.abs(axis) > self.AXIS_THRESHOLD ? axis : 0;
+				states.axes[index] = Math.abs(axis) > ControlsSettings.joyDeadline ? axis : 0;
 			});
 			return states;
 		},
@@ -85,7 +85,7 @@ define(function (require) {
 
 			if (!states) {
 				this.active = false;
-				return;
+				return false;
 			}
 
 			var buttonsActive = ButtonInput.update(states.buttons);

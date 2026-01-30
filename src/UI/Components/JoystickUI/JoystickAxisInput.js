@@ -11,7 +11,7 @@ define(function (require) {
 	'use strict';
 
 	var Interaction = require('./JoystickInteractionService');
-	var DEADZONE = 0.10;
+	var ControlsSettings = require('Preferences/Controls');
 
 	return {
 
@@ -21,7 +21,7 @@ define(function (require) {
 			// Left stick = movement
 			var lx = axes[0];
 			var ly = axes[1];
-			if (Math.abs(lx) > DEADZONE || Math.abs(ly) > DEADZONE) {
+			if (Math.abs(lx) > ControlsSettings.joyDeadline || Math.abs(ly) > ControlsSettings.joyDeadline) {
 				Interaction.moveCharacter(lx, -ly);
 				Interaction.cancelQuick = true;
 				active = true;
@@ -31,7 +31,7 @@ define(function (require) {
 			if (axes.length >= 4) {
 				var rx = axes[2];
 				var ry = axes[3];
-				if (Math.abs(rx) > DEADZONE || Math.abs(ry) > DEADZONE) {
+				if (Math.abs(rx) > ControlsSettings.joyDeadline || Math.abs(ry) > ControlsSettings.joyDeadline) {
 					Interaction.moveCursor(rx, ry);
 					active = true;
 				}

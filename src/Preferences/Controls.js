@@ -23,6 +23,7 @@ define( ['Core/Preferences'], function( Preferences )
 		/* Joystick */
 		attackTargetMode: 0,
 		joyQuick:         0,
+		joyDeadline:   0.10,
 		joySense:      25.0
 
 	}, 1.0 );

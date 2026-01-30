@@ -63,6 +63,7 @@ define(function (require) {
 		this.ui.find('.attackTargetMode').change(onUpdateTargetOption);
 		this.ui.find('.joySense').change(onUpdateSense);
 		this.ui.find('.joyQuick').change(onUpdateJoyQuick);
+		this.ui.find('.joyDeadline').change(onUpdateJoyDeadline);
 
 		this.ui.find(".button.reset").on("click", function(){ resetKeysToDefault(); });
 		this.ui.find(".button.ok").on("click", function(){ applySettings(); });
@@ -286,6 +287,12 @@ define(function (require) {
 	function onUpdateJoyQuick()
 	{
 		Controls.joyQuick = parseInt(this.value, 10);
+		Controls.save();
+	}
+
+	function onUpdateJoyDeadline()
+	{
+		Controls.joyDeadline = parseInt(this.value, 10);
 		Controls.save();
 	}
 	
