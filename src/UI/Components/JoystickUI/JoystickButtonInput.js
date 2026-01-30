@@ -1,0 +1,182 @@
+/**
+ * UI/Components/JoystickUI/JoystickButtonInput.js
+ *
+ * Manages the logic for digital button presses. 
+ * Handles input states (pressed, holding, unpressed), 
+ * button combination mapping for shortcuts, and world interactions 
+ * like attacking or interacting with NPCs.
+ *
+ * @author AoShinHo
+ */
+define(function (require) {
+	'use strict';
+
+	var ShortcutMapper = require('./JoystickShortcutMapper');
+	var Interaction = require('./JoystickInteractionService');
+	var SetManager = require('./JoystickSetManager');
+	var JoystickUIRenderer = require('./JoystickUIRenderer');
+	var SelectionUI = require('./JoystickSelectionUI');
+
+	var clickLock = false;
+	var lockTimeout = 200;
+
+	function setClickLock() {
+		clickLock = true;
+		setTimeout(function () {
+			clickLock = false;
+		}, lockTimeout);
+	}
+
+	var ButtonInput = {
+
+		update: function (buttons) {
+			if (clickLock) return false;
+
+			if (SelectionUI.active()) {
+				SelectionUI.handleGamepadInput(buttons);
+				return true;
+			}
+
+			var pressed = false;
+
+			JoystickUIRenderer.updateVisuals(buttons);
+
+			// special buttons
+			pressed |= this._handleSpecial(buttons);
+
+			// set switching
+			pressed |= this._handleSetChange(buttons);
+
+			if (!pressed) {
+				// basic actions (Left Click, Attack, etc)
+				pressed |= this._handleWorldActions(buttons);
+
+				// skills/items
+				pressed |= this._handleShortcuts(buttons);
+			}
+
+			return pressed;
+		},
+
+		_handleWorldActions: function (btn) {
+			var pressed = false;
+
+			if (ShortcutMapper.getGroup(btn) !== '')
+				return pressed;
+
+			// A → left click
+			if (btn[0] !== 'unpressed') {
+				Interaction.leftClick();
+				setClickLock();
+				pressed = true;
+			}
+
+			// B → right click
+			if (btn[1] !== 'unpressed') {
+				Interaction.rightClick(btn[1] === 'holding');
+				setClickLock();
+				pressed = true;
+			}
+
+			// X → attack
+			if (btn[2] !== 'unpressed') {
+				Interaction.attackTargeted();
+				setClickLock();
+				pressed = true;
+			}
+
+			// Y → pickup item
+			if (btn[3] !== 'unpressed') {
+				Interaction.pickUpItem();
+				setClickLock();
+				pressed = true;
+			}
+
+			return pressed;
+		},
+
+		_handleSetChange: function (btn) {
+			var l2 = btn[6] === 'holding';
+			var r2 = btn[7] === 'holding';
+
+			if (l2 && r2) {
+				SetManager.toggle();
+				JoystickUIRenderer.updateSetIndicator();
+				JoystickUIRenderer.sync();
+				setClickLock();
+				return true;
+			}
+			return false;
+		},
+
+		_handleSpecial: function (buttons) {
+			var pressed = false;
+			var selectPressed = buttons[8] === 'holding';
+
+			if (selectPressed) {
+				if (buttons[12] !== 'unpressed') { // D-pad Up
+					Interaction.cameraZoom(-2);
+					setClickLock();
+					pressed = true;
+				} else if (buttons[13] !== 'unpressed') { // D-pad Down
+					Interaction.cameraZoom(2);
+					setClickLock();
+					pressed = true;
+				} else if (buttons[14] !== 'unpressed') { // D-pad Left
+					Interaction.cameraAngle(-5);
+					setClickLock();
+					pressed = true;
+				} else if (buttons[15] !== 'unpressed') { // D-pad Right  
+					Interaction.cameraAngle(5);
+					setClickLock();
+					pressed = true;
+				} else if (buttons[9] !== 'unpressed') { // Start button    
+					Interaction.escape();
+					setClickLock();
+					pressed = true;
+				} else if (pressed = Interaction.showinfo()) {
+					setClickLock();
+				}
+
+				if (pressed) return pressed;
+			}
+
+			// D-Pad
+			if (buttons[12] !== 'unpressed') { // D-pad Up    
+				Interaction.navigateDpad('up');
+				setClickLock();
+				pressed = true;
+			} else if (buttons[13] !== 'unpressed') { // D-pad Down        
+				Interaction.navigateDpad('down');
+				setClickLock();
+				pressed = true;
+			} else if (buttons[14] !== 'unpressed') { // D-pad Left      
+				Interaction.navigateDpad('left');
+				setClickLock();
+				pressed = true;
+			} else if (buttons[15] !== 'unpressed') { // D-pad Right      
+				Interaction.navigateDpad('right');
+				setClickLock();
+				pressed = true;
+			} else if (buttons[9] !== 'unpressed') { // Start button    
+				Interaction.enter();
+				setClickLock();
+				pressed = true;
+			}
+
+			return pressed;
+		},
+
+		_handleShortcuts: function (btn) {
+			var idx = ShortcutMapper.getShortcutIndex(btn);
+			if (idx !== -1) {
+				Interaction.executeShortcut(idx, ShortcutMapper.getGroup(btn));
+				setClickLock();
+				return true;
+			}
+			return false;
+		}
+	};
+
+	return ButtonInput;
+});

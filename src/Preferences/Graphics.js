@@ -56,11 +56,6 @@ define( ['Core/Preferences'], function( Preferences )
 
 		pixelPerfectSprites: false,
 
-		/* Joystick */
-		attackTargetMode: 0,
-		joySense:      25.0,
-		joyQuick:     false,
-
 		/**
 		 * Game Post-Processing
 		 */

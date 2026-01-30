@@ -43,7 +43,7 @@ define(function( require )
 	var ChatBox          = require('UI/Components/ChatBox/ChatBox');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
 	var StatusConst      = require('DB/Status/StatusState');
-    var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
+	var CheckAttendance  = require('UI/Components/CheckAttendance/CheckAttendance');
 	var WinStats         = require('UI/Components/WinStats/WinStats');
 	var Inventory        = require('UI/Components/Inventory/Inventory');
 	var Storage          = require('UI/Components/Storage/Storage');
