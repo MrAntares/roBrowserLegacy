@@ -347,15 +347,17 @@ define(function (require) {
 								continue; // Skip rendering
 							}
 						}
-					}
+						else
+						{
+							if (!(effect.ready) && effect.needInit) {
+								effect.init(gl);
+								effect.needInit = false;
+							}
 
-					if (!(effect.ready) && effect.needInit) {
-						effect.init(gl);
-						effect.needInit = false;
-					}
-
-					if (effect.ready) {
-						effect.render(gl, tick);
+							if (effect.ready) {
+								effect.render(gl, tick);
+							}
+						}
 					}
 
 					// Try repeating the effect.
