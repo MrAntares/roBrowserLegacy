@@ -11,22 +11,28 @@ define(function (require) {
 
 	var InputService = require('./JoystickInputService');
 
-	var interval = null;
-	var POLL_RATE = 100;
+	var timeoutHandle = null;
+	var POLL_RATE_ACTIVE = 100; // 10 FPS
+	var POLL_RATE_IDLE = 1000; // 1 FPS
 
 	return {
 		start: function () {
-			if (!interval) {
-				interval = setInterval(function () {
-					InputService.update();
-				}, POLL_RATE);
-			}
+			if (timeoutHandle) return;
+			this.run();
 		},
+		run: function () {
+			var isConnected = InputService.update();
 
+			var nextDelay = isConnected ? POLL_RATE_ACTIVE : POLL_RATE_IDLE;
+			var self = this;
+			timeoutHandle = setTimeout(function () {
+				self.run();
+			}, nextDelay);
+		},
 		stop: function () {
-			if (interval) {
-				clearInterval(interval);
-				interval = null;
+			if (timeoutHandle) {
+				clearTimeout(timeoutHandle);
+				timeoutHandle = null;
 			}
 		}
 	};

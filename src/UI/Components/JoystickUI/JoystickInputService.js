@@ -21,13 +21,19 @@ define(function (require) {
 		AXIS_THRESHOLD: 0.5,
 
 		prepare: function () {
-			window.addEventListener('gamepadconnected', this._onConnect.bind(this));
-			window.addEventListener('gamepaddisconnected', this._onDisconnect.bind(this));
+			this._boundOnConnect = this._onConnect.bind(this);
+			this._boundOnDisconnect = this._onDisconnect.bind(this);
+
+			window.addEventListener('gamepadconnected', this._boundOnConnect);
+			window.addEventListener('gamepaddisconnected', this._boundOnDisconnect);
 		},
 
 		dispose: function () {
-			window.removeEventListener('gamepadconnected', this._onConnect);
-			window.removeEventListener('gamepaddisconnected', this._onDisconnect);
+			window.removeEventListener('gamepadconnected', this._boundOnConnect);
+			window.removeEventListener('gamepaddisconnected', this._boundOnDisconnect);
+
+			this.active = false;
+			this.buttonStates = {};
 		},
 
 		getStates: function (gp) {
@@ -59,33 +65,40 @@ define(function (require) {
 		update: function () {
 			var gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
 
-			var anyConnected = false;
-			var anyActivity = false;
-			if (gamepads.length) {
-				var states = this.getStates(gamepads[0]);
-				anyConnected = true;
-				if (!states) {
-					this.active = false;
-					return;
+			var activeGamepad = null;
+			for (var i = 0; i < gamepads.length; i++) {
+				if (gamepads[i]) {
+					activeGamepad = gamepads[i];
+					break;
 				}
-
-				var buttonsActive = ButtonInput.update(states.buttons);
-				var axisActive = AxisInput.update(states.axes);
-
-				if (buttonsActive || axisActive) {
-					anyActivity = true;
-				}
-
 			}
-			if (!anyConnected) {
+			if (!activeGamepad) {
+				if (this.active) {
+					this.active = false;
+					JoystickUIRenderer.hide();
+				}
+				return false;
+			}
+			var states = this.getStates(activeGamepad);
+
+			var anyActivity = false;
+
+			if (!states) {
 				this.active = false;
 				return;
 			}
 
+			var buttonsActive = ButtonInput.update(states.buttons);
+			var axisActive = AxisInput.update(states.axes);
+
+			if (buttonsActive || axisActive) {
+				anyActivity = true;
+			}
+
+
 			if (anyActivity && !this.active) {
 				JoystickUIRenderer.show();
 				this.active = true;
-				return;
 			}
 
 			if (!anyActivity && this.active && !hideTimeout) {
@@ -98,18 +111,19 @@ define(function (require) {
 						JoystickUIRenderer.hide();
 					}
 				}, 30000);
-				return;
-			}
-			if (!hideTimeout)
+			} else if (!hideTimeout)
 				this.active = true;
+			return true;
 		},
 
 		_onConnect: function () {
+			require('./JoystickModule').prepare();
 			this.active = true;
 			JoystickUIRenderer.show();
 		},
 
 		_onDisconnect: function () {
+			require('./JoystickModule').dispose();
 			this.active = false;
 			JoystickUIRenderer.hide();
 		}
