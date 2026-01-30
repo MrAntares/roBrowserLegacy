@@ -3,7 +3,6 @@ body { background-color:#d2afab; }
 #error {
 	color:white;
 	font-size:14px;
-	font-family:Arial, Helvetica, sans-serif;
 	background-repeat: no-repeat;
 	background-color: transparent;
 	background-position: 0px 90px;
@@ -35,7 +34,6 @@ body { background-color:#d2afab; }
 #error .trace {
 	background-color:#a78582;
 	border-radius:5px;
-	font-family:"Times New Roman", Times, serif;
 	line-height:18px;
 	padding-left:10px;
 	padding-top:5px;

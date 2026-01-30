@@ -336,8 +336,8 @@
 /* Joystick container -MicromeX */
 .joystick-container {
     position: absolute;
-    bottom: 5%; /* Adjusted for better fit */
-    left: 7%; /* Adjusted for better fit */
+    bottom: 7%; /* Adjusted for better fit */
+    left: 10%; /* Adjusted for better fit */
     width: 100px; /* Reduced size */
     height: 100px; /* Reduced size */
     z-index: 1000;

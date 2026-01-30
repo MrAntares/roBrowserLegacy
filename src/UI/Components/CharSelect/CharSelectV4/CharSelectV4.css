@@ -1,30 +1,44 @@
 #CharSelectV4 {
     position:absolute;
-    width:995px;
-    height:625px;
+    min-width:100%;
+    min-height:100%;
     z-index:100;
-    font-size: 11px;
+    top:0;
+    left:0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#CharSelectV4 .char_select_container {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     padding-top: 20px;
     padding-left: 5px;
-    top: 50% !important;
-    left: 50% !important;
-    margin: -322px 0 0 -500px !important;
+    font-size: 11px;
 }
 
 /** Box **/
 #CharSelectV4 .char_list {
-    width: 800px;
-    height: 625px;
-    float: left;
+    flex: 1;
+    max-width: 800px;
+    min-width: 157px;
+    height: 595px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-y: auto;
 }
 
 #CharSelectV4 .box_select { position:absolute; width:157px; height:159px; top:40px; margin-left:-5px; }
 #CharSelectV4 .char_canvas {
     width: 157px;
     height: 195px;
-    float: left;
     position: relative;
     z-index: 10;
 }
@@ -54,9 +68,9 @@
 
 /** Characters infos **/
 #CharSelectV4 .charinfo { 
-    height: 625px;
+    height: 585px;
+    max-height: 80vh;
     width: 185px;
-    float: left;
     background-repeat: no-repeat;
     margin-top: 10px;
     margin-left: 10px;
@@ -73,8 +87,8 @@
 #CharSelectV4 .charinfo .exp  { left: 60px; top:140px; }
 #CharSelectV4 .charinfo .hp   { left: 60px; top:157px; }
 #CharSelectV4 .charinfo .sp   { left: 60px; top:174px; }
-#CharSelectV4 .charinfo .map  { left: 60px; top:89px; width:238px; }
-#CharSelectV4 .charinfo .str  { left:  60px; top: 191px; }
+#CharSelectV4 .charinfo .map  { left: 60px; top:89px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#CharSelectV4 .charinfo .str  { left:  60px; top:191px; }
 #CharSelectV4 .charinfo .agi  { left:  60px; top:208px; }
 #CharSelectV4 .charinfo .vit  { left:  60px; top:225px; }
 #CharSelectV4 .charinfo .int  { left:  60px; top:242px; }
