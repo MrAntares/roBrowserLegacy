@@ -48,7 +48,7 @@
 #NpcStore .expanded_currency_holder { height: 27px; width: 30px; position: relative; }
 #NpcStore .expanded_currency_icon { height: 24px; width: 24px; position: relative; left: 5px; }
 #NpcStore .expanded_currency_amount { position: relative; white-space: nowrap; font-size: 12px; top: -10px; left: 15px; text-align: left; text-shadow: -1px -1px white; }
-#NpcStore .expanded_currency_refinelvl { position: relative; white-space: nowrap; font-size: 12px; top: -43px; left: 12px; text-align: left; color: white; font-weight: 850; -webkit-text-stroke: 1px red; font-family: system-ui; }
+#NpcStore .expanded_currency_refinelvl { position: relative; white-space: nowrap; font-size: 12px; top: -43px; left: 12px; text-align: left; color: white; font-weight: 850; -webkit-text-stroke: 1px red; }
 #NpcStore .expanded_price { position: relative; top: -10px; left: 215px; white-space: nowrap; text-align: right; width: 80px; }
 #NpcStore .content .item .expanded_currency_nameOverlay { position: relative; visibility: hidden; opacity: 0; top:-17px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem; transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out; pointer-events: none; z-index: 10; }
 #NpcStore .content .item:hover .expanded_currency_nameOverlay { visibility: visible; opacity: 1; }
