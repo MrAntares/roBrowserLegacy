@@ -36,6 +36,7 @@ define(function (require) {
 					active = true;
 				}
 			}
+			if(active) require('./JoystickUIRenderer').show();
 
 			return active;
 		}

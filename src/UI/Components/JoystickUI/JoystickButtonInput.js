@@ -34,7 +34,7 @@ define(function (require) {
 
 			if (SelectionUI.active()) {
 				SelectionUI.handleGamepadInput(buttons);
-				return true;
+				return false;
 			}
 
 			var pressed = false;
@@ -62,35 +62,33 @@ define(function (require) {
 			var pressed = false;
 
 			if (ShortcutMapper.getGroup(btn) !== '')
-				return pressed;
+				return false;
 
 			// A → left click
 			if (btn[0] !== 'unpressed') {
-				Interaction.leftClick();
-				setClickLock();
+				Interaction.leftClick(btn[0] === 'holding');
 				pressed = true;
 			}
 
 			// B → right click
 			if (btn[1] !== 'unpressed') {
 				Interaction.rightClick(btn[1] === 'holding');
-				setClickLock();
 				pressed = true;
 			}
 
 			// X → attack
 			if (btn[2] !== 'unpressed') {
 				Interaction.attackTargeted();
-				setClickLock();
 				pressed = true;
 			}
 
 			// Y → pickup item
 			if (btn[3] !== 'unpressed') {
 				Interaction.pickUpItem();
-				setClickLock();
 				pressed = true;
 			}
+
+			if(pressed) setClickLock();
 
 			return pressed;
 		},
@@ -116,53 +114,45 @@ define(function (require) {
 			if (selectPressed) {
 				if (buttons[12] !== 'unpressed') { // D-pad Up
 					Interaction.cameraZoom(-2);
-					setClickLock();
 					pressed = true;
 				} else if (buttons[13] !== 'unpressed') { // D-pad Down
 					Interaction.cameraZoom(2);
-					setClickLock();
 					pressed = true;
 				} else if (buttons[14] !== 'unpressed') { // D-pad Left
 					Interaction.cameraAngle(-5);
-					setClickLock();
 					pressed = true;
 				} else if (buttons[15] !== 'unpressed') { // D-pad Right  
 					Interaction.cameraAngle(5);
-					setClickLock();
 					pressed = true;
 				} else if (buttons[9] !== 'unpressed') { // Start button    
 					Interaction.escape();
-					setClickLock();
 					pressed = true;
 				} else if (pressed = Interaction.showinfo()) {
-					setClickLock();
+
 				}
 
-				if (pressed) return pressed;
+				if (pressed){ setClickLock(); return pressed; }
 			}
 
 			// D-Pad
 			if (buttons[12] !== 'unpressed') { // D-pad Up    
 				Interaction.navigateDpad('up');
-				setClickLock();
 				pressed = true;
 			} else if (buttons[13] !== 'unpressed') { // D-pad Down        
 				Interaction.navigateDpad('down');
-				setClickLock();
 				pressed = true;
 			} else if (buttons[14] !== 'unpressed') { // D-pad Left      
 				Interaction.navigateDpad('left');
-				setClickLock();
 				pressed = true;
 			} else if (buttons[15] !== 'unpressed') { // D-pad Right      
 				Interaction.navigateDpad('right');
-				setClickLock();
 				pressed = true;
 			} else if (buttons[9] !== 'unpressed') { // Start button    
 				Interaction.enter();
-				setClickLock();
 				pressed = true;
 			}
+
+			if(pressed) setClickLock();
 
 			return pressed;
 		},

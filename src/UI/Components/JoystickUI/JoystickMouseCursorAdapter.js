@@ -92,25 +92,24 @@ define(function (require) {
 
 	function leftClick(click = false) {
 		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
-		var isCanvas = el && el.tagName.toLowerCase() === 'canvas';
-		if (!el || isCanvas) {
+		if (!el) {
 			handleWorldLeftClick();
 			return;
 		}
-
-		el.dispatchEvent(new MouseEvent('mousedown', {
+		var eventOptions = {
+			bubbles: true,
+			cancelable: true,
+			view: window,
+			clientX: Mouse.screen.x,
+			clientY: Mouse.screen.y,
 			which: 1
-		}));
+		};
+		el.dispatchEvent(new MouseEvent('mousedown',eventOptions));
 		setTimeout(function () {
-			el.dispatchEvent(new MouseEvent('mouseup', {
-				which: 1
-			}));
-			if (click) {
-				el.dispatchEvent(new MouseEvent('click', {
-					which: 1
-				}));
-			}
-		}, 100);
+			el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
+			if(click)
+				el.dispatchEvent(new MouseEvent('click', eventOptions));
+		}, 50);
 	}
 
 	function rightClick(holding = false) {

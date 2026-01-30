@@ -24,9 +24,7 @@ define(function (require) {
 		prepare: function () {},
 
 		dispose: function () {},
-
 		cancelQuick: false,
-
 		executeShortcut: function (index, group) {
 			var shortcut = ShortCut.getList()[index];
 			if (!shortcut) return;
@@ -109,12 +107,8 @@ define(function (require) {
 			return false;
 		},
 
-		leftClick: function () {
-			if (jQuery('#CharSelect, #CharSelectV2, #CharSelectV3, #CharSelectV4').is(':visible')) {
-				Cursor.leftClick(true);
-				return;
-			}
-			Cursor.leftClick();
+		leftClick: function (click) {
+			Cursor.leftClick(click);
 		},
 
 		rightClick: function (holding) {
