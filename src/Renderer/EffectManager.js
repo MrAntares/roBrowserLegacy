@@ -286,6 +286,15 @@ define(function (require) {
 		const count = keys.length;
 		let i, j, size, list, constructor;
 
+		// Calculate culling bounds
+		// Simple distance check from player
+		var center = [0,0,0];
+		if (Session.Entity && Session.Entity.position) {
+			center = Session.Entity.position;
+		}
+		var area_size = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var cullDistanceSq = area_size * area_size;
+
 		for (i = 0; i < count; ++i) {
 			list = _list[keys[i]];
 
@@ -306,19 +315,49 @@ define(function (require) {
 				constructor.beforeRender(gl, modelView, projection, fog, tick, null);
 
 				for (j = 0, size = list.length; j < size; ++j) {
-					var effect = list[j];
 					// Filter per-instance ordering against the pass flag
-					if (!!effect.renderBeforeEntities !== renderBeforeEntities) {
+					if (!!list[j].renderBeforeEntities !== renderBeforeEntities) {
 						continue;
 					}
 
-					if (!(effect.ready) && effect.needInit) {
-						effect.init(gl);
-						effect.needInit = false;
-					}
+					var effect = list[j];
+					var pos = effect._Params.Inst.position;
 
-					if (effect.ready) {
-						effect.render(gl, tick);
+					// Culling: If effect has position, check distance
+					// Some effects might track an entity, updating their position is usually done in render()
+					// so we might need to run a lightweight update if we cull rendering.
+					// However, most RO effects are static or simple.
+					if (pos) {
+						var distSq = (pos[0]-center[0])*(pos[0]-center[0]) + (pos[1]-center[1])*(pos[1]-center[1]);
+						if (distSq > cullDistanceSq) {
+							// Cull this effect (don't render), but we must check lifecycle
+							// Check if effect is finished
+							
+							// Simulate tick for removal
+							var shouldRemove = false;
+							if (effect._Params.Inst.duration > 0 && effect._Params.Inst.endTick > 0 && tick > effect._Params.Inst.endTick) {
+								shouldRemove = true;
+							}
+
+							if (shouldRemove) {
+								effect.needCleanUp = true;
+							} else {
+								// Check for repeat logic even if culled
+								size += repeatEffect(effect);
+								continue; // Skip rendering
+							}
+						}
+						else
+						{
+							if (!(effect.ready) && effect.needInit) {
+								effect.init(gl);
+								effect.needInit = false;
+							}
+
+							if (effect.ready) {
+								effect.render(gl, tick);
+							}
+						}
 					}
 
 					// Try repeating the effect.
