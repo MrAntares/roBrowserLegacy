@@ -516,6 +516,7 @@ define(function( require )
 			read:                 read,
 			setSocketFactory:     setSocketFactory,
 			defaultSocketFactory: defaultSocketFactory,
+			registerPacket:       registerPacket,
 			utils: {
 				longToIP: utilsLongToIP
 			}
