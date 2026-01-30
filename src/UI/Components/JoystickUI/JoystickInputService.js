@@ -85,7 +85,7 @@ define(function (require) {
 
 			if (!states) {
 				this.active = false;
-				return;
+				return false;
 			}
 
 			var buttonsActive = ButtonInput.update(states.buttons);
