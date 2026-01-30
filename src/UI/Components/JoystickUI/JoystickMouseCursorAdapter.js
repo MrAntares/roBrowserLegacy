@@ -311,7 +311,23 @@ define(function (require) {
 		}
 	}
 
+	function quickCastClick() {
+		setTimeout(function () {
+			jQuery(Renderer.canvas).trigger({
+				type: 'mousedown',
+				which: 1
+			});
+			setTimeout(function () {
+				jQuery(Renderer.canvas).trigger({
+					type: 'mouseup',
+					which: 1
+				});
+			}, 100);
+		}, 100);
+	}
+
 	return {
+		quickCastClick: quickCastClick,
 		moveMouseToEntity: moveMouseToEntity,
 		navigateDraggableItems: navigateDraggableItems,
 		contextMenu: contextMenu,

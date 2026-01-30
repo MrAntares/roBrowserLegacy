@@ -21,21 +21,6 @@ define(function (require) {
 	var SelectionUI = require('./JoystickSelectionUI');
 	var Renderer = require('Renderer/Renderer');
 
-	function QuickCastClick() {
-		setTimeout(function () {
-			jQuery(Renderer.canvas).trigger({
-				type: 'mousedown',
-				which: 1
-			});
-			setTimeout(function () {
-				jQuery(Renderer.canvas).trigger({
-					type: 'mouseup',
-					which: 1
-				});
-			}, 100);
-		}, 100);
-	}
-
 	return {
 		prepare: function () {},
 
@@ -63,7 +48,7 @@ define(function (require) {
 			});
 
 			if (ControlsSettings.joyQuick === 2)
-				QuickCastClick();
+				Cursor.quickCastClick();
 			else if (ControlsSettings.joyQuick === 1) {
 				this.cancelQuick = false;
 
@@ -74,7 +59,7 @@ define(function (require) {
 
 						var buttons = Input.buttonStates;
 						if (ShortcutMapper.getGroup(buttons) !== group) {
-							QuickCastClick();
+							Cursor.quickCastClick();
 						} else if (!this.cancelQuick)
 							waitforRelease();
 					}, 50);
