@@ -78,7 +78,7 @@ define(function (require) {
 		pkt.action = 7;
 		pkt.targetGID = entityFocus.GID;
 
-		if (count < 2) {
+		if (count < Player.attack_range + 1) {
 			Network.sendPacket(pkt);
 			return true;
 		}
