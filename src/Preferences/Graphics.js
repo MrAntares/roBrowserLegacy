@@ -56,6 +56,7 @@ define( ['Core/Preferences'], function( Preferences )
 
 		pixelPerfectSprites: false,
 
+
 		/**
 		 * Game Post-Processing
 		 */
