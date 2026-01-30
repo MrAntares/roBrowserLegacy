@@ -53,27 +53,25 @@ define(function (require) {
 		var item = ShortCut.getList()[shortcutIndex];
 
 		var $slot = ui.find('.slot').eq(joystickSlotIndex);
-		var $label = $slot.find('.key-label').detach();
+		var $icon = $slot.find('.icon');
+		var $img = $icon.find('.img');
+		var $amount = $icon.find('.amount');
 
-		$slot.empty().append($label);
-		$slot.find('.icon').remove();
-
-		if (!item || item.ID === 0) // Item cleanup
+		if (!item || item.ID === 0) {
+			$icon.hide();
+			$img.css('backgroundImage', 'none');
+			$amount.text('');
 			return;
+		}
 
-		var $icon = jQuery(
-			'<div class="icon">' +
-			'<div class="img"></div>' +
-			'<div class="amount"></div>' +
-			'</div>'
-		);
+		$icon.show();
+
 		if (item.isSkill && item.count) {
 			var skillInfo = require('DB/Skills/SkillInfo')[item.ID];
 			if (skillInfo) {
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + skillInfo.Name + '.bmp', function (url) {
-					$icon.find('.img').css('backgroundImage', 'url(' + url + ')');
-					$icon.find('.amount').text(item.count);
-					$slot.append($icon);
+					$img.css('backgroundImage', 'url(' + url + ')');
+					$amount.text(item.count);
 				});
 			}
 		} else {
@@ -91,9 +89,8 @@ define(function (require) {
 					count = 1;
 				}
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + fileName + '.bmp', function (url) {
-					$icon.find('.img').css('backgroundImage', 'url(' + url + ')');
-					$icon.find('.amount').text(count);
-					$slot.append($icon);
+					$img.css('backgroundImage', 'url(' + url + ')');
+					$amount.text(count);
 				});
 			}
 		}

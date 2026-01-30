@@ -19,7 +19,6 @@ define(function (require) {
 	var jQuery = require('Utils/jquery');
 	var ControlsSettings = require('Preferences/Controls');
 	var SelectionUI = require('./JoystickSelectionUI');
-	var Renderer = require('Renderer/Renderer');
 
 	return {
 		prepare: function () {},

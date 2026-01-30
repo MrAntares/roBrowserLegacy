@@ -256,8 +256,7 @@ define(function (require) {
 	};
 
 	JoystickSelectionUI.active = function () {
-		if(!this.ui) return false;
-		return this.ui.is(':visible');
+		return this.ui && this.ui.is(':visible');
 	};
 
 	return UIManager.addComponent(JoystickSelectionUI);
