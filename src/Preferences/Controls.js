@@ -19,7 +19,12 @@ define( ['Core/Preferences'], function( Preferences )
 		noctrl:  true,
 		noshift: false,
         	snap: false,
-        	itemsnap: false
+        	itemsnap: false,
+		/* Joystick */
+		attackTargetMode: 0,
+		joyQuick:         0,
+		joySense:      25.0
+
 	}, 1.0 );
 
 });

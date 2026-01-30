@@ -21,7 +21,7 @@ define(function(require)
 	var Preferences      = require('Core/Preferences');
 	var GraphicsSettings = require('Preferences/Graphics');
 	var Renderer         = require('Renderer/Renderer');
-	const MapRenderer		 = require('Renderer/MapRenderer');
+	const MapRenderer    = require('Renderer/MapRenderer');
 	var UIManager        = require('UI/UIManager');
 	var UIComponent      = require('UI/UIComponent');
 	var htmlText         = require('text!./GraphicsOption.html');

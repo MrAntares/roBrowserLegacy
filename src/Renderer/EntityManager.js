@@ -507,14 +507,13 @@ define(function (require) {
 		var closestEntity = false;
 		var distance      = Infinity;
 
-		// Optimization: Use simple distance check first before expensive pathfinding
 		_list.forEach((entity) => {
 			if (entity.GID !== sourceEntity.GID && entity.objecttype === type && entity.action !== entity.ACTION.DIE && entity.remove_tick === 0) {
 				
 				// Quick distance check (Manhattan or Euclidean)
 				var distSq = Math.pow(entity.position[0] - sourceEntity.position[0], 2) + Math.pow(entity.position[1] - sourceEntity.position[1], 2);
 				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
-				if (distSq > view_range) return; // Ignore entities > viewrange cells away
+				if (distSq > view_range * view_range) return;
 
 				var dst = Infinity;
 				if (closestEntity) {
@@ -537,6 +536,36 @@ define(function (require) {
 		});
 
 		return closestEntity;
+	}
+
+	/**
+	 * Returns the lowest HP entity to the source entity
+	 *
+	 * @param {entity} source entity
+	 * @param {type} entity type to look for
+	 */
+	function getLowestHpEntity(sourceEntity, type) {
+		var lowestHpEntity = null;
+		var lowestHp = Infinity;
+
+		_list.forEach((entity) => {
+			if (entity.GID !== sourceEntity.GID && entity.objecttype === type &&
+				entity.life &&
+				entity.life.hp > 0 && entity.action !== entity.ACTION.DIE && entity.remove_tick === 0) {
+
+				// Quick distance check (Manhattan or Euclidean)
+				var distSq = Math.pow(entity.position[0] - sourceEntity.position[0], 2) + Math.pow(entity.position[1] - sourceEntity.position[1], 2);
+				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+				if (distSq > view_range * view_range) return;
+
+				if (entity.life.hp < lowestHp) {
+					lowestHp = entity.life.hp;
+					lowestHpEntity = entity;
+				}
+			}
+		});
+		
+		return lowestHpEntity;
 	}
 
 	/**
@@ -571,6 +600,7 @@ define(function (require) {
 		setFocusEntity: setFocusEntity,
 
 		getClosestEntity: getClosestEntity,
+		getLowestHpEntity: getLowestHpEntity,
 
 		render: render,
 		intersect: intersect,

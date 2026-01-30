@@ -10,7 +10,7 @@
          
       </div>
       
-      <div class="tabs"><button class="t_skillbar selectedtab" data-index="t_skillbar">Skill Bar</button><button class="t_ui" data-index="t_ui">Interface</button><button class="t_macro" data-index="t_macro">Macros</button></div>
+      <div class="tabs"><button class="t_skillbar selectedtab" data-index="t_skillbar">Skill Bar</button><button class="t_ui" data-index="t_ui">Interface</button><button class="t_macro" data-index="t_macro">Macros</button><button class="t_gamepad" data-index="t_gamepad">Gamepad</button></div>
       <div class="panel">
          <div class="content t_skillbar selectedtab">
             <table border="1" cellspacing="0" bordercolor="#aaa">
@@ -278,7 +278,40 @@
                </tbody>
             </table>
          </div>
-		 
+         <div class="content t_gamepad">  
+             <table border="1" cellspacing="0" bordercolor="#aaa">  
+                 <tbody>  
+                     <tr>  
+                         <td>Attack Target Mode</td>  
+                         <td>  
+                             <select class="attackTargetMode">  
+                                 <option value="0">Off</option>  
+                                 <option value="1">Lowest HP</option>  
+                                 <option value="2">Closest</option>  
+                             </select>  
+                         </td>  
+                     </tr>  
+                     <tr>  
+                         <td>Quick-Cast Mode</td>  
+                         <td>  
+                                 <select class="joyQuick">  
+                                     <option value="0">Off</option>  
+                                     <option value="1">Release Mode</option>  
+                                     <option value="2">Instant Mode</option>  
+                                 </select>
+                         </td>  
+                     </tr>  
+                     <tr>  
+                         <td>R3 Mouse Move</td>  
+                         <td>  
+                             <label style="display: inline-block; width: 90px;">  
+                                 Sensitivity: <input class="joySense" type="range" value="25.0" min="1.0" max="100.0" step="1.0" style="width: 90%; vertical-align: middle;"/>  
+                             </label>  
+                         </td>  
+                     </tr>  
+                 </tbody>  
+             </table>  
+         </div>
 		<button class="button reset left" data-background="btn_reset.bmp" data-hover="btn_reset_a.bmp" data-down="btn_reset_b.bmp"></button>
 		<button class="button ok right" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
 		<button class="button cancel right" data-background="btn_cancel.bmp" data-hover="btn_cancel_a.bmp" data-down="btn_cancel_b.bmp"></button>

@@ -46,6 +46,7 @@ define(function( require )
 	var MapPreferences = require('Preferences/Map');
 	const glMatrix     = require('Utils/gl-matrix');
 	const PACKETVER    = require('Network/PacketVerManager');
+	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
 
 	var PostProcess    = require('Renderer/Effects/PostProcess');
 	var Bloom          = require('Renderer/Effects/Shaders/Bloom');
@@ -401,6 +402,7 @@ define(function( require )
 		EffectManager.init(gl);
 		ScreenEffectManager.init( gl, worldResource );
 		registerPostProcessModules( gl );
+		JoystickUI.onRestore();
 
 		// Starting to render
 		Background.remove(function(){

@@ -20,7 +20,8 @@ define(function (require) {
 	var BattleMode = require("Controls/BattleMode");
 	var htmlText = require("text!./ShortCutOption.html");
 	var cssText = require("text!./ShortCutOption.css");
-	
+	var Controls = require('Preferences/Controls');
+
 	var ShortCutOption = new UIComponent("ShortCutOption", htmlText, cssText);
 	
 	var ShortCuts = ShortCutControls.ShortCuts;
@@ -57,7 +58,12 @@ define(function (require) {
 				$("#ShortCutOption td.selected").removeClass("selected");
 			}
 		});
-		
+
+		// Joystick
+		this.ui.find('.attackTargetMode').change(onUpdateTargetOption);
+		this.ui.find('.joySense').change(onUpdateSense);
+		this.ui.find('.joyQuick').change(onUpdateJoyQuick);
+
 		this.ui.find(".button.reset").on("click", function(){ resetKeysToDefault(); });
 		this.ui.find(".button.ok").on("click", function(){ applySettings(); });
 		this.ui.find(".button.cancel").on("click", function(){ cancelSettings(); });
@@ -264,6 +270,24 @@ define(function (require) {
 		}
 	}
 	
+	// Joystick
+ 	function onUpdateTargetOption()
+	{
+		Controls.attackTargetMode = parseInt(this.value, 10);
+		Controls.save();
+	}
+
+	function onUpdateSense()
+	{
+		Controls.joySense = parseFloat(this.value, 10);
+		Controls.save();
+	}
+
+	function onUpdateJoyQuick()
+	{
+		Controls.joyQuick = parseInt(this.value, 10);
+		Controls.save();
+	}
 	
 	/**
 	 * Checks if there is a match in the temporary settings

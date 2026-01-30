@@ -30,6 +30,7 @@ define(function( require )
 	var Background = require('UI/Background');
 	var PincodeWindow = require('UI/Components/PincodeWindow/PincodeWindow');
 	var InputBox   = require('UI/Components/InputBox/InputBox');
+	var JoystickUI   = require('UI/Components/JoystickUI/JoystickUI');
 	var getModule  = require;
 	
 	// Version Dependent UIs
@@ -127,6 +128,7 @@ define(function( require )
 		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
 		Network.hookPacket( PACKET.HC.SECOND_PASSWD_LOGIN, 			 onPincodeCheckSuccess);
 		Network.hookPacket( PACKET.HC.DELETE_CHAR3_RESERVED,		 onRequestCharDel);
+		JoystickUI.onRestore();
 	}
 
 
