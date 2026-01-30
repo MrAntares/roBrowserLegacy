@@ -256,6 +256,7 @@ define(function (require) {
 	};
 
 	JoystickSelectionUI.active = function () {
+		if(!this.ui) return false;
 		return this.ui.is(':visible');
 	};
 
