@@ -2,7 +2,6 @@
  * UI/Components/JoystickUI/JoystickSelectionUI.js
  *
  * Handles the UI for selecting a shortcut slot when an item/skill is selected via Context Menu.
- * Maintains the exact logic of the original monolithic function.
  *
  */
 define(function (require) {
