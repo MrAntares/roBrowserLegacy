@@ -52,7 +52,10 @@ define(function(require)
 	var _rouletteInfo = {
 		step: 0,
 		idx: 0,
-		count: 0,
+		goldPoint: 0,
+		silverPoint: 0,
+		bronzePoint: 0,
+		additionItemID: 0,
 		items: []
 	};
 
@@ -230,8 +233,10 @@ define(function(require)
 		if (pkt) {
 			_rouletteInfo.step = pkt.step || 0;
 			_rouletteInfo.idx = pkt.idx || 0;
-			_rouletteInfo.count = pkt.count || 0;
-			_rouletteInfo.items = pkt.items || [];
+			_rouletteInfo.goldPoint = pkt.goldPoint || 0;
+			_rouletteInfo.silverPoint = pkt.silverPoint || 0;
+			_rouletteInfo.bronzePoint = pkt.bronzePoint || 0;
+			_rouletteInfo.additionItemID = pkt.additionItemID || 0;
 		}
 
 		Roulette.ui.show();
@@ -263,8 +268,23 @@ define(function(require)
 		}
 
 		// Send spin request packet to server
-		var pkt = new PACKET.CZ.REQ_ROULETTE_INFO();
+		var pkt = new PACKET.CZ.REQ_GENERATE_ROULETTE();
 		Network.sendPacket(pkt);
+	};
+
+
+	/**
+	 * Handle roulette item list response
+	 */
+	Roulette.onRouletteInfo = function onRouletteInfo(pkt)
+	{
+		if (pkt && pkt.items) {
+			_rouletteInfo.items = pkt.items;
+			_rouletteInfo.serial = pkt.serial;
+		}
+		
+		// Update wheel with new items
+		Roulette.generateWheelSlots();
 	};
 
 
@@ -320,7 +340,7 @@ define(function(require)
 
 			// Add item icon if available
 			if (items[i]) {
-				var itemId = items[i].item_id || items[i].ItemID;
+				var itemId = items[i].itemId || items[i].item_id || items[i].ItemID;
 				if (itemId) {
 					Client.loadFile(DB.INTERFACE_PATH + 'item/' + itemId + '.bmp', function(slot, data){
 						var icon = jQuery('<div class="item-icon"></div>');
@@ -378,7 +398,7 @@ define(function(require)
 
 		if (_rouletteInfo.items[resultIndex]) {
 			var item = _rouletteInfo.items[resultIndex];
-			var itemId = item.item_id || item.ItemID;
+			var itemId = item.itemId || item.item_id || item.ItemID;
 			
 			if (itemId) {
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + itemId + '.bmp', function(data){
@@ -400,6 +420,17 @@ define(function(require)
 
 		if (pkt.idx !== undefined) {
 			_rouletteInfo.idx = pkt.idx;
+		}
+
+		// Update points remaining
+		if (pkt.remainGold !== undefined) {
+			_rouletteInfo.goldPoint = pkt.remainGold;
+		}
+		if (pkt.remainSilver !== undefined) {
+			_rouletteInfo.silverPoint = pkt.remainSilver;
+		}
+		if (pkt.remainBronze !== undefined) {
+			_rouletteInfo.bronzePoint = pkt.remainBronze;
 		}
 
 		// Start spinning to the result

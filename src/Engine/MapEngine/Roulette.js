@@ -60,12 +60,14 @@ define(function (require) {
 	function onOpenRoulette(pkt) {
 		// pkt structure:
 		// {
-		//   result: number,  // 0 = success, other = fail
+		//   result: number,       // 0 = success, 1 = fail
 		//   serial: number,
 		//   step: number,
 		//   idx: number,
-		//   count: number,
-		//   items: array
+		//   additionItemID: number,
+		//   goldPoint: number,
+		//   silverPoint: number,
+		//   bronzePoint: number
 		// }
 		
 		// Server responded (standard rAthena implementation)
@@ -78,24 +80,42 @@ define(function (require) {
 
 
 	/**
-	 * Receive Roulette Info (GenerateInfo)
+	 * Receive Roulette Info (item list)
+	 * 
+	 * @param {object} pkt - PACKET.ZC.ACK_ROULETTE_INFO
+	 */
+	function onRouletteInfo(pkt) {
+		// pkt structure:
+		// {
+		//   serial: number,
+		//   items: [{row, position, itemId, count}, ...]
+		// }
+		
+		Roulette.onRouletteInfo(pkt);
+	}
+
+
+	/**
+	 * Receive Roulette Spin Result
 	 * 
 	 * @param {object} pkt - PACKET.ZC.ACK_GENERATE_ROULETTE
 	 */
 	function onGenerateRoulette(pkt) {
 		// pkt structure:
 		// {
-		//   result: number,  // 0 = success, other = fail  
+		//   result: number,       // 0 = success, other = fail
 		//   step: number,
 		//   idx: number,
-		//   count: number,
-		//   items: array
+		//   additionItemID: number,
+		//   remainGold: number,
+		//   remainSilver: number,
+		//   remainBronze: number
 		// }
 
-		if (!Roulette.ui.is(':visible')) {
-			Roulette.onOpen(pkt);
-		} else {
+		if (pkt.result === 0) {
 			Roulette.onResult(pkt);
+		} else {
+			console.error('Roulette spin failed:', pkt.result);
 		}
 	}
 
@@ -118,25 +138,12 @@ define(function (require) {
 
 
 	/**
-	 * Receive Roulette Open State
-	 * 
-	 * @param {object} pkt - PACKET.ZC.ROULETTE_OPEN_STATE
-	 */
-	function onRouletteOpenState(pkt) {
-		// pkt structure:
-		// {
-		//   open: number  // 0 = closed, 1 = open
-		// }
-	}
-
-
-	/**
 	 * Initialize
 	 */
 	return function RouletteEngine() {
 		Network.hookPacket(PACKET.ZC.ACK_OPEN_ROULETTE, onOpenRoulette);
+		Network.hookPacket(PACKET.ZC.ACK_ROULETTE_INFO, onRouletteInfo);
 		Network.hookPacket(PACKET.ZC.ACK_GENERATE_ROULETTE, onGenerateRoulette);
 		Network.hookPacket(PACKET.ZC.ACK_CLOSE_ROULETTE, onCloseRoulette);
-		Network.hookPacket(PACKET.ZC.ROULETTE_OPEN_STATE, onRouletteOpenState);
 	};
 });

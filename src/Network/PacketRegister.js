@@ -680,10 +680,10 @@ define(["./PacketStructure"], function (PACKET) {
 		0xa16: PACKET.CZ.DYNAMICNPC_CREATE_REQUEST, // ok
 		0xa17: PACKET.ZC.DYNAMICNPC_CREATE_RESULT, // ok
 		0xa18: PACKET.ZC.ACCEPT_ENTER3, // ok
-		0xa1a: PACKET.ZC.ACK_OPEN_ROULETTE, // Roulette
-		0xa1d: PACKET.ZC.ACK_GENERATE_ROULETTE, // Roulette
-		0xa1f: PACKET.ZC.ACK_CLOSE_ROULETTE, // Roulette
-		0xa20: PACKET.ZC.ROULETTE_OPEN_STATE, // Roulette
+		0xa1a: PACKET.ZC.ACK_OPEN_ROULETTE, // Roulette - open response
+		0xa1c: PACKET.ZC.ACK_ROULETTE_INFO, // Roulette - item list
+		0xa1e: PACKET.ZC.ACK_CLOSE_ROULETTE, // Roulette - close response
+		0xa20: PACKET.ZC.ACK_GENERATE_ROULETTE, // Roulette - spin result
 		0xa23: PACKET.ZC.ALL_ACH_LIST, // ?
 		0xa24: PACKET.ZC.ACH_UPDATE,
 		0xa25: PACKET.CZ.REQ_ACH_REWARD,
