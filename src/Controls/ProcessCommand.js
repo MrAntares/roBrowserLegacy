@@ -703,12 +703,12 @@ define(function (require) {
 			},
 		},
 		recall: {
-			description: "Sends a local broadcast message (needs account name).",
+			description: "Recall a player by account name.",
 			callback: function (text) {
-				var matches = text.match(/(^recall)\s+(.*)/);
-				if (matches) {
+				var matches = text.match(/^recall\s+(.*)/);
+				if (matches && matches[1]) {
 					var pkt = new PACKET.CZ.RECALL();
-					pkt.AccountName = matches[2];
+					pkt.AccountName = matches[1].trim();
 					Network.sendPacket(pkt);
 					return;
 				}
