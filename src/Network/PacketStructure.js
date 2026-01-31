@@ -15710,63 +15710,80 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		return pkt_buf;
 	};
 
-	// 0xA1B - ZC_ACK_OPEN_ROULETTE
+	// 0xA1A - ZC_ACK_OPEN_ROULETTE
 	PACKET.ZC.ACK_OPEN_ROULETTE = function PACKET_ZC_ACK_OPEN_ROULETTE(fp, end) {
-		this.result = fp.readUChar();
-		this.serial = fp.readULong();
-		this.step = fp.readUChar();
-		this.idx = fp.readUChar();
-		this.count = fp.readUShort();
-		this.items = (function() {
-			var i, count=8, out=new Array(count);
-			for (i = 0; i < count; ++i) {
-				out[i] = {};
-				out[i].item_id = fp.readUShort();
-				out[i].count = fp.readUShort();
-			}
-			return out;
-		})();
+		this.result = fp.readChar();        // 1 byte - Result (0 = success, 1 = failed)
+		this.serial = fp.readLong();        // 4 bytes - Serial
+		this.step = fp.readChar();          // 1 byte - Step
+		this.idx = fp.readChar();           // 1 byte - Idx
+		this.additionItemID = fp.readUShort(); // 2 bytes - AdditionItemID
+		this.goldPoint = fp.readLong();     // 4 bytes - Gold points
+		this.silverPoint = fp.readLong();   // 4 bytes - Silver points
+		this.bronzePoint = fp.readLong();   // 4 bytes - Bronze points
 	};
-	PACKET.ZC.ACK_OPEN_ROULETTE.size = 44;
+	PACKET.ZC.ACK_OPEN_ROULETTE.size = 23;
 
-	// 0xA1C - CZ_REQ_ROULETTE_INFO  
+	// 0xA1B - CZ_REQ_ROULETTE_INFO (request roulette item list)
 	PACKET.CZ.REQ_ROULETTE_INFO = function PACKET_CZ_REQ_ROULETTE_INFO() {};
 	PACKET.CZ.REQ_ROULETTE_INFO.prototype.build = function() {
 		var pkt_len = 2;
 		var pkt_buf = new BinaryWriter(pkt_len);
-		pkt_buf.writeShort(0x0a1c);
+		pkt_buf.writeShort(0x0a1b);
 		return pkt_buf;
 	};
 
-	// 0xA1D - ZC_ACK_GENERATE_ROULETTE (spin result)
-	PACKET.ZC.ACK_GENERATE_ROULETTE = function PACKET_ZC_ACK_GENERATE_ROULETTE(fp, end) {
-		this.result = fp.readUChar();
-		this.step = fp.readUChar();
-		this.idx = fp.readUChar();
-		this.count = fp.readUShort();
+	// 0xA1C - ZC_ACK_ROULETTE_INFO (roulette item list)
+	PACKET.ZC.ACK_ROULETTE_INFO = function PACKET_ZC_ACK_ROULETTE_INFO(fp, end) {
+		var size = fp.readUShort();         // 2 bytes - packet length
+		this.serial = fp.readULong();       // 4 bytes - RouletteSerial
+		this.items = [];
+		// Read items until end of packet (42 items max)
+		while (fp.tell() < end) {
+			var item = {};
+			item.row = fp.readUShort();       // 2 bytes
+			item.position = fp.readUShort();  // 2 bytes
+			item.itemId = fp.readUShort();    // 2 bytes
+			item.count = fp.readUShort();     // 2 bytes
+			this.items.push(item);
+		}
 	};
-	PACKET.ZC.ACK_GENERATE_ROULETTE.size = 7;
+	PACKET.ZC.ACK_ROULETTE_INFO.size = -1;
 
-	// 0xA1E - CZ_REQ_CLOSE_ROULETTE
+	// 0xA1D - CZ_REQ_CLOSE_ROULETTE
 	PACKET.CZ.REQ_CLOSE_ROULETTE = function PACKET_CZ_REQ_CLOSE_ROULETTE() {};
 	PACKET.CZ.REQ_CLOSE_ROULETTE.prototype.build = function() {
 		var pkt_len = 2;
 		var pkt_buf = new BinaryWriter(pkt_len);
-		pkt_buf.writeShort(0x0a1e);
+		pkt_buf.writeShort(0x0a1d);
 		return pkt_buf;
 	};
 
-	// 0xA1F - ZC_ACK_CLOSE_ROULETTE
+	// 0xA1E - ZC_ACK_CLOSE_ROULETTE
 	PACKET.ZC.ACK_CLOSE_ROULETTE = function PACKET_ZC_ACK_CLOSE_ROULETTE(fp, end) {
 		this.result = fp.readUChar();
 	};
 	PACKET.ZC.ACK_CLOSE_ROULETTE.size = 3;
 
-	// 0xA20 - ZC_ROULETTE_OPEN_STATE
-	PACKET.ZC.ROULETTE_OPEN_STATE = function PACKET_ZC_ROULETTE_OPEN_STATE(fp, end) {
-		this.open = fp.readUChar();
+	// 0xA1F - CZ_REQ_GENERATE_ROULETTE (spin request)
+	PACKET.CZ.REQ_GENERATE_ROULETTE = function PACKET_CZ_REQ_GENERATE_ROULETTE() {};
+	PACKET.CZ.REQ_GENERATE_ROULETTE.prototype.build = function() {
+		var pkt_len = 2;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a1f);
+		return pkt_buf;
 	};
-	PACKET.ZC.ROULETTE_OPEN_STATE.size = 3;
+
+	// 0xA20 - ZC_ACK_GENERATE_ROULETTE (spin result)
+	PACKET.ZC.ACK_GENERATE_ROULETTE = function PACKET_ZC_ACK_GENERATE_ROULETTE(fp, end) {
+		this.result = fp.readUChar();           // 1 byte - Result
+		this.step = fp.readUShort();            // 2 bytes - Step
+		this.idx = fp.readUShort();             // 2 bytes - Idx
+		this.additionItemID = fp.readUShort();  // 2 bytes - AdditionItemID
+		this.remainGold = fp.readLong();        // 4 bytes - RemainGold
+		this.remainSilver = fp.readLong();      // 4 bytes - RemainSilver
+		this.remainBronze = fp.readLong();      // 4 bytes - RemainBronze
+	};
+	PACKET.ZC.ACK_GENERATE_ROULETTE.size = 21;
 
 
 	/**
