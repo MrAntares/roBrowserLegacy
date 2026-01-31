@@ -19,10 +19,10 @@ define(function (require) {
 
 		if (ControlsSettings.attackTargetMode === 1) { // Lowest HP first
 			target = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_MOB);
-			if (!target) target = EntityManager.getLowestHpEntity(Player, EntityManager.TYPE_PC);
+			if (!target) target = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_PC);
 		}
-		if (!target) target = EntityManager.getClosestEntity(Player, EntityManager.TYPE_MOB);
-		if (!target) target = EntityManager.getClosestEntity(Player, EntityManager.TYPE_PC);
+		if (!target) target = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_MOB);
+		if (!target) target = EntityManager.getClosestEntity(Player, Player.constructor.TYPE_PC);
 
 		return target || Player;
 	}
