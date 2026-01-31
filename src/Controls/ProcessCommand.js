@@ -788,6 +788,19 @@ define(function (require) {
 			},
 			aliases: ["cmt"],
 		},
+		check: {
+			description: "Check stats of a player (GM command).",
+			callback: function (text) {
+				var matches = text.match(/^check\s+(")?([^"]+)(")?/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.REQ_STATUS_GM();
+					pkt.CharName = matches[2].trim();
+					Session.gmCheckTarget = pkt.CharName;
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
 		macro_register: {
 			description: "Open the interface to upload image to captcha system",
 			callback: function () {
