@@ -223,7 +223,7 @@ define(function (require) {
 				position: entity.position
 			};
 
-			if (PACKETVER.value < 20030715) {
+			if (PACKETVER.value < 20090922) {
 				EF_Init_Par.effectId = EffectConst.EF_ENTRY;
 				EffectManager.spam(EF_Init_Par);
 			} else {
