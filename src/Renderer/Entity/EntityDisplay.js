@@ -222,7 +222,13 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 
 		// Draw emblem
 		if (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
-			ctx.drawImage(this.emblem, 0, paddingTop);
+			if (this.emblem.isAnimated) {
+				var fw = this.emblem.frameWidth;
+				var fh = this.emblem.frameHeight;
+				ctx.drawImage(this.emblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
+			} else {
+				ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
+			}
 		}
 
 		// TODO: complete the color list in the Entity display
@@ -291,9 +297,41 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 * Rendering GUI
 	 */
 	Display.prototype.render = function (matrix) {
-		var canvas = this.canvas;
 		var z;
+		if (this.emblem && this.emblem.isAnimated) {
+			var paddingTop = 5;
+			var now = Date.now();
 
+			var currentFrameIndex = this.emblem.currentFrame || 0;
+			var frameDelay = this.emblem.frameDelays ? this.emblem.frameDelays[currentFrameIndex] : 100;
+
+			if (now - this.emblem.lastFrameChange >= frameDelay) {
+				this.emblem.lastFrameChange = now;
+                
+				var fw = this.emblem.frameWidth;
+				var fh = this.emblem.frameHeight;
+				var fpr = this.emblem.framesPerRow || Math.floor(this.emblem.width / fw);
+				var total = this.emblem.frameCount || (fpr * Math.floor(this.emblem.height / fh));
+
+				this.emblem.currentFrame = (this.emblem.currentFrame + 1) % total;
+
+				var col = this.emblem.currentFrame % fpr;
+				var row = Math.floor(this.emblem.currentFrame / fpr);
+
+				this.ctx.save();
+				this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+				this.ctx.clearRect(0, paddingTop * dpr, 24 * dpr, 24 * dpr);
+				this.ctx.restore();
+
+				this.ctx.drawImage(
+					this.emblem, 
+					col * fw, row * fh, fw, fh,
+					0, paddingTop, 24, 24
+				);
+			}
+		}
+
+		var canvas = this.canvas;
 		// Cast position
 		_pos[0] = 0.0;
 		_pos[1] = -0.5;
