@@ -100,11 +100,6 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 					var framesData = gif.get_frames();
 					var frameDelays = [];
 
-					for (var i = 0; i < frameCount; i++) {
-						var delay = (framesData[i] && framesData[i].delay) ? framesData[i].delay : 10;
-						frameDelays.push(delay * 10);
-					}
-
 					var fLineCount = Math.ceil(Math.sqrt(frameCount * frameWidth / frameHeight));
 					var spriteSheetWidth = fLineCount * frameWidth;
 					var spriteSheetHeight = Math.ceil(frameCount / fLineCount) * frameHeight;
@@ -117,6 +112,9 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 					});
 
 					for (var i = 0; i < frameCount; i++) {
+						var delay = (framesData[i] && framesData[i].delay) ? framesData[i].delay : 10;
+						frameDelays.push(delay * 10);
+
 						gif.move_to(i);
 						var frameCanvas = gif.get_canvas();
 						var row = Math.floor(i / fLineCount);
