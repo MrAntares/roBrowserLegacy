@@ -460,6 +460,15 @@ define(function( require )
 					main.lookTo( this.position[0], this.position[1] );
 
 					if(PACKETVER.value >= 20180307) {
+						pkt = new PACKET.CZ.CHANGE_DIRECTION2();
+					} else {
+						pkt = new PACKET.CZ.CHANGE_DIRECTION();
+					}
+					pkt.headDir = main.headDir;
+					pkt.dir     = main.direction;
+					Network.sendPacket(pkt);
+
+					if(PACKETVER.value >= 20180307) {
 						pkt        = new PACKET.CZ.REQUEST_ACT2();
 					} else {
 						pkt        = new PACKET.CZ.REQUEST_ACT();
