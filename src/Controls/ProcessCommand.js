@@ -678,6 +678,18 @@ define(function (require) {
 			},
 			aliases: ["mm"],
 		},
+		shift: {
+			description: "Warp to a character.",
+			callback: function (text) {
+				var matches = text.match(/^shift\s+(")?([^"]+)(")?/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.SHIFT();
+					pkt.CharacterName = matches[2].trim();
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
 		summon: {
 			description: "Recall a player at your position",
 			callback: function (text) {
