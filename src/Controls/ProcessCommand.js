@@ -27,6 +27,7 @@ define(function (require) {
 	const Renderer = require("Renderer/Renderer");
 	const Configs = require("Core/Configs");
 	const EffectConst = require("DB/Effects/EffectConst");
+	const StatusState = require("DB/Status/StatusState");
 	const getModule = require;
 
 	let aliases = {};
@@ -715,9 +716,11 @@ define(function (require) {
 			},
 		},
 		hide: {
-			description: "Enter in Perfect Hide.",
+			description: "Toggle Perfect Hide.",
 			callback: function () {
-				var pkt    = new PACKET.CZ.CHANGE_EFFECTSTATE();
+				// Server handles toggle state
+				var pkt = new PACKET.CZ.CHANGE_EFFECTSTATE();
+				pkt.EffectState = StatusState.EffectState.INVISIBLE;
 				Network.sendPacket(pkt);
 				return;
 			},
