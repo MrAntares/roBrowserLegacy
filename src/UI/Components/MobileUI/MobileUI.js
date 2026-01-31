@@ -669,27 +669,6 @@ define(function (require) {
 			clearInterval(movementTimer);
 			movementTimer = null;
 		}
-
-		// send packet to move Session.Entity to the current x and y cell
-		const player = Session.Entity;
-		if (!player) {
-			return;
-		}
-
-		let movePacket;
-
-		if (PACKETVER.value >= 20180307) {
-			movePacket = new PACKET.CZ.REQUEST_MOVE2(); // Use the newer packet structure
-		} else {
-			movePacket = new PACKET.CZ.REQUEST_MOVE(); // Use the older packet structure
-		}
-
-		// Set the destination for the move packet
-		movePacket.dest[0] = player.position[0];
-		movePacket.dest[1] = player.position[1];
-
-		// Send the packet to the server
-		Network.sendPacket(movePacket);
 	}
 
 	/**
