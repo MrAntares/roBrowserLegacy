@@ -27,6 +27,7 @@ define(function (require) {
 	const Renderer = require("Renderer/Renderer");
 	const Configs = require("Core/Configs");
 	const EffectConst = require("DB/Effects/EffectConst");
+	const StatusState = require("DB/Status/StatusState");
 	const getModule = require;
 
 	let aliases = {};
@@ -666,46 +667,60 @@ define(function (require) {
 		mapmove: {
 			description: "Move to map x y.",
 			callback: function (text) {
-				var matches = text.match(/(^mapmove|mm)\s+(\w+)\s+(\d+)\s+(\d+)/);
+				var matches = text.match(/(^mapmove|^mm)\s+([\w.]+)\s+(\d+)\s+(\d+)/);
 				if (matches) {
 					var pkt = new PACKET.CZ.MOVETO_MAP();
 					pkt.mapName = matches[2];
-					pkt.xPos = matches[3];
-					pkt.yPos = matches[4];
+					pkt.xPos = parseInt(matches[3], 10);
+					pkt.yPos = parseInt(matches[4], 10);
 					Network.sendPacket(pkt);
 					return;
 				}
 			},
 			aliases: ["mm"],
 		},
-		summon: {
-			description: "Recall a player at your position",
+		shift: {
+			description: "Warp to a character.",
 			callback: function (text) {
-				var matches = text.match(/(^summon)\s+(.*)/);
-				if (matches) {
-					var pkt = new PACKET.CZ.MOVETO_MAP();
-					pkt.CharacterName = matches[2];
+				var matches = text.match(/^shift\s+(")?([^"]+)(")?/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.SHIFT();
+					pkt.CharacterName = matches[2].trim();
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
+		},
+		summon: {
+			description: "Recall a player to your position.",
+			callback: function (text) {
+				var matches = text.match(/^summon\s+(")?([^"]+)(")?/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.RECALL_GID();
+					pkt.CharacterName = matches[2].trim();
 					Network.sendPacket(pkt);
 					return;
 				}
 			},
 		},
 		recall: {
-			description: "Sends a local broadcast message (needs account name).",
+			description: "Recall a player by account name.",
 			callback: function (text) {
-				var matches = text.match(/(^recall)\s+(.*)/);
-				if (matches) {
+				var matches = text.match(/^recall\s+(.*)/);
+				if (matches && matches[1]) {
 					var pkt = new PACKET.CZ.RECALL();
-					pkt.AccountName = matches[2];
+					pkt.AccountName = matches[1].trim();
 					Network.sendPacket(pkt);
 					return;
 				}
 			},
 		},
 		hide: {
-			description: "Enter in Perfect Hide.",
+			description: "Toggle Perfect Hide.",
 			callback: function () {
-				var pkt    = new PACKET.CZ.CHANGE_EFFECTSTATE();
+				// Server handles toggle state
+				var pkt = new PACKET.CZ.CHANGE_EFFECTSTATE();
+				pkt.EffectState = StatusState.EffectState.INVISIBLE;
 				Network.sendPacket(pkt);
 				return;
 			},
@@ -734,9 +749,9 @@ define(function (require) {
 			description: "Create Item or Monster (uses AEGIS name).",
 			callback: function (text) {
 				var matches = text.match(/(^item|^monster)\s+(")?([^"]+)(")?/);
-				if (matches && matches[2]) {
-					var pkt    = new PACKET.CZ.ITEM_CREATE();
-					pkt.itemName = matches[2];
+				if (matches && matches[3]) {
+					var pkt = new PACKET.CZ.ITEM_CREATE();
+					pkt.itemName = matches[3];
 					Network.sendPacket(pkt);
 					return;
 				}
@@ -787,6 +802,19 @@ define(function (require) {
 				}
 			},
 			aliases: ["cmt"],
+		},
+		check: {
+			description: "Check stats of a player (GM command).",
+			callback: function (text) {
+				var matches = text.match(/^check\s+(")?([^"]+)(")?/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.REQ_STATUS_GM();
+					pkt.CharName = matches[2].trim();
+					Session.gmCheckTarget = pkt.CharName;
+					Network.sendPacket(pkt);
+					return;
+				}
+			},
 		},
 		macro_register: {
 			description: "Open the interface to upload image to captcha system",
