@@ -252,12 +252,12 @@ define( function( require )
 			.stop()
 			.css( 'opacity', 0.01 )
 			.appendTo('body')
-			.animate({ opacity: 1.0 }, 500, function(){
+			.animate({ opacity: 1.0 }, 150, function(){
 				callback();
 
 				_overlay
 					.stop()
-					.animate({ opacity: 0.01 }, 500, function(){
+					.animate({ opacity: 0.01 }, 150, function(){
 						_overlay.remove();
 					});
 			});

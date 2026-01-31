@@ -438,11 +438,10 @@ define(function (require) {
 	 */
 	function autoTarget() {
 		var Player = Session.Entity;
-		var Entity = Player.constructor;
 
 		var entityFocus = EntityManager.getFocusEntity();
 
-		var closestEntity = EntityManager.getClosestEntity(Player, Entity.TYPE_MOB);
+		var closestEntity = EntityManager.getClosestEntity(Player, Session.Entity.constructor.TYPE_MOB);
 
 		if (closestEntity) {
 
@@ -534,7 +533,7 @@ define(function (require) {
 		}
 
 		// Find the nearest item
-		const closestItem = EntityManager.getClosestEntity(player, EntityManager.TYPE_ITEM);
+		const closestItem = EntityManager.getClosestEntity(player, Session.Entity.constructor.TYPE_ITEM);
 
 		if (!closestItem) {
 			return;
