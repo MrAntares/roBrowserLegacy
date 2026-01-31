@@ -149,7 +149,10 @@ define(function( require )
 		if (version <= emblem.version) {
 			EntityManager.forEach(function(entity){
 				if (entity.GUID === guild_id) {
-					entity.display.emblem = emblem.image;
+					if(emblem.display)
+						entity.display.emblem = emblem.display;
+					else
+						entity.display.emblem = emblem.image;
 					entity.emblem.update(); 
 					entity.display.refresh(entity);
 				}
@@ -176,34 +179,61 @@ define(function( require )
 
 			xhr.onload = function() {
 				if (xhr.status === 200) {
-					var img = new Image();
-					img.onload = function() {
-						emblem.version = version;
-						emblem.image = img;
-						
-						if (guild_id === GuildEngine.guild_id) {
-							Guild.setEmblem(img);
-						}
-						
-						while (emblem.callback.length) {
-							emblem.callback.shift().call(null, img);
-						}
-						
-						EntityManager.forEach(function(entity){
-							if (entity.GUID === guild_id) {
-								entity.display.emblem = img;
-								entity.emblem.update(); 
-								entity.display.refresh(entity);
+					var contentType = xhr.getResponseHeader('Content-Type');  
+					var isGif = contentType === 'image/gif';  
+					if(!isGif){
+						var img = new Image();
+						img.onload = function() {
+							emblem.version = version;
+							emblem.image = img;
+							emblem.display = null;
+							callback(emblem.image);
+							EntityManager.forEach(function(entity){
+								if (entity.GUID === guild_id) {
+									entity.display.emblem = img;
+									entity.emblem.update(); 
+									entity.display.refresh(entity);
+								}
+							});
+						};
+						img.decoding = 'async';
+						var blobUrl = URL.createObjectURL(xhr.response);  
+						// Load the emblem, remove magenta, free blob from memory
+						Texture.load(blobUrl, function(){
+							img.src = this.toDataURL();
+							URL.revokeObjectURL(blobUrl);  
+						});
+					}
+					else
+					{
+						Texture.processGifToSpriteSheet(xhr.response, function(sucess){
+							if(sucess){
+								var canvas = this;
+								var img = new Image();
+								img.onload = function() {
+									emblem.version = version;
+									emblem.image = img;
+									emblem.display = canvas;
+									callback(emblem.image);
+
+									EntityManager.forEach(function(entity){
+										if (entity.GUID === guild_id) {
+											entity.display.emblem = canvas;
+											entity.emblem.update(); 
+											entity.display.refresh(entity);
+										}
+									});
+								};
+								img.decoding = 'async';
+								var blobUrl = URL.createObjectURL(xhr.response);  
+								// Load the emblem as img, remove magenta, free blob from memory
+								Texture.load(blobUrl, function(){
+									img.src = this.toDataURL();
+									URL.revokeObjectURL(blobUrl);  
+								});
 							}
 						});
-					};
-					img.decoding = 'async';
-					var blobUrl = URL.createObjectURL(xhr.response);  
-					// Load the emblem, remove magenta, free blob from memory
-					Texture.load(blobUrl, function(){
-						img.src = this.toDataURL();
-						URL.revokeObjectURL(blobUrl);  
-					});
+					}
 				}      
 			}; // End xhr.onload
 
@@ -435,13 +465,21 @@ define(function( require )
 			if(PACKETVER.value >= 20170315){   
 				var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');  
 
+				function getFileType(data) {
+					// "GI" Magic Bytes check (same from src)
+					if (data.length >= 3 && data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46) {  
+						return { type: 'image/gif', imgType: 'GIF' };  
+					}  
+					return { type: 'image/bmp', imgType: 'BMP' };
+				}
+				var fileInfo = getFileType(data);
 				var formData = new FormData();      
 				formData.append('GDID', Session.Entity.GUID);      
 				formData.append('WorldName', Session.ServerName);
 				formData.append('AuthToken', Session.WebToken); 
 				formData.append('AID', Session.AID);
-				formData.append('Img', new Blob([data], { type: 'image/bmp' }));      
-				formData.append('ImgType', 'BMP');      
+				formData.append('Img', new Blob([data], { type: fileInfo.type }));
+				formData.append('ImgType', fileInfo.imgType);    
 
 				var xhr = new XMLHttpRequest();      
 				xhr.open('POST', webAddress + '/emblem/upload', true);  
