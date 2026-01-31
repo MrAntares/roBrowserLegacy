@@ -666,12 +666,12 @@ define(function (require) {
 		mapmove: {
 			description: "Move to map x y.",
 			callback: function (text) {
-				var matches = text.match(/(^mapmove|mm)\s+(\w+)\s+(\d+)\s+(\d+)/);
+				var matches = text.match(/(^mapmove|^mm)\s+([\w.]+)\s+(\d+)\s+(\d+)/);
 				if (matches) {
 					var pkt = new PACKET.CZ.MOVETO_MAP();
 					pkt.mapName = matches[2];
-					pkt.xPos = matches[3];
-					pkt.yPos = matches[4];
+					pkt.xPos = parseInt(matches[3], 10);
+					pkt.yPos = parseInt(matches[4], 10);
 					Network.sendPacket(pkt);
 					return;
 				}
