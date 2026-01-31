@@ -1,10 +1,3 @@
-@font-face {
-  font-family: 'SCDream4';
-  src: url('fonts/SCDream4.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 /* Avoid input focus border */
 :focus {
 	outline: none;
@@ -26,7 +19,7 @@ body {
 body {
 	background-color: black;
 	font-size: 12px;
-	font-family: 'SCDream4', Arial, Helvetica, sans-serif;
+	font-family: 'SCDream', Arial, Helvetica, sans-serif;
 	overflow: hidden;
 	-webkit-user-select: none;
 	user-select: none;
