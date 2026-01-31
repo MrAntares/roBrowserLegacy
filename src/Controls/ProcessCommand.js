@@ -691,12 +691,12 @@ define(function (require) {
 			},
 		},
 		summon: {
-			description: "Recall a player at your position",
+			description: "Recall a player to your position.",
 			callback: function (text) {
-				var matches = text.match(/(^summon)\s+(.*)/);
-				if (matches) {
-					var pkt = new PACKET.CZ.MOVETO_MAP();
-					pkt.CharacterName = matches[2];
+				var matches = text.match(/^summon\s+(")?([^"]+)(")?/);
+				if (matches && matches[2]) {
+					var pkt = new PACKET.CZ.RECALL_GID();
+					pkt.CharacterName = matches[2].trim();
 					Network.sendPacket(pkt);
 					return;
 				}
