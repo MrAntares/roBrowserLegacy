@@ -157,9 +157,7 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 		var ctx, imageData, data;
 		var count, i;
 
-		ctx = canvas.getContext('2d', {
-			willReadFrequently: true
-		});
+		ctx = canvas.getContext('2d');
 		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 		data = imageData.data;
 		count = data.length;
