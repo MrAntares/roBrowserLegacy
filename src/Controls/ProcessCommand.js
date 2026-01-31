@@ -749,9 +749,9 @@ define(function (require) {
 			description: "Create Item or Monster (uses AEGIS name).",
 			callback: function (text) {
 				var matches = text.match(/(^item|^monster)\s+(")?([^"]+)(")?/);
-				if (matches && matches[2]) {
-					var pkt    = new PACKET.CZ.ITEM_CREATE();
-					pkt.itemName = matches[2];
+				if (matches && matches[3]) {
+					var pkt = new PACKET.CZ.ITEM_CREATE();
+					pkt.itemName = matches[3];
 					Network.sendPacket(pkt);
 					return;
 				}
