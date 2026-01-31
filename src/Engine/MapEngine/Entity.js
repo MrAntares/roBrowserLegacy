@@ -214,9 +214,9 @@ define(function (require) {
 
 		if (entity.objecttype === Entity.TYPE_PC &&
 			!(entity._effectState & StatusState.EffectState.INVISIBLE) &&
-			(pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY3
-				|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY6
-				|| pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY8 || pkt instanceof PACKET.ZC.NOTIFY_STANDENTRY9)
+			(pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY2 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY3  
+				|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY4 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY5 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY6  
+				|| pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY7 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY10 || pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY11)
 		) {
 			var EF_Init_Par = {
 				ownerAID: entity.GID,
@@ -2528,15 +2528,15 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.NOTIFY_STANDENTRY6, onEntitySpam);
 		Network.hookPacket(PACKET.ZC.NOTIFY_NEWENTRY6, onEntitySpam);
 		Network.hookPacket(PACKET.ZC.NOTIFY_MOVEENTRY6, onEntitySpam);
-		Network.hookPacket(PACKET.ZC.NOTIFY_STANDENTRY7, onEntitySpam);
 		Network.hookPacket(PACKET.ZC.NOTIFY_NEWENTRY7, onEntitySpam);
-		Network.hookPacket(PACKET.ZC.NOTIFY_MOVEENTRY7, onEntitySpam);
-		Network.hookPacket(PACKET.ZC.NOTIFY_STANDENTRY8, onEntitySpam);
-		Network.hookPacket(PACKET.ZC.NOTIFY_NEWENTRY8, onEntitySpam);
 		Network.hookPacket(PACKET.ZC.NOTIFY_MOVEENTRY8, onEntitySpam);
 		Network.hookPacket(PACKET.ZC.NOTIFY_STANDENTRY9, onEntitySpam);
-		Network.hookPacket(PACKET.ZC.NOTIFY_NEWENTRY9, onEntitySpam);
-		Network.hookPacket(PACKET.ZC.NOTIFY_MOVEENTRY9, onEntitySpam);
+		Network.hookPacket(PACKET.ZC.NOTIFY_MOVEENTRY10, onEntitySpam);
+		Network.hookPacket(PACKET.ZC.NOTIFY_NEWENTRY10, onEntitySpam);
+		Network.hookPacket(PACKET.ZC.NOTIFY_STANDENTRY10, onEntitySpam);
+		Network.hookPacket(PACKET.ZC.NOTIFY_NEWENTRY11, onEntitySpam);
+		Network.hookPacket(PACKET.ZC.NOTIFY_MOVEENTRY11, onEntitySpam);
+		Network.hookPacket(PACKET.ZC.NOTIFY_STANDENTRY11, onEntitySpam);
 		Network.hookPacket(PACKET.ZC.NOTIFY_VANISH, onEntityVanish);
 		Network.hookPacket(PACKET.ZC.NOTIFY_MOVE, onEntityMove);
 		Network.hookPacket(PACKET.ZC.STOPMOVE, onEntityStopMove);
