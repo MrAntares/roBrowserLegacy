@@ -15,16 +15,14 @@ define(function (require) {
 
 	function getEntityInContext() {
 		var target = null;
-		var Player = Session.Entity;
-
 		if (ControlsSettings.attackTargetMode === 1) { // Lowest HP first
-			target = EntityManager.getLowestHpEntity(Player, Player.constructor.TYPE_MOB);
-			if (!target) target = EntityManager.getLowestHpEntity(Player, EntityManager.TYPE_PC);
+			target = EntityManager.getLowestHpEntity(Session.Entity, Session.Entity.constructor.TYPE_MOB);
+			if (!target) target = EntityManager.getLowestHpEntity(Session.Entity, Session.Entity.constructor.TYPE_PC);
 		}
-		if (!target) target = EntityManager.getClosestEntity(Player, EntityManager.TYPE_MOB);
-		if (!target) target = EntityManager.getClosestEntity(Player, EntityManager.TYPE_PC);
+		if (!target) target = EntityManager.getClosestEntity(Session.Entity, Session.Entity.constructor.TYPE_MOB);
+		if (!target) target = EntityManager.getClosestEntity(Session.Entity, Session.Entity.constructor.TYPE_PC);
 
-		return target || Player;
+		return target || Session.Entity;
 	}
 
 	function focusTarget(entity) {
