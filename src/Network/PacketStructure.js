@@ -8255,7 +8255,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.ySize = fp.readUChar();
 		this.clevel = fp.readShort();
 	};
-	PACKET.ZC.NOTIFY_MOVEENTRY3.size = 65;
+	PACKET.ZC.NOTIFY_MOVEENTRY3.size = 64;
 
 
 	// 0x22e
@@ -11169,7 +11169,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 
 	// 0x90f
-	PACKET.ZC.NOTIFY_STANDENTRY7 = function PACKET_ZC_NOTIFY_STANDENTRY7(fp, end) {
+	PACKET.ZC.NOTIFY_NEWENTRY7 = function PACKET_ZC_NOTIFY_NEWENTRY7(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.speed = fp.readShort();
@@ -11202,11 +11202,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.isBoss = fp.readUChar();
 		this.name = fp.readString(end - fp.tell());
 	};
-	PACKET.ZC.NOTIFY_STANDENTRY7.size = -1;
+	PACKET.ZC.NOTIFY_NEWENTRY7.size = -1;
 
 
 	// 0x914
-	PACKET.ZC.NOTIFY_MOVEENTRY7 = function PACKET_ZC_NOTIFY_MOVEENTRY7(fp, end) {
+	PACKET.ZC.NOTIFY_MOVEENTRY8 = function PACKET_ZC_NOTIFY_MOVEENTRY8(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.speed = fp.readShort();
@@ -11240,11 +11240,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.isBoss = fp.readUChar();
 		this.name = fp.readString(end - fp.tell());
 	};
-	PACKET.ZC.NOTIFY_MOVEENTRY7.size = -1;
+	PACKET.ZC.NOTIFY_MOVEENTRY8.size = -1;
 
 
 	// 0x915
-	PACKET.ZC.NOTIFY_NEWENTRY7 = function PACKET_ZC_NOTIFY_NEWENTRY7(fp, end) {
+	PACKET.ZC.NOTIFY_STANDENTRY9 = function PACKET_ZC_NOTIFY_STANDENTRY9(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.speed = fp.readShort();
@@ -11278,7 +11278,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.isBoss = fp.readUChar();
 		this.name = fp.readString(end - fp.tell());
 	};
-	PACKET.ZC.NOTIFY_NEWENTRY7.size = -1;
+	PACKET.ZC.NOTIFY_STANDENTRY9.size = -1;
 
 
 	// 0x977
@@ -11854,7 +11854,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.USE_SKILL2.size = 17;
 
 	// 0x9db
-	PACKET.ZC.NOTIFY_MOVEENTRY8 = function PACKET_ZC_NOTIFY_MOVEENTRY8(fp, end) {
+	PACKET.ZC.NOTIFY_MOVEENTRY10 = function PACKET_ZC_NOTIFY_MOVEENTRY10(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.AID = fp.readULong();
@@ -11889,11 +11889,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.isBoss = fp.readUChar();
 		this.name = fp.readString(end-fp.tell());
 	};
-	PACKET.ZC.NOTIFY_MOVEENTRY8.size = -1;
+	PACKET.ZC.NOTIFY_MOVEENTRY10.size = -1;
 
 
 	// 0x9dc
-	PACKET.ZC.NOTIFY_STANDENTRY8 = function PACKET_ZC_NOTIFY_STANDENTRY8(fp, end) {
+	PACKET.ZC.NOTIFY_NEWENTRY10 = function PACKET_ZC_NOTIFY_NEWENTRY10(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.AID = fp.readULong();
@@ -11927,11 +11927,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.isBoss = fp.readUChar();
 		this.name = fp.readString(end - fp.tell());
 	};
-	PACKET.ZC.NOTIFY_STANDENTRY8.size = -1;
+	PACKET.ZC.NOTIFY_NEWENTRY10.size = -1;
 
 
 	// 0x9dd
-	PACKET.ZC.NOTIFY_NEWENTRY8 = function PACKET_ZC_NOTIFY_NEWENTRY8(fp, end) {
+	PACKET.ZC.NOTIFY_STANDENTRY10 = function PACKET_ZC_NOTIFY_STANDENTRY10(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.AID = fp.readULong();
@@ -11967,7 +11967,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.body = fp.readShort();
 		this.name = fp.readString(end - fp.tell());
 	};
-	PACKET.ZC.NOTIFY_NEWENTRY8.size = -1;
+	PACKET.ZC.NOTIFY_STANDENTRY10.size = -1;
 
 	// 0x9df
 	PACKET.ZC.ACK_WHISPER2 = function PACKET_ZC_ACK_WHISPER2(fp, end) {
@@ -12876,7 +12876,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.PET_EVOLUTION_RESULT.size = 6;
 
 	// 0x9fd
-	PACKET.ZC.NOTIFY_MOVEENTRY9 = function PACKET_ZC_NOTIFY_MOVEENTRY9(fp, end) {
+	PACKET.ZC.NOTIFY_MOVEENTRY11 = function PACKET_ZC_NOTIFY_MOVEENTRY11(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.AID = fp.readULong();
@@ -12913,11 +12913,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.body = fp.readUShort();
 		this.name = fp.readString(end-fp.tell());
 	};
-	PACKET.ZC.NOTIFY_MOVEENTRY9.size = -1;
+	PACKET.ZC.NOTIFY_MOVEENTRY11.size = -1;
 
 
 	// 0x9fe
-	PACKET.ZC.NOTIFY_STANDENTRY9 = function PACKET_ZC_NOTIFY_STANDENTRY9(fp, end) {
+	PACKET.ZC.NOTIFY_NEWENTRY11 = function PACKET_ZC_NOTIFY_NEWENTRY11(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.AID = fp.readULong();
@@ -12953,14 +12953,10 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.body = fp.readShort();
 		this.name = fp.readString(end - fp.tell());
 	};
-	PACKET.ZC.NOTIFY_STANDENTRY9.size = -1;
+	PACKET.ZC.NOTIFY_NEWENTRY11.size = -1;
 
-	//#elif PACKETVER < 20150513
-	//idle_unitType = 0x9dd,
-	//#else
-	//idle_unitType = 0x9ff,
 	// 0x9ff
-	PACKET.ZC.NOTIFY_NEWENTRY9 = function PACKET_ZC_NOTIFY_NEWENTRY9(fp, end) {
+	PACKET.ZC.NOTIFY_STANDENTRY11 = function PACKET_ZC_NOTIFY_STANDENTRY11(fp, end) {
 		this.objecttype = fp.readUChar();
 		this.GID = fp.readULong();
 		this.AID = fp.readULong();
@@ -12997,7 +12993,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.body = fp.readShort();
 		this.name = fp.readString(end - fp.tell());
 	};
-	PACKET.ZC.NOTIFY_NEWENTRY9.size = -1;
+	PACKET.ZC.NOTIFY_STANDENTRY11.size = -1;
 
 
 	// 0xa00
