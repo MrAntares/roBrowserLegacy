@@ -701,8 +701,8 @@ define(function(require)
 	 */
 	ChatBox.onAppend = function OnAppend()
 	{
-		// Focus the input
-		this.ui.find('.input-chatbox').focus();
+		this.ui.find('.input').hide();
+		this.ui.find('.battlemode').show();
 
 		var content = this.ui.find('.content.active');
 		content[0].scrollTop = content[0].scrollHeight;
@@ -977,9 +977,28 @@ define(function(require)
 					return true;
 				}
 
-				messageBox.focus();
-				this.submit();
-				break;
+				if (document.activeElement === messageBox[0]) {
+					this.submit();
+					event.stopImmediatePropagation();
+					return false;
+				}
+
+				var input = this.ui.find('.input');
+				if (!input.is(':visible')) {
+					input.show();
+					this.ui.find('.battlemode').hide();
+				}
+
+				var el = messageBox[0];
+				el.focus();
+				var range = document.createRange();
+				var sel = window.getSelection();
+				range.selectNodeContents(el);
+				range.collapse(false);
+				sel.removeAllRanges();
+				sel.addRange(range);
+				event.stopImmediatePropagation();
+				return false;
 		}
 
 		event.stopImmediatePropagation();
