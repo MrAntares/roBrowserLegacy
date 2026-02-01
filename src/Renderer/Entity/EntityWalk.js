@@ -523,41 +523,64 @@ define( function( require )
 	}
 
 	function entitiesWalkProcess() {
-		var player_entity;
-
-		if(this.walk.lastWalkTick + 200 > Renderer.tick) {
+		if(this.walk.lastWalkTick + 100 > Renderer.tick) {
 			return;
 		}
 
-		if(this.falcon) {
-			player_entity = this.falcon;
-		} else if(this.wug) {
-			player_entity = this.wug;
+		// Use owner's actual current position for smooth following
+		var ownerCellX = Math.round(this.position[0]);
+		var ownerCellY = Math.round(this.position[1]);
+
+		if(this.falcon && !this.falcon.isAttacking) {
+			let range = 1;
+			let distance = Math.floor(this.distance(this, this.falcon));
+
+			var falconBaseSpeed = this.walk.speed - 10;
+			this.falcon.walk.speed = Math.max(falconBaseSpeed - Math.min(distance * 2, 30), 1);
+
+			var targetChanged = (this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY);
+			var repathDue = targetChanged || this.falcon.walk.total == 0 || this.falcon.walk.total - this.falcon.walk.index <= 2;
+			if(distance >= range && (repathDue || (Renderer.tick - (this.falcon._followRepathTick || 0) > 400))) {
+				this.falcon._followTargetX = ownerCellX;
+				this.falcon._followTargetY = ownerCellY;
+				this.falcon._followRepathTick = Renderer.tick;
+				this.falcon.walkToNonWalkableGround(
+					this.falcon.position[0],
+					this.falcon.position[1],
+					ownerCellX,
+					ownerCellY,
+					range - 1,
+					false,
+					false
+				);
+			}
 		}
 
-		if(player_entity) {
-			if(player_entity.isAttacking)
-				return;
+		if(this.wug && !this.wug.isAttacking) {
+			let range = 3;
+			let distance = Math.floor(this.distance(this, this.wug));
 
-			let range = player_entity.objecttype == player_entity.constructor.TYPE_FALCON ? 1 : 4;
-			let distance = Math.floor(this.distance(this,player_entity));
+			var wugBaseSpeed = this.walk.speed - 10;
+			this.wug.walk.speed = Math.max(wugBaseSpeed - Math.min(distance * 2, 30), 1);
 
-			if(player_entity.objecttype == player_entity.constructor.TYPE_FALCON) {
-				if(distance > 5)
-					player_entity.walk.speed = this.walk.speed - 10;
-				else
-					player_entity.walk.speed = this.walk.speed + 5;
-			} else {
-				player_entity.walk.speed = this.walk.speed - 10;
-			}
-
-			if(distance >= range && (player_entity.walk.total == 0 || player_entity.walk.total - player_entity.walk.index <= 2)) { // 2 = last steps
-				if(this.walk.total)
-					player_entity.walkToNonWalkableGround( player_entity.position[0], player_entity.position[1], this.walk.path[this.walk.total-2], this.walk.path[this.walk.total-1], range-1, false, false); // wug always stay 3 cells away from owner
-				else
-					player_entity.walkToNonWalkableGround( player_entity.position[0], player_entity.position[1], Math.round(this.position[0]), Math.round(this.position[1]), range-1, false, false); // wug always stay 3 cells away from owner
+			var targetChanged = (this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY);
+			var repathDue = targetChanged || this.wug.walk.total == 0 || this.wug.walk.total - this.wug.walk.index <= 2;
+			if(distance >= range && (repathDue || (Renderer.tick - (this.wug._followRepathTick || 0) > 400))) {
+				this.wug._followTargetX = ownerCellX;
+				this.wug._followTargetY = ownerCellY;
+				this.wug._followRepathTick = Renderer.tick;
+				this.wug.walkToNonWalkableGround(
+					this.wug.position[0],
+					this.wug.position[1],
+					ownerCellX,
+					ownerCellY,
+					range - 1,
+					false,
+					false
+				);
 			}
 		}
+
 		this.walk.lastWalkTick = Renderer.tick;
 	}
 

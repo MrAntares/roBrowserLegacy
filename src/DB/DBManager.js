@@ -3670,12 +3670,16 @@ define(function (require) {
 			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
 		}
 
-		if (id == '4257_FALCON') { // 4th
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
+		if (id == '4056_WUG' || id == '4062_WUG' || id == '4098_WUG') { // 3rd
+			return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
 		}
 
-		if (id == 'WUG') {
-			return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+		if (id == '4257_FALCON' || id == '4270_FALCON' || id == '4278_FALCON') { // 4th
+			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_hawk';
+		}
+
+		if (id == '4257_WUG') { // 4th
+			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_wolf';
 		}
 
 		// MONSTER
