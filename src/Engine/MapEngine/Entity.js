@@ -140,7 +140,7 @@ define(function (require) {
 			EntityManager.add(entity);
 		}
 
-		if (pkt.effectState === StatusState.EffectState.FALCON && ([11, 4012, 4034, 4056, 4062, 4098, 4257].includes(pkt.job))) {
+		if (pkt.effectState & StatusState.EffectState.FALCON && ([11, 4012, 4034, 4056, 4062, 4098, 4257, 4270, 4278].includes(pkt.job))) {
 			if (!entity.falcon)
 				entity.falcon = new Entity();
 
@@ -156,14 +156,16 @@ define(function (require) {
 				hideShadow: true,
 			});
 			EntityManager.add(entity.falcon);
-		} else if (pkt.effectState === StatusState.EffectState.WUG) {
+		}
+		if (pkt.effectState & StatusState.EffectState.WUG) {
 			if (!entity.wug)
 				entity.wug = new Entity();
+
 			entity.wug.set({
 				objecttype: entity.wug.constructor.TYPE_WUG,
 				GID: entity.GID + '_WUG',
 				PosDir: [entity.position[0], entity.position[1], 0],
-				job: 'WUG',
+				job: entity.job + '_WUG',
 				speed: entity.walk.speed,
 				name: "",
 				hp: -1,
@@ -320,7 +322,8 @@ define(function (require) {
 					if (entity.falcon) {
 						entity.falcon.remove(pkt.type);
 						entity.falcon = null;
-					} else if (entity.wug) {
+					}
+					if (entity.wug) {
 						entity.wug.remove(pkt.type);
 						entity.wug = null;
 					}
@@ -330,7 +333,8 @@ define(function (require) {
 					if (entity.falcon) {
 						entity.falcon.remove(pkt.type);
 						entity.falcon = null;
-					} else if (entity.wug) {
+					}
+					if (entity.wug) {
 						entity.wug.remove(pkt.type);
 						entity.wug = null;
 					}
@@ -1158,10 +1162,11 @@ define(function (require) {
 						PosDir: [entity.position[0], entity.position[1], 0],
 						job: entity.job + '_FALCON',
 					});
-				} else if (entity.wug) {
+				}
+				if (entity.wug) {
 					entity.wug.set({
 						PosDir: [entity.position[0], entity.position[1], 0],
-						job: 'WUG',
+						job: entity.job + '_WUG',
 					});
 				}
 				break;
@@ -2195,7 +2200,7 @@ define(function (require) {
 				objecttype: entity.wug.constructor.TYPE_WUG,
 				GID: entity.GID + '_WUG',
 				PosDir: [entity.position[0], entity.position[1], 0],
-				job: 'WUG',
+				job: entity.job + '_WUG',
 				speed: entity.walk.speed,
 				name: "",
 				hp: -1,
