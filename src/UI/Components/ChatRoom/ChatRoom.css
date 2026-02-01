@@ -1,4 +1,4 @@
-#ChatRoom { position:absolute; top:50%; left:50%; font-size:12px; }
+#ChatRoom { position:absolute; top:50%; left:50%;  }
 #ChatRoom table { border-spacing:0px; display:inline-block; }
 
 #ChatRoom .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:4px 4px 0px 0px; }

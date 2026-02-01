@@ -1,4 +1,4 @@
-#CharSelectV3 { position:absolute; width:576px; height:358px; z-index:100; font-size: 11px; }
+#CharSelectV3 { position:absolute; width:576px; height:358px; z-index:100; }
 
 /** Box **/
 #CharSelectV3 .box_select {
@@ -107,7 +107,6 @@
     position: absolute;
     width: 90px;
     height: 13px;
-    font-size: 12px;
 }
 #CharSelectV3 .charinfo .name {
     left: 95px;

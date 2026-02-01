@@ -19,7 +19,7 @@ body {
 body {
 	background-color: black;
 	font-size: 12px;
-	font-family: 'SCDream', Arial, Helvetica, sans-serif;
+	font-family: 'SCDream', Arial;
 	overflow: hidden;
 	-webkit-user-select: none;
 	user-select: none;
@@ -42,7 +42,7 @@ button {
 	min-width: 52px;
 	padding: 0 10px;
 
-	font-size: 11px;
+	font-size: 12px;
 	line-height: 1;
 	color: #3f3f3f;
 	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.85);

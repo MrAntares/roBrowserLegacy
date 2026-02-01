@@ -118,7 +118,7 @@
 
 #LaphineSys .available_mat_list .item .amount {
     position: absolute;
-    font-size: 11px;
+
     top: 15px;
     left: 12px;
     text-align: right;
@@ -126,7 +126,6 @@
 }
 
 #LaphineSys .available_mat_list .name {
-    font-size: 12px;
     position: absolute;
     top: 0px;
     left: 30px;
@@ -190,7 +189,7 @@
 
 #LaphineSys .submitted_mat_list .item .amount {
     position: absolute;
-    font-size: 11px;
+
     top: 15px;
     left: 12px;
     text-align: right;

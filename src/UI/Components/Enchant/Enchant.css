@@ -4,7 +4,7 @@
 	left: 0;
 	width: 690px;
 	height: 470px;
-	font-size: 12px;
+	
 	color: #2d3a55;
 	box-sizing: border-box;
 	--enchant-scroll-up: none;
@@ -174,7 +174,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 
 #Enchant .item_list_empty {
 	padding: 10px;
-	font-size: 11px;
+	
 	color: #6b7893;
 	text-align: center;
 }
@@ -232,7 +232,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 }
 
 #Enchant .item_entry .item_name {
-	font-size: 12px;
+	
 	font-weight: bold;
 	white-space: nowrap;
 	overflow: hidden;
@@ -356,7 +356,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 11px;
+	
 	color: #6b7893;
 	pointer-events: none;
 }
@@ -464,7 +464,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 }
 
 #Enchant .enchant_entry .entry_name {
-	font-size: 11px;
+	
 	font-weight: bold;
 	white-space: nowrap;
 	overflow: hidden;
@@ -473,7 +473,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 }
 
 #Enchant .enchant_entry .entry_sub {
-	font-size: 10px;
+	
 	color: #6b7893;
 	white-space: nowrap;
 	overflow: hidden;
@@ -520,7 +520,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 	position: absolute;
 	right: 6px;
 	bottom: 6px;
-	font-size: 10px;
+	
 	color: #2d3a55;
 	text-shadow: 1px 1px 0 #ffffff;
 }
@@ -548,7 +548,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 #Enchant .zeny_cost {
 	width: 100%;
 	text-align: right;
-	font-size: 12px;
+	
 	font-weight: bold;
 	color: #2d3a55;
 }
@@ -587,7 +587,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 
 #Enchant .caution,
 #Enchant .status {
-	font-size: 11px;
+	
 	color: #b13b3b;
 	line-height: 1.2;
 }

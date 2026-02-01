@@ -1,4 +1,4 @@
-#basicinfo { position:absolute; top:0px; left:0px; width:220px; height:135px; font-size:11px; text-shadow:1px 1px white; }
+#basicinfo { position:absolute; top:0px; left:0px; width:220px; height:135px; text-shadow:1px 1px white; }
 #basicinfo.small .large { display:none; }
 #basicinfo.large .small { display:none; border-radius:5px; }
 #basicinfo.small { height:53px; }
@@ -18,7 +18,7 @@
 #basicinfo .large .hp_bar, #basicinfo .large .sp_bar { position:absolute; top:53px; left:35px; width:135px; height:8px; }
 #basicinfo .large .sp_bar { top:68px; }
 #basicinfo .large .hp_bar div, #basicinfo .large .sp_bar div { width:4px; height:8px; float:left; }
-#basicinfo .large div.hp_bar_perc, #basicinfo .large div.sp_bar_perc { text-align:center; width:127px; font-size:10px; position:absolute; top:-2px; }
+#basicinfo .large div.hp_bar_perc, #basicinfo .large div.sp_bar_perc { text-align:center; width:127px; position:absolute; top:-2px; }
 #basicinfo .large .hp_perc { position:absolute; top:50px; right:20px; }
 #basicinfo .large .sp_perc { position:absolute; top:65px; right:20px; }
 #basicinfo .large .blvl { position:absolute; top:86px; left:15px; }

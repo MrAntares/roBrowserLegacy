@@ -3,7 +3,7 @@
 .ItemCompare .event_view { position: absolute; }
 .ItemCompare .event_view .view { position:absolute; width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; border:none; top:6px; left:6px; }
 .ItemCompare .collection { position:absolute; top:11px; left:10px; width:75px; height:100px; background-repeat:no-repeat; background-color:transparent; }
-.ItemCompare .title { position:absolute; top:3px; left:86px; width:185px; height:14px; padding-left:4px; padding-top:6px; font-size:12px; text-shadow:1px 1px 0px white; white-space:nowrap; overflow: hidden; }
+.ItemCompare .title { position:absolute; top:3px; left:86px; width:185px; height:14px; padding-left:4px; padding-top:6px; text-shadow:1px 1px 0px white; white-space:nowrap; overflow: hidden; }
 .ItemCompare .close { position:absolute; top:3px; right:3px; width:11px; height:11px; display:block; background-repeat:no-repeat; background-color:transparent; border:none; }
 .ItemCompare .description { position:absolute; background-color: white; top:35px; left:100px; line-height:18px; width:170px; height:75px; overflow-y:auto;}
 .ItemCompare .description .description-inner { width: 150px }
@@ -19,8 +19,8 @@
 .ItemCompare .book_open { margin-top: 6px; margin-left: 7px;}
 .ItemCompare .book_read { position: absolute; margin-top: 7px;}
 
-.ItemCompare .overlay_open {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 7px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
-.ItemCompare .overlay_read {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 27px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
+.ItemCompare .overlay_open {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 7px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
+.ItemCompare .overlay_read {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 27px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
 
 .ItemCompare .optionlist { border-radius:5px; background-color: white; padding:2px; margin-top:3px; }
 .ItemCompare .optionlist .border { border:1px solid #c1c6c2; background-color: #c5ddf6; padding-top:2px; padding-left:5px; border-radius:5px; }

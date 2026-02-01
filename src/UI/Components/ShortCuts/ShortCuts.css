@@ -22,7 +22,7 @@
 #ShortCuts .panel {height:230px; background-color:white}
 #ShortCuts .footer { background-repeat:repeat-x; background-color:transparent; border-right:1px solid #ccc; border-left:1px solid #ccc; border-radius: 0px 0px 5px 5px;  position:absolute; bottom:4px; width:378px; height:25px; }
 #ShortCuts .emoticons {  position:absolute; width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; border:none;  right:4px; top: 10%; }
-#ShortCuts .macro {font-size: 10px; text-align: center; }
+#ShortCuts .macro { text-align: center; }
 
 #ShortCuts .macro_ { border:none; background-color:#e7e7e7; width:75%; height:15px; margin-left:5%; margin-top:5px; padding-left:5px; }
 

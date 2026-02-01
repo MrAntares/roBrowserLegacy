@@ -1,4 +1,4 @@
-#Guild { position:absolute; top:100px; left:100px; width:400px; height:317px; font-size:11px; }
+#Guild { position:absolute; top:100px; left:100px; width:400px; height:317px; }
 
 #Guild .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
 #Guild .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
@@ -87,7 +87,7 @@
 /*
  * Guild Members
  */
-#Guild .content.members table { border-spacing:0; border-collapse:collapse; font-size:11px; }
+#Guild .content.members table { border-spacing:0; border-collapse:collapse; }
 #Guild .content.members tbody tr { border-left: 1px solid #c2c2c2; border-right: 1px solid #c2c2c2;}
 #Guild .content.members td { border-bottom: 1px solid #c2c2c2; }
 #Guild .content.members tr.active td { background-color:#739eef!important; }
@@ -110,7 +110,7 @@
 /*
  * Guild Positions
  */
-#Guild .content.positions table { border-spacing:0; border-collapse:collapse; font-size:11px; }
+#Guild .content.positions table { border-spacing:0; border-collapse:collapse; }
 #Guild .content.positions tr.active { border:none; }
 #Guild .content.positions tr.active td { background-color:#739eef; }
 #Guild .content.positions th,
@@ -155,7 +155,7 @@
 /*
  * Guild History
  */
-#Guild .content.history table { border-spacing:0; border-collapse:collapse; font-size:11px; }
+#Guild .content.history table { border-spacing:0; border-collapse:collapse; }
 #Guild .content.history th,
 #Guild .content.history td { font-weight:normal; text-align:left; padding:5px 5px 0px 5px; border: 1px solid #c2c2c2; }
 #Guild .content.history .name { width:90px; }

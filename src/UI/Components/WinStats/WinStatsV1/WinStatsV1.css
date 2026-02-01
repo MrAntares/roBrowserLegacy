@@ -1,4 +1,4 @@
-#WinStatsV1 { position:absolute; width:280px; height:103px; background-color:transparent; background-repeat:no-repeat; font-size:11px; }
+#WinStatsV1 { position:absolute; width:280px; height:103px; background-color:transparent; background-repeat:no-repeat;  }
 #WinStatsV1 .group { position:absolute; top:6px; }
 #WinStatsV1 .group div { height:16px; display:block;}
 #WinStatsV1 .stats { left:37px; }

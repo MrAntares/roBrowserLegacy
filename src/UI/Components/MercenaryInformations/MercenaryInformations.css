@@ -35,7 +35,7 @@
 
 #MercenaryInformations .hp_bar { position:absolute; top:73px; left:118px; height:8px; }
 #MercenaryInformations .hp_bar div{ width:4px; height:8px; float:left; }
-#MercenaryInformations div.hp_bar_perc { text-align:center; width:80px; font-size:10px; position:absolute; top:-2px; }
+#MercenaryInformations div.hp_bar_perc { text-align:center; width:80px;  position:absolute; top:-2px; }
 #MercenaryInformations .hp_perc { position:absolute; top:50px; right:20px; }
 
 #MercenaryInformations .hp2          { position:absolute; top: 70px; left:210px; }
@@ -43,7 +43,7 @@
 
 #MercenaryInformations .sp_bar { position:absolute; top:88px; left:118px; height:8px; }
 #MercenaryInformations .sp_bar div{ width:4px; height:8px; float:left; }
-#MercenaryInformations div.sp_bar_perc { text-align:center; width:80px; font-size:10px; position:absolute; top:-2px; }
+#MercenaryInformations div.sp_bar_perc { text-align:center; width:80px;  position:absolute; top:-2px; }
 #MercenaryInformations .sp_perc { position:absolute; top:50px; right:20px; }
 
 #MercenaryInformations .block2                      {position:absolute; top: 105px; left:100px; width: 100px; height: 70px; }
