@@ -4949,6 +4949,9 @@ define(function (require) {
 	 * @return {string} map location
 	 */
 	DB.getMapName = function getMapName(mapname, defaultName) {
+		if (!mapname) {
+			return (typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName);
+		}
 		var map = mapname.replace('.gat', '.rsw');
 
 		if (!(map in MapTable) || !MapTable[map].name) {
