@@ -71,6 +71,20 @@ define(['./JobConst'], function( JobId )
 	AllMountTable[JobId.SOUL_REAPER]		= JobId.SOUL_REAPER2;
 	AllMountTable[JobId.STAR_EMPEROR]		= JobId.STAR_EMPEROR2;
 
+	AllMountTable[JobId.DRAGON_KNIGHT]		= JobId.DRAGON_KNIGHT_RIDING;
+	AllMountTable[JobId.MEISTER]			= JobId.MEISTER_RIDING;
+	AllMountTable[JobId.SHADOW_CROSS]		= JobId.SHADOW_CROSS_RIDING;
+	AllMountTable[JobId.ARCH_MAGE]			= JobId.ARCH_MAGE_RIDING;
+	AllMountTable[JobId.CARDINAL]			= JobId.CARDINAL_RIDING;
+	AllMountTable[JobId.WINDHAWK]			= JobId.WINDHAWK_RIDING;
+	AllMountTable[JobId.IMPERIAL_GUARD]		= JobId.IMPERIAL_GUARD_RIDING;
+	AllMountTable[JobId.BIOLO]				= JobId.BIOLO_RIDING;
+	AllMountTable[JobId.ABYSS_CHASER]		= JobId.ABYSS_CHASER_RIDING;
+	AllMountTable[JobId.ELEMENTAL_MASTER]	= JobId.ELEMENTAL_MASTER_RIDING;
+	AllMountTable[JobId.INQUISITOR]			= JobId.INQUISITOR_RIDING;
+	AllMountTable[JobId.TROUBADOUR]			= JobId.TROUBADOUR_RIDING;
+	AllMountTable[JobId.TROUVERE]			= JobId.TROUVERE_RIDING;
+
 	//REBIRTH
 	AllMountTable[JobId.NOVICE_H]			= JobId.PORING_NOVICE_H;
 

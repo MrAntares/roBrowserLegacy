@@ -46,5 +46,9 @@ define(['./JobConst'], function( JobId )
 	MountTable[JobId.MECHANIC_B]    = JobId.MECHANIC2_B;
 	MountTable[JobId.MECHANIC_2ND]  = JobId.MECHANIC2_2ND;
 
+	// 4th job
+	MountTable[JobId.WINDHAWK]      = JobId.WINDHAWK2;
+	MountTable[JobId.MEISTER]       = JobId.MEISTER2;
+
 	return MountTable;
 });
