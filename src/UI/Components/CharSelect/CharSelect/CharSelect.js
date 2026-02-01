@@ -463,7 +463,7 @@ define(function(require)
 		$charinfo.find('.exp').text( info.exp );
 		$charinfo.find('.hp').text( info.hp );
 		$charinfo.find('.sp').text( info.sp );
-		$charinfo.find('.map').text( DB.getMapName( (info.lastMap || '').replace('.gat','.rsw') ) );
+		$charinfo.find('.map').text( DB.getMapName(info.lastMap, '') || '' );
 		$charinfo.find('.str').text( info.Str );
 		$charinfo.find('.agi').text( info.Agi );
 		$charinfo.find('.vit').text( info.Vit );
