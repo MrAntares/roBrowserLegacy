@@ -617,7 +617,8 @@ define(function( require )
 					hideShadow: true,
 				});
 				EntityManager.add(Session.Entity.falcon);
-			} else if(Session.Entity.effectState & StatusConst.EffectState.WUG) {
+			}
+			if(Session.Entity.effectState & StatusConst.EffectState.WUG) {
 				if(!Session.Entity.wug)
 					Session.Entity.wug = new Entity();
 
@@ -625,7 +626,7 @@ define(function( require )
 					objecttype: Session.Entity.wug.constructor.TYPE_WUG,
 					GID: Session.Entity.GID + '_WUG',
 					PosDir: [Session.Entity.position[0], Session.Entity.position[1], 0],
-					job: 'WUG',
+					job: Session.Entity.job + '_WUG',
 					speed: Session.Entity.walk.speed,
 					name: "",
 					hp: -1,

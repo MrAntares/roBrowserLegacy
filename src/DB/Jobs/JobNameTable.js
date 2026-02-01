@@ -200,6 +200,19 @@ define(["./JobConst"], function( JobId )
 	JobNameTable[JobId.LION_CRUSADER_H]   = "\xbb\xe7\xc0\xda\xc6\xc8\xb6\xf3\xb5\xf2";
 	JobNameTable[JobId.DOG_STALKER]       = "\xc4\xcc\xba\xa3\xb7\xce\xbd\xba\xbd\xba\xc5\xe4\xc4\xbf";
 
+	JobNameTable[JobId.DRAGON_KNIGHT_RIDING]  	= "dragon_knight_riding";
+	JobNameTable[JobId.MEISTER_RIDING] 		 	= "meister_riding";
+	JobNameTable[JobId.SHADOW_CROSS_RIDING] 	= "shadow_cross_riding";
+	JobNameTable[JobId.ARCH_MAGE_RIDING] 		= "arch_mage_riding";
+	JobNameTable[JobId.CARDINAL_RIDING] 		= "cardinal_riding";
+	JobNameTable[JobId.WINDHAWK_RIDING] 		= "windhawk_riding";
+	JobNameTable[JobId.IMPERIAL_GUARD_RIDING] 	= "imperial_guard_riding";
+	JobNameTable[JobId.BIOLO_RIDING] 			= "biolo_riding";
+	JobNameTable[JobId.ABYSS_CHASER_RIDING] 	= "abyss_chaser_riding";
+	JobNameTable[JobId.ELEMENTAL_MASTER_RIDING] = "elemental_master_riding";
+	JobNameTable[JobId.INQUISITOR_RIDING] 		= "inquisitor_riding";
+	JobNameTable[JobId.TROUBADOUR_RIDING] 		= "troubadour_riding";
+	JobNameTable[JobId.TROUVERE_RIDING] 		= "trouvere_riding";
 
 
 
