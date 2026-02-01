@@ -32,6 +32,9 @@ define(function( require )
 	var EndureSound    = "player_metal.wav";
 	var dpr            = window.devicePixelRatio || 1;
 
+	var procCanvas = document.createElement('canvas');
+	var procCtx    = procCanvas.getContext('2d', { willReadFrequently: true });
+
 	var _skin = 0;
 	var _damageSkins = {  
 		0: { // DT_Default  
@@ -299,8 +302,6 @@ define(function( require )
 		var i, count, start_x, start_y;
 		var frame;
 
-		var canvas  = document.createElement('canvas');
-		var ctx     = canvas.getContext('2d');
 		var numbers;
 		var suffix = null;
 
@@ -440,18 +441,25 @@ define(function( require )
 		}
 
 		// Set canvas size (pow of 2 for webgl).
-		ctx.canvas.width  = WebGL.toPowerOfTwo( width ) * dpr;
-		ctx.canvas.height = WebGL.toPowerOfTwo( height ) * dpr;
+		var finalWidth  = WebGL.toPowerOfTwo( width ) * dpr;
+		var finalHeight = WebGL.toPowerOfTwo( height ) * dpr;
+
+		if (procCanvas.width !== finalWidth || procCanvas.height !== finalHeight) {
+			procCanvas.width  = finalWidth;
+			procCanvas.height = finalHeight;
+		} else {
+			procCtx.clearRect(0, 0, finalWidth, finalHeight);
+		}
 
 		// find where to start to get the image at the center
-		start_x = (ctx.canvas.width  - width ) >> 1;
-		start_y = (ctx.canvas.height - height) >> 1;
+		start_x = (finalWidth  - width ) >> 1;
+		start_y = (finalHeight - height) >> 1;
 
 		// build texture
 		width = 0;
 		for (i = 0, count = numbers.length; i < count; ++i) {
 			frame  = numbersData[ numbers[i] ];
-			ctx.drawImage(
+			procCtx.drawImage(
 				frame,
 				start_x + width,
 				start_y + ((height - frame.height) >> 1)
@@ -463,7 +471,7 @@ define(function( require )
 
 		var enableMipmap = Configs.get('enableMipmap');
 		gl.bindTexture( gl.TEXTURE_2D, texture );
-		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
+		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas );
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		if(enableMipmap) {
@@ -471,8 +479,8 @@ define(function( require )
 		}
 
 		obj.texture  = texture;
-		obj.width    = canvas.width;
-		obj.height   = canvas.height;
+		obj.width    = finalWidth;
+		obj.height   = finalHeight;
 		obj.isDisposable = true;
 
 		var hitSound;

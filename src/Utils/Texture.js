@@ -66,7 +66,7 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 			}
 
 			var canvas = document.createElement('canvas');
-			var ctx = canvas.getContext('2d');
+			var ctx = canvas.getContext('2d', { willReadFrequently: true });
 
 			canvas.width = this.width;
 			canvas.height = this.height;

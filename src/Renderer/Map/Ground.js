@@ -12,6 +12,9 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 {
 	'use strict';
 
+	var procCanvas = document.createElement('canvas');
+	var procCtx    = procCanvas.getContext('2d', { willReadFrequently: true });
+
 
 	/**
 	 * @var {WebGLProgram}
@@ -309,35 +312,34 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		}
 
 		var _width, _height, i, count;
-		var smooth, canvas, ctx, imageData, data;
 		var enableMipmap = Configs.get('enableMipmap');
 
-		// Build image
-		canvas        = document.createElement('canvas');
-		canvas.width  = width;
-		canvas.height = height;
-		ctx           = canvas.getContext('2d');
-		imageData     = ctx.createImageData(width, height);
-		data          = imageData.data;
+		if (procCanvas.width !== width || procCanvas.height !== height) {
+			procCanvas.width  = width;
+			procCanvas.height = height;
+		}
+
+		var imageData = procCtx.createImageData(width, height);
+		var data      = imageData.data;
 		count         = data.length;
 
 		// Set Image pixel
 		for (i = 0; i < count; ++i) {
 			data[i] = tilescolor[i];
 		}
-		ctx.putImageData( imageData, 0, 0 );
+		procCtx.putImageData( imageData, 0, 0 );
 
 		// Build Image with power of two texture * 2 (to smooth)
 		_width        = WebGL.toPowerOfTwo( width );
 		_height       = WebGL.toPowerOfTwo( height );
-		smooth        = document.createElement('canvas');
+		var smooth    = document.createElement('canvas');
 		smooth.width  = _width;
 		smooth.height = _height;
-		ctx           = smooth.getContext('2d');
+		var ctx       = smooth.getContext('2d');
 
 		ctx.fillStyle = 'black';
 		ctx.fillRect( 0, 0, _width, _height);
-		ctx.drawImage( canvas, 0, 0, _width, _height );
+		ctx.drawImage( procCanvas, 0, 0, _width, _height );
 		// Send texture to GPU
 		if (!_tileColor) {
 			_tileColor = gl.createTexture();
@@ -392,7 +394,6 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 	function initTextures( gl, textures )
 	{
 		var i, count, width, height, _width, loaded;
-		var canvas, ctx;
 
 		// Find texture size
 		count  = textures.length;
@@ -400,11 +401,12 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 		width  = WebGL.toPowerOfTwo( _width * 258 );
 		height = WebGL.toPowerOfTwo( Math.ceil(  Math.sqrt(count) ) * 258 );
 
-		// Create canvas where we put all textures
-		canvas        = document.createElement('canvas');
-		canvas.width  = width;
-		canvas.height = height;
-		ctx           = canvas.getContext('2d');
+		if (procCanvas.width !== width || procCanvas.height !== height) {
+			procCanvas.width  = width;
+			procCanvas.height = height;
+		}
+
+		procCtx.clearRect(0, 0, width, height);
 		loaded        = 0;
 
 
@@ -413,12 +415,12 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 			if (success) {
 				var x = (i % _width) * 258;
 				var y = Math.floor(i / _width) * 258;
-				ctx.drawImage( this, x + 0, y + 0, 258, 258 ); // generate border
-				ctx.drawImage( this, x + 1, y + 1, 256, 256 );
+				procCtx.drawImage( this, x + 0, y + 0, 258, 258 ); // generate border
+				procCtx.drawImage( this, x + 1, y + 1, 256, 256 );
 			}
 
 			if ((++loaded) === count) {
-				onTextureAtlasComplete(gl, canvas);
+				onTextureAtlasComplete(gl, procCanvas);
 			}
 		}
 

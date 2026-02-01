@@ -21,6 +21,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	var _size = new Float32Array(2);
 	var dpr = window.devicePixelRatio || 1;
 
+	var procCanvas = document.createElement('canvas');
+	var procCtx    = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	// Some helper for Firefox to render text-border
 	if (typeof CanvasRenderingContext2D !== 'undefined') {
@@ -54,52 +56,45 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 * http://forum.robrowser.com/index.php?topic=32200
 	 */
 	var _isUglyShadow = function isUglyGPUShadow() {
-		var canvas = document.createElement('canvas');
-		var ctx = canvas.getContext('2d');
 		var fontSize = 12 * dpr;
 		var text = 'Testing';
 		var width, height, percent;
 
 		// Create canvas
-		ctx.font = fontSize + 'px Arial';
-		width = ctx.measureText(text).width + 10;
-		height = fontSize * 3 * (text.length ? 2 : 1);
-		ctx.canvas.width = width;
-		ctx.canvas.height = height;
+		procCtx.font = fontSize + 'px Arial';
 
-		ctx.font = fontSize + 'px Arial';
-		ctx.textBaseline = 'top';
+		width = procCtx.measureText(text).width + 10;
+		height = fontSize * 3 * (text.length ? 2 : 1);
+
+		procCanvas.width = width;
+		procCanvas.height = height;
+
+		procCtx.font = fontSize + 'px Arial';
+		procCtx.textBaseline = 'top';
 
 		// Render text and shadows
-		function testShadow() {
-			multiShadow(ctx, text, 5, 0, 0, -1, 0);
-			multiShadow(ctx, text, 5, 0, 0, 1, 0);
-			multiShadow(ctx, text, 5, 0, -1, 0, 0);
-			multiShadow(ctx, text, 5, 0, 1, 0, 0);
-
-			ctx.fillStyle = 'white';
-			ctx.strokeStyle = 'black';
-			ctx.strokeText(text, 5, 0);
-			ctx.fillText(text, 5, 0);
-		}
+		multiShadow(procCtx, text, 5, 0, 0, -1, 0);
+		multiShadow(procCtx, text, 5, 0, 0, 1, 0);
+		multiShadow(procCtx, text, 5, 0, -1, 0, 0);
+		multiShadow(procCtx, text, 5, 0, 1, 0, 0);
+		procCtx.fillStyle = 'white';
+		procCtx.strokeStyle = 'black';
+		procCtx.strokeText(text, 5, 0);
+		procCtx.fillText(text, 5, 0);
 
 		// Read canvas pixels and get the average black
-		function getBlackPercent() {
-			var imageData = ctx.getImageData(0, 0, width, height);
-			var pixels = imageData.data;
-			var i, count = pixels.length;
-			var total = 0;
+		var imageData = procCtx.getImageData(0, 0, width, height);
+		var pixels = imageData.data;
+		var i, count = pixels.length;
+		var total = 0;
 
-			for (i = 0; i < count; i += 4) {
-				total += ((255 - pixels[i]) / 255) * pixels[i + 3];
-			}
-
-			return (total / (count / 4)) / 2.55;
+		for (i = 0; i < count; i += 4) {
+			total += ((255 - pixels[i]) / 255) * pixels[i + 3];
 		}
 
-		// Do tests
-		testShadow();
-		percent = getBlackPercent();
+		percent = (total / (count / 4)) / 2.55;
+
+		procCanvas.width = procCanvas.height = 0;
 
 		// 6.1% seems for the moment a good value
 		// to check if there is too much black.
