@@ -50,7 +50,6 @@
     left: 10px;
     height: 17px;
     line-height: 17px;
-    font-size: 12px;
     white-space: nowrap;
 	text-shadow: none;
 	color: #000000;
@@ -102,7 +101,6 @@
 }
 
 .Navigation .services-checkbox {
-    font-size: 10px;
     color: #000;
     display: flex;
     align-items: center;
@@ -119,7 +117,6 @@
     margin-right: 5px;
     border: 1px solid #ccc;
     background-color: #fff;
-    font-size: 10px;
     padding: 0 2px;
     cursor: pointer;
     width: 50px;
@@ -166,7 +163,6 @@
     border: none;
     background-color: transparent;
     padding: 0 5px;
-    font-size: 12px;
     z-index: 1;
 }
 
@@ -199,7 +195,6 @@
     height: 16px;
     line-height: 16px;
     text-align: center;
-    font-size: 12px;
     color: #000000;
     text-shadow: none;
     margin-bottom: 2px;
@@ -240,7 +235,6 @@
 
 .Navigation .map-name {
     font-weight: bold;
-    font-size: 11px;
     color: #000;
     flex: 1;
     white-space: nowrap;
@@ -252,7 +246,6 @@
 .Navigation .target-info {
     display: none; /* Hidden by default, shown via JavaScript when coordinates are available */
     align-items: center;
-    font-size: 10px;
     color: #000;
     margin-left: 8px;
     white-space: nowrap;
@@ -304,7 +297,6 @@
     padding: 10px;
     text-align: center;
     color: #666;
-    font-size: 12px;
 }
 
 .Navigation .results-list {
@@ -319,7 +311,6 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-size: 11px;
 }
 
 .Navigation .result-item:last-child {
@@ -333,7 +324,6 @@
 .Navigation .result-type {
     margin-right: 5px;
     font-weight: bold;
-    font-size: 10px;
     color: #666;
     width: 30px;
 }
@@ -355,6 +345,5 @@
 
 .Navigation .result-map {
     color: #666;
-    font-size: 9px;
     margin-left: 5px;
 }

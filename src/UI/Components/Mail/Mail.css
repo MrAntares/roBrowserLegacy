@@ -29,7 +29,7 @@
 }
 
 #Mail .flex {
-	display: flex;
+    display: flex;
 }
 
 #Mail .list_item_mail {
@@ -38,7 +38,7 @@
 }
 
 #Mail .flex_block {
-	display: block;
+    display: block;
 }
 
 #Mail .list_mail {
@@ -47,7 +47,6 @@
 
 #Mail .prev_next {
     color: #e4baa8;
-    font-size: 11px;
 }
 
 #Mail .prev {
@@ -107,7 +106,6 @@
     background-repeat: repeat-x;
     background-color: transparent;
     display: grid;
-    font-size: 12px;
 }
 #Mail .to_title button {
     float: left;
@@ -155,7 +153,6 @@
 #Mail .text_to_title{
     flex: 1;
     color: #cd9b77;
-    font-size: 12px;
     text-align:center;
 }
 #Mail .text_to{
@@ -168,7 +165,6 @@
 #Mail .text_title_create_mail{
     flex: 1;
     color: #cd9b77;
-    font-size: 12px;
     text-align:center;
 }
 #Mail .input_title{
@@ -212,7 +208,6 @@
     border: none;
     height: 13px;
     width: 64px;
-    font-size: 12px;
 }
 #Mail .input_add_item{
     background-color: #00800000;
@@ -284,13 +279,12 @@
     background-repeat: repeat-x;
     background-color: transparent;
     display: grid;
-    font-size: 10px;
     align-items: center;
 }
 
 #Mail .container_item .item { display:block; width:24px; height:24px; position:relative; float:left; }
 #Mail .container_item .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
-#Mail .container_item .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
+#Mail .container_item .item .amount { position:relative;  bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
 #Mail .container_item .overlay { pointer-events:none; position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
 #Mail .container_item .overlay.grey { pointer-events:none; color:#aaa; }
 

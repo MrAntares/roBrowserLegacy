@@ -127,7 +127,6 @@
 	left: 50%;
 	transform: translate(-50%, 0);
 	height: 11px;
-	font-size: 10px;
 	color: white;
 	font-weight: bold;
 	text-shadow: -1px -1px 0 #000,
@@ -150,7 +149,6 @@
 	left: 50%;
 	transform: translate(-50%, 0);
 	height: 10px;
-	font-size: 9px;
 	color: white;
 	text-shadow: -1px -1px 0 #000,
 		1px -1px 0 #000,
@@ -241,7 +239,6 @@
 	position: absolute;
 	bottom: 7px;
 	left: 10px;
-	font-size: 12px;
 	color: white;
 	text-shadow: -1px -1px 0 #000,
 		1px -1px 0 #000,
@@ -260,47 +257,46 @@
 }
 
 #WorldMap .showlvl {  
-    width: 10px;  
-    height: 12px;  
-    border: none;  
-    background-color: transparent;  
-    background-repeat: no-repeat;  
+	width: 10px;  
+	height: 12px;  
+	border: none;  
+	background-color: transparent;  
+	background-repeat: no-repeat;  
 }
 
 #WorldMap .worldmap .section .level-range-text {
-    display: none; 
-    position: absolute;
-    
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    
-    width: 100%;
-    text-align: center;
-    font-size: 10px;
-    font-weight: bold;
-    color: #FF0000;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	display: none; 
+	position: absolute;
+	
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	
+	width: 100%;
+	text-align: center;
+	font-weight: bold;
+	color: #FF0000;
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
 #WorldMap .worldmap.show-lvls .section .level-range-text {
-    display: block;
+	display: block;
 }
 
 #WorldMap .worldmap .section.is-dungeon {
-    background-color: rgba(255, 0, 0, 0.4) !important;
-    border: 1px solid rgba(255, 0, 0, 0.6) !important;
+	background-color: rgba(255, 0, 0, 0.4) !important;
+	border: 1px solid rgba(255, 0, 0, 0.6) !important;
 }
 
 #WorldMap .worldmap .section.is-dungeon-stacked {
-    background-color: transparent !important;
-    border: 1px solid rgba(255, 0, 0, 0.6) !important;
-    display: block !important;
+	background-color: transparent !important;
+	border: 1px solid rgba(255, 0, 0, 0.6) !important;
+	display: block !important;
 }
 
 #WorldMap .worldmap .connector-line {
-    position: absolute;
-    height: 1px;
-    background-color: rgba(255, 0, 0, 0.5);
-    pointer-events: none;
+	position: absolute;
+	height: 1px;
+	background-color: rgba(255, 0, 0, 0.5);
+	pointer-events: none;
 }

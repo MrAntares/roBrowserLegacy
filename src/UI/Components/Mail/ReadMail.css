@@ -37,12 +37,10 @@
 
 #ReadMail .text_title{
     color: #a5978c;
-    font-size: 10px;
     font-weight: 600;
 }
 #ReadMail .text_sender{
     color: #d8b091;
-    font-size: 10px;
 }
 #ReadMail .title{
     flex: 1;
@@ -160,7 +158,7 @@
 
 #ReadMail .container_item .item { display:block; width:24px; height:24px; position:relative; float:left; }
 #ReadMail .container_item .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
-#ReadMail .container_item .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
+#ReadMail .container_item .item .amount { position:relative; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
 
 #ReadMail .block_zeny_item{
     flex: 1;
@@ -174,7 +172,6 @@
     border: none;
     height: 13px;
     width: 64px;
-    font-size: 12px;
     margin-top: 21%;
 }
 #Mail .block_zeny{

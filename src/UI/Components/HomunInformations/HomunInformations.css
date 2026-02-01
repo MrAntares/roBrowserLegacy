@@ -1,4 +1,4 @@
-#HomunInformations { position:absolute; top:100px; left:100px; width:280px; height:190px; font-size:12px; background-color:white; border-radius:5px; }
+#HomunInformations { position:absolute; top:100px; left:100px; width:280px; height:190px;  background-color:white; border-radius:5px; }
 
 #HomunInformations .content { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
 #HomunInformations .content .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
@@ -39,7 +39,7 @@
 
 #HomunInformations .hp_bar { position:absolute; top:73px; left:118px; height:8px; }
 #HomunInformations .hp_bar div{ width:4px; height:8px; float:left; }
-#HomunInformations div.hp_bar_perc { text-align:center; width:80px; font-size:10px; position:absolute; top:-2px; }
+#HomunInformations div.hp_bar_perc { text-align:center; width:80px;  position:absolute; top:-2px; }
 #HomunInformations .hp_perc { position:absolute; top:50px; right:20px; }
 
 #HomunInformations .hp2          { position:absolute; top: 70px; left:220px; }
@@ -47,7 +47,7 @@
 
 #HomunInformations .sp_bar { position:absolute; top:88px; left:118px; height:8px; }
 #HomunInformations .sp_bar div{ width:4px; height:8px; float:left; }
-#HomunInformations div.sp_bar_perc { text-align:center; width:80px; font-size:10px; position:absolute; top:-2px; }
+#HomunInformations div.sp_bar_perc { text-align:center; width:80px;  position:absolute; top:-2px; }
 #HomunInformations .sp_perc { position:absolute; top:50px; right:20px; }
 
 #HomunInformations .block2                      {position:absolute; top: 105px; left:100px; width: 100px; height: 70px; }

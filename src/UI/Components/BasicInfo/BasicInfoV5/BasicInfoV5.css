@@ -1,4 +1,4 @@
-#BasicInfoV5 { position:absolute; top:0px; left:0px; width:220px; height:150px; font-size:11px; text-shadow:1px 1px white; }
+#BasicInfoV5 { position:absolute; top:0px; left:0px; width:220px; height:150px; text-shadow:1px 1px white; }
 #BasicInfoV5.small .large { display:none; }
 #BasicInfoV5.large .small { display:none; border-radius:5px; }
 #BasicInfoV5.small { height:70px; }
@@ -22,7 +22,7 @@
 #BasicInfoV5 .large .sp_bar { top:68px; }
 #BasicInfoV5 .large .ap_bar { top:83px; background: linear-gradient(to bottom, #5a5a63 0%, #a5a5ad 15%, #bdc6ce 30%, #CECED6 45%, #D6DEDE 65%, #e7e7ef 70%, #f7f7f7 80%); border-radius: 15px; border: 1px solid #b5b5b5; }
 #BasicInfoV5 .large .hp_bar div, #BasicInfoV5 .large .sp_bar div, #BasicInfoV5 .large .ap_bar div { width:4px; height:9px; float:left; }
-#BasicInfoV5 .large div.hp_bar_perc, #BasicInfoV5 .large div.sp_bar_perc, #BasicInfoV5 .large div.ap_bar_perc { text-align:center; width:127px; font-size:10px; position:absolute; top:-1px; }
+#BasicInfoV5 .large div.hp_bar_perc, #BasicInfoV5 .large div.sp_bar_perc, #BasicInfoV5 .large div.ap_bar_perc { text-align:center; width:127px; position:absolute; top:-1px; }
 #BasicInfoV5 .large .hp_perc { position:absolute; top:50px; right:20px; }
 #BasicInfoV5 .large .sp_perc { position:absolute; top:65px; right:20px; }
 #BasicInfoV5 .large .ap_perc { position:absolute; top:80px; right:20px; }
@@ -47,15 +47,15 @@
 #BasicInfoV5 .small .line2 { position:absolute; top:3px; left:10px; white-space:nowrap; }
 #BasicInfoV5 .small .line3 { position:absolute; top:20px; left:10px; white-space:nowrap; }
 #BasicInfoV5 .small .line3 .hp_max_value {
-    display: inline-block;
-    width: 65px; /* Set your desired width */
-    text-align: left; /* Align the text to the right within the span */
+  display: inline-block;
+  width: 65px; /* Set your desired width */
+  text-align: left; /* Align the text to the right within the span */
   }
 #BasicInfoV5 .small .line4 { position:absolute; top:35px; left:10px; white-space:nowrap; }
 #BasicInfoV5 .small .line4 .sp_max_value {
-    display: inline-block;
-    width: 73px; /* Set your desired width */
-    text-align: left; /* Align the text to the right within the span */
+  display: inline-block;
+  width: 73px; /* Set your desired width */
+  text-align: left; /* Align the text to the right within the span */
   }
 #BasicInfoV5 .toggle_btns {  border:none; background-repeat:no-repeat; }
 

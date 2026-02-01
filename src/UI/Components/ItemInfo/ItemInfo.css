@@ -3,7 +3,7 @@
 .ItemInfo .event_view { position: absolute; }
 .ItemInfo .event_view .view { position:absolute; width:42px; height:20px; background-repeat:no-repeat; background-color:transparent; border:none; top:6px; left:6px; }
 .ItemInfo .collection { position:absolute; top:11px; left:10px; width:75px; height:100px; background-repeat:no-repeat; background-color:transparent; }
-.ItemInfo .title { position:absolute; top:3px; left:86px; width:185px; height:14px; padding-left:4px; padding-top:6px; font-size:12px; text-shadow:1px 1px 0px white; white-space:nowrap; overflow: hidden; }
+.ItemInfo .title { position:absolute; top:3px; left:86px; width:185px; height:14px; padding-left:4px; padding-top:6px; text-shadow:1px 1px 0px white; white-space:nowrap; overflow: hidden; }
 .ItemInfo .close { position:absolute; top:3px; right:3px; width:11px; height:11px; display:block; background-repeat:no-repeat; background-color:transparent; border:none; }
 .ItemInfo .description { position:absolute; top:35px; left:100px; line-height:18px; width:170px; height:75px; overflow-y:auto;}
 .ItemInfo .description .description-inner { width: 150px }
@@ -19,8 +19,8 @@
 .ItemInfo .book_open { margin-top: 6px; margin-left: 7px;}
 .ItemInfo .book_read { position: absolute; margin-top: 7px;}
 
-.ItemInfo .overlay_open {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 7px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
-.ItemInfo .overlay_read {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 27px;font-size: 9px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
+.ItemInfo .overlay_open {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 7px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
+.ItemInfo .overlay_read {pointer-events:none; position: absolute;white-space: nowrap;z-index: 900;height: 13px;background: rgba(0, 0, 0, 0.5);color: white;text-shadow: black 1px 1px;top: -7px;left: 27px;text-align: center;padding: 3px 4px 1px 4px; display:none; }
 
 .ItemInfo .optionlist { border-radius:5px; background:white; padding:2px; margin-top:3px; }
 .ItemInfo .optionlist .border { border:1px solid #c1c6c2; padding-top:2px; padding-left:5px; border-radius:5px; }
@@ -52,7 +52,6 @@
     background: #e6e7ef;
     border: 2px solid #bdbdee;
     padding: 6px 8px;
-    font-size: 12px;
     color: #183984;
     white-space: nowrap;
     border-radius: 8px;
@@ -64,5 +63,4 @@
     height: 20px;
     background-repeat: no-repeat;
     background-color: transparent;
-    font-size: 11px;
 }

@@ -37,7 +37,7 @@
 #vending .content.available .item.selected { background-color:transparent; }
 
 #vending .content .item .icon { position:absolute; top:6px; left:4px; width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
-#vending .content .item .amount { position:absolute; white-space:nowrap; font-size:11px; top:18px; left:18px; text-align:left; text-shadow:-1px -1px white; }
+#vending .content .item .amount { position:absolute; white-space:nowrap; top:18px; left:18px; text-align:left; text-shadow:-1px -1px white; }
 #vending .content .item .amount_ { position:absolute; white-space:nowrap; top:13px; left:200px; text-align:left; text-shadow:-1px -1px white; }
 #vending .content .item .name { position:absolute; top:13px; left:32px; width:115px; white-space:nowrap; }
 #vending .content .item .price { position:absolute; top:13px; left:260px; white-space:nowrap; text-align:right; }

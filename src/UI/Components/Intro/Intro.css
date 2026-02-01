@@ -227,11 +227,11 @@
 #intro .about .desc { margin-left:10px; }
 #intro .about .info { margin-top:30px; }
 #intro .about .desc h1 { font-size:16px; }
-#intro .about .desc h2 { font-size:12px; font-weight:normal; }
-#intro .about .info td { font-size:12px; min-width:60px; }
+#intro .about .desc h2 {  font-weight:normal; }
+#intro .about .info td {  min-width:60px; }
 #intro .about .concept { font-size:14px; margin-top:30px; text-align:justify; line-height:20px; }
 
-#intro .settings { padding-left:150px; padding-right:150px; width:500px; font-size:10px; }
+#intro .settings { padding-left:150px; padding-right:150px; width:500px;  }
 #intro .settings h1 { font-size:20px; font-weight:normal; margin-top:20px;}
 #intro .settings p { margin-bottom:15px; }
 #intro .settings dd { margin-bottom:10px; }
@@ -241,7 +241,7 @@
 	cursor:pointer;
 	color:#66a1dd;
 	text-decoration:underline;
-	font-size:10px;
+	
 }
 #intro .settings .clientinfo:focus {
 	cursor:text;
@@ -304,7 +304,7 @@ input[type='radio']:checked::before {
 /** Server LIST **/
 #intro .serverlist {
 	border-collapse: collapse;
-	font-size:10px;
+	
 	width: 100%;
 }
 #intro .serverlist td {

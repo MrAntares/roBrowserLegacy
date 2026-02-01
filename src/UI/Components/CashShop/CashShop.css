@@ -2,7 +2,7 @@
     position:absolute; 
     top:100px; 
     left:100px; 
-    font-size:12px; 
+     
     border-radius:0px 0px 4px 4px;
     width: 800px;
     height: 530px;
@@ -43,10 +43,10 @@
     text-shadow: 1px 1px black;
 }
 #CashShop .overlay.grey { color:#aaa; }
-#CashShop .content .item .amount { position:relative; font-size:11px; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
+#CashShop .content .item .amount { position:relative; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
 
 #CashShop .footer { width:100%; height:27px; background-repeat:repeat-x; background-color:transparent; position:relative; border-right:1px solid #ccc; }
-#CashShop .footer .cnt { position:absolute; left:10px; bottom:6px; font-size:12px; }
+#CashShop .footer .cnt { position:absolute; left:10px; bottom:6px;  }
 #CashShop .footer button { position:absolute; right:0px; bottom:1px; width:13px; height:13px; border:none; background-repeat:no-repeat; background-color:transparent; }
 #CashShop div.panel {
     height: 513px;
@@ -102,7 +102,7 @@
 }
 #CashShop .inner-footer ul li {
     margin-right: 16px;
-    font-size: 10px;
+    
 }
 #CashShop .container-body .inner-body .items {
     width: 100%;
@@ -147,18 +147,18 @@
     color: #fff;
     font-weight: bold;
     border-radius: 4px 0px 0px 4px;
-    font-size: 10px;
+    
     line-height: 19px;
 }
 #CashShop .view-cash-point-2 {
     background: #ffffff;
     border: 1px solid #4d4d4d;
     border-radius: 0px 4px 4px 0px;
-    font-size: 10px;
+    
     padding: 4px;
 }
 #CashShop .cart-header-title {
-    font-size: 12px;
+    
     font-weight: bold;
     color: #000;
     margin-bottom: 5px;
@@ -209,7 +209,7 @@
 #CashShop .inner-item-dt .item-dt-desc {
     float: right;
     width: 103px;
-    font-size: 10px;
+    
     font-weight: bold;
     margin-top: 5px;
 }
@@ -228,7 +228,7 @@
 }
 #CashShop .item-desc-price span {
     color: #fff;
-    font-size: 10px;
+    
     line-height: 18px;
     margin-left: 6px;
 }
@@ -308,13 +308,12 @@
 #CashShop #cart-list .item-counter .item-cnt{
     top: 3px;
     left: 12px;
-    font-size: 9px;
     color: #6e6d6d;
 }
 #CashShop .container-cart-footer > table {
     width: 100%;
     padding: 4px 10px;
-    font-size: 11px;
+    
 }
 #CashShop .container-cart-footer > table tr td.txt {
     width: 60%;
@@ -357,14 +356,14 @@
     text-align: center;
     padding-top: 5px;
     font-weight: bold;
-    font-size: 11px;
+    
     color: #566e81;
     padding-bottom: 5px;
 }
 #CashShop .purchase-btn-container button{
     width: 100%;
     margin-top: 9px;
-    font-size: 11px;
+    
     padding-top: 3px;
     padding-bottom: 3px;
     background: rgb(225,255,255); /* Old browsers */
@@ -383,10 +382,10 @@
 
 }
 #CashShop .purchase-btn-container button:target{
-    font-size:10px;
+    font-size:12px;
 }
 #CashShop .purchase-btn-container button:active{
-    font-size:10px;
+    font-size:12px;
 }
 #CashShop #main-menu .menu .menu-icon{
     width: 17px;
@@ -420,7 +419,7 @@
     border-radius: 5px 0px 0px 5px;
     width: 300px;
     line-height: 18px;
-    font-size: 11px;
+    
     padding-left: 9px;
 }
 #CashShop .item-searcher button{

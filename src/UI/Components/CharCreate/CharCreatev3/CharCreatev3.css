@@ -8,7 +8,7 @@
 #charcreate_v3 .race_select .label { position:absolute; width:358px; height:138px; outline:none; background-repeat:no-repeat; }
 #charcreate_v3 .race_select .title { position:absolute; color:white; top:14px; left:34px; height:20px; width:45px; }
 #charcreate_v3 .race_select .desc { position:absolute; top:22px; left:90px; height:60px; width:248px; font-size:14px; line-height:20px; } 
-#charcreate_v3 .race_select .jobs { position:absolute; top:102px; left:120px; height:26px; width:226px; font-size:11px; } 
+#charcreate_v3 .race_select .jobs { position:absolute; top:102px; left:120px; height:26px; width:226px; } 
 #charcreate_v3 .race_select .chargen canvas { position:absolute; top:16px; left:16px; }
 
 #charcreate_v3 .race_select .human .label { top:32px; left:20px; }

@@ -1,4 +1,4 @@
-#BasicInfoV3 { position:absolute; top:0px; left:0px; width:220px; height:135px; font-size:11px; text-shadow:1px 1px white; }
+#BasicInfoV3 { position:absolute; top:0px; left:0px; width:220px; height:135px; text-shadow:1px 1px white; }
 #BasicInfoV3.small .large { display:none; }
 #BasicInfoV3.large .small { display:none; border-radius:5px; }
 #BasicInfoV3.small { height:53px; }
@@ -20,7 +20,7 @@
 #BasicInfoV3 .large .hp_bar, #BasicInfoV3 .large .sp_bar { position:absolute; top:53px; left:35px; width:135px; height:9px; }
 #BasicInfoV3 .large .sp_bar { top:68px; }
 #BasicInfoV3 .large .hp_bar div, #BasicInfoV3 .large .sp_bar div { width:4px; height:9px; float:left; }
-#BasicInfoV3 .large div.hp_bar_perc, #BasicInfoV3 .large div.sp_bar_perc { text-align:center; width:127px; font-size:10px; position:absolute; top:-1px; }
+#BasicInfoV3 .large div.hp_bar_perc, #BasicInfoV3 .large div.sp_bar_perc { text-align:center; width:127px; position:absolute; top:-1px; }
 #BasicInfoV3 .large .hp_perc { position:absolute; top:50px; right:20px; }
 #BasicInfoV3 .large .sp_perc { position:absolute; top:65px; right:20px; }
 #BasicInfoV3 .large .blvl { position:absolute; top:86px; left:15px; }
