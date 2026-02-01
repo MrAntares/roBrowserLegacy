@@ -245,6 +245,13 @@ define(function (require) {
 	var MsgEmotionCSV     = {};
 
 	/**
+	 * @var {Object} Hat Effect Tables
+	 */
+	var HatEffectID = {};
+	var HatEffectInfo = {};
+	var FootPrintEffectInfo = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -347,6 +354,11 @@ define(function (require) {
 				loadLuaValue(DB.LUA_PATH + 'navigation/navi_link_krpri.lub', 'Navi_Link', function (json) { NaviLinkTable = json; }, onLoad());
 				loadLuaValue(DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub', 'Navi_Distance', function (json) { NaviLinkDistanceTable = json; }, onLoad());
 				loadLuaValue(DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub', 'Navi_NpcDistance', function (json) { NaviNpcDistanceTable = json; }, onLoad());
+			}
+
+			// HatEffect
+			if (PACKETVER.value >= 20150507) {
+				loadHatEffectInfo();
 			}
 
 			// LaphineSys
@@ -2194,6 +2206,180 @@ define(function (require) {
 			}
 		);
 	}
+
+	/**
+	 * Loads lub files for Hateffects & Footprints
+	 */
+	function loadHatEffectInfo(onEnd) {
+		const basePath = DB.LUA_PATH + 'hateffectinfo/';
+		const idFile   = basePath + 'hateffectids.lub';
+		const infoFile = basePath + 'hateffectinfo.lub';
+
+		Client.loadFile(idFile, async function (idBuf) {
+			const ctx = lua.ctx;
+
+			ctx.MessageBox = function (msg) {
+				console.warn('[HatEffect] ' + msg);
+				return 1;
+			};
+
+			const decoder = new TextEncoding.TextDecoder(userCharpage);
+
+			function decodeLuaString(v) {
+				if (v == null) return null;
+				if (typeof v === 'string') return v;
+				if (v instanceof Uint8Array) return decoder.decode(v);
+				if (v instanceof ArrayBuffer) return decoder.decode(new Uint8Array(v));
+				return String(v);
+			}
+
+			ctx.__js_hat_effect_id = function (key, value) {
+				HatEffectID[decodeLuaString(key)] = Number(value);
+				return 1;
+			};
+
+			ctx.__js_hat_effect_info = function (id, info) {
+				id = Number(id);
+
+				HatEffectInfo[id] = {
+					resourceFileName: info.resourceFileName
+						? decodeLuaString(info.resourceFileName)
+						: null,
+
+					hatEffectID: info.hatEffectID ? Number(info.hatEffectID) : 0,
+					hatEffectPos: info.hatEffectPos || 0,
+					hatEffectPosX: info.hatEffectPosX || 0,
+
+					isAttachedHead: !!info.isAttachedHead,
+					isIgnoreRiding: !!info.isIgnoreRiding,
+					isRenderBeforeCharacter: !!info.isRenderBeforeCharacter,
+
+					isAdjustPositionWhenShrinkState: !!info.isAdjustPositionWhenShrinkState,
+					isAdjustSizeWhenShrinkState: !!info.isAdjustSizeWhenShrinkState,
+
+					footprint: !!info.footprint
+				};
+				return 1;
+			};
+
+			ctx.__js_footprint_effect_info = function (id, info) {
+				id = Number(id);
+
+				FootPrintEffectInfo[id] = {
+					type: info.Type || 0,
+
+					pngLeft: info.PngFile_Left
+						? decodeLuaString(info.PngFile_Left)
+						: null,
+					pngRight: info.PngFile_Right
+						? decodeLuaString(info.PngFile_Right)
+						: null,
+
+					strBottomLeft: info.StrFile_Bottom_Left
+						? decodeLuaString(info.StrFile_Bottom_Left)
+						: null,
+					strBottomRight: info.StrFile_Bottom_Right
+						? decodeLuaString(info.StrFile_Bottom_Right)
+						: null,
+
+					strTopLeft: info.StrFile_Top_Left
+						? decodeLuaString(info.StrFile_Top_Left)
+						: null,
+					strTopRight: info.StrFile_Top_Right
+						? decodeLuaString(info.StrFile_Top_Right)
+						: null,
+
+					scaleBottom: info.Scale_Bottom ?? 0,
+					scaleTop: info.Scale_Top ?? 0,
+					heightTop: info.Height_Top ?? 0,
+
+					stride: info.Stride ?? 50,
+					gap: info.Gap ?? 2,
+					isAdjustAngle: !!info.IsAdjustAngle
+				};
+
+				return 1;
+			};
+
+			try {
+				lua.mountFile('hateffectids.lub',
+					idBuf instanceof ArrayBuffer ? new Uint8Array(idBuf) : idBuf
+				);
+				await lua.doFile('hateffectids.lub');
+
+				lua.doStringSync(`
+					if HatEFID ~= nil then
+						for k, v in pairs(HatEFID) do
+							__js_hat_effect_id(k, v)
+						end
+					end
+				`);
+
+			} catch (e) {
+				console.error('[HatEffect] ID load error', e);
+				return;
+			} finally {
+				lua.unmountFile('hateffectids.lub');
+			}
+
+			// Load INFO file (AFTER IDs)
+			await new Promise((resolve) => {
+				Client.loadFile(infoFile, async function (infoBuf) {
+					try {
+						lua.mountFile('hateffectinfo.lub',
+							infoBuf instanceof ArrayBuffer ? new Uint8Array(infoBuf) : infoBuf
+						);
+						await lua.doFile('hateffectinfo.lub');
+
+						lua.doStringSync(`
+							if hatEffectTable ~= nil then
+								for id, info in pairs(hatEffectTable) do
+									__js_hat_effect_info(id, info)
+								end
+							end
+						`);
+
+					} catch (e) {
+						console.error('[HatEffect] Info load error', e);
+					} finally {
+						lua.unmountFile('hateffectinfo.lub');
+						resolve();
+					}
+				});
+			});
+
+			// Load FOOTPRINT file (AFTER Info)
+			await new Promise((resolve) => {
+				Client.loadFile(basePath + 'footprinteffectinfo.lub', async function (buf) {
+					try {
+						lua.mountFile(
+							'footprinteffectinfo.lub',
+							buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf
+						);
+
+						await lua.doFile('footprinteffectinfo.lub');
+
+						lua.doStringSync(`
+							if FootPrintEffectTable ~= nil then
+								for id, info in pairs(FootPrintEffectTable) do
+									__js_footprint_effect_info(id, info)
+								end
+							end
+						`);
+
+					} catch (e) {
+						console.error('[FootPrintEffect] load error', e);
+					} finally {
+						lua.unmountFile('footprinteffectinfo.lub');
+						resolve();
+					}
+				});
+			});
+
+			// All files loaded
+			onEnd && onEnd();
+		});
+	};
 
 	/**
 	 * Loads the System/Sign_Data_EN.lub to json object.
@@ -6259,6 +6445,15 @@ define(function (require) {
 	   */
 	  DB.getReputeData = function getReputeData(repute_id) {
 	    return ReputeInfo[repute_id] || null;
+	  };
+
+	  /**
+	   * Get a Hateffect Info by ID
+	   * @param {number} id - Hateffect ID
+	   * @returns {Object|null} Hateffect info or null if not found
+	   */
+	  DB.getHatResource = function getHatResource(id) {
+		return HatEffectInfo[id] || null;
 	  };
 
 	/**
