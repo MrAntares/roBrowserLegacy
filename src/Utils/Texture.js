@@ -19,6 +19,9 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 	 */
 	var Texture = {};
 
+	var procCanvas = document.createElement('canvas');
+	var procCtx    = procCanvas.getContext('2d', { willReadFrequently: true });
+	var procData   = null;
 
 	/**
 	 * Texture Constructor
@@ -63,7 +66,7 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 			}
 
 			var canvas = document.createElement('canvas');
-			var ctx = canvas.getContext('2d');
+			var ctx = canvas.getContext('2d', { willReadFrequently: true });
 
 			canvas.width = this.width;
 			canvas.height = this.height;
@@ -154,21 +157,27 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 	 * @param {HTMLElement} canvas
 	 */
 	Texture.removeMagenta = function removeMagenta(canvas) {
-		var ctx, imageData, data;
-		var count, i;
 
-		ctx = canvas.getContext('2d');
-		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-		data = imageData.data;
-		count = data.length;
+		var w = canvas.width;
+		var h = canvas.height;
 
-		for (i = 0; i < count; i += 4) {
-			if (data[i + 0] > 230 && data[i + 1] < 20 && data[i + 2] > 230) {
-				data[i + 0] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
-			}
+		if (procCanvas.width !== w || procCanvas.height !== h) {
+			procCanvas.width  = w;
+			procCanvas.height = h;
 		}
 
-		ctx.putImageData(imageData, 0, 0);
+		procCtx.drawImage(canvas, 0, 0);
+		var imageData = procCtx.getImageData(0, 0, w, h);
+		var data      = imageData.data;
+		var count     = data.length;
+
+		for (var i = 0; i < data.length; i += 4) {
+			if (data[i] > 230 && data[i+1] < 20 && data[i+2] > 230)
+				data[i] = data[i+1] = data[i+2] = data[i+3] = 0;
+		}
+
+		canvas.getContext('2d').putImageData(imageData, 0, 0);
+
 	};
 
 
