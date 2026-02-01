@@ -9,8 +9,9 @@
 
 #WriteRodex .body .sender { float:left; width:100%; height:25px; position:relative; display:flex; align-items:flex-end; }
 #WriteRodex .body .sender .name { margin-left:10px; font-weight:bold; color:darkblue; width: 135px; border: 1px solid gray; padding: 3px; border-radius: 0px;}
-#WriteRodex .body .sender .validate-name { position:absolute; top:5px; right:70px; width:70px; height:18px; }
-#WriteRodex .body .sender .baloon { position:absolute; top:5px; right:15px; display: none;}
+#WriteRodex .body .sender .validate-name { position:absolute; top:5px; right:70px; color:gray; width:70px; height:18px; }
+#WriteRodex .body .sender .baloon { position:absolute; top:5px; right:15px; color:red; width:130px; height:42px; display: none; 
+ }
 
 #WriteRodex .body .title { float:left; width:100%; height:25px; position:relative; display:flex; align-items:flex-end; }
 #WriteRodex .body .title .title-text { margin-left:10px; width: 135px; border: none;}

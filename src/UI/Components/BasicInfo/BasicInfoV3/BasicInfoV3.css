@@ -42,6 +42,6 @@
 #BasicInfoV3 .small .line3 { position:absolute; top:36px; left:10px; white-space:nowrap; }
 #BasicInfoV3 .toggle_btns {  border:none; background-repeat:no-repeat; }
 
-#BasicInfoV3 .buttons div .name { position: relative; display:none; z-index:1; top:-20px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; }
+#BasicInfoV3 .buttons div .name { position: relative; display:none; z-index:1; top:-20px; left:0px; background-color:rgba(0,0,0,0.6); text-shadow:1px 1px black; color:white; padding:5px; white-space:nowrap; font-size: 0.6rem; }
 #BasicInfoV3 .buttons div:hover .name { display:table; }
 #BasicInfoV3 .buttons div .name { display:none; }

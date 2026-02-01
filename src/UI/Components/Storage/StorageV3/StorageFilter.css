@@ -27,6 +27,7 @@
 #StorageFilter .content .item .icon { width:24px; height:24px; border:none; background-color:transparent; background-repeat:no-repeat; }
 #StorageFilter .overlay { position:absolute; display:none; white-space:nowrap; z-index:900; height:13px; padding:5px; background:rgba(0,0,0,0.7); color:white; text-shadow:1px 1px black;}
 #StorageFilter .overlay.grey { color:#aaa; }
+#StorageFilter .content .item .amount { position:relative; bottom:9px; right:0px; text-align:right; text-shadow:-1px -1px white; }
 #StorageFilter .content .name { position:absolute; top:7px; left:30px; width:160px; }
 
 #StorageFilter .footer {
