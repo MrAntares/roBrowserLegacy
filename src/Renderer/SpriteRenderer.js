@@ -597,9 +597,10 @@ function(      WebGL,         glMatrix,      Camera )
 	/**
 	 * Control depth writing state with caching to avoid redundant GL calls.
 	 *
-	 * @param {boolean} use depthTest enable
-	 * @param {boolean} use depthMask enable
-	 * @param {boolean} use disableDepthCorrection enable
+	 * @param {boolean} use depthTest enable.
+	 * @param {boolean} use depthMask enable.
+	 * @param {boolean} use disableDepthCorrection enable.
+	 * @param {function} execute function with this parameters before restore gl state.
 	 */
 	SpriteRenderer.setDepth = function setDepth(depthTest, depthMask, depthCorrection, fn)
 	{
