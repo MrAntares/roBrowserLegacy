@@ -35,7 +35,6 @@ define(function( require ) {
      */
     var mat4 = glMatrix.mat4;
 
-    var _lastTick = -1;
 
     var _rotationMatrices = (function(){
         var matrices = [];
@@ -248,13 +247,6 @@ define(function( require ) {
 
     SpiritSphere.prototype.render = function render( gl, tick )
     {
-	// Front-Back radius logic - remove it if z-depth is fixed to sprite
-        if (_lastTick !== tick) {
-            _lastTick = tick;
-            SpiritSphere._framePhase = 'back'; 
-        }
-
-
         var uniform = _program.uniform;
         
         gl.uniform3fv( uniform.uPosition,  this.position);
@@ -264,24 +256,10 @@ define(function( require ) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         
         gl.uniform1f( uniform.uCameraZoom, Camera.zoom );
-
-
-	// Front-Back radius logic - remove it if z-depth is fixed to sprite
-        var hcRad = Camera.angle[1] * Math.PI / 180;
-        var isBackPhase = (SpiritSphere._framePhase === 'front');
-
-
+        
         var _matrix;
         for (var i = this.num; i > 0; i--){
-
-	    // Front-Back radius logic - remove it if z-depth is fixed to sprite
-            var offset = (i * 2 * Math.PI / _rotationMatrices.length);
-            var rotRad = offset - (tick/64) / 180 * Math.PI;
-            var isBehind = Math.sin(rotRad + hcRad) > 0.891;
-            if (isBackPhase && !isBehind) continue; 
-            if (!isBackPhase && isBehind) continue;
-
-
+            
             _matrix = _rotationMatrices[i % _rotationMatrices.length];
             
             gl.uniformMatrix4fv( uniform.uTextureRotMat, false, _matrix.texMat);
@@ -347,12 +325,6 @@ define(function( require ) {
 
     SpiritSphere.afterRender = function afterRender(gl)
     {
-	// Front-Back radius logic - remove it if z-depth is fixed to sprite
-        if (SpiritSphere._framePhase === 'back') {
-            SpiritSphere._framePhase = 'front';
-        }
-
-
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.disableVertexAttribArray( _program.attribute.aPosition );
         gl.disableVertexAttribArray( _program.attribute.aTextureCoord );
