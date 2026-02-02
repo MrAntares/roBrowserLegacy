@@ -539,11 +539,6 @@ define(function( require )
 
 		// Init program
 		SpriteRenderer.bind3DContext( gl, modelView, projection, fog );
-		SpriteRenderer.disableDepthCorrection = true;
-
-		// Damage indicators should always be visible: render without depth test/writes.
-		gl.disable(gl.DEPTH_TEST);
-		SpriteRenderer.setDepthMask(false);
 
 		// Base parameters
 		SpriteRenderer.shadow    = 1.0;
@@ -688,13 +683,12 @@ define(function( require )
 
 			SpriteRenderer.color.set( damage.color );
 			SpriteRenderer.image.texture = damage.texture;
-			SpriteRenderer.render();
+			SpriteRenderer.setDepth(false, false, true, function(){
+				SpriteRenderer.render();
+			});
 		}
 
 		// Restore GL state
-		SpriteRenderer.setDepthMask(true);
-		gl.enable(gl.DEPTH_TEST);
-		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind( gl );
 	};
 

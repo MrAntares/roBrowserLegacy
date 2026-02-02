@@ -125,18 +125,15 @@ define(function(require) {
 		// Ensure the internal texture exists before drawing
 		_instance.createInternalTexture(gl);
 
-		gl.disable(gl.DEPTH_TEST);
-		gl.enable(gl.BLEND);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blending
 		
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-		SpriteRenderer.setDepthMask(false);
 
-		_instance.render(gl, tick);
+		SpriteRenderer.setDepth(false, false, true, function(){
+			_instance.render(gl, tick);
+		});
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.setDepthMask(true);
-		gl.enable(gl.DEPTH_TEST);
 		SpriteRenderer.unbind(gl);
 	};
 

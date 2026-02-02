@@ -102,9 +102,8 @@ define(function(require) {
 		} else {
 			_currentAlpha = progress;
 		}
-		gl.disable(gl.DEPTH_TEST);
+
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-		SpriteRenderer.setDepthMask(false);
 
 		SpriteRenderer.sprite = _filterFrame;
 		SpriteRenderer.image.texture = _filterFrame.texture;
@@ -120,10 +119,9 @@ define(function(require) {
 
 		SpriteRenderer.size[0] = 8000;
 		SpriteRenderer.size[1] = 8000;
-		SpriteRenderer.render(false);
-
-		gl.enable(gl.DEPTH_TEST);
-		SpriteRenderer.setDepthMask(true);
+		SpriteRenderer.setDepth(false, false, true, function(){
+			SpriteRenderer.render(false);
+		});
 	};
 
 	BlindEffect.setActive = function setActive(bool) {

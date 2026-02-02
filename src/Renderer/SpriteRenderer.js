@@ -599,13 +599,35 @@ function(      WebGL,         glMatrix,      Camera )
 	 *
 	 * @param {boolean} enable
 	 */
-	SpriteRenderer.setDepthMask = function setDepthMask(enable)
+	SpriteRenderer.setDepth = function setDepth(depthTest, depthMask, depthCorrection, fn)
 	{
-		if (!_gl || _depthMask === enable) {
-			return;
+		var prevDepthTest;
+		var prevDepthMask;
+		var prevDepthCorrection;
+
+		if (_gl) {
+			prevDepthTest = _gl.isEnabled(_gl.DEPTH_TEST);
+			prevDepthMask = _gl.getParameter(_gl.DEPTH_WRITEMASK);
+			prevDepthCorrection = SpriteRenderer.disableDepthCorrection;
+
+			if (depthTest) _gl.enable(_gl.DEPTH_TEST);
+			else _gl.disable(_gl.DEPTH_TEST);
+
+			_gl.depthMask(depthMask);
+			_depthMask = depthMask;
+			SpriteRenderer.disableDepthCorrection = depthCorrection;
 		}
-		_gl.depthMask(enable);
-		_depthMask = enable;
+
+		fn();
+
+		if(_gl){
+			if (prevDepthTest) _gl.enable(_gl.DEPTH_TEST);
+			else _gl.disable(_gl.DEPTH_TEST);
+
+			_gl.depthMask(prevDepthMask);
+			_depthMask = prevDepthMask;
+			SpriteRenderer.disableDepthCorrection = prevDepthCorrection;
+		}
 	};
 
 

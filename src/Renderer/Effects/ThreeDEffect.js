@@ -680,7 +680,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		gl.disable(gl.DEPTH_TEST);
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 		SpriteRenderer.disableDepthCorrection = true;
-		SpriteRenderer.setDepthMask(false);
+		gl.depthMask(false);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.size[0] = 100;
@@ -698,7 +698,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
 	ThreeDEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.setDepthMask(true);
+		gl.depthMask(true);
 		gl.enable(gl.DEPTH_TEST);
 		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind(gl);
