@@ -594,11 +594,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 	};
 
 	TwoDEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		// Baseline: interact with environment unless per-effect overlay toggles it off during render.
-		gl.enable(gl.DEPTH_TEST);
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-		SpriteRenderer.disableDepthCorrection = false;
-		gl.depthMask(false);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.size[0] = 100;
@@ -616,8 +612,6 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 
 	TwoDEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.enable(gl.DEPTH_TEST);
-		gl.depthMask(true);
 		SpriteRenderer.unbind(gl);
 	};
 

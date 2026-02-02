@@ -248,14 +248,13 @@ define(function (require) {
 					renderElement(self, self.files.shadow, 'shadow', _position, false);
 				});
 			}
-			SpriteRenderer.setDepth(true, true, false, function () {
-				SpriteRenderer.position.set(self.position);
 
-				// Everything right after the shadow should also be adjusted in height to ensure the sprites are above the shadow
-				if (self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MOB || self.objecttype === Entity.TYPE_NPC || self.objecttype === Entity.TYPE_MERC) {
-					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
-					SpriteRenderer.zIndex += 1;
-				}
+			var canWriteDepth = self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MOB || self.objecttype === Entity.TYPE_NPC || self.objecttype === Entity.TYPE_MERC;
+
+			SpriteRenderer.setDepth(true, canWriteDepth, false, function () {
+
+				SpriteRenderer.position.set(self.position);
+				SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 
 				// Shield is behind on some position, seems to be hardcoded by the client
 				if (self.objecttype === Entity.TYPE_PC && self.shield && behind) {
@@ -269,8 +268,6 @@ define(function (require) {
 					// Draw Robe
 					if (self.robe > 0) {
 						renderElement(self, self.files.robe, 'robe', _position, true);
-
-
 					}
 
 					if (Session.Playing == true && self.hasCart == true) {
@@ -316,7 +313,7 @@ define(function (require) {
 						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
 
-					SpriteRenderer.zIndex += 1000;
+					SpriteRenderer.zIndex += 150;
 					// Draw Head
 					renderElement(self, self.files.head, 'head', _position, false);
 
