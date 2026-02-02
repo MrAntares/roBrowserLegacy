@@ -6071,7 +6071,7 @@ define(function( require )
 			attachedEntity: false,
 			wav: '_blind',
 			func: function( Params ) {
-				var Blind = require('Renderer/Effects/BlindEffect');
+				var Blind = require('Renderer/Effects/Shaders/Blind');
 				Blind.setActive(true);
 			}
 			/*file: 'effect/fullb.tga',
