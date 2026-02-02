@@ -218,8 +218,6 @@ define( function( require )
 		{
 			if(this.hideEntity) return;
 
-			var depthMaskChanged = false;
-
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor( this.position[0], this.position[1] );
 			SpriteRenderer.zIndex = 1;
@@ -238,49 +236,47 @@ define( function( require )
 			var action	= this.action < 0 ? this.ACTION.IDLE : this.action;
 			var direction = (Camera.direction + this.direction + 8) % 8;
 			var behind	= direction > 1 && direction < 6;
-
+			var self = this;
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45 && !this.hideShadow) {
 
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
-				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + 0.05;
+				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + .05;
 
-				// Keep shadow on ground: depth test on, depth write off
-				SpriteRenderer.setDepthMask(false);
-				renderElement( this, this.files.shadow, 'shadow', _position, false );
-				SpriteRenderer.setDepthMask(true);
-
+				// Keep shadow on ground: depth test on, depth write off, disabledepthcorrection
+				SpriteRenderer.setDepth(true, false, false, function (){
+					renderElement( self, self.files.shadow, 'shadow', _position, false );
+				});
 			}
-
-			// Disable depth writes for layered sprite parts to keep draw-order stacking
-			SpriteRenderer.setDepthMask(false);
-			depthMaskChanged = true;
-
-			SpriteRenderer.position.set(this.position);
+			SpriteRenderer.setDepth(true, true, false, function () {
+			SpriteRenderer.position.set(self.position);
 
 			// Everything right after the shadow should also be adjusted in height to ensure the sprites are above the shadow
-			if (this.objecttype === Entity.TYPE_PC || this.objecttype === Entity.TYPE_MOB || this.objecttype === Entity.TYPE_NPC || this.objecttype === Entity.TYPE_MERC) {
-				SpriteRenderer.position[2] = SpriteRenderer.position[2] + .1;
+			if (self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MOB || self.objecttype === Entity.TYPE_NPC || self.objecttype === Entity.TYPE_MERC) {
+				SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+				SpriteRenderer.zIndex += 1;
 			}
 
 			// Shield is behind on some position, seems to be hardcoded by the client
-			if (this.objecttype === Entity.TYPE_PC && this.shield && behind) {
-				renderElement( this, this.files.shield, 'shield', _position, true );
+			if (self.objecttype === Entity.TYPE_PC && self.shield && behind) {
+				renderElement( self, self.files.shield, 'shield', _position, true );
 			}
 
 
 			if(direction > 2 && direction < 6)
 			{
-				renderElement( this, this.files.body, 'body', _position, true );
+				renderElement( self, self.files.body, 'body', _position, true );
 
 				// Draw Robe
-				if (this.robe > 0) {
-					renderElement( this, this.files.robe, 'robe', _position, true);
+				if (self.robe > 0) {
+					renderElement( self, self.files.robe, 'robe', _position, true);
+
+					
 				}
 
-			 	if(Session.Playing == true && this.hasCart == true)
+			 	if(Session.Playing == true && self.hasCart == true)
 				{
 					var cartidx = [
 							JobId.NOVICE,
@@ -288,14 +284,14 @@ define( function( require )
 							JobId.SUPERNOVICE_B,
 							JobId.SUPERNOVICE2,
 							JobId.SUPERNOVICE2_B
-						].includes(this._job)? 0 : this.CartNum;
-					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
-					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);
+						].includes(self._job)? 0 : self.CartNum;
+					renderElement( self, self.files.cart_shadow, 'cartshadow', _position, false);
+					renderElement( self, self.files.cart[cartidx], 'cart', _position, false);
 				}
 			}
 			else
 			{
-			 	if(Session.Playing == true && this.hasCart == true)
+			 	if(Session.Playing == true && self.hasCart == true)
 				{
 					var cartidx = [
 							JobId.NOVICE,
@@ -303,52 +299,51 @@ define( function( require )
 							JobId.SUPERNOVICE_B,
 							JobId.SUPERNOVICE2,
 							JobId.SUPERNOVICE2_B
-						].includes(this._job)? 0 : this.CartNum;
-  					renderElement( this, this.files.cart_shadow, 'cartshadow', _position, false);
-					renderElement( this, this.files.cart[cartidx], 'cart', _position, false);
+						].includes(self._job)? 0 : self.CartNum;
+  					renderElement( self, self.files.cart_shadow, 'cartshadow', _position, false);
+					renderElement( self, self.files.cart[cartidx], 'cart', _position, false);
 				}
 				// Draw Robe
-				if (this.robe > 0) {
-					renderElement( this, this.files.robe, 'robe', _position, true);
-				}
-				renderElement( this, this.files.body, 'body', _position, true );
+					renderElement( self, self.files.robe, 'robe', _position, true);
+
+					renderElement( self, self.files.body, 'body', _position, true );
+
 			}
 
 
 
-			if (this.objecttype === Entity.TYPE_PC || this.objecttype === Entity.TYPE_MERC) {
+			if (self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MERC) {
+				// Draw Weapon
+				if (self.weapon > 0) {
+					renderElement( self, self.files.weapon, 'weapon', _position, true );
+					renderElement( self, self.files.weapon_trail, 'weapon_trail', _position, true );
+				}
+
+				if (self.shield > 0 && !behind) {
+					renderElement( self, self.files.shield, 'shield', _position, true );
+				}
+
+				SpriteRenderer.zIndex += 1000;
 				// Draw Head
-				renderElement( this, this.files.head, 'head', _position, false);
+				renderElement( self, self.files.head, 'head', _position, false);
 
 				// Hat Bottom
-				if (this.accessory > 0) {
-					renderElement( this, this.files.accessory, 'head', _position, false);
+				if (self.accessory > 0) {
+					renderElement( self, self.files.accessory, 'head', _position, false);
 				}
 
 				// Hat Middle
-				if (this.accessory3 > 0 && this.accessory3 !== this.accessory) { // accessory already rendered, avoid render same item again
-					renderElement( this, this.files.accessory3, 'head', _position, false);
+				if (self.accessory3 > 0 && self.accessory3 !== self.accessory) { // accessory already rendered, avoid render same item again
+					renderElement( self, self.files.accessory3, 'head', _position, false);
 				}
 
 				// Hat Top
-				if (this.accessory2 > 0 && this.accessory2 !== this.accessory && this.accessory2 !== this.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
-					renderElement( this, this.files.accessory2, 'head', _position, false);
+				if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
+					renderElement( self, self.files.accessory2, 'head', _position, false);
 				}
 
-				// Draw Others elements
-				if (this.weapon > 0) {
-					renderElement( this, this.files.weapon, 'weapon', _position, true );
-					renderElement( this, this.files.weapon_trail, 'weapon_trail', _position, true );
-				}
-
-				if (this.shield > 0 && !behind) {
-					renderElement( this, this.files.shield, 'shield', _position, true );
-				}
 			}
-
-			if (depthMaskChanged) {
-				SpriteRenderer.setDepthMask(true);
-			}
+			});
 		};
 	}();
 
