@@ -640,12 +640,16 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					renderer.offset[1] = layer.pos[1] + ctE[1];
 					renderer.size[0] = width;
 					renderer.size[1] = height;
-					renderer.render();
+					SpriteRenderer.setDepth(false, false, true, function(){
+						renderer.render();
+					});
 					++i;
 				} while (i < layercount);
 			}
 		} else {
-			SpriteRenderer.render();
+			SpriteRenderer.setDepth(false, false, true, function(){
+				SpriteRenderer.render();
+			});
 		}
 
 		this.needCleanUp = this.endTick < tick;
@@ -677,10 +681,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 	};
 
 	ThreeDEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		gl.disable(gl.DEPTH_TEST);
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-		SpriteRenderer.disableDepthCorrection = true;
-		gl.depthMask(false);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.size[0] = 100;
@@ -698,9 +699,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
 	ThreeDEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.depthMask(true);
-		gl.enable(gl.DEPTH_TEST);
-		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind(gl);
 	};
 	return ThreeDEffect;
