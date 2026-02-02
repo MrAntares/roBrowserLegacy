@@ -59,6 +59,9 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			}
 		}
 
+		// When true, draw as an overlay: no depth test and no ray-plane correction.
+		this.overlay = effect.overlay ? true : false;
+
 		this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
 		this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * EF_Inst_Par.duplicateID : 0), 1), 0);
 
@@ -640,14 +643,18 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					renderer.offset[1] = layer.pos[1] + ctE[1];
 					renderer.size[0] = width;
 					renderer.size[1] = height;
-					SpriteRenderer.setDepth(false, false, true, function(){
-						renderer.render();
+
+					// default true, false, false
+					SpriteRenderer.setDepth(this.overlay === false, false, this.overlay === true, function(){
+						SpriteRenderer.render();
 					});
+
 					++i;
 				} while (i < layercount);
 			}
 		} else {
-			SpriteRenderer.setDepth(false, false, true, function(){
+			// default true, false, false
+			SpriteRenderer.setDepth(this.overlay === false, false, this.overlay === true, function(){
 				SpriteRenderer.render();
 			});
 		}

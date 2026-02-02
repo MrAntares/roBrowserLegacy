@@ -554,6 +554,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 			SpriteRenderer.angle = angle;
 		} else SpriteRenderer.angle = this.angle;
 
+		// default true, true, false
 		SpriteRenderer.setDepth(this.overlay === false, this.overlay === false, this.overlay === true, function(){
 			SpriteRenderer.render();
 		});			

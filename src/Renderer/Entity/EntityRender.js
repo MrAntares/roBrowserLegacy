@@ -249,7 +249,7 @@ define(function (require) {
 				});
 			}
 
-			var canWriteDepth = self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MOB || self.objecttype === Entity.TYPE_NPC || self.objecttype === Entity.TYPE_MERC;
+			var canWriteDepth = self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MERC;
 
 			SpriteRenderer.setDepth(true, canWriteDepth, false, function () {
 
