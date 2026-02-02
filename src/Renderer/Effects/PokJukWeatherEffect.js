@@ -125,7 +125,6 @@ define(function(require) {
 		// Ensure the internal texture exists before drawing
 		_instance.createInternalTexture(gl);
 
-		gl.enable(gl.BLEND);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blending
 		
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
