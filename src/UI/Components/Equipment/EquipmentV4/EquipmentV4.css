@@ -1,4 +1,4 @@
-#EquipmentV4 { position:absolute; font-size:12px; width:280px; }
+#EquipmentV4 { position:absolute; width:280px; }
 
 #EquipmentV4 .clear { clear:both; }
 
@@ -82,7 +82,6 @@
 #EquipmentV4 #damageskin .skin-option span {
     position: relative; 
     top: -9px;
-    font-size: 12px;
     font-weight: bold;
     text-align: center;
 }
@@ -108,7 +107,6 @@
 
 #EquipmentV4 #damageskin .skin-wrapper .label {
     margin-top: 6px;
-    font-size: 12px;
     text-align: center;
 }
 
@@ -149,8 +147,7 @@
     margin: 1px 0;  
     cursor: pointer;  
     background-color: transparent;  
-    border: 1px solid transparent;  
-    font-size: 12px;  
+    border: 1px solid transparent;
     white-space: nowrap;
     width: 100%;
 }  

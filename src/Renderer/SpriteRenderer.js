@@ -595,17 +595,48 @@ function(      WebGL,         glMatrix,      Camera )
 	}
 
 	/**
-	 * Control depth writing state with caching to avoid redundant GL calls.
+	 * Executes a render block with an isolated depth state.
 	 *
-	 * @param {boolean} enable
+	 * Temporarily overrides depth test, depth write mask, and depth correction
+	 * flags, executes the given function, then restores the previous GL state.
+	 *
+	 * This prevents depth state leakage between render passes and ensures
+	 * deterministic layered rendering.
+	 *
+	 * @param {boolean} use depthTest enable.
+	 * @param {boolean} use depthMask enable.
+	 * @param {boolean} use disableDepthCorrection enable.
+	 * @param {function} execute function with this parameters before restore gl state.
 	 */
-	SpriteRenderer.setDepthMask = function setDepthMask(enable)
+	SpriteRenderer.setDepth = function setDepth(depthTest, depthMask, depthCorrection, fn)
 	{
-		if (!_gl || _depthMask === enable) {
-			return;
+		var prevDepthTest;
+		var prevDepthMask;
+		var prevDepthCorrection;
+
+		if (_gl) {
+			prevDepthTest = _gl.isEnabled(_gl.DEPTH_TEST);
+			prevDepthMask = _gl.getParameter(_gl.DEPTH_WRITEMASK);
+			prevDepthCorrection = SpriteRenderer.disableDepthCorrection;
+
+			if (depthTest) _gl.enable(_gl.DEPTH_TEST);
+			else _gl.disable(_gl.DEPTH_TEST);
+
+			_gl.depthMask(depthMask);
+			_depthMask = depthMask;
+			SpriteRenderer.disableDepthCorrection = depthCorrection;
 		}
-		_gl.depthMask(enable);
-		_depthMask = enable;
+
+		fn();
+
+		if(_gl){
+			if (prevDepthTest) _gl.enable(_gl.DEPTH_TEST);
+			else _gl.disable(_gl.DEPTH_TEST);
+
+			_gl.depthMask(prevDepthMask);
+			_depthMask = prevDepthMask;
+			SpriteRenderer.disableDepthCorrection = prevDepthCorrection;
+		}
 	};
 
 

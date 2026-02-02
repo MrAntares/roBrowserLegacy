@@ -10,7 +10,7 @@
 #chatbox .header {
 	margin-left:3px;
 	height:17px;
-	font-size:12px;
+	
 	max-width: 100%;
 }
 
@@ -67,7 +67,7 @@
 	height:42px;
 }
 #chatbox .content {
-	font-size:12px;
+	
 	text-shadow:1px 1px 0px black;
 	height:100%;
 	overflow-y:auto;
@@ -123,7 +123,6 @@
 	height:18px;
 	background-color:transparent;
 	border:none;
-	font-size: 12px;
 }
 
 #chatbox .input .username {
@@ -154,7 +153,7 @@
 #chatbox .input .message {
 	width: 100%;
 	padding-left:5px;
-	font-size:12px;
+	
 	line-height:18px;
 	outline:none;
 	white-space: nowrap;  

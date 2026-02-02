@@ -58,7 +58,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 11px;
 	font-weight: bold;
 	cursor: pointer;
 	color: white;
@@ -81,7 +80,6 @@
 
 #shortcut-selection .footer-instructions {
 	margin-top: 15px;
-	font-size: 12px;
 	text-align: center;
 	opacity: 0.8;
 }

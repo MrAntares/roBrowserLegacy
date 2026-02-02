@@ -1,4 +1,4 @@
-#EquipmentV3 { position:absolute; font-size:12px; width:280px; }
+#EquipmentV3 { position:absolute; width:280px; }
 
 #EquipmentV3 .clear { clear:both; }
 
@@ -83,7 +83,6 @@
     cursor: pointer;  
     background-color: transparent;  
     border: 1px solid transparent;  
-    font-size: 12px;  
     white-space: nowrap;
     width: 100%;
 }  

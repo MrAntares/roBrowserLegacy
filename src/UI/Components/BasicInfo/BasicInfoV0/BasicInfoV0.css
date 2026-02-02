@@ -1,4 +1,4 @@
-#BasicInfoV0 { position:absolute; top:0px; left:0px; width:280px; height:120px; font-size:11px; text-shadow:1px 1px white; }
+#BasicInfoV0 { position:absolute; top:0px; left:0px; width:280px; height:120px; text-shadow:1px 1px white; }
 #BasicInfoV0.small .large { display:none; }
 #BasicInfoV0.large .small { display:none; border-radius:5px; }
 #BasicInfoV0.small { height:33px; }
@@ -18,7 +18,7 @@
 #BasicInfoV0 .large .hp_bar, #BasicInfoV0 .large .sp_bar { position:absolute; top:22px; left:110px; width:85px; height:8px; }
 #BasicInfoV0 .large .sp_bar { top:43px; }
 #BasicInfoV0 .large .hp_bar div, #BasicInfoV0 .large .sp_bar div { width:4px; height:8px; float:left; }
-#BasicInfoV0 .large div.hp_bar_perc, #BasicInfoV0 .large div.sp_bar_perc { text-align:center; width:85px; font-size:10px; position:absolute; top:9px; }
+#BasicInfoV0 .large div.hp_bar_perc, #BasicInfoV0 .large div.sp_bar_perc { text-align:center; width:85px; position:absolute; top:9px; }
 
 #BasicInfoV0 .large .blvl { position:absolute; top:70px; left:15px; }
 #BasicInfoV0 .large .jlvl { position:absolute; top:83px; left:15px; }

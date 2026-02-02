@@ -27,7 +27,7 @@
 #PartyFriends .content .party .node .hp,
 #PartyFriends .content .party .node .map { display:none; }
 #PartyFriends .content .party .life { position:absolute; left:20px; top:17px; }
-#PartyFriends .content .party .hp { position:absolute; top:14px; left:86px; font-size:9px; color:black; font-weight:normal; }
+#PartyFriends .content .party .hp { position:absolute; top:14px; left:86px; color:black; font-weight:normal; }
 #PartyFriends .content .node .selection { background-color:#739cef; }
 
 #PartyFriends .navigation { width:100%; height:20px; background-repeat:repeat-x; background-color:transparent; }

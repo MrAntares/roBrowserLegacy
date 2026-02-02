@@ -554,17 +554,10 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 			SpriteRenderer.angle = angle;
 		} else SpriteRenderer.angle = this.angle;
 
-		if (this.overlay) {
-			gl.disable(gl.DEPTH_TEST);
-			SpriteRenderer.setDepthMask(false);
-			SpriteRenderer.disableDepthCorrection = true;
-		} else {
-			gl.enable(gl.DEPTH_TEST);
-			SpriteRenderer.setDepthMask(true);
-			SpriteRenderer.disableDepthCorrection = false;
-		}
-
-		SpriteRenderer.render();
+		// default true, true, false
+		SpriteRenderer.setDepth(this.overlay === false, this.overlay === false, this.overlay === true, function(){
+			SpriteRenderer.render();
+		});			
 
 		if (this.ownerEntity) {
 			if (this.endTick < tick) this.ownerEntity.attachments.remove(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
@@ -602,11 +595,7 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 	};
 
 	TwoDEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		// Baseline: interact with environment unless per-effect overlay toggles it off during render.
-		gl.enable(gl.DEPTH_TEST);
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-		SpriteRenderer.disableDepthCorrection = false;
-		SpriteRenderer.setDepthMask(true);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.size[0] = 100;
@@ -624,9 +613,6 @@ function (WebGL, Texture, glMatrix, Client, SpriteRenderer, EntityManager, Camer
 
 	TwoDEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.setDepthMask(true);
-		gl.enable(gl.DEPTH_TEST);
-		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind(gl);
 	};
 

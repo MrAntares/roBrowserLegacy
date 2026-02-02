@@ -180,7 +180,6 @@ define(function( require )
 
 		// Init program - interact with environment (use depth test + ray-plane)
 		SpriteRenderer.bind3DContext( gl, modelView, projection, fog );
-		SpriteRenderer.disableDepthCorrection = false;
 
 		// Base parameters
 		SpriteRenderer.color.set(_color);
@@ -192,7 +191,6 @@ define(function( require )
 		SpriteRenderer.offset[1]     = 0;
 		SpriteRenderer.image.palette = null;
 		SpriteRenderer.depth         = 0;
-		SpriteRenderer.setDepthMask(false);
 
 		for (i = 0; i < MAX_CLOUDS; i++) {
 			cloud = _clouds[i];
@@ -225,12 +223,12 @@ define(function( require )
 			// Calculate position
 			vec3.add( cloud.position, cloud.position, cloud.direction );
 			SpriteRenderer.position.set(cloud.position);
-			SpriteRenderer.render();
+			SpriteRenderer.setDepth(false, false, false, function(){
+				SpriteRenderer.render();
+			});
 		}
 
 		// Clean up
-		SpriteRenderer.setDepthMask(true);
-		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind(gl);
 	}
 

@@ -1,4 +1,4 @@
-#ShortCutOption {position:absolute;width:430px;height:465px;font-size:11px;background:white;border-radius: 3px;border: solid 1px #aaa;border-top: none;}
+#ShortCutOption {position:absolute;width:430px;height:465px;background:white;border-radius: 3px;border: solid 1px #aaa;border-top: none;}
 #ShortCutOption .border{}
 #ShortCutOption .titlebar {width:100%;height:17px;border-bottom: solid 1px #eee;}
 #ShortCutOption .titlebar .base {width:20px;height:100%;border:none;background-color:transparent;background-repeat:no-repeat;vertical-align:middle;background-position: 8px 2px;}
@@ -9,7 +9,7 @@
 #ShortCutOption .titlebar .clear {clear:both;}
 #ShortCutOption .tabs {position:relative;top:1px;border-right:solid 1px #ccc;}
 #ShortCutOption .tabs button.selectedtab {border-bottom:solid 1px transparent;}
-#ShortCutOption .tabs button {width:57px;height:18px;font-size:11px;padding:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background-color:#fff;border: solid 1px #bbb;border-top-right-radius:3px;border-top-left-radius:3px;}
+#ShortCutOption .tabs button {width:57px;height:18px;padding:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background-color:#fff;border: solid 1px #bbb;border-top-right-radius:3px;border-top-left-radius:3px;}
 #ShortCutOption .tabs button:nth-child(1){border-right:none;}
 #ShortCutOption .panel {padding:5px;border-top:solid 1px #ccc;}
 #ShortCutOption .panel .content {display:none;}

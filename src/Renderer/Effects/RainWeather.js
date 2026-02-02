@@ -446,10 +446,7 @@ define(function(require) {
 	RainWeatherEffect.renderBeforeEntities = false;
 
 	RainWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-		gl.disable(gl.DEPTH_TEST);
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-		SpriteRenderer.disableDepthCorrection = true;
-		SpriteRenderer.setDepthMask(false);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.offset[0] = 0;
@@ -462,9 +459,6 @@ define(function(require) {
 
 	RainWeatherEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.setDepthMask(true);
-		gl.enable(gl.DEPTH_TEST);
-		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind(gl);
 	};
 
@@ -501,7 +495,9 @@ define(function(require) {
 
 		this.beforeRender(gl, modelView, projection, fog);
 
-		_instance.render(gl, tick);
+		SpriteRenderer.setDepth(false, false, true, function(){
+			_instance.render(gl, tick);
+		});
 
 		if (_instance.needCleanUp) {
 			_instance.free();

@@ -1,4 +1,4 @@
-#PetInformations { position:absolute; top:100px; left:100px; width:280px; height:180px; font-size:12px; background-color:white; border-radius:5px; }
+#PetInformations { position:absolute; top:100px; left:100px; width:280px; height:180px; background-color:white; border-radius:5px; }
 
 #PetInformations .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
 #PetInformations .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }

@@ -59,6 +59,9 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			}
 		}
 
+		// When true, draw as an overlay: no depth test and no ray-plane correction.
+		this.overlay = effect.overlay ? true : false;
+
 		this.alphaMax = (!isNaN(effect.alphaMax)) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
 		this.alphaMax = Math.max(Math.min(this.alphaMax + (!isNaN(effect.alphaMaxDelta) ? effect.alphaMaxDelta * EF_Inst_Par.duplicateID : 0), 1), 0);
 
@@ -640,12 +643,20 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					renderer.offset[1] = layer.pos[1] + ctE[1];
 					renderer.size[0] = width;
 					renderer.size[1] = height;
-					renderer.render();
+
+					// default true, false, false
+					SpriteRenderer.setDepth(this.overlay === false, false, this.overlay === true, function(){
+						SpriteRenderer.render();
+					});
+
 					++i;
 				} while (i < layercount);
 			}
 		} else {
-			SpriteRenderer.render();
+			// default true, false, false
+			SpriteRenderer.setDepth(this.overlay === false, false, this.overlay === true, function(){
+				SpriteRenderer.render();
+			});
 		}
 
 		this.needCleanUp = this.endTick < tick;
@@ -677,10 +688,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 	};
 
 	ThreeDEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		gl.disable(gl.DEPTH_TEST);
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-		SpriteRenderer.disableDepthCorrection = true;
-		SpriteRenderer.setDepthMask(false);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.size[0] = 100;
@@ -698,9 +706,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 
 	ThreeDEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.setDepthMask(true);
-		gl.enable(gl.DEPTH_TEST);
-		SpriteRenderer.disableDepthCorrection = false;
 		SpriteRenderer.unbind(gl);
 	};
 	return ThreeDEffect;

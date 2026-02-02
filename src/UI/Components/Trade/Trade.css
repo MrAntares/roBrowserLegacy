@@ -12,7 +12,6 @@
 	text-shadow:1px 1px white;
 	white-space:nowrap;
 	position: relative;
-	font-size:11px;
 	padding-left:15px;
 	padding-top:3px;
 }
@@ -86,7 +85,6 @@
 
 #Trade .box .item .amount {
 	position:relative;
-	font-size:11px;
 	bottom:9px;
 	right:0px;
 	text-align:right;
@@ -94,7 +92,6 @@
 }
 
 #Trade .box .name {
-	font-size:12px;
 	position:absolute;
 	top:7px;
 	left:30px;
@@ -111,7 +108,6 @@
 	width:70px;
 	height:13px;
 	padding:2px;
-	font-size:11px;
 }
 
 #Trade .zeny.send {

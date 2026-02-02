@@ -242,7 +242,6 @@ define(function( require ) {
 
         gl.vertexAttribPointer( attribute.aPosition,     2, gl.FLOAT, false, 4*4,  0   );
         gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 4*4,  2*4 );
-        gl.depthMask(true);
     };
 
     SpiritSphere.prototype.render = function render( gl, tick )
