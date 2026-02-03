@@ -1,6 +1,6 @@
 "use strict";
 
-define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Client", "Core/Configs"], function (exports, _WebGL, _Texture, _glMatrix, _Client, Configs) {
+define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Client", "Core/Configs", "Renderer/SpriteRenderer"], function (exports, _WebGL, _Texture, _glMatrix, _Client, Configs, SpriteRenderer) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -179,11 +179,9 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
       gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
       gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
       gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-      gl.depthMask(false);
     }
 
     static afterRender(gl) {
-      gl.depthMask(true);
       gl.disableVertexAttribArray(this._program.attribute.aPosition);
       gl.disableVertexAttribArray(this._program.attribute.aTextureCoord);
     }
@@ -203,7 +201,10 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
     render(gl, tick) {
       gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
       gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+      SpriteRenderer.setDepth(false, false, false, function(){
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+      });
     }
 
   };
