@@ -1,6 +1,17 @@
 name: "Generate a release package"
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 on:
+  workflow_dispatch:
   push:
+    branches: [ "master" ]
+    tags:
+      - "v*"
+  pull_request:
+    branches: [ "master" ]
     tags:
       - "v*"
 
