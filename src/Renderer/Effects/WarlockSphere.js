@@ -9,6 +9,7 @@ define(function( require ) {
     var glMatrix = require('Utils/gl-matrix');
     var Client   = require('Core/Client');
     var Camera   = require('Renderer/Camera');
+    var SpriteRenderer = require('Renderer/SpriteRenderer');
     var Configs  = require('../../Core/Configs');
 
 
@@ -253,7 +254,6 @@ define(function( require ) {
 
         gl.vertexAttribPointer( attribute.aPosition,     2, gl.FLOAT, false, 4*4,  0   );
         gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 4*4,  2*4 );
-        gl.depthMask(true);
     };
 
     WarlockSphere.prototype.render = function render( gl, tick )
@@ -269,65 +269,68 @@ define(function( require ) {
         gl.uniform1f( uniform.uCameraZoom, Camera.zoom );
         
         var _matrix;
-        for (var i = this.spheres.length; i > 0; i--){
+	var self = this;
+	SpriteRenderer.setDepth(false, true, false, function(){
+            for (var i = self.spheres.length; i > 0; i--){
             
-            _matrix = _rotationMatrices[i % _rotationMatrices.length];
+                _matrix = _rotationMatrices[i % _rotationMatrices.length];
             
-            gl.uniformMatrix4fv( uniform.uTextureRotMat, false, _matrix.texMat);
-            gl.uniformMatrix4fv( uniform.uRotationMat, false, _matrix.posMat);
+                gl.uniformMatrix4fv( uniform.uTextureRotMat, false, _matrix.texMat);
+                gl.uniformMatrix4fv( uniform.uRotationMat, false, _matrix.posMat);
             
-            if (i>10) {
+                if (i>10) {
                 
-                if(this.isCoin){
-                    gl.uniform1f( uniform.uSize, 0.3);
-                    gl.uniform4fv( uniform.uColor,  [1.0, 0.9, 0.4, 0.2 * this.initialAlpha] );
+                    if(self.isCoin){
+                        gl.uniform1f( uniform.uSize, 0.3);
+                        gl.uniform4fv( uniform.uColor,  [1.0, 0.9, 0.4, 0.2 * self.initialAlpha] );
+                    } else {
+                        gl.uniform1f( uniform.uSize, 0.55);
+                        gl.uniform4fv( uniform.uColor,  [0.0, 0.0, 1.0, 0.2 * self.initialAlpha] );
+                    }
+                
+                    gl.uniform1f( uniform.uZIndex, 0.0);
+                    gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                
+                } else if (i>5) {
+                
+                    if(self.isCoin){
+                        gl.uniform1f( uniform.uSize, 0.2);
+                        gl.uniform4fv(  uniform.uColor,  [1.0, 0.9, 0.4, 0.4 * self.initialAlpha] );
+                    } else {
+                        gl.uniform1f( uniform.uSize, 0.35);
+                        gl.uniform4fv(  uniform.uColor,  [0.0, 0.0, 1.0, 0.6 * self.initialAlpha] );
+                    }
+                
+                    gl.uniform1f( uniform.uZIndex, 0.01);
+                    gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                
                 } else {
-                    gl.uniform1f( uniform.uSize, 0.55);
-                    gl.uniform4fv( uniform.uColor,  [0.0, 0.0, 1.0, 0.2 * this.initialAlpha] );
+                
+                    if(self.isCoin){
+                        gl.uniform1f( uniform.uSize, 0.1);
+                        gl.uniform4fv(  uniform.uColor,  [1.0, 0.9, 0.4, 0.6 * self.initialAlpha] );
+                    } else {
+                        gl.uniform1f( uniform.uSize, 0.25);
+                        gl.uniform4fv(  uniform.uColor,  [0.0, 0.0, 1.0, 1.0 * self.initialAlpha] );
+                    }
+                    gl.uniform1f( uniform.uZIndex, 0.02);
+                    gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                
+                
+                    if(self.isCoin){
+                        gl.uniform1f( uniform.uSize, 0.05);
+                        gl.uniform4fv(  uniform.uColor,  [1.0, 1.0, 0.7, 1.0 * self.initialAlpha] );
+                    } else {
+                        gl.uniform1f( uniform.uSize, 0.15);
+                        gl.uniform4fv(  uniform.uColor,  [0.8, 0.8, 1.0, 1.0 * self.initialAlpha] );
+                    }
+                    gl.uniform1f( uniform.uZIndex, 0.03);
+                    gl.drawArrays( gl.TRIANGLES, 0, 6 );
+                    
                 }
-                
-                gl.uniform1f( uniform.uZIndex, 0.0);
-                gl.drawArrays( gl.TRIANGLES, 0, 6 );
-                
-            } else if (i>5) {
-                
-                if(this.isCoin){
-                    gl.uniform1f( uniform.uSize, 0.2);
-                    gl.uniform4fv(  uniform.uColor,  [1.0, 0.9, 0.4, 0.4 * this.initialAlpha] );
-                } else {
-                    gl.uniform1f( uniform.uSize, 0.35);
-                    gl.uniform4fv(  uniform.uColor,  [0.0, 0.0, 1.0, 0.6 * this.initialAlpha] );
-                }
-                
-                gl.uniform1f( uniform.uZIndex, 0.01);
-                gl.drawArrays( gl.TRIANGLES, 0, 6 );
-                
-            } else {
-                
-                if(this.isCoin){
-                    gl.uniform1f( uniform.uSize, 0.1);
-                    gl.uniform4fv(  uniform.uColor,  [1.0, 0.9, 0.4, 0.6 * this.initialAlpha] );
-                } else {
-                    gl.uniform1f( uniform.uSize, 0.25);
-                    gl.uniform4fv(  uniform.uColor,  [0.0, 0.0, 1.0, 1.0 * this.initialAlpha] );
-                }
-                gl.uniform1f( uniform.uZIndex, 0.02);
-                gl.drawArrays( gl.TRIANGLES, 0, 6 );
-                
-                
-                if(this.isCoin){
-                    gl.uniform1f( uniform.uSize, 0.05);
-                    gl.uniform4fv(  uniform.uColor,  [1.0, 1.0, 0.7, 1.0 * this.initialAlpha] );
-                } else {
-                    gl.uniform1f( uniform.uSize, 0.15);
-                    gl.uniform4fv(  uniform.uColor,  [0.8, 0.8, 1.0, 1.0 * this.initialAlpha] );
-                }
-                gl.uniform1f( uniform.uZIndex, 0.03);
-                gl.drawArrays( gl.TRIANGLES, 0, 6 );
-                
             }
-        }
-        
+        });
+
         if(this.initialAlpha < 1){
             this.initialAlpha = Math.min(this.initialAlpha + 0.005, 1);
         }
