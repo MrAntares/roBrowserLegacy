@@ -244,6 +244,29 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 
 
 	/**
+	 * Copies the upper-left 3x3 values of a mat4 into a mat3
+	 *
+	 * @param {mat3} out the receiving matrix
+	 * @param {mat4} mat the source 4x4 matrix
+	 *
+	 * @returns {mat3} out
+	 */
+	glMatrix.mat3.fromMat4 = function (out, mat) {
+		out[0] = mat[0];
+		out[1] = mat[1];
+		out[2] = mat[2];
+		out[3] = mat[4];
+		out[4] = mat[5];
+		out[5] = mat[6];
+		out[6] = mat[8];
+		out[7] = mat[9];
+		out[8] = mat[10];
+
+		return out;
+	};
+
+
+	/**
 	 * Calculates the inverse of the upper 3x3 elements of a mat4 and copies the result into a mat3
 	 * The resulting matrix is useful for calculating transformed normals
 	 *

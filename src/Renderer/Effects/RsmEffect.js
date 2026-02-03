@@ -1,20 +1,22 @@
 /**
  * @module Renderer/Effects/RsmEffect
  *
- * Rendering Rsm,Rsm2 File object
+ * Rendering Rsm,Rsm2 File object with animation support
  */
-define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model'], function (WebGL, glMatrix, Client, Model) {
+define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model', 'Renderer/Renderer'], function (WebGL, glMatrix, Client, Model, Renderer) {
 	"use strict";
 
-	var _program   = null;
+	var _program = null;
 	var _normalMat = new Float32Array(3 * 3);
-	var mat4	   = glMatrix.mat4;
-	var mat3	   = glMatrix.mat3;
+	var mat4 = glMatrix.mat4;
+	var mat3 = glMatrix.mat3;
+	var quat = glMatrix.quat;
+	var vec3 = glMatrix.vec3;
 
 	/**
 	 * @var {string} vertex shader
 	 */
-var _vertexShader = `
+	var _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -58,7 +60,7 @@ var _vertexShader = `
 	/**
 	 * @var {string} fragment shader
 	 */
-var _fragmentShader = `
+	var _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -102,30 +104,589 @@ var _fragmentShader = `
 	`;
 
 	var _light = {
-		opacity:   1.0,
-		ambient:   new Float32Array([1, 1, 1]),
-		diffuse:   new Float32Array([0, 0, 0]),
+		opacity: 1.0,
+		ambient: new Float32Array([1, 1, 1]),
+		diffuse: new Float32Array([0, 0, 0]),
 		direction: new Float32Array([0, 1, 0]),
 	};
 
 
 	function RsmEffect(params) {
 		this.position = params.Inst.position;
-		this.size = 1;
+		this.size = params.effect.size || 1;
 		this.filename = 'data\\model\\' + params.effect.file + '.rsm';
 		this.objects = [];
 		this.buffer = null;
+		this.model = null;
+		this.startTick = params.Inst.startTick || 0;
+		this.lastFrame = -1;
+		this.isAnimated = false;
+		this.animLen = 0;
+		this.fps = 30;
 		this.globalParameters = {
 			position: new Float32Array(3),
 			rotation: new Float32Array(3),
-			scale:	new Float32Array([-0.075, -0.075, 0.075]),
+			scale: new Float32Array([-0.075, -0.075, 0.075]),
 			filename: null
 		};
+		this._Params = params;
+	}
+
+	/**
+	 * Interpolate between two quaternions using SLERP
+	 */
+	function slerpQuat(q1, q2, t) {
+		var out = quat.create();
+		quat.slerp(out, q1, q2, t);
+		return out;
+	}
+
+	/**
+	 * Interpolate between two vec3 using linear interpolation
+	 */
+	function lerpVec3(v1, v2, t) {
+		var out = vec3.create();
+		vec3.lerp(out, v1, v2, t);
+		return out;
+	}
+
+	/**
+	 * Get rotation at a specific frame from keyframes
+	 */
+	function getRotationAtFrame(rotKeyframes, frame, animLen) {
+		if (!rotKeyframes || rotKeyframes.length === 0) {
+			return null;
+		}
+
+		if (rotKeyframes.length === 1) {
+			return rotKeyframes[0].q;
+		}
+
+		var prevIdx = 0;
+		var nextIdx = 0;
+
+		for (var i = 0; i < rotKeyframes.length; i++) {
+			if (rotKeyframes[i].frame <= frame) {
+				prevIdx = i;
+			}
+			if (rotKeyframes[i].frame >= frame) {
+				nextIdx = i;
+				break;
+			}
+		}
+
+		if (nextIdx === 0 || rotKeyframes[nextIdx].frame < frame) {
+			prevIdx = rotKeyframes.length - 1;
+			nextIdx = 0;
+		}
+
+		if (prevIdx === nextIdx) {
+			return rotKeyframes[prevIdx].q;
+		}
+
+		var prevFrame = rotKeyframes[prevIdx].frame;
+		var nextFrame = rotKeyframes[nextIdx].frame;
+
+		if (nextFrame < prevFrame) {
+			nextFrame += animLen;
+		}
+		if (frame < prevFrame) {
+			frame += animLen;
+		}
+
+		var t = (nextFrame - prevFrame) > 0 ? (frame - prevFrame) / (nextFrame - prevFrame) : 0;
+		t = Math.max(0, Math.min(1, t));
+
+		return slerpQuat(rotKeyframes[prevIdx].q, rotKeyframes[nextIdx].q, t);
+	}
+
+	/**
+	 * Get position at a specific frame from keyframes
+	 */
+	function getPositionAtFrame(posKeyframes, frame, animLen) {
+		if (!posKeyframes || posKeyframes.length === 0) {
+			return null;
+		}
+
+		if (posKeyframes.length === 1) {
+			return [posKeyframes[0].px, posKeyframes[0].py, posKeyframes[0].pz];
+		}
+
+		var prevIdx = 0;
+		var nextIdx = 0;
+
+		for (var i = 0; i < posKeyframes.length; i++) {
+			if (posKeyframes[i].frame <= frame) {
+				prevIdx = i;
+			}
+			if (posKeyframes[i].frame >= frame) {
+				nextIdx = i;
+				break;
+			}
+		}
+
+		if (nextIdx === 0 || posKeyframes[nextIdx].frame < frame) {
+			prevIdx = posKeyframes.length - 1;
+			nextIdx = 0;
+		}
+
+		if (prevIdx === nextIdx) {
+			var kf = posKeyframes[prevIdx];
+			return [kf.px, kf.py, kf.pz];
+		}
+
+		var prevFrame = posKeyframes[prevIdx].frame;
+		var nextFrame = posKeyframes[nextIdx].frame;
+
+		if (nextFrame < prevFrame) {
+			nextFrame += animLen;
+		}
+		if (frame < prevFrame) {
+			frame += animLen;
+		}
+
+		var t = (nextFrame - prevFrame) > 0 ? (frame - prevFrame) / (nextFrame - prevFrame) : 0;
+		t = Math.max(0, Math.min(1, t));
+
+		var p1 = posKeyframes[prevIdx];
+		var p2 = posKeyframes[nextIdx];
+
+		return lerpVec3([p1.px, p1.py, p1.pz], [p2.px, p2.py, p2.pz], t);
+	}
+
+	/**
+	 * Get scale at a specific frame from keyframes
+	 */
+	function getScaleAtFrame(scaleKeyFrames, frame, animLen) {
+		if (!scaleKeyFrames || scaleKeyFrames.length === 0) {
+			return null;
+		}
+
+		if (scaleKeyFrames.length === 1) {
+			return scaleKeyFrames[0].Scale;
+		}
+
+		var prevIdx = 0;
+		var nextIdx = 0;
+
+		for (var i = 0; i < scaleKeyFrames.length; i++) {
+			if (scaleKeyFrames[i].Frame <= frame) {
+				prevIdx = i;
+			}
+			if (scaleKeyFrames[i].Frame >= frame) {
+				nextIdx = i;
+				break;
+			}
+		}
+
+		if (nextIdx === 0 || scaleKeyFrames[nextIdx].Frame < frame) {
+			prevIdx = scaleKeyFrames.length - 1;
+			nextIdx = 0;
+		}
+
+		if (prevIdx === nextIdx) {
+			return scaleKeyFrames[prevIdx].Scale;
+		}
+
+		var prevFrame = scaleKeyFrames[prevIdx].Frame;
+		var nextFrame = scaleKeyFrames[nextIdx].Frame;
+
+		if (nextFrame < prevFrame) {
+			nextFrame += animLen;
+		}
+		if (frame < prevFrame) {
+			frame += animLen;
+		}
+
+		var t = (nextFrame - prevFrame) > 0 ? (frame - prevFrame) / (nextFrame - prevFrame) : 0;
+		t = Math.max(0, Math.min(1, t));
+
+		return lerpVec3(scaleKeyFrames[prevIdx].Scale, scaleKeyFrames[nextIdx].Scale, t);
+	}
+
+	/**
+	 * Calculate normals (NONE type)
+	 */
+	function calcNormal_NONE(out) {
+		for (var i = 1, count = out.length; i < count; i += 3) {
+			out[i] = -1;
+		}
+	}
+
+	/**
+	 * Calculate normals (FLAT type)
+	 */
+	function calcNormal_FLAT(node, out, normalMat, groupUsed) {
+		var i, j, count;
+		var face;
+		var temp_vec = vec3.create();
+		var faces = node.faces;
+		var vertices = node.vertices;
+
+		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
+			face = faces[i];
+
+			vec3.calcNormal(
+				vertices[face.vertidx[0]],
+				vertices[face.vertidx[1]],
+				vertices[face.vertidx[2]],
+				temp_vec
+			);
+
+			out[j] = normalMat[0] * temp_vec[0] + normalMat[4] * temp_vec[1] + normalMat[8] * temp_vec[2] + normalMat[12];
+			out[j + 1] = normalMat[1] * temp_vec[0] + normalMat[5] * temp_vec[1] + normalMat[9] * temp_vec[2] + normalMat[13];
+			out[j + 2] = normalMat[2] * temp_vec[0] + normalMat[6] * temp_vec[1] + normalMat[10] * temp_vec[2] + normalMat[14];
+
+			if (face.smoothGroup !== undefined) {
+				groupUsed[face.smoothGroup] = true;
+			}
+		}
+	}
+
+	/**
+	 * Calculate normals (SMOOTH type)
+	 */
+	function calcNormal_SMOOTH(node, normal, groupUsed, group) {
+		var i, j, k, l, v, x, y, z, len;
+		var size = node.vertices.length;
+		var faces = node.faces;
+		var face, norm;
+		var count = faces.length;
+
+		for (j = 0; j < 32; ++j) {
+			if (!groupUsed[j]) {
+				continue;
+			}
+
+			group[j] = new Float32Array(size * 3);
+			norm = group[j];
+
+			for (v = 0, l = 0; v < size; ++v, l += 3) {
+				x = 0;
+				y = 0;
+				z = 0;
+
+				for (i = 0, k = 0; i < count; ++i, k += 3) {
+					face = faces[i];
+					if (face.smoothGroup === j && (face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)) {
+						x += normal[k];
+						y += normal[k + 1];
+						z += normal[k + 2];
+					}
+				}
+
+				len = 1 / Math.sqrt(x * x + y * y + z * z);
+				if (!isFinite(len)) len = 1;
+				norm[l] = x * len;
+				norm[l + 1] = y * len;
+				norm[l + 2] = z * len;
+			}
+		}
+	}
+
+	/**
+	 * Generate mesh (FLAT normals)
+	 */
+	function generate_mesh_FLAT(node, vert, norm, mesh) {
+		var a, b, o, i, j, k, t, count;
+		var faces = node.faces;
+		var textures = node.textures;
+		var tver = node.tvertices;
+		var alpha = node.main.alpha;
+		var offset = [];
+		var face, idx, tidx, out;
+
+		for (i = 0, count = textures.length; i < count; ++i) {
+			offset[textures[i]] = 0;
+		}
+
+		for (i = 0, o = 0, k = 0, count = faces.length; i < count; ++i, k += 3) {
+			face = faces[i];
+			idx = face.vertidx;
+			tidx = face.tvertidx;
+			t = textures[face.texid];
+			out = mesh[t];
+			o = offset[t];
+
+			for (j = 0; j < 3; j++, o += 9) {
+				a = idx[j] * 3;
+				b = tidx[j] * 6;
+				out[o + 0] = vert[a + 0];
+				out[o + 1] = vert[a + 1];
+				out[o + 2] = vert[a + 2];
+				out[o + 3] = norm[k + 0];
+				out[o + 4] = norm[k + 1];
+				out[o + 5] = norm[k + 2];
+				out[o + 6] = tver[b + 4];
+				out[o + 7] = tver[b + 5];
+				out[o + 8] = alpha;
+			}
+
+			offset[t] = o;
+		}
+	}
+
+	/**
+	 * Generate mesh (SMOOTH normals)
+	 */
+	function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
+		var a, b, o, i, j, t, count;
+		var faces = node.faces;
+		var textures = node.textures;
+		var tver = node.tvertices;
+		var alpha = node.main.alpha;
+		var offset = [];
+		var norm, face, idx, tidx, out;
+
+		for (i = 0, count = textures.length; i < count; ++i) {
+			offset[textures[i]] = 0;
+		}
+
+		for (i = 0, o = 0, count = faces.length; i < count; ++i) {
+			face = faces[i];
+			norm = shadeGroup[face.smoothGroup];
+			idx = face.vertidx;
+			tidx = face.tvertidx;
+
+			t = textures[face.texid];
+			out = mesh[t];
+			o = offset[t];
+
+			for (j = 0; j < 3; j++, o += 9) {
+				a = idx[j] * 3;
+				b = tidx[j] * 6;
+				out[o + 0] = vert[a + 0];
+				out[o + 1] = vert[a + 1];
+				out[o + 2] = vert[a + 2];
+				out[o + 3] = norm[a + 0];
+				out[o + 4] = norm[a + 1];
+				out[o + 5] = norm[a + 2];
+				out[o + 6] = tver[b + 4];
+				out[o + 7] = tver[b + 5];
+				out[o + 8] = alpha;
+			}
+
+			offset[t] = o;
+		}
+	}
+
+	/**
+	 * Compile a node at a specific animation frame
+	 */
+	function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
+		var matrix;
+		var modelViewMat = mat4.create();
+		var normalMat = mat4.create();
+
+		var textures = node.textures;
+		var faces = node.faces;
+		var vertices = node.vertices;
+
+		var mesh = {};
+		var mesh_size = [];
+
+		var vert, face_normal;
+		var shadeGroup = new Array(32);
+		var shadeGroupUsed = new Array(32);
+		var i, x, y, z, count;
+
+		// Calculate animated matrix
+		matrix = mat4.create();
+		mat4.identity(matrix);
+		mat4.translate(matrix, matrix, [-node.main.box.center[0], -node.main.box.max[1], -node.main.box.center[2]]);
+
+		// Apply node transformations with animation
+		var nodeMatrix = mat4.create();
+		mat4.identity(nodeMatrix);
+
+		// Position animation
+		var animPos = getPositionAtFrame(node.posKeyframes, frame, animLen);
+		if (animPos) {
+			mat4.translate(nodeMatrix, nodeMatrix, animPos);
+		} else {
+			mat4.translate(nodeMatrix, nodeMatrix, node.pos);
+		}
+
+		// Rotation animation
+		var animRot = getRotationAtFrame(node.rotKeyframes, frame, animLen);
+		if (animRot) {
+			mat4.rotateQuat(nodeMatrix, nodeMatrix, animRot);
+		} else if (node.rotKeyframes && node.rotKeyframes.length > 0) {
+			mat4.rotateQuat(nodeMatrix, nodeMatrix, node.rotKeyframes[0].q);
+		} else {
+			mat4.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
+		}
+
+		// Scale animation
+		var animScale = getScaleAtFrame(node.scaleKeyFrames, frame, animLen);
+		if (animScale) {
+			mat4.scale(nodeMatrix, nodeMatrix, animScale);
+		} else {
+			mat4.scale(nodeMatrix, nodeMatrix, node.scale);
+		}
+
+		mat4.multiply(matrix, matrix, nodeMatrix);
+
+		if (!node.is_only) {
+			mat4.translate(matrix, matrix, node.offset);
+		}
+
+		mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3));
+
+		// Multiply with instance matrix
+		mat4.multiply(modelViewMat, instanceMatrix, matrix);
+		mat4.extractRotation(normalMat, modelViewMat);
+
+		// Generate new vertices
+		count = vertices.length;
+		vert = new Float32Array(count * 3);
+		for (i = 0; i < count; ++i) {
+			x = vertices[i][0];
+			y = vertices[i][1];
+			z = vertices[i][2];
+
+			vert[i * 3 + 0] = modelViewMat[0] * x + modelViewMat[4] * y + modelViewMat[8] * z + modelViewMat[12];
+			vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
+			vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
+		}
+
+		// Generate face normals
+		face_normal = new Float32Array(faces.length * 3);
+
+		// Setup mesh slot array
+		for (i = 0, count = textures.length; i < count; ++i) {
+			mesh_size[textures[i]] = 0;
+		}
+
+		// Find mesh max face
+		for (i = 0, count = faces.length; i < count; ++i) {
+			mesh_size[textures[faces[i].texid]]++;
+		}
+
+		// Initialize buffer
+		for (i = 0, count = textures.length; i < count; ++i) {
+			mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
+		}
+
+		// Calculate normals based on shading type
+		switch (node.main.shadeType) {
+			default:
+			case 0: // NONE
+				calcNormal_NONE(face_normal);
+				generate_mesh_FLAT(node, vert, face_normal, mesh);
+				break;
+
+			case 1: // FLAT
+				calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
+				generate_mesh_FLAT(node, vert, face_normal, mesh);
+				break;
+
+			case 2: // SMOOTH
+				calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
+				calcNormal_SMOOTH(node, face_normal, shadeGroupUsed, shadeGroup);
+				generate_mesh_SMOOTH(node, vert, shadeGroup, mesh);
+				break;
+		}
+
+		return mesh;
+	}
+
+	/**
+	 * Rebuild mesh buffer at current frame
+	 */
+	function rebuildMeshAtFrame(self, gl, frame) {
+		var model = self.model;
+		var nodes = model.nodes;
+		var instances = model.instances;
+		var objects = [];
+		var infos = [];
+		var total = 0;
+
+		// Compile all nodes at current frame
+		for (var ni = 0; ni < nodes.length; ni++) {
+			for (var ii = 0; ii < instances.length; ii++) {
+				var mesh = compileNodeAtFrame(nodes[ni], instances[ii], frame, model.animLen);
+				var textureKeys = Object.keys(mesh);
+
+				for (var ki = 0; ki < textureKeys.length; ki++) {
+					var texIdx = textureKeys[ki];
+					objects.push({
+						texture: model.textures[texIdx],
+						alpha: model.alpha,
+						mesh: mesh[texIdx]
+					});
+					total += mesh[texIdx].length;
+				}
+			}
+		}
+
+		// Create buffer
+		var buffer = new Float32Array(total);
+		var offset = 0;
+
+		for (var i = 0; i < objects.length; i++) {
+			var obj = objects[i];
+			var length = obj.mesh.length;
+
+			infos[i] = {
+				texture: 'data/texture/' + obj.texture,
+				vertOffset: offset / 9,
+				vertCount: length / 9
+			};
+
+			buffer.set(obj.mesh, offset);
+			offset += length;
+		}
+
+		// Update GPU buffer
+		if (!self.buffer) {
+			self.buffer = gl.createBuffer();
+		}
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
+
+		// Update objects info
+		if (self.objects.length !== infos.length) {
+			// Need to reload textures
+			for (var i = 0; i < self.objects.length; i++) {
+				if (self.objects[i] && self.objects[i].texture) {
+					gl.deleteTexture(self.objects[i].texture);
+				}
+			}
+			self.objects = new Array(infos.length);
+			for (var i = 0; i < infos.length; i++) {
+				self.objects[i] = {
+					vertCount: infos[i].vertCount,
+					vertOffset: infos[i].vertOffset,
+					complete: false,
+					texture: null
+				};
+
+				(function (idx, texturePath) {
+					Client.loadFile(texturePath, function (data) {
+						WebGL.texture(gl, data, function (texture) {
+							self.objects[idx].texture = texture;
+							self.objects[idx].complete = true;
+						});
+					}, function () {
+						// Texture load failed, mark as complete anyway
+						self.objects[idx].complete = true;
+					});
+				})(i, infos[i].texture);
+			}
+		} else {
+			// Just update vertex offsets and counts
+			for (var i = 0; i < infos.length; i++) {
+				self.objects[i].vertCount = infos[i].vertCount;
+				self.objects[i].vertOffset = infos[i].vertOffset;
+			}
+		}
 	}
 
 	function initModel(gl, data) {
 		var self = this;
-		var count	   = data.infos.length;
+		var count = data.infos.length;
 		this.objects.length = count;
 
 		// Create a buffer if it doesn't exist
@@ -137,7 +698,7 @@ var _fragmentShader = `
 		gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 
 		function onTextureLoaded(texture, i) {
-			self.objects[i].texture  = texture;
+			self.objects[i].texture = texture;
 			self.objects[i].complete = true;
 		}
 
@@ -147,9 +708,9 @@ var _fragmentShader = `
 				this.objects[i] = {};
 			}
 
-			this.objects[i].vertCount  = data.infos[i].vertCount;
+			this.objects[i].vertCount = data.infos[i].vertCount;
 			this.objects[i].vertOffset = data.infos[i].vertOffset;
-			this.objects[i].complete   = false;
+			this.objects[i].complete = false;
 
 			WebGL.texture(gl, data.infos[i].texture, onTextureLoaded, i);
 		}
@@ -162,10 +723,25 @@ var _fragmentShader = `
 	};
 
 	RsmEffect.prototype.init = function render(gl, tick) {
-		var self	 = this;
+		var self = this;
 
 		Client.getFile(this.filename, function (buf) {
 			self.model = new Model(buf);
+
+			// Check if model has animation
+			self.isAnimated = false;
+			self.animLen = self.model.animLen || 0;
+			self.fps = self.model.frameRatePerSecond || 30;
+
+			for (var n = 0; n < self.model.nodes.length; n++) {
+				var node = self.model.nodes[n];
+				if ((node.rotKeyframes && node.rotKeyframes.length > 0) ||
+					(node.posKeyframes && node.posKeyframes.length > 0) ||
+					(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)) {
+					self.isAnimated = true;
+					break;
+				}
+			}
 
 			var data;
 			var i, count, j, size, total, offset, length, pos;
@@ -177,20 +753,20 @@ var _fragmentShader = `
 			self.model.createInstance(self.globalParameters, 0, 0);
 
 			// Compile model
-			data  = self.model.compile();
+			data = self.model.compile();
 			count = data.meshes.length;
 			total = 0;
 
 			// Extract meshes
 			for (i = 0, count = data.meshes.length; i < count; ++i) {
 				meshes = data.meshes[i];
-				index  = Object.keys(meshes);
+				index = Object.keys(meshes);
 
 				for (j = 0, size = index.length; j < size; ++j) {
 					objects.push({
 						texture: data.textures[index[j]],
-						alpha:   self.model.alpha,
-						mesh:	meshes[index[j]]
+						alpha: self.model.alpha,
+						mesh: meshes[index[j]]
 					});
 
 					total += meshes[index[j]].length;
@@ -198,8 +774,8 @@ var _fragmentShader = `
 			}
 
 			buffer = new Float32Array(total);
-			count  = objects.length;
-			pos	= 0;
+			count = objects.length;
+			pos = 0;
 			offset = 0;
 
 			// Merge meshes to buffer
@@ -208,9 +784,9 @@ var _fragmentShader = `
 				length = object.mesh.length;
 
 				infos[i] = {
-					texture:	'data/texture/' + object.texture,
+					texture: 'data/texture/' + object.texture,
 					vertOffset: offset / 9,
-					vertCount:  length / 9
+					vertCount: length / 9
 				};
 
 				// Add to buffer
@@ -228,7 +804,7 @@ var _fragmentShader = `
 					// Initialize renderer
 					initModel.call(self, gl, {
 						buffer: buffer,
-						infos:  infos
+						infos: infos
 					});
 					self.ready = true;
 					return;
@@ -243,11 +819,15 @@ var _fragmentShader = `
 			// Start loading textures
 			loadNextTexture();
 		});
+
+		this.needInit = false;
 	}
 
 	RsmEffect.prototype.free = function free(gl) {
 		for (var i = 0, count = this.objects.length; i < count; ++i) {
-			gl.deleteTexture(this.objects[i].texture);
+			if (this.objects[i] && this.objects[i].texture) {
+				gl.deleteTexture(this.objects[i].texture);
+			}
 		}
 
 		if (this.buffer) {
@@ -265,7 +845,7 @@ var _fragmentShader = `
 			_program = null;
 		}
 
-		this.ready	  = false;
+		this.ready = false;
 	};
 
 	RsmEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
@@ -276,7 +856,7 @@ var _fragmentShader = `
 
 
 		// -- render
-		var uniform   = _program.uniform;
+		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 
 		gl.useProgram(_program);
@@ -312,8 +892,19 @@ var _fragmentShader = `
 	RsmEffect.prototype.render = function render(gl, tick) {
 		var uniform = _program.uniform;
 
+		// Handle animation
+		if (this.isAnimated && this.model && this.animLen > 0) {
+			var elapsed = tick - this.startTick;
+			var frame = Math.floor((elapsed * this.fps / 1000) % this.animLen);
+
+			if (frame !== this.lastFrame) {
+				rebuildMeshAtFrame(this, gl, frame);
+				this.lastFrame = frame;
+			}
+		}
+
 		gl.uniform3fv(uniform.uPosition, this.position);
-		gl.uniform1f( uniform.uSize, this.size);
+		gl.uniform1f(uniform.uSize, this.size);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
@@ -326,7 +917,7 @@ var _fragmentShader = `
 		gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 9 * 4, 8 * 4);
 
 		for (var i = 0, count = this.objects.length; i < count; ++i) {
-			if (this.objects[i].complete) {
+			if (this.objects[i] && this.objects[i].complete) {
 				gl.bindTexture(gl.TEXTURE_2D, this.objects[i].texture);
 				gl.drawArrays(gl.TRIANGLES, this.objects[i].vertOffset, this.objects[i].vertCount);
 			}
