@@ -313,8 +313,14 @@ define(function (require) {
 					}
 
 					if (direction > 2 && direction < 6) { // looking back
-						if (Session.Playing == true && self.hasCart == true) {
+						// Draw Robe
+						if (self.robe > 0) {
 							SpriteRenderer.zIndex = 200;
+							renderElement(self, self.files.robe, 'robe', _position, true);
+						}
+
+						if (Session.Playing == true && self.hasCart == true) {
+							SpriteRenderer.zIndex = 250;
 							var cartidx = [
 								JobId.NOVICE,
 								JobId.SUPERNOVICE,
@@ -324,12 +330,6 @@ define(function (require) {
 							].includes(self._job) ? 0 : self.CartNum;
 							renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-						}
-
-						// Draw Robe
-						if (self.robe > 0) {
-							SpriteRenderer.zIndex = 250;
-							renderElement(self, self.files.robe, 'robe', _position, true);
 						}
 					}
 
