@@ -161,6 +161,8 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 		var w = canvas.width;
 		var h = canvas.height;
 
+		procCtx.clearRect(0, 0, w, h);
+
 		if (procCanvas.width !== w || procCanvas.height !== h) {
 			procCanvas.width  = w;
 			procCanvas.height = h;
