@@ -305,7 +305,10 @@ define(function (require) {
 
 							// Draw Robe
 							if (self.robe > 0) {
-								renderElement(self, self.files.robe, 'robe', _position, true);
+								// Same of cart
+								SpriteRenderer.setDepth(true, true, true, function () {
+									renderElement(self, self.files.robe, 'robe', _position, true);
+								});
 							}
 						}
 
@@ -381,7 +384,7 @@ define(function (require) {
 					break;
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
-
+					SpriteRenderer.zIndex = 100;
 					// Non-player entities:
 					// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 					// - Still use depth test for correct ordering

@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define( ['Utils/WebGL'], function( WebGL )
+define( ['Utils/WebGL', 'Renderer/SpriteRenderer'], function( WebGL, SpriteRenderer )
 {
 	'use strict';
 
@@ -252,10 +252,12 @@ define( ['Utils/WebGL'], function( WebGL )
 
 		// Send mesh
 		gl.bindTexture( gl.TEXTURE_2D, _textures[ frame / _animSpeed % 32 | 0 ] );
-		gl.depthMask(false);
+		
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.drawArrays(  gl.TRIANGLES,  0, _vertCount );
-		gl.depthMask(true);
+					//depthtest, depthmask, disabledepthcorrection(isometric draw)
+		SpriteRenderer.setDepth(true, false, false, function(){
+			gl.drawArrays(  gl.TRIANGLES,  0, _vertCount );
+		});
 
 		// Is it needed ?
 		gl.disableVertexAttribArray( attribute.aPosition );
