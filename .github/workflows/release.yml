@@ -39,7 +39,7 @@ jobs:
         run: |
             test -d dist/Web
             cd dist/Web
-            zip -r "${{ github.workspace }}/dist-Web.zip" .
+            zip -r "${{ github.workspace }}/release-dist-web.zip" .
 
       - name: "Create GitHub Release + upload assets"
         uses: softprops/action-gh-release@v2
@@ -49,7 +49,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             *.tgz
-            dist-Web.zip
+            release-dist-web.zip
           generate_release_notes: true
 
 
