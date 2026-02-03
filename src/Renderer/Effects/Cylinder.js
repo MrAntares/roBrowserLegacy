@@ -5,8 +5,8 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera'],
-function(      WebGL,         Texture,          glMatrix,        Client,            Camera) {
+define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/SpriteRenderer'],
+function(      WebGL,         Texture,          glMatrix,        Client,            Camera,            SpriteRenderer) {
 
 	'use strict';
 
@@ -418,7 +418,10 @@ var _fragmentShader = `
 
 		gl.uniform3fv(uniform.uPosition, currentPosition);
 
-		gl.drawArrays(gl.TRIANGLES, 0, this.verticeCount);
+		var self = this;
+		SpriteRenderer.setDepth(true, false, true, function(){
+			gl.drawArrays(gl.TRIANGLES, 0, self.verticeCount);
+		});
 
 		this.needCleanUp = this.endTick < tick;
 
@@ -482,8 +485,6 @@ var _fragmentShader = `
 	 */
 	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		var uniform = _program.uniform;
-		//Disable DepthMask
-		gl.depthMask(false);
 
 		gl.useProgram(_program);
 
@@ -509,10 +510,6 @@ var _fragmentShader = `
 	 * @param {object} webgl context
 	 */
 	Cylinder.afterRender = function afterRender(gl) {
-
-		//Enable DepthMask
-		gl.depthMask(true);
-
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
