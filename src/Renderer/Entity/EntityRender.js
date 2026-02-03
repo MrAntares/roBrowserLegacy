@@ -238,7 +238,7 @@ define(function (require) {
 			
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45 && !this.hideShadow) {
-				SpriteRenderer.zIndex = 0;
+				SpriteRenderer.zIndex = -1;
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
@@ -308,40 +308,47 @@ define(function (require) {
 								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
 						}
+
 						// Draw Body
 						renderElement(self, self.files.body, 'body', _position, true);
 
-						SpriteRenderer.zIndex = 150;
+						// Isometric Projection Body Offset
+						var zOffset = 100;
+
+						SpriteRenderer.zIndex = zOffset + 50;
 
 						// Draw Head
 						renderElement(self, self.files.head, 'head', _position, false);
 
-						// Hat Bottom
-						if (self.accessory > 0) {
-							renderElement(self, self.files.accessory, 'head', _position, false);
-						}
-
 						// Hat Middle
 						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) { // accessory already rendered, avoid render same item again
+							SpriteRenderer.zIndex = zOffset + 100;
 							renderElement(self, self.files.accessory3, 'head', _position, false);
 						}
 
 						// Hat Top
 						if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
+							SpriteRenderer.zIndex = zOffset + 200;
 							renderElement(self, self.files.accessory2, 'head', _position, false);
+						}
+
+						// Hat Bottom
+						if (self.accessory > 0) {
+							SpriteRenderer.zIndex = zOffset + 300;
+							renderElement(self, self.files.accessory, 'head', _position, false);
 						}
 
 						if (direction > 2 && direction < 6) { // looking back
 
 							// Draw Robe
 							if (self.robe > 0) {
-								SpriteRenderer.zIndex = 200;
+								SpriteRenderer.zIndex = zOffset + 400;
 								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
 
 							// Draw Cart
 							if (Session.Playing == true && self.hasCart == true) {
-								SpriteRenderer.zIndex = 250;
+								SpriteRenderer.zIndex = zOffset + 500;
 								var cartidx = [
 									JobId.NOVICE,
 									JobId.SUPERNOVICE,
@@ -356,13 +363,13 @@ define(function (require) {
 
 						// Draw Weapon
 						if (self.weapon > 0) {
-							SpriteRenderer.zIndex = 200;
+							SpriteRenderer.zIndex = zOffset + 250;
 							renderElement(self, self.files.weapon, 'weapon', _position, true);
 							renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
 						}
 
 						if (self.shield > 0 && !behind) {
-							SpriteRenderer.zIndex = 250;
+							SpriteRenderer.zIndex = zOffset + 300;
 							renderElement(self, self.files.shield, 'shield', _position, true);
 						}
 
