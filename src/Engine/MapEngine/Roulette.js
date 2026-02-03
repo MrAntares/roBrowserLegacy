@@ -72,6 +72,10 @@ define(function (require) {
 		
 		// Server responded (standard rAthena implementation)
 		if (pkt.result === 0) {
+			// Append component to DOM if not already appended
+			if (!Roulette.ui) {
+				Roulette.append();
+			}
 			Roulette.onOpen(pkt);
 		} else {
 			console.error('Failed to open roulette:', pkt.result);
@@ -91,6 +95,10 @@ define(function (require) {
 		//   items: [{row, position, itemId, count}, ...]
 		// }
 		
+		// Append component to DOM if not already appended
+		if (!Roulette.ui) {
+			Roulette.append();
+		}
 		Roulette.onRouletteInfo(pkt);
 	}
 
@@ -113,6 +121,10 @@ define(function (require) {
 		// }
 
 		if (pkt.result === 0) {
+			// Append component to DOM if not already appended
+			if (!Roulette.ui) {
+				Roulette.append();
+			}
 			Roulette.onResult(pkt);
 		} else {
 			console.error('Roulette spin failed:', pkt.result);
@@ -131,8 +143,37 @@ define(function (require) {
 		//   result: number  // 0 = success, other = fail
 		// }
 		
-		if (pkt.result === 0) {
+		if (pkt.result === 0 && Roulette.ui) {
 			Roulette.ui.hide();
+		}
+	}
+
+
+	/**
+	 * Receive Roulette Item Result
+	 * 
+	 * @param {object} pkt - PACKET.ZC.RECV_ROULETTE_ITEM
+	 */
+	function onRecvRouletteItem(pkt) {
+		// pkt structure:
+		// {
+		//   result: number,        // 0=success, 1=failed, 2=overcount, 3=overweight
+		//   additionItemID: number
+		// }
+		
+		if (pkt.result === 0) {
+			// Item received successfully
+			if (Roulette.ui && typeof Roulette.onItemReceived === 'function') {
+				Roulette.onItemReceived(pkt);
+			}
+		} else {
+			var errorMsg = 'Failed to receive roulette item';
+			switch (pkt.result) {
+				case 1: errorMsg = 'Failed to receive item'; break;
+				case 2: errorMsg = 'Item count exceeded'; break;
+				case 3: errorMsg = 'Overweight'; break;
+			}
+			console.error('[Roulette]', errorMsg);
 		}
 	}
 
@@ -145,5 +186,6 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.ACK_ROULETTE_INFO, onRouletteInfo);
 		Network.hookPacket(PACKET.ZC.ACK_GENERATE_ROULETTE, onGenerateRoulette);
 		Network.hookPacket(PACKET.ZC.ACK_CLOSE_ROULETTE, onCloseRoulette);
+		Network.hookPacket(PACKET.ZC.RECV_ROULETTE_ITEM, onRecvRouletteItem);
 	};
 });
