@@ -48,20 +48,20 @@ jobs:
 
       - name: "Create npm package tarball"
         run: |
-            npm pack --silent
-            ls -alh *.tgz
+            npm pack --silent --pack-destination "${{ github.workspace }}"
 
       - name: "Compact the dist/Web directory contents"
         run: |
             test -d dist/Web
             cd dist/Web
-            zip -r ../../dist-Web.zip .
-            cd ../..
-            ls -lah dist-Web.zip
+            zip -r "${{ github.workspace }}/dist-Web.zip" .
 
       - name: "Create GitHub Release + upload assets"
         uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
         with:
+          tag_name: ${{ github.ref_name }}
+          draft: true
           files: |
             *.tgz
             dist-Web.zip
