@@ -253,13 +253,28 @@ define(function (require) {
 			SpriteRenderer.position.set(self.position);
 			SpriteRenderer.zIndex = 1;
 
+			// ------------------------------------------------------------------
+			// ENTITY RENDER PIPELINE
+			//
+			// PC / MERC:
+			// - Write depth (3D world occluders)
+			// - Use depth correction (isometric projection)
+			// - Use zIndex only for same-entity layering
+			//
+			// Others (npcs, mobs, items, effects, etc...):
+			// - Depth test only
+			// - Do NOT write depth (avoid occluding sprite layers)
+			// ------------------------------------------------------------------
 			switch (self.objecttype) {
 				case Entity.TYPE_PC:
 				case Entity.TYPE_MERC:
 
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 
-					//                      depthTest, depthWrite, disableDepthCorrection, renderFunc
+					// Main sprite pass:
+					// depthTest  = resolve world occlusion
+					// depthWrite = allow entity to occlude others
+					// depthCorrection ENABLED (required for isometric depth)
 					SpriteRenderer.setDepth(true, true, false, function () {
 
 						// Shield is behind on some position, seems to be hardcoded by the client
@@ -278,7 +293,9 @@ define(function (require) {
 									JobId.SUPERNOVICE2_B
 								].includes(self._job) ? 0 : self.CartNum;
 
-								// Forces cart to be rendered behind body
+								// Cart uses raw depth (no correction) so it stays visually
+								// behind the body regardless of isometric projection.
+								// This is intentional and matches official client behavior.
 								SpriteRenderer.setDepth(true, true, true, function () {
 									// Draw Cart
 									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
@@ -355,7 +372,9 @@ define(function (require) {
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 
-					//                      depthTest, depthWrite, disableDepthCorrection, renderFunc
+					// Non-player entities:
+					// - Do not write depth to avoid breaking PC occlusion and internal layer issues
+					// - Still use depth test for correct ordering
 					SpriteRenderer.setDepth(true, false, false, function () {
 						renderElement(self, self.files.body, 'body', _position, true);
 					});
