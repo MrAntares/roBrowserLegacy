@@ -684,6 +684,7 @@ define(["./PacketStructure"], function (PACKET) {
 		0xa1c: PACKET.ZC.ACK_ROULETTE_INFO, // Roulette - item list
 		0xa1e: PACKET.ZC.ACK_CLOSE_ROULETTE, // Roulette - close response
 		0xa20: PACKET.ZC.ACK_GENERATE_ROULETTE, // Roulette - spin result
+		0xa22: PACKET.ZC.RECV_ROULETTE_ITEM, // Roulette - receive item result
 		0xa23: PACKET.ZC.ALL_ACH_LIST, // ?
 		0xa24: PACKET.ZC.ACH_UPDATE,
 		0xa25: PACKET.CZ.REQ_ACH_REWARD,
