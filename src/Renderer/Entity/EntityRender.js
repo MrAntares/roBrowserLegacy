@@ -305,7 +305,10 @@ define(function (require) {
 
 							// Draw Robe
 							if (self.robe > 0) {
-								renderElement(self, self.files.robe, 'robe', _position, true);
+								// Same of cart
+								SpriteRenderer.setDepth(true, true, true, function () {
+									renderElement(self, self.files.robe, 'robe', _position, true);
+								});
 							}
 						}
 
