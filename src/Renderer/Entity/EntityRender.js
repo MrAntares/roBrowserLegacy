@@ -381,7 +381,7 @@ define(function (require) {
 					break;
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
-
+					SpriteRenderer.zIndex = 100;
 					// Non-player entities:
 					// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 					// - Still use depth test for correct ordering
