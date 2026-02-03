@@ -268,9 +268,7 @@ define(function (require) {
 						}
 
 
-						if (direction > 2 && direction < 6) {
-							renderElement(self, self.files.body, 'body', _position, true);
-						} else {
+						if (!(direction > 2 && direction < 6)) { // looking front
 							if (Session.Playing == true && self.hasCart == true) {
 								var cartidx = [
 									JobId.NOVICE,
@@ -280,8 +278,9 @@ define(function (require) {
 									JobId.SUPERNOVICE2_B
 								].includes(self._job) ? 0 : self.CartNum;
 
-								// forces cart to be rendered behind body
+								// Forces cart to be rendered behind body
 								SpriteRenderer.setDepth(true, true, true, function () {
+									// Draw Cart
 									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 								});
@@ -291,11 +290,12 @@ define(function (require) {
 							if (self.robe > 0) {
 								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
-
-							renderElement(self, self.files.body, 'body', _position, true);
 						}
+						// Draw Body
+						renderElement(self, self.files.body, 'body', _position, true);
 
 						SpriteRenderer.zIndex = 150;
+
 						// Draw Head
 						renderElement(self, self.files.head, 'head', _position, false);
 
@@ -315,12 +315,14 @@ define(function (require) {
 						}
 
 						if (direction > 2 && direction < 6) { // looking back
+
 							// Draw Robe
 							if (self.robe > 0) {
 								SpriteRenderer.zIndex = 200;
 								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
 
+							// Draw Cart
 							if (Session.Playing == true && self.hasCart == true) {
 								SpriteRenderer.zIndex = 250;
 								var cartidx = [
