@@ -17,6 +17,21 @@ jobs:
         with:
          ref: "master"
 
+      - name: Ensure tag commit is on master
+        shell: bash
+        run: |
+          git fetch --no-tags origin master:refs/remotes/origin/master
+          TAG_COMMIT="$(git rev-list -n 1 "${GITHUB_REF}")"
+          echo "Tag ref: ${GITHUB_REF}"
+          echo "Tag commit: ${TAG_COMMIT}"
+
+          if git merge-base --is-ancestor "${TAG_COMMIT}" "origin/master"; then
+            echo "OK: tag commit is on master history."
+          else
+            echo "ERROR: tag commit is NOT on master history. Refusing to release."
+            exit 1
+          fi
+
       - name: "Setup NodeJS version"
         uses: actions/setup-node@v6
         with:
