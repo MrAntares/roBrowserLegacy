@@ -15785,6 +15785,25 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.ACK_GENERATE_ROULETTE.size = 21;
 
+	// 0xA21 - CZ_RECV_ROULETTE_ITEM (request to receive roulette item)
+	PACKET.CZ.RECV_ROULETTE_ITEM = function PACKET_CZ_RECV_ROULETTE_ITEM() {
+		this.condition = 0; // 0 = normal, 1 = losing
+	};
+	PACKET.CZ.RECV_ROULETTE_ITEM.prototype.build = function() {
+		var pkt_len = 3;
+		var pkt_buf = new BinaryWriter(pkt_len);
+		pkt_buf.writeShort(0x0a21);
+		pkt_buf.writeUChar(this.condition);
+		return pkt_buf;
+	};
+
+	// 0xA22 - ZC_RECV_ROULETTE_ITEM (receive roulette item result)
+	PACKET.ZC.RECV_ROULETTE_ITEM = function PACKET_ZC_RECV_ROULETTE_ITEM(fp, end) {
+		this.result = fp.readUChar();           // 1 byte - Result (0=success, 1=failed, 2=overcount, 3=overweight)
+		this.additionItemID = fp.readUShort();  // 2 bytes - AdditionItemID
+	};
+	PACKET.ZC.RECV_ROULETTE_ITEM.size = 5;
+
 
 	/**
 	 * Export

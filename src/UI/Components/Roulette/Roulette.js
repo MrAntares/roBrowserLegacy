@@ -441,6 +441,30 @@ define(function(require)
 
 
 	/**
+	 * Handle item received from server
+	 */
+	Roulette.onItemReceived = function onItemReceived(pkt)
+	{
+		// Update UI to show item was received
+		Roulette.updateUI();
+		
+		// Optionally show a notification
+		// ChatBox.addText( 'Roulette item received!', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG );
+	};
+
+
+	/**
+	 * Request to receive the roulette item
+	 */
+	Roulette.requestReceiveItem = function requestReceiveItem(condition)
+	{
+		var pkt = new PACKET.CZ.RECV_ROULETTE_ITEM();
+		pkt.condition = condition || 0; // 0 = normal, 1 = losing
+		Network.sendPacket(pkt);
+	};
+
+
+	/**
 	 * Export
 	 */
 	return UIManager.addComponent(Roulette);

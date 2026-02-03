@@ -56,6 +56,7 @@ define(function( require )
 	var FXAA           = require('Renderer/Effects/Shaders/FXAA');
 	var Vibrance       = require('Renderer/Effects/Shaders/Vibrance'); 
 	var Cartoon        = require('Renderer/Effects/Shaders/Cartoon'); 
+	var Blind          = require('Renderer/Effects/Shaders/Blind');
 
 	var WebGL         = require('Utils/WebGL');
 
@@ -364,6 +365,7 @@ define(function( require )
 		PostProcess.register(Cartoon, gl);
 		PostProcess.register(Vibrance, gl);  
 		PostProcess.register(VerticalFlip, gl); 
+		PostProcess.register(Blind, gl); 
 	}
 
 	/**
