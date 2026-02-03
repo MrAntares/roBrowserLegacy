@@ -1,4 +1,4 @@
-name: release.yml
+name: "Generate a release package"
 on:
   push:
     tags:
