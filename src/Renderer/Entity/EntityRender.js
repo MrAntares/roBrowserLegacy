@@ -237,7 +237,7 @@ define(function (require) {
 			var self = this;
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45 && !this.hideShadow) {
-
+				SpriteRenderer.zIndex = 0;
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
@@ -255,6 +255,7 @@ define(function (require) {
 
 				SpriteRenderer.position.set(self.position);
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+				SpriteRenderer.zIndex = 1;
 
 				// Shield is behind on some position, seems to be hardcoded by the client
 				if (self.objecttype === Entity.TYPE_PC && self.shield && behind) {
@@ -264,23 +265,6 @@ define(function (require) {
 
 				if (direction > 2 && direction < 6) {
 					renderElement(self, self.files.body, 'body', _position, true);
-
-					// Draw Robe
-					if (self.robe > 0) {
-						renderElement(self, self.files.robe, 'robe', _position, true);
-					}
-
-					if (Session.Playing == true && self.hasCart == true) {
-						var cartidx = [
-							JobId.NOVICE,
-							JobId.SUPERNOVICE,
-							JobId.SUPERNOVICE_B,
-							JobId.SUPERNOVICE2,
-							JobId.SUPERNOVICE2_B
-						].includes(self._job) ? 0 : self.CartNum;
-						renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-						renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-					}
 				} else {
 					if (Session.Playing == true && self.hasCart == true) {
 						var cartidx = [
@@ -290,30 +274,26 @@ define(function (require) {
 							JobId.SUPERNOVICE2,
 							JobId.SUPERNOVICE2_B
 						].includes(self._job) ? 0 : self.CartNum;
-						renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-						renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+
+						SpriteRenderer.setDepth(true, true, true, function () {
+							renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+						});
 					}
+
 					// Draw Robe
-					renderElement(self, self.files.robe, 'robe', _position, true);
+					if (self.robe > 0) {
+						renderElement(self, self.files.robe, 'robe', _position, true);
+					}
 
 					renderElement(self, self.files.body, 'body', _position, true);
-
 				}
 
 
 
 				if (self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MERC) {
-					// Draw Weapon
-					if (self.weapon > 0) {
-						renderElement(self, self.files.weapon, 'weapon', _position, true);
-						renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
-					}
 
-					if (self.shield > 0 && !behind) {
-						renderElement(self, self.files.shield, 'shield', _position, true);
-					}
-
-					SpriteRenderer.zIndex += 150;
+					SpriteRenderer.zIndex = 150;
 					// Draw Head
 					renderElement(self, self.files.head, 'head', _position, false);
 
@@ -330,6 +310,39 @@ define(function (require) {
 					// Hat Top
 					if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
 						renderElement(self, self.files.accessory2, 'head', _position, false);
+					}
+
+					if (direction > 2 && direction < 6) { // looking back
+						if (Session.Playing == true && self.hasCart == true) {
+							SpriteRenderer.zIndex = 200;
+							var cartidx = [
+								JobId.NOVICE,
+								JobId.SUPERNOVICE,
+								JobId.SUPERNOVICE_B,
+								JobId.SUPERNOVICE2,
+								JobId.SUPERNOVICE2_B
+							].includes(self._job) ? 0 : self.CartNum;
+							renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+						}
+
+						// Draw Robe
+						if (self.robe > 0) {
+							SpriteRenderer.zIndex = 250;
+							renderElement(self, self.files.robe, 'robe', _position, true);
+						}
+					}
+
+					// Draw Weapon
+					if (self.weapon > 0) {
+						SpriteRenderer.zIndex = 200;
+						renderElement(self, self.files.weapon, 'weapon', _position, true);
+						renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
+					}
+
+					if (self.shield > 0 && !behind) {
+						SpriteRenderer.zIndex = 250;
+						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
 
 				}
