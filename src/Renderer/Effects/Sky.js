@@ -223,7 +223,7 @@ define(function( require )
 			// Calculate position
 			vec3.add( cloud.position, cloud.position, cloud.direction );
 			SpriteRenderer.position.set(cloud.position);
-			SpriteRenderer.setDepth(false, false, false, function(){
+			SpriteRenderer.setDepth(true, false, true, function(){
 				SpriteRenderer.render();
 			});
 		}
