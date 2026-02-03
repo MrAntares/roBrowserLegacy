@@ -458,9 +458,6 @@ define(function( require )
 		Ground.render(gl, modelView, projection, normalMat, fog, light );
 		Models.render(gl, modelView, projection, normalMat, fog, light );
 
-		// Rendering water (before sprites so it can't overdraw them)
-		Water.render( gl, modelView, projection, fog, light, tick );
-
 		if (Mouse.intersect && Altitude.intersect( modelView, projection, _pos)) {
 			x = _pos[0];
 			y = _pos[1];
@@ -501,6 +498,9 @@ define(function( require )
 
 		//Render Entities (no effects)
 		EntityManager.render( gl, modelView, projection, fog, false );
+
+		// Rendering water
+		Water.render( gl, modelView, projection, fog, light, tick );
 
 		// Rendering effects
 		Damage.render( gl, modelView, projection, fog, tick );
