@@ -514,9 +514,22 @@ function bindMouseEvents() {
 	
 		if (Cursor.magnetism && !Cursor.blockMagnetism) {
 			let entity = EntityManager.getOverEntity();
-			if (entity && ((['TYPE_MOB', 'TYPE_NPC_ABR', 'TYPE_NPC_BIONIC'].includes(entity.objecttype) && Preferences.snap) || (entity.objecttype === Entity.TYPE_ITEM && Preferences.itemsnap))) {
-				x += Math.floor(Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2));
-				y += Math.floor(Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2));
+			if (entity){
+				switch(entity.objecttype){
+					case Entity.TYPE_MOB:
+					case Entity.TYPE_NPC_ABR:
+					case Entity.TYPE_NPC_BIONIC:
+						if(!Preferences.snap) break;
+						x += Math.floor(Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2));
+						y += Math.floor(Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2));
+						break;
+					case Entity.TYPE_ITEM:
+						if(!Preferences.itemsnap) break;
+						x += Math.floor(Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2));
+						y += Math.floor(Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2));
+						break;
+					default: break;
+				}
 			}
 		}
 	
