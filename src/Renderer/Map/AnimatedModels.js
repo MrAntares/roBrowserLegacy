@@ -70,8 +70,11 @@ define(function (require) {
             vTextureCoord = aTextureCoord;
             vAlpha = aAlpha;
 
-            vec3 normal = normalize(uNormalMat * aNormal);
-            float lightWeight = max(dot(normal, -uLightDirection), 0.0);
+            // Normals are already in World Space (transformed in JS)
+            // LightDirection is also World Space.
+            // Match logic from Models.js (Static models)
+            vec3 normal = normalize(aNormal);
+            float lightWeight = max(dot(normal, uLightDirection), 0.0);
             vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;
 
             if (uFogUse) {
