@@ -235,6 +235,7 @@ define(function (require) {
 			var direction = (Camera.direction + this.direction + 8) % 8;
 			var behind = direction > 1 && direction < 6;
 			var self = this;
+			
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45 && !this.hideShadow) {
 				SpriteRenderer.zIndex = 0;
@@ -249,104 +250,115 @@ define(function (require) {
 				});
 			}
 
-			var canWriteDepth = self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MERC;
+			SpriteRenderer.position.set(self.position);
+			SpriteRenderer.zIndex = 1;
 
-			SpriteRenderer.setDepth(true, canWriteDepth, false, function () {
+			switch (self.objecttype) {
+				case Entity.TYPE_PC:
+				case Entity.TYPE_MERC:
 
-				SpriteRenderer.position.set(self.position);
-				SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
-				SpriteRenderer.zIndex = 1;
+					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 
-				// Shield is behind on some position, seems to be hardcoded by the client
-				if (self.objecttype === Entity.TYPE_PC && self.shield && behind) {
-					renderElement(self, self.files.shield, 'shield', _position, true);
-				}
+					//                      depthTest, depthWrite, disableDepthCorrection, renderFunc
+					SpriteRenderer.setDepth(true, true, false, function () {
 
-
-				if (direction > 2 && direction < 6) {
-					renderElement(self, self.files.body, 'body', _position, true);
-				} else {
-					if (Session.Playing == true && self.hasCart == true) {
-						var cartidx = [
-							JobId.NOVICE,
-							JobId.SUPERNOVICE,
-							JobId.SUPERNOVICE_B,
-							JobId.SUPERNOVICE2,
-							JobId.SUPERNOVICE2_B
-						].includes(self._job) ? 0 : self.CartNum;
-
-						SpriteRenderer.setDepth(true, true, true, function () {
-							renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-						});
-					}
-
-					// Draw Robe
-					if (self.robe > 0) {
-						renderElement(self, self.files.robe, 'robe', _position, true);
-					}
-
-					renderElement(self, self.files.body, 'body', _position, true);
-				}
+						// Shield is behind on some position, seems to be hardcoded by the client
+						if (self.shield && behind) {
+							renderElement(self, self.files.shield, 'shield', _position, true);
+						}
 
 
+						if (direction > 2 && direction < 6) {
+							renderElement(self, self.files.body, 'body', _position, true);
+						} else {
+							if (Session.Playing == true && self.hasCart == true) {
+								var cartidx = [
+									JobId.NOVICE,
+									JobId.SUPERNOVICE,
+									JobId.SUPERNOVICE_B,
+									JobId.SUPERNOVICE2,
+									JobId.SUPERNOVICE2_B
+								].includes(self._job) ? 0 : self.CartNum;
 
-				if (self.objecttype === Entity.TYPE_PC || self.objecttype === Entity.TYPE_MERC) {
+								// forces cart to be rendered behind body
+								SpriteRenderer.setDepth(true, true, true, function () {
+									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+								});
+							}
 
-					SpriteRenderer.zIndex = 150;
-					// Draw Head
-					renderElement(self, self.files.head, 'head', _position, false);
+							// Draw Robe
+							if (self.robe > 0) {
+								renderElement(self, self.files.robe, 'robe', _position, true);
+							}
 
-					// Hat Bottom
-					if (self.accessory > 0) {
-						renderElement(self, self.files.accessory, 'head', _position, false);
-					}
+							renderElement(self, self.files.body, 'body', _position, true);
+						}
 
-					// Hat Middle
-					if (self.accessory3 > 0 && self.accessory3 !== self.accessory) { // accessory already rendered, avoid render same item again
-						renderElement(self, self.files.accessory3, 'head', _position, false);
-					}
+						SpriteRenderer.zIndex = 150;
+						// Draw Head
+						renderElement(self, self.files.head, 'head', _position, false);
 
-					// Hat Top
-					if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
-						renderElement(self, self.files.accessory2, 'head', _position, false);
-					}
+						// Hat Bottom
+						if (self.accessory > 0) {
+							renderElement(self, self.files.accessory, 'head', _position, false);
+						}
 
-					if (direction > 2 && direction < 6) { // looking back
-						// Draw Robe
-						if (self.robe > 0) {
+						// Hat Middle
+						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) { // accessory already rendered, avoid render same item again
+							renderElement(self, self.files.accessory3, 'head', _position, false);
+						}
+
+						// Hat Top
+						if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
+							renderElement(self, self.files.accessory2, 'head', _position, false);
+						}
+
+						if (direction > 2 && direction < 6) { // looking back
+							// Draw Robe
+							if (self.robe > 0) {
+								SpriteRenderer.zIndex = 200;
+								renderElement(self, self.files.robe, 'robe', _position, true);
+							}
+
+							if (Session.Playing == true && self.hasCart == true) {
+								SpriteRenderer.zIndex = 250;
+								var cartidx = [
+									JobId.NOVICE,
+									JobId.SUPERNOVICE,
+									JobId.SUPERNOVICE_B,
+									JobId.SUPERNOVICE2,
+									JobId.SUPERNOVICE2_B
+								].includes(self._job) ? 0 : self.CartNum;
+								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+							}
+						}
+
+						// Draw Weapon
+						if (self.weapon > 0) {
 							SpriteRenderer.zIndex = 200;
-							renderElement(self, self.files.robe, 'robe', _position, true);
+							renderElement(self, self.files.weapon, 'weapon', _position, true);
+							renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
 						}
 
-						if (Session.Playing == true && self.hasCart == true) {
+						if (self.shield > 0 && !behind) {
 							SpriteRenderer.zIndex = 250;
-							var cartidx = [
-								JobId.NOVICE,
-								JobId.SUPERNOVICE,
-								JobId.SUPERNOVICE_B,
-								JobId.SUPERNOVICE2,
-								JobId.SUPERNOVICE2_B
-							].includes(self._job) ? 0 : self.CartNum;
-							renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+							renderElement(self, self.files.shield, 'shield', _position, true);
 						}
-					}
 
-					// Draw Weapon
-					if (self.weapon > 0) {
-						SpriteRenderer.zIndex = 200;
-						renderElement(self, self.files.weapon, 'weapon', _position, true);
-						renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
-					}
 
-					if (self.shield > 0 && !behind) {
-						SpriteRenderer.zIndex = 250;
-						renderElement(self, self.files.shield, 'shield', _position, true);
-					}
+					});
+					break;
+				default:
+					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 
-				}
-			});
+					//                      depthTest, depthWrite, disableDepthCorrection, renderFunc
+					SpriteRenderer.setDepth(true, false, false, function () {
+						renderElement(self, self.files.body, 'body', _position, true);
+					});
+					break;
+			}
 			SpriteRenderer.zIndex = 1;
 		};
 	}();
