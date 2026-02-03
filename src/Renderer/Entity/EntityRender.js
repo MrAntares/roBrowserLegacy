@@ -279,9 +279,11 @@ define(function (require) {
 
 						// Shield is behind on some position, seems to be hardcoded by the client
 						if (self.shield && behind) {
-							renderElement(self, self.files.shield, 'shield', _position, true);
+							SpriteRenderer.setDepth(true, false, false, function () {
+								SpriteRenderer.zIndex = -1;
+								renderElement(self, self.files.shield, 'shield', _position, true);
+							});
 						}
-
 
 						if (!(direction > 2 && direction < 6)) { // looking front
 							if (Session.Playing == true && self.hasCart == true) {
@@ -293,25 +295,26 @@ define(function (require) {
 									JobId.SUPERNOVICE2_B
 								].includes(self._job) ? 0 : self.CartNum;
 
-								// Cart uses raw depth (no correction) so it stays visually
-								// behind the body regardless of isometric projection.
-								// This is intentional and matches official client behavior.
-								SpriteRenderer.setDepth(true, true, true, function () {
-									// Draw Cart
+								// Draw Cart           // been ocluded, dont oclude, isometric plane on
+								SpriteRenderer.setDepth(true, false, false, function () {
+									SpriteRenderer.zIndex = -1;
 									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 								});
+
 							}
 
 							// Draw Robe
 							if (self.robe > 0) {
-								// Same of cart
-								SpriteRenderer.setDepth(true, true, true, function () {
+											// been ocluded, dont oclude, isometric plane on
+								SpriteRenderer.setDepth(true, false, false, function () {
+									SpriteRenderer.zIndex = -1;
 									renderElement(self, self.files.robe, 'robe', _position, true);
 								});
 							}
 						}
 
+						SpriteRenderer.zIndex = 1;
 						// Draw Body
 						renderElement(self, self.files.body, 'body', _position, true);
 
