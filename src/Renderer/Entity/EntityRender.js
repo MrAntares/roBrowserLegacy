@@ -320,6 +320,9 @@ define(function (require) {
 						// Draw Head
 						renderElement(self, self.files.head, 'head', _position, false);
 
+						// TB_Layer_Priority = {Default_Mid = 100, Default_Top = 200, Default_Bottom = 300, Default_Robe = 400 }
+						// Values*10 reference https://github.com/zhad3/zrenderer/blob/c10b337dfb9d44e33b146551191b3398630823b5/source/sprite.d#L84
+
 						// Hat Middle
 						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) { // accessory already rendered, avoid render same item again
 							SpriteRenderer.zIndex = zOffset + 100;
