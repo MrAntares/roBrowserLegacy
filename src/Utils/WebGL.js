@@ -42,7 +42,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		}
 
 		// Prefer a high-performance context when available
-		if (parameters && parameters.powerPreference === undefined) {
+		if (parameters.powerPreference === undefined) {
 			parameters.powerPreference = 'high-performance';
 		}
 
