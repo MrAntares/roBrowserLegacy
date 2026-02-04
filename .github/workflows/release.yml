@@ -12,10 +12,11 @@ on:
       - "v*"
   pull_request:
     branches: [ "master" ]
-    tags:
-      - "v*"
 
 permissions:
+    # required for all workflows
+    security-events: write
+    contents: read
     contents: write
 
 jobs:
