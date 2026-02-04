@@ -1,4 +1,4 @@
-name: "Build (CI)"
+name: "Build roBrowserLegacy"
 
 concurrency:
   group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
@@ -16,26 +16,23 @@ permissions:
 
 jobs:
   build:
-    name: "Build the project"
+    name: "Build and validate"
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Checkout the repository"
+      - name: Checkout repo
         uses: actions/checkout@v5
 
-      - name: "Setup NodeJS"
+      - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: "npm"
 
-      - name: "Install dependencies"
-        run: npm ci
+      - name: Install dependencies
+        run: npm install
 
-      - name: "Build project"
+      - name: Build project
         run: npm run build
 
-      # opcional: garante que o build não gerou lixo
-      - name: "Check dist folder"
-        run: |
-          test -d dist
+      - name: Validate dist/Web
+        run: test -d dist/Web
