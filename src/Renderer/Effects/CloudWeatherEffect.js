@@ -26,38 +26,14 @@ define(function (require) {
 	var _isStopping = false;
 
 	var PROFILE_MAP = {
-		229: {
-			maxClouds: 40,
-			cloudColor: [1.0, 1.0, 1.0, 0.58]
-		}, // EF_CLOUD  
-		230: {
-			maxClouds: 60,
-			cloudColor: [1.0, 1.0, 1.0, 0.58]
-		}, // EF_CLOUD2  
-		233: {
-			maxClouds: 40,
-			cloudColor: [0.47, 0.43, 0.39, 0.78]
-		}, // EF_CLOUD3  
-		515: {
-			maxClouds: 80,
-			cloudColor: [1.0, 1.0, 1.0, 0.58]
-		}, // EF_CLOUD4  
-		516: {
-			maxClouds: 80,
-			cloudColor: [0.59, 0.39, 0.78, 0.70]
-		}, // EF_CLOUD5  
-		592: {
-			maxClouds: 80,
-			cloudColor: [1.0, 1.0, 1.0, 0.58]
-		}, // EF_CLOUD6  
-		697: {
-			maxClouds: 80,
-			cloudColor: [0.20, 0.31, 0.63, 0.55]
-		}, // EF_CLOUD7  
-		698: {
-			maxClouds: 80,
-			cloudColor: [1.0, 0.55, 0.20, 0.62]
-		} // EF_CLOUD8  
+		229: { maxClouds: 40, overlay: true,  speed: 0.05,  area: 35, zindex: -125, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD
+		230: { maxClouds: 60, overlay: false, speed: 0.05,  area: 35, zindex: 40, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD2
+		233: { maxClouds: 40, overlay: true,  speed: 0.015, area: 45, zindex: 1, cloudColor: [0.47, 0.43, 0.39, 0.78] }, // EF_CLOUD3
+		515: { maxClouds: 80, overlay: false, speed: 0.05,  area: 35, zindex: -125, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD4
+		516: { maxClouds: 80, overlay: false, speed: 0.20,  area: 50, zindex: 40, cloudColor: [0.88, 0.83, 0.76, 0.70] }, // EF_CLOUD5
+		592: { maxClouds: 80, overlay: false, speed: 0.035, area: 35, zindex: 40, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD6
+		697: { maxClouds: 80, overlay: false, speed: 0.05,  area: 35, zindex: 40, cloudColor: [0.20, 0.31, 0.63, 0.55] }, // EF_CLOUD7
+		698: { maxClouds: 80, overlay: false, speed: 0.05,  area: 35, zindex: 40, cloudColor: [1.0, 0.55, 0.20, 0.62] }  // EF_CLOUD8
 	};
 
 	function CloudWeatherEffect(Params) {
@@ -66,7 +42,7 @@ define(function (require) {
 		this.startTick = Params.Inst.startTick;
 		this.endTick = Params.Inst.endTick;
 		this._profile = PROFILE_MAP[this.effectID] || PROFILE_MAP[229];
-		this._clouds = new Array(this._profile.maxClouds || this._profile.maxClouds);
+		this._clouds = new Array(this._profile.maxClouds);
 		this._textures = [];
 		this._color = null;
 		this._display = true;
@@ -142,74 +118,29 @@ define(function (require) {
 		var gl = Renderer.getContext();
 		this._display = true;
 		this._color = this._profile.cloudColor;
+
 		if (!this._textures.length && this._display) {
-			this._textures.length = 8;
-			for (var i = 0; i < 7; i++) {
-				this.loadCloudTexture(gl, i);
+			var files = (this.effectID === 233) 
+				? ['fog1', 'fog2', 'fog3'] 
+				: ['cloud4', 'cloud1', 'cloud2'];
+
+			this._textures.length = files.length;
+			for (var i = 0; i < files.length; i++) {
+				this.loadCloudTexture(gl, i, files[i]);
 			}
 		}
 		this.setUpCloudData(now);
 	};
 	
-	CloudWeatherEffect.prototype.loadCloudTexture = function loadCloudTexture(gl, i) {
+	CloudWeatherEffect.prototype.loadCloudTexture = function loadCloudTexture(gl, i, fileName) {
 		var self = this;
-		Client.loadFile('data/texture/effect/cloud' + (i + 1) + '.tga', function (buffer) {
+		Client.loadFile('data/texture/effect/' + fileName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self._textures[i] = texture;
 			});
 		});
 	};
 
-	/*
-		CloudWeatherEffect.prototype.init = function init(now) {
-			var gl = Renderer.getContext();
-			this._display = true;
-			this._color = this._profile.cloudColor;
-			var files = [];
-
-			if (this.effectID === 233)
-				files = ['fog1', 'fog2', 'fog3'];
-			else
-				files = ['cloud1', 'cloud2', 'cloud3', 'cloud4', 'cloud5', 'cloud6', 'cloud7'];
-
-			var loaded = 0;
-			var self = this;
-			for (var i = 0; i < files.length; i++) { 
-				var fileName = files[i];
-				loadTexture(gl,fileName, i);
-	                }
-			this.setUpCloudData(now);
-		};
-
-	CloudWeatherEffect.prototype.init = function init(now) {  
-	    var gl = Renderer.getContext();  
-	    this._display = true;  
-	    this._color = this._profile.cloudColor;  
-	  
-	    // Add images to GPU  
-	    if (!this._textures.length) {  
-	        this._textures.length = 8;  
-	  
-	        for (var i = 0; i < 7; i++) {  
-	            loadCloudTexture(gl, i);  
-	        }  
-	    }  
-	  
-	    // Initialize cloud data after textures start loading  
-	    this.setUpCloudData(now);  
-	};
-
-
-		function loadTexture( gl, fileName, i )
-		{
-			var self = this;
-			Client.loadFile('data/texture/effect/' + fileName + '.tga', function(buffer) {
-				WebGL.texture( gl, buffer, function(texture) {
-					self._textures[i] = texture;
-				});
-			});
-		}
-	*/
 	CloudWeatherEffect.prototype.setUpCloudData = function setUpCloudData(now) {
 		for (var i = 0; i < this._profile.maxClouds; i++) {
 			if (!this._clouds[i]) {
@@ -233,14 +164,16 @@ define(function (require) {
 
 	CloudWeatherEffect.prototype.cloudInit = function cloudInit(cloud, now) {
 		var pos = Session.Entity.position;
+		var area = this._profile.area;
+		var speed = this._profile.speed;
 
-		cloud.position[0] = pos[0] + (Math.random() * 35 | 0) * (Math.random() > 0.5 ? 1 : -1);
-		cloud.position[1] = pos[1] + (Math.random() * 35 | 0) * (Math.random() > 0.5 ? 1 : -1);
-		cloud.position[2] = -10.0;
+		cloud.position[0] = pos[0] + (Math.random() * area | 0) * (Math.random() > 0.5 ? 1 : -1);
+		cloud.position[1] = pos[1] + (Math.random() * area | 0) * (Math.random() > 0.5 ? 1 : -1);
+		cloud.position[2] = -10;
 
-		cloud.direction[0] = Math.random() * 0.02 - 0.01;
-		cloud.direction[1] = Math.random() * 0.02 - 0.01;
-		cloud.direction[2] = Math.random() * 0.002 - 0.001;
+		cloud.direction[0] = (Math.random() * 2 - 1) * speed;
+		cloud.direction[1] = (Math.random() * 2 - 1) * speed;
+		cloud.direction[2] = (Math.random() * 0.1 - 0.05) * speed;
 
 		cloud.born_tick = cloud.death_tick ? cloud.death_tick + 2000 : now;
 		cloud.death_tick = cloud.born_tick + 6000;
@@ -258,14 +191,18 @@ define(function (require) {
 		SpriteRenderer.color.set(this._color);
 		SpriteRenderer.shadow = 1.0;
 		SpriteRenderer.angle = 0;
-		SpriteRenderer.size[0] = 500;
-		SpriteRenderer.size[1] = 500;
+		SpriteRenderer.size[0] = 1000;
+		SpriteRenderer.size[1] = 1000;
 		SpriteRenderer.offset[0] = 0;
 		SpriteRenderer.offset[1] = 0;
 		SpriteRenderer.image.palette = null;
 		SpriteRenderer.depth = 0;
 
-		for (var i = 0; i < this._profile.maxClouds; i++) {
+		var max = this._profile.maxClouds;
+		var overlay = this._profile.overlay;
+		var zindex = this._profile.zindex;
+
+		for (var i = 0; i < max; i++) {
 			var cloud = this._clouds[i];
 			var opacity;
 
@@ -287,14 +224,14 @@ define(function (require) {
 				opacity = this._color[3];
 			}
 
-			SpriteRenderer.zIndex = 0;
+			SpriteRenderer.zIndex = zindex;
 			SpriteRenderer.color[3] = opacity;
 			SpriteRenderer.image.texture = this._textures[cloud.sprite];
 
 			vec3.add(cloud.position, cloud.position, cloud.direction);
 			SpriteRenderer.position.set(cloud.position);
 
-			SpriteRenderer.setDepth(false, false, false, function () {
+			SpriteRenderer.setDepth(!overlay, false, !overlay, function () {
 				SpriteRenderer.render();
 			});
 		}

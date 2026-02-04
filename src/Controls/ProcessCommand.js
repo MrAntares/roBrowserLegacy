@@ -897,14 +897,14 @@ define(function (require) {
 	// Dev-only weather helper to trigger weather effects locally.
 	if (Configs.get("development")) {
 			CommandStore.weather = {
-				description: "Dev-only weather toggle. Usage: /weather snow|rain|leaves|sakura|fireworks|off",
+				description: "Dev-only weather toggle. Usage: /weather snow|rain|leaves|sakura|fireworks|cloud|cloud2|off",
 				callback: function (text) {
 					var args = text.trim().split(/\s+/).slice(1);
 					var mode = (args[0] || "").toLowerCase();
 
 					if (!mode || mode === "help") {
 						this.addText(
-							"Usage: /weather snow|rain|leaves|sakura|fireworks|off",
+							"Usage: /weather snow|rain|leaves|sakura|fireworks|cloud|cloud2|off",
 							this.TYPE.INFO,
 							this.FILTER.PUBLIC_LOG
 						);
@@ -917,10 +917,6 @@ define(function (require) {
 
 					var ownerAID = Session.Entity.GID || Session.GID || Session.AID;
 					var EffectManager = getModule("Renderer/EffectManager");
-					var SnowWeatherEffect = getModule("Renderer/Effects/SnowWeather");
-					var RainWeatherEffect = getModule("Renderer/Effects/RainWeather");
-					var SakuraWeatherEffect = getModule("Renderer/Effects/SakuraWeatherEffect");
-					var PokJukWeatherEffect = getModule("Renderer/Effects/PokJukWeatherEffect");
 
 					if (mode === "snow" || mode === "on") {
 						EffectManager.spam({
@@ -987,11 +983,45 @@ define(function (require) {
 						return;
 					}
 
+					if (mode === "cloud") {
+						EffectManager.spam({
+							effectId: EffectConst.EF_CLOUD,
+							ownerAID: ownerAID
+						});
+						this.addText(
+							"Clouds appear.",
+							this.TYPE.INFO,
+							this.FILTER.PUBLIC_LOG
+						);
+						return;
+					}
+
+					if (mode === "cloud2") {
+						EffectManager.spam({
+							effectId: EffectConst.EF_CLOUD2,
+							ownerAID: ownerAID
+						});
+						this.addText(
+							"Alternative clouds appear.",
+							this.TYPE.INFO,
+							this.FILTER.PUBLIC_LOG
+						);
+						return;
+					}
+
 					if (mode === "off" || mode === "stop" || mode === "clear") {
+						var SnowWeatherEffect = getModule("Renderer/Effects/SnowWeather");
+						var RainWeatherEffect = getModule("Renderer/Effects/RainWeather");
+						var SakuraWeatherEffect = getModule("Renderer/Effects/SakuraWeatherEffect");
+						var PokJukWeatherEffect = getModule("Renderer/Effects/PokJukWeatherEffect");
+						var CloudWeatherEffect = getModule("Renderer/Effects/CloudWeatherEffect");
+
 						SnowWeatherEffect.stop(ownerAID, Renderer.tick);
 						RainWeatherEffect.stop(ownerAID, Renderer.tick);
 						SakuraWeatherEffect.stop(ownerAID, Renderer.tick);
 						PokJukWeatherEffect.stop(ownerAID, Renderer.tick);
+						CloudWeatherEffect.stop(ownerAID, Renderer.tick);
+
 						this.addText(
 							"Weather stopping.",
 							this.TYPE.INFO,
@@ -1001,7 +1031,7 @@ define(function (require) {
 					}
 
 					this.addText(
-						"Unknown weather. Usage: /weather snow|rain|leaves|sakura|fireworks|off",
+						"Unknown weather. Usage: /weather snow|rain|leaves|sakura|fireworks|cloud|cloud2|off",
 						this.TYPE.INFO,
 						this.FILTER.PUBLIC_LOG
 					);

@@ -123,6 +123,12 @@ define(function( require )
 					SakuraWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
 				}
+			} else if (pkt.effectID === EffectConst.EF_CLOUD || pkt.effectID === EffectConst.EF_CLOUD2) {
+				var CloudWeatherEffect = getModule('Renderer/Effects/CloudWeatherEffect');
+				if (pkt.numdata <= 0) {
+					CloudWeatherEffect.stop(pkt.AID, Renderer.tick);
+					return;
+				}
 			}
 		}
 

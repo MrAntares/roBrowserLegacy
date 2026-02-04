@@ -4177,7 +4177,7 @@ define(function( require )
 			}
 		}],
 
-		229: [{	//EF_CLOUD        Normal Cloud
+		229: [{	//EF_CLOUD        Fog
 			type: 'FUNC',
 			attachedEntity: false,
 			func: function( Params ) {
@@ -4186,7 +4186,7 @@ define(function( require )
 			}
 		}],
 
-		230: [{	//EF_CLOUD2        Fog
+		230: [{	//EF_CLOUD2       Normal Cloud (Under Map Gat)
 			type: 'FUNC',
 			attachedEntity: false,
 			func: function( Params ) {
@@ -8936,7 +8936,7 @@ define(function( require )
 		//695: [{}],	//EF_GLOW4	   Rotating green light
 		//696: [{}],	//EF_TORCH_PURPLE	   The same of 690 and 691 but Blue/Purple
 
-		697: [{ //EF_CLOUD7	   (Night Clouds)
+		697: [{ //EF_CLOUD7	   (Night Clouds [Dark Blue])
 			type: 'FUNC',
 			attachedEntity: false,
 			func: function (Params) {
@@ -8945,7 +8945,7 @@ define(function( require )
 			}
 		}],
 
-		698: [{ //EF_CLOUD8	   (Sunset Clouds)
+		698: [{ //EF_CLOUD8	   (Sunset Clouds [Orange])
 			type: 'FUNC',
 			attachedEntity: false,
 			func: function (Params) {
