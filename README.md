@@ -9,7 +9,7 @@ All credits to the original owners/creators and the new ones.
 
 #### Repo info:
 
-![GitHub](https://img.shields.io/github/license/MrAntares/roBrowserLegacy.svg) | ![commit activity](https://img.shields.io/github/commit-activity/w/MrAntares/roBrowserLegacy) | ![GitHub repo size](https://img.shields.io/github/repo-size/MrAntares/roBrowserLegacy.svg) | ![CodeQL](https://img.shields.io/github/actions/workflow/status/AoShinRo/brHades/analysis_codeql.yml?label=CodeQL&logo=badge) 
+![GitHub](https://img.shields.io/github/license/MrAntares/roBrowserLegacy.svg) | ![commit activity](https://img.shields.io/github/commit-activity/w/MrAntares/roBrowserLegacy) | ![GitHub repo size](https://img.shields.io/github/repo-size/MrAntares/roBrowserLegacy.svg) | ![CodeQL](https://img.shields.io/github/actions/workflow/status/MrAntares/roBrowserLegacy/analysis_codeql.yml?label=CodeQL&logo=badge) 
 --------|--------|--------|--------|
 ## DEMO
 
