@@ -613,20 +613,19 @@ define(function (require) {
 					target = pkt.damage ? dstEntity : srcEntity;
 
 					// damage or miss display
-					if (target) {
-						if (dstEntity.objecttype === Entity.TYPE_MOB || dstEntity.objecttype === Entity.TYPE_NPC_ABR || dstEntity.objecttype === Entity.TYPE_NPC_BIONIC) {
-							if (pkt.damage > 0) {
-								var EF_Init_Par = {
-									effectId: EffectConst.EF_HIT1,
-									ownerAID: pkt.targetGID,
-									startTick: Renderer.tick + pkt.attackMT,
-								};
-								EffectManager.spam(EF_Init_Par);
-							}
+					if (dstEntity.objecttype === Entity.TYPE_MOB || dstEntity.objecttype === Entity.TYPE_NPC_ABR || dstEntity.objecttype === Entity.TYPE_NPC_BIONIC) {
+						if (pkt.damage > 0) {
+							var EF_Init_Par = {
+								effectId: EffectConst.EF_HIT1,
+								ownerAID: pkt.targetGID,
+								startTick: Renderer.tick + pkt.attackMT,
+							};
+							EffectManager.spam(EF_Init_Par);
 						}
+					}
 
-						var type = null;
-						switch (pkt.action) {
+					var type = null;
+					switch (pkt.action) {
 
 							// Single damage
 							case 10: // critical
@@ -683,7 +682,6 @@ define(function (require) {
 								});
 								break;
 
-						}
 					}
 				}
 
