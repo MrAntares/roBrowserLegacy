@@ -804,9 +804,7 @@ define(function(require)
 		// Locate the DOM element based on the item's index
 		let element = LaphineSys.ui.find(`.item[data-index="${item.index}"]`);
 
-		if (item) {
-			onRemoveItemSubmitList(item, element.get(0)); // Pass the DOM element to the function
-		}
+		onRemoveItemSubmitList(item, element.get(0)); // Pass the DOM element to the function
 	};
 
 
