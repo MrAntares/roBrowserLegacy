@@ -406,10 +406,10 @@ define(function(require)
 			return; // Target item not found
 		}
 
-        if (item) {
-			onUpdateSubmitList(item);
-        }
+		onUpdateSubmitList(item);
 	};
+
+
 
 
 	/**
