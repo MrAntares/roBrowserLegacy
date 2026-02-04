@@ -12,6 +12,8 @@ on:
       - "v*"
   pull_request:
     branches: [ "master" ]
+    tags:
+      - "v*"
 
 permissions:
     # required for all workflows
@@ -55,7 +57,7 @@ jobs:
 
       - name: "Create GitHub Release + upload assets"
         uses: softprops/action-gh-release@v2
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'push' && github.ref_type == 'tag'
         with:
           prerelease: true
           tag_name: ${{ github.ref_name }}
