@@ -324,7 +324,7 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 			if (fs && this.file.fd) {
 				var buffer = new Buffer(entry.length_aligned);
 				fs.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
-				grf.decodeEntry( (new Uint8Array(buffer)).buffer, entry, callback);
+				this.decodeEntry( (new Uint8Array(buffer)).buffer, entry, callback);
 				return true;
 			}
 
