@@ -256,7 +256,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
 		this.toAngle = effect.toAngle ? effect.toAngle : 0;
-		if (this.shadowTexture && 0) {
+		if (this.shadowTexture) {
 			var GroundEffect = require('Renderer/Effects/GroundEffect');
 			require('Renderer/EffectManager').add(new GroundEffect(this.posxStart, this.posyStart), 1000000);
 		}
