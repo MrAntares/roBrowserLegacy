@@ -1618,7 +1618,7 @@ define(function (require) {
 		hideCastAura = (pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastAura);
 
 		// Cast aura
-		if (srcEntity && pkt.delayTime && !hideCastAura) {
+		if (pkt.delayTime && !hideCastAura) {
 			var EF_Init_Par = {
 				effectId: EffectConst.EF_BEGINSPELL, // Default
 				ownerAID: srcEntity.GID,
