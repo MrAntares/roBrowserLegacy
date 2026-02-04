@@ -370,39 +370,6 @@ define(function (require) {
 		function resizing() {
 			var extraY = 31 + 19 - 30;
 			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-
-			// Maximum and minimum window size
-			h = Math.min(Math.max(h, 8), 17);
-
-			if (h === lastHeight) {
-				return;
-			}
-
-			resizeHeight(h);
-			lastHeight = h;
-		}
-
-		// Start resizing
-		_Interval = setInterval(resizing, 30);
-
-		// Stop resizing on left click
-		jQuery(window).on('mouseup.resize', function (event) {
-			if (event.which === 1) {
-				clearInterval(_Interval);
-				jQuery(window).off('mouseup.resize');
-			}
-		});
-	}1
-
-	function onResize() {
-		var ui = Storage.ui;
-		var top = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
-
-		function resizing() {
-			var extraY = 31 + 19 - 30;
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 			h = Math.min(Math.max(h, 8), 17);
 			if (h === lastHeight) return;
 			resizeHeight(h);
