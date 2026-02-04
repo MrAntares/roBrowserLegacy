@@ -7,6 +7,10 @@ For info on how to setup the client read the contents of our [Getting Started do
 
 All credits to the original owners/creators and the new ones.
 
+#### Repo info:
+
+![GitHub](https://img.shields.io/github/license/MrAntares/roBrowserLegacy.svg) | ![commit activity](https://img.shields.io/github/commit-activity/w/MrAntares/roBrowserLegacy) | ![GitHub repo size](https://img.shields.io/github/repo-size/MrAntares/roBrowserLegacy.svg) | ![CodeQL](https://img.shields.io/github/actions/workflow/status/MrAntares/roBrowserLegacy/analysis_codeql.yml?label=CodeQL&logo=badge) 
+--------|--------|--------|--------|
 ## DEMO
 
 [![Start!](https://github.com/MrAntares/roBrowserLegacy/raw/master/src/UI/Components/Intro/images/play.png "Start Demo")](https://mrantares.github.io/roBrowserLegacy/applications/browser-examples/demo.html)
