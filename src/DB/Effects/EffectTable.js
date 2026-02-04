@@ -11431,11 +11431,6 @@ define(function( require )
 			}
 		}],
 
-		'ef_great_echo': [{
-			wav: 'effect/\xbc\xa8\xc5\xcd\xbd\xba\xc5\xe8',
-			attachedEntity: true
-		}],
-
 		'ef_magicpower': [{
 			wav: 'effect/\xb8\xb6\xb9\xfd\xb7\xc2\x20\xc1\xf5\xc6\xf8',
 			attachedEntity: true
