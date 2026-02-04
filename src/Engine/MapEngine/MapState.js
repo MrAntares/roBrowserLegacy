@@ -67,7 +67,7 @@ define(function( require )
 		PvPCount.append();
 		PvPCount.setData(pkt);
 
-		if(pkt.total > 0) {
+		if(pkt.total > 0 && pkt.ranking == 1) {
 			PvPTimer.show();
 		} else {
 			PvPTimer.hide();
