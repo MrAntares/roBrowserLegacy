@@ -584,17 +584,16 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				EntityManager.add(entity);
 				this.ownerEntity = entity;
 			}
-			if (entity) {
-				var actions = this.actRessource.actions[(entity.action * 8 + (Camera.direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
-				var animations;
-				var delay = this.sprDelay || actions.delay;
-				if (this.playSprite) animations = actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
-				else animations = actions.animations[0];
-				var layers = animations.layers;
-				let i = 0;
-				let layercount = layers.length;
-				do {
-					let renderer;
+			var actions = this.actRessource.actions[(entity.action * 8 + (Camera.direction + entity.direction + 8) % 8) % this.actRessource.actions.length];
+			var animations;
+			var delay = this.sprDelay || actions.delay;
+			if (this.playSprite) animations = actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
+			else animations = actions.animations[0];
+			var layers = animations.layers;
+			let i = 0;
+			let layercount = layers.length;
+			do {
+				let renderer;
 
 					if (i == 0) renderer = SpriteRenderer;
 					else renderer = Object.assign({}, SpriteRenderer);
@@ -650,8 +649,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					});
 
 					++i;
-				} while (i < layercount);
-			}
+			} while (i < layercount);
 		} else {
 			// default true, false, false
 			SpriteRenderer.setDepth(this.overlay === false, false, this.overlay === true, function(){
