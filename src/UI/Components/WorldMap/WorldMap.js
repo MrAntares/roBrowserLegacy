@@ -603,7 +603,7 @@ define(function (require) {
         });
 
         WorldMap.ui.find('.worldmap .section').removeClass('membersonmap');
-        for (const [mapId, members] of Object.entries(_partyMembersByMap)) {
+        for (const mapId of Object.keys(_partyMembersByMap)) {
             WorldMap.ui.find('.worldmap .section#' + mapId).addClass('membersonmap');
         }
     };
