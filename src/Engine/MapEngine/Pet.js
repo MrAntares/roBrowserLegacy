@@ -181,9 +181,7 @@ define(function( require )
 			case 0: // know what our pet is //PET_PRE_INIT
 				Session.petId = pkt.GID; // should we delete it later ?
 				Session.pet.GID =  pkt.GID;
-				if(entity){
-					Session.pet.job = entity._job;
-				}
+				Session.pet.job = entity._job;
 				break;
 
 			case 1: //
