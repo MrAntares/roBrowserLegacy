@@ -39,6 +39,7 @@ define(function()
 	// TODO: add others effect
 	Weather.effects['xmas.rsw'] = { weather: 'snow' };
 	Weather.effects['comodo.rsw'] = { weather: 'fireworks' };
+	Weather.effects['einbroch.rsw'] = { weather: 'cloud3' };
 	//Weather.effects['payon.rsw'] = { weather: 'rain' }; 
 
 	/**

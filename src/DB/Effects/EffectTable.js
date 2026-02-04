@@ -4177,8 +4177,24 @@ define(function( require )
 			}
 		}],
 
-		//229: [{}],	//EF_CLOUD	   (Nothing)
-		//230: [{}],	//EF_CLOUD2	   (Nothing)
+		229: [{	//EF_CLOUD        Fog
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function( Params ) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
+
+		230: [{	//EF_CLOUD2       Normal Cloud (Under Map Gat)
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function( Params ) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
+
 		//231: [{}],	//EF_MAPPILLAR	   Map Light Pillar Animation 1
 
 		232: [{	//EF_LINELINK	   Sacrifice (Visual Effect)
@@ -4203,7 +4219,14 @@ define(function( require )
 			zIndex: 1
 		}],
 
-		//233: [{}],	//EF_CLOUD3	   Fog
+		233: [{ //EF_CLOUD3	   Einbroch Industrial Clouds
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
 
 		234: [{	//EF_SPELLBREAKER	Spell Breaker
 			type: 'STR',
@@ -7835,8 +7858,24 @@ define(function( require )
 		}],
 
 		//514: [{}],	//EF_GI_EXPLOSION	   Really Big Circle
-		//515: [{}],	//EF_CLOUD4	   Einbroch Fog
-		//516: [{}],	//EF_CLOUD5	   Airship Cloud
+
+		515: [{ //EF_CLOUD4	   Airplane Cloud
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
+
+		516: [{ //EF_CLOUD5	   Thanathos Cloud
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
 
 		517: [{	//EF_BOTTOM_HERMODE	   (Nothing)
 
@@ -8308,7 +8347,15 @@ define(function( require )
 		}],
 
 		//591: [{}],	//EF_KAAHI	   (Nothing)
-		//592: [{}],	//EF_CLOUD6	   Thanatos Tower Bloody Clouds
+
+		592: [{ //EF_CLOUD6
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
 
 		593: [{	//EF_FOOD01	Food Effect (STR)
 			type: 'STR',
@@ -8888,8 +8935,24 @@ define(function( require )
 		//694: [{}],	//EF_GLOW2	   Translucent green circle
 		//695: [{}],	//EF_GLOW4	   Rotating green light
 		//696: [{}],	//EF_TORCH_PURPLE	   The same of 690 and 691 but Blue/Purple
-		//697: [{}],	//EF_CLOUD7	   (Nothing)
-		//698: [{}],	//EF_CLOUD8	   (Nothing)
+
+		697: [{ //EF_CLOUD7	   (Night Clouds [Dark Blue])
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
+
+		698: [{ //EF_CLOUD8	   (Sunset Clouds [Orange])
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+				CloudWeatherEffect.startOrRestart(Params);
+			}
+		}],
 
 		699: [{	//EF_FLOWERLEAF	Fall of powder from the sky and raise of some leaf
 			type: 'STR',
