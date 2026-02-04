@@ -17,7 +17,7 @@ define(function(require)
 	 */
 	var Client        = require('Core/Client');
 	var jQuery        = require('Utils/jquery');
-	var html2canvas   = require('Utils/html2canvas');
+	var html2canvas   = require('Vendors/html2canvas');
 	var KEYS          = require('Controls/KeyEventHandler');
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 
