@@ -22,7 +22,6 @@ define(function( require )
 	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
 	var Equipment     = require('UI/Components/Equipment/Equipment');
 	var Inventory     = require('UI/Components/Inventory/Inventory');
-	var ShortCut      = require('UI/Components/ShortCut/ShortCut');
 	var SkillTargetSelection      = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
 	var Mouse         = require('Controls/MouseEventHandler');
 	var Mobile        = require('Core/Mobile');

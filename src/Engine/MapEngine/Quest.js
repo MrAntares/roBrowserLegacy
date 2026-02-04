@@ -15,7 +15,6 @@ define(function (require) {
 	 */
 	var DB = require('DB/DBManager');
 	var Network = require('Network/NetworkManager');
-	var PACKETVER = require('Network/PacketVerManager');
 	var PACKET = require('Network/PacketStructure');
 	var jQuery = require('Utils/jquery');
 	

@@ -23,7 +23,6 @@ define(function( require )
 	var Client        = require('Core/Client');
 	var Session       = require('Engine/SessionStorage');
 	var Network       = require('Network/NetworkManager');
-	var PACKETVER        = require('Network/PacketVerManager');
 	var PACKET        = require('Network/PacketStructure');
 	var Renderer      = require('Renderer/Renderer');
 	var NpcBox        = require('UI/Components/NpcBox/NpcBox');

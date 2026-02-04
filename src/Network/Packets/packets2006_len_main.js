@@ -14,7 +14,7 @@
  * @author Alison Serafim
  */
 
-define(function (require) {
+define(function () {
 	'use strict';
 
 	let length_list = new Array();

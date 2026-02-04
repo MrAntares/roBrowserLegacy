@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define([ './Context' ], function( Context )
+define(function()
 {
 	'use strict';
 

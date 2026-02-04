@@ -24,7 +24,6 @@ define(function( require )
 	var PACKET         = require('Network/PacketStructure');
 	var PACKETVER	   = require('Network/PacketVerManager');
 	var EntityManager  = require('Renderer/EntityManager');
-	var SkillActionTable  = require('DB/Skills/SkillAction');
 	var EffectManager  = require('Renderer/EffectManager');
 	var Renderer       = require('Renderer/Renderer');
 	var Damage         = require('Renderer/Effects/Damage');
@@ -671,9 +670,6 @@ define(function( require )
 	 */
 	function onActionFailure( pkt )
 	{
-		var entity = Session.Entity;
-		var srcEntity = EntityManager.get(entity.GID);
-
 		switch (pkt.errorCode) {
 			case 0: // Please equip the proper amnution first
 				ChatBox.addText( DB.getMessage(242), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM );

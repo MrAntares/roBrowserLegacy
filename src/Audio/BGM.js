@@ -10,8 +10,8 @@
  * @author Vincent Thibault
  */
 
-define( ['require', 'Utils/jquery', 'Core/Client', 'Preferences/Audio'],
-function( require,         jQuery,        Client,   Preferences )
+define( ['Core/Client', 'Preferences/Audio'],
+function(      Client,   Preferences )
 {
 	'use strict';
 

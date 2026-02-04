@@ -550,16 +550,16 @@ define(function( require )
 		UIManager.showMessageBox( DB.getMessage(msg_id), 'ok' );
 	}
 
-	function sendPincodeRequest() {
+	/*function sendPincodeRequest() {
 		var pkt;
 
 		pkt = new PACKET.CH.PINCODE_REQUEST();
 		pkt.AID = Session.AID;
 
 		Network.sendPacket(pkt);
-	}
+	}*/ // UNUSED
 
-        function onPincodeCheckRequest(pincode) {
+    function onPincodeCheckRequest(pincode) {
 		var pkt;
 
 		pkt = new PACKET.CH.PINCODE_CHECK();
@@ -595,10 +595,10 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}
 
-	function onAuthPincodeReset(oldpin, newpin) {
+	/*function onAuthPincodeReset(oldpin, newpin) {
 		_inAuthPincodeReset = true;
 		onPincodeCheckRequest(oldpin);
-	}
+	}*/ // UNUSED
 
 	function onUserPincodeResetReq() {
 		_pincodeAttempts = 0;

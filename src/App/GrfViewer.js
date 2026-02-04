@@ -28,7 +28,7 @@ require({
 		text:   'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'
 	}
-}, ['UI/Components/GrfViewer/GrfViewer', 'Core/Context'], function( GRFViewer, Context )
+}, ['UI/Components/GrfViewer/GrfViewer'], function( GRFViewer )
 {
 	'use strict';
 

@@ -28,7 +28,6 @@ define(function( require )
 	var ItemSelection        = require('UI/Components/ItemSelection/ItemSelection');
 	var ChatBox              = require('UI/Components/ChatBox/ChatBox');
 	var PetInformations      = require('UI/Components/PetInformations/PetInformations');
-	var Inventory			= require('UI/Components/Inventory/Inventory');
 	var Emotions           	= require('DB/Emotions');
 	var PetMessageConst		= require('DB/Pets/PetMessageConst');
 

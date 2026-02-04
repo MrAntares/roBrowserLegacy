@@ -243,7 +243,7 @@ define(function( require )
 			if(this.quakes[i].active){
 				if(this.quakes[i].startTick <= tick){
 					if(this.quakes[i].startTick + this.quakes[i].duration > tick){
-						var step = (tick - this.quakes[i].startTick) / this.quakes[i].duration;
+						/*var step = (tick - this.quakes[i].startTick) / this.quakes[i].duration;*/ // UNUSED
 						
 						this.position[0] += (((Math.random()*5)-2.5)/10 + this.quakes[i].sideQuake) * Math.cos(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;
 						this.position[1] += (((Math.random()*5)-2.5)/10 + this.quakes[i].sideQuake) * -Math.sin(this.angle[1] * (Math.PI/180)) * C_QUAKE_MULT;

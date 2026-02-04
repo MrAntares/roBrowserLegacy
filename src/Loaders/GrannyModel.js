@@ -698,7 +698,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 // 		bool * Marshalled;
 // 		bool * IsUserMemory;
 // 		void * ConversionBuffer;
-		this.version    = fp.readByte() + fp.readByte()/10;
+/*		this.version    = fp.readByte() + fp.readByte()/10;
 		this.animLen    = fp.readLong();
 		this.shadeType  = fp.readLong();
 		this.main_node  = null;
@@ -774,7 +774,7 @@ GR2.File.prototype.CRCIsVaild = function(FileName) {
 
 
 		// Calculate bounding box
-		this.calcBoundingBox();
+		this.calcBoundingBox();*/
 	};
 
 

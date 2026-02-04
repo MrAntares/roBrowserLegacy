@@ -102,7 +102,7 @@ define(function (require) {
 
 	const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
 	const AVG_ATTACK_SPEED = 432;
-	const AVG_ATTACKED_SPEED = 288;
+	//const AVG_ATTACKED_SPEED = 288; // UNUSED
 	const MAX_ATTACKMT = AVG_ATTACK_SPEED * 2;
 
 	/**
@@ -542,12 +542,12 @@ define(function (require) {
 				let delayTime = pkt.attackMT;
 
 				var WSnd = DB.getWeaponSound(srcWeapon);
-				var weaponSound = WSnd ? WSnd[0] : false;
-				var weaponSoundRelease = WSnd ? WSnd[1] : false;
+				/*var weaponSound = WSnd ? WSnd[0] : false;
+				var weaponSoundRelease = WSnd ? WSnd[1] : false;*/ // UNUSED
 
 				var WSndL = DB.getWeaponSound(srcWeaponLeft);
-				var weaponSoundLeft = WSndL ? WSndL[0] : false;
-				var weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;
+				/*var weaponSoundLeft = WSndL ? WSndL[0] : false;
+				var weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;*/ // UNUSED
 
 				if (srcEntity.objecttype === Entity.TYPE_PC) {
 					const factorOfmotionSpeed = pkt.attackMT / AVG_ATTACK_SPEED;

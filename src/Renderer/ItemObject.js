@@ -32,7 +32,7 @@ function(   DB,            EntityManager,            EffectManager,            E
 		var path   = DB.getItemPath(itemid, identify);
 		var entity = new Entity();
 		var name   = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
-		var dropEffectPostition = [x, y, z];
+		/*var dropEffectPostition = [x, y, z];*/ // UNUSED
 		entity.GID          = gid;
 		entity.objecttype   = Entity.TYPE_ITEM;
 		entity.position[0]  = x;

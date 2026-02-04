@@ -21,7 +21,6 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 
 	var procCanvas = document.createElement('canvas');
 	var procCtx    = procCanvas.getContext('2d', { willReadFrequently: true });
-	var procData   = null;
 
 	/**
 	 * Texture Constructor

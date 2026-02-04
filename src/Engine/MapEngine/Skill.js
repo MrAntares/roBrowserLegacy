@@ -17,10 +17,8 @@ define(function( require )
 	var DB                    = require('DB/DBManager');
 	var SkillId               = require('DB/Skills/SkillConst');
 	var SkillInfo             = require('DB/Skills/SkillInfo');
-	var SkillActionTable  	  = require('DB/Skills/SkillAction');
 	var EffectConst           = require('DB/Effects/EffectConst');
 	var PathFinding           = require('Utils/PathFinding');
-	var Entity            	  = require('Renderer/Entity/Entity');
 	var Session               = require('Engine/SessionStorage');
 	var Network               = require('Network/NetworkManager');
 	var PACKETVER             = require('Network/PacketVerManager');
@@ -35,7 +33,6 @@ define(function( require )
 	var SkillListMH           = require('UI/Components/SkillListMH/SkillListMH');
 	var ItemSelection         = require('UI/Components/ItemSelection/ItemSelection');
 	var MakeArrowSelection    = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
-	var MakeItemSelection     = require('UI/Components/MakeItemSelection/MakeItemSelection');
 	var RefineWeaponSelection = require('UI/Components/RefineWeaponSelection/RefineWeaponSelection');
 	var Inventory             = require('UI/Components/Inventory/Inventory');
 	var NpcMenu               = require('UI/Components/NpcMenu/NpcMenu');
@@ -166,8 +163,8 @@ define(function( require )
 		}
 
 		var error = 0;
-		var entity = Session.Entity;
-		var srcEntity = EntityManager.get(entity.GID);
+		/*var entity = Session.Entity;
+		var srcEntity = EntityManager.get(entity.GID);*/
 		if (pkt.NUM) {
 			switch (pkt.SKID) {
 

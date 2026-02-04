@@ -779,7 +779,7 @@ define(function (require) {
 	 * @param {number} skill unique id
 	 */
 	EffectManager.spamSkillZone = function spamUnit(unit_id, xPos, yPos, uid, creatorUid) {
-		let effectId, entity, isNewEntity = false, EF_Init_Par;
+		let effectId, entity, EF_Init_Par;
 
 		// No effect mode (/effect)
 		if (!Preferences.effect) {

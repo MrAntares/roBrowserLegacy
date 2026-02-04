@@ -90,8 +90,7 @@ define(function( require )
 	var PvPTimer         = require('UI/Components/PvPTimer/PvPTimer');
 	var PvPCount         = require('UI/Components/PvPCount/PvPCount');
 	var PACKETVER        = require('Network/PacketVerManager');
-	var ShortCut         = require('UI/Components/ShortCut/ShortCut');  
-	var UIVersionManager      = require('UI/UIVersionManager');
+	var ShortCut         = require('UI/Components/ShortCut/ShortCut'); 
 	// Version Dependent UIs
 	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
 	var MiniMap   = require('UI/Components/MiniMap/MiniMap');

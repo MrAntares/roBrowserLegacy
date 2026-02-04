@@ -87,8 +87,8 @@ require( {
 		jquery: 'Vendors/jquery-1.9.1'
 	}
 },
-	['Engine/GameEngine', 'Core/Context', 'Plugins/PluginManager'],
-	function(GameEngine,        Context,           Plugins) {
+	['Engine/GameEngine', 'Plugins/PluginManager'],
+	function(GameEngine,                 Plugins) {
 		'use strict';
 
 		Plugins.init();

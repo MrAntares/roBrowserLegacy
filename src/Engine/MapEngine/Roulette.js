@@ -24,28 +24,28 @@ define(function (require) {
 	/**
 	 * Request to Open Roulette
 	 */
-	function requestOpenRoulette() {
+	/*function requestOpenRoulette() {
 		var pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
 		Network.sendPacket(pkt);
-	}
+	}*/ // UNUSED
 
 
 	/**
 	 * Request Roulette Info
 	 */
-	function requestRouletteInfo() {
+	/*function requestRouletteInfo() {
 		var pkt = new PACKET.CZ.REQ_ROULETTE_INFO();
 		Network.sendPacket(pkt);
-	}
+	}*/ // UNUSED
 
 
 	/**
 	 * Request to Close Roulette
 	 */
-	function requestCloseRoulette() {
+	/*function requestCloseRoulette() {
 		var pkt = new PACKET.CZ.REQ_CLOSE_ROULETTE();
 		Network.sendPacket(pkt);
-	}
+	}*/ // UNUSED
 
 
 	/**

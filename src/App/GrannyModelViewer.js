@@ -30,8 +30,8 @@ require({
 		jquery: 'Vendors/jquery-1.9.1'
 	}
 },
-   ['Core/Configs', 'Core/Thread', 'Core/Context', 'Core/Client', 'UI/Components/GrannyModelViewer/GrannyModelViewer'],
-function( Configs,        Thread,        Context,        Client,                                   GrannyModelViewer ) {
+   ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/GrannyModelViewer/GrannyModelViewer'],
+function( Configs,        Thread,        Client,                                   GrannyModelViewer ) {
 	'use strict';
 
 	function onAPIMessage( event ) {

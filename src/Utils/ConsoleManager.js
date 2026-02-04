@@ -13,8 +13,6 @@ define(['Core/Configs'], function(Configs)
 	'use strict';
 
 	var _console;
-	
-	var ConsoleManager = {};
 	 
 	function init()
 	{

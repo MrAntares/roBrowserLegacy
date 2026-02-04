@@ -42,7 +42,6 @@ define(function (require) {
 	var RandomOption = require('DB/Items/ItemRandomOptionTable');
 	var WorldMap = require('./Map/WorldMap');
 	var SKID = require('./Skills/SkillConst');
-	var SkillDescription = require('./Skills/SkillDescription');
 	var SkillInfo = require('./Skills/SkillInfo');	
 	var SkillTreeView = require('./Skills/SkillTreeView');
 	var JobHitSoundTable = require('./Jobs/JobHitSoundTable');
@@ -89,8 +88,8 @@ define(function (require) {
 	var JokeTable = [];
 
 	/**
- * @var {Array} message string
- */
+ 	* @var {Array} message string
+ 	*/
 	var ScreamTable = [];
 
 	/**
@@ -98,6 +97,8 @@ define(function (require) {
 	 * struct { string name; string mp3; object fog }
 	 */
 	var MapTable = {};
+
+	var SkillDescription = {};
 
 	/**
 	 * @var {Array} ASCII sex
@@ -281,7 +282,7 @@ define(function (require) {
 			var iteminfoNames = [];
 			var customII = Configs.get('customItemInfo',[]);
 
-			if( customII !== undefined && customII !== [] && customII.length > 0){ // add custom client info table
+			if( Array.isArray(customII) && customII.length > 0 ){ // add custom client info table
 				iteminfoNames = iteminfoNames.concat(customII);
 				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad(), true);
 			} else { 

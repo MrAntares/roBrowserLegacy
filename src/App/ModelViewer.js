@@ -29,8 +29,8 @@ require({
 		jquery: 'Vendors/jquery-1.9.1'
 	}
 },
-   ['Core/Configs', 'Core/Thread', 'Core/Context', 'Core/Client', 'UI/Components/ModelViewer/ModelViewer'],
-function( Configs,        Thread,        Context,        Client,                             ModelViewer ) {
+   ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/ModelViewer/ModelViewer'],
+function( Configs,        Thread,         Client,                            ModelViewer ) {
 	'use strict';
 
 	function onAPIMessage( event ) {
