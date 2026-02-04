@@ -699,9 +699,7 @@ define(function(require)
 			return false;
 		}
 
-		if (item) {
-			showItemPreview(item);
-		}
+		showItemPreview(item);
 
 		return false;
 	};
