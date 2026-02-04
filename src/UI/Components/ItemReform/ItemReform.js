@@ -237,24 +237,7 @@ define(function(require)
 	};
 
 
-	/**
-	 * Get item objects by id
-	 *
-	 * @param {number} id
-	 * @returns {Array<Item>}
-	 */
-	function GetInventoryItemsById(id) {
-	    var items = [];
-	    var list = Inventory.getUI().list;
 
-	    for (var i = 0, count = list.length; i < count; ++i) {
-	        if (list[i].ITID === id) {
-	            items.push(list[i]);
-	        }
-	    }
-
-	    return items;
-	};
 
 
 	/**
