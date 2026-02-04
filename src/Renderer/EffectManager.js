@@ -20,7 +20,7 @@ define(function (require) {
 	const Commands      = require('Controls/ProcessCommand');
 	const Events        = require('Core/Events');
 	const Configs       = require('Core/Configs');
-	const Cylinder      = require('Renderer/Effects/Cylinder');
+	const Cylinder      = require('Renderer/Effects/Cylinder/Cylinder');
 	const StrEffect     = require('Renderer/Effects/StrEffect');
 	const RsmEffect     = require('Renderer/Effects/RsmEffect');
 	const TwoDEffect    = require('Renderer/Effects/TwoDEffect');

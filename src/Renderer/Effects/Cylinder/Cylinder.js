@@ -5,8 +5,8 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/SpriteRenderer'],
-function(      WebGL,         Texture,          glMatrix,        Client,            Camera,            SpriteRenderer) {
+define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/SpriteRenderer', 'require'],
+function(      WebGL,          glMatrix,        Client,            Camera,            SpriteRenderer,   require) {
 
 	'use strict';
 
@@ -45,98 +45,13 @@ function(      WebGL,         Texture,          glMatrix,        Client,        
 	/**
 	 * @var {string} Vertex Shader
 	 */
-var _vertexShader   = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
-
-		in vec3 aPosition;
-		in vec2 aTextureCoord;
-
-		out vec2 vTextureCoord;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-		uniform mat4 uRotationMat;
-		uniform bool uRotate;
-		uniform vec3 uPosition;
-		uniform float uTopSize;
-		uniform float uBottomSize;
-		uniform float uHeight;
-
-		uniform float uZindex;
-
-		void main(void) {
-			float size, height;
-
-			if (aPosition.z == 1.0) {
-				size   = uTopSize;
-				height = uHeight;
-			} else {
-				size   = uBottomSize;
-				height = 0.0;
-			}
-
-			vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
-			if(uRotate) {
-				position += vec4(aPosition.x * size, -height, aPosition.y * size, 0.0) * uRotationMat;
-			} else {
-				position  += vec4(aPosition.x * size, -height, aPosition.y * size, 0.0);
-			}
-
-			gl_Position    = uProjectionMat * uModelViewMat * position;
-			gl_Position.z -= uZindex;
-
-			vTextureCoord  = aTextureCoord;
-		}
-	`;
+	var _vertexShader = require('text!./Cylinder.vert');
 
 
 	/**
 	 * @var {string} Fragment Shader
 	 */
-var _fragmentShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-
-		precision highp float;
-
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-
-		uniform sampler2D uDiffuse;
-		uniform vec4 uSpriteRendererColor;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		void main(void) {
-
-			if (uSpriteRendererColor.a ==  0.0) {
-				discard;
-			}
-
-		 vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-
-			if (textureSample.a == 0.0) {
-				discard;
-			}
-
-			if (textureSample.r < 0.01 && textureSample.g < 0.01 && textureSample.b < 0.01) {
-			   discard;
-			}
-
-			fragColor   = textureSample * uSpriteRendererColor;
-
-			if (uFogUse) {
-			 float depth = gl_FragCoord.z / gl_FragCoord.w;
-			 float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
-			}
-		}
-	`;
+	var _fragmentShader = require('text!./Cylinder.frag');
 
 	/*
 	 * Sets how many sides the base "circle" of the cylinder has.
