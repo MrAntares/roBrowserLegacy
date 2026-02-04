@@ -1,0 +1,6 @@
+name: "Custom CodeQL Config"
+version: 2.0.0
+
+paths-ignore:
+  - src/Vendors/**
+  - applications/tools/**
