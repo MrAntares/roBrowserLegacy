@@ -15,9 +15,11 @@ define(function () {
 		// this prevents any overhead from creating the object each time
 		let element = document.createElement("div");
 		if (str && typeof str === "string") {
-			// strip script tags
-			str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gim, "");
 			element.innerHTML = str;
+			
+			// Remove script tags and other dangerous elements
+		    element.querySelectorAll("script, iframe, object, embed").forEach(n => n.remove());
+
 			str = element.textContent;
 			element.textContent = "";
 		}
