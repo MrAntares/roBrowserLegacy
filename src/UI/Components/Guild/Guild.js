@@ -18,7 +18,6 @@ define(function(require)
 	var DB             = require('DB/DBManager');
 	var SkillInfo      = require('DB/Skills/SkillInfo');
 	var jQuery         = require('Utils/jquery');
-	var Mouse          = require('Controls/MouseEventHandler');
 	var KEYS           = require('Controls/KeyEventHandler');
 	var MonsterTable   = require('DB/Monsters/MonsterTable');
 	var Session        = require('Engine/SessionStorage');
@@ -27,7 +26,6 @@ define(function(require)
 	var Camera         = require('Renderer/Camera');
 	var Renderer       = require('Renderer/Renderer');
 	var Preferences    = require('Core/Preferences');
-	var PACKETVER      = require('Network/PacketVerManager');
 	var Client         = require('Core/Client');
 	var UIManager      = require('UI/UIManager');
 	var UIComponent    = require('UI/UIComponent');
@@ -44,10 +42,10 @@ define(function(require)
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('Guild', {
+	/*var _preferences = Preferences.get('Guild', {
 		x: 100,
 		y: 100
-	}, 1.0);
+	}, 1.0);*/ // UNUSED
 
 
 	/**

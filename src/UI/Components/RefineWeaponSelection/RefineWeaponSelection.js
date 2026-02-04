@@ -17,12 +17,10 @@ define(function(require)
 	 */
 	var jQuery      = require('Utils/jquery');
 	var DB          = require('DB/DBManager');
-	var SkillInfo   = require('DB/Skills/SkillInfo');
 	var Client      = require('Core/Client');
 	var Renderer    = require('Renderer/Renderer');
 	var UIManager   = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
-	var Inventory   = require('UI/Components/Inventory/Inventory');
 	var htmlText    = require('text!./RefineWeaponSelection.html');
 	var cssText     = require('text!./RefineWeaponSelection.css');
 

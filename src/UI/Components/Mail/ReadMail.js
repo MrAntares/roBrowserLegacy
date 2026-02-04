@@ -18,11 +18,9 @@
 	 var jQuery             = require('Utils/jquery');
 	 var Preferences        = require('Core/Preferences');
 	 var Client             = require('Core/Client');
-	 var Session      		= require('Engine/SessionStorage');
 	 var Renderer           = require('Renderer/Renderer');
 	 var Mouse              = require('Controls/MouseEventHandler');
 	 var KEYS               = require('Controls/KeyEventHandler');
-	 var InputBox           = require('UI/Components/InputBox/InputBox');
 	 var ChatBox            = require('UI/Components/ChatBox/ChatBox');
 	 var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	 var UIManager          = require('UI/UIManager');
@@ -302,27 +300,10 @@
 		getModule('UI/Components/Mail/Mail').returnMail(mailID, textSender);
 	}
 
-	function remove()
-	{
-		 ReadMail.list.length = 0;
-		 // Save preferences
-		 _preferences.show   =  ReadMail.ui.is(':visible');
-		 _preferences.reduce = !!_realSize;
-		 _preferences.y      =  parseInt(ReadMail.ui.css('top'), 10);
-		 _preferences.x      =  parseInt(ReadMail.ui.css('left'), 10);
-		 _preferences.width  =  Math.floor( (ReadMail.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
-		 _preferences.height =  Math.floor( (ReadMail.ui.height() - (31 + 19 - 30     )) / 32 );
-		 _preferences.magnet_top = ReadMail.magnet.TOP;
-		 _preferences.magnet_bottom = ReadMail.magnet.BOTTOM;
-		 _preferences.magnet_left = ReadMail.magnet.LEFT;
-		 _preferences.magnet_right = ReadMail.magnet.RIGHT;
-		 _preferences.save();
-	}
-
 	 /**
 	  * Extend Mail window size
 	  */
-	 function onResize()
+	 /*function onResize()
 	 {
 		var ui         = ReadMail.ui;
 		var top        = ui.position().top;
@@ -355,7 +336,7 @@
 				jQuery(window).off('mouseup.resize');
 			}
 		});
-	 }
+	 }*/ //UNUSED
 
 	 /**
 	 * Prettify number (15000 -> 15,000)

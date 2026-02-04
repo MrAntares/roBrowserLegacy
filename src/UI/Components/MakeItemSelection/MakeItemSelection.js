@@ -17,7 +17,6 @@
       */
      var jQuery      = require('Utils/jquery');
      var DB          = require('DB/DBManager');
-     var SkillInfo   = require('DB/Skills/SkillInfo');
      var Client      = require('Core/Client');
      var Renderer    = require('Renderer/Renderer');
 	 var KEYS        = require('Controls/KeyEventHandler');

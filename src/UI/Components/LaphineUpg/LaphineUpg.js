@@ -28,8 +28,6 @@ define(function(require)
 	var htmlText           = require('text!./LaphineUpg.html');
 	var cssText            = require('text!./LaphineUpg.css');
 	var PACKET        	   = require('Network/PacketStructure');
-	var PACKETVER   	   = require('Network/PacketVerManager');
-	var getModule     	   = require;
 
 
 	/**

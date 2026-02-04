@@ -37,9 +37,6 @@ define(function(require)
 		y:        295
 	}, 2.0);
 
-	var imageData = null;
-	var answer = null;
-
 	/**
 	 * Initialize GUI
 	 */

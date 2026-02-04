@@ -23,9 +23,9 @@ define(function (require) {
 
 	var PvPCount = new UIComponent('PvPCount', html, css);
 
-	/* ================= CONFIG (Gravity values) ================= */
+	/* ================= CONFIG (OG values) ================= */
 
-	var DIGIT_STEP = 45;
+	//var DIGIT_STEP = 45; // UNUSED
 	var RANK_W = 240, RANK_H = 96;
 	var RANK_Y = 52;
 

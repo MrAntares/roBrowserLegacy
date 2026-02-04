@@ -37,7 +37,6 @@ define(function(require)
 	var SwitchEquip		   = require('UI/Components/SwitchEquip/SwitchEquip');
 	var WinStats           = require('UI/Components/WinStats/WinStats');
 	var GraphicsSettings = require('Preferences/Graphics');
-	const Configs = require('Core/Configs');
 	var htmlText           = require('text!./EquipmentV4.html');
 	var cssText            = require('text!./EquipmentV4.css');
 	var getModule          = require;

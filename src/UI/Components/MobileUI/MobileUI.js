@@ -37,20 +37,20 @@ define(function (require) {
 	var rotate = mat2.create();
 
 	//Configure keys here
-	var MOVE = {
+	/*var MOVE = {
 		RIGHT: KEYS.RIGHT,
 		LEFT: KEYS.LEFT,
 		UP: KEYS.UP,
 		DOWN: KEYS.DOWN
-	};
+	};*/ // UNUSED
 
 	//Multiple keys held
-	var KeyEvent = {};
+	//var KeyEvent = {}; // UNUSED
 
 	//Memory
 	var targetPos = [0, 0];
 
-	var keysDownTimeout = null;
+	//var keysDownTimeout = null; // UNUSED
 	var movementTimer = null; // Timer for continuous joystick movement
 
 	/**
@@ -76,7 +76,7 @@ define(function (require) {
 
 	var centerX, centerY;
 	var maxDistance = 0;
-	var lastSentMove = Date.now();
+	// var lastSentMove = Date.now(); // UNUSED
 	var normalizedX = 0; // Current normalized x-axis input
 	var normalizedY = 0; // Current normalized y-axis input
 

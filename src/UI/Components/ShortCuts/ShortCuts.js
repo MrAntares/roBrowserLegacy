@@ -14,7 +14,6 @@
 	 /**
 	  * Dependencies
 	  */
-	 var DB                 = require('DB/DBManager');
 	 var jQuery             = require('Utils/jquery');
 	 var Preferences        = require('Core/Preferences');
 	 var Renderer           = require('Renderer/Renderer');

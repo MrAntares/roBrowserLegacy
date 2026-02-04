@@ -19,7 +19,6 @@ define(function(require)
 	var DB                 = require('DB/DBManager');
 	var ItemType           = require('DB/Items/ItemType');
 	var Client             = require('Core/Client');
-	var KEYS               = require('Controls/KeyEventHandler');
 	var CardIllustration   = require('UI/Components/CardIllustration/CardIllustration');
 	var UIManager          = require('UI/UIManager');
 	var Mouse              = require('Controls/MouseEventHandler');
@@ -31,8 +30,6 @@ define(function(require)
 	var Action             = require('Loaders/Action');
 	var htmlText           = require('text!./ItemCompare.html');
 	var cssText            = require('text!./ItemCompare.css');
-	var Network       	   = require('Network/NetworkManager');
-	var PACKET        	   = require('Network/PacketStructure');
 	var getModule     = require;
 
 

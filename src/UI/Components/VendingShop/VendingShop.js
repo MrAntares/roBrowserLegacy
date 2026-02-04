@@ -24,17 +24,14 @@ define(function(require)
 	var PACKETVER	       = require('Network/PacketVerManager');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
-	var Mouse              = require('Controls/MouseEventHandler');
 	var Renderer           = require('Renderer/Renderer');
 	var UIManager          = require('UI/UIManager');
 	var UIComponent        = require('UI/UIComponent');
 	var ChatBox			   = require('UI/Components/ChatBox/ChatBox');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
-	var Session    		   = require('Engine/SessionStorage');
 	var Vending            = require('UI/Components/Vending/Vending');
 	var htmlText           = require('text!./VendingShop.html');
 	var cssText            = require('text!./VendingShop.css');
-	var getModule          = require;
 
 
 	/**
@@ -65,9 +62,6 @@ define(function(require)
 	 * @var {number} type (buy/sell)
 	 */
 	var _type;
-
-	var _vendcount = 0;
-
 
 	/**
 	 * @var {Preferences} structure

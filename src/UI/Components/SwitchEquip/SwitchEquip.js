@@ -26,7 +26,6 @@ define(function(require)
 	var Renderer           = require('Renderer/Renderer');
 	var Camera             = require('Renderer/Camera');
 	var SpriteRenderer     = require('Renderer/SpriteRenderer');
-	var UIVersionManager   = require('UI/UIVersionManager');
 	var UIManager          = require('UI/UIManager');
 	var UIComponent        = require('UI/UIComponent');
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
@@ -48,12 +47,6 @@ define(function(require)
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
 	var _swapctx = [];
-
-	/**
-	 * @var {Variable} holder for tab
-	 */
-    var currentEquipTabId = 'general';
-
 
 	/**
 	 * Initialize UI

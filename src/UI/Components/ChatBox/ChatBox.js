@@ -33,7 +33,6 @@ define(function(require)
 	var cssText            = require('text!./ChatBox.css');
 	var Commands     = require('Controls/ProcessCommand');
 	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
-	var HTMLEntity        = require('Utils/HTMLEntity');
 	var getModule          = require;
 
 

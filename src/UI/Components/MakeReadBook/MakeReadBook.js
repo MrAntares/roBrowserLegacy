@@ -31,7 +31,6 @@
 	 var TextEncoding       = require('Vendors/text-encoding');
 	 var Announce       	= require('UI/Components/Announce/Announce');
 	 var ChatBox      		= require('UI/Components/ChatBox/ChatBox');
-	 var getModule    		= require;
 
 
 	var sleepNow = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
@@ -410,7 +409,7 @@
 	 /**
 	  * Extend MakeReadBook window size
 	  */
-	 function onResize()
+	 /*function onResize()
 	 {
 		 var ui      = MakeReadBook.ui;
 		 var top     = ui.position().top;
@@ -450,7 +449,7 @@
 				 jQuery(window).off('mouseup.resize');
 			 }
 		 });
-	 }
+	 }*/ // UNUSED
 
 
 	 /**

@@ -19,7 +19,6 @@ define(function(require)
 	var UIComponent        = require('UI/UIComponent');
 	var htmlText           = require('text!./EntitySignboard.html');
 	var cssText            = require('text!./EntitySignboard.css');
-	var DB                 = require('DB/DBManager');
 	var Client             = require('Core/Client');
 
 

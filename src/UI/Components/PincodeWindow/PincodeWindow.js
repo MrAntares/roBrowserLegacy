@@ -16,8 +16,6 @@ define(function(require)
      * Dependencies
      */
     var DB                 = require('DB/DBManager');
-    var Configs            = require('Core/Configs');
-    var PACKETVER          = require('Network/PacketVerManager');
     var Preferences        = require('Core/Preferences');
     var Renderer           = require('Renderer/Renderer');
     var UIManager          = require('UI/UIManager');
@@ -35,7 +33,7 @@ define(function(require)
     /**
      * @var {Preference} window preferences
      */
-    var _preferences = Preferences.get('PincodeWindow', {
+    /*var _preferences = Preferences.get('PincodeWindow', {
         x: 540,
         y: 320
     }, 1.0);
@@ -52,7 +50,7 @@ define(function(require)
 
     var _currentSeed = undefined;
 
-    var _resetstate = 0;
+    var _resetstate = 0;*/ // UNUSED
 
     PincodeWindow.resetUI = function resetUI() {
         PincodeWindow._resetstate = 0;
@@ -403,7 +401,7 @@ function advanceVisualSeed() {
     function encryptPincode(pincode) {
         var intCode = 0;
         var strCode = '';
-        var keypad = undefined;
+        //var keypad = undefined; //UNUSED
         var i = 0;
         var x = 0;
         var out = '';
@@ -435,7 +433,6 @@ function advanceVisualSeed() {
     }
 
     function success() {
-        var ui = PincodeWindow.ui;
 	var passEnc = PincodeWindow._pass;
 	var checkPassEnc = PincodeWindow._checkpass;
 	var newPassEnc = PincodeWindow._newpass;

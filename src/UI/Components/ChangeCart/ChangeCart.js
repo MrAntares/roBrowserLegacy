@@ -17,8 +17,6 @@ define(function(require)
 	 */
 	var Network     = require('Network/NetworkManager');
 	var PACKET      = require('Network/PacketStructure');
-	var jQuery      = require('Utils/jquery');
-	var Client      = require('Core/Client');
 	var Preferences = require('Core/Preferences');
 	var Session     = require('Engine/SessionStorage');
 	var Renderer    = require('Renderer/Renderer');
@@ -42,9 +40,9 @@ define(function(require)
 	/**
 	 * @var {Preference} window preferences
 	 */
-	var _preferences = Preferences.get('ChangeCart', {
+	/*var _preferences = Preferences.get('ChangeCart', {
 		show:     false,
-	}, 1.0);
+	}, 1.0);*/ // UNUSED
 
 	/**
 	 * @var {object} model info

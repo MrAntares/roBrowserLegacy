@@ -371,7 +371,7 @@ define(function(require)
 		for (i = 0, count = items.length; i < count ; ++i) {
 			var object= this.getItemByIndex(items[i].index);
 			if(object){
-				var item=this.removeItem(object.index,object.count);
+				this.removeItem(object.index,object.count);
 			}
 			if(this.addItemSub(items[i])){
 				this.list.push(items[i]);

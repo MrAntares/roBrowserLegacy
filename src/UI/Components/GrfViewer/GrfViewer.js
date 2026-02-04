@@ -1183,7 +1183,7 @@ define(function(require)
 			return;
 			//UNDER DEVELOPMENT!!!
 
-			var ui    = Viewer.ui;
+			/*var ui    = Viewer.ui;
 			var path  = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			// Show iframe
@@ -1219,7 +1219,7 @@ define(function(require)
 			}
 			else {
 				App._APP.postMessage({ type:'load', data:path }, location.origin);
-			}
+			}*/
 		};
 	}();
 

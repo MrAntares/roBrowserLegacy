@@ -16,7 +16,6 @@ define(function(require)
 	 * Dependencies
 	 */
 	var DB                 = require('DB/DBManager');
-	var Configs            = require('Core/Configs');
 	var MonsterTable       = require('DB/Monsters/MonsterTable');
 	var Client             = require('Core/Client');
 	var Preferences        = require('Core/Preferences');
@@ -32,7 +31,6 @@ define(function(require)
 	var Escape             = require('UI/Components/Escape/Escape');
 	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
 	var WinStats           = require('UI/Components/WinStats/WinStats');
-	var PACKETVER   = require('Network/PacketVerManager');
 
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');

@@ -26,7 +26,6 @@
      var Inventory   = require('UI/Components/Inventory/Inventory');
      var htmlText    = require('text!./ItemListWindowSelection.html');
      var cssText     = require('text!./ItemListWindowSelection.css');
-     var getModule   = require;
 
     
     /**

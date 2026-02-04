@@ -35,12 +35,6 @@ define(function (require) {
 	 */
 	var Quest = new UIComponent('Quest', htmlText, cssText);
 
-
-	/**
-	 * @var {number} index of selection
-	 */
-	var _index = -1;
-
 	/**
 	 * @var {Array} quest list
 	 */

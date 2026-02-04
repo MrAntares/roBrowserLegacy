@@ -48,7 +48,7 @@ define(function (require) {
 	/**
 	 * @var {Array} quest list
 	 */
-	var _questNotShowList = [];
+	/*var _questNotShowList = [];*/ // UNUSED
 
 	/**
 	 * @var {string} _active_menu active click menu

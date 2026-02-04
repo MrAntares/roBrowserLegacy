@@ -15,12 +15,9 @@ define(function(require)
 	 */
 	var DB                 = require('DB/DBManager');
 	var EffectConst        = require('DB/Effects/EffectConst');
-	var Configs            = require('Core/Configs');
 	var Network            = require('Network/NetworkManager');
 	var PACKET             = require('Network/PacketStructure');
-	var PACKETVER   	   = require('Network/PacketVerManager');
 	var EffectManager      = require('Renderer/EffectManager');
-	var jQuery             = require('Utils/jquery');
 	var Client             = require('Core/Client');
 	var Session            = require('Engine/SessionStorage');
 	var UIManager          = require('UI/UIManager');
@@ -33,7 +30,6 @@ define(function(require)
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	var htmlText           = require('text!./EnchantGrade.html');
 	var cssText            = require('text!./EnchantGrade.css');
-	var getModule          = require;
 
 	/**
 	 * Create Component
@@ -614,7 +610,7 @@ define(function(require)
 				let material_ITID = Number(this.dataset.itemid);
 				let material_amount = Number(this.dataset.amount);
 				let price     = Number(this.dataset.price);
-				let downgrade = Number(this.dataset.downgrade);
+				//let downgrade = Number(this.dataset.downgrade); // UNUSED
 				let breakable = Number(this.dataset.breakable);
 
 				// Variable to track insufficiency

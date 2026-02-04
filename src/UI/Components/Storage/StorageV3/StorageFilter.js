@@ -14,8 +14,6 @@ define(function (require) {
 	var Preferences = require('Core/Preferences');
 	var Renderer    = require('Renderer/Renderer');
 	var Mouse       = require('Controls/MouseEventHandler');
-	var ItemType    = require('DB/Items/ItemType');
-	var UIManager   = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 	var ItemInfo    = require('UI/Components/ItemInfo/ItemInfo');
 	var htmlText    = require('text!./StorageFilter.html');

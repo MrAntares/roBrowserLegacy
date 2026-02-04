@@ -515,7 +515,7 @@ define(function(require)
 	/**
 	 * Update tab, reset inventory content
 	 */
-	function requestFilter()
+	/*function requestFilter()
 	{
 		CartItems.ui.find('.container .content').empty();
 
@@ -525,7 +525,7 @@ define(function(require)
 		for (i = 0, count = list.length; i < count; ++i) {
 			CartItems.addItemSub( list[i] );
 		}
-	}
+	}*/ // UNUSED
 
 
 	/**

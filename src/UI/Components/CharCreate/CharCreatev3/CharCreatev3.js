@@ -271,7 +271,7 @@ define(function(require)
 	/**
 	 * Update model race
 	 */
-	function updateRace (){
+	/*function updateRace (){
 		var select = CharCreatev3.ui.find('.race_select .race input.radio').filter(':checked');
 		var type = TYPE.RACE;
 		var race = RACE.HUMAN;
@@ -294,7 +294,7 @@ define(function(require)
 		}
 
 		updateCharacter( type, race);
-	};
+	};*/ // UNUSED
 
 
 	/**

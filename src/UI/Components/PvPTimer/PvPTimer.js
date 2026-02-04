@@ -22,14 +22,14 @@ define(function (require) {
 
 	var PvPTimer = new UIComponent('PvPTimer', html, css);
 
-	/* ================= CONFIG (Gravity values) ================= */
+	/* ================= CONFIG (OG values) ================= */
 
-	var DIGIT_STEP = 24;
+	// var DIGIT_STEP = 24; // UNUSED
 
 	var TIMER_W = 300, TIMER_H = 110;
 	var TA_W = 360, TA_H = 128; // Match CSS
 
-	// Gravity font baselines
+	// OG font baselines
 	var TIMER_Y = 60;
 	var TA_Y = 80;
 

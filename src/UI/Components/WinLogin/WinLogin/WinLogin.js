@@ -19,7 +19,6 @@ define(function(require)
 	var Client      = require('Core/Client');
 	var Configs     = require('Core/Configs');
 	var Preferences = require('Core/Preferences');
-	var Renderer    = require('Renderer/Renderer');
 	var KEYS        = require('Controls/KeyEventHandler');
 	var UIManager   = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');

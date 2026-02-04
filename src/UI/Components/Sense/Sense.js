@@ -15,7 +15,6 @@ define(function(require)
 	/**
 	 * Dependencies
 	 */
-	var jQuery         = require('Utils/jquery');
 	var DB             = require('DB/DBManager');
 	var Renderer       = require('Renderer/Renderer');
 	var Entity         = require('Renderer/Entity/Entity');

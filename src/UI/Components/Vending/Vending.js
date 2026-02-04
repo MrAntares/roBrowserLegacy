@@ -28,7 +28,6 @@ define(function(require)
 	var UIComponent  = require('UI/UIComponent');
 	var ItemInfo     = require('UI/Components/ItemInfo/ItemInfo');
 	var InputBox     = require('UI/Components/InputBox/InputBox');
-	var ChatBox      = require('UI/Components/ChatBox/ChatBox');
 	var CartItems    = require('UI/Components/CartItems/CartItems');
 	var VendingModelMessage = require('UI/Components/Vending/VendingModelMessage/VendingModelMessage');
 	var htmlText     = require('text!./Vending.html');

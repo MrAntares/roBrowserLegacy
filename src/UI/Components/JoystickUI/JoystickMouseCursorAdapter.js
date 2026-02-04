@@ -12,7 +12,6 @@ define(function (require) {
 
 	var Renderer = require('Renderer/Renderer');
 	var Mouse = require('Controls/MouseEventHandler');
-	var EntityManager = require('Renderer/EntityManager');
 	var glMatrix = require('Vendors/gl-matrix');
 	var Camera = require('Renderer/Camera');
 	var ControlsSettings = require('Preferences/Controls');

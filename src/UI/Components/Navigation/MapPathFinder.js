@@ -112,7 +112,7 @@ define(function(require) {
 				if (typeof naviLinkDistanceTable[i] === 'string') {
 					var mapName = naviLinkDistanceTable[i];
 					if (i + 2 < naviLinkDistanceTable.length) {
-						var numLinks = naviLinkDistanceTable[i + 1];
+						//var numLinks = naviLinkDistanceTable[i + 1]; // UNUSED
 						var linksData = naviLinkDistanceTable[i + 2];
 
 						if (Array.isArray(linksData)) {

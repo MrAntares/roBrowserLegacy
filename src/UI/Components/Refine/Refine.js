@@ -31,7 +31,6 @@ define(function(require)
 	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
 	var htmlText           = require('text!./Refine.html');
 	var cssText            = require('text!./Refine.css');
-	var getModule          = require;
 
 	/**
 	 * Create Component
