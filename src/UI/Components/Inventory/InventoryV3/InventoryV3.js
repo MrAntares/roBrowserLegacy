@@ -1346,10 +1346,8 @@ define(function(require)
 		}
 
 		// If item is present, send request to client
-		if (itemforexpand) {
-			var pkt = new PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE();
-			Network.sendPacket(pkt);
-		}
+		var pkt = new PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE();
+		Network.sendPacket(pkt);
 	};
 
 
