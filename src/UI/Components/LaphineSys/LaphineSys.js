@@ -395,9 +395,7 @@ define(function(require)
 			return false; // Exit the function early
 		}
 
-        if (item) {
-			onUpdateSubmitList(item);
-        }
+		onUpdateSubmitList(item);
 	};
 
 
