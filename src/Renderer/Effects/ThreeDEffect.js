@@ -562,7 +562,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
-		if (this.shadowTexture && 0) {
+		if (this.shadowTexture) {
 			var effectName = require('Renderer/EffectManager').get(1000000);
 			if (effectName) {
 				if (this.endTick < tick) require('Renderer/EffectManager').remove(effectName, 1000000);
@@ -571,7 +571,6 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 				}
 			}
 		}
-
 		if (this.actRessource && this.spriteRessource) {
 			var entity = this.ownerEntity;
 			if(!entity){
