@@ -12,12 +12,34 @@ on:
     paths-ignore:
       - "src/Vendors/**"
       - "applications/tools/**"
+      
+      # Docs
+      - "**/*.md"
+      - "doc/**"
+      
+      # Editor/linter/config meta
+      - ".vscode/**"
+      - ".gitattributes"
+      - ".editorconfig"
+      - ".eslintignore"
+      - ".eslintrc.js"
 
   pull_request:
     branches: [ "master" ]
     paths-ignore:
       - "src/Vendors/**"
       - "applications/tools/**"
+      
+      # Docs
+      - "**/*.md"
+      - "doc/**"
+      
+      # Editor/linter/config meta
+      - ".vscode/**"
+      - ".gitattributes"
+      - ".editorconfig"
+      - ".eslintignore"
+      - ".eslintrc.js"
 
 jobs:
   analyze:

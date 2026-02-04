@@ -4,3 +4,24 @@ version: 2.0.0
 paths-ignore:
   - src/Vendors/**
   - applications/tools/**
+
+# Docs
+  - doc/**
+  - "**/*.md"
+
+# Editor/linter/config meta
+  - .vscode/**
+  - .gitattributes
+  - .editorconfig
+  - .eslintignore
+  - .eslintrc.js
+
+# Binary asset files
+  - "**/*.bmp"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.gif"
+  - "**/*.webp"
+  - "**/*.svg"
+  - "**/*.ico"
+  - "**/*.tga"
