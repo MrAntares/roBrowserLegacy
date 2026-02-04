@@ -562,6 +562,15 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
+		if (this.shadowTexture) {
+			var effectName = require('Renderer/EffectManager').get(1000000);
+			if (effectName) {
+				if (this.endTick < tick) require('Renderer/EffectManager').remove(effectName, 1000000);
+				else {
+					effectName.position = new Int16Array([SpriteRenderer.position[0], SpriteRenderer.position[1], Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1])]);
+				}
+			}
+		}
 		if (this.actRessource && this.spriteRessource) {
 			var entity = this.ownerEntity;
 			if(!entity){
