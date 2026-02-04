@@ -14,7 +14,6 @@ on:
 permissions:
     # required for all workflows
     security-events: write
-    contents: read
     contents: write
 
 jobs:
