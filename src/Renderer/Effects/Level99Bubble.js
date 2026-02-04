@@ -13,8 +13,8 @@
  * - Alpha: clamp(250 + 25*(y + 20), 0, 250)
  * - Color: (80,80,255), additive blend
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/Map/Altitude'],
-function(WebGL, Texture, glMatrix, Client, Camera, Altitude) {
+define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
+function(WebGL, Texture, glMatrix, Client, Camera, Altitude, SpriteRenderer) {
 	'use strict';
 
 	var DEG_TO_RAD       = Math.PI / 180;
@@ -381,11 +381,16 @@ function(WebGL, Texture, glMatrix, Client, Camera, Altitude) {
 				this.fillQuad(this.tmpPoints, this.quadData);
 
 				gl.bufferData(gl.ARRAY_BUFFER, this.quadData, gl.DYNAMIC_DRAW);
-				for (var pass = 0; pass < this.passCount; pass++) {
-					gl.uniform4f(uniform.uColor, this.color.r, this.color.g, this.color.b, alphaValue);
-					gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.002 + ai * 0.0001 + pass * 0.00005);
-					gl.drawArrays(gl.TRIANGLES, 0, 6);
-				}
+
+				var self = this;
+				SpriteRenderer.setDepth(true, false, false, function(){
+					for (var pass = 0; pass < self.passCount; pass++) {
+						gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, alphaValue);
+						gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.002 + ai * 0.0001 + pass * 0.00005);
+						gl.drawArrays(gl.TRIANGLES, 0, 6);
+					}
+				});
+
 			}
 		}
 	};
@@ -409,7 +414,11 @@ function(WebGL, Texture, glMatrix, Client, Camera, Altitude) {
 			gl.uniform1i(uniform.uSolidBg, 1);
 			gl.uniform4f(uniform.uColor, 1.0, 0.0, 0.0, debugConfig.bgAlpha);
 			gl.uniform1f(uniform.uZIndex, 0.0005);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+			var self = this;
+			SpriteRenderer.setDepth(true, true, false, function(){
+				gl.drawArrays(gl.TRIANGLES, 0, 6);
+			});
 		}
 
 		var x0 = basePos[0] - radius;
@@ -510,14 +519,9 @@ function(WebGL, Texture, glMatrix, Client, Camera, Altitude) {
 		uniform vec3  uFogColor;
 
 		void main(void) {
-			vec4 texColor = uSolidBg ? vec4(1.0) : texture(uDiffuse, vTextureCoord);
-
-			if (!uSolidBg && texColor.a < 0.01) {
-				discard;
-			}
-
-			fragColor = texColor * uColor;
-
+			vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
+			textureSample *= uColor;
+			fragColor = textureSample;
 			if (uFogUse) {
 				float depth = gl_FragCoord.z / gl_FragCoord.w;
 				float fogFactor = smoothstep(uFogNear, uFogFar, depth);
@@ -550,8 +554,6 @@ function(WebGL, Texture, glMatrix, Client, Camera, Altitude) {
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 
-		gl.depthMask(false);
-		gl.enable(gl.DEPTH_TEST);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
 		gl.useProgram(_program);
@@ -576,9 +578,7 @@ function(WebGL, Texture, glMatrix, Client, Camera, Altitude) {
 	};
 
 	Level99Bubble.afterRender = function afterRender(gl) {
-		gl.depthMask(true);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 	};

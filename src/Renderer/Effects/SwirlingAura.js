@@ -15,8 +15,8 @@
  *   where SinLimit = 90° + (i - 10) * 9°
  * - Render: base ring at distance, top offset by rotated height
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude'],
-function(WebGL, Texture, glMatrix, Client, Altitude) {
+define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
+function(WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
 
 	'use strict';
 
@@ -319,37 +319,39 @@ function(WebGL, Texture, glMatrix, Client, Altitude) {
 
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
+		var self = this;
+		SpriteRenderer.setDepth(true, false, false, function(){
+			// Render each band
+			for (var ec = 0; ec < self.bands.length; ec++) {
+				var band = self.bands[ec];
+				if (!band.life) continue;
 
-		// Render each band
-		for (var ec = 0; ec < this.bands.length; ec++) {
-			var band = this.bands[ec];
-			if (!band.life) continue;
+				// Update animation (Prim3DCasting)
+				band.process++;
+				band.rotStart = (band.rotStart + band.spinSpeed) % 360;
 
-			// Update animation (Prim3DCasting)
-			band.process++;
-			band.rotStart = (band.rotStart + band.spinSpeed) % 360;
+				// Update height profile
+				self.updateHeightProfile(band);
 
-			// Update height profile
-			this.updateHeightProfile(band);
+				// Generate mesh for this band
+				var vertices = self.generateBandMesh(band);
 
-			// Generate mesh for this band
-			var vertices = this.generateBandMesh(band);
+				// Upload vertex data
+				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffers[ec]);
+				gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
 
-			// Upload vertex data
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[ec]);
-			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
+				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
 
-			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
+				// Set color and alpha
+				gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, self.alphaB);
+				gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.001);
 
-			// Set color and alpha
-			gl.uniform4f(uniform.uColor, this.color.r, this.color.g, this.color.b, this.alphaB);
-			gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.001);
-
-			// Draw
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-			gl.drawElements(gl.TRIANGLES, this.indexCount, gl.UNSIGNED_SHORT, 0);
-		}
+				// Draw
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.indexBuffer);
+				gl.drawElements(gl.TRIANGLES, self.indexCount, gl.UNSIGNED_SHORT, 0);
+			}
+		});
 	};
 
 	/**
@@ -378,9 +380,6 @@ function(WebGL, Texture, glMatrix, Client, Altitude) {
 	 */
 	SwirlingAura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		var uniform = _program.uniform;
-
-		gl.depthMask(false);
-		gl.enable(gl.DEPTH_TEST);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE);  // Additive blend
 
 		gl.useProgram(_program);
@@ -402,7 +401,6 @@ function(WebGL, Texture, glMatrix, Client, Altitude) {
 	 * After render cleanup
 	 */
 	SwirlingAura.afterRender = function afterRender(gl) {
-		gl.depthMask(true);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 		gl.disableVertexAttribArray(_program.attribute.aPosition);

@@ -6,8 +6,8 @@
  * to avoid camera-tilt clipping issues.
  *
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude'],
-function(WebGL, Texture, glMatrix, Client, Altitude) {
+define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
+function(WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
 
 	'use strict';
 
@@ -239,25 +239,27 @@ function(WebGL, Texture, glMatrix, Client, Altitude) {
 		];
 
 		gl.uniform3fv(uniform.uWorldPosition, worldPos);
+		var self = this;
+		SpriteRenderer.setDepth(true, false, false, function(){
+			for (var i = 0; i < self.aura.length; i++) {
+				if (!self.aura[i].life) continue;
 
-		for (var i = 0; i < this.aura.length; i++) {
-			if (!this.aura[i].life) continue;
+				var auraAngle = i * 23;
 
-			var auraAngle = i * 23;
+				var sizeModifier = calculateSize(self, self.aura, auraAngle, i);
 
-			var sizeModifier = calculateSize(this, this.aura, auraAngle, i);
+				self.aura[i].size[0] += (sizeModifier[0] * self.aura[i].direction) / (self.size / 2);
+				self.aura[i].size[1] += (sizeModifier[1] * self.aura[i].direction) / (self.size / 2);
 
-			this.aura[i].size[0] += (sizeModifier[0] * this.aura[i].direction) / (this.size / 2);
-			this.aura[i].size[1] += (sizeModifier[1] * this.aura[i].direction) / (this.size / 2);
+				// Set uniforms - size in SpriteRenderer units (shader converts to world units)
+				gl.uniform2f(uniform.uSize, self.aura[i].size[0], self.aura[i].size[1]);
+				gl.uniform1f(uniform.uAngle, auraAngle * Math.PI / 180);
+				gl.uniform4f(uniform.uColor, 1.0, 1.0, 1.0, 0.8);
+				gl.uniform1f(uniform.uZIndex, 1 + i);
 
-			// Set uniforms - size in SpriteRenderer units (shader converts to world units)
-			gl.uniform2f(uniform.uSize, this.aura[i].size[0], this.aura[i].size[1]);
-			gl.uniform1f(uniform.uAngle, auraAngle * Math.PI / 180);
-			gl.uniform4f(uniform.uColor, 1.0, 1.0, 1.0, 0.8);
-			gl.uniform1f(uniform.uZIndex, 1 + i);
-
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
+				gl.drawArrays(gl.TRIANGLES, 0, 6);
+			}
+		});
 	};
 
 	/**
@@ -296,9 +298,6 @@ function(WebGL, Texture, glMatrix, Client, Altitude) {
 	GroundAura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
-
-		gl.depthMask(false);
-		gl.enable(gl.DEPTH_TEST);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
 		gl.useProgram(_program);
@@ -327,7 +326,6 @@ function(WebGL, Texture, glMatrix, Client, Altitude) {
 	 * After render cleanup
 	 */
 	GroundAura.afterRender = function afterRender(gl) {
-		gl.depthMask(true);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
