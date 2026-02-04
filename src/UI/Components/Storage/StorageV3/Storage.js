@@ -394,11 +394,6 @@ define(function (require) {
 		});
 	}1
 
-	function stopPropagation(event) {
-		event.stopImmediatePropagation();
-		return false;
-	}
-
 	function onResize() {
 		var ui = Storage.ui;
 		var top = ui.position().top;
