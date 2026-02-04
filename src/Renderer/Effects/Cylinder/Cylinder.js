@@ -5,8 +5,23 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/SpriteRenderer', 'require'],
-function(      WebGL,          glMatrix,        Client,            Camera,            SpriteRenderer,   require) {
+define([
+	'Utils/WebGL',
+	'Utils/gl-matrix',
+	'Core/Client',
+	'Renderer/Camera',
+	'Renderer/SpriteRenderer',
+	'text!./Cylinder.vert',
+	'text!./Cylinder.frag'
+], function(
+	WebGL,
+	glMatrix,
+	Client,
+	Camera,
+	SpriteRenderer,
+	_vertexShader,
+	_fragmentShader
+) {
 
 	'use strict';
 
@@ -40,18 +55,6 @@ function(      WebGL,          glMatrix,        Client,            Camera,      
 	 * @var {number}
 	 */
 	Cylinder.verticeCount = 0;
-
-
-	/**
-	 * @var {string} Vertex Shader
-	 */
-	var _vertexShader = require('text!./Cylinder.vert');
-
-
-	/**
-	 * @var {string} Fragment Shader
-	 */
-	var _fragmentShader = require('text!./Cylinder.frag');
 
 	/*
 	 * Sets how many sides the base "circle" of the cylinder has.
