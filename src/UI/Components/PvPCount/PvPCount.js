@@ -9,34 +9,38 @@
 define(function (require) {
 	'use strict';
 
-	var UIManager   = require('UI/UIManager');
+	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 
 	// Emoticons-style rendering stack
-	var Client         = require('Core/Client');
+	var Client = require('Core/Client');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Entity         = require('Renderer/Entity/Entity');
+	var Entity = require('Renderer/Entity/Entity');
+	var Sound = require('Audio/SoundManager');
 
 	var html = require('text!./PvPCount.html');
-	var css  = require('text!./PvPCount.css');
+	var css = require('text!./PvPCount.css');
 
 	var PvPCount = new UIComponent('PvPCount', html, css);
 
 	/* ================= CONFIG (Gravity values) ================= */
 
 	var DIGIT_STEP = 45;
-	var RANK_W  = 300, RANK_H  = 80;
-	var RANK_Y  = 52;
+	var RANK_W = 240, RANK_H = 96;
+	var RANK_Y = 52;
 
 	/* ================= CANVASES ================= */
 
-	var _rankCanvas,  _rankCtx;
+	var _rankCanvas, _rankCtx;
 
 	/* ================= ACT / SPR ================= */
 
 	var _rankfontAct, _rankfontSpr;
 
 	var _layerEntity = new Entity();
+
+	var ranking = 0;
+	var total = 0;
 
 
 	/**
@@ -50,11 +54,14 @@ define(function (require) {
 			_rankfontAct = rAct; _rankfontSpr = rSpr;
 		});
 
-		_rankCanvas  = PvPCount.ui.find('.pvp-rank-canvas')[0];
+		_rankCanvas = PvPCount.ui.find('.pvp-rank-canvas')[0];
 
 		if (!_rankCanvas) return;
 
-		_rankCtx  = _rankCanvas.getContext('2d');
+		_rankCanvas.width = RANK_W;
+		_rankCanvas.height = RANK_H;
+
+		_rankCtx = _rankCanvas.getContext('2d');
 
 	}
 
@@ -68,6 +75,8 @@ define(function (require) {
 	 * Remove UI
 	 */
 	PvPCount.onRemove = function onRemove() {
+		ranking = 0;
+		total = 0;
 		clearRank();
 	}
 
@@ -76,7 +85,17 @@ define(function (require) {
 	 * @param {Object} data 
 	 */
 	PvPCount.setData = function setData(data) {
+		if (data.ranking == ranking && data.total == total) return;
+		
 		renderRankText(data.ranking + '/' + data.total);
+
+		// if total increase play the effect
+		if (data.total > total) {
+			Sound.play('effect/number_change.wav');
+		}
+
+		ranking = data.ranking;
+		total = data.total;
 	}
 
 
@@ -120,13 +139,38 @@ define(function (require) {
 		if (!_rankCtx || !_rankfontAct) return;
 
 		_rankCtx.clearRect(0, 0, RANK_W, RANK_H);
-		var x = (RANK_W - text.length * DIGIT_STEP) >> 1;
 
-		for (var i = 0; i < text.length; i++) {
-			var a = rankCharToAction(text[i]);
+		var parts = text.split('/');
+		var ranking = parts[0];
+		var total = parts[1];
+		var step = 28; // Compact spacing
+		var slashStep = 28;
+
+		// Calculate total width to center it
+		var totalWidth = (ranking.length * step) + slashStep + (total.length * step);
+		var x = (RANK_W - totalWidth) >> 1;
+
+		// 1. Render Ranking (Higher)
+		var i, a;
+		for (i = 0; i < ranking.length; i++) {
+			a = rankCharToAction(ranking[i]);
 			if (!isNaN(a)) {
-				drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y);
-				x += DIGIT_STEP;
+				drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y - 6);
+				x += step;
+			}
+		}
+
+		// 2. Render Slash (Middle)
+		a = rankCharToAction('/');
+		drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y);
+		x += slashStep;
+
+		// 3. Render Total (Lower)
+		for (i = 0; i < total.length; i++) {
+			a = rankCharToAction(total[i]);
+			if (!isNaN(a)) {
+				drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y + 6);
+				x += step;
 			}
 		}
 	}
