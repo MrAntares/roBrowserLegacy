@@ -38,7 +38,7 @@ For available plugins and information on how to install them please visit the [r
 
 ## Contributing
 
-roBrowser was started by this [awesome team](https://github.com/vthibault/roBrowser/graphs/contributors) and [we](https://github.com/MrAntares/roBrowserLegacy/graphs/contributors) continue it. We also manually add content from other forks that didn't made it back to the original branch, huge shoutout to them! If you wish to contribute then check out the [documentation](http://www.robrowser.com/getting-started#API) or the code itself and submit a pull request!
+See [CONTRIBUTING](./doc/CONTRIBUTING.md)
 
 ## Contact
 
