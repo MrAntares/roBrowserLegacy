@@ -9,9 +9,7 @@
 define(function(require) {
 	'use strict';
 
-	var GraphicsSettings = require('Preferences/Graphics');
 	var WebGL            = require('Utils/WebGL'); 
-	var PostProcess      = require('Renderer/Effects/PostProcess');
 	var Camera           = require('Renderer/Camera');  
 
 	var _program, _buffer;
