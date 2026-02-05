@@ -17,49 +17,12 @@ define(function(require) {
 	var _program, _buffer;
 	var _active = false;
 
-	var commonVS = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
-		in vec2 aPosition;
-		out vec2 vUv;
-
-		void main() {
-			vUv = aPosition * 0.5 + 0.5;
-			gl_Position = vec4(aPosition, 0.0, 1.0);
-		}
-	`;
+	var commonVS = require('text!./Imports/Common.vert');
 
 	/**
 	 * Fragment Shader: Radial Blindness
 	 */
-	var blindFS = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-		precision mediump float;
-
-		uniform sampler2D uTexture;
-		uniform float uFocusRadius;
-		uniform float uFocusFalloff;
-		uniform vec2 uAspectRatio;
-
-		in vec2 vUv;
-		out vec4 fragColor;
-
-		void main() {
-			vec2 uv = (vUv - 0.5) * uAspectRatio;  
-			float dist = length(uv); 
-			vec3 original = texture(uTexture, vUv).rgb;
-			float effectMask = smoothstep(uFocusRadius, uFocusRadius + uFocusFalloff, dist);
-
-			if (effectMask <= 0.01) {
-				fragColor = texture(uTexture, vUv);
-				return;
-			}
-			vec3 finalColor = mix(original, vec3(0.0), effectMask);  
-			fragColor = vec4(finalColor, 1.0);
-		}
-	`;
+	var blindFS = require('text!./Imports/Blind.fs');
 
 	function Blind() {}
 

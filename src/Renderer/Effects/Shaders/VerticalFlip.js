@@ -8,42 +8,12 @@
  *
  * @author AoShinHo
 */
-define(['Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function(WebGL, PostProcess, Configs) {
+define(['text!./Imports/VerticalFlip.vert', 'text!./Imports/VerticalFlip.fs', 'Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function(vs, fs, WebGL, PostProcess, Configs) {
 
 	'use strict';
 
 	var _program, _buffer;
 	var _active = false;
-
- 	/**
-	 * Vertex Shader: Passes position and texture coordinates
-	 */
-	var vs = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		in vec2 aPosition;
-		in vec2 aTextureCoord;
-		out vec2 vTextureCoord;
-		void main() {
-			vTextureCoord = aTextureCoord;
-			gl_Position = vec4(aPosition, 0.0, 1.0);
-		}
-	`;
-
-	/**
-	 * Fragment Shader: Inverts the texture's Y axis
-	 */
-	var fs = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-		precision highp float;
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-		uniform sampler2D uTexture;
-		void main() {
-			fragColor = texture(uTexture, vec2(vTextureCoord.x, 1.0 - vTextureCoord.y));
-		}
-	`;
 
 	return {
 		/**
