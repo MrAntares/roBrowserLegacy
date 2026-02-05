@@ -12,11 +12,15 @@ define(function (require) {
     var Client = require('Core/Client');
     var glMatrix = require('Utils/gl-matrix');
     var WebGL = require('Utils/WebGL');
+    var Session = require('Engine/SessionStorage');
+    var GraphicsSettings = require('Preferences/Graphics');
 
     var mat3 = glMatrix.mat3;
     var mat4 = glMatrix.mat4;
     var vec3 = glMatrix.vec3;
 
+    var CULL_RADIUS = 100;
+    
     /**
      * Shader program
      */
@@ -856,9 +860,27 @@ define(function (require) {
         gl.activeTexture(gl.TEXTURE0);
         gl.uniform1i(uniform.uDiffuse, 0);
 
+        var playerPos = Session.Entity.position;
+
         // Render each animated model
         for (var m = 0; m < _animatedModels.length; m++) {
             var model = _animatedModels[m];
+            
+            if (!model.instances || model.instances.length === 0) {  
+			console.warn('AnimatedModels: no instances for model', model.filename);  
+			continue;  
+            }
+
+            if(GraphicsSettings.culling){
+                var instanceMatrix = model.instances[0];
+                var worldCenter = vec3.create();
+                vec3.transformMat4(worldCenter, model.box.center, instanceMatrix);
+  
+                var dx = worldCenter[0] - playerPos[0];
+                var dy = worldCenter[2] - playerPos[1];
+                var distSq = dx*dx + dy*dy;
+                if (distSq > CULL_RADIUS*CULL_RADIUS) continue;
+            }
 
             // Calculate current animation frame
             var animLen = model.animLen || 1;
