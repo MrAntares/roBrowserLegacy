@@ -875,7 +875,7 @@ define(function (require) {
                 var instanceMatrix = model.instances[0];
                 var worldCenter = vec3.create();
                 var centerVec4 = [model.box.center[0], model.box.center[1], model.box.center[2], 1];
-                var transformed = vec3.transformMat4(worldCenter, model.box.center, instanceMatrix);
+                vec3.transformMat4(worldCenter, model.box.center, instanceMatrix);
   
                 var dx = worldCenter[0] - playerPos[0];
                 var dy = worldCenter[2] - playerPos[1];
