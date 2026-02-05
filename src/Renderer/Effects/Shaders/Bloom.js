@@ -36,7 +36,7 @@ define(function(require) {
 	 * Pass 2 Shader: Composite
 	 * Mixes the sharp original scene with the blurred bloom texture.
 	 */
-	var compositeFS = require('text!./Imports/Upsampling.fs');
+	var compositeFS = require('text!./Imports/BloomUpsampling.fs');
 
 	/**
 	 * @constructor Bloom
