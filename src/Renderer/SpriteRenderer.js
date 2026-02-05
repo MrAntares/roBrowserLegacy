@@ -621,7 +621,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 		var prevDepthTest = _depthTest;
 		var prevDepthMask = _depthMask;
-		var prevDepthCorrection = _disableDepthCorrection;
+		var prevDepthCorrection = this.disableDepthCorrection;
 
 		if (_depthTest !== depthTest) {
 			_depthTest = depthTest;
@@ -635,9 +635,8 @@ function(      WebGL,         glMatrix,      Camera )
 			_gl.depthMask(depthMask);
 		}
 
-		if (_disableDepthCorrection !== depthCorrection) {
-			_disableDepthCorrection = depthCorrection;
-			_gl.uniform1i( _program.uniform.uDisableDepthCorrection, _disableDepthCorrection );
+		if (this.disableDepthCorrection !== depthCorrection) {
+			this.disableDepthCorrection = depthCorrection;
 		}
 
 		fn();
@@ -654,9 +653,8 @@ function(      WebGL,         glMatrix,      Camera )
 			_gl.depthMask(prevDepthMask);
 		}
 
-		if (_disableDepthCorrection !== prevDepthCorrection) {
-			_disableDepthCorrection = prevDepthCorrection;
-			_gl.uniform1i( _program.uniform.uDisableDepthCorrection, _disableDepthCorrection );
+		if (this.disableDepthCorrection !== prevDepthCorrection) {
+			this.disableDepthCorrection = prevDepthCorrection;
 		}
 	};
 
