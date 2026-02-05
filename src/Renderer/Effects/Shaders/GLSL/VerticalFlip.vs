@@ -1,5 +1,4 @@
 #version 300 es
-#pragma vscode_glsllint_stage : vert
 in vec2 aPosition;
 in vec2 aTextureCoord;
 out vec2 vTextureCoord;

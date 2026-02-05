@@ -1,5 +1,4 @@
 #version 300 es
-#pragma vscode_glsllint_stage : vert
 precision highp float;
 in vec2 aPosition;
 out vec2 vUv;
