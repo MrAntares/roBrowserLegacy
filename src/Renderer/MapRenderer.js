@@ -468,6 +468,9 @@ define(function (require) {
 			tick,
 		);
 
+		// Rendering water (before sprites due cloaks and cart can't overdraw them when looking front)
+		Water.render(gl, modelView, projection, fog, light, tick);
+
 		if (
 			Mouse.intersect &&
 			Altitude.intersect(modelView, projection, _pos)
@@ -524,9 +527,6 @@ define(function (require) {
 
 		//Render Entities (no effects)
 		EntityManager.render(gl, modelView, projection, fog, false);
-
-		// Rendering water
-		Water.render(gl, modelView, projection, fog, light, tick);
 
 		// Rendering effects
 		Damage.render(gl, modelView, projection, fog, tick);
