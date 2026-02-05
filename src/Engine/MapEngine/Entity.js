@@ -2509,6 +2509,70 @@ define(function (require) {
 		}
 	}
 
+
+	/**
+	 * Handle hat effect packet - add or remove hat effects on entity
+	 */
+	function onHatEffects(pkt) {
+		var entity = EntityManager.get(pkt.GID);
+		if (!entity) {
+			return;
+		}
+
+		var i, count, hatEffectID, hatEffect;
+
+		// Remove effects when disabled
+		if (pkt.enabled !== 1) {
+			if (pkt.hatEffectIDs && pkt.hatEffectIDs.length) {
+				for (i = 0, count = pkt.hatEffectIDs.length; i < count; ++i) {
+					EffectManager.removeHatEffect(pkt.GID, Number(pkt.hatEffectIDs[i]));
+					if (entity._hatEffects) {
+						delete entity._hatEffects[pkt.hatEffectIDs[i]];
+					}
+				}
+			}
+			return;
+		}
+
+		// Initialize tracking object
+		if (!entity._hatEffects) {
+			entity._hatEffects = {};
+		}
+
+		// Add new effects from packet
+		var effectIds = pkt.hatEffectIDs || [];
+		for (i = 0, count = effectIds.length; i < count; ++i) {
+			hatEffectID = effectIds[i];
+
+			// Skip if already present
+			if (entity._hatEffects[hatEffectID]) {
+				continue;
+			}
+
+			hatEffect = DB.getHatResource(hatEffectID);
+			if (!hatEffect) {
+				continue;
+			}
+
+			EffectManager.spamHatEffect({
+				Init: { ownerAID: pkt.GID, ownerEntity: entity, startTick: Renderer.tick },
+				effect: {
+					effectID: hatEffectID,
+					hatEffectID: hatEffect.hatEffectID,
+					file: hatEffect.resourceFileName,
+					xOffset: hatEffect.hatEffectPosX,
+					yOffset: hatEffect.hatEffectPos,
+					isAttachedHead: hatEffect.isAttachedHead,
+					isRenderBeforeCharacter: hatEffect.isRenderBeforeCharacter,
+					head: hatEffect.isAttachedHead,
+					isAdjustPositionWhenShrinkState: hatEffect.isAdjustPositionWhenShrinkState,
+					isAdjustSizeWhenShrinkState: hatEffect.isAdjustSizeWhenShrinkState
+				}
+			});
+		}
+	}
+
+
 	/**
 	 * Initialize
 	 */
@@ -2600,5 +2664,6 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.MVP, onEntityMvpReward);
 		Network.hookPacket(PACKET.ZC.MVP_GETTING_ITEM, onEntityMvpRewardItemMessage);
 		Network.hookPacket(PACKET.ZC.ACK_CHANGE_TITLE, onTitleChangeAck);
+		Network.hookPacket(PACKET.ZC.HAT_EFFECT, onHatEffects);
 	};
 });

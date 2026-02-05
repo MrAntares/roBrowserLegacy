@@ -251,6 +251,8 @@ define(function (require) {
 			}
 
 			SpriteRenderer.position.set(self.position);
+			// Render attachments that should appear behind the entity first
+			this.attachments.renderBefore(Renderer.tick);
 			SpriteRenderer.zIndex = 1;
 
 			// ------------------------------------------------------------------
