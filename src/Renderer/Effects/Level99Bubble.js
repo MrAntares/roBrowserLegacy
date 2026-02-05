@@ -13,8 +13,8 @@
  * - Alpha: clamp(250 + 25*(y + 20), 0, 250)
  * - Color: (80,80,255), additive blend
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
-function(WebGL, Texture, glMatrix, Client, Camera, Altitude, SpriteRenderer) {
+define(['text!./Shaders/GLSL/Level99Bubble.vs', 'text!./Shaders/GLSL/Level99Bubble.fs','Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
+function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camera, Altitude, SpriteRenderer) {
 	'use strict';
 
 	var DEG_TO_RAD       = Math.PI / 180;
@@ -475,60 +475,6 @@ function(WebGL, Texture, glMatrix, Client, Camera, Altitude, SpriteRenderer) {
 
 		gl.uniform1i(uniform.uSolidBg, 0);
 	};
-
-	/**
-	 * Vertex Shader
-	 */
-	var _vertexShader = `
-		#version 300 es
-		precision highp float;
-
-		in vec3 aPosition;
-		in vec2 aTextureCoord;
-
-		out vec2 vTextureCoord;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-		uniform float uZIndex;
-
-		void main(void) {
-			gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);
-			gl_Position.z -= uZIndex;
-			vTextureCoord = aTextureCoord;
-		}
-	`;
-
-	/**
-	 * Fragment Shader
-	 */
-	var _fragmentShader = `
-		#version 300 es
-		precision highp float;
-
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-
-		uniform sampler2D uDiffuse;
-		uniform vec4 uColor;
-		uniform bool uSolidBg;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		void main(void) {
-			vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-			textureSample *= uColor;
-			fragColor = textureSample;
-			if (uFogUse) {
-				float depth = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep(uFogNear, uFogFar, depth);
-				fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);
-			}
-		}
-	`;
 
 	Level99Bubble.init = function init(gl) {
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);

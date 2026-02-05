@@ -15,8 +15,8 @@
  *   where SinLimit = 90° + (i - 10) * 9°
  * - Render: base ring at distance, top offset by rotated height
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
-function(WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
+define(['text!./Shaders/GLSL/SwirlingAura.vs', 'text!./Shaders/GLSL/SwirlingAura.fs','Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
+function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
 
 	'use strict';
 
@@ -38,71 +38,6 @@ function(WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
 	var E_DIVISION = 21;           // Number of divisions (0-20)
 	var FULL_DISPLAY_ANGLE = 315;  // 315° arc
 	var DEG_TO_RAD = Math.PI / 180;
-
-	/**
-	 * Vertex Shader
-	 */
-	var _vertexShader = `
-		#version 300 es
-		precision highp float;
-
-		in vec3 aPosition;
-		in vec2 aTextureCoord;
-
-		out vec2 vTextureCoord;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-		uniform mat4 uModelMat;
-		uniform float uZIndex;
-
-		void main(void) {
-			vec4 worldPos = uModelMat * vec4(aPosition, 1.0);
-			gl_Position = uProjectionMat * uModelViewMat * worldPos;
-			gl_Position.z -= uZIndex;
-			vTextureCoord = aTextureCoord;
-		}
-	`;
-
-	/**
-	 * Fragment Shader
-	 */
-	var _fragmentShader = `
-		#version 300 es
-		precision highp float;
-
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-
-		uniform sampler2D uDiffuse;
-		uniform vec4 uColor;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		void main(void) {
-			vec4 texColor = texture(uDiffuse, vTextureCoord);
-
-			if (texColor.a < 0.01) {
-				discard;
-			}
-
-			// Discard near-black pixels
-			if (texColor.r < 0.01 && texColor.g < 0.01 && texColor.b < 0.01) {
-				discard;
-			}
-
-			fragColor = texColor * uColor;
-
-			if (uFogUse) {
-				float depth = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep(uFogNear, uFogFar, depth);
-				fragColor = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);
-			}
-		}
-	`;
 
 	/**
 	 * SwirlingAura constructor
