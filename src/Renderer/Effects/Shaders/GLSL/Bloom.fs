@@ -1,5 +1,4 @@
 #version 300 es
-#pragma vscode_glsllint_stage : frag
 precision mediump float;
 uniform sampler2D uTexture;
 uniform float uBloomThreshold;
