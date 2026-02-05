@@ -24,19 +24,19 @@ define(function(require) {
 	/**
 	 * Vertex Shader: Common quad
 	 */
-	var commonVS = require('text!./Imports/Common.vs');
+	var commonVS = require('text!./GLSL/Common.vs');
 
 	/**
 	 * Pass 1 Shader: Extract brightness (Threshold)
 	 * This runs on the small internal FBO.
 	 */
-	var prefilterFS = require('text!./Imports/Bloom.fs');
+	var prefilterFS = require('text!./GLSL/Bloom.fs');
 
 	/**
 	 * Pass 2 Shader: Composite
 	 * Mixes the sharp original scene with the blurred bloom texture.
 	 */
-	var compositeFS = require('text!./Imports/BloomUpsampling.fs');
+	var compositeFS = require('text!./GLSL/BloomUpsampling.fs');
 
 	/**
 	 * @constructor Bloom

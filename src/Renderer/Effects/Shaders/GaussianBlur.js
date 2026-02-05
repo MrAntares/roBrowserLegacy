@@ -15,12 +15,12 @@ define(function(require) {
 
 	var _program, _buffer;
 
-	var commonVS = require('text!./Imports/Common.vs');
+	var commonVS = require('text!./GLSL/Common.vs');
 
 	/**
 	 * Fragment Shader: Single-Pass Gaussian Blur
 	 */
-	var blurFS = require('text!./Imports/GaussianBlur.fs');
+	var blurFS = require('text!./GLSL/GaussianBlur.fs');
 
 	function GaussianBlur() {}
 

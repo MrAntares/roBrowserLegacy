@@ -11,8 +11,8 @@ define([
 	'Core/Client',
 	'Renderer/Camera',
 	'Renderer/SpriteRenderer',
-	'text!./Cylinder.vert',
-	'text!./Cylinder.frag'
+	'text!./Shaders/GLSL/Cylinder.vs',
+	'text!./Shaders/GLSL/Cylinder.fs'
 ], function(
 	WebGL,
 	glMatrix,

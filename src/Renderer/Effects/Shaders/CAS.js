@@ -19,13 +19,13 @@ define(function(require) {
     /**  
      * Vertex Shader: Common quad  
      */  
-    var commonVS = require('text!./Imports/Common.vs');
+    var commonVS = require('text!./GLSL/Common.vs');
   
     /**  
      * Fragment Shader: AMD FidelityFX CAS  
      * Converted from HLSL to GLSL WebGL  
      */  
-    var casFS = require('text!./Imports/CAS.fs'); 
+    var casFS = require('text!./GLSL/CAS.fs'); 
   
     function CAS() {}  
   

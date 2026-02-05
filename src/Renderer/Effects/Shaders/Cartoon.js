@@ -16,9 +16,9 @@ define(function(require) {
   
     var _program, _buffer;  
   
-    var commonVS = require('text!./Imports/Common.vs');
+    var commonVS = require('text!./GLSL/Common.vs');
   
-    var cartoonFS = require('text!./Imports/Cartoon.fs');
+    var cartoonFS = require('text!./GLSL/Cartoon.fs');
   
     function Cartoon() {}  
   

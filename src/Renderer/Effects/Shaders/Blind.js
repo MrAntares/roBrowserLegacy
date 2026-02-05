@@ -17,12 +17,12 @@ define(function(require) {
 	var _program, _buffer;
 	var _active = false;
 
-	var commonVS = require('text!./Imports/Common.vs');
+	var commonVS = require('text!./GLSL/Common.vs');
 
 	/**
 	 * Fragment Shader: Radial Blindness
 	 */
-	var blindFS = require('text!./Imports/Blind.fs');
+	var blindFS = require('text!./GLSL/Blind.fs');
 
 	function Blind() {}
 

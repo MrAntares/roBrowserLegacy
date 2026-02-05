@@ -17,9 +17,9 @@ define(function(require) {
     var _program, _buffer;  
     var _fxaaEdgeThresholdMin = 0.0;
 
-    var commonVS = require('text!./Imports/Common.vs');
+    var commonVS = require('text!./GLSL/Common.vs');
   
-    var fxaaFS = require('text!./Imports/FXAA.fs');
+    var fxaaFS = require('text!./GLSL/FXAA.fs');
   
     function FXAA() {}  
   
