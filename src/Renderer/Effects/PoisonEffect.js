@@ -35,8 +35,6 @@ define(function(require) {
 
 		ensureFilterFrame(gl);
 
-		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-
 		SpriteRenderer.sprite = _filterFrame;
 		SpriteRenderer.image.texture = _filterFrame.texture;
 		
@@ -49,8 +47,8 @@ define(function(require) {
 		SpriteRenderer.color[2] = 0.50;
 		SpriteRenderer.color[3] = 0.15;
 
-		SpriteRenderer.size[0] = 8000;
-		SpriteRenderer.size[1] = 8000;
+		SpriteRenderer.size[0] = 4000;
+		SpriteRenderer.size[1] = 4000;
 		SpriteRenderer.setDepth(false, false, true, function(){
 			SpriteRenderer.render(false);
 		});

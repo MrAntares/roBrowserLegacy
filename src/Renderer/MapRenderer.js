@@ -468,9 +468,6 @@ define(function (require) {
 			tick,
 		);
 
-		// Rendering water (before sprites so it can't overdraw them)
-		Water.render(gl, modelView, projection, fog, light, tick);
-
 		if (
 			Mouse.intersect &&
 			Altitude.intersect(modelView, projection, _pos)

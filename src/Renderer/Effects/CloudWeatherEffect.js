@@ -37,7 +37,7 @@ define(function (require) {
 	};
 
 	function CloudWeatherEffect(Params) {
-		this.effectID = Params.Inst.effectID;
+		this.effectID = Params.Inst.effectId;
 		this.ownerAID = Params.Init.ownerAID;
 		this.startTick = Params.Inst.startTick;
 		this.endTick = Params.Inst.endTick;
@@ -49,8 +49,9 @@ define(function (require) {
 		this.needCleanUp = false;
 	}
 
+	CloudWeatherEffect.isActive = function isActive(){ return _instance; };
+
 	CloudWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.offset[0] = 0;
@@ -63,7 +64,6 @@ define(function (require) {
 
 	CloudWeatherEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.unbind(gl);
 	};
 
 	CloudWeatherEffect.startOrRestart = function startOrRestart(Params) {

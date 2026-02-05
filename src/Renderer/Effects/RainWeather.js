@@ -327,6 +327,8 @@ define(function(require) {
 		this.needCleanUp = false;
 	}
 
+	RainWeatherEffect.isActive = function isActive(){ return _instance; };
+
 	RainWeatherEffect.prototype.initRainSound = function () {
 		if (!this.audioCtx) return;
 
@@ -446,7 +448,6 @@ define(function(require) {
 	RainWeatherEffect.renderBeforeEntities = false;
 
 	RainWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.offset[0] = 0;
@@ -459,7 +460,6 @@ define(function(require) {
 
 	RainWeatherEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.unbind(gl);
 	};
 
 	RainWeatherEffect.startOrRestart = function startOrRestart(Params) {
