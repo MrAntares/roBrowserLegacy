@@ -8,7 +8,7 @@
  *
  * @author AoShinHo
 */
-define(['text!./Imports/VerticalFlip.vert', 'text!./Imports/VerticalFlip.fs', 'Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function(vs, fs, WebGL, PostProcess, Configs) {
+define(['text!./Imports/VerticalFlip.vs', 'text!./Imports/VerticalFlip.fs', 'Utils/WebGL', 'Renderer/Effects/PostProcess', 'Core/Configs'], function(vs, fs, WebGL, PostProcess, Configs) {
 
 	'use strict';
 

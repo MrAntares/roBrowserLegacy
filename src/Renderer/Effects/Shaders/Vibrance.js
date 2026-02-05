@@ -16,7 +16,7 @@ define(function(require) {
   
     var _program, _buffer;  
   
-    var commonVS = require('text!./Imports/Common.vert'); 
+    var commonVS = require('text!./Imports/Common.vs'); 
   
     var vibranceFS = require('text!./Imports/Vibrance.fs'); 
   

@@ -19,7 +19,7 @@ define(function(require) {
     /**  
      * Vertex Shader: Common quad  
      */  
-    var commonVS = require('text!./Imports/Common.vert');
+    var commonVS = require('text!./Imports/Common.vs');
   
     /**  
      * Fragment Shader: AMD FidelityFX CAS  

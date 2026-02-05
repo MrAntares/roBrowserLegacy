@@ -17,7 +17,7 @@ define(function(require) {
 	var _program, _buffer;
 	var _active = false;
 
-	var commonVS = require('text!./Imports/Common.vert');
+	var commonVS = require('text!./Imports/Common.vs');
 
 	/**
 	 * Fragment Shader: Radial Blindness

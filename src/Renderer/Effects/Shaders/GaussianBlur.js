@@ -15,7 +15,7 @@ define(function(require) {
 
 	var _program, _buffer;
 
-	var commonVS = require('text!./Imports/Common.vert');
+	var commonVS = require('text!./Imports/Common.vs');
 
 	/**
 	 * Fragment Shader: Single-Pass Gaussian Blur
