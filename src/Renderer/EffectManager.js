@@ -236,6 +236,11 @@ define(function (require) {
 						EntityManager.remove(AID); // Whole entity is an effect, just remove it
 					} else if (!(effectID == null)) {
 						entity.attachments.remove(effectID); // Only remove attached effect
+
+						// Cleanup hat effects tracking if present
+						if (entity._hatEffects && entity._hatEffects[effectID]) {
+							delete entity._hatEffects[effectID];
+						}
 					}
 				}
 			}
@@ -720,18 +725,21 @@ define(function (require) {
 
 
 		// Sprite effect
+		// Use Params.Inst.effectID as uid (for hat effects this is the hatEffectID)
+		// Fall back to Params.effect.effectID for other cases
 		entity.attachments.add({
-			uid:       Params.effect.effectID,
-			file:      Params.effect.file,
-			head:      !!Params.effect.head,
-			direction: !!Params.effect.direction,
-			repeat:    Params.effect.repeat || Params.Inst.persistent,
-			duplicate: Params.effect.duplicate,
-			stopAtEnd: Params.effect.stopAtEnd,
-			xOffset:   Params.effect.xOffset,
-			yOffset:   Params.effect.yOffset,
-			frame:     Params.effect.frame,
-			delay:     Params.effect.delayFrame
+			uid:          Params.Inst.effectID || Params.effect.effectID,
+			file:         Params.effect.file,
+			head:         !!Params.effect.head,
+			direction:    !!Params.effect.direction,
+			repeat:       Params.effect.repeat || Params.Inst.persistent,
+			duplicate:    Params.effect.duplicate,
+			stopAtEnd:    Params.effect.stopAtEnd,
+			xOffset:      Params.effect.xOffset,
+			yOffset:      Params.effect.yOffset,
+			frame:        Params.effect.frame,
+			delay:        Params.effect.delayFrame,
+			renderBefore: !!Params.effect.renderBeforeEntities
 		});
 
 		if (isNewEntity) {
@@ -1083,6 +1091,112 @@ define(function (require) {
 
 				EffectManager.spam(EF_Init_Par);
 			});
+		}
+	};
+
+	/**
+	 * Spawn a hat effect attached to an entity
+	 */
+	EffectManager.spamHatEffect = function spamHatEffect(Params) {
+		if (!Params || !Preferences.effect) return;
+
+		const init = Params.Init || {};
+		const ownerAID = init.ownerAID;
+		const ownerEntity = init.ownerEntity || EntityManager.get(ownerAID);
+		if (!ownerEntity) return;
+
+		const eff = Params.effect || {};
+		if (!ownerEntity._hatEffects) ownerEntity._hatEffects = {};
+
+		const resource = (eff.file || eff.resourceFileName || '').toString();
+
+		// EffectTable fallback
+		if (!resource && eff.hatEffectID != null) {
+			const startTick = init.startTick || Renderer.tick;
+			const hatEffectID = eff.hatEffectID;
+
+			if (hatEffectID in EffectDB) {
+				const effectEntries = EffectDB[hatEffectID];
+				for (let i = 0, count = effectEntries.length; i < count; ++i) {
+					const effectEntry = effectEntries[i];
+					const EF_Inst_Par = {
+						effectID: hatEffectID,
+						duplicateID: i,
+						startTick: startTick + ((effectEntry.timeBetweenDupli || 200) * i)
+					};
+
+					EffectManager.spamEffect({
+						effect: effectEntry,
+						Inst: EF_Inst_Par,
+						Init: {
+							effectId: hatEffectID,
+							position: ownerEntity.position,
+							ownerEntity: ownerEntity,
+							startTick: startTick,
+							duration: effectEntry.duration || 0,
+							persistent: true,
+							repeatEnd: 0,
+							repeatDelay: effectEntry.repeatDelay || 0,
+							renderBeforeEntities: true
+						}
+					});
+				}
+			}
+
+			if (eff.effectID != null) {
+				ownerEntity._hatEffects[eff.effectID] = { type: 'effect', effectTableId: eff.hatEffectID };
+			}
+			return;
+		}
+
+		// STR attachment
+		if (/\.str$/i.test(resource)) {
+			const uid = 'hat-str-' + ownerAID + '-' + (eff.effectID || Date.now());
+			const strPath = 'data/texture/effect/' + resource.replace(/\\/g, '/');
+
+			ownerEntity.attachments.add({
+				uid: uid,
+				strFile: strPath,
+				head: eff.isAttachedHead || eff.head || false,
+				repeat: true,
+				xOffset: eff.xOffset || eff.hatEffectPosX || 0,
+				yOffset: eff.yOffset || eff.hatEffectPos || 0,
+				renderBefore: !!eff.isRenderBeforeCharacter
+			});
+
+			if (eff.effectID != null) {
+				ownerEntity._hatEffects[eff.effectID] = { type: 'str', uid: uid };
+			}
+		}
+	};
+
+
+	/**
+	 * Remove a hat effect from an entity
+	 */
+	EffectManager.removeHatEffect = function removeHatEffect(ownerAID, effectID) {
+		if (ownerAID == null || effectID == null) return;
+		const entity = EntityManager.get(ownerAID);
+		if (!entity) return;
+
+		const attachments = entity.attachments;
+		const hatEffects = entity._hatEffects;
+		const info = (hatEffects && hatEffects[effectID]) ? hatEffects[effectID] : null;
+
+		if (attachments && typeof attachments.remove === 'function') {
+			if (info && info.uid) {
+				attachments.remove(info.uid);
+			} else {
+				attachments.remove('hat-str-' + ownerAID + '-' + effectID);
+			}
+
+			if (info && info.type === 'effect' && info.effectTableId) {
+				attachments.remove(info.effectTableId);
+			}
+		}
+
+		if (hatEffects) {
+			delete hatEffects[effectID];
 		}
 	};
 

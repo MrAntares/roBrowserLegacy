@@ -35,6 +35,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 		uniform mat4 uSpriteAngle;
 		uniform vec3 uSpritePosition;
 		uniform vec2 uSpriteOffset;
+		uniform float uVerticalBase;
 
 		const float pixelRatio = 1.0 / 35.0;
 
@@ -65,7 +66,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 			// Calculate position base on angle and sprite offset/size
 			vec4 position = uSpriteAngle * vec4( aPosition.x * pixelRatio, -aPosition.y * pixelRatio, 0.0, 1.0 );
 			position.x   += uSpriteOffset.x * pixelRatio;
-			position.y   -= uSpriteOffset.y * pixelRatio + 0.5;
+			position.y   -= uSpriteOffset.y * pixelRatio + uVerticalBase;
 
 			// Project to camera plane
 			gl_Position    = uProjectionMat * Project(uModelViewMat, uSpritePosition) * position;
@@ -142,6 +143,8 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 	 */
 	var _lastAngle = -1;
 
+	// Pixel to world conversion for attachment offsets
+	var PIXEL_TO_WORLD_Z = 1.0 / 5.0;
 
 	/**
 	 * StrEffect constructor
@@ -211,10 +214,37 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 			xy        : new Float32Array(8)
 		};
 
+		// Helper to copy animation state for caching
+		function copyAnim(src) {
+			return {
+				type      : src.type,
+				aniframe  : src.aniframe,
+				anitype   : src.anitype,
+				srcalpha  : src.srcalpha,
+				destalpha : src.destalpha,
+				mtpreset  : src.mtpreset,
+				delay     : src.delay,
+				angle     : src.angle,
+				color     : new Float32Array(src.color),
+				pos       : new Float32Array(src.pos),
+				uv        : new Float32Array(src.uv),
+				xy        : new Float32Array(src.xy)
+			};
+		}
+
 		return function render( gl, tick )
 		{
 			var strFile, layer;
 			var i, keyIndex;
+
+			// Follow entity position for attachments
+			if (this.ownerEntity && this.ownerEntity.position) {
+				this.position = this.ownerEntity.position;
+				this.ownerDirection = this.ownerEntity.direction;
+				if (this._Params && this._Params.Inst) {
+					this._Params.Inst.position = this.position;
+				}
+			}
 
 			strFile = Client.loadFile( this.filename, null, null, { texturePath: this.texturePath } );
 
@@ -225,6 +255,18 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 
 			keyIndex = (tick - this.startTick) / 1000 * strFile.fps;
 
+			// Loop persistent effects
+			if (this.persistent && strFile && strFile.maxKey) {
+				keyIndex = keyIndex % strFile.maxKey;
+			}
+
+			// Cache for blank frame handling in hat effects
+			if (!this._lastValidAnim) {
+				this._lastValidAnim = {};
+			}
+
+			var anyFreshFrame = false;
+
 			for (i = 0; i < strFile.layernum; i++) {
 				layer = strFile.layers[i];
 
@@ -232,9 +274,26 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 					if (calculateAnimation( layer, keyIndex, anim)) {
 						if (layer.materials[anim.aniframe | 0]) {
 							this.renderAnimation( gl, layer.materials[anim.aniframe | 0], anim);
+							anyFreshFrame = true;
+							// Cache for hat effect blank frame handling
+							if (this.persistent && this.ownerEntity) {
+								this._lastValidAnim[i] = {
+									anim: copyAnim(anim),
+									material: layer.materials[anim.aniframe | 0]
+								};
+							}
 						}
+					} else if (this.persistent && this.ownerEntity && this._lastValidAnim[i]) {
+						// Use cached frame for blank frames in hat effects
+						this.renderAnimation( gl, this._lastValidAnim[i].material, this._lastValidAnim[i].anim);
 					}
 				}
+			}
+
+			// Reset hat effect animation when in blank region to avoid gaps
+			if (this.persistent && this.ownerEntity && !anyFreshFrame && strFile.maxKey > 0) {
+				this.startTick = tick;
+				this._lastValidAnim = {};
 			}
 
 			// animation ended
@@ -257,24 +316,30 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 		var uniform   = _program.uniform;
 		var attribute = _program.attribute;
 
-		// Update geometries
-		_bufferData[0]  = anim.xy[0];
-		_bufferData[1]  = anim.xy[4];
+		// Hat effects: Scale with entity size
+		var sizeScale = 1.0;
+		if (this.ownerEntity) {
+			sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
+		}
+
+		// Update geometries (apply size scaling only for attachments)
+		_bufferData[0]  = anim.xy[0] * sizeScale;
+		_bufferData[1]  = anim.xy[4] * sizeScale;
 		_bufferData[2]  = 0; //anim.uv[0];
 		_bufferData[3]  = 0; //anim.uv[1];
 
-		_bufferData[4]  = anim.xy[1];
-		_bufferData[5]  = anim.xy[5];
+		_bufferData[4]  = anim.xy[1] * sizeScale;
+		_bufferData[5]  = anim.xy[5] * sizeScale;
 		_bufferData[6]  = 1; //anim.uv[2];
 		_bufferData[7]  = 0; //anim.uv[3];
 
-		_bufferData[8]  = anim.xy[3];
-		_bufferData[9]  = anim.xy[7];
+		_bufferData[8]  = anim.xy[3] * sizeScale;
+		_bufferData[9]  = anim.xy[7] * sizeScale;
 		_bufferData[10] = 0; //anim.uv[4];
 		_bufferData[11] = 1; //anim.uv[5];
 
-		_bufferData[12] = anim.xy[2];
-		_bufferData[13] = anim.xy[6];
+		_bufferData[12] = anim.xy[2] * sizeScale;
+		_bufferData[13] = anim.xy[6] * sizeScale;
 		_bufferData[14] = 1; //anim.uv[6];
 		_bufferData[15] = 1; //anim.uv[7];
 
@@ -284,12 +349,23 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 			_lastAngle = anim.angle;
 		}
 
-		anim.pos[0] -= 320;
-		anim.pos[1] -= 320;
+		var spriteOffset = new Float32Array(2);
+		var verticalBase = 0.5;
+
+		if (this.ownerEntity) {
+			// Attachment: center at (320,320), apply offsets, scale with entity
+			spriteOffset[0] = ((anim.pos[0] - 320) - (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35) * sizeScale;
+			spriteOffset[1] = ((anim.pos[1] - 320) - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35) * sizeScale;
+			verticalBase = 0.0;
+		} else {
+			spriteOffset[0] = anim.pos[0] - 320;
+			spriteOffset[1] = anim.pos[1] - 320;
+		}
 
 		// Send effect parameters
 		gl.uniform4fv( uniform.uSpriteColor,    anim.color );
-		gl.uniform2fv( uniform.uSpriteOffset,   anim.pos );
+		gl.uniform2fv( uniform.uSpriteOffset,   spriteOffset );
+		gl.uniform1f( uniform.uVerticalBase, verticalBase );
 		gl.uniform3fv( uniform.uSpritePosition, this.position );
 
 		gl.uniformMatrix4fv( uniform.uSpriteAngle, false, _matrix );

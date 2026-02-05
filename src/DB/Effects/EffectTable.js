@@ -10841,6 +10841,16 @@ define(function( require )
 			file: 'effect/cross1.bmp'
 		}],
 
+		1130: [{	//EF_BAKURETSU_HADOU - Hat effect example (SPR)
+			type: 'SPR',
+			file: 'bakuretsu_hadou/bakuretsu_hadou',
+			texturePath: 'bakuretsu_hadou/',
+			attachedEntity: true,
+			repeat: true,
+			head: true,
+			yOffset: -50
+		}],
+
 		//931: [{}],	//EF_LINKPARTICLE2	   (Nothing)
 		//932: [{}],	//EF_SOULLIGHT3	   Firefly
 		//933: [{}],	//EF_CHAREFFECT	   [Client Crash]
@@ -11161,6 +11171,16 @@ define(function( require )
 		},{
 			wav: 'effect/drop_purple',
 		}],
+
+		1240: [{	//EF_DIGITAL_SPACE - Hat effect example (SPR)
+			type: 'SPR',
+			file: 'digital_space/digital_space',
+			texturePath: 'digital_space/',
+			attachedEntity: true,
+			repeat: true,
+			renderBeforeEntities: true
+		}],
+
 		1869: [{
 			type: 'STR',
 			file: 'new_dropitem/dropitem_blue/dropitem_blue/dropitem_blue',
