@@ -637,6 +637,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 		if (_disableDepthCorrection !== depthCorrection) {
 			_disableDepthCorrection = depthCorrection;
+			_gl.uniform1i( _program.uniform.uDisableDepthCorrection, _disableDepthCorrection );
 		}
 
 		fn();
@@ -655,6 +656,7 @@ function(      WebGL,         glMatrix,      Camera )
 
 		if (_disableDepthCorrection !== prevDepthCorrection) {
 			_disableDepthCorrection = prevDepthCorrection;
+			_gl.uniform1i( _program.uniform.uDisableDepthCorrection, _disableDepthCorrection );
 		}
 	};
 
