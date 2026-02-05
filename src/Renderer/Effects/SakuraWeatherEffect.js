@@ -72,8 +72,9 @@ define(function(require) {
 
 	SakuraWeatherEffect.ready = true;
 
+	SakuraWeatherEffect.isActive = function isActive(){ return _instance; };
+
 	SakuraWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.offset[0] = 0;
@@ -86,7 +87,6 @@ define(function(require) {
 
 	SakuraWeatherEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.unbind(gl);
 	};
 
 	SakuraWeatherEffect.startOrRestart = function startOrRestart(Params) {
@@ -129,7 +129,7 @@ define(function(require) {
 
 		this.beforeRender(gl, modelView, projection, fog);
 		
-		SpriteRenderer.setDepth(false, false, true, function(){
+		SpriteRenderer.runWithDepth(false, false, true, function () {
 			_instance.render(gl, tick);
 		});
 

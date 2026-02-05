@@ -345,7 +345,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			var self = this;
 			var zIdx = attachment.renderBefore ? -10 : 500;
 			
-			SpriteRenderer.setDepth(true, false, false, function() {
+			SpriteRenderer.runWithDepth(true, false, false, function () {
 				SpriteRenderer.zIndex = zIdx;
 				for (i = 0, count = layers.length; i < count; ++i) {
 					self.entity.renderLayer(layers[i], spr, spr, 1.0, position, false);

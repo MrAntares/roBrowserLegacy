@@ -366,6 +366,10 @@ function(      WebGL,         glMatrix,      Camera )
 	 */
 	var _depthMask = true;
 
+	/**
+	 * @var {boolean} cached depth test state
+	 */
+	var _depthTest = true;
 
 	/**
 	 * @var {object} last texture used
@@ -608,34 +612,49 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @param {boolean} use disableDepthCorrection enable.
 	 * @param {function} execute function with this parameters before restore gl state.
 	 */
-	SpriteRenderer.setDepth = function setDepth(depthTest, depthMask, depthCorrection, fn)
+	SpriteRenderer.runWithDepth = function runWithDepth(depthTest, depthMask, depthCorrection, fn)
 	{
-		var prevDepthTest;
-		var prevDepthMask;
-		var prevDepthCorrection;
+		if (!_gl) {
+			fn();
+			return;
+		}
 
-		if (_gl) {
-			prevDepthTest = _gl.isEnabled(_gl.DEPTH_TEST);
-			prevDepthMask = _gl.getParameter(_gl.DEPTH_WRITEMASK);
-			prevDepthCorrection = SpriteRenderer.disableDepthCorrection;
+		var prevDepthTest = _depthTest;
+		var prevDepthMask = _depthMask;
+		var prevDepthCorrection = this.disableDepthCorrection;
+
+		if (_depthTest !== depthTest) {
+			_depthTest = depthTest;
 
 			if (depthTest) _gl.enable(_gl.DEPTH_TEST);
 			else _gl.disable(_gl.DEPTH_TEST);
+		}
 
+		if (_depthMask !== depthMask) {
+ 			_depthMask = depthMask;
 			_gl.depthMask(depthMask);
-			_depthMask = depthMask;
-			SpriteRenderer.disableDepthCorrection = depthCorrection;
+		}
+
+		if (this.disableDepthCorrection !== depthCorrection) {
+			this.disableDepthCorrection = depthCorrection;
 		}
 
 		fn();
 
-		if(_gl){
+		if (_depthTest !== prevDepthTest) {
+			_depthTest = prevDepthTest;
+
 			if (prevDepthTest) _gl.enable(_gl.DEPTH_TEST);
 			else _gl.disable(_gl.DEPTH_TEST);
+		}
 
-			_gl.depthMask(prevDepthMask);
+		if (_depthMask !== prevDepthMask) {
 			_depthMask = prevDepthMask;
-			SpriteRenderer.disableDepthCorrection = prevDepthCorrection;
+			_gl.depthMask(prevDepthMask);
+		}
+
+		if (this.disableDepthCorrection !== prevDepthCorrection) {
+			this.disableDepthCorrection = prevDepthCorrection;
 		}
 	};
 

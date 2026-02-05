@@ -24,6 +24,7 @@ define(function (require) {
 	var VerticalFlip = require('Renderer/Effects/Shaders/VerticalFlip');
 	var EFST = require('DB/Status/StatusConst');
 	var Session = require('Engine/SessionStorage');
+	var SpriteRenderer = require('Renderer/SpriteRenderer');
 	var getModule = require;
 
 	var isMapflagEffect = false;
@@ -48,6 +49,22 @@ define(function (require) {
 			isMapflagEffect = true;
 		}
 	}
+
+	ScreenEffectManager.hasAnyActiveEffect = function () {  
+		// Weather effects 
+		if (SnowWeather.isActive()) return true;  
+		if (RainWeather.isActive()) return true;  
+		if (SakuraWeatherEffect.isActive()) return true;  
+		if (PokJukWeatherEffect.isActive()) return true;  
+		if (CloudWeatherEffect.isActive()) return true;  
+  
+		// Status effects  
+		if (Session.Entity && Poison.isActive()) return true;  
+		if (Session.Entity && Blind.isActive()) return true;  
+		if (Session.Entity && VerticalFlip.isActive()) return true;  
+  
+		return false;  
+	};
 
 	ScreenEffectManager.startMapflagEffect = function startMapflagEffect(mapname) {
 		if (!isMapflagEffect)
@@ -158,6 +175,10 @@ define(function (require) {
 	 * @param {number} tick - game tick
 	 */
 	ScreenEffectManager.render = function render(gl, modelView, projection, fog, tick) {
+		if (!ScreenEffectManager.hasAnyActiveEffect()) return;
+
+		beforeRender(gl, modelView, projection, fog, tick);
+
 		// Weather Effects
 		SnowWeather.renderAll(gl, modelView, projection, fog, tick);
 		RainWeather.renderAll(gl, modelView, projection, fog, tick);
@@ -167,8 +188,17 @@ define(function (require) {
 
 		// Screen Efst status based
 		ScreenEffectManager.renderStatusEffects(gl, modelView, projection, fog);
+
+		afterRender(gl, modelView, projection, fog, tick);
 	}
 
+	function beforeRender(gl, modelView, projection, fog, tick) {
+		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+	}
+
+	function afterRender(gl, modelView, projection, fog, tick) {
+		SpriteRenderer.unbind(gl);
+	}
 	/**
 	 * Set night mode by changing the diffuse color
 	 * This effect is the same as SC_SKE

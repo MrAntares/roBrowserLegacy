@@ -255,7 +255,7 @@ define( ['Utils/WebGL', 'Renderer/SpriteRenderer'], function( WebGL, SpriteRende
 		
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 					//depthtest, depthmask, disabledepthcorrection(isometric draw)
-		SpriteRenderer.setDepth(true, false, false, function(){
+		SpriteRenderer.runWithDepth(true, false, false, function () {
 			gl.drawArrays(  gl.TRIANGLES,  0, _vertCount );
 		});
 

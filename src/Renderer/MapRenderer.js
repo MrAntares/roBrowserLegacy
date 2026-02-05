@@ -468,7 +468,7 @@ define(function (require) {
 			tick,
 		);
 
-		// Rendering water (before sprites so it can't overdraw them)
+		// Rendering water (before sprites due cloaks and cart can't overdraw them when looking front)
 		Water.render(gl, modelView, projection, fog, light, tick);
 
 		if (
@@ -527,9 +527,6 @@ define(function (require) {
 
 		//Render Entities (no effects)
 		EntityManager.render(gl, modelView, projection, fog, false);
-
-		// Rendering water
-		Water.render(gl, modelView, projection, fog, light, tick);
 
 		// Rendering effects
 		Damage.render(gl, modelView, projection, fog, tick);

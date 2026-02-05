@@ -383,7 +383,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 				gl.bufferData(gl.ARRAY_BUFFER, this.quadData, gl.DYNAMIC_DRAW);
 
 				var self = this;
-				SpriteRenderer.setDepth(true, false, false, function(){
+				SpriteRenderer.runWithDepth(true, false, false, function () {
 					for (var pass = 0; pass < self.passCount; pass++) {
 						gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, alphaValue);
 						gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.002 + ai * 0.0001 + pass * 0.00005);
@@ -416,7 +416,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 			gl.uniform1f(uniform.uZIndex, 0.0005);
 
 			var self = this;
-			SpriteRenderer.setDepth(true, true, false, function(){
+			SpriteRenderer.runWithDepth(true, true, false, function () {
 				gl.drawArrays(gl.TRIANGLES, 0, 6);
 			});
 		}

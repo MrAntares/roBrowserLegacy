@@ -72,13 +72,14 @@ define(function(require) {
 	 */
 	SnowWeatherEffect.ready = true;
 
+	SnowWeatherEffect.isActive = function isActive(){ return _instance; };
+
 	/**
 	 * Prepare SpriteRenderer state for snow flakes.
 	 * EffectManager calls this once per constructor list each frame.
 	 */
 	SnowWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
 		// Render weather without depth so flakes are always visible.
-		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.offset[0] = 0;
@@ -91,7 +92,6 @@ define(function(require) {
 
 	SnowWeatherEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.unbind(gl);
 	};
 
 	/**
@@ -135,7 +135,7 @@ define(function(require) {
 
 		this.beforeRender(gl, modelView, projection, fog);
 
-		SpriteRenderer.setDepth(false, false, true, function(){
+		SpriteRenderer.runWithDepth(false, false, true, function () {
 			_instance.render(gl, tick);
 		});
 

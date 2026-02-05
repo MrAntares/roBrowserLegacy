@@ -164,7 +164,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 
 		gl.uniform3fv(uniform.uWorldPosition, worldPos);
 		var self = this;
-		SpriteRenderer.setDepth(true, false, false, function(){
+		SpriteRenderer.runWithDepth(true, false, false, function () {
 			for (var i = 0; i < self.aura.length; i++) {
 				if (!self.aura[i].life) continue;
 

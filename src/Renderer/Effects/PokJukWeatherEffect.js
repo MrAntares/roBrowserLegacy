@@ -37,6 +37,8 @@ define(function(require) {
 		this.init(Params);
 	}
 
+	PokJukWeatherEffect.isActive = function isActive(){ return _instance; };
+
 	PokJukWeatherEffect.prototype.createInternalTexture = function(gl) {  
 		if (_whiteTexture) return;  
 
@@ -127,14 +129,11 @@ define(function(require) {
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blending
 		
-		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-
-		SpriteRenderer.setDepth(false, false, true, function(){
+		SpriteRenderer.runWithDepth(false, false, true, function () {
 			_instance.render(gl, tick);
 		});
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		SpriteRenderer.unbind(gl);
 	};
 
 	PokJukWeatherEffect.prototype.render = function(gl, tick) {

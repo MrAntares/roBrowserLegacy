@@ -255,7 +255,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
 		var self = this;
-		SpriteRenderer.setDepth(true, false, false, function(){
+		SpriteRenderer.runWithDepth(true, false, false, function () {
 			// Render each band
 			for (var ec = 0; ec < self.bands.length; ec++) {
 				var band = self.bands[ec];
