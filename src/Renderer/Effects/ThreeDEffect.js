@@ -643,7 +643,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 					renderer.size[1] = height;
 
 					// default true, false, false
-					SpriteRenderer.setDepth(this.overlay === false, false, this.overlay === true, function(){
+					SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, function () {
 						SpriteRenderer.render();
 					});
 
@@ -651,7 +651,7 @@ function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
 			} while (i < layercount);
 		} else {
 			// default true, false, false
-			SpriteRenderer.setDepth(this.overlay === false, false, this.overlay === true, function(){
+			SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, function () {
 				SpriteRenderer.render();
 			});
 		}

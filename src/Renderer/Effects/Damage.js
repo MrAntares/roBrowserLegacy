@@ -683,7 +683,7 @@ define(function( require )
 
 			SpriteRenderer.color.set( damage.color );
 			SpriteRenderer.image.texture = damage.texture;
-			SpriteRenderer.setDepth(false, false, true, function(){
+			SpriteRenderer.runWithDepth(false, false, true, function () {
 				SpriteRenderer.render();
 			});
 		}

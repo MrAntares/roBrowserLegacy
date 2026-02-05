@@ -270,7 +270,7 @@ define(function( require ) {
         
         var _matrix;
 	var self = this;
-	SpriteRenderer.setDepth(false, true, false, function(){
+	SpriteRenderer.runWithDepth(false, true, false, function () {
             for (var i = self.spheres.length; i > 0; i--){
             
                 _matrix = _rotationMatrices[i % _rotationMatrices.length];

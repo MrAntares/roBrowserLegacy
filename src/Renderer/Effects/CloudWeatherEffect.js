@@ -231,7 +231,7 @@ define(function (require) {
 			vec3.add(cloud.position, cloud.position, cloud.direction);
 			SpriteRenderer.position.set(cloud.position);
 
-			SpriteRenderer.setDepth(!overlay, false, !overlay, function () {
+			SpriteRenderer.runWithDepth(!overlay, false, !overlay, function () {
 				SpriteRenderer.render();
 			});
 		}

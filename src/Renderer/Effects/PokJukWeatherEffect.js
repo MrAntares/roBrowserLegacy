@@ -129,7 +129,7 @@ define(function(require) {
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blending
 		
-		SpriteRenderer.setDepth(false, false, true, function(){
+		SpriteRenderer.runWithDepth(false, false, true, function () {
 			_instance.render(gl, tick);
 		});
 

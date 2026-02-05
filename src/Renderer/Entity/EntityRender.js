@@ -245,7 +245,7 @@ define(function (require) {
 				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + .05;
 
 				// Keep shadow on ground: depth test on, depth write off, disabledepthcorrection
-				SpriteRenderer.setDepth(true, false, false, function () {
+				SpriteRenderer.runWithDepth(true, false, false, function () {
 					renderElement(self, self.files.shadow, 'shadow', _position, false);
 				});
 			}
@@ -277,11 +277,11 @@ define(function (require) {
 					// depthTest  = resolve world occlusion
 					// depthWrite = allow entity to occlude others
 					// depthCorrection ENABLED (required for isometric depth)
-					SpriteRenderer.setDepth(true, true, false, function () {
+					SpriteRenderer.runWithDepth(true, true, false, function () {
 
 						// Shield is behind on some position, seems to be hardcoded by the client
 						if (self.shield && behind) {
-							SpriteRenderer.setDepth(true, false, false, function () {
+							SpriteRenderer.runWithDepth(true, false, false, function () {
 								SpriteRenderer.zIndex = -1;
 								renderElement(self, self.files.shield, 'shield', _position, true);
 							});
@@ -298,7 +298,7 @@ define(function (require) {
 								].includes(self._job) ? 0 : self.CartNum;
 
 								// Draw Cart           // been ocluded, dont oclude, isometric plane on
-								SpriteRenderer.setDepth(true, false, false, function () {
+								SpriteRenderer.runWithDepth(true, false, false, function () {
 									SpriteRenderer.zIndex = -1;
 									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
@@ -309,7 +309,7 @@ define(function (require) {
 							// Draw Robe
 							if (self.robe > 0) {
 											// been ocluded, dont oclude, isometric plane on
-								SpriteRenderer.setDepth(true, false, false, function () {
+								SpriteRenderer.runWithDepth(true, false, false, function () {
 									SpriteRenderer.zIndex = -1;
 									renderElement(self, self.files.robe, 'robe', _position, true);
 								});
@@ -393,7 +393,7 @@ define(function (require) {
 					// Non-player entities:
 					// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 					// - Still use depth test for correct ordering
-					SpriteRenderer.setDepth(true, false, false, function () {
+					SpriteRenderer.runWithDepth(true, false, false, function () {
 						renderElement(self, self.files.body, 'body', _position, true);
 					});
 					break;

@@ -337,7 +337,7 @@ define([
 		gl.uniform3fv(uniform.uPosition, currentPosition);
 
 		var self = this;
-		SpriteRenderer.setDepth(true, false, true, function(){
+		SpriteRenderer.runWithDepth(true, false, true, function () {
 			gl.drawArrays(gl.TRIANGLES, 0, self.verticeCount);
 		});
 

@@ -202,7 +202,7 @@ define(["exports", "Utils/WebGL", "Utils/Texture", "Utils/gl-matrix", "Core/Clie
       gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
       gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
 
-      SpriteRenderer.setDepth(false, false, false, function(){
+      SpriteRenderer.runWithDepth(false, false, false, function () {
           gl.drawArrays(gl.TRIANGLES, 0, 6);
       });
     }

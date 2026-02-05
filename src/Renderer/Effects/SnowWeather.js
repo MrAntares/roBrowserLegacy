@@ -135,7 +135,7 @@ define(function(require) {
 
 		this.beforeRender(gl, modelView, projection, fog);
 
-		SpriteRenderer.setDepth(false, false, true, function(){
+		SpriteRenderer.runWithDepth(false, false, true, function () {
 			_instance.render(gl, tick);
 		});
 

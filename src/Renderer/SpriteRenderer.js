@@ -612,7 +612,7 @@ function(      WebGL,         glMatrix,      Camera )
 	 * @param {boolean} use disableDepthCorrection enable.
 	 * @param {function} execute function with this parameters before restore gl state.
 	 */
-	SpriteRenderer.setDepth = function setDepth(depthTest, depthMask, depthCorrection, fn)
+	SpriteRenderer.runWithDepth = function runWithDepth(depthTest, depthMask, depthCorrection, fn)
 	{
 		if (!_gl) {
 			fn();

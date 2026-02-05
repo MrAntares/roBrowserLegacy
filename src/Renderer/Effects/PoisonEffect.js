@@ -49,7 +49,7 @@ define(function(require) {
 
 		SpriteRenderer.size[0] = 4000;
 		SpriteRenderer.size[1] = 4000;
-		SpriteRenderer.setDepth(false, false, true, function(){
+		SpriteRenderer.runWithDepth(false, false, true, function () {
 			SpriteRenderer.render(false);
 		});
 	};
