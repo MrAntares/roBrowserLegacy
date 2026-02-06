@@ -41,4 +41,3 @@ What should have happened.
 ## Debugging tips (optional)  
 - Have you tried running in development mode? (`development: true`)  
 - Did you check the console (F12) and the Network tab?  
-- Have you consulted the [Troubleshooting](doc/README.md#9-troubleshooting) section of the wiki?
