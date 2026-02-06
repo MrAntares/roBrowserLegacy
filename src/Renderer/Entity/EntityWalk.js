@@ -523,27 +523,28 @@ define( function( require )
 	}
 
 	function entitiesWalkProcess() {
-		if(this.walk.lastWalkTick + 100 > Renderer.tick) {
-			return;
-		}
-
 		// Use owner's actual current position for smooth following
-		var ownerCellX = Math.round(this.position[0]);
-		var ownerCellY = Math.round(this.position[1]);
+		var ownerCellX = this.position[0];
+		var ownerCellY = this.position[1];
 
 		if(this.falcon && !this.falcon.isAttacking) {
+
+			if(this.falcon.walk.lastWalkTick && this.falcon.walk.lastWalkTick + 1000 > Renderer.tick)
+				return;
+
 			let range = 1;
 			let distance = Math.floor(this.distance(this, this.falcon));
+			if(distance < range) return;
 
 			var falconBaseSpeed = this.walk.speed - 10;
-			this.falcon.walk.speed = Math.max(falconBaseSpeed - Math.min(distance * 2, 30), 1);
+			this.falcon.walk.speed = falconBaseSpeed + (distance > 5 ? -5 : 0);
+			this.falcon.walk.lastWalkTick = Renderer.tick;
 
 			var targetChanged = (this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY);
-			var repathDue = targetChanged || this.falcon.walk.total == 0 || this.falcon.walk.total - this.falcon.walk.index <= 2;
-			if(distance >= range && (repathDue || (Renderer.tick - (this.falcon._followRepathTick || 0) > 400))) {
+			if(targetChanged) {
 				this.falcon._followTargetX = ownerCellX;
 				this.falcon._followTargetY = ownerCellY;
-				this.falcon._followRepathTick = Renderer.tick;
+
 				this.falcon.walkToNonWalkableGround(
 					this.falcon.position[0],
 					this.falcon.position[1],
@@ -551,24 +552,28 @@ define( function( require )
 					ownerCellY,
 					range - 1,
 					false,
-					false
+					false,
+					Renderer.tick
 				);
 			}
 		}
 
 		if(this.wug && !this.wug.isAttacking) {
-			let range = 3;
-			let distance = Math.floor(this.distance(this, this.wug));
+			if(this.wug.walk.lastWalkTick && this.wug.walk.lastWalkTick + 1000 > Renderer.tick)
+				return;
 
-			var wugBaseSpeed = this.walk.speed - 10;
-			this.wug.walk.speed = Math.max(wugBaseSpeed - Math.min(distance * 2, 30), 1);
+			let range = 4;
+			let distance = Math.floor(this.distance(this, this.wug));
+			if(distance < range) return;
+
+			this.wug.walk.speed = this.walk.speed - 10;
+			this.wug.walk.lastWalkTick = Renderer.tick;
 
 			var targetChanged = (this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY);
-			var repathDue = targetChanged || this.wug.walk.total == 0 || this.wug.walk.total - this.wug.walk.index <= 2;
-			if(distance >= range && (repathDue || (Renderer.tick - (this.wug._followRepathTick || 0) > 400))) {
+			if(targetChanged) {
 				this.wug._followTargetX = ownerCellX;
 				this.wug._followTargetY = ownerCellY;
-				this.wug._followRepathTick = Renderer.tick;
+
 				this.wug.walkToNonWalkableGround(
 					this.wug.position[0],
 					this.wug.position[1],
@@ -576,12 +581,11 @@ define( function( require )
 					ownerCellY,
 					range - 1,
 					false,
-					false
+					false,
+					Renderer.tick
 				);
 			}
 		}
-
-		this.walk.lastWalkTick = Renderer.tick;
 	}
 
 	function resetRoute(keepDistance) {
