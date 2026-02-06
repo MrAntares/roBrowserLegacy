@@ -541,11 +541,14 @@ define(function (require) {
 			  
 		}, function(error) {  
 			console.warn('[loadFontFromClient] - Failed loading client font:', fontPath, '- Using Arial'); 
+			document.body.style.fontFamily = 'Arial, Helvetica, sans-serif';
+			document.body.style.fontSize = '10px'; 
 		});  
 		  
 	}, function(error) {	
 		console.warn('[loadFontFromClient] - Failed loading client font:', fontPath, '- Using Arial');	
 			document.body.style.fontFamily = 'Arial, Helvetica, sans-serif';	
+			document.body.style.fontSize = '10px'; 
 		});	
 	}
   
