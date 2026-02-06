@@ -272,13 +272,11 @@ define(function(require)
 				head:   Session.Entity.head,
 				headpalette: Session.Entity.headpalette,
 				bodypalette: Session.Entity.bodypalette,
-				accessory: 0,
-				accessory2: 0,
-				accessory3: 0,
-				robe: 0,
+				accessory: Session.Entity.accessory,
+				accessory2: Session.Entity.accessory2,
+				accessory3: Session.Entity.accessory3,
+				robe: Session.Entity.robe,
 			});
-
-			copyEquippedItem(previewCharacter);
 
 			if(!_remove)
 				applyPreviewItem(previewCharacter);
@@ -302,19 +300,6 @@ define(function(require)
 			previewCharacter.effectColor.set(_savedColor);
 		};
 	}();
-
-	/**
-	 * Copy item from player
-	 *
-	 * @param {object} entity
-	 */
-	function copyEquippedItem(entity)
-	{
-		entity.accessory = Session.Entity.accessory;
-		entity.accessory2 = Session.Entity.accessory2;
-		entity.accessory3 = Session.Entity.accessory3;
-		entity.robe = Session.Entity.robe;
-	}
 
 	/**
 	 * Apply preview item to entity
