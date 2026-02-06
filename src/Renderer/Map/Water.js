@@ -7,7 +7,8 @@
  *
  * @author Vincent Thibault
  */
-define( ['Utils/WebGL', 'Renderer/SpriteRenderer'], function( WebGL, SpriteRenderer )
+define( ['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Water.fs'],
+	function(   WebGL,            SpriteRenderer,  _vertexShader,   _fragmentShader )
 {
 	'use strict';
 
@@ -70,87 +71,6 @@ define( ['Utils/WebGL', 'Renderer/SpriteRenderer'], function( WebGL, SpriteRende
 	 * @var {number} water opacity
 	 */
 	var _waterOpacity = 0.9;
-
-
-	/**
-	 * @var {string} vertex shader
-	 */
-	var _vertexShader   = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
-
-		in vec3 aPosition;
-		in vec2 aTextureCoord;
-
-		out vec2 vTextureCoord;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-
-		uniform float uWaveHeight;
-		uniform float uWavePitch;
-		uniform float uWaterOffset;
-
-		const float PI = 3.14159265358979323846264;
-
-		void main(void) {
-			float x       = mod( aPosition.x, 2.0);
-			float y       = mod( aPosition.z, 2.0);
-			float diff    = x < 1.0 ? y < 1.0 ? 1.0 : -1.0 : 0.0;
-			float Height  = sin((PI / 180.0) * (uWaterOffset + 0.5 * uWavePitch * (aPosition.x + aPosition.z + diff))) * uWaveHeight;
-
-			gl_Position   = uProjectionMat * uModelViewMat * vec4( aPosition.x, aPosition.y + Height, aPosition.z, 1.0);
-			vTextureCoord = aTextureCoord;
-		}
-	`;
-
-
-	/**
-	 * @var {string} fragment shader
-	 */
-	var _fragmentShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-		precision highp float;
-		
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-
-		uniform sampler2D uDiffuse;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		uniform vec3  uLightAmbient;
-		uniform vec3  uLightDiffuse;
-		uniform float uLightOpacity;
-
-		uniform float uOpacity;
-
-		void main(void) {
-			
-			vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-			textureSample.a = uOpacity;
-			
-			if (textureSample.a == 0.0) {
-				discard;
-			}
-			
-			textureSample.a *= uOpacity;
-			
-			fragColor   = textureSample;
-
-			if (uFogUse) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
-			}
-		}
-	`;
-
 
 	/**
 	 * Initialize water data

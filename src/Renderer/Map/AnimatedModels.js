@@ -14,6 +14,8 @@ define(function (require) {
     var WebGL = require('Utils/WebGL');
     var Session = require('Engine/SessionStorage');
     var GraphicsSettings = require('Preferences/Graphics');
+    var _vertexShader = require('text!./AnimatedModels.vs');
+    var _fragmentShader = require('text!./AnimatedModels.fs');
 
     var mat3 = glMatrix.mat3;
     var mat4 = glMatrix.mat4;
@@ -39,88 +41,6 @@ define(function (require) {
         FLAT: 1,
         SMOOTH: 2
     };
-
-    /**
-     * Vertex Shader
-     */
-    var _vertexShader = `
-        attribute vec3 aPosition;
-        attribute vec3 aNormal;
-        attribute vec2 aTextureCoord;
-        attribute float aAlpha;
-
-        varying vec2 vTextureCoord;
-        varying float vLightWeighting;
-        varying float vAlpha;
-        varying float vFogFactor;
-
-        uniform mat4 uModelViewMat;
-        uniform mat4 uProjectionMat;
-        uniform mat3 uNormalMat;
-
-        uniform vec3 uLightDirection;
-        uniform float uLightOpacity;
-        uniform vec3 uLightAmbient;
-        uniform vec3 uLightDiffuse;
-
-        uniform bool uFogUse;
-        uniform float uFogNear;
-        uniform float uFogFar;
-
-        void main(void) {
-            vec4 position = uModelViewMat * vec4(aPosition, 1.0);
-            gl_Position = uProjectionMat * position;
-
-            vTextureCoord = aTextureCoord;
-            vAlpha = aAlpha;
-
-            // Normals are already in World Space (transformed in JS)
-            // LightDirection is also World Space.
-            // Match logic from Models.js (Static models)
-            vec3 normal = normalize(aNormal);
-            float lightWeight = max(dot(normal, uLightDirection), 0.0);
-            vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;
-
-            if (uFogUse) {
-                float depth = length(position.xyz);
-                vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);
-            } else {
-                vFogFactor = 1.0;
-            }
-        }
-    `;
-
-    /**
-     * Fragment Shader
-     */
-    var _fragmentShader = `
-        precision highp float;
-
-        varying vec2 vTextureCoord;
-        varying float vLightWeighting;
-        varying float vAlpha;
-        varying float vFogFactor;
-
-        uniform sampler2D uDiffuse;
-        uniform vec3 uFogColor;
-        uniform bool uFogUse;
-
-        void main(void) {
-            vec4 texture = texture2D(uDiffuse, vTextureCoord);
-
-            if (texture.a == 0.0) {
-                discard;
-            }
-
-            vec3 color = texture.rgb * vLightWeighting;
-
-            if (uFogUse) {
-                color = mix(uFogColor, color, vFogFactor);
-            }
-
-            gl_FragColor = vec4(color, texture.a * vAlpha);
-        }
-    `;
 
     /**
      * Initialize shader program
