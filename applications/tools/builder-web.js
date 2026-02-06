@@ -292,6 +292,7 @@ window.ROConfigBase = {
     registrationweb: '',
     saveFiles: true,
     ThirdPersonCamera: false,
+    transitionDuration: 500,
 };
 `;
     fs.writeFileSync(dist + platform + '/Config.js', configContent, { encoding: "utf8" });

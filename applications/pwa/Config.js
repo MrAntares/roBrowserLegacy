@@ -60,4 +60,5 @@ window.ROConfigBase = {
 	registrationweb: '',
 	saveFiles: true,
 	ThirdPersonCamera: false,
+	transitionDuration: 500,
 };
