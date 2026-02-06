@@ -786,7 +786,7 @@ define(function (require) {
         for (var m = 0; m < _animatedModels.length; m++) {
             var model = _animatedModels[m];
 
-            if(GraphicsSettings.culling && this.instances && this.instances.length){
+            if(GraphicsSettings.culling && model.instances && model.instances.length){
                 var instanceMatrix = model.instances[0];
                 var worldCenter = vec3.create();
                 vec3.transformMat4(worldCenter, model.box.center, instanceMatrix);
