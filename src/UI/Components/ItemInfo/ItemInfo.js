@@ -543,6 +543,7 @@ define(function(require)
 		}
 
 		previewButton.show();
+		previewButton.off('click');
 		previewButton.on('click', function(event) {
 			event.stopImmediatePropagation();
 			toggleItemPreview(item);

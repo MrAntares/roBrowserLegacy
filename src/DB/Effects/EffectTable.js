@@ -1203,7 +1203,7 @@ define(function( require )
 
 		22: [{	//EF_SIGHT	Sight
 			type: '3D',
-			shadowTexture: true,
+			shadowTexture: false, // TODO
 			alphaMax: 0.5,
 			attachedEntity: true,
 			blendMode: 8,
@@ -1351,7 +1351,7 @@ define(function( require )
 
 		33: [{ //EF_RUWACH	//ruwach
 			type: '3D',
-			shadowTexture: true,
+			shadowTexture: false, // TODO
 			alphaMax: 0.5,
 			attachedEntity: true,
 			blendMode: 8,

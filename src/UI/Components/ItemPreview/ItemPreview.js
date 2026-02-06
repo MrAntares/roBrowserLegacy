@@ -61,6 +61,7 @@ define(function(require)
 	 */
 	ItemPreview.uid = -1;
 
+	var _remove = false;
 
 	/**
 	 * Initialize UI
@@ -176,6 +177,7 @@ define(function(require)
 	 */
 	function resetPreview()
 	{
+		_remove = !_remove;
 		_direction = 0;
 	}
 
@@ -270,9 +272,14 @@ define(function(require)
 				head:   Session.Entity.head,
 				headpalette: Session.Entity.headpalette,
 				bodypalette: Session.Entity.bodypalette,
+				accessory: Session.Entity.accessory,
+				accessory2: Session.Entity.accessory2,
+				accessory3: Session.Entity.accessory3,
+				robe: Session.Entity.robe,
 			});
 
-			applyPreviewItem(previewCharacter);
+			if(!_remove)
+				applyPreviewItem(previewCharacter);
 
 			_savedColor.set(previewCharacter.effectColor);
 			previewCharacter.effectColor.set(_cleanColor);
@@ -293,7 +300,6 @@ define(function(require)
 			previewCharacter.effectColor.set(_savedColor);
 		};
 	}();
-
 
 	/**
 	 * Apply preview item to entity
