@@ -278,10 +278,10 @@ define(function(require)
 				robe: 0,
 			});
 
-			if(!_remove)
-				copyEquippedItem(previewCharacter);
+			copyEquippedItem(previewCharacter);
 
-			applyPreviewItem(previewCharacter);
+			if(!_remove)
+				applyPreviewItem(previewCharacter);
 
 			_savedColor.set(previewCharacter.effectColor);
 			previewCharacter.effectColor.set(_cleanColor);
