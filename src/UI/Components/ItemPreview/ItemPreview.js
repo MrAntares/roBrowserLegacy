@@ -61,6 +61,7 @@ define(function(require)
 	 */
 	ItemPreview.uid = -1;
 
+	var _remove = false;
 
 	/**
 	 * Initialize UI
@@ -176,6 +177,7 @@ define(function(require)
 	 */
 	function resetPreview()
 	{
+		_remove = !_remove;
 		_direction = 0;
 	}
 
@@ -270,7 +272,14 @@ define(function(require)
 				head:   Session.Entity.head,
 				headpalette: Session.Entity.headpalette,
 				bodypalette: Session.Entity.bodypalette,
+				accessory: 0,
+				accessory2: 0,
+				accessory3: 0,
+				robe: 0,
 			});
+
+			if(!_remove)
+				copyEquippedItem(previewCharacter);
 
 			applyPreviewItem(previewCharacter);
 
@@ -294,6 +303,18 @@ define(function(require)
 		};
 	}();
 
+	/**
+	 * Copy item from player
+	 *
+	 * @param {object} entity
+	 */
+	function copyEquippedItem(entity)
+	{
+		entity.accessory = Session.Entity.accessory;
+		entity.accessory2 = Session.Entity.accessory2;
+		entity.accessory3 = Session.Entity.accessory3;
+		entity.robe = Session.Entity.robe;
+	}
 
 	/**
 	 * Apply preview item to entity
