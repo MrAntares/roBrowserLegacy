@@ -7,8 +7,8 @@
  *
  * @author Vincent Thibault
  */
-define( ['Renderer/Map/Altitude', 'Core/Client', 'Utils/WebGL', 'Utils/Texture', 'Core/Configs'],
-function(              Altitude,        Client,         WebGL,         Texture,        Configs )
+define( ['Renderer/Map/Altitude', 'Core/Client', 'Utils/WebGL', 'Utils/Texture', 'Core/Configs', 'text!./GridSelector.vs', 'text!./GridSelector.fs'],
+function(              Altitude,        Client,         WebGL,         Texture,        Configs,         _vertexShader,          _fragmentShader)
 {
 	'use strict';
 
@@ -47,69 +47,6 @@ function(              Altitude,        Client,         WebGL,         Texture, 
 		0.0, 0.0, 0.0, 0.0, 1.0,
 		0.0, 0.0, 0.0, 1.0, 1.0
 	]);
-
-
-	/**
-	 * @var {string} vertex shader
-	 */
-	var _vertexShader   = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
-
-		in vec3 aPosition;
-		in vec2 aTextCoord;
-
-		out vec2 vTextureCoord;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-
-		void main(void) {
-			vec3 position = aPosition;
-			position.y    -= 0.1;
-			
-			gl_Position    = uProjectionMat * uModelViewMat * vec4( position.xyz, 1.0) ;
-			vTextureCoord  = aTextCoord;
-		}
-	`;
-
-
-	/**
-	 * @var {string} fragment shader
-	 */
-	var _fragmentShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-		precision highp float;
-
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-		uniform sampler2D uDiffuse;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		void main(void) {
-			
-			vec4 textureSample = texture( uDiffuse, vTextureCoord.st);
-			
-			if (textureSample.a == 0.0) {
-				discard;
-			}
-			
-			fragColor = textureSample;
-
-			if (uFogUse) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
-			}
-		}
-	`;
-
 
 	/**
 	 * Initialize Grid
