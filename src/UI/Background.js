@@ -251,8 +251,6 @@ define( function( require )
 	{
 		var transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
 
-		console.log(transitionDuration);
-
 		_overlay
 			.stop()
 			.css( 'opacity', 0.01 )
