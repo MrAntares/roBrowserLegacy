@@ -249,7 +249,7 @@ define( function( require )
 	 */
 	function transition( callback )
 	{
-		var transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 750;
+		var transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
 
 		console.log(transitionDuration);
 
