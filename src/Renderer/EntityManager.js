@@ -327,7 +327,10 @@ define(function (require) {
 					count--;
 					continue;
 				}
-
+				if(GraphicsSettings.culling){
+					var distSq = Math.pow(_list[i].position[0] - Session.Entity.position[0], 2) + Math.pow(_list[i].position[1] - Session.Entity.position[1], 2);
+					if (distSq > Math.pow(GraphicsSettings.viewArea,2)) continue; 
+				}
 				_list[i].render(modelView, projection);
 			}
 		}
