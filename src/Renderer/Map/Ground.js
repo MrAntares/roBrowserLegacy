@@ -7,8 +7,8 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Preferences/Map', 'Core/Configs'],
-function(      WebGL,         Texture,   Preferences,            Configs )
+define(['Utils/WebGL', 'Utils/Texture', 'Preferences/Map', 'Core/Configs', 'text!./Ground.vs', 'text!./Ground.fs'],
+function(      WebGL,         Texture,   Preferences,            Configs,   _vertexShader,    _fragmentShader )
 {
 	'use strict';
 
@@ -68,118 +68,6 @@ function(      WebGL,         Texture,   Preferences,            Configs )
 	 * @var {number} Ground height
 	 */
 	var _height = 0;
-
-
-	/**
-	 * @var {string} Vertex Shader
-	 */
-	var _vertexShader   = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
-
-		in vec3 aPosition;
-		in vec3 aVertexNormal;
-		in vec2 aTextureCoord;
-		in vec2 aLightmapCoord;
-		in vec2 aTileColorCoord;
-
-		out vec2 vTextureCoord;
-		out vec2 vLightmapCoord;
-		out vec2 vTileColorCoord;
-		out float vLightWeighting;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-
-		uniform vec3 uLightDirection;
-		uniform vec3 uLightEnv;
-
-		void main(void) {
-			gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);
-
-			vTextureCoord   = aTextureCoord;
-			vLightmapCoord  = aLightmapCoord;
-			vTileColorCoord = aTileColorCoord;
-
-			float dotProduct = dot(aVertexNormal, uLightDirection );
-			vLightWeighting = max(dotProduct, 0.0);
-		}
-	`;
-
-	/**
-	 * @var {string} Fragment Shader
-	 */
-	var _fragmentShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-		precision highp float;
-
-		in vec2 vTextureCoord;
-		in vec2 vLightmapCoord;
-		in vec2 vTileColorCoord;
-		in float vLightWeighting;
-		out vec4 fragColor;
-
-		uniform sampler2D uDiffuse;
-		uniform sampler2D uLightmap;
-		uniform sampler2D uTileColor;
-		uniform bool uLightMapUse;
-		uniform bool uPosterize;
-		uniform bool uGammaCorrection;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		uniform vec3  uLightAmbient;
-		uniform vec3  uLightDiffuse;
-		uniform float uLightOpacity;
-		uniform vec3  uLightDirection;
-		uniform vec3 uLightEnv;
-
-		vec3 posterize(vec3 c) {
-		    c *= 255.0;
-		    c = floor(c / 16.0) * 16.0;
-		    c /= 255.0;
-		    return c;
-		}
-
-		void main(void) {
-			vec4 textureSample = texture(uDiffuse, vTextureCoord.st);
-			if (textureSample.a < 0.1)
-				discard;
-
-			if (vTileColorCoord.st != vec2(0.0,0.0)) {
-				textureSample    *= texture( uTileColor, vTileColorCoord.st);
-			}
-
-			vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);
-			textureSample.rgb *= clamp(color, 0.0, 1.0);
-			textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);
-
-			if (uLightMapUse) {
-				vec4 lightmap = texture( uLightmap, vLightmapCoord.st);
-				if(uPosterize) {
-					lightmap.rgb = posterize(lightmap.rgb);
-				} else if(uGammaCorrection){
-					lightmap.rgb = pow(lightmap.rgb, vec3(1.1));
-				}
-				textureSample.rgb *= lightmap.a;
-				textureSample.rgb += clamp(lightmap.rgb, 0.0, 1.0);
-			}
-
-			fragColor = textureSample;
-
-			if (uFogUse) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				fragColor    = mix( fragColor, vec4(uFogColor, fragColor.w), fogFactor );
-			}
-
-		}
-	`;
 
 	/**
 	 * Render ground
