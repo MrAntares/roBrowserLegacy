@@ -18,6 +18,7 @@ define( function( require )
 	var DB     = require('DB/DBManager');
 	var jQuery = require('Utils/jquery');
 	var Client = require('Core/Client');
+	var Configs = require('Core/Configs');
 
 	/**
 	 * Background Namespace
@@ -248,16 +249,18 @@ define( function( require )
 	 */
 	function transition( callback )
 	{
+		var transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
+
 		_overlay
 			.stop()
 			.css( 'opacity', 0.01 )
 			.appendTo('body')
-			.animate({ opacity: 1.0 }, 150, function(){
+			.animate({ opacity: 1.0 }, transitionDuration, function(){
 				callback();
 
 				_overlay
 					.stop()
-					.animate({ opacity: 0.01 }, 150, function(){
+					.animate({ opacity: 0.01 }, transitionDuration, function(){
 						_overlay.remove();
 					});
 			});
