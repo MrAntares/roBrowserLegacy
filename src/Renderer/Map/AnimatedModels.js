@@ -785,21 +785,17 @@ define(function (require) {
         // Render each animated model
         for (var m = 0; m < _animatedModels.length; m++) {
             var model = _animatedModels[m];
-            
-            if (!model.instances || model.instances.length === 0) {  
-			console.warn('AnimatedModels: no instances for model', model.filename);  
-			continue;  
-            }
 
-            if(GraphicsSettings.culling){
+            if(GraphicsSettings.culling && this.instances && this.instances.length){
                 var instanceMatrix = model.instances[0];
                 var worldCenter = vec3.create();
                 vec3.transformMat4(worldCenter, model.box.center, instanceMatrix);
   
                 var dx = worldCenter[0] - playerPos[0];
                 var dy = worldCenter[2] - playerPos[1];
+		
                 var distSq = dx*dx + dy*dy;
-                if (distSq > CULL_RADIUS*CULL_RADIUS) continue;
+                if (distSq > CULL_RADIUS*CULL_RADIUS){ continue; }
             }
 
             // Calculate current animation frame
