@@ -542,8 +542,9 @@ define( function( require )
 		}
 	}
 
+	// Companions walk is passively, don't need complexity or lower walk delay
 	function entitiesWalkProcess() {
-		// Use owner's actual current position for smooth following
+		// Use owner's actual current position
 		var ownerCellX = this.position[0];
 		var ownerCellY = this.position[1];
 
