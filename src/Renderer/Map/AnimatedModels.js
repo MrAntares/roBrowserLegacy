@@ -20,8 +20,6 @@ define(function (require) {
     var mat3 = glMatrix.mat3;
     var mat4 = glMatrix.mat4;
     var vec3 = glMatrix.vec3;
-
-    var CULL_RADIUS = 100;
     
     /**
      * Shader program
@@ -292,6 +290,7 @@ var currentOffset = 0;
             
             // State
             lastFrame: -1,
+            lastAnimFrame: -1,
             staticModel: !hasAnyAnimation,
             _nodeMap: {},
             _globalMatrices: new Array(nodes.length)
@@ -591,25 +590,23 @@ var currentOffset = 0;
         }
     }
 
-/**
+    /**
      * Update model buffer at frame
      */
     function updateModelBuffer(gl, model, frame, force) {
-        // Optimization: Caching
-        // Note: RSM animations are based on ms (ticks), so frame is an integer ms.
-        // We floor it to reduce updates if render is running faster than 1ms (unlikely but safe)
-        var iFrame = Math.floor(frame);
-        
-        if (!force && model.lastFrame === iFrame && !model.staticModel) {
-            return;
+        var frameDuration = 1000 / (model.fps/ (GraphicsSettings.culling ? 1.14 : 1));
+        var currentAnimFrame = Math.floor(frame / frameDuration);
+
+        if (!force && model.lastAnimFrame === currentAnimFrame && !model.staticModel) {
+           return;
         }
 
-        // Static Model optimization: If already rendered once, never update again
-        if (model.staticModel && model.lastFrame !== -1 && !force) {
-            return;
+        if (model.staticModel && model.lastAnimFrame !== -1 && !force) {
+              return;
         }
 
-        model.lastFrame = iFrame;
+        model.lastAnimFrame = currentAnimFrame;
+        model.lastFrame = frame;
 
         var box = model.box;
         var nodeMap = model._nodeMap;
@@ -757,18 +754,6 @@ var currentOffset = 0;
         // Render each animated model
         for (var m = 0; m < _animatedModels.length; m++) {
             var model = _animatedModels[m];
-
-            if(GraphicsSettings.culling && model.instances && model.instances.length){
-                var instanceMatrix = model.instances[0];
-                var worldCenter = vec3.create();
-                vec3.transformMat4(worldCenter, model.box.center, instanceMatrix);
-  
-                var dx = worldCenter[0] - playerPos[0];
-                var dy = worldCenter[2] - playerPos[1];
-		
-                var distSq = dx*dx + dy*dy;
-                if (distSq > CULL_RADIUS*CULL_RADIUS){ continue; }
-            }
 
             // Calculate current animation frame
             var animLen = model.animLen || 1;
