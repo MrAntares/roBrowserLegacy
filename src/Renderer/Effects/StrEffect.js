@@ -354,8 +354,9 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function( WebGL, glMat
 
 		if (this.ownerEntity) {
 			// Attachment: center at (320,320), apply offsets, scale with entity
-			spriteOffset[0] = ((anim.pos[0] - 320) - (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35) * sizeScale;
-			spriteOffset[1] = ((anim.pos[1] - 320) - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35) * sizeScale;
+			spriteOffset[0] = ((anim.pos[0] - 320) + ((this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35) * sizeScale);
+			// flip Y offset only
+			spriteOffset[1] = ((anim.pos[1] - 320) - ((this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35) * sizeScale);
 			verticalBase = 0.0;
 		} else {
 			spriteOffset[0] = anim.pos[0] - 320;

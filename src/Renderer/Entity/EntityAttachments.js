@@ -53,9 +53,12 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		attachment.head          = attachment.head      || false;
 
 		attachment.position = false;
-        if (attachment.yOffset || attachment.xOffset) attachment.position = new Int16Array(2);
-        if (attachment.xOffset) attachment.position[0] = attachment.xOffset;
-        if (attachment.yOffset) attachment.position[1] = attachment.yOffset;
+
+		if (attachment.yOffset || attachment.xOffset){ 
+			attachment.position = new Int16Array(2);
+			if (attachment.xOffset) attachment.position[0] = attachment.xOffset;
+			if (attachment.yOffset) attachment.position[1] = attachment.yOffset;
+		}
 
 		attachment.repeat        = attachment.repeat    || false;
 		attachment.duplicate 	 = attachment.duplicate || 0;
@@ -64,9 +67,9 @@ function(     Client,            Renderer,            SpriteRenderer,           
 		attachment.renderBefore  = attachment.renderBefore || false;
 
 		if (attachment.completeFile) {
-            attachment.spr = attachment.completeFile + '.spr';
-            attachment.act = attachment.completeFile + '.act';
-        } else if (attachment.file) {
+			attachment.spr = attachment.completeFile + '.spr';
+			attachment.act = attachment.completeFile + '.act';
+		} else if (attachment.file) {
 			attachment.spr = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.spr';
 			attachment.act = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.act';
 		}
@@ -77,7 +80,10 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			var strNormalized = attachment.strFile.replace(/\\/g, '/');
 			var lastSlash = strNormalized.lastIndexOf('/');
 			var strTexturePath = lastSlash >= 0 ? strNormalized.substring(0, lastSlash + 1) : '';
-			
+
+			// FIXME: https://github.com/MrAntares/roBrowserLegacy/issues/856
+			strTexturePath = strTexturePath.replace(/^data\/texture\/effect\//, '');
+
 			var strEffect = new StrEffect(
 				attachment.strFile,
 				this.entity.position,
@@ -264,7 +270,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 				try {
 					strEffect.position = this.entity.position;
 					strEffect.ownerDirection = this.entity.direction;
-					
+
 					if (!StrEffect.ready) {
 						StrEffect.init(gl);
 					}
@@ -304,8 +310,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 			if(!attachment.position){
 				position[1] = attachment.head ? -100 : 0;
 			} else if(attachment.position){
-				position[0] = attachment.position[0];
-				position[1] = attachment.position[1];
+				position = attachment.position;
 			}
 
 			frame                       = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
@@ -343,7 +348,7 @@ function(     Client,            Renderer,            SpriteRenderer,           
 
 			// Render layers with depth ordering (renderBefore behind, normal in front)
 			var self = this;
-			var zIdx = attachment.renderBefore ? -10 : 500;
+			var zIdx = attachment.renderBefore ? 1 : 500;
 			
 			SpriteRenderer.runWithDepth(true, false, false, function () {
 				SpriteRenderer.zIndex = zIdx;
