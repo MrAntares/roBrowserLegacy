@@ -548,11 +548,7 @@ define( function( require )
 		var ownerCellX = this.position[0];
 		var ownerCellY = this.position[1];
 
-		if(this.falcon && !this.falcon.isAttacking) {
-
-			if(this.falcon.walk.lastWalkTick && this.falcon.walk.lastWalkTick + 1000 > Renderer.tick)
-				return;
-
+		if(this.falcon && !this.falcon.isAttacking && (!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1000 < Renderer.tick)) {
 			let range = 2;
 			let distance = Math.floor(this.distance(this, this.falcon));
 			if(distance < range) return;
@@ -578,10 +574,7 @@ define( function( require )
 			}
 		}
 
-		if(this.wug && !this.wug.isAttacking) {
-			if(this.wug.walk.lastWalkTick && this.wug.walk.lastWalkTick + 1000 > Renderer.tick)
-				return;
-
+		if(this.wug && !this.wug.isAttacking && (!this.wug.walk.lastWalkTick || this.wug.walk.lastWalkTick + 1000 < Renderer.tick)) {
 			let range = 4;
 			let distance = Math.floor(this.distance(this, this.wug));
 			if(distance < range) return;
