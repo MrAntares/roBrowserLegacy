@@ -56,6 +56,7 @@ define(function (require) {
             uLightOpacity: gl.getUniformLocation(_program, 'uLightOpacity'),
             uLightAmbient: gl.getUniformLocation(_program, 'uLightAmbient'),
             uLightDiffuse: gl.getUniformLocation(_program, 'uLightDiffuse'),
+            uLightEnv: gl.getUniformLocation(_program, 'uLightEnv'),
             uFogUse: gl.getUniformLocation(_program, 'uFogUse'),
             uFogNear: gl.getUniformLocation(_program, 'uFogNear'),
             uFogFar: gl.getUniformLocation(_program, 'uFogFar'),
@@ -88,6 +89,11 @@ define(function (require) {
         }
         _animatedModels = [];
     }
+	function isNodeStatic(node) {
+		return (!node.rotKeyframes || node.rotKeyframes.length === 0) &&
+		(!node.posKeyframes || node.posKeyframes.length === 0) &&
+		(!node.scaleKeyFrames || node.scaleKeyFrames.length === 0);
+	}
 
     /**
      * Add an animated model
@@ -110,9 +116,13 @@ define(function (require) {
 
         // Deserialize nodes - convert arrays to Float32Arrays
         var nodes = [];
+        var totalAnimationLength = 0;
+        var hasAnyAnimation = false;
+
         for (var n = 0; n < modelData.nodes.length; n++) {
             var srcNode = modelData.nodes[n];
-            nodes.push({
+            if (!isNodeStatic(srcNode)) hasAnyAnimation = true;
+            var node = {
                 name: srcNode.name,
                 parentname: srcNode.parentname,
                 is_only: srcNode.is_only,
@@ -128,20 +138,52 @@ define(function (require) {
                 mat3: new Float32Array(srcNode.mat3),
                 rotKeyframes: srcNode.rotKeyframes || [],
                 posKeyframes: srcNode.posKeyframes || [],
-                scaleKeyFrames: srcNode.scaleKeyFrames || []
-            });
+                scaleKeyFrames: srcNode.scaleKeyFrames || [],
+                _isStatic: !hasAnyAnimation,
+                _index: n,
+                _cache: {
+                    local: mat4.create(),
+                    final: mat4.create(),
+                    // Cache for instances final matrices
+                    instances: new Array(instances.length)
+                }
+            };
+            // Pre-calculate local matrix for static nodes
+            if (node._isStatic) {
+                var local = mat4.create();
+                mat4.identity(local);
+                mat4.translate(local, local, node.pos);
+                mat4.rotate(local, local, node.rotangle, node.rotaxis);
+                mat4.scale(local, local, node.scale);
+                node._staticLocalMatrix = local;
+            }
+            // Initialize instance cache
+            for(var k=0; k<instances.length; k++) {
+                node._cache.instances[k] = mat4.create();
+            }
+
+            // Calculate max animation length
+            if (node.rotKeyframes) {
+                for (var rk = 0; rk < node.rotKeyframes.length; rk++) totalAnimationLength = Math.max(totalAnimationLength, node.rotKeyframes[rk].frame || 0);
+            }
+            if (node.posKeyframes) {
+                for (var pk = 0; pk < node.posKeyframes.length; pk++) totalAnimationLength = Math.max(totalAnimationLength, node.posKeyframes[pk].frame || 0);
+            }
+            if (node.scaleKeyFrames) {
+                for (var sk = 0; sk < node.scaleKeyFrames.length; sk++) totalAnimationLength = Math.max(totalAnimationLength, node.scaleKeyFrames[sk].Frame || 0);
+            }
+
+            nodes.push(node);
         }
 
-        // Convert box arrays
-        var box = {
-            center: new Float32Array(modelData.box.center),
-            max: new Float32Array(modelData.box.max),
-            min: new Float32Array(modelData.box.min),
-            offset: new Float32Array(modelData.box.offset),
-            range: new Float32Array(modelData.box.range)
-        };
         // Calculate animLen from keyframes if not set
         var animLen = modelData.animLen || 0;
+
+        // Build Mesh Layout Plan (Group by Texture -> Node -> Instance)
+        // This prevents rebuilding the array structure every frame.
+        var textureGroups = {};
+        var totalFloats = 0;
+
         if (animLen === 0) {
             // Find max frame from keyframes
             for (var n = 0; n < nodes.length; n++) {
@@ -165,8 +207,65 @@ define(function (require) {
             // Add some frames to ensure last keyframe is reached
             animLen = animLen + 1;
         }
+        // Calculate size per texture
+        // Iterate all nodes to find which textures they use and how many faces
+        for (var n = 0; n < nodes.length; n++) {
+            var node = nodes[n];
+            // Count faces per texture for this node
+            var facesPerTex = {};
+            for (var f = 0; f < node.faces.length; f++) {
+                var tid = node.textures[node.faces[f].texid];
+                if (!facesPerTex[tid]) facesPerTex[tid] = 0;
+                facesPerTex[tid]++;
+            }
 
-        // Create model object
+            // Add to global texture groups
+            for (var tid in facesPerTex) {
+                if (!textureGroups[tid]) textureGroups[tid] = { count: 0, writePlan: [] };
+                
+                // For every instance of this node
+                for (var inst = 0; inst < instances.length; inst++) {
+                    var vertCount = facesPerTex[tid] * 3; // 3 verts per face
+                    var floatCount = vertCount * 9; // 9 floats per vert (3 pos, 3 norm, 2 uv, 1 alpha)
+                    
+                    // Create a write instruction
+                    textureGroups[tid].writePlan.push({
+                        nodeIndex: n,
+                        instanceIndex: inst,
+                        faceCount: facesPerTex[tid],
+                        startFaceIndex: 0, // Need to find where faces for this tex start in node.faces? No, faces are mixed.
+                        // We will need to iterate faces in update and pick matches
+                        targetOffset: 0 // Will be calculated below
+                    });
+                    
+                    textureGroups[tid].count += vertCount;
+                    totalFloats += floatCount;
+                }
+            }
+        }
+
+var currentOffset = 0;
+        var meshInfos = [];
+
+        for (var tid in textureGroups) {
+            var group = textureGroups[tid];
+            var startOffset = currentOffset;
+            
+            // Record where each sub-mesh writes
+            for (var wp = 0; wp < group.writePlan.length; wp++) {
+                var plan = group.writePlan[wp];
+                plan.targetOffset = currentOffset;
+                currentOffset += (plan.faceCount * 3 * 9);
+            }
+
+            meshInfos.push({
+                textureIdx: parseInt(tid),
+                vertOffset: startOffset / 9,
+                vertCount: (currentOffset - startOffset) / 9
+            });
+        }
+
+        // Create Model Object
         var animModel = {
             filename: modelData.filename,
             animLen: animLen,
@@ -176,12 +275,37 @@ define(function (require) {
             textures: modelData.textures,
             instances: instances,
             nodes: nodes,
-            box: box,
+            box: {
+                center: new Float32Array(modelData.box.center),
+                max: new Float32Array(modelData.box.max),
+                min: new Float32Array(modelData.box.min),
+                offset: new Float32Array(modelData.box.offset),
+                range: new Float32Array(modelData.box.range)
+            },
             textureObjects: {},
-            buffer: null,
-            meshInfos: [],
-            lastFrame: -1
+            
+            // WebGL & Caching
+            buffer: gl.createBuffer(),
+            _gpuBuffer: new Float32Array(totalFloats), // Allocate once
+            meshInfos: meshInfos,
+            writePlans: textureGroups, // Instructions for update
+            
+            // State
+            lastFrame: -1,
+            staticModel: !hasAnyAnimation,
+            _nodeMap: {},
+            _globalMatrices: new Array(nodes.length)
         };
+
+        // Cache Node Map
+        for(var n=0; n<nodes.length; n++) {
+            animModel._nodeMap[nodes[n].name] = nodes[n];
+            animModel._globalMatrices[n] = mat4.create();
+        }
+
+        // Allocate Buffer on GPU immediately (Empty but sized)
+        gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, animModel._gpuBuffer.byteLength, gl.DYNAMIC_DRAW);
 
         // Load textures
         for (var t = 0; t < modelData.textures.length; t++) {
@@ -190,6 +314,9 @@ define(function (require) {
         }
 
         _animatedModels.push(animModel);
+        
+        // Force first update to populate buffer
+        updateModelBuffer(gl, animModel, 0, true);
     }
 
     /**
@@ -381,359 +508,203 @@ define(function (require) {
     }
 
     /**
-     * Compile a node with a specific matrix
+     * Transform a specific node's geometry for a specific texture and instance
+     * Writes directly to the monolithic buffer
      */
-    function compileNodeWithMatrix(node, finalMatrix, outMeshes, alpha) {
-        // Cache normal matrix
-        if (!node._cache.normalMat) node._cache.normalMat = mat4.create();
-        var normalMat = node._cache.normalMat;
-
-        // Extract rotation for normal matrix from finalMatrix directly
+    function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) {
+        // Extract Rotation for normals
+        // Optimization: Don't use mat4.extractRotation/invert/transpose every face.
+        // Just use the upper 3x3 of finalMatrix if uniform scaling.
+        // For non-uniform, we strictly need normal matrix, but RSMs usually handle normals simpler.
+        // Let's stick to standard logic: Extract rotation from finalMatrix.
+        
+        var normalMat = node._cache.normalMat || mat4.create();
+        node._cache.normalMat = normalMat;
         mat4.extractRotation(normalMat, finalMatrix);
 
-        // Generate transformed vertices
-        var vertices = node.vertices;
-        var vertCount = vertices.length;
+        var m = finalMatrix;
+        var n = normalMat;
+        
+        // Cache Matrix access
+        var m0=m[0], m1=m[1], m2=m[2], m4=m[4], m5=m[5], m6=m[6], m8=m[8], m9=m[9], m10=m[10], m12=m[12], m13=m[13], m14=m[14];
+        var n0=n[0], n1=n[1], n2=n[2], n4=n[4], n5=n[5], n6=n[6], n8=n[8], n9=n[9], n10=n[10];
 
-        // Reuse vertex buffer
-        if (!node._cache.vertBuffer) {
-            node._cache.vertBuffer = new Float32Array(vertCount * 3);
-        }
-        var vert = node._cache.vertBuffer;
-
-        // Transform vertices directly from finalMatrix (no intermediate modelViewMat needed)
-        // Manual unroll for performance
-        var m0 = finalMatrix[0], m1 = finalMatrix[1], m2 = finalMatrix[2], m3 = finalMatrix[3];
-        var m4 = finalMatrix[4], m5 = finalMatrix[5], m6 = finalMatrix[6], m7 = finalMatrix[7];
-        var m8 = finalMatrix[8], m9 = finalMatrix[9], m10 = finalMatrix[10], m11 = finalMatrix[11];
-        var m12 = finalMatrix[12], m13 = finalMatrix[13], m14 = finalMatrix[14], m15 = finalMatrix[15];
-
-        for (var i = 0; i < vertCount; i++) {
-            var x = vertices[i][0];
-            var y = vertices[i][1];
-            var z = vertices[i][2];
-
-            vert[i * 3 + 0] = m0 * x + m4 * y + m8 * z + m12;
-            vert[i * 3 + 1] = m1 * x + m5 * y + m9 * z + m13;
-            vert[i * 3 + 2] = m2 * x + m6 * y + m10 * z + m14;
-        }
-
-        // Generate mesh data per texture
         var faces = node.faces;
+        var vertices = node.vertices;
         var tvertices = node.tvertices;
         var textures = node.textures;
-        var meshes = outMeshes;
+        var output = buffer;
+        var o = offset;
 
-        // Initialize meshes if not provided (First Run)
-        if (!meshes) {
-            meshes = {};
-            // Count faces per texture
-            var meshSizes = {};
-            for (var t = 0; t < textures.length; t++) {
-                meshSizes[textures[t]] = 0;
-            }
+        // Iterate faces, process only those matching textureId
+        for (var f = 0; f < faces.length; f++) {
+            var face = faces[f];
+            if (textures[face.texid] !== textureId) continue;
 
-            for (var f = 0; f < faces.length; f++) {
-                var texIdx = textures[faces[f].texid];
-                if (meshSizes[texIdx] === undefined) {
-                    meshSizes[texIdx] = 0;
-                }
-                meshSizes[texIdx]++;
-            }
+            // Compute Face Normal (using Original Vertices)
+            var v0 = vertices[face.vertidx[0]];
+            var v1 = vertices[face.vertidx[1]];
+            var v2 = vertices[face.vertidx[2]];
 
-            for (var texId in meshSizes) {
-                meshes[texId] = {
-                    data: new Float32Array(meshSizes[texId] * 3 * 9),
-                    offset: 0
-                };
-            }
-        } else {
-            // Reset offsets for reuse
-            for (var t in meshes) {
-                meshes[t].offset = 0;
-            }
-        }
+            var ax = v1[0] - v0[0], ay = v1[1] - v0[1], az = v1[2] - v0[2];
+            var bx = v2[0] - v0[0], by = v2[1] - v0[1], bz = v2[2] - v0[2];
 
-        // Cache normal matrix values for inline use
-        var n0 = normalMat[0], n1 = normalMat[1], n2 = normalMat[2];
-        var n4 = normalMat[4], n5 = normalMat[5], n6 = normalMat[6];
-        var n8 = normalMat[8], n9 = normalMat[9], n10 = normalMat[10];
+            var nx = ay * bz - az * by;
+            var ny = az * bx - ax * bz;
+            var nz = ax * by - ay * bx;
 
-        // Fill mesh data
-        for (var fi = 0; fi < faces.length; fi++) {
-            var face = faces[fi];
-            var texId = textures[face.texid];
-            var mesh = meshes[texId];
-            var data = mesh.data;
-            var offset = mesh.offset;
+            // Normalize
+            var len = nx * nx + ny * ny + nz * nz;
+            if (len > 0) { len = 1.0 / Math.sqrt(len); nx *= len; ny *= len; nz *= len; }
 
-            // Get vertex positions directly from transformed vertices buffer
-            // vert array structure: [x,y,z, x,y,z...]
-            var idx0 = face.vertidx[0] * 3;
-            var idx1 = face.vertidx[1] * 3;
-            var idx2 = face.vertidx[2] * 3;
+            // Transform Normal
+            var tnx = n0 * nx + n4 * ny + n8 * nz;
+            var tny = n1 * nx + n5 * ny + n9 * nz;
+            var tnz = n2 * nx + n6 * ny + n10 * nz;
 
-            var v0x = vert[idx0];
-            var v0y = vert[idx0 + 1];
-            var v0z = vert[idx0 + 2];
-
-            var v1x = vert[idx1];
-            var v1y = vert[idx1 + 1];
-            var v1z = vert[idx1 + 2];
-
-            var v2x = vert[idx2];
-            var v2y = vert[idx2 + 1];
-            var v2z = vert[idx2 + 2];
-
-            // Calculate Normal Inline (Cross Product) using original vertices for correct normal direction?
-            // Wait, calcFaceNormal uses original vertices, then transforms normal.
-            // Original code:
-            // calcFaceNormal(vertices[face.vertidx[0]]...) -> transform
-            // My inline code above uses transformed vertices. This is WRONG if I want invalid normals?
-            // Wait, if I use transformed vertices to calculate normal, I get the transformed normal directly!
-            // BUT, if scaling is non-uniform, face normal perpendicularity might be preserved?
-            // The original code calculated normal from ORIGINAL vertices, then transformed it with NormalMatrix.
-            // This is safer for non-uniform scaling.
-            // So we must use `node.vertices` (original) for normal calc, then transform.
-
-            var origVerts = node.vertices;
-            var ov0 = origVerts[face.vertidx[0]];
-            var ov1 = origVerts[face.vertidx[1]];
-            var ov2 = origVerts[face.vertidx[2]];
-
-            var ax = ov1[0] - ov0[0], ay = ov1[1] - ov0[1], az = ov1[2] - ov0[2];
-            var bx = ov2[0] - ov0[0], by = ov2[1] - ov0[1], bz = ov2[2] - ov0[2];
-
-            var rx = ay * bz - az * by;
-            var ry = az * bx - ax * bz;
-            var rz = ax * by - ay * bx;
-
-            // Normalize raw normal
-            var len = Math.sqrt(rx * rx + ry * ry + rz * rz);
-            if (len > 0) { len = 1.0 / len; rx *= len; ry *= len; rz *= len; }
-
-            // Transform normal with Normal Matrix (Rotation)
-            var nx = n0 * rx + n4 * ry + n8 * rz;
-            var ny = n1 * rx + n5 * ry + n9 * rz;
-            var nz = n2 * rx + n6 * ry + n10 * rz;
-
-            // Add vertices to mesh
+            // Process 3 Vertices
             for (var vi = 0; vi < 3; vi++) {
-                var vertIdx = face.vertidx[vi] * 3;
-                var tvertIdx = face.tvertidx[vi];
+                var vIdx = face.vertidx[vi];
+                var tIdx = face.tvertidx[vi];
+                
+                var vx = vertices[vIdx][0];
+                var vy = vertices[vIdx][1];
+                var vz = vertices[vIdx][2];
 
                 // Position (Transformed)
-                data[offset++] = vert[vertIdx];
-                data[offset++] = vert[vertIdx + 1];
-                data[offset++] = vert[vertIdx + 2];
+                output[o++] = m0 * vx + m4 * vy + m8 * vz + m12;
+                output[o++] = m1 * vx + m5 * vy + m9 * vz + m13;
+                output[o++] = m2 * vx + m6 * vy + m10 * vz + m14;
 
                 // Normal (Transformed)
-                data[offset++] = nx;
-                data[offset++] = ny;
-                data[offset++] = nz;
+                output[o++] = tnx;
+                output[o++] = tny;
+                output[o++] = tnz;
 
                 // UV
-                data[offset++] = tvertices[tvertIdx * 6 + 4];
-                data[offset++] = tvertices[tvertIdx * 6 + 5];
+                output[o++] = tvertices[tIdx * 6 + 4];
+                output[o++] = tvertices[tIdx * 6 + 5];
 
                 // Alpha
-                data[offset++] = alpha;
+                output[o++] = alpha;
             }
-            mesh.offset = offset;
         }
-
-        return meshes;
     }
 
-    /**
+/**
      * Update model buffer at frame
      */
-    function updateModelBuffer(gl, model, frame) {
-        var totalSize = 0;
-        var meshInfos = [];
-
-        // Cache node map and indices
-        if (!model._nodeMap) {
-            model._nodeMap = {};
-            for (var n = 0; n < model.nodes.length; n++) {
-                model.nodes[n]._index = n; // Cache index
-                model.nodes[n]._cache = { // Cache computation matrices
-                    local: mat4.create(),
-                    node: mat4.create(),
-                    final: mat4.create()
-                };
-                model._nodeMap[model.nodes[n].name] = model.nodes[n];
-            }
+    function updateModelBuffer(gl, model, frame, force) {
+        // Optimization: Caching
+        // Note: RSM animations are based on ms (ticks), so frame is an integer ms.
+        // We floor it to reduce updates if render is running faster than 1ms (unlikely but safe)
+        var iFrame = Math.floor(frame);
+        
+        if (!force && model.lastFrame === iFrame && !model.staticModel) {
+            return;
         }
+
+        // Static Model optimization: If already rendered once, never update again
+        if (model.staticModel && model.lastFrame !== -1 && !force) {
+            return;
+        }
+
+        model.lastFrame = iFrame;
+
+        var box = model.box;
         var nodeMap = model._nodeMap;
-
-        // Cache global matrices array
-        if (!model._globalMatrices) {
-            model._globalMatrices = new Array(model.nodes.length);
-            for (var i = 0; i < model.nodes.length; i++) {
-                model._globalMatrices[i] = mat4.create();
-            }
-        }
         var globalMatrices = model._globalMatrices;
-        var box = model.box;
-        var box = model.box;
 
+        // 1. Update Matrix Hierarchy
         for (var n = 0; n < model.nodes.length; n++) {
             var node = model.nodes[n];
-            var globalMatrix = globalMatrices[n]; // Use cached slot
+            var globalMatrix = globalMatrices[n];
 
-            // 1. Inherit from Parent
+            // Parent Transform
             if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
-                var parentNode = nodeMap[node.parentname];
-                var parentIdx = parentNode._index;
-
-                if (parentIdx !== undefined && globalMatrices[parentIdx]) {
-                    mat4.copy(globalMatrix, globalMatrices[parentIdx]);
-                } else {
-                    mat4.identity(globalMatrix);
-                }
+                var parentIdx = nodeMap[node.parentname]._index;
+                mat4.copy(globalMatrix, globalMatrices[parentIdx]);
             } else {
                 mat4.identity(globalMatrix);
             }
 
-            // 2. Apply Local Animation (Reuse temp matrix from node cache)
-            // We can apply directly to globalMatrix to save temp vars, 
-            // BUT we need to match the logic: Global = Parent * Translate * Rotate * Scale
-            // So we can chain operations on globalMatrix directly!
-
-            // Translate Position (Animation or Static)
-            var animPos = getPositionAtFrame(node.posKeyframes, frame);
-            if (animPos) {
-                mat4.translate(globalMatrix, globalMatrix, animPos);
+            // Local Transform
+            if (node._isStatic) {
+                // Optimization: Use precalculated local matrix
+                mat4.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
             } else {
-                mat4.translate(globalMatrix, globalMatrix, node.pos);
+                // Dynamic Calculation
+                // Translate
+                var animPos = getPositionAtFrame(node.posKeyframes, frame);
+                if (animPos) mat4.translate(globalMatrix, globalMatrix, animPos);
+                else mat4.translate(globalMatrix, globalMatrix, node.pos);
+
+                // Rotate
+                var animRot = getRotationAtFrame(node.rotKeyframes, frame);
+                if (animRot) mat4.rotateQuat(globalMatrix, globalMatrix, animRot);
+                else mat4.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
+
+                // Scale
+                var animScale = getScaleAtFrame(node.scaleKeyFrames, frame);
+                if (animScale) mat4.scale(globalMatrix, globalMatrix, animScale);
+                else mat4.scale(globalMatrix, globalMatrix, node.scale);
             }
 
-            // Rotate (Animation or Static)
-            var animRot = getRotationAtFrame(node.rotKeyframes, frame);
-            if (animRot) {
-                mat4.rotateQuat(globalMatrix, globalMatrix, animRot);
-            } else if (node.rotKeyframes && node.rotKeyframes.length > 0) {
-                mat4.rotateQuat(globalMatrix, globalMatrix, node.rotKeyframes[0].q);
-            } else {
-                mat4.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
-            }
-
-            // Scale (Animation or Static)
-            var animScale = getScaleAtFrame(node.scaleKeyFrames, frame);
-            if (animScale) {
-                mat4.scale(globalMatrix, globalMatrix, animScale);
-            } else {
-                mat4.scale(globalMatrix, globalMatrix, node.scale);
-            }
-
-            // globalMatrix is now the "base" matrix for children.
-            // It is already stored in globalMatrices[n] because it IS globalMatrices[n].
-
-            // 3. Calculate FINAL matrix for mesh
-            // Use cached final matrix
+            // Final Node Matrix (Center correction + Offset)
             var finalNodeMatrix = node._cache.final;
             mat4.identity(finalNodeMatrix);
-
-            // Translate to center/origin first (inverse of global center)
             mat4.translate(finalNodeMatrix, finalNodeMatrix, [-box.center[0], -box.max[1], -box.center[2]]);
-
-            // Apply accumulated global transform
-            mat4.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
+            mat4.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix); // Apply hierarchy
 
             if (!node.is_only) {
                 mat4.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
             }
             mat4.multiply(finalNodeMatrix, finalNodeMatrix, mat3.toMat4(node.mat3));
-
+            
+            // Cache for step 2
             node.finalMatrix = finalNodeMatrix;
         }
 
-        // Compile all nodes at current frame for all instances
-        var allMeshes = [];
-        for (var ni = 0; ni < model.nodes.length; ni++) {
-            for (var ii = 0; ii < model.instances.length; ii++) {
+        // 2. Pre-calculate Instance Matrices
+        // We do this to avoid recalculating Node * Instance for every texture group
+        for (var n = 0; n < model.nodes.length; n++) {
+            var node = model.nodes[n];
+            for (var i = 0; i < model.instances.length; i++) {
+                // Instance Final = InstanceWorld * NodeFinal
+                mat4.multiply(node._cache.instances[i], model.instances[i], node.finalMatrix);
+            }
+        }
 
-                // Calculate Final Instance Matrix: Instance * NodeFinal
-                if (!model.nodes[ni]._cache.instances) model.nodes[ni]._cache.instances = [];
-                if (!model.nodes[ni]._cache.instances[ii]) model.nodes[ni]._cache.instances[ii] = mat4.create();
-                var finalInstanceMatrix = model.nodes[ni]._cache.instances[ii];
+        // 3. Write Geometry to Buffer (Using WritePlan)
+        // This ensures the buffer is ordered by Texture, maximizing batching
+        var buffer = model._gpuBuffer;
+        var writePlans = model.writePlans;
 
-                mat4.multiply(finalInstanceMatrix, model.instances[ii], model.nodes[ni].finalMatrix);
+        for (var tid in writePlans) {
+            var group = writePlans[tid];
+            var plans = group.writePlan;
+            var textureId = parseInt(tid);
 
-                // Compile with mesh cache
-                if (!model._meshCache) model._meshCache = [];
-                if (!model._meshCache[ni]) model._meshCache[ni] = [];
-                var cachedMeshes = model._meshCache[ni][ii]; // Pass null on first run to create
+            for (var p = 0; p < plans.length; p++) {
+                var plan = plans[p];
+                var node = model.nodes[plan.nodeIndex];
+                var finalInstanceMatrix = node._cache.instances[plan.instanceIndex];
 
-                var meshes = compileNodeWithMatrix(
-                    model.nodes[ni],
-                    finalInstanceMatrix, // Pass combined matrix
-                    cachedMeshes, // Reusable buffer
+                transformAndWrite(
+                    node,
+                    finalInstanceMatrix,
+                    textureId,
+                    plan.targetOffset,
+                    buffer,
                     model.alpha
                 );
-
-                if (!cachedMeshes) {
-                    model._meshCache[ni][ii] = meshes; // Store new cache
-                }
-
-                allMeshes.push(meshes);
             }
         }
 
-        // Calculate total buffer size and create mesh infos
-        // Optimization: assume totalSize doesn't change for animated models (vertex count constant)
-        var textureData = {};
-        var currentTotalSize = 0;
-
-        // Group by texture
-        for (var mi = 0; mi < allMeshes.length; mi++) {
-            var meshes = allMeshes[mi];
-            for (var texId in meshes) {
-                if (!textureData[texId]) {
-                    textureData[texId] = [];
-                }
-                textureData[texId].push(meshes[texId].data);
-                currentTotalSize += meshes[texId].data.length;
-            }
-        }
-
-        // Allocate buffer once
-        if (!model._gpuBuffer || model._gpuBuffer.length !== currentTotalSize) {
-            model._gpuBuffer = new Float32Array(currentTotalSize);
-        }
-        var buffer = model._gpuBuffer;
-        var offset = 0;
-
-        for (var texId in textureData) {
-            var arrays = textureData[texId];
-            var vertOffset = offset / 9;
-            var vertCount = 0;
-
-            for (var ai = 0; ai < arrays.length; ai++) {
-                buffer.set(arrays[ai], offset);
-                offset += arrays[ai].length;
-                vertCount += arrays[ai].length / 9;
-            }
-
-            meshInfos.push({
-                textureIdx: parseInt(texId),
-                vertOffset: vertOffset,
-                vertCount: vertCount
-            });
-        }
-
-        // Update GPU buffer
-        if (!model.buffer) {
-            model.buffer = gl.createBuffer();
-        }
-
+        // 4. Upload to GPU
+        // Use bufferSubData to avoid reallocation
         gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
-        // gl.flush(); // Removed flush
-
-        model.meshInfos = meshInfos;
-        model.totalVerts = currentTotalSize / 9;
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
     }
 
     /**
@@ -763,6 +734,7 @@ define(function (require) {
         gl.uniform1f(uniform.uLightOpacity, light.opacity);
         gl.uniform3fv(uniform.uLightAmbient, light.ambient);
         gl.uniform3fv(uniform.uLightDiffuse, light.diffuse);
+	gl.uniform3fv(uniform.uLightEnv, light.env);
 
         // Fog settings
         gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -804,8 +776,8 @@ define(function (require) {
             // Tick is in ms, animLen is in ms.
             var frame = tick % animLen;
 
-            // Always update buffer for now to debug
-            updateModelBuffer(gl, model, frame);
+            // Update buffer (Internal logic handles caching and static checks)
+            updateModelBuffer(gl, model, frame, false);
 
             if (!model.buffer || model.meshInfos.length === 0) {
                 continue;
