@@ -222,11 +222,31 @@ define( function( require )
 				if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) { // falcon: action.walk = gliding
 					action = this.ACTION.IDLE;
 				}
-				if (this.objecttype === this.constructor.TYPE_WUG && isAttacking) {
-					action = this.ACTION.ATTACK;
-				}
 
-				if (this.action !== action) {
+				if(this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
+					this.setAction({
+						action: this.ACTION.WALK,
+						frame:  0,
+						repeat: true,
+						play:   true,
+						next: {
+							delay:  Renderer.tick + 200,
+							action: this.ACTION.ATTACK,
+							frame:  0,
+							repeat: false,
+							play:   true,
+							next: {
+								delay:  Renderer.tick + 432,
+								action: this.ACTION.IDLE,
+								frame:  0,
+								repeat: true,
+								play:   true,
+								next:  false
+							}
+						}
+					});
+				}
+				else if (this.action !== action) {
 					this.setAction({
 						action: action,
 						frame:  0,
