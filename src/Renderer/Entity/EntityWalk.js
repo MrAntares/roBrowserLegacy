@@ -532,19 +532,18 @@ define( function( require )
 			if(this.falcon.walk.lastWalkTick && this.falcon.walk.lastWalkTick + 1000 > Renderer.tick)
 				return;
 
-			let range = 1;
+			let range = 2;
 			let distance = Math.floor(this.distance(this, this.falcon));
 			if(distance < range) return;
 
-			var falconBaseSpeed = this.walk.speed - 10;
-			this.falcon.walk.speed = falconBaseSpeed + (distance > 5 ? -5 : 0);
-			this.falcon.walk.lastWalkTick = Renderer.tick;
+			var falconBaseSpeed = this.walk.speed;
+			this.falcon.walk.speed = falconBaseSpeed + (distance > 9 ? -10 : 10);
 
 			var targetChanged = (this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY);
 			if(targetChanged) {
 				this.falcon._followTargetX = ownerCellX;
 				this.falcon._followTargetY = ownerCellY;
-
+				this.falcon.walk.lastWalkTick = Renderer.tick;
 				this.falcon.walkToNonWalkableGround(
 					this.falcon.position[0],
 					this.falcon.position[1],
@@ -567,13 +566,12 @@ define( function( require )
 			if(distance < range) return;
 
 			this.wug.walk.speed = this.walk.speed - 10;
-			this.wug.walk.lastWalkTick = Renderer.tick;
 
 			var targetChanged = (this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY);
 			if(targetChanged) {
 				this.wug._followTargetX = ownerCellX;
 				this.wug._followTargetY = ownerCellY;
-
+				this.wug.walk.lastWalkTick = Renderer.tick;
 				this.wug.walkToNonWalkableGround(
 					this.wug.position[0],
 					this.wug.position[1],
