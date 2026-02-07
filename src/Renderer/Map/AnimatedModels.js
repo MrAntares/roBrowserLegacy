@@ -20,7 +20,16 @@ define(function (require) {
     var mat3 = glMatrix.mat3;
     var mat4 = glMatrix.mat4;
     var vec3 = glMatrix.vec3;
-    
+    var quat = glMatrix.quat;
+
+    /**
+     * Scratchpads to evade GC (Garbage Collector)
+     */
+    var _tempVec3 = vec3.create();
+    var _tempVec3Scale = vec3.create();
+    var _tempQuat = quat.create();
+    var _tempMat4 = mat4.create();
+
     /**
      * Shader program
      */
@@ -76,6 +85,9 @@ define(function (require) {
     function free(gl) {
         for (var i = 0; i < _animatedModels.length; i++) {
             var model = _animatedModels[i];
+            if (model.vao) {
+                gl.deleteVertexArray(model.vao);
+            }
             if (model.buffer) {
                 gl.deleteBuffer(model.buffer);
             }
@@ -87,11 +99,12 @@ define(function (require) {
         }
         _animatedModels = [];
     }
-	function isNodeStatic(node) {
-		return (!node.rotKeyframes || node.rotKeyframes.length === 0) &&
-		(!node.posKeyframes || node.posKeyframes.length === 0) &&
-		(!node.scaleKeyFrames || node.scaleKeyFrames.length === 0);
-	}
+
+    function isNodeStatic(node) {
+        return (!node.rotKeyframes || node.rotKeyframes.length === 0) &&
+            (!node.posKeyframes || node.posKeyframes.length === 0) &&
+            (!node.scaleKeyFrames || node.scaleKeyFrames.length === 0);
+    }
 
     /**
      * Add an animated model
@@ -99,6 +112,10 @@ define(function (require) {
     function add(gl, modelData) {
         if (!modelData || !modelData.nodes || modelData.nodes.length === 0) {
             return;
+        }
+
+        if (!_program) {
+            init(gl);
         }
 
         // Deserialize instances
@@ -160,15 +177,32 @@ define(function (require) {
                 node._cache.instances[k] = mat4.create();
             }
 
-            // Calculate max animation length
             if (node.rotKeyframes) {
-                for (var rk = 0; rk < node.rotKeyframes.length; rk++) totalAnimationLength = Math.max(totalAnimationLength, node.rotKeyframes[rk].frame || 0);
+                for (var rk = 0; rk < node.rotKeyframes.length; rk++){ 
+                    var kf = node.rotKeyframes[rk];
+                    totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
+
+                    if (kf.q) {
+                        kf._quat = quat.fromValues(kf.q[0], kf.q[1], kf.q[2], kf.q[3]);
+                    }
+                }
             }
+
             if (node.posKeyframes) {
-                for (var pk = 0; pk < node.posKeyframes.length; pk++) totalAnimationLength = Math.max(totalAnimationLength, node.posKeyframes[pk].frame || 0);
+                for (var pk = 0; pk < node.posKeyframes.length; pk++){ 
+                    var kf = node.posKeyframes[pk];
+                    totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
+                    kf._vec = vec3.fromValues(kf.px, kf.py, kf.pz);
+                }
             }
+
             if (node.scaleKeyFrames) {
-                for (var sk = 0; sk < node.scaleKeyFrames.length; sk++) totalAnimationLength = Math.max(totalAnimationLength, node.scaleKeyFrames[sk].Frame || 0);
+                for (var sk = 0; sk < node.scaleKeyFrames.length; sk++){ 
+                    var kf = node.scaleKeyFrames[sk];
+
+                    totalAnimationLength = Math.max(totalAnimationLength, kf.Frame || 0);
+                    kf._vec = vec3.fromValues(kf.Scale[0], kf.Scale[1], kf.Scale[2]);
+                }
             }
 
             nodes.push(node);
@@ -242,7 +276,7 @@ define(function (require) {
             }
         }
 
-var currentOffset = 0;
+        var currentOffset = 0;
         var meshInfos = [];
 
         for (var tid in textureGroups) {
@@ -312,6 +346,28 @@ var currentOffset = 0;
             loadTexture(gl, animModel, texturePath, t);
         }
 
+        animModel.vao = gl.createVertexArray();
+        gl.bindVertexArray(animModel.vao);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
+
+        var attribute = _program.attribute;
+        var stride = 36; // 9 floats * 4 bytes
+
+        gl.enableVertexAttribArray(attribute.aPosition);
+        gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, stride, 0);
+
+        gl.enableVertexAttribArray(attribute.aNormal);
+        gl.vertexAttribPointer(attribute.aNormal, 3, gl.FLOAT, false, stride, 12);
+
+        gl.enableVertexAttribArray(attribute.aTextureCoord);
+        gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, stride, 24);
+
+        gl.enableVertexAttribArray(attribute.aAlpha);
+        gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, stride, 32);
+
+        gl.bindVertexArray(null);
+
         _animatedModels.push(animModel);
         
         // Force first update to populate buffer
@@ -365,21 +421,11 @@ var currentOffset = 0;
         return result;
     }
 
-    /**
-     * Get rotation at frame
-     */
-    function getRotationAtFrame(keyframes, frame) {
-        if (!keyframes || keyframes.length === 0) {
-            return null;
-        }
+    function getPositionAtFrame(keyframes, frame, out) {
+        if (!keyframes || keyframes.length === 0) return null;
+        if (keyframes.length === 1) return keyframes[0]._vec;
 
-        if (keyframes.length === 1) {
-            return keyframes[0].q;
-        }
-
-        var prev = keyframes[0];
-        var next = null;
-
+        var prev = keyframes[0], next = null;
         for (var i = 0; i < keyframes.length; i++) {
             if (keyframes[i].frame > frame) {
                 next = keyframes[i];
@@ -388,34 +434,16 @@ var currentOffset = 0;
             prev = keyframes[i];
         }
 
-        if (!next) {
-            return prev.q;
-        }
-
-        var frameDiff = next.frame - prev.frame;
-        if (frameDiff === 0) {
-            return prev.q;
-        }
-
-        var t = (frame - prev.frame) / frameDiff;
-        return slerpQuat(prev.q, next.q, t);
+        if (!next) return prev._vec;
+        var t = (frame - prev.frame) / (next.frame - prev.frame);
+        return vec3.lerp(out, prev._vec, next._vec, t);
     }
 
-    /**
-     * Get position at frame
-     */
-    function getPositionAtFrame(keyframes, frame) {
-        if (!keyframes || keyframes.length === 0) {
-            return null;
-        }
+    function getRotationAtFrame(keyframes, frame, out) {
+        if (!keyframes || keyframes.length === 0) return null;
+        if (keyframes.length === 1) return keyframes[0]._quat;
 
-        if (keyframes.length === 1) {
-            return [keyframes[0].px, keyframes[0].py, keyframes[0].pz];
-        }
-
-        var prev = keyframes[0];
-        var next = null;
-
+        var prev = keyframes[0], next = null;
         for (var i = 0; i < keyframes.length; i++) {
             if (keyframes[i].frame > frame) {
                 next = keyframes[i];
@@ -424,62 +452,34 @@ var currentOffset = 0;
             prev = keyframes[i];
         }
 
-        if (!next) {
-            return [prev.px, prev.py, prev.pz];
-        }
-
-        var frameDiff = next.frame - prev.frame;
-        if (frameDiff === 0) {
-            return [prev.px, prev.py, prev.pz];
-        }
-
-        var t = (frame - prev.frame) / frameDiff;
-        return [
-            prev.px + (next.px - prev.px) * t,
-            prev.py + (next.py - prev.py) * t,
-            prev.pz + (next.pz - prev.pz) * t
-        ];
+        if (!next) return prev._quat;
+        var t = (frame - prev.frame) / (next.frame - prev.frame);
+        return quat.slerp(out, prev._quat, next._quat, t);
     }
 
-    /**
-     * Get scale at frame
-     */
-    function getScaleAtFrame(keyframes, frame) {
-        if (!keyframes || keyframes.length === 0) {
-            return null;
-        }
+    function getScaleAtFrame(keyframes, frame, out) {
+        if (!keyframes || keyframes.length === 0) return null;
+        if (keyframes.length === 1) return keyframes[0]._vec;
 
-        if (keyframes.length === 1) {
-            return keyframes[0].Scale;
-        }
-
-        var prev = keyframes[0];
-        var next = null;
-
+        var prev = keyframes[0], next = null;
         for (var i = 0; i < keyframes.length; i++) {
-            if (keyframes[i].Frame > frame) {
+            var f = (typeof keyframes[i].Frame !== 'undefined') ? keyframes[i].Frame : keyframes[i].frame;
+            if (f > frame) {
                 next = keyframes[i];
                 break;
             }
             prev = keyframes[i];
         }
 
-        if (!next) {
-            return prev.Scale;
-        }
-
-        var frameDiff = next.Frame - prev.Frame;
-        if (frameDiff === 0) {
-            return prev.Scale;
-        }
-
-        var t = (frame - prev.Frame) / frameDiff;
-        return [
-            prev.Scale[0] + (next.Scale[0] - prev.Scale[0]) * t,
-            prev.Scale[1] + (next.Scale[1] - prev.Scale[1]) * t,
-            prev.Scale[2] + (next.Scale[2] - prev.Scale[2]) * t
-        ];
+        if (!next) return prev._vec;
+        
+        var fPrev = (typeof prev.Frame !== 'undefined') ? prev.Frame : prev.frame;
+        var fNext = (typeof next.Frame !== 'undefined') ? next.Frame : next.frame;
+        
+        var t = (frame - fPrev) / (fNext - fPrev);
+        return vec3.lerp(out, prev._vec, next._vec, t);
     }
+
 
     /**
      * Calculate face normal
@@ -630,21 +630,19 @@ var currentOffset = 0;
                 // Optimization: Use precalculated local matrix
                 mat4.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
             } else {
-                // Dynamic Calculation
-                // Translate
-                var animPos = getPositionAtFrame(node.posKeyframes, frame);
-                if (animPos) mat4.translate(globalMatrix, globalMatrix, animPos);
-                else mat4.translate(globalMatrix, globalMatrix, node.pos);
+                var animPos = getPositionAtFrame(node.posKeyframes, frame, _tempVec3);
+                mat4.translate(globalMatrix, globalMatrix, animPos || node.pos);
 
-                // Rotate
-                var animRot = getRotationAtFrame(node.rotKeyframes, frame);
-                if (animRot) mat4.rotateQuat(globalMatrix, globalMatrix, animRot);
-                else mat4.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
+                var animRot = getRotationAtFrame(node.rotKeyframes, frame, _tempQuat);
+                if (animRot) {
+                    mat4.fromQuat(_tempMat4, animRot);
+                    mat4.multiply(globalMatrix, globalMatrix, _tempMat4);
+                } else {
+                    mat4.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
+                }
 
-                // Scale
-                var animScale = getScaleAtFrame(node.scaleKeyFrames, frame);
-                if (animScale) mat4.scale(globalMatrix, globalMatrix, animScale);
-                else mat4.scale(globalMatrix, globalMatrix, node.scale);
+                var animScale = getScaleAtFrame(node.scaleKeyFrames, frame, _tempVec3Scale);
+                mat4.scale(globalMatrix, globalMatrix, animScale || node.scale);
             }
 
             // Final Node Matrix (Center correction + Offset)
@@ -739,12 +737,6 @@ var currentOffset = 0;
         gl.uniform1f(uniform.uFogFar, fog.far);
         gl.uniform3fv(uniform.uFogColor, fog.color);
 
-        // Enable attributes
-        gl.enableVertexAttribArray(attribute.aPosition);
-        gl.enableVertexAttribArray(attribute.aNormal);
-        gl.enableVertexAttribArray(attribute.aTextureCoord);
-        gl.enableVertexAttribArray(attribute.aAlpha);
-
         // Textures
         gl.activeTexture(gl.TEXTURE0);
         gl.uniform1i(uniform.uDiffuse, 0);
@@ -754,29 +746,14 @@ var currentOffset = 0;
         // Render each animated model
         for (var m = 0; m < _animatedModels.length; m++) {
             var model = _animatedModels[m];
+            var frame = tick % (model.animLen || 1);
 
-            // Calculate current animation frame
-            var animLen = model.animLen || 1;
-            // RSM animations use milliseconds directly, not frames.
-            // Tick is in ms, animLen is in ms.
-            var frame = tick % animLen;
-
-            // Update buffer (Internal logic handles caching and static checks)
             updateModelBuffer(gl, model, frame, false);
 
-            if (!model.buffer || model.meshInfos.length === 0) {
-                continue;
-            }
+            if (!model.buffer || model.meshInfos.length === 0) continue;
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer);
+            gl.bindVertexArray(model.vao);
 
-            // Set attribute pointers (stride: 9 floats = 36 bytes)
-            gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 36, 0);
-            gl.vertexAttribPointer(attribute.aNormal, 3, gl.FLOAT, false, 36, 12);
-            gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 36, 24);
-            gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 36, 32);
-
-            // Draw each texture group
             for (var i = 0; i < model.meshInfos.length; i++) {
                 var info = model.meshInfos[i];
                 var texture = model.textureObjects[info.textureIdx];
@@ -789,10 +766,7 @@ var currentOffset = 0;
         }
 
         // Disable attributes
-        gl.disableVertexAttribArray(attribute.aPosition);
-        gl.disableVertexAttribArray(attribute.aNormal);
-        gl.disableVertexAttribArray(attribute.aTextureCoord);
-        gl.disableVertexAttribArray(attribute.aAlpha);
+        gl.bindVertexArray(null);
     }
 
     /**
