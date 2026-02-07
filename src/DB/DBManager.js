@@ -2693,7 +2693,7 @@ define(function (require) {
 					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context  
-					ctx.AddSkillInfo = (skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale) => {
+					ctx.AddSkillInfo = (skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale, _NeedSkillListJson) => {
 						// Convert to format expected by SkillInfo.js  
 						SkillInfo[skillId] = {
 							Name: userStringDecoder.decode(resName),
@@ -2704,9 +2704,52 @@ define(function (require) {
 							AttackRange: attackRange,
 							SkillScale: skillScale
 						};
+
+						// Add _NeedSkillList
+						if (_NeedSkillListJson) {
+						  try {
+						    const jsonString =
+						      _NeedSkillListJson instanceof Uint8Array
+						        ? userStringDecoder.decode(_NeedSkillListJson)
+						        : _NeedSkillListJson;
+
+						    const arr = JSON.parse(jsonString);
+						    if (Array.isArray(arr) && arr.length) {
+						      SkillInfo[skillId]._NeedSkillList = arr;
+						    }
+						  } catch (_) {}
+						}
+
 						return 1;
 					};
 					ctx.SKID = SKID;
+
+					if (!ctx.__HAS_CONVERT_TO_JSON__) {
+					  await lua.doString(`
+					    function ConvertToJson(luaTable)
+						  if type(luaTable) ~= 'table' then return nil end
+
+						  local t = {}
+
+						  for _, v in ipairs(luaTable) do
+						    if type(v) == 'table' then
+						      local id = tonumber(v[1])
+						      local lv = tonumber(v[2])
+
+						      if id and lv then
+						        t[#t + 1] = "[" .. id .. "," .. lv .. "]"
+						      end
+						    end
+						  end
+
+						  if #t == 0 then return nil end
+						  return "[" .. table.concat(t, ",") .. "]"
+						end
+
+					  `);
+					  ctx.__HAS_CONVERT_TO_JSON__ = true;
+					}
+
 					await lua.doString(`
 						if SKID then
 							__SKID_ORIGINAL = SKID 
@@ -2727,7 +2770,7 @@ define(function (require) {
 					await lua.doFile('skillinfolist.lub');
 
 					// create and execute our own main function  
-					lua.doStringSync(`  
+					await lua.doString(`  
 					function main_skillInfoList()  
 						if not SKILL_INFO_LIST then  
 							return false, "Error: SKILL_INFO_LIST is nil or not a table"  
@@ -2741,8 +2784,9 @@ define(function (require) {
 							local bSeperateLv = skillData.bSeperateLv or false  
 							local attackRange = skillData.AttackRange or {}  
 							local skillScale = skillData.SkillScale or {}  
-					
-							result, msg = AddSkillInfo(skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale)  
+							local _NeedSkillListJson = ConvertToJson(skillData._NeedSkillList)
+
+							result, msg = AddSkillInfo(skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale, _NeedSkillListJson)  
 							if not result then  
 								return false, msg  
 							end  
