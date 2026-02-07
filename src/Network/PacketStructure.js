@@ -10605,15 +10605,17 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.AID = fp.readULong();
 		this.UniqueID = fp.readULong();
 		this.limitZeny = fp.readLong();
+
+		let itemSize = (PACKETVER.value >= 20181121 ? 11 : 9);
 		this.itemList = (function() {
-			var i, count = (end - fp.tell()) / 9 | 0,
+			var i, count = (end - fp.tell()) / itemSize | 0,
 				out = new Array(count);
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
 				out[i].price = fp.readLong();
 				out[i].count = fp.readShort();
 				out[i].type = fp.readUChar();
-				out[i].ITID = fp.readUShort();
+				out[i].ITID = (PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort());
 			}
 			return out;
 		})();
