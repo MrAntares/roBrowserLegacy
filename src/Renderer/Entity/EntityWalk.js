@@ -222,11 +222,31 @@ define( function( require )
 				if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) { // falcon: action.walk = gliding
 					action = this.ACTION.IDLE;
 				}
-				if (this.objecttype === this.constructor.TYPE_WUG && isAttacking) {
-					action = this.ACTION.ATTACK;
-				}
 
-				if (this.action !== action) {
+				if(this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
+					this.setAction({
+						action: this.ACTION.WALK,
+						frame:  0,
+						repeat: true,
+						play:   true,
+						next: {
+							delay:  Renderer.tick + 200,
+							action: this.ACTION.ATTACK,
+							frame:  0,
+							repeat: false,
+							play:   true,
+							next: {
+								delay:  Renderer.tick + 432,
+								action: this.ACTION.IDLE,
+								frame:  0,
+								repeat: true,
+								play:   true,
+								next:  false
+							}
+						}
+					});
+				}
+				else if (this.action !== action) {
 					this.setAction({
 						action: action,
 						frame:  0,
@@ -522,28 +542,25 @@ define( function( require )
 		}
 	}
 
+	// Companions walk is passively, don't need complexity or lower walk delay
 	function entitiesWalkProcess() {
-		if(this.walk.lastWalkTick + 100 > Renderer.tick) {
-			return;
-		}
+		// Use owner's actual current position
+		var ownerCellX = this.position[0];
+		var ownerCellY = this.position[1];
 
-		// Use owner's actual current position for smooth following
-		var ownerCellX = Math.round(this.position[0]);
-		var ownerCellY = Math.round(this.position[1]);
-
-		if(this.falcon && !this.falcon.isAttacking) {
-			let range = 1;
+		if(this.falcon && !this.falcon.isAttacking && (!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1000 < Renderer.tick)) {
+			let range = 2;
 			let distance = Math.floor(this.distance(this, this.falcon));
+			if(distance < range) return;
 
-			var falconBaseSpeed = this.walk.speed - 10;
-			this.falcon.walk.speed = Math.max(falconBaseSpeed - Math.min(distance * 2, 30), 1);
+			var falconBaseSpeed = this.walk.speed;
+			this.falcon.walk.speed = falconBaseSpeed + (distance > 9 ? -10 : 10);
 
 			var targetChanged = (this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY);
-			var repathDue = targetChanged || this.falcon.walk.total == 0 || this.falcon.walk.total - this.falcon.walk.index <= 2;
-			if(distance >= range && (repathDue || (Renderer.tick - (this.falcon._followRepathTick || 0) > 400))) {
+			if(targetChanged) {
 				this.falcon._followTargetX = ownerCellX;
 				this.falcon._followTargetY = ownerCellY;
-				this.falcon._followRepathTick = Renderer.tick;
+				this.falcon.walk.lastWalkTick = Renderer.tick;
 				this.falcon.walkToNonWalkableGround(
 					this.falcon.position[0],
 					this.falcon.position[1],
@@ -551,24 +568,24 @@ define( function( require )
 					ownerCellY,
 					range - 1,
 					false,
-					false
+					false,
+					Renderer.tick
 				);
 			}
 		}
 
-		if(this.wug && !this.wug.isAttacking) {
-			let range = 3;
+		if(this.wug && !this.wug.isAttacking && (!this.wug.walk.lastWalkTick || this.wug.walk.lastWalkTick + 1000 < Renderer.tick)) {
+			let range = 4;
 			let distance = Math.floor(this.distance(this, this.wug));
+			if(distance < range) return;
 
-			var wugBaseSpeed = this.walk.speed - 10;
-			this.wug.walk.speed = Math.max(wugBaseSpeed - Math.min(distance * 2, 30), 1);
+			this.wug.walk.speed = this.walk.speed - 10;
 
 			var targetChanged = (this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY);
-			var repathDue = targetChanged || this.wug.walk.total == 0 || this.wug.walk.total - this.wug.walk.index <= 2;
-			if(distance >= range && (repathDue || (Renderer.tick - (this.wug._followRepathTick || 0) > 400))) {
+			if(targetChanged) {
 				this.wug._followTargetX = ownerCellX;
 				this.wug._followTargetY = ownerCellY;
-				this.wug._followRepathTick = Renderer.tick;
+				this.wug.walk.lastWalkTick = Renderer.tick;
 				this.wug.walkToNonWalkableGround(
 					this.wug.position[0],
 					this.wug.position[1],
@@ -576,12 +593,11 @@ define( function( require )
 					ownerCellY,
 					range - 1,
 					false,
-					false
+					false,
+					Renderer.tick
 				);
 			}
 		}
-
-		this.walk.lastWalkTick = Renderer.tick;
 	}
 
 	function resetRoute(keepDistance) {
