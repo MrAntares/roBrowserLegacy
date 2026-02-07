@@ -26,7 +26,7 @@ void main(void) {
   
     vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);  
     textureSample.rgb *= clamp(color, 0.0, 1.0);  
-    textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0); // <- uLightEnv  
+    textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);  
     textureSample.a *= vAlpha;  
   
     fragColor = textureSample;  
