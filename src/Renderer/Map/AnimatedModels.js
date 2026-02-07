@@ -594,7 +594,7 @@ define(function (require) {
      * Update model buffer at frame
      */
     function updateModelBuffer(gl, model, frame, force) {
-        var frameDuration = 1000 / (model.fps/ (GraphicsSettings.culling ? 1.14 : 1));
+        var frameDuration = 1000 / (model.fps/1.14);
         var currentAnimFrame = Math.floor(frame / frameDuration);
 
         if (!force && model.lastAnimFrame === currentAnimFrame && !model.staticModel) {
