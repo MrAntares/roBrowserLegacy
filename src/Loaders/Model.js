@@ -19,6 +19,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	var mat3 = glMatrix.mat3;
 	var mat4 = glMatrix.mat4;
 
+	// Cached has animation check
+	var _hasanimation = false;
 
 	/**
 	 * Model class loader
@@ -276,27 +278,21 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		};
 	};
 
-
 	/**
 	 * Check if this model has animation keyframes
 	 *
 	 * @return {boolean}
 	 */
-	RSM.prototype.hasAnimation = function HasAnimation() {
-		// Check animLen
-		if (this.animLen > 0) {
-			// Check if any node has keyframes
-			for (var i = 0; i < this.nodes.length; i++) {
-				var node = this.nodes[i];
-				if (node.rotKeyframes && node.rotKeyframes.length > 0) {
-					return true;
-				}
-				if (node.posKeyframes && node.posKeyframes.length > 0) {
-					return true;
-				}
-				if (node.scaleKeyFrames && node.scaleKeyFrames.length > 0) {
-					return true;
-				}
+	RSM.prototype.hasAnimation = function () {
+		if(this._hasanimation) return true;
+
+		for (var i = 0; i < this.nodes.length; i++) {
+			var node = this.nodes[i];
+			if ((node.rotKeyframes && node.rotKeyframes.length > 0) ||
+				(node.posKeyframes && node.posKeyframes.length > 0) ||
+				(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)) {
+				this._hasanimation = true;
+				return true;
 			}
 		}
 		return false;
@@ -982,24 +978,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		return mesh;
-	};
-
-
-	/**
-	 * Check if this model has animation keyframes
-	 *
-	 * @returns {boolean}
-	 */
-	RSM.prototype.hasAnimation = function () {
-		for (var i = 0; i < this.nodes.length; i++) {
-			var node = this.nodes[i];
-			if ((node.rotKeyframes && node.rotKeyframes.length > 0) ||
-				(node.posKeyframes && node.posKeyframes.length > 0) ||
-				(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)) {
-				return true;
-			}
-		}
-		return false;
 	};
 
 
