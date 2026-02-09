@@ -98,6 +98,7 @@ define(function( require )
 	var Quest     = require('UI/Components/Quest/Quest');
 	var PlayerViewEquip     = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
 	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
+	var CashShopIcon = require('UI/Components/CashShopIcon/CashShopIcon');
 
 	/**
 	 * @var {string mapname}
@@ -317,7 +318,8 @@ define(function( require )
 				MapName.prepare();
 			}
 
-			if(Configs.get('enableCashShop')){
+			if(Configs.get('enableCashShop')) {
+				CashShopIcon.prepare();
 				CashShop.prepare();
 			}
 
@@ -694,8 +696,8 @@ define(function( require )
 
 			Quest.getUI().append();
 
-			if(Configs.get('enableCashShop')){
-				CashShop.append();
+			if(Configs.get('enableCashShop')) {
+				CashShopIcon.append();
 			}
 
 			if(Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
@@ -714,6 +716,12 @@ define(function( require )
 			if (Session.ratesInfo) {
 				Announce.append();
         		Announce.set(Session.ratesInfo, '#FFFF00', true);
+			}
+
+			// Request cash shop items
+			if(PACKETVER.value >= 20130320 && Session.requestCashShop) {
+				Network.sendPacket(new PACKET.CZ.PC_CASH_POINT_ITEMLIST());
+				Session.requestCashShop = false;
 			}
 		};
 
@@ -839,6 +847,7 @@ define(function( require )
 			ShortCut.clean();
 			Quest.getUI().clean();
 			PartyFriends.clean();
+			CashShop.clean();
 			MapRenderer.free();
 			Renderer.stop();
 			onRestart();

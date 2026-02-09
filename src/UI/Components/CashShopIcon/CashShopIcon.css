@@ -1,0 +1,15 @@
+#CashShopIcon {
+	width: 43px;
+	height: 45px;
+	position: absolute;
+	right: 145px;
+	top: 17px;
+}
+
+#CashShopIcon .cashshop-icon {
+	width: 43px;
+	height: 45px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}

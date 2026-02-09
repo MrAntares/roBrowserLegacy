@@ -86,6 +86,8 @@ define(function()
 			isBattleField   : false,
 		},
 
+		requestCashShop: true,
+
 		captchaGetIdOnEntityClick: false,
 		captchaGetIdOnFloorClick: false,
 		captchaGetIdOnFloorRange: 1,

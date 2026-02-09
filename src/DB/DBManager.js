@@ -253,6 +253,11 @@ define(function (require) {
 	var FootPrintEffectInfo = {};
 
 	/**
+	 * @var {Array} CashShopBanner Table
+	 */
+	var CashShopBannerTable = [];
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -411,6 +416,11 @@ define(function (require) {
 			
 			// Town Info
 			loadTownInfoFile('System/Towninfo.lub', null, onLoad());
+
+			// Cash Shop Banner - implemented early 2018
+			if(Configs.get('enableCashShop') && PACKETVER.value >= 20180000) {
+				loadCashShopBanner(DB.LUA_PATH + 'datainfo/tb_cashshop_banner.lub', null, onLoad());
+			}
 		} else {
 			// Item
 			loadTable('data/num2itemdisplaynametable.txt', '#', 2, function (index, key, val) { (ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, " "); }, onLoad());
@@ -537,7 +547,7 @@ define(function (require) {
 				}  
 			`;	
 			document.head.appendChild(style);  
-			document.body.style.fontFamily = 'SCDream, Arial, Helvetica, sans-serif';  
+			document.body.style.fontFamily = 'Arial, Helvetica, sans-serif';  
 			  
 		}, function(error) {  
 			console.warn('[loadFontFromClient] - Failed loading client font:', fontPath, '- Using Arial'); 
@@ -5980,6 +5990,66 @@ define(function (require) {
 	}
 
 	/**
+	 * Load CashShopBanner file
+	 *
+	 * @param {string} filename to load
+	 * @param {function} callback - (Unused)
+	 * @param {function} onEnd to run once the file is loaded
+	 */
+	function loadCashShopBanner(filename, callback, onEnd) {
+		Client.loadFile(filename,
+			async function (file) {
+				try {
+					console.log('Loading file "' + filename + '"...');
+
+					// check if file is ArrayBuffer and convert to Uint8Array if necessary
+					let buffer = (file instanceof ArrayBuffer) ? new Uint8Array(file) : file;
+
+					// get context
+					const ctx = lua.ctx;
+					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+
+					// Define the function that Lua will call
+					// add_cashshop_banner( bitmap_name, url )
+					ctx.add_cashshop_banner = function (bitmap_name, url) {
+						let decoded_bmp = userStringDecoder.decode(bitmap_name);
+						let decoded_url = userStringDecoder.decode(url);
+
+						CashShopBannerTable.push({
+							bmp: decoded_bmp,
+							url: decoded_url
+						});
+						return 1;
+					};
+
+					// mount file
+					lua.mountFile(filename, buffer);
+
+					// execute file to load the table and function definition
+					await lua.doFile(filename);
+
+					// execute the main function: set_cashshop_banner()
+					lua.doStringSync(`
+						if set_cashshop_banner then
+							set_cashshop_banner()
+						end
+					`);
+
+				} catch (error) {
+					console.error('[loadCashShopBanner] Error: ', error);
+				} finally {
+					lua.unmountFile(filename);
+					onEnd(true);
+				}
+			},
+			// onError for Client.loadFile
+			function () {
+				if (onEnd) onEnd(false);
+			}
+		);
+	}
+
+	/**
 	 * Search for NPCs or MOBs in the navigation tables
 	 *
 	 * @param {string} query - The search query
@@ -6505,6 +6575,15 @@ define(function (require) {
 	   */
 	  DB.getHatResource = function getHatResource(id) {
 		return HatEffectInfo[id] || null;
+	  };
+
+	  /**
+	   * Get the CashShopBannerTable
+	   *
+	   * @returns {Array} CashShopBannerTable
+	   */
+	  DB.getCashShopBannerTable = function getCashShopBannerTable() {
+	    return CashShopBannerTable;
 	  };
 
 	/**
