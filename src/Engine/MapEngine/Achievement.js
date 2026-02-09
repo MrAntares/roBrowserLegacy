@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -25,8 +24,7 @@ define(function (require)
 	/**
 	 * Initialize
 	 */
-	return function MainEngine()
-	{
+	return function MainEngine() {
 		Network.hookPacket(PACKET.ZC.ALL_ACH_LIST, onAllAchievementList);
 		Network.hookPacket(PACKET.ZC.ACH_UPDATE, onAchievementUpdate);
 		Network.hookPacket(PACKET.ZC.REQ_ACH_REWARD_ACK, onRequestAchievementRewardACK);

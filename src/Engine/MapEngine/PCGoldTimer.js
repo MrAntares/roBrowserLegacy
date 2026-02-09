@@ -6,8 +6,7 @@
  * @author Alisonrag
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -32,8 +31,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.GOLDPCCAFE_POINT
 	 */
-	function onPCGoldTimerPoint(pkt)
-	{
+	function onPCGoldTimerPoint(pkt) {
 		PCGoldTimer.setData(pkt);
 		PCGoldTimer.append();
 	}
@@ -41,8 +39,7 @@ define(function (require)
 	/**
 	 * Initialize
 	 */
-	return function MainEngine()
-	{
+	return function MainEngine() {
 		Network.hookPacket(PACKET.ZC.GOLDPCCAFE_POINT, onPCGoldTimerPoint);
 	};
 });

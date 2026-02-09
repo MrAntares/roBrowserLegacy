@@ -6,8 +6,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var UIManager = require('UI/UIManager');
@@ -47,12 +46,10 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	PvPCount.init = function init()
-	{
+	PvPCount.init = function init() {
 		Client.loadFiles(
 			['data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/rankfont.act', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/rankfont.spr'],
-			function (rAct, rSpr)
-			{
+			function (rAct, rSpr) {
 				_rankfontAct = rAct;
 				_rankfontSpr = rSpr;
 			}
@@ -60,7 +57,9 @@ define(function (require)
 
 		_rankCanvas = PvPCount.ui.find('.pvp-rank-canvas')[0];
 
-		if (!_rankCanvas) {return;}
+		if (!_rankCanvas) {
+			return;
+		}
 
 		_rankCanvas.width = RANK_W;
 		_rankCanvas.height = RANK_H;
@@ -76,8 +75,7 @@ define(function (require)
 	/**
 	 * Remove UI
 	 */
-	PvPCount.onRemove = function onRemove()
-	{
+	PvPCount.onRemove = function onRemove() {
 		ranking = 0;
 		total = 0;
 		clearRank();
@@ -87,15 +85,15 @@ define(function (require)
 	 * Set data
 	 * @param {Object} data
 	 */
-	PvPCount.setData = function setData(data)
-	{
-		if (data.ranking == ranking && data.total == total) {return;}
+	PvPCount.setData = function setData(data) {
+		if (data.ranking == ranking && data.total == total) {
+			return;
+		}
 
 		renderRankText(data.ranking + '/' + data.total);
 
 		// if total increase play the effect
-		if (data.total > total)
-		{
+		if (data.total > total) {
 			Sound.play('effect/number_change.wav');
 		}
 
@@ -109,36 +107,39 @@ define(function (require)
 	 * @param {number} actionId
 	 * @returns {Object[]}
 	 */
-	function pickLayers(act, actionId)
-	{
+	function pickLayers(act, actionId) {
 		var a = act.actions[actionId];
-		if (!a || !a.animations || !a.animations.length) {return null;}
+		if (!a || !a.animations || !a.animations.length) {
+			return null;
+		}
 		return a.animations[(a.animations.length / 2) | 0].layers;
 	}
 
-	function drawActionToCanvas(ctx, act, spr, actionId, x, y)
-	{
+	function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
 		var layers = pickLayers(act, actionId);
-		if (!layers) {return;}
+		if (!layers) {
+			return;
+		}
 
 		// Gravity fonts: no anchor correction
 		SpriteRenderer.bind2DContext(ctx, x, y);
 
-		for (var i = 0; i < layers.length; i++)
-		{
+		for (var i = 0; i < layers.length; i++) {
 			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 		}
 	}
 
-	function rankCharToAction(ch)
-	{
-		if (ch === '/') {return 10;}
+	function rankCharToAction(ch) {
+		if (ch === '/') {
+			return 10;
+		}
 		return parseInt(ch, 10);
 	}
 
-	function renderRankText(text)
-	{
-		if (!_rankCtx || !_rankfontAct) {return;}
+	function renderRankText(text) {
+		if (!_rankCtx || !_rankfontAct) {
+			return;
+		}
 
 		_rankCtx.clearRect(0, 0, RANK_W, RANK_H);
 
@@ -154,11 +155,9 @@ define(function (require)
 
 		// 1. Render Ranking (Higher)
 		var i, a;
-		for (i = 0; i < ranking.length; i++)
-		{
+		for (i = 0; i < ranking.length; i++) {
 			a = rankCharToAction(ranking[i]);
-			if (!isNaN(a))
-			{
+			if (!isNaN(a)) {
 				drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y - 6);
 				x += step;
 			}
@@ -170,20 +169,19 @@ define(function (require)
 		x += slashStep;
 
 		// 3. Render Total (Lower)
-		for (i = 0; i < total.length; i++)
-		{
+		for (i = 0; i < total.length; i++) {
 			a = rankCharToAction(total[i]);
-			if (!isNaN(a))
-			{
+			if (!isNaN(a)) {
 				drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y + 6);
 				x += step;
 			}
 		}
 	}
 
-	function clearRank()
-	{
-		if (_rankCtx) {_rankCtx.clearRect(0, 0, RANK_W, RANK_H);}
+	function clearRank() {
+		if (_rankCtx) {
+			_rankCtx.clearRect(0, 0, RANK_W, RANK_H);
+		}
 	}
 
 	/**

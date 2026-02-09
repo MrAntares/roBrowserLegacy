@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['DB/Status/StatusConst'], function (StatusConst)
-{
+define(['DB/Status/StatusConst'], function (StatusConst) {
 	'use strict';
 
 	return {

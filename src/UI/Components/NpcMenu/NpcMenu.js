@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -40,8 +39,7 @@ define(function (require)
 	/**
 	 * Initialize component
 	 */
-	NpcMenu.init = function init()
-	{
+	NpcMenu.init = function init() {
 		this.ui.find('.ok').click(validate.bind(this));
 		this.ui.find('.cancel').click(cancel.bind(this));
 
@@ -60,8 +58,7 @@ define(function (require)
 			.on('mousewheel DOMMouseScroll', onScroll)
 
 			// Manage indexes
-			.on('mousedown', 'div', function (event)
-			{
+			.on('mousedown', 'div', function (event) {
 				selectIndex.call(self, jQuery(this));
 			})
 
@@ -69,8 +66,7 @@ define(function (require)
 			.on('dblclick', 'div', validate.bind(this))
 
 			// Stop drag drop
-			.mousedown(function (event)
-			{
+			.mousedown(function (event) {
 				event.stopImmediatePropagation();
 				return false;
 			});
@@ -79,21 +75,20 @@ define(function (require)
 	/**
 	 * Clean up events
 	 */
-	NpcMenu.onRemove = function onRemove()
-	{
+	NpcMenu.onRemove = function onRemove() {
 		this.ui.find('.content').empty();
 	};
 
 	/**
 	 * Bind KeyDown event
 	 */
-	NpcMenu.onKeyDown = function onKeyDown(event)
-	{
+	NpcMenu.onKeyDown = function onKeyDown(event) {
 		var count, top;
 		var content;
-		if (!this.ui.is(':visible')) {return true;}
-		switch (event.which)
-		{
+		if (!this.ui.is(':visible')) {
+			return true;
+		}
+		switch (event.which) {
 			case KEYS.SPACE: // Same as Enter
 			case KEYS.ENTER:
 				validate.call(this);
@@ -113,8 +108,7 @@ define(function (require)
 				content = this.ui.find('.content')[0];
 				top = _index * 20;
 
-				if (top < content.scrollTop)
-				{
+				if (top < content.scrollTop) {
 					content.scrollTop = top;
 				}
 				break;
@@ -129,8 +123,7 @@ define(function (require)
 				content = this.ui.find('.content')[0];
 				top = _index * 20;
 
-				if (top >= content.scrollTop + 80)
-				{
+				if (top >= content.scrollTop + 80) {
 					content.scrollTop = top - 60;
 				}
 				break;
@@ -149,8 +142,7 @@ define(function (require)
 	 * @param {string} menu
 	 * @param {number} gid - npc id
 	 */
-	NpcMenu.setMenu = function SetMenu(menu, gid)
-	{
+	NpcMenu.setMenu = function SetMenu(menu, gid) {
 		var content, list;
 		var i, j, count;
 
@@ -161,11 +153,9 @@ define(function (require)
 
 		content.empty();
 
-		for (i = 0, j = 0, count = list.length; i < count; ++i)
-		{
+		for (i = 0, j = 0, count = list.length; i < count; ++i) {
 			// Don't display empty menu
-			if (list[i].length)
-			{
+			if (list[i].length) {
 				jQuery('<div/>').text(list[i]).data('index', j++).appendTo(content);
 			}
 		}
@@ -176,24 +166,21 @@ define(function (require)
 	/**
 	 * Submit an index
 	 */
-	function validate()
-	{
+	function validate() {
 		this.onSelectMenu(_ownerID, _index + 1);
 	}
 
 	/**
 	 * Pressed cancel, client send "255" as value
 	 */
-	function cancel()
-	{
+	function cancel() {
 		this.onSelectMenu(_ownerID, 255);
 	}
 
 	/**
 	 * Select an index, change background color
 	 */
-	function selectIndex($this)
-	{
+	function selectIndex($this) {
 		this.ui.find('.content div').removeClass('selected');
 		$this.addClass('selected');
 
@@ -203,20 +190,15 @@ define(function (require)
 	/**
 	 * Update scroll by block (20px)
 	 */
-	function onScroll(event)
-	{
+	function onScroll(event) {
 		var delta;
 
-		if (event.originalEvent.wheelDelta)
-		{
+		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera)
-			{
+			if (window.opera) {
 				delta = -delta;
 			}
-		}
-		else if (event.originalEvent.detail)
-		{
+		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
 

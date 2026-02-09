@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -52,10 +51,8 @@ define(function (require)
 	/**
 	 * Append MapName
 	 */
-	MapName.onAppend = function onAppend()
-	{
-		if (_mapinfo && _mapinfo.notifyEnter && _newMap)
-		{
+	MapName.onAppend = function onAppend() {
+		if (_mapinfo && _mapinfo.notifyEnter && _newMap) {
 			// Apply preferences
 			this.ui.css({
 				opacity: 1
@@ -67,33 +64,26 @@ define(function (require)
 			var fadeProgress = 0;
 			var fadeTimeout = null;
 
-			function fade()
-			{
+			function fade() {
 				fadeProgress += fadeCycle;
-				if (fadeProgress < fadeTime)
-				{
+				if (fadeProgress < fadeTime) {
 					MapName.ui.css('opacity', MapName.ui.css('opacity') * 1 - 100 / (fadeTime / fadeCycle) / 100);
-					fadeTimeout = setTimeout(function ()
-					{
+					fadeTimeout = setTimeout(function () {
 						fade();
 					}, fadeCycle);
 				}
 			}
 
-			Events.setTimeout(function ()
-			{
+			Events.setTimeout(function () {
 				fade();
 			}, removeTime - fadeTime);
 
 			// Automatically remove the UI element after 5 seconds
-			Events.setTimeout(function ()
-			{
+			Events.setTimeout(function () {
 				Events.clearTimeout(fadeTimeout);
 				MapName.ui.remove();
 			}, removeTime); // 5000 milliseconds (5 seconds)
-		}
-		else
-		{
+		} else {
 			MapName.ui.remove();
 		}
 	};
@@ -103,8 +93,7 @@ define(function (require)
 	 *
 	 * @param {string} mapname
 	 */
-	MapName.setMap = function setMap(mapname)
-	{
+	MapName.setMap = function setMap(mapname) {
 		_prevMap = _currMap;
 		_currMap = mapname;
 		_newMap = _currMap !== _prevMap;
@@ -115,38 +104,28 @@ define(function (require)
 		console.log('Mapinfo:', _mapinfo);
 		console.log('bg:%s, subtitle:%s, title:%s', _mapinfo.backgroundBmp, _mapinfo.signName.subTitle, _mapinfo.signName.mainTitle );
 		*/
-		if (_mapinfo && _mapinfo.backgroundBmp)
-		{
+		if (_mapinfo && _mapinfo.backgroundBmp) {
 			Client.loadFile(
 				DB.INTERFACE_PATH + 'display_mapname/' + _mapinfo.backgroundBmp + '.png',
-				function (dataURI)
-				{
+				function (dataURI) {
 					MapName.ui.find('.mapbg').css('backgroundImage', 'url(' + dataURI + ')');
 				}
 			);
-		}
-		else
-		{
+		} else {
 			MapName.ui.find('.mapbg').css('backgroundImage', 'none');
 		}
 
 		var mapsubtitle = MapName.ui.find('.mapsubtitle');
-		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.subTitle)
-		{
+		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.subTitle) {
 			mapsubtitle.text(_mapinfo.signName.subTitle);
-		}
-		else
-		{
+		} else {
 			mapsubtitle.empty();
 		}
 
 		var maptitle = MapName.ui.find('.maptitle');
-		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.mainTitle)
-		{
+		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.mainTitle) {
 			maptitle.text(_mapinfo.signName.mainTitle);
-		}
-		else
-		{
+		} else {
 			maptitle.empty();
 		}
 	};
@@ -154,8 +133,7 @@ define(function (require)
 	/**
 	 * Remove MapName from window (and so clean up items)
 	 */
-	MapName.onRemove = function OnRemove()
-	{
+	MapName.onRemove = function OnRemove() {
 		var maptitle = MapName.ui.find('.maptitle');
 		var mapsubtitle = MapName.ui.find('.mapsubtitle');
 
@@ -170,8 +148,7 @@ define(function (require)
 	 *
 	 * Resets the current map name, previous map name, and the new map flag.
 	 */
-	MapName.resetState = function ()
-	{
+	MapName.resetState = function () {
 		_currMap = '';
 		_prevMap = '';
 		_newMap = false;

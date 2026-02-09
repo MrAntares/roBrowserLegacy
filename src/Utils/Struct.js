@@ -18,8 +18,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -27,8 +26,7 @@ define(function ()
 	 *
 	 * @param {string[]} C like structure
 	 */
-	function Struct()
-	{
+	function Struct() {
 		var args, unsigned;
 		var i,
 			count,
@@ -40,8 +38,7 @@ define(function ()
 
 		len = arguments.length;
 
-		for (i = 0; i < len; ++i)
-		{
+		for (i = 0; i < len; ++i) {
 			args = arguments[i].match(
 				/(unsigned\s)?(bool|char|short|int|long|float|double)\s([a-zA-Z0-9_-]+)(\[(\d+)\])?;?/
 			);
@@ -50,8 +47,7 @@ define(function ()
 			name = args[3];
 			count = args[5] ? parseInt(args[5], 10) : 1;
 
-			switch (type)
-			{
+			switch (type) {
 				case 'bool':
 					size = 1;
 					func = 'int8';

@@ -9,8 +9,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var GraphicsSettings = require('Preferences/Graphics');
@@ -50,9 +49,10 @@ define(function (require)
 	 * @param {WebGLTexture} inputTexture - Full resolution scene texture
 	 * @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
 	 */
-	Bloom.render = function render(gl, inputTexture, outputFramebuffer)
-	{
-		if (!_buffer || !_programs.prefilter || !Bloom.isActive()) {return;}
+	Bloom.render = function render(gl, inputTexture, outputFramebuffer) {
+		if (!_buffer || !_programs.prefilter || !Bloom.isActive()) {
+			return;
+		}
 
 		// --- PASS 1: Downsample & Extract Brightness ---
 		// We render to the internal small FBO
@@ -117,8 +117,7 @@ define(function (require)
 	/**
 	 * Cleans up bindings
 	 */
-	Bloom.afterRender = function (gl)
-	{
+	Bloom.afterRender = function (gl) {
 		gl.useProgram(null);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -128,17 +127,15 @@ define(function (require)
 	/**
 	 * Initializes shaders and buffers
 	 */
-	Bloom.init = function init(gl)
-	{
-		if (!gl) {return;}
+	Bloom.init = function init(gl) {
+		if (!gl) {
+			return;
+		}
 
-		try
-		{
+		try {
 			_programs.prefilter = WebGL.createShaderProgram(gl, commonVS, prefilterFS);
 			_programs.composite = WebGL.createShaderProgram(gl, commonVS, compositeFS);
-		}
-		catch (e)
-		{
+		} catch (e) {
 			console.error('Error compiling BLOOM shader.', e);
 			return;
 		}
@@ -156,36 +153,40 @@ define(function (require)
 	/**
 	 * Recreates the Internal FBO when the window size changes
 	 */
-	Bloom.recreateFbo = function recreateFbo(gl, width, height)
-	{
-		if (_programs.prefilter)
-		{_internalFbo = PostProcess.createFbo(gl, width, height, _internalFbo, _downsampleFactor);}
+	Bloom.recreateFbo = function recreateFbo(gl, width, height) {
+		if (_programs.prefilter) {
+			_internalFbo = PostProcess.createFbo(gl, width, height, _internalFbo, _downsampleFactor);
+		}
 	};
 
 	/** @returns {boolean} Whether the effect is active */
-	Bloom.isActive = function isActive()
-	{
+	Bloom.isActive = function isActive() {
 		return GraphicsSettings.bloom;
 	};
 
 	/** @returns {WebGLProgram} The loaded shader program (returning one for validation check) */
-	Bloom.program = function program()
-	{
+	Bloom.program = function program() {
 		return _programs.prefilter;
 	};
 
 	/** Clears memory references */
-	Bloom.clean = function clean(gl)
-	{
+	Bloom.clean = function clean(gl) {
 		_programs = {};
-		if (_buffer) {gl.deleteBuffer(_buffer);}
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
 		_buffer = null;
 		// Physically delete Internal Buffer from GPU memory
-		if (_internalFbo)
-		{
-			if (gl.isTexture(_internalFbo.texture)) {gl.deleteTexture(_internalFbo.texture);}
-			if (gl.isRenderbuffer(_internalFbo.rbo)) {gl.deleteRenderbuffer(_internalFbo.rbo);}
-			if (gl.isFramebuffer(_internalFbo.framebuffer)) {gl.deleteFramebuffer(_internalFbo.framebuffer);}
+		if (_internalFbo) {
+			if (gl.isTexture(_internalFbo.texture)) {
+				gl.deleteTexture(_internalFbo.texture);
+			}
+			if (gl.isRenderbuffer(_internalFbo.rbo)) {
+				gl.deleteRenderbuffer(_internalFbo.rbo);
+			}
+			if (gl.isFramebuffer(_internalFbo.framebuffer)) {
+				gl.deleteFramebuffer(_internalFbo.framebuffer);
+			}
 		}
 		_internalFbo = null;
 	};

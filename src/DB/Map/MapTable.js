@@ -6,8 +6,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define([], function ()
-{
+define([], function () {
 	'use strict';
 
 	var MapInfo = {

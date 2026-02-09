@@ -8,8 +8,7 @@
  * @author Vincent Thibault, Antares
  */
 
-define(['./JobConst'], function (JobId)
-{
+define(['./JobConst'], function (JobId) {
 	'use strict';
 
 	var JobNameTable = {};
@@ -214,14 +213,12 @@ define(['./JobConst'], function (JobId)
 	JobNameTable[JobId.TROUBADOUR_RIDING] = 'troubadour_riding';
 	JobNameTable[JobId.TROUVERE_RIDING] = 'trouvere_riding';
 
-	function duplicateEntry(origin)
-	{
+	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
 		var i,
 			count = arguments.length;
 
-		for (i = 1; i < count; ++i)
-		{
+		for (i = 1; i < count; ++i) {
 			JobNameTable[arguments[i]] = value;
 		}
 	}

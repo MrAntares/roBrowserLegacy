@@ -1,9 +1,7 @@
-define(function ()
-{
+define(function () {
 	'use strict';
 
-	function pastel_colour(seed)
-	{
+	function pastel_colour(seed) {
 		var baseRed = 0;
 		var baseGreen = 0;
 		var baseBlue = 0;
@@ -20,8 +18,7 @@ define(function ()
 		return { red: red, green: green, blue: blue };
 	}
 
-	return function (aid)
-	{
+	return function (aid) {
 		var rv = pastel_colour(aid);
 
 		rv.style = 'rgb(' + rv.red + ', ' + rv.green + ', ' + rv.blue + ')';

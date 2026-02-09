@@ -13,8 +13,7 @@ define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity',
 	EffectManager,
 	Entity,
 	Altitude
-)
-{
+) {
 	'use strict';
 
 	/**
@@ -30,8 +29,7 @@ define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity',
 	 * @param {number} dropeffectmode
 	 * @param {boolean} showdropeffect
 	 */
-	function add(gid, itemid, identify, count, x, y, z, dropeffectmode, showdropeffect)
-	{
+	function add(gid, itemid, identify, count, x, y, z, dropeffectmode, showdropeffect) {
 		var it = DB.getItemInfo(itemid);
 		var path = DB.getItemPath(itemid, identify);
 		var entity = new Entity();
@@ -52,14 +50,12 @@ define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity',
 
 		entity.files.shadow.size = 0.25;
 
-		if (showdropeffect)
-		{
+		if (showdropeffect) {
 			entity.dropEffect.load(EffectManager, dropeffectmode);
 		}
 
 		// Item falling
-		entity.animations.add(function (tick)
-		{
+		entity.animations.add(function (tick) {
 			var level = Altitude.getCellHeight(entity.position[0], entity.position[1]);
 			entity.position[2] = Math.max(level, z - tick / 40);
 			return entity.position[2] === level;
@@ -73,8 +69,7 @@ define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity',
 	 *
 	 * @param {number} gid
 	 */
-	function remove(gid)
-	{
+	function remove(gid) {
 		var entity = EntityManager.get(gid);
 		entity.dropEffect.remove(EffectManager);
 

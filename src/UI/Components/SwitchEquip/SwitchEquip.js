@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -50,8 +49,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	SwitchEquip.init = function init()
-	{
+	SwitchEquip.init = function init() {
 		_swapctx.push(this.ui.find('canvas')[0].getContext('2d'));
 		_swapctx.push(this.ui.find('canvas')[1].getContext('2d'));
 
@@ -60,12 +58,10 @@ define(function (require)
 		this.ui.on('dragleave', onDragLeave);
 		this.ui.on('drop', onDrop);
 
-		this.ui.find('.closeswap').click(function ()
-		{
+		this.ui.find('.closeswap').click(function () {
 			SwitchEquip.toggle();
 		});
-		this.ui.find('.onswap').click(function ()
-		{
+		this.ui.find('.onswap').click(function () {
 			SwitchEquip.RequestSwitch();
 		});
 
@@ -90,22 +86,17 @@ define(function (require)
 	 *
 	 * @param {string} tabId - The ID of the tab to show.
 	 */
-	SwitchEquip.showSwapTab = function showSwapTab(tabId)
-	{
+	SwitchEquip.showSwapTab = function showSwapTab(tabId) {
 		var swapTabId = 'swap' + tabId;
 		var swapContentDivs = {
 			swapgeneral: document.getElementById('swapgeneral'),
 			swapcostume: document.getElementById('swapcostume')
 		};
 
-		for (var id in swapContentDivs)
-		{
-			if (id == swapTabId)
-			{
+		for (var id in swapContentDivs) {
+			if (id == swapTabId) {
 				swapContentDivs[id].classList.remove('hide');
-			}
-			else
-			{
+			} else {
 				swapContentDivs[id].classList.add('hide');
 			}
 		}
@@ -114,8 +105,7 @@ define(function (require)
 	/**
 	 * Append to body
 	 */
-	SwitchEquip.onAppend = function onAppend()
-	{
+	SwitchEquip.onAppend = function onAppend() {
 		// Set the active tab based on Equipment UI's current tab
 		var Equipment = require('UI/Components/Equipment/Equipment');
 		var currentEquipTabId = Equipment.getUI().getCurrentTabId();
@@ -123,8 +113,7 @@ define(function (require)
 		// Set the active tab and content div based on EquipmentV2's current tab
 		SwitchEquip.showSwapTab(currentEquipTabId);
 
-		if (this.ui.find('canvas').is(':visible'))
-		{
+		if (this.ui.find('canvas').is(':visible')) {
 			Renderer.render(swaprender);
 		}
 	};
@@ -132,8 +121,7 @@ define(function (require)
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	SwitchEquip.onRemove = function onRemove()
-	{
+	SwitchEquip.onRemove = function onRemove() {
 		// Stop rendering
 		Renderer.stop(swaprender);
 
@@ -147,10 +135,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	SwitchEquip.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd)
-		{
+	SwitchEquip.onShortCut = function onShurtCut(key) {
+		switch (key.cmd) {
 			case 'TOGGLE':
 				this.toggle();
 				break;
@@ -161,17 +147,13 @@ define(function (require)
 	 * Toggle the visibility of the UI,
 	 * rendering or stopping the renderer based on visibility.
 	 */
-	SwitchEquip.toggle = function toggle()
-	{
+	SwitchEquip.toggle = function toggle() {
 		this.ui.toggle();
 
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			Renderer.render(swaprender);
 			this.focus();
-		}
-		else
-		{
+		} else {
 			Renderer.stop(swaprender);
 		}
 	};
@@ -183,17 +165,14 @@ define(function (require)
 	 * @param {item.Location} location
 	 * @param {boolean} inSwitchList
 	 */
-	SwitchEquip.equip = function equip(item, location, inSwitchList)
-	{
+	SwitchEquip.equip = function equip(item, location, inSwitchList) {
 		var it = DB.getItemInfo(item.ITID);
 		item.equipped = location;
 		SwitchEquip._list[item.index] = item;
 
-		function add3Dots(string, limit)
-		{
+		function add3Dots(string, limit) {
 			var dots = '...';
-			if (string.length > limit)
-			{
+			if (string.length > limit) {
 				string = string.substring(0, limit) + dots;
 			}
 
@@ -215,12 +194,10 @@ define(function (require)
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
-			function (data)
-			{
+			function (data) {
 				var button = this.ui.find('.item[data-index="' + item.index + '"] button');
 				button.css('backgroundImage', 'url(' + data + ')');
-				if (!inSwitchList)
-				{
+				if (!inSwitchList) {
 					button.css('filter', 'grayscale(100%)');
 				}
 			}.bind(this)
@@ -233,8 +210,7 @@ define(function (require)
 	 * @param {number} item index
 	 * @param {number} item location
 	 */
-	SwitchEquip.unEquip = function unEquip(index, location)
-	{
+	SwitchEquip.unEquip = function unEquip(index, location) {
 		var selector = getSelectorFromLocation(location);
 		var item = SwitchEquip._list[index];
 		item.equipped = 0;
@@ -246,8 +222,7 @@ define(function (require)
 	/**
 	 * Rendering character
 	 */
-	var swaprender = (function swaprenderClosure()
-	{
+	var swaprender = (function swaprenderClosure() {
 		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 		var _savedColor = new Float32Array(4);
 		var _animation = {
@@ -260,8 +235,7 @@ define(function (require)
 			save: false
 		};
 
-		return function swaprender()
-		{
+		return function swaprender() {
 			var Entity = getModule('Renderer/Entity/Entity');
 			var swap_character = new Entity();
 			swap_character.set({
@@ -280,16 +254,14 @@ define(function (require)
 			var currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
 			// General Tab only shows normal headgears
-			if (currentEquipTabId === 'general')
-			{
+			if (currentEquipTabId === 'general') {
 				swap_character.accessory = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 				swap_character.accessory2 = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_TOP);
 				swap_character.accessory3 = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_MID);
 				swap_character.robe = SwitchEquip.checkEquipLoc(EquipLocation.GARMENT);
 			}
 			// Costume Tab only shows costume headgears
-			else if (currentEquipTabId === 'costume')
-			{
+			else if (currentEquipTabId === 'costume') {
 				swap_character.accessory = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
 				swap_character.accessory2 = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
 				swap_character.accessory3 = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
@@ -307,8 +279,7 @@ define(function (require)
 			swap_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _swapctx.length; i++)
-			{
+			for (var i = 0; i < _swapctx.length; i++) {
 				var ctx = _swapctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -323,33 +294,74 @@ define(function (require)
 	 * @param {number} location
 	 * @returns {string} selector
 	 */
-	function getSelectorFromLocation(location)
-	{
+	function getSelectorFromLocation(location) {
 		var selector = [];
 
-		if (location & EquipLocation.HEAD_TOP) {selector.push('.swap_head_top');}
-		if (location & EquipLocation.HEAD_MID) {selector.push('.swap_head_mid');}
-		if (location & EquipLocation.HEAD_BOTTOM) {selector.push('.swap_head_bottom');}
-		if (location & EquipLocation.ARMOR) {selector.push('.swap_armor');}
-		if (location & EquipLocation.WEAPON) {selector.push('.swap_weapon');}
-		if (location & EquipLocation.SHIELD) {selector.push('.swap_shield');}
-		if (location & EquipLocation.GARMENT) {selector.push('.swap_garment');}
-		if (location & EquipLocation.SHOES) {selector.push('.swap_shoes');}
-		if (location & EquipLocation.ACCESSORY1) {selector.push('.swap_accessory1');}
-		if (location & EquipLocation.ACCESSORY2) {selector.push('.swap_accessory2');}
-		if (location & EquipLocation.AMMO) {selector.push('.swap_ammo');}
+		if (location & EquipLocation.HEAD_TOP) {
+			selector.push('.swap_head_top');
+		}
+		if (location & EquipLocation.HEAD_MID) {
+			selector.push('.swap_head_mid');
+		}
+		if (location & EquipLocation.HEAD_BOTTOM) {
+			selector.push('.swap_head_bottom');
+		}
+		if (location & EquipLocation.ARMOR) {
+			selector.push('.swap_armor');
+		}
+		if (location & EquipLocation.WEAPON) {
+			selector.push('.swap_weapon');
+		}
+		if (location & EquipLocation.SHIELD) {
+			selector.push('.swap_shield');
+		}
+		if (location & EquipLocation.GARMENT) {
+			selector.push('.swap_garment');
+		}
+		if (location & EquipLocation.SHOES) {
+			selector.push('.swap_shoes');
+		}
+		if (location & EquipLocation.ACCESSORY1) {
+			selector.push('.swap_accessory1');
+		}
+		if (location & EquipLocation.ACCESSORY2) {
+			selector.push('.swap_accessory2');
+		}
+		if (location & EquipLocation.AMMO) {
+			selector.push('.swap_ammo');
+		}
 
 		// Costume Tab
-		if (location & EquipLocation.COSTUME_HEAD_TOP) {selector.push('.swap_costume_head_top');}
-		if (location & EquipLocation.COSTUME_HEAD_MID) {selector.push('.swap_costume_head_mid');}
-		if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {selector.push('.swap_costume_head_bottom');}
-		if (location & EquipLocation.SHADOW_ARMOR) {selector.push('.swap_shadow_armor');}
-		if (location & EquipLocation.SHADOW_WEAPON) {selector.push('.swap_shadow_weapon');}
-		if (location & EquipLocation.SHADOW_SHIELD) {selector.push('.swap_shadow_shield');}
-		if (location & EquipLocation.COSTUME_ROBE) {selector.push('.swap_shadow_garment');}
-		if (location & EquipLocation.SHADOW_SHOES) {selector.push('.swap_shadow_shoes');}
-		if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {selector.push('.swap_shadow_accessory1');}
-		if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {selector.push('.swap_shadow_accessory2');}
+		if (location & EquipLocation.COSTUME_HEAD_TOP) {
+			selector.push('.swap_costume_head_top');
+		}
+		if (location & EquipLocation.COSTUME_HEAD_MID) {
+			selector.push('.swap_costume_head_mid');
+		}
+		if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {
+			selector.push('.swap_costume_head_bottom');
+		}
+		if (location & EquipLocation.SHADOW_ARMOR) {
+			selector.push('.swap_shadow_armor');
+		}
+		if (location & EquipLocation.SHADOW_WEAPON) {
+			selector.push('.swap_shadow_weapon');
+		}
+		if (location & EquipLocation.SHADOW_SHIELD) {
+			selector.push('.swap_shadow_shield');
+		}
+		if (location & EquipLocation.COSTUME_ROBE) {
+			selector.push('.swap_shadow_garment');
+		}
+		if (location & EquipLocation.SHADOW_SHOES) {
+			selector.push('.swap_shadow_shoes');
+		}
+		if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {
+			selector.push('.swap_shadow_accessory1');
+		}
+		if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {
+			selector.push('.swap_shadow_accessory2');
+		}
 
 		return selector.join(', ');
 	}
@@ -357,29 +369,24 @@ define(function (require)
 	/**
 	 * Drag an item over the equipment, show where to place the item
 	 */
-	function onDragOver(event)
-	{
-		if (window._OBJ_DRAG_)
-		{
+	function onDragOver(event) {
+		if (window._OBJ_DRAG_) {
 			var data = window._OBJ_DRAG_;
 			var item, selector, ui;
 
 			// Just support items for now ?
-			if (data.type === 'item')
-			{
+			if (data.type === 'item') {
 				item = data.data;
 
 				if (
 					(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) &&
 					item.IsIdentified &&
 					!item.IsDamaged
-				)
-				{
+				) {
 					selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
 					ui = SwitchEquip.ui.find(selector);
 
-					Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (data)
-					{
+					Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (data) {
 						ui.css('backgroundImage', 'url(' + data + ')');
 					});
 				}
@@ -393,8 +400,7 @@ define(function (require)
 	/**
 	 * Drag out the window
 	 */
-	function onDragLeave(event)
-	{
+	function onDragLeave(event) {
 		SwitchEquip.ui.find('td').css('backgroundImage', 'none');
 		event.stopImmediatePropagation();
 		return false;
@@ -403,27 +409,22 @@ define(function (require)
 	/**
 	 * Drop an item in the equipment, equip it if possible
 	 */
-	function onDrop(event)
-	{
+	function onDrop(event) {
 		var item, data;
 
-		try
-		{
+		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		}
-		catch (e) {}
+		} catch (e) {}
 
 		// Just support items for now ?
-		if (data && data.type === 'item')
-		{
+		if (data && data.type === 'item') {
 			item = data.data;
 
 			if (
 				(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.AMMO) &&
 				item.IsIdentified &&
 				!item.IsDamaged
-			)
-			{
+			) {
 				SwitchEquip.ui.find('td').css('backgroundImage', 'none');
 				SwitchEquip.onAddSwitchEquip(item.index, 'location' in item ? item.location : item.WearState);
 			}
@@ -436,22 +437,18 @@ define(function (require)
 	/**
 	 * Right click on an item
 	 */
-	function onSwitchEquipInfo(event)
-	{
+	function onSwitchEquipInfo(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var item = SwitchEquip._list[index];
 
-		if (item)
-		{
+		if (item) {
 			// Don't add the same UI twice, remove it
-			if (ItemInfo.uid === item.ITID)
-			{
+			if (ItemInfo.uid === item.ITID) {
 				ItemInfo.remove();
 			}
 
 			// Add ui to window
-			else
-			{
+			else {
 				ItemInfo.append();
 				ItemInfo.uid = item.ITID;
 				ItemInfo.setItem(item);
@@ -465,8 +462,7 @@ define(function (require)
 	/**
 	 * Double click on an equipment to remove it
 	 */
-	function onSwitchEquipUnEquip()
-	{
+	function onSwitchEquipUnEquip() {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		SwitchEquip.onRemoveSwitchEquip(index);
 		SwitchEquip.ui.find('.switchoverlay').hide();
@@ -475,13 +471,11 @@ define(function (require)
 	/**
 	 * When mouse is over an equipment, display the item name
 	 */
-	function onSwitchEquipOver()
-	{
+	function onSwitchEquipOver() {
 		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		var item = SwitchEquip._list[idx];
 
-		if (!item)
-		{
+		if (!item) {
 			return;
 		}
 
@@ -490,8 +484,7 @@ define(function (require)
 		var pos = jQuery(this).position();
 
 		// Possible jquery error
-		if (!pos.top && !pos.left)
-		{
+		if (!pos.top && !pos.left) {
 			return;
 		}
 
@@ -504,21 +497,17 @@ define(function (require)
 	/**
 	 * Remove the item name
 	 */
-	function onSwitchEquipOut()
-	{
+	function onSwitchEquipOut() {
 		SwitchEquip.ui.find('.switchoverlay').hide();
 	}
 
 	/**
 	 * Update the owner name for the equipment items
 	 */
-	SwitchEquip.onUpdateOwnerName = function ()
-	{
-		for (var index in SwitchEquip._list)
-		{
+	SwitchEquip.onUpdateOwnerName = function () {
+		for (var index in SwitchEquip._list) {
 			var item = SwitchEquip._list[index];
-			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1))
-			{
+			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				SwitchEquip.ui
 					.find('.item[data-index="' + index + '"] .itemName')
 					.text(jQuery.escape(DB.getItemName(item)));
@@ -531,13 +520,10 @@ define(function (require)
 	 *
 	 * @returns {number} The number of equipment items
 	 */
-	SwitchEquip.getNumber = function ()
-	{
+	SwitchEquip.getNumber = function () {
 		var num = 0;
-		for (var key in SwitchEquip._list)
-		{
-			if (SwitchEquip._list[key].location && SwitchEquip._list[key].location != EquipLocation.AMMO)
-			{
+		for (var key in SwitchEquip._list) {
+			if (SwitchEquip._list[key].location && SwitchEquip._list[key].location != EquipLocation.AMMO) {
 				num++;
 			}
 		}
@@ -550,16 +536,13 @@ define(function (require)
 	 * @param {number} location The location to check
 	 * @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
 	 */
-	SwitchEquip.checkEquipLoc = function checkEquipLoc(location)
-	{
+	SwitchEquip.checkEquipLoc = function checkEquipLoc(location) {
 		var Inventory = require('UI/Components/Inventory/Inventory');
 
 		var switchList = Inventory.getUI().equipswitchlist;
-		for (var i = 0; i < switchList.length; i++)
-		{
+		for (var i = 0; i < switchList.length; i++) {
 			var item = switchList[i];
-			if (item.location & location)
-			{
+			if (item.location & location) {
 				return item.wItemSpriteNumber;
 			}
 		}
@@ -570,8 +553,7 @@ define(function (require)
 	/**
 	 * Send an equipment switch request to the server.
 	 */
-	function sendEquipSwitchRequest()
-	{
+	function sendEquipSwitchRequest() {
 		var pkt = new PACKET.CZ.REQ_FULLSWITCH();
 		Network.sendPacket(pkt);
 	}
@@ -580,8 +562,7 @@ define(function (require)
 	 * Request an equipment switch button
 	 * Disabling the button temporarily and updating its background image.
 	 */
-	SwitchEquip.RequestSwitch = function ()
-	{
+	SwitchEquip.RequestSwitch = function () {
 		// Send the equip switch request
 		sendEquipSwitchRequest();
 
@@ -590,18 +571,15 @@ define(function (require)
 		button.disabled = true;
 		button.classList.add('disabled');
 
-		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_disable.bmp', function (data)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_disable.bmp', function (data) {
 			button.style.backgroundImage = 'url(' + data + ')';
 		});
 
 		// Re-enable the button and revert the background image after 10 seconds
-		setTimeout(function ()
-		{
+		setTimeout(function () {
 			button.disabled = false;
 			button.classList.remove('disabled');
-			Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_normal.bmp', function (data)
-			{
+			Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_normal.bmp', function (data) {
 				button.style.backgroundImage = 'url(' + data + ')';
 			});
 		}, 10000); // 10000 milliseconds = 10 seconds

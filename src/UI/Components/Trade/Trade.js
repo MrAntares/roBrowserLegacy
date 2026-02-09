@@ -5,8 +5,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -54,8 +53,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	Trade.init = function Init()
-	{
+	Trade.init = function Init() {
 		// Bind buttons
 		this.ui.find('.ok.enabled').click(onConclude);
 		this.ui.find('.trade.enabled').click(onTrade.bind(this));
@@ -63,8 +61,7 @@ define(function (require)
 
 		this.ui.on('mousedown', '.disabled', stopPropagation).on('drop', onDrop).on('dragover', stopPropagation);
 
-		this.ui.find('.zeny.send').mousedown(function ()
-		{
+		this.ui.find('.zeny.send').mousedown(function () {
 			this.select();
 		});
 
@@ -80,8 +77,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	Trade.onAppend = function onAppend()
-	{
+	Trade.onAppend = function onAppend() {
 		// Clean up (interface)
 		this.onRemove();
 		this.ui.find('.titlebar .title').text(this.title);
@@ -95,8 +91,7 @@ define(function (require)
 	/**
 	 * Clean UP UI
 	 */
-	Trade.onRemove = function onRemove()
-	{
+	Trade.onRemove = function onRemove() {
 		_tmpCount = {};
 		_recv.length = 0;
 		_send.length = 0;
@@ -115,18 +110,15 @@ define(function (require)
 	 * @param {number} item index in inventory
 	 * @param {boolean} success ?
 	 */
-	Trade.addItemFromInventory = function addItemFromInventory(index, success)
-	{
+	Trade.addItemFromInventory = function addItemFromInventory(index, success) {
 		// Reset value
-		if (!success)
-		{
+		if (!success) {
 			delete _tmpCount[index];
 			return;
 		}
 
 		// ZENY
-		if (index === 0)
-		{
+		if (index === 0) {
 			this.ui.find('.zeny.send').val(prettifyZeny(_tmpCount[index]));
 			return;
 		}
@@ -156,8 +148,7 @@ define(function (require)
 				'item/' +
 				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 				'.bmp',
-			function (data)
-			{
+			function (data) {
 				box.find('.item[data-index="' + idx + '"] .icon').css('backgroundImage', 'url(' + data + ')');
 			}.bind(this)
 		);
@@ -168,11 +159,9 @@ define(function (require)
 	 *
 	 * @param {object} item
 	 */
-	Trade.addItem = function addItem(item)
-	{
+	Trade.addItem = function addItem(item) {
 		// ZENY
-		if (item.ITID === 0)
-		{
+		if (item.ITID === 0) {
 			this.ui.find('.zeny.recv').text(prettifyZeny(item.count));
 			return;
 		}
@@ -200,8 +189,7 @@ define(function (require)
 				'item/' +
 				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 				'.bmp',
-			function (data)
-			{
+			function (data) {
 				box.find('.item[data-index="' + idx + '"] .icon').css('backgroundImage', 'url(' + data + ')');
 			}.bind(this)
 		);
@@ -213,18 +201,15 @@ define(function (require)
 	 * @param {number}
 	 * @return {string}
 	 */
-	function prettifyZeny(value)
-	{
+	function prettifyZeny(value) {
 		var num = String(value);
 		var i = 0,
 			len = num.length;
 		var out = '';
 
-		while (i < len)
-		{
+		while (i < len) {
 			out = num[len - i - 1] + out;
-			if ((i + 1) % 3 === 0 && i + 1 !== len)
-			{
+			if ((i + 1) % 3 === 0 && i + 1 !== len) {
 				out = ',' + out;
 			}
 			++i;
@@ -239,18 +224,15 @@ define(function (require)
 	 * @param {number} item index in inventory
 	 * @param {number} item count
 	 */
-	function onRequestAddItem(index, count)
-	{
+	function onRequestAddItem(index, count) {
 		// You cannot overlap items on a window
-		if (index in _tmpCount)
-		{
+		if (index in _tmpCount) {
 			ChatBox.addText(DB.getMessage(51), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
 		// You cannot trade more than 10 types of items per trade.
-		if (_send.length >= 10)
-		{
+		if (_send.length >= 10) {
 			ChatBox.addText(DB.getMessage(297), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
@@ -264,20 +246,17 @@ define(function (require)
 	 *
 	 * @param {string} selector
 	 */
-	Trade.conclude = function conclude(element)
-	{
+	Trade.conclude = function conclude(element) {
 		this.ui.find('.box.' + element).addClass('disabled');
 
-		if (element === 'send')
-		{
+		if (element === 'send') {
 			this.ui.find('.ok.disabled').show();
 			this.ui.find('.ok.enabled').hide();
 			this.ui.find('.zeny.send').addClass('disabled').attr('disabled', true);
 		}
 
 		// Can conclude
-		if (this.ui.find('.box.recv.disabled').is(':visible') && this.ui.find('.box.send.disabled').is(':visible'))
-		{
+		if (this.ui.find('.box.recv.disabled').is(':visible') && this.ui.find('.box.send.disabled').is(':visible')) {
 			this.ui.find('.trade.enabled').show();
 			this.ui.find('.trade.disabled').hide();
 		}
@@ -286,8 +265,7 @@ define(function (require)
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -295,8 +273,7 @@ define(function (require)
 	/**
 	 * Cancel the deal
 	 */
-	function onCancel()
-	{
+	function onCancel() {
 		this.remove();
 		Trade.onCancel();
 	}
@@ -304,8 +281,7 @@ define(function (require)
 	/**
 	 * Conclude our part
 	 */
-	function onConclude()
-	{
+	function onConclude() {
 		// Send zeny value before concluding
 		var zeny = parseInt(Trade.ui.find('.zeny.send').val(), 10) || 0;
 		zeny = Math.min(Math.max(0, zeny), Session.zeny);
@@ -317,8 +293,7 @@ define(function (require)
 	/**
 	 * Let's finish the trade
 	 */
-	function onTrade()
-	{
+	function onTrade() {
 		Trade.onTradeSubmit();
 		this.ui.find('.trade.enabled').hide();
 		this.ui.find('.trade.disabled').show();
@@ -327,40 +302,33 @@ define(function (require)
 	/**
 	 * Drop from inventory to storage
 	 */
-	function onDrop(event)
-	{
+	function onDrop(event) {
 		var item, data;
 
-		try
-		{
+		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		}
-		catch (e) {}
+		} catch (e) {}
 
 		event.stopImmediatePropagation();
 
 		// Just support items for now ?
-		if (!data || data.type !== 'item' || data.from !== 'Inventory')
-		{
+		if (!data || data.type !== 'item' || data.from !== 'Inventory') {
 			return false;
 		}
 
 		item = data.data;
 
 		// Have to specify how much
-		if (item.count > 1)
-		{
+		if (item.count > 1) {
 			InputBox.append();
 			InputBox.setType('number', false, item.count);
-			InputBox.onSubmitRequest = function OnSubmitRequest(count)
-			{
+			InputBox.onSubmitRequest = function OnSubmitRequest(count) {
 				var value = parseInt(count, 10) || 0;
 				value = Math.min(Math.max(value, 0), item.count); // cap
 
 				InputBox.remove();
 
-				if (value)
-				{
+				if (value) {
 					onRequestAddItem(item.index, value);
 				}
 			};
@@ -375,13 +343,11 @@ define(function (require)
 	/**
 	 * When mouse is over an item, show title
 	 */
-	function onItemOver()
-	{
+	function onItemOver() {
 		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
 
-		if (!item)
-		{
+		if (!item) {
 			return;
 		}
 
@@ -397,12 +363,9 @@ define(function (require)
 		overlay.css({ top: pos.top + 5, left: pos.left + 30 });
 		overlay.text(DB.getItemName(item));
 
-		if (item.IsIdentified)
-		{
+		if (item.IsIdentified) {
 			overlay.removeClass('grey');
-		}
-		else
-		{
+		} else {
 			overlay.addClass('grey');
 		}
 	}
@@ -410,27 +373,23 @@ define(function (require)
 	/**
 	 * Hide the item title when mouse is not over anymore
 	 */
-	function onItemOut()
-	{
+	function onItemOut() {
 		Trade.ui.find('.overlay').hide();
 	}
 
 	/**
 	 * Display ItemInfo UI
 	 */
-	function onItemInfo(event)
-	{
+	function onItemInfo(event) {
 		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
 
-		if (!item)
-		{
+		if (!item) {
 			return stopPropagation(event);
 		}
 
 		// Don't add the same UI twice, remove it
-		if (ItemInfo.uid === item.ITID)
-		{
+		if (ItemInfo.uid === item.ITID) {
 			ItemInfo.remove();
 		}
 

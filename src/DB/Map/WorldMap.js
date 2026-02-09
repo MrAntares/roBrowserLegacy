@@ -1,8 +1,7 @@
 /**
  * WorldMap data
  */
-define([], function ()
-{
+define([], function () {
 	'use strict';
 	return [
 		// #region Midgard

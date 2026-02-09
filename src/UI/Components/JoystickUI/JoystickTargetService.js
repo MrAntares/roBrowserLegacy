@@ -6,45 +6,43 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var Session = require('Engine/SessionStorage');
 	var EntityManager = require('Renderer/EntityManager');
 	var ControlsSettings = require('Preferences/Controls');
 
-	function getEntityInContext()
-	{
+	function getEntityInContext() {
 		var target = null;
-		if (ControlsSettings.attackTargetMode === 1)
-		{
+		if (ControlsSettings.attackTargetMode === 1) {
 			// Lowest HP first
 			target = EntityManager.getLowestHpEntity(Session.Entity, Session.Entity.constructor.TYPE_MOB);
-			if (!target) {target = EntityManager.getLowestHpEntity(Session.Entity, Session.Entity.constructor.TYPE_PC);}
+			if (!target) {
+				target = EntityManager.getLowestHpEntity(Session.Entity, Session.Entity.constructor.TYPE_PC);
+			}
 		}
-		if (!target) {target = EntityManager.getClosestEntity(Session.Entity, Session.Entity.constructor.TYPE_MOB);}
-		if (!target) {target = EntityManager.getClosestEntity(Session.Entity, Session.Entity.constructor.TYPE_PC);}
+		if (!target) {
+			target = EntityManager.getClosestEntity(Session.Entity, Session.Entity.constructor.TYPE_MOB);
+		}
+		if (!target) {
+			target = EntityManager.getClosestEntity(Session.Entity, Session.Entity.constructor.TYPE_PC);
+		}
 
 		return target || Session.Entity;
 	}
 
-	function focusTarget(entity)
-	{
+	function focusTarget(entity) {
 		var focus = EntityManager.getFocusEntity();
-		if (!focus || focus.action === focus.ACTION.DIE)
-		{
+		if (!focus || focus.action === focus.ACTION.DIE) {
 			focus = EntityManager.getFocusEntity();
 		}
-		if (focus && entity.GID !== focus.GID)
-		{
+		if (focus && entity.GID !== focus.GID) {
 			focus.onFocusEnd();
 			EntityManager.setFocusEntity(null);
 			entity.onFocus();
 			EntityManager.setFocusEntity(entity);
-		}
-		else if (!focus)
-		{
+		} else if (!focus) {
 			entity.onFocus();
 			EntityManager.setFocusEntity(entity);
 		}

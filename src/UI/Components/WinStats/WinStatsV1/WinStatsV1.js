@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -29,14 +28,11 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	WinStatsV1.init = function init()
-	{
+	WinStatsV1.init = function init() {
 		this.statuspoint = 0;
 
-		this.ui.find('.up button').mousedown(function ()
-		{
-			switch (this.className)
-			{
+		this.ui.find('.up button').mousedown(function () {
+			switch (this.className) {
 				case 'str':
 					WinStatsV1.onRequestUpdate(13, 1);
 					break;
@@ -67,12 +63,10 @@ define(function (require)
 	/**
 	 * Execute elements in memory
 	 */
-	WinStatsV1.onAppend = function onAppend()
-	{
+	WinStatsV1.onAppend = function onAppend() {
 		var i, count;
 
-		for (i = 0, count = this.stack.length; i < count; ++i)
-		{
+		for (i = 0, count = this.stack.length; i < count; ++i) {
 			this.update.apply(this, this.stack[i]);
 		}
 
@@ -86,22 +80,18 @@ define(function (require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	WinStatsV1.update = function update(type, val)
-	{
+	WinStatsV1.update = function update(type, val) {
 		var str;
 
-		if (!this.__loaded)
-		{
+		if (!this.__loaded) {
 			this.stack.push(arguments);
 			return;
 		}
 
-		switch (type)
-		{
+		switch (type) {
 			case 'statuspoint':
 				this.statuspoint = val;
-				this.ui.find('.requirements div').each(function ()
-				{
+				this.ui.find('.requirements div').each(function () {
 					WinStatsV1.ui.find('.up .' + this.className).css({
 						opacity: parseInt(this.textContent, 10) <= val ? 1 : 0,
 						'pointer-events': parseInt(this.textContent, 10) <= val ? 'initial' : 'none'
@@ -126,8 +116,7 @@ define(function (require)
 				break;
 
 			case 'matak2':
-				if (!Session.isRenewal)
-				{
+				if (!Session.isRenewal) {
 					this.ui.find('.' + type).text('~ ' + val);
 					break;
 				}

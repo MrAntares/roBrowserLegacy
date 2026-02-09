@@ -13,8 +13,7 @@
 //Figure out how to decompress.
 //Figure out how to use this structure tree that granny has by default for each sections information.
 
-define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (BinaryReader, glMatrix)
-{
+define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (BinaryReader, glMatrix) {
 	'use strict';
 
 	/**
@@ -29,10 +28,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 *
 	 * @param {ArrayBuffer} data - optional
 	 */
-	function GR2(data)
-	{
-		if (data)
-		{
+	function GR2(data) {
+		if (data) {
 			this.load(data);
 		}
 	}
@@ -474,20 +471,17 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		GrannyProductBuildNumber
 	) {};
 
-	GR2.File = function (input)
-	{
+	GR2.File = function (input) {
 		// GrannyReadEntireFile or GrannyReadEntireFileFromMemory
 		// Check if input is buffer then from memory else from string
 		//FileName
 	};
 
-	GR2.FileCRCIsValid = function (FileName)
-	{
+	GR2.FileCRCIsValid = function (FileName) {
 		return GR2.File(FileName).CRCIsVaild();
 	};
 
-	GR2.File.prototype.CRCIsVaild = function (FileName)
-	{
+	GR2.File.prototype.CRCIsVaild = function (FileName) {
 		return true;
 	};
 	/**
@@ -502,8 +496,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	/**
 	 * Bounding Box
 	 */
-	GR2.Box = function BoundingBox()
-	{
+	GR2.Box = function BoundingBox() {
 		this.max = vec3.fromValues(-Infinity, -Infinity, -Infinity);
 		this.min = vec3.fromValues(Infinity, Infinity, Infinity);
 		this.offset = vec3.create();
@@ -516,8 +509,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 *
 	 * @param {ArrayBuffer} data
 	 */
-	GR2.prototype.load = function Load(data)
-	{
+	GR2.prototype.load = function Load(data) {
 		var fp, header, name;
 		var i, count;
 		var textures, nodes, posKeyframes, volumebox;
@@ -532,8 +524,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		// 4 GrannyStandardDeformableIndexSection  - All indices into deformable vertex arrays go here
 		// 5 GrannyStandardTextureSection          - All textures go here
 
-		function Section(fp)
-		{
+		function Section(fp) {
 			this.Format = fp.readUInt();
 			this.DataOffset = fp.readUInt();
 			this.DataSize = fp.readUInt();
@@ -549,18 +540,17 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			this.IsReady = false;
 		}
 
-		Section.prototype.decompress = function (fp)
-		{
-			if (this.IsReady) {return true;}
+		Section.prototype.decompress = function (fp) {
+			if (this.IsReady) {
+				return true;
+			}
 
 			var data = new BinaryReader(fp.buffer, this.DataOffset, this.DataSize);
 			// TODO Create an output buffer the size of ExpandedDataSize for copying uncompressed data into.
 
-			switch (this.Format)
-			{
+			switch (this.Format) {
 				case GR2.COMPRESSION_TYPE.NoCompression:
-					if (this.ExpandedDataSize != this.DataSize)
-					{
+					if (this.ExpandedDataSize != this.DataSize) {
 						console.error('Expanded Data Size and DataSize do not match.');
 					}
 					this.data = data;
@@ -585,14 +575,12 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			return this.IsReady;
 		};
 
-		function Reference(fp)
-		{
+		function Reference(fp) {
 			this.SectionIndex = fp.readUInt();
 			this.Offset = fp.readUInt();
 		}
 
-		function Header(fp)
-		{
+		function Header(fp) {
 			this.Version = fp.readUInt();
 			this.TotalSize = fp.readUInt();
 			this.CRC = fp.readUInt();
@@ -602,16 +590,14 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			this.RootObject = new Reference(fp);
 			this.TypeTag = fp.readUInt();
 			this.ExtraTags = [];
-			for (var i = 0; i < GR2.GRNExtraTagCount; i++)
-			{
+			for (var i = 0; i < GR2.GRNExtraTagCount; i++) {
 				this.ExtraTags.push(fp.readUInt());
 			}
 			this.StringDatabaseCRC = fp.readUInt();
 			this.ReservedUnused = [fp.readUInt(), fp.readUInt(), fp.readUInt()];
 		}
 
-		function GrannyFileMagicValue(fp)
-		{
+		function GrannyFileMagicValue(fp) {
 			this.MagicValue = [fp.readUInt(), fp.readUInt(), fp.readUInt(), fp.readUInt()];
 			this.HeaderSize = fp.readUInt();
 			this.HeaderFormat = fp.readUInt();
@@ -619,24 +605,19 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		}
 
 		// Not called with new as we return an array of 3 float.
-		function Triple()
-		{
-			if (arguments.length === 1)
-			{
+		function Triple() {
+			if (arguments.length === 1) {
 				// Set from file pointer
 				var fp = arguments[0];
 				return [fp.readFloat(), fp.readFloat(), fp.readFloat()];
-			}
-			else if (arguments.length == 3)
-			{
+			} else if (arguments.length == 3) {
 				// Set from X,Y,Z etc
 				return [arguments[0], arguments[1], arguments[2]];
 			}
 			return [0, 0, 0];
 		}
 
-		function GrannyDataTypeDefinition()
-		{
+		function GrannyDataTypeDefinition() {
 			//granny_member_type Type;
 			//char const * Name;
 			//this.ReferenceType = null;// GrannyDataTypeDefinition * ;
@@ -645,14 +626,12 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			//granny_uintaddrx Ignored__Ignored;
 		}
 
-		function GrannyVariant(fp)
-		{
+		function GrannyVariant(fp) {
 			this.Type = new GrannyDataTypeDefinition(fp);
 			this.Object = null;
 		}
 
-		function GrannyArtToolInfo(fp)
-		{
+		function GrannyArtToolInfo(fp) {
 			this.FromArtToolName = fp.readString(30); // TODO Check how to read strings
 			this.ArtToolMajorRevision = fp.readUInt();
 			this.ArtToolMinorRevision = fp.readUInt();
@@ -664,8 +643,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			this.ExtendedData = new GrannyVariant(fp);
 		}
 
-		function GrannyFileInfo(fp)
-		{
+		function GrannyFileInfo(fp) {
 			granny_art_tool_info * ArtToolInfo;
 			granny_exporter_info * ExporterInfo;
 			this.FromFileName = fp.readString(30); // TODO Check how to read strings.
@@ -710,11 +688,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 
 		console.error(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
 		fp.seek(SectionArrayAddress);
-		for (var i = 0; i < this.Header.SectionArrayCount; i++)
-		{
+		for (var i = 0; i < this.Header.SectionArrayCount; i++) {
 			var s = new Section(fp);
-			if (s.Format == GR2.COMPRESSION_TYPE.NoCompression)
-			{
+			if (s.Format == GR2.COMPRESSION_TYPE.NoCompression) {
 				s.decompress(fp);
 			}
 			this.Sections.push(s);
@@ -813,8 +789,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	GR2.prototype.createInstance = function CreateInstance(model, width, height)
-	{
+	GR2.prototype.createInstance = function CreateInstance(model, width, height) {
 		var matrix = mat4.create();
 
 		mat4.identity(matrix);
@@ -830,8 +805,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	/**
 	 * Calculate model bounding box
 	 */
-	GR2.prototype.calcBoundingBox = function CalcBoundingBox()
-	{
+	GR2.prototype.calcBoundingBox = function CalcBoundingBox() {
 		var i, j, count;
 		var box = this.box;
 		var matrix = mat4.create();
@@ -843,10 +817,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		mat4.identity(matrix);
 		this.main_node.calcBoundingBox(matrix);
 
-		for (i = 0; i < 3; ++i)
-		{
-			for (j = 0; j < count; ++j)
-			{
+		for (i = 0; i < 3; ++i) {
+			for (j = 0; j < count; ++j) {
 				box.max[i] = max(box.max[i], nodes[j].box.max[i]);
 				box.min[i] = min(box.min[i], nodes[j].box.min[i]);
 			}
@@ -859,8 +831,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	/**
 	 * Compile Model
 	 */
-	GR2.prototype.compile = function Compile()
-	{
+	GR2.prototype.compile = function Compile() {
 		var nodes = this.nodes;
 		var instances = this.instances;
 
@@ -871,10 +842,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		var meshes = new Array(node_count * instance_count);
 
 		// Generate Mesh
-		for (i = 0, k = 0; i < node_count; ++i)
-		{
-			for (j = 0; j < instance_count; ++j, k++)
-			{
+		for (i = 0, k = 0; i < node_count; ++i) {
+			for (j = 0; j < instance_count; ++j, k++) {
 				meshes[k] = nodes[i].compile(instances[j]);
 			}
 		}
@@ -892,8 +861,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {object} fp BinaryReader
 	 * @param {boolean} only
 	 */
-	GR2.Node = function Node(gr2, fp, only)
-	{
+	GR2.Node = function Node(gr2, fp, only) {
 		var i,
 			j,
 			count,
@@ -912,8 +880,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		count = fp.readLong();
 		textures = new Array(count);
 
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			textures[i] = fp.readLong();
 		}
 
@@ -938,18 +905,15 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		// Read vertices
 		count = fp.readLong();
 		vertices = new Array(count);
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			vertices[i] = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
 		}
 
 		// Read textures vertices
 		count = fp.readLong();
 		tvertices = new Float32Array(count * 6);
-		for (i = 0, j = 0; i < count; ++i, j += 6)
-		{
-			if (version >= 1.2)
-			{
+		for (i = 0, j = 0; i < count; ++i, j += 6) {
+			if (version >= 1.2) {
 				tvertices[j + 0] = fp.readUByte() / 255;
 				tvertices[j + 1] = fp.readUByte() / 255;
 				tvertices[j + 2] = fp.readUByte() / 255;
@@ -962,8 +926,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		// Read faces
 		count = fp.readLong();
 		faces = new Array(count);
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			faces[i] = {
 				vertidx: [fp.readUShort(), fp.readUShort(), fp.readUShort()],
 				tvertidx: [fp.readUShort(), fp.readUShort(), fp.readUShort()],
@@ -975,13 +938,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		}
 
 		// Read poskeyframes
-		if (version >= 1.5)
-		{
+		if (version >= 1.5) {
 			count = fp.readLong();
 			posKeyframes = new Array(count);
 
-			for (i = 0; i < count; ++i)
-			{
+			for (i = 0; i < count; ++i) {
 				posKeyframes[i] = {
 					frame: fp.readLong(),
 					px: fp.readFloat(),
@@ -995,8 +956,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		count = fp.readLong();
 		rotKeyframes = new Array(count);
 
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			rotKeyframes[i] = {
 				frame: fp.readLong(),
 				q: [fp.readFloat(), fp.readFloat(), fp.readFloat(), fp.readFloat()]
@@ -1018,8 +978,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 *
 	 * @param {mat4} _matrix
 	 */
-	GR2.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix)
-	{
+	GR2.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix) {
 		// Define variables
 		var i, j, count;
 		var v = vec3.create();
@@ -1036,12 +995,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		mat4.translate(this.matrix, this.matrix, this.pos);
 
 		// Dynamic or static model
-		if (!this.rotKeyframes.length)
-		{
+		if (!this.rotKeyframes.length) {
 			mat4.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
-		}
-		else
-		{
+		} else {
 			mat4.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
 		}
 
@@ -1050,15 +1006,13 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		// Strat from here just modify a local matrix
 		mat4.copy(matrix, this.matrix);
 
-		if (!this.is_only)
-		{
+		if (!this.is_only) {
 			mat4.translate(matrix, matrix, this.offset);
 		}
 
 		mat4.multiply(matrix, matrix, mat3.toMat4(this.mat3));
 
-		for (i = 0, count = vertices.length; i < count; ++i)
-		{
+		for (i = 0, count = vertices.length; i < count; ++i) {
 			//mat4.multiplyVec3( matrix, matrix, vertices[i], v );
 			x = vertices[i][0];
 			y = vertices[i][1];
@@ -1068,24 +1022,20 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			v[1] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
 			v[2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
 
-			for (j = 0; j < 3; j++)
-			{
+			for (j = 0; j < 3; j++) {
 				box.min[j] = min(v[j], box.min[j]);
 				box.max[j] = max(v[j], box.max[j]);
 			}
 		}
 
-		for (i = 0; i < 3; i++)
-		{
+		for (i = 0; i < 3; i++) {
 			box.offset[i] = (box.max[i] + box.min[i]) / 2.0;
 			box.range[i] = (box.max[i] - box.min[i]) / 2.0;
 			box.center[i] = box.min[i] + box.range[i];
 		}
 
-		for (i = 0, count = nodes.length; i < count; ++i)
-		{
-			if (nodes[i].parentname === this.name && this.name !== this.parentname)
-			{
+		for (i = 0, count = nodes.length; i < count; ++i) {
+			if (nodes[i].parentname === this.name && this.name !== this.parentname) {
 				nodes[i].calcBoundingBox(this.matrix);
 			}
 		}
@@ -1096,8 +1046,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 *
 	 * @param {mat4} instance_matrix
 	 */
-	GR2.Node.prototype.compile = function (instance_matrix)
-	{
+	GR2.Node.prototype.compile = function (instance_matrix) {
 		var matrix;
 		var modelViewMat = mat4.create();
 		var normalMat = mat4.create();
@@ -1120,8 +1069,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		mat4.translate(matrix, matrix, [-this.main.box.center[0], -this.main.box.max[1], -this.main.box.center[2]]);
 		mat4.multiply(matrix, matrix, this.matrix);
 
-		if (!this.is_only)
-		{
+		if (!this.is_only) {
 			mat4.translate(matrix, matrix, this.offset);
 		}
 
@@ -1135,8 +1083,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		// Generate new vertices
 		count = vertices.length;
 		vert = new Float32Array(count * 3);
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			x = vertices[i][0];
 			y = vertices[i][1];
 			z = vertices[i][2];
@@ -1151,25 +1098,21 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		face_normal = new Float32Array(faces.length * 3);
 
 		// Setup mesh slot array
-		for (i = 0, count = textures.length; i < count; ++i)
-		{
+		for (i = 0, count = textures.length; i < count; ++i) {
 			mesh_size[textures[i]] = 0;
 		}
 
 		// Find mesh max face
-		for (i = 0, count = faces.length; i < count; ++i)
-		{
+		for (i = 0, count = faces.length; i < count; ++i) {
 			mesh_size[textures[faces[i].texid]]++;
 		}
 
 		// Initialize buffer
-		for (i = 0, count = textures.length; i < count; ++i)
-		{
+		for (i = 0, count = textures.length; i < count; ++i) {
 			mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
 		}
 
-		switch (this.main.shadeType)
-		{
+		switch (this.main.shadeType) {
 			default:
 
 			case GR2.SHADING.NONE:
@@ -1197,11 +1140,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 *
 	 * @param {Float32Array[]} out
 	 */
-	GR2.Node.prototype.calcNormal_NONE = function calcNormalNone(out)
-	{
+	GR2.Node.prototype.calcNormal_NONE = function calcNormalNone(out) {
 		var i, count;
-		for (i = 1, count = out.length; i < count; i += 3)
-		{
+		for (i = 1, count = out.length; i < count; i += 3) {
 			out[i] = -1;
 		}
 	};
@@ -1213,16 +1154,14 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {mat4} normalMat
 	 * @param {Array} groupUsed
 	 */
-	GR2.Node.prototype.calcNormal_FLAT = function calcNormalFlat(out, normalMat, groupUsed)
-	{
+	GR2.Node.prototype.calcNormal_FLAT = function calcNormalFlat(out, normalMat, groupUsed) {
 		var i, j, count;
 		var face;
 		var temp_vec = vec3.create();
 		var faces = this.faces;
 		var vertices = this.vertices;
 
-		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3)
-		{
+		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 			face = faces[i];
 
 			vec3.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], temp_vec);
@@ -1246,39 +1185,33 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Array} groupUsed
 	 * @param {Array} group
 	 */
-	GR2.Node.prototype.calcNormal_SMOOTH = function calcNormalSmooth(normal, groupUsed, group)
-	{
+	GR2.Node.prototype.calcNormal_SMOOTH = function calcNormalSmooth(normal, groupUsed, group) {
 		var i, j, k, l, v, x, y, z, len;
 		var size = this.vertices.length;
 		var faces = this.faces;
 		var face, norm;
 		var count = faces.length;
 
-		for (j = 0; j < 32; ++j)
-		{
+		for (j = 0; j < 32; ++j) {
 			// Group not used, skip it
-			if (!groupUsed[j])
-			{
+			if (!groupUsed[j]) {
 				continue;
 			}
 
 			group[j] = new Float32Array(size * 3);
 			norm = group[j];
 
-			for (v = 0, l = 0; v < size; ++v, l += 3)
-			{
+			for (v = 0, l = 0; v < size; ++v, l += 3) {
 				x = 0;
 				y = 0;
 				z = 0;
 
-				for (i = 0, k = 0; i < count; ++i, k += 3)
-				{
+				for (i = 0, k = 0; i < count; ++i, k += 3) {
 					face = faces[i];
 					if (
 						face.smoothGroup === j &&
 						(face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)
-					)
-					{
+					) {
 						x += normal[k];
 						y += normal[k + 1];
 						z += normal[k + 2];
@@ -1301,8 +1234,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Float32Array[]} norm
 	 * @param {Array} mesh
 	 */
-	GR2.Node.prototype.generate_mesh_FLAT = function generateMeshFlat(vert, norm, mesh)
-	{
+	GR2.Node.prototype.generate_mesh_FLAT = function generateMeshFlat(vert, norm, mesh) {
 		var a, b, o, i, j, k, t, count;
 		var faces = this.faces;
 		var textures = this.textures;
@@ -1312,13 +1244,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		var face, idx, tidx, out;
 
 		// Setup mesh slot array
-		for (i = 0, count = textures.length; i < count; ++i)
-		{
+		for (i = 0, count = textures.length; i < count; ++i) {
 			offset[textures[i]] = 0;
 		}
 
-		for (i = 0, o = 0, k = 0, count = faces.length; i < count; ++i, k += 3)
-		{
+		for (i = 0, o = 0, k = 0, count = faces.length; i < count; ++i, k += 3) {
 			face = faces[i];
 			idx = face.vertidx;
 			tidx = face.tvertidx;
@@ -1326,8 +1256,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			out = mesh[t];
 			o = offset[t];
 
-			for (j = 0; j < 3; j++, o += 9)
-			{
+			for (j = 0; j < 3; j++, o += 9) {
 				a = idx[j] * 3;
 				b = tidx[j] * 6;
 				/* vec3 positions  */ out[o + 0] = vert[a + 0];
@@ -1352,8 +1281,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Array} shadeGroup
 	 * @param {Array} mesh
 	 */
-	GR2.Node.prototype.generate_mesh_SMOOTH = function generateMeshSmooth(vert, shadeGroup, mesh)
-	{
+	GR2.Node.prototype.generate_mesh_SMOOTH = function generateMeshSmooth(vert, shadeGroup, mesh) {
 		var a, b, o, i, j, t, count;
 		var faces = this.faces;
 		var textures = this.textures;
@@ -1363,13 +1291,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		var norm, face, idx, tidx, out;
 
 		// Setup mesh slot array
-		for (i = 0, count = textures.length; i < count; ++i)
-		{
+		for (i = 0, count = textures.length; i < count; ++i) {
 			offset[textures[i]] = 0;
 		}
 
-		for (i = 0, o = 0, count = faces.length; i < count; ++i)
-		{
+		for (i = 0, o = 0, count = faces.length; i < count; ++i) {
 			face = faces[i];
 			norm = shadeGroup[face.smoothGroup];
 			idx = face.vertidx;
@@ -1379,8 +1305,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			out = mesh[t];
 			o = offset[t];
 
-			for (j = 0; j < 3; j++, o += 9)
-			{
+			for (j = 0; j < 3; j++, o += 9) {
 				a = idx[j] * 3;
 				b = tidx[j] * 6;
 				/* vec3 positions  */ out[o + 0] = vert[a + 0];

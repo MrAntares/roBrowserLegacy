@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -47,15 +46,12 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	WinStatsV3.init = function init()
-	{
+	WinStatsV3.init = function init() {
 		this.statuspoint = 0;
 		this.t_statuspoint = 0;
 
-		this.ui.find('.up button').mousedown(function ()
-		{
-			switch (this.className)
-			{
+		this.ui.find('.up button').mousedown(function () {
+			switch (this.className) {
 				case 'str':
 					WinStatsV3.onRequestUpdate(13, 1);
 					break;
@@ -77,10 +73,8 @@ define(function (require)
 			}
 		});
 
-		this.ui.find('.t_up button').mousedown(function ()
-		{
-			switch (this.className)
-			{
+		this.ui.find('.t_up button').mousedown(function () {
+			switch (this.className) {
 				case 'pow':
 					WinStatsV3.onRequestUpdate(219, 1);
 					break;
@@ -102,12 +96,10 @@ define(function (require)
 			}
 		});
 
-		this.ui.find('.titlebar .mini').click(function ()
-		{
+		this.ui.find('.titlebar .mini').click(function () {
 			WinStatsV3.ui.find('.panel').toggle();
 		});
-		this.ui.find('.titlebar .close').click(function ()
-		{
+		this.ui.find('.titlebar .close').click(function () {
 			WinStatsV3.ui.hide();
 		});
 		this.draggable(this.ui.find('.titlebar'));
@@ -123,12 +115,10 @@ define(function (require)
 	/**
 	 * Execute elements in memory
 	 */
-	WinStatsV3.onAppend = function onAppend()
-	{
+	WinStatsV3.onAppend = function onAppend() {
 		var i, count;
 
-		for (i = 0, count = this.stack.length; i < count; ++i)
-		{
+		for (i = 0, count = this.stack.length; i < count; ++i) {
 			this.update.apply(this, this.stack[i]);
 		}
 
@@ -139,8 +129,7 @@ define(function (require)
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		if (!_preferences.show)
-		{
+		if (!_preferences.show) {
 			this.ui.hide();
 		}
 	};
@@ -152,22 +141,18 @@ define(function (require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	WinStatsV3.update = function update(type, val)
-	{
+	WinStatsV3.update = function update(type, val) {
 		var str;
 
-		if (!this.__loaded)
-		{
+		if (!this.__loaded) {
 			this.stack.push(arguments);
 			return;
 		}
 
-		switch (type)
-		{
+		switch (type) {
 			case 'statuspoint':
 				this.statuspoint = val;
-				this.ui.find('.requirements div').each(function ()
-				{
+				this.ui.find('.requirements div').each(function () {
 					WinStatsV3.ui.find('.up .' + this.className).css({
 						opacity: parseInt(this.textContent, 10) <= val ? 1 : 0,
 						'pointer-events': parseInt(this.textContent, 10) <= val ? 'initial' : 'none'
@@ -178,8 +163,7 @@ define(function (require)
 
 			case 'trait_point':
 				this.t_statuspoint = val;
-				this.ui.find('.t_requirements div').each(function ()
-				{
+				this.ui.find('.t_requirements div').each(function () {
 					WinStatsV3.ui.find('.t_up .' + this.className).css({
 						opacity: parseInt(this.textContent, 10) <= val ? 1 : 0,
 						'pointer-events': parseInt(this.textContent, 10) <= val ? 'initial' : 'none'
@@ -210,8 +194,7 @@ define(function (require)
 				break;
 
 			case 'matak2':
-				if (!Session.isRenewal)
-				{
+				if (!Session.isRenewal) {
 					this.ui.find('.' + type).text('~ ' + val);
 					break;
 				}
@@ -285,16 +268,14 @@ define(function (require)
 	/**
 	 * Display or not status window
 	 */
-	function toggleTraits()
-	{
+	function toggleTraits() {
 		var status = WinStatsV3.ui.find('.traits_component');
 		var self = WinStatsV3.ui.find('.view_traits');
 		var state = status.is(':visible') ? 'on' : 'off';
 
 		status.toggle();
 
-		Client.loadFile(DB.INTERFACE_PATH + 'statuswnd/expand_' + state + '_normal.bmp', function (data)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'statuswnd/expand_' + state + '_normal.bmp', function (data) {
 			self.css('backgroundImage', 'url(' + data + ')');
 		});
 	}
@@ -302,12 +283,10 @@ define(function (require)
 	/**
 	 * Start/stop rendering character in UI
 	 */
-	WinStatsV3.toggle = function toggle()
-	{
+	WinStatsV3.toggle = function toggle() {
 		this.ui.toggle();
 
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			this.focus();
 		}
 	};
@@ -317,10 +296,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	WinStatsV3.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd)
-		{
+	WinStatsV3.onShortCut = function onShurtCut(key) {
+		switch (key.cmd) {
 			case 'TOGGLE':
 				this.ui.toggle();
 				break;
@@ -330,11 +307,9 @@ define(function (require)
 	/**
 	 * Remove WinStats window
 	 */
-	WinStatsV3.onRemove = function onRemove()
-	{
+	WinStatsV3.onRemove = function onRemove() {
 		// Save preferences
-		if (_preferences)
-		{
+		if (_preferences) {
 			_preferences.show = this.ui.is(':visible');
 			_preferences.reduce = this.ui.find('.panel').css('display') === 'none';
 			_preferences.y = parseInt(this.ui.css('top'), 10);

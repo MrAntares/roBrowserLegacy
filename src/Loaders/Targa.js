@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -49,33 +48,25 @@ define(function ()
 	 * @param {object} tga header structure
 	 * @throws Error
 	 */
-	function checkHeader(header)
-	{
+	function checkHeader(header) {
 		// What the need of a file without data ?
-		if (header.imageType === Targa.Type.NO_DATA)
-		{
+		if (header.imageType === Targa.Type.NO_DATA) {
 			throw new Error('Targa::checkHeader() - No data');
 		}
 
 		// Indexed type
-		if (header.hasColorMap)
-		{
-			if (header.colorMapLength > 256 || header.colorMapSize !== 24 || header.colorMapType !== 1)
-			{
+		if (header.hasColorMap) {
+			if (header.colorMapLength > 256 || header.colorMapSize !== 24 || header.colorMapType !== 1) {
 				throw new Error('Targa::checkHeader() - Invalid colormap for indexed type');
 			}
-		}
-		else
-		{
-			if (header.colorMapType)
-			{
+		} else {
+			if (header.colorMapType) {
 				throw new Error('Targa::checkHeader() - Why does the image contain a palette ?');
 			}
 		}
 
 		// Check image size
-		if (header.width <= 0 || header.height <= 0)
-		{
+		if (header.width <= 0 || header.height <= 0) {
 			throw new Error('Targa::checkHeader() - Invalid image size');
 		}
 
@@ -85,8 +76,7 @@ define(function ()
 			header.pixelDepth !== 16 &&
 			header.pixelDepth !== 24 &&
 			header.pixelDepth !== 32
-		)
-		{
+		) {
 			throw new Error('Targa::checkHeader() - Invalid pixel size "' + header.pixelDepth + '"');
 		}
 	}
@@ -99,8 +89,7 @@ define(function ()
 	 * @param {number} pixel count
 	 * @param {number} output buffer size
 	 */
-	function decodeRLE(data, offset, pixelSize, outputSize)
-	{
+	function decodeRLE(data, offset, pixelSize, outputSize) {
 		var pos, c, count, i;
 		var pixels, output;
 
@@ -108,34 +97,28 @@ define(function ()
 		pixels = new Uint8Array(pixelSize);
 		pos = 0;
 
-		while (pos < outputSize)
-		{
+		while (pos < outputSize) {
 			c = data[offset++];
 			count = (c & 0x7f) + 1;
 
 			// RLE pixels.
-			if (c & 0x80)
-			{
+			if (c & 0x80) {
 				// Bind pixel tmp array
-				for (i = 0; i < pixelSize; ++i)
-				{
+				for (i = 0; i < pixelSize; ++i) {
 					pixels[i] = data[offset++];
 				}
 
 				// Copy pixel array
-				for (i = 0; i < count; ++i)
-				{
+				for (i = 0; i < count; ++i) {
 					output.set(pixels, pos);
 					pos += pixelSize;
 				}
 			}
 
 			// Raw pixels.
-			else
-			{
+			else {
 				count *= pixelSize;
-				for (i = 0; i < count; ++i)
-				{
+				for (i = 0; i < count; ++i) {
 					output[pos++] = data[offset++];
 				}
 			}
@@ -150,20 +133,16 @@ define(function ()
 	 * @param {string} path - Path of the filename to load
 	 * @param {function} callback - callback to trigger when the file is loaded
 	 */
-	Targa.prototype.open = function targaOpen(path, callback)
-	{
+	Targa.prototype.open = function targaOpen(path, callback) {
 		var req,
 			tga = this;
 		req = new XMLHttpRequest();
 		req.responseType = 'arraybuffer';
 		req.open('GET', path, true);
-		req.onload = function ()
-		{
-			if (this.status === 200)
-			{
+		req.onload = function () {
+			if (this.status === 200) {
 				tga.load(new Uint8Array(req.response));
-				if (callback)
-				{
+				if (callback) {
 					callback.call(tga);
 				}
 			}
@@ -176,13 +155,11 @@ define(function ()
 	 *
 	 * @param {Uint8Array} data - TGA file buffer array
 	 */
-	Targa.prototype.load = function targaLoad(data)
-	{
+	Targa.prototype.load = function targaLoad(data) {
 		var offset = 0;
 
 		// Not enough data to contain header ?
-		if (data.length < 0x12)
-		{
+		if (data.length < 0x12) {
 			throw new Error('Targa::load() - Not enough data to contain header');
 		}
 
@@ -217,14 +194,12 @@ define(function ()
 
 		// Move to data
 		offset += this.header.idLength;
-		if (offset >= data.length)
-		{
+		if (offset >= data.length) {
 			throw new Error('Targa::load() - No data');
 		}
 
 		// Read palette
-		if (this.header.hasColorMap)
-		{
+		if (this.header.hasColorMap) {
 			var colorMapSize = this.header.colorMapLength * (this.header.colorMapDepth >> 3);
 			this.palette = data.subarray(offset, offset + colorMapSize);
 			offset += colorMapSize;
@@ -235,14 +210,12 @@ define(function ()
 		var pixelTotal = imageSize * pixelSize;
 
 		// RLE encoded
-		if (this.header.hasEncoding)
-		{
+		if (this.header.hasEncoding) {
 			this.imageData = decodeRLE(data, offset, pixelSize, pixelTotal);
 		}
 
 		// RAW pixels
-		else
-		{
+		else {
 			this.imageData = data.subarray(offset, offset + (this.header.hasColorMap ? imageSize : pixelTotal));
 		}
 	};
@@ -253,39 +226,31 @@ define(function ()
 	 * @param {object} imageData - Optional ImageData to work with
 	 * @returns {object} imageData
 	 */
-	Targa.prototype.getImageData = function targaGetImageData(imageData)
-	{
+	Targa.prototype.getImageData = function targaGetImageData(imageData) {
 		var width = this.header.width;
 		var height = this.header.height;
 		// Create an imageData
-		if (!imageData)
-		{
+		if (!imageData) {
 			imageData = { width: width, height: height, data: new Uint8ClampedArray(width * height * 4) };
 		}
 		var origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
 		var x_start, x_step, x_end, y_start, y_step, y_end;
 
-		if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT)
-		{
+		if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT) {
 			y_start = 0;
 			y_step = 1;
 			y_end = height;
-		}
-		else
-		{
+		} else {
 			y_start = height - 1;
 			y_step = -1;
 			y_end = -1;
 		}
 
-		if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.BOTTOM_LEFT)
-		{
+		if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.BOTTOM_LEFT) {
 			x_start = 0;
 			x_step = 1;
 			x_end = width;
-		}
-		else
-		{
+		} else {
 			x_start = width - 1;
 			x_step = -1;
 			x_end = -1;
@@ -296,31 +261,23 @@ define(function ()
 		var buffer32 = new Uint32Array(data.buffer);
 		var i = 0;
 
-		switch (this.header.pixelDepth)
-		{
+		switch (this.header.pixelDepth) {
 			case 8:
-				if (this.header.isGreyColor)
-				{
+				if (this.header.isGreyColor) {
 					// 8-bit grayscale
-					for (var y = y_start; y !== y_end; y += y_step)
-					{
+					for (var y = y_start; y !== y_end; y += y_step) {
 						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step)
-						{
+						for (var x = x_start; x !== x_end; x += x_step) {
 							var v = input[i++];
 							buffer32[rowOffset + x] = (255 << 24) | (v << 16) | (v << 8) | v;
 						}
 					}
-				}
-				else
-				{
+				} else {
 					// 8-bit indexed (paletted)
 					var colormap = this.palette;
-					for (var y = y_start; y !== y_end; y += y_step)
-					{
+					for (var y = y_start; y !== y_end; y += y_step) {
 						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step)
-						{
+						for (var x = x_start; x !== x_end; x += x_step) {
 							var idx = input[i++] * 3;
 							var b = colormap[idx + 0];
 							var g = colormap[idx + 1];
@@ -332,28 +289,21 @@ define(function ()
 				break;
 
 			case 16:
-				if (this.header.isGreyColor)
-				{
+				if (this.header.isGreyColor) {
 					// 16-bit grayscale (intensity + alpha)
-					for (var y = y_start; y !== y_end; y += y_step)
-					{
+					for (var y = y_start; y !== y_end; y += y_step) {
 						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step)
-						{
+						for (var x = x_start; x !== x_end; x += x_step) {
 							var intensity = input[i++];
 							var alpha = input[i++];
 							buffer32[rowOffset + x] = (alpha << 24) | (intensity << 16) | (intensity << 8) | intensity;
 						}
 					}
-				}
-				else
-				{
+				} else {
 					// 16-bit 5-5-5-1
-					for (var y = y_start; y !== y_end; y += y_step)
-					{
+					for (var y = y_start; y !== y_end; y += y_step) {
 						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step)
-						{
+						for (var x = x_start; x !== x_end; x += x_step) {
 							var color = input[i] | (input[i + 1] << 8);
 							i += 2;
 
@@ -368,11 +318,9 @@ define(function ()
 				}
 				break;
 			case 24:
-				for (var y = y_start; y !== y_end; y += y_step)
-				{
+				for (var y = y_start; y !== y_end; y += y_step) {
 					var rowOffset = y * width;
-					for (var x = x_start; x !== x_end; x += x_step)
-					{
+					for (var x = x_start; x !== x_end; x += x_step) {
 						var b = input[i++];
 						var g = input[i++];
 						var r = input[i++];
@@ -384,11 +332,9 @@ define(function ()
 			case 32:
 				var MAGENTA_MASK = 0x00ff00ff;
 				var PIXEL_MASK = 0x00ffffff;
-				for (var y = y_start; y !== y_end; y += y_step)
-				{
+				for (var y = y_start; y !== y_end; y += y_step) {
 					var rowOffset = y * width;
-					for (var x = x_start; x !== x_end; x += x_step)
-					{
+					for (var x = x_start; x !== x_end; x += x_step) {
 						// BGRA to RGBA (or ABGR depending on endianness)
 						// TGA 32 is usually BGRA
 						// read as Uint32 (BGRA format input[i]=B, input[i+1]=G, input[i+2]=R, input[i+3]=A).
@@ -409,8 +355,7 @@ define(function ()
 	 *
 	 * @returns {object} CanvasElement
 	 */
-	Targa.prototype.getCanvas = function targaGetCanvas()
-	{
+	Targa.prototype.getCanvas = function targaGetCanvas() {
 		var canvas, ctx, imageData;
 
 		canvas = document.createElement('canvas');
@@ -431,8 +376,7 @@ define(function ()
 	 * @param {string} type - Optional image content-type to output (default: image/png)
 	 * @returns {string} url
 	 */
-	Targa.prototype.getDataURL = function targaGetDatURL(type)
-	{
+	Targa.prototype.getDataURL = function targaGetDatURL(type) {
 		return this.getCanvas().toDataURL(type || 'image/png');
 	};
 

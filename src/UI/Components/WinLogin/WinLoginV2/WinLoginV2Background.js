@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -33,8 +32,7 @@ define(function (require)
 	/**
 	 * Once the component is on html - InHerit from UIComponent
 	 */
-	WinLoginV2Background.onAppend = function onAppend()
-	{
+	WinLoginV2Background.onAppend = function onAppend() {
 		this.ui.off('click mousedown mouseup');
 	};
 

@@ -7,8 +7,7 @@
  *
  * @author @vthibault, @Javierlog08, @scriptord3
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -44,8 +43,7 @@ define(function (require)
 	/**
 	 * Initialize component
 	 */
-	Clan.init = function init()
-	{
+	Clan.init = function init() {
 		this.ui.find('.titlebar .close').mousedown(stopPropagation).click(Clan.toggle.bind(this));
 		this.draggable(this.ui.find('.titlebar'));
 
@@ -55,8 +53,7 @@ define(function (require)
 	/**
 	 * Removing Clan
 	 */
-	Clan.onRemove = function onRemove()
-	{
+	Clan.onRemove = function onRemove() {
 		// save preferences
 		_preferences.x = this.ui.position().left;
 		_preferences.y = this.ui.position().top;
@@ -68,10 +65,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	Clan.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd)
-		{
+	Clan.onShortCut = function onShurtCut(key) {
+		switch (key.cmd) {
 			case 'TOGGLE':
 				this.toggle();
 				break;
@@ -81,19 +76,14 @@ define(function (require)
 	/**
 	 * Toggle Clan UI
 	 */
-	Clan.toggle = function onToggle()
-	{
-		if (!Session.hasClan)
-		{
+	Clan.toggle = function onToggle() {
+		if (!Session.hasClan) {
 			return;
 		}
 
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			this.hide();
-		}
-		else
-		{
+		} else {
 			this.show();
 		}
 	};
@@ -103,10 +93,8 @@ define(function (require)
 	 *
 	 * @param {object} event
 	 */
-	Clan.onKeyDown = function onKeyDown(event)
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible'))
-		{
+	Clan.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.toggle();
 		}
 	};
@@ -114,12 +102,10 @@ define(function (require)
 	/**
 	 * Show Clan element
 	 */
-	Clan.show = function show()
-	{
+	Clan.show = function show() {
 		this.focus();
 
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			return;
 		}
 
@@ -129,8 +115,7 @@ define(function (require)
 	/**
 	 * Hide Clan element
 	 */
-	Clan.hide = function hide()
-	{
+	Clan.hide = function hide() {
 		this.ui.hide();
 	};
 
@@ -139,8 +124,7 @@ define(function (require)
 	 *
 	 * @param {object} data
 	 */
-	Clan.setData = function setData(clan)
-	{
+	Clan.setData = function setData(clan) {
 		var general = this.ui.find('.content.info');
 
 		general.find('.name .value').text(clan.name);
@@ -162,8 +146,7 @@ define(function (require)
 	 *
 	 * @param {object} members
 	 */
-	Clan.setMembersCount = function setMembersCount(members)
-	{
+	Clan.setMembersCount = function setMembersCount(members) {
 		var general = this.ui.find('.content.info');
 
 		general.find('.members .online').text(members.membersOnline);
@@ -175,13 +158,11 @@ define(function (require)
 	 *
 	 * @param {Integer} id
 	 */
-	Clan.setIllust = function setIllust(id)
-	{
+	Clan.setIllust = function setIllust(id) {
 		var self = this;
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'clan_system/clan_illust' + id.toString().padStart(2, '0') + '.bmp',
-			function (data)
-			{
+			function (data) {
 				self.ui
 					.find('.content.info')
 					.find('.clan_illust')
@@ -195,13 +176,11 @@ define(function (require)
 	 *
 	 * @param {Integer} id
 	 */
-	Clan.setEmblem = function setEmblem(id)
-	{
+	Clan.setEmblem = function setEmblem(id) {
 		var self = this;
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'clan_system/clan_emblem' + id.toString().padStart(2, '0') + '.bmp',
-			function (data)
-			{
+			function (data) {
 				self.ui
 					.find('.content.info')
 					.find('.emblem_container')
@@ -215,12 +194,10 @@ define(function (require)
 	 *
 	 * @param {Array} Clan list
 	 */
-	Clan.setRelations = function setRelations(type, clans)
-	{
+	Clan.setRelations = function setRelations(type, clans) {
 		var i, count;
 
-		for (i = 0, count = clans.length; i < count; ++i)
-		{
+		for (i = 0, count = clans.length; i < count; ++i) {
 			this.addRelation(type, clans[i]);
 		}
 	};
@@ -230,8 +207,7 @@ define(function (require)
 	 *
 	 * @param {object} Clan
 	 */
-	Clan.addRelation = function addRelation(type, clan)
-	{
+	Clan.addRelation = function addRelation(type, clan) {
 		var list = this.ui.find('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
 		list.empty();
 		var div = document.createElement('div');
@@ -241,8 +217,7 @@ define(function (require)
 		list.append(div);
 	};
 
-	Clan.leave = function leave()
-	{
+	Clan.leave = function leave() {
 		Session.hasClan = false;
 		this.ui.hide();
 	};
@@ -250,8 +225,7 @@ define(function (require)
 	/**
 	 * Stop propagation of events
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}

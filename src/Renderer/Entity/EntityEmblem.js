@@ -7,8 +7,7 @@
  *
  * @author Alison Serafim
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
-{
+define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	'use strict';
 
 	/**
@@ -21,8 +20,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Emblem class
 	 */
-	function Emblem()
-	{
+	function Emblem() {
 		this.emblem = null;
 		this.display = false;
 		this.canvas = document.createElement('canvas');
@@ -35,11 +33,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Remove Emblem GUI
 	 */
-	Emblem.prototype.remove = function remove()
-	{
+	Emblem.prototype.remove = function remove() {
 		this.display = false;
-		if (this.canvas.parentNode)
-		{
+		if (this.canvas.parentNode) {
 			document.body.removeChild(this.canvas);
 		}
 	};
@@ -47,8 +43,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Clean Up Emblem
 	 */
-	Emblem.prototype.clean = function clean()
-	{
+	Emblem.prototype.clean = function clean() {
 		this.remove();
 		//this.ctx    = null;
 		//this.canvas = null;
@@ -57,8 +52,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Update Emblem
 	 */
-	Emblem.prototype.update = function update()
-	{
+	Emblem.prototype.update = function update() {
 		var width = 24,
 			height = 24;
 
@@ -70,8 +64,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 		ctx.canvas.height = height;
 
 		// Draw Emblem
-		if (this.emblem !== null)
-		{
+		if (this.emblem !== null) {
 			ctx.drawImage(this.emblem, 0, 0);
 		}
 	};
@@ -81,8 +74,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	 *
 	 * @param {mat4} matrix
 	 */
-	Emblem.prototype.render = function Render(matrix)
-	{
+	Emblem.prototype.render = function Render(matrix) {
 		var canvas = this.canvas;
 		var z;
 
@@ -108,8 +100,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to body
-		if (!canvas.parentNode)
-		{
+		if (!canvas.parentNode) {
 			document.body.appendChild(canvas);
 		}
 	};
@@ -117,8 +108,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Export
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this.emblem = new Emblem();
 		this.emblem.entity = this;
 	};

@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(['require', 'Core/Configs'], function (require, Configs)
-{
+define(['require', 'Core/Configs'], function (require, Configs) {
 	'use strict';
 
 	/**
@@ -47,16 +46,13 @@ define(['require', 'Core/Configs'], function (require, Configs)
 	 * @param {mixed} data
 	 * @param {function} callback
 	 */
-	var Send = (function SendClosure()
-	{
+	var Send = (function SendClosure() {
 		var _input = { type: '', data: null, uid: 0 };
 
-		return function Send(type, data, callback)
-		{
+		return function Send(type, data, callback) {
 			var uid = 0;
 
-			if (callback)
-			{
+			if (callback) {
 				uid = ++_uid;
 				_memory[uid] = callback;
 			}
@@ -75,21 +71,18 @@ define(['require', 'Core/Configs'], function (require, Configs)
 	 *
 	 * @param {object} event
 	 */
-	function Receive(event)
-	{
+	function Receive(event) {
 		var uid = event.data.uid;
 		var type = event.data.type;
 
 		// Direct callback
-		if (uid in _memory)
-		{
+		if (uid in _memory) {
 			_memory[uid].apply(null, event.data.arguments);
 			delete _memory[uid];
 		}
 
 		// Hook Feature
-		if (type && _hook[type])
-		{
+		if (type && _hook[type]) {
 			_hook[type].call(null, event.data.data);
 		}
 	}
@@ -100,8 +93,7 @@ define(['require', 'Core/Configs'], function (require, Configs)
 	 * @param {string} type
 	 * @param {function} callback
 	 */
-	function Hook(type, callback)
-	{
+	function Hook(type, callback) {
 		_hook[type] = callback;
 	}
 
@@ -111,8 +103,7 @@ define(['require', 'Core/Configs'], function (require, Configs)
 	 * @param {Window} source
 	 * @param {string} origin
 	 */
-	function Delegate(source, origin)
-	{
+	function Delegate(source, origin) {
 		_source = source;
 		_origin = origin;
 	}
@@ -120,23 +111,19 @@ define(['require', 'Core/Configs'], function (require, Configs)
 	/**
 	 * Initialize Thread
 	 */
-	function Init()
-	{
-		if (!_source)
-		{
+	function Init() {
+		if (!_source) {
 			var url = Configs.get('development') ? './ThreadEventHandler.js' : './../../ThreadEventHandler.js';
 			_source = new Worker(require.toUrl(url) + '?' + Configs.get('version', ''));
 		}
 
 		// Worker context
-		if (_source instanceof Worker)
-		{
+		if (_source instanceof Worker) {
 			_source.addEventListener('message', Receive, false);
 		}
 
 		// Other frame worker
-		else
-		{
+		else {
 			window.addEventListener('message', Receive, false);
 			_source.postMessage({ type: 'SYNC' }, _origin);
 		}

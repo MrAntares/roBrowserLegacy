@@ -25,7 +25,6 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 	 */
 	var _rememberTime = 30 * 1000; // 30s
 
-
 	/**
 	 * @var {number} last time we clean up variables
 	 */

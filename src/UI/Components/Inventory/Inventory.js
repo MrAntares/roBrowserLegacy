@@ -8,8 +8,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var publicName = 'Inventory';
@@ -39,8 +38,7 @@ define(function (require)
 	var _selectUIVersion = InventoryController.selectUIVersion;
 
 	// Extend default UI selector
-	InventoryController.selectUIVersion = function ()
-	{
+	InventoryController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
@@ -48,11 +46,11 @@ define(function (require)
 		DB.UpdateOwnerName.Inventory = component.onUpdateOwnerName;
 
 		// Escape to close the UI
-		component.onKeyDown = function onKeyDown(e)
-		{
-			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible'))
-			{
-				if (typeof component.toggle === 'function') {component.toggle();}
+		component.onKeyDown = function onKeyDown(e) {
+			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
+				if (typeof component.toggle === 'function') {
+					component.toggle();
+				}
 			}
 		};
 	};

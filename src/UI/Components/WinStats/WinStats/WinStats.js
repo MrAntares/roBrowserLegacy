@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -45,14 +44,11 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	WinStats.init = function init()
-	{
+	WinStats.init = function init() {
 		this.statuspoint = 0;
 
-		this.ui.find('.up button').mousedown(function ()
-		{
-			switch (this.className)
-			{
+		this.ui.find('.up button').mousedown(function () {
+			switch (this.className) {
 				case 'str':
 					WinStats.onRequestUpdate(13, 1);
 					break;
@@ -74,12 +70,10 @@ define(function (require)
 			}
 		});
 
-		this.ui.find('.titlebar .mini').click(function ()
-		{
+		this.ui.find('.titlebar .mini').click(function () {
 			WinStats.ui.find('.panel').toggle();
 		});
-		this.ui.find('.titlebar .close').click(function ()
-		{
+		this.ui.find('.titlebar .close').click(function () {
 			WinStats.ui.hide();
 		});
 		this.draggable(this.ui.find('.titlebar'));
@@ -90,8 +84,7 @@ define(function (require)
 	 */
 	WinStats.stack = [];
 
-	WinStats.append = function append(target)
-	{
+	WinStats.append = function append(target) {
 		// ignoring target, to for WinStats not to be attached to equipment window
 		UIComponent.prototype.append.call(this);
 	};
@@ -99,12 +92,10 @@ define(function (require)
 	/**
 	 * Execute elements in memory
 	 */
-	WinStats.onAppend = function onAppend()
-	{
+	WinStats.onAppend = function onAppend() {
 		var i, count;
 
-		for (i = 0, count = this.stack.length; i < count; ++i)
-		{
+		for (i = 0, count = this.stack.length; i < count; ++i) {
 			this.update.apply(this, this.stack[i]);
 		}
 
@@ -115,8 +106,7 @@ define(function (require)
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		if (!_preferences.show)
-		{
+		if (!_preferences.show) {
 			this.ui.hide();
 		}
 	};
@@ -128,22 +118,18 @@ define(function (require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	WinStats.update = function update(type, val)
-	{
+	WinStats.update = function update(type, val) {
 		var str;
 
-		if (!this.__loaded)
-		{
+		if (!this.__loaded) {
 			this.stack.push(arguments);
 			return;
 		}
 
-		switch (type)
-		{
+		switch (type) {
 			case 'statuspoint':
 				this.statuspoint = val;
-				this.ui.find('.requirements div').each(function ()
-				{
+				this.ui.find('.requirements div').each(function () {
 					WinStats.ui.find('.up .' + this.className).css({
 						opacity: parseInt(this.textContent, 10) <= val ? 1 : 0,
 						'pointer-events': parseInt(this.textContent, 10) <= val ? 'initial' : 'none'
@@ -168,8 +154,7 @@ define(function (require)
 				break;
 
 			case 'matak2':
-				if (!Session.isRenewal)
-				{
+				if (!Session.isRenewal) {
 					this.ui.find('.' + type).text('~ ' + val);
 					break;
 				}
@@ -218,12 +203,10 @@ define(function (require)
 	/**
 	 * Start/stop rendering character in UI
 	 */
-	WinStats.toggle = function toggle()
-	{
+	WinStats.toggle = function toggle() {
 		this.ui.toggle();
 
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			this.focus();
 		}
 	};
@@ -233,10 +216,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	WinStats.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd)
-		{
+	WinStats.onShortCut = function onShurtCut(key) {
+		switch (key.cmd) {
 			case 'TOGGLE':
 				this.ui.toggle();
 				break;
@@ -246,11 +227,9 @@ define(function (require)
 	/**
 	 * Remove WinStats window
 	 */
-	WinStats.onRemove = function onRemove()
-	{
+	WinStats.onRemove = function onRemove() {
 		// Save preferences
-		if (_preferences)
-		{
+		if (_preferences) {
 			_preferences.show = this.ui.is(':visible');
 			_preferences.reduce = this.ui.find('.panel').css('display') === 'none';
 			_preferences.y = parseInt(this.ui.css('top'), 10);

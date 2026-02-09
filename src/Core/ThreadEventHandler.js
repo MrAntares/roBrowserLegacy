@@ -13,8 +13,7 @@ requirejs.config({
 	baseUrl: '../'
 });
 
-requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function (FileManager, FileSystem, MapLoader)
-{
+requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function (FileManager, FileSystem, MapLoader) {
 	'use strict';
 
 	/**
@@ -22,8 +21,7 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 	 *
 	 * @param {string} error
 	 */
-	function sendError()
-	{
+	function sendError() {
 		postMessage({ type: 'THREAD_ERROR', data: Array.prototype.slice.call(arguments, 0) });
 	}
 
@@ -32,8 +30,7 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 	 *
 	 * @param {string} error
 	 */
-	function sendLog()
-	{
+	function sendLog() {
 		postMessage({ type: 'THREAD_LOG', data: Array.prototype.slice.call(arguments, 0) });
 	}
 
@@ -42,16 +39,13 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 	 *
 	 * @param {object} event - EventHandler
 	 */
-	onmessage = function receive(event)
-	{
+	onmessage = function receive(event) {
 		var msg = event.data;
 
-		switch (msg.type)
-		{
+		switch (msg.type) {
 			// Modify client host
 			case 'SET_HOST':
-				if (msg.data.substr(-1) !== '/')
-				{
+				if (msg.data.substr(-1) !== '/') {
 					msg.data += '/';
 				}
 
@@ -60,30 +54,25 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 
 			// Save full client and use it
 			case 'CLIENT_INIT':
-				FileSystem.bind('onprogress', function (progress)
-				{
+				FileSystem.bind('onprogress', function (progress) {
 					postMessage({ type: 'CLIENT_SAVE_PROGRESS', data: progress });
 				});
 
 				// full client saved !
-				FileSystem.bind('onuploaded', function ()
-				{
+				FileSystem.bind('onuploaded', function () {
 					postMessage({ type: 'CLIENT_SAVE_COMPLETE' });
 				});
 
-				FileManager.onGameFileLoaded = function (filename)
-				{
+				FileManager.onGameFileLoaded = function (filename) {
 					sendLog('Success to load GRF file "' + filename + '"');
 				};
 
-				FileManager.onGameFileError = function (filename, error)
-				{
+				FileManager.onGameFileError = function (filename, error) {
 					sendError('Error loading GRF file "' + filename + '" : ' + error);
 				};
 
 				// Start loading GRFs files
-				FileSystem.bind('onready', function ()
-				{
+				FileSystem.bind('onready', function () {
 					FileManager.clean();
 					FileManager.init(msg.data.grfList);
 
@@ -104,15 +93,12 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 
 			// Get a file from client/grf
 			case 'GET_FILE':
-				FileManager.get(msg.data.filename, function (result, error)
-				{
-					if (error)
-					{
+				FileManager.get(msg.data.filename, function (result, error) {
+					if (error) {
 						sendError('[Thread] ' + error + ' (' + msg.data.filename + ')');
 					}
 
-					if (msg.uid)
-					{
+					if (msg.uid) {
 						postMessage({
 							uid: msg.uid,
 							arguments: [result, error, msg.data]
@@ -125,15 +111,12 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 			case 'LOAD_FILE':
 				FileManager.load(
 					msg.data.filename,
-					function (result, error)
-					{
-						if (error)
-						{
+					function (result, error) {
+						if (error) {
 							sendError('[Thread] ' + error + ' (' + msg.data.filename + ')');
 						}
 
-						if (msg.uid)
-						{
+						if (msg.uid) {
 							postMessage({
 								uid: msg.uid,
 								arguments: [result, error, msg.data]
@@ -146,8 +129,7 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 
 			// Search a file in Client
 			case 'SEARCH_FILE':
-				if (msg.uid)
-				{
+				if (msg.uid) {
 					postMessage({
 						uid: msg.uid,
 						arguments: [FileManager.search(msg.data), null, msg.data]
@@ -159,15 +141,12 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 			case 'LOAD_MAP':
 				var map = new MapLoader();
 
-				map.onprogress = function (progress)
-				{
+				map.onprogress = function (progress) {
 					postMessage({ type: 'MAP_PROGRESS', data: progress });
 				};
 
-				map.onload = function (success, error)
-				{
-					if (msg.uid)
-					{
+				map.onload = function (success, error) {
+					if (msg.uid) {
 						postMessage({
 							uid: msg.uid,
 							arguments: [success, error, msg.data]
@@ -175,8 +154,7 @@ requirejs(['Core/FileManager', 'Core/FileSystem', 'Loaders/MapLoader'], function
 					}
 				};
 
-				map.ondata = function (type, data)
-				{
+				map.ondata = function (type, data) {
 					postMessage({ type: type, data: data });
 				};
 

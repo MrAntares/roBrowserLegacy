@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -59,8 +58,7 @@ define(function (require)
 	/**
 	 * Initialize Component
 	 */
-	Viewer.init = function Init()
-	{
+	Viewer.init = function Init() {
 		// Initialize WebGL
 		Renderer.init({
 			alpha: false,
@@ -75,12 +73,9 @@ define(function (require)
 		Client.init([]);
 
 		// Initialize the dropdown
-		if (!Configs.get('API'))
-		{
+		if (!Configs.get('API')) {
 			initDropDown(this.ui.find('select').get(0));
-		}
-		else
-		{
+		} else {
 			var hash = decodeURIComponent(location.hash);
 			location.hash = hash;
 			loadEffect(hash.substr(1));
@@ -92,26 +87,22 @@ define(function (require)
 	 *
 	 * @param {HTMLElement} drop down
 	 */
-	function initDropDown(select)
-	{
+	function initDropDown(select) {
 		// Search RSMs from the client
-		Client.search(/data\\[^\0]+\.str/gi, function (list)
-		{
+		Client.search(/data\\[^\0]+\.str/gi, function (list) {
 			var i, count;
 			var hash;
 
 			list.sort();
 
 			// Add selection
-			for (i = 0, count = list.length; i < count; ++i)
-			{
+			for (i = 0, count = list.length; i < count; ++i) {
 				list[i] = list[i].replace(/\\/g, '/');
 				select.add(new Option(list[i], list[i]), null);
 			}
 
 			// Bind change
-			select.onchange = function ()
-			{
+			select.onchange = function () {
 				loadEffect((location.hash = this.value));
 			};
 
@@ -120,13 +111,10 @@ define(function (require)
 			location.hash = hash;
 
 			// Load RSM from url ?
-			if (hash.indexOf('.rsm') !== -1)
-			{
+			if (hash.indexOf('.rsm') !== -1) {
 				loadEffect(hash.substr(1));
 				select.value = hash.substr(1);
-			}
-			else
-			{
+			} else {
 				loadEffect(select.value);
 			}
 
@@ -140,14 +128,11 @@ define(function (require)
 	 *
 	 * @param {string} filename
 	 */
-	function loadEffect(filename)
-	{
+	function loadEffect(filename) {
 		stop();
 
-		Client.loadFile(filename, function (buf)
-		{
-			if (_strObject)
-			{
+		Client.loadFile(filename, function (buf) {
+			if (_strObject) {
 				_strObject._needCleanUp = true;
 			}
 
@@ -157,16 +142,13 @@ define(function (require)
 			// Hacky way
 			Object.defineProperty(_strObject, 'needCleanUp', {
 				// Get stat
-				get: function ()
-				{
+				get: function () {
 					return this._needCleanUp;
 				},
 
 				// Repeat
-				set: function (val)
-				{
-					if (val)
-					{
+				set: function (val) {
+					if (val) {
 						this.startTick = Renderer.tick;
 					}
 				}
@@ -180,8 +162,7 @@ define(function (require)
 	/**
 	 * Stop to render
 	 */
-	function stop()
-	{
+	function stop() {
 		var gl = Renderer.getContext();
 
 		Renderer.stop();
@@ -195,8 +176,7 @@ define(function (require)
 	 * @param {number} tick
 	 * @param {object} webgl context
 	 */
-	function render(tick, gl)
-	{
+	function render(tick, gl) {
 		// Updating camera position
 		mat4.identity(_modelView);
 		mat4.translate(_modelView, _modelView, [0, -3, -50]);

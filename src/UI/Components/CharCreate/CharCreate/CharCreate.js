@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -52,8 +51,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	CharCreate.init = function init()
-	{
+	CharCreate.init = function init() {
 		_graph = this.ui.find('.graph canvas')[0].getContext('2d');
 		_chargen.ctx = this.ui.find('.chargen canvas')[0].getContext('2d');
 
@@ -71,8 +69,7 @@ define(function (require)
 		this.ui.find('.chargen .up').mousedown(updateCharacterGeneric('headpalette', +1));
 		this.ui.find('.graph button').mousedown(updateStats);
 
-		this.ui.find('input').mousedown(function (event)
-		{
+		this.ui.find('input').mousedown(function (event) {
 			this.focus();
 			event.stopImmediatePropagation();
 		});
@@ -86,16 +83,14 @@ define(function (require)
 	 *
 	 * @param {number} sex
 	 */
-	CharCreate.setAccountSex = function setAccountSex(sex)
-	{
+	CharCreate.setAccountSex = function setAccountSex(sex) {
 		_accountSex = sex;
 	};
 
 	/**
 	 * Once add to HTML, start rendering
 	 */
-	CharCreate.onAppend = function onAppend()
-	{
+	CharCreate.onAppend = function onAppend() {
 		_chargen.render = true;
 		_chargen.entity.set({
 			sex: _accountSex,
@@ -114,8 +109,7 @@ define(function (require)
 	 * Remove component from HTML
 	 * Stop rendering
 	 */
-	CharCreate.onRemove = function onRemove()
-	{
+	CharCreate.onRemove = function onRemove() {
 		Renderer.stop(render);
 	};
 
@@ -125,10 +119,8 @@ define(function (require)
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	CharCreate.onKeyDown = function onKeyDown(event)
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible'))
-		{
+	CharCreate.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			event.stopImmediatePropagation();
 			cancel();
 			return false;
@@ -143,10 +135,8 @@ define(function (require)
 	 * @param {string} type
 	 * @param {number} value
 	 */
-	function updateCharacterGeneric(type, value)
-	{
-		return function (event)
-		{
+	function updateCharacterGeneric(type, value) {
+		return function (event) {
 			updateCharacter(type, value);
 			event.stopImmediatePropagation();
 			return false;
@@ -156,8 +146,7 @@ define(function (require)
 	/**
 	 * Send back informations to send the packet
 	 */
-	function create()
-	{
+	function create() {
 		var ui = CharCreate.ui;
 
 		CharCreate.onCharCreationRequest(
@@ -176,8 +165,7 @@ define(function (require)
 	/**
 	 * Exit the window
 	 */
-	function cancel()
-	{
+	function cancel() {
 		CharCreate.onExitRequest();
 	}
 
@@ -187,20 +175,16 @@ define(function (require)
 	 * @param {string} type (head or headpalette)
 	 * @param {number} increment (-1 or +1)
 	 */
-	function updateCharacter(type, increment)
-	{
-		switch (type)
-		{
+	function updateCharacter(type, increment) {
+		switch (type) {
 			case 'head':
 				var head = _chargen.entity.head + increment;
 
-				if (head < 2)
-				{
+				if (head < 2) {
 					head = 26;
 				}
 
-				if (head > 26)
-				{
+				if (head > 26) {
 					head = 2;
 				}
 
@@ -219,11 +203,9 @@ define(function (require)
 	/**
 	 * Update the stats and polygon
 	 */
-	function updateStats()
-	{
+	function updateStats() {
 		// Can't be upper than 9
-		if (CharCreate.ui.find('.info .' + this.className).text() === '9')
-		{
+		if (CharCreate.ui.find('.info .' + this.className).text() === '9') {
 			return;
 		}
 
@@ -247,8 +229,7 @@ define(function (require)
 	/**
 	 * Update the polygon
 	 */
-	function updateGraphic()
-	{
+	function updateGraphic() {
 		// Update graphique.
 		var ctx = _graph;
 		var width = ctx.canvas.width;
@@ -265,8 +246,7 @@ define(function (require)
 		ctx.beginPath();
 		ctx.moveTo(0, Math.floor((y / 10) * (parseInt(CharCreate.ui.find('.info .' + list[5]).text()) + 1)));
 
-		for (i = 0; i < 6; i++)
-		{
+		for (i = 0; i < 6; i++) {
 			ctx.rotate((60 * Math.PI) / 180);
 			ctx.lineTo(0, Math.floor((y / 10) * (parseInt(CharCreate.ui.find('.info .' + list[i]).text()) + 1)));
 		}
@@ -279,11 +259,9 @@ define(function (require)
 	/**
 	 * Rendering the Character
 	 */
-	function render(tick)
-	{
+	function render(tick) {
 		// Update direction each 500ms
-		if (_chargen.tick + 500 < tick)
-		{
+		if (_chargen.tick + 500 < tick) {
 			Camera.direction++;
 			Camera.direction %= 8;
 			_chargen.tick = tick;

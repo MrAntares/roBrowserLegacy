@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -16,8 +15,7 @@ define(function ()
 	 *
 	 * @param {boolean} does key have to be unique ?
 	 */
-	function History(uniqueKey)
-	{
+	function History(uniqueKey) {
 		this.list = [];
 		this.uniqueKey = !!uniqueKey;
 	}
@@ -37,27 +35,22 @@ define(function ()
 	 *
 	 * @param {string} message
 	 */
-	History.prototype.push = function push(message)
-	{
+	History.prototype.push = function push(message) {
 		var count = this.list.length;
 		var pos;
 
-		if (!count || this.list[count - 1] !== message)
-		{
+		if (!count || this.list[count - 1] !== message) {
 			// Remove duplicated key
-			if (this.uniqueKey)
-			{
+			if (this.uniqueKey) {
 				pos = this.list.indexOf(message);
-				if (pos > -1)
-				{
+				if (pos > -1) {
 					this.list.splice(pos, 1);
 					count--;
 				}
 			}
 
 			// Remove first element if overflow
-			if (count >= CACHE_SIZE)
-			{
+			if (count >= CACHE_SIZE) {
 				this.list.shift();
 			}
 
@@ -73,10 +66,8 @@ define(function ()
 	 * Go back from history
 	 * @return {string}
 	 */
-	History.prototype.previous = function previous()
-	{
-		if (this.index > 0)
-		{
+	History.prototype.previous = function previous() {
+		if (this.index > 0) {
 			this.index--;
 		}
 
@@ -87,10 +78,8 @@ define(function ()
 	 * Move to history
 	 * @return {string}
 	 */
-	History.prototype.next = function next()
-	{
-		if (this.index < this.list.length)
-		{
+	History.prototype.next = function next() {
+		if (this.index < this.list.length) {
 			this.index++;
 		}
 
@@ -100,8 +89,7 @@ define(function ()
 	/**
 	 * Clean history message
 	 */
-	History.prototype.clear = function clear()
-	{
+	History.prototype.clear = function clear() {
 		this.list.length = 0;
 		this.index = 0;
 	};

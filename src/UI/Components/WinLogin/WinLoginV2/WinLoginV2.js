@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -65,22 +64,19 @@ define(function (require)
 	/**
 	 * Initialize win_login UI - Inherit from UIComponent
 	 */
-	WinLoginV2.init = function init()
-	{
+	WinLoginV2.init = function init() {
 		WinLoginV2Background.init();
 
 		this.draggable(WinLoginV2.ui.find('.win_login'));
 
 		// Save Elements
-		_inputUsername = WinLoginV2.ui.find('.user').mousedown(function (event)
-		{
+		_inputUsername = WinLoginV2.ui.find('.user').mousedown(function (event) {
 			this.focus();
 			this.value = '';
 			event.stopImmediatePropagation();
 			return false;
 		});
-		_inputPassword = WinLoginV2.ui.find('.pass').mousedown(function (event)
-		{
+		_inputPassword = WinLoginV2.ui.find('.pass').mousedown(function (event) {
 			this.focus();
 			this.value = '';
 			event.stopImmediatePropagation();
@@ -98,8 +94,7 @@ define(function (require)
 	/**
 	 * Once the component is on html - InHerit from UIComponent
 	 */
-	WinLoginV2.onAppend = function onAppend()
-	{
+	WinLoginV2.onAppend = function onAppend() {
 		WinLoginV2Background.append();
 		// Complete element
 		_inputUsername.val(_preferences.saveID ? _preferences.ID : '');
@@ -108,18 +103,14 @@ define(function (require)
 		// Display save button
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'login_interface/chk_save' + (_preferences.saveID ? 'on' : 'off') + '.bmp',
-			function (url)
-			{
+			function (url) {
 				_buttonSave.css('backgroundImage', 'url(' + url + ')');
 			}
 		);
 
-		if (_preferences.ID.length)
-		{
+		if (_preferences.ID.length) {
 			_inputPassword.focus();
-		}
-		else
-		{
+		} else {
 			_inputUsername.focus();
 		}
 		WinLoginV2.placeOnTop();
@@ -131,11 +122,11 @@ define(function (require)
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	WinLoginV2.onKeyDown = function onKeyDown(event)
-	{
-		if (!this.ui.is(':visible')) {return true;}
-		switch (event.which)
-		{
+	WinLoginV2.onKeyDown = function onKeyDown(event) {
+		if (!this.ui.is(':visible')) {
+			return true;
+		}
+		switch (event.which) {
 			case KEYS.ENTER:
 				connect();
 				event.stopImmediatePropagation();
@@ -162,14 +153,12 @@ define(function (require)
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	function toggleSaveButton(event)
-	{
+	function toggleSaveButton(event) {
 		_preferences.saveID = !_preferences.saveID;
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'login_interface/chk_save' + (_preferences.saveID ? 'on' : 'off') + '.bmp',
-			function (url)
-			{
+			function (url) {
 				_buttonSave.css('backgroundImage', 'url(' + url + ')');
 			}
 		);
@@ -181,8 +170,7 @@ define(function (require)
 	/**
 	 * When the user click on Exit, or pressed "Escape"
 	 */
-	function exit()
-	{
+	function exit() {
 		WinLoginV2.onExitRequest();
 		return false;
 	}
@@ -192,19 +180,15 @@ define(function (require)
 	 *
 	 * @return {boolean} false
 	 */
-	function connect()
-	{
+	function connect() {
 		var user = _inputUsername.val();
 		var pass = _inputPassword.val();
 
 		// Store variable in localStorage
-		if (_preferences.saveID)
-		{
+		if (_preferences.saveID) {
 			_preferences.saveID = true;
 			_preferences.ID = user;
-		}
-		else
-		{
+		} else {
 			_preferences.saveID = false;
 			_preferences.ID = '';
 		}
@@ -219,25 +203,20 @@ define(function (require)
 	/**
 	 * Signup button func that takes the player to the <registrationweb>
 	 */
-	function signup()
-	{
+	function signup() {
 		var url = Configs.get('registrationweb');
 
-		if (url)
-		{
+		if (url) {
 			UIManager.showPromptBox(
 				DB.getMessage(662),
 				'ok',
 				'cancel',
-				function ()
-				{
+				function () {
 					window.open(url);
 				},
 				null
 			);
-		}
-		else
-		{
+		} else {
 			UIManager.showPromptBox(
 				'No registration URL was provided.\nIf this server uses simplified registration, then input your new:\n - Username followed by _M for Male and _F for Female account (Eg: MyUser_M)\n - Password.',
 				'ok',

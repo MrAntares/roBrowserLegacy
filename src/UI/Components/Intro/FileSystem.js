@@ -6,8 +6,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -30,36 +29,27 @@ define(function ()
 	 *
 	 * @param {function} callback
 	 */
-	function cleanUp(callback)
-	{
-		_fs.root.createReader().readEntries(function (entries)
-		{
+	function cleanUp(callback) {
+		_fs.root.createReader().readEntries(function (entries) {
 			var i,
 				count = entries.length,
 				j = 0;
 
-			function removed()
-			{
-				if (++j >= count)
-				{
+			function removed() {
+				if (++j >= count) {
 					callback();
 				}
 			}
 
-			for (i = 0; i < count; ++i)
-			{
-				if (entries[i].isDirectory)
-				{
+			for (i = 0; i < count; ++i) {
+				if (entries[i].isDirectory) {
 					entries[i].removeRecursively(removed);
-				}
-				else
-				{
+				} else {
 					entries[i].remove(removed);
 				}
 			}
 
-			if (!count)
-			{
+			if (!count) {
 				callback();
 			}
 		});
@@ -70,40 +60,32 @@ define(function ()
 	 *
 	 * @param {function} callback
 	 */
-	function getSize(callback)
-	{
-		if (!temporaryStorage || !requestFileSystem)
-		{
+	function getSize(callback) {
+		if (!temporaryStorage || !requestFileSystem) {
 			callback(0);
 			return;
 		}
 
-		temporaryStorage.queryUsageAndQuota(function (used)
-		{
-			if (!used)
-			{
+		temporaryStorage.queryUsageAndQuota(function (used) {
+			if (!used) {
 				callback(0);
 				return;
 			}
 
-			requestFileSystem(window.TEMPORARY, used, function (fs)
-			{
+			requestFileSystem(window.TEMPORARY, used, function (fs) {
 				_fs = fs;
 
 				// Remove upload folder
 				fs.root.getDirectory(
 					'/__tmp_upload/',
 					{ create: false },
-					function (dirEntry)
-					{
-						dirEntry.removeRecursively(function ()
-						{
+					function (dirEntry) {
+						dirEntry.removeRecursively(function () {
 							getSize(callback);
 						});
 						// no upload directory, end.
 					},
-					function noDirectory()
-					{
+					function noDirectory() {
 						callback(used);
 					}
 				);

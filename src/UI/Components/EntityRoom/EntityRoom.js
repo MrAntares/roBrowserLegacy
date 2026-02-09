@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -32,21 +31,17 @@ define(function (require)
 	/**
 	 * Once in HTML, focus the input
 	 */
-	EntityRoom.onAppend = function onAppend()
-	{
+	EntityRoom.onAppend = function onAppend() {
 		this.ui.find('button').dblclick(
-			function ()
-			{
-				if (this.onEnter)
-				{
+			function () {
+				if (this.onEnter) {
 					this.onEnter();
 				}
 			}.bind(this)
 		);
 
 		// Avoid player to move to the cell
-		this.ui.mousedown(function ()
-		{
+		this.ui.mousedown(function () {
 			return false;
 		});
 
@@ -56,8 +51,7 @@ define(function (require)
 	/**
 	 * Remove data from UI
 	 */
-	EntityRoom.onRemove = function onRemove()
-	{
+	EntityRoom.onRemove = function onRemove() {
 		this.ui.find('button').unbind();
 	};
 
@@ -67,8 +61,7 @@ define(function (require)
 	 * @param {string} title
 	 * @param {string} url - icon url
 	 */
-	EntityRoom.setTitle = function setTitle(title, url)
-	{
+	EntityRoom.setTitle = function setTitle(title, url) {
 		this.ui.find('button img').attr('src', url);
 		this.ui.find('.title, .overlay').text(title);
 	};

@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	var mask = new Uint8Array([0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]);
@@ -24,15 +23,12 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function initialPermutation(src, index)
-	{
+	function initialPermutation(src, index) {
 		var i, j;
 
-		for (i = 0; i < 64; ++i)
-		{
+		for (i = 0; i < 64; ++i) {
 			j = initialPermutation.table[i] - 1;
-			if (src[index + ((j >> 3) & 7)] & mask[j & 7])
-			{
+			if (src[index + ((j >> 3) & 7)] & mask[j & 7]) {
 				tmp[(i >> 3) & 7] |= mask[i & 7];
 			}
 		}
@@ -53,15 +49,12 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function finalPermutation(src, index)
-	{
+	function finalPermutation(src, index) {
 		var i, j;
 
-		for (i = 0; i < 64; ++i)
-		{
+		for (i = 0; i < 64; ++i) {
 			j = finalPermutation.table[i] - 1;
-			if (src[index + ((j >> 3) & 7)] & mask[j & 7])
-			{
+			if (src[index + ((j >> 3) & 7)] & mask[j & 7]) {
 				tmp[(i >> 3) & 7] |= mask[i & 7];
 			}
 		}
@@ -82,15 +75,12 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function transposition(src, index)
-	{
+	function transposition(src, index) {
 		var i, j;
 
-		for (i = 0; i < 32; ++i)
-		{
+		for (i = 0; i < 32; ++i) {
 			j = transposition.table[i] - 1;
-			if (src[index + (j >> 3)] & mask[j & 7])
-			{
+			if (src[index + (j >> 3)] & mask[j & 7]) {
 				tmp[(i >> 3) + 4] |= mask[i & 7];
 			}
 		}
@@ -111,8 +101,7 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function expansion(src, index)
-	{
+	function expansion(src, index) {
 		tmp[0] = ((src[index + 7] << 5) | (src[index + 4] >> 3)) & 0x3f; // ..0 vutsr
 		tmp[1] = ((src[index + 4] << 1) | (src[index + 5] >> 7)) & 0x3f; // ..srqpo n
 		tmp[2] = ((src[index + 4] << 5) | (src[index + 5] >> 3)) & 0x3f; // ..o nmlkj
@@ -133,12 +122,10 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function substitutionBox(src, index)
-	{
+	function substitutionBox(src, index) {
 		var i;
 
-		for (i = 0; i < 4; ++i)
-		{
+		for (i = 0; i < 4; ++i) {
 			tmp[i] =
 				(substitutionBox.table[i][src[i * 2 + 0 + index]] & 0xf0) |
 				(substitutionBox.table[i][src[i * 2 + 1 + index]] & 0x0f);
@@ -182,10 +169,8 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function roundFunction(src, index)
-	{
-		for (var i = 0; i < 8; i++)
-		{
+	function roundFunction(src, index) {
+		for (var i = 0; i < 8; i++) {
 			tmp2[i] = src[index + i];
 		}
 
@@ -205,8 +190,7 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function decryptBlock(src, index)
-	{
+	function decryptBlock(src, index) {
 		initialPermutation(src, index);
 		roundFunction(src, index);
 		finalPermutation(src, index);
@@ -219,8 +203,7 @@ define(function ()
 	 * @param {number} len
 	 * @param {number} entry_len
 	 */
-	function decodeFull(buf, len, entry_len)
-	{
+	function decodeFull(buf, len, entry_len) {
 		var nblocks = len >> 3;
 		var i, j;
 		var digits, cycle;
@@ -234,23 +217,19 @@ define(function ()
 		cycle = digits < 3 ? 1 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
 
 		// first 20 blocks are all des-encrypted
-		for (i = 0; i < 20 && i < nblocks; ++i)
-		{
+		for (i = 0; i < 20 && i < nblocks; ++i) {
 			decryptBlock(buf, i * 8);
 		}
 
-		for (i = 20, j = 0; i < nblocks; ++i)
-		{
+		for (i = 20, j = 0; i < nblocks; ++i) {
 			// decrypt block
-			if (i % cycle === 0)
-			{
+			if (i % cycle === 0) {
 				decryptBlock(buf, i * 8);
 				continue;
 			}
 
 			// de-shuffle block
-			if (j === 7)
-			{
+			if (j === 7) {
 				shuffleDec(buf, i * 8);
 				j = 0;
 			}
@@ -265,14 +244,12 @@ define(function ()
 	 * @param {Uint8Array} buf
 	 * @param {number} len
 	 */
-	function decodeHeader(buf, len)
-	{
+	function decodeHeader(buf, len) {
 		var nblocks = len >> 3;
 		var i;
 
 		// first 20 blocks are all des-encrypted
-		for (i = 0; i < 20 && i < nblocks; ++i)
-		{
+		for (i = 0; i < 20 && i < nblocks; ++i) {
 			decryptBlock(buf, i * 8);
 		}
 
@@ -285,8 +262,7 @@ define(function ()
 	 * @param {Uint8Array} src
 	 * @param {number} index
 	 */
-	function shuffleDec(src, index)
-	{
+	function shuffleDec(src, index) {
 		tmp[0] = src[index + 3];
 		tmp[1] = src[index + 4];
 		tmp[2] = src[index + 6];
@@ -304,19 +280,16 @@ define(function ()
 	 *
 	 * @var {Uint8Array[]}
 	 */
-	shuffleDec.table = (function init_substitution()
-	{
+	shuffleDec.table = (function init_substitution() {
 		var i, count;
 		var out = new Uint8Array(256);
 		var list = [0x00, 0x2b, 0x6c, 0x80, 0x01, 0x68, 0x48, 0x77, 0x60, 0xff, 0xb9, 0xc0, 0xfe, 0xeb];
 
-		for (i = 0; i < 256; ++i)
-		{
+		for (i = 0; i < 256; ++i) {
 			out[i] = i;
 		}
 
-		for (i = 0, count = list.length; i < count; i += 2)
-		{
+		for (i = 0, count = list.length; i < count; i += 2) {
 			out[list[i + 0]] = list[i + 1];
 			out[list[i + 1]] = list[i + 0];
 		}

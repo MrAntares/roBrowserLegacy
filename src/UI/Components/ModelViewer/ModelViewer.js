@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -85,8 +84,7 @@ define(function (require)
 	/**
 	 * Initialize Component
 	 */
-	Viewer.init = function Init()
-	{
+	Viewer.init = function Init() {
 		// Initialize WebGL
 		Renderer.init({
 			alpha: true,
@@ -98,12 +96,9 @@ define(function (require)
 		Renderer.show();
 
 		// Initialize the dropdown
-		if (!Configs.get('API'))
-		{
+		if (!Configs.get('API')) {
 			initDropDown(this.ui.find('select').get(0));
-		}
-		else
-		{
+		} else {
 			var hash = decodeURIComponent(location.hash);
 			location.hash = hash;
 			loadModel(hash.substr(1));
@@ -115,24 +110,20 @@ define(function (require)
 	 *
 	 * @param {HTMLElement} drop down
 	 */
-	function initDropDown(select)
-	{
+	function initDropDown(select) {
 		// Search RSMs from the client
-		Client.search(/data\\[^\0]+\.rsm/gi, function (list)
-		{
+		Client.search(/data\\[^\0]+\.rsm/gi, function (list) {
 			var i, count;
 			var hash;
 
 			// Add selection
-			for (i = 0, count = list.length; i < count; ++i)
-			{
+			for (i = 0, count = list.length; i < count; ++i) {
 				list[i] = list[i].replace(/\\/g, '/');
 				select.add(new Option(list[i], list[i]), null);
 			}
 
 			// Bind change
-			select.onchange = function ()
-			{
+			select.onchange = function () {
 				loadModel((location.hash = this.value));
 			};
 
@@ -141,13 +132,10 @@ define(function (require)
 			location.hash = hash;
 
 			// Load RSM from url ?
-			if (hash.indexOf('.rsm') !== -1)
-			{
+			if (hash.indexOf('.rsm') !== -1) {
 				loadModel(hash.substr(1));
 				select.value = hash.substr(1);
-			}
-			else
-			{
+			} else {
 				loadModel(select.value);
 			}
 
@@ -159,8 +147,7 @@ define(function (require)
 	/**
 	 * Stop to render
 	 */
-	function stop()
-	{
+	function stop() {
 		var gl = Renderer.getContext();
 
 		Renderer.stop();
@@ -173,12 +160,10 @@ define(function (require)
 	 *
 	 * @param {string} filename
 	 */
-	function loadModel(filename)
-	{
+	function loadModel(filename) {
 		stop();
 
-		Client.getFile(filename, function (buf)
-		{
+		Client.getFile(filename, function (buf) {
 			_model = new Model(buf);
 
 			var data;
@@ -200,13 +185,11 @@ define(function (require)
 			total = 0;
 
 			// Extract meshes
-			for (i = 0, count = data.meshes.length; i < count; ++i)
-			{
+			for (i = 0, count = data.meshes.length; i < count; ++i) {
 				meshes = data.meshes[i];
 				index = Object.keys(meshes);
 
-				for (j = 0, size = index.length; j < size; ++j)
-				{
+				for (j = 0, size = index.length; j < size; ++j) {
 					objects.push({
 						texture: data.textures[index[j]],
 						alpha: _model.alpha,
@@ -223,8 +206,7 @@ define(function (require)
 			offset = 0;
 
 			// Merge meshes to buffer
-			for (i = 0; i < count; ++i)
-			{
+			for (i = 0; i < count; ++i) {
 				object = objects[i];
 				length = object.mesh.length;
 
@@ -241,11 +223,9 @@ define(function (require)
 
 			// Load textures
 			i = -1;
-			function loadNextTexture()
-			{
+			function loadNextTexture() {
 				// Loading complete, rendering...
-				if (++i === count)
-				{
+				if (++i === count) {
 					// Initialize renderer
 					ModelRenderer.init(Renderer.getContext(), {
 						buffer: buffer,
@@ -259,8 +239,7 @@ define(function (require)
 
 				Client.loadFile(
 					infos[i].texture,
-					function (data)
-					{
+					function (data) {
 						infos[i].texture = data;
 						loadNextTexture();
 					},
@@ -279,8 +258,7 @@ define(function (require)
 	 * @param {number} tick
 	 * @param {object} webgl context
 	 */
-	function render(tick, gl)
-	{
+	function render(tick, gl) {
 		// Updating camera position
 		mat4.identity(_modelView);
 		mat4.translate(_modelView, _modelView, [0, -_model.box.range[1] * 0.1, -_model.box.range[1] * 0.5 - 5]);

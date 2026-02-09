@@ -7,8 +7,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var GraphicsSettings = require('Preferences/Graphics');
@@ -33,9 +32,10 @@ define(function (require)
 	/**
 	 * Render CAS
 	 */
-	CAS.render = function render(gl, inputTexture, outputFramebuffer)
-	{
-		if (!_buffer || !_program || !CAS.isActive()) {return;}
+	CAS.render = function render(gl, inputTexture, outputFramebuffer) {
+		if (!_buffer || !_program || !CAS.isActive()) {
+			return;
+		}
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
 		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -62,23 +62,20 @@ define(function (require)
 		CAS.afterRender(gl);
 	};
 
-	CAS.afterRender = function (gl)
-	{
+	CAS.afterRender = function (gl) {
 		gl.useProgram(null);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 
-	CAS.init = function init(gl)
-	{
-		if (!gl) {return;}
-		try
-		{
-			_program = WebGL.createShaderProgram(gl, commonVS, casFS);
+	CAS.init = function init(gl) {
+		if (!gl) {
+			return;
 		}
-		catch (e)
-		{
+		try {
+			_program = WebGL.createShaderProgram(gl, commonVS, casFS);
+		} catch (e) {
 			console.error('Error compiling CAS shader.', e);
 			return;
 		}
@@ -88,19 +85,18 @@ define(function (require)
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
 	};
 
-	CAS.isActive = function isActive()
-	{
+	CAS.isActive = function isActive() {
 		return GraphicsSettings.casEnabled;
 	};
 
-	CAS.program = function program()
-	{
+	CAS.program = function program() {
 		return _program;
 	};
 
-	CAS.clean = function clean(gl)
-	{
-		if (_buffer) {gl.deleteBuffer(_buffer);}
+	CAS.clean = function clean(gl) {
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
 		_program = _buffer = null;
 	};
 

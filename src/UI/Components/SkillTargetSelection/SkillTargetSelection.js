@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -81,8 +80,7 @@ define(function (require)
 	/**
 	 * Initialize component
 	 */
-	SkillTargetSelection.init = function init()
-	{
+	SkillTargetSelection.init = function init() {
 		_skillName = document.createElement('canvas');
 		_description = document.createElement('canvas');
 		_skill_level = document.createElement('canvas');
@@ -104,8 +102,7 @@ define(function (require)
 		_skill_level.style.top = 0;
 		_skill_level.style.zIndex = 100;
 
-		jQuery(window).mousemove(function (event)
-		{
+		jQuery(window).mousemove(function (event) {
 			_skill_level.style.left = event.pageX + 20 + 'px';
 			_skill_level.style.top = event.pageY - 18 + 'px';
 		});
@@ -119,22 +116,18 @@ define(function (require)
 	/**
 	 * Append to body
 	 */
-	SkillTargetSelection.onAppend = function onAppend()
-	{
+	SkillTargetSelection.onAppend = function onAppend() {
 		var events;
 
-		if (!_skillName.parentNode)
-		{
+		if (!_skillName.parentNode) {
 			document.body.appendChild(_skillName);
 		}
 
-		if (!_description.parentNode)
-		{
+		if (!_description.parentNode) {
 			document.body.appendChild(_description);
 		}
 
-		if (!_skill_level.parentNode)
-		{
+		if (!_skill_level.parentNode) {
 			document.body.appendChild(_skill_level);
 		}
 
@@ -151,10 +144,8 @@ define(function (require)
 	/**
 	 * Possible to exit using ESCAPE
 	 */
-	SkillTargetSelection.onKeyDown = function onKeyDown(event)
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible'))
-		{
+	SkillTargetSelection.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.remove();
 			event.stopImmediatePropagation();
 			return false;
@@ -166,8 +157,7 @@ define(function (require)
 	/**
 	 * Remove from body
 	 */
-	SkillTargetSelection.onRemove = function onRemove()
-	{
+	SkillTargetSelection.onRemove = function onRemove() {
 		jQuery(window).off('mousedown.targetselection');
 
 		Cursor.blockMagnetism = false;
@@ -176,18 +166,15 @@ define(function (require)
 
 		EntityManager.setSupportPicking(false);
 
-		if (_skillName.parentNode)
-		{
+		if (_skillName.parentNode) {
 			document.body.removeChild(_skillName);
 		}
 
-		if (_description.parentNode)
-		{
+		if (_description.parentNode) {
 			document.body.removeChild(_description);
 		}
 
-		if (_skill_level.parentNode)
-		{
+		if (_skill_level.parentNode) {
 			document.body.removeChild(_skill_level);
 		}
 
@@ -201,32 +188,25 @@ define(function (require)
 	 * @param {number} skill type
 	 * @param {string} description name (optional)
 	 */
-	SkillTargetSelection.set = function set(skill, target, description)
-	{
+	SkillTargetSelection.set = function set(skill, target, description) {
 		_flag = target;
 		_skill = skill;
 
-		if (!_flag)
-		{
+		if (!_flag) {
 			return;
 		}
 
-		if (Session.TouchTargeting)
-		{
+		if (Session.TouchTargeting) {
 			var entityFocus = EntityManager.getFocusEntity();
-			if (entityFocus)
-			{
-				if (_flag & SkillTargetSelection.TYPE.PLACE)
-				{
+			if (entityFocus) {
+				if (_flag & SkillTargetSelection.TYPE.PLACE) {
 					SkillTargetSelection.onUseSkillToPos(
 						_skill.SKID,
 						_skill.useLevel ? _skill.useLevel : _skill.level,
 						entityFocus.position[0],
 						entityFocus.position[1]
 					);
-				}
-				else
-				{
+				} else {
 					SkillTargetSelection.onUseSkillToId(
 						_skill.SKID,
 						_skill.useLevel ? _skill.useLevel : _skill.level,
@@ -238,8 +218,7 @@ define(function (require)
 			}
 		}
 
-		if (_flag & SkillTargetSelection.TYPE.PLACE)
-		{
+		if (_flag & SkillTargetSelection.TYPE.PLACE) {
 			Cursor.blockMagnetism = true;
 		}
 
@@ -256,24 +235,19 @@ define(function (require)
 		Cursor.freeze = true;
 	};
 
-	SkillTargetSelection.setSkillLevelDelta = function setSkillLevelDelta(delta)
-	{
+	SkillTargetSelection.setSkillLevelDelta = function setSkillLevelDelta(delta) {
 		var sk = SkillInfo[_skill.SKID];
-		if (!sk.bSeperateLv)
-		{
+		if (!sk.bSeperateLv) {
 			return;
 		}
-		if (!_skill.useLevel)
-		{
+		if (!_skill.useLevel) {
 			_skill.useLevel = _skill.level;
 		}
 		_skill.useLevel += delta;
-		if (_skill.useLevel < 1)
-		{
+		if (_skill.useLevel < 1) {
 			_skill.useLevel = 1;
 		}
-		if (_skill.useLevel > _skill.level)
-		{
+		if (_skill.useLevel > _skill.level) {
 			_skill.useLevel = _skill.level;
 		}
 
@@ -286,8 +260,7 @@ define(function (require)
 	 * @param {string} text to render
 	 * @param {CanvasElement} canvas node
 	 */
-	function render(text, canvas)
-	{
+	function render(text, canvas) {
 		var fontSize = 12;
 		var ctx = canvas.getContext('2d');
 
@@ -315,8 +288,7 @@ define(function (require)
 	 * @param {string} text to render
 	 * @param {CanvasElement} canvas node
 	 */
-	function renderLevel(text, canvas)
-	{
+	function renderLevel(text, canvas) {
 		var fontSize = 24;
 		var ctx = canvas.getContext('2d');
 
@@ -334,26 +306,22 @@ define(function (require)
 	/**
 	 * Intersect entity when clicking
 	 */
-	function intersectEntities(event)
-	{
+	function intersectEntities(event) {
 		SkillTargetSelection.remove();
 
-		if (!Mouse.intersect)
-		{
+		if (!Mouse.intersect) {
 			return false;
 		}
 
 		// Only left click
-		if (event.which !== 1)
-		{
+		if (event.which !== 1) {
 			return true;
 		}
 
 		event.stopImmediatePropagation();
 
 		// Zone skill
-		if (_flag & SkillTargetSelection.TYPE.PLACE)
-		{
+		if (_flag & SkillTargetSelection.TYPE.PLACE) {
 			SkillTargetSelection.onUseSkillToPos(
 				_skill.SKID,
 				_skill.useLevel ? _skill.useLevel : _skill.level,
@@ -366,14 +334,12 @@ define(function (require)
 		// Get entity
 		var entity = EntityManager.getOverEntity();
 
-		if (!entity)
-		{
+		if (!entity) {
 			return false;
 		}
 
 		// Trap check
-		if (entity.objecttype === Entity.TYPE_TRAP && !(_flag & SkillTargetSelection.TYPE.TRAP))
-		{
+		if (entity.objecttype === Entity.TYPE_TRAP && !(_flag & SkillTargetSelection.TYPE.TRAP)) {
 			return false;
 		}
 
@@ -386,13 +352,11 @@ define(function (require)
 	 *
 	 * @param {object} entity
 	 */
-	function intersectEntity(entity)
-	{
+	function intersectEntity(entity) {
 		var target = 0;
 
 		// Get target type
-		switch (entity.objecttype)
-		{
+		switch (entity.objecttype) {
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_UNIT:
 				target = SkillTargetSelection.TYPE.ENEMY | SkillTargetSelection.TYPE.PET;
@@ -419,21 +383,18 @@ define(function (require)
 		}
 
 		// This skill can't be casted on this type
-		if (!(target & _flag) && !KEYS.SHIFT && !Controls.noshift && !SkillTargetSelection.checkMapState(entity))
-		{
+		if (!(target & _flag) && !KEYS.SHIFT && !Controls.noshift && !SkillTargetSelection.checkMapState(entity)) {
 			return;
 		}
 
 		// Pet capture
-		if (_flag === SkillTargetSelection.TYPE.PET)
-		{
+		if (_flag === SkillTargetSelection.TYPE.PET) {
 			SkillTargetSelection.onPetSelected(entity.GID);
 			return;
 		}
 
 		// Can't cast evil skill on your self
-		if (_flag & SkillTargetSelection.TYPE.ENEMY && entity === Session.Entity)
-		{
+		if (_flag & SkillTargetSelection.TYPE.ENEMY && entity === Session.Entity) {
 			return;
 		}
 
@@ -446,11 +407,9 @@ define(function (require)
 	 * Intersect with an entity ID
 	 * (used in party UI)
 	 */
-	SkillTargetSelection.intersectEntityId = function intersectEntityId(id)
-	{
+	SkillTargetSelection.intersectEntityId = function intersectEntityId(id) {
 		var entity = EntityManager.get(id);
-		if (entity)
-		{
+		if (entity) {
 			intersectEntity(entity);
 		}
 	};
@@ -458,26 +417,20 @@ define(function (require)
 	/**
 	 * Check if can use Skill on target based on MapState
 	 */
-	SkillTargetSelection.checkMapState = function checkMapState(entity)
-	{
-		if (Session.mapState.isPVP)
-		{
+	SkillTargetSelection.checkMapState = function checkMapState(entity) {
+		if (Session.mapState.isPVP) {
 			if (
 				Session.hasParty &&
 				getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember(entity.display.name)
-			)
-			{
+			) {
 				return false;
 			}
 			return true;
-		}
-		else if (Session.mapState.isGVG)
-		{
+		} else if (Session.mapState.isGVG) {
 			if (
 				(Session.Entity.GUID > 0 && entity.GUID !== Session.Entity.GUID) ||
 				(entity.GUID == 0 && entity !== Session.Entity)
-			)
-			{
+			) {
 				// 0 = no guild, can be attacked by anyone
 				return true;
 			}

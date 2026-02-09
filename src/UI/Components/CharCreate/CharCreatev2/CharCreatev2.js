@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -47,8 +46,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	CharCreatev2.init = function init()
-	{
+	CharCreatev2.init = function init() {
 		_chargen.ctx = this.ui.find('.content canvas')[0].getContext('2d');
 
 		// Setup GUI
@@ -65,8 +63,7 @@ define(function (require)
 		this.ui.find('.content .colorleft').mousedown(updateCharacterGeneric('headpalette', -1));
 		this.ui.find('.content .colorright').mousedown(updateCharacterGeneric('headpalette', +1));
 
-		this.ui.find('input').mousedown(function (event)
-		{
+		this.ui.find('input').mousedown(function (event) {
 			this.focus();
 			event.stopImmediatePropagation();
 		});
@@ -80,16 +77,14 @@ define(function (require)
 	 *
 	 * @param {number} sex
 	 */
-	CharCreatev2.setAccountSex = function setAccountSex(sex)
-	{
+	CharCreatev2.setAccountSex = function setAccountSex(sex) {
 		_accountSex = sex;
 	};
 
 	/**
 	 * Once add to HTML, start rendering
 	 */
-	CharCreatev2.onAppend = function onAppend()
-	{
+	CharCreatev2.onAppend = function onAppend() {
 		_chargen.render = true;
 		_chargen.entity.set({
 			sex: _accountSex,
@@ -107,8 +102,7 @@ define(function (require)
 	 * Remove component from HTML
 	 * Stop rendering
 	 */
-	CharCreatev2.onRemove = function onRemove()
-	{
+	CharCreatev2.onRemove = function onRemove() {
 		Renderer.stop(render);
 	};
 
@@ -118,10 +112,8 @@ define(function (require)
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	CharCreatev2.onKeyDown = function onKeyDown(event)
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible'))
-		{
+	CharCreatev2.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			event.stopImmediatePropagation();
 			cancel();
 			return false;
@@ -136,10 +128,8 @@ define(function (require)
 	 * @param {string} type
 	 * @param {number} value
 	 */
-	function updateCharacterGeneric(type, value)
-	{
-		return function (event)
-		{
+	function updateCharacterGeneric(type, value) {
+		return function (event) {
 			updateCharacter(type, value);
 			event.stopImmediatePropagation();
 			return false;
@@ -149,8 +139,7 @@ define(function (require)
 	/**
 	 * Send back informations to send the packet
 	 */
-	function create()
-	{
+	function create() {
 		var ui = CharCreatev2.ui;
 
 		CharCreatev2.onCharCreationRequest(
@@ -169,8 +158,7 @@ define(function (require)
 	/**
 	 * Exit the window
 	 */
-	function cancel()
-	{
+	function cancel() {
 		CharCreatev2.onExitRequest();
 	}
 
@@ -180,20 +168,16 @@ define(function (require)
 	 * @param {string} type (head or headpalette)
 	 * @param {number} increment (-1 or +1)
 	 */
-	function updateCharacter(type, increment)
-	{
-		switch (type)
-		{
+	function updateCharacter(type, increment) {
+		switch (type) {
 			case 'head':
 				var head = _chargen.entity.head + increment;
 
-				if (head < 2)
-				{
+				if (head < 2) {
 					head = 26;
 				}
 
-				if (head > 26)
-				{
+				if (head > 26) {
 					head = 2;
 				}
 
@@ -212,11 +196,9 @@ define(function (require)
 	/**
 	 * Rendering the Character
 	 */
-	function render(tick)
-	{
+	function render(tick) {
 		// Update direction each 500ms
-		if (_chargen.tick + 500 < tick)
-		{
+		if (_chargen.tick + 500 < tick) {
 			Camera.direction++;
 			Camera.direction %= 8;
 			_chargen.tick = tick;

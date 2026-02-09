@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['./JobConst'], function (JobId)
-{
+define(['./JobConst'], function (JobId) {
 	'use strict';
 
 	return [

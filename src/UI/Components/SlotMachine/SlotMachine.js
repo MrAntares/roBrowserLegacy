@@ -8,8 +8,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -62,8 +61,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	SlotMachine.init = function init()
-	{
+	SlotMachine.init = function init() {
 		// Initialize UI.
 		this.ui = jQuery('<canvas/>')
 			.attr({
@@ -83,25 +81,21 @@ define(function (require)
 		// Loading sprite, start animation
 		Client.loadFiles(
 			['data/sprite/slotmachine.spr', 'data/sprite/slotmachine.act'],
-			function (spr, act)
-			{
+			function (spr, act) {
 				_sprite = spr;
 				_action = act;
 				_type = 0;
 				_start = Renderer.tick;
 
-				if (this.ui[0].parentNode)
-				{
+				if (this.ui[0].parentNode) {
 					Renderer.render(rendering);
 				}
 			}.bind(this)
 		);
 
 		// Don't propagate to map scene
-		this.ui.mousedown(function (event)
-		{
-			if (_type === 0)
-			{
+		this.ui.mousedown(function (event) {
+			if (_type === 0) {
 				SlotMachine.onTry();
 				event.stopImmediatePropagation();
 				return false;
@@ -112,13 +106,11 @@ define(function (require)
 	/**
 	 * Once append to body
 	 */
-	SlotMachine.onAppend = function onAppend()
-	{
+	SlotMachine.onAppend = function onAppend() {
 		_type = 0;
 		_start = Renderer.tick;
 
-		if (_sprite && _action)
-		{
+		if (_sprite && _action) {
 			Renderer.render(rendering);
 		}
 	};
@@ -126,8 +118,7 @@ define(function (require)
 	/**
 	 * Once removed from body
 	 */
-	SlotMachine.onRemove = function onRemove()
-	{
+	SlotMachine.onRemove = function onRemove() {
 		Renderer.stop(rendering);
 	};
 
@@ -136,8 +127,7 @@ define(function (require)
 	 *
 	 * @param {boolean} result
 	 */
-	SlotMachine.setResult = function setResult(result)
-	{
+	SlotMachine.setResult = function setResult(result) {
 		_type = 1;
 		_result = result;
 		_start = Renderer.tick;
@@ -146,17 +136,14 @@ define(function (require)
 	/**
 	 * Rendering animation
 	 */
-	var rendering = (function renderingClosure()
-	{
+	var rendering = (function renderingClosure() {
 		var position = new Uint16Array([0, 0]);
 
-		return function rendering()
-		{
+		return function rendering() {
 			var i, count, max;
 			var action, animation, anim;
 
-			switch (_type)
-			{
+			switch (_type) {
 				case 0: // waiting
 					action = _action.actions[0];
 					anim = Math.floor(((Renderer.tick - _start) / action.delay) * 2);
@@ -169,8 +156,7 @@ define(function (require)
 					anim = Math.floor(anim / action.delay);
 					anim = Math.min(anim, max);
 
-					if (anim === max)
-					{
+					if (anim === max) {
 						_type = _result ? 2 : 3;
 						_start = Renderer.tick;
 					}
@@ -183,11 +169,9 @@ define(function (require)
 					anim = Renderer.tick - _start;
 					anim = Math.floor(anim / action.delay);
 
-					if (anim >= max)
-					{
+					if (anim >= max) {
 						Renderer.stop(rendering);
-						Events.setTimeout(function ()
-						{
+						Events.setTimeout(function () {
 							SlotMachine.remove();
 						}, 500);
 					}
@@ -201,8 +185,7 @@ define(function (require)
 			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
 			// Render layers
-			for (i = 0, count = animation.layers.length; i < count; ++i)
-			{
+			for (i = 0, count = animation.layers.length; i < count; ++i) {
 				_entity.renderLayer(animation.layers[i], _sprite, _sprite, 1.0, position, false);
 			}
 		};

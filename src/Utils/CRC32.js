@@ -11,8 +11,7 @@
  * @author Liam Mitchell
  */
 
-define(['Utils/BinaryReader'], function (BinaryReader)
-{
+define(['Utils/BinaryReader'], function (BinaryReader) {
 	'use strict';
 
 	/**
@@ -58,26 +57,21 @@ define(['Utils/BinaryReader'], function (BinaryReader)
 	 * @param {number} end previous
 	 * @return Uint32
 	 */
-	function CRC32(start, end, previous)
-	{
-		if (start === undefined)
-		{
+	function CRC32(start, end, previous) {
+		if (start === undefined) {
 			start = this.tell();
 		}
 
-		if (end === undefined)
-		{
+		if (end === undefined) {
 			end = this.length;
 		}
 
-		if (previous === undefined)
-		{
+		if (previous === undefined) {
 			previous = 0;
 		}
 
 		var crc = ~~previous ^ -1;
-		for (var n = start; n < end; n++)
-		{
+		for (var n = start; n < end; n++) {
 			crc = CRC_TABLE[(crc ^ this.view.getUint8(n)) & 0xff] ^ (crc >>> 8);
 		}
 

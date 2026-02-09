@@ -8,8 +8,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var publicName = 'BasicInfo';

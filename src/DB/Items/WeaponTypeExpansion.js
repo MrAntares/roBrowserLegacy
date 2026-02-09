@@ -8,8 +8,7 @@
  * @author Alison Serafim
  */
 
-define(['./WeaponType'], function (WeaponType)
-{
+define(['./WeaponType'], function (WeaponType) {
 	'use strict';
 
 	var WeaponTypeExpansion = {};

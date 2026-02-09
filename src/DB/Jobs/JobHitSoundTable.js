@@ -8,8 +8,7 @@
  * @author Vincent Thibault, Antares, MrUnzO
  */
 
-define(['./JobConst'], function (JobId)
-{
+define(['./JobConst'], function (JobId) {
 	'use strict';
 
 	var JobHitSoundTable = {};
@@ -184,14 +183,12 @@ define(['./JobConst'], function (JobId)
 	JobHitSoundTable[JobId.WINDHAWK2] = ['player_wooden_male.wav'];
 	JobHitSoundTable[JobId.MEISTER2] = ['player_clothes.wav'];
 
-	function duplicateEntry(origin)
-	{
+	function duplicateEntry(origin) {
 		var value = JobHitSoundTable[origin];
 		var i,
 			count = arguments.length;
 
-		for (i = 1; i < count; ++i)
-		{
+		for (i = 1; i < count; ++i) {
 			JobHitSoundTable[arguments[i]] = value;
 		}
 	}

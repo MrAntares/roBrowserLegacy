@@ -8,8 +8,7 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
-{
+define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	'use strict';
 
 	var MapPreferences = require('Preferences/Map');
@@ -26,10 +25,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	// Some helper for Firefox to render text-border
-	if (typeof CanvasRenderingContext2D !== 'undefined')
-	{
-		CanvasRenderingContext2D.prototype.outlineText = function outlineText(txt, x, y)
-		{
+	if (typeof CanvasRenderingContext2D !== 'undefined') {
+		CanvasRenderingContext2D.prototype.outlineText = function outlineText(txt, x, y) {
 			this.fillText(txt, x - 1, y);
 			this.fillText(txt, x, y - 1);
 			this.fillText(txt, x + 1, y);
@@ -38,8 +35,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	}
 
 	// Some helper for Chrome to render text-border
-	function multiShadow(ctx, text, x, y, offsetX, offsetY, blur)
-	{
+	function multiShadow(ctx, text, x, y, offsetX, offsetY, blur) {
 		ctx.textBaseline = 'top';
 		ctx.lineWidth = 1;
 		ctx.shadowColor = '#000';
@@ -57,8 +53,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	 * For more informations, check :
 	 * http://forum.robrowser.com/index.php?topic=32200
 	 */
-	var _isUglyShadow = (function isUglyGPUShadow()
-	{
+	var _isUglyShadow = (function isUglyGPUShadow() {
 		var fontSize = 12 * dpr;
 		var text = 'Testing';
 		var width, height, percent;
@@ -92,8 +87,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 			count = pixels.length;
 		var total = 0;
 
-		for (i = 0; i < count; i += 4)
-		{
+		for (i = 0; i < count; i += 4) {
 			total += ((255 - pixels[i]) / 255) * pixels[i + 3];
 		}
 
@@ -109,8 +103,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Display structure
 	 */
-	function Display()
-	{
+	function Display() {
 		this.TYPE = {
 			NONE: 0,
 			LOADING: 1,
@@ -143,18 +136,15 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Add GUI to html
 	 */
-	Display.prototype.add = function add()
-	{
+	Display.prototype.add = function add() {
 		this.display = true;
 	};
 
 	/**
 	 * Remove GUI from html
 	 */
-	Display.prototype.remove = function remove()
-	{
-		if (this.canvas.parentNode)
-		{
+	Display.prototype.remove = function remove() {
+		if (this.canvas.parentNode) {
 			document.body.removeChild(this.canvas);
 		}
 		this.display = false;
@@ -163,8 +153,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Clean it (remove informations)
 	 */
-	Display.prototype.clean = function clean()
-	{
+	Display.prototype.clean = function clean() {
 		this.remove();
 	};
 
@@ -172,8 +161,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	 * Update the display
 	 * @param {string} color
 	 */
-	Display.prototype.update = function update(style)
-	{
+	Display.prototype.update = function update(style) {
 		style = style || this.STYLE.DEFAULT;
 
 		// Setup variables
@@ -202,8 +190,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 				style === this.STYLE.ADMIN ||
 				style === this.STYLE.MOB ||
 				style === this.STYLE.NPC)
-		)
-		{
+		) {
 			lines[0] += ' (' + this.party_name + ')';
 		}
 
@@ -214,24 +201,20 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 				style === this.STYLE.ADMIN ||
 				style === this.STYLE.MOB ||
 				style === this.STYLE.NPC)
-		)
-		{
+		) {
 			lines[1] = this.guild_name;
 
 			// Add guild rank
-			if (this.guild_rank.length && MapPreferences.showname)
-			{
+			if (this.guild_rank.length && MapPreferences.showname) {
 				lines[1] += ' [' + this.guild_rank + ']';
 			}
-		}
-		else if (
+		} else if (
 			this.guild_rank.length &&
 			(style === this.STYLE.DEFAULT ||
 				style === this.STYLE.ADMIN ||
 				style === this.STYLE.MOB ||
 				style === this.STYLE.NPC)
-		)
-		{
+		) {
 			// showname
 			lines[1] = this.guild_rank;
 		}
@@ -245,8 +228,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 				style === this.STYLE.ADMIN ||
 				style === this.STYLE.MOB ||
 				style === this.STYLE.NPC)
-		)
-		{
+		) {
 			lines[0] = '[' + this.title_name + '] ' + lines[0];
 		}
 
@@ -266,24 +248,19 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 				style === this.STYLE.ADMIN ||
 				style === this.STYLE.MOB ||
 				style === this.STYLE.NPC)
-		)
-		{
-			if (this.emblem.isAnimated)
-			{
+		) {
+			if (this.emblem.isAnimated) {
 				var fw = this.emblem.frameWidth;
 				var fh = this.emblem.frameHeight;
 				ctx.drawImage(this.emblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
-			}
-			else
-			{
+			} else {
 				ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
 			}
 		}
 
 		// TODO: complete the color list in the Entity display
 		var color = 'white';
-		switch (style)
-		{
+		switch (style) {
 			case this.STYLE.MOB:
 				color = '#ffc6c6';
 				break;
@@ -303,8 +280,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 		ctx.textBaseline = 'top';
 
 		// Shadow renderer
-		if (!_isUglyShadow)
-		{
+		if (!_isUglyShadow) {
 			multiShadow(ctx, lines[0], start_x, paddingTop, 0, -1, 0);
 			multiShadow(ctx, lines[0], start_x, paddingTop, 0, 1, 0);
 			multiShadow(ctx, lines[0], start_x, paddingTop, -1, 0, 0);
@@ -322,8 +298,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 		}
 
 		// fillText renderer
-		else
-		{
+		else {
 			ctx.translate(0.5, 0.5);
 			ctx.fillStyle = 'black';
 			ctx.outlineText(lines[0], start_x, paddingTop);
@@ -337,8 +312,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Refreshes the display (when player uses /showname)
 	 */
-	Display.prototype.refresh = function refresh(entity)
-	{
+	Display.prototype.refresh = function refresh(entity) {
 		this.update(
 			entity.objecttype === entity.constructor.TYPE_MOB
 				? entity.display.STYLE.MOB
@@ -363,19 +337,16 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Rendering GUI
 	 */
-	Display.prototype.render = function (matrix)
-	{
+	Display.prototype.render = function (matrix) {
 		var z;
-		if (this.emblem && this.emblem.isAnimated)
-		{
+		if (this.emblem && this.emblem.isAnimated) {
 			var paddingTop = 5;
 			var now = Date.now();
 
 			var currentFrameIndex = this.emblem.currentFrame || 0;
 			var frameDelay = this.emblem.frameDelays ? this.emblem.frameDelays[currentFrameIndex] : 100;
 
-			if (now - this.emblem.lastFrameChange >= frameDelay)
-			{
+			if (now - this.emblem.lastFrameChange >= frameDelay) {
 				this.emblem.lastFrameChange = now;
 
 				var fw = this.emblem.frameWidth;
@@ -422,8 +393,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 		canvas.style.height = canvas.height / dpr + 'px';
 
 		// Append to body
-		if (!canvas.parentNode)
-		{
+		if (!canvas.parentNode) {
 			document.body.appendChild(canvas);
 		}
 	};
@@ -431,8 +401,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Exporting
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this.display = new Display();
 	};
 });

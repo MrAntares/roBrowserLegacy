@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -67,18 +66,15 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	ChatRoomCreate.init = function init()
-	{
+	ChatRoomCreate.init = function init() {
 		// Bindings
 		this.ui.find('.close, .cancel').mousedown(stopPropagation).click(this.hide.bind(this));
 		this.ui.find('.ok').on('click', parseChatSetup.bind(this));
-		this.ui.find('.setup').submit(function ()
-		{
+		this.ui.find('.setup').submit(function () {
 			return false;
 		});
 
-		this.ui.find('input, select').mousedown(function (event)
-		{
+		this.ui.find('input, select').mousedown(function (event) {
 			event.stopImmediatePropagation();
 		});
 
@@ -89,10 +85,8 @@ define(function (require)
 	/**
 	 * Once append to body
 	 */
-	ChatRoomCreate.onAppend = function OnAppend()
-	{
-		if (!_preferences.show)
-		{
+	ChatRoomCreate.onAppend = function OnAppend() {
+		if (!_preferences.show) {
 			this.ui.hide();
 		}
 
@@ -109,8 +103,7 @@ define(function (require)
 	/**
 	 * Once removed from DOM, save preferences
 	 */
-	ChatRoomCreate.onRemove = function OnRemove()
-	{
+	ChatRoomCreate.onRemove = function OnRemove() {
 		_preferences.show = this.ui.is(':visible');
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.x = parseInt(this.ui.css('left'), 10);
@@ -120,8 +113,7 @@ define(function (require)
 	/**
 	 * Show the setup for room creation
 	 */
-	ChatRoomCreate.show = function showSetup()
-	{
+	ChatRoomCreate.show = function showSetup() {
 		this.ui.show();
 		this.ui.find('.title').focus();
 
@@ -131,8 +123,7 @@ define(function (require)
 	/**
 	 * Hide the setup ui
 	 */
-	ChatRoomCreate.hide = function hideSetup()
-	{
+	ChatRoomCreate.hide = function hideSetup() {
 		this.ui.hide();
 		this.ui.find('.setup')[0].reset();
 
@@ -145,18 +136,13 @@ define(function (require)
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	ChatRoomCreate.onKeyDown = function onKeyDown(event)
-	{
-		if (this.ui.is(':visible'))
-		{
-			if (event.which === KEYS.ENTER)
-			{
+	ChatRoomCreate.onKeyDown = function onKeyDown(event) {
+		if (this.ui.is(':visible')) {
+			if (event.which === KEYS.ENTER) {
 				parseChatSetup.call(this);
 				event.stopImmediatePropagation();
 				return false;
-			}
-			else if (event.which === KEYS.ESCAPE || event.key === 'Escape')
-			{
+			} else if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 				this.hide();
 				event.stopImmediatePropagation();
 				return false;
@@ -171,21 +157,17 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	ChatRoomCreate.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd)
-		{
+	ChatRoomCreate.onShortCut = function onShurtCut(key) {
+		switch (key.cmd) {
 			case 'TOGGLE':
 				ChatRoomCreate.toggle();
 				break;
 		}
 	};
 
-	ChatRoomCreate.toggle = function toggle()
-	{
+	ChatRoomCreate.toggle = function toggle() {
 		this.ui.toggle();
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			this.focus();
 		}
 	};
@@ -193,8 +175,7 @@ define(function (require)
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -202,15 +183,13 @@ define(function (require)
 	/**
 	 * Parse and send chat room request
 	 */
-	function parseChatSetup()
-	{
+	function parseChatSetup() {
 		this.title = this.ui.find('input[name=title]').val();
 		this.limit = parseInt(this.ui.find('select[name=limit]').val(), 10);
 		this.type = parseInt(this.ui.find('input[name=public]:checked').val(), 10);
 		this.password = this.ui.find('input[name=password]').val();
 
-		if (this.title.length < 1)
-		{
+		if (this.title.length < 1) {
 			var overlay = document.createElement('div');
 			overlay.className = 'win_popup_overlay';
 			document.body.appendChild(overlay);
@@ -218,8 +197,7 @@ define(function (require)
 			var popup = UIManager.showMessageBox(
 				DB.getMessage(13),
 				'ok',
-				function ()
-				{
+				function () {
 					document.body.removeChild(overlay);
 				},
 				true

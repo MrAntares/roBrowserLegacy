@@ -15,8 +15,7 @@ define([
 	'Core/Configs',
 	'text!./GridSelector.vs',
 	'text!./GridSelector.fs'
-], function (Altitude, Client, WebGL, Texture, Configs, _vertexShader, _fragmentShader)
-{
+], function (Altitude, Client, WebGL, Texture, Configs, _vertexShader, _fragmentShader) {
 	'use strict';
 
 	/**
@@ -52,14 +51,10 @@ define([
 	 *
 	 * @param {object} gl context
 	 */
-	function init(gl)
-	{
-		Client.loadFile('data/texture/grid.tga', function (buffer)
-		{
-			Texture.load(buffer, function (success)
-			{
-				if (!success)
-				{
+	function init(gl) {
+		Client.loadFile('data/texture/grid.tga', function (buffer) {
+			Texture.load(buffer, function (success) {
+				if (!success) {
 					return;
 				}
 
@@ -81,8 +76,7 @@ define([
 				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-				if (enableMipmap)
-				{
+				if (enableMipmap) {
 					gl.generateMipmap(gl.TEXTURE_2D);
 				}
 			});
@@ -104,11 +98,9 @@ define([
 	 * @param {number} x
 	 * @param {number} y
 	 */
-	function render(gl, modelView, projection, fog, x, y)
-	{
+	function render(gl, modelView, projection, fog, x, y) {
 		// Texture not loaded yet
-		if (!_texture)
-		{
+		if (!_texture) {
 			return;
 		}
 
@@ -141,8 +133,7 @@ define([
 		gl.uniform1i(uniform.uDiffuse, 0);
 
 		// Update buffer only if there is a change
-		if (_xy !== x + '' + y)
-		{
+		if (_xy !== x + '' + y) {
 			_xy = x + '' + y;
 			z = Altitude.getCell(x, y);
 
@@ -172,22 +163,18 @@ define([
 	 *
 	 * @param {object} gl context
 	 */
-	function free(gl)
-	{
-		if (_buffer)
-		{
+	function free(gl) {
+		if (_buffer) {
 			gl.deleteBuffer(_buffer);
 			_buffer = null;
 		}
 
-		if (_texture)
-		{
+		if (_texture) {
 			gl.deleteTexture(_texture);
 			_texture = null;
 		}
 
-		if (_program)
-		{
+		if (_program) {
 			gl.deleteProgram(_program);
 			_program = null;
 		}

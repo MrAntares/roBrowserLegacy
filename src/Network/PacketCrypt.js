@@ -17,8 +17,7 @@
  * @author Vincent Thibault
  */
 
-define(['Core/Configs'], function (Configs)
-{
+define(['Core/Configs'], function (Configs) {
 	'use strict';
 
 	/**
@@ -497,14 +496,10 @@ define(['Core/Configs'], function (Configs)
 	var imul;
 
 	// Check for support and kick out Safari bug
-	if (Math.imul && Math.imul(0xffffffff, 5) === -5)
-	{
+	if (Math.imul && Math.imul(0xffffffff, 5) === -5) {
 		imul = Math.imul;
-	}
-	else
-	{
-		imul = function imul(a, b)
-		{
+	} else {
+		imul = function imul(a, b) {
 			var ah = (a >>> 16) & 0xffff;
 			var al = a & 0xffff;
 			var bh = (b >>> 16) & 0xffff;
@@ -518,51 +513,40 @@ define(['Core/Configs'], function (Configs)
 	/**
 	 * Initialize to get keys for packet encryption
 	 */
-	function Init()
-	{
+	function Init() {
 		var packetKeys;
 
 		_available = false;
 		packetKeys = Configs.get('packetKeys');
 
-		if (!packetKeys)
-		{
+		if (!packetKeys) {
 			return;
 		}
 
 		// Custom keys
-		if (packetKeys instanceof Array)
-		{
+		if (packetKeys instanceof Array) {
 			_available = true;
 			_keys.set(packetKeys);
-		}
-		else
-		{
+		} else {
 			var date, key;
 
 			// Define a date or use the defined packetver ?
-			if (typeof packetKeys === 'number')
-			{
+			if (typeof packetKeys === 'number') {
 				date = packetKeys;
-			}
-			else
-			{
+			} else {
 				date = Configs.get('packetver');
 			}
 
 			// Get the available keys
-			for (key in KeysTable)
-			{
-				if (date >= key)
-				{
+			for (key in KeysTable) {
+				if (date >= key) {
 					_available = true;
 					_keys.set(KeysTable[key]);
 				}
 			}
 		}
 
-		if (_available)
-		{
+		if (_available) {
 			console.log('%c[PACKETCRYPT] Encrypt sent packets using keys', 'color:#007000', _keys);
 		}
 	}
@@ -572,10 +556,8 @@ define(['Core/Configs'], function (Configs)
 	 *
 	 * @param {DataView} view
 	 */
-	function Process(view)
-	{
-		if (_available)
-		{
+	function Process(view) {
+		if (_available) {
 			var cmd = view.getInt16(0, true);
 
 			// Update key

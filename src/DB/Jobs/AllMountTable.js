@@ -8,8 +8,7 @@
  * @author Antares
  */
 
-define(['./JobConst'], function (JobId)
-{
+define(['./JobConst'], function (JobId) {
 	'use strict';
 
 	var AllMountTable = {};
@@ -165,14 +164,12 @@ define(['./JobConst'], function (JobId)
 	AllMountTable[JobId.SOUL_REAPER_B] = JobId.SOUL_REAPER2_B;
 	AllMountTable[JobId.STAR_EMPEROR_B] = JobId.STAR_EMPEROR2_B;
 
-	function duplicateEntry(origin)
-	{
+	function duplicateEntry(origin) {
 		var value = AllMountTable[origin];
 		var i,
 			count = arguments.length;
 
-		for (i = 1; i < count; ++i)
-		{
+		for (i = 1; i < count; ++i) {
 			AllMountTable[arguments[i]] = value;
 		}
 	}

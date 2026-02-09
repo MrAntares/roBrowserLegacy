@@ -7,8 +7,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var Polling = require('./JoystickPollingLoop');
@@ -18,16 +17,14 @@ define(function (require)
 	var JoystickUIRenderer = require('./JoystickUIRenderer');
 
 	return {
-		prepare: function ()
-		{
+		prepare: function () {
 			ShortcutMapper.prepare();
 			InputService.prepare();
 			Interaction.prepare();
 			Polling.start();
 			JoystickUIRenderer.hide();
 		},
-		dispose: function ()
-		{
+		dispose: function () {
 			Polling.stop();
 			Interaction.dispose();
 			InputService.dispose();

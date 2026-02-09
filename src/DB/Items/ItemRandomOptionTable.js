@@ -8,8 +8,7 @@
  * @author Vincent Thibault, Thapakorn Tantirattanapong
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	return {

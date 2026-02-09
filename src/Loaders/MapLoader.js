@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['Core/FileManager'], function (FileManager)
-{
+define(['Core/FileManager'], function (FileManager) {
 	'use strict';
 
 	/**
@@ -17,8 +16,7 @@ define(['Core/FileManager'], function (FileManager)
 	 *
 	 * @param {array} file list to load
 	 */
-	function Loader(list)
-	{
+	function Loader(list) {
 		this.files = list;
 		this.list = list.slice(0);
 		this.offset = 0;
@@ -39,20 +37,17 @@ define(['Core/FileManager'], function (FileManager)
 	/**
 	 * Start to load the list
 	 */
-	Loader.prototype.start = function start()
-	{
+	Loader.prototype.start = function start() {
 		var i;
 		this.offset = 0;
 
 		// No files...
-		if (!this.list.length)
-		{
+		if (!this.list.length) {
 			this.onload(this.list, this.list);
 			return;
 		}
 
-		for (i = 0; i < this.count && i < this.parallelDownload; ++i)
-		{
+		for (i = 0; i < this.count && i < this.parallelDownload; ++i) {
 			this._next();
 		}
 	};
@@ -62,46 +57,37 @@ define(['Core/FileManager'], function (FileManager)
 	 *
 	 * @param {number} index in list
 	 */
-	Loader.prototype._next = function next()
-	{
+	Loader.prototype._next = function next() {
 		// Possible problem with setTimeout
-		if (!this.list.length)
-		{
+		if (!this.list.length) {
 			return;
 		}
 
 		var filename = this.list.shift();
 		FileManager.load(
 			filename,
-			function (data)
-			{
+			function (data) {
 				// Store the result
 				this.out[this.files.indexOf(filename)] = data;
 				this.offset++;
 
 				// Start the progress
-				if (this.onprogress && this.offset <= this.count)
-				{
+				if (this.onprogress && this.offset <= this.count) {
 					this.onprogress(this.offset, this.count);
 				}
 
 				// Ended ?
-				if (this.offset === this.count)
-				{
+				if (this.offset === this.count) {
 					this.onload(this.out, this.files);
 					return;
 				}
 
 				// Continue the queue
-				if (this.list.length)
-				{
+				if (this.list.length) {
 					// To fix "too much recursion" on Firefox
-					if (++Loader.count % 50 === 0)
-					{
+					if (++Loader.count % 50 === 0) {
 						setTimeout(this._next.bind(this), 4);
-					}
-					else
-					{
+					} else {
 						this._next();
 					}
 				}
@@ -114,10 +100,8 @@ define(['Core/FileManager'], function (FileManager)
 	 *
 	 * @param {string} mapname
 	 */
-	function MapLoader(mapname)
-	{
-		if (mapname)
-		{
+	function MapLoader(mapname) {
+		if (mapname) {
 			this.load(mapname);
 		}
 	}
@@ -145,14 +129,11 @@ define(['Core/FileManager'], function (FileManager)
 	 *
 	 * @param {number} percent
 	 */
-	MapLoader.prototype.setProgress = function setProgress(percent)
-	{
+	MapLoader.prototype.setProgress = function setProgress(percent) {
 		var progress = Math.min(100, Math.floor(percent));
 
-		if (progress !== this.progress)
-		{
-			if (this.onprogress)
-			{
+		if (progress !== this.progress) {
+			if (this.onprogress) {
 				this.onprogress(progress);
 			}
 			this.progress = progress;
@@ -164,8 +145,7 @@ define(['Core/FileManager'], function (FileManager)
 	 *
 	 * @param {string} mapname
 	 */
-	MapLoader.prototype.load = function Load(mapname)
-	{
+	MapLoader.prototype.load = function Load(mapname) {
 		// Initialize the loading
 		this.setProgress(0);
 
@@ -173,10 +153,8 @@ define(['Core/FileManager'], function (FileManager)
 		var world;
 
 		//  Get file path (if it's a copy of a file)
-		function getFilePath(path)
-		{
-			if (path in FileManager.filesAlias)
-			{
+		function getFilePath(path) {
+			if (path in FileManager.filesAlias) {
 				return FileManager.filesAlias[path];
 			}
 
@@ -184,10 +162,8 @@ define(['Core/FileManager'], function (FileManager)
 		}
 
 		// loading world
-		function onWorldReady(resourceWorld)
-		{
-			if (!resourceWorld)
-			{
+		function onWorldReady(resourceWorld) {
+			if (!resourceWorld) {
 				loader.onload(false, 'Can\'t find file "' + mapname + '" ! ');
 				return;
 			}
@@ -200,10 +176,8 @@ define(['Core/FileManager'], function (FileManager)
 		}
 
 		// Loading altitude
-		function onAltitudeReady(altitude)
-		{
-			if (!altitude)
-			{
+		function onAltitudeReady(altitude) {
+			if (!altitude) {
 				loader.onload(false, 'Can\'t find file "' + world.files.gat + '" !');
 				return;
 			}
@@ -215,10 +189,8 @@ define(['Core/FileManager'], function (FileManager)
 		}
 
 		// Load ground
-		function onGroundReady(ground)
-		{
-			if (!ground)
-			{
+		function onGroundReady(ground) {
+			if (!ground) {
 				loader.onload(false, 'Can\'t find file "' + world.files.gnd + '" !');
 				return;
 			}
@@ -226,8 +198,7 @@ define(['Core/FileManager'], function (FileManager)
 			loader.setProgress(3);
 
 			// Compiling ground
-			if (ground && ground.version >= 1.8)
-			{
+			if (ground && ground.version >= 1.8) {
 				world.water = ground.water;
 			}
 			var compiledGround = ground.compile(world.water.level, world.water.waveHeight);
@@ -237,14 +208,12 @@ define(['Core/FileManager'], function (FileManager)
 			loader.fileCount = ground.textures.length + world.models.length * 3;
 
 			// Add water to the list
-			if (compiledGround.waterVertCount)
-			{
+			if (compiledGround.waterVertCount) {
 				loader.fileCount += 32;
 			}
 
 			// Loading Gound and Water textures
-			loader.loadGroundTextures(world, compiledGround, function onLoaded(waters, textures)
-			{
+			loader.loadGroundTextures(world, compiledGround, function onLoaded(waters, textures) {
 				world.water.images = waters;
 				compiledGround.textures = textures;
 
@@ -267,24 +236,20 @@ define(['Core/FileManager'], function (FileManager)
 	 * @param {object} compiledGround
 	 * @param {function} callback
 	 */
-	MapLoader.prototype.loadGroundTextures = function LoadGroundTextures(world, ground, callback)
-	{
+	MapLoader.prototype.loadGroundTextures = function LoadGroundTextures(world, ground, callback) {
 		var i, count;
 		var textures = [];
 
 		// Get water textures
-		if (ground.waterVertCount)
-		{
+		if (ground.waterVertCount) {
 			var path = 'data\\texture\\\xbf\xf6\xc5\xcd/water' + world.water.type;
-			for (i = 0; i < 32; ++i)
-			{
+			for (i = 0; i < 32; ++i) {
 				textures.push(path + (i < 10 ? '0' + i : i) + '.jpg');
 			}
 		}
 
 		// Load ground textures
-		for (i = 0, count = ground.textures.length; i < count; ++i)
-		{
+		for (i = 0, count = ground.textures.length; i < count; ++i) {
 			textures.push('data\\texture\\' + ground.textures[i]);
 		}
 
@@ -292,14 +257,12 @@ define(['Core/FileManager'], function (FileManager)
 		var loader = new Loader(textures);
 
 		// On progress
-		loader.onprogress = function OnProgress()
-		{
+		loader.onprogress = function OnProgress() {
 			this.setProgress(3 + (97 / this.fileCount) * ++this.offset);
 		}.bind(this);
 
 		// Once load
-		loader.onload = function (textures)
-		{
+		loader.onload = function (textures) {
 			callback(textures.splice(0, ground.waterVertCount ? 32 : 0), textures);
 		}.bind(this);
 
@@ -314,18 +277,15 @@ define(['Core/FileManager'], function (FileManager)
 	 * @param {Ground}
 	 * @returns {object} compiled mesh
 	 */
-	MapLoader.prototype.loadModels = function LoadModels(models, ground)
-	{
+	MapLoader.prototype.loadModels = function LoadModels(models, ground) {
 		var i, count;
 		var files = [];
 
 		// Get a list of files to load
-		for (i = 0, count = models.length; i < count; ++i)
-		{
+		for (i = 0, count = models.length; i < count; ++i) {
 			models[i].filename = 'data\\model\\' + models[i].filename;
 
-			if (files.indexOf(models[i].filename) < 0)
-			{
+			if (files.indexOf(models[i].filename) < 0) {
 				files.push(models[i].filename);
 			}
 		}
@@ -333,29 +293,24 @@ define(['Core/FileManager'], function (FileManager)
 		var loader = new Loader(files);
 
 		// Update the progressbar
-		loader.onprogress = function ()
-		{
+		loader.onprogress = function () {
 			this.setProgress(3 + (97 / this.fileCount) * ++this.offset);
 		}.bind(this);
 
 		// Start creating instances
-		loader.onload = function (objects, filenames)
-		{
+		loader.onload = function (objects, filenames) {
 			var i, count, pos;
 
-			for (i = 0, count = models.length; i < count; ++i)
-			{
+			for (i = 0, count = models.length; i < count; ++i) {
 				pos = filenames.indexOf(models[i].filename);
 
 				// Duplicate from a model removed from list
-				if (pos === -1)
-				{
+				if (pos === -1) {
 					continue;
 				}
 
 				// Because of a problem the model isn't load, remove it from the list
-				if (!objects[pos])
-				{
+				if (!objects[pos]) {
 					objects.splice(pos, 1);
 					filenames.splice(pos, 1);
 					continue;
@@ -377,8 +332,7 @@ define(['Core/FileManager'], function (FileManager)
 	 *
 	 * @param {Array} objects list
 	 */
-	MapLoader.prototype.compileModels = function CompileModels(objects)
-	{
+	MapLoader.prototype.compileModels = function CompileModels(objects) {
 		var i, j, count, size, bufferSize;
 		var object, nodes, meshes;
 		var index;
@@ -388,11 +342,9 @@ define(['Core/FileManager'], function (FileManager)
 
 		bufferSize = 0;
 
-		for (i = 0, count = objects.length; i < count; ++i)
-		{
+		for (i = 0, count = objects.length; i < count; ++i) {
 			// Check if this model has animation - skip static compilation
-			if (objects[i].hasAnimation && objects[i].hasAnimation())
-			{
+			if (objects[i].hasAnimation && objects[i].hasAnimation()) {
 				animatedModels.push(objects[i]);
 				this.setProgress(progress + (((100 - progress) / count) * (i + 1)) / 2);
 				continue; // Don't include in static mesh, will be rendered by AnimatedModels
@@ -401,12 +353,10 @@ define(['Core/FileManager'], function (FileManager)
 			object = objects[i].compile();
 			nodes = object.meshes;
 
-			for (j = 0, size = nodes.length; j < size; ++j)
-			{
+			for (j = 0, size = nodes.length; j < size; ++j) {
 				meshes = nodes[j];
 
-				for (index in meshes)
-				{
+				for (index in meshes) {
 					models.push({
 						texture: 'data\\texture\\' + object.textures[index],
 						alpha: objects[i].alpha,
@@ -436,32 +386,26 @@ define(['Core/FileManager'], function (FileManager)
 	 * @param {Object} b
 	 * @return {number}
 	 */
-	function SortMeshByTextures(a, b)
-	{
+	function SortMeshByTextures(a, b) {
 		var reg_tga = /\.tga$/i;
 
-		if (a.texture.match(reg_tga))
-		{
+		if (a.texture.match(reg_tga)) {
 			return 1;
 		}
 
-		if (b.texture.match(reg_tga))
-		{
+		if (b.texture.match(reg_tga)) {
 			return -1;
 		}
 
-		if (a.alpha !== b.alpha)
-		{
+		if (a.alpha !== b.alpha) {
 			return a.alpha < b.alpha ? 1 : 0;
 		}
 
-		if (a.texture < b.texture)
-		{
+		if (a.texture < b.texture) {
 			return -1;
 		}
 
-		if (a.texture > b.texture)
-		{
+		if (a.texture > b.texture) {
 			return 1;
 		}
 
@@ -474,8 +418,7 @@ define(['Core/FileManager'], function (FileManager)
 	 * @param {Array} objects list
 	 * @param {number} BufferSize
 	 */
-	MapLoader.prototype.mergeMeshes = function MergeMeshes(objects, bufferSize)
-	{
+	MapLoader.prototype.mergeMeshes = function MergeMeshes(objects, bufferSize) {
 		var i, j, count, size, offset;
 		var object, texture;
 		var textures = [],
@@ -493,21 +436,18 @@ define(['Core/FileManager'], function (FileManager)
 		objects.sort(SortMeshByTextures);
 
 		// Merge meshes
-		for (i = 0, j = 0, count = objects.length; i < count; ++i)
-		{
+		for (i = 0, j = 0, count = objects.length; i < count; ++i) {
 			object = objects[i];
 			size = object.mesh.length;
 
 			// Same texture, just change vertCount to save drawcall
 			// and avoid loading multiple time the same texture.
-			if (texture === object.texture)
-			{
+			if (texture === object.texture) {
 				infos[j - 1].vertCount += size * fcount;
 			}
 
 			// Load the texture
-			else
-			{
+			else {
 				texture = object.texture;
 				textures.push(texture);
 
@@ -527,19 +467,16 @@ define(['Core/FileManager'], function (FileManager)
 		var loader = new Loader(textures);
 
 		// On Progress
-		loader.onprogress = function (index, count)
-		{
+		loader.onprogress = function (index, count) {
 			this.setProgress(progress + ((100 - progress) / count) * (index + 1));
 		}.bind(this);
 
 		// Once texture loaded, push the textures
 		// in the resulted mesh, and send it back
-		loader.onload = function (textures, filenames)
-		{
+		loader.onload = function (textures, filenames) {
 			var i, count, pos;
 
-			for (i = 0, count = infos.length; i < count; ++i)
-			{
+			for (i = 0, count = infos.length; i < count; ++i) {
 				pos = filenames.indexOf(infos[i].filename);
 				infos[i].texture = textures[pos];
 			}
@@ -550,8 +487,7 @@ define(['Core/FileManager'], function (FileManager)
 			});
 
 			// Send animated models data
-			if (this._animatedModels && this._animatedModels.length > 0)
-			{
+			if (this._animatedModels && this._animatedModels.length > 0) {
 				this.sendAnimatedModels(this._animatedModels);
 			}
 
@@ -566,10 +502,8 @@ define(['Core/FileManager'], function (FileManager)
 	 *
 	 * @param {Array} animatedModels - RSM objects with animation
 	 */
-	MapLoader.prototype.sendAnimatedModels = function SendAnimatedModels(animatedModels)
-	{
-		for (var i = 0; i < animatedModels.length; i++)
-		{
+	MapLoader.prototype.sendAnimatedModels = function SendAnimatedModels(animatedModels) {
+		for (var i = 0; i < animatedModels.length; i++) {
 			var model = animatedModels[i];
 
 			// Serialize model data for transfer
@@ -592,14 +526,12 @@ define(['Core/FileManager'], function (FileManager)
 			};
 
 			// Serialize instances
-			for (var j = 0; j < model.instances.length; j++)
-			{
+			for (var j = 0; j < model.instances.length; j++) {
 				modelData.instances.push(Array.from(model.instances[j]));
 			}
 
 			// Serialize nodes
-			for (var k = 0; k < model.nodes.length; k++)
-			{
+			for (var k = 0; k < model.nodes.length; k++) {
 				var node = model.nodes[k];
 
 				modelData.nodes.push({

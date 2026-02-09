@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -43,8 +42,7 @@ define(function (require)
 	/**
 	 * Initialize engine
 	 */
-	GroupEngine.init = function init()
-	{
+	GroupEngine.init = function init() {
 		Network.hookPacket(PACKET.ZC.NOTIFY_HP_TO_GROUPM, onMemberLifeUpdate);
 		Network.hookPacket(PACKET.ZC.NOTIFY_HP_TO_GROUPM_R2, onMemberLifeUpdate);
 		Network.hookPacket(PACKET.ZC.NOTIFY_CHAT_PARTY, onMemberTalk);
@@ -79,10 +77,8 @@ define(function (require)
 	 *
 	 * @param {string} party name
 	 */
-	GroupEngine.onRequestCreationEasy = function onRequestPartyCreationEasy(name)
-	{
-		if (Session.hasParty)
-		{
+	GroupEngine.onRequestCreationEasy = function onRequestPartyCreationEasy(name) {
+		if (Session.hasParty) {
 			return;
 		}
 
@@ -100,10 +96,8 @@ define(function (require)
 	 * @param {number} option 1
 	 * @param {number} option 2
 	 */
-	GroupEngine.onRequestCreation = function onRequestPartyCreation(name, pickupRule, divisionRule)
-	{
-		if (Session.hasParty)
-		{
+	GroupEngine.onRequestCreation = function onRequestPartyCreation(name, pickupRule, divisionRule) {
+		if (Session.hasParty) {
 			return;
 		}
 
@@ -120,10 +114,8 @@ define(function (require)
 	 * @param {number} account id
 	 * @param {string} pseudo
 	 */
-	GroupEngine.onRequestInvitation = function onRequestPartyInvitation(AID, pseudo)
-	{
-		if (!Session.hasParty || !Session.isPartyLeader)
-		{
+	GroupEngine.onRequestInvitation = function onRequestPartyInvitation(AID, pseudo) {
+		if (!Session.hasParty || !Session.isPartyLeader) {
 			return;
 		}
 
@@ -133,14 +125,11 @@ define(function (require)
 			ChatBox.FILTER.PARTY_SETUP
 		);
 
-		if (PACKETVER.value >= 20130529)
-		{
+		if (PACKETVER.value >= 20130529) {
 			var pkt = new PACKET.CZ.PARTY_JOIN_REQ();
 			pkt.characterName = pseudo;
 			Network.sendPacket(pkt);
-		}
-		else
-		{
+		} else {
 			var pkt = new PACKET.CZ.REQ_JOIN_GROUP();
 			pkt.AID = AID;
 			pkt.CharName = pseudo;
@@ -151,10 +140,8 @@ define(function (require)
 	/**
 	 * Ask to leave a party (/leave)
 	 */
-	GroupEngine.onRequestLeave = function onRequestPartyLeave()
-	{
-		if (!Session.hasParty)
-		{
+	GroupEngine.onRequestLeave = function onRequestPartyLeave() {
+		if (!Session.hasParty) {
 			return;
 		}
 
@@ -168,10 +155,8 @@ define(function (require)
 	 * @param {number} account id
 	 * @param {string} pseudo
 	 */
-	GroupEngine.onRequestExpel = function onRequestPartyExpel(AID, pseudo)
-	{
-		if (!Session.hasParty || !Session.isPartyLeader)
-		{
+	GroupEngine.onRequestExpel = function onRequestPartyExpel(AID, pseudo) {
+		if (!Session.hasParty || !Session.isPartyLeader) {
 			return;
 		}
 
@@ -188,10 +173,8 @@ define(function (require)
 	 * @param {number} pickup item option
 	 * @param {number} dision item option
 	 */
-	GroupEngine.onRequestInfoUpdate = function onRequestPartyInfoUpdate(expOption, pickupRule, divisionRule)
-	{
-		if (!Session.hasParty || !Session.isPartyLeader)
-		{
+	GroupEngine.onRequestInfoUpdate = function onRequestPartyInfoUpdate(expOption, pickupRule, divisionRule) {
+		if (!Session.hasParty || !Session.isPartyLeader) {
 			return;
 		}
 
@@ -207,10 +190,8 @@ define(function (require)
 	 *
 	 * @param {number} AID
 	 */
-	GroupEngine.onRequestChangeLeader = function onRequestChangePartyLeader(AID)
-	{
-		if (!Session.hasParty || !Session.isPartyLeader)
-		{
+	GroupEngine.onRequestChangeLeader = function onRequestChangePartyLeader(AID) {
+		if (!Session.hasParty || !Session.isPartyLeader) {
 			return;
 		}
 
@@ -224,10 +205,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_MAKE_GROUP
 	 */
-	function onPartyCreate(pkt)
-	{
-		switch (pkt.result)
-		{
+	function onPartyCreate(pkt) {
+		switch (pkt.result) {
 			case 0: // Ok, process
 				ChatBox.addText(DB.getMessage(77), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
 				Session.hasParty = true;
@@ -262,8 +241,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.GROUP_ISALIVE
 	 */
-	function onPartyIsAlive(pkt)
-	{
+	function onPartyIsAlive(pkt) {
 		// TODO: save is pkt.isDead, in new Party UI this show dead icon
 	}
 	/**
@@ -271,19 +249,16 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.GROUP_LIST
 	 */
-	function onPartyList(pkt)
-	{
+	function onPartyList(pkt) {
 		var i, count;
 		var entity;
 
 		Session.hasParty = true;
 		count = pkt.groupInfo.length;
 
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			entity = EntityManager.get(pkt.groupInfo[i].AID);
-			if (entity && entity.life.display)
-			{
+			if (entity && entity.life.display) {
 				pkt.groupInfo[i].life = entity.life;
 			}
 		}
@@ -297,12 +272,10 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ADD_MEMBER_TO_GROUP
 	 */
-	function onPartyMemberJoin(pkt)
-	{
+	function onPartyMemberJoin(pkt) {
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity && entity.life.display)
-		{
+		if (entity && entity.life.display) {
 			pkt.life = entity.life;
 		}
 
@@ -315,10 +288,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.DELETE_MEMBER_FROM_GROUP
 	 */
-	function onPartyMemberLeave(pkt)
-	{
-		switch (pkt.result)
-		{
+	function onPartyMemberLeave(pkt) {
+		switch (pkt.result) {
 			case 0: // leave
 			case 1: // expel
 				break;
@@ -334,8 +305,7 @@ define(function (require)
 				return;
 		}
 
-		if (Session.AID === pkt.AID)
-		{
+		if (Session.AID === pkt.AID) {
 			Session.hasParty = false;
 		}
 
@@ -347,18 +317,15 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_HP_TO_GROUPM
 	 */
-	function onMemberLifeUpdate(pkt)
-	{
+	function onMemberLifeUpdate(pkt) {
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity)
-		{
+		if (entity) {
 			entity.life.hp = pkt.hp;
 			entity.life.hp_max = pkt.maxhp;
 			entity.life.update();
 
-			if (pkt.AID !== Session.AID)
-			{
+			if (pkt.AID !== Session.AID) {
 				PartyUI.updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
 			}
 		}
@@ -369,12 +336,10 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_CHAT_PARTY
 	 */
-	function onMemberTalk(pkt)
-	{
+	function onMemberTalk(pkt) {
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity)
-		{
+		if (entity) {
 			entity.dialog.set(pkt.msg);
 		}
 
@@ -386,15 +351,11 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_POSITION_TO_GROUPM
 	 */
-	function onMemberMove(pkt)
-	{
+	function onMemberMove(pkt) {
 		// Server remove mark with "-1" as position
-		if (pkt.xPos < 0 || pkt.yPos < 0)
-		{
+		if (pkt.xPos < 0 || pkt.yPos < 0) {
 			MiniMap.getUI().removePartyMemberMark(pkt.AID);
-		}
-		else
-		{
+		} else {
 			MiniMap.getUI().addPartyMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
 		}
 	}
@@ -404,8 +365,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.GROUPINFO_CHANGE
 	 */
-	function onPartyOption(pkt)
-	{
+	function onPartyOption(pkt) {
 		PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 
 		ChatBox.addText(
@@ -415,16 +375,14 @@ define(function (require)
 		);
 
 		// Some packets don't have ItemPickupRule and ItemDivisionRule so we need to check if they exist
-		if (pkt.ItemPickupRule !== undefined)
-		{
+		if (pkt.ItemPickupRule !== undefined) {
 			ChatBox.addText(
 				DB.getMessage(291) + '  - ' + DB.getMessage(293) + '  : ' + DB.getMessage(289 + pkt.ItemPickupRule),
 				ChatBox.TYPE.PRIVATE,
 				ChatBox.FILTER.PARTY_SETUP
 			);
 		}
-		if (pkt.ItemDivisionRule !== undefined)
-		{
+		if (pkt.ItemDivisionRule !== undefined) {
 			ChatBox.addText(
 				DB.getMessage(291) + '  - ' + DB.getMessage(738) + '  : ' + DB.getMessage(287 + pkt.ItemDivisionRule),
 				ChatBox.TYPE.PRIVATE,
@@ -438,8 +396,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.PARTY_CONFIG
 	 */
-	function onPartyConfig(pkt)
-	{
+	function onPartyConfig(pkt) {
 		ChatBox.addText(DB.getMessage(pkt.bRefuseJoinMsg ? 1325 : 1326), ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_SETUP);
 	}
 
@@ -448,14 +405,11 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.PARTY_JOIN_REQ
 	 */
-	function onPartyInvitationRequest(pkt)
-	{
+	function onPartyInvitationRequest(pkt) {
 		var GRID = pkt.GRID;
 
-		function onAnswer(accept)
-		{
-			return function ()
-			{
+		function onAnswer(accept) {
+			return function () {
 				var pkt = new PACKET.CZ.PARTY_JOIN_REQ_ACK();
 				pkt.GRID = GRID;
 				pkt.bAccept = accept;
@@ -471,13 +425,11 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.PARTY_JOIN_REQ_ACK
 	 */
-	function onPartyInvitationAnswer(pkt)
-	{
+	function onPartyInvitationAnswer(pkt) {
 		var id = 1,
 			color = ChatBox.TYPE.ERROR;
 
-		switch (pkt.answer)
-		{
+		switch (pkt.answer) {
 			case 0:
 				id = 80;
 				break;

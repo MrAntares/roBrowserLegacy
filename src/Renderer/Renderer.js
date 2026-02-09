@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -108,8 +107,7 @@ define(function (require)
 		window.mozRequestAnimationFrame ||
 		window.oRequestAnimationFrame ||
 		window.msRequestAnimationFrame ||
-		function (callback)
-		{
+		function (callback) {
 			return window.setTimeout(callback, 1000 / 60);
 		};
 	/**
@@ -121,17 +119,14 @@ define(function (require)
 		window.mozCancelAnimationFrame ||
 		window.oCancelAnimationFrame ||
 		window.msCancelAnimationFrame ||
-		function (updateId)
-		{
+		function (updateId) {
 			window.clearTimeout(updateId);
 		};
 	/**
 	 * Initialize renderer
 	 */
-	Renderer.init = function init(param)
-	{
-		if (!this.gl)
-		{
+	Renderer.init = function init(param) {
+		if (!this.gl) {
 			this.canvas.style.position = 'absolute';
 			this.canvas.style.top = '0px';
 			this.canvas.style.left = '0px';
@@ -144,15 +139,13 @@ define(function (require)
 			this.gl = WebGL.getContext(this.canvas, param);
 			this.isWebGL2 = WebGL.isWebGL2(this.gl);
 
-			if (typeof console !== 'undefined' && console.info)
-			{
+			if (typeof console !== 'undefined' && console.info) {
 				console.info('Renderer using WebGL ' + (this.isWebGL2 ? '2' : '1') + ' context');
 			}
 
 			jQuery(window)
 				.resize(this.onResize.bind(this))
-				.on('contextmenu', function ()
-				{
+				.on('contextmenu', function () {
 					return false;
 				});
 
@@ -175,8 +168,7 @@ define(function (require)
 	 * Handle WebGL Context Loss
 	 * stops the render loop and notifies the user
 	 */
-	Renderer.onContextLost = function (event)
-	{
+	Renderer.onContextLost = function (event) {
 		event.preventDefault(); // Prevent default browser behavior (which is not restoring)
 		this.contextLost = true;
 		console.warn('[Renderer] WebGL Context Lost! Pausing rendering.');
@@ -184,17 +176,14 @@ define(function (require)
 		this.stop();
 
 		// Create/Show overlay message
-		if (!this.errorOverlay)
-		{
+		if (!this.errorOverlay) {
 			this.errorOverlay = document.createElement('div');
 			this.errorOverlay.style.cssText =
 				'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; text-align:center;';
 			this.errorOverlay.innerHTML =
 				'<h2 style="color:#ff6b6b; margin-bottom:10px;">Graphics Context Lost</h2><p>The browser lost connection to the GPU.</p><p style="font-size:0.9em; opacity:0.8;">Attempting to restore automatically...</p>';
 			document.body.appendChild(this.errorOverlay);
-		}
-		else
-		{
+		} else {
 			this.errorOverlay.style.display = 'flex';
 		}
 	};
@@ -203,13 +192,11 @@ define(function (require)
 	 * Handle WebGL Context Restoration
 	 * Re-initializes WebGL state and resumes rendering
 	 */
-	Renderer.onContextRestored = function (event)
-	{
+	Renderer.onContextRestored = function (event) {
 		console.info('[Renderer] WebGL Context Restored! Re-initializing...');
 		this.contextLost = false;
 
-		if (this.errorOverlay)
-		{
+		if (this.errorOverlay) {
 			this.errorOverlay.style.display = 'none';
 		}
 
@@ -238,10 +225,8 @@ define(function (require)
 	/**
 	 * Show renderer
 	 */
-	Renderer.show = function show()
-	{
-		if (!this.canvas.parentNode)
-		{
+	Renderer.show = function show() {
+		if (!this.canvas.parentNode) {
 			document.body.appendChild(this.canvas);
 		}
 	};
@@ -249,10 +234,8 @@ define(function (require)
 	/**
 	 * Remove renderer
 	 */
-	Renderer.remove = function remove()
-	{
-		if (this.canvas.parentNode)
-		{
+	Renderer.remove = function remove() {
+		if (this.canvas.parentNode) {
 			document.body.removeChild(this.canvas);
 		}
 	};
@@ -260,16 +243,14 @@ define(function (require)
 	/**
 	 * Get back WebGL Context
 	 */
-	Renderer.getContext = function getContext()
-	{
+	Renderer.getContext = function getContext() {
 		return this.gl;
 	};
 
 	/**
 	 * Ask for resizing the window, avoid flooding the function (can flood the context), wait for 500ms each time
 	 */
-	Renderer.onResize = function onResize()
-	{
+	Renderer.onResize = function onResize() {
 		Events.clearTimeout(this.resizeTimeOut);
 		this.resizeTimeOut = Events.setTimeout(this.resize.bind(this), 500);
 	};
@@ -277,10 +258,11 @@ define(function (require)
 	/**
 	 * Resizing window
 	 */
-	Renderer.resize = function resize()
-	{
+	Renderer.resize = function resize() {
 		// Don't resize if context is lost
-		if (this.contextLost || !this.gl) {return;}
+		if (this.contextLost || !this.gl) {
+			return;
+		}
 
 		var width,
 			height,
@@ -302,12 +284,9 @@ define(function (require)
 		this.canvas.style.width = this.width + 'px';
 		this.canvas.style.height = this.height + 'px';
 
-		try
-		{
+		try {
 			this.gl.viewport(0, 0, width * dpr, height * dpr);
-		}
-		catch (e)
-		{
+		} catch (e) {
 			console.error('Viewport resize failed', e);
 		}
 
@@ -340,36 +319,35 @@ define(function (require)
 	/**
 	 * Rendering scene
 	 */
-	Renderer._render = function render(time)
-	{
+	Renderer._render = function render(time) {
 		// Stop if context is lost
-		if (this.contextLost) {return;}
+		if (this.contextLost) {
+			return;
+		}
 
 		// time: DOMHighResTimeStamp (from rAF) or undefined if fallback
 		var now = typeof time === 'number' ? time : Date.now();
 
 		// bind cache for scheduling (avoid new bind each frame)
-		if (!this._renderBound)
-		{
+		if (!this._renderBound) {
 			this._renderBound = this._render.bind(this);
 		}
 
 		// initialize lastFrameTime on first run
-		if (typeof this._lastFrameTime === 'undefined' || this._lastFrameTime === 0)
-		{
+		if (typeof this._lastFrameTime === 'undefined' || this._lastFrameTime === 0) {
 			this._lastFrameTime = now;
 			// ensure tick has a sane initial value
-			if (!this.tick) {this.tick = Date.now();}
+			if (!this.tick) {
+				this.tick = Date.now();
+			}
 		}
 
 		// Throttle when frameLimit > 0
-		if (this.frameLimit > 0)
-		{
+		if (this.frameLimit > 0) {
 			var interval = 1000 / this.frameLimit;
 			var elapsed = now - this._lastFrameTime;
 
-			if (elapsed < interval)
-			{
+			if (elapsed < interval) {
 				// Not enough time elapsed for next allowed frame — schedule next rAF and exit
 				this.updateId = _requestAnimationFrame(this._renderBound);
 				return;
@@ -378,9 +356,7 @@ define(function (require)
 			// Advance lastFrameTime preserving alignment (avoid time drift)
 			// keep lastFrameTime at nearest interval boundary
 			this._lastFrameTime = now - (elapsed % interval);
-		}
-		else
-		{
+		} else {
 			// No limit => run every rAF
 			this._lastFrameTime = now;
 		}
@@ -399,29 +375,23 @@ define(function (require)
 
 		// Execute render callbacks
 		var i, count;
-		for (i = 0, count = this.renderCallbacks.length; i < count; ++i)
-		{
-			try
-			{
+		for (i = 0, count = this.renderCallbacks.length; i < count; ++i) {
+			try {
 				this.renderCallbacks[i](this.tick, this.gl);
-			}
-			catch (e)
-			{
+			} catch (e) {
 				// Defensive: a single callback shouldn't break the whole loop
 				console.error('[Renderer] render callback error', e);
 
 				// Memory Pressure Detection / Fallback
 				// If we hit an error during rendering, check if it's OOM or Context Lost related
-				if (this.gl.isContextLost())
-				{
+				if (this.gl.isContextLost()) {
 					// Handled by event listener, but break loop now
 					return;
 				}
 
 				// Basic Heuristic: If errors persist or explicitly OOM
 				// We could disable bloom/fancy effects here to recover
-				if (GraphicsSettings.bloom)
-				{
+				if (GraphicsSettings.bloom) {
 					console.warn('[Renderer] Disabling bloom due to render error (potential resource pressure)');
 					GraphicsSettings.bloom = false;
 				}
@@ -437,28 +407,21 @@ define(function (require)
 	/**
 	 * Start rendering
 	 */
-	Renderer.render = function renderCallback(fn)
-	{
-		if (fn)
-		{
+	Renderer.render = function renderCallback(fn) {
+		if (fn) {
 			this.renderCallbacks.push(fn);
 		}
 
-		if (!this.rendering)
-		{
+		if (!this.rendering) {
 			this.rendering = true;
 
 			// Cancel any previous interval/animation to be safe
-			try
-			{
+			try {
 				clearInterval(this.updateId);
-			}
-			catch (e) {}
-			try
-			{
+			} catch (e) {}
+			try {
 				_cancelAnimationFrame(this.updateId);
-			}
-			catch (e) {}
+			} catch (e) {}
 
 			// Reset timing helpers so first rAF initializes cleanly
 			this._lastFrameTime = 0;
@@ -472,24 +435,19 @@ define(function (require)
 	/**
 	 * Stop rendering
 	 */
-	Renderer.stop = function stop(fn)
-	{
+	Renderer.stop = function stop(fn) {
 		// No callback specified, remove all
-		if (!arguments.length)
-		{
+		if (!arguments.length) {
 			this.renderCallbacks.length = 0;
 			this.rendering = false; // Ensure rendering flag is cleared
-			try
-			{
+			try {
 				_cancelAnimationFrame(this.updateId);
-			}
-			catch (e) {}
+			} catch (e) {}
 			return;
 		}
 
 		var pos = this.renderCallbacks.indexOf(fn);
-		if (pos > -1)
-		{
+		if (pos > -1) {
 			this.renderCallbacks.splice(pos, 1);
 		}
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);

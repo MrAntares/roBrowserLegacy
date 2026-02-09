@@ -5,8 +5,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -64,30 +63,25 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	ItemPreview.init = function init()
-	{
+	ItemPreview.init = function init() {
 		this.ui.css({ top: 200, left: 520 });
 		_ctx = this.ui.find('canvas')[0].getContext('2d');
 
-		this.ui.find('.close').click(function ()
-		{
+		this.ui.find('.close').click(function () {
 			ItemPreview.remove();
 		});
 
-		this.ui.find('.rot_left').click(function (event)
-		{
+		this.ui.find('.rot_left').click(function (event) {
 			event.stopImmediatePropagation();
 			rotatePreview(1);
 		});
 
-		this.ui.find('.rot_right').click(function (event)
-		{
+		this.ui.find('.rot_right').click(function (event) {
 			event.stopImmediatePropagation();
 			rotatePreview(-1);
 		});
 
-		this.ui.find('.reset').click(function (event)
-		{
+		this.ui.find('.reset').click(function (event) {
 			event.stopImmediatePropagation();
 			resetPreview();
 		});
@@ -98,24 +92,20 @@ define(function (require)
 	/**
 	 * Once append
 	 */
-	ItemPreview.onAppend = function onAppend()
-	{
+	ItemPreview.onAppend = function onAppend() {
 		var ItemInfo = getModule('UI/Components/ItemInfo/ItemInfo');
 
-		if (ItemInfo.ui)
-		{
+		if (ItemInfo.ui) {
 			var itemInfoPosition = ItemInfo.ui.offset();
 			var itemInfoWidth = ItemInfo.ui.outerWidth();
 			var left = itemInfoPosition.left + itemInfoWidth + 10;
 			var top = itemInfoPosition.top;
 
-			if (left + this.ui.outerWidth() > Renderer.width)
-			{
+			if (left + this.ui.outerWidth() > Renderer.width) {
 				left = Math.max(0, itemInfoPosition.left - this.ui.outerWidth() - 10);
 			}
 
-			if (top + this.ui.outerHeight() > Renderer.height)
-			{
+			if (top + this.ui.outerHeight() > Renderer.height) {
 				top = Math.max(0, Renderer.height - this.ui.outerHeight());
 			}
 
@@ -125,8 +115,7 @@ define(function (require)
 			});
 		}
 
-		if (!_rendering)
-		{
+		if (!_rendering) {
 			Renderer.render(renderPreview);
 			_rendering = true;
 		}
@@ -135,15 +124,13 @@ define(function (require)
 	/**
 	 * Once removed from html
 	 */
-	ItemPreview.onRemove = function onRemove()
-	{
+	ItemPreview.onRemove = function onRemove() {
 		this.uid = -1;
 		_previewLocation = 0;
 		_previewSpriteId = 0;
 		_direction = 0;
 
-		if (_rendering)
-		{
+		if (_rendering) {
 			Renderer.stop(renderPreview);
 			_rendering = false;
 		}
@@ -154,8 +141,7 @@ define(function (require)
 	 *
 	 * @param {object} item
 	 */
-	ItemPreview.setItem = function setItem(item)
-	{
+	ItemPreview.setItem = function setItem(item) {
 		var it = DB.getItemInfo(item.ITID);
 
 		this.item = item;
@@ -169,16 +155,14 @@ define(function (require)
 	 *
 	 * @param {number} delta
 	 */
-	function rotatePreview(delta)
-	{
+	function rotatePreview(delta) {
 		_direction = (_direction + delta + 8) % 8;
 	}
 
 	/**
 	 * Reset preview direction
 	 */
-	function resetPreview()
-	{
+	function resetPreview() {
 		_remove = !_remove;
 		_direction = 0;
 	}
@@ -189,25 +173,20 @@ define(function (require)
 	 * @param {object} item
 	 * @returns {number}
 	 */
-	function getItemLocation(item)
-	{
-		if (!item)
-		{
+	function getItemLocation(item) {
+		if (!item) {
 			return 0;
 		}
 
-		if ('location' in item)
-		{
+		if ('location' in item) {
 			return item.location;
 		}
 
-		if ('WearState' in item)
-		{
+		if ('WearState' in item) {
 			return item.WearState;
 		}
 
-		if ('WearLocation' in item)
-		{
+		if ('WearLocation' in item) {
 			return item.WearLocation;
 		}
 
@@ -221,15 +200,12 @@ define(function (require)
 	 * @param {object} it
 	 * @returns {number}
 	 */
-	function getPreviewSpriteId(item, it)
-	{
-		if (item && item.wItemSpriteNumber)
-		{
+	function getPreviewSpriteId(item, it) {
+		if (item && item.wItemSpriteNumber) {
 			return item.wItemSpriteNumber;
 		}
 
-		if (it && it.ClassNum)
-		{
+		if (it && it.ClassNum) {
 			return it.ClassNum;
 		}
 
@@ -239,8 +215,7 @@ define(function (require)
 	/**
 	 * Rendering character
 	 */
-	var renderPreview = (function renderPreviewClosure()
-	{
+	var renderPreview = (function renderPreviewClosure() {
 		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 		var _savedColor = new Float32Array(4);
 		var _animation = {
@@ -253,17 +228,14 @@ define(function (require)
 			save: false
 		};
 
-		return function renderPreview()
-		{
-			if (!_ctx)
-			{
+		return function renderPreview() {
+			if (!_ctx) {
 				return;
 			}
 
 			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
-			if (!_previewSpriteId || !_previewLocation || !Session.Entity)
-			{
+			if (!_previewSpriteId || !_previewLocation || !Session.Entity) {
 				return;
 			}
 
@@ -285,7 +257,9 @@ define(function (require)
 				robe: Session.Entity.robe
 			});
 
-			if (!_remove) {applyPreviewItem(previewCharacter);}
+			if (!_remove) {
+				applyPreviewItem(previewCharacter);
+			}
 
 			_savedColor.set(previewCharacter.effectColor);
 			previewCharacter.effectColor.set(_cleanColor);
@@ -308,36 +282,28 @@ define(function (require)
 	 *
 	 * @param {object} entity
 	 */
-	function applyPreviewItem(entity)
-	{
-		if (_previewLocation & EquipLocation.HEAD_BOTTOM)
-		{
+	function applyPreviewItem(entity) {
+		if (_previewLocation & EquipLocation.HEAD_BOTTOM) {
 			entity.accessory = _previewSpriteId;
 		}
-		if (_previewLocation & EquipLocation.HEAD_MID)
-		{
+		if (_previewLocation & EquipLocation.HEAD_MID) {
 			entity.accessory3 = _previewSpriteId;
 		}
-		if (_previewLocation & EquipLocation.HEAD_TOP)
-		{
+		if (_previewLocation & EquipLocation.HEAD_TOP) {
 			entity.accessory2 = _previewSpriteId;
 		}
 
-		if (_previewLocation & EquipLocation.COSTUME_HEAD_BOTTOM)
-		{
+		if (_previewLocation & EquipLocation.COSTUME_HEAD_BOTTOM) {
 			entity.accessory = _previewSpriteId;
 		}
-		if (_previewLocation & EquipLocation.COSTUME_HEAD_MID)
-		{
+		if (_previewLocation & EquipLocation.COSTUME_HEAD_MID) {
 			entity.accessory3 = _previewSpriteId;
 		}
-		if (_previewLocation & EquipLocation.COSTUME_HEAD_TOP)
-		{
+		if (_previewLocation & EquipLocation.COSTUME_HEAD_TOP) {
 			entity.accessory2 = _previewSpriteId;
 		}
 
-		if (_previewLocation & EquipLocation.COSTUME_ROBE)
-		{
+		if (_previewLocation & EquipLocation.COSTUME_ROBE) {
 			entity.robe = _previewSpriteId;
 		}
 	}

@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -27,8 +26,7 @@ define(function (require)
 	/**
 	 * Initialize popup
 	 */
-	WinPrompt.init = function init()
-	{
+	WinPrompt.init = function init() {
 		this.ui.draggable();
 	};
 
@@ -42,8 +40,7 @@ define(function (require)
 	 * @param {function} callback to execute once the second button is pressed
 	 *
 	 */
-	WinPrompt.ask = function ask(text, btn_yes, btn_no, onYes, onNo)
-	{
+	WinPrompt.ask = function ask(text, btn_yes, btn_no, onYes, onNo) {
 		this.ui.find('.text').text(text);
 		this.ui
 			.find('.btns')
@@ -55,11 +52,9 @@ define(function (require)
 					.data('hover', DB.INTERFACE_PATH + 'btn_' + btn_yes + '_a.bmp')
 					.data('down', DB.INTERFACE_PATH + 'btn_' + btn_yes + '_b.bmp')
 					.each(this.parseHTML)
-					.one('click', function ()
-					{
+					.one('click', function () {
 						WinPrompt.remove();
-						if (onYes)
-						{
+						if (onYes) {
 							onYes();
 						}
 					}),
@@ -70,11 +65,9 @@ define(function (require)
 					.data('hover', DB.INTERFACE_PATH + 'btn_' + btn_no + '_a.bmp')
 					.data('down', DB.INTERFACE_PATH + 'btn_' + btn_no + '_b.bmp')
 					.each(this.parseHTML)
-					.one('click', function ()
-					{
+					.one('click', function () {
 						WinPrompt.remove();
-						if (onNo)
-						{
+						if (onNo) {
 							onNo();
 						}
 					})

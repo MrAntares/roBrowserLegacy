@@ -7,8 +7,7 @@
  *
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -45,8 +44,7 @@ define(function (require)
 	/**
 	 * Initialize popup
 	 */
-	Sense.init = function init()
-	{
+	Sense.init = function init() {
 		this.ui.css({
 			top: (Renderer.height - 120) / 1.5 - 120,
 			left: (Renderer.width - 280) / 2.0,
@@ -55,8 +53,7 @@ define(function (require)
 
 		this.ui
 			.find('.close')
-			.mousedown(function (event)
-			{
+			.mousedown(function (event) {
 				event.stopImmediatePropagation();
 				return false;
 			})
@@ -104,8 +101,7 @@ define(function (require)
 	 *
 	 * @param {string} title
 	 */
-	Sense.setWindow = function setWindow(pkt)
-	{
+	Sense.setWindow = function setWindow(pkt) {
 		//TITLE
 		this.ui.find('.header .title').text(DB.getMessage(406));
 
@@ -157,12 +153,9 @@ define(function (require)
 		var water = this.ui.find('#element_water');
 		water.removeClass('element_good');
 		water.removeClass('element_bad');
-		if (pkt.propertyTable.water < 100)
-		{
+		if (pkt.propertyTable.water < 100) {
 			water.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.water > 100)
-		{
+		} else if (pkt.propertyTable.water > 100) {
 			water.addClass('element_good');
 		}
 		water.text(DB.getMessage(415) + ': ' + pkt.propertyTable.water);
@@ -170,12 +163,9 @@ define(function (require)
 		var wind = this.ui.find('#element_wind');
 		wind.removeClass('element_good');
 		wind.removeClass('element_bad');
-		if (pkt.propertyTable.wind < 100)
-		{
+		if (pkt.propertyTable.wind < 100) {
 			wind.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.wind > 100)
-		{
+		} else if (pkt.propertyTable.wind > 100) {
 			wind.addClass('element_good');
 		}
 		wind.text(DB.getMessage(418) + ': ' + pkt.propertyTable.wind);
@@ -183,12 +173,9 @@ define(function (require)
 		var dark = this.ui.find('#element_shadow');
 		dark.removeClass('element_good');
 		dark.removeClass('element_bad');
-		if (pkt.propertyTable.dark < 100)
-		{
+		if (pkt.propertyTable.dark < 100) {
 			dark.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.dark > 100)
-		{
+		} else if (pkt.propertyTable.dark > 100) {
 			dark.addClass('element_good');
 		}
 		dark.text(DB.getMessage(421) + ': ' + pkt.propertyTable.dark);
@@ -196,12 +183,9 @@ define(function (require)
 		var earth = this.ui.find('#element_earth');
 		earth.removeClass('element_good');
 		earth.removeClass('element_bad');
-		if (pkt.propertyTable.earth < 100)
-		{
+		if (pkt.propertyTable.earth < 100) {
 			earth.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.earth > 100)
-		{
+		} else if (pkt.propertyTable.earth > 100) {
 			earth.addClass('element_good');
 		}
 		earth.text(DB.getMessage(416) + ': ' + pkt.propertyTable.earth);
@@ -209,12 +193,9 @@ define(function (require)
 		var poison = this.ui.find('#element_poison');
 		poison.removeClass('element_good');
 		poison.removeClass('element_bad');
-		if (pkt.propertyTable.poison < 100)
-		{
+		if (pkt.propertyTable.poison < 100) {
 			poison.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.poison > 100)
-		{
+		} else if (pkt.propertyTable.poison > 100) {
 			poison.addClass('element_good');
 		}
 		poison.text(DB.getMessage(419) + ': ' + pkt.propertyTable.poison);
@@ -222,12 +203,9 @@ define(function (require)
 		var mental = this.ui.find('#element_ghost');
 		mental.removeClass('element_good');
 		mental.removeClass('element_bad');
-		if (pkt.propertyTable.mental < 100)
-		{
+		if (pkt.propertyTable.mental < 100) {
 			mental.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.mental > 100)
-		{
+		} else if (pkt.propertyTable.mental > 100) {
 			mental.addClass('element_good');
 		}
 		mental.text(DB.getMessage(422) + ': ' + pkt.propertyTable.mental);
@@ -235,12 +213,9 @@ define(function (require)
 		var fire = this.ui.find('#element_fire');
 		fire.removeClass('element_good');
 		fire.removeClass('element_bad');
-		if (pkt.propertyTable.fire < 100)
-		{
+		if (pkt.propertyTable.fire < 100) {
 			fire.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.fire > 100)
-		{
+		} else if (pkt.propertyTable.fire > 100) {
 			fire.addClass('element_good');
 		}
 		fire.text(DB.getMessage(417) + ': ' + pkt.propertyTable.fire);
@@ -248,12 +223,9 @@ define(function (require)
 		var saint = this.ui.find('#element_holy');
 		saint.removeClass('element_good');
 		saint.removeClass('element_bad');
-		if (pkt.propertyTable.saint < 100)
-		{
+		if (pkt.propertyTable.saint < 100) {
 			saint.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.saint > 100)
-		{
+		} else if (pkt.propertyTable.saint > 100) {
 			saint.addClass('element_good');
 		}
 		saint.text(DB.getMessage(420) + ': ' + pkt.propertyTable.saint);
@@ -261,12 +233,9 @@ define(function (require)
 		var undead = this.ui.find('#element_undead');
 		undead.removeClass('element_good');
 		undead.removeClass('element_bad');
-		if (pkt.propertyTable.undead < 100)
-		{
+		if (pkt.propertyTable.undead < 100) {
 			undead.addClass('element_bad');
-		}
-		else if (pkt.propertyTable.undead > 100)
-		{
+		} else if (pkt.propertyTable.undead > 100) {
 			undead.addClass('element_good');
 		}
 		undead.text(DB.getMessage(423) + ': ' + pkt.propertyTable.undead);
@@ -280,16 +249,14 @@ define(function (require)
 	 * Remove component from HTML
 	 * Stop rendering
 	 */
-	Sense.onRemove = function onRemove()
-	{
+	Sense.onRemove = function onRemove() {
 		Renderer.stop(render);
 	};
 
 	/**
 	 * Rendering the Character
 	 */
-	function render(tick)
-	{
+	function render(tick) {
 		// Render the model
 		SpriteRenderer.bind2DContext(_model.ctx, Math.floor(_model.ctx.canvas.width / 2), _model.ctx.canvas.height);
 		_model.ctx.clearRect(0, 0, _model.ctx.canvas.width, _model.ctx.canvas.height);

@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMatrix, Renderer, DB)
-{
+define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMatrix, Renderer, DB) {
 	'use strict';
 
 	/**
@@ -21,8 +20,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	/**
 	 * Life class
 	 */
-	function Life()
-	{
+	function Life() {
 		this.hp = -1;
 		this.sp = -1;
 		this.ap = -1;
@@ -42,11 +40,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	/**
 	 * Remove Life GUI
 	 */
-	Life.prototype.remove = function remove()
-	{
+	Life.prototype.remove = function remove() {
 		this.display = false;
-		if (this.canvas.parentNode)
-		{
+		if (this.canvas.parentNode) {
 			document.body.removeChild(this.canvas);
 		}
 	};
@@ -54,8 +50,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	/**
 	 * Clean Up Life
 	 */
-	Life.prototype.clean = function clean()
-	{
+	Life.prototype.clean = function clean() {
 		this.remove();
 		//this.ctx    = null;
 		//this.canvas = null;
@@ -64,15 +59,13 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	/**
 	 * Update life
 	 */
-	Life.prototype.update = function update()
-	{
+	Life.prototype.update = function update() {
 		var width = 60,
 			height = 5;
 		var Entity = this.entity.constructor;
 
 		// Don't display it, if negatives values.
-		if (this.hp < 0 || this.hp_max < 0)
-		{
+		if (this.hp < 0 || this.hp_max < 0) {
 			this.remove();
 			return;
 		}
@@ -89,19 +82,16 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 		var hunger = this.hunger > -1 && this.hunger_max > -1;
 		var hunger_per = this.hunger / this.hunger_max;
 
-		if (sp)
-		{
+		if (sp) {
 			height += 4;
 		}
 
 		// AP should only show to 4th Job Class
-		if (DB.getJobClass(this.entity._job) === 'Fourth_Class' && ap)
-		{
+		if (DB.getJobClass(this.entity._job) === 'Fourth_Class' && ap) {
 			height += 4;
 		}
 
-		if (hunger)
-		{
+		if (hunger) {
 			height += 4;
 		}
 
@@ -125,40 +115,32 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 			this.entity.objecttype === Entity.TYPE_MOB ||
 			this.entity.objecttype === Entity.TYPE_NPC_ABR ||
 			this.entity.objecttype === Entity.TYPE_NPC_BIONIC
-		)
-		{
+		) {
 			ctx.fillStyle = hp_per < 0.25 ? '#FFFF00' : '#FF00E7';
-		}
-		else if (this.entity.objecttype === Entity.TYPE_PET)
-		{
+		} else if (this.entity.objecttype === Entity.TYPE_PET) {
 			ctx.fillStyle = hp_per < 0.25 ? '#FFFF00' : '#FFE7E7';
-		}
-		else
-		{
+		} else {
 			ctx.fillStyle = hp_per < 0.25 ? '#FF0000' : '#10ef21';
 		}
 
 		ctx.fillRect(1, 1, Math.round((width - 2) * hp_per), 3);
 
 		// Display SP
-		if (sp)
-		{
+		if (sp) {
 			ctx.fillStyle = '#10189c';
 			ctx.fillRect(0, 4, width, 1);
 			ctx.fillStyle = '#1863de';
 			ctx.fillRect(1, 5, Math.round((width - 2) * sp_per), 3);
 		}
 
-		if (ap)
-		{
+		if (ap) {
 			ctx.fillStyle = '#424242';
 			ctx.fillRect(1, 9, width, 1);
 			ctx.fillStyle = '#ffc663';
 			ctx.fillRect(1, 9, Math.round((width - 2) * ap_per), 3);
 		}
 
-		if (hunger)
-		{
+		if (hunger) {
 			ctx.fillStyle = '#424242';
 			ctx.fillRect(1, 9, width, 1);
 			ctx.fillStyle = hunger_per < 0.25 ? '#FFFF00' : '#FFE7E7';
@@ -171,8 +153,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	 *
 	 * @param {mat4} matrix
 	 */
-	Life.prototype.render = function Render(matrix)
-	{
+	Life.prototype.render = function Render(matrix) {
 		var canvas = this.canvas;
 		var z;
 
@@ -196,14 +177,15 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 
 		// Check if the Vertical Flip (Illusion effect) is active
 		// If true, invert the Y coordinate relative to the renderer height
-		if (require('Renderer/Effects/Shaders/VerticalFlip').isActive()) {_pos[1] = Renderer.height - _pos[1];}
+		if (require('Renderer/Effects/Shaders/VerticalFlip').isActive()) {
+			_pos[1] = Renderer.height - _pos[1];
+		}
 
 		canvas.style.top = (_pos[1] | 0) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to body
-		if (!canvas.parentNode)
-		{
+		if (!canvas.parentNode) {
 			document.body.appendChild(canvas);
 		}
 	};
@@ -211,8 +193,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	/**
 	 * Export
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this.life = new Life();
 		this.life.entity = this;
 	};

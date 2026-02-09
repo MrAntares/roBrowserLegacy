@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -81,8 +80,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	ShortCut.init = function init()
-	{
+	ShortCut.init = function init() {
 		this.ui.find('.resize').mousedown(onResize);
 		this.ui.find('.close').mousedown(stopPropagation).click(onClose);
 
@@ -96,8 +94,7 @@ define(function (require)
 			.on('dragend', '.icon', onDragEnd)
 			.on('dblclick', '.icon', onUseShortCut)
 			.on('contextmenu', '.icon', onElementInfo)
-			.on('mousedown', '.icon', function (event)
-			{
+			.on('mousedown', '.icon', function (event) {
 				event.stopImmediatePropagation();
 			});
 
@@ -105,8 +102,7 @@ define(function (require)
 
 		// Tooltip events - attach directly to each container element
 		// This must be done AFTER draggable() to avoid conflicts
-		this.ui.find('.container').each(function ()
-		{
+		this.ui.find('.container').each(function () {
 			jQuery(this).on('mouseenter', onContainerMouseEnter).on('mouseleave', onContainerMouseLeave);
 		});
 
@@ -119,8 +115,7 @@ define(function (require)
 	/**
 	 * Append to body
 	 */
-	ShortCut.onAppend = function onAppend()
-	{
+	ShortCut.onAppend = function onAppend() {
 		// Apply preferences
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
@@ -141,8 +136,7 @@ define(function (require)
 	/**
 	 * When removed, clean up
 	 */
-	ShortCut.onRemove = function onRemove()
-	{
+	ShortCut.onRemove = function onRemove() {
 		// Hide tooltip
 		jQuery('.shortcut-tooltip').removeClass('show');
 
@@ -164,8 +158,7 @@ define(function (require)
 	 * Request to clean the list
 	 * Used only from MapEngine when exiting the game
 	 */
-	ShortCut.clean = function clean()
-	{
+	ShortCut.clean = function clean() {
 		_list.length = 0;
 		this.ui.find('.container').empty();
 	};
@@ -175,10 +168,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	ShortCut.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd.replace(/\d+$/, ''))
-		{
+	ShortCut.onShortCut = function onShurtCut(key) {
+		switch (key.cmd.replace(/\d+$/, '')) {
 			case 'EXECUTE':
 				clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
 				break;
@@ -191,42 +182,29 @@ define(function (require)
 		}
 	};
 
-	ShortCut.useSkill = function useSkill(id, level)
-	{
-		if (id > 10000 && id < 10100)
-		{
+	ShortCut.useSkill = function useSkill(id, level) {
+		if (id > 10000 && id < 10100) {
 			Guild.useSkillID(id, level);
-		}
-		else if (id > 8000 && id < 8044)
-		{
+		} else if (id > 8000 && id < 8044) {
 			// if one of them don't have the skill, it returns early
 			SkillListMH.mercenary.useSkillID(id, level);
 			SkillListMH.homunculus.useSkillID(id, level);
-		}
-		else
-		{
+		} else {
 			SkillWindow.getUI().useSkillID(id, level);
 		}
 	};
 
-	ShortCut.getSkillById = function getSkillById(id)
-	{
+	ShortCut.getSkillById = function getSkillById(id) {
 		var skill;
 
-		if (id > 10000 && id < 10100)
-		{
+		if (id > 10000 && id < 10100) {
 			skill = Guild.getSkillById(id);
-		}
-		else if (id > 8000 && id < 8044)
-		{
+		} else if (id > 8000 && id < 8044) {
 			skill = SkillListMH.mercenary.getSkillById(id);
-			if (!skill)
-			{
+			if (!skill) {
 				skill = SkillListMH.homunculus.getSkillById(id);
 			}
-		}
-		else
-		{
+		} else {
 			skill = SkillWindow.getUI().getSkillById(id);
 		}
 
@@ -238,8 +216,7 @@ define(function (require)
 	 *
 	 * @param {Array} shortcut list
 	 */
-	ShortCut.setList = function setList(list)
-	{
+	ShortCut.setList = function setList(list) {
 		var i, count;
 		var skill;
 
@@ -247,20 +224,14 @@ define(function (require)
 		_list.length = list.length;
 		_rowCount = Math.min(4, Math.floor(list.length / 9));
 
-		for (i = 0, count = list.length; i < count; ++i)
-		{
-			if (list[i].isSkill)
-			{
+		for (i = 0, count = list.length; i < count; ++i) {
+			if (list[i].isSkill) {
 				skill = ShortCut.getSkillById(list[i].ID);
 
-				if (skill && skill.level)
-				{
+				if (skill && skill.level) {
 					ShortCut.addElement(i, true, list[i].ID, list[i].count || skill.level);
-				}
-				else
-				{
-					if (!_list[i])
-					{
+				} else {
+					if (!_list[i]) {
 						_list[i] = {};
 					}
 
@@ -268,9 +239,7 @@ define(function (require)
 					_list[i].ID = list[i].ID;
 					_list[i].count = list[i].count;
 				}
-			}
-			else
-			{
+			} else {
 				ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
 			}
 		}
@@ -287,23 +256,19 @@ define(function (require)
 	/**
 	 * Update tooltip for empty slots with hotkey only
 	 */
-	function updateEmptySlotTooltips()
-	{
+	function updateEmptySlotTooltips() {
 		var i, size;
 		// Get all containers, not just those in _list
 		var containers = ShortCut.ui.find('.container');
 		size = containers.length;
 
-		for (i = 0; i < size; ++i)
-		{
+		for (i = 0; i < size; ++i) {
 			var ui = containers.eq(i);
 
 			// Only update empty slots - store hotkey as data attribute
-			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID))
-			{
+			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
 				var hotkey = getHotKeyString(i);
-				if (hotkey)
-				{
+				if (hotkey) {
 					ui.attr('data-tooltip', hotkey);
 				}
 			}
@@ -314,41 +279,31 @@ define(function (require)
 	 * Update all tooltips (for both empty and filled slots)
 	 * Called when hotkey settings change
 	 */
-	ShortCut.updateAllTooltips = function updateAllTooltips()
-	{
+	ShortCut.updateAllTooltips = function updateAllTooltips() {
 		var i, size;
-		for (i = 0, size = _list.length; i < size; ++i)
-		{
+		for (i = 0, size = _list.length; i < size; ++i) {
 			var ui = ShortCut.ui.find('.container:eq(' + i + ')');
 			var hotkey = getHotKeyString(i);
 
 			// Update empty slots
-			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID))
-			{
-				if (hotkey)
-				{
+			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
+				if (hotkey) {
 					ui.attr('data-tooltip', hotkey);
 				}
 			}
 			// Update filled slots
-			else if (_list[i] && (_list[i].isSkill || _list[i].ID))
-			{
+			else if (_list[i] && (_list[i].isSkill || _list[i].ID)) {
 				var name = '';
-				if (_list[i].isSkill && SkillInfo[_list[i].ID])
-				{
+				if (_list[i].isSkill && SkillInfo[_list[i].ID]) {
 					name = SkillInfo[_list[i].ID].SkillName;
-				}
-				else if (_list[i].ID)
-				{
+				} else if (_list[i].ID) {
 					var item = Inventory.getUI().getItemById(_list[i].ID);
-					if (item)
-					{
+					if (item) {
 						name = DB.getItemName(item);
 					}
 				}
 
-				if (name)
-				{
+				if (name) {
 					var tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
 					ui.attr('data-tooltip', tooltipText);
 				}
@@ -362,8 +317,7 @@ define(function (require)
 	 * @param {number} index of the shortcut slot
 	 * @return {string} hotkey string or empty string
 	 */
-	function getHotKeyString(index)
-	{
+	function getHotKeyString(index) {
 		var shortcutKeys = [
 			'F1_1',
 			'F1_2',
@@ -403,16 +357,14 @@ define(function (require)
 			'F4_9'
 		];
 
-		if (index < 0 || index >= shortcutKeys.length)
-		{
+		if (index < 0 || index >= shortcutKeys.length) {
 			return '';
 		}
 
 		var scKey = shortcutKeys[index];
 		var shortcut = ShortCutControls.ShortCuts[scKey];
 
-		if (!shortcut)
-		{
+		if (!shortcut) {
 			return '';
 		}
 
@@ -421,22 +373,18 @@ define(function (require)
 		var ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
 		var shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
 
-		if (!key)
-		{
+		if (!key) {
 			return '';
 		}
 
 		var hotkeyStr = '';
-		if (alt)
-		{
+		if (alt) {
 			hotkeyStr += 'ALT + ';
 		}
-		if (ctrl)
-		{
+		if (ctrl) {
 			hotkeyStr += 'CTRL + ';
 		}
-		if (shift)
-		{
+		if (shift) {
 			hotkeyStr += 'SHIFT + ';
 		}
 		hotkeyStr += KEYS.toReadableKey(key);
@@ -447,13 +395,11 @@ define(function (require)
 	/**
 	 * Show fixed tooltip on container hover
 	 */
-	function onContainerMouseEnter(event)
-	{
+	function onContainerMouseEnter(event) {
 		var container = jQuery(this);
 		var tooltipText = container.attr('data-tooltip');
 
-		if (tooltipText)
-		{
+		if (tooltipText) {
 			var tooltip = jQuery('.shortcut-tooltip');
 			var shortcutUI = ShortCut.ui;
 			var shortcutPos = shortcutUI.offset();
@@ -476,13 +422,10 @@ define(function (require)
 			var left = shortcutPos.left + shortcutWidth / 2 - tooltipWidth / 2;
 			var top;
 
-			if (showAbove)
-			{
+			if (showAbove) {
 				// Position above ShortCut
 				top = shortcutPos.top - tooltipHeight - 2;
-			}
-			else
-			{
+			} else {
 				// Position below ShortCut
 				top = shortcutPos.top + shortcutHeight + 2;
 			}
@@ -494,26 +437,19 @@ define(function (require)
 	/**
 	 * Hide fixed tooltip on container leave
 	 */
-	function onContainerMouseLeave(event)
-	{
+	function onContainerMouseLeave(event) {
 		var tooltip = jQuery('.shortcut-tooltip');
 		tooltip.removeClass('show');
 	}
 
-	ShortCut.setElement = function setElement(isSkill, ID, count)
-	{
+	ShortCut.setElement = function setElement(isSkill, ID, count) {
 		var i, size;
 
-		for (i = 0, size = _list.length; i < size; ++i)
-		{
-			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID)
-			{
-				if (isSkill && _list[i].count && _list[i].count <= count)
-				{
+		for (i = 0, size = _list.length; i < size; ++i) {
+			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
+				if (isSkill && _list[i].count && _list[i].count <= count) {
 					ShortCut.addElement(i, isSkill, ID, _list[i].count);
-				}
-				else
-				{
+				} else {
 					ShortCut.addElement(i, isSkill, ID, count);
 				}
 			}
@@ -523,8 +459,7 @@ define(function (require)
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -532,22 +467,19 @@ define(function (require)
 	/**
 	 * Resizing hotkey window
 	 */
-	function onResize(event)
-	{
+	function onResize(event) {
 		var ui = ShortCut.ui;
 		var top = ui.position().top;
 		var lastHeight = 0;
 		var _Interval;
 
-		function resizing()
-		{
+		function resizing() {
 			var h = Math.floor((Mouse.screen.y - top) / 34 + 1);
 
 			// Maximum and minimum window size
 			h = Math.min(Math.max(h, 1), _rowCount);
 
-			if (h === lastHeight)
-			{
+			if (h === lastHeight) {
 				return;
 			}
 
@@ -561,10 +493,8 @@ define(function (require)
 		_Interval = setInterval(resizing, 30);
 
 		// Stop resizing on left click
-		jQuery(window).on('mouseup.resize', function (event)
-		{
-			if (event.which === 1)
-			{
+		jQuery(window).on('mouseup.resize', function (event) {
+			if (event.which === 1) {
 				clearInterval(_Interval);
 				jQuery(window).off('mouseup.resize');
 			}
@@ -581,41 +511,32 @@ define(function (require)
 	 * @param {number} ID
 	 * @param {number} count or level
 	 */
-	ShortCut.addElement = function addElement(index, isSkill, ID, count)
-	{
+	ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 		var file, name;
 		var ui = ShortCut.ui.find('.container:eq(' + index + ')').empty();
 
-		if (!_list[index])
-		{
+		if (!_list[index]) {
 			_list[index] = {};
 		}
 
 		_list[index].isSkill = isSkill;
 		_list[index].ID = ID;
 
-		if (isSkill)
-		{
+		if (isSkill) {
 			// Do not display if no level.
-			if (!count)
-			{
+			if (!count) {
 				return;
-			}
-			else
-			{
+			} else {
 				_list[index].count = count;
 				file = SkillInfo[ID].Name;
 				name = SkillInfo[ID].SkillName;
 			}
-		}
-		else
-		{
+		} else {
 			_list[index].count = count;
 			var item = Inventory.getUI().getItemById(ID);
 
 			// Do not display items not in inventory
-			if (!item)
-			{
+			if (!item) {
 				return;
 			}
 
@@ -624,20 +545,17 @@ define(function (require)
 			name = DB.getItemName(item);
 
 			// If equipment, do not display count
-			if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR)
-			{
+			if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) {
 				count = 1;
 			}
 
 			// Get item count
-			else
-			{
+			else {
 				count = item.count;
 			}
 
 			// Do not display item if there is none in the inventory
-			if (!count)
-			{
+			if (!count) {
 				return;
 			}
 		}
@@ -646,8 +564,7 @@ define(function (require)
 		var hotkey = getHotKeyString(index);
 		var tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
 
-		Client.loadFile(DB.INTERFACE_PATH + 'item/' + file + '.bmp', function (url)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'item/' + file + '.bmp', function (url) {
 			ui.html(
 				'<div draggable="true" class="icon">' +
 					'<div class="img"></div>' +
@@ -667,10 +584,11 @@ define(function (require)
 	 * @param {number} index of the icon
 	 * @param {number} delay in ms
 	 */
-	function setDelayOnIndex(index, delay)
-	{
+	function setDelayOnIndex(index, delay) {
 		//do nothing, the new delay would end sooner.
-		if (_list[index].Delay && _list[index].Delay >= Renderer.tick + delay) {return;}
+		if (_list[index].Delay && _list[index].Delay >= Renderer.tick + delay) {
+			return;
+		}
 
 		_list[index].Delay = Renderer.tick + delay;
 		var ui = ShortCut.ui.find('.container:eq(' + index + ')');
@@ -682,16 +600,16 @@ define(function (require)
 
 		var animationId;
 
-		function updateCooldown()
-		{
+		function updateCooldown() {
 			var now = Renderer.tick;
 			var remaining = _list[index].Delay - now;
 
-			if (remaining <= 0 || !_list[index].Delay)
-			{
+			if (remaining <= 0 || !_list[index].Delay) {
 				overlay.remove();
 				_list[index].Delay = 0;
-				if (animationId) {cancelAnimationFrame(animationId);}
+				if (animationId) {
+					cancelAnimationFrame(animationId);
+				}
 				return;
 			}
 
@@ -713,12 +631,9 @@ define(function (require)
 	 *
 	 * @param {number} delay in ms
 	 */
-	ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay)
-	{
-		_list.forEach(function (element, index)
-		{
-			if (element.isSkill)
-			{
+	ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
+		_list.forEach(function (element, index) {
+			if (element.isSkill) {
 				setDelayOnIndex(index, delay);
 			}
 		});
@@ -730,12 +645,9 @@ define(function (require)
 	 * @param {number} ID of the skill
 	 * @param {number} delay in ms
 	 */
-	ShortCut.setSkillDelay = function setGlobalSkillDelay(ID, delay)
-	{
-		_list.forEach(function (element, index)
-		{
-			if (element.isSkill && element.ID == ID)
-			{
+	ShortCut.setSkillDelay = function setGlobalSkillDelay(ID, delay) {
+		_list.forEach(function (element, index) {
+			if (element.isSkill && element.ID == ID) {
 				setDelayOnIndex(index, delay);
 			}
 		});
@@ -749,25 +661,21 @@ define(function (require)
 	 * @param {number} row id
 	 * @param {number} amount (optional)
 	 */
-	ShortCut.removeElement = function removeElement(isSkill, ID, row, amount)
-	{
+	ShortCut.removeElement = function removeElement(isSkill, ID, row, amount) {
 		var i, count;
 
 		// Do not need to modify empty slot
-		if (!ID)
-		{
+		if (!ID) {
 			return;
 		}
 
-		for (i = row * 9, count = Math.min(_list.length, row * 9 + 9); i < count; ++i)
-		{
+		for (i = row * 9, count = Math.min(_list.length, row * 9 + 9); i < count; ++i) {
 			if (
 				_list[i] &&
 				_list[i].isSkill == isSkill &&
 				_list[i].ID === ID &&
 				(!isSkill || _list[i].count == amount)
-			)
-			{
+			) {
 				ShortCut.ui.find('.container:eq(' + i + ')').empty();
 				_list[i].isSkill = 0;
 				_list[i].ID = 0;
@@ -783,32 +691,26 @@ define(function (require)
 	 * Does the client allow other source than shortcut, inventory
 	 * and skill window to save to shortcut ?
 	 */
-	function onDrop(event)
-	{
+	function onDrop(event) {
 		var data, element;
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var row = Math.floor(index / 9);
 
 		event.stopImmediatePropagation();
 
-		try
-		{
+		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 			element = data.data;
-		}
-		catch (e)
-		{
+		} catch (e) {
 			return false;
 		}
 
 		// Do not process others things than item and skill
-		if (data.type !== 'item' && data.type !== 'skill')
-		{
+		if (data.type !== 'item' && data.type !== 'skill') {
 			return false;
 		}
 
-		switch (data.from)
-		{
+		switch (data.from) {
 			case 'SkillList':
 			case 'Guild':
 			case 'SkillListMH':
@@ -851,8 +753,7 @@ define(function (require)
 	/**
 	 * Stop the drag and drop
 	 */
-	function onDragEnd()
-	{
+	function onDragEnd() {
 		delete window._OBJ_DRAG_;
 		this.classList.remove('hide');
 	}
@@ -861,8 +762,7 @@ define(function (require)
 	 * Prepare data to be store in the dragged element
 	 * to change prosition in the shortcut.
 	 */
-	function onDragStart(event)
-	{
+	function onDragStart(event) {
 		var img, index;
 
 		index = parseInt(this.parentNode.getAttribute('data-index'), 10);
@@ -890,32 +790,25 @@ define(function (require)
 	 * Get informations from a skill/item when
 	 * using right click on it.
 	 */
-	function onElementInfo(event)
-	{
+	function onElementInfo(event) {
 		var index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		var element = _list[index];
 
 		event.stopImmediatePropagation();
 
 		// Display skill informations
-		if (element.isSkill)
-		{
-			if (SkillDescription.uid === _list[index].ID)
-			{
+		if (element.isSkill) {
+			if (SkillDescription.uid === _list[index].ID) {
 				SkillDescription.remove();
-			}
-			else
-			{
+			} else {
 				SkillDescription.append();
 				SkillDescription.setSkill(_list[index].ID);
 			}
 		}
 
 		// Display item informations
-		else
-		{
-			if (ItemInfo.uid === _list[index].ID)
-			{
+		else {
+			if (ItemInfo.uid === _list[index].ID) {
 				ItemInfo.remove();
 				return false;
 			}
@@ -931,8 +824,7 @@ define(function (require)
 	/**
 	 * Click on a shortcut
 	 */
-	function onUseShortCut()
-	{
+	function onUseShortCut() {
 		var index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		clickElement(index);
 	}
@@ -942,30 +834,25 @@ define(function (require)
 	 *
 	 * @param {number} shortcut index
 	 */
-	function clickElement(index)
-	{
+	function clickElement(index) {
 		var shortcut = _list[index];
 
 		SkillTargetSelection.remove();
 
 		// Nothing here ?
-		if (!shortcut)
-		{
+		if (!shortcut) {
 			return;
 		}
 
 		// Execute skill
-		if (shortcut.isSkill)
-		{
+		if (shortcut.isSkill) {
 			ShortCut.useSkill(shortcut.ID, shortcut.count);
 		}
 
 		// Use the item
-		else
-		{
+		else {
 			var item = Inventory.getUI().getItemById(_list[index].ID);
-			if (item)
-			{
+			if (item) {
 				Inventory.getUI().useItem(item);
 			}
 		}
@@ -974,8 +861,7 @@ define(function (require)
 	/**
 	 * Closing the window
 	 */
-	function onClose()
-	{
+	function onClose() {
 		ShortCut.ui.css('height', 0);
 		_preferences.size = 0;
 		_preferences.save();
@@ -988,8 +874,7 @@ define(function (require)
 	 * @param {number} index
 	 * @param {number} count
 	 */
-	function onUpdateItem(index, count)
-	{
+	function onUpdateItem(index, count) {
 		ShortCut.setElement(false, index, count);
 	}
 
@@ -1000,8 +885,7 @@ define(function (require)
 	 * @param {number} skill id
 	 * @param {number} level
 	 */
-	function onUpdateSkill(id, level)
-	{
+	function onUpdateSkill(id, level) {
 		ShortCut.setElement(true, id, level);
 	}
 
@@ -1009,8 +893,7 @@ define(function (require)
 	 * @param id
 	 * @param level
 	 */
-	Guild.onUpdateSkill = function (id, level)
-	{
+	Guild.onUpdateSkill = function (id, level) {
 		ShortCut.setElement(true, id, level);
 	};
 
@@ -1018,8 +901,7 @@ define(function (require)
 	 * @param id
 	 * @param level
 	 */
-	SkillListMH.mercenary.onUpdateSkill = function (id, level)
-	{
+	SkillListMH.mercenary.onUpdateSkill = function (id, level) {
 		ShortCut.setElement(true, id, level);
 	};
 
@@ -1027,17 +909,13 @@ define(function (require)
 	 * @param id
 	 * @param level
 	 */
-	SkillListMH.homunculus.onUpdateSkill = function (id, level)
-	{
+	SkillListMH.homunculus.onUpdateSkill = function (id, level) {
 		ShortCut.setElement(true, id, level);
 	};
 
-	function onUpdateOwnerName()
-	{
-		for (var index in _list)
-		{
-			if (!_list[index].isSkill)
-			{
+	function onUpdateOwnerName() {
+		for (var index in _list) {
+			if (!_list[index].isSkill) {
 				ShortCut.setElement(false, _list[index].ID, _list[index].count);
 			}
 		}
@@ -1053,8 +931,7 @@ define(function (require)
 	 */
 	ShortCut.onChange = function OnConfigUpdate(/*index, isSkill, ID, count*/) {};
 
-	function convertHotkeysToServerFormat()
-	{
+	function convertHotkeysToServerFormat() {
 		var serverData = {
 			Type: 1,
 			data: {
@@ -1077,11 +954,9 @@ define(function (require)
 			'Macro9',
 			'Macro10'
 		];
-		emotionKeys.forEach(function (key, index)
-		{
+		emotionKeys.forEach(function (key, index) {
 			var shortcut = ShortCutControls.ShortCuts[key];
-			if (shortcut && shortcut.cust && shortcut.cust.emotion)
-			{
+			if (shortcut && shortcut.cust && shortcut.cust.emotion) {
 				serverData.data.EmotionHotkey[index] = shortcut.cust.emotion;
 			}
 		});
@@ -1125,11 +1000,9 @@ define(function (require)
 			'F4_9'
 		];
 
-		shortcutKeys.forEach(function (key, index)
-		{
+		shortcutKeys.forEach(function (key, index) {
 			var shortcut = ShortCutControls.ShortCuts[key];
-			if (shortcut)
-			{
+			if (shortcut) {
 				var keyData = shortcut.cust || shortcut.init;
 				serverData.data.UserHotkey_V2.SkillBar_1Tab.push({
 					desc: 'Skill ' + (index + 1),
@@ -1143,15 +1016,12 @@ define(function (require)
 		return serverData;
 	}
 
-	function convertHotkeysFromServerFormat(serverData)
-	{
-		if (!serverData || !serverData.data)
-		{
+	function convertHotkeysFromServerFormat(serverData) {
+		if (!serverData || !serverData.data) {
 			return;
 		}
 
-		if (serverData.data.EmotionHotkey)
-		{
+		if (serverData.data.EmotionHotkey) {
 			var emotionKeys = [
 				'Macro1',
 				'Macro2',
@@ -1164,12 +1034,9 @@ define(function (require)
 				'Macro9',
 				'Macro10'
 			];
-			serverData.data.EmotionHotkey.forEach(function (emotion, index)
-			{
-				if (emotion && emotionKeys[index])
-				{
-					if (!ShortCutControls.ShortCuts[emotionKeys[index]].cust)
-					{
+			serverData.data.EmotionHotkey.forEach(function (emotion, index) {
+				if (emotion && emotionKeys[index]) {
+					if (!ShortCutControls.ShortCuts[emotionKeys[index]].cust) {
 						ShortCutControls.ShortCuts[emotionKeys[index]].cust = {};
 					}
 					ShortCutControls.ShortCuts[emotionKeys[index]].cust.emotion = emotion;
@@ -1177,8 +1044,7 @@ define(function (require)
 			});
 		}
 
-		if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab)
-		{
+		if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab) {
 			var shortcutKeys = [
 				'F1_1',
 				'F1_2',
@@ -1218,15 +1084,11 @@ define(function (require)
 				'F4_9'
 			];
 
-			serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach(function (skillData)
-			{
-				if (skillData && skillData.index < shortcutKeys.length)
-				{
+			serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach(function (skillData) {
+				if (skillData && skillData.index < shortcutKeys.length) {
 					var key = shortcutKeys[skillData.index];
-					if (key && skillData.key1)
-					{
-						if (!ShortCutControls.ShortCuts[key].cust)
-						{
+					if (key && skillData.key1) {
+						if (!ShortCutControls.ShortCuts[key].cust) {
 							ShortCutControls.ShortCuts[key].cust = {};
 						}
 						ShortCutControls.ShortCuts[key].cust.key = skillData.key1;
@@ -1236,18 +1098,19 @@ define(function (require)
 		}
 	}
 
-	function haveHotkeysChanged(currentData)
-	{
-		if (!_lastServerHotkeys) {return true;}
+	function haveHotkeysChanged(currentData) {
+		if (!_lastServerHotkeys) {
+			return true;
+		}
 		return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);
 	}
 
-	ShortCut.saveToServer = function ()
-	{
-		if (PACKETVER.value >= 20170315 && Session.WebToken)
-		{
+	ShortCut.saveToServer = function () {
+		if (PACKETVER.value >= 20170315 && Session.WebToken) {
 			var hotkeys = JSON.stringify(convertHotkeysToServerFormat());
-			if (!haveHotkeysChanged(hotkeys)) {return;}
+			if (!haveHotkeysChanged(hotkeys)) {
+				return;
+			}
 
 			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
@@ -1259,10 +1122,8 @@ define(function (require)
 
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', webAddress + '/userconfig/save', true);
-			xhr.onload = function ()
-			{
-				if (xhr.status === 200)
-				{
+			xhr.onload = function () {
+				if (xhr.status === 200) {
 					console.log('Hotkeys saved to server successfully');
 				}
 			};
@@ -1270,10 +1131,8 @@ define(function (require)
 		}
 	};
 
-	ShortCut.loadFromServer = function (callback)
-	{
-		if (PACKETVER.value >= 20170315 && Session.WebToken)
-		{
+	ShortCut.loadFromServer = function (callback) {
+		if (PACKETVER.value >= 20170315 && Session.WebToken) {
 			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
 			var formData = new FormData();
@@ -1283,19 +1142,16 @@ define(function (require)
 
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', webAddress + '/userconfig/load', true);
-			xhr.onload = function ()
-			{
-				if (xhr.status === 200)
-				{
-					try
-					{
+			xhr.onload = function () {
+				if (xhr.status === 200) {
+					try {
 						var serverData = JSON.parse(xhr.responseText);
 						_lastServerHotkeys = JSON.parse(JSON.stringify(serverData));
 						convertHotkeysFromServerFormat(serverData);
-						if (callback) {callback();}
-					}
-					catch (e)
-					{
+						if (callback) {
+							callback();
+						}
+					} catch (e) {
 						console.error('Error parsing server hotkeys:', e);
 					}
 				}
@@ -1304,8 +1160,7 @@ define(function (require)
 		}
 	};
 
-	ShortCut.getList = function getList()
-	{
+	ShortCut.getList = function getList() {
 		return _list;
 	};
 

@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/// Enum Emotions
@@ -287,26 +286,21 @@ define(function ()
 	var indexes = {};
 	var order = {};
 
-	for (i = 0, count = list.length; i < count; ++i)
-	{
+	for (i = 0, count = list.length; i < count; ++i) {
 		size = list[i].length;
-		for (j = 2; j < size; ++j)
-		{
+		for (j = 2; j < size; ++j) {
 			commands[list[i][j]] = i;
 		}
 
-		if (size > 0)
-		{
+		if (size > 0) {
 			indexes[i] = list[i][0];
 		}
 
-		if (size > 1 && list[i][1] > -1)
-		{
+		if (size > 1 && list[i][1] > -1) {
 			order[list[i][1]] = list[i][0];
 		}
 
-		if (size > 2)
-		{
+		if (size > 2) {
 			names[list[i][0]] = list[i][2];
 		}
 	}

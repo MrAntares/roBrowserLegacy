@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	// Load dependencies
@@ -54,17 +53,13 @@ define(function (require)
 	/**
 	 * Load files.
 	 */
-	function loadFiles(callback)
-	{
+	function loadFiles(callback) {
 		var q = new Queue();
 
 		// Start Intro, wait the user to add files
-		q.add(function ()
-		{
-			Client.onFilesLoaded = function (count)
-			{
-				if (!Configs.get('remoteClient') && !count && !window.requireNode)
-				{
+		q.add(function () {
+			Client.onFilesLoaded = function (count) {
+				if (!Configs.get('remoteClient') && !count && !window.requireNode) {
 					alert('No client to initialize roBrowser');
 					Intro.remove();
 					Intro.append();
@@ -73,8 +68,7 @@ define(function (require)
 				q._next();
 			};
 
-			if (Configs.get('skipIntro'))
-			{
+			if (Configs.get('skipIntro')) {
 				Client.init([]);
 				return;
 			}
@@ -84,49 +78,44 @@ define(function (require)
 		});
 
 		// Loading Game file (txt, lua, lub)
-		q.add(function ()
-		{
-			DB.onReady = function ()
-			{
-				if (PACKETVER.value < 20181114)
-				// (duplicated?)
-				{Background.setImage('bgi_temp.bmp');} // remove loading
-				else
+		q.add(function () {
+			DB.onReady = function () {
+				if (PACKETVER.value < 20181114) // (duplicated?)
 				{
+					Background.setImage('bgi_temp.bmp');
+				} // remove loading
+				else {
 					Background.remove();
 				}
 				q._next();
 			};
-			DB.onProgress = function (i, count)
-			{
+			DB.onProgress = function (i, count) {
 				Background.setPercent(Math.floor((i / count) * 100));
 			};
 			UIManager.removeComponents();
 			Background.init();
 			Background.resize(Renderer.width, Renderer.height);
-			if (PACKETVER.value >= 20181114) {require('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background').init();}
-			Background.setImage('bgi_temp.bmp', function ()
-			{
+			if (PACKETVER.value >= 20181114) {
+				require('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background').init();
+			}
+			Background.setImage('bgi_temp.bmp', function () {
 				DB.init();
 			});
 		});
 
-		q.add(function ()
-		{
+		q.add(function () {
 			Thread.send('CLIENT_FILES_ALIAS', DB.mapalias);
 			loadClientInfo(q.next);
 		});
 
 		// Initialize cursor
-		q.add(function ()
-		{
+		q.add(function () {
 			Scrollbar.init();
 			Cursor.init(q.next);
 		});
 
 		// Run callback
-		q.add(function ()
-		{
+		q.add(function () {
 			callback();
 		});
 
@@ -137,8 +126,7 @@ define(function (require)
 	/**
 	 * Initialize Game
 	 */
-	function init()
-	{
+	function init() {
 		// Enable/Disable console based on settings
 		ConsoleManager.init();
 		ConsoleManager.toggle();
@@ -146,35 +134,28 @@ define(function (require)
 		var q = new Queue();
 
 		// Waiting for the Thread to be ready
-		q.add(function ()
-		{
-			if (!_thread_ready)
-			{
+		q.add(function () {
+			if (!_thread_ready) {
 				Thread.hook('THREAD_ERROR', onThreadError);
 				Thread.hook('THREAD_LOG', onThreadLog);
-				Thread.hook('THREAD_READY', function ()
-				{
+				Thread.hook('THREAD_READY', function () {
 					_thread_ready = true;
 					q._next();
 				});
 				Thread.init();
-			}
-			else
-			{
+			} else {
 				q._next();
 			}
 		});
 
 		// Initialize renderer
-		q.add(function ()
-		{
+		q.add(function () {
 			Renderer.init();
 			q._next();
 		});
 
 		// Load everything.
-		q.add(function ()
-		{
+		q.add(function () {
 			// Load files and initialize Login
 			loadFiles(reload);
 		});
@@ -191,52 +172,44 @@ define(function (require)
 	/**
 	 * Reload the game
 	 */
-	function reload()
-	{
+	function reload() {
 		BGM.setAvailableExtensions(Configs.get('BGMFileExtension', ['mp3']));
 		BGM.play('01.mp3');
 
 		UIManager.removeComponents();
 		Network.close();
-		if (PACKETVER.value < 20181114)
-		{
+		if (PACKETVER.value < 20181114) {
 			// Setup background
 			Background.init();
 			Background.resize(Renderer.width, Renderer.height);
-			Background.setImage('bgi_temp.bmp', function ()
-			{
+			Background.setImage('bgi_temp.bmp', function () {
 				onReload();
 			});
+		} else {
+			onReload();
 		}
-		else {onReload();}
 		// Hooking WinList
 		WinList.onIndexSelected = onLoginServerSelected;
 		WinList.onExitRequest = onExit;
 	}
 
-	function onReload()
-	{
+	function onReload() {
 		// Display server list
 		var list = new Array(_servers.length);
 		var i,
 			count = list.length;
 
 		// WTF no servers ?
-		if (count === 0)
-		{
+		if (count === 0) {
 			UIManager.showMessageBox('Sorry, no server found.', 'ok', init);
 		}
 
 		// Just 1 server, skip the WinList
-		else if (count === 1 && Configs.get('skipServerList'))
-		{
+		else if (count === 1 && Configs.get('skipServerList')) {
 			LoginEngine.onExitRequest = reload;
 			LoginEngine.init(_servers[0]);
-		}
-		else
-		{
-			for (i = 0; i < count; ++i)
-			{
+		} else {
+			for (i = 0; i < count; ++i) {
 				list[i] = _servers[i].display;
 			}
 
@@ -249,8 +222,7 @@ define(function (require)
 		BGM.play('01.mp3');
 	}
 
-	function onReadyLoginServer(index)
-	{
+	function onReadyLoginServer(index) {
 		// Set the previous server.
 		_previous_server = _servers[index];
 
@@ -264,8 +236,7 @@ define(function (require)
 	 *
 	 * @param {number} index in server list
 	 */
-	function onLoginServerSelected(index)
-	{
+	function onLoginServerSelected(index) {
 		// Play "¹öÆ°¼Ò¸®.wav" (possible problem with charset)
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
 
@@ -273,25 +244,20 @@ define(function (require)
 		if (
 			_previous_server !== undefined &&
 			(_previous_server.address != _servers[index].address || _previous_server.port != _servers[index].port)
-		)
-		{
+		) {
 			UIManager.removeComponents();
 			Network.close();
-			if (PACKETVER.value < 20181114)
-			{
+			if (PACKETVER.value < 20181114) {
 				Background.init();
 				Background.resize(Renderer.width, Renderer.height);
 				Background.setImage('bgi_temp.bmp');
 			}
 			// Need to reload the files.
-			loadFiles(function ()
-			{
+			loadFiles(function () {
 				LoginEngine.setLoadedServer(_servers[index]);
 				onReadyLoginServer(index);
 			});
-		}
-		else
-		{
+		} else {
 			onReadyLoginServer(index);
 		}
 	}
@@ -299,8 +265,7 @@ define(function (require)
 	/**
 	 * Ask to exit window
 	 */
-	function onExit()
-	{
+	function onExit() {
 		Sound.stop();
 		Renderer.stop();
 		UIManager.removeComponents();
@@ -312,12 +277,10 @@ define(function (require)
 	 *
 	 * @param {function} callback
 	 */
-	function loadClientInfo(callback)
-	{
+	function loadClientInfo(callback) {
 		var servers = Configs.get('servers', 'data/clientinfo.xml');
 
-		if (servers instanceof Array)
-		{
+		if (servers instanceof Array) {
 			_servers = servers;
 			callback();
 			return;
@@ -326,8 +289,7 @@ define(function (require)
 		_servers.length = 0;
 		Client.loadFile(
 			servers,
-			function (xml)
-			{
+			function (xml) {
 				// $.parseXML() don't parse buggy xml (and a lot of clientinfo.xml are not properly write)...
 				xml = xml.replace(/^.*<\?xml/, '<?xml');
 				var parser = new DOMParser();
@@ -337,13 +299,11 @@ define(function (require)
 				var stop = connections.length - 1;
 				var list = [];
 
-				if (!connections.length)
-				{
+				if (!connections.length) {
 					callback();
 				}
 
-				connections.each(function (index, element)
-				{
+				connections.each(function (index, element) {
 					var connection = jQuery(element);
 
 					list.push(connection.find('display:first').text());
@@ -357,19 +317,16 @@ define(function (require)
 						packetver: connection.find('packetver:first').text(),
 						registrationweb: connection.find('registrationweb:first').text(),
 						renewal: ['true', '1', 1, true].includes(connection.find('renewal:first').text().toLowerCase()),
-						adminList: (function ()
-						{
+						adminList: (function () {
 							var list = [];
-							connection.find('yellow admin, aid admin').each(function ()
-							{
+							connection.find('yellow admin, aid admin').each(function () {
 								list.push(parseInt(this.textContent, 10));
 							});
 							return list;
 						})()
 					});
 
-					if (index === stop)
-					{
+					if (index === stop) {
 						callback();
 					}
 				});
@@ -383,8 +340,7 @@ define(function (require)
 	 *
 	 * @param {Array} data
 	 */
-	function onThreadError(data)
-	{
+	function onThreadError(data) {
 		console.warn.apply(console, data);
 	}
 
@@ -393,8 +349,7 @@ define(function (require)
 	 *
 	 * @param {Array} data
 	 */
-	function onThreadLog(data)
-	{
+	function onThreadLog(data) {
 		console.log.apply(console, data);
 	}
 

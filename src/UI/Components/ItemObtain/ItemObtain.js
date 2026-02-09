@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -52,26 +51,22 @@ define(function (require)
 	/**
 	 * Initialize component
 	 */
-	ItemObtain.init = function init()
-	{
+	ItemObtain.init = function init() {
 		// this.ui.css('zIndex', 45); // Between Interface and Game Announce
 	};
 
 	/**
 	 * Once append to body
 	 */
-	ItemObtain.onAppend = function onAppend()
-	{
+	ItemObtain.onAppend = function onAppend() {
 		this.ui.css('left', (Renderer.width - this.ui.width()) >> 1);
 	};
 
 	/**
 	 * Once removed from HTML, clean timer
 	 */
-	ItemObtain.onRemove = function onRemove()
-	{
-		if (_timer)
-		{
+	ItemObtain.onRemove = function onRemove() {
+		if (_timer) {
 			Events.clearTimeout(_timer);
 			_timer = 0;
 		}
@@ -80,8 +75,7 @@ define(function (require)
 	/**
 	 * Timer end, cleaning box
 	 */
-	ItemObtain.timeEnd = function timeEnd()
-	{
+	ItemObtain.timeEnd = function timeEnd() {
 		this.remove();
 	};
 
@@ -90,8 +84,7 @@ define(function (require)
 	 *
 	 * @param {object} item
 	 */
-	ItemObtain.set = function set(item)
-	{
+	ItemObtain.set = function set(item) {
 		var it = DB.getItemInfo(item.ITID);
 		var display = DB.getItemName(item, { showItemSlots: false, showItemOptions: false });
 		var resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
@@ -111,15 +104,13 @@ define(function (require)
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'item/' + resource + '.bmp',
-			function (url)
-			{
+			function (url) {
 				this.ui.find('img.' + item.ITID).attr('src', url);
 			}.bind(this)
 		);
 
 		// Start tomer
-		if (_timer)
-		{
+		if (_timer) {
 			Events.clearTimeout(_timer);
 		}
 

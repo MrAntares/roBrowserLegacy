@@ -5,8 +5,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -27,15 +26,12 @@ define(function (require)
 	/**
 	 * Initialize event handler
 	 */
-	ContextMenu.init = function init()
-	{
-		this.ui.mousedown(function ()
-		{
+	ContextMenu.init = function init() {
+		this.ui.mousedown(function () {
 			ContextMenu.remove();
 		});
 
-		this.ui.find('.menu').on('mousedown', 'div', function (event)
-		{
+		this.ui.find('.menu').on('mousedown', 'div', function (event) {
 			event.stopImmediatePropagation();
 			return false;
 		});
@@ -44,21 +40,18 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	ContextMenu.onAppend = function onAppend()
-	{
+	ContextMenu.onAppend = function onAppend() {
 		var menu = this.ui.find('.menu');
 		var width = menu.width();
 		var height = menu.height();
 		var x = Mouse.screen.x;
 		var y = Mouse.screen.y;
 
-		if (Mouse.screen.x + width > Renderer.width)
-		{
+		if (Mouse.screen.x + width > Renderer.width) {
 			x = Mouse.screen.x - width;
 		}
 
-		if (Mouse.screen.y + height > Renderer.height)
-		{
+		if (Mouse.screen.y + height > Renderer.height) {
 			y = Mouse.screen.y - height;
 		}
 
@@ -68,8 +61,7 @@ define(function (require)
 	/**
 	 * Clean UP UI
 	 */
-	ContextMenu.onRemove = function onRemove()
-	{
+	ContextMenu.onRemove = function onRemove() {
 		this.ui.find('.menu').empty();
 	};
 
@@ -79,13 +71,11 @@ define(function (require)
 	 * @param {string} text
 	 * @param {function} callback once clicked
 	 */
-	ContextMenu.addElement = function addElement(text, callback)
-	{
+	ContextMenu.addElement = function addElement(text, callback) {
 		this.ui.find('.menu').append(
 			jQuery('<div/>')
 				.text(text)
-				.click(function ()
-				{
+				.click(function () {
 					ContextMenu.remove();
 					callback();
 				})
@@ -95,8 +85,7 @@ define(function (require)
 	/**
 	 * Add a delimiter to the links
 	 */
-	ContextMenu.nextGroup = function nextGroup()
-	{
+	ContextMenu.nextGroup = function nextGroup() {
 		this.ui.find('.menu').append('<hr/>');
 	};
 

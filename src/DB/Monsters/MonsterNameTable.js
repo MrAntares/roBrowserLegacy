@@ -8,8 +8,7 @@
  * @author Vincent Thibault, Antares
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	return {

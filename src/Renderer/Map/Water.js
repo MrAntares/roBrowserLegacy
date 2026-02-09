@@ -12,8 +12,7 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 	SpriteRenderer,
 	_vertexShader,
 	_fragmentShader
-)
-{
+) {
 	'use strict';
 
 	/**
@@ -72,8 +71,7 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 	 * @param {object} gl context
 	 * @param {object} water data
 	 */
-	function init(gl, water)
-	{
+	function init(gl, water) {
 		var i;
 
 		// Water informations
@@ -86,14 +84,12 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 		_waterOpacity = water.type !== 4 && water.type !== 6 ? 0.8 : 1.0;
 
 		// No water ?
-		if (!_vertCount)
-		{
+		if (!_vertCount) {
 			return;
 		}
 
 		// Link program	if not loaded
-		if (!_program)
-		{
+		if (!_program) {
 			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		}
 
@@ -102,14 +98,12 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 
-		function onTextureLoaded(texture, i)
-		{
+		function onTextureLoaded(texture, i) {
 			_textures[i] = texture;
 		}
 
 		// Bind water textures
-		for (i = 0; i < 32; ++i)
-		{
+		for (i = 0; i < 32; ++i) {
 			WebGL.texture(gl, water.images[i], onTextureLoaded, i);
 		}
 	}
@@ -124,11 +118,9 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 	 * @param {object} light structure
 	 * @param {number} tick (game tick)
 	 */
-	function render(gl, modelView, projection, fog, light, tick)
-	{
+	function render(gl, modelView, projection, fog, light, tick) {
 		// If no water, don't need to process.
-		if (!_vertCount)
-		{
+		if (!_vertCount) {
 			return;
 		}
 
@@ -173,8 +165,7 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		//depthtest, depthmask, disabledepthcorrection(isometric draw)
-		SpriteRenderer.runWithDepth(true, false, false, function ()
-		{
+		SpriteRenderer.runWithDepth(true, false, false, function () {
 			gl.drawArrays(gl.TRIANGLES, 0, _vertCount);
 		});
 
@@ -188,26 +179,21 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 	 *
 	 * @param {object} gl context
 	 */
-	function free(gl)
-	{
+	function free(gl) {
 		var i;
 
-		if (_buffer)
-		{
+		if (_buffer) {
 			gl.deleteBuffer(_buffer);
 			_buffer = null;
 		}
 
-		if (_program)
-		{
+		if (_program) {
 			gl.deleteProgram(_program);
 			_program = null;
 		}
 
-		for (i = 0; i < 32; ++i)
-		{
-			if (_textures[i])
-			{
+		for (i = 0; i < 32; ++i) {
+			if (_textures[i]) {
 				gl.deleteTexture(_textures[i]);
 				_textures[i] = null;
 			}

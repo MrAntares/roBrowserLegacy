@@ -4586,7 +4586,8 @@ define(function (require) {
 			case JobId.LINKER_B:
 			case JobId.REAPER:
 			case JobId.REAPER_B:
-			case JobId.SOUL_ASCETIC: { //case JobId.SOUL_ASCETIC2:??
+			case JobId.SOUL_ASCETIC: {
+				//case JobId.SOUL_ASCETIC2:??
 				switch (weaponType) {
 					case WeaponType.SHORTSWORD:
 						if (sex == 1) isDualWeapon = true; // male

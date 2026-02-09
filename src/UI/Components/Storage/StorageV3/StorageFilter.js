@@ -5,8 +5,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var DB = require('DB/DBManager');
@@ -24,13 +23,11 @@ define(function (require)
 	 * Create StorageFilter "class"
 	 * Inherit from UIComponent
 	 */
-	function StorageFilter(tabId)
-	{
+	function StorageFilter(tabId) {
 		var prefName = 'StorageFilter_' + tabId;
 		UIComponent.call(this, prefName, htmlText, cssText);
 
-		this.onRemove = function ()
-		{
+		this.onRemove = function () {
 			this.ui.find('.content').empty();
 			this._list.length = 0;
 			this._currentTabId = -1;
@@ -40,8 +37,7 @@ define(function (require)
 			this._preferences.height = Math.floor(this.ui.find('.content').height() / 32);
 			this._preferences.save();
 
-			if (typeof this.onCloseCallback === 'function')
-			{
+			if (typeof this.onCloseCallback === 'function') {
 				this.onCloseCallback();
 			}
 		};
@@ -67,12 +63,10 @@ define(function (require)
 	/**
 	 * Initialize the component
 	 */
-	StorageFilter.prototype.init = function Init()
-	{
+	StorageFilter.prototype.init = function Init() {
 		var self = this; // Store 'this' for event handlers
 
-		this.ui.find('.titlebar .right .close').click(function ()
-		{
+		this.ui.find('.titlebar .right .close').click(function () {
 			self.remove(); // .remove() is inherited from UIComponent
 		});
 
@@ -99,16 +93,14 @@ define(function (require)
 	/**
 	 * Public method to set the items and title of this window
 	 */
-	StorageFilter.prototype.setItems = function SetItems(title, items, tabId)
-	{
+	StorageFilter.prototype.setItems = function SetItems(title, items, tabId) {
 		this._list = items.slice(0); // Copy the list
 		this._currentTabId = tabId;
 		this.ui.find('.titlebar .text').text(title);
 		this.ui.find('.content').empty();
 
 		var i, count;
-		for (i = 0, count = this._list.length; i < count; ++i)
-		{
+		for (i = 0, count = this._list.length; i < count; ++i) {
 			this.renderItem(this._list[i]);
 		}
 	};
@@ -116,8 +108,7 @@ define(function (require)
 	/**
 	 * Renders a single item in the content area
 	 */
-	StorageFilter.prototype.renderItem = function RenderItem(item)
-	{
+	StorageFilter.prototype.renderItem = function RenderItem(item) {
 		var it = DB.getItemInfo(item.ITID);
 		var self = this; // for Client.loadFile callback
 
@@ -142,8 +133,7 @@ define(function (require)
 				'item/' +
 				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 				'.bmp',
-			function (data)
-			{
+			function (data) {
 				// Use self.ui to avoid 'this' conflicts
 				self.ui
 					.find('.item[data-index="' + item.index + '"] .icon')
@@ -154,19 +144,18 @@ define(function (require)
 
 	// --- Item Event Handlers ---
 
-	StorageFilter.prototype.getItemFromIndex = function getItemFromIndex(index)
-	{
-		return this._list.filter(function (item)
-		{
+	StorageFilter.prototype.getItemFromIndex = function getItemFromIndex(index) {
+		return this._list.filter(function (item) {
 			return item.index === index;
 		})[0];
 	};
 
-	StorageFilter.prototype.onItemOver = function onItemOver(event)
-	{
+	StorageFilter.prototype.onItemOver = function onItemOver(event) {
 		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
 		var item = this.getItemFromIndex(index);
-		if (!item) {return;}
+		if (!item) {
+			return;
+		}
 
 		var pos = jQuery(event.currentTarget).position();
 		var overlay = this.ui.find('.overlay');
@@ -177,16 +166,16 @@ define(function (require)
 		overlay.toggleClass('grey', !item.IsIdentified);
 	};
 
-	StorageFilter.prototype.onItemOut = function onItemOut()
-	{
+	StorageFilter.prototype.onItemOut = function onItemOut() {
 		this.ui.find('.overlay').hide();
 	};
 
-	StorageFilter.prototype.onItemDragStart = function onItemDragStart(event)
-	{
+	StorageFilter.prototype.onItemDragStart = function onItemDragStart(event) {
 		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
 		var item = this.getItemFromIndex(index);
-		if (!item) {return;}
+		if (!item) {
+			return;
+		}
 
 		var img = new Image();
 		var url = event.currentTarget.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/\"/g, '');
@@ -206,29 +195,26 @@ define(function (require)
 		this.onItemOut(); // Call instance method
 	};
 
-	StorageFilter.prototype.onItemDragEnd = function onItemDragEnd()
-	{
+	StorageFilter.prototype.onItemDragEnd = function onItemDragEnd() {
 		delete window._OBJ_DRAG_;
 	};
 
-	StorageFilter.prototype.onItemInfo = function onItemInfo(event)
-	{
+	StorageFilter.prototype.onItemInfo = function onItemInfo(event) {
 		event.stopImmediatePropagation();
 		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
 		var item = this.getItemFromIndex(index);
-		if (!item) {return false;}
+		if (!item) {
+			return false;
+		}
 
-		if (event.altKey && event.which === 3)
-		{
-			if (typeof this.onTransferItemToOtherUI === 'function')
-			{
+		if (event.altKey && event.which === 3) {
+			if (typeof this.onTransferItemToOtherUI === 'function') {
 				this.onTransferItemToOtherUI(item);
 			}
 			return false;
 		}
 
-		if (ItemInfo.uid === item.ITID)
-		{
+		if (ItemInfo.uid === item.ITID) {
 			ItemInfo.remove();
 		}
 
@@ -240,15 +226,13 @@ define(function (require)
 
 	// --- Resize Functions ---
 
-	StorageFilter.prototype.resizeHeight = function resizeHeight(height)
-	{
+	StorageFilter.prototype.resizeHeight = function resizeHeight(height) {
 		height = Math.min(Math.max(height, 4), 10);
 		this.ui.find('.content').css('height', height * 32);
 		this.ui.css('height', height * 32 + 17 + 19);
 	};
 
-	StorageFilter.prototype.onResize = function onResize()
-	{
+	StorageFilter.prototype.onResize = function onResize() {
 		var self = this;
 		var ui = this.ui;
 		var top = ui.position().top;
@@ -256,13 +240,11 @@ define(function (require)
 		var _Interval;
 		var extraY = 17 + 19;
 
-		function resizing()
-		{
+		function resizing() {
 			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 			h = Math.min(Math.max(h, 4), 10);
 
-			if (h === lastHeight)
-			{
+			if (h === lastHeight) {
 				return;
 			}
 			self.resizeHeight(h); // Use self to call instance method
@@ -271,10 +253,8 @@ define(function (require)
 
 		_Interval = setInterval(resizing, 30);
 
-		jQuery(window).on('mouseup.resizeStorageFilter', function (event)
-		{
-			if (event.which === 1)
-			{
+		jQuery(window).on('mouseup.resizeStorageFilter', function (event) {
+			if (event.which === 1) {
 				clearInterval(_Interval);
 				jQuery(window).off('mouseup.resizeStorageFilter');
 			}
@@ -283,30 +263,26 @@ define(function (require)
 
 	// --- Public Sync Functions ---
 
-	StorageFilter.prototype.getCurrentTab = function GetCurrentTab()
-	{
+	StorageFilter.prototype.getCurrentTab = function GetCurrentTab() {
 		return this._currentTabId;
 	};
 
-	StorageFilter.prototype.removeItem = function RemoveItem(index, count)
-	{
+	StorageFilter.prototype.removeItem = function RemoveItem(index, count) {
 		var i = -1;
-		for (var j = 0, count_ = this._list.length; j < count_; ++j)
-		{
-			if (this._list[j].index === index)
-			{
+		for (var j = 0, count_ = this._list.length; j < count_; ++j) {
+			if (this._list[j].index === index) {
 				i = j;
 				break;
 			}
 		}
-		if (i < 0) {return;}
+		if (i < 0) {
+			return;
+		}
 
 		var item = this._list[i];
-		if (item.count)
-		{
+		if (item.count) {
 			item.count -= count;
-			if (item.count > 0)
-			{
+			if (item.count > 0) {
 				this.ui.find('.item[data-index="' + index + '"] .count').text(item.count);
 				return;
 			}
@@ -316,12 +292,9 @@ define(function (require)
 		this.ui.find('.overlay').hide();
 	};
 
-	StorageFilter.prototype.addItem = function AddItem(item)
-	{
-		for (var j = 0, count_ = this._list.length; j < count_; ++j)
-		{
-			if (this._list[j].index === item.index)
-			{
+	StorageFilter.prototype.addItem = function AddItem(item) {
+		for (var j = 0, count_ = this._list.length; j < count_; ++j) {
+			if (this._list[j].index === item.index) {
 				this._list[j].count += item.count;
 				this.ui.find('.item[data-index="' + item.index + '"] .count').text(this._list[j].count);
 				return;

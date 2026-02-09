@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -33,21 +32,17 @@ define(function (require)
 	/**
 	 * Once in HTML, focus the input
 	 */
-	EntitySignboard.onAppend = function onAppend()
-	{
+	EntitySignboard.onAppend = function onAppend() {
 		this.ui.find('button').dblclick(
-			function ()
-			{
-				if (this.onEnter)
-				{
+			function () {
+				if (this.onEnter) {
 					this.onEnter();
 				}
 			}.bind(this)
 		);
 
 		// Avoid player to move to the cell
-		this.ui.mousedown(function ()
-		{
+		this.ui.mousedown(function () {
 			return false;
 		});
 
@@ -57,8 +52,7 @@ define(function (require)
 	/**
 	 * Remove data from UI
 	 */
-	EntitySignboard.onRemove = function onRemove()
-	{
+	EntitySignboard.onRemove = function onRemove() {
 		this.ui.find('button').unbind();
 		//this.ui.find('button').removeClass('icon-only');
 	};
@@ -69,8 +63,7 @@ define(function (require)
 	 * @param {string} title
 	 * @param {string} url - icon url
 	 */
-	EntitySignboard.setTitle = function setTitle(title, icon_location)
-	{
+	EntitySignboard.setTitle = function setTitle(title, icon_location) {
 		// add data-background attribute
 		this.ui.attr('data-background', 'signboard/bg_signboard.bmp');
 		this.ui.find('.title, .overlay').text(title);
@@ -79,19 +72,16 @@ define(function (require)
 		var self = this;
 
 		// show overlay when mouse over .title
-		this.ui.find('.title').hover(function ()
-		{
+		this.ui.find('.title').hover(function () {
 			self.ui.find('.overlay').show();
 		});
 
 		// hide overlay when mouse out .title
-		this.ui.find('.title').mouseout(function ()
-		{
+		this.ui.find('.title').mouseout(function () {
 			self.ui.find('.overlay').hide();
 		});
 
-		Client.loadFile(icon_location, function (icon_location)
-		{
+		Client.loadFile(icon_location, function (icon_location) {
 			self.ui.find('button').css('backgroundImage', 'url(' + icon_location + ')');
 			self.ui.each(self.parseHTML).find('*').each(self.parseHTML);
 		});
@@ -103,13 +93,11 @@ define(function (require)
 	 * @param {string} title
 	 * @param {string} url - icon url
 	 */
-	EntitySignboard.setIconOnly = function setIconOnly(icon_location)
-	{
+	EntitySignboard.setIconOnly = function setIconOnly(icon_location) {
 		this.ui.find('.title').hide();
 		this.ui.find('.overlay').hide();
 		var self = this;
-		Client.loadFile(icon_location, function (icon_location)
-		{
+		Client.loadFile(icon_location, function (icon_location) {
 			self.ui
 				.find('button')
 				.addClass('icon-only')
@@ -118,8 +106,7 @@ define(function (require)
 	};
 
 	// Function to check if an element's content is overflowing
-	function isOverflowing(element)
-	{
+	function isOverflowing(element) {
 		return element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight;
 	}
 

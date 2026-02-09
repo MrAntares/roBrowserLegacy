@@ -7,15 +7,13 @@
  *
  * @author Vincent Thibault
  */
-define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
-{
+define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 	'use strict';
 
 	/**
 	 * Action frames
 	 */
-	function Action()
-	{
+	function Action() {
 		this.IDLE = 0;
 		this.ATTACK = -2;
 
@@ -42,8 +40,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
 	/**
 	 * Animation object
 	 */
-	function Animation()
-	{
+	function Animation() {
 		this.tick = 0;
 		this.frame = 0;
 		this.repeat = true;
@@ -58,30 +55,23 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
 	 *
 	 * @param {object} option
 	 */
-	function setAction(option)
-	{
+	function setAction(option) {
 		var anim = this.animation;
 
-		if (option.delay)
-		{
+		if (option.delay) {
 			anim.delay = option.delay + 0;
 			option.delay = 0;
 			anim.save = option;
-		}
-		else
-		{
+		} else {
 			// Know attack frame based on weapon type
-			if (option.action === this.ACTION.ATTACK)
-			{
-				if (this.objecttype === this.constructor.TYPE_PC)
-				{
+			if (option.action === this.ACTION.ATTACK) {
+				if (this.objecttype === this.constructor.TYPE_PC) {
 					var attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
 					option.action = [this.ACTION.ATTACK1, this.ACTION.ATTACK2, this.ACTION.ATTACK3][attack];
 				}
 
 				// No action loaded yet
-				if (option.action === -2)
-				{
+				if (option.action === -2) {
 					option.action = this.ACTION.ATTACK1;
 				}
 			}
@@ -99,8 +89,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
 				this.walk.total > 0 &&
 				this.objecttype !== this.constructor.TYPE_FALCON &&
 				this.objecttype !== this.constructor.TYPE_WUG
-			)
-			{
+			) {
 				this.resetRoute();
 			}
 
@@ -123,15 +112,13 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
 	/**
 	 * Initialize Entity action
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this.ACTION = new Action();
 		this.animation = new Animation();
 		this.setAction = setAction;
 		var Entity = this.constructor;
 
-		switch (this.objecttype)
-		{
+		switch (this.objecttype) {
 			// Define action, base on type
 			case Entity.TYPE_PC:
 			case Entity.TYPE_DISGUISED:
@@ -151,8 +138,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
 				break;
 
 			case Entity.TYPE_MERC:
-				if (this._job == 6017)
-				{
+				if (this._job == 6017) {
 					// Bowman
 					this.ACTION.IDLE = 0;
 					this.ACTION.WALK = 1;
@@ -167,9 +153,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
 					this.ACTION.ATTACK2 = 10;
 					this.ACTION.ATTACK3 = 11;
 					this.ACTION.SKILL = 12;
-				}
-				else if (this._job == 6027 || this._job == 6037)
-				{
+				} else if (this._job == 6027 || this._job == 6037) {
 					// Spearman/Fencer
 					this.ACTION.IDLE = 0;
 					this.ACTION.WALK = 1;
@@ -184,9 +168,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB)
 					this.ACTION.ATTACK2 = 10;
 					this.ACTION.ATTACK3 = 11;
 					this.ACTION.SKILL = 12;
-				}
-				else
-				{
+				} else {
 					// Monsters
 					this.ACTION.IDLE = 0;
 					this.ACTION.WALK = 1;

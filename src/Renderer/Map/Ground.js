@@ -14,8 +14,7 @@ define([
 	'Core/Configs',
 	'text!./Ground.vs',
 	'text!./Ground.fs'
-], function (WebGL, Texture, Preferences, Configs, _vertexShader, _fragmentShader)
-{
+], function (WebGL, Texture, Preferences, Configs, _vertexShader, _fragmentShader) {
 	'use strict';
 
 	var procCanvas = document.createElement('canvas');
@@ -76,8 +75,7 @@ define([
 	 * @param {object} fog structure
 	 * @param {object} light structure
 	 */
-	function render(gl, modelView, projection, normalMat, fog, light)
-	{
+	function render(gl, modelView, projection, normalMat, fog, light) {
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 
@@ -155,16 +153,14 @@ define([
 	 * @param {object} lightmap
 	 * @param {number} size
 	 */
-	function initLightmap(gl, lightmap, size)
-	{
+	function initLightmap(gl, lightmap, size) {
 		var width, height;
 		var enableMipmap = Configs.get('enableMipmap');
 
 		width = WebGL.toPowerOfTwo(Math.round(Math.sqrt(size)) * 8);
 		height = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(size)) * 8);
 
-		if (!_lightmap)
-		{
+		if (!_lightmap) {
 			_lightmap = gl.createTexture();
 		}
 
@@ -174,8 +170,7 @@ define([
 
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		if (enableMipmap)
-		{
+		if (enableMipmap) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}
 	}
@@ -188,10 +183,8 @@ define([
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	function initTileColor(gl, tilescolor, width, height)
-	{
-		if (WebGL.isWebGL2(gl))
-		{
+	function initTileColor(gl, tilescolor, width, height) {
+		if (WebGL.isWebGL2(gl)) {
 			// WebGL2 can handle NPOT textures without performance hit (10x faster!)
 			initTileColor2(gl, tilescolor, width, height);
 			return;
@@ -200,8 +193,7 @@ define([
 		var _width, _height, i, count;
 		var enableMipmap = Configs.get('enableMipmap');
 
-		if (procCanvas.width !== width || procCanvas.height !== height)
-		{
+		if (procCanvas.width !== width || procCanvas.height !== height) {
 			procCanvas.width = width;
 			procCanvas.height = height;
 		}
@@ -211,8 +203,7 @@ define([
 		count = data.length;
 
 		// Set Image pixel
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			data[i] = tilescolor[i];
 		}
 		procCtx.putImageData(imageData, 0, 0);
@@ -229,8 +220,7 @@ define([
 		ctx.fillRect(0, 0, _width, _height);
 		ctx.drawImage(procCanvas, 0, 0, _width, _height);
 		// Send texture to GPU
-		if (!_tileColor)
-		{
+		if (!_tileColor) {
 			_tileColor = gl.createTexture();
 		}
 
@@ -238,8 +228,7 @@ define([
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, smooth);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		if (enableMipmap)
-		{
+		if (enableMipmap) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}
 	}
@@ -252,10 +241,8 @@ define([
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	function initTileColor2(gl, tilescolor, width, height)
-	{
-		if (!_tileColor)
-		{
+	function initTileColor2(gl, tilescolor, width, height) {
+		if (!_tileColor) {
 			_tileColor = gl.createTexture();
 		}
 
@@ -272,8 +259,7 @@ define([
 	 * @param {Object} gl context
 	 * @param {Array} textures 's filename
 	 */
-	function initTextures(gl, textures)
-	{
+	function initTextures(gl, textures) {
 		var i, count, width, height, _width, loaded;
 
 		// Find texture size
@@ -282,8 +268,7 @@ define([
 		width = WebGL.toPowerOfTwo(_width * 258);
 		height = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(count)) * 258);
 
-		if (procCanvas.width !== width || procCanvas.height !== height)
-		{
+		if (procCanvas.width !== width || procCanvas.height !== height) {
 			procCanvas.width = width;
 			procCanvas.height = height;
 		}
@@ -291,25 +276,21 @@ define([
 		procCtx.clearRect(0, 0, width, height);
 		loaded = 0;
 
-		function onTextureCompleteBuildAtlas(success, i)
-		{
-			if (success)
-			{
+		function onTextureCompleteBuildAtlas(success, i) {
+			if (success) {
 				var x = (i % _width) * 258;
 				var y = Math.floor(i / _width) * 258;
 				procCtx.drawImage(this, x + 0, y + 0, 258, 258); // generate border
 				procCtx.drawImage(this, x + 1, y + 1, 256, 256);
 			}
 
-			if (++loaded === count)
-			{
+			if (++loaded === count) {
 				onTextureAtlasComplete(gl, procCanvas);
 			}
 		}
 
 		// Fetch all images, and draw them in a mega-texture
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			Texture.load(textures[i], onTextureCompleteBuildAtlas, i);
 		}
 	}
@@ -320,11 +301,9 @@ define([
 	 * @param {object} gl
 	 * @param {object} atlas - canvas texture
 	 */
-	function onTextureAtlasComplete(gl, atlas)
-	{
+	function onTextureAtlasComplete(gl, atlas) {
 		// Bind to GPU
-		if (!_textureAtlas)
-		{
+		if (!_textureAtlas) {
 			_textureAtlas = gl.createTexture();
 		}
 
@@ -334,8 +313,7 @@ define([
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 		var enableMipmap = Configs.get('enableMipmap');
-		if (enableMipmap)
-		{
+		if (enableMipmap) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}
 	}
@@ -346,22 +324,19 @@ define([
 	 * @param {object} gl context
 	 * @param {object} data - ground
 	 */
-	function init(gl, data)
-	{
+	function init(gl, data) {
 		_vertCount = data.meshVertCount;
 		_width = data.width;
 		_height = data.height;
 		_shadowMap = data.shadowMap;
 
 		// Bind buffer, sending mesh to GPU
-		if (!_buffer)
-		{
+		if (!_buffer) {
 			_buffer = gl.createBuffer();
 		}
 
 		// Link program	if not loaded
-		if (!_program)
-		{
+		if (!_program) {
 			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		}
 
@@ -383,28 +358,23 @@ define([
 	 *
 	 * @param {object} gl context
 	 */
-	function free(gl)
-	{
-		if (_lightmap)
-		{
+	function free(gl) {
+		if (_lightmap) {
 			gl.deleteTexture(_lightmap);
 			_lightmap = null;
 		}
 
-		if (_tileColor)
-		{
+		if (_tileColor) {
 			gl.deleteTexture(_tileColor);
 			_tileColor = null;
 		}
 
-		if (_textureAtlas)
-		{
+		if (_textureAtlas) {
 			gl.deleteTexture(_textureAtlas);
 			_textureAtlas = null;
 		}
 
-		if (_buffer)
-		{
+		if (_buffer) {
 			gl.deleteBuffer(_buffer);
 			_buffer = null;
 		}
@@ -420,11 +390,9 @@ define([
 	 * @param {number} y
 	 * @return {number} shadow factor
 	 */
-	function getShadowFactor(x, y)
-	{
+	function getShadowFactor(x, y) {
 		// Map not loadead yet
-		if (!_shadowMap)
-		{
+		if (!_shadowMap) {
 			return 1.0;
 		}
 
@@ -445,10 +413,8 @@ define([
 		_y += Math.min((y & 1 ? 4 : 0) + Math.floor((y % 1) * 4), 6);
 
 		// Smooth shadowmap
-		for (y = -3; y < 3; ++y)
-		{
-			for (x = -3; x < 3; ++x)
-			{
+		for (y = -3; y < 3; ++y) {
+			for (x = -3; x < 3; ++x) {
 				factor += _shadowMap[_x + x + (_y + y) * _width * 8];
 			}
 		}

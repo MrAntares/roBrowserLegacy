@@ -9,29 +9,25 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
 	 * Object stored in cache
 	 * @var MemoryItem
 	 */
-	function MemoryItem(onload, onerror)
-	{
+	function MemoryItem(onload, onerror) {
 		// Private variables
 		this._onload = [];
 		this._onerror = [];
 
 		// Store callback
 		// One cache item can have multple callback.
-		if (onload)
-		{
+		if (onload) {
 			this.addEventListener('load', onload);
 		}
 
-		if (onerror)
-		{
+		if (onerror) {
 			this.addEventListener('error', onerror);
 		}
 	}
@@ -67,8 +63,7 @@ define(function ()
 	 * @return mixed
 	 */
 	Object.defineProperty(MemoryItem.prototype, 'data', {
-		get: function ()
-		{
+		get: function () {
 			this.lastTimeUsed = Date.now();
 			return this._data;
 		}
@@ -79,20 +74,15 @@ define(function ()
 	 *
 	 * @param mixed data
 	 */
-	MemoryItem.prototype.addEventListener = function addEventListener(event, callback)
-	{
-		if (!(callback instanceof Function))
-		{
+	MemoryItem.prototype.addEventListener = function addEventListener(event, callback) {
+		if (!(callback instanceof Function)) {
 			throw new Error('MemoryItem::addEventListener() - callback must be a function !');
 		}
 
-		switch (event.toLowerCase())
-		{
+		switch (event.toLowerCase()) {
 			case 'load':
-				if (this.complete)
-				{
-					if (this._data)
-					{
+				if (this.complete) {
+					if (this._data) {
 						callback(this._data);
 					}
 					return;
@@ -102,10 +92,8 @@ define(function ()
 				break;
 
 			case 'error':
-				if (this.complete)
-				{
-					if (this._error)
-					{
+				if (this.complete) {
+					if (this._error) {
 						callback(this._error);
 					}
 					return;
@@ -124,16 +112,14 @@ define(function ()
 	 *
 	 * @param {mixed} data
 	 */
-	MemoryItem.prototype.onload = function onLoad(data)
-	{
+	MemoryItem.prototype.onload = function onLoad(data) {
 		var i, size;
 
 		this._data = data;
 		this.complete = true;
 		this.lastTimeUsed = Date.now();
 
-		for (i = 0, size = this._onload.length; i < size; ++i)
-		{
+		for (i = 0, size = this._onload.length; i < size; ++i) {
 			this._onload[i](data);
 		}
 
@@ -146,16 +132,14 @@ define(function ()
 	 *
 	 * @param {string} error - optional
 	 */
-	MemoryItem.prototype.onerror = function OnError(error)
-	{
+	MemoryItem.prototype.onerror = function OnError(error) {
 		var i, size;
 
 		this._error = error;
 		this.complete = true;
 		this.lastTimeUsed = Date.now();
 
-		for (i = 0, size = this._onerror.length; i < size; ++i)
-		{
+		for (i = 0, size = this._onerror.length; i < size; ++i) {
 			this._onerror[i](error);
 		}
 

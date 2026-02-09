@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -28,8 +27,7 @@ define(function (require)
 	 * @param {number} GID
 	 * @param {string} randrom string
 	 */
-	function tradeGIDEncoding(GID)
-	{
+	function tradeGIDEncoding(GID) {
 		var table = 'ROHUTNASEW';
 		var str, out;
 		var i, count;
@@ -37,8 +35,7 @@ define(function (require)
 		str = String(GID);
 		out = '';
 
-		for (i = 0, count = str.length; i < count; ++i)
-		{
+		for (i = 0, count = str.length; i < count; ++i) {
 			out += table[str[i]];
 		}
 
@@ -49,12 +46,9 @@ define(function (require)
 	 * Someone ask to start a trade
 	 * @param {object} pkt - PACKET.ZC.REQ_EXCHANGE_ITEM
 	 */
-	function onTradeRequest(pkt)
-	{
-		function answer(value)
-		{
-			return function ()
-			{
+	function onTradeRequest(pkt) {
+		function answer(value) {
+			return function () {
 				var pkt = new PACKET.CZ.ACK_EXCHANGE_ITEM();
 				pkt.result = value;
 				Network.sendPacket(pkt);
@@ -64,8 +58,7 @@ define(function (require)
 		var text = '(' + pkt.name + ') ' + DB.getMessage(93);
 		Trade.title = pkt.name;
 
-		if ('level' in pkt && 'GID' in pkt)
-		{
+		if ('level' in pkt && 'GID' in pkt) {
 			text += '\nPN: ' + tradeGIDEncoding(pkt.GID) + '\xa0\xa0\xa0\xa0\xa0Lv.' + pkt.level;
 		}
 
@@ -76,10 +69,8 @@ define(function (require)
 	 * Result about trade ask
 	 * @param {object} pkt - PACKET.ZC.ACK_EXCHANGE_ITEM
 	 */
-	function onTradeRequestAnswer(pkt)
-	{
-		switch (pkt.result)
-		{
+	function onTradeRequestAnswer(pkt) {
+		switch (pkt.result) {
 			case 0: // Char is too far
 				ChatBox.addText(DB.getMessage(70), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
@@ -93,8 +84,7 @@ define(function (require)
 				break;
 
 			case 3:
-				if ('level' in pkt && 'GID' in pkt)
-				{
+				if ('level' in pkt && 'GID' in pkt) {
 					Trade.title += '  Lv' + pkt.level + ' (' + tradeGIDEncoding(pkt.GID) + ')';
 				}
 				Trade.append();
@@ -115,8 +105,7 @@ define(function (require)
 	 * @param {number} item index in inventory
 	 * @param {number} count
 	 */
-	Trade.reqAddItem = function reqAddItem(index, count)
-	{
+	Trade.reqAddItem = function reqAddItem(index, count) {
 		var pkt = new PACKET.CZ.ADD_EXCHANGE_ITEM();
 		pkt.index = index;
 		pkt.count = count;
@@ -129,10 +118,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_ADD_EXCHANGE_ITEM
 	 */
-	function onAddItemResult(pkt)
-	{
-		switch (pkt.result)
-		{
+	function onAddItemResult(pkt) {
+		switch (pkt.result) {
 			case 1: // overweight
 				ChatBox.addText(DB.getMessage(73), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
@@ -150,16 +137,14 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ADD_EXCHANGE_ITEM
 	 */
-	function onItemAdded(pkt)
-	{
+	function onItemAdded(pkt) {
 		Trade.addItem(pkt);
 	}
 
 	/**
 	 * Reject deal
 	 */
-	Trade.onCancel = function onCancel()
-	{
+	Trade.onCancel = function onCancel() {
 		var pkt = new PACKET.CZ.CANCEL_EXCHANGE_ITEM();
 		Network.sendPacket(pkt);
 	};
@@ -169,8 +154,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.CANCEL_EXCHANGE_ITEM
 	 */
-	function onTradeCancel(pkt)
-	{
+	function onTradeCancel(pkt) {
 		ChatBox.addText(DB.getMessage(74), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		Trade.remove();
 	}
@@ -178,8 +162,7 @@ define(function (require)
 	/**
 	 * Conclude the deal
 	 */
-	Trade.onConclude = function onConclude()
-	{
+	Trade.onConclude = function onConclude() {
 		var pkt = new PACKET.CZ.CONCLUDE_EXCHANGE_ITEM();
 		Network.sendPacket(pkt);
 	};
@@ -189,16 +172,14 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.CONCLUDE_EXCHANGE_ITEM
 	 */
-	function onTradeConclude(pkt)
-	{
+	function onTradeConclude(pkt) {
 		Trade.conclude(pkt.who ? 'recv' : 'send');
 	}
 
 	/**
 	 * Submit the trade
 	 */
-	Trade.onTradeSubmit = function onTradeSubmit()
-	{
+	Trade.onTradeSubmit = function onTradeSubmit() {
 		var pkt = new PACKET.CZ.EXEC_EXCHANGE_ITEM();
 		Network.sendPacket(pkt);
 	};
@@ -208,11 +189,9 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.EXEC_EXCHANGE_ITEM
 	 */
-	function onTradeSubmitAnswer(pkt)
-	{
+	function onTradeSubmitAnswer(pkt) {
 		// Fail
-		if (pkt.result === 1)
-		{
+		if (pkt.result === 1) {
 			ChatBox.addText(DB.getMessage(76), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			Trade.remove();
 			return;
@@ -228,8 +207,7 @@ define(function (require)
 	 *
 	 * @param {number} GID
 	 */
-	Trade.reqExchange = function requestExhange(GID, name)
-	{
+	Trade.reqExchange = function requestExhange(GID, name) {
 		var pkt = new PACKET.CZ.REQ_EXCHANGE_ITEM();
 		pkt.AID = GID;
 		Network.sendPacket(pkt);
@@ -240,8 +218,7 @@ define(function (require)
 	/**
 	 * Initialize
 	 */
-	return function MainEngine()
-	{
+	return function MainEngine() {
 		Network.hookPacket(PACKET.ZC.REQ_EXCHANGE_ITEM, onTradeRequest);
 		Network.hookPacket(PACKET.ZC.REQ_EXCHANGE_ITEM2, onTradeRequest);
 		Network.hookPacket(PACKET.ZC.ACK_EXCHANGE_ITEM, onTradeRequestAnswer);

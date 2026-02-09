@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Renderer/EffectManager'], function (glMatrix, EffectManager)
-{
+define(['Utils/gl-matrix', 'Renderer/EffectManager'], function (glMatrix, EffectManager) {
 	'use strict';
 
 	/**
@@ -20,30 +19,28 @@ define(['Utils/gl-matrix', 'Renderer/EffectManager'], function (glMatrix, Effect
 	/**
 	 * Add 3D sound to the list
 	 */
-	function add(mapEffect)
-	{
+	function add(mapEffect) {
 		_list.push(mapEffect);
 	}
 
 	/**
 	 * Remove data from memory
 	 */
-	function free()
-	{
+	function free() {
 		_list.length = 0;
 	}
 
 	/**
 	 * Get effect from list
 	 */
-	function get(GID)
-	{
+	function get(GID) {
 		var mapEffect;
 		var count = _list.length;
-		for (var i = 0; i < count; ++i)
-		{
+		for (var i = 0; i < count; ++i) {
 			mapEffect = _list[i];
-			if (mapEffect.name == GID) {return mapEffect;}
+			if (mapEffect.name == GID) {
+				return mapEffect;
+			}
 		}
 		return null;
 	}
@@ -51,15 +48,12 @@ define(['Utils/gl-matrix', 'Renderer/EffectManager'], function (glMatrix, Effect
 	/**
 	 * Remove effect from list
 	 */
-	function remove(GID)
-	{
+	function remove(GID) {
 		var mapEffect;
 		var count = _list.length;
-		for (var i = 0; i < count; ++i)
-		{
+		for (var i = 0; i < count; ++i) {
 			mapEffect = _list[i];
-			if (mapEffect.name == GID)
-			{
+			if (mapEffect.name == GID) {
 				_list.splice(i, 1);
 				break;
 			}
@@ -71,20 +65,17 @@ define(['Utils/gl-matrix', 'Renderer/EffectManager'], function (glMatrix, Effect
 	 *
 	 * @param {vec3} position
 	 */
-	function spam(position, tick)
-	{
+	function spam(position, tick) {
 		var mapEffect;
 		var i,
 			count = _list.length;
 
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			mapEffect = _list[i];
 
 			// distance need to be less than 25 cells (seems like it's
 			// how the official client handle it).
-			if (!mapEffect.isVisible && vec3.dist(mapEffect.pos, position) < 25)
-			{
+			if (!mapEffect.isVisible && vec3.dist(mapEffect.pos, position) < 25) {
 				var EF_Init_Par = {
 					effectId: mapEffect.id,
 					ownerAID: mapEffect.name,
@@ -95,9 +86,7 @@ define(['Utils/gl-matrix', 'Renderer/EffectManager'], function (glMatrix, Effect
 
 				EffectManager.spam(EF_Init_Par);
 				mapEffect.isVisible = true;
-			}
-			else if (mapEffect.isVisible && vec3.dist(mapEffect.pos, position) >= 25)
-			{
+			} else if (mapEffect.isVisible && vec3.dist(mapEffect.pos, position) >= 25) {
 				EffectManager.remove(null, mapEffect.name);
 				mapEffect.isVisible = false;
 			}

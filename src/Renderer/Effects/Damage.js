@@ -8,8 +8,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	// Load dependencies
@@ -66,8 +65,7 @@ define(function (require)
 	/**
 	 * Damage Namespace
 	 */
-	function Damage()
-	{
+	function Damage() {
 		this.entity = null;
 		this.startTick = 0;
 		this.type = 0;
@@ -124,8 +122,7 @@ define(function (require)
 	 * Convert sprite to image Data
 	 * @param {object} gl - WebGL context
 	 */
-	Damage.init = function init(gl)
-	{
+	Damage.init = function init(gl) {
 		var confChange = !(_enableSuffix === Configs.get('enableDmgSuffix'));
 
 		_enableSuffix = Configs.get('enableDmgSuffix');
@@ -134,28 +131,23 @@ define(function (require)
 
 		var num_count = _enableSuffix ? 12 : 10;
 
-		if (PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0 && !confChange)
-		{
+		if (PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0 && !confChange) {
 			return;
 		}
 
-		if (Object.keys(_loadedSkinsData).length === totalSkins && !confChange)
-		{
+		if (Object.keys(_loadedSkinsData).length === totalSkins && !confChange) {
 			return;
 		}
 
-		Object.keys(_damageSkins).forEach(function (skinIdStr)
-		{
+		Object.keys(_damageSkins).forEach(function (skinIdStr) {
 			var skinId = parseInt(skinIdStr, 10);
 			var currentSkin = _damageSkins[skinId];
 
-			if (_loadedSkinsData[skinId] && !confChange)
-			{
+			if (_loadedSkinsData[skinId] && !confChange) {
 				return;
 			}
 
-			if (PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0)
-			{
+			if (PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0) {
 				return;
 			}
 
@@ -174,23 +166,19 @@ define(function (require)
 					currentSkin.BaseBlue,
 					currentSkin.BaseNumber.replace('.spr', '.act')
 				],
-				function (numbers, msg, bluemsg, numbersAct)
-				{
+				function (numbers, msg, bluemsg, numbersAct) {
 					var sprNumbers, sprMsg, sprBlue, actNumbers;
 					var enableMipmap = Configs.get('enableMipmap');
 
 					// Load it properly later using webgl
 					MemoryManager.remove(gl, msg);
 
-					try
-					{
+					try {
 						sprNumbers = new Sprite(numbers);
 						sprMsg = new Sprite(msg);
 						sprBlue = new Sprite(bluemsg);
 						actNumbers = new Action(numbersAct);
-					}
-					catch (e)
-					{
+					} catch (e) {
 						console.error('Damage::init() - ' + e.message);
 						return;
 					}
@@ -203,19 +191,16 @@ define(function (require)
 						actNumbers.actions[0].animations[0] &&
 						actNumbers.actions[0].animations[0].layers &&
 						actNumbers.actions[0].animations[0].layers[0]
-					)
-					{
+					) {
 						skinData.Scale = actNumbers.actions[0].animations[0].layers[0].scale || [1.0, 1.0];
 					}
 
 					// Create SpriteSheet
-					for (var i = 0; i < skinData.numbers.length; ++i)
-					{
+					for (var i = 0; i < skinData.numbers.length; ++i) {
 						skinData.numbers[i] = sprNumbers.getCanvasFromFrame(i);
 					}
 
-					for (var i = 0; i < 6; i++)
-					{
+					for (var i = 0; i < 6; i++) {
 						//msg.spr miss crit lucky...
 
 						var source = sprMsg.getCanvasFromFrame(i);
@@ -243,14 +228,12 @@ define(function (require)
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-						if (enableMipmap)
-						{
+						if (enableMipmap) {
 							gl.generateMipmap(gl.TEXTURE_2D);
 						}
 					}
 
-					for (var i = 0; i < 6; i++)
-					{
+					for (var i = 0; i < 6; i++) {
 						//bluemsg.spr miss crit lucky...
 
 						var source = sprBlue.getCanvasFromFrame(i);
@@ -278,8 +261,7 @@ define(function (require)
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-						if (enableMipmap)
-						{
+						if (enableMipmap) {
 							gl.generateMipmap(gl.TEXTURE_2D);
 						}
 					}
@@ -296,33 +278,30 @@ define(function (require)
 	 * @param {number} tick
 	 * @param {number} type - Damage|Heal
 	 */
-	Damage.add = function add(damage, entity, tick, weapon, type)
-	{
+	Damage.add = function add(damage, entity, tick, weapon, type) {
 		_skin = GraphicsSettings.damageSkin || 0;
 
-		if (_skin == 3) {return;}
+		if (_skin == 3) {
+			return;
+		}
 
-		if (PACKETVER.value < 20220821) {_skin = 0;}
+		if (PACKETVER.value < 20220821) {
+			_skin = 0;
+		}
 
 		var skinData = _loadedSkinsData[_skin];
 		var numbersData, msgData, msgBlueData;
-		if (skinData)
-		{
+		if (skinData) {
 			numbersData = skinData.numbers;
 			msgData = skinData.msg;
 			msgBlueData = skinData.msgBlue;
-		}
-		else
-		{
-			if (_loadedSkinsData[0])
-			{
+		} else {
+			if (_loadedSkinsData[0]) {
 				skinData = _loadedSkinsData[0];
 				numbersData = skinData.numbers;
 				msgData = skinData.msg;
 				msgBlueData = skinData.msgBlue;
-			}
-			else
-			{
+			} else {
 				console.warn('Damage::add() - No Damage Skin Loaded.');
 				return;
 			}
@@ -330,8 +309,7 @@ define(function (require)
 
 		// Can not display negative damages.
 		// Need to wait the client to load damage sprite
-		if (damage < 0 || !numbersData[0] || !msgData.miss || !msgBlueData.miss)
-		{
+		if (damage < 0 || !numbersData[0] || !msgData.miss || !msgBlueData.miss) {
 			return;
 		}
 
@@ -345,16 +323,12 @@ define(function (require)
 		var numbers;
 		var suffix = null;
 
-		if (_enableSuffix)
-		{
+		if (_enableSuffix) {
 			// Check for large numbers and convert accordingly
-			if (damage >= 100000000)
-			{
+			if (damage >= 100000000) {
 				damage = Math.floor(damage / 1000000);
 				suffix = 11; // 'M'
-			}
-			else if (damage >= 1000000)
-			{
+			} else if (damage >= 1000000) {
 				damage = Math.floor(damage / 1000);
 				suffix = 10; // 'K'
 			}
@@ -363,8 +337,7 @@ define(function (require)
 		numbers = damage.toString().split('');
 
 		// Add suffix to numbers if it exists
-		if (suffix !== null)
-		{
+		if (suffix !== null) {
 			numbers.push(suffix);
 		}
 
@@ -376,8 +349,7 @@ define(function (require)
 		var obj = new Damage();
 
 		obj.type = type || (damage ? Damage.TYPE.DAMAGE : Damage.TYPE.MISS);
-		if (entity.objecttype === entity.constructor.TYPE_PC)
-		{
+		if (entity.objecttype === entity.constructor.TYPE_PC) {
 			obj.type |= Damage.TYPE.ENEMY;
 		}
 
@@ -386,37 +358,28 @@ define(function (require)
 		obj.startTick = tick;
 		obj.entity = entity;
 
-		if (obj.type & Damage.TYPE.SP)
-		{
+		if (obj.type & Damage.TYPE.SP) {
 			// blue
 			obj.color[0] = 0.13;
 			obj.color[1] = 0.19;
 			obj.color[2] = 0.75;
-		}
-		else if (obj.type & Damage.TYPE.HEAL)
-		{
+		} else if (obj.type & Damage.TYPE.HEAL) {
 			// green
 			obj.color[0] = 0.0;
 			obj.color[1] = 1.0;
 			obj.color[2] = 0.0;
-		}
-		else if (obj.type & Damage.TYPE.ENEMY)
-		{
+		} else if (obj.type & Damage.TYPE.ENEMY) {
 			// red
 			obj.color[0] = 1.0;
 			obj.color[1] = 0.0;
 			obj.color[2] = 0.0;
-		}
-		else if (obj.type & Damage.TYPE.COMBO)
-		{
+		} else if (obj.type & Damage.TYPE.COMBO) {
 			// yellow
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
 			obj.color[2] = 0.15;
 			obj.delay = 3000;
-		}
-		else if (obj.type & Damage.TYPE.CRIT)
-		{
+		} else if (obj.type & Damage.TYPE.CRIT) {
 			// yellow
 			obj.color[0] = 0.9;
 			obj.color[1] = 0.9;
@@ -444,9 +407,7 @@ define(function (require)
 				startTick: tick
 			};
 			EffectManager.spam(EF_Init_Par);
-		}
-		else if (obj.type & Damage.TYPE.COMBO_B)
-		{
+		} else if (obj.type & Damage.TYPE.COMBO_B) {
 			// white
 			obj.color[0] = 1.0;
 			obj.color[1] = 1.0;
@@ -465,9 +426,7 @@ define(function (require)
 			bgObj.offset = [0.0, -6.0];
 			bgObj.isDisposable = false;
 			_list.push(bgObj);
-		}
-		else
-		{
+		} else {
 			// white
 			obj.color[0] = 1.0;
 			obj.color[1] = 1.0;
@@ -475,10 +434,8 @@ define(function (require)
 		}
 
 		// Miss
-		if (!damage)
-		{
-			if (MapPreferences.miss)
-			{
+		if (!damage) {
+			if (MapPreferences.miss) {
 				obj.texture = msgData.miss.texture;
 				obj.width = msgData.miss.canvas.width;
 				obj.height = msgData.miss.canvas.height;
@@ -489,8 +446,7 @@ define(function (require)
 		}
 
 		// Calculate canvas width and height
-		for (i = 0, count = numbers.length; i < count; ++i)
-		{
+		for (i = 0, count = numbers.length; i < count; ++i) {
 			frame = numbersData[numbers[i]];
 			width += frame.width + PADDING;
 			height = Math.max(height, frame.height);
@@ -500,13 +456,10 @@ define(function (require)
 		var finalWidth = WebGL.toPowerOfTwo(width) * dpr;
 		var finalHeight = WebGL.toPowerOfTwo(height) * dpr;
 
-		if (procCanvas.width !== finalWidth || procCanvas.height !== finalHeight)
-		{
+		if (procCanvas.width !== finalWidth || procCanvas.height !== finalHeight) {
 			procCanvas.width = finalWidth;
 			procCanvas.height = finalHeight;
-		}
-		else
-		{
+		} else {
 			procCtx.clearRect(0, 0, finalWidth, finalHeight);
 		}
 
@@ -516,8 +469,7 @@ define(function (require)
 
 		// build texture
 		width = 0;
-		for (i = 0, count = numbers.length; i < count; ++i)
-		{
+		for (i = 0, count = numbers.length; i < count; ++i) {
 			frame = numbersData[numbers[i]];
 			procCtx.drawImage(frame, start_x + width, start_y + ((height - frame.height) >> 1));
 			width += frame.width + PADDING;
@@ -530,8 +482,7 @@ define(function (require)
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		if (enableMipmap)
-		{
+		if (enableMipmap) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}
 
@@ -541,20 +492,15 @@ define(function (require)
 		obj.isDisposable = true;
 
 		var hitSound;
-		if (entity.objecttype === Entity.TYPE_PC)
-		{
+		if (entity.objecttype === Entity.TYPE_PC) {
 			hitSound = DB.getJobHitSound(entity._job);
-		}
-		else
-		{
-			if (weapon || weapon === 0)
-			{
+		} else {
+			if (weapon || weapon === 0) {
 				hitSound = DB.getWeaponHitSound(weapon);
 			}
 		}
 
-		if (hitSound)
-		{
+		if (hitSound) {
 			obj.soundFile = hitSound;
 		}
 
@@ -566,14 +512,11 @@ define(function (require)
 	 *
 	 * @param {object} gl context
 	 */
-	Damage.free = function free(gl)
-	{
+	Damage.free = function free(gl) {
 		var i, count;
 
-		for (i = 0, count = _list.length; i < count; ++i)
-		{
-			if (_list[i].isDisposable)
-			{
+		for (i = 0, count = _list.length; i < count; ++i) {
+			if (_list[i].isDisposable) {
 				gl.deleteTexture(_list[i].texture);
 			}
 		}
@@ -591,11 +534,9 @@ define(function (require)
 	 * @param {number} tick - game tick
 	 */
 	// Render all damages.
-	Damage.render = function render(gl, modelView, projection, fog, tick)
-	{
+	Damage.render = function render(gl, modelView, projection, fog, tick) {
 		// Nothing to render exiting
-		if (!_list.length)
-		{
+		if (!_list.length) {
 			return;
 		}
 
@@ -614,21 +555,17 @@ define(function (require)
 		var skinData = _loadedSkinsData[_skin];
 
 		// Render all list
-		for (i = 0, count = _list.length; i < count; ++i)
-		{
+		for (i = 0, count = _list.length; i < count; ++i) {
 			damage = _list[i];
 
 			// Not now.
-			if (damage.startTick > tick)
-			{
+			if (damage.startTick > tick) {
 				continue;
 			}
 
 			// Remove it from list, time passed.
-			if (damage.startTick + damage.delay < tick)
-			{
-				if (damage.isDisposable)
-				{
+			if (damage.startTick + damage.delay < tick) {
+				if (damage.isDisposable) {
 					gl.deleteTexture(damage.texture);
 				}
 				_list.splice(i, 1);
@@ -640,11 +577,9 @@ define(function (require)
 			perc = (tick - damage.startTick) / damage.delay;
 
 			// Combo title
-			if (damage.type & Damage.TYPE.COMBO || damage.type & Damage.TYPE.COMBO_B)
-			{
+			if (damage.type & Damage.TYPE.COMBO || damage.type & Damage.TYPE.COMBO_B) {
 				//Combo title need to remove if new one come up
-				if (damage.startTick < prevCombo[damage.entity.GID])
-				{
+				if (damage.startTick < prevCombo[damage.entity.GID]) {
 					continue;
 				}
 				prevCombo[damage.entity.GID] = damage.startTick;
@@ -653,8 +588,7 @@ define(function (require)
 				size = Math.min(perc, 0.05) * 70;
 
 				// Remove it
-				if (!(damage.type & Damage.TYPE.COMBO_FINAL) && perc > 0.15)
-				{
+				if (!(damage.type & Damage.TYPE.COMBO_FINAL) && perc > 0.15) {
 					damage.startTick = 0;
 				}
 
@@ -664,8 +598,7 @@ define(function (require)
 			}
 
 			// Damage
-			else if (damage.type & Damage.TYPE.DAMAGE || damage.type & Damage.TYPE.CRIT)
-			{
+			else if (damage.type & Damage.TYPE.DAMAGE || damage.type & Damage.TYPE.CRIT) {
 				size = (1 - perc) * 4;
 
 				var motionType = GraphicsSettings.damageMotion || 0;
@@ -673,8 +606,7 @@ define(function (require)
 				// Base Z arc (Bounce)
 				var zArc = Math.sin(-Math.PI / 2 + Math.PI * (0.5 + perc * 1.5)) * 5;
 
-				switch (motionType)
-				{
+				switch (motionType) {
 					case 1: // Left (Drift X Negative)
 						SpriteRenderer.position[0] = damage.entity.position[0] - perc * 4;
 						SpriteRenderer.position[1] = damage.entity.position[1];
@@ -695,10 +627,8 @@ define(function (require)
 				}
 
 				SpriteRenderer.position[2] = damage.entity.position[2] + 2 + zArc;
-				if (damage.soundFile)
-				{
-					if (damage.type & Damage.TYPE.ENDURE)
-					{
+				if (damage.soundFile) {
+					if (damage.type & Damage.TYPE.ENDURE) {
 						Sound.playPosition(EndureSound, damage.entity.position);
 					}
 
@@ -708,8 +638,7 @@ define(function (require)
 			}
 
 			// Heal
-			else if (damage.type & Damage.TYPE.HEAL)
-			{
+			else if (damage.type & Damage.TYPE.HEAL) {
 				size = Math.max((1 - perc * 2) * 3, 0.8);
 				SpriteRenderer.position[0] = damage.entity.position[0];
 				SpriteRenderer.position[1] = damage.entity.position[1];
@@ -717,8 +646,7 @@ define(function (require)
 			}
 
 			// Miss
-			else if (damage.type & Damage.TYPE.MISS)
-			{
+			else if (damage.type & Damage.TYPE.MISS) {
 				perc = (tick - damage.startTick) / 800;
 				size = 0.5;
 				SpriteRenderer.position[0] = damage.entity.position[0];
@@ -727,8 +655,7 @@ define(function (require)
 			}
 
 			// Miss
-			else if (damage.type & Damage.TYPE.LUCKY)
-			{
+			else if (damage.type & Damage.TYPE.LUCKY) {
 				perc = (tick - damage.startTick) / 800;
 				size = 0.5;
 				SpriteRenderer.position[0] = damage.entity.position[0];
@@ -739,21 +666,17 @@ define(function (require)
 			SpriteRenderer.size[0] = damage.width * size;
 			SpriteRenderer.size[1] = damage.height * size;
 
-			if (skinData && skinData.Scale)
-			{
+			if (skinData && skinData.Scale) {
 				SpriteRenderer.size[0] *= skinData.Scale[0];
 				SpriteRenderer.size[1] *= skinData.Scale[1];
 			}
 
 			damage.color[3] = 1.0 - perc;
 
-			if (damage.offset)
-			{
+			if (damage.offset) {
 				SpriteRenderer.offset[0] = damage.offset[0];
 				SpriteRenderer.offset[1] = damage.offset[1];
-			}
-			else
-			{
+			} else {
 				SpriteRenderer.offset[0] = 0;
 				SpriteRenderer.offset[1] = 0;
 			}
@@ -762,8 +685,7 @@ define(function (require)
 
 			SpriteRenderer.color.set(damage.color);
 			SpriteRenderer.image.texture = damage.texture;
-			SpriteRenderer.runWithDepth(false, false, true, function ()
-			{
+			SpriteRenderer.runWithDepth(false, false, true, function () {
 				SpriteRenderer.render();
 			});
 		}

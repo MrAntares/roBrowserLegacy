@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -43,8 +42,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	SoundOption.init = function init()
-	{
+	SoundOption.init = function init() {
 		this.ui.find('.base').mousedown(stopPropagation);
 		this.ui.find('.close').click(onClose);
 
@@ -61,8 +59,7 @@ define(function (require)
 	 * When append the element to html
 	 * Execute elements in memory
 	 */
-	SoundOption.onAppend = function onAppend()
-	{
+	SoundOption.onAppend = function onAppend() {
 		this.ui.css({
 			top: _preferences.y,
 			left: _preferences.x
@@ -77,8 +74,7 @@ define(function (require)
 	/**
 	 * Once remove, save preferences
 	 */
-	SoundOption.onRemove = function onRemove()
-	{
+	SoundOption.onRemove = function onRemove() {
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.save();
@@ -87,8 +83,7 @@ define(function (require)
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -96,16 +91,14 @@ define(function (require)
 	/**
 	 * Close the UI
 	 */
-	function onClose()
-	{
+	function onClose() {
 		SoundOption.remove();
 	}
 
 	/**
 	 * Update sound volume
 	 */
-	function onSoundVolumeUpdate()
-	{
+	function onSoundVolumeUpdate() {
 		AudioSettings.Sound.volume = parseInt(this.value, 10) / 100;
 		AudioSettings.save();
 
@@ -115,17 +108,13 @@ define(function (require)
 	/**
 	 * Toggle sound (on/off)
 	 */
-	function onToggleSound()
-	{
+	function onToggleSound() {
 		var oldVolume = AudioSettings.Sound.volume;
 		AudioSettings.Sound.play = this.checked;
 
-		if (AudioSettings.Sound.play)
-		{
+		if (AudioSettings.Sound.play) {
 			SoundManager.setVolume(AudioSettings.Sound.volume);
-		}
-		else
-		{
+		} else {
 			SoundManager.setVolume(0);
 			SoundManager.stop();
 		}
@@ -137,8 +126,7 @@ define(function (require)
 	/**
 	 * Update BGM volume
 	 */
-	function onBGMVolumeUpdate()
-	{
+	function onBGMVolumeUpdate() {
 		AudioSettings.BGM.volume = parseInt(this.value, 10) / 100;
 		AudioSettings.save();
 
@@ -148,17 +136,13 @@ define(function (require)
 	/**
 	 * Toggle BGM (on/off)
 	 */
-	function onToggleBGM()
-	{
+	function onToggleBGM() {
 		AudioSettings.BGM.play = this.checked;
 		AudioSettings.save();
 
-		if (AudioSettings.BGM.play)
-		{
+		if (AudioSettings.BGM.play) {
 			AudioManager.play(AudioManager.filename);
-		}
-		else
-		{
+		} else {
 			AudioManager.stop();
 		}
 	}

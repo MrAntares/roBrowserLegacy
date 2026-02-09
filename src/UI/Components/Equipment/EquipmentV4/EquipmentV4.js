@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -106,17 +105,14 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	EquipmentV4.init = function init()
-	{
+	EquipmentV4.init = function init() {
 		_ctx.push(this.ui.find('canvas')[0].getContext('2d'));
 		_ctx.push(this.ui.find('canvas')[1].getContext('2d'));
 
 		// Grab the tab links and content divs from the page
 		var tabListItems = document.getElementById('tabs').childNodes;
-		for (var i = 0; i < tabListItems.length; i++)
-		{
-			if (tabListItems[i].nodeName == 'DIV')
-			{
+		for (var i = 0; i < tabListItems.length; i++) {
+			if (tabListItems[i].nodeName == 'DIV') {
 				var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
 				var id = getHash(tabLink.getAttribute('href'));
 				tabLinks[id] = tabLink;
@@ -128,64 +124,54 @@ define(function (require)
 		// highlight the first tab
 		var i = 0;
 
-		for (var id in tabLinks)
-		{
+		for (var id in tabLinks) {
 			tabLinks[id].onclick = showTab;
-			tabLinks[id].onfocus = function ()
-			{
+			tabLinks[id].onfocus = function () {
 				this.blur();
 			};
-			if (i == 0) {tabLinks[id].className = 'tab selected';}
+			if (i == 0) {
+				tabLinks[id].className = 'tab selected';
+			}
 			i++;
 		}
 
 		// Hide all content divs except the first
 		var i = 0;
 
-		for (var id in contentDivs)
-		{
-			if (contentDivs[id])
-			{
-				if (i != 0)
-				{
+		for (var id in contentDivs) {
+			if (contentDivs[id]) {
+				if (i != 0) {
 					contentDivs[id].classList.add('content', 'hide');
 				}
 				i++;
 			}
 		}
 
-		if (UIVersionManager.getEquipmentVersion() > 0)
-		{
+		if (UIVersionManager.getEquipmentVersion() > 0) {
 			// Get button to open skill when level up
 			_btnLevelUp = jQuery('#lvlup_base')
 				.detach()
 				.mousedown(stopPropagation)
-				.click(function ()
-				{
+				.click(function () {
 					_btnLevelUp.detach();
 					EquipmentV4.ui.show();
 					EquipmentV4.ui.parent().append(EquipmentV4.ui);
 
-					if (EquipmentV4.ui.is(':visible'))
-					{
+					if (EquipmentV4.ui.is(':visible')) {
 						Renderer.render(renderCharacter);
 					}
 				});
-		}
-		else
-		{
+		} else {
 			this.ui.find('#equipment_footer').remove();
 			this.ui.addClass('equipmentV0');
 			this.ui.find('#lvlup_base').remove();
 		}
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
-		this.ui.find('.titlebar .mini').click(function ()
-		{
+		this.ui.find('.titlebar .mini').click(function () {
 			EquipmentV4.ui.find('.panel').toggle();
 		});
-		this.ui.find('.titlebar .close').click(function ()
-		{
+		this.ui.find('.titlebar .close').click(function () {
 			EquipmentV4.ui.hide();
 			Renderer.stop(renderCharacter);
 		});
@@ -223,8 +209,7 @@ define(function (require)
 
 		// Damage Skin Settings
 		var buttons = this.ui.find('#damageskin .skin-option');
-		buttons.each(function ()
-		{
+		buttons.each(function () {
 			jQuery(this)
 				.attr('data-background', 'showdamage/btn_damage.bmp')
 				.attr('data-hover', 'showdamage/btn_damage_press.bmp')
@@ -232,8 +217,7 @@ define(function (require)
 		});
 		buttons.each(this.parseHTML);
 		buttons.off('mouseup');
-		buttons.on('mousedown', function (event)
-		{
+		buttons.on('mousedown', function (event) {
 			var skinId = parseInt(this.getAttribute('data-skin'), 10);
 			EquipmentV4.setDamageSkin(skinId);
 		});
@@ -244,8 +228,7 @@ define(function (require)
 		// Damage Motion Settings
 		var motionChecks = this.ui.find('.motion-check');
 		motionChecks.each(this.parseHTML);
-		motionChecks.on('mousedown', function ()
-		{
+		motionChecks.on('mousedown', function () {
 			var motionId = parseInt(this.getAttribute('data-motion'), 10);
 			EquipmentV4.setDamageMotion(motionId);
 		});
@@ -257,8 +240,7 @@ define(function (require)
 	/**
 	 * Title Functions.
 	 */
-	EquipmentV4.loadTitles = function ()
-	{
+	EquipmentV4.loadTitles = function () {
 		var titleList = this.ui.find('#title_list');
 		titleList.empty();
 
@@ -270,10 +252,8 @@ define(function (require)
 		titleList.append(removeElement);
 
 		var allTitles = DB.getAllTitles();
-		for (var titleId in allTitles)
-		{
-			if (allTitles.hasOwnProperty(titleId))
-			{
+		for (var titleId in allTitles) {
+			if (allTitles.hasOwnProperty(titleId)) {
 				// TODO: Check if player finished achievment for title
 				var titleName = allTitles[titleId];
 				var selectedClass = parseInt(titleId) === _currentTitleId ? ' selected' : '';
@@ -291,8 +271,7 @@ define(function (require)
 		}
 
 		titleList.off('click', '.title-option');
-		titleList.on('click', '.title-option', function (e)
-		{
+		titleList.on('click', '.title-option', function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			var titleId = parseInt(this.getAttribute('data-title'));
@@ -300,15 +279,13 @@ define(function (require)
 		});
 	};
 
-	EquipmentV4.selectTitle = function (titleId)
-	{
+	EquipmentV4.selectTitle = function (titleId) {
 		var pkt = new PACKET.CZ.REQ_CHANGE_TITLE();
 		pkt.title_id = titleId;
 		Network.sendPacket(pkt);
 	};
 
-	EquipmentV4.setTitle = function OnSetTitle(titleId)
-	{
+	EquipmentV4.setTitle = function OnSetTitle(titleId) {
 		_currentTitleId = titleId;
 		EquipmentV4.loadTitles();
 	};
@@ -318,21 +295,16 @@ define(function (require)
 	 *
 	 * @return {boolean} false to stop the browser from following the link
 	 */
-	function showTab()
-	{
+	function showTab() {
 		var selectedId = getHash(this.getAttribute('href'));
 
 		// Highlight the selected tab, and dim all others.
 		// Also show the selected content div, and hide all others.
-		for (var id in contentDivs)
-		{
-			if (id == selectedId)
-			{
+		for (var id in contentDivs) {
+			if (id == selectedId) {
 				tabLinks[id].className = 'tab selected';
 				contentDivs[id].className = 'content';
-			}
-			else
-			{
+			} else {
 				tabLinks[id].className = 'tab';
 				contentDivs[id].classList.add('content', 'hide');
 			}
@@ -341,40 +313,31 @@ define(function (require)
 		// Update the current tab ID
 		currentTabId = selectedId;
 
-		if (SwitchEquip.ui)
-		{
+		if (SwitchEquip.ui) {
 			SwitchEquip.showSwapTab(currentTabId);
 		}
 
-		if (currentTabId !== 'general')
-		{
-			if (SwitchEquip.ui)
-			{
+		if (currentTabId !== 'general') {
+			if (SwitchEquip.ui) {
 				switchUIopen = SwitchEquip.ui.is(':visible');
 				SwitchEquip.ui.hide();
 			}
 			EquipmentV4.ui.find('.switch_equip').hide();
 			EquipmentV4.ui.find('.show_equip').hide();
 			EquipmentV4.ui.find('.show_equip').next('span').hide();
-			if (currentTabId === 'costume')
-			{
+			if (currentTabId === 'costume') {
 				EquipmentV4.ui.find('.show_costume').show();
 				EquipmentV4.ui.find('.show_costume').next('span').show();
-			}
-			else
-			{
+			} else {
 				EquipmentV4.ui.find('.show_costume').hide();
 				EquipmentV4.ui.find('.show_costume').next('span').hide();
 			}
-		}
-		else
-		{
+		} else {
 			EquipmentV4.ui.find('.show_equip').show();
 			EquipmentV4.ui.find('.show_equip').next('span').show();
 			EquipmentV4.ui.find('.show_costume').hide();
 			EquipmentV4.ui.find('.show_costume').next('span').hide();
-			if (SwitchEquip.ui && switchUIopen)
-			{
+			if (SwitchEquip.ui && switchUIopen) {
 				SwitchEquip.ui.show();
 			}
 			EquipmentV4.ui.find('.switch_equip').show();
@@ -390,12 +353,9 @@ define(function (require)
 	 * @param {Element} element - The parent element.
 	 * @param {string} tagName - The tag name of the child element to find.
 	 */
-	function getFirstChildWithTagName(element, tagName)
-	{
-		for (var i = 0; i < element.childNodes.length; i++)
-		{
-			if (element.childNodes[i].nodeName == tagName.toUpperCase())
-			{
+	function getFirstChildWithTagName(element, tagName) {
+		for (var i = 0; i < element.childNodes.length; i++) {
+			if (element.childNodes[i].nodeName == tagName.toUpperCase()) {
 				return element.childNodes[i];
 			}
 		}
@@ -407,8 +367,7 @@ define(function (require)
 	 * @param {string} url - The URL from which to extract the hash.
 	 * @return {string} The hash part of the URL.
 	 */
-	function getHash(url)
-	{
+	function getHash(url) {
 		var hashPos = url.lastIndexOf('#');
 		return url.substring(hashPos + 1);
 	}
@@ -418,8 +377,7 @@ define(function (require)
 	 *
 	 * @return {string} The current tab ID.
 	 */
-	EquipmentV4.getCurrentTabId = function ()
-	{
+	EquipmentV4.getCurrentTabId = function () {
 		return currentTabId;
 	};
 
@@ -428,17 +386,14 @@ define(function (require)
 	 *
 	 * @return {void} This function does not return anything.
 	 */
-	function onCartItems()
-	{
-		if (Session.Entity.hasCart == false)
-		{
+	function onCartItems() {
+		if (Session.Entity.hasCart == false) {
 			return;
 		}
 		CartItems.ui.toggle();
 	}
 
-	function onRemoveOption()
-	{
+	function onRemoveOption() {
 		var pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
@@ -446,8 +401,7 @@ define(function (require)
 	/**
 	 * Append to body
 	 */
-	EquipmentV4.onAppend = function onAppend()
-	{
+	EquipmentV4.onAppend = function onAppend() {
 		// Apply preferences
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
@@ -455,35 +409,29 @@ define(function (require)
 		});
 
 		// Hide window ?
-		if (!_preferences.show)
-		{
+		if (!_preferences.show) {
 			this.ui.hide();
 		}
 
 		// Reduce window ?
-		if (_preferences.reduce)
-		{
+		if (_preferences.reduce) {
 			this.ui.find('.panel').hide();
 		}
 
 		// Show status window ?
-		if (UIVersionManager.getEquipmentVersion() > 0)
-		{
-			if (!_preferences.stats)
-			{
+		if (UIVersionManager.getEquipmentVersion() > 0) {
+			if (!_preferences.stats) {
 				this.ui.find('.status_component').hide();
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'basic_interface/viewon.bmp',
-					function (data)
-					{
+					function (data) {
 						this.ui.find('.view_status').css('backgroundImage', 'url(' + data + ')');
 					}.bind(this)
 				);
 			}
 		}
 
-		if (this.ui.find('canvas').is(':visible'))
-		{
+		if (this.ui.find('canvas').is(':visible')) {
 			Renderer.render(renderCharacter);
 		}
 
@@ -494,10 +442,8 @@ define(function (require)
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	EquipmentV4.onRemove = function onRemove()
-	{
-		if (UIVersionManager.getEquipmentVersion() > 0)
-		{
+	EquipmentV4.onRemove = function onRemove() {
+		if (UIVersionManager.getEquipmentVersion() > 0) {
 			_btnLevelUp.detach();
 		}
 
@@ -520,21 +466,16 @@ define(function (require)
 	/**
 	 * Start/stop rendering character in UI
 	 */
-	EquipmentV4.toggle = function toggle()
-	{
+	EquipmentV4.toggle = function toggle() {
 		this.ui.toggle();
 
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			Renderer.render(renderCharacter);
-			if (UIVersionManager.getEquipmentVersion() > 0)
-			{
+			if (UIVersionManager.getEquipmentVersion() > 0) {
 				_btnLevelUp.detach();
 			}
 			this.focus();
-		}
-		else
-		{
+		} else {
 			Renderer.stop(renderCharacter);
 		}
 	};
@@ -544,10 +485,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	EquipmentV4.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd)
-		{
+	EquipmentV4.onShortCut = function onShurtCut(key) {
+		switch (key.cmd) {
 			case 'TOGGLE':
 				this.toggle();
 				break;
@@ -559,12 +498,10 @@ define(function (require)
 	 *
 	 * @param {boolean} on
 	 */
-	EquipmentV4.setEquipConfig = function setEquipConfig(on)
-	{
+	EquipmentV4.setEquipConfig = function setEquipConfig(on) {
 		_showEquip = on;
 
-		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', function (data)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', function (data) {
 			EquipmentV4.ui.find('.show_equip').css('backgroundImage', 'url(' + data + ')');
 		});
 	};
@@ -574,12 +511,10 @@ define(function (require)
 	 *
 	 * @param {boolean} on
 	 */
-	EquipmentV4.setCostumeConfig = function setCostumeConfig(on)
-	{
+	EquipmentV4.setCostumeConfig = function setCostumeConfig(on) {
 		_hideCostume = on;
 
-		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '0' : '1') + '.bmp', function (data)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '0' : '1') + '.bmp', function (data) {
 			EquipmentV4.ui.find('.show_costume').css('backgroundImage', 'url(' + data + ')');
 		});
 	};
@@ -589,16 +524,13 @@ define(function (require)
 	 *
 	 * @param {Item} item
 	 */
-	EquipmentV4.equip = function equip(item, location)
-	{
+	EquipmentV4.equip = function equip(item, location) {
 		var it = DB.getItemInfo(item.ITID);
 		item.equipped = location;
 		EquipmentV4._itemlist[item.index] = item;
-		function add3Dots(string, limit)
-		{
+		function add3Dots(string, limit) {
 			var dots = '...';
-			if (string.length > limit)
-			{
+			if (string.length > limit) {
 				string = string.substring(0, limit) + dots;
 			}
 
@@ -625,20 +557,17 @@ define(function (require)
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
-			function (data)
-			{
+			function (data) {
 				this.ui
 					.find('.item[data-index="' + item.index + '"] button')
 					.css('backgroundImage', 'url(' + data + ')');
 			}.bind(this)
 		);
 
-		if (item.enchantgrade)
-		{
+		if (item.enchantgrade) {
 			Client.loadFile(
 				DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp',
-				function (data)
-				{
+				function (data) {
 					this.ui
 						.find('.item[data-index="' + item.index + '"] .grade')
 						.css('backgroundImage', 'url(' + data + ')');
@@ -648,15 +577,12 @@ define(function (require)
 
 		var Inventory = getModule('UI/Components/Inventory/Inventory');
 
-		if (!Inventory.getUI().equippedItems.includes(item.index))
-		{
+		if (!Inventory.getUI().equippedItems.includes(item.index)) {
 			Inventory.getUI().equippedItems.push(item.index);
 		}
 
-		if (PACKETVER.value >= 20170621)
-		{
-			if (!Inventory.getUI().isInEquipSwitchList(location))
-			{
+		if (PACKETVER.value >= 20170621) {
+			if (!Inventory.getUI().isInEquipSwitchList(location)) {
 				SwitchEquip.equip(item, location, false);
 			}
 		}
@@ -668,8 +594,7 @@ define(function (require)
 	 * @param {number} item index
 	 * @param {number} item location
 	 */
-	EquipmentV4.unEquip = function unEquip(index, location)
-	{
+	EquipmentV4.unEquip = function unEquip(index, location) {
 		var selector = getSelectorFromLocation(location);
 		var item = EquipmentV4._itemlist[index];
 		item.equipped = 0;
@@ -683,10 +608,8 @@ define(function (require)
 	/**
 	 * Add the button when leveling up
 	 */
-	EquipmentV4.onLevelUp = function onLevelUp()
-	{
-		if (UIVersionManager.getEquipmentVersion() > 0)
-		{
+	EquipmentV4.onLevelUp = function onLevelUp() {
+		if (UIVersionManager.getEquipmentVersion() > 0) {
 			_btnLevelUp.appendTo('body');
 		}
 	};
@@ -696,12 +619,9 @@ define(function (require)
 	 * @param {number} location - The equipment location to check
 	 * @returns {item.wItemSpriteNumber} Object with { item }
 	 */
-	EquipmentV4.checkEquipLoc = function checkEquipLoc(location)
-	{
-		for (var key in EquipmentV4._itemlist)
-		{
-			if (EquipmentV4._itemlist[key].location & location)
-			{
+	EquipmentV4.checkEquipLoc = function checkEquipLoc(location) {
+		for (var key in EquipmentV4._itemlist) {
+			if (EquipmentV4._itemlist[key].location & location) {
 				return EquipmentV4._itemlist[key].wItemSpriteNumber;
 			}
 		}
@@ -712,8 +632,7 @@ define(function (require)
 	/**
 	 * Stop an event to propagate
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -721,16 +640,14 @@ define(function (require)
 	/**
 	 * Display or not status window
 	 */
-	function toggleStatus()
-	{
+	function toggleStatus() {
 		var self = EquipmentV4.ui.find('.view_status');
 		var status = WinStats.getUI().ui;
 		var state = status.is(':visible') ? 'on' : 'off';
 
 		status.toggle();
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function (data)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function (data) {
 			self.css('backgroundImage', 'url(' + data + ')');
 		});
 	}
@@ -738,24 +655,21 @@ define(function (require)
 	/**
 	 * Does player can see your equipment ?
 	 */
-	function toggleEquip()
-	{
+	function toggleEquip() {
 		EquipmentV4.onConfigUpdate(0, !_showEquip ? 1 : 0);
 	}
 
 	/**
 	 * Show Costume ?
 	 */
-	function toggleCostume()
-	{
+	function toggleCostume() {
 		EquipmentV4.onConfigUpdate(5, !_hideCostume ? 1 : 0);
 	}
 
 	/**
 	 * Rendering character
 	 */
-	var renderCharacter = (function renderCharacterClosure()
-	{
+	var renderCharacter = (function renderCharacterClosure() {
 		var _lastState = 0;
 		var _hasCart = 0;
 
@@ -794,8 +708,7 @@ define(function (require)
 			StatusConst.EffectState.CART4 |
 			StatusConst.EffectState.CART5;
 
-		return function renderCharacter()
-		{
+		return function renderCharacter() {
 			var Entity = getModule('Renderer/Entity/Entity');
 			var equip_character = new Entity();
 			equip_character.set({
@@ -811,41 +724,32 @@ define(function (require)
 			});
 
 			// If state change, we have to check if the new option is removable.
-			if (Session.Entity.effectState !== _lastState || _hasCart !== Session.Entity.hasCart)
-			{
+			if (Session.Entity.effectState !== _lastState || _hasCart !== Session.Entity.hasCart) {
 				_lastState = Session.Entity.effectState;
 				_hasCart = Session.Entity.hasCart;
 
-				if (_lastState & HasAttachmentState || _hasCart)
-				{
+				if (_lastState & HasAttachmentState || _hasCart) {
 					EquipmentV4.ui.find('.removeOption').show();
-				}
-				else
-				{
+				} else {
 					EquipmentV4.ui.find('.removeOption').hide();
 				}
 
-				if (_lastState & HasCartState || _hasCart)
-				{
+				if (_lastState & HasCartState || _hasCart) {
 					EquipmentV4.ui.find('.cartitems').show();
-				}
-				else
-				{
+				} else {
 					EquipmentV4.ui.find('.cartitems').hide();
 				}
 			}
 
 			// General Tab only shows normal headgears
-			if (currentTabId === 'general')
-			{
+			if (currentTabId === 'general') {
 				equip_character.accessory = EquipmentV4.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 				equip_character.accessory2 = EquipmentV4.checkEquipLoc(EquipLocation.HEAD_TOP);
 				equip_character.accessory3 = EquipmentV4.checkEquipLoc(EquipLocation.HEAD_MID);
 				equip_character.robe = EquipmentV4.checkEquipLoc(EquipLocation.GARMENT);
 			}
 			// Costume Tab only shows costume headgears
-			else if (currentTabId === 'costume')
-			{
+			else if (currentTabId === 'costume') {
 				equip_character.accessory = EquipmentV4.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
 				equip_character.accessory2 = EquipmentV4.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
 				equip_character.accessory3 = EquipmentV4.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
@@ -863,8 +767,7 @@ define(function (require)
 			equip_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _ctx.length; i++)
-			{
+			for (var i = 0; i < _ctx.length; i++) {
 				var ctx = _ctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -879,33 +782,74 @@ define(function (require)
 	 * @param {number} location
 	 * @returns {string} selector
 	 */
-	function getSelectorFromLocation(location)
-	{
+	function getSelectorFromLocation(location) {
 		var selector = [];
 
-		if (location & EquipLocation.HEAD_TOP) {selector.push('.head_top');}
-		if (location & EquipLocation.HEAD_MID) {selector.push('.head_mid');}
-		if (location & EquipLocation.HEAD_BOTTOM) {selector.push('.head_bottom');}
-		if (location & EquipLocation.ARMOR) {selector.push('.armor');}
-		if (location & EquipLocation.WEAPON) {selector.push('.weapon');}
-		if (location & EquipLocation.SHIELD) {selector.push('.shield');}
-		if (location & EquipLocation.GARMENT) {selector.push('.garment');}
-		if (location & EquipLocation.SHOES) {selector.push('.shoes');}
-		if (location & EquipLocation.ACCESSORY1) {selector.push('.accessory1');}
-		if (location & EquipLocation.ACCESSORY2) {selector.push('.accessory2');}
-		if (location & EquipLocation.AMMO) {selector.push('.ammo');}
+		if (location & EquipLocation.HEAD_TOP) {
+			selector.push('.head_top');
+		}
+		if (location & EquipLocation.HEAD_MID) {
+			selector.push('.head_mid');
+		}
+		if (location & EquipLocation.HEAD_BOTTOM) {
+			selector.push('.head_bottom');
+		}
+		if (location & EquipLocation.ARMOR) {
+			selector.push('.armor');
+		}
+		if (location & EquipLocation.WEAPON) {
+			selector.push('.weapon');
+		}
+		if (location & EquipLocation.SHIELD) {
+			selector.push('.shield');
+		}
+		if (location & EquipLocation.GARMENT) {
+			selector.push('.garment');
+		}
+		if (location & EquipLocation.SHOES) {
+			selector.push('.shoes');
+		}
+		if (location & EquipLocation.ACCESSORY1) {
+			selector.push('.accessory1');
+		}
+		if (location & EquipLocation.ACCESSORY2) {
+			selector.push('.accessory2');
+		}
+		if (location & EquipLocation.AMMO) {
+			selector.push('.ammo');
+		}
 
 		// Costume Tab
-		if (location & EquipLocation.COSTUME_HEAD_TOP) {selector.push('.costume_head_top');}
-		if (location & EquipLocation.COSTUME_HEAD_MID) {selector.push('.costume_head_mid');}
-		if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {selector.push('.costume_head_bottom');}
-		if (location & EquipLocation.SHADOW_ARMOR) {selector.push('.shadow_armor');}
-		if (location & EquipLocation.SHADOW_WEAPON) {selector.push('.shadow_weapon');}
-		if (location & EquipLocation.SHADOW_SHIELD) {selector.push('.shadow_shield');}
-		if (location & EquipLocation.COSTUME_ROBE) {selector.push('.shadow_garment');}
-		if (location & EquipLocation.SHADOW_SHOES) {selector.push('.shadow_shoes');}
-		if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {selector.push('.shadow_accessory1');}
-		if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {selector.push('.shadow_accessory2');}
+		if (location & EquipLocation.COSTUME_HEAD_TOP) {
+			selector.push('.costume_head_top');
+		}
+		if (location & EquipLocation.COSTUME_HEAD_MID) {
+			selector.push('.costume_head_mid');
+		}
+		if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {
+			selector.push('.costume_head_bottom');
+		}
+		if (location & EquipLocation.SHADOW_ARMOR) {
+			selector.push('.shadow_armor');
+		}
+		if (location & EquipLocation.SHADOW_WEAPON) {
+			selector.push('.shadow_weapon');
+		}
+		if (location & EquipLocation.SHADOW_SHIELD) {
+			selector.push('.shadow_shield');
+		}
+		if (location & EquipLocation.COSTUME_ROBE) {
+			selector.push('.shadow_garment');
+		}
+		if (location & EquipLocation.SHADOW_SHOES) {
+			selector.push('.shadow_shoes');
+		}
+		if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {
+			selector.push('.shadow_accessory1');
+		}
+		if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {
+			selector.push('.shadow_accessory2');
+		}
 
 		return selector.join(', ');
 	}
@@ -913,16 +857,13 @@ define(function (require)
 	/**
 	 * Drag an item over the equipment, show where to place the item
 	 */
-	function onDragOver(event)
-	{
-		if (window._OBJ_DRAG_)
-		{
+	function onDragOver(event) {
+		if (window._OBJ_DRAG_) {
 			var data = window._OBJ_DRAG_;
 			var item, selector, ui;
 
 			// Just support items for now ?
-			if (data.type === 'item')
-			{
+			if (data.type === 'item') {
 				item = data.data;
 
 				if (
@@ -931,13 +872,11 @@ define(function (require)
 						item.type === ItemType.SHADOWGEAR) &&
 					item.IsIdentified &&
 					!item.IsDamaged
-				)
-				{
+				) {
 					selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
 					ui = EquipmentV4.ui.find(selector);
 
-					Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (data)
-					{
+					Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (data) {
 						ui.css('backgroundImage', 'url(' + data + ')');
 					});
 				}
@@ -951,8 +890,7 @@ define(function (require)
 	/**
 	 * Drag out the window
 	 */
-	function onDragLeave(event)
-	{
+	function onDragLeave(event) {
 		EquipmentV4.ui.find('td').css('backgroundImage', 'none');
 		event.stopImmediatePropagation();
 		return false;
@@ -961,19 +899,15 @@ define(function (require)
 	/**
 	 * Drop an item in the equipment, equip it if possible
 	 */
-	function onDrop(event)
-	{
+	function onDrop(event) {
 		var item, data;
 
-		try
-		{
+		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		}
-		catch (e) {}
+		} catch (e) {}
 
 		// Just support items for now ?
-		if (data && data.type === 'item')
-		{
+		if (data && data.type === 'item') {
 			item = data.data;
 
 			if (
@@ -983,8 +917,7 @@ define(function (require)
 					item.type === ItemType.SHADOWGEAR) &&
 				item.IsIdentified &&
 				!item.IsDamaged
-			)
-			{
+			) {
 				EquipmentV4.ui.find('td').css('backgroundImage', 'none');
 				EquipmentV4.onEquipItem(item.index, 'location' in item ? item.location : item.WearState);
 			}
@@ -997,22 +930,18 @@ define(function (require)
 	/**
 	 * Right click on an item
 	 */
-	function onEquipmentInfo(event)
-	{
+	function onEquipmentInfo(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var item = EquipmentV4._itemlist[index];
 
-		if (item)
-		{
+		if (item) {
 			// Don't add the same UI twice, remove it
-			if (ItemInfo.uid === item.ITID)
-			{
+			if (ItemInfo.uid === item.ITID) {
 				ItemInfo.remove();
 			}
 
 			// Add ui to window
-			else
-			{
+			else {
 				ItemInfo.append();
 				ItemInfo.uid = item.ITID;
 				ItemInfo.setItem(item);
@@ -1026,8 +955,7 @@ define(function (require)
 	/**
 	 * Double click on an equipment to remove it
 	 */
-	function onEquipmentUnEquip()
-	{
+	function onEquipmentUnEquip() {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		EquipmentV4.onUnEquip(index);
 		EquipmentV4.ui.find('.overlay').hide();
@@ -1036,13 +964,11 @@ define(function (require)
 	/**
 	 * When mouse is over an equipment, display the item name
 	 */
-	function onEquipmentOver()
-	{
+	function onEquipmentOver() {
 		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		var item = EquipmentV4._itemlist[idx];
 
-		if (!item)
-		{
+		if (!item) {
 			return;
 		}
 
@@ -1051,8 +977,7 @@ define(function (require)
 		var pos = jQuery(this).position();
 
 		// Possible jquery error
-		if (!pos.top && !pos.left)
-		{
+		if (!pos.top && !pos.left) {
 			return;
 		}
 
@@ -1065,21 +990,17 @@ define(function (require)
 	/**
 	 * Remove the item name
 	 */
-	function onEquipmentOut()
-	{
+	function onEquipmentOut() {
 		EquipmentV4.ui.find('.overlay').hide();
 	}
 
 	/**
 	 * Updates the owner name of items in the Equipment window.
 	 */
-	EquipmentV4.onUpdateOwnerName = function ()
-	{
-		for (var index in EquipmentV4._itemlist)
-		{
+	EquipmentV4.onUpdateOwnerName = function () {
+		for (var index in EquipmentV4._itemlist) {
 			var item = EquipmentV4._itemlist[index];
-			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1))
-			{
+			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				EquipmentV4.ui
 					.find('.item[data-index="' + index + '"] .itemName')
 					.text(jQuery.escape(DB.getItemName(item)));
@@ -1092,13 +1013,10 @@ define(function (require)
 	 *
 	 * @return {number} The number of equipped items.
 	 */
-	EquipmentV4.getNumber = function ()
-	{
+	EquipmentV4.getNumber = function () {
 		var num = 0;
-		for (var key in EquipmentV4._itemlist)
-		{
-			if (EquipmentV4._itemlist[key].location && EquipmentV4._itemlist[key].location != EquipLocation.AMMO)
-			{
+		for (var key in EquipmentV4._itemlist) {
+			if (EquipmentV4._itemlist[key].location && EquipmentV4._itemlist[key].location != EquipLocation.AMMO) {
 				num++;
 			}
 		}
@@ -1108,8 +1026,7 @@ define(function (require)
 	/**
 	 * Toggles the SwitchEquip UI and positions it absolutely to overlap with the footer.
 	 */
-	function onSwtichEquip()
-	{
+	function onSwtichEquip() {
 		SwitchEquip.toggle();
 
 		// Position SwitchEquip UI absolutely to overlap with the footer
@@ -1124,16 +1041,14 @@ define(function (require)
 	/**
 	 * Parse Damage Skin Selector.
 	 */
-	EquipmentV4.setDamageSkin = function setDamageSkin(skinId)
-	{
+	EquipmentV4.setDamageSkin = function setDamageSkin(skinId) {
 		var buttons = this.ui.find('#damageskin .skin-option');
 		var buttonSelected = this.ui.find('#damageskin .skin-option[data-skin=' + skinId + ']');
 
 		GraphicsSettings.damageSkin = skinId;
 		GraphicsSettings.save();
 
-		buttons.each(function ()
-		{
+		buttons.each(function () {
 			jQuery(this)
 				.attr('data-background', 'showdamage/btn_damage.bmp')
 				.attr('data-hover', 'showdamage/btn_damage_press.bmp')
@@ -1142,13 +1057,11 @@ define(function (require)
 		buttons.each(this.parseHTML); // restore mouse events
 		buttons.off('mouseup');
 
-		Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage.bmp', function (data)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage.bmp', function (data) {
 			buttons.css('backgroundImage', 'url(' + data + ')');
 		});
 
-		Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage_pick.bmp', function (data)
-		{
+		Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage_pick.bmp', function (data) {
 			buttonSelected.css('backgroundImage', 'url(' + data + ')');
 		});
 
@@ -1158,22 +1071,19 @@ define(function (require)
 	/**
 	 * Parse Damage Drawing Preference.
 	 */
-	EquipmentV4.setDamageMotion = function setDamageMotion(motionId)
-	{
+	EquipmentV4.setDamageMotion = function setDamageMotion(motionId) {
 		GraphicsSettings.damageMotion = motionId;
 		GraphicsSettings.save();
 
 		var checkboxes = this.ui.find('.motion-check');
 
-		checkboxes.each(function ()
-		{
+		checkboxes.each(function () {
 			var btn = jQuery(this);
 			var btnId = parseInt(btn.attr('data-motion'), 10);
 
 			var bgImage = btnId === motionId ? 'checkbox_1.bmp' : 'checkbox_0.bmp';
 
-			Client.loadFile(DB.INTERFACE_PATH + bgImage, function (data)
-			{
+			Client.loadFile(DB.INTERFACE_PATH + bgImage, function (data) {
 				btn.css('backgroundImage', 'url(' + data + ')');
 			});
 		});
@@ -1185,12 +1095,9 @@ define(function (require)
 	 * @param {data} data - The data to be checked against
 	 * @return {Object} The item in the equip switch list if found, otherwise 0
 	 */
-	EquipmentV4.isInEquipList = function (data)
-	{
-		for (var key in EquipmentV4._itemlist)
-		{
-			if (EquipmentV4._itemlist[key].location & data)
-			{
+	EquipmentV4.isInEquipList = function (data) {
+		for (var key in EquipmentV4._itemlist) {
+			if (EquipmentV4._itemlist[key].location & data) {
 				return EquipmentV4._itemlist[key];
 			}
 		}
@@ -1201,18 +1108,15 @@ define(function (require)
 	/**
 	 * Equips all items in _itemlist to SwitchEquip.
 	 */
-	EquipmentV4.equipItemsToSwitch = function ()
-	{
+	EquipmentV4.equipItemsToSwitch = function () {
 		var equipmentKeys = Object.keys(EquipmentV4._itemlist);
 
-		for (var i = 0; i < equipmentKeys.length; i++)
-		{
+		for (var i = 0; i < equipmentKeys.length; i++) {
 			var key = equipmentKeys[i];
 			var equipmentItem = EquipmentV4._itemlist[key];
 
 			// Check if the item's location is not in SwitchEquip._list
-			if (equipmentItem.location)
-			{
+			if (equipmentItem.location) {
 				// Equip the item to SwitchEquip
 				SwitchEquip.equip(equipmentItem, equipmentItem.location, false);
 			}

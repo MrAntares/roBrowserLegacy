@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault(original), adapted by AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var WebGL = require('Utils/WebGL');
@@ -37,8 +36,7 @@ define(function (require)
 		698: { maxClouds: 80, overlay: false, speed: 0.05, area: 35, zindex: 40, cloudColor: [1.0, 0.55, 0.2, 0.62] } // EF_CLOUD8
 	};
 
-	function CloudWeatherEffect(Params)
-	{
+	function CloudWeatherEffect(Params) {
 		this.effectID = Params.Inst.effectId;
 		this.ownerAID = Params.Init.ownerAID;
 		this.startTick = Params.Inst.startTick;
@@ -51,13 +49,11 @@ define(function (require)
 		this.needCleanUp = false;
 	}
 
-	CloudWeatherEffect.isActive = function isActive()
-	{
+	CloudWeatherEffect.isActive = function isActive() {
 		return _instance;
 	};
 
-	CloudWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog)
-	{
+	CloudWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
 		SpriteRenderer.shadow = 1;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.offset[0] = 0;
@@ -68,26 +64,21 @@ define(function (require)
 		SpriteRenderer.zIndex = 0;
 	};
 
-	CloudWeatherEffect.afterRender = function afterRender(gl)
-	{
+	CloudWeatherEffect.afterRender = function afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	};
 
-	CloudWeatherEffect.startOrRestart = function startOrRestart(Params)
-	{
+	CloudWeatherEffect.startOrRestart = function startOrRestart(Params) {
 		var now = Params.Inst.startTick || Renderer.tick;
 		var currentMap = getModule('Renderer/MapRenderer').currentMap;
 
-		if (_mapName !== currentMap)
-		{
+		if (_mapName !== currentMap) {
 			_instance = null;
 			_mapName = currentMap;
 		}
 		_isStopping = false;
-		if (_instance && !_instance.needCleanUp)
-		{
-			if (_instance.endTick > 0)
-			{
+		if (_instance && !_instance.needCleanUp) {
+			if (_instance.endTick > 0) {
 				_instance.endTick = -1;
 			}
 			return _instance;
@@ -99,74 +90,64 @@ define(function (require)
 		return _instance;
 	};
 
-	CloudWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick)
-	{
-		if (!_instance) {return;}
+	CloudWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
+		if (!_instance) {
+			return;
+		}
 
-		if (_mapName !== getModule('Renderer/MapRenderer').currentMap)
-		{
+		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
 			_instance = null;
 			return;
 		}
 
 		this.beforeRender(gl, modelView, projection, fog);
 		_instance.render(gl, tick);
-		if (_instance.needCleanUp)
-		{
+		if (_instance.needCleanUp) {
 			_instance.free();
 			_instance = null;
 		}
 		this.afterRender(gl);
 	};
 
-	CloudWeatherEffect.stop = function stop(ownerAID, tick)
-	{
-		if (!_instance) {return;}
+	CloudWeatherEffect.stop = function stop(ownerAID, tick) {
+		if (!_instance) {
+			return;
+		}
 		var now = tick || Renderer.tick;
-		if (_instance.endTick === -1)
-		{
+		if (_instance.endTick === -1) {
 			_isStopping = true;
 			_instance.endTick = now + FADEOUT_TAIL_MS;
 		}
 	};
 
-	CloudWeatherEffect.prototype.init = function init(now)
-	{
+	CloudWeatherEffect.prototype.init = function init(now) {
 		var gl = Renderer.getContext();
 		this._display = true;
 		this._color = this._profile.cloudColor;
 
-		if (!this._textures.length && this._display)
-		{
+		if (!this._textures.length && this._display) {
 			var files = this.effectID === 233 ? ['fog1', 'fog2', 'fog3'] : ['cloud4', 'cloud1', 'cloud2'];
 
 			this._textures.length = files.length;
-			for (var i = 0; i < files.length; i++)
-			{
+			for (var i = 0; i < files.length; i++) {
 				this.loadCloudTexture(gl, i, files[i]);
 			}
 		}
 		this.setUpCloudData(now);
 	};
 
-	CloudWeatherEffect.prototype.loadCloudTexture = function loadCloudTexture(gl, i, fileName)
-	{
+	CloudWeatherEffect.prototype.loadCloudTexture = function loadCloudTexture(gl, i, fileName) {
 		var self = this;
-		Client.loadFile('data/texture/effect/' + fileName + '.tga', function (buffer)
-		{
-			WebGL.texture(gl, buffer, function (texture)
-			{
+		Client.loadFile('data/texture/effect/' + fileName + '.tga', function (buffer) {
+			WebGL.texture(gl, buffer, function (texture) {
 				self._textures[i] = texture;
 			});
 		});
 	};
 
-	CloudWeatherEffect.prototype.setUpCloudData = function setUpCloudData(now)
-	{
-		for (var i = 0; i < this._profile.maxClouds; i++)
-		{
-			if (!this._clouds[i])
-			{
+	CloudWeatherEffect.prototype.setUpCloudData = function setUpCloudData(now) {
+		for (var i = 0; i < this._profile.maxClouds; i++) {
+			if (!this._clouds[i]) {
 				this._clouds[i] = {
 					position: vec3.create(),
 					direction: vec3.create(),
@@ -180,14 +161,12 @@ define(function (require)
 			this._clouds[i].born_tick -= 2000;
 		}
 
-		this._clouds.sort(function (a, b)
-		{
+		this._clouds.sort(function (a, b) {
 			return a.sprite - b.sprite;
 		});
 	};
 
-	CloudWeatherEffect.prototype.cloudInit = function cloudInit(cloud, now)
-	{
+	CloudWeatherEffect.prototype.cloudInit = function cloudInit(cloud, now) {
 		var pos = Session.Entity.position;
 		var area = this._profile.area;
 		var speed = this._profile.speed;
@@ -204,12 +183,12 @@ define(function (require)
 		cloud.death_tick = cloud.born_tick + 6000;
 	};
 
-	CloudWeatherEffect.prototype.render = function render(gl, tick)
-	{
-		if (!this._display) {return;}
+	CloudWeatherEffect.prototype.render = function render(gl, tick) {
+		if (!this._display) {
+			return;
+		}
 
-		if (this.endTick > 0 && tick >= this.endTick)
-		{
+		if (this.endTick > 0 && tick >= this.endTick) {
 			this.needCleanUp = true;
 			return;
 		}
@@ -228,30 +207,25 @@ define(function (require)
 		var overlay = this._profile.overlay;
 		var zindex = this._profile.zindex;
 
-		for (var i = 0; i < max; i++)
-		{
+		for (var i = 0; i < max; i++) {
 			var cloud = this._clouds[i];
 			var opacity;
 
 			// Appear
-			if (cloud.born_tick + 1000 > tick)
-			{
+			if (cloud.born_tick + 1000 > tick) {
 				opacity = Math.min((tick - cloud.born_tick) / 1000, this._color[3]);
 			}
 			// Remove
-			else if (cloud.death_tick + 2000 < tick)
-			{
+			else if (cloud.death_tick + 2000 < tick) {
 				this.cloudInit(cloud, tick);
 				opacity = 0.0;
 			}
 			// Disappear
-			else if (cloud.death_tick < tick)
-			{
+			else if (cloud.death_tick < tick) {
 				opacity = this._color[3] - (tick - cloud.death_tick) / 2000;
 			}
 			// Default
-			else
-			{
+			else {
 				opacity = this._color[3];
 			}
 
@@ -262,8 +236,7 @@ define(function (require)
 			vec3.add(cloud.position, cloud.position, cloud.direction);
 			SpriteRenderer.position.set(cloud.position);
 
-			SpriteRenderer.runWithDepth(!overlay, false, !overlay, function ()
-			{
+			SpriteRenderer.runWithDepth(!overlay, false, !overlay, function () {
 				SpriteRenderer.render();
 			});
 		}
@@ -272,8 +245,7 @@ define(function (require)
 	/**
 	 * Cleanup
 	 */
-	CloudWeatherEffect.prototype.free = function free()
-	{
+	CloudWeatherEffect.prototype.free = function free() {
 		this._clouds = null;
 		this._textures = null;
 		this._color = null;

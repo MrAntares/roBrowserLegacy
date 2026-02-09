@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -31,8 +30,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	RefineWeaponSelection.init = function init()
-	{
+	RefineWeaponSelection.init = function init() {
 		// Show at center.
 		this.ui.css({
 			top: (Renderer.height - 200) / 2,
@@ -47,16 +45,14 @@ define(function (require)
 		// Click Events
 		this.ui.find('.ok').click(this.selectIndex.bind(this));
 		this.ui.find('.cancel').click(
-			function ()
-			{
+			function () {
 				this.index = -1;
 				this.selectIndex();
 			}.bind(this)
 		);
 
 		// Bind events
-		this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function ()
-		{
+		this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function () {
 			RefineWeaponSelection.setIndex(Math.floor(this.getAttribute('data-index')));
 		});
 	};
@@ -66,16 +62,14 @@ define(function (require)
 	 *
 	 * @param {Array} list object to display
 	 */
-	RefineWeaponSelection.setList = function setList(list)
-	{
+	RefineWeaponSelection.setList = function setList(list) {
 		var i, count;
 		var item, it, file, name, refine;
 
 		RefineWeaponSelection.list.empty();
 		RefineWeaponSelection.ItemList = [];
 
-		for (i = 0, count = list.length; i < count; ++i)
-		{
+		for (i = 0, count = list.length; i < count; ++i) {
 			// Save list
 			RefineWeaponSelection.ItemList[i] = list[i];
 
@@ -97,8 +91,7 @@ define(function (require)
 	 * @param {index} index in list
 	 * @param {string} element name
 	 */
-	function addElement(url, index, name)
-	{
+	function addElement(url, index, name) {
 		RefineWeaponSelection.list.append(
 			'<div class="item" data-index="' +
 				index +
@@ -110,8 +103,7 @@ define(function (require)
 				'</div>'
 		);
 
-		Client.loadFile(url, function (data)
-		{
+		Client.loadFile(url, function (data) {
 			RefineWeaponSelection.list
 				.find('div[data-index=' + index + '] .icon')
 				.css('backgroundImage', 'url(' + data + ')');
@@ -123,8 +115,7 @@ define(function (require)
 	 *
 	 * @param {number} id in list
 	 */
-	RefineWeaponSelection.setIndex = function setIndex(id)
-	{
+	RefineWeaponSelection.setIndex = function setIndex(id) {
 		this.list.find('div[data-index=' + this.index + ']').css('backgroundColor', 'transparent');
 		this.list.find('div[data-index=' + id + ']').css('backgroundColor', '#cde0ff');
 		this.index = id;
@@ -133,8 +124,7 @@ define(function (require)
 	/**
 	 * Select a server, callback
 	 */
-	RefineWeaponSelection.selectIndex = function selectIndex()
-	{
+	RefineWeaponSelection.selectIndex = function selectIndex() {
 		this.onIndexSelected(this.index);
 		this.remove();
 	};
@@ -142,14 +132,11 @@ define(function (require)
 	/**
 	 * Select a server, callback
 	 */
-	RefineWeaponSelection.getItemByIndex = function getItemByIndex(index)
-	{
+	RefineWeaponSelection.getItemByIndex = function getItemByIndex(index) {
 		var list = RefineWeaponSelection.ItemList;
 
-		for (var i = 0; i < list.length; i++)
-		{
-			if (RefineWeaponSelection.ItemList[i].index == index)
-			{
+		for (var i = 0; i < list.length; i++) {
+			if (RefineWeaponSelection.ItemList[i].index == index) {
 				return RefineWeaponSelection.ItemList[i];
 			}
 		}
@@ -158,8 +145,7 @@ define(function (require)
 	/**
 	 * Free variables once removed from HTML
 	 */
-	RefineWeaponSelection.onRemove = function onRemove()
-	{
+	RefineWeaponSelection.onRemove = function onRemove() {
 		this.index = 0;
 	};
 
@@ -168,8 +154,7 @@ define(function (require)
 	 *
 	 * @param {string} title
 	 */
-	RefineWeaponSelection.setTitle = function setTitle(title)
-	{
+	RefineWeaponSelection.setTitle = function setTitle(title) {
 		this.ui.find('.head .text').text(title);
 	};
 

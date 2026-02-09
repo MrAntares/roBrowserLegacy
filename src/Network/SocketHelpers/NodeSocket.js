@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -18,38 +17,31 @@ define(function ()
 	 *
 	 * @param {string} url
 	 */
-	function Socket(host, port)
-	{
+	function Socket(host, port) {
 		var self = this;
 		this.connected = false;
 		this.socket = window.requireNode('net').connect(port, host);
 
-		this.socket.on('connect', function onConnect()
-		{
+		this.socket.on('connect', function onConnect() {
 			self.connected = true;
 			self.onComplete(true);
 		});
 
-		this.socket.on('error', function onError()
-		{
-			if (!self.connected)
-			{
+		this.socket.on('error', function onError() {
+			if (!self.connected) {
 				self.onComplete(false);
 			}
 		});
 
-		this.socket.on('data', function onData(data)
-		{
+		this.socket.on('data', function onData(data) {
 			self.onMessage(new Uint8Array(data));
 		});
 
-		this.socket.on('close', function onClose()
-		{
+		this.socket.on('close', function onClose() {
 			self.connected = false;
 			this.destroy();
 
-			if (self.onClose)
-			{
+			if (self.onClose) {
 				self.onClose();
 			}
 		});
@@ -58,8 +50,7 @@ define(function ()
 	/**
 	 * @return is running in node-webkit
 	 */
-	Socket.isSupported = function isSupported()
-	{
+	Socket.isSupported = function isSupported() {
 		return !!window.requireNode;
 	};
 
@@ -68,10 +59,8 @@ define(function ()
 	 *
 	 * @param {ArrayBuffer} buffer
 	 */
-	Socket.prototype.send = function Send(buffer)
-	{
-		if (this.connected)
-		{
+	Socket.prototype.send = function Send(buffer) {
+		if (this.connected) {
 			this.socket.write(new Buffer(new Uint8Array(buffer)));
 		}
 	};
@@ -79,10 +68,8 @@ define(function ()
 	/**
 	 * Closing connection to server
 	 */
-	Socket.prototype.close = function Close()
-	{
-		if (this.connected)
-		{
+	Socket.prototype.close = function Close() {
+		if (this.connected) {
 			this.socket.end();
 			this.socket.destroy();
 			this.connected = false;

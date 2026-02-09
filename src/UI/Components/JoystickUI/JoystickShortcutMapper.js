@@ -7,8 +7,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var SetManager = require('./JoystickSetManager');
@@ -38,25 +37,35 @@ define(function (require)
 		27, 28, 29, 30
 	];
 
-	function getGroup(btn)
-	{
+	function getGroup(btn) {
 		var l1 = btn[4] === 'holding';
 		var r1 = btn[5] === 'holding';
 		var l2 = btn[6] === 'holding';
 		var r2 = btn[7] === 'holding';
 
-		if (l1 && r1 && !l2 && !r2) {return 'L1R1';}
-		if (l1) {return 'L1';}
-		if (r1) {return 'R1';}
-		if (l2) {return 'L2';}
-		if (r2) {return 'R2';}
+		if (l1 && r1 && !l2 && !r2) {
+			return 'L1R1';
+		}
+		if (l1) {
+			return 'L1';
+		}
+		if (r1) {
+			return 'R1';
+		}
+		if (l2) {
+			return 'L2';
+		}
+		if (r2) {
+			return 'R2';
+		}
 		return '';
 	}
 
-	function getIndexFromButtons(btn, set)
-	{
+	function getIndexFromButtons(btn, set) {
 		var group = getGroup(btn);
-		if (group === '') {return -1;}
+		if (group === '') {
+			return -1;
+		}
 
 		var a = btn[0] !== 'unpressed';
 		var b = btn[1] !== 'unpressed';
@@ -67,81 +76,84 @@ define(function (require)
 		var tab = 1;
 		var offset = 0;
 
-		if (set === 2) {offset = 2;}
+		if (set === 2) {
+			offset = 2;
+		}
 
-		if (group === 'L1R1') {tab = 0;}
-		else if (group === 'L1') {tab = 1 + offset;}
-		else if (group === 'R1') {tab = 2 + offset;}
-		else if (group === 'L2') {tab = 1 + offset;}
-		else if (group === 'R2') {tab = 2 + offset;}
+		if (group === 'L1R1') {
+			tab = 0;
+		} else if (group === 'L1') {
+			tab = 1 + offset;
+		} else if (group === 'R1') {
+			tab = 2 + offset;
+		} else if (group === 'L2') {
+			tab = 1 + offset;
+		} else if (group === 'R2') {
+			tab = 2 + offset;
+		}
 
-		if (group === 'L1R1')
-		{
-			if (y)
-			{
+		if (group === 'L1R1') {
+			if (y) {
 				slot = 8;
 				tab = 1;
-			}
-			else if (x)
-			{
+			} else if (x) {
 				slot = 8;
 				tab = 2;
-			}
-			else if (b)
-			{
+			} else if (b) {
 				slot = 8;
 				tab = 3;
-			}
-			else if (a)
-			{
+			} else if (a) {
 				slot = 8;
 				tab = 4;
 			}
-		}
-		else if (group === 'L1' || group === 'R1')
-		{
-			if (y) {slot = 0;}
-			else if (x) {slot = 1;}
-			else if (b) {slot = 2;}
-			else if (a) {slot = 3;}
-		}
-		else if (group === 'L2' || group === 'R2')
-		{
-			if (y) {slot = 4;}
-			else if (x) {slot = 5;}
-			else if (b) {slot = 6;}
-			else if (a) {slot = 7;}
+		} else if (group === 'L1' || group === 'R1') {
+			if (y) {
+				slot = 0;
+			} else if (x) {
+				slot = 1;
+			} else if (b) {
+				slot = 2;
+			} else if (a) {
+				slot = 3;
+			}
+		} else if (group === 'L2' || group === 'R2') {
+			if (y) {
+				slot = 4;
+			} else if (x) {
+				slot = 5;
+			} else if (b) {
+				slot = 6;
+			} else if (a) {
+				slot = 7;
+			}
 		}
 
-		if (slot === -1) {return -1;}
+		if (slot === -1) {
+			return -1;
+		}
 
 		return (tab - 1) * 9 + slot;
 	}
 
-	function prepare()
-	{
-		if (!this.__loaded)
-		{
+	function prepare() {
+		if (!this.__loaded) {
 			var ShortCut = require('UI/Components/ShortCut/ShortCut');
 			var JoystickUIRenderer = require('./JoystickUIRenderer');
 
 			var oldonChange = ShortCut.onChange;
-			ShortCut.onChange = function (index, isSkill, ID, count)
-			{
+			ShortCut.onChange = function (index, isSkill, ID, count) {
 				oldonChange.call(ShortCut, index, isSkill, ID, count);
 				JoystickUIRenderer.updateByIndex(index);
 			};
 
 			var oldSetList = ShortCut.setList;
-			ShortCut.setList = function (list)
-			{
+			ShortCut.setList = function (list) {
 				oldSetList.call(ShortCut, list);
 				JoystickUIRenderer.sync();
 			};
 
 			var oldSetElement = ShortCut.setElement;
-			ShortCut.setElement = function (isSkill, ID, count)
-			{
+			ShortCut.setElement = function (isSkill, ID, count) {
 				oldSetElement.call(ShortCut, isSkill, ID, count);
 				JoystickUIRenderer.updateById(ID);
 			};
@@ -153,11 +165,12 @@ define(function (require)
 		slotMap: slotMapping,
 		prepare: prepare,
 		getGroup: getGroup,
-		getShortcutIndex: function (btn)
-		{
+		getShortcutIndex: function (btn) {
 			var set = SetManager.getCurrentSet();
 			var idx = getIndexFromButtons(btn, set);
-			if (idx === -1) {return -1;}
+			if (idx === -1) {
+				return -1;
+			}
 			return idx;
 		}
 	};

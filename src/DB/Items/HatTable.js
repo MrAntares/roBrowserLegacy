@@ -7,8 +7,7 @@
  * (auto-generated)
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	return {

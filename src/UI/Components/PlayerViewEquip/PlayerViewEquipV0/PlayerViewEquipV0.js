@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -69,19 +68,16 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	PlayerViewEquipV0.init = function init()
-	{
+	PlayerViewEquipV0.init = function init() {
 		_vieweqctx = this.ui.find('canvas')[0].getContext('2d');
 
 		this.ui.addClass('PlayerViewEquipV0');
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
-		this.ui.find('.titlebar .mini').click(function ()
-		{
+		this.ui.find('.titlebar .mini').click(function () {
 			PlayerViewEquipV0.ui.find('.panel').toggle();
 		});
-		this.ui.find('.titlebar .close').click(function ()
-		{
+		this.ui.find('.titlebar .close').click(function () {
 			PlayerViewEquipV0.remove();
 		});
 
@@ -101,16 +97,14 @@ define(function (require)
 	/**
 	 * Append to body
 	 */
-	PlayerViewEquipV0.onAppend = function onAppend()
-	{
+	PlayerViewEquipV0.onAppend = function onAppend() {
 		// Apply preferences
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		if (this.ui.find('canvas').is(':visible'))
-		{
+		if (this.ui.find('canvas').is(':visible')) {
 			Renderer.render(renderCharacter);
 		}
 	};
@@ -118,8 +112,7 @@ define(function (require)
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	PlayerViewEquipV0.onRemove = function onRemove()
-	{
+	PlayerViewEquipV0.onRemove = function onRemove() {
 		// Stop rendering
 		Renderer.stop(renderCharacter);
 
@@ -140,18 +133,13 @@ define(function (require)
 	 *
 	 * @param {Item} item
 	 */
-	PlayerViewEquipV0.equip = function equip(item, location)
-	{
+	PlayerViewEquipV0.equip = function equip(item, location) {
 		var it = DB.getItemInfo(item.ITID);
 
-		if (arguments.length === 1)
-		{
-			if ('WearState' in item)
-			{
+		if (arguments.length === 1) {
+			if ('WearState' in item) {
 				location = item.WearState;
-			}
-			else if ('location' in item)
-			{
+			} else if ('location' in item) {
 				location = item.location;
 			}
 		}
@@ -159,11 +147,9 @@ define(function (require)
 		item.equipped = location;
 		_list[item.index] = item;
 
-		function add3Dots(string, limit)
-		{
+		function add3Dots(string, limit) {
 			var dots = '...';
-			if (string.length > limit)
-			{
+			if (string.length > limit) {
 				string = string.substring(0, limit) + dots;
 			}
 
@@ -185,8 +171,7 @@ define(function (require)
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
-			function (data)
-			{
+			function (data) {
 				this.ui
 					.find('.item[data-index="' + item.index + '"] button')
 					.css('backgroundImage', 'url(' + data + ')');
@@ -200,15 +185,13 @@ define(function (require)
 	 * @param {Item} item The item to add
 	 * @param {number} location The location where the item is equipped
 	 */
-	PlayerViewEquipV0.setEquipmentData = function setEquipmentData(equipmentData)
-	{
+	PlayerViewEquipV0.setEquipmentData = function setEquipmentData(equipmentData) {
 		// Clear existing equipment
 		_list = {};
 		this.ui.find('.col1, .col3, .ammo').empty();
 
 		// Populate with new equipment data
-		equipmentData.forEach(function (item)
-		{
+		equipmentData.forEach(function (item) {
 			PlayerViewEquipV0.equip(item);
 		});
 	};
@@ -218,16 +201,14 @@ define(function (require)
 	 *
 	 * @param {string} characterName The character's name
 	 */
-	PlayerViewEquipV0.setTitleBar = function setTitleBar(characterName)
-	{
+	PlayerViewEquipV0.setTitleBar = function setTitleBar(characterName) {
 		this.ui.find('.PlayerName').text(DB.getMessage(1361).replace('%s', characterName));
 	};
 
 	/**
 	 * Stop an event to propagate
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -236,10 +217,8 @@ define(function (require)
 	 * Set rendering variables from packets received
 	 * @param {packets} pkt
 	 */
-	PlayerViewEquipV0.setChar2Render = function setChar2Render(pkt)
-	{
-		if (pkt)
-		{
+	PlayerViewEquipV0.setChar2Render = function setChar2Render(pkt) {
+		if (pkt) {
 			charName = pkt.characterName;
 			jobID = pkt.job;
 			headID = pkt.head;
@@ -252,8 +231,7 @@ define(function (require)
 	/**
 	 * Rendering character
 	 */
-	var renderCharacter = (function renderCharacterClosure()
-	{
+	var renderCharacter = (function renderCharacterClosure() {
 		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 		var _savedColor = new Float32Array(4);
 		var _animation = {
@@ -266,8 +244,7 @@ define(function (require)
 			save: false
 		};
 
-		return function renderCharacter()
-		{
+		return function renderCharacter() {
 			var Entity = getModule('Renderer/Entity/Entity');
 			var show_character = new Entity();
 			show_character.set({
@@ -311,21 +288,42 @@ define(function (require)
 	 * @param {number} location
 	 * @returns {string} selector
 	 */
-	function getSelectorFromLocation(location)
-	{
+	function getSelectorFromLocation(location) {
 		var selector = [];
 
-		if (location & EquipLocation.HEAD_TOP) {selector.push('.head_top');}
-		if (location & EquipLocation.HEAD_MID) {selector.push('.head_mid');}
-		if (location & EquipLocation.HEAD_BOTTOM) {selector.push('.head_bottom');}
-		if (location & EquipLocation.ARMOR) {selector.push('.armor');}
-		if (location & EquipLocation.WEAPON) {selector.push('.weapon');}
-		if (location & EquipLocation.SHIELD) {selector.push('.shield');}
-		if (location & EquipLocation.GARMENT) {selector.push('.garment');}
-		if (location & EquipLocation.SHOES) {selector.push('.shoes');}
-		if (location & EquipLocation.ACCESSORY1) {selector.push('.accessory1');}
-		if (location & EquipLocation.ACCESSORY2) {selector.push('.accessory2');}
-		if (location & EquipLocation.AMMO) {selector.push('.ammo');}
+		if (location & EquipLocation.HEAD_TOP) {
+			selector.push('.head_top');
+		}
+		if (location & EquipLocation.HEAD_MID) {
+			selector.push('.head_mid');
+		}
+		if (location & EquipLocation.HEAD_BOTTOM) {
+			selector.push('.head_bottom');
+		}
+		if (location & EquipLocation.ARMOR) {
+			selector.push('.armor');
+		}
+		if (location & EquipLocation.WEAPON) {
+			selector.push('.weapon');
+		}
+		if (location & EquipLocation.SHIELD) {
+			selector.push('.shield');
+		}
+		if (location & EquipLocation.GARMENT) {
+			selector.push('.garment');
+		}
+		if (location & EquipLocation.SHOES) {
+			selector.push('.shoes');
+		}
+		if (location & EquipLocation.ACCESSORY1) {
+			selector.push('.accessory1');
+		}
+		if (location & EquipLocation.ACCESSORY2) {
+			selector.push('.accessory2');
+		}
+		if (location & EquipLocation.AMMO) {
+			selector.push('.ammo');
+		}
 
 		return selector.join(', ');
 	}
@@ -333,8 +331,7 @@ define(function (require)
 	/**
 	 * Drag out the window
 	 */
-	function onDragLeave(event)
-	{
+	function onDragLeave(event) {
 		PlayerViewEquipV0.ui.find('td').css('backgroundImage', 'none');
 		event.stopImmediatePropagation();
 		return false;
@@ -343,22 +340,18 @@ define(function (require)
 	/**
 	 * Right click on an item
 	 */
-	function onEquipmentInfo(event)
-	{
+	function onEquipmentInfo(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var item = _list[index];
 
-		if (item)
-		{
+		if (item) {
 			// Don't add the same UI twice, remove it
-			if (ItemInfo.uid === item.ITID)
-			{
+			if (ItemInfo.uid === item.ITID) {
 				ItemInfo.remove();
 			}
 
 			// Add ui to window
-			else
-			{
+			else {
 				ItemInfo.append();
 				ItemInfo.uid = item.ITID;
 				ItemInfo.setItem(item);
@@ -372,13 +365,11 @@ define(function (require)
 	/**
 	 * When mouse is over an equipment, display the item name
 	 */
-	function onEquipmentOver()
-	{
+	function onEquipmentOver() {
 		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		var item = _list[idx];
 
-		if (!item)
-		{
+		if (!item) {
 			return;
 		}
 
@@ -387,8 +378,7 @@ define(function (require)
 		var pos = jQuery(this).position();
 
 		// Possible jquery error
-		if (!pos.top && !pos.left)
-		{
+		if (!pos.top && !pos.left) {
 			return;
 		}
 
@@ -401,21 +391,17 @@ define(function (require)
 	/**
 	 * Remove the item name
 	 */
-	function onEquipmentOut()
-	{
+	function onEquipmentOut() {
 		PlayerViewEquipV0.ui.find('.overlay').hide();
 	}
 
 	/**
 	 * Update the owner name for the equipment items
 	 */
-	PlayerViewEquipV0.onUpdateOwnerName = function ()
-	{
-		for (var index in _list)
-		{
+	PlayerViewEquipV0.onUpdateOwnerName = function () {
+		for (var index in _list) {
 			var item = _list[index];
-			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1))
-			{
+			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				PlayerViewEquipV0.ui
 					.find('.item[data-index="' + index + '"] .itemName')
 					.text(jQuery.escape(DB.getItemName(item)));
@@ -428,13 +414,10 @@ define(function (require)
 	 *
 	 * @returns {number} The number of equipment items
 	 */
-	PlayerViewEquipV0.getNumber = function ()
-	{
+	PlayerViewEquipV0.getNumber = function () {
 		var num = 0;
-		for (var key in _list)
-		{
-			if (_list[key].location && _list[key].location != EquipLocation.AMMO)
-			{
+		for (var key in _list) {
+			if (_list[key].location && _list[key].location != EquipLocation.AMMO) {
 				num++;
 			}
 		}
@@ -447,12 +430,9 @@ define(function (require)
 	 * @param {number} location The location to check
 	 * @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
 	 */
-	PlayerViewEquipV0.checkEquipLoc = function checkEquipLoc(location)
-	{
-		for (var key in _list)
-		{
-			if (_list[key].equipped & location)
-			{
+	PlayerViewEquipV0.checkEquipLoc = function checkEquipLoc(location) {
+		for (var key in _list) {
+			if (_list[key].equipped & location) {
 				return _list[key].wItemSpriteNumber;
 			}
 		}

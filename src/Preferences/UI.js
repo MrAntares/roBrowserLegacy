@@ -4,8 +4,7 @@
  * UI user preferences
  *
  */
-define(['Core/Preferences'], function (Preferences)
-{
+define(['Core/Preferences'], function (Preferences) {
 	'use strict';
 
 	/**

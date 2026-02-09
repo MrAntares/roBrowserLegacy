@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -44,12 +43,12 @@ define(function (require)
 	 * @param {string} text - The text to process
 	 * @returns {string} HTML with processed NAVI tags
 	 */
-	function processNAVITags(text)
-	{
-		if (!text) {return '';}
+	function processNAVITags(text) {
+		if (!text) {
+			return '';
+		}
 		text = String(text);
-		return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function (match, displayName, naviInfo)
-		{
+		return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function (match, displayName, naviInfo) {
 			return (
 				'<span class="navi-link" data-navi-info="' +
 				naviInfo +
@@ -67,12 +66,12 @@ define(function (require)
 	 * @param {string} text - The text to process
 	 * @returns {string} HTML with processed item tags
 	 */
-	function processItemTags(text)
-	{
-		if (!text) {return '';}
+	function processItemTags(text) {
+		if (!text) {
+			return '';
+		}
 		text = String(text);
-		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function (match, itemName, itemId)
-		{
+		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function (match, itemName, itemId) {
 			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
 		});
 	}
@@ -82,13 +81,13 @@ define(function (require)
 	 * @param {string} text - The text to process
 	 * @returns {string} HTML with color spans
 	 */
-	function processColorCodes(text)
-	{
-		if (!text) {return '';}
+	function processColorCodes(text) {
+		if (!text) {
+			return '';
+		}
 		text = String(text);
 		return text
-			.replace(/\^([0-9A-Fa-f]{6})/g, function (match, color)
-			{
+			.replace(/\^([0-9A-Fa-f]{6})/g, function (match, color) {
 				return '<span style="color:#' + color + '">';
 			})
 			.replace(/\^000000/g, '</span>');
@@ -99,9 +98,10 @@ define(function (require)
 	 * @param {string} text - The text to process
 	 * @returns {string} Fully processed HTML
 	 */
-	function processText(text)
-	{
-		if (!text) {return '';}
+	function processText(text) {
+		if (!text) {
+			return '';
+		}
 		text = processItemTags(text);
 		text = processNAVITags(text);
 		text = processColorCodes(text);
@@ -111,8 +111,7 @@ define(function (require)
 	/**
 	 * Initialize Component
 	 */
-	NpcBox.init = function init()
-	{
+	NpcBox.init = function init() {
 		this.ui.css({
 			top: Math.max(100, Renderer.height / 2 - 200),
 			left: Math.max(Renderer.width / 3, 20)
@@ -124,23 +123,19 @@ define(function (require)
 
 		// Content do not drag window (official)
 		// Will also fix the problem about the scrollbar
-		this.ui.find('.content').mousedown(function (event)
-		{
+		this.ui.find('.content').mousedown(function (event) {
 			event.stopImmediatePropagation();
 		});
 
 		// Add click handler for item links
-		this.ui.on('click', '.item-link', function (event)
-		{
+		this.ui.on('click', '.item-link', function (event) {
 			var itemId = parseInt(jQuery(this).data('item-id'), 10);
-			if (!itemId)
-			{
+			if (!itemId) {
 				return;
 			}
 
 			// Don't add the same UI twice, remove it
-			if (ItemInfo.uid === itemId)
-			{
+			if (ItemInfo.uid === itemId) {
 				ItemInfo.remove();
 				return;
 			}
@@ -152,19 +147,16 @@ define(function (require)
 		});
 
 		// Add click handler for navi links
-		this.ui.on('click', '.navi-link', function (event)
-		{
+		this.ui.on('click', '.navi-link', function (event) {
 			var naviInfo = jQuery(this).data('navi-info');
 			var displayName = jQuery(this).data('navi-name');
 
-			if (!naviInfo)
-			{
+			if (!naviInfo) {
 				return;
 			}
 
 			// If the Navigation window is already showing this location, toggle it off
-			if (Navigation.uid === naviInfo && Navigation.ui.is(':visible'))
-			{
+			if (Navigation.uid === naviInfo && Navigation.ui.is(':visible')) {
 				Navigation.hide();
 				return;
 			}
@@ -181,8 +173,7 @@ define(function (require)
 	/**
 	 * Once NPC Box is removed from HTML, clean up data
 	 */
-	NpcBox.onRemove = function onRemove()
-	{
+	NpcBox.onRemove = function onRemove() {
 		this.ui.find('.next').hide();
 		this.ui.find('.close').hide();
 		this.ui.find('.content').text('');
@@ -192,8 +183,7 @@ define(function (require)
 
 		// Cutin system
 		var cutin = document.getElementById('cutin');
-		if (cutin)
-		{
+		if (cutin) {
 			document.body.removeChild(cutin);
 		}
 	};
@@ -201,28 +191,24 @@ define(function (require)
 	/**
 	 * Add support for Enter key
 	 */
-	NpcBox.onKeyDown = function onKeyDown(event)
-	{
-		if (!this.ui.is(':visible')) {return true;}
-		switch (event.which)
-		{
+	NpcBox.onKeyDown = function onKeyDown(event) {
+		if (!this.ui.is(':visible')) {
+			return true;
+		}
+		switch (event.which) {
 			case KEYS.SPACE: // Same as Enter
 			case KEYS.ENTER:
-				if (this.ui.find('.next').is(':visible'))
-				{
+				if (this.ui.find('.next').is(':visible')) {
 					this.next();
 					break;
-				}
-				else if (this.ui.find('.close').is(':visible'))
-				{
+				} else if (this.ui.find('.close').is(':visible')) {
 					this.close();
 					break;
 				}
 				return true;
 
 			case KEYS.ESCAPE:
-				if (this.ui.find('.close').is(':visible'))
-				{
+				if (this.ui.find('.close').is(':visible')) {
 					this.close();
 					break;
 				}
@@ -242,13 +228,11 @@ define(function (require)
 	 * @param {string} text to display
 	 * @param {number} gid - npc id
 	 */
-	NpcBox.setText = function SetText(text, gid)
-	{
+	NpcBox.setText = function SetText(text, gid) {
 		var content = this.ui.find('.content');
 		NpcBox.ownerID = gid;
 
-		if (_needCleanUp)
-		{
+		if (_needCleanUp) {
 			_needCleanUp = false;
 			content.text('');
 		}
@@ -261,8 +245,7 @@ define(function (require)
 	 *
 	 * @param {number} gid - npc id
 	 */
-	NpcBox.addNext = function addNext(gid)
-	{
+	NpcBox.addNext = function addNext(gid) {
 		NpcBox.ownerID = gid;
 		this.ui.find('.next').show();
 	};
@@ -272,8 +255,7 @@ define(function (require)
 	 *
 	 * @param {number} gid - npc id
 	 */
-	NpcBox.addClose = function addClose(gid)
-	{
+	NpcBox.addClose = function addClose(gid) {
 		NpcBox.ownerID = gid;
 		this.ui.find('.close').show();
 	};
@@ -281,8 +263,7 @@ define(function (require)
 	/**
 	 * Press "next" button
 	 */
-	NpcBox.next = function Next()
-	{
+	NpcBox.next = function Next() {
 		_needCleanUp = true;
 		this.ui.find('.next').hide();
 		this.onNextPressed(NpcBox.ownerID);
@@ -291,8 +272,7 @@ define(function (require)
 	/**
 	 * Press "close" button
 	 */
-	NpcBox.close = function Close()
-	{
+	NpcBox.close = function Close() {
 		_needCleanUp = true;
 		this.ui.find('.close').hide();
 		this.onClosePressed(NpcBox.ownerID);

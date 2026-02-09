@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -67,8 +66,7 @@ define(function (require)
 	 *
 	 * @param {Array} loading - Array of loading filenames stored in clientinfo.xml
 	 */
-	Background.init = function init(loading)
-	{
+	Background.init = function init(loading) {
 		var i;
 
 		_progress = 0;
@@ -76,16 +74,14 @@ define(function (require)
 
 		render();
 
-		if (loading)
-		{
+		if (loading) {
 			_loading = loading;
 			return;
 		}
 
 		// Generate default loadings
 		_loading.length = 10;
-		for (i = 1; i <= 10; ++i)
-		{
+		for (i = 1; i <= 10; ++i) {
 			_loading[i - 1] = 'loading' + (i < 10 ? '0' + i : i) + '.jpg';
 		}
 	};
@@ -93,8 +89,7 @@ define(function (require)
 	/**
 	 * Resize the background
 	 */
-	Background.resize = function resize(width, height)
-	{
+	Background.resize = function resize(width, height) {
 		_canvas[0].width = width;
 		_canvas[0].height = height;
 		_overlay.css({ width: width, height: height });
@@ -111,8 +106,7 @@ define(function (require)
 	 * @param {string} filename
 	 * @param {function} callback once the image is loaded (optional)
 	 */
-	Background.setImage = function setImage(filename, callback)
-	{
+	Background.setImage = function setImage(filename, callback) {
 		var exist = !!_canvas[0].parentNode;
 		_progress = -1;
 
@@ -121,37 +115,29 @@ define(function (require)
 		// Get and load Image
 		Client.loadFile(
 			DB.INTERFACE_PATH + filename,
-			function (url)
-			{
-				if (url !== _image.src)
-				{
+			function (url) {
+				if (url !== _image.src) {
 					_image.decoding = 'async';
 					_image.src = url;
 					_image.onload = render;
 				}
 
-				if (exist && callback)
-				{
+				if (exist && callback) {
 					callback();
 				}
 			},
-			function ()
-			{
-				if (exist && callback)
-				{
+			function () {
+				if (exist && callback) {
 					callback();
 				}
 			}
 		);
 
 		// Add transition only if the background isn't here
-		if (!exist)
-		{
-			transition(function ()
-			{
+		if (!exist) {
+			transition(function () {
 				_canvas.appendTo('body');
-				if (callback)
-				{
+				if (callback) {
 					callback();
 				}
 			});
@@ -163,17 +149,14 @@ define(function (require)
 	 *
 	 * @param {function} callback once the loading is display (optional)
 	 */
-	Background.setLoading = function setLoading(callback)
-	{
+	Background.setLoading = function setLoading(callback) {
 		var index = Math.floor(Math.random() * _loading.length);
 
-		Background.setImage(_loading[index] || 'loading01.jpg', function ()
-		{
+		Background.setImage(_loading[index] || 'loading01.jpg', function () {
 			_canvas.css('zIndex', 999);
 			Background.setPercent(0.0);
 
-			if (callback)
-			{
+			if (callback) {
 				callback();
 			}
 		});
@@ -184,15 +167,12 @@ define(function (require)
 	 *
 	 * @param {function} callback once the overlay hide the window (optional)
 	 */
-	Background.remove = function remove(callback)
-	{
-		transition(function ()
-		{
+	Background.remove = function remove(callback) {
+		transition(function () {
 			_canvas.css('zIndex', 0);
 			_canvas.remove();
 			_image.src = '';
-			if (callback)
-			{
+			if (callback) {
 				callback();
 			}
 		});
@@ -203,8 +183,7 @@ define(function (require)
 	 *
 	 * @param {number} percent
 	 */
-	Background.setPercent = function setPercent(percent)
-	{
+	Background.setPercent = function setPercent(percent) {
 		var x, y, width, height;
 
 		_progress = Math.min(Math.floor(percent), 100);
@@ -238,20 +217,15 @@ define(function (require)
 	/**
 	 * Render background (or a black background if no image is loaded yet)
 	 */
-	function render()
-	{
-		if (_image.complete && _image.width)
-		{
+	function render() {
+		if (_image.complete && _image.width) {
 			_ctx.drawImage(_image, 0, 0, _canvas[0].width, _canvas[0].height);
-		}
-		else
-		{
+		} else {
 			_ctx.fillStyle = '#000';
 			_ctx.fillRect(0, 0, _canvas[0].width, _canvas[0].height);
 		}
 
-		if (_progress > -1)
-		{
+		if (_progress > -1) {
 			Background.setPercent(_progress);
 		}
 	}
@@ -261,20 +235,17 @@ define(function (require)
 	 *
 	 * @param {function} callback once the overlay hide the window
 	 */
-	function transition(callback)
-	{
+	function transition(callback) {
 		var transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
 
 		_overlay
 			.stop()
 			.css('opacity', 0.01)
 			.appendTo('body')
-			.animate({ opacity: 1.0 }, transitionDuration, function ()
-			{
+			.animate({ opacity: 1.0 }, transitionDuration, function () {
 				callback();
 
-				_overlay.stop().animate({ opacity: 0.01 }, transitionDuration, function ()
-				{
+				_overlay.stop().animate({ opacity: 0.01 }, transitionDuration, function () {
 					_overlay.remove();
 				});
 			});

@@ -8,14 +8,12 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(['Core/Configs'], function (Configs)
-{
+define(['Core/Configs'], function (Configs) {
 	'use strict';
 
 	var _console;
 
-	function init()
-	{
+	function init() {
 		// Save original console
 		_console = console;
 	}
@@ -23,14 +21,12 @@ define(['Core/Configs'], function (Configs)
 	/**
 	 * Returns either the real or the dummy console based on configs
 	 */
-	function toggleConsole()
-	{
+	function toggleConsole() {
 		var optDev = Configs.get('development', false);
 		var optEC = Configs.get('enableConsole', false);
 		var optDC = Configs.get('disableConsole', false);
 
-		if (!optDC && (optDev || optEC))
-		{
+		if (!optDC && (optDev || optEC)) {
 			_console.log(
 				'%c[ConsoleManager] %cOutput to console is %cENABLED',
 				'color:#3344EE',
@@ -38,9 +34,7 @@ define(['Core/Configs'], function (Configs)
 				'color:#007000'
 			);
 			console = _console;
-		}
-		else
-		{
+		} else {
 			_console.log(
 				'%c[ConsoleManager] %cOutput to console is %cDISABLED',
 				'color:#3344EE',
@@ -54,8 +48,7 @@ define(['Core/Configs'], function (Configs)
 	/**
 	 * Dummy function
 	 */
-	var dummy = function ()
-	{
+	var dummy = function () {
 		return true;
 	};
 

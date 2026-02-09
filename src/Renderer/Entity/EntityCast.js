@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
-{
+define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	'use strict';
 
 	/**
@@ -21,8 +20,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Cast constructor
 	 */
-	function Cast()
-	{
+	function Cast() {
 		this.tick = 0;
 		this.delay = 0;
 		this.percent = -1;
@@ -43,8 +41,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	 *
 	 * @param {number} delay
 	 */
-	Cast.prototype.set = function Set(delay, color)
-	{
+	Cast.prototype.set = function Set(delay, color) {
 		// Init cast
 		this.display = true;
 		this.tick = Renderer.tick + 0;
@@ -55,12 +52,10 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Remove GUI from html
 	 */
-	Cast.prototype.remove = function Remove()
-	{
+	Cast.prototype.remove = function Remove() {
 		this.percent = -1;
 		this.display = false;
-		if (this.canvas.parentNode)
-		{
+		if (this.canvas.parentNode) {
 			document.body.removeChild(this.canvas);
 		}
 	};
@@ -68,11 +63,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Clean up memory
 	 */
-	Cast.prototype.clean = function Clean()
-	{
+	Cast.prototype.clean = function Clean() {
 		this.remove();
-		if (this.onComplete)
-		{
+		if (this.onComplete) {
 			this.onComplete();
 		}
 		this.onComplete = null;
@@ -83,8 +76,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	 *
 	 * @param {number} perc
 	 */
-	Cast.prototype.update = function Update(perc)
-	{
+	Cast.prototype.update = function Update(perc) {
 		var width = 60,
 			height = 6;
 		var ctx = this.ctx;
@@ -107,19 +99,16 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	 *
 	 * @param {mat4} matrix
 	 */
-	Cast.prototype.render = function Render(matrix)
-	{
+	Cast.prototype.render = function Render(matrix) {
 		var canvas = this.canvas;
 		var percent = +((Renderer.tick - this.tick) / this.delay).toFixed(2);
 		var z;
 
 		// Cast complete remove it
-		if (percent >= 1.0)
-		{
+		if (percent >= 1.0) {
 			this.remove();
 
-			if (this.onComplete)
-			{
+			if (this.onComplete) {
 				this.onComplete();
 				this.onComplete = null;
 			}
@@ -127,8 +116,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 		}
 
 		// Update
-		if (percent !== this.percent)
-		{
+		if (percent !== this.percent) {
 			this.update(percent);
 			this.percent = percent;
 		}
@@ -155,8 +143,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to body
-		if (!canvas.parentNode)
-		{
+		if (!canvas.parentNode) {
 			document.body.appendChild(canvas);
 		}
 	};
@@ -164,8 +151,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer)
 	/**
 	 * Export
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this.cast = new Cast();
 	};
 });

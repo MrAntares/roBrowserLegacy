@@ -13,8 +13,7 @@ define([
 	'Core/Preferences',
 	'Preferences/Audio',
 	'Preferences/Graphics'
-], function (jQuery, Configs, Context, Preferences, Audio, Graphics)
-{
+], function (jQuery, Configs, Context, Preferences, Audio, Graphics) {
 	'use strict';
 
 	/**
@@ -36,10 +35,8 @@ define([
 	 *
 	 * @param {jQuery} ui
 	 */
-	function load(ui)
-	{
-		if (Graphics.screensize === 'full' && !Context.isFullScreen())
-		{
+	function load(ui) {
+		if (Graphics.screensize === 'full' && !Context.isFullScreen()) {
 			Graphics.screensize = '800x600';
 		}
 
@@ -60,17 +57,12 @@ define([
 			.val(Audio.Sound.volume * 100)
 			.trigger('change');
 
-		if (!window.requestFileSystem && !window.webkitRequestFileSystem)
-		{
+		if (!window.requestFileSystem && !window.webkitRequestFileSystem) {
 			Configs.set('saveFiles', false);
 			ui.find('.save').attr('disabled', 'disabled');
-		}
-		else if (!Configs.get('saveFiles'))
-		{
+		} else if (!Configs.get('saveFiles')) {
 			ui.find('.save').attr('disabled', 'disabled');
-		}
-		else
-		{
+		} else {
 			ui.find('.save').attr('checked', _preferences.saveFiles ? 'checked' : false);
 		}
 
@@ -88,8 +80,7 @@ define([
 				'</tr>'
 		);
 
-		for (i = 0, count = serverlist.length; i < count; ++i)
-		{
+		for (i = 0, count = serverlist.length; i < count; ++i) {
 			var server = element.clone();
 
 			server.find('.display').val(serverlist[i].display);
@@ -109,8 +100,7 @@ define([
 	 *
 	 * @param {jQuery} ui
 	 */
-	function save(ui)
-	{
+	function save(ui) {
 		Graphics.screensize = ui.find('.screensize').val();
 		Graphics.quality = ui.find('.quality').val();
 		Graphics.cursor = ui.find('.cursor-options:checked').length ? true : false;
@@ -121,14 +111,12 @@ define([
 			count = $servers.find('tr').length;
 		var $server;
 
-		if (Configs.get('_serverEditMode'))
-		{
+		if (Configs.get('_serverEditMode')) {
 			_preferences.serverdef = ui.find('.serverdef:checked').val();
 			_preferences.serverfile = ui.find('.clientinfo').val();
 			_preferences.serverlist = [];
 
-			for (i = 0; i < count; ++i)
-			{
+			for (i = 0; i < count; ++i) {
 				$server = $servers.find('tr:eq(' + i + ')');
 				_preferences.serverlist.push({
 					display: $server.find('.display').val(),
@@ -156,47 +144,35 @@ define([
 	/**
 	 * Apply preferences
 	 */
-	function apply()
-	{
+	function apply() {
 		var isFullScreen = Context.isFullScreen();
 
 		// Full Screen support
-		if (Graphics.screensize === 'full')
-		{
-			if (!isFullScreen)
-			{
+		if (Graphics.screensize === 'full') {
+			if (!isFullScreen) {
 				Context.requestFullScreen();
 			}
-		}
-		else
-		{
-			if (isFullScreen)
-			{
+		} else {
+			if (isFullScreen) {
 				Context.cancelFullScreen();
 			}
 
 			// Resizing
-			if (Context.Is.POPUP)
-			{
+			if (Context.Is.POPUP) {
 				var size = Graphics.screensize.split('x');
 
 				// Only resize/move if needed
-				if (size[0] != window.innerWidth && size[1] != window.innerHeight)
-				{
+				if (size[0] != window.innerWidth && size[1] != window.innerHeight) {
 					window.resizeTo(size[0], size[1]);
 					window.moveTo((screen.availWidth - size[0]) / 2, (screen.availHeight - size[1]) / 2);
 				}
 			}
 		}
 
-		if (Configs.get('_serverEditMode'))
-		{
-			if (_preferences.serverdef === 'serverlist')
-			{
+		if (Configs.get('_serverEditMode')) {
+			if (_preferences.serverdef === 'serverlist') {
 				Configs.set('servers', _preferences.serverlist);
-			}
-			else
-			{
+			} else {
 				Configs.set('servers', 'data/' + _preferences.serverfile);
 			}
 		}

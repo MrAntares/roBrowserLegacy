@@ -41,8 +41,7 @@
  *
  */
 
-define(['./SkillConst'], function (SK)
-{
+define(['./SkillConst'], function (SK) {
 	'use strict';
 
 	var SkillEffect = {};

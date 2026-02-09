@@ -8,8 +8,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -27,14 +26,12 @@ define(function (require)
 	/**
 	 * Initialize Metaling
 	 */
-	Error.init = function init()
-	{
+	Error.init = function init() {
 		this.ui = jQuery(_htmlText);
 
 		// Add view to html
 		var style = jQuery('style:first');
-		if (!style.length)
-		{
+		if (!style.length) {
 			style = jQuery('<style type="text/css"></style>').appendTo('head');
 		}
 		style.append('\n' + _cssText);
@@ -48,8 +45,7 @@ define(function (require)
 	 *
 	 * @param {Error} error
 	 */
-	Error.addTrace = function addTrace(error)
-	{
+	Error.addTrace = function addTrace(error) {
 		console.error(error);
 		var url = requirejs.toUrl(''); // global
 		error = error.stack || error;
@@ -59,8 +55,7 @@ define(function (require)
 		error = error.replace(new RegExp(url, 'g'), '');
 		error = error.replace(/\?[^\:]+/g, '');
 
-		if (!this.ui)
-		{
+		if (!this.ui) {
 			this.init();
 		}
 

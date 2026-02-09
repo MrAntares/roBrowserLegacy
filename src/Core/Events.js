@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -41,8 +40,7 @@ define(function ()
 	 * @param {number} delay
 	 * @return {?} event unique id
 	 */
-	Events.setTimeout = function setTimeout(callback, delay)
-	{
+	Events.setTimeout = function setTimeout(callback, delay) {
 		var i, count, tick;
 		var event;
 
@@ -50,10 +48,8 @@ define(function ()
 		event = { callback: callback, tick: tick, uid: _uid++ };
 
 		// Add it to the list, sorted by delay
-		for (i = 0, count = _events.length; i < count; ++i)
-		{
-			if (tick < _events[i].tick)
-			{
+		for (i = 0, count = _events.length; i < count; ++i) {
+			if (tick < _events[i].tick) {
 				_events.splice(i, 0, event);
 				return event.uid;
 			}
@@ -69,16 +65,13 @@ define(function ()
 	 *
 	 * @param {?} event unique id
 	 */
-	Events.clearTimeout = function clearTimeout(uid)
-	{
+	Events.clearTimeout = function clearTimeout(uid) {
 		var i,
 			count = _events.length;
 
 		// Find the event and remove it
-		for (i = 0; i < count; ++i)
-		{
-			if (_events[i].uid === uid)
-			{
+		for (i = 0; i < count; ++i) {
+			if (_events[i].uid === uid) {
 				_events.splice(i, 1);
 				return;
 			}
@@ -90,15 +83,12 @@ define(function ()
 	 *
 	 * @param {number} game tick
 	 */
-	Events.process = function process(tick)
-	{
+	Events.process = function process(tick) {
 		var count = _events.length;
 
 		// Execute time out events.
-		while (count > 0)
-		{
-			if (_events[0].tick > tick)
-			{
+		while (count > 0) {
+			if (_events[0].tick > tick) {
 				break;
 			}
 
@@ -112,8 +102,7 @@ define(function ()
 	/**
 	 * Delete events from memory
 	 */
-	Events.free = function free()
-	{
+	Events.free = function free() {
 		_events.length = 0;
 	};
 

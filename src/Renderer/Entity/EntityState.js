@@ -5,8 +5,7 @@
  *
  * @author Vincent Thibault, Antares
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -22,8 +21,7 @@ define(function (require)
 	/**
 	 * Calculate new color
 	 */
-	function recalculateBlendingColor()
-	{
+	function recalculateBlendingColor() {
 		this.effectColor[0] =
 			this._bodyStateColor[0] *
 			this._healthStateColor[0] *
@@ -79,112 +77,92 @@ define(function (require)
 	_stateToVirtue[StatusConst.Status.PROPERTYUNDEAD] = StatusConst.OPT3.UNDEAD;
 	_stateToVirtue[StatusConst.Status.DA_CONTRACT] = StatusConst.OPT3.CONTRACT;
 
-	function toggleOpt3(state, enabled)
-	{
-		if (state === 0)
-		{
+	function toggleOpt3(state, enabled) {
+		if (state === 0) {
 			return;
 		}
 		var value = _stateToVirtue[state];
-		if (value === undefined)
-		{
+		if (value === undefined) {
 			console.error('toggleState: unknown state', state);
 			return;
 		}
-		if (enabled)
-		{
+		if (enabled) {
 			this.virtue = this.virtue | value;
-		}
-		else
-		{
+		} else {
 			this.virtue = this.virtue ^ value;
 		}
 	}
 
-	function getOpt3(state)
-	{
-		if (state === 0)
-		{
+	function getOpt3(state) {
+		if (state === 0) {
 			return false;
 		}
 		var value = _stateToVirtue[state];
-		if (value === undefined)
-		{
+		if (value === undefined) {
 			console.error('toggleState: unknown state', state);
 			return false;
 		}
 		return (this.virtue & value) !== 0;
 	}
-	function updateVirtue(value)
-	{
+	function updateVirtue(value) {
 		// Reset value
 		this._virtueColor[0] = 1.0;
 		this._virtueColor[1] = 1.0;
 		this._virtueColor[2] = 1.0;
 		this._virtueColor[3] = 1.0;
 
-		if (value & StatusConst.OPT3.QUICKEN)
-		{
+		if (value & StatusConst.OPT3.QUICKEN) {
 			this._virtueColor[2] = 0.0;
 		}
 
-		if (value & StatusConst.OPT3.EXPLOSIONSPIRITS)
-		{
+		if (value & StatusConst.OPT3.EXPLOSIONSPIRITS) {
 			this._virtueColor[0] = 1.0;
 			this._virtueColor[1] = 0.75;
 			this._virtueColor[2] = 0.75;
 		}
 
-		if (value & StatusConst.OPT3.BLADESTOP)
-		{
+		if (value & StatusConst.OPT3.BLADESTOP) {
 			this._virtueColor[0] = 0.25;
 			this._virtueColor[1] = 0.25;
 			this._virtueColor[2] = 0.25;
 		}
 
-		if (value & StatusConst.OPT3.ENERGYCOAT || value & StatusConst.OPT3.BUNSIN)
-		{
+		if (value & StatusConst.OPT3.ENERGYCOAT || value & StatusConst.OPT3.BUNSIN) {
 			this._virtueColor[0] = 0.5;
 			this._virtueColor[1] = 0.5;
 			this._virtueColor[2] = 0.85;
 		}
 
-		if (value & StatusConst.OPT3.OVERTHRUST)
-		{
+		if (value & StatusConst.OPT3.OVERTHRUST) {
 			this._virtueColor[1] = 0.75;
 			this._virtueColor[2] = 0.75;
 		}
 
-		if (value & StatusConst.OPT3.WARM)
-		{
+		if (value & StatusConst.OPT3.WARM) {
 			this._virtueColor[1] = 0.4;
 			this._virtueColor[2] = 0.4;
 		}
 
-		if (value & StatusConst.OPT3.SOULLINK)
-		{
+		if (value & StatusConst.OPT3.SOULLINK) {
 			this._virtueColor[0] = 0.35;
 			this._virtueColor[1] = 0.35;
 			this._virtueColor[2] = 0.9;
 			this._virtueColor[3] = 0.9;
 		}
 
-		if (value & StatusConst.OPT3.UNDEAD)
-		{
+		if (value & StatusConst.OPT3.UNDEAD) {
 			this._virtueColor[0] = 0.7;
 			this._virtueColor[2] = 0.65;
 		}
 
-		if (value & StatusConst.OPT3.MARIONETTE)
-		{
+		if (value & StatusConst.OPT3.MARIONETTE) {
 			this._virtueColor[0] = 1.0;
 			this._virtueColor[1] = 0.34;
 			this._virtueColor[2] = 0.71;
 			this._virtueColor[3] = 0.5;
 		}
 
-		if (value & StatusConst.OPT3.BERSERK)
-		{
+		if (value & StatusConst.OPT3.BERSERK) {
 			this._virtueColor[0] = 1.0;
 			this._virtueColor[1] = 0.4;
 			this._virtueColor[2] = 0.4;
@@ -201,10 +179,8 @@ define(function (require)
 	 *
 	 * @param {number} new value
 	 */
-	function updateBodyState(value)
-	{
-		if (value === this._bodyState)
-		{
+	function updateBodyState(value) {
+		if (value === this._bodyState) {
 			return;
 		}
 
@@ -215,8 +191,7 @@ define(function (require)
 		this._bodyStateColor[3] = 1.0;
 
 		// Remove previous effect
-		switch (this._bodyState)
-		{
+		switch (this._bodyState) {
 			case StatusConst.BodyState.SLEEP:
 				this.attachments.remove('status-sleep');
 				break;
@@ -247,8 +222,7 @@ define(function (require)
 		}
 
 		// Add new effect
-		switch (value)
-		{
+		switch (value) {
 			case StatusConst.BodyState.STONE:
 				this._bodyStateColor[0] = 0.1;
 				this._bodyStateColor[1] = 0.1;
@@ -312,10 +286,8 @@ define(function (require)
 	 *
 	 * @param {number} new value
 	 */
-	function updateHealthState(value)
-	{
-		if (value === this._healthState)
-		{
+	function updateHealthState(value) {
+		if (value === this._healthState) {
 			return;
 		}
 
@@ -325,11 +297,9 @@ define(function (require)
 		this._healthStateColor[3] = 1.0;
 
 		// Curse
-		if (value & StatusConst.HealthState.CURSE)
-		{
+		if (value & StatusConst.HealthState.CURSE) {
 			// Do not attach multiple times.
-			if (!(this._healthState & StatusConst.HealthState.CURSE))
-			{
+			if (!(this._healthState & StatusConst.HealthState.CURSE)) {
 				Sound.playPosition('_curse.wav', this.position);
 				this.attachments.add({
 					repeat: true,
@@ -343,17 +313,13 @@ define(function (require)
 			this._healthStateColor[0] *= 0.5;
 			this._healthStateColor[1] *= 0.15;
 			this._healthStateColor[2] *= 0.1;
-		}
-		else if (!(value & StatusConst.HealthState.CURSE))
-		{
+		} else if (!(value & StatusConst.HealthState.CURSE)) {
 			this.attachments.remove('status-curse');
 		}
 
 		// Poison
-		if (value & StatusConst.HealthState.POISON)
-		{
-			if (!(this._healthState & StatusConst.HealthState.POISON))
-			{
+		if (value & StatusConst.HealthState.POISON) {
+			if (!(this._healthState & StatusConst.HealthState.POISON)) {
 				Sound.playPosition('_poison.wav', this.position);
 			}
 			this._healthStateColor[0] *= 0.9;
@@ -362,19 +328,15 @@ define(function (require)
 		}
 
 		// Blind
-		if (value & StatusConst.HealthState.BLIND)
-		{
-			if (!(this._healthState & StatusConst.HealthState.BLIND))
-			{
+		if (value & StatusConst.HealthState.BLIND) {
+			if (!(this._healthState & StatusConst.HealthState.BLIND)) {
 				Sound.playPosition('_blind.wav', this.position);
 			}
 		}
 
 		// Silence
-		if (value & StatusConst.HealthState.SILENCE)
-		{
-			if (!(this._healthState & StatusConst.HealthState.SILENCE))
-			{
+		if (value & StatusConst.HealthState.SILENCE) {
+			if (!(this._healthState & StatusConst.HealthState.SILENCE)) {
 				Sound.playPosition('_silence.wav', this.position);
 				this.attachments.add({
 					frame: Emotions.indexes[9],
@@ -386,9 +348,7 @@ define(function (require)
 					depth: 5.0
 				});
 			}
-		}
-		else if (!(value & StatusConst.HealthState.SILENCE))
-		{
+		} else if (!(value & StatusConst.HealthState.SILENCE)) {
 			this.attachments.remove('status-silence');
 		}
 
@@ -401,12 +361,10 @@ define(function (require)
 	 *
 	 * @param {number} new value
 	 */
-	function updateEffectState(value)
-	{
+	function updateEffectState(value) {
 		var costume = 0;
 
-		if (this._allRidingState)
-		{
+		if (this._allRidingState) {
 			// Preserve riding constume
 			costume = this.costume;
 		}
@@ -430,10 +388,8 @@ define(function (require)
 			StatusConst.EffectState.WUGRIDER |
 			StatusConst.EffectState.MADOGEAR;
 
-		if (value & RIDING)
-		{
-			if (this._job in MountTable)
-			{
+		if (value & RIDING) {
+			if (this._job in MountTable) {
 				costume = MountTable[this._job];
 			}
 		}
@@ -443,20 +399,17 @@ define(function (require)
 		// ------------------------
 
 		// Wedding clones
-		if (value & StatusConst.EffectState.WEDDING)
-		{
+		if (value & StatusConst.EffectState.WEDDING) {
 			costume = 22;
 		}
 
 		// Xmas costume
-		if (value & StatusConst.EffectState.XMAS)
-		{
+		if (value & StatusConst.EffectState.XMAS) {
 			costume = 26;
 		}
 
 		// Summer
-		if (value & StatusConst.EffectState.SUMMER)
-		{
+		if (value & StatusConst.EffectState.SUMMER) {
 			costume = 27;
 		}
 
@@ -465,8 +418,7 @@ define(function (require)
 		// ------------------------
 
 		// Never show option invisible
-		if (value & StatusConst.EffectState.INVISIBLE)
-		{
+		if (value & StatusConst.EffectState.INVISIBLE) {
 			this._effectStateColor[3] = 0.0;
 		}
 
@@ -474,50 +426,38 @@ define(function (require)
 		else if (
 			value &
 			(StatusConst.EffectState.HIDE | StatusConst.EffectState.CLOAK | StatusConst.EffectState.CHASEWALK)
-		)
-		{
+		) {
 			// Maya purple card
-			if (Session.Character.intravision)
-			{
+			if (Session.Character.intravision) {
 				this._effectStateColor[0] = 0.0;
 				this._effectStateColor[1] = 0.0;
 				this._effectStateColor[2] = 0.0;
-			}
-			else
-			{
+			} else {
 				this._effectStateColor[3] = 0.0;
 			}
 		}
 
 		// Camouflage / Stealth Field (receiver)
-		else if (this.Camouflage || this.Stealthfield)
-		{
+		else if (this.Camouflage || this.Stealthfield) {
 			// Maya purple card
-			if (Session.Character.intravision)
-			{
+			if (Session.Character.intravision) {
 				this._effectStateColor[0] = 0.0;
 				this._effectStateColor[1] = 0.0;
 				this._effectStateColor[2] = 0.0;
-			}
-			else
-			{
+			} else {
 				this._effectStateColor[3] = 0.1;
 				Sound.play('effect/assasin_cloaking.wav', this.position);
 			}
 		}
 
 		// Shadow form
-		else if (this.Shadowform)
-		{
+		else if (this.Shadowform) {
 			// Maya purple card
-			if (Session.Character.intravision)
-			{
+			if (Session.Character.intravision) {
 				this._effectStateColor[0] = 0.0;
 				this._effectStateColor[1] = 0.0;
 				this._effectStateColor[2] = 0.0;
-			}
-			else
-			{
+			} else {
 				this._effectStateColor[0] = 0.2;
 				this._effectStateColor[1] = 0.2;
 				this._effectStateColor[2] = 0.2;
@@ -527,12 +467,9 @@ define(function (require)
 		}
 
 		// Orcish head
-		if (value & StatusConst.EffectState.ORCISH)
-		{
+		if (value & StatusConst.EffectState.ORCISH) {
 			this.isOrcish = true;
-		}
-		else
-		{
+		} else {
 			this.isOrcish = false;
 		}
 		this.head = this.head;
@@ -541,8 +478,7 @@ define(function (require)
 		// Apply
 		// ------------------------
 
-		if (costume !== this.costume)
-		{
+		if (costume !== this.costume) {
 			this.costume = costume;
 			this.job = this._job;
 		}
@@ -551,8 +487,7 @@ define(function (require)
 		recalculateBlendingColor.call(this);
 	}
 
-	function updateAllRidingState(value)
-	{
+	function updateAllRidingState(value) {
 		var costume = 0;
 		// ------------------------
 		// Riding
@@ -570,10 +505,8 @@ define(function (require)
 			StatusConst.EffectState.XMAS |
 			StatusConst.EffectState.SUMMER;
 
-		if (value && !(this._effectState & EFFECT))
-		{
-			if (this._job in AllMountTable)
-			{
+		if (value && !(this._effectState & EFFECT)) {
+			if (this._job in AllMountTable) {
 				costume = AllMountTable[this._job];
 			}
 		}
@@ -581,8 +514,7 @@ define(function (require)
 		// ------------------------
 		// Apply
 		// ------------------------
-		if (costume !== this.costume)
-		{
+		if (costume !== this.costume) {
 			this.costume = costume;
 			this.job = this._job;
 		}
@@ -591,8 +523,7 @@ define(function (require)
 		recalculateBlendingColor.call(this);
 	}
 
-	function isVisible()
-	{
+	function isVisible() {
 		return !(
 			this._effectState &
 				(StatusConst.EffectState.INVISIBLE |
@@ -605,16 +536,14 @@ define(function (require)
 		);
 	}
 
-	function isDead()
-	{
+	function isDead() {
 		return this.action === this.ACTION.DIE;
 	}
 
 	/**
 	 * Hooking, export
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this._bodyStateColor = new Float32Array([1, 1, 1, 1]);
 		this._healthStateColor = new Float32Array([1, 1, 1, 1]);
 		this._effectStateColor = new Float32Array([1, 1, 1, 1]);
@@ -625,40 +554,35 @@ define(function (require)
 		this.isDead = isDead.bind(this);
 
 		Object.defineProperty(this, 'bodyState', {
-			get: function ()
-			{
+			get: function () {
 				return this._bodyState;
 			},
 			set: updateBodyState
 		});
 
 		Object.defineProperty(this, 'healthState', {
-			get: function ()
-			{
+			get: function () {
 				return this._healthState;
 			},
 			set: updateHealthState
 		});
 
 		Object.defineProperty(this, 'effectState', {
-			get: function ()
-			{
+			get: function () {
 				return this._effectState;
 			},
 			set: updateEffectState
 		});
 
 		Object.defineProperty(this, 'allRidingState', {
-			get: function ()
-			{
+			get: function () {
 				return this._allRidingState;
 			},
 			set: updateAllRidingState
 		});
 
 		Object.defineProperty(this, 'virtue', {
-			get: function ()
-			{
+			get: function () {
 				return this._virtue;
 			},
 			set: updateVirtue

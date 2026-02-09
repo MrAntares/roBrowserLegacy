@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	// Load dependencies
@@ -28,8 +27,7 @@ define(function (require)
 	/**
 	 * @Constructor Room
 	 */
-	function Room(owner)
-	{
+	function Room(owner) {
 		this.owner = owner;
 		this.text = '';
 		this.display = false;
@@ -59,16 +57,13 @@ define(function (require)
 	 * @param {const} Room.Type constant
 	 * @param {bool} is clickable ?
 	 */
-	Room.prototype.create = function create(title, id, type, clickable)
-	{
+	Room.prototype.create = function create(title, id, type, clickable) {
 		var self = this;
 
-		function init()
-		{
+		function init() {
 			var filename = 'chat_open';
 
-			switch (type)
-			{
+			switch (type) {
 				case Room.Type.PUBLIC_CHAT:
 					filename = 'chat_open';
 					break;
@@ -87,20 +82,17 @@ define(function (require)
 			self.id = id;
 			self.node.onEnter = clickable ? self.owner.onRoomEnter.bind(self.owner) : null;
 
-			Client.loadFile(DB.INTERFACE_PATH + filename + '.bmp', function (url)
-			{
+			Client.loadFile(DB.INTERFACE_PATH + filename + '.bmp', function (url) {
 				self.display = true;
 
-				if (self.node)
-				{
+				if (self.node) {
 					self.node.setTitle(title, url);
 				}
 			});
 		}
 
 		// Already exist
-		if (this.node)
-		{
+		if (this.node) {
 			init();
 			this.node.append();
 			return;
@@ -114,11 +106,9 @@ define(function (require)
 	/**
 	 * Remove Room
 	 */
-	Room.prototype.remove = function remove()
-	{
+	Room.prototype.remove = function remove() {
 		this.display = false;
-		if (this.node)
-		{
+		if (this.node) {
 			this.node.remove();
 		}
 	};
@@ -126,8 +116,7 @@ define(function (require)
 	/**
 	 * Clean Room
 	 */
-	Room.prototype.clean = function clean()
-	{
+	Room.prototype.clean = function clean() {
 		this.remove();
 		this.node = null;
 	};
@@ -137,8 +126,7 @@ define(function (require)
 	 *
 	 * @param {mat4} matrix
 	 */
-	Room.prototype.render = function render(matrix)
-	{
+	Room.prototype.render = function render(matrix) {
 		var ui = this.node.ui[0];
 		var z;
 
@@ -167,8 +155,7 @@ define(function (require)
 	/**
 	 * Export
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this.room = new Room(this);
 	};
 });

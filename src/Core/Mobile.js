@@ -10,8 +10,7 @@
 // TODO: resize event on mobile keyboard bug
 // TODO: body overflow
 // TODO: responsive design
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -54,14 +53,11 @@ define(function (require)
 	 * Remove autofocus on mobile.
 	 * Let the user decide to focus an input/textarea by himself
 	 */
-	var remoteAutoFocus = (function removeAutoFocusClosure()
-	{
+	var remoteAutoFocus = (function removeAutoFocusClosure() {
 		var _done = false;
 
-		return function removeAutoFocus()
-		{
-			if (_done)
-			{
+		return function removeAutoFocus() {
+			if (_done) {
 				return;
 			}
 
@@ -77,8 +73,7 @@ define(function (require)
 	 * @param {TouchList} touches
 	 * @return {number} distance
 	 */
-	function touchDistance(touches)
-	{
+	function touchDistance(touches) {
 		var x = touches[0].pageX - touches[1].pageX;
 		var y = touches[0].pageY - touches[1].pageY;
 
@@ -91,8 +86,7 @@ define(function (require)
 	 * @param {TouchList} touches
 	 * @return {number} rotation angle
 	 */
-	function touchAngle(touches)
-	{
+	function touchAngle(touches) {
 		var x = touches[0].pageX - touches[1].pageX;
 		var y = touches[0].pageY - touches[1].pageY;
 
@@ -105,8 +99,7 @@ define(function (require)
 	 * @param {TouchList} old touches
 	 * @param {TouchList} new touches
 	 */
-	function touchTranslationX(oldTouches, touches)
-	{
+	function touchTranslationX(oldTouches, touches) {
 		var x1 = touches[0].pageX - oldTouches[0].pageX;
 		var x2 = touches[1].pageX - oldTouches[1].pageX;
 
@@ -115,8 +108,7 @@ define(function (require)
 			x2 && // need a direction
 			x1 < 0 === x2 < 0 && // same direction
 			Math.abs(1 - x1 / x2) < 0.25 // need a coordinate movement
-		)
-		{
+		) {
 			return (x1 + x2) >> 1;
 		}
 
@@ -129,8 +121,7 @@ define(function (require)
 	 * @param {TouchList} old touches
 	 * @param {TouchList} new touches
 	 */
-	function touchTranslationY(oldTouches, touches)
-	{
+	function touchTranslationY(oldTouches, touches) {
 		var y1 = touches[0].pageY - oldTouches[0].pageY;
 		var y2 = touches[1].pageY - oldTouches[1].pageY;
 
@@ -139,8 +130,7 @@ define(function (require)
 			y2 && // need a direction
 			y1 < 0 === y2 < 0 && // same direction
 			Math.abs(1 - y1 / y2) < 0.25 // need a coordinate movement
-		)
-		{
+		) {
 			return (y1 + y2) >> 1;
 		}
 
@@ -151,24 +141,18 @@ define(function (require)
 	 * Start touching the screen
 	 * Process gesture, or action
 	 */
-	var onTouchStart = (function onTouchStartClosure()
-	{
-		function delayedClick()
-		{
+	var onTouchStart = (function onTouchStartClosure() {
+		function delayedClick() {
 			// Only process mousedown if not doing a gesture
-			if (!_processGesture)
-			{
+			if (!_processGesture) {
 				_timer = -1;
 
-				if (Mobile.onTouchStart)
-				{
+				if (Mobile.onTouchStart) {
 					Mobile.onTouchStart();
 				}
 
-				if (!_intersect)
-				{
-					if (Mobile.onTouchEnd)
-					{
+				if (!_intersect) {
+					if (Mobile.onTouchEnd) {
 						Mobile.onTouchEnd();
 					}
 				}
@@ -177,22 +161,19 @@ define(function (require)
 			}
 		}
 
-		return function onTouchStart(event)
-		{
+		return function onTouchStart(event) {
 			remoteAutoFocus();
 			_touches = event.originalEvent.touches;
 			event.stopImmediatePropagation();
 
 			// Delayed click (to detect gesture)
-			if (_timer > -1)
-			{
+			if (_timer > -1) {
 				Events.clearTimeout(_timer);
 				_timer = -1;
 			}
 
 			// Gesture
-			if (_touches.length > 1)
-			{
+			if (_touches.length > 1) {
 				_scale = touchDistance(_touches);
 				_angle = touchAngle(_touches);
 				_processGesture = true;
@@ -202,8 +183,7 @@ define(function (require)
 			Mouse.screen.x = _touches[0].pageX;
 			Mouse.screen.y = _touches[0].pageY;
 
-			if (!Session.FreezeUI)
-			{
+			if (!Session.FreezeUI) {
 				Mouse.intersect = true;
 				_intersect = true;
 			}
@@ -217,24 +197,20 @@ define(function (require)
 	 * Hook touch end to know when a gesture end
 	 * process OnMouseUp if no gesture detected
 	 */
-	function onTouchEnd(event)
-	{
-		if (_processGesture)
-		{
+	function onTouchEnd(event) {
+		if (_processGesture) {
 			_processGesture = false;
 			KEYS.SHIFT = false;
 			Camera.rotate(false);
 			return;
 		}
 
-		if (_timer > -1)
-		{
+		if (_timer > -1) {
 			_intersect = false;
 			return;
 		}
 
-		if (Mobile.onTouchEnd)
-		{
+		if (Mobile.onTouchEnd) {
 			Mobile.onTouchEnd();
 		}
 
@@ -245,8 +221,7 @@ define(function (require)
 	 * Process gesture (scale, rotate)
 	 * Else move.
 	 */
-	function onTouchMove(event)
-	{
+	function onTouchMove(event) {
 		event.stopImmediatePropagation();
 
 		var touches = event.originalEvent.touches;
@@ -255,8 +230,7 @@ define(function (require)
 		Mouse.screen.y = touches[0].pageY;
 
 		// Not in gesture, just process
-		if (!_processGesture)
-		{
+		if (!_processGesture) {
 			return;
 		}
 
@@ -265,16 +239,14 @@ define(function (require)
 		var x = Math.abs(touchTranslationX(_touches, touches));
 		var y = Math.abs(touchTranslationY(_touches, touches));
 
-		if (!Camera.action.active && (x > 10 || y > 10))
-		{
+		if (!Camera.action.active && (x > 10 || y > 10)) {
 			KEYS.SHIFT = y > x;
 			Camera.rotate(true);
 			return;
 		}
 
 		// Process zoom
-		if (Math.abs(scale) > 10)
-		{
+		if (Math.abs(scale) > 10) {
 			Camera.zoomFinal -= scale * 0.1;
 			Camera.zoomFinal = Math.min(
 				Camera.zoomFinal,
@@ -285,13 +257,10 @@ define(function (require)
 	}
 
 	// Add full screen on mobile (sux to have the browser title bar)
-	if (Math.max(screen.availHeight, screen.availWidth) <= 800)
-	{
+	if (Math.max(screen.availHeight, screen.availWidth) <= 800) {
 		// Fullscreen on action
-		jQuery(window).on('touchstart', function ()
-		{
-			if (!Context.isFullScreen())
-			{
+		jQuery(window).on('touchstart', function () {
+			if (!Context.isFullScreen()) {
 				Context.requestFullScreen();
 			}
 		});
@@ -300,12 +269,10 @@ define(function (require)
 	//Add mobile UI on touch
 	jQuery(window).one('touchstart', touchDevice);
 
-	function touchDevice()
-	{
+	function touchDevice() {
 		Session.isTouchDevice = true;
 
-		if (Session.Playing)
-		{
+		if (Session.Playing) {
 			//Already playing, don't wait for map change, just show it
 			var MobileUI = require('UI/Components/MobileUI/MobileUI');
 			MobileUI.show();

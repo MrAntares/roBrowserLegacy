@@ -10,8 +10,7 @@
  * @author Vincent Thibault
  */
 
-define(['./BinaryReader'], function (BinaryReader)
-{
+define(['./BinaryReader'], function (BinaryReader) {
 	'use strict';
 
 	/**
@@ -27,11 +26,9 @@ define(['./BinaryReader'], function (BinaryReader)
 	 * @param {File} executable
 	 * @param {function} callback
 	 */
-	function getDate(executable, callback)
-	{
+	function getDate(executable, callback) {
 		var reader = new FileReader();
-		reader.onload = function (event)
-		{
+		reader.onload = function (event) {
 			_fp = new BinaryReader(event.target.result);
 			callback(getDateSub());
 		};
@@ -43,12 +40,10 @@ define(['./BinaryReader'], function (BinaryReader)
 	 *
 	 * @return {number}
 	 */
-	function getDateSub()
-	{
+	function getDateSub() {
 		var offset, date;
 
-		if (!_fp)
-		{
+		if (!_fp) {
 			throw new Error('Executable::getDate() - Executable is not loaded yet, or not specified');
 		}
 
@@ -57,15 +52,13 @@ define(['./BinaryReader'], function (BinaryReader)
 		_fp.seek(0x3c, SEEK_SET);
 		offset = _fp.readULong();
 
-		if (offset > _fp.length)
-		{
+		if (offset > _fp.length) {
 			throw new Error('Executable::getDate() - Invalid executable specified.');
 		}
 
 		// Jump to PEHeader structure
 		_fp.seek(offset, SEEK_SET);
-		if (_fp.readString(4) !== 'PE')
-		{
+		if (_fp.readString(4) !== 'PE') {
 			throw new Error('Executable::getDate() - Invalid executable specified.');
 		}
 
@@ -83,16 +76,13 @@ define(['./BinaryReader'], function (BinaryReader)
 	 * @param {File} file
 	 * @return {boolean} true if it's a RO file
 	 */
-	function isROExec(file)
-	{
-		if (!file.name.match(/\.exe$/i))
-		{
+	function isROExec(file) {
+		if (!file.name.match(/\.exe$/i)) {
 			return false;
 		}
 
 		// TODO: check in the Executable binary
-		if (file.size < 1024 * 1024 * 3 || file.size > 1024 * 1024 * 7)
-		{
+		if (file.size < 1024 * 1024 * 3 || file.size > 1024 * 1024 * 7) {
 			return false;
 		}
 

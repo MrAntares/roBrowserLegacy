@@ -10,16 +10,14 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
 	 * Queue Constructor
 	 *
 	 */
-	function Queue()
-	{
+	function Queue() {
 		this.list = [];
 	}
 
@@ -28,18 +26,15 @@ define(function ()
 	 *
 	 * @param {function} callback
 	 */
-	Queue.prototype.add = function Add(callback)
-	{
+	Queue.prototype.add = function Add(callback) {
 		this.list.push(callback);
 	};
 
 	/**
 	 * Continue the queue
 	 */
-	Queue.prototype._next = function _Next()
-	{
-		if (this.list.length)
-		{
+	Queue.prototype._next = function _Next() {
+		if (this.list.length) {
 			this.list.shift().call(this);
 		}
 	};
@@ -48,8 +43,7 @@ define(function ()
 	 * To avoid problem with constructor, define it
 	 */
 	Object.defineProperty(Queue.prototype, 'next', {
-		get: function ()
-		{
+		get: function () {
 			return this._next.bind(this);
 		}
 	});
@@ -57,8 +51,7 @@ define(function ()
 	/**
 	 * Start running queue
 	 */
-	Queue.prototype.run = function Run()
-	{
+	Queue.prototype.run = function Run() {
 		this.next();
 	};
 

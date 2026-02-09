@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['./StatusConst'], function (SC)
-{
+define(['./StatusConst'], function (SC) {
 	'use strict';
 
 	// Hardcoded color

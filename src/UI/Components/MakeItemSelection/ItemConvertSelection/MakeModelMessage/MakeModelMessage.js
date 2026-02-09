@@ -5,8 +5,7 @@
  *
  * @author Francisco Wallison
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -27,8 +26,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	MakeModelMessage.init = function init()
-	{
+	MakeModelMessage.init = function init() {
 		// Show at center.
 		this.ui.css({
 			top: (Renderer.height - 200) / 2,
@@ -41,14 +39,12 @@ define(function (require)
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-	function onSendMaterial(event)
-	{
+	function onSendMaterial(event) {
 		event.stopImmediatePropagation();
 		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems').validItemSend(true);
 	}
 
-	function onClose(event)
-	{
+	function onClose(event) {
 		event.stopImmediatePropagation();
 		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems').validItemSend(false);
 	}

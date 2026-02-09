@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -23,10 +22,8 @@ define(function (require)
 	/**
 	 * Key Listener
 	 */
-	jQuery(window).keydown(function (event)
-	{
-		if (KEYS.ALT && event.which === KEYS.P)
-		{
+	jQuery(window).keydown(function (event) {
+		if (KEYS.ALT && event.which === KEYS.P) {
 			ScreenShot.take();
 			event.stopImmediatePropagation();
 			return false;
@@ -43,10 +40,8 @@ define(function (require)
 	/**
 	 * Take a ScreenShot
 	 */
-	ScreenShot.take = function takeScreenShot()
-	{
-		if (!ChatBox.ui)
-		{
+	ScreenShot.take = function takeScreenShot() {
+		if (!ChatBox.ui) {
 			return; //UI not loaded yet, cant display screenshot
 		}
 
@@ -60,8 +55,7 @@ define(function (require)
 	 *
 	 * @param {canvasElement} canvas
 	 */
-	ScreenShot.process = function processScreenShot(canvas)
-	{
+	ScreenShot.process = function processScreenShot(canvas) {
 		var context, date, timezone;
 		var x, y;
 
@@ -88,21 +82,18 @@ define(function (require)
 		// Get and draw src_logo to canvas
 		Client.loadFile(
 			'data/texture/scr_logo.bmp',
-			function (url)
-			{
+			function (url) {
 				var img = new Image();
 				img.decoding = 'async';
 				img.src = url;
-				img.onload = function ()
-				{
+				img.onload = function () {
 					x = canvas.width - img.width - 20;
 					y = canvas.height - img.height - 5;
 					context.drawImage(img, x, y);
 					ScreenShot.display(canvas, date);
 				};
 			},
-			function ()
-			{
+			function () {
 				ScreenShot.display(canvas, date);
 			}
 		);
@@ -114,8 +105,7 @@ define(function (require)
 	 * @param {canvasElement} canvas
 	 * @param {string} date
 	 */
-	ScreenShot.display = function displayScreenShot(canvas, date)
-	{
+	ScreenShot.display = function displayScreenShot(canvas, date) {
 		var binary, data, url;
 		var i, count;
 
@@ -125,8 +115,7 @@ define(function (require)
 		data = new Uint8Array(count);
 
 		// We store the content in a buffer
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			data[i] = binary.charCodeAt(i);
 		}
 

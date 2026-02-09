@@ -8,8 +8,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var publicName = 'Storage';
@@ -33,24 +32,20 @@ define(function (require)
 	var _selectUIVersion = StorageController.selectUIVersion;
 
 	// Extend default UI selector
-	StorageController.selectUIVersion = function ()
-	{
+	StorageController.selectUIVersion = function () {
 		_selectUIVersion();
 	};
 
 	// Forward methods to the implementation
 	var _methods = ['reqAddItem', 'reqAddItemFromCart', 'reqRemoveItem', 'reqMoveItemToCart', 'onClosePressed'];
 
-	_methods.forEach(function (method)
-	{
+	_methods.forEach(function (method) {
 		Object.defineProperty(StorageController, method, {
-			set: function (value)
-			{
+			set: function (value) {
 				StorageV0[method] = value;
 				StorageV3[method] = value;
 			},
-			get: function ()
-			{
+			get: function () {
 				return (StorageController.getUI() || StorageV0)[method];
 			}
 		});

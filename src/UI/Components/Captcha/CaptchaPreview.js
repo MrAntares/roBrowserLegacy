@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -42,8 +41,7 @@ define(function (require)
 	/**
 	 * Initialize GUI
 	 */
-	CaptchaPreview.init = function Init()
-	{
+	CaptchaPreview.init = function Init() {
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.draggable('.titlebar');
 	};
@@ -51,8 +49,7 @@ define(function (require)
 	/**
 	 * Append to DOM
 	 */
-	CaptchaPreview.onAppend = function OnAppend()
-	{
+	CaptchaPreview.onAppend = function OnAppend() {
 		// Apply preferences
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
@@ -63,8 +60,7 @@ define(function (require)
 	/**
 	 * Remove data from UI
 	 */
-	CaptchaPreview.onRemove = function OnRemove()
-	{
+	CaptchaPreview.onRemove = function OnRemove() {
 		// save preferences
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.x = parseInt(this.ui.css('left'), 10);
@@ -77,8 +73,7 @@ define(function (require)
 	/**
 	 * Set Image
 	 */
-	CaptchaPreview.setImage = function SetImage(imageData)
-	{
+	CaptchaPreview.setImage = function SetImage(imageData) {
 		// imageData is expected to be Uint8Array or Blob usually, need to convert to URL
 		// If it's pure binary from packet, we might need conversion
 		var blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO

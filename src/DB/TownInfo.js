@@ -8,8 +8,7 @@
  * @author Scriptor
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 	var exports = {};
 

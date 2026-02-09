@@ -8,15 +8,13 @@
  * @author Vincent Thibault
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
 	 * @Constructor
 	 */
-	function Particle(width, height)
-	{
+	function Particle(width, height) {
 		this.rmax = 10;
 		this.xmax = 5;
 		this.ymax = 2;
@@ -33,8 +31,7 @@ define(function (require)
 		window.mozRequestAnimationFrame ||
 		window.oRequestAnimationFrame ||
 		window.msRequestAnimationFrame ||
-		function (callback)
-		{
+		function (callback) {
 			window.setTimeout(callback, 1000 / 60);
 		};
 
@@ -43,8 +40,7 @@ define(function (require)
 	 *
 	 * @param {number} particles count
 	 */
-	Particle.init = function init(count, canvas)
-	{
+	Particle.init = function init(count, canvas) {
 		this.list = new Array(count);
 
 		this.width = canvas.width;
@@ -56,13 +52,11 @@ define(function (require)
 		this.bg = new Image();
 		this.bg.decoding = 'async';
 		this.bg.src = require.toUrl('./images/background.jpg');
-		this.bg.onload = function ()
-		{
+		this.bg.onload = function () {
 			this.ready = true;
 		};
 
-		for (var i = 0; i < count; ++i)
-		{
+		for (var i = 0; i < count; ++i) {
 			this.list[i] = new Particle(this.width, this.height);
 		}
 
@@ -74,37 +68,32 @@ define(function (require)
 	/**
 	 * Stop particles
 	 */
-	Particle.stop = function stop()
-	{
+	Particle.stop = function stop() {
 		this.process = false;
 	};
 
 	/**
 	 * Render particles
 	 */
-	Particle.render = function render()
-	{
+	Particle.render = function render() {
 		var now = Date.now();
 		var i, count;
 
 		this.ctx.clearRect(0, 0, this.width, this.height);
-		if (this.bg.ready)
-		{
+		if (this.bg.ready) {
 			this.ctx.globalCompositeOperation = 'source-over';
 			this.ctx.drawImage(this.bg, 0, 0);
 			this.ctx.globalCompositeOperation = 'lighter';
 		}
 
-		for (i = 0, count = this.list.length; i < count; ++i)
-		{
+		for (i = 0, count = this.list.length; i < count; ++i) {
 			this.list[i].update(now - this.tick, 0, 0, this.width, this.height);
 			this.list[i].render(this.ctx);
 		}
 
 		this.tick = now;
 
-		if (this.process)
-		{
+		if (this.process) {
 			this.requestRender.call(window, this.render.bind(this), this.canvas);
 		}
 	};
@@ -115,8 +104,7 @@ define(function (require)
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	Particle.prototype.reset = function reset(width, height)
-	{
+	Particle.prototype.reset = function reset(width, height) {
 		this.x = width * Math.random();
 		this.y = height * Math.random();
 		this.r = (this.rmax - 1) * Math.random() + 1;
@@ -139,8 +127,7 @@ define(function (require)
 	 *
 	 * @param {Canvas2DContext}
 	 */
-	Particle.prototype.render = function render(ctx)
-	{
+	Particle.prototype.render = function render(ctx) {
 		var opacity = Math.floor((1 - this.ratio / this.life) * 100) * 0.01;
 		var radius = this.r * opacity;
 		var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, Math.max(radius, 0.5));
@@ -166,8 +153,7 @@ define(function (require)
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	Particle.prototype.update = function move(tick, x, y, width, height)
-	{
+	Particle.prototype.update = function move(tick, x, y, width, height) {
 		var f = (tick / 60) * 2; // speed / 2
 
 		this.x += Math.cos((this.ratio / this.life) * this.dx * 2) * f;
@@ -175,19 +161,20 @@ define(function (require)
 		this.c += this.dc * f;
 
 		this.ratio += this.t * f;
-		if (this.ratio <= 0 || this.ratio >= this.life)
-		{
+		if (this.ratio <= 0 || this.ratio >= this.life) {
 			this.t *= -1;
 		}
 
 		// Bound
-		if (this.x - this.r > width || this.x + this.r < 0 || this.y - this.r > height || this.y + this.r < 0)
-		{
+		if (this.x - this.r > width || this.x + this.r < 0 || this.y - this.r > height || this.y + this.r < 0) {
 			this.reset(width, height);
 		}
 
-		if (this.c >= 255) {this.dc = -1;}
-		else if (this.c <= 0) {this.dc = 1;}
+		if (this.c >= 255) {
+			this.dc = -1;
+		} else if (this.c <= 0) {
+			this.dc = 1;
+		}
 	};
 
 	/**

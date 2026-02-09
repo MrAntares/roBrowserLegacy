@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -41,19 +40,15 @@ define(function (require)
 	/**
 	 * Initialize the component (event listener, etc.)
 	 */
-	PartyHelper.init = function init()
-	{
+	PartyHelper.init = function init() {
 		// Avoid drag drop problems
-		this.ui.find('.base').mousedown(function (event)
-		{
+		this.ui.find('.base').mousedown(function (event) {
 			event.stopImmediatePropagation();
 			return false;
 		});
 
-		this.ui.on('mousedown', '.off', function ()
-		{
-			if (PartyHelper.ui.find('.content').hasClass('disabled'))
-			{
+		this.ui.on('mousedown', '.off', function () {
+			if (PartyHelper.ui.find('.content').hasClass('disabled')) {
 				return;
 			}
 
@@ -80,8 +75,7 @@ define(function (require)
 	/**
 	 * Once append to the DOM, start to position the UI
 	 */
-	PartyHelper.onAppend = function onAppend()
-	{
+	PartyHelper.onAppend = function onAppend() {
 		var base = UIManager.getComponent('PartyFriends').ui;
 
 		this.ui.find('.setup, .create, .invite').hide();
@@ -96,8 +90,7 @@ define(function (require)
 	/**
 	 * Removing the UI from window, save preferences
 	 */
-	PartyHelper.onRemove = function onRemove()
-	{
+	PartyHelper.onRemove = function onRemove() {
 		this.ui.find('.setup, .create, .invite').hide();
 		this.ui.find('.name').val('');
 	};
@@ -107,12 +100,10 @@ define(function (require)
 	 *
 	 * @param {number} set window mode
 	 */
-	PartyHelper.setType = function setType(type)
-	{
+	PartyHelper.setType = function setType(type) {
 		this.ui.find('.content').removeClass('disabled');
 
-		switch (type)
-		{
+		switch (type) {
 			case PartyHelper.Type.CREATE:
 				this.ui.find('.setup, .invite').hide();
 				this.ui.find('.create').show();
@@ -138,10 +129,8 @@ define(function (require)
 	 * @param {object} options
 	 * @param {boolean} is editable ?
 	 */
-	PartyHelper.setOptions = function setOptions(options, editable)
-	{
-		function swap(off)
-		{
+	PartyHelper.setOptions = function setOptions(options, editable) {
+		function swap(off) {
 			var on, tmp;
 			on = off.parentNode.querySelector('.on');
 
@@ -158,24 +147,21 @@ define(function (require)
 			count = list.length;
 		var element;
 
-		for (i = 0; i < count; ++i)
-		{
-			if (options[list[i]] === undefined) {continue;}
+		for (i = 0; i < count; ++i) {
+			if (options[list[i]] === undefined) {
+				continue;
+			}
 
 			element = this.ui.find('.' + list[i]).find('.off')[0];
 
-			if (options[list[i]] == element.dataset.value)
-			{
+			if (options[list[i]] == element.dataset.value) {
 				swap(element);
 			}
 		}
 
-		if (!editable)
-		{
+		if (!editable) {
 			this.ui.find('.content').addClass('disabled');
-		}
-		else
-		{
+		} else {
 			this.ui.find('.content').removeClass('disabled');
 		}
 	};
@@ -184,26 +170,22 @@ define(function (require)
 	 * Get window mode
 	 *
 	 */
-	PartyHelper.getType = function getType()
-	{
+	PartyHelper.getType = function getType() {
 		return _type;
 	};
 
 	/**
 	 * Validate the form
 	 */
-	function onValidate()
-	{
+	function onValidate() {
 		var name, PartyFriends;
 
 		PartyFriends = UIManager.getComponent('PartyFriends');
 
-		switch (_type)
-		{
+		switch (_type) {
 			case PartyHelper.Type.CREATE:
 				name = PartyHelper.ui.find('.content .name').val();
-				if (name.length)
-				{
+				if (name.length) {
 					PartyFriends.onRequestPartyCreation(
 						name,
 						+PartyHelper.ui.find('.item_share .on').data('value'),
@@ -214,8 +196,7 @@ define(function (require)
 
 			case PartyHelper.Type.INVITE:
 				name = PartyHelper.ui.find('.content .name').val();
-				if (name.length)
-				{
+				if (name.length) {
 					PartyFriends.onRequestAddingMember(0, name);
 				}
 				break;

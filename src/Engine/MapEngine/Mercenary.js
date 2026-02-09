@@ -6,8 +6,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -28,13 +27,11 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.MER_INIT
 	 */
-	function onMercenaryInit(pkt)
-	{
+	function onMercenaryInit(pkt) {
 		Session.mercId = pkt.AID;
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity)
-		{
+		if (entity) {
 			entity.attack_range = pkt.ATKRange;
 			entity.life.hp = pkt.hp;
 			entity.life.hp_max = pkt.maxHP;
@@ -43,8 +40,7 @@ define(function (require)
 			entity.life.update();
 		}
 
-		if (entity && entity.life.display)
-		{
+		if (entity && entity.life.display) {
 			pkt.life = entity.life;
 		}
 
@@ -61,12 +57,10 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.MER_PROPERTY
 	 */
-	function onMercenaryProperty(pkt)
-	{
+	function onMercenaryProperty(pkt) {
 		var entity = EntityManager.get(Session.mercId);
 
-		if (entity)
-		{
+		if (entity) {
 			entity.life.hp = pkt.hp;
 			entity.life.hp_max = pkt.maxHP;
 			entity.life.sp = pkt.sp;
@@ -74,8 +68,7 @@ define(function (require)
 			entity.life.update();
 		}
 
-		if (entity && entity.life.display)
-		{
+		if (entity && entity.life.display) {
 			pkt.life = entity.life;
 		}
 
@@ -87,16 +80,13 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.MER_PAR_CHANGE
 	 */
-	function onParameterChange(pkt)
-	{
+	function onParameterChange(pkt) {
 		var entity = EntityManager.get(Session.mercId);
-		if (!entity)
-		{
+		if (!entity) {
 			return;
 		}
 
-		switch (pkt.param)
-		{
+		switch (pkt.param) {
 			case 0x0: // HP
 				entity.life.hp = pkt.value;
 				entity.life.update();
@@ -124,8 +114,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.MER_SKILLINFO_LIST
 	 */
-	function onSkillList(pkt)
-	{
+	function onSkillList(pkt) {
 		SkillListMH.mercenary.setSkills(pkt.skillList);
 	}
 
@@ -134,18 +123,15 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.MER_SKILLINFO_UPDATE
 	 */
-	function onSkillUpdate(pkt)
-	{
+	function onSkillUpdate(pkt) {
 		SkillListMH.mercenary.updateSkill(pkt);
 	}
 
 	/**
 	 * Request to delete mercenary
 	 */
-	MercenaryInformations.reqDeleteMercenary = function reqDeleteMercenary()
-	{
-		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function ()
-		{
+	MercenaryInformations.reqDeleteMercenary = function reqDeleteMercenary() {
+		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
 			var pkt = new PACKET.CZ.MER_COMMAND();
 			pkt.command = 2;
 			Network.sendPacket(pkt);
@@ -155,8 +141,7 @@ define(function (require)
 	/**
 	 * Request to move mercenary to owner
 	 */
-	MercenaryInformations.reqMoveToOwner = function reqMoveToOwner(gid)
-	{
+	MercenaryInformations.reqMoveToOwner = function reqMoveToOwner(gid) {
 		var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
 		pkt.GID = gid;
 		Network.sendPacket(pkt);
@@ -165,8 +150,7 @@ define(function (require)
 	/**
 	 * Request mercenary to attack target
 	 */
-	MercenaryInformations.reqAttack = function reqAttack(GID, targetGID)
-	{
+	MercenaryInformations.reqAttack = function reqAttack(GID, targetGID) {
 		var pkt = new PACKET.CZ.REQUEST_ACTNPC();
 		pkt.GID = GID;
 		pkt.targetGID = targetGID;
@@ -177,8 +161,7 @@ define(function (require)
 	/**
 	 * Request mercenary to move to location
 	 */
-	MercenaryInformations.reqMoveTo = function reqMoveTo(GID)
-	{
+	MercenaryInformations.reqMoveTo = function reqMoveTo(GID) {
 		var pkt = new PACKET.CZ.REQUEST_MOVENPC();
 		pkt.GID = GID;
 		pkt.dest[0] = Mouse.world.x;
@@ -189,8 +172,7 @@ define(function (require)
 	/**
 	 * Initialize
 	 */
-	return function MercenaryEngine()
-	{
+	return function MercenaryEngine() {
 		Network.hookPacket(PACKET.ZC.MER_INIT, onMercenaryInit);
 		Network.hookPacket(PACKET.ZC.MER_PROPERTY, onMercenaryProperty);
 		Network.hookPacket(PACKET.ZC.MER_PAR_CHANGE, onParameterChange);

@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -37,10 +36,8 @@ define(function (require)
 	/**
 	 * Once append to the DOM
 	 */
-	SkillDescription.onKeyDown = function onKeyDown(event)
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible'))
-		{
+	SkillDescription.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.remove();
 		}
 	};
@@ -48,8 +45,7 @@ define(function (require)
 	/**
 	 * Once append
 	 */
-	SkillDescription.onAppend = function onAppend()
-	{
+	SkillDescription.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
 		var events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
@@ -58,19 +54,16 @@ define(function (require)
 	/**
 	 * Once removed
 	 */
-	SkillDescription.onRemove = function onRemove()
-	{
+	SkillDescription.onRemove = function onRemove() {
 		this.uid = -1; // reset uid
 	};
 
 	/**
 	 * Initialize UI
 	 */
-	SkillDescription.init = function init()
-	{
+	SkillDescription.init = function init() {
 		this.ui.find('.close').click(
-			function ()
-			{
+			function () {
 				this.remove();
 			}.bind(this)
 		);
@@ -83,8 +76,7 @@ define(function (require)
 	 *
 	 * @param {number} skill id
 	 */
-	SkillDescription.setSkill = function setSkill(id)
-	{
+	SkillDescription.setSkill = function setSkill(id) {
 		this.uid = id;
 		this.ui.find('.content').text(DB.getSkillDescription(id));
 

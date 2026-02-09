@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -32,8 +31,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	MakeArrowSelection.init = function init()
-	{
+	MakeArrowSelection.init = function init() {
 		// Show at center.
 		this.ui.css({
 			top: (Renderer.height - 200) / 2,
@@ -48,16 +46,14 @@ define(function (require)
 		// Click Events
 		this.ui.find('.ok').click(this.selectIndex.bind(this));
 		this.ui.find('.cancel').click(
-			function ()
-			{
+			function () {
 				this.index = -1;
 				this.selectIndex();
 			}.bind(this)
 		);
 
 		// Bind events
-		this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function ()
-		{
+		this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function () {
 			MakeArrowSelection.setIndex(Math.floor(this.getAttribute('data-index')));
 		});
 	};
@@ -67,15 +63,13 @@ define(function (require)
 	 *
 	 * @param {Array} list object to display
 	 */
-	MakeArrowSelection.setList = function setList(list)
-	{
+	MakeArrowSelection.setList = function setList(list) {
 		var i, count;
 		var item, it, file, name;
 
 		MakeArrowSelection.list.empty();
 
-		for (i = 0, count = list.length; i < count; ++i)
-		{
+		for (i = 0, count = list.length; i < count; ++i) {
 			item = list[i];
 			it = DB.getItemInfo(item.index);
 			file = it.identifiedResourceName;
@@ -94,8 +88,7 @@ define(function (require)
 	 * @param {index} index in list
 	 * @param {string} element name
 	 */
-	function addElement(url, index, name)
-	{
+	function addElement(url, index, name) {
 		MakeArrowSelection.list.append(
 			'<div class="item" data-index="' +
 				index +
@@ -107,8 +100,7 @@ define(function (require)
 				'</div>'
 		);
 
-		Client.loadFile(url, function (data)
-		{
+		Client.loadFile(url, function (data) {
 			MakeArrowSelection.list
 				.find('div[data-index=' + index + '] .icon')
 				.css('backgroundImage', 'url(' + data + ')');
@@ -120,8 +112,7 @@ define(function (require)
 	 *
 	 * @param {number} id in list
 	 */
-	MakeArrowSelection.setIndex = function setIndex(id)
-	{
+	MakeArrowSelection.setIndex = function setIndex(id) {
 		this.list.find('div[data-index=' + this.index + ']').css('backgroundColor', 'transparent');
 		this.list.find('div[data-index=' + id + ']').css('backgroundColor', '#cde0ff');
 		this.index = id;
@@ -130,8 +121,7 @@ define(function (require)
 	/**
 	 * Select a server, callback
 	 */
-	MakeArrowSelection.selectIndex = function selectIndex()
-	{
+	MakeArrowSelection.selectIndex = function selectIndex() {
 		this.onIndexSelected(this.index);
 		this.remove();
 	};
@@ -139,8 +129,7 @@ define(function (require)
 	/**
 	 * Free variables once removed from HTML
 	 */
-	MakeArrowSelection.onRemove = function onRemove()
-	{
+	MakeArrowSelection.onRemove = function onRemove() {
 		this.index = 0;
 	};
 
@@ -149,8 +138,7 @@ define(function (require)
 	 *
 	 * @param {string} title
 	 */
-	MakeArrowSelection.setTitle = function setTitle(title)
-	{
+	MakeArrowSelection.setTitle = function setTitle(title) {
 		this.ui.find('.head .text').text(title);
 	};
 
@@ -159,10 +147,8 @@ define(function (require)
 	 */
 	MakeArrowSelection.onIndexSelected = function onIndexSelected() {};
 
-	MakeArrowSelection.onKeyDown = function onKeyDown(event)
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible'))
-		{
+	MakeArrowSelection.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.remove();
 		}
 	};

@@ -14,8 +14,7 @@ define([
 	'Utils/WebGL',
 	'Renderer/Effects/PostProcess',
 	'Core/Configs'
-], function (vs, fs, WebGL, PostProcess, Configs)
-{
+], function (vs, fs, WebGL, PostProcess, Configs) {
 	'use strict';
 
 	var _program, _buffer;
@@ -25,15 +24,13 @@ define([
 		/**
 		 * Initializes shaders and buffers
 		 */
-		init: function (gl)
-		{
-			if (_program) {return;}
-			try
-			{
-				_program = WebGL.createShaderProgram(gl, vs, fs);
+		init: function (gl) {
+			if (_program) {
+				return;
 			}
-			catch (e)
-			{
+			try {
+				_program = WebGL.createShaderProgram(gl, vs, fs);
+			} catch (e) {
 				console.error('Error when compiling shader VerticalFlip.', e);
 				return;
 			}
@@ -55,9 +52,10 @@ define([
 		 * @param {WebGLTexture} inputTexture - Texture to be inverted
 		 * @param {WebGLFramebuffer} outputFramebuffer - Target
 		 */
-		render: function (gl, inputTexture, outputFramebuffer)
-		{
-			if (!_buffer || !_program || !_active) {return;}
+		render: function (gl, inputTexture, outputFramebuffer) {
+			if (!_buffer || !_program || !_active) {
+				return;
+			}
 
 			gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
 
@@ -88,9 +86,10 @@ define([
 		},
 
 		/** Cleans up WebGL states */
-		afterRender: function (gl)
-		{
-			if (!_active || !_program || !_buffer) {return;}
+		afterRender: function (gl) {
+			if (!_active || !_program || !_buffer) {
+				return;
+			}
 
 			gl.useProgram(null);
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -101,28 +100,26 @@ define([
 		/**
 		 * @returns {WebGLProgram} Shader program
 		 */
-		program: function ()
-		{
+		program: function () {
 			return _program;
 		},
 
 		/** Resets effect state */
-		clean: function (gl)
-		{
+		clean: function (gl) {
 			_active = false;
-			if (_buffer) {gl.deleteBuffer(_buffer);}
+			if (_buffer) {
+				gl.deleteBuffer(_buffer);
+			}
 			_program = _buffer = null;
 		},
 
 		/** @returns {boolean} Whether the effect is active */
-		isActive: function ()
-		{
+		isActive: function () {
 			return _active;
 		},
 
 		/** @param {boolean} bool - Enables/disables the effect */
-		setActive: function (bool)
-		{
+		setActive: function (bool) {
 			_active = bool;
 		}
 	};

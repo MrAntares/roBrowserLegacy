@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -29,8 +28,7 @@ define(function (require)
 	/**
 	 * Initialize events
 	 */
-	CardIllustration.init = function init()
-	{
+	CardIllustration.init = function init() {
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.draggable();
 	};
@@ -40,15 +38,13 @@ define(function (require)
 	 *
 	 * @param {object} item
 	 */
-	CardIllustration.setCard = function setCard(item)
-	{
+	CardIllustration.setCard = function setCard(item) {
 		this.ui.find('.titlebar .text').text(item.identifiedDisplayName);
 		this.ui.find('.content').css('backgroundImage', 'none');
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'cardbmp/' + item.illustResourcesName + '.bmp',
-			function (data)
-			{
+			function (data) {
 				this.ui.find('.content').css('backgroundImage', 'url(' + data + ')');
 			}.bind(this)
 		);

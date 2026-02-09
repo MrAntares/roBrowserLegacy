@@ -7,29 +7,24 @@
  *
  * @author Vincent Thibault
  */
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	var Storage = {
-		get: function Get(key, fn)
-		{
+		get: function Get(key, fn) {
 			var out = {};
 			out[key] = localStorage.getItem(key);
 			fn(out);
 		},
-		set: function Set(obj, fn)
-		{
+		set: function Set(obj, fn) {
 			var keys = Object.keys(obj);
 			var i, count;
 
-			for (i = 0, count = keys.length; i < count; ++i)
-			{
+			for (i = 0, count = keys.length; i < count; ++i) {
 				localStorage.setItem(keys[i], obj[keys[i]]);
 			}
 
-			if (fn)
-			{
+			if (fn) {
 				fn();
 			}
 		}
@@ -42,18 +37,15 @@ define(function ()
 	 * @param {mixed} default value
 	 * @param {number} optional version
 	 */
-	function get(key, def, version)
-	{
-		Storage.get(key, function (value)
-		{
+	function get(key, def, version) {
+		Storage.get(key, function (value) {
 			var data, keys;
 			var i, count;
 
 			version = version || 0.0;
 
 			// Not existing, storing it
-			if (!value[key] || JSON.parse(value[key])._version !== version)
-			{
+			if (!value[key] || JSON.parse(value[key])._version !== version) {
 				save(def);
 				return;
 			}
@@ -66,8 +58,7 @@ define(function ()
 			keys = Object.keys(data);
 			count = keys.length;
 
-			for (i = 0; i < count; ++i)
-			{
+			for (i = 0; i < count; ++i) {
 				def[keys[i]] = data[keys[i]];
 			}
 		});
@@ -85,8 +76,7 @@ define(function ()
 	 * @param {string} key
 	 * @param {object} value to store
 	 */
-	function save(data)
-	{
+	function save(data) {
 		var key = data._key;
 		delete data._key;
 		delete data.save;
@@ -103,8 +93,7 @@ define(function ()
 	/**
 	 * Save from object
 	 */
-	function selfSave()
-	{
+	function selfSave() {
 		save(this);
 	}
 

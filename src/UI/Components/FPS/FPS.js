@@ -7,8 +7,7 @@
  *
  * @author IssID
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -42,10 +41,8 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	FPS.init = function Init()
-	{
-		this.ui.find('.base').mousedown(function (event)
-		{
+	FPS.init = function Init() {
+		this.ui.find('.base').mousedown(function (event) {
 			event.stopImmediatePropagation();
 			return false;
 		});
@@ -58,8 +55,7 @@ define(function (require)
 	/**
 	 * When appended to DOM
 	 */
-	FPS.onAppend = function OnAppend()
-	{
+	FPS.onAppend = function OnAppend() {
 		// Apply preferences
 		this.ui.toggle(_preferences.show);
 
@@ -74,22 +70,25 @@ define(function (require)
 		var lastValue = null;
 		var lastClass = null;
 
-		function getFPSClass(value, frameLimit)
-		{
-			if (value >= frameLimit - (10 / frameLimit) * 100) {return 'fps-good';}
-			if (value >= 15) {return 'fps-warn';}
+		function getFPSClass(value, frameLimit) {
+			if (value >= frameLimit - (10 / frameLimit) * 100) {
+				return 'fps-good';
+			}
+			if (value >= 15) {
+				return 'fps-warn';
+			}
 			return 'fps-bad';
 		}
 
-		function tick(time)
-		{
+		function tick(time) {
 			frame++;
-			if (time - startTime < 1000) {return;}
+			if (time - startTime < 1000) {
+				return;
+			}
 			var value = +(frame / ((time - startTime) / 1000)).toFixed(1);
 
 			// Update text only if changed
-			if (value !== lastValue)
-			{
+			if (value !== lastValue) {
 				fpsEl.text(value);
 				lastValue = value;
 			}
@@ -98,8 +97,7 @@ define(function (require)
 			var cls = getFPSClass(value, limit);
 
 			// Update class only if changed
-			if (cls !== lastClass)
-			{
+			if (cls !== lastClass) {
 				this.ui.removeClass('fps-good fps-warn fps-bad').addClass(cls);
 				lastClass = cls;
 			}
@@ -114,8 +112,7 @@ define(function (require)
 	/**
 	 * Once remove, save preferences
 	 */
-	FPS.onRemove = function onRemove()
-	{
+	FPS.onRemove = function onRemove() {
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.show = this.ui.is(':visible');
@@ -125,8 +122,7 @@ define(function (require)
 	/**
 	 * Show/Hide UI
 	 */
-	FPS.toggle = function toggle(isVisible)
-	{
+	FPS.toggle = function toggle(isVisible) {
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.show = isVisible;
@@ -134,8 +130,7 @@ define(function (require)
 
 		this.ui.toggle();
 
-		if (this.ui.is(':visible'))
-		{
+		if (this.ui.is(':visible')) {
 			this.focus();
 		}
 	};

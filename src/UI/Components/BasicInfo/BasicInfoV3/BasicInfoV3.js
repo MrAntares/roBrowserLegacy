@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -74,21 +73,17 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	BasicInfoV3.init = function init()
-	{
+	BasicInfoV3.init = function init() {
 		// Don't activate drag drop when clicking on buttons
-		this.ui.find('.topbar div').mousedown(function (event)
-		{
+		this.ui.find('.topbar div').mousedown(function (event) {
 			event.stopImmediatePropagation();
 		});
 
 		this.ui.find('.topbar .right').click(BasicInfoV3.toggleMode.bind(this));
 		this.ui.find('.toggle_btns').mousedown(BasicInfoV3.toggleButtons.bind(this));
 
-		this.ui.find('.buttons div').mousedown(function ()
-		{
-			switch (this.id)
-			{
+		this.ui.find('.buttons div').mousedown(function () {
+			switch (this.id) {
 				case 'item':
 					Inventory.getUI().toggle();
 					break;
@@ -142,8 +137,7 @@ define(function (require)
 	 * When append the element to html
 	 * Execute elements in memory
 	 */
-	BasicInfoV3.onAppend = function onAppend()
-	{
+	BasicInfoV3.onAppend = function onAppend() {
 		// Apply preferences
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
@@ -157,23 +151,17 @@ define(function (require)
 
 		// large/small window
 		this.ui.removeClass('small large');
-		if (_preferences.reduce)
-		{
+		if (_preferences.reduce) {
 			this.ui.addClass('small');
-		}
-		else
-		{
+		} else {
 			this.ui.addClass('large');
 		}
 
-		if (_preferences.buttons)
-		{
+		if (_preferences.buttons) {
 			this.ui.find('.buttons').show();
 			this.ui.find('.btn_open').hide();
 			this.ui.find('.btn_close').show();
-		}
-		else
-		{
+		} else {
 			this.ui.find('.buttons').hide();
 			this.ui.find('.btn_open').show();
 			this.ui.find('.btn_close').hide();
@@ -189,8 +177,7 @@ define(function (require)
 	/**
 	 * Once remove, save preferences
 	 */
-	BasicInfoV3.onRemove = function onRemove()
-	{
+	BasicInfoV3.onRemove = function onRemove() {
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.reduce = this.ui.hasClass('small');
@@ -207,10 +194,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	BasicInfoV3.onShortCut = function onShortCut(key)
-	{
-		switch (key.cmd)
-		{
+	BasicInfoV3.onShortCut = function onShortCut(key) {
+		switch (key.cmd) {
 			case 'EXTEND':
 				this.toggleMode();
 				break;
@@ -220,20 +205,16 @@ define(function (require)
 	/**
 	 * Switch window size
 	 */
-	BasicInfoV3.toggleMode = function toggleMode()
-	{
+	BasicInfoV3.toggleMode = function toggleMode() {
 		var type;
 
 		this.ui.toggleClass('small large');
 
-		if (_preferences.buttons)
-		{
+		if (_preferences.buttons) {
 			this.ui.find('.buttons').show();
 			this.ui.find('#btn_open').hide();
 			this.ui.find('.btn_close').show();
-		}
-		else
-		{
+		} else {
 			this.ui.find('.buttons').hide();
 			this.ui.find('.btn_open').show();
 			this.ui.find('.btn_close').hide();
@@ -243,21 +224,17 @@ define(function (require)
 	/**
 	 * Toggle the list of buttons
 	 */
-	BasicInfoV3.toggleButtons = function toggleButtons(event)
-	{
+	BasicInfoV3.toggleButtons = function toggleButtons(event) {
 		var type;
 		var $buttons = this.ui.find('.buttons');
 
 		_preferences.buttons = !$buttons.is(':visible');
 
-		if (_preferences.buttons)
-		{
+		if (_preferences.buttons) {
 			this.ui.find('.buttons').show();
 			this.ui.find('#btn_open').hide();
 			this.ui.find('.btn_close').show();
-		}
-		else
-		{
+		} else {
 			this.ui.find('.buttons').hide();
 			this.ui.find('.btn_open').show();
 			this.ui.find('.btn_close').hide();
@@ -273,10 +250,8 @@ define(function (require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	BasicInfoV3.update = function update(type, val1, val2)
-	{
-		switch (type)
-		{
+	BasicInfoV3.update = function update(type, val1, val2) {
+		switch (type) {
 			case 'name':
 			case 'blvl':
 			case 'jlvl':
@@ -291,8 +266,7 @@ define(function (require)
 					count = list.length;
 				var str = '';
 
-				for (i = 0; i < count; i++)
-				{
+				for (i = 0; i < count; i++) {
 					str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 				}
 
@@ -307,8 +281,7 @@ define(function (require)
 
 			case 'bexp':
 			case 'jexp':
-				if (!val2)
-				{
+				if (!val2) {
 					this.ui.find('.' + type).hide();
 					break;
 				}
@@ -336,24 +309,21 @@ define(function (require)
 				this.ui.find('.' + type + '_max_value').text(val2);
 				this.ui.find('.' + type + '_perc').text(perc + '%');
 
-				if (perc <= 0)
-				{
+				if (perc <= 0) {
 					this.ui.find('.' + type + '_bar div').css('backgroundImage', 'none');
 					break;
 				}
 
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp',
-					function (url)
-					{
+					function (url) {
 						this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
 					}.bind(this)
 				);
 
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp',
-					function (url)
-					{
+					function (url) {
 						this.ui.find('.' + type + '_bar_middle').css({
 							backgroundImage: 'url(' + url + ')',
 							width: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
@@ -363,8 +333,7 @@ define(function (require)
 
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp',
-					function (url)
-					{
+					function (url) {
 						this.ui.find('.' + type + '_bar_right').css({
 							backgroundImage: 'url(' + url + ')',
 							left: Math.floor(Math.min(perc, 100) * 1.27) + 'px'

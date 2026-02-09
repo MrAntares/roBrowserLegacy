@@ -8,8 +8,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var publicName = 'Equipment';
@@ -41,8 +40,7 @@ define(function (require)
 	var _selectUIVersion = EquipmentController.selectUIVersion;
 
 	// Extend default UI selector
-	EquipmentController.selectUIVersion = function ()
-	{
+	EquipmentController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
@@ -50,11 +48,11 @@ define(function (require)
 		DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
 
 		// Escape to close the UI
-		component.onKeyDown = function onKeyDown(e)
-		{
-			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible'))
-			{
-				if (typeof component.toggle === 'function') {component.toggle();}
+		component.onKeyDown = function onKeyDown(e) {
+			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
+				if (typeof component.toggle === 'function') {
+					component.toggle();
+				}
 			}
 		};
 	};

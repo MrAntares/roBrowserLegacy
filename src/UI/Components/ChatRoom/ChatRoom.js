@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -84,21 +83,18 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	ChatRoom.init = function init()
-	{
+	ChatRoom.init = function init() {
 		// Bindings
 		this.ui.find('.extend').mousedown(onResize);
 		this.ui
 			.find('.close')
-			.mousedown(function (event)
-			{
+			.mousedown(function (event) {
 				event.stopImmediatePropagation();
 				return false;
 			})
 			.click(this.remove.bind(this));
 
-		this.ui.find('.sendmsg').mousedown(function (event)
-		{
+		this.ui.find('.sendmsg').mousedown(function (event) {
 			event.stopImmediatePropagation();
 		});
 
@@ -108,8 +104,7 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	ChatRoom.onAppend = function onAppend()
-	{
+	ChatRoom.onAppend = function onAppend() {
 		this.isOpen = true;
 		resize(_preferences.width, _preferences.height);
 
@@ -125,8 +120,7 @@ define(function (require)
 	/**
 	 * Clean up variables once removed from DOM
 	 */
-	ChatRoom.onRemove = function onRemove()
-	{
+	ChatRoom.onRemove = function onRemove() {
 		this.title = '';
 		this.limit = 20;
 		this.type = 0;
@@ -149,8 +143,7 @@ define(function (require)
 	/**
 	 * Update ChatRoom parameters
 	 */
-	ChatRoom.updateChat = function updateChat()
-	{
+	ChatRoom.updateChat = function updateChat() {
 		var members = '';
 		var i,
 			count = this.members.length;
@@ -158,10 +151,8 @@ define(function (require)
 		this.ui.find('.titlebar .title').text(this.title);
 		this.ui.find('.titlebar .count').text(this.count + '/' + this.limit);
 
-		for (i = 0; i < count; ++i)
-		{
-			if (this.members[i] == this.owner)
-			{
+		for (i = 0; i < count; ++i) {
+			if (this.members[i] == this.owner) {
 				members = '<span class="owner">' + jQuery.escape(this.members[i]) + '</span><br/>' + members;
 				continue;
 			}
@@ -174,20 +165,17 @@ define(function (require)
 	/**
 	 * Parse and send chat room messages
 	 */
-	function sendChatMessage()
-	{
+	function sendChatMessage() {
 		var ui = ChatRoom.ui;
 		var message = ui.find('.send input[name=message]').val();
 
 		// Nothing to submit
-		if (message.length < 1)
-		{
+		if (message.length < 1) {
 			return false;
 		}
 
 		// Process commands
-		if (message[0] === '/')
-		{
+		if (message[0] === '/') {
 			getModule('Controls/ProcessCommand').processCommand.call(ChatBox, message.substr(1));
 			ui.find('.send input[name=message]').val('');
 			return true;
@@ -203,18 +191,14 @@ define(function (require)
 	 * Display a message in the chat room
 	 * @param {string} message
 	 */
-	ChatRoom.message = function displayMessage(message, type)
-	{
+	ChatRoom.message = function displayMessage(message, type) {
 		// Escape html tag
 		var element = jQuery('<div/>');
 		element.text(message);
 
-		if (type)
-		{
+		if (type) {
 			element.addClass(type);
-		}
-		else if (message.indexOf(Session.Entity.display.name + ' : ') === 0)
-		{
+		} else if (message.indexOf(Session.Entity.display.name + ' : ') === 0) {
 			element.addClass('self');
 		}
 
@@ -231,12 +215,10 @@ define(function (require)
 	 * Remove a member from the chat
 	 * @param {string} member name
 	 */
-	ChatRoom.removeMember = function removeMember(name)
-	{
+	ChatRoom.removeMember = function removeMember(name) {
 		var pos = this.members.indexOf(name);
 
-		if (pos > -1)
-		{
+		if (pos > -1) {
 			this.members.splice(pos, 1);
 			return true;
 		}
@@ -250,10 +232,8 @@ define(function (require)
 	 * @param {object} event - KeyEventHandler
 	 * @return {boolean}
 	 */
-	ChatRoom.onKeyDown = function onKeyDown(event)
-	{
-		if (event.which === KEYS.ENTER)
-		{
+	ChatRoom.onKeyDown = function onKeyDown(event) {
+		if (event.which === KEYS.ENTER) {
 			sendChatMessage();
 
 			event.stopImmediatePropagation();
@@ -271,8 +251,7 @@ define(function (require)
 	/**
 	 * Resize ChatRoom
 	 */
-	function onResize()
-	{
+	function onResize() {
 		var ui = ChatRoom.ui;
 		var top = ui.position().top;
 		var left = ui.position().left;
@@ -280,8 +259,7 @@ define(function (require)
 		var lastHeight = 0;
 		var _Interval;
 
-		function resizeProcess()
-		{
+		function resizeProcess() {
 			var extraX = 23 + 16 + 16 - 30;
 			var extraY = 31 + 19 - 30;
 
@@ -292,8 +270,7 @@ define(function (require)
 			w = Math.min(Math.max(w, 7), 14);
 			h = Math.min(Math.max(h, 3), 8);
 
-			if (w === lastWidth && h === lastHeight)
-			{
+			if (w === lastWidth && h === lastHeight) {
 				return;
 			}
 
@@ -306,11 +283,9 @@ define(function (require)
 		_Interval = setInterval(resizeProcess, 30);
 
 		// Stop resizing
-		jQuery(window).one('mouseup', function (event)
-		{
+		jQuery(window).one('mouseup', function (event) {
 			// Only on left click
-			if (event.which === 1)
-			{
+			if (event.which === 1) {
 				clearInterval(_Interval);
 			}
 		});
@@ -319,8 +294,7 @@ define(function (require)
 	/**
 	 * Extend inventory window size
 	 */
-	function resize(width, height)
-	{
+	function resize(width, height) {
 		width = Math.min(Math.max(width, 7), 14);
 		height = Math.min(Math.max(height, 3), 8);
 

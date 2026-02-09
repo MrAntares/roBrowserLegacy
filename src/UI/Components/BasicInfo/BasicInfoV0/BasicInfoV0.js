@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -73,21 +72,17 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	BasicInfoV0.init = function init()
-	{
+	BasicInfoV0.init = function init() {
 		// Don't activate drag drop when clicking on buttons
-		this.ui.find('.topbar button').mousedown(function (event)
-		{
+		this.ui.find('.topbar button').mousedown(function (event) {
 			event.stopImmediatePropagation();
 		});
 
 		this.ui.find('.topbar .right').click(BasicInfoV0.toggleMode.bind(this));
 		this.ui.find('.toggle_btns').mousedown(BasicInfoV0.toggleButtons.bind(this));
 
-		this.ui.find('.buttons button').mousedown(function ()
-		{
-			switch (this.className)
-			{
+		this.ui.find('.buttons button').mousedown(function () {
+			switch (this.className) {
 				case 'item':
 					Inventory.getUI().toggle();
 					break;
@@ -137,8 +132,7 @@ define(function (require)
 	 * When append the element to html
 	 * Execute elements in memory
 	 */
-	BasicInfoV0.onAppend = function onAppend()
-	{
+	BasicInfoV0.onAppend = function onAppend() {
 		// Apply preferences
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
@@ -152,20 +146,16 @@ define(function (require)
 
 		// large/small window
 		this.ui.removeClass('small large');
-		if (_preferences.reduce)
-		{
+		if (_preferences.reduce) {
 			this.ui.addClass('small');
 			this.ui.find('.buttons').hide();
 			Client.loadFile(
 				DB.INTERFACE_PATH + this.ui.data('mini-background'),
-				function (url)
-				{
+				function (url) {
 					this.ui.css('backgroundImage', 'url(' + url + ')');
 				}.bind(this)
 			);
-		}
-		else
-		{
+		} else {
 			this.ui.addClass('large');
 			this.ui.find('.buttons').show();
 		}
@@ -174,8 +164,7 @@ define(function (require)
 	/**
 	 * Once remove, save preferences
 	 */
-	BasicInfoV0.onRemove = function onRemove()
-	{
+	BasicInfoV0.onRemove = function onRemove() {
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.reduce = this.ui.hasClass('small');
@@ -192,10 +181,8 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	BasicInfoV0.onShortCut = function onShortCut(key)
-	{
-		switch (key.cmd)
-		{
+	BasicInfoV0.onShortCut = function onShortCut(key) {
+		switch (key.cmd) {
 			case 'EXTEND':
 				this.toggleMode();
 				break;
@@ -205,19 +192,16 @@ define(function (require)
 	/**
 	 * Switch window size
 	 */
-	BasicInfoV0.toggleMode = function toggleMode()
-	{
+	BasicInfoV0.toggleMode = function toggleMode() {
 		var type;
 
 		this.ui.toggleClass('small large');
 
-		if (this.ui.hasClass('large'))
-		{
+		if (this.ui.hasClass('large')) {
 			this.ui.find('.buttons').show();
 			Client.loadFile(
 				DB.INTERFACE_PATH + this.ui.data('background'),
-				function (url)
-				{
+				function (url) {
 					this.ui.css('backgroundImage', 'url(' + url + ')');
 				}.bind(this)
 			);
@@ -226,8 +210,7 @@ define(function (require)
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + this.ui.data('mini-background'),
-			function (url)
-			{
+			function (url) {
 				this.ui.css('backgroundImage', 'url(' + url + ')');
 			}.bind(this)
 		);
@@ -235,8 +218,7 @@ define(function (require)
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'basic_interface/view' + type + '.bmp',
-			function (url)
-			{
+			function (url) {
 				this.ui.find('.toggle_btns').css('backgroundImage', 'url(' + url + ')');
 			}.bind(this)
 		);
@@ -245,28 +227,23 @@ define(function (require)
 	/**
 	 * Toggle the list of buttons
 	 */
-	BasicInfoV0.toggleButtons = function toggleButtons(event)
-	{
+	BasicInfoV0.toggleButtons = function toggleButtons(event) {
 		var type;
 		var $buttons = this.ui.find('.buttons');
 
 		_preferences.buttons = !$buttons.is(':visible');
 
-		if (_preferences.buttons)
-		{
+		if (_preferences.buttons) {
 			$buttons.show();
 			type = 'off';
-		}
-		else
-		{
+		} else {
 			$buttons.hide();
 			type = 'on';
 		}
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'basic_interface/view' + type + '.bmp',
-			function (url)
-			{
+			function (url) {
 				this.ui.find('.toggle_btns').css('backgroundImage', 'url(' + url + ')');
 			}.bind(this)
 		);
@@ -281,10 +258,8 @@ define(function (require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	BasicInfoV0.update = function update(type, val1, val2)
-	{
-		switch (type)
-		{
+	BasicInfoV0.update = function update(type, val1, val2) {
+		switch (type) {
 			case 'name':
 			case 'blvl':
 			case 'jlvl':
@@ -299,8 +274,7 @@ define(function (require)
 					count = list.length;
 				var str = '';
 
-				for (i = 0; i < count; i++)
-				{
+				for (i = 0; i < count; i++) {
 					str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 				}
 
@@ -315,8 +289,7 @@ define(function (require)
 
 			case 'bexp':
 			case 'jexp':
-				if (!val2)
-				{
+				if (!val2) {
 					this.ui.find('.' + type).hide();
 					break;
 				}
@@ -343,24 +316,21 @@ define(function (require)
 				this.ui.find('.' + type + '_value').text(val1);
 				this.ui.find('.' + type + '_max_value').text(val2);
 
-				if (perc <= 0)
-				{
+				if (perc <= 0) {
 					this.ui.find('.' + type + '_bar div').css('backgroundImage', 'none');
 					break;
 				}
 
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp',
-					function (url)
-					{
+					function (url) {
 						this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
 					}.bind(this)
 				);
 
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp',
-					function (url)
-					{
+					function (url) {
 						this.ui.find('.' + type + '_bar_middle').css({
 							backgroundImage: 'url(' + url + ')',
 							width: Math.floor(Math.min(perc, 100) * 0.77) + 'px'
@@ -370,8 +340,7 @@ define(function (require)
 
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp',
-					function (url)
-					{
+					function (url) {
 						this.ui.find('.' + type + '_bar_right').css({
 							backgroundImage: 'url(' + url + ')',
 							left: Math.floor(Math.min(perc, 100) * 0.77) + 'px'

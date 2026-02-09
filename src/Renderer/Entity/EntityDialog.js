@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatrix, Events, Renderer)
-{
+define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatrix, Events, Renderer) {
 	'use strict';
 
 	/**
@@ -19,8 +18,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	var _size = new Float32Array(2);
 
 	// Helper to render round rectangle
-	function roundRect(ctx, x, y, width, height, radius)
-	{
+	function roundRect(ctx, x, y, width, height, radius) {
 		ctx.beginPath();
 		ctx.moveTo(x + radius, y);
 		ctx.lineTo(x + width - radius, y);
@@ -37,8 +35,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	/**
 	 * Dialog class
 	 */
-	function Dialog()
-	{
+	function Dialog() {
 		this.text = '';
 		this.tick = 0;
 		this.timeout = null;
@@ -56,8 +53,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	 * @param {string} text message
 	 * @param {string} fontColor
 	 */
-	Dialog.prototype.set = function Set(text, fontColor)
-	{
+	Dialog.prototype.set = function Set(text, fontColor) {
 		// Save info
 		this.text = text;
 		this.tick = Renderer.tick;
@@ -77,21 +73,17 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 		ctx.font = fontSize + 'px Arial';
 
 		// Parse lines, depend on text size.
-		while (text.length)
-		{
+		while (text.length) {
 			i = text.length;
-			while (ctx.measureText(text.substr(0, i)).width > max_width)
-			{
+			while (ctx.measureText(text.substr(0, i)).width > max_width) {
 				i--;
 			}
 
 			result = text.substr(0, i);
 
-			if (i !== text.length)
-			{
+			if (i !== text.length) {
 				j = 0;
-				while (result.indexOf(' ', j) !== -1)
-				{
+				while (result.indexOf(' ', j) !== -1) {
 					j = result.indexOf(' ', j) + 1;
 				}
 			}
@@ -113,8 +105,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 		roundRect(ctx, 0.5, 0.5, ctx.canvas.width - 1, ctx.canvas.height - 1, 2);
 		ctx.stroke();
 
-		for (i = 0, j = lines.length; i < j; ++i)
-		{
+		for (i = 0, j = lines.length; i < j; ++i) {
 			// Render twice to get it a little brighter
 			ctx.fillStyle = 'black';
 			ctx.fillText(lines[i], 8, 5 + fontSize + (fontSize + 5) * i);
@@ -123,15 +114,13 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 		}
 
 		// Remove or rewrite canvas
-		if (this.timeout)
-		{
+		if (this.timeout) {
 			Events.clearTimeout(this.timeout);
 		}
 
 		// Remove next 5 secs.
 		this.timeout = Events.setTimeout(
-			function ()
-			{
+			function () {
 				this.timeout = null;
 				this.remove();
 			}.bind(this),
@@ -142,18 +131,15 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	/**
 	 * Remove GUI from html
 	 */
-	Dialog.prototype.remove = function Remove()
-	{
+	Dialog.prototype.remove = function Remove() {
 		// Clean timeout
-		if (this.timeout)
-		{
+		if (this.timeout) {
 			Events.clearTimeout(this.timeout);
 			this.timeout = null;
 		}
 
 		// Remove element
-		if (this.canvas.parentNode)
-		{
+		if (this.canvas.parentNode) {
 			document.body.removeChild(this.canvas);
 		}
 
@@ -164,8 +150,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	/**
 	 * Clean up dialog
 	 */
-	Dialog.prototype.clean = function Clean()
-	{
+	Dialog.prototype.clean = function Clean() {
 		this.remove();
 		//this.canvas = null;
 		//this.ctx    = null;
@@ -174,8 +159,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	/**
 	 * Rendering dialog box
 	 */
-	Dialog.prototype.render = function Render(matrix)
-	{
+	Dialog.prototype.render = function Render(matrix) {
 		var canvas = this.canvas;
 		var z;
 
@@ -201,8 +185,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
 		// Append to body
-		if (!canvas.parentNode)
-		{
+		if (!canvas.parentNode) {
 			document.body.appendChild(canvas);
 		}
 	};
@@ -210,8 +193,7 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	/**
 	 * Export
 	 */
-	return function Init()
-	{
+	return function Init() {
 		this.dialog = new Dialog();
 	};
 });

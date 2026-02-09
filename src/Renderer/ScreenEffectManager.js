@@ -7,8 +7,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	// Load dependencies
@@ -44,35 +43,49 @@ define(function (require)
 	 * @param {object} gl context
 	 * @param {string} mapname
 	 */
-	ScreenEffectManager.init = function init(gl, mapname)
-	{
+	ScreenEffectManager.init = function init(gl, mapname) {
 		// weather effects
-		if (WeatherTable.effects && WeatherTable.effects[mapname])
-		{
+		if (WeatherTable.effects && WeatherTable.effects[mapname]) {
 			isMapflagEffect = true;
 		}
 	};
 
-	ScreenEffectManager.hasAnyActiveEffect = function ()
-	{
+	ScreenEffectManager.hasAnyActiveEffect = function () {
 		// Weather effects
-		if (SnowWeather.isActive()) {return true;}
-		if (RainWeather.isActive()) {return true;}
-		if (SakuraWeatherEffect.isActive()) {return true;}
-		if (PokJukWeatherEffect.isActive()) {return true;}
-		if (CloudWeatherEffect.isActive()) {return true;}
+		if (SnowWeather.isActive()) {
+			return true;
+		}
+		if (RainWeather.isActive()) {
+			return true;
+		}
+		if (SakuraWeatherEffect.isActive()) {
+			return true;
+		}
+		if (PokJukWeatherEffect.isActive()) {
+			return true;
+		}
+		if (CloudWeatherEffect.isActive()) {
+			return true;
+		}
 
 		// Status effects
-		if (Session.Entity && Poison.isActive()) {return true;}
-		if (Session.Entity && Blind.isActive()) {return true;}
-		if (Session.Entity && VerticalFlip.isActive()) {return true;}
+		if (Session.Entity && Poison.isActive()) {
+			return true;
+		}
+		if (Session.Entity && Blind.isActive()) {
+			return true;
+		}
+		if (Session.Entity && VerticalFlip.isActive()) {
+			return true;
+		}
 
 		return false;
 	};
 
-	ScreenEffectManager.startMapflagEffect = function startMapflagEffect(mapname)
-	{
-		if (!isMapflagEffect) {return;}
+	ScreenEffectManager.startMapflagEffect = function startMapflagEffect(mapname) {
+		if (!isMapflagEffect) {
+			return;
+		}
 
 		isMapflagEffect = false;
 		var Params = {
@@ -87,100 +100,91 @@ define(function (require)
 		};
 
 		var weather = WeatherTable.effects[mapname].weather;
-		if (weather === 'snow')
-		{
+		if (weather === 'snow') {
 			Params.Inst.effectId = EffectConst.EF_SNOW;
 			SnowWeather.startOrRestart(Params);
-		}
-		else if (weather === 'rain')
-		{
+		} else if (weather === 'rain') {
 			Params.Inst.effectId = EffectConst.EF_RAIN;
 			RainWeather.startOrRestart(Params);
-		}
-		else if (weather === 'fireworks')
-		{
+		} else if (weather === 'fireworks') {
 			Params.Inst.effectId = EffectConst.EF_POKJUK;
 			PokJukWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'leaves')
-		{
+		} else if (weather === 'leaves') {
 			Params.Inst.effectId = EffectConst.EF_MAPLE;
 			SakuraWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'sakura')
-		{
+		} else if (weather === 'sakura') {
 			Params.Inst.effectId = EffectConst.EF_SAKURA;
 			SakuraWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud')
-		{
+		} else if (weather === 'cloud') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD;
 			CloudWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud2')
-		{
+		} else if (weather === 'cloud2') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD2;
 			CloudWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud3')
-		{
+		} else if (weather === 'cloud3') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD3;
 			CloudWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud4')
-		{
+		} else if (weather === 'cloud4') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD4;
 			CloudWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud5')
-		{
+		} else if (weather === 'cloud5') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD5;
 			CloudWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud6')
-		{
+		} else if (weather === 'cloud6') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD6;
 			CloudWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud7')
-		{
+		} else if (weather === 'cloud7') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD7;
 			CloudWeatherEffect.startOrRestart(Params);
-		}
-		else if (weather === 'cloud8')
-		{
+		} else if (weather === 'cloud8') {
 			Params.Inst.effectId = EffectConst.EF_CLOUD8;
 			CloudWeatherEffect.startOrRestart(Params);
 		}
 	};
 
-	ScreenEffectManager.renderStatusEffects = function renderStatusEffects(gl, modelView, projection, fog)
-	{
-		if (!Session.Entity) {return;}
+	ScreenEffectManager.renderStatusEffects = function renderStatusEffects(gl, modelView, projection, fog) {
+		if (!Session.Entity) {
+			return;
+		}
 
-		if (Poison.isActive()) {Poison.render(gl, modelView, projection, fog);}
+		if (Poison.isActive()) {
+			Poison.render(gl, modelView, projection, fog);
+		}
 	};
 
-	ScreenEffectManager.parseStatus = function parseStatus(efstConst)
-	{
-		if (!Session.Entity) {return;}
+	ScreenEffectManager.parseStatus = function parseStatus(efstConst) {
+		if (!Session.Entity) {
+			return;
+		}
 
-		if (efstConst == EFST.HEALTHSTATE_POISON) {Poison.setActive(true);}
-		if (efstConst == EFST.HEALTHSTATE_BLIND) {Blind.setActive(true);}
-		if (efstConst == EFST.ILLUSION) {VerticalFlip.setActive(true);}
+		if (efstConst == EFST.HEALTHSTATE_POISON) {
+			Poison.setActive(true);
+		}
+		if (efstConst == EFST.HEALTHSTATE_BLIND) {
+			Blind.setActive(true);
+		}
+		if (efstConst == EFST.ILLUSION) {
+			VerticalFlip.setActive(true);
+		}
 	};
 
-	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect(efstConst)
-	{
-		if (!Session.Entity) {return;}
+	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect(efstConst) {
+		if (!Session.Entity) {
+			return;
+		}
 
-		if (efstConst == EFST.HEALTHSTATE_POISON) {Poison.setActive(false);}
-		if (efstConst == EFST.HEALTHSTATE_BLIND) {Blind.setActive(false);}
-		if (efstConst == EFST.ILLUSION) {VerticalFlip.setActive(false);}
+		if (efstConst == EFST.HEALTHSTATE_POISON) {
+			Poison.setActive(false);
+		}
+		if (efstConst == EFST.HEALTHSTATE_BLIND) {
+			Blind.setActive(false);
+		}
+		if (efstConst == EFST.ILLUSION) {
+			VerticalFlip.setActive(false);
+		}
 	};
 
-	ScreenEffectManager.clean = function clean()
-	{
+	ScreenEffectManager.clean = function clean() {
 		Poison.setActive(false);
 		Blind.setActive(false);
 		VerticalFlip.setActive(false);
@@ -200,9 +204,10 @@ define(function (require)
 	 * @param {object} fog structure
 	 * @param {number} tick - game tick
 	 */
-	ScreenEffectManager.render = function render(gl, modelView, projection, fog, tick)
-	{
-		if (!ScreenEffectManager.hasAnyActiveEffect()) {return;}
+	ScreenEffectManager.render = function render(gl, modelView, projection, fog, tick) {
+		if (!ScreenEffectManager.hasAnyActiveEffect()) {
+			return;
+		}
 
 		beforeRender(gl, modelView, projection, fog, tick);
 
@@ -219,13 +224,11 @@ define(function (require)
 		afterRender(gl, modelView, projection, fog, tick);
 	};
 
-	function beforeRender(gl, modelView, projection, fog, tick)
-	{
+	function beforeRender(gl, modelView, projection, fog, tick) {
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 	}
 
-	function afterRender(gl, modelView, projection, fog, tick)
-	{
+	function afterRender(gl, modelView, projection, fog, tick) {
 		SpriteRenderer.unbind(gl);
 	}
 	/**
@@ -233,29 +236,31 @@ define(function (require)
 	 * This effect is the same as SC_SKE
 	 * @param {boolean} night - true for night mode, false for day mode
 	 */
-	ScreenEffectManager.setNight = function (night)
-	{
-		if (ScreenEffectManager._nightInterval)
-		{
+	ScreenEffectManager.setNight = function (night) {
+		if (ScreenEffectManager._nightInterval) {
 			clearInterval(ScreenEffectManager._nightInterval);
 			ScreenEffectManager._nightInterval = null;
 		}
 		var mapRenderer = getModule('Renderer/MapRenderer');
-		ScreenEffectManager._nightInterval = setInterval(function ()
-		{
+		ScreenEffectManager._nightInterval = setInterval(function () {
 			var diffuse = mapRenderer.diffuse;
 			var light = mapRenderer.light;
 			var step = 0.005;
 
-			if (night)
-			{
-				if (diffuse[0] > 0.5) {diffuse[0] -= step;}
-				if (diffuse[1] > 0.5) {diffuse[1] -= step;}
-			}
-			else
-			{
-				if (diffuse[0] < light.diffuse[0]) {diffuse[0] += step;}
-				if (diffuse[1] < light.diffuse[1]) {diffuse[1] += step;}
+			if (night) {
+				if (diffuse[0] > 0.5) {
+					diffuse[0] -= step;
+				}
+				if (diffuse[1] > 0.5) {
+					diffuse[1] -= step;
+				}
+			} else {
+				if (diffuse[0] < light.diffuse[0]) {
+					diffuse[0] += step;
+				}
+				if (diffuse[1] < light.diffuse[1]) {
+					diffuse[1] += step;
+				}
 			}
 
 			light.env[0] = 1 - (1 - diffuse[0]) * (1 - light.ambient[0]);
@@ -266,8 +271,7 @@ define(function (require)
 				? diffuse[0] <= 0.5 && diffuse[1] <= 0.5
 				: diffuse[0] >= light.diffuse[0] && diffuse[1] >= light.diffuse[1];
 
-			if (done)
-			{
+			if (done) {
 				clearInterval(ScreenEffectManager._nightInterval);
 				ScreenEffectManager._nightInterval = null;
 			}

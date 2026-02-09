@@ -8,15 +8,13 @@
  *
  */
 
-define(['./SkillConst'], function (SK)
-{
+define(['./SkillConst'], function (SK) {
 	'use strict';
 
 	var SkillAction = {};
 
 	//Default skill action
-	SkillAction['DEFAULT'] = function (entity, tick)
-	{
+	SkillAction['DEFAULT'] = function (entity, tick) {
 		return {
 			action: entity.ACTION.SKILL,
 			frame: 0,
@@ -32,8 +30,7 @@ define(['./SkillConst'], function (SK)
 		};
 	};
 
-	SkillAction['DEFAULT_DORAM'] = function (entity, tick)
-	{
+	SkillAction['DEFAULT_DORAM'] = function (entity, tick) {
 		return {
 			action: entity.ACTION.ATTACK2,
 			frame: 0,
@@ -52,8 +49,7 @@ define(['./SkillConst'], function (SK)
 	//Skill action overrides
 
 	//IDLE
-	SkillAction[SK.ST_CHASEWALK] = function (entity, tick)
-	{
+	SkillAction[SK.ST_CHASEWALK] = function (entity, tick) {
 		return {
 			action: entity.ACTION.IDLE,
 			frame: 0,
@@ -151,8 +147,7 @@ define(['./SkillConst'], function (SK)
 		SkillAction[SK.SR_TIGERCANNON] =
 		SkillAction[SK.SR_CRESCENTELBOW] =
 		SkillAction[SK.SR_GATEOFHELL] =
-			function (entity, tick)
-			{
+			function (entity, tick) {
 				return {
 					action: entity.ACTION.ATTACK,
 					frame: 0,
@@ -185,8 +180,7 @@ define(['./SkillConst'], function (SK)
 		SkillAction[SK.PA_SHIELDCHAIN] =
 		SkillAction[SK.NC_AXEBOOMERANG] =
 		SkillAction[SK.GN_SLINGITEM] =
-			function (entity, tick)
-			{
+			function (entity, tick) {
 				return {
 					action: entity.ACTION.ATTACK1,
 					frame: 0,
@@ -207,8 +201,7 @@ define(['./SkillConst'], function (SK)
 		SkillAction[SK.MC_MAMMONITE] =
 		SkillAction[SK.MC_CARTREVOLUTION] =
 		SkillAction[SK.GN_CART_TORNADO] =
-			function (entity, tick)
-			{
+			function (entity, tick) {
 				return {
 					action: entity.ACTION.ATTACK2,
 					frame: 0,
@@ -232,8 +225,7 @@ define(['./SkillConst'], function (SK)
 		SkillAction[SK.RA_ARROWSTORM] =
 		SkillAction[SK.RA_AIMEDBOLT] =
 		SkillAction[SK.SC_TRIANGLESHOT] =
-			function (entity, tick)
-			{
+			function (entity, tick) {
 				return {
 					action: entity.ACTION.ATTACK3,
 					frame: 0,
@@ -270,8 +262,7 @@ define(['./SkillConst'], function (SK)
 		SkillAction[SK.RA_VERDURETRAP] =
 		SkillAction[SK.RA_FIRINGTRAP] =
 		SkillAction[SK.RA_ICEBOUNDTRAP] =
-			function (entity, tick)
-			{
+			function (entity, tick) {
 				return {
 					action: entity.ACTION.PICKUP,
 					frame: 0,
@@ -288,8 +279,7 @@ define(['./SkillConst'], function (SK)
 			};
 
 	//Stay in PICKUP
-	SkillAction[SK.NJ_TATAMIGAESHI] = SkillAction[SK.SR_EARTHSHAKER] = function (entity, tick)
-	{
+	SkillAction[SK.NJ_TATAMIGAESHI] = SkillAction[SK.SR_EARTHSHAKER] = function (entity, tick) {
 		return {
 			action: entity.ACTION.PICKUP,
 			frame: 1,
@@ -300,8 +290,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//ACTION
-	SkillAction[SK.SN_SIGHT] = function (entity, tick)
-	{
+	SkillAction[SK.SN_SIGHT] = function (entity, tick) {
 		return {
 			action: entity.ACTION.ACTION,
 			frame: 0,
@@ -341,8 +330,7 @@ define(['./SkillConst'], function (SK)
 		SkillAction[SK.BD_INTOABYSS] =
 		SkillAction[SK.CG_MOONLIT] =
 		SkillAction[SK.CG_MARIONETTE] =
-			function (entity, tick)
-			{
+			function (entity, tick) {
 				return {
 					action: entity.ACTION.SKILL,
 					frame: 1,
@@ -355,8 +343,7 @@ define(['./SkillConst'], function (SK)
 			};
 
 	//ENDURE
-	SkillAction[SK.SM_ENDURE] = function (entity, tick)
-	{
+	SkillAction[SK.SM_ENDURE] = function (entity, tick) {
 		return {
 			action: entity.ACTION.READYFIGHT,
 			frame: 0,
@@ -373,8 +360,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//ARROW SHOWER
-	SkillAction[SK.AC_SHOWER] = function (entity, tick)
-	{
+	SkillAction[SK.AC_SHOWER] = function (entity, tick) {
 		return {
 			action: entity.ACTION.ATTACK,
 			frame: 0,
@@ -392,8 +378,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//AUTO COUNTER
-	SkillAction[SK.KN_AUTOCOUNTER] = function (entity, tick)
-	{
+	SkillAction[SK.KN_AUTOCOUNTER] = function (entity, tick) {
 		return {
 			action: entity.ACTION.ATTACK,
 			frame: 0,
@@ -404,8 +389,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//BLADE STOP
-	SkillAction[SK.MO_BLADESTOP] = function (entity, tick)
-	{
+	SkillAction[SK.MO_BLADESTOP] = function (entity, tick) {
 		return {
 			action: entity.ACTION.SKILL,
 			frame: 3,
@@ -423,8 +407,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//KAMEHAMEHA
-	SkillAction[SK.MO_INVESTIGATE] = SkillAction[SK.MO_FINGEROFFENSIVE] = function (entity, tick)
-	{
+	SkillAction[SK.MO_INVESTIGATE] = SkillAction[SK.MO_FINGEROFFENSIVE] = function (entity, tick) {
 		return {
 			action: entity.ACTION.SKILL,
 			frame: 4,
@@ -435,8 +418,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//9hit
-	SkillAction[SK.CG_ARROWVULCAN] = function (entity, tick)
-	{
+	SkillAction[SK.CG_ARROWVULCAN] = function (entity, tick) {
 		return {
 			action: entity.ACTION.ATTACK,
 			frame: 0,
@@ -509,8 +491,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//8hit
-	SkillAction[SK.AS_SONICBLOW] = function (entity, tick)
-	{
+	SkillAction[SK.AS_SONICBLOW] = function (entity, tick) {
 		return {
 			action: entity.ACTION.ATTACK,
 			frame: 0,
@@ -576,8 +557,7 @@ define(['./SkillConst'], function (SK)
 	};
 
 	//7hit
-	SkillAction[SK.GC_CROSSIMPACT] = function (entity, tick)
-	{
+	SkillAction[SK.GC_CROSSIMPACT] = function (entity, tick) {
 		return {
 			action: entity.ACTION.ATTACK,
 			frame: 0,

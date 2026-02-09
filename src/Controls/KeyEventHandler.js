@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/jquery'], function (jQuery)
-{
+define(['Utils/jquery'], function (jQuery) {
 	'use strict';
 
 	/**
@@ -162,17 +161,14 @@ define(['Utils/jquery'], function (jQuery)
 	Object.defineProperty(KEYS, 'toReadableKey', {
 		writable: false,
 		enumerable: false,
-		value: function toReadableKey(keyId)
-		{
+		value: function toReadableKey(keyId) {
 			var keys, i, count;
 
 			keys = Object.keys(this);
 			count = keys.length;
 
-			for (i = 0; i < count; ++i)
-			{
-				if (this[keys[i]] === keyId)
-				{
+			for (i = 0; i < count; ++i) {
+				if (this[keys[i]] === keyId) {
 					return keys[i];
 				}
 			}
@@ -190,28 +186,23 @@ define(['Utils/jquery'], function (jQuery)
 	Object.defineProperty(KEYS, 'getKeyIdString', {
 		writable: false,
 		enumerable: false,
-		value: function getKeyIdString(shortcut)
-		{
+		value: function getKeyIdString(shortcut) {
 			var str = [];
 			var tmp = this.toReadableKey(parseInt(shortcut.key, 10));
 
-			if (shortcut.alt)
-			{
+			if (shortcut.alt) {
 				str.push('ALT');
 			}
 
-			if (shortcut.shift)
-			{
+			if (shortcut.shift) {
 				str.push('SHIFT');
 			}
 
-			if (shortcut.ctrl)
-			{
+			if (shortcut.ctrl) {
 				str.push('CTRL');
 			}
 
-			if (tmp)
-			{
+			if (tmp) {
 				str.push(tmp);
 			}
 
@@ -222,8 +213,7 @@ define(['Utils/jquery'], function (jQuery)
 	/**
 	 * Keys CTRL/ALT/SHIFT Manager
 	 */
-	jQuery(window).bind('keydown keyup', function (event)
-	{
+	jQuery(window).bind('keydown keyup', function (event) {
 		KEYS.SHIFT = !!event.shiftKey;
 		KEYS.CTRL = !!event.ctrlKey;
 		KEYS.ALT = !!event.altKey;
@@ -232,8 +222,7 @@ define(['Utils/jquery'], function (jQuery)
 	/**
 	 * Reset keys state when window got focused
 	 */
-	jQuery(window).on('focus', function (event)
-	{
+	jQuery(window).on('focus', function (event) {
 		KEYS.SHIFT = false;
 		KEYS.CTRL = false;
 		KEYS.ALT = false;

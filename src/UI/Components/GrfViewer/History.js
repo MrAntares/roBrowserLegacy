@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -37,8 +36,7 @@ define(function ()
 	 * @param {object} previous jquery button
 	 * @param {object} next jquery button
 	 */
-	function init(previous, next)
-	{
+	function init(previous, next) {
 		_previous = previous;
 		_next = next;
 
@@ -51,15 +49,13 @@ define(function ()
 	 *
 	 * @param {string} link
 	 */
-	function push(link)
-	{
+	function push(link) {
 		_history.length = ++_index;
 		_history.push(link);
 
 		_next.removeClass('on');
 
-		if (_history.length > 1)
-		{
+		if (_history.length > 1) {
 			_previous.addClass('on');
 		}
 	}
@@ -69,16 +65,13 @@ define(function ()
 	 *
 	 * @return {string} url
 	 */
-	function next()
-	{
-		if (_index + 1 >= _history.length)
-		{
+	function next() {
+		if (_index + 1 >= _history.length) {
 			return null;
 		}
 
 		_previous.addClass('on');
-		if (_index + 1 >= _history.length)
-		{
+		if (_index + 1 >= _history.length) {
 			_next.removeClass('on');
 		}
 
@@ -90,16 +83,13 @@ define(function ()
 	 *
 	 * @return {string} url
 	 */
-	function previous()
-	{
-		if (_index - 1 < 0)
-		{
+	function previous() {
+		if (_index - 1 < 0) {
 			return null;
 		}
 
 		_next.addClass('on');
-		if (_index - 2 < 0)
-		{
+		if (_index - 2 < 0) {
 			_previous.removeClass('on');
 		}
 

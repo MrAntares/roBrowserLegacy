@@ -8,18 +8,15 @@
  * @author Alisonrag
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	var base62_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 	// encode
-	function encode(number)
-	{
+	function encode(number) {
 		var result = '';
-		while (number > 0)
-		{
+		while (number > 0) {
 			result = base62_alphabet[number % 62] + result;
 			number = Math.floor(number / 62);
 		}
@@ -27,11 +24,9 @@ define(function ()
 	}
 
 	// decode
-	function decode(string)
-	{
+	function decode(string) {
 		var result = 0;
-		for (var i = 0; i < string.length; i++)
-		{
+		for (var i = 0; i < string.length; i++) {
 			result = result * 62 + base62_alphabet.indexOf(string[i]);
 		}
 		return result;

@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/jquery'], function (jQuery)
-{
+define(['Utils/jquery'], function (jQuery) {
 	'use strict';
 
 	/**
@@ -55,8 +54,7 @@ define(['Utils/jquery'], function (jQuery)
 	/**
 	 * Track mouse move event
 	 */
-	jQuery(window).mousemove(function (event)
-	{
+	jQuery(window).mousemove(function (event) {
 		Mouse.screen.x = event.pageX;
 		Mouse.screen.y = event.pageY;
 	});

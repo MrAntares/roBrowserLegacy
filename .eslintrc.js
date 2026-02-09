@@ -54,10 +54,7 @@ module.exports = {
 		// Brace style: Allman (opening brace on new line)
 		'brace-style': [
 			'error',
-			'allman',
-			{
-				allowSingleLine: true
-			}
+			'1tbs'
 		],
 
 		// Comma: no trailing commas

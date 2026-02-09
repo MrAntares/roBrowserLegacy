@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 //  effectId: hitEffectId: effectIdOnCaster: beginCastEffectId:
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	var ItemEffect = {};

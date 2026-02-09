@@ -6,8 +6,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var Client = require('Core/Client');
@@ -53,8 +52,7 @@ define(function (require)
 	/**
 	 * Initialize shader program
 	 */
-	function init(gl)
-	{
+	function init(gl) {
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 
 		_program.uniform = {
@@ -84,23 +82,17 @@ define(function (require)
 	/**
 	 * Free resources
 	 */
-	function free(gl)
-	{
-		for (var i = 0; i < _animatedModels.length; i++)
-		{
+	function free(gl) {
+		for (var i = 0; i < _animatedModels.length; i++) {
 			var model = _animatedModels[i];
-			if (model.vao)
-			{
+			if (model.vao) {
 				gl.deleteVertexArray(model.vao);
 			}
-			if (model.buffer)
-			{
+			if (model.buffer) {
 				gl.deleteBuffer(model.buffer);
 			}
-			for (var tex in model.textureObjects)
-			{
-				if (model.textureObjects[tex])
-				{
+			for (var tex in model.textureObjects) {
+				if (model.textureObjects[tex]) {
 					gl.deleteTexture(model.textureObjects[tex]);
 				}
 			}
@@ -108,8 +100,7 @@ define(function (require)
 		_animatedModels = [];
 	}
 
-	function isNodeStatic(node)
-	{
+	function isNodeStatic(node) {
 		return (
 			(!node.rotKeyframes || node.rotKeyframes.length === 0) &&
 			(!node.posKeyframes || node.posKeyframes.length === 0) &&
@@ -120,26 +111,21 @@ define(function (require)
 	/**
 	 * Add an animated model
 	 */
-	function add(gl, modelData)
-	{
-		if (!modelData || !modelData.nodes || modelData.nodes.length === 0)
-		{
+	function add(gl, modelData) {
+		if (!modelData || !modelData.nodes || modelData.nodes.length === 0) {
 			return;
 		}
 
-		if (!_program)
-		{
+		if (!_program) {
 			init(gl);
 		}
 
 		// Deserialize instances
 		var instances = [];
-		for (var i = 0; i < modelData.instances.length; i++)
-		{
+		for (var i = 0; i < modelData.instances.length; i++) {
 			var instArray = modelData.instances[i];
 			var matrix = mat4.create();
-			for (var j = 0; j < 16; j++)
-			{
+			for (var j = 0; j < 16; j++) {
 				matrix[j] = instArray[j];
 			}
 			instances.push(matrix);
@@ -150,10 +136,11 @@ define(function (require)
 		var totalAnimationLength = 0;
 		var hasAnyAnimation = false;
 
-		for (var n = 0; n < modelData.nodes.length; n++)
-		{
+		for (var n = 0; n < modelData.nodes.length; n++) {
 			var srcNode = modelData.nodes[n];
-			if (!isNodeStatic(srcNode)) {hasAnyAnimation = true;}
+			if (!isNodeStatic(srcNode)) {
+				hasAnyAnimation = true;
+			}
 			var node = {
 				name: srcNode.name,
 				parentname: srcNode.parentname,
@@ -181,8 +168,7 @@ define(function (require)
 				}
 			};
 			// Pre-calculate local matrix for static nodes
-			if (node._isStatic)
-			{
+			if (node._isStatic) {
 				var local = mat4.create();
 				mat4.identity(local);
 				mat4.translate(local, local, node.pos);
@@ -191,39 +177,31 @@ define(function (require)
 				node._staticLocalMatrix = local;
 			}
 			// Initialize instance cache
-			for (var k = 0; k < instances.length; k++)
-			{
+			for (var k = 0; k < instances.length; k++) {
 				node._cache.instances[k] = mat4.create();
 			}
 
-			if (node.rotKeyframes)
-			{
-				for (var rk = 0; rk < node.rotKeyframes.length; rk++)
-				{
+			if (node.rotKeyframes) {
+				for (var rk = 0; rk < node.rotKeyframes.length; rk++) {
 					var kf = node.rotKeyframes[rk];
 					totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
 
-					if (kf.q)
-					{
+					if (kf.q) {
 						kf._quat = quat.fromValues(kf.q[0], kf.q[1], kf.q[2], kf.q[3]);
 					}
 				}
 			}
 
-			if (node.posKeyframes)
-			{
-				for (var pk = 0; pk < node.posKeyframes.length; pk++)
-				{
+			if (node.posKeyframes) {
+				for (var pk = 0; pk < node.posKeyframes.length; pk++) {
 					var kf = node.posKeyframes[pk];
 					totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
 					kf._vec = vec3.fromValues(kf.px, kf.py, kf.pz);
 				}
 			}
 
-			if (node.scaleKeyFrames)
-			{
-				for (var sk = 0; sk < node.scaleKeyFrames.length; sk++)
-				{
+			if (node.scaleKeyFrames) {
+				for (var sk = 0; sk < node.scaleKeyFrames.length; sk++) {
 					var kf = node.scaleKeyFrames[sk];
 
 					totalAnimationLength = Math.max(totalAnimationLength, kf.Frame || 0);
@@ -242,30 +220,22 @@ define(function (require)
 		var textureGroups = {};
 		var totalFloats = 0;
 
-		if (animLen === 0)
-		{
+		if (animLen === 0) {
 			// Find max frame from keyframes
-			for (var n = 0; n < nodes.length; n++)
-			{
+			for (var n = 0; n < nodes.length; n++) {
 				var node = nodes[n];
-				if (node.rotKeyframes)
-				{
-					for (var rk = 0; rk < node.rotKeyframes.length; rk++)
-					{
+				if (node.rotKeyframes) {
+					for (var rk = 0; rk < node.rotKeyframes.length; rk++) {
 						animLen = Math.max(animLen, node.rotKeyframes[rk].frame || 0);
 					}
 				}
-				if (node.posKeyframes)
-				{
-					for (var pk = 0; pk < node.posKeyframes.length; pk++)
-					{
+				if (node.posKeyframes) {
+					for (var pk = 0; pk < node.posKeyframes.length; pk++) {
 						animLen = Math.max(animLen, node.posKeyframes[pk].frame || 0);
 					}
 				}
-				if (node.scaleKeyFrames)
-				{
-					for (var sk = 0; sk < node.scaleKeyFrames.length; sk++)
-					{
+				if (node.scaleKeyFrames) {
+					for (var sk = 0; sk < node.scaleKeyFrames.length; sk++) {
 						animLen = Math.max(animLen, node.scaleKeyFrames[sk].Frame || 0);
 					}
 				}
@@ -275,26 +245,26 @@ define(function (require)
 		}
 		// Calculate size per texture
 		// Iterate all nodes to find which textures they use and how many faces
-		for (var n = 0; n < nodes.length; n++)
-		{
+		for (var n = 0; n < nodes.length; n++) {
 			var node = nodes[n];
 			// Count faces per texture for this node
 			var facesPerTex = {};
-			for (var f = 0; f < node.faces.length; f++)
-			{
+			for (var f = 0; f < node.faces.length; f++) {
 				var tid = node.textures[node.faces[f].texid];
-				if (!facesPerTex[tid]) {facesPerTex[tid] = 0;}
+				if (!facesPerTex[tid]) {
+					facesPerTex[tid] = 0;
+				}
 				facesPerTex[tid]++;
 			}
 
 			// Add to global texture groups
-			for (var tid in facesPerTex)
-			{
-				if (!textureGroups[tid]) {textureGroups[tid] = { count: 0, writePlan: [] };}
+			for (var tid in facesPerTex) {
+				if (!textureGroups[tid]) {
+					textureGroups[tid] = { count: 0, writePlan: [] };
+				}
 
 				// For every instance of this node
-				for (var inst = 0; inst < instances.length; inst++)
-				{
+				for (var inst = 0; inst < instances.length; inst++) {
 					var vertCount = facesPerTex[tid] * 3; // 3 verts per face
 					var floatCount = vertCount * 9; // 9 floats per vert (3 pos, 3 norm, 2 uv, 1 alpha)
 
@@ -317,14 +287,12 @@ define(function (require)
 		var currentOffset = 0;
 		var meshInfos = [];
 
-		for (var tid in textureGroups)
-		{
+		for (var tid in textureGroups) {
 			var group = textureGroups[tid];
 			var startOffset = currentOffset;
 
 			// Record where each sub-mesh writes
-			for (var wp = 0; wp < group.writePlan.length; wp++)
-			{
+			for (var wp = 0; wp < group.writePlan.length; wp++) {
 				var plan = group.writePlan[wp];
 				plan.targetOffset = currentOffset;
 				currentOffset += plan.faceCount * 3 * 9;
@@ -371,8 +339,7 @@ define(function (require)
 		};
 
 		// Cache Node Map
-		for (var n = 0; n < nodes.length; n++)
-		{
+		for (var n = 0; n < nodes.length; n++) {
 			animModel._nodeMap[nodes[n].name] = nodes[n];
 			animModel._globalMatrices[n] = mat4.create();
 		}
@@ -382,8 +349,7 @@ define(function (require)
 		gl.bufferData(gl.ARRAY_BUFFER, animModel._gpuBuffer.byteLength, gl.DYNAMIC_DRAW);
 
 		// Load textures
-		for (var t = 0; t < modelData.textures.length; t++)
-		{
+		for (var t = 0; t < modelData.textures.length; t++) {
 			var texturePath = 'data\\texture\\' + modelData.textures[t];
 			loadTexture(gl, animModel, texturePath, t);
 		}
@@ -419,19 +385,15 @@ define(function (require)
 	/**
 	 * Load a texture for a model
 	 */
-	function loadTexture(gl, model, path, index)
-	{
+	function loadTexture(gl, model, path, index) {
 		Client.loadFile(
 			path,
-			function (data)
-			{
-				WebGL.texture(gl, data, function (texture)
-				{
+			function (data) {
+				WebGL.texture(gl, data, function (texture) {
 					model.textureObjects[index] = texture;
 				});
 			},
-			function ()
-			{
+			function () {
 				// Texture not found, use a placeholder
 				model.textureObjects[index] = null;
 			}
@@ -441,27 +403,22 @@ define(function (require)
 	/**
 	 * SLERP quaternion interpolation
 	 */
-	function slerpQuat(q1, q2, t)
-	{
+	function slerpQuat(q1, q2, t) {
 		var result = new Float32Array(4);
 
 		var dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
 
 		var q2Sign = 1;
-		if (dot < 0)
-		{
+		if (dot < 0) {
 			dot = -dot;
 			q2Sign = -1;
 		}
 
 		var scale0, scale1;
-		if (dot > 0.9995)
-		{
+		if (dot > 0.9995) {
 			scale0 = 1.0 - t;
 			scale1 = t * q2Sign;
-		}
-		else
-		{
+		} else {
 			var theta = Math.acos(dot);
 			var sinTheta = Math.sin(theta);
 			scale0 = Math.sin((1.0 - t) * theta) / sinTheta;
@@ -476,69 +433,78 @@ define(function (require)
 		return result;
 	}
 
-	function getPositionAtFrame(keyframes, frame, out)
-	{
-		if (!keyframes || keyframes.length === 0) {return null;}
-		if (keyframes.length === 1) {return keyframes[0]._vec;}
+	function getPositionAtFrame(keyframes, frame, out) {
+		if (!keyframes || keyframes.length === 0) {
+			return null;
+		}
+		if (keyframes.length === 1) {
+			return keyframes[0]._vec;
+		}
 
 		var prev = keyframes[0],
 			next = null;
-		for (var i = 0; i < keyframes.length; i++)
-		{
-			if (keyframes[i].frame > frame)
-			{
+		for (var i = 0; i < keyframes.length; i++) {
+			if (keyframes[i].frame > frame) {
 				next = keyframes[i];
 				break;
 			}
 			prev = keyframes[i];
 		}
 
-		if (!next) {return prev._vec;}
+		if (!next) {
+			return prev._vec;
+		}
 		var t = (frame - prev.frame) / (next.frame - prev.frame);
 		return vec3.lerp(out, prev._vec, next._vec, t);
 	}
 
-	function getRotationAtFrame(keyframes, frame, out)
-	{
-		if (!keyframes || keyframes.length === 0) {return null;}
-		if (keyframes.length === 1) {return keyframes[0]._quat;}
+	function getRotationAtFrame(keyframes, frame, out) {
+		if (!keyframes || keyframes.length === 0) {
+			return null;
+		}
+		if (keyframes.length === 1) {
+			return keyframes[0]._quat;
+		}
 
 		var prev = keyframes[0],
 			next = null;
-		for (var i = 0; i < keyframes.length; i++)
-		{
-			if (keyframes[i].frame > frame)
-			{
+		for (var i = 0; i < keyframes.length; i++) {
+			if (keyframes[i].frame > frame) {
 				next = keyframes[i];
 				break;
 			}
 			prev = keyframes[i];
 		}
 
-		if (!next) {return prev._quat;}
+		if (!next) {
+			return prev._quat;
+		}
 		var t = (frame - prev.frame) / (next.frame - prev.frame);
 		return quat.slerp(out, prev._quat, next._quat, t);
 	}
 
-	function getScaleAtFrame(keyframes, frame, out)
-	{
-		if (!keyframes || keyframes.length === 0) {return null;}
-		if (keyframes.length === 1) {return keyframes[0]._vec;}
+	function getScaleAtFrame(keyframes, frame, out) {
+		if (!keyframes || keyframes.length === 0) {
+			return null;
+		}
+		if (keyframes.length === 1) {
+			return keyframes[0]._vec;
+		}
 
 		var prev = keyframes[0],
 			next = null;
-		for (var i = 0; i < keyframes.length; i++)
-		{
+		for (var i = 0; i < keyframes.length; i++) {
 			var f = typeof keyframes[i].Frame !== 'undefined' ? keyframes[i].Frame : keyframes[i].frame;
-			if (f > frame)
-			{
+			if (f > frame) {
 				next = keyframes[i];
 				break;
 			}
 			prev = keyframes[i];
 		}
 
-		if (!next) {return prev._vec;}
+		if (!next) {
+			return prev._vec;
+		}
 
 		var fPrev = typeof prev.Frame !== 'undefined' ? prev.Frame : prev.frame;
 		var fNext = typeof next.Frame !== 'undefined' ? next.Frame : next.frame;
@@ -550,8 +516,7 @@ define(function (require)
 	/**
 	 * Calculate face normal
 	 */
-	function calcFaceNormal(v0, v1, v2)
-	{
+	function calcFaceNormal(v0, v1, v2) {
 		var ax = v1[0] - v0[0];
 		var ay = v1[1] - v0[1];
 		var az = v1[2] - v0[2];
@@ -564,8 +529,7 @@ define(function (require)
 		var nz = ax * by - ay * bx;
 
 		var len = Math.sqrt(nx * nx + ny * ny + nz * nz);
-		if (len > 0)
-		{
+		if (len > 0) {
 			nx /= len;
 			ny /= len;
 			nz /= len;
@@ -578,8 +542,7 @@ define(function (require)
 	 * Transform a specific node's geometry for a specific texture and instance
 	 * Writes directly to the monolithic buffer
 	 */
-	function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha)
-	{
+	function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) {
 		// Extract Rotation for normals
 		// Optimization: Don't use mat4.extractRotation/invert/transpose every face.
 		// Just use the upper 3x3 of finalMatrix if uniform scaling.
@@ -624,10 +587,11 @@ define(function (require)
 		var o = offset;
 
 		// Iterate faces, process only those matching textureId
-		for (var f = 0; f < faces.length; f++)
-		{
+		for (var f = 0; f < faces.length; f++) {
 			var face = faces[f];
-			if (textures[face.texid] !== textureId) {continue;}
+			if (textures[face.texid] !== textureId) {
+				continue;
+			}
 
 			// Compute Face Normal (using Original Vertices)
 			var v0 = vertices[face.vertidx[0]];
@@ -647,8 +611,7 @@ define(function (require)
 
 			// Normalize
 			var len = nx * nx + ny * ny + nz * nz;
-			if (len > 0)
-			{
+			if (len > 0) {
 				len = 1.0 / Math.sqrt(len);
 				nx *= len;
 				ny *= len;
@@ -661,8 +624,7 @@ define(function (require)
 			var tnz = n2 * nx + n6 * ny + n10 * nz;
 
 			// Process 3 Vertices
-			for (var vi = 0; vi < 3; vi++)
-			{
+			for (var vi = 0; vi < 3; vi++) {
 				var vIdx = face.vertidx[vi];
 				var tIdx = face.tvertidx[vi];
 
@@ -693,18 +655,15 @@ define(function (require)
 	/**
 	 * Update model buffer at frame
 	 */
-	function updateModelBuffer(gl, model, frame, force)
-	{
+	function updateModelBuffer(gl, model, frame, force) {
 		var frameDuration = 1000 / (model.fps / (GraphicsSettings.culling ? 2 : 1.14));
 		var currentAnimFrame = Math.floor(frame / frameDuration);
 
-		if (!force && model.lastAnimFrame === currentAnimFrame && !model.staticModel)
-		{
+		if (!force && model.lastAnimFrame === currentAnimFrame && !model.staticModel) {
 			return;
 		}
 
-		if (model.staticModel && model.lastAnimFrame !== -1 && !force)
-		{
+		if (model.staticModel && model.lastAnimFrame !== -1 && !force) {
 			return;
 		}
 
@@ -716,41 +675,31 @@ define(function (require)
 		var globalMatrices = model._globalMatrices;
 
 		// 1. Update Matrix Hierarchy
-		for (var n = 0; n < model.nodes.length; n++)
-		{
+		for (var n = 0; n < model.nodes.length; n++) {
 			var node = model.nodes[n];
 			var globalMatrix = globalMatrices[n];
 
 			// Parent Transform
-			if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name)
-			{
+			if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
 				var parentIdx = nodeMap[node.parentname]._index;
 				mat4.copy(globalMatrix, globalMatrices[parentIdx]);
-			}
-			else
-			{
+			} else {
 				mat4.identity(globalMatrix);
 			}
 
 			// Local Transform
-			if (node._isStatic)
-			{
+			if (node._isStatic) {
 				// Optimization: Use precalculated local matrix
 				mat4.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
-			}
-			else
-			{
+			} else {
 				var animPos = getPositionAtFrame(node.posKeyframes, frame, _tempVec3);
 				mat4.translate(globalMatrix, globalMatrix, animPos || node.pos);
 
 				var animRot = getRotationAtFrame(node.rotKeyframes, frame, _tempQuat);
-				if (animRot)
-				{
+				if (animRot) {
 					mat4.fromQuat(_tempMat4, animRot);
 					mat4.multiply(globalMatrix, globalMatrix, _tempMat4);
-				}
-				else
-				{
+				} else {
 					mat4.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
 				}
 
@@ -764,8 +713,7 @@ define(function (require)
 			mat4.translate(finalNodeMatrix, finalNodeMatrix, [-box.center[0], -box.max[1], -box.center[2]]);
 			mat4.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix); // Apply hierarchy
 
-			if (!node.is_only)
-			{
+			if (!node.is_only) {
 				mat4.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
 			}
 			mat4.multiply(finalNodeMatrix, finalNodeMatrix, mat3.toMat4(node.mat3));
@@ -776,11 +724,9 @@ define(function (require)
 
 		// 2. Pre-calculate Instance Matrices
 		// We do this to avoid recalculating Node * Instance for every texture group
-		for (var n = 0; n < model.nodes.length; n++)
-		{
+		for (var n = 0; n < model.nodes.length; n++) {
 			var node = model.nodes[n];
-			for (var i = 0; i < model.instances.length; i++)
-			{
+			for (var i = 0; i < model.instances.length; i++) {
 				// Instance Final = InstanceWorld * NodeFinal
 				mat4.multiply(node._cache.instances[i], model.instances[i], node.finalMatrix);
 			}
@@ -791,14 +737,12 @@ define(function (require)
 		var buffer = model._gpuBuffer;
 		var writePlans = model.writePlans;
 
-		for (var tid in writePlans)
-		{
+		for (var tid in writePlans) {
 			var group = writePlans[tid];
 			var plans = group.writePlan;
 			var textureId = parseInt(tid);
 
-			for (var p = 0; p < plans.length; p++)
-			{
+			for (var p = 0; p < plans.length; p++) {
 				var plan = plans[p];
 				var node = model.nodes[plan.nodeIndex];
 				var finalInstanceMatrix = node._cache.instances[plan.instanceIndex];
@@ -816,15 +760,12 @@ define(function (require)
 	/**
 	 * Render animated models
 	 */
-	function render(gl, modelView, projection, normalMat, fog, light, tick)
-	{
-		if (_animatedModels.length === 0)
-		{
+	function render(gl, modelView, projection, normalMat, fog, light, tick) {
+		if (_animatedModels.length === 0) {
 			return;
 		}
 
-		if (!_program)
-		{
+		if (!_program) {
 			init(gl);
 		}
 
@@ -858,24 +799,23 @@ define(function (require)
 		var playerPos = Session.Entity.position;
 
 		// Render each animated model
-		for (var m = 0; m < _animatedModels.length; m++)
-		{
+		for (var m = 0; m < _animatedModels.length; m++) {
 			var model = _animatedModels[m];
 			var frame = tick % (model.animLen || 1);
 
 			updateModelBuffer(gl, model, frame, false);
 
-			if (!model.buffer || model.meshInfos.length === 0) {continue;}
+			if (!model.buffer || model.meshInfos.length === 0) {
+				continue;
+			}
 
 			gl.bindVertexArray(model.vao);
 
-			for (var i = 0; i < model.meshInfos.length; i++)
-			{
+			for (var i = 0; i < model.meshInfos.length; i++) {
 				var info = model.meshInfos[i];
 				var texture = model.textureObjects[info.textureIdx];
 
-				if (texture)
-				{
+				if (texture) {
 					gl.bindTexture(gl.TEXTURE_2D, texture);
 					gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
 				}
@@ -889,8 +829,7 @@ define(function (require)
 	/**
 	 * Check if there are animated models
 	 */
-	function hasAnimatedModels()
-	{
+	function hasAnimatedModels() {
 		return _animatedModels.length > 0;
 	}
 

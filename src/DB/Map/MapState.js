@@ -8,8 +8,7 @@
  * @author Alison Serafim
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	return {

@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable)
-{
+define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable) {
 	'use strict';
 
 	var WeaponJobTable = {};
@@ -19,19 +18,16 @@ define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable)
 	var i,
 		count = keys.length;
 
-	for (i = 0; i < count; ++i)
-	{
+	for (i = 0; i < count; ++i) {
 		WeaponJobTable[keys[i]] = JobNameTable[keys[i]];
 	}
 
-	function duplicateEntry(origin)
-	{
+	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
 		var i,
 			count = arguments.length;
 
-		for (i = 1; i < count; ++i)
-		{
+		for (i = 1; i < count; ++i) {
 			WeaponJobTable[arguments[i]] = value;
 		}
 	}

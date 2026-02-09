@@ -6,8 +6,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var Renderer = require('Renderer/Renderer');
@@ -17,10 +16,8 @@ define(function (require)
 	var _filterFrame = null;
 	var _active = false;
 
-	function ensureFilterFrame(gl)
-	{
-		if (_filterFrame && _filterFrame.texture && gl.isTexture(_filterFrame.texture))
-		{
+	function ensureFilterFrame(gl) {
+		if (_filterFrame && _filterFrame.texture && gl.isTexture(_filterFrame.texture)) {
 			return;
 		}
 		var tex = gl.createTexture();
@@ -43,9 +40,10 @@ define(function (require)
 
 	function PoisonEffect() {}
 
-	PoisonEffect.render = function render(gl, modelView, projection, fog)
-	{
-		if (!_active || !Session.Entity) {return;}
+	PoisonEffect.render = function render(gl, modelView, projection, fog) {
+		if (!_active || !Session.Entity) {
+			return;
+		}
 
 		ensureFilterFrame(gl);
 
@@ -63,19 +61,16 @@ define(function (require)
 
 		SpriteRenderer.size[0] = 4000;
 		SpriteRenderer.size[1] = 4000;
-		SpriteRenderer.runWithDepth(false, false, true, function ()
-		{
+		SpriteRenderer.runWithDepth(false, false, true, function () {
 			SpriteRenderer.render(false);
 		});
 	};
 
-	PoisonEffect.setActive = function setActive(bool)
-	{
+	PoisonEffect.setActive = function setActive(bool) {
 		_active = bool;
 	};
 
-	PoisonEffect.isActive = function isActive()
-	{
+	PoisonEffect.isActive = function isActive() {
 		return _active;
 	};
 

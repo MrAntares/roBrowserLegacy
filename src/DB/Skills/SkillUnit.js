@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['./SkillUnitConst', 'DB/Effects/EffectConst'], function (SU, EC)
-{
+define(['./SkillUnitConst', 'DB/Effects/EffectConst'], function (SU, EC) {
 	'use strict'; // Tofix
 
 	var SkillUnit = {};

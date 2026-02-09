@@ -9,15 +9,13 @@
  * @author Vincent Thibault
  */
 
-define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
-{
+define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType) {
 	'use strict';
 
 	var WeaponAction = {};
 
 	WeaponAction[JobId.NOVICE] = [
-		new (function ()
-		{
+		new (function () {
 			// female
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.ROD] = 1;
@@ -30,8 +28,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 			this[WeaponType.TWOHANDMACE] = 1;
 			this[WeaponType.SHORTSWORD] = 2;
 		})(),
-		new (function ()
-		{
+		new (function () {
 			// male
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.SHORTSWORD] = 1;
@@ -46,8 +43,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		})()
 	];
 
-	WeaponAction[JobId.SWORDMAN] = new (function ()
-	{
+	WeaponAction[JobId.SWORDMAN] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.SWORD] = 1;
@@ -60,23 +56,20 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.TWOHANDSPEAR] = 2;
 	})();
 
-	WeaponAction[JobId.MAGICIA] = new (function ()
-	{
+	WeaponAction[JobId.MAGICIA] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.ROD] = 1;
 		this[WeaponType.TWOHANDROD] = 1;
 		this[WeaponType.SHORTSWORD] = 2;
 	})();
 
-	WeaponAction[JobId.ARCHER] = new (function ()
-	{
+	WeaponAction[JobId.ARCHER] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.BOW] = 1;
 		this[WeaponType.SHORTSWORD] = 2;
 	})();
 
-	WeaponAction[JobId.ACOLYTE] = new (function ()
-	{
+	WeaponAction[JobId.ACOLYTE] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.ROD] = 1;
 		this[WeaponType.TWOHANDROD] = 1;
@@ -84,8 +77,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.TWOHANDMACE] = 1;
 	})();
 
-	WeaponAction[JobId.MERCHANT] = new (function ()
-	{
+	WeaponAction[JobId.MERCHANT] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.MACE] = 1;
 		this[WeaponType.TWOHANDMACE] = 1;
@@ -96,8 +88,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.SHORTSWORD] = 2;
 	})();
 
-	WeaponAction[JobId.THIEF] = new (function ()
-	{
+	WeaponAction[JobId.THIEF] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SWORD] = 1;
 		this[WeaponType.TWOHANDSWORD] = 1;
@@ -105,8 +96,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.BOW] = 2;
 	})();
 
-	WeaponAction[JobId.KNIGHT] = new (function ()
-	{
+	WeaponAction[JobId.KNIGHT] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.SWORD] = 1;
@@ -121,8 +111,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.TWOHANDSPEAR] = 2;
 	})();
 
-	WeaponAction[JobId.PRIEST] = new (function ()
-	{
+	WeaponAction[JobId.PRIEST] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.ROD] = 1;
 		this[WeaponType.TWOHANDROD] = 1;
@@ -132,16 +121,14 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 	})();
 
 	WeaponAction[JobId.WIZARD] = [
-		new (function ()
-		{
+		new (function () {
 			// female
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.SHORTSWORD] = 1;
 			this[WeaponType.ROD] = 2;
 			this[WeaponType.TWOHANDROD] = 2;
 		})(),
-		new (function ()
-		{
+		new (function () {
 			// male
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.ROD] = 1;
@@ -150,8 +137,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		})()
 	];
 
-	WeaponAction[JobId.BLACKSMITH] = new (function ()
-	{
+	WeaponAction[JobId.BLACKSMITH] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.SWORD] = 2;
@@ -162,15 +148,13 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.TWOHANDMACE] = 2;
 	})();
 
-	WeaponAction[JobId.HUNTER] = new (function ()
-	{
+	WeaponAction[JobId.HUNTER] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.BOW] = 2;
 	})();
 
-	WeaponAction[JobId.ASSASSIN] = new (function ()
-	{
+	WeaponAction[JobId.ASSASSIN] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.AXE] = 1;
 		this[WeaponType.SWORD] = 1;
@@ -184,8 +168,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.KATAR] = 2;
 	})();
 
-	WeaponAction[JobId.KNIGHT2] = new (function ()
-	{
+	WeaponAction[JobId.KNIGHT2] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.SWORD] = 1;
@@ -198,8 +181,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.TWOHANDSPEAR] = 2;
 	})();
 
-	WeaponAction[JobId.CRUSADER] = new (function ()
-	{
+	WeaponAction[JobId.CRUSADER] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.SWORD] = 1;
@@ -212,8 +194,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.TWOHANDSPEAR] = 2;
 	})();
 
-	WeaponAction[JobId.MONK] = new (function ()
-	{
+	WeaponAction[JobId.MONK] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.ROD] = 1;
 		this[WeaponType.TWOHANDROD] = 1;
@@ -222,8 +203,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.KNUKLE] = 2;
 	})();
 
-	WeaponAction[JobId.SAGE] = new (function ()
-	{
+	WeaponAction[JobId.SAGE] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.ROD] = 2;
@@ -231,8 +211,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.BOOK] = 2;
 	})();
 
-	WeaponAction[JobId.ROGUE] = new (function ()
-	{
+	WeaponAction[JobId.ROGUE] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SWORD] = 1;
 		this[WeaponType.TWOHANDSWORD] = 1;
@@ -240,8 +219,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.BOW] = 2;
 	})();
 
-	WeaponAction[JobId.ALCHEMIST] = new (function ()
-	{
+	WeaponAction[JobId.ALCHEMIST] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.TWOHANDSWORD] = 2;
@@ -252,24 +230,21 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		this[WeaponType.TWOHANDMACE] = 2;
 	})();
 
-	WeaponAction[JobId.BARD] = new (function ()
-	{
+	WeaponAction[JobId.BARD] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.INSTRUMENT] = 1;
 		this[WeaponType.BOW] = 2;
 	})();
 
-	WeaponAction[JobId.DANCER] = new (function ()
-	{
+	WeaponAction[JobId.DANCER] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 0;
 		this[WeaponType.WHIP] = 1;
 		this[WeaponType.BOW] = 2;
 	})();
 
-	WeaponAction[JobId.CRUSADER2] = new (function ()
-	{
+	WeaponAction[JobId.CRUSADER2] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.SWORD] = 1;
@@ -282,8 +257,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 	})();
 
 	WeaponAction[JobId.SUPERNOVICE] = [
-		new (function ()
-		{
+		new (function () {
 			//female
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.ROD] = 1;
@@ -295,8 +269,7 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 			this[WeaponType.SWORD] = 1;
 			this[WeaponType.SHORTSWORD] = 2;
 		})(),
-		new (function ()
-		{
+		new (function () {
 			//male
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.SHORTSWORD] = 1;
@@ -310,15 +283,13 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		})()
 	];
 
-	WeaponAction[JobId.NINJA] = new (function ()
-	{
+	WeaponAction[JobId.NINJA] = new (function () {
 		this[WeaponType.NONE] = 0;
 		this[WeaponType.SHORTSWORD] = 1;
 		this[WeaponType.SYURIKEN] = 2;
 	})();
 
-	WeaponAction[JobId.GUNSLINGER] = new (function ()
-	{
+	WeaponAction[JobId.GUNSLINGER] = new (function () {
 		// I don't get when 0 is used ? seems like a grenade launcher.
 		this[WeaponType.NONE] = 1;
 		this[WeaponType.GUN_HANDGUN] = 1;
@@ -330,16 +301,14 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 
 	// I don't get where the weapon sprites are located.
 	WeaponAction[JobId.LINKER] = [
-		new (function ()
-		{
+		new (function () {
 			// female
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.SHORTSWORD] = 1;
 			this[WeaponType.ROD] = 2;
 			this[WeaponType.TWOHANDROD] = 2;
 		})(),
-		new (function ()
-		{
+		new (function () {
 			// male
 			this[WeaponType.NONE] = 0;
 			this[WeaponType.ROD] = 1;
@@ -348,14 +317,12 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType)
 		})()
 	];
 
-	function duplicateEntry(origin)
-	{
+	function duplicateEntry(origin) {
 		var value = WeaponAction[origin];
 		var i,
 			count = arguments.length;
 
-		for (i = 1; i < count; ++i)
-		{
+		for (i = 1; i < count; ++i) {
 			WeaponAction[arguments[i]] = value;
 		}
 	}

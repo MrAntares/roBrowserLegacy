@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -28,8 +27,7 @@ define(function (require)
 	/**
 	 * Initialize popup
 	 */
-	WinPopup.init = function init()
-	{
+	WinPopup.init = function init() {
 		this.ui.css({
 			top: (Renderer.height - 120) / 1.5 - 120,
 			left: (Renderer.width - 280) / 2.0,

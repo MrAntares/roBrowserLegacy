@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -76,17 +75,14 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	PlayerViewEquipV2.init = function init()
-	{
+	PlayerViewEquipV2.init = function init() {
 		_vieweqctx.push(this.ui.find('canvas')[0].getContext('2d'));
 		_vieweqctx.push(this.ui.find('canvas')[1].getContext('2d'));
 
 		// Grab the tab links and content divs from the page
 		var tabListItems = document.getElementById('vieweqtabs').childNodes;
-		for (var i = 0; i < tabListItems.length; i++)
-		{
-			if (tabListItems[i].nodeName == 'DIV')
-			{
+		for (var i = 0; i < tabListItems.length; i++) {
+			if (tabListItems[i].nodeName == 'DIV') {
 				var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
 				var id = getHash(tabLink.getAttribute('href'));
 				tabLinks[id] = tabLink;
@@ -98,26 +94,23 @@ define(function (require)
 		// highlight the first tab
 		var i = 0;
 
-		for (var id in tabLinks)
-		{
+		for (var id in tabLinks) {
 			tabLinks[id].onclick = showTab;
-			tabLinks[id].onfocus = function ()
-			{
+			tabLinks[id].onfocus = function () {
 				this.blur();
 			};
-			if (i == 0) {tabLinks[id].className = 'vieweqtab selected';}
+			if (i == 0) {
+				tabLinks[id].className = 'vieweqtab selected';
+			}
 			i++;
 		}
 
 		// Hide all content divs except the first
 		var i = 0;
 
-		for (var id in contentDivs)
-		{
-			if (contentDivs[id])
-			{
-				if (i != 0)
-				{
+		for (var id in contentDivs) {
+			if (contentDivs[id]) {
+				if (i != 0) {
 					contentDivs[id].classList.add('vieweqcontent', 'hide');
 				}
 				i++;
@@ -127,12 +120,10 @@ define(function (require)
 		this.ui.addClass('PlayerViewEquipV2');
 		// Don't activate drag drop when clicking on buttons
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
-		this.ui.find('.titlebar .mini').click(function ()
-		{
+		this.ui.find('.titlebar .mini').click(function () {
 			PlayerViewEquipV2.ui.find('.panel').toggle();
 		});
-		this.ui.find('.titlebar .close').click(function ()
-		{
+		this.ui.find('.titlebar .close').click(function () {
 			PlayerViewEquipV2.remove();
 		});
 
@@ -152,21 +143,16 @@ define(function (require)
 	/**
 	 * Show the selected tab and hide others
 	 */
-	function showTab()
-	{
+	function showTab() {
 		var selectedId = getHash(this.getAttribute('href'));
 
 		// Highlight the selected tab, and dim all others.
 		// Also show the selected content div, and hide all others.
-		for (var id in contentDivs)
-		{
-			if (id == selectedId)
-			{
+		for (var id in contentDivs) {
+			if (id == selectedId) {
 				tabLinks[id].className = 'vieweqtab selected';
 				contentDivs[id].className = 'vieweqcontent';
-			}
-			else
-			{
+			} else {
 				tabLinks[id].className = 'vieweqtab';
 				contentDivs[id].classList.add('vieweqcontent', 'hide');
 			}
@@ -186,12 +172,9 @@ define(function (require)
 	 * @param {string} tagName The tag name to search for
 	 * @returns {HTMLElement} The first child element with the specified tag name
 	 */
-	function getFirstChildWithTagName(element, tagName)
-	{
-		for (var i = 0; i < element.childNodes.length; i++)
-		{
-			if (element.childNodes[i].nodeName == tagName.toUpperCase())
-			{
+	function getFirstChildWithTagName(element, tagName) {
+		for (var i = 0; i < element.childNodes.length; i++) {
+			if (element.childNodes[i].nodeName == tagName.toUpperCase()) {
 				return element.childNodes[i];
 			}
 		}
@@ -203,8 +186,7 @@ define(function (require)
 	 * @param {string} url The URL
 	 * @returns {string} The hash part of the URL
 	 */
-	function getHash(url)
-	{
+	function getHash(url) {
 		var hashPos = url.lastIndexOf('#');
 		return url.substring(hashPos + 1);
 	}
@@ -212,16 +194,14 @@ define(function (require)
 	/**
 	 * Append to body
 	 */
-	PlayerViewEquipV2.onAppend = function onAppend()
-	{
+	PlayerViewEquipV2.onAppend = function onAppend() {
 		// Apply preferences
 		this.ui.css({
 			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		if (this.ui.find('canvas').is(':visible'))
-		{
+		if (this.ui.find('canvas').is(':visible')) {
 			Renderer.render(renderCharacter);
 		}
 	};
@@ -229,8 +209,7 @@ define(function (require)
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	PlayerViewEquipV2.onRemove = function onRemove()
-	{
+	PlayerViewEquipV2.onRemove = function onRemove() {
 		// Stop rendering
 		Renderer.stop(renderCharacter);
 
@@ -251,18 +230,13 @@ define(function (require)
 	 *
 	 * @param {Item} item
 	 */
-	PlayerViewEquipV2.equip = function equip(item, location)
-	{
+	PlayerViewEquipV2.equip = function equip(item, location) {
 		var it = DB.getItemInfo(item.ITID);
 
-		if (arguments.length === 1)
-		{
-			if ('WearState' in item)
-			{
+		if (arguments.length === 1) {
+			if ('WearState' in item) {
 				location = item.WearState;
-			}
-			else if ('location' in item)
-			{
+			} else if ('location' in item) {
 				location = item.location;
 			}
 		}
@@ -270,11 +244,9 @@ define(function (require)
 		item.equipped = location;
 		_list[item.index] = item;
 
-		function add3Dots(string, limit)
-		{
+		function add3Dots(string, limit) {
 			var dots = '...';
-			if (string.length > limit)
-			{
+			if (string.length > limit) {
 				string = string.substring(0, limit) + dots;
 			}
 
@@ -296,8 +268,7 @@ define(function (require)
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
-			function (data)
-			{
+			function (data) {
 				this.ui
 					.find('.item[data-index="' + item.index + '"] button')
 					.css('backgroundImage', 'url(' + data + ')');
@@ -311,15 +282,13 @@ define(function (require)
 	 * @param {Item} item The item to add
 	 * @param {number} location The location where the item is equipped
 	 */
-	PlayerViewEquipV2.setEquipmentData = function setEquipmentData(equipmentData)
-	{
+	PlayerViewEquipV2.setEquipmentData = function setEquipmentData(equipmentData) {
 		// Clear existing equipment
 		_list = {};
 		this.ui.find('.col1, .col3, .ammo').empty();
 
 		// Populate with new equipment data
-		equipmentData.forEach(function (item)
-		{
+		equipmentData.forEach(function (item) {
 			PlayerViewEquipV2.equip(item);
 		});
 	};
@@ -329,16 +298,14 @@ define(function (require)
 	 *
 	 * @param {string} characterName The character's name
 	 */
-	PlayerViewEquipV2.setTitleBar = function setTitleBar(characterName)
-	{
+	PlayerViewEquipV2.setTitleBar = function setTitleBar(characterName) {
 		this.ui.find('.PlayerName').text(DB.getMessage(1361).replace('%s', characterName));
 	};
 
 	/**
 	 * Stop an event to propagate
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -347,10 +314,8 @@ define(function (require)
 	 * Set rendering variables from packets received
 	 * @param {packets} pkt
 	 */
-	PlayerViewEquipV2.setChar2Render = function setChar2Render(pkt)
-	{
-		if (pkt)
-		{
+	PlayerViewEquipV2.setChar2Render = function setChar2Render(pkt) {
+		if (pkt) {
 			charName = pkt.characterName;
 			jobID = pkt.job;
 			headID = pkt.head;
@@ -363,8 +328,7 @@ define(function (require)
 	/**
 	 * Rendering character
 	 */
-	var renderCharacter = (function renderCharacterClosure()
-	{
+	var renderCharacter = (function renderCharacterClosure() {
 		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 		var _savedColor = new Float32Array(4);
 		var _animation = {
@@ -377,8 +341,7 @@ define(function (require)
 			save: false
 		};
 
-		return function renderCharacter()
-		{
+		return function renderCharacter() {
 			var Entity = getModule('Renderer/Entity/Entity');
 			var show_character = new Entity();
 			show_character.set({
@@ -394,16 +357,14 @@ define(function (require)
 			});
 
 			// General Tab only shows normal headgears
-			if (currentTabId === 'vieweqgeneral')
-			{
+			if (currentTabId === 'vieweqgeneral') {
 				show_character.accessory = PlayerViewEquipV2.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 				show_character.accessory2 = PlayerViewEquipV2.checkEquipLoc(EquipLocation.HEAD_TOP);
 				show_character.accessory3 = PlayerViewEquipV2.checkEquipLoc(EquipLocation.HEAD_MID);
 				show_character.robe = PlayerViewEquipV2.checkEquipLoc(EquipLocation.GARMENT);
 			}
 			// Costume Tab only shows costume headgears
-			else if (currentTabId === 'vieweqcostume')
-			{
+			else if (currentTabId === 'vieweqcostume') {
 				show_character.accessory = PlayerViewEquipV2.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
 				show_character.accessory2 = PlayerViewEquipV2.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
 				show_character.accessory3 = PlayerViewEquipV2.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
@@ -421,8 +382,7 @@ define(function (require)
 			show_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _vieweqctx.length; i++)
-			{
+			for (var i = 0; i < _vieweqctx.length; i++) {
 				var ctx = _vieweqctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -437,33 +397,74 @@ define(function (require)
 	 * @param {number} location
 	 * @returns {string} selector
 	 */
-	function getSelectorFromLocation(location)
-	{
+	function getSelectorFromLocation(location) {
 		var selector = [];
 
-		if (location & EquipLocation.HEAD_TOP) {selector.push('.head_top');}
-		if (location & EquipLocation.HEAD_MID) {selector.push('.head_mid');}
-		if (location & EquipLocation.HEAD_BOTTOM) {selector.push('.head_bottom');}
-		if (location & EquipLocation.ARMOR) {selector.push('.armor');}
-		if (location & EquipLocation.WEAPON) {selector.push('.weapon');}
-		if (location & EquipLocation.SHIELD) {selector.push('.shield');}
-		if (location & EquipLocation.GARMENT) {selector.push('.garment');}
-		if (location & EquipLocation.SHOES) {selector.push('.shoes');}
-		if (location & EquipLocation.ACCESSORY1) {selector.push('.accessory1');}
-		if (location & EquipLocation.ACCESSORY2) {selector.push('.accessory2');}
-		if (location & EquipLocation.AMMO) {selector.push('.ammo');}
+		if (location & EquipLocation.HEAD_TOP) {
+			selector.push('.head_top');
+		}
+		if (location & EquipLocation.HEAD_MID) {
+			selector.push('.head_mid');
+		}
+		if (location & EquipLocation.HEAD_BOTTOM) {
+			selector.push('.head_bottom');
+		}
+		if (location & EquipLocation.ARMOR) {
+			selector.push('.armor');
+		}
+		if (location & EquipLocation.WEAPON) {
+			selector.push('.weapon');
+		}
+		if (location & EquipLocation.SHIELD) {
+			selector.push('.shield');
+		}
+		if (location & EquipLocation.GARMENT) {
+			selector.push('.garment');
+		}
+		if (location & EquipLocation.SHOES) {
+			selector.push('.shoes');
+		}
+		if (location & EquipLocation.ACCESSORY1) {
+			selector.push('.accessory1');
+		}
+		if (location & EquipLocation.ACCESSORY2) {
+			selector.push('.accessory2');
+		}
+		if (location & EquipLocation.AMMO) {
+			selector.push('.ammo');
+		}
 
 		// Costume Tab
-		if (location & EquipLocation.COSTUME_HEAD_TOP) {selector.push('.costume_head_top');}
-		if (location & EquipLocation.COSTUME_HEAD_MID) {selector.push('.costume_head_mid');}
-		if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {selector.push('.costume_head_bottom');}
-		if (location & EquipLocation.SHADOW_ARMOR) {selector.push('.shadow_armor');}
-		if (location & EquipLocation.SHADOW_WEAPON) {selector.push('.shadow_weapon');}
-		if (location & EquipLocation.SHADOW_SHIELD) {selector.push('.shadow_shield');}
-		if (location & EquipLocation.COSTUME_ROBE) {selector.push('.shadow_garment');}
-		if (location & EquipLocation.SHADOW_SHOES) {selector.push('.shadow_shoes');}
-		if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {selector.push('.shadow_accessory1');}
-		if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {selector.push('.shadow_accessory2');}
+		if (location & EquipLocation.COSTUME_HEAD_TOP) {
+			selector.push('.costume_head_top');
+		}
+		if (location & EquipLocation.COSTUME_HEAD_MID) {
+			selector.push('.costume_head_mid');
+		}
+		if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {
+			selector.push('.costume_head_bottom');
+		}
+		if (location & EquipLocation.SHADOW_ARMOR) {
+			selector.push('.shadow_armor');
+		}
+		if (location & EquipLocation.SHADOW_WEAPON) {
+			selector.push('.shadow_weapon');
+		}
+		if (location & EquipLocation.SHADOW_SHIELD) {
+			selector.push('.shadow_shield');
+		}
+		if (location & EquipLocation.COSTUME_ROBE) {
+			selector.push('.shadow_garment');
+		}
+		if (location & EquipLocation.SHADOW_SHOES) {
+			selector.push('.shadow_shoes');
+		}
+		if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {
+			selector.push('.shadow_accessory1');
+		}
+		if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {
+			selector.push('.shadow_accessory2');
+		}
 
 		return selector.join(', ');
 	}
@@ -471,8 +472,7 @@ define(function (require)
 	/**
 	 * Drag out the window
 	 */
-	function onDragLeave(event)
-	{
+	function onDragLeave(event) {
 		PlayerViewEquipV2.ui.find('td').css('backgroundImage', 'none');
 		event.stopImmediatePropagation();
 		return false;
@@ -481,22 +481,18 @@ define(function (require)
 	/**
 	 * Right click on an item
 	 */
-	function onEquipmentInfo(event)
-	{
+	function onEquipmentInfo(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var item = _list[index];
 
-		if (item)
-		{
+		if (item) {
 			// Don't add the same UI twice, remove it
-			if (ItemInfo.uid === item.ITID)
-			{
+			if (ItemInfo.uid === item.ITID) {
 				ItemInfo.remove();
 			}
 
 			// Add ui to window
-			else
-			{
+			else {
 				ItemInfo.append();
 				ItemInfo.uid = item.ITID;
 				ItemInfo.setItem(item);
@@ -510,13 +506,11 @@ define(function (require)
 	/**
 	 * When mouse is over an equipment, display the item name
 	 */
-	function onEquipmentOver()
-	{
+	function onEquipmentOver() {
 		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		var item = _list[idx];
 
-		if (!item)
-		{
+		if (!item) {
 			return;
 		}
 
@@ -525,8 +519,7 @@ define(function (require)
 		var pos = jQuery(this).position();
 
 		// Possible jquery error
-		if (!pos.top && !pos.left)
-		{
+		if (!pos.top && !pos.left) {
 			return;
 		}
 
@@ -539,21 +532,17 @@ define(function (require)
 	/**
 	 * Remove the item name
 	 */
-	function onEquipmentOut()
-	{
+	function onEquipmentOut() {
 		PlayerViewEquipV2.ui.find('.overlay').hide();
 	}
 
 	/**
 	 * Update the owner name for the equipment items
 	 */
-	PlayerViewEquipV2.onUpdateOwnerName = function ()
-	{
-		for (var index in _list)
-		{
+	PlayerViewEquipV2.onUpdateOwnerName = function () {
+		for (var index in _list) {
 			var item = _list[index];
-			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1))
-			{
+			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				PlayerViewEquipV2.ui
 					.find('.item[data-index="' + index + '"] .itemName')
 					.text(jQuery.escape(DB.getItemName(item)));
@@ -566,13 +555,10 @@ define(function (require)
 	 *
 	 * @returns {number} The number of equipment items
 	 */
-	PlayerViewEquipV2.getNumber = function ()
-	{
+	PlayerViewEquipV2.getNumber = function () {
 		var num = 0;
-		for (var key in _list)
-		{
-			if (_list[key].location && _list[key].location != EquipLocation.AMMO)
-			{
+		for (var key in _list) {
+			if (_list[key].location && _list[key].location != EquipLocation.AMMO) {
 				num++;
 			}
 		}
@@ -585,12 +571,9 @@ define(function (require)
 	 * @param {number} location The location to check
 	 * @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
 	 */
-	PlayerViewEquipV2.checkEquipLoc = function checkEquipLoc(location)
-	{
-		for (var key in _list)
-		{
-			if (_list[key].equipped & location)
-			{
+	PlayerViewEquipV2.checkEquipLoc = function checkEquipLoc(location) {
+		for (var key in _list) {
+			if (_list[key].equipped & location) {
 				return _list[key].wItemSpriteNumber;
 			}
 		}

@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(['Core/Preferences'], function (Preferences)
-{
+define(['Core/Preferences'], function (Preferences) {
 	'use strict';
 
 	var defaultGraphicsSettings = {

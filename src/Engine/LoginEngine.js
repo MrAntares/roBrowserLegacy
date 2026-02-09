@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	// Load dependencies
@@ -42,8 +41,7 @@ define(function (require)
 	 * Creating WinLoading
 	 */
 	var WinLoading = WinPopup.clone('WinLoading');
-	WinLoading.init = function ()
-	{
+	WinLoading.init = function () {
 		this.ui.css({ top: (Renderer.height - 120) / 1.5, left: (Renderer.width - 280) / 2.0 });
 		this.ui.find('.text').text(DB.getMessage(121));
 	};
@@ -67,8 +65,7 @@ define(function (require)
 	/**
 	 * Init Game
 	 */
-	function init(server)
-	{
+	function init(server) {
 		var charset;
 		var q = new Queue();
 		var old_server = _server;
@@ -95,45 +92,36 @@ define(function (require)
 		var audioExt = Configs.get('BGMFileExtension');
 
 		// Server packetver
-		if (packetver)
-		{
-			if (packetver.match(/^\d+$/))
-			{
+		if (packetver) {
+			if (packetver.match(/^\d+$/)) {
 				PACKETVER.value = parseInt(packetver, 10);
 			}
 		}
 
-		if (!PACKETVER.value)
-		{
+		if (!PACKETVER.value) {
 			UIManager.showErrorBox('Sorry, no PACKETVER configs found.');
 			return;
 		}
 
 		// Add support for remote client in server definition
-		if (remoteClient)
-		{
+		if (remoteClient) {
 			Thread.send('SET_HOST', remoteClient);
 
 			// Check if the selected server changed.
-			if (old_server != null && (old_server.address != _server.address || old_server.port != _server.port))
-			{
+			if (old_server != null && (old_server.address != _server.address || old_server.port != _server.port)) {
 				// Re-Loading game data with server specific files (txt, lua, lub)
-				q.add(function ()
-				{
-					DB.onReady = function ()
-					{
+				q.add(function () {
+					DB.onReady = function () {
 						Background.setImage('bgi_temp.bmp'); // remove loading
 						q._next();
 					};
-					DB.onProgress = function (i, count)
-					{
+					DB.onProgress = function (i, count) {
 						Background.setPercent(Math.floor((i / count) * 100));
 					};
 					UIManager.removeComponents();
 					Background.init();
 					Background.resize(Renderer.width, Renderer.height);
-					Background.setImage('bgi_temp.bmp', function ()
-					{
+					Background.setImage('bgi_temp.bmp', function () {
 						DB.init();
 					});
 				});
@@ -141,8 +129,7 @@ define(function (require)
 		}
 
 		// Server audio configuration
-		if (audioExt)
-		{
+		if (audioExt) {
 			BGM.setAvailableExtensions(audioExt);
 		}
 
@@ -159,26 +146,19 @@ define(function (require)
 		WinLogin.getUI().onExitRequest = onExitRequest;
 
 		// Autologin features
-		if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1])
-		{
+		if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1]) {
 			onConnectionRequest.apply(null, autoLogin);
 			Configs.set('autoLogin', null);
-		}
-		else
-		{
-			q.add(function ()
-			{
+		} else {
+			q.add(function () {
 				WinLogin.getUI().append();
 			});
 		}
 
 		// Hook packets
-		if (PACKETVER.value < 20170315)
-		{
+		if (PACKETVER.value < 20170315) {
 			Network.hookPacket(PACKET.AC.ACCEPT_LOGIN, onConnectionAccepted);
-		}
-		else
-		{
+		} else {
 			Network.hookPacket(PACKET.AC.ACCEPT_LOGIN3, onConnectionAccepted);
 		}
 		Network.hookPacket(PACKET.AC.REFUSE_LOGIN, onConnectionRefused);
@@ -192,8 +172,7 @@ define(function (require)
 	/**
 	 * Reload WinLogin
 	 */
-	function reload()
-	{
+	function reload() {
 		UIManager.removeComponents();
 		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
 		WinLogin.getUI().onExitRequest = onExitRequest;
@@ -208,8 +187,7 @@ define(function (require)
 	 * @param {string} username
 	 * @param {string} password
 	 */
-	function onConnectionRequest(username, password)
-	{
+	function onConnectionRequest(username, password) {
 		// Play "¹öÆ°¼Ò¸®.wav" (possible problem with charset)
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
 
@@ -220,11 +198,9 @@ define(function (require)
 		_loginID = username;
 
 		// Try to connect
-		Network.connect(_server.address, _server.port, function (success)
-		{
+		Network.connect(_server.address, _server.port, function (success) {
 			// Fail to connect...
-			if (!success)
-			{
+			if (!success) {
 				UIManager.showErrorBox(DB.getMessage(1));
 				return;
 			}
@@ -233,56 +209,45 @@ define(function (require)
 			var hash = false;
 
 			// Get client hash
-			if (Configs.get('calculateHash') && !Configs.get('development'))
-			{
+			if (Configs.get('calculateHash') && !Configs.get('development')) {
 				// Calucalte hash from files (slower, more "secure")
 				var files = Configs.get('hashFiles');
 				var fileStatus = 0;
 				var fileContents = [];
 
-				for (var i = 0; i < files.length; i++)
-				{
+				for (var i = 0; i < files.length; i++) {
 					var jsonFile = new XMLHttpRequest();
 					jsonFile.open('GET', files[i], true);
 					jsonFile.send();
 
-					jsonFile.onreadystatechange = function ()
-					{
-						if (jsonFile.readyState == 4 && jsonFile.status == 200)
-						{
+					jsonFile.onreadystatechange = function () {
+						if (jsonFile.readyState == 4 && jsonFile.status == 200) {
 							fileContents[i] = jsonFile.responseText;
 							fileStatus++;
 						}
 
-						if (fileStatus == files.length)
-						{
+						if (fileStatus == files.length) {
 							var contentString = fileContents.join('\r\n'); // Join strings with carrige return & newline
 							hash = MD5.hash(contentString); // Just hash the whole array
 							sendLogin();
 						}
 					};
 				}
-			}
-			else
-			{
+			} else {
 				// Just use the predefined value (faster, less "secure")
 				hash = Configs.get('clientHash');
 				sendLogin();
 			}
 
-			function sendLogin()
-			{
-				if (hash)
-				{
+			function sendLogin() {
+				if (hash) {
 					// Convert hexadecimal hash to binary
-					if (/^[a-f0-9]+$/i.test(hash))
-					{
+					if (/^[a-f0-9]+$/i.test(hash)) {
 						var str = '';
 						var i,
 							count = hash.length;
 
-						for (i = 0; i < count; i += 2)
-						{
+						for (i = 0; i < count; i += 2) {
 							str += String.fromCharCode(parseInt(hash.substr(i, 2), 16));
 						}
 
@@ -308,8 +273,7 @@ define(function (require)
 	/**
 	 * Go back to intro window
 	 */
-	function onExitRequest()
-	{
+	function onExitRequest() {
 		getModule('Engine/GameEngine').reload();
 	}
 
@@ -318,8 +282,7 @@ define(function (require)
 	 *
 	 * @param {number} index in server list
 	 */
-	function onCharServerSelected(index)
-	{
+	function onCharServerSelected(index) {
 		// Play "¹öÆ°¼Ò¸®.wav" (encode to avoid problem with charset)
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
 
@@ -336,8 +299,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.AC.ACCEPT_LOGIN
 	 */
-	function onConnectionAccepted(pkt)
-	{
+	function onConnectionAccepted(pkt) {
 		UIManager.removeComponents();
 
 		Session.AuthCode = pkt.AuthCode;
@@ -345,7 +307,9 @@ define(function (require)
 		Session.UserLevel = pkt.userLevel;
 		Session.Sex = pkt.Sex;
 
-		if (PACKETVER.value >= 20170315) {Session.WebToken = pkt.webAuthToken;}
+		if (PACKETVER.value >= 20170315) {
+			Session.WebToken = pkt.webAuthToken;
+		}
 
 		_charServers = pkt.ServerList;
 
@@ -353,8 +317,7 @@ define(function (require)
 		var i,
 			count = _charServers.length;
 		var list = new Array(count);
-		for (i = 0; i < count; ++i)
-		{
+		for (i = 0; i < count; ++i) {
 			list[i] = _charServers[i].property ? DB.getMessage(482) + ' ' : '';
 			list[i] += _charServers[i].name;
 			list[i] += _charServers[i].state
@@ -363,8 +326,7 @@ define(function (require)
 		}
 
 		// No choice, connect directly to the server
-		if (count === 1 && Configs.get('skipServerList'))
-		{
+		if (count === 1 && Configs.get('skipServerList')) {
 			WinLoading.append();
 			CharEngine.onExitRequest = reload;
 			Session.ServerName = _charServers[0].name; // Save server name
@@ -372,12 +334,10 @@ define(function (require)
 		}
 
 		// Have to select server in the list
-		else
-		{
+		else {
 			// Show window
 			WinList.onIndexSelected = onCharServerSelected;
-			WinList.onExitRequest = function ()
-			{
+			WinList.onExitRequest = function () {
 				Network.close();
 				WinList.remove();
 				WinLogin.getUI().append();
@@ -389,13 +349,11 @@ define(function (require)
 		// Set ping
 		var ping = new PACKET.CA.CONNECT_INFO_CHANGED();
 		ping.ID = _loginID;
-		Network.setPing(function ()
-		{
+		Network.setPing(function () {
 			Network.sendPacket(ping);
 		});
 
-		if (PACKETVER.value >= 20170315 && Session.WebToken)
-		{
+		if (PACKETVER.value >= 20170315 && Session.WebToken) {
 			var ShortCut = require('UI/Components/ShortCut/ShortCut');
 			ShortCut.loadFromServer();
 		}
@@ -406,11 +364,9 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.AC.REFUSE_LOGIN
 	 */
-	function onConnectionRefused(pkt)
-	{
+	function onConnectionRefused(pkt) {
 		var error = 9;
-		switch (pkt.ErrorCode)
-		{
+		switch (pkt.ErrorCode) {
 			case 0:
 				error = 6;
 				break; // Unregistered ID
@@ -482,8 +438,7 @@ define(function (require)
 		UIManager.showMessageBox(
 			DB.getMessage(error).replace('%s', pkt.blockDate),
 			'ok',
-			function ()
-			{
+			function () {
 				UIManager.removeComponents();
 				WinLogin.getUI().append();
 			},
@@ -498,12 +453,10 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.SC.NOTIFY_BAN
 	 */
-	function onServerClosed(pkt)
-	{
+	function onServerClosed(pkt) {
 		var msg_id;
 
-		switch (pkt.ErrorCode)
-		{
+		switch (pkt.ErrorCode) {
 			default:
 			case 0:
 				msg_id = 3;
@@ -556,8 +509,7 @@ define(function (require)
 	 * Called by GameEngine when it reloads files due to a service change
 	 * so we don't wind up trying to load the db twice. (Or concurrently.)
 	 */
-	function setLoadedServer(server)
-	{
+	function setLoadedServer(server) {
 		_server = server;
 	}
 

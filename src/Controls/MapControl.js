@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	// Load dependencies
@@ -68,8 +67,7 @@ define(function (require)
 	/**
 	 * Initializing the controller
 	 */
-	MapControl.init = function init()
-	{
+	MapControl.init = function init() {
 		Mobile.init();
 		Mobile.onTouchStart = onMouseDown.bind(this);
 		Mobile.onTouchEnd = onMouseUp.bind(this);
@@ -86,73 +84,58 @@ define(function (require)
 	/**
 	 * What to do when clicking on the map ?
 	 */
-	function onMouseDown(event)
-	{
+	function onMouseDown(event) {
 		var action = (event && event.which) || 1;
 
-		if (!Mouse.intersect)
-		{
+		if (!Mouse.intersect) {
 			return;
 		}
 
 		var entityFocus = EntityManager.getFocusEntity();
 		var entityOver = EntityManager.getOverEntity();
 
-		switch (action)
-		{
+		switch (action) {
 			// Left click
 			case 1:
-				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL)
-				{
+				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
 					if (
 						entityOver &&
 						entityOver != Session.Entity &&
 						entityOver.objecttype != Entity.TYPE_EFFECT &&
 						entityOver.objecttype != Entity.TYPE_TRAP
-					)
-					{
+					) {
 						AIDriver.mercenary.setmsg(Session.mercId, '3,' + entityOver.GID);
-					}
-					else
-					{
+					} else {
 						AIDriver.mercenary.setmsg(Session.mercId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
 					}
-				}
-				else
-				{
+				} else {
 					Session.moveAction = null;
 					Session.autoFollow = false;
 
 					var stop = false;
-					if (entityOver != Session.Entity)
-					{
-						if (entityFocus && entityFocus != entityOver)
-						{
-							if (!(Session.TouchTargeting && !entityOver))
-							{
+					if (entityOver != Session.Entity) {
+						if (entityFocus && entityFocus != entityOver) {
+							if (!(Session.TouchTargeting && !entityOver)) {
 								entityFocus.onFocusEnd();
 								EntityManager.setFocusEntity(null);
 							}
 						}
 
 						// Entity picking ?
-						if (entityOver)
-						{
+						if (entityOver) {
 							stop = stop || entityOver.onMouseDown();
 							stop = stop || entityOver.onFocus();
 							EntityManager.setFocusEntity(entityOver);
 
 							// Know if propagate to map mousedown
-							if (stop)
-							{
+							if (stop) {
 								return;
 							}
 						}
 					}
 
 					// Start walking
-					if (this.onRequestWalk)
-					{
+					if (this.onRequestWalk) {
 						this.onRequestWalk();
 					}
 				}
@@ -163,13 +146,11 @@ define(function (require)
 				_rightClickPosition[0] = Mouse.screen.x;
 				_rightClickPosition[1] = Mouse.screen.y;
 
-				if (Session.captchaGetIdOnFloorClick)
-				{
+				if (Session.captchaGetIdOnFloorClick) {
 					getModule('UI/Components/Captcha/CaptchaSelector').requestPlayersIds(Mouse.world.x, Mouse.world.y);
 				}
 
-				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL)
-				{
+				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
 					Camera.rotate(false);
 
 					if (
@@ -177,26 +158,19 @@ define(function (require)
 						entityOver != Session.Entity &&
 						entityOver.objecttype != Entity.TYPE_EFFECT &&
 						entityOver.objecttype != Entity.TYPE_TRAP
-					)
-					{
+					) {
 						AIDriver.homunculus.setmsg(Session.homunId, '3,' + entityOver.GID);
-					}
-					else
-					{
+					} else {
 						AIDriver.homunculus.setmsg(Session.homunId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
 					}
-				}
-				else
-				{
+				} else {
 					if (
 						entityOver &&
 						entityOver != Session.Entity &&
 						entityOver.objecttype != Entity.TYPE_EFFECT &&
 						entityOver.objecttype != Entity.TYPE_TRAP
-					)
-					{
-						if (KEYS.SHIFT)
-						{
+					) {
+						if (KEYS.SHIFT) {
 							// Shift + Right click on an entity
 							Session.autoFollowTarget = entityOver;
 							Session.autoFollow = true;
@@ -219,26 +193,22 @@ define(function (require)
 	/**
 	 * What to do when stop clicking on the map ?
 	 */
-	function onMouseUp(event)
-	{
+	function onMouseUp(event) {
 		var entity, ET;
 		var action = (event && event.which) || 1;
 
 		// Not rendering yet
-		if (!Mouse.intersect)
-		{
+		if (!Mouse.intersect) {
 			return;
 		}
 
-		switch (action)
-		{
+		switch (action) {
 			// Left click
 			case 1:
 				// Remove entity picking ?
 				entity = EntityManager.getFocusEntity();
 
-				if (entity)
-				{
+				if (entity) {
 					ET = entity.constructor;
 					entity.onMouseUp();
 
@@ -247,16 +217,14 @@ define(function (require)
 						Preferences.noctrl === false ||
 						(![ET.TYPE_MOB, ET.TYPE_NPC_ABR, ET.TYPE_NPC_BIONIC].includes(entity.objecttype) &&
 							!Session.TouchTargeting)
-					)
-					{
+					) {
 						EntityManager.setFocusEntity(null);
 						entity.onFocusEnd();
 					}
 				}
 
 				// stop walking
-				if (this.onRequestStopWalk)
-				{
+				if (this.onRequestStopWalk) {
 					this.onRequestStopWalk();
 				}
 				break;
@@ -272,12 +240,10 @@ define(function (require)
 					_rightClickPosition[0] === Mouse.screen.x &&
 					_rightClickPosition[1] === Mouse.screen.y &&
 					!KEYS.SHIFT
-				)
-				{
+				) {
 					entity = EntityManager.getOverEntity();
 
-					if (entity && entity !== Session.Entity)
-					{
+					if (entity && entity !== Session.Entity) {
 						entity.onContextMenu();
 					}
 				}
@@ -288,16 +254,11 @@ define(function (require)
 	/**
 	 * Zoom feature
 	 */
-	function onMouseWheel(event)
-	{
-		if (Mouse.state === Mouse.MOUSE_STATE.USESKILL)
-		{
-			if (event.originalEvent.wheelDelta > 0)
-			{
+	function onMouseWheel(event) {
+		if (Mouse.state === Mouse.MOUSE_STATE.USESKILL) {
+			if (event.originalEvent.wheelDelta > 0) {
 				SkillTargetSelection.setSkillLevelDelta(1);
-			}
-			else
-			{
+			} else {
 				SkillTargetSelection.setSkillLevelDelta(-1);
 			}
 			return;
@@ -305,16 +266,12 @@ define(function (require)
 		// Zooming on the scene
 		// Cross browser delta
 		var delta;
-		if (event.originalEvent.wheelDelta)
-		{
+		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera)
-			{
+			if (window.opera) {
 				delta = -delta;
 			}
-		}
-		else if (event.originalEvent.detail)
-		{
+		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
 
@@ -324,8 +281,7 @@ define(function (require)
 	/**
 	 * Allow dropping data
 	 */
-	function onDragOver(event)
-	{
+	function onDragOver(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -333,68 +289,57 @@ define(function (require)
 	/**
 	 * Drop items to the map
 	 */
-	function onDrop(event)
-	{
+	function onDrop(event) {
 		var item, data;
 
-		try
-		{
+		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		}
-		catch (e) {}
+		} catch (e) {}
 
 		// Stop default behavior
 		event.stopImmediatePropagation();
-		if (!data)
-		{
+		if (!data) {
 			return false;
 		}
 
 		// Hacky way to trigger mouseleave (mouseleave isn't
 		// triggered when dragging an object).
 		// ondragleave event is not relyable to do it (not working as intended)
-		if (data.from)
-		{
+		if (data.from) {
 			UIManager.getComponent(data.from).ui.trigger('mouseleave');
 		}
 
 		// Just support items ?
-		if (data.type !== 'item' || data.from !== 'Inventory')
-		{
+		if (data.type !== 'item' || data.from !== 'Inventory') {
 			return false;
 		}
 
 		// Can't drop an item on map if Equipment window is open
-		if (Equipment.getUI().ui.is(':visible'))
-		{
+		if (Equipment.getUI().ui.is(':visible')) {
 			ChatBox.addText(DB.getMessage(189), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM);
 			return false;
 		}
 
 		// Item Drop Lock
 		var InventoryVersion = UIManager.getComponent('Inventory').name;
-		if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true)
-		{
+		if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true) {
 			return false;
 		}
 
 		item = data.data;
 
 		// Have to specify how much
-		if (item.count > 1)
-		{
+		if (item.count > 1) {
 			InputBox.append();
 			InputBox.setType('item', false, item.count, item.ITID);
-			InputBox.onSubmitRequest = function onSubmitRequest(count)
-			{
+			InputBox.onSubmitRequest = function onSubmitRequest(count) {
 				InputBox.remove();
 				MapControl.onRequestDropItem(item.index, parseInt(count, 10));
 			};
 		}
 
 		// Only one, don't have to specify
-		else
-		{
+		else {
 			MapControl.onRequestDropItem(item.index, 1);
 		}
 
@@ -404,10 +349,8 @@ define(function (require)
 	/**
 	 * Auto follow logic
 	 */
-	function onAutoFollow()
-	{
-		if (Session.autoFollow)
-		{
+	function onAutoFollow() {
+		if (Session.autoFollow) {
 			var player = Session.Entity;
 			var target = Session.autoFollowTarget;
 
@@ -415,20 +358,15 @@ define(function (require)
 			var dy = Math.abs(player.position[1] - target.position[1]);
 
 			// Use square based range check instead of Pythagorean because of diagonals
-			if (dx > 1 || dy > 1)
-			{
+			if (dx > 1 || dy > 1) {
 				var dest = [0, 0];
 
 				// If there is valid cell send move packet
-				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest))
-				{
+				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
 					var pkt;
-					if (PACKETVER.value >= 20180307)
-					{
+					if (PACKETVER.value >= 20180307) {
 						pkt = new PACKET.CZ.REQUEST_MOVE2();
-					}
-					else
-					{
+					} else {
 						pkt = new PACKET.CZ.REQUEST_MOVE();
 					}
 					pkt.dest = dest;
@@ -448,21 +386,16 @@ define(function (require)
 	 * @param {number} range
 	 * @param {array} out
 	 */
-	function checkFreeCell(x, y, range, out)
-	{
+	function checkFreeCell(x, y, range, out) {
 		var _x, _y, r;
 		var d_x = Session.Entity.position[0] < x ? -1 : 1;
 		var d_y = Session.Entity.position[1] < y ? -1 : 1;
 
 		// Search possible positions
-		for (r = 0; r <= range; ++r)
-		{
-			for (_x = -r; _x <= r; ++_x)
-			{
-				for (_y = -r; _y <= r; ++_y)
-				{
-					if (isFreeCell(x + _x * d_x, y + _y * d_y))
-					{
+		for (r = 0; r <= range; ++r) {
+			for (_x = -r; _x <= r; ++_x) {
+				for (_y = -r; _y <= r; ++_y) {
+					if (isFreeCell(x + _x * d_x, y + _y * d_y)) {
 						out[0] = x + _x * d_x;
 						out[1] = y + _y * d_y;
 						return true;
@@ -481,25 +414,21 @@ define(function (require)
 	 * @param {number} y
 	 * @param {returns} is free
 	 */
-	function isFreeCell(x, y)
-	{
-		if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE))
-		{
+	function isFreeCell(x, y) {
+		if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) {
 			return false;
 		}
 
 		var free = true;
 
-		EntityManager.forEach(function (entity)
-		{
+		EntityManager.forEach(function (entity) {
 			if (
 				entity.objecttype != entity.constructor.TYPE_EFFECT &&
 				entity.objecttype != entity.constructor.TYPE_UNIT &&
 				entity.objecttype != entity.constructor.TYPE_TRAP &&
 				Math.round(entity.position[0]) === x &&
 				Math.round(entity.position[1]) === y
-			)
-			{
+			) {
 				free = false;
 				return false;
 			}

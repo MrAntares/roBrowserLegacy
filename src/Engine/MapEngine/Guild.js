@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -45,8 +44,7 @@ define(function (require)
 	/**
 	 * Initialize engine
 	 */
-	GuildEngine.init = function init()
-	{
+	GuildEngine.init = function init() {
 		Network.hookPacket(PACKET.ZC.GUILD_CHAT, onMemberTalk);
 		Network.hookPacket(PACKET.ZC.NOTIFY_POSITION_TO_GUILDM, onMemberMove);
 		Network.hookPacket(PACKET.ZC.GUILD_INFO, onGuildInfo);
@@ -103,10 +101,8 @@ define(function (require)
 	 *
 	 * @param {number} type (page)
 	 */
-	GuildEngine.requestInfo = function requestInfo(type)
-	{
-		if (type > 4)
-		{
+	GuildEngine.requestInfo = function requestInfo(type) {
+		if (type > 4) {
 			return;
 		}
 
@@ -122,13 +118,11 @@ define(function (require)
 	 * @param {number} version
 	 * @param {function} callback
 	 */
-	GuildEngine.requestGuildEmblem = function requestGuildEmblem(guild_id, version, callback)
-	{
+	GuildEngine.requestGuildEmblem = function requestGuildEmblem(guild_id, version, callback) {
 		var emblem;
 
 		// Guild does not exist
-		if (!_emblems[guild_id])
-		{
+		if (!_emblems[guild_id]) {
 			_emblems[guild_id] = {
 				version: -1,
 				image: new Image(),
@@ -136,19 +130,21 @@ define(function (require)
 			};
 		}
 
-		if (Session.Entity.GUID == guild_id) {GuildEngine.guild_id = guild_id;}
+		if (Session.Entity.GUID == guild_id) {
+			GuildEngine.guild_id = guild_id;
+		}
 
 		emblem = _emblems[guild_id];
 
 		// Lower version, update it to the current
-		if (version <= emblem.version)
-		{
-			EntityManager.forEach(function (entity)
-			{
-				if (entity.GUID === guild_id)
-				{
-					if (emblem.display) {entity.display.emblem = emblem.display;}
-					else {entity.display.emblem = emblem.image;}
+		if (version <= emblem.version) {
+			EntityManager.forEach(function (entity) {
+				if (entity.GUID === guild_id) {
+					if (emblem.display) {
+						entity.display.emblem = emblem.display;
+					} else {
+						entity.display.emblem = emblem.image;
+					}
 					entity.emblem.update();
 					entity.display.refresh(entity);
 				}
@@ -157,8 +153,7 @@ define(function (require)
 			return;
 		}
 
-		if (PACKETVER.value >= 20170315)
-		{
+		if (PACKETVER.value >= 20170315) {
 			if (
 				!guild_id ||
 				guild_id === undefined ||
@@ -168,8 +163,9 @@ define(function (require)
 				Session.ServerName === undefined ||
 				!Session.WebToken ||
 				Session.WebToken === undefined
-			)
-			{return;}
+			) {
+				return;
+			}
 
 			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
@@ -183,25 +179,19 @@ define(function (require)
 			xhr.open('POST', webAddress + '/emblem/download', true);
 			xhr.responseType = 'blob';
 
-			xhr.onload = function ()
-			{
-				if (xhr.status === 200)
-				{
+			xhr.onload = function () {
+				if (xhr.status === 200) {
 					var contentType = xhr.getResponseHeader('Content-Type');
 					var isGif = contentType === 'image/gif';
-					if (!isGif)
-					{
+					if (!isGif) {
 						var img = new Image();
-						img.onload = function ()
-						{
+						img.onload = function () {
 							emblem.version = version;
 							emblem.image = img;
 							emblem.display = null;
 							callback(emblem.image);
-							EntityManager.forEach(function (entity)
-							{
-								if (entity.GUID === guild_id)
-								{
+							EntityManager.forEach(function (entity) {
+								if (entity.GUID === guild_id) {
 									entity.display.emblem = img;
 									entity.emblem.update();
 									entity.display.refresh(entity);
@@ -211,31 +201,23 @@ define(function (require)
 						img.decoding = 'async';
 						var blobUrl = URL.createObjectURL(xhr.response);
 						// Load the emblem, remove magenta, free blob from memory
-						Texture.load(blobUrl, function ()
-						{
+						Texture.load(blobUrl, function () {
 							img.src = this.toDataURL();
 							URL.revokeObjectURL(blobUrl);
 						});
-					}
-					else
-					{
-						Texture.processGifToSpriteSheet(xhr.response, function (sucess)
-						{
-							if (sucess)
-							{
+					} else {
+						Texture.processGifToSpriteSheet(xhr.response, function (sucess) {
+							if (sucess) {
 								var canvas = this;
 								var img = new Image();
-								img.onload = function ()
-								{
+								img.onload = function () {
 									emblem.version = version;
 									emblem.image = img;
 									emblem.display = canvas;
 									callback(emblem.image);
 
-									EntityManager.forEach(function (entity)
-									{
-										if (entity.GUID === guild_id)
-										{
+									EntityManager.forEach(function (entity) {
+										if (entity.GUID === guild_id) {
 											entity.display.emblem = canvas;
 											entity.emblem.update();
 											entity.display.refresh(entity);
@@ -245,8 +227,7 @@ define(function (require)
 								img.decoding = 'async';
 								var blobUrl = URL.createObjectURL(xhr.response);
 								// Load the emblem as img, remove magenta, free blob from memory
-								Texture.load(blobUrl, function ()
-								{
+								Texture.load(blobUrl, function () {
 									img.src = this.toDataURL();
 									URL.revokeObjectURL(blobUrl);
 								});
@@ -257,9 +238,7 @@ define(function (require)
 			}; // End xhr.onload
 
 			xhr.send(formData);
-		}
-		else
-		{
+		} else {
 			// Ask for new version via Packet
 			var pkt = new PACKET.CZ.REQ_GUILD_EMBLEM_IMG();
 			pkt.GDID = guild_id;
@@ -271,8 +250,7 @@ define(function (require)
 	/**
 	 * Need to know the access we have to the guild UI
 	 */
-	GuildEngine.requestAccess = function requestAccess()
-	{
+	GuildEngine.requestAccess = function requestAccess() {
 		Network.sendPacket(new PACKET.CZ.REQ_GUILD_MENUINTERFACE());
 	};
 
@@ -281,8 +259,7 @@ define(function (require)
 	 *
 	 * @param {string} guild name
 	 */
-	GuildEngine.createGuild = function createGuild(name)
-	{
+	GuildEngine.createGuild = function createGuild(name) {
 		var pkt = new PACKET.CZ.REQ_MAKE_GUILD();
 		pkt.GID = Session.GID;
 		pkt.GName = name;
@@ -295,8 +272,7 @@ define(function (require)
 	 *
 	 * @param {string} guild name
 	 */
-	GuildEngine.breakGuild = function breakGuild(name)
-	{
+	GuildEngine.breakGuild = function breakGuild(name) {
 		var pkt = new PACKET.CZ.REQ_DISORGANIZE_GUILD();
 		pkt.key = name;
 
@@ -308,8 +284,7 @@ define(function (require)
 	 *
 	 * @param {Array} positions
 	 */
-	GuildEngine.requestPositionUpdate = function requestPositionUpdate(positions)
-	{
+	GuildEngine.requestPositionUpdate = function requestPositionUpdate(positions) {
 		var pkt = new PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO();
 		pkt.memberList = positions;
 
@@ -321,8 +296,7 @@ define(function (require)
 	 *
 	 * @param {Array} positions
 	 */
-	GuildEngine.requestChangeMemberPos = function requestChangeMemberPos(memberInfo)
-	{
+	GuildEngine.requestChangeMemberPos = function requestChangeMemberPos(memberInfo) {
 		var pkt = new PACKET.CZ.REQ_CHANGE_MEMBERPOS();
 		pkt.memberInfo = memberInfo;
 
@@ -335,8 +309,7 @@ define(function (require)
 	 * @param {string} subject
 	 * @param {string} content
 	 */
-	GuildEngine.requestNoticeUpdate = function requestNoticeUpdate(subject, content)
-	{
+	GuildEngine.requestNoticeUpdate = function requestNoticeUpdate(subject, content) {
 		var pkt = new PACKET.CZ.GUILD_NOTICE();
 		pkt.GDID = GuildEngine.guild_id;
 		pkt.subject = subject;
@@ -350,8 +323,7 @@ define(function (require)
 	 *
 	 * @param {number} target account id
 	 */
-	GuildEngine.requestPlayerInvitation = function requestPlayerInvitation(AID)
-	{
+	GuildEngine.requestPlayerInvitation = function requestPlayerInvitation(AID) {
 		var pkt = new PACKET.CZ.REQ_JOIN_GUILD();
 		pkt.AID = AID;
 		pkt.MyAID = Session.AID;
@@ -365,8 +337,7 @@ define(function (require)
 	 *
 	 * @param {number} target account id
 	 */
-	GuildEngine.requestAlliance = function requestAlliance(AID)
-	{
+	GuildEngine.requestAlliance = function requestAlliance(AID) {
 		var pkt = new PACKET.CZ.REQ_ALLY_GUILD();
 		pkt.AID = AID;
 		pkt.MyAID = Session.AID;
@@ -380,8 +351,7 @@ define(function (require)
 	 *
 	 * @param {number} target account id
 	 */
-	GuildEngine.requestHostility = function requestHostility(AID)
-	{
+	GuildEngine.requestHostility = function requestHostility(AID) {
 		var pkt = new PACKET.CZ.REQ_HOSTILE_GUILD();
 		pkt.AID = AID;
 
@@ -395,8 +365,7 @@ define(function (require)
 	 * @param {number} character id
 	 * @param {string} reason for the leave
 	 */
-	GuildEngine.requestLeave = function requestLeave(AID, GID, reason)
-	{
+	GuildEngine.requestLeave = function requestLeave(AID, GID, reason) {
 		var pkt = new PACKET.CZ.REQ_LEAVE_GUILD();
 		pkt.GDID = GuildEngine.guild_id;
 		pkt.AID = AID;
@@ -413,8 +382,7 @@ define(function (require)
 	 * @param {number} character id
 	 * @param {string} reason to expel
 	 */
-	GuildEngine.requestMemberExpel = function requestMemberExpel(AID, GID, reason)
-	{
+	GuildEngine.requestMemberExpel = function requestMemberExpel(AID, GID, reason) {
 		var pkt = new PACKET.CZ.REQ_BAN_GUILD();
 		pkt.GDID = GuildEngine.guild_id;
 		pkt.AID = AID;
@@ -429,8 +397,7 @@ define(function (require)
 	 *
 	 * @param {number} account id
 	 */
-	GuildEngine.requestMemberInfo = function requestMemberInfo(AID)
-	{
+	GuildEngine.requestMemberInfo = function requestMemberInfo(AID) {
 		var pkt = new PACKET.CZ.REQ_OPEN_MEMBER_INFO();
 		pkt.AID = AID;
 
@@ -443,8 +410,7 @@ define(function (require)
 	 * @param {number} guild_id
 	 * @param {number} relation (0 = Ally, 1 = Enemy)
 	 */
-	GuildEngine.requestDeleteRelatedGuild = function requestDeleteRelatedGuild(guild_id, relation)
-	{
+	GuildEngine.requestDeleteRelatedGuild = function requestDeleteRelatedGuild(guild_id, relation) {
 		var pkt = new PACKET.CZ.REQ_DELETE_RELATED_GUILD();
 
 		pkt.OpponentGDID = guild_id;
@@ -458,29 +424,22 @@ define(function (require)
 	 *
 	 * @param {Uint8Array} file
 	 */
-	GuildEngine.sendEmblem = (function sendEmblemClosure()
-	{
-		function adler32(data)
-		{
-			for (var i = 0, len = data.length, s1 = 1, s2 = 0; i < len; i++)
-			{
+	GuildEngine.sendEmblem = (function sendEmblemClosure() {
+		function adler32(data) {
+			for (var i = 0, len = data.length, s1 = 1, s2 = 0; i < len; i++) {
 				s1 = (s1 + data[i]) % 65521;
 				s2 = (s2 + s1) % 65521;
 			}
 			return (s2 << 16) + s1;
 		}
 
-		return function sendEmblem(data)
-		{
-			if (PACKETVER.value >= 20170315)
-			{
+		return function sendEmblem(data) {
+			if (PACKETVER.value >= 20170315) {
 				var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
-				function getFileType(data)
-				{
+				function getFileType(data) {
 					// "GI" Magic Bytes check (same from src)
-					if (data.length >= 3 && data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46)
-					{
+					if (data.length >= 3 && data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46) {
 						return { type: 'image/gif', imgType: 'GIF' };
 					}
 					return { type: 'image/bmp', imgType: 'BMP' };
@@ -497,24 +456,19 @@ define(function (require)
 				var xhr = new XMLHttpRequest();
 				xhr.open('POST', webAddress + '/emblem/upload', true);
 
-				xhr.onload = function ()
-				{
-					if (xhr.status === 200)
-					{
+				xhr.onload = function () {
+					if (xhr.status === 200) {
 						var response = JSON.parse(xhr.responseText);
 						console.log('Emblem uploaded successfully, version:', response.version);
 
-						GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, function (image)
-						{
+						GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, function (image) {
 							Guild.setEmblem(image);
 						});
 					}
 				};
 
 				xhr.send(formData);
-			}
-			else
-			{
+			} else {
 				var len = data.length;
 				var out = new BinaryWriter(2 + 1 + 2 + 2 + len + 4);
 
@@ -545,8 +499,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_HP_TO_GROUPM
 	 */
-	function onMemberTalk(pkt)
-	{
+	function onMemberTalk(pkt) {
 		ChatBox.addText(pkt.msg, ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD);
 	}
 
@@ -555,15 +508,11 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_POSITION_TO_GUILDM
 	 */
-	function onMemberMove(pkt)
-	{
+	function onMemberMove(pkt) {
 		// Server remove mark with "-1" as position
-		if (pkt.xPos < 0 || pkt.yPos < 0)
-		{
+		if (pkt.xPos < 0 || pkt.yPos < 0) {
 			MiniMap.getUI().removeGuildMemberMark(pkt.AID);
-		}
-		else
-		{
+		} else {
 			MiniMap.getUI().addGuildMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
 		}
 	}
@@ -573,8 +522,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.GUILD_INFO
 	 */
-	function onGuildInfo(pkt)
-	{
+	function onGuildInfo(pkt) {
 		Guild.setGuildInformations(pkt);
 	}
 
@@ -583,8 +531,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_GUILD_MENUINTERFACE
 	 */
-	function onGuildAccess(pkt)
-	{
+	function onGuildAccess(pkt) {
 		Guild.setAccess(pkt.guildMemuFlag);
 	}
 
@@ -593,8 +540,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.UPDATE_GDID
 	 */
-	function onGuildOwnInfo(pkt)
-	{
+	function onGuildOwnInfo(pkt) {
 		GuildEngine.guild_id = pkt.GDID;
 
 		Session.hasGuild = true;
@@ -610,8 +556,7 @@ define(function (require)
 	 *
 	 * @param {objec} pkt - PACKET.ZC.MYGUILD_BASIC_INFO
 	 */
-	function onGuildRelation(pkt)
-	{
+	function onGuildRelation(pkt) {
 		Guild.setRelations(pkt.relatedGuildList);
 	}
 
@@ -620,17 +565,14 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.GUILD_EMBLEM_IMG
 	 */
-	var onGuildEmblem = (function onGuildEmblemClosure()
-	{
+	var onGuildEmblem = (function onGuildEmblemClosure() {
 		var data = new Uint8Array(2 * 1024);
 
-		return function onGuildEmblem(pkt)
-		{
+		return function onGuildEmblem(pkt) {
 			var emblem, inflate, len, src, img;
 
 			// Create guild namespace if does not exist
-			if (!_emblems[pkt.GDID])
-			{
+			if (!_emblems[pkt.GDID]) {
 				_emblems[pkt.GDID] = {
 					version: -1,
 					image: new Image(),
@@ -651,33 +593,27 @@ define(function (require)
 			img.decoding = 'async';
 
 			// Load the emblem, remove magenta, free blob from memory
-			Texture.load(src, function ()
-			{
+			Texture.load(src, function () {
 				img.src = this.toDataURL();
 			});
 
 			// Start displaying the emblem
-			function renderEmblem()
-			{
+			function renderEmblem() {
 				emblem.image = this;
 
 				// Update our guild emblem
-				if (pkt.GDID === GuildEngine.guild_id)
-				{
+				if (pkt.GDID === GuildEngine.guild_id) {
 					Guild.setEmblem(this);
 				}
 
 				// Execute callbacks
-				while (emblem.callback.length)
-				{
+				while (emblem.callback.length) {
 					emblem.callback.shift().call(null, this);
 				}
 
 				// Update display name of entities
-				EntityManager.forEach(function (entity)
-				{
-					if (entity.GUID === pkt.GDID)
-					{
+				EntityManager.forEach(function (entity) {
+					if (entity.GUID === pkt.GDID) {
 						entity.display.emblem = img;
 						entity.display.refresh(entity);
 					}
@@ -691,8 +627,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.MEMBERMGR_INFO
 	 */
-	function onGuildMembers(pkt)
-	{
+	function onGuildMembers(pkt) {
 		Guild.setMembers(pkt.memberInfo);
 	}
 
@@ -701,18 +636,14 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.POSITION_INFO | PACKET.ZC.ACK_CHANGE_GUILD_POSITIONINFO
 	 */
-	function onGuildPositions(pkt)
-	{
+	function onGuildPositions(pkt) {
 		var erase = false;
 		var list;
 
-		if (pkt instanceof PACKET.ZC.POSITION_INFO)
-		{
+		if (pkt instanceof PACKET.ZC.POSITION_INFO) {
 			list = pkt.memberInfo;
 			erase = true;
-		}
-		else
-		{
+		} else {
 			list = pkt.memberList;
 		}
 
@@ -724,8 +655,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.POSITION_ID_NAME_INFO
 	 */
-	function onGuildPositionsName(pkt)
-	{
+	function onGuildPositionsName(pkt) {
 		Guild.setPositionsName(pkt.memberList);
 	}
 
@@ -734,8 +664,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_GUILD_MEMBER_INFO
 	 */
-	function onGuildMemberUpdate(pkt)
-	{
+	function onGuildMemberUpdate(pkt) {
 		Guild.setMember(pkt.Info);
 	}
 
@@ -744,8 +673,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS
 	 */
-	function onGuildMemberPositionUpdate(pkt)
-	{
+	function onGuildMemberPositionUpdate(pkt) {
 		Guild.updateMemberPosition(pkt.AID, pkt.GID, pkt.positionID);
 	}
 
@@ -754,8 +682,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET_ZC_GUILD_SKILLINFO
 	 */
-	function onGuildSkillList(pkt)
-	{
+	function onGuildSkillList(pkt) {
 		Guild.setPoints(pkt.skillPoint);
 		Guild.setSkills(pkt.skillList);
 	}
@@ -765,8 +692,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.GUILD_NOTICE
 	 */
-	function onGuildNotice(pkt)
-	{
+	function onGuildNotice(pkt) {
 		ChatBox.addText('[ ' + pkt.subject + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
 		ChatBox.addText('[ ' + pkt.notice + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
 
@@ -778,8 +704,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.BAN_LIST
 	 */
-	function onGuildExpelList(pkt)
-	{
+	function onGuildExpelList(pkt) {
 		Guild.setExpelList(pkt.banList);
 	}
 
@@ -788,10 +713,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.RESULT_MAKE_GUILD
 	 */
-	function onGuildCreationResult(pkt)
-	{
-		switch (pkt.result)
-		{
+	function onGuildCreationResult(pkt) {
+		switch (pkt.result) {
 			case 0: // Success
 				Session.hasGuild = true;
 				ChatBox.addText(DB.getMessage(374), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
@@ -817,10 +740,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT
 	 */
-	function onGuildDestroy(pkt)
-	{
-		switch (pkt.reason)
-		{
+	function onGuildDestroy(pkt) {
+		switch (pkt.reason) {
 			case 0: // success
 				Guild.hide();
 				Session.hasGuild = false;
@@ -842,14 +763,11 @@ define(function (require)
 	 *
 	 * @param {object} PACKET.ZC.REQ_JOIN_GUILD
 	 */
-	function onGuildInviteRequest(pkt)
-	{
+	function onGuildInviteRequest(pkt) {
 		var guild_id = pkt.GDID;
 
-		function answer(result)
-		{
-			return function ()
-			{
+		function answer(result) {
+			return function () {
 				var pkt = new PACKET.CZ.JOIN_GUILD();
 				pkt.GDID = guild_id;
 				pkt.answer = result;
@@ -866,10 +784,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_REQ_JOIN_GUILD
 	 */
-	function onGuildInviteResult(pkt)
-	{
-		switch (pkt.answer)
-		{
+	function onGuildInviteResult(pkt) {
+		switch (pkt.answer) {
 			case 0: // Already in guild.
 				ChatBox.addText(DB.getMessage(378), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
@@ -893,8 +809,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.UPDATE_CHARSTAT
 	 */
-	function onGuildMemberStatus(pkt)
-	{
+	function onGuildMemberStatus(pkt) {
 		Guild.updateMemberStatus(pkt);
 	}
 
@@ -903,8 +818,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD_SSO
 	 */
-	function onGuildMemberExpulsion(pkt)
-	{
+	function onGuildMemberExpulsion(pkt) {
 		// %s has been expelled from our guild.
 		// Expulsion Reason: %s
 		ChatBox.addText(
@@ -922,8 +836,7 @@ define(function (require)
 
 		// Seems like the server doesn't send other informations
 		// to remove the UI
-		if (pkt.charName === Session.Entity.display.name)
-		{
+		if (pkt.charName === Session.Entity.display.name) {
 			Guild.hide();
 			Session.hasGuild = false;
 			Session.isGuildMaster = false;
@@ -937,8 +850,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_LEAVE_GUILD
 	 */
-	function onGuildMemberLeave(pkt)
-	{
+	function onGuildMemberLeave(pkt) {
 		// %s has withdrawn from the guild
 		// Secession Reason: %s
 		ChatBox.addText(
@@ -956,8 +868,7 @@ define(function (require)
 
 		// Seems like the server doesn't send other informations
 		// to remove the UI
-		if (pkt.charName === Session.Entity.display.name)
-		{
+		if (pkt.charName === Session.Entity.display.name) {
 			Guild.hide();
 			Session.hasGuild = false;
 			Session.isGuildMaster = false;
@@ -971,8 +882,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.DELETE_RELATED_GUILD
 	 */
-	function onGuildAllianceDeleteAck(pkt)
-	{
+	function onGuildAllianceDeleteAck(pkt) {
 		Guild.removeRelation(pkt.OpponentGDID, pkt.Relation);
 	}
 
@@ -981,8 +891,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ADD_RELATED_GUILD
 	 */
-	function onGuildAllianceAdd(pkt)
-	{
+	function onGuildAllianceAdd(pkt) {
 		Guild.addRelation(pkt.Info);
 	}
 
@@ -991,14 +900,11 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.REQ_ALLY_GUILD
 	 */
-	function onGuildAskForAlliance(pkt)
-	{
+	function onGuildAskForAlliance(pkt) {
 		var AID = pkt.otherAID;
 
-		function answer(result)
-		{
-			return function ()
-			{
+		function answer(result) {
+			return function () {
 				var pkt = new PACKET.CZ.ALLY_GUILD();
 				pkt.otherAID = AID;
 				pkt.answer = result;
@@ -1016,10 +922,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_REQ_ALLY_GUILD
 	 */
-	function onGuildAllianceResult(pkt)
-	{
-		switch (pkt.answer)
-		{
+	function onGuildAllianceResult(pkt) {
+		switch (pkt.answer) {
 			case 0: // Already allied.
 				ChatBox.addText(DB.getMessage(394), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
 				break;
@@ -1051,10 +955,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_REQ_HOSTILE_GUILD
 	 */
-	function onGuildHostilityResult(pkt)
-	{
-		switch (pkt.result)
-		{
+	function onGuildHostilityResult(pkt) {
+		switch (pkt.result) {
 			case 0: // Antagonist has been set.
 				ChatBox.addText(DB.getMessage(495), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 				break;
@@ -1073,8 +975,7 @@ define(function (require)
 		}
 	}
 
-	function onGuildCastleInfo(pkt)
-	{
+	function onGuildCastleInfo(pkt) {
 		// TODO: what is castle list?
 	}
 

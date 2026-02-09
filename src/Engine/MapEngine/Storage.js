@@ -6,8 +6,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -36,14 +35,11 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_STOREITEM_COUNTINFO
 	 */
-	function onStorageInfo(pkt)
-	{
-		if (!(Storage.getUI().__loaded && Storage.getUI().__active))
-		{
+	function onStorageInfo(pkt) {
+		if (!(Storage.getUI().__loaded && Storage.getUI().__active)) {
 			Storage.getUI().append();
 			// Update Storage Title based on InvTypeName
-			if (PACKETVER.value >= 20181002)
-			{
+			if (PACKETVER.value >= 20181002) {
 				Storage.getUI().ui.find('.titlebar .text').text(InvTypeName);
 			}
 		}
@@ -58,8 +54,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.STORE_EQUIPMENT_ITEMLIST3
 	 */
-	function onStorageList(pkt)
-	{
+	function onStorageList(pkt) {
 		itemBuffer = itemBuffer.concat(pkt.ItemInfo || pkt.itemInfo);
 	}
 
@@ -68,8 +63,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ADD_ITEM_TO_STORE
 	 */
-	function onStorageItemAdded(pkt)
-	{
+	function onStorageItemAdded(pkt) {
 		Storage.getUI().addItem(jQuery.extend({}, pkt));
 	}
 
@@ -78,8 +72,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.DELETE_ITEM_FROM_STORE
 	 */
-	function onStorageItemRemoved(pkt)
-	{
+	function onStorageItemRemoved(pkt) {
 		Storage.getUI().removeItem(pkt.index, pkt.count);
 	}
 
@@ -88,8 +81,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.CLOSE_STORE
 	 */
-	function onStorageClose()
-	{
+	function onStorageClose() {
 		Storage.getUI().remove();
 	}
 
@@ -97,8 +89,7 @@ define(function (require)
 	 * Send storage close
 	 * PACKET.CZ.CLOSE_STORE
 	 */
-	Storage.onClosePressed = function onClosePressed()
-	{
+	Storage.onClosePressed = function onClosePressed() {
 		var pkt = new PACKET.CZ.CLOSE_STORE();
 		Network.sendPacket(pkt);
 
@@ -109,20 +100,15 @@ define(function (require)
 	 * Send item to storage
 	 * PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE
 	 */
-	Storage.reqAddItem = function ReqAddItem(index, count)
-	{
-		if (count <= 0)
-		{
+	Storage.reqAddItem = function ReqAddItem(index, count) {
+		if (count <= 0) {
 			return;
 		}
 
 		var pkt;
-		if (PACKETVER.value >= 20180307)
-		{
+		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE2();
-		}
-		else
-		{
+		} else {
 			pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE();
 		}
 		pkt.index = index;
@@ -130,10 +116,8 @@ define(function (require)
 		Network.sendPacket(pkt);
 	};
 
-	Storage.reqAddItemFromCart = function reqAddItemFromCart(index, count)
-	{
-		if (count <= 0)
-		{
+	Storage.reqAddItemFromCart = function reqAddItemFromCart(index, count) {
+		if (count <= 0) {
 			return;
 		}
 
@@ -147,20 +131,15 @@ define(function (require)
 	 * Send frm storage to inventory
 	 * PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY
 	 */
-	Storage.reqRemoveItem = function ReqRemoveItem(index, count)
-	{
-		if (count <= 0)
-		{
+	Storage.reqRemoveItem = function ReqRemoveItem(index, count) {
+		if (count <= 0) {
 			return;
 		}
 
 		var pkt;
-		if (PACKETVER.value >= 20180307)
-		{
+		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY2();
-		}
-		else
-		{
+		} else {
 			pkt = new PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY();
 		}
 		pkt.index = index;
@@ -168,10 +147,8 @@ define(function (require)
 		Network.sendPacket(pkt);
 	};
 
-	Storage.reqMoveItemToCart = function reqMoveItemToCart(index, count)
-	{
-		if (count <= 0)
-		{
+	Storage.reqMoveItemToCart = function reqMoveItemToCart(index, count) {
+		if (count <= 0) {
 			return;
 		}
 
@@ -186,10 +163,8 @@ define(function (require)
 	 * Set Inventory Name based from inventory type
 	 * @param {object} pkt - PACKET.ZC.SPLIT_SEND_ITEMLIST_SET
 	 */
-	function onItemListSet(pkt)
-	{
-		switch (pkt.invType)
-		{
+	function onItemListSet(pkt) {
+		switch (pkt.invType) {
 			case 0: // Inventory - name is always blank
 			case 1: // Cart - name is always blank
 			case 2: // Storage
@@ -206,10 +181,8 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT
 	 */
-	function onItemListResult(pkt)
-	{
-		switch (pkt.invType)
-		{
+	function onItemListResult(pkt) {
+		switch (pkt.invType) {
 			case 0: // Inventory
 			case 1: // Cart
 			case 2: // Storage
@@ -223,8 +196,7 @@ define(function (require)
 	/**
 	 * Initialize
 	 */
-	return function StorageEngine()
-	{
+	return function StorageEngine() {
 		Network.hookPacket(PACKET.ZC.STORE_NORMAL_ITEMLIST, onStorageList);
 		Network.hookPacket(PACKET.ZC.STORE_NORMAL_ITEMLIST2, onStorageList);
 		Network.hookPacket(PACKET.ZC.STORE_NORMAL_ITEMLIST3, onStorageList);

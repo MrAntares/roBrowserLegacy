@@ -6,8 +6,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var WebGL = require('Utils/WebGL');
@@ -31,9 +30,10 @@ define(function (require)
 	 * @param {WebGLTexture} inputTexture - Texture from previous pass
 	 * @param {WebGLFramebuffer} outputFramebuffer - Target buffer
 	 */
-	Blind.render = function render(gl, inputTexture, outputFramebuffer)
-	{
-		if (!_buffer || !_program || !Blind.isActive()) {return;}
+	Blind.render = function render(gl, inputTexture, outputFramebuffer) {
+		if (!_buffer || !_program || !Blind.isActive()) {
+			return;
+		}
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
 
@@ -68,24 +68,23 @@ define(function (require)
 		Blind.afterRender(gl);
 	};
 
-	Blind.afterRender = function (gl)
-	{
-		if (!_buffer || !_program) {return;}
+	Blind.afterRender = function (gl) {
+		if (!_buffer || !_program) {
+			return;
+		}
 		gl.useProgram(null);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 
-	Blind.init = function init(gl)
-	{
-		if (!gl) {return;}
-		try
-		{
-			_program = WebGL.createShaderProgram(gl, commonVS, blindFS);
+	Blind.init = function init(gl) {
+		if (!gl) {
+			return;
 		}
-		catch (e)
-		{
+		try {
+			_program = WebGL.createShaderProgram(gl, commonVS, blindFS);
+		} catch (e) {
 			console.error('Error compiling Blind shader.', e);
 			return;
 		}
@@ -95,25 +94,23 @@ define(function (require)
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
 	};
 
-	Blind.isActive = function isActive()
-	{
+	Blind.isActive = function isActive() {
 		return _active;
 	};
 
-	Blind.setActive = function setActive(bool)
-	{
+	Blind.setActive = function setActive(bool) {
 		_active = bool;
 	};
 
-	Blind.program = function program()
-	{
+	Blind.program = function program() {
 		return _program;
 	};
 
 	// No internal FBO needed for this effect in this architecture
-	Blind.clean = function clean(gl)
-	{
-		if (_buffer) {gl.deleteBuffer(_buffer);}
+	Blind.clean = function clean(gl) {
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
 		_program = _buffer = null;
 	};
 

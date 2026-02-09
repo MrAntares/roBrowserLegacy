@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function ()
-{
+define(function () {
 	'use strict';
 
 	/**
@@ -60,13 +59,11 @@ define(function ()
 	 * @param {boolean} save files
 	 * @param {Object} quota information
 	 */
-	function init(files, save, quota)
-	{
+	function init(files, save, quota) {
 		var requestFileSystemSync, requestFileSystem;
 		_files = normalizeFilesPath(files);
 
-		if (!_available)
-		{
+		if (!_available) {
 			trigger('onready');
 			return;
 		}
@@ -81,13 +78,11 @@ define(function ()
 		requestFileSystem(
 			self.TEMPORARY,
 			size,
-			function (fs)
-			{
+			function (fs) {
 				_fs = fs;
 				_fs_sync = requestFileSystemSync(self.TEMPORARY, size);
 
-				if (save && _files.length)
-				{
+				if (save && _files.length) {
 					cleanUp();
 					buildHierarchy();
 					processUpload(0);
@@ -106,14 +101,12 @@ define(function ()
 	 * @param {array} FileList
 	 * @returns {array} normalized filelist
 	 */
-	function normalizeFilesPath(files)
-	{
+	function normalizeFilesPath(files) {
 		var i, count;
 		var list = new Array(files.length);
 		var backslash = /\\\\/g;
 
-		for (i = 0, count = files.length; i < count; ++i)
-		{
+		for (i = 0, count = files.length; i < count; ++i) {
 			list[i] = files[i].file;
 			list[i]._path = files[i].path.replace(backslash, '/');
 		}
@@ -124,8 +117,7 @@ define(function ()
 	/**
 	 * Error Handler give a human error
 	 */
-	function errorHandler(e)
-	{
+	function errorHandler(e) {
 		var msg = '';
 		var FileError = {
 			QUOTA_EXCEEDED_ERR: 22,
@@ -134,8 +126,7 @@ define(function ()
 			INVALID_MODIFICATION_ERR: 9,
 			INVALID_STATE_ERR: 7
 		};
-		switch (e.code)
-		{
+		switch (e.code) {
 			case FileError.QUOTA_EXCEEDED_ERR:
 				msg = 'QUOTA_EXCEEDED_ERR';
 				break;
@@ -163,14 +154,12 @@ define(function ()
 	 * Calculate FullClient total size
 	 * @returns {integer}
 	 */
-	function calculateClientSize()
-	{
+	function calculateClientSize() {
 		var i, count;
 
 		_clientSize = 0;
 
-		for (i = 0, count = _files.length; i < count; ++i)
-		{
+		for (i = 0, count = _files.length; i < count; ++i) {
 			_clientSize += _files[i].size || 0;
 		}
 	}
@@ -180,13 +169,11 @@ define(function ()
 	 *
 	 * @param {number} index
 	 */
-	function processUpload(index)
-	{
+	function processUpload(index) {
 		var file = _files[index];
 
 		// Finished.
-		if (index >= _files.length)
-		{
+		if (index >= _files.length) {
 			var i, count;
 
 			// Move all files from the directory to root.
@@ -194,8 +181,7 @@ define(function ()
 			var dirReader = tmpDir.createReader();
 			var entries = dirReader.readEntries();
 
-			for (i = 0, count = entries.length; i < count; ++i)
-			{
+			for (i = 0, count = entries.length; i < count; ++i) {
 				entries[i].moveTo(_fs_sync.root, entries[i].name);
 			}
 
@@ -206,8 +192,7 @@ define(function ()
 			return;
 		}
 
-		if (file.name[0] === '.')
-		{
+		if (file.name[0] === '.') {
 			_files.splice(index, 1);
 			processUpload(index);
 			return;
@@ -216,24 +201,19 @@ define(function ()
 		_fs.root.getFile(
 			'/__tmp_upload/' + file._path,
 			{ create: true },
-			function (fileEntry)
-			{
-				fileEntry.createWriter(function (writer)
-				{
+			function (fileEntry) {
+				fileEntry.createWriter(function (writer) {
 					writer.onerror = errorHandler;
-					writer.onwriteend = function ()
-					{
+					writer.onwriteend = function () {
 						_streamOffset += file.size;
 						processUpload(index + 1);
 					};
 
 					var last_tick = Date.now();
-					writer.onprogress = function (evt)
-					{
+					writer.onprogress = function (evt) {
 						// Do not spam the main thread
 						var now = Date.now();
-						if (last_tick + 100 > now)
-						{
+						if (last_tick + 100 > now) {
 							return;
 						}
 
@@ -264,8 +244,7 @@ define(function ()
 	/**
 	 * Build directory hierarchy
 	 */
-	function buildHierarchy()
-	{
+	function buildHierarchy() {
 		var cache = {},
 			keys;
 		var i = 0,
@@ -274,11 +253,9 @@ define(function ()
 			filename = /\/?[^\/]+$/;
 
 		// Extract directory from each file path
-		for (; i < count; ++i)
-		{
+		for (; i < count; ++i) {
 			path = _files[i]._path.split('/').slice(0, -1).join('/');
-			while (!(path in cache) && path.length)
-			{
+			while (!(path in cache) && path.length) {
 				cache[path] = true;
 				path = path.replace(filename, '');
 			}
@@ -291,8 +268,7 @@ define(function ()
 		// Directory where to upload data
 		_fs_sync.root.getDirectory('/__tmp_upload/', { create: true });
 
-		for (i = 0, count = keys.length; i < count; ++i)
-		{
+		for (i = 0, count = keys.length; i < count; ++i) {
 			_fs_sync.root.getDirectory('/__tmp_upload/' + keys[i], { create: true });
 		}
 	}
@@ -300,50 +276,35 @@ define(function ()
 	/**
 	 * Remove all files from FileSystem
 	 */
-	function cleanUp()
-	{
+	function cleanUp() {
 		var i, count;
 		var dirReader = _fs_sync.root.createReader();
 		var entries = dirReader.readEntries();
 		var retryCount = 0;
 		var maxRetries = 3;
 
-		function removeWithRetry(entry, callback)
-		{
-			try
-			{
-				if (entry.isDirectory)
-				{
+		function removeWithRetry(entry, callback) {
+			try {
+				if (entry.isDirectory) {
 					entry.removeRecursively(callback, callback);
-				}
-				else
-				{
+				} else {
 					entry.remove(callback, callback);
 				}
-			}
-			catch (e)
-			{
-				if (retryCount < maxRetries && e.name === 'InvalidModificationError')
-				{
+			} catch (e) {
+				if (retryCount < maxRetries && e.name === 'InvalidModificationError') {
 					retryCount++;
-					setTimeout(function ()
-					{
+					setTimeout(function () {
 						removeWithRetry(entry, callback);
 					}, 100);
-				}
-				else
-				{
+				} else {
 					callback(e);
 				}
 			}
 		}
 
-		for (i = 0, count = entries.length; i < count; ++i)
-		{
-			removeWithRetry(entries[i], function (error)
-			{
-				if (error)
-				{
+		for (i = 0, count = entries.length; i < count; ++i) {
+			removeWithRetry(entries[i], function (error) {
+				if (error) {
 					console.warn('Failed to remove entry:', error);
 				}
 			});
@@ -356,10 +317,8 @@ define(function ()
 	 * @param {string} eventname
 	 * @param {mixed...}
 	 */
-	function trigger(eventname)
-	{
-		if (_events[eventname])
-		{
+	function trigger(eventname) {
+		if (_events[eventname]) {
 			_events[eventname].apply(null, Array.prototype.slice.call(arguments, 1));
 		}
 	}
@@ -370,8 +329,7 @@ define(function ()
 	 * @param {string} eventname
 	 * @param {function} callback
 	 */
-	function bind(eventname, callback)
-	{
+	function bind(eventname, callback) {
 		_events[eventname] = callback;
 	}
 
@@ -381,20 +339,16 @@ define(function ()
 	 * @param {string} filename
 	 * @returns {File}
 	 */
-	function getFileSync(filename)
-	{
+	function getFileSync(filename) {
 		filename = filename.replace(/\\/g, '/');
 
-		if (!_available || _files.length)
-		{
+		if (!_available || _files.length) {
 			var i,
 				count = _files.length;
 
-			for (i = 0; i < count; ++i)
-			{
+			for (i = 0; i < count; ++i) {
 				// Not case sensitive...
-				if (_files[i]._path.toLowerCase() === filename.toLowerCase())
-				{
+				if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
 					return _files[i];
 				}
 			}
@@ -404,18 +358,14 @@ define(function ()
 
 		var fileEntry;
 
-		try
-		{
+		try {
 			fileEntry = _fs_sync.root.getFile(filename, { create: false });
-		}
-		catch (e)
-		{
+		} catch (e) {
 			// not found
 			return null;
 		}
 
-		if (fileEntry.isFile)
-		{
+		if (fileEntry.isFile) {
 			return fileEntry.file();
 		}
 
@@ -429,20 +379,16 @@ define(function ()
 	 * @param {function} once loaded
 	 * @param {function} callback if not found
 	 */
-	function getFile(filename, onload, onerror)
-	{
+	function getFile(filename, onload, onerror) {
 		filename = filename.replace(/\\/g, '/');
 
-		if (!_available || _files.length)
-		{
+		if (!_available || _files.length) {
 			var i,
 				count = _files.length;
 
-			for (i = 0; i < count; ++i)
-			{
+			for (i = 0; i < count; ++i) {
 				// Not case sensitive...
-				if (_files[i]._path.toLowerCase() === filename.toLowerCase())
-				{
+				if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
 					onload(_files[i]);
 					return;
 				}
@@ -455,14 +401,10 @@ define(function ()
 		_fs.root.getFile(
 			filename,
 			{ create: false },
-			function (fileEntry)
-			{
-				if (fileEntry.isFile)
-				{
+			function (fileEntry) {
+				if (fileEntry.isFile) {
 					fileEntry.file(onload);
-				}
-				else
-				{
+				} else {
 					onerror();
 				}
 			},
@@ -477,10 +419,8 @@ define(function ()
 	 * @param {string} filePath
 	 * @param {ArrayBuffer} buffer
 	 */
-	function saveFile(filePath, buffer)
-	{
-		if (!_save || !_available)
-		{
+	function saveFile(filePath, buffer) {
+		if (!_save || !_available) {
 			return;
 		}
 
@@ -489,8 +429,7 @@ define(function ()
 		var path = '';
 
 		// Create hierarchy
-		while (directories.length)
-		{
+		while (directories.length) {
 			path += directories.shift() + '/';
 			_fs_sync.root.getDirectory(path, { create: true });
 		}
@@ -506,22 +445,17 @@ define(function ()
 	 *
 	 * @param {RegExp|string} to match the filename
 	 */
-	function search(regex)
-	{
+	function search(regex) {
 		var i, count;
 		var list = [];
 
-		if (!(regex instanceof RegExp))
-		{
+		if (!(regex instanceof RegExp)) {
 			regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1') + '$', 'i');
 		}
 
-		if (!_available || _files.length)
-		{
-			for (i = 0, count = _files.length; i < count; ++i)
-			{
-				if (_files[i].name.match(regex))
-				{
+		if (!_available || _files.length) {
+			for (i = 0, count = _files.length; i < count; ++i) {
+				if (_files[i].name.match(regex)) {
 					list.push(_files[i]);
 				}
 			}
@@ -531,10 +465,8 @@ define(function ()
 
 		var entries = _fs_sync.root.createReader().readEntries();
 
-		for (i = 0, count = entries.length; i < count; ++i)
-		{
-			if (entries[i].isFile && entries[i].name.match(regex))
-			{
+		for (i = 0, count = entries.length; i < count; ++i) {
+			if (entries[i].isFile && entries[i].name.match(regex)) {
 				list.push(entries[i].file());
 			}
 		}

@@ -13,8 +13,7 @@ define([
 	'./Camera',
 	'text!./SpriteRenderer.vs',
 	'text!./SpriteRenderer.fs'
-], function (WebGL, glMatrix, Camera, _vertexShader, _fragmentShader)
-{
+], function (WebGL, glMatrix, Camera, _vertexShader, _fragmentShader) {
 	'use strict';
 
 	/**
@@ -202,10 +201,8 @@ define([
 	 *
 	 * @param {object} gl context
 	 */
-	SpriteRenderer.init = function init(gl)
-	{
-		if (!_buffer)
-		{
+	SpriteRenderer.init = function init(gl) {
+		if (!_buffer) {
 			_buffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 			gl.bufferData(
@@ -217,8 +214,7 @@ define([
 			);
 		}
 
-		if (!_program)
-		{
+		if (!_program) {
 			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		}
 	};
@@ -231,8 +227,7 @@ define([
 	 * @param {mat4} projection
 	 * @param {object} fog structure
 	 */
-	SpriteRenderer.bind3DContext = function Bind3dContext(gl, modelView, projection, fog)
-	{
+	SpriteRenderer.bind3DContext = function Bind3dContext(gl, modelView, projection, fog) {
 		var attribute = _program.attribute;
 		var uniform = _program.uniform;
 
@@ -280,8 +275,7 @@ define([
 	 *
 	 * @param {object} gl context
 	 */
-	SpriteRenderer.unbind = function unBind(gl)
-	{
+	SpriteRenderer.unbind = function unBind(gl) {
 		var attribute = _program.attribute;
 
 		gl.disableVertexAttribArray(attribute.aPosition);
@@ -295,8 +289,7 @@ define([
 	 * @param {number} x position
 	 * @param {number} y position
 	 */
-	SpriteRenderer.bind2DContext = function Bind2DContext(ctx, x, y)
-	{
+	SpriteRenderer.bind2DContext = function Bind2DContext(ctx, x, y) {
 		_ctx = ctx;
 		_pos[0] = x;
 		_pos[1] = y;
@@ -309,11 +302,9 @@ define([
 	/**
 	 * Render in 3D mode
 	 */
-	function RenderCanvas3D(isBlendModeOne)
-	{
+	function RenderCanvas3D(isBlendModeOne) {
 		// Nothing to render ?
-		if (!this.image.texture || !this.color[3])
-		{
+		if (!this.image.texture || !this.color[3]) {
 			return;
 		}
 
@@ -324,56 +315,46 @@ define([
 		var gl = _gl;
 		var use_pal = this.image.palette !== null;
 
-		if (isBlendModeOne)
-		{
+		if (isBlendModeOne) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-		}
-		else if (isBlendModeOne === false)
-		{
+		} else if (isBlendModeOne === false) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-		if (this.shadow !== _shadow)
-		{
+		if (this.shadow !== _shadow) {
 			gl.uniform1f(uniform.uShadow, (_shadow = this.shadow));
 		}
 		gl.uniform3fv(uniform.uSpriteRendererPosition, this.position);
 
 		// Palette
-		if (use_pal)
-		{
+		if (use_pal) {
 			gl.activeTexture(gl.TEXTURE1);
 			gl.bindTexture(gl.TEXTURE_2D, this.image.palette);
 			gl.uniform2fv(uniform.uTextSize, this.image.size);
 			gl.activeTexture(gl.TEXTURE0);
 		}
 
-		if (_usepal !== use_pal)
-		{
+		if (_usepal !== use_pal) {
 			gl.uniform1i(uniform.uUsePal, (_usepal = use_pal));
 		}
 
-		if (this.depth !== _depth)
-		{
+		if (this.depth !== _depth) {
 			gl.uniform1f(uniform.uSpriteRendererDepth, (_depth = this.depth));
 		}
 
 		var disableDepthCorrection = !!this.disableDepthCorrection;
-		if (_disableDepthCorrection !== disableDepthCorrection)
-		{
+		if (_disableDepthCorrection !== disableDepthCorrection) {
 			_disableDepthCorrection = disableDepthCorrection;
 			gl.uniform1i(uniform.uDisableDepthCorrection, disableDepthCorrection);
 		}
 
 		gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
 		// Rotate
-		if (this.angle !== _angle)
-		{
+		if (this.angle !== _angle) {
 			_angle = this.angle;
 
 			mat4.identity(_matrix);
-			if (_angle)
-			{
+			if (_angle) {
 				mat4.rotateZ(_matrix, _matrix, (-_angle / 180) * Math.PI);
 			}
 
@@ -391,8 +372,7 @@ define([
 		gl.uniform1i(uniform.uIsRGBA, this.sprite.type);
 
 		// Avoid binding the new texture 150 times if it's the same.
-		if (_groupId !== _lastGroupId || _texture !== this.image.texture)
-		{
+		if (_groupId !== _lastGroupId || _texture !== this.image.texture) {
 			_lastGroupId = _groupId;
 			gl.bindTexture(gl.TEXTURE_2D, (_texture = this.image.texture));
 		}
@@ -413,10 +393,8 @@ define([
 	 * @param {boolean} use disableDepthCorrection enable.
 	 * @param {function} execute function with this parameters before restore gl state.
 	 */
-	SpriteRenderer.runWithDepth = function runWithDepth(depthTest, depthMask, depthCorrection, fn)
-	{
-		if (!_gl)
-		{
+	SpriteRenderer.runWithDepth = function runWithDepth(depthTest, depthMask, depthCorrection, fn) {
+		if (!_gl) {
 			fn();
 			return;
 		}
@@ -425,43 +403,43 @@ define([
 		var prevDepthMask = _depthMask;
 		var prevDepthCorrection = this.disableDepthCorrection;
 
-		if (_depthTest !== depthTest)
-		{
+		if (_depthTest !== depthTest) {
 			_depthTest = depthTest;
 
-			if (depthTest) {_gl.enable(_gl.DEPTH_TEST);}
-			else {_gl.disable(_gl.DEPTH_TEST);}
+			if (depthTest) {
+				_gl.enable(_gl.DEPTH_TEST);
+			} else {
+				_gl.disable(_gl.DEPTH_TEST);
+			}
 		}
 
-		if (_depthMask !== depthMask)
-		{
+		if (_depthMask !== depthMask) {
 			_depthMask = depthMask;
 			_gl.depthMask(depthMask);
 		}
 
-		if (this.disableDepthCorrection !== depthCorrection)
-		{
+		if (this.disableDepthCorrection !== depthCorrection) {
 			this.disableDepthCorrection = depthCorrection;
 		}
 
 		fn();
 
-		if (_depthTest !== prevDepthTest)
-		{
+		if (_depthTest !== prevDepthTest) {
 			_depthTest = prevDepthTest;
 
-			if (prevDepthTest) {_gl.enable(_gl.DEPTH_TEST);}
-			else {_gl.disable(_gl.DEPTH_TEST);}
+			if (prevDepthTest) {
+				_gl.enable(_gl.DEPTH_TEST);
+			} else {
+				_gl.disable(_gl.DEPTH_TEST);
+			}
 		}
 
-		if (_depthMask !== prevDepthMask)
-		{
+		if (_depthMask !== prevDepthMask) {
 			_depthMask = prevDepthMask;
 			_gl.depthMask(prevDepthMask);
 		}
 
-		if (this.disableDepthCorrection !== prevDepthCorrection)
-		{
+		if (this.disableDepthCorrection !== prevDepthCorrection) {
 			this.disableDepthCorrection = prevDepthCorrection;
 		}
 	};
@@ -469,8 +447,7 @@ define([
 	/**
 	 * Render in 2D
 	 */
-	var RenderCanvas2D = (function RenderCanvas2DClosure()
-	{
+	var RenderCanvas2D = (function RenderCanvas2DClosure() {
 		var canvas, ctx, imageData;
 
 		canvas = document.createElement('canvas');
@@ -479,11 +456,9 @@ define([
 		canvas.height = 20;
 		imageData = ctx.createImageData(canvas.width, canvas.height);
 
-		return function RenderCanvas2D()
-		{
+		return function RenderCanvas2D() {
 			// Nothing to render
-			if (this.sprite.width <= 0 || this.sprite.height <= 0)
-			{
+			if (this.sprite.width <= 0 || this.sprite.height <= 0) {
 				return;
 			}
 
@@ -504,21 +479,18 @@ define([
 			_size.set(this.size);
 
 			// Mirror feature
-			if (_size[0] < 0)
-			{
+			if (_size[0] < 0) {
 				scale_x *= -1;
 				_size[0] *= -1;
 			}
 
-			if (_size[1] < 0)
-			{
+			if (_size[1] < 0) {
 				scale_y *= -1;
 				_size[1] *= -1;
 			}
 
 			// Resize canvas from memory
-			if (width > canvas.width || height > canvas.height)
-			{
+			if (width > canvas.width || height > canvas.height) {
 				canvas.width = width;
 				canvas.height = height;
 				imageData = ctx.createImageData(width, height);
@@ -543,8 +515,7 @@ define([
 			var isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
 
 			// RGBA images
-			if (this.sprite.type === 1)
-			{
+			if (this.sprite.type === 1) {
 				/**
 				 * OLD LOGIC: Per-channel RGBA modulation using byte array access.
 				 *            4 loads + 4 stores + multiplications per pixel.
@@ -555,29 +526,23 @@ define([
 				 */
 				var input32 = new Uint32Array(input.buffer);
 
-				for (y = 0; y < height; ++y)
-				{
+				for (y = 0; y < height; ++y) {
 					var outRow = y * outputWidth;
 					var inRow = y * width;
 
-					for (x = 0; x < width; ++x)
-					{
+					for (x = 0; x < width; ++x) {
 						var pixel = input32[inRow + x];
-						if (pixel === 0)
-						{
+						if (pixel === 0) {
 							// Transparent skip behavior due n*0 = 0
 							output32[outRow + x] = 0;
 							continue;
 						}
 
-						if (isColorIdentity)
-						{
+						if (isColorIdentity) {
 							// Fast path: no color modulation.
 							// Copy the precompiled RGBA pixel directly due n*1 = n.
 							output32[outRow + x] = pixel;
-						}
-						else
-						{
+						} else {
 							// Extract RGBA components from packed 32-bit pixel.
 							// Note: In Little Endian, 0xAABBGGRR is stored as [R, G, B, A] in memory.
 							var r = (pixel & 0xff) * r_mul;
@@ -591,16 +556,13 @@ define([
 			}
 
 			// Palettes
-			else
-			{
+			else {
 				// Pre-calculate a color-modulated 32-bit palette for this frame.
 				// WHY: Avoid per-pixel palette lookups and color multiplications.
 				// Cost: O(256) setup, O(pixels) usage.
 				var pal32 = new Uint32Array(256);
-				for (var i = 0; i < 256; i++)
-				{
-					if (i === 0)
-					{
+				for (var i = 0; i < 256; i++) {
+					if (i === 0) {
 						// Transparent skip behavior due n*0 = 0
 						pal32[i] = 0;
 						continue;
@@ -614,12 +576,10 @@ define([
 					pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
 				}
 
-				for (y = 0; y < height; ++y)
-				{
+				for (y = 0; y < height; ++y) {
 					var outRow = y * outputWidth;
 					var inRow = y * width;
-					for (x = 0; x < width; ++x)
-					{
+					for (x = 0; x < width; ++x) {
 						// Fast palette lookup: single array access and single 32-bit write.
 						// OLD: Per-channel palette reads and multiplications per pixel.
 						// NEW: O(1) lookup using precomputed 32-bit palette.

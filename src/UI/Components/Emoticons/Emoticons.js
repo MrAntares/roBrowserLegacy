@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -82,12 +81,10 @@ define(function (require)
 	/**
 	 * Initialize UI
 	 */
-	Emoticons.init = function init()
-	{
+	Emoticons.init = function init() {
 		Client.loadFiles(
 			['data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/emotion.act', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/emotion.spr'],
-			function (act, spr)
-			{
+			function (act, spr) {
 				_action = act;
 				_sprite = spr;
 				TOTAL_PAGES = Math.floor(EMOTICONS_COUNT / EMOTICONS_PER_PAGE);
@@ -99,8 +96,7 @@ define(function (require)
 
 		this.ui.find('.content').on('dblclick', 'canvas', onPlayEmoticon).on('mousedown', 'canvas', onSelectEmoticon);
 
-		this.ui.find('.base').mousedown(function (event)
-		{
+		this.ui.find('.base').mousedown(function (event) {
 			event.stopImmediatePropagation();
 			return false;
 		});
@@ -116,10 +112,8 @@ define(function (require)
 	/**
 	 * Appending to html
 	 */
-	Emoticons.onAppend = function onAppend()
-	{
-		if (!_preferences.show)
-		{
+	Emoticons.onAppend = function onAppend() {
+		if (!_preferences.show) {
 			this.ui.hide();
 		}
 
@@ -132,8 +126,7 @@ define(function (require)
 	/**
 	 * Once removed from DOM, save preferences
 	 */
-	Emoticons.onRemove = function OnRemove()
-	{
+	Emoticons.onRemove = function OnRemove() {
 		_preferences.show = this.ui.is(':visible');
 		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.x = parseInt(this.ui.css('left'), 10);
@@ -145,20 +138,17 @@ define(function (require)
 	 *
 	 * @param {number} direction
 	 */
-	Emoticons.movePage = function movePage(direction)
-	{
+	Emoticons.movePage = function movePage(direction) {
 		this.ui.find('.prev, .next').removeClass('disabled');
 
 		_page += direction;
 
-		if (_page <= 0)
-		{
+		if (_page <= 0) {
 			this.ui.find('.prev').addClass('disabled');
 			_page = 0;
 		}
 
-		if (_page >= TOTAL_PAGES)
-		{
+		if (_page >= TOTAL_PAGES) {
 			this.ui.find('.next').addClass('disabled');
 			_page = TOTAL_PAGES;
 		}
@@ -173,14 +163,11 @@ define(function (require)
 	 *
 	 * @param {object} key
 	 */
-	Emoticons.onShortCut = function onShurtCut(key)
-	{
-		switch (key.cmd)
-		{
+	Emoticons.onShortCut = function onShurtCut(key) {
+		switch (key.cmd) {
 			case 'TOGGLE':
 				this.ui.toggle();
-				if (this.ui.is(':visible'))
-				{
+				if (this.ui.is(':visible')) {
 					this.focus();
 				}
 				break;
@@ -193,12 +180,9 @@ define(function (require)
 	 * @param {number} index
 	 * @return {function}
 	 */
-	function movePage(index)
-	{
-		return function movePageClosure()
-		{
-			if (!this.className.match(/disabled/))
-			{
+	function movePage(index) {
+		return function movePageClosure() {
+			if (!this.className.match(/disabled/)) {
 				Emoticons.movePage(index);
 			}
 		};
@@ -207,8 +191,7 @@ define(function (require)
 	/**
 	 * Exit window
 	 */
-	function onClose()
-	{
+	function onClose() {
 		Emoticons.ui.hide();
 	}
 
@@ -216,16 +199,13 @@ define(function (require)
 	 * Select an emoticon
 	 * Display the command shortcut in the ShortCuts
 	 */
-	function onSelectEmoticon()
-	{
+	function onSelectEmoticon() {
 		var idx = this.getAttribute('data-index');
 		var cmd = EmoticonsDB.names[idx];
 		var ShortCuts = require('UI/Components/ShortCuts/ShortCuts');
 
-		if (cmd && ShortCuts.ui.is(':visible'))
-		{
-			if (ShortCuts.ui.find('.input_alt_focus').length)
-			{
+		if (cmd && ShortCuts.ui.is(':visible')) {
+			if (ShortCuts.ui.find('.input_alt_focus').length) {
 				ShortCuts.ui
 					.find('.input_alt_focus')
 					.val('/' + cmd)
@@ -237,8 +217,7 @@ define(function (require)
 	/**
 	 * Do an emoticon
 	 */
-	function onPlayEmoticon()
-	{
+	function onPlayEmoticon() {
 		var idx = this.getAttribute('data-index');
 		var cmd = EmoticonsDB.names[idx];
 
@@ -251,8 +230,7 @@ define(function (require)
 	 *
 	 * @param {jQuery object} content
 	 */
-	function refreshList(content)
-	{
+	function refreshList(content) {
 		var canvas, ctx;
 		var animation, animations, layers;
 		var i, count;
@@ -264,8 +242,7 @@ define(function (require)
 
 		content.empty();
 
-		while (index < end)
-		{
+		while (index < end) {
 			canvas = document.createElement('canvas');
 			ctx = canvas.getContext('2d');
 			canvas.width = 40;
@@ -283,8 +260,7 @@ define(function (require)
 
 			SpriteRenderer.bind2DContext(ctx, 20 - layers[0].pos[0], 40 - layers[0].pos[1]);
 
-			for (i = 0; i < count; ++i)
-			{
+			for (i = 0; i < count; ++i) {
 				_entity.renderLayer(layers[i], _sprite, _sprite, 1.0, pos, false);
 			}
 

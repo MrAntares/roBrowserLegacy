@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(['./PacketStructure'], function (PACKET)
-{
+define(['./PacketStructure'], function (PACKET) {
 	'use strict';
 
 	return {

@@ -7,8 +7,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var ShortCut = require('UI/Components/ShortCut/ShortCut');
@@ -26,21 +25,21 @@ define(function (require)
 
 		dispose: function () {},
 		cancelQuick: false,
-		executeShortcut: function (index, group)
-		{
+		executeShortcut: function (index, group) {
 			var shortcut = ShortCut.getList()[index];
-			if (!shortcut) {return;}
+			if (!shortcut) {
+				return;
+			}
 
-			if (!shortcut.isSkill)
-			{
+			if (!shortcut.isSkill) {
 				var item = InventoryUI.getUI().getItemById(shortcut.ID);
-				if (!item || item.count === 0) {return;}
+				if (!item || item.count === 0) {
+					return;
+				}
 			} // Move mouse to target entity position
-			else if (ControlsSettings.attackTargetMode)
-			{
+			else if (ControlsSettings.attackTargetMode) {
 				var targetEntity = Target.getEntity();
-				if (targetEntity)
-				{
+				if (targetEntity) {
 					Cursor.moveMouseToEntity(targetEntity);
 				}
 			}
@@ -49,49 +48,45 @@ define(function (require)
 				cmd: 'EXECUTE' + index
 			});
 
-			if (ControlsSettings.joyQuick === 2) {Cursor.quickCastClick();}
-			else if (ControlsSettings.joyQuick === 1)
-			{
+			if (ControlsSettings.joyQuick === 2) {
+				Cursor.quickCastClick();
+			} else if (ControlsSettings.joyQuick === 1) {
 				this.cancelQuick = false;
 
-				function waitforRelease()
-				{
-					setTimeout(function ()
-					{
+				function waitforRelease() {
+					setTimeout(function () {
 						var Input = require('./JoystickInputService');
 						var ShortcutMapper = require('./JoystickShortcutMapper');
 
 						var buttons = Input.buttonStates;
-						if (ShortcutMapper.getGroup(buttons) !== group)
-						{
+						if (ShortcutMapper.getGroup(buttons) !== group) {
 							Cursor.quickCastClick();
+						} else if (!this.cancelQuick) {
+							waitforRelease();
 						}
-						else if (!this.cancelQuick) {waitforRelease();}
 					}, 50);
 				}
 				waitforRelease();
 			}
 		},
 
-		openSelectionWindow: function (draggableElement)
-		{
+		openSelectionWindow: function (draggableElement) {
 			var index = parseInt(draggableElement.getAttribute('data-index'), 10);
 			var isSkill = draggableElement.closest('.skill');
 			var itemData;
 
-			if (!isSkill)
-			{
+			if (!isSkill) {
 				var item = InventoryUI.getUI().getItemByIndex(index);
-				if (item)
-				{
+				if (item) {
 					if (
 						item.type === ItemType.UNKNOWN ||
 						item.type === ItemType.ETC ||
 						item.type === ItemType.CARD ||
 						item.type === ItemType.PETEGG ||
 						item.type === ItemType.PETARMOR
-					)
-					{return false;}
+					) {
+						return false;
+					}
 
 					itemData = {
 						isSkill: false,
@@ -100,12 +95,9 @@ define(function (require)
 						name: require('DB/DBManager').getItemName(item)
 					};
 				}
-			}
-			else
-			{
+			} else {
 				var skill = ShortCut.getSkillById(index);
-				if (skill)
-				{
+				if (skill) {
 					itemData = {
 						isSkill: true,
 						ID: skill.SKID,
@@ -115,8 +107,7 @@ define(function (require)
 				}
 			}
 
-			if (itemData)
-			{
+			if (itemData) {
 				SelectionUI.showSelection(itemData);
 				return true;
 			}
@@ -124,63 +115,51 @@ define(function (require)
 			return false;
 		},
 
-		leftClick: function (click)
-		{
+		leftClick: function (click) {
 			Cursor.leftClick(click);
 		},
 
-		rightClick: function (holding)
-		{
+		rightClick: function (holding) {
 			Cursor.rightClick(holding);
 		},
 
-		pickUpItem: function ()
-		{
+		pickUpItem: function () {
 			Character.pickUp();
 		},
 
-		attackTargeted: function ()
-		{
+		attackTargeted: function () {
 			Character.attack();
 		},
 
-		moveCursor: function (dx, dy)
-		{
+		moveCursor: function (dx, dy) {
 			Cursor.move(dx, dy);
 		},
 
-		cameraZoom: function (zoom)
-		{
+		cameraZoom: function (zoom) {
 			Cursor.changeCameraZoom(zoom);
 		},
 
-		cameraAngle: function (angle)
-		{
+		cameraAngle: function (angle) {
 			Cursor.changeCameraAngle(angle);
 		},
 
-		escape: function ()
-		{
+		escape: function () {
 			Cursor.esc();
 		},
 
-		enter: function ()
-		{
+		enter: function () {
 			Cursor.enter();
 		},
 
-		showinfo: function ()
-		{
+		showinfo: function () {
 			return Cursor.contextMenu();
 		},
 
-		navigateDpad: function (direction)
-		{
+		navigateDpad: function (direction) {
 			return Cursor.navigateDraggableItems(direction);
 		},
 
-		moveCharacter: function (x, y)
-		{
+		moveCharacter: function (x, y) {
 			Character.move(x, y);
 		}
 	};

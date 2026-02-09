@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -26,8 +25,7 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.WHISPER
 	 */
-	function onPrivateMessage(pkt)
-	{
+	function onPrivateMessage(pkt) {
 		var prefix = Friends.isFriend(pkt.sender) ? DB.getMessage(102) : 'From';
 		ChatBox.addText(
 			'[ ' + prefix + ' ' + pkt.sender + ' ] : ' + pkt.msg.replace(/\|\d{2}/, ''),
@@ -42,21 +40,16 @@ define(function (require)
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_WHISPER
 	 */
-	function onPrivateMessageSent(pkt)
-	{
+	function onPrivateMessageSent(pkt) {
 		// Official buggy feature
 		var user = ChatBox.PrivateMessageStorage.nick;
 		var msg = ChatBox.PrivateMessageStorage.msg;
 
-		if (pkt.result === 0)
-		{
-			if (user && msg)
-			{
+		if (pkt.result === 0) {
+			if (user && msg) {
 				ChatBox.addText('[ To ' + user + ' ] : ' + msg, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
 			}
-		}
-		else
-		{
+		} else {
 			ChatBox.addText(
 				'(' + user + ') : ' + DB.getMessage(147 + pkt.result),
 				ChatBox.TYPE.PRIVATE,
@@ -71,8 +64,7 @@ define(function (require)
 	/**
 	 * Initialize
 	 */
-	return function PrivateMessageEngine()
-	{
+	return function PrivateMessageEngine() {
 		Network.hookPacket(PACKET.ZC.WHISPER, onPrivateMessage);
 		Network.hookPacket(PACKET.ZC.WHISPER2, onPrivateMessage);
 		Network.hookPacket(PACKET.ZC.ACK_WHISPER, onPrivateMessageSent);

@@ -7,8 +7,7 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var GraphicsSettings = require('Preferences/Graphics');
@@ -23,9 +22,10 @@ define(function (require)
 
 	function Cartoon() {}
 
-	Cartoon.render = function render(gl, inputTexture, outputFramebuffer)
-	{
-		if (!_buffer || !_program || !Cartoon.isActive()) {return;}
+	Cartoon.render = function render(gl, inputTexture, outputFramebuffer) {
+		if (!_buffer || !_program || !Cartoon.isActive()) {
+			return;
+		}
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
 		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -51,23 +51,20 @@ define(function (require)
 		Cartoon.afterRender(gl);
 	};
 
-	Cartoon.afterRender = function (gl)
-	{
+	Cartoon.afterRender = function (gl) {
 		gl.useProgram(null);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 
-	Cartoon.init = function init(gl)
-	{
-		if (!gl) {return;}
-		try
-		{
-			_program = WebGL.createShaderProgram(gl, commonVS, cartoonFS);
+	Cartoon.init = function init(gl) {
+		if (!gl) {
+			return;
 		}
-		catch (e)
-		{
+		try {
+			_program = WebGL.createShaderProgram(gl, commonVS, cartoonFS);
+		} catch (e) {
 			console.error('Error compiling Cartoon shader.', e);
 			return;
 		}
@@ -77,19 +74,18 @@ define(function (require)
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
 	};
 
-	Cartoon.isActive = function isActive()
-	{
+	Cartoon.isActive = function isActive() {
 		return GraphicsSettings.cartoonEnabled;
 	};
 
-	Cartoon.program = function program()
-	{
+	Cartoon.program = function program() {
 		return _program;
 	};
 
-	Cartoon.clean = function clean(gl)
-	{
-		if (_buffer) {gl.deleteBuffer(_buffer);}
+	Cartoon.clean = function clean(gl) {
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
 		_program = _buffer = null;
 	};
 

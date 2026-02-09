@@ -6,23 +6,19 @@
  *
  * @author AoShinHo
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var currentSet = 1;
 
 	return {
-		getCurrentSet: function ()
-		{
+		getCurrentSet: function () {
 			return currentSet;
 		},
-		set: function (n)
-		{
+		set: function (n) {
 			currentSet = n === 1 || n === 2 ? n : currentSet;
 		},
-		toggle: function ()
-		{
+		toggle: function () {
 			currentSet = currentSet === 1 ? 2 : 1;
 		}
 	};

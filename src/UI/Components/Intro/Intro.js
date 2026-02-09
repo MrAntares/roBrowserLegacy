@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -39,14 +38,13 @@ define(function (require)
 	/**
 	 * Manage Escape key to exit
 	 */
-	Intro.onKeyDown = function OnKeyDown(event)
-	{
-		if (!this.ui.is(':visible')) {return true;}
+	Intro.onKeyDown = function OnKeyDown(event) {
+		if (!this.ui.is(':visible')) {
+			return true;
+		}
 		// Exit fullScreen mode
-		if (event.which === KEYS.ESCAPE || event.key === 'Escape')
-		{
-			if (Context.isFullScreen())
-			{
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			if (Context.isFullScreen()) {
 				Context.cancelFullScreen();
 			}
 
@@ -60,10 +58,8 @@ define(function (require)
 	/**
 	 * Initialize Metaling
 	 */
-	Intro.init = function init()
-	{
-		if (!Configs.get('servers'))
-		{
+	Intro.init = function init() {
+		if (!Configs.get('servers')) {
 			Configs.set('_serverEditMode', true);
 		}
 
@@ -72,24 +68,20 @@ define(function (require)
 		preloadImages();
 
 		// About page
-		ui.find('.btn_about').mousedown(function ()
-		{
+		ui.find('.btn_about').mousedown(function () {
 			var $about = ui.find('.overlay.about');
 			$about
 				.show()
 				.animate({ opacity: 1 }, 200)
-				.click(function ()
-				{
-					$about.animate({ opacity: 0 }, 200, function ()
-					{
+				.click(function () {
+					$about.animate({ opacity: 0 }, 200, function () {
 						$about.hide();
 					});
 				});
 		});
 
 		// Settings page
-		ui.find('.btn_settings').mousedown(function ()
-		{
+		ui.find('.btn_settings').mousedown(function () {
 			Preferences.load(ui);
 
 			ui.find('.overlay.settings').show().animate({ opacity: 1 }, 200);
@@ -97,26 +89,21 @@ define(function (require)
 
 		// Box to set files
 		ui.find('.box')
-			.mouseover(function ()
-			{
+			.mouseover(function () {
 				jQuery(this).addClass('over');
 			})
-			.mouseout(function ()
-			{
+			.mouseout(function () {
 				jQuery(this).removeClass('over');
 			})
-			.click(function ()
-			{
+			.click(function () {
 				ui.find('input[type="file"]').click();
 			})
 			.on('drop', process)
-			.on('dragover', function ()
-			{
+			.on('dragover', function () {
 				jQuery(this).addClass('over');
 				return false;
 			})
-			.on('dragleave', function ()
-			{
+			.on('dragleave', function () {
 				jQuery(this).removeClass('over');
 				return false;
 			});
@@ -125,55 +112,46 @@ define(function (require)
 		ui.find('input[type="file"]').on('change', process);
 
 		// Modify quality
-		ui.find('.quality').on('change', function ()
-		{
+		ui.find('.quality').on('change', function () {
 			ui.find('.quality_result').text(this.value + '%');
 		});
 
 		// Clean cache
-		ui.find('.clean').click(function ()
-		{
+		ui.find('.clean').click(function () {
 			var parent = jQuery(this).hide().parent();
 			parent.append(
 				'<span><img src="' + require.toUrl('./images/loading.gif') + '"/> <i>Cleaning cache...</i></span>'
 			);
 
-			FileSystem.cleanup(function ()
-			{
+			FileSystem.cleanup(function () {
 				parent.find('span').remove();
 				Intro.ui.find('.msg').text('');
 			});
 		});
 
 		// Stop propagation in overlay to avoid hiding the page
-		ui.find('.overlay').on('click', 'input[type="text"], a, button', function (event)
-		{
-			if (this.nodeName === 'INPUT')
-			{
+		ui.find('.overlay').on('click', 'input[type="text"], a, button', function (event) {
+			if (this.nodeName === 'INPUT') {
 				this.select();
 			}
 			event.stopImmediatePropagation();
 		});
 
 		// Not allow to edit server list
-		if (!Configs.get('_serverEditMode'))
-		{
+		if (!Configs.get('_serverEditMode')) {
 			ui.find('.serveredit').hide();
 		}
 
 		// Modify volume
-		ui.find('.bgmvol').on('change', function ()
-		{
+		ui.find('.bgmvol').on('change', function () {
 			ui.find('.bgmvol_result').text(this.value + '%');
 		});
-		ui.find('.soundvol').on('change', function ()
-		{
+		ui.find('.soundvol').on('change', function () {
 			ui.find('.soundvol_result').text(this.value + '%');
 		});
 
 		// Add Server
-		ui.find('.btn_add').on('click', function ()
-		{
+		ui.find('.btn_add').on('click', function () {
 			var $serverlist = ui.find('.servers');
 			var count = $serverlist.find('tr').length;
 			$serverlist.append(
@@ -192,23 +170,19 @@ define(function (require)
 			$serverlist.find('tr :eq(' + count + ') input:first').focus();
 		});
 
-		ui.find('.btn_save').on('click', function ()
-		{
+		ui.find('.btn_save').on('click', function () {
 			Preferences.save(ui);
-			ui.find('.overlay').animate({ opacity: 0 }, 200, function ()
-			{
+			ui.find('.overlay').animate({ opacity: 0 }, 200, function () {
 				ui.find('.overlay').hide();
 			});
 		});
 
-		ui.find('.serverlist tbody').on('click', '.btn_delete', function ()
-		{
+		ui.find('.serverlist tbody').on('click', '.btn_delete', function () {
 			jQuery(this).parent().parent().remove();
 		});
 
 		// Start roBrowser
-		ui.find('.btn_play').click(function ()
-		{
+		ui.find('.btn_play').click(function () {
 			ui.find('.overlay.loading').show().animate({ opacity: 1 }, 200);
 
 			Intro.onFilesSubmit(Intro.files);
@@ -218,33 +192,24 @@ define(function (require)
 	/**
 	 * Once append to body
 	 */
-	Intro.onAppend = function onAppend()
-	{
+	Intro.onAppend = function onAppend() {
 		// Can't resize the window if it's not a popup/App
-		if (!Context.Is.POPUP)
-		{
+		if (!Context.Is.POPUP) {
 			this.ui.find('.resolution').hide();
 		}
 
 		// Show content saved
 		this.ui.find('.clean').hide();
 		FileSystem.getSize(
-			function (used)
-			{
+			function (used) {
 				var msg = '';
 
-				if (used)
-				{
-					if (used > 1024 * 1024 * 1024)
-					{
+				if (used) {
+					if (used > 1024 * 1024 * 1024) {
 						msg = (used / 1024 / 1024 / 1024).toFixed(2) + ' GiB saved';
-					}
-					else if (used > 1024 * 1024)
-					{
+					} else if (used > 1024 * 1024) {
 						msg = (used / 1024 / 1024).toFixed(2) + ' MiB saved';
-					}
-					else
-					{
+					} else {
 						msg = (used / 1024).toFixed(2) + ' KiB saved';
 					}
 
@@ -257,8 +222,7 @@ define(function (require)
 		// Hook resize
 		var $window = jQuery(window);
 		var $intro = this.ui.find('.intro');
-		$window.on('resize.intro', function ()
-		{
+		$window.on('resize.intro', function () {
 			$intro.css(
 				'transform',
 				'scale(' + $window.width() / $intro.width() + ',' + $window.height() / $intro.height() + ')'
@@ -273,8 +237,7 @@ define(function (require)
 	/**
 	 * Once removed
 	 */
-	Intro.onRemove = function onRemove()
-	{
+	Intro.onRemove = function onRemove() {
 		jQuery(window).off('resize.intro');
 		Particle.stop();
 		this.ui.find('.overlay').hide();
@@ -283,8 +246,7 @@ define(function (require)
 	/**
 	 * Start loading images
 	 */
-	function preloadImages()
-	{
+	function preloadImages() {
 		// Background images
 		jQuery('style:first').append(
 			[
@@ -315,8 +277,7 @@ define(function (require)
 	 * @param {object} event
 	 * @return {boolean} false
 	 */
-	function process(event)
-	{
+	function process(event) {
 		var i, count;
 
 		var _dir_count = 0;
@@ -328,42 +289,31 @@ define(function (require)
 		event.stopImmediatePropagation();
 		jQuery(this).removeClass('over');
 
-		function processing(files)
-		{
-			if (files.length)
-			{
+		function processing(files) {
+			if (files.length) {
 				Intro.files.push.apply(Intro.files, files);
 				Intro.ui.find('.msg').text(Intro.files.length + ' files selected');
 			}
 		}
 
 		// Extract files from directory
-		function recursiveReader(entry, skip)
-		{
-			if (entry.isFile)
-			{
+		function recursiveReader(entry, skip) {
+			if (entry.isFile) {
 				++_file_count;
-				entry.file(function (file)
-				{
+				entry.file(function (file) {
 					file.fullPath = entry.fullPath.substr(skip); // get rid of the "/"
 					_files.push(file);
-					if (++_file_loaded === _file_count && _dir_loaded === _dir_count)
-					{
+					if (++_file_loaded === _file_count && _dir_loaded === _dir_count) {
 						processing(_files);
 					}
 				});
-			}
-			else if (entry.isDirectory)
-			{
+			} else if (entry.isDirectory) {
 				++_dir_count;
-				entry.createReader().readEntries(function (entries)
-				{
-					for (var i = 0, count = entries.length; i < count; ++i)
-					{
+				entry.createReader().readEntries(function (entries) {
+					for (var i = 0, count = entries.length; i < count; ++i) {
 						recursiveReader(entries[i], skip);
 					}
-					if (++_dir_loaded === _dir_count && _file_loaded === _file_count)
-					{
+					if (++_dir_loaded === _dir_count && _file_loaded === _file_count) {
 						processing(_files);
 					}
 				});
@@ -371,25 +321,21 @@ define(function (require)
 		}
 
 		// input[type="file"]
-		if ('files' in this)
-		{
+		if ('files' in this) {
 			// In wekit we select the folder, not files.
 			// we have to rewrite the relativePath to remove the main folder from it
-			if (this.files.length)
-			{
+			if (this.files.length) {
 				var token =
 					'webkitRelativePath' in this.files[0]
 						? 'webkitRelativePath'
 						: 'relativePath' in this.files[0]
 							? 'relativePath'
 							: null;
-				if (token)
-				{
+				if (token) {
 					count = this.files.length;
 					var baseFolder = /^[^(\/|\\)]+(\/|\\)/;
 
-					for (i = 0; i < count; ++i)
-					{
+					for (i = 0; i < count; ++i) {
 						this.files[i].fullPath = this.files[i][token].replace(baseFolder, '');
 					}
 				}
@@ -400,32 +346,27 @@ define(function (require)
 		}
 
 		// drag drop
-		if (event.originalEvent.dataTransfer)
-		{
+		if (event.originalEvent.dataTransfer) {
 			var data = event.originalEvent.dataTransfer;
 
 			// Read directory content
-			if (data.items && data.items.length && data.items[0].webkitGetAsEntry)
-			{
+			if (data.items && data.items.length && data.items[0].webkitGetAsEntry) {
 				// If select a directory, have to remove the root folder for all files
 				// inside this directory
 				var skip = 1;
 				var entry = data.items[0].webkitGetAsEntry();
-				if (data.items.length === 1 && entry.isDirectory)
-				{
+				if (data.items.length === 1 && entry.isDirectory) {
 					skip = entry.fullPath.split('/')[1].length + 2;
 				}
 
-				for (i = 0, count = data.items.length; i < count; ++i)
-				{
+				for (i = 0, count = data.items.length; i < count; ++i) {
 					recursiveReader(data.items[i].webkitGetAsEntry(), skip);
 				}
 
 				return false;
 			}
 			// Read files directly
-			else if (data.files)
-			{
+			else if (data.files) {
 				processing(data.files);
 				return false;
 			}

@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
@@ -26,8 +25,7 @@ define(function (require)
 	 * @constructor Entity
 	 * @param {object} data - entity data to bind with
 	 */
-	function Entity(data)
-	{
+	function Entity(data) {
 		// Extend Entity
 		require('Controls/EntityControl').call(this);
 		require('./EntityAction').call(this);
@@ -52,8 +50,7 @@ define(function (require)
 		this.position = vec3.create();
 
 		// Bind data
-		if (data)
-		{
+		if (data) {
 			this.clean();
 			this.set(data);
 		}
@@ -205,8 +202,7 @@ define(function (require)
 	/**
 	 * Initialized Entity data
 	 */
-	Entity.prototype.set = function Set(unit)
-	{
+	Entity.prototype.set = function Set(unit) {
 		var keys;
 		var i, count;
 
@@ -230,10 +226,8 @@ define(function (require)
 		keys = Object.keys(unit);
 		count = keys.length;
 
-		for (i = 0; i < count; ++i)
-		{
-			switch (keys[i])
-			{
+		for (i = 0; i < count; ++i) {
+			switch (keys[i]) {
 				// Server send warp as npc,
 				// roBrowser has a special type for warp.
 				case 'objecttype':
@@ -258,8 +252,7 @@ define(function (require)
 					this.position[2] =
 						Altitude.getCellHeight(unit.PosDir[0], unit.PosDir[1]) +
 						(this.objecttype === Entity.TYPE_FALCON ? 5 : 0);
-					if (isNaN(this.position[2]))
-					{
+					if (isNaN(this.position[2])) {
 						// this can happens when map provided by client is different from server
 						this.position[2] = 0;
 					}
@@ -294,16 +287,14 @@ define(function (require)
 
 				case 'moveStartTime':
 					// Keep for walkTo() latency compensation; avoid overriding its tick.
-					if (this.walk)
-					{
+					if (this.walk) {
 						this.walk.serverStartTime = unit.moveStartTime;
 					}
 					break;
 
 				case 'name':
 					this.display.name = unit.name;
-					if (this.display.name.length == 0)
-					{
+					if (this.display.name.length == 0) {
 						this.display.load = this.display.TYPE.NONE;
 					}
 					this.display.update(
@@ -357,8 +348,7 @@ define(function (require)
 					this.hideShadow = unit.hideShadow;
 
 				default:
-					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty('_' + keys[i]))
-					{
+					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty('_' + keys[i])) {
 						this[keys[i]] = unit[keys[i]];
 					}
 					break;
@@ -366,8 +356,7 @@ define(function (require)
 		}
 
 		// Rendering life
-		if (this.life.hp > -1 && this.life.hp_max > -1)
-		{
+		if (this.life.hp > -1 && this.life.hp_max > -1) {
 			this.life.update();
 			this.life.display = true;
 		}
@@ -376,8 +365,7 @@ define(function (require)
 	/**
 	 * Remove Entity's attached GUI
 	 */
-	Entity.prototype.clean = function Clean()
-	{
+	Entity.prototype.clean = function Clean() {
 		// Remove UI elements
 		this.life.clean();
 		this.emblem.clean();
@@ -416,10 +404,8 @@ define(function (require)
 	 * @param {number} type
 	 * @return {boolean} removed immediatly ?
 	 */
-	Entity.prototype.remove = function Remove(type)
-	{
-		switch (type)
-		{
+	Entity.prototype.remove = function Remove(type) {
+		switch (type) {
 			case Entity.VT.OUTOFSIGHT:
 				this.clean();
 				this.remove_tick = +Renderer.tick;
@@ -430,8 +416,7 @@ define(function (require)
 				var is_pc = this.objecttype === Entity.TYPE_PC;
 				var is_falcon = this.objecttype === Entity.TYPE_FALCON;
 				var is_wug = this.objecttype === Entity.TYPE_WUG;
-				if (!is_falcon)
-				{
+				if (!is_falcon) {
 					this.setAction({
 						action: this.ACTION.DIE,
 						repeat: is_pc,
@@ -440,8 +425,7 @@ define(function (require)
 						next: false
 					});
 
-					if (!is_pc && !is_wug)
-					{
+					if (!is_pc && !is_wug) {
 						this.clean();
 						this.remove_tick = +Renderer.tick;
 						this.remove_delay = 5000;
@@ -467,30 +451,30 @@ define(function (require)
 	 * @param {number} to_x
 	 * @param {number} to_y
 	 */
-	Entity.prototype.lookTo = function LookTo(to_x, to_y)
-	{
+	Entity.prototype.lookTo = function LookTo(to_x, to_y) {
 		var x = Math.round(to_x - this.position[0]);
 		var y = Math.round(to_y - this.position[1]);
 		var dir;
 
-		if (x >= 1) {dir = y >= 1 ? 5 : y === 0 ? 6 : 7;}
-		if (x === 0) {dir = y >= 1 ? 4 : 0;}
-		if (x <= -1) {dir = y >= 1 ? 3 : y === 0 ? 2 : 1;}
+		if (x >= 1) {
+			dir = y >= 1 ? 5 : y === 0 ? 6 : 7;
+		}
+		if (x === 0) {
+			dir = y >= 1 ? 4 : 0;
+		}
+		if (x <= -1) {
+			dir = y >= 1 ? 3 : y === 0 ? 2 : 1;
+		}
 
 		var prevDirection = this.direction;
-		if (prevDirection === dir)
-		{
+		if (prevDirection === dir) {
 			// turn head straight
 			this.headDir = 0;
-		}
-		else
-		{
-			switch (((prevDirection - dir + 8) % 8) - 4)
-			{
+		} else {
+			switch (((prevDirection - dir + 8) % 8) - 4) {
 				// turn head left
 				case -3:
-					if (this.headDir === 2)
-					{
+					if (this.headDir === 2) {
 						this.direction = dir;
 						this.headDir = 0;
 						break;
@@ -503,8 +487,7 @@ define(function (require)
 
 				// turn head right
 				case 3:
-					if (this.headDir === 1)
-					{
+					if (this.headDir === 1) {
 						this.direction = dir;
 						this.headDir = 0;
 						break;
@@ -516,8 +499,7 @@ define(function (require)
 					break;
 
 				case 0:
-					switch (this.headDir)
-					{
+					switch (this.headDir) {
 						case 2:
 							this.direction = (dir + 9) % 8;
 							break;

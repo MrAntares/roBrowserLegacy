@@ -1,6 +1,5 @@
 // src/Renderer/SignboardManager.js
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var SignboardManager = {};
@@ -13,8 +12,7 @@ define(function (require)
 	var _pos = new Float32Array(4);
 	var _size = new Float32Array(2);
 
-	SignboardManager.add = function (x, y, signboardData)
-	{
+	SignboardManager.add = function (x, y, signboardData) {
 		var EntitySignboard = require('UI/Components/EntitySignboard/EntitySignboard');
 
 		// Clone the UI component
@@ -31,13 +29,10 @@ define(function (require)
 		signboardUI.append();
 
 		// Set title and icon based on type
-		if (signboardData.type === 1)
-		{
+		if (signboardData.type === 1) {
 			// ICON_ONLY
 			signboardUI.setIconOnly(DB.INTERFACE_PATH + signboardData.icon_location);
-		}
-		else
-		{
+		} else {
 			// FULL_SIGNBOARD
 			signboardUI.setTitle(
 				DB.getTranslatedSignBoard(signboardData.description),
@@ -57,13 +52,11 @@ define(function (require)
 		});
 	};
 
-	SignboardManager.render = function (gl, modelView, projection)
-	{
+	SignboardManager.render = function (gl, modelView, projection) {
 		var _matrix = mat4.create();
 		var _vector = vec4.create();
 
-		for (var i = 0; i < signboards.length; i++)
-		{
+		for (var i = 0; i < signboards.length; i++) {
 			var signboard = signboards[i];
 
 			var ui = signboard.ui.ui[0];
@@ -109,17 +102,17 @@ define(function (require)
 
 			// Check if the Vertical Flip (Illusion effect) is active
 			// If true, invert the Y coordinate relative to the renderer height
-			if (require('Renderer/Effects/Shaders/VerticalFlip').isActive()) {_pos[1] = Renderer.height - _pos[1];}
+			if (require('Renderer/Effects/Shaders/VerticalFlip').isActive()) {
+				_pos[1] = Renderer.height - _pos[1];
+			}
 
 			ui.style.top = (_pos[1] | 0) + 'px';
 			ui.style.left = ((_pos[0] - signboard.posY) | 0) + 'px';
 		}
 	};
 
-	SignboardManager.free = function ()
-	{
-		for (var i = 0; i < signboards.length; i++)
-		{
+	SignboardManager.free = function () {
+		for (var i = 0; i < signboards.length; i++) {
 			signboards[i].ui.remove();
 		}
 		signboards = [];
