@@ -2695,13 +2695,14 @@ define(function (require) {
 					// create required functions in context  
 					ctx.AddSkillInfo = (skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale, _NeedSkillListJson) => {
 						// Convert to format expected by SkillInfo.js  
+						const toArray = (v) => { if (Array.isArray(v)) return v; if (typeof v === 'object' && v !== null) return Object.keys(v).map(Number).sort((a, b) => a - b).map(k => v[k]); return []; };
 						SkillInfo[skillId] = {
 							Name: userStringDecoder.decode(resName),
 							SkillName: userStringDecoder.decode(skillName),
 							MaxLv: maxLv,
-							SpAmount: spAmount,
+							SpAmount: toArray(spAmount),
 							bSeperateLv: bSeperateLv,
-							AttackRange: attackRange,
+							AttackRange: toArray(attackRange),
 							SkillScale: skillScale
 						};
 
