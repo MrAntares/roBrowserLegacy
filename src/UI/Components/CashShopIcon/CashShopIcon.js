@@ -49,7 +49,7 @@ define(function (require) {
 				Network.sendPacket(pkt);
 			}
 		}
-	}
+	};
 
 	/**
  * Stop event propagation
