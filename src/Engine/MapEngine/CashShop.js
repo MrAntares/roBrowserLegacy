@@ -20,6 +20,8 @@ define(function( require )
 
 	function onOpenCashShop(pkt){
 		CashShop.readPoints(pkt.cashPoints, pkt.kafraPoints, pkt.tab);
+		CashShop.prepare();
+		CashShop.append();
 	}
 
 	function onOpenReqCashShopItemList(pkt){
