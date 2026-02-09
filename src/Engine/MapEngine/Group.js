@@ -8,25 +8,24 @@
  * @author Vincent Thibault
  */
 
-define(function( require )
+define(function (require)
 {
 	'use strict';
-
 
 	/**
 	 * Load dependencies
 	 */
-	var DB            = require('DB/DBManager');
-	var Session       = require('Engine/SessionStorage');
-	var Network       = require('Network/NetworkManager');
-	var PACKETVER  	  = require('Network/PacketVerManager');
-	var PACKET        = require('Network/PacketStructure');
+	var DB = require('DB/DBManager');
+	var Session = require('Engine/SessionStorage');
+	var Network = require('Network/NetworkManager');
+	var PACKETVER = require('Network/PacketVerManager');
+	var PACKET = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
-	var MapRenderer   = require('Renderer/MapRenderer');
-	var UIManager     = require('UI/UIManager');
-	var ChatBox       = require('UI/Components/ChatBox/ChatBox');
-	var PartyUI       = require('UI/Components/PartyFriends/PartyFriends');
-	var WorldMap      = require('UI/Components/WorldMap/WorldMap');
+	var MapRenderer = require('Renderer/MapRenderer');
+	var UIManager = require('UI/UIManager');
+	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var PartyUI = require('UI/Components/PartyFriends/PartyFriends');
+	var WorldMap = require('UI/Components/WorldMap/WorldMap');
 
 	// Version Dependent UIs
 	var MiniMap = require('UI/Components/MiniMap/MiniMap');
@@ -36,56 +35,54 @@ define(function( require )
 	 */
 	var GroupEngine = {};
 
-
 	/**
 	 * @var {string} temporary variable to store party name
 	 */
 	var _partyName = '';
-
 
 	/**
 	 * Initialize engine
 	 */
 	GroupEngine.init = function init()
 	{
-		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM,       onMemberLifeUpdate );
-		Network.hookPacket( PACKET.ZC.NOTIFY_HP_TO_GROUPM_R2,    onMemberLifeUpdate );
-		Network.hookPacket( PACKET.ZC.NOTIFY_CHAT_PARTY,         onMemberTalk );
-		Network.hookPacket( PACKET.ZC.GROUPINFO_CHANGE,          onPartyOption );
-		Network.hookPacket( PACKET.ZC.REQ_GROUPINFO_CHANGE_V2,   onPartyOption );
-		Network.hookPacket( PACKET.ZC.PARTY_CONFIG,              onPartyConfig );
-		Network.hookPacket( PACKET.ZC.NOTIFY_POSITION_TO_GROUPM, onMemberMove );
-		Network.hookPacket( PACKET.ZC.PARTY_JOIN_REQ,            onPartyInvitationRequest );
-		Network.hookPacket( PACKET.ZC.PARTY_JOIN_REQ_ACK,        onPartyInvitationAnswer );
-		Network.hookPacket( PACKET.ZC.ACK_REQ_JOIN_GROUP,        onPartyInvitationAnswer );
-		Network.hookPacket( PACKET.ZC.GROUP_LIST,                onPartyList );
-		Network.hookPacket( PACKET.ZC.GROUP_LIST2,               onPartyList );
-		Network.hookPacket( PACKET.ZC.GROUP_LIST3,               onPartyList );
-		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP,       onPartyMemberJoin );
-		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP2,      onPartyMemberJoin );
-		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP3,      onPartyMemberJoin );
-		Network.hookPacket( PACKET.ZC.ADD_MEMBER_TO_GROUP4,      onPartyMemberJoin );
-		Network.hookPacket( PACKET.ZC.DELETE_MEMBER_FROM_GROUP,  onPartyMemberLeave );
-		Network.hookPacket( PACKET.ZC.ACK_MAKE_GROUP,            onPartyCreate );
-		Network.hookPacket( PACKET.ZC.GROUP_ISALIVE,             onPartyIsAlive );
+		Network.hookPacket(PACKET.ZC.NOTIFY_HP_TO_GROUPM, onMemberLifeUpdate);
+		Network.hookPacket(PACKET.ZC.NOTIFY_HP_TO_GROUPM_R2, onMemberLifeUpdate);
+		Network.hookPacket(PACKET.ZC.NOTIFY_CHAT_PARTY, onMemberTalk);
+		Network.hookPacket(PACKET.ZC.GROUPINFO_CHANGE, onPartyOption);
+		Network.hookPacket(PACKET.ZC.REQ_GROUPINFO_CHANGE_V2, onPartyOption);
+		Network.hookPacket(PACKET.ZC.PARTY_CONFIG, onPartyConfig);
+		Network.hookPacket(PACKET.ZC.NOTIFY_POSITION_TO_GROUPM, onMemberMove);
+		Network.hookPacket(PACKET.ZC.PARTY_JOIN_REQ, onPartyInvitationRequest);
+		Network.hookPacket(PACKET.ZC.PARTY_JOIN_REQ_ACK, onPartyInvitationAnswer);
+		Network.hookPacket(PACKET.ZC.ACK_REQ_JOIN_GROUP, onPartyInvitationAnswer);
+		Network.hookPacket(PACKET.ZC.GROUP_LIST, onPartyList);
+		Network.hookPacket(PACKET.ZC.GROUP_LIST2, onPartyList);
+		Network.hookPacket(PACKET.ZC.GROUP_LIST3, onPartyList);
+		Network.hookPacket(PACKET.ZC.ADD_MEMBER_TO_GROUP, onPartyMemberJoin);
+		Network.hookPacket(PACKET.ZC.ADD_MEMBER_TO_GROUP2, onPartyMemberJoin);
+		Network.hookPacket(PACKET.ZC.ADD_MEMBER_TO_GROUP3, onPartyMemberJoin);
+		Network.hookPacket(PACKET.ZC.ADD_MEMBER_TO_GROUP4, onPartyMemberJoin);
+		Network.hookPacket(PACKET.ZC.DELETE_MEMBER_FROM_GROUP, onPartyMemberLeave);
+		Network.hookPacket(PACKET.ZC.ACK_MAKE_GROUP, onPartyCreate);
+		Network.hookPacket(PACKET.ZC.GROUP_ISALIVE, onPartyIsAlive);
 
-		PartyUI.onExpelMember          = GroupEngine.onRequestExpel;
-		PartyUI.onRequestChangeLeader  = GroupEngine.onRequestChangeLeader;
-		PartyUI.onRequestLeave         = GroupEngine.onRequestLeave;
+		PartyUI.onExpelMember = GroupEngine.onRequestExpel;
+		PartyUI.onRequestChangeLeader = GroupEngine.onRequestChangeLeader;
+		PartyUI.onRequestLeave = GroupEngine.onRequestLeave;
 		PartyUI.onRequestPartyCreation = GroupEngine.onRequestCreation;
-		PartyUI.onRequestAddingMember  = GroupEngine.onRequestInvitation;
+		PartyUI.onRequestAddingMember = GroupEngine.onRequestInvitation;
 		PartyUI.onRequestSettingUpdate = GroupEngine.onRequestInfoUpdate;
 	};
-
 
 	/**
 	 * Create a group (/organize)
 	 *
 	 * @param {string} party name
 	 */
-	GroupEngine.onRequestCreationEasy = function onRequestPartyCreationEasy( name )
+	GroupEngine.onRequestCreationEasy = function onRequestPartyCreationEasy(name)
 	{
-		if (Session.hasParty) {
+		if (Session.hasParty)
+		{
 			return;
 		}
 
@@ -96,8 +93,6 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
-
 	/**
 	 * Create a group (from interface)
 	 *
@@ -105,9 +100,10 @@ define(function( require )
 	 * @param {number} option 1
 	 * @param {number} option 2
 	 */
-	GroupEngine.onRequestCreation = function onRequestPartyCreation( name, pickupRule, divisionRule )
+	GroupEngine.onRequestCreation = function onRequestPartyCreation(name, pickupRule, divisionRule)
 	{
-		if (Session.hasParty) {
+		if (Session.hasParty)
+		{
 			return;
 		}
 
@@ -118,41 +114,47 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to invite someone in your party
 	 *
 	 * @param {number} account id
 	 * @param {string} pseudo
 	 */
-	GroupEngine.onRequestInvitation = function onRequestPartyInvitation( AID, pseudo )
+	GroupEngine.onRequestInvitation = function onRequestPartyInvitation(AID, pseudo)
 	{
-		if (!Session.hasParty || !Session.isPartyLeader) {
+		if (!Session.hasParty || !Session.isPartyLeader)
+		{
 			return;
 		}
 
-		ChatBox.addText( pseudo + ' ' + DB.getMessage(2059, ' has recieved an invitation to join your party.'), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
-		
-		if(PACKETVER.value >= 20130529) {
+		ChatBox.addText(
+			pseudo + ' ' + DB.getMessage(2059, ' has recieved an invitation to join your party.'),
+			ChatBox.TYPE.BLUE,
+			ChatBox.FILTER.PARTY_SETUP
+		);
+
+		if (PACKETVER.value >= 20130529)
+		{
 			var pkt = new PACKET.CZ.PARTY_JOIN_REQ();
 			pkt.characterName = pseudo;
 			Network.sendPacket(pkt);
-		} else {
+		}
+		else
+		{
 			var pkt = new PACKET.CZ.REQ_JOIN_GROUP();
 			pkt.AID = AID;
 			pkt.CharName = pseudo;
 			Network.sendPacket(pkt);
 		}
-		
 	};
-
 
 	/**
 	 * Ask to leave a party (/leave)
 	 */
 	GroupEngine.onRequestLeave = function onRequestPartyLeave()
 	{
-		if (!Session.hasParty) {
+		if (!Session.hasParty)
+		{
 			return;
 		}
 
@@ -160,16 +162,16 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to expel someone in your party
 	 *
 	 * @param {number} account id
 	 * @param {string} pseudo
 	 */
-	GroupEngine.onRequestExpel = function onRequestPartyExpel( AID, pseudo )
+	GroupEngine.onRequestExpel = function onRequestPartyExpel(AID, pseudo)
 	{
-		if (!Session.hasParty || !Session.isPartyLeader) {
+		if (!Session.hasParty || !Session.isPartyLeader)
+		{
 			return;
 		}
 
@@ -179,7 +181,6 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to change party option
 	 *
@@ -187,9 +188,10 @@ define(function( require )
 	 * @param {number} pickup item option
 	 * @param {number} dision item option
 	 */
-	GroupEngine.onRequestInfoUpdate = function onRequestPartyInfoUpdate( expOption, pickupRule, divisionRule)
+	GroupEngine.onRequestInfoUpdate = function onRequestPartyInfoUpdate(expOption, pickupRule, divisionRule)
 	{
-		if (!Session.hasParty || !Session.isPartyLeader) {
+		if (!Session.hasParty || !Session.isPartyLeader)
+		{
 			return;
 		}
 
@@ -200,15 +202,15 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to change party leader
 	 *
 	 * @param {number} AID
 	 */
-	GroupEngine.onRequestChangeLeader = function onRequestChangePartyLeader( AID )
+	GroupEngine.onRequestChangeLeader = function onRequestChangePartyLeader(AID)
 	{
-		if (!Session.hasParty || !Session.isPartyLeader) {
+		if (!Session.hasParty || !Session.isPartyLeader)
+		{
 			return;
 		}
 
@@ -217,38 +219,40 @@ define(function( require )
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Get answer from party creation
 	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_MAKE_GROUP
 	 */
-	function onPartyCreate( pkt )
+	function onPartyCreate(pkt)
 	{
-		switch (pkt.result) {
+		switch (pkt.result)
+		{
 			case 0: // Ok, process
-				ChatBox.addText( DB.getMessage(77), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
+				ChatBox.addText(DB.getMessage(77), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
 				Session.hasParty = true;
 
-				PartyUI.setParty( _partyName, [{
-					AID:           Session.AID,
-					characterName: Session.Entity.display.name,
-					role:          0, // leader
-					state:         0, // online
-					mapName:       MapRenderer.currentMap
-				}]);
+				PartyUI.setParty(_partyName, [
+					{
+						AID: Session.AID,
+						characterName: Session.Entity.display.name,
+						role: 0, // leader
+						state: 0, // online
+						mapName: MapRenderer.currentMap
+					}
+				]);
 				break;
 
 			case 1: // party name already exists
-				ChatBox.addText( DB.getMessage(78), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
+				ChatBox.addText(DB.getMessage(78), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				break;
 
 			case 1: // already in a party
-				ChatBox.addText( DB.getMessage(79), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
+				ChatBox.addText(DB.getMessage(79), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				break;
 
 			case 3: // cannot organize parties on this map
-				ChatBox.addText( DB.getMessage(1387), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
+				ChatBox.addText(DB.getMessage(1387), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				break;
 		}
 	}
@@ -258,7 +262,7 @@ define(function( require )
 	 *
 	 * @param {object} pkt - PACKET.ZC.GROUP_ISALIVE
 	 */
-	function onPartyIsAlive( pkt )
+	function onPartyIsAlive(pkt)
 	{
 		// TODO: save is pkt.isDead, in new Party UI this show dead icon
 	}
@@ -267,36 +271,38 @@ define(function( require )
 	 *
 	 * @param {object} pkt - PACKET.ZC.GROUP_LIST
 	 */
-	function onPartyList( pkt )
+	function onPartyList(pkt)
 	{
 		var i, count;
 		var entity;
 
 		Session.hasParty = true;
-		count            = pkt.groupInfo.length;
+		count = pkt.groupInfo.length;
 
-		for (i = 0; i < count; ++i) {
+		for (i = 0; i < count; ++i)
+		{
 			entity = EntityManager.get(pkt.groupInfo[i].AID);
-			if (entity && entity.life.display) {
+			if (entity && entity.life.display)
+			{
 				pkt.groupInfo[i].life = entity.life;
 			}
 		}
 
-		PartyUI.setParty( pkt.groupName, pkt.groupInfo);
+		PartyUI.setParty(pkt.groupName, pkt.groupInfo);
 		WorldMap.updatePartyMembers(pkt);
 	}
-
 
 	/**
 	 * Update a member in party
 	 *
 	 * @param {object} pkt - PACKET.ZC.ADD_MEMBER_TO_GROUP
 	 */
-	function onPartyMemberJoin( pkt )
+	function onPartyMemberJoin(pkt)
 	{
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity && entity.life.display) {
+		if (entity && entity.life.display)
+		{
 			pkt.life = entity.life;
 		}
 
@@ -304,175 +310,209 @@ define(function( require )
 		PartyUI.addPartyMember(pkt);
 	}
 
-
 	/**
 	 * Remove a player from the group
 	 *
 	 * @param {object} pkt - PACKET.ZC.DELETE_MEMBER_FROM_GROUP
 	 */
-	function onPartyMemberLeave( pkt )
+	function onPartyMemberLeave(pkt)
 	{
-		switch (pkt.result) {
+		switch (pkt.result)
+		{
 			case 0: // leave
 			case 1: // expel
 				break;
 
 			case 2:
 				// Cannot leave a party in this map
-				ChatBox.addText( DB.getMessage(1872), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
+				ChatBox.addText(DB.getMessage(1872), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				return;
 
 			case 3:
 				// Cannot withdraw/break the party in this map
-				ChatBox.addText( DB.getMessage(1873), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
+				ChatBox.addText(DB.getMessage(1873), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				return;
 		}
 
-		if (Session.AID === pkt.AID) {
+		if (Session.AID === pkt.AID)
+		{
 			Session.hasParty = false;
 		}
 
 		PartyUI.removePartyMember(pkt.AID, pkt.characterName);
 	}
 
-
 	/**
 	 * Display entity life
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_HP_TO_GROUPM
 	 */
-	function onMemberLifeUpdate( pkt )
+	function onMemberLifeUpdate(pkt)
 	{
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity) {
+		if (entity)
+		{
 			entity.life.hp = pkt.hp;
 			entity.life.hp_max = pkt.maxhp;
 			entity.life.update();
 
-			if (pkt.AID !== Session.AID) {
+			if (pkt.AID !== Session.AID)
+			{
 				PartyUI.updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
 			}
 		}
 	}
-
 
 	/**
 	 * Display player message
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_CHAT_PARTY
 	 */
-	function onMemberTalk( pkt )
+	function onMemberTalk(pkt)
 	{
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity) {
-			entity.dialog.set( pkt.msg );
+		if (entity)
+		{
+			entity.dialog.set(pkt.msg);
 		}
 
-		ChatBox.addText( pkt.msg, ChatBox.TYPE.PARTY, ChatBox.FILTER.PARTY );
+		ChatBox.addText(pkt.msg, ChatBox.TYPE.PARTY, ChatBox.FILTER.PARTY);
 	}
-
 
 	/**
 	 * Move minimap viewpoint
 	 *
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_POSITION_TO_GROUPM
 	 */
-	function onMemberMove( pkt )
+	function onMemberMove(pkt)
 	{
 		// Server remove mark with "-1" as position
-		if (pkt.xPos < 0 || pkt.yPos < 0) {
-			MiniMap.getUI().removePartyMemberMark( pkt.AID );
+		if (pkt.xPos < 0 || pkt.yPos < 0)
+		{
+			MiniMap.getUI().removePartyMemberMark(pkt.AID);
 		}
-		else {
-			MiniMap.getUI().addPartyMemberMark( pkt.AID, pkt.xPos, pkt.yPos );
+		else
+		{
+			MiniMap.getUI().addPartyMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
 		}
 	}
-
 
 	/**
 	 * Get party information
 	 *
 	 * @param {object} pkt - PACKET.ZC.GROUPINFO_CHANGE
 	 */
-	function onPartyOption( pkt )
+	function onPartyOption(pkt)
 	{
 		PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 
-		ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(292) + '  : ' + DB.getMessage(287 + pkt.expOption ), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
+		ChatBox.addText(
+			DB.getMessage(291) + '  - ' + DB.getMessage(292) + '  : ' + DB.getMessage(287 + pkt.expOption),
+			ChatBox.TYPE.PRIVATE,
+			ChatBox.FILTER.PARTY_SETUP
+		);
 
 		// Some packets don't have ItemPickupRule and ItemDivisionRule so we need to check if they exist
 		if (pkt.ItemPickupRule !== undefined)
-			ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(293) + '  : ' + DB.getMessage(289 + pkt.ItemPickupRule), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
+		{
+			ChatBox.addText(
+				DB.getMessage(291) + '  - ' + DB.getMessage(293) + '  : ' + DB.getMessage(289 + pkt.ItemPickupRule),
+				ChatBox.TYPE.PRIVATE,
+				ChatBox.FILTER.PARTY_SETUP
+			);
+		}
 		if (pkt.ItemDivisionRule !== undefined)
-			ChatBox.addText( DB.getMessage(291) + '  - ' + DB.getMessage(738) + '  : ' + DB.getMessage(287 + pkt.ItemDivisionRule), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.PARTY_SETUP );
+		{
+			ChatBox.addText(
+				DB.getMessage(291) + '  - ' + DB.getMessage(738) + '  : ' + DB.getMessage(287 + pkt.ItemDivisionRule),
+				ChatBox.TYPE.PRIVATE,
+				ChatBox.FILTER.PARTY_SETUP
+			);
+		}
 	}
-
 
 	/**
 	 * Get party configs
 	 *
 	 * @param {object} pkt - PACKET.ZC.PARTY_CONFIG
 	 */
-	function onPartyConfig( pkt )
+	function onPartyConfig(pkt)
 	{
-		ChatBox.addText( DB.getMessage(pkt.bRefuseJoinMsg ? 1325 : 1326), ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_SETUP );
+		ChatBox.addText(DB.getMessage(pkt.bRefuseJoinMsg ? 1325 : 1326), ChatBox.TYPE.INFO, ChatBox.FILTER.PARTY_SETUP);
 	}
-
 
 	/**
 	 * Get a request from someone to join a team
 	 *
 	 * @param {object} pkt - PACKET.ZC.PARTY_JOIN_REQ
 	 */
-	function onPartyInvitationRequest( pkt )
+	function onPartyInvitationRequest(pkt)
 	{
 		var GRID = pkt.GRID;
 
-		function onAnswer(accept){
-			return function(){
-				var pkt     = new PACKET.CZ.PARTY_JOIN_REQ_ACK();
-				pkt.GRID    = GRID;
+		function onAnswer(accept)
+		{
+			return function ()
+			{
+				var pkt = new PACKET.CZ.PARTY_JOIN_REQ_ACK();
+				pkt.GRID = GRID;
 				pkt.bAccept = accept;
 				Network.sendPacket(pkt);
 			};
 		}
 
-		UIManager.showPromptBox( pkt.groupName + ' ' + DB.getMessage(94), 'ok', 'cancel', onAnswer(1), onAnswer(0) );
+		UIManager.showPromptBox(pkt.groupName + ' ' + DB.getMessage(94), 'ok', 'cancel', onAnswer(1), onAnswer(0));
 	}
-
 
 	/**
 	 * Answer from a player to join your group
 	 *
 	 * @param {object} pkt - PACKET.ZC.PARTY_JOIN_REQ_ACK
 	 */
-	function onPartyInvitationAnswer( pkt )
+	function onPartyInvitationAnswer(pkt)
 	{
-		var id = 1, color = ChatBox.TYPE.ERROR;
+		var id = 1,
+			color = ChatBox.TYPE.ERROR;
 
-		switch (pkt.answer) {
-			case 0: id = 80;  break;
-			case 1: id = 81;  break;
+		switch (pkt.answer)
+		{
+			case 0:
+				id = 80;
+				break;
+			case 1:
+				id = 81;
+				break;
 
 			case 2:
 				id = 82;
 				color = ChatBox.TYPE.BLUE;
 				break;
 
-			case 3: id = 83;   break;
-			case 4: id = 608;  break;
-			case 5: id = 1324; break;
+			case 3:
+				id = 83;
+				break;
+			case 4:
+				id = 608;
+				break;
+			case 5:
+				id = 1324;
+				break;
 			// no 6 ?
-			case 7: id = 71;   break;
-			case 8: id = 1388; break;
-			case 9: id = 1871; break;
+			case 7:
+				id = 71;
+				break;
+			case 8:
+				id = 1388;
+				break;
+			case 9:
+				id = 1871;
+				break;
 		}
 
-		ChatBox.addText( DB.getMessage(id).replace('%s', pkt.characterName), color, ChatBox.FILTER.PARTY_SETUP);
+		ChatBox.addText(DB.getMessage(id).replace('%s', pkt.characterName), color, ChatBox.FILTER.PARTY_SETUP);
 	}
-
 
 	/**
 	 * Exports

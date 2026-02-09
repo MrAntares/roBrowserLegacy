@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(['./JobConst'], function( JobId )
+define(['./JobConst'], function (JobId)
 {
-	"use strict";
-
+	'use strict';
 
 	return [
 		JobId.NOVICE_B,
@@ -107,7 +106,6 @@ define(['./JobConst'], function( JobId )
 		JobId.LION_RUNE_KNIGHT_B,
 		JobId.LION_CRUSADER_B,
 
-		JobId.DO_SUMMONER_B,
-
+		JobId.DO_SUMMONER_B
 	];
 });

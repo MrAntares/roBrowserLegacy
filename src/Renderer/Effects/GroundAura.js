@@ -6,9 +6,17 @@
  * to avoid camera-tilt clipping issues.
  *
  */
-define(['text!./Shaders/GLSL/GroundAura.vs', 'text!./Shaders/GLSL/GroundAura.fs','Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
-function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
-
+define([
+	'text!./Shaders/GLSL/GroundAura.vs',
+	'text!./Shaders/GLSL/GroundAura.fs',
+	'Utils/WebGL',
+	'Utils/Texture',
+	'Utils/gl-matrix',
+	'Core/Client',
+	'Renderer/Map/Altitude',
+	'Renderer/SpriteRenderer'
+], function (_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer)
+{
 	'use strict';
 
 	var mat4 = glMatrix.mat4;
@@ -27,23 +35,21 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	 * Generate a flat quad on the XZ plane (Y=0, horizontal)
 	 * Unit size (-0.5 to 0.5), will be scaled by shader
 	 */
-	function generateGroundQuad() {
+	function generateGroundQuad()
+	{
 		return new Float32Array([
 			// Triangle 1
-			-0.5, 0.0, -0.5,   0.0, 0.0,
-			 0.5, 0.0, -0.5,   1.0, 0.0,
-			-0.5, 0.0,  0.5,   0.0, 1.0,
+			-0.5, 0.0, -0.5, 0.0, 0.0, 0.5, 0.0, -0.5, 1.0, 0.0, -0.5, 0.0, 0.5, 0.0, 1.0,
 			// Triangle 2
-			 0.5, 0.0, -0.5,   1.0, 0.0,
-			 0.5, 0.0,  0.5,   1.0, 1.0,
-			-0.5, 0.0,  0.5,   0.0, 1.0
+			0.5, 0.0, -0.5, 1.0, 0.0, 0.5, 0.0, 0.5, 1.0, 1.0, -0.5, 0.0, 0.5, 0.0, 1.0
 		]);
 	}
 
 	/**
 	 * GroundAura constructor
 	 */
-	function GroundAura(position, size, distance, textureName, tick) {
+	function GroundAura(position, size, distance, textureName, tick)
+	{
 		this.position = position;
 		this.textureName = textureName;
 		this.tick = tick;
@@ -80,11 +86,14 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Initialize instance
 	 */
-	GroundAura.prototype.init = function init(gl) {
+	GroundAura.prototype.init = function init(gl)
+	{
 		var self = this;
 
-		Client.loadFile('data/texture/effect/' + this.textureName, function(buffer) {
-			WebGL.texture(gl, buffer, function(texture) {
+		Client.loadFile('data/texture/effect/' + this.textureName, function (buffer)
+		{
+			WebGL.texture(gl, buffer, function (texture)
+			{
 				self.texture = texture;
 				self.ready = true;
 			});
@@ -94,32 +103,39 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Free instance resources
 	 */
-	GroundAura.prototype.free = function free(gl) {
+	GroundAura.prototype.free = function free(gl)
+	{
 		this.ready = false;
 	};
 
-
-	function calculateSize(self, aura, auraAngle, i) {
-		var sinRiseAngle = self.sinCache[aura[i].riseAngle] ? self.sinCache[aura[i].riseAngle] : self.sinCache[aura[i].riseAngle] = Math.sin(aura[i].riseAngle);
+	function calculateSize(self, aura, auraAngle, i)
+	{
+		var sinRiseAngle = self.sinCache[aura[i].riseAngle]
+			? self.sinCache[aura[i].riseAngle]
+			: (self.sinCache[aura[i].riseAngle] = Math.sin(aura[i].riseAngle));
 
 		var riseFactor = aura[i].distance * 0.1 * (sinRiseAngle + 1);
 
-		var cos = self.cosCache[auraAngle] ? self.cosCache[auraAngle] : self.cosCache[auraAngle] = Math.cos(auraAngle);
+		var cos = self.cosCache[auraAngle]
+			? self.cosCache[auraAngle]
+			: (self.cosCache[auraAngle] = Math.cos(auraAngle));
 		var startX = cos * (aura[i].distance * 0.8 + riseFactor);
 
 		auraAngle += 90;
-		if (auraAngle >= 360) auraAngle -= 360;
-		cos = self.cosCache[auraAngle] ? self.cosCache[auraAngle] : self.cosCache[auraAngle] = Math.cos(auraAngle);
+		if (auraAngle >= 360) {auraAngle -= 360;}
+		cos = self.cosCache[auraAngle] ? self.cosCache[auraAngle] : (self.cosCache[auraAngle] = Math.cos(auraAngle));
 		var endX = cos * (aura[i].distance * 0.8 + riseFactor);
 
 		auraAngle += 90;
-		if (auraAngle >= 360) auraAngle -= 360;
-		var sin = self.sinCache[auraAngle] ? self.sinCache[auraAngle] : self.sinCache[auraAngle] = Math.sin(auraAngle);
+		if (auraAngle >= 360) {auraAngle -= 360;}
+		var sin = self.sinCache[auraAngle]
+			? self.sinCache[auraAngle]
+			: (self.sinCache[auraAngle] = Math.sin(auraAngle));
 		var startY = sin * (aura[i].distance * 0.8 + riseFactor);
 
 		auraAngle += 90;
-		if (auraAngle >= 360) auraAngle -= 360;
-		sin = self.sinCache[auraAngle] ? self.sinCache[auraAngle] : self.sinCache[auraAngle] = Math.sin(auraAngle);
+		if (auraAngle >= 360) {auraAngle -= 360;}
+		sin = self.sinCache[auraAngle] ? self.sinCache[auraAngle] : (self.sinCache[auraAngle] = Math.sin(auraAngle));
 		var endY = sin * (aura[i].distance * 0.8 + riseFactor);
 
 		var width = Math.abs(endX - startX);
@@ -128,26 +144,30 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 		return [width, height];
 	}
 
-
-	GroundAura.prototype.render = function render(gl, tick) {
+	GroundAura.prototype.render = function render(gl, tick)
+	{
 		var uniform = _program.uniform;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-		for (var i = 0; i < this.aura.length; i++) {
+		for (var i = 0; i < this.aura.length; i++)
+		{
 			this.aura[i].riseAngle += 3;
-			if (this.aura[i].riseAngle && !(this.aura[i].riseAngle % 180)) {
+			if (this.aura[i].riseAngle && !(this.aura[i].riseAngle % 180))
+			{
 				this.aura[i].direction *= -1;
 				// Avoid aura getting bigger and bigger or smaller and smaller over time
 				if (
-					(this.aura[i].direction < 0 && this.aura[i].size[0] < this.aura[i].initialSize[0])
-					|| (this.aura[i].direction > 0 && this.aura[i].size[0] > this.aura[i].initialSize[0])
-				) {
+					(this.aura[i].direction < 0 && this.aura[i].size[0] < this.aura[i].initialSize[0]) ||
+					(this.aura[i].direction > 0 && this.aura[i].size[0] > this.aura[i].initialSize[0])
+				)
+				{
 					this.aura[i].size[0] = this.aura[i].initialSize[0];
 					this.aura[i].size[1] = this.aura[i].initialSize[1];
 				}
 			}
-			if (this.aura[i].riseAngle >= 360) {
+			if (this.aura[i].riseAngle >= 360)
+			{
 				this.aura[i].riseAngle -= 360;
 			}
 		}
@@ -156,17 +176,15 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 		var groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
 
 		// World position with small lift to avoid z-fighting
-		var worldPos = [
-			this.position[0],
-			this.position[1],
-			groundZ + 0.05
-		];
+		var worldPos = [this.position[0], this.position[1], groundZ + 0.05];
 
 		gl.uniform3fv(uniform.uWorldPosition, worldPos);
 		var self = this;
-		SpriteRenderer.runWithDepth(true, false, false, function () {
-			for (var i = 0; i < self.aura.length; i++) {
-				if (!self.aura[i].life) continue;
+		SpriteRenderer.runWithDepth(true, false, false, function ()
+		{
+			for (var i = 0; i < self.aura.length; i++)
+			{
+				if (!self.aura[i].life) {continue;}
 
 				var auraAngle = i * 23;
 
@@ -177,7 +195,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 
 				// Set uniforms - size in SpriteRenderer units (shader converts to world units)
 				gl.uniform2f(uniform.uSize, self.aura[i].size[0], self.aura[i].size[1]);
-				gl.uniform1f(uniform.uAngle, auraAngle * Math.PI / 180);
+				gl.uniform1f(uniform.uAngle, (auraAngle * Math.PI) / 180);
 				gl.uniform4f(uniform.uColor, 1.0, 1.0, 1.0, 0.8);
 				gl.uniform1f(uniform.uZIndex, 1 + i);
 
@@ -189,7 +207,8 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Initialize static resources
 	 */
-	GroundAura.init = function init(gl) {
+	GroundAura.init = function init(gl)
+	{
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 
 		var vertices = generateGroundQuad();
@@ -204,12 +223,15 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Free static resources
 	 */
-	GroundAura.free = function free(gl) {
-		if (_program) {
+	GroundAura.free = function free(gl)
+	{
+		if (_program)
+		{
 			gl.deleteProgram(_program);
 			_program = null;
 		}
-		if (_buffer) {
+		if (_buffer)
+		{
 			gl.deleteBuffer(_buffer);
 			_buffer = null;
 		}
@@ -219,7 +241,8 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Before render setup
 	 */
-	GroundAura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
+	GroundAura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
+	{
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
@@ -249,7 +272,8 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * After render cleanup
 	 */
-	GroundAura.afterRender = function afterRender(gl) {
+	GroundAura.afterRender = function afterRender(gl)
+	{
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 		gl.disableVertexAttribArray(_program.attribute.aPosition);

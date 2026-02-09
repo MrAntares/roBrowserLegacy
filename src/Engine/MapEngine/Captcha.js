@@ -10,18 +10,17 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Load dependencies
 	 */
-	var Network         = require('Network/NetworkManager');
-	var PACKET          = require('Network/PacketStructure');
-	var CaptchaUpload   = require('UI/Components/Captcha/CaptchaUpload');
+	var Network = require('Network/NetworkManager');
+	var PACKET = require('Network/PacketStructure');
+	var CaptchaUpload = require('UI/Components/Captcha/CaptchaUpload');
 	var CaptchaSelector = require('UI/Components/Captcha/CaptchaSelector');
-	var CaptchaAnswer   = require('UI/Components/Captcha/CaptchaAnswer');
-	var CaptchaPreview  = require('UI/Components/Captcha/CaptchaPreview');
-	var ChatBox         = require('UI/Components/ChatBox/ChatBox');
-	var DB              = require('DB/DBManager');
+	var CaptchaAnswer = require('UI/Components/Captcha/CaptchaAnswer');
+	var CaptchaPreview = require('UI/Components/Captcha/CaptchaPreview');
+	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var DB = require('DB/DBManager');
 
 	/**
 	 * Captcha data
@@ -74,7 +73,6 @@ define(function (require) {
 		CaptchaUpload.uploadError();
 	}
 
-
 	/**
 	 * Received captcha upload complete
 	 * @param {object} pkt - PACKET.ZC.COMPLETE_UPLOAD_MACRO_DETECTOR_CAPTCHA
@@ -90,16 +88,16 @@ define(function (require) {
 	function onAckApply(pkt) {
 		switch (pkt.status) {
 			case 0: // MCR_MONITORING
-				ChatBox.addText( DB.getMessage(2877), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				ChatBox.addText(DB.getMessage(2877), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 			case 1: // MCR_NO_DATA
-				ChatBox.addText( DB.getMessage(2878), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				ChatBox.addText(DB.getMessage(2878), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 			case 2: // MCR_INPROGRESS
-				ChatBox.addText( DB.getMessage(2879), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				ChatBox.addText(DB.getMessage(2879), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 			default:
-				ChatBox.addText( 'Unknown status: ' + pkt.status, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				ChatBox.addText('Unknown status: ' + pkt.status, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 		}
 	}
@@ -153,7 +151,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.REQ_ANSWER_MACRO_DETECTOR
 	 */
 	function onReqAnswer(pkt) {
-		CaptchaAnswer.setData(pkt.retryCount, (pkt.timeout / 1000));
+		CaptchaAnswer.setData(pkt.retryCount, pkt.timeout / 1000);
 		CaptchaAnswer.setError(pkt.retryCount);
 	}
 
@@ -279,7 +277,7 @@ define(function (require) {
 	 */
 	async function compressImage(data) {
 		// Create compression stream (gzip)
-		const compressionStream = new CompressionStream("deflate");
+		const compressionStream = new CompressionStream('deflate');
 
 		// Pipe file stream → compression stream
 		const compressedStream = data.stream().pipeThrough(compressionStream);
@@ -295,9 +293,7 @@ define(function (require) {
 		}
 
 		// Combine chunks into a single buffer
-		const compressedBuffer = new Uint8Array(
-			chunks.reduce((acc, c) => acc + c.length, 0)
-		);
+		const compressedBuffer = new Uint8Array(chunks.reduce((acc, c) => acc + c.length, 0));
 
 		let offset = 0;
 		for (const chunk of chunks) {
@@ -323,7 +319,7 @@ define(function (require) {
 		});
 
 		// Stream de descompressão gzip
-		const decompressionStream = new DecompressionStream("deflate");
+		const decompressionStream = new DecompressionStream('deflate');
 
 		// Pipe: compressed → gzip → decompressed
 		const decompressedStream = compressedStream.pipeThrough(decompressionStream);
@@ -338,9 +334,7 @@ define(function (require) {
 		}
 
 		// Concatena os chunks
-		const decompressedBuffer = new Uint8Array(
-			chunks.reduce((acc, c) => acc + c.length, 0)
-		);
+		const decompressedBuffer = new Uint8Array(chunks.reduce((acc, c) => acc + c.length, 0));
 
 		let offset = 0;
 		for (const chunk of chunks) {
@@ -369,7 +363,7 @@ define(function (require) {
 		CaptchaUpload.requestUploadCaptcha = requestUploadCaptcha;
 		CaptchaUpload.uploadCaptcha = uploadCaptcha;
 		CaptchaUpload.compressImage = compressImage;
-		
+
 		CaptchaSelector.requestPlayersIdsInRange = requestPlayersIdsInRange;
 		CaptchaSelector.sendCaptchaToPlayer = sendCaptchaToPlayer;
 	};

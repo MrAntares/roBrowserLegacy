@@ -7,34 +7,37 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
+define(function (require)
 {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var Preferences        = require('Core/Preferences');
-	var Renderer           = require('Renderer/Renderer');
-	var htmlText           = require('text!./CaptchaPreview.html');
-	var cssText            = require('text!./CaptchaPreview.css');
-	var jQuery             = require('Utils/jquery');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var Preferences = require('Core/Preferences');
+	var Renderer = require('Renderer/Renderer');
+	var htmlText = require('text!./CaptchaPreview.html');
+	var cssText = require('text!./CaptchaPreview.css');
+	var jQuery = require('Utils/jquery');
 
 	/**
 	 * Create Component
 	 */
-	var CaptchaPreview = new UIComponent( 'CaptchaPreview', htmlText, cssText );
+	var CaptchaPreview = new UIComponent('CaptchaPreview', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	var _preferences = Preferences.get('CaptchaPreview', {
-		x:        230,
-		y:        295
-	}, 2.0);
+	var _preferences = Preferences.get(
+		'CaptchaPreview',
+		{
+			x: 230,
+			y: 295
+		},
+		2.0
+	);
 
 	/**
 	 * Initialize GUI
@@ -52,8 +55,8 @@ define(function(require)
 	{
 		// Apply preferences
 		this.ui.css({
-			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
-			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
+			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 	};
 
@@ -63,8 +66,8 @@ define(function(require)
 	CaptchaPreview.onRemove = function OnRemove()
 	{
 		// save preferences
-		_preferences.y      =  parseInt(this.ui.css('top'), 10);
-		_preferences.x      =  parseInt(this.ui.css('left'), 10);
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.save();
 
 		// clean inputs
@@ -74,12 +77,13 @@ define(function(require)
 	/**
 	 * Set Image
 	 */
-	CaptchaPreview.setImage = function SetImage(imageData) {
+	CaptchaPreview.setImage = function SetImage(imageData)
+	{
 		// imageData is expected to be Uint8Array or Blob usually, need to convert to URL
 		// If it's pure binary from packet, we might need conversion
-		var blob = new Blob([imageData], {type: 'image/bmp'}); // Assuming BMP as typical in RO
+		var blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
 		var url = URL.createObjectURL(blob);
-		
+
 		var img = jQuery('<img/>').attr('src', url);
 		this.ui.find('.preview_box').empty().append(img);
 	};

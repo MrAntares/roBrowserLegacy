@@ -4,7 +4,8 @@
  * Handles the UI for selecting a shortcut slot when an item/skill is selected via Context Menu.
  *
  */
-define(function (require) {
+define(function (require)
+{
 	'use strict';
 
 	var UIManager = require('UI/UIManager');
@@ -23,19 +24,23 @@ define(function (require) {
 	var clickLock = null;
 
 	// Internal Helper: Debounce for gamepad input
-	function setClickInterval() {
-		if (clickLock) clearTimeout(clickLock);
-		clickLock = setTimeout(function () {
+	function setClickInterval()
+	{
+		if (clickLock) {clearTimeout(clickLock);}
+		clickLock = setTimeout(function ()
+		{
 			clickLock = null;
 		}, 200);
 	}
 
-	function isLocked() {
+	function isLocked()
+	{
 		return clickLock !== null;
 	}
 
 	// Internal Helper: Get Combo String
-	function getJoystickComboForSlot(slotIndex) {
+	function getJoystickComboForSlot(slotIndex)
+	{
 		var combos = {
 			0: 'L1+Y',
 			1: 'L1+X',
@@ -81,23 +86,26 @@ define(function (require) {
 		return combos[slotIndex];
 	}
 
-	function updateGrid() {
+	function updateGrid()
+	{
 		var grid = JoystickSelectionUI.ui.find('.shortcut-grid');
 		grid.empty();
 
 		var startIdx = currentTab * 9;
 
-		for (var i = 0; i < 9; i++) {
+		for (var i = 0; i < 9; i++)
+		{
 			var globalIndex = startIdx + i;
 			var slot = ShortCut.getList()[globalIndex];
 			var isEmpty = !slot || (!slot.isSkill && !slot.ID);
 
 			var joystickCombo = getJoystickComboForSlot(globalIndex);
-			var displayText = joystickCombo || (i + 1);
+			var displayText = joystickCombo || i + 1;
 
 			var slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
 
-			if (isEmpty) {
+			if (isEmpty)
+			{
 				slotDiv.addClass('empty');
 			}
 
@@ -107,33 +115,38 @@ define(function (require) {
 		updateSelection();
 	}
 
-	function updateSelection() {
+	function updateSelection()
+	{
 		var grid = JoystickSelectionUI.ui.find('.shortcut-grid');
 		grid.find('.slot-btn').removeClass('selected');
 		grid.find('.slot-btn[data-index="' + slotInTab + '"]').addClass('selected');
 	}
 
-	function updateTabButtons() {
+	function updateTabButtons()
+	{
 		var tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
 		tabButtons.find('.tab-btn').removeClass('active');
 		tabButtons.find('.tab-btn[data-tab="' + currentTab + '"]').addClass('active');
 	}
 
-	function createTabButtons() {
+	function createTabButtons()
+	{
 		var tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
 		tabButtons.empty();
 
-		for (var t = 0; t < 4; t++) {
+		for (var t = 0; t < 4; t++)
+		{
 			var tabBtn = jQuery('<button class="tab-btn" data-tab="' + t + '">Tab ' + (t + 1) + '</button>');
 			tabButtons.append(tabBtn);
 		}
 	}
 
-	function selectSlot() {
-		if (!itemData) return;
+	function selectSlot()
+	{
+		if (!itemData) {return;}
 
 		var row = currentTab;
-		var pos = (row * 9) + slotInTab;
+		var pos = row * 9 + slotInTab;
 
 		ShortCut.removeElement(itemData.isSkill, itemData.ID, row, itemData.value);
 		ShortCut.addElement(pos, itemData.isSkill, itemData.ID, itemData.value);
@@ -146,27 +159,32 @@ define(function (require) {
 	 * Main input handler
 	 * as expected by JoystickButtonInput.js
 	 */
-	JoystickSelectionUI.handleGamepadInput = function handleGamepadInput(buttons) {
-		if (isLocked()) return true;
+	JoystickSelectionUI.handleGamepadInput = function handleGamepadInput(buttons)
+	{
+		if (isLocked()) {return true;}
 
 		// A - select
-		if (buttons[0] !== 'unpressed') {
+		if (buttons[0] !== 'unpressed')
+		{
 			setClickInterval();
 			selectSlot();
 			return true;
 		}
 
 		// Select - cancel
-		if (buttons[8] !== 'unpressed') {
+		if (buttons[8] !== 'unpressed')
+		{
 			setClickInterval();
 			JoystickSelectionUI.hideSelection();
 			return true;
 		}
 
 		// L2 - Previous Tab
-		if (buttons[6] !== 'unpressed') {
+		if (buttons[6] !== 'unpressed')
+		{
 			setClickInterval();
-			if (currentTab > 0) {
+			if (currentTab > 0)
+			{
 				currentTab--;
 				slotInTab = 0;
 				updateGrid();
@@ -176,9 +194,11 @@ define(function (require) {
 		}
 
 		// R2 - Next Tab
-		if (buttons[7] !== 'unpressed') {
+		if (buttons[7] !== 'unpressed')
+		{
 			setClickInterval();
-			if (currentTab < 3) {
+			if (currentTab < 3)
+			{
 				currentTab++;
 				slotInTab = 0;
 				updateGrid();
@@ -188,9 +208,11 @@ define(function (require) {
 		}
 
 		// D-pad up
-		if (buttons[12] !== 'unpressed') {
+		if (buttons[12] !== 'unpressed')
+		{
 			setClickInterval();
-			if (slotInTab >= 3) {
+			if (slotInTab >= 3)
+			{
 				slotInTab -= 3;
 				updateSelection();
 			}
@@ -198,9 +220,11 @@ define(function (require) {
 		}
 
 		// D-pad down
-		if (buttons[13] !== 'unpressed') {
+		if (buttons[13] !== 'unpressed')
+		{
 			setClickInterval();
-			if (slotInTab < 6) {
+			if (slotInTab < 6)
+			{
 				slotInTab += 3;
 				updateSelection();
 			}
@@ -208,9 +232,11 @@ define(function (require) {
 		}
 
 		// D-pad left
-		if (buttons[14] !== 'unpressed') {
+		if (buttons[14] !== 'unpressed')
+		{
 			setClickInterval();
-			if (slotInTab > 0) {
+			if (slotInTab > 0)
+			{
 				slotInTab--;
 				updateSelection();
 			}
@@ -218,9 +244,11 @@ define(function (require) {
 		}
 
 		// D-pad right
-		if (buttons[15] !== 'unpressed') {
+		if (buttons[15] !== 'unpressed')
+		{
 			setClickInterval();
-			if (slotInTab < 8) {
+			if (slotInTab < 8)
+			{
 				slotInTab++;
 				updateSelection();
 			}
@@ -228,15 +256,17 @@ define(function (require) {
 		}
 
 		return false;
-	}
+	};
 
-	JoystickSelectionUI.onAppend = function () {
+	JoystickSelectionUI.onAppend = function ()
+	{
 		// Initialize structure once attached
 		createTabButtons();
 		this.ui.hide();
 	};
 
-	JoystickSelectionUI.showSelection = function (data) {
+	JoystickSelectionUI.showSelection = function (data)
+	{
 		itemData = data;
 		currentTab = 0;
 		slotInTab = 0;
@@ -249,12 +279,14 @@ define(function (require) {
 		this.ui.css('display', 'block'); // Ensure display block for fixed positioning
 	};
 
-	JoystickSelectionUI.hideSelection = function () {
+	JoystickSelectionUI.hideSelection = function ()
+	{
 		this.ui.hide();
 		itemData = null;
 	};
 
-	JoystickSelectionUI.active = function () {
+	JoystickSelectionUI.active = function ()
+	{
 		return this.ui && this.ui.is(':visible');
 	};
 

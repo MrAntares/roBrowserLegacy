@@ -5,59 +5,56 @@
  *
  * @author Francisco Wallison
  */
- define(function(require)
- {
-     'use strict';
- 
- 
-     /**
-      * Dependencies
-      */
-     var Renderer    = require('Renderer/Renderer');
-     var UIManager   = require('UI/UIManager');
-     var UIComponent = require('UI/UIComponent');
-     var htmlText    = require('text!./MakeModelMessage.html');
-     var cssText     = require('text!./MakeModelMessage.css');
-     var getModule   = require;
+define(function (require)
+{
+	'use strict';
 
-     /**
-      * Create MakeModelMessage namespace
-      */
-     var MakeModelMessage = new UIComponent( 'MakeModelMessage', htmlText, cssText );
-      
-     /**
-      * Initialize UI
-      */
-    MakeModelMessage.init = function init()
-    {
-        // Show at center.
-        this.ui.css({
-            top:  (Renderer.height- 200)/2,
-            left: (Renderer.width - 200)/2
-        });
+	/**
+	 * Dependencies
+	 */
+	var Renderer = require('Renderer/Renderer');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./MakeModelMessage.html');
+	var cssText = require('text!./MakeModelMessage.css');
+	var getModule = require;
 
-        this.ui.find('.ok').on('click',onSendMaterial); 
-        this.ui.find('.cancel').on('click',onClose);
+	/**
+	 * Create MakeModelMessage namespace
+	 */
+	var MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
 
-        this.draggable(this.ui.find('.titlebar'));
-    };
+	/**
+	 * Initialize UI
+	 */
+	MakeModelMessage.init = function init()
+	{
+		// Show at center.
+		this.ui.css({
+			top: (Renderer.height - 200) / 2,
+			left: (Renderer.width - 200) / 2
+		});
 
-    function onSendMaterial(event){
-        event.stopImmediatePropagation();
-        getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems')
-            .validItemSend(true);
+		this.ui.find('.ok').on('click', onSendMaterial);
+		this.ui.find('.cancel').on('click', onClose);
 
-    }
+		this.draggable(this.ui.find('.titlebar'));
+	};
 
-    function onClose(event){
+	function onSendMaterial(event)
+	{
 		event.stopImmediatePropagation();
-		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems')
-            .validItemSend(false);
+		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems').validItemSend(true);
 	}
 
-    /**
-     * Create component based on view file and export it
-     */
-    return UIManager.addComponent(MakeModelMessage);
- });
- 
+	function onClose(event)
+	{
+		event.stopImmediatePropagation();
+		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems').validItemSend(false);
+	}
+
+	/**
+	 * Create component based on view file and export it
+	 */
+	return UIManager.addComponent(MakeModelMessage);
+});

@@ -1,42 +1,43 @@
 <div id="Guild">
 	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
 		<div class="right">
-			<button class="base close" data-background="basic_interface/sys_close_off.bmp" data-hover="basic_interface/sys_close_on.bmp"></button>
+			<button
+				class="base close"
+				data-background="basic_interface/sys_close_off.bmp"
+				data-hover="basic_interface/sys_close_on.bmp"
+			></button>
 		</div>
 		<div class="clear"></div>
 	</div>
 
-	<div class="tabs"><!--
-		--><button data-flag="0" class="info" data-text="340">Guild Info</button><!--
-		--><button data-flag="1" class="members" data-text="341">Guildsmen Info</button><!--
-		--><button data-flag="2" class="positions" data-text="342">Position</button><!--
-		--><button data-flag="3" class="skills" data-text="343">Guild Skill</button><!--
-		--><button data-flag="4" class="history" data-text="344">Expel History</button><!--
+	<div class="tabs">
+		<!--
+		--><button data-flag="0" class="info" data-text="340">Guild Info</button
+		><!--
+		--><button data-flag="1" class="members" data-text="341">Guildsmen Info</button
+		><!--
+		--><button data-flag="2" class="positions" data-text="342">Position</button
+		><!--
+		--><button data-flag="3" class="skills" data-text="343">Guild Skill</button
+		><!--
+		--><button data-flag="4" class="history" data-text="344">Expel History</button
+		><!--
 		--><button data-flag="6" class="notice" data-text="345">Guild Notice</button>
 	</div>
 
 	<div class="panel">
-
 		<!-- INFO TAB -->
 		<div class="content info">
-			<div class="name">
-				<span data-text="328">Guild Name</span> : <span class="value"></span>
-			</div>
-			<div class="level">
-				<span data-text="329">Guild lvl</span> : <span class="value"></span>
-			</div>
-			<div class="master">
-				<span data-text="330">Guild Master</span> : <span class="value"></span>
-			</div>
+			<div class="name"><span data-text="328">Guild Name</span> : <span class="value"></span></div>
+			<div class="level"><span data-text="329">Guild lvl</span> : <span class="value"></span></div>
+			<div class="master"><span data-text="330">Guild Master</span> : <span class="value"></span></div>
 			<div class="members">
-				<span data-text="331">Guildsmen</span> : <span class="numMember">0</span> / <span class="maxMember">0</span> <button data-background="basic_interface/grp_online.bmp"></button> <span class="online"></span>
+				<span data-text="331">Guildsmen</span> : <span class="numMember">0</span> /
+				<span class="maxMember">0</span> <button data-background="basic_interface/grp_online.bmp"></button>
+				<span class="online"></span>
 			</div>
-			<div class="avglevel">
-				<span data-text="332">Avg.lvl of Guildsmen</span> : <span class="value"></span>
-			</div>
-			<div class="territory">
-				<span data-text="333">Territory</span> : <span class="value"></span>
-			</div>
+			<div class="avglevel"><span data-text="332">Avg.lvl of Guildsmen</span> : <span class="value"></span></div>
+			<div class="territory"><span data-text="333">Territory</span> : <span class="value"></span></div>
 			<div class="tendency">
 				<div class="title" data-text="334">Tendency : <span class="value"></span></div>
 				<div class="righteous">R</div>
@@ -46,22 +47,24 @@
 				<canvas width="90" height="90"></canvas>
 			</div>
 			<!-- TODO graphic -->
-			<div class="exp">
-				<span data-text="335">EXP</span> : <span class="value"></span>
-			</div>
+			<div class="exp"><span data-text="335">EXP</span> : <span class="value"></span></div>
 			<div class="emblem" data-text="336">Emblem</div>
 			<div class="emblem_container"></div>
-			<button class="emblem_edit" data-background="btn_edit.bmp" data-hover="btn_edit_a.bmp" data-down="btn_edit_b.bmp"><input type="file"/></button>
+			<button
+				class="emblem_edit"
+				data-background="btn_edit.bmp"
+				data-hover="btn_edit_a.bmp"
+				data-down="btn_edit_b.bmp"
+			>
+				<input type="file" />
+			</button>
 
-			<div class="tax">
-				<span data-text="337">Tax Point</span> : <span class="value">0</span>
-			</div>
+			<div class="tax"><span data-text="337">Tax Point</span> : <span class="value">0</span></div>
 			<div class="ally" data-text="338">Alliance</div>
 			<div class="ally_list"></div>
 			<div class="hostile" data-text="339">Antagonist</div>
 			<div class="hostile_list"></div>
 		</div>
-
 
 		<!-- MEMBERS TAB -->
 		<div class="content members">
@@ -94,7 +97,6 @@
 			</table>
 		</div>
 
-
 		<!-- POSITIONS TAB -->
 		<div class="content positions">
 			<table>
@@ -111,7 +113,7 @@
 					<tr class="PositionView">
 						<td class="id"></td>
 						<td class="title">
-							<input type="text" value=""/>
+							<input type="text" value="" />
 						</td>
 						<td class="invite">
 							<button data-background="checkbox_0.bmp" class="off"></button>
@@ -119,31 +121,42 @@
 						<td class="punish">
 							<button data-background="checkbox_0.bmp" class="off"></button>
 						</td>
-						<td class="tax">
-							<input type="text" value="0"/> %
-						</td>
+						<td class="tax"><input type="text" value="0" /> %</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-
 
 		<!-- SKILLS TAB -->
 		<div class="content skills">
 			<div class="skill_list">
 				<table>
 					<!-- Just to get reference, will be removed -->
-					<button class="btn levelup" data-background="basic_interface/skill_up_a.bmp" data-hover="basic_interface/skill_up_b.bmp" data-down="basic_interface/skill_up_c.bmp"></button>
+					<button
+						class="btn levelup"
+						data-background="basic_interface/skill_up_a.bmp"
+						data-hover="basic_interface/skill_up_b.bmp"
+						data-down="basic_interface/skill_up_c.bmp"
+					></button>
 				</table>
 			</div>
 
 			<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
 				<div class="text">Skill Points: <span class="skpoints_count">0</span></div>
-				<button class="btn apply" data-background="btn_apply.bmp" data-hover="btn_apply_a.bmp" data-down="btn_apply_b.bmp"></button>
-				<button class="btn reset" data-background="btn_reset.bmp" data-hover="btn_reset_a.bmp" data-down="btn_reset_b.bmp"></button>
+				<button
+					class="btn apply"
+					data-background="btn_apply.bmp"
+					data-hover="btn_apply_a.bmp"
+					data-down="btn_apply_b.bmp"
+				></button>
+				<button
+					class="btn reset"
+					data-background="btn_reset.bmp"
+					data-hover="btn_reset_a.bmp"
+					data-down="btn_reset_b.bmp"
+				></button>
 			</div>
 		</div>
-
 
 		<!-- HISTORY BAN TAB -->
 		<div class="content history">
@@ -162,7 +175,6 @@
 				</tbody>
 			</table>
 		</div>
-
 
 		<!-- NOTICE TAB -->
 		<div class="content notice">

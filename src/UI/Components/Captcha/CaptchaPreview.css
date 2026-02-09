@@ -1,65 +1,65 @@
 #CaptchaPreview {
-    position: absolute;
-    width: 220px;
-    height: 107px;
-    background-color: #ffffff;
-    font-size: 12px;
-    border-radius: 3px;
+	position: absolute;
+	width: 220px;
+	height: 107px;
+	background-color: #ffffff;
+	font-size: 12px;
+	border-radius: 3px;
 }
 
 #CaptchaPreview .clear {
-    clear: both;
+	clear: both;
 }
 
 #CaptchaPreview .titlebar {
-    width: 220px;
-    height: 17px;
-    background-color: white;
-    background-repeat: repeat-x;
-    border-radius: 3px 3px 0px 0px;
+	width: 220px;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
 }
 
 #CaptchaPreview .titlebar .base {
-    width: 11px;
-    height: 11px;
-    border: none;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    vertical-align: middle;
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
 }
 
 #CaptchaPreview .titlebar .text {
-    text-shadow: 1px 1px white;
-    vertical-align: -2px;
-    white-space: nowrap;
-    /* chrome bug */
-    display: inline-block;
-    width: 32px;
-    height: 13px;
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	white-space: nowrap;
+	/* chrome bug */
+	display: inline-block;
+	width: 32px;
+	height: 13px;
 }
 
 #CaptchaPreview .titlebar .left {
-    margin-left: 3px;
-    float: left;
+	margin-left: 3px;
+	float: left;
 }
 
 #CaptchaPreview .titlebar .right {
-    float: right;
-    margin-right: 3px;
+	float: right;
+	margin-right: 3px;
 }
 
 #CaptchaPreview .titlebar .clear {
-    clear: both;
+	clear: both;
 }
 
 #CaptchaPreview .preview_box {
-    width: 220px;
-    height: 90px;
-    background-color: transparent;
-    overflow: hidden;
+	width: 220px;
+	height: 90px;
+	background-color: transparent;
+	overflow: hidden;
 }
 
 #CaptchaPreview .preview_box img {
-    max-width: 100%;
-    max-height: 100%;
+	max-width: 100%;
+	max-height: 100%;
 }

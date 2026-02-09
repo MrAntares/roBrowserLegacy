@@ -7,47 +7,42 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
+define(function (require)
 {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var Renderer           = require('Renderer/Renderer');
-	var KEYS               = require('Controls/KeyEventHandler');
-	var Entity             = require('Renderer/Entity/Entity');
-	var SpriteRenderer     = require('Renderer/SpriteRenderer');
-	var Camera             = require('Renderer/Camera');
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var htmlText           = require('text!./CharCreatev2.html');
-	var cssText            = require('text!./CharCreatev2.css');
-
+	var Renderer = require('Renderer/Renderer');
+	var KEYS = require('Controls/KeyEventHandler');
+	var Entity = require('Renderer/Entity/Entity');
+	var SpriteRenderer = require('Renderer/SpriteRenderer');
+	var Camera = require('Renderer/Camera');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./CharCreatev2.html');
+	var cssText = require('text!./CharCreatev2.css');
 
 	/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharCreatev2 = new UIComponent( 'CharCreatev2', htmlText, cssText );
-
+	var CharCreatev2 = new UIComponent('CharCreatev2', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
 	 */
 	var _accountSex = 0;
 
-
 	/**
 	 * @var {object} chargen info
 	 */
 	var _chargen = {
 		entity: new Entity(),
-		ctx:    null,
+		ctx: null,
 		render: false,
-		tick:   0
+		tick: 0
 	};
-
 
 	/**
 	 * Initialize UI
@@ -58,19 +53,20 @@ define(function(require)
 
 		// Setup GUI
 		this.ui.css({
-			top: (Renderer.height-286)/2,
-			left: (Renderer.width-150)/2
+			top: (Renderer.height - 286) / 2,
+			left: (Renderer.width - 150) / 2
 		});
 
 		this.draggable();
 
 		// Bind Events
-		this.ui.find('.content .styleleft' ).mousedown(updateCharacterGeneric('head', -1));
+		this.ui.find('.content .styleleft').mousedown(updateCharacterGeneric('head', -1));
 		this.ui.find('.content .styleright').mousedown(updateCharacterGeneric('head', +1));
 		this.ui.find('.content .colorleft').mousedown(updateCharacterGeneric('headpalette', -1));
 		this.ui.find('.content .colorright').mousedown(updateCharacterGeneric('headpalette', +1));
 
-		this.ui.find('input').mousedown(function(event){
+		this.ui.find('input').mousedown(function (event)
+		{
 			this.focus();
 			event.stopImmediatePropagation();
 		});
@@ -79,17 +75,15 @@ define(function(require)
 		this.ui.find('.make').click(create);
 	};
 
-
 	/**
 	 * Setter for AccountSex
 	 *
 	 * @param {number} sex
 	 */
-	CharCreatev2.setAccountSex = function setAccountSex( sex )
+	CharCreatev2.setAccountSex = function setAccountSex(sex)
 	{
 		_accountSex = sex;
 	};
-
 
 	/**
 	 * Once add to HTML, start rendering
@@ -98,9 +92,9 @@ define(function(require)
 	{
 		_chargen.render = true;
 		_chargen.entity.set({
-			sex:_accountSex,
-			job:    0,
-			head:   2,
+			sex: _accountSex,
+			job: 0,
+			head: 2,
 			action: 0
 		});
 
@@ -108,7 +102,6 @@ define(function(require)
 
 		Renderer.render(render);
 	};
-
 
 	/**
 	 * Remove component from HTML
@@ -119,16 +112,16 @@ define(function(require)
 		Renderer.stop(render);
 	};
 
-
 	/**
 	 * Key Handler
 	 *
 	 * @param {object} event
 	 * @return {boolean}
 	 */
-	CharCreatev2.onKeyDown = function onKeyDown( event )
+	CharCreatev2.onKeyDown = function onKeyDown(event)
 	{
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible'))
+		{
 			event.stopImmediatePropagation();
 			cancel();
 			return false;
@@ -137,23 +130,21 @@ define(function(require)
 		return true;
 	};
 
-
 	/**
 	 * Generic function to get a direct proxy to updateCharacter
 	 *
 	 * @param {string} type
 	 * @param {number} value
 	 */
-	function updateCharacterGeneric( type, value )
+	function updateCharacterGeneric(type, value)
 	{
-		return function( event) {
-			updateCharacter( type, value );
+		return function (event)
+		{
+			updateCharacter(type, value);
 			event.stopImmediatePropagation();
 			return false;
 		};
 	}
-
-
 
 	/**
 	 * Send back informations to send the packet
@@ -175,7 +166,6 @@ define(function(require)
 		);
 	}
 
-
 	/**
 	 * Exit the window
 	 */
@@ -184,25 +174,27 @@ define(function(require)
 		CharCreatev2.onExitRequest();
 	}
 
-
 	/**
 	 * Update character hairstyle and haircolor
 	 *
 	 * @param {string} type (head or headpalette)
 	 * @param {number} increment (-1 or +1)
 	 */
-	function updateCharacter( type, increment )
+	function updateCharacter(type, increment)
 	{
-		switch (type) {
+		switch (type)
+		{
 			case 'head':
 				var head = _chargen.entity.head + increment;
 
-				if (head < 2) {
+				if (head < 2)
+				{
 					head = 26;
 				}
 
-				if (head > 26) {
-					head =  2;
+				if (head > 26)
+				{
+					head = 2;
 				}
 
 				_chargen.entity.head = head;
@@ -217,14 +209,14 @@ define(function(require)
 		render();
 	}
 
-
 	/**
 	 * Rendering the Character
 	 */
-	function render( tick )
+	function render(tick)
 	{
 		// Update direction each 500ms
-		if (_chargen.tick + 500 < tick) {
+		if (_chargen.tick + 500 < tick)
+		{
 			Camera.direction++;
 			Camera.direction %= 8;
 			_chargen.tick = tick;
@@ -232,22 +224,19 @@ define(function(require)
 
 		// Rendering
 		SpriteRenderer.bind2DContext(_chargen.ctx, 32, 115);
-		_chargen.ctx.clearRect(0, 0, _chargen.ctx.canvas.width, _chargen.ctx.canvas.height );
+		_chargen.ctx.clearRect(0, 0, _chargen.ctx.canvas.width, _chargen.ctx.canvas.height);
 		_chargen.entity.renderEntity();
 	}
-
 
 	/**
 	 * Callback to define
 	 */
-	CharCreatev2.onExitRequest = function OnExitRequest(){};
-
+	CharCreatev2.onExitRequest = function OnExitRequest() {};
 
 	/**
 	 * Abstract callback to define
 	 */
-	CharCreatev2.onCharCreationRequest = function OnCharCreationRequest(){};
-
+	CharCreatev2.onCharCreationRequest = function OnCharCreationRequest() {};
 
 	/**
 	 * Create componentand export it

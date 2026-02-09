@@ -25,33 +25,32 @@ define(function (require)
 	var versionInfo = {
 		default: WinStats,
 		common: {
-			20200520:	WinStatsV3,
-			20140521:	WinStatsV2,
-			20090617:	WinStatsV1,
+			20200520: WinStatsV3,
+			20140521: WinStatsV2,
+			20090617: WinStatsV1
 		},
-		re: {
-
-		},
-		prere:{
-
-		}
+		re: {},
+		prere: {}
 	};
 
 	var WinStatsController = UIVersionManager.getUIController(publicName, versionInfo);
 	var _selectUIVersion = WinStatsController.selectUIVersion;
 
 	// Extend default UI selector
-	WinStatsController.selectUIVersion = function () {
+	WinStatsController.selectUIVersion = function ()
+	{
 		_selectUIVersion();
 
 		var component = WinStatsController.getUI();
 
 		// Escape to close the UI
-		component.onKeyDown = function onKeyDown(e) {
-			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
-				if (typeof component.toggle === 'function') component.toggle();
+		component.onKeyDown = function onKeyDown(e)
+		{
+			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible'))
+			{
+				if (typeof component.toggle === 'function') {component.toggle();}
 			}
-		}
+		};
 	};
 
 	return WinStatsController;

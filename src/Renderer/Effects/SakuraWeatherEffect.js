@@ -12,15 +12,15 @@
  *
  * @author AoShinHo
  */
-define(function(require) {
+define(function (require) {
 	'use strict';
 
-	var Client         = require('Core/Client');
-	var Renderer       = require('Renderer/Renderer');
+	var Client = require('Core/Client');
+	var Renderer = require('Renderer/Renderer');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Altitude       = require('Renderer/Map/Altitude');
-	var Session        = require('Engine/SessionStorage');
-	var getModule      = require;
+	var Altitude = require('Renderer/Map/Altitude');
+	var Session = require('Engine/SessionStorage');
+	var getModule = require;
 
 	// Constants based on RO Client behavior
 	var RAG_TICK_MS = 25;
@@ -28,13 +28,13 @@ define(function(require) {
 
 	// Emission settings (Reduced quantity compared to snow)
 	// Snow is 2 per tick. Sakura/Maple is roughly 1 every 2 calls in C++, so ~1 per 150ms.
-	var EMIT_INTERVAL_MS = 150; 
+	var EMIT_INTERVAL_MS = 150;
 	var EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
 
 	// Lifetime
 	var LEAVE_LIFE_MS = 600 * RAG_TICK_MS; // Lasts a bit longer to allow slow falling
 	var LEAVE_FADEIN_MS = 20 * RAG_TICK_MS;
-	var LEAVE_FADEOUT_START_MS = LEAVE_LIFE_MS * 4 / 5;
+	var LEAVE_FADEOUT_START_MS = (LEAVE_LIFE_MS * 4) / 5;
 
 	// Spatial constants
 	var SCATTER_RADIUS_CELLS = 70;
@@ -47,7 +47,7 @@ define(function(require) {
 
 	// Paths
 	var PATH_SAKURA = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/sakura01';
-	var PATH_MAPLE  = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb4\xdc\xc7\xb3';
+	var PATH_MAPLE = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb4\xdc\xc7\xb3';
 
 	// SINGLETON STATE
 	let _instance = null;
@@ -61,7 +61,7 @@ define(function(require) {
 
 		this.lastEmitTick = this.startTick;
 		this.leaves = [];
-		this.isMaple = (this.effectID === EF_MAPLE);
+		this.isMaple = this.effectID === EF_MAPLE;
 
 		this.spr = null;
 		this.act = null;
@@ -72,7 +72,9 @@ define(function(require) {
 
 	SakuraWeatherEffect.ready = true;
 
-	SakuraWeatherEffect.isActive = function isActive(){ return _instance; };
+	SakuraWeatherEffect.isActive = function isActive() {
+		return _instance;
+	};
 
 	SakuraWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
 		SpriteRenderer.shadow = 1;
@@ -91,18 +93,18 @@ define(function(require) {
 
 	SakuraWeatherEffect.startOrRestart = function startOrRestart(Params) {
 		var now = Params.Inst.startTick || Renderer.tick;
-		var currentMap = getModule("Renderer/MapRenderer").currentMap;
+		var currentMap = getModule('Renderer/MapRenderer').currentMap;
 
 		if (_mapName !== currentMap) {
 			_instance = null;
 			_mapName = currentMap;
 		}
 		_isStopping = false;
-		
+
 		// If instance exists and is valid
 		if (_instance && !_instance.needCleanUp) {
 			// Check if we are switching from Sakura to Maple or vice versa
-			var isNewMaple = (Params.Inst.effectID === EF_MAPLE); 
+			var isNewMaple = Params.Inst.effectID === EF_MAPLE;
 			if (_instance.isMaple !== isNewMaple) {
 				_instance = null; // Force recreate if type changed
 			} else {
@@ -122,13 +124,13 @@ define(function(require) {
 	SakuraWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
 		if (!_instance) return;
 
-		if (_mapName !== getModule("Renderer/MapRenderer").currentMap) {
+		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
 			_instance = null;
 			return;
 		}
 
 		this.beforeRender(gl, modelView, projection, fog);
-		
+
 		SpriteRenderer.runWithDepth(false, false, true, function () {
 			_instance.render(gl, tick);
 		});
@@ -164,33 +166,31 @@ define(function(require) {
 		var groundZ = Altitude.getCellHeight(x, y);
 		var spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
 		var z = groundZ + spawnHeight;
-		
+
 		// Speed
 		// Sakura: (random(2)+2)*0.1f -> 0.2 to 0.3 internal units
 		// Maple:  (random(4)+2)*0.03f -> 0.06 to 0.18 internal units (Much slower)
-		var fallSpeedBase = this.isMaple 
-			? (2 + Math.random() * 4) * 0.03 
-			: (2 + Math.random() * 2) * 0.1;
-		
+		var fallSpeedBase = this.isMaple ? (2 + Math.random() * 4) * 0.03 : (2 + Math.random() * 2) * 0.1;
+
 		// Convert to roBrowser scale
-		// Snow was 0.1 cells/tick. 
+		// Snow was 0.1 cells/tick.
 		var fallSpeed = fallSpeedBase * 0.5; // Tweak this multiplier to taste
 
 		// Sway Amplitude Factors
 		// Sakura: X=0.24, Z=0.30
 		// Maple:  X=0.12, Z=0.15
 		var swayFactorX = this.isMaple ? 0.12 : 0.24;
-		var swayFactorY = this.isMaple ? 0.15 : 0.30;
+		var swayFactorY = this.isMaple ? 0.15 : 0.3;
 
 		this.leaves.push({
 			spawnTick: spawnTick,
-			x: x, 
-			y: y, 
+			x: x,
+			y: y,
 			z: z,
 			baseX: x, // Center of the sway
 			baseY: y, // Center of the sway
 			size: 0.5 + Math.random() * 0.3,
-			
+
 			// Movement Props
 			speed: fallSpeed,
 			swayFacX: swayFactorX,
@@ -221,7 +221,7 @@ define(function(require) {
 			if (current < 0) current = 0;
 			if (current <= target) {
 				// Reached target, pick new random higher target
-				target = 359 - (Math.random() * current); 
+				target = 359 - Math.random() * current;
 			}
 		}
 		return { c: current, t: target };
@@ -272,7 +272,7 @@ define(function(require) {
 				this.leaves.splice(f, 1);
 				continue;
 			}
-			
+
 			// 1. Update Sway Angles
 			var resX = updateSwayAngle(leave.angX, leave.targetX);
 			leave.angX = resX.c;
@@ -290,15 +290,15 @@ define(function(require) {
 			// Horizontal Sway (Sinusoidal offset from base position)
 			// RO: vecB_pre.x += factor * sin(angle)
 			// This accumulates in C++. Here we can just calculate offset from the "falling line".
-			// However, C++ logic adds to the position vector directly. 
+			// However, C++ logic adds to the position vector directly.
 			// Let's emulate accumulation or simple offset. Simple offset is smoother for web.
 			// But to match the "drifting" feel, we drift the BaseX/Y.
-			
-			var radX = leave.angX * Math.PI / 180;
-			var radY = leave.angY * Math.PI / 180;
+
+			var radX = (leave.angX * Math.PI) / 180;
+			var radY = (leave.angY * Math.PI) / 180;
 
 			// Drift the center slightly based on wind (Sway Factor)
-			var driftX = leave.swayFacX * Math.sin(radX); 
+			var driftX = leave.swayFacX * Math.sin(radX);
 			var driftY = leave.swayFacY * Math.sin(radY);
 
 			// Apply drift to current position
@@ -311,13 +311,15 @@ define(function(require) {
 			var alpha = 1.0;
 
 			var alphaCap = 1.0;
-			if(!this.isMaple)
-				alphaCap = 0.5;
+			if (!this.isMaple) alphaCap = 0.5;
 
 			if (age < LEAVE_FADEIN_MS) {
 				alpha = (age / LEAVE_FADEIN_MS) * alphaCap;
 			} else if (age > LEAVE_FADEOUT_START_MS) {
-				alpha = Math.max(0, (1 - (age - LEAVE_FADEOUT_START_MS) / (LEAVE_LIFE_MS - LEAVE_FADEOUT_START_MS)) * alphaCap);
+				alpha = Math.max(
+					0,
+					(1 - (age - LEAVE_FADEOUT_START_MS) / (LEAVE_LIFE_MS - LEAVE_FADEOUT_START_MS)) * alphaCap
+				);
 			}
 
 			SpriteRenderer.position[0] = leave.x;

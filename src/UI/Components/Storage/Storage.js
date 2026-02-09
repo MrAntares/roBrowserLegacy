@@ -14,22 +14,18 @@ define(function (require)
 
 	var publicName = 'Storage';
 
-	var StorageV0 = require('./StorageV0/Storage');		// Basic Storage
-	var StorageV3 = require('./StorageV3/Storage');		// Expanded Storage (search tab)
+	var StorageV0 = require('./StorageV0/Storage'); // Basic Storage
+	var StorageV3 = require('./StorageV3/Storage'); // Expanded Storage (search tab)
 
 	var UIVersionManager = require('UI/UIVersionManager');
 
 	var versionInfo = {
-		default: StorageV0,			// Basic Storage
+		default: StorageV0, // Basic Storage
 		common: {
-			20181219:	StorageV3,    // Expanded Storage (search tab)
+			20181219: StorageV3 // Expanded Storage (search tab)
 		},
-		re: {
-
-		},
-		prere:{
-
-		}
+		re: {},
+		prere: {}
 	};
 
 	var StorageController = UIVersionManager.getUIController(publicName, versionInfo);
@@ -37,20 +33,24 @@ define(function (require)
 	var _selectUIVersion = StorageController.selectUIVersion;
 
 	// Extend default UI selector
-	StorageController.selectUIVersion = function(){
+	StorageController.selectUIVersion = function ()
+	{
 		_selectUIVersion();
 	};
 
 	// Forward methods to the implementation
 	var _methods = ['reqAddItem', 'reqAddItemFromCart', 'reqRemoveItem', 'reqMoveItemToCart', 'onClosePressed'];
 
-	_methods.forEach(function( method ){
+	_methods.forEach(function (method)
+	{
 		Object.defineProperty(StorageController, method, {
-			set: function( value ) {
+			set: function (value)
+			{
 				StorageV0[method] = value;
 				StorageV3[method] = value;
 			},
-			get: function() {
+			get: function ()
+			{
 				return (StorageController.getUI() || StorageV0)[method];
 			}
 		});

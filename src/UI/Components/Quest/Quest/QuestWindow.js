@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -20,25 +19,26 @@ define(function (require) {
 	var htmlText = require('text!./QuestWindow.html');
 	var cssText = require('text!./QuestWindow.css');
 
-	var _preferences = Preferences.get('Quest', {
-		x: 200,
-		y: 200,
-		show: false,
-		showwindow: true
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'Quest',
+		{
+			x: 200,
+			y: 200,
+			show: false,
+			showwindow: true
+		},
+		1.0
+	);
 
 	/**
 	 * Create Component
 	 */
 	var QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
 
-
 	/**
 	 * Mouse can cross this UI
 	 */
 	QuestWindow.mouseMode = UIComponent.MouseMode.CROSS;
-
 
 	/**
 	 * Initialize the component (event listener, etc.)
@@ -53,7 +53,6 @@ define(function (require) {
 		this.ui.focus();
 	};
 
-
 	/**
 	 * Once append to the DOM, start to position the UI
 	 */
@@ -62,7 +61,6 @@ define(function (require) {
 			this.ui.hide();
 		}
 	};
-
 
 	/**
 	 * Clean up UI
@@ -92,26 +90,44 @@ define(function (require) {
 	};
 
 	function isInCooldown(quest) {
-		if(quest.end_time == 0) return false;
+		if (quest.end_time == 0) return false;
 		let epoch_seconds = new Date() / 1000;
-		if(quest.end_time > epoch_seconds) return true;
+		if (quest.end_time > epoch_seconds) return true;
 		return false;
 	}
 
 	QuestWindow.ClearQuestList = function ClearQuestList() {
 		QuestWindow.ui.find('.quest-window-ul').html('');
-	}
+	};
 
 	QuestWindow.addQuestToUI = function addQuestToUI(quest) {
-		let title, summary = "";
-		title = (quest.title.length > 25) ? quest.title.substr(0, 25) + '...' : quest.title;
-		summary = (quest.summary.length > 25) ? quest.summary.substr(0, 25) + '...' : quest.summary;
-		let list = ""
+		let title,
+			summary = '';
+		title = quest.title.length > 25 ? quest.title.substr(0, 25) + '...' : quest.title;
+		summary = quest.summary.length > 25 ? quest.summary.substr(0, 25) + '...' : quest.summary;
+		let list = '';
 		for (let huntID in quest.hunt_list) {
-			list += '<li>' + quest.hunt_list[huntID].mobName + ' ( ' + quest.hunt_list[huntID].huntCount + ' / ' + quest.hunt_list[huntID].maxCount + ' )</li>';
+			list +=
+				'<li>' +
+				quest.hunt_list[huntID].mobName +
+				' ( ' +
+				quest.hunt_list[huntID].huntCount +
+				' / ' +
+				quest.hunt_list[huntID].maxCount +
+				' )</li>';
 		}
-		QuestWindow.ui.find('.quest-window-ul').append('<li class="quest-window-li"> <div class="quest-window-li-title">' + title + '</div> <div class="quest-window-li-summary">' + summary + '</div> <div class="quest-window-li-monster"><ul>' + list + '</ul></div> </li>');
-	}
+		QuestWindow.ui
+			.find('.quest-window-ul')
+			.append(
+				'<li class="quest-window-li"> <div class="quest-window-li-title">' +
+					title +
+					'</div> <div class="quest-window-li-summary">' +
+					summary +
+					'</div> <div class="quest-window-li-monster"><ul>' +
+					list +
+					'</ul></div> </li>'
+			);
+	};
 
 	/**
 	 * Export

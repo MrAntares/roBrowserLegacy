@@ -10,30 +10,25 @@
  * @author Vincent Thibault
  */
 
-define( ['Core/Client', 'Preferences/Audio'],
-function(      Client,   Preferences )
-{
+define(['Core/Client', 'Preferences/Audio'], function (Client, Preferences) {
 	'use strict';
-
 
 	/**
 	 * BGM NameSpace
 	 */
 	var BGM = {};
 
-	
-	BGM.filename    = null;
-	BGM.volume      = Preferences.BGM.volume;
-	BGM.extension   = 'mp3';
-	BGM.isInit      = false;
-	BGM.audio       = document.createElement('audio');
+	BGM.filename = null;
+	BGM.volume = Preferences.BGM.volume;
+	BGM.extension = 'mp3';
+	BGM.isInit = false;
+	BGM.audio = document.createElement('audio');
 
 	/**
 	 * Initialize player
 	 * Fixed a known bug
 	 */
-	BGM.init = function init()
-	{
+	BGM.init = function init() {
 		if (BGM.isInit) {
 			return;
 		}
@@ -47,20 +42,22 @@ function(      Client,   Preferences )
 		}
 
 		// Work around
-		BGM.audio.addEventListener('ended', function(){
-			BGM.audio.currentTime = 0;
-			BGM.audio.play();
-		}, false);
+		BGM.audio.addEventListener(
+			'ended',
+			function () {
+				BGM.audio.currentTime = 0;
+				BGM.audio.play();
+			},
+			false
+		);
 	};
-
 
 	/**
 	 * Test audio extension from a list to see what format the browser can read
 	 *
 	 * @param {Array} extensions list
 	 */
-	BGM.setAvailableExtensions = function setAvailableExtensions( extensions )
-	{
+	BGM.setAvailableExtensions = function setAvailableExtensions(extensions) {
 		var i, count;
 		var audio = this.audio;
 
@@ -78,14 +75,12 @@ function(      Client,   Preferences )
 		}
 	};
 
-
 	/**
 	 * Play the audio file specify
 	 *
 	 * @param {string} filename
 	 */
-	BGM.play = function play( filename )
-	{
+	BGM.play = function play(filename) {
 		// Nothing to play
 		if (!filename) {
 			return;
@@ -99,70 +94,62 @@ function(      Client,   Preferences )
 		// If it's the same file, check if it's already playing
 		if (this.filename === filename) {
 			if (!this.audio.paused) {
-					return;
+				return;
 			}
-		}
-		else {
+		} else {
 			this.filename = filename;
 		}
 
 		// load the file.
 		if (Preferences.BGM.play) {
-			Client.loadFile( 'BGM/' + filename, function(url) {
+			Client.loadFile('BGM/' + filename, function (url) {
 				BGM.load(url);
 			});
 		}
 	};
-
 
 	/**
 	 * Load the audio file
 	 *
 	 * @param {string} url (HTTP / DATA URI or BLOB)
 	 */
-	BGM.load = function load(url)
-	{
+	BGM.load = function load(url) {
 		if (!Preferences.BGM.play) {
 			return;
 		}
 
 		// Add support for other extensions, only supported with
 		// remote audio files.
-		if (!url.match(/^(blob|data)\:/)){
+		if (!url.match(/^(blob|data)\:/)) {
 			url = url.replace(/mp3$/i, BGM.extension);
 		}
 
-		BGM.audio.src    = url;
+		BGM.audio.src = url;
 		BGM.audio.volume = this.volume;
-		BGM.audio.play().catch( ( error ) => {
-			console.error( 'Failed to play \"BGM/' + this.filename + '\": ' + error.message );
+		BGM.audio.play().catch(error => {
+			console.error('Failed to play \"BGM/' + this.filename + '\": ' + error.message);
 		});
 	};
-
 
 	/**
 	 * Stop the BGM
 	 */
-	BGM.stop = function stop()
-	{
+	BGM.stop = function stop() {
 		BGM.audio.pause();
 	};
-
 
 	/**
 	 * Change the volume of the BGM
 	 *
 	 * @param {number} volume
 	 */
-	BGM.setVolume = function setVolume( volume )
-	{
-		BGM.volume  = volume;
+	BGM.setVolume = function setVolume(volume) {
+		BGM.volume = volume;
 		Preferences.BGM.volume = volume;
 		Preferences.save();
 
 		BGM.audio.volume = volume;
 	};
-
 
 	/**
 	 * Export

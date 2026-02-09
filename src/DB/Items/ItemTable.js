@@ -6,10 +6,9 @@
  * @author Vincent Thibault
  */
 
-define(function()
+define(function ()
 {
-	"use strict";
-
+	'use strict';
 
 	return {
 		501: { ClassNum: 0 },
@@ -8413,6 +8412,6 @@ define(function()
 		25005: { ClassNum: 0 },
 		25006: { ClassNum: 0 },
 		25007: { ClassNum: 0 },
-		25008: { ClassNum: 0 },
+		25008: { ClassNum: 0 }
 	};
 });

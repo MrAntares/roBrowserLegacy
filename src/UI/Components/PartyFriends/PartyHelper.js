@@ -7,41 +7,36 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
+define(function (require)
 {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var UIManager      = require('UI/UIManager');
-	var UIComponent    = require('UI/UIComponent');
-	var htmlText       = require('text!./PartyHelper.html');
-	var cssText        = require('text!./PartyHelper.css');
-
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./PartyHelper.html');
+	var cssText = require('text!./PartyHelper.css');
 
 	/**
 	 * Create Component
 	 */
-	var PartyHelper = new UIComponent('PartyHelper', htmlText, cssText );
-
+	var PartyHelper = new UIComponent('PartyHelper', htmlText, cssText);
 
 	/**
 	 * @enum Window type constant
 	 */
 	PartyHelper.Type = {
 		CREATE: 0,
-		SETUP:  1,
+		SETUP: 1,
 		INVITE: 2
 	};
-
 
 	/**
 	 * @var {number} type
 	 */
 	var _type = PartyHelper.Type.CREATE;
-
 
 	/**
 	 * Initialize the component (event listener, etc.)
@@ -49,23 +44,26 @@ define(function(require)
 	PartyHelper.init = function init()
 	{
 		// Avoid drag drop problems
-		this.ui.find('.base').mousedown(function(event){
+		this.ui.find('.base').mousedown(function (event)
+		{
 			event.stopImmediatePropagation();
 			return false;
 		});
 
-		this.ui.on('mousedown', '.off', function(){
-			if (PartyHelper.ui.find('.content').hasClass('disabled')) {
+		this.ui.on('mousedown', '.off', function ()
+		{
+			if (PartyHelper.ui.find('.content').hasClass('disabled'))
+			{
 				return;
 			}
 
 			var off, on, tmp;
 
 			// Swap elements
-			on  = this.parentNode.getElementsByClassName('on')[0];
+			on = this.parentNode.getElementsByClassName('on')[0];
 			off = this;
 
-			on.className =  'off';
+			on.className = 'off';
 			off.className = 'on';
 
 			tmp = on.style.backgroundImage;
@@ -79,7 +77,6 @@ define(function(require)
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-
 	/**
 	 * Once append to the DOM, start to position the UI
 	 */
@@ -91,11 +88,10 @@ define(function(require)
 		this.ui.find('.name').val('');
 
 		this.ui.css({
-			top:  base.css('top'),
+			top: base.css('top'),
 			left: parseInt(base.css('left'), 10) + base.width() + 10
 		});
 	};
-
 
 	/**
 	 * Removing the UI from window, save preferences
@@ -106,17 +102,17 @@ define(function(require)
 		this.ui.find('.name').val('');
 	};
 
-
 	/**
 	 * Initilize type
 	 *
 	 * @param {number} set window mode
 	 */
-	PartyHelper.setType = function setType( type )
+	PartyHelper.setType = function setType(type)
 	{
 		this.ui.find('.content').removeClass('disabled');
 
-		switch (type) {
+		switch (type)
+		{
 			case PartyHelper.Type.CREATE:
 				this.ui.find('.setup, .invite').hide();
 				this.ui.find('.create').show();
@@ -136,20 +132,20 @@ define(function(require)
 		_type = type;
 	};
 
-
 	/**
 	 * Set party settings
 	 *
 	 * @param {object} options
 	 * @param {boolean} is editable ?
 	 */
-	PartyHelper.setOptions = function setOptions( options, editable )
+	PartyHelper.setOptions = function setOptions(options, editable)
 	{
-		function swap(off) {
+		function swap(off)
+		{
 			var on, tmp;
 			on = off.parentNode.querySelector('.on');
 
-			on.className  = 'off';
+			on.className = 'off';
 			off.className = 'on';
 
 			tmp = on.style.backgroundImage;
@@ -158,28 +154,31 @@ define(function(require)
 		}
 
 		var list = ['exp_share', 'item_share', 'item_sharing_type'];
-		var i, count = list.length;
+		var i,
+			count = list.length;
 		var element;
 
-		for (i = 0; i < count; ++i) {
-			if (options[list[i]] === undefined)
-				continue;
+		for (i = 0; i < count; ++i)
+		{
+			if (options[list[i]] === undefined) {continue;}
 
 			element = this.ui.find('.' + list[i]).find('.off')[0];
 
-			if (options[list[i]] == element.dataset.value) {
+			if (options[list[i]] == element.dataset.value)
+			{
 				swap(element);
 			}
 		}
 
-		if (!editable) {
+		if (!editable)
+		{
 			this.ui.find('.content').addClass('disabled');
 		}
-		else {
+		else
+		{
 			this.ui.find('.content').removeClass('disabled');
 		}
 	};
-
 
 	/**
 	 * Get window mode
@@ -190,7 +189,6 @@ define(function(require)
 		return _type;
 	};
 
-
 	/**
 	 * Validate the form
 	 */
@@ -200,10 +198,12 @@ define(function(require)
 
 		PartyFriends = UIManager.getComponent('PartyFriends');
 
-		switch (_type) {
+		switch (_type)
+		{
 			case PartyHelper.Type.CREATE:
 				name = PartyHelper.ui.find('.content .name').val();
-				if (name.length) {
+				if (name.length)
+				{
 					PartyFriends.onRequestPartyCreation(
 						name,
 						+PartyHelper.ui.find('.item_share .on').data('value'),
@@ -214,7 +214,8 @@ define(function(require)
 
 			case PartyHelper.Type.INVITE:
 				name = PartyHelper.ui.find('.content .name').val();
-				if (name.length) {
+				if (name.length)
+				{
 					PartyFriends.onRequestAddingMember(0, name);
 				}
 				break;
@@ -231,14 +232,12 @@ define(function(require)
 		PartyHelper.remove();
 	}
 
-
 	/**
 	 * Callbacks to use
 	 */
-	PartyHelper.onCreate      = function onCreate(){};
-	PartyHelper.onInvite      = function onInvite(){};
-	PartyHelper.onSetupUpdate = function onSetUpUpdate(){};
-
+	PartyHelper.onCreate = function onCreate() {};
+	PartyHelper.onInvite = function onInvite() {};
+	PartyHelper.onSetupUpdate = function onSetUpUpdate() {};
 
 	/**
 	 * Export

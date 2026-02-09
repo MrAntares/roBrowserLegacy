@@ -10,10 +10,8 @@
  * @author Vincent Thibault
  */
 
-define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
-{
+define(['Utils/Texture', 'Core/Configs'], function (Texture, Configs) {
 	'use strict';
-
 
 	/**
 	 * Get WebGL Context
@@ -23,8 +21,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 *
 	 * @return {object} webgl context
 	 */
-	function getContext( canvas, parameters )
-	{
+	function getContext(canvas, parameters) {
 		var gl = null;
 		var names;
 		var i, count;
@@ -32,12 +29,12 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		// Default options
 		if (!parameters) {
 			parameters = {
-				alpha:              false,
-				depth:              true,
-				stencil:            false,
-				antialias:          true,
+				alpha: false,
+				depth: true,
+				stencil: false,
+				antialias: true,
 				premultipliedAlpha: false,
-				preserveDrawingBuffer: true,
+				preserveDrawingBuffer: true
 			};
 		}
 
@@ -54,11 +51,11 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		if (canvas.getContext) {
 			for (i = 0; i < count; ++i) {
 				try {
-					gl = canvas.getContext( names[i], parameters );
+					gl = canvas.getContext(names[i], parameters);
 					if (gl) {
 						break;
 					}
-				} catch(e) {}
+				} catch (e) {}
 			}
 		}
 
@@ -77,12 +74,11 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 * @param {string} source
 	 * @param {number} type (fragment or shader constant)
 	 */
-	function compileShader( gl, source, type)
-	{
+	function compileShader(gl, source, type) {
 		var shader, error;
 
 		// Ensure #version is first token by trimming leading whitespace/BOM
-		if (source && source.charCodeAt(0) === 0xFEFF) {
+		if (source && source.charCodeAt(0) === 0xfeff) {
 			source = source.slice(1);
 		}
 		source = source.replace(/^\s+/, '');
@@ -96,15 +92,14 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			error = gl.getShaderInfoLog(shader);
 			gl.deleteShader(shader);
-			
+
 			// More descriptive error
-			var typeStr = (type === gl.VERTEX_SHADER) ? "Vertex" : "Fragment";
+			var typeStr = type === gl.VERTEX_SHADER ? 'Vertex' : 'Fragment';
 			throw new Error('WebGL::CompileShader() - Fail to compile ' + typeStr + ' shader: ' + error);
 		}
 
 		return shader;
 	}
-
 
 	/**
 	 * Create a Program from a webgl shader
@@ -113,19 +108,14 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 * @param {string} vertexShader
 	 * @param {string} fragmentShader
 	 */
-	function createShaderProgram( gl, vertexShader, fragmentShader )
-	{
-		var shaderProgram,
-		    vs, fs,
-			attrib, uniform,
-			i, count,
-			error;
+	function createShaderProgram(gl, vertexShader, fragmentShader) {
+		var shaderProgram, vs, fs, attrib, uniform, i, count, error;
 
 		// Compile shader and attach them
 		try {
 			shaderProgram = gl.createProgram();
-			vs = compileShader( gl, vertexShader  , gl.VERTEX_SHADER );
-			fs = compileShader( gl, fragmentShader, gl.FRAGMENT_SHADER );
+			vs = compileShader(gl, vertexShader, gl.VERTEX_SHADER);
+			fs = compileShader(gl, fragmentShader, gl.FRAGMENT_SHADER);
 
 			gl.attachShader(shaderProgram, vs);
 			gl.attachShader(shaderProgram, fs);
@@ -141,7 +131,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 				throw new Error('WebGL::CreateShaderProgram() - Fail to link shaders : ' + error);
 			}
 		} catch (e) {
-			console.error("Critical WebGL Shader Error:", e);
+			console.error('Critical WebGL Shader Error:', e);
 			// Clean up if partial
 			if (shaderProgram) gl.deleteProgram(shaderProgram);
 			if (vs) gl.deleteShader(vs);
@@ -170,18 +160,15 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 		return shaderProgram;
 	}
 
-
 	/**
 	 * Webgl Require textures to be power of two size
 	 *
 	 * @param {number} num
 	 * @return {number}
 	 */
-	function toPowerOfTwo( num )
-	{
-		return Math.pow( 2, Math.ceil( Math.log(num)/Math.log(2) ) );
+	function toPowerOfTwo(num) {
+		return Math.pow(2, Math.ceil(Math.log(num) / Math.log(2)));
 	}
-
 
 	/**
 	 * Load an image and push it to GPU
@@ -190,45 +177,44 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 * @param {string} url
 	 * @param {function} callback once the image is on gpu
 	 */
-	function texture( gl, url, callback )
-	{
+	function texture(gl, url, callback) {
 		var args = Array.prototype.slice.call(arguments, 3);
 
-		Texture.load( url, function( success ) {
+		Texture.load(url, function (success) {
 			if (!success) {
 				return;
 			}
-			
+
 			// Defensive: Check if context is lost before trying to create textures
 			if (gl.isContextLost()) {
-				console.warn("WebGL::texture - context lost, skipping texture creation");
+				console.warn('WebGL::texture - context lost, skipping texture creation');
 				return;
 			}
 			try {
 				var canvas, ctx, texture;
 				var enableMipmap = Configs.get('enableMipmap');
 
-				canvas        = document.createElement('canvas');
-				canvas.width  = toPowerOfTwo(this.width);
+				canvas = document.createElement('canvas');
+				canvas.width = toPowerOfTwo(this.width);
 				canvas.height = toPowerOfTwo(this.height);
-				ctx           = canvas.getContext('2d');
-				ctx.drawImage( this, 0, 0, canvas.width, canvas.height );
+				ctx = canvas.getContext('2d');
+				ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
 
 				texture = gl.createTexture();
-				gl.bindTexture( gl.TEXTURE_2D, texture );
-				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas );
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-				if(enableMipmap) {
-					gl.generateMipmap( gl.TEXTURE_2D );
+				if (enableMipmap) {
+					gl.generateMipmap(gl.TEXTURE_2D);
 				}
 
-				args.unshift( texture );
-				callback.apply( null, args );
+				args.unshift(texture);
+				callback.apply(null, args);
 			} catch (e) {
-				console.error("WebGL::texture creation error:", e);
+				console.error('WebGL::texture creation error:', e);
 			}
 		});
 	}
@@ -237,17 +223,17 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 * Detect Post-Processing can be Enabled (Bad Combination of Chrome+SoftwareOnly+IntelXE(block-listed by WebGL- crbug.com/41479539))
 	 */
 	function detectBadWebGL(gl) {
-		const renderer = gl.getParameter(gl.RENDERER) || "";
-		const vendor   = gl.getParameter(gl.VENDOR)   || "";
-		const ua       = navigator.userAgent;
+		const renderer = gl.getParameter(gl.RENDERER) || '';
+		const vendor = gl.getParameter(gl.VENDOR) || '';
+		const ua = navigator.userAgent;
 
-		const isSwiftShader = renderer.toLowerCase().includes("swiftshader");
-		const isIntel       = vendor.toLowerCase().includes("intel");
-		const isChrome      = /chrome|chromium/i.test(ua) && !/edg|opr/i.test(ua);
+		const isSwiftShader = renderer.toLowerCase().includes('swiftshader');
+		const isIntel = vendor.toLowerCase().includes('intel');
+		const isChrome = /chrome|chromium/i.test(ua) && !/edg|opr/i.test(ua);
 
-		if(isSwiftShader && isIntel && isChrome){
-			console.warn("[WebGL] PostProcessing disabled due to WebGL compatibility issue:", {
-				reason: "Intel + Chrome + SwiftShader",
+		if (isSwiftShader && isIntel && isChrome) {
+			console.warn('[WebGL] PostProcessing disabled due to WebGL compatibility issue:', {
+				reason: 'Intel + Chrome + SwiftShader',
 				vendor: gl.getParameter(gl.VENDOR),
 				renderer: gl.getParameter(gl.RENDERER),
 				version: gl.getParameter(gl.VERSION)
@@ -263,8 +249,7 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 * @param {object} gl context
 	 * @return {boolean}
 	 */
-	function isWebGL2(gl)
-	{
+	function isWebGL2(gl) {
 		return gl && window['WebGL2RenderingContext'] !== undefined && gl instanceof WebGL2RenderingContext;
 	}
 
@@ -272,11 +257,11 @@ define( ['Utils/Texture', 'Core/Configs'], function( Texture, Configs )
 	 * Export
 	 */
 	return {
-		getContext:          getContext,
+		getContext: getContext,
 		createShaderProgram: createShaderProgram,
 		detectBadWebGL: detectBadWebGL,
-		toPowerOfTwo:        toPowerOfTwo,
-		texture:             texture,
-		isWebGL2:		 	 isWebGL2,
+		toPowerOfTwo: toPowerOfTwo,
+		texture: texture,
+		isWebGL2: isWebGL2
 	};
 });

@@ -8,39 +8,39 @@
  * @author Vincent Thibault
  */
 
-define( [ './GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflate' ],
-function(    GameFileDecrypt,         BinaryReader,         Struct,         Inflate )
+define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflate'], function (
+	GameFileDecrypt,
+	BinaryReader,
+	Struct,
+	Inflate
+)
 {
 	'use strict';
-
-
 
 	/**
 	 * GRF Constructor
 	 *
 	 * @param {File} data
 	 */
-	function GRF( data )
+	function GRF(data)
 	{
-		if (data) {
-			this.load( data );
+		if (data)
+		{
+			this.load(data);
 		}
 	}
-
 
 	/**
 	 * @var {File System} Nodejs
 	 */
 	var fs = self.requireNode && self.requireNode('fs');
 
-
 	/**
 	 * GRF Constants
 	 */
-	GRF.FILELIST_TYPE_FILE           = 0x01; // entry is a file
-	GRF.FILELIST_TYPE_ENCRYPT_MIXED  = 0x02; // encryption mode 0 (header DES + periodic DES/shuffle)
+	GRF.FILELIST_TYPE_FILE = 0x01; // entry is a file
+	GRF.FILELIST_TYPE_ENCRYPT_MIXED = 0x02; // encryption mode 0 (header DES + periodic DES/shuffle)
 	GRF.FILELIST_TYPE_ENCRYPT_HEADER = 0x04; // encryption mode 1 (header DES only)
-
 
 	/**
 	 * GRF Structures
@@ -54,10 +54,7 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		'unsigned long version'
 	);
 
-	GRF.struct_table = new Struct(
-		'unsigned long pack_size',
-		'unsigned long real_size'
-	);
+	GRF.struct_table = new Struct('unsigned long pack_size', 'unsigned long real_size');
 
 	GRF.struct_entry = new Struct(
 		'unsigned long pack_size',
@@ -67,27 +64,24 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		'unsigned long offset'
 	);
 
-
 	/**
 	 * GRF METHODs
 	 */
-	GRF.prototype.file   = null;
+	GRF.prototype.file = null;
 	GRF.prototype.reader = null;
 	GRF.prototype.header = null;
-	GRF.prototype.table  = null;
-
+	GRF.prototype.table = null;
 
 	/**
 	 * Loading GRF
 	 *
 	 * @param {File} file
 	 */
-	GRF.prototype.load   = function Load( file )
+	GRF.prototype.load = function Load(file)
 	{
 		// Global object
-		this.file   = file;
+		this.file = file;
 		this.reader = new FileReaderSync();
-
 
 		// Local object
 		var buffer, fp;
@@ -96,63 +90,72 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		var data, out;
 		var i, count;
 
-
 		// Helper
-		file.slice  = file.slice || file.webkitSlice || file.mozSlice;
-		reader.load = function( start, len ) {
+		file.slice = file.slice || file.webkitSlice || file.mozSlice;
+		reader.load = function (start, len)
+		{
 			// node.js
-			if (fs && file.fd) {
+			if (fs && file.fd)
+			{
 				var buffer = new Buffer(len);
 				fs.readSync(file.fd, buffer, 0, len, start);
-				return (new Uint8Array(buffer)).buffer;
+				return new Uint8Array(buffer).buffer;
 			}
 
-			return reader.readAsArrayBuffer(
-				file.slice( start, start+len )
-			);
+			return reader.readAsArrayBuffer(file.slice(start, start + len));
 		};
 
-
 		// Check if file has enought content.
-		if (file.size < GRF.struct_header.size) {
+		if (file.size < GRF.struct_header.size)
+		{
 			throw new Error('GRF::load() - Not enough bytes to be a valid GRF');
 		}
 
-
 		// Read the header
-		buffer = reader.load( 0, GRF.struct_header.size );
-		fp     = new BinaryReader(buffer);
-		header = fp.readStruct( GRF.struct_header );
+		buffer = reader.load(0, GRF.struct_header.size);
+		fp = new BinaryReader(buffer);
+		header = fp.readStruct(GRF.struct_header);
 
-		header.signature  = String.fromCharCode.apply( null, header.signature);
+		header.signature = String.fromCharCode.apply(null, header.signature);
 		header.filecount -= header.skip + 7;
 
-
 		// Check file header
-		if (header.signature !== 'Master of Magic') {
+		if (header.signature !== 'Master of Magic')
+		{
 			throw new Error('GRF::load() - Incorrect header "' + header.signature + '", must be "Master of Magic".');
 		}
 
-		if (header.version !== 0x200) {
-			throw new Error('GRF::load() - Incorrect version "0x' + parseInt(header.version, 10).toString(16) + '", just support version "0x200"');
+		if (header.version !== 0x200)
+		{
+			throw new Error(
+				'GRF::load() - Incorrect version "0x' +
+					parseInt(header.version, 10).toString(16) +
+					'", just support version "0x200"'
+			);
 		}
 
-		if (header.file_table_offset + GRF.struct_header.size > file.size || header.file_table_offset < 0) {
-			throw new Error('GRF::load() - Can\'t jump to table list (' + header.file_table_offset + '), file length: ' + file.size);
+		if (header.file_table_offset + GRF.struct_header.size > file.size || header.file_table_offset < 0)
+		{
+			throw new Error(
+				"GRF::load() - Can't jump to table list (" + header.file_table_offset + '), file length: ' + file.size
+			);
 		}
 
 		// Load Table Info
-		buffer = reader.load( header.file_table_offset + GRF.struct_header.size, GRF.struct_table.size );
-		fp     = new BinaryReader( buffer );
-		table  = fp.readStruct( GRF.struct_table );
+		buffer = reader.load(header.file_table_offset + GRF.struct_header.size, GRF.struct_table.size);
+		fp = new BinaryReader(buffer);
+		table = fp.readStruct(GRF.struct_table);
 
 		// Load Table Data
-		buffer = reader.load( header.file_table_offset + GRF.struct_header.size + GRF.struct_table.size, table.pack_size );
-		data   = new Uint8Array(buffer);
-		out    = new Uint8Array(table.real_size);
+		buffer = reader.load(
+			header.file_table_offset + GRF.struct_header.size + GRF.struct_table.size,
+			table.pack_size
+		);
+		data = new Uint8Array(buffer);
+		out = new Uint8Array(table.real_size);
 
 		// Uncompress data
-		(new Inflate(data)).getBytes(out);
+		new Inflate(data).getBytes(out);
 
 		// Load entries
 		entries = loadEntries(out, header.filecount);
@@ -160,19 +163,19 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		// Store table data (used for regex search in tablelist)
 		// Set filename to lowercase (case insensitive in official client)
 		table.data = '';
-		for (i = 0, count = entries.length; i < count; ++i) {
-			table.data          += entries[i].filename + '\0';
-			entries[i].filename  = entries[i].filename.toLowerCase();
+		for (i = 0, count = entries.length; i < count; ++i)
+		{
+			table.data += entries[i].filename + '\0';
+			entries[i].filename = entries[i].filename.toLowerCase();
 		}
 
 		// Sort entries (for binary search)
 		entries.sort(sortEntries);
 
-		this.header  = header;
+		this.header = header;
 		this.entries = entries;
-		this.table   = table;
+		this.table = table;
 	};
-
 
 	/**
 	 * Load entries
@@ -182,33 +185,33 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 	 * @param {Uint8Array} content table
 	 * @param {number} file count
 	 */
-	 function loadEntries( out, count )
-	 {
+	function loadEntries(out, count)
+	{
 		// Read all entries
 		var i, pos, str;
 		var entries = new Array(count);
 
-		for (i = 0, pos = 0; i < count; ++i) {
+		for (i = 0, pos = 0; i < count; ++i)
+		{
 			str = '';
-			while (out[pos]) {
+			while (out[pos])
+			{
 				str += String.fromCharCode(out[pos++]);
 			}
 			pos++;
 
 			entries[i] = {
-				filename:       str,
-				pack_size:      out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
-				length_aligned: out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
-				real_size:      out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
-				type:           out[pos++],
-				offset:         (out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24) >>> 0
+				filename: str,
+				pack_size: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
+				length_aligned: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
+				real_size: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
+				type: out[pos++],
+				offset: (out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24)) >>> 0
 			};
 		}
 
 		return entries;
 	}
-
-
 
 	/**
 	 * Sort entries (to find it faster)
@@ -218,17 +221,18 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 	 */
 	function sortEntries(a, b)
 	{
-		if (a.filename > b.filename) {
+		if (a.filename > b.filename)
+		{
 			return 1;
 		}
 
-		if (a.filename < b.filename) {
+		if (a.filename < b.filename)
+		{
 			return -1;
 		}
 
 		return 0;
 	}
-
 
 	/**
 	 * Decode entry to return its content
@@ -237,64 +241,68 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 	 * @param {Entry}
 	 * @param {function} callback
 	 */
-	GRF.prototype.decodeEntry = function DecodeEntry( buffer, entry, callback )
+	GRF.prototype.decodeEntry = function DecodeEntry(buffer, entry, callback)
 	{
 		var out;
-		var data = new Uint8Array( buffer );
+		var data = new Uint8Array(buffer);
 
 		// Decode the file
-		if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_MIXED) {
-			GameFileDecrypt.decodeFull( data, entry.length_aligned, entry.pack_size);
+		if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_MIXED)
+		{
+			GameFileDecrypt.decodeFull(data, entry.length_aligned, entry.pack_size);
 		}
-		else if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_HEADER) {
-			GameFileDecrypt.decodeHeader( data, entry.length_aligned );
+		else if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_HEADER)
+		{
+			GameFileDecrypt.decodeHeader(data, entry.length_aligned);
 		}
 
 		// Uncompress
-		try {
+		try
+		{
 			out = new Uint8Array(entry.real_size);
-			(new Inflate(data)).getBytes(out);
+			new Inflate(data).getBytes(out);
 
 			callback(out.buffer);
-		} catch(error) {
-			console.error("Failed to decode entry", entry.filename, "due to", error);
+		}
+		catch (error)
+		{
+			console.error('Failed to decode entry', entry.filename, 'due to', error);
 		}
 	};
-
 
 	/**
 	 * Binary Search hack to find files in GRF list
 	 *
 	 * @param {string} filename
 	 */
-	GRF.prototype.search = function searchClosure()
+	GRF.prototype.search = (function searchClosure()
 	{
 		var range = new Uint32Array(2);
 
-		return function search( filename )
+		return function search(filename)
 		{
 			var entries = this.entries;
-			var v       = 0;
-			var middle  = 0;
+			var v = 0;
+			var middle = 0;
 
 			range[1] = 0;
 			range[0] = entries.length - 1;
 
-			while (range[1] < range[0]) {
-				middle   = range[1] + ((range[0]-range[1]) >> 1);
-				v        = (entries[middle].filename < filename ? 1 : 0);
+			while (range[1] < range[0])
+			{
+				middle = range[1] + ((range[0] - range[1]) >> 1);
+				v = entries[middle].filename < filename ? 1 : 0;
 				range[v] = middle + v;
 			}
 
-			if (range[1] < entries.length && entries[range[1]].filename === filename) {
+			if (range[1] < entries.length && entries[range[1]].filename === filename)
+			{
 				return range[1];
 			}
 
 			return -1;
 		};
-	}();
-
-
+	})();
 
 	/**
 	 * Find a file in the GRF
@@ -302,7 +310,7 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 	 * @param {string} filename
 	 * @param {function} callback
 	 */
-	GRF.prototype.getFile = function getFile( filename, callback )
+	GRF.prototype.getFile = function getFile(filename, callback)
 	{
 		// Not case sensitive...
 		var path = filename.toLowerCase();
@@ -312,19 +320,22 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 		var pos = this.search(path);
 
 		// If filename is find in GRF table list
-		if (pos !== -1) {
+		if (pos !== -1)
+		{
 			entry = this.entries[pos];
 
 			// Directory ?
-			if (!(entry.type & GRF.FILELIST_TYPE_FILE)) {
+			if (!(entry.type & GRF.FILELIST_TYPE_FILE))
+			{
 				return false;
 			}
 
 			// node.js
-			if (fs && this.file.fd) {
+			if (fs && this.file.fd)
+			{
 				var buffer = new Buffer(entry.length_aligned);
 				fs.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
-				this.decodeEntry( (new Uint8Array(buffer)).buffer, entry, callback);
+				this.decodeEntry(new Uint8Array(buffer).buffer, entry, callback);
 				return true;
 			}
 
@@ -334,20 +345,23 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 			);
 
 			// Load into memory
-			if (self.FileReader) {
+			if (self.FileReader)
+			{
 				var grf = this;
 
 				reader = new FileReader();
-				reader.onload = function(){
-					grf.decodeEntry( reader.result, entry, callback);
+				reader.onload = function ()
+				{
+					grf.decodeEntry(reader.result, entry, callback);
 				};
 				reader.readAsArrayBuffer(blob);
 			}
 
 			// Firefox doesn't seems to support FileReader in web worker
-			else {
+			else
+			{
 				reader = new FileReaderSync();
-				this.decodeEntry( reader.readAsArrayBuffer(blob), entry, callback );
+				this.decodeEntry(reader.readAsArrayBuffer(blob), entry, callback);
 			}
 
 			return true;
@@ -355,7 +369,6 @@ function(    GameFileDecrypt,         BinaryReader,         Struct,         Infl
 
 		return false;
 	};
-
 
 	/**
 	 * Export

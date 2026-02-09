@@ -37,14 +37,18 @@ define(function (require) {
 	 */
 	CashShop.list = [];
 
-	var _preferences = Preferences.get('CashShop', {
-		x: 80,
-		y: 100,
-		magnet_top: false,
-		magnet_bottom: false,
-		magnet_left: false,
-		magnet_right: false
-	}, 1.0);
+	var _preferences = Preferences.get(
+		'CashShop',
+		{
+			x: 80,
+			y: 100,
+			magnet_top: false,
+			magnet_bottom: false,
+			magnet_left: false,
+			magnet_right: false
+		},
+		1.0
+	);
 
 	/**
 	 * Store cash shop items
@@ -156,7 +160,8 @@ define(function (require) {
 			});
 
 		// Items event
-		this.ui.find('.panel-content .panel-items')
+		this.ui
+			.find('.panel-content .panel-items')
 			.on('dragstart', '.item', onItemDragStart)
 			.on('dragend', '.item', onItemDragEnd)
 			.on('contextmenu', '.item', onItemInfo);
@@ -234,7 +239,13 @@ define(function (require) {
 
 			banners.forEach((banner, index) => {
 				// Slide
-				const slide = jQuery('<div class="banner-slide" data-index="' + index + '" data-url="' + (banner.url || '') + '"><button class="btn-banner"></button></div>');
+				const slide = jQuery(
+					'<div class="banner-slide" data-index="' +
+						index +
+						'" data-url="' +
+						(banner.url || '') +
+						'"><button class="btn-banner"></button></div>'
+				);
 				Client.loadFile(DB.INTERFACE_PATH + 'cashshop/' + banner.bmp, function (data) {
 					slide.css('backgroundImage', 'url(' + data + ')');
 				});
@@ -242,7 +253,11 @@ define(function (require) {
 				slidesContainer.append(slide);
 
 				// Dot
-				const dot = jQuery('<li class="banner-dot" data-background="cashshop/btn_ad_off.bmp" data-active="cashshop/btn_ad_on.bmp" data-index="' + index + '"><button class="btn-banner"></button></li>');
+				const dot = jQuery(
+					'<li class="banner-dot" data-background="cashshop/btn_ad_off.bmp" data-active="cashshop/btn_ad_on.bmp" data-index="' +
+						index +
+						'"><button class="btn-banner"></button></li>'
+				);
 				if (index === 0) dot.addClass('active');
 				dotsContainer.append(dot);
 			});
@@ -254,12 +269,12 @@ define(function (require) {
 	};
 
 	CashShop.onKeyDown = function onKeyDown(event) {
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			var pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
 			Network.sendPacket(pkt);
 			CashShop.remove();
 		}
-	}
+	};
 
 	CashShop.readPoints = function readPoints(cashPoint, kafraPoints, tab) {
 		this.cashPoint = cashPoint;
@@ -268,7 +283,7 @@ define(function (require) {
 		this.ui.find('#cashpoint > span').html(this.cashPoint);
 		this.ui.find('.cashpoint_footer').html(this.cashPoint + ' C');
 		this.ui.find('.free-point').html(this.kafraPoints + ' C');
-	}
+	};
 
 	/**
 	 * Search in a list for an item by its index
@@ -307,7 +322,6 @@ define(function (require) {
 	 * Success reponse buying cash shop item
 	 */
 	CashShop.setSuccessCashShopUpdate = function setSuccessCashShopUpdate(res) {
-
 		if (res) {
 			CashShop.checkCartItemLen += 1;
 			switch (res.result) {
@@ -316,7 +330,11 @@ define(function (require) {
 						CashShop.cartItemLen = 0;
 						CashShop.checkCartItemLen = 0;
 						UIManager.showMessageBox('Successfully done buying items from cash shop!', 'ok');
-						ChatBox.addText('Successfully done buying items from cash shop!', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
+						ChatBox.addText(
+							'Successfully done buying items from cash shop!',
+							ChatBox.TYPE.INFO,
+							ChatBox.FILTER.PUBLIC_LOG
+						);
 						CashShop.ui.find('#cashpoint span').html(res.cashPoints);
 						CashShop.ui.find('.cashpoint_footer').html(res.cashPoints);
 						onResetCartListCashShop();
@@ -325,7 +343,11 @@ define(function (require) {
 				case 2:
 					//insuficient cashpoint or kafra points
 					UIManager.showMessageBox('Insuficient cash points or kafra points!', 'ok');
-					ChatBox.addText('Insuficient cash points or kafra points!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+					ChatBox.addText(
+						'Insuficient cash points or kafra points!',
+						ChatBox.TYPE.ERROR,
+						ChatBox.FILTER.PUBLIC_LOG
+					);
 					break;
 
 				case 4:
@@ -336,19 +358,23 @@ define(function (require) {
 
 				default:
 					UIManager.showMessageBox('Something went wrong while using cashshop!', 'ok');
-					ChatBox.addText('Something went wrong while using cashshop!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+					ChatBox.addText(
+						'Something went wrong while using cashshop!',
+						ChatBox.TYPE.ERROR,
+						ChatBox.FILTER.PUBLIC_LOG
+					);
 					break;
 			}
 		}
-	}
+	};
 
 	CashShop.readCashShopItems = function readCashShopItems(items) {
 		CashShop.cashShopListItem.push({
 			count: items.count,
 			items: items.items,
-			tabNum: items.tabNum,
+			tabNum: items.tabNum
 		});
-	}
+	};
 
 	/**
 	 * Load Cash Shop Components
@@ -364,15 +390,12 @@ define(function (require) {
 		CashShop.ui.find('#panel-menu .tab').removeClass('active');
 		CashShop.ui.find('#panel-menu .tab[data-index="' + CashShop.activeCashMenu + '"]').addClass('active');
 
-		let tab_items = (CashShop.cashShopListItem[CashShop.activeCashMenu]?.items?.length >= 0) ? CashShop.cashShopListItem[CashShop.activeCashMenu].items : [];
+		let tab_items =
+			CashShop.cashShopListItem[CashShop.activeCashMenu]?.items?.length >= 0
+				? CashShop.cashShopListItem[CashShop.activeCashMenu].items
+				: [];
 		CashShop.initPagination(tab_items);
-		CashShop.renderCashShopItems(
-			CashShop.paginate(
-				tab_items,
-				CashShop.pageOffset,
-				CashShop.pageEnd,
-			)
-		);
+		CashShop.renderCashShopItems(CashShop.paginate(tab_items, CashShop.pageOffset, CashShop.pageEnd));
 	};
 
 	CashShop.startBannerRotation = function () {
@@ -429,7 +452,7 @@ define(function (require) {
 						<span class="item-name">${it.identifiedDisplayName}</span>
 					</div>
 					<div class="lower-con">
-						<div class="item-left-img" data-background="${'collection/' + (it.identifiedResourceName) + '.bmp'}"></div>
+						<div class="item-left-img" data-background="${'collection/' + it.identifiedResourceName + '.bmp'}"></div>
 						<div class="item-right-desc">
 							<div class="item-desc-price">
 								<span>${item.price}</span>
@@ -443,7 +466,7 @@ define(function (require) {
 			);
 		}
 		content.each(this.parseHTML).find('*').each(this.parseHTML);
-	}
+	};
 
 	CashShop.initPagination = function initPagination(items) {
 		CashShop.currentPage = 1;
@@ -458,7 +481,7 @@ define(function (require) {
 
 		CashShop.totalPage = Math.ceil(items.length / CashShop.pageLimit);
 		CashShop.ui.find('.panel-pagination span.pagi-countpage').html(CashShop.totalPage);
-		CashShop.ui.find('.panel-pagination span.pagi-changepage').html((CashShop.totalPage > 0) ? 1 : 0);
+		CashShop.ui.find('.panel-pagination span.pagi-changepage').html(CashShop.totalPage > 0 ? 1 : 0);
 
 		Client.loadFile(DB.INTERFACE_PATH + 'cashshop/bt_arrowR_' + arrowsR + '.bmp', function (data) {
 			content.find('.go-next').css('backgroundImage', 'url(' + data + ')');
@@ -475,18 +498,18 @@ define(function (require) {
 		Client.loadFile(DB.INTERFACE_PATH + 'cashshop/bt_arrowL2_' + arrowsL + '.bmp', function (data) {
 			content.find('.go-first').css('backgroundImage', 'url(' + data + ')');
 		});
-	}
+	};
 
 	CashShop.paginate = function paginate(items, start, end) {
 		return items.slice(start, end);
-	}
+	};
 
 	CashShop.paginationOffsetLimit = function paginationOffsetLimit() {
 		var start = (CashShop.currentPage - 1) * CashShop.pageLimit;
 		var end = CashShop.pageLimit * CashShop.currentPage;
 		CashShop.pageOffset = start;
 		CashShop.pageEnd = end;
-	}
+	};
 
 	function onClickPagination(e) {
 		let index = parseInt(e.currentTarget.dataset.index);
@@ -505,21 +528,21 @@ define(function (require) {
 				CashShop.pageOffset = 0;
 				CashShop.isFirstPage = true;
 				break;
-			case 2://go prev//
+			case 2: //go prev//
 				CashShop.currentPage--;
 				if (CashShop.currentPage <= 1) {
 					CashShop.currentPage = 1;
 					CashShop.isFirstPage = true;
 				}
 				break;
-			case 3://go next//
+			case 3: //go next//
 				CashShop.currentPage++;
 				if (CashShop.currentPage >= CashShop.totalPage) {
 					CashShop.currentPage = CashShop.totalPage;
 					CashShop.isLastPage = true;
 				}
 				break;
-			case 4://go last//
+			case 4: //go last//
 				CashShop.currentPage = CashShop.totalPage;
 				CashShop.pageOffset = (CashShop.currentPage - 1) * CashShop.pageLimit;
 				CashShop.isLastPage = true;
@@ -547,13 +570,7 @@ define(function (require) {
 
 		CashShop.ui.find('.panel-pagination span.pagi-changepage').html(CashShop.currentPage);
 
-		CashShop.renderCashShopItems(
-			CashShop.paginate(
-				items,
-				CashShop.pageOffset,
-				CashShop.pageEnd,
-			)
-		);
+		CashShop.renderCashShopItems(CashShop.paginate(items, CashShop.pageOffset, CashShop.pageEnd));
 	}
 
 	function onClickSearch() {
@@ -589,13 +606,7 @@ define(function (require) {
 		CashShop.csListItemSearchResult = newList;
 		CashShop.initPagination(newList);
 		CashShop.paginationOffsetLimit();
-		CashShop.renderCashShopItems(
-			CashShop.paginate(
-				newList,
-				CashShop.pageOffset,
-				CashShop.pageEnd,
-			)
-		);
+		CashShop.renderCashShopItems(CashShop.paginate(newList, CashShop.pageOffset, CashShop.pageEnd));
 	}
 
 	function onClickActionCounterButtonCart(e) {
@@ -638,7 +649,10 @@ define(function (require) {
 		if (CashShop.cartItem.length === 0) {
 			CashShop.cartItemTotalPrice = 0;
 		} else {
-			CashShop.cartItemTotalPrice = CashShop.cartItem.reduce((total, item) => total + (item.price * item.amount), 0);
+			CashShop.cartItemTotalPrice = CashShop.cartItem.reduce(
+				(total, item) => total + item.price * item.amount,
+				0
+			);
 		}
 		CashShop.ui.find('.cart-footer-action .total-price span').html(CashShop.cartItemTotalPrice + ' C');
 	}
@@ -657,8 +671,7 @@ define(function (require) {
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 			item = data.data;
-		}
-		catch (e) {
+		} catch (e) {
 			return false;
 		}
 
@@ -729,8 +742,10 @@ define(function (require) {
 				</div>
 			</li>`;
 			content.find('.items').append(html);
-			Client.loadFile(DB.INTERFACE_PATH + 'collection/' + (it.identifiedResourceName) + '.bmp', function (data) {
-				content.find('.item[data-index="' + itemId + '"] .item-dt-img').css('backgroundImage', 'url(' + data + ')');
+			Client.loadFile(DB.INTERFACE_PATH + 'collection/' + it.identifiedResourceName + '.bmp', function (data) {
+				content
+					.find('.item[data-index="' + itemId + '"] .item-dt-img')
+					.css('backgroundImage', 'url(' + data + ')');
 			});
 		} else {
 			itemCart.amount += amount;
@@ -738,7 +753,6 @@ define(function (require) {
 		}
 		content.each(CashShop.parseHTML).find('*').each(CashShop.parseHTML);
 		updateCartTotal();
-
 	}
 
 	/**
@@ -748,7 +762,6 @@ define(function (require) {
 		let itemId = parseInt(e.currentTarget.dataset.itemid);
 		addItemToCart(itemId);
 	}
-
 
 	/**
 	 * purchase item list in cart
@@ -778,7 +791,6 @@ define(function (require) {
 	 * Menu navigation
 	 */
 	function onClickMenu(e) {
-
 		var contentMenu = CashShop.ui.find('#panel-menu');
 		var contentListItem = CashShop.ui.find('.panel-items');
 		var selectedMenu = e.currentTarget.dataset.index.toUpperCase();
@@ -792,15 +804,12 @@ define(function (require) {
 			contentMenu.find('.tab').removeClass('active');
 			e.currentTarget.classList.add('active');
 
-			let tab_items = (CashShop.cashShopListItem[CashShop.activeCashMenu]?.items?.length >= 0) ? CashShop.cashShopListItem[CashShop.activeCashMenu].items : [];
+			let tab_items =
+				CashShop.cashShopListItem[CashShop.activeCashMenu]?.items?.length >= 0
+					? CashShop.cashShopListItem[CashShop.activeCashMenu].items
+					: [];
 			CashShop.initPagination(tab_items);
-			CashShop.renderCashShopItems(
-				CashShop.paginate(
-					tab_items,
-					CashShop.pageOffset,
-					CashShop.pageEnd,
-				)
-			);
+			CashShop.renderCashShopItems(CashShop.paginate(tab_items, CashShop.pageOffset, CashShop.pageEnd));
 		}
 	}
 
@@ -810,7 +819,6 @@ define(function (require) {
 	function onItemOut() {
 		CashShop.ui.find('.overlay').hide();
 	}
-
 
 	function onMouseMoveTab(event) {
 		var overlay = CashShop.ui.find('.overlay');
@@ -834,7 +842,6 @@ define(function (require) {
 		CashShop.ui.find('.overlay').hide();
 	}
 
-
 	/**
 	 * Start dragging an item
 	 */
@@ -853,12 +860,15 @@ define(function (require) {
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
 		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'CashShop',
-				data: item
-			})
+		event.originalEvent.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'item',
+					from: 'CashShop',
+					data: item
+				})
+			)
 		);
 
 		onItemOut();

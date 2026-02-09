@@ -57,10 +57,10 @@
 	height: 20px;
 }
 .ItemPreview .controls .reset {
-    border: 0;
-    width: 80px;
-    height: 20px;
-    background-repeat: no-repeat;
-    background-color: transparent;
+	border: 0;
+	width: 80px;
+	height: 20px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 	margin: 0 2px;
 }

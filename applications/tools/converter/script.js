@@ -1,48 +1,47 @@
-(function(){
-
-	"use strict";
+(function () {
+	'use strict';
 
 	/**
 	 * @var {Array} file given
 	 */
 	var _files = [];
 
-
 	/**
 	 * @var {Object} files definition
 	 */
 	var Converter = {
-
 		ItemTable: {
-			title:  "Items Table",
-			output: "Items/ItemTable.js",
-			txt: ["idnum2itemdesctable.txt",
-			      "idnum2itemdisplaynametable.txt",
-			      "idnum2itemresnametable.txt",
-			      "num2itemdesctable.txt",
-			      "num2itemdisplaynametable.txt",
-			      "num2itemresnametable.txt",
-			      "itemslotcounttable.txt"],
+			title: 'Items Table',
+			output: 'Items/ItemTable.js',
+			txt: [
+				'idnum2itemdesctable.txt',
+				'idnum2itemdisplaynametable.txt',
+				'idnum2itemresnametable.txt',
+				'num2itemdesctable.txt',
+				'num2itemdisplaynametable.txt',
+				'num2itemresnametable.txt',
+				'itemslotcounttable.txt'
+			],
 			xray: [],
-			lua:  ["iteminfo.lua"]
+			lua: ['iteminfo.lua']
 		},
 
 		HatTable: {
-			title: "Hats View ID",
-			output: "Items/HatTable.js",
-			txt:  [],
-			xray: [ "visionary_tab.txt "],
-			lua:  [ "accessoryid.lua", "accname.lua"],
+			title: 'Hats View ID',
+			output: 'Items/HatTable.js',
+			txt: [],
+			xray: ['visionary_tab.txt '],
+			lua: ['accessoryid.lua', 'accname.lua'],
 			lua_key: /ACCESSORY_([a-zA-Z0-9_-]+)(\s+)?=(\s+)?(\d+),?/g,
 			lua_val: /\[ACCESSORY_IDs\.ACCESSORY_([a-zA-Z0-9_-]+)\](\s+)?=(\s+)?"([^"]+)",?/g
 		},
 
 		MonsterTable: {
-			title: "Monsters View ID",
-			output: "Monsters/MonsterTable.js",
-			txt:  [],
-			xray: ["monstrosity_tab.txt"],
-			lua:  ["npcidentity.lua", "jobname.lua"],
+			title: 'Monsters View ID',
+			output: 'Monsters/MonsterTable.js',
+			txt: [],
+			xray: ['monstrosity_tab.txt'],
+			lua: ['npcidentity.lua', 'jobname.lua'],
 			lua_key: /JT_(\w+)(.+)?\=(\s+)?(\d+),?/g,
 			lua_val: /\[jobtbl\.JT_([^\]]+)\](\s+)?=(\s+)?"([^"]+)",?/g
 		}
@@ -54,14 +53,14 @@
 	 * @param {string} string to convert
 	 */
 	function to_ascii(str) {
-		return str.replace(/[\u0000-\uffff]/g, function(ch) {
+		return str.replace(/[\u0000-\uffff]/g, function (ch) {
 			var code = ch.charCodeAt(0).toString(16);
 			if (code.length <= 2) {
-				while (code.length < 2) code = "0" + code;
-				return "\\x" + code;
+				while (code.length < 2) code = '0' + code;
+				return '\\x' + code;
 			} else {
-				while (code.length < 4) code = "0" + code;
-				 return "\\u" + code;
+				while (code.length < 4) code = '0' + code;
+				return '\\u' + code;
 			}
 		});
 	}
@@ -75,8 +74,7 @@
 	function sandboxEval(code) {
 		try {
 			return new Function('return ' + code + ';')();
-		}
-		catch(e) {
+		} catch (e) {
 			return null;
 		}
 	}
@@ -86,12 +84,12 @@
 	 *
 	 * @param {string} string to parse
 	 */
-	function xray_parse(content)
-	{
+	function xray_parse(content) {
 		var id = 0;
 		var output = {};
 		var lines = content.split('\n');
-		var i, count = lines.length;
+		var i,
+			count = lines.length;
 
 		for (i = 0; i < count; ++i) {
 			if (lines[i][0] === '!') {
@@ -110,30 +108,35 @@
 	 *
 	 * @param {string} content to load
 	 */
-	function txt_parse( file )
-	{
+	function txt_parse(file) {
 		// Remove comments
-		var content  = file.content.replace(/\r\n/g, '\n');
-		content      = ('\n' + content).replace(/\n(\/\/[^\n]+)/g, '');
+		var content = file.content.replace(/\r\n/g, '\n');
+		content = ('\n' + content).replace(/\n(\/\/[^\n]+)/g, '');
 
 		var elements = content.split('#');
-		var i, count = elements.length;
+		var i,
+			count = elements.length;
 		var output = {};
 		var key;
 
-		for (i = 0; i + 1 < count; i+= 2) {
+		for (i = 0; i + 1 < count; i += 2) {
 			key = elements[i].replace(/^\s+|\s+$/g, '');
 
 			// Not sure does client skip empty key ?
 			if (!key.length) {
-				alert('Malformed text file, empty key found in "'+ file.name +'"' +
-					  ', after item id: ' + elements[i-2].replace(/^\s+|\s+$/g, '') + '.\n' +
-					  'Skipping rest of file...'
+				alert(
+					'Malformed text file, empty key found in "' +
+						file.name +
+						'"' +
+						', after item id: ' +
+						elements[i - 2].replace(/^\s+|\s+$/g, '') +
+						'.\n' +
+						'Skipping rest of file...'
 				);
 				return output;
 			}
 
-			output[key] = to_ascii(elements[i+1].replace(/^\s+|\s+$/g, ''));
+			output[key] = to_ascii(elements[i + 1].replace(/^\s+|\s+$/g, ''));
 		}
 
 		return output;
@@ -147,7 +150,8 @@
 	 */
 	function lua_remove_comments(content) {
 		// Block comment
-		var start = 0, end;
+		var start = 0,
+			end;
 		while ((start = content.indexOf('--[[')) !== -1) {
 			end = content.indexOf('--]]');
 			if (end === -1) {
@@ -158,7 +162,7 @@
 		}
 
 		// temp replace in quote...
-		content = content.replace(/"([^"]+)?--[^"]+/g, function(a){
+		content = content.replace(/"([^"]+)?--[^"]+/g, function (a) {
 			return a.replace(/-/g, '\\\\x2d');
 		});
 
@@ -179,27 +183,33 @@
 	 * @param {regex} keys regex
 	 * @param {regex} keys value
 	 */
-	function lua_parse_keyval(keyFile, valFile, key_reg, val_reg)
-	{
+	function lua_parse_keyval(keyFile, valFile, key_reg, val_reg) {
 		var content, m;
-		var keys   = {};
+		var keys = {};
 		var output = {};
 
 		// Parse keys
 		content = lua_remove_comments(keyFile.content);
-		while (m = key_reg.exec(content)) {
+		while ((m = key_reg.exec(content))) {
 			keys[m[1]] = m[4];
 		}
 
 		// Parse vals
 		content = lua_remove_comments(valFile.content);
-		while (m = val_reg.exec(content)) {
+		while ((m = val_reg.exec(content))) {
 			if (!(m[1] in keys)) {
-				alert('Can\'t find index "' + m[1] + '" ' +
-					  'from file "' + valFile.name + '" ' +
-					  'in file "' + keyFile.name + '".\n' +
-					  'Skipping...'
-					 );
+				alert(
+					'Can\'t find index "' +
+						m[1] +
+						'" ' +
+						'from file "' +
+						valFile.name +
+						'" ' +
+						'in file "' +
+						keyFile.name +
+						'".\n' +
+						'Skipping...'
+				);
 				continue;
 			}
 			output[keys[m[1]]] = to_ascii(m[4]);
@@ -213,10 +223,7 @@
 	 *
 	 * @param {string} content
 	 */
-	function lua_parse_glob(content)
-	{
-
-
+	function lua_parse_glob(content) {
 		// Remove comments
 		content = lua_remove_comments(content);
 
@@ -226,10 +233,9 @@
 		// Remove variable container
 		content = content.replace(/^([^\{]+)\{/, '');
 		// Encode special characters
-		content = content.replace(/"([^"]+)",/g, function(a,b){
-			return '"' + to_ascii(b).replace(/\\/g,'\\\\') + '",';
+		content = content.replace(/"([^"]+)",/g, function (a, b) {
+			return '"' + to_ascii(b).replace(/\\/g, '\\\\') + '",';
 		});
-
 
 		// Convert lua array
 		content = content.replace(/\{(\s+?"[^\}]+)\}/g, '[$1]');
@@ -240,7 +246,6 @@
 		// Convert parameters
 		content = content.replace(/(\s+)(\w+)\s+?=\s+?/g, '$1"$2": ');
 
-
 		// Remove un-needed coma
 		content = content.replace(/,(\s+(\]|\}))/g, '$1').replace(/,(\s+)?$/, '');
 
@@ -248,15 +253,14 @@
 		content = '{' + content;
 
 		// some functions code
-		content = (content+'\0').replace(/\n\}[^\0]+\0/, '');
+		content = (content + '\0').replace(/\n\}[^\0]+\0/, '');
 
 		// Fix curly brace
-		var open  = content.split('{').length;
+		var open = content.split('{').length;
 		var close = content.split('}').length;
 		if (open > close) {
 			content += '}';
 		}
-
 
 		return sandboxEval('(' + content + ')');
 	}
@@ -264,16 +268,14 @@
 	/**
 	 * Load files dropped to browser
 	 */
-	function load(event)
-	{
+	function load(event) {
 		var files;
 		var i, count;
 
 		// Get files
 		if ('files' in this) {
 			files = this.files;
-		}
-		else if (event.dataTransfer) {
+		} else if (event.dataTransfer) {
 			files = event.dataTransfer.files;
 		}
 
@@ -283,12 +285,12 @@
 		}
 
 		// Load files
-		for (i = 0, count = files.length; i <count; ++i) {
+		for (i = 0, count = files.length; i < count; ++i) {
 			if (!files[i].name.match(/\.(lua|txt)$/i)) {
 				continue;
 			}
 
-			var reader    = new FileReader();
+			var reader = new FileReader();
 			reader.onload = readerLoader(files[i]);
 			reader.readAsArrayBuffer(files[i]);
 		}
@@ -297,26 +299,25 @@
 	/**
 	 * Convert result from filereader.readAsArrayBuffer to string and export it
 	 */
-	function readerLoader(file)
-	{
+	function readerLoader(file) {
 		return function onload(event) {
 			var data, str;
 			var i, count;
 
-			data  = new Uint8Array(event.target.result);
+			data = new Uint8Array(event.target.result);
 			count = data.length;
-			str   = '';
+			str = '';
 
 			// Convert to string
 			for (i = 0; i < count; ++i) {
 				if (data[i] === 0) {
 					break;
 				}
-				str += String.fromCharCode( data[i] );
+				str += String.fromCharCode(data[i]);
 			}
 
 			_files.push({
-				name:    file.name.toLowerCase(),
+				name: file.name.toLowerCase(),
 				content: str
 			});
 
@@ -327,17 +328,17 @@
 	/**
 	 * Show box already used
 	 */
-	function removeUsedBox()
-	{
+	function removeUsedBox() {
 		var groups = document.querySelectorAll('.group');
 		var i, j, count, size;
-		var name, found = 0;
+		var name,
+			found = 0;
 
 		count = groups.length;
-		size  = _files.length;
+		size = _files.length;
 
 		for (i = 0; i < count; ++i) {
-			name  = groups[i].querySelector('.name').textContent.toLowerCase();
+			name = groups[i].querySelector('.name').textContent.toLowerCase();
 
 			for (j = 0; j < size; ++j) {
 				if (_files[j].name === name) {
@@ -348,18 +349,17 @@
 			}
 		}
 
-		document.querySelector('.convert').disabled = (found !== count);
+		document.querySelector('.convert').disabled = found !== count;
 	}
 
 	/**
 	 * Start convert files
 	 */
-	function convert()
-	{
-		var to   = document.querySelector('.to');
+	function convert() {
+		var to = document.querySelector('.to');
 		var from = document.querySelector('.from');
 
-		var info  = Converter[to.value];
+		var info = Converter[to.value];
 		var files = info[from.value];
 
 		var i, j, count, size, found;
@@ -385,25 +385,23 @@
 			return;
 		}
 
-
 		function merge(from, to, method) {
 			var keys = Object.keys(from);
-			var i, count = keys.length;
+			var i,
+				count = keys.length;
 
 			// Description have to be an array
 			if (method.match(/DescriptionName/i)) {
 				for (i = 0; i < count; ++i) {
-					(to[ keys[i] ] || (to[ keys[i] ] = {}))[method] = from[keys[i]].split('\n');
+					(to[keys[i]] || (to[keys[i]] = {}))[method] = from[keys[i]].split('\n');
 				}
-			}
-			else if (method.match(/slotCount/i)) {
+			} else if (method.match(/slotCount/i)) {
 				for (i = 0; i < count; ++i) {
-					(to[ keys[i] ] || (to[ keys[i] ] = {}))[method] = +from[keys[i]];
+					(to[keys[i]] || (to[keys[i]] = {}))[method] = +from[keys[i]];
 				}
-			}
-			else {
+			} else {
 				for (i = 0; i < count; ++i) {
-					(to[ keys[i] ] || (to[ keys[i] ] = {}))[method] = from[keys[i]];
+					(to[keys[i]] || (to[keys[i]] = {}))[method] = from[keys[i]];
 				}
 			}
 		}
@@ -433,8 +431,8 @@
 				else {
 					output = lua_parse_glob(out[0].content);
 				}
-								if (!output) {
-				alert('Sorry, something bad happened while converting lua files... Exiting.');
+				if (!output) {
+					alert('Sorry, something bad happened while converting lua files... Exiting.');
 					return;
 				}
 				break;
@@ -457,8 +455,7 @@
 	 * @param {string} location folder
 	 * @param {object} data structure
 	 */
-	function save( path, data )
-	{
+	function save(path, data) {
 		var content = [
 			'/**',
 			'* DB/' + path,
@@ -483,14 +480,14 @@
 		var convert = document.querySelector('.convert').parentNode;
 		convert.className = 'removing';
 
-		var save   = document.querySelector('.save');
+		var save = document.querySelector('.save');
 
 		save.parentNode.className = '';
 		save.parentNode.firstChild.textContent = 'Save this file in DB/' + path;
 
-		save.href     = window.URL.createObjectURL(blob);
-		save.download = path.replace(/.*\//,'');
-		save.onclick  = function() {
+		save.href = window.URL.createObjectURL(blob);
+		save.download = path.replace(/.*\//, '');
+		save.onclick = function () {
 			save.parentNode.className = 'removing';
 			convert.className = '';
 		};
@@ -500,16 +497,16 @@
 	 * Initialize UI
 	 */
 	function initialize() {
-		var to        = document.querySelector('.to');
-		var from      = document.querySelector('.from');
-		var groups    = document.querySelectorAll('.group');
+		var to = document.querySelector('.to');
+		var from = document.querySelector('.from');
+		var groups = document.querySelectorAll('.group');
 		var container = document.querySelector('.elements');
-		var button    = document.querySelector('.convert');
+		var button = document.querySelector('.convert');
 
 		var i, count;
 
 		function remove(node) {
-			return function(){
+			return function () {
 				node.parentNode.removeChild(node);
 			};
 		}
@@ -517,18 +514,18 @@
 		// Remove box
 		for (i = 0, count = groups.length; i < count; ++i) {
 			groups[i].classList.add('removing');
-			setTimeout( remove(groups[i]), 400);
+			setTimeout(remove(groups[i]), 400);
 		}
 
 		// Add new
 		var files = Converter[to.value][from.value];
 		for (i = 0, count = files.length; i < count; ++i) {
 			var group = document.createElement('div');
-			var box   = document.createElement('div');
-			var name  = document.createElement('div');
-			group.className  = "group";
-			box.className    = "box";
-			name.className   = "name";
+			var box = document.createElement('div');
+			var name = document.createElement('div');
+			group.className = 'group';
+			box.className = 'box';
+			name.className = 'name';
 			name.textContent = files[i];
 			group.appendChild(box);
 			group.appendChild(name);
@@ -541,8 +538,7 @@
 		for (i = 0; i < 3; ++i) {
 			if (Converter[to.value][from.children[i].value].length) {
 				from.children[i].removeAttribute('disabled');
-			}
-			else {
+			} else {
 				from.children[i].setAttribute('disabled', true);
 			}
 		}
@@ -553,23 +549,39 @@
 	/**
 	 * Wait for page to be loaded
 	 */
-	window.addEventListener('load', function(){
-		var elements = document.querySelectorAll('.to, .from');
-		elements[0].addEventListener('change', initialize, false);
-		elements[1].addEventListener('change', initialize, false);
+	window.addEventListener(
+		'load',
+		function () {
+			var elements = document.querySelectorAll('.to, .from');
+			elements[0].addEventListener('change', initialize, false);
+			elements[1].addEventListener('change', initialize, false);
 
-		document.querySelector('.convert').addEventListener('click', convert, false);
+			document.querySelector('.convert').addEventListener('click', convert, false);
 
-		document.body.ondragover  = function(event) { event.preventDefault && event.preventDefault(); document.body.className="drag"; return false; };
-		document.body.ondragend   = function(event) { event.preventDefault && event.preventDefault(); document.body.className="";     return false; };
-		document.body.ondragleave = function(event) { event.preventDefault && event.preventDefault(); document.body.className="";     return false; };
-		document.body.ondrop      = function(event) {
-			document.body.className="";
-			event.preventDefault && event.preventDefault();
-			load.call(this, event);
-			return false;
-		};
+			document.body.ondragover = function (event) {
+				event.preventDefault && event.preventDefault();
+				document.body.className = 'drag';
+				return false;
+			};
+			document.body.ondragend = function (event) {
+				event.preventDefault && event.preventDefault();
+				document.body.className = '';
+				return false;
+			};
+			document.body.ondragleave = function (event) {
+				event.preventDefault && event.preventDefault();
+				document.body.className = '';
+				return false;
+			};
+			document.body.ondrop = function (event) {
+				document.body.className = '';
+				event.preventDefault && event.preventDefault();
+				load.call(this, event);
+				return false;
+			};
 
-		initialize();
-	}, false);
+			initialize();
+		},
+		false
+	);
 })();

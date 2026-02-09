@@ -27,17 +27,13 @@ define(function (require)
 	var versionInfo = {
 		default: EquipmentV0,
 		common: {
-			20220831:	EquipmentV4,
-			20170208:	EquipmentV3,
-			20150225:	EquipmentV2,
-			20101124:	EquipmentV1,
+			20220831: EquipmentV4,
+			20170208: EquipmentV3,
+			20150225: EquipmentV2,
+			20101124: EquipmentV1
 		},
-		re: {
-
-		},
-		prere:{
-
-		}
+		re: {},
+		prere: {}
 	};
 
 	var EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
@@ -45,8 +41,8 @@ define(function (require)
 	var _selectUIVersion = EquipmentController.selectUIVersion;
 
 	// Extend default UI selector
-	EquipmentController.selectUIVersion = function(){
-
+	EquipmentController.selectUIVersion = function ()
+	{
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
@@ -54,9 +50,11 @@ define(function (require)
 		DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
 
 		// Escape to close the UI
-		component.onKeyDown = function onKeyDown(e) {
-			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
-				if (typeof component.toggle === 'function') component.toggle();
+		component.onKeyDown = function onKeyDown(e)
+		{
+			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible'))
+			{
+				if (typeof component.toggle === 'function') {component.toggle();}
 			}
 		};
 	};

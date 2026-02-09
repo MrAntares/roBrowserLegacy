@@ -6,47 +6,45 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var DB                   = require('DB/DBManager');
-	var Network				 = require('Network/NetworkManager');
-	var PACKET				 = require('Network/PacketStructure');
-	var Client               = require('Core/Client');
-	var Preferences          = require('Core/Preferences');
-	var UIManager            = require('UI/UIManager');
-	var UIComponent          = require('UI/UIComponent');
-	var htmlText             = require('text!./Reputation.html');
-	var cssText              = require('text!./Reputation.css');
-
+	var DB = require('DB/DBManager');
+	var Network = require('Network/NetworkManager');
+	var PACKET = require('Network/PacketStructure');
+	var Client = require('Core/Client');
+	var Preferences = require('Core/Preferences');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./Reputation.html');
+	var cssText = require('text!./Reputation.css');
 
 	/**
 	 * Create Component
 	 */
-	var Reputation = new UIComponent( 'Reputation', htmlText, cssText );
-
+	var Reputation = new UIComponent('Reputation', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Window preferences
 	 */
-	var _preferences = Preferences.get('Reputation', {
-		x:        400,
-		y:        200,
-		show:     true,
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'Reputation',
+		{
+			x: 400,
+			y: 200,
+			show: true
+		},
+		1.0
+	);
 
 	/**
 	 * @var Reputation UI
 	 * Store Background Images Data
 	 */
 	let bg, bg_highlight, indicator_empty, indicator_blue, indicator_red;
-
 
 	/**
 	 * @var Reputation UI
@@ -58,7 +56,6 @@ define(function(require)
 		reputeIds: []
 	};
 
-
 	/**
 	 * @var Reputation UI
 	 * Store ReputeID and Points
@@ -66,7 +63,6 @@ define(function(require)
 	Reputation.reputeState = {
 		// reputeId: points
 	};
-
 
 	/**
 	 * @var Reputation UI
@@ -78,18 +74,16 @@ define(function(require)
 		consumed: false
 	};
 
-
 	/**
 	 * Initialize component
 	 */
 	Reputation.init = function init() {
-
 		// Store our image assets
-		Client.loadFile(DB.INTERFACE_PATH + 'reputation/bg_info.bmp', d => bg = d);
-		Client.loadFile(DB.INTERFACE_PATH + 'reputation/bg_highlight.bmp', d => bg_highlight = d);
-		Client.loadFile(DB.INTERFACE_PATH + 'reputation/light_empty.bmp', d => indicator_empty = d);
-		Client.loadFile(DB.INTERFACE_PATH + 'reputation/light_blue.bmp', d => indicator_blue = d);
-		Client.loadFile(DB.INTERFACE_PATH + 'reputation/light_red.bmp', d => indicator_red = d);
+		Client.loadFile(DB.INTERFACE_PATH + 'reputation/bg_info.bmp', d => (bg = d));
+		Client.loadFile(DB.INTERFACE_PATH + 'reputation/bg_highlight.bmp', d => (bg_highlight = d));
+		Client.loadFile(DB.INTERFACE_PATH + 'reputation/light_empty.bmp', d => (indicator_empty = d));
+		Client.loadFile(DB.INTERFACE_PATH + 'reputation/light_blue.bmp', d => (indicator_blue = d));
+		Client.loadFile(DB.INTERFACE_PATH + 'reputation/light_red.bmp', d => (indicator_red = d));
 
 		// Binds
 		this.draggable(this.ui);
@@ -107,16 +101,13 @@ define(function(require)
 		});
 
 		paginator.find('.page_next').on('click', () => {
-			const maxPage = Math.ceil(
-				Reputation.page.reputeIds.length / Reputation.page.perPage
-			);
+			const maxPage = Math.ceil(Reputation.page.reputeIds.length / Reputation.page.perPage);
 
 			if (Reputation.page.current < maxPage - 1) {
 				renderReputePage(Reputation.page.current + 1);
 			}
 		});
 	};
-
 
 	/**
 	 * Called when the component is appended to the body.
@@ -128,21 +119,19 @@ define(function(require)
 		bindGroupSelector();
 		bindSearch();
 		buildAllReputeEntries(); // Build all entries once
-		filterByGroup('all');   // Default group
-    };
-
+		filterByGroup('all'); // Default group
+	};
 
 	/**
 	 * Once remove from body, save user preferences
 	 */
 	Reputation.onRemove = function onRemove() {
 		// Save preferences
-		_preferences.show   =  this.ui.is(':visible');
-		_preferences.y      =  parseInt(this.ui.css('top'), 10);
-		_preferences.x      =  parseInt(this.ui.css('left'), 10);
+		_preferences.show = this.ui.is(':visible');
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.save();
 	};
-
 
 	/**
 	 * Request to toggle open/close reputation
@@ -168,7 +157,6 @@ define(function(require)
 		Reputation.ui.show();
 	};
 
-
 	/**
 	 * Build the group selector based on the ReputeGroupTable in DB
 	 * Append a new <option> element for each group in the table
@@ -182,17 +170,16 @@ define(function(require)
 
 		Object.entries(ReputeGroupTable).forEach(([groupIndex, group]) => {
 			const option = document.createElement('option');
-		    option.className = 'repute_group_' +  groupIndex;
-		    option.value = groupIndex;
-		    option.textContent = group.Name;
-		    groupSelector.append(option);
+			option.className = 'repute_group_' + groupIndex;
+			option.value = groupIndex;
+			option.textContent = group.Name;
+			groupSelector.append(option);
 		});
-	};
-
+	}
 
 	/**
 	 * Bind the group selector with the reputation page
-	 * 
+	 *
 	 * When the group selector changes, it will update the total points display
 	 * and re-render the reputation entries for the selected group
 	 */
@@ -203,8 +190,7 @@ define(function(require)
 			Reputation.ui.find('.rep_group_searchbar').val('');
 			filterByGroup(selectedGroup);
 		});
-	};
-
+	}
 
 	/**
 	 * Bind search functionality to the input field and button
@@ -229,8 +215,7 @@ define(function(require)
 		button.on('click', function () {
 			performSearch(input.val().trim());
 		});
-	};
-
+	}
 
 	/**
 	 * Build all reputation entries once
@@ -256,8 +241,7 @@ define(function(require)
 			content.append(entry);
 			updateReputeUI(reputeId, points);
 		});
-	};
-
+	}
 
 	/**
 	 * Update the total points display for a given group id
@@ -299,14 +283,13 @@ define(function(require)
 		if (totalPoints > 0) {
 			indicator.css('background-image', `url(${indicator_blue})`);
 		} else if (totalPoints < 0) {
-		indicator.css('background-image', `url(${indicator_red})`);
+			indicator.css('background-image', `url(${indicator_red})`);
 		} else {
 			indicator.css('background-image', `url(${indicator_empty})`);
 		}
 
 		pointsValue.text(`${totalPoints} P`);
-	};
-
+	}
 
 	/**
 	 * Checks if a reputation entry is visible based on the info.Invisible value and the current points value
@@ -324,8 +307,7 @@ define(function(require)
 			default:
 				return true;
 		}
-	};
-
+	}
 
 	/**
 	 * Filters the reputation entries based on the given group ID
@@ -359,47 +341,46 @@ define(function(require)
 			totalWrapper.show();
 		}
 
-		const visibleIds = items.filter((i, el) => el.dataset.visible === 'true')
-                        .map((i, el) => Number(el.dataset.reputeId))
-                        .get(); // convert jQuery object to array
+		const visibleIds = items
+			.filter((i, el) => el.dataset.visible === 'true')
+			.map((i, el) => Number(el.dataset.reputeId))
+			.get(); // convert jQuery object to array
 		Reputation.page.reputeIds = visibleIds;
 		Reputation.page.current = 0;
 		renderReputePage(0);
-	};
-
+	}
 
 	/**
 	 * Update the reputation pager UI.
-	 * 
+	 *
 	 * This function is called after the reputation entries have been updated.
 	 * It updates the pager UI to reflect the current page and total number of pages.
 	 */
 	function updateReputePager() {
 		const total = Reputation.page.reputeIds.length;
 		const perPage = Reputation.page.perPage;
-		
+
 		const totalPages = Math.max(1, Math.ceil(total / perPage));
 		const current = Reputation.page.current + 1;
-		
+
 		const paginator = Reputation.ui.find('.paginator');
 		const prevBtn = paginator.find('.page_prev');
 		const nextBtn = paginator.find('.page_next');
 		const text = paginator.find('.page_text');
-		
+
 		text.text(`${current} / ${totalPages}`);
 		prevBtn.css('visibility', current === 1 ? 'hidden' : 'visible');
 		nextBtn.css('visibility', current === totalPages ? 'hidden' : 'visible');
 
 		if (totalPages === 1) prevBtn.add(nextBtn).css('visibility', 'hidden');
-	};
-
+	}
 
 	/**
 	 * Render a page of reputation entries based on current page index.
-	 * 
+	 *
 	 * Hides all entries first, then shows only visible entries within the current page.
 	 * Updates the pager afterwards.
-	 * 
+	 *
 	 * @param {number} pageIndex - current page index (starts from 0)
 	 */
 	function renderReputePage(pageIndex) {
@@ -438,8 +419,7 @@ define(function(require)
 		}
 
 		updateReputePager();
-	};
-
+	}
 
 	/**
 	 * Create a reputation entry element from given info
@@ -448,7 +428,6 @@ define(function(require)
 	 * @returns {HTMLDivElement} created element
 	 */
 	function createReputeEntry(reputeId, info) {
-
 		const wrapper = document.createElement('div');
 		wrapper.className = 'rep_group_wrapper';
 		wrapper.dataset.reputeId = reputeId;
@@ -488,8 +467,7 @@ define(function(require)
 		wrapper.appendChild(points);
 
 		return wrapper;
-	};
-
+	}
 
 	/**
 	 * Update the UI of a specific Repute entry
@@ -497,9 +475,7 @@ define(function(require)
 	 * @param {number} points - The points to update the UI with
 	 */
 	function updateReputeUI(reputeId, points) {
-		const wrapper = Reputation.ui.find(
-			`.rep_group_wrapper[data-repute-id="${reputeId}"]`
-		);
+		const wrapper = Reputation.ui.find(`.rep_group_wrapper[data-repute-id="${reputeId}"]`);
 
 		if (!wrapper.length) return;
 
@@ -510,9 +486,12 @@ define(function(require)
 
 		// Update indicators
 		indicators.each(function (index) {
-			this.style.backgroundImage = index < fullIndicators
-				? points >= 0 ? `url(${indicator_blue})` : `url(${indicator_red})`
-				: `url(${indicator_empty})`;
+			this.style.backgroundImage =
+				index < fullIndicators
+					? points >= 0
+						? `url(${indicator_blue})`
+						: `url(${indicator_red})`
+					: `url(${indicator_empty})`;
 		});
 
 		// Update points text
@@ -534,8 +513,7 @@ define(function(require)
 				transparent ${percent}%
 			)`
 		);
-	};
-
+	}
 
 	/**
 	 * Perform search on the reputation entries based on the given query.
@@ -574,25 +552,22 @@ define(function(require)
 		Reputation.page.reputeIds = visibleIds;
 		Reputation.page.current = 0;
 		renderReputePage(0);
-	};
-
+	}
 
 	/**
 	 * Closing window
 	 */
 	function onClose() {
 		Reputation.ui.hide();
-	};
-
+	}
 
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation( event ) {
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
-	};
-
+	}
 
 	/**
 	 * Packet received from server
@@ -602,7 +577,6 @@ define(function(require)
 	 * @param {object} pkt - PACKET.ZC.REPUTE_INFO
 	 */
 	function onReputeInfo(pkt) {
-
 		if (!Reputation.__active) {
 			Reputation.append();
 			Reputation.ui.hide();
@@ -632,8 +606,7 @@ define(function(require)
 		if (updateSelectedGroup) {
 			updateGroupTotalPoints(selectedGroup);
 		}
-	};
-
+	}
 
 	/**
 	 * Sets up Highlight, selects the given group,
@@ -657,8 +630,7 @@ define(function(require)
 		filterByGroup(groupId);
 
 		Reputation.ui.show();
-	};
-
+	}
 
 	/**
 	 * Clears all highlight effects from the reputation entries.
@@ -670,15 +642,13 @@ define(function(require)
 			this.style.backgroundImage = `url(${bg})`;
 			this.dataset.highlight = 'false';
 		});
-	};
-
+	}
 
 	/**
 	 * Packet Hooks to functions
 	 */
 	Network.hookPacket(PACKET.ZC.REPUTE_INFO, onReputeInfo);
 	Network.hookPacket(PACKET.ZC_REPUTE_OPEN, onReputeOpen);
-
 
 	/**
 	 * Create component and export it

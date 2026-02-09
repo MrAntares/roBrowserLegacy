@@ -8,9 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(function()
+define(function ()
 {
-	"use strict";
+	'use strict';
 
 	return {
 		NV_BASIC: 1,

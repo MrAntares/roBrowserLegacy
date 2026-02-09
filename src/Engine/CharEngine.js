@@ -9,30 +9,29 @@
  * @author Vincent Thibault
  */
 
-define(function( require )
+define(function (require)
 {
 	'use strict';
 
-
 	// Load modules
-	var jQuery     = require('Utils/jquery');
-	var DB         = require('DB/DBManager');
-	var Configs    = require('Core/Configs');
-	var Events     = require('Core/Events');
-	var Sound      = require('Audio/SoundManager');
-	var BGM        = require('Audio/BGM');
-	var Session    = require('Engine/SessionStorage');
-	var MapEngine  = require('Engine/MapEngine');
-	var Network    = require('Network/NetworkManager');
-	var PACKETVER  = require('Network/PacketVerManager');
-	var PACKET     = require('Network/PacketStructure');
-	var UIManager  = require('UI/UIManager');
+	var jQuery = require('Utils/jquery');
+	var DB = require('DB/DBManager');
+	var Configs = require('Core/Configs');
+	var Events = require('Core/Events');
+	var Sound = require('Audio/SoundManager');
+	var BGM = require('Audio/BGM');
+	var Session = require('Engine/SessionStorage');
+	var MapEngine = require('Engine/MapEngine');
+	var Network = require('Network/NetworkManager');
+	var PACKETVER = require('Network/PacketVerManager');
+	var PACKET = require('Network/PacketStructure');
+	var UIManager = require('UI/UIManager');
 	var Background = require('UI/Background');
 	var PincodeWindow = require('UI/Components/PincodeWindow/PincodeWindow');
-	var InputBox   = require('UI/Components/InputBox/InputBox');
-	var JoystickUI   = require('UI/Components/JoystickUI/JoystickUI');
-	var getModule  = require;
-	
+	var InputBox = require('UI/Components/InputBox/InputBox');
+	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
+	var getModule = require;
+
 	// Version Dependent UIs
 	var CharSelect = require('UI/Components/CharSelect/CharSelect');
 	var CharCreate = require('UI/Components/CharCreate/CharCreate');
@@ -70,12 +69,12 @@ define(function( require )
 	/*
 	 * Connect to char server
 	 */
-	function init( server )
+	function init(server)
 	{
 		BGM.play('01.mp3');
-		
+
 		//Notify MapEngine if it needs UI update
-		MapEngine.needsUIVerUpdate = (_server !== server);
+		MapEngine.needsUIVerUpdate = _server !== server;
 
 		// Storing variable
 		_server = server;
@@ -83,54 +82,55 @@ define(function( require )
 		// Connect to char server
 		var forceAddress = Configs.get('forceUseAddress');
 		var server_info = Configs.getServer();
-		var ip = forceAddress ? server_info.address : Network.utils.longToIP( server.ip );
-		Network.connect( ip, server.port, function( success ){
-
+		var ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
+		Network.connect(ip, server.port, function (success)
+		{
 			// Fail to connect...
-			if (!success) {
-				UIManager.showErrorBox( DB.getMessage(1) );
+			if (!success)
+			{
+				UIManager.showErrorBox(DB.getMessage(1));
 				return;
 			}
 
 			// Success, try to connect
-			var pkt        = new PACKET.CH.ENTER();
-			pkt.AID        = Session.AID;
-			pkt.AuthCode   = Session.AuthCode;
-			pkt.userLevel  = Session.UserLevel;
-			pkt.Sex        = Session.Sex;
+			var pkt = new PACKET.CH.ENTER();
+			pkt.AID = Session.AID;
+			pkt.AuthCode = Session.AuthCode;
+			pkt.userLevel = Session.UserLevel;
+			pkt.Sex = Session.Sex;
 			pkt.clientType = Session.LangType;
 			Network.sendPacket(pkt);
 
 			// Server send back (new) AID
-			Network.read(function(fp){
+			Network.read(function (fp)
+			{
 				Session.AID = fp.readLong();
 			});
 		});
-		
+
 		//Select UI version
 		CharSelect.selectUIVersion();
 		CharCreate.selectUIVersion();
 
 		// Hook packets
-		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION,        onConnectionAccepted );
-		Network.hookPacket( PACKET.HC.REFUSE_ENTER,                  onConnectionRefused );
-		Network.hookPacket( PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION,     onCreationSuccess );
-		Network.hookPacket( PACKET.HC.ACCEPT_MAKECHAR,    			 onCreationSuccess );
-		Network.hookPacket( PACKET.HC.REFUSE_MAKECHAR,               onCreationFail );
-		Network.hookPacket( PACKET.HC.ACCEPT_DELETECHAR,             onDeleteAnswer );
-		Network.hookPacket( PACKET.HC.DELETE_CHAR3,					 onDeleteAnswer );
-		Network.hookPacket( PACKET.HC.REFUSE_DELETECHAR,             onDeleteAnswer );
-		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR,                onReceiveMapInfo);
-		Network.hookPacket( PACKET.HC.NOTIFY_ZONESVR2,               onReceiveMapInfo );
-		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted );
-		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST,   onConnectionAccepted );
-		Network.hookPacket( PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2,  onConnectionAccepted );
-		Network.hookPacket( PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME,     onMapUnavailable);
-		Network.hookPacket( PACKET.HC.SECOND_PASSWD_LOGIN, 			 onPincodeCheckSuccess);
-		Network.hookPacket( PACKET.HC.DELETE_CHAR3_RESERVED,		 onRequestCharDel);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.REFUSE_ENTER, onConnectionRefused);
+		Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION, onCreationSuccess);
+		Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR, onCreationSuccess);
+		Network.hookPacket(PACKET.HC.REFUSE_MAKECHAR, onCreationFail);
+		Network.hookPacket(PACKET.HC.ACCEPT_DELETECHAR, onDeleteAnswer);
+		Network.hookPacket(PACKET.HC.DELETE_CHAR3, onDeleteAnswer);
+		Network.hookPacket(PACKET.HC.REFUSE_DELETECHAR, onDeleteAnswer);
+		Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR, onReceiveMapInfo);
+		Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR2, onReceiveMapInfo);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME, onMapUnavailable);
+		Network.hookPacket(PACKET.HC.SECOND_PASSWD_LOGIN, onPincodeCheckSuccess);
+		Network.hookPacket(PACKET.HC.DELETE_CHAR3_RESERVED, onRequestCharDel);
 		JoystickUI.onRestore();
 	}
-
 
 	/**
 	 * Reload Char-Select
@@ -138,19 +138,20 @@ define(function( require )
 	function reload()
 	{
 		Network.close();
-		if (PACKETVER.value < 20181114){
-			Background.setImage( 'bgi_temp.bmp', function() {
+		if (PACKETVER.value < 20181114)
+		{
+			Background.setImage('bgi_temp.bmp', function ()
+			{
 				UIManager.removeComponents();
-				init( _server );
+				init(_server);
 			});
 		}
 		else
 		{
 			UIManager.removeComponents();
-			init( _server );
+			init(_server);
 		}
 	}
-
 
 	/**
 	 * Request to go back to Login Window
@@ -160,36 +161,38 @@ define(function( require )
 		getModule('Engine/LoginEngine').reload();
 	}
 
-
 	/**
 	 * Connection accepted from char-server
 	 * Displaying Character list
 	 *
 	 * @param {object} pkt - PACKET.HC.ACCEPT_ENTER_NEO_UNION
 	 */
-	function onConnectionAccepted( pkt )
+	function onConnectionAccepted(pkt)
 	{
 		pkt.sex = Session.Sex;
 
 		// Start sending ping
 		var ping = new PACKET.CZ.PING();
 		ping.AID = Session.AID;
-		Network.setPing(function(){
+		Network.setPing(function ()
+		{
 			Network.sendPacket(ping);
 		});
 
 		Session.Playing = false;
-    	Session.hasCart = false;
+		Session.hasCart = false;
 
 		// Reset Announcement component
 		var Announce = UIManager.getComponent('Announce');
-		if (Announce) {
+		if (Announce)
+		{
 			Announce.remove();
 		}
 
 		// Reset MapName component
 		var MapName = UIManager.getComponent('MapName');
-		if (MapName) {
+		if (MapName)
+		{
 			MapName.remove();
 			MapName.resetState();
 		}
@@ -207,70 +210,71 @@ define(function( require )
 		ChSel.append();
 		ChSel.setInfo(pkt);
 
-		 /**
-		  * In PACKETVERs < 20180124 that support pincode auth, we're supposed to
-		  * show a button that will ask the server to perform it.
-		  * In this case, the server will send the pincode request packet.
-		  *
-		  * Later PACKETVERs have the char server handle this on initial connection,
-		  * so the button was removed, and we don't have to do anything here.
-		  */
+		/**
+		 * In PACKETVERs < 20180124 that support pincode auth, we're supposed to
+		 * show a button that will ask the server to perform it.
+		 * In this case, the server will send the pincode request packet.
+		 *
+		 * Later PACKETVERs have the char server handle this on initial connection,
+		 * so the button was removed, and we don't have to do anything here.
+		 */
 		//if (PACKETVER.value < 20180124 && PACKETVER.value >= 20110309) {
-			//sendPincodeRequest(); // This causes duplicate packets, please fix
+		//sendPincodeRequest(); // This causes duplicate packets, please fix
 
-			/**
-			 * TODO: rAthena says this button was removed with PACKETVER >= 20180124. See also: rathena/src/char/char.hpp
-			 * Need to find out where this button is supposed to be and place it on the correct screen.
-			 */
+		/**
+		 * TODO: rAthena says this button was removed with PACKETVER >= 20180124. See also: rathena/src/char/char.hpp
+		 * Need to find out where this button is supposed to be and place it on the correct screen.
+		 */
 		//}
 	}
-
 
 	/**
 	 * Server don't want the user to connect
 	 *
 	 * @param {object} pkt - PACKET.HC.REFUSE_ENTER
 	 */
-	function onConnectionRefused( pkt )
+	function onConnectionRefused(pkt)
 	{
 		var msg_id;
 
-		switch (pkt.ErrorCode) {
+		switch (pkt.ErrorCode)
+		{
 			default:
-			case 0: msg_id = 3; break;
+			case 0:
+				msg_id = 3;
+				break;
 			// other types ?
 		}
 
-		UIManager.showErrorBox( DB.getMessage(msg_id) );
+		UIManager.showErrorBox(DB.getMessage(msg_id));
 	}
-
 
 	/**
 	 * No map server available
 	 *
 	 * @param {object} pkt - PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME
 	 */
-	function onMapUnavailable( pkt )
+	function onMapUnavailable(pkt)
 	{
 		// no map server avaiable
 		UIManager.showMessageBox(
 			DB.getMessage(1811),
 			'ok',
-			function(){
+			function ()
+			{
 				UIManager.getComponent('WinLoading').remove();
 				CharSelect.getUI().append();
 			},
 			true
 		);
 	}
-	  
+
 	/**
 	 * Char Delete Request Result
 	 */
-	function onRequestCharDel (pkt) {
-		
-		if (!pkt)
-			return;
+	function onRequestCharDel(pkt)
+	{
+		if (!pkt) {return;}
 
 		// Just pass the packet info
 		CharSelect.getUI().reqdeleteAnswer(pkt);
@@ -279,11 +283,10 @@ define(function( require )
 	/**
 	 * Char Delete Request Cancel
 	 */
-	function onCancelDeleteRequest ( charID ) {
-		
-		if (charID === 0)
-			return;
-		
+	function onCancelDeleteRequest(charID)
+	{
+		if (charID === 0) {return;}
+
 		var pkt = new PACKET.CH.DELETE_CHAR3_CANCEL();
 		pkt.GID = charID;
 		Network.sendPacket(pkt);
@@ -294,11 +297,10 @@ define(function( require )
 	 *
 	 * @param {number} charID - Character ID
 	 */
-	function onDeleteReqDelay ( charID )
+	function onDeleteReqDelay(charID)
 	{
-		if (!charID)
-		return;
-		
+		if (!charID) {return;}
+
 		var pkt = new PACKET.CH.DELETE_CHAR3_RESERVED();
 		pkt.GID = charID;
 		Network.sendPacket(pkt);
@@ -309,7 +311,7 @@ define(function( require )
 	 *
 	 * @param {number} charID - Character ID
 	 */
-	function onDeleteRequest( charID )
+	function onDeleteRequest(charID)
 	{
 		var _ui_box;
 		var _inputValue;
@@ -320,13 +322,17 @@ define(function( require )
 		var _TimeOut;
 
 		// Delete the character
-		function deleteCharacter() {
-			if (PACKETVER.value > 20100803) {
+		function deleteCharacter()
+		{
+			if (PACKETVER.value > 20100803)
+			{
 				var pkt = new PACKET.CH.DELETE_CHAR3();
 				pkt.GID = charID;
-				pkt.Birth = _inputValue.substring(2);	// Server only needs the 6 digits
+				pkt.Birth = _inputValue.substring(2); // Server only needs the 6 digits
 				Network.sendPacket(pkt);
-			} else {
+			}
+			else
+			{
 				var pkt = new PACKET.CH.DELETE_CHAR();
 				pkt.GID = charID;
 				pkt.key = _inputValue;
@@ -335,20 +341,25 @@ define(function( require )
 		}
 
 		// Cancel the prompt
-		function onCancel() {
+		function onCancel()
+		{
 			InputBox.remove();
 			_ui_box.remove();
 			_overlay.detach();
 			Events.clearTimeout(_TimeOut);
-			onDeleteAnswer({ ErrorCode: -2});
+			onDeleteAnswer({ ErrorCode: -2 });
 		}
 
 		// Ask the mail/birthdate
-		function onOk(){
+		function onOk()
+		{
 			InputBox.append();
-			if (PACKETVER.value >= 20100803) {
+			if (PACKETVER.value >= 20100803)
+			{
 				InputBox.setType('birthdate', true);
-			} else {
+			}
+			else
+			{
 				InputBox.setType('mail', true);
 			}
 			InputBox.onSubmitRequest = onSubmit;
@@ -358,38 +369,45 @@ define(function( require )
 		}
 
 		// Display prompt message
-		_ui_box  = UIManager.showPromptBox( DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
+		_ui_box = UIManager.showPromptBox(DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
 		_overlay = jQuery('<div/>').addClass('win_popup_overlay').appendTo('body');
 
 		// Submit the mail/birthdate
-		function onSubmit(input){
+		function onSubmit(input)
+		{
 			_inputValue = input;
 			InputBox.remove();
 			_ui_box.remove();
-			
-			if (PACKETVER.value < 20180124) {	// Not sure which date should we not use this loading delete anymore
+
+			if (PACKETVER.value < 20180124)
+			{
+				// Not sure which date should we not use this loading delete anymore
 				// Stop rendering...
-				_ui_box = UIManager.showMessageBox( DB.getMessage(296).replace('%d',10), 'cancel', function(){
+				_ui_box = UIManager.showMessageBox(DB.getMessage(296).replace('%d', 10), 'cancel', function ()
+				{
 					_render = false;
 					onCancel();
 				});
 
 				// Build canvas
 				_canvas = document.createElement('canvas');
-				_ctx    = _canvas.getContext('2d');
-				_width  = _canvas.width  = 240;
+				_ctx = _canvas.getContext('2d');
+				_width = _canvas.width = 240;
 				_height = _canvas.height = 15;
-				_canvas.style.marginTop  = '10px';
+				_canvas.style.marginTop = '10px';
 				_canvas.style.marginLeft = '20px';
 				_ui_box.ui.append(_canvas);
 
 				// Parameter
 				_time_end = Date.now() + 10000;
-				_render  = true;
+				_render = true;
 
 				// Start the timing
 				render();
-			} else {	// No waiting time
+			}
+			else
+			{
+				// No waiting time
 				_ui_box.remove();
 				_overlay.detach();
 				deleteCharacter();
@@ -398,13 +416,15 @@ define(function( require )
 		}
 
 		// Rendering
-		function render() {
+		function render()
+		{
 			// Calculate percent
 			var time_left = _time_end - Date.now();
-			var percent   =  Math.round( 100 - time_left / 100 );
+			var percent = Math.round(100 - time_left / 100);
 
 			// Delete character
-			if (percent >= 100) {
+			if (percent >= 100)
+			{
 				_ui_box.remove();
 				_overlay.detach();
 				deleteCharacter();
@@ -412,23 +432,22 @@ define(function( require )
 			}
 
 			// Update text
-			_ui_box.ui.find('.text').text( DB.getMessage(296).replace('%d', Math.round(10-percent/10) ) );
+			_ui_box.ui.find('.text').text(DB.getMessage(296).replace('%d', Math.round(10 - percent / 10)));
 
 			// Update progressbar
 			_ctx.clearRect(0, 0, _width, _height);
 			_ctx.fillStyle = 'rgb(0,255,255)';
-			_ctx.fillRect( 0, 0, _width, _height );
+			_ctx.fillRect(0, 0, _width, _height);
 			_ctx.fillStyle = 'rgb(140,140,140)';
-			_ctx.fillRect( 1, 1, _width-2 , _height-2 );
+			_ctx.fillRect(1, 1, _width - 2, _height - 2);
 			_ctx.fillStyle = 'rgb(66,99,165)';
-			_ctx.fillRect( 2, 2, Math.round(percent*(_width-4)/100) , _height-4 );
+			_ctx.fillRect(2, 2, Math.round((percent * (_width - 4)) / 100), _height - 4);
 			_ctx.fillStyle = 'rgb(255,255,0)';
-			_ctx.fillText( percent + '%' ,  ( _width - _ctx.measureText( percent+'%').width ) * 0.5 , 12  );
+			_ctx.fillText(percent + '%', (_width - _ctx.measureText(percent + '%').width) * 0.5, 12);
 
-			_TimeOut = Events.setTimeout( render, 30);
+			_TimeOut = Events.setTimeout(render, 30);
 		}
 	}
-
 
 	/*
 	 * Answer from server to delete character
@@ -438,35 +457,39 @@ define(function( require )
 	 */
 	function onDeleteAnswer(pkt)
 	{
-		if (PACKETVER.value <= 20100803) { // Email deletion result
-			var result = typeof( pkt.ErrorCode ) === 'undefined' ? -1 : pkt.ErrorCode;
-		} else { // Birthday deletion result
-			var result = typeof( pkt.Result ) === 'undefined' ? -1 : pkt.Result;
+		if (PACKETVER.value <= 20100803)
+		{
+			// Email deletion result
+			var result = typeof pkt.ErrorCode === 'undefined' ? -1 : pkt.ErrorCode;
+		}
+		else
+		{
+			// Birthday deletion result
+			var result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
 		}
 		CharSelect.getUI().deleteAnswer(result);
 	}
-
 
 	/**
 	 * Asking from CharSelect to create a character, moving to CharCreate window
 	 *
 	 * @param {number} index - slot where to create character
 	 */
-	function onCreateRequest( index )
+	function onCreateRequest(index)
 	{
 		var ChSel = CharSelect.getUI();
 		var ChCre = CharCreate.getUI();
 		_creationSlot = index;
 		ChSel.remove();
-		ChCre.setAccountSex( Session.Sex );
+		ChCre.setAccountSex(Session.Sex);
 		ChCre.onCharCreationRequest = onCharCreationRequest;
-		ChCre.onExitRequest = function(){
+		ChCre.onExitRequest = function ()
+		{
 			ChCre.remove();
 			ChSel.append();
 		};
 		ChCre.append();
 	}
-
 
 	/**
 	 * User want to create a character, send data to server
@@ -483,29 +506,32 @@ define(function( require )
 	 * @param {number} job - job
 	 * @param {number} sex - sex
 	 */
-	function onCharCreationRequest( name, Str, Agi, Vit, Int, Dex, Luk, hair, color, job, sex )
+	function onCharCreationRequest(name, Str, Agi, Vit, Int, Dex, Luk, hair, color, job, sex)
 	{
 		var pkt;
 
 		// Old Packet required stats
-		if (PACKETVER.value < 20120307) {
+		if (PACKETVER.value < 20120307)
+		{
 			pkt = new PACKET.CH.MAKE_CHAR();
-			pkt.Str  = Str;
-			pkt.Agi  = Agi;
-			pkt.Vit  = Vit;
-			pkt.Int  = Int;
-			pkt.Dex  = Dex;
-			pkt.Luk  = Luk;
+			pkt.Str = Str;
+			pkt.Agi = Agi;
+			pkt.Vit = Vit;
+			pkt.Int = Int;
+			pkt.Dex = Dex;
+			pkt.Luk = Luk;
 		}
-		else if ( ( PACKETVER.value >= 20120307 ) && ( PACKETVER.value < 20151001 ) ) {
+		else if (PACKETVER.value >= 20120307 && PACKETVER.value < 20151001)
+		{
 			pkt = new PACKET.CH.MAKE_CHAR2();
 		}
-		else {
+		else
+		{
 			pkt = new PACKET.CH.MAKE_CHAR3();
 		}
 
-		pkt.name    = name;
-		pkt.head    = hair;
+		pkt.name = name;
+		pkt.head = hair;
 		pkt.headPal = color;
 		pkt.CharNum = _creationSlot;
 		pkt.Job = job;
@@ -513,14 +539,13 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}
 
-
 	/**
 	 * Success to create a character
 	 *
 	 * @param {object} pkt - PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION
 	 * @param {object} pkt - PACKET.HC.ACCEPT_MAKECHAR
 	 */
-	function onCreationSuccess( pkt )
+	function onCreationSuccess(pkt)
 	{
 		CharCreate.getUI().remove();
 		var ChSel = CharSelect.getUI();
@@ -528,26 +553,36 @@ define(function( require )
 		ChSel.append();
 	}
 
-
 	/**
 	 * Fail to create a character
 	 *
 	 * @param {object} pkt - PACKET.HC.REFUSE_MAKECHAR
 	 */
-	function onCreationFail( pkt )
+	function onCreationFail(pkt)
 	{
 		var msg_id;
 
-		switch (pkt.ErrorCode) {
-			case 0x00: msg_id =   10;  break; // 'Charname already exists'
-			case 0x01: msg_id =  298;  break; // 'You are underaged'
-			case 0x02: msg_id = 1272;  break; // 'Symbols in Character Names are forbidden'
-			case 0x03: msg_id = 1355;  break; // 'You are not elegible to open the Character Slot.'
+		switch (pkt.ErrorCode)
+		{
+			case 0x00:
+				msg_id = 10;
+				break; // 'Charname already exists'
+			case 0x01:
+				msg_id = 298;
+				break; // 'You are underaged'
+			case 0x02:
+				msg_id = 1272;
+				break; // 'Symbols in Character Names are forbidden'
+			case 0x03:
+				msg_id = 1355;
+				break; // 'You are not elegible to open the Character Slot.'
 			default:
-			case 0xFF: msg_id =   11;  break; // 'Char creation denied'
+			case 0xff:
+				msg_id = 11;
+				break; // 'Char creation denied'
 		}
 
-		UIManager.showMessageBox( DB.getMessage(msg_id), 'ok' );
+		UIManager.showMessageBox(DB.getMessage(msg_id), 'ok');
 	}
 
 	/*function sendPincodeRequest() {
@@ -559,7 +594,8 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}*/ // UNUSED
 
-    function onPincodeCheckRequest(pincode) {
+	function onPincodeCheckRequest(pincode)
+	{
 		var pkt;
 
 		pkt = new PACKET.CH.PINCODE_CHECK();
@@ -569,7 +605,8 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}
 
-	function onPincodeCreate(pincode, bad) {
+	function onPincodeCreate(pincode, bad)
+	{
 		var pkt;
 
 		_creatingPincode = true;
@@ -581,7 +618,8 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}
 
-	function onPincodeReset(oldpin, newpin) {
+	function onPincodeReset(oldpin, newpin)
+	{
 		var pkt;
 
 		_inAuthPincodeReset = false;
@@ -600,26 +638,31 @@ define(function( require )
 		onPincodeCheckRequest(oldpin);
 	}*/ // UNUSED
 
-	function onUserPincodeResetReq() {
+	function onUserPincodeResetReq()
+	{
 		_pincodeAttempts = 0;
 		PincodeWindow.onPincodeReset = onPincodeReset;
 	}
 
-	function onPincodeCheckSuccess(pkt) {
-		if(!PincodeWindow.__active && pkt.State == 0){
-			console.log("Pincode is disabled.");
+	function onPincodeCheckSuccess(pkt)
+	{
+		if (!PincodeWindow.__active && pkt.State == 0)
+		{
+			console.log('Pincode is disabled.');
 			return;
 		}
-		
+
 		PincodeWindow.remove();
-		
-		if (PACKETVER.value < 20110309) {
-			console.log("Pincode packet sent from server, but PACKETVER is too old. Ignoring.");
+
+		if (PACKETVER.value < 20110309)
+		{
+			console.log('Pincode packet sent from server, but PACKETVER is too old. Ignoring.');
 			return;
-        }
+		}
 		PincodeWindow.onPincodeCheckRequest = onPincodeCheckRequest;
 		PincodeWindow.onUserPincodeResetReq = onUserPincodeResetReq;
-		PincodeWindow.onExitRequest = function(){
+		PincodeWindow.onExitRequest = function ()
+		{
 			_pincodeAttempts = 0;
 			_inAuthPincodeReset = false;
 			_resettingPincode = false;
@@ -627,7 +670,7 @@ define(function( require )
 			PincodeWindow.resetUI();
 			PincodeWindow.remove();
 			onExitRequest();
-		}
+		};
 
 		/*
 		 * Pincode
@@ -648,40 +691,54 @@ define(function( require )
 		 *	7 = char select window shows a button - client sends 0x8c5
 		 *	8 = pincode was incorrect
 		 */
-		switch (pkt.State) {
+		switch (pkt.State)
+		{
 			case 7: // Pin is correct on PACKETVERs < 20180124.
-				if (PACKETVER.value >= 20180124) {
-					console.log("PINCODE: Received invalid state from server for configured PACKETVER: " + pkt.State + ". Aborting, please fix your PACKETVER in the config.");
+				if (PACKETVER.value >= 20180124)
+				{
+					console.log(
+						'PINCODE: Received invalid state from server for configured PACKETVER: ' +
+							pkt.State +
+							'. Aborting, please fix your PACKETVER in the config.'
+					);
 					PincodeWindow.onExitRequest();
 				}
 			case 0: // pin is correct
 				_pincodeAttempts = 0;
-				if (_inAuthPincodeReset === true) {
+				if (_inAuthPincodeReset === true)
+				{
 					PincodeWindow.onPincodeReset = onPincodeReset;
 					PincodeWindow.onOldPincodeCheckResult(true);
-                                } else {
-					if (_creatingPincode === true) {
+				}
+				else
+				{
+					if (_creatingPincode === true)
+					{
 						_creatingPincode = false;
-						UIManager.showMessageBox( DB.getMessage( 1889 ), 'ok' );
+						UIManager.showMessageBox(DB.getMessage(1889), 'ok');
 					}
-					if (_resettingPincode === true) {
+					if (_resettingPincode === true)
+					{
 						_resettingPincode = false;
-						UIManager.showMessageBox( DB.getMessage( 1891 ), 'ok' );
+						UIManager.showMessageBox(DB.getMessage(1891), 'ok');
 					}
 					PincodeWindow.resetUI();
 					var ChSel = CharSelect.getUI();
 					ChSel.setUIEnabled(true);
-                                }
+				}
 				break;
 			case 1: // ask for pin
-                                var ChSel = CharSelect.getUI();
-                                ChSel.setUIEnabled(false);
+				var ChSel = CharSelect.getUI();
+				ChSel.setUIEnabled(false);
 				PincodeWindow.selectInput(0);
-				if (_pincodeAttempts < 3) {
+				if (_pincodeAttempts < 3)
+				{
 					PincodeWindow.clearPin();
 					PincodeWindow.setUserSeed(pkt.Seed);
 					PincodeWindow.append();
-				} else {
+				}
+				else
+				{
 					PincodeWindow.onExitRequest(); // Failed authentication.
 				}
 				break;
@@ -689,7 +746,7 @@ define(function( require )
 			case 4: // create new pin ??
 				var ChSel = CharSelect.getUI();
 				ChSel.setUIEnabled(false);
-				UIManager.showMessageBox( DB.getMessage( 1900 ), 'ok' );
+				UIManager.showMessageBox(DB.getMessage(1900), 'ok');
 				PincodeWindow.selectInput(0);
 				PincodeWindow.setUserSeed(pkt.Seed);
 				PincodeWindow.onPincodeCheckRequest = onPincodeCreate;
@@ -698,39 +755,49 @@ define(function( require )
 			case 3: // pin must be changed
 				var ChSel = CharSelect.getUI();
 				ChSel.setUIEnabled(false);
-				if (_pincodeAttempts < 3) {
-					UIManager.showMessageBox( DB.getMessage( 2345 ), 'ok' );
+				if (_pincodeAttempts < 3)
+				{
+					UIManager.showMessageBox(DB.getMessage(2345), 'ok');
 					PincodeWindow.setUserSeed(pkt.Seed);
 					PincodeWindow.onPincodeReset = onPincodeReset;
 					PincodeWindow.onParentPincodeResetReq();
 					PincodeWindow.append();
-				} else {
+				}
+				else
+				{
 					PincodeWindow.onExitRequest(); // Failed authentication.
 				}
 				break;
 			case 5: // client shows msgstr(1896)
 			case 6: // client shows msgstr(1897) Unable to use your KSSN number
 			case 8: // pincode was incorrect
-				if (_creatingPincode === true) {
-					UIManager.showMessageBox( DB.getMessage( 1893 ), 'ok' );
-				} else {
-					UIManager.showMessageBox( DB.getMessage( ((pkt.State == 5) ? 1895 : ((pkt.State == 6) ? 1896 : 1892)) ), 'ok' );
+				if (_creatingPincode === true)
+				{
+					UIManager.showMessageBox(DB.getMessage(1893), 'ok');
+				}
+				else
+				{
+					UIManager.showMessageBox(DB.getMessage(pkt.State == 5 ? 1895 : pkt.State == 6 ? 1896 : 1892), 'ok');
 				}
 				_pincodeAttempts++;
-				if (_pincodeAttempts < 3) {
+				if (_pincodeAttempts < 3)
+				{
 					PincodeWindow.resetPins();
 					PincodeWindow.setUserSeed(pkt.Seed);
-					if (_inAuthPincodeReset === true) {
+					if (_inAuthPincodeReset === true)
+					{
 						_inAuthPincodeReset = false;
 						PincodeWindow.onOldPincodeCheckResult(false);
 					}
 					PincodeWindow.append();
-				} else {
+				}
+				else
+				{
 					PincodeWindow.onExitRequest(); // Failed authentication.
 				}
 				break;
 			default:
-				console.log("PINCODE: Received unknown state from server: " + pkt.State);
+				console.log('PINCODE: Received unknown state from server: ' + pkt.State);
 				PincodeWindow.append();
 				break;
 		}
@@ -741,7 +808,7 @@ define(function( require )
 	 *
 	 * @param {object} entity to connect with
 	 */
-	function onConnectRequest( entity )
+	function onConnectRequest(entity)
 	{
 		// Play sound
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
@@ -755,18 +822,16 @@ define(function( require )
 		Network.sendPacket(pkt);
 	}
 
-
 	/**
 	 * Player selection successful, get mapserver information to connect
 	 *
 	 * @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
 	 */
-	function onReceiveMapInfo( pkt )
+	function onReceiveMapInfo(pkt)
 	{
 		Session.GID = pkt.GID;
-		MapEngine.init( pkt.addr.ip, pkt.addr.port, pkt.mapName);
+		MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 	}
-
 
 	// TODO: Add support for captcha, rename, changeslot and pincode.
 	/*
@@ -798,7 +863,7 @@ define(function( require )
 	 * Export
 	 */
 	return {
-		init:   init,
+		init: init,
 		reload: reload
 	};
 });

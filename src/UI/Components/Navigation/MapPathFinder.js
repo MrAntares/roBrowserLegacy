@@ -6,7 +6,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function(require) {
+define(function (require) {
 	'use strict';
 
 	// Dependencies
@@ -29,9 +29,24 @@ define(function(require) {
 	 * @param {Array} warpTypes - Types of warps to consider [default: [200]]
 	 * @returns {Array|null} Array of warps with map, coordinates and warpId, or null if no path found
 	 */
-	MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(startMap, startX, startY, endMap, endX, endY, warpTypes) {
+	MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
+		startMap,
+		startX,
+		startY,
+		endMap,
+		endX,
+		endY,
+		warpTypes
+	) {
 		// Validate inputs
-		if (!startMap || !endMap || startX === undefined || startY === undefined || endX === undefined || endY === undefined) {
+		if (
+			!startMap ||
+			!endMap ||
+			startX === undefined ||
+			startY === undefined ||
+			endX === undefined ||
+			endY === undefined
+		) {
 			return null;
 		}
 
@@ -44,12 +59,14 @@ define(function(require) {
 
 		// If same map, no need for complex path
 		if (startMap === endMap) {
-			return [{
-				map: startMap,
-				x: endX,
-				y: endY,
-				warpId: null
-			}];
+			return [
+				{
+					map: startMap,
+					x: endX,
+					y: endY,
+					warpId: null
+				}
+			];
 		}
 
 		// Get navigation data
@@ -86,12 +103,12 @@ define(function(require) {
 				graph[srcMap][destMap] = {
 					distance: 1, // Default small distance for direct connections
 					warpId: warpId,
-					hopCount: 1  // Direct connection is 1 hop
+					hopCount: 1 // Direct connection is 1 hop
 				};
 			}
 
 			// Store warp details for later use
-			var warpKey = srcMap + "_" + warpId;
+			var warpKey = srcMap + '_' + warpId;
 			warpDetails[warpKey] = {
 				id: warpId,
 				type: warpType,
@@ -121,7 +138,7 @@ define(function(require) {
 								if (!Array.isArray(linksData[j]) || linksData[j].length < 2) continue;
 
 								var linkId = linksData[j][0];
-								var warpKey = mapName + "_" + linkId;
+								var warpKey = mapName + '_' + linkId;
 								var warpInfo = warpDetails[warpKey];
 
 								if (!warpInfo) continue;
@@ -144,9 +161,12 @@ define(function(require) {
 										if (!graph[mapName]) graph[mapName] = {};
 
 										// Only update if this path has fewer hops or same hops but better cost
-										if (!graph[mapName][destMapName] ||
+										if (
+											!graph[mapName][destMapName] ||
 											hopCount < graph[mapName][destMapName].hopCount ||
-											(hopCount === graph[mapName][destMapName].hopCount && pathCost < graph[mapName][destMapName].distance)) {
+											(hopCount === graph[mapName][destMapName].hopCount &&
+												pathCost < graph[mapName][destMapName].distance)
+										) {
 											graph[mapName][destMapName] = {
 												distance: pathCost,
 												warpId: linkId,
@@ -168,12 +188,14 @@ define(function(require) {
 		if (graph[startMap]) {
 			for (var destMap in graph[startMap]) {
 				var warpId = graph[startMap][destMap].warpId;
-				var warpKey = startMap + "_" + warpId;
+				var warpKey = startMap + '_' + warpId;
 				var warpInfo = warpDetails[warpKey];
 
 				if (warpInfo) {
 					// Calculate distance from start position to this warp
-					var distanceToWarp = Math.sqrt(Math.pow(warpInfo.srcX - startX, 2) + Math.pow(warpInfo.srcY - startY, 2));
+					var distanceToWarp = Math.sqrt(
+						Math.pow(warpInfo.srcX - startX, 2) + Math.pow(warpInfo.srcY - startY, 2)
+					);
 
 					// Add this distance to the edge weight, but don't change the hop count
 					graph[startMap][destMap].distance += distanceToWarp;
@@ -183,7 +205,7 @@ define(function(require) {
 
 		// Dijkstra's algorithm to find the shortest path
 		var distances = {};
-		var hopCounts = {};  // Track hop counts separately
+		var hopCounts = {}; // Track hop counts separately
 		var previous = {};
 		var unvisited = new Set();
 
@@ -212,8 +234,10 @@ define(function(require) {
 			var smallestDistance = Infinity;
 
 			for (var map of unvisited) {
-				if (hopCounts[map] < smallestHopCount ||
-					(hopCounts[map] === smallestHopCount && distances[map] < smallestDistance)) {
+				if (
+					hopCounts[map] < smallestHopCount ||
+					(hopCounts[map] === smallestHopCount && distances[map] < smallestDistance)
+				) {
 					smallestHopCount = hopCounts[map];
 					smallestDistance = distances[map];
 					current = map;
@@ -238,8 +262,10 @@ define(function(require) {
 					var newDistance = distances[current] + graph[current][neighbor].distance;
 
 					// If we found a path with fewer hops, or same hops but shorter distance
-					if (newHopCount < hopCounts[neighbor] ||
-						(newHopCount === hopCounts[neighbor] && newDistance < distances[neighbor])) {
+					if (
+						newHopCount < hopCounts[neighbor] ||
+						(newHopCount === hopCounts[neighbor] && newDistance < distances[neighbor])
+					) {
 						hopCounts[neighbor] = newHopCount;
 						distances[neighbor] = newDistance;
 						previous[neighbor] = {
@@ -275,7 +301,7 @@ define(function(require) {
 
 			var prevMap = prevInfo.map;
 			var warpId = prevInfo.warpId;
-			var warpKey = prevMap + "_" + warpId;
+			var warpKey = prevMap + '_' + warpId;
 			var warpInfo = warpDetails[warpKey];
 
 			if (!warpInfo) break;

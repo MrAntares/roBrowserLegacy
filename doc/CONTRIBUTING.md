@@ -35,6 +35,7 @@ The nice to have structure for those pull requests is:
 We will have an automated mechanism that will do a basic evaluation on the code being offered via the PR, the bare minimum expected is that the project build is passing.
 
 ### How to file a bug report
+
 You can open a bug report on the [issues](https://github.com/MrAntares/roBrowserLegacy/issues) page, giving at the bare minimum
 the following information:
 

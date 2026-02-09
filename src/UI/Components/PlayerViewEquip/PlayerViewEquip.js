@@ -8,7 +8,8 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
+define(function (require)
+{
 	'use strict';
 
 	var publicName = 'PlayerViewEquip';
@@ -25,14 +26,10 @@ define(function (require) {
 		default: PlayerViewEquipV0,
 		common: {
 			20150225: PlayerViewEquipV2,
-			20101124: PlayerViewEquipV1,
+			20101124: PlayerViewEquipV1
 		},
-		re: {
-
-		},
-		prere: {
-
-		}
+		re: {},
+		prere: {}
 	};
 
 	var PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
@@ -40,7 +37,8 @@ define(function (require) {
 	var _selectUIVersion = PlayerViewEquipController.selectUIVersion;
 
 	// Extend default UI selector
-	PlayerViewEquipController.selectUIVersion = function () {
+	PlayerViewEquipController.selectUIVersion = function ()
+	{
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
@@ -48,11 +46,13 @@ define(function (require) {
 		DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
 
 		// Escape to close the UI
-		component.onKeyDown = function onKeyDown(e) {
-			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
-				if (typeof component.remove === 'function') component.remove();
+		component.onKeyDown = function onKeyDown(e)
+		{
+			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible'))
+			{
+				if (typeof component.remove === 'function') {component.remove();}
 			}
-		}
+		};
 	};
 
 	return PlayerViewEquipController;

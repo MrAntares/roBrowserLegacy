@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -44,11 +43,14 @@ define(function (require) {
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('CheckAttendance', {
-		x: 200,
-		y: 200,
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'CheckAttendance',
+		{
+			x: 200,
+			y: 200
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize the component (event listener, etc.)
@@ -64,7 +66,6 @@ define(function (require) {
 		this.ui.find('.close-container-btn').click(CheckAttendance.onClose);
 		this.draggable(this.ui.find('.titlebar'));
 	};
-
 
 	/**
 	 * Once append to the DOM, start to position the UI
@@ -83,10 +84,9 @@ define(function (require) {
 			CheckAttendance.updateUI();
 			this.focus();
 		} else {
-			ChatBox.addText("Currently there is no attendance check event.", ChatBox.TYPE.ERROR | ChatBox.TYPE.SELF);
+			ChatBox.addText('Currently there is no attendance check event.', ChatBox.TYPE.ERROR | ChatBox.TYPE.SELF);
 		}
 	};
-
 
 	/**
 	 * Window Shortcuts
@@ -102,7 +102,6 @@ define(function (require) {
 		}
 	};
 
-
 	/**
 	 * Show/Hide UI
 	 */
@@ -116,14 +115,12 @@ define(function (require) {
 		}
 	};
 
-
 	/**
 	 * Set Data to Attendance
 	 */
 	CheckAttendance.setData = function setData(data) {
 		_checkAttendanceData = data;
 	};
-
 
 	/**
 	 * Update CheckAttendance UI
@@ -143,11 +140,16 @@ define(function (require) {
 				already_requested = _checkAttendanceData % 10;
 				attendance_count = parseInt(_checkAttendanceData / 10);
 				current_day = attendance_count + 1;
-				let total_days_string = (attendance_count >= 20 || already_requested) ? `${attendance_count} Day attendance success` : `Click the item to claim day ${current_day} reward`;
+				let total_days_string =
+					attendance_count >= 20 || already_requested
+						? `${attendance_count} Day attendance success`
+						: `Click the item to claim day ${current_day} reward`;
 
 				let end_date = new Date(`${end[1]}-${end[2]}-${end[3]}`);
 				let now_date = new Date();
-				let remaining_days = Math.round(Math.abs((end_date.getTime() - now_date.getTime()) / (1000 * 3600 * 24)));
+				let remaining_days = Math.round(
+					Math.abs((end_date.getTime() - now_date.getTime()) / (1000 * 3600 * 24))
+				);
 
 				this.ui.find('.total-days').html(total_days_string);
 				this.ui.find('.remaining-day-text').html(remaining_days);
@@ -158,18 +160,40 @@ define(function (require) {
 			for (let i = 0; i < 20; i++) {
 				let item = DB.getItemInfo(_CheckAttendanceInfo.Rewards[i].item_id);
 				let day = i + 1;
-				let background = (!already_requested && day == current_day) ? 'data-background="check_attendance/bt_slot_a.bmp" data-down="check_attendance/bt_slot_press.bmp"' : '';
-				let checked = (day <= attendance_count) ? 'checked' : 'checked-hidden';
-				let slot_off = (already_requested) ? attendance_count - 1: attendance_count;
-				let slot_complete_string = (day > slot_off) ? 'bt_slot_complete' : 'bt_slot_off';
+				let background =
+					!already_requested && day == current_day
+						? 'data-background="check_attendance/bt_slot_a.bmp" data-down="check_attendance/bt_slot_press.bmp"'
+						: '';
+				let checked = day <= attendance_count ? 'checked' : 'checked-hidden';
+				let slot_off = already_requested ? attendance_count - 1 : attendance_count;
+				let slot_complete_string = day > slot_off ? 'bt_slot_complete' : 'bt_slot_off';
 				let item_slot =
-					'<li id="attendance_day_' + i + '" class="attendance-item"' + background + '>' +
-					'<div class="item" data-background="' + DB.INTERFACE_PATH + 'item/' + item.identifiedResourceName + '.bmp' + '">' +
-					'<span class="item-quantity">' + _CheckAttendanceInfo.Rewards[i].quantity + '</span>' +
-					'<span class="name">' + item.identifiedDisplayName + "</span>" +
-					'<div class="' + checked + '" data-background="check_attendance/' + slot_complete_string + '.tga"></div>' +
+					'<li id="attendance_day_' +
+					i +
+					'" class="attendance-item"' +
+					background +
+					'>' +
+					'<div class="item" data-background="' +
+					DB.INTERFACE_PATH +
+					'item/' +
+					item.identifiedResourceName +
+					'.bmp' +
+					'">' +
+					'<span class="item-quantity">' +
+					_CheckAttendanceInfo.Rewards[i].quantity +
+					'</span>' +
+					'<span class="name">' +
+					item.identifiedDisplayName +
+					'</span>' +
+					'<div class="' +
+					checked +
+					'" data-background="check_attendance/' +
+					slot_complete_string +
+					'.tga"></div>' +
 					'</div>' +
-					'<div class="day">' + day + ' Day</div>' +
+					'<div class="day">' +
+					day +
+					' Day</div>' +
 					'</li>';
 				this.ui.find('.days-list').append(item_slot);
 				if (!already_requested && day == current_day) {
@@ -180,8 +204,7 @@ define(function (require) {
 		}
 
 		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
-	}
-
+	};
 
 	/**
 	 * Clean CheckAttendance UI
@@ -193,14 +216,12 @@ define(function (require) {
 		CheckAttendance.ui.find('.remaining-days-text').html('');
 	};
 
-
 	/**
 	 * Close the window
 	 */
 	CheckAttendance.onClose = function onClose() {
 		CheckAttendance.ui.hide();
-	}
-
+	};
 
 	/**
 	 * Request Attendance Item
@@ -209,8 +230,8 @@ define(function (require) {
 		// send reward request
 		var toggle_element = jQuery(e.currentTarget);
 		let id = toggle_element.attr('id');
-		CheckAttendance.ui.find('#' + id + ' .checked-hidden').attr("class", "checked");
-		let completed_div = '<div class="completed" data-background="check_attendance/bt_slot_complete.tga"></div>'
+		CheckAttendance.ui.find('#' + id + ' .checked-hidden').attr('class', 'checked');
+		let completed_div = '<div class="completed" data-background="check_attendance/bt_slot_complete.tga"></div>';
 		CheckAttendance.ui.find('#' + id).append(completed_div);
 		let current_day = parseInt(_checkAttendanceData / 10) + 1;
 		let total_days_string = `${current_day} Day attendance success`;
@@ -218,7 +239,6 @@ define(function (require) {
 		var _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
 		Network.sendPacket(_pkt);
 	}
-
 
 	/**
 	 * Export

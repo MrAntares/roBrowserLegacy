@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Load dependencies
 	 */
@@ -24,7 +23,6 @@ define(function (require) {
 	var Altitude = require('Renderer/Map/Altitude');
 	var Session = require('Engine/SessionStorage');
 	var JobId = require('DB/Jobs/JobConst');
-
 
 	var _last_body_dir = 0;
 
@@ -69,7 +67,6 @@ define(function (require) {
 		renderGUI(this, modelView, projection);
 	}
 
-
 	/**
 	 * Calculate zIndex and render UI elements
 	 *
@@ -77,7 +74,7 @@ define(function (require) {
 	 * @param {mat4} modelView
 	 * @param {mat4} projection
 	 */
-	var renderGUI = function renderGUIClosure() {
+	var renderGUI = (function renderGUIClosure() {
 		var mat4 = glMatrix.mat4;
 		var vec4 = glMatrix.vec4;
 		var _matrix = mat4.create();
@@ -125,8 +122,7 @@ define(function (require) {
 			if (entity.cast.display) entity.cast.render(_matrix);
 			if (entity.room.display) entity.room.render(_matrix);
 		};
-	}();
-
+	})();
 
 	/**
 	 * Calculate Bounding Rectangle
@@ -134,7 +130,7 @@ define(function (require) {
 	 * @param {Entity}
 	 * @param {mat4}
 	 */
-	var calculateBoundingRect = function calculateBoundingRectClosure() {
+	var calculateBoundingRect = (function calculateBoundingRectClosure() {
 		var vec4 = glMatrix.vec4;
 		var size = glMatrix.vec2.create();
 		var vector = vec4.create();
@@ -148,11 +144,10 @@ define(function (require) {
 
 			vec4.transformMat4(out, vector, matrix);
 
-			out[3] = (out[3] === 0.0) ? 1.0 : (1.0 / out[3]);
+			out[3] = out[3] === 0.0 ? 1.0 : 1.0 / out[3];
 			out[0] *= out[3];
 			out[1] *= out[3];
 		}
-
 
 		return function calculateBoundingRect(entity, matrix) {
 			var minSize, fx, fy;
@@ -165,11 +160,10 @@ define(function (require) {
 			size[1] = Renderer.height * 0.5;
 
 			rect = entity.boundingRect;
-			minSize = (entity.objecttype === entity.constructor.TYPE_ITEM) ? 30 : 60;
+			minSize = entity.objecttype === entity.constructor.TYPE_ITEM ? 30 : 60;
 
 			// No body ? Default picking (sprite 110 for example)
-			if (rect.x1 === Infinity || rect.x2 === -Infinity ||
-				rect.y1 === -Infinity || rect.y2 === Infinity) {
+			if (rect.x1 === Infinity || rect.x2 === -Infinity || rect.y1 === -Infinity || rect.y2 === Infinity) {
 				rect.x1 = -25;
 				rect.x2 = +25;
 				rect.y1 = +45;
@@ -185,32 +179,31 @@ define(function (require) {
 
 			// Top left
 			projectPoint(rect.x1 * fx, rect.y1 * fy, matrix);
-			rect.x1 = size[0] + (size[0] * out[0]);
-			rect.y1 = size[1] - (size[1] * out[1]);
+			rect.x1 = size[0] + size[0] * out[0];
+			rect.y1 = size[1] - size[1] * out[1];
 
 			// Bottom right
 			projectPoint(rect.x2 * fx, rect.y2 * fy, matrix);
-			rect.x2 = size[0] + (size[0] * out[0]);
-			rect.y2 = size[1] - (size[1] * out[1]);
+			rect.x2 = size[0] + size[0] * out[0];
+			rect.y2 = size[1] - size[1] * out[1];
 
 			// Cap it to minSize
 			if (rect.x2 - rect.x1 < minSize) {
-				rect.x1 = (rect.x1 + rect.x2) * 0.5 - (minSize * 0.5);
+				rect.x1 = (rect.x1 + rect.x2) * 0.5 - minSize * 0.5;
 				rect.x2 = rect.x1 + minSize;
 			}
 
 			if (rect.y2 - rect.y1 < minSize) {
-				rect.y1 = (rect.y1 + rect.y2) * 0.5 - (minSize * 0.5);
+				rect.y1 = (rect.y1 + rect.y2) * 0.5 - minSize * 0.5;
 				rect.y2 = rect.y1 + minSize;
 			}
 		};
-	}();
-
+	})();
 
 	/**
 	 * Render Entity
 	 */
-	var renderEntity = function renderEntityClosure() {
+	var renderEntity = (function renderEntityClosure() {
 		var _position = new Int32Array(2);
 
 		return function renderEntity() {
@@ -235,14 +228,14 @@ define(function (require) {
 			var direction = (Camera.direction + this.direction + 8) % 8;
 			var behind = direction > 1 && direction < 6;
 			var self = this;
-			
+
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45 && !this.hideShadow) {
 				SpriteRenderer.zIndex = -1;
 				// Shadow is base on gat height
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
-				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + .05;
+				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + 0.05;
 
 				// Keep shadow on ground: depth test on, depth write off, disabledepthcorrection
 				SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -270,15 +263,13 @@ define(function (require) {
 			switch (self.objecttype) {
 				case Entity.TYPE_PC:
 				case Entity.TYPE_MERC:
-
-					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+					SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 
 					// Main sprite pass:
 					// depthTest  = resolve world occlusion
 					// depthWrite = allow entity to occlude others
 					// depthCorrection ENABLED (required for isometric depth)
 					SpriteRenderer.runWithDepth(true, true, false, function () {
-
 						// Shield is behind on some position, seems to be hardcoded by the client
 						if (self.shield && behind) {
 							SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -287,7 +278,8 @@ define(function (require) {
 							});
 						}
 
-						if (!(direction > 2 && direction < 6)) { // looking front
+						if (!(direction > 2 && direction < 6)) {
+							// looking front
 							if (Session.Playing == true && self.hasCart == true) {
 								var cartidx = [
 									JobId.NOVICE,
@@ -295,7 +287,9 @@ define(function (require) {
 									JobId.SUPERNOVICE_B,
 									JobId.SUPERNOVICE2,
 									JobId.SUPERNOVICE2_B
-								].includes(self._job) ? 0 : self.CartNum;
+								].includes(self._job)
+									? 0
+									: self.CartNum;
 
 								// Draw Cart           // been ocluded, dont oclude, isometric plane on
 								SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -303,12 +297,11 @@ define(function (require) {
 									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 								});
-
 							}
 
 							// Draw Robe
 							if (self.robe > 0) {
-											// been ocluded, dont oclude, isometric plane on
+								// been ocluded, dont oclude, isometric plane on
 								SpriteRenderer.runWithDepth(true, false, false, function () {
 									SpriteRenderer.zIndex = -1;
 									renderElement(self, self.files.robe, 'robe', _position, true);
@@ -332,13 +325,19 @@ define(function (require) {
 						// Values*10 reference https://github.com/zhad3/zrenderer/blob/c10b337dfb9d44e33b146551191b3398630823b5/source/sprite.d#L84
 
 						// Hat Middle
-						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) { // accessory already rendered, avoid render same item again
+						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
+							// accessory already rendered, avoid render same item again
 							SpriteRenderer.zIndex = zOffset + 100;
 							renderElement(self, self.files.accessory3, 'head', _position, false);
 						}
 
 						// Hat Top
-						if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) { // accessory and accessory3 already rendered, avoid render same item again
+						if (
+							self.accessory2 > 0 &&
+							self.accessory2 !== self.accessory &&
+							self.accessory2 !== self.accessory3
+						) {
+							// accessory and accessory3 already rendered, avoid render same item again
 							SpriteRenderer.zIndex = zOffset + 200;
 							renderElement(self, self.files.accessory2, 'head', _position, false);
 						}
@@ -349,7 +348,8 @@ define(function (require) {
 							renderElement(self, self.files.accessory, 'head', _position, false);
 						}
 
-						if (direction > 2 && direction < 6) { // looking back
+						if (direction > 2 && direction < 6) {
+							// looking back
 
 							// Draw Robe
 							if (self.robe > 0) {
@@ -366,7 +366,9 @@ define(function (require) {
 									JobId.SUPERNOVICE_B,
 									JobId.SUPERNOVICE2,
 									JobId.SUPERNOVICE2_B
-								].includes(self._job) ? 0 : self.CartNum;
+								].includes(self._job)
+									? 0
+									: self.CartNum;
 								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 							}
@@ -383,12 +385,10 @@ define(function (require) {
 							SpriteRenderer.zIndex = zOffset + 300;
 							renderElement(self, self.files.shield, 'shield', _position, true);
 						}
-
-
 					});
 					break;
 				default:
-					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+					SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 					SpriteRenderer.zIndex = 100;
 					// Non-player entities:
 					// - Do not write depth to avoid breaking PC occlusion and internal layer issues
@@ -400,10 +400,7 @@ define(function (require) {
 			}
 			SpriteRenderer.zIndex = 1;
 		};
-	}();
-
-
-
+	})();
 
 	/**
 	 * Render each Entity elements (body, head, hats, ...)
@@ -414,7 +411,7 @@ define(function (require) {
 	 * @param {vec2}   position (reference)
 	 * @param {boolean} is_main - true if it's the main element (body)
 	 */
-	var renderElement = function renderElementClosure() {
+	var renderElement = (function renderElementClosure() {
 		var _position = new Int32Array(2);
 
 		return function renderElement(entity, files, type, position, is_main) {
@@ -438,10 +435,12 @@ define(function (require) {
 			var pal = (files.pal && Client.loadFile(files.pal)) || spr;
 
 			// Obtain animations from the action and direction.
-			var action = act.actions[
-				((entity.action * 8) + // Action
-					(Camera.direction + entity.direction + 8) % 8 // Direction
-				) % act.actions.length]; // Avoid overflow on action (ex: if there is just one action)
+			var action =
+				act.actions[
+					(entity.action * 8 + // Action
+						((Camera.direction + entity.direction + 8) % 8)) % // Direction
+						act.actions.length
+				]; // Avoid overflow on action (ex: if there is just one action)
 
 			// Find animation
 			var animation_id = calcAnimation(entity, action, type, Renderer.tick - entity.animation.tick);
@@ -465,46 +464,48 @@ define(function (require) {
 				var direction = (Camera.direction + entity.direction + 8) % 8;
 
 				switch (direction) {
-					case 0: {
-						_position[0] = 0;
-						_position[1] = -30;
-					}
-					break;
-				case 1:
-					_position[0] = 30;
-					_position[1] = -10;
-					break;
-				case 2:
-					_position[0] = 40;
-					_position[1] = 0;
-					break;
-				case 3:
-					_position[0] = 30;
-					_position[1] = 10;
-					break;
-				case 4: {
-					_position[0] = 0;
-					_position[1] = 20;
-				}
-				break;
-				case 5:
-					_position[0] = -30;
-					_position[1] = 10;
-					break;
-				case 6:
-					_position[0] = -40;
-					_position[1] = 0;
-					break;
-				case 7:
-					_position[0] = -30;
-					_position[1] = -10;
-					break;
+					case 0:
+						{
+							_position[0] = 0;
+							_position[1] = -30;
+						}
+						break;
+					case 1:
+						_position[0] = 30;
+						_position[1] = -10;
+						break;
+					case 2:
+						_position[0] = 40;
+						_position[1] = 0;
+						break;
+					case 3:
+						_position[0] = 30;
+						_position[1] = 10;
+						break;
+					case 4:
+						{
+							_position[0] = 0;
+							_position[1] = 20;
+						}
+						break;
+					case 5:
+						_position[0] = -30;
+						_position[1] = 10;
+						break;
+					case 6:
+						_position[0] = -40;
+						_position[1] = 0;
+						break;
+					case 7:
+						_position[0] = -30;
+						_position[1] = -10;
+						break;
 				}
 			}
 
 			// Check if special body effect and enable the correct blend mode
-			if (type !== 'shadow' &&
-				entity.getOpt3(StatusConst.Status.BERSERK) ||
+			if (
+				(type !== 'shadow' && entity.getOpt3(StatusConst.Status.BERSERK)) ||
 				entity.getOpt3(StatusConst.Status.MARIONETTE)
 			) {
 				isBlendModeOne = true;
@@ -521,8 +522,7 @@ define(function (require) {
 				position[1] = animation.pos[0].y;
 			}
 		};
-	}();
-
+	})();
 
 	/**
 	 * Get animation delay
@@ -535,20 +535,21 @@ define(function (require) {
 	 */
 	function getAnimationDelay(type, entity, act) {
 		if (type === 'body' && entity.action === entity.ACTION.WALK) {
-			return act.delay / 150 * entity.walk.speed;
+			return (act.delay / 150) * entity.walk.speed;
 		}
 
 		// Delay on attack
-		if (entity.action === entity.ACTION.ATTACK ||
+		if (
+			entity.action === entity.ACTION.ATTACK ||
 			entity.action === entity.ACTION.ATTACK1 ||
 			entity.action === entity.ACTION.ATTACK2 ||
-			entity.action === entity.ACTION.ATTACK3) {
+			entity.action === entity.ACTION.ATTACK3
+		) {
 			return entity.attack_speed / act.animations.length;
 		}
 
 		return act.delay;
 	}
-
 
 	/**
 	 * Calculate animations
@@ -566,7 +567,7 @@ define(function (require) {
 		var animCount = act.animations.length;
 		var animSize = animCount;
 		var animLastIndex = animSize - 1;
-		var isIdle = (action === ACTION.IDLE || action === ACTION.SIT);
+		var isIdle = action === ACTION.IDLE || action === ACTION.SIT;
 		var delay = getAnimationDelay(type, entity, act);
 		var headDir = 0;
 		var anim = 0;
@@ -585,21 +586,22 @@ define(function (require) {
 
 		// Get rid of doridori
 
-		if ((type === 'body' || type === 'robe') &&
-			(entity.objecttype === entity.constructor.TYPE_PC ||
-				entity.objecttype === entity.constructor.TYPE_MERC) &&
-			isIdle) {
-			if (entity.headDir <= animLastIndex)
-				return entity.headDir;
+		if (
+			(type === 'body' || type === 'robe') &&
+			(entity.objecttype === entity.constructor.TYPE_PC || entity.objecttype === entity.constructor.TYPE_MERC) &&
+			isIdle
+		) {
+			if (entity.headDir <= animLastIndex) return entity.headDir;
 			return animLastIndex;
 		}
 
 		// If hat/hair, divide to 3 since there is doridori include
 		// TODO: fixed, just on IDLE and SIT ?
-		if (type === 'head' &&
-			(entity.objecttype === entity.constructor.TYPE_PC ||
-				entity.objecttype === entity.constructor.TYPE_MERC) &&
-			isIdle) {
+		if (
+			type === 'head' &&
+			(entity.objecttype === entity.constructor.TYPE_PC || entity.objecttype === entity.constructor.TYPE_MERC) &&
+			isIdle
+		) {
 			animCount = Math.floor(animCount / 3);
 			headDir = entity.headDir <= animLastIndex ? entity.headDir : animLastIndex;
 		}
@@ -630,12 +632,13 @@ define(function (require) {
 			var motionSpeed = Math.max(act.delay || 1, 1);
 			var phase;
 			var nowTick = Renderer.tick;
-			var havePhaseThisTick = (entity.walk._motionPhaseTick === nowTick && typeof entity.walk._motionPhase === 'number');
-			var isBodyPart = (type === 'body');
+			var havePhaseThisTick =
+				entity.walk._motionPhaseTick === nowTick && typeof entity.walk._motionPhase === 'number';
+			var isBodyPart = type === 'body';
 
 			// Body is authoritative for motionSpeed; recompute when we render it.
 			if (!havePhaseThisTick || isBodyPart) {
-				phase = entity.walk.dist * WALK_DIST_TO_MOTION / motionSpeed;
+				phase = (entity.walk.dist * WALK_DIST_TO_MOTION) / motionSpeed;
 				entity.walk._motionPhase = phase;
 				entity.walk._motionPhaseTick = nowTick;
 			} else {
@@ -666,11 +669,11 @@ define(function (require) {
 		}
 
 		// No repeat
-		anim = Math.min(tick / delay | 0, animCount || animCount - 1); // Avoid an error if animation = 0, search for -1 :(
+		anim = Math.min((tick / delay) | 0, animCount || animCount - 1); // Avoid an error if animation = 0, search for -1 :(
 
 		anim %= animCount;
-		anim += animCount * headDir // get rid of doridori
-		anim += animation.frame // previous frame
+		anim += animCount * headDir; // get rid of doridori
+		anim += animation.frame; // previous frame
 		anim %= animSize; // avoid overflow
 
 		var lastFrame = animation.frame + animSize - 1;
@@ -685,7 +688,6 @@ define(function (require) {
 
 		return Math.min(anim, animSize - 1);
 	}
-
 
 	/**
 	 * Render ROSprite Render
@@ -735,15 +737,14 @@ define(function (require) {
 		width *= layer.scale[0] * size;
 		height *= layer.scale[1] * size;
 
-
 		// Get the entity bounding rect
 		if (type === 'body') {
 			var w = (frame.originalWidth * layer.scale[0] * size) / 2;
 			var h = (frame.originalHeight * layer.scale[1] * size) / 2;
 
-			this.boundingRect.x1 = Math.min(this.boundingRect.x1, (layer.pos[0] + pos[0]) - w);
+			this.boundingRect.x1 = Math.min(this.boundingRect.x1, layer.pos[0] + pos[0] - w);
 			this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h);
-			this.boundingRect.x2 = Math.max(this.boundingRect.x2, (layer.pos[0] + pos[0]) + w);
+			this.boundingRect.x2 = Math.max(this.boundingRect.x2, layer.pos[0] + pos[0] + w);
 			this.boundingRect.y2 = Math.min(this.boundingRect.y2, -(layer.pos[1] + pos[1]) - h);
 		}
 
@@ -783,7 +784,6 @@ define(function (require) {
 		// Draw Sprite
 		SpriteRenderer.render(isBlendModeOne);
 	}
-
 
 	/**
 	 * Export

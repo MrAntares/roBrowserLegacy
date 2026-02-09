@@ -1,25 +1,29 @@
 /**
  * UI/Components/JoystickUI/JoystickSetManager.js
  *
- * Manages the toggle state between different shortcut sets (e.g., Set 1 vs Set 2), 
+ * Manages the toggle state between different shortcut sets (e.g., Set 1 vs Set 2),
  * allowing the user to access multiple layers of mapped skills and items.
  *
  * @author AoShinHo
  */
-define(function (require) {
+define(function (require)
+{
 	'use strict';
 
 	var currentSet = 1;
 
 	return {
-		getCurrentSet: function () {
+		getCurrentSet: function ()
+		{
 			return currentSet;
 		},
-		set: function (n) {
-			currentSet = (n === 1 || n === 2) ? n : currentSet;
+		set: function (n)
+		{
+			currentSet = n === 1 || n === 2 ? n : currentSet;
 		},
-		toggle: function () {
-			currentSet = (currentSet === 1 ? 2 : 1);
+		toggle: function ()
+		{
+			currentSet = currentSet === 1 ? 2 : 1;
 		}
 	};
 });

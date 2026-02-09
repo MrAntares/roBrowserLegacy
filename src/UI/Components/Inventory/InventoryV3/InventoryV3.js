@@ -9,68 +9,62 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var DB                 = require('DB/DBManager');
-	var ItemType           = require('DB/Items/ItemType');
-	var Network            = require('Network/NetworkManager');
-	var PACKET             = require('Network/PacketStructure');
-	var jQuery             = require('Utils/jquery');
-	var Client             = require('Core/Client');
-	var Preferences        = require('Core/Preferences');
-	var Renderer           = require('Renderer/Renderer');
-	var Mouse              = require('Controls/MouseEventHandler');
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var CartItems          = require('UI/Components/CartItems/CartItems');
-	var InputBox           = require('UI/Components/InputBox/InputBox');
-	var ItemCompare        = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
-	var ChatBox      	   = require('UI/Components/ChatBox/ChatBox');
-	var Equipment          = require('UI/Components/Equipment/Equipment');
-	var Storage   	       = require('UI/Components/Storage/Storage');
-	var SwitchEquip        = require('UI/Components/SwitchEquip/SwitchEquip');
-	var UIVersionManager   = require('UI/UIVersionManager');
-	var htmlText           = require('text!./InventoryV3.html');
-	var cssText            = require('text!./InventoryV3.css');
-	var getModule          = require;
-	var Configs            = require('Core/Configs');
-	var PACKETVER          = require('Network/PacketVerManager');
+	var DB = require('DB/DBManager');
+	var ItemType = require('DB/Items/ItemType');
+	var Network = require('Network/NetworkManager');
+	var PACKET = require('Network/PacketStructure');
+	var jQuery = require('Utils/jquery');
+	var Client = require('Core/Client');
+	var Preferences = require('Core/Preferences');
+	var Renderer = require('Renderer/Renderer');
+	var Mouse = require('Controls/MouseEventHandler');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var CartItems = require('UI/Components/CartItems/CartItems');
+	var InputBox = require('UI/Components/InputBox/InputBox');
+	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
+	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
+	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var Equipment = require('UI/Components/Equipment/Equipment');
+	var Storage = require('UI/Components/Storage/Storage');
+	var SwitchEquip = require('UI/Components/SwitchEquip/SwitchEquip');
+	var UIVersionManager = require('UI/UIVersionManager');
+	var htmlText = require('text!./InventoryV3.html');
+	var cssText = require('text!./InventoryV3.css');
+	var getModule = require;
+	var Configs = require('Core/Configs');
+	var PACKETVER = require('Network/PacketVerManager');
 
 	/**
 	 * Create Component
 	 */
-	var InventoryV3 = new UIComponent( 'InventoryV3', htmlText, cssText );
-
+	var InventoryV3 = new UIComponent('InventoryV3', htmlText, cssText);
 
 	/**
 	 * Tab constant
 	 */
 	InventoryV3.TAB = {
 		USABLE: 0,
-		EQUIP:  1,
-		ETC:    2,
-		FAV:	3
+		EQUIP: 1,
+		ETC: 2,
+		FAV: 3
 	};
-
 
 	/**
 	 * Store inventory items
 	 */
 	InventoryV3.list = [];
 
-
 	/**
 	 * Store switch equip items
 	 */
 	InventoryV3.equipswitchlist = [];
-
 
 	/**
 	 * Store new items
@@ -78,33 +72,34 @@ define(function(require)
 	InventoryV3.newItems = [];
 	InventoryV3.equippedItems = [];
 
-
 	/**
 	 * @var {number} used to remember the window height
 	 */
 	var _realSize = 0;
 
-
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('InventoryV3', {
-		x:        0,
-		y:        UIVersionManager.getInventoryVersion() > 0 ? 172 : 120,
-		width:    7,
-		height:   193,
-		show:     false,
-		reduce:   false,
-		tab:      InventoryV3.TAB.USABLE,
-		itemlock:	false,
-		itemcomp:	true,
-		npcsalelock:	false,
-		magnet_top: false,
-		magnet_bottom: false,
-		magnet_left: true,
-		magnet_right: false
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'InventoryV3',
+		{
+			x: 0,
+			y: UIVersionManager.getInventoryVersion() > 0 ? 172 : 120,
+			width: 7,
+			height: 193,
+			show: false,
+			reduce: false,
+			tab: InventoryV3.TAB.USABLE,
+			itemlock: false,
+			itemcomp: true,
+			npcsalelock: false,
+			magnet_top: false,
+			magnet_bottom: false,
+			magnet_left: true,
+			magnet_right: false
+		},
+		1.0
+	);
 
 	/**
 	 * Store variables from preferences
@@ -114,36 +109,34 @@ define(function(require)
 	InventoryV3.npcsalelock = _preferences.npcsalelock;
 	var lockOverlayTimeout;
 
-
 	/**
 	 * Initialize UI
 	 */
-	InventoryV3.init = function Init()
-	{
+	InventoryV3.init = function Init() {
 		// Bind buttons
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
 		this.ui.find('.titlebar .mini').click(onToggleReduction);
 		this.ui.find('.tabs button').mousedown(onSwitchTab);
 		this.ui.find('.footer .extend').mousedown(onResize);
-		this.ui.find('.titlebar .close').click(function(){
+		this.ui.find('.titlebar .close').click(function () {
 			InventoryV3.ui.hide();
 		});
 
 		// on drop item
 		this.ui
-			.on('drop',     onDrop)
+			.on('drop', onDrop)
 			.on('dragover', stopPropagation)
 
-		// Items event
+			// Items event
 			.find('.container .content')
-				.on('mousewheel DOMMouseScroll', onScroll)
-				.on('mouseover',   '.item', onItemOver)
-				.on('mouseout',    '.item', onItemOut)
-				.on('dragstart',   '.item', onItemDragStart)
-				.on('dragend',     '.item', onItemDragEnd)
-				.on('contextmenu', '.item', onItemInfo)
-				.on('dblclick',    '.item', onItemUsed)
-				.on('click',       '.item', onItemClick);
+			.on('mousewheel DOMMouseScroll', onScroll)
+			.on('mouseover', '.item', onItemOver)
+			.on('mouseout', '.item', onItemOut)
+			.on('dragstart', '.item', onItemDragStart)
+			.on('dragend', '.item', onItemDragEnd)
+			.on('contextmenu', '.item', onItemInfo)
+			.on('dblclick', '.item', onItemUsed)
+			.on('click', '.item', onItemClick);
 
 		this.ui.find('.ncnt').text(0 + ' / ');
 		this.ui.find('.mcnt').text(100);
@@ -159,17 +152,19 @@ define(function(require)
 		initialTab.addClass('selected');
 
 		// Buttons
-		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp' ;
+		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
 		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
 			InventoryV3.ui.find('.item_drop_lock').css('backgroundImage', 'url(' + data + ')');
 		});
 
-		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp' ;
+		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp';
 		Client.loadFile(DB.INTERFACE_PATH + compImg, function (data) {
 			InventoryV3.ui.find('.item_compare').css('backgroundImage', 'url(' + data + ')');
 		});
 
-		var lockSale = _preferences.npcsalelock ? InventoryV3.ui.find('.deallock_on') : InventoryV3.ui.find('.deallock_off');
+		var lockSale = _preferences.npcsalelock
+			? InventoryV3.ui.find('.deallock_on')
+			: InventoryV3.ui.find('.deallock_off');
 		if (_preferences.tab != InventoryV3.TAB.FAV) {
 			lockSale.hide();
 			InventoryV3.ui.find('.sort').hide();
@@ -183,29 +178,29 @@ define(function(require)
 		InventoryV3.ui.find('.item_drop_lock').click(onItemLock);
 		InventoryV3.ui.find('.item_compare').click(onItemCompare);
 		InventoryV3.ui.find('.deal_lock').click(onNPCLock);
-		InventoryV3.ui.find('.lockoverlayclose').click(function(){
+		InventoryV3.ui.find('.lockoverlayclose').click(function () {
 			InventoryV3.ui.find('.lockoverlaymsg').hide();
 			clearTimeout(lockOverlayTimeout);
 		});
-		InventoryV3.ui.find('.sort').click( function(){ requestFilter();} );
+		InventoryV3.ui.find('.sort').click(function () {
+			requestFilter();
+		});
 	};
-
 
 	/**
 	 * Apply preferences once append to body
 	 */
-	InventoryV3.onAppend = function OnAppend()
-	{
+	InventoryV3.onAppend = function OnAppend() {
 		// Apply preferences
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
 
-		this.resize( _preferences.width, _preferences.height );
+		this.resize(_preferences.width, _preferences.height);
 
 		this.ui.css({
-			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
-			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
+			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
 		this.magnet.TOP = _preferences.magnet_top;
@@ -217,12 +212,10 @@ define(function(require)
 		this.ui.find('.titlebar .mini').trigger('mousedown');
 	};
 
-
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	InventoryV3.onRemove = function OnRemove()
-	{
+	InventoryV3.onRemove = function OnRemove() {
 		this.ui.find('.container .content').empty();
 		this.list.length = 0;
 		this.equipswitchlist.length = 0; // Clear the equipswitchlist array
@@ -230,11 +223,11 @@ define(function(require)
 		jQuery('.ItemInfo').remove();
 
 		// Save preferences
-		_preferences.show   =  this.ui.is(':visible');
+		_preferences.show = this.ui.is(':visible');
 		_preferences.reduce = !!_realSize;
-		_preferences.y      =  parseInt(this.ui.css('top'), 10);
-		_preferences.x      =  parseInt(this.ui.css('left'), 10);
-		_preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.x = parseInt(this.ui.css('left'), 10);
+		_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
@@ -245,21 +238,18 @@ define(function(require)
 		_preferences.save();
 	};
 
-
 	/**
 	 * Process shortcut
 	 *
 	 * @param {object} key
 	 */
-	InventoryV3.onShortCut = function onShurtCut( key )
-	{
+	InventoryV3.onShortCut = function onShurtCut(key) {
 		switch (key.cmd) {
 			case 'TOGGLE':
 				this.ui.toggle();
 				if (this.ui.is(':visible')) {
 					this.focus();
-				}
-				else {
+				} else {
 					// Chrome bug
 					// when clicking double clicking an a weapon to equip
 					// the item disapear, if you don't move the mouse and
@@ -274,11 +264,11 @@ define(function(require)
 
 		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-		if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+		if (changeUI) {
+			// Only applicable to BasicInfoV4 and BasicInfoV5
 			changeUI.hide();
 		}
 	};
-
 
 	/**
 	 * Show/Hide UI
@@ -295,17 +285,17 @@ define(function(require)
 
 		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-		if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+		if (changeUI) {
+			// Only applicable to BasicInfoV4 and BasicInfoV5
 			changeUI.hide();
 		}
 	};
-
 
 	/**
 	 * Clear newItems array
 	 */
 	InventoryV3.clearNewItems = function clearNewItems() {
-	    this.newItems = [];
+		this.newItems = [];
 	};
 
 	/**
@@ -314,19 +304,17 @@ define(function(require)
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	InventoryV3.resize = function Resize( width )
-	{
-		width  = Math.min( Math.max(width,  6), 8);
+	InventoryV3.resize = function Resize(width) {
+		width = Math.min(Math.max(width, 6), 8);
 
 		this.ui.find('.container .content').css({
-			width:  width  * 32 + 13, // 13 = scrollbar
+			width: width * 32 + 13 // 13 = scrollbar
 		});
 
 		this.ui.css({
-			width:  23 + 16 + 16 + width  * 32,
+			width: 23 + 16 + 16 + width * 32
 		});
 	};
-
 
 	/**
 	 * Get item object
@@ -334,8 +322,7 @@ define(function(require)
 	 * @param {number} id
 	 * @returns {Item}
 	 */
-	InventoryV3.getItemById = function GetItemById( id )
-	{
+	InventoryV3.getItemById = function GetItemById(id) {
 		var i, count;
 		var list = InventoryV3.list;
 
@@ -348,15 +335,13 @@ define(function(require)
 		return null;
 	};
 
-
 	/**
 	 * Search in a list for an item by its index
 	 *
 	 * @param {number} index
 	 * @returns {Item}
 	 */
-	InventoryV3.getItemByIndex = function getItemByIndex( index )
-	{
+	InventoryV3.getItemByIndex = function getItemByIndex(index) {
 		var i, count;
 		var list = InventoryV3.list;
 
@@ -369,69 +354,63 @@ define(function(require)
 		return null;
 	};
 
-
 	/**
 	 * Add items to the list
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
-	InventoryV3.setItems = function SetItems(items)
-	{
+	InventoryV3.setItems = function SetItems(items) {
 		var i, count;
 
-		for (i = 0, count = items.length; i < count ; ++i) {
-			var object= this.getItemByIndex(items[i].index);
-			if(object){
-				this.removeItem(object.index,object.count);
+		for (i = 0, count = items.length; i < count; ++i) {
+			var object = this.getItemByIndex(items[i].index);
+			if (object) {
+				this.removeItem(object.index, object.count);
 			}
-			if(this.addItemSub(items[i])){
+			if (this.addItemSub(items[i])) {
 				this.list.push(items[i]);
 				this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 				this.onUpdateItem(items[i].ITID, items[i].count ? items[i].count : 1);
 			}
-
-
 		}
-
 	};
-
 
 	/**
 	 * Insert Item to inventory
 	 *
 	 * @param {object} Item
 	 */
-	InventoryV3.addItem = function AddItem( item )
-	{
+	InventoryV3.addItem = function AddItem(item) {
 		var object = this.getItemByIndex(item.index);
 		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
-		if(hasRefineFlag) {
+		if (hasRefineFlag) {
 			var Refine = getModule('UI/Components/Refine/Refine');
 		}
 
 		// Check if the item was equipped
 		var equippedIndex = InventoryV3.equippedItems.indexOf(item.index);
 		if (equippedIndex !== -1) {
-		    // Remove from equipped tracker
-		    InventoryV3.equippedItems.splice(equippedIndex, 1);
+			// Remove from equipped tracker
+			InventoryV3.equippedItems.splice(equippedIndex, 1);
 		} else {
-		    // Mark as new item
-		    InventoryV3.newItems.push(item.index);
+			// Mark as new item
+			InventoryV3.newItems.push(item.index);
 
 			var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 			var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-			if (changeUI) { // Only applicable to BasicInfoV4 and BasicInfoV5
+			if (changeUI) {
+				// Only applicable to BasicInfoV4 and BasicInfoV5
 				changeUI.show();
 			}
 		}
 
 		if (hasRefineFlag && Refine.isRefineOpen()) {
-			var refinecount = Refine.ui.find('.materials .item[data-index="'+ item.ITID +'"] .mat_count');
+			var refinecount = Refine.ui.find('.materials .item[data-index="' + item.ITID + '"] .mat_count');
 			var previousDataText = refinecount.text().split('/')[0]; // Get the previous count part before the '/'
-    		var previousData = parseInt(previousDataText, 10); // Parse the previous count as integer
-    		var newCount = previousData + item.count; // Add the new count to the previous count
+			var previousData = parseInt(previousDataText, 10); // Parse the previous count as integer
+			var newCount = previousData + item.count; // Add the new count to the previous count
 
-    		// Update the .mat_count text with the new count
-    		refinecount.empty().text(newCount + '/1');
+			// Update the .mat_count text with the new count
+			refinecount.empty().text(newCount + '/1');
 		}
 
 		if (object) {
@@ -443,7 +422,7 @@ define(function(require)
 				item.count = 1;
 			}
 			object.count += item.count;
-			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
+			this.ui.find('.item[data-index="' + item.index + '"] .count').text(object.count);
 			this.onUpdateItem(object.ITID, object.count);
 			// Replace the existing index in newItems to maintain it as new
 			var indexPosition = InventoryV3.newItems.indexOf(item.index);
@@ -491,13 +470,13 @@ define(function(require)
 
 			if (tab === _preferences.tab) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
-        	        InventoryV3.ui.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
-        	    });
+					InventoryV3.ui
+						.find('.item[data-index="' + item.index + '"] .new_item')
+						.css('backgroundImage', 'url(' + data + ')');
+				});
 			}
 		}
-
 	};
-
 
 	/**
 	 * Check if item index is in newItems list
@@ -506,17 +485,15 @@ define(function(require)
 	 * @returns {boolean} - True if item index is in newItems list, false otherwise
 	 */
 	InventoryV3.isNewItem = function isNewItem(index) {
-	    return InventoryV3.newItems.includes(index);
+		return InventoryV3.newItems.includes(index);
 	};
-
 
 	/**
 	 * Add item to inventory
 	 *
 	 * @param {object} Item
 	 */
-	InventoryV3.addItemSub = function AddItemSub( item )
-	{
+	InventoryV3.addItemSub = function AddItemSub(item) {
 		var tab;
 		switch (item.type) {
 			case ItemType.HEALING:
@@ -543,7 +520,7 @@ define(function(require)
 		}
 
 		if (item.PlaceETCTab) {
-			tab  = InventoryV3.TAB.FAV;
+			tab = InventoryV3.TAB.FAV;
 		}
 
 		// Equip item (if not arrow)
@@ -553,65 +530,87 @@ define(function(require)
 		}
 
 		if (tab === _preferences.tab) {
-			var it      = DB.getItemInfo( item.ITID );
+			var it = DB.getItemInfo(item.ITID);
 			var content = this.ui.find('.container .content');
 
 			content.append(
-				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
+				'<div class="item" data-index="' +
+					item.index +
+					'" draggable="true">' +
 					'<div class="new_item"></div>' +
 					'<div class="icon"></div>' +
 					'<div class="switch1"></div>' +
 					'<div class="switch2"></div>' +
 					'<div class="grade"></div>' +
-					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
-				'</div>'
+					'<div class="amount"><span class="count">' +
+					(item.count || 1) +
+					'</span></div>' +
+					'</div>'
 			);
 
 			if (content.height() < content[0].scrollHeight) {
 				this.ui.find('.hide').hide();
-			}
-			else {
+			} else {
 				this.ui.find('.hide').show();
 			}
 
-			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
-				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
-			});
+			Client.loadFile(
+				DB.INTERFACE_PATH +
+					'item/' +
+					(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+					'.bmp',
+				function (data) {
+					content
+						.find('.item[data-index="' + item.index + '"] .icon')
+						.css('backgroundImage', 'url(' + data + ')');
+				}
+			);
 
 			if (InventoryV3.isNewItem(item.index)) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
-            	    content.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', 'url(' + data + ')');
-            	});
+					content
+						.find('.item[data-index="' + item.index + '"] .new_item')
+						.css('backgroundImage', 'url(' + data + ')');
+				});
 			} else {
-				content.find('.item[data-index="'+ item.index +'"] .new_item').css('backgroundImage', '');
+				content.find('.item[data-index="' + item.index + '"] .new_item').css('backgroundImage', '');
 			}
 
 			// Check if the item is in the equipswitchlist
-			var isInEquipSwitchList = InventoryV3.equipswitchlist.some(function(equipItem) {
+			var isInEquipSwitchList = InventoryV3.equipswitchlist.some(function (equipItem) {
 				return equipItem.index === item.index;
 			});
 
 			if (isInEquipSwitchList) {
 				SwitchEquip.equip(item, item.location, true);
 
-				Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/bg_change.bmp', function(data){
-					content.find('.item[data-index="'+ item.index +'"] .switch1').css('backgroundImage', 'url('+ data +')');
+				Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/bg_change.bmp', function (data) {
+					content
+						.find('.item[data-index="' + item.index + '"] .switch1')
+						.css('backgroundImage', 'url(' + data + ')');
 				});
-				Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/ico_change.bmp', function(data){
-					content.find('.item[data-index="'+ item.index +'"] .switch2').css('backgroundImage', 'url('+ data +')');
+				Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/ico_change.bmp', function (data) {
+					content
+						.find('.item[data-index="' + item.index + '"] .switch2')
+						.css('backgroundImage', 'url(' + data + ')');
 				});
 			}
 
 			/* Grade System */
 			if (item.enchantgrade) {
-				Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', function(data){
-					content.find('.item[data-index="'+ item.index +'"] .grade').css('backgroundImage', 'url('+ data +')');
-				});
+				Client.loadFile(
+					DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp',
+					function (data) {
+						content
+							.find('.item[data-index="' + item.index + '"] .grade')
+							.css('backgroundImage', 'url(' + data + ')');
+					}
+				);
 			}
 		}
 
 		// Check if the item is in the equipswitchlist
-		var isInEquipSwitchList = InventoryV3.equipswitchlist.some(function(equipItem) {
+		var isInEquipSwitchList = InventoryV3.equipswitchlist.some(function (equipItem) {
 			return equipItem.index === item.index;
 		});
 
@@ -622,19 +621,17 @@ define(function(require)
 		return true;
 	};
 
-
 	/**
 	 * Check if an item with the given location exists in the equip switch list.
 	 *
 	 * @param {number} location - The location of the item to check.
 	 * @returns {boolean} True if the item exists in the equip switch list, false otherwise.
 	 */
-	InventoryV3.isInEquipSwitchList = function(location) {
-		return this.equipswitchlist.some(function(existingItem) {
+	InventoryV3.isInEquipSwitchList = function (location) {
+		return this.equipswitchlist.some(function (existingItem) {
 			return (existingItem.location & location) !== 0;
 		});
 	};
-
 
 	/**
 	 * Remove item from inventory
@@ -642,8 +639,7 @@ define(function(require)
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	InventoryV3.removeItem = function RemoveItem( index, count )
-	{
+	InventoryV3.removeItem = function RemoveItem(index, count) {
 		var item = this.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
@@ -656,14 +652,14 @@ define(function(require)
 			item.count -= count;
 
 			if (item.count > 0) {
-				this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
+				this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
 				this.onUpdateItem(item.ITID, item.count);
 				return item;
 			}
 		}
 
-		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.list.splice(this.list.indexOf(item), 1);
+		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 		this.onUpdateItem(item.ITID, 0);
 
@@ -677,15 +673,13 @@ define(function(require)
 		return item;
 	};
 
-
 	/**
 	 * Remove item from inventory
 	 *
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	InventoryV3.updateItem = function UpdateItem( index, count )
-	{
+	InventoryV3.updateItem = function UpdateItem(index, count) {
 		var item = this.getItemByIndex(index);
 
 		if (!item) {
@@ -696,14 +690,14 @@ define(function(require)
 
 		// Update quantity
 		if (item.count > 0) {
-			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
+			this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
 			this.onUpdateItem(item.ITID, item.count);
 			return;
 		}
 
 		// no quantity, remove
-		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.list.splice(this.list.indexOf(item), 1);
+		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 		this.onUpdateItem(item.ITID, 0);
 
@@ -713,14 +707,12 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Use an item
 	 *
 	 * @param {Item} item
 	 */
-	InventoryV3.useItem = function UseItem( item )
-	{
+	InventoryV3.useItem = function UseItem(item) {
 		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
 		if (hasRefineFlag) {
 			var Refine = getModule('UI/Components/Refine/Refine');
@@ -736,17 +728,16 @@ define(function(require)
 		}
 
 		switch (item.type) {
-
 			// Usable item
 			case ItemType.HEALING:
 			case ItemType.USABLE:
 			case ItemType.CASH:
-				InventoryV3.onUseItem( item.index );
+				InventoryV3.onUseItem(item.index);
 				break;
 
 			// Use card
 			case ItemType.CARD:
-				InventoryV3.onUseCard( item.index );
+				InventoryV3.onUseCard(item.index);
 				break;
 
 			case ItemType.DELAYCONSUME:
@@ -771,7 +762,7 @@ define(function(require)
 			case ItemType.PETARMOR:
 			case ItemType.AMMO:
 				if (item.IsIdentified && !item.IsDamaged) {
-					InventoryV3.onEquipItem( item.index, item.location );
+					InventoryV3.onEquipItem(item.index, item.location);
 				}
 				break;
 		}
@@ -779,79 +770,71 @@ define(function(require)
 		return;
 	};
 
-
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation( event )
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
-	};
-
+	}
 
 	/**
 	 * Extend inventory window size
 	 */
-	function onResize()
-	{
-		var ui      = InventoryV3.ui;
+	function onResize() {
+		var ui = InventoryV3.ui;
 		var content = ui.find('.container .content');
-		var hide    = ui.find('.hide');
-		var top     = ui.position().top;
-		var left    = ui.position().left;
-		var lastWidth  = 0;
+		var hide = ui.find('.hide');
+		var top = ui.position().top;
+		var left = ui.position().left;
+		var lastWidth = 0;
 		var _Interval;
 
-		function resizing()
-		{
+		function resizing() {
 			var extraX = 23 + 16 + 16 - 30;
 
-			var w = Math.floor( (Mouse.screen.x - left - extraX) / 32 );
+			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
 
 			// Maximum and minimum window size
-			w = Math.min( Math.max(w, 6), 9);
+			w = Math.min(Math.max(w, 6), 9);
 
 			if (w === lastWidth) {
 				return;
 			}
 
 			InventoryV3.resize(w);
-			lastWidth  = w;
+			lastWidth = w;
 
 			//Show or hide scrollbar
 			if (content.height() === content[0].scrollHeight) {
 				hide.show();
-			}
-			else {
+			} else {
 				hide.hide();
 			}
 		}
 
 		// Start resizing
-		_Interval = setInterval( resizing, 30);
+		_Interval = setInterval(resizing, 30);
 
 		// Stop resizing on left click
-		jQuery(window).on('mouseup.resize', function(event){
+		jQuery(window).on('mouseup.resize', function (event) {
 			if (event.which === 1) {
 				clearInterval(_Interval);
 				jQuery(window).off('mouseup.resize');
 			}
 		});
-	};
-
+	}
 
 	/**
 	 * Modify tab, filter display entries
 	 */
-	function onSwitchTab()
-	{
-		var idx          = jQuery(this).index();
+	function onSwitchTab() {
+		var idx = jQuery(this).index();
 		_preferences.tab = parseInt(idx, 10);
 		requestFilter();
 
 		jQuery('.tabs button').removeClass('selected');
-    	jQuery(this).addClass('selected');
+		jQuery(this).addClass('selected');
 
 		// Toggle visibility based on tab selection and npc sale lock preference
 		if (_preferences.tab !== InventoryV3.TAB.FAV) {
@@ -873,165 +856,141 @@ define(function(require)
 			}
 			InventoryV3.ui.find('.sort').show();
 		}
-	};
-
+	}
 
 	/**
 	 * Hide/show inventory's content
 	 */
-	function onToggleReduction()
-	{
+	function onToggleReduction() {
 		var ui = InventoryV3.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
 			ui.height(_realSize);
 			_realSize = 0;
-		}
-		else {
+		} else {
 			_realSize = ui.height();
 			ui.height(17);
 			ui.find('.panel').hide();
 		}
-	};
-
+	}
 
 	/**
 	 * Update tab, reset inventory content
 	 */
-	function requestFilter()
-	{
+	function requestFilter() {
 		InventoryV3.ui.find('.container .content').empty();
 
 		var list = InventoryV3.list;
 		var i, count;
 
 		for (i = 0, count = list.length; i < count; ++i) {
-			InventoryV3.addItemSub( list[i] );
+			InventoryV3.addItemSub(list[i]);
 		}
-	};
-
+	}
 
 	/**
 	 * Drop an item from storage to inventory
 	 *
 	 * @param {event}
 	 */
-	function onDrop( event )
-	{
+	function onDrop(event) {
 		var item, data;
 		event.stopImmediatePropagation();
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 			item = data.data;
-		}
-		catch(e) {
+		} catch (e) {
 			return false;
 		}
 
 		// Just allow item from storage
-		if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'CartItems' && data.from !== 'Mail' && data.from !== 'WriteRodex')) {
+		if (
+			data.type !== 'item' ||
+			(data.from !== 'Storage' && data.from !== 'CartItems' && data.from !== 'Mail' && data.from !== 'WriteRodex')
+		) {
 			return false;
 		}
 
 		// Have to specify how much
-		if (item.count > 1)
-		{
+		if (item.count > 1) {
 			InputBox.append();
 			InputBox.setType('number', false, item.count);
 
-			InputBox.onSubmitRequest = function OnSubmitRequest( count )
-			{
+			InputBox.onSubmitRequest = function OnSubmitRequest(count) {
 				InputBox.remove();
 
-					switch(data.from)
-					{
+				switch (data.from) {
 					case 'Storage':
-						getModule('UI/Components/Storage/Storage').reqRemoveItem(
-							item.index,
-							parseInt(count, 10 )
-							);
+						getModule('UI/Components/Storage/Storage').reqRemoveItem(item.index, parseInt(count, 10));
 						break;
 
 					case 'CartItems':
-						getModule('UI/Components/CartItems/CartItems').reqRemoveItem(
-							item.index,
-							parseInt(count, 10 )
-							);
+						getModule('UI/Components/CartItems/CartItems').reqRemoveItem(item.index, parseInt(count, 10));
 						break;
 
 					case 'Mail':
-						getModule('UI/Components/Mail/Mail').reqRemoveItem(
-							item.index,
-							parseInt(count, 10 )
-							);
+						getModule('UI/Components/Mail/Mail').reqRemoveItem(item.index, parseInt(count, 10));
 						break;
 
 					case 'WriteRodex':
 						getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex(
 							item.index,
-							parseInt(count, 10 )
-							);
+							parseInt(count, 10)
+						);
 						break;
-
-					}
+				}
 			};
 			return false;
 		}
 
-		switch(data.from)
-		{
+		switch (data.from) {
 			case 'Storage':
-				getModule('UI/Components/Storage/Storage').reqRemoveItem( item.index, 1 );
+				getModule('UI/Components/Storage/Storage').reqRemoveItem(item.index, 1);
 				break;
 
 			case 'CartItems':
-				getModule('UI/Components/CartItems/CartItems').reqRemoveItem( item.index, 1 );
+				getModule('UI/Components/CartItems/CartItems').reqRemoveItem(item.index, 1);
 				break;
 
 			case 'Mail':
-				getModule('UI/Components/Mail/Mail').reqRemoveItem( item.index, 1 );
+				getModule('UI/Components/Mail/Mail').reqRemoveItem(item.index, 1);
 				break;
 
 			case 'WriteRodex':
-				getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex( item.index, 1 );
+				getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex(item.index, 1);
 				break;
 		}
 
 		return false;
-	};
-
+	}
 
 	/**
 	 * Block the scroll to move 32px at each move
 	 */
-	function onScroll( event )
-	{
+	function onScroll(event) {
 		var delta;
 
 		if (event.originalEvent.wheelDelta) {
-			delta = event.originalEvent.wheelDelta / 120 ;
+			delta = event.originalEvent.wheelDelta / 120;
 			if (window.opera) {
 				delta = -delta;
 			}
-		}
-		else if (event.originalEvent.detail) {
+		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
 
-		this.scrollTop = Math.floor(this.scrollTop/32) * 32 - (delta * 32);
+		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
 		event.stopImmediatePropagation();
 		return false;
-	};
-
+	}
 
 	/**
 	 * Show item name when mouse is over
 	 */
-	function onItemOver()
-	{
-		var idx  = parseInt( this.getAttribute('data-index'), 10);
+	function onItemOver() {
+		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var item = InventoryV3.getItemByIndex(idx);
 
 		if (!item) {
@@ -1039,89 +998,87 @@ define(function(require)
 		}
 
 		let quantity = ' ea';
-		if (item.Options && (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) &&
-			item.Options.filter(Option => Option.index !== 0).length > 0)
-		{
+		if (
+			item.Options &&
+			(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) &&
+			item.Options.filter(Option => Option.index !== 0).length > 0
+		) {
 			quantity = ' Quantity';
 		}
 
 		// Get back data
-		var pos     = jQuery(this).position();
+		var pos = jQuery(this).position();
 		var overlay = InventoryV3.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
-		overlay.css({top: pos.top, left:pos.left+35});
+		overlay.css({ top: pos.top, left: pos.left + 35 });
 		overlay.text(DB.getItemName(item) + ': ' + (item.count || 1) + quantity);
 
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
-		}
-		else {
+		} else {
 			overlay.addClass('grey');
 		}
-	};
-
+	}
 
 	/**
 	 * Hide the item name
 	 */
-	function onItemOut()
-	{
+	function onItemOut() {
 		InventoryV3.ui.find('.overlay').hide();
-	};
-
+	}
 
 	/**
 	 * Start dragging an item
 	 */
-	function onItemDragStart( event )
-	{
+	function onItemDragStart(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = InventoryV3.getItemByIndex(index);
+		var item = InventoryV3.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img   = new Image();
-		var url = this.querySelector('.icon').style.backgroundImage.match(/\((.*?)\)/)[1].replace(/('|")/g,'');
+		var img = new Image();
+		var url = this.querySelector('.icon')
+			.style.backgroundImage.match(/\((.*?)\)/)[1]
+			.replace(/('|")/g, '');
 		img.decoding = 'async';
-		img.src   = url.replace(/^\"/, '').replace(/\"$/, '');
+		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Inventory',
-				data:  item
-			})
+		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
+		event.originalEvent.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'item',
+					from: 'Inventory',
+					data: item
+				})
+			)
 		);
 
 		onItemOut();
-	};
-
+	}
 
 	/**
 	 * Stop dragging an item
 	 *
 	 */
-	function onItemDragEnd()
-	{
+	function onItemDragEnd() {
 		delete window._OBJ_DRAG_;
-	};
-
+	}
 
 	/**
 	 * Get item info (open description window)
 	 */
-	function onItemInfo( event )
-	{
+	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = InventoryV3.getItemByIndex(index);
+		var item = InventoryV3.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -1165,14 +1122,12 @@ define(function(require)
 		}
 
 		return false;
-	};
-
+	}
 
 	/**
 	 * Alt Right Click Request Transfer
 	 */
-	function transferItemToOtherUI(item)
-	{
+	function transferItemToOtherUI(item) {
 		var isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
 		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
 
@@ -1189,16 +1144,14 @@ define(function(require)
 		}
 
 		return true;
-	};
-
+	}
 
 	/**
 	 * Ask to use an item
 	 */
-	function onItemUsed( event )
-	{
+	function onItemUsed(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = InventoryV3.getItemByIndex(index);
+		var item = InventoryV3.getItemByIndex(index);
 
 		if (item) {
 			InventoryV3.useItem(item);
@@ -1207,27 +1160,29 @@ define(function(require)
 
 		event.stopImmediatePropagation();
 		return false;
-	};
-
+	}
 
 	/**
 	 * Handle click event on an item
 	 */
-	function onItemClick( event )
-	{
+	function onItemClick(event) {
 		// Shift + LEFT CLICK → insert <ItemName> in chat
 		if (event.shiftKey && event.which === 1) {
-
-			var idx  = parseInt(jQuery(this).attr('data-index'), 10);
+			var idx = parseInt(jQuery(this).attr('data-index'), 10);
 			var item = InventoryV3.getItemByIndex(idx);
 			if (!item) return false;
 
 			item.name = DB.getItemName(item);
-			var link = '<span data-item="' + DB.createItemLink(item) + '" class="item-link" style="color:#A9B95F;">&lt;' + item.name + '&gt;</span>';
+			var link =
+				'<span data-item="' +
+				DB.createItemLink(item) +
+				'" class="item-link" style="color:#A9B95F;">&lt;' +
+				item.name +
+				'&gt;</span>';
 
 			var msgBox = ChatBox.ui.find('.input-chatbox')[0];
 			if (msgBox) {
-				msgBox.innerHTML += link + " ";
+				msgBox.innerHTML += link + ' ';
 				msgBox.focus();
 			}
 
@@ -1237,20 +1192,17 @@ define(function(require)
 		return false;
 	}
 
-
 	/**
 	 * Handle drop event on tabs
 	 */
-	function onTabDrop(event)
-	{
-	    var item, data;
+	function onTabDrop(event) {
+		var item, data;
 		event.stopImmediatePropagation();
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 			item = data.data;
-		}
-		catch(e) {
+		} catch (e) {
 			return false;
 		}
 
@@ -1262,25 +1214,23 @@ define(function(require)
 			return false;
 		}
 
-	    // Retrieve the data-tab attribute using native JavaScript
-    	var targetTab = event.target.getAttribute('data-tab');
-		var itemfav = (targetTab === 'fav' ? 0 : 1);
+		// Retrieve the data-tab attribute using native JavaScript
+		var targetTab = event.target.getAttribute('data-tab');
+		var itemfav = targetTab === 'fav' ? 0 : 1;
 
 		// Send Request to client
 		var pkt = new PACKET.CZ.INVENTORY_TAB();
 		pkt.item_index = item.index;
 		pkt.favorite = itemfav;
 		Network.sendPacket(pkt);
-	};
-
+	}
 
 	/**
 	 * Update PlaceETCTab of an item in the inventory
 	 * @param {number} itemIndex - The index of the item to update
 	 * @param {number} newValue - boolean for PlaceETCTab (1 or 0)
 	 */
-	InventoryV3.updatePlaceETCTab = function(itemIndex, newValue)
-	{
+	InventoryV3.updatePlaceETCTab = function (itemIndex, newValue) {
 		var item = InventoryV3.getItemByIndex(itemIndex);
 
 		if (!item) {
@@ -1318,46 +1268,42 @@ define(function(require)
 			item.PlaceETCTab = newValue;
 		}
 
-	    requestFilter();
+		requestFilter();
 	};
 
-
 	/*
-	* Initial Request to expand Inventory
-	*/
-	function onInventoryExpand()
-	{
+	 * Initial Request to expand Inventory
+	 */
+	function onInventoryExpand() {
 		// Hardcoded IDs in client
 		var itemIds = [25791, 25792, 25793];
 		var itemforexpand = null;
 
 		// Find the first non-null item
 		for (var i = 0; i < itemIds.length; i++) {
-		    itemforexpand = InventoryV3.getItemById(itemIds[i]);
-		    if (itemforexpand) {
-		        break;
-		    }
+			itemforexpand = InventoryV3.getItemById(itemIds[i]);
+			if (itemforexpand) {
+				break;
+			}
 		}
 
 		// Handle case where no item is found
 		if (!itemforexpand) {
-		    ChatBox.addText(DB.getMessage(3564), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+			ChatBox.addText(DB.getMessage(3564), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			return false;
 		}
 
 		// If item is present, send request to client
 		var pkt = new PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE();
 		Network.sendPacket(pkt);
-	};
-
+	}
 
 	/**
 	 * Handle the result of a request to expand inventory.
 	 *
 	 * @param {type} pkt - PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE
 	 */
-	function onRequestInventoryExpandResult(pkt)
-	{
+	function onRequestInventoryExpandResult(pkt) {
 		if (pkt) {
 			switch (pkt.result) {
 				case 0:
@@ -1373,12 +1319,11 @@ define(function(require)
 
 					UIManager.showPromptBox(
 						// Do you want to expand the maximum possession limit by using ^0000ff%s^000000? \nIt will expand from (^0000ff%d^000000) to (^0000ff%d^000000).\n^ff0000 Expanded item possession limit can't be reversed.^000000#
-						DB.getMessage(3561)
-							.replace('%s', itemname)
-							.replace('%d', currentlimit)
-							.replace('%d', newlimit),
-						'ok',     'cancel',
-						InventoryExpandReq, InventoryExpandCancel
+						DB.getMessage(3561).replace('%s', itemname).replace('%d', currentlimit).replace('%d', newlimit),
+						'ok',
+						'cancel',
+						InventoryExpandReq,
+						InventoryExpandCancel
 					);
 					break;
 				case 1:
@@ -1397,36 +1342,30 @@ define(function(require)
 					break;
 			}
 		}
-	};
-
+	}
 
 	/**
 	 * Sends a request to expand the inventory size.
 	 */
-	function InventoryExpandReq()
-	{
+	function InventoryExpandReq() {
 		var pkt = new PACKET.CZ.REQ_EXTEND_BODYITEM_SIZE();
 		Network.sendPacket(pkt);
-	};
-
+	}
 
 	/**
 	 * Cancels the inventory expansion request.
 	 */
-	function InventoryExpandCancel()
-	{
+	function InventoryExpandCancel() {
 		var pkt = new PACKET.CZ.CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE();
 		Network.sendPacket(pkt);
-	};
-
+	}
 
 	/**
 	 * Handles the result of the final request to expand the inventory size
 	 *
 	 * @param {Object} pkt - PACKET.ZC.ACK_EXTEND_BODYITEM_SIZE
 	 */
-	function onFinalReqInventoryExpandResult(pkt)
-	{
+	function onFinalReqInventoryExpandResult(pkt) {
 		if (pkt) {
 			switch (pkt.result) {
 				case 0:
@@ -1448,14 +1387,12 @@ define(function(require)
 					break;
 			}
 		}
-	};
-
+	}
 
 	/**
 	 * Toggle the item drop lock preference and update the UI accordingly.
 	 */
-	function onItemLock()
-	{
+	function onItemLock() {
 		// Toggle _preferences.itemlock
 		_preferences.itemlock = !_preferences.itemlock;
 
@@ -1469,15 +1406,13 @@ define(function(require)
 		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
 			InventoryV3.ui.find('.item_drop_lock').css('backgroundImage', 'url(' + data + ')');
 		});
-	};
-
+	}
 
 	/**
 	 * Toggles the value of Item Compare
 	 * and updates the UI accordingly.
 	 */
-	function onItemCompare()
-	{
+	function onItemCompare() {
 		// Toggle _preferences.itemcomp
 		_preferences.itemcomp = !_preferences.itemcomp;
 
@@ -1485,21 +1420,19 @@ define(function(require)
 		InventoryV3.itemcomp = _preferences.itemcomp;
 
 		// Determine the image path based on the toggled state
-		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp' ;
+		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp';
 
 		// Load the image and update the button background
 		Client.loadFile(DB.INTERFACE_PATH + compImg, function (data) {
 			InventoryV3.ui.find('.item_compare').css('backgroundImage', 'url(' + data + ')');
 		});
-	};
-
+	}
 
 	/**
 	 * Toggles the value of Item Lock NPCSale
 	 * and updates the UI accordingly.
 	 */
-	function onNPCLock()
-	{
+	function onNPCLock() {
 		// Toggle _preferences.npcsalelock
 		_preferences.npcsalelock = !_preferences.npcsalelock;
 
@@ -1514,32 +1447,31 @@ define(function(require)
 			InventoryV3.ui.find('.deallock_off').hide();
 
 			// Show for 3 seconds
-            lockOverlayTimeout = setTimeout(function() {
-                InventoryV3.ui.find('.lockoverlaymsg').fadeOut();
-            }, 3000);
+			lockOverlayTimeout = setTimeout(function () {
+				InventoryV3.ui.find('.lockoverlaymsg').fadeOut();
+			}, 3000);
 		} else {
 			InventoryV3.ui.find('.deallock_on').hide();
 			InventoryV3.ui.find('.lockoverlay').hide();
-            InventoryV3.ui.find('.lockoverlaymsg').hide();
+			InventoryV3.ui.find('.lockoverlaymsg').hide();
 			InventoryV3.ui.find('.deallock_off').show();
 		}
-	};
-
+	}
 
 	/**
 	 * Add an item to the equip switch list, handling duplicates and updating UI.
 	 *
 	 * @param {number} index - The index of the item to add
 	 */
-	InventoryV3.addItemtoSwitch = function(index) {
+	InventoryV3.addItemtoSwitch = function (index) {
 		var item = this.getItemByIndex(index);
 		if (!item) {
-			console.warn("Item with index " + index + " not found in inventory.");
+			console.warn('Item with index ' + index + ' not found in inventory.');
 			return;
 		}
 
 		// Check if an item with the same location already exists
-		var existingItemIndex = this.equipswitchlist.findIndex(function(existingItem) {
+		var existingItemIndex = this.equipswitchlist.findIndex(function (existingItem) {
 			return existingItem.location === item.location;
 		});
 
@@ -1554,53 +1486,43 @@ define(function(require)
 		this.equipswitchlist.push(item);
 
 		var content = this.ui.find('.container .content');
-		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/bg_change.bmp', function(data){
-			content.find('.item[data-index="'+ item.index +'"] .switch1').css('backgroundImage', 'url('+ data +')');
+		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/bg_change.bmp', function (data) {
+			content.find('.item[data-index="' + item.index + '"] .switch1').css('backgroundImage', 'url(' + data + ')');
 		});
-		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/ico_change.bmp', function(data){
-			content.find('.item[data-index="'+ item.index +'"] .switch2').css('backgroundImage', 'url('+ data +')');
+		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/ico_change.bmp', function (data) {
+			content.find('.item[data-index="' + item.index + '"] .switch2').css('backgroundImage', 'url(' + data + ')');
 		});
 
 		SwitchEquip.equip(item, item.location, true);
-		ChatBox.addText(
-			DB.getItemName(item) + ' ' + DB.getMessage(3143),
-			ChatBox.TYPE.BLUE,
-			ChatBox.FILTER.ITEM
-		);
+		ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(3143), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 	};
-
 
 	/**
 	 * Removes an item from the equip switch list and updates the UI accordingly.
 	 *
 	 * @param {number} index - The index of the item to remove.
 	 */
-	InventoryV3.removeItemFromSwitch = function(index) {
+	InventoryV3.removeItemFromSwitch = function (index) {
 		var item = this.getItemByIndex(index);
-    	if (!item) {
-    	    console.warn("Item with index " + index + " not found in inventory.");
-    	    return;
-    	}
+		if (!item) {
+			console.warn('Item with index ' + index + ' not found in inventory.');
+			return;
+		}
 
-    	// Check if the item exists in the equip switch list
-    	var existingItemIndex = this.equipswitchlist.findIndex(function(existingItem) {
-    	    return existingItem.index === item.index;
-    	});
+		// Check if the item exists in the equip switch list
+		var existingItemIndex = this.equipswitchlist.findIndex(function (existingItem) {
+			return existingItem.index === item.index;
+		});
 
-    	if (existingItemIndex > -1) {
-
+		if (existingItemIndex > -1) {
 			var content = this.ui.find('.container .content');
-    	    content.find('.item[data-index="'+ item.index +'"] .switch1').css('backgroundImage', 'none');
-		    content.find('.item[data-index="'+ item.index +'"] .switch2').css('backgroundImage', 'none');
+			content.find('.item[data-index="' + item.index + '"] .switch1').css('backgroundImage', 'none');
+			content.find('.item[data-index="' + item.index + '"] .switch2').css('backgroundImage', 'none');
 
-    	    SwitchEquip.unEquip(item.index, item.location);
+			SwitchEquip.unEquip(item.index, item.location);
 			var removedItem = this.equipswitchlist.splice(existingItemIndex, 1)[0];
 
-			ChatBox.addText(
-				DB.getItemName(item) + ' ' + DB.getMessage(3144),
-				ChatBox.TYPE.BLUE,
-				ChatBox.FILTER.ITEM
-			);
+			ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(3144), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 			// Manually equip-all equip items to SwitchEquip UI
 			Equipment.getUI().equipItemsToSwitch();
@@ -1610,39 +1532,34 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Equip all items in the equip switch list
 	 */
 	InventoryV3.equipAllFromSwitchList = function equipAllFromSwitchList() {
-	    var equipSwitchList = InventoryV3.equipswitchlist;
+		var equipSwitchList = InventoryV3.equipswitchlist;
 
-	    for (var i = 0; i < equipSwitchList.length; i++) {
-	        var item = equipSwitchList[i];
-	        if (item) {
-	            SwitchEquip.equip(item, item.location, true);
-	        }
-	    }
-
+		for (var i = 0; i < equipSwitchList.length; i++) {
+			var item = equipSwitchList[i];
+			if (item) {
+				SwitchEquip.equip(item, item.location, true);
+			}
+		}
 	};
-
 
 	/**
 	 * functions to define
 	 */
-	InventoryV3.onUseItem    = function OnUseItem(/* index */){};
-	InventoryV3.onUseCard    = function onUseCard(/* index */){};
-	InventoryV3.onEquipItem  = function OnEquipItem(/* index, location */){};
-	InventoryV3.onUpdateItem = function OnUpdateItem(/* index, amount */){};
-	InventoryV3.reqMoveItemToCart = function reqMoveItemToCart(/* index, amount */){};
+	InventoryV3.onUseItem = function OnUseItem(/* index */) {};
+	InventoryV3.onUseCard = function onUseCard(/* index */) {};
+	InventoryV3.onEquipItem = function OnEquipItem(/* index, location */) {};
+	InventoryV3.onUpdateItem = function OnUpdateItem(/* index, amount */) {};
+	InventoryV3.reqMoveItemToCart = function reqMoveItemToCart(/* index, amount */) {};
 
-
-	Network.hookPacket( PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE,		onRequestInventoryExpandResult );
-	Network.hookPacket( PACKET.ZC.ACK_EXTEND_BODYITEM_SIZE,					onFinalReqInventoryExpandResult );
+	Network.hookPacket(PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE, onRequestInventoryExpandResult);
+	Network.hookPacket(PACKET.ZC.ACK_EXTEND_BODYITEM_SIZE, onFinalReqInventoryExpandResult);
 
 	/**
 	 * Create component and export it
 	 */
 	return UIManager.addComponent(InventoryV3);
-
 });

@@ -9,15 +9,18 @@
  */
 
 // Errors Handler (hack)
-require.onError = function (err) {
+require.onError = function (err)
+{
 	'use strict';
 
-	if (require.defined('UI/Components/Error/Error')) {
+	if (require.defined('UI/Components/Error/Error'))
+	{
 		require('UI/Components/Error/Error').addTrace(err);
 		return;
 	}
 
-	require(['UI/Components/Error/Error'], function( Errors ){
+	require(['UI/Components/Error/Error'], function (Errors)
+	{
 		Errors.addTrace(err);
 	});
 };
@@ -25,22 +28,29 @@ require.onError = function (err) {
 require({
 	baseUrl: '../../src/',
 	paths: {
-		text:   'Vendors/text.require',
+		text: 'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'
 	}
-},
-   ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/StrViewer/StrViewer'],
-function( Configs,        Thread,        Client,                           StrViewer ) {
+}, ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/StrViewer/StrViewer'], function (
+	Configs,
+	Thread,
+	Client,
+	StrViewer
+)
+{
 	'use strict';
 
-	function onAPIMessage( event ) {
-		if (typeof event.data !== 'object') {
+	function onAPIMessage(event)
+	{
+		if (typeof event.data !== 'object')
+		{
 			return;
 		}
 
-		switch (event.data.type) {
+		switch (event.data.type)
+		{
 			case 'init':
-				Thread.delegate( event.source, event.origin );
+				Thread.delegate(event.source, event.origin);
 				Thread.init();
 				StrViewer.append();
 				break;
@@ -58,18 +68,20 @@ function( Configs,        Thread,        Client,                           StrVi
 	}
 
 	// Resources sharing
-	if (Configs.get('API')) {
+	if (Configs.get('API'))
+	{
 		window.addEventListener('message', onAPIMessage, false);
 		return;
 	}
 
 	// Wait for thread to be ready and run the modelviewer
-	Thread.hook('THREAD_READY', function(){
-		Client.onFilesLoaded = function(){
+	Thread.hook('THREAD_READY', function ()
+	{
+		Client.onFilesLoaded = function ()
+		{
 			StrViewer.append();
 		};
 		Client.init([]);
 	});
 	Thread.init();
-
 });

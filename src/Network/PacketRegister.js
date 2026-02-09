@@ -8,8 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(["./PacketStructure"], function (PACKET) {
-	"use strict";
+define(['./PacketStructure'], function (PACKET)
+{
+	'use strict';
 
 	return {
 		0x69: PACKET.AC.ACCEPT_LOGIN, // ok
@@ -864,6 +865,6 @@ define(["./PacketStructure"], function (PACKET) {
 		0xae2: PACKET.ZC.UI_OPEN,
 		0x9cd: PACKET.ZC.MSG_COLOR,
 
-		0xb1a: PACKET.ZC.USESKILL_ACK3, // USE SKILL 3
+		0xb1a: PACKET.ZC.USESKILL_ACK3 // USE SKILL 3
 	};
 });

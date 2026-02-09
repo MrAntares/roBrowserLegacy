@@ -6,48 +6,49 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function(require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
 	 * Dependencies
 	 */
-	var DB                 = require('DB/DBManager');
-	var Client            = require('Core/Client');
-	var Preferences      = require('Core/Preferences');
-	var Renderer         = require('Renderer/Renderer');
-	var EntityManager    = require('Renderer/EntityManager');
-	var KEYS             = require('Controls/KeyEventHandler');
-	var Session          = require('Engine/SessionStorage');
-	var UIManager        = require('UI/UIManager');
-	var UIComponent      = require('UI/UIComponent');
-    var SkillListMH      = require('UI/Components/SkillListMH/SkillListMH');
-	var AIDriver         = require('Core/AIDriver');
-	var htmlText         = require('text!./MercenaryInformations.html');
-	var cssText          = require('text!./MercenaryInformations.css');
+	var DB = require('DB/DBManager');
+	var Client = require('Core/Client');
+	var Preferences = require('Core/Preferences');
+	var Renderer = require('Renderer/Renderer');
+	var EntityManager = require('Renderer/EntityManager');
+	var KEYS = require('Controls/KeyEventHandler');
+	var Session = require('Engine/SessionStorage');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
+	var AIDriver = require('Core/AIDriver');
+	var htmlText = require('text!./MercenaryInformations.html');
+	var cssText = require('text!./MercenaryInformations.css');
 
 	/**
 	 * Create Component
 	 */
-	var MercenaryInformations = new UIComponent( 'MercenaryInformations', htmlText, cssText );
+	var MercenaryInformations = new UIComponent('MercenaryInformations', htmlText, cssText);
 
 	/**
 	 * @var {Preferences}
 	 */
-	var _preferences = Preferences.get('MercenaryInformations', {
-		x:        100,
-		y:        100,
-		show:     false,
-		reduce:   false
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'MercenaryInformations',
+		{
+			x: 100,
+			y: 100,
+			show: false,
+			reduce: false
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize UI
 	 */
-	MercenaryInformations.init = function init()
-	{
+	MercenaryInformations.init = function init() {
 		this.draggable(this.ui.find('.content'));
 
 		// Avoid drag drop problems
@@ -61,13 +62,13 @@ define(function(require)
 		}
 
 		this.ui.css({
-			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
-			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
+			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-        this.ui.find('.skill').mousedown(function () {
-            SkillListMH.mercenary.toggle();
-        });
+		this.ui.find('.skill').mousedown(function () {
+			SkillListMH.mercenary.toggle();
+		});
 
 		// If no aggressive level defined, default to 1
 		// otherwise toggle and untoggle to remain the same
@@ -78,8 +79,7 @@ define(function(require)
 	/**
 	 * Once append to body
 	 */
-	MercenaryInformations.onAppend = function onAppend()
-	{
+	MercenaryInformations.onAppend = function onAppend() {
 		// Set preferences
 		if (!_preferences.show) {
 			this.ui.hide();
@@ -89,11 +89,10 @@ define(function(require)
 	/**
 	 * Once remove from body
 	 */
-	MercenaryInformations.onRemove = function onRemove()
-	{
-		_preferences.show   = this.ui.is(':visible');
-		_preferences.y      = parseInt(this.ui.css('top'), 10);
-		_preferences.x      = parseInt(this.ui.css('left'), 10);
+	MercenaryInformations.onRemove = function onRemove() {
+		_preferences.show = this.ui.is(':visible');
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.save();
 		this.stopAI();
 	};
@@ -103,8 +102,7 @@ define(function(require)
 	 *
 	 * @param {object} key
 	 */
-	MercenaryInformations.onShortCut = function onShortCut(key)
-	{
+	MercenaryInformations.onShortCut = function onShortCut(key) {
 		// Not in body
 		if (!this.ui) {
 			return;
@@ -136,9 +134,8 @@ define(function(require)
 	 *
 	 * @param {object} event
 	 */
-	MercenaryInformations.onKeyDown = function onKeyDown(event)
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+	MercenaryInformations.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.ui.toggle();
 		}
 	};
@@ -146,8 +143,7 @@ define(function(require)
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -155,17 +151,15 @@ define(function(require)
 	/**
 	 * Closing window
 	 */
-	function onClose()
-	{
+	function onClose() {
 		MercenaryInformations.ui.hide();
-        SkillListMH.mercenary.ui.hide();
+		SkillListMH.mercenary.ui.hide();
 	}
 
 	/**
 	 * Delete mercenary
 	 */
-	function onDelete()
-	{
+	function onDelete() {
 		MercenaryInformations.reqDeleteMercenary();
 	}
 
@@ -192,8 +186,7 @@ define(function(require)
 	 * Set time left bar and value
 	 * @param {number} timestamp - Unix timestamp for expiration
 	 */
-	MercenaryInformations.setTimeLeft = function setTimeLeft(timestamp)
-	{
+	MercenaryInformations.setTimeLeft = function setTimeLeft(timestamp) {
 		if (!timestamp) {
 			this.ui.find('.block2 .timeleft').text('0');
 			return;
@@ -210,13 +203,14 @@ define(function(require)
 		// Update bar
 		var canvas = this.ui.find('canvas.life.title_timeleft')[0];
 		var ctx = canvas.getContext('2d');
-		var width = 60, height = 5;
+		var width = 60,
+			height = 5;
 
 		// empty
 		ctx.fillStyle = '#424242';
 		ctx.fillRect(1, 1, width - 2, height - 2);
 
-		ctx.fillStyle = (time_per < 0.25) ? '#ff1e00' : '#205cc3';
+		ctx.fillStyle = time_per < 0.25 ? '#ff1e00' : '#205cc3';
 		ctx.fillRect(1, 1, Math.round((width - 2) * time_per), 3);
 	};
 
@@ -224,8 +218,7 @@ define(function(require)
 	 * Set monster kills bar and value
 	 * @param {number} kills - Number of monsters killed
 	 */
-	MercenaryInformations.setKills = function setKills(kills)
-	{
+	MercenaryInformations.setKills = function setKills(kills) {
 		if (kills === undefined) {
 			this.ui.find('.block2 .kills').text('0');
 			return;
@@ -237,8 +230,9 @@ define(function(require)
 		// Update bar
 		var canvas = this.ui.find('canvas.life.title_kills')[0];
 		var ctx = canvas.getContext('2d');
-		var width = 60, height = 5;
-		var kills_per = kills%50 / 50;
+		var width = 60,
+			height = 5;
+		var kills_per = (kills % 50) / 50;
 
 		// empty
 		ctx.fillStyle = '#424242';
@@ -251,8 +245,7 @@ define(function(require)
 	/**
 	 * Initialize UI
 	 */
-	MercenaryInformations.setInformations = function setInformations(info)
-	{
+	MercenaryInformations.setInformations = function setInformations(info) {
 		this.ui.find('.name').text(info.name || '');
 		this.ui.find('.level').text(info.level || '');
 
@@ -275,45 +268,52 @@ define(function(require)
 		this.setKills(info.approval_monster_kill_counter || 0);
 		this.setFaith(info.faith || 0);
 
-        SkillListMH.mercenary.setPoints(info.SKPoint);
+		SkillListMH.mercenary.setPoints(info.SKPoint);
 	};
 
 	/**
 	 * Set hp and sp bar
 	 */
-	MercenaryInformations.setHpSpBar = function setHpSpBar(type, val, val2)
-	{
-		var perc = Math.floor(val * 100 / val2);
+	MercenaryInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
+		var perc = Math.floor((val * 100) / val2);
 		var color = perc < 25 ? 'red' : 'blue';
 
-		this.ui.find('.' + type + '_bar_perc .'+type+'_value').text(val);
-		this.ui.find('.' + type + '_bar_perc .'+type+'_max_value').text(val2);
+		this.ui.find('.' + type + '_bar_perc .' + type + '_value').text(val);
+		this.ui.find('.' + type + '_bar_perc .' + type + '_max_value').text(val2);
 		this.ui.find('.' + type + '2').text(val + ' / ' + val2);
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp', function (url) {
-			this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp',
+			function (url) {
+				this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
+			}.bind(this)
+		);
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp', function (url) {
-			this.ui.find('.' + type + '_bar_middle').css({
-				backgroundImage: 'url(' + url + ')',
-				width: Math.floor(Math.min(perc, 100) * 0.75) + 'px'
-			});
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp',
+			function (url) {
+				this.ui.find('.' + type + '_bar_middle').css({
+					backgroundImage: 'url(' + url + ')',
+					width: Math.floor(Math.min(perc, 100) * 0.75) + 'px'
+				});
+			}.bind(this)
+		);
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp', function (url) {
-			this.ui.find('.' + type + '_bar_right').css({
-				backgroundImage: 'url(' + url + ')',
-				left: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
-			});
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp',
+			function (url) {
+				this.ui.find('.' + type + '_bar_right').css({
+					backgroundImage: 'url(' + url + ')',
+					left: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
+				});
+			}.bind(this)
+		);
 	};
 
 	/**
 	 * Toggle Aggressive
 	 */
-	MercenaryInformations.toggleAggressive = function toggleAggressive()
-	{
+	MercenaryInformations.toggleAggressive = function toggleAggressive() {
 		let agr = localStorage.getItem('MER_AGGRESSIVE') == 0 ? 1 : 0;
 		localStorage.setItem('MER_AGGRESSIVE', agr);
 	};
@@ -321,15 +321,14 @@ define(function(require)
 	/**
 	 * Start AI
 	 */
-	MercenaryInformations.startAI = function startAI()
-	{
-		if(!this.AILoop){
+	MercenaryInformations.startAI = function startAI() {
+		if (!this.AILoop) {
 			AIDriver.mercenary.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.mercId) {
 					var entity = EntityManager.get(Session.mercId);
 					if (entity) {
-						AIDriver.mercenary.exec('AI(' + Session.mercId + ')')
+						AIDriver.mercenary.exec('AI(' + Session.mercId + ')');
 					}
 				}
 			}, 100);
@@ -339,9 +338,8 @@ define(function(require)
 	/**
 	 * Stop AI
 	 */
-	MercenaryInformations.stopAI = function stopAI()
-	{
-		if(this.AILoop){
+	MercenaryInformations.stopAI = function stopAI() {
+		if (this.AILoop) {
 			this.AILoop = clearInterval(this.AILoop);
 		}
 	};
@@ -349,8 +347,7 @@ define(function(require)
 	/**
 	 * Reset AI
 	 */
-	MercenaryInformations.resetAI = function resetAI()
-	{
+	MercenaryInformations.resetAI = function resetAI() {
 		this.stopAI();
 		this.startAI();
 	};
@@ -358,8 +355,7 @@ define(function(require)
 	/**
 	 * Set target for mercenary to attack
 	 */
-	MercenaryInformations.setTarget = function setTarget(targetId)
-	{
+	MercenaryInformations.setTarget = function setTarget(targetId) {
 		var entity = EntityManager.get(Session.mercId);
 		if (!entity) {
 			return;
@@ -371,8 +367,7 @@ define(function(require)
 	/**
 	 * Set faith value
 	 */
-	MercenaryInformations.setFaith = function setFaith(faith)
-	{
+	MercenaryInformations.setFaith = function setFaith(faith) {
 		this.ui.find('.block2 .faith').text(faith);
 	};
 

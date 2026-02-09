@@ -4,16 +4,18 @@
  * UI user preferences
  *
  */
-define( ['Core/Preferences'], function( Preferences )
+define(['Core/Preferences'], function (Preferences)
 {
 	'use strict';
-
 
 	/**
 	 * Export
 	 */
-	return Preferences.get( 'UI', {
-		windowmagnet: true
-	}, 1.0 );
-
+	return Preferences.get(
+		'UI',
+		{
+			windowmagnet: true
+		},
+		1.0
+	);
 });

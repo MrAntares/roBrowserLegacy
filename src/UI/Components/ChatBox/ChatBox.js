@@ -7,61 +7,53 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var DB                 = require('DB/DBManager');
-	var jQuery             = require('Utils/jquery');
-	var Renderer           = require('Renderer/Renderer');
-	var Client             = require('Core/Client');
-	var Events             = require('Core/Events');
-	var Preferences        = require('Core/Preferences');
-	var KEYS               = require('Controls/KeyEventHandler');
-	var Mouse         	   = require('Controls/MouseEventHandler');
-	var Cursor             = require('UI/CursorManager');
-	var BattleMode         = require('Controls/BattleMode');
-	var History            = require('./History');
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var ContextMenu        = require('UI/Components/ContextMenu/ContextMenu');
-	var htmlText           = require('text!./ChatBox.html');
-	var cssText            = require('text!./ChatBox.css');
-	var Commands     = require('Controls/ProcessCommand');
-	var ChatBoxSettings  = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
-	var getModule          = require;
-
+	var DB = require('DB/DBManager');
+	var jQuery = require('Utils/jquery');
+	var Renderer = require('Renderer/Renderer');
+	var Client = require('Core/Client');
+	var Events = require('Core/Events');
+	var Preferences = require('Core/Preferences');
+	var KEYS = require('Controls/KeyEventHandler');
+	var Mouse = require('Controls/MouseEventHandler');
+	var Cursor = require('UI/CursorManager');
+	var BattleMode = require('Controls/BattleMode');
+	var History = require('./History');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
+	var htmlText = require('text!./ChatBox.html');
+	var cssText = require('text!./ChatBox.css');
+	var Commands = require('Controls/ProcessCommand');
+	var ChatBoxSettings = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
+	var getModule = require;
 
 	/**
 	 * @var {number} max message in the chatbox
 	 */
 	var MAX_MSG = 400;
 	var MAX_LENGTH = 100;
-	var MAGIC_NUMBER = 3*14;
-
+	var MAGIC_NUMBER = 3 * 14;
 
 	/**
 	 * @var {History} message cached in history
 	 */
 	var _historyMessage = new History();
 
-
 	/**
 	 * @var {History} nickname cached in history
 	 */
 	var _historyNickName = new History(true);
 
-
-
 	/**
 	 * @var {number} Chatbox position's index
 	 */
 	var _heightIndex = 2;
-
 
 	/**
 	 * Buffer para acumular mensagens antes de adicionar ao DOM.
@@ -80,69 +72,70 @@ define(function(require)
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('ChatBox', {
-		x:      0,
-		y:      Infinity,
-		height: 2,
-		fontScale: 1.0,
-		magnet_top: false,
-		magnet_bottom: true,
-		magnet_left: true,
-		magnet_right: false,
-		tabs: [],
-		tabOption: [],
-		activeTab: 0
-
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'ChatBox',
+		{
+			x: 0,
+			y: Infinity,
+			height: 2,
+			fontScale: 1.0,
+			magnet_top: false,
+			magnet_bottom: true,
+			magnet_left: true,
+			magnet_right: false,
+			tabs: [],
+			tabOption: [],
+			activeTab: 0
+		},
+		1.0
+	);
 
 	/**
 	 * Create Basic Info component
 	 */
-	var ChatBox = new UIComponent( 'ChatBox', htmlText, cssText );
-
+	var ChatBox = new UIComponent('ChatBox', htmlText, cssText);
 
 	/**
 	 * Constants
 	 */
 	ChatBox.TYPE = {
-		SELF:     1 << 0,
-		PUBLIC:   1 << 1,
-		PRIVATE:  1 << 2,
-		PARTY:    1 << 3,
-		GUILD:    1 << 4,
+		SELF: 1 << 0,
+		PUBLIC: 1 << 1,
+		PRIVATE: 1 << 2,
+		PARTY: 1 << 3,
+		GUILD: 1 << 4,
 		ANNOUNCE: 1 << 5,
-		ERROR:    1 << 6,
-		INFO:     1 << 7,
-		BLUE:     1 << 8, // TODO: find a better name
-		ADMIN:    1 << 9,
-		MAIL:     1 << 10,
-		CLAN:     1 << 11,
+		ERROR: 1 << 6,
+		INFO: 1 << 7,
+		BLUE: 1 << 8, // TODO: find a better name
+		ADMIN: 1 << 9,
+		MAIL: 1 << 10,
+		CLAN: 1 << 11
 	};
 
 	ChatBox.FILTER = {
-		PUBLIC_LOG:		0,
-		PUBLIC_CHAT:	1,
-		WHISPER:		2,
-		PARTY:			3,
-		GUILD:			4,
-		ITEM:			5,
-		EQUIP:			6,
-		STATUS:			7,
-		PARTY_ITEM:		8,
-		PARTY_STATUS:	9,
-		SKILL_FAIL:		10,
-		PARTY_SETUP:	11,
-		EQUIP_DAMAGE:	12,
-		WOE:			13,
-		PARTY_SEARCH:	14,
-		BATTLE:			15,
-		PARTY_BATTLE:	16,
-		EXP:			17,
-		PARTY_EXP:		18,
-		QUEST:			19,
-		BATTLEFIELD:	20,
-		CLAN:			21,
+		PUBLIC_LOG: 0,
+		PUBLIC_CHAT: 1,
+		WHISPER: 2,
+		PARTY: 3,
+		GUILD: 4,
+		ITEM: 5,
+		EQUIP: 6,
+		STATUS: 7,
+		PARTY_ITEM: 8,
+		PARTY_STATUS: 9,
+		SKILL_FAIL: 10,
+		PARTY_SETUP: 11,
+		EQUIP_DAMAGE: 12,
+		WOE: 13,
+		PARTY_SEARCH: 14,
+		BATTLE: 15,
+		PARTY_BATTLE: 16,
+		EXP: 17,
+		PARTY_EXP: 18,
+		QUEST: 19,
+		BATTLEFIELD: 20,
+		CLAN: 21
 		//CALL:			22, // Display Call messages
 	};
 
@@ -157,7 +150,7 @@ define(function(require)
 	 */
 	ChatBox.PrivateMessageStorage = {
 		nick: '',
-		msg:  ''
+		msg: ''
 	};
 
 	ChatBox.lastTabID = -1;
@@ -169,15 +162,14 @@ define(function(require)
 	/**
 	 * Initialize UI
 	 */
-	ChatBox.init = function init()
-	{
+	ChatBox.init = function init() {
 		_heightIndex = _preferences.height - 1;
 		ChatBox.updateHeight();
 		ChatBox.applyFontScale();
 
 		this.ui.css({
-			top:  Math.min( Math.max( 0, _preferences.y - this.ui.height()), Renderer.height - this.ui.height()),
-			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+			top: Math.min(Math.max(0, _preferences.y - this.ui.height()), Renderer.height - this.ui.height()),
+			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
 		this.magnet.TOP = _preferences.magnet_top;
@@ -185,8 +177,8 @@ define(function(require)
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
 
-		this.draggable( this.ui.find('.input') );
-		this.draggable( this.ui.find('.battlemode') );
+		this.draggable(this.ui.find('.input'));
+		this.draggable(this.ui.find('.battlemode'));
 
 		// Sorry for this un-documented code (see UIComponent for more informations)
 		// Keep chat log area click-through for walking; only block over interactive UI parts.
@@ -194,189 +186,223 @@ define(function(require)
 		this.__mouseStopBlock = this.ui.find('.input, .chat-function, .battlemode, .event_add_cursor');
 
 		// Setting chatbox scrollbar
-		Client.loadFiles([DB.INTERFACE_PATH + 'basic_interface/dialscr_down.bmp', DB.INTERFACE_PATH + 'basic_interface/dialscr_up.bmp'], function( down, up ){
-			jQuery('style:first').append([
-				'#chatbox .content::-webkit-scrollbar { width: 10px; height: 10px;}',
-				'#chatbox .content::-webkit-scrollbar-button:vertical:start:increment,',
-				'#chatbox .content::-webkit-scrollbar-button:vertical:end:decrement { display: none;}',
-				'#chatbox .content::-webkit-scrollbar-corner:vertical { display:none;}',
-				'#chatbox .content::-webkit-scrollbar-resizer:vertical { display:none;}',
-				'#chatbox .content::-webkit-scrollbar-button:start:decrement,',
-				'#chatbox .content::-webkit-scrollbar-button:end:increment { display: block; border:none;}',
-				'#chatbox .content::-webkit-scrollbar-button:vertical:increment { background: url('+ down +') no-repeat; height:10px;}',
-				'#chatbox .content::-webkit-scrollbar-button:vertical:decrement { background: url('+ up +') no-repeat; height:10px;}',
-				'#chatbox .content::-webkit-scrollbar-track-piece:vertical { background:black; border:none;}',
-				'#chatbox .content::-webkit-scrollbar-thumb:vertical { background:grey; -webkit-border-image:none; border-color:transparent;border-width: 0px 0; }'
-			].join('\n'));
-		});
+		Client.loadFiles(
+			[
+				DB.INTERFACE_PATH + 'basic_interface/dialscr_down.bmp',
+				DB.INTERFACE_PATH + 'basic_interface/dialscr_up.bmp'
+			],
+			function (down, up) {
+				jQuery('style:first').append(
+					[
+						'#chatbox .content::-webkit-scrollbar { width: 10px; height: 10px;}',
+						'#chatbox .content::-webkit-scrollbar-button:vertical:start:increment,',
+						'#chatbox .content::-webkit-scrollbar-button:vertical:end:decrement { display: none;}',
+						'#chatbox .content::-webkit-scrollbar-corner:vertical { display:none;}',
+						'#chatbox .content::-webkit-scrollbar-resizer:vertical { display:none;}',
+						'#chatbox .content::-webkit-scrollbar-button:start:decrement,',
+						'#chatbox .content::-webkit-scrollbar-button:end:increment { display: block; border:none;}',
+						'#chatbox .content::-webkit-scrollbar-button:vertical:increment { background: url(' +
+							down +
+							') no-repeat; height:10px;}',
+						'#chatbox .content::-webkit-scrollbar-button:vertical:decrement { background: url(' +
+							up +
+							') no-repeat; height:10px;}',
+						'#chatbox .content::-webkit-scrollbar-track-piece:vertical { background:black; border:none;}',
+						'#chatbox .content::-webkit-scrollbar-thumb:vertical { background:grey; -webkit-border-image:none; border-color:transparent;border-width: 0px 0; }'
+					].join('\n')
+				);
+			}
+		);
 
 		// Input selection
-		this.ui.find('.input input').mousedown(function( event ){
+		this.ui.find('.input input').mousedown(function (event) {
 			this.select();
 			event.stopImmediatePropagation();
 			return false;
 		});
 
-		this.ui.find('.input-chatbox').blur(function(){
-			Events.setTimeout(function(){
-				var active = document.activeElement;
-				var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
-				var isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
-				if (!movedInsideChatbox && !isTextInput) {
-					this.ui.find('.input-chatbox').focus();
-				}
-			}.bind(this), 1000);
-		}.bind(this));
+		this.ui.find('.input-chatbox').blur(
+			function () {
+				Events.setTimeout(
+					function () {
+						var active = document.activeElement;
+						var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
+						var isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
+						if (!movedInsideChatbox && !isTextInput) {
+							this.ui.find('.input-chatbox').focus();
+						}
+					}.bind(this),
+					1000
+				);
+			}.bind(this)
+		);
 
 		// Move caret to end of text
-		this.ui.find('.input-chatbox').on('click focus', function() {  
-			var element = this;  
-			var range = document.createRange();  
-			var selection = window.getSelection();  
+		this.ui.find('.input-chatbox').on('click focus', function () {
+			var element = this;
+			var range = document.createRange();
+			var selection = window.getSelection();
 
-			range.selectNodeContents(element);  
-			range.collapse(false); 
-			selection.addRange(range);  
+			range.selectNodeContents(element);
+			range.collapse(false);
+			selection.addRange(range);
 		});
 
 		this.ui.find('.input-chatbox')[0].maxLength = MAX_LENGTH;
 
-		this.ui.find('.input-chatbox').on('input', function(event) {  
-			var currentText = extractChatMessage(jQuery(this));  
-			if (currentText.length >= MAX_LENGTH) { // cap message to maximun lenght
-				event.preventDefault();  
-				return false;  
-			}  
-		});  
-
-		this.ui.find('.input-chatbox').on('keydown', function(event) {  
-			var currentText = extractChatMessage(jQuery(this));  
-      			// Allowed Keys (backspace, delete, arrows, etc)  
-			if (event.which >= 37 && event.which <= 40) return true; // arrows 
-			if (event.which === 8 || event.which === 46) return true; // backspace, delete  
-			if (event.which === 13) return true; // enter  
-			if (event.ctrlKey || event.altKey) return true;  
-      
-			// Block texting after reach max_lenght
-			if (currentText.length >= MAX_LENGTH) {  
-				event.preventDefault();  
-				return false;  
-			}  
+		this.ui.find('.input-chatbox').on('input', function (event) {
+			var currentText = extractChatMessage(jQuery(this));
+			if (currentText.length >= MAX_LENGTH) {
+				// cap message to maximun lenght
+				event.preventDefault();
+				return false;
+			}
 		});
 
-		this.ui.find('.input-chatbox').on('paste', function(event) {
-			// Contenteditable ignores maxLength; enforce plain-text paste + length limit.
-			event.preventDefault();
+		this.ui.find('.input-chatbox').on('keydown', function (event) {
+			var currentText = extractChatMessage(jQuery(this));
+			// Allowed Keys (backspace, delete, arrows, etc)
+			if (event.which >= 37 && event.which <= 40) return true; // arrows
+			if (event.which === 8 || event.which === 46) return true; // backspace, delete
+			if (event.which === 13) return true; // enter
+			if (event.ctrlKey || event.altKey) return true;
 
-			var clipboard = (event.originalEvent || event).clipboardData;
-			var pastedText = clipboard ? clipboard.getData('text/plain') : '';
-			if (!pastedText) {
+			// Block texting after reach max_lenght
+			if (currentText.length >= MAX_LENGTH) {
+				event.preventDefault();
 				return false;
 			}
+		});
 
-			pastedText = pastedText.replace(/\u00A0/g, ' ');
+		this.ui.find('.input-chatbox').on(
+			'paste',
+			function (event) {
+				// Contenteditable ignores maxLength; enforce plain-text paste + length limit.
+				event.preventDefault();
 
-			var currentText = extractChatMessage(this.ui.find('.input-chatbox'));
-			var remaining = MAX_LENGTH - currentText.length;
-			if (remaining <= 0) {
-				return false;
-			}
-
-			var toInsert = pastedText.substr(0, remaining);
-
-			// Insert at caret if possible; fallback to append.
-			if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
-				document.execCommand('insertText', false, toInsert);
-			} else {
-				var node = document.createTextNode(toInsert);
-				this.ui.find('.input-chatbox')[0].appendChild(node);
-			}
-
-			return false;
-		}.bind(this));
-
-		this.ui.find('.input .username').blur(function(){
-			Events.setTimeout(function(){
-				var active = document.activeElement;
-				var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
-				var isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
-				var isChatMessage = active === this.ui.find('.input-chatbox')[0];
-				if (!movedInsideChatbox && !isTextInput && !isChatMessage) {
-					this.ui.find('.input .username').focus();
+				var clipboard = (event.originalEvent || event).clipboardData;
+				var pastedText = clipboard ? clipboard.getData('text/plain') : '';
+				if (!pastedText) {
+					return false;
 				}
-			}.bind(this), 1000);
-		}.bind(this));
+
+				pastedText = pastedText.replace(/\u00A0/g, ' ');
+
+				var currentText = extractChatMessage(this.ui.find('.input-chatbox'));
+				var remaining = MAX_LENGTH - currentText.length;
+				if (remaining <= 0) {
+					return false;
+				}
+
+				var toInsert = pastedText.substr(0, remaining);
+
+				// Insert at caret if possible; fallback to append.
+				if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+					document.execCommand('insertText', false, toInsert);
+				} else {
+					var node = document.createTextNode(toInsert);
+					this.ui.find('.input-chatbox')[0].appendChild(node);
+				}
+
+				return false;
+			}.bind(this)
+		);
+
+		this.ui.find('.input .username').blur(
+			function () {
+				Events.setTimeout(
+					function () {
+						var active = document.activeElement;
+						var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
+						var isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
+						var isChatMessage = active === this.ui.find('.input-chatbox')[0];
+						if (!movedInsideChatbox && !isTextInput && !isChatMessage) {
+							this.ui.find('.input .username').focus();
+						}
+					}.bind(this),
+					1000
+				);
+			}.bind(this)
+		);
 
 		// Validate information dragged into text field
-		this.ui.find('input[type=text]')
-			.on('drop', onDropText)
-			.on('dragover', stopPropagation)
+		this.ui.find('input[type=text]').on('drop', onDropText).on('dragover', stopPropagation);
 
 		// Button change name
-		this.ui.find('.header input').dblclick(function(){
-			this.type = 'text';
-			this.select();
-		}).blur(function(){
-			this.type = 'button';
-		});
+		this.ui
+			.find('.header input')
+			.dblclick(function () {
+				this.type = 'text';
+				this.select();
+			})
+			.blur(function () {
+				this.type = 'button';
+			});
 
 		// Private message selection
-		this.ui.find('.input .list').click(function(){
-			var names = _historyNickName.list;
-			var i, count = names.length;
-			var pos = jQuery(this).offset();
-			var ui = ContextMenu.ui.find('.menu');
+		this.ui
+			.find('.input .list')
+			.click(function () {
+				var names = _historyNickName.list;
+				var i,
+					count = names.length;
+				var pos = jQuery(this).offset();
+				var ui = ContextMenu.ui.find('.menu');
 
-			if (!count) {
-				ChatBox.addText( DB.getMessage(192), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-				return;
-			}
+				if (!count) {
+					ChatBox.addText(DB.getMessage(192), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+					return;
+				}
 
-			ContextMenu.remove();
-			ContextMenu.append();
+				ContextMenu.remove();
+				ContextMenu.append();
 
-			for (i = 0; i < count; ++i) {
-				ContextMenu.addElement(names[i], onPrivateMessageUserSelection(names[i]));
-			}
+				for (i = 0; i < count; ++i) {
+					ContextMenu.addElement(names[i], onPrivateMessageUserSelection(names[i]));
+				}
 
-			ContextMenu.addElement('', onPrivateMessageUserSelection(''));
-			ui.css({
-				top:  pos.top - ui.height() - 5,
-				left: pos.left - ui.width() - 5
+				ContextMenu.addElement('', onPrivateMessageUserSelection(''));
+				ui.css({
+					top: pos.top - ui.height() - 5,
+					left: pos.left - ui.width() - 5
+				});
+			})
+			.mousedown(function (event) {
+				event.stopImmediatePropagation();
+				return false;
 			});
-		}).mousedown(function(event){
-			event.stopImmediatePropagation();
-			return false;
-		});
 
-		this.ui.find('.draggable').mousedown(function(event){
+		this.ui.find('.draggable').mousedown(function (event) {
 			event.stopPropagation();
 		});
 
 		// Send message to...
-		this.ui.find('.input .filter').click(function(){
-			var pos = jQuery(this).offset();
-			var ui = ContextMenu.ui.find('.menu');
+		this.ui
+			.find('.input .filter')
+			.click(function () {
+				var pos = jQuery(this).offset();
+				var ui = ContextMenu.ui.find('.menu');
 
-			ContextMenu.remove();
-			ContextMenu.append();
+				ContextMenu.remove();
+				ContextMenu.append();
 
-			ContextMenu.addElement(DB.getMessage(85),  onChangeTargetMessage(ChatBox.TYPE.PUBLIC));
-			ContextMenu.addElement(DB.getMessage(86),  onChangeTargetMessage(ChatBox.TYPE.PARTY));
-			ContextMenu.addElement(DB.getMessage(437), onChangeTargetMessage(ChatBox.TYPE.GUILD));
-			ContextMenu.addElement(DB.getMessage(2361), onChangeTargetMessage(ChatBox.TYPE.CLAN));
+				ContextMenu.addElement(DB.getMessage(85), onChangeTargetMessage(ChatBox.TYPE.PUBLIC));
+				ContextMenu.addElement(DB.getMessage(86), onChangeTargetMessage(ChatBox.TYPE.PARTY));
+				ContextMenu.addElement(DB.getMessage(437), onChangeTargetMessage(ChatBox.TYPE.GUILD));
+				ContextMenu.addElement(DB.getMessage(2361), onChangeTargetMessage(ChatBox.TYPE.CLAN));
 
-			ui.css({
-				top:  pos.top - ui.height() - 5,
-				left: pos.left - ui.width() + 25
+				ui.css({
+					top: pos.top - ui.height() - 5,
+					left: pos.left - ui.width() + 25
+				});
+			})
+			.mousedown(function (event) {
+				event.stopImmediatePropagation();
+				return false;
 			});
-		}).mousedown(function(event){
-			event.stopImmediatePropagation();
-			return false;
-		});
 
 		// Change size
-		this.ui.find('.input .size').click(function( event ){
+		this.ui.find('.input .size').click(function (event) {
 			ChatBox.updateHeight(true);
 			event.stopImmediatePropagation();
 			return false;
@@ -385,10 +411,11 @@ define(function(require)
 		// Scroll feature should block at each line
 		this.ui.find('.content').on('mousewheel DOMMouseScroll', onScroll);
 		// Tabs should behave like "UI" (no entity hover / map cursor changes), but opttab remains click-through.
-		(function initTabHoverBlock(){
-			var _tabIntersect, _tabEnter = 0;
+		(function initTabHoverBlock() {
+			var _tabIntersect,
+				_tabEnter = 0;
 
-			ChatBox.ui.on('mouseenter', 'table.header tr td.tab, table.header tr td.tab *', function(){
+			ChatBox.ui.on('mouseenter', 'table.header tr td.tab, table.header tr td.tab *', function () {
 				if (_tabEnter === 0) {
 					_tabIntersect = Mouse.intersect;
 					_tabEnter++;
@@ -400,7 +427,7 @@ define(function(require)
 				}
 			});
 
-			ChatBox.ui.on('mouseleave', 'table.header tr td.tab, table.header tr td.tab *', function(){
+			ChatBox.ui.on('mouseleave', 'table.header tr td.tab, table.header tr td.tab *', function () {
 				if (_tabEnter > 0) {
 					_tabEnter--;
 					if (_tabEnter === 0 && _tabIntersect) {
@@ -411,13 +438,13 @@ define(function(require)
 			});
 
 			// Prevent walking when clicking tabs (MapControl listens on window mousedown).
-			ChatBox.ui.on('mousedown', 'table.header tr td.tab, table.header tr td.tab *', function(event){
+			ChatBox.ui.on('mousedown', 'table.header tr td.tab, table.header tr td.tab *', function (event) {
 				event.stopPropagation();
 			});
 		})();
 
 		// Prevent map right-click (camera rotate) when using chat right-click features.
-		this.ui.on('mousedown', '.body, .contentwrapper, .content', function(event){
+		this.ui.on('mousedown', '.body, .contentwrapper, .content', function (event) {
 			if (event.which !== 3) {
 				return true;
 			}
@@ -435,7 +462,7 @@ define(function(require)
 		});
 
 		// Chat font scale context menu (right click).
-		this.ui.on('contextmenu', '.body, .contentwrapper, .content', function(event){
+		this.ui.on('contextmenu', '.body, .contentwrapper, .content', function (event) {
 			// Ignore right click on interactive elements (links, item links, scrollbars, etc.)
 			if (jQuery(event.target).closest('a, .item-link, .event_add_cursor, .chat-function, td.tab').length) {
 				return true;
@@ -457,58 +484,57 @@ define(function(require)
 		});
 
 		// Clicking interactive elements in chat should not trigger map movement.
-		this.ui.on('mousedown', '.content a, .content .item-link', function(event){
+		this.ui.on('mousedown', '.content a, .content .item-link', function (event) {
 			event.stopPropagation();
 		});
 
-		this.ui.find('.battlemode .bmtoggle').click(function ( event ){
+		this.ui.find('.battlemode .bmtoggle').click(function (event) {
 			ChatBox.ui.find('.input').toggle();
 			ChatBox.ui.find('.battlemode').toggle();
 		});
 
-		this.ui.find('.chat-function .battleopt2').click(function( event ){
-			if(ChatBox.tabCount <= 5){
+		this.ui.find('.chat-function .battleopt2').click(function (event) {
+			if (ChatBox.tabCount <= 5) {
 				ChatBox.addNewTab();
 				ChatBox.onAppend();
 			}
 		});
 
-		this.ui.on('click', 'table.header tr td.tab', function( event ){
+		this.ui.on('click', 'table.header tr td.tab', function (event) {
 			event.stopImmediatePropagation();
 			var currentElem = event.currentTarget;
-			if(ChatBox.activeTab !== currentElem.dataset.tab - 1){
+			if (ChatBox.activeTab !== currentElem.dataset.tab - 1) {
 				ChatBox.switchTab(currentElem.dataset.tab);
 			}
 		});
 
-		this.ui.find('.chat-function .wndminib').click(function(){
-			if(ChatBox.tabCount > 1){
+		this.ui.find('.chat-function .wndminib').click(function () {
+			if (ChatBox.tabCount > 1) {
 				ChatBox.removeTab();
 			}
 		});
 
-		this.ui.find('.chat-function .chatmode').click(function(){
+		this.ui.find('.chat-function .chatmode').click(function () {
 			ChatBox.toggleChat();
 		});
 
-		this.ui.find('.chat-function .battleopt').click(function(){
+		this.ui.find('.chat-function .battleopt').click(function () {
 			ChatBox.toggleChatBattleOption();
 		});
 
 		// Init settings window as well
 		ChatBoxSettings.append();
 
-
-		if(_preferences.tabs.length > 0 && _preferences.tabs.length == _preferences.tabOption.length){
+		if (_preferences.tabs.length > 0 && _preferences.tabs.length == _preferences.tabOption.length) {
 			// Load saved tabs
-			for(var i = 0; i < _preferences.tabs.length; i++){
-				if(_preferences.tabs[i] && _preferences.tabOption[i]){
+			for (var i = 0; i < _preferences.tabs.length; i++) {
+				if (_preferences.tabs[i] && _preferences.tabOption[i]) {
 					ChatBox.addNewTab(_preferences.tabs[i].name, _preferences.tabOption[i]);
 				}
 			}
 
 			// Switch to last active tab
-			if(ChatBox.tabs[_preferences.activeTab]){
+			if (ChatBox.tabs[_preferences.activeTab]) {
 				this.switchTab(_preferences.activeTab);
 			}
 		} else {
@@ -541,20 +567,30 @@ define(function(require)
 		}
 
 		// dialog box size
-		makeResizableDiv()
+		makeResizableDiv();
 
-		Commands.add('savechat', 'Saves current chat tab to txt file.', function(){ ChatBox.saveCurrentTabChat(); return; }, ['sc'], false );
+		Commands.add(
+			'savechat',
+			'Saves current chat tab to txt file.',
+			function () {
+				ChatBox.saveCurrentTabChat();
+				return;
+			},
+			['sc'],
+			false
+		);
 	};
-
 
 	/**
 	 * Clean up the box
 	 */
-	ChatBox.clean = function Clean()
-	{
+	ChatBox.clean = function Clean() {
 		var matches, i, count;
 
-		matches = this.ui.find('.content').html().match(/(blob:[^"]+)/g);
+		matches = this.ui
+			.find('.content')
+			.html()
+			.match(/(blob:[^"]+)/g);
 
 		if (matches) {
 			for (i = 0, count = matches.length; i < count; ++i) {
@@ -570,19 +606,19 @@ define(function(require)
 		_historyNickName.clear();
 	};
 
-	ChatBox.toggleChatBattleOption = function toggleChatBattleOption(){
+	ChatBox.toggleChatBattleOption = function toggleChatBattleOption() {
 		var tabName = this.ui.find('.header tr td div.on input').val();
 		ChatBoxSettings.toggle();
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
-	}
+	};
 
 	ChatBox.removeTab = function removeTab() {
-		this.ui.find('table.header tr td.tab[data-tab="'+ this.activeTab +'"]').remove();
-		this.ui.find('.body .content[data-content="'+ this.activeTab +'"]').remove();
+		this.ui.find('table.header tr td.tab[data-tab="' + this.activeTab + '"]').remove();
+		this.ui.find('.body .content[data-content="' + this.activeTab + '"]').remove();
 
-		var tabName= '';
+		var tabName = '';
 		var _elem = this.ui.find('table.header tr td.tab');
- 		_elem = this.ui.find('table.header tr td.tab')[_elem.length - 1];
+		_elem = this.ui.find('table.header tr td.tab')[_elem.length - 1];
 
 		// Use delete instead of splice to avoid ID messup and make our life eastier.
 		delete ChatBoxSettings.tabOption[this.activeTab];
@@ -593,15 +629,14 @@ define(function(require)
 
 		tabName = this.ui.find('.header tr td div.on input').val();
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
-	}
+	};
 
-	ChatBox.addNewTab = function addNewTab(name, settings){
-
+	ChatBox.addNewTab = function addNewTab(name, settings) {
 		// Default settings
-		if(!name){
+		if (!name) {
 			name = 'New Tab';
 		}
-		if(!settings){
+		if (!settings) {
 			settings = [
 				ChatBox.FILTER.PUBLIC_LOG,
 				ChatBox.FILTER.PUBLIC_CHAT,
@@ -639,10 +674,8 @@ define(function(require)
 		//var height = this.ui.find('.contentwrapper').height();
 
 		// Remove current active state
-		this.ui.find('table.header tr td.tab div')
-			.removeClass('on');
-		this.ui.find('.body .content')
-			.removeClass('active');
+		this.ui.find('table.header tr td.tab div').removeClass('on');
+		this.ui.find('.body .content').removeClass('active');
 
 		// Add new elements as active
 		this.ui.find('table.header tr .opttab').before(`
@@ -653,13 +686,11 @@ define(function(require)
 			</td>
 		`);
 
-		this.ui.find('table.header tr td.tab[data-tab="'+tabID+'"] div input').on('change', function(){
+		this.ui.find('table.header tr td.tab[data-tab="' + tabID + '"] div input').on('change', function () {
 			ChatBox.tabs[tabID].name = this.value;
 		});
 
-		this.ui.find('.body .contentwrapper').append(
-			`<div class="content active" data-content="${tabID}"></div>`
-		);
+		this.ui.find('.body .contentwrapper').append(`<div class="content active" data-content="${tabID}"></div>`);
 
 		ChatBoxSettings.tabOption[tabID] = settings;
 
@@ -671,35 +702,30 @@ define(function(require)
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
 
 		return tabID;
-	}
+	};
 
-	ChatBox.switchTab = function switchTab(tabID){
+	ChatBox.switchTab = function switchTab(tabID) {
 		var tabName = '';
 
-		this.ui.find('table.header tr td.tab div')
-			.removeClass('on');
-		this.ui.find('.body .content')
-			.removeClass('active');
+		this.ui.find('table.header tr td.tab div').removeClass('on');
+		this.ui.find('.body .content').removeClass('active');
 
 		this.activeTab = tabID;
 
-		this.ui.find('table.header tr td.tab[data-tab="'+ this.activeTab +'"] div')
-			.addClass('on');
-		this.ui.find('.body .content[data-content="'+ this.activeTab +'"]')
-			.addClass('active');
+		this.ui.find('table.header tr td.tab[data-tab="' + this.activeTab + '"] div').addClass('on');
+		this.ui.find('.body .content[data-content="' + this.activeTab + '"]').addClass('active');
 
 		tabName = this.ui.find('.header tr td div.on input').val();
 
 		this.ui.find('.content')[tabID].scrollTop = this.ui.find('.content')[tabID].scrollHeight;
 
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
-	}
+	};
 
 	/**
 	 * Once append to HTML
 	 */
-	ChatBox.onAppend = function OnAppend()
-	{
+	ChatBox.onAppend = function OnAppend() {
 		this.ui.find('.input').hide();
 		this.ui.find('.battlemode').show();
 
@@ -707,16 +733,14 @@ define(function(require)
 		content[0].scrollTop = content[0].scrollHeight;
 	};
 
-
 	/**
 	 * Stop custom scroll
 	 */
-	ChatBox.onRemove = function OnRemove()
-	{
+	ChatBox.onRemove = function OnRemove() {
 		this.ui.find('.content.active').off('scroll');
 
-		_preferences.y      = parseInt(this.ui.css('top'), 10) + this.ui.height();
-		_preferences.x      = parseInt(this.ui.css('left'), 10);
+		_preferences.y = parseInt(this.ui.css('top'), 10) + this.ui.height();
+		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.height = _heightIndex;
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
@@ -733,22 +757,24 @@ define(function(require)
 		this.activeTab = 0;
 	};
 
-
 	/**
 	 * BattleMode processing
 	 *
 	 * @param {number} key id to check
 	 * @return {boolean} found a shortcut ?
 	 */
-	ChatBox.processBattleMode = function processBattleMode( keyId )
-	{
+	ChatBox.processBattleMode = function processBattleMode(keyId) {
 		// Direct process
-		if (this.ui.find('.battlemode').is(':visible') ||
-			KEYS.ALT || KEYS.SHIFT || KEYS.CTRL ||
-			(keyId >= KEYS.F1 && keyId <= KEYS.F24)) {
+		if (
+			this.ui.find('.battlemode').is(':visible') ||
+			KEYS.ALT ||
+			KEYS.SHIFT ||
+			KEYS.CTRL ||
+			(keyId >= KEYS.F1 && keyId <= KEYS.F24)
+		) {
 			return BattleMode.process(keyId);
 		}
-/*
+		/*
 		var messageBox = this.ui.find('.input-chatbox');
 		var text       = messageBox.html();
 
@@ -767,24 +793,23 @@ define(function(require)
 		return false;
 	};
 
-
 	/**
 	 * Key Event Handler
 	 *
 	 * @param {object} event - KeyEventHandler
 	 * @return {boolean}
 	 */
-	ChatBox.onKeyDown = function OnKeyDown( event )
-	{
+	ChatBox.onKeyDown = function OnKeyDown(event) {
 		var messageBox = this.ui.find('.input-chatbox');
-		var nickBox    = this.ui.find('.input .username');
-		this.ui.find('.header tr td div.on input').on('keyup', function(){
+		var nickBox = this.ui.find('.input .username');
+		this.ui.find('.header tr td div.on input').on('keyup', function () {
 			ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
 		});
 
 		var activeElement = document.activeElement;
-		var isChatInputFocused = (activeElement === messageBox[0] || activeElement === nickBox[0]);
-		var isOtherTextInputFocused = activeElement &&
+		var isChatInputFocused = activeElement === messageBox[0] || activeElement === nickBox[0];
+		var isOtherTextInputFocused =
+			activeElement &&
 			!isChatInputFocused &&
 			((activeElement.tagName && activeElement.tagName.match(/input|select|textarea/i)) ||
 				activeElement.isContentEditable);
@@ -794,7 +819,6 @@ define(function(require)
 		}
 
 		switch (event.which) {
-
 			//  Battle mode system (Includes F1-F24, 0-9, A-Z, ALT, SHIFT, CTRL)
 			default:
 				if (isChatInputFocused) {
@@ -884,7 +908,7 @@ define(function(require)
 						return true;
 					}
 
-					if (event.which === KEYS.ESCAPE || event.key === "Escape") {
+					if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 						// Let UIManager/game handle Escape.
 						return true;
 					}
@@ -894,12 +918,15 @@ define(function(require)
 					return true;
 				}
 
-				if ((event.target.tagName && !event.target.tagName.match(/input|select|textarea/i))
-					|| (event.which >= KEYS.F1 && event.which <= KEYS.F24)
-					|| (event.which >= KEYS[1] && event.which <= KEYS[9])   //  Numbers 0-9 - MicromeX
-					|| (event.which >= KEYS.A && event.which <= KEYS.Z)   //  Letters A-Z - MicromeX
-					|| KEYS.ALT || KEYS.SHIFT || KEYS.CTRL) {
-
+				if (
+					(event.target.tagName && !event.target.tagName.match(/input|select|textarea/i)) ||
+					(event.which >= KEYS.F1 && event.which <= KEYS.F24) ||
+					(event.which >= KEYS[1] && event.which <= KEYS[9]) || //  Numbers 0-9 - MicromeX
+					(event.which >= KEYS.A && event.which <= KEYS.Z) || //  Letters A-Z - MicromeX
+					KEYS.ALT ||
+					KEYS.SHIFT ||
+					KEYS.CTRL
+				) {
 					if (ChatBox.processBattleMode(event.which)) {
 						event.stopImmediatePropagation();
 						return false;
@@ -962,13 +989,16 @@ define(function(require)
 			case KEYS.F10:
 				this.updateHeight(false);
 				// scroll down when resize
-				this.ui.find('.content')[this.activeTab].scrollTop = this.ui.find('.content')[this.activeTab].scrollHeight;
+				this.ui.find('.content')[this.activeTab].scrollTop =
+					this.ui.find('.content')[this.activeTab].scrollHeight;
 				break;
 
 			// Send message
 			case KEYS.ENTER:
-				if (document.activeElement.className === 'message input-chatbox' &&
-					document.activeElement !== messageBox[0]) {
+				if (
+					document.activeElement.className === 'message input-chatbox' &&
+					document.activeElement !== messageBox[0]
+				) {
 					return true;
 				}
 
@@ -1004,11 +1034,10 @@ define(function(require)
 		return false;
 	};
 
-	ChatBox.toggleChat = function toggleChat(){
+	ChatBox.toggleChat = function toggleChat() {
 		var messageBox = this.ui.find('.input-chatbox');
 
-		if (document.activeElement.tagName === 'INPUT' &&
-		    document.activeElement !== messageBox[0]) {
+		if (document.activeElement.tagName === 'INPUT' && document.activeElement !== messageBox[0]) {
 			return true;
 		}
 
@@ -1018,14 +1047,12 @@ define(function(require)
 
 		messageBox.focus();
 		this.submit();
-	}
-
+	};
 
 	/**
 	 * Process ChatBox message
 	 */
-	ChatBox.submit = function Submit()
-	{
+	ChatBox.submit = function Submit() {
 		var input = this.ui.find('.input');
 		var $user = input.find('.username');
 		var $text = input.find('.input-chatbox');
@@ -1044,8 +1071,8 @@ define(function(require)
 				$text.focus();
 			}
 			var chatmode = isChatOn ? 'on' : 'off';
-			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/chatmode_'+chatmode+'.bmp', function( data ){
-				ChatBox.ui.find('.chat-function .chatmode').css('backgroundImage', 'url('+ data +')');
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/chatmode_' + chatmode + '.bmp', function (data) {
+				ChatBox.ui.find('.chat-function .chatmode').css('backgroundImage', 'url(' + data + ')');
 			});
 
 			return;
@@ -1054,7 +1081,7 @@ define(function(require)
 		// Private message
 		if (user.length && trimmedText[0] !== '/') {
 			this.PrivateMessageStorage.nick = user;
-			this.PrivateMessageStorage.msg  = trimmedText;
+			this.PrivateMessageStorage.msg = trimmedText;
 			_historyNickName.push(user);
 			_historyNickName.previous();
 		}
@@ -1066,22 +1093,21 @@ define(function(require)
 
 		// Command
 		if (trimmedText[0] === '/') {
-			Commands.processCommand.call(this, trimmedText.substr(1) );
+			Commands.processCommand.call(this, trimmedText.substr(1));
 			return;
 		}
 
-		this.onRequestTalk( user, trimmedText, ChatBox.sendTo );
+		this.onRequestTalk(user, trimmedText, ChatBox.sendTo);
 	};
 
 	/**
 	 * Extract plain chat text from the contenteditable input while preserving item links.
 	 * Replaces `.item-link` spans with their `data-item` payload and strips any remaining markup.
 	 */
-	function extractChatMessage($input)
-	{
+	function extractChatMessage($input) {
 		var clone = $input.clone();
 
-		clone.find('span.item-link').each(function() {
+		clone.find('span.item-link').each(function () {
 			var itemData = jQuery(this).attr('data-item') || jQuery(this).data('item') || '';
 			jQuery(this).replaceWith(document.createTextNode(itemData));
 		});
@@ -1090,7 +1116,6 @@ define(function(require)
 		result = result.replace(/\u00A0/g, ' ');
 		return result;
 	}
-
 
 	/**
 	 * Add text to chatbox
@@ -1101,18 +1126,22 @@ define(function(require)
 	 * @param {string} color
 	 * @param {boolean} override - default false, html or text ?
 	 */
-	ChatBox.addText = function addText(text, colorType, filterType, color, override)
-	{
+	ChatBox.addText = function addText(text, colorType, filterType, color, override) {
 		// parse as many <ITEMLINK> or <ITEML> as possible and replace with clickable item link, but first decode the link to get the item id
-		text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function(match) {
+		text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function (match) {
 			let item = DB.parseItemLink(match);
-			let span = '<span data-item="' + match + '" class="item-link" style="color:#FFFF63;">&lt;' + item.name + '&gt;</span>';
+			let span =
+				'<span data-item="' +
+				match +
+				'" class="item-link" style="color:#FFFF63;">&lt;' +
+				item.name +
+				'&gt;</span>';
 			override = true;
 			return span;
 		});
 
 		// Backward compatibility for older calls without filter
-		if(isNaN(filterType)){
+		if (isNaN(filterType)) {
 			filterType = ChatBox.FILTER.PUBLIC_LOG;
 		}
 
@@ -1128,7 +1157,7 @@ define(function(require)
 		// Schedule buffer flush using requestAnimationFrame
 		if (!_rafScheduled) {
 			_rafScheduled = true;
-			requestAnimationFrame(function() {
+			requestAnimationFrame(function () {
 				_rafScheduled = false;
 				flushMessageBuffer();
 			});
@@ -1150,8 +1179,8 @@ define(function(require)
 		// Group messages by tab to minimize DOM operations
 		var messagesByTab = {};
 
-		messages.forEach(function(msg) {
-			ChatBox.tabs.forEach(function(tab, TabNum) {
+		messages.forEach(function (msg) {
+			ChatBox.tabs.forEach(function (tab, TabNum) {
 				var chatTabOption = ChatBoxSettings.tabOption[TabNum];
 
 				if (!chatTabOption.includes(msg.filterType)) {
@@ -1167,14 +1196,14 @@ define(function(require)
 		});
 
 		// Add messages of each tab at once
-		Object.keys(messagesByTab).forEach(function(TabNum) {
-			var content = ChatBox.ui.find('.content[data-content="'+ TabNum +'"]');
+		Object.keys(messagesByTab).forEach(function (TabNum) {
+			var content = ChatBox.ui.find('.content[data-content="' + TabNum + '"]');
 			var fragment = document.createDocumentFragment();
 
 			// Get scroll state before adding messages
 			var wasAtBottom = shouldScrollDownBeforeAdd(content[0], content.height());
 
-			messagesByTab[TabNum].forEach(function(msg) {
+			messagesByTab[TabNum].forEach(function (msg) {
 				var color = msg.color || getColorForType(msg.colorType);
 				var div = jQuery('<div/>').css('color', color)[!msg.override ? 'text' : 'html'](msg.text)[0];
 				fragment.appendChild(div);
@@ -1210,31 +1239,23 @@ define(function(require)
 	 *
 	 */
 	function getColorForType(colorType) {
-		if ((colorType & ChatBox.TYPE.PUBLIC) && (colorType & ChatBox.TYPE.SELF)) {
+		if (colorType & ChatBox.TYPE.PUBLIC && colorType & ChatBox.TYPE.SELF) {
 			return '#00FF00';
-		}
-		else if (colorType & ChatBox.TYPE.PARTY) {
-			return (colorType & ChatBox.TYPE.SELF) ? 'rgb(200, 200, 100)' : 'rgb(230,215,200)';
-		}
-		else if (colorType & ChatBox.TYPE.GUILD) {
+		} else if (colorType & ChatBox.TYPE.PARTY) {
+			return colorType & ChatBox.TYPE.SELF ? 'rgb(200, 200, 100)' : 'rgb(230,215,200)';
+		} else if (colorType & ChatBox.TYPE.GUILD) {
 			return 'rgb(180, 255, 180)';
-		}
-		else if (colorType & ChatBox.TYPE.PRIVATE) {
+		} else if (colorType & ChatBox.TYPE.PRIVATE) {
 			return '#FFFF00';
-		}
-		else if (colorType & ChatBox.TYPE.ERROR) {
+		} else if (colorType & ChatBox.TYPE.ERROR) {
 			return '#FF0000';
-		}
-		else if (colorType & ChatBox.TYPE.INFO) {
+		} else if (colorType & ChatBox.TYPE.INFO) {
 			return '#FFFF63';
-		}
-		else if (colorType & ChatBox.TYPE.BLUE) {
+		} else if (colorType & ChatBox.TYPE.BLUE) {
 			return '#00FFFF';
-		}
-		else if (colorType & ChatBox.TYPE.ADMIN) {
+		} else if (colorType & ChatBox.TYPE.ADMIN) {
 			return '#FFFF00';
-		}
-		else if (colorType & ChatBox.TYPE.MAIL) {
+		} else if (colorType & ChatBox.TYPE.MAIL) {
 			return '#F4D293';
 		}
 		return 'white';
@@ -1258,14 +1279,12 @@ define(function(require)
 		return false;
 	}
 
-
 	/**
 	 * Change chatbox's height
 	 */
-	ChatBox.updateHeight = function changeHeight( AlwaysVisible )
-	{
-		var HeightList = [ 0, 0, MAGIC_NUMBER, MAGIC_NUMBER*2, MAGIC_NUMBER*3, MAGIC_NUMBER*4, MAGIC_NUMBER*5 ];
-		var content    = this.ui.find('.contentwrapper');
+	ChatBox.updateHeight = function changeHeight(AlwaysVisible) {
+		var HeightList = [0, 0, MAGIC_NUMBER, MAGIC_NUMBER * 2, MAGIC_NUMBER * 3, MAGIC_NUMBER * 4, MAGIC_NUMBER * 5];
+		var content = this.ui.find('.contentwrapper');
 		var bottomBefore = getChatBottomAnchorPx(this.ui, this.__lastBottomY);
 
 		_heightIndex = (_heightIndex + 1) % HeightList.length;
@@ -1275,7 +1294,7 @@ define(function(require)
 			_heightIndex = 1;
 		}
 
-		content.height( HeightList[ _heightIndex ] );
+		content.height(HeightList[_heightIndex]);
 
 		switch (_heightIndex) {
 			case 0:
@@ -1306,14 +1325,13 @@ define(function(require)
 			}
 		}
 
-		var active = this.ui.find('.content[data-content="'+ this.activeTab +'"]')[0];
+		var active = this.ui.find('.content[data-content="' + this.activeTab + '"]')[0];
 		if (active) {
 			active.scrollTop = active.scrollHeight;
 		}
 	};
 
-	function getChatBottomAnchorPx($ui, fallback)
-	{
+	function getChatBottomAnchorPx($ui, fallback) {
 		var bar = $ui.find('.input:visible');
 		if (bar.length) {
 			var rect = bar[0].getBoundingClientRect();
@@ -1333,8 +1351,7 @@ define(function(require)
 		return NaN;
 	}
 
-	function shouldLetChatInputHandleVerticalArrows(inputEl, direction)
-	{
+	function shouldLetChatInputHandleVerticalArrows(inputEl, direction) {
 		if (!inputEl || !window.getSelection) {
 			return false;
 		}
@@ -1367,15 +1384,18 @@ define(function(require)
 		// Only do this when there is more than one visual line.
 		var text = extractChatMessage(jQuery(inputEl));
 		var hasNewline = text.indexOf('\n') > -1;
-		var hasOverflow = (inputEl.scrollHeight > inputEl.clientHeight + 1);
+		var hasOverflow = inputEl.scrollHeight > inputEl.clientHeight + 1;
 		if (!hasNewline && !hasOverflow) {
 			return false;
 		}
 
 		var caretRect;
 		try {
-			caretRect = range.getClientRects && range.getClientRects().length ? range.getClientRects()[0] : range.getBoundingClientRect();
-		} catch(e) {
+			caretRect =
+				range.getClientRects && range.getClientRects().length
+					? range.getClientRects()[0]
+					: range.getBoundingClientRect();
+		} catch (e) {
 			return true;
 		}
 
@@ -1390,108 +1410,114 @@ define(function(require)
 
 		// If caret is not on the first/last visible line, allow normal arrow behavior.
 		if (direction === 'up') {
-			return caretRect.top > (inputRect.top + 2);
+			return caretRect.top > inputRect.top + 2;
 		}
 
 		if (direction === 'down') {
-			return caretRect.bottom < (inputRect.bottom - 2);
+			return caretRect.bottom < inputRect.bottom - 2;
 		}
 
 		return false;
 	}
-
 
 	/**
 	 * Save user name to nick name history
 	 *
 	 * @param {string} nick name
 	 */
-	ChatBox.saveNickName = function saveNickName( pseudo )
-	{
+	ChatBox.saveNickName = function saveNickName(pseudo) {
 		_historyNickName.push(pseudo);
 	};
 
 	/**
 	 * Save chat from current tab into a file.
 	 */
-	ChatBox.saveCurrentTabChat = function saveCurrentTabChat(){
-
+	ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
 		var timezone, date, data, url;
 
 		// Create a date
-		var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-    	var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+		var tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
+		var localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
 		localISOTime = localISOTime.replace('T', ' ');
-		timezone = (new Date().getTimezoneOffset() / 60);
-		date     = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
+		timezone = new Date().getTimezoneOffset() / 60;
+		date = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
 
-		data = '<html><head><title>Chat History</title><style> body { background-color: DarkSlateGray; } </style></head><body>'
-		data += this.ui.find('.content[data-content="'+ ChatBox.activeTab +'"]')[0].outerHTML;
+		data =
+			'<html><head><title>Chat History</title><style> body { background-color: DarkSlateGray; } </style></head><body>';
+		data += this.ui.find('.content[data-content="' + ChatBox.activeTab + '"]')[0].outerHTML;
 		data += '</body></html>';
 
 		// We create a local file
-		url = window.URL.createObjectURL(new Blob([data], {type: 'text/plain'}));
+		url = window.URL.createObjectURL(new Blob([data], { type: 'text/plain' }));
 
-		ChatBox.addText('Chat History ['+ ChatBox.tabs[ChatBox.activeTab].name +'] ' + date + ' can be saved by <a style="color:#F88" download="ChatHistory ['+ ChatBox.tabs[ChatBox.activeTab].name +'] (' + date.replace('/', '-') + ').html" href="'+ url +'" target="_blank">clicking here</a>.', ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, null, true);
+		ChatBox.addText(
+			'Chat History [' +
+				ChatBox.tabs[ChatBox.activeTab].name +
+				'] ' +
+				date +
+				' can be saved by <a style="color:#F88" download="ChatHistory [' +
+				ChatBox.tabs[ChatBox.activeTab].name +
+				'] (' +
+				date.replace('/', '-') +
+				').html" href="' +
+				url +
+				'" target="_blank">clicking here</a>.',
+			ChatBox.TYPE.PUBLIC,
+			ChatBox.FILTER.PUBLIC_LOG,
+			null,
+			true
+		);
 	};
-
 
 	/**
 	 * Update scroll by block (14px)
 	 */
-	function onScroll( event )
-	{
+	function onScroll(event) {
 		var delta;
 		var lineHeight;
 
 		if (event.originalEvent.wheelDelta) {
-			delta = event.originalEvent.wheelDelta / 120 ;
+			delta = event.originalEvent.wheelDelta / 120;
 			if (window.opera) {
 				delta = -delta;
 			}
-		}
-		else if (event.originalEvent.detail) {
+		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
 
 		lineHeight = getScrollLineHeightPx(this);
-		this.scrollTop = Math.floor(this.scrollTop / lineHeight) * lineHeight - (delta * lineHeight);
+		this.scrollTop = Math.floor(this.scrollTop / lineHeight) * lineHeight - delta * lineHeight;
 		return false;
 	}
 
 	/**
 	 * Validate the type of information being dropped into the text field
 	 */
-	 function onDropText( event )
-	 {
-		 event.stopImmediatePropagation();
-		 var data;
-		 try {
+	function onDropText(event) {
+		event.stopImmediatePropagation();
+		var data;
+		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		 }
-		 catch(e) {
-			 return false;
-		 }
+		} catch (e) {
+			return false;
+		}
 
-		 // Valid if the message type
-		 if (data.type == 'item') {
-			 return false;
-		 }
+		// Valid if the message type
+		if (data.type == 'item') {
+			return false;
+		}
 
-		 jQuery(event.currentTarget).val(data);
-		 return true;
-	 }
+		jQuery(event.currentTarget).val(data);
+		return true;
+	}
 
 	/**
 	 * Stop event propagation
 	 */
-	 function stopPropagation( event )
-	 {
-		 event.stopImmediatePropagation();
-		 return false;
-	 }
-
-
+	function stopPropagation(event) {
+		event.stopImmediatePropagation();
+		return false;
+	}
 
 	/**
 	 * Change private message nick name
@@ -1499,35 +1525,28 @@ define(function(require)
 	 * @param {string} nick name
 	 * @return {function} callback closure
 	 */
-	function onPrivateMessageUserSelection(name)
-	{
-		return function onPrivateMessageUserSelectionClosure()
-		{
+	function onPrivateMessageUserSelection(name) {
+		return function onPrivateMessageUserSelectionClosure() {
 			ChatBox.ui.find('.input .username').val(name);
 		};
 	}
-
 
 	/**
 	 * Change target of global chat (party, guild)
 	 *
 	 * @param {number} type constant
 	 */
-	function onChangeTargetMessage(type)
-	{
-		return function onChangeTargetMessageClosure()
-		{
+	function onChangeTargetMessage(type) {
+		return function onChangeTargetMessageClosure() {
 			var $input = ChatBox.ui.find('.input-chatbox');
 
 			$input.removeClass('guild party');
 
 			if (type & ChatBox.TYPE.PARTY) {
 				$input.addClass('party');
-			}
-			else if (type & ChatBox.TYPE.GUILD) {
+			} else if (type & ChatBox.TYPE.GUILD) {
 				$input.addClass('guild');
-			}
-			else if (type & ChatBox.TYPE.CLAN) {
+			} else if (type & ChatBox.TYPE.CLAN) {
 				$input.addClass('clan');
 			}
 
@@ -1535,20 +1554,19 @@ define(function(require)
 		};
 	}
 
-	function setChatFontScale(scale)
-	{
-		return function setChatFontScaleClosure()
-		{
+	function setChatFontScale(scale) {
+		return function setChatFontScaleClosure() {
 			_preferences.fontScale = clampChatFontScale(scale);
 			_preferences.save();
 			ChatBox.applyFontScale();
 		};
 	}
 
-	function clampChatFontScale(scale)
-	{
+	function clampChatFontScale(scale) {
 		var allowed = [1.0, 1.2, 1.4];
-		var i, best = allowed[0], bestDist = Infinity;
+		var i,
+			best = allowed[0],
+			bestDist = Infinity;
 
 		scale = parseFloat(scale);
 		if (!isFinite(scale) || scale <= 0) {
@@ -1566,8 +1584,7 @@ define(function(require)
 		return best;
 	}
 
-	function getScrollLineHeightPx(element)
-	{
+	function getScrollLineHeightPx(element) {
 		var style, lh;
 
 		try {
@@ -1576,13 +1593,12 @@ define(function(require)
 			if (isFinite(lh) && lh > 0) {
 				return Math.round(lh);
 			}
-		} catch(e) {}
+		} catch (e) {}
 
 		return 14;
 	}
 
-	ChatBox.applyFontScale = function applyFontScale()
-	{
+	ChatBox.applyFontScale = function applyFontScale() {
 		var scale = clampChatFontScale(_preferences.fontScale || 1.0);
 		var baseFont = 12;
 		var baseLineHeight = 14;
@@ -1631,9 +1647,9 @@ define(function(require)
 
 			ChatBox.ui.css('top', originalAnchorY - height);
 			ChatBox.ui.find('.contentwrapper').height(height);
-			_heightIndex = Math.max(2, Math.min(6, (height / MAGIC_NUMBER) + 1));
+			_heightIndex = Math.max(2, Math.min(6, height / MAGIC_NUMBER + 1));
 
-			var active = ChatBox.ui.find('.content[data-content="'+ ChatBox.activeTab +'"]')[0];
+			var active = ChatBox.ui.find('.content[data-content="' + ChatBox.activeTab + '"]')[0];
 			if (active) {
 				active.scrollTop = active.scrollHeight;
 			}
@@ -1644,7 +1660,7 @@ define(function(require)
 			window.removeEventListener('mouseup', stopResize);
 		};
 
-		resizer.addEventListener('mousedown', function(e) {
+		resizer.addEventListener('mousedown', function (e) {
 			e.preventDefault();
 			originalHeight = ChatBox.ui.find('.contentwrapper').height();
 			originalAnchorY = parseInt(ChatBox.ui.css('top'), 10) + originalHeight;
@@ -1655,11 +1671,8 @@ define(function(require)
 		});
 	}
 
-	
-	
 	// CLICKABLE ITEM → OPEN ITEMINFO
 	jQuery(document).on('click', '.item-link', function (event) {
-
 		// If the link is inside the chat input, keep focus there and do nothing.
 		if (jQuery(this).closest('#chatbox .input-chatbox').length) {
 			event.stopImmediatePropagation();
@@ -1667,15 +1680,15 @@ define(function(require)
 		}
 
 		let item = DB.parseItemLink(jQuery(this).data('item'));
-		if (!item) return;	// item not found
+		if (!item) return; // item not found
 
 		let ItemInfo = getModule('UI/Components/ItemInfo/ItemInfo');
 
 		ItemInfo.append();
 		ItemInfo.setItem(item);
 	});
-	
-	ChatBox.insertText = function(text) {
+
+	ChatBox.insertText = function (text) {
 		// Find chat input
 		var input = this.ui.find('.input-chatbox');
 

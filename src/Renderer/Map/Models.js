@@ -7,21 +7,24 @@
  *
  * @author Vincent Thibault
  */
-define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/Shaders/GLSL/Models.fs','Utils/WebGL', 'Preferences/Map'], function (_vertexShader, _fragmentShader, WebGL, Preferences) {
+define([
+	'text!Renderer/Effects/Shaders/GLSL/Models.vs',
+	'text!Renderer/Effects/Shaders/GLSL/Models.fs',
+	'Utils/WebGL',
+	'Preferences/Map'
+], function (_vertexShader, _fragmentShader, WebGL, Preferences)
+{
 	'use strict';
-
 
 	/**
 	 * @var {WebGLProgram}
 	 */
 	var _program = null;
 
-
 	/**
 	 * @var {WebGLBuffer}
 	 */
 	var _buffer = null;
-
 
 	/**
 	 * @var {Array} list of meshes
@@ -34,7 +37,8 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 	 * @param {object} gl context
 	 * @param {object} data ( models )
 	 */
-	function init(gl, data) {
+	function init(gl, data)
+	{
 		var i, count;
 		var objects;
 
@@ -43,25 +47,30 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 		_objects.length = count;
 
 		// Bind buffer
-		if (!_buffer) {
+		if (!_buffer)
+		{
 			_buffer = gl.createBuffer();
 		}
 
-		if (!_program) {
+		if (!_program)
+		{
 			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		}
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 
-		function onTextureLoaded(texture, i) {
+		function onTextureLoaded(texture, i)
+		{
 			_objects[i].texture = texture;
 			_objects[i].complete = true;
 		}
 
 		// Fetch all images, and draw them in a mega-texture
-		for (i = 0; i < count; ++i) {
-			if (!_objects[i]) {
+		for (i = 0; i < count; ++i)
+		{
+			if (!_objects[i])
+			{
 				_objects[i] = {};
 			}
 
@@ -73,7 +82,6 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 		}
 	}
 
-
 	/**
 	 * Render models
 	 *
@@ -84,7 +92,8 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 	 * @param {object} fog structure
 	 * @param {object} light structure
 	 */
-	function render(gl, modelView, projection, normalMat, fog, light) {
+	function render(gl, modelView, projection, normalMat, fog, light)
+	{
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 		var i, count;
@@ -129,8 +138,10 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
 
-		for (i = 0, count = _objects.length; i < count; ++i) {
-			if (_objects[i].complete) {
+		for (i = 0, count = _objects.length; i < count; ++i)
+		{
+			if (_objects[i].complete)
+			{
 				gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
 				gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
 			}
@@ -143,32 +154,34 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 		gl.disableVertexAttribArray(attribute.aAlpha);
 	}
 
-
 	/**
 	 * Clean textures/buffer from memory
 	 *
 	 * @param {object} gl context
 	 */
-	function free(gl) {
+	function free(gl)
+	{
 		var i, count;
 
-		if (_buffer) {
+		if (_buffer)
+		{
 			gl.deleteBuffer(_buffer);
 			_buffer = null;
 		}
 
-		if (_program) {
+		if (_program)
+		{
 			gl.deleteProgram(_program);
 			_program = null;
 		}
 
-		for (i = 0, count = _objects.length; i < count; ++i) {
+		for (i = 0, count = _objects.length; i < count; ++i)
+		{
 			gl.deleteTexture(_objects[i].texture);
 		}
 
 		_objects.length = 0;
 	}
-
 
 	/**
 	 * Export

@@ -1,53 +1,107 @@
 <div id="CharSelectV3" data-background="select_character/bg_select_character.bmp">
-
-    <!-- BOX -->
-    <div class="box_select" data-background="select_character/select_mark.bmp"></div>
-    <canvas class="slot1" width="133" height="132"></canvas>
-    <canvas class="slot2" width="133" height="132"></canvas>
-    <canvas class="slot3" width="133" height="132"></canvas>
+	<!-- BOX -->
+	<div class="box_select" data-background="select_character/select_mark.bmp"></div>
+	<canvas class="slot1" width="133" height="132"></canvas>
+	<canvas class="slot2" width="133" height="132"></canvas>
+	<canvas class="slot3" width="133" height="132"></canvas>
 	<div class="timedelete slot1 hidden"></div>
 	<div class="timedelete slot2 hidden"></div>
 	<div class="timedelete slot3 hidden"></div>
-    <button class="make1" type="submit" data-background="select_character/btn_add_out.bmp" data-hover="select_character/btn_add_over.bmp" data-down="select_character/btn_add_press.bmp"></button>
-    <button class="make2" type="submit" data-background="select_character/btn_add_out.bmp" data-hover="select_character/btn_add_over.bmp" data-down="select_character/btn_add_press.bmp"></button>
-    <button class="make3" type="submit" data-background="select_character/btn_add_out.bmp" data-hover="select_character/btn_add_over.bmp" data-down="select_character/btn_add_press.bmp"></button>
+	<button
+		class="make1"
+		type="submit"
+		data-background="select_character/btn_add_out.bmp"
+		data-hover="select_character/btn_add_over.bmp"
+		data-down="select_character/btn_add_press.bmp"
+	></button>
+	<button
+		class="make2"
+		type="submit"
+		data-background="select_character/btn_add_out.bmp"
+		data-hover="select_character/btn_add_over.bmp"
+		data-down="select_character/btn_add_press.bmp"
+	></button>
+	<button
+		class="make3"
+		type="submit"
+		data-background="select_character/btn_add_out.bmp"
+		data-hover="select_character/btn_add_over.bmp"
+		data-down="select_character/btn_add_press.bmp"
+	></button>
 
-    <!-- Arrows -->
-    <button class="arrow left" type="submit" data-background="select_character/chr_arrow_l_out.bmp" data-hover="select_character/chr_arrow_l_over.bmp" data-down="select_character/chr_arrow_l_press.bmp"></button>
-    <button class="arrow right" type="submit" data-background="select_character/chr_arrow_r_out.bmp" data-hover="select_character/chr_arrow_r_over.bmp" data-down="select_character/chr_arrow_r_press.bmp"></button>
-	
-    <!-- Slots infos -->
-    <div class="slotinfo">
-        <span class="number" data-text="2004">0 / 27</span>
-        <span class="content"></span>
-    </div>
-    <!-- Pages infos -->
-    <div class="pageinfo">
-        <div class="pagebtn"></div>
-    </div>
-    <!-- Characters infos -->
-    <div class="charinfo">
-        <div class="name"></div>
-        <div class="job"></div>
-        <div class="lvl"></div>
-        <div class="exp"></div>
-        <div class="hp"></div>
-        <div class="sp"></div>
-        <div class="map"></div>
-        <div class="str"></div>
-        <div class="agi"></div>
-        <div class="vit"></div>
-        <div class="int"></div>
-        <div class="dex"></div>
-        <div class="luk"></div>
-    </div>
-    <!-- Buttons -->
-    <div class="btns">
-		<button class="btn delete" data-background="btn_del_res.bmp" data-hover="btn_del_res_a.bmp" data-down="btn_del_res_b.bmp"></button>
-		<button class="btn canceldelete" data-background="btn_cancel_res.bmp" data-hover="btn_cancel_res_a.bmp" data-down="btn_cancel_res_b.bmp"></button>
-        <button class="btn finaldelete" data-background="btn_del.bmp" data-hover="btn_del_a.bmp" data-down="btn_del_b.bmp"></button>
-        <button class="btn cancel" data-background="btn_cancel.bmp" data-hover="btn_cancel_a.bmp" data-down="btn_cancel_b.bmp"></button>
-        <button class="btn ok" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
-        <button class="btn make" data-background="btn_make.bmp" data-hover="btn_make_a.bmp" data-down="btn_make_b.bmp"></button>
-    </div>
+	<!-- Arrows -->
+	<button
+		class="arrow left"
+		type="submit"
+		data-background="select_character/chr_arrow_l_out.bmp"
+		data-hover="select_character/chr_arrow_l_over.bmp"
+		data-down="select_character/chr_arrow_l_press.bmp"
+	></button>
+	<button
+		class="arrow right"
+		type="submit"
+		data-background="select_character/chr_arrow_r_out.bmp"
+		data-hover="select_character/chr_arrow_r_over.bmp"
+		data-down="select_character/chr_arrow_r_press.bmp"
+	></button>
+
+	<!-- Slots infos -->
+	<div class="slotinfo">
+		<span class="number" data-text="2004">0 / 27</span>
+		<span class="content"></span>
+	</div>
+	<!-- Pages infos -->
+	<div class="pageinfo">
+		<div class="pagebtn"></div>
+	</div>
+	<!-- Characters infos -->
+	<div class="charinfo">
+		<div class="name"></div>
+		<div class="job"></div>
+		<div class="lvl"></div>
+		<div class="exp"></div>
+		<div class="hp"></div>
+		<div class="sp"></div>
+		<div class="map"></div>
+		<div class="str"></div>
+		<div class="agi"></div>
+		<div class="vit"></div>
+		<div class="int"></div>
+		<div class="dex"></div>
+		<div class="luk"></div>
+	</div>
+	<!-- Buttons -->
+	<div class="btns">
+		<button
+			class="btn delete"
+			data-background="btn_del_res.bmp"
+			data-hover="btn_del_res_a.bmp"
+			data-down="btn_del_res_b.bmp"
+		></button>
+		<button
+			class="btn canceldelete"
+			data-background="btn_cancel_res.bmp"
+			data-hover="btn_cancel_res_a.bmp"
+			data-down="btn_cancel_res_b.bmp"
+		></button>
+		<button
+			class="btn finaldelete"
+			data-background="btn_del.bmp"
+			data-hover="btn_del_a.bmp"
+			data-down="btn_del_b.bmp"
+		></button>
+		<button
+			class="btn cancel"
+			data-background="btn_cancel.bmp"
+			data-hover="btn_cancel_a.bmp"
+			data-down="btn_cancel_b.bmp"
+		></button>
+		<button class="btn ok" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
+		<button
+			class="btn make"
+			data-background="btn_make.bmp"
+			data-hover="btn_make_a.bmp"
+			data-down="btn_make_b.bmp"
+		></button>
+	</div>
 </div>

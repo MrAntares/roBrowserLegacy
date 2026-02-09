@@ -1,36 +1,36 @@
 #StatusIcons {
-	display:block;
+	display: block;
 	position: absolute;
-	top:166px;
-	right:20px;
-	z-index:50;
+	top: 166px;
+	right: 20px;
+	z-index: 50;
 }
 
 #StatusIcons .state {
-	position:absolute;
+	position: absolute;
 }
 
 #StatusIcons .state .description {
-	display:none;
-	z-index:51;
-	position:absolute;
-	right:33px;
-	top:0px;
+	display: none;
+	z-index: 51;
+	position: absolute;
+	right: 33px;
+	top: 0px;
 	padding: 0px 5px 0px 5px;
-	background-color:rgba(0,0,0,0.5);
-	border:1px solid #c6c6c6;
-	border-radius:3px;
-	color:white;
-	text-shadow:1px 1px black;
-	white-space:nowrap;
-	line-height:16px;
+	background-color: rgba(0, 0, 0, 0.5);
+	border: 1px solid #c6c6c6;
+	border-radius: 3px;
+	color: white;
+	text-shadow: 1px 1px black;
+	white-space: nowrap;
+	line-height: 16px;
 }
 
 #StatusIcons .state:hover .description {
-	display:block;
+	display: block;
 }
 
 #StatusIcons .state canvas {
-	width:32px;
-	height:32px;
+	width: 32px;
+	height: 32px;
 }

@@ -7,87 +7,88 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
+define(function (require)
 {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var DB                 = require('DB/DBManager');
-	var MonsterTable       = require('DB/Monsters/MonsterTable');
-	var Client             = require('Core/Client');
-	var Preferences        = require('Core/Preferences');
-	var Renderer           = require('Renderer/Renderer');
-	var Session            = require('Engine/SessionStorage');
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var Inventory          = require('UI/Components/Inventory/Inventory');
-	var Equipment          = require('UI/Components/Equipment/Equipment');
-	var PartyFriends       = require('UI/Components/PartyFriends/PartyFriends');
-	var Guild              = require('UI/Components/Guild/Guild');
-	var Bank               = require('UI/Components/Bank/Bank');
-	var Escape             = require('UI/Components/Escape/Escape');
-	var WorldMap           = require('UI/Components/WorldMap/WorldMap');
-	var Rodex              = require('UI/Components/Rodex/Rodex');
-	var WinStats           = require('UI/Components/WinStats/WinStats');
+	var DB = require('DB/DBManager');
+	var MonsterTable = require('DB/Monsters/MonsterTable');
+	var Client = require('Core/Client');
+	var Preferences = require('Core/Preferences');
+	var Renderer = require('Renderer/Renderer');
+	var Session = require('Engine/SessionStorage');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var Inventory = require('UI/Components/Inventory/Inventory');
+	var Equipment = require('UI/Components/Equipment/Equipment');
+	var PartyFriends = require('UI/Components/PartyFriends/PartyFriends');
+	var Guild = require('UI/Components/Guild/Guild');
+	var Bank = require('UI/Components/Bank/Bank');
+	var Escape = require('UI/Components/Escape/Escape');
+	var WorldMap = require('UI/Components/WorldMap/WorldMap');
+	var Rodex = require('UI/Components/Rodex/Rodex');
+	var WinStats = require('UI/Components/WinStats/WinStats');
 
 	// Version Dependent UIs
 	var SkillList = require('UI/Components/SkillList/SkillList');
-	var Quest     = require('UI/Components/Quest/Quest');
+	var Quest = require('UI/Components/Quest/Quest');
 
-
-	var htmlText           = require('text!./BasicInfoV3.html');
-	var cssText            = require('text!./BasicInfoV3.css');
+	var htmlText = require('text!./BasicInfoV3.html');
+	var cssText = require('text!./BasicInfoV3.css');
 	/**
 	 * Create Basic Info component
 	 */
-	var BasicInfoV3 = new UIComponent( 'BasicInfoV3', htmlText, cssText );
-
+	var BasicInfoV3 = new UIComponent('BasicInfoV3', htmlText, cssText);
 
 	/**
 	 * Stored data
 	 */
-	BasicInfoV3.base_exp      = 0;
+	BasicInfoV3.base_exp = 0;
 	BasicInfoV3.base_exp_next = 1;
-	BasicInfoV3.job_exp       = 0;
-	BasicInfoV3.job_exp_next  =-1;
-	BasicInfoV3.weight        = 0;
-	BasicInfoV3.weight_max    = 1;
-
+	BasicInfoV3.job_exp = 0;
+	BasicInfoV3.job_exp_next = -1;
+	BasicInfoV3.weight = 0;
+	BasicInfoV3.weight_max = 1;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('BasicInfoV3', {
-		x:        0,
-		y:        0,
-		reduce:   true,
-		buttons:  true,
-		magnet_top: true,
-		magnet_bottom: false,
-		magnet_left: true,
-		magnet_right: false
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'BasicInfoV3',
+		{
+			x: 0,
+			y: 0,
+			reduce: true,
+			buttons: true,
+			magnet_top: true,
+			magnet_bottom: false,
+			magnet_left: true,
+			magnet_right: false
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize UI
 	 */
 	BasicInfoV3.init = function init()
 	{
-
 		// Don't activate drag drop when clicking on buttons
-		this.ui.find('.topbar div').mousedown(function( event ){
+		this.ui.find('.topbar div').mousedown(function (event)
+		{
 			event.stopImmediatePropagation();
 		});
 
 		this.ui.find('.topbar .right').click(BasicInfoV3.toggleMode.bind(this));
 		this.ui.find('.toggle_btns').mousedown(BasicInfoV3.toggleButtons.bind(this));
 
-		this.ui.find('.buttons div').mousedown(function(){
-			switch (this.id) {
+		this.ui.find('.buttons div').mousedown(function ()
+		{
+			switch (this.id)
+			{
 				case 'item':
 					Inventory.getUI().toggle();
 					break;
@@ -137,7 +138,6 @@ define(function(require)
 		this.draggable();
 	};
 
-
 	/**
 	 * When append the element to html
 	 * Execute elements in memory
@@ -146,8 +146,8 @@ define(function(require)
 	{
 		// Apply preferences
 		this.ui.css({
-			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
-			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
+			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
 		this.magnet.TOP = _preferences.magnet_top;
@@ -157,19 +157,23 @@ define(function(require)
 
 		// large/small window
 		this.ui.removeClass('small large');
-		if (_preferences.reduce) {
+		if (_preferences.reduce)
+		{
 			this.ui.addClass('small');
 		}
-		else {
+		else
+		{
 			this.ui.addClass('large');
 		}
 
-		if (_preferences.buttons) {
+		if (_preferences.buttons)
+		{
 			this.ui.find('.buttons').show();
 			this.ui.find('.btn_open').hide();
 			this.ui.find('.btn_close').show();
 		}
-		else {
+		else
+		{
 			this.ui.find('.buttons').hide();
 			this.ui.find('.btn_open').show();
 			this.ui.find('.btn_close').hide();
@@ -182,15 +186,14 @@ define(function(require)
 		this.ui.find('#achievment').hide();
 	};
 
-
 	/**
 	 * Once remove, save preferences
 	 */
 	BasicInfoV3.onRemove = function onRemove()
 	{
-		_preferences.x       = parseInt(this.ui.css('left'), 10);
-		_preferences.y       = parseInt(this.ui.css('top'), 10);
-		_preferences.reduce  = this.ui.hasClass('small');
+		_preferences.x = parseInt(this.ui.css('left'), 10);
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.reduce = this.ui.hasClass('small');
 		_preferences.buttons = this.ui.find('.buttons').is(':visible');
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
@@ -199,21 +202,20 @@ define(function(require)
 		_preferences.save();
 	};
 
-
 	/**
 	 * Process shortcut
 	 *
 	 * @param {object} key
 	 */
-	BasicInfoV3.onShortCut = function onShortCut( key )
+	BasicInfoV3.onShortCut = function onShortCut(key)
 	{
-		switch (key.cmd) {
+		switch (key.cmd)
+		{
 			case 'EXTEND':
 				this.toggleMode();
 				break;
 		}
 	};
-
 
 	/**
 	 * Switch window size
@@ -224,35 +226,38 @@ define(function(require)
 
 		this.ui.toggleClass('small large');
 
-		if (_preferences.buttons) {
+		if (_preferences.buttons)
+		{
 			this.ui.find('.buttons').show();
 			this.ui.find('#btn_open').hide();
 			this.ui.find('.btn_close').show();
 		}
-		else {
+		else
+		{
 			this.ui.find('.buttons').hide();
 			this.ui.find('.btn_open').show();
 			this.ui.find('.btn_close').hide();
 		}
 	};
 
-
 	/**
 	 * Toggle the list of buttons
 	 */
-	BasicInfoV3.toggleButtons = function toggleButtons( event )
+	BasicInfoV3.toggleButtons = function toggleButtons(event)
 	{
 		var type;
 		var $buttons = this.ui.find('.buttons');
 
 		_preferences.buttons = !$buttons.is(':visible');
 
-		if (_preferences.buttons) {
+		if (_preferences.buttons)
+		{
 			this.ui.find('.buttons').show();
 			this.ui.find('#btn_open').hide();
 			this.ui.find('.btn_close').show();
 		}
-		else {
+		else
+		{
 			this.ui.find('.buttons').hide();
 			this.ui.find('.btn_open').show();
 			this.ui.find('.btn_close').hide();
@@ -261,7 +266,6 @@ define(function(require)
 		event.stopImmediatePropagation();
 	};
 
-
 	/**
 	 * Update UI elements
 	 *
@@ -269,27 +273,30 @@ define(function(require)
 	 * @param {number} val1
 	 * @param {number} val2 (optional)
 	 */
-	BasicInfoV3.update = function update( type, val1, val2 )
+	BasicInfoV3.update = function update(type, val1, val2)
 	{
-		switch (type) {
+		switch (type)
+		{
 			case 'name':
 			case 'blvl':
 			case 'jlvl':
-				this.ui.find('.'+ type +'_value').text(val1);
+				this.ui.find('.' + type + '_value').text(val1);
 				break;
 
 			case 'zeny':
 				Session.zeny = val1;
 
 				var list = val1.toString().split('');
-				var i, count = list.length;
+				var i,
+					count = list.length;
 				var str = '';
 
-				for (i = 0; i < count; i++) {
-					str = list[count-i-1] + (i && i%3 ===0 ? ',' : '') + str;
+				for (i = 0; i < count; i++)
+				{
+					str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 				}
 
-				this.ui.find('.'+ type +'_value').text(str);
+				this.ui.find('.' + type + '_value').text(str);
 				break;
 
 			case 'job':
@@ -300,58 +307,73 @@ define(function(require)
 
 			case 'bexp':
 			case 'jexp':
-				if (!val2) {
+				if (!val2)
+				{
 					this.ui.find('.' + type).hide();
 					break;
 				}
 
-				this.ui.find('.'+ type).show();
-				this.ui.find('.'+ type +' div').css('width', Math.min( 100, Math.floor(val1 * 100 / val2) ) + '%');
-				this.ui.find('.'+ type).attr('title', ((val1/val2)*100).toFixed(1) + '%');
-				this.ui.find('.'+ type +'_value').text( Math.min( 100, (Math.floor(val1 * 1000 / val2) * 0.1).toFixed(1)) + '%');
+				this.ui.find('.' + type).show();
+				this.ui.find('.' + type + ' div').css('width', Math.min(100, Math.floor((val1 * 100) / val2)) + '%');
+				this.ui.find('.' + type).attr('title', ((val1 / val2) * 100).toFixed(1) + '%');
+				this.ui
+					.find('.' + type + '_value')
+					.text(Math.min(100, (Math.floor((val1 * 1000) / val2) * 0.1).toFixed(1)) + '%');
 				break;
 
 			case 'weight':
-				this.ui.find('.weight_value').text(val1 / 10 | 0);
-				this.ui.find('.weight_total').text(val2 / 10 | 0);
-				this.ui.find('.weight').css('color',  val1 < (val2/2) ? '' : 'red');
-				this.ui.find('.weight').attr('title', ((val1/val2)*100).toFixed(1) + '%');
+				this.ui.find('.weight_value').text((val1 / 10) | 0);
+				this.ui.find('.weight_total').text((val2 / 10) | 0);
+				this.ui.find('.weight').css('color', val1 < val2 / 2 ? '' : 'red');
+				this.ui.find('.weight').attr('title', ((val1 / val2) * 100).toFixed(1) + '%');
 				break;
 
 			case 'hp':
 			case 'sp':
-				var perc  = Math.floor(val1 * 100 / val2);
+				var perc = Math.floor((val1 * 100) / val2);
 				var color = perc < 25 ? 'red' : 'blue';
-				this.ui.find('.'+ type +'_value').text(val1);
-				this.ui.find('.'+ type +'_max_value').text(val2);
-				this.ui.find('.'+ type +'_perc').text( perc + '%');
+				this.ui.find('.' + type + '_value').text(val1);
+				this.ui.find('.' + type + '_max_value').text(val2);
+				this.ui.find('.' + type + '_perc').text(perc + '%');
 
-				if (perc <= 0) {
-					this.ui.find('.'+ type +'_bar div').css('backgroundImage', 'none');
+				if (perc <= 0)
+				{
+					this.ui.find('.' + type + '_bar div').css('backgroundImage', 'none');
 					break;
 				}
 
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze'+ color +'_left.bmp', function(url){
-					this.ui.find('.'+ type +'_bar_left').css('backgroundImage', 'url('+ url +')');
-				}.bind(this));
+				Client.loadFile(
+					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp',
+					function (url)
+					{
+						this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
+					}.bind(this)
+				);
 
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze'+ color +'_mid.bmp', function(url){
-					this.ui.find('.'+ type +'_bar_middle').css({
-						backgroundImage: 'url('+ url +')',
-						width: Math.floor( Math.min( perc, 100 ) * 1.27 ) + 'px'
-					});
-				}.bind(this));
+				Client.loadFile(
+					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp',
+					function (url)
+					{
+						this.ui.find('.' + type + '_bar_middle').css({
+							backgroundImage: 'url(' + url + ')',
+							width: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
+						});
+					}.bind(this)
+				);
 
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/gze'+ color +'_right.bmp', function(url){
-					this.ui.find('.'+ type +'_bar_right').css({
-						backgroundImage: 'url('+ url +')',
-						left: Math.floor( Math.min( perc, 100) * 1.27 ) + 'px'
-					});
-				}.bind(this));
+				Client.loadFile(
+					DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp',
+					function (url)
+					{
+						this.ui.find('.' + type + '_bar_right').css({
+							backgroundImage: 'url(' + url + ')',
+							left: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
+						});
+					}.bind(this)
+				);
 				break;
 		}
 	};
-
 
 	/**
 	 * Create component and export it

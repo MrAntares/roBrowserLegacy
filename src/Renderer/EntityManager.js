@@ -10,17 +10,16 @@
 define(function (require) {
 	'use strict';
 
-
 	// Load dependencies
-	var Session        = require('Engine/SessionStorage');
-	var Entity         = require('./Entity/Entity');
+	var Session = require('Engine/SessionStorage');
+	var Entity = require('./Entity/Entity');
 	var SpriteRenderer = require('./SpriteRenderer');
-	var Mouse          = require('Controls/MouseEventHandler');
-	var KEYS           = require('Controls/KeyEventHandler');
-	var PathFinding    = require('Utils/PathFinding');
+	var Mouse = require('Controls/MouseEventHandler');
+	var KEYS = require('Controls/KeyEventHandler');
+	var PathFinding = require('Utils/PathFinding');
 	var GraphicsSettings = require('Preferences/Graphics');
-	var Altitude       = require('Renderer/Map/Altitude');
-	var glMatrix       = require('Utils/gl-matrix');
+	var Altitude = require('Renderer/Map/Altitude');
+	var glMatrix = require('Utils/gl-matrix');
 
 	var vec3 = glMatrix.vec3;
 	var _list = [];
@@ -36,7 +35,8 @@ define(function (require) {
 			return -1;
 		}
 
-		var i, count = _list.length;
+		var i,
+			count = _list.length;
 
 		for (i = 0; i < count; ++i) {
 			if (_list[i].GID === gid) {
@@ -46,7 +46,6 @@ define(function (require) {
 
 		return -1;
 	}
-
 
 	/**
 	 * Find an Entity and return its index
@@ -59,7 +58,8 @@ define(function (require) {
 			return -1;
 		}
 
-		var i, count = _list.length;
+		var i,
+			count = _list.length;
 		for (i = 0; i < count; ++i) {
 			if (getter(_list[i]) === value) {
 				return i;
@@ -69,14 +69,14 @@ define(function (require) {
 		return -1;
 	}
 
-
 	/**
 	 * Fetch all entities using a callback
 	 *
 	 * @param {function} callback
 	 */
 	function forEach(callback) {
-		var i, count = _list.length;
+		var i,
+			count = _list.length;
 
 		for (i = 0; i < count; ++i) {
 			if (callback(_list[i]) === false) {
@@ -84,7 +84,6 @@ define(function (require) {
 			}
 		}
 	}
-
 
 	/**
 	 * Find an Entity and return it
@@ -110,7 +109,6 @@ define(function (require) {
 		return _list[index];
 	}
 
-
 	/**
 	 * Find an Entity via AID and return it
 	 * Note: Currently Character ID (CID) is stored as AID in Entity
@@ -122,11 +120,10 @@ define(function (require) {
 		if (Session.Entity.AID === aid) {
 			return Session.Entity;
 		}
-	
+
 		var index = getEntityIndexBy(e => e.AID, aid);
 		return index < 0 ? null : _list[index];
 	}
-
 
 	/**
 	 * Add or replace entity
@@ -145,12 +142,12 @@ define(function (require) {
 		return _list[index];
 	}
 
-
 	/**
 	 * Clean up entities from list
 	 */
 	function free() {
-		var i, count = _list.length;
+		var i,
+			count = _list.length;
 
 		for (i = 0; i < count; ++i) {
 			_list[i].clean();
@@ -158,7 +155,6 @@ define(function (require) {
 
 		_list.length = 0;
 	}
-
 
 	/**
 	 * Remove an entity
@@ -173,12 +169,10 @@ define(function (require) {
 		}
 	}
 
-
 	/**
 	 * @var {Entity} mouse over
 	 */
 	var _over = null;
-
 
 	/**
 	 * Return the entity the mouse is over
@@ -186,7 +180,6 @@ define(function (require) {
 	function getOverEntity() {
 		return _over;
 	}
-
 
 	/**
 	 * Set over entity
@@ -214,12 +207,10 @@ define(function (require) {
 		}
 	}
 
-
 	/**
 	 * @var {Entity} target
 	 */
 	var _focus = null;
-
 
 	/**
 	 * Return the entity selected by the user
@@ -228,7 +219,6 @@ define(function (require) {
 		return _focus;
 	}
 
-
 	/**
 	 * Set over entity
 	 * @param {Entity} entity
@@ -236,7 +226,6 @@ define(function (require) {
 	function setFocusEntity(entity) {
 		_focus = entity;
 	}
-
 
 	/**
 	 * Sort entities by z-Index
@@ -268,8 +257,8 @@ define(function (require) {
 	 * @param {Entity} b
 	 */
 	function sortByPriority(a, b) {
-		var aDepth = a.depth + ((!isNaN(a.GID)) ? a.GID % 100 : 0) / 1000;
-		var bDepth = b.depth + ((!isNaN(b.GID)) ? b.GID % 100 : 0) / 1000;
+		var aDepth = a.depth + (!isNaN(a.GID) ? a.GID % 100 : 0) / 1000;
+		var bDepth = b.depth + (!isNaN(b.GID) ? b.GID % 100 : 0) / 1000;
 
 		if (_supportPriority) {
 			aDepth -= Entity.PickingPriority.Support[a.objecttype] * 100;
@@ -281,7 +270,6 @@ define(function (require) {
 
 		return aDepth - bDepth;
 	}
-
 
 	/**
 	 * Render all entities (picking or not)
@@ -310,10 +298,12 @@ define(function (require) {
 
 		// Rendering
 		for (i = 0, count = _list.length; i < count; ++i) {
-			if ((_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects) || (_list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects)) {
+			if (
+				(_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects) ||
+				(_list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects)
+			) {
 				// Remove from list
 				if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
-
 					// Remove focus
 					var entityFocus = getFocusEntity();
 					if (entityFocus && entityFocus.GID === _list[i].GID) {
@@ -327,9 +317,11 @@ define(function (require) {
 					count--;
 					continue;
 				}
-				if(GraphicsSettings.culling){
-					var distSq = Math.pow(_list[i].position[0] - Session.Entity.position[0], 2) + Math.pow(_list[i].position[1] - Session.Entity.position[1], 2);
-					if (distSq > Math.pow(GraphicsSettings.viewArea,2)) continue; 
+				if (GraphicsSettings.culling) {
+					var distSq =
+						Math.pow(_list[i].position[0] - Session.Entity.position[0], 2) +
+						Math.pow(_list[i].position[1] - Session.Entity.position[1], 2);
+					if (distSq > Math.pow(GraphicsSettings.viewArea, 2)) continue;
 				}
 				_list[i].render(modelView, projection);
 			}
@@ -359,11 +351,16 @@ define(function (require) {
 			entity = _list[i];
 
 			// No picking on dead entites
-			if ((entity.action !== entity.ACTION.DIE || entity.objecttype === Entity.TYPE_PC) && entity.remove_tick === 0) {
-				if (x > entity.boundingRect.x1 &&
+			if (
+				(entity.action !== entity.ACTION.DIE || entity.objecttype === Entity.TYPE_PC) &&
+				entity.remove_tick === 0
+			) {
+				if (
+					x > entity.boundingRect.x1 &&
 					x < entity.boundingRect.x2 &&
 					y > entity.boundingRect.y1 &&
-					y < entity.boundingRect.y2) {
+					y < entity.boundingRect.y2
+				) {
 					return entity;
 				}
 			}
@@ -380,13 +377,19 @@ define(function (require) {
 	 */
 	function getClosestEntity(sourceEntity, type) {
 		var closestEntity = false;
-		var distance      = Infinity;
+		var distance = Infinity;
 
-		_list.forEach((entity) => {
-			if (entity.GID !== sourceEntity.GID && entity.objecttype === type && entity.action !== entity.ACTION.DIE && entity.remove_tick === 0) {
-				
+		_list.forEach(entity => {
+			if (
+				entity.GID !== sourceEntity.GID &&
+				entity.objecttype === type &&
+				entity.action !== entity.ACTION.DIE &&
+				entity.remove_tick === 0
+			) {
 				// Quick distance check (Manhattan or Euclidean)
-				var distSq = Math.pow(entity.position[0] - sourceEntity.position[0], 2) + Math.pow(entity.position[1] - sourceEntity.position[1], 2);
+				var distSq =
+					Math.pow(entity.position[0] - sourceEntity.position[0], 2) +
+					Math.pow(entity.position[1] - sourceEntity.position[1], 2);
 				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
 				if (distSq > view_range * view_range) return;
 
@@ -397,14 +400,14 @@ define(function (require) {
 						dst = getPathDistance(sourceEntity, entity);
 						if (dst && dst < distance) {
 							closestEntity = entity;
-							distance      = dst;
+							distance = dst;
 						}
 					}
 				} else {
 					dst = getPathDistance(sourceEntity, entity);
 					if (dst) {
 						closestEntity = entity;
-						distance      = dst;
+						distance = dst;
 					}
 				}
 			}
@@ -423,13 +426,19 @@ define(function (require) {
 		var lowestHpEntity = null;
 		var lowestHp = Infinity;
 
-		_list.forEach((entity) => {
-			if (entity.GID !== sourceEntity.GID && entity.objecttype === type &&
+		_list.forEach(entity => {
+			if (
+				entity.GID !== sourceEntity.GID &&
+				entity.objecttype === type &&
 				entity.life &&
-				entity.life.hp > 0 && entity.action !== entity.ACTION.DIE && entity.remove_tick === 0) {
-
+				entity.life.hp > 0 &&
+				entity.action !== entity.ACTION.DIE &&
+				entity.remove_tick === 0
+			) {
 				// Quick distance check (Manhattan or Euclidean)
-				var distSq = Math.pow(entity.position[0] - sourceEntity.position[0], 2) + Math.pow(entity.position[1] - sourceEntity.position[1], 2);
+				var distSq =
+					Math.pow(entity.position[0] - sourceEntity.position[0], 2) +
+					Math.pow(entity.position[1] - sourceEntity.position[1], 2);
 				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
 				if (distSq > view_range * view_range) return;
 
@@ -439,7 +448,7 @@ define(function (require) {
 				}
 			}
 		});
-		
+
 		return lowestHpEntity;
 	}
 
@@ -450,10 +459,12 @@ define(function (require) {
 	 * @param {entity} to entity
 	 */
 	function getPathDistance(fromEntity, toEntity) {
-		var out   = [];
+		var out = [];
 		var count = PathFinding.search(
-			fromEntity.position[0] | 0, fromEntity.position[1] | 0,
-			toEntity.position[0] | 0, toEntity.position[1] | 0,
+			fromEntity.position[0] | 0,
+			fromEntity.position[1] | 0,
+			toEntity.position[0] | 0,
+			toEntity.position[1] | 0,
 			1,
 			out,
 			Altitude.TYPE.WALKABLE
@@ -479,15 +490,13 @@ define(function (require) {
 
 		render: render,
 		intersect: intersect,
-		setSupportPicking: setSupportPicking,
+		setSupportPicking: setSupportPicking
 	};
-
 
 	/**
 	 * Get access to manager from Entity object
 	 */
 	Entity.Manager = EntityManager;
-
 
 	/**
 	 * Export

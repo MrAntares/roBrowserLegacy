@@ -7,24 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function( require )
+define(function (require)
 {
 	'use strict';
 
 	// Load dependencies
-	var jQuery      = require('Utils/jquery');
+	var jQuery = require('Utils/jquery');
 	var UIComponent = require('./UIComponent');
 	var UIVersionManager = require('./UIVersionManager');
-	var KEYS        = require('Controls/KeyEventHandler');
-	var Renderer    = require('Renderer/Renderer');
-	var getModule   = require;
-
+	var KEYS = require('Controls/KeyEventHandler');
+	var Renderer = require('Renderer/Renderer');
+	var getModule = require;
 
 	/**
 	 * User Interface Manager
 	 */
 	var UIManager = {};
-
 
 	/**
 	 * Components cache
@@ -32,23 +30,22 @@ define(function( require )
 	 */
 	UIManager.components = {};
 
-
 	/**
 	 * Store a component in the manager
 	 *
 	 * @param {UIComponent} component object
 	 */
-	UIManager.addComponent = function addComponent( component )
+	UIManager.addComponent = function addComponent(component)
 	{
-		if (!(component instanceof UIComponent)) {
+		if (!(component instanceof UIComponent))
+		{
 			throw new Error('UIManager::addComponent() - Invalid type of component');
 		}
 
 		component.manager = this;
-		this.components[ component.name ] = component;
+		this.components[component.name] = component;
 		return component;
 	};
-
 
 	/**
 	 * Get component stored in manager
@@ -56,20 +53,21 @@ define(function( require )
 	 * @param {string} component name
 	 * @return {UIComponent} object
 	 */
-	UIManager.getComponent = function getComponent( name )
+	UIManager.getComponent = function getComponent(name)
 	{
-		var versionAlias = UIVersionManager.getUIAlias( name );
-		if (versionAlias) {
+		var versionAlias = UIVersionManager.getUIAlias(name);
+		if (versionAlias)
+		{
 			name = versionAlias;
 		}
-		
-		if (!(name in this.components)) {
+
+		if (!(name in this.components))
+		{
 			throw new Error('UIManager.getComponent() - Component "' + name + '" not found');
 		}
 
-		return this.components[name] ;
+		return this.components[name];
 	};
-
 
 	/**
 	 * Remove all components in screen
@@ -77,13 +75,14 @@ define(function( require )
 	UIManager.removeComponents = function removeComponents()
 	{
 		var keys = Object.keys(this.components);
-		var i, count = keys.length;
+		var i,
+			count = keys.length;
 
-		for (i = 0; i < count; ++i) {
-			this.components[ keys[i] ].remove();
+		for (i = 0; i < count; ++i)
+		{
+			this.components[keys[i]].remove();
 		}
 	};
-
 
 	/**
 	 * When resizing window, some components can be outside the screen size and
@@ -92,52 +91,62 @@ define(function( require )
 	 * @param {number} Game screen width
 	 * @param {number} Game screen height
 	 */
-	UIManager.fixResizeOverflow = function fixResizeOverflow( WIDTH, HEIGHT)
+	UIManager.fixResizeOverflow = function fixResizeOverflow(WIDTH, HEIGHT)
 	{
 		var keys = Object.keys(this.components);
-		var i, count = keys.length;
+		var i,
+			count = keys.length;
 		var ui;
 		var x, y, width, height;
 
-		for (i = 0; i < count; ++i) {
-			var component = this.components[ keys[i] ];
+		for (i = 0; i < count; ++i)
+		{
+			var component = this.components[keys[i]];
 			ui = component.ui;
 
-			if (ui) {
-				x      = ui.offset().left;
-				y      = ui.offset().top;
-				width  = ui.width();
+			if (ui)
+			{
+				x = ui.offset().left;
+				y = ui.offset().top;
+				width = ui.width();
 				height = ui.height();
 
-				if (y + height > HEIGHT) {
+				if (y + height > HEIGHT)
+				{
 					ui.css('top', HEIGHT - Math.min(height, HEIGHT));
 				}
 
-				if (x + width > WIDTH) {
+				if (x + width > WIDTH)
+				{
 					ui.css('left', WIDTH - Math.min(width, WIDTH));
 				}
 
 				//Magnet
-				if(component.magnet.TOP){
+				if (component.magnet.TOP)
+				{
 					//nothing to do
 				}
-				if(component.magnet.BOTTOM){
+				if (component.magnet.BOTTOM)
+				{
 					ui.css('top', HEIGHT - height);
 				}
-				if(component.magnet.LEFT){
+				if (component.magnet.LEFT)
+				{
 					//nothing to do
 				}
-				if(component.magnet.RIGHT){
+				if (component.magnet.RIGHT)
+				{
 					ui.css('left', WIDTH - width);
 				}
-				
+
 				// Call custom resize function if has one
-				if(component.onResize){ component.onResize(); }
+				if (component.onResize)
+				{
+					component.onResize();
+				}
 			}
-			
 		}
 	};
-
 
 	/**
 	 * Display an error box component
@@ -145,7 +154,7 @@ define(function( require )
 	 *
 	 * @param {string} error message
 	 */
-	UIManager.showErrorBox = function showErrorBox( text )
+	UIManager.showErrorBox = function showErrorBox(text)
 	{
 		var WinError, overlay;
 
@@ -155,29 +164,31 @@ define(function( require )
 		{
 			this.ui.find('.text').text(text);
 			this.ui.css({
-				top:  (Renderer.height-120) / 1.5 - 120,
-				left: (Renderer.width -280) / 2.0,
+				top: (Renderer.height - 120) / 1.5 - 120,
+				left: (Renderer.width - 280) / 2.0,
 				zIndex: 100
 			});
 
 			WinError.ui.find('.btns').append(
-				jQuery('<button/>').
-					addClass('btn').
-					data('background', 'btn_ok.bmp').
-					data('hover',      'btn_ok_a.bmp').
-					data('down',       'btn_ok_b.bmp').
-					one('click', function(){
+				jQuery('<button/>')
+					.addClass('btn')
+					.data('background', 'btn_ok.bmp')
+					.data('hover', 'btn_ok_a.bmp')
+					.data('down', 'btn_ok_b.bmp')
+					.one('click', function ()
+					{
 						overlay.remove();
 						WinError.remove();
 						getModule('Engine/GameEngine').reload();
-					}).
-					each( this.parseHTML )
+					})
+					.each(this.parseHTML)
 			);
 		};
-		WinError.onKeyDown = function OnKeyDown( event )
+		WinError.onKeyDown = function OnKeyDown(event)
 		{
 			event.stopImmediatePropagation();
-			switch (event.which) {
+			switch (event.which)
+			{
 				case KEYS.ENTER:
 				case KEYS.ESCAPE:
 					overlay.remove();
@@ -191,16 +202,16 @@ define(function( require )
 		overlay.appendTo('body');
 
 		// Push the event to the top, stopImmediatePropagation will block every key down event.
-		WinError.onAppend = function() {
-			var events = jQuery._data( window, 'events').keydown;
-			events.unshift( events.pop() );
+		WinError.onAppend = function ()
+		{
+			var events = jQuery._data(window, 'events').keydown;
+			events.unshift(events.pop());
 		};
 
 		WinError.append();
 
 		return WinError;
 	};
-
 
 	/**
 	 * Show a message box to the user
@@ -209,7 +220,7 @@ define(function( require )
 	 * @param {string} button name
 	 * @param {function} callback once the button is pressed
 	 */
-	UIManager.showMessageBox = function showMessageBox( text, btn_name, callback, keydown )
+	UIManager.showMessageBox = function showMessageBox(text, btn_name, callback, keydown)
 	{
 		var WinMSG;
 
@@ -220,39 +231,45 @@ define(function( require )
 			this.draggable();
 			this.ui.find('.text').text(text);
 			this.ui.css({
-				top:  (Renderer.height-120) / 1.5 - 120,
-				left: (Renderer.width -280) / 2.0,
+				top: (Renderer.height - 120) / 1.5 - 120,
+				left: (Renderer.width - 280) / 2.0,
 				zIndex: 100
 			});
 
 			// Just button
-			if (btn_name) {
+			if (btn_name)
+			{
 				WinMSG.ui.find('.btns').append(
-					jQuery('<button/>').
-						addClass('btn').
-						data('background', 'btn_' + btn_name + '.bmp').
-						data('hover',      'btn_' + btn_name + '_a.bmp').
-						data('down',       'btn_' + btn_name + '_b.bmp').
-						one('click', function(){
+					jQuery('<button/>')
+						.addClass('btn')
+						.data('background', 'btn_' + btn_name + '.bmp')
+						.data('hover', 'btn_' + btn_name + '_a.bmp')
+						.data('down', 'btn_' + btn_name + '_b.bmp')
+						.one('click', function ()
+						{
 							WinMSG.remove();
-							if (callback) {
+							if (callback)
+							{
 								callback();
 							}
-						}).
-						each( this.parseHTML )
+						})
+						.each(this.parseHTML)
 				);
 			}
 		};
 
-
 		// Just keydown
-		if (keydown) {
-			WinMSG.onKeyDown = function(event){
-				switch (event.which) {
+		if (keydown)
+		{
+			WinMSG.onKeyDown = function (event)
+			{
+				switch (event.which)
+				{
 					case KEYS.ENTER:
 					case KEYS.ESCAPE:
 						this.remove();
-						if (callback) {
+						if (callback)
+						{
 							callback();
 						}
 				}
@@ -260,9 +277,10 @@ define(function( require )
 			};
 
 			// Push the event to the top, stopImmediatePropagation will block every key down.
-			WinMSG.onAppend = function() {
-				var events = jQuery._data( window, 'events').keydown;
-				events.unshift( events.pop() );
+			WinMSG.onAppend = function ()
+			{
+				var events = jQuery._data(window, 'events').keydown;
+				events.unshift(events.pop());
 			};
 		}
 
@@ -270,7 +288,6 @@ define(function( require )
 
 		return WinMSG;
 	};
-
 
 	/**
 	 * Prompt a message to the user
@@ -281,7 +298,7 @@ define(function( require )
 	 * @param {function} callback when ok is pressed
 	 * @param {function} callback when cancel is pressed
 	 */
-	UIManager.showPromptBox = function showPromptBox( text, btn_yes, btn_no, onYes, onNo )
+	UIManager.showPromptBox = function showPromptBox(text, btn_yes, btn_no, onYes, onNo)
 	{
 		var WinPrompt;
 
@@ -291,45 +308,46 @@ define(function( require )
 			this.draggable();
 			this.ui.find('.text').text(text);
 			this.ui.css({
-				top:  (Renderer.height-120) / 1.5 - 120,
-				left: (Renderer.width -280) / 2.0,
+				top: (Renderer.height - 120) / 1.5 - 120,
+				left: (Renderer.width - 280) / 2.0,
 				zIndex: 100
 			});
 			this.ui.find('.btns').append(
-
-				jQuery('<button/>').
-					addClass('btn').
-					data('background', 'btn_' + btn_yes + '.bmp').
-					data('hover',      'btn_' + btn_yes + '_a.bmp').
-					data('down',       'btn_' + btn_yes + '_b.bmp').
-					one('click',function(){
+				jQuery('<button/>')
+					.addClass('btn')
+					.data('background', 'btn_' + btn_yes + '.bmp')
+					.data('hover', 'btn_' + btn_yes + '_a.bmp')
+					.data('down', 'btn_' + btn_yes + '_b.bmp')
+					.one('click', function ()
+					{
 						WinPrompt.remove();
-						if (onYes) {
+						if (onYes)
+						{
 							onYes();
 						}
-					}).
-					each( this.parseHTML ),
+					})
+					.each(this.parseHTML),
 
-				jQuery('<button/>').
-					addClass('btn').
-					data('background', 'btn_' + btn_no + '.bmp').
-					data('hover',      'btn_' + btn_no + '_a.bmp').
-					data('down',       'btn_' + btn_no + '_b.bmp').
-					one('click',function(){
+				jQuery('<button/>')
+					.addClass('btn')
+					.data('background', 'btn_' + btn_no + '.bmp')
+					.data('hover', 'btn_' + btn_no + '_a.bmp')
+					.data('down', 'btn_' + btn_no + '_b.bmp')
+					.one('click', function ()
+					{
 						WinPrompt.remove();
-						if (onNo) {
+						if (onNo)
+						{
 							onNo();
 						}
-					}).
-					each( this.parseHTML )
+					})
+					.each(this.parseHTML)
 			);
-
 		};
 
 		WinPrompt.append();
 		return WinPrompt;
 	};
-
 
 	/**
 	 * Export

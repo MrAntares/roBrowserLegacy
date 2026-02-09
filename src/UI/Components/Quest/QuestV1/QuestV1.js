@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -33,7 +32,6 @@ define(function (require) {
 	 * Create Component
 	 */
 	var QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
-
 
 	/**
 	 * @var {number} index of selection
@@ -58,13 +56,16 @@ define(function (require) {
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('QuestV1', {
-		x: 200,
-		y: 200,
-		show: false,
-		showwindow: true
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'QuestV1',
+		{
+			x: 200,
+			y: 200,
+			show: false,
+			showwindow: true
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize the component (event listener, etc.)
@@ -87,7 +88,6 @@ define(function (require) {
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-
 	/**
 	 * Once append to the DOM, start to position the UI
 	 */
@@ -99,9 +99,12 @@ define(function (require) {
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_que_01.bmp', function (data) {
-			QuestV1.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'basic_interface/tab_que_01.bmp',
+			function (data) {
+				QuestV1.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 
 		QuestV1.ui.find('#active-quest-list').show();
 		QuestV1.ui.find('#inactive-quest-list').hide();
@@ -111,7 +114,6 @@ define(function (require) {
 			this.ui.hide();
 		}
 	};
-
 
 	/**
 	 * Clean up UI
@@ -127,7 +129,6 @@ define(function (require) {
 		onClose();
 	};
 
-
 	/**
 	 * Removing the UI from window, save preferences
 	 *
@@ -139,7 +140,6 @@ define(function (require) {
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.save();
 	};
-
 
 	/**
 	 * Window Shortcuts
@@ -155,7 +155,6 @@ define(function (require) {
 		}
 	};
 
-
 	/**
 	 * Show/Hide UI
 	 */
@@ -166,7 +165,6 @@ define(function (require) {
 			this.ui.show();
 		}
 	};
-
 
 	/**
 	 * Set Quest list
@@ -181,7 +179,6 @@ define(function (require) {
 		}
 	};
 
-
 	/**
 	 * Add new Quest
 	 *
@@ -193,14 +190,13 @@ define(function (require) {
 		QuestV1.addQuestToUI(quest);
 	};
 
-
 	/**
 	 * Update Quest from list
 	 *
 	 * @param {object} hunt_info
 	 * @param {number} questID
 	 * @param {number} huntID
-	*/
+	 */
 	QuestV1.updateMissionHunt = function updateMissionHunt(hunt_info, questID, huntID) {
 		if (hunt_info.huntIDCount) _questList[questID].hunt_list[huntID].huntIDCount = hunt_info.huntIDCount;
 		if (hunt_info.maxCount) _questList[questID].hunt_list[huntID].maxCount = hunt_info.maxCount;
@@ -219,21 +215,19 @@ define(function (require) {
 
 		ChatBox.addText(chat_quest_text, ChatBox.TYPE.ADMIN | ChatBox.TYPE.SELF, ChatBox.FILTER.QUEST);
 		if (Session.Entity) {
-			Session.Entity.dialog.set(self_msg, "yellow");
+			Session.Entity.dialog.set(self_msg, 'yellow');
 		}
 	};
-
 
 	/**
 	 * Remove Quest from list
 	 *
 	 * @param {number} questID
-	*/
+	 */
 	QuestV1.removeQuest = function removeQuest(questID) {
 		delete _questList[questID];
 		refreshQuestUI();
 	};
-
 
 	/**
 	 * Toggle Quest Active/Inactive
@@ -246,40 +240,46 @@ define(function (require) {
 		refreshQuestUI();
 	};
 
-
 	/**
 	 * return questID based on huntID/mobGID
 	 *
 	 * @param {number} ID
-	*/
+	 */
 	QuestV1.getQuestIDByServerID = function getQuestIDByServerID(ID) {
 		for (var key in _questList) {
-			if (typeof _questList[key].hunt_list[ID] !== "undefined") {
+			if (typeof _questList[key].hunt_list[ID] !== 'undefined') {
 				return key;
 			}
 		}
 		return -1;
 	};
 
-
 	/**
 	 * Check if quest exists
 	 *
 	 * @param {number} questID
-	*/
+	 */
 	QuestV1.questExists = function questExists(questID) {
-		return (typeof _questList[questID] !== "undefined") ? true : false;
+		return typeof _questList[questID] !== 'undefined' ? true : false;
 	};
 
-
 	QuestV1.addQuestToUI = function addQuest(quest) {
-		let toggle_id = "qid" + quest.questID;
-		let title = (quest.title.length > 30) ? quest.title.substr(0, 30) + '...' : quest.title;
+		let toggle_id = 'qid' + quest.questID;
+		let title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
 		let pattern = /^ico\_/; // new system ico_xx.bmp - not supported on this version
-		let quest_icon = (pattern.test(quest.icon)) ? 'SG_FEEL.bmp' : quest.icon;
-		let li_text = '<li id="' + toggle_id + '" class="quest-item ' + toggle_id + '"><div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="item/' + quest_icon + '"></div> </div> <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span> </div></li>';
+		let quest_icon = pattern.test(quest.icon) ? 'SG_FEEL.bmp' : quest.icon;
+		let li_text =
+			'<li id="' +
+			toggle_id +
+			'" class="quest-item ' +
+			toggle_id +
+			'"><div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="item/' +
+			quest_icon +
+			'"></div> </div> <div class="quest-item-title"> <span class="quest-item-title-text">' +
+			title +
+			'</span> </div></li>';
 
-		let ul_id = (quest.active == 1) ? "#active-quest-list" : "#inactive-quest-list";
+		let ul_id = quest.active == 1 ? '#active-quest-list' : '#inactive-quest-list';
 
 		this.ui.find(ul_id).append(li_text);
 		this.ui.find('#' + toggle_id).on('contextmenu', onClickQuestToggle);
@@ -289,34 +289,36 @@ define(function (require) {
 		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
 	};
 
-
 	function onClickMenu(e) {
 		var quest_element = jQuery(e.currentTarget);
 
 		if (_active_menu == quest_element.attr('id')) return;
 		_active_menu = quest_element.attr('id');
 
-		var background_image = "";
+		var background_image = '';
 		QuestV1.ui.find('#active-quest-list').hide();
 		QuestV1.ui.find('#inactive-quest-list').hide();
 		QuestV1.ui.find('#all-quest-list').hide();
 		switch (_active_menu) {
 			case 'inactive':
-				background_image = "tab_que_02";
+				background_image = 'tab_que_02';
 				QuestV1.ui.find('#inactive-quest-list').show();
 				break;
 			case 'all':
-				background_image = "tab_que_03";
+				background_image = 'tab_que_03';
 				QuestV1.ui.find('#all-quest-list').show();
 				break;
 			default:
-				background_image = "tab_que_01";
+				background_image = 'tab_que_01';
 				QuestV1.ui.find('#active-quest-list').show();
 		}
 
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/' + background_image + '.bmp', function (data) {
-			QuestV1.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'basic_interface/' + background_image + '.bmp',
+			function (data) {
+				QuestV1.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 
 		QuestHelper.clearQuestDesc();
 	}
@@ -324,7 +326,7 @@ define(function (require) {
 	function onClickQuest(e) {
 		var toggle_element = jQuery(e.currentTarget);
 		let tid = toggle_element.attr('id');
-		let id = tid.replace("qid", "");
+		let id = tid.replace('qid', '');
 		if (_index > -1) {
 			QuestV1.ui.find('.qid' + _index).css('background-color', 'white');
 			QuestV1.ui.find('#qid' + _index).css('background-color', 'white');
@@ -336,10 +338,10 @@ define(function (require) {
 	function onClickQuestToggle(e) {
 		var toggle_element = jQuery(e.currentTarget);
 		let tid = toggle_element.attr('id');
-		let id = tid.replace("qid", "");
+		let id = tid.replace('qid', '');
 		var _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
-		_pkt.active = (_questList[id].active == 1) ? 0 : 1;
+		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);
 	}
 
@@ -361,8 +363,7 @@ define(function (require) {
 
 	QuestV1.ClearQuestList = function ClearQuestList() {
 		QuestV1.ui.find('.quest-list').html('');
-	}
-
+	};
 
 	/**
 	 * Close the window

@@ -6,7 +6,8 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
+define(function (require)
+{
 	'use strict';
 
 	var UIManager = require('UI/UIManager');
@@ -26,8 +27,10 @@ define(function (require) {
 
 	// var DIGIT_STEP = 24; // UNUSED
 
-	var TIMER_W = 300, TIMER_H = 110;
-	var TA_W = 360, TA_H = 128; // Match CSS
+	var TIMER_W = 300,
+		TIMER_H = 110;
+	var TA_W = 360,
+		TA_H = 128; // Match CSS
 
 	// OG font baselines
 	var TIMER_Y = 60;
@@ -58,21 +61,28 @@ define(function (require) {
 	/**
 	 * Initialize UI
 	 */
-	PvPTimer.init = function init() {
-		Client.loadFiles([
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.act',
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.spr',
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timeattack.act',
-			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timeattack.spr'
-		], function (tAct, tSpr, aAct, aSpr) {
-			_timefontAct = tAct; _timefontSpr = tSpr;
-			_timeAtkAct = aAct; _timeAtkSpr = aSpr;
-		});
+	PvPTimer.init = function init()
+	{
+		Client.loadFiles(
+			[
+				'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.act',
+				'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.spr',
+				'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timeattack.act',
+				'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timeattack.spr'
+			],
+			function (tAct, tSpr, aAct, aSpr)
+			{
+				_timefontAct = tAct;
+				_timefontSpr = tSpr;
+				_timeAtkAct = aAct;
+				_timeAtkSpr = aSpr;
+			}
+		);
 
 		_timerCanvas = PvPTimer.ui.find('.pvp-timer-canvas')[0];
 		_taCanvas = PvPTimer.ui.find('.pvp-timeattack-canvas')[0];
 
-		if (!_timerCanvas || !_taCanvas) return;
+		if (!_timerCanvas || !_taCanvas) {return;}
 
 		_timerCanvas.width = TIMER_W;
 		_timerCanvas.height = TIMER_H;
@@ -81,104 +91,107 @@ define(function (require) {
 
 		_timerCtx = _timerCanvas.getContext('2d');
 		_taCtx = _taCanvas.getContext('2d');
-
-	}
+	};
 
 	/**
 	 * Append UI
 	 */
-	PvPTimer.onAppend = function onAppend() {
+	PvPTimer.onAppend = function onAppend()
+	{
 		this.ui.hide();
-	}
+	};
 
 	/**
 	 * Remove UI
 	 */
-	PvPTimer.onRemove = function onRemove() {
+	PvPTimer.onRemove = function onRemove()
+	{
 		isFirstTime = true;
 		stopTimer();
-	}
+	};
 
 	/**
 	 * Set data
-	 * @param {Object} data 
+	 * @param {Object} data
 	 */
-	PvPTimer.setData = function setData(data) {
-	}
+	PvPTimer.setData = function setData(data) {};
 
-	PvPTimer.hide = function hide() {
+	PvPTimer.hide = function hide()
+	{
 		this.ui.hide();
 		stopTimer();
-	}
+	};
 
-	PvPTimer.show = function show() {
+	PvPTimer.show = function show()
+	{
 		this.ui.show();
 		startTimer();
-		if (isFirstTime == true) {
+		if (isFirstTime == true)
+		{
 			playTimeAttackBanner();
 			isFirstTime = false;
 		}
-	}
+	};
 
 	/**
 	 * Pick layers from act
-	 * @param {Object} act 
-	 * @param {number} actionId 
+	 * @param {Object} act
+	 * @param {number} actionId
 	 * @returns {Object[]}
 	 */
-	function pickLayers(act, actionId, frameId) {
+	function pickLayers(act, actionId, frameId)
+	{
 		var a = act.actions[actionId];
-		if (!a || !a.animations || !a.animations.length) return null;
+		if (!a || !a.animations || !a.animations.length) {return null;}
 
-		var idx = frameId !== undefined ? frameId : ((a.animations.length / 2) | 0);
-		if (idx >= a.animations.length) return null;
+		var idx = frameId !== undefined ? frameId : (a.animations.length / 2) | 0;
+		if (idx >= a.animations.length) {return null;}
 
 		return a.animations[idx].layers;
 	}
 
-	function drawActionToCanvas(ctx, act, spr, actionId, x, y, frameId) {
+	function drawActionToCanvas(ctx, act, spr, actionId, x, y, frameId)
+	{
 		var layers = pickLayers(act, actionId, frameId);
-		if (!layers) return;
+		if (!layers) {return;}
 
 		// Gravity fonts: no anchor correction
 		SpriteRenderer.bind2DContext(ctx, x, y);
 
-		for (var i = 0; i < layers.length; i++) {
-			_layerEntity.renderLayer(
-				layers[i],
-				spr,
-				spr,
-				1.0,
-				[0, 0],
-				false
-			);
+		for (var i = 0; i < layers.length; i++)
+		{
+			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 		}
 	}
 
-	function timerCharToAction(ch) {
-		if (ch === ':') return 10;
+	function timerCharToAction(ch)
+	{
+		if (ch === ':') {return 10;}
 		return parseInt(ch, 10);
 	}
 
-	function renderTimer(seconds) {
-		if (!_timerCtx || !_timefontAct) return;
+	function renderTimer(seconds)
+	{
+		if (!_timerCtx || !_timefontAct) {return;}
 
 		_timerCtx.clearRect(0, 0, TIMER_W, TIMER_H);
 
 		var m = Math.floor(seconds / 60);
 		var s = seconds % 60;
 
-		var text = (m == 0) ? String(s).padStart(2, '0') : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+		var text = m == 0 ? String(s).padStart(2, '0') : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 
 		var digitWidth = 50;
-		var totalWidth = (m == 0) ? (2 * digitWidth) : (5 * digitWidth);
+		var totalWidth = m == 0 ? 2 * digitWidth : 5 * digitWidth;
 
 		var x = (TIMER_W - totalWidth) >> 1;
 
-		for (var i = 0; i < text.length; i++) {
+		for (var i = 0; i < text.length; i++)
+		{
 			var a = timerCharToAction(text[i]);
 
-			if (!isNaN(a)) {
+			if (!isNaN(a))
+			{
 				// Center '1' or narrow digits?
 				// For now, simple fixed step to avoid jitter is best.
 				// But we might want to center the glyph inside the 'step' slot if it's narrow.
@@ -192,27 +205,32 @@ define(function (require) {
 		}
 	}
 
-	function startTimer() {
-		if (_timerInterval) return;
+	function startTimer()
+	{
+		if (_timerInterval) {return;}
 		_startTs = (Date.now() / 1000) | 0;
 		renderTimer(0);
-		_timerInterval = setInterval(function () {
+		_timerInterval = setInterval(function ()
+		{
 			renderTimer(((Date.now() / 1000) | 0) - _startTs);
 		}, 1000);
 	}
 
-	function stopTimer() {
-		if (_timerInterval) clearInterval(_timerInterval);
+	function stopTimer()
+	{
+		if (_timerInterval) {clearInterval(_timerInterval);}
 		_timerInterval = null;
-		if (_timerCtx) _timerCtx.clearRect(0, 0, TIMER_W, TIMER_H);
+		if (_timerCtx) {_timerCtx.clearRect(0, 0, TIMER_W, TIMER_H);}
 	}
 
 	/* ================= TIME ATTACK ================= */
 
-	function playTimeAttackBanner() {
-		if (!_taCtx || !_timeAtkAct) return;
+	function playTimeAttackBanner()
+	{
+		if (!_taCtx || !_timeAtkAct) {return;}
 
-		if (_taHideTimer) {
+		if (_taHideTimer)
+		{
 			clearTimeout(_taHideTimer);
 			_taHideTimer = null;
 		}
@@ -220,21 +238,26 @@ define(function (require) {
 		_taCtx.clearRect(0, 0, TA_W, TA_H);
 
 		var action = _timeAtkAct.actions[0];
-		if (!action || !action.animations) return;
+		if (!action || !action.animations) {return;}
 
 		var frame = 0;
 		var count = action.animations.length;
 
-		function run() {
+		function run()
+		{
 			_taCtx.clearRect(0, 0, TA_W, TA_H);
 			drawActionToCanvas(_taCtx, _timeAtkAct, _timeAtkSpr, 0, (TA_W >> 1) - 100, TA_Y, frame);
 
 			frame++;
 
-			if (frame < count) {
+			if (frame < count)
+			{
 				_taHideTimer = setTimeout(run, 100);
-			} else {
-				_taHideTimer = setTimeout(function () {
+			}
+			else
+			{
+				_taHideTimer = setTimeout(function ()
+				{
 					_taCtx.clearRect(0, 0, TA_W, TA_H);
 				}, 300);
 			}
@@ -242,7 +265,6 @@ define(function (require) {
 
 		run();
 	}
-
 
 	/**
 	 * Create component and export it

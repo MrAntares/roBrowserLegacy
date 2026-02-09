@@ -8,24 +8,21 @@
  *
  * @author Vincent Thibault
  */
-define(function( require )
+define(function (require)
 {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var _htmlText    = require('text!./Error.html');
-	var _cssText     = require('text!./Error.css');
-	var jQuery       = require('Vendors/jquery');
-
+	var _htmlText = require('text!./Error.html');
+	var _cssText = require('text!./Error.css');
+	var jQuery = require('Vendors/jquery');
 
 	/**
 	 * Error Namespace
 	 */
 	var Error = {};
-
 
 	/**
 	 * Initialize Metaling
@@ -36,41 +33,39 @@ define(function( require )
 
 		// Add view to html
 		var style = jQuery('style:first');
-		if (!style.length) {
+		if (!style.length)
+		{
 			style = jQuery('<style type="text/css"></style>').appendTo('head');
 		}
 		style.append('\n' + _cssText);
 		jQuery('body').html(this.ui);
 
-		this.ui.css('backgroundImage', 'url('+ require.toUrl('./angeling.png') +')');
+		this.ui.css('backgroundImage', 'url(' + require.toUrl('./angeling.png') + ')');
 	};
-
 
 	/**
 	 * Add trace info to UI
 	 *
 	 * @param {Error} error
 	 */
-	Error.addTrace = function addTrace( error )
+	Error.addTrace = function addTrace(error)
 	{
 		console.error(error);
 		var url = requirejs.toUrl(''); // global
-		error   = error.stack || error;
+		error = error.stack || error;
 
-		url   = url.replace(/\/([^\/]+)$/g,'/');
-		error = error.replace( /\n/g, '<br/>');
-		error = error.replace( new RegExp(url,'g'), '');
-		error = error.replace( /\?[^\:]+/g,'');
+		url = url.replace(/\/([^\/]+)$/g, '/');
+		error = error.replace(/\n/g, '<br/>');
+		error = error.replace(new RegExp(url, 'g'), '');
+		error = error.replace(/\?[^\:]+/g, '');
 
-		if (!this.ui) {
+		if (!this.ui)
+		{
 			this.init();
 		}
 
-		this.ui.find('.trace').append(
-			error  + '<br />'
-		);
+		this.ui.find('.trace').append(error + '<br />');
 	};
-
 
 	/**
 	 * Stored component and return it

@@ -31,12 +31,12 @@
  * @prop {number} nRelationship
  * @prop {number} sp
  * @prop {string} szName Homun name
- * 
+ *
  * @typedef {Object} TLife
  * @prop {number} ap
  * @prop {number} ap_max
  * @prop {HTMLCanvasElement} canvas
- * @prop {CanvasRenderingContext2D} ctx 
+ * @prop {CanvasRenderingContext2D} ctx
  * @prop {boolean} display
  * @prop {Entity} entity
  * @prop {number} hp
@@ -46,7 +46,8 @@
  * @prop {number} sp
  * @prop {number} sp_max
  */
-define(function (require) {
+define(function (require)
+{
 	'use strict';
 
 	/**
@@ -73,11 +74,14 @@ define(function (require) {
 	 *
 	 * @param {THomunPacket} pkt - PACKET.ZC.PROPERTY_HOMUN2
 	 */
-	function onHomunInformation(pkt) {
+	function onHomunInformation(pkt)
+	{
 		_info = pkt;
 		var entity = EntityManager.get(Session.homunId);
-		if (Session.homunId) {
-			if (entity) {
+		if (Session.homunId)
+		{
+			if (entity)
+			{
 				entity.attack_range = pkt.ATKRange;
 				entity.life.hp = pkt.hp;
 				entity.life.hp_max = pkt.maxHP;
@@ -89,7 +93,8 @@ define(function (require) {
 			}
 		}
 
-		if (entity && entity.life.display) {
+		if (entity && entity.life.display)
+		{
 			pkt.life = entity.life;
 		}
 
@@ -98,36 +103,43 @@ define(function (require) {
 		SkillListMH.homunculus.setPoints(pkt.SKPoint);
 	}
 
-
 	/**
 	 * Result from feeding your homun
 	 *
 	 * @param {object} pkt - PACKET.ZC.FEED_HOMUN
 	 */
-	function onFeedResult(pkt) {
+	function onFeedResult(pkt)
+	{
 		// Fail to feed
-		if (!pkt.cRet) {
-			ChatBox.addText(DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+		if (!pkt.cRet)
+		{
+			ChatBox.addText(
+				DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName),
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
 			return;
 		}
 
 		// success, what to do ? Action feed ? or is it sent by server ?
 	}
 
-
 	/**
 	 * Update homun information
 	 *
 	 * @param {object} pkt - PACKET.ZC.CHANGESTATE_HOMUN
 	 */
-	function onHomunInformationUpdate(pkt) {
+	function onHomunInformationUpdate(pkt)
+	{
 		var entity = EntityManager.get(pkt.GID);
 
-		if (!entity) {
+		if (!entity)
+		{
 			return;
 		}
 
-		switch (pkt.state) {
+		switch (pkt.state)
+		{
 			case 0:
 				Session.homunId = pkt.GID;
 				HomunInformations.append();
@@ -148,13 +160,14 @@ define(function (require) {
 		}
 	}
 
-
 	/**
 	 * Client request to feed QHomun.
 	 */
-	HomunInformations.reqHomunFeed = function reqHomunFeed() {
+	HomunInformations.reqHomunFeed = function reqHomunFeed()
+	{
 		// Are you sure you want to feed your homunculus ?
-		UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function () {
+		UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function ()
+		{
 			var pkt = new PACKET.CZ.COMMAND_MER();
 			pkt.type = 0x22f;
 			pkt.command = 1;
@@ -162,16 +175,19 @@ define(function (require) {
 		});
 	};
 
-	HomunInformations.sendHomunFeed = function sendHomunFeed() {
+	HomunInformations.sendHomunFeed = function sendHomunFeed()
+	{
 		var pkt = new PACKET.CZ.COMMAND_MER();
 		pkt.type = 0x22f;
 		pkt.command = 1;
 		Network.sendPacket(pkt);
 	};
 
-	HomunInformations.reqDeleteHomun = function reqDeleteHomun() {
+	HomunInformations.reqDeleteHomun = function reqDeleteHomun()
+	{
 		// Are you sure that you want to delete?
-		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
+		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function ()
+		{
 			var pkt = new PACKET.CZ.COMMAND_MER();
 			pkt.type = 0x22f;
 			pkt.command = 2;
@@ -188,29 +204,30 @@ define(function (require) {
 	 *     1 = feed
 	 *     2 = delete
 	 */
-	HomunInformations.reqHomunAction = function reqHomunAction() {
+	HomunInformations.reqHomunAction = function reqHomunAction()
+	{
 		var pkt = new PACKET.CZ.COMMAND_MER(cmd);
 		pkt.type = 0;
 		pkt.command = cmd;
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * @param gid
 	 */
-	HomunInformations.reqMoveToOwner = function reqMoveToOwner(gid) {
+	HomunInformations.reqMoveToOwner = function reqMoveToOwner(gid)
+	{
 		var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
 		pkt.GID = gid;
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * @param GID
 	 * @param targetGID
 	 */
-	HomunInformations.reqAttack = function reqAttack(GID, targetGID) {
+	HomunInformations.reqAttack = function reqAttack(GID, targetGID)
+	{
 		var pkt = new PACKET.CZ.REQUEST_ACTNPC();
 		pkt.GID = GID;
 		pkt.targetGID = targetGID;
@@ -218,11 +235,11 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * @param GID
 	 */
-	HomunInformations.reqMoveTo = function reqMoveTo(GID) {
+	HomunInformations.reqMoveTo = function reqMoveTo(GID)
+	{
 		var pkt = new PACKET.CZ.REQUEST_MOVENPC();
 		pkt.GID = GID;
 		pkt.dest[0] = Mouse.world.x;
@@ -230,57 +247,61 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Rename QHomunculus
 	 *
 	 * @param {string} new homunculus name
 	 */
-	HomunInformations.reqNameEdit = function reqNameEdit(name) {
+	HomunInformations.reqNameEdit = function reqNameEdit(name)
+	{
 		//msg 2904(2903)
 		var pkt = new PACKET.CZ.RENAME_MER();
 		pkt.name = name;
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * List of skills
 	 *
 	 * @param {object} pkt - PACKET.ZC.MER_SKILLINFO_LIST
 	 */
-	function onSkillList(pkt) {
+	function onSkillList(pkt)
+	{
 		SkillListMH.homunculus.setSkills(pkt.skillList);
 	}
-
 
 	/**
 	 * Update a specified skill
 	 *
 	 * @param {object} pkt - PACKET.ZC.SKILLINFO_UPDATE
 	 */
-	function onSkillUpdate(pkt) {
+	function onSkillUpdate(pkt)
+	{
 		SkillListMH.homunculus.updateSkill(pkt);
 	}
 
 	/**
 	 * Update homunculus parameters e.g. hp/sp recovery
-	 * 
+	 *
 	 * @param {object} pkt - PACKET.ZC.HO_PAR_CHANGE
 	 */
-	function onParamsUpdate(pkt) {
-		if (!Session.homunId) {
+	function onParamsUpdate(pkt)
+	{
+		if (!Session.homunId)
+		{
 			return;
 		}
 
 		var entity = EntityManager.get(Session.homunId);
 
-		if (!entity) {
+		if (!entity)
+		{
 			return;
 		}
 
 		// sync all stats from server to client
-		switch (pkt.param) {
+		switch (pkt.param)
+		{
 			case 1: // EXP = value
 				_info.exp = pkt.value;
 				break;
@@ -295,7 +316,8 @@ define(function (require) {
 				entity.life.update();
 				break;
 
-			default: break;
+			default:
+				break;
 		}
 
 		// UI update
@@ -307,11 +329,11 @@ define(function (require) {
 	// 	console.warn(pkt)
 	// }
 
-
 	/**
 	 * Initialize
 	 */
-	return function NPCEngine() {
+	return function NPCEngine()
+	{
 		Network.hookPacket(PACKET.ZC.PROPERTY_HOMUN, onHomunInformation);
 		Network.hookPacket(PACKET.ZC.PROPERTY_HOMUN2, onHomunInformation);
 		Network.hookPacket(PACKET.ZC.PROPERTY_HOMUN3, onHomunInformation);

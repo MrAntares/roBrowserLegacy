@@ -8,8 +8,9 @@
  * @author Alison Serafim
  */
 
-define(["./WeaponType"], function (WeaponType) {
-	"use strict";
+define(['./WeaponType'], function (WeaponType)
+{
+	'use strict';
 
 	var WeaponTypeExpansion = {};
 
@@ -85,6 +86,6 @@ define(["./WeaponType"], function (WeaponType) {
 	WeaponTypeExpansion[WeaponType.FOXTAIL_GREEN] = WeaponType.ROD;
 	WeaponTypeExpansion[WeaponType.CandyCaneRod] = WeaponType.ROD;
 	WeaponTypeExpansion[WeaponType.FOXTAIL_METAL] = WeaponType.ROD;
-	
+
 	return WeaponTypeExpansion;
 });

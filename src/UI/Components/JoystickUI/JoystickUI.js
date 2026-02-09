@@ -7,7 +7,8 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
+define(function (require)
+{
 	'use strict';
 
 	var UIManager = require('UI/UIManager');
@@ -19,25 +20,30 @@ define(function (require) {
 
 	var JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
 
-	JoystickUI.onAppend = function () {
+	JoystickUI.onAppend = function ()
+	{
 		require('./JoystickUIRenderer').attach(this.ui);
 		this.ui.hide();
 		JoystickSelectionUI.append();
 	};
 
-	JoystickUI.onRemove = function () {
+	JoystickUI.onRemove = function ()
+	{
 		JoystickModule.dispose();
 	};
 
-	JoystickUI.onRestore = function () {
+	JoystickUI.onRestore = function ()
+	{
 		JoystickModule.prepare();
 	};
 
-	JoystickUI.show = function () {
+	JoystickUI.show = function ()
+	{
 		this.ui.show();
 	};
 
-	JoystickUI.hide = function () {
+	JoystickUI.hide = function ()
+	{
 		this.ui.hide();
 	};
 

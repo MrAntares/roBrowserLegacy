@@ -1,12 +1,12 @@
 #NpcMenu {
-	position:absolute;
-	border-radius:5px;
-	width:276px;
-	height:116px;
-	background-color:white;
-	padding:2px;
-	left:100px;
-	top:285px;
+	position: absolute;
+	border-radius: 5px;
+	width: 276px;
+	height: 116px;
+	background-color: white;
+	padding: 2px;
+	left: 100px;
+	top: 285px;
 }
 
 #NpcMenu .title {
@@ -19,39 +19,39 @@
 }
 
 #NpcMenu .container {
-	border-radius:5px;
-	border:1px solid #c1c6c2;
-	width:269px;
-	height:109px;
-	padding-left:5px;
-	padding-top:5px;
+	border-radius: 5px;
+	border: 1px solid #c1c6c2;
+	width: 269px;
+	height: 109px;
+	padding-left: 5px;
+	padding-top: 5px;
 }
 
 #NpcMenu .content {
-	white-space:pre-wrap;
-	background-color:#f9f9f9;
-	width:260px;
-	height:80px;
-	overflow-x:hidden;
-	overflow-y:auto;
-	padding-left:3px;
-	margin-top:5px;
+	white-space: pre-wrap;
+	background-color: #f9f9f9;
+	width: 260px;
+	height: 80px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding-left: 3px;
+	margin-top: 5px;
 }
 
 #NpcMenu .content div {
-	width:255px;
-	height:17px;
-	display:block;
-	padding-top:3px;
-	padding-left:5px;	
+	width: 255px;
+	height: 17px;
+	display: block;
+	padding-top: 3px;
+	padding-left: 5px;
 }
 
 #NpcMenu .content div.selected {
-	background-color:#cde0ff;	
+	background-color: #cde0ff;
 }
 
 #NpcMenu .btn {
-	background-color:transparent;
+	background-color: transparent;
 	position: absolute;
 	border: 0;
 	width: 42px;
@@ -60,7 +60,7 @@
 }
 
 #NpcMenu .cancel {
-	right:4px;
+	right: 4px;
 }
 
 #NpcMenu .ok {

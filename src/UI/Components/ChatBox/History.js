@@ -7,58 +7,57 @@
  *
  * @author Vincent Thibault
  */
-define(function()
+define(function ()
 {
 	'use strict';
-
 
 	/**
 	 * @Constructor
 	 *
 	 * @param {boolean} does key have to be unique ?
 	 */
-	function History( uniqueKey )
+	function History(uniqueKey)
 	{
-		this.list      = [];
+		this.list = [];
 		this.uniqueKey = !!uniqueKey;
 	}
-
 
 	/**
 	 * @const {number} max message in history
 	 */
 	var CACHE_SIZE = 50;
 
-
 	/**
 	 * @var {number} index in history
 	 */
 	History.prototype.index = 0;
-
 
 	/**
 	 * Push value in history
 	 *
 	 * @param {string} message
 	 */
-	History.prototype.push = function push( message )
+	History.prototype.push = function push(message)
 	{
 		var count = this.list.length;
 		var pos;
 
-		if (!count || this.list[count-1] !== message) {
-
+		if (!count || this.list[count - 1] !== message)
+		{
 			// Remove duplicated key
-			if (this.uniqueKey) {
+			if (this.uniqueKey)
+			{
 				pos = this.list.indexOf(message);
-				if (pos > -1) {
-					this.list.splice( pos, 1);
+				if (pos > -1)
+				{
+					this.list.splice(pos, 1);
 					count--;
 				}
 			}
 
 			// Remove first element if overflow
-			if (count >= CACHE_SIZE) {
+			if (count >= CACHE_SIZE)
+			{
 				this.list.shift();
 			}
 
@@ -70,20 +69,19 @@ define(function()
 		this.index = this.list.length;
 	};
 
-
 	/**
 	 * Go back from history
 	 * @return {string}
 	 */
 	History.prototype.previous = function previous()
 	{
-		if (this.index > 0) {
+		if (this.index > 0)
+		{
 			this.index--;
 		}
 
 		return this.list[this.index] || '';
 	};
-
 
 	/**
 	 * Move to history
@@ -91,13 +89,13 @@ define(function()
 	 */
 	History.prototype.next = function next()
 	{
-		if (this.index < this.list.length) {
+		if (this.index < this.list.length)
+		{
 			this.index++;
 		}
 
 		return this.list[this.index] || '';
 	};
-
 
 	/**
 	 * Clean history message
@@ -105,9 +103,8 @@ define(function()
 	History.prototype.clear = function clear()
 	{
 		this.list.length = 0;
-		this.index       = 0;
+		this.index = 0;
 	};
-
 
 	/**
 	 * Exports

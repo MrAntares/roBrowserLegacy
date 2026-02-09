@@ -8,22 +8,19 @@
  * @author Vincent Thibault
  */
 
-define(function()
+define(function ()
 {
 	'use strict';
-
 
 	/**
 	 * @var {object} global configs
 	 */
 	var _global = {};
 
-
 	/**
 	 * @var {object} server configs
 	 */
 	var _server = {};
-
 
 	/**
 	 * Constructor
@@ -31,18 +28,19 @@ define(function()
 	 */
 	(function init(configs)
 	{
-		if (typeof configs !== 'object') {
+		if (typeof configs !== 'object')
+		{
 			return;
 		}
 
 		var keys = Object.keys(configs);
 		var i, count;
 
-		for (i = 0, count = keys.length; i < count; ++i) {
-			set( keys[i], configs[keys[i]]);
+		for (i = 0, count = keys.length; i < count; ++i)
+		{
+			set(keys[i], configs[keys[i]]);
 		}
 	})(window.ROConfig);
-
 
 	/**
 	 * Set a config
@@ -50,11 +48,10 @@ define(function()
 	 * @param {string} key name
 	 * @param {?} data
 	 */
-	function set( key, value )
+	function set(key, value)
 	{
 		_global[key] = value;
 	}
-
 
 	/**
 	 * Get the value of a config
@@ -63,32 +60,31 @@ define(function()
 	 * @param {?} default data value
 	 * @return {?} data
 	 */
-	function get( key, defaultValue )
+	function get(key, defaultValue)
 	{
-		if (key in _server) {
+		if (key in _server)
+		{
 			return _server[key];
 		}
 
-		if (key in _global) {
+		if (key in _global)
+		{
 			return _global[key];
 		}
 
 		return defaultValue;
 	}
 
-
 	/**
 	 * Store the server informations
 	 *
 	 * @param {object} server config
 	 */
-	function setServer( server )
+	function setServer(server)
 	{
 		_server = server;
 	}
 
-
-	
 	/**
 	 * Return the server informations
 	 *
@@ -98,14 +94,12 @@ define(function()
 		return _server;
 	}
 
-
-
 	/**
 	 * Export
 	 */
 	return {
-		get:       get,
-		set:       set,
+		get: get,
+		set: set,
 		setServer: setServer,
 		getServer: getServer
 	};

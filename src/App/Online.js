@@ -9,12 +9,12 @@
  */
 
 window.roInitSpinner = {
-	add: function(){
+	add: function () {
 		// Loading spinner ring
 		var loading = document.createElement('div');
 		loading.id = 'loading-element';
 		loading.className = 'lds-dual-ring';
-		
+
 		var loadingStyle = document.createElement('style');
 		loadingStyle.id = 'loading-style';
 		loadingStyle.textContent = `
@@ -47,8 +47,8 @@ window.roInitSpinner = {
 				100% { transform: rotate(360deg); }
 			}
 		`;
-		
-		// roBrowser will append all the css in the first style tag in the DOM, 
+
+		// roBrowser will append all the css in the first style tag in the DOM,
 		// so we add a style tag before our own to avoid removing every style altogether,
 		// when we remove the spinner later.
 		document.head.appendChild(document.createElement('style'));
@@ -56,7 +56,7 @@ window.roInitSpinner = {
 		window.roInitSpinner.styleElem = document.head.appendChild(loadingStyle);
 		window.roInitSpinner.divElem = document.body.appendChild(loading);
 	},
-	remove: function(){
+	remove: function () {
 		window.roInitSpinner.styleElem?.remove();
 		window.roInitSpinner.divElem?.remove();
 	}
@@ -74,28 +74,25 @@ require.onError = function (err) {
 		return;
 	}
 
-	require(['UI/Components/Error/Error'], function( Errors ){
+	require(['UI/Components/Error/Error'], function (Errors) {
 		Errors.addTrace(err);
 	});
 };
 
-require( {
+require({
 	urlArgs: ROConfig.version,
 	baseUrl: '../../src/',
 	paths: {
-		text:   'Vendors/text.require',
+		text: 'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'
 	}
-},
-	['Engine/GameEngine', 'Plugins/PluginManager'],
-	function(GameEngine,                 Plugins) {
-		'use strict';
+}, ['Engine/GameEngine', 'Plugins/PluginManager'], function (GameEngine, Plugins) {
+	'use strict';
 
-		Plugins.init();
-		GameEngine.init();
+	Plugins.init();
+	GameEngine.init();
 
-		window.onbeforeunload = function() {
-			return 'Are you sure to exit roBrowser ?';
-		};
-	}
-);
+	window.onbeforeunload = function () {
+		return 'Are you sure to exit roBrowser ?';
+	};
+});

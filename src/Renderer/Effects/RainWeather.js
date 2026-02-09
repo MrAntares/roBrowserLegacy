@@ -7,18 +7,18 @@
  * - Coherent, slowly‑varying wind so streaks slant consistently.
  * - Three depth layers (far/mid/near) with different speeds, sizes, and opacity.
  * - Alpha fades by fall progress (not raw time) to avoid popping.
-* - Added procedural audio system for Rain and Thunder (Web Audio API).
-* - Added lightning visual effect using the existing overlay system.
+ * - Added procedural audio system for Rain and Thunder (Web Audio API).
+ * - Added lightning visual effect using the existing overlay system.
  */
-define(function(require) {
+define(function (require) {
 	'use strict';
 
-	var Renderer       = require('Renderer/Renderer');
+	var Renderer = require('Renderer/Renderer');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Altitude       = require('Renderer/Map/Altitude');
-	var Camera         = require('Renderer/Camera');
-	var Preferences    = require('Preferences/Audio');
-	var Session        = require('Engine/SessionStorage');
+	var Altitude = require('Renderer/Map/Altitude');
+	var Camera = require('Renderer/Camera');
+	var Preferences = require('Preferences/Audio');
+	var Session = require('Engine/SessionStorage');
 	var getModule = require;
 
 	var RAG_TICK_MS = 25;
@@ -58,7 +58,7 @@ define(function(require) {
 			brightness: [0.45, 0.65]
 		},
 		{
-			weight: 0.30,
+			weight: 0.3,
 			speedTick: [0.55, 0.85],
 			widthPx: [1.6, 2.6],
 			lengthPx: [36, 55],
@@ -71,12 +71,12 @@ define(function(require) {
 			widthPx: [2.3, 3.4],
 			lengthPx: [55, 78],
 			alphaScale: 0.35,
-			brightness: [0.80, 1.00]
+			brightness: [0.8, 1.0]
 		}
 	];
 
 	// Precompute CDF for layer picking.
-	var _layerCDF = (function() {
+	var _layerCDF = (function () {
 		var out = [];
 		var acc = 0;
 		for (var i = 0; i < LAYERS.length; i++) {
@@ -118,7 +118,7 @@ define(function(require) {
 			// Ramp up to full alpha, then taper slightly.
 			var a = Math.min(1, t / 0.7);
 			if (t > 0.7) {
-				a *= 1 - (t - 0.7) / 0.3 * 0.35;
+				a *= 1 - ((t - 0.7) / 0.3) * 0.35;
 			}
 			var alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
 			var idx = i * 4;
@@ -128,17 +128,7 @@ define(function(require) {
 			data[idx + 3] = alphaByte;
 		}
 
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			1,
-			h,
-			0,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			data
-		);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -180,7 +170,8 @@ define(function(require) {
 		}
 		_splashFrame = null;
 
-		var w = 16, h = 16;
+		var w = 16,
+			h = 16;
 		var data = new Uint8Array(w * h * 4);
 		var cx = (w - 1) / 2;
 		var cy = (h - 1) / 2;
@@ -242,7 +233,7 @@ define(function(require) {
 
 		// Convert camera‑space wind to world‑space so on‑screen direction stays consistent
 		// even when the camera rotates.
-		var yawRad = (Camera.angle && Camera.angle[1] || 0) * Math.PI / 180;
+		var yawRad = (((Camera.angle && Camera.angle[1]) || 0) * Math.PI) / 180;
 		var cosYaw = Math.cos(yawRad);
 		var sinYaw = Math.sin(yawRad);
 		var xTick = camXTick * cosYaw + camYTick * sinYaw;
@@ -281,14 +272,14 @@ define(function(require) {
 		}
 
 		// View‑space velocity (w=0 ignores translation).
-		var vxView = m[0] * mx + m[4] * my + m[8]  * mz;
-		var vyView = m[1] * mx + m[5] * my + m[9]  * mz;
+		var vxView = m[0] * mx + m[4] * my + m[8] * mz;
+		var vyView = m[1] * mx + m[5] * my + m[9] * mz;
 
 		if (Math.abs(vxView) < 0.000001 && Math.abs(vyView) < 0.000001) {
 			return 0;
 		}
 
-		return Math.atan2(vxView, vyView) * 180 / Math.PI;
+		return (Math.atan2(vxView, vyView) * 180) / Math.PI;
 	}
 
 	function RainWeatherEffect(Params) {
@@ -320,14 +311,16 @@ define(function(require) {
 				this.initRainSound();
 			}
 		} catch (e) {
-			console.warn("RainWeather: Web Audio API is not supported", e);
+			console.warn('RainWeather: Web Audio API is not supported', e);
 		}
 
 		this.ready = true;
 		this.needCleanUp = false;
 	}
 
-	RainWeatherEffect.isActive = function isActive(){ return _instance; };
+	RainWeatherEffect.isActive = function isActive() {
+		return _instance;
+	};
 
 	RainWeatherEffect.prototype.initRainSound = function () {
 		if (!this.audioCtx) return;
@@ -351,10 +344,10 @@ define(function(require) {
 		// Low pass filter
 		var rainFilter = ctx.createBiquadFilter();
 		rainFilter.type = 'lowpass';
-		rainFilter.frequency.value = 400; 
+		rainFilter.frequency.value = 400;
 
 		var gainNode = ctx.createGain();
-		gainNode.gain.value = RAIN_VOLUME * Preferences.Sound.volume;  
+		gainNode.gain.value = RAIN_VOLUME * Preferences.Sound.volume;
 
 		whiteNoise.connect(rainFilter);
 		rainFilter.connect(gainNode);
@@ -386,7 +379,7 @@ define(function(require) {
 		gain.connect(ctx.destination);
 
 		const duration = 0.01; // Plink duration
-		const peakVolume = randRange(0.1, RAIN_VOLUME) * Preferences.Sound.volume; 
+		const peakVolume = randRange(0.1, RAIN_VOLUME) * Preferences.Sound.volume;
 
 		gain.gain.setValueAtTime(0, now);
 		// Fast attach
@@ -396,14 +389,19 @@ define(function(require) {
 		// Start and End
 		osc.start(now);
 		osc.stop(now + duration + 0.01);
-		
+
 		//clean afteruse
-		setTimeout(() => {
-			try {
-				osc.disconnect();
-				gain.disconnect();
-			} catch (e) { /* Ignore */ }
-		}, duration * 1000 + 50);
+		setTimeout(
+			() => {
+				try {
+					osc.disconnect();
+					gain.disconnect();
+				} catch (e) {
+					/* Ignore */
+				}
+			},
+			duration * 1000 + 50
+		);
 	};
 
 	RainWeatherEffect.prototype.triggerThunderSound = function () {
@@ -429,7 +427,7 @@ define(function(require) {
 		source.buffer = buffer;
 
 		var filter = ctx.createBiquadFilter();
-		filter.type = "lowpass";
+		filter.type = 'lowpass';
 		filter.frequency.value = 300;
 
 		// add gain to thunderstorm
@@ -464,7 +462,7 @@ define(function(require) {
 
 	RainWeatherEffect.startOrRestart = function startOrRestart(Params) {
 		var now = Params.Inst.startTick || Renderer.tick;
-		var currentMap = getModule("Renderer/MapRenderer").currentMap;
+		var currentMap = getModule('Renderer/MapRenderer').currentMap;
 
 		if (_mapName !== currentMap) {
 			_instance = null;
@@ -488,7 +486,7 @@ define(function(require) {
 		if (!_instance) return;
 
 		// Clean up if map changed
-		if (_mapName !== getModule("Renderer/MapRenderer").currentMap) {
+		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
 			_instance = null;
 			return;
 		}
@@ -609,7 +607,7 @@ define(function(require) {
 		// common grey filter
 		var overlayR = 0.65;
 		var overlayG = 0.67;
-		var overlayB = 0.70;
+		var overlayB = 0.7;
 		var overlayA = 0.14;
 
 		// flash filter
@@ -621,7 +619,7 @@ define(function(require) {
 				// --- Double Flash (Strobe) ---
 				// 0-80ms: First flash is faster
 				if (elapsed < 80) {
-					flashAlpha = 0.6 * (1 - (elapsed / 80));
+					flashAlpha = 0.6 * (1 - elapsed / 80);
 				}
 				// 80-160ms: darker (dramatic pause)
 				else if (elapsed < 160) {
@@ -632,7 +630,7 @@ define(function(require) {
 					var elapsed2 = elapsed - 160;
 					if (elapsed2 < FLASH_FADE_IN) {
 						flashAlpha = (elapsed2 / FLASH_FADE_IN) * 0.8;
-					} else if (elapsed2 < (FLASH_FADE_IN + FLASH_FADE_OUT)) {
+					} else if (elapsed2 < FLASH_FADE_IN + FLASH_FADE_OUT) {
 						var p = (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT;
 						flashAlpha = 0.8 * (1 - p);
 					} else {
@@ -644,7 +642,7 @@ define(function(require) {
 				if (elapsed < FLASH_FADE_IN) {
 					// Fade In
 					flashAlpha = (elapsed / FLASH_FADE_IN) * 0.8;
-				} else if (elapsed < (FLASH_FADE_IN + FLASH_FADE_OUT)) {
+				} else if (elapsed < FLASH_FADE_IN + FLASH_FADE_OUT) {
 					// Fade Out
 					var p = (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT;
 					flashAlpha = 0.8 * (1 - p);
@@ -656,16 +654,16 @@ define(function(require) {
 
 			if (this.isFlashing) {
 				// Thunder collor white blue
-				overlayR = 0.90;
+				overlayR = 0.9;
 				overlayG = 0.95;
-				overlayB = 1.00;
+				overlayB = 1.0;
 				overlayA = flashAlpha;
 			}
 		}
 
 		// Renderize filter (Thunderstorm)
 		if (_filterFrame) {
-			// skip rain fade out to visual storm 
+			// skip rain fade out to visual storm
 			if (this.endTick > 0 && !this.isFlashing) {
 				var tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
 				overlayA *= tail;
@@ -708,8 +706,7 @@ define(function(require) {
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
 					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
-					if(_isStopping)
-						break;
+					if (_isStopping) break;
 					for (var e = 0; e < EMIT_PER_TICK; e++) {
 						this.spawnDrop(emitTick);
 					}
@@ -738,7 +735,7 @@ define(function(require) {
 					if (this.splashes.length > 300) {
 						this.splashes.splice(0, this.splashes.length - 300);
 					}
-					this.triggerRainDropSound();  // call water sound
+					this.triggerRainDropSound(); // call water sound
 				}
 				this.drops.splice(d, 1);
 				continue;
@@ -757,7 +754,7 @@ define(function(require) {
 			drop.y += windYMs * dt;
 
 			// Progress through fall (0..1).
-			var denom = (drop.spawnZ - drop.groundZ);
+			var denom = drop.spawnZ - drop.groundZ;
 			var progress = denom > 0.0001 ? (drop.spawnZ - drop.z) / denom : 0;
 			if (progress < 0) progress = 0;
 			if (progress > 1) progress = 1;
@@ -781,9 +778,9 @@ define(function(require) {
 			SpriteRenderer.image.palette = null;
 			SpriteRenderer.sprite = _dropFrame;
 			SpriteRenderer.image.texture = _dropFrame.texture;
-			SpriteRenderer.color[0] = 0.60 * drop.brightness;
+			SpriteRenderer.color[0] = 0.6 * drop.brightness;
 			SpriteRenderer.color[1] = 0.72 * drop.brightness;
-			SpriteRenderer.color[2] = 1.00 * drop.brightness;
+			SpriteRenderer.color[2] = 1.0 * drop.brightness;
 			SpriteRenderer.color[3] = alpha;
 			SpriteRenderer.angle = computeDropTilt(windXMs, windYMs, drop.speedMs) + (drop.tiltJitter || 0);
 			SpriteRenderer.size[0] = drop.widthPx;
@@ -816,8 +813,8 @@ define(function(require) {
 				SpriteRenderer.position[2] = splash.z;
 				SpriteRenderer.zIndex = 0;
 				SpriteRenderer.color[0] = 0.75;
-				SpriteRenderer.color[1] = 0.80;
-				SpriteRenderer.color[2] = 0.90;
+				SpriteRenderer.color[1] = 0.8;
+				SpriteRenderer.color[2] = 0.9;
 				SpriteRenderer.color[3] = splashAlpha;
 				SpriteRenderer.angle = splash.angle;
 				SpriteRenderer.size[0] = splashSize;
@@ -839,7 +836,9 @@ define(function(require) {
 				}
 				this.audioCtx.close();
 				this.audioCtx = null;
-			} catch (e) { console.log(e); }
+			} catch (e) {
+				console.log(e);
+			}
 		}
 		this.drops = [];
 		this.splashes = [];
