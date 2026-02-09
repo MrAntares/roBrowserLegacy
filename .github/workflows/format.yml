@@ -6,6 +6,9 @@ on:
             - master
     pull_request:
 
+permissions:
+    contents: read
+
 jobs:
     prettier:
         name: Prettier Check (src)
@@ -22,7 +25,7 @@ jobs:
                   cache: 'npm'
 
             - name: Install dependencies
-              run: npm ci
+              run: npm i
 
             - name: Run Prettier check
               run: npm run format:check
