@@ -49,7 +49,7 @@ jobs:
             - name: 'Create GitHub Release + upload assets'
               uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
               with:
-                  prerelease: false
+                  prerelease: true
                   tag_name: nightly
                   files: |
                       *.tgz
