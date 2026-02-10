@@ -15,7 +15,7 @@ permissions:
 
 jobs:
     prettier:
-        name: Prettier Check
+        name: Prettier Fix
         runs-on: ubuntu-latest
 
         steps:
