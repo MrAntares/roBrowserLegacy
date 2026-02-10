@@ -142,7 +142,9 @@ define(function (require) {
 			pkt.effectState & StatusState.EffectState.FALCON &&
 			[11, 4012, 4034, 4056, 4062, 4098, 4257, 4270, 4278].includes(pkt.job)
 		) {
-			if (!entity.falcon) entity.falcon = new Entity();
+			if (!entity.falcon) {
+				entity.falcon = new Entity();
+			}
 
 			entity.falcon.set({
 				objecttype: entity.falcon.constructor.TYPE_FALCON,
@@ -158,7 +160,9 @@ define(function (require) {
 			EntityManager.add(entity.falcon);
 		}
 		if (pkt.effectState & StatusState.EffectState.WUG) {
-			if (!entity.wug) entity.wug = new Entity();
+			if (!entity.wug) {
+				entity.wug = new Entity();
+			}
 
 			entity.wug.set({
 				objecttype: entity.wug.constructor.TYPE_WUG,
@@ -207,7 +211,9 @@ define(function (require) {
 				entity.shield = pkt.shield;
 			}
 			if (PACKETVER.value > 20150513) {
-				if (entity.body !== pkt.body) entity.body = pkt.body;
+				if (entity.body !== pkt.body) {
+					entity.body = pkt.body;
+				}
 			}
 		}
 
@@ -578,7 +584,9 @@ define(function (require) {
 						isDualWeapon
 					);
 					let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action); [MrUnzO]
-					if (m_motionSpeed < 1) m_motionSpeed = 1;
+					if (m_motionSpeed < 1) {
+						m_motionSpeed = 1;
+					}
 					m_motionSpeed *= factorOfmotionSpeed;
 
 					soundTime = delayTime = m_attackMotion * m_motionSpeed * 24.0;
@@ -1014,7 +1022,9 @@ define(function (require) {
 			if (PACKETVER.value >= 20170208 && pkt.TitleID > 0) {
 				var titleText = DB.getTitleString(pkt.TitleID);
 				entity.display.title_name = titleText;
-			} else entity.display.title_name = '';
+			} else {
+				entity.display.title_name = '';
+			}
 
 			entity.display.party_name = pkt.PName || '';
 			entity.display.guild_name = pkt.GName || '';
@@ -1885,11 +1895,12 @@ define(function (require) {
 			if (entity === Session.Entity) {
 				// Autocounter hardcoded animation (any better place to put this?)
 				if (Session.underAutoCounter) {
-					if (Session.Entity.life.hp > 0)
+					if (Session.Entity.life.hp > 0) {
 						var EF_Init_Par = {
 							effectId: EffectConst.EF_AUTOCOUNTER,
 							ownerAID: pkt.AID
 						};
+					}
 
 					EffectManager.spam(EF_Init_Par);
 					Session.underAutoCounter = false;
@@ -1949,7 +1960,9 @@ define(function (require) {
 
 			case StatusConst.FALCON:
 				if (pkt.state || !pkt.hasOwnProperty('state')) {
-					if (!entity.falcon) entity.falcon = new Entity();
+					if (!entity.falcon) {
+						entity.falcon = new Entity();
+					}
 
 					entity.falcon.set({
 						objecttype: entity.falcon.constructor.TYPE_FALCON,
@@ -2520,7 +2533,7 @@ define(function (require) {
 	function onBladeStopVisual(srcEntity, dstEntity, state) {
 		srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 		srcEntity.toggleOpt3(StatusConst.BLADESTOP, state);
-		if (state == 1)
+		if (state == 1) {
 			srcEntity.setAction({
 				action: srcEntity.ACTION.READYFIGHT,
 				frame: 0,
@@ -2528,7 +2541,8 @@ define(function (require) {
 				play: true,
 				next: false
 			});
-		if (state == 0)
+		}
+		if (state == 0) {
 			srcEntity.setAction({
 				action: srcEntity.ACTION.IDLE,
 				frame: 0,
@@ -2536,6 +2550,7 @@ define(function (require) {
 				play: true,
 				next: false
 			});
+		}
 	}
 
 	/**
@@ -2708,9 +2723,13 @@ define(function (require) {
 	function haveSiegfriedItem() {
 		var itemInfo = Inventory.getUI().getItemById(7621);
 
-		if (Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode) return false;
-		else if (itemInfo && itemInfo.count > 0) return true;
-		else return false;
+		if (Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode) {
+			return false;
+		} else if (itemInfo && itemInfo.count > 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**

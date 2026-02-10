@@ -263,7 +263,9 @@ define(function (require) {
 					var skillbox = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
 					if (skillbox.children().hasClass('disabled') || showAll) {
 						skillbox.addClass('needleSkill');
-						if (count !== null) skillbox.append(element);
+						if (count !== null) {
+							skillbox.append(element);
+						}
 					}
 				}
 			});
@@ -433,8 +435,12 @@ define(function (require) {
 						'</div>'
 				);
 
-				if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
-				if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
+				if (rArrow) {
+					element.find('.level .currentUp').css('background-image', rArrow);
+				}
+				if (lArrow) {
+					element.find('.level .currentDown').css('background-image', lArrow);
+				}
 
 				element.find('.level .currentUp').click(function () {
 					skillLevelSelectUp(0);
@@ -446,7 +452,9 @@ define(function (require) {
 				if (value !== undefined) {
 					var box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + value);
 					// show added cells
-					if (key < 41) box.parent().show();
+					if (key < 41) {
+						box.parent().show();
+					}
 					// show preview skill
 					if (box.is(':empty')) {
 						box.append(element);
@@ -492,8 +500,12 @@ define(function (require) {
 				'</div>'
 		);
 
-		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
-		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
+		if (rArrow) {
+			element.find('.level .currentUp').css('background-image', rArrow);
+		}
+		if (lArrow) {
+			element.find('.level .currentDown').css('background-image', lArrow);
+		}
 
 		element.find('.level .currentUp').click(function () {
 			skillLevelSelectUp(skill);
@@ -564,8 +576,12 @@ define(function (require) {
 
 		element.find('.levelupcontainer').append(levelup);
 
-		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
-		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
+		if (rArrow) {
+			element.find('.level .currentUp').css('background-image', rArrow);
+		}
+		if (lArrow) {
+			element.find('.level .currentDown').css('background-image', lArrow);
+		}
 
 		element.find('.level .currentUp').click(function () {
 			skillLevelSelectUp(skill);

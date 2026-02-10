@@ -249,7 +249,9 @@ define(function (require) {
 				Client.loadFile(DB.INTERFACE_PATH + 'cashshop/' + banner.bmp, function (data) {
 					slide.css('backgroundImage', 'url(' + data + ')');
 				});
-				if (index === 0) slide.addClass('active');
+				if (index === 0) {
+					slide.addClass('active');
+				}
 				slidesContainer.append(slide);
 
 				// Dot
@@ -258,7 +260,9 @@ define(function (require) {
 						index +
 						'"><button class="btn-banner"></button></li>'
 				);
-				if (index === 0) dot.addClass('active');
+				if (index === 0) {
+					dot.addClass('active');
+				}
 				dotsContainer.append(dot);
 			});
 
@@ -352,7 +356,7 @@ define(function (require) {
 
 				case 4:
 					//overweight limit
-					UIManager.showMessageBox(`You are over you're weight limit!`, 'ok');
+					UIManager.showMessageBox("You are over you're weight limit!", 'ok');
 					ChatBox.addText('You are over youre weight limit!', ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 					break;
 
@@ -423,7 +427,9 @@ define(function (require) {
 	};
 
 	CashShop.goToBanner = function (index) {
-		if (index === this.currentBannerIndex) return;
+		if (index === this.currentBannerIndex) {
+			return;
+		}
 
 		const slides = this.ui.find('.banner-slide');
 		const dots = this.ui.find('.banner-dot');
@@ -516,7 +522,9 @@ define(function (require) {
 		let items = CashShop.isSearch
 			? CashShop.csListItemSearchResult
 			: CashShop.cashShopListItem[CashShop.activeCashMenu]?.items || [];
-		if (items.length === 0) return;
+		if (items.length === 0) {
+			return;
+		}
 		var content = CashShop.ui.find('.panel-pagination');
 
 		CashShop.isFirstPage = false;
@@ -588,7 +596,9 @@ define(function (require) {
 
 					if (it.identifiedDisplayName) {
 						var matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
-						if (matches) newList.push(items[iit]);
+						if (matches) {
+							newList.push(items[iit]);
+						}
 					}
 				}
 			}
@@ -703,7 +713,9 @@ define(function (require) {
 			tab = item.tab;
 		}
 
-		if (!item) return; // Guard clause
+		if (!item) {
+			return;
+		} // Guard clause
 
 		if (content.find('#cart-list .items .no-items').length > 0) {
 			content.find('#cart-list .items .no-items').remove();

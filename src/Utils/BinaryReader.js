@@ -163,7 +163,9 @@ define(['./Struct', 'Vendors/text-encoding'], function (Struct, TextEncoding) {
 		// combine the two 32-bit values
 		const combined = left + 2 ** 32 * right; // little endian
 
-		if (!Number.isSafeInteger(combined)) console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+		if (!Number.isSafeInteger(combined)) {
+			console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+		}
 
 		this.offset += 8;
 
@@ -183,7 +185,9 @@ define(['./Struct', 'Vendors/text-encoding'], function (Struct, TextEncoding) {
 		const combined = left + 2 ** 32 * right; // little endian
 		// const combined = 2**32*left + right; // big endian
 
-		if (!Number.isSafeInteger(combined)) console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+		if (!Number.isSafeInteger(combined)) {
+			console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+		}
 
 		this.offset += 8;
 

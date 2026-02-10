@@ -296,7 +296,9 @@ define(['Core/Configs', 'Network/PacketLength'], function (Configs, PacketLength
 			packet = param[0];
 			param[0] = date;
 
-			if (!packet?.prototype?.versions) packet.prototype.versions = [];
+			if (!packet?.prototype?.versions) {
+				packet.prototype.versions = [];
+			}
 
 			packet.prototype.versions.push(list[i]);
 			packet.prototype.getPacketVersion = getPacketVersion;

@@ -288,7 +288,9 @@ define(function (require) {
 
 		while (true) {
 			const { value, done } = await reader.read();
-			if (done) break;
+			if (done) {
+				break;
+			}
 			chunks.push(value);
 		}
 
@@ -329,7 +331,9 @@ define(function (require) {
 
 		while (true) {
 			const { value, done } = await reader.read();
-			if (done) break;
+			if (done) {
+				break;
+			}
 			chunks.push(value);
 		}
 

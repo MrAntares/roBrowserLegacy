@@ -234,7 +234,9 @@ define(function (require) {
 		content.empty();
 		reputeIds.forEach(reputeId => {
 			const info = DB.getReputeData(reputeId);
-			if (!info) return;
+			if (!info) {
+				return;
+			}
 			const points = Reputation.reputeState?.[reputeId] || 0;
 			const entry = createReputeEntry(reputeId, info);
 			entry.dataset.visible = isReputeVisible(info, points) ? 'true' : 'false';
@@ -372,7 +374,9 @@ define(function (require) {
 		prevBtn.css('visibility', current === 1 ? 'hidden' : 'visible');
 		nextBtn.css('visibility', current === totalPages ? 'hidden' : 'visible');
 
-		if (totalPages === 1) prevBtn.add(nextBtn).css('visibility', 'hidden');
+		if (totalPages === 1) {
+			prevBtn.add(nextBtn).css('visibility', 'hidden');
+		}
 	}
 
 	/**
@@ -431,7 +435,7 @@ define(function (require) {
 		const wrapper = document.createElement('div');
 		wrapper.className = 'rep_group_wrapper';
 		wrapper.dataset.reputeId = reputeId;
-		wrapper.style.backgroundImage = `url(` + bg + `)`;
+		wrapper.style.backgroundImage = 'url(' + bg + ')';
 
 		// Name
 		const name = document.createElement('div');
@@ -477,7 +481,9 @@ define(function (require) {
 	function updateReputeUI(reputeId, points) {
 		const wrapper = Reputation.ui.find(`.rep_group_wrapper[data-repute-id="${reputeId}"]`);
 
-		if (!wrapper.length) return;
+		if (!wrapper.length) {
+			return;
+		}
 
 		const indicators = wrapper.find('.rep_group_indicator');
 		const absPoints = Math.abs(points);
@@ -546,7 +552,9 @@ define(function (require) {
 			const matches = info?.Name.toLowerCase().includes(lowerQuery);
 			const show = matches && isReputeVisible(info, points);
 			el.dataset.visible = show ? 'true' : 'false';
-			if (show) visibleIds.push(reputeId);
+			if (show) {
+				visibleIds.push(reputeId);
+			}
 		});
 
 		Reputation.page.reputeIds = visibleIds;

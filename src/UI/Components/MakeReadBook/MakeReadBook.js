@@ -92,7 +92,7 @@ define(function (require) {
 		let addColor = inforBook.substr(1, 7);
 		let validtext = inforBook.substr(7); // remover color background
 
-		let lineValidtext = validtext.split(`\n`);
+		let lineValidtext = validtext.split('\n');
 		let defoutValue = 15;
 		let coutIndeNewText = 0;
 		let coutNewIndex = 0;
@@ -245,20 +245,24 @@ define(function (require) {
 	};
 
 	MakeReadBook.highlighter = async function highlighter() {
-		if (_preferences.show) onClose();
+		if (_preferences.show) {
+			onClose();
+		}
 
 		let index = _BOOK_INFORMATION['bookmark_activated'] ? _BOOK_INFORMATION['bookmark_activated_page'] : 0;
 		let newText = '';
 		for (index; index < _BOOK_INFORMATION['contents'].length; index++) {
-			newText = newText + `\n` + _BOOK_INFORMATION['contents'][index];
+			newText = newText + '\n' + _BOOK_INFORMATION['contents'][index];
 		}
 		await repeatedGreetingsLoop(newText);
 	};
 
 	async function repeatedGreetingsLoop(book_information) {
-		let text1 = book_information.split(`\n`);
+		let text1 = book_information.split('\n');
 		for (let i = 0; i < text1.length; i++) {
-			if (_BOOK_INFORMATION['book_open']) break;
+			if (_BOOK_INFORMATION['book_open']) {
+				break;
+			}
 
 			if (text1[i] === '' && i === 0) {
 				getText('   ');
@@ -271,7 +275,9 @@ define(function (require) {
 			}
 			await sleepNow(5000);
 
-			if (_BOOK_INFORMATION['book_open']) break;
+			if (_BOOK_INFORMATION['book_open']) {
+				break;
+			}
 
 			getText(text1[i]);
 		}
@@ -299,7 +305,9 @@ define(function (require) {
 			newMessage = newMessage + array[index].substr(6);
 		}
 
-		if (newMessage.length === 1) return newMessage[0];
+		if (newMessage.length === 1) {
+			return newMessage[0];
+		}
 
 		return newMessage;
 	}

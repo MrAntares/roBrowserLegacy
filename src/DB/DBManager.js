@@ -370,7 +370,7 @@ define(function (require) {
 						});
 					}
 				);
-			} else
+			} else {
 				loadLuaTable(
 					[DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'],
 					'JobNameTable',
@@ -379,6 +379,7 @@ define(function (require) {
 					},
 					onLoad()
 				);
+			}
 
 			loadLuaTable(
 				[DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'],
@@ -909,10 +910,14 @@ define(function (require) {
 
 				for (var i = 0; i < lines.length; i++) {
 					var line = lines[i].trim();
-					if (!line || line.startsWith('//')) continue;
+					if (!line || line.startsWith('//')) {
+						continue;
+					}
 
 					var parts = line.split(',');
-					if (parts.length <= Math.max(keyIndex, valueIndex)) continue;
+					if (parts.length <= Math.max(keyIndex, valueIndex)) {
+						continue;
+					}
 
 					try {
 						var key = base64DecodeUtf8(parts[keyIndex].trim());
@@ -971,7 +976,9 @@ define(function (require) {
 
 				for (let line of lines) {
 					line = line.trim();
-					if (!line || line.startsWith('//')) continue;
+					if (!line || line.startsWith('//')) {
+						continue;
+					}
 
 					// Remove inline comments
 					const commentIndex = line.indexOf('//');
@@ -1076,7 +1083,9 @@ define(function (require) {
 					}
 
 					// Clear target table
-					for (var k in targetTable) delete targetTable[k];
+					for (var k in targetTable) {
+						delete targetTable[k];
+					}
 
 					// If root has exactly ONE key, unwrap it
 					if (typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 1) {
@@ -1089,7 +1098,9 @@ define(function (require) {
 				} catch (e) {
 					console.error('BSON parse error:', e);
 				} finally {
-					if (onEnd) onEnd();
+					if (onEnd) {
+						onEnd();
+					}
 				}
 			},
 			onEnd
@@ -1127,7 +1138,7 @@ define(function (require) {
 					// execute file
 					await lua.doFile('CheckAttendance.lub');
 					// execute main lua function
-					lua.doStringSync(`main()`);
+					lua.doStringSync('main()');
 				} catch (error) {
 					console.error('[loadAttendanceFile] Error: ', error);
 				} finally {
@@ -1173,7 +1184,9 @@ define(function (require) {
 				function () {
 					console.error('[loadWorldMapInfo] - Failed to load ' + fullPath);
 					// If a file fails, we might not be able to generate the map, but we continue to avoid hanging
-					if (onEnd) onEnd();
+					if (onEnd) {
+						onEnd();
+					}
 				}
 			);
 		}
@@ -1223,7 +1236,9 @@ define(function (require) {
 
 					if (mapType === 1) {
 						let originalMap = world.maps.find(m => m.index === dgIndex && m.type === 0);
-						if (originalMap) decodedRsw = originalMap.id; // Copy rsw name
+						if (originalMap) {
+							decodedRsw = originalMap.id;
+						} // Copy rsw name
 					}
 
 					if (world) {
@@ -1321,7 +1336,9 @@ define(function (require) {
 			} finally {
 				// Unmount files
 				loadedBuffers.forEach(f => lua.unmountFile(f.name));
-				if (onEnd) onEnd();
+				if (onEnd) {
+					onEnd();
+				}
 			}
 		}
 
@@ -1416,7 +1433,7 @@ define(function (require) {
 					// execute file
 					await lua.doFile(filename);
 					// execute main lua function
-					lua.doStringSync(`main()`);
+					lua.doStringSync('main()');
 				} catch (error) {
 					console.error('[loadTownInfoFile] Error: ', error);
 				} finally {
@@ -1615,12 +1632,15 @@ define(function (require) {
 				return;
 			}
 
-			if (files[index].indexOf('System/') !== 0 && files[index].indexOf('System\\') !== 0)
+			if (files[index].indexOf('System/') !== 0 && files[index].indexOf('System\\') !== 0) {
 				files[index] = 'System/' + files[index];
+			}
 
 			rFunc(files[index], callBack, isSuccess => {
 				trackedOnEnd(isSuccess); //await last lua parsing
-				if ((isSuccess && loadAll) || !isSuccess) tryNext(index + 1);
+				if ((isSuccess && loadAll) || !isSuccess) {
+					tryNext(index + 1);
+				}
 			});
 		}
 		tryNext(0);
@@ -2116,8 +2136,9 @@ define(function (require) {
 					ctx.AddReformItem = (baseItem, itemID) => {
 						let decoded_baseItem =
 							baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
-						if (!ItemReformTable.ReformItemList[decoded_baseItem])
+						if (!ItemReformTable.ReformItemList[decoded_baseItem]) {
 							ItemReformTable.ReformItemList[decoded_baseItem] = [];
+						}
 						ItemReformTable.ReformItemList[decoded_baseItem].push(itemID);
 						return 1;
 					};
@@ -2552,10 +2573,18 @@ define(function (require) {
 			const decoder = new TextEncoding.TextDecoder(userCharpage);
 
 			function decodeLuaString(v) {
-				if (v == null) return null;
-				if (typeof v === 'string') return v;
-				if (v instanceof Uint8Array) return decoder.decode(v);
-				if (v instanceof ArrayBuffer) return decoder.decode(new Uint8Array(v));
+				if (v == null) {
+					return null;
+				}
+				if (typeof v === 'string') {
+					return v;
+				}
+				if (v instanceof Uint8Array) {
+					return decoder.decode(v);
+				}
+				if (v instanceof ArrayBuffer) {
+					return decoder.decode(new Uint8Array(v));
+				}
 				return String(v);
 			}
 
@@ -3013,12 +3042,15 @@ define(function (require) {
 					) => {
 						// Convert to format expected by SkillInfo.js
 						const toArray = v => {
-							if (Array.isArray(v)) return v;
-							if (typeof v === 'object' && v !== null)
+							if (Array.isArray(v)) {
+								return v;
+							}
+							if (typeof v === 'object' && v !== null) {
 								return Object.keys(v)
 									.map(Number)
 									.sort((a, b) => a - b)
 									.map(k => v[k]);
+							}
 							return [];
 						};
 						SkillInfo[skillId] = {
@@ -3358,7 +3390,9 @@ define(function (require) {
 				},
 				function () {
 					console.error('[loadStateIconInfo] - Failed to load ' + fullPath);
-					if (onEnd) onEnd();
+					if (onEnd) {
+						onEnd();
+					}
 				}
 			);
 		}
@@ -3390,7 +3424,9 @@ define(function (require) {
 				};
 
 				ctx.SetStatusInfo = (id, haveTimeLimit, posTimeLimitStr) => {
-					if (!StatusInfo[id]) StatusInfo[id] = {};
+					if (!StatusInfo[id]) {
+						StatusInfo[id] = {};
+					}
 					StatusInfo[id].haveTimeLimit = haveTimeLimit;
 					StatusInfo[id].posTimeLimitStr = posTimeLimitStr;
 					StatusInfo[id].descript = [];
@@ -3398,7 +3434,9 @@ define(function (require) {
 				};
 
 				ctx.AddStatusDesc = (id, desc, r, g, b) => {
-					if (!StatusInfo[id]) return 0;
+					if (!StatusInfo[id]) {
+						return 0;
+					}
 					let text = userStringDecoder.decode(desc);
 					let color = null;
 					if (r >= 0 && g >= 0 && b >= 0) {
@@ -3410,7 +3448,9 @@ define(function (require) {
 
 				ctx.SetStatusIcon = (id, iconName) => {
 					let icon = userStringDecoder.decode(iconName);
-					if (!StatusInfo[id]) StatusInfo[id] = { descript: [] };
+					if (!StatusInfo[id]) {
+						StatusInfo[id] = { descript: [] };
+					}
 					StatusInfo[id].icon = icon;
 					return 1;
 				};
@@ -3487,7 +3527,9 @@ define(function (require) {
 				console.error('[loadStateIconInfo] Lua Error:', e);
 			} finally {
 				loadedBuffers.forEach(f => lua.unmountFile(f.name));
-				if (onEnd) onEnd();
+				if (onEnd) {
+					onEnd();
+				}
 			}
 		}
 
@@ -3680,7 +3722,9 @@ define(function (require) {
 
 				// used in some specific cases like skilldescript.lub
 				ctx.addKeyAndMoreValuesToTable = (key, value) => {
-					if (!table[key]) table[key] = '';
+					if (!table[key]) {
+						table[key] = '';
+					}
 					table[key] += userDecoder.decode(value) + '\n';
 					return 1;
 				};
@@ -3901,7 +3945,7 @@ define(function (require) {
 					await lua.doFile(filename);
 
 					// execute main function
-					lua.doStringSync(`main()`);
+					lua.doStringSync('main()');
 				} catch (error) {
 					console.error('[loadMapTbl] Error: ', error);
 				} finally {
@@ -4043,8 +4087,12 @@ define(function (require) {
 
 						const pet = PetDBTable[baseJobID];
 
-						if (!pet.Evolution) pet.Evolution = {};
-						if (!pet.Evolution[targetEggID]) pet.Evolution[targetEggID] = [];
+						if (!pet.Evolution) {
+							pet.Evolution = {};
+						}
+						if (!pet.Evolution[targetEggID]) {
+							pet.Evolution[targetEggID] = [];
+						}
 
 						pet.Evolution[targetEggID].push({
 							MaterialID: Number(matID),
@@ -4069,7 +4117,7 @@ define(function (require) {
 
 					// Execute Lua
 					await lua.doFile(filename);
-					lua.doStringSync(`main()`);
+					lua.doStringSync('main()');
 					wasSuccessful = true;
 				} catch (error) {
 					console.error('[loadPetEvolutionFile] Error: ', error);
@@ -4233,8 +4281,9 @@ define(function (require) {
 							alternative > JobId.COSTUME_SECOND_JOB_START &&
 							alternative < JobId.COSTUME_SECOND_JOB_END) ||
 						alternative === 1
-					)
+					) {
 						result += 'costume_1/';
+					}
 
 					result += ClassTable[id] || ClassTable[0];
 					result += '_' + SexTable[sex];
@@ -4244,8 +4293,9 @@ define(function (require) {
 							alternative > JobId.COSTUME_SECOND_JOB_START &&
 							alternative < JobId.COSTUME_SECOND_JOB_END) ||
 						alternative === 1
-					)
+					) {
 						result += '_1';
+					}
 					return result;
 				}
 			}
@@ -4590,11 +4640,15 @@ define(function (require) {
 				//case JobId.SOUL_ASCETIC2:??
 				switch (weaponType) {
 					case WeaponType.SHORTSWORD:
-						if (sex == 1) isDualWeapon = true; // male
+						if (sex == 1) {
+							isDualWeapon = true;
+						} // male
 						break;
 					case WeaponType.ROD:
 					case WeaponType.TWOHANDROD:
-						if (sex == 0) isDualWeapon = true; // Female
+						if (sex == 0) {
+							isDualWeapon = true;
+						} // Female
 						break;
 				}
 				break;
@@ -4742,11 +4796,15 @@ define(function (require) {
 			case JobId.ARCH_MAGE: {
 				switch (weaponType) {
 					case WeaponType.SHORTSWORD:
-						if (sex == 1) isDualWeapon = true;
+						if (sex == 1) {
+							isDualWeapon = true;
+						}
 						break;
 					case WeaponType.ROD:
 					case WeaponType.TWOHANDROD:
-						if (sex == 0) isDualWeapon = true;
+						if (sex == 0) {
+							isDualWeapon = true;
+						}
 						break;
 				}
 				break;
@@ -5883,9 +5941,10 @@ define(function (require) {
 	};
 
 	DB.getNameByGID = function getNameByGID(GID) {
-		if (DB.CNameTable[GID] && DB.CNameTable[GID] === 'Unknown')
-			// already requested
+		if (DB.CNameTable[GID] && DB.CNameTable[GID] === 'Unknown') // already requested
+		{
 			return;
+		}
 		var pkt;
 		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.REQNAME_BYGID2();
@@ -5963,11 +6022,17 @@ define(function (require) {
 		if (!hunger) {
 			return 0;
 		}
-		if (hunger > 90 && hunger <= 100) return PetHungryState.PET_FULL;
-		else if (hunger > 75 && hunger <= 90) return PetHungryState.PET_ENOUGH;
-		else if (hunger > 25 && hunger <= 75) return PetHungryState.PET_SATISFIED;
-		else if (hunger > 10 && hunger <= 25) return PetHungryState.PET_HUNGRY;
-		else if (hunger >= 0 && hunger <= 10) return PetHungryState.PET_HUNGER;
+		if (hunger > 90 && hunger <= 100) {
+			return PetHungryState.PET_FULL;
+		} else if (hunger > 75 && hunger <= 90) {
+			return PetHungryState.PET_ENOUGH;
+		} else if (hunger > 25 && hunger <= 75) {
+			return PetHungryState.PET_SATISFIED;
+		} else if (hunger > 10 && hunger <= 25) {
+			return PetHungryState.PET_HUNGRY;
+		} else if (hunger >= 0 && hunger <= 10) {
+			return PetHungryState.PET_HUNGER;
+		}
 		return 0;
 	};
 
@@ -5983,11 +6048,17 @@ define(function (require) {
 		if (!friendly) {
 			return 0;
 		}
-		if (friendly > 900 && friendly <= 1000) return PetFriendlyState.PET_FAMILIAR;
-		else if (friendly > 750 && friendly <= 900) return PetFriendlyState.PET_FRIENDLY;
-		else if (friendly > 250 && friendly <= 750) return PetFriendlyState.PET_NORMAL;
-		else if (friendly > 100 && friendly <= 250) return PetFriendlyState.PET_AWKWARD;
-		else if (friendly >= 0 && friendly <= 100) return PetFriendlyState.PET_ASHAMED;
+		if (friendly > 900 && friendly <= 1000) {
+			return PetFriendlyState.PET_FAMILIAR;
+		} else if (friendly > 750 && friendly <= 900) {
+			return PetFriendlyState.PET_FRIENDLY;
+		} else if (friendly > 250 && friendly <= 750) {
+			return PetFriendlyState.PET_NORMAL;
+		} else if (friendly > 100 && friendly <= 250) {
+			return PetFriendlyState.PET_AWKWARD;
+		} else if (friendly >= 0 && friendly <= 100) {
+			return PetFriendlyState.PET_ASHAMED;
+		}
 		return 0;
 	};
 
@@ -6063,7 +6134,9 @@ define(function (require) {
 	 * @author MrUnzO
 	 */
 	DB.getPetEmotion = function getPetEmotion(hunger, friendly, act) {
-		if (PetEmotionTable[hunger][friendly][act]) return PetEmotionTable[hunger][friendly][act];
+		if (PetEmotionTable[hunger][friendly][act]) {
+			return PetEmotionTable[hunger][friendly][act];
+		}
 
 		return false;
 	};
@@ -6096,7 +6169,9 @@ define(function (require) {
 	 * @author MrUnzO
 	 */
 	DB.isIndoor = function isIndoor(mapname) {
-		if (mapname === undefined) return -1;
+		if (mapname === undefined) {
+			return -1;
+		}
 		let map;
 		if (mapname.substring(mapname.length - 4, mapname.length) == '.gat') {
 			map = mapname.replace('.gat', '.rsw');
@@ -6480,7 +6555,9 @@ define(function (require) {
 			},
 			// onError for Client.loadFile
 			function () {
-				if (onEnd) onEnd(false);
+				if (onEnd) {
+					onEnd(false);
+				}
 			}
 		);
 	}
@@ -6809,7 +6886,9 @@ define(function (require) {
 			let cardIndex = 0;
 
 			while (cardIndex < 4 && pos < data.length) {
-				if (data[pos] !== card_sep) break; // não tem mais carta
+				if (data[pos] !== card_sep) {
+					break;
+				} // não tem mais carta
 
 				pos++; // skip
 
@@ -6852,12 +6931,16 @@ define(function (require) {
 				const optId = Base62.decode(data.substr(pos, 2));
 				pos += 2;
 
-				if (pos >= data.length || data[pos] !== optpar_sep) break;
+				if (pos >= data.length || data[pos] !== optpar_sep) {
+					break;
+				}
 				pos++; // Skip param separator
 				const optParam = Base62.decode(data.substr(pos, 2));
 				pos += 2;
 
-				if (pos >= data.length || data[pos] !== optval_sep) break;
+				if (pos >= data.length || data[pos] !== optval_sep) {
+					break;
+				}
 				pos++; // Skip value separator
 				const optValue = Base62.decode(data.substr(pos, 2));
 				pos += 2;
@@ -6930,7 +7013,9 @@ define(function (require) {
 			return close + `<span style="color:#${color}">`;
 		});
 
-		if (hasOpenSpan) msg += '</span>';
+		if (hasOpenSpan) {
+			msg += '</span>';
+		}
 		return msg;
 	};
 
@@ -6964,7 +7049,9 @@ define(function (require) {
 	DB.getPetByEggID = function (eggID) {
 		for (const jobID in PetDBTable) {
 			const pet = PetDBTable[jobID];
-			if (pet.PetEggID === Number(eggID)) return pet;
+			if (pet.PetEggID === Number(eggID)) {
+				return pet;
+			}
 		}
 		return null;
 	};

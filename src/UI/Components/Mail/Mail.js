@@ -227,7 +227,9 @@ define(function (require) {
 	 * @param {object} read
 	 */
 	Mail.mailReceiveUpdate = function mailReceiveUpdate(newMail) {
-		if (Mail.list.mailList === undefined) return;
+		if (Mail.list.mailList === undefined) {
+			return;
+		}
 		Mail.list.MailNumber = Mail.MailNumber + 1;
 		let validIsOpen = 0;
 		Mail.list.mailList = Mail.list.mailList.map(el => {
@@ -370,7 +372,9 @@ define(function (require) {
 		var content = Mail.ui.find('.list_item_mail');
 		Mail.ui.find('.item_mail').remove();
 
-		if (Mail.list.length == 0) return;
+		if (Mail.list.length == 0) {
+			return;
+		}
 
 		for (
 			var i = Mail.page * Mail.pageSize;
@@ -399,7 +403,7 @@ define(function (require) {
 							<div  style="flex: 3;">
 								<span id="from_name_` +
 					mailId +
-					`" class="event_add_cursor tooltip name_data" > ` +
+					'" class="event_add_cursor tooltip name_data" > ' +
 					from_name +
 					`
 									<span class="tooltiptext to">` +
@@ -417,9 +421,9 @@ define(function (require) {
 						<div >
 							<span id="from_header_` +
 					mailId +
-					`" data-id="` +
+					'" data-id="' +
 					mailId +
-					`" class="event_add_cursor tooltip"> ` +
+					'" class="event_add_cursor tooltip"> ' +
 					header +
 					`
 								<span class="tooltiptext title">` +
@@ -454,7 +458,9 @@ define(function (require) {
 	}
 
 	function adjustButtons() {
-		if (Mail.list.length == 0) return;
+		if (Mail.list.length == 0) {
+			return;
+		}
 		let mailLength = Mail.list.mailList.length;
 
 		if (!(Mail.page > mailLength / Mail.pageSize - 1)) {

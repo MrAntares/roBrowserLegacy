@@ -731,8 +731,12 @@ define(function (require) {
 		// if the distance between Session.Entity and closestItem is greater then 2 so walk to the item
 		var dx = Math.abs(player.position[0] - closestItem.position[0]);
 		var dy = Math.abs(player.position[1] - closestItem.position[1]);
-		if (dx < 0) dx = -dx;
-		if (dy < 0) dy = -dy;
+		if (dx < 0) {
+			dx = -dx;
+		}
+		if (dy < 0) {
+			dy = -dy;
+		}
 
 		if ((dx < dy ? dy : dx) > 2) {
 			var dest = [0, 0];
