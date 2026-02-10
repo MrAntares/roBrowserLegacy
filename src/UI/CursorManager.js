@@ -463,7 +463,7 @@ define(function (require) {
 			_animation = animation;
 			_play = false;
 		} else {
-			_animation = animation || 0;
+			_animation = 0;
 			_play = true;
 		}
 	};
