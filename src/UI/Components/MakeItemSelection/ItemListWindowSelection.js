@@ -329,7 +329,7 @@ define(function (require) {
 		// Set image to the drag drop element
 		var img = new Image();
 		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-		url = url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
+		url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
 		img.decoding = 'async';
 		img.src = url;
 
