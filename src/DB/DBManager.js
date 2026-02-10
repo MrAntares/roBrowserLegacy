@@ -491,7 +491,7 @@ define(function (require) {
 
 			// EnchantList
 			if (PACKETVER.value >= 20211103) {
-				loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', null, onLoad());
+				loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', onLoad());
 			}
 
 			// MapName
