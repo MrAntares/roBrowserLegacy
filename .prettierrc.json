@@ -14,5 +14,5 @@
 
 	"printWidth": 120,
 
-	"endOfLine": "lf"
+	"endOfLine": "crlf"
 }

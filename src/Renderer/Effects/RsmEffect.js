@@ -757,7 +757,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model', 'Rende
 			}
 
 			var data;
-			var i, count, j, size, total, offset, length/*, pos -UNUSED*/;
+			var i, count, j, size, total, offset, length /*, pos -UNUSED*/;
 			var objects = [],
 				infos = [],
 				meshes,

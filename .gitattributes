@@ -21,8 +21,8 @@
 
 # Configs
 *.lock				text -diff
-package.json		text eol=lf
-package-lock.json	text eol=lf -diff
+package.json		text eol=crlf
+package-lock.json	text eol=crlf -diff
 
 # Graphics
 *.bmp				binary
