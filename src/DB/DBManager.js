@@ -4758,7 +4758,6 @@ define(function (require) {
 			case JobId.RUNE_KNIGHT2:
 			case JobId.RUNE_KNIGHT2_H:
 			case JobId.RUNE_KNIGHT2_B:
-			case JobId.RUNE_KNIGHT2_H:
 			case JobId.DRAGON_KNIGHT:
 			case JobId.DRAGON_KNIGHT2: {
 				switch (weaponType) {
