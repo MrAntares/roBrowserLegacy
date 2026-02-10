@@ -237,10 +237,6 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 				this.ACTION.IDLE = 0;
 				this.ACTION.WALK = 1;
 				break;
-
-			//TODO: define others Entities ACTION
-			case Entity.TYPE_ELEM:
-				break;
 		}
 	};
 });
