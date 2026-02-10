@@ -8,21 +8,18 @@
  * @author Vincent Thibault
  */
 
-define(function()
-{
+define(function () {
 	'use strict';
-
 
 	/**
 	 * HTML5 WebSocket System
 	 *
 	 * @param {string} url
 	 */
-	function Socket( host, port, proxy )
-	{
-		var url            = 'ws://' + host + ':' + port + '/';
-		var self           = this;
-		this.connected     = false;
+	function Socket(host, port, proxy) {
+		var url = 'ws://' + host + ':' + port + '/';
+		var self = this;
+		this.connected = false;
 
 		// Use of a proxy
 		if (proxy) {
@@ -36,29 +33,25 @@ define(function()
 		}
 
 		// Open Websocket
-		this.ws            = new WebSocket(url);
+		this.ws = new WebSocket(url);
 		this.ws.binaryType = 'arraybuffer';
 
-		this.ws.onopen = function OnOpen()
-		{
+		this.ws.onopen = function OnOpen() {
 			self.connected = true;
-			self.onComplete( true );
+			self.onComplete(true);
 		};
 
-		this.ws.onerror = function OnError()
-		{
+		this.ws.onerror = function OnError() {
 			if (!self.connected) {
-				self.onComplete( false );
+				self.onComplete(false);
 			}
 		};
 
-		this.ws.onmessage = function OnMessage( event )
-		{
-			self.onMessage( event.data );
+		this.ws.onmessage = function OnMessage(event) {
+			self.onMessage(event.data);
 		};
 
-		this.ws.onclose = function OnClose()
-		{
+		this.ws.onclose = function OnClose() {
 			self.connected = false;
 			this.close();
 
@@ -68,31 +61,26 @@ define(function()
 		};
 	}
 
-
 	/**
 	 * Sending packet to applet
 	 *
 	 * @param {ArrayBuffer} buffer
 	 */
-	Socket.prototype.send = function Send( buffer )
-	{
+	Socket.prototype.send = function Send(buffer) {
 		if (this.connected) {
-			this.ws.send( buffer );
+			this.ws.send(buffer);
 		}
 	};
-
 
 	/**
 	 * Closing connection to server
 	 */
-	Socket.prototype.close = function Close()
-	{
+	Socket.prototype.close = function Close() {
 		if (this.connected) {
 			this.ws.close();
 			this.connected = false;
 		}
 	};
-
 
 	/**
 	 * Export

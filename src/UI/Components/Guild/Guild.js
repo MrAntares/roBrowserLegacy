@@ -7,37 +7,35 @@
  *
  * @author @vthibault, @Javierlog08, @scriptord3
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var DB             = require('DB/DBManager');
-	var SkillInfo      = require('DB/Skills/SkillInfo');
-	var jQuery         = require('Utils/jquery');
-	var KEYS           = require('Controls/KeyEventHandler');
-	var MonsterTable   = require('DB/Monsters/MonsterTable');
-	var Session        = require('Engine/SessionStorage');
-	var Entity         = require('Renderer/Entity/Entity');
+	var DB = require('DB/DBManager');
+	var SkillInfo = require('DB/Skills/SkillInfo');
+	var jQuery = require('Utils/jquery');
+	var KEYS = require('Controls/KeyEventHandler');
+	var MonsterTable = require('DB/Monsters/MonsterTable');
+	var Session = require('Engine/SessionStorage');
+	var Entity = require('Renderer/Entity/Entity');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Camera         = require('Renderer/Camera');
-	var Renderer       = require('Renderer/Renderer');
-	var Preferences    = require('Core/Preferences');
-	var Client         = require('Core/Client');
-	var UIManager      = require('UI/UIManager');
-	var UIComponent    = require('UI/UIComponent');
-	var ContextMenu    = require('UI/Components/ContextMenu/ContextMenu');
-	var ChatBox        = require('UI/Components/ChatBox/ChatBox');
-	var InputBox       = require('UI/Components/InputBox/InputBox');
+	var Camera = require('Renderer/Camera');
+	var Renderer = require('Renderer/Renderer');
+	var Preferences = require('Core/Preferences');
+	var Client = require('Core/Client');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
+	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var InputBox = require('UI/Components/InputBox/InputBox');
 	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var SkillDescription     = require('UI/Components/SkillDescription/SkillDescription');
-	var htmlText       = require('text!./Guild.html');
-	var cssText        = require('text!./Guild.css');
+	var SkillDescription = require('UI/Components/SkillDescription/SkillDescription');
+	var htmlText = require('text!./Guild.html');
+	var cssText = require('text!./Guild.css');
 
-	var WinStats  = require('UI/Components/WinStats/WinStats');
+	var WinStats = require('UI/Components/WinStats/WinStats');
 
 	/**
 	 * @var {Preferences} structure
@@ -46,7 +44,6 @@ define(function(require)
 		x: 100,
 		y: 100
 	}, 1.0);*/ // UNUSED
-
 
 	/**
 	 * Flags to check access
@@ -59,27 +56,23 @@ define(function(require)
 		3: 0x04, // Skills
 		4: 0x10, // Expel
 		5: 0x40, // Unknown
-		6: 0x80  // Notice
+		6: 0x80 // Notice
 	};
-
 
 	/**
 	 * Create Component
 	 */
-	var Guild = new UIComponent( 'Guild', htmlText, cssText );
-
+	var Guild = new UIComponent('Guild', htmlText, cssText);
 
 	/**
 	 * View template
 	 */
 	var MemberView, PositionView, ExpelView;
 
-
 	/**
 	 * @var {Array} position list
 	 */
 	var _positions = [];
-
 
 	/**
 	 * @var {Array} members list
@@ -97,12 +90,10 @@ define(function(require)
 	 */
 	var _btnIncSkill;
 
-
 	/**
 	 * @var {number} skill points
 	 */
 	var _skpoints = 0;
-
 
 	/**
 	 * @var {jQuery} button that appeared when level up
@@ -116,103 +107,102 @@ define(function(require)
 	 */
 	var _totalExp = 0;
 
-
 	/**
 	 * @var {number} access to guild tab
 	 */
 	var _guildAccess = 0;
-
 
 	/**
 	 * @var {string} checkbox images
 	 */
 	var _checkbox_off, _checkbox_on;
 
-
 	/**
 	 * Initialize component
 	 */
-	Guild.init = function init()
-	{
+	Guild.init = function init() {
 		var ui = this.ui;
 
-		MemberView   = this.ui.find('.MemberView').remove();
+		MemberView = this.ui.find('.MemberView').remove();
 		PositionView = this.ui.find('.PositionView').remove();
-		ExpelView    = this.ui.find('.ExpelView').remove();
+		ExpelView = this.ui.find('.ExpelView').remove();
 
 		// Close button
 		ui.find('.titlebar .close').mousedown(stopPropagation).click(Guild.toggle.bind(this));
 		ui.find('.tabs').on('click', 'button', onChangeTab);
 
 		// Preload image
-		Client.loadFiles([DB.INTERFACE_PATH + 'checkbox_0.bmp', DB.INTERFACE_PATH + 'checkbox_1.bmp'], function(off,on) {
-			_checkbox_off = off;
-			_checkbox_on  = on;
-		});
+		Client.loadFiles(
+			[DB.INTERFACE_PATH + 'checkbox_0.bmp', DB.INTERFACE_PATH + 'checkbox_1.bmp'],
+			function (off, on) {
+				_checkbox_off = off;
+				_checkbox_on = on;
+			}
+		);
 
 		// Positions
 		ui.find('.content.positions tbody')
-			.on('mousedown', 'input', function(){
+			.on('mousedown', 'input', function () {
 				return Session.isGuildMaster;
 			})
-			.on('focus', 'input', function(){
+			.on('focus', 'input', function () {
 				ui.find('.footer .btn_ok').show();
 				this.select();
 			})
-			.on('click', 'button', function(){
+			.on('click', 'button', function () {
 				if (Session.isGuildMaster) {
-					this.className = (this.className === 'on' ? 'off' : 'on');
-					this.style.backgroundImage = 'url('+ (this.className === 'on' ? _checkbox_on : _checkbox_off) +')';
+					this.className = this.className === 'on' ? 'off' : 'on';
+					this.style.backgroundImage =
+						'url(' + (this.className === 'on' ? _checkbox_on : _checkbox_off) + ')';
 					ui.find('.footer .btn_ok').show();
 				}
 			})
-			.on('mousedown', 'tr', function(){
+			.on('mousedown', 'tr', function () {
 				ui.find('.content.positions tbody tr').removeClass('active');
 				this.classList.add('active');
 			});
 
 		// Antagonist/Ally
-		ui.find('.content.info .ally_list, .content.info .hostile_list')
-			.on('contextmenu', 'div', function(){
-				var relation = this.parentNode.classList.contains('ally_list') ? 0 : 1;
-				var guild_id = parseInt(this.getAttribute('data-guild-id'), 10);
+		ui.find('.content.info .ally_list, .content.info .hostile_list').on('contextmenu', 'div', function () {
+			var relation = this.parentNode.classList.contains('ally_list') ? 0 : 1;
+			var guild_id = parseInt(this.getAttribute('data-guild-id'), 10);
 
-				ui.find('.content.info .ally_list div, .content.info .hostile_list div').removeClass('active');
-				this.classList.add('active');
+			ui.find('.content.info .ally_list div, .content.info .hostile_list div').removeClass('active');
+			this.classList.add('active');
 
-				ContextMenu.remove();
-				ContextMenu.append();
-				ContextMenu.addElement(DB.getMessage(351), function(){
-					Guild.onRequestDeleteRelation(guild_id, relation);
-				});
+			ContextMenu.remove();
+			ContextMenu.append();
+			ContextMenu.addElement(DB.getMessage(351), function () {
+				Guild.onRequestDeleteRelation(guild_id, relation);
 			});
+		});
 
 		// Members
 		ui.find('.content.members tbody')
-			.on('mousedown', 'tr', function(){
+			.on('mousedown', 'tr', function () {
 				ui.find('.content.members tbody tr').removeClass('active');
 				this.classList.add('active');
 			})
-			.on('contextmenu', 'td.name', function(){
-				var index  = this.parentNode.getAttribute('data-index');
+			.on('contextmenu', 'td.name', function () {
+				var index = this.parentNode.getAttribute('data-index');
 				var member = _members[index];
-				var isSelf = ((member.AID === Session.AID) && (member.GID === Session.GID));
+				var isSelf = member.AID === Session.AID && member.GID === Session.GID;
 
 				ContextMenu.remove();
 				ContextMenu.append();
 
 				// View Information
-				ContextMenu.addElement( DB.getMessage(129), function(){
+				ContextMenu.addElement(DB.getMessage(129), function () {
 					Guild.onRequestMemberInfo(member.AID);
 				});
 
 				// Leave Guild
 				if (isSelf && !Session.isGuildMaster) {
-					ContextMenu.addElement( DB.getMessage(508), function(){
+					ContextMenu.addElement(DB.getMessage(508), function () {
 						InputBox.append();
 						InputBox.setType('text');
 						InputBox.ui.find('.text').text(DB.getMessage(523));
-						InputBox.onSubmitRequest = function(reason) {
+						InputBox.onSubmitRequest = function (reason) {
 							InputBox.remove();
 							Guild.onRequestLeave(member.AID, member.GID, reason);
 						};
@@ -220,12 +210,12 @@ define(function(require)
 				}
 
 				// Expel
-				if ((Session.guildRight & 0x10) && !isSelf) {
-					ContextMenu.addElement( DB.getMessage(509), function(){
+				if (Session.guildRight & 0x10 && !isSelf) {
+					ContextMenu.addElement(DB.getMessage(509), function () {
 						InputBox.append();
 						InputBox.setType('text');
 						InputBox.ui.find('.text').text(DB.getMessage(524));
-						InputBox.onSubmitRequest = function(reason) {
+						InputBox.onSubmitRequest = function (reason) {
 							InputBox.remove();
 							Guild.onRequestMemberExpel(member.AID, member.GID, reason);
 						};
@@ -239,37 +229,43 @@ define(function(require)
 
 		// Get button to open skill when level up
 		_btnLevelUp = jQuery('#lvlup_job').detach();
-		_btnLevelUp.click(function(){
-			_btnLevelUp.detach();
-			Guild.ui.show();
-			Guild.ui.parent().append(Guild.ui);
-		}).mousedown(stopPropagation);
+		_btnLevelUp
+			.click(function () {
+				_btnLevelUp.detach();
+				Guild.ui.show();
+				Guild.ui.parent().append(Guild.ui);
+			})
+			.mousedown(stopPropagation);
 
 		// Bind skills
 		this.ui
-			.on('dblclick',    '.skill .icon, .skill .name', onRequestUseSkill)
+			.on('dblclick', '.skill .icon, .skill .name', onRequestUseSkill)
 			.on('contextmenu', '.skill .icon, .skill .name', onRequestSkillInfo)
-			.on('mousedown',   '.selectable', onSkillFocus)
-			.on('dragstart',   '.skill',      onSkillDragStart)
-			.on('dragend',     '.skill',      onSkillDragEnd);
-
+			.on('mousedown', '.selectable', onSkillFocus)
+			.on('dragstart', '.skill', onSkillDragStart)
+			.on('dragend', '.skill', onSkillDragEnd);
 
 		// Notice
-		ui.find('.content.notice')
-			.on('focus', 'textarea, input', function(){
-				ui.find('.footer .btn_ok').show();
-			});
+		ui.find('.content.notice').on('focus', 'textarea, input', function () {
+			ui.find('.footer .btn_ok').show();
+		});
 
 		// Upload emblem
-		ui.find('.content.info .emblem_edit input').change(function(){
-			if (this.files.length && (this.files[0].type === 'image/bmp' && this.files[0].size < 1783 || this.files[0].type === 'image/gif' && this.files[0].size < 50000)){
+		ui.find('.content.info .emblem_edit input').change(function () {
+			if (
+				this.files.length &&
+				((this.files[0].type === 'image/bmp' && this.files[0].size < 1783) ||
+					(this.files[0].type === 'image/gif' && this.files[0].size < 50000))
+			) {
 				var reader = new FileReader();
-				reader.onload = function(e) {
+				reader.onload = function (e) {
 					Guild.onSendEmblem(new Uint8Array(e.target.result));
 				};
 				reader.readAsArrayBuffer(this.files[0]);
 			} else {
-				console.warn('[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted or GIFs max size 50Kb or lower.');
+				console.warn(
+					'[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted or GIFs max size 50Kb or lower.'
+				);
 			}
 		});
 
@@ -278,33 +274,29 @@ define(function(require)
 		this.draggable(this.ui.find('.titlebar'));
 		this.ui.hide();
 
-		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function(data){
-			rArrow = 'url('+data+')';
+		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function (data) {
+			rArrow = 'url(' + data + ')';
 		});
-		Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/arw_left.bmp', function(data){
-			lArrow = 'url('+data+')';
+		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/arw_left.bmp', function (data) {
+			lArrow = 'url(' + data + ')';
 		});
 
 		renderTendency(0, 0);
 	};
 
-
 	/**
 	 * Removing guild, stop rendering
 	 */
-	Guild.onRemove = function onRemove()
-	{
+	Guild.onRemove = function onRemove() {
 		Renderer.stop(renderMemberFaces);
 	};
-
 
 	/**
 	 * Process shortcut
 	 *
 	 * @param {object} key
 	 */
-	Guild.onShortCut = function onShurtCut( key )
-	{
+	Guild.onShortCut = function onShurtCut(key) {
 		switch (key.cmd) {
 			case 'TOGGLE':
 				this.toggle();
@@ -312,12 +304,10 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Toggle Guild UI
 	 */
-	Guild.toggle = function onToggle()
-	{
+	Guild.toggle = function onToggle() {
 		if (!Session.hasGuild) {
 			return;
 		}
@@ -325,14 +315,13 @@ define(function(require)
 		if (this.ui.is(':visible')) {
 			this.hide();
 			_btnLevelUp.detach();
-		}
-		else {
+		} else {
 			this.show();
 		}
 	};
 
 	Guild.onKeyDown = function onKeyDown(event) {
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.toggle();
 		}
 	};
@@ -340,8 +329,7 @@ define(function(require)
 	/**
 	 * Show guild element
 	 */
-	Guild.show = function show()
-	{
+	Guild.show = function show() {
 		this.focus();
 
 		if (this.ui.is(':visible')) {
@@ -360,24 +348,20 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Hide guild element
 	 */
-	Guild.hide = function hide()
-	{
+	Guild.hide = function hide() {
 		this.ui.hide();
 		Renderer.stop(renderMemberFaces);
 	};
-
 
 	/**
 	 * Update General guild infos
 	 *
 	 * @param {object} data
 	 */
-	Guild.setGuildInformations = function setGuildInformations( info )
-	{
+	Guild.setGuildInformations = function setGuildInformations(info) {
 		var general = this.ui.find('.content.info');
 
 		general.find('.name .value').text(info.guildname);
@@ -391,13 +375,12 @@ define(function(require)
 		general.find('.exp .value').text(info.exp);
 		general.find('.tax .value').text(info.point);
 
-		Guild.updateSession( info );
+		Guild.updateSession(info);
 		Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
 
 		if (Session.isGuildMaster) {
 			general.find('.emblem_edit').show();
-		}
-		else {
+		} else {
 			general.find('.emblem_edit').hide();
 		}
 
@@ -406,25 +389,24 @@ define(function(require)
 		renderTendency(info.honor, info.virtue);
 	};
 
-
 	/**
 	 * Set guild emblem
 	 *
 	 * @param {Image}
 	 */
-	Guild.setEmblem = function setEmblem( image )
-	{
-		this.ui.find('.content.info').find('.emblem_container').css('backgroundImage', 'url('+ image.src +')');
+	Guild.setEmblem = function setEmblem(image) {
+		this.ui
+			.find('.content.info')
+			.find('.emblem_container')
+			.css('backgroundImage', 'url(' + image.src + ')');
 	};
-
 
 	/**
 	 * Add guild relation (ally / enemy)
 	 *
 	 * @param {Array} guild list
 	 */
-	Guild.setRelations = function setRelations( guilds )
-	{
+	Guild.setRelations = function setRelations(guilds) {
 		var i, count;
 
 		this.ui.find('.ally_list, .hostile_list').empty();
@@ -434,22 +416,19 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Add a relation
 	 *
 	 * @param {object} guild
 	 */
-	Guild.addRelation = function addRelation( guild )
-	{
+	Guild.addRelation = function addRelation(guild) {
 		var list = this.ui.find('.' + (guild.relation === 0 ? 'ally' : 'hostile') + '_list');
-		var div  = document.createElement('div');
+		var div = document.createElement('div');
 
 		div.setAttribute('data-guild-id', guild.GDID);
 		div.textContent = guild.guildName;
 		list.append(div);
 	};
-
 
 	/**
 	 * Remove relation
@@ -457,33 +436,30 @@ define(function(require)
 	 * @param {number} guild id
 	 * @param {number} relation
 	 */
-	Guild.removeRelation = function removeRelation( guild_id, relation)
-	{
+	Guild.removeRelation = function removeRelation(guild_id, relation) {
 		var list = this.ui.find('.content.info .' + (relation === 0 ? 'ally' : 'hostile') + '_list');
-		list.find('div[data-guild-id="'+ guild_id +'"]').remove();
+		list.find('div[data-guild-id="' + guild_id + '"]').remove();
 	};
-
 
 	/**
 	 * Add guild members
 	 *
 	 * @param {Array} member list
 	 */
-	Guild.setMembers = function setMembers( members )
-	{
+	Guild.setMembers = function setMembers(members) {
 		var i, count, online;
 
-		count           = members.length;
+		count = members.length;
 		_members.length = 0;
-		_totalExp       = 0;
-		online          = 0;
+		_totalExp = 0;
+		online = 0;
 
 		this.ui.find('.content.members tbody').empty();
 
 		// Get total exp
 		for (i = 0; i < count; ++i) {
 			_totalExp += members[i].MemberExp;
-			online    += members[i].CurrentState ? 1 : 0;
+			online += members[i].CurrentState ? 1 : 0;
 		}
 
 		this.ui.find('.content.info .members .numMember').text(count);
@@ -493,17 +469,15 @@ define(function(require)
 			this.setMember(members[i]);
 		}
 
-		renderMemberFaces(Renderer.tick+1000);
+		renderMemberFaces(Renderer.tick + 1000);
 	};
-
 
 	/**
 	 * Display member
 	 *
 	 * @param {object} member
 	 */
-	Guild.setMember = function setMember( member )
-	{
+	Guild.setMember = function setMember(member) {
 		var i, count, view;
 
 		// Search for duplicate entry
@@ -515,7 +489,7 @@ define(function(require)
 
 		// Edit member
 		if (i < count) {
-			view = this.ui.find('.MemberView[data-index="'+ i +'"]');
+			view = this.ui.find('.MemberView[data-index="' + i + '"]');
 		}
 
 		// Create new entry
@@ -534,20 +508,27 @@ define(function(require)
 		view.find('.name .value')[0].title = member.CharName;
 
 		if (_positions[member.GPositionID]) {
-			if (Session.isGuildMaster && member.GPositionID !== 0) { // Don't let GM change it's own position. Causes bugs.
-				var selectElement = '<select class="changePosition member_' +member.AID+ '_' +member.GID+ '">';
-				_positions.forEach( (position, key) => {
-					selectElement += '<option value="' + position.positionID + '" ' + ( key == member.GPositionID ? 'selected' : '') + '>' + position.posName + '</option>';
+			if (Session.isGuildMaster && member.GPositionID !== 0) {
+				// Don't let GM change it's own position. Causes bugs.
+				var selectElement = '<select class="changePosition member_' + member.AID + '_' + member.GID + '">';
+				_positions.forEach((position, key) => {
+					selectElement +=
+						'<option value="' +
+						position.positionID +
+						'" ' +
+						(key == member.GPositionID ? 'selected' : '') +
+						'>' +
+						position.posName +
+						'</option>';
 				});
 				selectElement += '</select>';
 
 				view.find('.position')[0].innerHTML = selectElement;
 
-				view.find('.member_'+member.AID+'_'+member.GID).change(function(evt){
-						Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
-					});
-			}
-			else {
+				view.find('.member_' + member.AID + '_' + member.GID).change(function (evt) {
+					Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
+				});
+			} else {
 				view.find('.position').text(_positions[member.GPositionID].posName);
 				view.find('.position')[0].title = _positions[member.GPositionID].posName;
 			}
@@ -557,7 +538,7 @@ define(function(require)
 		view.find('.job')[0].title = MonsterTable[member.Job];
 		view.find('.level').text(member.Level);
 		view.find('.note').text(member.Memo);
-		view.find('.devotion').text((member.MemberExp ? Math.round(member.MemberExp / _totalExp * 100) : 0) + ' %');
+		view.find('.devotion').text((member.MemberExp ? Math.round((member.MemberExp / _totalExp) * 100) : 0) + ' %');
 		view.find('.tax').text(member.MemberExp);
 		view.find('.tax')[0].title = member.MemberExp;
 
@@ -568,22 +549,19 @@ define(function(require)
 			member.entity.files.shadow.spr = null;
 		}
 
-		member.entity.sex         = member.Sex;
-		member.entity.head        = member.HeadType;
+		member.entity.sex = member.Sex;
+		member.entity.head = member.HeadType;
 		member.entity.headpalette = member.HeadPalette;
 
 		this.ui.find('.content.info .members .numMember').text(_members.length);
 	};
-
-
 
 	/**
 	 * Display member
 	 *
 	 * @param {object} member
 	 */
-	Guild.updateMemberStatus = function updateMemberStatus( member )
-	{
+	Guild.updateMemberStatus = function updateMemberStatus(member) {
 		var i, count, view;
 		var online = 0;
 
@@ -599,7 +577,7 @@ define(function(require)
 			return;
 		}
 
-		view = this.ui.find('.MemberView[data-index="'+ i +'"]');
+		view = this.ui.find('.MemberView[data-index="' + i + '"]');
 
 		_members[i].CurrentState = member.status;
 		view.toggleClass('online', _members[i].CurrentState);
@@ -618,13 +596,16 @@ define(function(require)
 
 		// Update online count
 		for (i = 0, count = _members.length; i < count; ++i) {
-			online    += _members[i].CurrentState ? 1 : 0;
+			online += _members[i].CurrentState ? 1 : 0;
 		}
 		this.ui.find('.content.info .members .online').text(online);
 
-		ChatBox.addText( DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', view.find('.name .value').text()), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
+		ChatBox.addText(
+			DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', view.find('.name .value').text()),
+			ChatBox.TYPE.BLUE,
+			ChatBox.FILTER.GUILD
+		);
 	};
-
 
 	/**
 	 * Update member position
@@ -633,8 +614,7 @@ define(function(require)
 	 * @param {number} GID
 	 * @param {number} position id
 	 */
-	Guild.updateMemberPosition = function updateMemberPosition( AID, GID, positionID, validate)
-	{
+	Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, validate) {
 		var i, count;
 
 		// Search the member.
@@ -648,11 +628,10 @@ define(function(require)
 			}
 		}
 
-		if(validate){
+		if (validate) {
 			onValidate();
 		}
 	};
-
 
 	/**
 	 * Set guild positions
@@ -660,8 +639,7 @@ define(function(require)
 	 * @param {Array} position list
 	 * @param {boolean} erase array ?
 	 */
-	Guild.setPositions = function setPositions( positions, erase )
-	{
+	Guild.setPositions = function setPositions(positions, erase) {
 		var i, count;
 		var rank;
 
@@ -673,30 +651,28 @@ define(function(require)
 			rank = positions[i];
 
 			if (!(rank.positionID in _positions)) {
-				_positions[ rank.positionID ] = {};
+				_positions[rank.positionID] = {};
 			}
 
-			_positions[ rank.positionID ].positionID = rank.positionID;
-			_positions[ rank.positionID ].right      = rank.right;
-			_positions[ rank.positionID ].ranking    = rank.ranking;
-			_positions[ rank.positionID ].payRate    = rank.payRate;
+			_positions[rank.positionID].positionID = rank.positionID;
+			_positions[rank.positionID].right = rank.right;
+			_positions[rank.positionID].ranking = rank.ranking;
+			_positions[rank.positionID].payRate = rank.payRate;
 
 			if (rank.posName) {
-				_positions[ rank.positionID ].posName = rank.posName;
+				_positions[rank.positionID].posName = rank.posName;
 			}
 		}
 
 		Guild.updatePositionView();
 	};
 
-
 	/**
 	 * Set guild positions name
 	 *
 	 * @param {Array} position list
 	 */
-	Guild.setPositionsName = function setPositionsName( positions )
-	{
+	Guild.setPositionsName = function setPositionsName(positions) {
 		var i, count;
 		var rank;
 
@@ -704,25 +680,23 @@ define(function(require)
 			rank = positions[i];
 
 			if (!(rank.positionID in _positions)) {
-				_positions[ rank.positionID ] = {};
+				_positions[rank.positionID] = {};
 			}
 
-			_positions[ rank.positionID ].posName = rank.posName;
+			_positions[rank.positionID].posName = rank.posName;
 		}
 
 		Guild.updatePositionView();
 	};
 
-
 	/**
 	 * Update guild positions view
 	 */
-	Guild.updatePositionView = function updatePositionView()
-	{
+	Guild.updatePositionView = function updatePositionView() {
 		var i, count;
 		var view, rank, container;
 
-		count     = _positions.length;
+		count = _positions.length;
 		container = this.ui.find('.content.positions tbody');
 		container.empty();
 
@@ -753,36 +727,30 @@ define(function(require)
 		}
 	};
 
-
-
-
 	/**
 	 * Add skills to the list
 	 */
-	Guild.setSkills = function setSkills( skills )
-	{
+	Guild.setSkills = function setSkills(skills) {
 		var i, count;
 
 		for (i = 0, count = _skills.length; i < count; ++i) {
-			this.onUpdateSkill( _skills[i].SKID, 0);
+			this.onUpdateSkill(_skills[i].SKID, 0);
 		}
 
 		_skills.length = 0;
 		this.ui.find('.content.skills .skill_list table').empty();
 
 		for (i = 0, count = skills.length; i < count; ++i) {
-			this.addSkill( skills[i] );
+			this.addSkill(skills[i]);
 		}
 	};
-
 
 	/**
 	 * Insert skill to list
 	 *
 	 * @param {object} skill
 	 */
-	Guild.addSkill = function addSkill( skill )
-	{
+	Guild.addSkill = function addSkill(skill) {
 		// Custom skill ?
 		if (!(skill.SKID in SkillInfo)) {
 			return;
@@ -790,76 +758,89 @@ define(function(require)
 
 		// Already in list, update it instead of duplicating it
 		if (this.ui.find('.skill.id' + skill.SKID + ':first').length) {
-			this.updateSkill( skill );
+			this.updateSkill(skill);
 			return;
 		}
 
-		var sk        = SkillInfo[ skill.SKID ];
-		var levelup   = _btnIncSkill.clone(true);
+		var sk = SkillInfo[skill.SKID];
+		var levelup = _btnIncSkill.clone(true);
 		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		var element   = jQuery(
-			'<tr class="skill id' + skill.SKID + ' ' + className + '" data-index="'+ skill.SKID +'" draggable="true">' +
+		var element = jQuery(
+			'<tr class="skill id' +
+				skill.SKID +
+				' ' +
+				className +
+				'" data-index="' +
+				skill.SKID +
+				'" draggable="true">' +
 				'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 				'<td class="levelupcontainer"></td>' +
 				'<td class=selectable>' +
-					'<div class="name">' +
-						jQuery.escape(sk.SkillName)  +'<br/>' +
-						'<span class="level">' +
-						(
-							sk.bSeperateLv ? '<button class="currentDown"></button>Lv : <span class="current">'+ skill.level + '</span> / <span class="max">' + skill.level + '</span><button class="currentUp"></button>'
-							               : 'Lv : <span class="current">'+ skill.level +'</span>'
-						) +
-						'</span>' +
-					'</div>' +
+				'<div class="name">' +
+				jQuery.escape(sk.SkillName) +
+				'<br/>' +
+				'<span class="level">' +
+				(sk.bSeperateLv
+					? '<button class="currentDown"></button>Lv : <span class="current">' +
+						skill.level +
+						'</span> / <span class="max">' +
+						skill.level +
+						'</span><button class="currentUp"></button>'
+					: 'Lv : <span class="current">' + skill.level + '</span>') +
+				'</span>' +
+				'</div>' +
 				'</td>' +
 				'<td class="selectable type">' +
-					'<div class="consume">' +
-					(
-						skill.type ? 'Sp : <span class="spcost">' + skill.spcost + '</span>' : 'Passive'
-					) +
-					'</div>' +
+				'<div class="consume">' +
+				(skill.type ? 'Sp : <span class="spcost">' + skill.spcost + '</span>' : 'Passive') +
+				'</div>' +
 				'</td>' +
-			'</tr>'
+				'</tr>'
 		);
 
 		if (!skill.upgradable || !_skpoints) {
 			levelup.hide();
 		}
 
-		element.find('.levelupcontainer').append( levelup );
+		element.find('.levelupcontainer').append(levelup);
 
-		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
-		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
+		if (rArrow) {
+			element.find('.level .currentUp').css('background-image', rArrow);
+		}
+		if (lArrow) {
+			element.find('.level .currentDown').css('background-image', lArrow);
+		}
 
-		element.find('.level .currentUp').click( function(){ skillLevelSelectUp(skill);  } );
-		element.find('.level .currentDown').click( function(){ skillLevelSelectDown(skill); } );
+		element.find('.level .currentUp').click(function () {
+			skillLevelSelectUp(skill);
+		});
+		element.find('.level .currentDown').click(function () {
+			skillLevelSelectDown(skill);
+		});
 		Guild.ui.find('.content.skills .skill_list table').append(element);
 		this.parseHTML.call(levelup);
 
-		Client.loadFile( DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function(data){
+		Client.loadFile(DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function (data) {
 			element.find('.icon img').attr('src', data);
 		});
 
 		_skills.push(skill);
-		this.onUpdateSkill( skill.SKID, skill.level);
+		this.onUpdateSkill(skill.SKID, skill.level);
 	};
 
 	/**
 	 * Remove skill from list
 	 */
-	Guild.removeSkill = function removeSkill()
-	{
+	Guild.removeSkill = function removeSkill() {
 		// Not implemented by gravity ? server have to send the whole list again ?
 	};
-
 
 	/**
 	 * Update skill
 	 *
 	 * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
 	 */
-	Guild.updateSkill = function updateSkill( skill )
-	{
+	Guild.updateSkill = function updateSkill(skill) {
 		var target = getSkillById(skill.SKID);
 		var element;
 
@@ -868,18 +849,18 @@ define(function(require)
 		}
 
 		// Update Memory
-		target.level       = skill.level;
-		target.spcost      = skill.spcost;
+		target.level = skill.level;
+		target.spcost = skill.spcost;
 		target.attackRange = skill.attackRange;
-		target.upgradable  = skill.upgradable;
+		target.upgradable = skill.upgradable;
 		if (Number.isInteger(skill.type)) {
-			target.type    = skill.type;
+			target.type = skill.type;
 		}
 
 		// Update UI
 		element = this.ui.find('.skill.id' + skill.SKID + ':first');
 		element.find('.level .current, .level .max').text(skill.level);
-		if(skill.selectedLevel){
+		if (skill.selectedLevel) {
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 		element.find('.spcost').text(skill.spcost);
@@ -889,41 +870,36 @@ define(function(require)
 
 		if (skill.upgradable && _skpoints) {
 			element.find('.levelup').show();
-		}
-		else {
+		} else {
 			element.find('.levelup').hide();
 		}
 
-		this.onUpdateSkill( skill.SKID, skill.level);
+		this.onUpdateSkill(skill.SKID, skill.level);
 	};
-
 
 	/**
 	 * Use a skill index
 	 *
 	 * @param {number} skill id
 	 */
-	Guild.useSkillID = function useSkillID( id, level )
-	{
+	Guild.useSkillID = function useSkillID(id, level) {
 		var skill = getSkillById(id);
 		if (!skill || !skill.level || !skill.type) {
 			return;
 		}
 
-		Guild.useSkill( skill, level ? level : skill.selectedLevel );
+		Guild.useSkill(skill, level ? level : skill.selectedLevel);
 	};
-
 
 	/**
 	 * Use a skill
 	 *
 	 * @param {object} skill
 	 */
-	Guild.useSkill = function useSkill( skill, level )
-	{
+	Guild.useSkill = function useSkill(skill, level) {
 		// Self
 		if (skill.type & SkillTargetSelection.TYPE.SELF) {
-			this.onUseSkill( skill.SKID, level ? level : skill.level);
+			this.onUseSkill(skill.SKID, level ? level : skill.level);
 		}
 
 		skill.useLevel = level;
@@ -935,45 +911,39 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Set skill points amount
 	 *
 	 * @param {number} skill points count
 	 */
-	Guild.setPoints = function SetPoints( amount )
-	{
+	Guild.setPoints = function SetPoints(amount) {
 		var i, count;
 		this.ui.find('.skpoints_count').text(amount);
 
 		// Do not need to update the UI
-		if ((!_skpoints) === (!amount)) {
+		if (!_skpoints === !amount) {
 			_skpoints = amount;
 			return;
 		}
 
 		_skpoints = amount;
-		count   = _skills.length;
+		count = _skills.length;
 
 		for (i = 0; i < count; ++i) {
 			if (_skills[i].upgradable && amount) {
 				this.ui.find('.skill.id' + _skills[i].SKID + ' .levelup').show();
-			}
-			else {
+			} else {
 				this.ui.find('.skill.id' + _skills[i].SKID + ' .levelup').hide();
 			}
 		}
 	};
 
-
 	/**
 	 * Add the button when leveling up
 	 */
-	Guild.onLevelUp = function onLevelUp()
-	{
+	Guild.onLevelUp = function onLevelUp() {
 		_btnLevelUp.appendTo('body');
 	};
-
 
 	/**
 	 * Find a skill by it's id
@@ -981,9 +951,9 @@ define(function(require)
 	 * @param {number} skill id
 	 * @returns {Skill}
 	 */
-	function getSkillById( id )
-	{
-		var i, count = _skills.length;
+	function getSkillById(id) {
+		var i,
+			count = _skills.length;
 
 		for (i = 0; i < count; ++i) {
 			if (_skills[i].SKID === id) {
@@ -994,25 +964,19 @@ define(function(require)
 		return null;
 	}
 
-
 	/**
 	 * Request to upgrade a skill
 	 */
-	function onRequestSkillUp()
-	{
+	function onRequestSkillUp() {
 		var index = this.parentNode.parentNode.getAttribute('data-index');
-		Guild.onIncreaseSkill(
-			parseInt(index, 10)
-		);
+		Guild.onIncreaseSkill(parseInt(index, 10));
 	}
-
 
 	/**
 	 * Request to use a skill
 	 */
-	function onRequestUseSkill()
-	{
-		var main  = jQuery(this).parent();
+	function onRequestUseSkill() {
+		var main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -1021,12 +985,10 @@ define(function(require)
 		Guild.useSkillID(parseInt(main.data('index'), 10));
 	}
 
-
 	/**
 	 * Request to get skill info (right click on a skill)
 	 */
-	function onRequestSkillInfo()
-	{
+	function onRequestSkillInfo() {
 		var main = jQuery(this).parent();
 		var skill;
 
@@ -1047,12 +1009,10 @@ define(function(require)
 		SkillDescription.setSkill(skill.SKID);
 	}
 
-
 	/**
 	 * Focus a skill in the list (background color changed)
 	 */
-	function onSkillFocus()
-	{
+	function onSkillFocus() {
 		var main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
@@ -1063,12 +1023,10 @@ define(function(require)
 		main.addClass('selected');
 	}
 
-
 	/**
 	 * Start to drag a skill (to put it on the hotkey UI ?)
 	 */
-	function onSkillDragStart( event )
-	{
+	function onSkillDragStart(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var skill = getSkillById(index);
 
@@ -1077,53 +1035,47 @@ define(function(require)
 			return stopPropagation(event);
 		}
 
-		var img   = new Image();
+		var img = new Image();
 		img.decoding = 'async';
-		img.src   = this.firstChild.firstChild.src;
+		img.src = this.firstChild.firstChild.src;
 
-		event.originalEvent.dataTransfer.setDragImage( img, 12, 12 );
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify( window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'Guild',
-				data:  skill
-			})
+		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
+		event.originalEvent.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'skill',
+					from: 'Guild',
+					data: skill
+				})
+			)
 		);
 	}
-
 
 	/**
 	 * Stop the drag drop action, clean up
 	 */
-	function onSkillDragEnd()
-	{
+	function onSkillDragEnd() {
 		delete window._OBJ_DRAG_;
 	}
 
-	function skillLevelSelectUp( skill ){
+	function skillLevelSelectUp(skill) {
 		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-		if (level < skill.level){
+		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
 			var element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
 
-	function skillLevelSelectDown( skill ){
+	function skillLevelSelectDown(skill) {
 		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-		if (level > 1){
+		if (level > 1) {
 			skill.selectedLevel = level - 1;
 			var element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
-
-
-
-
-
-
-
 
 	/**
 	 * Set guild notice
@@ -1131,22 +1083,19 @@ define(function(require)
 	 * @param {string} notice subject
 	 * @param {string} notice content
 	 */
-	Guild.setNotice = function setNotice( subject, notice)
-	{
+	Guild.setNotice = function setNotice(subject, notice) {
 		var element = this.ui.find('.content.notice');
 
 		element.find('.subject').val(subject);
 		element.find('.notice').val(notice);
 	};
 
-
 	/**
 	 * Set expel list
 	 *
 	 * @param {Array} expel list
 	 */
-	Guild.setExpelList = function setExpelList( list )
-	{
+	Guild.setExpelList = function setExpelList(list) {
 		var i, count;
 		var container, element;
 
@@ -1163,33 +1112,27 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Set access to tabs
 	 *
 	 * @param {number} access
 	 */
-	Guild.setAccess = function setAccess(access)
-	{
+	Guild.setAccess = function setAccess(access) {
 		_guildAccess = access;
 	};
-
 
 	/**
 	 * Stop propagation of events
 	 */
-	function stopPropagation(event)
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
 
-
 	/**
 	 * Change tab
 	 */
-	function onChangeTab( event )
-	{
+	function onChangeTab(event) {
 		var tab = parseInt(this.getAttribute('data-flag'), 10);
 
 		if (!event.isTrigger) {
@@ -1208,8 +1151,7 @@ define(function(require)
 
 		if (this.className === 'members') {
 			Renderer.render(renderMemberFaces);
-		}
-		else {
+		} else {
 			Renderer.stop(renderMemberFaces);
 		}
 
@@ -1218,39 +1160,36 @@ define(function(require)
 		return false;
 	}
 
-
 	/**
 	 * Render tendency graphic
 	 *
 	 * @param {number} honor [-100, 100]
 	 * @param {number} virtue [-100, 100]
 	 */
-	function renderTendency(honor,  virtue)
-	{
+	function renderTendency(honor, virtue) {
 		var canvas = Guild.ui.find('.content.info .tendency canvas').get(0);
-		var ctx    = canvas.getContext('2d');
+		var ctx = canvas.getContext('2d');
 
 		// Border
 		ctx.fillStyle = '#cecfce';
-		ctx.fillRect( 0, 0, canvas.width, canvas.height);
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 		// Background
 		ctx.fillStyle = '#739eef';
-		ctx.fillRect(1, 1, canvas.width-2, canvas.height-2);
+		ctx.fillRect(1, 1, canvas.width - 2, canvas.height - 2);
 
 		// axis
 		ctx.fillStyle = '#4261a5';
-		ctx.fillRect( canvas.width / 2 - 1, 1, 2, canvas.height - 2); // Y
-		ctx.fillRect( 1, canvas.height / 2 - 1, canvas.width - 2, 2); // X
+		ctx.fillRect(canvas.width / 2 - 1, 1, 2, canvas.height - 2); // Y
+		ctx.fillRect(1, canvas.height / 2 - 1, canvas.width - 2, 2); // X
 
 		// TODO: render graphic (not sure if it's rectangle or triangle)
 		// For now, it was never used so keep it as default
 		// honor: (left) Vulgar [-100,100] Famed (right)
 		// virtue: (down) Wicked [-100,100] Righteous (up)
 		ctx.fillStyle = '#ffffff';
-		ctx.fillRect( canvas.width / 2 - 1, canvas.height / 2 - 1, 2, 2);
+		ctx.fillRect(canvas.width / 2 - 1, canvas.height / 2 - 1, 2, 2);
 	}
-
 
 	/**
 	 * Display member faces every seconds.
@@ -1258,12 +1197,10 @@ define(function(require)
 	 *
 	 * @param {number} tick
 	 */
-	var renderMemberFaces = (function renderMemberFacesClosure()
-	{
+	var renderMemberFaces = (function renderMemberFacesClosure() {
 		var lastTick = 0;
 
-		return function renderMemberFaces(tick)
-		{
+		return function renderMemberFaces(tick) {
 			if (tick < lastTick + 1000) {
 				return;
 			}
@@ -1272,10 +1209,10 @@ define(function(require)
 			var i, count;
 
 			lastTick = tick;
-			canvas   = Guild.ui.find('.content.members canvas');
+			canvas = Guild.ui.find('.content.members canvas');
 			Camera.direction = 4;
 
-			for (i = 0, count = _members.length; i <  count; ++i) {
+			for (i = 0, count = _members.length; i < count; ++i) {
 				ctx = canvas[i].getContext('2d');
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -1290,20 +1227,18 @@ define(function(require)
 		};
 	})();
 
-
 	/**
 	 * Validate a change (notice, position, etc.)
 	 */
-	function onValidate()
-	{
+	function onValidate() {
 		var activeTab = Guild.ui.find('.content:visible').get(0).className;
-		activeTab = activeTab.replace(/content/g, '').replace(/^\s+|\s+$/gm,'');
+		activeTab = activeTab.replace(/content/g, '').replace(/^\s+|\s+$/gm, '');
 
 		switch (activeTab) {
 			case 'members':
 				var list = [];
 
-				_members.forEach((member) => {
+				_members.forEach(member => {
 					list.push({
 						AID: member.AID,
 						GID: member.GID,
@@ -1327,26 +1262,27 @@ define(function(require)
 
 					posName = position.find('.title input').val();
 					payRate = parseInt(position.find('.tax input').val(), 10);
-					right   = 0;
+					right = 0;
 
 					if (position.find('.invite button').hasClass('on')) {
-						right |=  0x01;
+						right |= 0x01;
 					}
 
 					if (position.find('.punish button').hasClass('on')) {
-						right |=  0x10;
+						right |= 0x10;
 					}
 
-					if (_positions[i].right   !== right ||
-					    _positions[i].posName !== posName ||
-					    _positions[i].payRate !== payRate) {
-
+					if (
+						_positions[i].right !== right ||
+						_positions[i].posName !== posName ||
+						_positions[i].payRate !== payRate
+					) {
 						list.push({
 							positionID: _positions[i].positionID,
-							ranking:    _positions[i].ranking,
-							right:      right,
-							posName:    posName,
-							payRate:    payRate
+							ranking: _positions[i].ranking,
+							right: right,
+							posName: posName,
+							payRate: payRate
 						});
 					}
 				}
@@ -1365,7 +1301,6 @@ define(function(require)
 		Guild.ui.find('.footer .btn_ok').hide();
 	}
 
-
 	/**
 	 * When Requesting Guild Information Screen.
 	 * @param {number}	type
@@ -1376,35 +1311,32 @@ define(function(require)
 	 *  EXPEL:       4, //
 	 *  NOTICE:      7, //
 	 */
-	Guild.onGuildInfoRequest = function(){};
-
+	Guild.onGuildInfoRequest = function () {};
 
 	/**
 	 * Ask server to modify positions
 	 * @param {Array} positions
 	 */
-	Guild.onPositionUpdateRequest = function(){};
+	Guild.onPositionUpdateRequest = function () {};
 
 	/**
 	 * Ask server to modify user's position
 	 * @param {Array} memberInfo
 	 */
-	Guild.onChangeMemberPosRequest = function(){};
+	Guild.onChangeMemberPosRequest = function () {};
 
 	/**
 	 * Ask server to modify notice
 	 * @param {string} notice subject
 	 * @param {string} notice content
 	 */
-	Guild.onNoticeUpdateRequest = function(){};
-
+	Guild.onNoticeUpdateRequest = function () {};
 
 	/**
 	 * Ask server for member info
 	 * @param {number} account id
 	 */
-	Guild.onRequestMemberInfo = function(){};
-
+	Guild.onRequestMemberInfo = function () {};
 
 	/**
 	 * Ask to leave a guild
@@ -1412,8 +1344,7 @@ define(function(require)
 	 * @param {number} character id
 	 * @param {string} reason
 	 */
-	Guild.onRequestLeave = function(){};
-
+	Guild.onRequestLeave = function () {};
 
 	/**
 	 * Ask to expel a member from theguild
@@ -1421,28 +1352,27 @@ define(function(require)
 	 * @param {number} character id
 	 * @param {string} reason
 	 */
-	Guild.onRequestMemberExpel = function(){};
-
+	Guild.onRequestMemberExpel = function () {};
 
 	/**
 	 * Ask to remove a guild relation
 	 * @param {number} guild_id
 	 * @param {number} relation
 	 */
-	Guild.onRequestDeleteRelation = function(){}
-
+	Guild.onRequestDeleteRelation = function () {};
 
 	/**
 	 * Request access to know what tab we can open
 	 */
-	Guild.onRequestAccess = function(){};
+	Guild.onRequestAccess = function () {};
 
-	Guild.updateSession = function( info ) {
-		Session.hasGuild          = true;
-		Session.Entity.GUID       = info.GDID;
+	Guild.updateSession = function (info) {
+		Session.hasGuild = true;
+		Session.Entity.GUID = info.GDID;
 		Session.Entity.GEmblemVer = info.emblemVersion;
-		if(Session.Character.name == info.masterName)
+		if (Session.Character.name == info.masterName) {
 			Session.isGuildMaster = true;
+		}
 	};
 
 	/**
@@ -1451,27 +1381,24 @@ define(function(require)
 	 * @param {number} emblem version
 	 * @param {function} callback once loaded
 	 */
-	Guild.onRequestGuildEmblem = function(){};
-
+	Guild.onRequestGuildEmblem = function () {};
 
 	/**
 	 * Send new guild emblem to the server
 	 * @param {UInt8Array} emblem data
 	 */
-	Guild.onSendEmblem = function(){}
-
+	Guild.onSendEmblem = function () {};
 
 	/**
 	 * Abstract function to define
 	 */
-	Guild.onUseSkill      = function onUseItem(){};
+	Guild.onUseSkill = function onUseItem() {};
 	Guild.onIncreaseSkill = function onIncreaseSkill() {};
-	Guild.onUpdateSkill   = function onUpdateSkill(){};
-	Guild.getSkillById    = getSkillById;
+	Guild.onUpdateSkill = function onUpdateSkill() {};
+	Guild.getSkillById = getSkillById;
 
 	/**
 	 * Create componentand export it
 	 */
 	return UIManager.addComponent(Guild);
-
 });

@@ -15,7 +15,7 @@
 	text-align: left;
 	padding: 0px;
 	border-radius: 5px;
-	border:1px solid #c1c6c2;
+	border: 1px solid #c1c6c2;
 	background-color: transparent;
 	background-repeat: no-repeat;
 	background-position: left center;
@@ -48,8 +48,8 @@
 }
 
 .EntityRoom .title {
-    overflow: hidden;
-    text-overflow: ellipsis
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .EntityRoom .overlay {
@@ -59,10 +59,10 @@
 	display: none;
 	z-index: 900;
 	padding: 5px;
-	background-color: rgba(0,0,0,0.6);
+	background-color: rgba(0, 0, 0, 0.6);
 	color: white;
 	text-shadow: 1px 1px black;
-	border: 1px solid #5A5A5A;
+	border: 1px solid #5a5a5a;
 	white-space: nowrap;
 }
 

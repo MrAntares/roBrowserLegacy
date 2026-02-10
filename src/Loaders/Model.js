@@ -11,7 +11,6 @@
 define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatrix) {
 	'use strict';
 
-
 	/**
 	 * Import
 	 */
@@ -33,7 +32,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 	}
 
-
 	/**
 	 * Model Shading type
 	 */
@@ -42,7 +40,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		FLAT: 1,
 		SMOOTH: 2
 	};
-
 
 	/**
 	 * Bounding Box
@@ -54,7 +51,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		this.range = vec3.create();
 		this.center = vec3.create();
 	};
-
 
 	/**
 	 * Loading RSM file
@@ -72,10 +68,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		fp = new BinaryReader(data);
 		header = fp.readBinaryString(4);
 
-		if (header !== 'GRSM' && header !== "GRSX") {
+		if (header !== 'GRSM' && header !== 'GRSX') {
 			throw new Error('RSM::load() - Incorrect header "' + header + '", must be "GRSM"');
 		}
-
 
 		// Read infos
 		this.version = fp.readByte() + fp.readByte() / 10;
@@ -83,7 +78,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		this.shadeType = fp.readLong();
 		this.main_node = null;
 
-		this.alpha = (this.version >= 1.4) ? fp.readUByte() / 255.0 : 1.0;
+		this.alpha = this.version >= 1.4 ? fp.readUByte() / 255.0 : 1.0;
 
 		// Read data based on version
 		if (this.version >= 2.3) {
@@ -93,8 +88,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			for (var i = 0; i < count; i++) {
 				textures.push(fp.readBinaryString(fp.readLong()));
 			}
-		}
-		else if (this.version >= 2.2) {
+		} else if (this.version >= 2.2) {
 			this.frameRatePerSecond = fp.readFloat();
 			count = fp.readLong();
 			for (i = 0; i < count; ++i) {
@@ -106,8 +100,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			for (var i = 0; i < count; i++) {
 				textures.push(fp.readBinaryString(fp.readLong()));
 			}
-		}
-		else {
+		} else {
 			fp.seek(16, SEEK_CUR); // reserved
 			count = fp.readLong();
 			for (i = 0; i < count; ++i) {
@@ -152,7 +145,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// read Volume box
-		count = (fp.offset >= fp.length) ? 0 : fp.readLong();
+		count = fp.offset >= fp.length ? 0 : fp.readLong();
 		volumebox = new Array(count);
 
 		for (i = 0; i < count; ++i) {
@@ -160,7 +153,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 				size: [fp.readFloat(), fp.readFloat(), fp.readFloat()],
 				pos: [fp.readFloat(), fp.readFloat(), fp.readFloat()],
 				rot: [fp.readFloat(), fp.readFloat(), fp.readFloat()],
-				flag: (this.version >= 1.3) ? fp.readLong() : 0
+				flag: this.version >= 1.3 ? fp.readLong() : 0
 			};
 		}
 
@@ -176,7 +169,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			}
 			this.nodes.forEach(node => {
 				for (i = 0; i < node.textures.length; i++) {
-					if (typeof node.textures[i] !== "number") {
+					if (typeof node.textures[i] !== 'number') {
 						let texture = node.textures[i];
 						if (!this.textures.includes(texture)) {
 							this.textures.push(texture);
@@ -204,9 +197,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 
 		mat4.identity(matrix);
 		mat4.translate(matrix, matrix, [model.position[0] + width, model.position[1], model.position[2] + height]);
-		mat4.rotateZ(matrix, matrix, model.rotation[2] / 180 * Math.PI);
-		mat4.rotateX(matrix, matrix, model.rotation[0] / 180 * Math.PI);
-		mat4.rotateY(matrix, matrix, model.rotation[1] / 180 * Math.PI);
+		mat4.rotateZ(matrix, matrix, (model.rotation[2] / 180) * Math.PI);
+		mat4.rotateX(matrix, matrix, (model.rotation[0] / 180) * Math.PI);
+		mat4.rotateY(matrix, matrix, (model.rotation[1] / 180) * Math.PI);
 		mat4.scale(matrix, matrix, model.scale);
 
 		if (this.main_node.main.version >= 2.2) {
@@ -226,7 +219,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		this.instances.push(matrix);
 	};
 
-
 	/**
 	 * Calculate model bounding box
 	 */
@@ -235,7 +227,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		var box = this.box;
 		var matrix = mat4.create();
 		var nodes = this.nodes;
-		var min = Math.min, max = Math.max;
+		var min = Math.min,
+			max = Math.max;
 		count = nodes.length;
 
 		mat4.identity(matrix);
@@ -284,20 +277,23 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @return {boolean}
 	 */
 	RSM.prototype.hasAnimation = function () {
-		if(this._hasanimation) return true;
+		if (this._hasanimation) {
+			return true;
+		}
 
 		for (var i = 0; i < this.nodes.length; i++) {
 			var node = this.nodes[i];
-			if ((node.rotKeyframes && node.rotKeyframes.length > 0) ||
+			if (
+				(node.rotKeyframes && node.rotKeyframes.length > 0) ||
 				(node.posKeyframes && node.posKeyframes.length > 0) ||
-				(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)) {
+				(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)
+			) {
 				this._hasanimation = true;
 				return true;
 			}
 		}
 		return false;
 	};
-
 
 	/**
 	 * Node Constructor
@@ -307,7 +303,10 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {boolean} only
 	 */
 	RSM.Node = function Node(rsm, fp, only) {
-		var i, j, count, version = rsm.version;
+		var i,
+			j,
+			count,
+			version = rsm.version;
 		var vertices, tvertices, faces, posKeyframes, rotKeyframes, scaleKeyFrames, textureKeyFrameGroup;
 		var textures = [];
 		// Read initialised
@@ -333,9 +332,15 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 
 		// Read options
 		this.mat3 = [
-			fp.readFloat(), fp.readFloat(), fp.readFloat(),
-			fp.readFloat(), fp.readFloat(), fp.readFloat(),
-			fp.readFloat(), fp.readFloat(), fp.readFloat()
+			fp.readFloat(),
+			fp.readFloat(),
+			fp.readFloat(),
+			fp.readFloat(),
+			fp.readFloat(),
+			fp.readFloat(),
+			fp.readFloat(),
+			fp.readFloat(),
+			fp.readFloat()
 		];
 		this.offset = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
 
@@ -418,7 +423,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 					Frame: fp.readLong(),
 					Scale: [fp.readFloat(), fp.readFloat(), fp.readFloat()],
 					Data: fp.readFloat()
-				}
+				};
 			}
 		}
 
@@ -512,7 +517,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		var nodes = this.main.nodes;
 		var matrix = mat4.create();
 		var vertices = this.vertices;
-		var max = Math.max, min = Math.min;
+		var max = Math.max,
+			min = Math.min;
 		var x, y, z;
 
 		// Find position
@@ -522,8 +528,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		// Dynamic or static model
 		if (!this.rotKeyframes.length) {
 			mat4.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
-		}
-		else {
+		} else {
 			mat4.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
 		}
 
@@ -567,7 +572,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 	};
 
-
 	/**
 	 * Compile Node
 	 *
@@ -607,7 +611,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		mat4.multiply(modelViewMat, instance_matrix, matrix);
 		mat4.extractRotation(normalMat, modelViewMat);
 
-
 		// Generate new vertices
 		count = vertices.length;
 		vert = new Float32Array(count * 3);
@@ -621,7 +624,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
 			vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
 		}
-
 
 		// Generate face normals
 		face_normal = new Float32Array(faces.length * 3);
@@ -641,7 +643,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
 		}
 
-
 		switch (this.main.shadeType) {
 			default:
 
@@ -650,12 +651,10 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 				this.generate_mesh_FLAT(vert, face_normal, mesh);
 				break;
 
-
 			case RSM.SHADING.FLAT:
 				this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
 				this.generate_mesh_FLAT(vert, face_normal, mesh);
 				break;
-
 
 			case RSM.SHADING.SMOOTH:
 				this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
@@ -666,7 +665,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 
 		return mesh;
 	};
-
 
 	/**
 	 * Interpolate rotation keyframes using SLERP
@@ -713,7 +711,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		return slerpQuat(prev.q, next.q, t);
 	}
 
-
 	/**
 	 * SLERP quaternion interpolation
 	 */
@@ -736,7 +733,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			var theta = Math.acos(dot);
 			var sinTheta = Math.sin(theta);
 			scale0 = Math.sin((1.0 - t) * theta) / sinTheta;
-			scale1 = Math.sin(t * theta) / sinTheta * q2Sign;
+			scale1 = (Math.sin(t * theta) / sinTheta) * q2Sign;
 		}
 
 		result[0] = scale0 * q1[0] + scale1 * q2[0];
@@ -746,7 +743,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 
 		return result;
 	}
-
 
 	/**
 	 * Interpolate position keyframes
@@ -797,7 +793,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		];
 	}
 
-
 	/**
 	 * Interpolate scale keyframes
 	 *
@@ -846,7 +841,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			prev.Scale[2] + (next.Scale[2] - prev.Scale[2]) * t
 		];
 	}
-
 
 	/**
 	 * Compile Node at a specific animation frame
@@ -920,7 +914,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		mat4.multiply(modelViewMat, instance_matrix, matrix);
 		mat4.extractRotation(normalMat, modelViewMat);
 
-
 		// Generate new vertices
 		count = vertices.length;
 		vert = new Float32Array(count * 3);
@@ -934,7 +927,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
 			vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
 		}
-
 
 		// Generate face normals
 		face_normal = new Float32Array(faces.length * 3);
@@ -954,7 +946,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
 		}
 
-
 		switch (this.main.shadeType) {
 			default:
 
@@ -963,12 +954,10 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 				this.generate_mesh_FLAT(vert, face_normal, mesh);
 				break;
 
-
 			case RSM.SHADING.FLAT:
 				this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
 				this.generate_mesh_FLAT(vert, face_normal, mesh);
 				break;
-
 
 			case RSM.SHADING.SMOOTH:
 				this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
@@ -979,7 +968,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 
 		return mesh;
 	};
-
 
 	/**
 	 * Compile Model at a specific animation frame
@@ -1010,8 +998,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		};
 	};
 
-
-
 	/**
 	 * Generate default normals
 	 *
@@ -1023,7 +1009,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			out[i] = -1;
 		}
 	};
-
 
 	/**
 	 * Generate FLAT normals
@@ -1042,22 +1027,19 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 			face = faces[i];
 
-			vec3.calcNormal(
-				vertices[face.vertidx[0]],
-				vertices[face.vertidx[1]],
-				vertices[face.vertidx[2]],
-				temp_vec
-			);
+			vec3.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], temp_vec);
 
 			// (vec3)out = (mat4)normalMat * (vec3)temp_vec:
-			out[j] = normalMat[0] * temp_vec[0] + normalMat[4] * temp_vec[1] + normalMat[8] * temp_vec[2] + normalMat[12];
-			out[j + 1] = normalMat[1] * temp_vec[0] + normalMat[5] * temp_vec[1] + normalMat[9] * temp_vec[2] + normalMat[13];
-			out[j + 2] = normalMat[2] * temp_vec[0] + normalMat[6] * temp_vec[1] + normalMat[10] * temp_vec[2] + normalMat[14];
+			out[j] =
+				normalMat[0] * temp_vec[0] + normalMat[4] * temp_vec[1] + normalMat[8] * temp_vec[2] + normalMat[12];
+			out[j + 1] =
+				normalMat[1] * temp_vec[0] + normalMat[5] * temp_vec[1] + normalMat[9] * temp_vec[2] + normalMat[13];
+			out[j + 2] =
+				normalMat[2] * temp_vec[0] + normalMat[6] * temp_vec[1] + normalMat[10] * temp_vec[2] + normalMat[14];
 
 			groupUsed[face.smoothGroup] = true;
 		}
 	};
-
 
 	/**
 	 * Generate smooth normals
@@ -1074,7 +1056,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		var count = faces.length;
 
 		for (j = 0; j < 32; ++j) {
-
 			// Group not used, skip it
 			if (!groupUsed[j]) {
 				continue;
@@ -1090,7 +1071,10 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 
 				for (i = 0, k = 0; i < count; ++i, k += 3) {
 					face = faces[i];
-					if (face.smoothGroup === j && (face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)) {
+					if (
+						face.smoothGroup === j &&
+						(face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)
+					) {
 						x += normal[k];
 						y += normal[k + 1];
 						z += normal[k + 2];
@@ -1105,7 +1089,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			}
 		}
 	};
-
 
 	/**
 	 * Generate Mesh (with normals type FLAT)
@@ -1139,16 +1122,20 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			for (j = 0; j < 3; j++, o += 9) {
 				a = idx[j] * 3;
 				b = tidx[j] * 6;
-				/* vec3 positions  */  out[o + 0] = vert[a + 0]; out[o + 1] = vert[a + 1]; out[o + 2] = vert[a + 2];
-				/* vec3 normals    */  out[o + 3] = norm[k + 0]; out[o + 4] = norm[k + 1]; out[o + 5] = norm[k + 2];
-				/* vec2 textCoords */  out[o + 6] = tver[b + 4]; out[o + 7] = tver[b + 5];
-				/* float alpha     */  out[o + 8] = alpha;
+				/* vec3 positions  */ out[o + 0] = vert[a + 0];
+				out[o + 1] = vert[a + 1];
+				out[o + 2] = vert[a + 2];
+				/* vec3 normals    */ out[o + 3] = norm[k + 0];
+				out[o + 4] = norm[k + 1];
+				out[o + 5] = norm[k + 2];
+				/* vec2 textCoords */ out[o + 6] = tver[b + 4];
+				out[o + 7] = tver[b + 5];
+				/* float alpha     */ out[o + 8] = alpha;
 			}
 
 			offset[t] = o;
 		}
 	};
-
 
 	/**
 	 * Generate Mesh (with normals type SMOOTH)
@@ -1184,16 +1171,20 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			for (j = 0; j < 3; j++, o += 9) {
 				a = idx[j] * 3;
 				b = tidx[j] * 6;
-				/* vec3 positions  */  out[o + 0] = vert[a + 0]; out[o + 1] = vert[a + 1]; out[o + 2] = vert[a + 2];
-				/* vec3 normals    */  out[o + 3] = norm[a + 0]; out[o + 4] = norm[a + 1]; out[o + 5] = norm[a + 2];
-				/* vec2 textCoords */  out[o + 6] = tver[b + 4]; out[o + 7] = tver[b + 5];
-				/* float alpha     */  out[o + 8] = alpha;
+				/* vec3 positions  */ out[o + 0] = vert[a + 0];
+				out[o + 1] = vert[a + 1];
+				out[o + 2] = vert[a + 2];
+				/* vec3 normals    */ out[o + 3] = norm[a + 0];
+				out[o + 4] = norm[a + 1];
+				out[o + 5] = norm[a + 2];
+				/* vec2 textCoords */ out[o + 6] = tver[b + 4];
+				out[o + 7] = tver[b + 5];
+				/* float alpha     */ out[o + 8] = alpha;
 			}
 
 			offset[t] = o;
 		}
 	};
-
 
 	/**
 	 * Export

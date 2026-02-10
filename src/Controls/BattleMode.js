@@ -7,52 +7,50 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var KEYS        = require('Controls/KeyEventHandler');
+	var KEYS = require('Controls/KeyEventHandler');
 	var ProcessCommand = require('Controls/ProcessCommand');
 	var Preferences = require('Preferences/ShortCutControls');
-	var UIManager   = require('UI/UIManager');
+	var UIManager = require('UI/UIManager');
 
 	/**
 	 * Create Namespace
 	 */
-	var BattleMode  = {};
-	
+	var BattleMode = {};
+
 	var KeyTable = getKeyTable();
-	
+
 	/**
 	 * Update key table if setting changes
 	 */
-	BattleMode.reload = function(){
+	BattleMode.reload = function () {
 		KeyTable = getKeyTable();
-	}
-	
-	BattleMode.getKeyName = function( keyId ){
+	};
+
+	BattleMode.getKeyName = function (keyId) {
 		var keyName = keyId;
-		
-		if(KEYS.SHIFT){
-			keyName = "SHIFT-" + keyName;
+
+		if (KEYS.SHIFT) {
+			keyName = 'SHIFT-' + keyName;
 		}
-		if(KEYS.ALT){
-			keyName = "ALT-" + keyName;
+		if (KEYS.ALT) {
+			keyName = 'ALT-' + keyName;
 		}
-		if(KEYS.CTRL){
-			keyName = "CTRL-" + keyName;
+		if (KEYS.CTRL) {
+			keyName = 'CTRL-' + keyName;
 		}
-		
+
 		return keyName;
-	}
-	
-	BattleMode.match = function( keyId ){
+	};
+
+	BattleMode.match = function (keyId) {
 		return KeyTable[BattleMode.getKeyName(keyId)];
-	}
+	};
 
 	/**
 	 * BattleMode processing
@@ -60,17 +58,14 @@ define(function(require)
 	 * @param {number} key pressed id
 	 * @return {boolean} is shortcut found ?
 	 */
-	BattleMode.process = function process( keyId )
-	{
+	BattleMode.process = function process(keyId) {
+		var keyName = BattleMode.getKeyName(keyId);
 
-		var keyName = BattleMode.getKeyName( keyId );
-		
 		var key = KeyTable[keyName];
-		if (key){
-			if (key.component == "_SLASHCOMMAND"){
+		if (key) {
+			if (key.component == '_SLASHCOMMAND') {
 				ProcessCommand.processCommand(key.cmd);
-			}
-			else {
+			} else {
 				var component = UIManager.getComponent(key.component);
 				if (component.onShortCut) {
 					component.onShortCut(key);
@@ -81,7 +76,6 @@ define(function(require)
 		return false;
 	};
 
-
 	/**
 	 * Convert component key to a readable string
 	 *
@@ -89,12 +83,11 @@ define(function(require)
 	 * @param {string} command type
 	 * @return {string} readable key pressed
 	 */
-	BattleMode.shortcutToKeyString = function shortcutToKeyString( component, cmd )
-	{
+	BattleMode.shortcutToKeyString = function shortcutToKeyString(component, cmd) {
 		var keys, shortcut;
 		var i, count;
 
-		keys  = Object.keys(KeyTable);
+		keys = Object.keys(KeyTable);
 		count = keys.length;
 
 		for (i = 0; i < count; ++i) {
@@ -127,49 +120,46 @@ define(function(require)
 		return 'None';
 	};
 
-
 	/**
 	 *	Translates the shortcut table into directly indexable format for event processing
 	 */
-	function getKeyTable(){
+	function getKeyTable() {
 		var keySettings = {};
-		
+
 		var ShortCuts = Preferences.ShortCuts;
-		
-		if(ShortCuts){
+
+		if (ShortCuts) {
 			Object.keys(ShortCuts).forEach(SC => {
-				
 				// Get initial settings
-				var key =	ShortCuts[SC].init.key;
-				var shift =	ShortCuts[SC].init.shift;
-				var alt =	ShortCuts[SC].init.alt;
-				var ctrl =	ShortCuts[SC].init.ctrl;
-				
+				var key = ShortCuts[SC].init.key;
+				var shift = ShortCuts[SC].init.shift;
+				var alt = ShortCuts[SC].init.alt;
+				var ctrl = ShortCuts[SC].init.ctrl;
+
 				// Get custom settings
-				if(ShortCuts[SC].cust){
-					key =	ShortCuts[SC].cust.key;
-					shift =	ShortCuts[SC].cust.shift;
-					alt =	ShortCuts[SC].cust.alt;
-					ctrl =	ShortCuts[SC].cust.ctrl;
+				if (ShortCuts[SC].cust) {
+					key = ShortCuts[SC].cust.key;
+					shift = ShortCuts[SC].cust.shift;
+					alt = ShortCuts[SC].cust.alt;
+					ctrl = ShortCuts[SC].cust.ctrl;
 				}
-				
+
 				// Only add if key is defined
-				if(key){
+				if (key) {
 					var keyName = key;
-					
-					if(shift){
-						keyName = "SHIFT-" + keyName;
+
+					if (shift) {
+						keyName = 'SHIFT-' + keyName;
 					}
-					if(alt){
-						keyName = "ALT-" + keyName;
+					if (alt) {
+						keyName = 'ALT-' + keyName;
 					}
-					if(ctrl){
-						keyName = "CTRL-" + keyName;
+					if (ctrl) {
+						keyName = 'CTRL-' + keyName;
 					}
-					
+
 					keySettings[keyName] = { component: ShortCuts[SC].component, cmd: ShortCuts[SC].cmd };
 				}
-				
 			});
 		}
 		return keySettings;

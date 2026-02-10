@@ -8,74 +8,56 @@
  * @author Vincent Thibault
  */
 
-define(function()
-{
+define(function () {
 	'use strict';
 
-
 	var Context = {};
-
 
 	/**
 	 * Get Informations about current Context
 	 */
 	Context.Is = {
-		POPUP: !!(window.opener),
-		FRAME:    window.top !== window.self
+		POPUP: !!window.opener,
+		FRAME: window.top !== window.self
 	};
-
 
 	/**
 	 * Check if roBrowser is in FullScreen
 	 * @returns {boolean} is in fullscreen
 	 */
-	Context.isFullScreen = function IsFullScreen()
-	{
-		return !!(
-			document.fullscreenElement ||
-			document.mozFullScreenElement ||
-			document.webkitFullscreenElement
-		);
+	Context.isFullScreen = function IsFullScreen() {
+		return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement);
 	};
-
 
 	/**
 	 * Try to launch roBrowser in Full Screen
 	 */
-	Context.requestFullScreen = function RequestFullScreen()
-	{
+	Context.requestFullScreen = function RequestFullScreen() {
 		if (!Context.isFullScreen()) {
 			var element = document.documentElement;
 
 			if (element.requestFullscreen) {
 				element.requestFullscreen();
-			}
-			else if (element.mozRequestFullScreen) {
+			} else if (element.mozRequestFullScreen) {
 				element.mozRequestFullScreen();
-			}
-			else if (element.webkitRequestFullscreen) {
+			} else if (element.webkitRequestFullscreen) {
 				element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
 			}
 		}
 	};
 
-
 	/**
 	 * Try to cancel roBrowser full screen
 	 */
-	Context.cancelFullScreen = function CancelFullScreen()
-	{
+	Context.cancelFullScreen = function CancelFullScreen() {
 		if (document.cancelFullScreen) {
 			document.cancelFullScreen();
-		}
-		else if (document.mozCancelFullScreen) {
+		} else if (document.mozCancelFullScreen) {
 			document.mozCancelFullScreen();
-		}
-		else if (document.webkitCancelFullScreen) {
+		} else if (document.webkitCancelFullScreen) {
 			document.webkitCancelFullScreen();
 		}
 	};
-
 
 	/**
 	 * Check list of API the web browser have to support to
@@ -83,14 +65,13 @@ define(function()
 	 *
 	 * (2D graphics, 3D graphics, Threads, File API, ...)
 	 */
-	Context.checkSupport = function CheckSupport()
-	{
+	Context.checkSupport = function CheckSupport() {
 		var div, canvas, element, gl, i;
 
 		// Drag drop
 		div = document.createElement('div');
 		if (!('draggable' in div) && !('ondragstart' in div && 'ondrop' in div)) {
-			throw 'Your web browser need to be updated, it does not support Drag \'nd Drop features.';
+			throw "Your web browser need to be updated, it does not support Drag 'nd Drop features.";
 		}
 
 		// Canvas
@@ -110,7 +91,7 @@ define(function()
 		for (i = 0; i < contextNames.length; ++i) {
 			try {
 				gl = element.getContext(contextNames[i], { powerPreference: 'high-performance' });
-			} catch(e) {}
+			} catch (e) {}
 
 			if (gl) {
 				break;
@@ -136,7 +117,6 @@ define(function()
 			throw 'Your web browser need to be updated, it does not support File API (DataView).';
 		}
 	};
-
 
 	/**
 	 * Export

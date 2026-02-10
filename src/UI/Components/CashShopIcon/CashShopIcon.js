@@ -23,8 +23,8 @@ define(function (require) {
 	var cssText = require('text!./CashShopIcon.css');
 
 	/**
-   * Create Component
-   */
+	 * Create Component
+	 */
 	var CashShopIcon = new UIComponent('CashShopIcon', htmlText, cssText);
 
 	/**
@@ -52,8 +52,8 @@ define(function (require) {
 	};
 
 	/**
- * Stop event propagation
- */
+	 * Stop event propagation
+	 */
 	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
@@ -64,4 +64,3 @@ define(function (require) {
 	 */
 	return UIManager.addComponent(CashShopIcon);
 });
-

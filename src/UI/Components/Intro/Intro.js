@@ -7,48 +7,43 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var jQuery      = require('Utils/jquery');
-	var KEYS        = require('Controls/KeyEventHandler');
-	var UIManager   = require('UI/UIManager');
+	var jQuery = require('Utils/jquery');
+	var KEYS = require('Controls/KeyEventHandler');
+	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
-	var htmlText    = require('text!./Intro.html');
-	var cssText     = require('text!./Intro.css');
-	var Context     = require('Core/Context');
-	var Configs     = require('Core/Configs');
-	var Particle    = require('./Particle');
+	var htmlText = require('text!./Intro.html');
+	var cssText = require('text!./Intro.css');
+	var Context = require('Core/Context');
+	var Configs = require('Core/Configs');
+	var Particle = require('./Particle');
 	var Preferences = require('./Preferences');
-	var FileSystem  = require('./FileSystem');
-
+	var FileSystem = require('./FileSystem');
 
 	/**
 	 * Create Intro component
 	 */
-	var Intro = new UIComponent( 'Intro', htmlText, cssText );
-
+	var Intro = new UIComponent('Intro', htmlText, cssText);
 
 	/**
 	 * @var {FileList}
 	 */
 	Intro.files = [];
 
-
 	/**
 	 * Manage Escape key to exit
 	 */
-	Intro.onKeyDown = function OnKeyDown( event )
-	{
-		if (!this.ui.is(':visible')) return true;
+	Intro.onKeyDown = function OnKeyDown(event) {
+		if (!this.ui.is(':visible')) {
+			return true;
+		}
 		// Exit fullScreen mode
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape")) {
-
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			if (Context.isFullScreen()) {
 				Context.cancelFullScreen();
 			}
@@ -60,12 +55,10 @@ define(function(require)
 		return true;
 	};
 
-
 	/**
 	 * Initialize Metaling
 	 */
-	Intro.init = function init()
-	{
+	Intro.init = function init() {
 		if (!Configs.get('servers')) {
 			Configs.set('_serverEditMode', true);
 		}
@@ -75,82 +68,74 @@ define(function(require)
 		preloadImages();
 
 		// About page
-		ui.find('.btn_about')
-			.mousedown(function(){
-				var $about =  ui.find('.overlay.about');
-				$about
-					.show()
-					.animate({opacity:1}, 200)
-					.click(function(){
-						$about.animate({opacity:0}, 200, function(){
-							$about.hide();
-						});
+		ui.find('.btn_about').mousedown(function () {
+			var $about = ui.find('.overlay.about');
+			$about
+				.show()
+				.animate({ opacity: 1 }, 200)
+				.click(function () {
+					$about.animate({ opacity: 0 }, 200, function () {
+						$about.hide();
 					});
-			});
+				});
+		});
 
 		// Settings page
-		ui.find('.btn_settings')
-			.mousedown(function(){
-				Preferences.load( ui );
+		ui.find('.btn_settings').mousedown(function () {
+			Preferences.load(ui);
 
-				ui.find('.overlay.settings')
-					.show()
-					.animate({opacity:1}, 200);
-			});
+			ui.find('.overlay.settings').show().animate({ opacity: 1 }, 200);
+		});
 
 		// Box to set files
 		ui.find('.box')
-			.mouseover(function(){
+			.mouseover(function () {
 				jQuery(this).addClass('over');
 			})
-			.mouseout(function(){
+			.mouseout(function () {
 				jQuery(this).removeClass('over');
 			})
-			.click(function(){
+			.click(function () {
 				ui.find('input[type="file"]').click();
 			})
-			.on('drop', process )
-			.on('dragover', function(){
+			.on('drop', process)
+			.on('dragover', function () {
 				jQuery(this).addClass('over');
 				return false;
 			})
-			.on('dragleave', function(){
+			.on('dragleave', function () {
 				jQuery(this).removeClass('over');
 				return false;
 			});
 
 		// Set file by clicking the box
-		ui.find('input[type="file"]')
-			.on('change', process );
+		ui.find('input[type="file"]').on('change', process);
 
 		// Modify quality
-		ui.find('.quality')
-			.on('change', function(){
-				ui.find('.quality_result').text( this.value + '%' );
-			});
+		ui.find('.quality').on('change', function () {
+			ui.find('.quality_result').text(this.value + '%');
+		});
 
 		// Clean cache
-		ui.find('.clean')
-			.click(function(){
-				var parent = jQuery(this).hide().parent();
-				parent.append(
-					'<span><img src="'+ require.toUrl('./images/loading.gif')  +'"/> <i>Cleaning cache...</i></span>'
-				);
+		ui.find('.clean').click(function () {
+			var parent = jQuery(this).hide().parent();
+			parent.append(
+				'<span><img src="' + require.toUrl('./images/loading.gif') + '"/> <i>Cleaning cache...</i></span>'
+			);
 
-				FileSystem.cleanup(function(){
-					parent.find('span').remove();
-					Intro.ui.find('.msg').text('');
-				});
+			FileSystem.cleanup(function () {
+				parent.find('span').remove();
+				Intro.ui.find('.msg').text('');
 			});
+		});
 
 		// Stop propagation in overlay to avoid hiding the page
-		ui.find('.overlay')
-			.on('click', 'input[type="text"], a, button', function( event ){
-				if (this.nodeName === 'INPUT') {
-					this.select();
-				}
-				event.stopImmediatePropagation();
-			});
+		ui.find('.overlay').on('click', 'input[type="text"], a, button', function (event) {
+			if (this.nodeName === 'INPUT') {
+				this.select();
+			}
+			event.stopImmediatePropagation();
+		});
 
 		// Not allow to edit server list
 		if (!Configs.get('_serverEditMode')) {
@@ -158,65 +143,56 @@ define(function(require)
 		}
 
 		// Modify volume
-		ui.find('.bgmvol')
-			.on('change', function(){
-				ui.find('.bgmvol_result').text( this.value + '%' );
-			});
-		ui.find('.soundvol')
-			.on('change', function(){
-				ui.find('.soundvol_result').text( this.value + '%' );
-			});
+		ui.find('.bgmvol').on('change', function () {
+			ui.find('.bgmvol_result').text(this.value + '%');
+		});
+		ui.find('.soundvol').on('change', function () {
+			ui.find('.soundvol_result').text(this.value + '%');
+		});
 
 		// Add Server
-		ui.find('.btn_add')
-			.on('click', function(){
-				var $serverlist = ui.find('.servers');
-				var count = $serverlist.find('tr').length;
-				$serverlist.append(
-					'<tr>' +
-					'	<td><input type="text" class="display" value="Server '+ count +'"/></td>' +
+		ui.find('.btn_add').on('click', function () {
+			var $serverlist = ui.find('.servers');
+			var count = $serverlist.find('tr').length;
+			$serverlist.append(
+				'<tr>' +
+					'	<td><input type="text" class="display" value="Server ' +
+					count +
+					'"/></td>' +
 					'	<td><input type="text" class="address" value="127.0.0.1:6900"/></td>' +
 					'	<td><input type="text" class="version"value="22"/></td>' +
 					'	<td><input type="text" class="langtype" value="12"/></td>' +
 					'	<td><input type="text" class="packetver"value="auto"/></td>' +
 					'	<td><button class="btn_delete"></button></td>' +
 					'</tr>'
-				);
+			);
 
-				$serverlist.find('tr :eq('+ count +') input:first').focus();
-			});
+			$serverlist.find('tr :eq(' + count + ') input:first').focus();
+		});
 
-		ui.find('.btn_save')
-			.on('click', function(){
-				Preferences.save( ui );
-				ui.find('.overlay')
-					.animate({opacity:0}, 200, function(){
-						ui.find('.overlay').hide();
-					});
+		ui.find('.btn_save').on('click', function () {
+			Preferences.save(ui);
+			ui.find('.overlay').animate({ opacity: 0 }, 200, function () {
+				ui.find('.overlay').hide();
 			});
+		});
 
-		ui.find('.serverlist tbody')
-			.on('click', '.btn_delete', function(){
-				jQuery(this).parent().parent().remove();
-			});
+		ui.find('.serverlist tbody').on('click', '.btn_delete', function () {
+			jQuery(this).parent().parent().remove();
+		});
 
 		// Start roBrowser
-		ui.find('.btn_play')
-			.click(function(){
-				ui.find('.overlay.loading')
-					.show()
-					.animate({opacity:1}, 200);
+		ui.find('.btn_play').click(function () {
+			ui.find('.overlay.loading').show().animate({ opacity: 1 }, 200);
 
-				Intro.onFilesSubmit( Intro.files );
-			});
+			Intro.onFilesSubmit(Intro.files);
+		});
 	};
-
 
 	/**
 	 * Once append to body
 	 */
-	Intro.onAppend = function onAppend()
-	{
+	Intro.onAppend = function onAppend() {
 		// Can't resize the window if it's not a popup/App
 		if (!Context.Is.POPUP) {
 			this.ui.find('.resolution').hide();
@@ -224,77 +200,71 @@ define(function(require)
 
 		// Show content saved
 		this.ui.find('.clean').hide();
-		FileSystem.getSize(function(used){
-			var msg = '';
+		FileSystem.getSize(
+			function (used) {
+				var msg = '';
 
-			if (used) {
-				if (used > 1024 * 1024 * 1024) {
-					msg = (used / 1024 / 1024 / 1024).toFixed(2) + ' GiB saved';
-				}
-				else if (used > 1024 * 1024) {
-					msg = (used / 1024 / 1024).toFixed(2) + ' MiB saved';
-				}
-				else {
-					msg = (used / 1024).toFixed(2) + ' KiB saved';
-				}
+				if (used) {
+					if (used > 1024 * 1024 * 1024) {
+						msg = (used / 1024 / 1024 / 1024).toFixed(2) + ' GiB saved';
+					} else if (used > 1024 * 1024) {
+						msg = (used / 1024 / 1024).toFixed(2) + ' MiB saved';
+					} else {
+						msg = (used / 1024).toFixed(2) + ' KiB saved';
+					}
 
-				this.ui.find('.msg').text(msg);
-				this.ui.find('.clean').show();
-			}
-		}.bind(this));
+					this.ui.find('.msg').text(msg);
+					this.ui.find('.clean').show();
+				}
+			}.bind(this)
+		);
 
 		// Hook resize
 		var $window = jQuery(window);
-		var $intro  = this.ui.find('.intro');
-		$window.on('resize.intro',function(){
+		var $intro = this.ui.find('.intro');
+		$window.on('resize.intro', function () {
 			$intro.css(
 				'transform',
-				'scale('+
-					$window.width()  / $intro.width()  +
-					',' +
-					$window.height() / $intro.height() +
-				')'
+				'scale(' + $window.width() / $intro.width() + ',' + $window.height() / $intro.height() + ')'
 			);
 		});
 		$window.trigger('resize.intro');
 
 		// Initialize window and particle
-		Particle.init( 100, this.ui.find('canvas')[0] );
+		Particle.init(100, this.ui.find('canvas')[0]);
 	};
-
 
 	/**
 	 * Once removed
 	 */
-	Intro.onRemove = function onRemove()
-	{
+	Intro.onRemove = function onRemove() {
 		jQuery(window).off('resize.intro');
 		Particle.stop();
 		this.ui.find('.overlay').hide();
 	};
 
-
 	/**
 	 * Start loading images
 	 */
-	function preloadImages()
-	{
+	function preloadImages() {
 		// Background images
-		jQuery('style:first').append([
-			'#intro .intro { background-image:url(' + require.toUrl('./images/background.jpg') + '); }',
-			'#intro .ribbon { background-image:url(' + require.toUrl('./images/ribbon.png') + '); }',
-			'#intro .box { background-image:url(' + require.toUrl('./images/box.jpg') + '); }',
-			'#intro .btn_play { background-image:url(' + require.toUrl('./images/play.png') + '); }',
-			'#intro .btn_play:hover { background-image:url(' + require.toUrl('./images/play-down.png') + '); }',
-			'#intro .btn_add { background-image:url('+ require.toUrl('./images/add-server.jpg') +'); }',
-			'#intro .btn_save { background-image:url('+ require.toUrl('./images/save.jpg') + '); }',
-			'#intro .btn_delete { background-image:url('+ require.toUrl('./images/delete.png') + '); }'
-		].join('\n'));
+		jQuery('style:first').append(
+			[
+				'#intro .intro { background-image:url(' + require.toUrl('./images/background.jpg') + '); }',
+				'#intro .ribbon { background-image:url(' + require.toUrl('./images/ribbon.png') + '); }',
+				'#intro .box { background-image:url(' + require.toUrl('./images/box.jpg') + '); }',
+				'#intro .btn_play { background-image:url(' + require.toUrl('./images/play.png') + '); }',
+				'#intro .btn_play:hover { background-image:url(' + require.toUrl('./images/play-down.png') + '); }',
+				'#intro .btn_add { background-image:url(' + require.toUrl('./images/add-server.jpg') + '); }',
+				'#intro .btn_save { background-image:url(' + require.toUrl('./images/save.jpg') + '); }',
+				'#intro .btn_delete { background-image:url(' + require.toUrl('./images/delete.png') + '); }'
+			].join('\n')
+		);
 
 		// Add images to IMG tag
-		Intro.ui.find('.icon img').attr('src', require.toUrl('./images/icon.png') );
-		Intro.ui.find('.btn_about img').attr('src', require.toUrl('./images/about.png') );
-		Intro.ui.find('.btn_settings img').attr('src', require.toUrl('./images/settings.png') );
+		Intro.ui.find('.icon img').attr('src', require.toUrl('./images/icon.png'));
+		Intro.ui.find('.btn_about img').attr('src', require.toUrl('./images/about.png'));
+		Intro.ui.find('.btn_settings img').attr('src', require.toUrl('./images/settings.png'));
 
 		// Preload image
 		var img = new Image();
@@ -302,51 +272,48 @@ define(function(require)
 		img.src = require.toUrl('./images/play-down.png');
 	}
 
-
 	/**
 	 * User submit files, get back files
 	 * @param {object} event
 	 * @return {boolean} false
 	 */
-	function process( event )
-	{
+	function process(event) {
 		var i, count;
 
-		var _dir_count   = 0;
-		var _dir_loaded  = 0;
-		var _file_count  = 0;
+		var _dir_count = 0;
+		var _dir_loaded = 0;
+		var _file_count = 0;
 		var _file_loaded = 0;
-		var _files       = [];
+		var _files = [];
 
 		event.stopImmediatePropagation();
 		jQuery(this).removeClass('over');
 
 		function processing(files) {
 			if (files.length) {
-				Intro.files.push.apply( Intro.files, files );
-				Intro.ui.find('.msg').text( Intro.files.length + ' files selected' );
+				Intro.files.push.apply(Intro.files, files);
+				Intro.ui.find('.msg').text(Intro.files.length + ' files selected');
 			}
 		}
 
 		// Extract files from directory
-		function recursiveReader(entry, skip){
+		function recursiveReader(entry, skip) {
 			if (entry.isFile) {
 				++_file_count;
-				entry.file(function(file){
+				entry.file(function (file) {
 					file.fullPath = entry.fullPath.substr(skip); // get rid of the "/"
 					_files.push(file);
-					if ((++_file_loaded) === _file_count && _dir_loaded === _dir_count) {
+					if (++_file_loaded === _file_count && _dir_loaded === _dir_count) {
 						processing(_files);
 					}
 				});
-			}
-			else if (entry.isDirectory) {
+			} else if (entry.isDirectory) {
 				++_dir_count;
-				entry.createReader().readEntries(function(entries){
+				entry.createReader().readEntries(function (entries) {
 					for (var i = 0, count = entries.length; i < count; ++i) {
 						recursiveReader(entries[i], skip);
 					}
-					if ((++_dir_loaded) === _dir_count && _file_loaded === _file_count) {
+					if (++_dir_loaded === _dir_count && _file_loaded === _file_count) {
 						processing(_files);
 					}
 				});
@@ -355,13 +322,15 @@ define(function(require)
 
 		// input[type="file"]
 		if ('files' in this) {
-
 			// In wekit we select the folder, not files.
 			// we have to rewrite the relativePath to remove the main folder from it
 			if (this.files.length) {
-				var token = 'webkitRelativePath' in this.files[0] ? 'webkitRelativePath' :
-				                  'relativePath' in this.files[0] ?       'relativePath' :
-				                                                           null;
+				var token =
+					'webkitRelativePath' in this.files[0]
+						? 'webkitRelativePath'
+						: 'relativePath' in this.files[0]
+							? 'relativePath'
+							: null;
 				if (token) {
 					count = this.files.length;
 					var baseFolder = /^[^(\/|\\)]+(\/|\\)/;
@@ -382,17 +351,16 @@ define(function(require)
 
 			// Read directory content
 			if (data.items && data.items.length && data.items[0].webkitGetAsEntry) {
-
 				// If select a directory, have to remove the root folder for all files
 				// inside this directory
-				var skip  = 1;
+				var skip = 1;
 				var entry = data.items[0].webkitGetAsEntry();
 				if (data.items.length === 1 && entry.isDirectory) {
 					skip = entry.fullPath.split('/')[1].length + 2;
 				}
 
 				for (i = 0, count = data.items.length; i < count; ++i) {
-					recursiveReader( data.items[i].webkitGetAsEntry(), skip);
+					recursiveReader(data.items[i].webkitGetAsEntry(), skip);
 				}
 
 				return false;
@@ -408,12 +376,10 @@ define(function(require)
 		return false;
 	}
 
-
 	/**
 	 * Callback to used.
 	 */
-	Intro.onFilesSubmit = function OnFilesSubmit(){};
-
+	Intro.onFilesSubmit = function OnFilesSubmit() {};
 
 	/**
 	 * Stored component and return it

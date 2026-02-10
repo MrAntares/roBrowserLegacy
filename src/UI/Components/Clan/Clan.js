@@ -10,34 +10,35 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
-	var KEYS            = require('Controls/KeyEventHandler');
-	var Session         = require('Engine/SessionStorage');
-	var Preferences     = require('Core/Preferences');
-	var DB              = require('DB/DBManager');
-	var Client          = require('Core/Client');
-	var UIManager       = require('UI/UIManager');
-	var UIComponent     = require('UI/UIComponent');
-	var htmlText        = require('text!./Clan.html');
-	var cssText         = require('text!./Clan.css');
-
+	var KEYS = require('Controls/KeyEventHandler');
+	var Session = require('Engine/SessionStorage');
+	var Preferences = require('Core/Preferences');
+	var DB = require('DB/DBManager');
+	var Client = require('Core/Client');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./Clan.html');
+	var cssText = require('text!./Clan.css');
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('Clan', {
-		x: 150,
-		y: 150
-	}, 1.0);
+	var _preferences = Preferences.get(
+		'Clan',
+		{
+			x: 150,
+			y: 150
+		},
+		1.0
+	);
 
 	/**
 	 * Create Component
 	 */
 	var Clan = new UIComponent('Clan', htmlText, cssText);
-
 
 	/**
 	 * Initialize component
@@ -49,7 +50,6 @@ define(function (require) {
 		this.ui.hide();
 	};
 
-
 	/**
 	 * Removing Clan
 	 */
@@ -59,7 +59,6 @@ define(function (require) {
 		_preferences.y = this.ui.position().top;
 		_preferences.save();
 	};
-
 
 	/**
 	 * Process shortcut
@@ -74,7 +73,6 @@ define(function (require) {
 		}
 	};
 
-
 	/**
 	 * Toggle Clan UI
 	 */
@@ -85,8 +83,7 @@ define(function (require) {
 
 		if (this.ui.is(':visible')) {
 			this.hide();
-		}
-		else {
+		} else {
 			this.show();
 		}
 	};
@@ -97,7 +94,7 @@ define(function (require) {
 	 * @param {object} event
 	 */
 	Clan.onKeyDown = function onKeyDown(event) {
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.toggle();
 		}
 	};
@@ -115,14 +112,12 @@ define(function (require) {
 		this.ui.show();
 	};
 
-
 	/**
 	 * Hide Clan element
 	 */
 	Clan.hide = function hide() {
 		this.ui.hide();
 	};
-
 
 	/**
 	 * Update General Clan infos
@@ -137,7 +132,11 @@ define(function (require) {
 		general.find('.master .value').text(clan.master);
 		general.find('.members .online').text(clan.membersOnline);
 		general.find('.members .maxMember').text(clan.membersTotal);
-		general.find('.territory .value').text(clan.territory.replace('.gat', '').charAt(0).toUpperCase() + clan.territory.replace('.gat', '').slice(1));
+		general
+			.find('.territory .value')
+			.text(
+				clan.territory.replace('.gat', '').charAt(0).toUpperCase() + clan.territory.replace('.gat', '').slice(1)
+			);
 
 		//Clan.onRequestClanEmblem(clan.GDID, clan.emblemVersion, Clan.setEmblem.bind(this));
 	};
@@ -161,12 +160,17 @@ define(function (require) {
 	 */
 	Clan.setIllust = function setIllust(id) {
 		var self = this;
-		Client.loadFile( DB.INTERFACE_PATH + 'clan_system/clan_illust' + ( id.toString().padStart(2, '0') ) + '.bmp', function(data){
-			self.ui.find('.content.info').find('.clan_illust').css('backgroundImage', 'url('+ data +')');
-		});
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'clan_system/clan_illust' + id.toString().padStart(2, '0') + '.bmp',
+			function (data) {
+				self.ui
+					.find('.content.info')
+					.find('.clan_illust')
+					.css('backgroundImage', 'url(' + data + ')');
+			}
+		);
 	};
 
-	
 	/**
 	 * Set Clan emblem
 	 *
@@ -174,11 +178,16 @@ define(function (require) {
 	 */
 	Clan.setEmblem = function setEmblem(id) {
 		var self = this;
-		Client.loadFile( DB.INTERFACE_PATH + 'clan_system/clan_emblem' + ( id.toString().padStart(2, '0') ) + '.bmp', function(data){
-			self.ui.find('.content.info').find('.emblem_container').css('backgroundImage', 'url('+ data +')');
-		});
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'clan_system/clan_emblem' + id.toString().padStart(2, '0') + '.bmp',
+			function (data) {
+				self.ui
+					.find('.content.info')
+					.find('.emblem_container')
+					.css('backgroundImage', 'url(' + data + ')');
+			}
+		);
 	};
-
 
 	/**
 	 * Add Clan relation (ally / enemy)
@@ -192,7 +201,6 @@ define(function (require) {
 			this.addRelation(type, clans[i]);
 		}
 	};
-
 
 	/**
 	 * Add a relation
@@ -214,7 +222,6 @@ define(function (require) {
 		this.ui.hide();
 	};
 
-
 	/**
 	 * Stop propagation of events
 	 */
@@ -227,5 +234,4 @@ define(function (require) {
 	 * Create componentand export it
 	 */
 	return UIManager.addComponent(Clan);
-
 });

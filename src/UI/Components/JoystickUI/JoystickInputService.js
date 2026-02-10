@@ -1,8 +1,8 @@
 /**
  * UI/Components/JoystickUI/JoystickInputService.js
  *
- * Service responsible for monitoring gamepad connection states, 
- * processing raw button/axis data into internal states, and 
+ * Service responsible for monitoring gamepad connection states,
+ * processing raw button/axis data into internal states, and
  * managing the activation/deactivation of the joystick UI.
  *
  * @author AoShinHo
@@ -37,7 +37,9 @@ define(function (require) {
 		},
 
 		getStates: function (gp) {
-			if (!gp) return null;
+			if (!gp) {
+				return null;
+			}
 			var states = {
 				buttons: [],
 				axes: []
@@ -50,7 +52,7 @@ define(function (require) {
 				var prevState = self.buttonStates[index] || 'unpressed';
 				var newState = 'unpressed';
 				if (isPressed) {
-					newState = (prevState === 'unpressed') ? 'pressed' : 'holding';
+					newState = prevState === 'unpressed' ? 'pressed' : 'holding';
 				}
 				self.buttonStates[index] = newState;
 				states.buttons[index] = newState;
@@ -95,7 +97,6 @@ define(function (require) {
 				anyActivity = true;
 			}
 
-
 			if (anyActivity && !this.active) {
 				JoystickUIRenderer.show();
 				this.active = true;
@@ -111,8 +112,9 @@ define(function (require) {
 						JoystickUIRenderer.hide();
 					}
 				}, 30000);
-			} else if (!hideTimeout)
+			} else if (!hideTimeout) {
 				this.active = true;
+			}
 			return true;
 		},
 

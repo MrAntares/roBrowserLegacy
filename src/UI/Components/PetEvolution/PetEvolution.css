@@ -1,95 +1,134 @@
-#PetEvolution { position:absolute; top:100px; left:100px; width:280px; height:380px; font-size:12px; background-color:white; border-radius:5px; }
+#PetEvolution {
+	position: absolute;
+	top: 100px;
+	left: 100px;
+	width: 280px;
+	height: 380px;
+	font-size: 12px;
+	background-color: white;
+	border-radius: 5px;
+}
 
-#PetEvolution .titlebar { width:100%; height:17px; background-color:white; background-repeat:repeat-x; border-radius:3px 3px 0px 0px; }
-#PetEvolution .titlebar .base { width:11px; height:11px; border:none; background-color:transparent; background-repeat:no-repeat; vertical-align:middle; }
-#PetEvolution .titlebar .text { text-shadow:1px 1px white; vertical-align:-2px; white-space:nowrap;
- /* chrome bug */ display: inline-block; width: 50px; height:13px; }
+#PetEvolution .titlebar {
+	width: 100%;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
+}
+#PetEvolution .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#PetEvolution .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	white-space: nowrap;
+	/* chrome bug */
+	display: inline-block;
+	width: 50px;
+	height: 13px;
+}
 
-#PetEvolution .titlebar .left { margin-left:3px; float:left; }
-#PetEvolution .titlebar .right { float:right; margin-right:3px; }
-#PetEvolution .titlebar .clear { clear:both; }
+#PetEvolution .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#PetEvolution .titlebar .right {
+	float: right;
+	margin-right: 3px;
+}
+#PetEvolution .titlebar .clear {
+	clear: both;
+}
 
 #PetEvolution .content {
-    background-repeat: no-repeat;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+	background-repeat: no-repeat;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
 }
 
 #PetEvolution .pet_illust_holder {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 5px;
-    gap: 15px;
-    height: 136px;
-    width: 280px;
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 5px;
+	gap: 15px;
+	height: 136px;
+	width: 280px;
 }
 
-#PetEvolution .base_pet_illust, #PetEvolution .target_pet_illust {
-    height: 134px;
-    width: 90px;
-    background-repeat: no-repeat;
-    border: 1px solid black;
-    box-shadow: grey 3px 2px 1px 0px;
+#PetEvolution .base_pet_illust,
+#PetEvolution .target_pet_illust {
+	height: 134px;
+	width: 90px;
+	background-repeat: no-repeat;
+	border: 1px solid black;
+	box-shadow: grey 3px 2px 1px 0px;
 }
 
 #PetEvolution .next {
-    height: 43px;
-    width: 43px;
-    background-repeat: no-repeat;
+	height: 43px;
+	width: 43px;
+	background-repeat: no-repeat;
 }
 
 #PetEvolution .pet_eggID_holder {
-    display: flex;
-    text-decoration: underline;
-    justify-content: center;
-    align-items: flex-start;
-    width: 280px;
-    margin-top: 5px;
-    position: relative;
-    top: 5px;
-    margin-bottom: 15px;
-    color: blue;
-    gap: 15px;
+	display: flex;
+	text-decoration: underline;
+	justify-content: center;
+	align-items: flex-start;
+	width: 280px;
+	margin-top: 5px;
+	position: relative;
+	top: 5px;
+	margin-bottom: 15px;
+	color: blue;
+	gap: 15px;
 }
 
 #PetEvolution .base_petEggId,
 #PetEvolution .target_petEggId {
-    width: 100px;
-    text-align: center;
-    text-decoration: underline;
-    color: blue;
-    cursor: pointer;
+	width: 100px;
+	text-align: center;
+	text-decoration: underline;
+	color: blue;
+	cursor: pointer;
 }
 
 #PetEvolution .pet_eggID_holder > div:nth-child(2) {
-    width: 43px;
+	width: 43px;
 }
 
 #PetEvolution .evo_requirements {
-    width: 260px;
-    height: 135px;
+	width: 260px;
+	height: 135px;
 }
 
 #PetEvolution .evo_item_name {
-    color: blue;
-    text-decoration: underline;
+	color: blue;
+	text-decoration: underline;
 }
 
 #PetEvolution .footer {
-    display: flex;
-    gap: 5px;
-    margin-left: 40px;
+	display: flex;
+	gap: 5px;
+	margin-left: 40px;
 }
 
-#PetEvolution .evolve, #PetEvolution .big_cancel {
-    height: 20px;
-    width: 100px;
-    border: none;
+#PetEvolution .evolve,
+#PetEvolution .big_cancel {
+	height: 20px;
+	width: 100px;
+	border: none;
 }

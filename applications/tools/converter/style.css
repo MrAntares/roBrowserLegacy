@@ -1,5 +1,5 @@
 body {
-	background-color:white;	
+	background-color: white;
 	border: 5px dashed transparent;
 	padding: 5%;
 }
@@ -14,10 +14,10 @@ h2 {
 }
 
 .container {
-	text-align:center;
-	font-family:Arial;
-	font-size:14px;
-	font-weight:bold;
+	text-align: center;
+	font-family: Arial;
+	font-size: 14px;
+	font-weight: bold;
 }
 
 select {
@@ -36,11 +36,11 @@ select {
 }
 
 .group {
-	color:#999;
+	color: #999;
 	display: inline-block;
-	margin:2%;
-	text-align:center;
-	width:200px;
+	margin: 2%;
+	text-align: center;
+	width: 200px;
 }
 
 .box {
@@ -49,36 +49,36 @@ select {
 	border-radius: 30px;
 	border: 2px dashed #ccc;
 	display: inline-block;
-	margin-bottom:10px;
-	background-image:url('arrow-up.png');
-	background-repeat:no-repeat;
-	background-position:center center;
+	margin-bottom: 10px;
+	background-image: url('arrow-up.png');
+	background-repeat: no-repeat;
+	background-position: center center;
 }
 
 .removing {
-	opacity:0;
+	opacity: 0;
 }
 
 .group.removing .box {
-	background-image:url('loading.gif');
-	transform:rotate(360deg);
-	-webkit-transform:rotate(360deg);
+	background-image: url('loading.gif');
+	transform: rotate(360deg);
+	-webkit-transform: rotate(360deg);
 }
 
 .group.removed {
-	opacity:0;
-	width:0px;
-	height:0px;
-	margin:0;
+	opacity: 0;
+	width: 0px;
+	height: 0px;
+	margin: 0;
 }
 
 * {
-	transition:all 0.5s ease-out;
+	transition: all 0.5s ease-out;
 }
 
 button {
 	margin-top: 20px;
 	width: 200px;
 	height: 40px;
-	font-size:18px;
+	font-size: 18px;
 }

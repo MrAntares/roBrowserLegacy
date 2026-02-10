@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Load dependencies
 	 */
@@ -49,7 +48,6 @@ define(function (require) {
 			emblem: ''
 		};
 	}
-
 
 	/**
 	 * Received clan connect info
@@ -99,7 +97,8 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_CLAN_CHAT
 	 */
 	function onNotifyClanChat(pkt) {
-		let clan_message = (pkt.memberName && pkt.memberName?.length > 0) ? pkt.memberName + ': ' + pkt.message : pkt.message;
+		let clan_message =
+			pkt.memberName && pkt.memberName?.length > 0 ? pkt.memberName + ': ' + pkt.message : pkt.message;
 		ChatBox.addText(clan_message, ChatBox.TYPE.CLAN, ChatBox.FILTER.CLAN);
 	}
 
@@ -107,9 +106,9 @@ define(function (require) {
 	 * Initialize
 	 */
 	return function MainEngine() {
-		Network.hookPacket(PACKET.ZC.CLANINFO,                 onClanInfo);
-		Network.hookPacket(PACKET.ZC.NOTIFY_CLAN_CONNECTINFO,  onNotifyClanConnectInfo);
-		Network.hookPacket(PACKET.ZC.ACK_CLAN_LEAVE,           onAckClanLeave);
-		Network.hookPacket(PACKET.ZC.NOTIFY_CLAN_CHAT,         onNotifyClanChat);
+		Network.hookPacket(PACKET.ZC.CLANINFO, onClanInfo);
+		Network.hookPacket(PACKET.ZC.NOTIFY_CLAN_CONNECTINFO, onNotifyClanConnectInfo);
+		Network.hookPacket(PACKET.ZC.ACK_CLAN_LEAVE, onAckClanLeave);
+		Network.hookPacket(PACKET.ZC.NOTIFY_CLAN_CHAT, onNotifyClanChat);
 	};
 });

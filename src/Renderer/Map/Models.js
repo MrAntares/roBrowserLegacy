@@ -7,21 +7,23 @@
  *
  * @author Vincent Thibault
  */
-define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/Shaders/GLSL/Models.fs','Utils/WebGL', 'Preferences/Map'], function (_vertexShader, _fragmentShader, WebGL, Preferences) {
+define([
+	'text!Renderer/Effects/Shaders/GLSL/Models.vs',
+	'text!Renderer/Effects/Shaders/GLSL/Models.fs',
+	'Utils/WebGL',
+	'Preferences/Map'
+], function (_vertexShader, _fragmentShader, WebGL, Preferences) {
 	'use strict';
-
 
 	/**
 	 * @var {WebGLProgram}
 	 */
 	var _program = null;
 
-
 	/**
 	 * @var {WebGLBuffer}
 	 */
 	var _buffer = null;
-
 
 	/**
 	 * @var {Array} list of meshes
@@ -72,7 +74,6 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 			WebGL.texture(gl, data.infos[i].texture, onTextureLoaded, i);
 		}
 	}
-
 
 	/**
 	 * Render models
@@ -143,7 +144,6 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 		gl.disableVertexAttribArray(attribute.aAlpha);
 	}
 
-
 	/**
 	 * Clean textures/buffer from memory
 	 *
@@ -168,7 +168,6 @@ define(['text!Renderer/Effects/Shaders/GLSL/Models.vs', 'text!Renderer/Effects/S
 
 		_objects.length = 0;
 	}
-
 
 	/**
 	 * Export

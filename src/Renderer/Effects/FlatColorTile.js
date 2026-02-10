@@ -1,11 +1,9 @@
-define(function( require ) {
+define(function (require) {
+	'use strict';
 
-    'use strict';
+	var WebGL = require('Utils/WebGL');
 
-    var WebGL    = require('Utils/WebGL');
-
-
-    var _vertexShader = `
+	var _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -32,7 +30,7 @@ define(function( require ) {
         }
     `;
 
-    var _fragmentShader = `
+	var _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -45,112 +43,104 @@ define(function( require ) {
         }
     `;
 
-    var _cache = {};
+	var _cache = {};
 
-    return function(name, spec){
-        var _program, _buffer;
-        if (_cache[name]){
-            return _cache[name]
-        }
-        if (spec.a === undefined){
-            spec.a = 0.5;
-        }
+	return function (name, spec) {
+		var _program, _buffer;
+		if (_cache[name]) {
+			return _cache[name];
+		}
+		if (spec.a === undefined) {
+			spec.a = 0.5;
+		}
 
-        [spec.r, spec.g, spec.b, spec.a].forEach(function(value){
-            if (value === undefined){
-                throw new Error('FlatColorTile: need to pass r, g, b, a')
-            }
-            if (value > 1.0 || value < 0.0){
-                throw new Error('FlatColorTile: r, g, b, a need to be 0.0-1.0')
-            }
-        });
+		[spec.r, spec.g, spec.b, spec.a].forEach(function (value) {
+			if (value === undefined) {
+				throw new Error('FlatColorTile: need to pass r, g, b, a');
+			}
+			if (value > 1.0 || value < 0.0) {
+				throw new Error('FlatColorTile: r, g, b, a need to be 0.0-1.0');
+			}
+		});
 
-        function FlatColorTile(pos, startTick){
-            this.position = pos;
-        }
+		function FlatColorTile(pos, startTick) {
+			this.position = pos;
+		}
 
-        FlatColorTile._uid = name;
-        _cache[name] = FlatColorTile;
+		FlatColorTile._uid = name;
+		_cache[name] = FlatColorTile;
 
-        FlatColorTile.prototype.init = function init( gl ){
-            this.ready  = true;
-        };
+		FlatColorTile.prototype.init = function init(gl) {
+			this.ready = true;
+		};
 
-        FlatColorTile.prototype.free = function free( gl ){
-            this.ready = false;
-        };
+		FlatColorTile.prototype.free = function free(gl) {
+			this.ready = false;
+		};
 
+		FlatColorTile.prototype.render = function render(gl, tick) {
+			if (_program === undefined) {
+				return;
+			} // temporal hotfix to avoid crash
+			gl.uniform3fv(_program.uniform.uPosition, this.position);
+			gl.uniform1f(_program.uniform.uSize, 0.5);
+			gl.uniform4fv(_program.uniform.uColor, [spec.r, spec.g, spec.b, spec.a]);
 
-        FlatColorTile.prototype.render = function render( gl, tick ){
-			if (_program === undefined) return; // temporal hotfix to avoid crash
-            gl.uniform3fv( _program.uniform.uPosition,  this.position);
-            gl.uniform1f(  _program.uniform.uSize, 0.5);
-            gl.uniform4fv( _program.uniform.uColor,  [spec.r, spec.g, spec.b, spec.a]);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		};
 
-            gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
-            gl.drawArrays( gl.TRIANGLES, 0, 6 );
+		FlatColorTile.init = function init(gl) {
+			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+			_buffer = gl.createBuffer();
 
-        };
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.bufferData(
+				gl.ARRAY_BUFFER,
+				new Float32Array([
+					-1.0, -1.0, 0.0, 0.0, +1.0, -1.0, 1.0, 0.0, +1.0, +1.0, 1.0, 1.0, +1.0, +1.0, 1.0, 1.0, -1.0, +1.0,
+					0.0, 1.0, -1.0, -1.0, 0.0, 0.0
+				]),
+				gl.STATIC_DRAW
+			);
+			FlatColorTile.ready = true;
+		};
 
-        FlatColorTile.init = function init(gl){
-            _program = WebGL.createShaderProgram( gl, _vertexShader, _fragmentShader);
-            _buffer  = gl.createBuffer();
+		FlatColorTile.renderBeforeEntities = true;
 
-            gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
-            gl.bufferData( gl.ARRAY_BUFFER, new Float32Array([
-                -1.0, -1.0, 0.0, 0.0,
-                +1.0, -1.0, 1.0, 0.0,
-                +1.0, +1.0, 1.0, 1.0,
-                +1.0, +1.0, 1.0, 1.0,
-                -1.0, +1.0, 0.0, 1.0,
-                -1.0, -1.0, 0.0, 0.0
-            ]), gl.STATIC_DRAW );
-            FlatColorTile.ready = true;
-        };
+		FlatColorTile.free = function free(gl) {
+			if (_program) {
+				gl.deleteProgram(_program);
+				_program = null;
+			}
 
+			if (_buffer) {
+				gl.deleteBuffer(_buffer);
+			}
 
-        FlatColorTile.renderBeforeEntities = true;
+			this.ready = false;
+		};
 
+		FlatColorTile.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
+			var uniform = _program.uniform;
+			var attribute = _program.attribute;
 
-        FlatColorTile.free = function free(gl)
-        {
+			gl.useProgram(_program);
 
-            if (_program) {
-                gl.deleteProgram(_program);
-                _program = null;
-            }
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 
-            if (_buffer) {
-                gl.deleteBuffer(_buffer);
-            }
+			gl.enableVertexAttribArray(attribute.aPosition);
 
-            this.ready = false;
-        };
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
-        FlatColorTile.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
-        {
-            var uniform   = _program.uniform;
-            var attribute = _program.attribute;
+			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
+		};
 
-            gl.useProgram( _program );
+		FlatColorTile.afterRender = function afterRender(gl) {
+			gl.disableVertexAttribArray(_program.attribute.aPosition);
+		};
 
-            gl.uniformMatrix4fv( uniform.uModelViewMat,  false, modelView );
-            gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );
-
-            gl.enableVertexAttribArray( attribute.aPosition );
-
-            gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
-
-            gl.vertexAttribPointer( attribute.aPosition, 2, gl.FLOAT, false, 4*4,  0   );
-
-        };
-
-        FlatColorTile.afterRender = function afterRender(gl)
-        {
-            gl.disableVertexAttribArray( _program.attribute.aPosition );
-        };
-
-        return FlatColorTile;
-    }
-
+		return FlatColorTile;
+	};
 });

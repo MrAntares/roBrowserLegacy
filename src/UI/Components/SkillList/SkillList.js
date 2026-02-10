@@ -6,8 +6,7 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require)
-{
+define(function (require) {
 	'use strict';
 
 	var publicName = 'SkillList';
@@ -21,14 +20,10 @@ define(function (require)
 	var versionInfo = {
 		default: SkillListV0,
 		common: {
-			20090601:	SkillList
+			20090601: SkillList
 		},
-		re: {
-
-		},
-		prere:{
-
-		}
+		re: {},
+		prere: {}
 	};
 
 	var Controller = UIVersionManager.getUIController(publicName, versionInfo);
@@ -42,10 +37,12 @@ define(function (require)
 
 		// Escape to close the UI
 		component.onKeyDown = function onKeyDown(e) {
-			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
-				if (typeof component.toggle === 'function') component.toggle();
+			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
+				if (typeof component.toggle === 'function') {
+					component.toggle();
+				}
 			}
-		}
+		};
 	};
 
 	return Controller;

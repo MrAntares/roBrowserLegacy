@@ -13,14 +13,13 @@
 define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 	'use strict';
 
-
 	/**
 	 * Namespace
 	 */
 	var Texture = {};
 
 	var procCanvas = document.createElement('canvas');
-	var procCtx    = procCanvas.getContext('2d', { willReadFrequently: true });
+	var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	/**
 	 * Texture Constructor
@@ -58,7 +57,6 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 		img.decoding = 'async';
 		img.src = data;
 		img.onload = function OnLoadClosure() {
-
 			// Clean up blob
 			if (data.match(/^blob\:/)) {
 				URL.revokeObjectURL(data);
@@ -102,7 +100,7 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 					var framesData = gif.get_frames();
 					var frameDelays = [];
 
-					var fLineCount = Math.ceil(Math.sqrt(frameCount * frameWidth / frameHeight));
+					var fLineCount = Math.ceil(Math.sqrt((frameCount * frameWidth) / frameHeight));
 					var spriteSheetWidth = fLineCount * frameWidth;
 					var spriteSheetHeight = Math.ceil(frameCount / fLineCount) * frameHeight;
 
@@ -114,7 +112,7 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 					});
 
 					for (var i = 0; i < frameCount; i++) {
-						var delay = (framesData[i] && framesData[i].delay) ? framesData[i].delay : 10;
+						var delay = framesData[i] && framesData[i].delay ? framesData[i].delay : 10;
 						frameDelays.push(delay * 10);
 
 						gif.move_to(i);
@@ -156,31 +154,29 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 	 * @param {HTMLElement} canvas
 	 */
 	Texture.removeMagenta = function removeMagenta(canvas) {
-
 		var w = canvas.width;
 		var h = canvas.height;
 
 		procCtx.clearRect(0, 0, w, h);
 
 		if (procCanvas.width !== w || procCanvas.height !== h) {
-			procCanvas.width  = w;
+			procCanvas.width = w;
 			procCanvas.height = h;
 		}
 
 		procCtx.drawImage(canvas, 0, 0);
 		var imageData = procCtx.getImageData(0, 0, w, h);
-		var data      = imageData.data;
-		var count     = data.length;
+		var data = imageData.data;
+		var count = data.length;
 
 		for (var i = 0; i < data.length; i += 4) {
-			if (data[i] > 230 && data[i+1] < 20 && data[i+2] > 230)
-				data[i] = data[i+1] = data[i+2] = data[i+3] = 0;
+			if (data[i] > 230 && data[i + 1] < 20 && data[i + 2] > 230) {
+				data[i] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
+			}
 		}
 
 		canvas.getContext('2d').putImageData(imageData, 0, 0);
-
 	};
-
 
 	/**
 	 * Export

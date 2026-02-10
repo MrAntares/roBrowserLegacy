@@ -1,7 +1,7 @@
 /**
  * UI/Components/JoystickUI/JoystickPollingLoop.js
  *
- * Provides a high-frequency interval loop to poll the Gamepad API 
+ * Provides a high-frequency interval loop to poll the Gamepad API
  * and trigger input state updates at a consistent rate.
  *
  * @author AoShinHo
@@ -17,7 +17,9 @@ define(function (require) {
 
 	return {
 		start: function () {
-			if (timeoutHandle) return;
+			if (timeoutHandle) {
+				return;
+			}
 			this.run();
 		},
 		run: function () {

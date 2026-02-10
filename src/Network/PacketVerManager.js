@@ -8,9 +8,8 @@
  * @author Vincent Thibault
  */
 
-define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength )
-{
-	"use strict";
+define(['Core/Configs', 'Network/PacketLength'], function (Configs, PacketLength) {
+	'use strict';
 
 	/**
 	 * PACKETVER range
@@ -24,16 +23,16 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 	 */
 	function getPacketVersion() {
 		var versions = this.versions;
-		var i, count = versions.length;
+		var i,
+			count = versions.length;
 
-		for (i = 0; i < count-1; ++i) {
-			if (_value < versions[i+1][0]) {
+		for (i = 0; i < count - 1; ++i) {
+			if (_value < versions[i + 1][0]) {
 				return versions[i];
 			}
 		}
 		return versions[i];
 	}
-
 
 	/**
 	 * Get block size based on packetver
@@ -48,21 +47,21 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 
 		// slot/haircolor (2 * (short)) -> (2 * (char))
 		// remove unknown 4 bytes
-		blockSize += -(2 * 2) + (1 * 2) - 4;
+		blockSize += -(2 * 2) + 1 * 2 - 4;
 
 		// Start check
 		if (_value >= 20061023) {
-			blockSize += 2;  // .bIsChangedCharName
+			blockSize += 2; // .bIsChangedCharName
 		}
 
 		// hp/maxhp (2 * (short)) -> (2 * (int))
 		if (_value > 20081217) {
-			blockSize += -(2 * 2) + (2 * 4);
+			blockSize += -(2 * 2) + 2 * 4;
 		}
 
 		if ((_value >= 20100720 && _value <= 20100727) || _value >= 20100803) {
 			blockSize += 12; // lastMap(14) - never found it...
-			blockSize += 4;  // lastMap(16)
+			blockSize += 4; // lastMap(16)
 		}
 
 		// delete date
@@ -110,7 +109,6 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 		return blockSize;
 	}
 
-
 	/**
 	 * Parse char list
 	 *
@@ -122,7 +120,9 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 			end = fp.length;
 		}
 
-		var i, count, out = [];
+		var i,
+			count,
+			out = [];
 		var blockSize = Configs.get('charBlockSize') || calculateBlockSize();
 		var length = end - fp.tell();
 
@@ -133,20 +133,32 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 
 		// Invalid blocksize...
 		if (!blockSize || length % blockSize) {
-			console.error('CHARACTER_INFO size error!! blockSize : "'+ blockSize +'", list length: ' + length + ', auto-detect...');
+			console.error(
+				'CHARACTER_INFO size error!! blockSize : "' +
+					blockSize +
+					'", list length: ' +
+					length +
+					', auto-detect...'
+			);
 
 			var knownSize = [106, 108, 112, 116, 124, 128, 132, 136, 140, 144, 145, 147, 155, 175];
 			var matches = [];
 
 			for (i = 0, count = knownSize.length; i < count; ++i) {
-				if ((length % knownSize[i]) === 0) {
+				if (length % knownSize[i] === 0) {
 					matches.push(knownSize[i]);
 				}
 			}
 
 			// No result, or multiple ones...
 			if (matches.length !== 1) {
-				require('UI/UIManager').showErrorBox('CHARACTER_INFO size error!! blockSize : "'+ blockSize +'", list length: ' + length + ', auto-detect...');
+				require('UI/UIManager').showErrorBox(
+					'CHARACTER_INFO size error!! blockSize : "' +
+						blockSize +
+						'", list length: ' +
+						length +
+						', auto-detect...'
+				);
 				return out;
 			}
 
@@ -187,7 +199,7 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 				}
 			}
 
-			if(_value < 20201007 || blockSize < 175) {
+			if (_value < 20201007 || blockSize < 175) {
 				out[i].sp = fp.readShort();
 				out[i].maxsp = fp.readShort();
 			} else {
@@ -227,12 +239,10 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 
 			if (blockSize < 108) {
 				out[i].CharNum = fp.readUShort();
-			}
-			else if (blockSize < 124) {
+			} else if (blockSize < 124) {
 				out[i].CharNum = fp.readUShort();
 				out[i].haircolor = fp.readUShort();
-			}
-			else {
+			} else {
 				out[i].CharNum = fp.readUChar();
 				out[i].haircolor = fp.readUChar();
 			}
@@ -270,8 +280,6 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 		return out;
 	}
 
-
-
 	/**
 	 * Add support for a new packet version
 	 *
@@ -280,42 +288,42 @@ define(['Core/Configs', 'Network/PacketLength'], function( Configs, PacketLength
 	 */
 	function addSupport(date, list) {
 		var packet, param;
-		var i, count = list.length;
+		var i,
+			count = list.length;
 
 		for (i = 0; i < count; ++i) {
-			param    = list[i];
-			packet   = param[0];
+			param = list[i];
+			packet = param[0];
 			param[0] = date;
 
-			if (!packet?.prototype?.versions)
+			if (!packet?.prototype?.versions) {
 				packet.prototype.versions = [];
+			}
 
 			packet.prototype.versions.push(list[i]);
 			packet.prototype.getPacketVersion = getPacketVersion;
 		}
 	}
 
-
 	/**
 	 * Export
 	 */
 	return {
-
 		// Get Back data
 		get value() {
-			return (_value > 0 ? _value : (ROConfig.servers[0].packetver || ROConfig.packetver));
+			return _value > 0 ? _value : ROConfig.servers[0].packetver || ROConfig.packetver;
 			//return _value;
 		},
 
 		set value(v) {
 			if (v !== _value) {
 				PacketLength.init(v);
-				console.log( "%c[PACKETVER] Set packet version ", "color:#007000", _value = v);
+				console.log('%c[PACKETVER] Set packet version ', 'color:#007000', (_value = v));
 			}
 		},
 
 		// Add support for packet version
-		addSupport:    addSupport,
+		addSupport: addSupport,
 		parseCharInfo: parseCharList
 	};
 });

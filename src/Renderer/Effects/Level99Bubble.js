@@ -13,40 +13,49 @@
  * - Alpha: clamp(250 + 25*(y + 20), 0, 250)
  * - Color: (80,80,255), additive blend
  */
-define(['text!./Shaders/GLSL/Level99Bubble.vs', 'text!./Shaders/GLSL/Level99Bubble.fs','Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Camera', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
-function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camera, Altitude, SpriteRenderer) {
+define([
+	'text!./Shaders/GLSL/Level99Bubble.vs',
+	'text!./Shaders/GLSL/Level99Bubble.fs',
+	'Utils/WebGL',
+	'Utils/Texture',
+	'Utils/gl-matrix',
+	'Core/Client',
+	'Renderer/Camera',
+	'Renderer/Map/Altitude',
+	'Renderer/SpriteRenderer'
+], function (_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camera, Altitude, SpriteRenderer) {
 	'use strict';
 
-	var DEG_TO_RAD       = Math.PI / 180;
-	var GAME_TO_WORLD    = 0.1 * 2.2;
-	var NUM_COLUMNS      = 4;         // 4 emitter columns
-	var ANCHORS_PER_COL  = 4;         // B_pre, B_now, T_pre, T_now
-	var BASE_LIFT        = 0.05;
-	var DEBUG_UI_ID      = 'lvl99bubble-debug';
+	var DEG_TO_RAD = Math.PI / 180;
+	var GAME_TO_WORLD = 0.1 * 2.2;
+	var NUM_COLUMNS = 4; // 4 emitter columns
+	var ANCHORS_PER_COL = 4; // B_pre, B_now, T_pre, T_now
+	var BASE_LIFT = 0.05;
+	var DEBUG_UI_ID = 'lvl99bubble-debug';
 
-	var REF_RADIUS       = 2.4;       // Billboard radius
-	var REF_SPEED        = 0.15;      // Fall speed per frame
-	var REF_DRIFT_K      = 0.15;      // Jitter amplitude (±0.15)
-	var REF_SEED_MAX     = 99;        // Max spawn height
-	var REF_RESET_Y      = -30;       // Reset threshold
-	var REF_ALPHA_OFFSET = 20;        // Alpha formula offset
-	var REF_ALPHA_GAIN   = 30;        // Alpha formula gain (default request)
+	var REF_RADIUS = 2.4; // Billboard radius
+	var REF_SPEED = 0.15; // Fall speed per frame
+	var REF_DRIFT_K = 0.15; // Jitter amplitude (±0.15)
+	var REF_SEED_MAX = 99; // Max spawn height
+	var REF_RESET_Y = -30; // Reset threshold
+	var REF_ALPHA_OFFSET = 20; // Alpha formula offset
+	var REF_ALPHA_GAIN = 30; // Alpha formula gain (default request)
 
 	// Sign patterns for the 4 anchors per column
 	// B_pre: (+kx, +kz), B_now: (-kx, -kz), T_pre: (+kx, -kz), T_now: (-kx, +kz)
 	var ANCHOR_SIGNS = [
-		{ kx:  1, kz:  1 }, // B_pre
+		{ kx: 1, kz: 1 }, // B_pre
 		{ kx: -1, kz: -1 }, // B_now
-		{ kx:  1, kz: -1 }, // T_pre
-		{ kx: -1, kz:  1 }  // T_now
+		{ kx: 1, kz: -1 }, // T_pre
+		{ kx: -1, kz: 1 } // T_now
 	];
 
 	// Phase index pairs for each anchor (pa, pb from reference)
 	// B_pre: (0,2), B_now: (4,6), T_pre: (8,10), T_now: (12,14)
 	var ANCHOR_PHASE_OFFSETS = [
-		{ pa: 0,  pb: 2  },
-		{ pa: 4,  pb: 6  },
-		{ pa: 8,  pb: 10 },
+		{ pa: 0, pb: 2 },
+		{ pa: 4, pb: 6 },
+		{ pa: 8, pb: 10 },
 		{ pa: 12, pb: 14 }
 	];
 
@@ -72,9 +81,9 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 	// Order: bottom-left, bottom-right, top-right, top-left
 	var BILLBOARD_CORNERS = [
 		{ x: -1, y: -1 },
-		{ x:  1, y: -1 },
-		{ x:  1, y:  1 },
-		{ x: -1, y:  1 }
+		{ x: 1, y: -1 },
+		{ x: 1, y: 1 },
+		{ x: -1, y: 1 }
 	];
 
 	function randRange(min, max) {
@@ -100,7 +109,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 
 		if (Math.abs(diff) <= step) {
 			current = target;
-			target  = randRange(0, 360);
+			target = randRange(0, 360);
 		} else {
 			current = wrapDegrees(current + Math.sign(diff) * step);
 		}
@@ -144,19 +153,19 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 		this.textureName = textureName || 'whitelight.tga';
 		this.tick = tick || 0;
 		// Default to flag1 = 1 (blue variant) unless explicitly overridden
-		this.flag1 = (flag1 === 0 || flag1) ? flag1 : 1;
+		this.flag1 = flag1 === 0 || flag1 ? flag1 : 1;
 
 		var isGhost = this.flag1 === 11 || this.flag1 === 3;
 
 		// Reference values in robrowser units
-		this.baseRadius  = (this.flag1 === 1 ? REF_RADIUS : (isGhost ? 3.2 : 0.8));
-		this.fallSpeed   = (isGhost ? 0.6 : REF_SPEED); // v per frame in robrowser units
-		this.seedMax     = isGhost ? debugConfig.ghostSeedMax : debugConfig.seedMax;
-		this.resetY      = isGhost ? -debugConfig.ghostSeedMax : REF_RESET_Y;
-		this.driftK      = REF_DRIFT_K; // Jitter amplitude
-		this.color       = pickColor(this.flag1);
-		this.isGhost     = isGhost;
-		this.passCount   = (this.flag1 === 1) ? 2 : 1;
+		this.baseRadius = this.flag1 === 1 ? REF_RADIUS : isGhost ? 3.2 : 0.8;
+		this.fallSpeed = isGhost ? 0.6 : REF_SPEED; // v per frame in robrowser units
+		this.seedMax = isGhost ? debugConfig.ghostSeedMax : debugConfig.seedMax;
+		this.resetY = isGhost ? -debugConfig.ghostSeedMax : REF_RESET_Y;
+		this.driftK = REF_DRIFT_K; // Jitter amplitude
+		this.color = pickColor(this.flag1);
+		this.isGhost = isGhost;
+		this.passCount = this.flag1 === 1 ? 2 : 1;
 
 		// Initialize columns (emitters)
 		this.columns = [];
@@ -197,8 +206,8 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 	Level99Bubble.prototype.init = function init(gl) {
 		var self = this;
 
-		Client.loadFile('data/texture/effect/' + this.textureName, function(buffer) {
-			WebGL.texture(gl, buffer, function(texture) {
+		Client.loadFile('data/texture/effect/' + this.textureName, function (buffer) {
+			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
 				self.ready = true;
 			});
@@ -273,13 +282,37 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 
 	Level99Bubble.prototype.fillQuad = function fillQuad(points, quadData) {
 		// Two triangles: p0-p1-p2 and p2-p3-p0
-		quadData[0]  = points[0][0]; quadData[1]  = points[0][1]; quadData[2]  = points[0][2]; quadData[3]  = 0.0; quadData[4]  = 0.0;
-		quadData[5]  = points[1][0]; quadData[6]  = points[1][1]; quadData[7]  = points[1][2]; quadData[8]  = 1.0; quadData[9]  = 0.0;
-		quadData[10] = points[2][0]; quadData[11] = points[2][1]; quadData[12] = points[2][2]; quadData[13] = 1.0; quadData[14] = 1.0;
+		quadData[0] = points[0][0];
+		quadData[1] = points[0][1];
+		quadData[2] = points[0][2];
+		quadData[3] = 0.0;
+		quadData[4] = 0.0;
+		quadData[5] = points[1][0];
+		quadData[6] = points[1][1];
+		quadData[7] = points[1][2];
+		quadData[8] = 1.0;
+		quadData[9] = 0.0;
+		quadData[10] = points[2][0];
+		quadData[11] = points[2][1];
+		quadData[12] = points[2][2];
+		quadData[13] = 1.0;
+		quadData[14] = 1.0;
 
-		quadData[15] = points[2][0]; quadData[16] = points[2][1]; quadData[17] = points[2][2]; quadData[18] = 1.0; quadData[19] = 1.0;
-		quadData[20] = points[3][0]; quadData[21] = points[3][1]; quadData[22] = points[3][2]; quadData[23] = 0.0; quadData[24] = 1.0;
-		quadData[25] = points[0][0]; quadData[26] = points[0][1]; quadData[27] = points[0][2]; quadData[28] = 0.0; quadData[29] = 0.0;
+		quadData[15] = points[2][0];
+		quadData[16] = points[2][1];
+		quadData[17] = points[2][2];
+		quadData[18] = 1.0;
+		quadData[19] = 1.0;
+		quadData[20] = points[3][0];
+		quadData[21] = points[3][1];
+		quadData[22] = points[3][2];
+		quadData[23] = 0.0;
+		quadData[24] = 1.0;
+		quadData[25] = points[0][0];
+		quadData[26] = points[0][1];
+		quadData[27] = points[0][2];
+		quadData[28] = 0.0;
+		quadData[29] = 0.0;
 	};
 
 	Level99Bubble.prototype.render = function render(gl, tick) {
@@ -291,20 +324,16 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 
 		// Get ground position (world coordinates)
 		var groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-		var basePos = [
-			this.position[0] + 0.5,
-			-groundZ - BASE_LIFT,
-			this.position[1] + 0.5
-		];
+		var basePos = [this.position[0] + 0.5, -groundZ - BASE_LIFT, this.position[1] + 0.5];
 
 		// Camera orientation for billboarding
 		var viewPitch = Camera.angle[0];
-		var viewYaw   = Camera.angle[1];
-		var beta      = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
-		var alpha     = ((360 - viewYaw) % 360) * DEG_TO_RAD;
+		var viewYaw = Camera.angle[1];
+		var beta = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
+		var alpha = ((360 - viewYaw) % 360) * DEG_TO_RAD;
 
-		var sinBeta  = Math.sin(beta);
-		var cosBeta  = Math.cos(beta);
+		var sinBeta = Math.sin(beta);
+		var cosBeta = Math.cos(beta);
 		var sinAlpha = Math.sin(alpha);
 		var cosAlpha = Math.cos(alpha);
 
@@ -350,11 +379,11 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 
 					// Apply R_x(beta) - pitch rotation
 					var ry = -localZ * sinBeta;
-					var rz =  localZ * cosBeta;
+					var rz = localZ * cosBeta;
 
 					// Apply R_y(alpha) - yaw rotation
 					var rx = localX * cosAlpha + rz * sinAlpha;
-					rz     = -localX * sinAlpha + rz * cosAlpha;
+					rz = -localX * sinAlpha + rz * cosAlpha;
 
 					// Final world position = base + anchor offset + billboard corner
 					var finalX = basePos[0] + anchorWorldX + rx;
@@ -390,14 +419,13 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 						gl.drawArrays(gl.TRIANGLES, 0, 6);
 					}
 				});
-
 			}
 		}
 	};
 
 	Level99Bubble.prototype.renderBackground = function renderBackground(gl, basePos) {
 		var uniform = _program.uniform;
-		var radius = (this.baseRadius * GAME_TO_WORLD) * debugConfig.bgRadiusFactor;
+		var radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
 		var height = this.seedMax * GAME_TO_WORLD;
 
 		function drawQuad(v0, v1, v2, v3) {
@@ -429,49 +457,19 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 		var y1 = basePos[1] + height;
 
 		// Bottom
-		drawQuad.call(this,
-			[x0, y0, z0],
-			[x1, y0, z0],
-			[x1, y0, z1],
-			[x0, y0, z1]
-		);
+		drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]);
 
 		// Top
-		drawQuad.call(this,
-			[x0, y1, z0],
-			[x1, y1, z0],
-			[x1, y1, z1],
-			[x0, y1, z1]
-		);
+		drawQuad.call(this, [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]);
 
 		// Sides
-		drawQuad.call(this,
-			[x0, y0, z0],
-			[x1, y0, z0],
-			[x1, y1, z0],
-			[x0, y1, z0]
-		);
+		drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]);
 
-		drawQuad.call(this,
-			[x1, y0, z0],
-			[x1, y0, z1],
-			[x1, y1, z1],
-			[x1, y1, z0]
-		);
+		drawQuad.call(this, [x1, y0, z0], [x1, y0, z1], [x1, y1, z1], [x1, y1, z0]);
 
-		drawQuad.call(this,
-			[x1, y0, z1],
-			[x0, y0, z1],
-			[x0, y1, z1],
-			[x1, y1, z1]
-		);
+		drawQuad.call(this, [x1, y0, z1], [x0, y0, z1], [x0, y1, z1], [x1, y1, z1]);
 
-		drawQuad.call(this,
-			[x0, y0, z1],
-			[x0, y0, z0],
-			[x0, y1, z0],
-			[x0, y1, z1]
-		);
+		drawQuad.call(this, [x0, y0, z1], [x0, y0, z0], [x0, y1, z0], [x0, y1, z1]);
 
 		gl.uniform1i(uniform.uSolidBg, 0);
 	};
@@ -575,14 +573,14 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 			input.step = step;
 			input.value = value;
 			input.style.flex = '1';
-			input.addEventListener('input', function() {
+			input.addEventListener('input', function () {
 				onChange(parseFloat(input.value));
 			});
 			row.appendChild(input);
 
 			var valLabel = document.createElement('span');
 			valLabel.textContent = value;
-			input.addEventListener('input', function() {
+			input.addEventListener('input', function () {
 				valLabel.textContent = input.value;
 			});
 			row.appendChild(valLabel);
@@ -600,7 +598,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 			var input = document.createElement('input');
 			input.type = 'checkbox';
 			input.checked = checked;
-			input.addEventListener('change', function() {
+			input.addEventListener('change', function () {
 				onChange(!!input.checked);
 			});
 			row.appendChild(input);
@@ -612,35 +610,35 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camer
 			container.appendChild(row);
 		}
 
-		addSlider('Billboard size', 0.3, 3.0, 0.05, debugConfig.scaleMult, function(v) {
+		addSlider('Billboard size', 0.3, 3.0, 0.05, debugConfig.scaleMult, function (v) {
 			debugConfig.scaleMult = v;
 		});
 
-		addSlider('Spawn height (seedMax)', 10, 150, 1, debugConfig.seedMax, function(v) {
+		addSlider('Spawn height (seedMax)', 10, 150, 1, debugConfig.seedMax, function (v) {
 			debugConfig.seedMax = v;
 		});
 
-		addSlider('Fall speed mult', 0.1, 5.0, 0.05, debugConfig.fallSpeedMult, function(v) {
+		addSlider('Fall speed mult', 0.1, 5.0, 0.05, debugConfig.fallSpeedMult, function (v) {
 			debugConfig.fallSpeedMult = v;
 		});
 
-		addSlider('Respawn depth mult', 0.1, 5.0, 0.05, debugConfig.respawnDepthMult, function(v) {
+		addSlider('Respawn depth mult', 0.1, 5.0, 0.05, debugConfig.respawnDepthMult, function (v) {
 			debugConfig.respawnDepthMult = v;
 		});
 
-		addSlider('Alpha offset', -50, 50, 1, debugConfig.alphaOffset, function(v) {
+		addSlider('Alpha offset', -50, 50, 1, debugConfig.alphaOffset, function (v) {
 			debugConfig.alphaOffset = v;
 		});
 
-		addSlider('Alpha gain', 1, 80, 1, debugConfig.alphaGain, function(v) {
+		addSlider('Alpha gain', 1, 80, 1, debugConfig.alphaGain, function (v) {
 			debugConfig.alphaGain = v;
 		});
 
-		addSlider('Floor limit', 10, 60, 1, debugConfig.floorLimit, function(v) {
+		addSlider('Floor limit', 10, 60, 1, debugConfig.floorLimit, function (v) {
 			debugConfig.floorLimit = v;
 		});
 
-		addCheckbox('Show spawn volume', debugConfig.showRedBg, function(v) {
+		addCheckbox('Show spawn volume', debugConfig.showRedBg, function (v) {
 			debugConfig.showRedBg = v;
 		});
 

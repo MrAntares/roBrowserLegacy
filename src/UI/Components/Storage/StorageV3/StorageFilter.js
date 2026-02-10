@@ -8,16 +8,16 @@
 define(function (require) {
 	'use strict';
 
-	var DB          = require('DB/DBManager');
-	var jQuery      = require('Utils/jquery');
-	var Client      = require('Core/Client');
+	var DB = require('DB/DBManager');
+	var jQuery = require('Utils/jquery');
+	var Client = require('Core/Client');
 	var Preferences = require('Core/Preferences');
-	var Renderer    = require('Renderer/Renderer');
-	var Mouse       = require('Controls/MouseEventHandler');
+	var Renderer = require('Renderer/Renderer');
+	var Mouse = require('Controls/MouseEventHandler');
 	var UIComponent = require('UI/UIComponent');
-	var ItemInfo    = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText    = require('text!./StorageFilter.html');
-	var cssText     = require('text!./StorageFilter.css');
+	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
+	var htmlText = require('text!./StorageFilter.html');
+	var cssText = require('text!./StorageFilter.css');
 
 	/**
 	 * Create StorageFilter "class"
@@ -27,28 +27,32 @@ define(function (require) {
 		var prefName = 'StorageFilter_' + tabId;
 		UIComponent.call(this, prefName, htmlText, cssText);
 
-		this.onRemove = function() {
+		this.onRemove = function () {
 			this.ui.find('.content').empty();
 			this._list.length = 0;
 			this._currentTabId = -1;
-			
+
 			this._preferences.y = parseInt(this.ui.css('top'), 10);
 			this._preferences.x = parseInt(this.ui.css('left'), 10);
-			this._preferences.height = Math.floor((this.ui.find('.content').height()) / 32);
+			this._preferences.height = Math.floor(this.ui.find('.content').height() / 32);
 			this._preferences.save();
 
 			if (typeof this.onCloseCallback === 'function') {
 				this.onCloseCallback();
 			}
 		};
-		
+
 		this._list = [];
 		this._currentTabId = -1;
-		this._preferences = Preferences.get(prefName, {
-			x: 300 + (tabId * 20),
-			y: 200 + (tabId * 20),
-			height: 4
-		}, 1.0);
+		this._preferences = Preferences.get(
+			prefName,
+			{
+				x: 300 + tabId * 20,
+				y: 200 + tabId * 20,
+				height: 4
+			},
+			1.0
+		);
 		this.onCloseCallback = null;
 	}
 
@@ -56,27 +60,27 @@ define(function (require) {
 	StorageFilter.prototype = Object.create(UIComponent.prototype);
 	StorageFilter.prototype.constructor = StorageFilter;
 
-
 	/**
 	 * Initialize the component
 	 */
 	StorageFilter.prototype.init = function Init() {
 		var self = this; // Store 'this' for event handlers
 
-		this.ui.find('.titlebar .right .close').click(function(){
+		this.ui.find('.titlebar .right .close').click(function () {
 			self.remove(); // .remove() is inherited from UIComponent
 		});
-		
+
 		this.ui.find('.footer .extend').mousedown(this.onResize.bind(this));
-		
+
 		this.ui.css({
-			top:  Math.min(Math.max(0, this._preferences.y), Renderer.height - this.ui.height()),
+			top: Math.min(Math.max(0, this._preferences.y), Renderer.height - this.ui.height()),
 			left: Math.min(Math.max(0, this._preferences.x), Renderer.width - this.ui.width())
 		});
 
 		this.resizeHeight(this._preferences.height);
 
-		this.ui.find('.content')
+		this.ui
+			.find('.content')
 			.on('mouseover', '.item', this.onItemOver.bind(this))
 			.on('mouseout', '.item', this.onItemOut.bind(this))
 			.on('contextmenu', '.item', this.onItemInfo.bind(this))
@@ -85,7 +89,7 @@ define(function (require) {
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
-	
+
 	/**
 	 * Public method to set the items and title of this window
 	 */
@@ -100,7 +104,7 @@ define(function (require) {
 			this.renderItem(this._list[i]);
 		}
 	};
-	
+
 	/**
 	 * Renders a single item in the content area
 	 */
@@ -108,24 +112,40 @@ define(function (require) {
 		var it = DB.getItemInfo(item.ITID);
 		var self = this; // for Client.loadFile callback
 
-		this.ui.find('.content').append(
-			'<div class="item" data-index="' + item.index + '" draggable="true">' +
-			'<div class="icon"></div>' +
-			'<div class="amount">' + (item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') + '</div>' +
-			'<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
-			'</div>'
-		);
+		this.ui
+			.find('.content')
+			.append(
+				'<div class="item" data-index="' +
+					item.index +
+					'" draggable="true">' +
+					'<div class="icon"></div>' +
+					'<div class="amount">' +
+					(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
+					'</div>' +
+					'<span class="name">' +
+					jQuery.escape(DB.getItemName(item)) +
+					'</span>' +
+					'</div>'
+			);
 
-		Client.loadFile(DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function (data) {
-			// Use self.ui to avoid 'this' conflicts
-			self.ui.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
-		});
+		Client.loadFile(
+			DB.INTERFACE_PATH +
+				'item/' +
+				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+				'.bmp',
+			function (data) {
+				// Use self.ui to avoid 'this' conflicts
+				self.ui
+					.find('.item[data-index="' + item.index + '"] .icon')
+					.css('backgroundImage', 'url(' + data + ')');
+			}
+		);
 	};
 
 	// --- Item Event Handlers ---
-	
+
 	StorageFilter.prototype.getItemFromIndex = function getItemFromIndex(index) {
-		return this._list.filter(function(item) {
+		return this._list.filter(function (item) {
 			return item.index === index;
 		})[0];
 	};
@@ -133,7 +153,9 @@ define(function (require) {
 	StorageFilter.prototype.onItemOver = function onItemOver(event) {
 		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
 		var item = this.getItemFromIndex(index);
-		if (!item) return;
+		if (!item) {
+			return;
+		}
 
 		var pos = jQuery(event.currentTarget).position();
 		var overlay = this.ui.find('.overlay');
@@ -147,23 +169,28 @@ define(function (require) {
 	StorageFilter.prototype.onItemOut = function onItemOut() {
 		this.ui.find('.overlay').hide();
 	};
-	
+
 	StorageFilter.prototype.onItemDragStart = function onItemDragStart(event) {
 		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
 		var item = this.getItemFromIndex(index);
-		if (!item) return;
+		if (!item) {
+			return;
+		}
 
 		var img = new Image();
 		var url = event.currentTarget.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/\"/g, '');
 		img.src = url;
 
 		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Storage', 
-				data: item
-			})
+		event.originalEvent.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'item',
+					from: 'Storage',
+					data: item
+				})
+			)
 		);
 		this.onItemOut(); // Call instance method
 	};
@@ -176,7 +203,9 @@ define(function (require) {
 		event.stopImmediatePropagation();
 		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
 		var item = this.getItemFromIndex(index);
-		if (!item) return false;
+		if (!item) {
+			return false;
+		}
 
 		if (event.altKey && event.which === 3) {
 			if (typeof this.onTransferItemToOtherUI === 'function') {
@@ -195,12 +224,12 @@ define(function (require) {
 		return false;
 	};
 
-    // --- Resize Functions ---
+	// --- Resize Functions ---
 
 	StorageFilter.prototype.resizeHeight = function resizeHeight(height) {
 		height = Math.min(Math.max(height, 4), 10);
 		this.ui.find('.content').css('height', height * 32);
-		this.ui.css('height', (height * 32) + 17 + 19);
+		this.ui.css('height', height * 32 + 17 + 19);
 	};
 
 	StorageFilter.prototype.onResize = function onResize() {
@@ -209,7 +238,7 @@ define(function (require) {
 		var top = ui.position().top;
 		var lastHeight = 0;
 		var _Interval;
-		var extraY = 17 + 19; 
+		var extraY = 17 + 19;
 
 		function resizing() {
 			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
@@ -232,7 +261,7 @@ define(function (require) {
 		});
 	};
 
-    // --- Public Sync Functions ---
+	// --- Public Sync Functions ---
 
 	StorageFilter.prototype.getCurrentTab = function GetCurrentTab() {
 		return this._currentTabId;
@@ -246,7 +275,9 @@ define(function (require) {
 				break;
 			}
 		}
-		if (i < 0) return;
+		if (i < 0) {
+			return;
+		}
 
 		var item = this._list[i];
 		if (item.count) {

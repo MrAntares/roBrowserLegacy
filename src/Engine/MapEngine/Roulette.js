@@ -16,7 +16,6 @@ define(function (require) {
 	var PACKET = require('Network/PacketStructure');
 	var Roulette = require('UI/Components/Roulette/Roulette');
 
-
 	/**
 	 * Send Packets
 	 */
@@ -29,7 +28,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	}*/ // UNUSED
 
-
 	/**
 	 * Request Roulette Info
 	 */
@@ -37,7 +35,6 @@ define(function (require) {
 		var pkt = new PACKET.CZ.REQ_ROULETTE_INFO();
 		Network.sendPacket(pkt);
 	}*/ // UNUSED
-
 
 	/**
 	 * Request to Close Roulette
@@ -47,14 +44,13 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	}*/ // UNUSED
 
-
 	/**
 	 * Receive Packets
 	 */
 
 	/**
 	 * Open Roulette Window
-	 * 
+	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_OPEN_ROULETTE
 	 */
 	function onOpenRoulette(pkt) {
@@ -69,7 +65,7 @@ define(function (require) {
 		//   silverPoint: number,
 		//   bronzePoint: number
 		// }
-		
+
 		// Server responded (standard rAthena implementation)
 		if (pkt.result === 0) {
 			// Append component to DOM if not already appended
@@ -82,10 +78,9 @@ define(function (require) {
 		}
 	}
 
-
 	/**
 	 * Receive Roulette Info (item list)
-	 * 
+	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_ROULETTE_INFO
 	 */
 	function onRouletteInfo(pkt) {
@@ -94,7 +89,7 @@ define(function (require) {
 		//   serial: number,
 		//   items: [{row, position, itemId, count}, ...]
 		// }
-		
+
 		// Append component to DOM if not already appended
 		if (!Roulette.ui) {
 			Roulette.append();
@@ -102,10 +97,9 @@ define(function (require) {
 		Roulette.onRouletteInfo(pkt);
 	}
 
-
 	/**
 	 * Receive Roulette Spin Result
-	 * 
+	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_GENERATE_ROULETTE
 	 */
 	function onGenerateRoulette(pkt) {
@@ -131,10 +125,9 @@ define(function (require) {
 		}
 	}
 
-
 	/**
 	 * Receive Roulette Close ACK
-	 * 
+	 *
 	 * @param {object} pkt - PACKET.ZC.ACK_CLOSE_ROULETTE
 	 */
 	function onCloseRoulette(pkt) {
@@ -142,16 +135,15 @@ define(function (require) {
 		// {
 		//   result: number  // 0 = success, other = fail
 		// }
-		
+
 		if (pkt.result === 0 && Roulette.ui) {
 			Roulette.ui.hide();
 		}
 	}
 
-
 	/**
 	 * Receive Roulette Item Result
-	 * 
+	 *
 	 * @param {object} pkt - PACKET.ZC.RECV_ROULETTE_ITEM
 	 */
 	function onRecvRouletteItem(pkt) {
@@ -160,7 +152,7 @@ define(function (require) {
 		//   result: number,        // 0=success, 1=failed, 2=overcount, 3=overweight
 		//   additionItemID: number
 		// }
-		
+
 		if (pkt.result === 0) {
 			// Item received successfully
 			if (Roulette.ui && typeof Roulette.onItemReceived === 'function') {
@@ -169,14 +161,19 @@ define(function (require) {
 		} else {
 			var errorMsg = 'Failed to receive roulette item';
 			switch (pkt.result) {
-				case 1: errorMsg = 'Failed to receive item'; break;
-				case 2: errorMsg = 'Item count exceeded'; break;
-				case 3: errorMsg = 'Overweight'; break;
+				case 1:
+					errorMsg = 'Failed to receive item';
+					break;
+				case 2:
+					errorMsg = 'Item count exceeded';
+					break;
+				case 3:
+					errorMsg = 'Overweight';
+					break;
 			}
 			console.error('[Roulette]', errorMsg);
 		}
 	}
-
 
 	/**
 	 * Initialize

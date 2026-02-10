@@ -8,12 +8,8 @@
  * @author Vincent Thibault
  */
 
-
 (function ROAPI() {
-
-
 	'use strict';
-
 
 	/**
 	 * @Constructor
@@ -24,7 +20,6 @@
 		}
 	}
 
-
 	/**
 	 * @Enum Robrowser type
 	 */
@@ -32,7 +27,6 @@
 		POPUP: 1,
 		FRAME: 2
 	};
-
 
 	/**
 	 * @Enum Robrowser Applications
@@ -43,8 +37,8 @@
 		GRFVIEWER: 3,
 		MODELVIEWER: 4,
 		STRVIEWER: 5,
-		GRANNYMODELVIEWER: 6,  //sound weird O_o
-		EFFECTVIEWER: 7,
+		GRANNYMODELVIEWER: 6, //sound weird O_o
+		EFFECTVIEWER: 7
 	};
 
 	/**
@@ -256,7 +250,7 @@
 		/**
 		 * @var {boolean} User interface version selection mode (PacketVer | PreRenewal | Renewal)
 		 */
-		clientVersionMode: "PacketVer",
+		clientVersionMode: 'PacketVer',
 
 		/**
 		 * @var {mixed} set a version to avoid browser cache problem so
@@ -321,9 +315,8 @@
 		 * the total will be the double in ms because its used on fade in then on fade out
 		 * eg: if you use 500ms the transition will take 1000ms in total
 		 */
-		transitionDuration: 500,
+		transitionDuration: 500
 	};
-
 
 	/**
 	 * @var {string} roBrowser api window path
@@ -332,16 +325,14 @@
 		var script = document.getElementsByTagName('script');
 		return script[script.length - 1].src
 			.replace(/\/[^\/]+\.js.*/, '/api.js') // redirect compiled script
-			.replace(/\/src\/.*/, '/api.js');     // fix error with cache (FF)
+			.replace(/\/src\/.*/, '/api.js'); // fix error with cache (FF)
 	})().replace('.js', '.html');
-
 
 	/**
 	 * Start ROBrowser Instance
 	 */
 	ROBrowser.prototype.start = function Start() {
 		switch (this.config.type) {
-
 			// Create Popup
 			case ROBrowser.TYPE.POPUP:
 				this.config.width = this.config.width || '800';
@@ -393,7 +384,6 @@
 				break;
 		}
 
-
 		// Get back application name
 		switch (this.config.application) {
 			case ROBrowser.APP.ONLINE:
@@ -425,7 +415,6 @@
 				break;
 		}
 
-
 		// Wait for robrowser to be ready
 		var _this = this;
 		function OnMessage(event) {
@@ -451,7 +440,6 @@
 	function WaitForInitialization() {
 		this._APP.postMessage(JSON.parse(JSON.stringify(this.config)), '*');
 	}
-
 
 	/**
 	 * Export

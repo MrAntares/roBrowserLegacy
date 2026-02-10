@@ -7,55 +7,54 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var FPS              = require('UI/Components/FPS/FPS');
-	var Configs          = require('Core/Configs');
-	var Context          = require('Core/Context');
-	var Preferences      = require('Core/Preferences');
+	var FPS = require('UI/Components/FPS/FPS');
+	var Configs = require('Core/Configs');
+	var Context = require('Core/Context');
+	var Preferences = require('Core/Preferences');
 	var GraphicsSettings = require('Preferences/Graphics');
-	var Renderer         = require('Renderer/Renderer');
-	const MapRenderer    = require('Renderer/MapRenderer');
-	var UIManager        = require('UI/UIManager');
-	var UIComponent      = require('UI/UIComponent');
-	var htmlText         = require('text!./GraphicsOption.html');
-	var cssText          = require('text!./GraphicsOption.css');
-	var jQuery           = require('Utils/jquery');
+	var Renderer = require('Renderer/Renderer');
+	const MapRenderer = require('Renderer/MapRenderer');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./GraphicsOption.html');
+	var cssText = require('text!./GraphicsOption.css');
+	var jQuery = require('Utils/jquery');
 
 	/**
 	 * Create Component
 	 */
-	var GraphicsOption = new UIComponent( 'GraphicsOption', htmlText, cssText );
-
+	var GraphicsOption = new UIComponent('GraphicsOption', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Graphics
 	 */
-	var _preferences = Preferences.get('GraphicsOption', {
-		x:    300,
-		y:    300
-	}, 1.1);
-
+	var _preferences = Preferences.get(
+		'GraphicsOption',
+		{
+			x: 300,
+			y: 300
+		},
+		1.1
+	);
 
 	/**
 	 * Initialize UI
 	 */
-	GraphicsOption.init = function Init()
-	{
-		this.ui.find('.base').mousedown(function(event) {
+	GraphicsOption.init = function Init() {
+		this.ui.find('.base').mousedown(function (event) {
 			event.stopImmediatePropagation();
 			return false;
 		});
 
 		this.ui.find('.close').click(this.remove.bind(this));
 
-		this.ui.find('.tab-button').click(onTabSwitch);  
+		this.ui.find('.tab-button').click(onTabSwitch);
 		this.ui.find('.reset-button').click(onResetToDefaults.bind(this));
 
 		this.ui.find('.details').change(onUpdateQualityDetails);
@@ -90,16 +89,13 @@ define(function(require)
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-
-
 	/**
 	 * When append the element to html
 	 */
-	GraphicsOption.onAppend = function OnAppend()
-	{
+	GraphicsOption.onAppend = function OnAppend() {
 		this.ui.css({
-			top:  _preferences.y,
-			left: _preferences.x,
+			top: _preferences.y,
+			left: _preferences.x
 		});
 
 		this.ui.find('.details').val(GraphicsSettings.quality);
@@ -132,23 +128,19 @@ define(function(require)
 		this.ui.find('.view-area').val(GraphicsSettings.viewArea);
 	};
 
-
 	/**
 	 * Once remove, save preferences
 	 */
-	GraphicsOption.onRemove = function OnRemove()
-	{
-		_preferences.x    = parseInt(this.ui.css('left'), 10);
-		_preferences.y    = parseInt(this.ui.css('top'), 10);
+	GraphicsOption.onRemove = function OnRemove() {
+		_preferences.x = parseInt(this.ui.css('left'), 10);
+		_preferences.y = parseInt(this.ui.css('top'), 10);
 		_preferences.save();
 	};
-
 
 	/**
 	 * Modify game details to perform faster
 	 */
-	function onUpdateQualityDetails()
-	{
+	function onUpdateQualityDetails() {
 		GraphicsSettings.quality = parseInt(this.value, 10);
 		GraphicsSettings.save();
 
@@ -156,19 +148,17 @@ define(function(require)
 		Renderer.resize();
 	}
 
-
 	/**
 	 * Toggle game cursor
 	 */
-	function onToggleGameCursor()
-	{
+	function onToggleGameCursor() {
 		GraphicsSettings.cursor = !!this.checked;
 		GraphicsSettings.save();
 
 		// display cursor depending on user settings
 		if (!GraphicsSettings.cursor) {
 			document.body.classList.remove('custom-cursor');
-		} else {	
+		} else {
 			document.body.classList.add('custom-cursor');
 		}
 	}
@@ -176,32 +166,29 @@ define(function(require)
 	/**
 	 * Update the fps limit
 	 */
-	function onUpdateFPSLimit()
-	{
-		GraphicsSettings.fpslimit = parseInt( this.value, 10 );
+	function onUpdateFPSLimit() {
+		GraphicsSettings.fpslimit = parseInt(this.value, 10);
 		GraphicsSettings.save();
 
-		if( Renderer.frameLimit > 0 ) {
-			clearInterval( Renderer.updateId );
+		if (Renderer.frameLimit > 0) {
+			clearInterval(Renderer.updateId);
 		}
 
 		Renderer.frameLimit = GraphicsSettings.fpslimit;
 		Renderer.rendering = false;
-		Renderer.render( null );
+		Renderer.render(null);
 	}
 
 	/**
 	 * Toggle the fps display
 	 */
-	function onToggleFPSDisplay()
-	{
+	function onToggleFPSDisplay() {
 		FPS.toggle(!!this.checked);
 	}
 
-	function onTogglePixelPerfect()
-	{
-	    GraphicsSettings.pixelPerfectSprites = !!this.checked;
-	    GraphicsSettings.save();
+	function onTogglePixelPerfect() {
+		GraphicsSettings.pixelPerfectSprites = !!this.checked;
+		GraphicsSettings.save();
 
 		MapRenderer.forceReloadMap();
 	}
@@ -209,123 +196,103 @@ define(function(require)
 	/**
 	 * Post-Processing
 	 */
-	function onToggleBloom()
-	{
+	function onToggleBloom() {
 		GraphicsSettings.bloom = !!this.checked;
 		GraphicsSettings.save();
 	}
 
-	function onUpdateBloomIntensity()  
-	{  
-		GraphicsSettings.bloomIntensity = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function onUpdateBloomIntensity() {
+		GraphicsSettings.bloomIntensity = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function onToggleBlur()
-	{
+	function onToggleBlur() {
 		GraphicsSettings.blur = !!this.checked;
 		GraphicsSettings.save();
 	}
 
-	function onUpdateBlurIntensity()  
-	{  
-		GraphicsSettings.blurIntensity = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function onUpdateBlurIntensity() {
+		GraphicsSettings.blurIntensity = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function onUpdateBlurArea()  
-	{  
-		GraphicsSettings.blurArea = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function onUpdateBlurArea() {
+		GraphicsSettings.blurArea = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function oncasEnabled()
-	{
+	function oncasEnabled() {
 		GraphicsSettings.casEnabled = !!this.checked;
 		GraphicsSettings.save();
 	}
 
-	function oncasContrast()  
-	{  
-		GraphicsSettings.casContrast = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function oncasContrast() {
+		GraphicsSettings.casContrast = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function oncasSharpening()  
-	{  
-		GraphicsSettings.casSharpening = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function oncasSharpening() {
+		GraphicsSettings.casSharpening = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function onvibranceEnabled()
-	{
+	function onvibranceEnabled() {
 		GraphicsSettings.vibranceEnabled = !!this.checked;
 		GraphicsSettings.save();
 	}
 
-	function onvibrance()  
-	{  
-		GraphicsSettings.vibrance = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function onvibrance() {
+		GraphicsSettings.vibrance = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-
-	function onfxaaEnabled()
-	{
+	function onfxaaEnabled() {
 		GraphicsSettings.fxaaEnabled = !!this.checked;
 		GraphicsSettings.save();
 	}
 
-	function onfxaaSubpix()  
-	{  
-		GraphicsSettings.fxaaSubpix = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function onfxaaSubpix() {
+		GraphicsSettings.fxaaSubpix = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function onfxaaEdgeThreshold()  
-	{  
-		GraphicsSettings.fxaaEdgeThreshold = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function onfxaaEdgeThreshold() {
+		GraphicsSettings.fxaaEdgeThreshold = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function oncartoonEnabled()
-	{
+	function oncartoonEnabled() {
 		GraphicsSettings.cartoonEnabled = !!this.checked;
 		GraphicsSettings.save();
 	}
 
-	function oncartoonPower()  
-	{  
-		GraphicsSettings.cartoonPower = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function oncartoonPower() {
+		GraphicsSettings.cartoonPower = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
-	function oncartoonEdgeSlope()  
-	{  
-		GraphicsSettings.cartoonEdgeSlope = parseFloat(this.value);  
-		GraphicsSettings.save();  
+	function oncartoonEdgeSlope() {
+		GraphicsSettings.cartoonEdgeSlope = parseFloat(this.value);
+		GraphicsSettings.save();
 	}
 
 	/**
 	 * Culling
 	 */
-	function onToggleCulling()
-	{
+	function onToggleCulling() {
 		GraphicsSettings.culling = !!this.checked;
 		GraphicsSettings.save();
 	}
 
-	function onUpdateAreaView()  
-	{  
-		GraphicsSettings.viewArea = parseInt(this.value);  
-		GraphicsSettings.save();  
+	function onUpdateAreaView() {
+		GraphicsSettings.viewArea = parseInt(this.value);
+		GraphicsSettings.save();
 	}
 
 	/**
 	 * Resizing window size
 	 */
-	function onUpdateScreenSize()
-	{
+	function onUpdateScreenSize() {
 		var isFullScreen = Context.isFullScreen();
 
 		GraphicsSettings.screensize = this.value;
@@ -349,32 +316,32 @@ define(function(require)
 
 			// Only resize/move if needed
 			if (size[0] != window.innerWidth && size[1] != window.innerHeight) {
-				window.resizeTo( size[0], size[1] );
-				window.moveTo( (screen.availWidth - size[0]) / 2, (screen.availHeight - size[1]) / 2 );
+				window.resizeTo(size[0], size[1]);
+				window.moveTo((screen.availWidth - size[0]) / 2, (screen.availHeight - size[1]) / 2);
 			}
 		}
 	}
 
-	function onTabSwitch() {    
-		var tabName = jQuery(this).data('tab');    
-      
-		GraphicsOption.ui.find('.tab-button').removeClass('selected');    
-		jQuery(this).addClass('selected');    
-      
-		GraphicsOption.ui.find('.tab-content').removeClass('selected');    
-		GraphicsOption.ui.find('#' + tabName).addClass('selected');    
+	function onTabSwitch() {
+		var tabName = jQuery(this).data('tab');
+
+		GraphicsOption.ui.find('.tab-button').removeClass('selected');
+		jQuery(this).addClass('selected');
+
+		GraphicsOption.ui.find('.tab-content').removeClass('selected');
+		GraphicsOption.ui.find('#' + tabName).addClass('selected');
 	}
 
-	function onResetToDefaults() {  
-		var defaultSettings = GraphicsSettings.defaults;  
- 
-		Object.keys(defaultSettings).forEach(function(key) {  
-			if (defaultSettings.hasOwnProperty(key)) {  
-				GraphicsSettings[key] = defaultSettings[key];  
-			}  
-		}); 
-		GraphicsSettings.save();  
-      
+	function onResetToDefaults() {
+		var defaultSettings = GraphicsSettings.defaults;
+
+		Object.keys(defaultSettings).forEach(function (key) {
+			if (defaultSettings.hasOwnProperty(key)) {
+				GraphicsSettings[key] = defaultSettings[key];
+			}
+		});
+		GraphicsSettings.save();
+
 		GraphicsOption.onAppend();
 	}
 

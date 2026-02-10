@@ -15,9 +15,16 @@
  *   where SinLimit = 90° + (i - 10) * 9°
  * - Render: base ring at distance, top offset by rotated height
  */
-define(['text!./Shaders/GLSL/SwirlingAura.vs', 'text!./Shaders/GLSL/SwirlingAura.fs','Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client', 'Renderer/Map/Altitude', 'Renderer/SpriteRenderer'],
-function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
-
+define([
+	'text!./Shaders/GLSL/SwirlingAura.vs',
+	'text!./Shaders/GLSL/SwirlingAura.fs',
+	'Utils/WebGL',
+	'Utils/Texture',
+	'Utils/gl-matrix',
+	'Core/Client',
+	'Renderer/Map/Altitude',
+	'Renderer/SpriteRenderer'
+], function (_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
 	'use strict';
 
 	var mat4 = glMatrix.mat4;
@@ -35,8 +42,8 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Constants from original inspiration game
 	 */
-	var E_DIVISION = 21;           // Number of divisions (0-20)
-	var FULL_DISPLAY_ANGLE = 315;  // 315° arc
+	var E_DIVISION = 21; // Number of divisions (0-20)
+	var FULL_DISPLAY_ANGLE = 315; // 315° arc
 	var DEG_TO_RAD = Math.PI / 180;
 
 	/**
@@ -51,16 +58,16 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 		this.position = position;
 		this.textureName = textureName;
 		this.tick = tick;
-		this.sizeType = sizeType || 4;  // 4 = blue, 7 = green
+		this.sizeType = sizeType || 4; // 4 = blue, 7 = green
 
 		// Scale factor: original inspiration game units to world units
-		var GAME_TO_WORLD = 0.1 * 2.2;  // Adjusted for visual match
+		var GAME_TO_WORLD = 0.1 * 2.2; // Adjusted for visual match
 
 		// Color based on m_size (4 = blue, 7 = green)
 		if (this.sizeType === 7) {
-			this.color = { r: 100/255, g: 255/255, b: 100/255 };
+			this.color = { r: 100 / 255, g: 255 / 255, b: 100 / 255 };
 		} else {
-			this.color = { r: 100/255, g: 100/255, b: 255/255 };
+			this.color = { r: 100 / 255, g: 100 / 255, b: 255 / 255 };
 		}
 
 		// Alpha from original inspiration game: alphaB = 120
@@ -73,18 +80,18 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 			this.bands.push({
 				life: 1,
 				process: 0,
-				rotStart: ec * 90,                           // 0, 90, 180 degrees
-				maxHeight: (15 - 2 * ec) * GAME_TO_WORLD,  // 15, 13, 11 (unchanged)
+				rotStart: ec * 90, // 0, 90, 180 degrees
+				maxHeight: (15 - 2 * ec) * GAME_TO_WORLD, // 15, 13, 11 (unchanged)
 				distance: (3.9 + 0.2 * ec) * GAME_TO_WORLD * INNER_CIRCLE_SCALE, // 20% smaller
-				riseAngle: (55 - 5 * ec) * DEG_TO_RAD,       // 55°, 50°, 45°
-				spinSpeed: ec + 3,                            // 3, 4, 5 degrees per frame
-				height: new Float32Array(E_DIVISION),         // Height profile
-				flag1: new Uint8Array(E_DIVISION)             // Reached max flag
+				riseAngle: (55 - 5 * ec) * DEG_TO_RAD, // 55°, 50°, 45°
+				spinSpeed: ec + 3, // 3, 4, 5 degrees per frame
+				height: new Float32Array(E_DIVISION), // Height profile
+				flag1: new Uint8Array(E_DIVISION) // Reached max flag
 			});
 		}
 
 		// Angle step between divisions
-		this.basicAngle = FULL_DISPLAY_ANGLE / (E_DIVISION - 1);  // 315/20 = 15.75°
+		this.basicAngle = FULL_DISPLAY_ANGLE / (E_DIVISION - 1); // 315/20 = 15.75°
 
 		// Vertex buffers for each band
 		this.buffers = null;
@@ -95,9 +102,9 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Update height profile for a band
 	 */
-	SwirlingAura.prototype.updateHeightProfile = function(band) {
+	SwirlingAura.prototype.updateHeightProfile = function (band) {
 		var middle = 10;
-		var step = 9;  // 90 / 10 = 9 degrees
+		var step = 9; // 90 / 10 = 9 degrees
 
 		for (var i = 0; i < E_DIVISION; i++) {
 			if (band.flag1[i] === 0) {
@@ -126,7 +133,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Generate mesh for a single band
 	 */
-	SwirlingAura.prototype.generateBandMesh = function(band) {
+	SwirlingAura.prototype.generateBandMesh = function (band) {
 		var mesh = [];
 		var cosRise = Math.cos(band.riseAngle);
 		var sinRise = Math.sin(band.riseAngle);
@@ -139,7 +146,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 
 			// Base ring point at distance
 			var baseX = band.distance * cosAngle;
-			var baseY = 0;  // Ground level
+			var baseY = 0; // Ground level
 			var baseZ = band.distance * sinAngle;
 
 			// Height for this division
@@ -153,7 +160,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 			var Ry = sinRise * h;
 
 			var topX = baseX + Rx * cosAngle;
-			var topY = -Ry;  // Negative Y is up
+			var topY = -Ry; // Negative Y is up
 			var topZ = baseZ + Rx * sinAngle;
 
 			// UV coordinates
@@ -171,13 +178,13 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	/**
 	 * Generate index buffer
 	 */
-	SwirlingAura.prototype.generateIndices = function() {
+	SwirlingAura.prototype.generateIndices = function () {
 		var indices = [];
 		for (var k = 0; k < E_DIVISION - 1; k++) {
-			var i0 = k * 2;      // Base of current
-			var i1 = k * 2 + 1;  // Top of current
-			var i2 = k * 2 + 2;  // Base of next
-			var i3 = k * 2 + 3;  // Top of next
+			var i0 = k * 2; // Base of current
+			var i1 = k * 2 + 1; // Top of current
+			var i2 = k * 2 + 2; // Base of next
+			var i3 = k * 2 + 3; // Top of next
 
 			// Two triangles per quad
 			indices.push(i0, i1, i2);
@@ -206,8 +213,8 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 		this.indexCount = indices.length;
 
 		// Load texture
-		Client.loadFile('data/texture/effect/' + this.textureName, function(buffer) {
-			WebGL.texture(gl, buffer, function(texture) {
+		Client.loadFile('data/texture/effect/' + this.textureName, function (buffer) {
+			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
 				self.ready = true;
 			});
@@ -243,11 +250,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 
 		// Build model matrix
 		mat4.identity(_modelMatrix);
-		mat4.translate(_modelMatrix, _modelMatrix, [
-			this.position[0] + 0.5,
-			-groundZ,
-			this.position[1] + 0.5
-		]);
+		mat4.translate(_modelMatrix, _modelMatrix, [this.position[0] + 0.5, -groundZ, this.position[1] + 0.5]);
 
 		gl.uniformMatrix4fv(uniform.uModelMat, false, _modelMatrix);
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -259,7 +262,9 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 			// Render each band
 			for (var ec = 0; ec < self.bands.length; ec++) {
 				var band = self.bands[ec];
-				if (!band.life) continue;
+				if (!band.life) {
+					continue;
+				}
 
 				// Update animation (Prim3DCasting)
 				band.process++;
@@ -315,7 +320,7 @@ function(_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altit
 	 */
 	SwirlingAura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
 		var uniform = _program.uniform;
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE);  // Additive blend
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
 		gl.useProgram(_program);
 

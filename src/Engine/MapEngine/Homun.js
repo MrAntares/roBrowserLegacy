@@ -31,12 +31,12 @@
  * @prop {number} nRelationship
  * @prop {number} sp
  * @prop {string} szName Homun name
- * 
+ *
  * @typedef {Object} TLife
  * @prop {number} ap
  * @prop {number} ap_max
  * @prop {HTMLCanvasElement} canvas
- * @prop {CanvasRenderingContext2D} ctx 
+ * @prop {CanvasRenderingContext2D} ctx
  * @prop {boolean} display
  * @prop {Entity} entity
  * @prop {number} hp
@@ -98,7 +98,6 @@ define(function (require) {
 		SkillListMH.homunculus.setPoints(pkt.SKPoint);
 	}
 
-
 	/**
 	 * Result from feeding your homun
 	 *
@@ -107,13 +106,16 @@ define(function (require) {
 	function onFeedResult(pkt) {
 		// Fail to feed
 		if (!pkt.cRet) {
-			ChatBox.addText(DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+			ChatBox.addText(
+				DB.getMessage(591).replace('%s', DB.getItemInfo(pkt.ITID).identifiedDisplayName),
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
 			return;
 		}
 
 		// success, what to do ? Action feed ? or is it sent by server ?
 	}
-
 
 	/**
 	 * Update homun information
@@ -147,7 +149,6 @@ define(function (require) {
 				break;
 		}
 	}
-
 
 	/**
 	 * Client request to feed QHomun.
@@ -195,7 +196,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * @param gid
 	 */
@@ -204,7 +204,6 @@ define(function (require) {
 		pkt.GID = gid;
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * @param GID
@@ -218,7 +217,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * @param GID
 	 */
@@ -229,7 +227,6 @@ define(function (require) {
 		pkt.dest[1] = Mouse.world.y;
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * Rename QHomunculus
@@ -243,7 +240,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * List of skills
 	 *
@@ -252,7 +248,6 @@ define(function (require) {
 	function onSkillList(pkt) {
 		SkillListMH.homunculus.setSkills(pkt.skillList);
 	}
-
 
 	/**
 	 * Update a specified skill
@@ -265,7 +260,7 @@ define(function (require) {
 
 	/**
 	 * Update homunculus parameters e.g. hp/sp recovery
-	 * 
+	 *
 	 * @param {object} pkt - PACKET.ZC.HO_PAR_CHANGE
 	 */
 	function onParamsUpdate(pkt) {
@@ -295,7 +290,8 @@ define(function (require) {
 				entity.life.update();
 				break;
 
-			default: break;
+			default:
+				break;
 		}
 
 		// UI update
@@ -306,7 +302,6 @@ define(function (require) {
 	// {
 	// 	console.warn(pkt)
 	// }
-
 
 	/**
 	 * Initialize

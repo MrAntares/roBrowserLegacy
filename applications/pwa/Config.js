@@ -30,7 +30,7 @@ window.ROConfigBase = {
 			packetKeys: false,
 			socketProxy: 'wss://connect.robrowser.com',
 			adminList: [2000000]
-		},
+		}
 		// ADD PUBLIC TEST SERVERS HERE WITH _M _F REGISTRATION
 	],
 	packetDump: false,
@@ -43,7 +43,7 @@ window.ROConfigBase = {
 	CameraMaxZoomOut: 5,
 	charBlockSize: 0,
 	clientHash: null,
-	clientVersionMode: "PacketVer",
+	clientVersionMode: 'PacketVer',
 	disableConsole: false,
 	enableBank: false,
 	enableCashShop: false,
@@ -60,5 +60,5 @@ window.ROConfigBase = {
 	registrationweb: '',
 	saveFiles: true,
 	ThirdPersonCamera: false,
-	transitionDuration: 500,
+	transitionDuration: 500
 };

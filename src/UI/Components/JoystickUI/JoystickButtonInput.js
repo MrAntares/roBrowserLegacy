@@ -1,9 +1,9 @@
 /**
  * UI/Components/JoystickUI/JoystickButtonInput.js
  *
- * Manages the logic for digital button presses. 
- * Handles input states (pressed, holding, unpressed), 
- * button combination mapping for shortcuts, and world interactions 
+ * Manages the logic for digital button presses.
+ * Handles input states (pressed, holding, unpressed),
+ * button combination mapping for shortcuts, and world interactions
  * like attacking or interacting with NPCs.
  *
  * @author AoShinHo
@@ -28,9 +28,10 @@ define(function (require) {
 	}
 
 	var ButtonInput = {
-
 		update: function (buttons) {
-			if (clickLock) return false;
+			if (clickLock) {
+				return false;
+			}
 
 			if (SelectionUI.active()) {
 				SelectionUI.handleGamepadInput(buttons);
@@ -61,8 +62,9 @@ define(function (require) {
 		_handleWorldActions: function (btn) {
 			var pressed = false;
 
-			if (ShortcutMapper.getGroup(btn) !== '')
+			if (ShortcutMapper.getGroup(btn) !== '') {
 				return false;
+			}
 
 			// A → left click
 			if (btn[0] !== 'unpressed') {
@@ -88,7 +90,9 @@ define(function (require) {
 				pressed = true;
 			}
 
-			if(pressed) setClickLock();
+			if (pressed) {
+				setClickLock();
+			}
 
 			return pressed;
 		},
@@ -112,47 +116,61 @@ define(function (require) {
 			var selectPressed = buttons[8] === 'holding';
 
 			if (selectPressed) {
-				if (buttons[12] !== 'unpressed') { // D-pad Up
+				if (buttons[12] !== 'unpressed') {
+					// D-pad Up
 					Interaction.cameraZoom(-2);
 					pressed = true;
-				} else if (buttons[13] !== 'unpressed') { // D-pad Down
+				} else if (buttons[13] !== 'unpressed') {
+					// D-pad Down
 					Interaction.cameraZoom(2);
 					pressed = true;
-				} else if (buttons[14] !== 'unpressed') { // D-pad Left
+				} else if (buttons[14] !== 'unpressed') {
+					// D-pad Left
 					Interaction.cameraAngle(-5);
 					pressed = true;
-				} else if (buttons[15] !== 'unpressed') { // D-pad Right  
+				} else if (buttons[15] !== 'unpressed') {
+					// D-pad Right
 					Interaction.cameraAngle(5);
 					pressed = true;
-				} else if (buttons[9] !== 'unpressed') { // Start button    
+				} else if (buttons[9] !== 'unpressed') {
+					// Start button
 					Interaction.escape();
 					pressed = true;
-				} else if (pressed = Interaction.showinfo()) {
-
+				} else if ((pressed = Interaction.showinfo())) {
 				}
 
-				if (pressed){ setClickLock(); return pressed; }
+				if (pressed) {
+					setClickLock();
+					return pressed;
+				}
 			}
 
 			// D-Pad
-			if (buttons[12] !== 'unpressed') { // D-pad Up    
+			if (buttons[12] !== 'unpressed') {
+				// D-pad Up
 				Interaction.navigateDpad('up');
 				pressed = true;
-			} else if (buttons[13] !== 'unpressed') { // D-pad Down        
+			} else if (buttons[13] !== 'unpressed') {
+				// D-pad Down
 				Interaction.navigateDpad('down');
 				pressed = true;
-			} else if (buttons[14] !== 'unpressed') { // D-pad Left      
+			} else if (buttons[14] !== 'unpressed') {
+				// D-pad Left
 				Interaction.navigateDpad('left');
 				pressed = true;
-			} else if (buttons[15] !== 'unpressed') { // D-pad Right      
+			} else if (buttons[15] !== 'unpressed') {
+				// D-pad Right
 				Interaction.navigateDpad('right');
 				pressed = true;
-			} else if (buttons[9] !== 'unpressed') { // Start button    
+			} else if (buttons[9] !== 'unpressed') {
+				// Start button
 				Interaction.enter();
 				pressed = true;
 			}
 
-			if(pressed) setClickLock();
+			if (pressed) {
+				setClickLock();
+			}
 
 			return pressed;
 		},

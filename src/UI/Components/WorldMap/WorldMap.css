@@ -129,7 +129,8 @@
 	height: 11px;
 	color: white;
 	font-weight: bold;
-	text-shadow: -1px -1px 0 #000,
+	text-shadow:
+		-1px -1px 0 #000,
 		1px -1px 0 #000,
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
@@ -150,7 +151,8 @@
 	transform: translate(-50%, 0);
 	height: 10px;
 	color: white;
-	text-shadow: -1px -1px 0 #000,
+	text-shadow:
+		-1px -1px 0 #000,
 		1px -1px 0 #000,
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
@@ -216,7 +218,8 @@
 	font-size: 16px;
 	color: gold;
 	font-weight: bold;
-	text-shadow: -1px -1px 0 #000,
+	text-shadow:
+		-1px -1px 0 #000,
 		1px -1px 0 #000,
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
@@ -229,7 +232,8 @@
 	font-size: 13px;
 	color: salmon;
 	font-weight: bold;
-	text-shadow: -1px -1px 0 #000,
+	text-shadow:
+		-1px -1px 0 #000,
 		1px -1px 0 #000,
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
@@ -240,7 +244,8 @@
 	bottom: 7px;
 	left: 10px;
 	color: white;
-	text-shadow: -1px -1px 0 #000,
+	text-shadow:
+		-1px -1px 0 #000,
 		1px -1px 0 #000,
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
@@ -253,30 +258,34 @@
 	width: 11px;
 	height: 11px;
 	border: none;
-	background-color: rgba(255, 255, 255, 0.0);
+	background-color: rgba(255, 255, 255, 0);
 }
 
-#WorldMap .showlvl {  
-	width: 10px;  
-	height: 12px;  
-	border: none;  
-	background-color: transparent;  
-	background-repeat: no-repeat;  
+#WorldMap .showlvl {
+	width: 10px;
+	height: 12px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
 }
 
 #WorldMap .worldmap .section .level-range-text {
-	display: none; 
+	display: none;
 	position: absolute;
-	
+
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	
+
 	width: 100%;
 	text-align: center;
 	font-weight: bold;
-	color: #FF0000;
-	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	color: #ff0000;
+	text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
 }
 
 #WorldMap .worldmap.show-lvls .section .level-range-text {

@@ -10,21 +10,20 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
-	var jQuery        = require('Utils/jquery');
-	var UIManager     = require('UI/UIManager');
-	var UIComponent   = require('UI/UIComponent');
-	var htmlText      = require('text!./CaptchaSelector.html');
-	var cssText       = require('text!./CaptchaSelector.css');
-	var Preferences   = require('Core/Preferences');
-	var Renderer      = require('Renderer/Renderer');
+	var jQuery = require('Utils/jquery');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./CaptchaSelector.html');
+	var cssText = require('text!./CaptchaSelector.css');
+	var Preferences = require('Core/Preferences');
+	var Renderer = require('Renderer/Renderer');
 	var EntityManager = require('Renderer/EntityManager');
-	var Session       = require('Engine/SessionStorage');
-	var DB            = require('DB/DBManager');
-	var MonsterTable  = require('DB/Monsters/MonsterTable');
+	var Session = require('Engine/SessionStorage');
+	var DB = require('DB/DBManager');
+	var MonsterTable = require('DB/Monsters/MonsterTable');
 
 	/**
 	 * Create Component
@@ -34,10 +33,14 @@ define(function (require) {
 	/**
 	 * Preferences
 	 */
-	var _preferences = Preferences.get('CaptchaSelector', {
-		x: 230,
-		y: 295
-	}, 2.0);
+	var _preferences = Preferences.get(
+		'CaptchaSelector',
+		{
+			x: 230,
+			y: 295
+		},
+		2.0
+	);
 
 	/**
 	 * AID list
@@ -91,7 +94,6 @@ define(function (require) {
 				Session.captchaGetIdOnEntityClick = false;
 				Session.captchaGetIdOnFloorClick = false;
 			}
-
 		});
 
 		// OK Button
@@ -99,11 +101,12 @@ define(function (require) {
 			if (_aidList.length > 0) {
 				UIManager.showPromptBox(
 					DB.getMessage(2876).replace('%d', _aidList.length),
-					'ok', 'cancel',
+					'ok',
+					'cancel',
 					function () {
 						CaptchaSelector.sendCaptchaToPlayers();
 					},
-					function () { }
+					function () {}
 				);
 			}
 		});
@@ -186,9 +189,7 @@ define(function (require) {
 			const name = entity?.display?.name ?? 'Unknown';
 			const aid = players[i];
 
-			li.addClass('player')
-				.data('aid', aid)
-				.html(`
+			li.addClass('player').data('aid', aid).html(`
 					<button class="base remove"
                 data-background="basic_interface/sys_close_off.bmp"
                 data-hover="basic_interface/sys_close_on.bmp"
@@ -213,24 +214,25 @@ define(function (require) {
 		});
 
 		// set character info on click <a>
-		this.ui.find('.player_list li').find('a').click(function () {
-			let aid = jQuery(this).data('aid');
-			let entity = EntityManager.get(aid);
-			let name = entity?.display?.name ?? 'Unknown';
-			let job = MonsterTable[entity?._job ?? 0] ?? 'Unknown';
-			CaptchaSelector.ui.find('.character_info').find('.character-name').text(name);
-			CaptchaSelector.ui.find('.character_info').find('.character-job').text(job);
+		this.ui
+			.find('.player_list li')
+			.find('a')
+			.click(function () {
+				let aid = jQuery(this).data('aid');
+				let entity = EntityManager.get(aid);
+				let name = entity?.display?.name ?? 'Unknown';
+				let job = MonsterTable[entity?._job ?? 0] ?? 'Unknown';
+				CaptchaSelector.ui.find('.character_info').find('.character-name').text(name);
+				CaptchaSelector.ui.find('.character_info').find('.character-job').text(job);
 
-			// move to component position
-			CaptchaSelector.ui.find('.character_info').css({
-				top: jQuery(this).position().top,
-				left: 0
+				// move to component position
+				CaptchaSelector.ui.find('.character_info').css({
+					top: jQuery(this).position().top,
+					left: 0
+				});
+
+				CaptchaSelector.ui.find('.character_info').show();
 			});
-			
-			CaptchaSelector.ui.find('.character_info').show();
-		});
-
-		
 
 		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
 
@@ -273,7 +275,6 @@ define(function (require) {
 	 */
 	CaptchaSelector.requestPlayersIdsInRange = null;
 	CaptchaSelector.sendCaptchaToPlayer = null;
-
 
 	/**
 	 * Stored component and return it

@@ -8,11 +8,10 @@
  * @author Vincent Thibault
  */
 //  effectId: hitEffectId: effectIdOnCaster: beginCastEffectId:
-define(function()
-{
-    'use strict';
+define(function () {
+	'use strict';
 
-    var ItemEffect = {};
+	var ItemEffect = {};
 
 	//Type 1
 	ItemEffect[501] = { effectId: 204 }; //Red Potion
@@ -389,7 +388,6 @@ define(function()
 	ItemEffect[22776] = { effectId: 204 }; //Carp Skewer
 	ItemEffect[22985] = { effectId: 204 }; //Basil
 
-
 	//Type2
 	ItemEffect[645] = { effectId: 218 }; //Concentration Potion
 	ItemEffect[656] = { effectId: 219 }; //Awakening Potion
@@ -476,5 +474,5 @@ define(function()
 	ItemEffect[662] = { effectId: 507 }; //Authoritative Badge
 	ItemEffect[12262] = { effectId: 507 }; //Authoritative Badge
 
-    return ItemEffect;
+	return ItemEffect;
 });

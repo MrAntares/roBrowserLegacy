@@ -6,14 +6,14 @@
  * - Emits 2 flakes per 25ms tick until the last 160 ticks of its lifetime.
  * - Each flake is a no-master particle that falls straight down and fades in/out.
  */
-define(function(require) {
+define(function (require) {
 	'use strict';
 
-	var Client         = require('Core/Client');
-	var Renderer       = require('Renderer/Renderer');
+	var Client = require('Core/Client');
+	var Renderer = require('Renderer/Renderer');
 	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Altitude       = require('Renderer/Map/Altitude');
-	var Session        = require('Engine/SessionStorage');
+	var Altitude = require('Renderer/Map/Altitude');
+	var Session = require('Engine/SessionStorage');
 	var getModule = require;
 
 	// The official client uses 25ms rag ticks for weather effects.
@@ -28,7 +28,7 @@ define(function(require) {
 	// Flake behavior
 	var FLAKE_LIFE_MS = 320 * RAG_TICK_MS;
 	var FLAKE_FADEIN_MS = 10 * RAG_TICK_MS;
-	var FLAKE_FADEOUT_START_MS = FLAKE_LIFE_MS * 4 / 5; // last 1/5 of life
+	var FLAKE_FADEOUT_START_MS = (FLAKE_LIFE_MS * 4) / 5; // last 1/5 of life
 
 	// Spatial tuning in map-cell units.
 	// Original client scatters within ~300 internal units around the player and spawns ~100 units above ground.
@@ -72,7 +72,9 @@ define(function(require) {
 	 */
 	SnowWeatherEffect.ready = true;
 
-	SnowWeatherEffect.isActive = function isActive(){ return _instance; };
+	SnowWeatherEffect.isActive = function isActive() {
+		return _instance;
+	};
 
 	/**
 	 * Prepare SpriteRenderer state for snow flakes.
@@ -102,7 +104,7 @@ define(function(require) {
 	 */
 	SnowWeatherEffect.startOrRestart = function startOrRestart(Params) {
 		var now = Params.Inst.startTick || Renderer.tick;
-		var currentMap = getModule("Renderer/MapRenderer").currentMap;
+		var currentMap = getModule('Renderer/MapRenderer').currentMap;
 
 		// If map changed, force new instance
 		if (_mapName !== currentMap) {
@@ -125,10 +127,12 @@ define(function(require) {
 	};
 
 	SnowWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		// Clean up if map changed abruptly
-		if (_mapName !== getModule("Renderer/MapRenderer").currentMap) {
+		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
 			_instance = null;
 			return;
 		}
@@ -151,7 +155,9 @@ define(function(require) {
 	 * Fade out snow over the official ~300 ticks.
 	 */
 	SnowWeatherEffect.stop = function stop(ownerAID, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		var now = tick || Renderer.tick;
 		// The render loop will handle the fade out and eventual cleanup.
@@ -165,7 +171,9 @@ define(function(require) {
 	 * Spawn a single snowflake around the player.
 	 */
 	SnowWeatherEffect.prototype.spawnFlake = function spawnFlake(spawnTick) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
 		var px = Session.Entity.position[0];
 		var py = Session.Entity.position[1];
@@ -240,9 +248,9 @@ define(function(require) {
 
 	SnowWeatherEffect.prototype.render = function render(gl, tick) {
 		if (!Session.Entity) {
-			// Don't kill effect just because entity is missing momentarily, 
+			// Don't kill effect just because entity is missing momentarily,
 			// but if map changed, we kill it via renderAll check.
-			return; 
+			return;
 		}
 		// Always fetch from Client cache so MemoryManager knows it's still used.
 		// This prevents long-lived weather effects from having their SPR textures evicted.
@@ -271,8 +279,9 @@ define(function(require) {
 			var ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
-					if(_isStopping)
+					if (_isStopping) {
 						break;
+					}
 					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
 					this.spawnFlake(emitTick);
 					this.spawnFlake(emitTick);

@@ -22,17 +22,16 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	var dpr = window.devicePixelRatio || 1;
 
 	var procCanvas = document.createElement('canvas');
-	var procCtx    = procCanvas.getContext('2d', { willReadFrequently: true });
+	var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	// Some helper for Firefox to render text-border
 	if (typeof CanvasRenderingContext2D !== 'undefined') {
-		CanvasRenderingContext2D.prototype.outlineText =
-			function outlineText(txt, x, y) {
-				this.fillText(txt, x - 1, y);
-				this.fillText(txt, x, y - 1);
-				this.fillText(txt, x + 1, y);
-				this.fillText(txt, x, y + 1);
-			};
+		CanvasRenderingContext2D.prototype.outlineText = function outlineText(txt, x, y) {
+			this.fillText(txt, x - 1, y);
+			this.fillText(txt, x, y - 1);
+			this.fillText(txt, x + 1, y);
+			this.fillText(txt, x, y + 1);
+		};
 	}
 
 	// Some helper for Chrome to render text-border
@@ -47,7 +46,6 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		ctx.fillText(text, x, y);
 	}
 
-
 	/**
 	 * @var {boolean} is the shadow ugly in the GPU ?
 	 * Used to fallback to another renderer.
@@ -55,7 +53,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 * For more informations, check :
 	 * http://forum.robrowser.com/index.php?topic=32200
 	 */
-	var _isUglyShadow = function isUglyGPUShadow() {
+	var _isUglyShadow = (function isUglyGPUShadow() {
 		var fontSize = 12 * dpr;
 		var text = 'Testing';
 		var width, height, percent;
@@ -85,22 +83,22 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		// Read canvas pixels and get the average black
 		var imageData = procCtx.getImageData(0, 0, width, height);
 		var pixels = imageData.data;
-		var i, count = pixels.length;
+		var i,
+			count = pixels.length;
 		var total = 0;
 
 		for (i = 0; i < count; i += 4) {
 			total += ((255 - pixels[i]) / 255) * pixels[i + 3];
 		}
 
-		percent = (total / (count / 4)) / 2.55;
+		percent = total / (count / 4) / 2.55;
 
 		procCanvas.width = procCanvas.height = 0;
 
 		// 6.1% seems for the moment a good value
 		// to check if there is too much black.
 		return !window.chrome || percent > 6.15;
-	}();
-
+	})();
 
 	/**
 	 * Display structure
@@ -135,14 +133,12 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		this.canvas.style.zIndex = 1;
 	}
 
-
 	/**
 	 * Add GUI to html
 	 */
 	Display.prototype.add = function add() {
 		this.display = true;
 	};
-
 
 	/**
 	 * Remove GUI from html
@@ -154,14 +150,12 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		this.display = false;
 	};
 
-
 	/**
 	 * Clean it (remove informations)
 	 */
 	Display.prototype.clean = function clean() {
 		this.remove();
 	};
-
 
 	/**
 	 * Update the display
@@ -174,7 +168,14 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		var lines = new Array(2);
 		var fontSize = 12 * dpr;
 		var ctx = this.ctx;
-		var start_x = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC) ? 26 : 0) + 5;
+		var start_x =
+			(this.emblem &&
+			(style === this.STYLE.DEFAULT ||
+				style === this.STYLE.ADMIN ||
+				style === this.STYLE.MOB ||
+				style === this.STYLE.NPC)
+				? 26
+				: 0) + 5;
 		var width, height;
 		var paddingTop = 5;
 
@@ -182,27 +183,52 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		lines[0] = this.fakename ? this.fakename.split('#')[0] : this.name.split('#')[0];
 		lines[1] = '';
 
-
 		// Add the party name
-		if (this.party_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
+		if (
+			this.party_name.length &&
+			(style === this.STYLE.DEFAULT ||
+				style === this.STYLE.ADMIN ||
+				style === this.STYLE.MOB ||
+				style === this.STYLE.NPC)
+		) {
 			lines[0] += ' (' + this.party_name + ')';
 		}
 
 		// Add guild name
-		if (this.guild_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
+		if (
+			this.guild_name.length &&
+			(style === this.STYLE.DEFAULT ||
+				style === this.STYLE.ADMIN ||
+				style === this.STYLE.MOB ||
+				style === this.STYLE.NPC)
+		) {
 			lines[1] = this.guild_name;
 
 			// Add guild rank
 			if (this.guild_rank.length && MapPreferences.showname) {
 				lines[1] += ' [' + this.guild_rank + ']';
 			}
-		} else if (this.guild_rank.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) { // showname
+		} else if (
+			this.guild_rank.length &&
+			(style === this.STYLE.DEFAULT ||
+				style === this.STYLE.ADMIN ||
+				style === this.STYLE.MOB ||
+				style === this.STYLE.NPC)
+		) {
+			// showname
 			lines[1] = this.guild_rank;
 		}
 
 		// Add Title name
 		// when title is set client render title in line[0] and name/fakename in line[1]
-		if (MapPreferences.showname && this.title_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
+		if (
+			MapPreferences.showname &&
+			this.title_name.length &&
+			(style === this.STYLE.DEFAULT ||
+				style === this.STYLE.ADMIN ||
+				style === this.STYLE.MOB ||
+				style === this.STYLE.NPC)
+		) {
 			lines[0] = '[' + this.title_name + '] ' + lines[0];
 		}
 
@@ -216,7 +242,13 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		ctx.canvas.height = height;
 
 		// Draw emblem
-		if (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
+		if (
+			this.emblem &&
+			(style === this.STYLE.DEFAULT ||
+				style === this.STYLE.ADMIN ||
+				style === this.STYLE.MOB ||
+				style === this.STYLE.NPC)
+		) {
 			if (this.emblem.isAnimated) {
 				var fw = this.emblem.frameWidth;
 				var fh = this.emblem.frameHeight;
@@ -229,12 +261,19 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		// TODO: complete the color list in the Entity display
 		var color = 'white';
 		switch (style) {
-			case this.STYLE.MOB: color = '#ffc6c6'; break;
-			case this.STYLE.NPC: color = '#94bdf7'; break;
-			case this.STYLE.ITEM: color = '#FFEF94'; break;
-			case this.STYLE.ADMIN: color = '#ffff00'; break;
+			case this.STYLE.MOB:
+				color = '#ffc6c6';
+				break;
+			case this.STYLE.NPC:
+				color = '#94bdf7';
+				break;
+			case this.STYLE.ITEM:
+				color = '#FFEF94';
+				break;
+			case this.STYLE.ADMIN:
+				color = '#ffff00';
+				break;
 		}
-
 
 		var fontBold = MapPreferences.showname ? 'bold ' : '';
 		ctx.font = fontBold + fontSize + 'px Arial';
@@ -256,7 +295,6 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 			ctx.fillText(lines[0], start_x, paddingTop);
 			ctx.strokeText(lines[1], start_x, fontSize * 1.2 + paddingTop);
 			ctx.fillText(lines[1], start_x, fontSize * 1.2 + paddingTop);
-
 		}
 
 		// fillText renderer
@@ -276,17 +314,25 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 */
 	Display.prototype.refresh = function refresh(entity) {
 		this.update(
-			entity.objecttype === entity.constructor.TYPE_MOB ? entity.display.STYLE.MOB :
-				entity.objecttype === entity.constructor.TYPE_NPC_ABR ? entity.display.STYLE.MOB :
-					entity.objecttype === entity.constructor.TYPE_NPC_BIONIC ? entity.display.STYLE.MOB :
-						entity.objecttype === entity.constructor.TYPE_DISGUISED ? entity.display.STYLE.MOB :
-							entity.objecttype === entity.constructor.TYPE_NPC ? entity.display.STYLE.NPC :
-								entity.objecttype === entity.constructor.TYPE_NPC2 ? entity.display.STYLE.NPC :
-									entity.objecttype === entity.constructor.TYPE_ITEM ? entity.display.STYLE.ITEM :
-										(entity.objecttype === entity.constructor.TYPE_PC && entity.isAdmin) ? entity.display.STYLE.ADMIN :
-											entity.display.STYLE.DEFAULT
-		)
-	}
+			entity.objecttype === entity.constructor.TYPE_MOB
+				? entity.display.STYLE.MOB
+				: entity.objecttype === entity.constructor.TYPE_NPC_ABR
+					? entity.display.STYLE.MOB
+					: entity.objecttype === entity.constructor.TYPE_NPC_BIONIC
+						? entity.display.STYLE.MOB
+						: entity.objecttype === entity.constructor.TYPE_DISGUISED
+							? entity.display.STYLE.MOB
+							: entity.objecttype === entity.constructor.TYPE_NPC
+								? entity.display.STYLE.NPC
+								: entity.objecttype === entity.constructor.TYPE_NPC2
+									? entity.display.STYLE.NPC
+									: entity.objecttype === entity.constructor.TYPE_ITEM
+										? entity.display.STYLE.ITEM
+										: entity.objecttype === entity.constructor.TYPE_PC && entity.isAdmin
+											? entity.display.STYLE.ADMIN
+											: entity.display.STYLE.DEFAULT
+		);
+	};
 
 	/**
 	 * Rendering GUI
@@ -302,11 +348,11 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 
 			if (now - this.emblem.lastFrameChange >= frameDelay) {
 				this.emblem.lastFrameChange = now;
-                
+
 				var fw = this.emblem.frameWidth;
 				var fh = this.emblem.frameHeight;
 				var fpr = this.emblem.framesPerRow || Math.floor(this.emblem.width / fw);
-				var total = this.emblem.frameCount || (fpr * Math.floor(this.emblem.height / fh));
+				var total = this.emblem.frameCount || fpr * Math.floor(this.emblem.height / fh);
 
 				this.emblem.currentFrame = (this.emblem.currentFrame + 1) % total;
 
@@ -318,11 +364,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 				this.ctx.clearRect(0, paddingTop * dpr, 24 * dpr, 24 * dpr);
 				this.ctx.restore();
 
-				this.ctx.drawImage(
-					this.emblem, 
-					col * fw, row * fh, fw, fh,
-					0, paddingTop, 24, 24
-				);
+				this.ctx.drawImage(this.emblem, col * fw, row * fh, fw, fh, 0, paddingTop, 24, 24);
 			}
 		}
 
@@ -341,21 +383,20 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		vec4.transformMat4(_pos, _pos, matrix);
 
 		// Calculate position
-		z = _pos[3] === 0.0 ? 1.0 : (1.0 / _pos[3]);
+		z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 
 		canvas.style.top = ((_pos[1] + 13) | 0) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / dpr / 2) | 0) + 'px';
-		canvas.style.width = canvas.width / dpr + "px";
-		canvas.style.height = canvas.height / dpr + "px";
+		canvas.style.width = canvas.width / dpr + 'px';
+		canvas.style.height = canvas.height / dpr + 'px';
 
 		// Append to body
 		if (!canvas.parentNode) {
 			document.body.appendChild(canvas);
 		}
 	};
-
 
 	/**
 	 * Exporting

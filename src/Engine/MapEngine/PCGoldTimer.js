@@ -42,5 +42,4 @@ define(function (require) {
 	return function MainEngine() {
 		Network.hookPacket(PACKET.ZC.GOLDPCCAFE_POINT, onPCGoldTimerPoint);
 	};
-
 });

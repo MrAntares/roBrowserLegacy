@@ -8,54 +8,49 @@
  * @author Vincent Thibault
  * @author Liam Mitchell
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Load dependencies
 	 */
-	var glMatrix           = require('Utils/gl-matrix');
-	var Configs            = require('Core/Configs');
-	var Client             = require('Core/Client');
-	var GrannyModel              = require('Loaders/GrannyModel');
-	var Renderer           = require('Renderer/Renderer');
-	var ModelRenderer      = require('Renderer/Map/Models');
-	var Camera             = require('Renderer/Camera');
+	var glMatrix = require('Utils/gl-matrix');
+	var Configs = require('Core/Configs');
+	var Client = require('Core/Client');
+	var GrannyModel = require('Loaders/GrannyModel');
+	var Renderer = require('Renderer/Renderer');
+	var ModelRenderer = require('Renderer/Map/Models');
+	var Camera = require('Renderer/Camera');
 
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var htmlText           = require('text!./GrannyModelViewer.html');
-	var cssText            = require('text!./GrannyModelViewer.css');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./GrannyModelViewer.html');
+	var cssText = require('text!./GrannyModelViewer.css');
 
-	var mat4               = glMatrix.mat4;
-	var mat3               = glMatrix.mat3;
-
+	var mat4 = glMatrix.mat4;
+	var mat3 = glMatrix.mat3;
 
 	/**
 	 * @var {object} fog structure
 	 */
-	var _fog   = {
-		use:    false,
-		exist:  true,
-		far:    30,
-		near:   180,
+	var _fog = {
+		use: false,
+		exist: true,
+		far: 30,
+		near: 180,
 		factor: 1.0,
-		color:  new Float32Array([1,1,1])
+		color: new Float32Array([1, 1, 1])
 	};
-
 
 	/**
 	 * @var {object} light structure
 	 */
 	var _light = {
-		opacity:   1.0,
-		ambient:   new Float32Array([1,1,1]),
-		diffuse:   new Float32Array([0,0,0]),
-		direction: new Float32Array([0,1,0]),
+		opacity: 1.0,
+		ambient: new Float32Array([1, 1, 1]),
+		diffuse: new Float32Array([0, 0, 0]),
+		direction: new Float32Array([0, 1, 0])
 	};
-
 
 	/**
 	 * @var {object} model global parameters
@@ -63,96 +58,86 @@ define(function(require)
 	var _GlobalParameters = {
 		position: new Float32Array(3),
 		rotation: new Float32Array(3),
-		scale:    new Float32Array([-0.075,-0.075,0.075]),
+		scale: new Float32Array([-0.075, -0.075, 0.075]),
 		filename: null
 	};
-
 
 	/**
 	 * @var {mat4} model view mat
 	 */
-	var _modelView = new Float32Array(4*4);
-
+	var _modelView = new Float32Array(4 * 4);
 
 	/**
 	 * @var {mat3} normal Mat
 	 */
-	var _normalMat = new Float32Array(3*3);
-
+	var _normalMat = new Float32Array(3 * 3);
 
 	/**
 	 * @var {object} current model
 	 */
 	var _model = null;
 
-
 	/**
 	 * Create GRFViewer component
 	 */
-	var Viewer = new UIComponent( 'GRFViewer', htmlText, cssText );
-
+	var Viewer = new UIComponent('GRFViewer', htmlText, cssText);
 
 	/**
 	 * Initialize Component
 	 */
-	Viewer.init = function Init()
-	{
+	Viewer.init = function Init() {
 		// Initialize WebGL
 		Renderer.init({
-			alpha:              true,
-			depth:              true,
-			stencil:            false,
-			antialias:          true,
-			premultipliedAlpha: false,
+			alpha: true,
+			depth: true,
+			stencil: false,
+			antialias: true,
+			premultipliedAlpha: false
 		});
 		Renderer.show();
 
 		// Initialize the dropdown
 		if (!Configs.get('API')) {
-			initDropDown( this.ui.find('select').get(0) );
-		}
-		else {
-			var hash      = decodeURIComponent(location.hash);
+			initDropDown(this.ui.find('select').get(0));
+		} else {
+			var hash = decodeURIComponent(location.hash);
 			location.hash = hash;
-			loadModel( hash.substr(1) );
+			loadModel(hash.substr(1));
 		}
 	};
-
 
 	/**
 	 * Initialise Drop Down list
 	 *
 	 * @param {HTMLElement} drop down
 	 */
-	function initDropDown( select )
-	{
+	function initDropDown(select) {
 		// Search RSMs from the client
-		Client.search(/data\\[^\0]+\.gr2/gi, function( list ) {
+		Client.search(/data\\[^\0]+\.gr2/gi, function (list) {
 			var i, count;
 			var hash;
 
 			// Add selection
-			for (i = 0, count = list.length; i < count; ++i){
-				list[i] = list[i].replace(/\\/g,'/');
-				select.add( new Option(list[i], list[i]), null );
+			for (i = 0, count = list.length; i < count; ++i) {
+				list[i] = list[i].replace(/\\/g, '/');
+				select.add(new Option(list[i], list[i]), null);
 			}
 
 			// Bind change
-			select.onchange = function() {
-				loadModel(location.hash = this.value);
+			select.onchange = function () {
+				loadModel((location.hash = this.value));
 			};
 
 			// Start loading a model ?
-			hash          = decodeURIComponent(location.hash);
+			hash = decodeURIComponent(location.hash);
 			location.hash = hash;
 
 			// Load RSM from url ?
-			if (hash.indexOf('.gr2' ) !== -1) {
-				loadModel( hash.substr(1) );
+			if (hash.indexOf('.gr2') !== -1) {
+				loadModel(hash.substr(1));
 				select.value = hash.substr(1);
-			}
-			else {
-				loadModel( select.value );
+			} else {
+				loadModel(select.value);
 			}
 
 			Viewer.ui.find('.head').show();
@@ -160,67 +145,66 @@ define(function(require)
 		});
 	}
 
-
 	/**
 	 * Stop to render
 	 */
-	function stop()
-	{
+	function stop() {
 		var gl = Renderer.getContext();
 
 		Renderer.stop();
 		ModelRenderer.free(gl);
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}
-
 
 	/**
 	 * Start loading a model
 	 *
 	 * @param {string} filename
 	 */
-	function loadModel( filename )
-	{
+	function loadModel(filename) {
 		stop();
 
-		Client.getFile( filename, function( buf ) {
-
+		Client.getFile(filename, function (buf) {
 			_model = new GrannyModel(buf);
 
 			var data;
 			var i, count, j, size, total, offset, length, pos;
-			var objects = [], infos = [], meshes, index, object;
+			var objects = [],
+				infos = [],
+				meshes,
+				index,
+				object;
 			var buffer;
 
 			// Create model in world
-			_GlobalParameters.filename = filename.replace('data/model/','');
-			_model.createInstance( _GlobalParameters, 0, 0);
+			_GlobalParameters.filename = filename.replace('data/model/', '');
+			_model.createInstance(_GlobalParameters, 0, 0);
 
 			// Compile model
-			data  = _model.compile();
+			data = _model.compile();
 			count = data.meshes.length;
 			total = 0;
 
 			// Extract meshes
 			for (i = 0, count = data.meshes.length; i < count; ++i) {
 				meshes = data.meshes[i];
-				index  = Object.keys(meshes);
+				index = Object.keys(meshes);
 
 				for (j = 0, size = index.length; j < size; ++j) {
 					objects.push({
 						texture: data.textures[index[j]],
-						alpha:   _model.alpha,
-						mesh:    meshes[index[j]]
+						alpha: _model.alpha,
+						mesh: meshes[index[j]]
 					});
 
 					total += meshes[index[j]].length;
 				}
 			}
 
-			buffer   = new Float32Array(total);
-			count    = objects.length;
-			pos      = 0;
-			offset   = 0;
+			buffer = new Float32Array(total);
+			count = objects.length;
+			pos = 0;
+			offset = 0;
 
 			// Merge meshes to buffer
 			for (i = 0; i < count; ++i) {
@@ -228,27 +212,25 @@ define(function(require)
 				length = object.mesh.length;
 
 				infos[i] = {
-					texture:    'data/texture/' + object.texture,
+					texture: 'data/texture/' + object.texture,
 					vertOffset: offset / 9,
-					vertCount:  length / 9
+					vertCount: length / 9
 				};
 
 				// Add to buffer
-				buffer.set( object.mesh, offset );
+				buffer.set(object.mesh, offset);
 				offset += length;
 			}
 
 			// Load textures
 			i = -1;
-			function loadNextTexture()
-			{
-
+			function loadNextTexture() {
 				// Loading complete, rendering...
-				if ((++i) === count) {
+				if (++i === count) {
 					// Initialize renderer
-					ModelRenderer.init( Renderer.getContext(), {
+					ModelRenderer.init(Renderer.getContext(), {
 						buffer: buffer,
-						infos:  infos
+						infos: infos
 					});
 
 					// Start rendering
@@ -256,10 +238,14 @@ define(function(require)
 					return;
 				}
 
-				Client.loadFile( infos[i].texture, function( data ){
-					infos[i].texture = data;
-					loadNextTexture();
-				}, loadNextTexture );
+				Client.loadFile(
+					infos[i].texture,
+					function (data) {
+						infos[i].texture = data;
+						loadNextTexture();
+					},
+					loadNextTexture
+				);
 			}
 
 			// Start loading textures
@@ -267,38 +253,34 @@ define(function(require)
 		});
 	}
 
-
 	/**
 	 * Rendering scene
 	 *
 	 * @param {number} tick
 	 * @param {object} webgl context
 	 */
-	function render( tick, gl )
-	{
+	function render(tick, gl) {
 		// Updating camera position
-		mat4.identity( _modelView );
-		mat4.translate( _modelView, _modelView, [ 0, -_model.box.range[1]*0.1, -_model.box.range[1]*0.5-5 ] );
-		mat4.rotateX(  _modelView, _modelView, (15/180) * Math.PI );
-		mat4.rotateY(  _modelView, _modelView, ((tick)/1000*360/8) / 180 * Math.PI );
+		mat4.identity(_modelView);
+		mat4.translate(_modelView, _modelView, [0, -_model.box.range[1] * 0.1, -_model.box.range[1] * 0.5 - 5]);
+		mat4.rotateX(_modelView, _modelView, (15 / 180) * Math.PI);
+		mat4.rotateY(_modelView, _modelView, (((tick / 1000) * 360) / 8 / 180) * Math.PI);
 
 		// Calculate normal mat
-		mat4.toInverseMat3( _modelView, _normalMat);
-		mat3.transpose( _normalMat, _normalMat);
+		mat4.toInverseMat3(_modelView, _normalMat);
+		mat3.transpose(_normalMat, _normalMat);
 
 		// Clear screen, update camera
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-		ModelRenderer.render(gl, _modelView, Camera.projection, _normalMat, _fog, _light );
+		ModelRenderer.render(gl, _modelView, Camera.projection, _normalMat, _fog, _light);
 	}
-
 
 	/**
 	 * Export
 	 */
 	Viewer.loadModel = loadModel;
-	Viewer.stop      = stop;
-
+	Viewer.stop = stop;
 
 	/**
 	 * Stored component and return it

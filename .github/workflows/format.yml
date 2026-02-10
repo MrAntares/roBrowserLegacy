@@ -1,0 +1,30 @@
+name: Format
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    prettier:
+        name: Prettier Check (src)
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+
+            - name: Install dependencies
+              run: npm i
+
+            - name: Run Prettier check
+              run: npm run format:check

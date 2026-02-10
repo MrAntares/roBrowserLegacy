@@ -7,39 +7,33 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var Renderer    = require('Renderer/Renderer');
-	var UIManager   = require('UI/UIManager');
+	var Renderer = require('Renderer/Renderer');
+	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
-	var htmlText    = require('text!./WinPopup.html');
-	var cssText     = require('text!./WinPopup.css');
-
+	var htmlText = require('text!./WinPopup.html');
+	var cssText = require('text!./WinPopup.css');
 
 	/**
 	 * Create Component
 	 */
-	var WinPopup = new UIComponent( 'WinPopup', htmlText, cssText );
-
+	var WinPopup = new UIComponent('WinPopup', htmlText, cssText);
 
 	/**
 	 * Initialize popup
 	 */
-	WinPopup.init = function init()
-	{
+	WinPopup.init = function init() {
 		this.ui.css({
-			top:  (Renderer.height-120) / 1.5 - 120,
-			left: (Renderer.width -280) / 2.0,
+			top: (Renderer.height - 120) / 1.5 - 120,
+			left: (Renderer.width - 280) / 2.0,
 			zIndex: 100
 		});
 	};
-
 
 	/**
 	 * Create component based on view file and export it

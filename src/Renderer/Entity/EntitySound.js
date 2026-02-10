@@ -7,22 +7,19 @@
  *
  * @author Vincent Thibault
  */
-define( ['Audio/SoundManager'], function( SoundManager )
-{
+define(['Audio/SoundManager'], function (SoundManager) {
 	'use strict';
-
 
 	/**
 	 * @Constructor
 	 */
-	function Sound()
-	{
-		this._lastActionId    = -1;
+	function Sound() {
+		this._lastActionId = -1;
 		this._lastAnimationId = -1;
-		this._lastFileName    = null;
-		this._animCounter     = -1;
+		this._lastFileName = null;
+		this._animCounter = -1;
 
-		this.attackFile       = null;
+		this.attackFile = null;
 	}
 
 	/**
@@ -32,23 +29,20 @@ define( ['Audio/SoundManager'], function( SoundManager )
 	 * @param {number} action id
 	 * @param {number} animation id
 	 */
-	Sound.prototype.play = function play( fileName, action, animation )
-	{
+	Sound.prototype.play = function play(fileName, action, animation) {
 		// Pet does not produce sound
 		if (this.entity.objecttype === this.entity.constructor.TYPE_PET) {
 			return;
 		}
 
 		// Do not replay the sound if there is no updates
-		if (this._lastActionId    === action &&
-			this._lastAnimationId === animation &&
-			this._lastFileName    === fileName) {
+		if (this._lastActionId === action && this._lastAnimationId === animation && this._lastFileName === fileName) {
 			return;
 		}
 
-		this._lastActionId    = action;
+		this._lastActionId = action;
 		this._lastAnimationId = animation;
-		this._lastFileName    = fileName;
+		this._lastFileName = fileName;
 
 		// Find Audio filename
 		if (fileName === 'atk') {
@@ -62,18 +56,15 @@ define( ['Audio/SoundManager'], function( SoundManager )
 		SoundManager.playPosition(fileName, this.entity.position);
 	};
 
-
 	/**
 	 * Reset action and animation
 	 */
-	Sound.prototype.free = function free()
-	{
-		this._lastActionId    = -1;
+	Sound.prototype.free = function free() {
+		this._lastActionId = -1;
 		this._lastAnimationId = -1;
-		this._lastFileName    = null;
-		this._animCounter     = -1;
+		this._lastFileName = null;
+		this._animCounter = -1;
 	};
-
 
 	/**
 	 * Reset sound counter to allow repeating sounds
@@ -81,8 +72,7 @@ define( ['Audio/SoundManager'], function( SoundManager )
 	 * @param {number} animation index
 	 * @param {number} animation size
 	 */
-	 Sound.prototype.freeOnAnimationEnd = function freeOnAnimationEnd (anim, size)
-	 {
+	Sound.prototype.freeOnAnimationEnd = function freeOnAnimationEnd(anim, size) {
 		if (anim < size) {
 			return;
 		}
@@ -93,14 +83,12 @@ define( ['Audio/SoundManager'], function( SoundManager )
 			this.free();
 			this._animCounter = count;
 		}
-	 };
-
+	};
 
 	/**
 	 * Initialize and export methods
 	 */
-	return function init()
-	{
+	return function init() {
 		this.sound = new Sound();
 		this.sound.entity = this;
 	};

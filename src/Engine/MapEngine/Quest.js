@@ -17,7 +17,7 @@ define(function (require) {
 	var Network = require('Network/NetworkManager');
 	var PACKET = require('Network/PacketStructure');
 	var jQuery = require('Utils/jquery');
-	
+
 	// Version Dependent UIs
 	var Quest = require('UI/Components/Quest/Quest');
 
@@ -30,14 +30,13 @@ define(function (require) {
 		let quest_list = [];
 		for (let i = 0; i < pkt.questCount; i++) {
 			let quest = pkt.QuestList[i];
-			var quest_info = DB.getQuestInfo(quest.questID)
-			let local_quest =
-			{
+			var quest_info = DB.getQuestInfo(quest.questID);
+			let local_quest = {
 				questID: quest.questID,
-				title: quest_info.Title || "",
-				summary: quest_info.Summary || "",
-				description: quest_info.Description || "",
-				icon: quest_info.IconName || "ico_nq.bmp",
+				title: quest_info.Title || '',
+				summary: quest_info.Summary || '',
+				description: quest_info.Description || '',
+				icon: quest_info.IconName || 'ico_nq.bmp',
 				npc_spr: quest_info.NpcSpr || null,
 				npc_navi: quest_info.NpcNavi || null,
 				npc_pos_x: quest_info.NpcPosX || null,
@@ -50,12 +49,11 @@ define(function (require) {
 				end_time: quest.quest_endTime || 0,
 				count: quest.count,
 				hunt_list: []
-			}
+			};
 			if (local_quest.count > 0) {
 				for (let i = 0; i < local_quest.count; i++) {
 					let hunt = quest.hunt[i];
-					let local_hunt =
-					{
+					let local_hunt = {
 						huntID: hunt.huntID || null,
 						huntIDCount: hunt.huntIDCount || 0,
 						mobType: hunt.mobType || null,
@@ -64,17 +62,16 @@ define(function (require) {
 						lvlMax: hunt.lvlMax || null,
 						huntCount: hunt.huntCount || 0,
 						maxCount: hunt.maxCount || 0,
-						mobName: hunt.mobName || "",
+						mobName: hunt.mobName || ''
 					};
-					let ID = (hunt.huntID ? hunt.huntID : hunt.mobGID);
+					let ID = hunt.huntID ? hunt.huntID : hunt.mobGID;
 					local_quest.hunt_list[ID] = local_hunt; // prefer huntid over the mobGID
 				}
 			}
-			quest_list[local_quest.questID] = (local_quest);
+			quest_list[local_quest.questID] = local_quest;
 		}
 		Quest.getUI().setQuestList(quest_list);
 	}
-
 
 	/**
 	 * Quest added
@@ -82,13 +79,13 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ADD_QUEST3
 	 */
 	function onAddQuest(pkt) {
-		var quest_info = DB.getQuestInfo(pkt.questID)
+		var quest_info = DB.getQuestInfo(pkt.questID);
 		let quest = {
 			questID: pkt.questID,
-			title: quest_info.Title || "",
-			summary: quest_info.Summary || "",
-			description: quest_info.Description || "",
-			icon: quest_info.IconName || "ico_nq.bmp",
+			title: quest_info.Title || '',
+			summary: quest_info.Summary || '',
+			description: quest_info.Description || '',
+			icon: quest_info.IconName || 'ico_nq.bmp',
 			npc_spr: quest_info.NpcSpr || null,
 			npc_navi: quest_info.NpcNavi || null,
 			npc_pos_x: quest_info.NpcPosX || null,
@@ -101,7 +98,7 @@ define(function (require) {
 			end_time: pkt.quest_endTime || null,
 			count: pkt.count,
 			hunt_list: []
-		}
+		};
 		if (quest.count > 0) {
 			for (let i = 0; i < quest.count; i++) {
 				let hunt = pkt.hunt[i];
@@ -114,15 +111,14 @@ define(function (require) {
 					lvlMax: hunt.lvlMax || null,
 					huntCount: hunt.huntCount || 0,
 					maxCount: hunt.maxCount || 0,
-					mobName: hunt.mobName || "",
+					mobName: hunt.mobName || ''
 				};
-				let ID = (hunt.huntID ? hunt.huntID : hunt.mobGID);
+				let ID = hunt.huntID ? hunt.huntID : hunt.mobGID;
 				quest.hunt_list[ID] = local_hunt; // prefer huntid over the mobGID
 			}
 		}
 		Quest.getUI().addQuest(quest, quest.questID);
 	}
-
 
 	/**
 	 * Quest Hunt updated
@@ -132,20 +128,21 @@ define(function (require) {
 	function onUpdateMissionHunt(pkt) {
 		for (let i = 0; i < pkt.questCount; i++) {
 			let local_hunt = pkt.hunt[i];
-			let ID = (local_hunt.huntID ? local_hunt.huntID : local_hunt.mobGID);
+			let ID = local_hunt.huntID ? local_hunt.huntID : local_hunt.mobGID;
 
-			if (local_hunt.questID !== undefined) { // server sent info with questID
+			if (local_hunt.questID !== undefined) {
+				// server sent info with questID
 				if (Quest.getUI().questExists(local_hunt.questID)) {
 					Quest.getUI().updateMissionHunt(local_hunt, local_hunt.questID, ID);
 				} else {
 					// create new one
-					var quest_info = DB.getQuestInfo(local_hunt.questID)
+					var quest_info = DB.getQuestInfo(local_hunt.questID);
 					let local_quest = {
 						questID: local_hunt.questID,
-						title: (quest_info.Title ? jQuery.escape(quest_info.Title) : ""),
-						summary: (quest_info.Summary ? jQuery.escape(quest_info.Summary) : ""),
-						description: (quest_info.Description ? jQuery.escape(quest_info.Description) : ""),
-						icon: (quest_info.IconName ? quest_info.IconName : "ico_nq.bmp"),
+						title: quest_info.Title ? jQuery.escape(quest_info.Title) : '',
+						summary: quest_info.Summary ? jQuery.escape(quest_info.Summary) : '',
+						description: quest_info.Description ? jQuery.escape(quest_info.Description) : '',
+						icon: quest_info.IconName ? quest_info.IconName : 'ico_nq.bmp',
 						npc_spr: quest_info.NpcSpr || null,
 						npc_navi: quest_info.NpcNavi || null,
 						npc_pos_x: quest_info.NpcPosX || null,
@@ -168,19 +165,20 @@ define(function (require) {
 						lvlMax: local_hunt.lvlMax || null,
 						huntCount: local_hunt.huntCount || 0,
 						maxCount: local_hunt.maxCount || 0,
-						mobName: local_hunt.mobName || "",
+						mobName: local_hunt.mobName || ''
 					};
-					Quest.getUI().addQuest(local_quest, local_quest.questID)
+					Quest.getUI().addQuest(local_quest, local_quest.questID);
 				}
-			} else { // server sent info with huntID
+			} else {
+				// server sent info with huntID
 				let quest_saved_id = Quest.getUI().getQuestIDByServerID(ID);
-				if (quest_saved_id > 0) { // update quest
+				if (quest_saved_id > 0) {
+					// update quest
 					Quest.getUI().updateMissionHunt(local_hunt, quest_saved_id, ID);
 				}
 			}
 		}
 	}
-
 
 	/**
 	 * Quest actived or disabled
@@ -190,7 +188,6 @@ define(function (require) {
 	function onActiveQuest(pkt) {
 		Quest.getUI().toggleQuestActive(pkt.questID, pkt.active);
 	}
-
 
 	/**
 	 * Quest deleted

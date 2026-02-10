@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -53,13 +52,16 @@ define(function (require) {
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('Quest', {
-		x: 200,
-		y: 200,
-		show: false,
-		showwindow: true
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'Quest',
+		{
+			x: 200,
+			y: 200,
+			show: false,
+			showwindow: true
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize the component (event listener, etc.)
@@ -82,7 +84,6 @@ define(function (require) {
 		this.ui.on('click', '.toggle-quest-list', onClickQuestCheckbox);
 	};
 
-
 	/**
 	 * Once append to the DOM, start to position the UI
 	 */
@@ -92,15 +93,21 @@ define(function (require) {
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		var checkbox_background = (_preferences.showwindow) ? "checkbox_on" : "checkbox_off";
+		var checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
 
-		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp', function (data) {
-			Quest.ui.find('.toggle-quest-image').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp',
+			function (data) {
+				Quest.ui.find('.toggle-quest-image').css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 
-		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/bg_quest1.bmp', function (data) {
-			Quest.ui.find('.titlebar').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'renew_questui/bg_quest1.bmp',
+			function (data) {
+				Quest.ui.find('.titlebar').css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 
 		if (!_preferences.show) {
 			this.ui.hide();
@@ -108,7 +115,6 @@ define(function (require) {
 
 		QuestWindow.append();
 	};
-
 
 	/**
 	 * Clean up UI
@@ -126,7 +132,6 @@ define(function (require) {
 		onClose();
 	};
 
-
 	/**
 	 * Removing the UI from window, save preferences
 	 *
@@ -138,7 +143,6 @@ define(function (require) {
 		_preferences.x = parseInt(this.ui.css('left'), 10);
 		_preferences.save();
 	};
-
 
 	/**
 	 * Window Shortcuts
@@ -154,7 +158,6 @@ define(function (require) {
 		}
 	};
 
-
 	/**
 	 * Show/Hide UI
 	 */
@@ -165,7 +168,6 @@ define(function (require) {
 			this.ui.show();
 		}
 	};
-
 
 	/**
 	 * Set Quest list
@@ -182,7 +184,6 @@ define(function (require) {
 		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
-
 	/**
 	 * Add new Quest
 	 *
@@ -196,19 +197,26 @@ define(function (require) {
 		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
-
 	/**
 	 * Update Quest from list
 	 *
 	 * @param {object} hunt_info
 	 * @param {number} questID
 	 * @param {number} huntID
-	*/
+	 */
 	Quest.updateMissionHunt = function updateMissionHunt(hunt_info, questID, huntID) {
-		if (hunt_info.huntIDCount) _questList[questID].hunt_list[huntID].huntIDCount = hunt_info.huntIDCount;
-		if (hunt_info.maxCount) _questList[questID].hunt_list[huntID].maxCount = hunt_info.maxCount;
-		if (hunt_info.huntCount) _questList[questID].hunt_list[huntID].huntCount = hunt_info.huntCount;
-		if (hunt_info.mobGID) _questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
+		if (hunt_info.huntIDCount) {
+			_questList[questID].hunt_list[huntID].huntIDCount = hunt_info.huntIDCount;
+		}
+		if (hunt_info.maxCount) {
+			_questList[questID].hunt_list[huntID].maxCount = hunt_info.maxCount;
+		}
+		if (hunt_info.huntCount) {
+			_questList[questID].hunt_list[huntID].huntCount = hunt_info.huntCount;
+		}
+		if (hunt_info.mobGID) {
+			_questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
+		}
 
 		let mob_name = _questList[questID].hunt_list[huntID].mobName;
 		let quest_info = DB.getQuestInfo(questID);
@@ -222,23 +230,21 @@ define(function (require) {
 
 		ChatBox.addText(chat_quest_text, ChatBox.TYPE.ADMIN | ChatBox.TYPE.SELF, ChatBox.FILTER.QUEST);
 		if (Session.Entity) {
-			Session.Entity.dialog.set(self_msg, "yellow");
+			Session.Entity.dialog.set(self_msg, 'yellow');
 		}
 		QuestWindow.ClearQuestList();
 		QuestWindow.setQuestList(_questList, _questNotShowList);
 	};
 
-
 	/**
 	 * Remove Quest from list
 	 *
 	 * @param {number} questID
-	*/
+	 */
 	Quest.removeQuest = function removeQuest(questID) {
 		delete _questList[questID];
 		refreshQuestUI();
 	};
-
 
 	/**
 	 * Toggle Quest Active/Inactive
@@ -251,63 +257,89 @@ define(function (require) {
 		refreshQuestUI();
 	};
 
-
 	/**
 	 * return questID based on huntID/mobGID
 	 *
 	 * @param {number} ID
-	*/
+	 */
 	Quest.getQuestIDByServerID = function getQuestIDByServerID(ID) {
 		for (var key in _questList) {
-			if (typeof _questList[key].hunt_list[ID] !== "undefined") {
+			if (typeof _questList[key].hunt_list[ID] !== 'undefined') {
 				return key;
 			}
 		}
 		return -1;
 	};
 
-
 	/**
 	 * Check if quest exists
 	 *
 	 * @param {number} questID
-	*/
+	 */
 	Quest.questExists = function questExists(questID) {
-		return (typeof _questList[questID] !== "undefined") ? true : false;
+		return typeof _questList[questID] !== 'undefined' ? true : false;
 	};
 
-
 	Quest.addQuestToUI = function addQuest(quest) {
-		let ul_id = "";
-		let li_text = "";
-		let toggle_id = "qid" + quest.questID;
-		let show_id = "sid" + quest.questID;
-		let title = (quest.title.length > 30) ? quest.title.substr(0, 30) + '...' : quest.title;
-		let summary = (quest.summary.length > 30) ? quest.summary.substr(0, 30) + '...' : quest.summary;
-		let bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? "bt_check_off" : "bt_check_on";
+		let ul_id = '';
+		let li_text = '';
+		let toggle_id = 'qid' + quest.questID;
+		let show_id = 'sid' + quest.questID;
+		let title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
+		let summary = quest.summary.length > 30 ? quest.summary.substr(0, 30) + '...' : quest.summary;
+		let bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? 'bt_check_off' : 'bt_check_on';
 
 		let epoch_seconds = new Date() / 1000;
 		if (quest.end_time > 0 && quest.end_time > epoch_seconds) {
-			ul_id = "#cooldown-quest-list"
-			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><div class="quest-item-toggle-image"><span class="quest-item-toggle-image-text">Toggle</span></div></div></li>';
+			ul_id = '#cooldown-quest-list';
+			li_text =
+				'<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' +
+				quest.icon +
+				'"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' +
+				title +
+				'</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' +
+				summary +
+				'</span></div>				<div class="quest-item-toggle"><div class="quest-item-toggle-image"><span class="quest-item-toggle-image-text">Toggle</span></div></div></li>';
 		} else if (quest.active == 1) {
-			ul_id = "#active-quest-list";
-			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <button id="' + show_id + '" class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </button></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><button id="' + toggle_id + '" class="quest-item-toggle-image" data-background="renew_questui/bt_lock_open.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
+			ul_id = '#active-quest-list';
+			li_text =
+				'<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' +
+				quest.icon +
+				'"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' +
+				title +
+				'</span>  </div> <div class="quest-item-display"> <button id="' +
+				show_id +
+				'" class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </button></div><div class="quest-item-summary"><span class="quest-item-summary-text">' +
+				summary +
+				'</span></div>				<div class="quest-item-toggle"><button id="' +
+				toggle_id +
+				'" class="quest-item-toggle-image" data-background="renew_questui/bt_lock_open.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
 		} else {
-			ul_id = "#inactive-quest-list";
-			li_text = '<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' + quest.icon + '"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' + title + '</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' + summary + '</span></div>				<div class="quest-item-toggle"><button id="' + toggle_id + '" class="quest-item-toggle-image" data-background="renew_questui/bt_lock.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
+			ul_id = '#inactive-quest-list';
+			li_text =
+				'<li> <div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="renew_questui/' +
+				quest.icon +
+				'"> <span class="quest-item-icon-image-text">Quest</span> </div> </div>  <div class="quest-item-title"> <span class="quest-item-title-text">' +
+				title +
+				'</span>  </div> <div class="quest-item-display"> <div class="quest-item-display-image"> <span class="quest-item-display-image-text"></span> </div></div><div class="quest-item-summary"><span class="quest-item-summary-text">' +
+				summary +
+				'</span></div>				<div class="quest-item-toggle"><button id="' +
+				toggle_id +
+				'" class="quest-item-toggle-image" data-background="renew_questui/bt_lock.bmp"><span class="quest-item-toggle-image-text">Toggle</span></button></div></li>';
 		}
 
 		this.ui.find(ul_id).append(
-			jQuery(li_text).
-				addClass('quest-item').
-				data('background', 'renew_questui/bg_questlist.bmp').
-				data('hover', 'renew_questui/bg_questlist_check.bmp').
-				data('down', 'renew_questui/bg_questlist_press.bmp').
-				on('click', function (e) {
-					if (e.target.tagName.toLowerCase() == "button") return;
+			jQuery(li_text)
+				.addClass('quest-item')
+				.data('background', 'renew_questui/bg_questlist.bmp')
+				.data('hover', 'renew_questui/bg_questlist_check.bmp')
+				.data('down', 'renew_questui/bg_questlist_press.bmp')
+				.on('click', function (e) {
+					if (e.target.tagName.toLowerCase() == 'button') {
+						return;
+					}
 					let element = jQuery(e.currentTarget);
-					if (element.attr('class') == "quest-item") {
+					if (element.attr('class') == 'quest-item') {
 						QuestHelper.clearQuestDesc();
 						QuestHelper.setQuestInfo(quest);
 						QuestHelper.prepare();
@@ -315,51 +347,58 @@ define(function (require) {
 						QuestHelper.ui.show();
 						QuestHelper.ui.focus();
 					}
-				}).
-				each(this.parseHTML)
+				})
+				.each(this.parseHTML)
 		);
 
 		this.ui.find('#' + toggle_id).on('click', onClickQuestToggle);
 		this.ui.find('#' + show_id).on('click', onClickQuestDisplay);
-		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + bt_check + '.bmp', function (data) {
-			Quest.ui.find('#' + show_id).css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'renew_questui/' + bt_check + '.bmp',
+			function (data) {
+				Quest.ui.find('#' + show_id).css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
 	};
-
 
 	function onClickMenu(e) {
 		var quest_element = jQuery(e.currentTarget);
 
-		if (_active_menu == quest_element.attr('id')) return;
+		if (_active_menu == quest_element.attr('id')) {
+			return;
+		}
 		_active_menu = quest_element.attr('id');
 
-		var background_image = "";
+		var background_image = '';
 		Quest.ui.find('#active-quest-list').hide();
 		Quest.ui.find('#inactive-quest-list').hide();
 		Quest.ui.find('#feature-quest-list').hide();
 		Quest.ui.find('#cooldown-quest-list').hide();
 		switch (_active_menu) {
 			case 'feature':
-				background_image = "bg_quest2";
+				background_image = 'bg_quest2';
 				Quest.ui.find('#feature-quest-list').show();
 				break;
 			case 'inactive':
-				background_image = "bg_quest3";
+				background_image = 'bg_quest3';
 				Quest.ui.find('#inactive-quest-list').show();
 				break;
 			case 'cooldown':
-				background_image = "bg_quest4";
+				background_image = 'bg_quest4';
 				Quest.ui.find('#cooldown-quest-list').show();
 				break;
 			default:
-				background_image = "bg_quest1";
+				background_image = 'bg_quest1';
 				Quest.ui.find('#active-quest-list').show();
 		}
 
-		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + background_image + '.bmp', function (data) {
-			Quest.ui.find('.titlebar').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'renew_questui/' + background_image + '.bmp',
+			function (data) {
+				Quest.ui.find('.titlebar').css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 
 		QuestHelper.clearQuestDesc();
 	}
@@ -367,51 +406,55 @@ define(function (require) {
 	function onClickQuestCheckbox() {
 		var checkbox_background;
 		if (_preferences.showwindow) {
-			checkbox_background = "checkbox_off";
+			checkbox_background = 'checkbox_off';
 			QuestWindow.ui.hide();
-		}
-		else {
-			checkbox_background = "checkbox_on";
+		} else {
+			checkbox_background = 'checkbox_on';
 			QuestWindow.ui.show();
 		}
 		_preferences.showwindow = !_preferences.showwindow;
 		_preferences.save();
 
-		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp', function (data) {
-			Quest.ui.find('.toggle-quest-image').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp',
+			function (data) {
+				Quest.ui.find('.toggle-quest-image').css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 	}
-
 
 	function onClickQuestToggle(e) {
 		var toggle_element = jQuery(e.currentTarget);
 		let tid = toggle_element.attr('id');
-		let id = tid.replace("qid", "");
+		let id = tid.replace('qid', '');
 		var _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
-		_pkt.active = (_questList[id].active == 1) ? 0 : 1;
+		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);
 	}
 
 	function onClickQuestDisplay(e) {
 		var display_element = jQuery(e.currentTarget);
 		let cid = display_element.attr('id');
-		let id = cid.replace("sid", "");
+		let id = cid.replace('sid', '');
 		let iid = parseInt(Number(id));
 
-		let checkbox_background = "";
+		let checkbox_background = '';
 		if (_questNotShowList.includes(iid)) {
 			let index = _questNotShowList.indexOf(iid);
 			_questNotShowList.splice(index, 1);
-			checkbox_background = "bt_check_on";
+			checkbox_background = 'bt_check_on';
 		} else {
 			_questNotShowList.push(iid);
-			checkbox_background = "bt_check_off";
+			checkbox_background = 'bt_check_off';
 		}
 
-		Client.loadFile(DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp', function (data) {
-			Quest.ui.find('#' + cid).css('backgroundImage', 'url(' + data + ')');
-		}.bind(this));
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp',
+			function (data) {
+				Quest.ui.find('#' + cid).css('backgroundImage', 'url(' + data + ')');
+			}.bind(this)
+		);
 
 		QuestWindow.ClearQuestList();
 		QuestWindow.setQuestList(_questList, _questNotShowList);
@@ -421,7 +464,6 @@ define(function (require) {
 		Quest.ui.hide();
 	}
 
-
 	function refreshQuestUI() {
 		Quest.ClearQuestList();
 		Quest.setQuestList(_questList);
@@ -429,11 +471,9 @@ define(function (require) {
 		QuestWindow.setQuestList(_questList, _questNotShowList);
 	}
 
-
 	Quest.ClearQuestList = function ClearQuestList() {
 		Quest.ui.find('.quest-list').html('');
-	}
-
+	};
 
 	/**
 	 * Close the window

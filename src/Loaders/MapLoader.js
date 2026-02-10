@@ -11,7 +11,6 @@
 define(['Core/FileManager'], function (FileManager) {
 	'use strict';
 
-
 	/**
 	 * Helper to load list
 	 *
@@ -25,18 +24,15 @@ define(['Core/FileManager'], function (FileManager) {
 		this.out = new Array(this.count);
 	}
 
-
 	/**
 	 * @var {number} static file count (avoid "too much recursion from firefox")
 	 */
 	Loader.count = 0;
 
-
 	/**
 	 * @var {number} How many files do you want to load at the same time ?
 	 */
 	Loader.prototype.parallelDownload = 6;
-
 
 	/**
 	 * Start to load the list
@@ -56,7 +52,6 @@ define(['Core/FileManager'], function (FileManager) {
 		}
 	};
 
-
 	/**
 	 * Next file to load
 	 *
@@ -69,37 +64,36 @@ define(['Core/FileManager'], function (FileManager) {
 		}
 
 		var filename = this.list.shift();
-		FileManager.load(filename, function (data) {
+		FileManager.load(
+			filename,
+			function (data) {
+				// Store the result
+				this.out[this.files.indexOf(filename)] = data;
+				this.offset++;
 
-			// Store the result
-			this.out[this.files.indexOf(filename)] = data;
-			this.offset++;
-
-			// Start the progress
-			if (this.onprogress && this.offset <= this.count) {
-				this.onprogress(this.offset, this.count);
-			}
-
-			// Ended ?
-			if (this.offset === this.count) {
-				this.onload(this.out, this.files);
-				return;
-			}
-
-			// Continue the queue
-			if (this.list.length) {
-				// To fix "too much recursion" on Firefox
-				if ((++Loader.count) % 50 === 0) {
-					setTimeout(this._next.bind(this), 4);
+				// Start the progress
+				if (this.onprogress && this.offset <= this.count) {
+					this.onprogress(this.offset, this.count);
 				}
-				else {
-					this._next();
+
+				// Ended ?
+				if (this.offset === this.count) {
+					this.onload(this.out, this.files);
+					return;
 				}
-			}
-		}.bind(this));
+
+				// Continue the queue
+				if (this.list.length) {
+					// To fix "too much recursion" on Firefox
+					if (++Loader.count % 50 === 0) {
+						setTimeout(this._next.bind(this), 4);
+					} else {
+						this._next();
+					}
+				}
+			}.bind(this)
+		);
 	};
-
-
 
 	/**
 	 * MapLoader constructor
@@ -112,13 +106,11 @@ define(['Core/FileManager'], function (FileManager) {
 		}
 	}
 
-
 	/**
 	 * Count files to load
 	 * @var integer
 	 */
 	MapLoader.prototype.fileCount = 0;
-
 
 	/**
 	 * MapLoader Progress
@@ -126,13 +118,11 @@ define(['Core/FileManager'], function (FileManager) {
 	 */
 	MapLoader.prototype.progress = 0;
 
-
 	/**
 	 * Offset in the progress
 	 * @var integer
 	 */
 	MapLoader.prototype.offset = 0;
-
 
 	/**
 	 * MapLoader update progress
@@ -149,7 +139,6 @@ define(['Core/FileManager'], function (FileManager) {
 			this.progress = progress;
 		}
 	};
-
 
 	/**
 	 * Load a map
@@ -240,7 +229,6 @@ define(['Core/FileManager'], function (FileManager) {
 		FileManager.load('data\\' + getFilePath(mapname), onWorldReady);
 	};
 
-
 	/**
 	 * Loading Ground and Water textures
 	 *
@@ -270,7 +258,7 @@ define(['Core/FileManager'], function (FileManager) {
 
 		// On progress
 		loader.onprogress = function OnProgress() {
-			this.setProgress(3 + 97 / this.fileCount * (++this.offset));
+			this.setProgress(3 + (97 / this.fileCount) * ++this.offset);
 		}.bind(this);
 
 		// Once load
@@ -281,7 +269,6 @@ define(['Core/FileManager'], function (FileManager) {
 		// Start the queue
 		loader.start();
 	};
-
 
 	/**
 	 * Loading World Models
@@ -307,7 +294,7 @@ define(['Core/FileManager'], function (FileManager) {
 
 		// Update the progressbar
 		loader.onprogress = function () {
-			this.setProgress(3 + 97 / this.fileCount * (++this.offset));
+			this.setProgress(3 + (97 / this.fileCount) * ++this.offset);
 		}.bind(this);
 
 		// Start creating instances
@@ -330,11 +317,7 @@ define(['Core/FileManager'], function (FileManager) {
 				}
 
 				objects[pos].filename = filenames[pos];
-				objects[pos].createInstance(
-					models[i],
-					ground.width,
-					ground.height
-				);
+				objects[pos].createInstance(models[i], ground.width, ground.height);
 			}
 
 			this.compileModels(objects);
@@ -343,7 +326,6 @@ define(['Core/FileManager'], function (FileManager) {
 		// Start loading models
 		loader.start();
 	};
-
 
 	/**
 	 * Extract model meshes
@@ -361,11 +343,10 @@ define(['Core/FileManager'], function (FileManager) {
 		bufferSize = 0;
 
 		for (i = 0, count = objects.length; i < count; ++i) {
-
 			// Check if this model has animation - skip static compilation
 			if (objects[i].hasAnimation && objects[i].hasAnimation()) {
 				animatedModels.push(objects[i]);
-				this.setProgress(progress + (100 - progress) / count * (i + 1) / 2);
+				this.setProgress(progress + (((100 - progress) / count) * (i + 1)) / 2);
 				continue; // Don't include in static mesh, will be rendered by AnimatedModels
 			}
 
@@ -373,7 +354,6 @@ define(['Core/FileManager'], function (FileManager) {
 			nodes = object.meshes;
 
 			for (j = 0, size = nodes.length; j < size; ++j) {
-
 				meshes = nodes[j];
 
 				for (index in meshes) {
@@ -387,7 +367,7 @@ define(['Core/FileManager'], function (FileManager) {
 				}
 			}
 
-			this.setProgress(progress + (100 - progress) / count * (i + 1) / 2);
+			this.setProgress(progress + (((100 - progress) / count) * (i + 1)) / 2);
 		}
 
 		// Store animated models for later
@@ -396,7 +376,6 @@ define(['Core/FileManager'], function (FileManager) {
 		// Merge mesh
 		this.mergeMeshes(models, bufferSize);
 	};
-
 
 	/**
 	 * Sort the Object by their textures
@@ -433,7 +412,6 @@ define(['Core/FileManager'], function (FileManager) {
 		return 0;
 	}
 
-
 	/**
 	 * Merge objects using the same texture to avoid drawcall
 	 *
@@ -443,7 +421,8 @@ define(['Core/FileManager'], function (FileManager) {
 	MapLoader.prototype.mergeMeshes = function MergeMeshes(objects, bufferSize) {
 		var i, j, count, size, offset;
 		var object, texture;
-		var textures = [], infos = [];
+		var textures = [],
+			infos = [];
 		var buffer;
 
 		var fcount = 1 / 9;
@@ -456,10 +435,8 @@ define(['Core/FileManager'], function (FileManager) {
 		// Sort objects by textures type
 		objects.sort(SortMeshByTextures);
 
-
 		// Merge meshes
 		for (i = 0, j = 0, count = objects.length; i < count; ++i) {
-
 			object = objects[i];
 			size = object.mesh.length;
 
@@ -486,13 +463,12 @@ define(['Core/FileManager'], function (FileManager) {
 			offset += size;
 		}
 
-
 		// Load texture
 		var loader = new Loader(textures);
 
 		// On Progress
 		loader.onprogress = function (index, count) {
-			this.setProgress(progress + (100 - progress) / count * (index + 1));
+			this.setProgress(progress + ((100 - progress) / count) * (index + 1));
 		}.bind(this);
 
 		// Once texture loaded, push the textures
@@ -516,13 +492,10 @@ define(['Core/FileManager'], function (FileManager) {
 			}
 
 			this.onload(true);
-
 		}.bind(this);
-
 
 		loader.start();
 	};
-
 
 	/**
 	 * Send animated model data to main thread
@@ -584,7 +557,6 @@ define(['Core/FileManager'], function (FileManager) {
 			this.ondata('MAP_ANIMATED_MODEL', modelData);
 		}
 	};
-
 
 	/**
 	 * Export

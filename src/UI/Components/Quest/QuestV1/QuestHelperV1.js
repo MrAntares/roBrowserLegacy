@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -31,16 +30,18 @@ define(function (require) {
 	 */
 	var QuestHelperV1 = new UIComponent('QuestHelperV1', htmlText, cssText);
 
-
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('QuestHelperV1', {
-		x: 200,
-		y: 200,
-		show: false,
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'QuestHelperV1',
+		{
+			x: 200,
+			y: 200,
+			show: false
+		},
+		1.0
+	);
 
 	/**
 	 * Process text with color codes (^RRGGBB)
@@ -48,12 +49,16 @@ define(function (require) {
 	 * @returns {string} HTML with color spans
 	 */
 	function processColorCodes(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		// Convert to string to handle non-string inputs
 		text = String(text);
-		return text.replace(/\^([0-9A-Fa-f]{6})/g, function(match, color) {
-			return '<span style="color:#' + color + '">';
-		}).replace(/\^000000/g, '</span>');
+		return text
+			.replace(/\^([0-9A-Fa-f]{6})/g, function (match, color) {
+				return '<span style="color:#' + color + '">';
+			})
+			.replace(/\^000000/g, '</span>');
 	}
 
 	/**
@@ -62,9 +67,11 @@ define(function (require) {
 	 * @returns {string} HTML with processed item tags
 	 */
 	function processItemTags(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		text = String(text);
-		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function(match, itemName, itemId) {
+		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function (match, itemName, itemId) {
 			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
 		});
 	}
@@ -75,10 +82,20 @@ define(function (require) {
 	 * @returns {string} HTML with processed NAVI tags
 	 */
 	function processNAVITags(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		text = String(text);
-		return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function(match, displayName, naviInfo) {
-			return '<span class="navi-link" data-navi-info="' + naviInfo + '" data-navi-name="' + displayName + '">' + displayName + '</span>';
+		return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function (match, displayName, naviInfo) {
+			return (
+				'<span class="navi-link" data-navi-info="' +
+				naviInfo +
+				'" data-navi-name="' +
+				displayName +
+				'">' +
+				displayName +
+				'</span>'
+			);
 		});
 	}
 
@@ -88,7 +105,9 @@ define(function (require) {
 	 * @returns {string} Fully processed HTML
 	 */
 	function processText(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		text = processItemTags(text);
 		text = processNAVITags(text);
 		text = processColorCodes(text);
@@ -107,7 +126,7 @@ define(function (require) {
 		});
 
 		// Add click handler for item links
-		this.ui.on('click', '.item-link', function(event) {
+		this.ui.on('click', '.item-link', function (event) {
 			var itemId = parseInt(jQuery(this).data('item-id'), 10);
 			if (!itemId) {
 				return;
@@ -126,7 +145,7 @@ define(function (require) {
 		});
 
 		// Add click handler for navi links
-		this.ui.on('click', '.navi-link', function(event) {
+		this.ui.on('click', '.navi-link', function (event) {
 			var naviInfo = jQuery(this).data('navi-info');
 			var displayName = jQuery(this).data('navi-name');
 
@@ -149,7 +168,6 @@ define(function (require) {
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-
 	/**
 	 * Once append to the DOM, start to position the UI
 	 */
@@ -164,29 +182,36 @@ define(function (require) {
 		QuestHelperV1.ui.find('.title').html(processText(quest.title));
 		QuestHelperV1.ui.find('.summary').html(processText(quest.summary));
 		QuestHelperV1.ui.find('.objective').html(processText(quest.description));
-		let list = '<select class="monster-select">'
+		let list = '<select class="monster-select">';
 		let first = true;
 		for (let huntID in quest.hunt_list) {
-			if(first) {
+			if (first) {
 				QuestHelperV1.ui.find('.killed').html(quest.hunt_list[huntID].huntCount);
 				QuestHelperV1.ui.find('.limited').html(quest.hunt_list[huntID].maxCount);
 				first = false;
 			}
-			list += '<option current="' + quest.hunt_list[huntID].huntCount + '" max="' + quest.hunt_list[huntID].maxCount + '">' + processText(quest.hunt_list[huntID].mobName) + '</option>';
+			list +=
+				'<option current="' +
+				quest.hunt_list[huntID].huntCount +
+				'" max="' +
+				quest.hunt_list[huntID].maxCount +
+				'">' +
+				processText(quest.hunt_list[huntID].mobName) +
+				'</option>';
 		}
-		list += '</select>'
+		list += '</select>';
 		QuestHelperV1.ui.find('.monster').html(list);
 		this.ui.find('.monster-select').on('change', onSelectMonster);
 	};
 
 	QuestHelperV1.clearQuestDesc = function clearQuestDesc() {
-		QuestHelperV1.ui.find('.title').html("");
-		QuestHelperV1.ui.find('.summary').html("");
-		QuestHelperV1.ui.find('.objective').html("");
-		QuestHelperV1.ui.find('.monster').html("");
-		QuestHelperV1.ui.find('.killed').html("");
-		QuestHelperV1.ui.find('.limited').html("");
-	}
+		QuestHelperV1.ui.find('.title').html('');
+		QuestHelperV1.ui.find('.summary').html('');
+		QuestHelperV1.ui.find('.objective').html('');
+		QuestHelperV1.ui.find('.monster').html('');
+		QuestHelperV1.ui.find('.killed').html('');
+		QuestHelperV1.ui.find('.limited').html('');
+	};
 
 	/**
 	 * Clean up UI
@@ -196,14 +221,11 @@ define(function (require) {
 		onClose();
 	};
 
-
 	/**
 	 * Removing the UI from window, save preferences
 	 *
 	 */
-	QuestHelperV1.onRemove = function onRemove() {
-	};
-
+	QuestHelperV1.onRemove = function onRemove() {};
 
 	/**
 	 * Show/Hide UI
@@ -215,7 +237,6 @@ define(function (require) {
 			this.ui.show();
 		}
 	};
-
 
 	function onClickClose(e) {
 		QuestHelperV1.ui.hide();
@@ -233,7 +254,6 @@ define(function (require) {
 		QuestHelperV1.ui.find('.killed').html(selected_monster.attr('current'));
 		QuestHelperV1.ui.find('.limited').html(selected_monster.attr('max'));
 	}
-
 
 	/**
 	 * Export

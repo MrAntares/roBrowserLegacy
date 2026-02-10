@@ -9,35 +9,32 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var DB                 = require('DB/DBManager');
-	var jQuery             = require('Utils/jquery');
-	var Network            = require('Network/NetworkManager');
-	var PACKET             = require('Network/PacketStructure');
-	var PACKETVER	       = require('Network/PacketVerManager');
-	var Client             = require('Core/Client');
-	var Preferences        = require('Core/Preferences');
-	var Renderer           = require('Renderer/Renderer');
-	var UIManager          = require('UI/UIManager');
-	var UIComponent        = require('UI/UIComponent');
-	var ChatBox			   = require('UI/Components/ChatBox/ChatBox');
-	var ItemInfo           = require('UI/Components/ItemInfo/ItemInfo');
-	var Vending            = require('UI/Components/Vending/Vending');
-	var htmlText           = require('text!./VendingShop.html');
-	var cssText            = require('text!./VendingShop.css');
-
+	var DB = require('DB/DBManager');
+	var jQuery = require('Utils/jquery');
+	var Network = require('Network/NetworkManager');
+	var PACKET = require('Network/PacketStructure');
+	var PACKETVER = require('Network/PacketVerManager');
+	var Client = require('Core/Client');
+	var Preferences = require('Core/Preferences');
+	var Renderer = require('Renderer/Renderer');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
+	var Vending = require('UI/Components/Vending/Vending');
+	var htmlText = require('text!./VendingShop.html');
+	var cssText = require('text!./VendingShop.css');
 
 	/**
 	 * Create Component
 	 */
-	var VendingShop = new UIComponent( 'VendingShop', htmlText, cssText );
+	var VendingShop = new UIComponent('VendingShop', htmlText, cssText);
 
 	/**
 	 * @var {enum} Store type
@@ -52,7 +49,6 @@ define(function(require)
 	 */
 	VendingShop.list = [];
 
-
 	/**
 	 * @var {number} used to remember the window height
 	 */
@@ -66,59 +62,59 @@ define(function(require)
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('VendingShop', {
-		x:        200,
-		y:        200,
-		width:    8,
-		height:   2,
-		reduce:   false
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'VendingShop',
+		{
+			x: 200,
+			y: 200,
+			width: 8,
+			height: 2,
+			reduce: false
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize UI
 	 */
-	VendingShop.init = function Init()
-	{
+	VendingShop.init = function Init() {
 		// Bind buttons
-		this.ui.find('.btn.close').click(function(){
+		this.ui.find('.btn.close').click(function () {
 			VendingShop.onSubmit();
 		});
 		// on drop item
 		this.ui
-			.on('drop',     onDrop)
+			.on('drop', onDrop)
 			.on('dragover', stopPropagation)
 
-		// Items event
+			// Items event
 			.find('.container .content')
-				.on('mousewheel DOMMouseScroll', onScroll)
-				.on('mouseover',   '.item', onItemOver)
-				.on('mouseout',    '.item', onItemOut)
-				.on('dragstart',   '.item', onItemDragStart)
-				.on('dragend',     '.item', onItemDragEnd)
-				.on('contextmenu', '.item', onItemInfo)
-				.on('dblclick',    '.item', onItemUsed);
+			.on('mousewheel DOMMouseScroll', onScroll)
+			.on('mouseover', '.item', onItemOver)
+			.on('mouseout', '.item', onItemOut)
+			.on('dragstart', '.item', onItemDragStart)
+			.on('dragend', '.item', onItemDragEnd)
+			.on('contextmenu', '.item', onItemInfo)
+			.on('dblclick', '.item', onItemUsed);
 
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-
 	/**
 	 * Apply preferences once append to body
 	 */
-	VendingShop.onAppend = function OnAppend()
-	{
-		this.resize( _preferences.width, _preferences.height );
+	VendingShop.onAppend = function OnAppend() {
+		this.resize(_preferences.width, _preferences.height);
 
 		this.ui.css({
-			top:  Math.min( Math.max( 0, _preferences.y), Renderer.height - this.ui.height()),
-			left: Math.min( Math.max( 0, _preferences.x), Renderer.width  - this.ui.width())
+			top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
+			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
 		_realSize = _preferences.reduce ? 0 : this.ui.height();
 		let messageText = DB.getMessage(226);
-		let titleShop = Vending._shopname.length > 25 ? Vending._shopname.substring(0,25)+"..." : Vending._shopname
-		this.ui.find('.text.shopname').text(messageText+" : "+titleShop);
+		let titleShop = Vending._shopname.length > 25 ? Vending._shopname.substring(0, 25) + '...' : Vending._shopname;
+		this.ui.find('.text.shopname').text(messageText + ' : ' + titleShop);
 	};
 
 	/**
@@ -126,33 +122,28 @@ define(function(require)
 	 *
 	 * @param {number} type (see NpcStore.Type.*)
 	 */
-	VendingShop.setType = function setType(type)
-	{
+	VendingShop.setType = function setType(type) {
 		_type = type;
 	};
 
 	/**
 	 * Remove Inventory from window (and so clean up items)
 	 */
-	VendingShop.onRemove = function OnRemove()
-	{
-
+	VendingShop.onRemove = function OnRemove() {
 		this.ui.find('.container .content').empty();
 		this.list.length = 0;
 		jQuery('.ItemInfo').remove();
 
 		// Save preferences
 		_preferences.reduce = !!_realSize;
-		_preferences.y      =  parseInt(this.ui.css('top'), 10);
-		_preferences.x      =  parseInt(this.ui.css('left'), 10);
-		_preferences.width  =  Math.floor( (this.ui.width()  - (23 + 16 + 16 - 30)) / 32 );
-		_preferences.height =  Math.floor( (this.ui.height() - (31 + 19 - 30     )) / 32 );
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.x = parseInt(this.ui.css('left'), 10);
+		_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
+		_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
 		_preferences.save();
 
 		this.ui.hide();
-
 	};
-
 
 	/**
 	 * Extend inventory window size
@@ -160,22 +151,20 @@ define(function(require)
 	 * @param {number} width
 	 * @param {number} height
 	 */
-	VendingShop.resize = function Resize( width, height )
-	{
-		width  = Math.min( Math.max(width,  6), 9);
-		height = Math.min( Math.max(height, 2), 6);
+	VendingShop.resize = function Resize(width, height) {
+		width = Math.min(Math.max(width, 6), 9);
+		height = Math.min(Math.max(height, 2), 6);
 
 		this.ui.find('.container .content').css({
-			width:  width  * 32 + 13, // 13 = scrollbar
+			width: width * 32 + 13, // 13 = scrollbar
 			height: height * 32
 		});
 
 		this.ui.css({
-			width:  16 + 16 + width  * 32,
-			height: 31 + 19      + height * 32
+			width: 16 + 16 + width * 32,
+			height: 31 + 19 + height * 32
 		});
 	};
-
 
 	/**
 	 * Get item object
@@ -183,8 +172,7 @@ define(function(require)
 	 * @param {number} id
 	 * @returns {Item}
 	 */
-	VendingShop.getItemById = function GetItemById( id )
-	{
+	VendingShop.getItemById = function GetItemById(id) {
 		var i, count;
 		var list = VendingShop.list;
 
@@ -197,15 +185,13 @@ define(function(require)
 		return null;
 	};
 
-
 	/**
 	 * Search in a list for an item by its index
 	 *
 	 * @param {number} index
 	 * @returns {Item}
 	 */
-	VendingShop.getItemByIndex = function getItemByIndex( index )
-	{
+	VendingShop.getItemByIndex = function getItemByIndex(index) {
 		var i, count;
 		var list = VendingShop.list;
 
@@ -218,17 +204,15 @@ define(function(require)
 		return null;
 	};
 
-
 	/**
 	 * Add items to the list
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
-	VendingShop.setItems = function setItems(items)
-	{
+	VendingShop.setItems = function setItems(items) {
 		var i, count;
 
-		for (i = 0, count = items.length; i < count ; ++i) {
-			if(this.addItemSub(items[i])){
+		for (i = 0, count = items.length; i < count; ++i) {
+			if (this.addItemSub(items[i])) {
 				this.list.push(items[i]);
 			}
 		}
@@ -236,19 +220,17 @@ define(function(require)
 		this.ui.show();
 	};
 
-
 	/**
 	 * Insert Item to inventory
 	 *
 	 * @param {object} Item
 	 */
-	VendingShop.addItem = function AddItem( item )
-	{
+	VendingShop.addItem = function AddItem(item) {
 		var object = this.getItemByIndex(item.index);
 
 		if (object) {
 			object.count += item.count;
-			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( object.count );
+			this.ui.find('.item[data-index="' + item.index + '"] .count').text(object.count);
 			return;
 		}
 
@@ -258,37 +240,45 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Add item to inventory
 	 *
 	 * @param {object} Item
 	 */
-	VendingShop.addItemSub = function AddItemSub( item )
-	{
-			var it      = DB.getItemInfo( item.ITID );
-			var content = this.ui.find('.container .content');
+	VendingShop.addItemSub = function AddItemSub(item) {
+		var it = DB.getItemInfo(item.ITID);
+		var content = this.ui.find('.container .content');
 
-			content.append(
-				'<div class="item" data-index="'+ item.index +'" draggable="true">' +
-					'<div class="icon"></div>' +
-					'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
+		content.append(
+			'<div class="item" data-index="' +
+				item.index +
+				'" draggable="true">' +
+				'<div class="icon"></div>' +
+				'<div class="amount"><span class="count">' +
+				(item.count || 1) +
+				'</span></div>' +
 				'</div>'
-			);
+		);
 
-			if (content.height() < content[0].scrollHeight) {
-				this.ui.find('.hide').hide();
-			}
-			else {
-				this.ui.find('.hide').show();
-			}
+		if (content.height() < content[0].scrollHeight) {
+			this.ui.find('.hide').hide();
+		} else {
+			this.ui.find('.hide').show();
+		}
 
-			Client.loadFile( DB.INTERFACE_PATH + 'item/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
-				content.find('.item[data-index="'+ item.index +'"] .icon').css('backgroundImage', 'url('+ data +')');
-			});
+		Client.loadFile(
+			DB.INTERFACE_PATH +
+				'item/' +
+				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+				'.bmp',
+			function (data) {
+				content
+					.find('.item[data-index="' + item.index + '"] .icon')
+					.css('backgroundImage', 'url(' + data + ')');
+			}
+		);
 		return true;
 	};
-
 
 	/**
 	 * Remove item from inventory
@@ -296,9 +286,8 @@ define(function(require)
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	VendingShop.removeItem = function RemoveItem( index, count )
-	{
-		var i,ctr;
+	VendingShop.removeItem = function RemoveItem(index, count) {
+		var i, ctr;
 		var item = this.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
@@ -309,34 +298,31 @@ define(function(require)
 
 		// Sold Message
 		var msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
-		ChatBox.addText( msg,  ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
+		ChatBox.addText(msg, ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 
 		if (item.count) {
 			item.count -= count;
 
 			if (item.count > 0) {
-				this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
+				this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
 				return item;
 			}
 		}
 
-		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.list.splice(this.list.indexOf(item), 1);
+		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
 		ctr = 0;
-		for(i=0; i < this.list.length; i++)
-		{
-			if(this.list[i].count > 0)
-			{
+		for (i = 0; i < this.list.length; i++) {
+			if (this.list[i].count > 0) {
 				ctr++;
 			}
 		}
 
-		if(ctr == 0)
-		{
+		if (ctr == 0) {
 			this.onSubmit();
 		}
-/*
+		/*
 		var content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
@@ -345,15 +331,13 @@ define(function(require)
 		return item;
 	};
 
-
 	/**
 	 * Remove item from inventory
 	 *
 	 * @param {number} index in inventory
 	 * @param {number} count
 	 */
-	VendingShop.updateItem = function UpdateItem( index, count )
-	{
+	VendingShop.updateItem = function UpdateItem(index, count) {
 		var item = this.getItemByIndex(index);
 
 		if (!item) {
@@ -364,20 +348,20 @@ define(function(require)
 
 		// Update quantity
 		if (item.count > 0) {
-			this.ui.find('.item[data-index="'+ item.index +'"] .count').text( item.count );
+			this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
 			return;
 		}
 
 		// no quantity, remove
-		this.list.splice( this.list.indexOf(item), 1 );
-		this.ui.find('.item[data-index="'+ item.index +'"]').remove();
+		this.list.splice(this.list.indexOf(item), 1);
+		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
 		var content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
 	};
-	
+
 	/**
 	 * Prettify zeny : 1000000 -> 1,000,000
 	 *
@@ -385,15 +369,14 @@ define(function(require)
 	 * @param {boolean} use color
 	 * @return {string}
 	 */
-	function prettyZeny( val, useStyle )
-	{
-		
+	function prettyZeny(val, useStyle) {
 		var list = val.toString().split('');
-		var i, count = list.length;
+		var i,
+			count = list.length;
 		var str = '';
 
 		for (i = 0; i < count; i++) {
-			str = list[count-i-1] + (i && i%3 ===0 ? ',' : '') + str;
+			str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 		}
 
 		if (useStyle) {
@@ -402,14 +385,14 @@ define(function(require)
 				'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
 				'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
 				'color:#ff0000; text-shadow:1px 0px #ffff00;', // 1,000 - 9,999
-				'color:#ff18ff;',                              // 10,000 - 99,999
-				'color:#0000ff;',                              // 100,000 - 999,999
+				'color:#ff18ff;', // 10,000 - 99,999
+				'color:#0000ff;', // 100,000 - 999,999
 				'color:#000000; text-shadow:1px 0px #00ff00;', // 1,000,000 - 9,999,999
-				'color:#ff0000;',                              // 10,000,000 - 99,999,999
+				'color:#ff0000;', // 10,000,000 - 99,999,999
 				'color:#000000; text-shadow:1px 0px #cece63;', // 100,000,000 - 999,999,999
-				'color:#ff0000; text-shadow:1px 0px #ff007b;', // 1,000,000,000 - 9,999,999,999
+				'color:#ff0000; text-shadow:1px 0px #ff007b;' // 1,000,000,000 - 9,999,999,999
 			];
-			str = '<span style="' + style[count-1] + '">' + str + '</span>';
+			str = '<span style="' + style[count - 1] + '">' + str + '</span>';
 		}
 
 		return str;
@@ -418,8 +401,7 @@ define(function(require)
 	/**
 	 * Stop event propagation
 	 */
-	function stopPropagation( event )
-	{
+	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -427,80 +409,69 @@ define(function(require)
 	/**
 	 * Hide/show inventory's content
 	 */
-	function onToggleReduction()
-	{
+	function onToggleReduction() {
 		var ui = VendingShop.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
 			ui.height(_realSize);
 			_realSize = 0;
-		}
-		else {
+		} else {
 			_realSize = ui.height();
 			ui.height(17);
 			ui.find('.panel').hide();
 		}
 	}
 
-
 	/**
 	 * Update tab, reset inventory content
 	 */
-	function requestFilter()
-	{
+	function requestFilter() {
 		VendingShop.ui.find('.container .content').empty();
 
 		var list = VendingShop.list;
 		var i, count;
 
 		for (i = 0, count = list.length; i < count; ++i) {
-			VendingShop.addItemSub( list[i] );
+			VendingShop.addItemSub(list[i]);
 		}
 	}
-
 
 	/**
 	 * Drop an item from storage to inventory
 	 *
 	 * @param {event}
 	 */
-	function onDrop( event )
-	{
+	function onDrop(event) {
 		event.stopImmediatePropagation();
 		return false;
 	}
-
 
 	/**
 	 * Block the scroll to move 32px at each move
 	 */
-	function onScroll( event )
-	{
+	function onScroll(event) {
 		var delta;
 
 		if (event.originalEvent.wheelDelta) {
-			delta = event.originalEvent.wheelDelta / 120 ;
+			delta = event.originalEvent.wheelDelta / 120;
 			if (window.opera) {
 				delta = -delta;
 			}
-		}
-		else if (event.originalEvent.detail) {
+		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
 
-		this.scrollTop = Math.floor(this.scrollTop/32) * 32 - (delta * 32);
+		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
 		event.stopImmediatePropagation();
 		return false;
 	}
 
-
 	/**
 	 * Show item name when mouse is over
 	 */
-	function onItemOver()
-	{
-		var idx  = parseInt( this.getAttribute('data-index'), 10);
+	function onItemOver() {
+		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var item = VendingShop.getItemByIndex(idx);
 
 		if (!item) {
@@ -508,60 +479,51 @@ define(function(require)
 		}
 
 		// Get back data
-		var pos     = jQuery(this).position();
+		var pos = jQuery(this).position();
 		var overlay = VendingShop.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
-		overlay.css({top: pos.top, left:pos.left+35});
+		overlay.css({ top: pos.top, left: pos.left + 35 });
 		overlay.text(DB.getItemName(item) + ' ' + prettyZeny(item.price, false) + ' ' + DB.getMessage(2328));
 
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
-		}
-		else if(_type === VendingShop.Type.VENDING_LIST) {
+		} else if (_type === VendingShop.Type.VENDING_LIST) {
 			overlay.addClass('grey');
 		}
 	}
 
-
 	/**
 	 * Hide the item name
 	 */
-	function onItemOut()
-	{
+	function onItemOut() {
 		VendingShop.ui.find('.overlay').hide();
 	}
-
 
 	/**
 	 * Start dragging an item
 	 */
-	function onItemDragStart( event )
-	{
+	function onItemDragStart(event) {
 		return;
 	}
-
 
 	/**
 	 * Stop dragging an item
 	 *
 	 */
-	function onItemDragEnd()
-	{
+	function onItemDragEnd() {
 		delete window._OBJ_DRAG_;
 	}
-
 
 	/**
 	 * Get item info (open description window)
 	 */
-	function onItemInfo( event )
-	{
+	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = VendingShop.getItemByIndex(index);
+		var item = VendingShop.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -581,14 +543,12 @@ define(function(require)
 		return false;
 	}
 
-
 	/**
 	 * Ask to use an item
 	 */
-	function onItemUsed( event )
-	{
+	function onItemUsed(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item  = VendingShop.getItemByIndex(index);
+		var item = VendingShop.getItemByIndex(index);
 
 		if (item) {
 			VendingShop.useItem(item);
@@ -602,25 +562,22 @@ define(function(require)
 	/**
 	 * Submit data to send items
 	 */
-	VendingShop.onSubmit = function onSubmit()
-	{
+	VendingShop.onSubmit = function onSubmit() {
 		var pkt;
-		if(_type === VendingShop.Type.VENDING_LIST) {
-			pkt   = new PACKET.CZ.REQ_CLOSESTORE();
+		if (_type === VendingShop.Type.VENDING_LIST) {
+			pkt = new PACKET.CZ.REQ_CLOSESTORE();
 		} else {
-			pkt   = new PACKET.CZ.REQ_CLOSE_BUYING_STORE();
+			pkt = new PACKET.CZ.REQ_CLOSE_BUYING_STORE();
 		}
 		Network.sendPacket(pkt);
 		this.onRemove();
 
 		// Vending Report upon closing the store
 		if (_type === VendingShop.Type.VENDING_LIST && PACKETVER.value >= 20141016) {
-			var VendingReport    = require('UI/Components/VendingReport/VendingReport');
+			var VendingReport = require('UI/Components/VendingReport/VendingReport');
 			VendingReport.append();
 		}
 	};
-
-
 
 	/**
 	 * Create component and export it

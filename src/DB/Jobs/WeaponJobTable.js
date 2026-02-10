@@ -8,23 +8,24 @@
  * @author Vincent Thibault
  */
 
-define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
-{
-	"use strict";
+define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable) {
+	'use strict';
 
 	var WeaponJobTable = {};
 
 	// Extend
 	var keys = Object.keys(JobNameTable);
-	var i, count = keys.length;
+	var i,
+		count = keys.length;
 
 	for (i = 0; i < count; ++i) {
-		WeaponJobTable[ keys[i] ] = JobNameTable[ keys[i] ];
+		WeaponJobTable[keys[i]] = JobNameTable[keys[i]];
 	}
 
 	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
-		var i, count = arguments.length;
+		var i,
+			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {
 			WeaponJobTable[arguments[i]] = value;
@@ -32,37 +33,17 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 	}
 
 	// Rewrite inheritance
-	duplicateEntry(JobId.NOVICE,
-		JobId.NOVICE_H,
-		JobId.NOVICE_B
-	);
-	duplicateEntry(JobId.SWORDMAN,
-		JobId.SWORDMAN_H,
-		JobId.SWORDMAN_B
-	);
-	duplicateEntry(JobId.MAGICIAN,
-		JobId.MAGICIAN_H,
-		JobId.MAGICIAN_B
-	);
-	duplicateEntry(JobId.ARCHER,
-		JobId.ARCHER_H,
-		JobId.ARCHER_B
-	);
-	duplicateEntry(JobId.ACOLYTE,
-		JobId.ACOLYTE_H,
-		JobId.ACOLYTE_B
-	);
-	duplicateEntry(JobId.MERCHANT,
-		JobId.MERCHANT_H,
-		JobId.MERCHANT_B
-	);
-	duplicateEntry(JobId.THIEF,
-		JobId.THIEF_H,
-		JobId.THIEF_B
-	);
+	duplicateEntry(JobId.NOVICE, JobId.NOVICE_H, JobId.NOVICE_B);
+	duplicateEntry(JobId.SWORDMAN, JobId.SWORDMAN_H, JobId.SWORDMAN_B);
+	duplicateEntry(JobId.MAGICIAN, JobId.MAGICIAN_H, JobId.MAGICIAN_B);
+	duplicateEntry(JobId.ARCHER, JobId.ARCHER_H, JobId.ARCHER_B);
+	duplicateEntry(JobId.ACOLYTE, JobId.ACOLYTE_H, JobId.ACOLYTE_B);
+	duplicateEntry(JobId.MERCHANT, JobId.MERCHANT_H, JobId.MERCHANT_B);
+	duplicateEntry(JobId.THIEF, JobId.THIEF_H, JobId.THIEF_B);
 
 	// 2nd/3rd/4th job inheritance with riding mounts
-	duplicateEntry(JobId.KNIGHT,
+	duplicateEntry(
+		JobId.KNIGHT,
 		JobId.KNIGHT_H,
 		JobId.KNIGHT_B,
 		JobId.RUNE_KNIGHT,
@@ -72,7 +53,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.DRAGON_KNIGHT,
 		JobId.DRAGON_KNIGHT_RIDING
 	);
-	duplicateEntry(JobId.KNIGHT2,
+	duplicateEntry(
+		JobId.KNIGHT2,
 		JobId.KNIGHT2_H,
 		JobId.KNIGHT2_B,
 		JobId.RUNE_KNIGHT2,
@@ -81,7 +63,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.RUNE_KNIGHT2_2ND,
 		JobId.DRAGON_KNIGHT2
 	);
-	duplicateEntry(JobId.PRIEST,
+	duplicateEntry(
+		JobId.PRIEST,
 		JobId.PRIEST_H,
 		JobId.PRIEST_B,
 		JobId.ARCHBISHOP,
@@ -91,7 +74,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.CARDINAL,
 		JobId.CARDINAL_RIDING
 	);
-	duplicateEntry(JobId.WIZARD,
+	duplicateEntry(
+		JobId.WIZARD,
 		JobId.WIZARD_H,
 		JobId.WIZARD_B,
 		JobId.WARLOCK,
@@ -101,7 +85,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.ARCH_MAGE,
 		JobId.ARCH_MAGE_RIDING
 	);
-	duplicateEntry(JobId.BLACKSMITH,
+	duplicateEntry(
+		JobId.BLACKSMITH,
 		JobId.BLACKSMITH_H,
 		JobId.BLACKSMITH_B,
 		JobId.MECHANIC,
@@ -113,7 +98,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.MEISTER2,
 		JobId.MEISTER_RIDING
 	);
-	duplicateEntry(JobId.HUNTER,
+	duplicateEntry(
+		JobId.HUNTER,
 		JobId.HUNTER_H,
 		JobId.HUNTER_B,
 		JobId.RANGER,
@@ -125,7 +111,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.WINDHAWK2,
 		JobId.WINDHAWK_RIDING
 	);
-	duplicateEntry(JobId.ASSASSIN,
+	duplicateEntry(
+		JobId.ASSASSIN,
 		JobId.ASSASSIN_H,
 		JobId.ASSASSIN_B,
 		JobId.GUILLOTINE_CROSS,
@@ -135,7 +122,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.SHADOW_CROSS,
 		JobId.SHADOW_CROSS_RIDING
 	);
-	duplicateEntry(JobId.CRUSADER,
+	duplicateEntry(
+		JobId.CRUSADER,
 		JobId.CRUSADER_H,
 		JobId.CRUSADER_B,
 		JobId.ROYAL_GUARD,
@@ -145,7 +133,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.IMPERIAL_GUARD,
 		JobId.IMPERIAL_GUARD_RIDING
 	);
-	duplicateEntry(JobId.CRUSADER2,
+	duplicateEntry(
+		JobId.CRUSADER2,
 		JobId.CRUSADER2_H,
 		JobId.CRUSADER2_B,
 		JobId.ROYAL_GUARD2,
@@ -154,7 +143,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.ROYAL_GUARD2_2ND,
 		JobId.IMPERIAL_GUARD2
 	);
-	duplicateEntry(JobId.MONK,
+	duplicateEntry(
+		JobId.MONK,
 		JobId.MONK_H,
 		JobId.MONK_B,
 		JobId.SURA,
@@ -164,7 +154,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.INQUISITOR,
 		JobId.INQUISITOR_RIDING
 	);
-	duplicateEntry(JobId.SAGE,
+	duplicateEntry(
+		JobId.SAGE,
 		JobId.SAGE_H,
 		JobId.SAGE_B,
 		JobId.SORCERER,
@@ -174,7 +165,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.ELEMENTAL_MASTER,
 		JobId.ELEMENTAL_MASTER_RIDING
 	);
-	duplicateEntry(JobId.ROGUE,
+	duplicateEntry(
+		JobId.ROGUE,
 		JobId.ROGUE_H,
 		JobId.ROGUE_B,
 		JobId.SHADOW_CHASER,
@@ -184,7 +176,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.ABYSS_CHASER,
 		JobId.ABYSS_CHASER_RIDING
 	);
-	duplicateEntry(JobId.ALCHEMIST,
+	duplicateEntry(
+		JobId.ALCHEMIST,
 		JobId.ALCHEMIST_H,
 		JobId.ALCHEMIST_B,
 		JobId.GENETIC,
@@ -194,7 +187,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.BIOLO,
 		JobId.BIOLO_RIDING
 	);
-	duplicateEntry(JobId.BARD,
+	duplicateEntry(
+		JobId.BARD,
 		JobId.BARD_H,
 		JobId.BARD_B,
 		JobId.MINSTREL,
@@ -204,7 +198,8 @@ define(["./JobConst", "./JobNameTable"], function( JobId, JobNameTable)
 		JobId.TROUBADOUR,
 		JobId.TROUBADOUR_RIDING
 	);
-	duplicateEntry(JobId.DANCER,
+	duplicateEntry(
+		JobId.DANCER,
 		JobId.DANCER_H,
 		JobId.DANCER_B,
 		JobId.WANDERER,

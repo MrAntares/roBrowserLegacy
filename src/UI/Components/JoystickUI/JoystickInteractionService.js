@@ -1,8 +1,8 @@
 /**
  * UI/Components/JoystickUI/JoystickInteractionService.js
  *
- * Acts as the bridge between input signals and game actions. 
- * Orchestrates shortcut execution, mouse emulation, camera controls, 
+ * Acts as the bridge between input signals and game actions.
+ * Orchestrates shortcut execution, mouse emulation, camera controls,
  * and character interactions.
  *
  * @author AoShinHo
@@ -27,12 +27,16 @@ define(function (require) {
 		cancelQuick: false,
 		executeShortcut: function (index, group) {
 			var shortcut = ShortCut.getList()[index];
-			if (!shortcut) return;
+			if (!shortcut) {
+				return;
+			}
 
 			if (!shortcut.isSkill) {
 				var item = InventoryUI.getUI().getItemById(shortcut.ID);
-				if (!item || item.count === 0) return;
-			} // Move mouse to target entity position  
+				if (!item || item.count === 0) {
+					return;
+				}
+			} // Move mouse to target entity position
 			else if (ControlsSettings.attackTargetMode) {
 				var targetEntity = Target.getEntity();
 				if (targetEntity) {
@@ -44,9 +48,9 @@ define(function (require) {
 				cmd: 'EXECUTE' + index
 			});
 
-			if (ControlsSettings.joyQuick === 2)
+			if (ControlsSettings.joyQuick === 2) {
 				Cursor.quickCastClick();
-			else if (ControlsSettings.joyQuick === 1) {
+			} else if (ControlsSettings.joyQuick === 1) {
 				this.cancelQuick = false;
 
 				function waitforRelease() {
@@ -57,8 +61,9 @@ define(function (require) {
 						var buttons = Input.buttonStates;
 						if (ShortcutMapper.getGroup(buttons) !== group) {
 							Cursor.quickCastClick();
-						} else if (!this.cancelQuick)
+						} else if (!this.cancelQuick) {
 							waitforRelease();
+						}
 					}, 50);
 				}
 				waitforRelease();
@@ -73,12 +78,15 @@ define(function (require) {
 			if (!isSkill) {
 				var item = InventoryUI.getUI().getItemByIndex(index);
 				if (item) {
-					if (item.type === ItemType.UNKNOWN ||
+					if (
+						item.type === ItemType.UNKNOWN ||
 						item.type === ItemType.ETC ||
 						item.type === ItemType.CARD ||
 						item.type === ItemType.PETEGG ||
-						item.type === ItemType.PETARMOR)
+						item.type === ItemType.PETARMOR
+					) {
 						return false;
+					}
 
 					itemData = {
 						isSkill: false,

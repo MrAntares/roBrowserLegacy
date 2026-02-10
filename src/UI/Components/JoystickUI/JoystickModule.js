@@ -1,8 +1,8 @@
 /**
  * UI/Components/JoystickUI/JoystickModule.js
  *
- * Main entry point for the Joystick component. 
- * Manages the initialization (prepare) and cleanup (dispose) 
+ * Main entry point for the Joystick component.
+ * Manages the initialization (prepare) and cleanup (dispose)
  * of all joystick-related sub-services and polling loops.
  *
  * @author AoShinHo

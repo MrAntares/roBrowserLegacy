@@ -1,0 +1,30 @@
+name: Lint
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    eslint:
+        name: ESLint (src)
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+
+            - name: Install dependencies
+              run: npm i
+
+            - name: Run ESLint
+              run: npm run lint

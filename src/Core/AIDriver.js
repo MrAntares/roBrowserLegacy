@@ -1,44 +1,49 @@
-define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'Renderer/Entity/Entity'], function (EntityManager, Renderer, fengari, Entity) {
-    'use strict';
+define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'Renderer/Entity/Entity'], function (
+	EntityManager,
+	Renderer,
+	fengari,
+	Entity
+) {
+	'use strict';
 
-    var Session = require('Engine/SessionStorage');
-    var Network = require('Network/NetworkManager');
-    var PACKET = require('Network/PacketStructure');
-    var Configs = require('Core/Configs');
+	var Session = require('Engine/SessionStorage');
+	var Network = require('Network/NetworkManager');
+	var PACKET = require('Network/PacketStructure');
+	var Configs = require('Core/Configs');
 
-    function AIDriver(type) {
-        this.type = type; // 'homunculus' or 'mercenary'
-        this.msg = {};
-        this.status = null;
-    }
+	function AIDriver(type) {
+		this.type = type; // 'homunculus' or 'mercenary'
+		this.msg = {};
+		this.status = null;
+	}
 
-    AIDriver.prototype.getConfig = function getConfig() {
-        switch (this.type) {
-            case 'homunculus':
-                return {
-                    id: Session.homunId,
-                    aggressiveKey: 'HOM_AGGRESSIVE',
-                    aiPath: Session.homCustomAI ? "AI/USER_AI/AI" : "AI/AI",
-                    logPrefix: 'homAI'
-                };
-            case 'mercenary':
-                return {
-                    id: Session.mercId,
-                    aggressiveKey: 'MER_AGGRESSIVE',
-                    aiPath: Session.merCustomAI ? "AI/USER_AI/AI_M" : "AI/AI_M",
-                    logPrefix: 'merAI'
-                };
-            default:
-                throw new Error('Invalid AI type');
-        }
-    };
+	AIDriver.prototype.getConfig = function getConfig() {
+		switch (this.type) {
+			case 'homunculus':
+				return {
+					id: Session.homunId,
+					aggressiveKey: 'HOM_AGGRESSIVE',
+					aiPath: Session.homCustomAI ? 'AI/USER_AI/AI' : 'AI/AI',
+					logPrefix: 'homAI'
+				};
+			case 'mercenary':
+				return {
+					id: Session.mercId,
+					aggressiveKey: 'MER_AGGRESSIVE',
+					aiPath: Session.merCustomAI ? 'AI/USER_AI/AI_M' : 'AI/AI_M',
+					logPrefix: 'merAI'
+				};
+			default:
+				throw new Error('Invalid AI type');
+		}
+	};
 
-    AIDriver.prototype.init = function init() {
-        var config = this.getConfig();
-        var clientPath = Configs.get('remoteClient');
-		var sep = clientPath.substr(clientPath.length - 1) == "/" ? "" : "/";
+	AIDriver.prototype.init = function init() {
+		var config = this.getConfig();
+		var clientPath = Configs.get('remoteClient');
+		var sep = clientPath.substr(clientPath.length - 1) == '/' ? '' : '/';
 
-        var code = `
+		var code = `
             package.path = '${clientPath}${sep}?.lua'
 
             local ai_main, ai_error = loadfile("${clientPath}${sep}${config.aiPath}.lua")
@@ -126,224 +131,234 @@ define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'R
                 return result;
             end
         `;
-        this.exec(code);
-    };
+		this.exec(code);
+	};
 
-    AIDriver.prototype.getState = function getState() {
-        var state = null;
-        try {
-            var fn = fengari.load('return GetState()');
-            state = fn();
-        } catch (e) {
-            var config = this.getConfig();
-            console.error(`%c[${config.logPrefix}] %cFailed to get AI state: `, "color:#DD0078", "color:inherit", e);
-        }
-        return state;
-    };
+	AIDriver.prototype.getState = function getState() {
+		var state = null;
+		try {
+			var fn = fengari.load('return GetState()');
+			state = fn();
+		} catch (e) {
+			var config = this.getConfig();
+			console.error(`%c[${config.logPrefix}] %cFailed to get AI state: `, 'color:#DD0078', 'color:inherit', e);
+		}
+		return state;
+	};
 
-    AIDriver.prototype.setmsg = function setmsg(id, str) {
-        this.msg[id] = str;
-    };
+	AIDriver.prototype.setmsg = function setmsg(id, str) {
+		this.msg[id] = str;
+	};
 
-    AIDriver.prototype.exec = function exec(code) {
-        var config = this.getConfig();
-        try {
-            fengari.load(code)();
-        } catch (e) {
-            console.error(`%c[${config.logPrefix}] %cAI Error: `, "color:#DD0078", "color:inherit", e);
-        }
-    };
+	AIDriver.prototype.exec = function exec(code) {
+		var config = this.getConfig();
+		try {
+			fengari.load(code)();
+		} catch (e) {
+			console.error(`%c[${config.logPrefix}] %cAI Error: `, 'color:#DD0078', 'color:inherit', e);
+		}
+	};
 
-    AIDriver.prototype.reset = function reset() {
-        this.init();
-    };
+	AIDriver.prototype.reset = function reset() {
+		this.init();
+	};
 
-    // Create singleton instances for homunculus and mercenary
-    var homAI = new AIDriver('homunculus');
-    var merAI = new AIDriver('mercenary');
+	// Create singleton instances for homunculus and mercenary
+	var homAI = new AIDriver('homunculus');
+	var merAI = new AIDriver('mercenary');
 
-    // Setup global functions that need to be shared between both AIs
-    window.GetMsg = function GetMsg(type, id) {
-        var ai = type === 'homunculus' ? homAI : merAI;
-        if (id in ai.msg) {
-            let res = ai.msg[id];
-            delete ai.msg[id];
-            return res;
-        }
-        return '';
-    }
+	// Setup global functions that need to be shared between both AIs
+	window.GetMsg = function GetMsg(type, id) {
+		var ai = type === 'homunculus' ? homAI : merAI;
+		if (id in ai.msg) {
+			let res = ai.msg[id];
+			delete ai.msg[id];
+			return res;
+		}
+		return '';
+	};
 
-    window.IsMonster = function IsMonster(id) {
-        if (id < 1 || typeof (id) !== 'number') {
-            return 0;
-        }
+	window.IsMonster = function IsMonster(id) {
+		if (id < 1 || typeof id !== 'number') {
+			return 0;
+		}
 
-        var entity = EntityManager.get(Number(id));
+		var entity = EntityManager.get(Number(id));
 
-        if (entity.objecttype === entity.TYPE_MOB || entity.objecttype === entity.TYPE_NPC_ABR || entity.objecttype === entity.TYPE_NPC_BIONIC) {
-            return 1;
-        }
-        return 0;
-    }
+		if (
+			entity.objecttype === entity.TYPE_MOB ||
+			entity.objecttype === entity.TYPE_NPC_ABR ||
+			entity.objecttype === entity.TYPE_NPC_BIONIC
+		) {
+			return 1;
+		}
+		return 0;
+	};
 
-    window.TraceAI = function TraceAI(str) {
-        if (Configs.get('debugAI', false)) {
-            console.warn('TraceAI', str)
-        }
-    }
+	window.TraceAI = function TraceAI(str) {
+		if (Configs.get('debugAI', false)) {
+			console.warn('TraceAI', str);
+		}
+	};
 
-    window.GetTick = function GetTick() {
-        return Renderer.tick;
-    }
+	window.GetTick = function GetTick() {
+		return Renderer.tick;
+	};
 
-    window.Move = function Move(id, x, y) {
-        var pkt = new PACKET.CZ.REQUEST_MOVENPC();
-        pkt.GID = id;
-        pkt.dest[0] = x;
-        pkt.dest[1] = y;
-        Network.sendPacket(pkt);
-    }
+	window.Move = function Move(id, x, y) {
+		var pkt = new PACKET.CZ.REQUEST_MOVENPC();
+		pkt.GID = id;
+		pkt.dest[0] = x;
+		pkt.dest[1] = y;
+		Network.sendPacket(pkt);
+	};
 
-    window.Attack = function Attack(GID, targetGID) {
-        var pkt = new PACKET.CZ.REQUEST_ACTNPC();
-        pkt.GID = GID;
-        pkt.targetGID = targetGID;
-        pkt.action = 0;
-        Network.sendPacket(pkt);
-    }
+	window.Attack = function Attack(GID, targetGID) {
+		var pkt = new PACKET.CZ.REQUEST_ACTNPC();
+		pkt.GID = GID;
+		pkt.targetGID = targetGID;
+		pkt.action = 0;
+		Network.sendPacket(pkt);
+	};
 
-    window.MoveToOwner = function MoveToOwner(gid) {
-        var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
-        pkt.GID = gid;
-        Network.sendPacket(pkt);
-    }
+	window.MoveToOwner = function MoveToOwner(gid) {
+		var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
+		pkt.GID = gid;
+		Network.sendPacket(pkt);
+	};
 
-    window.GetActors = function GetActors(type) {
-        var ai = type === 'homunculus' ? homAI : merAI;
-        var config = ai.getConfig();
+	window.GetActors = function GetActors(type) {
+		var ai = type === 'homunculus' ? homAI : merAI;
+		var config = ai.getConfig();
 
-        // Execute AI state check
-        ai.status = ai.getState();
+		// Execute AI state check
+		ai.status = ai.getState();
 
-        var res = [0];
-        EntityManager.forEach((item) => {
-            res.push(item.GID)
-        });
+		var res = [0];
+		EntityManager.forEach(item => {
+			res.push(item.GID);
+		});
 
-        // Aggressive logic
-        if (res.length > 3) {
-            if (localStorage.getItem(config.aggressiveKey) == 1) {
-                res.forEach((item) => {
-                    if (item != 0 && item != Session.AID && item != config.id) {
-                        var entity = EntityManager.get(Number(item));
-                        if (entity && (entity.objecttype === Entity.TYPE_MOB || entity.objecttype === Entity.TYPE_NPC_ABR || entity.objecttype === Entity.TYPE_NPC_BIONIC)) {
-                            if (ai.status == 0) { //idle = 0
-                                // attack
-                                ai.setmsg(config.id, '3,' + item);
-                            }
-                        }
-                    }
-                });
-            } else {
-                ai.setmsg(config.id, ai.status);
-            }
-        }
-        return res;
-    }
+		// Aggressive logic
+		if (res.length > 3) {
+			if (localStorage.getItem(config.aggressiveKey) == 1) {
+				res.forEach(item => {
+					if (item != 0 && item != Session.AID && item != config.id) {
+						var entity = EntityManager.get(Number(item));
+						if (
+							entity &&
+							(entity.objecttype === Entity.TYPE_MOB ||
+								entity.objecttype === Entity.TYPE_NPC_ABR ||
+								entity.objecttype === Entity.TYPE_NPC_BIONIC)
+						) {
+							if (ai.status == 0) {
+								//idle = 0
+								// attack
+								ai.setmsg(config.id, '3,' + item);
+							}
+						}
+					}
+				});
+			} else {
+				ai.setmsg(config.id, ai.status);
+			}
+		}
+		return res;
+	};
 
-    window.GetV = function GetV(V_, id) {
-        var entity = EntityManager.get(Number(id));
+	window.GetV = function GetV(V_, id) {
+		var entity = EntityManager.get(Number(id));
 
-        switch (V_) {
-            case 0: // V_OWNER ok
-                return Session.AID;
+		switch (V_) {
+			case 0: // V_OWNER ok
+				return Session.AID;
 
-            case 1: // V_POSITION ok
-                // console.warn('V_POSITION', id, entity)
-                if (entity !== null) {
-                    return entity.position[0] + ',' + entity.position[1];
-                }
-                return '-1,-1'
+			case 1: // V_POSITION ok
+				// console.warn('V_POSITION', id, entity)
+				if (entity !== null) {
+					return entity.position[0] + ',' + entity.position[1];
+				}
+				return '-1,-1';
 
-            case 2: // V_TYPE
-                console.warn("V_TYPE ", id, entity);
-                return 0;
+			case 2: // V_TYPE
+				console.warn('V_TYPE ', id, entity);
+				return 0;
 
-            case 3: // V_MOTION ok
-                if (id < 1000) {
-                    var avtors = window.GetActors();
-                    return EntityManager.get(Number(avtors[id])).action;
-                }
-                if (entity === null) {
-                    return 0;
-                }
-                return entity.action;
+			case 3: // V_MOTION ok
+				if (id < 1000) {
+					var avtors = window.GetActors();
+					return EntityManager.get(Number(avtors[id])).action;
+				}
+				if (entity === null) {
+					return 0;
+				}
+				return entity.action;
 
-            case 4: // V_ATTACKRANGE ok
-                // Returns the attack range (Not implemented yet; temporarily set as 1 cell)
-                if (entity !== null) {
-                    return entity.attack_range || 1;
-                }
-                return 1;
+			case 4: // V_ATTACKRANGE ok
+				// Returns the attack range (Not implemented yet; temporarily set as 1 cell)
+				if (entity !== null) {
+					return entity.attack_range || 1;
+				}
+				return 1;
 
-            case 5: // V_TARGET ok
-                if (entity === null || id < 1 || typeof (id) !== 'number') {
-                    return 0;
-                }
-                return entity.targetGID;
+			case 5: // V_TARGET ok
+				if (entity === null || id < 1 || typeof id !== 'number') {
+					return 0;
+				}
+				return entity.targetGID;
 
-            case 6: // V_SKILLATTACKRANGE
-                // Returns the skill attack range (Not implemented yet)
-                if (entity !== null) {
-                    return entity.attack_range || 1;
-                }
-                return 1;
+			case 6: // V_SKILLATTACKRANGE
+				// Returns the skill attack range (Not implemented yet)
+				if (entity !== null) {
+					return entity.attack_range || 1;
+				}
+				return 1;
 
-            case 7: // V_HOMUNTYPE ok
-                if (entity === null) {
-                    return 0;
-                }
-                return Number((entity._job + '').substring(1));
+			case 7: // V_HOMUNTYPE ok
+				if (entity === null) {
+					return 0;
+				}
+				return Number((entity._job + '').substring(1));
 
-            case 8: // V_HP
-                return entity.life.hp;
+			case 8: // V_HP
+				return entity.life.hp;
 
-            case 9: // V_SP
-                return entity.life.sp;
+			case 9: // V_SP
+				return entity.life.sp;
 
-            case 10: // V_MAXHP
-                return entity.life.hp_max;
+			case 10: // V_MAXHP
+				return entity.life.hp_max;
 
-            case 11: // V_MAXSP
-                return entity.life.sp_max;
+			case 11: // V_MAXSP
+				return entity.life.sp_max;
 
-            case 12: // V_MERTYPE
-                if (entity === null) {
-                    return 0;
-                }
-                return Number((entity._job + '').substring(1));
+			case 12: // V_MERTYPE
+				if (entity === null) {
+					return 0;
+				}
+				return Number((entity._job + '').substring(1));
 
-            case 13: // V_POSITION_APPLY_SKILLATTACKRANGE
-                if (entity !== null) {
-                    return entity.position[0] + ',' + entity.position[1];
-                }
-                return '-1,-1'
+			case 13: // V_POSITION_APPLY_SKILLATTACKRANGE
+				if (entity !== null) {
+					return entity.position[0] + ',' + entity.position[1];
+				}
+				return '-1,-1';
 
-            case 14: // V_SKILLATTACKRANGE_LEVEL
-                // Returns the skill attack range for the skill level (Not implemented yet)
-                if (entity !== null) {
-                    return entity.attack_range || 1;
-                }
-                return 1;
+			case 14: // V_SKILLATTACKRANGE_LEVEL
+				// Returns the skill attack range for the skill level (Not implemented yet)
+				if (entity !== null) {
+					return entity.attack_range || 1;
+				}
+				return 1;
 
-            default:
-                console.error("unknown V_ ", V_, entity)
-                return 0;
-        }
-    };
+			default:
+				console.error('unknown V_ ', V_, entity);
+				return 0;
+		}
+	};
 
-    return {
-        homunculus: homAI,
-        mercenary: merAI
-    };
+	return {
+		homunculus: homAI,
+		mercenary: merAI
+	};
 });

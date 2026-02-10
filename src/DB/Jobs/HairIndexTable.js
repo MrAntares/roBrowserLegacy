@@ -8,9 +8,8 @@
  * @author Vincent Thibault
  */
 
-define(function()
-{
-	"use strict";
+define(function () {
+	'use strict';
 
 	return [
 		// Human_F

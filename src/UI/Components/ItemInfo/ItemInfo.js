@@ -7,43 +7,40 @@
  *
  * @author Vincent Thibault
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
-
 
 	/**
 	 * Dependencies
 	 */
-	var jQuery             = require('Utils/jquery');
-	var DB                 = require('DB/DBManager');
-	var ItemType           = require('DB/Items/ItemType');
-	var EquipLocation      = require('DB/Items/EquipmentLocation');
-	var Client             = require('Core/Client');
-	var KEYS               = require('Controls/KeyEventHandler');
-	var CardIllustration   = require('UI/Components/CardIllustration/CardIllustration');
-	var UIManager          = require('UI/UIManager');
-	var Mouse              = require('Controls/MouseEventHandler');
-	var UIComponent        = require('UI/UIComponent');
-	var Cursor             = require('UI/CursorManager');
-	var ItemCompare        = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemPreview        = require('UI/Components/ItemPreview/ItemPreview');
-	var MakeReadBook       = require('UI/Components/MakeReadBook/MakeReadBook');
-	var Renderer           = require('Renderer/Renderer');
-	var SpriteRenderer     = require('Renderer/SpriteRenderer');
-	var Sprite             = require('Loaders/Sprite');
-	var Action             = require('Loaders/Action');
-	var htmlText           = require('text!./ItemInfo.html');
-	var cssText            = require('text!./ItemInfo.css');
-	var Network       	   = require('Network/NetworkManager');
-	var PACKET        	   = require('Network/PacketStructure');
-	var getModule     = require;
-
+	var jQuery = require('Utils/jquery');
+	var DB = require('DB/DBManager');
+	var ItemType = require('DB/Items/ItemType');
+	var EquipLocation = require('DB/Items/EquipmentLocation');
+	var Client = require('Core/Client');
+	var KEYS = require('Controls/KeyEventHandler');
+	var CardIllustration = require('UI/Components/CardIllustration/CardIllustration');
+	var UIManager = require('UI/UIManager');
+	var Mouse = require('Controls/MouseEventHandler');
+	var UIComponent = require('UI/UIComponent');
+	var Cursor = require('UI/CursorManager');
+	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
+	var ItemPreview = require('UI/Components/ItemPreview/ItemPreview');
+	var MakeReadBook = require('UI/Components/MakeReadBook/MakeReadBook');
+	var Renderer = require('Renderer/Renderer');
+	var SpriteRenderer = require('Renderer/SpriteRenderer');
+	var Sprite = require('Loaders/Sprite');
+	var Action = require('Loaders/Action');
+	var htmlText = require('text!./ItemInfo.html');
+	var cssText = require('text!./ItemInfo.css');
+	var Network = require('Network/NetworkManager');
+	var PACKET = require('Network/PacketStructure');
+	var getModule = require;
 
 	/**
 	 * Create Component
 	 */
-	var ItemInfo = new UIComponent( 'ItemInfo', htmlText, cssText );
+	var ItemInfo = new UIComponent('ItemInfo', htmlText, cssText);
 
 	/**
 	 * @var {Sprite,Action} objects
@@ -53,14 +50,14 @@ define(function(require)
 	/**
 	 * @var {CanvasRenderingContext2D}
 	 */
-	 var _ctx;
+	var _ctx;
 
 	/**
 	 * @var {number} type
 	 */
-	 var _type = 0;
+	var _type = 0;
 
-	 /**
+	/**
 	 * @var {number} start tick
 	 */
 	var _start = 0;
@@ -74,22 +71,21 @@ define(function(require)
 	 * ItemMoveInfo messages mapping
 	 */
 	const MOVE_INFO_MESSAGES = [
-		{ key: 'Drop',          msgId: 2788 },
-		{ key: 'Storage',       msgId: 2789 },
-		{ key: 'Cart',          msgId: 2790 },
-		{ key: 'Mail',          msgId: 2791 },
-		{ key: 'Exchange',      msgId: 2792 },
+		{ key: 'Drop', msgId: 2788 },
+		{ key: 'Storage', msgId: 2789 },
+		{ key: 'Cart', msgId: 2790 },
+		{ key: 'Mail', msgId: 2791 },
+		{ key: 'Exchange', msgId: 2792 },
 		// 2793 Auction → intentionally skipped
-		{ key: 'GuildStorage',  msgId: 2794 },
-		{ key: 'NPCSale',       msgId: 2795 }
+		{ key: 'GuildStorage', msgId: 2794 },
+		{ key: 'NPCSale', msgId: 2795 }
 	];
 
 	/**
 	 * Once append to the DOM
 	 */
-	ItemInfo.onKeyDown = function onKeyDown( event )
-	{
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+	ItemInfo.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			// Cleanup moveInfo tooltip & cursor
 			ItemInfo.hideMoveInfoTooltip();
 
@@ -103,24 +99,20 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Once append
 	 */
-	ItemInfo.onAppend = function onAppend()
-	{
+	ItemInfo.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data( window, 'events').keydown;
-		events.unshift( events.pop() );
+		var events = jQuery._data(window, 'events').keydown;
+		events.unshift(events.pop());
 		resize(ItemInfo.ui.find('.description-inner').height() + 45);
 	};
-
 
 	/**
 	 * Once removed from html
 	 */
-	ItemInfo.onRemove = function onRemove()
-	{
+	ItemInfo.onRemove = function onRemove() {
 		this.uid = -1;
 
 		// Cleanup moveInfo tooltip & cursor
@@ -135,34 +127,36 @@ define(function(require)
 		}
 	};
 
-
 	/**
 	 * Initialize UI
 	 */
-	ItemInfo.init = function init()
-	{
-		this.ui.css({ top: 200, left:480 });
+	ItemInfo.init = function init() {
+		this.ui.css({ top: 200, left: 480 });
 		this.ui.find('.extend').mousedown(onResize);
-		this.ui.find('.close')
-			.mousedown(function(event){
+		this.ui
+			.find('.close')
+			.mousedown(function (event) {
 				event.stopImmediatePropagation();
 				return false;
 			})
-			.click(function() {
-				this.remove();
-				if (ItemCompare.ui) {
-					ItemCompare.remove();
-				}
-			}.bind(this));
+			.click(
+				function () {
+					this.remove();
+					if (ItemCompare.ui) {
+						ItemCompare.remove();
+					}
+				}.bind(this)
+			);
 
 		// Ask to see card.
-		this.ui.find('.view').click(function(){
-			CardIllustration.append();
-			CardIllustration.setCard(this.item);
-		}.bind(this));
+		this.ui.find('.view').click(
+			function () {
+				CardIllustration.append();
+				CardIllustration.setCard(this.item);
+			}.bind(this)
+		);
 
 		this.draggable(this.ui.find('.title'));
-
 	};
 
 	/**
@@ -170,30 +164,33 @@ define(function(require)
 	 *
 	 * @param {object} item
 	 */
-	ItemInfo.setItem = function setItem( item )
-	{
-		var it = DB.getItemInfo( item.ITID );
+	ItemInfo.setItem = function setItem(item) {
+		var it = DB.getItemInfo(item.ITID);
 		var ui = this.ui;
 		var cardList = ui.find('.cardlist .border');
 		var optionContainer = ui.find('.option-container');
 
 		this.item = it;
-		Client.loadFile( DB.INTERFACE_PATH + 'collection/' + ( item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName ) + '.bmp', function(data){
-			ui.find('.collection').css('backgroundImage', 'url('+data+')' );
-		});
-
+		Client.loadFile(
+			DB.INTERFACE_PATH +
+				'collection/' +
+				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+				'.bmp',
+			function (data) {
+				ui.find('.collection').css('backgroundImage', 'url(' + data + ')');
+			}
+		);
 
 		var customname = '';
 		var hideslots = false;
 
-		if(item.slot){
-
+		if (item.slot) {
 			var very = '';
 			var name = '';
 			var elem = '';
 
 			switch (item.slot['card1']) {
-				case 0x00FF: // FORGE
+				case 0x00ff: // FORGE
 					if (item.slot['card2'] >= 3840) {
 						very = DB.getMessage(461); // Very Very Very Strong
 					} else if (item.slot['card2'] >= 2560) {
@@ -201,34 +198,45 @@ define(function(require)
 					} else if (item.slot['card2'] >= 1024) {
 						very = DB.getMessage(459); // Very Strong
 					}
-					switch (Math.abs(item.slot['card2'] % 10)){
-						case 1: elem = DB.getMessage(452); break; // 's Ice
-						case 2: elem = DB.getMessage(454); break; // 's Earth
-						case 3: elem = DB.getMessage(451); break; // 's Fire
-						case 4: elem = DB.getMessage(453); break; // 's Wind
-						default: elem = DB.getMessage(450); break; // 's
+					switch (Math.abs(item.slot['card2'] % 10)) {
+						case 1:
+							elem = DB.getMessage(452);
+							break; // 's Ice
+						case 2:
+							elem = DB.getMessage(454);
+							break; // 's Earth
+						case 3:
+							elem = DB.getMessage(451);
+							break; // 's Fire
+						case 4:
+							elem = DB.getMessage(453);
+							break; // 's Wind
+						default:
+							elem = DB.getMessage(450);
+							break; // 's
 					}
-				case 0x00FE: // CREATE
+				case 0x00fe: // CREATE
 					elem = DB.getMessage(450);
-				case 0xFF00: // PET
+				case 0xff00: // PET
 					hideslots = true;
 
 					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
-					var GID = (item.slot['card4']<<16) + item.slot['card3'];
+					var GID = (item.slot['card4'] << 16) + item.slot['card3'];
 
-					if( DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
-						name = '<font color="blue" class="owner-' + GID + '">'+DB.CNameTable[GID]+'</font>';
+					if (DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
+						name = '<font color="blue" class="owner-' + GID + '">' + DB.CNameTable[GID] + '</font>';
 					} else {
-
 						//Add to item owner name update queue
 						DB.UpdateOwnerName[GID] = onUpdateOwnerName;
 						DB.getNameByGID(GID);
 					}
 
-					if(item.IsDamaged){
+					if (item.IsDamaged) {
 						customname = very + ' ' + name + elem + ' ';
 					} else {
-						customname = !DB.CNameTable[GID] ? very + ' ' + ' ' + name + ' ' + elem + ' ' : very + ' ' + ' ' + name + ' ' + elem + ' ';
+						customname = !DB.CNameTable[GID]
+							? very + ' ' + ' ' + name + ' ' + elem + ' '
+							: very + ' ' + ' ' + name + ' ' + elem + ' ';
 					}
 
 					break;
@@ -241,50 +249,54 @@ define(function(require)
 			}
 		}
 
-		if(item.Options && item.IsIdentified){
+		if (item.Options && item.IsIdentified) {
 			//Clear all option list
 			optionContainer.html('');
 
 			//Loop to Show Options
 			for (let i = 1; i <= 5; i++) {
-				if(item.Options[i].index > 0) {
+				if (item.Options[i].index > 0) {
 					let randomOptionName = DB.getOptionName(item.Options[i].index);
-					let optionList = 	'<div class="optionlist">' +
-															'<div class="border">' +
-															randomOptionName.replace('\%d', item.Options[i].value).replace('\%\%', '%') +
-															'</div>' +
-													'</div>';
+					let optionList =
+						'<div class="optionlist">' +
+						'<div class="border">' +
+						randomOptionName.replace('\%d', item.Options[i].value).replace('\%\%', '%') +
+						'</div>' +
+						'</div>';
 					optionContainer.append(optionList);
 				}
 			}
 			optionContainer.show();
-		}else{
+		} else {
 			optionContainer.hide();
 		}
 
 		// Damaged status
-		if(item.IsDamaged){
+		if (item.IsDamaged) {
 			ui.find('.title').addClass('damaged');
-		}else{
+		} else {
 			ui.find('.title').removeClass('damaged');
 		}
 
 		/* Grade System */
 		var container = ui.find('.container');
-		if (item.enchantgrade)  {
-			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg_g' + item.enchantgrade + '.bmp', function(data){
-				container.css('backgroundImage', 'url(' + data + ')');
-			});
+		if (item.enchantgrade) {
+			Client.loadFile(
+				DB.INTERFACE_PATH + 'basic_interface/collection_bg_g' + item.enchantgrade + '.bmp',
+				function (data) {
+					container.css('backgroundImage', 'url(' + data + ')');
+				}
+			);
 		} else {
-			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg.bmp', function(data){
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/collection_bg.bmp', function (data) {
 				container.css('backgroundImage', 'url(' + data + ')');
 			});
 		}
 
 		var gradeName = '';
 		if (item.enchantgrade) {
-			let list = ['','D','C','B','A'];
-			gradeName = '[' + list[item.enchantgrade] +'] ';
+			let list = ['', 'D', 'C', 'B', 'A'];
+			gradeName = '[' + list[item.enchantgrade] + '] ';
 		}
 
 		var refine = '';
@@ -292,8 +304,12 @@ define(function(require)
 			refine = '+' + item.RefiningLevel + ' ';
 		}
 
-		ui.find('.title').text( item.IsIdentified ? (refine + gradeName + customname + it.identifiedDisplayName) : it.unidentifiedDisplayName );
-		ui.find('.description-inner').text( item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName );
+		ui.find('.title').text(
+			item.IsIdentified ? refine + gradeName + customname + it.identifiedDisplayName : it.unidentifiedDisplayName
+		);
+		ui.find('.description-inner').text(
+			item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName
+		);
 
 		if (item.HireExpireDate) {
 			const dateText = DB.formatUnixDate(item.HireExpireDate);
@@ -307,7 +323,9 @@ define(function(require)
 
 		if (it.moveInfo) {
 			const tooltipHtml = buildMoveInfoTooltip(it.moveInfo);
-			if (!tooltipHtml) return;
+			if (!tooltipHtml) {
+				return;
+			}
 
 			// Create the hoverable label
 			const label = document.createElement('span');
@@ -321,7 +339,7 @@ define(function(require)
 			const tooltip = document.getElementById('moveinfo-tooltip');
 
 			// Mouse enter → show tooltip
-			label.addEventListener('mouseenter', (e) => {
+			label.addEventListener('mouseenter', e => {
 				Cursor.setType(Cursor.ACTION.CLICK);
 				tooltip.innerHTML = tooltipHtml;
 				tooltip.style.display = 'block';
@@ -336,9 +354,9 @@ define(function(require)
 			});
 
 			// Mouse move → follow cursor
-			label.addEventListener('mousemove', (e) => {
+			label.addEventListener('mousemove', e => {
 				tooltip.style.left = e.pageX + 20 + 'px';
-				tooltip.style.top  = e.pageY + 2 + 'px';
+				tooltip.style.top = e.pageY + 2 + 'px';
 			});
 		}
 
@@ -355,12 +373,12 @@ define(function(require)
 
 			case ItemType.ARMOR:
 				// Pet Egg check for old versions (before ItemType.PETEGG existed)
-				if (DB.isPetEgg(item.ITID)){
+				if (DB.isPetEgg(item.ITID)) {
 					hideslots = true;
 				}
 			case ItemType.WEAPON:
 			case ItemType.SHADOWGEAR:
-				if (hideslots){
+				if (hideslots) {
 					cardList.parent().hide();
 					break;
 				}
@@ -371,9 +389,9 @@ define(function(require)
 				cardList.empty();
 
 				for (i = 0; i < 4; ++i) {
-					addCard(cardList, (item.slot && item.slot['card' + (i+1)]) || 0, i, slotCount);
+					addCard(cardList, (item.slot && item.slot['card' + (i + 1)]) || 0, i, slotCount);
 				}
-				if (!item.IsIdentified ) {
+				if (!item.IsIdentified) {
 					cardList.parent().hide();
 				}
 				break;
@@ -381,11 +399,9 @@ define(function(require)
 			case ItemType.PETEGG:
 				cardList.parent().hide();
 				break;
-
 		}
 		resize(ItemInfo.ui.find('.description-inner').height() + 45);
 	};
-
 
 	/**
 	 * Add a card into a slot
@@ -395,40 +411,34 @@ define(function(require)
 	 * @param {number} index
 	 * @param {number} slot count
 	 */
-	function addCard( cardList, itemId, index, slotCount )
-	{
-		var file, name = '';
+	function addCard(cardList, itemId, index, slotCount) {
+		var file,
+			name = '';
 		var card = DB.getItemInfo(itemId);
 
 		if (itemId && card) {
 			file = 'item/' + card.identifiedResourceName + '.bmp';
-			name = '<div class="name">'+ jQuery.escape(card.identifiedDisplayName) + '</div>';
+			name = '<div class="name">' + jQuery.escape(card.identifiedDisplayName) + '</div>';
 		}
 		// TODO: ADD VARIABLE WITH MAXIMUM OF LETTER
 		else if (index < slotCount) {
 			file = 'empty_card_slot.bmp';
-		}
-		else {
+		} else {
 			file = 'basic_interface/coparison_disable_card_slot.bmp';
 		}
 
-		cardList.append(
-			'<div class="item" data-index="'+ index +'">' +
-				'<div class="icon"></div>' +
-				name +
-			'</div>'
-		);
+		cardList.append('<div class="item" data-index="' + index + '">' + '<div class="icon"></div>' + name + '</div>');
 
-		Client.loadFile( DB.INTERFACE_PATH + file, function(data) {
-			var element = cardList.find('.item[data-index="'+ index +'"] .icon');
-			element.css('backgroundImage', 'url('+ data +')');
+		Client.loadFile(DB.INTERFACE_PATH + file, function (data) {
+			var element = cardList.find('.item[data-index="' + index + '"] .icon');
+			element.css('backgroundImage', 'url(' + data + ')');
 
 			if (itemId && card) {
-				element.on('contextmenu',function(){
+				element.on('contextmenu', function () {
 					ItemInfo.setItem({
-						ITID:         itemId,
+						ITID: itemId,
 						IsIdentified: true,
-						type:         6
+						type: 6
 					});
 					return false;
 				});
@@ -436,23 +446,21 @@ define(function(require)
 		});
 	}
 	/**
-	* Extend ItemInfo window size
-	*/
-	function onResize()
-	{
-		var ui      = ItemInfo.ui;
-		var top     = ui.position().top;
-		var left    = ui.position().left;
+	 * Extend ItemInfo window size
+	 */
+	function onResize() {
+		var ui = ItemInfo.ui;
+		var top = ui.position().top;
+		var left = ui.position().left;
 		var lastHeight = 0;
 		var _Interval;
 
-		function resizing()
-		{
-			var h = Math.floor((Mouse.screen.y - top));
+		function resizing() {
+			var h = Math.floor(Mouse.screen.y - top);
 			if (h === lastHeight) {
 				return;
 			}
-			resize( h );
+			resize(h);
 			lastHeight = h;
 		}
 
@@ -460,7 +468,7 @@ define(function(require)
 		_Interval = setInterval(resizing, 30);
 
 		// Stop resizing on left click
-		jQuery(window).on('mouseup.resize', function(event){
+		jQuery(window).on('mouseup.resize', function (event) {
 			if (event.which === 1) {
 				clearInterval(_Interval);
 				jQuery(window).off('mouseup.resize');
@@ -468,14 +476,12 @@ define(function(require)
 		});
 	}
 
-
 	/**
-	* Extend ItemInfo window size
-	*
-	* @param {number} height
-	*/
-	function resize( height )
-	{
+	 * Extend ItemInfo window size
+	 *
+	 * @param {number} height
+	 */
+	function resize(height) {
 		var container = ItemInfo.ui.find('.container');
 		var description = ItemInfo.ui.find('.description');
 		var descriptionInner = ItemInfo.ui.find('.description-inner');
@@ -499,30 +505,29 @@ define(function(require)
 		});
 	}
 
-	function onUpdateOwnerName (pkt){
-		var str = ItemInfo.ui.find('.owner-'+pkt.GID).text();
-		ItemInfo.ui.find('.owner-'+pkt.GID).text(pkt.CName);
+	function onUpdateOwnerName(pkt) {
+		var str = ItemInfo.ui.find('.owner-' + pkt.GID).text();
+		ItemInfo.ui.find('.owner-' + pkt.GID).text(pkt.CName);
 
 		delete DB.UpdateOwnerName[pkt.GID];
 	}
 
-
-	function addEvent(item){
+	function addEvent(item) {
 		var event = ItemInfo.ui.find('.event_view');
 		validateFieldsExist(event) ? '' : addEvent(item);
 
 		event.find('.view').hide();
 		event.find('canvas').remove();
 
-		Renderer.stop(rendering)
+		Renderer.stop(rendering);
 
 		switch (item.type) {
 			case ItemType.CARD:
 				event.find('.view').show();
 				break;
 			case ItemType.ETC:
-				let filenameBook =  `data/book/${item.ITID}.txt`;
-				Client.loadFile( filenameBook, function(data) {
+				let filenameBook = `data/book/${item.ITID}.txt`;
+				Client.loadFile(filenameBook, function (data) {
 					MakeReadBook.startBook(data, item);
 					eventsBooks();
 				});
@@ -534,8 +539,7 @@ define(function(require)
 		}
 	}
 
-	function updatePreviewButton(item)
-	{
+	function updatePreviewButton(item) {
 		let previewButton = ItemInfo.ui.find('.btn_mounting');
 		if (!canPreviewItem(item)) {
 			previewButton.hide();
@@ -544,20 +548,20 @@ define(function(require)
 
 		previewButton.show();
 		previewButton.off('click');
-		previewButton.on('click', function(event) {
+		previewButton.on('click', function (event) {
 			event.stopImmediatePropagation();
 			toggleItemPreview(item);
 		});
 	}
 
-	function canPreviewItem(item)
-	{
+	function canPreviewItem(item) {
 		if (!item) {
 			return false;
 		}
 
 		var location = getPreviewLocation(item);
-		var previewLocations = EquipLocation.HEAD_BOTTOM |
+		var previewLocations =
+			EquipLocation.HEAD_BOTTOM |
 			EquipLocation.HEAD_MID |
 			EquipLocation.HEAD_TOP |
 			EquipLocation.COSTUME_HEAD_BOTTOM |
@@ -573,8 +577,7 @@ define(function(require)
 		return getPreviewSpriteId(item, it) > 0;
 	}
 
-	function getPreviewLocation(item)
-	{
+	function getPreviewLocation(item) {
 		if ('location' in item) {
 			return item.location;
 		}
@@ -590,8 +593,7 @@ define(function(require)
 		return 0;
 	}
 
-	function getPreviewSpriteId(item, it)
-	{
+	function getPreviewSpriteId(item, it) {
 		if (item && item.wItemSpriteNumber) {
 			return item.wItemSpriteNumber;
 		}
@@ -603,8 +605,7 @@ define(function(require)
 		return 0;
 	}
 
-	function toggleItemPreview(item)
-	{
+	function toggleItemPreview(item) {
 		if (ItemPreview.ui && ItemPreview.ui.is(':visible') && ItemPreview.uid === item.ITID) {
 			ItemPreview.remove();
 			return;
@@ -615,136 +616,140 @@ define(function(require)
 		ItemPreview.setItem(item);
 	}
 
-	function eventsBooks(){
+	function eventsBooks() {
 		var event = ItemInfo.ui.find('.event_view');
 
-		Client.getFiles([
-			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr',
-			'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'
-			], function (spr, act) {
-
+		Client.getFiles(
+			['data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr', 'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'],
+			function (spr, act) {
 				try {
-					_sprite = new Sprite( spr );
-					_action = new Action( act );
-				}
-				catch(e) {
-					console.error('Book::init() - ' + e.message );
+					_sprite = new Sprite(spr);
+					_action = new Action(act);
+				} catch (e) {
+					console.error('Book::init() - ' + e.message);
 					return;
 				}
 				var canvas;
-				canvas  = _sprite.getCanvasFromFrame( 0 );
+				canvas = _sprite.getCanvasFromFrame(0);
 				canvas.className = 'book_open event_add_cursor';
 				event.append(canvas);
 				var bookOpen = ItemInfo.ui.find('.book_open');
-				bookOpen.mouseover(function(e) {
-					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_open').show();
-				}).mouseout(function(e) {
-					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_open').hide();
-				});
-				bookOpen.click(function(e){
-					e.stopImmediatePropagation();
-					MakeReadBook.openBook();
-				}.bind(this));
+				bookOpen
+					.mouseover(function (e) {
+						e.stopImmediatePropagation();
+						ItemInfo.ui.find('.overlay_open').show();
+					})
+					.mouseout(function (e) {
+						e.stopImmediatePropagation();
+						ItemInfo.ui.find('.overlay_open').hide();
+					});
+				bookOpen.click(
+					function (e) {
+						e.stopImmediatePropagation();
+						MakeReadBook.openBook();
+					}.bind(this)
+				);
 				// icon read book
-				event.append( '<canvas width="21" height="15" class="book_read event_add_cursor"/>' );
-				canvas  			 = event.find('.book_read');
-				canvas.width         = 21;
-				canvas.height        = 15;
-				_ctx 				 = canvas[0].getContext('2d');
+				event.append('<canvas width="21" height="15" class="book_read event_add_cursor"/>');
+				canvas = event.find('.book_read');
+				canvas.width = 21;
+				canvas.height = 15;
+				_ctx = canvas[0].getContext('2d');
 
 				var bookRead = ItemInfo.ui.find('.book_read');
-				bookRead.mouseover(function(e) {
-					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_read').show();
-				}).mouseout(function(e) {
-					e.stopImmediatePropagation();
-					ItemInfo.ui.find('.overlay_read').hide();
-				});
-				bookRead.click(function(e){
-					e.stopImmediatePropagation();
-					MakeReadBook.highlighter();
-				}.bind(this));
+				bookRead
+					.mouseover(function (e) {
+						e.stopImmediatePropagation();
+						ItemInfo.ui.find('.overlay_read').show();
+					})
+					.mouseout(function (e) {
+						e.stopImmediatePropagation();
+						ItemInfo.ui.find('.overlay_read').hide();
+					});
+				bookRead.click(
+					function (e) {
+						e.stopImmediatePropagation();
+						MakeReadBook.highlighter();
+					}.bind(this)
+				);
 				Renderer.render(rendering);
-
 			}.bind(this)
 		);
 	}
 
-
 	/**
 	 * Rendering animation
 	 */
-	 var rendering = function renderingClosure()
-	 {
-		 var position  = new Uint16Array([0, 0]);
+	var rendering = (function renderingClosure() {
+		var position = new Uint16Array([0, 0]);
 
-		 return function rendering()
-		 {
+		return function rendering() {
 			var i, count, max;
 			var action, animation, anim;
 			var Entity = getModule('Renderer/Entity/Entity');
 
 			var _entity = new Entity();
 			action = _action.actions[_type];
-					max    = action.animations.length;
-					anim   = Renderer.tick - _start;
-					anim   = Math.floor(anim / action.delay);
+			max = action.animations.length;
+			anim = Renderer.tick - _start;
+			anim = Math.floor(anim / action.delay);
 
-					// if (anim >= max) {
-					// 	Renderer.stop(rendering);
-					// }
+			// if (anim >= max) {
+			// 	Renderer.stop(rendering);
+			// }
 
 			animation = action.animations[anim % action.animations.length];
 
-
 			// Initialize context
-			SpriteRenderer.bind2DContext(_ctx,  10, 25);
+			SpriteRenderer.bind2DContext(_ctx, 10, 25);
 			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 			// _ctx.clearRect(0, 0, 21, 15);
 
 			// Render layers
 			for (i = 0, count = animation.layers.length; i < count; ++i) {
-				_entity.renderLayer( animation.layers[i], _sprite, _sprite, 1.0, position, false);
+				_entity.renderLayer(animation.layers[i], _sprite, _sprite, 1.0, position, false);
 			}
 			// _entity.renderLayer( animation.layers[0], _sprite, _sprite, 1.0, position, false);
 
 			// Renderer.stop(rendering);
+		};
+	})();
 
-		 };
-	 }();
-
-	 function validateFieldsExist(event){
-
-		if(event.length === 0){
+	function validateFieldsExist(event) {
+		if (event.length === 0) {
 			let validExitElement =
 				'<div class="event_view">' +
-            		'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'+
-					'<span class="overlay_open" data-text="1294">'+DB.getMessage(1294)+'</span>'+
-					'<span class="overlay_read" data-text="1295">'+DB.getMessage(1295)+'</span>'
-        		'</div>';
+				'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>' +
+				'<span class="overlay_open" data-text="1294">' +
+				DB.getMessage(1294) +
+				'</span>' +
+				'<span class="overlay_read" data-text="1295">' +
+				DB.getMessage(1295) +
+				'</span>';
+			('</div>');
 			ItemInfo.ui.find('.collection').after(validExitElement);
 			return false;
 		}
 
-		if(ItemInfo.ui.find('.overlay_open').length == 0
-			&& ItemInfo.ui.find('.overlay_read').length == 0){
-				event.append(
-					'<span class="overlay_open" data-text="1294">'+DB.getMessage(1294)+'</span>'+
-					'<span class="overlay_read" data-text="1295">'+DB.getMessage(1295)+'</span>'
-				)
+		if (ItemInfo.ui.find('.overlay_open').length == 0 && ItemInfo.ui.find('.overlay_read').length == 0) {
+			event.append(
+				'<span class="overlay_open" data-text="1294">' +
+					DB.getMessage(1294) +
+					'</span>' +
+					'<span class="overlay_read" data-text="1295">' +
+					DB.getMessage(1295) +
+					'</span>'
+			);
 		}
 
-		if(ItemInfo.ui.find('button').length == 0){
+		if (ItemInfo.ui.find('button').length == 0) {
 			event.append(
 				'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>'
-			)
+			);
 		}
 
 		return true;
-	 }
-
+	}
 
 	/**
 	 * A function that handles previewing an item.
@@ -752,8 +757,7 @@ define(function(require)
 	 * @param {type} pkt - The packet containing information about the item
 	 * @return {type} Indicates success or failure of the preview action
 	 */
-	function onItemPreview(pkt)
-	{
+	function onItemPreview(pkt) {
 		if (pkt) {
 			var Equipment = getModule('UI/Components/Equipment/Equipment');
 			var Inventory = getModule('UI/Components/Inventory/Inventory');
@@ -793,7 +797,7 @@ define(function(require)
 				ItemCompare.setItem(compareItem);
 			}
 		}
-	};
+	}
 
 	/**
 	 * Build moveInfo tooltip html content
@@ -809,7 +813,7 @@ define(function(require)
 			}
 		}
 		return lines.map(l => `<div>${l}</div>`).join('');
-	};
+	}
 
 	/**
 	 * Cleanup moveInfo tooltip and restore cursor state.
@@ -826,7 +830,7 @@ define(function(require)
 	/**
 	 * Packet Hooks to functions
 	 */
-	Network.hookPacket( PACKET.ZC.CHANGE_ITEM_OPTION,		onItemPreview );
+	Network.hookPacket(PACKET.ZC.CHANGE_ITEM_OPTION, onItemPreview);
 
 	/**
 	 * Create component and export it

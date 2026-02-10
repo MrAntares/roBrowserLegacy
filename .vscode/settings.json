@@ -1,8 +1,18 @@
-{  
-    "files.associations": {  
-        "*.vs": "glsl",  
-        "*.fs": "glsl",  
-        "*.vert": "glsl",  
-        "*.frag": "glsl"  
-    }  
+{
+	"requireModuleSupport.modulePath": "./src",
+	"files.associations": {
+		"*.vs": "glsl",
+		"*.fs": "glsl",
+		"*.vert": "glsl",
+		"*.frag": "glsl"
+	},
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+
+	"eslint.validate": ["javascript"],
+	"eslint.run": "onSave",
+
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	}
 }

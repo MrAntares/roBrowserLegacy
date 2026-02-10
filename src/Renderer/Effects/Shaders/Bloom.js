@@ -8,13 +8,13 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author AoShinHo
-*/
-define(function(require) {
+ */
+define(function (require) {
 	'use strict';
 
 	var GraphicsSettings = require('Preferences/Graphics');
-	var WebGL            = require('Utils/WebGL'); 
-	var PostProcess      = require('Renderer/Effects/PostProcess');
+	var WebGL = require('Utils/WebGL');
+	var PostProcess = require('Renderer/Effects/PostProcess');
 
 	var _programs = {};
 	var _buffer;
@@ -50,7 +50,9 @@ define(function(require) {
 	 * @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
 	 */
 	Bloom.render = function render(gl, inputTexture, outputFramebuffer) {
-		if (!_buffer || !_programs.prefilter || !Bloom.isActive()) return;
+		if (!_buffer || !_programs.prefilter || !Bloom.isActive()) {
+			return;
+		}
 
 		// --- PASS 1: Downsample & Extract Brightness ---
 		// We render to the internal small FBO
@@ -59,12 +61,16 @@ define(function(require) {
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
 		gl.useProgram(_programs.prefilter);
-		
+
 		// Update uniforms
 		gl.uniform1f(_programs.prefilter.uniform.uBloomThreshold, 0.88);
 		gl.uniform1f(_programs.prefilter.uniform.uBloomSoftKnee, 0.45);
 		var boxsampleFactor = 4.0;
-		gl.uniform2f(_programs.prefilter.uniform.uTexelSize, (1.0/_internalFbo.width)*boxsampleFactor, (1.0/_internalFbo.width)*boxsampleFactor);  
+		gl.uniform2f(
+			_programs.prefilter.uniform.uTexelSize,
+			(1.0 / _internalFbo.width) * boxsampleFactor,
+			(1.0 / _internalFbo.width) * boxsampleFactor
+		);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		var posLoc = _programs.prefilter.attribute.aPosition;
@@ -81,11 +87,11 @@ define(function(require) {
 		// --- PASS 2: Composite ---
 		// We render to the destination (Full Res)
 		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-		
+
 		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
 		gl.useProgram(_programs.composite);
-		
+
 		// Attributes (buffer already bound)
 		posLoc = _programs.composite.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
@@ -111,9 +117,9 @@ define(function(require) {
 	/**
 	 * Cleans up bindings
 	 */
-	Bloom.afterRender = function(gl) {
-		gl.useProgram(null);  
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);  
+	Bloom.afterRender = function (gl) {
+		gl.useProgram(null);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
@@ -122,20 +128,19 @@ define(function(require) {
 	 * Initializes shaders and buffers
 	 */
 	Bloom.init = function init(gl) {
-		if (!gl) return;
+		if (!gl) {
+			return;
+		}
 
 		try {
 			_programs.prefilter = WebGL.createShaderProgram(gl, commonVS, prefilterFS);
 			_programs.composite = WebGL.createShaderProgram(gl, commonVS, compositeFS);
 		} catch (e) {
-			console.error("Error compiling BLOOM shader.", e);
+			console.error('Error compiling BLOOM shader.', e);
 			return;
 		}
 
-		var quadVertices = new Float32Array([
-			-1, -1, 1, -1, -1,  1,
-			-1,  1, 1, -1,  1,  1
-		]);
+		var quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
@@ -149,8 +154,9 @@ define(function(require) {
 	 * Recreates the Internal FBO when the window size changes
 	 */
 	Bloom.recreateFbo = function recreateFbo(gl, width, height) {
-		if(_programs.prefilter)
+		if (_programs.prefilter) {
 			_internalFbo = PostProcess.createFbo(gl, width, height, _internalFbo, _downsampleFactor);
+		}
 	};
 
 	/** @returns {boolean} Whether the effect is active */
@@ -164,15 +170,23 @@ define(function(require) {
 	};
 
 	/** Clears memory references */
-	Bloom.clean = function clean( gl ) {
+	Bloom.clean = function clean(gl) {
 		_programs = {};
-		if (_buffer) gl.deleteBuffer(_buffer);
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
 		_buffer = null;
 		// Physically delete Internal Buffer from GPU memory
 		if (_internalFbo) {
-			if (gl.isTexture(_internalFbo.texture)) gl.deleteTexture(_internalFbo.texture);
-			if (gl.isRenderbuffer(_internalFbo.rbo)) gl.deleteRenderbuffer(_internalFbo.rbo);
-			if (gl.isFramebuffer(_internalFbo.framebuffer)) gl.deleteFramebuffer(_internalFbo.framebuffer);
+			if (gl.isTexture(_internalFbo.texture)) {
+				gl.deleteTexture(_internalFbo.texture);
+			}
+			if (gl.isRenderbuffer(_internalFbo.rbo)) {
+				gl.deleteRenderbuffer(_internalFbo.rbo);
+			}
+			if (gl.isFramebuffer(_internalFbo.framebuffer)) {
+				gl.deleteFramebuffer(_internalFbo.framebuffer);
+			}
 		}
 		_internalFbo = null;
 	};

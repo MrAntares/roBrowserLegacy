@@ -25,14 +25,10 @@ define(function (require) {
 		default: PlayerViewEquipV0,
 		common: {
 			20150225: PlayerViewEquipV2,
-			20101124: PlayerViewEquipV1,
+			20101124: PlayerViewEquipV1
 		},
-		re: {
-
-		},
-		prere: {
-
-		}
+		re: {},
+		prere: {}
 	};
 
 	var PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
@@ -49,10 +45,12 @@ define(function (require) {
 
 		// Escape to close the UI
 		component.onKeyDown = function onKeyDown(e) {
-			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(':visible')) {
-				if (typeof component.remove === 'function') component.remove();
+			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
+				if (typeof component.remove === 'function') {
+					component.remove();
+				}
 			}
-		}
+		};
 	};
 
 	return PlayerViewEquipController;

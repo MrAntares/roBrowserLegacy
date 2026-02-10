@@ -1,8 +1,8 @@
 /**
  * UI/Components/JoystickUI/JoystickUIRenderer.js
  *
- * Manages the visual representation of the joystick HUD. 
- * Handles icon loading, slot updates, group highlighting, 
+ * Manages the visual representation of the joystick HUD.
+ * Handles icon loading, slot updates, group highlighting,
  * and automatic visibility based on user activity.
  *
  * @author AoShinHo
@@ -78,14 +78,17 @@ define(function (require) {
 			var inventoryItem = InventoryUI.getUI().getItemById(item.ID);
 			if (inventoryItem) {
 				var itemInfo = DB.getItemInfo(item.ID);
-				var fileName = inventoryItem.IsIdentified ?
-					itemInfo.identifiedResourceName :
-					itemInfo.unidentifiedResourceName;
+				var fileName = inventoryItem.IsIdentified
+					? itemInfo.identifiedResourceName
+					: itemInfo.unidentifiedResourceName;
 				var count = inventoryItem.count;
 				var ItemType = require('DB/Items/ItemType');
-				if ((inventoryItem.type === ItemType.WEAPON ||
+				if (
+					(inventoryItem.type === ItemType.WEAPON ||
 						inventoryItem.type === ItemType.ARMOR ||
-						inventoryItem.type === ItemType.SHADOWGEAR) && count) {
+						inventoryItem.type === ItemType.SHADOWGEAR) &&
+					count
+				) {
 					count = 1;
 				}
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + fileName + '.bmp', function (url) {
@@ -97,8 +100,10 @@ define(function (require) {
 	}
 
 	function updateById(Id) {
-		if (!ui) return;
-		var startIdx = (SetManager.getCurrentSet() === 1) ? 0 : 20;
+		if (!ui) {
+			return;
+		}
+		var startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
 		for (var i = 0; i < 20; i++) {
 			var shortcutIndex = require('./JoystickShortcutMapper').slotMap[startIdx + i];
 			var shortcut = ShortCut.getList()[shortcutIndex];
@@ -109,8 +114,10 @@ define(function (require) {
 	}
 
 	function updateByIndex(index) {
-		if (!ui) return;
-		var startIdx = (SetManager.getCurrentSet() === 1) ? 0 : 20;
+		if (!ui) {
+			return;
+		}
+		var startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
 		for (var i = 0; i < 20; i++) {
 			var shortcutIndex = require('./JoystickShortcutMapper').slotMap[startIdx + i];
 			if (shortcutIndex === index) {
@@ -120,41 +127,50 @@ define(function (require) {
 	}
 
 	function sync() {
-		if (!ui) return;
+		if (!ui) {
+			return;
+		}
 
-		var startIdx = (SetManager.getCurrentSet() === 1) ? 0 : 20;
+		var startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
 		for (var i = 0; i < 20; i++) {
 			var shortcutIndex = require('./JoystickShortcutMapper').slotMap[startIdx + i];
 			updateJoystickSlot(i, shortcutIndex);
 		}
 	}
 
-
 	function updateSetIndicator() {
-		if (!setIndicator) return;
+		if (!setIndicator) {
+			return;
+		}
 		ui.find('.set-btn').removeClass('active');
 		ui.find('.set-btn:nth-child(' + SetManager.getCurrentSet() + ')').addClass('active');
 	}
 
 	function updateVisuals(buttons) {
-		if (!ui) return;
+		if (!ui) {
+			return;
+		}
 		var containers = ui.find('.group-container');
 
 		containers.removeClass('active');
 
 		var activeGroup = require('./JoystickShortcutMapper').getGroup(buttons);
 
-		if (activeGroup !== '')
+		if (activeGroup !== '') {
 			ui.find('[data-group="' + activeGroup + '"]').addClass('active');
-
+		}
 	}
 
 	function show() {
-		if (ui && !ui.is(':visible')) ui.show();
+		if (ui && !ui.is(':visible')) {
+			ui.show();
+		}
 	}
 
 	function hide() {
-		if (ui && ui.is(':visible')) ui.hide();
+		if (ui && ui.is(':visible')) {
+			ui.hide();
+		}
 	}
 
 	function dispose() {

@@ -10,66 +10,68 @@
 
 // Errors Handler (hack)
 require.onError = function (err) {
-  'use strict';
+	'use strict';
 
-  if (require.defined('UI/Components/Error/Error')) {
-    require('UI/Components/Error/Error').addTrace(err);
-    return;
-  }
+	if (require.defined('UI/Components/Error/Error')) {
+		require('UI/Components/Error/Error').addTrace(err);
+		return;
+	}
 
-  require(['UI/Components/Error/Error'], function( Errors ){
-    Errors.addTrace(err);
-  });
+	require(['UI/Components/Error/Error'], function (Errors) {
+		Errors.addTrace(err);
+	});
 };
 
 require({
-  baseUrl: '../../src/',
-    paths: {
-      text:   'Vendors/text.require',
-      jquery: 'Vendors/jquery-1.9.1'
-    }
-  },
-  ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/EffectViewer/EffectViewer'],
-  function( Configs,        Thread,        Client,                           EffectViewer ) {
-    'use strict';
+	baseUrl: '../../src/',
+	paths: {
+		text: 'Vendors/text.require',
+		jquery: 'Vendors/jquery-1.9.1'
+	}
+}, ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/EffectViewer/EffectViewer'], function (
+	Configs,
+	Thread,
+	Client,
+	EffectViewer
+) {
+	'use strict';
 
-    function onAPIMessage( event ) {
-      if (typeof event.data !== 'object') {
-        return;
-      }
+	function onAPIMessage(event) {
+		if (typeof event.data !== 'object') {
+			return;
+		}
 
-      switch (event.data.type) {
-        case 'init':
-          Thread.delegate( event.source, event.origin );
-          Thread.init();
-          EffectViewer.append();
-          break;
+		switch (event.data.type) {
+			case 'init':
+				Thread.delegate(event.source, event.origin);
+				Thread.init();
+				EffectViewer.append();
+				break;
 
-        case 'load':
-          EffectViewer.loadEffect(event.data.data);
-          event.stopPropagation();
-          break;
+			case 'load':
+				EffectViewer.loadEffect(event.data.data);
+				event.stopPropagation();
+				break;
 
-        case 'stop':
-          EffectViewer.stop();
-          event.stopPropagation();
-          break;
-      }
-    }
+			case 'stop':
+				EffectViewer.stop();
+				event.stopPropagation();
+				break;
+		}
+	}
 
-    // Resources sharing
-    if (Configs.get('API')) {
-      window.addEventListener('message', onAPIMessage, false);
-      return;
-    }
+	// Resources sharing
+	if (Configs.get('API')) {
+		window.addEventListener('message', onAPIMessage, false);
+		return;
+	}
 
-    // Wait for thread to be ready and run the effectviewer
-    Thread.hook('THREAD_READY', function(){
-      Client.onFilesLoaded = function(){
-        EffectViewer.append();
-      };
-      Client.init([]);
-    });
-    Thread.init();
-
-  });
+	// Wait for thread to be ready and run the effectviewer
+	Thread.hook('THREAD_READY', function () {
+		Client.onFilesLoaded = function () {
+			EffectViewer.append();
+		};
+		Client.init([]);
+	});
+	Thread.init();
+});

@@ -9,7 +9,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -37,13 +36,16 @@ define(function (require) {
 	WriteRodex.receiver = null;
 	WriteRodex.tax = 0;
 
-
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get('WriteRodex', {
-		show: false,
-	}, 1.0);
+	var _preferences = Preferences.get(
+		'WriteRodex',
+		{
+			show: false
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize Component
@@ -55,23 +57,27 @@ define(function (require) {
 		WriteRodex.ui.find('.value').on('input', WriteRodex.updateTax);
 
 		WriteRodex.ui.css({
-			top: Math.min(Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('top'), 10)) - 20, Renderer.height - WriteRodex.ui.height()),
-			left: Math.min(Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('left'), 10)) + 330, Renderer.width - WriteRodex.ui.width())
+			top: Math.min(
+				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('top'), 10)) - 20,
+				Renderer.height - WriteRodex.ui.height()
+			),
+			left: Math.min(
+				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('left'), 10)) + 330,
+				Renderer.width - WriteRodex.ui.width()
+			)
 		});
 
 		WriteRodex.draggable(WriteRodex.ui.find('.titlebar'));
 
-		WriteRodex.ui.find('.items .item-list')
-
+		WriteRodex.ui.find('.items .item-list');
 	};
-
 
 	WriteRodex.initData = function initData(pkt) {
 		WriteRodex.receiver = null;
 		WriteRodex.CharID = 0;
 		WriteRodex.list = [];
 		WriteRodex.tax = 0;
-		WriteRodex.ui.find('.name').prop("type", "text");
+		WriteRodex.ui.find('.name').prop('type', 'text');
 		WriteRodex.ui.find('.name').val(pkt.receiveName);
 		WriteRodex.ui.find('.validate-name').show();
 		WriteRodex.ui.find('.baloon').hide();
@@ -83,21 +89,19 @@ define(function (require) {
 		WriteRodex.ui.find('.tax-text').html('0');
 		WriteRodex.ui.find('.value').val('').attr('max', Session.zeny);
 		WriteRodex.ui.find('.item-list').html('');
-		WriteRodex.ui.find('.items').on('drop', onDrop)
-			.on('dragover', stopPropagation)
+		WriteRodex.ui.find('.items').on('drop', onDrop).on('dragover', stopPropagation);
 		WriteRodex.ui.show();
 		WriteRodex.ui.focus();
-
-	}
+	};
 
 	WriteRodex.characterInfo = function characterInfo(pkt) {
 		let text = 'Lv' + pkt.level + '<br>' + MonsterTable[pkt.Job] + '<br>' + pkt.CharID;
 		WriteRodex.ui.find('.validate-name').hide();
 		WriteRodex.ui.find('.baloon').html(text).show();
-		WriteRodex.ui.find('.name').prop("type", "none");
-		WriteRodex.receiver = (pkt.name !== undefined) ? pkt.name : WriteRodex.ui.find('.name').val();
+		WriteRodex.ui.find('.name').prop('type', 'none');
+		WriteRodex.receiver = pkt.name !== undefined ? pkt.name : WriteRodex.ui.find('.name').val();
 		WriteRodex.CharID = pkt.CharID;
-	}
+	};
 
 	function onClickClose(e) {
 		e.stopImmediatePropagation();
@@ -119,23 +123,38 @@ define(function (require) {
 
 	function onClickSend(e) {
 		e.stopImmediatePropagation();
-		if (WriteRodex.receiver == null || (typeof WriteRodex.receiver === "string" && WriteRodex.receiver.trim().length === 0)) {
+		if (
+			WriteRodex.receiver == null ||
+			(typeof WriteRodex.receiver === 'string' && WriteRodex.receiver.trim().length === 0)
+		) {
 			ChatBox.addText(DB.getMessage(2611), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 		let receiver = WriteRodex.receiver;
 		let sender = Session.Character.name;
 		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
-		zeny = (isNaN(zeny)) ? 0 : zeny;
-		zeny = (zeny < 0) ? 0 : zeny;
+		zeny = isNaN(zeny) ? 0 : zeny;
+		zeny = zeny < 0 ? 0 : zeny;
 
-		if ((WriteRodex.tax + zeny) > Session.zeny) {
+		if (WriteRodex.tax + zeny > Session.zeny) {
 			ChatBox.addText(DB.getMessage(2643), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
 
-		let title = WriteRodex.ui.find('.title-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 23) + String.fromCharCode(0);
-		let body = WriteRodex.ui.find('.content-text').val().replace(/^(\$|\%)/, '').replace(/\t/g, '').substring(0, 499) + String.fromCharCode(0);
+		let title =
+			WriteRodex.ui
+				.find('.title-text')
+				.val()
+				.replace(/^(\$|\%)/, '')
+				.replace(/\t/g, '')
+				.substring(0, 23) + String.fromCharCode(0);
+		let body =
+			WriteRodex.ui
+				.find('.content-text')
+				.val()
+				.replace(/^(\$|\%)/, '')
+				.replace(/\t/g, '')
+				.substring(0, 499) + String.fromCharCode(0);
 		let Titlelength = title.length;
 		let Bodylength = body.length;
 		let CharID = WriteRodex.CharID;
@@ -161,9 +180,7 @@ define(function (require) {
 		return null;
 	};
 
-
 	WriteRodex.addItem = function addItem(item) {
-
 		var object = WriteRodex.getItemByIndex(item.index);
 
 		if (object) {
@@ -179,15 +196,27 @@ define(function (require) {
 		var content = this.ui.find('.items .item-list');
 
 		content.append(
-			'<div class="item" data-index="' + item.index + '" draggable="true">' +
-			'<div class="icon"></div>' +
-			'<div class="amount"><span class="count">' + (item.count || 1) + '</span></div>' +
-			'</div>'
+			'<div class="item" data-index="' +
+				item.index +
+				'" draggable="true">' +
+				'<div class="icon"></div>' +
+				'<div class="amount"><span class="count">' +
+				(item.count || 1) +
+				'</span></div>' +
+				'</div>'
 		);
 
-		Client.loadFile(DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function (data) {
-			content.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
-		});
+		Client.loadFile(
+			DB.INTERFACE_PATH +
+				'item/' +
+				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+				'.bmp',
+			function (data) {
+				content
+					.find('.item[data-index="' + item.index + '"] .icon')
+					.css('backgroundImage', 'url(' + data + ')');
+			}
+		);
 
 		let item_div = content.find('.item[data-index="' + item.index + '"]');
 		item_div
@@ -195,11 +224,11 @@ define(function (require) {
 			.on('mouseout', onItemOut)
 			.on('dragstart', onItemDragStart)
 			.on('dragend', onItemDragEnd)
-			.on('contextmenu', onItemInfo)
+			.on('contextmenu', onItemInfo);
 
 		WriteRodex.updateWeight(item.weight);
 		WriteRodex.updateTax();
-	}
+	};
 
 	/**
 	 * Remove item from WriteRodex
@@ -233,34 +262,35 @@ define(function (require) {
 
 	WriteRodex.updateWeight = function updateWeight(weight) {
 		WriteRodex.ui.find('.weigth-text').html(weight + '  2000');
-	}
+	};
 
 	WriteRodex.updateTax = function updateTax() {
 		let total_items = WriteRodex.list.length;
 		let tax = total_items * 2500;
 		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
-		zeny = (isNaN(zeny)) ? 0 : zeny;
-		zeny = (zeny < 0) ? 0 : zeny;
+		zeny = isNaN(zeny) ? 0 : zeny;
+		zeny = zeny < 0 ? 0 : zeny;
 		tax += parseInt(zeny * 0.02); // 2% tax
 		WriteRodex.ui.find('.tax-text').html(tax);
 		WriteRodex.tax = tax;
 
-		if ((tax + zeny) > Session.zeny) {
+		if (tax + zeny > Session.zeny) {
 			WriteRodex.ui.find('.tax-text').addClass('red');
 			WriteRodex.ui.find('.value').addClass('red');
 		} else {
 			WriteRodex.ui.find('.tax-text').removeClass('red');
 			WriteRodex.ui.find('.value').removeClass('red');
 		}
-	}
+	};
 
 	WriteRodex.close = function close() {
 		WriteRodex.ui.hide();
-	}
+	};
 
 	function prettifyZeny(value) {
 		var num = String(value);
-		var i = 0, len = num.length;
+		var i = 0,
+			len = num.length;
 		var out = '';
 
 		while (i < len) {
@@ -292,8 +322,7 @@ define(function (require) {
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 			item = data.data;
-		}
-		catch (e) {
+		} catch (e) {
 			return false;
 		}
 
@@ -311,7 +340,10 @@ define(function (require) {
 				InputBox.remove();
 				switch (data.from) {
 					case 'Inventory':
-						getModule('UI/Components/Inventory/Inventory').reqMoveItemToWriteRodex(item.index, parseInt(count, 10));
+						getModule('UI/Components/Inventory/Inventory').reqMoveItemToWriteRodex(
+							item.index,
+							parseInt(count, 10)
+						);
 						break;
 					default:
 					//cant do this action
@@ -331,8 +363,8 @@ define(function (require) {
 	}
 
 	/**
- * Stop event propagation
- */
+	 * Stop event propagation
+	 */
 	function stopPropagation(event) {
 		event.stopImmediatePropagation();
 		return false;
@@ -360,12 +392,10 @@ define(function (require) {
 
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
-		}
-		else {
+		} else {
 			overlay.addClass('grey');
 		}
 	}
-
 
 	/**
 	 * Hide the item name
@@ -373,7 +403,6 @@ define(function (require) {
 	function onItemOut() {
 		WriteRodex.ui.find('.overlay').hide();
 	}
-
 
 	/**
 	 * Start dragging an item
@@ -393,17 +422,19 @@ define(function (require) {
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
 		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'WriteRodex',
-				data: item
-			})
+		event.originalEvent.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'item',
+					from: 'WriteRodex',
+					data: item
+				})
+			)
 		);
 
 		onItemOut();
 	}
-
 
 	/**
 	 * Stop dragging an item
@@ -412,7 +443,6 @@ define(function (require) {
 	function onItemDragEnd() {
 		delete window._OBJ_DRAG_;
 	}
-
 
 	/**
 	 * Get item info (open description window)
@@ -442,8 +472,8 @@ define(function (require) {
 	}
 
 	/**
-	* Callbacks
-	*/
+	 * Callbacks
+	 */
 
 	/**
 	 * Create component and export it

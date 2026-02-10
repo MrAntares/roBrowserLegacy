@@ -1,46 +1,46 @@
-#MapName { 
-	position:absolute;
+#MapName {
+	position: absolute;
 	top: 90px;
-	height:190px;
+	height: 190px;
 	left: 50%;
-	width:500px;
+	width: 500px;
 	margin-left: -250px;
 }
 
 #MapName .container .mapbg {
-    height: 190px;
-    width: 500px;
-    position: relative;
+	height: 190px;
+	width: 500px;
+	position: relative;
 	background-size: contain;
 }
 
 #MapName .mapsubtitle {
-    height: 30px;
-    width: 500px;
-    position: relative;
-    color: white;
-    font-weight: bolder;
-    text-align: center;
-    top: 70px;
-    font-size: 16px;
+	height: 30px;
+	width: 500px;
+	position: relative;
+	color: white;
+	font-weight: bolder;
+	text-align: center;
+	top: 70px;
+	font-size: 16px;
 }
 
 #MapName .maptitle {
-    height: 80px;
-    width: 500px;
-    text-align: center;
-    font-size: 36px;
-    position: relative;
-    top: 70px;
-    color: white;
-    font-weight: bolder;
+	height: 80px;
+	width: 500px;
+	text-align: center;
+	font-size: 36px;
+	position: relative;
+	top: 70px;
+	color: white;
+	font-weight: bolder;
 }
 
 /*Half size for small screens, eg: mobile in landscape*/
-@media (max-width:1000px){
-	#MapName { 
-		height:95px; 
-		width:250px;
+@media (max-width: 1000px) {
+	#MapName {
+		height: 95px;
+		width: 250px;
 		margin-left: -125px;
 	}
 	#MapName .container .mapbg {

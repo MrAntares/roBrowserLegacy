@@ -8,8 +8,7 @@
  * @author Alisonrag
  */
 
-define(function()
-{
+define(function () {
 	'use strict';
 
 	var base62_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

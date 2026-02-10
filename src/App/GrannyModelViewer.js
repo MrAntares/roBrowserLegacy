@@ -18,7 +18,7 @@ require.onError = function (err) {
 		return;
 	}
 
-	require(['UI/Components/Error/Error'], function( Errors ){
+	require(['UI/Components/Error/Error'], function (Errors) {
 		Errors.addTrace(err);
 	});
 };
@@ -26,22 +26,25 @@ require.onError = function (err) {
 require({
 	baseUrl: '../../src/',
 	paths: {
-		text:   'Vendors/text.require',
+		text: 'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'
 	}
-},
-   ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/GrannyModelViewer/GrannyModelViewer'],
-function( Configs,        Thread,        Client,                                   GrannyModelViewer ) {
+}, ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/GrannyModelViewer/GrannyModelViewer'], function (
+	Configs,
+	Thread,
+	Client,
+	GrannyModelViewer
+) {
 	'use strict';
 
-	function onAPIMessage( event ) {
+	function onAPIMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;
 		}
 
 		switch (event.data.type) {
 			case 'init':
-				Thread.delegate( event.source, event.origin );
+				Thread.delegate(event.source, event.origin);
 				Thread.init();
 				GrannyModelViewer.append();
 				break;
@@ -65,12 +68,11 @@ function( Configs,        Thread,        Client,                                
 	}
 
 	// Wait for thread to be ready and run the modelviewer
-	Thread.hook('THREAD_READY', function(){
-		Client.onFilesLoaded = function(){
+	Thread.hook('THREAD_READY', function () {
+		Client.onFilesLoaded = function () {
 			GrannyModelViewer.append();
 		};
 		Client.init([]);
 	});
 	Thread.init();
-
 });

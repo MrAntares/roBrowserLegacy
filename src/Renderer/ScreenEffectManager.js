@@ -10,7 +10,7 @@
 define(function (require) {
 	'use strict';
 
-	// Load dependencies 
+	// Load dependencies
 	var EffectConst = require('DB/Effects/EffectConst');
 	var Renderer = require('Renderer/Renderer');
 	var WeatherTable = require('DB/Effects/WeatherEffect');
@@ -48,27 +48,44 @@ define(function (require) {
 		if (WeatherTable.effects && WeatherTable.effects[mapname]) {
 			isMapflagEffect = true;
 		}
-	}
+	};
 
-	ScreenEffectManager.hasAnyActiveEffect = function () {  
-		// Weather effects 
-		if (SnowWeather.isActive()) return true;  
-		if (RainWeather.isActive()) return true;  
-		if (SakuraWeatherEffect.isActive()) return true;  
-		if (PokJukWeatherEffect.isActive()) return true;  
-		if (CloudWeatherEffect.isActive()) return true;  
-  
-		// Status effects  
-		if (Session.Entity && Poison.isActive()) return true;  
-		if (Session.Entity && Blind.isActive()) return true;  
-		if (Session.Entity && VerticalFlip.isActive()) return true;  
-  
-		return false;  
+	ScreenEffectManager.hasAnyActiveEffect = function () {
+		// Weather effects
+		if (SnowWeather.isActive()) {
+			return true;
+		}
+		if (RainWeather.isActive()) {
+			return true;
+		}
+		if (SakuraWeatherEffect.isActive()) {
+			return true;
+		}
+		if (PokJukWeatherEffect.isActive()) {
+			return true;
+		}
+		if (CloudWeatherEffect.isActive()) {
+			return true;
+		}
+
+		// Status effects
+		if (Session.Entity && Poison.isActive()) {
+			return true;
+		}
+		if (Session.Entity && Blind.isActive()) {
+			return true;
+		}
+		if (Session.Entity && VerticalFlip.isActive()) {
+			return true;
+		}
+
+		return false;
 	};
 
 	ScreenEffectManager.startMapflagEffect = function startMapflagEffect(mapname) {
-		if (!isMapflagEffect)
+		if (!isMapflagEffect) {
 			return;
+		}
 
 		isMapflagEffect = false;
 		var Params = {
@@ -123,47 +140,60 @@ define(function (require) {
 			Params.Inst.effectId = EffectConst.EF_CLOUD8;
 			CloudWeatherEffect.startOrRestart(Params);
 		}
-	}
+	};
 
 	ScreenEffectManager.renderStatusEffects = function renderStatusEffects(gl, modelView, projection, fog) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
-		if (Poison.isActive())
+		if (Poison.isActive()) {
 			Poison.render(gl, modelView, projection, fog);
-	}
+		}
+	};
 
 	ScreenEffectManager.parseStatus = function parseStatus(efstConst) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
-		if (efstConst == EFST.HEALTHSTATE_POISON)
+		if (efstConst == EFST.HEALTHSTATE_POISON) {
 			Poison.setActive(true);
-		if (efstConst == EFST.HEALTHSTATE_BLIND)
+		}
+		if (efstConst == EFST.HEALTHSTATE_BLIND) {
 			Blind.setActive(true);
-		if (efstConst == EFST.ILLUSION)
+		}
+		if (efstConst == EFST.ILLUSION) {
 			VerticalFlip.setActive(true);
-	}
+		}
+	};
 
 	ScreenEffectManager.cleanStatusEffect = function cleanStatusEffect(efstConst) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
-		if (efstConst == EFST.HEALTHSTATE_POISON)
+		if (efstConst == EFST.HEALTHSTATE_POISON) {
 			Poison.setActive(false);
-		if (efstConst == EFST.HEALTHSTATE_BLIND)
+		}
+		if (efstConst == EFST.HEALTHSTATE_BLIND) {
 			Blind.setActive(false);
-		if (efstConst == EFST.ILLUSION)
+		}
+		if (efstConst == EFST.ILLUSION) {
 			VerticalFlip.setActive(false);
-	}
+		}
+	};
 
 	ScreenEffectManager.clean = function clean() {
 		Poison.setActive(false);
 		Blind.setActive(false);
 		VerticalFlip.setActive(false);
-	}
+	};
 
 	/**
 	 * Callback to execute once the ScreenEffectManager is loaded
 	 */
-	ScreenEffectManager.onLoad = function onLoad() {}
+	ScreenEffectManager.onLoad = function onLoad() {};
 
 	/**
 	 * Rendering self screen effects
@@ -175,7 +205,9 @@ define(function (require) {
 	 * @param {number} tick - game tick
 	 */
 	ScreenEffectManager.render = function render(gl, modelView, projection, fog, tick) {
-		if (!ScreenEffectManager.hasAnyActiveEffect()) return;
+		if (!ScreenEffectManager.hasAnyActiveEffect()) {
+			return;
+		}
 
 		beforeRender(gl, modelView, projection, fog, tick);
 
@@ -190,7 +222,7 @@ define(function (require) {
 		ScreenEffectManager.renderStatusEffects(gl, modelView, projection, fog);
 
 		afterRender(gl, modelView, projection, fog, tick);
-	}
+	};
 
 	function beforeRender(gl, modelView, projection, fog, tick) {
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
@@ -205,39 +237,46 @@ define(function (require) {
 	 * @param {boolean} night - true for night mode, false for day mode
 	 */
 	ScreenEffectManager.setNight = function (night) {
-
 		if (ScreenEffectManager._nightInterval) {
 			clearInterval(ScreenEffectManager._nightInterval);
 			ScreenEffectManager._nightInterval = null;
 		}
-		var mapRenderer = getModule("Renderer/MapRenderer");
+		var mapRenderer = getModule('Renderer/MapRenderer');
 		ScreenEffectManager._nightInterval = setInterval(function () {
 			var diffuse = mapRenderer.diffuse;
 			var light = mapRenderer.light;
 			var step = 0.005;
 
 			if (night) {
-				if (diffuse[0] > 0.5) diffuse[0] -= step;
-				if (diffuse[1] > 0.5) diffuse[1] -= step;
+				if (diffuse[0] > 0.5) {
+					diffuse[0] -= step;
+				}
+				if (diffuse[1] > 0.5) {
+					diffuse[1] -= step;
+				}
 			} else {
-				if (diffuse[0] < light.diffuse[0]) diffuse[0] += step;
-				if (diffuse[1] < light.diffuse[1]) diffuse[1] += step;
+				if (diffuse[0] < light.diffuse[0]) {
+					diffuse[0] += step;
+				}
+				if (diffuse[1] < light.diffuse[1]) {
+					diffuse[1] += step;
+				}
 			}
 
 			light.env[0] = 1 - (1 - diffuse[0]) * (1 - light.ambient[0]);
 			light.env[1] = 1 - (1 - diffuse[1]) * (1 - light.ambient[1]);
 			light.env[2] = 1 - (1 - diffuse[2]) * (1 - light.ambient[2]);
 
-			var done = night ?
-				(diffuse[0] <= 0.5 && diffuse[1] <= 0.5) :
-				(diffuse[0] >= light.diffuse[0] && diffuse[1] >= light.diffuse[1]);
+			var done = night
+				? diffuse[0] <= 0.5 && diffuse[1] <= 0.5
+				: diffuse[0] >= light.diffuse[0] && diffuse[1] >= light.diffuse[1];
 
 			if (done) {
 				clearInterval(ScreenEffectManager._nightInterval);
 				ScreenEffectManager._nightInterval = null;
 			}
 		}, 8);
-	}
+	};
 
 	/**
 	 * Export

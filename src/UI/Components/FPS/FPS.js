@@ -7,41 +7,42 @@
  *
  * @author IssID
  */
-define(function(require)
-{
+define(function (require) {
 	'use strict';
 
 	/**
 	 * Dependencies
 	 */
-	var Preferences      = require('Core/Preferences');
-	var Renderer         = require('Renderer/Renderer');
-	var UIManager        = require('UI/UIManager');
-	var UIComponent      = require('UI/UIComponent');
-	var htmlText         = require('text!./FPS.html');
-	var cssText          = require('text!./FPS.css');
+	var Preferences = require('Core/Preferences');
+	var Renderer = require('Renderer/Renderer');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var htmlText = require('text!./FPS.html');
+	var cssText = require('text!./FPS.css');
 
 	/**
 	 * Create Component
 	 */
-	var FPS = new UIComponent( 'FPS', htmlText, cssText );
+	var FPS = new UIComponent('FPS', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Graphics
 	 */
-	var _preferences = Preferences.get('FPS', {
-		show: false,
-		x:    300,
-		y:    300
-	}, 1.1);
-
+	var _preferences = Preferences.get(
+		'FPS',
+		{
+			show: false,
+			x: 300,
+			y: 300
+		},
+		1.1
+	);
 
 	/**
 	 * Initialize UI
 	 */
-	FPS.init = function Init()
-	{
-		this.ui.find('.base').mousedown(function(event) {
+	FPS.init = function Init() {
+		this.ui.find('.base').mousedown(function (event) {
 			event.stopImmediatePropagation();
 			return false;
 		});
@@ -52,16 +53,15 @@ define(function(require)
 	};
 
 	/**
-	* When appended to DOM
-	*/
-	FPS.onAppend = function OnAppend()
-	{
+	 * When appended to DOM
+	 */
+	FPS.onAppend = function OnAppend() {
 		// Apply preferences
 		this.ui.toggle(_preferences.show);
 
 		this.ui.css({
-			top:  _preferences.y,
-			left: _preferences.x,
+			top: _preferences.y,
+			left: _preferences.x
 		});
 
 		var fpsEl = this.ui.find('#fpsCounter');
@@ -70,15 +70,21 @@ define(function(require)
 		var lastValue = null;
 		var lastClass = null;
 
-		function getFPSClass(value, frameLimit){
-			if (value >= frameLimit - ((10 / frameLimit) * 100)) return 'fps-good';
-			if (value >= 15) return 'fps-warn';
+		function getFPSClass(value, frameLimit) {
+			if (value >= frameLimit - (10 / frameLimit) * 100) {
+				return 'fps-good';
+			}
+			if (value >= 15) {
+				return 'fps-warn';
+			}
 			return 'fps-bad';
 		}
-		
-		function tick(time){
+
+		function tick(time) {
 			frame++;
-			if (time - startTime < 1000) return;
+			if (time - startTime < 1000) {
+				return;
+			}
 			var value = +(frame / ((time - startTime) / 1000)).toFixed(1);
 
 			// Update text only if changed
@@ -106,23 +112,20 @@ define(function(require)
 	/**
 	 * Once remove, save preferences
 	 */
-	FPS.onRemove = function onRemove()
-	{
-		_preferences.x       = parseInt(this.ui.css('left'), 10);
-		_preferences.y       = parseInt(this.ui.css('top'), 10);
-		_preferences.show    = this.ui.is(':visible');
+	FPS.onRemove = function onRemove() {
+		_preferences.x = parseInt(this.ui.css('left'), 10);
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.show = this.ui.is(':visible');
 		_preferences.save();
 	};
-
 
 	/**
 	 * Show/Hide UI
 	 */
-	FPS.toggle = function toggle(isVisible)
-	{
-		_preferences.x       = parseInt(this.ui.css('left'), 10);
-		_preferences.y       = parseInt(this.ui.css('top'), 10);
-		_preferences.show    = isVisible;
+	FPS.toggle = function toggle(isVisible) {
+		_preferences.x = parseInt(this.ui.css('left'), 10);
+		_preferences.y = parseInt(this.ui.css('top'), 10);
+		_preferences.show = isVisible;
 		_preferences.save();
 
 		this.ui.toggle();

@@ -1,8 +1,8 @@
 /**
  * UI/Components/JoystickUI/JoystickMouseCursorAdapter.js
  *
- * Adapts joystick input to emulate mouse behavior. 
- * Handles cursor movement, coordinate projection from 3D world to 2D screen, 
+ * Adapts joystick input to emulate mouse behavior.
+ * Handles cursor movement, coordinate projection from 3D world to 2D screen,
  * UI element navigation, and clicking events.
  *
  * @author AoShinHo
@@ -29,7 +29,9 @@ define(function (require) {
 	}
 
 	function moveMouseToEntity(entity) {
-		if (!entity || !entity.position) return;
+		if (!entity || !entity.position) {
+			return;
+		}
 
 		var mat4 = glMatrix.mat4;
 		var vec4 = glMatrix.vec4;
@@ -38,16 +40,16 @@ define(function (require) {
 		var _vector = vec4.create();
 		var _pos = vec4.create();
 
-		// Transform entity position to screen coordinates  
+		// Transform entity position to screen coordinates
 		_vector[0] = entity.position[0] + 0.5;
 		_vector[1] = -entity.position[2];
 		_vector[2] = entity.position[1] + 0.5;
 		_vector[3] = 1.0;
 
-		// Apply camera transformation  
+		// Apply camera transformation
 		mat4.translate(_matrix, Camera.modelView, _vector);
 
-		// Set up billboard matrix (like in EntityRender)  
+		// Set up billboard matrix (like in EntityRender)
 		_matrix[0] = 1.0;
 		_matrix[1] = 0.0;
 		_matrix[2] = 0.0;
@@ -58,30 +60,30 @@ define(function (require) {
 		_matrix[9] = 0.0;
 		_matrix[10] = 1.0;
 
-		// Project to screen  
+		// Project to screen
 		mat4.multiply(_matrix, Camera.projection, _matrix);
 
-		// Cast position for projection  
+		// Cast position for projection
 		_pos[0] = 0.0;
 		_pos[1] = 0.0;
 		_pos[2] = 0.0;
 		_pos[3] = 1.0;
 
-		// Project point to scene  
+		// Project point to scene
 		vec4.transformMat4(_pos, _pos, _matrix);
 
-		// Calculate screen position  
-		var z = _pos[3] === 0.0 ? 1.0 : (1.0 / _pos[3]);
-		var screenX = Renderer.width / 2 + Math.round(Renderer.width / 2 * (_pos[0] * z));
-		var screenY = Renderer.height / 2 - Math.round(Renderer.height / 2 * (_pos[1] * z));
+		// Calculate screen position
+		var z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
+		var screenX = Renderer.width / 2 + Math.round((Renderer.width / 2) * (_pos[0] * z));
+		var screenY = Renderer.height / 2 - Math.round((Renderer.height / 2) * (_pos[1] * z));
 
 		screenY = screenY - 13;
 
-		// Update mouse position  
+		// Update mouse position
 		Mouse.screen.x = screenX;
 		Mouse.screen.y = screenY;
 
-		// Update cursor visual position  
+		// Update cursor visual position
 		var _selector = document.querySelector('.cursor');
 		if (_selector) {
 			_selector.style.left = screenX + 'px';
@@ -103,11 +105,12 @@ define(function (require) {
 			clientY: Mouse.screen.y,
 			which: 1
 		};
-		el.dispatchEvent(new MouseEvent('mousedown',eventOptions));
+		el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
 		setTimeout(function () {
 			el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
-			if(click)
+			if (click) {
 				el.dispatchEvent(new MouseEvent('click', eventOptions));
+			}
 		}, 50);
 	}
 
@@ -121,22 +124,29 @@ define(function (require) {
 		if (holding) {
 			var draggableElement = el.closest('.item, .skill');
 			if (draggableElement) {
-				if (require('./JoystickInteractionService').openSelectionWindow(draggableElement))
+				if (require('./JoystickInteractionService').openSelectionWindow(draggableElement)) {
 					return;
+				}
 			}
 		}
-		el.dispatchEvent(new MouseEvent('mousedown', {
-			which: 3
-		}));
-		setTimeout(function () {
-			el.dispatchEvent(new MouseEvent('mouseup', {
+		el.dispatchEvent(
+			new MouseEvent('mousedown', {
 				which: 3
-			}));
+			})
+		);
+		setTimeout(function () {
+			el.dispatchEvent(
+				new MouseEvent('mouseup', {
+					which: 3
+				})
+			);
 		}, 100);
 	}
 
 	function handleWorldLeftClick() {
-		if (!Mouse.intersect) Mouse.intersect = true;
+		if (!Mouse.intersect) {
+			Mouse.intersect = true;
+		}
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 1
@@ -151,7 +161,9 @@ define(function (require) {
 	}
 
 	function handleWorldRightClick() {
-		if (!Mouse.intersect) Mouse.intersect = true;
+		if (!Mouse.intersect) {
+			Mouse.intersect = true;
+		}
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 3
@@ -179,14 +191,14 @@ define(function (require) {
 		jQuery(document).trigger({
 			type: 'keydown',
 			which: 27
-		}); // Esc    
+		}); // Esc
 	}
 
 	function enter() {
 		jQuery(document).trigger({
 			type: 'keydown',
 			which: 13
-		}); // Enter     
+		}); // Enter
 	}
 
 	function contextMenu() {
@@ -215,7 +227,7 @@ define(function (require) {
 		var container = el.closest('.item, .skill');
 
 		if (!container) {
-			// Fall back to regular arrow key navigation  
+			// Fall back to regular arrow key navigation
 			var keyCode;
 			switch (direction) {
 				case 'up':
@@ -245,9 +257,12 @@ define(function (require) {
 			allDraggables = jQuery('.item:visible, .skill:visible').not('.tabs button, .tab-btn');
 		}
 
-		// Check if we're in a skill container by looking for skill-specific structure  
-		var isSkillContainer = container.id && container.id.indexOf('positionSkills') === 0 ||
-			container.querySelector('#positionSkills1, #positionSkills2, #positionSkills3, #positionSkills4, #positionSkills5') ||
+		// Check if we're in a skill container by looking for skill-specific structure
+		var isSkillContainer =
+			(container.id && container.id.indexOf('positionSkills') === 0) ||
+			container.querySelector(
+				'#positionSkills1, #positionSkills2, #positionSkills3, #positionSkills4, #positionSkills5'
+			) ||
 			container.closest('.skillCol') !== null;
 
 		var draggableElement = container.closest('.item, .skill');
@@ -255,18 +270,18 @@ define(function (require) {
 		var currentIndex = allDraggables.index(draggableElement);
 		var newIndex = currentIndex;
 
-		// Use fixed grid width based on container type  
+		// Use fixed grid width based on container type
 		var GRID_WIDTH;
 		if (isSkillContainer) {
-			// Skills always use fixed 7-column grid  
+			// Skills always use fixed 7-column grid
 			GRID_WIDTH = 7;
 		} else {
-			// Items: calculate based on container width and icon size  
+			// Items: calculate based on container width and icon size
 			var containerWidth = $container.width() || 200;
 			var iconElement = jQuery(draggableElement).find('.icon');
-			var iconWidth = iconElement.width() || 24; // .icon has fixed 24px width  
-			var iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px  
-			var totalIconWidth = iconWidth + (iconMargin * 2);
+			var iconWidth = iconElement.width() || 24; // .icon has fixed 24px width
+			var iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px
+			var totalIconWidth = iconWidth + iconMargin * 2;
 			GRID_WIDTH = Math.max(6, Math.min(8, Math.floor(containerWidth / totalIconWidth)));
 		}
 
@@ -285,7 +300,7 @@ define(function (require) {
 				break;
 		}
 
-		// Bounds checking  
+		// Bounds checking
 		newIndex = Math.max(0, Math.min(allDraggables.length - 1, newIndex));
 
 		if (newIndex !== currentIndex && newIndex < allDraggables.length) {
@@ -293,10 +308,10 @@ define(function (require) {
 			var targetOffset = targetElement.offset();
 
 			if (targetOffset) {
-				var targetCenterX = targetOffset.left + (targetElement.outerWidth() / 2);
-				var targetCenterY = targetOffset.top + (targetElement.outerHeight() / 2);
+				var targetCenterX = targetOffset.left + targetElement.outerWidth() / 2;
+				var targetCenterY = targetOffset.top + targetElement.outerHeight() / 2;
 
-				// Move mouse to target element  
+				// Move mouse to target element
 				Mouse.screen.x = targetCenterX;
 				Mouse.screen.y = targetCenterY;
 

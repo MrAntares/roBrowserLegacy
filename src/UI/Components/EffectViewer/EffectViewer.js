@@ -10,7 +10,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Load dependencies
 	 */
@@ -54,7 +53,6 @@ define(function (require) {
 	 */
 	var Viewer = new UIComponent('EffectViewer', htmlText, cssText);
 
-
 	/**
 	 * Initialize Component
 	 */
@@ -65,7 +63,7 @@ define(function (require) {
 			depth: true,
 			stencil: false,
 			antialias: true,
-			premultipliedAlpha: false,
+			premultipliedAlpha: false
 		});
 
 		Mouse.intersect = true;
@@ -76,7 +74,7 @@ define(function (require) {
 		Client.init([]);
 
 		// We need an entity in order to apply effect
-		Session.Entity = new Entity({PosDir: [0, 0, 0], position: [0, 0, 0], GID: 0});
+		Session.Entity = new Entity({ PosDir: [0, 0, 0], position: [0, 0, 0], GID: 0 });
 		EntityManager.add(Session.Entity);
 		Camera.setTarget(Session.Entity);
 		Camera.init();
@@ -84,7 +82,6 @@ define(function (require) {
 		// Initialize the dropdown
 		initDropDown(this.ui.find('select').get(0), this.ui.find('button').get(0));
 	};
-
 
 	/**
 	 * Initialise Drop Down list
@@ -108,11 +105,19 @@ define(function (require) {
 
 		for (const effectId of Object.keys(EffectTable)) {
 			var ef_name = getKeyByValue(EC, effectId);
-			select.add(new Option(ef_name !== undefined ? effectId + ' (' + ef_name + ')' : effectId, effectId, null, _selectedEffect === effectId), null);
+			select.add(
+				new Option(
+					ef_name !== undefined ? effectId + ' (' + ef_name + ')' : effectId,
+					effectId,
+					null,
+					_selectedEffect === effectId
+				),
+				null
+			);
 		}
 		select.onchange = function () {
 			_selectedEffect = this.value;
-			saveEffectId(_selectedEffect)
+			saveEffectId(_selectedEffect);
 			loadEffect(this.value);
 		};
 
@@ -147,7 +152,6 @@ define(function (require) {
 		Renderer.render(render);
 	}
 
-
 	/**
 	 * Stop to render
 	 */
@@ -158,7 +162,6 @@ define(function (require) {
 		EffectManager.free(gl);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}
-
 
 	/**
 	 * Rendering scene
@@ -175,7 +178,6 @@ define(function (require) {
 		EffectManager.render(gl, modelView, Camera.projection, _fog, tick, true);
 	}
 
-
 	/**
 	 * Exports methods
 	 */
@@ -183,7 +185,6 @@ define(function (require) {
 	Viewer.stop = stop;
 
 	Camera.init = function Init() {
-
 		this.lastTick = Date.now();
 
 		this.angle[0] = this.range % 360.0;
@@ -197,9 +198,7 @@ define(function (require) {
 
 		this.altitudeRange = this.altitudeTo - this.altitudeFrom;
 
-
 		this.zoomFinal = 125;
-
 	};
 	Camera.rotate = function Rotate(active) {
 		var action = this.action;
@@ -217,8 +216,7 @@ define(function (require) {
 		action.y = Mouse.screen.y;
 		action.tick = tick;
 		action.active = true;
-	}
-
+	};
 
 	/**
 	 * Stored component and return it

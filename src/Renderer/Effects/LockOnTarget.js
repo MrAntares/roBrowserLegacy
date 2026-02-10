@@ -7,53 +7,45 @@
  *
  * @author Vincent Thibault
  */
-define(function( require ) {
-
+define(function (require) {
 	'use strict';
 
-
 	// Load dependencies
-	var WebGL    = require('Utils/WebGL');
-	var Texture  = require('Utils/Texture');
+	var WebGL = require('Utils/WebGL');
+	var Texture = require('Utils/Texture');
 	var glMatrix = require('Utils/gl-matrix');
-	var Client   = require('Core/Client');
-	var Configs  = require('../../Core/Configs');
-
+	var Client = require('Core/Client');
+	var Configs = require('../../Core/Configs');
 
 	/**
 	 * @var {WebGLTexture}
 	 */
 	var _texture;
 
-
 	/**
 	 * @var {WebGLProgram}
 	 */
 	var _program;
-
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
 	var _buffer;
 
-
 	/**
 	 * @var {mat4}
 	 */
 	var mat4 = glMatrix.mat4;
-
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
 	var _matrix = mat4.create();
 
-
 	/**
 	 * @var {string} Vertex Shader
 	 */
-var _vertexShader   = `
+	var _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -84,7 +76,7 @@ var _vertexShader   = `
 	/**
 	 * @var {string} Fragment Shader
 	 */
-var _fragmentShader = `
+	var _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -124,100 +116,91 @@ var _fragmentShader = `
 	 * @param {Entity} target entity
 	 * @param {number} tick to remove it
 	 */
-	function LockOnTarget( target, startTick, endTick )
-	{
-		this.target        = target;
+	function LockOnTarget(target, startTick, endTick) {
+		this.target = target;
 		this.startTick = startTick;
-		this.endTick   = endTick;
+		this.endTick = endTick;
 	}
-
 
 	/**
 	 * Preparing for render
 	 *
 	 * @param {object} webgl context
 	 */
-	LockOnTarget.prototype.init = function init( gl )
-	{
-		this.ready  = true;
+	LockOnTarget.prototype.init = function init(gl) {
+		this.ready = true;
 	};
-
 
 	/**
 	 * Destroying data
 	 *
 	 * @param {object} webgl context
 	 */
-	LockOnTarget.prototype.free = function free( gl )
-	{
+	LockOnTarget.prototype.free = function free(gl) {
 		this.ready = false;
 	};
-
 
 	/**
 	 * Rendering cast
 	 *
 	 * @param {object} wegl context
 	 */
-	LockOnTarget.prototype.render = function render( gl, tick )
-	{
+	LockOnTarget.prototype.render = function render(gl, tick) {
 		var time = tick - this.startTick;
-		var color = 20-(Math.floor(time/20)%20);
+		var color = 20 - (Math.floor(time / 20) % 20);
 		color /= 20;
 
 		// Animation
 		time /= 50;
-		time  = Math.max(time, 1);
-		time  = Math.min(time, 5);
+		time = Math.max(time, 1);
+		time = Math.min(time, 5);
 
-		gl.uniform3fv( _program.uniform.uPosition,  this.target.position);
-		gl.uniform1f(  _program.uniform.uSize,      (6-time)*3);
-		gl.uniform1f(  _program.uniform.uColor,     color);
+		gl.uniform3fv(_program.uniform.uPosition, this.target.position);
+		gl.uniform1f(_program.uniform.uSize, (6 - time) * 3);
+		gl.uniform1f(_program.uniform.uColor, color);
 
-		gl.drawArrays( gl.TRIANGLES, 0, 6 );
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 		this.needCleanUp = this.endTick < tick;
 	};
-
 
 	/**
 	 * Initialize effect
 	 *
 	 * @param {object} webgl context
 	 */
-	LockOnTarget.init = function init(gl)
-	{
-		_program = WebGL.createShaderProgram( gl, _vertexShader, _fragmentShader );
-		_buffer  = gl.createBuffer();
+	LockOnTarget.init = function init(gl) {
+		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		_buffer = gl.createBuffer();
 
-		gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array([
-			-0.5, -0.5, 0.0, 0.0,
-			+0.5, -0.5, 1.0, 0.0,
-			+0.5, +0.5, 1.0, 1.0,
-			+0.5, +0.5, 1.0, 1.0,
-			-0.5, +0.5, 0.0, 1.0,
-			-0.5, -0.5, 0.0, 0.0
-		]), gl.STATIC_DRAW );
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.bufferData(
+			gl.ARRAY_BUFFER,
+			new Float32Array([
+				-0.5, -0.5, 0.0, 0.0, +0.5, -0.5, 1.0, 0.0, +0.5, +0.5, 1.0, 1.0, +0.5, +0.5, 1.0, 1.0, -0.5, +0.5, 0.0,
+				1.0, -0.5, -0.5, 0.0, 0.0
+			]),
+			gl.STATIC_DRAW
+		);
 
-		Client.loadFile('data/texture/effect/lockon128.tga', function(buffer) {
-			Texture.load(buffer, function() {
+		Client.loadFile('data/texture/effect/lockon128.tga', function (buffer) {
+			Texture.load(buffer, function () {
 				var enableMipmap = Configs.get('enableMipmap');
 				var ctx = this.getContext('2d');
 				ctx.save();
-				ctx.translate(  this.width/2,  this.height/2 );
-				ctx.rotate( 45 / 180 * Math.PI);
-				ctx.translate( -this.width/2, -this.height/2 );
-				ctx.drawImage( this, 0, 0);
+				ctx.translate(this.width / 2, this.height / 2);
+				ctx.rotate((45 / 180) * Math.PI);
+				ctx.translate(-this.width / 2, -this.height / 2);
+				ctx.drawImage(this, 0, 0);
 				ctx.restore();
 
 				_texture = gl.createTexture();
-				gl.bindTexture( gl.TEXTURE_2D, _texture );
-				gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-				gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-				if(enableMipmap) {
-					gl.generateMipmap( gl.TEXTURE_2D );
+				gl.bindTexture(gl.TEXTURE_2D, _texture);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				if (enableMipmap) {
+					gl.generateMipmap(gl.TEXTURE_2D);
 				}
 
 				LockOnTarget.ready = true;
@@ -225,20 +208,17 @@ var _fragmentShader = `
 		});
 	};
 
-
 	/**
 	 * @var {boolean} should we render it before entities ?
 	 */
 	LockOnTarget.renderBeforeEntities = true;
-
 
 	/**
 	 * Destroy objects
 	 *
 	 * @param {object} webgl context
 	 */
-	LockOnTarget.free = function free(gl)
-	{
+	LockOnTarget.free = function free(gl) {
 		if (_texture) {
 			gl.deleteTexture(_texture);
 			_texture = null;
@@ -256,60 +236,55 @@ var _fragmentShader = `
 		this.ready = false;
 	};
 
-
 	/**
 	 * Before render, set up program
 	 *
 	 * @param {object} webgl context
 	 */
-	LockOnTarget.beforeRender = function beforeRender(gl, modelView, projection, fog, tick)
-	{
-		var uniform   = _program.uniform;
+	LockOnTarget.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
+		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 
 		mat4.identity(_matrix);
-		mat4.rotateY( _matrix, _matrix, (tick/4) / 180 * Math.PI);
+		mat4.rotateY(_matrix, _matrix, (tick / 4 / 180) * Math.PI);
 
-		gl.useProgram( _program );
+		gl.useProgram(_program);
 
 		// Bind matrix
-		gl.uniformMatrix4fv( uniform.uModelViewMat,  false, modelView );
-		gl.uniformMatrix4fv( uniform.uProjectionMat, false, projection );
-		gl.uniformMatrix4fv( uniform.uRotationMat,   false, _matrix);
+		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+		gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix);
 
 		// Fog settings
-		gl.uniform1i(  uniform.uFogUse,   fog.use && fog.exist );
-		gl.uniform1f(  uniform.uFogNear,  fog.near );
-		gl.uniform1f(  uniform.uFogFar,   fog.far  );
-		gl.uniform3fv( uniform.uFogColor, fog.color );
+		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+		gl.uniform1f(uniform.uFogNear, fog.near);
+		gl.uniform1f(uniform.uFogFar, fog.far);
+		gl.uniform3fv(uniform.uFogColor, fog.color);
 
 		// Texture
-		gl.activeTexture( gl.TEXTURE0 );
-		gl.bindTexture( gl.TEXTURE_2D, _texture );
-		gl.uniform1i( uniform.uDiffuse, 0 );
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, _texture);
+		gl.uniform1i(uniform.uDiffuse, 0);
 
 		// Enable all attributes
-		gl.enableVertexAttribArray( attribute.aPosition );
-		gl.enableVertexAttribArray( attribute.aTextureCoord );
+		gl.enableVertexAttribArray(attribute.aPosition);
+		gl.enableVertexAttribArray(attribute.aTextureCoord);
 
-		gl.bindBuffer( gl.ARRAY_BUFFER, _buffer );
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
-		gl.vertexAttribPointer( attribute.aPosition,     2, gl.FLOAT, false, 4*4,  0   );
-		gl.vertexAttribPointer( attribute.aTextureCoord, 2, gl.FLOAT, false, 4*4,  2*4 );
+		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
 	};
-
 
 	/**
 	 * After render, clean attributes
 	 *
 	 * @param {object} webgl context
 	 */
-	LockOnTarget.afterRender = function afterRender(gl)
-	{
-		gl.disableVertexAttribArray( _program.attribute.aPosition );
-		gl.disableVertexAttribArray( _program.attribute.aTextureCoord );
+	LockOnTarget.afterRender = function afterRender(gl) {
+		gl.disableVertexAttribArray(_program.attribute.aPosition);
+		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 	};
-
 
 	/**
 	 * Export

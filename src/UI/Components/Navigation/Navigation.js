@@ -8,29 +8,29 @@
  * @author Vincent Thibault
  */
 define(function (require) {
-	"use strict";
+	'use strict';
 
 	/**
 	 * Dependencies
 	 */
-	var jQuery = require("Utils/jquery");
-	var KEYS = require("Controls/KeyEventHandler");
-	var Renderer = require("Renderer/Renderer");
-	var UIManager = require("UI/UIManager");
-	var UIComponent = require("UI/UIComponent");
-	var Altitude = require("Renderer/Map/Altitude");
-	var Session = require("Engine/SessionStorage");
-	var Client = require("Core/Client");
-	var DB = require("DB/DBManager");
-	var htmlText = require("text!./Navigation.html");
-	var cssText = require("text!./Navigation.css");
-	var MapPathFinder = require("./MapPathFinder");
+	var jQuery = require('Utils/jquery');
+	var KEYS = require('Controls/KeyEventHandler');
+	var Renderer = require('Renderer/Renderer');
+	var UIManager = require('UI/UIManager');
+	var UIComponent = require('UI/UIComponent');
+	var Altitude = require('Renderer/Map/Altitude');
+	var Session = require('Engine/SessionStorage');
+	var Client = require('Core/Client');
+	var DB = require('DB/DBManager');
+	var htmlText = require('text!./Navigation.html');
+	var cssText = require('text!./Navigation.css');
+	var MapPathFinder = require('./MapPathFinder');
 	var getModule = require;
 
 	/**
 	 * Create Navigation component
 	 */
-	var Navigation = new UIComponent("Navigation", htmlText, cssText);
+	var Navigation = new UIComponent('Navigation', htmlText, cssText);
 
 	/**
 	 * Async image create helper
@@ -41,12 +41,10 @@ define(function (require) {
 		return img;
 	}
 
-
 	/**
 	 * @var {Image} arrow image
 	 */
 	var _arrow = createAsyncImage();
-
 
 	/**
 	 * @var {Image} map information images
@@ -150,10 +148,10 @@ define(function (require) {
 	 */
 	function normalizeMapName(mapName) {
 		// Remove .gat extension and convert to lowercase
-		mapName = mapName.replace(/\.gat$/, "").toLowerCase();
+		mapName = mapName.replace(/\.gat$/, '').toLowerCase();
 
 		// Handle map variations with _a, _b, _c, _d suffixes
-		mapName = mapName.replace(/^(.+)_[a-d]$/, "$1");
+		mapName = mapName.replace(/^(.+)_[a-d]$/, '$1');
 
 		return mapName;
 	}
@@ -172,9 +170,9 @@ define(function (require) {
 		var shouldFloor = options.floor !== false;
 
 		if (shouldFloor) {
-			return Math.floor(x) + "," + Math.floor(y);
+			return Math.floor(x) + ',' + Math.floor(y);
 		}
-		return x + "," + y;
+		return x + ',' + y;
 	}
 
 	/**
@@ -191,12 +189,12 @@ define(function (require) {
 	function formatTargetCoordinates(x, y, options) {
 		options = options || {};
 
-		var text = Math.floor(x) + "," + Math.floor(y);
+		var text = Math.floor(x) + ',' + Math.floor(y);
 
 		if (options.noPathFound) {
-			text += " (no path found)";
+			text += ' (no path found)';
 		} else if (options.targetMap && options.targetMap !== getCurrentMap()) {
-			text += " (" + options.targetMap + ")";
+			text += ' (' + options.targetMap + ')';
 		}
 
 		return text;
@@ -214,11 +212,11 @@ define(function (require) {
 		var text;
 
 		if (!displayName && targetMap && currentMap !== targetMap) {
-			text = "[" + currentMap + " → " + targetMap;
+			text = '[' + currentMap + ' → ' + targetMap;
 
-			text += "]";
+			text += ']';
 		} else {
-			text = "[" + (displayName || currentMap) + "]";
+			text = '[' + (displayName || currentMap) + ']';
 		}
 
 		return text;
@@ -261,7 +259,7 @@ define(function (require) {
 	 * @returns {string} Current map name
 	 */
 	function getCurrentMap() {
-		var MapRenderer = getModule("Renderer/MapRenderer");
+		var MapRenderer = getModule('Renderer/MapRenderer');
 		if (MapRenderer && MapRenderer.currentMap) {
 			return normalizeMapName(MapRenderer.currentMap);
 		}
@@ -295,12 +293,12 @@ define(function (require) {
 	 */
 	function initializePathFindingWorker() {
 		if (!_pathFindingWorker) {
-			_pathFindingWorker = new Worker(require.toUrl("./PathFindingWorker.js"));
-			_pathFindingWorker.id = (new Date()).getTime().toString();
+			_pathFindingWorker = new Worker(require.toUrl('./PathFindingWorker.js'));
+			_pathFindingWorker.id = new Date().getTime().toString();
 			_pathFindingWorker.onmessage = function (e) {
 				var data = e.data;
 				switch (data.type) {
-					case "pathResult":
+					case 'pathResult':
 						_pathUpdateLock = false;
 						if (_finalTargetData && data.path && data.workerId === _pathFindingWorker.id) {
 							var mapName = getCurrentMap();
@@ -368,90 +366,90 @@ define(function (require) {
 	Navigation.init = function init() {
 		// Initialize _mapData.walkableType from Altitude.TYPE.WALKABLE
 		_mapData = {
-			walkableType: Altitude.TYPE.WALKABLE,
+			walkableType: Altitude.TYPE.WALKABLE
 		};
 
 		this.ui.css({
 			top: Math.max(0, Math.min(Renderer.height - this.ui.height(), 200)),
-			left: Math.max(0, Math.min(Renderer.width - this.ui.width(), 200)),
+			left: Math.max(0, Math.min(Renderer.width - this.ui.width(), 200))
 		});
 
 		// Get canvas context
-		var canvas = document.createElement("canvas");
+		var canvas = document.createElement('canvas');
 		canvas.width = 280;
 		canvas.height = 230;
-		_ctx = canvas.getContext("2d");
-		this.ui.find(".map-display").append(canvas);
+		_ctx = canvas.getContext('2d');
+		this.ui.find('.map-display').append(canvas);
 
 		// Load arrow image
-		Client.loadFile(DB.INTERFACE_PATH + "map/map_arrow.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'map/map_arrow.bmp', function (dataURI) {
 			_arrow.src = dataURI;
 		});
 
 		// Load town info icons
-		Client.loadFile(DB.INTERFACE_PATH + "information/store.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'information/store.bmp', function (dataURI) {
 			_toolDealer.src = dataURI;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + "information/weaponshop.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'information/weaponshop.bmp', function (dataURI) {
 			_weaponDealer.src = dataURI;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + "information/armorshops.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'information/armorshops.bmp', function (dataURI) {
 			_armorDealer.src = dataURI;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + "information/smithy.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'information/smithy.bmp', function (dataURI) {
 			_blacksmith.src = dataURI;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + "information/guide.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'information/guide.bmp', function (dataURI) {
 			_guide.src = dataURI;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + "information/inn.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'information/inn.bmp', function (dataURI) {
 			_inn.src = dataURI;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + "information/kafra.bmp", function (dataURI) {
+		Client.loadFile(DB.INTERFACE_PATH + 'information/kafra.bmp', function (dataURI) {
 			_kafra.src = dataURI;
 		});
 
 		// Bind events
-		this.ui.find(".close").click(this.hide.bind(this));
-		this.ui.find(".search-button").click(this.onSearch.bind(this));
-		this.ui.find(".search-input").keypress(
+		this.ui.find('.close').click(this.hide.bind(this));
+		this.ui.find('.search-button').click(this.onSearch.bind(this));
+		this.ui.find('.search-input').keypress(
 			function (e) {
-				if (e.which === KEYS.ENTER || e.key === "Enter") {
+				if (e.which === KEYS.ENTER || e.key === 'Enter') {
 					this.onSearch();
 				}
-			}.bind(this),
+			}.bind(this)
 		);
 
 		// Focus handling for search input
-		this.ui.find(".search-input").focus(
+		this.ui.find('.search-input').focus(
 			function () {
 				// If there are search results, show them when focusing the input
-				var resultsContainer = this.ui.find(".search-results");
+				var resultsContainer = this.ui.find('.search-results');
 				if (resultsContainer.length > 0 && resultsContainer.children().length > 0) {
 					resultsContainer.show();
 				}
-			}.bind(this),
+			}.bind(this)
 		);
 
 		// Hide search results when clicking outside
 		jQuery(document).click(
 			function (e) {
-				if (!jQuery(e.target).closest(".search-results, .search-input, .search-button, .search-type").length) {
-					this.ui.find(".search-results").hide();
+				if (!jQuery(e.target).closest('.search-results, .search-input, .search-button, .search-type').length) {
+					this.ui.find('.search-results').hide();
 				}
-			}.bind(this),
+			}.bind(this)
 		);
 
 		// Map click event for navigation
-		this.ui.find(".map-display").click(this.onMapClick.bind(this));
+		this.ui.find('.map-display').click(this.onMapClick.bind(this));
 
 		// Mouse move event for displaying coordinates
-		this.ui.find(".map-display").mousemove(this.onMapMouseMove.bind(this));
+		this.ui.find('.map-display').mousemove(this.onMapMouseMove.bind(this));
 
 		// Mouse leave event to reset coordinates display
-		this.ui.find(".map-display").mouseleave(this.onMapMouseLeave.bind(this));
+		this.ui.find('.map-display').mouseleave(this.onMapMouseLeave.bind(this));
 
-		this.draggable(this.ui.find(".titlebar"));
+		this.draggable(this.ui.find('.titlebar'));
 
 		// Hide the UI initially
 		this.ui.hide();
@@ -465,7 +463,7 @@ define(function (require) {
 		this.clearPath();
 
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data(window, "events").keydown;
+		var events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		// Start rendering
@@ -487,7 +485,7 @@ define(function (require) {
 				endMap: _finalTargetData.map,
 				endX: _finalTargetData.x,
 				endY: _finalTargetData.y,
-				displayName: _finalTargetData.displayName,
+				displayName: _finalTargetData.displayName
 			});
 		}
 	};
@@ -504,8 +502,8 @@ define(function (require) {
 	 * Handle search button click
 	 */
 	Navigation.onSearch = function onSearch() {
-		var query = this.ui.find(".search-input").val().trim();
-		var type = this.ui.find(".search-type").val();
+		var query = this.ui.find('.search-input').val().trim();
+		var type = this.ui.find('.search-type').val();
 
 		if (query.length < 2) {
 			return;
@@ -525,11 +523,11 @@ define(function (require) {
 	 */
 	Navigation.displaySearchResults = function displaySearchResults(results) {
 		// Clear any existing results
-		var resultsContainer = this.ui.find(".search-results");
+		var resultsContainer = this.ui.find('.search-results');
 		if (resultsContainer.length === 0) {
 			// Create results container if it doesn't exist
 			resultsContainer = jQuery('<div class="search-results"></div>');
-			this.ui.find(".content").append(resultsContainer);
+			this.ui.find('.content').append(resultsContainer);
 		} else {
 			resultsContainer.empty();
 		}
@@ -551,21 +549,21 @@ define(function (require) {
 			var resultItem = jQuery('<li class="result-item"></li>');
 
 			// Add type icon (NPC or MOB)
-			var typeIcon = result.type === "NPC" ? "npc_icon" : "mob_icon";
-			resultItem.append('<span class="result-type ' + typeIcon + '">' + result.type + "</span>");
+			var typeIcon = result.type === 'NPC' ? 'npc_icon' : 'mob_icon';
+			resultItem.append('<span class="result-type ' + typeIcon + '">' + result.type + '</span>');
 
 			// Add result name
-			resultItem.append('<span class="result-name">' + result.name + "</span>");
+			resultItem.append('<span class="result-name">' + result.name + '</span>');
 
 			// Add map name
-			resultItem.append('<span class="result-map">' + result.mapName + "</span>");
+			resultItem.append('<span class="result-map">' + result.mapName + '</span>');
 
 			// Store result data for navigation
-			resultItem.data("result", result);
+			resultItem.data('result', result);
 
 			// Add click handler using a closure to capture the current result
 			(function (self, currentResult) {
-				resultItem.on("click", function () {
+				resultItem.on('click', function () {
 					self.navigateToSearchResult(currentResult);
 				});
 			})(this, result);
@@ -604,11 +602,11 @@ define(function (require) {
 			endMap: result.mapName,
 			endX: result.x,
 			endY: result.y,
-			displayName: result.name,
+			displayName: result.name
 		});
 
 		// Hide the search results
-		this.ui.find(".search-results").hide();
+		this.ui.find('.search-results').hide();
 	};
 
 	/**
@@ -684,7 +682,7 @@ define(function (require) {
 	 * @param {Object} event - Mouse event
 	 */
 	Navigation.onMapClick = function onMapClick(event) {
-		var mapDisplay = this.ui.find(".map-display");
+		var mapDisplay = this.ui.find('.map-display');
 		var offset = mapDisplay.offset();
 		var x = Math.floor(event.pageX - offset.left);
 		var y = Math.floor(event.pageY - offset.top);
@@ -707,7 +705,7 @@ define(function (require) {
 			endMap: currentMap,
 			endX: mapCoords.x,
 			endY: mapCoords.y,
-			displayName: "Map Click",
+			displayName: 'Map Click'
 		});
 	};
 
@@ -725,34 +723,34 @@ define(function (require) {
 		}
 
 		// Ensure we have the map name without extension for loading
-		var mapBaseName = mapName.replace(/\..*/, "");
+		var mapBaseName = mapName.replace(/\..*/, '');
 
 		// Load town info
 		_towninfo = DB.getTownInfo(mapBaseName) || [];
 
 		// Get the correct map path using DB.mapalias
-		var bmpPath = DB.INTERFACE_PATH.replace("data/texture/", "") + "map/" + mapBaseName + ".bmp";
-		bmpPath = bmpPath.replace(/\//g, "\\"); // normalize path separator
+		var bmpPath = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapBaseName + '.bmp';
+		bmpPath = bmpPath.replace(/\//g, '\\'); // normalize path separator
 		bmpPath = DB.mapalias[bmpPath] || bmpPath;
 
 		// Load the map image using the correct bmpPath
-		Client.loadFile("data/texture/" + bmpPath, function (dataURI) {
+		Client.loadFile('data/texture/' + bmpPath, function (dataURI) {
 			if (dataURI) {
 				_map.src = dataURI;
 			} else {
 				// If map not found, use a placeholder image
-				_map.src = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+				_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 			}
 		});
 
 		// Get the correct map path using DB.mapalias
-		var gatPath = mapBaseName + ".gat";
-		gatPath = gatPath.replace(/\//g, "\\"); // normalize path separator
+		var gatPath = mapBaseName + '.gat';
+		gatPath = gatPath.replace(/\//g, '\\'); // normalize path separator
 		gatPath = DB.mapalias[gatPath] || gatPath;
 
 		// Load the GAT file for pathfinding
 		Client.loadFile(
-			"data/" + gatPath,
+			'data/' + gatPath,
 			function (gatData) {
 				if (gatData) {
 					// If we have GAT data, use it directly for pathfinding
@@ -778,7 +776,7 @@ define(function (require) {
 						_mapData.map = mapBaseName;
 					}
 				}
-			}.bind(this),
+			}.bind(this)
 		);
 
 		this.setMapNameText(mapName);
@@ -795,7 +793,7 @@ define(function (require) {
 		_isMapClickTarget = false;
 
 		// Hide the target coordinates display
-		this.ui.find(".target-info").hide();
+		this.ui.find('.target-info').hide();
 
 		// Update location title with current map name
 		var currentMap = getCurrentMap();
@@ -822,8 +820,8 @@ define(function (require) {
 		_markers.push({
 			x: x,
 			y: y,
-			color: color || "rgb(255,0,0)",
-			label: label || "",
+			color: color || 'rgb(255,0,0)',
+			label: label || ''
 		});
 	};
 
@@ -831,7 +829,7 @@ define(function (require) {
 	 * Render the map and markers
 	 */
 	Navigation.render = function render(tick) {
-		if (!this.ui.is(":visible")) {
+		if (!this.ui.is(':visible')) {
 			return;
 		}
 
@@ -860,7 +858,7 @@ define(function (require) {
 		ctx.clearRect(0, 0, width, height);
 
 		// Draw map background
-		ctx.fillStyle = "#000";
+		ctx.fillStyle = '#000';
 		ctx.fillRect(0, 0, width, height);
 
 		// Draw the map image if loaded
@@ -943,7 +941,7 @@ define(function (require) {
 					currentSegment.push(pos);
 
 					// Draw the path segment
-					ctx.strokeStyle = "cyan";
+					ctx.strokeStyle = 'cyan';
 					ctx.beginPath();
 					ctx.moveTo(currentSegment[0].x, currentSegment[0].y);
 					for (let j = 1; j < currentSegment.length; j++) {
@@ -956,7 +954,7 @@ define(function (require) {
 						// Draw warp entry point
 						ctx.beginPath();
 						ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
-						ctx.fillStyle = "yellow";
+						ctx.fillStyle = 'yellow';
 						ctx.fill();
 
 						// If there's a next point, it's the warp exit
@@ -966,7 +964,7 @@ define(function (require) {
 							// Draw warp exit point
 							ctx.beginPath();
 							ctx.arc(exitPos.x, exitPos.y, 3, 0, Math.PI * 2);
-							ctx.fillStyle = "yellow";
+							ctx.fillStyle = 'yellow';
 							ctx.fill();
 
 							// Start new segment from the exit point
@@ -990,7 +988,7 @@ define(function (require) {
 		// Draw end marker (target position)
 		if (_targetData) {
 			var lastPoint = mapToScreenBound(_targetData.x, _targetData.y);
-			ctx.fillStyle = "red";
+			ctx.fillStyle = 'red';
 			ctx.beginPath();
 			ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
 			ctx.fill();
@@ -1020,8 +1018,8 @@ define(function (require) {
 			ctx.fill();
 
 			if (marker.label) {
-				ctx.fillStyle = "#fff";
-				ctx.font = "10px Arial";
+				ctx.fillStyle = '#fff';
+				ctx.font = '10px Arial';
 				ctx.fillText(marker.label, pos.x + 5, pos.y + 3);
 			}
 		}
@@ -1033,14 +1031,14 @@ define(function (require) {
 	 * @param {boolean} noPathFound - Whether to show "no path found" message
 	 */
 	Navigation.updateTargetText = function updateTargetText(noPathFound) {
-		this.ui.find(".target-info").show();
+		this.ui.find('.target-info').show();
 
 		// Use the existing setTargetCoordinatesText function with the noPathFound option
 		// This will properly format the text using formatTargetCoordinates
 		if (_finalTargetData) {
 			this.setTargetCoordinatesText(_finalTargetData.x, _finalTargetData.y, {
 				noPathFound: noPathFound,
-				targetMap: _finalTargetData.map,
+				targetMap: _finalTargetData.map
 			});
 		}
 	};
@@ -1053,32 +1051,36 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setTargetCoordinatesText = function setTargetCoordinatesText(x, y, options) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var text = formatTargetCoordinates(x, y, options);
-		this.ui.find(".target-coordinates").text(text);
-		this.ui.find(".target-coordinates").show();
-		this.ui.find(".target-info").show();
+		this.ui.find('.target-coordinates').text(text);
+		this.ui.find('.target-coordinates').show();
+		this.ui.find('.target-info').show();
 	};
 
 	Navigation.setTargetCoordinatesBlinking = function setTargetCoordinatesBlinking(blinking) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
-		var targetCoordinates = this.ui.find(".target-coordinates");
+		var targetCoordinates = this.ui.find('.target-coordinates');
 
 		if (blinking) {
 			// Start blinking effect if not already blinking
-			if (!targetCoordinates.data("blinking")) {
-				targetCoordinates.data("blinking", true);
+			if (!targetCoordinates.data('blinking')) {
+				targetCoordinates.data('blinking', true);
 
 				// Store original color
-				var originalColor = targetCoordinates.css("color") || "#ffffff";
-				targetCoordinates.data("originalColor", originalColor);
+				var originalColor = targetCoordinates.css('color') || '#ffffff';
+				targetCoordinates.data('originalColor', originalColor);
 
 				// Set up interval for fading effect
 				var fadeStep = 0;
 				var fadeDirection = -1; // Start by fading out
-				var fadeInterval = setInterval(function() {
+				var fadeInterval = setInterval(function () {
 					fadeStep += fadeDirection * 0.1;
 
 					// Change direction when reaching limits
@@ -1089,22 +1091,22 @@ define(function (require) {
 					}
 
 					// Apply opacity
-					targetCoordinates.css("opacity", fadeStep);
+					targetCoordinates.css('opacity', fadeStep);
 				}, 50); // Update every 50ms for smooth animation
 
 				// Store interval ID for later cleanup
-				targetCoordinates.data("fadeInterval", fadeInterval);
+				targetCoordinates.data('fadeInterval', fadeInterval);
 			}
 		} else {
 			// Stop fading effect
-			if (targetCoordinates.data("blinking")) {
-				clearInterval(targetCoordinates.data("fadeInterval"));
-				targetCoordinates.css("opacity", 1); // Restore full opacity
-				targetCoordinates.css("color", targetCoordinates.data("originalColor"));
-				targetCoordinates.data("blinking", false);
+			if (targetCoordinates.data('blinking')) {
+				clearInterval(targetCoordinates.data('fadeInterval'));
+				targetCoordinates.css('opacity', 1); // Restore full opacity
+				targetCoordinates.css('color', targetCoordinates.data('originalColor'));
+				targetCoordinates.data('blinking', false);
 			}
 		}
-	}
+	};
 
 	/**
 	 * Set location title with proper formatting
@@ -1114,10 +1116,12 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setLocationTitle = function setLocationTitle(currentMap, targetMap, displayName) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var title = formatLocationTitle(currentMap, targetMap, displayName);
-		this.ui.find(".location-title").text(title);
+		this.ui.find('.location-title').text(title);
 	};
 
 	/**
@@ -1128,10 +1132,12 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setCoordinatesText = function setCoordinatesText(x, y, options) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var text = formatCoordinates(x, y, options);
-		this.ui.find(".coordinates").text(text);
+		this.ui.find('.coordinates').text(text);
 	};
 
 	/**
@@ -1141,9 +1147,11 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setMapNameText = function setMapNameText(mapName) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
-		this.ui.find(".map-name").text(normalizeMapName(mapName));
+		this.ui.find('.map-name').text(normalizeMapName(mapName));
 	};
 
 	/**
@@ -1154,10 +1162,12 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setMouseCoordinatesText = function setMouseCoordinatesText(x, y, options) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var text = formatCoordinates(x, y, options);
-		this.ui.find(".mouse-coordinates").text(text);
+		this.ui.find('.mouse-coordinates').text(text);
 	};
 
 	/**
@@ -1183,10 +1193,12 @@ define(function (require) {
 			if (naviLinkTable && naviLinkTable.length) {
 				for (var i = 0; i < naviLinkTable.length; i++) {
 					var warp = naviLinkTable[i];
-					if (!warp || warp.length < 11) continue;
+					if (!warp || warp.length < 11) {
+						continue;
+					}
 
-					var srcMap = warp[0].replace(/\.gat$/, "").toLowerCase();
-					var destMap = warp[8].replace(/\.gat$/, "").toLowerCase();
+					var srcMap = warp[0].replace(/\.gat$/, '').toLowerCase();
+					var destMap = warp[8].replace(/\.gat$/, '').toLowerCase();
 
 					// Only include warps that start and end in the current map
 					if (srcMap === currentMap && destMap === currentMap) {
@@ -1206,7 +1218,7 @@ define(function (require) {
 			_mapData.warps = warps;
 
 			_pathFindingWorker.postMessage({
-				type: "findPath",
+				type: 'findPath',
 				startX: startX,
 				startY: startY,
 				endX: endX,
@@ -1222,7 +1234,7 @@ define(function (require) {
 	 * Toggle the navigation window (show/hide)
 	 */
 	Navigation.toggle = function toggle() {
-		if (this.ui.is(":visible")) {
+		if (this.ui.is(':visible')) {
 			this.hide();
 		} else {
 			this.show();
@@ -1238,8 +1250,8 @@ define(function (require) {
 		initializePathFindingWorker();
 
 		// Hide coordinate displays initially
-		this.ui.find(".mouse-info").hide();
-		this.ui.find(".target-info").hide();
+		this.ui.find('.mouse-info').hide();
+		this.ui.find('.target-info').hide();
 
 		// Get current map name and player position
 		var mapName = getCurrentMap();
@@ -1254,7 +1266,7 @@ define(function (require) {
 				endMap: _finalTargetData.map,
 				endX: _finalTargetData.x,
 				endY: _finalTargetData.y,
-				displayName: _finalTargetData.displayName,
+				displayName: _finalTargetData.displayName
 			});
 		}
 
@@ -1262,7 +1274,7 @@ define(function (require) {
 		this.setMapNameText(mapName);
 
 		// Set the location title if not already set
-		if (!this.ui.find(".location-title").text()) {
+		if (!this.ui.find('.location-title').text()) {
 			this.setLocationTitle(mapName, null);
 		}
 
@@ -1278,11 +1290,11 @@ define(function (require) {
 		terminatePathFindingWorker();
 	};
 
-	Navigation.onKeyDown = function onKeyDown( event ) {
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
+	Navigation.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 			this.hide();
 		}
-	}
+	};
 
 	/**
 	 * Handle mouse movement over the map to display coordinates
@@ -1290,7 +1302,7 @@ define(function (require) {
 	 * @param {MouseEvent} event - The mouse event
 	 */
 	Navigation.onMapMouseMove = function onMapMouseMove(event) {
-		var mapDisplay = this.ui.find(".map-display");
+		var mapDisplay = this.ui.find('.map-display');
 		var offset = mapDisplay.offset();
 		var x = Math.floor(event.pageX - offset.left);
 		var y = Math.floor(event.pageY - offset.top);
@@ -1301,7 +1313,7 @@ define(function (require) {
 		var mapY = Math.floor(mapCoords.y);
 
 		// Update the mouse coordinates display
-		this.ui.find(".mouse-info").show();
+		this.ui.find('.mouse-info').show();
 		this.setMouseCoordinatesText(mapX, mapY);
 	};
 
@@ -1310,7 +1322,7 @@ define(function (require) {
 	 */
 	Navigation.onMapMouseLeave = function onMapMouseLeave() {
 		// Hide the mouse coordinates display
-		this.ui.find(".mouse-info").hide();
+		this.ui.find('.mouse-info').hide();
 	};
 
 	/**
@@ -1321,7 +1333,7 @@ define(function (require) {
 	 */
 	Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
 		// Parse the NAVI info
-		var parts = naviInfo.split(",");
+		var parts = naviInfo.split(',');
 		if (parts.length < 3) {
 			return;
 		}
@@ -1331,7 +1343,7 @@ define(function (require) {
 		var y = parseInt(parts[2], 10);
 
 		// Clear the search input
-		this.ui.find(".search-input").val("");
+		this.ui.find('.search-input').val('');
 		_isMapClickTarget = false;
 
 		// Get current map and position
@@ -1346,7 +1358,7 @@ define(function (require) {
 			endMap: mapName,
 			endX: x,
 			endY: y,
-			displayName: displayName,
+			displayName: displayName
 		});
 	};
 
@@ -1363,7 +1375,7 @@ define(function (require) {
 		} else {
 			callback.bind(this)();
 		}
-	}
+	};
 
 	/**
 	 * Unified navigation function that handles both same-map and cross-map navigation
@@ -1383,11 +1395,16 @@ define(function (require) {
 		var endMap = normalizeMapName(options.endMap);
 		var displayName = options.displayName;
 
-		if (_finalTargetData && (_finalTargetData.map !== endMap || _finalTargetData.x !== options.endX || _finalTargetData.y !== options.endY)) {
+		if (
+			_finalTargetData &&
+			(_finalTargetData.map !== endMap ||
+				_finalTargetData.x !== options.endX ||
+				_finalTargetData.y !== options.endY)
+		) {
 			this.clearPath();
 			resetPathFindingWorker();
 			this.setTargetCoordinatesText(options.endX, options.endY, {
-				targetMap: endMap,
+				targetMap: endMap
 			});
 			this.setTargetCoordinatesBlinking(true);
 		}
@@ -1397,7 +1414,7 @@ define(function (require) {
 			map: endMap,
 			x: options.endX,
 			y: options.endY,
-			displayName: displayName,
+			displayName: displayName
 		};
 
 		// Get warp types based on Services checkbox
@@ -1407,7 +1424,15 @@ define(function (require) {
 		}
 
 		// Cross-map navigation - find path to next warp
-		var path = MapPathFinder.findPathBetweenMaps(startMap, options.startX, options.startY, endMap, options.endX, options.endY, warpTypes);
+		var path = MapPathFinder.findPathBetweenMaps(
+			startMap,
+			options.startX,
+			options.startY,
+			endMap,
+			options.endX,
+			options.endY,
+			warpTypes
+		);
 
 		if (path && path.length > 0) {
 			// Get the first segment (path to next warp)
@@ -1422,7 +1447,7 @@ define(function (require) {
 						x: walkableCell.x,
 						y: walkableCell.y,
 						map: target.map,
-						displayName: displayName,
+						displayName: displayName
 					};
 					this.findPath(options.startX, options.startY, _targetData.x, _targetData.y);
 				} else {

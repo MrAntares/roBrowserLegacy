@@ -8,7 +8,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -29,13 +28,11 @@ define(function (require) {
 	var cssText = require('text!./Storage.css');
 	var getModule = require;
 
-
 	/**
 	 * Create Component
 	 */
 	var Storage = new UIComponent('Storage', htmlText, cssText);
 	var _baseOnRemove = Storage.onRemove;
-
 
 	/**
 	 * Tab constant
@@ -50,29 +47,29 @@ define(function (require) {
 		ETC: 6
 	};
 
-
 	/**
 	 * @var {Array} inventory items
 	 */
 	var _list = [];
-
 
 	/**
 	 * @var {Object} storage for open filter windows
 	 */
 	var _openFilters = {};
 
-
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get('Storage', {
-		x: 200,
-		y: 500,
-		height: 8,
-		tab: Storage.TAB.ITEM
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'Storage',
+		{
+			x: 200,
+			y: 500,
+			height: 8,
+			tab: Storage.TAB.ITEM
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize UI
@@ -87,11 +84,14 @@ define(function (require) {
 		this.ui.find('.filter-buttons button').mouseout(onFilterWindowHoverOut);
 		this.ui.find('.search-button').mousedown(this.onSearch.bind(this));
 		this.ui.find('.storage-order-by').change(requestFilter);
-		
+
 		// Load tabs
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (_preferences.tab + 1) + '.bmp', function (data) {
-			Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
-		});
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (_preferences.tab + 1) + '.bmp',
+			function (data) {
+				Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
+			}
+		);
 
 		// Resize, position
 		resizeHeight(_preferences.height);
@@ -115,7 +115,6 @@ define(function (require) {
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-
 	/**
 	 * Remove Storage from window (and so clean up items)
 	 */
@@ -135,7 +134,7 @@ define(function (require) {
 				_openFilters[tabId].remove();
 			}
 		}
-		
+
 		for (var tabId in _openFilters) {
 			if (_openFilters.hasOwnProperty(tabId)) {
 				_openFilters[tabId].remove();
@@ -150,7 +149,6 @@ define(function (require) {
 		Storage.ui.find('#storage-search-input').val('');
 	};
 
-
 	/**
 	 * Add items to the list
 	 */
@@ -163,42 +161,48 @@ define(function (require) {
 		}
 	};
 
-
 	/**
 	 * Insert Item to Storage
 	 */
 	Storage.addItem = function addItem(item) {
 		var i = getItemIndexById(item.index);
-		
+
 		// NEW: Check if a filter window for this item's type is open
 		var itemTab;
 		switch (item.type) {
 			case ItemType.HEALING:
 			case ItemType.USABLE:
 			case ItemType.DELAYCONSUME:
-				itemTab = Storage.TAB.ITEM; break;
+				itemTab = Storage.TAB.ITEM;
+				break;
 			case ItemType.CASH:
-				itemTab = Storage.TAB.KAFRA; break;
+				itemTab = Storage.TAB.KAFRA;
+				break;
 			case ItemType.ARMOR:
 			case ItemType.SHADOWGEAR:
 			case ItemType.PETEGG:
-				itemTab = Storage.TAB.ARMOR; break;
+				itemTab = Storage.TAB.ARMOR;
+				break;
 			case ItemType.WEAPON:
 			case ItemType.PETARMOR:
-				itemTab = Storage.TAB.ARMS; break;
+				itemTab = Storage.TAB.ARMS;
+				break;
 			case ItemType.AMMO:
-				itemTab = Storage.TAB.AMMO; break;
+				itemTab = Storage.TAB.AMMO;
+				break;
 			case ItemType.CARD:
-				itemTab = Storage.TAB.CARD; break;
+				itemTab = Storage.TAB.CARD;
+				break;
 			default:
 			case ItemType.ETC:
-				itemTab = Storage.TAB.ETC; break;
+				itemTab = Storage.TAB.ETC;
+				break;
 		}
 
 		if (_openFilters[itemTab]) {
 			_openFilters[itemTab].addItem(item);
 		}
-		
+
 		// Found, update quantity
 		if (i > -1) {
 			_list[i].count += item.count;
@@ -210,7 +214,6 @@ define(function (require) {
 			_list.push(item);
 		}
 	};
-
 
 	/**
 	 * Add item to Storage
@@ -250,21 +253,36 @@ define(function (require) {
 		if (tab === _preferences.tab) {
 			var it = DB.getItemInfo(item.ITID);
 
-			this.ui.find('.container .content').append(
-				'<div class="item" data-index="' + item.index + '" draggable="true">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' + (item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') + '</div>' +
-				'<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
-				'</div>'
-			);
+			this.ui
+				.find('.container .content')
+				.append(
+					'<div class="item" data-index="' +
+						item.index +
+						'" draggable="true">' +
+						'<div class="icon"></div>' +
+						'<div class="amount">' +
+						(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
+						'</div>' +
+						'<span class="name">' +
+						jQuery.escape(DB.getItemName(item)) +
+						'</span>' +
+						'</div>'
+				);
 
-			Client.loadFile(DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function (data) {
-				this.ui.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
-			}.bind(this));
+			Client.loadFile(
+				DB.INTERFACE_PATH +
+					'item/' +
+					(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+					'.bmp',
+				function (data) {
+					this.ui
+						.find('.item[data-index="' + item.index + '"] .icon')
+						.css('backgroundImage', 'url(' + data + ')');
+				}.bind(this)
+			);
 		}
 		return true;
 	};
-
 
 	/**
 	 * Remove item from Storage
@@ -273,7 +291,9 @@ define(function (require) {
 		var i = getItemIndexById(index);
 		var item;
 
-		if (i < 0) return null; // Not found
+		if (i < 0) {
+			return null;
+		} // Not found
 
 		// NEW: Notify all open filter windows.
 		// They will check internally if they have this item.
@@ -298,7 +318,6 @@ define(function (require) {
 		return item;
 	};
 
-
 	/**
 	 * Update or set the current amount of items in storage in ui
 	 */
@@ -308,15 +327,19 @@ define(function (require) {
 	};
 
 	Storage.onKeyDown = function onKeyDown(event) {
-		if(this.ui.is(':visible')) {
+		if (this.ui.is(':visible')) {
 			// ESCAPE
-			if ((event.which === KEYS.ESCAPE || event.key === "Escape")) {
-				if (typeof Storage.onClosePressed === 'function') Storage.onClosePressed();
+			if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+				if (typeof Storage.onClosePressed === 'function') {
+					Storage.onClosePressed();
+				}
 			}
 
 			// ENTER
-			if ((event.which === KEYS.ENTER || event.key === "Enter")) {
-				if (typeof Storage.onEnterPressed === 'function') Storage.onEnterPressed();
+			if (event.which === KEYS.ENTER || event.key === 'Enter') {
+				if (typeof Storage.onEnterPressed === 'function') {
+					Storage.onEnterPressed();
+				}
 			}
 		}
 	};
@@ -324,7 +347,9 @@ define(function (require) {
 	// Search item from storage
 	Storage.onSearch = function onSearch() {
 		var searchInput = Storage.ui.find('#storage-search-input');
-		if (!searchInput) return;
+		if (!searchInput) {
+			return;
+		}
 		var searchTerm = searchInput.val().toLowerCase();
 
 		// create new Storage Filter with filtered items
@@ -332,27 +357,27 @@ define(function (require) {
 			return DB.getItemName(item).toLowerCase().indexOf(searchTerm) > -1;
 		});
 
-		if(!_openFilters[ItemType.SEARCH]) {
+		if (!_openFilters[ItemType.SEARCH]) {
 			let newFilter = new StorageFilter(ItemType.SEARCH);
 			// Store it so we can track it
 			_openFilters[ItemType.SEARCH] = newFilter;
 
 			// Add a callback for when the window is closed (by 'X' button)
-			newFilter.onCloseCallback = function() {
-				if (_openFilters[ItemType.SEARCH]) { 
+			newFilter.onCloseCallback = function () {
+				if (_openFilters[ItemType.SEARCH]) {
 					delete _openFilters[ItemType.SEARCH];
 				}
 			};
 
-			newFilter.onTransferItemToOtherUI = function(item) {
+			newFilter.onTransferItemToOtherUI = function (item) {
 				Storage.transferItemToOtherUI(item);
 			};
 
 			// Add to UI and populate with items
 			newFilter.append();
-			newFilter.setItems("Search", filteredItems, ItemType.SEARCH);
+			newFilter.setItems('Search', filteredItems, ItemType.SEARCH);
 		} else {
-			_openFilters[ItemType.SEARCH].setItems("Search", filteredItems, ItemType.SEARCH);
+			_openFilters[ItemType.SEARCH].setItems('Search', filteredItems, ItemType.SEARCH);
 		}
 	};
 
@@ -371,7 +396,9 @@ define(function (require) {
 			var extraY = 31 + 19 - 30;
 			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 			h = Math.min(Math.max(h, 8), 17);
-			if (h === lastHeight) return;
+			if (h === lastHeight) {
+				return;
+			}
 			resizeHeight(h);
 			lastHeight = h;
 		}
@@ -440,7 +467,7 @@ define(function (require) {
 
 		if (orderBy === 'UPGRADE' || orderBy === 'DOWNGRADE') {
 			list = _list.slice(0);
-			list.sort(function(a, b) {
+			list.sort(function (a, b) {
 				var nameA = DB.getItemName(a);
 				var nameB = DB.getItemName(b);
 				return orderBy === 'UPGRADE' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
@@ -466,11 +493,13 @@ define(function (require) {
 		var delta;
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera) delta = -delta;
+			if (window.opera) {
+				delta = -delta;
+			}
 		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
-		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - (delta * 32);
+		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
 		return false;
 	}
 
@@ -481,10 +510,10 @@ define(function (require) {
 		var $button = jQuery(this); // The button that was clicked
 		var tabId = parseInt($button.attr('data-tab-id'), 10);
 		var title = $button.attr('data-title') || 'Items';
-		
+
 		// add .active class to button, remove if is already set
 		$button.toggleClass('active');
-	
+
 		// --- 1. Check if window is already open ---
 		if (_openFilters[tabId]) {
 			// It is open, so close it
@@ -497,7 +526,7 @@ define(function (require) {
 		// --- 2. If not open, create a new one ---
 		var i, count, tab;
 		var filtered_list = [];
-		
+
 		// Build the list of items for this filter
 		for (i = 0, count = _list.length; i < count; ++i) {
 			var item = _list[i];
@@ -505,23 +534,30 @@ define(function (require) {
 				case ItemType.HEALING:
 				case ItemType.USABLE:
 				case ItemType.DELAYCONSUME:
-					tab = Storage.TAB.ITEM; break;
+					tab = Storage.TAB.ITEM;
+					break;
 				case ItemType.CASH:
-					tab = Storage.TAB.KAFRA; break;
+					tab = Storage.TAB.KAFRA;
+					break;
 				case ItemType.ARMOR:
 				case ItemType.SHADOWGEAR:
 				case ItemType.PETEGG:
-					tab = Storage.TAB.ARMOR; break;
+					tab = Storage.TAB.ARMOR;
+					break;
 				case ItemType.WEAPON:
 				case ItemType.PETARMOR:
-					tab = Storage.TAB.ARMS; break;
+					tab = Storage.TAB.ARMS;
+					break;
 				case ItemType.AMMO:
-					tab = Storage.TAB.AMMO; break;
+					tab = Storage.TAB.AMMO;
+					break;
 				case ItemType.CARD:
-					tab = Storage.TAB.CARD; break;
+					tab = Storage.TAB.CARD;
+					break;
 				default:
 				case ItemType.ETC:
-					tab = Storage.TAB.ETC; break;
+					tab = Storage.TAB.ETC;
+					break;
 			}
 			if (tab === tabId) {
 				filtered_list.push(item);
@@ -530,23 +566,23 @@ define(function (require) {
 
 		// Create a new instance of our StorageFilter class
 		var newFilter = new StorageFilter(tabId);
-		
+
 		// Store it so we can track it
 		_openFilters[tabId] = newFilter;
 
 		// Add a callback for when the window is closed (by 'X' button)
-		newFilter.onCloseCallback = function() {
+		newFilter.onCloseCallback = function () {
 			// remove .active class from button
 			$button.removeClass('active');
 
-			if (_openFilters[tabId]) { 
+			if (_openFilters[tabId]) {
 				delete _openFilters[tabId];
 			}
 		};
 
-		newFilter.onTransferItemToOtherUI = function(item) {
+		newFilter.onTransferItemToOtherUI = function (item) {
 			Storage.transferItemToOtherUI(item);
-		}
+		};
 
 		// Add to UI and populate with items
 		newFilter.append();
@@ -571,7 +607,9 @@ define(function (require) {
 	function onItemOver() {
 		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var i = getItemIndexById(idx);
-		if (i < 0) return;
+		if (i < 0) {
+			return;
+		}
 		var item = _list[i];
 		var pos = jQuery(this).position();
 		var overlay = Storage.ui.find('.overlay');
@@ -588,18 +626,23 @@ define(function (require) {
 	function onItemDragStart(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var i = getItemIndexById(index);
-		if (i === -1) return;
+		if (i === -1) {
+			return;
+		}
 		var img = new Image();
 		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		url = url = url.replace(/^\"/, '').replace(/\"$/, '');
 		img.src = url;
 		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Storage',
-				data: _list[i]
-			})
+		event.originalEvent.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'item',
+					from: 'Storage',
+					data: _list[i]
+				})
+			)
 		);
 		onItemOut();
 	}
@@ -612,7 +655,9 @@ define(function (require) {
 		event.stopImmediatePropagation();
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var i = getItemIndexById(index);
-		if (i === -1) return false;
+		if (i === -1) {
+			return false;
+		}
 		if (event.altKey && event.which === 3) {
 			event.stopImmediatePropagation();
 			Storage.transferItemToOtherUI(_list[i]);
@@ -632,7 +677,9 @@ define(function (require) {
 		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
-		if (!item) return false;
+		if (!item) {
+			return false;
+		}
 		var count = item.count || 1;
 		if (isInventoryOpen) {
 			Storage.reqRemoveItem(item.index, count);
@@ -640,13 +687,13 @@ define(function (require) {
 			Storage.reqMoveItemToCart(item.index, count);
 		}
 		return true;
-	}
+	};
 
-	Storage.onClosePressed = function onClosedPressed() { };
-	Storage.reqAddItem = function reqAddItem() { };
-	Storage.reqAddItemFromCart = function reqAddItemFromCart() { };
-	Storage.reqRemoveItem = function reqRemoveItem() { };
-	Storage.reqMoveItemToCart = function reqMoveItemToCart() { };
+	Storage.onClosePressed = function onClosedPressed() {};
+	Storage.reqAddItem = function reqAddItem() {};
+	Storage.reqAddItemFromCart = function reqAddItemFromCart() {};
+	Storage.reqRemoveItem = function reqRemoveItem() {};
+	Storage.reqMoveItemToCart = function reqMoveItemToCart() {};
 
 	return UIManager.addComponent(Storage);
 });

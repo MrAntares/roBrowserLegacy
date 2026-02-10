@@ -8,7 +8,6 @@
 define(function (require) {
 	'use strict';
 
-
 	/**
 	 * Dependencies
 	 */
@@ -28,12 +27,10 @@ define(function (require) {
 	var cssText = require('text!./Storage.css');
 	var getModule = require;
 
-
 	/**
 	 * Create Component
 	 */
 	var Storage = new UIComponent('Storage', htmlText, cssText);
-
 
 	/**
 	 * Tab constant
@@ -48,23 +45,24 @@ define(function (require) {
 		ETC: 6
 	};
 
-
 	/**
 	 * @var {Array} inventory items
 	 */
 	var _list = [];
 
-
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get('Storage', {
-		x: 200,
-		y: 500,
-		height: 8,
-		tab: Storage.TAB.ITEM
-	}, 1.0);
-
+	var _preferences = Preferences.get(
+		'Storage',
+		{
+			x: 200,
+			y: 500,
+			height: 8,
+			tab: Storage.TAB.ITEM
+		},
+		1.0
+	);
 
 	/**
 	 * Initialize UI
@@ -76,9 +74,12 @@ define(function (require) {
 		this.ui.find('.footer .close').click(this.onClosePressed.bind(this));
 
 		// Load tabs
-		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (_preferences.tab + 1) + '.bmp', function (data) {
-			Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
-		});
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (_preferences.tab + 1) + '.bmp',
+			function (data) {
+				Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
+			}
+		);
 
 		// Resize, position
 		resizeHeight(_preferences.height);
@@ -103,7 +104,6 @@ define(function (require) {
 		this.draggable(this.ui.find('.titlebar'));
 	};
 
-
 	/**
 	 * Remove Storage from window (and so clean up items)
 	 */
@@ -117,7 +117,6 @@ define(function (require) {
 		_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
 		_preferences.save();
 	};
-
 
 	/**
 	 * Add items to the list
@@ -133,7 +132,6 @@ define(function (require) {
 			}
 		}
 	};
-
 
 	/**
 	 * Insert Item to Storage
@@ -154,7 +152,6 @@ define(function (require) {
 			_list.push(item);
 		}
 	};
-
 
 	/**
 	 * Add item to Storage
@@ -203,22 +200,37 @@ define(function (require) {
 		if (tab === _preferences.tab) {
 			var it = DB.getItemInfo(item.ITID);
 
-			this.ui.find('.container .content').append(
-				'<div class="item" data-index="' + item.index + '" draggable="true">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' + (item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') + '</div>' +
-				'<span class="name">' + jQuery.escape(DB.getItemName(item)) + '</span>' +
-				'</div>'
-			);
+			this.ui
+				.find('.container .content')
+				.append(
+					'<div class="item" data-index="' +
+						item.index +
+						'" draggable="true">' +
+						'<div class="icon"></div>' +
+						'<div class="amount">' +
+						(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
+						'</div>' +
+						'<span class="name">' +
+						jQuery.escape(DB.getItemName(item)) +
+						'</span>' +
+						'</div>'
+				);
 
-			Client.loadFile(DB.INTERFACE_PATH + 'item/' + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + '.bmp', function (data) {
-				this.ui.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
-			}.bind(this));
+			Client.loadFile(
+				DB.INTERFACE_PATH +
+					'item/' +
+					(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+					'.bmp',
+				function (data) {
+					this.ui
+						.find('.item[data-index="' + item.index + '"] .icon')
+						.css('backgroundImage', 'url(' + data + ')');
+				}.bind(this)
+			);
 		}
 
 		return true;
 	};
-
 
 	/**
 	 * Remove item from Storage
@@ -251,7 +263,6 @@ define(function (require) {
 		return item;
 	};
 
-
 	/**
 	 * Update or set the current amount of items in storage in ui
 	 */
@@ -261,8 +272,10 @@ define(function (require) {
 	};
 
 	Storage.onKeyDown = function onKeyDown(event) {
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(':visible')) {
-			if (typeof Storage.onClosePressed === 'function') Storage.onClosePressed();
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+			if (typeof Storage.onClosePressed === 'function') {
+				Storage.onClosePressed();
+			}
 		}
 	};
 
@@ -273,7 +286,6 @@ define(function (require) {
 		event.stopImmediatePropagation();
 		return false;
 	}
-
 
 	/**
 	 * Extend Storage window size
@@ -311,7 +323,6 @@ define(function (require) {
 		});
 	}
 
-
 	/**
 	 * Extend Storage window size
 	 */
@@ -321,8 +332,6 @@ define(function (require) {
 		Storage.ui.find('.container .content').css('height', height * 32);
 		Storage.ui.css('height', 31 + 19 + height * 32);
 	}
-
-
 
 	/**
 	 * Modify tab, filter display entries
@@ -337,7 +346,6 @@ define(function (require) {
 		});
 	}
 
-
 	/**
 	 * Drop from inventory to storage
 	 */
@@ -345,11 +353,8 @@ define(function (require) {
 		var item, data;
 
 		try {
-			data = JSON.parse(
-				event.originalEvent.dataTransfer.getData('Text')
-			);
-		}
-		catch (e) { }
+			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		} catch (e) {}
 
 		event.stopImmediatePropagation();
 
@@ -368,16 +373,9 @@ define(function (require) {
 				InputBox.remove();
 
 				if (data.from === 'CartItems') {
-					Storage.reqAddItemFromCart(
-						item.index,
-						parseInt(count, 10)
-					);
-				}
-				else {
-					Storage.reqAddItem(
-						item.index,
-						parseInt(count, 10)
-					);
+					Storage.reqAddItemFromCart(item.index, parseInt(count, 10));
+				} else {
+					Storage.reqAddItem(item.index, parseInt(count, 10));
 				}
 			};
 
@@ -386,14 +384,12 @@ define(function (require) {
 
 		if (data.from === 'CartItems') {
 			Storage.reqAddItemFromCart(item.index, 1);
-		}
-		else {
+		} else {
 			Storage.reqAddItem(item.index, 1);
 		}
 
 		return false;
 	}
-
 
 	/**
 	 * Change tab,
@@ -407,7 +403,6 @@ define(function (require) {
 			Storage.addItemSub(_list[i]);
 		}
 	}
-
 
 	/**
 	 * Get item index in list base on it's ID
@@ -426,7 +421,6 @@ define(function (require) {
 		return -1;
 	}
 
-
 	/**
 	 * Update scroll by block (32px)
 	 */
@@ -438,15 +432,13 @@ define(function (require) {
 			if (window.opera) {
 				delta = -delta;
 			}
-		}
-		else if (event.originalEvent.detail) {
+		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
 
-		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - (delta * 32);
+		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
 		return false;
 	}
-
 
 	/**
 	 * Mouse over item, display name and informations
@@ -472,12 +464,10 @@ define(function (require) {
 
 		if (item.IsIdentified) {
 			overlay.removeClass('grey');
-		}
-		else {
+		} else {
 			overlay.addClass('grey');
 		}
 	}
-
 
 	/**
 	 * Mouse mouve out of an item, hide title description
@@ -485,7 +475,6 @@ define(function (require) {
 	function onItemOut() {
 		Storage.ui.find('.overlay').hide();
 	}
-
 
 	/**
 	 * Start dragging an item
@@ -506,17 +495,19 @@ define(function (require) {
 		img.src = url;
 
 		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-		event.originalEvent.dataTransfer.setData('Text',
-			JSON.stringify(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Storage',
-				data: _list[i]
-			})
+		event.originalEvent.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'item',
+					from: 'Storage',
+					data: _list[i]
+				})
+			)
 		);
 
 		onItemOut();
 	}
-
 
 	/**
 	 * Stop the drag/drop on an item
@@ -524,7 +515,6 @@ define(function (require) {
 	function onItemDragEnd() {
 		delete window._OBJ_DRAG_;
 	}
-
 
 	/**
 	 * Display item description
@@ -560,7 +550,6 @@ define(function (require) {
 		return false;
 	}
 
-
 	/**
 	 * Alt Right Click Request Transfer
 	 */
@@ -583,17 +572,16 @@ define(function (require) {
 		}
 
 		return true;
-	};
-
+	}
 
 	/**
 	 * Callbacks
 	 */
-	Storage.onClosePressed = function onClosedPressed() { };
-	Storage.reqAddItem = function reqAddItem() { };
-	Storage.reqAddItemFromCart = function reqAddItemFromCart() { };
-	Storage.reqRemoveItem = function reqRemoveItem() { };
-	Storage.reqMoveItemToCart = function reqMoveItemToCart() { };
+	Storage.onClosePressed = function onClosedPressed() {};
+	Storage.reqAddItem = function reqAddItem() {};
+	Storage.reqAddItemFromCart = function reqAddItemFromCart() {};
+	Storage.reqRemoveItem = function reqRemoveItem() {};
+	Storage.reqMoveItemToCart = function reqMoveItemToCart() {};
 
 	/**
 	 * Create component and export it

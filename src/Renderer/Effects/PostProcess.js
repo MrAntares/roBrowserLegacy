@@ -7,15 +7,15 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author AoShinHo
-*/
-define(function(require) {
+ */
+define(function (require) {
 	'use strict';
 
-	var WebGL = require('Utils/WebGL'); 
+	var WebGL = require('Utils/WebGL');
 
 	var _effects = [];
 	var _activeEffects = [];
-	
+
 	// Ping-Pong Buffers (Full Resolution)
 	var _readFbo = null;
 	var _writeFbo = null;
@@ -27,14 +27,13 @@ define(function(require) {
 	 * @param {ShaderModule} module - Post Process Modular effect.
 	 * @param {WebGLRenderingContext} gl - The WebGL context.
 	 */
-	PostProcess.register = function( module, gl ) {
-		if(!module.program || !module.isActive || !module.init || !module.render || !module.clean)
-		{
+	PostProcess.register = function (module, gl) {
+		if (!module.program || !module.isActive || !module.init || !module.render || !module.clean) {
 			console.error('[PostProcess] Incorrect modular Post-Process format registered - please Fix');
 			return;
 		}
 		_effects.push(module);
-		module.init( gl );
+		module.init(gl);
 	};
 
 	/**
@@ -42,39 +41,40 @@ define(function(require) {
 	 * Always binds a full-resolution buffer to ensure the 3D scene is sharp.
 	 * @param {WebGLRenderingContext} gl - The WebGL context.
 	 */
-	PostProcess.prepare = function( gl ) {
+	PostProcess.prepare = function (gl) {
 		_activeEffects = _effects.filter(e => e.isActive());
-		
+
 		// Ensure global buffers exist and match canvas size
 		this.validateBuffers(gl);
 
 		if (_activeEffects.length > 0) {
 			// Render the scene into the write buffer (which becomes read buffer in .render())
 			gl.bindFramebuffer(gl.FRAMEBUFFER, _writeFbo.framebuffer);
-		}
-		else {
+		} else {
 			// No effects? Render directly to screen
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		}
 
 		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	};
 
 	/**
 	 * Executes the post-processing pipeline using Ping-Pong swapping.
 	 * @param {WebGLRenderingContext} gl - The WebGL context.
 	 */
-	PostProcess.render = function( gl ) {
-		if (_activeEffects.length === 0) return;
+	PostProcess.render = function (gl) {
+		if (_activeEffects.length === 0) {
+			return;
+		}
 
 		// The buffer we just drew the 3D scene into (_writeFbo) becomes the source (_readFbo)
 		this.swapBuffers();
 
 		for (var i = 0; i < _activeEffects.length; i++) {
 			var effect = _activeEffects[i];
-			var isLast = (i === _activeEffects.length - 1);
-			
+			var isLast = i === _activeEffects.length - 1;
+
 			// Destination: Screen (null) if last, otherwise the next offscreen buffer
 			var targetFbo = isLast ? null : _writeFbo.framebuffer;
 
@@ -91,7 +91,7 @@ define(function(require) {
 	/**
 	 * Swaps the read and write FBO references.
 	 */
-	PostProcess.swapBuffers = function() {
+	PostProcess.swapBuffers = function () {
 		var temp = _readFbo;
 		_readFbo = _writeFbo;
 		_writeFbo = temp;
@@ -100,7 +100,7 @@ define(function(require) {
 	/**
 	 * Ensures Ping-Pong buffers are created and resized if necessary.
 	 */
-	PostProcess.validateBuffers = function(gl) {
+	PostProcess.validateBuffers = function (gl) {
 		if (!_readFbo || _readFbo.width !== gl.canvas.width || _readFbo.height !== gl.canvas.height) {
 			_readFbo = this.createFbo(gl, gl.canvas.width, gl.canvas.height, _readFbo);
 			_writeFbo = this.createFbo(gl, gl.canvas.width, gl.canvas.height, _writeFbo);
@@ -110,25 +110,37 @@ define(function(require) {
 	/**
 	 * restart Modules when crashs
 	 */
-	PostProcess.restartModules = function restartModules( gl ) {
+	PostProcess.restartModules = function restartModules(gl) {
 		for (var i = 0; i < _activeEffects.length; i++) {
 			var module = _activeEffects[i];
-			module.clean( gl );
-			module.init( gl );
+			module.clean(gl);
+			module.init(gl);
 		}
 		_activeEffects = [];
-		
+
 		// Physically delete Ping-Pong buffers from GPU memory
 		if (_readFbo) {
-			if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
-			if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
-			if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
+			if (gl.isTexture(_readFbo.texture)) {
+				gl.deleteTexture(_readFbo.texture);
+			}
+			if (gl.isRenderbuffer(_readFbo.rbo)) {
+				gl.deleteRenderbuffer(_readFbo.rbo);
+			}
+			if (gl.isFramebuffer(_readFbo.framebuffer)) {
+				gl.deleteFramebuffer(_readFbo.framebuffer);
+			}
 		}
 
 		if (_writeFbo) {
-			if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
-			if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
-			if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
+			if (gl.isTexture(_writeFbo.texture)) {
+				gl.deleteTexture(_writeFbo.texture);
+			}
+			if (gl.isRenderbuffer(_writeFbo.rbo)) {
+				gl.deleteRenderbuffer(_writeFbo.rbo);
+			}
+			if (gl.isFramebuffer(_writeFbo.framebuffer)) {
+				gl.deleteFramebuffer(_writeFbo.framebuffer);
+			}
 		}
 
 		_readFbo = null;
@@ -155,25 +167,37 @@ define(function(require) {
 	/**
 	 * Clean current registered modules
 	 */
-	PostProcess.clean = function( gl ) {
+	PostProcess.clean = function (gl) {
 		for (var i = 0; i < _effects.length; i++) {
 			var module = _effects[i];
-			module.clean( gl );
+			module.clean(gl);
 		}
 		_effects = [];
 		_activeEffects = [];
-		
+
 		// Physically delete Ping-Pong buffers from GPU memory
 		if (_readFbo) {
-			if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
-			if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
-			if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
+			if (gl.isTexture(_readFbo.texture)) {
+				gl.deleteTexture(_readFbo.texture);
+			}
+			if (gl.isRenderbuffer(_readFbo.rbo)) {
+				gl.deleteRenderbuffer(_readFbo.rbo);
+			}
+			if (gl.isFramebuffer(_readFbo.framebuffer)) {
+				gl.deleteFramebuffer(_readFbo.framebuffer);
+			}
 		}
 
 		if (_writeFbo) {
-			if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
-			if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
-			if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
+			if (gl.isTexture(_writeFbo.texture)) {
+				gl.deleteTexture(_writeFbo.texture);
+			}
+			if (gl.isRenderbuffer(_writeFbo.rbo)) {
+				gl.deleteRenderbuffer(_writeFbo.rbo);
+			}
+			if (gl.isFramebuffer(_writeFbo.framebuffer)) {
+				gl.deleteFramebuffer(_writeFbo.framebuffer);
+			}
 		}
 
 		_readFbo = null;
@@ -189,8 +213,8 @@ define(function(require) {
 	 * @param {number} downsampleFactor - Multiplier for resolution (default 1.0)
 	 * @returns {Object|null} New FBO object or the current one if still valid
 	 */
-	PostProcess.createFbo = function(gl, width, height, fbo, downsampleFactor = 1.0) {
-		const targetWidth = Math.floor(width * downsampleFactor); 
+	PostProcess.createFbo = function (gl, width, height, fbo, downsampleFactor = 1.0) {
+		const targetWidth = Math.floor(width * downsampleFactor);
 		const targetHeight = Math.floor(height * downsampleFactor);
 
 		try {
@@ -199,7 +223,7 @@ define(function(require) {
 			}
 			return fbo;
 		} catch (e) {
-			console.error("Failed to create PostProcess FBOs:", e);
+			console.error('Failed to create PostProcess FBOs:', e);
 			return null;
 		}
 	};
@@ -216,9 +240,15 @@ define(function(require) {
 		try {
 			if (oldfbo) {
 				// Free old resources to prevent memory leaks
-				if(gl.isTexture(oldfbo.texture)) gl.deleteTexture(oldfbo.texture);
-				if(gl.isRenderbuffer(oldfbo.rbo)) gl.deleteRenderbuffer(oldfbo.rbo);
-				if(gl.isFramebuffer(oldfbo.framebuffer)) gl.deleteFramebuffer(oldfbo.framebuffer);
+				if (gl.isTexture(oldfbo.texture)) {
+					gl.deleteTexture(oldfbo.texture);
+				}
+				if (gl.isRenderbuffer(oldfbo.rbo)) {
+					gl.deleteRenderbuffer(oldfbo.rbo);
+				}
+				if (gl.isFramebuffer(oldfbo.framebuffer)) {
+					gl.deleteFramebuffer(oldfbo.framebuffer);
+				}
 			}
 
 			var fbo = gl.createFramebuffer();
@@ -246,7 +276,7 @@ define(function(require) {
 			// Validate Framebuffer state
 			var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
 			if (status !== gl.FRAMEBUFFER_COMPLETE) {
-				throw new Error("WebGL::createFramebuffer() - Incomplete Framebuffer! Status: " + status);
+				throw new Error('WebGL::createFramebuffer() - Incomplete Framebuffer! Status: ' + status);
 			}
 
 			// Clean up bindings
@@ -262,7 +292,7 @@ define(function(require) {
 				height: height
 			};
 		} catch (e) {
-			console.error("WebGL::createFramebuffer failed (likely OOM or context loss):", e);
+			console.error('WebGL::createFramebuffer failed (likely OOM or context loss):', e);
 			// Clean up partially created resources
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.bindTexture(gl.TEXTURE_2D, null);

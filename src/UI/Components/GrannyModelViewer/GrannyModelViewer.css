@@ -1,42 +1,42 @@
 body {
-	background-color:#45484d;
-	font-family:Arial;
-	font-size:12px;
-	margin:0;
-	overflow:hidden;
+	background-color: #45484d;
+	font-family: Arial;
+	font-size: 12px;
+	margin: 0;
+	overflow: hidden;
 }
 #GrannyModelViewer .warning {
-	display:none;
+	display: none;
 }
 #GrannyModelViewer .info {
-	text-align:center;
-	width:100%;
-	color:white;
-	margin-top:50px;
-	position:absolute;
+	text-align: center;
+	width: 100%;
+	color: white;
+	margin-top: 50px;
+	position: absolute;
 }
 #GrannyModelViewer canvas {
-	position:absolute;
-	top:0px;
-	left:0px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
 }
 #GrannyModelViewer #run_msg {
-	position:absolute;
-	right:10px;
-	top:12px;
-	text-align:right;
-	color:#fa5;
+	position: absolute;
+	right: 10px;
+	top: 12px;
+	text-align: right;
+	color: #fa5;
 }
 #GrannyModelViewer .head {
-	position:absolute;
-	width:100%;
-	height:40px;
+	position: absolute;
+	width: 100%;
+	height: 40px;
 	background: #222;
-	z-index:100;
-	display:none;
+	z-index: 100;
+	display: none;
 }
 #GrannyModelViewer .head select {
-	position:relative;
+	position: relative;
 	top: 8px;
-	left:5px;
+	left: 5px;
 }

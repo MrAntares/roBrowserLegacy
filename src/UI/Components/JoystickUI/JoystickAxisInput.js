@@ -1,8 +1,8 @@
 /**
  * UI/Components/JoystickUI/JoystickAxisInput.js
  *
- * Processes analog stick movements (axes). 
- * Responsible for translating stick coordinates into character 
+ * Processes analog stick movements (axes).
+ * Responsible for translating stick coordinates into character
  * movement and mouse cursor positioning based on defined deadzones.
  *
  * @author AoShinHo
@@ -14,7 +14,6 @@ define(function (require) {
 	var ControlsSettings = require('Preferences/Controls');
 
 	return {
-
 		update: function (axes) {
 			var active = false;
 
@@ -36,7 +35,9 @@ define(function (require) {
 					active = true;
 				}
 			}
-			if(active) require('./JoystickUIRenderer').show();
+			if (active) {
+				require('./JoystickUIRenderer').show();
+			}
 
 			return active;
 		}

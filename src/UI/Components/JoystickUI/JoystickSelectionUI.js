@@ -24,7 +24,9 @@ define(function (require) {
 
 	// Internal Helper: Debounce for gamepad input
 	function setClickInterval() {
-		if (clickLock) clearTimeout(clickLock);
+		if (clickLock) {
+			clearTimeout(clickLock);
+		}
 		clickLock = setTimeout(function () {
 			clickLock = null;
 		}, 200);
@@ -93,7 +95,7 @@ define(function (require) {
 			var isEmpty = !slot || (!slot.isSkill && !slot.ID);
 
 			var joystickCombo = getJoystickComboForSlot(globalIndex);
-			var displayText = joystickCombo || (i + 1);
+			var displayText = joystickCombo || i + 1;
 
 			var slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
 
@@ -130,10 +132,12 @@ define(function (require) {
 	}
 
 	function selectSlot() {
-		if (!itemData) return;
+		if (!itemData) {
+			return;
+		}
 
 		var row = currentTab;
-		var pos = (row * 9) + slotInTab;
+		var pos = row * 9 + slotInTab;
 
 		ShortCut.removeElement(itemData.isSkill, itemData.ID, row, itemData.value);
 		ShortCut.addElement(pos, itemData.isSkill, itemData.ID, itemData.value);
@@ -147,7 +151,9 @@ define(function (require) {
 	 * as expected by JoystickButtonInput.js
 	 */
 	JoystickSelectionUI.handleGamepadInput = function handleGamepadInput(buttons) {
-		if (isLocked()) return true;
+		if (isLocked()) {
+			return true;
+		}
 
 		// A - select
 		if (buttons[0] !== 'unpressed') {
@@ -228,7 +234,7 @@ define(function (require) {
 		}
 
 		return false;
-	}
+	};
 
 	JoystickSelectionUI.onAppend = function () {
 		// Initialize structure once attached

@@ -4,7 +4,7 @@
 	left: 0;
 	width: 690px;
 	height: 470px;
-	
+
 	color: #2d3a55;
 	box-sizing: border-box;
 	--enchant-scroll-up: none;
@@ -174,7 +174,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 
 #Enchant .item_list_empty {
 	padding: 10px;
-	
+
 	color: #6b7893;
 	text-align: center;
 }
@@ -232,7 +232,6 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 }
 
 #Enchant .item_entry .item_name {
-	
 	font-weight: bold;
 	white-space: nowrap;
 	overflow: hidden;
@@ -286,15 +285,15 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 	color: #375d9d;
 }
 
-#Enchant .action_tabs .tab[data-action="reset"] {
+#Enchant .action_tabs .tab[data-action='reset'] {
 	left: 192px;
 }
 
-#Enchant .action_tabs .tab[data-action="upgrade"] {
+#Enchant .action_tabs .tab[data-action='upgrade'] {
 	left: 131px;
 }
 
-#Enchant .action_tabs .tab[data-action="perfect"] {
+#Enchant .action_tabs .tab[data-action='perfect'] {
 	left: 68px;
 }
 
@@ -356,7 +355,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	
+
 	color: #6b7893;
 	pointer-events: none;
 }
@@ -374,22 +373,22 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 	background-image: none !important;
 }
 
-#Enchant .slot_list .slot_entry[data-slot="3"] {
+#Enchant .slot_list .slot_entry[data-slot='3'] {
 	top: 25px;
 	left: 190px;
 }
 
-#Enchant .slot_list .slot_entry[data-slot="2"] {
+#Enchant .slot_list .slot_entry[data-slot='2'] {
 	top: 110px;
 	left: 168px;
 }
 
-#Enchant .slot_list .slot_entry[data-slot="1"] {
+#Enchant .slot_list .slot_entry[data-slot='1'] {
 	top: 110px;
 	left: 88px;
 }
 
-#Enchant .slot_list .slot_entry[data-slot="0"] {
+#Enchant .slot_list .slot_entry[data-slot='0'] {
 	top: 24px;
 	left: 66px;
 }
@@ -464,7 +463,6 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 }
 
 #Enchant .enchant_entry .entry_name {
-	
 	font-weight: bold;
 	white-space: nowrap;
 	overflow: hidden;
@@ -473,7 +471,6 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 }
 
 #Enchant .enchant_entry .entry_sub {
-	
 	color: #6b7893;
 	white-space: nowrap;
 	overflow: hidden;
@@ -520,7 +517,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 	position: absolute;
 	right: 6px;
 	bottom: 6px;
-	
+
 	color: #2d3a55;
 	text-shadow: 1px 1px 0 #ffffff;
 }
@@ -548,7 +545,7 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 #Enchant .zeny_cost {
 	width: 100%;
 	text-align: right;
-	
+
 	font-weight: bold;
 	color: #2d3a55;
 }
@@ -587,7 +584,6 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 
 #Enchant .caution,
 #Enchant .status {
-	
 	color: #b13b3b;
 	line-height: 1.2;
 }

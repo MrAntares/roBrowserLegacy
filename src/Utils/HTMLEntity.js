@@ -9,19 +9,19 @@
  */
 
 define(function () {
-	"use strict";
+	'use strict';
 
 	function decodeHTMLEntities(str) {
 		// this prevents any overhead from creating the object each time
-		let element = document.createElement("div");
-		if (str && typeof str === "string") {
+		let element = document.createElement('div');
+		if (str && typeof str === 'string') {
 			element.innerHTML = str;
-			
+
 			// Remove script tags and other dangerous elements
-		    element.querySelectorAll("script, iframe, object, embed").forEach(n => n.remove());
+			element.querySelectorAll('script, iframe, object, embed').forEach(n => n.remove());
 
 			str = element.textContent;
-			element.textContent = "";
+			element.textContent = '';
 		}
 
 		return str;
@@ -31,6 +31,6 @@ define(function () {
 	 * Export
 	 */
 	return {
-		decodeHTMLEntities: decodeHTMLEntities,
+		decodeHTMLEntities: decodeHTMLEntities
 	};
 });

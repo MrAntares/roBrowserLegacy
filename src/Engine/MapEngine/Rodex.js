@@ -22,7 +22,6 @@ define(function (require) {
 	var ReadRodex = require('UI/Components/Rodex/ReadRodex');
 	var WriteRodex = require('UI/Components/Rodex/WriteRodex');
 
-
 	/**
 	 * Send Packets
 	 */
@@ -40,7 +39,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to Close RodEx Box
 	 *
@@ -49,7 +47,6 @@ define(function (require) {
 		let pkt = new PACKET.CZ.CLOSE_RODEXBOX();
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * Request to Read RodEx
@@ -64,7 +61,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to get next RodEx Page
 	 *
@@ -77,7 +73,6 @@ define(function (require) {
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * Request to Refresh current RodEx Page
@@ -92,7 +87,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to Get Zeny from RodEx
 	 *
@@ -105,7 +99,6 @@ define(function (require) {
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * Request to Get Item from RodEx
@@ -120,7 +113,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to Delete RodEx
 	 *
@@ -134,7 +126,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to Cancel Write RodEx
 	 *
@@ -143,7 +134,6 @@ define(function (require) {
 		let pkt = new PACKET.CZ.REQ_CANCEL_WRITE_RODEX();
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * Request to Add Item in RodEx
@@ -157,7 +147,6 @@ define(function (require) {
 		pkt.count = count;
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * Request to Remove Item in RodEx
@@ -175,18 +164,16 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to Open Write RodEx Window
 	 *
 	 * @param {string} name
 	 */
-	Rodex.requestOpenWriteRodex = function requestOpenWriteRodex(name = "") {
+	Rodex.requestOpenWriteRodex = function requestOpenWriteRodex(name = '') {
 		let pkt = new PACKET.CZ.REQ_OPEN_WRITE_RODEX();
 		pkt.name = name;
 		Network.sendPacket(pkt);
 	};
-
 
 	/**
 	 * Request to Get all Items and Zenys from RodEx Box
@@ -203,7 +190,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to refresh RodEx Box
 	 *
@@ -219,7 +205,6 @@ define(function (require) {
 		Network.sendPacket(pkt);
 	};
 
-
 	/**
 	 * Request to Send Rodex
 	 *
@@ -232,7 +217,16 @@ define(function (require) {
 	 * @param {int} title
 	 * @param {string} body
 	 */
-	WriteRodex.requestSendRodex = function requestSendRodex(receiver, sender, zeny, Titlelength, Bodylength, CharID, title, body) {
+	WriteRodex.requestSendRodex = function requestSendRodex(
+		receiver,
+		sender,
+		zeny,
+		Titlelength,
+		Bodylength,
+		CharID,
+		title,
+		body
+	) {
 		let pkt;
 		if (PACKETVER.value >= 20160330) {
 			pkt = new PACKET.CZ.REQ_SEND_RODEX2();
@@ -259,7 +253,7 @@ define(function (require) {
 		}
 		pkt.name = name;
 		Network.sendPacket(pkt);
-	}
+	};
 
 	/**
 	 * Receive Packets
@@ -443,5 +437,4 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME, rodexCharacterInfo);
 		Network.hookPacket(PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2, rodexCharacterInfo);
 	};
-
 });

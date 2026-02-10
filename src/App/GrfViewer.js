@@ -17,7 +17,7 @@ require.onError = function (err) {
 		return;
 	}
 
-	require(['UI/Components/Error/Error'], function( Errors ){
+	require(['UI/Components/Error/Error'], function (Errors) {
 		Errors.addTrace(err);
 	});
 };
@@ -25,16 +25,15 @@ require.onError = function (err) {
 require({
 	baseUrl: '../../src/',
 	paths: {
-		text:   'Vendors/text.require',
+		text: 'Vendors/text.require',
 		jquery: 'Vendors/jquery-1.9.1'
 	}
-}, ['UI/Components/GrfViewer/GrfViewer'], function( GRFViewer )
-{
+}, ['UI/Components/GrfViewer/GrfViewer'], function (GRFViewer) {
 	'use strict';
 
 	GRFViewer.append();
 
-	window.onbeforeunload = function() {
+	window.onbeforeunload = function () {
 		return 'Are you sure to exit ?';
 	};
 });
