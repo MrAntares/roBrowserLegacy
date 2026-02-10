@@ -23,135 +23,54 @@ module.exports = {
 		console: 'readonly'
 	},
 	rules: {
-		// let prettier handle this
-		// Indentation: tabs with 4 spaces width
-		//indent: [
-		//	'error',
-		//	'tab',
-		//	{
-		//		SwitchCase: 1
-		//	}
-		//],
 
-		// Quotes: single quotes
-		quotes: [
-			'error',
-			'single',
-			{
-				avoidEscape: true,
-				allowTemplateLiterals: false
-			}
-		],
-
-		// Semicolons: required
+		// ======================
+		// STYLE (prettier resolve)
+		// ======================
+		quotes: ['error', 'single', { avoidEscape: true }],
 		semi: ['error', 'always'],
-		'semi-spacing': [
-			'error',
-			{
-				before: false,
-				after: true
-			}
-		],
-
-		// let prettier handle this
-		// Brace style: Allman (opening brace on new line)
-		//'brace-style': [
-		//	'error',
-		//	'1tbs'
-		//],
-
-		// Comma: no trailing commas
 		'comma-dangle': ['error', 'never'],
-		'comma-spacing': [
-			'error',
-			{
-				before: false,
-				after: true
-			}
-		],
 
-		// Spacing
-		'space-before-function-paren': [
-			'error',
-			{
-				anonymous: 'always',
-				named: 'never',
-				asyncArrow: 'always'
-			}
-		],
-		'space-before-blocks': ['error', 'always'],
-		'space-in-parens': ['error', 'never'],
-		'space-infix-ops': 'error',
-		'keyword-spacing': [
-			'error',
-			{
-				before: true,
-				after: true
-			}
-		],
-		'object-curly-spacing': ['error', 'always'],
-		'array-bracket-spacing': ['error', 'never'],
+		// ======================
+		// ENGINE FRIENDLY
+		// ======================
+		eqeqeq: 'off',
+		'no-implicit-coercion': 'off',
+		'no-plusplus': 'off',
 
-		// Line breaks
-		'linebreak-style': ['error', 'unix'],
-		'eol-last': ['error', 'always'],
-		'no-trailing-spaces': 'error',
-		'no-multiple-empty-lines': [
-			'error',
-			{
-				max: 2,
-				maxEOF: 1,
-				maxBOF: 0
-			}
-		],
+		// ======================
+		// CODE QUALITY (REAL BUGS)
+		// ======================
+		curly: ['error', 'all'],
+		'no-eval': 'error',
+		'no-implied-eval': 'error',
+		'no-new-func': 'error',
+		'no-with': 'error',
 
-		// Variable declarations
-		'no-var': 'off',
-		'prefer-const': 'off',
-		'prefer-arrow-callback': 'off',
+		// ======================
+		// LESS NOISE FOR LEGACY
+		// ======================
 		'no-unused-vars': [
 			'warn',
 			{
-				vars: 'all',
-				args: 'none',
-				varsIgnorePattern: '^_'
+				varsIgnorePattern: '^_',
+				args: 'none'
 			}
 		],
 
-		// Best practices
+		'no-prototype-builtins': 'off',
+		'no-inner-declarations': 'off',
+		'no-case-declarations': 'off',
+
+		// ======================
+		// DEBUG
+		// ======================
 		'no-console': 'off',
 		'no-debugger': 'warn',
-		'no-alert': 'warn',
-		'no-mixed-spaces-and-tabs': 'error',
-		'no-multi-spaces': [
-			'error',
-			{
-				ignoreEOLComments: true,
-				exceptions: {
-					Property: true,
-					VariableDeclarator: true
-				}
-			}
-		],
 
-		// ES6 features - disable all
-		'no-arrow-functions': 'off',
-		'object-shorthand': 'off',
-		'prefer-template': 'off',
-		'prefer-spread': 'off',
-		'prefer-rest-params': 'off',
-		'prefer-destructuring': 'off',
-
-		// Code quality
-		curly: ['error', 'all'],
-		eqeqeq: 'off',
-		'no-eq-null': 'off',
-		'no-eval': 'error',
-		'no-implied-eval': 'error',
-		'no-with': 'error',
-		'no-new-func': 'error',
-
-		// Strict mode
+		// ======================
+		// STRICT MODE
+		// ======================
 		strict: ['error', 'function']
 	}
 };
