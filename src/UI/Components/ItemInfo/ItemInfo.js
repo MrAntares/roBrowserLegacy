@@ -514,7 +514,9 @@ define(function (require) {
 
 	function addEvent(item) {
 		var event = ItemInfo.ui.find('.event_view');
-		validateFieldsExist(event) ? '' : addEvent(item);
+		if (!validateFieldsExist(event)) {
+			addEvent(item);
+		} 
 
 		event.find('.view').hide();
 		event.find('canvas').remove();
@@ -725,8 +727,8 @@ define(function (require) {
 				'</span>' +
 				'<span class="overlay_read" data-text="1295">' +
 				DB.getMessage(1295) +
-				'</span>';
-			('</div>');
+				'</span>'+
+				'</div>';
 			ItemInfo.ui.find('.collection').after(validExitElement);
 			return false;
 		}
@@ -734,11 +736,11 @@ define(function (require) {
 		if (ItemInfo.ui.find('.overlay_open').length == 0 && ItemInfo.ui.find('.overlay_read').length == 0) {
 			event.append(
 				'<span class="overlay_open" data-text="1294">' +
-					DB.getMessage(1294) +
-					'</span>' +
-					'<span class="overlay_read" data-text="1295">' +
-					DB.getMessage(1295) +
-					'</span>'
+				DB.getMessage(1294) +
+				'</span>' +
+				'<span class="overlay_read" data-text="1295">' +
+				DB.getMessage(1295) +
+				'</span>'
 			);
 		}
 
