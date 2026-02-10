@@ -45,6 +45,7 @@ module.exports = {
 		'no-global-assign': 'off',
 		'no-undef': 'warn',
 		'no-redeclare': 'warn',
+		'no-unreachable': 'warn',
 
 		// ======================
 		// CODE QUALITY (REAL BUGS)
