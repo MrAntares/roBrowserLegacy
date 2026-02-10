@@ -15,6 +15,7 @@ permissions:
 
 jobs:
     prettier:
+        name: Prettier Check
         runs-on: ubuntu-latest
 
         steps:
