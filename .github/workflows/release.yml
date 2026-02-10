@@ -1,18 +1,18 @@
-name: 'Generate a release package'
+name: 'Generate a nightly release'
 
 concurrency:
     group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 on:
-    workflow_dispatch:
     push:
         branches: ['master']
         tags:
             - 'v*'
+    schedule:
+        - cron: '0 2 * * *'
 
 permissions:
-    # required for all workflows
     security-events: write
     contents: write
 
@@ -50,13 +50,24 @@ jobs:
                   cd dist/Web
                   zip -r "${{ github.workspace }}/release-dist-web.zip" .
 
-            - name: 'Create GitHub Release + upload assets'
-              uses: softprops/action-gh-release@v2
-              if: github.ref_type == 'tag'
+            - name: 'Create release'
+              uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
+              if: github.ref_type == 'tag' && github.event_name == 'push'
               with:
-                  prerelease: true
+                  prerelease: false
                   tag_name: ${{ github.ref_name }}
                   files: |
                       *.tgz
                       release-dist-web.zip
                   generate_release_notes: true
+
+            - name: 'Create nightly release'
+              uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
+              if: github.event_name == 'schedule'
+              with:
+                  prerelease: true
+                  tag_name: nightly
+                  files: |
+                      *.tgz
+                      release-dist-web.zip
+
