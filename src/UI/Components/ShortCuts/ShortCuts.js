@@ -340,7 +340,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = (pkt = new PACKET.CZ.REQ_EMOTION());
+		var pkt = new PACKET.CZ.REQ_EMOTION();
 		pkt.type = command;
 		Network.sendPacket(pkt);
 		return;
