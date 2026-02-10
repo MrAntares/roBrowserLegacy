@@ -40,6 +40,8 @@ module.exports = {
 		'no-fallthrough': 'off',
 		'no-case-declarations': 'off',
 		'no-useless-escape': 'off',
+		'no-empty': 'warn',
+		'no-constant-condition': 'warn',
 
 		// ======================
 		// CODE QUALITY (REAL BUGS)
