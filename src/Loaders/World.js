@@ -99,7 +99,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		if (version >= 2.2) {
-			var Unknown = fp.readByte();
+			fp.readByte();
 		}
 
 		// Read sub files.
