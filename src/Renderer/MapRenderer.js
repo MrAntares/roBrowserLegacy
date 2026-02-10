@@ -189,8 +189,9 @@ define(function (require) {
 			var i = 0;
 			i < sprFiles.length;
 			i++ // reloads spr memory cache
-		)
+		) {
 			MemoryManager.remove(gl, sprFiles[i]);
+		}
 
 		getModule('Engine/MapEngine').onMapChange(
 			{
@@ -349,8 +350,11 @@ define(function (require) {
 	 * Register PostProcessing Modules in pass order
 	 */
 	function registerPostProcessModules(gl) {
-		if (WebGL.detectBadWebGL(gl)) GraphicsSettings.bloom = false;
-		else PostProcess.register(Bloom, gl);
+		if (WebGL.detectBadWebGL(gl)) {
+			GraphicsSettings.bloom = false;
+		} else {
+			PostProcess.register(Bloom, gl);
+		}
 		PostProcess.register(GaussianBlur, gl);
 		PostProcess.register(FXAA, gl);
 		PostProcess.register(CAS, gl);
@@ -477,10 +481,12 @@ define(function (require) {
 			// NO walk cursor
 			// TODO: Know the packet version for this feature
 			if (PACKETVER.value >= 20200101) {
-				if (Cursor.getActualType() === Cursor.ACTION.NOWALK && isWalkable)
+				if (Cursor.getActualType() === Cursor.ACTION.NOWALK && isWalkable) {
 					Cursor.setType(Cursor.ACTION.DEFAULT, false);
-				if (Cursor.getActualType() === Cursor.ACTION.DEFAULT && !isWalkable)
+				}
+				if (Cursor.getActualType() === Cursor.ACTION.DEFAULT && !isWalkable) {
 					Cursor.setType(Cursor.ACTION.NOWALK, false);
+				}
 			}
 		}
 

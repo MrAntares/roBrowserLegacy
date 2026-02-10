@@ -49,7 +49,9 @@ define(function (require) {
 	 * @returns {string} HTML with color spans
 	 */
 	function processColorCodes(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		// Convert to string to handle non-string inputs
 		text = String(text);
 		return text
@@ -65,7 +67,9 @@ define(function (require) {
 	 * @returns {string} HTML with processed item tags
 	 */
 	function processItemTags(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		text = String(text);
 		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function (match, itemName, itemId) {
 			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
@@ -78,7 +82,9 @@ define(function (require) {
 	 * @returns {string} HTML with processed NAVI tags
 	 */
 	function processNAVITags(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		text = String(text);
 		return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function (match, displayName, naviInfo) {
 			return (
@@ -99,7 +105,9 @@ define(function (require) {
 	 * @returns {string} Fully processed HTML
 	 */
 	function processText(text) {
-		if (!text) return '';
+		if (!text) {
+			return '';
+		}
 		text = processItemTags(text);
 		text = processNAVITags(text);
 		text = processColorCodes(text);
@@ -189,8 +197,12 @@ define(function (require) {
 		QuestHelper.ui
 			.find('.quest-info-monster-panel-text .quest-ui-text-span')
 			.html('<ul class="quest-ui-monster-list">' + list + '<ul>');
-		if (quest.reward_exp_base > 0) QuestHelper.ui.find('.quest-info-reward-li-base').html(quest.reward_exp_base);
-		if (quest.reward_exp_job > 0) QuestHelper.ui.find('.quest-info-reward-li-job').html(quest.reward_exp_job);
+		if (quest.reward_exp_base > 0) {
+			QuestHelper.ui.find('.quest-info-reward-li-base').html(quest.reward_exp_base);
+		}
+		if (quest.reward_exp_job > 0) {
+			QuestHelper.ui.find('.quest-info-reward-li-job').html(quest.reward_exp_job);
+		}
 
 		for (let i = 0; i < quest.reward_item_list.length; i++) {
 			let it = DB.getItemInfo(quest.reward_item_list[i].ItemID);

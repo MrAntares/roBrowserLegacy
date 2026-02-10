@@ -1759,7 +1759,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.CZ.REQ_MAKINGARROW.prototype.build = function () {
 		var pkt_len = 2 + 2;
-		if (PACKETVER.value >= 20181121) pkt_len += 2;
+		if (PACKETVER.value >= 20181121) {
+			pkt_len += 2;
+		}
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1ae);
@@ -2995,7 +2997,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 			// can only buy 1 item per packet
 			pkt.writeShort(this.list[0].ITID); // nameID
 			pkt.writeShort(this.list[0].count); // amount
-			if (PACKETVER.value >= 20070711) pkt.writeShort(this.list[0].price); // amount
+			if (PACKETVER.value >= 20070711) {
+				pkt.writeShort(this.list[0].price);
+			} // amount
 			return pkt;
 		}
 		pkt.writeShort(len);
@@ -3515,7 +3519,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.CZ.ENTER2.prototype.build = function () {
 		var pkt_len = 2 + 4 + 4 + 4 + 4 + 1;
-		if (PACKETVER.value >= 20211103) pkt_len += 4;
+		if (PACKETVER.value >= 20211103) {
+			pkt_len += 4;
+		}
 		var pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x436);
@@ -5945,7 +5951,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.AID = fp.readULong();
 		this.itemList = (function () {
 			var len = 22;
-			if (PACKETVER.value >= 20150226) len = 47;
+			if (PACKETVER.value >= 20150226) {
+				len = 47;
+			}
 
 			var i,
 				count = ((end - fp.tell()) / len) | 0,
@@ -9001,7 +9009,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.mapInfoTable = (function () {
 			var count = ((end - fp.tell()) / 4) | 0,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readLong();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readLong();
+			}
 			return out;
 		})();
 	};
@@ -9234,7 +9244,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.AuthData = (function () {
 			var count = 4,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readULong();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readULong();
+			}
 			return out;
 		})();
 	};
@@ -9245,7 +9257,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.AuthData = (function () {
 			var count = 4,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readULong();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readULong();
+			}
 			return out;
 		})();
 	};
@@ -9283,7 +9297,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.val = (function () {
 			var count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readLong();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readLong();
+			}
 			return out;
 		})();
 	};
@@ -9309,7 +9325,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.SKID = (function () {
 			var count = ((end - fp.tell()) / 2) | 0,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readUShort();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readUShort();
+			}
 			return out;
 		})();
 	};
@@ -9798,7 +9816,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 				out[i].Detail.Job = (function () {
 					var count = 6,
 						out = new Array(count);
-					for (var i = 0; i < count; ++i) out[i] = fp.readShort();
+					for (var i = 0; i < count; ++i) {
+						out[i] = fp.readShort();
+					}
 					return out;
 				})();
 			}
@@ -10400,7 +10420,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.val = (function () {
 			var count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readLong();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readLong();
+			}
 			return out;
 		})();
 	};
@@ -10625,7 +10647,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.val = (function () {
 			var count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readLong();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readLong();
+			}
 			return out;
 		})();
 	};
@@ -10640,7 +10664,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.val = (function () {
 			var count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) out[i] = fp.readLong();
+			for (var i = 0; i < count; ++i) {
+				out[i] = fp.readLong();
+			}
 			return out;
 		})();
 	};
@@ -12144,7 +12170,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.job = fp.readShort();
 		this.head = fp.readUShort();
 		this.weapon = fp.readULong();
-		if (PACKETVER.value >= 20181121) this.shield = fp.readULong();
+		if (PACKETVER.value >= 20181121) {
+			this.shield = fp.readULong();
+		}
 		this.accessory = fp.readUShort();
 		this.moveStartTime = fp.readULong();
 		this.accessory2 = fp.readUShort();
@@ -12184,7 +12212,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
-		if (PACKETVER.value >= 20181121) this.shield = fp.readLong();
+		if (PACKETVER.value >= 20181121) {
+			this.shield = fp.readLong();
+		}
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -12223,7 +12253,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
-		if (PACKETVER.value >= 20181121) this.shield = fp.readLong();
+		if (PACKETVER.value >= 20181121) {
+			this.shield = fp.readLong();
+		}
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();

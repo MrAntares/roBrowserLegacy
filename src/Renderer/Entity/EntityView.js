@@ -215,7 +215,9 @@ define(function (require) {
 		);
 
 		// Refresh costume
-		if (PACKETVER.value > 20141022 && this._body > 0) this.body = this._body;
+		if (PACKETVER.value > 20141022 && this._body > 0) {
+			this.body = this._body;
+		}
 	}
 
 	/**

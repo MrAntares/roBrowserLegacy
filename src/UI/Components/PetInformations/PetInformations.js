@@ -74,7 +74,9 @@ define(function (require) {
 		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (petAutoFeeding ? '1' : '0') + '.bmp', function (data) {
 			PetInformations.ui.find('.pet_auto_feed').css('backgroundImage', 'url(' + data + ')');
 		});
-		if (PACKETVER.value < 20141008) PetInformations.ui.find('.feeding').hide();
+		if (PACKETVER.value < 20141008) {
+			PetInformations.ui.find('.feeding').hide();
+		}
 	};
 
 	/**

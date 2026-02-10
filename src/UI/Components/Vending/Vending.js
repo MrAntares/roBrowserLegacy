@@ -124,8 +124,11 @@ define(function (require) {
 		this.ui.find('.btn.cancel').click(function (e) {
 			e.stopImmediatePropagation();
 			var pkt;
-			if (_type === Vending.Type.VENDING_STORE) pkt = new PACKET.CZ.REQ_OPENSTORE2();
-			else pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
+			if (_type === Vending.Type.VENDING_STORE) {
+				pkt = new PACKET.CZ.REQ_OPENSTORE2();
+			} else {
+				pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
+			}
 
 			submitNetworkPacket(pkt);
 			Vending.onRemove();
@@ -806,7 +809,9 @@ define(function (require) {
 		let buyable = new Array();
 		for (let key in Inventory.getUI().list) {
 			let item = Inventory.getUI().list[key];
-			if (isItemStackable(item) && DB.isBuyable(item.ITID)) buyable.push(item);
+			if (isItemStackable(item) && DB.isBuyable(item.ITID)) {
+				buyable.push(item);
+			}
 		}
 		this.setList(buyable);
 		this.ui.find('.add_shop')[0].style.height = 32 * _slots + 'px';
@@ -898,7 +903,9 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		if (!this.classList.contains('input')) return;
+		if (!this.classList.contains('input')) {
+			return;
+		}
 
 		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var item =

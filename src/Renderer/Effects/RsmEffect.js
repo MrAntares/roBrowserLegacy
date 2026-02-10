@@ -381,7 +381,9 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model', 'Rende
 				}
 
 				len = 1 / Math.sqrt(x * x + y * y + z * z);
-				if (!isFinite(len)) len = 1;
+				if (!isFinite(len)) {
+					len = 1;
+				}
 				norm[l] = x * len;
 				norm[l + 1] = y * len;
 				norm[l + 2] = z * len;

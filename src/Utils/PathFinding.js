@@ -81,7 +81,7 @@ define(function () {
 		var i, h, cost;
 
 		h = 0;
-		for (h = 0; h < heap[0] && heap[h + 1] !== index; ++h);
+		for (h = 0; h < heap[0] && heap[h + 1] !== index; ++h) {}
 
 		if (h === heap[0]) {
 			throw new Error('PathFinding::update_heap_path() - Error updating head path');
@@ -106,7 +106,9 @@ define(function () {
 	function pop_heap_path(heap) {
 		var i, h, k, ret, last, cost;
 
-		if (heap[0] <= 0) return -1;
+		if (heap[0] <= 0) {
+			return -1;
+		}
 
 		ret = +heap[1];
 		last = +heap[heap[0]--];
@@ -270,8 +272,12 @@ define(function () {
 				// Must continue checking if there is a wall
 			}
 
-			if (x === x1) dx = 0;
-			if (y === y1) dy = 0;
+			if (x === x1) {
+				dx = 0;
+			}
+			if (y === y1) {
+				dy = 0;
+			}
 
 			if (dx === 0 && dy === 0) {
 				break;
@@ -399,7 +405,7 @@ define(function () {
 		}
 
 		// Reorganize Path
-		for (pathLen = 0, i = currentNode; pathLen < 100 && i !== calc_index(x0, y0); i = _before[i], pathLen++);
+		for (pathLen = 0, i = currentNode; pathLen < 100 && i !== calc_index(x0, y0); i = _before[i], pathLen++) {}
 
 		finalLen = 0;
 		skip = range > 0;
@@ -497,8 +503,12 @@ define(function () {
 				// Must continue checking if there is a wall
 			}
 
-			if (x === x1) dx = 0;
-			if (y === y1) dy = 0;
+			if (x === x1) {
+				dx = 0;
+			}
+			if (y === y1) {
+				dy = 0;
+			}
 
 			if (dx === 0 && dy === 0) {
 				break;

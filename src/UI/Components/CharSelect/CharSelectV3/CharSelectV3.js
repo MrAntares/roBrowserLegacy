@@ -172,7 +172,9 @@ define(function (require) {
 	 * @param {object} event
 	 */
 	CharSelectV3.onKeyDown = function onKeyDown(event) {
-		if (!this.ui.is(':visible')) return true;
+		if (!this.ui.is(':visible')) {
+			return true;
+		}
 		switch (event.which) {
 			case KEYS.ESCAPE:
 				cancel();

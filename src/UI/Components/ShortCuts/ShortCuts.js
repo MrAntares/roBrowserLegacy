@@ -99,7 +99,9 @@ define(function (require) {
 	 */
 	ShortCuts.init = function Init() {
 		this.ui.find('.footer button').mousedown(function () {
-			if (this.className == 'emoticons') Emoticons.onShortCut({ cmd: 'TOGGLE' });
+			if (this.className == 'emoticons') {
+				Emoticons.onShortCut({ cmd: 'TOGGLE' });
+			}
 		});
 
 		this.ui.find('.close').click(onClose);

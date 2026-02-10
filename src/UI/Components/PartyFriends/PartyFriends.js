@@ -536,9 +536,15 @@ define(function (require) {
 	 * @param {boolean} item sharing option
 	 */
 	PartyFriends.setOptions = function setOptions(exp_share, item_share, item_sharing_type) {
-		if (exp_share !== undefined) _options.exp_share = exp_share;
-		if (item_share !== undefined) _options.item_share = item_share;
-		if (item_sharing_type !== undefined) _options.item_sharing_type = item_sharing_type;
+		if (exp_share !== undefined) {
+			_options.exp_share = exp_share;
+		}
+		if (item_share !== undefined) {
+			_options.item_share = item_share;
+		}
+		if (item_sharing_type !== undefined) {
+			_options.item_sharing_type = item_sharing_type;
+		}
 	};
 
 	/**

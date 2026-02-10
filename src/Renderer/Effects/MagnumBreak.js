@@ -205,7 +205,9 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 		var attribute = _program.attribute;
 		//var sizeMult = Math.sin(this.timer / (4 * Math.PI)) + 0.5; //var sizeMult = Math.sin(tick / (85 * Math.PI)) + 1.50;
 		var sizeMult = 0.15 + this.timer / 10;
-		if (sizeMult < 0.5) sizeMult = 0.5;
+		if (sizeMult < 0.5) {
+			sizeMult = 0.5;
+		}
 
 		++this.timer;
 		if (this.timer == 21) {

@@ -11,7 +11,7 @@ module.exports = {
 	extends: ['eslint:recommended', 'prettier'],
 	plugins: ['requirejs'],
 	parserOptions: {
-		ecmaVersion: 5,
+		ecmaVersion: 2015,
 		sourceType: 'script'
 	},
 	globals: {
@@ -51,11 +51,12 @@ module.exports = {
 			}
 		],
 
+		// let prettier handle this
 		// Brace style: Allman (opening brace on new line)
-		'brace-style': [
-			'error',
-			'1tbs'
-		],
+		//'brace-style': [
+		//	'error',
+		//	'1tbs'
+		//],
 
 		// Comma: no trailing commas
 		'comma-dangle': ['error', 'never'],

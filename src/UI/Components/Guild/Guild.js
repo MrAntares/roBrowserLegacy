@@ -804,8 +804,12 @@ define(function (require) {
 
 		element.find('.levelupcontainer').append(levelup);
 
-		if (rArrow) element.find('.level .currentUp').css('background-image', rArrow);
-		if (lArrow) element.find('.level .currentDown').css('background-image', lArrow);
+		if (rArrow) {
+			element.find('.level .currentUp').css('background-image', rArrow);
+		}
+		if (lArrow) {
+			element.find('.level .currentDown').css('background-image', lArrow);
+		}
 
 		element.find('.level .currentUp').click(function () {
 			skillLevelSelectUp(skill);
@@ -1366,7 +1370,9 @@ define(function (require) {
 		Session.hasGuild = true;
 		Session.Entity.GUID = info.GDID;
 		Session.Entity.GEmblemVer = info.emblemVersion;
-		if (Session.Character.name == info.masterName) Session.isGuildMaster = true;
+		if (Session.Character.name == info.masterName) {
+			Session.isGuildMaster = true;
+		}
 	};
 
 	/**

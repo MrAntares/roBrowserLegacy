@@ -29,7 +29,9 @@ define(function (require) {
 	}
 
 	function moveMouseToEntity(entity) {
-		if (!entity || !entity.position) return;
+		if (!entity || !entity.position) {
+			return;
+		}
 
 		var mat4 = glMatrix.mat4;
 		var vec4 = glMatrix.vec4;
@@ -106,7 +108,9 @@ define(function (require) {
 		el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
 		setTimeout(function () {
 			el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
-			if (click) el.dispatchEvent(new MouseEvent('click', eventOptions));
+			if (click) {
+				el.dispatchEvent(new MouseEvent('click', eventOptions));
+			}
 		}, 50);
 	}
 
@@ -120,7 +124,9 @@ define(function (require) {
 		if (holding) {
 			var draggableElement = el.closest('.item, .skill');
 			if (draggableElement) {
-				if (require('./JoystickInteractionService').openSelectionWindow(draggableElement)) return;
+				if (require('./JoystickInteractionService').openSelectionWindow(draggableElement)) {
+					return;
+				}
 			}
 		}
 		el.dispatchEvent(
@@ -138,7 +144,9 @@ define(function (require) {
 	}
 
 	function handleWorldLeftClick() {
-		if (!Mouse.intersect) Mouse.intersect = true;
+		if (!Mouse.intersect) {
+			Mouse.intersect = true;
+		}
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 1
@@ -153,7 +161,9 @@ define(function (require) {
 	}
 
 	function handleWorldRightClick() {
-		if (!Mouse.intersect) Mouse.intersect = true;
+		if (!Mouse.intersect) {
+			Mouse.intersect = true;
+		}
 		jQuery(Renderer.canvas).trigger({
 			type: 'mousedown',
 			which: 3

@@ -218,7 +218,9 @@ define([
 
 			// Check if the Vertical Flip (Illusion effect) is active
 			// If true, invert the Y coordinate relative to the renderer height
-			if (VerticalFlip.isActive()) _to[1] = -_to[1];
+			if (VerticalFlip.isActive()) {
+				_to[1] = -_to[1];
+			}
 
 			_to[2] = 1.0;
 			_to[3] = 1.0;

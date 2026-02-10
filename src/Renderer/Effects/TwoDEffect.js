@@ -48,24 +48,39 @@ define([
 
 		this.shadowTexture = effect.shadowTexture ? true : false;
 
-		if (effect.red) this.red = effect.red;
-		else this.red = 1;
+		if (effect.red) {
+			this.red = effect.red;
+		} else {
+			this.red = 1;
+		}
 
-		if (effect.green) this.green = effect.green;
-		else this.green = 1;
+		if (effect.green) {
+			this.green = effect.green;
+		} else {
+			this.green = 1;
+		}
 
-		if (effect.blue) this.blue = effect.blue;
-		else this.blue = 1;
+		if (effect.blue) {
+			this.blue = effect.blue;
+		} else {
+			this.blue = 1;
+		}
 
 		// Original position
 		this.position = position;
 
 		// PosX
-		if (effect.posxStart) this.posxStart = effect.posxStart;
-		else this.posxStart = 0;
+		if (effect.posxStart) {
+			this.posxStart = effect.posxStart;
+		} else {
+			this.posxStart = 0;
+		}
 
-		if (effect.posxEnd) this.posxEnd = effect.posxEnd;
-		else this.posxEnd = 0;
+		if (effect.posxEnd) {
+			this.posxEnd = effect.posxEnd;
+		} else {
+			this.posxEnd = 0;
+		}
 
 		if (effect.posx) {
 			this.posxStart = effect.posx;
@@ -101,11 +116,17 @@ define([
 		this.posxSmooth = effect.posxSmooth ? true : false;
 
 		// PosY
-		if (effect.posyStart) this.posyStart = effect.posyStart;
-		else this.posyStart = 0;
+		if (effect.posyStart) {
+			this.posyStart = effect.posyStart;
+		} else {
+			this.posyStart = 0;
+		}
 
-		if (effect.posyEnd) this.posyEnd = effect.posyEnd;
-		else this.posyEnd = 0;
+		if (effect.posyEnd) {
+			this.posyEnd = effect.posyEnd;
+		} else {
+			this.posyEnd = 0;
+		}
 
 		if (effect.posy) {
 			this.posyStart = effect.posy;
@@ -141,11 +162,17 @@ define([
 		this.posySmooth = effect.posySmooth ? true : false;
 
 		// PosZ
-		if (effect.poszStart) this.poszStart = effect.poszStart;
-		else this.poszStart = 0;
+		if (effect.poszStart) {
+			this.poszStart = effect.poszStart;
+		} else {
+			this.poszStart = 0;
+		}
 
-		if (effect.poszEnd) this.poszEnd = effect.poszEnd;
-		else this.poszEnd = 0;
+		if (effect.poszEnd) {
+			this.poszEnd = effect.poszEnd;
+		} else {
+			this.poszEnd = 0;
+		}
 
 		if (effect.posz) {
 			this.poszStart = effect.posz;
@@ -181,11 +208,17 @@ define([
 		this.poszSmooth = effect.poszSmooth ? true : false;
 
 		// OffsetX
-		if (effect.offsetxStart) this.offsetxStart = effect.offsetxStart;
-		else this.offsetxStart = 0;
+		if (effect.offsetxStart) {
+			this.offsetxStart = effect.offsetxStart;
+		} else {
+			this.offsetxStart = 0;
+		}
 
-		if (effect.offsetxEnd) this.offsetxEnd = effect.offsetxEnd;
-		else this.offsetxEnd = 0;
+		if (effect.offsetxEnd) {
+			this.offsetxEnd = effect.offsetxEnd;
+		} else {
+			this.offsetxEnd = 0;
+		}
 
 		if (effect.offsetx) {
 			this.offsetxStart = effect.offsetx;
@@ -221,11 +254,17 @@ define([
 		this.offsetxSmooth = effect.offsetxSmooth ? true : false;
 
 		//OffsetY
-		if (effect.offsetyStart) this.offsetyStart = effect.offsetyStart;
-		else this.offsetyStart = 0;
+		if (effect.offsetyStart) {
+			this.offsetyStart = effect.offsetyStart;
+		} else {
+			this.offsetyStart = 0;
+		}
 
-		if (effect.offsetyEnd) this.offsetyEnd = effect.offsetyEnd;
-		else this.offsetyEnd = 0;
+		if (effect.offsetyEnd) {
+			this.offsetyEnd = effect.offsetyEnd;
+		} else {
+			this.offsetyEnd = 0;
+		}
 
 		if (effect.offsety) {
 			this.offsetyStart = effect.offsety;
@@ -288,10 +327,18 @@ define([
 			this.sizeEndY = effect.sizeY;
 		}
 
-		if (effect.sizeStartX) this.sizeStartX = effect.sizeStartX;
-		if (effect.sizeStartY) this.sizeStartY = effect.sizeStartY;
-		if (effect.sizeEndX) this.sizeEndX = effect.sizeEndX;
-		if (effect.sizeEndY) this.sizeEndY = effect.sizeEndY;
+		if (effect.sizeStartX) {
+			this.sizeStartX = effect.sizeStartX;
+		}
+		if (effect.sizeStartY) {
+			this.sizeStartY = effect.sizeStartY;
+		}
+		if (effect.sizeEndX) {
+			this.sizeEndX = effect.sizeEndX;
+		}
+		if (effect.sizeEndY) {
+			this.sizeEndY = effect.sizeEndY;
+		}
 
 		if (effect.sizeRand) {
 			this.sizeStartX = getRandomIntInclusive(-effect.sizeRand, effect.sizeRand) + 100;
@@ -397,13 +444,17 @@ define([
 	};
 
 	TwoDEffect.prototype.render = function render(gl, tick) {
-		if (this.startTick > tick) return; //not yet
+		if (this.startTick > tick) {
+			return;
+		} //not yet
 
 		var start = tick - this.startTick;
 		var duration = this.endTick - this.startTick;
 		var steps = (start / duration) * 100;
 
-		if (steps > 100) steps = 100;
+		if (steps > 100) {
+			steps = 100;
+		}
 
 		if (this.blendMode > 0 && this.blendMode < 16) {
 			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
@@ -426,14 +477,18 @@ define([
 				var start = this.posxStart;
 				var position = smoothStep * distance + start;
 				currentX = position;
-			} else currentX = this.posxStart;
+			} else {
+				currentX = this.posxStart;
+			}
 		} else {
 			if (this.posxStart != this.posxEnd) {
 				var distance = (this.posxEnd - this.posxStart) / 100;
 				var start = this.posxStart;
 				var position = steps * distance + start;
 				currentX = position;
-			} else currentX = this.posxStart;
+			} else {
+				currentX = this.posxStart;
+			}
 		}
 
 		var currentY = 0;
@@ -445,14 +500,18 @@ define([
 				var start = this.posyStart;
 				var position = smoothStep * distance + start;
 				currentY = position;
-			} else currentY = this.posyStart;
+			} else {
+				currentY = this.posyStart;
+			}
 		} else {
 			if (this.posyStart != this.posyEnd) {
 				var distance = (this.posyEnd - this.posyStart) / 100;
 				var start = this.posyStart;
 				var position = steps * distance + start;
 				currentY = position;
-			} else currentY = this.posyStart;
+			} else {
+				currentY = this.posyStart;
+			}
 		}
 
 		//Rotate coordinates with camera for 2D effect
@@ -468,14 +527,18 @@ define([
 				var start = this.poszStart;
 				var position = smoothStep * distance + start;
 				currentZ = position;
-			} else currentZ = this.poszStart;
+			} else {
+				currentZ = this.poszStart;
+			}
 		} else {
 			if (this.poszStart != this.poszEnd) {
 				var distance = (this.poszEnd - this.poszStart) / 100;
 				var start = this.poszStart;
 				var position = steps * distance + start;
 				currentZ = position;
-			} else currentZ = this.poszStart;
+			} else {
+				currentZ = this.poszStart;
+			}
 		}
 		SpriteRenderer.position[2] = this.position[2] + currentZ;
 
@@ -489,14 +552,18 @@ define([
 				var start = this.offsetxStart;
 				var offset = smoothStep * distance + start;
 				currentOffsetX = offset;
-			} else currentOffsetX = this.offsetxStart;
+			} else {
+				currentOffsetX = this.offsetxStart;
+			}
 		} else {
 			if (this.offsetxStart != this.offsetxEnd) {
 				var distance = (this.offsetxEnd - this.offsetxStart) / 100;
 				var start = this.offsetxStart;
 				var offset = steps * distance + start;
 				currentOffsetX = offset;
-			} else currentOffsetX = this.offsetxStart;
+			} else {
+				currentOffsetX = this.offsetxStart;
+			}
 		}
 
 		var currentOffsetY = 0;
@@ -508,14 +575,18 @@ define([
 				var start = this.offsetyStart;
 				var offset = smoothStep * distance + start;
 				currentOffsetY = offset;
-			} else currentOffsetY = this.offsetyStart;
+			} else {
+				currentOffsetY = this.offsetyStart;
+			}
 		} else {
 			if (this.offsetyStart != this.offsetyEnd) {
 				var distance = (this.offsetyEnd - this.offsetyStart) / 100;
 				var start = this.offsetyStart;
 				var offset = steps * distance + start;
 				currentOffsetY = offset;
-			} else currentOffsetY = this.offsetyStart;
+			} else {
+				currentOffsetY = this.offsetyStart;
+			}
 		}
 
 		SpriteRenderer.offset[0] = currentOffsetX;
@@ -530,8 +601,11 @@ define([
 			alpha = ((duration - start) * this.alphaMax) / (duration / 4);
 		}
 
-		if (alpha < 0) alpha = 0;
-		else if (alpha > 1) alpha = 1;
+		if (alpha < 0) {
+			alpha = 0;
+		} else if (alpha > 1) {
+			alpha = 1;
+		}
 
 		SpriteRenderer.color[3] = alpha;
 		SpriteRenderer.color[0] = this.red;
@@ -548,7 +622,9 @@ define([
 				var start = this.sizeStartX;
 				var size = smoothStep * delta + start;
 				currentXSize = size;
-			} else currentXSize = this.sizeStartX;
+			} else {
+				currentXSize = this.sizeStartX;
+			}
 
 			if (this.sizeEndY != this.sizeStartY) {
 				var step = steps * 0.09 + 1;
@@ -557,21 +633,27 @@ define([
 				var start = this.sizeStartY;
 				var size = smoothStep * delta + start;
 				currentYSize = size;
-			} else currentYSize = this.sizeStartY;
+			} else {
+				currentYSize = this.sizeStartY;
+			}
 		} else {
 			if (this.sizeEndX != this.sizeStartX) {
 				var step = (this.sizeEndX - this.sizeStartX) / 100;
 				var start = this.sizeStartX;
 				var size = steps * step + start;
 				currentXSize = size;
-			} else currentXSize = this.sizeStartX;
+			} else {
+				currentXSize = this.sizeStartX;
+			}
 
 			if (this.sizeEndY != this.sizeStartY) {
 				var step = (this.sizeEndY - this.sizeStartY) / 100;
 				var start = this.sizeStartY;
 				var size = steps * step + start;
 				currentYSize = size;
-			} else currentYSize = this.sizeStartY;
+			} else {
+				currentYSize = this.sizeStartY;
+			}
 		}
 
 		SpriteRenderer.size[0] = currentXSize;
@@ -583,7 +665,9 @@ define([
 			var startAngle = this.angle;
 			var angle = steps * step + startAngle;
 			SpriteRenderer.angle = angle;
-		} else SpriteRenderer.angle = this.angle;
+		} else {
+			SpriteRenderer.angle = this.angle;
+		}
 
 		// default true, true, false
 		SpriteRenderer.runWithDepth(this.overlay === false, this.overlay === false, this.overlay === true, function () {
@@ -591,14 +675,15 @@ define([
 		});
 
 		if (this.ownerEntity) {
-			if (this.endTick < tick)
+			if (this.endTick < tick) {
 				this.ownerEntity.attachments.remove(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
-			else {
+			} else {
 				var attachment = this.ownerEntity.attachments.get(
 					this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate
 				);
-				if (attachment)
+				if (attachment) {
 					attachment.position = new Int16Array([SpriteRenderer.position[0], SpriteRenderer.position[1]]);
+				}
 			}
 		}
 		this.needCleanUp = this.endTick < tick;

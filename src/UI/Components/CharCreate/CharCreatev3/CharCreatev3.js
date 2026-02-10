@@ -390,15 +390,23 @@ define(function (require) {
 
 			case TYPE.HEAD:
 				var tmpval = _model.entity.head + value;
-				if (tmpval > CAP[_model.entity.job].HEAD.MAX) tmpval = CAP[_model.entity.job].HEAD.MIN;
-				if (tmpval < CAP[_model.entity.job].HEAD.MIN) tmpval = CAP[_model.entity.job].HEAD.MAX;
+				if (tmpval > CAP[_model.entity.job].HEAD.MAX) {
+					tmpval = CAP[_model.entity.job].HEAD.MIN;
+				}
+				if (tmpval < CAP[_model.entity.job].HEAD.MIN) {
+					tmpval = CAP[_model.entity.job].HEAD.MAX;
+				}
 				_model.entity.head = tmpval;
 				break;
 
 			case TYPE.HEADPALETTE:
 				var tmpval = _model.entity.headpalette + value;
-				if (tmpval > CAP[_model.entity.job].HEADPALETTE.MAX) tmpval = CAP[_model.entity.job].HEADPALETTE.MIN;
-				if (tmpval < CAP[_model.entity.job].HEADPALETTE.MIN) tmpval = CAP[_model.entity.job].HEADPALETTE.MAX;
+				if (tmpval > CAP[_model.entity.job].HEADPALETTE.MAX) {
+					tmpval = CAP[_model.entity.job].HEADPALETTE.MIN;
+				}
+				if (tmpval < CAP[_model.entity.job].HEADPALETTE.MIN) {
+					tmpval = CAP[_model.entity.job].HEADPALETTE.MAX;
+				}
 				_model.entity.headpalette = tmpval;
 				break;
 

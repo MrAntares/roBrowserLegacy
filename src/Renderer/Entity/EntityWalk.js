@@ -133,7 +133,9 @@ define(function (require) {
 		// Formula: dir = ((-angle)/(PI/4) + 6) mod 8
 		var angle = Math.atan2(dy, dx);
 		var dir = (-angle / (Math.PI / 4) + 6) % 8;
-		if (dir < 0) dir += 8;
+		if (dir < 0) {
+			dir += 8;
+		}
 		return dir;
 	}
 
@@ -195,7 +197,9 @@ define(function (require) {
 			true
 		);
 
-		if (result.success) total = result.pathLength + 1;
+		if (result.success) {
+			total = result.pathLength + 1;
+		}
 
 		this.walk.index = 1 * 2; // skip first index
 		this.walk.total = total * 2;
@@ -348,7 +352,9 @@ define(function (require) {
 		var TICK = Renderer.tick;
 		var falconGliding = 5;
 
-		if (total == 0) return;
+		if (total == 0) {
+			return;
+		}
 
 		if (
 			total > 0 &&
@@ -579,7 +585,9 @@ define(function (require) {
 		) {
 			let range = 2;
 			let distance = Math.floor(this.distance(this, this.falcon));
-			if (distance < range) return;
+			if (distance < range) {
+				return;
+			}
 
 			var falconBaseSpeed = this.walk.speed;
 			this.falcon.walk.speed = falconBaseSpeed + (distance > 9 ? -10 : 10);
@@ -609,7 +617,9 @@ define(function (require) {
 		) {
 			let range = 4;
 			let distance = Math.floor(this.distance(this, this.wug));
-			if (distance < range) return;
+			if (distance < range) {
+				return;
+			}
 
 			this.wug.walk.speed = this.walk.speed - 10;
 

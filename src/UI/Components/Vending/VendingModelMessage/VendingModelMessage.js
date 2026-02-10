@@ -48,7 +48,9 @@ define(function (require) {
 	};
 
 	VendingModelMessage.onRemove = function onRemove() {
-		if (this.ui == undefined) return;
+		if (this.ui == undefined) {
+			return;
+		}
 
 		this.ui.hide();
 	};

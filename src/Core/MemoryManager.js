@@ -111,7 +111,9 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 	 */
 	function clean(gl, now) {
 		// Skip cleanup if interval has not elapsed or if an async cleanup is already running
-		if (_lastCheckTick + _cleanUpInterval > now || _cleaningInProgress) return;
+		if (_lastCheckTick + _cleanUpInterval > now || _cleaningInProgress) {
+			return;
+		}
 
 		var keys, item;
 		var i, count, tick;
@@ -160,12 +162,13 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 				_lastCheckTick = now;
 				_filesToClean = [];
 
-				if (files.length)
+				if (files.length) {
 					console.log(
 						'%c[MemoryManager] - Removed ' + files.length + ' unused elements from memory.',
 						'color:#d35111',
 						{ files }
 					);
+				}
 			}
 		});
 	}

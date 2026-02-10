@@ -172,7 +172,9 @@ define(function (require) {
 	 * @param {object} event
 	 */
 	CharSelectV4.onKeyDown = function onKeyDown(event) {
-		if (!this.ui.is(':visible')) return true;
+		if (!this.ui.is(':visible')) {
+			return true;
+		}
 		switch (event.which) {
 			case KEYS.ESCAPE:
 				cancel();
@@ -262,8 +264,11 @@ define(function (require) {
 				const updatedDuration = Math.max(0, deleteReservedDuration - 1); // Ensure non-negative duration
 
 				countdownDiv.textContent = formatDuration(updatedDuration);
-				if (updatedDuration > 0) countdownDiv.style.color = 'red';
-				else countdownDiv.style.color = 'blue';
+				if (updatedDuration > 0) {
+					countdownDiv.style.color = 'red';
+				} else {
+					countdownDiv.style.color = 'blue';
+				}
 
 				countdownDiv.dataset.duration = updatedDuration.toString();
 			});
@@ -398,7 +403,9 @@ define(function (require) {
 				delete _slots[_index];
 				delete _entitySlots[_index];
 
-				if (_preferences.index === _index) _preferences.index = 0;
+				if (_preferences.index === _index) {
+					_preferences.index = 0;
+				}
 
 				var i = 0;
 				var count = _list.length;
@@ -722,9 +729,10 @@ define(function (require) {
 
 			if (_entitySlots[idx + i]) {
 				SpriteRenderer.bind2DContext(_ctx[i], 78, 157);
-				if (_slots[i].DeleteDate)
-					// Pending for Deletion Characters are sitting
+				if (_slots[i].DeleteDate) // Pending for Deletion Characters are sitting
+				{
 					_entitySlots[idx + i].action = 2;
+				}
 				_entitySlots[idx + i].renderEntity();
 			}
 		}

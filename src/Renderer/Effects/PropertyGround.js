@@ -208,7 +208,9 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 		var uniform = _program.uniform;
 		var attribute = _program.attribute;
 		var sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
-		if (sizeMult < 0.5) sizeMult = 0.5;
+		if (sizeMult < 0.5) {
+			sizeMult = 0.5;
+		}
 
 		gl.uniformMatrix4fv(uniform.uRotationMat, false, _rotationMatrices[this.ix]);
 

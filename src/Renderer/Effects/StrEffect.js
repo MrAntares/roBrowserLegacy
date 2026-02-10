@@ -393,8 +393,12 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function (WebGL, glMat
 		// Animations are sorted by the loader
 		for (i = 0; i < layer.anikeynum; ++i) {
 			if (animations[i].frame <= keyIndex) {
-				if (animations[i].type === 0) fromId = i;
-				if (animations[i].type === 1) toId = i;
+				if (animations[i].type === 0) {
+					fromId = i;
+				}
+				if (animations[i].type === 1) {
+					toId = i;
+				}
 			}
 			lastFrame = Math.max(lastFrame, animations[i].frame);
 

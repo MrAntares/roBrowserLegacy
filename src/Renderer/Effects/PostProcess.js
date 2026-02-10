@@ -64,7 +64,9 @@ define(function (require) {
 	 * @param {WebGLRenderingContext} gl - The WebGL context.
 	 */
 	PostProcess.render = function (gl) {
-		if (_activeEffects.length === 0) return;
+		if (_activeEffects.length === 0) {
+			return;
+		}
 
 		// The buffer we just drew the 3D scene into (_writeFbo) becomes the source (_readFbo)
 		this.swapBuffers();
@@ -118,15 +120,27 @@ define(function (require) {
 
 		// Physically delete Ping-Pong buffers from GPU memory
 		if (_readFbo) {
-			if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
-			if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
-			if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
+			if (gl.isTexture(_readFbo.texture)) {
+				gl.deleteTexture(_readFbo.texture);
+			}
+			if (gl.isRenderbuffer(_readFbo.rbo)) {
+				gl.deleteRenderbuffer(_readFbo.rbo);
+			}
+			if (gl.isFramebuffer(_readFbo.framebuffer)) {
+				gl.deleteFramebuffer(_readFbo.framebuffer);
+			}
 		}
 
 		if (_writeFbo) {
-			if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
-			if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
-			if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
+			if (gl.isTexture(_writeFbo.texture)) {
+				gl.deleteTexture(_writeFbo.texture);
+			}
+			if (gl.isRenderbuffer(_writeFbo.rbo)) {
+				gl.deleteRenderbuffer(_writeFbo.rbo);
+			}
+			if (gl.isFramebuffer(_writeFbo.framebuffer)) {
+				gl.deleteFramebuffer(_writeFbo.framebuffer);
+			}
 		}
 
 		_readFbo = null;
@@ -163,15 +177,27 @@ define(function (require) {
 
 		// Physically delete Ping-Pong buffers from GPU memory
 		if (_readFbo) {
-			if (gl.isTexture(_readFbo.texture)) gl.deleteTexture(_readFbo.texture);
-			if (gl.isRenderbuffer(_readFbo.rbo)) gl.deleteRenderbuffer(_readFbo.rbo);
-			if (gl.isFramebuffer(_readFbo.framebuffer)) gl.deleteFramebuffer(_readFbo.framebuffer);
+			if (gl.isTexture(_readFbo.texture)) {
+				gl.deleteTexture(_readFbo.texture);
+			}
+			if (gl.isRenderbuffer(_readFbo.rbo)) {
+				gl.deleteRenderbuffer(_readFbo.rbo);
+			}
+			if (gl.isFramebuffer(_readFbo.framebuffer)) {
+				gl.deleteFramebuffer(_readFbo.framebuffer);
+			}
 		}
 
 		if (_writeFbo) {
-			if (gl.isTexture(_writeFbo.texture)) gl.deleteTexture(_writeFbo.texture);
-			if (gl.isRenderbuffer(_writeFbo.rbo)) gl.deleteRenderbuffer(_writeFbo.rbo);
-			if (gl.isFramebuffer(_writeFbo.framebuffer)) gl.deleteFramebuffer(_writeFbo.framebuffer);
+			if (gl.isTexture(_writeFbo.texture)) {
+				gl.deleteTexture(_writeFbo.texture);
+			}
+			if (gl.isRenderbuffer(_writeFbo.rbo)) {
+				gl.deleteRenderbuffer(_writeFbo.rbo);
+			}
+			if (gl.isFramebuffer(_writeFbo.framebuffer)) {
+				gl.deleteFramebuffer(_writeFbo.framebuffer);
+			}
 		}
 
 		_readFbo = null;
@@ -214,9 +240,15 @@ define(function (require) {
 		try {
 			if (oldfbo) {
 				// Free old resources to prevent memory leaks
-				if (gl.isTexture(oldfbo.texture)) gl.deleteTexture(oldfbo.texture);
-				if (gl.isRenderbuffer(oldfbo.rbo)) gl.deleteRenderbuffer(oldfbo.rbo);
-				if (gl.isFramebuffer(oldfbo.framebuffer)) gl.deleteFramebuffer(oldfbo.framebuffer);
+				if (gl.isTexture(oldfbo.texture)) {
+					gl.deleteTexture(oldfbo.texture);
+				}
+				if (gl.isRenderbuffer(oldfbo.rbo)) {
+					gl.deleteRenderbuffer(oldfbo.rbo);
+				}
+				if (gl.isFramebuffer(oldfbo.framebuffer)) {
+					gl.deleteFramebuffer(oldfbo.framebuffer);
+				}
 			}
 
 			var fbo = gl.createFramebuffer();

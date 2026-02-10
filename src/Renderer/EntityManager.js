@@ -321,7 +321,9 @@ define(function (require) {
 					var distSq =
 						Math.pow(_list[i].position[0] - Session.Entity.position[0], 2) +
 						Math.pow(_list[i].position[1] - Session.Entity.position[1], 2);
-					if (distSq > Math.pow(GraphicsSettings.viewArea, 2)) continue;
+					if (distSq > Math.pow(GraphicsSettings.viewArea, 2)) {
+						continue;
+					}
 				}
 				_list[i].render(modelView, projection);
 			}
@@ -391,7 +393,9 @@ define(function (require) {
 					Math.pow(entity.position[0] - sourceEntity.position[0], 2) +
 					Math.pow(entity.position[1] - sourceEntity.position[1], 2);
 				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
-				if (distSq > view_range * view_range) return;
+				if (distSq > view_range * view_range) {
+					return;
+				}
 
 				var dst = Infinity;
 				if (closestEntity) {
@@ -440,7 +444,9 @@ define(function (require) {
 					Math.pow(entity.position[0] - sourceEntity.position[0], 2) +
 					Math.pow(entity.position[1] - sourceEntity.position[1], 2);
 				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
-				if (distSq > view_range * view_range) return;
+				if (distSq > view_range * view_range) {
+					return;
+				}
 
 				if (entity.life.hp < lowestHp) {
 					lowestHp = entity.life.hp;

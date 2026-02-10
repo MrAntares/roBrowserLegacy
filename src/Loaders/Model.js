@@ -277,7 +277,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @return {boolean}
 	 */
 	RSM.prototype.hasAnimation = function () {
-		if (this._hasanimation) return true;
+		if (this._hasanimation) {
+			return true;
+		}
 
 		for (var i = 0; i < this.nodes.length; i++) {
 			var node = this.nodes[i];

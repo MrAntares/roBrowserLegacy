@@ -125,20 +125,34 @@ define(function (require) {
 	 */
 	function autoFeedCheck() {
 		// check is feature enabled (ui toggeled)
-		if (_preferences.autoFeed != 1) return;
+		if (_preferences.autoFeed != 1) {
+			return;
+		}
 
 		// check current player
 		var player = Session.Entity;
-		if (!player) return;
-		if (player.life.hp <= 0) return;
+		if (!player) {
+			return;
+		}
+		if (player.life.hp <= 0) {
+			return;
+		}
 
 		// check current homunculus
-		if (!Session.homunId) return;
+		if (!Session.homunId) {
+			return;
+		}
 		var entity = EntityManager.get(Session.homunId);
-		if (!entity) return;
-		if (entity.life.hp <= 0) return;
+		if (!entity) {
+			return;
+		}
+		if (entity.life.hp <= 0) {
+			return;
+		}
 		// get the auto feed break point from the config or default
-		if (entity.life.hunger > Number(Configs.get('homunAutoFeedPercent', autoFeedPercent))) return;
+		if (entity.life.hunger > Number(Configs.get('homunAutoFeedPercent', autoFeedPercent))) {
+			return;
+		}
 		// hunger is now at 30, so feed +10 points
 		HomunInformations.sendHomunFeed();
 	}
@@ -419,7 +433,9 @@ define(function (require) {
 	 */
 	function homunToggleAutoFeed() {
 		HomunInformations.setFeedConfig(_preferences.autoFeed == 1 ? 0 : 1);
-		if (PACKETVER.value < 20170920) return;
+		if (PACKETVER.value < 20170920) {
+			return;
+		}
 		HomunInformations.onConfigUpdate(3, !_preferences.autoFeed ? 1 : 0);
 	}
 

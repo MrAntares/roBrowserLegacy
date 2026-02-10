@@ -1051,7 +1051,9 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setTargetCoordinatesText = function setTargetCoordinatesText(x, y, options) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var text = formatTargetCoordinates(x, y, options);
 		this.ui.find('.target-coordinates').text(text);
@@ -1060,7 +1062,9 @@ define(function (require) {
 	};
 
 	Navigation.setTargetCoordinatesBlinking = function setTargetCoordinatesBlinking(blinking) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var targetCoordinates = this.ui.find('.target-coordinates');
 
@@ -1112,7 +1116,9 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setLocationTitle = function setLocationTitle(currentMap, targetMap, displayName) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var title = formatLocationTitle(currentMap, targetMap, displayName);
 		this.ui.find('.location-title').text(title);
@@ -1126,7 +1132,9 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setCoordinatesText = function setCoordinatesText(x, y, options) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var text = formatCoordinates(x, y, options);
 		this.ui.find('.coordinates').text(text);
@@ -1139,7 +1147,9 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setMapNameText = function setMapNameText(mapName) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		this.ui.find('.map-name').text(normalizeMapName(mapName));
 	};
@@ -1152,7 +1162,9 @@ define(function (require) {
 	 * @param {Object} options - Options for formatting
 	 */
 	Navigation.setMouseCoordinatesText = function setMouseCoordinatesText(x, y, options) {
-		if (!this.ui) return;
+		if (!this.ui) {
+			return;
+		}
 
 		var text = formatCoordinates(x, y, options);
 		this.ui.find('.mouse-coordinates').text(text);
@@ -1181,7 +1193,9 @@ define(function (require) {
 			if (naviLinkTable && naviLinkTable.length) {
 				for (var i = 0; i < naviLinkTable.length; i++) {
 					var warp = naviLinkTable[i];
-					if (!warp || warp.length < 11) continue;
+					if (!warp || warp.length < 11) {
+						continue;
+					}
 
 					var srcMap = warp[0].replace(/\.gat$/, '').toLowerCase();
 					var destMap = warp[8].replace(/\.gat$/, '').toLowerCase();

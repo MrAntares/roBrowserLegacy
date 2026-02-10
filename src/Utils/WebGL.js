@@ -133,9 +133,15 @@ define(['Utils/Texture', 'Core/Configs'], function (Texture, Configs) {
 		} catch (e) {
 			console.error('Critical WebGL Shader Error:', e);
 			// Clean up if partial
-			if (shaderProgram) gl.deleteProgram(shaderProgram);
-			if (vs) gl.deleteShader(vs);
-			if (fs) gl.deleteShader(fs);
+			if (shaderProgram) {
+				gl.deleteProgram(shaderProgram);
+			}
+			if (vs) {
+				gl.deleteShader(vs);
+			}
+			if (fs) {
+				gl.deleteShader(fs);
+			}
 			throw e;
 		}
 

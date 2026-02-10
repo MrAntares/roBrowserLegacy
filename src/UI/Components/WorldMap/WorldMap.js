@@ -102,8 +102,11 @@ define(function (require) {
 	function selectMap(name = null) {
 		// If no name provided, use the first available map
 		if (!name) {
-			if (MAPS.length > 0) name = MAPS[0].id;
-			else name = 'worldmap.jpg';
+			if (MAPS.length > 0) {
+				name = MAPS[0].id;
+			} else {
+				name = 'worldmap.jpg';
+			}
 		}
 		// load map image asset and render it
 		Client.loadFile(DB.INTERFACE_PATH + name, data => {
@@ -167,12 +170,18 @@ define(function (require) {
 	function onWorldMapClick(e) {
 		// event delegation from .section
 		const section = e.target.closest('.section');
-		if (!section) return;
+		if (!section) {
+			return;
+		}
 
 		const overlay = WorldMap.ui.find('#dialog-map-view-backdrop')[0];
-		if (overlay == null) return;
+		if (overlay == null) {
+			return;
+		}
 		const dialog = WorldMap.ui.find('#dialog-map-view')[0];
-		if (dialog == null) return;
+		if (dialog == null) {
+			return;
+		}
 		WorldMap.ui.find('#dialog-map-view .mapname').text(section.getAttribute('data-name'));
 		WorldMap.ui.find('#dialog-map-view .mapid').text(section.id);
 
@@ -352,7 +361,9 @@ define(function (require) {
 				// -----------------------
 
 				let className = 'section';
-				if (currentMap == section.id) className += ' currentmap';
+				if (currentMap == section.id) {
+					className += ' currentmap';
+				}
 
 				if (sectionType === 1) {
 					const posKey = section.left + '_' + section.top;
@@ -432,7 +443,7 @@ define(function (require) {
 		const el = airplane || document.querySelector('.worldmap #midgard-airplane');
 		el.style.top = '35%';
 		el.style.left = '35%';
-		el.style.transform = `rotate(75deg)`;
+		el.style.transform = 'rotate(75deg)';
 	}
 
 	/**
@@ -631,8 +642,11 @@ define(function (require) {
 			WorldMap.ui.find('.showlvl').css('backgroundImage', 'url(' + data + ')');
 		});
 
-		if (!WorldMap.showLVLMode) WorldMap.ui.find('.worldmap').removeClass('show-lvls');
-		else WorldMap.ui.find('.worldmap').addClass('show-lvls');
+		if (!WorldMap.showLVLMode) {
+			WorldMap.ui.find('.worldmap').removeClass('show-lvls');
+		} else {
+			WorldMap.ui.find('.worldmap').addClass('show-lvls');
+		}
 	}
 
 	/**

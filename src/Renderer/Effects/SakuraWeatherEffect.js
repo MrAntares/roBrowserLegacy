@@ -122,7 +122,9 @@ define(function (require) {
 	};
 
 	SakuraWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
 			_instance = null;
@@ -143,7 +145,9 @@ define(function (require) {
 	};
 
 	SakuraWeatherEffect.stop = function stop(ownerAID, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 		var now = tick || Renderer.tick;
 		if (_instance.endTick === -1) {
 			_instance.endTick = now + FADEOUT_TAIL_MS;
@@ -152,7 +156,9 @@ define(function (require) {
 	};
 
 	SakuraWeatherEffect.prototype.spawnLeave = function spawnLeave(spawnTick) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
 		var px = Session.Entity.position[0];
 		var py = Session.Entity.position[1];
@@ -211,14 +217,18 @@ define(function (require) {
 	function updateSwayAngle(current, target) {
 		if (target > current) {
 			current += 3;
-			if (current > 359) current = 359;
+			if (current > 359) {
+				current = 359;
+			}
 			if (current > target) {
 				// Reached target, pick new random lower target
 				target = Math.random() * current;
 			}
 		} else {
 			current -= 2;
-			if (current < 0) current = 0;
+			if (current < 0) {
+				current = 0;
+			}
 			if (current <= target) {
 				// Reached target, pick new random higher target
 				target = 359 - Math.random() * current;
@@ -228,13 +238,17 @@ define(function (require) {
 	}
 
 	SakuraWeatherEffect.prototype.render = function render(gl, tick) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
 		var path = this.isMaple ? PATH_MAPLE : PATH_SAKURA;
 		var spr = Client.loadFile(path + '.spr', null, null, { to_rgba: true });
 		var act = Client.loadFile(path + '.act');
 
-		if (!spr || !act) return;
+		if (!spr || !act) {
+			return;
+		}
 
 		// Emission
 		var remaining = Infinity;
@@ -311,7 +325,9 @@ define(function (require) {
 			var alpha = 1.0;
 
 			var alphaCap = 1.0;
-			if (!this.isMaple) alphaCap = 0.5;
+			if (!this.isMaple) {
+				alphaCap = 0.5;
+			}
 
 			if (age < LEAVE_FADEIN_MS) {
 				alpha = (age / LEAVE_FADEIN_MS) * alphaCap;
@@ -346,7 +362,9 @@ define(function (require) {
 
 	// Helper function for rendering layers
 	function renderLayer(layer, spr, pal, sizeScale, pos, alpha) {
-		if (layer.index < 0) return;
+		if (layer.index < 0) {
+			return;
+		}
 
 		SpriteRenderer.image.palette = null;
 		SpriteRenderer.sprite = spr.frames[layer.index];
@@ -367,7 +385,9 @@ define(function (require) {
 		var width = frame.width * layer.scale[0] * sizeScale;
 		var height = frame.height * layer.scale[1] * sizeScale;
 
-		if (layer.is_mirror) width = -width;
+		if (layer.is_mirror) {
+			width = -width;
+		}
 
 		SpriteRenderer.color.set([layer.color[0], layer.color[1], layer.color[2], layer.color[3] * alpha]);
 

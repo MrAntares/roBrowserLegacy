@@ -323,9 +323,13 @@ define(function (require) {
 	};
 
 	RainWeatherEffect.prototype.initRainSound = function () {
-		if (!this.audioCtx) return;
+		if (!this.audioCtx) {
+			return;
+		}
 
-		if (!Preferences.Sound.play) return;
+		if (!Preferences.Sound.play) {
+			return;
+		}
 
 		var ctx = this.audioCtx;
 		var bufferSize = 2 * ctx.sampleRate;
@@ -358,9 +362,13 @@ define(function (require) {
 	};
 
 	RainWeatherEffect.prototype.triggerRainDropSound = function () {
-		if (!this.audioCtx) return;
+		if (!this.audioCtx) {
+			return;
+		}
 
-		if (!Preferences.Sound.play) return;
+		if (!Preferences.Sound.play) {
+			return;
+		}
 
 		const ctx = this.audioCtx;
 
@@ -405,9 +413,13 @@ define(function (require) {
 	};
 
 	RainWeatherEffect.prototype.triggerThunderSound = function () {
-		if (!this.audioCtx) return;
+		if (!this.audioCtx) {
+			return;
+		}
 
-		if (!Preferences.Sound.play) return;
+		if (!Preferences.Sound.play) {
+			return;
+		}
 
 		// Browser can block audio interactions, try to resume it.
 		if (this.audioCtx.state === 'suspended') {
@@ -483,7 +495,9 @@ define(function (require) {
 	};
 
 	RainWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		// Clean up if map changed
 		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
@@ -506,7 +520,9 @@ define(function (require) {
 	};
 
 	RainWeatherEffect.stop = function stop(ownerAID, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		var now = tick || Renderer.tick;
 		if (_instance.endTick === -1) {
@@ -579,7 +595,9 @@ define(function (require) {
 	};
 
 	RainWeatherEffect.prototype.render = function render(gl, tick) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
 		ensureDropFrame(gl);
 		ensureFilterFrame(gl);
@@ -706,7 +724,9 @@ define(function (require) {
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
 					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
-					if (_isStopping) break;
+					if (_isStopping) {
+						break;
+					}
 					for (var e = 0; e < EMIT_PER_TICK; e++) {
 						this.spawnDrop(emitTick);
 					}
@@ -756,8 +776,12 @@ define(function (require) {
 			// Progress through fall (0..1).
 			var denom = drop.spawnZ - drop.groundZ;
 			var progress = denom > 0.0001 ? (drop.spawnZ - drop.z) / denom : 0;
-			if (progress < 0) progress = 0;
-			if (progress > 1) progress = 1;
+			if (progress < 0) {
+				progress = 0;
+			}
+			if (progress > 1) {
+				progress = 1;
+			}
 
 			// Fade by progress to avoid popping.
 			var alpha = drop.alphaScale;

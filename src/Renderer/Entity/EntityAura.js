@@ -113,7 +113,7 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'], function (
 		this.free();
 
 		/* figure out why this is here, it's brokening 3d effects
-			setTimeout(function() {  
+			setTimeout(function() {
 				// reset constructors so aura effects re-init on next load
 				effectManager.resetConstructor('TwoDEffect');
 				effectManager.resetConstructor('ThreeDEffect');

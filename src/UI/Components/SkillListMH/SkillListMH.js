@@ -364,8 +364,12 @@ define(function (require) {
 
 		element.find('.levelupcontainer').append(levelup);
 
-		if (this.rArrow) element.find('.level .currentUp').css('background-image', this.rArrow);
-		if (this.lArrow) element.find('.level .currentDown').css('background-image', this.lArrow);
+		if (this.rArrow) {
+			element.find('.level .currentUp').css('background-image', this.rArrow);
+		}
+		if (this.lArrow) {
+			element.find('.level .currentDown').css('background-image', this.lArrow);
+		}
 
 		element.find('.level .currentUp').click(() => {
 			this.skillLevelSelectUp(skill);

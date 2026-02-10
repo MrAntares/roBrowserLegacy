@@ -190,10 +190,13 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 
 			// If flip=true, we prepare the integer to be written as ABGR in memory
 			// effectively resulting in RGBA sequence in Little Endian systems.
-			if (flip === true)
-				// Memory (LE): [R, G, B, A]  -> Canvas RGBA
-				pal32[i] = (a << 24) | (b << 16) | (g << 8) | r; // Memory (LE): [A, B, G, R]  -> ABGR layout
-			else pal32[i] = (r << 24) | (g << 16) | (b << 8) | a;
+			if (flip === true) // Memory (LE): [R, G, B, A]  -> Canvas RGBA
+			{
+				pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
+			} // Memory (LE): [A, B, G, R]  -> ABGR layout
+			else {
+				pal32[i] = (r << 24) | (g << 16) | (b << 8) | a;
+			}
 		}
 		return pal32;
 	};
@@ -209,7 +212,9 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 		var pal32 = this.convert32bPal(pal, false);
 		for (var i = 0; i < this.indexed_count; ++i) {
 			var frame = frames[i];
-			if (frame.type !== SPR.TYPE_PAL) continue;
+			if (frame.type !== SPR.TYPE_PAL) {
+				continue;
+			}
 
 			var width = frame.width,
 				height = frame.height;

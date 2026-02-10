@@ -127,7 +127,9 @@ define(function (require) {
 	};
 
 	SnowWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		// Clean up if map changed abruptly
 		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
@@ -153,7 +155,9 @@ define(function (require) {
 	 * Fade out snow over the official ~300 ticks.
 	 */
 	SnowWeatherEffect.stop = function stop(ownerAID, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		var now = tick || Renderer.tick;
 		// The render loop will handle the fade out and eventual cleanup.
@@ -167,7 +171,9 @@ define(function (require) {
 	 * Spawn a single snowflake around the player.
 	 */
 	SnowWeatherEffect.prototype.spawnFlake = function spawnFlake(spawnTick) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 
 		var px = Session.Entity.position[0];
 		var py = Session.Entity.position[1];
@@ -273,7 +279,9 @@ define(function (require) {
 			var ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
-					if (_isStopping) break;
+					if (_isStopping) {
+						break;
+					}
 					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
 					this.spawnFlake(emitTick);
 					this.spawnFlake(emitTick);

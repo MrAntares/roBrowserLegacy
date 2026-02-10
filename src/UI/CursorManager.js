@@ -482,11 +482,15 @@ define(function (require) {
 	 */
 	Cursor.render = function render(tick) {
 		if (!Graphics.cursor || !_compiledStyle.length) {
-			if (_selector) _selector.style.display = 'hidden';
+			if (_selector) {
+				_selector.style.display = 'hidden';
+			}
 			return;
 		}
 		if (_selector.style.display !== 'show') {
-			if (_selector) _selector.style.display = 'show';
+			if (_selector) {
+				_selector.style.display = 'show';
+			}
 		}
 
 		let info = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
@@ -502,11 +506,15 @@ define(function (require) {
 			anim = _norepeat ? Math.min(frame, action.animations.length - 1) : frame % action.animations.length;
 		}
 
-		if (Graphics.cursor) document.body.classList.add('custom-cursor');
+		if (Graphics.cursor) {
+			document.body.classList.add('custom-cursor');
+		}
 
 		animation = action.animations[anim];
 
-		if (!animation) return;
+		if (!animation) {
+			return;
+		}
 
 		if (Cursor.magnetism && !Cursor.blockMagnetism) {
 			let entity = EntityManager.getOverEntity();
@@ -515,7 +523,9 @@ define(function (require) {
 					case Entity.TYPE_MOB:
 					case Entity.TYPE_NPC_ABR:
 					case Entity.TYPE_NPC_BIONIC:
-						if (!Preferences.snap) break;
+						if (!Preferences.snap) {
+							break;
+						}
 						x += Math.floor(
 							Mouse.screen.x -
 								(entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2)
@@ -526,7 +536,9 @@ define(function (require) {
 						);
 						break;
 					case Entity.TYPE_ITEM:
-						if (!Preferences.itemsnap) break;
+						if (!Preferences.itemsnap) {
+							break;
+						}
 						x += Math.floor(
 							Mouse.screen.x -
 								(entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2)
@@ -548,10 +560,14 @@ define(function (require) {
 			_lastY = y;
 
 			let cursorSprite = document.querySelector('.cursor__sprite');
-			if (cursorSprite) cursorSprite.style.left = `${-_lastStyleId * 50}px`;
+			if (cursorSprite) {
+				cursorSprite.style.left = `${-_lastStyleId * 50}px`;
+			}
 
 			let cursor = document.querySelector('.cursor');
-			if (cursor) cursor.style.transform = `translate(-${_lastX}px, -${_lastY}px)`;
+			if (cursor) {
+				cursor.style.transform = `translate(-${_lastX}px, -${_lastY}px)`;
+			}
 		}
 	};
 

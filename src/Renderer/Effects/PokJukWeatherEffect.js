@@ -42,7 +42,9 @@ define(function (require) {
 	};
 
 	PokJukWeatherEffect.prototype.createInternalTexture = function (gl) {
-		if (_whiteTexture) return;
+		if (_whiteTexture) {
+			return;
+		}
 
 		var canvas = document.createElement('canvas');
 		canvas.width = PARTICLE_SIZE;
@@ -73,7 +75,9 @@ define(function (require) {
 	};
 
 	PokJukWeatherEffect.prototype.init = function (Params) {
-		if (!Session.Entity) return;
+		if (!Session.Entity) {
+			return;
+		}
 		var pPos = Session.Entity.position;
 
 		// Spawn random number of fireworks (1 or 3)
@@ -119,7 +123,9 @@ define(function (require) {
 	};
 
 	PokJukWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-		if (!_instance) return;
+		if (!_instance) {
+			return;
+		}
 
 		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
 			_instance = null;
@@ -170,7 +176,9 @@ define(function (require) {
 					fw.explosionTimer = 0;
 					fw.lastWaveTime = -50;
 					// Generate burst particles
-					for (var p = 0; p < 30; p++) this.addParticleWave(fw, true);
+					for (var p = 0; p < 30; p++) {
+						this.addParticleWave(fw, true);
+					}
 				}
 			} else if (fw.state === 1) {
 				// EXPLOSION PHASE
@@ -178,15 +186,21 @@ define(function (require) {
 				if (fw.explosionTimer < EXPLOSION_LIFE_MS) {
 					if (fw.explosionTimer - fw.lastWaveTime >= FIRE_LIFE_MS) {
 						var colorType = Math.floor(Math.random() * 5);
-						for (var i = 0; i < 15; i++) this.addParticleWave(fw, false, colorType);
-						for (var i = 0; i < 60; i++) this.addParticleWave(fw, true, colorType);
+						for (var i = 0; i < 15; i++) {
+							this.addParticleWave(fw, false, colorType);
+						}
+						for (var i = 0; i < 60; i++) {
+							this.addParticleWave(fw, true, colorType);
+						}
 						fw.lastWaveTime = fw.explosionTimer;
 					}
 				}
 				var active = 0;
 				for (var j = 0; j < fw.particles.length; j++) {
 					var p = fw.particles[j];
-					if (p.alpha <= 0) continue;
+					if (p.alpha <= 0) {
+						continue;
+					}
 
 					p.pos[0] += p.vel[0];
 					p.pos[1] += p.vel[1];
@@ -225,7 +239,9 @@ define(function (require) {
 	};
 
 	PokJukWeatherEffect.prototype.drawFirework = function (fw) {
-		if (fw.process <= 0) return;
+		if (fw.process <= 0) {
+			return;
+		}
 
 		if (fw.state === 0) {
 			this.renderParticle(fw.posNow, fw.alpha, 255, 255, 255, fw.size);

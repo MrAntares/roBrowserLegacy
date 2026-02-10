@@ -262,10 +262,18 @@ define(function (require) {
 		this.ui.find('.input-chatbox').on('keydown', function (event) {
 			var currentText = extractChatMessage(jQuery(this));
 			// Allowed Keys (backspace, delete, arrows, etc)
-			if (event.which >= 37 && event.which <= 40) return true; // arrows
-			if (event.which === 8 || event.which === 46) return true; // backspace, delete
-			if (event.which === 13) return true; // enter
-			if (event.ctrlKey || event.altKey) return true;
+			if (event.which >= 37 && event.which <= 40) {
+				return true;
+			} // arrows
+			if (event.which === 8 || event.which === 46) {
+				return true;
+			} // backspace, delete
+			if (event.which === 13) {
+				return true;
+			} // enter
+			if (event.ctrlKey || event.altKey) {
+				return true;
+			}
 
 			// Block texting after reach max_lenght
 			if (currentText.length >= MAX_LENGTH) {
@@ -1680,7 +1688,9 @@ define(function (require) {
 		}
 
 		let item = DB.parseItemLink(jQuery(this).data('item'));
-		if (!item) return; // item not found
+		if (!item) {
+			return;
+		} // item not found
 
 		let ItemInfo = getModule('UI/Components/ItemInfo/ItemInfo');
 

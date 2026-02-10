@@ -130,7 +130,9 @@ define(function (require) {
 	 *
 	 */
 	VendingReport.onResizeDrag = function (e) {
-		if (!this._resizing) return;
+		if (!this._resizing) {
+			return;
+		}
 
 		const MIN_HEIGHT = 100;
 		const MAX_HEIGHT = 260;
@@ -163,11 +165,15 @@ define(function (require) {
 	 * @param {object} pkt - Sold item packet (contains index, count, zeny, date, and CID of buyer)
 	 */
 	VendingReport.add = function add(pkt) {
-		if (!pkt) return;
+		if (!pkt) {
+			return;
+		}
 
 		const shopItem = VendingShop.getItemByIndex(pkt.index);
 
-		if (!shopItem) return;
+		if (!shopItem) {
+			return;
+		}
 
 		const entity = EntityManager.getByCID(pkt.CID);
 		const buyer = entity ? entity.display.name : 'Unknown';

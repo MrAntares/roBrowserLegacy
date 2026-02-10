@@ -503,12 +503,13 @@ define(function (require) {
 				var opacity = parseFloat(container.css('opacity') || 1) - 0.02;
 				var snapDistance = 10;
 
-				if (component.magnet)
+				if (component.magnet) {
 					component.magnet.TOP =
 						component.magnet.BOTTOM =
 						component.magnet.LEFT =
 						component.magnet.RIGHT =
 							false;
+				}
 
 				// Magnet on border
 				if (Math.abs(x_) < snapDistance) {
@@ -585,8 +586,12 @@ define(function (require) {
 						}
 					}
 
-					if (!lockX && snapX !== null) x_ = snapX;
-					if (!lockY && snapY !== null) y_ = snapY;
+					if (!lockX && snapX !== null) {
+						x_ = snapX;
+					}
+					if (!lockY && snapY !== null) {
+						y_ = snapY;
+					}
 				}
 
 				container.offset({ top: y_, left: x_ });

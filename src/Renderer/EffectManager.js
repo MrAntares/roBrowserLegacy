@@ -1150,15 +1150,21 @@ define(function (require) {
 	 * Spawn a hat effect attached to an entity
 	 */
 	EffectManager.spamHatEffect = function spamHatEffect(Params) {
-		if (!Params || !Preferences.effect) return;
+		if (!Params || !Preferences.effect) {
+			return;
+		}
 
 		const init = Params.Init || {};
 		const ownerAID = init.ownerAID;
 		const ownerEntity = init.ownerEntity || EntityManager.get(ownerAID);
-		if (!ownerEntity) return;
+		if (!ownerEntity) {
+			return;
+		}
 
 		const eff = Params.effect || {};
-		if (!ownerEntity._hatEffects) ownerEntity._hatEffects = {};
+		if (!ownerEntity._hatEffects) {
+			ownerEntity._hatEffects = {};
+		}
 
 		const resource = (eff.file || eff.resourceFileName || '').toString();
 
@@ -1226,9 +1232,13 @@ define(function (require) {
 	 * Remove a hat effect from an entity
 	 */
 	EffectManager.removeHatEffect = function removeHatEffect(ownerAID, effectID) {
-		if (ownerAID == null || effectID == null) return;
+		if (ownerAID == null || effectID == null) {
+			return;
+		}
 		const entity = EntityManager.get(ownerAID);
-		if (!entity) return;
+		if (!entity) {
+			return;
+		}
 
 		const attachments = entity.attachments;
 		const hatEffects = entity._hatEffects;

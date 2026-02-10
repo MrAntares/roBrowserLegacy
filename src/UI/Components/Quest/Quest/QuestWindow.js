@@ -90,9 +90,13 @@ define(function (require) {
 	};
 
 	function isInCooldown(quest) {
-		if (quest.end_time == 0) return false;
+		if (quest.end_time == 0) {
+			return false;
+		}
 		let epoch_seconds = new Date() / 1000;
-		if (quest.end_time > epoch_seconds) return true;
+		if (quest.end_time > epoch_seconds) {
+			return true;
+		}
 		return false;
 	}
 

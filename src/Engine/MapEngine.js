@@ -589,7 +589,9 @@ define(function (require) {
 			});
 			EntityManager.add(Session.Entity);
 			if (Session.Entity.effectState & StatusConst.EffectState.FALCON) {
-				if (!Session.Entity.falcon) Session.Entity.falcon = new Entity();
+				if (!Session.Entity.falcon) {
+					Session.Entity.falcon = new Entity();
+				}
 
 				Session.Entity.falcon.set({
 					objecttype: Session.Entity.falcon.constructor.TYPE_FALCON,
@@ -605,7 +607,9 @@ define(function (require) {
 				EntityManager.add(Session.Entity.falcon);
 			}
 			if (Session.Entity.effectState & StatusConst.EffectState.WUG) {
-				if (!Session.Entity.wug) Session.Entity.wug = new Entity();
+				if (!Session.Entity.wug) {
+					Session.Entity.wug = new Entity();
+				}
 
 				Session.Entity.wug.set({
 					objecttype: Session.Entity.wug.constructor.TYPE_WUG,
@@ -748,7 +752,9 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.REFUSE_QUIT
 	 */
 	function onExitSuccess() {
-		if (PACKETVER.value >= 20170315 && Session.WebToken) ShortCut.saveToServer();
+		if (PACKETVER.value >= 20170315 && Session.WebToken) {
+			ShortCut.saveToServer();
+		}
 
 		UIManager.removeComponents();
 		Network.close();
@@ -761,7 +767,9 @@ define(function (require) {
 			Background.setImage('bgi_temp.bmp', function () {
 				require('Engine/GameEngine').reload();
 			});
-		} else require('Engine/GameEngine').reload();
+		} else {
+			require('Engine/GameEngine').reload();
+		}
 	}
 
 	/**

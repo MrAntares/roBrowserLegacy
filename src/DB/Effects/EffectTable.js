@@ -14242,11 +14242,21 @@ define(function (require) {
 				func: function (Params) {
 					var entity = Params.Init.ownerEntity;
 					var spheres = [];
-					if (entity.Summon1) spheres.push(entity.Summon1);
-					if (entity.Summon2) spheres.push(entity.Summon2);
-					if (entity.Summon3) spheres.push(entity.Summon3);
-					if (entity.Summon4) spheres.push(entity.Summon4);
-					if (entity.Summon5) spheres.push(entity.Summon5);
+					if (entity.Summon1) {
+						spheres.push(entity.Summon1);
+					}
+					if (entity.Summon2) {
+						spheres.push(entity.Summon2);
+					}
+					if (entity.Summon3) {
+						spheres.push(entity.Summon3);
+					}
+					if (entity.Summon4) {
+						spheres.push(entity.Summon4);
+					}
+					if (entity.Summon5) {
+						spheres.push(entity.Summon5);
+					}
 
 					var WarlockSphere = require('Renderer/Effects/WarlockSphere');
 					var wl_spheres = new WarlockSphere(entity, spheres);

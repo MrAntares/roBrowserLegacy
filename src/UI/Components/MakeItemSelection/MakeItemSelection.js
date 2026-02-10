@@ -189,7 +189,7 @@ define(function (require) {
 		// Rune craft passa direto
 		this.ui
 			.find('.list')
-			.append(`<pre>${it.identifiedDisplayName} - ${DB.getMessage(427)}` + `\n` + `${metal}` + `</pre>`);
+			.append(`<pre>${it.identifiedDisplayName} - ${DB.getMessage(427)}` + '\n' + `${metal}` + '</pre>');
 		this.ui.find('.materials').show();
 	};
 

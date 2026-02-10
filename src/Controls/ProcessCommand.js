@@ -798,7 +798,9 @@ define(function (require) {
 
 				this.addText(messages, this.TYPE.BLUE, this.FILTER.PUBLIC_LOG);
 
-				if (customsEnabled) this.addText(customMessages, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				if (customsEnabled) {
+					this.addText(customMessages, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				}
 
 				return;
 			},

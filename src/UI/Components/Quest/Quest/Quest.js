@@ -205,10 +205,18 @@ define(function (require) {
 	 * @param {number} huntID
 	 */
 	Quest.updateMissionHunt = function updateMissionHunt(hunt_info, questID, huntID) {
-		if (hunt_info.huntIDCount) _questList[questID].hunt_list[huntID].huntIDCount = hunt_info.huntIDCount;
-		if (hunt_info.maxCount) _questList[questID].hunt_list[huntID].maxCount = hunt_info.maxCount;
-		if (hunt_info.huntCount) _questList[questID].hunt_list[huntID].huntCount = hunt_info.huntCount;
-		if (hunt_info.mobGID) _questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
+		if (hunt_info.huntIDCount) {
+			_questList[questID].hunt_list[huntID].huntIDCount = hunt_info.huntIDCount;
+		}
+		if (hunt_info.maxCount) {
+			_questList[questID].hunt_list[huntID].maxCount = hunt_info.maxCount;
+		}
+		if (hunt_info.huntCount) {
+			_questList[questID].hunt_list[huntID].huntCount = hunt_info.huntCount;
+		}
+		if (hunt_info.mobGID) {
+			_questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
+		}
 
 		let mob_name = _questList[questID].hunt_list[huntID].mobName;
 		let quest_info = DB.getQuestInfo(questID);
@@ -327,7 +335,9 @@ define(function (require) {
 				.data('hover', 'renew_questui/bg_questlist_check.bmp')
 				.data('down', 'renew_questui/bg_questlist_press.bmp')
 				.on('click', function (e) {
-					if (e.target.tagName.toLowerCase() == 'button') return;
+					if (e.target.tagName.toLowerCase() == 'button') {
+						return;
+					}
 					let element = jQuery(e.currentTarget);
 					if (element.attr('class') == 'quest-item') {
 						QuestHelper.clearQuestDesc();
@@ -355,7 +365,9 @@ define(function (require) {
 	function onClickMenu(e) {
 		var quest_element = jQuery(e.currentTarget);
 
-		if (_active_menu == quest_element.attr('id')) return;
+		if (_active_menu == quest_element.attr('id')) {
+			return;
+		}
 		_active_menu = quest_element.attr('id');
 
 		var background_image = '';

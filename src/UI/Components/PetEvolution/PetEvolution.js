@@ -181,7 +181,9 @@ define(function (require) {
 	 * @return {boolean} True if player has enough materials, false otherwise
 	 */
 	PetEvolution.hasEnoughMaterials = function () {
-		if (!currentMaterials) return false;
+		if (!currentMaterials) {
+			return false;
+		}
 
 		for (const mat of currentMaterials) {
 			const item = Inventory.getUI().getItemById(mat.MaterialID);

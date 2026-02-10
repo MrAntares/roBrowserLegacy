@@ -79,7 +79,9 @@ define(function (require) {
 		};
 
 		FlatColorTile.prototype.render = function render(gl, tick) {
-			if (_program === undefined) return; // temporal hotfix to avoid crash
+			if (_program === undefined) {
+				return;
+			} // temporal hotfix to avoid crash
 			gl.uniform3fv(_program.uniform.uPosition, this.position);
 			gl.uniform1f(_program.uniform.uSize, 0.5);
 			gl.uniform4fv(_program.uniform.uColor, [spec.r, spec.g, spec.b, spec.a]);

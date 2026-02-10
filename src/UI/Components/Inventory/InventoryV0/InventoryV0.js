@@ -976,7 +976,9 @@ define(function (require) {
 		if (event.shiftKey && event.which === 1) {
 			var idx = parseInt(jQuery(this).attr('data-index'), 10);
 			var item = InventoryV0.getItemByIndex(idx);
-			if (!item) return false;
+			if (!item) {
+				return false;
+			}
 
 			item.name = DB.getItemName(item);
 			var link =

@@ -291,7 +291,9 @@ define(function (require) {
 		var i = getItemIndexById(index);
 		var item;
 
-		if (i < 0) return null; // Not found
+		if (i < 0) {
+			return null;
+		} // Not found
 
 		// NEW: Notify all open filter windows.
 		// They will check internally if they have this item.
@@ -328,12 +330,16 @@ define(function (require) {
 		if (this.ui.is(':visible')) {
 			// ESCAPE
 			if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
-				if (typeof Storage.onClosePressed === 'function') Storage.onClosePressed();
+				if (typeof Storage.onClosePressed === 'function') {
+					Storage.onClosePressed();
+				}
 			}
 
 			// ENTER
 			if (event.which === KEYS.ENTER || event.key === 'Enter') {
-				if (typeof Storage.onEnterPressed === 'function') Storage.onEnterPressed();
+				if (typeof Storage.onEnterPressed === 'function') {
+					Storage.onEnterPressed();
+				}
 			}
 		}
 	};
@@ -341,7 +347,9 @@ define(function (require) {
 	// Search item from storage
 	Storage.onSearch = function onSearch() {
 		var searchInput = Storage.ui.find('#storage-search-input');
-		if (!searchInput) return;
+		if (!searchInput) {
+			return;
+		}
 		var searchTerm = searchInput.val().toLowerCase();
 
 		// create new Storage Filter with filtered items
@@ -388,7 +396,9 @@ define(function (require) {
 			var extraY = 31 + 19 - 30;
 			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 			h = Math.min(Math.max(h, 8), 17);
-			if (h === lastHeight) return;
+			if (h === lastHeight) {
+				return;
+			}
 			resizeHeight(h);
 			lastHeight = h;
 		}
@@ -483,7 +493,9 @@ define(function (require) {
 		var delta;
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera) delta = -delta;
+			if (window.opera) {
+				delta = -delta;
+			}
 		} else if (event.originalEvent.detail) {
 			delta = -event.originalEvent.detail;
 		}
@@ -595,7 +607,9 @@ define(function (require) {
 	function onItemOver() {
 		var idx = parseInt(this.getAttribute('data-index'), 10);
 		var i = getItemIndexById(idx);
-		if (i < 0) return;
+		if (i < 0) {
+			return;
+		}
 		var item = _list[i];
 		var pos = jQuery(this).position();
 		var overlay = Storage.ui.find('.overlay');
@@ -612,7 +626,9 @@ define(function (require) {
 	function onItemDragStart(event) {
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var i = getItemIndexById(index);
-		if (i === -1) return;
+		if (i === -1) {
+			return;
+		}
 		var img = new Image();
 		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		url = url = url.replace(/^\"/, '').replace(/\"$/, '');
@@ -639,7 +655,9 @@ define(function (require) {
 		event.stopImmediatePropagation();
 		var index = parseInt(this.getAttribute('data-index'), 10);
 		var i = getItemIndexById(index);
-		if (i === -1) return false;
+		if (i === -1) {
+			return false;
+		}
 		if (event.altKey && event.which === 3) {
 			event.stopImmediatePropagation();
 			Storage.transferItemToOtherUI(_list[i]);
@@ -659,7 +677,9 @@ define(function (require) {
 		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
-		if (!item) return false;
+		if (!item) {
+			return false;
+		}
 		var count = item.count || 1;
 		if (isInventoryOpen) {
 			Storage.reqRemoveItem(item.index, count);

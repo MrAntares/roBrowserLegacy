@@ -323,7 +323,9 @@ define(function (require) {
 
 		if (it.moveInfo) {
 			const tooltipHtml = buildMoveInfoTooltip(it.moveInfo);
-			if (!tooltipHtml) return;
+			if (!tooltipHtml) {
+				return;
+			}
 
 			// Create the hoverable label
 			const label = document.createElement('span');

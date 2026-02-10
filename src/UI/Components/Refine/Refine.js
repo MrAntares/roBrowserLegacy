@@ -1006,7 +1006,9 @@ define(function (require) {
 				runFailSequence();
 				break;
 			default:
-				if (callback) callback();
+				if (callback) {
+					callback();
+				}
 				break;
 		}
 	}

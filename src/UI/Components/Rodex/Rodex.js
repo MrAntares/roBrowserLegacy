@@ -153,7 +153,9 @@ define(function (require) {
 		} else {
 			mail_list = Rodex.getMailsByTabID(tabID);
 		}
-		if (mail_list.length == 0) return;
+		if (mail_list.length == 0) {
+			return;
+		}
 		let start = Rodex.pageSize * Rodex.page;
 
 		let total = 0;
@@ -178,16 +180,16 @@ define(function (require) {
 				<div class="mail-text">
 					<div class="title" ><div id="mail_` +
 				mailID +
-				`" openType="` +
+				'" openType="' +
 				openType +
-				`" class="text event_add_cursor"><span data-text="2702"></span>` +
+				'" class="text event_add_cursor"><span data-text="2702"></span>' +
 				title +
 				`</div></div>
 					<div class="sender"><div id="sender_` +
 				mailID +
-				`" sender="` +
+				'" sender="' +
 				sender +
-				`"class="text event_add_cursor"><span data-text="2701"></span>` +
+				'"class="text event_add_cursor"><span data-text="2701"></span>' +
 				sender +
 				`</div></div>
 				</div>
@@ -313,7 +315,9 @@ define(function (require) {
 
 	function onClickPreviousPage(e) {
 		e.stopImmediatePropagation();
-		if (Rodex.page - 1 < 0) return;
+		if (Rodex.page - 1 < 0) {
+			return;
+		}
 		Rodex.page--;
 		Rodex.createRodexList(Rodex.openType);
 	}

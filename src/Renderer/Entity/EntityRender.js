@@ -115,12 +115,24 @@ define(function (require) {
 			entity.depth = _vector[3];
 
 			// Display UI
-			if (entity.life.display) entity.life.render(_matrix);
-			if (entity.emblem.display) entity.emblem.render(_matrix);
-			if (entity.display.display) entity.display.render(_matrix);
-			if (entity.dialog.display) entity.dialog.render(_matrix);
-			if (entity.cast.display) entity.cast.render(_matrix);
-			if (entity.room.display) entity.room.render(_matrix);
+			if (entity.life.display) {
+				entity.life.render(_matrix);
+			}
+			if (entity.emblem.display) {
+				entity.emblem.render(_matrix);
+			}
+			if (entity.display.display) {
+				entity.display.render(_matrix);
+			}
+			if (entity.dialog.display) {
+				entity.dialog.render(_matrix);
+			}
+			if (entity.cast.display) {
+				entity.cast.render(_matrix);
+			}
+			if (entity.room.display) {
+				entity.room.render(_matrix);
+			}
 		};
 	})();
 
@@ -207,7 +219,9 @@ define(function (require) {
 		var _position = new Int32Array(2);
 
 		return function renderEntity() {
-			if (this.hideEntity) return;
+			if (this.hideEntity) {
+				return;
+			}
 
 			// Update shadow
 			SpriteRenderer.shadow = Ground.getShadowFactor(this.position[0], this.position[1]);
@@ -591,7 +605,9 @@ define(function (require) {
 			(entity.objecttype === entity.constructor.TYPE_PC || entity.objecttype === entity.constructor.TYPE_MERC) &&
 			isIdle
 		) {
-			if (entity.headDir <= animLastIndex) return entity.headDir;
+			if (entity.headDir <= animLastIndex) {
+				return entity.headDir;
+			}
 			return animLastIndex;
 		}
 

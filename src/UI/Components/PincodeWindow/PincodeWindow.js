@@ -86,10 +86,14 @@ define(function (require) {
 
 	function shuffleUsingKeypad(keypad) {
 		var ui = PincodeWindow.ui;
-		if (!ui || !keypad) return;
+		if (!ui || !keypad) {
+			return;
+		}
 		for (var loc = 0; loc < 10; loc++) {
 			var posBtn = ui.find('.btn.num' + loc);
-			if (!posBtn || posBtn.length === 0) continue;
+			if (!posBtn || posBtn.length === 0) {
+				continue;
+			}
 
 			var el = posBtn[0];
 			var off = posBtn.offset();
@@ -99,7 +103,9 @@ define(function (require) {
 		for (var loc = 0; loc < 10; loc++) {
 			var d = keypad[loc];
 			var btn = ui.find('.btn.num' + d);
-			if (!btn || btn.length === 0) continue;
+			if (!btn || btn.length === 0) {
+				continue;
+			}
 
 			var targetEl = ui.find('.btn.num' + loc)[0];
 			var target_x = targetEl.__original_x_pos;

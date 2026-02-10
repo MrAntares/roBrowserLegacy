@@ -166,7 +166,9 @@ define(['exports', 'Renderer/Effects/Tiles', 'Renderer/Effects/FlatColorTile'], 
 	exports.getBragiSpellNote = (function () {
 		let i = 0;
 		return function spellNote() {
-			if (i >= BragiEffects.length) i = 0;
+			if (i >= BragiEffects.length) {
+				i = 0;
+			}
 			return BragiEffects[i++];
 		};
 	})();

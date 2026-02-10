@@ -383,7 +383,9 @@ define(function (require) {
 
 			// Blessing Info
 			const bless = pkt.blessing_info;
-			if (!bless || !bless.id) return;
+			if (!bless || !bless.id) {
+				return;
+			}
 
 			const blessItem = DB.getItemInfo(bless.id);
 			const invBless = Inventory.getUI().getItemById(bless.id);
@@ -414,8 +416,12 @@ define(function (require) {
 				.data('bonus', bless.bonus)
 				.off('click')
 				.on('click', function () {
-					if (EnchantGrade_currentBlessing >= bless.max_blessing) return;
-					if (invCount < (EnchantGrade_currentBlessing + 1) * bless.amount) return;
+					if (EnchantGrade_currentBlessing >= bless.max_blessing) {
+						return;
+					}
+					if (invCount < (EnchantGrade_currentBlessing + 1) * bless.amount) {
+						return;
+					}
 
 					EnchantGrade_blessing_used = true;
 					EnchantGrade_currentBlessing++;
@@ -463,7 +469,9 @@ define(function (require) {
 				const tooltip = document.getElementById('enchant_tooltip');
 				const root = document.getElementById('EnchantGrade');
 
-				if (!tooltip || !targetEl || !root) return;
+				if (!tooltip || !targetEl || !root) {
+					return;
+				}
 
 				tooltip.innerHTML = text;
 				tooltip.style.display = 'block';
@@ -557,17 +565,23 @@ define(function (require) {
 			.find('.material_slot')
 			.on('mouseenter', function () {
 				// Do NOT reset if selected
-				if (this === selectedMaterialBtn) return;
+				if (this === selectedMaterialBtn) {
+					return;
+				}
 				this.style.backgroundImage = `url(${materialOver})`;
 			})
 			.on('mouseleave', function () {
 				// Do NOT reset if selected
-				if (this === selectedMaterialBtn) return;
+				if (this === selectedMaterialBtn) {
+					return;
+				}
 				this.style.backgroundImage = `url(${materialNormal})`;
 			})
 			.on('click', function () {
 				// Cannot select empty slot
-				if (!this.dataset.index) return;
+				if (!this.dataset.index) {
+					return;
+				}
 
 				// Blessing initialized
 				if (EnchantGrade_blessing_used) {

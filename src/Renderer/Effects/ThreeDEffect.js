@@ -41,14 +41,26 @@ define([
 		this.spriteRessource = null;
 		this.playSprite = effect.playSprite ? true : false;
 		this.sprDelay = effect.sprDelay ? effect.sprDelay : 0;
-		if (effect.rotatePosX > 0) this.rotatePosX = effect.rotatePosX;
-		else this.rotatePosX = 0;
-		if (effect.rotatePosY > 0) this.rotatePosY = effect.rotatePosY;
-		else this.rotatePosY = 0;
-		if (effect.rotatePosZ > 0) this.rotatePosZ = effect.rotatePosZ;
-		else this.rotatePosZ = 0;
-		if (effect.nbOfRotation > 0) this.nbOfRotation = effect.nbOfRotation;
-		else this.nbOfRotation = 1;
+		if (effect.rotatePosX > 0) {
+			this.rotatePosX = effect.rotatePosX;
+		} else {
+			this.rotatePosX = 0;
+		}
+		if (effect.rotatePosY > 0) {
+			this.rotatePosY = effect.rotatePosY;
+		} else {
+			this.rotatePosY = 0;
+		}
+		if (effect.rotatePosZ > 0) {
+			this.rotatePosZ = effect.rotatePosZ;
+		} else {
+			this.rotatePosZ = 0;
+		}
+		if (effect.nbOfRotation > 0) {
+			this.nbOfRotation = effect.nbOfRotation;
+		} else {
+			this.nbOfRotation = 1;
+		}
 
 		this.rotateLate = effect.rotateLate > 0 ? effect.rotateLate : 0;
 		this.rotateLate += effect.rotateLateDelta ? effect.rotateLateDelta * EF_Inst_Par.duplicateID : 0;
@@ -77,17 +89,32 @@ define([
 			0
 		);
 
-		if (effect.red) this.red = effect.red;
-		else this.red = 1;
-		if (effect.green) this.green = effect.green;
-		else this.green = 1;
-		if (effect.blue) this.blue = effect.blue;
-		else this.blue = 1;
+		if (effect.red) {
+			this.red = effect.red;
+		} else {
+			this.red = 1;
+		}
+		if (effect.green) {
+			this.green = effect.green;
+		} else {
+			this.green = 1;
+		}
+		if (effect.blue) {
+			this.blue = effect.blue;
+		} else {
+			this.blue = 1;
+		}
 		this.position = position;
-		if (effect.posxStart) this.posxStart = effect.posxStart;
-		else this.posxStart = 0;
-		if (effect.posxEnd) this.posxEnd = effect.posxEnd;
-		else this.posxEnd = 0;
+		if (effect.posxStart) {
+			this.posxStart = effect.posxStart;
+		} else {
+			this.posxStart = 0;
+		}
+		if (effect.posxEnd) {
+			this.posxEnd = effect.posxEnd;
+		} else {
+			this.posxEnd = 0;
+		}
 		if (effect.posx) {
 			this.posxStart = effect.posx;
 			this.posxEnd = effect.posx;
@@ -112,10 +139,16 @@ define([
 			this.posxEnd = randBetween(posxEndRandMiddle - effect.posxEndRand, posxEndRandMiddle + effect.posxEndRand);
 		}
 		this.posxSmooth = effect.posxSmooth ? true : false;
-		if (effect.posyStart) this.posyStart = effect.posyStart;
-		else this.posyStart = 0;
-		if (effect.posyEnd) this.posyEnd = effect.posyEnd;
-		else this.posyEnd = 0;
+		if (effect.posyStart) {
+			this.posyStart = effect.posyStart;
+		} else {
+			this.posyStart = 0;
+		}
+		if (effect.posyEnd) {
+			this.posyEnd = effect.posyEnd;
+		} else {
+			this.posyEnd = 0;
+		}
 		if (effect.posy) {
 			this.posyStart = effect.posy;
 			this.posyEnd = effect.posy;
@@ -140,10 +173,16 @@ define([
 			this.posyEnd = randBetween(posyEndRandMiddle - effect.posyEndRand, posyEndRandMiddle + effect.posyEndRand);
 		}
 		this.posySmooth = effect.posySmooth ? true : false;
-		if (effect.poszStart) this.poszStart = effect.poszStart;
-		else this.poszStart = 0;
-		if (effect.poszEnd) this.poszEnd = effect.poszEnd;
-		else this.poszEnd = 0;
+		if (effect.poszStart) {
+			this.poszStart = effect.poszStart;
+		} else {
+			this.poszStart = 0;
+		}
+		if (effect.poszEnd) {
+			this.poszEnd = effect.poszEnd;
+		} else {
+			this.poszEnd = 0;
+		}
 		if (effect.posz) {
 			this.poszStart = effect.posz;
 			this.poszEnd = effect.posz;
@@ -252,10 +291,18 @@ define([
 			this.sizeStartY = effect.sizeY;
 			this.sizeEndY = effect.sizeY;
 		}
-		if (effect.sizeStartX) this.sizeStartX = effect.sizeStartX;
-		if (effect.sizeStartY) this.sizeStartY = effect.sizeStartY;
-		if (effect.sizeEndX) this.sizeEndX = effect.sizeEndX;
-		if (effect.sizeEndY) this.sizeEndY = effect.sizeEndY;
+		if (effect.sizeStartX) {
+			this.sizeStartX = effect.sizeStartX;
+		}
+		if (effect.sizeStartY) {
+			this.sizeStartY = effect.sizeStartY;
+		}
+		if (effect.sizeEndX) {
+			this.sizeEndX = effect.sizeEndX;
+		}
+		if (effect.sizeEndY) {
+			this.sizeEndY = effect.sizeEndY;
+		}
 		if (effect.sizeRand) {
 			this.sizeStartX = effect.size + randBetween(-effect.sizeRand, effect.sizeRand);
 			this.sizeStartY = this.sizeStartX;
@@ -298,7 +345,9 @@ define([
 			if (!EF_Inst_Par.duplicateID || effect.drainPattern) {
 				var hitIndex = Math.floor((this.startTick / effect.duration) % 5);
 
-				if (effect.drainPattern) hitIndex = EF_Inst_Par.duplicateID + 1;
+				if (effect.drainPattern) {
+					hitIndex = EF_Inst_Par.duplicateID + 1;
+				}
 
 				var offsetAngle = hitIndex * 72;
 				var offsetRadius = 2;
@@ -368,7 +417,9 @@ define([
 	};
 
 	ThreeDEffect.prototype.render = function render(gl, tick) {
-		if (this.startTick > tick) return; //not yet
+		if (this.startTick > tick) {
+			return;
+		} //not yet
 
 		if (this.blendMode > 0 && this.blendMode < 16) {
 			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
@@ -380,7 +431,9 @@ define([
 		var end = this.endTick - this.startTick;
 		var steps = (start / end) * 100;
 
-		if (steps > 100) steps = 100;
+		if (steps > 100) {
+			steps = 100;
+		}
 
 		if (!this.spriteRessource) {
 			if (this.shadowTexture) {
@@ -415,7 +468,9 @@ define([
 			posDelta =
 				this.rotatePosX *
 				Math.cos((steps * 3.5 * this.nbOfRotation * Math.PI) / 180 - (this.rotateLate * Math.PI) / 2);
-			if (this.rotationClockwise) posDelta = -1 * posDelta;
+			if (this.rotationClockwise) {
+				posDelta = -1 * posDelta;
+			}
 		} else {
 			if (this.posxSmooth) {
 				if (this.posxStart != this.posxEnd) {
@@ -425,14 +480,18 @@ define([
 					var csM = this.posxStart;
 					var csN = csK * csL + csM;
 					posDelta = csN;
-				} else posDelta = this.posxStart;
+				} else {
+					posDelta = this.posxStart;
+				}
 			} else {
 				if (this.posxStart != this.posxEnd) {
 					var csL = (this.posxEnd - this.posxStart) / 100;
 					var csM = this.posxStart;
 					var csN = steps * csL + csM;
 					posDelta = csN;
-				} else posDelta = this.posxStart;
+				} else {
+					posDelta = this.posxStart;
+				}
 			}
 		}
 		SpriteRenderer.position[0] = this.position[0] + posDelta;
@@ -451,14 +510,18 @@ define([
 					var csM = this.posyStart;
 					var csN = csK * csL + csM;
 					posDelta = csN;
-				} else posDelta = this.posyStart;
+				} else {
+					posDelta = this.posyStart;
+				}
 			} else {
 				if (this.posyStart != this.posyEnd) {
 					var csL = (this.posyEnd - this.posyStart) / 100;
 					var csM = this.posyStart;
 					var csN = steps * csL + csM;
 					posDelta = csN;
-				} else posDelta = this.posyStart;
+				} else {
+					posDelta = this.posyStart;
+				}
 			}
 		}
 		SpriteRenderer.position[1] = this.position[1] + posDelta;
@@ -467,13 +530,17 @@ define([
 		if (this.retreat !== 0) {
 			var linearX, linearY;
 
-			if (this.posxStart != this.posxEnd)
+			if (this.posxStart != this.posxEnd) {
 				linearX = steps * ((this.posxEnd - this.posxStart) / 100) + this.posxStart;
-			else linearX = this.posxStart;
+			} else {
+				linearX = this.posxStart;
+			}
 
-			if (this.posyStart != this.posyEnd)
+			if (this.posyStart != this.posyEnd) {
 				linearY = steps * ((this.posyEnd - this.posyStart) / 100) + this.posyStart;
-			else linearY = this.posyStart;
+			} else {
+				linearY = this.posyStart;
+			}
 
 			var dx = this.posxEnd - this.posxStart;
 			var dy = this.posyEnd - this.posyStart;
@@ -498,14 +565,18 @@ define([
 				var csM = this.poszStart;
 				var csN = csK * csL + csM;
 				posDelta = csN;
-			} else posDelta = this.poszStart;
+			} else {
+				posDelta = this.poszStart;
+			}
 		} else {
 			if (this.poszStart != this.poszEnd) {
 				var csL = (this.poszEnd - this.poszStart) / 100;
 				var csM = this.poszStart;
 				var csN = steps * csL + csM;
 				posDelta = csN;
-			} else posDelta = this.poszStart;
+			} else {
+				posDelta = this.poszStart;
+			}
 		}
 
 		if (this.arc !== 0) {
@@ -514,8 +585,9 @@ define([
 
 		SpriteRenderer.position[2] = this.position[2] + posDelta;
 
-		if (this.shadowTexture)
+		if (this.shadowTexture) {
 			SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[0]);
+		}
 
 		var alpha = this.alphaMax;
 
@@ -547,7 +619,9 @@ define([
 				var csM = this.sizeStartX;
 				var csN = csK * csL + csM;
 				sizeX = csN;
-			} else sizeX = this.sizeStartX;
+			} else {
+				sizeX = this.sizeStartX;
+			}
 			if (this.sizeEndY != this.sizeStartY) {
 				var ctf = steps * 0.09 + 1;
 				var ctg = Math.log10(ctf);
@@ -555,20 +629,26 @@ define([
 				var cti = this.sizeStartY;
 				var ctj = ctg * cth + cti;
 				sizeY = ctj;
-			} else sizeY = this.sizeStartY;
+			} else {
+				sizeY = this.sizeStartY;
+			}
 		} else {
 			if (this.sizeEndX != this.sizeStartX) {
 				var csL = (this.sizeEndX - this.sizeStartX) / 100;
 				var csM = this.sizeStartX;
 				var csN = steps * csL + csM;
 				sizeX = csN;
-			} else sizeX = this.sizeStartX;
+			} else {
+				sizeX = this.sizeStartX;
+			}
 			if (this.sizeEndY != this.sizeStartY) {
 				var cth = (this.sizeEndY - this.sizeStartY) / 100;
 				var cti = this.sizeStartY;
 				var ctj = steps * cth + cti;
 				sizeY = ctj;
-			} else sizeY = this.sizeStartY;
+			} else {
+				sizeY = this.sizeStartY;
+			}
 		}
 
 		SpriteRenderer.size[0] = sizeX;
@@ -586,8 +666,9 @@ define([
 		if (this.shadowTexture) {
 			var effectName = require('Renderer/EffectManager').get(1000000);
 			if (effectName) {
-				if (this.endTick < tick) require('Renderer/EffectManager').remove(effectName, 1000000);
-				else {
+				if (this.endTick < tick) {
+					require('Renderer/EffectManager').remove(effectName, 1000000);
+				} else {
 					effectName.position = new Int16Array([
 						SpriteRenderer.position[0],
 						SpriteRenderer.position[1],
@@ -615,18 +696,23 @@ define([
 				];
 			var animations;
 			var delay = this.sprDelay || actions.delay;
-			if (this.playSprite)
+			if (this.playSprite) {
 				animations =
 					actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
-			else animations = actions.animations[0];
+			} else {
+				animations = actions.animations[0];
+			}
 			var layers = animations.layers;
 			let i = 0;
 			let layercount = layers.length;
 			do {
 				let renderer;
 
-				if (i == 0) renderer = SpriteRenderer;
-				else renderer = Object.assign({}, SpriteRenderer);
+				if (i == 0) {
+					renderer = SpriteRenderer;
+				} else {
+					renderer = Object.assign({}, SpriteRenderer);
+				}
 
 				// Reset channels every layer
 				renderer.color[0] = 1.0;
@@ -667,7 +753,9 @@ define([
 				renderer.color[1] *= layer.color[1];
 				renderer.color[2] *= layer.color[2];
 				renderer.color[3] *= layer.color[3];
-				if (!this.rotateToTarget) renderer.angle += layer.angle;
+				if (!this.rotateToTarget) {
+					renderer.angle += layer.angle;
+				}
 				renderer.offset[0] = layer.pos[0] + ctE[0];
 				renderer.offset[1] = layer.pos[1] + ctE[1];
 				renderer.size[0] = width;
