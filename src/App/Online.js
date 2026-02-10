@@ -10,6 +10,8 @@
 
 window.roInitSpinner = {
 	add: function () {
+		'use strict';
+		
 		// Loading spinner ring
 		var loading = document.createElement('div');
 		loading.id = 'loading-element';

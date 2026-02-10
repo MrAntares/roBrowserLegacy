@@ -203,7 +203,7 @@ define([
 
 			if (pos !== -1) {
 				_sounds[this.filename].instances.splice(pos, 1);
-				if (_sounds[this.filename].instances.length == 0) {
+				if (_sounds[this.filename].instances.length === 0) {
 					delete _sounds[this.filename]; //This can cause some errors, but whatever. Everything for performance!
 				}
 			}
@@ -220,7 +220,7 @@ define([
 
 		if (pos !== -1) {
 			_sounds[this.filename].instances.splice(pos, 1);
-			if (_sounds[this.filename].instances.length == 0) {
+			if (_sounds[this.filename].instances.length === 0) {
 				delete _sounds[this.filename];
 			}
 		}
@@ -268,7 +268,7 @@ define([
 
 		if (filename in _cache) {
 			if (_cache[filename].instances.length > 0) {
-				var out = _cache[filename].instances.pop(); //remove last instance from cache (newest)
+				out = _cache[filename].instances.pop(); //remove last instance from cache (newest)
 				if (out.cleanupHandle) {
 					clearTimeout(out.cleanupHandle); //cancel cleanup
 				}

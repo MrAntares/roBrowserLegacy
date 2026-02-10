@@ -226,7 +226,7 @@ define(function (require) {
 				ChatBox.addText(DB.getMessage(78), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				break;
 
-			case 1: // already in a party
+			case 2: // already in a party
 				ChatBox.addText(DB.getMessage(79), ChatBox.TYPE.ERROR, ChatBox.FILTER.PARTY_SETUP);
 				break;
 

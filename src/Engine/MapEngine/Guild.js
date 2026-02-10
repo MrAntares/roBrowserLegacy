@@ -156,7 +156,7 @@ define(function (require) {
 		if (PACKETVER.value >= 20170315) {
 			if (
 				!guild_id ||
-				guild_id === undefined ||
+				typeof guild_id === undefined ||
 				!Session.AID ||
 				Session.AID === 0 ||
 				!Session.ServerName ||

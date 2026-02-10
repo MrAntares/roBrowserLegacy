@@ -140,26 +140,62 @@ define(function (require) {
 
 		// Define Object type based on its id
 		if (this.objecttype === Entity.TYPE_UNKNOWN) {
-			var objecttype =
-				job < 45
-					? Entity.TYPE_PC
-					: job < 46
-						? Entity.TYPE_WARP
-						: job < 1000
-							? Entity.TYPE_NPC
-							: job < 1000
-								? Entity.TYPE_NPC2
-								: job < 4000
-									? Entity.TYPE_MOB
-									: job < 4000
-										? Entity.TYPE_NPC_ABR
-										: job < 4000
-											? Entity.TYPE_NPC_BIONIC
-											: job < 6000
-												? Entity.TYPE_PC
-												: job < 7000
-													? Entity.TYPE_HOM
-													: Entity.TYPE_MERC;
+			var objecttype;
+			switch(true){
+				// PC
+				case (job > 0 && job < 44): 
+				case (job > 4000 && job < 4350):
+					objecttype = Entity.TYPE_PC;
+					break;
+
+				// WARP
+				case (job == 45):
+				case (job == 139): // Hidden warp?
+					objecttype = Entity.TYPE_WARP;
+					break;
+
+				// NPC
+				case (job > 45 && job < 130):
+				case (job > 400 && job < 1000):
+				case (job > 10000 && job < 19999):
+				case (job == 32767 || job == -1): // Unofficial - INVISIBLE, FAKE
+					 objecttype = Entity.TYPE_NPC;
+					 break;
+
+				// MOB
+				case (job > 1000 && job < 4000):
+					objecttype = Entity.TYPE_MOB;
+					break;
+
+				// HOM
+				case (job > 6000 && job < 6017): 
+				case (job > 6047 && job < 6053): 
+					objecttype = Entity.TYPE_HOM;
+					break;
+				
+				// MERC
+				case (job > 6016 && job < 6047): 
+					objecttype = Entity.TYPE_MER;
+					break;
+
+				// ELEM
+				case (job > 2113 && job < 2126): 
+				case (job > 20815 && job < 20821): 
+					objecttype = Entity.TYPE_ELEM;
+					break;
+				
+				// ABR
+				case (job > 20833 && job < 20838):
+					objecttype = Entity.TYPE_NPC_ABR;
+					break;
+				
+				// BIONIC
+				case (job > 20847 && job < 20852):
+					objecttype = Entity.TYPE_NPC_BIONIC;
+					break;
+
+				default: objecttype = Entity.TYPE_UNKNOWN; break;
+			}
 
 			// Clean up action frames
 			if (objecttype !== this.objecttype) {

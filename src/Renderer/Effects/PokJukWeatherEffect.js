@@ -249,9 +249,7 @@ define(function (require) {
 			for (var i = 0; i < fw.particles.length; i++) {
 				var p = fw.particles[i];
 				if (p.alpha > 0) {
-					var r = 255,
-						g = 255,
-						b = 255;
+					var r, g, b;
 					switch (p.colorType) {
 						case 0:
 							r = 100;

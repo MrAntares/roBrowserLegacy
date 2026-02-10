@@ -60,7 +60,7 @@ define(function (require) {
 		q.add(function () {
 			Client.onFilesLoaded = function (count) {
 				if (!Configs.get('remoteClient') && !count && !window.requireNode) {
-					alert('No client to initialize roBrowser');
+					alert('No client to initialize roBrowser'); // eslint-disable-line no-alert
 					Intro.remove();
 					Intro.append();
 					return;

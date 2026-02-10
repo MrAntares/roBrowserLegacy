@@ -584,9 +584,6 @@ define(function (require) {
 						isDualWeapon
 					);
 					let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action); [MrUnzO]
-					if (m_motionSpeed < 1) {
-						m_motionSpeed = 1;
-					}
 					m_motionSpeed *= factorOfmotionSpeed;
 
 					soundTime = delayTime = m_attackMotion * m_motionSpeed * 24.0;
@@ -1932,7 +1929,7 @@ define(function (require) {
 				if (entity === Session.Entity) {
 					Session.Character.intravision = pkt.state;
 					EntityManager.forEach(function (entity) {
-						entity.effectState = entity.effectState;
+						entity.effectState = entity.effectState; // Deliberate self assign to update effestState. Maybe better to make an update() func to avoid warnings?
 					});
 				}
 				break;

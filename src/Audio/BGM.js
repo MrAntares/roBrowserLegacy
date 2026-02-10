@@ -120,14 +120,14 @@ define(['Core/Client', 'Preferences/Audio'], function (Client, Preferences) {
 
 		// Add support for other extensions, only supported with
 		// remote audio files.
-		if (!url.match(/^(blob|data)\:/)) {
+		if (!url.match(/^(blob|data):/)) {
 			url = url.replace(/mp3$/i, BGM.extension);
 		}
 
 		BGM.audio.src = url;
 		BGM.audio.volume = this.volume;
 		BGM.audio.play().catch(error => {
-			console.error('Failed to play \"BGM/' + this.filename + '\": ' + error.message);
+			console.error('Failed to play "BGM/' + this.filename + '": ' + error.message);
 		});
 	};
 

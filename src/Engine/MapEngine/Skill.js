@@ -408,7 +408,7 @@ define(function (require) {
 			if (index >= -1) {
 				var pkt = new PACKET.CZ.SKILL_SELECT_RESPONSE();
 				pkt.SKID = index;
-				pkt.why = pkt.why;
+				pkt.why = 0; // Currently unused on server side (clif_parse_SkillSelectMenu)
 				Network.sendPacket(pkt);
 			}
 		};
