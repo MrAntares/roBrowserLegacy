@@ -250,7 +250,7 @@ define(function () {
 		var i = 0,
 			count = _files.length;
 		var path,
-			filename = /\/?[^\/]+$/;
+			filename = /\/?[^/]+$/;
 
 		// Extract directory from each file path
 		for (; i < count; ++i) {
@@ -450,7 +450,7 @@ define(function () {
 		var list = [];
 
 		if (!(regex instanceof RegExp)) {
-			regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1') + '$', 'i');
+			regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1') + '$', 'i');
 		}
 
 		if (!_available || _files.length) {
