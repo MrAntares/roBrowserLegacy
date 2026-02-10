@@ -8,6 +8,7 @@
  * @author Vincent Thibault
  */
 define(['Core/Preferences', 'Controls/KeyEventHandler'], function (Preferences, KEYS) {
+	'use strict';
 	var ShortCuts = {};
 	ShortCuts.F1_1 = {
 		init: { key: KEYS.F1, alt: false, ctrl: false, shift: false },
