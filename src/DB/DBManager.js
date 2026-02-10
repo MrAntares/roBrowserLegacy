@@ -2202,7 +2202,7 @@ define(function (require) {
 	 * @param {function} onEnd - The function to call when the loading is complete.
 	 * @return {void}
 	 */
-	function loadEnchantListFile(basePath, callback, onEnd) {
+	function loadEnchantListFile(basePath, onEnd) {
 		const normalizedBase = basePath.replace(/\.(lub|lua)$/i, '');
 		const defFile = normalizedBase + '_f.lub';
 		const listFile = normalizedBase + '.lub';
