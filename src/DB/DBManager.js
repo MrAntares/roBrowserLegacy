@@ -2520,9 +2520,6 @@ define(function (require) {
 									main_enchantlist()
 								`);
 
-								if (typeof callback === 'function') {
-									callback(EnchantListTable);
-								}
 							} catch (error) {
 								console.error('[loadEnchantListFile] Error: ', error);
 							} finally {
