@@ -294,7 +294,9 @@ define(function (require) {
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		} catch (e) {}
+		} catch (e) {
+			console.error(e);
+		}
 
 		// Stop default behavior
 		event.stopImmediatePropagation();

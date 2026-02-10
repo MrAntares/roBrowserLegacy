@@ -11,7 +11,7 @@
 window.roInitSpinner = {
 	add: function () {
 		'use strict';
-		
+
 		// Loading spinner ring
 		var loading = document.createElement('div');
 		loading.id = 'loading-element';
@@ -59,6 +59,8 @@ window.roInitSpinner = {
 		window.roInitSpinner.divElem = document.body.appendChild(loading);
 	},
 	remove: function () {
+		'use strict';
+
 		window.roInitSpinner.styleElem?.remove();
 		window.roInitSpinner.divElem?.remove();
 	}
