@@ -36,6 +36,8 @@ jobs:
               run: |
                   git config user.name "github-actions"
                   git config user.email "github-actions@github.com"
-                  git add .
+                  git add -A
+                  git reset .github/workflows/
+
                   git diff --cached --quiet || git commit -m "style: auto format with prettier"
                   git push
