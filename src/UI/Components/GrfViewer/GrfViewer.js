@@ -463,7 +463,7 @@ define(function (require) {
 		}
 
 		streamExecute();
-		displayImagesThumbnail(count);
+		displayImagesThumbnail();
 	}
 
 	/**
