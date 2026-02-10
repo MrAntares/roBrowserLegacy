@@ -3,7 +3,7 @@
 [attr]lfslock lockable
 
 # Auto detect text files and perform LF normalization
-*					text=auto
+* text=auto eol=crlf
 
 # Source code
 *.bash				text eol=lf
