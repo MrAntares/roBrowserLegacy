@@ -42,6 +42,9 @@ module.exports = {
 		'no-useless-escape': 'off',
 		'no-empty': 'warn',
 		'no-constant-condition': 'warn',
+		'no-global-assign': 'off',
+		'no-undef': 'warn',
+		'no-redeclare': 'warn',
 
 		// ======================
 		// CODE QUALITY (REAL BUGS)
