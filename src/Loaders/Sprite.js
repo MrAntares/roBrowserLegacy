@@ -337,7 +337,7 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 		var frame;
 		var i,
 			count = frames.length;
-		var data, width, height, gl_width, gl_height, start_x, start_y, x, y, alpha;
+		var data, width, height, gl_width, gl_height, start_x, start_y, x, y;
 		var out;
 		var output = new Array(count);
 

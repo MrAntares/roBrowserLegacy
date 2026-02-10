@@ -188,8 +188,8 @@ define(function (require) {
 				case 0xff00: // PET
 					hideslots = true;
 
-					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
 					var GID = (item.slot['card4'] << 16) + item.slot['card3'];
+					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
 
 					if (DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
 						name = '<font color="blue" class="owner-' + GID + '">' + DB.CNameTable[GID] + '</font>';

@@ -206,9 +206,6 @@ define(function (require) {
 
 	function getUpgradeCandidates(item, group) {
 		var candidates = [];
-		if (!item || !group) {
-			return candidates;
-		}
 		var slotOrder = group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
 		var baseSlots = getBaseSlotCount(item);
 		for (var i = 0; i < slotOrder.length; i++) {
