@@ -77,7 +77,7 @@ define(function (require) {
 				}
 
 				// Remove empty slot from list
-				for (i = 0, count = list.length; i < count; ) {
+				for (i = 0, count = list.length; i < count;) {
 					if (list[i] === undefined) {
 						list.splice(i, 1);
 						count--;
@@ -308,7 +308,7 @@ define(function (require) {
 
 		this.get(filename, function (buffer, error) {
 			var ext = filename
-				.match(/.[^\.]+$/)
+				.match(/.[^.]+$/)
 				.toString()
 				.substr(1)
 				.toLowerCase();

@@ -189,7 +189,7 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 		var ext = '';
 		var i, count;
 
-		var matches = filename.match(/\.[^\.]+$/);
+		var matches = filename.match(/\.[^.]+$/);
 
 		if (matches) {
 			ext = matches.toString().toLowerCase();
@@ -221,7 +221,7 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 
 				// If file is a blob, remove it (wav, mp3, lua, lub, txt, ...)
 				default:
-					if (file.match && file.match(/^blob\:/)) {
+					if (file.match && file.match(/^blob:/)) {
 						URL.revokeObjectURL(file);
 					}
 					break;
