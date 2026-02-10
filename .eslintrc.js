@@ -12,7 +12,7 @@ module.exports = {
 	extends: ['eslint:recommended', 'prettier'],
 	plugins: ['requirejs'],
 	parserOptions: {
-		ecmaVersion: 2015,
+		ecmaVersion: 2020, // Optional Chaining (?.) and Nullish Coalescing (??) support
 		sourceType: 'script'
 	},
 	globals: {
