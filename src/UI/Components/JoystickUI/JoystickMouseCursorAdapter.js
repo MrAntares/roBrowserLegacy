@@ -344,7 +344,6 @@ define(function (require) {
 		moveMouseToEntity: moveMouseToEntity,
 		navigateDraggableItems: navigateDraggableItems,
 		contextMenu: contextMenu,
-		enter: enter,
 		esc: esc,
 		enter: enter,
 		changeCameraZoom: changeCameraZoom,
