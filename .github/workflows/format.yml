@@ -1,5 +1,9 @@
 name: Format
 
+concurrency:
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+    
 on:
     push:
         branches:
@@ -7,11 +11,11 @@ on:
     pull_request:
 
 permissions:
-    contents: read
+    contents: write
 
 jobs:
     prettier:
-        name: Prettier Check (src)
+        name: Prettier Fix
         runs-on: ubuntu-latest
 
         steps:
@@ -26,5 +30,16 @@ jobs:
             - name: Install dependencies
               run: npm i
 
-            - name: Run Prettier check
-              run: npm run format:check
+            - name: Run Prettier
+              run: npx prettier . --write
+
+            - name: Commit changes
+              if: github.event_name == 'push'
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add -A
+                  git reset .github/workflows/
+
+                  git diff --cached --quiet || git commit -m "style: auto format with prettier"
+                  git push

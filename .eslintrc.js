@@ -23,7 +23,6 @@ module.exports = {
 		console: 'readonly'
 	},
 	rules: {
-
 		// ======================
 		// STYLE (prettier resolve)
 		// ======================
