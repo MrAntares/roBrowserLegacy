@@ -1,4 +1,4 @@
-name: 'Generate a nightly release'
+name: 'Generate multiple releases'
 
 concurrency:
     group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
