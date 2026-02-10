@@ -22,14 +22,15 @@ module.exports = {
 		console: 'readonly'
 	},
 	rules: {
+		// let prettier handle this
 		// Indentation: tabs with 4 spaces width
-		indent: [
-			'error',
-			'tab',
-			{
-				SwitchCase: 1
-			}
-		],
+		//indent: [
+		//	'error',
+		//	'tab',
+		//	{
+		//		SwitchCase: 1
+		//	}
+		//],
 
 		// Quotes: single quotes
 		quotes: [
