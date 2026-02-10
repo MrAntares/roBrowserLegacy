@@ -215,6 +215,7 @@ define(function (require) {
 			}.bind(this)
 		);
 		this.ui.find('.buttons').hide();
+		type = 'off';
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'basic_interface/view' + type + '.bmp',
