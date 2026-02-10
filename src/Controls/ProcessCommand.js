@@ -954,7 +954,7 @@ define(function (require) {
 			// TODO: do we have to spam the server with "1" unit or do we have to fix the servers code ?
 			matches = text.match(/^(\w{3})\+ (\d+)$/);
 			if (matches) {
-				var pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
+				let pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
 				if (pos > -1 && matches[2] !== 0) {
 					pkt = new PACKET.CZ.STATUS_CHANGE();
 					pkt.statusID = pos + 13;
@@ -965,7 +965,7 @@ define(function (require) {
 			}
 
 			if (matches) {
-				var pos = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'].indexOf(matches[1]);
+				let pos = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'].indexOf(matches[1]);
 				if (pos > -1 && matches[2] !== 0) {
 					pkt = new PACKET.CZ.STATUS_CHANGE();
 					pkt.statusID = pos + 219;

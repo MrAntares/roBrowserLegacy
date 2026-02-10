@@ -584,9 +584,6 @@ define(function (require) {
 						isDualWeapon
 					);
 					let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action); [MrUnzO]
-					if (m_motionSpeed < 1) {
-						m_motionSpeed = 1;
-					}
 					m_motionSpeed *= factorOfmotionSpeed;
 
 					soundTime = delayTime = m_attackMotion * m_motionSpeed * 24.0;
@@ -1932,6 +1929,7 @@ define(function (require) {
 				if (entity === Session.Entity) {
 					Session.Character.intravision = pkt.state;
 					EntityManager.forEach(function (entity) {
+						/** @type {*} Intentional self-assignment to trigger effectState updates. */
 						entity.effectState = entity.effectState;
 					});
 				}

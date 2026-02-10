@@ -91,7 +91,9 @@ define(function () {
 		for (i = 0; i < contextNames.length; ++i) {
 			try {
 				gl = element.getContext(contextNames[i], { powerPreference: 'high-performance' });
-			} catch (e) {}
+			} catch (e) {
+				console.error(e);
+			}
 
 			if (gl) {
 				break;

@@ -757,7 +757,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model', 'Rende
 			}
 
 			var data;
-			var i, count, j, size, total, offset, length, pos;
+			var i, count, j, size, total, offset, length/*, pos -UNUSED*/;
 			var objects = [],
 				infos = [],
 				meshes,
@@ -792,7 +792,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Loaders/Model', 'Rende
 
 			buffer = new Float32Array(total);
 			count = objects.length;
-			pos = 0;
+			//pos = 0; // UNUSED
 			offset = 0;
 
 			// Merge meshes to buffer

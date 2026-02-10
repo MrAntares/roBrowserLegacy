@@ -1188,7 +1188,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 	// 0x153
 	PACKET.CZ.REGISTER_GUILD_EMBLEM_IMG = function PACKET_CZ_REGISTER_GUILD_EMBLEM_IMG() {
-		this.img;
+		this.img = null;
 	};
 	PACKET.CZ.REGISTER_GUILD_EMBLEM_IMG.prototype.build = function () {
 		var pkt_len = 2 + 2 + this.img.byteLength;

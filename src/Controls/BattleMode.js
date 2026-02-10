@@ -63,7 +63,7 @@ define(function (require) {
 
 		var key = KeyTable[keyName];
 		if (key) {
-			if (key.component == '_SLASHCOMMAND') {
+			if (key.component === '_SLASHCOMMAND') {
 				ProcessCommand.processCommand(key.cmd);
 			} else {
 				var component = UIManager.getComponent(key.component);

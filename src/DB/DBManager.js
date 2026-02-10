@@ -972,7 +972,6 @@ define(function (require) {
 				console.log('Loading file "ItemMoveInfoV5.txt"...');
 
 				const lines = data.split(/\r?\n/);
-				let count = 0;
 
 				for (let line of lines) {
 					line = line.trim();
@@ -1006,10 +1005,7 @@ define(function (require) {
 						Auction: auction === '1',
 						GuildStorage: guildStorage === '1'
 					};
-
-					count++;
 				}
-
 				onEnd();
 			},
 			onEnd
