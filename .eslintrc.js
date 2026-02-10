@@ -37,6 +37,9 @@ module.exports = {
 		eqeqeq: 'off',
 		'no-implicit-coercion': 'off',
 		'no-plusplus': 'off',
+		'no-fallthrough': 'off',
+		'no-case-declarations': 'off',
+		'no-useless-escape': 'off',
 
 		// ======================
 		// CODE QUALITY (REAL BUGS)
