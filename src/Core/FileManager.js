@@ -250,7 +250,7 @@ define(function (require) {
 	 */
 	FileManager.getHTTP = function GetHTTP(filename, callback) {
 		filename = filename.replace(/\\/g, '/');
-		var url = filename.replace(/[^//]+/g, function (a) {
+		var url = filename.replace(/[^/]+/g, function (a) {
 			return encodeURIComponent(a);
 		});
 
