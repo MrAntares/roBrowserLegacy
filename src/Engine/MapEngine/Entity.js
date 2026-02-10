@@ -1929,7 +1929,8 @@ define(function (require) {
 				if (entity === Session.Entity) {
 					Session.Character.intravision = pkt.state;
 					EntityManager.forEach(function (entity) {
-						entity.effectState = entity.effectState; // Deliberate self assign to update effestState. Maybe better to make an update() func to avoid warnings?
+						/** @type {*} Intentional self-assignment to trigger effectState updates. */
+						entity.effectState = entity.effectState;
 					});
 				}
 				break;
