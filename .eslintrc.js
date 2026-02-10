@@ -144,7 +144,8 @@ module.exports = {
 
 		// Code quality
 		curly: ['error', 'all'],
-		eqeqeq: ['error', 'allow-null'],
+		eqeqeq: 'off',
+		no-eq-null: 'off',
 		'no-eval': 'error',
 		'no-implied-eval': 'error',
 		'no-with': 'error',
