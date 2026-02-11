@@ -7,8 +7,6 @@ queries:
 query-filters:
     - exclude:
           id:
-              - js/unused-local-variable
-              - js/useless-assignment-to-local
               - js/redundant-assignment
 paths-ignore:
     - src/Vendors/**
