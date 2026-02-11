@@ -2519,7 +2519,6 @@ define(function (require) {
 									end
 									main_enchantlist()
 								`);
-
 							} catch (error) {
 								console.error('[loadEnchantListFile] Error: ', error);
 							} finally {

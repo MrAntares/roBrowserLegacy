@@ -180,10 +180,7 @@ function findPath(startX, startY, endX, endY, mapData, existingPath) {
 
 		// Check if current point is on the existing path and we've recalculated
 		// at least the minimum percentage of the path
-		if (
-			existingPathLookup.has(currentKey) &&
-			existingPathLookup.get(currentKey) >= minRecalculationPoints
-		) {
+		if (existingPathLookup.has(currentKey) && existingPathLookup.get(currentKey) >= minRecalculationPoints) {
 			// We found a point on the existing path, so we can use the rest of the existing path
 			const pathIndex = existingPathLookup.get(currentKey);
 
