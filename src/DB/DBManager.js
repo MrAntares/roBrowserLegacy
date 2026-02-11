@@ -4101,32 +4101,34 @@ define(function (require) {
 	 * @param {number} jobid
 	 */
 	DB.isNPC = function isNPC(jobid) {
-		return (jobid >= 45 && jobid < 130) 
-			|| (jobid >= 401 && jobid < 1000)
-			|| (jobid >= 10001 && jobid < 19999)
-			|| (jobid == 32767)
-			|| (jobid == -1);
-	}
+		return (
+			(jobid >= 45 && jobid < 130) ||
+			(jobid >= 401 && jobid < 1000) ||
+			(jobid >= 10001 && jobid < 19999) ||
+			jobid == 32767 ||
+			jobid == -1
+		);
+	};
 
 	DB.isMercenary = function isMercenary(jobid) {
 		return jobid >= 6017 && jobid <= 6046;
-	}
+	};
 
 	DB.isHomunculus = function isHomunculus(jobid) {
 		return (jobid >= 6001 && jobid <= 6016) || (jobid >= 6048 && jobid <= 6052);
-	}
+	};
 
 	DB.isMonster = function isMonster(jobid) {
 		return (jobid >= 1001 && jobid <= 3999) || jobid >= 20000; // TODO: Add upper limit for 20k range
-	}
+	};
 
 	DB.isPlayer = function isPlayer(jobid) {
 		return jobid < 45 || (jobid >= 4001 && jobid <= 4350) || jobid == 4294967294;
-	}
+	};
 
 	DB.isDoram = function isDoram(jobid) {
 		return (jobid >= 4217 && jobid <= 4220) || jobid === 4308 || jobid === 4315;
-	}
+	};
 
 	DB.isBaby = function isBaby(jobid) {
 		if (
@@ -4148,27 +4150,27 @@ define(function (require) {
 			return true;
 		}
 		return false;
-	}
+	};
 
 	DB.isMadogear = function isMadogear(jobid) {
 		return jobid == 4086 || jobid == 4087 || jobid == 4112 || jobid == 4279;
-	}
+	};
 
 	DB.isElem = function isElem(jobid) {
 		return (jobid >= 2114 && jobid <= 2125) || (jobid >= 20816 && jobid <= 20820);
-	}
+	};
 
 	DB.isAbr = function isAbr(jobid) {
 		return jobid >= 20834 && jobid <= 20837;
-	}
+	};
 
 	DB.isBionic = function isBionic(jobid) {
 		return jobid >= 20848 && jobid <= 20851;
-	}
+	};
 
 	DB.isWarp = function isWarp(jobid) {
 		return jobid == 45 || jobid == 139;
-	}
+	};
 
 	/**
 	 * @return {string} path to body sprite/action
