@@ -181,7 +181,6 @@ function findPath(startX, startY, endX, endY, mapData, existingPath) {
 		// Check if current point is on the existing path and we've recalculated
 		// at least the minimum percentage of the path
 		if (
-			existingPathLookup &&
 			existingPathLookup.has(currentKey) &&
 			existingPathLookup.get(currentKey) >= minRecalculationPoints
 		) {
