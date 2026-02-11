@@ -34,7 +34,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {ArrayBuffer} data
 	 */
 	GND.prototype.load = function load(data) {
-		var i;
 		this.fp = new BinaryReader(data);
 		var header = this.fp.readBinaryString(4);
 
@@ -69,7 +68,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 				this.water.Zones = [];
 				var count = this.water.splitWidth * this.water.splitHeight;
 
-				for (var i = 0; i < count; i++) {
+				for (let i = 0; i < count; i++) {
 					var waterSub = {
 						level: this.fp.readFloat(),
 						type: this.fp.readLong(),

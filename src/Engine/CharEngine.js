@@ -307,12 +307,12 @@ define(function (require) {
 		// Delete the character
 		function deleteCharacter() {
 			if (PACKETVER.value > 20100803) {
-				var pkt = new PACKET.CH.DELETE_CHAR3();
+				let pkt = new PACKET.CH.DELETE_CHAR3();
 				pkt.GID = charID;
 				pkt.Birth = _inputValue.substring(2); // Server only needs the 6 digits
 				Network.sendPacket(pkt);
 			} else {
-				var pkt = new PACKET.CH.DELETE_CHAR();
+				let pkt = new PACKET.CH.DELETE_CHAR();
 				pkt.GID = charID;
 				pkt.key = _inputValue;
 				Network.sendPacket(pkt);
@@ -423,12 +423,13 @@ define(function (require) {
 	 * @param {object} PACKET.HC.DELETE_CHAR3 <GID> <Result>
 	 */
 	function onDeleteAnswer(pkt) {
+		var result;
 		if (PACKETVER.value <= 20100803) {
 			// Email deletion result
-			var result = typeof pkt.ErrorCode === 'undefined' ? -1 : pkt.ErrorCode;
+			result = typeof pkt.ErrorCode === 'undefined' ? -1 : pkt.ErrorCode;
 		} else {
 			// Birthday deletion result
-			var result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
+			result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
 		}
 		CharSelect.getUI().deleteAnswer(result);
 	}
@@ -660,13 +661,11 @@ define(function (require) {
 						UIManager.showMessageBox(DB.getMessage(1891), 'ok');
 					}
 					PincodeWindow.resetUI();
-					var ChSel = CharSelect.getUI();
-					ChSel.setUIEnabled(true);
+					CharSelect.getUI().setUIEnabled(true);
 				}
 				break;
 			case 1: // ask for pin
-				var ChSel = CharSelect.getUI();
-				ChSel.setUIEnabled(false);
+				CharSelect.getUI().setUIEnabled(false);
 				PincodeWindow.selectInput(0);
 				if (_pincodeAttempts < 3) {
 					PincodeWindow.clearPin();
@@ -678,8 +677,7 @@ define(function (require) {
 				break;
 			case 2: // create new pin
 			case 4: // create new pin ??
-				var ChSel = CharSelect.getUI();
-				ChSel.setUIEnabled(false);
+				CharSelect.getUI().setUIEnabled(false);
 				UIManager.showMessageBox(DB.getMessage(1900), 'ok');
 				PincodeWindow.selectInput(0);
 				PincodeWindow.setUserSeed(pkt.Seed);
@@ -687,8 +685,7 @@ define(function (require) {
 				PincodeWindow.append();
 				break;
 			case 3: // pin must be changed
-				var ChSel = CharSelect.getUI();
-				ChSel.setUIEnabled(false);
+				CharSelect.getUI().setUIEnabled(false);
 				if (_pincodeAttempts < 3) {
 					UIManager.showMessageBox(DB.getMessage(2345), 'ok');
 					PincodeWindow.setUserSeed(pkt.Seed);

@@ -85,7 +85,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			this.frameRatePerSecond = fp.readFloat();
 			count = fp.readLong();
 
-			for (var i = 0; i < count; i++) {
+			for (i = 0; i < count; i++) {
 				textures.push(fp.readBinaryString(fp.readLong()));
 			}
 		} else if (this.version >= 2.2) {
@@ -97,7 +97,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 
 			count = fp.readLong();
 
-			for (var i = 0; i < count; i++) {
+			for (i = 0; i < count; i++) {
 				textures.push(fp.readBinaryString(fp.readLong()));
 			}
 		} else {
@@ -305,6 +305,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	RSM.Node = function Node(rsm, fp, only) {
 		var i,
 			j,
+			k,
 			count,
 			version = rsm.version;
 		var vertices, tvertices, faces, posKeyframes, rotKeyframes, scaleKeyFrames, textureKeyFrameGroup;
@@ -326,7 +327,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		count = fp.readLong();
 		textures = new Array(count);
 
-		for (let i = 0; i < count; i++) {
+		for (i = 0; i < count; i++) {
 			textures[i] = version >= 2.3 ? fp.readBinaryString(fp.readLong()) : fp.readLong();
 		}
 
@@ -473,7 +474,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 					textureKeyFrameGroup[i][textureId] = [];
 				}
 
-				for (var j = 0; j < amountTextureAnimations; ++j) {
+				for (j = 0; j < amountTextureAnimations; ++j) {
 					var type = fp.readLong();
 					var amountFrames = fp.readLong();
 
@@ -482,7 +483,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 						textureKeyFrameGroup[i][textureId][type] = [];
 					}
 
-					for (var k = 0; k < amountFrames; ++k) {
+					for (k = 0; k < amountFrames; ++k) {
 						textureKeyFrameGroup[i][textureId][type].push({
 							frame: fp.readLong(),
 							offset: fp.readFloat()

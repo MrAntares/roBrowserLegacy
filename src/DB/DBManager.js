@@ -3528,41 +3528,6 @@ define(function (require) {
 		loadNext(0);
 	}
 
-	/**
-	 * Remove LUA comments
-	 *
-	 * @param {string} content
-	 * @param {string} new content
-	 */
-	function lua_remove_comments(content) {
-		// Block comment
-		var start = 0,
-			end;
-		while ((start = content.indexOf('--[[')) !== -1) {
-			end = content.indexOf('--]]');
-			if (end === -1) {
-				end = content.length;
-			}
-
-			content = content.substring(0, start) + content.substring(end + 4, end.length);
-		}
-
-		// temp replace in quote...
-		content = content.replace(/"([^"]+)?--[^"]+/g, function (a) {
-			return a.replace(/-/g, '\\\\x2d');
-		});
-
-		// Remove inline comment
-		content = content.replace(/--[^\n]+/g, '');
-
-		// Get back --
-		content = content.replace(/\\\\x2d/g, '-');
-
-		content = content.replace(/^\s*([\/-][\/-][^\n]+)/gm, '');
-
-		return content;
-	}
-
 	/* Load Ragnarok Lua table to object
 	 * A lot of ragnarok lua tables are splited in 2 files ( 1 - ID table, 2 - Table of values )
 	 * @param {Array} list of files to be load (must be 2 files)
@@ -4458,11 +4423,9 @@ define(function (require) {
 				case JobId.THIEF:
 				case JobId.THIEF_H:
 					return 5.75;
-					break;
 				case JobId.MERCHANT:
 				case JobId.MERCHANT_H:
 					return 5.85;
-					break;
 			}
 		} else {
 			switch (job) {

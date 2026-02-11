@@ -87,8 +87,6 @@ define(function (require) {
 	var SignboardManager = require('Renderer/SignboardManager');
 	var PvPTimer = require('UI/Components/PvPTimer/PvPTimer');
 	var PvPCount = require('UI/Components/PvPCount/PvPCount');
-	var PACKETVER = require('Network/PacketVerManager');
-	var ShortCut = require('UI/Components/ShortCut/ShortCut');
 	// Version Dependent UIs
 	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
 	var MiniMap = require('UI/Components/MiniMap/MiniMap');
@@ -1123,10 +1121,11 @@ define(function (require) {
 	 */
 	function onDropItem(index, count) {
 		if (count) {
+			var pkt;
 			if (PACKETVER.value >= 20180307) {
-				var pkt = new PACKET.CZ.ITEM_THROW2();
+				pkt = new PACKET.CZ.ITEM_THROW2();
 			} else {
-				var pkt = new PACKET.CZ.ITEM_THROW();
+				pkt = new PACKET.CZ.ITEM_THROW();
 			}
 			pkt.Index = index;
 			pkt.count = count;
