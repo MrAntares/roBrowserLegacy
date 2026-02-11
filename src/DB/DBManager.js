@@ -181,7 +181,7 @@ define(function (require) {
 	/**
 	 * @var NaviMap Table
 	 */
-	var NaviMapTable = {};
+	//var NaviMapTable = {}; // UNUSED
 
 	/**
 	 * @var NaviMob Table
@@ -3067,7 +3067,9 @@ define(function (require) {
 								if (Array.isArray(arr) && arr.length) {
 									SkillInfo[skillId]._NeedSkillList = arr;
 								}
-							} catch (_) {}
+							} catch (e) {
+								console.error(e);
+							}
 						}
 
 						return 1;
@@ -3174,7 +3176,6 @@ define(function (require) {
 				try {
 					console.log(`Loading file ${DB.LUA_PATH}skillinfoz/jobinheritlist.lub...`);
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-					const ctx = lua.ctx;
 
 					// Mount and execute jobinheritlist.lub
 					lua.mountFile('jobinheritlist.lub', buffer);
@@ -3619,36 +3620,6 @@ define(function (require) {
 		return content;
 	}
 
-	/* Load Lua File to json object
-	 *
-	 * @param {string} filename to load
-	 * @param {function} onEnd to run once the file is loaded
-	 *
-	 * @author Raiken
-	 */
-	function loadLuaFile(filename, callback, onEnd) {
-		Client.loadFile(
-			filename,
-			async function (data) {
-				let json = {};
-				console.log('Loading file "' + filename + '"...');
-				try {
-					if (data instanceof ArrayBuffer) {
-						data = new TextDecoder(userCharpage).decode(data);
-					}
-					let output = lua_parse_glob(data);
-					json = JSON.parse(output);
-				} catch (hException) {
-					console.error(`(${filename}) error: `, hException);
-				}
-
-				callback.call(null, json);
-				onEnd();
-			},
-			onEnd
-		);
-	}
-
 	/* Load Ragnarok Lua table to object
 	 * A lot of ragnarok lua tables are splited in 2 files ( 1 - ID table, 2 - Table of values )
 	 * @param {Array} list of files to be load (must be 2 files)
@@ -3969,9 +3940,6 @@ define(function (require) {
 
 					// check if file is ArrayBuffer and convert to Uint8Array if necessary
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-
-					// get context, a proxy. It will be used to interact with lua conveniently
-					const ctx = lua.ctx;
 
 					// create decoders
 					let decoder = new TextEncoding.TextDecoder(userCharpage);
