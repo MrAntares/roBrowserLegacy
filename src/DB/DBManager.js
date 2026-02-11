@@ -181,7 +181,7 @@ define(function (require) {
 	/**
 	 * @var NaviMap Table
 	 */
-	//var NaviMapTable = {}; // UNUSED
+	var NaviMapTable = {};
 
 	/**
 	 * @var NaviMob Table
@@ -857,11 +857,10 @@ define(function (require) {
 				// Remove commented lines
 				var content = ('\n' + data).replace(/\n(\/\/[^\n]+)/g, '');
 				var elements = content.split(separator);
-				var i,
-					count = elements.length;
+				var count = elements.length;
 				var args = new Array(size + 1);
 
-				for (i = 0; i < count; i++) {
+				for (let i = 0; i < count; i++) {
 					if (i % size === 0) {
 						if (i) {
 							callback.apply(null, args);
@@ -908,7 +907,7 @@ define(function (require) {
 				// Split lines
 				var lines = text.split(/\r?\n/);
 
-				for (var i = 0; i < lines.length; i++) {
+				for (let i = 0; i < lines.length; i++) {
 					var line = lines[i].trim();
 					if (!line || line.startsWith('//')) {
 						continue;
@@ -948,7 +947,7 @@ define(function (require) {
 
 			// convert binary string to Uint8Array
 			var bytes = new Uint8Array(len);
-			for (var i = 0; i < len; i++) {
+			for (let i = 0; i < len; i++) {
 				bytes[i] = binary.charCodeAt(i);
 			}
 
@@ -3564,62 +3563,6 @@ define(function (require) {
 		return content;
 	}
 
-	/**
-	 * Difficult lua loader
-	 *
-	 * @param {string} content
-	 */
-	function lua_parse_glob(content) {
-		// Fix possible missing spaces after an array assignment.
-		content = content.replace(/^(\s+)(\w+)\s+?={/gm, '$1$2 = {');
-
-		// Remove comments
-		content = lua_remove_comments(content);
-
-		// Some failed escaped string on lua
-		content = content.replace(/\\\\\\/g, '\\');
-
-		// Remove variable container
-		content = content.replace(/^([^\{]+)\{/, '');
-		// Replace trailing semicolon with comma
-		content = content.replace(/";\s?$/gm, '",');
-
-		// Convert lua array
-		content = content.replace(/\{(\s+?"[^\}]+)\}/g, '[$1]');
-
-		content = content.replace(/"\s+\]/g, '",\n]');
-		content = content.replace(/\\'/g, "'");
-
-		// Restore key index
-		content = content.replace(/\[(\w+)]\s+?=\s+?\{/g, '$1: {');
-
-		// Convert parameters
-		content = content.replace(/(\s+)(\w+)\s+?=\s+?/g, '$1"$2": ');
-
-		// Remove un-needed coma
-		content = content.replace(/,(\s+(\]|\}))/g, '$1').replace(/,(\s+)?$/, '');
-
-		// Removed from the first regex
-		content = '{' + content;
-
-		// some functions code
-		content = (content + '\0').replace(/\n\}[^\0]+\0/, '');
-
-		// Fix curly brace
-		var open = content.split('{').length;
-		var close = content.split('}').length;
-		if (open > close) {
-			content += '}';
-		}
-		content = content.replace(/^\s*(\w+)\s*:/gm, '"$1":');
-		content = content.replace(/(?=[^\\"])\s--.*/gm, '');
-		// Remove null characters
-		content = content.replace(/\0/g, '');
-		content = content.replace(/\}\}$/, '}');
-
-		return content;
-	}
-
 	/* Load Ragnarok Lua table to object
 	 * A lot of ragnarok lua tables are splited in 2 files ( 1 - ID table, 2 - Table of values )
 	 * @param {Array} list of files to be load (must be 2 files)
@@ -4127,7 +4070,7 @@ define(function (require) {
 	 * @param {mixed} key
 	 */
 	function parseIndoorEntry(index, key) {
-		var key = key.replace('.gat', '.rsw');
+		key = key.replace('.gat', '.rsw');
 		var map = MapTable[key] || (MapTable[key] = {});
 		map.indoor = true;
 	}
@@ -4157,31 +4100,35 @@ define(function (require) {
 	 *
 	 * @param {number} jobid
 	 */
-	function isNPC(jobid) {
-		return (jobid >= 45 && jobid < 1000) || (jobid >= 10001 && jobid < 19999);
+	DB.isNPC = function isNPC(jobid) {
+		return (jobid >= 45 && jobid < 130) 
+			|| (jobid >= 401 && jobid < 1000)
+			|| (jobid >= 10001 && jobid < 19999)
+			|| (jobid == 32767)
+			|| (jobid == -1);
 	}
 
-	function isMercenary(jobid) {
+	DB.isMercenary = function isMercenary(jobid) {
 		return jobid >= 6017 && jobid <= 6046;
 	}
 
-	function isHomunculus(jobid) {
+	DB.isHomunculus = function isHomunculus(jobid) {
 		return (jobid >= 6001 && jobid <= 6016) || (jobid >= 6048 && jobid <= 6052);
 	}
 
-	function isMonster(jobid) {
-		return (jobid >= 1001 && jobid <= 3999) || jobid >= 20000;
+	DB.isMonster = function isMonster(jobid) {
+		return (jobid >= 1001 && jobid <= 3999) || jobid >= 20000; // TODO: Add upper limit for 20k range
 	}
 
-	function isPlayer(jobid) {
+	DB.isPlayer = function isPlayer(jobid) {
 		return jobid < 45 || (jobid >= 4001 && jobid <= 4350) || jobid == 4294967294;
 	}
 
-	DB.isDoram = function (jobid) {
+	DB.isDoram = function isDoram(jobid) {
 		return (jobid >= 4217 && jobid <= 4220) || jobid === 4308 || jobid === 4315;
-	};
+	}
 
-	function isBaby(jobid) {
+	DB.isBaby = function isBaby(jobid) {
 		if (
 			(jobid >= 4023 && jobid <= 4045) ||
 			(jobid >= 4096 && jobid <= 4112) ||
@@ -4203,8 +4150,24 @@ define(function (require) {
 		return false;
 	}
 
-	function isMadogear(jobid) {
+	DB.isMadogear = function isMadogear(jobid) {
 		return jobid == 4086 || jobid == 4087 || jobid == 4112 || jobid == 4279;
+	}
+
+	DB.isElem = function isElem(jobid) {
+		return (jobid >= 2114 && jobid <= 2125) || (jobid >= 20816 && jobid <= 20820);
+	}
+
+	DB.isAbr = function isAbr(jobid) {
+		return jobid >= 20834 && jobid <= 20837;
+	}
+
+	DB.isBionic = function isBionic(jobid) {
+		return jobid >= 20848 && jobid <= 20851;
+	}
+
+	DB.isWarp = function isWarp(jobid) {
+		return jobid == 45 || jobid == 139;
 	}
 
 	/**
@@ -4226,10 +4189,9 @@ define(function (require) {
 		}
 
 		// PC
-		if (isPlayer(id)) {
+		if (DB.isPlayer(id)) {
 			// DORAM
-			var isDoram = DB.isDoram(id);
-			var result = isDoram
+			var result = DB.isDoram(id)
 				? 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/'
 				: 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
 			result += SexTable[sex] + '/';
@@ -4267,19 +4229,19 @@ define(function (require) {
 		}
 
 		// NPC
-		if (isNPC(id)) {
+		if (DB.isNPC(id)) {
 			return 'data/sprite/npc/' + (MonsterTable[id] || MonsterTable[46]).toLowerCase();
 		}
 
 		// MERC
-		if (isMercenary(id)) {
+		if (DB.isMercenary(id)) {
 			// archer - female path | lancer and swordman - male path
 			// mercenary entry on monster table have sex path included
 			return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' + MonsterTable[id];
 		}
 
 		// HOMUN
-		if (isHomunculus(id)) {
+		if (DB.isHomunculus(id)) {
 			return 'data/sprite/homun/' + (MonsterTable[id] || MonsterTable[1002]).toLowerCase();
 		}
 
@@ -5484,9 +5446,8 @@ define(function (require) {
 					var list = ['', 'Double ', 'Triple ', 'Quadruple '];
 					var cards = {};
 					var cardList = [];
-					var i;
 
-					for (i = 1; i <= 4; ++i) {
+					for (let i = 1; i <= 4; ++i) {
 						var card = item.slot['card' + i];
 
 						if (card) {
@@ -6209,7 +6170,6 @@ define(function (require) {
 			case JobId.NOVICE:
 			case JobId.DO_SUMMONER1:
 				return 'Base_Class';
-				break;
 
 			case JobId.SWORDMAN:
 			case JobId.MAGICIAN:
@@ -6218,7 +6178,6 @@ define(function (require) {
 			case JobId.MERCHANT:
 			case JobId.THIEF:
 				return 'First_Class';
-				break;
 
 			case JobId.KNIGHT:
 			case JobId.PRIEST:
@@ -6237,17 +6196,14 @@ define(function (require) {
 			case JobId.CRUSADER2:
 			case JobId.SUPERNOVICE:
 				return 'Second_Class';
-				break;
 
 			case JobId.GUNSLINGER:
 			case JobId.NINJA:
 			case JobId.TAEKWON:
 				return 'Expanded_First_Class';
-				break;
 
 			case JobId.NOVICE_H:
 				return 'Rebirth_Class';
-				break;
 
 			case JobId.SWORDMAN_H:
 			case JobId.MAGICIAN_H:
@@ -6256,7 +6212,6 @@ define(function (require) {
 			case JobId.MERCHANT_H:
 			case JobId.THIEF_H:
 				return 'Rebirth_First_Class';
-				break;
 
 			case JobId.KNIGHT_H:
 			case JobId.PRIEST_H:
@@ -6274,7 +6229,6 @@ define(function (require) {
 			case JobId.DANCER_H:
 			case JobId.CRUSADER2_H:
 				return 'Rebirth_Second_Class';
-				break;
 
 			case JobId.STAR:
 			case JobId.STAR2:
@@ -6283,7 +6237,6 @@ define(function (require) {
 			case JobId.OBORO:
 			case JobId.REBELLION:
 				return 'Expanded_Second_Class';
-				break;
 
 			case JobId.RUNE_KNIGHT:
 			case JobId.WARLOCK:
@@ -6302,7 +6255,6 @@ define(function (require) {
 			case JobId.RANGER2:
 			case JobId.MECHANIC2:
 				return 'Normal_Third_Class';
-				break;
 
 			case JobId.RUNE_KNIGHT_H:
 			case JobId.WARLOCK_H:
@@ -6318,13 +6270,11 @@ define(function (require) {
 			case JobId.GENETIC_H:
 			case JobId.SHADOW_CHASER_H:
 				return 'Rebirth_Third_Class';
-				break;
 
 			case JobId.EMPEROR:
 			case JobId.REAPER:
 			case JobId.EMPEROR2:
 				return 'Expanded_Third_Class';
-				break;
 
 			case JobId.DRAGON_KNIGHT:
 			case JobId.MEISTER:
@@ -6352,11 +6302,9 @@ define(function (require) {
 			case JobId.SPIRIT_HANDLER:
 			case JobId.SKY_EMPEROR2:
 				return 'Fourth_Class';
-				break;
 
 			default:
 				return 'Base_Class';
-				break;
 		}
 	};
 
@@ -6539,11 +6487,11 @@ define(function (require) {
 		// Search NPCs if type is ALL or NPC
 		if (type === 'ALL' || type === 'NPC') {
 			// NaviNpcTable structure: [["map_name", npc_id, npc_type, class_id, "npc_name", "", x, y], ...]
-			for (var i = 0; i < NaviNpcTable.length; i++) {
-				var npc = NaviNpcTable[i];
-				var mapName = npc[0];
-				var npcId = npc[1];
-				var npcName = npc[4] || '';
+			for (let i = 0; i < NaviNpcTable.length; i++) {
+				let npc = NaviNpcTable[i];
+				let mapName = npc[0];
+				let npcId = npc[1];
+				let npcName = npc[4] || '';
 
 				// Skip if no name
 				if (!npcName) {
@@ -6567,11 +6515,11 @@ define(function (require) {
 		// Search MOBs if type is ALL or MOB
 		if (type === 'ALL' || type === 'MOB') {
 			// NaviMobTable structure: [["map_name", spawn_id, mob_type, mob_class, "mob_name", "sprite_name", level, mob_info], ...]
-			for (var i = 0; i < NaviMobTable.length; i++) {
-				var mob = NaviMobTable[i];
-				var mapName = mob[0];
-				var mobId = mob[3]; // Using mob_class as the ID
-				var mobName = mob[4] || '';
+			for (let i = 0; i < NaviMobTable.length; i++) {
+				let mob = NaviMobTable[i];
+				let mapName = mob[0];
+				let mobId = mob[3]; // Using mob_class as the ID
+				let mobName = mob[4] || '';
 
 				// Skip if no name
 				if (!mobName) {
