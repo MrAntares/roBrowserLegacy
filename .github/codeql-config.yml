@@ -2,7 +2,7 @@ name: 'Custom CodeQL Config'
 version: 2.0.0
 
 queries:
-    - uses: +security-extended
+    - uses: security-extended
 
 query-filters:
     - exclude:
