@@ -344,7 +344,7 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 		out[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
 		out[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
 		return out;
-	}
+	};
 
 
 	/**

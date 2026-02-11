@@ -491,7 +491,7 @@ define(function (require) {
 
 			// EnchantList
 			if (PACKETVER.value >= 20211103) {
-				loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', null, onLoad());
+				loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', onLoad());
 			}
 
 			// MapName
@@ -2202,7 +2202,7 @@ define(function (require) {
 	 * @param {function} onEnd - The function to call when the loading is complete.
 	 * @return {void}
 	 */
-	function loadEnchantListFile(basePath, callback, onEnd) {
+	function loadEnchantListFile(basePath, onEnd) {
 		const normalizedBase = basePath.replace(/\.(lub|lua)$/i, '');
 		const defFile = normalizedBase + '_f.lub';
 		const listFile = normalizedBase + '.lub';
@@ -2519,10 +2519,6 @@ define(function (require) {
 									end
 									main_enchantlist()
 								`);
-
-								if (typeof callback === 'function') {
-									callback(EnchantListTable);
-								}
 							} catch (error) {
 								console.error('[loadEnchantListFile] Error: ', error);
 							} finally {
