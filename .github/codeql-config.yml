@@ -2,13 +2,12 @@ name: 'Custom CodeQL Config'
 version: 2.0.0
 
 queries:
-    - uses: security-and-quality
+    - uses: security-extended
 
 query-filters:
     - exclude:
           id:
-              - js/unused-local-variable
-              - js/useless-assignment-to-local
+              - js/redundant-assignment
 paths-ignore:
     - src/Vendors/**
     - applications/tools/**
