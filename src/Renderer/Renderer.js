@@ -418,10 +418,14 @@ define(function (require) {
 			// Cancel any previous interval/animation to be safe
 			try {
 				clearInterval(this.updateId);
-			} catch (e) {}
+			} catch (e) {
+				console.error(e);
+			}
 			try {
 				_cancelAnimationFrame(this.updateId);
-			} catch (e) {}
+			} catch (e) {
+				console.error(e);
+			}
 
 			// Reset timing helpers so first rAF initializes cleanly
 			this._lastFrameTime = 0;
@@ -442,7 +446,9 @@ define(function (require) {
 			this.rendering = false; // Ensure rendering flag is cleared
 			try {
 				_cancelAnimationFrame(this.updateId);
-			} catch (e) {}
+			} catch (e) {
+				console.error(e);
+			}
 			return;
 		}
 

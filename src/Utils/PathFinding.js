@@ -81,7 +81,9 @@ define(function () {
 		var i, h, cost;
 
 		h = 0;
-		for (h = 0; h < heap[0] && heap[h + 1] !== index; ++h) {}
+		for (h = 0; h < heap[0] && heap[h + 1] !== index; ++h) {
+			// no-op
+		}
 
 		if (h === heap[0]) {
 			throw new Error('PathFinding::update_heap_path() - Error updating head path');
@@ -405,7 +407,9 @@ define(function () {
 		}
 
 		// Reorganize Path
-		for (pathLen = 0, i = currentNode; pathLen < 100 && i !== calc_index(x0, y0); i = _before[i], pathLen++) {}
+		for (pathLen = 0, i = currentNode; pathLen < 100 && i !== calc_index(x0, y0); i = _before[i], pathLen++) {
+			// no-op
+		}
 
 		finalLen = 0;
 		skip = range > 0;

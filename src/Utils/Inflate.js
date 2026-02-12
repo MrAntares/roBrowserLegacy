@@ -126,7 +126,9 @@ define(function () {
 		this.codeSize = 0;
 		this.codeBuf = 0;
 
-		while (!this.readBlock()) {}
+		while (!this.readBlock()) {
+			// no-op
+		}
 
 		return this.bufferPos;
 	};

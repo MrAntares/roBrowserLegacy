@@ -55,7 +55,9 @@ define(['Utils/Texture', 'Core/Configs'], function (Texture, Configs) {
 					if (gl) {
 						break;
 					}
-				} catch (e) {}
+				} catch (e) {
+					console.error(e);
+				}
 			}
 		}
 
