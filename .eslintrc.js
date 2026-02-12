@@ -23,17 +23,16 @@ module.exports = {
 		$: 'readonly',
 		console: 'readonly',
 		FileReaderSync: 'readonly', // Lint flagged it as warning
-		importScripts: 'readonly',  // Lint flagged it as warning
+		importScripts: 'readonly', // Lint flagged it as warning
 		Buffer: 'readonly', // Node.js function
 
 		// Global RO config
 		ROConfig: 'readonly',
-		
+
 		// BinaryReader global vars
 		SEEK_CUR: 'readonly',
 		SEEK_SET: 'readonly',
-		SEEK_END: 'readonly',
-		
+		SEEK_END: 'readonly'
 	},
 	rules: {
 		// ======================
