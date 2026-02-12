@@ -311,7 +311,7 @@ define(['Core/Configs', 'Network/PacketLength'], function (Configs, PacketLength
 	return {
 		// Get Back data
 		get value() {
-			return _value > 0 ? _value : ROConfig.servers[0].packetver || ROConfig.packetver;
+			return _value > 0 ? _value : window.ROConfig.servers[0].packetver || window.ROConfig.packetver; // Shouldn't we use Configs.get();
 			//return _value;
 		},
 

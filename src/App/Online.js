@@ -84,7 +84,7 @@ require.onError = function (err) {
 };
 
 require({
-	urlArgs: ROConfig.version,
+	urlArgs: window.ROConfig.version,
 	baseUrl: '../../src/',
 	paths: {
 		text: 'Vendors/text.require',
