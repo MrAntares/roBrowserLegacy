@@ -339,6 +339,7 @@ define(function () {
 		sizeX = width - 1;
 		sizeY = height - 1;
 
+		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			// Clean up variables
 			error = 0;
