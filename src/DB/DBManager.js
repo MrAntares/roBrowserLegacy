@@ -4085,7 +4085,12 @@ define(function (require) {
 	};
 
 	DB.isMonster = function isMonster(jobid) {
-		return (jobid >= 1001 && jobid <= 3999) || (jobid >= 20000 && jobid < 20834) || (jobid >= 20852 && jobid < 22301) || (jobid > 22313 && jobid < 22322); // 22322 = last monster released on EP21
+		return (
+			(jobid >= 1001 && jobid <= 3999) ||
+			(jobid >= 20000 && jobid < 20834) ||
+			(jobid >= 20852 && jobid < 22301) ||
+			(jobid > 22313 && jobid < 22322)
+		); // 22322 = last monster released on EP21
 	};
 
 	DB.isPlayer = function isPlayer(jobid) {
