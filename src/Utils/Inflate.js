@@ -346,7 +346,7 @@ define(function () {
 
 		var buffer = this.buffer;
 		var pos = this.bufferPos;
-		
+
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			var code1 = this.getCode(litCodeTable);
