@@ -4067,9 +4067,10 @@ define(function (require) {
 	 */
 	DB.isNPC = function isNPC(jobid) {
 		return (
-			(jobid >= 45 && jobid < 130) ||
+			(jobid > 45 && jobid < 130) ||
 			(jobid >= 401 && jobid < 1000) ||
 			(jobid >= 10001 && jobid < 19999) ||
+			(jobid > 22300 && jobid < 22313) ||
 			jobid == 32767 ||
 			jobid == -1
 		);
@@ -4084,11 +4085,11 @@ define(function (require) {
 	};
 
 	DB.isMonster = function isMonster(jobid) {
-		return (jobid >= 1001 && jobid <= 3999) || jobid >= 20000; // TODO: Add upper limit for 20k range
+		return (jobid >= 1001 && jobid <= 3999) || (jobid >= 20000 && jobid < 20834) || (jobid >= 20852 && jobid < 22301) || (jobid > 22313 && jobid < 22322); // 22322 = last monster released on EP21
 	};
 
 	DB.isPlayer = function isPlayer(jobid) {
-		return jobid < 45 || (jobid >= 4001 && jobid <= 4350) || jobid == 4294967294;
+		return (jobid >= 0 && jobid < 45) || (jobid >= 4001 && jobid <= 4350) || jobid == 4294967294;
 	};
 
 	DB.isDoram = function isDoram(jobid) {
