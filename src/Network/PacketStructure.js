@@ -442,10 +442,11 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 		this.changeAmount = 0;
 	};
 	PACKET.CZ.STATUS_CHANGE.prototype.build = function () {
+		var pkt_len;
 		if (this.statusID >= 219 && this.statusID <= 224) {
-			var pkt_len = 2 + 3 + 1;
+			pkt_len = 2 + 3 + 1;
 		} else {
-			var pkt_len = 2 + 2 + 1;
+			pkt_len = 2 + 2 + 1;
 		}
 		var pkt_buf = new BinaryWriter(pkt_len);
 
@@ -13115,7 +13116,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 
 		pkt_buf.writeShort(0xaa3);
 		pkt_buf.writeShort(this.index);
-		PACKETVER.value >= 20181121 ? pkt_buf.writeULong(this.itemId) : pkt_buf.writeUShort(itemId);
+		PACKETVER.value >= 20181121 ? pkt_buf.writeULong(this.itemId) : pkt_buf.writeUShort(this.itemId);
 		pkt_buf.writeChar(this.blacksmithBlessing);
 		return pkt_buf;
 	};

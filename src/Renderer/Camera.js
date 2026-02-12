@@ -451,7 +451,7 @@ define(function (require) {
 	Camera.updateState = function UpdateState() {
 		if (this.enable1STPerson && this.zoomFinal == 0) {
 			if (this.state != this.states.first_person) {
-				var Renderer = require('Renderer/Renderer');
+				let Renderer = require('Renderer/Renderer');
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_1STPERSON;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_1STPERSON;
 				Renderer.vFov = 50;
@@ -467,7 +467,7 @@ define(function (require) {
 			this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM
 		) {
 			if (this.state != this.states.third_person) {
-				var Renderer = require('Renderer/Renderer');
+				let Renderer = require('Renderer/Renderer');
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_3RDPERSON;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_3RDPERSON;
 				Renderer.vFov = 30;
@@ -480,7 +480,7 @@ define(function (require) {
 			}
 		} else {
 			if (this.state != this.states.isometric) {
-				var Renderer = require('Renderer/Renderer');
+				let Renderer = require('Renderer/Renderer');
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 				Renderer.vFov = 15;

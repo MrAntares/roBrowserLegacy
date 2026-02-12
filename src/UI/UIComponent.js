@@ -121,7 +121,7 @@ define(function (require) {
 		if (this.mouseMode === UIComponent.MouseMode.STOP) {
 			var _intersect,
 				_enter = 0;
-			var element = this.__mouseStopBlock || this.ui;
+			let element = this.__mouseStopBlock || this.ui;
 
 			// stop intersection
 			element.mouseenter(function () {
@@ -167,7 +167,7 @@ define(function (require) {
 		}
 
 		if (this.mouseMode !== UIComponent.MouseMode.CROSS) {
-			var element = this.__mouseStopBlock || this.ui;
+			let element = this.__mouseStopBlock || this.ui;
 			// Do not cross
 			element.on('touchstart', function (event) {
 				event.stopImmediatePropagation();
