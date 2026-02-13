@@ -31,15 +31,15 @@ jobs:
               run: npm i
 
             - name: Run ESLint
-              run: npm run lint -- --fix
+              run: npm run lint #-- --fix
 
-            - name: Commit changes
-              if: github.event_name == 'push'
-              run: |
-                  git config user.name "github-actions"
-                  git config user.email "github-actions@github.com"
-                  git add -A
-                  git reset .github/workflows/
+#            - name: Commit changes
+#              if: github.event_name == 'push'
+#              run: |
+#                  git config user.name "github-actions"
+#                  git config user.email "github-actions@github.com"
+#                  git add -A
+#                  git reset .github/workflows/
 
-                  git diff --cached --quiet || git commit -m "code-quality: auto-fix with lint"
-                  git push
+#                  git diff --cached --quiet || git commit -m "code-quality: auto-fix with lint"
+#                  git push
