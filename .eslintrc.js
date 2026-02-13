@@ -49,7 +49,7 @@ module.exports = {
 		'no-implicit-coercion': 'off',
 		'no-plusplus': 'off',
 		'no-fallthrough': 'off',
-		
+
 		// ======================
 		// USELESS RULES
 		// ======================
@@ -64,7 +64,7 @@ module.exports = {
 				args: 'none'
 			}
 		],
-		
+
 		// ======================
 		// CODE QUALITY (REAL BUGS)
 		// ======================
@@ -76,7 +76,7 @@ module.exports = {
 		'no-global-assign': 'warn',
 		'no-undef': 'error',
 		'no-unreachable': 'error',
-		
+
 		// ======================
 		// LESS NOISE FOR LEGACY
 		// ======================
