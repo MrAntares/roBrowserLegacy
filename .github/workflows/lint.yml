@@ -31,7 +31,7 @@ jobs:
               run: npm i
 
             - name: Run ESLint
-              run: npm run lint . --fix
+              run: npm run lint -- --fix
 
             - name: Commit changes
               if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
