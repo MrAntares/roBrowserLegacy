@@ -76,7 +76,6 @@ module.exports = {
 		'no-global-assign': 'warn',
 		'no-undef': 'error',
 		'no-unreachable': 'error',
-		'no-invalid-this': 'error',
 		'no-new': 'warn',
 		'no-unused-expressions': 'warn',
 
@@ -84,12 +83,11 @@ module.exports = {
 		// HARDCORE VARIABLE QUALITY (adjust if too many warnings)
 		// ======================
 		'vars-on-top': 'warn',
-		'no-magic-numbers': 'warn',
+		//'no-magic-numbers': ['warn', {} ], // Need to find the right ignores
 		'prefer-const': 'warn',
 		'no-shadow': 'warn',
 		'block-scoped-var': 'warn',
-		// we are not ready for this yet, but maybe one time
-		//'no-var': 'warn',
+		//'no-var': 'warn', // we are not ready for this yet, but maybe one time
 
 		// ======================
 		// LESS NOISE FOR LEGACY
