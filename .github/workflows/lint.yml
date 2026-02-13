@@ -32,7 +32,6 @@ jobs:
 
             - name: Run ESLint
               run: npm run lint -- --fix
-              continue-on-error: true
               
             - name: Commit changes
               if: github.event_name == 'push'
