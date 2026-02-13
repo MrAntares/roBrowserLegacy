@@ -45,7 +45,7 @@ module.exports = {
 		// ======================
 		// ENGINE FRIENDLY
 		// ======================
-		eqeqeq: 'warn',
+		eqeqeq: 'off',
 		'no-implicit-coercion': 'off',
 		'no-plusplus': 'off',
 		'no-fallthrough': 'off',
