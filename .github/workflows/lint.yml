@@ -1,5 +1,9 @@
 name: Lint
 
+concurrency:
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+    
 on:
     push:
         branches:
@@ -28,7 +32,6 @@ jobs:
 
             - name: Run ESLint
               run: npm run lint . --fix
-              continue-on-error: true
 
             - name: Commit changes
               if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
