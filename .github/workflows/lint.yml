@@ -34,7 +34,7 @@ jobs:
               run: npm run lint -- --fix
 
             - name: Commit changes
-              if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+              if: github.event_name == 'push'
               run: |
                   git config user.name "github-actions"
                   git config user.email "github-actions@github.com"
