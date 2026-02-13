@@ -49,15 +49,22 @@ module.exports = {
 		'no-implicit-coercion': 'off',
 		'no-plusplus': 'off',
 		'no-fallthrough': 'off',
-		'no-case-declarations': 'off',
-		'no-useless-escape': 'off',
-		'no-empty': 'warn',
-		'no-constant-condition': 'warn',
-		'no-global-assign': 'off',
-		'no-undef': 'warn',
-		'no-redeclare': 'warn',
-		'no-unreachable': 'warn',
-
+		
+		// ======================
+		// USELESS RULES
+		// ======================
+		'no-useless-escape': 'warn',
+		'no-empty': 'error',
+		'no-redeclare': 'error',
+		'no-constant-condition': 'error',
+		'no-unused-vars': [
+			'warn',
+			{
+				varsIgnorePattern: '^_',
+				args: 'none'
+			}
+		],
+		
 		// ======================
 		// CODE QUALITY (REAL BUGS)
 		// ======================
@@ -66,18 +73,13 @@ module.exports = {
 		'no-implied-eval': 'error',
 		'no-new-func': 'error',
 		'no-with': 'error',
-
+		'no-global-assign': 'warn',
+		'no-undef': 'error',
+		'no-unreachable': 'error',
+		
 		// ======================
 		// LESS NOISE FOR LEGACY
 		// ======================
-		'no-unused-vars': [
-			'warn',
-			{
-				varsIgnorePattern: '^_',
-				args: 'none'
-			}
-		],
-
 		'no-prototype-builtins': 'off',
 		'no-inner-declarations': 'off',
 		'no-case-declarations': 'off',
