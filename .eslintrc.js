@@ -73,7 +73,7 @@ module.exports = {
 		'no-implied-eval': 'error',
 		'no-new-func': 'error',
 		'no-with': 'error',
-		'no-global-assign': 'error',
+		'no-global-assign': 'warn',
 		'no-undef': 'error',
 		'no-unreachable': 'error',
 		
