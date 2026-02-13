@@ -590,7 +590,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 			this.RootObject = new Reference(fp);
 			this.TypeTag = fp.readUInt();
 			this.ExtraTags = [];
-			for (var i = 0; i < GR2.GRNExtraTagCount; i++) {
+			for (let i = 0; i < GR2.GRNExtraTagCount; i++) {
 				this.ExtraTags.push(fp.readUInt());
 			}
 			this.StringDatabaseCRC = fp.readUInt();
@@ -608,7 +608,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		function Triple() {
 			if (arguments.length === 1) {
 				// Set from file pointer
-				var fp = arguments[0];
+				let fp = arguments[0];
 				return [fp.readFloat(), fp.readFloat(), fp.readFloat()];
 			} else if (arguments.length == 3) {
 				// Set from X,Y,Z etc
@@ -644,8 +644,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		}
 
 		function GrannyFileInfo(fp) {
-			granny_art_tool_info * ArtToolInfo;
-			granny_exporter_info * ExporterInfo;
+			//granny_art_tool_info * ArtToolInfo;
+			//granny_exporter_info * ExporterInfo;
 			this.FromFileName = fp.readString(30); // TODO Check how to read strings.
 			this.TextureCount = fp.readInt();
 			this.Textures = null; //granny_texture ** Textures;
@@ -688,8 +688,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 
 		console.error(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
 		fp.seek(SectionArrayAddress);
-		for (var i = 0; i < this.Header.SectionArrayCount; i++) {
-			var s = new Section(fp);
+		for (i = 0; i < this.Header.SectionArrayCount; i++) {
+			let s = new Section(fp);
 			if (s.Format == GR2.COMPRESSION_TYPE.NoCompression) {
 				s.decompress(fp);
 			}

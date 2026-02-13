@@ -466,6 +466,7 @@ define([
 			var x, y, _x, _y, width, height, outputWidth;
 			var pal, frame, color;
 			var input, output32;
+			var r, g, b, a, inRow, outRow;
 
 			scale_x = 1.0;
 			scale_y = 1.0;
@@ -527,8 +528,8 @@ define([
 				var input32 = new Uint32Array(input.buffer);
 
 				for (y = 0; y < height; ++y) {
-					var outRow = y * outputWidth;
-					var inRow = y * width;
+					outRow = y * outputWidth;
+					inRow = y * width;
 
 					for (x = 0; x < width; ++x) {
 						var pixel = input32[inRow + x];
@@ -545,10 +546,10 @@ define([
 						} else {
 							// Extract RGBA components from packed 32-bit pixel.
 							// Note: In Little Endian, 0xAABBGGRR is stored as [R, G, B, A] in memory.
-							var r = (pixel & 0xff) * r_mul;
-							var g = ((pixel >> 8) & 0xff) * g_mul;
-							var b = ((pixel >> 16) & 0xff) * b_mul;
-							var a = ((pixel >> 24) & 0xff) * a_mul;
+							r = (pixel & 0xff) * r_mul;
+							g = ((pixel >> 8) & 0xff) * g_mul;
+							b = ((pixel >> 16) & 0xff) * b_mul;
+							a = ((pixel >> 24) & 0xff) * a_mul;
 							output32[outRow + x] = (a << 24) | (b << 16) | (g << 8) | r;
 						}
 					}
@@ -568,17 +569,17 @@ define([
 						continue;
 					}
 					var pIdx = i * 4;
-					var r = (pal[pIdx + 0] * r_mul) | 0;
-					var g = (pal[pIdx + 1] * g_mul) | 0;
-					var b = (pal[pIdx + 2] * b_mul) | 0;
-					var a = (255 * a_mul) | 0;
+					r = (pal[pIdx + 0] * r_mul) | 0;
+					g = (pal[pIdx + 1] * g_mul) | 0;
+					b = (pal[pIdx + 2] * b_mul) | 0;
+					a = (255 * a_mul) | 0;
 					// Store in LE format [R, G, B, A] -> 0xAABBGGRR
 					pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
 				}
 
 				for (y = 0; y < height; ++y) {
-					var outRow = y * outputWidth;
-					var inRow = y * width;
+					outRow = y * outputWidth;
+					inRow = y * width;
 					for (x = 0; x < width; ++x) {
 						// Fast palette lookup: single array access and single 32-bit write.
 						// OLD: Per-channel palette reads and multiplications per pixel.

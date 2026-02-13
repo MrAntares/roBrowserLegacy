@@ -200,7 +200,7 @@ define(function () {
 
 		// Read palette
 		if (this.header.hasColorMap) {
-			var colorMapSize = this.header.colorMapLength * (this.header.colorMapDepth >> 3);
+			let colorMapSize = this.header.colorMapLength * (this.header.colorMapDepth >> 3);
 			this.palette = data.subarray(offset, offset + colorMapSize);
 			offset += colorMapSize;
 		}
@@ -265,23 +265,23 @@ define(function () {
 			case 8:
 				if (this.header.isGreyColor) {
 					// 8-bit grayscale
-					for (var y = y_start; y !== y_end; y += y_step) {
-						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step) {
-							var v = input[i++];
+					for (let y = y_start; y !== y_end; y += y_step) {
+						let rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							let v = input[i++];
 							buffer32[rowOffset + x] = (255 << 24) | (v << 16) | (v << 8) | v;
 						}
 					}
 				} else {
 					// 8-bit indexed (paletted)
-					var colormap = this.palette;
-					for (var y = y_start; y !== y_end; y += y_step) {
-						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step) {
-							var idx = input[i++] * 3;
-							var b = colormap[idx + 0];
-							var g = colormap[idx + 1];
-							var r = colormap[idx + 2];
+					let colormap = this.palette;
+					for (let y = y_start; y !== y_end; y += y_step) {
+						let rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							let idx = input[i++] * 3;
+							let b = colormap[idx + 0];
+							let g = colormap[idx + 1];
+							let r = colormap[idx + 2];
 							buffer32[rowOffset + x] = (255 << 24) | (b << 16) | (g << 8) | r;
 						}
 					}
@@ -291,26 +291,26 @@ define(function () {
 			case 16:
 				if (this.header.isGreyColor) {
 					// 16-bit grayscale (intensity + alpha)
-					for (var y = y_start; y !== y_end; y += y_step) {
-						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step) {
-							var intensity = input[i++];
-							var alpha = input[i++];
+					for (let y = y_start; y !== y_end; y += y_step) {
+						let rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							let intensity = input[i++];
+							let alpha = input[i++];
 							buffer32[rowOffset + x] = (alpha << 24) | (intensity << 16) | (intensity << 8) | intensity;
 						}
 					}
 				} else {
 					// 16-bit 5-5-5-1
-					for (var y = y_start; y !== y_end; y += y_step) {
-						var rowOffset = y * width;
-						for (var x = x_start; x !== x_end; x += x_step) {
-							var color = input[i] | (input[i + 1] << 8);
+					for (let y = y_start; y !== y_end; y += y_step) {
+						let rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							let color = input[i] | (input[i + 1] << 8);
 							i += 2;
 
-							var r = (color & 0x7c00) >> 7;
-							var g = (color & 0x03e0) >> 2;
-							var b = (color & 0x001f) >> 3;
-							var a = color & 0x8000 ? 255 : 0;
+							let r = (color & 0x7c00) >> 7;
+							let g = (color & 0x03e0) >> 2;
+							let b = (color & 0x001f) >> 3;
+							let a = color & 0x8000 ? 255 : 0;
 
 							buffer32[rowOffset + x] = (a << 24) | (b << 16) | (g << 8) | r;
 						}
@@ -318,28 +318,28 @@ define(function () {
 				}
 				break;
 			case 24:
-				for (var y = y_start; y !== y_end; y += y_step) {
-					var rowOffset = y * width;
-					for (var x = x_start; x !== x_end; x += x_step) {
-						var b = input[i++];
-						var g = input[i++];
-						var r = input[i++];
+				for (let y = y_start; y !== y_end; y += y_step) {
+					let rowOffset = y * width;
+					for (let x = x_start; x !== x_end; x += x_step) {
+						let b = input[i++];
+						let g = input[i++];
+						let r = input[i++];
 						buffer32[rowOffset + x] = (255 << 24) | (b << 16) | (g << 8) | r;
 					}
 				}
 				break;
 
 			case 32:
-				var MAGENTA_MASK = 0x00ff00ff;
-				var PIXEL_MASK = 0x00ffffff;
-				for (var y = y_start; y !== y_end; y += y_step) {
-					var rowOffset = y * width;
-					for (var x = x_start; x !== x_end; x += x_step) {
+				let MAGENTA_MASK = 0x00ff00ff;
+				let PIXEL_MASK = 0x00ffffff;
+				for (let y = y_start; y !== y_end; y += y_step) {
+					let rowOffset = y * width;
+					for (let x = x_start; x !== x_end; x += x_step) {
 						// BGRA to RGBA (or ABGR depending on endianness)
 						// TGA 32 is usually BGRA
 						// read as Uint32 (BGRA format input[i]=B, input[i+1]=G, input[i+2]=R, input[i+3]=A).
 						// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
-						var pixel = (input[i + 3] << 24) | (input[i] << 16) | (input[i + 1] << 8) | input[i + 2];
+						let pixel = (input[i + 3] << 24) | (input[i] << 16) | (input[i + 1] << 8) | input[i + 2];
 						i += 4;
 
 						buffer32[rowOffset + x] = (pixel & PIXEL_MASK) === MAGENTA_MASK ? 0 : pixel;
