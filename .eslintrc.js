@@ -82,12 +82,13 @@ module.exports = {
 		// ======================
 		// HARDCORE VARIABLE QUALITY (adjust if too many warnings)
 		// ======================
-		'vars-on-top': 'warn',
-		//'no-magic-numbers': ['warn', {} ], // Need to find the right ignores
-		'prefer-const': 'warn',
 		'no-shadow': 'warn',
 		'block-scoped-var': 'warn',
-		//'no-var': 'warn', // we are not ready for this yet, but maybe one time
+
+		// We are not ready for theses yet..
+		//'prefer-const': 'warn',
+		//'vars-on-top': 'warn',
+		//'no-magic-numbers': ['warn', {} ], // Need to find the right ignores
 
 		// ======================
 		// LESS NOISE FOR LEGACY
