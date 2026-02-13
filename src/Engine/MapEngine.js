@@ -875,7 +875,7 @@ define(function (require) {
 					KEYS[9]
 				));
 
-		text = text.replace(/^(\$|\%)/, '');
+		text = text.replace(/^(\$|%)/, '');
 
 		// Private messages
 		if (user.length) {

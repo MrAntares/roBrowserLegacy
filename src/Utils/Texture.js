@@ -58,7 +58,7 @@ define(['Loaders/Targa', 'Vendors/libgif'], function (Targa, GIF) {
 		img.src = data;
 		img.onload = function OnLoadClosure() {
 			// Clean up blob
-			if (data.match(/^blob\:/)) {
+			if (data.match(/^blob:/)) {
 				URL.revokeObjectURL(data);
 			}
 

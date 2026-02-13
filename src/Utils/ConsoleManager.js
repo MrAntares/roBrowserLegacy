@@ -33,6 +33,7 @@ define(['Core/Configs'], function (Configs) {
 				'color:inherit',
 				'color:#007000'
 			);
+			// eslint-disable-next-line no-global-assign
 			console = _console;
 		} else {
 			_console.log(
@@ -41,6 +42,7 @@ define(['Core/Configs'], function (Configs) {
 				'color:inherit',
 				'color:#700000'
 			);
+			// eslint-disable-next-line no-global-assign
 			console = noConsole;
 		}
 	}
