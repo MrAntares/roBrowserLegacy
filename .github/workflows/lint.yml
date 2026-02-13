@@ -1,5 +1,9 @@
 name: Lint
 
+concurrency:
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+    
 on:
     push:
         branches:
@@ -7,11 +11,11 @@ on:
     pull_request:
 
 permissions:
-    contents: read
+    contents: write
 
 jobs:
     eslint:
-        name: ESLint (src)
+        name: ESLint
         runs-on: ubuntu-latest
 
         steps:
@@ -27,4 +31,15 @@ jobs:
               run: npm i
 
             - name: Run ESLint
-              run: npm run lint
+              run: npm run lint -- --fix
+              
+            - name: Commit changes
+              if: github.event_name == 'push'
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add -A
+                  git reset .github/workflows/
+
+                  git diff --cached --quiet || git commit -m "code-quality: auto-fix with lint"
+                  git push
