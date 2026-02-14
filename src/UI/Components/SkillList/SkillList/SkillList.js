@@ -120,7 +120,10 @@ define(function (require) {
 			.on('mouseout', '.skillCol .skill .icon, .skill .name', onNecessarySkillsRemove)
 			.on('click', '.skillCol .skill .icon, .skill .name', onRememberChoice)
 			.on('dragstart', '.skill', onSkillDragStart)
-			.on('dragend', '.skill', onSkillDragEnd);
+			.on('dragend', '.skill', onSkillDragEnd)
+			.on('touchstart', '.skill .icon', onSkillTouchStart)
+			.on('touchmove', '.skill .icon', onSkillTouchMove)
+			.on('touchend', '.skill .icon', onSkillTouchEnd);
 
 		this.draggable(this.ui.find('.titlebar'));
 
@@ -221,7 +224,7 @@ define(function (require) {
 		});
 
 		// Hide tabs 2 - 4 if no skills in them
-		for (var i = 2; i <= 4; i++) {
+		for (i = 2; i <= 4; i++) {
 			var length = SkillList.ui.find('#minitab' + i + ' tr').length;
 			var length2 = SkillList.ui.find('#positionSkills' + i + ' .skill').length;
 
@@ -946,7 +949,7 @@ define(function (require) {
 			SkillList.ui.find('.content').show();
 			const id = SkillList.ui.find('.tab-switch:checked').attr('id');
 			if (id) {
-				var i = parseInt(id.split('-')[1]);
+				let i = parseInt(id.split('-')[1]);
 				SkillList.ui.find('#tab-' + i + '-mini').prop('checked', true);
 			}
 			SkillList.ui.find('.contentbig').hide();
@@ -962,7 +965,7 @@ define(function (require) {
 			SkillList.ui.find('.content').hide();
 			const id = SkillList.ui.find('.tab-switch-mini:checked').attr('id');
 			if (id) {
-				var i = parseInt(id.split('-')[1]);
+				let i = parseInt(id.split('-')[1]);
 				SkillList.ui.find('#tab-' + i).prop('checked', true);
 			}
 			SkillList.ui.find('.contentbig').show();
@@ -1170,6 +1173,124 @@ define(function (require) {
 	 */
 	function onSkillDragEnd() {
 		delete window._OBJ_DRAG_;
+	}
+
+	/*
+	 * Mobile Drag & Drop Simulation
+	 */
+	var _touchDrag = {
+		timer: null,
+		dragging: false,
+		ghost: null,
+		startX: 0,
+		startY: 0
+	};
+
+	function onSkillTouchStart(event) {
+		var touch = event.originalEvent.touches[0];
+		var icon = jQuery(this);
+		var skillDiv = icon.closest('.skill');
+		var index = parseInt(skillDiv.attr('data-index'), 10);
+		var skill = getSkillById(index);
+
+		if (!skill || !skill.level || !skill.type) {
+			return;
+		}
+
+		_touchDrag.startX = touch.pageX;
+		_touchDrag.startY = touch.pageY;
+		_touchDrag.ghost = null;
+		_touchDrag.dragging = false;
+
+		// Long press to start drag (300ms)
+		_touchDrag.timer = setTimeout(function () {
+			_touchDrag.dragging = true;
+
+			// Create ghost
+			_touchDrag.ghost = icon.clone().addClass('drag-ghost').appendTo('body');
+			_touchDrag.ghost.css({
+				position: 'absolute',
+				zIndex: 10000,
+				left: touch.pageX - 12,
+				top: touch.pageY - 12,
+				opacity: 0.8,
+				pointerEvents: 'none'
+			});
+
+			window._OBJ_DRAG_ = {
+				type: 'skill',
+				from: 'SkillList',
+				data: skill
+			};
+		}, 300);
+	}
+
+	function onSkillTouchMove(event) {
+		if (!_touchDrag.timer && !_touchDrag.dragging) {
+			return;
+		}
+
+		var touch = event.originalEvent.touches[0];
+
+		if (_touchDrag.dragging) {
+			event.preventDefault(); // Stop scrolling
+			if (_touchDrag.ghost) {
+				_touchDrag.ghost.css({
+					left: touch.pageX - 12,
+					top: touch.pageY - 12
+				});
+			}
+		} else {
+			// If moved before timer fires, cancel drag (it's a scroll)
+			var dx = touch.pageX - _touchDrag.startX;
+			var dy = touch.pageY - _touchDrag.startY;
+			if (dx * dx + dy * dy > 100) {
+				// 10px threshold
+				clearTimeout(_touchDrag.timer);
+				_touchDrag.timer = null;
+			}
+		}
+	}
+
+	function onSkillTouchEnd(event) {
+		if (_touchDrag.timer) {
+			clearTimeout(_touchDrag.timer);
+			_touchDrag.timer = null;
+		}
+
+		if (_touchDrag.dragging) {
+			_touchDrag.dragging = false;
+
+			if (_touchDrag.ghost) {
+				_touchDrag.ghost.remove();
+				_touchDrag.ghost = null;
+			}
+
+			// Find drop target
+			var touch = event.originalEvent.changedTouches[0];
+			var target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+			// Traverse up to find a dropzone (shortcut container)
+			var dropTarget = jQuery(target).closest('.container');
+
+			if (dropTarget.length) {
+				var dropEvent = jQuery.Event('drop');
+				// Mock dataTransfer for ShortCut.js onDrop handler
+				dropEvent.originalEvent = {
+					dataTransfer: {
+						getData: function (type) {
+							if (type === 'Text') {
+								return JSON.stringify(window._OBJ_DRAG_);
+							}
+							return '';
+						}
+					}
+				};
+				dropTarget.trigger(dropEvent);
+			}
+
+			delete window._OBJ_DRAG_;
+		}
 	}
 
 	function skillLevelSelectUp(skill) {
