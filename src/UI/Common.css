@@ -8,12 +8,16 @@
 
 * {
 	-moz-user-select: none;
-	touch-action: manipulation;
 }
 
 html,
 body {
+	touch-action: manipulation;
 	margin: 0;
+}
+
+canvas {
+	touch-action: none;
 }
 
 body {
