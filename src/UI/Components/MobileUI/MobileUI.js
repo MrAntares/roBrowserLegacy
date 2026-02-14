@@ -17,7 +17,6 @@ define(function (require) {
 	var Session = require('Engine/SessionStorage');
 	var Renderer = require('Renderer/Renderer');
 	var PACKETVER = require('Network/PacketVerManager');
-	var PACKETVER = require('Network/PacketVerManager');
 	var PACKET = require('Network/PacketStructure');
 	var EntityManager = require('Renderer/EntityManager');
 	var Network = require('Network/NetworkManager');
@@ -785,6 +784,7 @@ define(function (require) {
 
 	function startDrag(event) {
 		event.preventDefault();
+		const joystickBase = document.getElementById('joystickBase');
 
 		const touch = event.touches ? event.touches[0] : event;
 
@@ -803,6 +803,9 @@ define(function (require) {
 	}
 
 	function moveJoystick(event) {
+		const joystickThumb = document.getElementById('joystickThumb');
+		const deadZone = 15;
+
 		const touch = event.touches ? event.touches[0] : event;
 
 		const deltaX = touch.clientX - centerX;
@@ -816,12 +819,21 @@ define(function (require) {
 
 		joystickThumb.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
 
+		// Check for dead zone
+		if (distance < deadZone) {
+			normalizedX = 0;
+			normalizedY = 0;
+			return;
+		}
+
 		// Normalize movement (-1 to 1)
 		normalizedX = offsetX / maxDistance;
 		normalizedY = -offsetY / maxDistance;
 	}
 
 	function stopDrag() {
+		const joystickThumb = document.getElementById('joystickThumb');
+
 		joystickThumb.style.transform = 'translate(0, 0)'; // Reset to center
 		normalizedX = 0; // Reset normalized values
 		normalizedY = 0;
