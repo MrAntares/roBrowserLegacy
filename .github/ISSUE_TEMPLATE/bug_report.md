@@ -32,7 +32,7 @@ assignees: ''
   
 - **Execution mode**
   - [ ] Development \(development: true\)
-  - [ ] - [ ] Production \(development: false\) |
+  - [ ] Production \(development: false\)
 - **Application type**
   - [ ] ONLINE
   - [ ] MAPVIEWER
