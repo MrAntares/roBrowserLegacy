@@ -8,24 +8,24 @@ assignees: ''
 
 ## Bug description
 
-- 
+-
 
 ## Steps to reproduce
 
-1. 
+1.
 
 ## Expected behavior
 
-- 
+-
 
 ## Logs and screenshots
 
 - **Browser console errors (F12)**
-  - [____]
+    - [____]
 - **Network tab errors (F12)**
-  - [____]
+    - [____]
 - **Screenshots**
-  - [____]
+    - [____]
 
 <details>
   <summary>Environment</summary>
