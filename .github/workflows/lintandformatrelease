@@ -36,7 +36,6 @@ jobs:
               run: npx prettier . --write
 
             - name: Commit changes
-              if: github.event_name == 'push'
               run: |
                   git config user.name "github-actions"
                   git config user.email "github-actions@github.com"
