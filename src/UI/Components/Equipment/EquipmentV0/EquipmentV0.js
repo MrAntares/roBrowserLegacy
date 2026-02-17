@@ -250,6 +250,13 @@ define(function (require) {
 	};
 
 	/**
+	 * Show or hide equipment
+	 *
+	 * @param {boolean} on
+	 */
+	EquipmentV0.setCostumeConfig = function setCostumeConfig(on) {};
+
+	/**
 	 * Add an equipment to the window
 	 *
 	 * @param {Item} item
@@ -350,7 +357,11 @@ define(function (require) {
 		var status = WinStats.getUI().ui;
 		var state = status.is(':visible') ? 'on' : 'off';
 
-		status.toggle();
+		if (status.is(':visible')) {
+			status.hide();
+		} else {
+			status.show();
+		}
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function (data) {
 			self.css('backgroundImage', 'url(' + data + ')');
@@ -664,6 +675,15 @@ define(function (require) {
 
 	EquipmentV0.checkEquipLoc = function checkEquipLoc(location) {
 		return 0;
+	};
+
+	/**
+	 * Returns the current tab ID of the EquipmentV0 component.
+	 *
+	 * @return {string} The current tab ID.
+	 */
+	EquipmentV0.getCurrentTabId = function () {
+		return 'general'; // v0 has only equipment tab
 	};
 
 	/**

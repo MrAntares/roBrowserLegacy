@@ -402,6 +402,13 @@ define(function (require) {
 	};
 
 	/**
+	 * Show or hide equipment
+	 *
+	 * @param {boolean} on
+	 */
+	EquipmentV3.setCostumeConfig = function setCostumeConfig(on) {};
+
+	/**
 	 * Add an equipment to the window
 	 *
 	 * @param {Item} item
