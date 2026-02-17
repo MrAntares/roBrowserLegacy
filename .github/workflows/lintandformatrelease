@@ -1,0 +1,47 @@
+name: Code Quality
+
+concurrency:
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+on:
+    push:
+        branches:
+            - master
+
+permissions:
+    contents: write
+
+jobs:
+    quality:
+        name: Lint + Format
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run ESLint
+              run: npm run lint -- --fix
+
+            - name: Run Prettier
+              run: npx prettier . --write
+
+            - name: Commit changes
+              if: github.event_name == 'push'
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add -A
+                  git reset .github/workflows/
+
+                  git diff --cached --quiet || git commit -m "code-quality: auto lint + format"
+                  git push
