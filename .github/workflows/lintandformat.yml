@@ -1,18 +1,20 @@
-name: Lint
+name: Lint and Format
 
 concurrency:
     group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
-    
+
 on:
-    pull_request:
+    push:
+        branches:
+            - master
 
 permissions:
     contents: write
 
 jobs:
-    eslint:
-        name: ESLint
+    quality:
+        name: Lint + Format
         runs-on: ubuntu-latest
 
         steps:
@@ -28,4 +30,16 @@ jobs:
               run: npm i
 
             - name: Run ESLint
-              run: npm run lint
+              run: npm run lint -- --fix
+
+            - name: Run Prettier
+              run: npx prettier . --write
+
+            - name: Commit changes
+              run: |
+                  git config user.name "github-actions"
+                  git add -A
+                  git reset .github/workflows/
+
+                  git diff --cached --quiet || git commit -m "code-quality: auto lint + format"
+                  git push
