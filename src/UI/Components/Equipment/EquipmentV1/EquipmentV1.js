@@ -211,6 +211,15 @@ define(function (require) {
 		return url.substring(hashPos + 1);
 	}
 
+	/**
+	 * Returns the current tab ID of the EquipmentV1 component.
+	 *
+	 * @return {string} The current tab ID.
+	 */
+	EquipmentV1.getCurrentTabId = function () {
+		return currentTabId;
+	};
+
 	function onCartItems() {
 		if (Session.Entity.hasCart == false) {
 			return;
@@ -327,6 +336,13 @@ define(function (require) {
 			EquipmentV1.ui.find('.show_equip').css('backgroundImage', 'url(' + data + ')');
 		});
 	};
+
+	/**
+	 * Show or hide equipment
+	 *
+	 * @param {boolean} on
+	 */
+	EquipmentV1.setCostumeConfig = function setCostumeConfig(on) {};
 
 	/**
 	 * Add an equipment to the window

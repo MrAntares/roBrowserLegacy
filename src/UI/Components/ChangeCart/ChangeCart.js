@@ -25,8 +25,13 @@ define(function (require) {
 	var UIComponent = require('UI/UIComponent');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 	var ChatRoom = require('UI/Components/ChatRoom/ChatRoom');
+	var Client = require('Core/Client');
+	var DB = require('DB/DBManager');
 	var htmlText = require('text!./ChangeCart.html');
 	var cssText = require('text!./ChangeCart.css');
+
+	// Config
+	var CART_LIMIT = 13;
 
 	/**
 	 * Create Component
@@ -34,16 +39,10 @@ define(function (require) {
 	var ChangeCart = new UIComponent('ChangeCart', htmlText, cssText);
 
 	/**
-	 * @var {Preference} window preferences
+	 * @var {object} data info
 	 */
-	/*var _preferences = Preferences.get('ChangeCart', {
-		show:     false,
-	}, 1.0);*/ // UNUSED
-
-	/**
-	 * @var {object} model info
-	 */
-	var _models = {};
+	var _carts = {};
+	var _layerEntity = new Entity();
 
 	/**
 	 * Initialize UI
@@ -64,37 +63,31 @@ define(function (require) {
 
 		carts.hide();
 		carts.addClass('event_add_cursor');
-		carts
-			.on('click', function (event) {
-				onCart(event.target.getAttribute('data-id'));
-			})
-			.on('mouseover', function (event) {
-				_models[event.target.getAttribute('data-id')].entity.action = 1;
-			})
-			.on('mouseout', function (event) {
-				_models[event.target.getAttribute('data-id')].entity.action = 0;
-			});
-
-		canvases.each((idx, canvas) => {
-			var cartid = canvas.getAttribute('data-id');
-			var model = {
-				entity: new Entity(),
-				ctx: canvas.getContext('2d'),
-				render: false,
-				tick: 0
-			};
-			model.entity.set({
-				type: Entity.TYPE_EFFECT,
-				action: 0,
-				direction: 5
-			});
-
-			model.entity.hasCart = true;
-			model.entity.CartNum = cartid;
-			model.entity.hideShadow = true;
-			_models[cartid] = model;
+		carts.on('click', function (event) {
+			onCart(event.target.getAttribute('data-id'));
 		});
+
+		// Pre-load carts
+		loadCartData();
 	};
+
+	/**
+	 * Load Carts assets
+	 */
+	function loadCartData() {
+		var i;
+		for (i = 0; i <= CART_LIMIT; ++i) {
+			(function (id) {
+				var path = DB.getCartPath(id);
+				Client.loadFiles([path + '.spr', path + '.act'], function (spr, act) {
+					_carts[id] = {
+						spr: spr,
+						act: act
+					};
+				});
+			})(i);
+		}
+	}
 
 	/**
 	 * Change cart (Change cart packet IDs are not the same as global cart IDs!!)
@@ -115,6 +108,7 @@ define(function (require) {
 	 */
 	ChangeCart.onAppend = function onAppend() {
 		this.ui.hide();
+		loadCartData();
 	};
 
 	ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
@@ -150,43 +144,34 @@ define(function (require) {
 		}
 
 		ChangeCart.ui.find('.cart').hide();
-		stopAllCart();
+		//stopAllCart();
 
 		if (blvl > 131) {
 			ChangeCart.ui.find(".cart[data-id='9']").show();
-			_models['9'].render = true;
 		}
 		if (blvl > 121) {
 			ChangeCart.ui.find(".cart[data-id='8']").show();
-			_models['8'].render = true;
 		}
 		if (blvl > 111) {
 			ChangeCart.ui.find(".cart[data-id='7']").show();
-			_models['7'].render = true;
 		}
 		if (blvl > 100) {
 			ChangeCart.ui.find(".cart[data-id='6']").show();
-			_models['6'].render = true;
 		}
 		if (blvl > 90) {
 			ChangeCart.ui.find(".cart[data-id='5']").show();
-			_models['5'].render = true;
 		}
 		if (blvl > 80) {
 			ChangeCart.ui.find(".cart[data-id='4']").show();
-			_models['4'].render = true;
 		}
 		if (blvl > 65) {
 			ChangeCart.ui.find(".cart[data-id='3']").show();
-			_models['3'].render = true;
 		}
 		if (blvl > 40) {
 			ChangeCart.ui.find(".cart[data-id='2']").show();
-			_models['2'].render = true;
 		}
 
 		ChangeCart.ui.find(".cart[data-id='1']").show();
-		_models['1'].render = true;
 	}
 
 	/**
@@ -194,7 +179,6 @@ define(function (require) {
 	 * Stop rendering
 	 */
 	ChangeCart.onRemove = function onRemove() {
-		stopAllCart();
 		Renderer.stop(render);
 	};
 
@@ -205,21 +189,69 @@ define(function (require) {
 	};
 
 	/**
+	 * Pick layers from act
+	 * @param {Object} act
+	 * @param {number} actionId
+	 * @returns {Object[]}
+	 */
+	function pickLayers(act, actionId) {
+		var a = act.actions[actionId];
+		if (!a || !a.animations || !a.animations.length) {
+			return null;
+		}
+		return a.animations[(a.animations.length / 2) | 0].layers;
+	}
+
+	/**
+	 * Draw action to canvas
+	 */
+	function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
+		var layers = pickLayers(act, actionId);
+		if (!layers) {
+			return;
+		}
+
+		// Gravity fonts: no anchor correction
+		SpriteRenderer.bind2DContext(ctx, x, y);
+
+		for (var i = 0; i < layers.length; i++) {
+			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
+		}
+	}
+
+	/**
 	 * Rendering the Carts
 	 */
 	function render(tick) {
-		Object.entries(_models).forEach(entry => {
-			const [key, model] = entry;
-			SpriteRenderer.bind2DContext(model.ctx, Math.floor(model.ctx.canvas.width), model.ctx.canvas.height);
-			model.ctx.clearRect(0, 0, model.ctx.canvas.width, model.ctx.canvas.height);
-			model.entity.renderEntity();
-		});
-	}
+		var canvases = ChangeCart.ui.find('.canvas:visible');
 
-	function stopAllCart() {
-		Object.entries(_models).forEach(entry => {
-			const [key, model] = entry;
-			model.render = false;
+		canvases.each(function () {
+			var id = this.getAttribute('data-id');
+			var data = _carts[id];
+
+			if (!data || !data.spr || !data.act) {
+				return;
+			}
+
+			var ctx = this.getContext('2d');
+			ctx.clearRect(0, 0, this.width, this.height);
+
+			// Cart is rendered with Action 0 (Idle)
+			// Direction depends on view, but for UI we can pick a specific one, e.g. 0 or 4
+			// Original code used direction 5 (South-East?) for some reason, standard is usually 0
+			// Let's use 0 (Camera.direction + entity.direction + 8 % 8) logic from EntityRender?
+			// Action 0 is Idle.
+			// Directions: 0=S, 1=SW, 2=W, 3=NW, 4=N, 5=NE, 6=E, 7=SE
+			// Let's pick 0 for now (South facing)
+			// Actually let's use what matches the original code attempt: direction 5
+			// Action * 8 + Direction
+			// Action 0, Direction 5? Or Direction 0?
+			// EntityRender uses: (entity.action * 8 + ((Camera.direction + entity.direction + 8) % 8)) % act.actions.length
+			// Let's try idle (0) and direction (0) -> 0.
+			// Or maybe direction 0 looks best in UI.
+			var actionId = 0; // (0 * 8 + 0)
+
+			drawActionToCanvas(ctx, data.act, data.spr, actionId, this.width / 2, this.height + 10);
 		});
 	}
 
