@@ -1,4 +1,4 @@
-name: Code Quality
+name: Lint and Format
 
 concurrency:
     group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
