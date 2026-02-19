@@ -549,6 +549,16 @@ define(function (require) {
 
 		Session.Entity.GUID = pkt.GDID;
 		Session.Entity.GEmblemVer = pkt.emblemVersion;
+
+		// Request emblem for the player's own entity
+		if (pkt.GDID && pkt.emblemVersion) {
+			GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function (image) {
+				Session.Entity.display.emblem = image;
+				Session.Entity.emblem.emblem = image;
+				Session.Entity.emblem.update();
+				Session.Entity.display.refresh(Session.Entity);
+			});
+		}
 	}
 
 	/**

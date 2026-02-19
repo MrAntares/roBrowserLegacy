@@ -177,11 +177,12 @@ define(function (require) {
 			EntityManager.add(entity.wug);
 		}
 
-		if (entity.GUID && entity !== Session.Entity) {
+		if (entity.GUID) {
 			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
 				entity.display.emblem = image;
 				entity.emblem.emblem = image;
 				entity.emblem.update();
+				entity.display.refresh(entity);
 
 				if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
 					entity.emblem.display = true;
@@ -1029,7 +1030,7 @@ define(function (require) {
 
 			entity.display.load = entity.display.TYPE.COMPLETE;
 
-			if (entity.GUID && entity !== Session.Entity) {
+			if (entity.GUID) {
 				Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
 					entity.display.emblem = image;
 					entity.display.update(
