@@ -35,9 +35,22 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	/**
 	 * GRF Constants
 	 */
+	/**
+	 * GRF Constants
+	 */
+	GRF.VERSION_200 = 0x200;
+	GRF.VERSION_300 = 0x300;
+	GRF.SIG_MAGIC = 'Master of Magic';
+	GRF.SIG_EH3 = 'Event Horizon';
+
 	GRF.FILELIST_TYPE_FILE = 0x01; // entry is a file
 	GRF.FILELIST_TYPE_ENCRYPT_MIXED = 0x02; // encryption mode 0 (header DES + periodic DES/shuffle)
 	GRF.FILELIST_TYPE_ENCRYPT_HEADER = 0x04; // encryption mode 1 (header DES only)
+
+	/**
+	 * Extensions that should skip full encryption (only header encryption)
+	 */
+	var SKIP_EXTENSIONS = /\.(gnd|gat|act|str)$/i;
 
 	/**
 	 * GRF Structures
@@ -91,9 +104,9 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		reader.load = function (start, len) {
 			// node.js
 			if (fs && file.fd) {
-				var buffer = new Buffer(len);
-				fs.readSync(file.fd, buffer, 0, len, start);
-				return new Uint8Array(buffer).buffer;
+				var buf = new Buffer(len);
+				fs.readSync(file.fd, buf, 0, len, start);
+				return new Uint8Array(buf).buffer;
 			}
 
 			return reader.readAsArrayBuffer(file.slice(start, start + len));
@@ -110,19 +123,39 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		header = fp.readStruct(GRF.struct_header);
 
 		header.signature = String.fromCharCode.apply(null, header.signature);
-		header.filecount -= header.skip + 7;
-
-		// Check file header
-		if (header.signature !== 'Master of Magic') {
-			throw new Error('GRF::load() - Incorrect header "' + header.signature + '", must be "Master of Magic".');
+		var nullPos = header.signature.indexOf('\0');
+		if (nullPos !== -1) {
+			header.signature = header.signature.substr(0, nullPos);
 		}
 
-		if (header.version !== 0x200) {
+		// Check file header
+		if (header.signature !== GRF.SIG_MAGIC && header.signature !== GRF.SIG_EH3) {
+			throw new Error(
+				'GRF::load() - Incorrect header "' +
+					header.signature +
+					'", must be "Master of Magic" or "Event Horizon".'
+			);
+		}
+
+		// Support 0x200 and 0x300
+		if (header.version !== GRF.VERSION_200 && header.version !== GRF.VERSION_300) {
 			throw new Error(
 				'GRF::load() - Incorrect version "0x' +
 					parseInt(header.version, 10).toString(16) +
-					'", just support version "0x200"'
+					'", just support version "0x200" and "0x300"'
 			);
+		}
+
+		// Version 0x300 specific header read
+		// pack_offset(8) + filecount(4) + version(4) starting at offset 30
+		if (header.version === GRF.VERSION_300) {
+			fp.seek(30, SEEK_SET);
+			header.file_table_offset = fp.readUInt64();
+			header.filecount = fp.readUInt();
+			header.realfilecount = header.filecount;
+		} else {
+			header.filecount -= header.skip + 7;
+			header.realfilecount = header.filecount;
 		}
 
 		if (header.file_table_offset + GRF.struct_header.size > file.size || header.file_table_offset < 0) {
@@ -132,15 +165,18 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		}
 
 		// Load Table Info
-		buffer = reader.load(header.file_table_offset + GRF.struct_header.size, GRF.struct_table.size);
+		// 0x300 has a unknown Int32 field before the fileTable
+		var table_offset = header.file_table_offset + GRF.struct_header.size;
+		if (header.version === GRF.VERSION_300) {
+			table_offset += 4;
+		}
+
+		buffer = reader.load(table_offset, GRF.struct_table.size);
 		fp = new BinaryReader(buffer);
 		table = fp.readStruct(GRF.struct_table);
 
 		// Load Table Data
-		buffer = reader.load(
-			header.file_table_offset + GRF.struct_header.size + GRF.struct_table.size,
-			table.pack_size
-		);
+		buffer = reader.load(table_offset + GRF.struct_table.size, table.pack_size);
 		data = new Uint8Array(buffer);
 		out = new Uint8Array(table.real_size);
 
@@ -148,7 +184,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		new Inflate(data).getBytes(out);
 
 		// Load entries
-		entries = loadEntries(out, header.filecount);
+		entries = loadEntries(out, header.realfilecount, header.version);
 
 		// Store table data (used for regex search in tablelist)
 		// Set filename to lowercase (case insensitive in official client)
@@ -173,8 +209,9 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	 *
 	 * @param {Uint8Array} content table
 	 * @param {number} file count
+	 * @param {number} grf version
 	 */
-	function loadEntries(out, count) {
+	function loadEntries(out, count, version) {
 		// Read all entries
 		var i, pos, str;
 		var entries = new Array(count);
@@ -191,9 +228,16 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 				pack_size: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
 				length_aligned: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
 				real_size: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
-				type: out[pos++],
-				offset: (out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24)) >>> 0
+				type: out[pos++]
 			};
+
+			if (version === GRF.VERSION_300) {
+				entries[i].offset = (out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24)) >>> 0;
+				entries[i].offset +=
+					(out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24)) * 0x100000000;
+			} else {
+				entries[i].offset = (out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24)) >>> 0;
+			}
 		}
 
 		return entries;
@@ -227,12 +271,31 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	GRF.prototype.decodeEntry = function DecodeEntry(buffer, entry, callback) {
 		var out;
 		var data = new Uint8Array(buffer);
+		var isEncrypted = entry.type !== GRF.FILELIST_TYPE_FILE;
+		var handled = false;
 
 		// Decode the file
 		if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_MIXED) {
-			GameFileDecrypt.decodeFull(data, entry.length_aligned, entry.pack_size);
+			if (SKIP_EXTENSIONS.test(entry.filename)) {
+				GameFileDecrypt.decodeHeader(data, entry.length_aligned);
+			} else {
+				GameFileDecrypt.decodeFull(data, entry.length_aligned, entry.pack_size);
+			}
+			handled = true;
 		} else if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_HEADER) {
 			GameFileDecrypt.decodeHeader(data, entry.length_aligned);
+			handled = true;
+		}
+
+		if (isEncrypted && !handled) {
+			console.warn(
+				'Unsupported encryption flag (' +
+					entry.type +
+					') for file ' +
+					entry.filename +
+					'. This usually requires a custom decryption key.'
+			);
+			return;
 		}
 
 		// Uncompress
@@ -241,8 +304,8 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 			new Inflate(data).getBytes(out);
 
 			callback(out.buffer);
-		} catch (error) {
-			console.error('Failed to decode entry', entry.filename, 'due to', error);
+		} catch (e) {
+			console.error('Failed to decode entry', entry.filename, 'due to', e);
 		}
 	};
 

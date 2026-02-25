@@ -212,9 +212,10 @@ define(function () {
 		digits = entry_len.toString().length;
 
 		// choose size of gap between two encrypted blocks
-		// digits:  0  1  2  3  4  5  6  7  8  9 ...
-		//  cycle:  1  1  1  4  5 14 15 22 23 24 ...
-		cycle = digits < 3 ? 1 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
+		// Updated to match PHP reference (cycle is at least 3)
+		// digits:  1  2  3  4  5  6  7  8  9 ...
+		//  cycle:  3  3  4  5 14 15 22 23 24 ...
+		cycle = digits < 3 ? 3 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
 
 		// first 20 blocks are all des-encrypted
 		for (i = 0; i < 20 && i < nblocks; ++i) {
