@@ -68,6 +68,9 @@ define(function (require) {
 		this.ui.find('.joySense').change(onUpdateSense);
 		this.ui.find('.joyQuick').change(onUpdateJoyQuick);
 		this.ui.find('.joyDeadline').change(onUpdateJoyDeadline);
+		this.ui.find('.joyReverseStick').change(onUpdateReverseStick);
+		this.ui.find('.joyAutoHide').change(onUpdateAutoHide);
+		this.ui.find('.joyDisableVirtualMouse').change(onUpdateDisableVirtualMouse);
 
 		this.ui.find('.button.reset').on('click', function () {
 			resetKeysToDefault();
@@ -301,6 +304,21 @@ define(function (require) {
 
 	function onUpdateJoyDeadline() {
 		Controls.joyDeadline = parseInt(this.value, 10);
+		Controls.save();
+	}
+
+	function onUpdateAutoHide() {
+		Controls.joyAutoHide = !!this.checked;
+		Controls.save();
+	}
+
+	function onUpdateReverseStick() {
+		Controls.joyReverseStick = !!this.checked;
+		Controls.save();
+	}
+
+	function onUpdateDisableVirtualMouse() {
+		Controls.joyDisableVirtualMouse = !!this.checked;
 		Controls.save();
 	}
 

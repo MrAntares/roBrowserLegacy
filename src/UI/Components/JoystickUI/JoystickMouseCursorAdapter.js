@@ -97,6 +97,10 @@ define(function (require) {
 			handleWorldLeftClick();
 			return;
 		}
+
+		if(ControlsSettings.joyDisableVirtualMouse)
+			return;
+
 		var eventOptions = {
 			bubbles: true,
 			cancelable: true,
@@ -129,6 +133,10 @@ define(function (require) {
 				}
 			}
 		}
+
+		if(ControlsSettings.joyDisableVirtualMouse)
+			return;
+
 		el.dispatchEvent(
 			new MouseEvent('mousedown', {
 				which: 3

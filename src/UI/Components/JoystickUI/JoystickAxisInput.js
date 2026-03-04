@@ -20,6 +20,12 @@ define(function (require) {
 			// Left stick = movement
 			var lx = axes[0];
 			var ly = axes[1];
+
+			if(ControlsSettings.joyReverseStick && axes.length >= 4) {
+				lx = axes[2];
+				ly = axes[3];
+			}
+
 			if (Math.abs(lx) > ControlsSettings.joyDeadline || Math.abs(ly) > ControlsSettings.joyDeadline) {
 				Interaction.moveCharacter(lx, -ly);
 				Interaction.cancelQuick = true;
@@ -30,11 +36,18 @@ define(function (require) {
 			if (axes.length >= 4) {
 				var rx = axes[2];
 				var ry = axes[3];
+
+				if(ControlsSettings.joyReverseStick) {
+					rx = axes[0];
+					ry = axes[1];
+				}
+
 				if (Math.abs(rx) > ControlsSettings.joyDeadline || Math.abs(ry) > ControlsSettings.joyDeadline) {
 					Interaction.moveCursor(rx, ry);
 					active = true;
 				}
 			}
+
 			if (active) {
 				require('./JoystickUIRenderer').show();
 			}

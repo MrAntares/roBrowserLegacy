@@ -16,6 +16,7 @@ define(function (require) {
 	var jQuery = require('Utils/jquery');
 	var DB = require('DB/DBManager');
 	var Client = require('Core/Client');
+	var ControlsSettings = require('Preferences/Controls');
 
 	var ui = null;
 	var setIndicator = null;
@@ -32,7 +33,7 @@ define(function (require) {
 			var deltaX = Math.abs(event.clientX - lastMouseX);
 			var deltaY = Math.abs(event.clientY - lastMouseY);
 
-			if (deltaX > 5 || deltaY > 5) {
+			if ((deltaX > 5 || deltaY > 5) && ControlsSettings.joyAutoHide) {
 				hide();
 				require('./JoystickInputService').active = false;
 			}
