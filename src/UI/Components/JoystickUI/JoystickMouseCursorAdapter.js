@@ -98,8 +98,7 @@ define(function (require) {
 			return;
 		}
 
-		if(ControlsSettings.joyDisableVirtualMouse)
-			return;
+		if (ControlsSettings.joyDisableVirtualMouse) return;
 
 		var eventOptions = {
 			bubbles: true,
@@ -134,8 +133,7 @@ define(function (require) {
 			}
 		}
 
-		if(ControlsSettings.joyDisableVirtualMouse)
-			return;
+		if (ControlsSettings.joyDisableVirtualMouse) return;
 
 		el.dispatchEvent(
 			new MouseEvent('mousedown', {

@@ -21,7 +21,7 @@ define(function (require) {
 			var lx = axes[0];
 			var ly = axes[1];
 
-			if(ControlsSettings.joyReverseStick && axes.length >= 4) {
+			if (ControlsSettings.joyReverseStick && axes.length >= 4) {
 				lx = axes[2];
 				ly = axes[3];
 			}
@@ -37,7 +37,7 @@ define(function (require) {
 				var rx = axes[2];
 				var ry = axes[3];
 
-				if(ControlsSettings.joyReverseStick) {
+				if (ControlsSettings.joyReverseStick) {
 					rx = axes[0];
 					ry = axes[1];
 				}
