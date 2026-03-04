@@ -290,7 +290,7 @@
 			<div class="content t_gamepad">
 				<table border="1" cellspacing="0" bordercolor="#aaa">
 					<tbody>
-						<tr>
+						<tr title="Define how targets are selected in combat">
 							<td>Attack Target Mode</td>
 							<td>
 								<select class="attackTargetMode">
@@ -300,7 +300,7 @@
 								</select>
 							</td>
 						</tr>
-						<tr>
+						<tr title="Choose how skills are cast with gamepad">
 							<td>Quick-Cast Mode</td>
 							<td>
 								<select class="joyQuick">
@@ -310,37 +310,39 @@
 								</select>
 							</td>
 						</tr>
-						<tr>
-							<td>R3 Mouse Move</td>
+						<tr title="Adjust mouse movement sensitivity for R3 stick">
+							<td>Mouse Move</td>
 							<td>
 								<label style="display: inline-block; width: 90px">
 									Sensitivity:
-									<input
-										class="joySense"
-										type="range"
-										value="25.0"
-										min="1.0"
-										max="100.0"
-										step="1.0"
-										style="width: 90%; vertical-align: middle"
-									/>
+									<input class="joySense" type="range" value="25.0" min="1.0" max="100.0" step="1.0" style="width: 90%; vertical-align: middle" />
 								</label>
 							</td>
 						</tr>
-						<tr>
+						<tr title="Disable mouse input from gamepad for UI interaction">
+							<td>Disable Virtual Mouse</td>
+							<td>
+								<input type="checkbox" class="joyDisableVirtualMouse" />
+							</td>
+						</tr>
+						<tr title="Swap L3 and R3 stick functions">
+							<td>Flip L3-R3 Sticks</td>
+							<td>
+								<input type="checkbox" class="joyReverseStick" />
+							</td>
+						</tr>						
+						<tr title="Automatically hide UI during gameplay mouse movement">
+							<td>Auto Hide UI</td>
+							<td>
+								<input type="checkbox" class="joyAutoHide" />
+							</td>
+						</tr>
+						<tr title="Set deadzone threshold for analog sticks">
 							<td>Axis Threshold</td>
 							<td>
 								<label style="display: inline-block; width: 90px">
 									Deadline:
-									<input
-										class="joyDeadline"
-										type="range"
-										value="0.10"
-										min="0.0"
-										max="1.0"
-										step="0.1"
-										style="width: 90%; vertical-align: middle"
-									/>
+									<input class="joyDeadline" type="range" value="0.10" min="0.0" max="1.0" step="0.1" style="width: 90%; vertical-align: middle" />
 								</label>
 							</td>
 						</tr>

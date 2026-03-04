@@ -24,6 +24,9 @@ define(['Core/Preferences'], function (Preferences) {
 			attackTargetMode: 0,
 			joyQuick: 0,
 			joyDeadline: 0.1,
+			joyDisableVirtualMouse: false,
+			joyAutoHide: false,
+			joyReverseStick: false,
 			joySense: 25.0
 		},
 		1.0
