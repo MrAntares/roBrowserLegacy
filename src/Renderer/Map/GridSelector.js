@@ -86,6 +86,9 @@ define([
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+
+		// Allocate buffer memory, data will be sent later
+		gl.bufferData(gl.ARRAY_BUFFER, _buffer_data.byteLength, gl.DYNAMIC_DRAW);
 	}
 
 	/**
@@ -146,7 +149,8 @@ define([
 			_buffer_data[11] = z[2];
 			_buffer_data[16] = z[3];
 
-			gl.bufferData(gl.ARRAY_BUFFER, _buffer_data, gl.STREAM_DRAW);
+			// Send data to buffer
+			gl.bufferSubData(gl.ARRAY_BUFFER, 0, _buffer_data);
 		}
 
 		// Send mesh

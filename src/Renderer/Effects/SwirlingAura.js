@@ -16,8 +16,8 @@
  * - Render: base ring at distance, top offset by rotated height
  */
 define([
-	'text!./Shaders/GLSL/SwirlingAura.vs',
-	'text!./Shaders/GLSL/SwirlingAura.fs',
+	'text!./SwirlingAura.vs',
+	'text!./SwirlingAura.fs',
 	'Utils/WebGL',
 	'Utils/Texture',
 	'Utils/gl-matrix',
@@ -45,6 +45,8 @@ define([
 	var E_DIVISION = 21; // Number of divisions (0-20)
 	var FULL_DISPLAY_ANGLE = 315; // 315° arc
 	var DEG_TO_RAD = Math.PI / 180;
+	var STRIDE = 5; // x, y, z, u, v
+	var VERTICES_PER_BAND = E_DIVISION * 2;
 
 	/**
 	 * SwirlingAura constructor
@@ -93,10 +95,14 @@ define([
 		// Angle step between divisions
 		this.basicAngle = FULL_DISPLAY_ANGLE / (E_DIVISION - 1); // 315/20 = 15.75°
 
+		// Vertex data for a single band (GC evasion uses dynamic vertex data)
+		this.vertices = new Float32Array(VERTICES_PER_BAND * STRIDE);
+
 		// Vertex buffers for each band
 		this.buffers = null;
 		this.indexBuffer = null;
 		this.indexCount = 0;
+		this.ready = false;
 	}
 
 	/**
@@ -131,48 +137,51 @@ define([
 	};
 
 	/**
-	 * Generate mesh for a single band
+	 * fill mesh for a single band
 	 */
-	SwirlingAura.prototype.generateBandMesh = function (band) {
-		var mesh = [];
+	SwirlingAura.prototype.fillBandMesh = function (band) {
+		var verts = this.vertices;
 		var cosRise = Math.cos(band.riseAngle);
 		var sinRise = Math.sin(band.riseAngle);
+		var offset = 0;
 
 		for (var k = 0; k < E_DIVISION; k++) {
-			// Angle for this division
+			// Calculate angle for this division
 			var angle = (band.rotStart + k * this.basicAngle) * DEG_TO_RAD;
 			var cosAngle = Math.cos(angle);
 			var sinAngle = Math.sin(angle);
 
-			// Base ring point at distance
+			// Calculate base and top vertices
 			var baseX = band.distance * cosAngle;
-			var baseY = 0; // Ground level
 			var baseZ = band.distance * sinAngle;
-
-			// Height for this division
 			var h = band.height[k];
 
-			// Top point: offset by rotated height
-			// Rx = cos(rise_angle) * h
-			// Ry = sin(rise_angle) * h
-			// top = base + (Rx*cos(angle), -Ry, Rx*sin(angle))
+			// Calculate top vertex offset based on rise angle
 			var Rx = cosRise * h;
 			var Ry = sinRise * h;
 
+			// Top vertex position
 			var topX = baseX + Rx * cosAngle;
-			var topY = -Ry; // Negative Y is up
+			var topY = -Ry;
 			var topZ = baseZ + Rx * sinAngle;
 
-			// UV coordinates
+			// Texture coordinate u based on division index
 			var u = k / (E_DIVISION - 1);
 
-			// Add base vertex (inner)
-			mesh.push(baseX, baseY, baseZ, u, 1.0);
-			// Add top vertex (outer)
-			mesh.push(topX, topY, topZ, u, 0.0);
-		}
+			// Vértice Base (Inner)
+			verts[offset++] = baseX;
+			verts[offset++] = 0;
+			verts[offset++] = baseZ;
+			verts[offset++] = u;
+			verts[offset++] = 1.0;
 
-		return new Float32Array(mesh);
+			// Vértice Top (Outer)
+			verts[offset++] = topX;
+			verts[offset++] = topY;
+			verts[offset++] = topZ;
+			verts[offset++] = u;
+			verts[offset++] = 0.0;
+		}
 	};
 
 	/**
@@ -185,10 +194,8 @@ define([
 			var i1 = k * 2 + 1; // Top of current
 			var i2 = k * 2 + 2; // Base of next
 			var i3 = k * 2 + 3; // Top of next
-
-			// Two triangles per quad
-			indices.push(i0, i1, i2);
-			indices.push(i1, i3, i2);
+			// Two triangles: (i0, i1, i2) and (i1, i3, i2)
+			indices.push(i0, i1, i2, i1, i3, i2);
 		}
 		return new Uint16Array(indices);
 	};
@@ -202,7 +209,11 @@ define([
 		// Create vertex buffers for each band
 		this.buffers = [];
 		for (var i = 0; i < this.bands.length; i++) {
-			this.buffers.push(gl.createBuffer());
+			var buf = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+			// Allocate buffer with initial size (will be updated each frame)
+			gl.bufferData(gl.ARRAY_BUFFER, this.vertices.byteLength, gl.DYNAMIC_DRAW);
+			this.buffers.push(buf);
 		}
 
 		// Create shared index buffer
@@ -273,15 +284,15 @@ define([
 				// Update height profile
 				self.updateHeightProfile(band);
 
-				// Generate mesh for this band
-				var vertices = self.generateBandMesh(band);
+				// fill mesh for this band
+				self.fillBandMesh(band);
 
 				// Upload vertex data
 				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffers[ec]);
-				gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+				gl.bufferSubData(gl.ARRAY_BUFFER, 0, self.vertices);
 
-				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
-				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
+				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, STRIDE * 4, 0);
+				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE * 4, 3 * 4);
 
 				// Set color and alpha
 				gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, self.alphaB);

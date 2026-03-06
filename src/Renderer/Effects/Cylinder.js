@@ -11,8 +11,8 @@ define([
 	'Core/Client',
 	'Renderer/Camera',
 	'Renderer/SpriteRenderer',
-	'text!./Shaders/GLSL/Cylinder.vs',
-	'text!./Shaders/GLSL/Cylinder.fs'
+	'text!./Cylinder.vs',
+	'text!./Cylinder.fs'
 ], function (WebGL, glMatrix, Client, Camera, SpriteRenderer, _vertexShader, _fragmentShader) {
 	'use strict';
 
