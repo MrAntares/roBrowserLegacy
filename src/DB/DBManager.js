@@ -3028,8 +3028,7 @@ define(function (require) {
 						spAmount,
 						bSeperateLv,
 						attackRange,
-						skillScale,
-						_NeedSkillListJson
+						skillScale
 					) => {
 						// Convert to format expected by SkillInfo.js
 						const toArray = v => {
@@ -3051,56 +3050,28 @@ define(function (require) {
 							SpAmount: toArray(spAmount),
 							bSeperateLv: bSeperateLv,
 							AttackRange: toArray(attackRange),
-							SkillScale: skillScale
+							SkillScale: skillScale,
+							NeedSkillList: {},
+							_NeedSkillList: []
 						};
-
-						// Add _NeedSkillList
-						if (_NeedSkillListJson) {
-							try {
-								const jsonString =
-									_NeedSkillListJson instanceof Uint8Array
-										? userStringDecoder.decode(_NeedSkillListJson)
-										: _NeedSkillListJson;
-
-								const arr = JSON.parse(jsonString);
-								if (Array.isArray(arr) && arr.length) {
-									SkillInfo[skillId]._NeedSkillList = arr;
-								}
-							} catch (e) {
-								console.error(e);
-							}
-						}
 
 						return 1;
 					};
+
+					ctx.AddSkillRequirement = (skillId, requiredSkillId, requiredLevel) => {
+						SkillInfo[skillId]._NeedSkillList.push([requiredSkillId, requiredLevel]);
+						return 1;
+					};
+
+					ctx.AddJobSkillRequirement = (skillId, jobId, requiredSkillId, requiredLevel) => {
+						if (!SkillInfo[skillId].NeedSkillList[jobId]) {
+							SkillInfo[skillId].NeedSkillList[jobId] = [];
+						}
+						SkillInfo[skillId].NeedSkillList[jobId].push([requiredSkillId, requiredLevel]);
+						return 1;
+					};
+
 					ctx.SKID = SKID;
-
-					if (!ctx.__HAS_CONVERT_TO_JSON__) {
-						await lua.doString(`
-					    function ConvertToJson(luaTable)
-						  if type(luaTable) ~= 'table' then return nil end
-
-						  local t = {}
-
-						  for _, v in ipairs(luaTable) do
-						    if type(v) == 'table' then
-						      local id = tonumber(v[1])
-						      local lv = tonumber(v[2])
-
-						      if id and lv then
-						        t[#t + 1] = "[" .. id .. "," .. lv .. "]"
-						      end
-						    end
-						  end
-
-						  if #t == 0 then return nil end
-						  return "[" .. table.concat(t, ",") .. "]"
-						end
-
-					  `);
-						ctx.__HAS_CONVERT_TO_JSON__ = true;
-					}
-
 					await lua.doString(`
 						if SKID then
 							__SKID_ORIGINAL = SKID 
@@ -3121,30 +3092,50 @@ define(function (require) {
 					await lua.doFile('skillinfolist.lub');
 
 					// create and execute our own main function
-					await lua.doString(`  
-					function main_skillInfoList()  
-						if not SKILL_INFO_LIST then  
-							return false, "Error: SKILL_INFO_LIST is nil or not a table"  
-						end  
-					
-						for skillId, skillData in pairs(SKILL_INFO_LIST) do 
-							local resName = skillData[1] or "" 
-							local skillName = skillData.SkillName or ""  
-							local maxLv = skillData.MaxLv or 1  
-							local spAmount = skillData.SpAmount or {}  
-							local bSeperateLv = skillData.bSeperateLv or false  
-							local attackRange = skillData.AttackRange or {}  
-							local skillScale = skillData.SkillScale or {}  
-							local _NeedSkillListJson = ConvertToJson(skillData._NeedSkillList)
-
-							result, msg = AddSkillInfo(skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale, _NeedSkillListJson)  
-							if not result then  
-								return false, msg  
+					lua.doStringSync(`  
+						function main_skillInfoList()  
+							if not SKILL_INFO_LIST then  
+								return false, "Error: SKILL_INFO_LIST is nil or not a table"  
 							end  
-						end  
-						return true, "good"  
-						end
-					main_skillInfoList()  
+						
+							for skillId, skillData in pairs(SKILL_INFO_LIST) do 
+								local resName = skillData[1] or "" 
+								local skillName = skillData.SkillName or ""  
+								local maxLv = skillData.MaxLv or 1  
+								local spAmount = skillData.SpAmount or {}  
+								local bSeperateLv = skillData.bSeperateLv or false  
+								local attackRange = skillData.AttackRange or {}  
+								local skillScale = skillData.SkillScale or {}  
+
+								result, msg = AddSkillInfo(skillId, resName, skillName, maxLv, spAmount, bSeperateLv, attackRange, skillScale)  
+								if not result then  
+									return false, msg  
+								end
+								
+								if skillData._NeedSkillList then  
+									for _, req in ipairs(skillData._NeedSkillList) do  
+										if req[1] and req[2] then  
+											AddSkillRequirement(skillId, req[1], req[2])  
+										end  
+									end  
+								end  
+								
+								if skillData.NeedSkillList then  
+									for jobId, reqList in pairs(skillData.NeedSkillList) do  
+										if reqList then  
+											for _, req in ipairs(reqList) do  
+												if req[1] and req[2] then  
+													AddJobSkillRequirement(skillId, jobId, req[1], req[2])  
+												end  
+											end  
+										end  
+									end  
+								end 
+
+							end  
+							return true, "good"  
+							end
+						main_skillInfoList()  
 					`);
 				} catch (error) {
 					console.error('[loadSkillInfoList] Error: ', error);
