@@ -284,6 +284,8 @@ define(function (require) {
 					// depthWrite = allow entity to occlude others
 					// depthCorrection ENABLED (required for isometric depth)
 					SpriteRenderer.runWithDepth(true, true, false, function () {
+						var cartidx;
+
 						// Shield is behind on some position, seems to be hardcoded by the client
 						if (self.shield && behind) {
 							SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -295,7 +297,7 @@ define(function (require) {
 						if (!(direction > 2 && direction < 6)) {
 							// looking front
 							if (Session.Playing == true && self.hasCart == true) {
-								var cartidx = [
+								cartidx = [
 									JobId.NOVICE,
 									JobId.SUPERNOVICE,
 									JobId.SUPERNOVICE_B,
@@ -305,30 +307,28 @@ define(function (require) {
 									? 0
 									: self.CartNum;
 
-								// Draw Cart           // been ocluded, dont oclude, isometric plane on
+								// Draw Cart
+								SpriteRenderer.zIndex = -1;
+								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+								SpriteRenderer.zIndex = 100;
 								SpriteRenderer.runWithDepth(true, false, false, function () {
-									SpriteRenderer.zIndex = -1;
-									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 								});
 							}
 
 							// Draw Robe
 							if (self.robe > 0) {
-								// been ocluded, dont oclude, isometric plane on
-								SpriteRenderer.runWithDepth(true, false, false, function () {
-									SpriteRenderer.zIndex = -1;
-									renderElement(self, self.files.robe, 'robe', _position, true);
-								});
+								SpriteRenderer.zIndex = 150;
+								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
 						}
 
-						SpriteRenderer.zIndex = 1;
+						SpriteRenderer.zIndex = 1000;
 						// Draw Body
 						renderElement(self, self.files.body, 'body', _position, true);
 
 						// Isometric Projection Body Offset
-						var zOffset = 100;
+						var zOffset = 1100;
 
 						SpriteRenderer.zIndex = zOffset + 50;
 
@@ -374,7 +374,7 @@ define(function (require) {
 							// Draw Cart
 							if (Session.Playing == true && self.hasCart == true) {
 								SpriteRenderer.zIndex = zOffset + 500;
-								var cartidx = [
+								cartidx = [
 									JobId.NOVICE,
 									JobId.SUPERNOVICE,
 									JobId.SUPERNOVICE_B,
@@ -403,7 +403,7 @@ define(function (require) {
 					break;
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
-					SpriteRenderer.zIndex = 100;
+					SpriteRenderer.zIndex = 1000;
 					// Non-player entities:
 					// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 					// - Still use depth test for correct ordering
