@@ -14,8 +14,8 @@
  * - Color: (80,80,255), additive blend
  */
 define([
-	'text!./Shaders/GLSL/Level99Bubble.vs',
-	'text!./Shaders/GLSL/Level99Bubble.fs',
+	'text!./Level99Bubble.vs',
+	'text!./Level99Bubble.fs',
 	'Utils/WebGL',
 	'Utils/Texture',
 	'Utils/gl-matrix',
@@ -209,6 +209,7 @@ define([
 		Client.loadFile('data/texture/effect/' + this.textureName, function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
+
 				self.ready = true;
 			});
 		});
@@ -409,7 +410,8 @@ define([
 
 				this.fillQuad(this.tmpPoints, this.quadData);
 
-				gl.bufferData(gl.ARRAY_BUFFER, this.quadData, gl.DYNAMIC_DRAW);
+				// Update GPU buffer with quad vertex data (6 vertices * (3 pos + 2 uv) = 30 floats)
+				gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
 
 				var self = this;
 				SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -438,12 +440,12 @@ define([
 				this.tmpPoints[3][i] = v3[i];
 			}
 			this.fillQuad(this.tmpPoints, this.quadData);
-			gl.bufferData(gl.ARRAY_BUFFER, this.quadData, gl.DYNAMIC_DRAW);
+			// Update GPU buffer with quad vertex data
+			gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
 			gl.uniform1i(uniform.uSolidBg, 1);
 			gl.uniform4f(uniform.uColor, 1.0, 0.0, 0.0, debugConfig.bgAlpha);
 			gl.uniform1f(uniform.uZIndex, 0.0005);
 
-			var self = this;
 			SpriteRenderer.runWithDepth(true, true, false, function () {
 				gl.drawArrays(gl.TRIANGLES, 0, 6);
 			});
@@ -477,6 +479,11 @@ define([
 	Level99Bubble.init = function init(gl) {
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		_buffer = gl.createBuffer();
+
+		// Initialize empty buffer for dynamic quad data (6 vertices * (3 pos + 2 uv) = 30 floats)
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		// Allocate buffer with null data for dynamic updates (120 bytes = 30 floats * 4 bytes/float)
+		gl.bufferData(gl.ARRAY_BUFFER, 120, gl.DYNAMIC_DRAW);
 
 		Level99Bubble.ready = true;
 		Level99Bubble.renderBeforeEntities = true;

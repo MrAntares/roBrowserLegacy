@@ -7,8 +7,8 @@
  *
  */
 define([
-	'text!./Shaders/GLSL/GroundAura.vs',
-	'text!./Shaders/GLSL/GroundAura.fs',
+	'text!./GroundAura.vs',
+	'text!./GroundAura.fs',
 	'Utils/WebGL',
 	'Utils/Texture',
 	'Utils/gl-matrix',

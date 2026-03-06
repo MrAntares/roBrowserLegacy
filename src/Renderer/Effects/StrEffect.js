@@ -7,103 +7,16 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function (WebGL, glMatrix, Client) {
+define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function (
+	_vertexShader,
+	_fragmentShader,
+	WebGL,
+	glMatrix,
+	Client
+) {
 	'use strict';
 
 	var mat4 = glMatrix.mat4;
-
-	/**
-	 * Generic Vertex Shader
-	 * @var {string}
-	 */
-	var _vertexShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
-
-		in vec2 aPosition;
-		in vec2 aTextureCoord;
-
-		out vec2 vTextureCoord;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-
-		uniform mat4 uSpriteAngle;
-		uniform vec3 uSpritePosition;
-		uniform vec2 uSpriteOffset;
-		uniform float uVerticalBase;
-
-		const float pixelRatio = 1.0 / 35.0;
-
-		mat4 Project( mat4 mat, vec3 pos) {
-
-			// xyz = x(-z)y + middle of cell (0.5)
-			float x =  pos.x + 0.5;
-			float y = -pos.z;
-			float z =  pos.y + 0.5;
-
-			// Matrix translation
-			mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;
-			mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;
-			mat[3].z += mat[0].z * x + mat[1].z * y + mat[2].z * z;
-			mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;
-
-			// Spherical billboard
-			mat[0].xyz = vec3( 1.0, 0.0, 0.0 );
-			mat[1].xyz = vec3( 0.0, 1.0, 0.0 );
-			mat[2].xyz = vec3( 0.0, 0.0, 1.0 );
-
-			return mat;
-		}
-
-		void main(void) {
-			vTextureCoord = aTextureCoord;
-
-			// Calculate position base on angle and sprite offset/size
-			vec4 position = uSpriteAngle * vec4( aPosition.x * pixelRatio, -aPosition.y * pixelRatio, 0.0, 1.0 );
-			position.x   += uSpriteOffset.x * pixelRatio;
-			position.y   -= uSpriteOffset.y * pixelRatio + uVerticalBase;
-
-			// Project to camera plane
-			gl_Position    = uProjectionMat * Project(uModelViewMat, uSpritePosition) * position;
-			gl_Position.z -= 0.1;
-		}
-	`;
-
-	/**
-	 * Generic Fragment Shader
-	 * @var {string}
-	 */
-	var _fragmentShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-		precision highp float;
-
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-
-		uniform vec4 uSpriteColor;
-		uniform sampler2D uDiffuse;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		void main(void) {
-			fragColor = texture( uDiffuse, vTextureCoord.st ) * uSpriteColor;
-			if ( fragColor.a == 0.0 || (fragColor.r == 0.0 && fragColor.g == 0.0 && fragColor.b == 0.0) ) {
-				discard;
-			}
-
-			if ( uFogUse ) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
-			}
-		}
-	`;
 
 	/**
 	 * Look up table D3DX => OPENGL
@@ -360,12 +273,11 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function (WebGL, glMat
 
 		// Send new buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
 
 		// Link attribute
 		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0 * 4);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-
-		gl.bufferData(gl.ARRAY_BUFFER, _bufferData, gl.STREAM_DRAW);
 
 		// Send texture and data
 		gl.blendFunc(D3DBLEND[anim.srcalpha], D3DBLEND[anim.destalpha]);
@@ -497,6 +409,8 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function (WebGL, glMat
 	StrEffect.init = function init(gl) {
 		if (!_buffer) {
 			_buffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, _bufferData.byteLength, gl.DYNAMIC_DRAW);
 		}
 
 		if (!_program) {
