@@ -141,7 +141,7 @@ define(function (require) {
 			EntityManager.forEach(function (entity) {
 				if (entity.GUID === guild_id) {
 					if (emblem.display) {
-						entity.display.emblem = emblem.display;
+						entity.display.emblem = PACKETVER.value >= 20170315 ? emblem.display : emblem.image;
 					} else {
 						entity.display.emblem = emblem.image;
 					}
