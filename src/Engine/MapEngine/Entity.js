@@ -179,11 +179,12 @@ define(function (require) {
 
 		if (entity.GUID) {
 			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
-				entity.display.emblem = image;
 				entity.emblem.emblem = image;
 				entity.emblem.update();
-				entity.display.refresh(entity);
-
+				if (PACKETVER.value < 20170315) {
+					entity.display.emblem = image;
+					entity.display.refresh(entity);
+				}
 				if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
 					entity.emblem.display = true;
 				}
@@ -1032,7 +1033,9 @@ define(function (require) {
 
 			if (entity.GUID) {
 				Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
-					entity.display.emblem = image;
+					if (PACKETVER.value < 20170315) {
+						entity.display.emblem = image;
+					}
 					entity.display.update(
 						entity.objecttype === Entity.TYPE_MOB
 							? entity.display.STYLE.MOB
@@ -1052,7 +1055,6 @@ define(function (require) {
 					);
 					entity.emblem.emblem = image;
 					entity.emblem.update();
-
 					if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
 						entity.emblem.display = true;
 					}
