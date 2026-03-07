@@ -130,7 +130,7 @@ define(function (require) {
 			};
 		}
 
-		if (Session.Entity.GUID == guild_id) {
+		if (Session.Entity.GUID === guild_id) {
 			GuildEngine.guild_id = guild_id;
 		}
 
@@ -553,10 +553,12 @@ define(function (require) {
 		// Request emblem for the player's own entity
 		if (pkt.GDID && pkt.emblemVersion) {
 			GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function (image) {
-				Session.Entity.display.emblem = image;
 				Session.Entity.emblem.emblem = image;
 				Session.Entity.emblem.update();
-				Session.Entity.display.refresh(Session.Entity);
+				if (PACKETVER.value < 20170315) {
+					Session.Entity.display.emblem = image;
+					Session.Entity.display.refresh(Session.Entity);
+				}
 			});
 		}
 	}
