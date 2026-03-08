@@ -264,6 +264,7 @@ window.ROConfigBase = {
         port: 6900,
         version: 55,
         langtype: 1,
+        servicetype: 'SERVICETYPE_AMERICA',
         packetver: 20130618,
         renewal: false,
         worldMapSettings: { episode: 12 },
