@@ -62,6 +62,49 @@ define(function (require) {
 	 */
 	var _loginID = '';
 
+	function encodeService(serviceType) {
+		var encoding;
+		switch (serviceType) {
+			case 'SERVICETYPE_BRAZIL':
+			case 'SERVICETYPE_INDONESIA':
+			case 'SERVICETYPE_PHILIPPINE':
+			case 'SERVICETYPE_MALAYSIA':
+			case 'SERVICETYPE_SINGAPORE':
+			case 'SERVICETYPE_GERMANY':
+			case 'SERVICETYPE_INDIA':
+			case 'SERVICETYPE_AUSTRALIA':
+			case 'SERVICETYPE_AMERICA':
+			case 'SERVICETYPE_FRANCE':
+				encoding = 'windows-1252';
+				break;
+			case 'SERVICETYPE_JAPAN':
+				encoding = 'shift-jis';
+				break;
+			case 'SERVICETYPE_CHINA':
+				encoding = 'gbk';
+				break;
+			case 'SERVICETYPE_TAIWAN':
+				encoding = 'big5';
+				break;
+			case 'SERVICETYPE_THAILAND':
+				encoding = 'windows-874';
+				break;
+			case 'SERVICETYPE_VIETNAM':
+				encoding = 'windows-1258';
+				break;
+			case 'SERVICETYPE_RUSSIA':
+				encoding = 'windows-1251';
+				break;
+			//case 'SERVICETYPE_CHILE': // Not supported by the encoder/decoder, default to windows-1252
+			//	encoding = 'windows-1145'; break;
+			case 'SERVICETYPE_KOREA':
+			default:
+				encoding = 'windows-949';
+				break;
+		}
+		return encoding;
+	}
+
 	/**
 	 * Init Game
 	 */
@@ -73,16 +116,18 @@ define(function (require) {
 		Configs.setServer(server);
 		UIManager.removeComponents();
 		Session.LangType = 'langtype' in server ? parseInt(server.langtype, 10) : 1; // default to SERVICETYPE_AMERICA
+		var serviceType = 'servicetype' in server ? server.servicetype : 'SERVICETYPE_AMERICA';
 
 		// Renewal switch
 		Session.isRenewal = Configs.get('renewal', false);
 		console.log('%c[LOGIN] Game Mode: ', 'color:#007000', Session.isRenewal ? 'RENEWAL' : 'PRE-RENEWAL');
 
-		charset = TextEncoding.detectEncodingByLangtype(Session.LangType, Configs.get('disableKorean'));
+		charset = encodeService(serviceType); //TextEncoding.detectEncodingByLangtype(Session.LangType, Configs.get('disableKorean'));
+		TextEncoding.setCharset(charset);
 
 		console.log('%c[LOGIN] Language Type: ', 'color:#007000', Session.LangType);
 		console.log('%c[LOGIN] Encoding: ', 'color:#007000', charset);
-		TextEncoding.setCharset(charset);
+
 		_server = server;
 
 		// Add support for "packetver" definition in Server listing
