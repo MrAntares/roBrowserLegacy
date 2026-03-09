@@ -264,7 +264,6 @@ window.ROConfigBase = {
         port: 6900,
         version: 55,
         langtype: 1,
-        servicetype: 'SERVICETYPE_AMERICA',
         packetver: 20130618,
         renewal: false,
         worldMapSettings: { episode: 12 },
@@ -273,6 +272,7 @@ window.ROConfigBase = {
         adminList: [2000000]
     }],
     webserverAddress: 'http://127.0.0.1:8888',
+    grfEncoding: 'iso-8859-1',
     packetDump: false,
     skipServerList: true,
     skipIntro: false,

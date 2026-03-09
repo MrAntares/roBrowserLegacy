@@ -223,56 +223,12 @@ define(function (require) {
 	 */
 	var servers = Configs.get('servers', []);
 	var langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 10) : 1;
-	var serviceType = servers[0] && servers[0].servicetype ? servers[0].servicetype : 'SERVICETYPE_KOREA';
 	var userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+	var grfEncoding = Configs.get('grfEncoding', 'iso-8859-1');
 
 	// create decoders
 	let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-
-	function decodeServiceStringPath(buffer) {
-		var encoding;
-		switch (serviceType) {
-			case 'SERVICETYPE_BRAZIL':
-			case 'SERVICETYPE_INDONESIA':
-			case 'SERVICETYPE_PHILIPPINE':
-			case 'SERVICETYPE_MALAYSIA':
-			case 'SERVICETYPE_SINGAPORE':
-			case 'SERVICETYPE_GERMANY':
-			case 'SERVICETYPE_INDIA':
-			case 'SERVICETYPE_AUSTRALIA':
-			case 'SERVICETYPE_AMERICA':
-			case 'SERVICETYPE_FRANCE':
-				encoding = 'windows-1252';
-				break;
-			case 'SERVICETYPE_JAPAN':
-				encoding = 'shift-jis';
-				break;
-			case 'SERVICETYPE_CHINA':
-				encoding = 'gbk';
-				break;
-			case 'SERVICETYPE_TAIWAN':
-				encoding = 'big5';
-				break;
-			case 'SERVICETYPE_THAILAND':
-				encoding = 'windows-874';
-				break;
-			case 'SERVICETYPE_VIETNAM':
-				encoding = 'windows-1258';
-				break;
-			case 'SERVICETYPE_RUSSIA':
-				encoding = 'windows-1251';
-				break;
-			//case 'SERVICETYPE_CHILE': // Not supported by the encoder/decoder, default to windows-1252
-			//	encoding = 'windows-1145'; break;
-			case 'SERVICETYPE_KOREA':
-			default:
-				encoding = 'windows-949';
-				break;
-		}
-
-		let serviceStringDecoder = new TextEncoding.TextDecoder(encoding);
-		return serviceStringDecoder.decode(buffer);
-	}
+	let grfStringDecoder = new TextEncoding.TextDecoder(grfEncoding);
 
 	/**
 	 * @var {Object} PetDBTable
@@ -1718,9 +1674,9 @@ define(function (require) {
 						ItemTable[ItemID] = {
 							...(typeof ItemTable[ItemID] === 'object' && ItemTable[ItemID]),
 							unidentifiedDisplayName: userStringDecoder.decode(unidentifiedDisplayName),
-							unidentifiedResourceName: decodeServiceStringPath(unidentifiedResourceName),
+							unidentifiedResourceName: grfStringDecoder.decode(unidentifiedResourceName),
 							identifiedDisplayName: userStringDecoder.decode(identifiedDisplayName),
-							identifiedResourceName: decodeServiceStringPath(identifiedResourceName),
+							identifiedResourceName: grfStringDecoder.decode(identifiedResourceName),
 							unidentifiedDescriptionName: [],
 							identifiedDescriptionName: [],
 							EffectID: null,
@@ -2041,7 +1997,7 @@ define(function (require) {
 					// create required functions in context
 					ctx.AddDBItemName = (baseItem, itemID) => {
 						let decoded_baseItem =
-							baseItem && baseItem.length > 1 ? decodeServiceStringPath(baseItem) : null;
+							baseItem && baseItem.length > 1 ? grfStringDecoder.decode(baseItem) : null;
 						ItemDBNameTbl[decoded_baseItem] = itemID;
 						return 1;
 					};
@@ -2932,14 +2888,14 @@ define(function (require) {
 					// create required functions in context
 					ctx.AddWeaponName = (weaponID, weaponName) => {
 						let decoded_weaponName =
-							weaponName && weaponName.length > 0 ? decodeServiceStringPath(weaponName) : '';
+							weaponName && weaponName.length > 0 ? grfStringDecoder.decode(weaponName) : '';
 						WeaponTable[weaponID] = decoded_weaponName;
 						return 1;
 					};
 
 					ctx.AddWeaponHitSound = (weaponID, soundFile) => {
 						let decoded_soundFile =
-							soundFile && soundFile.length > 0 ? decodeServiceStringPath(soundFile) : '';
+							soundFile && soundFile.length > 0 ? grfStringDecoder.decode(soundFile) : '';
 						WeaponHitSoundTable[weaponID] = decoded_soundFile;
 						return 1;
 					};
@@ -3060,7 +3016,7 @@ define(function (require) {
 							return [];
 						};
 						SkillInfo[skillId] = {
-							Name: decodeServiceStringPath(resName),
+							Name: grfStringDecoder.decode(resName),
 							SkillName: userStringDecoder.decode(skillName),
 							MaxLv: maxLv,
 							SpAmount: toArray(spAmount),
@@ -3445,7 +3401,7 @@ define(function (require) {
 				};
 
 				ctx.SetStatusIcon = (id, iconName) => {
-					let icon = decodeServiceStringPath(iconName);
+					let icon = grfStringDecoder.decode(iconName);
 					if (!StatusInfo[id]) {
 						StatusInfo[id] = { descript: [] };
 					}
@@ -3590,7 +3546,7 @@ define(function (require) {
 
 				// create context function
 				ctx.addKeyAndValueToTable = (key, value) => {
-					table[key] = decodeServiceStringPath(value);
+					table[key] = grfStringDecoder.decode(value);
 					return 1;
 				};
 
@@ -3599,7 +3555,7 @@ define(function (require) {
 					if (!table[key]) {
 						table[key] = '';
 					}
-					table[key] += decodeServiceStringPath(value) + '\n';
+					table[key] += grfStringDecoder.decode(value) + '\n';
 					return 1;
 				};
 
@@ -3673,7 +3629,7 @@ define(function (require) {
 
 					// Add key-value pairs to objects at any nesting level
 					ctx.extractValue = value => {
-						result = JSON.parse(decodeServiceStringPath(value));
+						result = JSON.parse(grfStringDecoder.decode(value));
 					};
 
 					// Create and execute a wrapper Lua code to extract the variable
