@@ -186,9 +186,6 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		// Load entries
 		entries = loadEntries(out, header.realfilecount, header.version);
 
-		// Sort entries (for binary search)
-		entries.sort(sortEntries);
-
 		// Store table data (used for regex search in tablelist)
 		// Set filename to lowercase (case insensitive in official client)
 		table.data = '';
@@ -242,24 +239,6 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		}
 
 		return entries;
-	}
-
-	/**
-	 * Sort entries (to find it faster)
-	 *
-	 * @param {object} entry 1
-	 * @param {object} entry 2
-	 */
-	function sortEntries(a, b) {
-		if (a.filename > b.filename) {
-			return 1;
-		}
-
-		if (a.filename < b.filename) {
-			return -1;
-		}
-
-		return 0;
 	}
 
 	/**
