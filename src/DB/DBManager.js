@@ -4172,7 +4172,11 @@ define(function (require) {
 						result += 'costume_1/';
 					}
 
-					result += ClassTable[id] || ClassTable[0];
+					if((alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) || PACKETVER.value <= 20231220)
+						result += ClassTable[id] || ClassTable[0];
+					else
+						result += ClassTable[alternative] || ClassTable[0];
+
 					result += '_' + SexTable[sex];
 
 					if (use_costume) {
