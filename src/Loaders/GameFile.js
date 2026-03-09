@@ -192,6 +192,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		for (i = 0, count = entries.length; i < count; ++i) {
 			table.data += entries[i].filename + '\0';
 			entries[i].filename = entries[i].filename.toLowerCase();
+			// Store index for quick search
 			this.index[entries[i].filename] = entries[i];
 		}
 
@@ -290,7 +291,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	};
 
 	/**
-	 * Binary Search hack to find files in GRF list
+	 * Search a file in the GRF
 	 *
 	 * @param {string} filename
 	 */
@@ -299,7 +300,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	};
 
 	/**
-	 * Find a file in the GRF
+	 * Get a file content from GRF
 	 *
 	 * @param {string} filename
 	 * @param {function} callback
