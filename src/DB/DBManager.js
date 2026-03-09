@@ -4174,7 +4174,7 @@ define(function (require) {
 
 					if (
 						(alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) ||
-						PACKETVER.value <= 20231220
+						(alternative === 1 && PACKETVER.value <= 20231220)
 					) {
 						result += ClassTable[id] || ClassTable[0];
 					} else {
