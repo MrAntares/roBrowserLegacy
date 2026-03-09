@@ -4123,25 +4123,21 @@ define(function (require) {
 			result += SexTable[sex] + '/';
 
 			if (PACKETVER.value > 20141022) {
-				if (alternative > 0) {
-					if (
+				if (alternative > 0 && id !== alternative) {
+					var use_costume =
 						(PACKETVER.value > 20231220 &&
 							alternative > JobId.COSTUME_SECOND_JOB_START &&
 							alternative < JobId.COSTUME_SECOND_JOB_END) ||
-						alternative === 1
-					) {
+						(alternative === 1 && PACKETVER.value <= 20231220);
+
+					if (use_costume) {
 						result += 'costume_1/';
 					}
 
 					result += ClassTable[id] || ClassTable[0];
 					result += '_' + SexTable[sex];
 
-					if (
-						(PACKETVER.value > 20231220 &&
-							alternative > JobId.COSTUME_SECOND_JOB_START &&
-							alternative < JobId.COSTUME_SECOND_JOB_END) ||
-						alternative === 1
-					) {
+					if (use_costume) {
 						result += '_1';
 					}
 					return result;
