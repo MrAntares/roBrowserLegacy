@@ -750,48 +750,48 @@ define(function (require) {
 
 						const style = document.createElement('style');
 						style.textContent = `  
-				@font-face {  
-					font-family: 'SCDream';  
-					src: url('${fontUrl6}') format('opentype');  
-					font-weight: 100; /* Thin */  
-					font-style: normal;  
-				}  
-				  
-				@font-face {  
-					font-family: 'SCDream';  
-					src: url('${fontUrl6}') format('opentype');  
-					font-weight: 200; /* Extra Light */  
-					font-style: normal;  
-				}  
-				  
-				@font-face {  
-					font-family: 'SCDream';  
-					src: url('${fontUrl6}') format('opentype');  
-					font-weight: 300; /* Light */  
-					font-style: normal;  
-				}  
-				  
-				@font-face {  
-					font-family: 'SCDream';  
-					src: url('${fontUrl6}') format('opentype');  
-					font-weight: 400; /* Normal */  
-					font-style: normal;  
-				}  
-				  
-				@font-face {  
-					font-family: 'SCDream';  
-					src: url('${fontUrl4}') format('opentype');  
-					font-weight: 700; /* Bold */  
-					font-style: normal;  
-				}  
-				  
-				@font-face {  
-					font-family: 'SCDream';  
-					src: url('${fontUrl4}') format('opentype');  
-					font-weight: 900; /* Black/Bolder */  
-					font-style: normal;  
-				}  
-			`;
+							@font-face {  
+								font-family: 'SCDream';  
+								src: url('${fontUrl6}') format('opentype');  
+								font-weight: 100; /* Thin */  
+								font-style: normal;  
+							}  
+							
+							@font-face {  
+								font-family: 'SCDream';  
+								src: url('${fontUrl6}') format('opentype');  
+								font-weight: 200; /* Extra Light */  
+								font-style: normal;  
+							}  
+							
+							@font-face {  
+								font-family: 'SCDream';  
+								src: url('${fontUrl6}') format('opentype');  
+								font-weight: 300; /* Light */  
+								font-style: normal;  
+							}  
+							
+							@font-face {  
+								font-family: 'SCDream';  
+								src: url('${fontUrl6}') format('opentype');  
+								font-weight: 400; /* Normal */  
+								font-style: normal;  
+							}  
+							
+							@font-face {  
+								font-family: 'SCDream';  
+								src: url('${fontUrl4}') format('opentype');  
+								font-weight: 700; /* Bold */  
+								font-style: normal;  
+							}  
+							
+							@font-face {  
+								font-family: 'SCDream';  
+								src: url('${fontUrl4}') format('opentype');  
+								font-weight: 900; /* Black/Bolder */  
+								font-style: normal;  
+							}  
+						`;
 						document.head.appendChild(style);
 						document.body.style.fontFamily = 'Arial, Helvetica, sans-serif';
 					},
@@ -5258,10 +5258,6 @@ define(function (require) {
 			var item = ItemTable[itemid] || unknownItem;
 
 			if (!item._decoded) {
-				var servers = Configs.get('servers', []);
-				var langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 10) : 1;
-				var autoEncoding = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
-				TextEncoding.setCharset(autoEncoding);
 				item.identifiedDescriptionName =
 					item.identifiedDescriptionName && item.identifiedDescriptionName instanceof Array
 						? TextEncoding.decodeString(item.identifiedDescriptionName.join('\n'))
