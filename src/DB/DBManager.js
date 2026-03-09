@@ -224,6 +224,8 @@ define(function (require) {
 	var servers = Configs.get('servers', []);
 	var langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 10) : 1;
 	var userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+	// create decoders
+	let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 	/**
 	 * @var {Object} PetDBTable
@@ -1189,7 +1191,6 @@ define(function (require) {
 		async function processWorldMapLua() {
 			try {
 				const ctx = lua.ctx;
-				const userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 				// Function to add a World Category (e.g., Midgard)
 				ctx.AddWorldMapCategory = (id, name, tableKey) => {
@@ -1350,7 +1351,6 @@ define(function (require) {
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 					const ctx = lua.ctx;
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					ctx.AddTitle = function (titleID, titleName) {
 						TitleTable[titleID] = userStringDecoder.decode(titleName);
@@ -1409,8 +1409,6 @@ define(function (require) {
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create AddTownInfo required functions in context
 					ctx.AddTownInfo = function AddTownInfo(mapName, name, X, Y, TYPE) {
@@ -1454,9 +1452,6 @@ define(function (require) {
 				try {
 					// check if file is ArrayBuffer and convert to Uint8Array if necessary
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
@@ -1662,8 +1657,7 @@ define(function (require) {
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+
 					// create itemInfo required functions in context
 					ctx.AddItem = (
 						ItemID,
@@ -1803,9 +1797,6 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-
 					// create required functions in context
 					ctx.AddLaphineSysItem = (
 						key,
@@ -1900,9 +1891,6 @@ define(function (require) {
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
-
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddLaphineUpgradeItem = (
@@ -2003,9 +1991,6 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-
 					// create required functions in context
 					ctx.AddDBItemName = (baseItem, itemID) => {
 						let decoded_baseItem =
@@ -2065,9 +2050,6 @@ define(function (require) {
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
-
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddReformInfo = (
@@ -2214,7 +2196,6 @@ define(function (require) {
 
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					const ctx = lua.ctx;
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					EnchantListTable = {};
 
@@ -2730,9 +2711,6 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-
 					// create required functions in context
 					ctx.AddSignBoardData = (key, translation) => {
 						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
@@ -2796,9 +2774,6 @@ define(function (require) {
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
-
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddSignBoard = (mapname, x, y, height, type, icon_location, description, color) => {
@@ -2907,9 +2882,6 @@ define(function (require) {
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
 
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-
 					// create required functions in context
 					ctx.AddWeaponName = (weaponID, weaponName) => {
 						let decoded_weaponName =
@@ -3015,9 +2987,6 @@ define(function (require) {
 						jobIdWithJT[`JT_${key}`] = value;
 					}
 					ctx.JOBID = jobIdWithJT;
-
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create required functions in context
 					ctx.AddSkillInfo = (
@@ -3383,7 +3352,6 @@ define(function (require) {
 		async function processLuaData() {
 			try {
 				const ctx = lua.ctx;
-				const userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 				ctx.SetStatusConstants = sourceTable => {
 					if (typeof sourceTable === 'object' && sourceTable !== null) {
@@ -3656,9 +3624,6 @@ define(function (require) {
 					// Get context
 					const ctx = lua.ctx;
 
-					// Create a decoder
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
-
 					// Initialize result variable
 					let result = null;
 
@@ -3759,9 +3724,6 @@ define(function (require) {
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
-
-					// create decoders
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// create mapInfo required functions in context
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
@@ -4161,25 +4123,29 @@ define(function (require) {
 			result += SexTable[sex] + '/';
 
 			if (PACKETVER.value > 20141022) {
-				if (alternative > 0) {
-					if (
+				if (alternative > 0 && id !== alternative) {
+					var use_costume =
 						(PACKETVER.value > 20231220 &&
 							alternative > JobId.COSTUME_SECOND_JOB_START &&
 							alternative < JobId.COSTUME_SECOND_JOB_END) ||
-						alternative === 1
-					) {
+						(alternative === 1 && PACKETVER.value <= 20231220);
+
+					if (use_costume) {
 						result += 'costume_1/';
 					}
 
-					result += ClassTable[id] || ClassTable[0];
+					if (
+						(alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) ||
+						(alternative === 1 && PACKETVER.value <= 20231220)
+					) {
+						result += ClassTable[id] || ClassTable[0];
+					} else {
+						result += ClassTable[alternative] || ClassTable[0];
+					}
+
 					result += '_' + SexTable[sex];
 
-					if (
-						(PACKETVER.value > 20231220 &&
-							alternative > JobId.COSTUME_SECOND_JOB_START &&
-							alternative < JobId.COSTUME_SECOND_JOB_END) ||
-						alternative === 1
-					) {
+					if (use_costume) {
 						result += '_1';
 					}
 					return result;
@@ -6384,7 +6350,6 @@ define(function (require) {
 
 					// get context
 					const ctx = lua.ctx;
-					let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
 
 					// Define the function that Lua will call
 					// add_cashshop_banner( bitmap_name, url )
