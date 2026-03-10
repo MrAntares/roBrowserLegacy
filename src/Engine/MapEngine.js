@@ -575,9 +575,8 @@ define(function (require) {
 	 * Changing map, loading new map
 	 *
 	 * @param {object} pkt - PACKET.ZC.NPCACK_MAPMOVE
-	 * @param {bool} force reload map renderer teleporting to same map
 	 */
-	function onMapChange(pkt, force = false) {
+	function onMapChange(pkt) {
 		jQuery(window).off('keydown.map');
 
 		MapRenderer.onLoad = function () {
@@ -709,7 +708,7 @@ define(function (require) {
 			}
 		};
 
-		MapRenderer.setMap(pkt.mapName, force);
+		MapRenderer.setMap(pkt.mapName);
 	}
 
 	/**
