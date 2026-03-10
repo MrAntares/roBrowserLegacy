@@ -19,7 +19,6 @@ define(function (require) {
 	var Preferences = require('Core/Preferences');
 	var GraphicsSettings = require('Preferences/Graphics');
 	var Renderer = require('Renderer/Renderer');
-	const MapRenderer = require('Renderer/MapRenderer');
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 	var htmlText = require('text!./GraphicsOption.html');
@@ -190,7 +189,30 @@ define(function (require) {
 		GraphicsSettings.pixelPerfectSprites = !!this.checked;
 		GraphicsSettings.save();
 
-		MapRenderer.forceReloadMap();
+		if (GraphicsSettings.pixelPerfectSprites) {
+			// Only works to toggle on, because toggle off will not reload the sprites with the new settings
+			function reloadSprites() {
+				var Client = require('Core/Client');
+				var MemoryManager = require('Core/MemoryManager');
+				var gl = Renderer.getContext();
+				var sprFiles = MemoryManager.search(/\.spr$/i);
+				for (
+					var i = 0;
+					i < sprFiles.length;
+					i++ // reloads spr memory cache
+				) {
+					MemoryManager.remove(gl, sprFiles[i]);
+				}
+			}
+			reloadSprites();
+		} else {
+			var ChatBox = require('UI/Components/ChatBox/ChatBox');
+			ChatBox.addText(
+				'[System] Pixel Perfect is disabled. Reload the page (F5) to apply the changes.',
+				ChatBox.TYPE.INFO,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+		}
 	}
 
 	/**
