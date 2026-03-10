@@ -182,7 +182,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 
 		// Uncompress data
 		new Inflate(data).getBytes(out);
-
+		this.index = {};
 		// Load entries
 		entries = loadEntries(out, header.realfilecount, header.version);
 
@@ -192,10 +192,9 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		for (i = 0, count = entries.length; i < count; ++i) {
 			table.data += entries[i].filename + '\0';
 			entries[i].filename = entries[i].filename.toLowerCase();
+			// Store index for quick search
+			this.index[entries[i].filename] = entries[i];
 		}
-
-		// Sort entries (for binary search)
-		entries.sort(sortEntries);
 
 		this.header = header;
 		this.entries = entries;
@@ -241,24 +240,6 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		}
 
 		return entries;
-	}
-
-	/**
-	 * Sort entries (to find it faster)
-	 *
-	 * @param {object} entry 1
-	 * @param {object} entry 2
-	 */
-	function sortEntries(a, b) {
-		if (a.filename > b.filename) {
-			return 1;
-		}
-
-		if (a.filename < b.filename) {
-			return -1;
-		}
-
-		return 0;
 	}
 
 	/**
@@ -310,37 +291,16 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	};
 
 	/**
-	 * Binary Search hack to find files in GRF list
+	 * Search a file in the GRF
 	 *
 	 * @param {string} filename
 	 */
-	GRF.prototype.search = (function searchClosure() {
-		var range = new Uint32Array(2);
-
-		return function search(filename) {
-			var entries = this.entries;
-			var v = 0;
-			var middle = 0;
-
-			range[1] = 0;
-			range[0] = entries.length - 1;
-
-			while (range[1] < range[0]) {
-				middle = range[1] + ((range[0] - range[1]) >> 1);
-				v = entries[middle].filename < filename ? 1 : 0;
-				range[v] = middle + v;
-			}
-
-			if (range[1] < entries.length && entries[range[1]].filename === filename) {
-				return range[1];
-			}
-
-			return -1;
-		};
-	})();
+	GRF.prototype.search = function search(filename) {
+		return this.index[filename] || null;
+	};
 
 	/**
-	 * Find a file in the GRF
+	 * Get a file content from GRF
 	 *
 	 * @param {string} filename
 	 * @param {function} callback
@@ -351,12 +311,10 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		var entry, blob;
 		var reader;
 
-		var pos = this.search(path);
+		entry = this.search(path);
 
 		// If filename is find in GRF table list
-		if (pos !== -1) {
-			entry = this.entries[pos];
-
+		if (entry) {
 			// Directory ?
 			if (!(entry.type & GRF.FILELIST_TYPE_FILE)) {
 				return false;
