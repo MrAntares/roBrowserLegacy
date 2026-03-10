@@ -202,7 +202,6 @@ define(function (require) {
 					i++ // reloads spr memory cache
 				) {
 					MemoryManager.remove(gl, sprFiles[i]);
-					Client.loadFile(sprFiles[i]);
 				}
 			}
 			reloadSprites();
