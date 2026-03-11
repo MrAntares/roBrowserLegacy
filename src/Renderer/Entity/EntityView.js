@@ -93,6 +93,57 @@ define(function (require) {
 	}
 
 	/**
+	 * Suppress head and accessory sprites (used for monster/transformation)
+	 */
+	function suppressHeadSprites() {
+		this.files.head.spr = null;
+		this.files.head.act = null;
+		this.files.head.pal = null;
+		this.files.accessory.spr = null;
+		this.files.accessory.act = null;
+		this.files.accessory2.spr = null;
+		this.files.accessory2.act = null;
+		this.files.accessory3.spr = null;
+		this.files.accessory3.act = null;
+	}
+
+	/**
+	 * Restore head and accessories
+	 */
+	function restoreHeadSprites() {
+		if (this._head >= 0) {
+			UpdateHead.call(this, this._head);
+		}
+		if (this._headpalette > 0) {
+			UpdateHeadPalette.call(this, this._headpalette);
+		}
+		if (this._accessory > 0) {
+			this.accessory = this._accessory;
+		}
+		if (this._accessory2 > 0) {
+			this.accessory2 = this._accessory2;
+		}
+		if (this._accessory3 > 0) {
+			this.accessory3 = this._accessory3;
+		}
+	}
+
+	/**
+	 * Returns true if any transformation (monster or job form) is currently active
+	 */
+	function hasTransformation() {
+		return !!(this._active_monster_transform || this._monster_transform || this._job_transform);
+	}
+
+	/**
+	 * Returns the effective display job, considering all active transformations
+	 */
+	function getEffectiveJob() {
+		return this._active_monster_transform || this._monster_transform ||
+			this._job_transform || this.costume || this._job;
+	}
+
+	/**
 	 * Updating job
 	 *
 	 * @param {number} job id
@@ -100,10 +151,16 @@ define(function (require) {
 	function UpdateBody(job) {
 		var baseJob, path;
 		var Entity;
+		// Capture sequence number for stale callback detection
+		var transformationSeq = this._transformationSeq || 0;
 
 		if (job < 0) {
 			return;
 		}
+
+		// Check if this is a transformation job (monster or form)
+		// If so, don't update _job - it should preserve the original job
+		var isTransformation = hasTransformation.call(this);
 
 		// Avoid fuck*ng errors with mounts !
 		// Sometimes the server send us the job of the mount sprite instead
@@ -126,7 +183,14 @@ define(function (require) {
 
 		// Clothes keep the old job in memory
 		// and show the costum if used
-		this._job = job;
+		// BUT: if this is a transformation, we should NOT update _job
+		if (!isTransformation) {
+			this._job = job;
+		}
+
+		// Update effective job
+		this._effectiveJob = getEffectiveJob.call(this);
+
 		if (this.costume) {
 			job = this.costume;
 		}
@@ -217,15 +281,34 @@ define(function (require) {
 			}
 		}
 
+		// Determine if we should suppress head NOW (before async operations)
+		var shouldSuppressHead = isTransformation || DB.isMonster(job) || job === 4356 || job === 4357;
+
 		// Loading
 		Client.loadFile(path + '.act');
 		Client.loadFile(
 			path + '.spr',
 			function () {
-				this.files.body.spr = path + '.spr';
-				this.files.body.act = path + '.act';
+				// Check if callback is stale (transformation changed while callback was pending)
+				var isStaleCallback = this._transformationSeq && this._transformationSeq > transformationSeq;
 
-				// Update linked attachments
+				// Get current job considering transformations
+				var currentJob = getEffectiveJob.call(this);
+
+				// Only update if callback is valid
+				if (!isStaleCallback && job === currentJob) {
+					this.files.body.spr = path + '.spr';
+					this.files.body.act = path + '.act';
+
+					// Apply head suppression/restoration
+					if (shouldSuppressHead) {
+						suppressHeadSprites.call(this);
+					} else if (!this.costume && !hasTransformation.call(this)) {
+						restoreHeadSprites.call(this);
+					}
+				}
+
+				// Update linked attachments (always update these)
 				this.bodypalette = this._bodypalette;
 				this.weapon = this._weapon;
 				this.shield = this._shield;
@@ -447,6 +530,29 @@ define(function (require) {
 	}
 
 	/**
+	 * Unified transformation handler - Optimized (Shared across entities)
+	 */
+	function onTransformationChange() {
+		this._transformationSeq++;
+
+		// Cache effective job
+		var oldEffectiveJob = this._effectiveJob;
+		this._effectiveJob = getEffectiveJob.call(this);
+
+		// Only trigger UpdateBody if job actually changed
+		if (this._effectiveJob && (this._effectiveJob !== oldEffectiveJob || !this.files.body.spr)) {
+			UpdateBody.call(this, this._effectiveJob);
+		}
+
+		// Immediate suppression/restoration for UI responsiveness
+		if (hasTransformation.call(this)) {
+			suppressHeadSprites.call(this);
+		} else if (!this.costume) {
+			restoreHeadSprites.call(this);
+		}
+	}
+
+	/**
 	 * Hooking, export
 	 */
 	return function Init() {
@@ -461,10 +567,11 @@ define(function (require) {
 
 		Object.defineProperty(this, 'job', {
 			get: function () {
-				return this.costume || this._job;
+				return this._effectiveJob;
 			},
 			set: UpdateBody
 		});
+
 		this._body = this._job;
 		Object.defineProperty(this, 'body', {
 			get: function () {
@@ -535,5 +642,34 @@ define(function (require) {
 			},
 			set: UpdateGeneric('robe', 'getRobePath')
 		});
+
+		// Initialize transformation properties
+		this._monster_transform = null;
+		this._active_monster_transform = null;
+		this._job_transform = null;
+		this._transformationSeq = 0;
+		this._effectiveJob = this._job;
+
+		var _this = this;
+
+		// Transformation properties - consolidated setter logic
+		function createTransformationProperty(name) {
+			Object.defineProperty(_this, name, {
+				get: function () {
+					return _this['_' + name] || null;
+				},
+				set: function (value) {
+					var oldValue = _this['_' + name];
+					if (value !== oldValue) {
+						_this['_' + name] = value;
+						onTransformationChange.call(_this);
+					}
+				}
+			});
+		}
+
+		createTransformationProperty('monster_transform');
+		createTransformationProperty('active_monster_transform');
+		createTransformationProperty('job_transform');
 	};
 });

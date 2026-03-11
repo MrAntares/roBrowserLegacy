@@ -221,7 +221,19 @@ define(function (require) {
 
 		this.isAdmin = Session.AdminList.indexOf(unit.GID) > -1;
 		this.sex = unit.hasOwnProperty('sex') ? unit.sex : this._sex;
-		this.job = unit.hasOwnProperty('job') ? unit.job : this._job;
+		
+		// Don't override job if transformation is active
+		if (unit.hasOwnProperty('job')) {
+			if (this._active_monster_transform || this._monster_transform || this._job_transform) {
+				// Transformation active - store base job but don't trigger UpdateBody
+				this._job = unit.job;
+			} else {
+				// No transformation - apply job normally (triggers UpdateBody)
+				this.job = unit.job;
+			}
+		} else {
+			this.job = this._job;
+		}
 		this.clothes = 0;
 		keys = Object.keys(unit);
 		count = keys.length;
