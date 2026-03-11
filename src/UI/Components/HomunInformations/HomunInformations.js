@@ -396,7 +396,7 @@ define(function (require) {
 
 	HomunInformations.startAI = function startAI() {
 		if (!this.AILoop) {
-			//AIDriver.homunculus.reset();
+			AIDriver.homunculus.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.homunId) {
 					var entity = EntityManager.get(Session.homunId);
