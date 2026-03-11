@@ -3006,6 +3006,17 @@ define(function (require) {
 						jobIdWithJT[`JT_${key}`] = value;
 					}
 					ctx.JOBID = jobIdWithJT;
+					await lua.doString(`
+						if JOBID then
+							__JOBID_ORIGINAL = JOBID
+							JOBID = setmetatable({}, {
+								__index = function(t, k)
+									local id = __JOBID_ORIGINAL[k]
+									return id ~= nil and id or 0
+								end
+							})
+						end
+					`);
 
 					// create required functions in context
 					ctx.AddSkillInfo = (
