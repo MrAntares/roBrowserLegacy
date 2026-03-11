@@ -1,364 +1,343 @@
-define(['Renderer/EntityManager', 'Renderer/Renderer', 'Vendors/fengari-web', 'Renderer/Entity/Entity'], function (
+define(['Renderer/EntityManager', 'Renderer/Renderer', 'Renderer/Entity/Entity'], function (
 	EntityManager,
 	Renderer,
-	fengari,
 	Entity
 ) {
 	'use strict';
 
+	var DB = require('DB/DBManager');
 	var Session = require('Engine/SessionStorage');
 	var Network = require('Network/NetworkManager');
 	var PACKET = require('Network/PacketStructure');
-	var Configs = require('Core/Configs');
+	var PACKETVER = require('Network/PacketVerManager');
+	var SkillInfo = require('DB/Skills/SkillInfo');
 
-	function AIDriver(type) {
-		this.type = type; // 'homunculus' or 'mercenary'
-		this.msg = {};
-		this.status = null;
-	}
+	function AIDriver() {}
 
-	AIDriver.prototype.getConfig = function getConfig() {
-		switch (this.type) {
-			case 'homunculus':
-				return {
-					id: Session.homunId,
-					aggressiveKey: 'HOM_AGGRESSIVE',
-					aiPath: Session.homCustomAI ? 'AI/USER_AI/AI' : 'AI/AI',
-					logPrefix: 'homAI'
-				};
-			case 'mercenary':
-				return {
-					id: Session.mercId,
-					aggressiveKey: 'MER_AGGRESSIVE',
-					aiPath: Session.merCustomAI ? 'AI/USER_AI/AI_M' : 'AI/AI_M',
-					logPrefix: 'merAI'
-				};
-			default:
-				throw new Error('Invalid AI type');
-		}
-	};
+	//110033787
 
-	AIDriver.prototype.init = function init() {
-		var config = this.getConfig();
-		var clientPath = Configs.get('remoteClient');
-		var sep = clientPath.substr(clientPath.length - 1) == '/' ? '' : '/';
+	AIDriver.init = async function init() {
+		var ai_path = Session.homCustomAI ? 'AI/USER_AI/AI' : 'AI/AI';
 
-		var code = `
-            package.path = '${clientPath}${sep}?.lua'
-
-            local ai_main, ai_error = loadfile("${clientPath}${sep}${config.aiPath}.lua")
-
-            -- Dummy AI if there is no AI file
-            function AI()
-                return false
-            end
-
-            -- Init main AI if exists
-            if (ai_main) then
-                ai_main()
-                js.global.console:log("%c[${config.logPrefix}] %cAI initialized.", "color:#DD0078", "color:inherit")
-            else
-                js.global.console:warn("%c[${config.logPrefix}] %cCould not load AI: " .. ai_error, "color:#DD0078", "color:inherit")
-            end
-
-            -----------------------------------------
-            function TraceAI (string)
-                return js.global:TraceAI(string)
-            end
-            function MoveToOwner (id)
-                return js.global:MoveToOwner(id)
-            end
-            function Move (id,x,y)
-                return js.global:Move(id,x,y)
-            end
-            function Attack (GID, targetGID)
-                return js.global:Attack(GID, targetGID)
-            end
-            function GetV (V_, id)
-                p = Split(js.global:GetV(V_, id), ",")
-                if (V_ == V_MOTION or V_ == V_OWNER or V_ == V_HOMUNTYPE or V_ == V_TARGET or V_ == V_ATTACKRANGE) then
+		this.lua = DB.getLua();
+		AIDriver.initFunctions();
+		this.lua.doStringSync(`
+			require("${ai_path}")
+			function GetV (V_, id, MySkill, MySkillLevel) 
+				local result = GetVJS(V_, id, MySkill, MySkillLevel)
+                p = Split(result, ",")
+                if (V_ == V_MOTION or V_ == V_OWNER or V_ == V_HOMUNTYPE or V_ == V_TARGET or V_ == V_ATTACKRANGE or V_ == V_SKILLATTACKRANGE_LEVEL) then
                     return tonumber(p[1])
                 end
                 if (V_ == V_HP or V_ == V_SP or V_ == V_MAXHP or V_ == V_MAXSP) then
                     return tonumber(p[1])
                 end
-                if (V_ == V_POSITION) then
+                if (V_ == V_POSITION or V_ == V_POSITION_APPLY_SKILLATTACKRANGE) then
                     return tonumber(p[1]), tonumber(p[2])
                 end
                 return tonumber(p[1]), tonumber(p[2]), tonumber(p[3]), tonumber(p[4])
             end
-            function GetActors ()
-                actors = js.global:GetActors('${this.type}')
+            function GetActors () 
+                actors = GetActorsJS()
                 res = {}
                 for i,v in ipairs(actors) do
-                    res[i] = tonumber(v)
+					if v ~= nil then
+                    	res[i] = tonumber(v)
+					end
                 end
                 return res
             end
-            function GetTick ()
-                return js.global:GetTick()
-            end
-            function GetMsg (id)
+			function GetMsg (id) 
                 res = {}
-                for i,v in ipairs(Split(js.global:GetMsg('${this.type}', id), ",")) do
+                for i,v in ipairs(Split(GetMsgJS(id), ",")) do
                     res[i] = tonumber(v)
                 end
                 return res
             end
-            function GetResMsg (id)
-                -- print('GetResMsg', id)
-                return {0}
-            end
-            function SkillObject (id,level,skill,target)
-                print('SkillObject', id, level, skill, target)
-            end
-            function SkillGround (id,level,skill,x,y)
-                print('SkillGround', id, level, skill, x, y)
-            end
-            function IsMonster (id)
-                return js.global:IsMonster(id)
-            end
-            function GetState ()
-                return MyState
-            end
-
-            -----------------------------------------
-            function Split(s, delimiter)
+			 function Split(s, delimiter)
                 result = {};
                 for match in (s..delimiter):gmatch("(.-)"..delimiter) do
                     table.insert(result, match);
                 end
                 return result;
             end
-        `;
-		this.exec(code);
+			`);
 	};
 
-	AIDriver.prototype.getState = function getState() {
-		var state = null;
+	var msg = {};
+
+	AIDriver.setmsg = function setmsg(homId, str) {
+		msg[homId] = str;
+	};
+
+	AIDriver.initFunctions = function initFunctions() {
+		const ctx = this.lua.ctx;
+
+		ctx.log = logMessage => {
+			let decoder = new TextDecoder();
+			console.log(typeof logMessage === 'object' && logMessage.buffer ? decoder.decode(logMessage) : logMessage);
+		};
+
+		ctx.MoveToOwner = function MoveToOwner(gid) {
+			var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
+			pkt.GID = gid;
+			Network.sendPacket(pkt);
+		};
+
+		ctx.Move = function Move(id, x, y) {
+			var pkt = new PACKET.CZ.REQUEST_MOVENPC();
+			pkt.GID = id;
+			pkt.dest[0] = x;
+			pkt.dest[1] = y;
+			Network.sendPacket(pkt);
+		};
+
+		ctx.Attack = function Attack(GID, targetGID) {
+			var pkt = new PACKET.CZ.REQUEST_ACTNPC();
+			pkt.GID = GID;
+			pkt.targetGID = targetGID;
+			pkt.action = 0;
+			Network.sendPacket(pkt);
+		};
+
+		ctx.GetV = function (V_, id) {
+			var entity = EntityManager.get(Number(id));
+
+			switch (V_) {
+				case 0: // V_OWNER ok
+					return Session.AID;
+
+				case 1: // V_POSITION ok
+					return entity ? entity.position[0].toFixed(2) + ',' + entity.position[1].toFixed(2) : '-1,-1';
+
+				case 2: // V_TYPE
+					//console.warn("V_TYPE ", id, entity);
+					return 1;
+
+				case 3: // V_MOTION ok
+					return entity ? entity.action : 0;
+
+				case 4: // V_ATTACKRANGE ok
+					return entity ? entity.attack_range : 1;
+
+				case 5: // V_TARGET ok
+					return entity && entity.targetGID && entity.targetGID > 0 ? entity.targetGID : -1;
+
+				case 6: // V_SKILLATTACKRANGE
+					return entity ? entity.attack_range : 1;
+
+				case 7: // V_HOMUNTYPE ok
+					return entity._job % 6000; // 6000 is the base job id for homunculus
+
+				case 8: // V_HP
+					return entity.life.hp || -1;
+
+				case 9: // V_SP
+					return entity.life.sp || -1;
+
+				case 10: // V_MAXHP
+					return entity.life.hp_max || -1;
+
+				case 11: // V_MAXSP
+					return entity.life.sp_max || -1;
+				/*
+				case 12: // V_MERTYPE
+					console.warn('V_MERTYPE ', id, entity);
+					return 1;
+				case 13: // V_POSITION_APPLY_SKILLATTACKRANGE - seems to return best position (x,y) to cast skill
+					//GetV (V_POSITION_APPLY_SKILLATTACKRANGE, MyEnemy, MySkill, MySkillLevel)
+					console.log('V_POSITION_APPLY_SKILLATTACKRANGE', id, skillId, skilLevel);
+					if (skillId && skilLevel) {
+						range = SkillInfo[skillId].AttackRange[skilLevel - 1] + 1 || homun.attack_range || 1;
+						let homun = EntityManager.get(Session.homunId);
+						if (
+							homun?.position[0] > 0 &&
+							homun?.position[1] > 0 &&
+							entity?.position[0] > 0 &&
+							entity?.position[1] > 0
+						) {
+							let distance = Math.sqrt(
+								Math.pow(homun?.position[0] - entity?.position[0], 2) +
+									Math.pow(homun?.position[1] - entity?.position[1], 2)
+							);
+
+							if (range >= distance) {
+								console.log('in range');
+								return homun.position[0].toFixed(2) + ',' + homun.position[1].toFixed(2);
+							}
+						} else {
+							console.log('position not set', homun?.position, entity?.position);
+						}
+						console.log('NOT in range');
+					} else {
+						console.log('NO VALID SKILL');
+					}
+					return entity.position[0].toFixed(2) + ',' + entity.position[1].toFixed(2);
+				case 14: // V_SKILLATTACKRANGE_LEVEL
+					console.log('V_SKILLATTACKRANGE_LEVEL', id, skillId, skilLevel);
+					range = SkillInfo[id].AttackRange[skilLevel - 1] + 1 || homun.attack_range || 1;
+					return range;
+				*/
+				default:
+					console.error('unknown V_ ', V_, entity);
+					return 0;
+			}
+		};
+
+		ctx.GetActors = function () {
+			AIDriver.exec('status = MyState');
+			var res = [0];
+			EntityManager.forEach(item => {
+				res.push(item.GID);
+			});
+
+			// aggressive logic
+			if (res.length > 3) {
+				if (localStorage.getItem('AGGRESSIVE') == 1) {
+					res.forEach(item => {
+						if (item != 0 && item != Session.AID && item != Session.homunId) {
+							var entity = EntityManager.get(Number(item));
+							if (
+								entity &&
+								(entity.objecttype === Entity.TYPE_MOB ||
+									entity.objecttype === Entity.TYPE_NPC_ABR ||
+									entity.objecttype === Entity.TYPE_NPC_BIONIC)
+							) {
+								if (ctx.status == 0) {
+									//idle = 0
+									// attak
+									AIDriver.setmsg(Session.homunId, '3,' + item);
+								}
+							}
+						}
+					});
+				} else {
+					AIDriver.setmsg(Session.homunId, ctx.status.toString());
+				}
+			}
+			return res;
+		};
+
+		ctx.GetTick = function GetTick() {
+			return Renderer.tick;
+		};
+
+		ctx.GetMsg = function GetMsgJS(id) {
+			if (id in msg) {
+				let res = msg[id];
+				delete msg[id];
+				return res;
+			}
+			return '';
+		};
+
+		ctx.GetResMsg = function GetResMsg(id) {
+			//console.log('GetResMsg', id);
+			return '';
+		};
+
+		ctx.SkillObject = function SkillObject(homunId, level, skillId, targetID) {
+			console.log('SkillObject', homunId, level, skillId, targetID);
+			// check if is our homunculus
+			if (homunId === Session.homunId) {
+				let homun = EntityManager.get(Number(homunId));
+				let target = EntityManager.get(Number(targetID));
+				// check range
+				let range = SkillInfo[skillId].AttackRange[level - 1] + 1 || homun.attack_range || 1;
+
+				if (
+					homun?.position[0] > 0 &&
+					homun?.position[1] > 0 &&
+					target?.position[0] > 0 &&
+					target?.position[1] > 0
+				) {
+					let distance = Math.sqrt(
+						Math.pow(homun?.position[0] - target?.position[0], 2) +
+							Math.pow(homun?.position[1] - target?.position[1], 2)
+					);
+					console.log('SkillObject - RANGE AND DISTANCE', range, distance);
+					if (range >= distance) {
+						// check if homun is in a valid state to cast skill
+						if (homun && [0, 1, 4].includes(homun.action)) {
+							let pkt;
+							if (PACKETVER.value >= 20180307) {
+								pkt = new PACKET.CZ.USE_SKILL2();
+							} else {
+								pkt = new PACKET.CZ.USE_SKILL();
+							}
+							pkt.SKID = skillId;
+							pkt.selectedLevel = level;
+							pkt.targetID = targetID || Session.Entity.GID;
+							Network.sendPacket(pkt);
+						}
+					} else {
+						console.log('SkillObject - NOT IN RANGE', homunId, level, skillId, targetID);
+					}
+				} else {
+					console.log('SkillObject - SOME POSITION NOT VALID', homunId, level, skillId, targetID);
+				}
+			}
+
+			return 0;
+		};
+
+		ctx.SkillGround = function (homunId, level, skillId, x, y) {
+			console.log('SkillGround', homunId, level, skillId, x, y);
+			// check if is our homunculus
+			if (homunId === Session.homunId) {
+				// check if homun is in a valid state to cast skill
+				let homun = EntityManager.get(Number(homunId));
+				if (homun && [0, 1, 4].includes(homun.action)) {
+					let pkt;
+					if (PACKETVER.value >= 20190904) {
+						pkt = new PACKET.CZ.USE_SKILL_TOGROUND3();
+					} else if (PACKETVER.value >= 20180307) {
+						pkt = new PACKET.CZ.USE_SKILL_TOGROUND2();
+					} else {
+						pkt = new PACKET.CZ.USE_SKILL_TOGROUND();
+					}
+					pkt.SKID = skillId;
+					pkt.selectedLevel = level;
+					pkt.xPos = x;
+					pkt.yPos = y;
+				}
+			}
+
+			return 0;
+		};
+
+		ctx.IsMonster = function IsMonster(id) {
+			console.log('isMonster: ', id);
+			if (id < 1 || typeof id !== 'number') {
+				return 0;
+			}
+			if ((id >= 1001 && id <= 3999) || id >= 20000) {
+				return 1;
+			}
+			return 0;
+		};
+
+		ctx.TraceAI = function TraceAI(str) {
+			let decoder = new TextDecoder();
+			console.log('TraceAI - ', typeof str === 'object' && str.buffer ? decoder.decode(str) : str);
+		};
+
+		ctx.status = null;
+	};
+
+	AIDriver.exec = function exec(code) {
 		try {
-			var fn = fengari.load('return GetState()');
-			state = fn();
+			//console.log('exec', code);
+			this.lua.doStringSync(code);
 		} catch (e) {
-			var config = this.getConfig();
-			console.error(`%c[${config.logPrefix}] %cFailed to get AI state: `, 'color:#DD0078', 'color:inherit', e);
-		}
-		return state;
-	};
-
-	AIDriver.prototype.setmsg = function setmsg(id, str) {
-		this.msg[id] = str;
-	};
-
-	AIDriver.prototype.exec = function exec(code) {
-		var config = this.getConfig();
-		try {
-			fengari.load(code)();
-		} catch (e) {
-			console.error(`%c[${config.logPrefix}] %cAI Error: `, 'color:#DD0078', 'color:inherit', e);
+			console.error('%c[AI] %cAI Error: ', 'color:#DD0078', 'color:inherit', e);
 		}
 	};
 
-	AIDriver.prototype.reset = function reset() {
+	AIDriver.reset = function reset() {
 		this.init();
 	};
 
-	// Create singleton instances for homunculus and mercenary
-	var homAI = new AIDriver('homunculus');
-	var merAI = new AIDriver('mercenary');
-
-	// Setup global functions that need to be shared between both AIs
-	window.GetMsg = function GetMsg(type, id) {
-		var ai = type === 'homunculus' ? homAI : merAI;
-		if (id in ai.msg) {
-			let res = ai.msg[id];
-			delete ai.msg[id];
-			return res;
-		}
-		return '';
-	};
-
-	window.IsMonster = function IsMonster(id) {
-		if (id < 1 || typeof id !== 'number') {
-			return 0;
-		}
-
-		var entity = EntityManager.get(Number(id));
-
-		if (
-			entity.objecttype === entity.TYPE_MOB ||
-			entity.objecttype === entity.TYPE_NPC_ABR ||
-			entity.objecttype === entity.TYPE_NPC_BIONIC
-		) {
-			return 1;
-		}
-		return 0;
-	};
-
-	window.TraceAI = function TraceAI(str) {
-		if (Configs.get('debugAI', false)) {
-			console.warn('TraceAI', str);
-		}
-	};
-
-	window.GetTick = function GetTick() {
-		return Renderer.tick;
-	};
-
-	window.Move = function Move(id, x, y) {
-		var pkt = new PACKET.CZ.REQUEST_MOVENPC();
-		pkt.GID = id;
-		pkt.dest[0] = x;
-		pkt.dest[1] = y;
-		Network.sendPacket(pkt);
-	};
-
-	window.Attack = function Attack(GID, targetGID) {
-		var pkt = new PACKET.CZ.REQUEST_ACTNPC();
-		pkt.GID = GID;
-		pkt.targetGID = targetGID;
-		pkt.action = 0;
-		Network.sendPacket(pkt);
-	};
-
-	window.MoveToOwner = function MoveToOwner(gid) {
-		var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
-		pkt.GID = gid;
-		Network.sendPacket(pkt);
-	};
-
-	window.GetActors = function GetActors(type) {
-		var ai = type === 'homunculus' ? homAI : merAI;
-		var config = ai.getConfig();
-
-		// Execute AI state check
-		ai.status = ai.getState();
-
-		var res = [0];
-		EntityManager.forEach(item => {
-			res.push(item.GID);
-		});
-
-		// Aggressive logic
-		if (res.length > 3) {
-			if (localStorage.getItem(config.aggressiveKey) == 1) {
-				res.forEach(item => {
-					if (item != 0 && item != Session.AID && item != config.id) {
-						var entity = EntityManager.get(Number(item));
-						if (
-							entity &&
-							(entity.objecttype === Entity.TYPE_MOB ||
-								entity.objecttype === Entity.TYPE_NPC_ABR ||
-								entity.objecttype === Entity.TYPE_NPC_BIONIC)
-						) {
-							if (ai.status == 0) {
-								//idle = 0
-								// attack
-								ai.setmsg(config.id, '3,' + item);
-							}
-						}
-					}
-				});
-			} else {
-				ai.setmsg(config.id, ai.status);
-			}
-		}
-		return res;
-	};
-
-	window.GetV = function GetV(V_, id) {
-		var entity = EntityManager.get(Number(id));
-
-		switch (V_) {
-			case 0: // V_OWNER ok
-				return Session.AID;
-
-			case 1: // V_POSITION ok
-				// console.warn('V_POSITION', id, entity)
-				if (entity !== null) {
-					return entity.position[0] + ',' + entity.position[1];
-				}
-				return '-1,-1';
-
-			case 2: // V_TYPE
-				console.warn('V_TYPE ', id, entity);
-				return 0;
-
-			case 3: // V_MOTION ok
-				if (id < 1000) {
-					var avtors = window.GetActors();
-					return EntityManager.get(Number(avtors[id])).action;
-				}
-				if (entity === null) {
-					return 0;
-				}
-				return entity.action;
-
-			case 4: // V_ATTACKRANGE ok
-				// Returns the attack range (Not implemented yet; temporarily set as 1 cell)
-				if (entity !== null) {
-					return entity.attack_range || 1;
-				}
-				return 1;
-
-			case 5: // V_TARGET ok
-				if (entity === null || id < 1 || typeof id !== 'number') {
-					return 0;
-				}
-				return entity.targetGID;
-
-			case 6: // V_SKILLATTACKRANGE
-				// Returns the skill attack range (Not implemented yet)
-				if (entity !== null) {
-					return entity.attack_range || 1;
-				}
-				return 1;
-
-			case 7: // V_HOMUNTYPE ok
-				if (entity === null) {
-					return 0;
-				}
-				return Number((entity._job + '').substring(1));
-
-			case 8: // V_HP
-				return entity.life.hp;
-
-			case 9: // V_SP
-				return entity.life.sp;
-
-			case 10: // V_MAXHP
-				return entity.life.hp_max;
-
-			case 11: // V_MAXSP
-				return entity.life.sp_max;
-
-			case 12: // V_MERTYPE
-				if (entity === null) {
-					return 0;
-				}
-				return Number((entity._job + '').substring(1));
-
-			case 13: // V_POSITION_APPLY_SKILLATTACKRANGE
-				if (entity !== null) {
-					return entity.position[0] + ',' + entity.position[1];
-				}
-				return '-1,-1';
-
-			case 14: // V_SKILLATTACKRANGE_LEVEL
-				// Returns the skill attack range for the skill level (Not implemented yet)
-				if (entity !== null) {
-					return entity.attack_range || 1;
-				}
-				return 1;
-
-			default:
-				console.error('unknown V_ ', V_, entity);
-				return 0;
-		}
-	};
-
-	return {
-		homunculus: homAI,
-		mercenary: merAI
-	};
+	return AIDriver;
 });
+

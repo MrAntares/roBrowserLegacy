@@ -50,6 +50,9 @@ define(function (require) {
 		1.0
 	);
 
+	HomunInformations.base_exp = 0;
+	HomunInformations.base_exp_next = 1;
+
 	/**
 	 * Initialize component
 	 */
@@ -244,6 +247,9 @@ define(function (require) {
 		this.setHpSpBar('hp', info.hp, info.maxHP);
 		this.setHpSpBar('sp', info.sp, info.maxSP);
 
+		HomunInformations.base_exp = info.exp;
+		HomunInformations.base_exp_next = info.maxEXP;
+
 		this.setExp(info.exp, info.maxEXP);
 		this.setHunger(info.nFullness);
 		this.setIntimacy(info.nRelationship);
@@ -390,7 +396,7 @@ define(function (require) {
 
 	HomunInformations.startAI = function startAI() {
 		if (!this.AILoop) {
-			AIDriver.homunculus.reset();
+			//AIDriver.homunculus.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.homunId) {
 					var entity = EntityManager.get(Session.homunId);
