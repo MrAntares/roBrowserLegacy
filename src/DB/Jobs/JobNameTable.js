@@ -213,6 +213,15 @@ define(['./JobConst'], function (JobId) {
 	JobNameTable[JobId.TROUBADOUR_RIDING] = 'troubadour_riding';
 	JobNameTable[JobId.TROUVERE_RIDING] = 'trouvere_riding';
 
+	JobNameTable[JobId.DRUID] = "druid";
+	JobNameTable[JobId.ALITEA] = "alitea";
+	JobNameTable[JobId.KARNOS] = "karnos";
+	JobNameTable[JobId.DRUID_RIDING] = "druid_riding";
+	JobNameTable[JobId.ALITEA_RIDING] = "alitea_riding";
+	JobNameTable[JobId.KARNOS_RIDING] = "karnos_riding";
+	JobNameTable[JobId.WEREWOLF] = "werewolf";
+	JobNameTable[JobId.WERERAPTOR] = "wereraptor";
+
 	function duplicateEntry(origin) {
 		var value = JobNameTable[origin];
 		var i,

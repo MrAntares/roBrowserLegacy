@@ -3207,7 +3207,8 @@ define(function (require) {
 							jobId < JobId.KNIGHT ||
 							jobId === JobId.TAEKWON ||
 							(jobId >= JobId.SUPERNOVICE && jobId <= JobId.NINJA) ||
-							jobId == JobId.DO_SUMMONER
+							jobId == JobId.DO_SUMMONER ||
+							jobId == JobId.DRUID
 						) {
 							list = 1;
 						} else if (
@@ -3216,7 +3217,8 @@ define(function (require) {
 							jobId == JobId.LINKER ||
 							(jobId >= JobId.KAGEROU && jobId <= JobId.REBELLION) ||
 							jobId == JobId.SUPERNOVICE2 ||
-							jobId == JobId.SPIRIT_HANDLER
+							jobId == JobId.SPIRIT_HANDLER ||
+							jobId == JobId.KARNOS
 						) {
 							list = 2;
 						} else if (
@@ -3240,7 +3242,8 @@ define(function (require) {
 							jobId == JobId.SOUL_REAPER ||
 							(jobId >= JobId.RUNE_KNIGHT_B && jobId <= JobId.SHADOW_CHASER_B) ||
 							jobId === JobId.EMPEROR_B ||
-							jobId === JobId.REAPER_B
+							jobId === JobId.REAPER_B ||
+							jobId == JobId.ALITEA
 						) {
 							list = 3;
 						} else if (
@@ -4085,7 +4088,7 @@ define(function (require) {
 	};
 
 	DB.isPlayer = function isPlayer(jobid) {
-		return (jobid >= 0 && jobid < 45) || (jobid >= 4001 && jobid <= 4350) || jobid == 4294967294;
+		return (jobid >= 0 && jobid < 45) || (jobid >= 4001 && jobid <= 4361) || jobid == 4294967294;
 	};
 
 	DB.isDoram = function isDoram(jobid) {
