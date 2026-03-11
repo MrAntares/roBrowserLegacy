@@ -401,19 +401,38 @@ define(function (require) {
 				loadTitleTable(DB.LUA_PATH + 'datainfo/titletable.lub', null, onLoad());
 			}
 
-			// Skill
-			loadLuaTable(
-				[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
-				'SKILL_DESCRIPT',
+			// Skill - load skillid.lub to populate SKID, then load description
+			loadLuaValue(
+				DB.LUA_PATH + 'skillinfoz/skillid.lub',
+				'SKID',
 				function (json) {
-					SkillDescription = json;
+					if (json && typeof json === 'object') {
+						// Validate and merge entries into SKID
+						for (const k in json) {
+							if (Object.prototype.hasOwnProperty.call(json, k)) {
+								const value = json[k];
+								if (typeof value === 'number' && value > 0) {
+									SKID[k] = value;
+								}
+							}
+						}
+					}
+					// Load description - skillid.lub is re-executed harmlessly (Lua just repopulates globals)
+					loadLuaTable(
+						[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
+						'SKILL_DESCRIPT',
+						function (json) {
+							SkillDescription = json;
+						},
+						function () {
+							// Calls after skillids and descs been populated
+							loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
+								loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, onLoad());
+							});
+						}
+					);
 				},
-				function () {
-					// Calls after skillids and descs been populated
-					loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
-						loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, onLoad());
-					});
-				}
+				function () { } // onLoad() is called at the end of loadSkillTreeView
 			);
 
 			// Status
@@ -3353,23 +3372,18 @@ define(function (require) {
 			try {
 				const ctx = lua.ctx;
 
-				ctx.SetStatusConstants = sourceTable => {
-					if (typeof sourceTable === 'object' && sourceTable !== null) {
-						// Populate SC with constants from the Lua table (e.g., EFST_PROVOKE -> SC.PROVOKE)
-						for (const key in sourceTable) {
-							if (key.startsWith('EFST_')) {
-								const jsKey = key.replace('EFST_', '');
-								SC[jsKey] = sourceTable[key];
-							}
-						}
-						// Add BLANK back if it was cleared and not defined in LUB
-						if (!SC.BLANK) {
-							SC.BLANK = -1;
-						}
-					} else {
-						console.error(
-							'[loadStateIconInfo]: EFST_IDs table not received from Lua. Cannot synchronize StatusConst.'
-						);
+				ctx.mergeSC = (key, value) => {
+					// Keys might be passed as Uint8Array from Lua by Wasmoon
+					let safeKey = typeof key === 'string' ? key : (key instanceof Uint8Array ? userStringDecoder.decode(key) : key);
+
+					if (typeof safeKey === 'string' && typeof value === 'number' && value >= 0 && safeKey.startsWith('EFST_')) {
+						const jsKey = safeKey.replace('EFST_', '');
+						SC[jsKey] = value;
+					}
+
+					// Add BLANK back if it was cleared and not defined in LUB
+					if (!SC.BLANK) {
+						SC.BLANK = -1;
 					}
 					return 1;
 				};
@@ -3434,7 +3448,20 @@ define(function (require) {
 					function extract_status_info()
 						-- Sync StatusConst (SC) with the full list of EFST_IDs from the original table
 						if type(__EFST_IDS_ORIGINAL) == "table" then
-							SetStatusConstants(__EFST_IDS_ORIGINAL)
+							for k, v in pairs(__EFST_IDS_ORIGINAL) do
+								if type(k) == "string" and type(v) == "number" then
+									mergeSC(k, v)
+								end
+							end
+							
+							local mt = getmetatable(__EFST_IDS_ORIGINAL)
+							if mt and type(mt.__index) == "table" then
+								for k, v in pairs(mt.__index) do
+									if type(k) == "string" and type(v) == "number" then
+										mergeSC(k, v)
+									end
+								end
+							end
 						end
 
 						-- Process Basic Info & Descriptions
