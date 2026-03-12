@@ -436,7 +436,7 @@ define(function (require) {
 	AIDriver.initAI = async function prepareAIFiles(onEnd) {
 		var loadedFiles = {};
 		var loadPromises = [];
-
+		this.ready = false;
 		function preloadFiles(fileList, lua) {
 			var ctx = lua.ctx;
 
@@ -569,49 +569,55 @@ define(function (require) {
 		}
 
 		async function doFiles(fileList, lua) {
-			try {
-				await Promise.all(loadPromises);
-				for (const key in fileList) {
-					await lua.doFileSync(fileList[key]);
-				}
-			} catch (error) {
-				console.error('Error loading AI files:', error);
+			await Promise.all(loadPromises);
+			for (const key in fileList) {
+				await lua.doFileSync(fileList[key]);
 			}
 		}
 
-		this.HO_AI = DB.getHOAI_VM();
-		this.MER_AI = DB.getMERAI_VM();
-		this.default_HO_AI = DB.getDefaultHOAI_VM();
-		this.default_MER_AI = DB.getDefaultMERAI_VM();
-		AIDriver.addCTX();
+		try {
+			this.HO_AI = DB.getHOAI_VM();
+			this.MER_AI = DB.getMERAI_VM();
+			this.default_HO_AI = DB.getDefaultHOAI_VM();
+			this.default_MER_AI = DB.getDefaultMERAI_VM();
+			AIDriver.addCTX();
 
-		console.log('Loading Default HOAI...');
-		let files = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI.lua'];
-		var AI_M = 'AI/AI_M.lua';
-		preloadFiles(files, this.default_HO_AI);
-		await doFiles(files, this.default_HO_AI);
+			console.log('Loading Default HOAI...');
+			let files = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI.lua'];
+			var AI_M = 'AI/AI_M.lua';
+			preloadFiles(files, this.default_HO_AI);
+			await doFiles(files, this.default_HO_AI);
 
-		console.log('Loading Default MERAI...');
-		loadedFiles = {};
-		loadPromises = [];
-		files.pop();
-		files.push(AI_M);
-		preloadFiles(files, this.default_MER_AI);
-		await doFiles(files, this.default_MER_AI);
+			console.log('Loading Default MERAI...');
+			loadedFiles = {};
+			loadPromises = [];
+			files.pop();
+			files.push(AI_M);
+			preloadFiles(files, this.default_MER_AI);
+			await doFiles(files, this.default_MER_AI);
 
-		files = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
-		AI_M = 'AI/USER_AI/AI_M.lua';
-		console.log('Loading Custom HOAI...');
-		preloadFiles(files, this.HO_AI);
-		await doFiles(files, this.HO_AI);
+			files = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
+			AI_M = 'AI/USER_AI/AI_M.lua';
+			console.log('Loading Custom HOAI...');
+			preloadFiles(files, this.HO_AI);
+			await doFiles(files, this.HO_AI);
 
-		console.log('Loading Custom MERAI...');
-		loadedFiles = {};
-		loadPromises = [];
-		files.pop();
-		files.push(AI_M);
-		preloadFiles(files, this.MER_AI);
-		await doFiles(files, this.MER_AI);
+			console.log('Loading Custom MERAI...');
+			loadedFiles = {};
+			loadPromises = [];
+			files.pop();
+			files.push(AI_M);
+			preloadFiles(files, this.MER_AI);
+			await doFiles(files, this.MER_AI);
+		} catch (error) {
+			console.error('Error loading AI files:', error);
+			if (typeof onEnd === 'function') {
+				onEnd();
+			}
+			return;
+		}
+
+		this.ready = true;
 
 		if (typeof onEnd === 'function') {
 			onEnd();
@@ -621,6 +627,10 @@ define(function (require) {
 	AIDriver.exec = function exec(code, homunculus = true) {
 		try {
 			//console.log('exec', code);
+			if (!this.ready) {
+				return;
+			}
+
 			var lua;
 			if (homunculus) {
 				if (Session.homCustomAI) {
@@ -641,9 +651,7 @@ define(function (require) {
 		}
 	};
 
-	AIDriver.reset = function reset() {
-		//this.init();
-	};
+	AIDriver.reset = function reset() {};
 
 	return AIDriver;
 });
