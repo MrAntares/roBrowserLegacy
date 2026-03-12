@@ -2563,12 +2563,12 @@ define(function()
 			case 0xf0: // 240 - UTF-8
 			case 0xf1: // 241 - UTF-16LE
 			case 0xf2: // 242 - UTF-16BE
-				console.warn('%c[Warning] You are using a ' + langType + ' langtype with ' + result + ' encoding, \n ( Only use them if you know what you are doing ;] ).\n If you have some charset ' +
+				console.warn('%c[Warning] You are using a ' + langType + ' langtype with custom ' + result + ' encoding, \n ( Only use them if you know what you are doing ;] ).\nIf you have some charset ' +
 				             'problem set ROConfig.servers[<index>].disableKorean to true or use a proper langtype !',
 				             'font-weight:bold; color:red; font-size:14px');
 				break;	
 				default: 
-				console.warn('%c[Warning] You are using a ' + langType + ' langtype. \n If you have some charset ' +
+				console.warn('%c[Warning] You are using a ' + langType + ' langtype. \nIf you have some charset ' +
 				             'problem set ROConfig.servers[<index>].disableKorean to true or use a proper langtype !',
 				             'font-weight:bold; color:red; font-size:14px');
 				break;			
