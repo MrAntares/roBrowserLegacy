@@ -494,13 +494,6 @@ define(['Core/Preferences', 'Controls/KeyEventHandler'], function (Preferences, 
 		cmd: 'EXECUTE_FLAG_9'
 	};
 
-	ShortCuts.HomunStatus = {
-		init: { key: KEYS.R, alt: true, ctrl: false, shift: false },
-		cust: false,
-		component: 'HomunInformations',
-		cmd: 'TOGGLE'
-	};
-
 	var ShortCutControls = { ShortCuts: ShortCuts };
 
 	return Preferences.get('ShortCutControls', ShortCutControls, 1.2);
