@@ -476,10 +476,10 @@ define(function (require) {
 				Session.homCustomAI = !Session.homCustomAI;
 				if (Session.homCustomAI) {
 					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
-					this.addText(DB.getMessage(1023), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+					this.addText(DB.getMessage(1024), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				} else {
 					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
-					this.addText(DB.getMessage(1024), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+					this.addText(DB.getMessage(1023), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				}
 				return;
 			}
@@ -490,11 +490,11 @@ define(function (require) {
 			callback: function () {
 				Session.merCustomAI = !Session.merCustomAI;
 				if (Session.merCustomAI) {
+					this.addText(DB.getMessage(1274), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 					getModule('UI/Components/MercenaryInformations/MercenaryInformations').resetAI();
-					this.addText(DB.getMessage(1273), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				} else {
 					getModule('UI/Components/MercenaryInformations/MercenaryInformations').resetAI();
-					this.addText(DB.getMessage(1274), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+					this.addText(DB.getMessage(1273), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				}
 				return;
 			}
