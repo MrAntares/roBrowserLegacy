@@ -2456,15 +2456,6 @@ define(function()
 		/// - http://siriuswhite.de/rodoc/codepage.html
 		switch (langType) {
 			case 0x00: // SERVICETYPE_KOREA
-				if (disableKorean) {
-					result = 'windows-1250';
-					break;
-				}
-
-				console.warn('%c[Warning] You are using a Korean langtype. If you have some charset ' +
-				             'problem set ROConfig.servers[<index>].disableKorean to true or use a proper langtype !',
-				             'font-weight:bold; color:red; font-size:14px');
-
 				result = 'windows-949';
 				break;
 
@@ -2561,7 +2552,34 @@ define(function()
 				result = 'windows-1252';
 				break;
 		}
-		
+
+		if(result !== 'windows-1252') {
+			switch (langType) {
+			case 0xa0: // 160 - Central European
+			case 0xa1: // 161 - Greek
+			case 0xa2: // 162 - Tukish
+			case 0xa3: // 163 - Hebrew
+			case 0xa4: // 164 - Estonian, Latvian, Lithuaninan
+			case 0xf0: // 240 - UTF-8
+			case 0xf1: // 241 - UTF-16LE
+			case 0xf2: // 242 - UTF-16BE
+				console.warn('%c[Warning] You are using a ' + langType + ' langtype with ' + result + ' encoding, \n ( Only use them if you know what you are doing ;] ).\n If you have some charset ' +
+				             'problem set ROConfig.servers[<index>].disableKorean to true or use a proper langtype !',
+				             'font-weight:bold; color:red; font-size:14px');
+				break;	
+				default: 
+				console.warn('%c[Warning] You are using a ' + langType + ' langtype. \n If you have some charset ' +
+				             'problem set ROConfig.servers[<index>].disableKorean to true or use a proper langtype !',
+				             'font-weight:bold; color:red; font-size:14px');
+				break;			
+			}
+
+		}
+
+		if (disableKorean) {
+			result = 'windows-1252';
+		}
+
 		return result;
 	}
 
