@@ -200,7 +200,14 @@ define(function (require) {
 	SkillList.setSkills = function setSkills(skills) {
 		SkillList.ui.find('.upgradable').removeClass('upgradable');
 
-		skillPosition = getSkillPosition(Session.Character.job);
+		// Use original job for skill access if the character is transformed
+		var skillJobId = Session.Character.job;
+		var originalJobId = Session.Entity._job;
+		if (originalJobId && originalJobId !== Session.Character.job) {
+			skillJobId = originalJobId;
+		}
+
+		skillPosition = getSkillPosition(skillJobId);
 		createSkillDependencyTree();
 
 		var i, count;

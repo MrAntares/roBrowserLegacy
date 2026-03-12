@@ -83,6 +83,10 @@ define(['./JobConst'], function (JobId) {
 	AllMountTable[JobId.TROUBADOUR] = JobId.TROUBADOUR_RIDING;
 	AllMountTable[JobId.TROUVERE] = JobId.TROUVERE_RIDING;
 
+	AllMountTable[JobId.DRUID] = JobId.DRUID_RIDING;
+	AllMountTable[JobId.ALITEA] = JobId.ALITEA_RIDING;
+	AllMountTable[JobId.KARNOS] = JobId.KARNOS_RIDING;
+
 	//REBIRTH
 	AllMountTable[JobId.NOVICE_H] = JobId.PORING_NOVICE_H;
 

@@ -221,7 +221,38 @@ define(function (require) {
 
 		this.isAdmin = Session.AdminList.indexOf(unit.GID) > -1;
 		this.sex = unit.hasOwnProperty('sex') ? unit.sex : this._sex;
-		this.job = unit.hasOwnProperty('job') ? unit.job : this._job;
+		
+		// Apply any pending transformations that arrived before entity spawned
+		// We must do this BEFORE setting the job, so UpdateBody knows if it's a transform.
+		var pendingTrans = require('Renderer/EntityManager').pendingTransformations;
+		if (unit.GID && pendingTrans && unit.GID in pendingTrans) {
+			var pending = pendingTrans[unit.GID];
+			if (pending.monster_transform !== undefined) {
+				this._monster_transform = pending.monster_transform;
+			}
+			if (pending.active_monster_transform !== undefined) {
+				this._active_monster_transform = pending.active_monster_transform;
+			}
+			if (pending.job_transform !== undefined) {
+				this._job_transform = pending.job_transform;
+			}
+			delete pendingTrans[unit.GID];
+		}
+
+		// Don't override job if transformation is active
+		if (unit.hasOwnProperty('job')) {
+			if (this._active_monster_transform || this._monster_transform || this._job_transform) {
+				// Transformation active - store base job but don't trigger UpdateBody yet
+				this._job = unit.job;
+				// Update effective job manually and force a redraw
+				this.job = this._effectiveJob; 
+			} else {
+				// No transformation - apply job normally (triggers UpdateBody)
+				this.job = unit.job;
+			}
+		} else {
+			this.job = this._job;
+		}
 		this.clothes = 0;
 		keys = Object.keys(unit);
 		count = keys.length;
