@@ -8,8 +8,10 @@ define(function (require) {
 	var PACKETVER = require('Network/PacketVerManager');
 	var SkillInfo = require('DB/Skills/SkillInfo');
 	var EntityManager = require('Renderer/EntityManager');
-	var Renderer = require('Renderer/Renderer');
 	var Client = require('./Client');
+	var Configs = require('./Configs');
+
+	var getModule = require;
 
 	function AIDriver() {}
 
@@ -18,67 +20,88 @@ define(function (require) {
 	AIDriver.init = async function init() {};
 
 	var msg = {};
+	var resMsg = {};
 
 	AIDriver.setmsg = function setmsg(homId, str) {
-		msg[homId] = str;
+		if (!msg[homId]) {
+			msg[homId] = str;
+		} else {
+			resMsg[homId] = str;
+		}
 	};
 
 	AIDriver.addCTX = function addAIctx() {
 		const scriptStartTime = Date.now();
-		function addCTX(lua, homunculus = true) {
+
+		// Prevents circular dependancy
+		var Homun = getModule('UI/Components/HomunInformations/HomunInformations');
+		var Mercenary = getModule('UI/Components/MercenaryInformations/MercenaryInformations');
+
+		function addCTX(lua, isHoAI = true) {
 			var ctx = lua.ctx;
-			// Initialize AI variables
+
+			// Initialize AzzyAI timeouts variables and GetV adapter
 			lua.doStringSync(`
-			UseSacrificeOwner=0
-			BerserkMode=0
-			SteinWandPauseTime=0
-			MagTimeout=0
-			SOffensiveTimeout=0
-			SDefensiveTimeout=0
-			SOwnerBuffTimeout=0
-			GuardTimeout=0
-			QuickenTimeout=0
-			OffensiveOwnerTimeout=0
-			DefensiveOwnerTimeout=0
-			OtherOwnerTimeout=0
-			ShouldStandby=0
-			MySpheres=0
-			EleanorMode=0
-			RegenTick = {}
+				UseSacrificeOwner=0
+				BerserkMode=0
+				SteinWandPauseTime=0
+				MagTimeout=0
+				SOffensiveTimeout=0
+				SDefensiveTimeout=0
+				SOwnerBuffTimeout=0
+				GuardTimeout=0
+				QuickenTimeout=0
+				OffensiveOwnerTimeout=0
+				DefensiveOwnerTimeout=0
+				OtherOwnerTimeout=0
+				ShouldStandby=0
+				MySpheres=0
+				EleanorMode=0
+				RegenTick = {}
 
-			function GetV(V_, id)
-				local t = GetVJS(V_, id)
-				if(V_ == 1 or V_ == 13) then
-					return t[1], t[2]
-				end
-				return t
-			end`);
+				function GetV(V_, id)
+					local res = GetVJS(V_, id)
+					if(V_ == 1 or V_ == 13) then
+						return res[1], res[2]
+					end
+					return res
+				end	
+			`);
 
+			// Hooks default lua logging
 			ctx.log = logMessage => {
-				let decoder = new TextDecoder();
-				//console.log(typeof logMessage === 'object' && logMessage.buffer ? decoder.decode(logMessage) : logMessage);
+				if (Configs.get('debugAI', false)) {
+					let decoder = new TextDecoder();
+					console.log(
+						typeof logMessage === 'object' && logMessage.buffer ? decoder.decode(logMessage) : logMessage
+					);
+				}
 			};
 
-			ctx.MoveToOwner = function MoveToOwner(gid) {
-				var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
-				pkt.GID = gid;
-				Network.sendPacket(pkt);
+			// AI context functions mentioned on (AI/호문클루스 인공지능 스크립트 설명서.htm)
+
+			ctx.MoveToOwner = function MoveToOwner(id) {
+				if (isHoAI) {
+					Homun.reqMoveToOwner(id);
+				} else {
+					Mercenary.reqMoveToOwner(id);
+				}
 			};
 
 			ctx.Move = function Move(id, x, y) {
-				var pkt = new PACKET.CZ.REQUEST_MOVENPC();
-				pkt.GID = id;
-				pkt.dest[0] = x;
-				pkt.dest[1] = y;
-				Network.sendPacket(pkt);
+				if (isHoAI) {
+					Homun.reqMoveTo(id, x, y);
+				} else {
+					Mercenary.reqMoveTo(id, x, y);
+				}
 			};
 
-			ctx.Attack = function Attack(GID, targetGID) {
-				var pkt = new PACKET.CZ.REQUEST_ACTNPC();
-				pkt.GID = GID;
-				pkt.targetGID = targetGID;
-				pkt.action = 0;
-				Network.sendPacket(pkt);
+			ctx.Attack = function Attack(id, targetGID) {
+				if (isHoAI) {
+					Homun.reqAttack(id, targetGID);
+				} else {
+					Mercenary.reqAttack(id, targetGID);
+				}
 			};
 
 			ctx.GetVJS = function (V_, id) {
@@ -96,6 +119,42 @@ define(function (require) {
 							posX = parseInt(entity.position[0]);
 							posY = parseInt(entity.position[1]);
 						}
+						// For position values we return an array in the format [V_, posX, posY].
+						//
+						// This is intentional. When Wasmoon converts a JS array to a Lua table it
+						// preserves the original JS indexing (0-based), resulting in:
+						//
+						//   t[0] = V_
+						//   t[1] = posX
+						//   t[2] = posY
+						//
+						// In Lua, arrays are typically 1-based, so using index 0 would normally feel
+						// unusual. We take advantage of this by storing V_ at index 0 and shifting the
+						// actual coordinates to indices 1 and 2.
+						//
+						// The Lua wrapper (GetV) then extracts the coordinates with:
+						//
+						//   return t[1], t[2]
+						//
+						// This keeps the AI scripts compatible with the original Ragnarok AI,
+						// which expects:
+						//
+						//   local x, y = GetV(V_POSITION, id)
+						//
+						// without exposing the internal 0-based index to the Lua scripts.
+						//
+						// This workaround was also necessary because returning a TypedArray or a
+						// simple JS array directly did not behave correctly with the AI scripts.
+						// Lua would receive the array object itself as the first return value:
+						//
+						//   local x, y = GetV(...)
+						//
+						// resulting in:
+						//   x = <array object>
+						//   y = nil
+						//
+						// By returning [V_, posX, posY] and extracting the values in Lua, we ensure
+						// the AI receives two proper numeric return values (x, y).
 						return [V_, posX, posY];
 					case 2: // V_TYPE
 						//UNUSED
@@ -134,46 +193,77 @@ define(function (require) {
 						return Number((entity.job + '').substring(1));
 					case 14: // V_SKILLATTACKRANGE_LEVEL
 						// Returns the skill attack range for the skill level (Not implemented yet)
+						if (Configs.get('debugAI', false)) {
+							console.log('V_SKILLATTACKRANGE_LEVEL' + id);
+						}
 						if (entity !== null) {
 							return entity.attack_range || 1;
 						}
 						return 1;
 					default:
-						console.error('unknown V_ ', V_, entity);
+						if (Configs.get('debugAI', false)) {
+							console.error('unknown V_ ', V_, entity);
+						}
 						return 0;
 				}
 			};
 
+			function distance(x1, y1, x2, y2) {
+				const dx = x2 - x1;
+				const dy = y2 - y1;
+				return dx * dx + dy * dy;
+			}
+
 			ctx.GetActors = function () {
-				AIDriver.exec('status = MyState', homunculus);
+				AIDriver.exec('status = MyState', isHoAI);
 				var res = [0];
 				EntityManager.forEach(item => {
 					res.push(item.GID);
 				});
-
 				// aggressive logic
 				if (res.length > 3) {
 					if (localStorage.getItem('AGGRESSIVE') == 1) {
-						res.forEach(item => {
-							if (item != 0 && item != Session.AID && item != Session.homunId) {
+						var closest = 0;
+						var lastDist = 1000;
+						var thisentity = EntityManager.get(isHoAI ? Session.homunId : Session.mercId);
+						for (const item in res) {
+							if (
+								item != 0 &&
+								item != Session.AID &&
+								item != Session.homunId &&
+								item !== Session.mercId
+							) {
 								var entity = EntityManager.get(Number(item));
 								if (
 									entity &&
 									(entity.objecttype === Session.Entity.constructor.TYPE_MOB ||
 										entity.objecttype === Session.Entity.constructor.TYPE_NPC_ABR ||
-										entity.objecttype === Session.Entity.constructor.TYPE_NPC_BIONIC)
+										entity.objecttype === Session.Entity.constructor.TYPE_NPC_BIONIC) &&
+									!entity.isDead() &&
+									entity.action !== entity.ACTION.DIE &&
+									entity.isVisible()
 								) {
-									if (ctx.status == 0) {
-										//idle = 0
-										// attak
-										AIDriver.setmsg(Session.homunId, '3,' + item);
+									var dist = distance(
+										thisentity.position[0],
+										thisentity.position[1],
+										entity.position[0],
+										entity.position[1]
+									);
+									if (dist < lastDist) {
+										closest = item;
+										lastDist = dist;
 									}
 								}
 							}
-						});
+						}
+						if (closest > 0) {
+							AIDriver.setmsg(isHoAI ? Session.homunId : Session.mercId, '3,' + closest);
+						}
 					} else {
 						if (ctx.status !== null) {
-							AIDriver.setmsg(Session.homunId, ctx.status.toString());
+							AIDriver.setmsg(isHoAI ? Session.homunId : Session.mercId, ctx.status.toString());
+						} else {
+							AIDriver.setmsg(isHoAI ? Session.homunId : Session.mercId, '0');
 						}
 					}
 				}
@@ -190,35 +280,51 @@ define(function (require) {
 					delete msg[id];
 					return res;
 				}
-				return '';
+				return '0';
 			};
 
 			ctx.GetResMsg = function GetResMsg(id) {
-				//console.log('GetResMsg', id);
-				return '';
+				if (id in resMsg) {
+					let res = resMsg[id];
+					delete resMsg[id];
+					return res;
+				}
+				return '0';
 			};
 
 			ctx.SkillObject = function SkillObject(homunId, level, skillId, targetID) {
-				console.log('SkillObject', homunId, level, skillId, targetID);
+				if (Configs.get('debugAI', false)) {
+					console.log('SkillObject', homunId, level, skillId, targetID);
+				}
 				// check if is our homunculus
-				if (homunId === Session.homunId) {
+				if (homunId === (isHoAI ? Session.homunId : Session.mercId)) {
 					let homun = EntityManager.get(Number(homunId));
 					let target = EntityManager.get(Number(targetID));
+
+					if (!homun || !target) {
+						return 0;
+					}
+
 					// check range
 					let range = SkillInfo[skillId].AttackRange[level - 1] + 1 || homun.attack_range || 1;
 
 					if (
-						homun?.position[0] > 0 &&
-						homun?.position[1] > 0 &&
-						target?.position[0] > 0 &&
-						target?.position[1] > 0
+						homun.position[0] > 0 &&
+						homun.position[1] > 0 &&
+						target.position[0] > 0 &&
+						target.position[1] > 0
 					) {
-						let distance = Math.sqrt(
-							Math.pow(homun?.position[0] - target?.position[0], 2) +
-								Math.pow(homun?.position[1] - target?.position[1], 2)
+						let dist = distance(
+							homun.position[0],
+							homun.position[1],
+							target.position[0],
+							target.position[1]
 						);
-						console.log('SkillObject - RANGE AND DISTANCE', range, distance);
-						if (range >= distance) {
+						if (Configs.get('debugAI', false)) {
+							console.log('SkillObject - RANGE AND DISTANCE', range, dist);
+						}
+
+						if (range >= dist) {
 							// check if homun is in a valid state to cast skill
 							if (homun && [0, 1, 4].includes(homun.action)) {
 								let pkt;
@@ -233,10 +339,14 @@ define(function (require) {
 								Network.sendPacket(pkt);
 							}
 						} else {
-							console.log('SkillObject - NOT IN RANGE', homunId, level, skillId, targetID);
+							if (Configs.get('debugAI', false)) {
+								console.log('SkillObject - NOT IN RANGE', homunId, level, skillId, targetID);
+							}
 						}
 					} else {
-						console.log('SkillObject - SOME POSITION NOT VALID', homunId, level, skillId, targetID);
+						if (Configs.get('debugAI', false)) {
+							console.log('SkillObject - SOME POSITION NOT VALID', homunId, level, skillId, targetID);
+						}
 					}
 				}
 
@@ -244,9 +354,11 @@ define(function (require) {
 			};
 
 			ctx.SkillGround = function (homunId, level, skillId, x, y) {
-				console.log('SkillGround', homunId, level, skillId, x, y);
+				if (Configs.get('debugAI', false)) {
+					console.log('SkillGround', homunId, level, skillId, x, y);
+				}
 				// check if is our homunculus
-				if (homunId === Session.homunId) {
+				if (homunId === (isHoAI ? Session.homunId : Session.mercId)) {
 					// check if homun is in a valid state to cast skill
 					let homun = EntityManager.get(Number(homunId));
 					if (homun && [0, 1, 4].includes(homun.action)) {
@@ -269,7 +381,11 @@ define(function (require) {
 			};
 
 			ctx.IsMonster = function IsMonster(id) {
+				// -1 is commonly called by AzzyAI
 				if (typeof id !== 'number' || id <= 0) {
+					if (typeof id !== 'number' && Configs.get('debugAI', false)) {
+						console.warn('IsMonster - Invalid type');
+					}
 					return 0;
 				}
 				var entity = EntityManager.get(Number(id));
@@ -278,7 +394,10 @@ define(function (require) {
 					entity &&
 					(entity.objecttype === Session.Entity.constructor.TYPE_MOB ||
 						entity.objecttype === Session.Entity.constructor.TYPE_NPC_ABR ||
-						entity.objecttype === Session.Entity.constructor.TYPE_NPC_BIONIC)
+						entity.objecttype === Session.Entity.constructor.TYPE_NPC_BIONIC) &&
+					!entity.isDead() &&
+					entity.action !== entity.ACTION.DIE &&
+					entity.isVisible()
 				) {
 					return 1;
 				}
@@ -286,22 +405,43 @@ define(function (require) {
 			};
 
 			ctx.TraceAI = function TraceAI(str) {
-				let decoder = new TextDecoder();
-				console.log('TraceAI - ', typeof str === 'object' && str.buffer ? decoder.decode(str) : str);
+				if (Configs.get('debugAI', false)) {
+					let decoder = new TextDecoder();
+					console.log('TraceAI - ', typeof str === 'object' && str.buffer ? decoder.decode(str) : str);
+				}
 			};
 
 			ctx.status = null;
+
+			// Unknow/unused functions
+			// it exist on client but not mentioned on gvt dev guide (AI/호문클루스 인공지능 스크립트 설명서.htm)
+			ctx.Trace = logMessage => {
+				if (Configs.get('debugAI', false)) {
+					let decoder = new TextDecoder();
+					console.debug(
+						typeof logMessage === 'object' && logMessage.buffer ? decoder.decode(logMessage) : logMessage
+					);
+				}
+			};
+
+			ctx.TraceValue = val => {
+				return val.toString();
+			};
 		}
+
+		addCTX(this.default_HO_AI, true);
 		addCTX(this.HO_AI, true);
+		addCTX(this.default_MER_AI, false);
 		addCTX(this.MER_AI, false);
 	};
 
-	AIDriver.initAI = async function prepareAIFiles() {
+	AIDriver.initAI = async function prepareAIFiles(onEnd) {
 		var loadedFiles = {};
 		var loadPromises = [];
 
 		function preloadFiles(fileList, lua) {
 			var ctx = lua.ctx;
+
 			function customRequire(modulePath, isJS = false) {
 				const promise = new Promise((resolve, reject) => {
 					let text;
@@ -315,8 +455,13 @@ define(function (require) {
 						.replaceAll('\\\\', '/')
 						.replaceAll('\\', '/')
 						.replace('./', '')
+						.replace('pcall', '')
+						.replace('function', '')
 						.replace('.lua', '')
 						.trim();
+					if (text.endsWith('end')) {
+						text = text.replace('end', '').trim();
+					}
 					text = text + '.lua';
 
 					// Timeouts and Agressive Relog are execution time file, it need to be created on demandtly, so we ignore them here
@@ -335,7 +480,10 @@ define(function (require) {
 						text,
 						function (file) {
 							try {
-								console.log(`Loading file "${text}"...`);
+								if (Configs.get('debugAI', false)) {
+									console.log(`Loading file "${text}"...`);
+								}
+
 								var f = file instanceof ArrayBuffer ? new TextDecoder('iso-8859-1').decode(file) : file;
 
 								const nestedPromises = [];
@@ -343,8 +491,8 @@ define(function (require) {
 									if (line.includes('dofile')) {
 										var loadFile = line
 											.replace('dofile', '')
-											.replace('(', '')
-											.replace(')', '')
+											.replaceAll('(', '')
+											.replaceAll(')', '')
 											.replace(/['"]/g, '')
 											.trim();
 										const nestedPromise = customRequire(loadFile, true);
@@ -381,7 +529,10 @@ define(function (require) {
 							filename,
 							function (file) {
 								try {
-									console.log('Loading file "' + filename + '"...');
+									if (Configs.get('debugAI', false)) {
+										console.log('Loading file "' + filename + '"...');
+									}
+
 									let text =
 										file instanceof ArrayBuffer ? new TextDecoder('iso-8859-1').decode(file) : file;
 
@@ -390,8 +541,8 @@ define(function (require) {
 										if (line.includes('dofile')) {
 											var loadFile = line
 												.replace('dofile', '')
-												.replace('(', '')
-												.replace(')', '')
+												.replaceAll('(', '')
+												.replaceAll(')', '')
 												.replace(/['"]/g, '')
 												.trim();
 											const nestedPromise = customRequire(loadFile, true);
@@ -432,27 +583,61 @@ define(function (require) {
 
 		this.HO_AI = DB.getHOAI_VM();
 		this.MER_AI = DB.getMERAI_VM();
-		let files = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
-		var AI_M = 'AI/USER_AI/AI_M.lua';
+		this.default_HO_AI = DB.getDefaultHOAI_VM();
+		this.default_MER_AI = DB.getDefaultMERAI_VM();
 		AIDriver.addCTX();
+
+		console.log('Loading Default HOAI...');
+		let files = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI.lua'];
+		var AI_M = 'AI/AI_M.lua';
+		preloadFiles(files, this.default_HO_AI);
+		await doFiles(files, this.default_HO_AI);
+
+		console.log('Loading Default MERAI...');
+		loadedFiles = {};
+		loadPromises = [];
+		files.pop();
+		files.push(AI_M);
+		preloadFiles(files, this.default_MER_AI);
+		await doFiles(files, this.default_MER_AI);
+
+		files = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
+		AI_M = 'AI/USER_AI/AI_M.lua';
+		console.log('Loading Custom HOAI...');
 		preloadFiles(files, this.HO_AI);
 		await doFiles(files, this.HO_AI);
+
+		console.log('Loading Custom MERAI...');
 		loadedFiles = {};
 		loadPromises = [];
 		files.pop();
 		files.push(AI_M);
 		preloadFiles(files, this.MER_AI);
 		await doFiles(files, this.MER_AI);
+
+		if (typeof onEnd === 'function') {
+			onEnd();
+		}
 	};
 
 	AIDriver.exec = function exec(code, homunculus = true) {
 		try {
 			//console.log('exec', code);
+			var lua;
 			if (homunculus) {
-				this.HO_AI.doStringSync(code);
+				if (Session.homCustomAI) {
+					lua = this.HO_AI;
+				} else {
+					lua = this.default_HO_AI;
+				}
 			} else {
-				this.MER_AI.doStringSync(code);
+				if (Session.merCustomAI) {
+					lua = this.MER_AI;
+				} else {
+					lua = this.default_MER_AI;
+				}
 			}
+			lua.doStringSync(code);
 		} catch (e) {
 			console.error('%c[AI] %cAI Error: ', 'color:#DD0078', 'color:inherit', e);
 		}
@@ -464,4 +649,3 @@ define(function (require) {
 
 	return AIDriver;
 });
-

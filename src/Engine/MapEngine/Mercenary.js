@@ -161,11 +161,11 @@ define(function (require) {
 	/**
 	 * Request mercenary to move to location
 	 */
-	MercenaryInformations.reqMoveTo = function reqMoveTo(GID) {
+	MercenaryInformations.reqMoveTo = function reqMoveTo(GID, x = 0, y = 0) {
 		var pkt = new PACKET.CZ.REQUEST_MOVENPC();
 		pkt.GID = GID;
-		pkt.dest[0] = Mouse.world.x;
-		pkt.dest[1] = Mouse.world.y;
+		pkt.dest[0] = x > 0 ? x : Mouse.world.x;
+		pkt.dest[1] = y > 0 ? y : Mouse.world.y;
 		Network.sendPacket(pkt);
 	};
 

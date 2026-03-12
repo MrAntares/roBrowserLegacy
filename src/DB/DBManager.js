@@ -78,6 +78,8 @@ define(function (require) {
 	var lua;
 	var HO_AI;
 	var MER_AI;
+	var default_HO_AI;
+	var default_MER_AI;
 
 	startLua();
 
@@ -737,7 +739,7 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 
-		getModule('Core/AIDriver').initAI();
+		getModule('Core/AIDriver').initAI(onLoad());
 	};
 
 	DB.getHOAI_VM = function getHOAILua() {
@@ -748,10 +750,20 @@ define(function (require) {
 		return MER_AI;
 	};
 
+	DB.getDefaultHOAI_VM = function getHOAILua() {
+		return default_HO_AI;
+	};
+
+	DB.getDefaultMERAI_VM = function getMERAILua() {
+		return default_MER_AI;
+	};
+
 	async function startLua() {
 		lua = await CLua.Lua.create();
 		HO_AI = await CLua.Lua.create();
 		MER_AI = await CLua.Lua.create();
+		default_HO_AI = await CLua.Lua.create();
+		default_MER_AI = await CLua.Lua.create();
 	}
 
 	function loadFontFromClient(fontPath) {

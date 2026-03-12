@@ -205,6 +205,8 @@ define(function (require) {
 					this.ui.toggle();
 					if (this.ui.is(':visible')) {
 						this.focus();
+					} else {
+						this.ui.show();
 					}
 					if (!this.ui.is(':visible')) {
 						SkillListMH.homunculus.ui.hide();
