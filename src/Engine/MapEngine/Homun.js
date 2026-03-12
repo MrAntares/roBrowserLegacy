@@ -97,7 +97,9 @@ define(function (require) {
 		HomunInformations.setInformations(pkt);
 
 		SkillListMH.homunculus.setPoints(pkt.SKPoint);
-		if (entity) {HomunInformations.startAI();}
+		if (entity) {
+			HomunInformations.startAI();
+		}
 	}
 
 	/**
@@ -348,7 +350,7 @@ define(function (require) {
 		}
 
 		// UI update
-		HomunInformations.setInformations(_info);
+		//HomunInformations.setInformations(_info);
 	}
 
 	// function testing( pkt )

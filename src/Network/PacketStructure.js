@@ -5239,6 +5239,22 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	};
 	PACKET.ZC.EMOTION.size = 7;
 
+	// 0x0bea
+	PACKET.ZC.EMOTION_SUCCESS = function PACKET_ZC_EMOTION_SUCCESS(fp, end) {
+		this.GID = fp.readULong();
+		this.packID = fp.readUShort();
+		this.emoteID = fp.readUShort();
+	};
+	PACKET.ZC.EMOTION_SUCCESS.size = 10;
+
+	// 0x0beb
+	PACKET.ZC.EMOTION_FAIL = function PACKET_ZC_EMOTION_FAIL(fp, end) {
+		this.GID = fp.readULong();
+		this.packID = fp.readUShort();
+		this.emoteID = fp.readUShort();
+	};
+	PACKET.ZC.EMOTION_FAIL.size = 10;
+
 	// 0xc2
 	PACKET.ZC.USER_COUNT = function PACKET_ZC_USER_COUNT(fp, end) {
 		this.count = fp.readLong();

@@ -232,6 +232,11 @@ define(function (require) {
 	 * @param {object} homunculus info
 	 */
 	HomunInformations.setInformations = function setInformations(info) {
+		if (!this.__loaded) {
+			this.append();
+			this.ui.hide();
+		}
+
 		this.ui.find('.name').val(info.szName);
 		this.ui.find('.level').text(info.nLevel);
 
@@ -396,12 +401,12 @@ define(function (require) {
 
 	HomunInformations.startAI = function startAI() {
 		if (!this.AILoop) {
-			AIDriver.homunculus.reset();
+			AIDriver.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.homunId) {
 					var entity = EntityManager.get(Session.homunId);
 					if (entity) {
-						AIDriver.homunculus.exec('AI(' + Session.homunId + ')');
+						AIDriver.exec('AI(' + Session.homunId + ')');
 					}
 				}
 			}, 100);

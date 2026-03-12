@@ -104,9 +104,9 @@ define(function (require) {
 						entityOver.objecttype != Entity.TYPE_EFFECT &&
 						entityOver.objecttype != Entity.TYPE_TRAP
 					) {
-						AIDriver.mercenary.setmsg(Session.mercId, '3,' + entityOver.GID);
+						AIDriver.setmsg(Session.mercId, '3,' + entityOver.GID);
 					} else {
-						AIDriver.mercenary.setmsg(Session.mercId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
+						AIDriver.setmsg(Session.mercId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
 					}
 				} else {
 					Session.moveAction = null;
@@ -159,9 +159,9 @@ define(function (require) {
 						entityOver.objecttype != Entity.TYPE_EFFECT &&
 						entityOver.objecttype != Entity.TYPE_TRAP
 					) {
-						AIDriver.homunculus.setmsg(Session.homunId, '3,' + entityOver.GID);
+						AIDriver.setmsg(Session.homunId, '3,' + entityOver.GID);
 					} else {
-						AIDriver.homunculus.setmsg(Session.homunId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
+						AIDriver.setmsg(Session.homunId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
 					}
 				} else {
 					if (
