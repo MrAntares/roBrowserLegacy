@@ -517,7 +517,7 @@ define(function (require) {
 		render: render,
 		intersect: intersect,
 		setSupportPicking: setSupportPicking,
-		
+
 		pendingTransformations: pendingTransformations,
 		storePendingTransform: storePendingTransform
 	};

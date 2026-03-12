@@ -1926,7 +1926,8 @@ define(function (require) {
 		if (pkt.index === StatusConst.MONSTER_TRANSFORM || pkt.index === StatusConst.ACTIVE_MONSTER_TRANSFORM) {
 			if (!entity) {
 				var isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
-				var key = pkt.index === StatusConst.MONSTER_TRANSFORM ? 'monster_transform' : 'active_monster_transform';
+				var key =
+					pkt.index === StatusConst.MONSTER_TRANSFORM ? 'monster_transform' : 'active_monster_transform';
 				EntityManager.storePendingTransform(pkt.AID, key, isActive ? (pkt.val ? pkt.val[0] : 0) : null);
 				return;
 			}
@@ -1935,7 +1936,11 @@ define(function (require) {
 		else if (pkt.index === StatusConst.WEREWOLF || pkt.index === StatusConst.WERERAPTOR) {
 			if (!entity) {
 				var isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
-				EntityManager.storePendingTransform(pkt.AID, 'job_transform', isActive ? (pkt.index === StatusConst.WEREWOLF ? JobId.WEREWOLF : JobId.WERERAPTOR) : null);
+				EntityManager.storePendingTransform(
+					pkt.AID,
+					'job_transform',
+					isActive ? (pkt.index === StatusConst.WEREWOLF ? JobId.WEREWOLF : JobId.WERERAPTOR) : null
+				);
 				return;
 			}
 		}

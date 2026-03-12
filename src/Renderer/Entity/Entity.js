@@ -221,7 +221,7 @@ define(function (require) {
 
 		this.isAdmin = Session.AdminList.indexOf(unit.GID) > -1;
 		this.sex = unit.hasOwnProperty('sex') ? unit.sex : this._sex;
-		
+
 		// Apply any pending transformations that arrived before entity spawned
 		// We must do this BEFORE setting the job, so UpdateBody knows if it's a transform.
 		var pendingTrans = require('Renderer/EntityManager').pendingTransformations;
@@ -245,7 +245,7 @@ define(function (require) {
 				// Transformation active - store base job but don't trigger UpdateBody yet
 				this._job = unit.job;
 				// Update effective job manually and force a redraw
-				this.job = this._effectiveJob; 
+				this.job = this._effectiveJob;
 			} else {
 				// No transformation - apply job normally (triggers UpdateBody)
 				this.job = unit.job;

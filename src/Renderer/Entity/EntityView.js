@@ -138,8 +138,13 @@ define(function (require) {
 	 * Returns the effective display job, considering all active transformations
 	 */
 	function getEffectiveJob() {
-		return this._active_monster_transform || this._monster_transform ||
-			this._job_transform || this.costume || this._job;
+		return (
+			this._active_monster_transform ||
+			this._monster_transform ||
+			this._job_transform ||
+			this.costume ||
+			this._job
+		);
 	}
 
 	/**
@@ -513,7 +518,7 @@ define(function (require) {
 						_this['_' + type] = _val;
 
 						// Head accessories should not be applied if they should be suppressed
-						var isAccessory = (type === 'accessory' || type === 'accessory2' || type === 'accessory3');
+						var isAccessory = type === 'accessory' || type === 'accessory2' || type === 'accessory3';
 
 						if (!isAccessory || !shouldSuppressHead.call(_this)) {
 							_this.files[type].spr = path + '.spr';

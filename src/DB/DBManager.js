@@ -432,7 +432,7 @@ define(function (require) {
 						}
 					);
 				},
-				function () { } // onLoad() is called at the end of loadSkillTreeView
+				function () {} // onLoad() is called at the end of loadSkillTreeView
 			);
 
 			// Status
@@ -3388,9 +3388,15 @@ define(function (require) {
 
 				ctx.mergeSC = (key, value) => {
 					// Keys might be passed as Uint8Array from Lua by Wasmoon
-					let safeKey = typeof key === 'string' ? key : (key instanceof Uint8Array ? userStringDecoder.decode(key) : key);
+					let safeKey =
+						typeof key === 'string' ? key : key instanceof Uint8Array ? userStringDecoder.decode(key) : key;
 
-					if (typeof safeKey === 'string' && typeof value === 'number' && value >= 0 && safeKey.startsWith('EFST_')) {
+					if (
+						typeof safeKey === 'string' &&
+						typeof value === 'number' &&
+						value >= 0 &&
+						safeKey.startsWith('EFST_')
+					) {
 						const jsKey = safeKey.replace('EFST_', '');
 						SC[jsKey] = value;
 					}
