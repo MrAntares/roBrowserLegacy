@@ -15,8 +15,6 @@ define(function (require) {
 
 	function AIDriver() {}
 
-	//110033787
-
 	AIDriver.init = async function init() {};
 
 	var msg = {};
