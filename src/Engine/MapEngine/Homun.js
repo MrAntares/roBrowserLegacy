@@ -75,8 +75,6 @@ define(function (require) {
 	 * @param {THomunPacket} pkt - PACKET.ZC.PROPERTY_HOMUN
 	 */
 	function onHomunInformation(pkt) {
-		SkillListMH.homunculus.setPoints(pkt.SKPoint);
-
 		_info = pkt;
 
 		if (!Session.homunId) {
