@@ -110,6 +110,24 @@ define(function (require) {
 	}
 
 	/**
+	 * Pending transformations that arrived before entity spawned
+	 * { GID: { monster_transform: value, active_monster_transform: value, job_transform: value } }
+	 */
+	var pendingTransformations = {};
+
+	/**
+	 * Helper to safely store a pending transformation before entity spawns
+	 *
+	 * @param {number} aid - Actor ID
+	 * @param {string} key - transformation property name
+	 * @param {*} value - transformation value (monster ID, JobId, or null to clear)
+	 */
+	function storePendingTransform(aid, key, value) {
+		if (!pendingTransformations[aid]) pendingTransformations[aid] = {};
+		pendingTransformations[aid][key] = value;
+	}
+
+	/**
 	 * Find an Entity via AID and return it
 	 * Note: Currently Character ID (CID) is stored as AID in Entity
 	 * Note2: Need to review all AID implementation in both packet and entity
@@ -496,7 +514,10 @@ define(function (require) {
 
 		render: render,
 		intersect: intersect,
-		setSupportPicking: setSupportPicking
+		setSupportPicking: setSupportPicking,
+		
+		pendingTransformations: pendingTransformations,
+		storePendingTransform: storePendingTransform
 	};
 
 	/**

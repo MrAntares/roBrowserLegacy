@@ -110,24 +110,6 @@ define(function (require) {
 	var clanEmblems = {};
 
 	/**
-	 * Pending transformations that arrived before entity spawned
-	 * { GID: { monster_transform: value, active_monster_transform: value, job_transform: value } }
-	 */
-	var pendingTransformations = {};
-
-	/**
-	 * Helper to safely store a pending transformation before entity spawns
-	 *
-	 * @param {number} aid - Actor ID
-	 * @param {string} key - transformation property name
-	 * @param {*} value - transformation value (monster ID, JobId, or null to clear)
-	 */
-	function storePendingTransform(aid, key, value) {
-		if (!pendingTransformations[aid]) pendingTransformations[aid] = {};
-		pendingTransformations[aid][key] = value;
-	}
-
-	/**
 	 * Spam an entity on the map
 	 * Generic packet handler
 	 */
@@ -154,21 +136,6 @@ define(function (require) {
 				}
 			}
 			EntityManager.add(entity);
-
-			// Apply any pending transformations that arrived before entity spawned
-			if (entity.GID && entity.GID in pendingTransformations) {
-				var pending = pendingTransformations[entity.GID];
-				if (pending.monster_transform !== undefined) {
-					entity.monster_transform = pending.monster_transform;
-				}
-				if (pending.active_monster_transform !== undefined) {
-					entity.active_monster_transform = pending.active_monster_transform;
-				}
-				if (pending.job_transform !== undefined) {
-					entity.job_transform = pending.job_transform;
-				}
-				delete pendingTransformations[entity.GID];
-			}
 		}
 
 		if (
@@ -1960,7 +1927,7 @@ define(function (require) {
 			if (!entity) {
 				var isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
 				var key = pkt.index === StatusConst.MONSTER_TRANSFORM ? 'monster_transform' : 'active_monster_transform';
-				storePendingTransform(pkt.AID, key, isActive ? (pkt.val ? pkt.val[0] : 0) : null);
+				EntityManager.storePendingTransform(pkt.AID, key, isActive ? (pkt.val ? pkt.val[0] : 0) : null);
 				return;
 			}
 		}
@@ -1968,7 +1935,7 @@ define(function (require) {
 		else if (pkt.index === StatusConst.WEREWOLF || pkt.index === StatusConst.WERERAPTOR) {
 			if (!entity) {
 				var isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
-				storePendingTransform(pkt.AID, 'job_transform', isActive ? (pkt.index === StatusConst.WEREWOLF ? JobId.WEREWOLF : JobId.WERERAPTOR) : null);
+				EntityManager.storePendingTransform(pkt.AID, 'job_transform', isActive ? (pkt.index === StatusConst.WEREWOLF ? JobId.WEREWOLF : JobId.WERERAPTOR) : null);
 				return;
 			}
 		}

@@ -96,15 +96,14 @@ define(function (require) {
 	 * Suppress head and accessory sprites (used for monster/transformation)
 	 */
 	function suppressHeadSprites() {
-		this.files.head.spr = null;
-		this.files.head.act = null;
-		this.files.head.pal = null;
-		this.files.accessory.spr = null;
-		this.files.accessory.act = null;
-		this.files.accessory2.spr = null;
-		this.files.accessory2.act = null;
-		this.files.accessory3.spr = null;
-		this.files.accessory3.act = null;
+		for (var i = 0, count = HeadParts.length; i < count; ++i) {
+			var part = HeadParts[i];
+			this.files[part].spr = null;
+			this.files[part].act = null;
+			if (part === 'head') {
+				this.files.head.pal = null;
+			}
+		}
 	}
 
 	/**
@@ -141,6 +140,30 @@ define(function (require) {
 	function getEffectiveJob() {
 		return this._active_monster_transform || this._monster_transform ||
 			this._job_transform || this.costume || this._job;
+	}
+
+	/**
+	 * List of view parts that should be suppressed when transformed
+	 */
+	var HeadParts = ['head', 'accessory', 'accessory2', 'accessory3'];
+
+	/**
+	 * Returns true if head sprites should be suppressed for the current state
+	 */
+	function shouldSuppressHead() {
+		var job = getEffectiveJob.call(this);
+		return hasTransformation.call(this) || DB.isMonster(job) || job === 4356 || job === 4357;
+	}
+
+	/**
+	 * Refresh head state (suppress or restore based on current conditions)
+	 */
+	function refreshHeadState() {
+		if (shouldSuppressHead.call(this)) {
+			suppressHeadSprites.call(this);
+		} else if (!this.costume) {
+			restoreHeadSprites.call(this);
+		}
 	}
 
 	/**
@@ -282,7 +305,7 @@ define(function (require) {
 		}
 
 		// Determine if we should suppress head NOW (before async operations)
-		var shouldSuppressHead = isTransformation || DB.isMonster(job) || job === 4356 || job === 4357;
+		var suppress = shouldSuppressHead.call(this);
 
 		// Loading
 		Client.loadFile(path + '.act');
@@ -301,11 +324,8 @@ define(function (require) {
 					this.files.body.act = path + '.act';
 
 					// Apply head suppression/restoration
-					if (shouldSuppressHead) {
-						suppressHeadSprites.call(this);
-					} else if (!this.costume && !hasTransformation.call(this)) {
-						restoreHeadSprites.call(this);
-					}
+					// Apply head suppression/restoration
+					refreshHeadState.call(this);
 				}
 
 				// Update linked attachments (always update these)
@@ -407,9 +427,12 @@ define(function (require) {
 		Client.loadFile(
 			path + '.spr',
 			function () {
-				this.files.head.spr = path + '.spr';
-				this.files.head.act = path + '.act';
-				this.files.head.pal = null;
+				// Don't apply the head sprite if it should be suppressed
+				if (!shouldSuppressHead.call(this)) {
+					this.files.head.spr = path + '.spr';
+					this.files.head.act = path + '.act';
+					this.files.head.pal = null;
+				}
 				this.headpalette = this._headpalette;
 			}.bind(this)
 		);
@@ -488,8 +511,14 @@ define(function (require) {
 					path + '.spr',
 					function () {
 						_this['_' + type] = _val;
-						_this.files[type].spr = path + '.spr';
-						_this.files[type].act = path + '.act';
+
+						// Head accessories should not be applied if they should be suppressed
+						var isAccessory = (type === 'accessory' || type === 'accessory2' || type === 'accessory3');
+
+						if (!isAccessory || !shouldSuppressHead.call(_this)) {
+							_this.files[type].spr = path + '.spr';
+							_this.files[type].act = path + '.act';
+						}
 
 						// Load weapon sound
 						if (type === 'weapon') {
@@ -545,11 +574,7 @@ define(function (require) {
 		}
 
 		// Immediate suppression/restoration for UI responsiveness
-		if (hasTransformation.call(this)) {
-			suppressHeadSprites.call(this);
-		} else if (!this.costume) {
-			restoreHeadSprites.call(this);
-		}
+		refreshHeadState.call(this);
 	}
 
 	/**
