@@ -226,9 +226,9 @@ define(function (require) {
 						var thisentity = EntityManager.get(isHoAI ? Session.homunId : Session.mercId);
 						for (const item in res) {
 							if (
-								item != 0 &&
-								item != Session.AID &&
-								item != Session.homunId &&
+								item !== 0 &&
+								item !== Session.AID &&
+								item !== Session.homunId &&
 								item !== Session.mercId
 							) {
 								var entity = EntityManager.get(Number(item));
