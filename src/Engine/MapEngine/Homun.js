@@ -72,34 +72,34 @@ define(function (require) {
 	/**
 	 * Get own homunculus information from server
 	 *
-	 * @param {THomunPacket} pkt - PACKET.ZC.PROPERTY_HOMUN2
+	 * @param {THomunPacket} pkt - PACKET.ZC.PROPERTY_HOMUN
 	 */
 	function onHomunInformation(pkt) {
+		SkillListMH.homunculus.setPoints(pkt.SKPoint);
+
 		_info = pkt;
-		var entity = EntityManager.get(Session.homunId);
-		if (Session.homunId) {
-			if (entity) {
-				entity.attack_range = pkt.ATKRange;
-				entity.life.hp = pkt.hp;
-				entity.life.hp_max = pkt.maxHP;
-				entity.life.sp = pkt.sp;
-				entity.life.sp_max = pkt.maxSP;
-				entity.life.hunger = pkt.nFullness;
-				entity.life.hunger_max = 100;
-				entity.life.update();
-			}
+
+		if (!Session.homunId) {
+			return;
 		}
 
-		if (entity && entity.life.display) {
-			pkt.life = entity.life;
+		var entity = EntityManager.get(Session.homunId);
+
+		if (!entity) {
+			return;
 		}
+
+		entity.attack_range = pkt.ATKRange;
+		entity.life.hp = pkt.hp;
+		entity.life.hp_max = pkt.maxHP;
+		entity.life.sp = pkt.sp;
+		entity.life.sp_max = pkt.maxSP;
+		entity.life.hunger = pkt.nFullness;
+		entity.life.hunger_max = 100;
+		entity.life.update();
 
 		HomunInformations.setInformations(pkt);
-
-		SkillListMH.homunculus.setPoints(pkt.SKPoint);
-		if (entity) {
-			HomunInformations.startAI();
-		}
+		HomunInformations.startAI();
 	}
 
 	/**
@@ -127,7 +127,18 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.HO_PAR_CHANGE
 	 */
 	function onHomunParameterChange(pkt) {
+		if (!Session.homunId) {
+			return;
+		}
+
+		// UI update
+		HomunInformations.setInformations(pkt);
+
 		var entity = EntityManager.get(Session.homunId);
+
+		if (!entity) {
+			return;
+		}
 
 		switch (pkt.param) {
 			case StatusProperty.SPEED:
@@ -313,46 +324,6 @@ define(function (require) {
 		SkillListMH.homunculus.updateSkill(pkt);
 	}
 
-	/**
-	 * Update homunculus parameters e.g. hp/sp recovery
-	 *
-	 * @param {object} pkt - PACKET.ZC.HO_PAR_CHANGE
-	 */
-	function onParamsUpdate(pkt) {
-		if (!Session.homunId) {
-			return;
-		}
-
-		var entity = EntityManager.get(Session.homunId);
-
-		if (!entity) {
-			return;
-		}
-
-		// sync all stats from server to client
-		switch (pkt.param) {
-			case 1: // EXP = value
-				_info.exp = pkt.value;
-				break;
-
-			case 5: // HP = value
-				_info.hp = _info.life.hp = entity.life.hp = pkt.value;
-				entity.life.update();
-				break;
-
-			case 7: // SP = value
-				_info.sp = _info.life.sp = entity.life.sp = pkt.value;
-				entity.life.update();
-				break;
-
-			default:
-				break;
-		}
-
-		// UI update
-		//HomunInformations.setInformations(_info);
-	}
-
 	// function testing( pkt )
 	// {
 	// 	console.warn(pkt)
@@ -373,7 +344,6 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.HO_PAR_CHANGE2, onHomunParameterChange);
 		Network.hookPacket(PACKET.ZC.HOSKILLINFO_LIST, onSkillList);
 		Network.hookPacket(PACKET.ZC.HOSKILLINFO_UPDATE, onSkillUpdate);
-		Network.hookPacket(PACKET.ZC.HO_PAR_CHANGE, onParamsUpdate);
 
 		// Network.hookPacket( PACKET.ZC.MER_INIT, testing);
 		// Network.hookPacket( PACKET.ZC.MER_PROPERTY, testing);

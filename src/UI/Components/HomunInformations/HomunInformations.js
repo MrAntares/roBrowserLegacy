@@ -236,28 +236,57 @@ define(function (require) {
 			this.append();
 			this.ui.hide();
 		}
+		if (info.szName) {
+			this.ui.find('.name').val(info.szName);
+		}
+		if (info.nLevel) {
+			this.ui.find('.level').text(info.nLevel);
+		}
 
-		this.ui.find('.name').val(info.szName);
-		this.ui.find('.level').text(info.nLevel);
+		if (info.atk) {
+			this.ui.find('.stats .atk').text(info.atk);
+		}
+		if (info.Matk) {
+			this.ui.find('.stats .Matk').text(info.Matk);
+		}
+		if (info.hit) {
+			this.ui.find('.stats .hit').text(info.hit);
+		}
+		if (info.critical) {
+			this.ui.find('.stats .critical').text(info.critical);
+		}
+		if (info.def) {
+			this.ui.find('.stats .def').text(info.def);
+		}
+		if (info.Mdef) {
+			this.ui.find('.stats .Mdef').text(info.Mdef);
+		}
+		if (info.flee) {
+			this.ui.find('.stats .flee').text(info.flee);
+		}
+		if (info.aspd) {
+			this.ui.find('.stats .aspd').text(Math.floor(200 - info.aspd / 10));
+		}
 
-		this.ui.find('.stats .atk').text(info.atk);
-		this.ui.find('.stats .Matk').text(info.Matk);
-		this.ui.find('.stats .hit').text(info.hit);
-		this.ui.find('.stats .critical').text(info.critical);
-		this.ui.find('.stats .def').text(info.def);
-		this.ui.find('.stats .Mdef').text(info.Mdef);
-		this.ui.find('.stats .flee').text(info.flee);
-		this.ui.find('.stats .aspd').text(Math.floor(200 - info.aspd / 10));
+		if (info.hp && info.maxHP) {
+			this.setHpSpBar('hp', info.hp, info.maxHP);
+		}
+		if (info.sp && info.maxSP) {
+			this.setHpSpBar('sp', info.sp, info.maxSP);
+		}
 
-		this.setHpSpBar('hp', info.hp, info.maxHP);
-		this.setHpSpBar('sp', info.sp, info.maxSP);
+		if (info.exp && info.maxEXP) {
+			HomunInformations.base_exp = info.exp;
+			HomunInformations.base_exp_next = info.maxEXP;
+			this.setExp(info.exp, info.maxEXP);
+		}
 
-		HomunInformations.base_exp = info.exp;
-		HomunInformations.base_exp_next = info.maxEXP;
-
-		this.setExp(info.exp, info.maxEXP);
-		this.setHunger(info.nFullness);
-		this.setIntimacy(info.nRelationship);
+		if (info.nFullness) {
+			this.setHunger(info.nFullness);
+		}
+		if (info.nRelationship) {
+			this.setIntimacy(info.nRelationship);
+		}
 
 		if (info.bModified < 5) {
 			this.ui.find('.name, .modify').removeClass('disabled').attr('disabled', false);
@@ -265,7 +294,9 @@ define(function (require) {
 			this.ui.find('.name, .modify').addClass('disabled').attr('disabled', true);
 		}
 
-		SkillListMH.homunculus.setPoints(info.SKPoint);
+		if (info.SKPoint) {
+			SkillListMH.homunculus.setPoints(info.SKPoint);
+		}
 	};
 
 	/**

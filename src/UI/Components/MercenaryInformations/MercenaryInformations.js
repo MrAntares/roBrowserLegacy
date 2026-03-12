@@ -328,7 +328,7 @@ define(function (require) {
 				if (Session.mercId) {
 					var entity = EntityManager.get(Session.mercId);
 					if (entity) {
-						AIDriver.exec('AI(' + Session.mercId + ')');
+						AIDriver.exec('AI(' + Session.mercId + ')', false);
 					}
 				}
 			}, 100);
