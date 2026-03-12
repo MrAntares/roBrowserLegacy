@@ -123,7 +123,9 @@ define(function (require) {
 	 * @param {*} value - transformation value (monster ID, JobId, or null to clear)
 	 */
 	function storePendingTransform(aid, key, value) {
-		if (!pendingTransformations[aid]) pendingTransformations[aid] = {};
+		if (!pendingTransformations[aid]) {
+			pendingTransformations[aid] = {};
+		}
 		pendingTransformations[aid][key] = value;
 	}
 
