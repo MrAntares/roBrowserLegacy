@@ -230,9 +230,11 @@ define(function (require) {
 	 */
 	var servers = Configs.get('servers', []);
 	var langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 10) : 1;
-	var userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+
+	// use userStringDecoder instead
+	var _userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
 	// create decoders
-	let userStringDecoder = new TextEncoding.TextDecoder(userCharpage);
+	let userStringDecoder = new TextEncoding.TextDecoder(_userCharpage);
 
 	/**
 	 * @var {Object} PetDBTable
@@ -2590,8 +2592,6 @@ define(function (require) {
 				return 1;
 			};
 
-			const decoder = new TextEncoding.TextDecoder(userCharpage);
-
 			function decodeLuaString(v) {
 				if (v == null) {
 					return null;
@@ -2600,10 +2600,10 @@ define(function (require) {
 					return v;
 				}
 				if (v instanceof Uint8Array) {
-					return decoder.decode(v);
+					return userStringDecoder.decode(v);
 				}
 				if (v instanceof ArrayBuffer) {
-					return decoder.decode(new Uint8Array(v));
+					return userStringDecoder.decode(new Uint8Array(v));
 				}
 				return String(v);
 			}
@@ -3617,12 +3617,9 @@ define(function (require) {
 				// get context
 				const ctx = lua.ctx;
 
-				// create a decoder
-				let userDecoder = new TextEncoding.TextDecoder(userCharpage);
-
 				// create context function
 				ctx.addKeyAndValueToTable = (key, value) => {
-					table[key] = userDecoder.decode(value);
+					table[key] = userStringDecoder.decode(value);
 					return 1;
 				};
 
@@ -3631,7 +3628,7 @@ define(function (require) {
 					if (!table[key]) {
 						table[key] = '';
 					}
-					table[key] += userDecoder.decode(value) + '\n';
+					table[key] += userStringDecoder.decode(value) + '\n';
 					return 1;
 				};
 
@@ -3878,9 +3875,6 @@ define(function (require) {
 					// check if file is ArrayBuffer and convert to Uint8Array if necessary
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
-					// create decoders
-					let decoder = new TextEncoding.TextDecoder(userCharpage);
-
 					lua.mountFile(filename, buffer);
 					await lua.doFile(filename);
 
@@ -3890,8 +3884,8 @@ define(function (require) {
 						const ctx = lua.ctx;
 
 						ctx.__push_kv = (k, v) => {
-							const key = k instanceof Uint8Array ? decoder.decode(k) : k;
-							const val = v instanceof Uint8Array ? decoder.decode(v) : v;
+							const key = k instanceof Uint8Array ? userStringDecoder.decode(k) : k;
+							const val = v instanceof Uint8Array ? userStringDecoder.decode(v) : v;
 							result[key] = val;
 							return 1;
 						};
