@@ -323,12 +323,12 @@ define(function (require) {
 	 */
 	MercenaryInformations.startAI = function startAI() {
 		if (!this.AILoop) {
-			AIDriver.mercenary.reset();
+			AIDriver.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.mercId) {
 					var entity = EntityManager.get(Session.mercId);
 					if (entity) {
-						AIDriver.mercenary.exec('AI(' + Session.mercId + ')');
+						AIDriver.exec('AI(' + Session.mercId + ')', false);
 					}
 				}
 			}, 100);
