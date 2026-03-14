@@ -20,6 +20,7 @@ define(function (require) {
 	var Network = require('Network/NetworkManager');
 	var Client = require('Core/Client');
 	var DB = require('DB/DBManager');
+	var Session = require('Engine/SessionStorage');
 
 	var _data = {
 		isActive: 0,
@@ -46,7 +47,11 @@ define(function (require) {
 			}.bind(this)
 		);
 
-		if (_data.isActive == 1) {
+		if (_data.isActive === 1 || Session.PCGoldTimer) {
+			if (_data.isActive !== 1) {
+				this.setData(Session.PCGoldTimer);
+			}
+
 			if (!this.timer) {
 				// start timer
 				this.startTimer();
@@ -79,6 +84,7 @@ define(function (require) {
 		_data.playedTime = packet.playedTime ? packet.playedTime : 0;
 		_data.backgroundImage = packet.mode == 1 ? 'mileage_bg1.bmp' : 'mileage_bg2.bmp';
 		_data.startTime = Date.now();
+		Session.PCGoldTimer = _data;
 	};
 
 	function onClickPCGoldTimer() {
