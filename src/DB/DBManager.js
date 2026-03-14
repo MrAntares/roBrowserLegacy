@@ -3192,7 +3192,7 @@ define(function (require) {
 			DB.LUA_PATH + 'skillinfoz/jobinheritlist.lub',
 			async function (file) {
 				try {
-					console.log(`Loading file ${DB.LUA_PATH}skillinfoz/jobinheritlist.lub...`);
+					console.log(`Loading file "${DB.LUA_PATH}skillinfoz/jobinheritlist.lub"...`);
 					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 					// Mount and execute jobinheritlist.lub
