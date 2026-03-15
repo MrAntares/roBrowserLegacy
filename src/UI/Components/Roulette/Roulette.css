@@ -248,6 +248,7 @@
 	display: block !important;
 	min-width: 43px !important;
 	min-height: 43px !important;
+	background-color: rgba(0, 0, 0, 0);
 }
 
 #MiniMapV2 .rouletteIcon:hover,
