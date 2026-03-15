@@ -290,7 +290,7 @@ window.ROConfigBase = {
     enableDmgSuffix: true,
     enableHomunAutoFeed: true,
     enableMapName: true,
-    enableRoulette: true,
+    enableRoulette: false,
     FirstPersonCamera: false,
     grfList: null,
     hashFiles: [],
