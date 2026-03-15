@@ -199,6 +199,7 @@
 #BasicInfoV3 .toggle_btns {
 	border: none;
 	background-repeat: no-repeat;
+	background-color: rgba(0, 0, 0, 0);
 }
 
 #BasicInfoV3 .buttons div .name {
