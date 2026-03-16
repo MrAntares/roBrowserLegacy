@@ -1210,7 +1210,7 @@ define(function (require) {
 
 			var lastUnderscore = -1;
 			while ((lastUnderscore = upperKey.indexOf('_', lastUnderscore + 1)) !== -1) {
-				var suffix = upperKey.substring(lastUnderscore + 1);
+				let suffix = upperKey.substring(lastUnderscore + 1);
 				if (suffix && !skidFuzzy[suffix]) {
 					skidFuzzy[suffix] = val;
 				}
@@ -1223,14 +1223,14 @@ define(function (require) {
 		}
 
 		// Phase 1: Pre-Analysis and Anchoring
-		for (var effectName in Ez2streffect) {
-			var entry = Ez2streffect[effectName];
-			var baseName = effectName;
-			var isSuffixed = false;
+		for (let effectName in Ez2streffect) {
+			let entry = Ez2streffect[effectName];
+			let baseName = effectName;
+			let isSuffixed = false;
 
-			var targetField = entry.IsToGround || entry.IsFloor ? 'groundEffectId' : 'effectId';
+			let targetField = entry.IsToGround || entry.IsFloor ? 'groundEffectId' : 'effectId';
 
-			for (var suffix in SUFFIX_TO_FIELD) {
+			for (let suffix in SUFFIX_TO_FIELD) {
 				if (effectName.endsWith('_' + suffix)) {
 					baseName = effectName.slice(0, -(suffix.length + 1));
 					isSuffixed = true;
@@ -1243,12 +1243,12 @@ define(function (require) {
 				targetField = HARDCODED_FIELD_MAPPING[effectName];
 			}
 
-			var filePath = entry.FilePath || '';
-			var soundPath = entry.SoundPath || '';
-			var pathParts = filePath ? filePath.split('\\') : [];
-			var lastSlashSound = soundPath.lastIndexOf('\\');
-			var soundFile = lastSlashSound !== -1 ? soundPath.substring(lastSlashSound + 1) : soundPath;
-			var soundBase = soundFile.replace(/\.wav$/i, '');
+			let filePath = entry.FilePath || '';
+			let soundPath = entry.SoundPath || '';
+			let pathParts = filePath ? filePath.split('\\') : [];
+			let lastSlashSound = soundPath.lastIndexOf('\\');
+			let soundFile = lastSlashSound !== -1 ? soundPath.substring(lastSlashSound + 1) : soundPath;
+			let soundBase = soundFile.replace(/\.wav$/i, '');
 
 			effectMetadata[effectName] = {
 				baseName: baseName,
@@ -1259,21 +1259,21 @@ define(function (require) {
 			};
 
 			// Pass 1: Exact Name Match for Base
-			var skillId = findFuzzySkillId(baseName);
-			if (skillId) {
-				effectNameToId[effectName] = skillId;
+			let skillId1 = findFuzzySkillId(baseName);
+			if (skillId1) {
+				effectNameToId[effectName] = skillId1;
 				continue;
 			}
 
 			// Pass 2: Base Anchoring from Path (Non-suffixed only)
 			if (!isSuffixed) {
-				for (var i = 0, len = pathParts.length; i < len; i++) {
-					var segment = pathParts[i];
+				for (let i = 0, len = pathParts.length; i < len; i++) {
+					let segment = pathParts[i];
 					if (segment) {
-						skillId = skillBaseToId[segment] || findFuzzySkillId(segment);
-						if (skillId) {
-							skillBaseToId[segment] = skillId;
-							effectNameToId[effectName] = skillId;
+						let skillId2 = skillBaseToId[segment] || findFuzzySkillId(segment);
+						if (skillId2) {
+							skillBaseToId[segment] = skillId2;
+							effectNameToId[effectName] = skillId2;
 							break;
 						}
 					}
@@ -1282,18 +1282,20 @@ define(function (require) {
 		}
 
 		// Phase 2: Inheritance and Assignments
-		for (var effectName in Ez2streffect) {
-			var entry = Ez2streffect[effectName];
-			var meta = effectMetadata[effectName];
-			var skillId = effectNameToId[effectName];
+		for (let effectName in Ez2streffect) {
+			let entry = Ez2streffect[effectName];
+			let meta = effectMetadata[effectName];
+			let skillId = effectNameToId[effectName];
 
 			// Pass 3: Path Fallback for unmapped
 			if (!skillId) {
-				for (var i = 0; i < meta.pathParts.length; i++) {
-					var segment = meta.pathParts[i] || '';
+				for (let i = 0; i < meta.pathParts.length; i++) {
+					let segment = meta.pathParts[i] || '';
 					if (segment) {
 						skillId = skillBaseToId[segment] || findFuzzySkillId(segment);
-						if (skillId) break;
+						if (skillId) {
+							break;
+						}
 					}
 				}
 			}
@@ -1303,7 +1305,9 @@ define(function (require) {
 				skillId = findFuzzySkillId(meta.soundBase);
 			}
 
-			if (skillId) effectNameToId[effectName] = skillId;
+			if (skillId) {
+				effectNameToId[effectName] = skillId;
+			}
 
 			// Pass 5: Suffix Inheritance
 			// Run this after all anchoring passes to ensure variants inherit from anchored bases
@@ -1313,8 +1317,8 @@ define(function (require) {
 			}
 
 			// Pass 5: EffectTable Assignment
-			var lastSlash = (entry.FilePath || '').lastIndexOf('\\');
-			var texturePath = lastSlash !== -1 ? entry.FilePath.substring(0, lastSlash + 1) : '';
+			let lastSlash = (entry.FilePath || '').lastIndexOf('\\');
+			let texturePath = lastSlash !== -1 ? entry.FilePath.substring(0, lastSlash + 1) : '';
 
 			EffectTable[effectName] = [{
 				type: 'STR',
@@ -1332,8 +1336,8 @@ define(function (require) {
 
 			// Pass 6: SkillEffect Mapping with differentiated fields
 			if (skillId) {
-				var skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
-				var field = meta.field;
+				let skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
+				let field = meta.field;
 
 				if (skillEntry[field]) {
 					if (!Array.isArray(skillEntry[field])) {
