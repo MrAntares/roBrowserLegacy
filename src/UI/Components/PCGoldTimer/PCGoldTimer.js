@@ -20,6 +20,8 @@ define(function (require) {
 	var Network = require('Network/NetworkManager');
 	var Client = require('Core/Client');
 	var DB = require('DB/DBManager');
+	var Session = require('Engine/SessionStorage');
+	var MAX_GOLDPC_VAR = 300;
 
 	var _data = {
 		isActive: 0,
@@ -46,7 +48,11 @@ define(function (require) {
 			}.bind(this)
 		);
 
-		if (_data.isActive == 1) {
+		if (_data.isActive === 1 || Session.PCGoldTimer) {
+			if (_data.isActive !== 1) {
+				this.setData(Session.PCGoldTimer, true);
+			}
+
 			if (!this.timer) {
 				// start timer
 				this.startTimer();
@@ -71,14 +77,22 @@ define(function (require) {
 		this.ui.toggle();
 	};
 
-	PCGoldTimer.setData = function setData(packet) {
+	PCGoldTimer.setData = function setData(packet, refresh = false) {
+		if (!refresh) {
+			_data.startTime = Date.now();
+		} else {
+			_data.startTime = Session.PCGoldTimer.startTime;
+		}
+		if (_data.point === MAX_GOLDPC_VAR) {
+			_data.startTime = -_data.startTime;
+		}
 		// set packet data to _data
 		_data.isActive = packet.isActive ? packet.isActive : 0;
 		_data.mode = packet.mode ? packet.mode : 0;
 		_data.point = packet.point ? packet.point : 0;
 		_data.playedTime = packet.playedTime ? packet.playedTime : 0;
 		_data.backgroundImage = packet.mode == 1 ? 'mileage_bg1.bmp' : 'mileage_bg2.bmp';
-		_data.startTime = Date.now();
+		Session.PCGoldTimer = _data;
 	};
 
 	function onClickPCGoldTimer() {
@@ -95,6 +109,15 @@ define(function (require) {
 				// timer display how many time is missing to reach 00:00 from 60:00
 				let millisecondsMissing = 60 * 60 * 1000 - (Date.now() - _data.startTime + _data.playedTime * 1000);
 				let text = this.formatTime(millisecondsMissing);
+
+				if (text.includes('-')) {
+					text = '00:00';
+					_data.point = Math.min(_data.point, MAX_GOLDPC_VAR);
+					if (_data.point === MAX_GOLDPC_VAR) {
+						text = '----:----';
+					}
+				}
+
 				this.ui.find('.timer-text-value').text(text);
 				this.ui.find('.total-points-value').text(_data.point);
 			}.bind(this),
