@@ -417,49 +417,52 @@ define(function (require) {
 
 			// Skill - load skillid.lub to populate SKID, then load description
 			const skillOnLoad = onLoad();
-			loadLuaValue(
-				DB.LUA_PATH + 'skillinfoz/skillid.lub',
-				'SKID',
-				function (json) {
-					if (json && typeof json === 'object') {
-						// Validate and merge entries into SKID
-						for (const k in json) {
-							if (Object.prototype.hasOwnProperty.call(json, k)) {
-								const value = json[k];
-								if (typeof value === 'number' && value > 0) {
-									SKID[k] = value;
-								}
+			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', function (json) {
+				if (json && typeof json === 'object') {
+					// Validate and merge entries into SKID
+					for (const k in json) {
+						if (Object.prototype.hasOwnProperty.call(json, k)) {
+							const value = json[k];
+							if (typeof value === 'number' && value > 0) {
+								SKID[k] = value;
 							}
 						}
 					}
-					// Load description - skillid.lub is re-executed harmlessly (Lua just repopulates globals)
-					loadLuaTable(
-						[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
-						'SKILL_DESCRIPT',
-						function (json) {
-							SkillDescription = json;
-						},
-						function () {
-							// Calls after skillids and descs been populated
-							loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
-								loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, function () {
-									// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
-									if (PACKETVER.value >= 20211103) {
-										const bsonOnLoad = onLoad();
-										loadBSONFile('data/contentdata/effectdata/ez2streffect.bson', Ez2streffect, function () {
-											require(['DB/Effects/EffectTable', 'DB/Skills/SkillEffect'], function (EffectTable, SkillEffect) {
+				}
+				// Load description - skillid.lub is re-executed harmlessly (Lua just repopulates globals)
+				loadLuaTable(
+					[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
+					'SKILL_DESCRIPT',
+					function (json) {
+						SkillDescription = json;
+					},
+					function () {
+						// Calls after skillids and descs been populated
+						loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
+							loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, function () {
+								// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
+								if (PACKETVER.value >= 20211103) {
+									const bsonOnLoad = onLoad();
+									loadBSONFile(
+										'data/contentdata/effectdata/ez2streffect.bson',
+										Ez2streffect,
+										function () {
+											require(['DB/Effects/EffectTable', 'DB/Skills/SkillEffect'], function (
+												EffectTable,
+												SkillEffect
+											) {
 												mergeEz2Effects(EffectTable, SkillEffect);
 												bsonOnLoad();
 											});
-										});
-									}
-									skillOnLoad(); // Skill Lua finished
-								});
+										}
+									);
+								}
+								skillOnLoad(); // Skill Lua finished
 							});
-						}
-					);
-				}
-			);
+						});
+					}
+				);
+			});
 
 			// Status
 			loadStateIconInfo(DB.LUA_PATH + 'stateicon/', null, onLoad());
@@ -1176,19 +1179,29 @@ define(function (require) {
 	 * Default is 'effectId'.
 	 */
 	var SUFFIX_TO_FIELD = {
-		'hit': 'hitEffectId', 'hitsub': 'hitEffectId', 'target': 'hitEffectId',
-		'cast': 'effectId', 'cast_bottom': 'effectId', 'single': 'effectId',
-		'bottom': 'effectId', 'begin': 'effectId', 'start': 'effectId', 'end': 'effectId',
-		'loop': 'effectId', 'buff': 'effectId', 'aura': 'effectId',
-		'main': 'effectId', 'sync': 'effectId'
+		hit: 'hitEffectId',
+		hitsub: 'hitEffectId',
+		target: 'hitEffectId',
+		cast: 'effectId',
+		cast_bottom: 'effectId',
+		single: 'effectId',
+		bottom: 'effectId',
+		begin: 'effectId',
+		start: 'effectId',
+		end: 'effectId',
+		loop: 'effectId',
+		buff: 'effectId',
+		aura: 'effectId',
+		main: 'effectId',
+		sync: 'effectId'
 	};
 
 	/**
 	 * Hardcoded mapping for specific effect names that override suffix logic.
 	 */
 	var HARDCODED_FIELD_MAPPING = {
-		'broken_limit_buff': 'effectId',
-		'abyss_flame_target': 'hitEffectId'
+		broken_limit_buff: 'effectId',
+		abyss_flame_target: 'hitEffectId'
 	};
 
 	/**
@@ -1320,18 +1333,20 @@ define(function (require) {
 			let lastSlash = (entry.FilePath || '').lastIndexOf('\\');
 			let texturePath = lastSlash !== -1 ? entry.FilePath.substring(0, lastSlash + 1) : '';
 
-			EffectTable[effectName] = [{
-				type: 'STR',
-				file: (entry.FilePath || '').replace(/\\/g, '/').replace(/\.str$/i, ''),
-				texturePath: texturePath,
-				renderBeforeEntities: entry.IsFloor ? false : true,
-				xOffset: entry.PosX || 0,
-				yOffset: entry.PosY || 0,
-				wav: entry.SoundPath ? entry.SoundPath.replace(/\\/g, '/').replace(/\.wav$/i, '') : null,
-				delayLate: entry.StartDelayTime || 0,
-				repeat: !!entry.IsInfinite,
-				attachedEntity: true
-			}];
+			EffectTable[effectName] = [
+				{
+					type: 'STR',
+					file: (entry.FilePath || '').replace(/\\/g, '/').replace(/\.str$/i, ''),
+					texturePath: texturePath,
+					renderBeforeEntities: entry.IsFloor ? false : true,
+					xOffset: entry.PosX || 0,
+					yOffset: entry.PosY || 0,
+					wav: entry.SoundPath ? entry.SoundPath.replace(/\\/g, '/').replace(/\.wav$/i, '') : null,
+					delayLate: entry.StartDelayTime || 0,
+					repeat: !!entry.IsInfinite,
+					attachedEntity: true
+				}
+			];
 			count++;
 
 			// Pass 6: SkillEffect Mapping with differentiated fields
