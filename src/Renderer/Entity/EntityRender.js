@@ -308,28 +308,27 @@ define(function (require) {
 									: self.CartNum;
 
 								// Draw Cart
-								SpriteRenderer.zIndex = -1;
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								SpriteRenderer.zIndex = 100;
 								SpriteRenderer.runWithDepth(true, false, false, function () {
+									SpriteRenderer.zIndex = -1;
+									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+									SpriteRenderer.zIndex = 1;
 									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 								});
 							}
 
 							// Draw Robe
 							if (self.robe > 0) {
-								SpriteRenderer.zIndex = 150;
+								SpriteRenderer.zIndex = -200;
 								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
 						}
 
-						SpriteRenderer.zIndex = 1000;
+						SpriteRenderer.zIndex = 150;
 						// Draw Body
 						renderElement(self, self.files.body, 'body', _position, true);
 
 						// Isometric Projection Body Offset
-						var zOffset = 1100;
-
+						var zOffset = 250;
 						SpriteRenderer.zIndex = zOffset + 50;
 
 						// Draw Head
@@ -403,7 +402,7 @@ define(function (require) {
 					break;
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
-					SpriteRenderer.zIndex = 1000;
+					SpriteRenderer.zIndex = 150;
 					// Non-player entities:
 					// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 					// - Still use depth test for correct ordering

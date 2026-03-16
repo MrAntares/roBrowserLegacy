@@ -426,9 +426,6 @@ define(function (require) {
 		Models.render(gl, modelView, projection, normalMat, fog, light);
 		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
 
-		// Rendering water (before sprites due cloaks and cart can't overdraw them when looking front)
-		Water.render(gl, modelView, projection, fog, light, tick);
-
 		if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos)) {
 			x = _pos[0];
 			y = _pos[1];
@@ -470,6 +467,9 @@ define(function (require) {
 
 		//Render Entities (no effects)
 		EntityManager.render(gl, modelView, projection, fog, false);
+
+		// Rendering water (after sprites, billboard projection pushes it to back)
+		Water.render(gl, modelView, projection, fog, light, tick);
 
 		// Rendering effects
 		Damage.render(gl, modelView, projection, fog, tick);
