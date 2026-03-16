@@ -1195,9 +1195,6 @@ define(function (require) {
 	 * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
 	 */
 	function mergeEz2Effects(EffectTable, SkillEffect) {
-		if (Configs.get('development')) {
-			console.log('Merging Ez2STREffect into EffectTable and SkillEffect (Optimized Mapping)...');
-		}
 		var count = 0;
 		var skillCount = 0;
 		var skillBaseToId = {};
@@ -1352,12 +1349,7 @@ define(function (require) {
 			}
 		}
 
-		if (Configs.get('development')) {
-			console.log('Successfully merged ' + count + ' effects into EffectTable.');
-			console.log('Successfully mapped ' + skillCount + ' effects into SkillEffect.');
-			console.log('EffectTable: ', EffectTable);
-			console.log('SkillEffect: ', SkillEffect);
-		}
+		console.log(`[DBManager] Loaded ${count} effects and mapped ${skillCount} skills.`);
 	}
 
 	/**
