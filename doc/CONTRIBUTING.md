@@ -6,7 +6,7 @@ Thank you for considering contributing to this project. This project is entirely
 
 ## Ground rules to work on this repo
 
-TODO: Add more rules when needed.
+<!-- TODO: Add more rules when needed. -->
 
 - Please be kind and respect other members of the community.
 - Always remember this is a FREE project;
@@ -15,11 +15,11 @@ TODO: Add more rules when needed.
 
 ## Getting started
 
-1. Create your fork of this project;
-2. Configure it with your desired emulator instance;
-3. Work on your modifications;
-4. Create a new [pull request](https://github.com/MrAntares/roBrowserLegacy/compare) so maintainers can see you work.
-5. Wait for the approval process
+1. Make sure you have a [GitHub account](https://github.com/signup/free).
+2. Next, you will need to [fork roBrowserLegacy](https://help.github.com/articles/fork-a-repo/#fork-an-example-repository) to your account.
+3. Before making changes, make sure you [create a new branch](https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/) for your working tree. Never use your **master** branch! :bangbang:
+4. After completing your changes, commit and push it to your branch.
+5. Now you are ready to [create a Pull Request](https://help.github.com/articles/creating-a-pull-request/) for roBrowserLegacy!
 
 Please refer to the [Getting started](./README.md) on how to set up your environment and start working on it.
 
