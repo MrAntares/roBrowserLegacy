@@ -267,6 +267,11 @@ define(function (require) {
 	var CashShopBannerTable = [];
 
 	/**
+	 * @var {Object} Ez2streffect Table
+	 */
+	var Ez2streffect = {};
+
+	/**
 	 * Initialize DB
 	 */
 	DB.init = function init() {
@@ -411,6 +416,7 @@ define(function (require) {
 			}
 
 			// Skill - load skillid.lub to populate SKID, then load description
+			const skillOnLoad = onLoad();
 			loadLuaValue(
 				DB.LUA_PATH + 'skillinfoz/skillid.lub',
 				'SKID',
@@ -436,12 +442,23 @@ define(function (require) {
 						function () {
 							// Calls after skillids and descs been populated
 							loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
-								loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, onLoad());
+								loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, function () {
+									// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
+									if (PACKETVER.value >= 20211103) {
+										const bsonOnLoad = onLoad();
+										loadBSONFile('data/contentdata/effectdata/ez2streffect.bson', Ez2streffect, function () {
+											require(['DB/Effects/EffectTable', 'DB/Skills/SkillEffect'], function (EffectTable, SkillEffect) {
+												mergeEz2Effects(EffectTable, SkillEffect);
+												bsonOnLoad();
+											});
+										});
+									}
+									skillOnLoad(); // Skill Lua finished
+								});
 							});
 						}
 					);
-				},
-				function () {} // onLoad() is called at the end of loadSkillTreeView
+				}
 			);
 
 			// Status
@@ -1152,6 +1169,191 @@ define(function (require) {
 			},
 			onEnd
 		);
+	}
+
+	/**
+	 * Mapping of effect name suffixes to SkillEffect field names.
+	 * Default is 'effectId'.
+	 */
+	var SUFFIX_TO_FIELD = {
+		'hit': 'hitEffectId', 'hitsub': 'hitEffectId', 'target': 'hitEffectId',
+		'cast': 'effectId', 'cast_bottom': 'effectId', 'single': 'effectId',
+		'bottom': 'effectId', 'begin': 'effectId', 'start': 'effectId', 'end': 'effectId',
+		'loop': 'effectId', 'buff': 'effectId', 'aura': 'effectId',
+		'main': 'effectId', 'sync': 'effectId'
+	};
+
+	/**
+	 * Hardcoded mapping for specific effect names that override suffix logic.
+	 */
+	var HARDCODED_FIELD_MAPPING = {
+		'broken_limit_buff': 'effectId',
+		'abyss_flame_target': 'hitEffectId'
+	};
+
+	/**
+	 * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
+	 */
+	function mergeEz2Effects(EffectTable, SkillEffect) {
+		var count = 0;
+		var skillCount = 0;
+		var skillBaseToId = {};
+		var effectNameToId = {};
+		var effectMetadata = {};
+
+		// Pre-calculate SKID lookup maps for O(1) matching
+		var skidFuzzy = {};
+		for (var key in SKID) {
+			var upperKey = key.toUpperCase();
+			var val = SKID[key];
+			skidFuzzy[upperKey] = val;
+
+			var lastUnderscore = -1;
+			while ((lastUnderscore = upperKey.indexOf('_', lastUnderscore + 1)) !== -1) {
+				let suffix = upperKey.substring(lastUnderscore + 1);
+				if (suffix && !skidFuzzy[suffix]) {
+					skidFuzzy[suffix] = val;
+				}
+			}
+		}
+
+		// Optimized helper to find skill by name
+		function findFuzzySkillId(name) {
+			return skidFuzzy[name.toUpperCase()] || null;
+		}
+
+		// Phase 1: Pre-Analysis and Anchoring
+		for (let effectName in Ez2streffect) {
+			let entry = Ez2streffect[effectName];
+			let baseName = effectName;
+			let isSuffixed = false;
+
+			let targetField = entry.IsToGround || entry.IsFloor ? 'groundEffectId' : 'effectId';
+
+			for (let suffix in SUFFIX_TO_FIELD) {
+				if (effectName.endsWith('_' + suffix)) {
+					baseName = effectName.slice(0, -(suffix.length + 1));
+					isSuffixed = true;
+					targetField = SUFFIX_TO_FIELD[suffix];
+					break;
+				}
+			}
+
+			if (HARDCODED_FIELD_MAPPING[effectName]) {
+				targetField = HARDCODED_FIELD_MAPPING[effectName];
+			}
+
+			let filePath = entry.FilePath || '';
+			let soundPath = entry.SoundPath || '';
+			let pathParts = filePath ? filePath.split('\\') : [];
+			let lastSlashSound = soundPath.lastIndexOf('\\');
+			let soundFile = lastSlashSound !== -1 ? soundPath.substring(lastSlashSound + 1) : soundPath;
+			let soundBase = soundFile.replace(/\.wav$/i, '');
+
+			effectMetadata[effectName] = {
+				baseName: baseName,
+				isSuffixed: isSuffixed,
+				pathParts: pathParts,
+				soundBase: soundBase,
+				field: targetField
+			};
+
+			// Pass 1: Exact Name Match for Base
+			let skillId1 = findFuzzySkillId(baseName);
+			if (skillId1) {
+				effectNameToId[effectName] = skillId1;
+				continue;
+			}
+
+			// Pass 2: Base Anchoring from Path (Non-suffixed only)
+			if (!isSuffixed) {
+				for (let i = 0, len = pathParts.length; i < len; i++) {
+					let segment = pathParts[i];
+					if (segment) {
+						let skillId2 = skillBaseToId[segment] || findFuzzySkillId(segment);
+						if (skillId2) {
+							skillBaseToId[segment] = skillId2;
+							effectNameToId[effectName] = skillId2;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		// Phase 2: Inheritance and Assignments
+		for (let effectName in Ez2streffect) {
+			let entry = Ez2streffect[effectName];
+			let meta = effectMetadata[effectName];
+			let skillId = effectNameToId[effectName];
+
+			// Pass 3: Path Fallback for unmapped
+			if (!skillId) {
+				for (let i = 0; i < meta.pathParts.length; i++) {
+					let segment = meta.pathParts[i] || '';
+					if (segment) {
+						skillId = skillBaseToId[segment] || findFuzzySkillId(segment);
+						if (skillId) {
+							break;
+						}
+					}
+				}
+			}
+
+			// Pass 4: Sound Fallback
+			if (!skillId && meta.soundBase) {
+				skillId = findFuzzySkillId(meta.soundBase);
+			}
+
+			if (skillId) {
+				effectNameToId[effectName] = skillId;
+			}
+
+			// Pass 5: Suffix Inheritance
+			// Run this after all anchoring passes to ensure variants inherit from anchored bases
+			if (!skillId && meta.isSuffixed && effectNameToId[meta.baseName]) {
+				skillId = effectNameToId[meta.baseName];
+				effectNameToId[effectName] = skillId;
+			}
+
+			// Pass 5: EffectTable Assignment
+			let lastSlash = (entry.FilePath || '').lastIndexOf('\\');
+			let texturePath = lastSlash !== -1 ? entry.FilePath.substring(0, lastSlash + 1) : '';
+
+			EffectTable[effectName] = [{
+				type: 'STR',
+				file: (entry.FilePath || '').replace(/\\/g, '/').replace(/\.str$/i, ''),
+				texturePath: texturePath,
+				renderBeforeEntities: entry.IsFloor ? false : true,
+				xOffset: entry.PosX || 0,
+				yOffset: entry.PosY || 0,
+				wav: entry.SoundPath ? entry.SoundPath.replace(/\\/g, '/').replace(/\.wav$/i, '') : null,
+				delayLate: entry.StartDelayTime || 0,
+				repeat: !!entry.IsInfinite,
+				attachedEntity: true
+			}];
+			count++;
+
+			// Pass 6: SkillEffect Mapping with differentiated fields
+			if (skillId) {
+				let skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
+				let field = meta.field;
+
+				if (skillEntry[field]) {
+					if (!Array.isArray(skillEntry[field])) {
+						skillEntry[field] = [skillEntry[field]];
+					}
+					if (skillEntry[field].indexOf(effectName) === -1) {
+						skillEntry[field].push(effectName);
+					}
+				} else {
+					skillEntry[field] = effectName;
+				}
+				skillCount++;
+			}
+		}
+
+		console.log(`[DBManager] Loaded ${count} effects and mapped ${skillCount} skills.`);
 	}
 
 	/**
