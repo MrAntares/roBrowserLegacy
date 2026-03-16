@@ -126,12 +126,6 @@ define(function (require) {
 		if (!_preferences.show) {
 			this.ui.hide();
 		}
-	};
-
-	/**
-	 * Prepare - Add roulette button to MiniMap
-	 */
-	Roulette.prepare = function prepare() {
 		// Check if roulette is enabled in ROConfig
 		if (ROConfig.enableRoulette === false) {
 			return;
@@ -189,13 +183,6 @@ define(function (require) {
 							width: '43px',
 							height: '43px',
 							border: 'none'
-						});
-					},
-					function (error) {
-						// Try alternative path with lowercase
-						var altPath = 'basic_interface/roullette/roulletteicon.bmp';
-						Client.loadFile(DB.INTERFACE_PATH + altPath, function (data) {
-							miniMapUI.find('.rouletteIcon').css('backgroundImage', 'url(' + data + ')');
 						});
 					}
 				);

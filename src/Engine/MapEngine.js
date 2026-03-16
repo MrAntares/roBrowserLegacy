@@ -672,6 +672,7 @@ define(function (require) {
 			MobileUI.append();
 			JoystickUI.append();
 			Navigation.append();
+			Roulette.append();
 
 			if (Session.PCGoldTimer) {
 				PCGoldTimer.append();
