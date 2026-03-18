@@ -231,10 +231,11 @@ define(function (require) {
 	var servers = Configs.get('servers', []);
 	var langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 10) : 1;
 
-	// use userStringDecoder instead
-	var _userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+	// setup default encoding
+	TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+
 	// create decoders
-	let userStringDecoder = new TextEncoding.TextDecoder(_userCharpage);
+	let userStringDecoder = TextEncoding;
 
 	/**
 	 * @var {Object} PetDBTable

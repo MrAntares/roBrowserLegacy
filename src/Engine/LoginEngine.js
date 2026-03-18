@@ -80,7 +80,6 @@ define(function (require) {
 
 		// Setup Default Charset based on LangType
 		charset = TextEncoding.detectEncodingByLangtype(Session.LangType, Configs.get('disableKorean'));
-		TextEncoding.setCharset(charset);
 
 		console.log('%c[LOGIN] Language Type: ', 'color:#007000', Session.LangType);
 		console.log('%c[LOGIN] Encoding: ', 'color:#007000', charset);
