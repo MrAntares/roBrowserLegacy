@@ -233,8 +233,9 @@ define(function (require) {
 
 	// use userStringDecoder instead
 	var _userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+
 	// create decoders
-	let userStringDecoder = new TextEncoding.TextDecoder(_userCharpage);
+	let userStringDecoder = TextEncoding;
 
 	/**
 	 * @var {Object} PetDBTable

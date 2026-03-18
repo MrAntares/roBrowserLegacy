@@ -223,7 +223,7 @@ define(['./Struct', 'Vendors/text-encoding'], function (Struct, TextEncoding) {
 
 		this.offset = offset + len;
 
-		return TextEncoding.decode(data.subarray(0, i));
+		return TextEncoding.decode(data.subarray(0, i), 'utf-8');
 	};
 
 	/**
