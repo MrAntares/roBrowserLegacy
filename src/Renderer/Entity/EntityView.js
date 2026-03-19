@@ -359,6 +359,10 @@ define(function (require) {
 		var path;
 		var Entity;
 
+		if (look < 0) {
+			return;
+		}
+
 		this._body = look;
 
 		if (AllMountTable[look] === this._effectiveJob || MountTable[look] === this._effectiveJob) {
