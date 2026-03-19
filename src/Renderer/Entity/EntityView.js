@@ -356,18 +356,10 @@ define(function (require) {
 	 * @param {number} Body2 id
 	 */
 	function UpdateBodyStyle(look) {
-		var baseJob, path;
+		var path;
 		var Entity;
 
-		if (look < 0) {
-			return;
-		}
 		this._body = look;
-
-		// Resize character
-		this.xSize = this.ySize = DB.isBaby(this.job) ? 4 : 5;
-
-		this.files.shadow.size = this.job in ShadowTable ? ShadowTable[this.job] : 1.0;
 
 		if (AllMountTable[look] === this._effectiveJob || MountTable[look] === this._effectiveJob) {
 			look = AllMountTable[look] || MountTable[look];

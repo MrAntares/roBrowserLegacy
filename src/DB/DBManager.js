@@ -4193,34 +4193,32 @@ define(function (require) {
 				: 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
 			result += SexTable[sex] + '/';
 
-			if (PACKETVER.value > 20141022) {
-				if (alternative > 0 && id !== alternative) {
-					var use_costume =
-						(PACKETVER.value > 20231220 &&
-							alternative > JobId.COSTUME_SECOND_JOB_START &&
-							alternative < JobId.COSTUME_SECOND_JOB_END) ||
-						(alternative === 1 && PACKETVER.value <= 20231220);
+			if (PACKETVER.value > 20141022 && alternative > 0 && id !== alternative) {
+				var use_costume =
+					(PACKETVER.value > 20231220 &&
+						alternative > JobId.COSTUME_SECOND_JOB_START &&
+						alternative < JobId.COSTUME_SECOND_JOB_END) ||
+					(alternative === 1 && PACKETVER.value <= 20231220);
 
-					if (use_costume) {
-						result += 'costume_1/';
-					}
-
-					if (
-						(alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) ||
-						(alternative === 1 && PACKETVER.value <= 20231220)
-					) {
-						result += ClassTable[id] || ClassTable[0];
-					} else {
-						result += ClassTable[alternative] || ClassTable[0];
-					}
-
-					result += '_' + SexTable[sex];
-
-					if (use_costume) {
-						result += '_1';
-					}
-					return result;
+				if (use_costume) {
+					result += 'costume_1/';
 				}
+
+				if (
+					(alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) ||
+					(alternative === 1 && PACKETVER.value <= 20231220)
+				) {
+					result += ClassTable[id] || ClassTable[0];
+				} else {
+					result += ClassTable[id] || ClassTable[0];
+				}
+
+				result += '_' + SexTable[sex];
+
+				if (use_costume) {
+					result += '_1';
+				}
+				return result;
 			}
 
 			result += ClassTable[id] || ClassTable[0];
@@ -4249,7 +4247,7 @@ define(function (require) {
 		//
 		// OTHER ACTORS
 		//
-		switch(id){
+		switch (id) {
 			case '11_FALCON':
 			case '4034_FALCON':
 				// 2nd
@@ -4276,12 +4274,11 @@ define(function (require) {
 				// 4th
 				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_wolf';
 			default:
-				if(typeof id === 'string'){
+				if (typeof id === 'string') {
 					// default for gm or customs
 					if (id.includes('_FALCON')) {
 						return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
-					}
-					else if (id.includes('_WUG')) {
+					} else if (id.includes('_WUG')) {
 						return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
 					}
 				}
