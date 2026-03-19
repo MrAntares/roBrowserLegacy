@@ -4210,7 +4210,7 @@ define(function (require) {
 				) {
 					result += ClassTable[id] || ClassTable[0];
 				} else {
-					result += ClassTable[id] || ClassTable[0];
+					result += ClassTable[alternative] || ClassTable[0];
 				}
 
 				result += '_' + SexTable[sex];
