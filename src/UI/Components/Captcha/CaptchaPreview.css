@@ -3,7 +3,6 @@
 	width: 220px;
 	height: 107px;
 	background-color: #ffffff;
-	font-size: 12px;
 	border-radius: 3px;
 }
 
@@ -36,6 +35,8 @@
 	display: inline-block;
 	width: 32px;
 	height: 13px;
+	font-size: 11px;
+	font-weight: bold;	
 }
 
 #CaptchaPreview .titlebar .left {

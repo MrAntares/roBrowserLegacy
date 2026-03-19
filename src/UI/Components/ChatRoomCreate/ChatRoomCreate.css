@@ -32,6 +32,8 @@
 	/* chrome bug */
 	display: inline-block;
 	height: 13px;
+	font-size: 11px;
+	font-weight: bold;	
 }
 
 #ChatRoomCreate .titlebar .left {

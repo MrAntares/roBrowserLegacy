@@ -31,6 +31,8 @@
 	display: inline-block;
 	width: 50px;
 	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
 }
 
 #HomunInformations .content .left {

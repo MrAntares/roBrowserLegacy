@@ -4,8 +4,9 @@
 	flex-direction: column;
 	width: 723px;
 	height: 540px;
-	background: #fff;
+	background: transparent;
 	border-radius: 3px;
+	font-weight: bold;	
 }
 
 #CashShop .titlebar {
@@ -13,7 +14,7 @@
 	height: 17px;
 	background-color: white;
 	background-repeat: repeat-x;
-	border-radius: 3px 3px 0px 0px;
+	border-radius: 3px 3px 0px 0px;	
 }
 
 #CashShop .titlebar .base {
@@ -33,6 +34,8 @@
 	display: inline-block;
 	width: 32px;
 	height: 13px;
+	font-size: 11px;
+	font-weight: bold;	
 }
 
 #CashShop .titlebar .left {
@@ -278,6 +281,7 @@
 	width: 54px;
 	height: 18px;
 	background-size: cover;
+	background-color: transparent;
 }
 
 #CashShop .panel-cart {
@@ -537,6 +541,7 @@
 	margin-left: 5px;
 	margin-top: 4px;
 	border: none;
+	background: transparent;
 }
 
 #CashShop .panel-cart .panel-cart-footer .cart-footer-action .total-price {
