@@ -1,10 +1,3 @@
-/*!
- * Text Encoding shim
- * https://github.com/inexorabletash/text-encoding
- *
- * Released under the Apache License
- * https://github.com/inexorabletash/text-encoding/blob/master/LICENSE.md
- */
 define(function (require) {
 	'use strict';
 	var iconv = require('./iconv-lite');

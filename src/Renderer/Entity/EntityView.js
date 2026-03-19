@@ -356,19 +356,20 @@ define(function (require) {
 	 * @param {number} Body2 id
 	 */
 	function UpdateBodyStyle(look) {
-		var baseJob, path;
+		var path;
 		var Entity;
 
 		if (look < 0) {
 			return;
 		}
+
 		this._body = look;
 
-		// Resize character
-		this.xSize = this.ySize = DB.isBaby(this.job) ? 4 : 5;
+		if (AllMountTable[look] === this._effectiveJob || MountTable[look] === this._effectiveJob) {
+			look = AllMountTable[look] || MountTable[look];
+		}
 
-		this.files.shadow.size = this.job in ShadowTable ? ShadowTable[this.job] : 1.0;
-		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this.job, this._sex, this._body);
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this._effectiveJob, this._sex, look);
 		Entity = this.constructor;
 
 		// Loading
