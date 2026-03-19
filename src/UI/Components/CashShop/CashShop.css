@@ -6,6 +6,7 @@
 	height: 540px;
 	background: transparent;
 	border-radius: 3px;
+	font-weight: bold;	
 }
 
 #CashShop .titlebar {
@@ -280,6 +281,7 @@
 	width: 54px;
 	height: 18px;
 	background-size: cover;
+	background-color: transparent;
 }
 
 #CashShop .panel-cart {
@@ -539,6 +541,7 @@
 	margin-left: 5px;
 	margin-top: 4px;
 	border: none;
+	background: transparent;
 }
 
 #CashShop .panel-cart .panel-cart-footer .cart-footer-action .total-price {
