@@ -37,7 +37,7 @@ define(function (require) {
 		style.append('\n' + _cssText);
 		jQuery('body').html(this.ui);
 
-		this.ui.css('backgroundImage', 'url(' + require.toUrl('./angeling.png') + ')');
+		this.ui.css('backgroundImage', 'url(' + require.toUrl('./error.png') + ')');
 	};
 
 	/**

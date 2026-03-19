@@ -4,6 +4,8 @@
 	left: 100px;
 	background: white;
 	border-radius: 2px;
+	font-size: 11px;
+	font-weight: bold;
 }
 #FPS .titlebar {
 	width: 100%;

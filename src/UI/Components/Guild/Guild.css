@@ -12,6 +12,8 @@
 	background-color: white;
 	background-repeat: repeat-x;
 	border-radius: 3px 3px 0px 0px;
+	font-size: 11px;
+	font-weight: bold;	
 }
 #Guild .titlebar .base {
 	width: 11px;

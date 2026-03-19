@@ -4,7 +4,8 @@
 	left: 0px;
 	width: 220px;
 	height: 150px;
-	text-shadow: 1px 1px white;
+	font-size: 11px;
+	font-weight: bold;	
 }
 #BasicInfoV5.small .large {
 	display: none;
@@ -54,6 +55,7 @@
 	position: absolute;
 	top: 2px;
 	left: 18px;
+	text-shadow: 1px 1px white;	
 }
 #BasicInfoV5 .large .name {
 	position: absolute;
@@ -241,22 +243,26 @@
 	top: 20px;
 	left: 10px;
 	white-space: nowrap;
+	font-weight: normal;	
 }
 #BasicInfoV5 .small .line3 .hp_max_value {
 	display: inline-block;
 	width: 65px; /* Set your desired width */
 	text-align: left; /* Align the text to the right within the span */
+	font-weight: normal;	
 }
 #BasicInfoV5 .small .line4 {
 	position: absolute;
 	top: 35px;
 	left: 10px;
 	white-space: nowrap;
+	font-weight: normal;	
 }
 #BasicInfoV5 .small .line4 .sp_max_value {
 	display: inline-block;
 	width: 73px; /* Set your desired width */
 	text-align: left; /* Align the text to the right within the span */
+	font-weight: normal;	
 }
 #BasicInfoV5 .toggle_btns {
 	border: none;

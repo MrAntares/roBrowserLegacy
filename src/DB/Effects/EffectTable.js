@@ -1597,6 +1597,7 @@ define(function (require) {
 				sizeY: 45,
 				type: '3D',
 				wav: 'effect/ef_incagility',
+				overlay: true,
 				zIndex: 10
 			}
 		],
