@@ -5,7 +5,7 @@
 	width: 220px;
 	height: 135px;
 	font-size: 11px;
-	font-weight: bold;	
+	font-weight: bold;
 }
 #BasicInfoV3.small .large {
 	display: none;
@@ -55,7 +55,7 @@
 	position: absolute;
 	top: 2px;
 	left: 18px;
-	text-shadow: 1px 1px white;	
+	text-shadow: 1px 1px white;
 }
 #BasicInfoV3 .large .name {
 	position: absolute;
@@ -84,7 +84,7 @@
 	left: 35px;
 	width: 135px;
 	height: 9px;
-	font-weight: normal;	
+	font-weight: normal;
 }
 #BasicInfoV3 .large .sp_bar {
 	top: 68px;
