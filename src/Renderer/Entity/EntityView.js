@@ -368,7 +368,12 @@ define(function (require) {
 		this.xSize = this.ySize = DB.isBaby(this.job) ? 4 : 5;
 
 		this.files.shadow.size = this.job in ShadowTable ? ShadowTable[this.job] : 1.0;
-		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this.job, this._sex, this._body);
+
+		if (AllMountTable[look] === this._effectiveJob || MountTable[look] === this._effectiveJob) {
+			look = AllMountTable[look] || MountTable[look];
+		}
+
+		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this._effectiveJob, this._sex, look);
 		Entity = this.constructor;
 
 		// Loading
