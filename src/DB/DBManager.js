@@ -4249,34 +4249,43 @@ define(function (require) {
 		//
 		// OTHER ACTORS
 		//
-		if (id == '11_FALCON' || id == '4034_FALCON') {
-			// 2nd
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
-		}
-
-		if (id == '4012_FALCON') {
-			// rebirth
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5\x32';
-		}
-
-		if (id == '4056_FALCON' || id == '4062_FALCON' || id == '4098_FALCON') {
-			// 3rd
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
-		}
-
-		if (id == '4056_WUG' || id == '4062_WUG' || id == '4098_WUG') {
-			// 3rd
-			return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
-		}
-
-		if (id == '4257_FALCON' || id == '4270_FALCON' || id == '4278_FALCON') {
-			// 4th
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_hawk';
-		}
-
-		if (id == '4257_WUG') {
-			// 4th
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_wolf';
+		switch(id){
+			case '11_FALCON':
+			case '4034_FALCON':
+				// 2nd
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
+			case '4012_FALCON':
+				// rebirth
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5\x32';
+			case '4056_FALCON':
+			case '4062_FALCON':
+			case '4098_FALCON':
+				// 3rd
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
+			case '4257_FALCON':
+			case '4270_FALCON':
+			case '4278_FALCON':
+				// 4th
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_hawk';
+			case '4056_WUG':
+			case '4062_WUG':
+			case '4098_WUG':
+				// 3rd
+				return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+			case '4257_WUG':
+				// 4th
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_wolf';
+			default:
+				if(typeof id === 'string'){
+					// default for gm or customs
+					if (id.includes('_FALCON')) {
+						return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
+					}
+					else if (id.includes('_WUG')) {
+						return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+					}
+				}
+				break;
 		}
 
 		// MONSTER
