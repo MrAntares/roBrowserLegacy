@@ -487,8 +487,8 @@ define(function (require) {
 			drag = Events.setTimeout(dragging, 15);
 
 			// Stop the drag (need to focus on window to avoid possible errors...)
-			jQuery(window).on('mouseup.dragdrop touchend.dragdrop', function (event) {
-				if (event.type === 'touchend' || event.which === 1 || event.isTrigger) {
+			jQuery(window).on('mouseup.dragdrop touchend.dragdrop', function (ev) {
+				if (ev.type === 'touchend' || ev.which === 1 || ev.isTrigger) {
 					if (component.gridSnap) {
 						var pos = container.position();
 						var gw = component.gridSnap.width;
@@ -509,11 +509,15 @@ define(function (require) {
 						var snappedY = (gridYIndex * gh) + padY;
 
 						container.stop().animate({ left: snappedX, top: snappedY, opacity: 1.0 }, component.snapDuration || 150, function() {
-							if (component.onDragEnd) component.onDragEnd();
+							if (component.onDragEnd) {
+								component.onDragEnd();
+							}
 						});
 					} else {
 						container.stop().animate({ opacity: 1.0 }, 150, function() {
-							if (component.onDragEnd) component.onDragEnd();
+							if (component.onDragEnd) {
+								component.onDragEnd();
+							}
 						});
 					}
 					
