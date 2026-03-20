@@ -134,9 +134,11 @@
 	position: absolute;
 	top: 105px;
 	left: 5px;
-}
-#BasicInfoV0 .large .extra {
-	padding-right: 10px;
+	padding-right: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: right;
+	white-space: nowrap;	
 }
 #BasicInfoV0 .buttons {
 	position: absolute;

@@ -261,22 +261,26 @@ define(function (require) {
 
 		this.ui.find('.input-chatbox').on('keydown', function (event) {
 			var currentText = extractChatMessage(jQuery(this));
-			// Allowed Keys (backspace, delete, arrows, etc)
-			if (event.which >= 37 && event.which <= 40) {
-				return true;
-			} // arrows
-			if (event.which === 8 || event.which === 46) {
-				return true;
-			} // backspace, delete
-			if (event.which === 13) {
-				return true;
-			} // enter
-			if (event.ctrlKey || event.altKey) {
-				return true;
-			}
-
 			// Block texting after reach max_lenght
 			if (currentText.length >= MAX_LENGTH) {
+				const allowedKeys = [
+					'ArrowLeft',
+					'ArrowUp',
+					'ArrowRight',
+					'ArrowDown',
+					'Backspace',
+					'Delete',
+					'Enter',
+					'Insert'
+				];
+
+				if (allowedKeys.includes(event.key)) {
+					return true;
+				}
+
+				if (event.ctrlKey || event.altKey) {
+					return true;
+				}
 				event.preventDefault();
 				return false;
 			}

@@ -798,7 +798,17 @@ define(function (require) {
 		var element;
 
 		if (!target) {
-			return;
+			if (this.ui.find('.skill.id' + skill.SKID).length) {
+				// Double Step ADD_SKILL packet due packet len overflow
+				_list.push(skill);
+				this.onUpdateSkill(skill.SKID, 0);
+				hasSkills[skill.SKID] = skill;
+				target = skill;
+			}
+			else
+			{
+				return;
+			}
 		}
 
 		// Update Memory
