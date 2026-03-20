@@ -55,6 +55,11 @@ define(function (require) {
 	);
 
 	/**
+	 * @var {Object} member colors cache
+	 */
+	var _memberColors = {};
+
+	/**
 	 * @var {Array} party members marker
 	 */
 	var _party = [];
@@ -236,22 +241,14 @@ define(function (require) {
 		_markers.length = 0;
 	};
 
-	/**
-	 * Add a party mark to minimap
-	 *
-	 * @param {number} key account id
-	 * @param {number} x position
-	 * @param {number} y position
-	 */
-	MiniMapV2.addPartyMemberMark = function addPartyMember(key, x, y) {
-		var i,
-			count = _party.length;
-		var r = Math.random;
+	MiniMapV2.addPartyMemberMark = function addPartyMemberMark(key, x, y) {
+		var i, count = _party.length;
 
 		for (i = 0; i < count; ++i) {
 			if (_party[i].key === key) {
 				_party[i].x = x;
 				_party[i].y = y;
+				_party[i].color = this.getMemberColor(key);
 				return;
 			}
 		}
@@ -260,8 +257,21 @@ define(function (require) {
 			key: key,
 			x: x,
 			y: y,
-			color: 'rgb(' + [(r() * 255) | 0, (r() * 255) | 0, (r() * 255) | 0] + ')'
+			color: this.getMemberColor(key)
 		});
+	};
+
+	/**
+	 * Get or generate a random color for a party member
+	 */
+	MiniMapV2.getMemberColor = function getMemberColor(key) {
+		if (_memberColors[key]) {
+			return _memberColors[key];
+		}
+		var r = Math.random;
+		var color = 'rgb(' + [(r() * 255) | 0, (r() * 255) | 0, (r() * 255) | 0] + ')';
+		_memberColors[key] = color;
+		return color;
 	};
 
 	/**
@@ -571,6 +581,9 @@ define(function (require) {
 				dot = _party[i];
 				_ctx.fillStyle = 'white';
 				_ctx.fillRect(projectX(dot.x) - 3, projectY(dot.y) - 3, 6, 6);
+
+				dot.color = MiniMapV2.getMemberColor(dot.key);
+
 				_ctx.fillStyle = dot.color;
 				_ctx.fillRect(projectX(dot.x) - 2, projectY(dot.y) - 2, 4, 4);
 			}

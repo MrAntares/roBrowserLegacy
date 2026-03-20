@@ -23,11 +23,12 @@ define(function (require) {
 	var MapRenderer = require('Renderer/MapRenderer');
 	var UIManager = require('UI/UIManager');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var PartyUI = require('UI/Components/PartyFriends/PartyFriends');
 	var WorldMap = require('UI/Components/WorldMap/WorldMap');
+	var getModule = require;
 
 	// Version Dependent UIs
 	var MiniMap = require('UI/Components/MiniMap/MiniMap');
+	var PartyFriends = require('UI/Components/PartyFriends/PartyFriends');
 
 	/**
 	 * Party namespace
@@ -63,6 +64,8 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.DELETE_MEMBER_FROM_GROUP, onPartyMemberLeave);
 		Network.hookPacket(PACKET.ZC.ACK_MAKE_GROUP, onPartyCreate);
 		Network.hookPacket(PACKET.ZC.GROUP_ISALIVE, onPartyIsAlive);
+
+		var PartyUI = PartyFriends.getUI();
 
 		PartyUI.onExpelMember = GroupEngine.onRequestExpel;
 		PartyUI.onRequestChangeLeader = GroupEngine.onRequestChangeLeader;
@@ -211,15 +214,29 @@ define(function (require) {
 				ChatBox.addText(DB.getMessage(77), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
 				Session.hasParty = true;
 
-				PartyUI.setParty(_partyName, [
-					{
-						AID: Session.AID,
-						characterName: Session.Entity.display.name,
-						role: 0, // leader
-						state: 0, // online
-						mapName: MapRenderer.currentMap
+				var entity = Session.Entity;
+				var memberData = {
+					AID: Session.AID,
+					characterName: entity.display.name,
+					role: 0, // leader
+					state: 0, // online
+					mapName: MapRenderer.currentMap
+				};
+
+				// Enrich mock member with actual level/class/life info immediately
+				if (entity) {
+					if (entity.display && entity.display.lvl) {
+						memberData.baseLevel = entity.display.lvl;
 					}
-				]);
+					if (entity.job !== undefined) {
+						memberData.class_ = entity.job;
+					}
+					if (entity.life && entity.life.display) {
+						memberData.life = entity.life;
+					}
+				}
+
+				PartyFriends.getUI().setParty(_partyName, [memberData]);
 				break;
 
 			case 1: // party name already exists
@@ -237,13 +254,14 @@ define(function (require) {
 	}
 
 	/**
-	 * Get answer from party creation
+	 * Receive dead/alive status update for a party member
 	 *
 	 * @param {object} pkt - PACKET.ZC.GROUP_ISALIVE
 	 */
 	function onPartyIsAlive(pkt) {
-		// TODO: save is pkt.isDead, in new Party UI this show dead icon
+		PartyFriends.getUI().updateMemberDead(pkt.AID, pkt.isDead);
 	}
+
 	/**
 	 * Get list of party members
 	 *
@@ -258,12 +276,22 @@ define(function (require) {
 
 		for (i = 0; i < count; ++i) {
 			entity = EntityManager.get(pkt.groupInfo[i].AID);
-			if (entity && entity.life.display) {
-				pkt.groupInfo[i].life = entity.life;
+			if (entity) {
+				// Enrich life data if available
+				if (entity.life.display) {
+					pkt.groupInfo[i].life = entity.life;
+				}
+				// Enrich level/class when the packet variant doesn't include them (e.g. GROUP_LIST 0xfb)
+				if (!pkt.groupInfo[i].baseLevel && entity.display && entity.display.lvl) {
+					pkt.groupInfo[i].baseLevel = entity.display.lvl;
+				}
+				if (!pkt.groupInfo[i].class_ && entity.job !== undefined) {
+					pkt.groupInfo[i].class_ = entity.job;
+				}
 			}
 		}
 
-		PartyUI.setParty(pkt.groupName, pkt.groupInfo);
+		PartyFriends.getUI().setParty(pkt.groupName, pkt.groupInfo);
 		WorldMap.updatePartyMembers(pkt);
 	}
 
@@ -275,10 +303,20 @@ define(function (require) {
 	function onPartyMemberJoin(pkt) {
 		var entity = EntityManager.get(pkt.AID);
 
-		if (entity && entity.life.display) {
-			pkt.life = entity.life;
+		if (entity) {
+			if (entity.life.display) {
+				pkt.life = entity.life;
+			}
+			// Enrich level/class when the packet variant doesn't include them
+			if (!pkt.baseLevel && entity.display && entity.display.lvl) {
+				pkt.baseLevel = entity.display.lvl;
+			}
+			if (!pkt.class_ && entity.job !== undefined) {
+				pkt.class_ = entity.job;
+			}
 		}
 
+		var PartyUI = PartyFriends.getUI();
 		PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 		PartyUI.addPartyMember(pkt);
 	}
@@ -309,7 +347,7 @@ define(function (require) {
 			Session.hasParty = false;
 		}
 
-		PartyUI.removePartyMember(pkt.AID, pkt.characterName);
+		PartyFriends.getUI().removePartyMember(pkt.AID, pkt.characterName);
 	}
 
 	/**
@@ -325,8 +363,8 @@ define(function (require) {
 			entity.life.hp_max = pkt.maxhp;
 			entity.life.update();
 
-			if (pkt.AID !== Session.AID) {
-				PartyUI.updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
+			if (entity && entity.life && entity.life.canvas) {
+				PartyFriends.getUI().updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
 			}
 		}
 	}
@@ -366,7 +404,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.GROUPINFO_CHANGE
 	 */
 	function onPartyOption(pkt) {
-		PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
+		PartyFriends.getUI().setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 
 		ChatBox.addText(
 			DB.getMessage(291) + '  - ' + DB.getMessage(292) + '  : ' + DB.getMessage(287 + pkt.expOption),

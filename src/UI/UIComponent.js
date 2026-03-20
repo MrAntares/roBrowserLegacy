@@ -489,7 +489,34 @@ define(function (require) {
 			// Stop the drag (need to focus on window to avoid possible errors...)
 			jQuery(window).on('mouseup.dragdrop touchend.dragdrop', function (event) {
 				if (event.type === 'touchend' || event.which === 1 || event.isTrigger) {
-					container.stop().animate({ opacity: 1.0 }, 500);
+					if (component.gridSnap) {
+						var pos = container.position();
+						var gw = component.gridSnap.width;
+						var gh = component.gridSnap.height;
+						var padX = component.gridSnap.padX || 0;
+						var padY = component.gridSnap.padY || 0;
+
+						var maxXIndex = Math.floor((Renderer.width - container.width() - padX) / gw);
+						var maxYIndex = Math.floor((Renderer.height - container.height() - padY) / gh);
+
+						var gridXIndex = Math.round((pos.left - padX) / gw);
+						var gridYIndex = Math.round((pos.top - padY) / gh);
+
+						gridXIndex = Math.max(0, Math.min(gridXIndex, maxXIndex));
+						gridYIndex = Math.max(0, Math.min(gridYIndex, maxYIndex));
+
+						var snappedX = (gridXIndex * gw) + padX;
+						var snappedY = (gridYIndex * gh) + padY;
+
+						container.stop().animate({ left: snappedX, top: snappedY, opacity: 1.0 }, component.snapDuration || 150, function() {
+							if (component.onDragEnd) component.onDragEnd();
+						});
+					} else {
+						container.stop().animate({ opacity: 1.0 }, 150, function() {
+							if (component.onDragEnd) component.onDragEnd();
+						});
+					}
+					
 					Events.clearTimeout(drag);
 					jQuery(window).off('mouseup.dragdrop touchend.dragdrop');
 					_snapCache = [];
