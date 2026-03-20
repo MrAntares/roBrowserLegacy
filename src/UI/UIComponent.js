@@ -505,22 +505,28 @@ define(function (require) {
 						gridXIndex = Math.max(0, Math.min(gridXIndex, maxXIndex));
 						gridYIndex = Math.max(0, Math.min(gridYIndex, maxYIndex));
 
-						var snappedX = (gridXIndex * gw) + padX;
-						var snappedY = (gridYIndex * gh) + padY;
+						var snappedX = gridXIndex * gw + padX;
+						var snappedY = gridYIndex * gh + padY;
 
-						container.stop().animate({ left: snappedX, top: snappedY, opacity: 1.0 }, component.snapDuration || 150, function() {
-							if (component.onDragEnd) {
-								component.onDragEnd();
-							}
-						});
+						container
+							.stop()
+							.animate(
+								{ left: snappedX, top: snappedY, opacity: 1.0 },
+								component.snapDuration || 150,
+								function () {
+									if (component.onDragEnd) {
+										component.onDragEnd();
+									}
+								}
+							);
 					} else {
-						container.stop().animate({ opacity: 1.0 }, 150, function() {
+						container.stop().animate({ opacity: 1.0 }, 150, function () {
 							if (component.onDragEnd) {
 								component.onDragEnd();
 							}
 						});
 					}
-					
+
 					Events.clearTimeout(drag);
 					jQuery(window).off('mouseup.dragdrop touchend.dragdrop');
 					_snapCache = [];

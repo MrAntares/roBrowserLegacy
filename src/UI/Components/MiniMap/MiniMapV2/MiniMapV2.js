@@ -242,7 +242,8 @@ define(function (require) {
 	};
 
 	MiniMapV2.addPartyMemberMark = function addPartyMemberMark(key, x, y) {
-		var i, count = _party.length;
+		var i,
+			count = _party.length;
 
 		for (i = 0; i < count; ++i) {
 			if (_party[i].key === key) {

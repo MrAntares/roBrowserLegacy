@@ -169,14 +169,18 @@ define(function (require) {
 		var state = player.state || 0;
 		var role = player.role || 0;
 
-		var isOnline = (state === 0);
-		var isLeader = (role === 0);
+		var isOnline = state === 0;
+		var isLeader = role === 0;
 
 		ui.find('.name').text(player.characterName);
 		ui.find('.level').text('Lv. ' + level);
 
 		// Draw HP if available
-		updateCanvasLife(ui, (player.life && player.life.display) ? player.life.hp : undefined, (player.life && player.life.display) ? player.life.hp_max : undefined);
+		updateCanvasLife(
+			ui,
+			player.life && player.life.display ? player.life.hp : undefined,
+			player.life && player.life.display ? player.life.hp_max : undefined
+		);
 
 		// Job Icon
 		var jobIcon = ui.find('.job-icon');
@@ -202,8 +206,12 @@ define(function (require) {
 
 		var memberColor = isOnline ? 'white' : '#adadad';
 		ui.find('.name').text(player.characterName).css('color', memberColor);
-		ui.find('.map').text('(' + mapDisplay + ')').css('color', memberColor);
-		ui.find('.level').text('Lv. ' + level).css('color', memberColor);
+		ui.find('.map')
+			.text('(' + mapDisplay + ')')
+			.css('color', memberColor);
+		ui.find('.level')
+			.text('Lv. ' + level)
+			.css('color', memberColor);
 
 		ui.toggleClass('online', isOnline);
 	};
@@ -253,8 +261,8 @@ define(function (require) {
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
 		var hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		var lifeRatio = hasLife ? (hp / maxhp) : 0;
-		var barVisibility = 'visible';	// Always visible
+		var lifeRatio = hasLife ? hp / maxhp : 0;
+		var barVisibility = 'visible'; // Always visible
 
 		node.find('.hp-bar-container').css('visibility', barVisibility);
 
