@@ -262,6 +262,27 @@ define(function (require) {
 						}
 					}
 				});
+				setTimeout(() => {
+					this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
+				}, 632);
+			} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
+				this.setAction({
+					action: this.ACTION.WALK,
+					frame: 0,
+					repeat: true,
+					play: true,
+					next: {
+						delay: Renderer.tick + 432,
+						action: this.ACTION.IDLE,
+						frame: 0,
+						repeat: false,
+						play: true,
+						next: false
+					}
+				});
+				setTimeout(() => {
+					this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
+				}, 432);
 			} else if (this.action !== action) {
 				this.setAction({
 					action: action,
@@ -589,11 +610,9 @@ define(function (require) {
 				return;
 			}
 
-			var falconBaseSpeed = this.walk.speed;
-			this.falcon.walk.speed = falconBaseSpeed + (distance > 9 ? -10 : 10);
-
 			var targetChanged = this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY;
 			if (targetChanged) {
+				this.falcon.walk.speed = Math.max(this.walk.speed - 50, 1);
 				this.falcon._followTargetX = ownerCellX;
 				this.falcon._followTargetY = ownerCellY;
 				this.falcon.walk.lastWalkTick = Renderer.tick;
@@ -621,10 +640,9 @@ define(function (require) {
 				return;
 			}
 
-			this.wug.walk.speed = this.walk.speed - 10;
-
 			var targetChanged = this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY;
 			if (targetChanged) {
+				this.wug.walk.speed = Math.max(this.walk.speed - 50, 1);
 				this.wug._followTargetX = ownerCellX;
 				this.wug._followTargetY = ownerCellY;
 				this.wug.walk.lastWalkTick = Renderer.tick;
@@ -637,7 +655,7 @@ define(function (require) {
 					false,
 					false,
 					Renderer.tick
-				);
+				);	
 			}
 		}
 	}
