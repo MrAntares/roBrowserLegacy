@@ -13362,9 +13362,9 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.ADD_MEMBER_TO_GROUP4 = function PACKET_ZC_ADD_MEMBER_TO_GROUP4(fp, end) {
 		this.AID = fp.readULong();
 		this.GID = fp.readULong();
+		this.Role = fp.readULong();
 		this.class_ = fp.readShort();
 		this.baseLevel = fp.readShort();
-		this.Role = fp.readULong();
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
