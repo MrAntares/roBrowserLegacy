@@ -145,7 +145,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	text-align: right;
-	white-space: nowrap;	
+	white-space: nowrap;
 }
 #basicinfo .buttons {
 	position: absolute;

@@ -804,9 +804,7 @@ define(function (require) {
 				this.onUpdateSkill(skill.SKID, 0);
 				hasSkills[skill.SKID] = skill;
 				target = skill;
-			}
-			else
-			{
+			} else {
 				return;
 			}
 		}
