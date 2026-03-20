@@ -595,7 +595,7 @@ define(function (require) {
 					GID: Session.Entity.GID + '_FALCON',
 					PosDir: [Session.Entity.position[0], Session.Entity.position[1], 0],
 					job: Session.Entity._effectiveJob + '_FALCON',
-					speed: Math.max(Session.Entity.walk.speed - 50,1),
+					speed: Math.max(Session.Entity.walk.speed - 50, 1),
 					name: '',
 					hp: -1,
 					maxhp: -1,
@@ -613,7 +613,7 @@ define(function (require) {
 					GID: Session.Entity.GID + '_WUG',
 					PosDir: [Session.Entity.position[0], Session.Entity.position[1], 0],
 					job: Session.Entity._effectiveJob + '_WUG',
-					speed: Math.max(Session.Entity.walk.speed - 50,1),
+					speed: Math.max(Session.Entity.walk.speed - 50, 1),
 					name: '',
 					hp: -1,
 					maxhp: -1

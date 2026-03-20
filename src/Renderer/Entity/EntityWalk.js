@@ -263,7 +263,15 @@ define(function (require) {
 					}
 				});
 				setTimeout(() => {
-					this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
+					this.walkToNonWalkableGround(
+						this.position[0],
+						this.position[1],
+						this._followTargetX,
+						this._followTargetY,
+						0,
+						false,
+						false
+					);
 				}, 632);
 			} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
 				this.setAction({
@@ -281,7 +289,15 @@ define(function (require) {
 					}
 				});
 				setTimeout(() => {
-					this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
+					this.walkToNonWalkableGround(
+						this.position[0],
+						this.position[1],
+						this._followTargetX,
+						this._followTargetY,
+						0,
+						false,
+						false
+					);
 				}, 432);
 			} else if (this.action !== action) {
 				this.setAction({
@@ -655,7 +671,7 @@ define(function (require) {
 					false,
 					false,
 					Renderer.tick
-				);	
+				);
 			}
 		}
 	}
