@@ -258,7 +258,7 @@ define(function (require) {
 					BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 
 					if (Session.hasParty) {
-						PartyUI.updateMemberLife(
+						PartyUI.getUI().updateMemberLife(
 							Session.AID,
 							Session.Entity.life.canvas,
 							Session.Entity.life.hp,
@@ -302,7 +302,7 @@ define(function (require) {
 					BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 
 					if (Session.hasParty) {
-						PartyUI.updateMemberLife(
+						PartyUI.getUI().updateMemberLife(
 							Session.AID,
 							Session.Entity.life.canvas,
 							Session.Entity.life.hp,

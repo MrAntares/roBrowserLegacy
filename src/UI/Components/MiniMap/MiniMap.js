@@ -27,5 +27,13 @@ define(function (require) {
 
 	var Controller = UIVersionManager.getUIController(publicName, versionInfo);
 
+	/**
+	 * Proxy for getMemberColor
+	 */
+	Controller.getMemberColor = function getMemberColor(key) {
+		var ui = Controller.getUI();
+		return ui && ui.getMemberColor ? ui.getMemberColor(key) : 'white';
+	};
+
 	return Controller;
 });

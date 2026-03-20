@@ -215,6 +215,7 @@ define(function (require) {
 			WinStats.selectUIVersion();
 			Inventory.selectUIVersion();
 			Storage.selectUIVersion();
+			PartyFriends.selectUIVersion();
 		}
 
 		// Do not hook multiple time
@@ -293,7 +294,7 @@ define(function (require) {
 			ChatRoomCreate.prepare();
 			Emoticons.prepare();
 			FPS.prepare();
-			PartyFriends.prepare();
+			PartyFriends.getUI().prepare();
 			StatusIcons.prepare();
 			ChatBox.prepare();
 			ChatBoxSettings.prepare();
@@ -380,6 +381,7 @@ define(function (require) {
 			Equipment.getUI().prepare();
 			Quest.getUI().prepare();
 			WinStats.getUI().prepare();
+			PartyFriends.selectUIVersion();
 
 			// Bind UIs
 			WinStats.getUI().onRequestUpdate = onRequestStatUpdate;
@@ -664,7 +666,7 @@ define(function (require) {
 			Emoticons.append();
 			SkillList.getUI().append();
 			FPS.append();
-			PartyFriends.append();
+			PartyFriends.getUI().append();
 			Guild.append();
 			WorldMap.append();
 			SkillListMH.homunculus.append();
@@ -817,7 +819,7 @@ define(function (require) {
 			ChatBox.clean();
 			ShortCut.clean();
 			Quest.getUI().clean();
-			PartyFriends.clean();
+			PartyFriends.getUI().clean();
 			CashShop.clean();
 			MapRenderer.free();
 			Renderer.stop();
@@ -839,7 +841,7 @@ define(function (require) {
 				ChatBox.clean();
 				ShortCut.clean();
 				Quest.getUI().clean();
-				PartyFriends.clean();
+				PartyFriends.getUI().clean();
 				Renderer.stop();
 				onExitSuccess();
 				break;

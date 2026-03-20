@@ -19,7 +19,8 @@ define(function (require) {
 	var PACKET = require('Network/PacketStructure');
 	var UIManager = require('UI/UIManager');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var FriendUI = require('UI/Components/PartyFriends/PartyFriends');
+	var PartyFriends = require('UI/Components/PartyFriends/PartyFriends');
+	var getModule = require;
 
 	/**
 	 * Create namespace
@@ -44,6 +45,7 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.DELETE_FRIENDS, onFriendRemoved);
 
 		// Hook UI
+		var FriendUI = PartyFriends.getUI();
 		FriendUI.onRequestNewFriend = FriendEngine.addFriend;
 		FriendUI.onRemoveFriend = FriendEngine.removeFriend;
 	};
@@ -144,7 +146,7 @@ define(function (require) {
 	function onFriendList(pkt) {
 		_friends = pkt.friendList;
 
-		FriendUI.setFriends(_friends);
+		PartyFriends.getUI().setFriends(_friends);
 	}
 
 	/**
@@ -158,7 +160,7 @@ define(function (require) {
 		if (idx > -1) {
 			_friends[idx].State = pkt.State;
 
-			FriendUI.updateFriendState(idx, pkt.State);
+			PartyFriends.getUI().updateFriendState(idx, pkt.State);
 		}
 	}
 
@@ -213,7 +215,7 @@ define(function (require) {
 				_friends[idx].Name = pkt.Name;
 				_friends[idx].State = 0;
 
-				FriendUI.updateFriend(idx, _friends[idx]);
+				PartyFriends.getUI().updateFriend(idx, _friends[idx]);
 				break;
 
 			case 1: // "(%s) does not want to be friends with you."
@@ -248,7 +250,7 @@ define(function (require) {
 
 		if (idx > -1) {
 			_friends.splice(idx, 1);
-			FriendUI.removeFriend(idx);
+			PartyFriends.getUI().removeFriend(idx);
 		}
 	}
 
