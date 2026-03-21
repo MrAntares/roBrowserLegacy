@@ -24,8 +24,6 @@ define(function (require) {
 	var Session = require('Engine/SessionStorage');
 	var JobId = require('DB/Jobs/JobConst');
 
-	var _last_body_dir = 0;
-
 	// Official client uses: floor(dist * 0.37 * 4 / motionSpeed) % motionCount
 	// where dist is in the client's internal move units (not map-cell units).
 	// In roBrowser, `entity.walk.dist` is accumulated in *map cells*.
@@ -285,24 +283,42 @@ define(function (require) {
 					// depthCorrection ENABLED (required for isometric depth)
 					SpriteRenderer.runWithDepth(true, true, false, function () {
 						var cartidx;
+						// madogear don't appear costumes
+						var RIDING_STATUS =
+							self.effectState &
+								(StatusConst.EffectState.RIDING |
+									StatusConst.EffectState.DRAGON1 |
+									StatusConst.EffectState.DRAGON2 |
+									StatusConst.EffectState.DRAGON3 |
+									StatusConst.EffectState.DRAGON4 |
+									StatusConst.EffectState.DRAGON5 |
+									StatusConst.EffectState.WUGRIDER) || self.allRidingState;
 
 						function robeCorrection(lookingFront) {
 							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
 								var HEAD_SIZE = 64;
 								var COMPENSATION = 25;
-								if (self.robeHeight + (self.action === self.ACTION.SIT && !lookingFront ? 0 : (self.action === self.ACTION.WALK && lookingFront ? COMPENSATION * 2 : COMPENSATION)) > self.bodyHeight + HEAD_SIZE) {
+								if (
+									self.robeHeight +
+										(self.action === self.ACTION.SIT
+											? 0
+											: RIDING_STATUS && lookingFront
+												? COMPENSATION * 2
+												: COMPENSATION) >
+									self.bodyHeight + HEAD_SIZE
+								) {
 									if (self.action === self.ACTION.SIT) {
-										return lookingFront ? -450 : -100;
+										return lookingFront ? -450 : (RIDING_STATUS ? 1 : -100);
 									}
-									return lookingFront ? (self.action !== self.ACTION.WALK ? -200 : -450) : 1;
+									return lookingFront ? (RIDING_STATUS ? -300 : -200) : (RIDING_STATUS ? 100 : 1);
 								}
 							}
 							if (self.action === self.ACTION.SIT) {
-								return lookingFront ? -200 : 400;
-							}							
+								return lookingFront ? -100 : 550;
+							}
 							return lookingFront ? 1 : 400;
 						}
-						
+
 						// Shield is behind on some position, seems to be hardcoded by the client
 						if (self.shield && behind) {
 							SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -341,11 +357,17 @@ define(function (require) {
 						}
 
 						SpriteRenderer.zIndex = 150;
+						if (self.action === self.ACTION.SIT && RIDING_STATUS && !(direction > 2 && direction < 6)) {
+							SpriteRenderer.zIndex *= 2;
+						}
 						// Draw Body
 						renderElement(self, self.files.body, 'body', _position, true);
 
 						// Isometric Projection Body Offset
 						var bodyZOffset = 250;
+						if (RIDING_STATUS) {
+							bodyZOffset *= 2;
+						}
 						SpriteRenderer.zIndex = bodyZOffset + 50;
 
 						// Draw Head

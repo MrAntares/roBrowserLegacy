@@ -514,12 +514,12 @@ define(function (require) {
 		// ------------------------
 		// Apply
 		// ------------------------
+		this._allRidingState = value;
 		if (costume !== this.costume) {
 			this.costume = costume;
 			this.job = this._job;
 		}
 
-		this._allRidingState = value;
 		recalculateBlendingColor.call(this);
 	}
 

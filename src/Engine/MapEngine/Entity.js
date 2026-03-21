@@ -150,7 +150,7 @@ define(function (require) {
 				objecttype: entity.falcon.constructor.TYPE_FALCON,
 				GID: entity.GID + '_FALCON',
 				PosDir: [entity.position[0], entity.position[1], 0],
-				job: entity._effectiveJob + '_FALCON',
+				job: entity._job + '_FALCON',
 				speed: Math.max(entity.walk.speed - 50, 1),
 				name: '',
 				hp: -1,
@@ -168,7 +168,7 @@ define(function (require) {
 				objecttype: entity.wug.constructor.TYPE_WUG,
 				GID: entity.GID + '_WUG',
 				PosDir: [entity.position[0], entity.position[1], 0],
-				job: entity._effectiveJob + '_WUG',
+				job: entity._job + '_WUG',
 				speed: Math.max(entity.walk.speed - 50, 1),
 				name: '',
 				hp: -1,
@@ -1337,13 +1337,13 @@ define(function (require) {
 				if (entity.falcon) {
 					entity.falcon.set({
 						PosDir: [entity.position[0], entity.position[1], 0],
-						job: entity._effectiveJob + '_FALCON'
+						job: entity._job + '_FALCON'
 					});
 				}
 				if (entity.wug) {
 					entity.wug.set({
 						PosDir: [entity.position[0], entity.position[1], 0],
-						job: entity._effectiveJob + '_WUG'
+						job: entity._job + '_WUG'
 					});
 				}
 				break;
@@ -1997,7 +1997,7 @@ define(function (require) {
 						objecttype: entity.falcon.constructor.TYPE_FALCON,
 						GID: entity.GID + '_FALCON',
 						PosDir: [entity.position[0], entity.position[1], 0],
-						job: entity._effectiveJob + '_FALCON',
+						job: entity._job + '_FALCON',
 						speed: Math.max(entity.walk.speed - 50, 1),
 						name: '',
 						hp: -1,
@@ -2355,8 +2355,9 @@ define(function (require) {
 				break;
 
 			case StatusConst.ALL_RIDING:
-				entity.allRidingState = pkt.state || !pkt.hasOwnProperty('state');
-				if (pkt.val && (pkt.state || !pkt.hasOwnProperty('state'))) {
+				if (pkt.hasOwnProperty('state')) {
+					entity.allRidingState = pkt.state;
+				} else if (pkt.hasOwnProperty('val')) {
 					entity.allRidingState = pkt.val[0];
 				}
 				break;
@@ -2487,7 +2488,7 @@ define(function (require) {
 				objecttype: entity.falcon.constructor.TYPE_FALCON,
 				GID: entity.GID + '_FALCON',
 				PosDir: [entity.position[0], entity.position[1], 0],
-				job: entity._effectiveJob + '_FALCON',
+				job: entity._job + '_FALCON',
 				speed: Math.max(entity.walk.speed - 50, 1),
 				name: '',
 				hp: -1,
@@ -2506,7 +2507,7 @@ define(function (require) {
 				objecttype: entity.wug.constructor.TYPE_WUG,
 				GID: entity.GID + '_WUG',
 				PosDir: [entity.position[0], entity.position[1], 0],
-				job: entity._effectiveJob + '_WUG',
+				job: entity._job + '_WUG',
 				speed: Math.max(entity.walk.speed - 50, 1),
 				name: '',
 				hp: -1,

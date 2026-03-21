@@ -18,6 +18,8 @@ define(function (require) {
 	var AllMountTable = require('DB/Jobs/AllMountTable');
 	var EntityAction = require('./EntityAction');
 	const PACKETVER = require('Network/PacketVerManager');
+	var JobConst = require('DB/Jobs/JobConst');
+	var Session = require('Engine/SessionStorage');
 
 	/**
 	 * Files to display a view
@@ -351,6 +353,121 @@ define(function (require) {
 	}
 
 	/**
+	 * Get body value
+	 * @returns {number} body value
+	 */
+	function getBodyVal() {
+		var job;
+		switch (this._job) {
+			case JobConst.DRAGON_KNIGHT:
+			case JobConst.DRAGON_KNIGHT_H:
+			case JobConst.DRAGON_KNIGHT_B:
+			case JobConst.RUNE_KNIGHT:
+			case JobConst.RUNE_KNIGHT_H:
+			case JobConst.RUNE_KNIGHT_B:
+				job = JobConst.RUNE_KNIGHT_2ND;
+				break;
+			case JobConst.MEISTER:
+			case JobConst.MEISTER_H:
+			case JobConst.MEISTER_B:
+			case JobConst.MECHANIC:
+			case JobConst.MECHANIC_H:
+			case JobConst.MECHANIC_B:
+				job = JobConst.MECHANIC_2ND;
+				break;
+			case JobConst.SHADOW_CROSS:
+			case JobConst.SHADOW_CROSS_H:
+			case JobConst.SHADOW_CROSS_B:
+			case JobConst.GUILLOTINE_CROSS:
+			case JobConst.GUILLOTINE_CROSS_H:
+			case JobConst.GUILLOTINE_CROSS_B:
+				job = JobConst.GUILLOTINE_CROSS_2ND;
+				break;
+			case JobConst.ARCH_MAGE:
+			case JobConst.ARCH_MAGE_H:
+			case JobConst.ARCH_MAGE_B:
+			case JobConst.WARLOCK:
+			case JobConst.WARLOCK_H:
+			case JobConst.WARLOCK_B:
+				job = JobConst.WARLOCK_2ND;
+				break;
+			case JobConst.CARDINAL:
+			case JobConst.CARDINAL_H:
+			case JobConst.CARDINAL_B:
+			case JobConst.ARCHBISHOP:
+			case JobConst.ARCHBISHOP_H:
+			case JobConst.ARCHBISHOP_B:
+				job = JobConst.ARCH_BISHOP_2ND;
+				break;
+			case JobConst.WINDHAWK:
+			case JobConst.WINDHAWK_H:
+			case JobConst.WINDHAWK_B:
+			case JobConst.RANGER:
+			case JobConst.RANGER_H:
+			case JobConst.RANGER_B:
+				job = JobConst.RANGER_2ND;
+				break;
+			case JobConst.IMPERIAL_GUARD:
+			case JobConst.IMPERIAL_GUARD_H:
+			case JobConst.IMPERIAL_GUARD_B:
+			case JobConst.ROYAL_GUARD:
+			case JobConst.ROYAL_GUARD_H:
+			case JobConst.ROYAL_GUARD_B:
+				job = JobConst.ROYAL_GUARD_2ND;
+				break;
+			case JobConst.BIOLO:
+			case JobConst.BIOLO_H:
+			case JobConst.BIOLO_B:
+			case JobConst.GENETIC:
+			case JobConst.GENETIC_H:
+			case JobConst.GENETIC_B:
+				job = JobConst.GENETIC_2ND;
+				break;
+			case JobConst.ABYSS_CHASER:
+			case JobConst.ABYSS_CHASER_H:
+			case JobConst.ABYSS_CHASER_B:
+			case JobConst.SHADOW_CHASER:
+			case JobConst.SHADOW_CHASER_H:
+			case JobConst.SHADOW_CHASER_B:
+				job = JobConst.SHADOW_CHASER_2ND;
+				break;
+			case JobConst.ELEMENTAL_MASTER:
+			case JobConst.ELEMENTAL_MASTER_H:
+			case JobConst.ELEMENTAL_MASTER_B:
+			case JobConst.SORCERER:
+			case JobConst.SORCERER_H:
+			case JobConst.SORCERER_B:
+				job = JobConst.SORCERER_2ND;
+				break;
+			case JobConst.INQUISITOR:
+			case JobConst.INQUISITOR_H:
+			case JobConst.INQUISITOR_B:
+			case JobConst.SURA:
+			case JobConst.SURA_H:
+			case JobConst.SURA_B:
+				job = JobConst.SURA_2ND;
+				break;
+			case JobConst.TROUBADOUR:
+			case JobConst.TROUBADOUR_H:
+			case JobConst.TROUBADOUR_B:
+			case JobConst.MINSTREL:
+			case JobConst.MINSTREL_H:
+			case JobConst.MINSTREL_B:
+				job = JobConst.MINSTREL_2ND;
+				break;
+			case JobConst.TROUVERE:
+			case JobConst.TROUVERE_H:
+			case JobConst.TROUVERE_B:
+			case JobConst.WANDERER:
+			case JobConst.WANDERER_H:
+			case JobConst.WANDERER_B:
+				job = JobConst.WANDERER_2ND;
+				break;
+		}
+		return job || this._job;
+	}
+
+	/**
 	 * Updating BodyStyle
 	 *
 	 * @param {number} Body2 id
@@ -363,21 +480,32 @@ define(function (require) {
 			return;
 		}
 
-		this._body = look;
+		setTimeout(function () {
+			this._body = look;
+			var job = this._job;
 
-		if (AllMountTable[look] === this._effectiveJob || MountTable[look] === this._effectiveJob) {
-			look = AllMountTable[look] || MountTable[look];
-		}
+			if (PACKETVER.value <= 20231220) {
+				if (look > 0) {
+					look = getBodyVal();
+				}
+			}
 
-		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(this._effectiveJob, this._sex, look);
-		Entity = this.constructor;
+			if (this.costume) {
+				var mountValue = this._allRidingState ? AllMountTable[look] : MountTable[look];
 
-		// Loading
-		Client.loadFile(path + '.act');
-		Client.loadFile(
-			path + '.spr',
-			function () {
-				this.files.body.spr = path + '.spr';
+				look = mountValue;
+				job = this.costume;
+			}
+
+			path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, look);
+			Entity = this.constructor;
+
+			// Loading
+			Client.loadFile(path + '.act');
+			Client.loadFile(
+				path + '.spr',
+				function () {
+					this.files.body.spr = path + '.spr';
 				this.files.body.act = path + '.act';
 
 				// Update linked attachments
@@ -388,8 +516,8 @@ define(function (require) {
 			null,
 			{
 				to_rgba: this.objecttype !== Entity.TYPE_PC
-			}
-		);
+			});
+		}.bind(this), 5);
 	}
 
 	/**

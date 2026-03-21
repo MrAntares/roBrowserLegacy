@@ -4412,23 +4412,14 @@ define(function (require) {
 
 			if (PACKETVER.value > 20141022 && alternative > 0 && id !== alternative) {
 				var use_costume =
-					(PACKETVER.value > 20231220 &&
-						alternative > JobId.COSTUME_SECOND_JOB_START &&
-						alternative < JobId.COSTUME_SECOND_JOB_END) ||
-					(alternative === 1 && PACKETVER.value <= 20231220);
+					(alternative > JobId.COSTUME_SECOND_JOB_START &&
+						alternative < JobId.COSTUME_SECOND_JOB_END);
 
 				if (use_costume) {
 					result += 'costume_1/';
 				}
 
-				if (
-					(alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END) ||
-					(alternative === 1 && PACKETVER.value <= 20231220)
-				) {
-					result += ClassTable[id] || ClassTable[0];
-				} else {
-					result += ClassTable[alternative] || ClassTable[0];
-				}
+				result += ClassTable[alternative] || ClassTable[0];
 
 				result += '_' + SexTable[sex];
 

@@ -47,6 +47,8 @@ define(['./JobConst'], function (JobId) {
 	// 4th job
 	MountTable[JobId.WINDHAWK] = JobId.WINDHAWK2;
 	MountTable[JobId.MEISTER] = JobId.MEISTER2;
+	MountTable[JobId.DRAGON_KNIGHT] = JobId.DRAGON_KNIGHT2;
+	MountTable[JobId.IMPERIAL_GUARD] = JobId.IMPERIAL_GUARD2;
 
 	return MountTable;
 });
