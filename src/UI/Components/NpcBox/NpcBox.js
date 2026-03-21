@@ -22,7 +22,7 @@ define(function (require) {
 	var Navigation = require('UI/Components/Navigation/Navigation');
 	var htmlText = require('text!./NpcBox.html');
 	var cssText = require('text!./NpcBox.css');
-
+	var PACKETVER = require('Network/PacketVerManager');
 	/**
 	 * Create NpcBox component
 	 */
@@ -70,10 +70,17 @@ define(function (require) {
 		if (!text) {
 			return '';
 		}
-		text = String(text);
-		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function (match, itemName, itemId) {
-			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
-		});
+		if (typeof text !== 'string') {
+			text = String(text);
+		}
+		return text.replace(
+			PACKETVER.value < 20151104
+				? /<ITEMLINK>(.*?)<INFO>(.*?)<\/INFO><\/ITEMLINK>/g
+				: /<ITEM>(.*?)<INFO>(.*?)<\/INFO><\/ITEM>/g,
+			function (match, itemName, itemId) {
+				return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
+			}
+		);
 	}
 
 	/**
