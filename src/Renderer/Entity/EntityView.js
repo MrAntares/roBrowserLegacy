@@ -480,44 +480,59 @@ define(function (require) {
 			return;
 		}
 
-		setTimeout(function () {
-			this._body = look;
-			var job = this._job;
-
-			if (PACKETVER.value <= 20231220) {
-				if (look > 0) {
-					look = getBodyVal();
+		setTimeout(
+			function () {
+				this._body = look;
+				var job = this._job;
+				var cashMountCostume = false;
+				if (PACKETVER.value <= 20231220) {
+					if (look > 0) {
+						look = getBodyVal();
+					}
 				}
-			}
 
-			if (this.costume) {
-				var mountValue = this._allRidingState ? AllMountTable[look] : MountTable[look];
+				if (this.costume) {
+					var mountValue = this._allRidingState ? AllMountTable[look] : MountTable[look];
+					if (
+						look > JobConst.COSTUME_SECOND_JOB_START &&
+						look < JobConst.COSTUME_SECOND_JOB_END &&
+						this._allRidingState
+					) {
+						// we don't have costume all_riding constants
+						job = mountValue;
+						cashMountCostume = true;
+					} else {
+						look = mountValue;
+						job = this.costume;
+					}
+				}
 
-				look = mountValue;
-				job = this.costume;
-			}
+				path = this.isAdmin
+					? DB.getAdminPath(this._sex)
+					: DB.getBodyPath(job, this._sex, look, cashMountCostume);
+				Entity = this.constructor;
 
-			path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, look);
-			Entity = this.constructor;
+				// Loading
+				Client.loadFile(path + '.act');
+				Client.loadFile(
+					path + '.spr',
+					function () {
+						this.files.body.spr = path + '.spr';
+						this.files.body.act = path + '.act';
 
-			// Loading
-			Client.loadFile(path + '.act');
-			Client.loadFile(
-				path + '.spr',
-				function () {
-					this.files.body.spr = path + '.spr';
-				this.files.body.act = path + '.act';
-
-				// Update linked attachments
-				this.bodypalette = this._bodypalette;
-				this.weapon = this._weapon;
-				this.shield = this._shield;
+						// Update linked attachments
+						this.bodypalette = this._bodypalette;
+						this.weapon = this._weapon;
+						this.shield = this._shield;
+					}.bind(this),
+					null,
+					{
+						to_rgba: this.objecttype !== Entity.TYPE_PC
+					}
+				);
 			}.bind(this),
-			null,
-			{
-				to_rgba: this.objecttype !== Entity.TYPE_PC
-			});
-		}.bind(this), 5);
+			50
+		);
 	}
 
 	/**

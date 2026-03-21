@@ -308,9 +308,9 @@ define(function (require) {
 									self.bodyHeight + HEAD_SIZE
 								) {
 									if (self.action === self.ACTION.SIT) {
-										return lookingFront ? -450 : (RIDING_STATUS ? 1 : -100);
+										return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 									}
-									return lookingFront ? (RIDING_STATUS ? -300 : -200) : (RIDING_STATUS ? 100 : 1);
+									return lookingFront ? (RIDING_STATUS ? -300 : -200) : RIDING_STATUS ? 100 : 1;
 								}
 							}
 							if (self.action === self.ACTION.SIT) {
@@ -357,9 +357,14 @@ define(function (require) {
 						}
 
 						SpriteRenderer.zIndex = 150;
-						if (self.action === self.ACTION.SIT && RIDING_STATUS && !(direction > 2 && direction < 6)) {
+						if (
+							RIDING_STATUS &&
+							!(direction > 2 && direction < 6) &&
+							(self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)
+						) {
 							SpriteRenderer.zIndex *= 2;
 						}
+
 						// Draw Body
 						renderElement(self, self.files.body, 'body', _position, true);
 
@@ -367,7 +372,11 @@ define(function (require) {
 						var bodyZOffset = 250;
 						if (RIDING_STATUS) {
 							bodyZOffset *= 2;
+							if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) {
+								bodyZOffset += 250;
+							}
 						}
+
 						SpriteRenderer.zIndex = bodyZOffset + 50;
 
 						// Draw Head

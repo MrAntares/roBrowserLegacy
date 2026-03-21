@@ -4391,7 +4391,7 @@ define(function (require) {
 	 * @param {number} alternative sprite
 	 * @return {string}
 	 */
-	DB.getBodyPath = function getBodyPath(id, sex, alternative = -1) {
+	DB.getBodyPath = function getBodyPath(id, sex, alternative = -1, cashMountCostume = false) {
 		// TODO: Warp STR file
 		if (id === 45) {
 			return null;
@@ -4412,14 +4412,13 @@ define(function (require) {
 
 			if (PACKETVER.value > 20141022 && alternative > 0 && id !== alternative) {
 				var use_costume =
-					(alternative > JobId.COSTUME_SECOND_JOB_START &&
-						alternative < JobId.COSTUME_SECOND_JOB_END);
+					alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END;
 
 				if (use_costume) {
 					result += 'costume_1/';
 				}
 
-				result += ClassTable[alternative] || ClassTable[0];
+				result += (cashMountCostume ? ClassTable[id] : ClassTable[alternative]) || ClassTable[0];
 
 				result += '_' + SexTable[sex];
 
