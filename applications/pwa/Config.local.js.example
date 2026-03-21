@@ -1,32 +1,40 @@
-/**
- * ROBrowser Local Configuration Overrides
- *
- * Copy this file to Config.local.js and customize as needed.
- * Values here will override those in Config.js.
- * Config.local.js is optional and will be silently ignored if not present.
- */
+// Config.local.js — copy this file, fill in your server details, and mount it:
+//
+//   cp applications/pwa/Config.local.js.example Config.local.js
+//   # Edit Config.local.js with your server settings, then:
+//   docker run -d --network host \
+//     -v /path/to/your/Config.local.js:/robrowser/Config.local.js:ro \
+//     ghcr.io/lenaxia/robrowserlegacy:<version>
+//
+// All settings here override the defaults in Config.js.
+// Only specify the values you want to change.
+
 window.ROConfigLocal = {
-	// Example: Override server settings
 	servers: [
 		{
-			display: 'My Private Server',
-			desc: 'custom server',
-			address: '127.0.0.1',
-			port: 6900,
-			version: 25,
-			langtype: 12,
-			packetver: 20130618,
-			renewal: false,
-			worldMapSettings: { episode: 12 },
+			display: 'My RO Server',          // Name shown on server select screen
+			desc: '',                          // Optional description
+			address: '127.0.0.1',             // Login server IP or hostname
+			port: 6900,                        // Login server port (default: 6900)
+			version: 1,
+			langtype: 1,
+			packetver: 20200401,              // Must match your rAthena PACKETVER
+			renewal: true,                    // true = Renewal, false = Pre-renewal/Classic
 			packetKeys: false,
-			socketProxy: 'wss://connect.robrowser.com',
-			adminList: [2000000]
+			socketProxy: 'ws://localhost:3338/ws/',  // WebSocket proxy — points at this container
+			forceUseAddress: true,            // CRITICAL: prevents client using internal IPs
+			                                  // returned by char/map server packets, which
+			                                  // are unreachable in containerised deployments
+			// adminList: [2000000],           // Optional: account IDs with GM commands enabled
 		}
 	],
-
-	// Example: Skip intro screen
-	// skipIntro: true,
-
-	// Example: Custom remote client URL
-	// remoteClient: 'https://my-grf-server.com/',
+	remoteClient: 'http://localhost:3338/',  // GRF asset server — points at this container
+	skipIntro: false,                        // Set true to skip the intro video
+	skipServerList: false,                   // Set true to auto-select the first server
+	development: false,
+	enableBank: true,
+	enableCashShop: true,
+	enableMapName: true,
+	enableCheckAttendance: true,
+	enableDmgSuffix: true,
 };

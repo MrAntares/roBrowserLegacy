@@ -22,12 +22,12 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: 'Checkout the repository'
-              uses: actions/checkout@v5
-              with:
-                  ref: 'master'
+              uses: actions/checkout@v4
+              # Do not pin ref to 'master' — checkout the triggering ref (tag or
+              # branch) so release artifacts always match the tagged commit.
 
             - name: 'Setup NodeJS version'
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v4
               with:
                   node-version: 24
 
@@ -67,6 +67,7 @@ jobs:
               with:
                   prerelease: true
                   tag_name: nightly
+                  update_existing_release: true
                   files: |
                       *.tgz
                       release-dist-web.zip
