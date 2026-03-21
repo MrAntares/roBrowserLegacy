@@ -24,8 +24,6 @@ define(function (require) {
 	var Session = require('Engine/SessionStorage');
 	var JobId = require('DB/Jobs/JobConst');
 
-	var _last_body_dir = 0;
-
 	// Official client uses: floor(dist * 0.37 * 4 / motionSpeed) % motionCount
 	// where dist is in the client's internal move units (not map-cell units).
 	// In roBrowser, `entity.walk.dist` is accumulated in *map cells*.
@@ -285,6 +283,41 @@ define(function (require) {
 					// depthCorrection ENABLED (required for isometric depth)
 					SpriteRenderer.runWithDepth(true, true, false, function () {
 						var cartidx;
+						// madogear don't appear costumes
+						var RIDING_STATUS =
+							self.effectState &
+								(StatusConst.EffectState.RIDING |
+									StatusConst.EffectState.DRAGON1 |
+									StatusConst.EffectState.DRAGON2 |
+									StatusConst.EffectState.DRAGON3 |
+									StatusConst.EffectState.DRAGON4 |
+									StatusConst.EffectState.DRAGON5 |
+									StatusConst.EffectState.WUGRIDER) || self.allRidingState;
+
+						function robeCorrection(lookingFront) {
+							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
+								var HEAD_SIZE = 64;
+								var COMPENSATION = 25;
+								if (
+									self.robeHeight +
+										(self.action === self.ACTION.SIT
+											? 0
+											: RIDING_STATUS && lookingFront
+												? COMPENSATION * 2
+												: COMPENSATION) >
+									self.bodyHeight + HEAD_SIZE
+								) {
+									if (self.action === self.ACTION.SIT) {
+										return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
+									}
+									return lookingFront ? (RIDING_STATUS ? -300 : -200) : RIDING_STATUS ? 100 : 1;
+								}
+							}
+							if (self.action === self.ACTION.SIT) {
+								return lookingFront ? -100 : 550;
+							}
+							return lookingFront ? 1 : 400;
+						}
 
 						// Shield is behind on some position, seems to be hardcoded by the client
 						if (self.shield && behind) {
@@ -318,18 +351,33 @@ define(function (require) {
 
 							// Draw Robe
 							if (self.robe > 0) {
-								SpriteRenderer.zIndex = -200;
+								SpriteRenderer.zIndex = robeCorrection(true);
 								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
 						}
 
 						SpriteRenderer.zIndex = 150;
+						if (
+							RIDING_STATUS &&
+							!(direction > 2 && direction < 6) &&
+							(self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)
+						) {
+							SpriteRenderer.zIndex *= 2;
+						}
+
 						// Draw Body
 						renderElement(self, self.files.body, 'body', _position, true);
 
 						// Isometric Projection Body Offset
-						var zOffset = 250;
-						SpriteRenderer.zIndex = zOffset + 50;
+						var bodyZOffset = 250;
+						if (RIDING_STATUS) {
+							bodyZOffset *= 2;
+							if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) {
+								bodyZOffset += 250;
+							}
+						}
+
+						SpriteRenderer.zIndex = bodyZOffset + 50;
 
 						// Draw Head
 						renderElement(self, self.files.head, 'head', _position, false);
@@ -340,7 +388,7 @@ define(function (require) {
 						// Hat Middle
 						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
 							// accessory already rendered, avoid render same item again
-							SpriteRenderer.zIndex = zOffset + 100;
+							SpriteRenderer.zIndex = bodyZOffset + 100;
 							renderElement(self, self.files.accessory3, 'head', _position, false);
 						}
 
@@ -351,13 +399,13 @@ define(function (require) {
 							self.accessory2 !== self.accessory3
 						) {
 							// accessory and accessory3 already rendered, avoid render same item again
-							SpriteRenderer.zIndex = zOffset + 200;
+							SpriteRenderer.zIndex = bodyZOffset + 200;
 							renderElement(self, self.files.accessory2, 'head', _position, false);
 						}
 
 						// Hat Bottom
 						if (self.accessory > 0) {
-							SpriteRenderer.zIndex = zOffset + 300;
+							SpriteRenderer.zIndex = bodyZOffset + 300;
 							renderElement(self, self.files.accessory, 'head', _position, false);
 						}
 
@@ -366,13 +414,13 @@ define(function (require) {
 
 							// Draw Robe
 							if (self.robe > 0) {
-								SpriteRenderer.zIndex = zOffset + 400;
+								SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
 								renderElement(self, self.files.robe, 'robe', _position, true);
 							}
 
 							// Draw Cart
 							if (Session.Playing == true && self.hasCart == true) {
-								SpriteRenderer.zIndex = zOffset + 500;
+								SpriteRenderer.zIndex = bodyZOffset + 500;
 								cartidx = [
 									JobId.NOVICE,
 									JobId.SUPERNOVICE,
@@ -382,20 +430,22 @@ define(function (require) {
 								].includes(self._job)
 									? 0
 									: self.CartNum;
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+								SpriteRenderer.runWithDepth(true, false, false, function () {
+									renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+									renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
+								});
 							}
 						}
 
 						// Draw Weapon
 						if (self.weapon > 0) {
-							SpriteRenderer.zIndex = zOffset + 250;
+							SpriteRenderer.zIndex = bodyZOffset + 250;
 							renderElement(self, self.files.weapon, 'weapon', _position, true);
 							renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
 						}
 
 						if (self.shield > 0 && !behind) {
-							SpriteRenderer.zIndex = zOffset + 300;
+							SpriteRenderer.zIndex = bodyZOffset + 300;
 							renderElement(self, self.files.shield, 'shield', _position, true);
 						}
 					});
@@ -761,6 +811,11 @@ define(function (require) {
 			this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h);
 			this.boundingRect.x2 = Math.max(this.boundingRect.x2, layer.pos[0] + pos[0] + w);
 			this.boundingRect.y2 = Math.min(this.boundingRect.y2, -(layer.pos[1] + pos[1]) - h);
+			this.bodyHeight = height;
+		}
+
+		if (type === 'robe') {
+			this.robeHeight = height + layer.pos[1];
 		}
 
 		// Image inverted

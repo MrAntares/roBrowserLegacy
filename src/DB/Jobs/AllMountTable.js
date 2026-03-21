@@ -194,5 +194,20 @@ define(['./JobConst'], function (JobId) {
 	duplicateEntry(JobId.ROYAL_GUARD, JobId.ROYAL_GUARD_H);
 	duplicateEntry(JobId.SHADOW_CHASER, JobId.SHADOW_CHASER_H);
 
+	duplicateEntry(JobId.ARCHBISHOP, JobId.ARCH_BISHOP_2ND);
+	duplicateEntry(JobId.RANGER, JobId.RANGER_2ND);
+	duplicateEntry(JobId.WARLOCK, JobId.WARLOCK_2ND);
+	duplicateEntry(JobId.MECHANIC, JobId.MECHANIC_2ND);
+	duplicateEntry(JobId.RUNE_KNIGHT, JobId.RUNE_KNIGHT_2ND);
+	duplicateEntry(JobId.GUILLOTINE_CROSS, JobId.GUILLOTINE_CROSS_2ND);
+
+	duplicateEntry(JobId.SURA, JobId.SURA_2ND);
+	duplicateEntry(JobId.MINSTREL, JobId.MINSTREL_2ND);
+	duplicateEntry(JobId.WANDERER, JobId.WANDERER_2ND);
+	duplicateEntry(JobId.SORCERER, JobId.SORCERER_2ND);
+	duplicateEntry(JobId.GENETIC, JobId.GENETIC_2ND);
+	duplicateEntry(JobId.ROYAL_GUARD, JobId.ROYAL_GUARD2_2ND);
+	duplicateEntry(JobId.SHADOW_CHASER, JobId.SHADOW_CHASER_2ND);
+
 	return AllMountTable;
 });
