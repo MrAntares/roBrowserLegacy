@@ -1,0 +1,192 @@
+name: 'Build Docker Image'
+
+# Triggered on tag push (e.g. v1.0.0, v1.2.3)
+# Produces two multi-platform images per tag (linux/amd64 + linux/arm64):
+#
+#   ghcr.io/lenaxia/robrowserlegacy:<version>       — full (~5GB, GRFs baked in)
+#   ghcr.io/lenaxia/robrowserlegacy:<version>-slim  — slim (~400MB, mount GRFs at runtime)
+#
+# Required secrets for full image:
+#   GRF_BASE_URL         — base HTTPS URL for GRF assets (kept secret to hide server hostname)
+#   S3_ACCESS_KEY_ID     — S3/MinIO access key ID
+#   S3_SECRET_ACCESS_KEY — S3/MinIO secret access key
+#
+# If GRF secrets are absent, only the slim image is built (full job self-skips).
+
+concurrency:
+    group: ${{ github.repository }}-docker-${{ github.ref }}
+    cancel-in-progress: false
+
+on:
+    push:
+        tags:
+            - 'v*'
+
+permissions:
+    contents: read
+    packages: write
+
+jobs:
+    # ── Slim image ─────────────────────────────────────────────────────────────
+    # No GRFs — fast build (~5min), small image (~400MB).
+    # GRFs and Config.local.js must be mounted at runtime.
+    slim:
+        name: 'Build slim image'
+        runs-on: ubuntu-latest
+        outputs:
+            # Share the build version with the full job
+            build_version: ${{ steps.version.outputs.build_version }}
+            created: ${{ steps.meta.outputs.created }}
+        steps:
+            - name: 'Checkout repository'
+              uses: actions/checkout@v4
+
+            - name: 'Extract build version from tag'
+              id: version
+              run: echo "build_version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+            - name: 'Generate build timestamp'
+              id: meta
+              run: echo "created=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$GITHUB_OUTPUT"
+
+            - name: 'Free up disk space'
+              run: sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet || true
+
+            - name: 'Set up QEMU (ARM64 emulation)'
+              uses: docker/setup-qemu-action@v3
+              with:
+                  platforms: arm64
+
+            - name: 'Set up Docker Buildx'
+              uses: docker/setup-buildx-action@v3
+
+            - name: 'Log in to GitHub Container Registry'
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: 'Build and push slim image'
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: Dockerfile.remoteclient
+                  target: slim
+                  platforms: linux/amd64,linux/arm64
+                  push: true
+                  provenance: false
+                  build-args: BUILD_VERSION=${{ steps.version.outputs.build_version }}
+                  tags: |
+                      ghcr.io/${{ github.repository }}:${{ steps.version.outputs.build_version }}-slim
+                      ghcr.io/${{ github.repository }}:latest-slim
+                  cache-from: type=gha,scope=docker-slim
+                  cache-to: type=gha,mode=max,scope=docker-slim,ignore-error=true
+                  labels: |
+                      org.opencontainers.image.source=https://github.com/${{ github.repository }}
+                      org.opencontainers.image.revision=${{ github.sha }}
+                      org.opencontainers.image.created=${{ steps.meta.outputs.created }}
+                      ro.image.variant=slim
+                      ro.build.version=${{ steps.version.outputs.build_version }}
+
+            - name: 'Summary'
+              run: |
+                  echo "## Slim Image" >> $GITHUB_STEP_SUMMARY
+                  echo "| | |" >> $GITHUB_STEP_SUMMARY
+                  echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+                  echo "| **tag** | \`ghcr.io/${{ github.repository }}:${{ steps.version.outputs.build_version }}-slim\` |" >> $GITHUB_STEP_SUMMARY
+                  echo "| **platforms** | linux/amd64, linux/arm64 |" >> $GITHUB_STEP_SUMMARY
+                  echo "| **GRF assets** | mount at runtime |" >> $GITHUB_STEP_SUMMARY
+
+    # ── Full image ─────────────────────────────────────────────────────────────
+    # GRFs baked in. Depends on slim completing first to reuse its cache layers.
+    # Skipped gracefully if GRF secrets are not configured.
+    full:
+        name: 'Build full image'
+        runs-on: ubuntu-latest
+        needs: slim
+        steps:
+            - name: 'Check GRF secrets are configured'
+              id: check
+              env:
+                  # Use env var to avoid interpolating secret value directly into shell
+                  GRF_BASE_URL: ${{ secrets.GRF_BASE_URL }}
+              run: |
+                  if [ -z "${GRF_BASE_URL}" ]; then
+                    echo "GRF_BASE_URL secret not set — skipping full image build."
+                    echo "skip=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "skip=false" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: 'Checkout repository'
+              if: steps.check.outputs.skip == 'false'
+              uses: actions/checkout@v4
+
+            - name: 'Free up disk space'
+              if: steps.check.outputs.skip == 'false'
+              run: |
+                  sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet || true
+                  df -h
+
+            - name: 'Set up QEMU (ARM64 emulation)'
+              if: steps.check.outputs.skip == 'false'
+              uses: docker/setup-qemu-action@v3
+              with:
+                  platforms: arm64
+
+            - name: 'Set up Docker Buildx'
+              if: steps.check.outputs.skip == 'false'
+              uses: docker/setup-buildx-action@v3
+
+            - name: 'Log in to GitHub Container Registry'
+              if: steps.check.outputs.skip == 'false'
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: 'Build and push full image'
+              if: steps.check.outputs.skip == 'false'
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: Dockerfile.remoteclient
+                  target: full
+                  platforms: linux/amd64,linux/arm64
+                  push: true
+                  provenance: false
+                  build-args: BUILD_VERSION=${{ needs.slim.outputs.build_version }}
+                  # All sensitive values passed as BuildKit secrets — never written
+                  # to any image layer or visible in docker history / image metadata
+                  secrets: |
+                      s3_access_key_id=${{ secrets.S3_ACCESS_KEY_ID }}
+                      s3_secret_access_key=${{ secrets.S3_SECRET_ACCESS_KEY }}
+                      grf_base_url=${{ secrets.GRF_BASE_URL }}
+                  tags: |
+                      ghcr.io/${{ github.repository }}:${{ needs.slim.outputs.build_version }}
+                      ghcr.io/${{ github.repository }}:latest
+                  # Reuse slim's cached layers — only grf-downloader stage is new.
+                  # ignore-error=true prevents cache write failures from failing the build
+                  # (GHA cache can evict entries mid-write for large layers).
+                  cache-from: |
+                      type=gha,scope=docker-slim
+                      type=gha,scope=docker-full
+                  cache-to: type=gha,mode=max,scope=docker-full,ignore-error=true
+                  labels: |
+                      org.opencontainers.image.source=https://github.com/${{ github.repository }}
+                      org.opencontainers.image.revision=${{ github.sha }}
+                      org.opencontainers.image.created=${{ needs.slim.outputs.created }}
+                      ro.image.variant=full
+                      ro.build.version=${{ needs.slim.outputs.build_version }}
+
+            - name: 'Summary'
+              if: steps.check.outputs.skip == 'false'
+              run: |
+                  echo "## Full Image" >> $GITHUB_STEP_SUMMARY
+                  echo "| | |" >> $GITHUB_STEP_SUMMARY
+                  echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+                  echo "| **tag** | \`ghcr.io/${{ github.repository }}:${{ needs.slim.outputs.build_version }}\` |" >> $GITHUB_STEP_SUMMARY
+                  echo "| **platforms** | linux/amd64, linux/arm64 |" >> $GITHUB_STEP_SUMMARY
+                  echo "| **GRF assets** | baked in |" >> $GITHUB_STEP_SUMMARY

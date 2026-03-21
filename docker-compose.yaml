@@ -1,23 +1,44 @@
 services:
-    ro-browser:
-        build:
-            context: .
-            dockerfile: Dockerfile
-            target: dev
-        ports:
-            - '8000:8000'
-            # You can use to serve wsproxy.
-            #- "5999:5999"
+    # ─────────────────────────────────────────────────────────────────────────────
+    # roBrowserLegacy
+    #
+    # IMPORTANT — Before starting:
+    #   cp applications/pwa/Config.local.js.example Config.local.js
+    #   # Edit Config.local.js: set address, packetver, renewal to match your server
+    #
+    # NOTE: network_mode: host is Linux-only. On macOS and Windows Docker Desktop
+    # host networking falls back to bridge mode silently, and the embedded WebSocket
+    # proxy will be unable to reach rAthena on 127.0.0.1:6900. On non-Linux hosts,
+    # use host.docker.internal instead of 127.0.0.1 in Config.local.js.
+    #
+    # FULL image (GRFs baked in, ~5GB):
+    #   ROBROWSER_TAG=1.0.0 docker compose up -d
+    #
+    # SLIM image (GRFs mounted at runtime, ~400MB):
+    #   Uncomment the GRF volume mounts below, set GRF_PATH, then:
+    #   ROBROWSER_TAG=1.0.0-slim GRF_PATH=/path/to/kRO docker compose up -d
+    #
+    # Game URL: http://localhost:3338/
+    # ─────────────────────────────────────────────────────────────────────────────
+    robrowser:
+        image: ghcr.io/lenaxia/robrowserlegacy:${ROBROWSER_TAG:?Set ROBROWSER_TAG to a version e.g. 1.0.0}
+        container_name: robrowserlegacy
+        restart: unless-stopped
+        network_mode: host
+        # Override CLIENT_PUBLIC_URL if accessing from another machine:
+        #   CLIENT_PUBLIC_URL=http://<your-server-ip>:3338
+        environment:
+            CLIENT_PUBLIC_URL: 'http://localhost:3338'
         volumes:
-            - ./:/app
-        tty: true
+            # Config.local.js MUST exist as a file before starting.
+            # If this file is absent, Docker creates it as a directory and
+            # the container will fail to serve the game configuration.
+            - ./Config.local.js:/robrowser/Config.local.js:ro
 
-    serve-dist:
-        build:
-            context: .
-            dockerfile: Dockerfile
-            target: dist-server
-        ports:
-            - '8080:8080'
-        volumes:
-            - ./dist/Web:/var/www/html
+            # ── Slim image only: uncomment and set GRF_PATH ─────────────────────
+            # GRF_PATH can be set in a .env file or exported before running compose.
+            #
+            # - ${GRF_PATH}/data.grf:/app/resources/data.grf:ro     # required
+            # - ${GRF_PATH}/rdata.grf:/app/resources/rdata.grf:ro   # required
+            # - ${GRF_PATH}/DATA.INI:/app/resources/DATA.INI:ro     # required
+            # - ${GRF_PATH}/BGM:/app/BGM:ro                         # optional (music)
