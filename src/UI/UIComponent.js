@@ -203,6 +203,11 @@ define(function (require) {
 				Mouse.intersect = true;
 				Session.FreezeUI = false;
 			}
+
+			if (this.__scrollbarObserver) {
+				this.__scrollbarObserver.disconnect();
+				this.__scrollbarObserver = null;
+			}
 		}
 	};
 
@@ -254,6 +259,66 @@ define(function (require) {
 		if (this.onAppend) {
 			this.onAppend();
 		}
+
+		// Apply custom JS scrollbar to dynamically added overflowing containers
+		var self = this;
+		setTimeout(function() {
+			if (!self.ui || !self.ui.length) {
+				return;
+			}
+			
+			var ScrollBar = require('UI/Scrollbar');
+
+			function checkScrollbars(root) {
+				jQuery(root).find('*').addBack().filter(function() {
+					if (this.nodeType !== 1) {
+						return false;
+					}
+					if (this._roScrollbarApplied) {
+						return true;
+					}
+					
+					var oy = window.getComputedStyle(this).overflowY;
+					return oy === 'auto' || oy === 'scroll';
+				}).each(function() {
+					ScrollBar.applyDOMScrollbar(this);
+				});
+			}
+
+			// Stagger checks to wait for CSS parsing completion
+			checkScrollbars(self.ui[0]);
+			setTimeout(function() { checkScrollbars(self.ui[0]); }, 50);
+			setTimeout(function() { checkScrollbars(self.ui[0]); }, 150);
+			setTimeout(function() { checkScrollbars(self.ui[0]); }, 500);
+
+			// Re-apply if visibility or content changes
+			var observer = new MutationObserver(function(mutations) {
+				var needsCheck = false;
+				mutations.forEach(function(mutation) {
+					if (mutation.type === 'childList') {
+						needsCheck = true;
+					} else if (mutation.type === 'attributes') {
+						if (mutation.attributeName === 'style') {
+							var oldVal = mutation.oldValue || '';
+							var wasHidden = oldVal.indexOf('display: none') !== -1 || oldVal.indexOf('display:none') !== -1;
+							var isHidden = mutation.target.style.display === 'none';
+							if (wasHidden && !isHidden) {
+								needsCheck = true;
+							}
+						} else if (mutation.attributeName === 'class') {
+							needsCheck = true;
+						}
+					}
+				});
+				
+				if (needsCheck) {
+					checkScrollbars(self.ui[0]);
+				}
+			});
+			
+			observer.observe(self.ui[0], { childList: true, subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ['style', 'class'] });
+			self.__scrollbarObserver = observer;
+		}, 0);
 
 		//Fix position after append (screen changed since last time and it loads invalid positions)
 		if (this.ui) {
@@ -505,8 +570,8 @@ define(function (require) {
 						gridXIndex = Math.max(0, Math.min(gridXIndex, maxXIndex));
 						gridYIndex = Math.max(0, Math.min(gridYIndex, maxYIndex));
 
-						var snappedX = gridXIndex * gw + padX;
-						var snappedY = gridYIndex * gh + padY;
+						var snappedX = (gridXIndex * gw) + padX;
+						var snappedY = (gridYIndex * gh) + padY;
 
 						container
 							.stop()

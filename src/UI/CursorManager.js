@@ -199,7 +199,9 @@ define(function (require) {
 			'select',
 			'textarea',
 			'.item-link',
-			'.draggable'
+			'.draggable',
+			'.ro-custom-scrollbar',
+			'.ro-custom-scrollbar *'
 		].join(',');
 
 		let _hasClickableHover = false;
@@ -299,8 +301,8 @@ define(function (require) {
 			}
 		});
 
-		document.addEventListener(
-			'mousemove',
+		window.addEventListener(
+			'pointermove',
 			e => {
 				Cursor.x = e.pageX;
 				Cursor.y = e.pageY;
