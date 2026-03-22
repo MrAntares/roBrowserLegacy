@@ -12,6 +12,7 @@ define(function (require) {
 	'use strict';
 
 	var WebGL = require('Utils/WebGL');
+	var GraphicsSettings = require('Preferences/Graphics');
 
 	var _effects = [];
 	var _activeEffects = [];
@@ -55,7 +56,11 @@ define(function (require) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		}
 
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		// Use render scale for viewport when rendering to FBO
+		var scale = Math.max(0.5, Math.min(1.0, GraphicsSettings.renderScale || 1.0));
+		var vpWidth = Math.floor(gl.canvas.width * scale);
+		var vpHeight = Math.floor(gl.canvas.height * scale);
+		gl.viewport(0, 0, vpWidth, vpHeight);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	};
 
@@ -101,9 +106,13 @@ define(function (require) {
 	 * Ensures Ping-Pong buffers are created and resized if necessary.
 	 */
 	PostProcess.validateBuffers = function (gl) {
-		if (!_readFbo || _readFbo.width !== gl.canvas.width || _readFbo.height !== gl.canvas.height) {
-			_readFbo = this.createFbo(gl, gl.canvas.width, gl.canvas.height, _readFbo);
-			_writeFbo = this.createFbo(gl, gl.canvas.width, gl.canvas.height, _writeFbo);
+		var scale = Math.max(0.5, Math.min(1.0, GraphicsSettings.renderScale || 1.0));
+		var scaledWidth = Math.floor(gl.canvas.width * scale);
+		var scaledHeight = Math.floor(gl.canvas.height * scale);
+
+		if (!_readFbo || _readFbo.width !== scaledWidth || _readFbo.height !== scaledHeight) {
+			_readFbo = this.createFbo(gl, scaledWidth, scaledHeight, _readFbo);
+			_writeFbo = this.createFbo(gl, scaledWidth, scaledHeight, _writeFbo);
 		}
 	};
 

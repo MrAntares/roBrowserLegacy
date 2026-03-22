@@ -24,8 +24,31 @@ define(function (require) {
 	var vec3 = glMatrix.vec3;
 	var _list = [];
 
+	// O(1) GID lookup map
+	var _gidMap = new Map();
+
+	// Sort optimization flags
+	var _renderSortDirty = true;
+	var _renderFrameCounter = 0;
+	var _pickSortDirty = true;
+	var _pickList = [];
+	var _lastSupportPriority = false;
+
 	/**
-	 * Find an Entity and return its index
+	 * Find an Entity and return it directly via Map lookup (O(1))
+	 *
+	 * @param {number} gid
+	 * @returns {object|null} Entity
+	 */
+	function getEntityByGID(gid) {
+		if (gid < 0) {
+			return null;
+		}
+		return _gidMap.get(gid) || null;
+	}
+
+	/**
+	 * Find an Entity and return its index in _list (for splice operations)
 	 *
 	 * @param {number} gid
 	 * @returns {number} position
@@ -35,16 +58,12 @@ define(function (require) {
 			return -1;
 		}
 
-		var i,
-			count = _list.length;
-
-		for (i = 0; i < count; ++i) {
-			if (_list[i].GID === gid) {
-				return i;
-			}
+		var entity = _gidMap.get(gid);
+		if (!entity) {
+			return -1;
 		}
 
-		return -1;
+		return _list.indexOf(entity);
 	}
 
 	/**
@@ -101,12 +120,7 @@ define(function (require) {
 			return Session.Entity;
 		}
 
-		var index = getEntityIndex(gid);
-		if (index < 0) {
-			return null;
-		}
-
-		return _list[index];
+		return getEntityByGID(gid);
 	}
 
 	/**
@@ -152,14 +166,17 @@ define(function (require) {
 	 * @return {object}
 	 */
 	function addEntity(entity) {
-		var index = getEntityIndex(entity.GID);
-		if (index < 0) {
-			index = _list.push(entity) - 1;
+		var existing = getEntityByGID(entity.GID);
+		if (!existing) {
+			_list.push(entity);
+			_gidMap.set(entity.GID, entity);
+			_renderSortDirty = true;
+			_pickSortDirty = true;
+			return entity;
 		} else {
-			_list[index].set(entity);
+			existing.set(entity);
+			return existing;
 		}
-
-		return _list[index];
 	}
 
 	/**
@@ -174,6 +191,10 @@ define(function (require) {
 		}
 
 		_list.length = 0;
+		_gidMap.clear();
+		_pickList.length = 0;
+		_renderSortDirty = true;
+		_pickSortDirty = true;
 	}
 
 	/**
@@ -181,11 +202,17 @@ define(function (require) {
 	 * @param {number} gid
 	 */
 	function removeEntity(gid) {
-		var index = getEntityIndex(gid);
+		var entity = _gidMap.get(gid);
 
-		if (index > -1) {
-			_list[index].clean();
-			_list.splice(index, 1);
+		if (entity) {
+			entity.clean();
+			_gidMap.delete(gid);
+			var index = _list.indexOf(entity);
+			if (index > -1) {
+				_list.splice(index, 1);
+			}
+			_renderSortDirty = true;
+			_pickSortDirty = true;
 		}
 	}
 
@@ -267,7 +294,10 @@ define(function (require) {
 	 * @param {boolean} v
 	 */
 	function setSupportPicking(v) {
-		_supportPriority = v;
+		if (_supportPriority !== v) {
+			_supportPriority = v;
+			_pickSortDirty = true;
+		}
 	}
 
 	/**
@@ -311,10 +341,26 @@ define(function (require) {
 			return;
 		}
 
-		_list.sort(sort);
+		// Sort only when dirty or every 3 frames to stay responsive to depth changes
+		_renderFrameCounter++;
+		if (_renderSortDirty || _renderFrameCounter >= 3) {
+			_list.sort(sort);
+			_renderSortDirty = false;
+			_renderFrameCounter = 0;
+			_pickSortDirty = true;
+		}
 
 		// Use program
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+
+		// Pre-compute culling values outside the loop
+		var doCulling = GraphicsSettings.culling;
+		var playerX, playerY, viewAreaSq;
+		if (doCulling && Session.Entity && Session.Entity.position) {
+			playerX = Session.Entity.position[0];
+			playerY = Session.Entity.position[1];
+			viewAreaSq = GraphicsSettings.viewArea * GraphicsSettings.viewArea;
+		}
 
 		// Rendering
 		for (i = 0, count = _list.length; i < count; ++i) {
@@ -331,17 +377,18 @@ define(function (require) {
 						setFocusEntity(null);
 					}
 
+					_gidMap.delete(_list[i].GID);
 					_list[i].clean();
 					_list.splice(i, 1);
 					i--;
 					count--;
+					_pickSortDirty = true;
 					continue;
 				}
-				if (GraphicsSettings.culling) {
-					var distSq =
-						Math.pow(_list[i].position[0] - Session.Entity.position[0], 2) +
-						Math.pow(_list[i].position[1] - Session.Entity.position[1], 2);
-					if (distSq > Math.pow(GraphicsSettings.viewArea, 2)) {
+				if (doCulling) {
+					var dx = _list[i].position[0] - playerX;
+					var dy = _list[i].position[1] - playerY;
+					if (dx * dx + dy * dy > viewAreaSq) {
 						continue;
 					}
 				}
@@ -364,13 +411,20 @@ define(function (require) {
 		if (!_list.length) {
 			return;
 		}
-		_list.sort(sortByPriority);
+
+		// Only re-sort pick list when entities or priority changed
+		if (_pickSortDirty || _lastSupportPriority !== _supportPriority) {
+			_pickList = _list.slice();
+			_pickList.sort(sortByPriority);
+			_pickSortDirty = false;
+			_lastSupportPriority = _supportPriority;
+		}
 
 		var x = Mouse.screen.x;
 		var y = Mouse.screen.y;
 
-		for (i = 0, count = _list.length; i < count; ++i) {
-			entity = _list[i];
+		for (i = 0, count = _pickList.length; i < count; ++i) {
+			entity = _pickList[i];
 
 			// No picking on dead entites
 			if (
@@ -401,6 +455,11 @@ define(function (require) {
 		var closestEntity = false;
 		var distance = Infinity;
 
+		var srcX = sourceEntity.position[0];
+		var srcY = sourceEntity.position[1];
+		var view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var viewRangeSq = view_range * view_range;
+
 		_list.forEach(entity => {
 			if (
 				entity.GID !== sourceEntity.GID &&
@@ -408,12 +467,10 @@ define(function (require) {
 				entity.action !== entity.ACTION.DIE &&
 				entity.remove_tick === 0
 			) {
-				// Quick distance check (Manhattan or Euclidean)
-				var distSq =
-					Math.pow(entity.position[0] - sourceEntity.position[0], 2) +
-					Math.pow(entity.position[1] - sourceEntity.position[1], 2);
-				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
-				if (distSq > view_range * view_range) {
+				var dx = entity.position[0] - srcX;
+				var dy = entity.position[1] - srcY;
+				var distSq = dx * dx + dy * dy;
+				if (distSq > viewRangeSq) {
 					return;
 				}
 
@@ -450,6 +507,11 @@ define(function (require) {
 		var lowestHpEntity = null;
 		var lowestHp = Infinity;
 
+		var srcX = sourceEntity.position[0];
+		var srcY = sourceEntity.position[1];
+		var view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var viewRangeSq = view_range * view_range;
+
 		_list.forEach(entity => {
 			if (
 				entity.GID !== sourceEntity.GID &&
@@ -459,12 +521,10 @@ define(function (require) {
 				entity.action !== entity.ACTION.DIE &&
 				entity.remove_tick === 0
 			) {
-				// Quick distance check (Manhattan or Euclidean)
-				var distSq =
-					Math.pow(entity.position[0] - sourceEntity.position[0], 2) +
-					Math.pow(entity.position[1] - sourceEntity.position[1], 2);
-				let view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
-				if (distSq > view_range * view_range) {
+				var dx = entity.position[0] - srcX;
+				var dy = entity.position[1] - srcY;
+				var distSq = dx * dx + dy * dy;
+				if (distSq > viewRangeSq) {
 					return;
 				}
 
