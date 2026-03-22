@@ -109,6 +109,7 @@ define(function (require) {
 
 			// Remove small party window
 			ContextMenu.addElement('Remove small party window', function () {
+				self._closedByUser = true;
 				self.remove();
 			});
 
@@ -169,8 +170,8 @@ define(function (require) {
 		var state = player.state || 0;
 		var role = player.role || 0;
 
-		var isOnline = state === 0;
-		var isLeader = role === 0;
+		var isOnline = (state === 0);
+		var isLeader = (role === 0);
 
 		ui.find('.name').text(player.characterName);
 		ui.find('.level').text('Lv. ' + level);
@@ -261,8 +262,8 @@ define(function (require) {
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
 		var hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		var lifeRatio = hasLife ? hp / maxhp : 0;
-		var barVisibility = 'visible'; // Always visible
+		var lifeRatio = hasLife ? (hp / maxhp) : 0;
+		var barVisibility = 'visible';	// Always visible
 
 		node.find('.hp-bar-container').css('visibility', barVisibility);
 
