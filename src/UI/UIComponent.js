@@ -262,39 +262,43 @@ define(function (require) {
 
 		// Apply custom JS scrollbar to dynamically added overflowing containers
 		var self = this;
-		setTimeout(function() {
+		setTimeout(function () {
 			if (!self.ui || !self.ui.length) {
 				return;
 			}
-			
+
 			var ScrollBar = require('UI/Scrollbar');
 
 			function checkScrollbars(root) {
-				jQuery(root).find('*').addBack().filter(function() {
+				jQuery(root).find('*').addBack().filter(function () {
 					if (this.nodeType !== 1) {
 						return false;
 					}
 					if (this._roScrollbarApplied) {
 						return true;
 					}
-					
+
 					var oy = window.getComputedStyle(this).overflowY;
-					return oy === 'auto' || oy === 'scroll';
-				}).each(function() {
+					if (oy !== 'auto' && oy !== 'scroll') {
+						return false;
+					}
+
+					return true;
+				}).each(function () {
 					ScrollBar.applyDOMScrollbar(this);
 				});
 			}
 
 			// Stagger checks to wait for CSS parsing completion
 			checkScrollbars(self.ui[0]);
-			setTimeout(function() { checkScrollbars(self.ui[0]); }, 50);
-			setTimeout(function() { checkScrollbars(self.ui[0]); }, 150);
-			setTimeout(function() { checkScrollbars(self.ui[0]); }, 500);
+			setTimeout(function () { checkScrollbars(self.ui[0]); }, 50);
+			setTimeout(function () { checkScrollbars(self.ui[0]); }, 150);
+			setTimeout(function () { checkScrollbars(self.ui[0]); }, 500);
 
 			// Re-apply if visibility or content changes
-			var observer = new MutationObserver(function(mutations) {
+			var observer = new MutationObserver(function (mutations) {
 				var needsCheck = false;
-				mutations.forEach(function(mutation) {
+				mutations.forEach(function (mutation) {
 					if (mutation.type === 'childList') {
 						needsCheck = true;
 					} else if (mutation.type === 'attributes') {
@@ -310,12 +314,12 @@ define(function (require) {
 						}
 					}
 				});
-				
+
 				if (needsCheck) {
 					checkScrollbars(self.ui[0]);
 				}
 			});
-			
+
 			observer.observe(self.ui[0], { childList: true, subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ['style', 'class'] });
 			self.__scrollbarObserver = observer;
 		}, 0);
@@ -610,7 +614,7 @@ define(function (require) {
 						component.magnet.BOTTOM =
 						component.magnet.LEFT =
 						component.magnet.RIGHT =
-							false;
+						false;
 				}
 
 				// Magnet on border

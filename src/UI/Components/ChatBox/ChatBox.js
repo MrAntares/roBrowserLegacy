@@ -702,7 +702,7 @@ define(function (require) {
 			ChatBox.tabs[tabID].name = this.value;
 		});
 
-		this.ui.find('.body .contentwrapper').append(`<div class="content active" data-content="${tabID}"></div>`);
+		this.ui.find('.body .contentwrapper').append(`<div class="content active" data-content="${tabID}" data-scrollbar-skin="chatbox"></div>`);
 
 		ChatBoxSettings.tabOption[tabID] = settings;
 
