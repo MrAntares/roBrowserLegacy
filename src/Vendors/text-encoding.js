@@ -1,6 +1,27 @@
 define(function (require) {
 	'use strict';
 	var iconv = require('./iconv-lite');
+	/**
+	 * Smart decode helper.
+	 *
+	 * Tries to decode the given byte array as UTF-8 first (default server-side charpage).
+	 * If the result contains the Unicode replacement character (U+FFFD, '�'),
+	 * it means some byte sequences were invalid for UTF-8 (i.e. raw bytes that
+	 * do not form a valid character in that encoding).
+	 *
+	 * In that case, we fallback to the provided legacy user charpage encoding (e.g. windows-1252, windows-949).
+	 *
+	 * @param {Uint8Array|Buffer} bytes - Raw byte data to decode.
+	 * @param {string} fallback - Fallback encoding to use if UTF-8 decoding is invalid.
+	 * @returns {string} Decoded string.
+	 */
+	function smartDecode(bytes, fallback) {
+		let utf8 = iconv.decode(bytes, 'utf-8');
+		if (!/�/.test(utf8)) {
+			return utf8;
+		}
+		return iconv.decode(bytes, fallback);
+	}
 
 	/**
 	 * Exports
@@ -19,10 +40,27 @@ define(function (require) {
 		},
 
 		encode: function encode(data, charset) {
+			if (typeof data !== 'string') {
+				console.error(
+					`[TextEncoding.encode] Invalid input type: expected "string", got "${typeof data}".`,
+					data
+				);
+				return '';
+			}
 			return iconv.encode(data, charset || this.userCharset);
 		},
 
 		decode: function decode(data, charset) {
+			if (!(data instanceof Uint8Array)) {
+				console.error(
+					`[TextEncoding.decode] Invalid input type: expected "Uint8Array", got "${typeof data}".`,
+					data
+				);
+				return '';
+			}
+			if (charset === 'utf-8') { // triggered on server string decoding defined on BinaryReader
+				return smartDecode(data, this.userCharset);
+			}
 			return iconv.decode(data, charset || this.userCharset);
 		},
 
@@ -96,10 +134,10 @@ define(function (require) {
 				result = 'windows-1258';
 				break;
 
-				// Not supported by the encoder/decoder, default to windows-1252
-				//case 0x11: // SERVICETYPE_CHILE
-				//	result = 'windows-1145';
-				//	break;
+			// Not supported by the encoder/decoder, default to windows-1252
+			//case 0x11: // SERVICETYPE_CHILE
+			//	result = 'windows-1145';
+			//	break;
 
 			case 0x12: // SERVICETYPE_FRANCE
 				result = 'windows-1252';
@@ -109,10 +147,10 @@ define(function (require) {
 				result = 'windows-1256';
 				break;
 
-				/////////////////////////////////////////////////////
-				// CUSTOM TYPES                                    //
-				// Only use them if you know what you are doing ;) //
-				/////////////////////////////////////////////////////
+			/////////////////////////////////////////////////////
+			// CUSTOM TYPES                                    //
+			// Only use them if you know what you are doing ;) //
+			/////////////////////////////////////////////////////
 			case 0xa0: // 160 - Central European
 				result = 'windows-1250';
 				break;
@@ -133,10 +171,10 @@ define(function (require) {
 				result = 'windows-1257';
 				break;
 
-				/////////////////////////////////////////////////////
-				// Custom unicode types                            //
-				// Only use them if you know what you are doing ;) //
-				/////////////////////////////////////////////////////
+			/////////////////////////////////////////////////////
+			// Custom unicode types                            //
+			// Only use them if you know what you are doing ;) //
+			/////////////////////////////////////////////////////
 			case 0xf0: // 240 - UTF-8
 				result = 'utf-8';
 				break;
