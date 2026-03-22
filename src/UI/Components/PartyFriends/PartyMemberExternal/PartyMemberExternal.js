@@ -95,17 +95,36 @@ define(function (require) {
 				}
 			});
 
-			// Open 1:1 Chat
-			ContextMenu.addElement(DB.getMessage(360), function () {
-				if (!self._player) {
-					return;
-				}
-				var ChatBox = getModule('UI/Components/ChatBox/ChatBox');
-				if (ChatBox) {
-					ChatBox.ui.find('.username').val(self._player.characterName);
-					ChatBox.ui.find('.message').select();
-				}
-			});
+			var Session = getModule('Engine/SessionStorage');
+			var isMe = self._player && Session && self._player.AID === Session.AID;
+
+			if (isMe) {
+				// Self: Leave party
+				ContextMenu.addElement(DB.getMessage(2055), function () {
+					UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', function () {
+						var PartyUI = getModule('UI/Components/PartyFriends/PartyFriends');
+						if (PartyUI && PartyUI.onRequestLeave) {
+							PartyUI.onRequestLeave();
+						} else {
+							var ui = PartyUI ? PartyUI.getUI() : null;
+							if (ui && ui.onRequestLeave) {
+								ui.onRequestLeave();
+							}
+						}
+					});
+				});
+			} else {
+				// Others: 1:1 Chat
+				ContextMenu.addElement(DB.getMessage(360), function () {
+					if (!self._player) {
+						return;
+					}
+					var WhisperBox = getModule('UI/Components/WhisperBox/WhisperBox');
+					if (WhisperBox) {
+						WhisperBox.show(self._player.characterName);
+					}
+				});
+			}
 
 			// Remove small party window
 			ContextMenu.addElement('Remove small party window', function () {

@@ -28,6 +28,7 @@ define(function (require) {
 	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
 	var Rodex = require('UI/Components/Rodex/Rodex');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
 	var htmlText = require('text!./PartyFriendsV1.html');
 	var cssText = require('text!./PartyFriendsV1.css');
 	var getModule = require;
@@ -567,6 +568,7 @@ define(function (require) {
 	 */
 	PartyFriendsV1.toggle = function toggle() {
 		this.ui.toggle();
+		PartyHelper.remove();
 
 		if (this.ui.is(':visible')) {
 			this.focus();
@@ -1188,6 +1190,7 @@ define(function (require) {
 	 */
 	function onClose() {
 		PartyFriendsV1.ui.hide();
+		PartyHelper.remove();
 	}
 
 	/**
@@ -1272,21 +1275,15 @@ define(function (require) {
 			return;
 		}
 
-		if (_preferences.friend) {
-			ChatBox.ui.find('.username').val(_friends[_index].Name);
-		} else {
-			ChatBox.ui.find('.username').val(_party[_index].characterName);
-		}
-
-		ChatBox.ui.find('.message').select();
+		var name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
+		WhisperBox.show(name);
 	}
 
 	/**
 	 * Add nick name to chatbox while clicking on player character sprite
 	 */
 	PartyFriendsV1.onOpenChat1to1 = function onOpenChat1to1(name) {
-		ChatBox.ui.find('.username').val(name);
-		ChatBox.ui.find('.message').select();
+		WhisperBox.show(name);
 	};
 
 	/**
@@ -1489,6 +1486,16 @@ define(function (require) {
 	 */
 	function onOpenPartyOptionWindow() {
 		if (_preferences.friend) {
+			if (PartyHelper.__active && PartyHelper.getType() === PartyHelper.Type.FRIEND_SETUP) {
+				PartyHelper.remove();
+				return;
+			}
+
+			var whisperPrefs = WhisperBox.preferences;
+
+			PartyHelper.append();
+			PartyHelper.setType(PartyHelper.Type.FRIEND_SETUP);
+			PartyHelper.setFriendOptions(whisperPrefs);
 			return;
 		}
 

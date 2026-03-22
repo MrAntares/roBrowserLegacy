@@ -23,10 +23,12 @@ define(function (require) {
 	var KEYS = require('Controls/KeyEventHandler');
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
+	var PACKETVER = require('Network/PacketVerManager');
 	var PartyHelper = require('../PartyHelper/PartyHelper');
 	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
 	var Mail = require('UI/Components/Mail/Mail');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
 	var htmlText = require('text!./PartyFriendsV0.html');
 	var cssText = require('text!./PartyFriendsV0.css');
 	var getModule = require;
@@ -214,7 +216,7 @@ define(function (require) {
 	 */
 	PartyFriendsV0.toggle = function toggle() {
 		this.ui.toggle();
-
+		PartyHelper.remove();
 		if (this.ui.is(':visible')) {
 			this.focus();
 		}
@@ -612,6 +614,7 @@ define(function (require) {
 	 */
 	function onClose() {
 		PartyFriendsV0.ui.hide();
+		PartyHelper.remove();
 	}
 
 	/**
@@ -658,7 +661,7 @@ define(function (require) {
 			}
 		}
 
-		ui.find('.node').removeClass('.selection');
+		ui.find('.node').removeClass('selection');
 		_index = -1;
 	}
 
@@ -696,12 +699,14 @@ define(function (require) {
 			return;
 		}
 
-		if (_preferences.friend) {
-			ChatBox.ui.find('.username').val(_friends[_index].Name);
-		} else {
-			ChatBox.ui.find('.username').val(_party[_index].characterName);
+		var name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
+
+		if (PACKETVER.value >= 20090617) {
+			WhisperBox.show(name);
+			return;
 		}
 
+		ChatBox.ui.find('.username').val(name);
 		ChatBox.ui.find('.message').select();
 	}
 
@@ -709,6 +714,11 @@ define(function (require) {
 	 * Add nick name to chatbox while clicking on player character sprite
 	 */
 	PartyFriendsV0.onOpenChat1to1 = function onOpenChat1to1(name) {
+		if (PACKETVER.value >= 20090617) {
+			WhisperBox.show(name);
+			return;
+		}
+
 		ChatBox.ui.find('.username').val(name);
 		ChatBox.ui.find('.message').select();
 	};
@@ -827,8 +837,16 @@ define(function (require) {
 		if (_preferences.lock) {
 			return;
 		}
-		PartyHelper.setType(PartyHelper.Type.SETUP);
-		PartyHelper.setOptions(_options, Session.isPartyLeader);
+
+		if (_preferences.friend && PACKETVER.value >= 20090617) {
+			var whisperPrefs = WhisperBox.preferences;
+			PartyHelper.setType(PartyHelper.Type.FRIEND_SETUP);
+			PartyHelper.setFriendOptions(whisperPrefs);
+		} else {
+			PartyHelper.setType(PartyHelper.Type.SETUP);
+			PartyHelper.setOptions(_options, Session.isPartyLeader);
+		}
+
 		PartyHelper.append();
 	}
 
