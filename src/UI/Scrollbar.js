@@ -115,8 +115,7 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 
 		$element.css({
 			'overflow-y': 'hidden',
-			'box-sizing': 'border-box',
-			'padding-right': (element._roOriginalPaddingRight + 13) + 'px'
+			'box-sizing': 'border-box'
 		});
 
 		// Build scrollbar DOM wrapper
@@ -149,9 +148,11 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 			
 			if (sh <= h) {
 				$wrapper.hide();
+				$element.css('padding-right', element._roOriginalPaddingRight + 'px');
 				return;
 			}
 			$wrapper.show();
+			$element.css('padding-right', (element._roOriginalPaddingRight + 13) + 'px');
 
 			var st = $element[0].scrollTop;
 
