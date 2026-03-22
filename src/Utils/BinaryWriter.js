@@ -10,7 +10,7 @@
  * @author Vincent Thibault
  */
 
-define(['Vendors/text-encoding'], function (TextEncoding) {
+define(['Utils/CodepageManager'], function (TextEncoding) {
 	'use strict';
 
 	/**
@@ -48,7 +48,7 @@ define(['Vendors/text-encoding'], function (TextEncoding) {
 		}
 
 		var i, count;
-		var data = TextEncoding.encode(str, 'utf-8');
+		var data = TextEncoding.encode(str, 'utf-8'); // default ROBrowser charset to accept multi-language
 
 		// fuck it, need to rebuild the buffer
 		if (!len && data.length > str.length) {
@@ -239,7 +239,7 @@ define(['Vendors/text-encoding'], function (TextEncoding) {
 			str = String(str).substr(0, length);
 		}
 
-		var data = TextEncoding.encode(str, 'utf-8');
+		var data = TextEncoding.encode(str, 'utf-8'); // default ROBrowser charset to accept multi-language
 		var i,
 			count = length || data.length;
 

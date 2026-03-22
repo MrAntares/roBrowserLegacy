@@ -12,7 +12,7 @@
 
 var _global = this;
 
-define(['./Struct', 'Vendors/text-encoding'], function (Struct, TextEncoding) {
+define(['./Struct', 'Utils/CodepageManager'], function (Struct, TextEncoding) {
 	'use strict';
 
 	/**
@@ -223,7 +223,7 @@ define(['./Struct', 'Vendors/text-encoding'], function (Struct, TextEncoding) {
 
 		this.offset = offset + len;
 
-		return TextEncoding.decode(data.subarray(0, i), 'utf-8');
+		return TextEncoding.decode(data.subarray(0, i), 'utf-8'); // default server charset
 	};
 
 	/**

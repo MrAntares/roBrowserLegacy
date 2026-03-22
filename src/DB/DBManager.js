@@ -16,7 +16,7 @@ define(function (require) {
 	 */
 	var Client = require('Core/Client');
 	var Configs = require('Core/Configs');
-	var TextEncoding = require('Vendors/text-encoding');
+	var TextEncoding = require('Utils/CodepageManager');
 	var CLua = require('Vendors/wasmoon-lua5.1');
 	var JobId = require('./Jobs/JobConst');
 	var ClassTable = require('./Jobs/JobNameTable');

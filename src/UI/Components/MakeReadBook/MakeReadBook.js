@@ -16,17 +16,15 @@ define(function (require) {
 	 * Dependencies
 	 */
 	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
 	var Preferences = require('Core/Preferences');
 	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
 	var htmlText = require('text!./MakeReadBook.html');
 	var cssText = require('text!./MakeReadBook.css');
 	var Sprite = require('Loaders/Sprite');
 	var Client = require('Core/Client');
-	var TextEncoding = require('Vendors/text-encoding');
+	var TextEncoding = require('Utils/CodepageManager');
 	var Announce = require('UI/Components/Announce/Announce');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
 

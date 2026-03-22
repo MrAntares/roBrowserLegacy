@@ -1,6 +1,6 @@
 define(function (require) {
 	'use strict';
-	var iconv = require('./iconv-lite');
+	var iconv = require('Vendors/iconv-lite');
 	/**
 	 * Smart decode helper.
 	 *
@@ -26,39 +26,58 @@ define(function (require) {
 	/**
 	 * Exports
 	 */
-	var TextEncoding = {
-
+	var CodepageManager = {
+		/*
+		 * @param {string} charset - Charset to use for decoding.
+		 */
 		setCharset: function setCharset(charset) {
-			var supported = ['windows-1252', 'windows-949', 'windows-1251', 'windows-932'];
+			var supported = ['windows-1252', 'windows-949', 'windows-1251', 'windows-932']; // GRF Editor default charsets
 			if (supported.indexOf(charset) === -1 && !this.warned) {
-				console.warn('%c[Warning] You are using a ' + charset + ' charset. \nIf you have some charset ' +
-					'problem set ROConfig.servers[<index>].disableKorean to true or use a proper charset !',
-					'font-weight:bold; color:red; font-size:14px');
+				console.warn(
+					'%c[Warning] You are using a ' +
+						charset +
+						' charset. \nIf you have some charset ' +
+						'problem set ROConfig.servers[<index>].disableKorean to true or use a proper charset !',
+					'font-weight:bold; color:red; font-size:14px'
+				);
 				this.warned = true;
 			}
 			this.userCharset = charset;
 		},
-
-		encode: function encode(data, charset) {
-			if (typeof data !== 'string') {
-				console.error(
-					`[TextEncoding.encode] Invalid input type: expected "string", got "${typeof data}".`,
-					data
-				);
+		/*
+		 * @param {string} str - String to encode.
+		 * @param {string} charset? - Charset to use for encoding.
+		 * @returns {Uint8Array} Encoded string.
+		 */
+		encode: function encode(str, charset = null) {
+			if (typeof str !== 'string') {
+				console.error(`[TextEncoding.encode] Invalid input type: expected "string", got "${typeof str}".`, str);
+				return '';
+			} else if (charset && !iconv.encodingExists(charset)) {
+				console.error(`[TextEncoding.decode] Invalid charset: "${charset}".`, str);
 				return '';
 			}
-			return iconv.encode(data, charset || this.userCharset);
-		},
 
-		decode: function decode(data, charset) {
+			return iconv.encode(str, charset || this.userCharset);
+		},
+		/*
+		 * @param {Uint8Array} data - Raw byte data to decode.
+		 * @param {string} charset? - Charset to use for decoding.
+		 * @returns {string} Decoded string.
+		 */
+		decode: function decode(data, charset = null) {
 			if (!(data instanceof Uint8Array)) {
 				console.error(
 					`[TextEncoding.decode] Invalid input type: expected "Uint8Array", got "${typeof data}".`,
 					data
 				);
 				return '';
+			} else if (charset && (typeof charset !== 'string' || !iconv.encodingExists(charset))) {
+				console.error(`[TextEncoding.decode] Invalid charset: "${charset}".`, data);
+				return '';
 			}
-			if (charset === 'utf-8') { // triggered on server string decoding defined on BinaryReader
+			if (charset === 'utf-8') {
+				// triggered on server string decoding defined on BinaryReader
 				return smartDecode(data, this.userCharset);
 			}
 			return iconv.decode(data, charset || this.userCharset);
@@ -78,7 +97,6 @@ define(function (require) {
 			for (i = 0; i < count; ++i) {
 				data[i] = str.charCodeAt(i);
 			}
-
 			return iconv.decode(data, this.userCharset);
 		},
 
@@ -199,7 +217,7 @@ define(function (require) {
 		return result;
 	}
 
-	TextEncoding.setCharset('windows-1252');
+	CodepageManager.setCharset('windows-1252');
 
-	return TextEncoding;
+	return CodepageManager;
 });
