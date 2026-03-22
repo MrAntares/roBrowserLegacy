@@ -6914,23 +6914,16 @@ define(function (require) {
 		let content = null;
 
 		// parse ITEMLINK and ITEM format
-		if (itemLink.includes('<ITEMLINK>') || itemLink.includes('<ITEM>')) {
-			content =
-				itemLink.match(/<ITEMLINK>(.*?)<INFO>(.*?)<\/INFO><\/ITEMLINK>/) ||
-				itemLink.match(/<ITEM>(.*?)<INFO>(.*?)<\/INFO><\/ITEM>/);
-			if (content) {
-				item.ITID = content[2];
-				item.name = content[1];
-				return item;
-			}
-
-			// return unknown item
+		content = itemLink.match(/<(ITEMLINK|ITEM)>([\s\S]*?)<INFO>([\s\S]*?)<\/INFO><\/\1>/);
+		if (content) {
+			const [, , name, id] = content;
+			item.ITID = id;
+			item.name = name;
 			return item;
 		}
 
-		if (itemLink.includes('<ITEML>')) {
-			content = itemLink.match(/<ITEML>(.*?)<\/ITEML>/);
-		} else {
+		content = itemLink.match(/<ITEML>([\s\S]*?)<\/ITEML>/);
+		if (!content) {
 			return item;
 		}
 

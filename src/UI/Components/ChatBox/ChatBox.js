@@ -221,21 +221,24 @@ define(function (require) {
 			return false;
 		});
 
-		this.ui.find('.input-chatbox').blur(
-			function () {
-				Events.setTimeout(
-					function () {
-						var active = document.activeElement;
-						var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
-						var isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
-						if (!movedInsideChatbox && !isTextInput) {
-							this.ui.find('.input-chatbox').focus();
-						}
-					}.bind(this),
-					1000
-				);
-			}.bind(this)
-		);
+		if (require('Core/Configs').get('restoreChatFocus', false)) {
+			this.ui.find('.input-chatbox').blur(
+				function () {
+					Events.setTimeout(
+						function () {
+							var active = document.activeElement;
+							var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
+							var isTextInput =
+								active && active.tagName && active.tagName.match(/input|select|textarea/i);
+							if (!movedInsideChatbox && !isTextInput) {
+								this.ui.find('.input-chatbox').focus();
+							}
+						}.bind(this),
+						1000
+					);
+				}.bind(this)
+			);
+		}
 
 		// Move caret to end of text
 		this.ui.find('.input-chatbox').on('click focus', function () {
@@ -782,7 +785,8 @@ define(function (require) {
 			KEYS.ALT ||
 			KEYS.SHIFT ||
 			KEYS.CTRL ||
-			(keyId >= KEYS.F1 && keyId <= KEYS.F24)
+			(keyId >= KEYS.F1 && keyId <= KEYS.F24) ||
+			KEYS.INSERT
 		) {
 			return BattleMode.process(keyId);
 		}

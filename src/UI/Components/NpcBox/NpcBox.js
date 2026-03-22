@@ -70,10 +70,16 @@ define(function (require) {
 		if (!text) {
 			return '';
 		}
-		text = String(text);
-		return text.replace(/<ITEM>([^<]+)<INFO>(\d+)<\/INFO><\/ITEM>/g, function (match, itemName, itemId) {
-			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
-		});
+		if (typeof text !== 'string') {
+			text = String(text);
+		}
+		// PACKETVER.value < 20151104 ITEMLINK else ITEM
+		return text.replace(
+			/<(ITEMLINK|ITEM)>([\s\S]*?)<INFO>([\s\S]*?)<\/INFO><\/\1>/g,
+			function (match, tag, itemName, itemId) {
+				return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
+			}
+		);
 	}
 
 	/**
