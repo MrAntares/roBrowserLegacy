@@ -127,7 +127,6 @@ define(function (require) {
 
 			// Items event
 			.find('.container .content')
-			.on('mousewheel DOMMouseScroll', onScroll)
 			.on('mouseover', '.item', onItemOver)
 			.on('mouseout', '.item', onItemOut)
 			.on('dragstart', '.item', onItemDragStart)
@@ -229,9 +228,6 @@ define(function (require) {
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
 		_preferences.magnet_right = this.magnet.RIGHT;
-		_preferences.itemlock = _preferences.itemlock;
-		_preferences.itemcomp = _preferences.itemcomp;
-		_preferences.npcsalelock = _preferences.npcsalelock;
 		_preferences.save();
 	};
 
@@ -305,12 +301,58 @@ define(function (require) {
 		width = Math.min(Math.max(width, 6), 8);
 
 		this.ui.find('.container .content').css({
-			width: width * 32 + 13 // 13 = scrollbar
+			width: width * 32
 		});
 
 		this.ui.css({
 			width: 23 + 16 + 16 + width * 32
 		});
+
+		this.updateScroll();
+	};
+
+	/**
+	 * Force scroll clamping
+	 */
+	InventoryV2.updateScroll = function updateScroll() {
+		var host = this.ui.find('.scroll-host');
+		if (host.length) {
+			var node = host[0];
+			var content = host.find('.content');
+			var ticker = 0;
+
+			var clamp = function () {
+				var maxScroll = Math.max(0, node.scrollHeight - node.clientHeight);
+
+				// If we have items and the last item is not reaching the bottom of the host
+				// and we are scrolled down, pull the list down.
+				var lastItem = content.find('.item:last');
+				if (lastItem.length) {
+					var itemRect = lastItem[0].getBoundingClientRect();
+					var hostRect = node.getBoundingClientRect();
+
+					// If the bottom of the list is above the bottom of the host, but we can scroll up...
+					if (itemRect.bottom < hostRect.bottom && node.scrollTop > 0) {
+						node.scrollTop = Math.max(0, node.scrollTop - (hostRect.bottom - itemRect.bottom));
+					}
+				}
+
+				// Final safety clamp
+				if (node.scrollTop > maxScroll) {
+					node.scrollTop = maxScroll;
+				}
+
+				// Trigger custom scrollbar update if available
+				if (node._roScrollbarRestart) {
+					node._roScrollbarRestart();
+				}
+
+				if (ticker++ < 20) {
+					requestAnimationFrame(clamp);
+				}
+			};
+			clamp();
+		}
 	};
 
 	/**
@@ -372,6 +414,35 @@ define(function (require) {
 	};
 
 	/**
+	 * Get the TAB constant for a given item based on its type.
+	 *
+	 * @param {object} item
+	 * @returns {number} TAB constant
+	 */
+	function getItemTab(item) {
+		switch (item.type) {
+			case ItemType.HEALING:
+			case ItemType.USABLE:
+			case ItemType.DELAYCONSUME:
+			case ItemType.CASH:
+				return InventoryV2.TAB.USABLE;
+
+			case ItemType.WEAPON:
+			case ItemType.ARMOR:
+			case ItemType.SHADOWGEAR:
+			case ItemType.PETEGG:
+			case ItemType.PETARMOR:
+				return InventoryV2.TAB.EQUIP;
+
+			default:
+			case ItemType.ETC:
+			case ItemType.CARD:
+			case ItemType.AMMO:
+				return InventoryV2.TAB.ETC;
+		}
+	}
+
+	/**
 	 * Insert Item to inventory
 	 *
 	 * @param {object} Item
@@ -382,7 +453,6 @@ define(function (require) {
 		// Check if the item was equipped
 		var equippedIndex = InventoryV2.equippedItems.indexOf(item.index);
 		if (equippedIndex !== -1) {
-			// Remove from equipped tracker
 			InventoryV2.equippedItems.splice(equippedIndex, 1);
 		} else {
 			// Mark as new item
@@ -407,14 +477,18 @@ define(function (require) {
 			object.count += item.count;
 			this.ui.find('.item[data-index="' + item.index + '"] .count').text(object.count);
 			this.onUpdateItem(object.ITID, object.count);
-			// Replace the existing index in newItems to maintain it as new
-			var indexPosition = InventoryV2.newItems.indexOf(item.index);
-			if (indexPosition !== -1) {
-				InventoryV2.newItems.splice(indexPosition, 1, item.index);
-			} else {
+			// Keep item marked as new
+			if (InventoryV2.newItems.indexOf(item.index) === -1) {
 				InventoryV2.newItems.push(item.index);
 			}
-			onAddNewItem();
+			// Show new_item indicator if on the correct tab
+			if (getItemTab(item) === _preferences.tab) {
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
+					InventoryV2.ui
+						.find('.item[data-index="' + item.index + '"] .new_item')
+						.css('backgroundImage', 'url(' + data + ')');
+				});
+			}
 			return;
 		}
 
@@ -423,41 +497,6 @@ define(function (require) {
 			this.list.push(object);
 			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 			this.onUpdateItem(object.ITID, object.count);
-		}
-
-		function onAddNewItem() {
-			var tab;
-			switch (item.type) {
-				case ItemType.HEALING:
-				case ItemType.USABLE:
-				case ItemType.DELAYCONSUME:
-				case ItemType.CASH:
-					tab = InventoryV2.TAB.USABLE;
-					break;
-
-				case ItemType.WEAPON:
-				case ItemType.ARMOR:
-				case ItemType.SHADOWGEAR:
-				case ItemType.PETEGG:
-				case ItemType.PETARMOR:
-					tab = InventoryV2.TAB.EQUIP;
-					break;
-
-				default:
-				case ItemType.ETC:
-				case ItemType.CARD:
-				case ItemType.AMMO:
-					tab = InventoryV2.TAB.ETC;
-					break;
-			}
-
-			if (tab === _preferences.tab) {
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
-					InventoryV2.ui
-						.find('.item[data-index="' + item.index + '"] .new_item')
-						.css('backgroundImage', 'url(' + data + ')');
-				});
-			}
 		}
 	};
 
@@ -477,30 +516,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	InventoryV2.addItemSub = function AddItemSub(item) {
-		var tab;
-		switch (item.type) {
-			case ItemType.HEALING:
-			case ItemType.USABLE:
-			case ItemType.DELAYCONSUME:
-			case ItemType.CASH:
-				tab = InventoryV2.TAB.USABLE;
-				break;
-
-			case ItemType.WEAPON:
-			case ItemType.ARMOR:
-			case ItemType.SHADOWGEAR:
-			case ItemType.PETEGG:
-			case ItemType.PETARMOR:
-				tab = InventoryV2.TAB.EQUIP;
-				break;
-
-			default:
-			case ItemType.ETC:
-			case ItemType.CARD:
-			case ItemType.AMMO:
-				tab = InventoryV2.TAB.ETC;
-				break;
-		}
+		var tab = getItemTab(item);
 
 		if (item.PlaceETCTab) {
 			tab = InventoryV2.TAB.FAV;
@@ -510,6 +526,16 @@ define(function (require) {
 		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
 			Equipment.getUI().equip(item, item.WearState);
 			return false;
+		}
+
+		// Check once if this item is in the equip switch list
+		var isInSwitchList = InventoryV2.equipswitchlist.some(function (equipItem) {
+			return equipItem.index === item.index;
+		});
+
+		// Always register with SwitchEquip if needed (regardless of current tab view)
+		if (isInSwitchList) {
+			SwitchEquip.equip(item, item.location, true);
 		}
 
 		if (tab === _preferences.tab) {
@@ -529,12 +555,6 @@ define(function (require) {
 					'</span></div>' +
 					'</div>'
 			);
-
-			if (content.height() < content[0].scrollHeight) {
-				this.ui.find('.hide').hide();
-			} else {
-				this.ui.find('.hide').show();
-			}
 
 			Client.loadFile(
 				DB.INTERFACE_PATH +
@@ -558,14 +578,7 @@ define(function (require) {
 				content.find('.item[data-index="' + item.index + '"] .new_item').css('backgroundImage', '');
 			}
 
-			// Check if the item is in the equipswitchlist
-			var isInEquipSwitchList = InventoryV2.equipswitchlist.some(function (equipItem) {
-				return equipItem.index === item.index;
-			});
-
-			if (isInEquipSwitchList) {
-				SwitchEquip.equip(item, item.location, true);
-
+			if (isInSwitchList) {
 				Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/bg_change.bmp', function (data) {
 					content
 						.find('.item[data-index="' + item.index + '"] .switch1')
@@ -577,15 +590,6 @@ define(function (require) {
 						.css('backgroundImage', 'url(' + data + ')');
 				});
 			}
-		}
-
-		// Check if the item is in the equipswitchlist
-		var isInEquipSwitchList = InventoryV2.equipswitchlist.some(function (equipItem) {
-			return equipItem.index === item.index;
-		});
-
-		if (isInEquipSwitchList) {
-			SwitchEquip.equip(item, item.location, true);
 		}
 
 		return true;
@@ -633,11 +637,6 @@ define(function (require) {
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 		this.onUpdateItem(item.ITID, 0);
 
-		var content = this.ui.find('.container .content');
-		if (content.height() === content[0].scrollHeight) {
-			this.ui.find('.hide').show();
-		}
-
 		InventoryV2.ui.find('.overlay').hide();
 
 		return item;
@@ -671,10 +670,7 @@ define(function (require) {
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber() + ' / ');
 		this.onUpdateItem(item.ITID, 0);
 
-		var content = this.ui.find('.container .content');
-		if (content.height() === content[0].scrollHeight) {
-			this.ui.find('.hide').show();
-		}
+		this.updateScroll();
 	};
 
 	/**
@@ -727,9 +723,6 @@ define(function (require) {
 	 */
 	function onResize() {
 		var ui = InventoryV2.ui;
-		var content = ui.find('.container .content');
-		var hide = ui.find('.hide');
-		var top = ui.position().top;
 		var left = ui.position().left;
 		var lastWidth = 0;
 		var _Interval;
@@ -749,12 +742,6 @@ define(function (require) {
 			InventoryV2.resize(w);
 			lastWidth = w;
 
-			//Show or hide scrollbar
-			if (content.height() === content[0].scrollHeight) {
-				hide.show();
-			} else {
-				hide.hide();
-			}
 		}
 
 		// Start resizing
@@ -823,6 +810,9 @@ define(function (require) {
 	 * Update tab, reset inventory content
 	 */
 	function requestFilter() {
+		var host = InventoryV2.ui.find('.scroll-host');
+		host.scrollTop(0);
+
 		InventoryV2.ui.find('.container .content').empty();
 
 		var list = InventoryV2.list;
@@ -831,6 +821,8 @@ define(function (require) {
 		for (i = 0, count = list.length; i < count; ++i) {
 			InventoryV2.addItemSub(list[i]);
 		}
+
+		InventoryV2.updateScroll();
 	}
 
 	/**
@@ -910,25 +902,6 @@ define(function (require) {
 		return false;
 	}
 
-	/**
-	 * Block the scroll to move 32px at each move
-	 */
-	function onScroll(event) {
-		var delta;
-
-		if (event.originalEvent.wheelDelta) {
-			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera) {
-				delta = -delta;
-			}
-		} else if (event.originalEvent.detail) {
-			delta = -event.originalEvent.detail;
-		}
-
-		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
-		event.stopImmediatePropagation();
-		return false;
-	}
 
 	/**
 	 * Show item name when mouse is over

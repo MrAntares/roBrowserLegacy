@@ -73,7 +73,7 @@ define(function (require) {
 			x: 0,
 			y: UIVersionManager.getInventoryVersion() > 0 ? 172 : 120,
 			width: 7,
-			height: 4,
+			height: 2,
 			show: false,
 			reduce: false,
 			tab: InventoryV0.TAB.USABLE,
@@ -105,7 +105,6 @@ define(function (require) {
 
 			// Items event
 			.find('.container .content')
-			.on('mousewheel DOMMouseScroll', onScroll)
 			.on('mouseover', '.item', onItemOver)
 			.on('mouseout', '.item', onItemOut)
 			.on('dragstart', '.item', onItemDragStart)
@@ -132,7 +131,7 @@ define(function (require) {
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'basic_interface/tab_itm_0' + (_preferences.tab + 1) + '.bmp',
 			function (data) {
-				InventoryV0.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
+				InventoryV0.ui.find('.tab-sprite').css('backgroundImage', 'url("' + data + '")');
 			}
 		);
 
@@ -242,18 +241,63 @@ define(function (require) {
 	 * @param {number} height
 	 */
 	InventoryV0.resize = function Resize(width, height) {
-		width = Math.min(Math.max(width, 6), 9);
-		height = Math.min(Math.max(height, 2), 6);
+		width = Math.min(Math.max(width, 6), 8);
+		height = Math.min(Math.max(height, 2), 5);
 
 		this.ui.find('.container .content').css({
-			width: width * 32 + 13, // 13 = scrollbar
-			height: height * 32
+			width: width * 32
 		});
 
 		this.ui.css({
-			width: 23 + 16 + 16 + width * 32,
-			height: 31 + 19 + height * 32
+			width: 27 + 16 + 16 + width * 32,
+			height: 31 + 4 + 27 + height * 32
 		});
+
+		this.updateScroll();
+	};
+
+	/**
+	 * Force scroll clamping
+	 */
+	InventoryV0.updateScroll = function updateScroll() {
+		var host = this.ui.find('.scroll-host');
+		if (host.length) {
+			var node = host[0];
+			var content = host.find('.content');
+			var ticker = 0;
+
+			var clamp = function () {
+				var maxScroll = Math.max(0, node.scrollHeight - node.clientHeight);
+
+				// If we have items and the last item is not reaching the bottom of the host
+				// and we are scrolled down, pull the list down.
+				var lastItem = content.find('.item:last');
+				if (lastItem.length) {
+					var itemRect = lastItem[0].getBoundingClientRect();
+					var hostRect = node.getBoundingClientRect();
+
+					// If the bottom of the list is above the bottom of the host, but we can scroll up...
+					if (itemRect.bottom < hostRect.bottom && node.scrollTop > 0) {
+						node.scrollTop = Math.max(0, node.scrollTop - (hostRect.bottom - itemRect.bottom));
+					}
+				}
+
+				// Final safety clamp
+				if (node.scrollTop > maxScroll) {
+					node.scrollTop = maxScroll;
+				}
+
+				// Trigger custom scrollbar update if available
+				if (node._roScrollbarRestart) {
+					node._roScrollbarRestart();
+				}
+
+				if (ticker++ < 20) {
+					requestAnimationFrame(clamp);
+				}
+			};
+			clamp();
+		}
 	};
 
 	/**
@@ -315,6 +359,35 @@ define(function (require) {
 	};
 
 	/**
+	 * Get the TAB constant for a given item based on its type.
+	 *
+	 * @param {object} item
+	 * @returns {number} TAB constant
+	 */
+	function getItemTab(item) {
+		switch (item.type) {
+			case ItemType.HEALING:
+			case ItemType.USABLE:
+			case ItemType.DELAYCONSUME:
+			case ItemType.CASH:
+				return InventoryV0.TAB.USABLE;
+
+			case ItemType.WEAPON:
+			case ItemType.ARMOR:
+			case ItemType.PETEGG:
+			case ItemType.PETARMOR:
+			case ItemType.SHADOWGEAR:
+				return InventoryV0.TAB.EQUIP;
+
+			default:
+			case ItemType.ETC:
+			case ItemType.CARD:
+			case ItemType.AMMO:
+				return InventoryV0.TAB.ETC;
+		}
+	}
+
+	/**
 	 * Insert Item to inventory
 	 *
 	 * @param {object} Item
@@ -325,7 +398,6 @@ define(function (require) {
 		// Check if the item was equipped
 		var equippedIndex = InventoryV0.equippedItems.indexOf(item.index);
 		if (equippedIndex !== -1) {
-			// Remove from equipped tracker
 			InventoryV0.equippedItems.splice(equippedIndex, 1);
 		} else {
 			// Mark as new item
@@ -350,14 +422,18 @@ define(function (require) {
 			object.count += item.count;
 			this.ui.find('.item[data-index="' + item.index + '"] .count').text(object.count);
 			this.onUpdateItem(object.ITID, object.count);
-			// Replace the existing index in newItems to maintain it as new
-			var indexPosition = InventoryV0.newItems.indexOf(item.index);
-			if (indexPosition !== -1) {
-				InventoryV0.newItems.splice(indexPosition, 1, item.index);
-			} else {
+			// Keep item marked as new
+			if (InventoryV0.newItems.indexOf(item.index) === -1) {
 				InventoryV0.newItems.push(item.index);
 			}
-			onAddNewItem();
+			// Show new_item indicator if on the correct tab
+			if (getItemTab(item) === _preferences.tab) {
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
+					InventoryV0.ui
+						.find('.item[data-index="' + item.index + '"] .new_item')
+						.css('backgroundImage', 'url(' + data + ')');
+				});
+			}
 			return;
 		}
 
@@ -366,41 +442,6 @@ define(function (require) {
 			this.list.push(object);
 			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 			this.onUpdateItem(object.ITID, object.count);
-		}
-
-		function onAddNewItem() {
-			var tab;
-			switch (item.type) {
-				case ItemType.HEALING:
-				case ItemType.USABLE:
-				case ItemType.DELAYCONSUME:
-				case ItemType.CASH:
-					tab = InventoryV0.TAB.USABLE;
-					break;
-
-				case ItemType.WEAPON:
-				case ItemType.ARMOR:
-				case ItemType.PETEGG:
-				case ItemType.PETARMOR:
-				case ItemType.SHADOWGEAR:
-					tab = InventoryV0.TAB.EQUIP;
-					break;
-
-				default:
-				case ItemType.ETC:
-				case ItemType.CARD:
-				case ItemType.AMMO:
-					tab = InventoryV0.TAB.ETC;
-					break;
-			}
-
-			if (tab === _preferences.tab) {
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
-					InventoryV0.ui
-						.find('.item[data-index="' + item.index + '"] .new_item')
-						.css('backgroundImage', 'url(' + data + ')');
-				});
-			}
 		}
 	};
 
@@ -420,30 +461,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	InventoryV0.addItemSub = function AddItemSub(item) {
-		var tab;
-		switch (item.type) {
-			case ItemType.HEALING:
-			case ItemType.USABLE:
-			case ItemType.DELAYCONSUME:
-			case ItemType.CASH:
-				tab = InventoryV0.TAB.USABLE;
-				break;
-
-			case ItemType.WEAPON:
-			case ItemType.ARMOR:
-			case ItemType.PETEGG:
-			case ItemType.PETARMOR:
-			case ItemType.SHADOWGEAR:
-				tab = InventoryV0.TAB.EQUIP;
-				break;
-
-			default:
-			case ItemType.ETC:
-			case ItemType.CARD:
-			case ItemType.AMMO:
-				tab = InventoryV0.TAB.ETC;
-				break;
-		}
+		var tab = getItemTab(item);
 
 		// Equip item (if not arrow)
 		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
@@ -457,27 +475,22 @@ define(function (require) {
 
 			content.append(
 				'<div class="item" data-index="' +
-					item.index +
-					'" draggable="true">' +
-					'<div class="new_item"></div>' +
-					'<div class="icon"></div>' +
-					'<div class="amount"><span class="count">' +
-					(item.count || 1) +
-					'</span></div>' +
-					'</div>'
+				item.index +
+				'" draggable="true">' +
+				'<div class="new_item"></div>' +
+				'<div class="icon"></div>' +
+				'<div class="amount"><span class="count">' +
+				(item.count || 1) +
+				'</span></div>' +
+				'</div>'
 			);
 
-			if (content.height() < content[0].scrollHeight) {
-				this.ui.find('.hide').hide();
-			} else {
-				this.ui.find('.hide').show();
-			}
 
 			Client.loadFile(
 				DB.INTERFACE_PATH +
-					'item/' +
-					(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-					'.bmp',
+				'item/' +
+				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+				'.bmp',
 				function (data) {
 					content
 						.find('.item[data-index="' + item.index + '"] .icon')
@@ -529,11 +542,6 @@ define(function (require) {
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
-		var content = this.ui.find('.container .content');
-		if (content.height() === content[0].scrollHeight) {
-			this.ui.find('.hide').show();
-		}
-
 		InventoryV0.ui.find('.overlay').hide();
 
 		return item;
@@ -567,10 +575,7 @@ define(function (require) {
 		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
 		this.onUpdateItem(item.ITID, 0);
 
-		var content = this.ui.find('.container .content');
-		if (content.height() === content[0].scrollHeight) {
-			this.ui.find('.hide').show();
-		}
+		this.updateScroll();
 	};
 
 	/**
@@ -623,8 +628,6 @@ define(function (require) {
 	 */
 	function onResize() {
 		var ui = InventoryV0.ui;
-		var content = ui.find('.container .content');
-		var hide = ui.find('.hide');
 		var top = ui.position().top;
 		var left = ui.position().left;
 		var lastWidth = 0;
@@ -639,8 +642,8 @@ define(function (require) {
 			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
-			w = Math.min(Math.max(w, 6), 9);
-			h = Math.min(Math.max(h, 2), 6);
+			w = Math.min(Math.max(w, 6), 8);
+			h = Math.min(Math.max(h, 2), 5);
 
 			if (w === lastWidth && h === lastHeight) {
 				return;
@@ -650,12 +653,6 @@ define(function (require) {
 			lastWidth = w;
 			lastHeight = h;
 
-			//Show or hide scrollbar
-			if (content.height() === content[0].scrollHeight) {
-				hide.show();
-			} else {
-				hide.hide();
-			}
 		}
 
 		// Start resizing
@@ -678,7 +675,7 @@ define(function (require) {
 		_preferences.tab = parseInt(idx, 10);
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0' + (idx + 1) + '.bmp', function (data) {
-			InventoryV0.ui.find('.tabs').css('backgroundImage', 'url(' + data + ')');
+			InventoryV0.ui.find('.tab-sprite').css('backgroundImage', 'url(' + data + ')');
 			requestFilter();
 		});
 	}
@@ -704,6 +701,9 @@ define(function (require) {
 	 * Update tab, reset inventory content
 	 */
 	function requestFilter() {
+		var host = InventoryV0.ui.find('.scroll-host');
+		host.scrollTop(0);
+
 		InventoryV0.ui.find('.container .content').empty();
 
 		var list = InventoryV0.list;
@@ -712,6 +712,8 @@ define(function (require) {
 		for (i = 0, count = list.length; i < count; ++i) {
 			InventoryV0.addItemSub(list[i]);
 		}
+
+		InventoryV0.updateScroll();
 	}
 
 	/**
@@ -791,25 +793,6 @@ define(function (require) {
 		return false;
 	}
 
-	/**
-	 * Block the scroll to move 32px at each move
-	 */
-	function onScroll(event) {
-		var delta;
-
-		if (event.originalEvent.wheelDelta) {
-			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera) {
-				delta = -delta;
-			}
-		} else if (event.originalEvent.detail) {
-			delta = -event.originalEvent.detail;
-		}
-
-		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
-		event.stopImmediatePropagation();
-		return false;
-	}
 
 	/**
 	 * Show item name when mouse is over
