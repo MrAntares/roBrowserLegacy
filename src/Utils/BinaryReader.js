@@ -34,16 +34,8 @@ define(['./Struct', 'Utils/CodepageManager'], function (Struct, TextEncoding) {
 		var buffer;
 
 		if (typeof mixed === 'string') {
-			var uint8;
-			var i, length;
-
-			length = mixed.length;
-			buffer = new ArrayBuffer(length);
-			uint8 = new Uint8Array(buffer);
-
-			for (i = 0; i < length; ++i) {
-				uint8[i] = mixed.charCodeAt(i) & 0xff;
-			}
+			const buf = TextEncoding.encode(mixed, 'utf-8');
+			buffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 		} else if (mixed instanceof ArrayBuffer) {
 			buffer = mixed;
 		} else if (mixed instanceof Uint8Array) {
@@ -209,21 +201,21 @@ define(['./Struct', 'Utils/CodepageManager'], function (Struct, TextEncoding) {
 	 * @return string
 	 */
 	BinaryReader.prototype.getString = BinaryReader.prototype.readString = function getString(len) {
-		var offset = this.offset + 0;
-		var i,
-			uint8,
-			data = new Uint8Array(len);
+		const start = this.offset;
+		const bytes = new Uint8Array(this.view.buffer, start, len);
 
-		for (i = 0; i < len; ++i) {
-			if (!(uint8 = this.getUint8())) {
+		let realLen = len;
+
+		for (let i = 0; i < len; i++) {
+			if (bytes[i] === 0) {
+				realLen = i;
 				break;
 			}
-			data[i] = uint8;
 		}
 
-		this.offset = offset + len;
+		this.offset += len;
 
-		return TextEncoding.decode(data.subarray(0, i), 'utf-8'); // default server charset
+		return TextEncoding.decode(bytes.subarray(0, realLen), 'utf-8'); // default server charset
 	};
 
 	/**
@@ -233,20 +225,21 @@ define(['./Struct', 'Utils/CodepageManager'], function (Struct, TextEncoding) {
 	 * @return string
 	 */
 	BinaryReader.prototype.getBinaryString = BinaryReader.prototype.readBinaryString = function getBinaryString(len) {
-		var offset = this.offset + 0,
-			i;
-		var uint8,
-			out = '';
+		const start = this.offset;
+		const bytes = new Uint8Array(this.view.buffer, start, len);
 
-		for (i = 0; i < len; ++i) {
-			if (!(uint8 = this.getUint8())) {
+		let realLen = len;
+
+		for (let i = 0; i < len; i++) {
+			if (bytes[i] === 0) {
+				realLen = i;
 				break;
 			}
-			out += String.fromCharCode(uint8);
 		}
 
-		this.offset = offset + len;
-		return out;
+		this.offset += len;
+
+		return TextEncoding.decode(bytes.subarray(0, realLen), 'utf-8'); // default server charset
 	};
 
 	/**

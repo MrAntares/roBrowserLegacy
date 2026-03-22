@@ -75,7 +75,7 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 		var i, count;
 
 		for (i = 0, count = str.length; i < count; ++i) {
-			this.setUint8(offset + i, str.charCodeAt(i) & 0xff);
+			this.setUint8(offset + i, TextEncoding.encode(str[i], 'utf-8'));
 		}
 	};
 
@@ -278,15 +278,20 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 		str,
 		length
 	) {
-		if (length) {
-			str = String(str).substr(0, length);
+		str = String(str);
+
+		let buf = TextEncoding.encode(str, 'utf-8');
+
+		if (length && buf.length > length) {
+			buf = buf.subarray(0, length);
 		}
 
-		var i,
-			count = str.length;
+		const count = buf.length;
 
-		for (i = 0; i < count; ++i) {
-			this.view.setUint8(this.offset + i, str.charCodeAt(i) & 0xff);
+		new Uint8Array(this.view.buffer, this.offset, count).set(buf);
+
+		if (length && count < length) {
+			new Uint8Array(this.view.buffer, this.offset + count, length - count).fill(0);
 		}
 
 		this.offset += length || count;

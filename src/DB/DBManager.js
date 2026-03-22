@@ -970,9 +970,9 @@ define(function (require) {
 				if (typeof data === 'string') {
 					text = data;
 				} else if (data instanceof Uint8Array) {
-					text = new TextDecoder('utf-8').decode(data);
+					text = TextEncoding.decode(data, 'utf-8');
 				} else if (data instanceof ArrayBuffer) {
-					text = new TextDecoder('utf-8').decode(new Uint8Array(data));
+					text = TextEncoding.decode(new Uint8Array(data), 'utf-8');
 				} else {
 					text = String(data);
 				}
@@ -1025,7 +1025,7 @@ define(function (require) {
 			}
 
 			// decode bytes as UTF-8
-			return new TextDecoder('utf-8').decode(bytes);
+			return TextEncoding.decode(bytes, 'utf-8');
 		} catch (e) {
 			console.warn('Base64 UTF-8 decode failed:', str, e);
 			return str; // fallback to original if decoding fails

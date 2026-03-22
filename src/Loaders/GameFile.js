@@ -8,11 +8,12 @@
  * @author Vincent Thibault
  */
 
-define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflate'], function (
+define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflate', 'Utils/CodepageManager'], function (
 	GameFileDecrypt,
 	BinaryReader,
 	Struct,
-	Inflate
+	Inflate,
+	TextEncoding
 ) {
 	'use strict';
 
@@ -212,18 +213,19 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	 */
 	function loadEntries(out, count, version) {
 		// Read all entries
-		var i, pos, str;
+		var i, pos, start, end;
 		var entries = new Array(count);
 
 		for (i = 0, pos = 0; i < count; ++i) {
-			str = '';
+			start = pos;
 			while (out[pos]) {
-				str += String.fromCharCode(out[pos++]);
+				pos++;
 			}
+			end = pos;
 			pos++;
 
 			entries[i] = {
-				filename: str,
+				filename: TextEncoding.decode(out.subarray(start, end), 'utf-8'),
 				pack_size: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
 				length_aligned: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
 				real_size: out[pos++] | (out[pos++] << 8) | (out[pos++] << 16) | (out[pos++] << 24),
