@@ -83,6 +83,7 @@ define(function (require) {
 	var CaptchaAnswer = require('UI/Components/Captcha/CaptchaAnswer');
 	var CaptchaPreview = require('UI/Components/Captcha/CaptchaPreview');
 	var Clan = require('UI/Components/Clan/Clan');
+	var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
 	var PluginManager = require('Plugins/PluginManager');
 	var SignboardManager = require('Renderer/SignboardManager');
 	var PvPTimer = require('UI/Components/PvPTimer/PvPTimer');
@@ -324,6 +325,11 @@ define(function (require) {
 
 			if (Configs.get('enableBank')) {
 				Bank.prepare();
+			}
+
+			if (PACKETVER.value >= 20090617) {
+				WhisperBox.prepare();
+				WhisperBox.init();
 			}
 
 			if (PACKETVER.value >= 20141016) {
