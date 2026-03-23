@@ -68,14 +68,20 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	 * @param {number} len
 	 */
 	DataView.prototype.setBinaryString = function SetBinaryString(offset, str, len) {
-		if (len) {
-			str = String(str).substr(0, len);
+		str = String(str);
+
+		let buf = TextEncoding.encode(str, 'utf-8');
+
+		if (len && buf.length > len) {
+			buf = buf.subarray(0, len);
 		}
 
-		var i, count;
+		const count = buf.length;
 
-		for (i = 0, count = str.length; i < count; ++i) {
-			this.setUint8(offset + i, TextEncoding.encode(str[i], 'utf-8'));
+		new Uint8Array(this.buffer, offset, count).set(buf);
+
+		if (len && count < len) {
+			new Uint8Array(this.buffer, offset + count, len - count).fill(0);
 		}
 	};
 
