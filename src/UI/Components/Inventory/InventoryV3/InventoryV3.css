@@ -8,7 +8,6 @@
 	flex-direction: column;
 }
 
-
 /* ── Titlebar ─────────────────────────────────────────────── */
 #InventoryV3 .titlebar {
 	width: 100%;
@@ -381,7 +380,7 @@
 	font-size: 0.6rem;
 }
 
-#InventoryV3 .footer div button:hover+.name {
+#InventoryV3 .footer div button:hover + .name {
 	display: table;
 }
 

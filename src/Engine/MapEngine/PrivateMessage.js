@@ -64,7 +64,14 @@ define(function (require) {
 
 		// Fallback to main ChatBox
 		ChatBox.addText(
-			'[ ' + prefix + ' <span class="nickname-link" data-nickname="' + pkt.sender + '" style="cursor:pointer; text-decoration:underline;">' + pkt.sender + '</span> ] : ' + msg,
+			'[ ' +
+				prefix +
+				' <span class="nickname-link" data-nickname="' +
+				pkt.sender +
+				'" style="cursor:pointer; text-decoration:underline;">' +
+				pkt.sender +
+				'</span> ] : ' +
+				msg,
 			ChatBox.TYPE.PRIVATE,
 			ChatBox.FILTER.WHISPER
 		);
@@ -85,7 +92,16 @@ define(function (require) {
 				if (getShouldOpenWhisperBox(user)) {
 					WhisperBox.addText(user, Session.Character.name + ' : ' + msg, '#ffff00');
 				} else {
-					ChatBox.addText('[ To <span class="nickname-link" data-nickname="' + user + '" style="cursor:pointer; text-decoration:underline;">' + user + '</span> ] : ' + msg, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
+					ChatBox.addText(
+						'[ To <span class="nickname-link" data-nickname="' +
+							user +
+							'" style="cursor:pointer; text-decoration:underline;">' +
+							user +
+							'</span> ] : ' +
+							msg,
+						ChatBox.TYPE.PRIVATE,
+						ChatBox.FILTER.WHISPER
+					);
 				}
 			}
 		} else {

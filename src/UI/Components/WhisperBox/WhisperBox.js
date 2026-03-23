@@ -248,12 +248,20 @@ define(function (require) {
 				return match;
 			}
 			override = true;
-			return '<span data-item="' + match + '" class="item-link" style="color:#FFFF63; cursor:pointer;">&lt;' + item.name + '&gt;</span>';
+			return (
+				'<span data-item="' +
+				match +
+				'" class="item-link" style="color:#FFFF63; cursor:pointer;">&lt;' +
+				item.name +
+				'&gt;</span>'
+			);
 		});
 
 		var $content = instance.$content;
 		var isAtBottom = $content[0].scrollHeight - $content.scrollTop() <= $content.outerHeight() + 10;
-		var $div = jQuery('<div/>').css('color', color || '#ffffff')[override ? 'html' : 'text'](text);
+		var $div = jQuery('<div/>')
+			.css('color', color || '#ffffff')
+			[override ? 'html' : 'text'](text);
 
 		$content.append($div);
 
@@ -298,11 +306,11 @@ define(function (require) {
 	/**
 	 * Interface to be overriden by Engine
 	 */
-	WhisperBox.onRequestTalk = function (nickname, text) { };
+	WhisperBox.onRequestTalk = function (nickname, text) {};
 
 	/**
 	 * Initialize resizable logic for an instance
-	 * @param {UIComponent} instance 
+	 * @param {UIComponent} instance
 	 */
 	function initResizable(instance) {
 		var resizer = instance.ui.find('.resizer')[0];

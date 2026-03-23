@@ -475,22 +475,21 @@ define(function (require) {
 
 			content.append(
 				'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
-				'<div class="new_item"></div>' +
-				'<div class="icon"></div>' +
-				'<div class="amount"><span class="count">' +
-				(item.count || 1) +
-				'</span></div>' +
-				'</div>'
+					item.index +
+					'" draggable="true">' +
+					'<div class="new_item"></div>' +
+					'<div class="icon"></div>' +
+					'<div class="amount"><span class="count">' +
+					(item.count || 1) +
+					'</span></div>' +
+					'</div>'
 			);
-
 
 			Client.loadFile(
 				DB.INTERFACE_PATH +
-				'item/' +
-				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-				'.bmp',
+					'item/' +
+					(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+					'.bmp',
 				function (data) {
 					content
 						.find('.item[data-index="' + item.index + '"] .icon')
@@ -652,7 +651,6 @@ define(function (require) {
 			InventoryV0.resize(w, h);
 			lastWidth = w;
 			lastHeight = h;
-
 		}
 
 		// Start resizing
@@ -792,7 +790,6 @@ define(function (require) {
 
 		return false;
 	}
-
 
 	/**
 	 * Show item name when mouse is over

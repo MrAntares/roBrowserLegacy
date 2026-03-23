@@ -386,7 +386,7 @@ define(function (require) {
 			delete UIManager.components[external.name];
 			jQuery('#ro-tooltip-party').removeClass('show');
 			PartyFriendsV1.refreshPartyList();
-			
+
 			if (external._closedByUser) {
 				PartyFriendsV1.saveDetachedMembers();
 			}
@@ -458,7 +458,7 @@ define(function (require) {
 		// Load footer background
 		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/bg_partymember.bmp', function (url) {
 			PartyFriendsV1.ui.find('.count-box').css({
-				'backgroundImage': 'url(' + url + ')'
+				backgroundImage: 'url(' + url + ')'
 			});
 		});
 
@@ -772,7 +772,7 @@ define(function (require) {
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
 		var hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		var lifeRatio = hasLife ? (hp / maxhp) : 0;
+		var lifeRatio = hasLife ? hp / maxhp : 0;
 		var barVisibility = hasLife ? 'visible' : 'hidden';
 
 		node.find('.hp-bar-container, .hp').css('visibility', barVisibility);
@@ -869,7 +869,7 @@ define(function (require) {
 
 		// Get color from MiniMap
 		var MiniMap = getModule('UI/Components/MiniMap/MiniMap');
-		var color = (MiniMap && MiniMap.getMemberColor) ? MiniMap.getMemberColor(player.AID) : 'white';
+		var color = MiniMap && MiniMap.getMemberColor ? MiniMap.getMemberColor(player.AID) : 'white';
 		player.color = color;
 
 		var nameTooltip = player.characterName + ' (' + mapDisplay + ')';
@@ -878,7 +878,7 @@ define(function (require) {
 		// Use visibility (not display) so bar always occupies space, keeping status icon in a fixed position
 		var barVisibility = hasLife ? 'visible' : 'hidden';
 
-		var memberColor = isOnline ? (player.color || '#333') : '#848ca5';
+		var memberColor = isOnline ? player.color || '#333' : '#848ca5';
 
 		var html =
 			'<div class="node' +

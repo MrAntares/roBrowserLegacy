@@ -3,27 +3,31 @@
 The custom scrollbar system in RO Browser provides a way to have stylized scrollbars that match the RO interface while solving common issues like layout jitter and browser inconsistencies.
 
 ## 1. Basic Usage
+
 The system automatically applies a scrollbar to any element inside a `UIComponent` that has:
+
 - `overflow-y: auto;`
 - `overflow-y: scroll;`
 
 ### Dynamic Padding
+
 The scrollbar **automatically** manages `padding-right`. It will only add the space (e.g., 13px) when the content is long enough to require scrolling. If the content fits, the padding is removed to maximize your display area.
 
 ## 2. Using Custom Skins
+
 To use a non-default skin (like the **ChatBox** skin), add the `data-scrollbar-skin` attribute to your HTML element:
 
 ```html
 <!-- Inside your HTML template or JS creation -->
-<div class="content" data-scrollbar-skin="chatbox">
-    ...
-</div>
+<div class="content" data-scrollbar-skin="chatbox">...</div>
 ```
 
 ## 3. Adding a New Skin
+
 To add a new skin, modify [ScrollBar.js](../src/UI/Scrollbar.js).
 
 ### Step 1: Update `skinsToLoad`
+
 Add a new object to the `skinsToLoad` array in `ScrollBar.init`:
 
 ```javascript
@@ -49,9 +53,11 @@ Add a new object to the `skinsToLoad` array in `ScrollBar.init`:
 ```
 
 ### Step 2: Component Tagging
+
 Once the skin is added to `ScrollBar.js`, tag your component's element with `data-scrollbar-skin="myskin"`.
 
 ## 4. Manual Updates
+
 If your component's content changes significantly but is not detected by the automatic `MutationObserver`, you can manually trigger a refresh:
 
 ```javascript

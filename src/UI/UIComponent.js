@@ -270,30 +270,40 @@ define(function (require) {
 			var ScrollBar = require('UI/Scrollbar');
 
 			function checkScrollbars(root) {
-				jQuery(root).find('*').addBack().filter(function () {
-					if (this.nodeType !== 1) {
-						return false;
-					}
-					if (this._roScrollbarApplied) {
+				jQuery(root)
+					.find('*')
+					.addBack()
+					.filter(function () {
+						if (this.nodeType !== 1) {
+							return false;
+						}
+						if (this._roScrollbarApplied) {
+							return true;
+						}
+
+						var oy = window.getComputedStyle(this).overflowY;
+						if (oy !== 'auto' && oy !== 'scroll') {
+							return false;
+						}
+
 						return true;
-					}
-
-					var oy = window.getComputedStyle(this).overflowY;
-					if (oy !== 'auto' && oy !== 'scroll') {
-						return false;
-					}
-
-					return true;
-				}).each(function () {
-					ScrollBar.applyDOMScrollbar(this);
-				});
+					})
+					.each(function () {
+						ScrollBar.applyDOMScrollbar(this);
+					});
 			}
 
 			// Stagger checks to wait for CSS parsing completion
 			checkScrollbars(self.ui[0]);
-			setTimeout(function () { checkScrollbars(self.ui[0]); }, 50);
-			setTimeout(function () { checkScrollbars(self.ui[0]); }, 150);
-			setTimeout(function () { checkScrollbars(self.ui[0]); }, 500);
+			setTimeout(function () {
+				checkScrollbars(self.ui[0]);
+			}, 50);
+			setTimeout(function () {
+				checkScrollbars(self.ui[0]);
+			}, 150);
+			setTimeout(function () {
+				checkScrollbars(self.ui[0]);
+			}, 500);
 
 			// Re-apply if visibility or content changes
 			var observer = new MutationObserver(function (mutations) {
@@ -304,7 +314,8 @@ define(function (require) {
 					} else if (mutation.type === 'attributes') {
 						if (mutation.attributeName === 'style') {
 							var oldVal = mutation.oldValue || '';
-							var wasHidden = oldVal.indexOf('display: none') !== -1 || oldVal.indexOf('display:none') !== -1;
+							var wasHidden =
+								oldVal.indexOf('display: none') !== -1 || oldVal.indexOf('display:none') !== -1;
 							var isHidden = mutation.target.style.display === 'none';
 							if (wasHidden && !isHidden) {
 								needsCheck = true;
@@ -320,7 +331,13 @@ define(function (require) {
 				}
 			});
 
-			observer.observe(self.ui[0], { childList: true, subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ['style', 'class'] });
+			observer.observe(self.ui[0], {
+				childList: true,
+				subtree: true,
+				attributes: true,
+				attributeOldValue: true,
+				attributeFilter: ['style', 'class']
+			});
 			self.__scrollbarObserver = observer;
 		}, 0);
 
@@ -574,8 +591,8 @@ define(function (require) {
 						gridXIndex = Math.max(0, Math.min(gridXIndex, maxXIndex));
 						gridYIndex = Math.max(0, Math.min(gridYIndex, maxYIndex));
 
-						var snappedX = (gridXIndex * gw) + padX;
-						var snappedY = (gridYIndex * gh) + padY;
+						var snappedX = gridXIndex * gw + padX;
+						var snappedY = gridYIndex * gh + padY;
 
 						container
 							.stop()
@@ -614,7 +631,7 @@ define(function (require) {
 						component.magnet.BOTTOM =
 						component.magnet.LEFT =
 						component.magnet.RIGHT =
-						false;
+							false;
 				}
 
 				// Magnet on border

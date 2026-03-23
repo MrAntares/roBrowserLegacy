@@ -696,7 +696,6 @@ define(function (require) {
 
 			InventoryV1.resize(w);
 			lastWidth = w;
-
 		}
 
 		// Start resizing
@@ -856,7 +855,6 @@ define(function (require) {
 
 		return false;
 	}
-
 
 	/**
 	 * Show item name when mouse is over

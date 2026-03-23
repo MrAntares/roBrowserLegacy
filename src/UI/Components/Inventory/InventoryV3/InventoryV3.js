@@ -559,24 +559,24 @@ define(function (require) {
 
 			content.append(
 				'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
-				'<div class="new_item"></div>' +
-				'<div class="icon"></div>' +
-				'<div class="switch1"></div>' +
-				'<div class="switch2"></div>' +
-				'<div class="grade"></div>' +
-				'<div class="amount"><span class="count">' +
-				(item.count || 1) +
-				'</span></div>' +
-				'</div>'
+					item.index +
+					'" draggable="true">' +
+					'<div class="new_item"></div>' +
+					'<div class="icon"></div>' +
+					'<div class="switch1"></div>' +
+					'<div class="switch2"></div>' +
+					'<div class="grade"></div>' +
+					'<div class="amount"><span class="count">' +
+					(item.count || 1) +
+					'</span></div>' +
+					'</div>'
 			);
 
 			Client.loadFile(
 				DB.INTERFACE_PATH +
-				'item/' +
-				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-				'.bmp',
+					'item/' +
+					(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+					'.bmp',
 				function (data) {
 					content
 						.find('.item[data-index="' + item.index + '"] .icon')
@@ -954,8 +954,6 @@ define(function (require) {
 
 		return false;
 	}
-
-
 
 	/**
 	 * Show item name when mouse is over
@@ -1522,11 +1520,11 @@ define(function (require) {
 	/**
 	 * functions to define
 	 */
-	InventoryV3.onUseItem = function OnUseItem(/* index */) { };
-	InventoryV3.onUseCard = function onUseCard(/* index */) { };
-	InventoryV3.onEquipItem = function OnEquipItem(/* index, location */) { };
-	InventoryV3.onUpdateItem = function OnUpdateItem(/* index, amount */) { };
-	InventoryV3.reqMoveItemToCart = function reqMoveItemToCart(/* index, amount */) { };
+	InventoryV3.onUseItem = function OnUseItem(/* index */) {};
+	InventoryV3.onUseCard = function onUseCard(/* index */) {};
+	InventoryV3.onEquipItem = function OnEquipItem(/* index, location */) {};
+	InventoryV3.onUpdateItem = function OnUpdateItem(/* index, amount */) {};
+	InventoryV3.reqMoveItemToCart = function reqMoveItemToCart(/* index, amount */) {};
 
 	Network.hookPacket(PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE, onRequestInventoryExpandResult);
 	Network.hookPacket(PACKET.ZC.ACK_EXTEND_BODYITEM_SIZE, onFinalReqInventoryExpandResult);

@@ -74,12 +74,12 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 			Client.loadFiles(files, function () {
 				var args = arguments;
 				var down = args[0];
-				var mid = (skinInfo.name === 'default' ? args[1] : null);
-				var up = (skinInfo.name === 'default' ? args[2] : args[1]);
+				var mid = skinInfo.name === 'default' ? args[1] : null;
+				var up = skinInfo.name === 'default' ? args[2] : args[1];
 
-				var baseDown = (skinInfo.name === 'default' ? args[3] : null);
-				var baseMid = (skinInfo.name === 'default' ? args[4] : null);
-				var baseUp = (skinInfo.name === 'default' ? args[5] : null);
+				var baseDown = skinInfo.name === 'default' ? args[3] : null;
+				var baseMid = skinInfo.name === 'default' ? args[4] : null;
+				var baseUp = skinInfo.name === 'default' ? args[5] : null;
 
 				var finalizeSkin = function (thumbUrl) {
 					ScrollBar.skins[skinInfo.name] = {
@@ -123,9 +123,18 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 						}
 					};
 
-					Texture.load(baseDown, function () { loadedTextures.down = this; checkAllLoaded(); });
-					Texture.load(baseMid, function () { loadedTextures.mid = this; checkAllLoaded(); });
-					Texture.load(baseUp, function () { loadedTextures.up = this; checkAllLoaded(); });
+					Texture.load(baseDown, function () {
+						loadedTextures.down = this;
+						checkAllLoaded();
+					});
+					Texture.load(baseMid, function () {
+						loadedTextures.mid = this;
+						checkAllLoaded();
+					});
+					Texture.load(baseUp, function () {
+						loadedTextures.up = this;
+						checkAllLoaded();
+					});
 				} else {
 					finalizeSkin(null);
 				}
@@ -210,8 +219,8 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 		if (skin.btnHeight || skin.btnWidth) {
 			var bHeight = skin.btnHeight || (skin.name === 'default' ? 12 : 13);
 			var bWidth = skin.btnWidth || width;
-			$upBtn.css({ 'height': bHeight + 'px', 'width': bWidth + 'px', 'margin': '0 auto' });
-			$downBtn.css({ 'height': bHeight + 'px', 'width': bWidth + 'px', 'margin': '0 auto' });
+			$upBtn.css({ height: bHeight + 'px', width: bWidth + 'px', margin: '0 auto' });
+			$downBtn.css({ height: bHeight + 'px', width: bWidth + 'px', margin: '0 auto' });
 		}
 
 		$track.append($thumb);
@@ -219,9 +228,12 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 		$element.append($scrollbar);
 
 		// Prevent clicks and interactions from passing through to the game world
-		$scrollbar.on('mousedown mouseup click dblclick contextmenu pointerdown pointerup pointermove wheel', function (e) {
-			e.stopPropagation();
-		});
+		$scrollbar.on(
+			'mousedown mouseup click dblclick contextmenu pointerdown pointerup pointermove wheel',
+			function (e) {
+				e.stopPropagation();
+			}
+		);
 
 		// Apply background styles from skin
 		$upBtn.css({ 'background-image': 'url(' + skin.up + ')', 'background-color': 'transparent' });
@@ -233,9 +245,9 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 			$track.css({
 				'background-image': 'none',
 				'background-color': skin.colors.track || 'transparent',
-				'border': 'none',
-				'width': (skin.trackWidth || width) + 'px',
-				'margin': '0 auto'
+				border: 'none',
+				width: (skin.trackWidth || width) + 'px',
+				margin: '0 auto'
 			});
 		}
 
@@ -251,7 +263,7 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 				'background-color': skin.colors.thumb || 'grey',
 				'-webkit-border-image': 'none',
 				'border-image': 'none',
-				'width': tWidth + 'px'
+				width: tWidth + 'px'
 			});
 		}
 
@@ -273,15 +285,15 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 			}
 
 			$scrollbar.show();
-			$element.css('padding-right', (element._roOriginalPaddingRight + (skin.width || 13)) + 'px');
+			$element.css('padding-right', element._roOriginalPaddingRight + (skin.width || 13) + 'px');
 
 			var st = $element[0].scrollTop;
 
 			// Sync wrapper size and position
 			$scrollbar.css({
-				'top': st + 'px',
-				'height': h + 'px',
-				'right': '0px'
+				top: st + 'px',
+				height: h + 'px',
+				right: '0px'
 			});
 
 			var trackHeight = $track.height();
@@ -317,7 +329,7 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 			}, 300);
 		};
 
-		// Start tracking content height 
+		// Start tracking content height
 		element._roScrollbarRestart();
 
 		$element.on('wheel', function (e) {
