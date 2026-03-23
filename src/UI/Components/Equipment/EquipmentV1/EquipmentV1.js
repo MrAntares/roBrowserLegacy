@@ -363,7 +363,7 @@ define(function (require) {
 			}
 			const text = stripHTML(string);
 			if (text.length > limit) {
-				return text.substring(0, limit - 3) + '...';
+				return text.substring(0, limit) + '...';
 			}
 			return text;
 		}
