@@ -28,6 +28,7 @@ define(function (require) {
 	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
 	var Rodex = require('UI/Components/Rodex/Rodex');
 	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+	var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
 	var htmlText = require('text!./PartyFriendsV1.html');
 	var cssText = require('text!./PartyFriendsV1.css');
 	var getModule = require;
@@ -385,6 +386,10 @@ define(function (require) {
 			delete UIManager.components[external.name];
 			jQuery('#ro-tooltip-party').removeClass('show');
 			PartyFriendsV1.refreshPartyList();
+			
+			if (external._closedByUser) {
+				PartyFriendsV1.saveDetachedMembers();
+			}
 		};
 
 		external.setMember(AID, player);
@@ -453,7 +458,7 @@ define(function (require) {
 		// Load footer background
 		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/bg_partymember.bmp', function (url) {
 			PartyFriendsV1.ui.find('.count-box').css({
-				backgroundImage: 'url(' + url + ')'
+				'backgroundImage': 'url(' + url + ')'
 			});
 		});
 
@@ -563,6 +568,7 @@ define(function (require) {
 	 */
 	PartyFriendsV1.toggle = function toggle() {
 		this.ui.toggle();
+		PartyHelper.remove();
 
 		if (this.ui.is(':visible')) {
 			this.focus();
@@ -766,7 +772,7 @@ define(function (require) {
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
 		var hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		var lifeRatio = hasLife ? hp / maxhp : 0;
+		var lifeRatio = hasLife ? (hp / maxhp) : 0;
 		var barVisibility = hasLife ? 'visible' : 'hidden';
 
 		node.find('.hp-bar-container, .hp').css('visibility', barVisibility);
@@ -863,7 +869,7 @@ define(function (require) {
 
 		// Get color from MiniMap
 		var MiniMap = getModule('UI/Components/MiniMap/MiniMap');
-		var color = MiniMap && MiniMap.getMemberColor ? MiniMap.getMemberColor(player.AID) : 'white';
+		var color = (MiniMap && MiniMap.getMemberColor) ? MiniMap.getMemberColor(player.AID) : 'white';
 		player.color = color;
 
 		var nameTooltip = player.characterName + ' (' + mapDisplay + ')';
@@ -872,7 +878,7 @@ define(function (require) {
 		// Use visibility (not display) so bar always occupies space, keeping status icon in a fixed position
 		var barVisibility = hasLife ? 'visible' : 'hidden';
 
-		var memberColor = isOnline ? player.color || '#333' : '#848ca5';
+		var memberColor = isOnline ? (player.color || '#333') : '#848ca5';
 
 		var html =
 			'<div class="node' +
@@ -1184,6 +1190,7 @@ define(function (require) {
 	 */
 	function onClose() {
 		PartyFriendsV1.ui.hide();
+		PartyHelper.remove();
 	}
 
 	/**
@@ -1268,21 +1275,15 @@ define(function (require) {
 			return;
 		}
 
-		if (_preferences.friend) {
-			ChatBox.ui.find('.username').val(_friends[_index].Name);
-		} else {
-			ChatBox.ui.find('.username').val(_party[_index].characterName);
-		}
-
-		ChatBox.ui.find('.message').select();
+		var name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
+		WhisperBox.show(name);
 	}
 
 	/**
 	 * Add nick name to chatbox while clicking on player character sprite
 	 */
 	PartyFriendsV1.onOpenChat1to1 = function onOpenChat1to1(name) {
-		ChatBox.ui.find('.username').val(name);
-		ChatBox.ui.find('.message').select();
+		WhisperBox.show(name);
 	};
 
 	/**
@@ -1485,6 +1486,16 @@ define(function (require) {
 	 */
 	function onOpenPartyOptionWindow() {
 		if (_preferences.friend) {
+			if (PartyHelper.__active && PartyHelper.getType() === PartyHelper.Type.FRIEND_SETUP) {
+				PartyHelper.remove();
+				return;
+			}
+
+			var whisperPrefs = WhisperBox.preferences;
+
+			PartyHelper.append();
+			PartyHelper.setType(PartyHelper.Type.FRIEND_SETUP);
+			PartyHelper.setFriendOptions(whisperPrefs);
 			return;
 		}
 
@@ -1564,12 +1575,6 @@ define(function (require) {
 	 */
 	PartyFriendsV1.saveDetachedMembers = function () {
 		if (!Session.Character || !Session.Character.name) {
-			return;
-		}
-
-		// Guard: If we have no party members in memory, don't overwrite with empty list
-		// (unless we are explicitly leaving the party)
-		if (!Session.hasParty && Object.keys(_detachedMembers).length === 0) {
 			return;
 		}
 

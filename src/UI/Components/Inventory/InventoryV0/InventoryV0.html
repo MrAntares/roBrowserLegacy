@@ -24,31 +24,26 @@
 	</div>
 	<div class="overlay"></div>
 	<div class="panel">
-		<table>
-			<tr>
-				<td
-					class="tabs"
-					rowspan="2"
-					data-background="basic_interface/tab_itm_01.bmp"
-					data-preload="basic_interface/tab_itm_02.bmp;basic_interface/tab_itm_03.bmp"
-				>
-					<button class="item"></button>
-					<button class="equip"></button>
-					<button class="etc"></button>
-				</td>
-				<td class="container">
-					<div class="ff_bugfix">
-						<div class="hide"></div>
-						<div class="content" data-background="basic_interface/itemwin_mid.bmp"></div>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td class="footer" data-background="basic_interface/btnbar_mid2.bmp">
-					<div class="cnt">Num:<span class="ncnt"></span>/<span class="mcnt"></span></div>
-					<button class="extend" data-background="btn_resize.bmp"></button>
-				</td>
-			</tr>
-		</table>
+		<div class="middle">
+			<div
+				class="tabs"
+				data-background="basic_interface/btnbar_mid2.bmp"
+			>
+				<div class="tab-sprite">
+					<button class="item" data-tab="item"></button>
+					<button class="equip" data-tab="equip"></button>
+					<button class="etc" data-tab="etc"></button>
+				</div>
+			</div>
+			<div class="container">
+				<div class="scroll-host">
+					<div class="content" data-background="basic_interface/itemwin_mid.bmp"></div>
+				</div>
+			</div>
+		</div>
+		<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
+			<div class="cnt">Num:<span class="ncnt"></span>/<span class="mcnt"></span></div>
+			<button class="extend" data-background="btn_resize.bmp"></button>
+		</div>
 	</div>
 </div>

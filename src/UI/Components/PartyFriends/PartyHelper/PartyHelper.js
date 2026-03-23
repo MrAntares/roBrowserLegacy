@@ -15,6 +15,8 @@ define(function (require) {
 	 */
 	var UIManager = require('UI/UIManager');
 	var UIComponent = require('UI/UIComponent');
+	var jQuery = require('Utils/jquery');
+	var PACKETVER = require('Network/PacketVerManager');
 	var htmlText = require('text!./PartyHelper.html');
 	var cssText = require('text!./PartyHelper.css');
 
@@ -24,39 +26,95 @@ define(function (require) {
 	var PartyHelper = new UIComponent('PartyHelper', htmlText, cssText);
 
 	/**
-	 * @enum Window type constant
+	 * Window type constants
 	 */
 	PartyHelper.Type = {
 		CREATE: 0,
 		SETUP: 1,
-		INVITE: 2
+		INVITE: 2,
+		FRIEND_SETUP: 3
 	};
 
 	/**
-	 * @var {number} type
+	 * Current window type
 	 */
 	var _type = PartyHelper.Type.CREATE;
 
 	/**
-	 * Initialize the component (event listener, etc.)
+	 * Initialize component event listeners
 	 */
 	PartyHelper.init = function init() {
-		// Avoid drag drop problems
+		// Stop propagation to prevent drag/drop conflicts
 		this.ui.find('.base').mousedown(function (event) {
 			event.stopImmediatePropagation();
 			return false;
 		});
 
-		this.ui.on('mousedown', '.off', function () {
+		// Close window handlers
+		this.ui.on('click', '.close', function () {
+			PartyHelper.remove();
+		});
+
+		this.ui.on('click', '.cancel', function () {
+			PartyHelper.remove();
+		});
+
+		// Validation handler
+		this.ui.find('.ok').click(function () {
+			onValidate();
+		});
+
+		// Enter key validation
+		this.ui.on('keydown', '.name', function (event) {
+			if (event.which === 13) {
+				onValidate();
+				return false;
+			}
+			return true;
+		});
+
+		// Setting-row toggle handler (WhisperBox preferences)
+		this.ui.on('mousedown', '.setting-row', function (event) {
+			var on = this.querySelector('.on');
+			var off = this.querySelector('.off');
+
+			if (!on || !off) {
+				return;
+			}
+
+			// Toggle visual state
+			on.classList.remove('on');
+			on.classList.add('off');
+			off.classList.remove('off');
+			off.classList.add('on');
+
+			// Save preferences immediately
+			var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
+			var prefs = WhisperBox.preferences;
+
+			prefs.open1to1Stranger = parseInt(PartyHelper.ui.find('.open1to1Stranger .on').attr('data-value'), 10) === 1;
+			prefs.open1to1Friend = parseInt(PartyHelper.ui.find('.open1to1Friend .on').attr('data-value'), 10) === 1;
+			prefs.alarm1to1 = parseInt(PartyHelper.ui.find('.alarm1to1 .on').attr('data-value'), 10) === 1;
+			prefs.save();
+
+			event.stopImmediatePropagation();
+			return false;
+		});
+
+		// Radio button toggle logic
+		this.ui.on('mousedown', '.off', function (event) {
 			if (PartyHelper.ui.find('.content').hasClass('disabled')) {
 				return;
 			}
 
-			var off, on, tmp;
+			// Managed by setting-row handler
+			if (this.parentNode.classList.contains('setting-row')) {
+				return;
+			}
 
-			// Swap elements
-			on = this.parentNode.getElementsByClassName('on')[0];
-			off = this;
+			var off = this;
+			var on = this.parentNode.getElementsByClassName('on')[0];
+			var tmp;
 
 			on.className = 'off';
 			off.className = 'on';
@@ -66,57 +124,108 @@ define(function (require) {
 			off.style.backgroundImage = tmp;
 		});
 
-		this.ui.find('.cancel, .close').click(this.remove.bind(this));
-		this.ui.find('.ok').click(onValidate);
+		// Block interaction on 'on' buttons
+		this.ui.on('mousedown', '.on', function (event) {
+			if (this.parentNode.classList.contains('setting-row')) {
+				return;
+			}
+			event.stopImmediatePropagation();
+			return false;
+		});
 
 		this.draggable(this.ui.find('.titlebar'));
+
+		// Close on Esc key
+		var self = this;
+		this._onKeyDown = function (event) {
+			if (event.which === 27) { // Escape
+				self.remove();
+				event.stopImmediatePropagation();
+				return false;
+			}
+		};
 	};
 
 	/**
-	 * Once append to the DOM, start to position the UI
+	 * Position UI relative to PartyFriends window
 	 */
 	PartyHelper.onAppend = function onAppend() {
 		var base = UIManager.getComponent('PartyFriends').ui;
 
-		this.ui.find('.setup, .create, .invite').hide();
+		this.ui.find('.party-content, .friend-content').hide();
 		this.ui.find('.name').val('');
 
 		this.ui.css({
 			top: base.css('top'),
 			left: parseInt(base.css('left'), 10) + base.width() + 10
 		});
+
+		window.addEventListener('keydown', this._onKeyDown, true);
 	};
 
 	/**
-	 * Removing the UI from window, save preferences
+	 * Cleanup on window removal
 	 */
 	PartyHelper.onRemove = function onRemove() {
-		this.ui.find('.setup, .create, .invite').hide();
+		this.ui.find('.party-content, .friend-content').hide();
 		this.ui.find('.name').val('');
+		window.removeEventListener('keydown', this._onKeyDown, true);
 	};
 
 	/**
-	 * Initilize type
-	 *
-	 * @param {number} set window mode
+	 * Set window display mode
+	 * @param {number} type
 	 */
 	PartyHelper.setType = function setType(type) {
 		this.ui.find('.content').removeClass('disabled');
+		this.ui.find('.footer').show();
+
+		// Restrict Friend Setup by packet version
+		if (type === PartyHelper.Type.FRIEND_SETUP && PACKETVER.value < 20090617) {
+			type = PartyHelper.Type.SETUP;
+		}
 
 		switch (type) {
 			case PartyHelper.Type.CREATE:
+				this.ui.css('width', '130px');
+				this.ui.find('.friend-content').hide();
+				this.ui.find('.party-content').show();
 				this.ui.find('.setup, .invite').hide();
 				this.ui.find('.create').show();
+				this.ui.find('.titlebar .setup, .titlebar .invite, .titlebar .friend-setup').hide();
+				this.ui.find('.titlebar .create').show();
 				break;
 
 			case PartyHelper.Type.INVITE:
+				this.ui.css('width', '130px');
+				this.ui.find('.friend-content').hide();
+				this.ui.find('.party-content').show();
 				this.ui.find('.setup, .create').hide();
 				this.ui.find('.invite').show();
+				this.ui.find('.titlebar .setup, .titlebar .create, .titlebar .friend-setup').hide();
+				this.ui.find('.titlebar .invite').show();
 				break;
 
 			case PartyHelper.Type.SETUP:
-				this.ui.find('.create .invite').hide();
+				this.ui.css('width', '130px');
+				this.ui.find('.friend-content').hide();
+				this.ui.find('.party-content').show();
+				this.ui.find('.create, .invite').hide();
 				this.ui.find('.setup').show();
+				this.ui.find('.titlebar .create, .titlebar .invite, .titlebar .friend-setup').hide();
+				this.ui.find('.titlebar .setup').show();
+				this.ui.find('.footer').css('height', '27px');
+				this.ui.find('.footer .btn').show();
+				break;
+
+			case PartyHelper.Type.FRIEND_SETUP:
+				this.ui.css('width', '230px');
+				this.ui.find('.party-content').hide();
+				this.ui.find('.friend-content').show();
+				this.ui.find('.titlebar .create, .titlebar .invite, .titlebar .setup').hide();
+				this.ui.find('.titlebar .friend-setup').show();
+				this.ui.find('.footer').css('height', '20px');
+				this.ui.find('.footer .btn').hide();
 				break;
 		}
 
@@ -124,10 +233,9 @@ define(function (require) {
 	};
 
 	/**
-	 * Set party settings
-	 *
+	 * Update party settings UI
 	 * @param {object} options
-	 * @param {boolean} is editable ?
+	 * @param {boolean} editable
 	 */
 	PartyHelper.setOptions = function setOptions(options, editable) {
 		function swap(off) {
@@ -153,7 +261,6 @@ define(function (require) {
 			}
 
 			element = this.ui.find('.' + list[i]).find('.off')[0];
-
 			if (options[list[i]] == element.dataset.value) {
 				swap(element);
 			}
@@ -167,19 +274,44 @@ define(function (require) {
 	};
 
 	/**
-	 * Get window mode
-	 *
+	 * Update friend/whisper settings UI
+	 * @param {object} options
+	 */
+	PartyHelper.setFriendOptions = function setFriendOptions(options) {
+		function swap(off) {
+			var on = off.parentNode.querySelector('.on');
+			on.className = 'off';
+			off.className = 'on';
+		}
+
+		var list = ['open1to1Stranger', 'open1to1Friend', 'alarm1to1'];
+		var i, count = list.length;
+
+		for (i = 0; i < count; ++i) {
+			var value = (options[list[i]] === true || options[list[i]] == 1);
+			var row = this.ui.find('.' + list[i]);
+			var on = row.find('.on')[0];
+			var off = row.find('.off')[0];
+
+			if (on && value !== (on.dataset.value == 1)) {
+				swap(off);
+			}
+		}
+	};
+
+	/**
+	 * Get current window type
+	 * @returns {number}
 	 */
 	PartyHelper.getType = function getType() {
 		return _type;
 	};
 
 	/**
-	 * Validate the form
+	 * Validate and process form data
 	 */
 	function onValidate() {
 		var name, PartyFriends;
-
 		PartyFriends = UIManager.getComponent('PartyFriends');
 
 		switch (_type) {
@@ -203,9 +335,9 @@ define(function (require) {
 
 			case PartyHelper.Type.SETUP:
 				PartyFriends.getUI().onRequestSettingUpdate(
-					+PartyHelper.ui.find('.exp_share .on').data('value'),
-					+PartyHelper.ui.find('.item_share .on').data('value'),
-					+PartyHelper.ui.find('.item_sharing_type .on').data('value')
+					PartyHelper.ui.find('.exp_share .on').data('value'),
+					PartyHelper.ui.find('.item_share .on').data('value'),
+					PartyHelper.ui.find('.item_sharing_type .on').data('value')
 				);
 				break;
 		}

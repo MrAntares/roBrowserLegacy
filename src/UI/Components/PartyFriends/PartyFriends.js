@@ -33,5 +33,23 @@ define(function (require) {
 		return ui && ui.isGroupMember && ui.isGroupMember(name);
 	};
 
+	/**
+	 * Proxy for onOpenChat1to1
+	 */
+	controller.onOpenChat1to1 = function onOpenChat1to1(name) {
+		var ui = controller.getUI();
+		if (ui && ui.onOpenChat1to1) {
+			ui.onOpenChat1to1(name);
+		}
+	};
+
+	/**
+	 * Proxy for toggle
+	 */
+	controller.toggle = function toggle() {
+		var ui = controller.getUI();
+		if (ui && ui.toggle) ui.toggle();
+	};
+
 	return controller;
 });
