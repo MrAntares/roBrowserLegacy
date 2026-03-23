@@ -56,7 +56,6 @@ define(function (require) {
 
 		// --- PASS 1: Downsample & Extract Brightness ---
 		// We render to the internal small FBO
-
 		PostProcess.beforeRenderPass(gl, _internalFbo);
 
 		gl.useProgram(_programs.prefilter);
@@ -108,17 +107,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		Bloom.afterRender(gl);
-	};
-
-	/**
-	 * Cleans up bindings
-	 */
-	Bloom.afterRender = function (gl) {
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	/**

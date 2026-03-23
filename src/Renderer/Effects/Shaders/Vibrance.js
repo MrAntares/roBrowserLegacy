@@ -45,14 +45,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		Vibrance.afterRender(gl);
-	};
-
-	Vibrance.afterRender = function (gl) {
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	Vibrance.init = function init(gl) {

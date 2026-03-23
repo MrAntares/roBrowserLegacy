@@ -64,17 +64,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		GaussianBlur.afterRender(gl);
-	};
-
-	GaussianBlur.afterRender = function (gl) {
-		if (!_buffer || !_program) {
-			return;
-		}
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	GaussianBlur.init = function init(gl) {

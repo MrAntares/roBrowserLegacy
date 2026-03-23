@@ -85,7 +85,11 @@ define(function (require) {
 			}
 		}
 	};
-
+	/**
+	 * Set up the FBO and viewport for the next render pass
+	 * @param {WebGLRenderingContext} gl - The WebGL context.
+	 * @param {Object} outputFbo - The FBO to render to.
+	 */
 	PostProcess.beforeRenderPass = function (gl, outputFbo) {
 		if (outputFbo !== null) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, outputFbo.framebuffer);
@@ -95,6 +99,16 @@ define(function (require) {
 			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 		}
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	};
+
+	/**
+	 * Cleans up bindings
+	 */
+	PostProcess.afterRenderPass = function (gl) {
+		gl.useProgram(null);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 
 	/**

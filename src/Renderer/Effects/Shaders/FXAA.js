@@ -15,7 +15,6 @@ define(function (require) {
 	var PostProcess = require('Renderer/Effects/PostProcess');
 
 	var _program, _buffer;
-	var _fxaaEdgeThresholdMin = 0.0;
 
 	var commonVS = require('text!./GLSL/Common.vs');
 
@@ -48,14 +47,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		FXAA.afterRender(gl);
-	};
-
-	FXAA.afterRender = function (gl) {
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	FXAA.init = function init(gl) {

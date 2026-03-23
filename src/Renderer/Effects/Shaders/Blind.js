@@ -11,6 +11,7 @@ define(function (require) {
 
 	var WebGL = require('Utils/WebGL');
 	var Camera = require('Renderer/Camera');
+	var PostProcess = require('Renderer/Effects/PostProcess');
 
 	var _program, _buffer;
 	var _active = false;
@@ -61,17 +62,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		Blind.afterRender(gl);
-	};
-
-	Blind.afterRender = function (gl) {
-		if (!_buffer || !_program) {
-			return;
-		}
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	Blind.init = function init(gl) {

@@ -12,9 +12,8 @@ define([
 	'text!./GLSL/VerticalFlip.vs',
 	'text!./GLSL/VerticalFlip.fs',
 	'Utils/WebGL',
-	'Renderer/Effects/PostProcess',
-	'Core/Configs'
-], function (vs, fs, WebGL, PostProcess, Configs) {
+	'Renderer/Effects/PostProcess'
+], function (vs, fs, WebGL, PostProcess) {
 	'use strict';
 
 	var _program, _buffer;
@@ -78,19 +77,8 @@ define([
 			gl.uniform1i(_program.uniform.uTexture, 0);
 
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			this.afterRender(gl);
-		},
 
-		/** Cleans up WebGL states */
-		afterRender: function (gl) {
-			if (!_active || !_program || !_buffer) {
-				return;
-			}
-
-			gl.useProgram(null);
-			gl.bindBuffer(gl.ARRAY_BUFFER, null);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.bindTexture(gl.TEXTURE_2D, null);
+			PostProcess.afterRenderPass(gl);
 		},
 
 		/**

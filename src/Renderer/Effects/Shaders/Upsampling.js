@@ -15,7 +15,6 @@ define(function (require) {
 
 	var _program;
 	var _buffer;
-	var _internalFbo;
 
 	/**
 	 * Vertex Shader: Common quad
@@ -23,8 +22,7 @@ define(function (require) {
 	var commonVS = require('text!./GLSL/Common.vs');
 
 	/**
-	 * Composite
-	 * Mixes the sharp original scene with the blurred bloom texture.
+	 * Fragment Shader: Upsample the scene.
 	 */
 	var compositeFS = require('text!./GLSL/CommonUpsampling.fs');
 
@@ -36,7 +34,7 @@ define(function (require) {
 	/**
 	 * Renders the Upsampling effect
 	 * @param {WebGLRenderingContext} gl - WebGL Context
-	 * @param {WebGLTexture} inputTexture - Full resolution scene texture
+	 * @param {WebGLTexture} inputTexture - Low resolution scene texture
 	 * @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
 	 */
 	Upsampling.render = function render(gl, inputTexture, outputFbo) {
@@ -62,17 +60,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		Upsampling.afterRender(gl);
-	};
-
-	/**
-	 * Cleans up bindings
-	 */
-	Upsampling.afterRender = function (gl) {
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	/**
@@ -95,18 +83,6 @@ define(function (require) {
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
-
-		// Create the downsampled internal buffer
-		this.recreateFbo(gl, gl.canvas.width, gl.canvas.height);
-	};
-
-	/**
-	 * Recreates the Internal FBO when the window size changes
-	 */
-	Upsampling.recreateFbo = function recreateFbo(gl, width, height) {
-		if (_program) {
-			_internalFbo = PostProcess.createFbo(gl, width, height, _internalFbo);
-		}
 	};
 
 	/** @returns {boolean} always false here */
