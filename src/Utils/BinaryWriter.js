@@ -10,7 +10,7 @@
  * @author Vincent Thibault
  */
 
-define(['Vendors/text-encoding'], function (TextEncoding) {
+define(['Utils/CodepageManager'], function (TextEncoding) {
 	'use strict';
 
 	/**
@@ -48,7 +48,7 @@ define(['Vendors/text-encoding'], function (TextEncoding) {
 		}
 
 		var i, count;
-		var data = TextEncoding.encode(str, 'utf-8');
+		var data = TextEncoding.encode(str, 'utf-8'); // default ROBrowser charset to accept multi-language
 
 		// fuck it, need to rebuild the buffer
 		if (!len && data.length > str.length) {
@@ -68,14 +68,20 @@ define(['Vendors/text-encoding'], function (TextEncoding) {
 	 * @param {number} len
 	 */
 	DataView.prototype.setBinaryString = function SetBinaryString(offset, str, len) {
-		if (len) {
-			str = String(str).substr(0, len);
+		str = String(str);
+
+		let buf = TextEncoding.encode(str, 'utf-8');
+
+		if (len && buf.length > len) {
+			buf = buf.subarray(0, len);
 		}
 
-		var i, count;
+		const count = buf.length;
 
-		for (i = 0, count = str.length; i < count; ++i) {
-			this.setUint8(offset + i, str.charCodeAt(i) & 0xff);
+		new Uint8Array(this.buffer, offset, count).set(buf);
+
+		if (len && count < len) {
+			new Uint8Array(this.buffer, offset + count, len - count).fill(0);
 		}
 	};
 
@@ -239,7 +245,7 @@ define(['Vendors/text-encoding'], function (TextEncoding) {
 			str = String(str).substr(0, length);
 		}
 
-		var data = TextEncoding.encode(str, 'utf-8');
+		var data = TextEncoding.encode(str, 'utf-8'); // default ROBrowser charset to accept multi-language
 		var i,
 			count = length || data.length;
 
@@ -278,15 +284,20 @@ define(['Vendors/text-encoding'], function (TextEncoding) {
 		str,
 		length
 	) {
-		if (length) {
-			str = String(str).substr(0, length);
+		str = String(str);
+
+		let buf = TextEncoding.encode(str, 'utf-8');
+
+		if (length && buf.length > length) {
+			buf = buf.subarray(0, length);
 		}
 
-		var i,
-			count = str.length;
+		const count = buf.length;
 
-		for (i = 0; i < count; ++i) {
-			this.view.setUint8(this.offset + i, str.charCodeAt(i) & 0xff);
+		new Uint8Array(this.view.buffer, this.offset, count).set(buf);
+
+		if (length && count < length) {
+			new Uint8Array(this.view.buffer, this.offset + count, length - count).fill(0);
 		}
 
 		this.offset += length || count;

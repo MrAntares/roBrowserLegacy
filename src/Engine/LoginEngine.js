@@ -13,7 +13,7 @@ define(function (require) {
 	'use strict';
 
 	// Load dependencies
-	var TextEncoding = require('Vendors/text-encoding');
+	var TextEncoding = require('Utils/CodepageManager');
 	var DB = require('DB/DBManager');
 	var BGM = require('Audio/BGM');
 	var Sound = require('Audio/SoundManager');
