@@ -56,9 +56,8 @@ define(function (require) {
 
 		// --- PASS 1: Downsample & Extract Brightness ---
 		// We render to the internal small FBO
-		gl.bindFramebuffer(gl.FRAMEBUFFER, _internalFbo.framebuffer);
-		gl.viewport(0, 0, _internalFbo.width, _internalFbo.height);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		PostProcess.beforeRenderPass(gl, _internalFbo);
 
 		gl.useProgram(_programs.prefilter);
 
