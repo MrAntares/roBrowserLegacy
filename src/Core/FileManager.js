@@ -255,7 +255,7 @@ define(function (require) {
 			return encodeURIComponent(a);
 		});
 
-		// Use http request here (ajax)
+		// Use http request here
 		if (!this.remoteClient) {
 			url = '/client/' + url;
 		} else {
@@ -269,6 +269,26 @@ define(function (require) {
 			return;
 		}
 
+		// Use Fetch API for better performance and HTTP/2 multiplexing support
+		if (typeof fetch !== 'undefined') {
+			fetch(url)
+				.then(function (response) {
+					if (!response.ok) {
+						throw new Error('HTTP ' + response.status);
+					}
+					return response.arrayBuffer();
+				})
+				.then(function (buffer) {
+					callback(buffer);
+					FileSystem.saveFile(filename, buffer);
+				})
+				.catch(function () {
+					callback(null, "Can't get file");
+				});
+			return;
+		}
+
+		// Fallback to XMLHttpRequest for older environments
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', url, true);
 		xhr.responseType = 'arraybuffer';
@@ -289,6 +309,71 @@ define(function (require) {
 			xhr.send(null);
 		} catch (e) {
 			callback(null, "Can't get file");
+		}
+	};
+
+	/**
+	 * Batch file loading - groups requests within a frame and sends them as one
+	 * Falls back to individual requests if batch endpoint is unavailable
+	 */
+	var _batchQueue = [];
+	var _batchTimer = null;
+
+	FileManager.getBatchHTTP = function GetBatchHTTP(filename, callback) {
+		// Only batch when using remote client
+		if (!this.remoteClient) {
+			this.getHTTP(filename, callback);
+			return;
+		}
+
+		_batchQueue.push({ filename: filename, callback: callback });
+
+		if (!_batchTimer) {
+			var self = this;
+			_batchTimer = setTimeout(function () {
+				var queue = _batchQueue.splice(0);
+				_batchTimer = null;
+
+				// Single file - no need to batch
+				if (queue.length === 1) {
+					self.getHTTP(queue[0].filename, queue[0].callback);
+					return;
+				}
+
+				var files = queue.map(function (q) {
+					return q.filename.replace(/\\/g, '/');
+				});
+
+				fetch(self.remoteClient + 'batch', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ files: files })
+				})
+					.then(function (r) { return r.json(); })
+					.then(function (results) {
+						queue.forEach(function (q) {
+							var key = q.filename.replace(/\\/g, '/');
+							if (results[key]) {
+								var binary = atob(results[key]);
+								var buffer = new ArrayBuffer(binary.length);
+								var view = new Uint8Array(buffer);
+								for (var i = 0; i < binary.length; i++) {
+									view[i] = binary.charCodeAt(i);
+								}
+								q.callback(buffer);
+								FileSystem.saveFile(q.filename, buffer);
+							} else {
+								q.callback(null, "Can't get file");
+							}
+						});
+					})
+					.catch(function () {
+						// Fallback: load individually
+						queue.forEach(function (q) {
+							self.getHTTP(q.filename, q.callback);
+						});
+					});
+			}, 16); // Wait 1 frame (~16ms) to group requests
 		}
 	};
 

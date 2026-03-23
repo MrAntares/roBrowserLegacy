@@ -31,6 +31,53 @@ define([
 	var _objects = [];
 
 	/**
+	 * @var {Array} batched draw calls (grouped by texture)
+	 */
+	var _batches = [];
+
+	/**
+	 * @var {boolean} whether all textures are loaded and batches are built
+	 */
+	var _batchesReady = false;
+
+	/**
+	 * @var {number} count of textures still loading
+	 */
+	var _pendingTextures = 0;
+
+	/**
+	 * Build batched draw calls by merging consecutive objects with the same texture.
+	 * Objects sharing the same texture with contiguous vertex ranges are merged
+	 * into a single draw call, reducing GPU state changes.
+	 */
+	function buildBatches() {
+		_batches.length = 0;
+		var current = null;
+
+		for (var i = 0, count = _objects.length; i < count; ++i) {
+			if (!_objects[i].complete) {
+				continue;
+			}
+
+			// Can merge if same texture and contiguous vertex range
+			if (current &&
+				current.texture === _objects[i].texture &&
+				current.vertOffset + current.vertCount === _objects[i].vertOffset) {
+				current.vertCount += _objects[i].vertCount;
+			} else {
+				current = {
+					texture: _objects[i].texture,
+					vertOffset: _objects[i].vertOffset,
+					vertCount: _objects[i].vertCount
+				};
+				_batches.push(current);
+			}
+		}
+
+		_batchesReady = true;
+	}
+
+	/**
 	 * Initialize models
 	 *
 	 * @param {object} gl context
@@ -43,6 +90,8 @@ define([
 		objects = data.infos;
 		count = objects.length;
 		_objects.length = count;
+		_batchesReady = false;
+		_pendingTextures = count;
 
 		// Bind buffer
 		if (!_buffer) {
@@ -59,6 +108,12 @@ define([
 		function onTextureLoaded(texture, i) {
 			_objects[i].texture = texture;
 			_objects[i].complete = true;
+			_pendingTextures--;
+
+			// Rebuild batches when all textures are loaded
+			if (_pendingTextures <= 0) {
+				buildBatches();
+			}
 		}
 
 		// Fetch all images, and draw them in a mega-texture
@@ -130,10 +185,23 @@ define([
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
 
-		for (i = 0, count = _objects.length; i < count; ++i) {
-			if (_objects[i].complete) {
-				gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
-				gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
+		if (_batchesReady) {
+			// Optimized path: use pre-built batches with conditional texture binding
+			var lastTexture = null;
+			for (i = 0, count = _batches.length; i < count; ++i) {
+				if (_batches[i].texture !== lastTexture) {
+					gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
+					lastTexture = _batches[i].texture;
+				}
+				gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
+			}
+		} else {
+			// Fallback: render individually while textures are still loading
+			for (i = 0, count = _objects.length; i < count; ++i) {
+				if (_objects[i].complete) {
+					gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
+					gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
+				}
 			}
 		}
 
@@ -167,6 +235,8 @@ define([
 		}
 
 		_objects.length = 0;
+		_batches.length = 0;
+		_batchesReady = false;
 	}
 
 	/**
