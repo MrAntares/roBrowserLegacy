@@ -1064,6 +1064,8 @@ define(function (require) {
 
 			if (item.count > level) {
 				applyArr[skillId] = item.count - level;
+			} else {
+				applyArr[skillId] = item.count;
 			}
 		});
 
