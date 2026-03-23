@@ -355,31 +355,38 @@ define(function (require) {
 		_list[item.index] = item;
 
 		function add3Dots(string, limit) {
-			var dots = '...';
-			if (string.length > limit) {
-				string = string.substring(0, limit) + dots;
+			// html color codes broken inventory strings lenght
+			function stripHTML(str) {
+				const div = document.createElement('div');
+				div.innerHTML = str;
+				return div.textContent || div.innerText || '';
 			}
-
-			return string;
+			const text = stripHTML(string);
+			if (text.length > limit) {
+				return text.substring(0, limit - 3) + '...';
+			}
+			return text;
 		}
 
-		this.ui
-			.find(getSelectorFromLocation(location))
-			.html(
-				'<div class="item" data-index="' +
-					item.index +
-					'">' +
-					'<button></button>' +
-					'<span class="itemName">' +
+		this.ui.find(getSelectorFromLocation(location)).html(
+			'<div class="item" data-index="' +
+				item.index +
+				'">' +
+				'<button><div class="grade"></div></button>' +
+				'<span class="itemName">' +
+				jQuery.escape(
 					add3Dots(
-						jQuery.escape(
-							DB.getItemName(item, { showItemGrade: false, showItemSlots: false, showItemOptions: false })
-						),
-						19
-					) +
-					'</span>' +
-					'</div>'
-			);
+						DB.getItemName(item, {
+							showItemGrade: false,
+							showItemSlots: false,
+							showItemOptions: false
+						}),
+						25
+					)
+				) +
+				'</span>' +
+				'</div>'
+		);
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
