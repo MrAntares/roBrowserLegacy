@@ -28,18 +28,14 @@ define(function (require) {
 	 * Renders the Blind effect
 	 * @param {WebGLRenderingContext} gl
 	 * @param {WebGLTexture} inputTexture - Texture from previous pass
-	 * @param {WebGLFramebuffer} outputFramebuffer - Target buffer
+	 * @param {WebGLFramebuffer} outputFbo - Target buffer
 	 */
-	Blind.render = function render(gl, inputTexture, outputFramebuffer) {
+	Blind.render = function render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_program || !Blind.isActive()) {
 			return;
 		}
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-
-		// Viewport handling
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		PostProcess.beforeRenderPass(gl, outputFbo);
 
 		gl.useProgram(_program);
 

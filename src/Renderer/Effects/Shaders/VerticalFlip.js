@@ -50,18 +50,14 @@ define([
 		 * Executes the inverted drawing
 		 * @param {WebGLRenderingContext} gl
 		 * @param {WebGLTexture} inputTexture - Texture to be inverted
-		 * @param {WebGLFramebuffer} outputFramebuffer - Target
+		 * @param {WebGLFramebuffer} outputFbo - Target
 		 */
-		render: function (gl, inputTexture, outputFramebuffer) {
+		render: function (gl, inputTexture, outputFbo) {
 			if (!_buffer || !_program || !_active) {
 				return;
 			}
 
-			gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-
-			// Viewport
-			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			PostProcess.beforeRenderPass(gl, outputFbo);
 
 			gl.useProgram(_program);
 

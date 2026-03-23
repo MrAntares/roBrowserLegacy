@@ -47,9 +47,9 @@ define(function (require) {
 	 * Renders the Bloom effect
 	 * @param {WebGLRenderingContext} gl - WebGL Context
 	 * @param {WebGLTexture} inputTexture - Full resolution scene texture
-	 * @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
+	 * @param {WebGLFramebuffer} outputFbo - Destination (Screen or next effect)
 	 */
-	Bloom.render = function render(gl, inputTexture, outputFramebuffer) {
+	Bloom.render = function render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_programs.prefilter || !Bloom.isActive()) {
 			return;
 		}
@@ -86,9 +86,7 @@ define(function (require) {
 
 		// --- PASS 2: Composite ---
 		// We render to the destination (Full Res)
-		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		PostProcess.beforeRenderPass(gl, outputFbo);
 
 		gl.useProgram(_programs.composite);
 

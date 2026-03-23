@@ -57,7 +57,7 @@ define(function (require) {
 		}
 
 		// Use render scale for viewport when rendering to FBO
-		var scale = Math.max(0.5, Math.min(1.0, GraphicsSettings.renderScale || 1.0));
+		var scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
 		var vpWidth = Math.floor(gl.canvas.width * scale);
 		var vpHeight = Math.floor(gl.canvas.height * scale);
 		gl.viewport(0, 0, vpWidth, vpHeight);
@@ -81,7 +81,7 @@ define(function (require) {
 			var isLast = i === _activeEffects.length - 1;
 
 			// Destination: Screen (null) if last, otherwise the next offscreen buffer
-			var targetFbo = isLast ? null : _writeFbo.framebuffer;
+			var targetFbo = isLast ? null : _writeFbo;
 
 			// Render the effect: Source (Read) -> Effect Logic -> Destination (Write)
 			effect.render(gl, _readFbo.texture, targetFbo);
@@ -91,6 +91,17 @@ define(function (require) {
 				this.swapBuffers();
 			}
 		}
+	};
+
+	PostProcess.beforeRenderPass = function (gl, outputFbo) {
+		if (outputFbo != null) {
+			gl.bindFramebuffer(gl.FRAMEBUFFER, outputFbo.framebuffer);
+			gl.viewport(0, 0, outputFbo.width, outputFbo.height);
+		} else {
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		}
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	};
 
 	/**
@@ -106,7 +117,7 @@ define(function (require) {
 	 * Ensures Ping-Pong buffers are created and resized if necessary.
 	 */
 	PostProcess.validateBuffers = function (gl) {
-		var scale = Math.max(0.5, Math.min(1.0, GraphicsSettings.renderScale || 1.0));
+		var scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
 		var scaledWidth = Math.floor(gl.canvas.width * scale);
 		var scaledHeight = Math.floor(gl.canvas.height * scale);
 
@@ -160,7 +171,7 @@ define(function (require) {
 	 * Recreates the FBO when the window size changes
 	 */
 	PostProcess.recreateFbo = function recreateFbo(gl, width, height) {
-		var scale = Math.max(0.5, Math.min(1.0, GraphicsSettings.renderScale || 1.0));
+		var scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
 		var scaledWidth = Math.floor(width * scale);
 		var scaledHeight = Math.floor(height * scale);
 

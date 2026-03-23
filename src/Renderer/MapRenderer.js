@@ -57,6 +57,8 @@ define(function (require) {
 	var Cartoon = require('Renderer/Effects/Shaders/Cartoon');
 	var Blind = require('Renderer/Effects/Shaders/Blind');
 
+	var Upsampling = require('Renderer/Effects/Shaders/Upsampling');
+
 	var WebGL = require('Utils/WebGL');
 
 	const mat4 = glMatrix.mat4;
@@ -336,6 +338,9 @@ define(function (require) {
 		PostProcess.register(Vibrance, gl);
 		PostProcess.register(VerticalFlip, gl);
 		PostProcess.register(Blind, gl);
+
+		// Final Pass GPU Upsampling for Performance Mode
+		PostProcess.register(Upsampling, gl);
 	}
 
 	/**

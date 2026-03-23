@@ -32,15 +32,12 @@ define(function (require) {
 	/**
 	 * Render CAS
 	 */
-	CAS.render = function render(gl, inputTexture, outputFramebuffer) {
+	CAS.render = function render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_program || !CAS.isActive()) {
 			return;
 		}
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+		PostProcess.beforeRenderPass(gl, outputFbo);
 		gl.useProgram(_program);
 
 		// Uniforms

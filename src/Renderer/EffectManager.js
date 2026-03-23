@@ -289,7 +289,7 @@ define(function (require) {
 		if (Session.Entity && Session.Entity.position) {
 			center = Session.Entity.position;
 		}
-		var area_size = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var area_size = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
 		var cullDistanceSq = area_size * area_size;
 
 		for (i = 0; i < count; ++i) {
