@@ -372,7 +372,7 @@ define(function (require) {
 			'<div class="item" data-index="' +
 				item.index +
 				'">' +
-				'<button><div class="grade"></div></button>' +
+				'<button></button>' +
 				'<span class="itemName">' +
 				jQuery.escape(
 					add3Dots(
