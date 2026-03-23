@@ -50,18 +50,11 @@ define(function (require) {
 
 		if (_activeEffects.length > 0) {
 			// Render the scene into the write buffer (which becomes read buffer in .render())
-			gl.bindFramebuffer(gl.FRAMEBUFFER, _writeFbo.framebuffer);
+			PostProcess.beforeRenderPass(gl, _writeFbo);
 		} else {
 			// No effects? Render directly to screen
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			PostProcess.beforeRenderPass(gl, null);
 		}
-
-		// Use render scale for viewport when rendering to FBO
-		var scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
-		var vpWidth = Math.floor(gl.canvas.width * scale);
-		var vpHeight = Math.floor(gl.canvas.height * scale);
-		gl.viewport(0, 0, vpWidth, vpHeight);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	};
 
 	/**
