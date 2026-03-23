@@ -94,7 +94,7 @@ define(function (require) {
 	};
 
 	PostProcess.beforeRenderPass = function (gl, outputFbo) {
-		if (outputFbo != null) {
+		if (outputFbo !== null) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, outputFbo.framebuffer);
 			gl.viewport(0, 0, outputFbo.width, outputFbo.height);
 		} else {
