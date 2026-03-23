@@ -60,9 +60,11 @@ define([
 			}
 
 			// Can merge if same texture and contiguous vertex range
-			if (current &&
+			if (
+				current &&
 				current.texture === _objects[i].texture &&
-				current.vertOffset + current.vertCount === _objects[i].vertOffset) {
+				current.vertOffset + current.vertCount === _objects[i].vertOffset
+			) {
 				current.vertCount += _objects[i].vertCount;
 			} else {
 				current = {

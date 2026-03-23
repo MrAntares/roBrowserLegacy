@@ -349,7 +349,9 @@ define(function (require) {
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ files: files })
 				})
-					.then(function (r) { return r.json(); })
+					.then(function (r) {
+						return r.json();
+					})
 					.then(function (results) {
 						queue.forEach(function (q) {
 							var key = q.filename.replace(/\\/g, '/');
