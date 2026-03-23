@@ -273,8 +273,8 @@ define(function (require) {
 			fetch(url)
 				.then(function (response) {
 					if (!response.ok) {
-					throw new Error('HTTP ' + response.status);
-				}
+						throw new Error('HTTP ' + response.status);
+					}
 					return response.arrayBuffer();
 				})
 				.then(function (buffer) {

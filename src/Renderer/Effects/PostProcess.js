@@ -160,15 +160,19 @@ define(function (require) {
 	 * Recreates the FBO when the window size changes
 	 */
 	PostProcess.recreateFbo = function recreateFbo(gl, width, height) {
+		var scale = Math.max(0.5, Math.min(1.0, GraphicsSettings.renderScale || 1.0));
+		var scaledWidth = Math.floor(width * scale);
+		var scaledHeight = Math.floor(height * scale);
+
 		// Recreate global buffers
-		_readFbo = this.createFbo(gl, width, height, _readFbo);
-		_writeFbo = this.createFbo(gl, width, height, _writeFbo);
+		_readFbo = this.createFbo(gl, scaledWidth, scaledHeight, _readFbo);
+		_writeFbo = this.createFbo(gl, scaledWidth, scaledHeight, _writeFbo);
 
 		// Notify modules to recreate their internal buffers (if any)
 		for (var i = 0; i < _effects.length; i++) {
 			var module = _effects[i];
 			if (module.recreateFbo) {
-				module.recreateFbo(gl, width, height);
+				module.recreateFbo(gl, scaledWidth, scaledHeight);
 			}
 		}
 	};
