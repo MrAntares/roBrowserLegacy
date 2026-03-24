@@ -164,17 +164,17 @@ On Docker Desktop (macOS/Windows) use the magic hostname:
 
 ### Container environment variables
 
-| Variable              | Default                    | Description                                                                               |
-| --------------------- | -------------------------- | ----------------------------------------------------------------------------------------- |
-| `PORT`                | `3338`                     | Port the server listens on                                                                |
-| `CLIENT_PUBLIC_URL`   | `http://localhost:3338`    | Public base URL of this container (used for CORS)                                         |
+| Variable              | Default                    | Description                                                                                  |
+| --------------------- | -------------------------- | -------------------------------------------------------------------------------------------- |
+| `PORT`                | `3338`                     | Port the server listens on                                                                   |
+| `CLIENT_PUBLIC_URL`   | `http://localhost:3338`    | Public base URL of this container (used for CORS)                                            |
 | `WS_ALLOWED_TARGETS`  | _(empty - localhost only)_ | Comma-separated `host:port` list the WS proxy may forward to. See [Networking](#networking). |
-| `ENABLE_WSPROXY`      | `true`                     | Enable the embedded WebSocket proxy                                                       |
-| `ENABLE_STATIC_SERVE` | `true`                     | Serve the roBrowserLegacy web client as static files                                      |
-| `CACHE_MAX_FILES`     | `10000`                    | Max number of GRF files to keep in memory cache                                           |
-| `CACHE_MAX_MEMORY_MB` | `2048`                     | Memory budget for the GRF file cache                                                      |
-| `CACHE_WARM_UP`       | `true`                     | Pre-populate cache on startup                                                             |
-| `CACHE_WARM_UP_LIMIT` | `500`                      | Max files to pre-load during warm-up                                                      |
+| `ENABLE_WSPROXY`      | `true`                     | Enable the embedded WebSocket proxy                                                          |
+| `ENABLE_STATIC_SERVE` | `true`                     | Serve the roBrowserLegacy web client as static files                                         |
+| `CACHE_MAX_FILES`     | `10000`                    | Max number of GRF files to keep in memory cache                                              |
+| `CACHE_MAX_MEMORY_MB` | `2048`                     | Memory budget for the GRF file cache                                                         |
+| `CACHE_WARM_UP`       | `true`                     | Pre-populate cache on startup                                                                |
+| `CACHE_WARM_UP_LIMIT` | `500`                      | Max files to pre-load during warm-up                                                         |
 
 ---
 
