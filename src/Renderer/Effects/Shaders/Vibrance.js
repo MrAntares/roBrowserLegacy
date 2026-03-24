@@ -22,14 +22,12 @@ define(function (require) {
 
 	function Vibrance() {}
 
-	Vibrance.render = function render(gl, inputTexture, outputFramebuffer) {
+	Vibrance.render = function render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_program || !Vibrance.isActive()) {
 			return;
 		}
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		PostProcess.beforeRenderPass(gl, outputFbo);
 
 		gl.useProgram(_program);
 
@@ -47,14 +45,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		Vibrance.afterRender(gl);
-	};
-
-	Vibrance.afterRender = function (gl) {
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	Vibrance.init = function init(gl) {

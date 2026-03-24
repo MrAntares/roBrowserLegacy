@@ -354,7 +354,7 @@ define(function (require) {
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 
 		// Pre-compute culling values outside the loop
-		var doCulling = GraphicsSettings.culling;
+		var doCulling = GraphicsSettings.performanceMode;
 		var playerX, playerY, viewAreaSq;
 		if (doCulling && Session.Entity && Session.Entity.position) {
 			playerX = Session.Entity.position[0];
@@ -457,7 +457,7 @@ define(function (require) {
 
 		var srcX = sourceEntity.position[0];
 		var srcY = sourceEntity.position[1];
-		var view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var view_range = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
 		var viewRangeSq = view_range * view_range;
 
 		_list.forEach(entity => {
@@ -509,7 +509,7 @@ define(function (require) {
 
 		var srcX = sourceEntity.position[0];
 		var srcY = sourceEntity.position[1];
-		var view_range = GraphicsSettings.culling ? GraphicsSettings.viewArea : 20;
+		var view_range = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
 		var viewRangeSq = view_range * view_range;
 
 		_list.forEach(entity => {

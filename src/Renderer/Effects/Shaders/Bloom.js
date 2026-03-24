@@ -47,18 +47,16 @@ define(function (require) {
 	 * Renders the Bloom effect
 	 * @param {WebGLRenderingContext} gl - WebGL Context
 	 * @param {WebGLTexture} inputTexture - Full resolution scene texture
-	 * @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
+	 * @param {WebGLFramebuffer} outputFbo - Destination (Screen or next effect)
 	 */
-	Bloom.render = function render(gl, inputTexture, outputFramebuffer) {
+	Bloom.render = function render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_programs.prefilter || !Bloom.isActive()) {
 			return;
 		}
 
 		// --- PASS 1: Downsample & Extract Brightness ---
 		// We render to the internal small FBO
-		gl.bindFramebuffer(gl.FRAMEBUFFER, _internalFbo.framebuffer);
-		gl.viewport(0, 0, _internalFbo.width, _internalFbo.height);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+		PostProcess.beforeRenderPass(gl, _internalFbo);
 
 		gl.useProgram(_programs.prefilter);
 
@@ -86,9 +84,7 @@ define(function (require) {
 
 		// --- PASS 2: Composite ---
 		// We render to the destination (Full Res)
-		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		PostProcess.beforeRenderPass(gl, outputFbo);
 
 		gl.useProgram(_programs.composite);
 
@@ -111,17 +107,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		Bloom.afterRender(gl);
-	};
-
-	/**
-	 * Cleans up bindings
-	 */
-	Bloom.afterRender = function (gl) {
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	/**

@@ -11,6 +11,7 @@ define(function (require) {
 
 	var WebGL = require('Utils/WebGL');
 	var Camera = require('Renderer/Camera');
+	var PostProcess = require('Renderer/Effects/PostProcess');
 
 	var _program, _buffer;
 	var _active = false;
@@ -28,18 +29,14 @@ define(function (require) {
 	 * Renders the Blind effect
 	 * @param {WebGLRenderingContext} gl
 	 * @param {WebGLTexture} inputTexture - Texture from previous pass
-	 * @param {WebGLFramebuffer} outputFramebuffer - Target buffer
+	 * @param {WebGLFramebuffer} outputFbo - Target buffer
 	 */
-	Blind.render = function render(gl, inputTexture, outputFramebuffer) {
+	Blind.render = function render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_program || !Blind.isActive()) {
 			return;
 		}
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, outputFramebuffer);
-
-		// Viewport handling
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		PostProcess.beforeRenderPass(gl, outputFbo);
 
 		gl.useProgram(_program);
 
@@ -65,17 +62,7 @@ define(function (require) {
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		Blind.afterRender(gl);
-	};
-
-	Blind.afterRender = function (gl) {
-		if (!_buffer || !_program) {
-			return;
-		}
-		gl.useProgram(null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		PostProcess.afterRenderPass(gl);
 	};
 
 	Blind.init = function init(gl) {

@@ -33,9 +33,9 @@ define(['Core/Preferences'], function (Preferences) {
 		fpslimit: 60,
 
 		/**
-		 * View Area Culling
+		 * Performance Mode
 		 */
-		culling: false,
+		performanceMode: false,
 		viewArea: 14,
 
 		/**
@@ -74,13 +74,7 @@ define(['Core/Preferences'], function (Preferences) {
 
 		casEnabled: false,
 		casContrast: 0.0,
-		casSharpening: 1.0,
-
-		/**
-		 * Render scale (0.5 to 1.0)
-		 * Renders 3D scene at lower resolution for better performance on weak devices
-		 */
-		renderScale: 1.0
+		casSharpening: 1.0
 	};
 
 	/**
