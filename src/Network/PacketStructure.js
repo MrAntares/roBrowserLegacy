@@ -5574,7 +5574,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x104
 	PACKET.ZC.ADD_MEMBER_TO_GROUP = function PACKET_ZC_ADD_MEMBER_TO_GROUP(fp, end) {
 		this.AID = fp.readULong();
-		this.Role = fp.readULong();
+		this.role = fp.readULong();
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
@@ -7170,7 +7170,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	// 0x1e9
 	PACKET.ZC.ADD_MEMBER_TO_GROUP2 = function PACKET_ZC_ADD_MEMBER_TO_GROUP2(fp, end) {
 		this.AID = fp.readULong();
-		this.Role = fp.readULong();
+		this.role = fp.readULong();
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
@@ -12783,7 +12783,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.ADD_MEMBER_TO_GROUP3 = function PACKET_ZC_ADD_MEMBER_TO_GROUP3(fp, end) {
 		this.AID = fp.readULong();
 		this.GID = fp.readULong();
-		this.Role = fp.readULong();
+		this.role = fp.readULong();
 		this.xPos = fp.readShort();
 		this.yPos = fp.readShort();
 		this.state = fp.readUChar();
@@ -13362,7 +13362,7 @@ define(['Utils/BinaryWriter', './PacketVerManager', 'Utils/Struct', 'Core/Config
 	PACKET.ZC.ADD_MEMBER_TO_GROUP4 = function PACKET_ZC_ADD_MEMBER_TO_GROUP4(fp, end) {
 		this.AID = fp.readULong();
 		this.GID = fp.readULong();
-		this.Role = fp.readULong();
+		this.role = fp.readULong();
 		this.class_ = fp.readShort();
 		this.baseLevel = fp.readShort();
 		this.xPos = fp.readShort();

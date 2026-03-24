@@ -838,7 +838,13 @@ define(function (require) {
 			return;
 		}
 
-		if (_preferences.friend && PACKETVER.value >= 20090617) {
+		var type = (_preferences.friend && PACKETVER.value >= 20090617) ? PartyHelper.Type.FRIEND_SETUP : PartyHelper.Type.SETUP;
+		if (PartyHelper.__active && PartyHelper.getType() === type) {
+			PartyHelper.remove();
+			return;
+		}
+		PartyHelper.append();
+		if (type === PartyHelper.Type.FRIEND_SETUP) {
 			var whisperPrefs = WhisperBox.preferences;
 			PartyHelper.setType(PartyHelper.Type.FRIEND_SETUP);
 			PartyHelper.setFriendOptions(whisperPrefs);
@@ -847,7 +853,6 @@ define(function (require) {
 			PartyHelper.setOptions(_options, Session.isPartyLeader);
 		}
 
-		PartyHelper.append();
 	}
 
 	/**
@@ -857,8 +862,13 @@ define(function (require) {
 		if (_preferences.lock) {
 			return;
 		}
-		PartyHelper.setType(PartyHelper.Type.INVITE);
+		if (PartyHelper.__active && PartyHelper.getType() === PartyHelper.Type.INVITE) {
+			PartyHelper.remove();
+			return;
+		}
+
 		PartyHelper.append();
+		PartyHelper.setType(PartyHelper.Type.INVITE);
 	}
 
 	/**
@@ -868,8 +878,13 @@ define(function (require) {
 		if (_preferences.lock) {
 			return;
 		}
-		PartyHelper.setType(PartyHelper.Type.CREATE);
+		if (PartyHelper.__active && PartyHelper.getType() === PartyHelper.Type.CREATE) {
+			PartyHelper.remove();
+			return;
+		}
+
 		PartyHelper.append();
+		PartyHelper.setType(PartyHelper.Type.CREATE);
 	}
 
 	/**

@@ -104,6 +104,7 @@ define(function (require) {
 			return;
 		}
 
+		_partyName = name;
 		var pkt = new PACKET.CZ.MAKE_GROUP2();
 		pkt.groupName = name;
 		this.ItemPickupRule = pickupRule;
@@ -212,6 +213,13 @@ define(function (require) {
 		switch (pkt.result) {
 			case 0: // Ok, process
 				ChatBox.addText(DB.getMessage(77), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
+
+				// Fallback: If party UI was already initialized by other packets (GROUP_LIST, ADD_MEMBER), skip this.
+				if (Session.hasParty) {
+					return;
+				}
+
+				// Otherwise, perform conditional initialization (e.g. on server versions where this arrives first)
 				Session.hasParty = true;
 
 				var entity = Session.Entity;
@@ -317,6 +325,11 @@ define(function (require) {
 		}
 
 		var PartyUI = PartyFriends.getUI();
+
+		if (pkt.AID === Session.AID) {
+			Session.hasParty = true;
+		}
+
 		PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 		PartyUI.addPartyMember(pkt);
 	}
