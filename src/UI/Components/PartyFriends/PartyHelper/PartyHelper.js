@@ -92,8 +92,7 @@ define(function (require) {
 			var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
 			var prefs = WhisperBox.preferences;
 
-			prefs.open1to1Stranger =
-				parseInt(PartyHelper.ui.find('.open1to1Stranger .on').attr('data-value'), 10) === 1;
+			prefs.open1to1Stranger = parseInt(PartyHelper.ui.find('.open1to1Stranger .on').attr('data-value'), 10) === 1;
 			prefs.open1to1Friend = parseInt(PartyHelper.ui.find('.open1to1Friend .on').attr('data-value'), 10) === 1;
 			prefs.alarm1to1 = parseInt(PartyHelper.ui.find('.alarm1to1 .on').attr('data-value'), 10) === 1;
 			prefs.save();
@@ -139,8 +138,7 @@ define(function (require) {
 		// Close on Esc key
 		var self = this;
 		this._onKeyDown = function (event) {
-			if (event.which === 27) {
-				// Escape
+			if (event.which === 27) { // Escape
 				self.remove();
 				event.stopImmediatePropagation();
 				return false;
@@ -196,6 +194,8 @@ define(function (require) {
 				this.ui.find('.create').show();
 				this.ui.find('.titlebar .setup, .titlebar .invite, .titlebar .friend-setup').hide();
 				this.ui.find('.titlebar .create').show();
+				this.ui.find('.footer').css('height', '27px');
+				this.ui.find('.footer .btn').show();
 				break;
 
 			case PartyHelper.Type.INVITE:
@@ -206,6 +206,8 @@ define(function (require) {
 				this.ui.find('.invite').show();
 				this.ui.find('.titlebar .setup, .titlebar .create, .titlebar .friend-setup').hide();
 				this.ui.find('.titlebar .invite').show();
+				this.ui.find('.footer').css('height', '27px');
+				this.ui.find('.footer .btn').show();
 				break;
 
 			case PartyHelper.Type.SETUP:
@@ -253,8 +255,7 @@ define(function (require) {
 		}
 
 		var list = ['exp_share', 'item_share', 'item_sharing_type'];
-		var i,
-			count = list.length;
+		var i, count = list.length;
 		var element;
 
 		for (i = 0; i < count; ++i) {
@@ -287,11 +288,10 @@ define(function (require) {
 		}
 
 		var list = ['open1to1Stranger', 'open1to1Friend', 'alarm1to1'];
-		var i,
-			count = list.length;
+		var i, count = list.length;
 
 		for (i = 0; i < count; ++i) {
-			var value = options[list[i]] === true || options[list[i]] == 1;
+			var value = (options[list[i]] === true || options[list[i]] == 1);
 			var row = this.ui.find('.' + list[i]);
 			var on = row.find('.on')[0];
 			var off = row.find('.off')[0];
@@ -321,42 +321,42 @@ define(function (require) {
 			case PartyHelper.Type.CREATE:
 				name = PartyHelper.ui.find('.content .name').val();
 				if (name.length) {
-					PartyFriends.getUI().onRequestPartyCreation(
+					PartyFriends.onRequestPartyCreation(
 						name,
-						+PartyHelper.ui.find('.item_share .on').data('value'),
-						+PartyHelper.ui.find('.item_sharing_type .on').data('value')
+						PartyHelper.ui.find('.item_share .on').data('value'),
+						PartyHelper.ui.find('.item_sharing_type .on').data('value')
 					);
+					PartyHelper.remove();
 				}
 				break;
 
 			case PartyHelper.Type.INVITE:
 				name = PartyHelper.ui.find('.content .name').val();
 				if (name.length) {
-					PartyFriends.getUI().onRequestAddingMember(0, name);
+					PartyFriends.onRequestAddingMember(0, name);
 				}
 				break;
 
 			case PartyHelper.Type.SETUP:
-				PartyFriends.getUI().onRequestSettingUpdate(
+				PartyFriends.onRequestSettingUpdate(
 					PartyHelper.ui.find('.exp_share .on').data('value'),
 					PartyHelper.ui.find('.item_share .on').data('value'),
 					PartyHelper.ui.find('.item_sharing_type .on').data('value')
 				);
+				PartyHelper.remove();
 				break;
 		}
-
-		PartyHelper.remove();
 	}
 
 	/**
-	 * Callbacks to use
+	 * Hooks
 	 */
-	PartyHelper.onCreate = function onCreate() {};
-	PartyHelper.onInvite = function onInvite() {};
-	PartyHelper.onSetupUpdate = function onSetUpUpdate() {};
+	PartyHelper.onCreate = function onCreate() { };
+	PartyHelper.onInvite = function onInvite() { };
+	PartyHelper.onSetupUpdate = function onSetUpUpdate() { };
 
 	/**
-	 * Export
+	 * Export component
 	 */
 	return UIManager.addComponent(PartyHelper);
 });
