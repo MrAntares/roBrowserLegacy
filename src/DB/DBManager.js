@@ -5510,6 +5510,14 @@ define(function (require) {
 			var item = ItemTable[itemid] || unknownItem;
 
 			if (!item._decoded) {
+				item.identifiedDescriptionName =
+					item.identifiedDescriptionName instanceof Array
+						? item.identifiedDescriptionName.join('\n')
+						: item.identifiedDescriptionName;
+				item.unidentifiedDescriptionName =
+					item.unidentifiedDescriptionName instanceof Array
+						? item.unidentifiedDescriptionName.join('\n')
+						: item.unidentifiedDescriptionName;
 				item.prefixName = TextEncoding.decodeString(item.prefixName || '');
 				item.isPostfix = item.isPostfix || false;
 				item.processitemlist =
