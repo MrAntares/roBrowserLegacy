@@ -437,10 +437,11 @@ define(function (require) {
 						break;
 
 					// Texts
-					case 'txt':
 					case 'xml':
+					case 'txt':
 					case 'lua':
-						result = TextEncoding.decode(new Uint8Array(buffer));
+					case 'lub':
+						result = new Uint8Array(buffer);
 						break;
 
 					// Sprite

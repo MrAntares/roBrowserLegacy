@@ -317,7 +317,8 @@ define(function (require) {
 			function (index, key, val) {
 				(MapTable[key] || (MapTable[key] = {})).name = val;
 			},
-			onLoad()
+			onLoad(),
+			true
 		);
 		loadTable(
 			'data/msgstringtable.txt',
@@ -326,7 +327,8 @@ define(function (require) {
 			function (index, val) {
 				MsgStringTable[index] = val;
 			},
-			onLoad()
+			onLoad(),
+			true
 		);
 		loadTable(
 			'data/resnametable.txt',
@@ -600,7 +602,8 @@ define(function (require) {
 				function (index, key, val) {
 					(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, ' ');
 				},
-				onLoad()
+				onLoad(),
+				true
 			);
 			loadTable(
 				'data/num2itemresnametable.txt',
@@ -618,7 +621,8 @@ define(function (require) {
 				function (index, key, val) {
 					(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName = val.split('\n');
 				},
-				onLoad()
+				onLoad(),
+				true
 			);
 			loadTable(
 				'data/idnum2itemdisplaynametable.txt',
@@ -627,7 +631,8 @@ define(function (require) {
 				function (index, key, val) {
 					(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName = val.replace(/_/g, ' ');
 				},
-				onLoad()
+				onLoad(),
+				true
 			);
 			loadTable(
 				'data/idnum2itemresnametable.txt',
@@ -645,7 +650,8 @@ define(function (require) {
 				function (index, key, val) {
 					(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName = val.split('\n');
 				},
-				onLoad()
+				onLoad(),
+				true
 			);
 			loadTable(
 				'data/itemslotcounttable.txt',
@@ -665,14 +671,15 @@ define(function (require) {
 				function (index, key, val) {
 					SkillDescription[SKID[key]] = val.replace('\r\n', '\n');
 				},
-				onLoad()
+				onLoad(),
+				true
 			);
 			// TODO: data/skillnametable.txt	- ?
 			// TODO: data/skilltreeview.txt	- Replaces DB/Skills/SkillTreeView.js
 			// TODO: data/leveluseskillspamount.txt	- Replaces DB/Skills/SkillInfo.js -> SkillInfo.SpAmount
 
 			// Quest
-			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad());
+			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad(), true);
 		}
 
 		// Load ItemMoveInfo and attach to ItemTable
@@ -688,7 +695,8 @@ define(function (require) {
 			function (index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).processitemlist = val.split('\n');
 			},
-			onLoad()
+			onLoad(),
+			true
 		);
 
 		// Card
@@ -708,7 +716,8 @@ define(function (require) {
 			function (index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).prefixName = val;
 			},
-			onLoad()
+			onLoad(),
+			true
 		);
 		loadTable(
 			'data/cardpostfixnametable.txt',
@@ -717,7 +726,8 @@ define(function (require) {
 			function (index, key) {
 				(ItemTable[key] || (ItemTable[key] = {})).isPostfix = true;
 			},
-			onLoad()
+			onLoad(),
+			true
 		);
 
 		// EtcMapData
@@ -732,7 +742,8 @@ define(function (require) {
 			function (index, val) {
 				JokeTable[index] = val;
 			},
-			onLoad()
+			onLoad(),
+			true
 		);
 		loadTable(
 			'data/dc_scream.txt',
@@ -741,7 +752,8 @@ define(function (require) {
 			function (index, val) {
 				ScreamTable[index] = val;
 			},
-			onLoad()
+			onLoad(),
+			true
 		);
 
 		// Tips
@@ -923,11 +935,14 @@ define(function (require) {
 	 * @param {function} callback to call for each group
 	 * @param {function} onEnd to run once the file is loaded
 	 */
-	function loadTable(filename, separator, size, callback, onEnd) {
+	function loadTable(filename, separator, size, callback, onEnd, useCharPage = false) {
 		Client.loadFile(
 			filename,
-			function (data) {
+			function (buffer) {
 				console.log('Loading file "' + filename + '"...');
+
+				var data = buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : buffer;
+				data = TextEncoding.decode(data, useCharPage ? userCharpage : null);
 
 				// Remove commented lines
 				var content = ('\n' + data).replace(/\n(\/\/[^\n]+)/g, '');
@@ -1042,9 +1057,11 @@ define(function (require) {
 	function loadMoveInfoTable(onEnd) {
 		Client.loadFile(
 			'data/ItemMoveInfoV5.txt',
-			function (data) {
+			function (file) {
 				console.log('Loading file "ItemMoveInfoV5.txt"...');
 
+				var data = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				data = TextEncoding.decode(data, userCharpage);
 				const lines = data.split(/\r?\n/);
 
 				for (let line of lines) {
@@ -1097,8 +1114,10 @@ define(function (require) {
 	function loadXMLFile(filename, callback, onEnd) {
 		Client.loadFile(
 			filename,
-			async function (xml) {
+			async function (file) {
 				console.log('Loading file "' + filename + '"...');
+				var xml = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				xml = TextEncoding.decode(xml, userCharpage);
 				xml = xml.replace(/^.*<\?xml/, '<?xml');
 				var parser = new DOMParser();
 				var parsedXML = parser.parseFromString(xml, 'application/xml');
@@ -1685,7 +1704,7 @@ define(function (require) {
 						mapName = userStringDecoder.decode(mapName);
 						TownInfo[mapName] = [];
 						TownInfo[mapName].push({
-							Name: userStringDecoder.decode(name),
+							Name: userStringDecoder.decode(name, userCharpage),
 							X: X,
 							Y: Y,
 							Type: TYPE
@@ -1952,7 +1971,6 @@ define(function (require) {
 							slotCount: slotCount,
 							ClassNum: ClassNum
 						};
-
 						return 1;
 					};
 					ctx.AddItemUnidentifiedDesc = (ItemID, v) => {
@@ -2079,7 +2097,7 @@ define(function (require) {
 						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
 						let decoded_NeedSource_String =
 							NeedSource_String && NeedSource_String.length > 1
-								? userStringDecoder.decode(NeedSource_String)
+								? userStringDecoder.decode(NeedSource_String, userCharpage)
 								: '';
 						LaphineSysTable[decoded_key] = {
 							ItemID: ItemID,
@@ -2176,7 +2194,7 @@ define(function (require) {
 						let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
 						let decoded_NeedSource_String =
 							NeedSource_String && NeedSource_String.length > 1
-								? userStringDecoder.decode(NeedSource_String)
+								? userStringDecoder.decode(NeedSource_String, userCharpage)
 								: '';
 
 						LaphineUpgTable[decoded_key] = {
@@ -2364,7 +2382,8 @@ define(function (require) {
 					};
 
 					ctx.ReformInfoAddInformationString = (key, string) => {
-						let decoded_string = string && string.length > 1 ? userStringDecoder.decode(string) : null;
+						let decoded_string =
+							string && string.length > 1 ? userStringDecoder.decode(string, userCharpage) : null;
 						ItemReformTable.ReformInfo[key].InformationString.push(decoded_string);
 						return 1;
 					};
@@ -2573,7 +2592,7 @@ define(function (require) {
 					};
 					ctx.SetEnchantCaution = (enchantId, message) => {
 						const group = ensureGroup(enchantId);
-						group.caution = decodeLuaString(message);
+						group.caution = userStringDecoder.decode(message, userCharpage);
 						return 1;
 					};
 					ctx.AddEnchantResetMaterial = (enchantId, itemDb, count) => {
@@ -3049,7 +3068,9 @@ define(function (require) {
 						let decoded_icon_location =
 							icon_location && icon_location.length > 1 ? userStringDecoder.decode(icon_location) : null;
 						let decoded_description =
-							description && description.length > 1 ? userStringDecoder.decode(description) : null;
+							description && description.length > 1
+								? userStringDecoder.decode(description, userCharpage)
+								: null;
 						let decoded_color = color && color.length > 1 ? userStringDecoder.decode(color) : null;
 
 						signBoardList.push({
@@ -3671,7 +3692,7 @@ define(function (require) {
 					if (!StatusInfo[id]) {
 						return 0;
 					}
-					let text = userStringDecoder.decode(desc);
+					let text = userStringDecoder.decode(desc, userCharpage);
 					let color = null;
 					if (r >= 0 && g >= 0 && b >= 0) {
 						color = `rgb(${r}, ${g}, ${b})`;
@@ -4022,7 +4043,7 @@ define(function (require) {
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
 						let decoded_name = userStringDecoder.decode(name);
 						MapInfo[decoded_name] = {
-							displayName: userStringDecoder.decode(displayName),
+							displayName: userStringDecoder.decode(displayName, userCharpage),
 							notifyEnter: notify_enter,
 							signName: {
 								subTitle: null,
@@ -4037,9 +4058,11 @@ define(function (require) {
 					ctx.AddMapSignName = (name, subTitle, mainTitle) => {
 						let decoded_name = userStringDecoder.decode(name);
 						let decoded_subTitle =
-							subTitle && subTitle.length > 1 ? userStringDecoder.decode(subTitle) : null;
+							subTitle && subTitle.length > 1 ? userStringDecoder.decode(subTitle, userCharpage) : null;
 						let decoded_mainTitle =
-							mainTitle && mainTitle.length > 1 ? userStringDecoder.decode(mainTitle) : null;
+							mainTitle && mainTitle.length > 1
+								? userStringDecoder.decode(mainTitle, userCharpage)
+								: null;
 						MapInfo[decoded_name].signName = {
 							subTitle: decoded_subTitle,
 							mainTitle: decoded_mainTitle
@@ -5816,7 +5839,7 @@ define(function (require) {
 			return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
 		}
 
-		return TextEncoding.decodeString(MapTable[map].name);
+		return MapTable[map].name;
 	};
 
 	/**

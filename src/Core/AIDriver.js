@@ -10,6 +10,7 @@ define(function (require) {
 	var EntityManager = require('Renderer/EntityManager');
 	var Client = require('./Client');
 	var Configs = require('./Configs');
+	var TextEncoding = require('Utils/CodepageManager');
 
 	var getModule = require;
 
@@ -69,9 +70,10 @@ define(function (require) {
 			// Hooks default lua logging
 			ctx.log = logMessage => {
 				if (Configs.get('debugAI', false)) {
-					let decoder = new TextDecoder();
 					console.log(
-						typeof logMessage === 'object' && logMessage.buffer ? decoder.decode(logMessage) : logMessage
+						typeof logMessage === 'object' && logMessage.buffer
+							? TextEncoding.decode(logMessage)
+							: logMessage
 					);
 				}
 			};
@@ -404,8 +406,7 @@ define(function (require) {
 
 			ctx.TraceAI = function TraceAI(str) {
 				if (Configs.get('debugAI', false)) {
-					let decoder = new TextDecoder();
-					console.log('TraceAI - ', typeof str === 'object' && str.buffer ? decoder.decode(str) : str);
+					console.log('TraceAI - ', typeof str === 'object' && str.buffer ? TextEncoding.decode(str) : str);
 				}
 			};
 
@@ -415,9 +416,10 @@ define(function (require) {
 			// it exist on client but not mentioned on gvt dev guide (AI/호문클루스 인공지능 스크립트 설명서.htm)
 			ctx.Trace = logMessage => {
 				if (Configs.get('debugAI', false)) {
-					let decoder = new TextDecoder();
 					console.debug(
-						typeof logMessage === 'object' && logMessage.buffer ? decoder.decode(logMessage) : logMessage
+						typeof logMessage === 'object' && logMessage.buffer
+							? TextEncoding.decode(logMessage)
+							: logMessage
 					);
 				}
 			};
@@ -444,7 +446,7 @@ define(function (require) {
 				const promise = new Promise((resolve, reject) => {
 					let text;
 					if (!isJS) {
-						text = new TextDecoder('iso-8859-1').decode(modulePath);
+						text = TextEncoding.decode(modulePath);
 					} else {
 						text = modulePath;
 					}
@@ -481,8 +483,8 @@ define(function (require) {
 								if (Configs.get('debugAI', false)) {
 									console.log(`Loading file "${text}"...`);
 								}
-
-								var f = file instanceof ArrayBuffer ? new TextDecoder('iso-8859-1').decode(file) : file;
+								var f = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+								f = TextEncoding.decode(f);
 
 								const nestedPromises = [];
 								for (const line of f.split('\n')) {
@@ -500,7 +502,7 @@ define(function (require) {
 
 								Promise.all(nestedPromises)
 									.then(() => {
-										let buffer = new TextEncoder().encode(f);
+										let buffer = TextEncoding.encode(f);
 										lua.mountFile('./' + text, buffer);
 										resolve();
 									})
@@ -530,9 +532,8 @@ define(function (require) {
 									if (Configs.get('debugAI', false)) {
 										console.log('Loading file "' + filename + '"...');
 									}
-
-									let text =
-										file instanceof ArrayBuffer ? new TextDecoder('iso-8859-1').decode(file) : file;
+									var text = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+									text = TextEncoding.decode(text);
 
 									const nestedPromises = [];
 									for (const line of text.split('\n')) {
@@ -550,7 +551,7 @@ define(function (require) {
 
 									Promise.all(nestedPromises)
 										.then(() => {
-											let buffer = new TextEncoder().encode(text);
+											let buffer = TextEncoding.encode(text);
 											lua.mountFile('./' + filename, buffer);
 											resolve();
 										})
