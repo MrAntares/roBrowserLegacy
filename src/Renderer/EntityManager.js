@@ -198,6 +198,16 @@ define(function (require) {
 	}
 
 	/**
+	 * Remove a GID from the lookup map without removing from render list.
+	 * Used when entity vanishes (OUTOFSIGHT) so the fade-out animation
+	 * continues but the GID slot is freed for re-use if entity re-appears.
+	 * @param {number} gid
+	 */
+	function removeGID(gid) {
+		_gidMap.delete(gid);
+	}
+
+	/**
 	 * Remove an entity
 	 * @param {number} gid
 	 */
@@ -562,6 +572,7 @@ define(function (require) {
 		free: free,
 		add: addEntity,
 		remove: removeEntity,
+		removeGID: removeGID,
 		get: getEntity,
 		getByCID: getEntityByCID,
 		forEach: forEach,
