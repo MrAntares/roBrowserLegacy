@@ -68,20 +68,14 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	 * @param {number} len
 	 */
 	DataView.prototype.setBinaryString = function SetBinaryString(offset, str, len) {
-		str = String(str);
-
-		let buf = TextEncoding.encode(str, 'utf-8');
-
-		if (len && buf.length > len) {
-			buf = buf.subarray(0, len);
+		if (len) {
+			str = String(str).substr(0, len);
 		}
 
-		const count = buf.length;
+		var i, count;
 
-		new Uint8Array(this.buffer, offset, count).set(buf);
-
-		if (len && count < len) {
-			new Uint8Array(this.buffer, offset + count, len - count).fill(0);
+		for (i = 0, count = str.length; i < count; ++i) {
+			this.setUint8(offset + i, str.charCodeAt(i) & 0xff);
 		}
 	};
 
@@ -286,21 +280,21 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	) {
 		str = String(str);
 
-		let buf = TextEncoding.encode(str, 'utf-8');
+		let len = length ? Math.min(length, str.length) : str.length;
 
-		if (length && buf.length > length) {
-			buf = buf.subarray(0, length);
+		const buf = new Uint8Array(len);
+
+		for (let i = 0; i < len; i++) {
+			buf[i] = str.charCodeAt(i);
 		}
 
-		const count = buf.length;
+		new Uint8Array(this.view.buffer, this.offset, len).set(buf);
 
-		new Uint8Array(this.view.buffer, this.offset, count).set(buf);
-
-		if (length && count < length) {
-			new Uint8Array(this.view.buffer, this.offset + count, length - count).fill(0);
+		if (length && len < length) {
+			new Uint8Array(this.view.buffer, this.offset + len, length - len).fill(0);
 		}
 
-		this.offset += length || count;
+		this.offset += length || len;
 		return this;
 	};
 
