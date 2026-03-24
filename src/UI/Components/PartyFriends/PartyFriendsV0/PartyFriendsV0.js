@@ -838,7 +838,8 @@ define(function (require) {
 			return;
 		}
 
-		var type = (_preferences.friend && PACKETVER.value >= 20090617) ? PartyHelper.Type.FRIEND_SETUP : PartyHelper.Type.SETUP;
+		var type =
+			_preferences.friend && PACKETVER.value >= 20090617 ? PartyHelper.Type.FRIEND_SETUP : PartyHelper.Type.SETUP;
 		if (PartyHelper.__active && PartyHelper.getType() === type) {
 			PartyHelper.remove();
 			return;
@@ -852,7 +853,6 @@ define(function (require) {
 			PartyHelper.setType(PartyHelper.Type.SETUP);
 			PartyHelper.setOptions(_options, Session.isPartyLeader);
 		}
-
 	}
 
 	/**

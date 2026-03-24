@@ -40,7 +40,6 @@ define(function (require) {
 	var PartyMemberExternal = require('../PartyMemberExternal/PartyMemberExternal');
 	var _detachedMembers = {}; // Map of AID -> Component
 
-
 	/**
 	 * @var {number} index of selection
 	 */
@@ -242,10 +241,12 @@ define(function (require) {
 					}
 
 					// Create screen-wide drag shield so events DO NOT hit the canvas/game world underneath
-					ghostWrapper = jQuery('<div class="drag-shield" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:10000; background:transparent; cursor:grabbing;">' +
-						'<div id="PartyFriends" class="drag-ghost-wrapper" style="position:absolute; pointer-events:none; opacity:0.6; background:none !important; border:none !important; height:auto !important; width:auto !important;">' +
-						'<div class="content" style="background:none !important; height:auto !important; width:auto !important;">' +
-						'<div class="party info-v2"></div></div></div></div>').appendTo('body');
+					ghostWrapper = jQuery(
+						'<div class="drag-shield" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:10000; background:transparent; cursor:grabbing;">' +
+							'<div id="PartyFriends" class="drag-ghost-wrapper" style="position:absolute; pointer-events:none; opacity:0.6; background:none !important; border:none !important; height:auto !important; width:auto !important;">' +
+							'<div class="content" style="background:none !important; height:auto !important; width:auto !important;">' +
+							'<div class="party info-v2"></div></div></div></div>'
+					).appendTo('body');
 
 					ghostInner = ghostWrapper.find('.drag-ghost-wrapper');
 
@@ -296,7 +297,12 @@ define(function (require) {
 				var y = upEvent.pageY;
 
 				// Check if dropped outside (with a small 10px buffer)
-				if (x < offset.left - 10 || x > offset.left + ui.width() + 10 || y < offset.top - 10 || y > offset.top + ui.height() + 10) {
+				if (
+					x < offset.left - 10 ||
+					x > offset.left + ui.width() + 10 ||
+					y < offset.top - 10 ||
+					y > offset.top + ui.height() + 10
+				) {
 					detachMember(AID, player, x, y);
 					PartyFriendsV1.saveDetachedMembers();
 				}
@@ -452,7 +458,7 @@ define(function (require) {
 		// Load footer background
 		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/bg_partymember.bmp', function (url) {
 			PartyFriendsV1.ui.find('.count-box').css({
-				'backgroundImage': 'url(' + url + ')'
+				backgroundImage: 'url(' + url + ')'
 			});
 		});
 
@@ -593,12 +599,12 @@ define(function (require) {
 			_friends[i] = friends[i];
 			ui.append(
 				'<div class="node' +
-				(friends[i].State === 0 ? ' online' : '') +
-				'">' +
-				'<span class="name">' +
-				jQuery.escape(friends[i].Name) +
-				'</span>' +
-				'</div>'
+					(friends[i].State === 0 ? ' online' : '') +
+					'">' +
+					'<span class="name">' +
+					jQuery.escape(friends[i].Name) +
+					'</span>' +
+					'</div>'
 			);
 		}
 
@@ -694,7 +700,8 @@ define(function (require) {
 		this.ui.find('.party.create').hide();
 		this.ui.find('.party.leave, .party.sort').show();
 
-		var i, count = members.length;
+		var i,
+			count = members.length;
 		var newAIDs = {};
 
 		for (i = 0; i < count; i++) {
@@ -779,7 +786,7 @@ define(function (require) {
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
 		var hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		var lifeRatio = hasLife ? (hp / maxhp) : 0;
+		var lifeRatio = hasLife ? hp / maxhp : 0;
 		var barVisibility = hasLife ? 'visible' : 'hidden';
 
 		node.find('.hp-bar-container, .hp').css('visibility', barVisibility);
@@ -833,11 +840,13 @@ define(function (require) {
 		if (i < count) {
 			var old = _party[i];
 
-			if (old.baseLevel !== (player.baseLevel !== undefined ? player.baseLevel : old.baseLevel) ||
+			if (
+				old.baseLevel !== (player.baseLevel !== undefined ? player.baseLevel : old.baseLevel) ||
 				old.class_ !== (player.class_ !== undefined ? player.class_ : old.class_) ||
 				old.mapName !== (player.mapName !== undefined ? player.mapName : old.mapName) ||
 				old.role !== player.role ||
-				old.state !== (player.state !== undefined ? player.state : old.state)) {
+				old.state !== (player.state !== undefined ? player.state : old.state)
+			) {
 				hasChanged = true;
 			}
 
@@ -883,7 +892,7 @@ define(function (require) {
 
 		// Get color from MiniMap
 		var MiniMap = getModule('UI/Components/MiniMap/MiniMap');
-		var color = (MiniMap && MiniMap.getMemberColor) ? MiniMap.getMemberColor(player.AID) : 'white';
+		var color = MiniMap && MiniMap.getMemberColor ? MiniMap.getMemberColor(player.AID) : 'white';
 		player.color = color;
 
 		var nameTooltip = player.characterName + ' (' + mapDisplay + ')';
@@ -892,25 +901,51 @@ define(function (require) {
 		// Use visibility (not display) so bar always occupies space, keeping status icon in a fixed position
 		var barVisibility = hasLife ? 'visible' : 'hidden';
 
-		var memberColor = isOnline ? (player.color || '#333') : '#848ca5';
+		var memberColor = isOnline ? player.color || '#333' : '#848ca5';
 
 		var html =
-			'<div class="node' + (role === 0 ? ' leader' : '') + (isOnline ? ' online' : '') + (isDetached ? ' detached' : '') + '" style="background-color: ' + (isDetached ? '#deefff' : 'white') + ';" data-aid="' + player.AID + '" data-tooltip="' + (isOnline ? jQuery.escape(nameTooltip) : '') + '">' +
-			'<div class="job-icon-container" data-tooltip="' + jQuery.escape(jobName) + '">' +
+			'<div class="node' +
+			(role === 0 ? ' leader' : '') +
+			(isOnline ? ' online' : '') +
+			(isDetached ? ' detached' : '') +
+			'" style="background-color: ' +
+			(isDetached ? '#deefff' : 'white') +
+			';" data-aid="' +
+			player.AID +
+			'" data-tooltip="' +
+			(isOnline ? jQuery.escape(nameTooltip) : '') +
+			'">' +
+			'<div class="job-icon-container" data-tooltip="' +
+			jQuery.escape(jobName) +
+			'">' +
 			'<div class="job-icon"></div>' +
 			'<div class="crown"></div>' +
 			'</div>' +
 			'<div class="info-container">' +
 			'<div class="row1">' +
-			'<span class="level">Lv. ' + level + '</span>' +
-			'<span class="name" style="color: ' + memberColor + ';">' + jQuery.escape(player.characterName) + '</span>' +
-			'<span class="map" style="color: ' + memberColor + ';">(' + jQuery.escape(mapDisplay) + ')</span>' +
+			'<span class="level">Lv. ' +
+			level +
+			'</span>' +
+			'<span class="name" style="color: ' +
+			memberColor +
+			';">' +
+			jQuery.escape(player.characterName) +
+			'</span>' +
+			'<span class="map" style="color: ' +
+			memberColor +
+			';">(' +
+			jQuery.escape(mapDisplay) +
+			')</span>' +
 			'</div>' +
 			'<div class="row2">' +
-			'<div class="hp-bar-container" style="visibility:' + barVisibility + '">' +
+			'<div class="hp-bar-container" style="visibility:' +
+			barVisibility +
+			'">' +
 			'<canvas class="life" width="75" height="5"></canvas>' +
 			'</div>' +
-			'<span class="hp" style="visibility:' + barVisibility + '"></span>' +
+			'<span class="hp" style="visibility:' +
+			barVisibility +
+			'"></span>' +
 			'<div class="status-icon"></div>' +
 			'</div>' +
 			'</div>' +
@@ -926,9 +961,12 @@ define(function (require) {
 		}
 
 		// Load Job Icon
-		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/icon_jobs_' + job + (isDead ? '_die' : '') + '.bmp', function (url) {
-			node.find('.job-icon').css('backgroundImage', 'url(' + url + ')');
-		});
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'renewalparty/icon_jobs_' + job + (isDead ? '_die' : '') + '.bmp',
+			function (url) {
+				node.find('.job-icon').css('backgroundImage', 'url(' + url + ')');
+			}
+		);
 
 		// Load Crown
 		if (role === 0) {
@@ -1027,7 +1065,8 @@ define(function (require) {
 	 * @param {boolean} isDead - true if the member has died
 	 */
 	PartyFriendsV1.updateMemberDead = function updateMemberDead(AID, isDead) {
-		var i, count = _party.length;
+		var i,
+			count = _party.length;
 		var player = null;
 
 		for (i = 0; i < count; ++i) {
@@ -1054,7 +1093,8 @@ define(function (require) {
 	 * @param {number} maxhp
 	 */
 	PartyFriendsV1.updateMemberLife = function updateMemberLife(AID, canvas, hp, maxhp) {
-		var i, count = _party.length;
+		var i,
+			count = _party.length;
 
 		// Update internal list
 		for (i = 0; i < count; ++i) {
@@ -1354,7 +1394,6 @@ define(function (require) {
 		return false;
 	}
 
-
 	/**
 	 * Request player information
 	 * (Not implemented yet in official client)
@@ -1497,13 +1536,13 @@ define(function (require) {
 	/**
 	 * Callbacks to define
 	 */
-	PartyFriendsV1.onRemoveFriend = function () { };
-	PartyFriendsV1.onRequestLeave = function () { };
-	PartyFriendsV1.onExpelMember = function () { };
-	PartyFriendsV1.onRequestChangeLeader = function () { };
-	PartyFriendsV1.onRequestAddingMember = function () { };
-	PartyFriendsV1.onRequestPartyCreation = function () { };
-	PartyFriendsV1.onRequestSettingUpdate = function () { };
+	PartyFriendsV1.onRemoveFriend = function () {};
+	PartyFriendsV1.onRequestLeave = function () {};
+	PartyFriendsV1.onExpelMember = function () {};
+	PartyFriendsV1.onRequestChangeLeader = function () {};
+	PartyFriendsV1.onRequestAddingMember = function () {};
+	PartyFriendsV1.onRequestPartyCreation = function () {};
+	PartyFriendsV1.onRequestSettingUpdate = function () {};
 
 	/**
 	 * Custom RO-style tooltips

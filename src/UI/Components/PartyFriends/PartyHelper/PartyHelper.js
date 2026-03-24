@@ -92,7 +92,8 @@ define(function (require) {
 			var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
 			var prefs = WhisperBox.preferences;
 
-			prefs.open1to1Stranger = parseInt(PartyHelper.ui.find('.open1to1Stranger .on').attr('data-value'), 10) === 1;
+			prefs.open1to1Stranger =
+				parseInt(PartyHelper.ui.find('.open1to1Stranger .on').attr('data-value'), 10) === 1;
 			prefs.open1to1Friend = parseInt(PartyHelper.ui.find('.open1to1Friend .on').attr('data-value'), 10) === 1;
 			prefs.alarm1to1 = parseInt(PartyHelper.ui.find('.alarm1to1 .on').attr('data-value'), 10) === 1;
 			prefs.save();
@@ -138,7 +139,8 @@ define(function (require) {
 		// Close on Esc key
 		var self = this;
 		this._onKeyDown = function (event) {
-			if (event.which === 27) { // Escape
+			if (event.which === 27) {
+				// Escape
 				self.remove();
 				event.stopImmediatePropagation();
 				return false;
@@ -255,7 +257,8 @@ define(function (require) {
 		}
 
 		var list = ['exp_share', 'item_share', 'item_sharing_type'];
-		var i, count = list.length;
+		var i,
+			count = list.length;
 		var element;
 
 		for (i = 0; i < count; ++i) {
@@ -288,10 +291,11 @@ define(function (require) {
 		}
 
 		var list = ['open1to1Stranger', 'open1to1Friend', 'alarm1to1'];
-		var i, count = list.length;
+		var i,
+			count = list.length;
 
 		for (i = 0; i < count; ++i) {
-			var value = (options[list[i]] === true || options[list[i]] == 1);
+			var value = options[list[i]] === true || options[list[i]] == 1;
 			var row = this.ui.find('.' + list[i]);
 			var on = row.find('.on')[0];
 			var off = row.find('.off')[0];
@@ -351,9 +355,9 @@ define(function (require) {
 	/**
 	 * Hooks
 	 */
-	PartyHelper.onCreate = function onCreate() { };
-	PartyHelper.onInvite = function onInvite() { };
-	PartyHelper.onSetupUpdate = function onSetUpUpdate() { };
+	PartyHelper.onCreate = function onCreate() {};
+	PartyHelper.onInvite = function onInvite() {};
+	PartyHelper.onSetupUpdate = function onSetUpUpdate() {};
 
 	/**
 	 * Export component
