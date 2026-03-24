@@ -415,8 +415,8 @@ define(function (require) {
 
 		this.falcon = null;
 		this.wug = null;
-		// Aviod conflict if entity re-appears. Official sets it to -1
-		this.GID += Math.random();
+		// Avoid conflict if entity re-appears. Official sets it to -1
+		this.GID = -1;
 	};
 
 	/**

@@ -375,6 +375,7 @@ define(function (require) {
 			}
 
 			entity.remove(pkt.type);
+			EntityManager.removeGID(pkt.GID);
 		}
 
 		// Show escape menu
