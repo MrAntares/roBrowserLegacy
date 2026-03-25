@@ -229,30 +229,26 @@ define(function (require) {
 
 	function navigateDraggableItems(direction) {
 		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		if (!el) {
+			return;
+		}
 
 		var container = el.closest('.item, .skill');
 
 		if (!container) {
-			// Fall back to regular arrow key navigation
-			var keyCode;
-			switch (direction) {
-				case 'up':
-					keyCode = 38;
-					break;
-				case 'down':
-					keyCode = 40;
-					break;
-				case 'left':
-					keyCode = 37;
-					break;
-				case 'right':
-					keyCode = 39;
-					break;
+			// Only fire arrow key events when UI dialogs that handle them are active.
+			// This prevents movement plugins (e.g. KeyToMove) from intercepting D-PAD input
+			// when no dialog is open. KeyToMove already skips when these dialogs are visible.
+			if (jQuery('#NpcMenu, #NpcBox, #MakeArrowSelection, #CashShop').length) {
+				var keyCode;
+				switch (direction) {
+					case 'up':    keyCode = 38; break;
+					case 'down':  keyCode = 40; break;
+					case 'left':  keyCode = 37; break;
+					case 'right': keyCode = 39; break;
+				}
+				jQuery(document).trigger({ type: 'keydown', which: keyCode });
 			}
-			jQuery(document).trigger({
-				type: 'keydown',
-				which: keyCode
-			});
 			return;
 		}
 
