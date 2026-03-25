@@ -183,13 +183,7 @@ define(function (require) {
 		// Selection change immediately on mousedown
 		onSelectionChange.call(this, event);
 
-		var player = null;
-		for (var i = 0; i < _party.length; i++) {
-			if (_party[i].AID == AID) {
-				player = _party[i];
-				break;
-			}
-		}
+		var player = _party.find(member => member.AID == AID);
 
 		if (!player) {
 			return;
@@ -1450,12 +1444,8 @@ define(function (require) {
 		if (_preferences.friend) {
 			_index = PartyFriendsV1.ui.find(this.parentNode).find('.node').index(this);
 		} else {
-			for (var i = 0, count = _party.length; i < count; i++) {
-				if (_party[i].AID == AID) {
-					_index = i;
-					break;
-				}
-			}
+			var player = _party.find(member => member.AID == AID);
+			_index = _party.indexOf(player);
 		}
 	}
 

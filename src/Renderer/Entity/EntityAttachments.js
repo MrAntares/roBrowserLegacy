@@ -170,21 +170,7 @@ define([
 		var effectColor = new Float32Array(4);
 
 		return function _renderFiltered(tick, renderBeforeEntity) {
-			var list;
-			var i, count;
-			var hasAttachments = false;
-
-			list = this.list;
-			count = list.length;
-
-			for (i = 0; i < count; ++i) {
-				if (!!this.list[i].renderBefore === renderBeforeEntity) {
-					hasAttachments = true;
-					break;
-				}
-			}
-
-			if (!hasAttachments) {
+			if (!this.list.some(item => item.renderBefore === renderBeforeEntity)) {
 				return;
 			}
 
@@ -201,7 +187,9 @@ define([
 			this.entity.effectColor[2] = 1.0;
 			this.entity.effectColor[3] = 1.0;
 
-			for (i = 0; i < count; ++i) {
+			var count = this.list.length;
+
+			for (let i = 0; i < count; ++i) {
 				if (!!this.list[i].renderBefore !== renderBeforeEntity) {
 					continue;
 				}

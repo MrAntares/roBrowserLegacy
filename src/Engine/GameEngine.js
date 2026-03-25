@@ -174,6 +174,7 @@ define(function (require) {
 	 */
 	function reload() {
 		BGM.setAvailableExtensions(Configs.get('BGMFileExtension', ['mp3']));
+		BGM.stop();
 		BGM.play('01.mp3');
 
 		UIManager.removeComponents();
@@ -219,6 +220,7 @@ define(function (require) {
 
 		Renderer.stop();
 		MapRenderer.free();
+		BGM.stop();
 		BGM.play('01.mp3');
 	}
 

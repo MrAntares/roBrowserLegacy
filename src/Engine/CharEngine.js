@@ -69,6 +69,7 @@ define(function (require) {
 	 * Connect to char server
 	 */
 	function init(server) {
+		BGM.stop();
 		BGM.play('01.mp3');
 
 		//Notify MapEngine if it needs UI update
