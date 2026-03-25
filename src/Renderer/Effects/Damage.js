@@ -513,13 +513,11 @@ define(function (require) {
 	 * @param {object} gl context
 	 */
 	Damage.free = function free(gl) {
-		var i, count;
-
-		for (i = 0, count = _list.length; i < count; ++i) {
-			if (_list[i].isDisposable) {
-				gl.deleteTexture(_list[i].texture);
+		_list.forEach(item => {
+			if (item.isDisposable) {
+				gl.deleteTexture(item.texture);
 			}
-		}
+		});
 
 		_list.length = 0;
 	};

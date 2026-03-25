@@ -266,33 +266,29 @@ define(function (require) {
 		Water.init(gl, this.water);
 
 		// Initialize sounds
-		var i, count, tmp;
+		this.sounds.forEach(sound => {
+			let tmp = -sound.pos[1];
+			sound.pos[0] += data.width;
+			sound.pos[1] = sound.pos[2] + data.height;
+			sound.pos[2] = tmp;
+			sound.range *= 0.2;
+			sound.tick = 0;
+			sound.cycle = !sound.cycle ? 7 : sound.cycle;
+			Sounds.add(sound);
+		});
 
-		count = this.sounds.length;
-		for (i = 0; i < count; ++i) {
-			tmp = -this.sounds[i].pos[1];
-			this.sounds[i].pos[0] += data.width;
-			this.sounds[i].pos[1] = this.sounds[i].pos[2] + data.height;
-			this.sounds[i].pos[2] = tmp;
-			this.sounds[i].range *= 0.2;
-			this.sounds[i].tick = 0;
-			this.sounds[i].cycle = !this.sounds[i].cycle ? 7 : this.sounds[i].cycle;
-			Sounds.add(this.sounds[i]);
-		}
-
-		count = this.effects.length;
-		for (i = 0; i < count; ++i) {
+		this.effects.forEach(effect => {
 			// Note: effects objects do not need to be centered in a cell
 			// as we apply +0.5 in the shader, we have to revert it.
-			tmp = -this.effects[i].pos[1] + 1; //WTF????????
-			this.effects[i].pos[0] += data.width - 0.5;
-			this.effects[i].pos[1] = this.effects[i].pos[2] + data.height - 0.5;
-			this.effects[i].pos[2] = tmp;
+			let tmp = -effect.pos[1] + 1; //WTF????????
+			effect.pos[0] += data.width - 0.5;
+			effect.pos[1] = effect.pos[2] + data.height - 0.5;
+			effect.pos[2] = tmp;
 
-			this.effects[i].tick = 0;
+			effect.tick = 0;
 
-			Effects.add(this.effects[i]);
-		}
+			Effects.add(effect);
+		});
 
 		this.effects.length = 0;
 		this.sounds.length = 0;

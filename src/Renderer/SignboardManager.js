@@ -56,9 +56,7 @@ define(function (require) {
 		var _matrix = mat4.create();
 		var _vector = vec4.create();
 
-		for (var i = 0; i < signboards.length; i++) {
-			var signboard = signboards[i];
-
+		signboards.forEach(signboard => {
 			var ui = signboard.ui.ui[0];
 			var z;
 
@@ -108,13 +106,11 @@ define(function (require) {
 
 			ui.style.top = (_pos[1] | 0) + 'px';
 			ui.style.left = ((_pos[0] - signboard.posY) | 0) + 'px';
-		}
+		});
 	};
 
 	SignboardManager.free = function () {
-		for (var i = 0; i < signboards.length; i++) {
-			signboards[i].ui.remove();
-		}
+		signboards.forEach(signboard => signboard.ui.remove());
 		signboards = [];
 	};
 
