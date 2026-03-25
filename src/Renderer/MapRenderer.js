@@ -353,7 +353,6 @@ define(function (require) {
 		}
 
 		// Play BGM
-		BGM.stop();
 		BGM.play((mapInfo && mapInfo.mp3) || '01.mp3');
 
 		// Apply fog to map
