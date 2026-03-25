@@ -74,7 +74,7 @@ define(function (require) {
 			var isLast = i === _activeEffects.length - 1;
 
 			// Destination: Screen (null) if last, otherwise the next offscreen buffer
-			var targetFbo = isLast ? null : _writeFbo;
+			const targetFbo = isLast ? null : _writeFbo;
 
 			// Render the effect: Source (Read) -> Effect Logic -> Destination (Write)
 			effect.render(gl, _readFbo.texture, targetFbo);
@@ -138,11 +138,10 @@ define(function (require) {
 	 * restart Modules when crashs
 	 */
 	PostProcess.restartModules = function restartModules(gl) {
-		for (var i = 0; i < _activeEffects.length; i++) {
-			var module = _activeEffects[i];
+		_activeEffects.forEach(module => {
 			module.clean(gl);
 			module.init(gl);
-		}
+		});
 		_activeEffects = [];
 
 		// Physically delete Ping-Pong buffers from GPU memory
@@ -187,22 +186,18 @@ define(function (require) {
 		_writeFbo = this.createFbo(gl, scaledWidth, scaledHeight, _writeFbo);
 
 		// Notify modules to recreate their internal buffers (if any)
-		for (var i = 0; i < _effects.length; i++) {
-			var module = _effects[i];
+		_effects.forEach(module => {
 			if (module.recreateFbo) {
 				module.recreateFbo(gl, scaledWidth, scaledHeight);
 			}
-		}
+		});
 	};
 
 	/**
 	 * Clean current registered modules
 	 */
 	PostProcess.clean = function (gl) {
-		for (var i = 0; i < _effects.length; i++) {
-			var module = _effects[i];
-			module.clean(gl);
-		}
+		_effects.forEach(module => module.clean(gl));
 		_effects = [];
 		_activeEffects = [];
 

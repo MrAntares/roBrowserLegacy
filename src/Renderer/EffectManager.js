@@ -212,12 +212,7 @@ define(function (require) {
 
 		return function remove(effect, AID, effectID) {
 			if (!effect || !(effect.name in _list)) {
-				const keys = Object.keys(_list);
-				let i, count;
-
-				for (i = 0, count = keys.length; i < count; ++i) {
-					clean(keys[i], AID, effectID);
-				}
+				Object.keys(_list).forEach(key => clean(key, AID, effectID));
 			} else {
 				clean(effect.name, AID, effectID);
 			}
@@ -246,24 +241,23 @@ define(function (require) {
 	 */
 	EffectManager.free = function free(gl) {
 		const keys = Object.keys(_list);
-		let i, j, size, count, list, constructor;
 
-		for (i = 0, count = keys.length; i < count; ++i) {
-			list = _list[keys[i]];
-			constructor = list[0].constructor;
+		keys.forEach(key => {
+			const list = _list[key];
+			const constructor = list[0].constructor;
 
-			for (j = 0, size = list.length; j < size; ++j) {
-				if (list[j].free) {
-					list[j].free(gl);
+			list.forEach(item => {
+				if (item.free) {
+					item.free(gl);
 				}
-			}
+			});
 
 			if (constructor.free) {
 				constructor.free(gl);
 			}
 
-			delete _list[keys[i]];
-		}
+			delete _list[key];
+		});
 	};
 
 	/**
@@ -450,37 +444,28 @@ define(function (require) {
 	 */
 	EffectManager.endRepeat = (function endRepeatClosure() {
 		function cleanRepeat(name, AID, effectID) {
-			let list, i, count;
 			const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
+			const list = _list[name];
 
-			list = _list[name];
-			count = list.length;
-
-			for (i = 0; i < count; ++i) {
+			list.forEach(item => {
 				if (
-					(!AID || list[i]._Params.Init.ownerAID === AID) &&
-					(!effectID || effectIdList.includes(list[i].effectID))
+					(!AID || item._Params.Init.ownerAID === AID) &&
+					(!effectID || effectIdList.includes(item.effectID))
 				) {
-					if (list[i]._Params.Inst.persistent) {
-						list[i]._Params.Inst.persistent = false;
+					if (item._Params.Inst.persistent) {
+						item._Params.Inst.persistent = false;
 					}
 
-					if (list[i]._Params.Inst.repeatEnd) {
-						list[i]._Params.Inst.repeatEnd = false;
+					if (item._Params.Inst.repeatEnd) {
+						item._Params.Inst.repeatEnd = false;
 					}
 				}
-			}
+			});
 		}
 
 		return function endRepeat(effect, AID, effectID) {
 			if (!effect || !(effect.name in _list)) {
-				let i, count;
-				const keys = Object.keys(_list);
-
-				for (i = 0, count = keys.length; i < count; ++i) {
-					cleanRepeat(keys[i], AID, effectID);
-				}
-
+				Object.keys(_list).forEach(key => cleanRepeat(key, AID, effectID));
 				return;
 			}
 
@@ -1175,8 +1160,7 @@ define(function (require) {
 
 			if (hatEffectID in EffectDB) {
 				const effectEntries = EffectDB[hatEffectID];
-				for (let i = 0, count = effectEntries.length; i < count; ++i) {
-					const effectEntry = effectEntries[i];
+				effectEntries.forEach((effectEntry, i) => {
 					const EF_Inst_Par = {
 						effectID: hatEffectID,
 						duplicateID: i,
@@ -1198,7 +1182,7 @@ define(function (require) {
 							renderBeforeEntities: true
 						}
 					});
-				}
+				});
 			}
 
 			if (eff.effectID != null) {

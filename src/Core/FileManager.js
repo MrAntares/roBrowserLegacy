@@ -170,25 +170,7 @@ define(function (require) {
 			return req.responseText.split('\n');
 		}
 
-		var i, count, j, size;
-		var fileList, out, matches;
-
-		fileList = this.gameFiles;
-		count = fileList.length;
-		out = {};
-
-		for (i = 0; i < count; ++i) {
-			matches = fileList[i].table.data.match(regex);
-
-			if (matches !== null) {
-				// Remove duplicates
-				for (j = 0, size = matches.length; j < size; ++j) {
-					out[matches[j]] = 1;
-				}
-			}
-		}
-
-		return Object.keys(out);
+		return Array.from(new Set(this.gameFiles.flatMap(file => file.table.data.match(regex) || [])));
 	};
 
 	/**
