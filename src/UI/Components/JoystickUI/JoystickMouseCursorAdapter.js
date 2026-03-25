@@ -242,10 +242,18 @@ define(function (require) {
 			if (jQuery('#NpcMenu, #NpcBox, #MakeArrowSelection, #CashShop').length) {
 				var keyCode;
 				switch (direction) {
-					case 'up':    keyCode = 38; break;
-					case 'down':  keyCode = 40; break;
-					case 'left':  keyCode = 37; break;
-					case 'right': keyCode = 39; break;
+					case 'up':
+						keyCode = 38;
+						break;
+					case 'down':
+						keyCode = 40;
+						break;
+					case 'left':
+						keyCode = 37;
+						break;
+					case 'right':
+						keyCode = 39;
+						break;
 				}
 				jQuery(document).trigger({ type: 'keydown', which: keyCode });
 			}
