@@ -21,7 +21,6 @@ define(function (require) {
 	var Action = require('Loaders/Action');
 	var Str = require('Loaders/Str');
 	var FileSystem = require('Core/FileSystem');
-	var TextEncoding = require('Utils/CodepageManager');
 	var fs = self.requireNode && self.requireNode('fs');
 
 	/**
