@@ -42,6 +42,12 @@ define(function (require) {
 				);
 				this.warned = true;
 			}
+
+			if (!iconv.encodingExists(charset)) {
+				console.error(`[TextEncoding.setCharset] Invalid charset: "${charset}".`);
+				return;
+			}
+
 			this.userCharset = charset;
 		},
 		/*
@@ -52,10 +58,10 @@ define(function (require) {
 		encode: function encode(str, charset = null) {
 			if (typeof str !== 'string') {
 				console.error(`[TextEncoding.encode] Invalid input type: expected "string", got "${typeof str}".`, str);
-				return '';
+				return new Uint8Array(0);
 			} else if (charset && !iconv.encodingExists(charset)) {
 				console.error(`[TextEncoding.decode] Invalid charset: "${charset}".`, str);
-				return '';
+				return new Uint8Array(0);
 			}
 
 			return iconv.encode(str, charset || this.userCharset);

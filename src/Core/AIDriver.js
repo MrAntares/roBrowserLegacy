@@ -444,14 +444,14 @@ define(function (require) {
 
 			function customRequire(modulePath, isJS = false) {
 				const promise = new Promise((resolve, reject) => {
-					let text;
+					let filename;
 					if (!isJS) {
-						text = TextEncoding.decode(modulePath);
+						filename = TextEncoding.decode(modulePath);
 					} else {
-						text = modulePath;
+						filename = modulePath;
 					}
 
-					text = text
+					filename = filename
 						.replaceAll('\\\\', '/')
 						.replaceAll('\\', '/')
 						.replace('./', '')
@@ -459,35 +459,39 @@ define(function (require) {
 						.replace('function', '')
 						.replace('.lua', '')
 						.trim();
-					if (text.endsWith('end')) {
-						text = text.replace('end', '').trim();
+					if (filename.endsWith('end')) {
+						filename = filename.replace('end', '').trim();
 					}
-					text = text + '.lua';
+					filename = filename + '.lua';
 
 					// Timeouts and Agressive Relog are execution time file, it need to be created on demandtly, so we ignore them here
-					if (text.includes('Timeouts') || text.includes('AggressiveRelogPath') || text.startsWith('--')) {
+					if (
+						filename.includes('Timeouts') ||
+						filename.includes('AggressiveRelogPath') ||
+						filename.startsWith('--')
+					) {
 						resolve();
 						return;
 					}
 
-					if (loadedFiles[text]) {
+					if (loadedFiles[filename]) {
 						resolve();
 						return;
 					}
-					loadedFiles[text] = text;
+					loadedFiles[filename] = filename;
 
 					Client.loadFile(
-						text,
+						filename,
 						function (file) {
 							try {
 								if (Configs.get('debugAI', false)) {
-									console.log(`Loading file "${text}"...`);
+									console.log(`Loading file "${filename}"...`);
 								}
-								var f = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-								f = TextEncoding.decode(f);
+								var buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+								var str = TextEncoding.decode(buffer);
 
 								const nestedPromises = [];
-								for (const line of f.split('\n')) {
+								for (const line of str.split('\n')) {
 									if (line.includes('dofile')) {
 										var loadFile = line
 											.replace('dofile', '')
@@ -502,8 +506,7 @@ define(function (require) {
 
 								Promise.all(nestedPromises)
 									.then(() => {
-										let buffer = TextEncoding.encode(f);
-										lua.mountFile('./' + text, buffer);
+										lua.mountFile('./' + filename, buffer);
 										resolve();
 									})
 									.catch(reject);
@@ -532,8 +535,8 @@ define(function (require) {
 									if (Configs.get('debugAI', false)) {
 										console.log('Loading file "' + filename + '"...');
 									}
-									var text = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-									text = TextEncoding.decode(text);
+									var buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+									var text = TextEncoding.decode(buffer);
 
 									const nestedPromises = [];
 									for (const line of text.split('\n')) {
@@ -551,7 +554,6 @@ define(function (require) {
 
 									Promise.all(nestedPromises)
 										.then(() => {
-											let buffer = TextEncoding.encode(text);
 											lua.mountFile('./' + filename, buffer);
 											resolve();
 										})
