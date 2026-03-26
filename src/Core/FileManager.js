@@ -422,6 +422,7 @@ define(function (require) {
 					case 'txt':
 					case 'lua':
 					case 'lub':
+					case 'csv':
 						result = new Uint8Array(buffer);
 						break;
 
