@@ -265,9 +265,9 @@ TextEncoding.detectEncodingByLangtype(langType)
 
 Examples:
 
-* Korean → `windows-949`
-* Russian → `windows-1251`
-* Default → `windows-1252`
+* Korean → `windows-949` → langType 0
+* Russian → `windows-1251` → langType 5
+* Default → `windows-1252` → langType 1 or 12
 
 **Usage:**
 
