@@ -224,7 +224,7 @@ There is **NO global encoding**.
 All encoding logic is centralized in:
 
 ```javascript
-Utils/CodepageManager.js
+Utils / CodepageManager.js;
 ```
 
 ---
@@ -239,11 +239,10 @@ Utils/CodepageManager.js
 
 ### 1. Filesystem / GRF (filenames, lookup)
 
-* Encoding: `'windows-1252'`
-* Used for:
-
-  * GRF file paths
-  * filename lookup
+- Encoding: `'windows-1252'`
+- Used for:
+    - GRF file paths
+    - filename lookup
 
 ```javascript
 TextEncoding.setCharset('windows-1252');
@@ -256,18 +255,18 @@ Browser string handling and path lookup are more stable with windows-1252.
 
 ### 2. User-facing text (DB, Lua, UI)
 
-* Encoding: `userCharpage`
-* Determined by:
+- Encoding: `userCharpage`
+- Determined by:
 
 ```javascript
-TextEncoding.detectEncodingByLangtype(langType)
+TextEncoding.detectEncodingByLangtype(langType);
 ```
 
 Examples:
 
-* Korean → `windows-949` → langType 0
-* Russian → `windows-1251` → langType 5
-* Default → `windows-1252` → langType 1 or 12
+- Korean → `windows-949` → langType 0
+- Russian → `windows-1251` → langType 5
+- Default → `windows-1252` → langType 1 or 12
 
 **Usage:**
 
@@ -279,8 +278,8 @@ TextEncoding.decode(bytes, userCharpage);
 
 ### 3. Hybrid / Unknown data (network, binary blobs)
 
-* Attempt UTF-8 first
-* Fallback to user charset if invalid (each new instance of require() have the own userCharpage/default[windows-1252])
+- Attempt UTF-8 first
+- Fallback to user charset if invalid (each new instance of require() have the own userCharpage/default[windows-1252])
 
 ```javascript
 TextEncoding.decode(bytes, 'utf-8');
@@ -308,18 +307,18 @@ Decoded string (final)
 
 ### DO NOT:
 
-* Decode inside `FileManager`
-* Use `String.fromCharCode` for text
-* Use `TextDecoder` directly
-* Re-decode already decoded strings
+- Decode inside `FileManager`
+- Use `String.fromCharCode` for text
+- Use `TextDecoder` directly
+- Re-decode already decoded strings
 
 ---
 
 ## Correct Pattern for User-facing text in DB
 
 ```javascript
-Client.loadFile(filename, function(buffer) {
-    var text = TextEncoding.decode(buffer, userCharpage);
+Client.loadFile(filename, function (buffer) {
+	var text = TextEncoding.decode(buffer, userCharpage);
 });
 ```
 
@@ -350,8 +349,8 @@ loadTable(..., useCharPage = true);
 
 Others should NOT:
 
-* GRF metadata
-* internal system files
+- GRF metadata
+- internal system files
 
 ---
 
@@ -361,8 +360,8 @@ Newer clients may use Base64-encoded CSV.
 
 Rules:
 
-* If Base64 → decode → UTF-8
-* Else → treat as plain text (tab-separated)
+- If Base64 → decode → UTF-8
+- Else → treat as plain text (tab-separated)
 
 ---
 
@@ -392,4 +391,3 @@ Rules:
 > it is a property of the **context where the data is interpreted**.
 
 ---
-
