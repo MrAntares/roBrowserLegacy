@@ -5766,7 +5766,7 @@ define(function (require) {
 			return defaultText !== undefined ? defaultText : 'NO MSG ' + id;
 		}
 
-		return TextEncoding.decodeString(MsgStringTable[id]);
+		return MsgStringTable[id];
 	};
 
 	/**
