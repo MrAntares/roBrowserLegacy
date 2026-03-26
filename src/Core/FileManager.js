@@ -21,7 +21,6 @@ define(function (require) {
 	var Action = require('Loaders/Action');
 	var Str = require('Loaders/Str');
 	var FileSystem = require('Core/FileSystem');
-	var TextEncoding = require('Utils/CodepageManager');
 	var fs = self.requireNode && self.requireNode('fs');
 
 	/**
@@ -419,10 +418,11 @@ define(function (require) {
 						break;
 
 					// Texts
-					case 'txt':
 					case 'xml':
+					case 'txt':
 					case 'lua':
-						result = TextEncoding.decode(new Uint8Array(buffer));
+					case 'lub':
+						result = new Uint8Array(buffer);
 						break;
 
 					// Sprite
