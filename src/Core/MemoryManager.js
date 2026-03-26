@@ -239,21 +239,7 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 	 * @return string[] filename
 	 */
 	function search(regex) {
-		var keys;
-		var i,
-			count,
-			out = [];
-
-		keys = Object.keys(_memory);
-		count = keys.length;
-
-		for (i = 0; i < count; ++i) {
-			if (keys[i].match(regex)) {
-				out.push(keys[i]);
-			}
-		}
-
-		return out;
+		return Object.keys(_memory).filter(k => k.match(regex));
 	}
 
 	/**

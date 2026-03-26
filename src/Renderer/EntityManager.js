@@ -183,12 +183,7 @@ define(function (require) {
 	 * Clean up entities from list
 	 */
 	function free() {
-		var i,
-			count = _list.length;
-
-		for (i = 0; i < count; ++i) {
-			_list[i].clean();
-		}
+		_list.forEach(entity => entity.clean());
 
 		_list.length = 0;
 		_gidMap.clear();
