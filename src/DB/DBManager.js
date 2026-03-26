@@ -254,7 +254,6 @@ define(function (require) {
 	/**
 	 * @var {Object} CSV Tables
 	 */
-	var MsgStringTableCSV = {};
 	var MsgEmotionCSV = {};
 
 	/**
@@ -320,16 +319,24 @@ define(function (require) {
 			onLoad(),
 			true
 		);
-		loadTable(
-			'data/msgstringtable.txt',
-			'#',
-			1,
-			function (index, val) {
-				MsgStringTable[index] = val;
-			},
-			onLoad(),
-			true
-		);
+
+		// CSV Tables - Client Date is not sure since when they were added
+		if (PACKETVER.value >= 20230302) {
+			loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, onLoad());
+			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
+		} else {
+			loadTable(
+				'data/msgstringtable.txt',
+				'#',
+				1,
+				function (index, val) {
+					MsgStringTable[index] = val;
+				},
+				onLoad(),
+				true
+			);
+		}
+
 		loadTable(
 			'data/resnametable.txt',
 			'#',
@@ -786,12 +793,6 @@ define(function (require) {
 			loadBSONFile('data/contentdata/repute/reputeinfodata.bson', ReputeInfo, function () {});
 		}
 
-		// CSV Tables - Client Date is not sure since when they were added
-		if (PACKETVER.value >= 20230302) {
-			loadCSV('data/msgstringtable.csv', MsgStringTableCSV, 0, 1, onLoad());
-			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
-		}
-
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 
@@ -982,43 +983,48 @@ define(function (require) {
 			function (data) {
 				console.log('Loading file "' + filename + '"...');
 
-				// Convert to UTF-8 string
-				var text;
-				if (typeof data === 'string') {
-					text = data;
-				} else if (data instanceof Uint8Array) {
-					text = TextEncoding.decode(data, 'utf-8');
-				} else if (data instanceof ArrayBuffer) {
-					text = TextEncoding.decode(new Uint8Array(data), 'utf-8');
-				} else {
-					text = String(data);
+				let bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+				let text = '';
+				let isBase64 = true;
+
+				// Convert buffer to a raw "binary string".
+				// This prevents atob() from throwing "outside latin1 range" errors.
+				for (var i = 0, count = bytes.length; i < count; i++) {
+					text += String.fromCharCode(bytes[i]);
+				}
+
+				// Check if the file is Base64 encoded
+				if (!text.trimEnd().endsWith('=')) {
+					text = TextEncoding.decode(bytes, 'utf-8');
+					isBase64 = false;
 				}
 
 				// Split lines
-				var lines = text.split(/\r?\n/);
-
+				const lines = text.split(/\r?\n/);
+				let index = 0;
 				for (let i = 0; i < lines.length; i++) {
 					var line = lines[i].trim();
 					if (!line || line.startsWith('//')) {
 						continue;
 					}
 
-					var parts = line.split(',');
+					var parts = isBase64 ? line.split(',') : line.split('\t');
 					if (parts.length <= Math.max(keyIndex, valueIndex)) {
 						continue;
 					}
 
 					try {
-						var key = base64DecodeUtf8(parts[keyIndex].trim());
-						var value = base64DecodeUtf8(parts[valueIndex].trim());
-
-						targetTable[key] = value;
+						// Decode columns from Base64
+						var value = isBase64 ? base64DecodeUtf8(parts[valueIndex].trim()) : parts[valueIndex].trim();
+						targetTable[index] = value;
+						index++;
 					} catch (e) {
-						console.warn('Base64 decode failed on line', i + 1, ':', line);
+						console.error('Base64 decode failed on line', i + 1, ':', line, e);
 					}
 				}
-
-				onEnd && onEnd();
+				if (typeof onEnd === 'function') {
+					onEnd();
+				}
 			},
 			onEnd
 		);
@@ -1031,21 +1037,11 @@ define(function (require) {
 	 */
 	function base64DecodeUtf8(str) {
 		try {
-			// atob() decodes Base64 to binary string
-			var binary = atob(str);
-			var len = binary.length;
-
-			// convert binary string to Uint8Array
-			var bytes = new Uint8Array(len);
-			for (let i = 0; i < len; i++) {
-				bytes[i] = binary.charCodeAt(i);
-			}
-
-			// decode bytes as UTF-8
+			const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
 			return TextEncoding.decode(bytes, 'utf-8');
 		} catch (e) {
 			console.warn('Base64 UTF-8 decode failed:', str, e);
-			return str; // fallback to original if decoding fails
+			return str;
 		}
 	}
 
@@ -5767,23 +5763,6 @@ define(function (require) {
 		}
 
 		return MsgStringTable[id];
-	};
-
-	/**
-	 * Get a message string from the MsgStringTableCSV
-	 *
-	 * @param {string} keyorIndex - The key or id to search for
-	 * @return {string|null} - The value associated with the given key, or null if not found.
-	 */
-	DB.getMessageCSV = function getMsgStringCSV(keyOrIndex) {
-		if (typeof keyOrIndex === 'number') {
-			// Get keys as array just for this lookup
-			let keys = Object.keys(MsgStringTableCSV);
-			let key = keys[keyOrIndex];
-			return key ? MsgStringTableCSV[key] : null;
-		}
-		// string key lookup
-		return MsgStringTableCSV[keyOrIndex] ?? null;
 	};
 
 	/**
