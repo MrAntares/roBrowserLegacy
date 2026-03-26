@@ -218,8 +218,6 @@ define(function (require) {
 			result = 'windows-1252';
 		}
 
-		this.setCharset(result);
-
 		return result;
 	}
 
