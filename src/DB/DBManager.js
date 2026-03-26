@@ -983,13 +983,20 @@ define(function (require) {
 			function (data) {
 				console.log('Loading file "' + filename + '"...');
 
-				var bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
-				var text = '';
+				let bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+				let text = '';
+				let isBase64 = true;
 
 				// Convert buffer to a raw "binary string".
 				// This prevents atob() from throwing "outside latin1 range" errors.
 				for (var i = 0, count = bytes.length; i < count; i++) {
 					text += String.fromCharCode(bytes[i]);
+				}
+
+				// Check if the file is Base64 encoded
+				if (!text.trimEnd().endsWith('=')) {
+					text = TextEncoding.decode(bytes, 'utf-8');
+					isBase64 = false;
 				}
 
 				// Split lines
@@ -1001,14 +1008,14 @@ define(function (require) {
 						continue;
 					}
 
-					var parts = line.split(',');
+					var parts = isBase64 ? line.split(',') : line.split('\t');
 					if (parts.length <= Math.max(keyIndex, valueIndex)) {
 						continue;
 					}
 
 					try {
 						// Decode columns from Base64
-						var value = base64DecodeUtf8(parts[valueIndex].trim());
+						var value = isBase64 ? base64DecodeUtf8(parts[valueIndex].trim()) : parts[valueIndex].trim();
 						targetTable[index] = value;
 						index++;
 					} catch (e) {
