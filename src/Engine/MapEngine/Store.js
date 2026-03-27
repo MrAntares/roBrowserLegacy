@@ -185,7 +185,6 @@ define(function (require) {
 	 * @param {object} pkt - PACKET_ZC_PC_PURCHASE_RESULT
 	 */
 	function onBuyResult(pkt) {
-		NpcStore.setClosePacketSent(true);
 		NpcStore.remove();
 
 		switch (pkt.result) {
